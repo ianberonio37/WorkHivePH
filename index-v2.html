@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WorkHive — Industrial Intelligence Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Brand guideline font: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,700;1,800&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─────────────────────────────────────────────
+       BRAND TOKENS  (WorkHive Brand Guidelines v1.0)
+    ───────────────────────────────────────────── */
+    :root {
+      --orange:     #F7A21B;
+      --orange-dark:#D88A0E;
+      --orange-lite:#FDB94A;
+      --blue:       #29B6D9;
+      --blue-dark:  #1A9ABF;
+      --blue-lite:  #5FCCE8;
+      --navy:       #162032;
+      --navy-mid:   #1F2E45;
+      --navy-lite:  #2A3D58;
+      --steel:      #7B8794;
+      --white:      #FFFFFF;
+      --cloud:      #F4F6FA;
+
+      /* ohzi.io-inspired dark canvas */
+      --bg:         #111111;
+      --bg-alt:     #0f0f0f;
+      --bg-card:    #141414;
+      --border:     rgba(255,255,255,0.07);
+      --border-mid: rgba(255,255,255,0.12);
+    }
+
+    /* ─── Reset ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: #333 transparent;
+      font-size: 16px;
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--white);
+      overflow-x: hidden;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    /* ─────────────────────────────────────────────
+       HEX BACKGROUND PATTERN  (brand visual system)
+    ───────────────────────────────────────────── */
+    .hex-bg {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff06' stroke-width='1.5'/%3E%3C/svg%3E");
+      background-size: 80px 92px;
+    }
+
+    /* ─────────────────────────────────────────────
+       NAV
+    ───────────────────────────────────────────── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 68px;
+      background: rgba(17,17,17,0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: border-color 0.3s;
+    }
+
+    .nav-logo img {
+      height: 36px;
+      width: auto;
+      /* brand guideline: full-colour logo on dark backgrounds */
+    }
+
+    .nav-center {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+    }
+
+    .nav-center a {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.01em;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .nav-center a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 0;
+      width: 0; height: 1.5px;
+      background: var(--orange);
+      transition: width 0.25s;
+    }
+    .nav-center a:hover { color: var(--white); }
+    .nav-center a:hover::after { width: 100%; }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-signin {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.55);
+      padding: 8px 18px;
+      border: 1px solid var(--border-mid);
+      border-radius: 8px;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .nav-signin:hover {
+      color: var(--white);
+      border-color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 6px;
+    }
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 1.5px;
+      background: var(--white);
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    /* Mobile menu */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 99;
+      background: #111;
+      padding: 100px 40px 48px;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-size: 2rem;
+      font-weight: 800;
+      color: rgba(255,255,255,0.65);
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.2s;
+      letter-spacing: -0.02em;
+    }
+    .mobile-menu a:hover { color: var(--white); }
+
+    /* Email icon (ohzi.io detail) */
+    .email-fab {
+      position: fixed;
+      right: 28px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 50;
+      width: 44px; height: 44px;
+      border: 1px solid var(--border-mid);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.5);
+      background: rgba(17,17,17,0.7);
+      backdrop-filter: blur(8px);
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .email-fab:hover {
+      border-color: var(--orange);
+      color: var(--orange);
+      background: rgba(247,162,27,0.06);
+    }
+
+    /* ─────────────────────────────────────────────
+       BUTTONS  (brand guideline: orange primary, blue secondary)
+    ───────────────────────────────────────────── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      color: var(--navy);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px -4px rgba(247,162,27,0.5);
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px -4px rgba(247,162,27,0.6);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 31px;
+      background: transparent;
+      color: var(--blue);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: 1.5px solid var(--blue);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s, color 0.2s;
+    }
+    .btn-secondary:hover {
+      background: var(--blue);
+      color: var(--navy);
+      transform: translateY(-2px);
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      padding: 13px 28px;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      border: 1px solid var(--border-mid);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .btn-ghost:hover {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.25);
+      color: var(--white);
+    }
+
+    /* ─────────────────────────────────────────────
+       BADGES & TAGS
+    ───────────────────────────────────────────── */
+    .badge-orange {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(247,162,27,0.1);
+      border: 1px solid rgba(247,162,27,0.25);
+      color: var(--orange);
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 100px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .badge-orange::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--orange);
+    }
+
+    .tag-blue {
+      display: inline-block;
+      background: rgba(41,182,217,0.1);
+      border: 1px solid rgba(41,182,217,0.2);
+      color: var(--blue-lite);
+      font-size: 0.62rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 100px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* section label */
+    .section-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 14px;
+    }
+
+    /* gradient text */
+    .text-orange {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-lite) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .text-blue {
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-lite) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ─────────────────────────────────────────────
+       REVEAL
+    ───────────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ─────────────────────────────────────────────
+       HERO
+    ───────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 140px 40px 100px;
+      overflow: hidden;
+    }
+    .hero.hex-bg { }
+
+    /* Atmospheric glows */
+    .glow-orange {
+      position: absolute;
+      top: 20%; left: 15%;
+      width: 600px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(247,162,27,0.14) 0%, transparent 65%);
+      filter: blur(80px);
+      pointer-events: none;
+    }
+    .glow-blue {
+      position: absolute;
+      bottom: 20%; right: 10%;
+      width: 500px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(41,182,217,0.12) 0%, transparent 65%);
+      filter: blur(80px);
+      pointer-events: none;
+    }
+    .glow-center {
+      position: absolute;
+      top: 35%; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(41,182,217,0.06) 0%, transparent 70%);
+      filter: blur(60px);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* Hex icon */
+    .hero-icon {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 44px;
+    }
+
+    .hero-icon-wrap {
+      position: relative;
+      width: 110px; height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-icon-halo {
+      position: absolute;
+      inset: -24px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(247,162,27,0.25) 0%, rgba(41,182,217,0.12) 50%, transparent 75%);
+      filter: blur(24px);
+      animation: halo-pulse 3s ease-in-out infinite;
+    }
+    @keyframes halo-pulse {
+      0%,100% { opacity: 0.7; transform: scale(1); }
+      50%      { opacity: 1;   transform: scale(1.08); }
+    }
+
+    .hero-icon-svg {
+      position: relative;
+      animation: float 4s ease-in-out infinite;
+      filter:
+        drop-shadow(0 0 16px rgba(247,162,27,0.5))
+        drop-shadow(0 0 32px rgba(41,182,217,0.3));
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+
+    .hero h1 {
+      font-size: clamp(2.6rem, 6.5vw, 4.8rem);
+      font-weight: 900;
+      line-height: 1.04;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+    }
+
+    .hero-sub {
+      font-size: 1rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.55);
+      max-width: 520px;
+      margin: 0 auto 40px;
+      line-height: 1.8;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .hero-stats {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-top: 72px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .stat-lbl {
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-top: 6px;
+    }
+    .stat-sep { width: 1px; height: 32px; background: var(--border); }
+
+    /* ─────────────────────────────────────────────
+       TICKER
+    ───────────────────────────────────────────── */
+    .ticker {
+      padding: 14px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      background: var(--bg-alt);
+    }
+    .ticker-track {
+      display: flex;
+      align-items: center;
+      gap: 56px;
+      animation: ticker 35s linear infinite;
+      width: max-content;
+    }
+    .ticker-item {
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.22);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+    }
+    .ticker-dot {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--orange);
+      opacity: 0.5;
+    }
+    @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+    /* ─────────────────────────────────────────────
+       SECTIONS
+    ───────────────────────────────────────────── */
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+    .section-pad { padding: 104px 0; }
+
+    .section-head { margin-bottom: 64px; }
+    .section-head.center { text-align: center; }
+
+    .section-head h2 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.08;
+      margin-bottom: 16px;
+    }
+    .section-head p {
+      font-size: 0.9rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.85;
+      max-width: 500px;
+    }
+    .section-head.center p { margin: 0 auto; }
+
+    /* hex accent divider */
+    .hex-accent {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .hex-accent.center { justify-content: center; }
+    .hex-dot {
+      width: 10px; height: 10px;
+      clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+      background: var(--orange);
+    }
+    .hex-dot.blue { background: var(--blue); }
+    .hex-line { flex: 1; max-width: 40px; height: 1px; background: var(--border); }
+
+    /* ─────────────────────────────────────────────
+       PROBLEM CARDS
+    ───────────────────────────────────────────── */
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .problem-card {
+      background: var(--bg);
+      padding: 40px 32px;
+      transition: background 0.25s;
+    }
+    .problem-card:hover { background: var(--bg-card); }
+
+    .problem-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(239,68,68,0.25);
+      background: rgba(239,68,68,0.08);
+      margin-bottom: 22px;
+    }
+
+    .problem-card h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .problem-card p {
+      font-size: 0.78rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.85;
+    }
+
+    /* ─────────────────────────────────────────────
+       PLATFORM GAP CARDS
+    ───────────────────────────────────────────── */
+    .gap-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .gap-card {
+      background: var(--bg-alt);
+      padding: 52px 44px;
+      transition: background 0.25s;
+      position: relative;
+    }
+    .gap-card:hover { background: var(--bg-card); }
+
+    /* orange left border accent */
+    .gap-card.orange-accent { border-left: 2px solid var(--orange); }
+    .gap-card.blue-accent   { border-left: 2px solid var(--blue); }
+
+    .gap-num {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.2);
+      margin-bottom: 18px;
+    }
+
+    .gap-card h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .gap-card p {
+      font-size: 0.78rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.9;
+      margin-bottom: 28px;
+    }
+
+    .gap-metrics {
+      display: flex;
+      gap: 24px;
+    }
+
+    .gap-metric {
+      flex: 1;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .gap-metric-val {
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .gap-metric-lbl {
+      font-size: 0.58rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      margin-top: 4px;
+    }
+
+    /* ─────────────────────────────────────────────
+       AI FEATURE CARDS
+    ───────────────────────────────────────────── */
+    .ai-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .ai-card {
+      background: var(--bg);
+      padding: 40px 32px;
+      transition: background 0.25s;
+    }
+    .ai-card:hover { background: var(--bg-card); }
+
+    .ai-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .ai-icon.orange-bg {
+      background: rgba(247,162,27,0.12);
+      border: 1px solid rgba(247,162,27,0.2);
+    }
+    .ai-icon.blue-bg {
+      background: rgba(41,182,217,0.12);
+      border: 1px solid rgba(41,182,217,0.2);
+    }
+
+    .ai-tag {
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .ai-tag.orange { color: var(--orange); }
+    .ai-tag.blue   { color: var(--blue); }
+
+    .ai-card h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .ai-card p {
+      font-size: 0.72rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.9;
+    }
+
+    .governance-bar {
+      margin-top: 1px;
+      background: rgba(41,182,217,0.05);
+      border: 1px solid rgba(41,182,217,0.12);
+      border-top: none;
+      padding: 24px 32px;
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+    }
+
+    .gov-icon {
+      width: 38px; height: 38px;
+      border-radius: 8px;
+      border: 1px solid rgba(41,182,217,0.2);
+      background: rgba(41,182,217,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .governance-bar p {
+      font-size: 0.75rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.85;
+    }
+    .governance-bar strong {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 3px;
+    }
+
+    /* ─────────────────────────────────────────────
+       IMPACT
+    ───────────────────────────────────────────── */
+    .impact-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 72px;
+      align-items: start;
+    }
+
+    .ba-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .ba-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+    .ba-dot.bad  { background: rgba(239,68,68,0.65); }
+    .ba-dot.good { background: rgba(74,222,128,0.65); }
+    .ba-text     { font-size: 0.78rem; font-weight: 400; line-height: 1.75; }
+    .ba-text.bad { color: rgba(255,255,255,0.28); text-decoration: line-through; }
+    .ba-text.good{ color: rgba(255,255,255,0.78); }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .stat-cell {
+      background: var(--bg-alt);
+      padding: 40px 32px;
+      transition: background 0.25s;
+    }
+    .stat-cell:hover { background: var(--bg-card); }
+
+    .stat-cell-num {
+      font-size: 3rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .stat-cell-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .stat-cell-desc {
+      font-size: 0.65rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.3);
+      line-height: 1.8;
+    }
+
+    /* ─────────────────────────────────────────────
+       COMMUNITY CARDS
+    ───────────────────────────────────────────── */
+    .community-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .community-card {
+      background: var(--bg);
+      padding: 48px 36px;
+      transition: background 0.25s;
+    }
+    .community-card:hover { background: var(--bg-card); }
+
+    .community-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .community-icon.orange { background: linear-gradient(135deg, var(--orange), var(--orange-lite)); }
+    .community-icon.blue   { background: linear-gradient(135deg, var(--blue), var(--blue-lite)); }
+
+    .community-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .community-card > p {
+      font-size: 0.78rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.85;
+      margin-bottom: 24px;
+    }
+
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.72rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.5);
+    }
+    .feature-item .check {
+      width: 14px; height: 14px;
+      flex-shrink: 0;
+    }
+
+    /* ─────────────────────────────────────────────
+       CTA / JOIN
+    ───────────────────────────────────────────── */
+    .cta-section {
+      position: relative;
+      background: var(--bg-alt);
+      border-top: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .cta-section.hex-bg { }
+
+    .cta-glow-orange {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px; height: 350px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(247,162,27,0.18) 0%, transparent 65%);
+      filter: blur(80px);
+      pointer-events: none;
+    }
+    .cta-glow-blue {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px; height: 250px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(41,182,217,0.12) 0%, transparent 65%);
+      filter: blur(60px);
+      pointer-events: none;
+    }
+
+    .cta-inner {
+      position: relative;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 120px 40px;
+      text-align: center;
+    }
+
+    .cta-inner img {
+      height: 72px;
+      margin: 0 auto 36px;
+      filter: drop-shadow(0 0 20px rgba(247,162,27,0.3));
+    }
+
+    .cta-inner h2 {
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      margin-bottom: 20px;
+    }
+
+    .cta-inner p {
+      font-size: 0.92rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.85;
+      margin-bottom: 48px;
+    }
+
+    .signup-form {
+      display: flex;
+      max-width: 460px;
+      margin: 0 auto 14px;
+      gap: 0;
+    }
+    .signup-form input {
+      flex: 1;
+      padding: 16px 20px;
+      background: rgba(255,255,255,0.04);
+      border: 1.5px solid var(--border-mid);
+      border-right: none;
+      border-radius: 10px 0 0 10px;
+      color: var(--white);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 400;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .signup-form input::placeholder { color: rgba(255,255,255,0.25); }
+    .signup-form input:focus { border-color: var(--orange); }
+
+    .signup-form button {
+      padding: 16px 24px;
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      border: none;
+      border-radius: 0 10px 10px 0;
+      color: var(--navy);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.2s;
+    }
+    .signup-form button:hover { opacity: 0.88; }
+
+    .cta-note {
+      font-size: 0.68rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.22);
+      margin-bottom: 56px;
+    }
+
+    .social-proof {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+
+    .avatar-row { display: flex; align-items: center; }
+    .avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--bg-alt);
+      font-size: 0.5rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--navy);
+    }
+    .avatar + .avatar { margin-left: -8px; }
+    .avatar.orange { background: linear-gradient(135deg, var(--orange), var(--orange-lite)); }
+    .avatar.blue   { background: linear-gradient(135deg, var(--blue), var(--blue-lite)); }
+    .avatar.ghost  { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.4); font-size: 0.42rem; }
+
+    .sp-label {
+      font-size: 0.72rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.35);
+      margin-left: 12px;
+    }
+    .sp-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.68rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* ─────────────────────────────────────────────
+       FOOTER
+    ───────────────────────────────────────────── */
+    footer {
+      background: #0a0a0a;
+      border-top: 1px solid var(--border);
+      padding: 72px 0 40px;
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 56px;
+      margin-bottom: 56px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .footer-logo { height: 32px; margin-bottom: 18px; }
+    .footer-desc {
+      font-size: 0.75rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.3);
+      line-height: 1.85;
+      max-width: 300px;
+      margin-bottom: 16px;
+    }
+    .footer-copy-sm {
+      font-size: 0.65rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.18);
+    }
+
+    .footer-col h5 {
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 20px;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .footer-col ul a {
+      font-size: 0.78rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.35);
+      transition: color 0.2s;
+    }
+    .footer-col ul a:hover { color: var(--white); }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-bottom p {
+      font-size: 0.65rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.2);
+    }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a {
+      font-size: 0.65rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.2);
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: rgba(255,255,255,0.5); }
+
+    /* ─────────────────────────────────────────────
+       COOKIE BAR  (ohzi.io detail)
+    ───────────────────────────────────────────── */
+    .cookie-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 200;
+      background: rgba(15,15,15,0.96);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border-mid);
+      padding: 14px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      font-size: 0.7rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.4);
+      flex-wrap: wrap;
+    }
+    .cookie-bar a {
+      color: rgba(255,255,255,0.6);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color 0.2s;
+    }
+    .cookie-bar a:hover { color: var(--white); }
+    .cookie-close {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      color: rgba(255,255,255,0.4);
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .cookie-close:hover { border-color: var(--orange); color: var(--orange); }
+
+    /* ─────────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────────── */
+    @media (max-width: 960px) {
+      .nav-center { display: none; }
+      .email-fab  { display: none; }
+      .hamburger  { display: flex; }
+      .gap-grid        { grid-template-columns: 1fr; }
+      .community-grid  { grid-template-columns: 1fr; }
+      .footer-top      { grid-template-columns: 1fr; gap: 32px; }
+    }
+    @media (max-width: 700px) {
+      .impact-layout { grid-template-columns: 1fr; gap: 48px; }
+      .stat-grid     { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+      .nav { padding: 0 20px; }
+      .wrap { padding: 0 20px; }
+      .cta-inner { padding: 80px 20px; }
+      .cookie-bar { padding: 14px 20px; }
+      .hero { padding: 110px 20px 80px; }
+      .hero-stats { gap: 20px; }
+      .stat-sep { display: none; }
+      .signup-form { flex-direction: column; }
+      .signup-form input {
+        border-right: 1.5px solid var(--border-mid);
+        border-bottom: none;
+        border-radius: 10px 10px 0 0;
+      }
+      .signup-form button { border-radius: 0 0 10px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════ NAV ══════════════════ -->
+<nav class="nav" id="nav">
+  <a href="#" class="nav-logo">
+    <!-- Brand guideline: full-colour logo on dark backgrounds -->
+    <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" />
+  </a>
+
+  <!-- Desktop links -->
+  <div class="nav-center">
+    <a href="#platform">Platform</a>
+    <a href="#features">Intelligence</a>
+    <a href="#impact">Impact</a>
+    <a href="#community">Community</a>
+  </div>
+
+  <div class="nav-right">
+    <a href="#" class="nav-signin">Sign In</a>
+    <a href="#join" class="btn-primary" style="padding:10px 22px; font-size:0.78rem; border-radius:8px;">Join WorkHive</a>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile menu -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#platform"  onclick="closeMobile()">Platform</a>
+  <a href="#features"  onclick="closeMobile()">Intelligence</a>
+  <a href="#impact"    onclick="closeMobile()">Impact</a>
+  <a href="#community" onclick="closeMobile()">Community</a>
+  <a href="#join"      onclick="closeMobile()">Join WorkHive</a>
+</div>
+
+<!-- Email FAB (ohzi.io detail) -->
+<a href="#join" class="email-fab" title="Get Early Access" aria-label="Get Early Access">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+  </svg>
+</a>
+
+<!-- ══════════════════ HERO ══════════════════ -->
+<section class="hero hex-bg">
+  <div class="glow-orange"></div>
+  <div class="glow-blue"></div>
+  <div class="glow-center"></div>
+
+  <div class="hero-inner">
+    <!-- Animated hex icon — brand visual system -->
+    <div class="hero-icon">
+      <div class="hero-icon-wrap">
+        <div class="hero-icon-halo"></div>
+        <svg class="hero-icon-svg" width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Outer honeycomb ring -->
+          <path d="M50 5 L90 27.5 L90 72.5 L50 95 L10 72.5 L10 27.5 Z"
+            fill="none" stroke="rgba(247,162,27,0.35)" stroke-width="1.5"/>
+          <!-- Inner hex -->
+          <path d="M50 20 L76 35 L76 65 L50 80 L24 65 L24 35 Z"
+            fill="none" stroke="rgba(41,182,217,0.4)" stroke-width="1.5"/>
+          <!-- Top face -->
+          <path d="M50 20 L76 35 L50 50 L24 35 Z" fill="rgba(247,162,27,0.1)"/>
+          <!-- Left face -->
+          <path d="M24 35 L50 50 L50 80 L24 65 Z" fill="rgba(41,182,217,0.07)"/>
+          <!-- Right face -->
+          <path d="M76 35 L76 65 L50 80 L50 50 Z" fill="rgba(41,182,217,0.1)"/>
+          <!-- Center glow dot -->
+          <circle cx="50" cy="50" r="4" fill="var(--orange)" opacity="0.9"/>
+          <!-- Struts -->
+          <line x1="50" y1="20" x2="50" y2="50" stroke="rgba(247,162,27,0.3)" stroke-width="1"/>
+          <line x1="24" y1="35" x2="50" y2="50" stroke="rgba(41,182,217,0.3)" stroke-width="1"/>
+          <line x1="76" y1="35" x2="50" y2="50" stroke="rgba(41,182,217,0.3)" stroke-width="1"/>
+          <!-- Small satellite hexes (brand hex motif) -->
+          <path d="M50 5 L58 9.6 L58 18.8 L50 23.4 L42 18.8 L42 9.6 Z"
+            fill="none" stroke="rgba(247,162,27,0.25)" stroke-width="1"/>
+          <path d="M87 27.5 L95 32 L95 41.3 L87 45.8 L79 41.3 L79 32 Z"
+            fill="none" stroke="rgba(41,182,217,0.2)" stroke-width="1"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="badge-orange" style="margin-bottom:24px;">Now Live · Philippines</div>
+
+    <h1>
+      The Future of<br/>
+      <span class="text-orange">Industrial</span>
+      <span class="text-blue"> Work</span><br/>
+      is Here
+    </h1>
+
+    <p class="hero-sub">
+      WorkHive connects maintenance technicians, plant operators, and industrial professionals
+      with the tools, intelligence, and community they need — to do their best work, and build
+      careers that last.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#join"     class="btn-primary">Get Early Access</a>
+      <a href="#platform" class="btn-secondary">See the Platform</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num text-orange">50K+</div>
+        <div class="stat-lbl">Industrial Professionals</div>
+      </div>
+      <div class="stat-sep"></div>
+      <div class="stat-item">
+        <div class="stat-num text-blue">4 Gaps</div>
+        <div class="stat-lbl">Closed by WorkHive</div>
+      </div>
+      <div class="stat-sep"></div>
+      <div class="stat-item">
+        <div class="stat-num text-orange">2.8B</div>
+        <div class="stat-lbl">Workers Deserve Better</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ TICKER ══════════════════ -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="ticker-item"><span class="ticker-dot"></span>Manufacturing</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Energy &amp; Utilities</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Food Processing</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Electronics</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Petrochemicals</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Facilities &amp; BMS</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Industrial Intelligence</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Predictive Maintenance</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>AI-Powered Matching</span>
+    <!-- duplicate for seamless loop -->
+    <span class="ticker-item"><span class="ticker-dot"></span>Manufacturing</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Energy &amp; Utilities</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Food Processing</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Electronics</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Petrochemicals</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Facilities &amp; BMS</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Industrial Intelligence</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Predictive Maintenance</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>AI-Powered Matching</span>
+  </div>
+</div>
+
+<!-- ══════════════════ PROBLEMS ══════════════════ -->
+<section style="background:var(--bg); border-bottom:1px solid var(--border);">
+  <div class="wrap section-pad">
+    <div class="section-head center reveal">
+      <div class="hex-accent center">
+        <div class="hex-line"></div>
+        <div class="hex-dot blue"></div>
+        <div class="hex-line"></div>
+      </div>
+      <p class="section-label" style="color:var(--blue);">The Industrial Reality</p>
+      <h2>Your team is capable.<br/><span class="text-blue">The systems are failing them.</span></h2>
+      <p>The world's 2.8 billion industrial workers are running on tools built for a different era — fragmented, reactive, and invisible. It's not a talent problem. It's a systems problem.</p>
+    </div>
+
+    <div class="problem-grid reveal">
+      <div class="problem-card">
+        <div class="problem-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(239,68,68,0.8)" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <h3>Fragmentation</h3>
+        <p>Critical knowledge trapped in silos. The same problem solved a thousand times across a thousand plants.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(239,68,68,0.8)" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+        </div>
+        <h3>Knowledge Loss</h3>
+        <p>25 years of expertise walks out the door when a veteran retires. No system captures what they knew.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(239,68,68,0.8)" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <h3>Reactive Chaos</h3>
+        <p>Failures treated as surprises. The warning signs were there — nobody had a system to see them.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(239,68,68,0.8)" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+        </div>
+        <h3>Invisible Expertise</h3>
+        <p>Talented technicians go unrecognized. Skills invisible to managers means the wrong person gets the job.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ PLATFORM ══════════════════ -->
+<section id="platform" style="background:var(--bg-alt); border-bottom:1px solid var(--border);">
+  <div class="wrap section-pad">
+    <div class="section-head reveal">
+      <div class="hex-accent">
+        <div class="hex-dot"></div>
+        <div class="hex-line"></div>
+      </div>
+      <p class="section-label">The Platform</p>
+      <h2>Four gaps.<br/><span class="text-orange">One platform.</span></h2>
+      <p>WorkHive is not a collection of tools — it is an integrated intelligence platform designed to close every gap that holds industrial work back.</p>
+    </div>
+
+    <div class="gap-grid reveal">
+      <!-- Gap 1 -->
+      <div class="gap-card orange-accent">
+        <p class="gap-num">Gap 01 · Execution System</p>
+        <div class="tag-blue" style="margin-bottom:14px;">From Chaos to Coordination</div>
+        <h3>Work Order <span class="text-orange">Intelligence</span></h3>
+        <p>Signal detection → Intelligent triage → Automated work order generation → Mobile execution → Real-time learning. Every job pre-loaded with the right parts, procedures, and people.</p>
+        <div class="gap-metrics">
+          <div class="gap-metric">
+            <div class="gap-metric-val text-orange">-73%</div>
+            <div class="gap-metric-lbl">Unplanned Downtime</div>
+          </div>
+          <div class="gap-metric">
+            <div class="gap-metric-val text-orange">Min</div>
+            <div class="gap-metric-lbl">Response Gap vs. Days</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gap 2 -->
+      <div class="gap-card blue-accent">
+        <p class="gap-num">Gap 02 · Skills Engine</p>
+        <div class="tag-blue" style="margin-bottom:14px;">From Guesswork to Precision</div>
+        <h3>AI-Powered <span class="text-blue">Job Matching</span></h3>
+        <p>Verified skill profiles → Organizational skills maps → AI-powered job matching → Structured capability building tracks. Every expert visible, every job matched by data — not guesswork.</p>
+        <div class="gap-metrics">
+          <div class="gap-metric">
+            <div class="gap-metric-val text-blue">98%</div>
+            <div class="gap-metric-lbl">Match Accuracy</div>
+          </div>
+          <div class="gap-metric">
+            <div class="gap-metric-val text-blue">50K+</div>
+            <div class="gap-metric-lbl">Searchable Profiles</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gap 3 -->
+      <div class="gap-card blue-accent">
+        <p class="gap-num">Gap 03 · Organizational Intelligence</p>
+        <div class="tag-blue" style="margin-bottom:14px;">From Amnesia to Memory</div>
+        <h3>Compounding <span class="text-blue">AI Memory</span></h3>
+        <p>Continuous data collection → Pattern recognition → Insight generation → Organizational memory that compounds. The AI gets smarter forever — and so does every connected organization.</p>
+        <div class="gap-metrics">
+          <div class="gap-metric">
+            <div class="gap-metric-val text-blue">4 AIs</div>
+            <div class="gap-metric-lbl">Specialist Models</div>
+          </div>
+          <div class="gap-metric">
+            <div class="gap-metric-val text-blue">∞</div>
+            <div class="gap-metric-lbl">Compounding Memory</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gap 4 -->
+      <div class="gap-card orange-accent">
+        <p class="gap-num">Gap 04 · Marketplace</p>
+        <div class="tag-blue" style="margin-bottom:14px;">From Luck to Design</div>
+        <h3>Verified <span class="text-orange">Services Network</span></h3>
+        <p>Verified service providers → Discoverable expertise → Transparent reputation → Collective learning. 50,000+ professionals searchable by skill, location, and verified rating.</p>
+        <div class="gap-metrics">
+          <div class="gap-metric">
+            <div class="gap-metric-val text-orange">4</div>
+            <div class="gap-metric-lbl">Pillars of Service</div>
+          </div>
+          <div class="gap-metric">
+            <div class="gap-metric-val text-orange">✓</div>
+            <div class="gap-metric-lbl">Verified Credentials</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ AI FEATURES ══════════════════ -->
+<section id="features" style="background:var(--bg); border-bottom:1px solid var(--border);">
+  <div class="wrap section-pad">
+    <div class="section-head center reveal">
+      <div class="hex-accent center">
+        <div class="hex-line"></div>
+        <div class="hex-dot blue"></div>
+        <div class="hex-line"></div>
+      </div>
+      <p class="section-label" style="color:var(--blue);">Intelligence Layer</p>
+      <h2>Four AI specialists,<br/><span class="text-blue">one unified platform.</span></h2>
+      <p>WorkHive's AI governance framework ensures every recommendation is explainable, actionable, and under human control.</p>
+    </div>
+
+    <div class="ai-grid reveal">
+      <div class="ai-card">
+        <div class="ai-icon orange-bg">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+        </div>
+        <p class="ai-tag orange">XGBoost Classifier</p>
+        <h4>Failure Predictor</h4>
+        <p>Learns failure signatures from historical data. Flags equipment at risk 24–72 hours before breakdown.</p>
+      </div>
+
+      <div class="ai-card">
+        <div class="ai-icon blue-bg">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </div>
+        <p class="ai-tag blue">Isolation Forest</p>
+        <h4>Anomaly Detector</h4>
+        <p>Detects statistical deviations in sensor streams in real-time — without needing labeled failure data.</p>
+      </div>
+
+      <div class="ai-card">
+        <div class="ai-icon orange-bg">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <p class="ai-tag orange">LSTM Network</p>
+        <h4>RUL Estimator</h4>
+        <p>Estimates Remaining Useful Life of critical assets, enabling surgical maintenance scheduling.</p>
+      </div>
+
+      <div class="ai-card">
+        <div class="ai-icon blue-bg">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+          </svg>
+        </div>
+        <p class="ai-tag blue">RAG-Powered LLM</p>
+        <h4>AI Copilot</h4>
+        <p>Answers maintenance questions grounded in your equipment history, manuals, and organizational knowledge base.</p>
+      </div>
+    </div>
+
+    <div class="governance-bar reveal">
+      <div class="gov-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+        </svg>
+      </div>
+      <p>
+        <strong>AI Governance Principle</strong>
+        WorkHive AI recommends. Humans decide. Every insight is explainable, every action is auditable, every outcome feeds back into the system.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ IMPACT ══════════════════ -->
+<section id="impact" style="background:var(--bg-alt); border-bottom:1px solid var(--border);">
+  <div class="wrap section-pad">
+    <div class="impact-layout">
+      <div class="reveal">
+        <div class="hex-accent">
+          <div class="hex-dot"></div>
+          <div class="hex-line"></div>
+        </div>
+        <p class="section-label">The Impact</p>
+        <h2 style="font-size:clamp(1.9rem,3.5vw,3rem);font-weight:800;letter-spacing:-0.03em;line-height:1.08;margin-bottom:16px;">
+          The day after<br/><span class="text-orange">WorkHive.</span>
+        </h2>
+        <p style="font-size:0.88rem;font-weight:300;color:rgba(255,255,255,0.4);line-height:1.85;max-width:420px;margin-bottom:40px;">
+          The gap between where Philippine industrial work is today and where it could be is not a gap of talent or ambition — it is a gap of systems. That gap is closeable.
+        </p>
+
+        <div>
+          <div class="ba-row">
+            <div class="ba-dot bad"></div>
+            <p class="ba-text bad">Equipment fails without warning. 24h downtime. Millions lost.</p>
+          </div>
+          <div class="ba-row">
+            <div class="ba-dot good"></div>
+            <p class="ba-text good">Anomaly detected 72h early. Right tech dispatched. 20-minute fix.</p>
+          </div>
+          <div class="ba-row">
+            <div class="ba-dot bad"></div>
+            <p class="ba-text bad">Skills guessed at. Wrong person assigned. Job takes 2x longer.</p>
+          </div>
+          <div class="ba-row">
+            <div class="ba-dot good"></div>
+            <p class="ba-text good">AI matches best available technician. 98% precision. Done right, first time.</p>
+          </div>
+          <div class="ba-row">
+            <div class="ba-dot bad"></div>
+            <p class="ba-text bad">Expert retires. 25 years of knowledge gone. Start from scratch.</p>
+          </div>
+          <div class="ba-row">
+            <div class="ba-dot good"></div>
+            <p class="ba-text good">Every insight captured. Organizational memory compounds — forever.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-grid reveal">
+        <div class="stat-cell">
+          <div class="stat-cell-num text-orange">73%</div>
+          <div class="stat-cell-title">Less Downtime</div>
+          <div class="stat-cell-desc">Predictive maintenance vs. reactive response</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-cell-num text-blue">50K+</div>
+          <div class="stat-cell-title">Professionals</div>
+          <div class="stat-cell-desc">Searchable by skill, location &amp; verified rating</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-cell-num text-blue">4</div>
+          <div class="stat-cell-title">AI Models</div>
+          <div class="stat-cell-desc">XGBoost · Isolation Forest · LSTM · RAG LLM</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-cell-num text-orange">2.8B</div>
+          <div class="stat-cell-title">Global Workers</div>
+          <div class="stat-cell-desc">Who deserve world-class industrial intelligence</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ COMMUNITY ══════════════════ -->
+<section id="community" style="background:var(--bg); border-bottom:1px solid var(--border);">
+  <div class="wrap section-pad">
+    <div class="section-head center reveal">
+      <div class="hex-accent center">
+        <div class="hex-line"></div>
+        <div class="hex-dot blue"></div>
+        <div class="hex-line"></div>
+      </div>
+      <p class="section-label" style="color:var(--blue);">Community</p>
+      <h2>Every professional<br/><span class="text-blue">finds their place here.</span></h2>
+      <p>WorkHive is built for the technicians, operators, managers, and builders who keep Philippine industry running.</p>
+    </div>
+
+    <div class="community-grid reveal">
+      <div class="community-card">
+        <div class="community-icon orange">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#162032" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+        </div>
+        <h3>Technicians &amp; Operators</h3>
+        <p>Your skills become visible. Your expertise becomes searchable. Your knowledge gets preserved — and rewarded.</p>
+        <div class="feature-list">
+          <div class="feature-item">
+            <svg class="check" viewBox="0 0 20 20" fill="var(--orange)"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Verified skill profile
+          </div>
+          <div class="feature-item">
+            <svg class="check" viewBox="0 0 20 20" fill="var(--orange)"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            AI-matched career opportunities
+          </div>
+          <div class="feature-item">
+            <svg class="check" viewBox="0 0 20 20" fill="var(--orange)"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Structured capability tracks
+          </div>
+        </div>
+      </div>
+
+      <div class="community-card">
+        <div class="community-icon blue">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#162032" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+        </div>
+        <h3>Managers &amp; Supervisors</h3>
+        <p>See your team's full capability. Assign the right person to the right job. Make data-driven maintenance decisions.</p>
+        <div class="feature-list">
+          <div class="feature-item">
+            <svg class="check" viewBox="0 0 20 20" fill="var(--blue)"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Organizational skills map
+          </div>
+          <div class="feature-item">
+            <svg class="check" viewBox="0 0 20 20" fill="var(--blue)"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Predictive maintenance dashboard
+          </div>
+          <div class="feature-item">
+            <svg class="check" viewBox="0 0 20 20" fill="var(--blue)"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Real-time work order tracking
+          </div>
+        </div>
+      </div>
+
+      <div class="community-card">
+        <div class="community-icon orange">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#162032" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+          </svg>
+        </div>
+        <h3>Entrepreneurs &amp; Builders</h3>
+        <p>Access the marketplace. Offer verified services. Build your reputation on a platform trusted by Philippine industry.</p>
+        <div class="feature-list">
+          <div class="feature-item">
+            <svg class="check" viewBox="0 0 20 20" fill="var(--orange)"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Verified service provider listing
+          </div>
+          <div class="feature-item">
+            <svg class="check" viewBox="0 0 20 20" fill="var(--orange)"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Transparent reputation system
+          </div>
+          <div class="feature-item">
+            <svg class="check" viewBox="0 0 20 20" fill="var(--orange)"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Parts, training &amp; jobs marketplace
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ CTA ══════════════════ -->
+<div class="cta-section hex-bg" id="join">
+  <div class="cta-glow-orange"></div>
+  <div class="cta-glow-blue"></div>
+
+  <div class="cta-inner reveal">
+    <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" />
+
+    <h2>
+      Join the hive.<br/>
+      <span class="text-orange">Build the future.</span>
+    </h2>
+    <p>The beehive has been showing us how for 80 million years. Now it's time to build those systems for the people who keep Philippine industry running.</p>
+
+    <form class="signup-form" onsubmit="handleSignup(event)">
+      <input type="email" placeholder="Enter your work email" required />
+      <button type="submit">Get Early Access</button>
+    </form>
+    <p class="cta-note">Free to join · Philippines-first · No spam, ever</p>
+
+    <div class="social-proof">
+      <div style="display:flex;align-items:center;">
+        <div class="avatar-row">
+          <div class="avatar orange">JR</div>
+          <div class="avatar blue">MA</div>
+          <div class="avatar orange">RL</div>
+          <div class="avatar ghost">+50K</div>
+        </div>
+        <span class="sp-label">Professionals already waiting</span>
+      </div>
+      <div class="sp-tag">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="var(--orange)"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        Philippines-first platform
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ FOOTER ══════════════════ -->
+<footer>
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <img class="footer-logo" src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" />
+        <p class="footer-desc">Industrial Intelligence for the Philippines. Connecting technicians, operators, and industrial professionals with the tools and community they need.</p>
+        <p class="footer-copy-sm">workhive.ph · 2026</p>
+      </div>
+      <div class="footer-col">
+        <h5>Platform</h5>
+        <ul>
+          <li><a href="#platform">Execution System</a></li>
+          <li><a href="#platform">Skills Engine</a></li>
+          <li><a href="#features">AI Intelligence</a></li>
+          <li><a href="#community">Marketplace</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">The Book</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 WorkHive Platform. All rights reserved. · workhive.ph</p>
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Cookie bar -->
+<div class="cookie-bar" id="cookie-bar">
+  <span>This website uses cookies. For full details view our <a href="#">Privacy Policy</a></span>
+  <button class="cookie-close" onclick="closeCookie()">Got it</button>
+</div>
+
+<!-- ══════════════════ SCRIPTS ══════════════════ -->
+<script>
+  // Mobile menu
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+  });
+
+  function closeMobile() {
+    hamburger.classList.remove('open');
+    mobileMenu.classList.remove('open');
+  }
+
+  // Cookie
+  function closeCookie() {
+    document.getElementById('cookie-bar').style.display = 'none';
+  }
+
+  // Signup
+  function handleSignup(e) {
+    e.preventDefault();
+    const input = e.target.querySelector('input');
+    const btn   = e.target.querySelector('button');
+    btn.textContent = 'Joined! ✓';
+    btn.style.opacity = '0.75';
+    input.value = '';
+    setTimeout(() => {
+      btn.textContent = 'Get Early Access';
+      btn.style.opacity = '1';
+    }, 3000);
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.08, rootMargin: '0px 0px -32px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Nav border on scroll
+  window.addEventListener('scroll', () => {
+    document.getElementById('nav').style.borderBottomColor =
+      window.scrollY > 50 ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.07)';
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+node_modules/
+.tmp/
+temporary screenshots/
+screenshot.mjs
+serve.mjs
+ohzi.io_.png
+package-lock.json
