@@ -41,6 +41,17 @@
   <style>
     * { font-family: 'Poppins', sans-serif; }
 
+    /* ---- logo glow ---- */
+    @keyframes logo-shimmer {
+      0%, 100% { filter: drop-shadow(0 0 28px rgba(247,162,27,0.80)) drop-shadow(0 0 56px rgba(247,162,27,0.45)) drop-shadow(0 0 18px rgba(41,182,217,0.65)); }
+      50%       { filter: drop-shadow(0 0 42px rgba(247,162,27,1.00)) drop-shadow(0 0 80px rgba(247,162,27,0.60)) drop-shadow(0 0 28px rgba(41,182,217,0.90)) drop-shadow(0 0 6px #fff); }
+    }
+    .logo-glow-img {
+      animation: logo-shimmer 3s ease-in-out infinite;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+    }
+
     /* ---- hex bg pattern ---- */
     .hex-pattern {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E");
@@ -386,15 +397,11 @@
 
     <!-- Centered logo focal point -->
     <div class="flex justify-center mb-14">
-      <div class="relative">
-        <!-- outer glow ring -->
-        <div class="absolute rounded-full pointer-events-none"
-             style="inset: -30px; background: radial-gradient(circle, rgba(247,162,27,0.22) 0%, rgba(41,182,217,0.14) 45%, transparent 72%); filter: blur(36px);"></div>
-        <!-- inner glow halo -->
-        <div class="absolute inset-0 rounded-full pointer-events-none"
-             style="background: radial-gradient(circle, rgba(247,162,27,0.45) 0%, rgba(41,182,217,0.25) 55%, transparent 80%); filter: blur(20px); transform: scale(1.8);"></div>
+      <div class="relative" style="display:flex; align-items:center; justify-content:center;">
+        <!-- The logo itself -->
         <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive"
-             style="height: 170px; width: auto; position: relative; filter: drop-shadow(0 0 32px rgba(247,162,27,0.55)) drop-shadow(0 0 14px rgba(41,182,217,0.4));" />
+             class="logo-glow-img"
+             style="height: 260px; width: auto; position: relative;" />
       </div>
     </div>
 
