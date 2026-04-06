@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WorkHive Digital Logbook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'orange-wh': '#F7A21B',
+            'blue-wh':   '#29B6D9',
+            'navy-wh':   '#162032',
+          },
+          fontFamily: { poppins: ['Poppins', 'sans-serif'] },
+        },
+      },
+    };
+  </script>
+  <style>
+    * { font-family: 'Poppins', sans-serif; }
+
+    body {
+      background-color: #162032;
+      min-height: 100vh;
+    }
+
+    /* Aurora background */
+    .aurora-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .aurora-beam {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+    }
+    .beam-1 { width: 600px; height: 300px; background: #F7A21B; top: -80px; left: -100px; animation: drift1 12s ease-in-out infinite; }
+    .beam-2 { width: 500px; height: 250px; background: #29B6D9; top: 20%; right: -80px; animation: drift2 15s ease-in-out infinite; }
+    .beam-3 { width: 400px; height: 200px; background: #F7A21B; bottom: 10%; left: 30%; animation: drift3 10s ease-in-out infinite; }
+    @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(60px,40px)} }
+    @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,60px)} }
+    @keyframes drift3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-30px)} }
+
+    .hex-pattern {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E");
+      background-size: 80px 92px;
+    }
+
+    /* Card styles */
+    .card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.6) 0%, rgba(22,32,50,0.9) 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 1.25rem;
+    }
+
+    /* Input styles */
+    .wh-input {
+      background: rgba(22,32,50,0.8);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.75rem;
+      color: white;
+      padding: 0.75rem 1rem;
+      width: 100%;
+      font-size: 0.875rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .wh-input:focus {
+      border-color: rgba(247,162,27,0.5);
+      box-shadow: 0 0 0 3px rgba(247,162,27,0.1);
+    }
+    .wh-input::placeholder { color: rgba(255,255,255,0.25); }
+    textarea.wh-input { resize: vertical; min-height: 90px; }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, #F7A21B, #FDB94A);
+      color: #162032;
+      font-weight: 700;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      border: none;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.7);
+      font-weight: 600;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: background 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+    .btn-danger {
+      background: rgba(239,68,68,0.1);
+      color: rgba(239,68,68,0.8);
+      font-weight: 600;
+      border-radius: 0.625rem;
+      padding: 0.4rem 0.875rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      border: 1px solid rgba(239,68,68,0.2);
+      transition: background 0.2s;
+    }
+    .btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+    /* Voice recording pulse */
+    @keyframes pulse-ring {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+    .recording-pulse::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: rgba(239,68,68,0.4);
+      animation: pulse-ring 1s ease-out infinite;
+    }
+    .recording-pulse {
+      position: relative;
+      background: rgba(239,68,68,0.2) !important;
+      border-color: rgba(239,68,68,0.5) !important;
+      color: #f87171 !important;
+    }
+
+    /* Log entry card animation */
+    @keyframes slide-in {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .entry-card { animation: slide-in 0.25s ease; }
+
+    /* Badge */
+    .badge-category {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+
+    /* Empty state */
+    .empty-state { opacity: 0.4; }
+
+    /* Label */
+    .wh-label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 0.4rem;
+    }
+
+    /* Search highlight */
+    mark {
+      background: rgba(247,162,27,0.3);
+      color: #FDB94A;
+      border-radius: 2px;
+      padding: 0 2px;
+    }
+
+    /* Stats bar */
+    .stat-pill {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.75rem;
+    }
+
+    /* Tab active */
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(247,162,27,0.2), rgba(247,162,27,0.05));
+      border-color: rgba(247,162,27,0.35);
+      color: #F7A21B;
+    }
+
+    /* Photo preview */
+    .photo-thumb {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 0.5rem;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  </style>
+</head>
+
+<body class="text-white">
+
+  <!-- Aurora -->
+  <div class="aurora-bg">
+    <div class="aurora-beam beam-1"></div>
+    <div class="aurora-beam beam-2"></div>
+    <div class="aurora-beam beam-3"></div>
+  </div>
+
+  <!-- Hex pattern overlay -->
+  <div class="hex-pattern fixed inset-0 z-0 pointer-events-none opacity-60"></div>
+
+  <!-- ── NAVBAR ── -->
+  <nav class="relative z-10 border-b border-white/[0.06]" style="background: rgba(22,32,50,0.85); backdrop-filter: blur(16px);">
+    <div class="max-w-6xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="index.html">
+          <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-8 w-auto" />
+        </a>
+        <div class="w-px h-4 bg-white/15"></div>
+        <span class="text-xs font-semibold text-white/50 uppercase tracking-widest">Digital Logbook</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="sync-badge" class="stat-pill text-white/40 hidden">
+          <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-400 mr-1.5"></span>Saved locally
+        </span>
+        <a href="index.html" class="btn-secondary text-xs py-2 px-4">Back to WorkHive</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── MAIN ── -->
+  <main class="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 py-8">
+
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Your Repair Logbook</h1>
+          <p class="text-sm text-white/45 mt-1">Every job you log builds your skill profile and plant knowledge base.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="stat-pill"><span id="total-count" class="text-orange-wh font-bold">0</span> <span class="text-white/40">entries</span></span>
+          <span class="stat-pill"><span id="machine-count" class="text-blue-wh font-bold">0</span> <span class="text-white/40">machines</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-5 gap-6">
+
+      <!-- ── LEFT: LOG FORM ── -->
+      <div class="lg:col-span-2">
+        <div class="card p-6 sticky top-6">
+          <div class="flex items-center gap-2 mb-6">
+            <div class="w-7 h-7 rounded-lg flex items-center justify-center" style="background: rgba(247,162,27,0.15);">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="#F7A21B" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+              </svg>
+            </div>
+            <h2 class="font-bold text-base">Log a Repair</h2>
+          </div>
+
+          <form id="log-form" class="space-y-4">
+
+            <!-- Machine name -->
+            <div>
+              <label class="wh-label">Machine / Equipment ID</label>
+              <input id="f-machine" type="text" class="wh-input" placeholder="e.g. Pump P-204, Conveyor B-12" autocomplete="off" />
+            </div>
+
+            <!-- Category -->
+            <div>
+              <label class="wh-label">Failure Category</label>
+              <select id="f-category" class="wh-input">
+                <option value="">Select category...</option>
+                <option value="Mechanical">Mechanical</option>
+                <option value="Electrical">Electrical</option>
+                <option value="Hydraulic">Hydraulic</option>
+                <option value="Pneumatic">Pneumatic</option>
+                <option value="Instrumentation">Instrumentation</option>
+                <option value="Lubrication">Lubrication</option>
+                <option value="Vibration">Vibration</option>
+                <option value="Corrosion">Corrosion</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <!-- What was wrong -->
+            <div>
+              <label class="wh-label">What was wrong?</label>
+              <div class="relative">
+                <textarea id="f-problem" class="wh-input pr-10" placeholder="Describe the symptom or failure..."></textarea>
+                <button type="button" id="voice-problem" title="Voice input"
+                  class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                  style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
+                  <svg class="w-3.5 h-3.5 text-white/50" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zm-1 3a1 1 0 012 0v8a1 1 0 01-2 0V4zm6 8a5 5 0 01-10 0H5a7 7 0 0014 0h-2z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- What did you do -->
+            <div>
+              <label class="wh-label">What did you do?</label>
+              <div class="relative">
+                <textarea id="f-action" class="wh-input pr-10" placeholder="Steps taken, parts replaced, settings changed..."></textarea>
+                <button type="button" id="voice-action" title="Voice input"
+                  class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                  style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
+                  <svg class="w-3.5 h-3.5 text-white/50" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zm-1 3a1 1 0 012 0v8a1 1 0 01-2 0V4zm6 8a5 5 0 01-10 0H5a7 7 0 0014 0h-2z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- What should next person know -->
+            <div>
+              <label class="wh-label flex items-center gap-1.5">
+                What should the next person know?
+                <span class="text-orange-wh text-[10px] font-bold bg-orange-wh/10 px-1.5 py-0.5 rounded-full">Most Valuable</span>
+              </label>
+              <div class="relative">
+                <textarea id="f-knowledge" class="wh-input pr-10" placeholder="Tips, gotchas, torque specs, watch-outs..."></textarea>
+                <button type="button" id="voice-knowledge" title="Voice input"
+                  class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                  style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
+                  <svg class="w-3.5 h-3.5 text-white/50" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zm-1 3a1 1 0 012 0v8a1 1 0 01-2 0V4zm6 8a5 5 0 01-10 0H5a7 7 0 0014 0h-2z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Photo attach -->
+            <div>
+              <label class="wh-label">Attach Photo (optional)</label>
+              <label class="flex items-center gap-3 cursor-pointer rounded-xl px-4 py-3 border border-dashed border-white/15 hover:border-white/30 transition-colors"
+                     style="background: rgba(255,255,255,0.03);">
+                <svg class="w-4 h-4 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <span class="text-xs text-white/35" id="photo-label">Tap to attach photo</span>
+                <input id="f-photo" type="file" accept="image/*" capture="environment" class="hidden" />
+              </label>
+              <div id="photo-preview" class="mt-2 hidden">
+                <img id="photo-thumb" class="photo-thumb" />
+              </div>
+            </div>
+
+            <!-- Voice status -->
+            <div id="voice-status" class="hidden rounded-xl px-4 py-3 text-xs text-white/60 flex items-center gap-2"
+                 style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);">
+              <div class="w-2 h-2 rounded-full bg-red-400 animate-pulse"></div>
+              <span id="voice-status-text">Listening...</span>
+            </div>
+
+            <div class="flex gap-2 pt-1">
+              <button type="submit" class="btn-primary flex-1">Save Entry</button>
+              <button type="button" id="clear-form" class="btn-secondary px-4">Clear</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ── RIGHT: LOG ENTRIES ── -->
+      <div class="lg:col-span-3">
+
+        <!-- Search + Filter -->
+        <div class="card p-4 mb-4">
+          <div class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1">
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              <input id="search-input" type="text" class="wh-input pl-9" placeholder="Search machine, failure, keyword..." />
+            </div>
+            <select id="filter-category" class="wh-input sm:w-44">
+              <option value="">All categories</option>
+              <option value="Mechanical">Mechanical</option>
+              <option value="Electrical">Electrical</option>
+              <option value="Hydraulic">Hydraulic</option>
+              <option value="Pneumatic">Pneumatic</option>
+              <option value="Instrumentation">Instrumentation</option>
+              <option value="Lubrication">Lubrication</option>
+              <option value="Vibration">Vibration</option>
+              <option value="Corrosion">Corrosion</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Entries list -->
+        <div id="entries-list">
+          <!-- JS renders here -->
+        </div>
+
+        <!-- Empty state -->
+        <div id="empty-state" class="text-center py-20 empty-state">
+          <svg class="w-12 h-12 mx-auto mb-4 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <p class="text-sm text-white/40 font-medium">No entries yet.</p>
+          <p class="text-xs text-white/25 mt-1">Log your first repair to get started.</p>
+        </div>
+
+        <!-- No results state -->
+        <div id="no-results" class="text-center py-16 empty-state hidden">
+          <svg class="w-10 h-10 mx-auto mb-3 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <p class="text-sm text-white/40">No entries match your search.</p>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ── TOAST ── -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden">
+    <div class="rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2.5 shadow-xl"
+         style="background: linear-gradient(135deg, rgba(42,61,88,0.97), rgba(22,32,50,0.97)); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(12px);">
+      <svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+      </svg>
+      <span id="toast-text">Entry saved.</span>
+    </div>
+  </div>
+
+  <!-- ── DETAIL MODAL ── -->
+  <div id="modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
+    <div class="card w-full max-w-lg max-h-[85vh] overflow-y-auto p-7 relative">
+      <button id="modal-close" class="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+<script>
+// ────────────────────────────────────────────
+// DATA LAYER — localStorage
+// ────────────────────────────────────────────
+const STORAGE_KEY = 'wh_logbook_v1';
+
+function loadEntries() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+
+function saveEntries(entries) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  document.getElementById('sync-badge').classList.remove('hidden');
+}
+
+function addEntry(entry) {
+  const entries = loadEntries();
+  entries.unshift(entry); // newest first
+  saveEntries(entries);
+}
+
+function deleteEntry(id) {
+  const entries = loadEntries().filter(e => e.id !== id);
+  saveEntries(entries);
+}
+
+// ────────────────────────────────────────────
+// CATEGORY COLOR MAP
+// ────────────────────────────────────────────
+const catColors = {
+  Mechanical:      { bg: 'rgba(247,162,27,0.15)', text: '#F7A21B', border: 'rgba(247,162,27,0.25)' },
+  Electrical:      { bg: 'rgba(41,182,217,0.15)', text: '#29B6D9', border: 'rgba(41,182,217,0.25)' },
+  Hydraulic:       { bg: 'rgba(139,92,246,0.15)', text: '#a78bfa', border: 'rgba(139,92,246,0.25)' },
+  Pneumatic:       { bg: 'rgba(34,197,94,0.15)',  text: '#4ade80', border: 'rgba(34,197,94,0.25)' },
+  Instrumentation: { bg: 'rgba(236,72,153,0.15)', text: '#f472b6', border: 'rgba(236,72,153,0.25)' },
+  Lubrication:     { bg: 'rgba(234,179,8,0.15)',  text: '#facc15', border: 'rgba(234,179,8,0.25)' },
+  Vibration:       { bg: 'rgba(239,68,68,0.15)',  text: '#f87171', border: 'rgba(239,68,68,0.25)' },
+  Corrosion:       { bg: 'rgba(180,83,9,0.15)',   text: '#fb923c', border: 'rgba(180,83,9,0.25)' },
+  Other:           { bg: 'rgba(255,255,255,0.07)', text: 'rgba(255,255,255,0.5)', border: 'rgba(255,255,255,0.12)' },
+};
+
+function catBadge(cat) {
+  if (!cat) return '';
+  const c = catColors[cat] || catColors.Other;
+  return `<span class="badge-category" style="background:${c.bg};color:${c.text};border:1px solid ${c.border};">${cat}</span>`;
+}
+
+// ────────────────────────────────────────────
+// RENDER
+// ────────────────────────────────────────────
+function highlight(text, query) {
+  if (!query || !text) return text || '';
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })
+    + ' · ' + d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
+}
+
+function renderEntries() {
+  const entries = loadEntries();
+  const query = document.getElementById('search-input').value.trim().toLowerCase();
+  const catFilter = document.getElementById('filter-category').value;
+
+  let filtered = entries.filter(e => {
+    const matchCat = !catFilter || e.category === catFilter;
+    if (!matchCat) return false;
+    if (!query) return true;
+    return [e.machine, e.problem, e.action, e.knowledge, e.category]
+      .some(f => f && f.toLowerCase().includes(query));
+  });
+
+  // Stats
+  const allMachines = new Set(entries.map(e => e.machine.trim().toUpperCase()));
+  document.getElementById('total-count').textContent = entries.length;
+  document.getElementById('machine-count').textContent = allMachines.size;
+
+  const list = document.getElementById('entries-list');
+  const empty = document.getElementById('empty-state');
+  const noResults = document.getElementById('no-results');
+
+  if (entries.length === 0) {
+    list.innerHTML = '';
+    empty.classList.remove('hidden');
+    noResults.classList.add('hidden');
+    return;
+  }
+
+  empty.classList.add('hidden');
+
+  if (filtered.length === 0) {
+    list.innerHTML = '';
+    noResults.classList.remove('hidden');
+    return;
+  }
+
+  noResults.classList.add('hidden');
+
+  list.innerHTML = filtered.map(e => {
+    const q = query;
+    const machine = highlight(e.machine, q);
+    const problem = highlight(e.problem, q);
+    const action  = highlight(e.action, q);
+    const knowledge = highlight(e.knowledge, q);
+
+    return `
+    <div class="card p-5 mb-3 entry-card cursor-pointer hover:border-white/15 transition-colors" onclick="openModal('${e.id}')">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap mb-1">
+            <span class="font-bold text-white text-sm truncate">${machine}</span>
+            ${catBadge(e.category)}
+          </div>
+          <span class="text-[11px] text-white/30">${formatDate(e.date)}</span>
+        </div>
+        <button onclick="event.stopPropagation(); confirmDelete('${e.id}')" class="btn-danger flex-shrink-0">Delete</button>
+      </div>
+
+      ${e.problem ? `
+      <div class="mb-2">
+        <span class="text-[10px] text-white/30 uppercase tracking-widest font-semibold">Problem</span>
+        <p class="text-xs text-white/65 mt-0.5 leading-relaxed line-clamp-2">${problem}</p>
+      </div>` : ''}
+
+      ${e.action ? `
+      <div class="mb-2">
+        <span class="text-[10px] text-white/30 uppercase tracking-widest font-semibold">Action Taken</span>
+        <p class="text-xs text-white/65 mt-0.5 leading-relaxed line-clamp-2">${action}</p>
+      </div>` : ''}
+
+      ${e.knowledge ? `
+      <div class="rounded-lg px-3 py-2 mt-3" style="background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.12);">
+        <span class="text-[10px] text-orange-wh uppercase tracking-widest font-semibold flex items-center gap-1">
+          <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          Knowledge
+        </span>
+        <p class="text-xs text-white/60 mt-1 leading-relaxed line-clamp-2">${knowledge}</p>
+      </div>` : ''}
+
+      ${e.photo ? `<div class="mt-3"><img src="${e.photo}" class="photo-thumb" /></div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ────────────────────────────────────────────
+// MODAL
+// ────────────────────────────────────────────
+function openModal(id) {
+  const entry = loadEntries().find(e => e.id === id);
+  if (!entry) return;
+
+  document.getElementById('modal-content').innerHTML = `
+    <div class="flex items-center gap-2 flex-wrap mb-1">
+      <h3 class="font-black text-xl text-white">${entry.machine}</h3>
+      ${catBadge(entry.category)}
+    </div>
+    <p class="text-xs text-white/30 mb-6">${formatDate(entry.date)}</p>
+
+    ${entry.problem ? `
+    <div class="mb-5">
+      <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-1.5">What was wrong</p>
+      <p class="text-sm text-white/70 leading-relaxed">${entry.problem}</p>
+    </div>` : ''}
+
+    ${entry.action ? `
+    <div class="mb-5">
+      <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-1.5">Action taken</p>
+      <p class="text-sm text-white/70 leading-relaxed">${entry.action}</p>
+    </div>` : ''}
+
+    ${entry.knowledge ? `
+    <div class="rounded-xl px-4 py-4 mb-5" style="background: rgba(247,162,27,0.07); border: 1px solid rgba(247,162,27,0.15);">
+      <p class="text-[10px] text-orange-wh uppercase tracking-widest font-semibold mb-1.5 flex items-center gap-1.5">
+        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        Knowledge for next person
+      </p>
+      <p class="text-sm text-white/70 leading-relaxed">${entry.knowledge}</p>
+    </div>` : ''}
+
+    ${entry.photo ? `
+    <div>
+      <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-2">Photo</p>
+      <img src="${entry.photo}" class="w-full rounded-xl border border-white/10 object-cover max-h-64" />
+    </div>` : ''}
+  `;
+
+  document.getElementById('modal').classList.remove('hidden');
+}
+
+document.getElementById('modal-close').addEventListener('click', () => {
+  document.getElementById('modal').classList.add('hidden');
+});
+document.getElementById('modal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('modal')) {
+    document.getElementById('modal').classList.add('hidden');
+  }
+});
+
+// ────────────────────────────────────────────
+// DELETE
+// ────────────────────────────────────────────
+function confirmDelete(id) {
+  if (confirm('Delete this entry? This cannot be undone.')) {
+    deleteEntry(id);
+    renderEntries();
+    showToast('Entry deleted.');
+  }
+}
+
+// ────────────────────────────────────────────
+// FORM SUBMIT
+// ────────────────────────────────────────────
+document.getElementById('log-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const machine   = document.getElementById('f-machine').value.trim();
+  const category  = document.getElementById('f-category').value;
+  const problem   = document.getElementById('f-problem').value.trim();
+  const action    = document.getElementById('f-action').value.trim();
+  const knowledge = document.getElementById('f-knowledge').value.trim();
+  const photo     = currentPhotoData;
+
+  if (!machine) {
+    document.getElementById('f-machine').focus();
+    document.getElementById('f-machine').style.borderColor = 'rgba(239,68,68,0.6)';
+    setTimeout(() => document.getElementById('f-machine').style.borderColor = '', 2000);
+    return;
+  }
+
+  const entry = {
+    id: Date.now().toString(),
+    date: new Date().toISOString(),
+    machine, category, problem, action, knowledge, photo
+  };
+
+  addEntry(entry);
+  clearForm();
+  renderEntries();
+  showToast('Entry saved to your logbook.');
+});
+
+document.getElementById('clear-form').addEventListener('click', clearForm);
+
+let currentPhotoData = null;
+
+function clearForm() {
+  document.getElementById('log-form').reset();
+  document.getElementById('photo-preview').classList.add('hidden');
+  document.getElementById('photo-label').textContent = 'Tap to attach photo';
+  currentPhotoData = null;
+}
+
+// ────────────────────────────────────────────
+// PHOTO ATTACH
+// ────────────────────────────────────────────
+document.getElementById('f-photo').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    currentPhotoData = ev.target.result;
+    document.getElementById('photo-thumb').src = currentPhotoData;
+    document.getElementById('photo-preview').classList.remove('hidden');
+    document.getElementById('photo-label').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+});
+
+// ────────────────────────────────────────────
+// VOICE INPUT (Web Speech API)
+// ────────────────────────────────────────────
+let activeRecognition = null;
+let activeTargetId = null;
+
+function startVoice(targetId) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    showToast('Voice input not supported in this browser. Try Chrome on Android.');
+    return;
+  }
+
+  // Stop any existing session
+  if (activeRecognition) {
+    activeRecognition.stop();
+    stopVoiceUI();
+    if (activeTargetId === targetId) return; // toggle off
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'en-PH';
+  recognition.continuous = false;
+  recognition.interimResults = true;
+
+  activeRecognition = recognition;
+  activeTargetId = targetId;
+
+  const btn = document.getElementById('voice-' + targetId);
+  btn.classList.add('recording-pulse');
+  btn.style.color = '#f87171';
+
+  document.getElementById('voice-status').classList.remove('hidden');
+  document.getElementById('voice-status-text').textContent = 'Listening... speak now';
+
+  const textarea = document.getElementById('f-' + targetId);
+  const originalValue = textarea.value;
+
+  recognition.onresult = function(event) {
+    let interim = '';
+    let final = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const t = event.results[i][0].transcript;
+      if (event.results[i].isFinal) final += t;
+      else interim += t;
+    }
+    textarea.value = originalValue + (originalValue ? ' ' : '') + (final || interim);
+  };
+
+  recognition.onend = function() {
+    stopVoiceUI();
+    if (textarea.value !== originalValue) showToast('Voice input added.');
+  };
+
+  recognition.onerror = function(event) {
+    stopVoiceUI();
+    if (event.error === 'not-allowed') showToast('Microphone permission denied.');
+    else if (event.error !== 'no-speech') showToast('Voice error: ' + event.error);
+  };
+
+  recognition.start();
+}
+
+function stopVoiceUI() {
+  activeRecognition = null;
+  activeTargetId = null;
+  document.getElementById('voice-status').classList.add('hidden');
+  ['problem','action','knowledge'].forEach(id => {
+    const btn = document.getElementById('voice-' + id);
+    if (btn) {
+      btn.classList.remove('recording-pulse');
+      btn.style.color = '';
+    }
+  });
+}
+
+['problem','action','knowledge'].forEach(id => {
+  document.getElementById('voice-' + id).addEventListener('click', () => startVoice(id));
+});
+
+// ────────────────────────────────────────────
+// SEARCH + FILTER
+// ────────────────────────────────────────────
+document.getElementById('search-input').addEventListener('input', renderEntries);
+document.getElementById('filter-category').addEventListener('change', renderEntries);
+
+// ────────────────────────────────────────────
+// TOAST
+// ────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = msg;
+  toast.classList.remove('hidden');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.add('hidden'), 2800);
+}
+
+// ────────────────────────────────────────────
+// INIT
+// ────────────────────────────────────────────
+renderEntries();
+</script>
+</body>
+</html>
