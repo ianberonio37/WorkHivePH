@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WorkHive – My Work Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'orange-wh': '#F7A21B',
+            'blue-wh':   '#29B6D9',
+            'navy-wh':   '#162032',
+          },
+          fontFamily: { poppins: ['Poppins', 'sans-serif'] },
+        },
+      },
+    };
+  </script>
+  <style>
+    * { font-family: 'Poppins', sans-serif; }
+    body {
+      background-color: #162032;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(247,162,27,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(41,182,217,0.05) 0%, transparent 60%);
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .wh-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem;
+    }
+
+    .wh-input {
+      background: rgba(22,32,50,0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.75rem;
+      color: white;
+      padding: 0.75rem 1rem;
+      width: 100%;
+      font-size: 0.875rem;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .wh-input:focus { border-color: rgba(247,162,27,0.5); box-shadow: 0 0 0 3px rgba(247,162,27,0.08); }
+    .wh-input::placeholder { color: rgba(255,255,255,0.3); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #F7A21B, #e8920a);
+      color: #162032;
+      font-weight: 700;
+      border-radius: 0.75rem;
+      padding: 0.875rem 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-size: 0.9rem;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.6);
+      font-weight: 500;
+      border-radius: 0.75rem;
+      padding: 0.875rem 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.25); color: white; }
+
+    /* Chat bubbles */
+    .bubble-user {
+      background: linear-gradient(135deg, rgba(247,162,27,0.2), rgba(247,162,27,0.1));
+      border: 1px solid rgba(247,162,27,0.25);
+      border-radius: 1rem 1rem 0.25rem 1rem;
+      padding: 0.75rem 1rem;
+      color: white;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      max-width: 80%;
+      margin-left: auto;
+      word-break: break-word;
+    }
+
+    .bubble-assistant {
+      background: linear-gradient(145deg, rgba(42,61,88,0.6), rgba(31,46,69,0.8));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 1rem 1rem 1rem 0.25rem;
+      padding: 0.75rem 1rem;
+      color: rgba(255,255,255,0.88);
+      font-size: 0.875rem;
+      line-height: 1.6;
+      max-width: 85%;
+      word-break: break-word;
+    }
+
+    .bubble-assistant p { margin-bottom: 0.5rem; }
+    .bubble-assistant p:last-child { margin-bottom: 0; }
+
+    /* Typing indicator */
+    .typing-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      animation: typing-bounce 1.2s infinite ease-in-out;
+    }
+    .typing-dot:nth-child(1) { animation-delay: 0s; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing-bounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    /* Send button */
+    .send-btn {
+      background: linear-gradient(135deg, #F7A21B, #e8920a);
+      border: none;
+      border-radius: 0.75rem;
+      width: 42px; height: 42px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .send-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(247,162,27,0.35); }
+    .send-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* Chat input area */
+    .chat-input-area {
+      background: rgba(22,32,50,0.9);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding: 0.875rem 1rem;
+    }
+
+    .chat-textarea {
+      background: rgba(42,61,88,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.75rem;
+      color: white;
+      padding: 0.65rem 0.875rem;
+      font-size: 0.875rem;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+      line-height: 1.5;
+      flex: 1;
+      min-height: 42px;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+    .chat-textarea:focus { border-color: rgba(247,162,27,0.4); }
+    .chat-textarea::placeholder { color: rgba(255,255,255,0.3); }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      background: linear-gradient(135deg, rgba(42,61,88,0.95), rgba(31,46,69,0.98));
+      border: 1px solid rgba(255,255,255,0.12);
+      color: white;
+      padding: 0.625rem 1.25rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      z-index: 9999;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Scrollbar */
+    #chat-messages::-webkit-scrollbar { width: 4px; }
+    #chat-messages::-webkit-scrollbar-track { background: transparent; }
+    #chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 999px; }
+
+    /* Fade-up animation */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.3s ease forwards; }
+
+    /* API key toggle */
+    .key-toggle {
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.4);
+      cursor: pointer;
+      padding: 0 0.5rem;
+      transition: color 0.2s;
+    }
+    .key-toggle:hover { color: rgba(255,255,255,0.7); }
+
+    .error-text { color: #f87171; font-size: 0.78rem; margin-top: 0.35rem; display: none; }
+    .error-text.show { display: block; }
+  </style>
+</head>
+<body class="text-white">
+
+  <!-- ───────── SETUP SCREEN ───────── -->
+  <div id="setup-screen" class="screen active">
+    <div class="max-w-lg mx-auto px-4 py-8">
+
+      <!-- Back nav -->
+      <div class="flex items-center justify-between mb-8">
+        <button onclick="handleBack()" class="flex items-center gap-2 text-white/40 hover:text-white/70 transition-colors text-sm font-medium">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+          </svg>
+          <span id="back-label">Basic Worker</span>
+        </button>
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full" style="background:#F7A21B;"></div>
+          <span class="text-xs text-white/40 font-medium tracking-wide uppercase">Stage 1</span>
+        </div>
+      </div>
+
+      <!-- Header -->
+      <div class="mb-8">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style="background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.2);">
+          <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="#F7A21B" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+          </svg>
+        </div>
+        <h1 class="text-2xl font-bold text-white mb-1">My Work Assistant</h1>
+        <p class="text-sm text-white/50">Ask anything — technical questions, safety, or your own job history.</p>
+      </div>
+
+      <!-- Form card -->
+      <div class="wh-card p-6 space-y-5">
+
+        <!-- Worker name -->
+        <div>
+          <label class="block text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Your Name</label>
+          <input id="worker-name" type="text" class="wh-input" placeholder="e.g. Juan dela Cruz" />
+          <p id="name-error" class="error-text">Please enter your name.</p>
+        </div>
+
+        <!-- Today's context (optional) -->
+        <div>
+          <label class="block text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">
+            Today's Context
+            <span class="text-white/30 normal-case font-normal ml-1">(optional)</span>
+          </label>
+          <textarea id="today-context" class="wh-input" rows="2" placeholder="e.g. Working on Line 3 pumps, PM schedule for Compressor C-01..." style="resize:none;"></textarea>
+        </div>
+
+        <!-- Records summary -->
+        <div id="records-summary" class="rounded-xl p-4" style="background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.15);">
+          <p class="text-xs font-semibold text-blue-wh mb-2">Records available for context</p>
+          <div id="records-list" class="space-y-1"></div>
+        </div>
+
+      </div>
+
+      <!-- CTA -->
+      <button onclick="startChat()" class="btn-primary w-full mt-5">
+        Start Chat
+      </button>
+
+      <p class="text-center text-xs text-white/25 mt-4">Powered by WorkHive AI</p>
+
+    </div>
+  </div>
+
+  <!-- ───────── CHAT SCREEN ───────── -->
+  <div id="chat-screen" class="screen" style="display:flex; flex-direction:column; height:100dvh;">
+
+    <!-- Chat header -->
+    <div class="flex items-center justify-between px-4 py-3 flex-shrink-0" style="background:rgba(22,32,50,0.95);border-bottom:1px solid rgba(255,255,255,0.07);">
+      <button onclick="handleBack()" class="flex items-center gap-2 text-white/40 hover:text-white/70 transition-colors text-sm font-medium">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Setup
+      </button>
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-2 rounded-full animate-pulse" style="background:#4ade80;"></div>
+        <span id="chat-worker-name" class="text-sm font-semibold text-white/80"></span>
+      </div>
+      <button onclick="clearChat()" class="text-xs text-white/30 hover:text-white/60 transition-colors font-medium">New Chat</button>
+    </div>
+
+    <!-- Messages area -->
+    <div id="chat-messages" class="flex-1 overflow-y-auto px-4 py-5 space-y-4">
+      <!-- messages rendered here -->
+    </div>
+
+    <!-- Input area -->
+    <div class="chat-input-area flex-shrink-0">
+      <div class="flex items-end gap-2 max-w-lg mx-auto">
+        <textarea
+          id="chat-input"
+          class="chat-textarea"
+          placeholder="Ask anything…"
+          rows="1"
+          onkeydown="handleInputKey(event)"
+          oninput="autoResize(this)"
+        ></textarea>
+        <button id="send-btn" class="send-btn" onclick="sendMessage()">
+          <svg class="w-4 h-4 text-navy-wh" fill="none" viewBox="0 0 24 24" stroke="#162032" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+          </svg>
+        </button>
+      </div>
+      <p class="text-center text-[10px] text-white/20 mt-2">Powered by Claude · Responses may be inaccurate · Always verify</p>
+    </div>
+
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // ── Config ────────────────────────────────────────────────────
+    const WORKER_URL = 'https://workhive-assistant.ian-beronio37.workers.dev';
+
+    // ── Storage keys ──────────────────────────────────────────────
+    const KEY_WORKER   = 'wh_last_worker';
+    const KEY_LOGBOOK  = 'wh_logbook_v1';
+    const KEY_CHECKLIST= 'wh_checklist_records';
+    const KEY_PARTS    = 'wh_parts_records';
+
+    // ── In-memory session state ───────────────────────────────────
+    let sessionMessages = []; // {role, content} for Claude API
+    let workerName = '';
+    let isLoading = false;
+
+    // ── Back navigation config ────────────────────────────────────
+    const backConfig = {
+      'setup-screen': { action: 'home' },
+      'chat-screen':  { action: 'back-to-setup' },
+    };
+    let currentScreen = 'setup-screen';
+
+    function handleBack() {
+      const cfg = backConfig[currentScreen];
+      if (cfg.action === 'home') {
+        window.location.href = 'index.html';
+      } else if (cfg.action === 'back-to-setup') {
+        showScreen('setup-screen');
+      }
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => {
+        s.classList.remove('active');
+        if (s.id === 'chat-screen') s.style.display = 'none';
+      });
+      const el = document.getElementById(id);
+      if (id === 'chat-screen') {
+        el.style.display = 'flex';
+      } else {
+        el.classList.add('active');
+      }
+      currentScreen = id;
+    }
+
+    // ── Toast ─────────────────────────────────────────────────────
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    // ── Load records summary on setup screen ──────────────────────
+    function loadRecordsSummary() {
+      const logbook   = JSON.parse(localStorage.getItem(KEY_LOGBOOK)   || '[]');
+      const checklist = JSON.parse(localStorage.getItem(KEY_CHECKLIST) || '[]');
+      const parts     = JSON.parse(localStorage.getItem(KEY_PARTS)     || '[]');
+
+      const list = document.getElementById('records-list');
+      const items = [
+        { label: 'Logbook entries',    count: logbook.length,   color: '#F7A21B' },
+        { label: 'Checklist records',  count: checklist.length, color: '#29B6D9' },
+        { label: 'Parts used records', count: parts.length,     color: '#4ade80' },
+      ];
+      list.innerHTML = items.map(i => `
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-white/50">${i.label}</span>
+          <span class="text-xs font-bold" style="color:${i.color}">${i.count} record${i.count !== 1 ? 's' : ''}</span>
+        </div>
+      `).join('');
+    }
+
+    // ── Build system prompt with worker records ───────────────────
+    function buildSystemPrompt(name, contextNote) {
+      const logbook   = JSON.parse(localStorage.getItem(KEY_LOGBOOK)   || '[]').slice(0, 10);
+      const checklist = JSON.parse(localStorage.getItem(KEY_CHECKLIST) || '[]').slice(0, 10);
+      const parts     = JSON.parse(localStorage.getItem(KEY_PARTS)     || '[]').slice(0, 10);
+
+      const fmtDate = iso => {
+        try { return new Date(iso).toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' }); }
+        catch { return iso; }
+      };
+
+      const logbookText = logbook.length
+        ? logbook.map(e =>
+            `[${fmtDate(e.date)}] Machine: ${e.machine || '—'} | Category: ${e.category || '—'} | Status: ${e.status || '—'}\n  Problem: ${e.problem || '—'}\n  Action: ${e.action || '—'}`
+          ).join('\n')
+        : 'No logbook entries yet.';
+
+      const checklistText = checklist.length
+        ? checklist.map(r => {
+            const done = (r.items || []).filter(i => i.checked).length;
+            const total = (r.items || []).length;
+            return `[${fmtDate(r.startTime)}] Job: ${r.jobType || '—'} | Completed: ${done}/${total} items`;
+          }).join('\n')
+        : 'No checklist records yet.';
+
+      const partsText = parts.length
+        ? parts.map(r =>
+            `[${fmtDate(r.startTime || r.date)}] Job Ref: ${r.jobRef || '—'} | Parts: ${(r.parts || []).map(p => `${p.name} x${p.qty}`).join(', ') || '—'}`
+          ).join('\n')
+        : 'No parts records yet.';
+
+      return `You are a personal work assistant for an industrial maintenance worker named ${name}.
+You help with any technical question — troubleshooting, safety, procedures, equipment, standards — and can also reference this worker's personal job records below.
+
+When answering from records, cite the specific entry (date, machine, or job reference).
+Keep answers clear and practical. Use bullet points or short paragraphs when helpful.
+${contextNote ? `\nToday's context from the worker: ${contextNote}` : ''}
+
+--- WORKER RECORDS (last 10 entries each) ---
+
+LOGBOOK:
+${logbookText}
+
+CHECKLISTS:
+${checklistText}
+
+PARTS USED:
+${partsText}
+--- END OF RECORDS ---`;
+    }
+
+    // ── Start chat ────────────────────────────────────────────────
+    function startChat() {
+      const nameEl  = document.getElementById('worker-name');
+      const nameErr = document.getElementById('name-error');
+
+      nameErr.classList.remove('show');
+      if (!nameEl.value.trim()) {
+        nameErr.classList.add('show');
+        nameEl.focus();
+        return;
+      }
+
+      workerName = nameEl.value.trim();
+      const contextNote = document.getElementById('today-context').value.trim();
+
+      // Persist for convenience
+      localStorage.setItem(KEY_WORKER, workerName);
+
+      // Build fresh session
+      sessionMessages = [];
+      const systemPrompt = buildSystemPrompt(workerName, contextNote);
+
+      // Store system prompt separately (not in messages array — passed at API call time)
+      window._systemPrompt = systemPrompt;
+
+      // Update chat header
+      document.getElementById('chat-worker-name').textContent = workerName;
+
+      // Show welcome message
+      showScreen('chat-screen');
+      addAssistantBubble(`Hi ${workerName}! I'm your Work Assistant. I can see your job records and I'm ready to help.\n\nAsk me anything — a technical question, what parts you used last week, your recent jobs, safety procedures, or anything else on your mind.`);
+      document.getElementById('chat-input').focus();
+    }
+
+    // ── Render bubbles ────────────────────────────────────────────
+    function addUserBubble(text) {
+      const container = document.getElementById('chat-messages');
+      const wrap = document.createElement('div');
+      wrap.className = 'flex justify-end fade-up';
+      wrap.innerHTML = `<div class="bubble-user">${escapeHtml(text)}</div>`;
+      container.appendChild(wrap);
+      scrollToBottom();
+    }
+
+    function addAssistantBubble(text) {
+      const container = document.getElementById('chat-messages');
+      const wrap = document.createElement('div');
+      wrap.className = 'flex justify-start fade-up';
+      // Simple markdown-ish: newlines to <br>, **bold**
+      const formatted = escapeHtml(text)
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+      wrap.innerHTML = `<div class="bubble-assistant">${formatted}</div>`;
+      container.appendChild(wrap);
+      scrollToBottom();
+    }
+
+    function addTypingIndicator() {
+      const container = document.getElementById('chat-messages');
+      const wrap = document.createElement('div');
+      wrap.id = 'typing-indicator';
+      wrap.className = 'flex justify-start fade-up';
+      wrap.innerHTML = `
+        <div class="bubble-assistant flex items-center gap-1.5 py-3 px-4">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>`;
+      container.appendChild(wrap);
+      scrollToBottom();
+    }
+
+    function removeTypingIndicator() {
+      const el = document.getElementById('typing-indicator');
+      if (el) el.remove();
+    }
+
+    function scrollToBottom() {
+      const c = document.getElementById('chat-messages');
+      c.scrollTop = c.scrollHeight;
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // ── Send message ──────────────────────────────────────────────
+    async function sendMessage() {
+      if (isLoading) return;
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+      autoResize(input);
+      addUserBubble(text);
+      sessionMessages.push({ role: 'user', content: text });
+
+      isLoading = true;
+      document.getElementById('send-btn').disabled = true;
+      addTypingIndicator();
+
+      try {
+        const response = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'llama-3.1-8b-instant',
+            max_tokens: 1024,
+            messages: [
+              { role: 'system', content: window._systemPrompt },
+              ...sessionMessages,
+            ],
+          }),
+        });
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err?.error?.message || `API error ${response.status}`);
+        }
+
+        const data = await response.json();
+        const reply = data.choices?.[0]?.message?.content || 'Sorry, I got an empty response.';
+
+        removeTypingIndicator();
+        sessionMessages.push({ role: 'assistant', content: reply });
+        addAssistantBubble(reply);
+
+      } catch (err) {
+        removeTypingIndicator();
+        const msg = err.message.includes('401')
+          ? 'Invalid API key. Please go back to Setup and check your key.'
+          : err.message.includes('429')
+          ? 'Rate limit reached. Please wait a moment and try again.'
+          : `Error: ${err.message}`;
+        addAssistantBubble(msg);
+        showToast('Something went wrong');
+      } finally {
+        isLoading = false;
+        document.getElementById('send-btn').disabled = false;
+        document.getElementById('chat-input').focus();
+      }
+    }
+
+    // ── Clear chat ────────────────────────────────────────────────
+    function clearChat() {
+      sessionMessages = [];
+      document.getElementById('chat-messages').innerHTML = '';
+      addAssistantBubble(`Chat cleared! What would you like to ask, ${workerName}?`);
+      showToast('Chat cleared');
+    }
+
+    // ── Input helpers ─────────────────────────────────────────────
+    function handleInputKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    }
+
+    function autoResize(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+    }
+
+    // ── Init ──────────────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', () => {
+      // Auto-fill saved worker name
+      const savedName = localStorage.getItem(KEY_WORKER);
+      if (savedName) document.getElementById('worker-name').value = savedName;
+
+      loadRecordsSummary();
+    });
+  </script>
+</body>
+</html>
