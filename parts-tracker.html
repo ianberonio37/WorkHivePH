@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WorkHive Parts Used Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'orange-wh': '#F7A21B',
+            'blue-wh':   '#29B6D9',
+            'navy-wh':   '#162032',
+          },
+          fontFamily: { poppins: ['Poppins', 'sans-serif'] },
+        },
+      },
+    };
+  </script>
+  <style>
+    * { font-family: 'Poppins', sans-serif; }
+    body {
+      background-color: #162032;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(247,162,27,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(41,182,217,0.05) 0%, transparent 60%);
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .wh-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem;
+    }
+
+    .sel-btn {
+      background: linear-gradient(145deg, rgba(42,61,88,0.4) 0%, rgba(31,46,69,0.6) 100%);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      width: 100%;
+      padding: 0.875rem 1rem;
+      color: rgba(255,255,255,0.7);
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+    .sel-btn:hover { border-color: rgba(247,162,27,0.3); color: white; background: rgba(247,162,27,0.06); }
+    .sel-btn.selected { border-color: rgba(247,162,27,0.5); background: rgba(247,162,27,0.1); color: white; }
+    .sel-btn.selected .sel-dot { background: #F7A21B; }
+
+    .sel-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    .wh-input {
+      background: rgba(22,32,50,0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.75rem;
+      color: white;
+      padding: 0.75rem 1rem;
+      width: 100%;
+      font-size: 0.875rem;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .wh-input:focus { border-color: rgba(247,162,27,0.5); }
+    .wh-input::placeholder { color: rgba(255,255,255,0.3); }
+    .wh-input option { background: #1e2d45; color: white; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #F7A21B, #e8920a);
+      color: #162032;
+      font-weight: 700;
+      border-radius: 0.75rem;
+      padding: 0.875rem 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-size: 0.9rem;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.6);
+      font-weight: 500;
+      border-radius: 0.75rem;
+      padding: 0.875rem 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.25); color: white; }
+
+    .btn-danger {
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.25);
+      color: #f87171;
+      font-weight: 500;
+      border-radius: 0.5rem;
+      padding: 0.3rem 0.65rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.75rem;
+    }
+    .btn-danger:hover { background: rgba(239,68,68,0.22); }
+
+    .btn-edit {
+      background: rgba(41,182,217,0.1);
+      border: 1px solid rgba(41,182,217,0.25);
+      color: #29B6D9;
+      font-weight: 500;
+      border-radius: 0.5rem;
+      padding: 0.3rem 0.65rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.75rem;
+    }
+    .btn-edit:hover { background: rgba(41,182,217,0.2); }
+
+    .part-row {
+      background: linear-gradient(145deg, rgba(42,61,88,0.4) 0%, rgba(31,46,69,0.5) 100%);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 0.75rem;
+      padding: 0.875rem 1rem;
+      transition: border-color 0.2s;
+    }
+    .part-row:hover { border-color: rgba(247,162,27,0.15); }
+
+    .source-badge {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .source-stock    { background: rgba(41,182,217,0.15); color: #29B6D9; border: 1px solid rgba(41,182,217,0.25); }
+    .source-purchased { background: rgba(247,162,27,0.15); color: #F7A21B; border: 1px solid rgba(247,162,27,0.25); }
+    .source-borrowed  { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.25); }
+    .source-fabricated{ background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
+
+    .history-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.35) 0%, rgba(31,46,69,0.55) 100%);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .history-card:hover { border-color: rgba(247,162,27,0.2); }
+
+    .progress-bar-bg {
+      background: rgba(255,255,255,0.07);
+      border-radius: 999px;
+      height: 6px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #F7A21B, #29B6D9);
+      transition: width 0.4s ease;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+
+    /* Add Part form card */
+    .add-part-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.6) 0%, rgba(31,46,69,0.8) 100%);
+      border: 1px solid rgba(247,162,27,0.2);
+      border-radius: 1rem;
+      padding: 1.25rem;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 999px; }
+
+    /* Nav pill */
+    .nav-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .nav-pill:hover { color: white; border-color: rgba(255,255,255,0.2); }
+
+    label { color: rgba(255,255,255,0.55); font-size: 0.75rem; font-weight: 500; display: block; margin-bottom: 0.4rem; letter-spacing: 0.03em; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     ABORT CONFIRMATION MODAL
+════════════════════════════════════════════ -->
+<div id="abort-modal" class="modal-overlay">
+  <div class="wh-card p-6 max-w-sm w-full">
+    <div class="text-center mb-4">
+      <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3);">
+        <svg class="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+      </div>
+      <p class="text-white font-semibold text-base">Cancel this entry?</p>
+      <p class="text-white/40 text-sm mt-1">All unsaved parts will be lost.</p>
+    </div>
+    <div class="flex gap-3">
+      <button onclick="closeAbortModal()" class="btn-ghost flex-1">Keep Working</button>
+      <button onclick="confirmAbort()" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.35);color:#f87171;font-weight:600;border-radius:0.75rem;padding:0.875rem 1.5rem;cursor:pointer;flex:1;font-size:0.9rem;">Yes, Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     EDIT PART MODAL
+════════════════════════════════════════════ -->
+<div id="edit-modal" class="modal-overlay">
+  <div class="wh-card p-6 max-w-md w-full">
+    <p class="text-white font-semibold mb-4">Edit Part</p>
+    <div class="space-y-3">
+      <div>
+        <label>Part Name / Description *</label>
+        <input id="edit-name" type="text" class="wh-input" placeholder="e.g. V-Belt A-42" />
+      </div>
+      <div>
+        <label>Part Number (optional)</label>
+        <input id="edit-partno" type="text" class="wh-input" placeholder="e.g. SKF-6205-2RS" />
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label>Qty Used *</label>
+          <input id="edit-qty" type="number" min="0.01" step="any" class="wh-input" placeholder="e.g. 2" />
+        </div>
+        <div>
+          <label>Unit *</label>
+          <select id="edit-unit" class="wh-input">
+            <option value="pcs">pcs</option>
+            <option value="meters">meters</option>
+            <option value="liters">liters</option>
+            <option value="kg">kg</option>
+            <option value="set">set</option>
+            <option value="box">box</option>
+            <option value="roll">roll</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label>Source *</label>
+        <select id="edit-source" class="wh-input">
+          <option value="">-- Select Source --</option>
+          <option value="Stock Room">Stock Room</option>
+          <option value="Purchased">Purchased</option>
+          <option value="Borrowed">Borrowed</option>
+          <option value="Fabricated/Made in-house">Fabricated/Made in-house</option>
+        </select>
+      </div>
+    </div>
+    <div id="edit-error" class="mt-3 text-red-400 text-xs" style="display:none;"></div>
+    <div class="flex gap-3 mt-5">
+      <button onclick="closeEditModal()" class="btn-ghost flex-1">Cancel</button>
+      <button onclick="saveEdit()" class="btn-primary flex-1">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MAIN APP
+════════════════════════════════════════════ -->
+<div class="max-w-lg mx-auto px-4 py-6">
+
+  <!-- Top nav -->
+  <div class="flex items-center justify-between mb-6">
+    <a href="index.html" class="nav-pill">
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+      Back to Basic Worker
+    </a>
+    <button onclick="showHistory()" class="nav-pill">
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      History
+    </button>
+  </div>
+
+  <!-- Brand -->
+  <div class="flex items-center gap-2 mb-6">
+    <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,rgba(247,162,27,0.2),rgba(247,162,27,0.08));border:1px solid rgba(247,162,27,0.25);">
+      <svg class="w-4 h-4" style="color:#F7A21B;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+    </div>
+    <div>
+      <p class="text-white font-bold text-sm leading-tight">Parts Used Tracker</p>
+      <p class="text-white/40 text-xs">Log consumables & parts per job</p>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN 1: SETUP ═══ -->
+  <div id="setup-screen" class="screen active">
+    <div class="wh-card p-5 mb-4">
+      <p class="text-white font-semibold text-base mb-1">Start a New Entry</p>
+      <p class="text-white/40 text-xs mb-5">Fill in the job details before logging parts.</p>
+
+      <!-- Worker Name -->
+      <div class="mb-4">
+        <label>Your Name *</label>
+        <input id="worker-name" type="text" class="wh-input" placeholder="e.g. Juan dela Cruz" />
+      </div>
+
+      <!-- Job Reference -->
+      <div class="mb-4">
+        <label>Job Reference *</label>
+        <select id="job-ref-select" class="wh-input mb-2" onchange="onJobRefSelect(this.value)">
+          <option value="">-- Link to a Logbook Entry (optional) --</option>
+        </select>
+        <input id="job-ref-text" type="text" class="wh-input" placeholder="Or type WO number / equipment tag / job name" />
+      </div>
+
+      <!-- Job Type -->
+      <div class="mb-4">
+        <label>Job Type *</label>
+        <div class="space-y-2" id="job-type-btns">
+          <button class="sel-btn" onclick="selectJobType(this, 'Breakdown / Corrective')">
+            <div class="flex items-center gap-3"><div class="sel-dot"></div><span>Breakdown / Corrective</span></div>
+          </button>
+          <button class="sel-btn" onclick="selectJobType(this, 'Preventive Maintenance')">
+            <div class="flex items-center gap-3"><div class="sel-dot"></div><span>Preventive Maintenance</span></div>
+          </button>
+          <button class="sel-btn" onclick="selectJobType(this, 'Project Work')">
+            <div class="flex items-center gap-3"><div class="sel-dot"></div><span>Project Work</span></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Date -->
+      <div class="mb-5">
+        <label>Date *</label>
+        <input id="job-date" type="date" class="wh-input" />
+      </div>
+
+      <div id="setup-error" class="mb-3 text-red-400 text-xs" style="display:none;"></div>
+      <button onclick="startEntry()" class="btn-primary w-full">Start Logging Parts →</button>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN 2: PARTS ENTRY ═══ -->
+  <div id="entry-screen" class="screen">
+
+    <!-- Header card -->
+    <div class="wh-card p-4 mb-4">
+      <div class="flex items-start justify-between gap-2 mb-3">
+        <div>
+          <p id="entry-title" class="text-white font-semibold text-sm leading-tight"></p>
+          <p id="entry-subtitle" class="text-white/40 text-xs mt-0.5"></p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p id="entry-count" class="font-bold text-sm" style="color:#F7A21B;">0 parts</p>
+          <p id="entry-time" class="text-white/35 text-xs">00:00</p>
+        </div>
+      </div>
+      <!-- Progress indicator -->
+      <div class="progress-bar-bg">
+        <div id="entry-progress" class="progress-bar-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Add Part Form -->
+    <div class="add-part-card mb-4">
+      <p class="text-white/70 text-xs font-semibold uppercase tracking-wider mb-3">Add a Part</p>
+      <div class="space-y-3">
+        <div>
+          <label>Part Name / Description *</label>
+          <input id="new-name" type="text" class="wh-input" placeholder="e.g. V-Belt A-42, Bearing 6205, Grease" />
+        </div>
+        <div>
+          <label>Part Number (optional)</label>
+          <input id="new-partno" type="text" class="wh-input" placeholder="e.g. SKF-6205-2RS" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label>Qty Used *</label>
+            <input id="new-qty" type="number" min="0.01" step="any" class="wh-input" placeholder="e.g. 2" />
+          </div>
+          <div>
+            <label>Unit *</label>
+            <select id="new-unit" class="wh-input">
+              <option value="pcs">pcs</option>
+              <option value="meters">meters</option>
+              <option value="liters">liters</option>
+              <option value="kg">kg</option>
+              <option value="set">set</option>
+              <option value="box">box</option>
+              <option value="roll">roll</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label>Source *</label>
+          <select id="new-source" class="wh-input">
+            <option value="">-- Select Source --</option>
+            <option value="Stock Room">Stock Room</option>
+            <option value="Purchased">Purchased</option>
+            <option value="Borrowed">Borrowed</option>
+            <option value="Fabricated/Made in-house">Fabricated/Made in-house</option>
+          </select>
+        </div>
+      </div>
+      <div id="add-error" class="mt-2 text-red-400 text-xs" style="display:none;"></div>
+      <button onclick="addPart()" class="btn-primary w-full mt-4">+ Add Part to List</button>
+    </div>
+
+    <!-- Parts List -->
+    <div id="parts-list-section" style="display:none;" class="mb-4">
+      <p class="text-white/50 text-xs font-semibold uppercase tracking-wider mb-3">Parts Added</p>
+      <div id="parts-list" class="space-y-2"></div>
+    </div>
+
+    <!-- Empty state -->
+    <div id="empty-state" class="wh-card p-8 text-center mb-4">
+      <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
+        <svg class="w-6 h-6 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+      </div>
+      <p class="text-white/30 text-sm">No parts added yet.</p>
+      <p class="text-white/20 text-xs mt-1">Use the form above to log each part used.</p>
+    </div>
+
+    <!-- Footer actions -->
+    <div id="entry-error" class="mb-3 text-red-400 text-xs text-center" style="display:none;"></div>
+    <div class="flex gap-3">
+      <button onclick="openAbortModal()" class="btn-ghost flex-1">Cancel</button>
+      <button onclick="completeEntry()" class="btn-primary flex-1">Complete Entry →</button>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN 3: SUMMARY ═══ -->
+  <div id="summary-screen" class="screen">
+
+    <!-- Success banner -->
+    <div class="wh-card p-5 mb-4 text-center" style="border-color:rgba(247,162,27,0.2);">
+      <div class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3" style="background:linear-gradient(135deg,rgba(247,162,27,0.2),rgba(247,162,27,0.08));border:1px solid rgba(247,162,27,0.3);">
+        <svg class="w-7 h-7" style="color:#F7A21B;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <p class="text-white font-bold text-lg">Entry Complete</p>
+      <p class="text-white/40 text-sm mt-1">Parts have been logged for this job.</p>
+    </div>
+
+    <!-- Summary card -->
+    <div class="wh-card p-5 mb-4">
+      <p class="text-white/50 text-xs font-semibold uppercase tracking-wider mb-4">Job Summary</p>
+      <div id="summary-details" class="space-y-2 mb-5"></div>
+      <div id="summary-parts-section">
+        <p class="text-white/50 text-xs font-semibold uppercase tracking-wider mb-3">Parts Used</p>
+        <div id="summary-parts" class="space-y-2"></div>
+      </div>
+    </div>
+
+    <div class="flex gap-3">
+      <button onclick="goHome()" class="btn-ghost flex-1">New Entry</button>
+      <button onclick="saveAndHistory()" class="btn-primary flex-1">Save to History</button>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN 4: HISTORY ═══ -->
+  <div id="history-screen" class="screen">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <p class="text-white font-semibold">History</p>
+        <p class="text-white/40 text-xs">All saved parts entries</p>
+      </div>
+      <button onclick="goHome()" class="nav-pill">+ New Entry</button>
+    </div>
+
+    <div id="history-empty" class="wh-card p-10 text-center" style="display:none;">
+      <p class="text-white/30 text-sm">No entries saved yet.</p>
+      <p class="text-white/20 text-xs mt-1">Complete your first entry to see history here.</p>
+    </div>
+
+    <div id="history-list" class="space-y-3"></div>
+  </div>
+
+</div><!-- /max-w -->
+
+<script>
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+const PARTS_KEY    = 'wh_parts_records';
+const LOGBOOK_KEY  = 'wh_logbook_v1';
+const WORKER_KEY   = 'wh_last_worker';
+
+let state = {
+  workerName: '',
+  jobRef:     '',
+  jobType:    '',
+  date:       '',
+  startTime:  null,
+  parts:      []   // { id, name, partNo, qty, unit, source }
+};
+
+let timerInterval = null;
+let editingIdx = null;
+let pendingRecord = null;
+
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function fmtDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' });
+}
+
+function fmtDuration(ms) {
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  const h = Math.floor(m / 60);
+  if (h > 0) return `${h}h ${m % 60}m`;
+  return `${m}m ${s % 60}s`;
+}
+
+function elapsed() {
+  if (!state.startTime) return '00:00';
+  const ms = Date.now() - state.startTime;
+  const s  = Math.floor(ms / 1000);
+  const m  = Math.floor(s / 60);
+  const hh = String(Math.floor(m / 60)).padStart(2,'0');
+  const mm = String(m % 60).padStart(2,'0');
+  const ss = String(s % 60).padStart(2,'0');
+  if (hh !== '00') return `${hh}:${mm}:${ss}`;
+  return `${mm}:${ss}`;
+}
+
+function sourceBadgeClass(src) {
+  if (src === 'Stock Room')              return 'source-stock';
+  if (src === 'Purchased')               return 'source-purchased';
+  if (src === 'Borrowed')                return 'source-borrowed';
+  if (src === 'Fabricated/Made in-house') return 'source-fabricated';
+  return 'source-stock';
+}
+
+function sourceBadgeLabel(src) {
+  if (src === 'Fabricated/Made in-house') return 'Fabricated';
+  return src;
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
+// ═══════════════════════════════════════════
+// SETUP SCREEN
+// ═══════════════════════════════════════════
+function initSetup() {
+  // Pre-fill worker name
+  const saved = localStorage.getItem(WORKER_KEY);
+  if (saved) document.getElementById('worker-name').value = saved;
+
+  // Set today's date
+  document.getElementById('job-date').value = new Date().toISOString().split('T')[0];
+
+  // Populate logbook dropdown
+  const select = document.getElementById('job-ref-select');
+  select.innerHTML = '<option value="">-- Link to a Logbook Entry (optional) --</option>';
+  try {
+    const logbook = JSON.parse(localStorage.getItem(LOGBOOK_KEY)) || [];
+    // Show last 15 entries, newest first
+    const recent = [...logbook].reverse().slice(0, 15);
+    recent.forEach(entry => {
+      const opt = document.createElement('option');
+      const label = [entry.equipment || entry.equipmentName || '', fmtDate(entry.date || entry.timestamp?.split('T')[0] || '')].filter(Boolean).join(' — ');
+      opt.value = label || 'Logbook Entry';
+      opt.textContent = opt.value;
+      select.appendChild(opt);
+    });
+  } catch(e) {}
+}
+
+function onJobRefSelect(val) {
+  if (val) {
+    document.getElementById('job-ref-text').value = val;
+    document.getElementById('job-ref-text').placeholder = 'Selected from logbook — or type to override';
+  }
+}
+
+function selectJobType(btn, type) {
+  document.querySelectorAll('#job-type-btns .sel-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.jobType = type;
+}
+
+function startEntry() {
+  showError('setup-error', '');
+  const name    = document.getElementById('worker-name').value.trim();
+  const jobRef  = document.getElementById('job-ref-text').value.trim();
+  const date    = document.getElementById('job-date').value;
+
+  if (!name)         return showError('setup-error', 'Please enter your name.');
+  if (!jobRef)       return showError('setup-error', 'Please enter a job reference or link a logbook entry.');
+  if (!state.jobType) return showError('setup-error', 'Please select a job type.');
+  if (!date)         return showError('setup-error', 'Please select a date.');
+
+  localStorage.setItem(WORKER_KEY, name);
+
+  state.workerName = name;
+  state.jobRef     = jobRef;
+  state.date       = date;
+  state.startTime  = Date.now();
+  state.parts      = [];
+
+  renderEntryHeader();
+  renderPartsList();
+  startTimer();
+  showScreen('entry-screen');
+}
+
+// ═══════════════════════════════════════════
+// ENTRY SCREEN
+// ═══════════════════════════════════════════
+function renderEntryHeader() {
+  document.getElementById('entry-title').textContent   = state.jobRef;
+  document.getElementById('entry-subtitle').textContent = `${state.workerName} · ${state.jobType} · ${fmtDate(state.date)}`;
+  updateCountProgress();
+}
+
+function updateCountProgress() {
+  const n = state.parts.length;
+  document.getElementById('entry-count').textContent = n === 1 ? '1 part' : `${n} parts`;
+  // Progress bar: visual fill, capped at 100% after 10 parts (reasonable max visual)
+  const pct = Math.min(n * 10, 100);
+  document.getElementById('entry-progress').style.width = pct + '%';
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    document.getElementById('entry-time').textContent = elapsed();
+  }, 1000);
+}
+
+function addPart() {
+  showError('add-error', '');
+  const name   = document.getElementById('new-name').value.trim();
+  const partNo = document.getElementById('new-partno').value.trim();
+  const qty    = parseFloat(document.getElementById('new-qty').value);
+  const unit   = document.getElementById('new-unit').value;
+  const source = document.getElementById('new-source').value;
+
+  if (!name)            return showError('add-error', 'Part name is required.');
+  if (!qty || qty <= 0) return showError('add-error', 'Quantity must be greater than 0.');
+  if (!source)          return showError('add-error', 'Please select a source.');
+
+  state.parts.push({
+    id:     Date.now(),
+    name,
+    partNo,
+    qty,
+    unit,
+    source
+  });
+
+  // Clear form
+  document.getElementById('new-name').value   = '';
+  document.getElementById('new-partno').value = '';
+  document.getElementById('new-qty').value    = '';
+  document.getElementById('new-source').value = '';
+  document.getElementById('new-name').focus();
+
+  renderPartsList();
+  updateCountProgress();
+  showError('entry-error', '');
+}
+
+function renderPartsList() {
+  const container = document.getElementById('parts-list');
+  const section   = document.getElementById('parts-list-section');
+  const empty     = document.getElementById('empty-state');
+
+  if (state.parts.length === 0) {
+    section.style.display = 'none';
+    empty.style.display   = 'block';
+    return;
+  }
+
+  section.style.display = 'block';
+  empty.style.display   = 'none';
+
+  container.innerHTML = state.parts.map((p, i) => `
+    <div class="part-row">
+      <div class="flex items-start justify-between gap-2">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <p class="text-white font-semibold text-sm">${escHtml(p.name)}</p>
+            <span class="source-badge ${sourceBadgeClass(p.source)}">${sourceBadgeLabel(p.source)}</span>
+          </div>
+          ${p.partNo ? `<p class="text-white/40 text-xs mt-0.5">PN: ${escHtml(p.partNo)}</p>` : ''}
+          <p class="text-white/60 text-sm mt-1"><span class="font-bold" style="color:#F7A21B;">${p.qty}</span> <span class="text-white/40">${p.unit}</span></p>
+        </div>
+        <div class="flex gap-1.5 flex-shrink-0 mt-0.5">
+          <button class="btn-edit" onclick="openEditModal(${i})">Edit</button>
+          <button class="btn-danger" onclick="deletePart(${i})">Remove</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function deletePart(i) {
+  state.parts.splice(i, 1);
+  renderPartsList();
+  updateCountProgress();
+}
+
+function completeEntry() {
+  showError('entry-error', '');
+  if (state.parts.length === 0) {
+    return showError('entry-error', 'Add at least one part before completing.');
+  }
+
+  clearInterval(timerInterval);
+  const duration = Date.now() - state.startTime;
+
+  pendingRecord = {
+    id:          Date.now(),
+    workerName:  state.workerName,
+    jobRef:      state.jobRef,
+    jobType:     state.jobType,
+    date:        state.date,
+    duration,
+    parts:       JSON.parse(JSON.stringify(state.parts))
+  };
+
+  renderSummary(pendingRecord);
+  showScreen('summary-screen');
+}
+
+// ═══════════════════════════════════════════
+// EDIT PART MODAL
+// ═══════════════════════════════════════════
+function openEditModal(i) {
+  editingIdx = i;
+  const p = state.parts[i];
+  document.getElementById('edit-name').value   = p.name;
+  document.getElementById('edit-partno').value = p.partNo || '';
+  document.getElementById('edit-qty').value    = p.qty;
+  document.getElementById('edit-unit').value   = p.unit;
+  document.getElementById('edit-source').value = p.source;
+  showError('edit-error', '');
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.remove('open');
+  editingIdx = null;
+}
+
+function saveEdit() {
+  showError('edit-error', '');
+  const name   = document.getElementById('edit-name').value.trim();
+  const partNo = document.getElementById('edit-partno').value.trim();
+  const qty    = parseFloat(document.getElementById('edit-qty').value);
+  const unit   = document.getElementById('edit-unit').value;
+  const source = document.getElementById('edit-source').value;
+
+  if (!name)            return showError('edit-error', 'Part name is required.');
+  if (!qty || qty <= 0) return showError('edit-error', 'Quantity must be greater than 0.');
+  if (!source)          return showError('edit-error', 'Please select a source.');
+
+  state.parts[editingIdx] = { ...state.parts[editingIdx], name, partNo, qty, unit, source };
+  closeEditModal();
+  renderPartsList();
+}
+
+// ═══════════════════════════════════════════
+// ABORT MODAL
+// ═══════════════════════════════════════════
+function openAbortModal() {
+  document.getElementById('abort-modal').classList.add('open');
+}
+function closeAbortModal() {
+  document.getElementById('abort-modal').classList.remove('open');
+}
+function confirmAbort() {
+  clearInterval(timerInterval);
+  closeAbortModal();
+  resetState();
+  initSetup();
+  showScreen('setup-screen');
+}
+
+// ═══════════════════════════════════════════
+// SUMMARY SCREEN
+// ═══════════════════════════════════════════
+function renderSummary(record) {
+  const details = [
+    { label: 'Worker',    value: record.workerName },
+    { label: 'Job Ref',   value: record.jobRef },
+    { label: 'Job Type',  value: record.jobType },
+    { label: 'Date',      value: fmtDate(record.date) },
+    { label: 'Duration',  value: fmtDuration(record.duration) },
+    { label: 'Parts Used', value: `${record.parts.length} item${record.parts.length !== 1 ? 's' : ''}` },
+  ];
+
+  document.getElementById('summary-details').innerHTML = details.map(d => `
+    <div class="flex justify-between items-baseline gap-2 py-2" style="border-bottom:1px solid rgba(255,255,255,0.05);">
+      <span class="text-white/40 text-xs uppercase tracking-wide flex-shrink-0">${d.label}</span>
+      <span class="text-white text-sm font-medium text-right">${d.value}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('summary-parts').innerHTML = record.parts.map(p => `
+    <div class="part-row">
+      <div class="flex items-center justify-between gap-2 flex-wrap">
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <p class="text-white text-sm font-semibold">${escHtml(p.name)}</p>
+            <span class="source-badge ${sourceBadgeClass(p.source)}">${sourceBadgeLabel(p.source)}</span>
+          </div>
+          ${p.partNo ? `<p class="text-white/40 text-xs">PN: ${escHtml(p.partNo)}</p>` : ''}
+        </div>
+        <p class="text-sm"><span class="font-bold" style="color:#F7A21B;">${p.qty}</span> <span class="text-white/40">${p.unit}</span></p>
+      </div>
+    </div>
+  `).join('');
+}
+
+function saveAndHistory() {
+  if (!pendingRecord) return;
+  const records = getRecords();
+  records.push(pendingRecord);
+  localStorage.setItem(PARTS_KEY, JSON.stringify(records));
+  pendingRecord = null;
+  renderHistory();
+  showScreen('history-screen');
+}
+
+function goHome() {
+  pendingRecord = null;
+  resetState();
+  initSetup();
+  showScreen('setup-screen');
+}
+
+// ═══════════════════════════════════════════
+// HISTORY SCREEN
+// ═══════════════════════════════════════════
+function showHistory() {
+  renderHistory();
+  showScreen('history-screen');
+}
+
+function getRecords() {
+  try { return JSON.parse(localStorage.getItem(PARTS_KEY)) || []; }
+  catch(e) { return []; }
+}
+
+function renderHistory() {
+  const records = getRecords().reverse();
+  const empty   = document.getElementById('history-empty');
+  const list    = document.getElementById('history-list');
+
+  if (records.length === 0) {
+    empty.style.display = 'block';
+    list.innerHTML = '';
+    return;
+  }
+
+  empty.style.display = 'none';
+  list.innerHTML = records.map((r, i) => `
+    <div class="history-card">
+      <div class="p-4 cursor-pointer" onclick="toggleHistoryDetail(${i})">
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex-1 min-w-0">
+            <p class="text-white font-semibold text-sm truncate">${escHtml(r.jobRef)}</p>
+            <p class="text-white/40 text-xs mt-0.5">${escHtml(r.workerName)} · ${escHtml(r.jobType)}</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="font-bold text-sm" style="color:#F7A21B;">${r.parts.length} part${r.parts.length !== 1 ? 's' : ''}</p>
+            <p class="text-white/35 text-xs">${fmtDate(r.date)}</p>
+          </div>
+        </div>
+      </div>
+      <div id="hist-detail-${i}" style="display:none; border-top:1px solid rgba(255,255,255,0.06);">
+        <div class="p-4 space-y-2">
+          <div class="flex justify-between text-xs py-1" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+            <span class="text-white/35 uppercase tracking-wide">Duration</span>
+            <span class="text-white/70">${fmtDuration(r.duration)}</span>
+          </div>
+          ${r.parts.map(p => `
+            <div class="part-row">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <p class="text-white text-sm">${escHtml(p.name)}</p>
+                    <span class="source-badge ${sourceBadgeClass(p.source)}">${sourceBadgeLabel(p.source)}</span>
+                  </div>
+                  ${p.partNo ? `<p class="text-white/40 text-xs">PN: ${escHtml(p.partNo)}</p>` : ''}
+                </div>
+                <p class="text-sm"><span class="font-bold" style="color:#F7A21B;">${p.qty}</span> <span class="text-white/40">${p.unit}</span></p>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleHistoryDetail(i) {
+  const el = document.getElementById(`hist-detail-${i}`);
+  if (!el) return;
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// ═══════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════
+function resetState() {
+  state = { workerName:'', jobRef:'', jobType:'', date:'', startTime:null, parts:[] };
+  clearInterval(timerInterval);
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// Close modals on backdrop click
+document.getElementById('abort-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeAbortModal();
+});
+document.getElementById('edit-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeEditModal();
+});
+
+// Enter key on new-name triggers add
+document.addEventListener('DOMContentLoaded', () => {
+  initSetup();
+  document.getElementById('new-name').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addPart();
+  });
+});
+</script>
+</body>
+</html>
