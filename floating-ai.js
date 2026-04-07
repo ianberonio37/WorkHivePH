@@ -469,7 +469,7 @@ Be concise, practical, and use bold for key terms. Keep responses under 120 word
 
     try {
       let reply;
-      if (config.apiEnabled && config.apiKey) {
+      if (config.apiEnabled && config.workerUrl) {
         reply = await callAPI(message);
       } else {
         // Demo mode — simulate delay
