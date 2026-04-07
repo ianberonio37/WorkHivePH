@@ -407,8 +407,8 @@
 
     <div class="grid lg:grid-cols-2 gap-16 items-center">
 
-      <!-- Left copy -->
-      <div>
+      <!-- Left copy (visually second on desktop) -->
+      <div class="lg:order-2">
         <div class="badge mb-6">
           <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg>
           Now Live · Philippines
@@ -421,7 +421,7 @@
         </h1>
 
         <p class="text-lg text-white/65 leading-[1.75] max-w-lg mb-10 font-light">
-          WorkHive begins as a simple tool that helps a single technician do their job better.
+          WorkHive begins as a simple tool that helps every worker on the floor do their job better.
           Through daily use, it becomes a trusted system. Through network growth, a platform.
           Through data accumulation, an intelligence engine that transforms Philippine industry
           from reactive firefighting to planned, predictive maintenance.
@@ -451,8 +451,8 @@
         </div>
       </div>
 
-      <!-- Right visual: Worker Evolution Preview -->
-      <div class="relative flex justify-center lg:justify-end">
+      <!-- Right visual: Worker Evolution Preview (visually first on desktop) -->
+      <div class="relative flex justify-center lg:justify-start lg:order-1">
         <div class="relative w-full max-w-sm lg:max-w-md">
 
           <!-- glow ring -->
@@ -464,8 +464,8 @@
 
             <!-- card header -->
             <div class="px-6 pt-6 pb-4 border-b border-white/[0.07]">
-              <p class="text-[10px] text-orange-wh font-bold uppercase tracking-[0.15em] mb-1">Your Growth Path</p>
-              <h3 class="font-black text-white text-lg leading-snug">Where will <span style="background: linear-gradient(135deg,#F7A21B,#FDB94A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">you</span> stop?</h3>
+              <p class="text-[10px] text-orange-wh font-bold uppercase tracking-[0.15em] mb-1">Free to Use. Start Today.</p>
+              <h3 class="font-black text-white text-lg leading-snug">Tools built for <span style="background: linear-gradient(135deg,#F7A21B,#FDB94A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">your job</span></h3>
             </div>
 
             <!-- Stage rows -->
