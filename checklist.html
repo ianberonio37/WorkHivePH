@@ -192,10 +192,10 @@
 
     <!-- Top nav -->
     <div class="flex items-center justify-between mb-8">
-      <a href="index.html" class="flex items-center gap-2 text-white/40 hover:text-white/70 transition-colors text-sm font-medium">
+      <button id="back-btn" onclick="handleBack()" class="flex items-center gap-2 text-white/40 hover:text-white/70 transition-colors text-sm font-medium">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-        Back to Basic Worker
-      </a>
+        <span id="back-label">Basic Worker</span>
+      </button>
       <button onclick="showScreen('history-screen')" class="text-xs text-white/35 hover:text-white/60 transition-colors font-medium flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         History
@@ -708,11 +708,31 @@ function selectCategory(btn, value) {
   selectedCategory = value;
 }
 
+let currentScreen = 'setup-screen';
+
+const backConfig = {
+  'setup-screen':     { label: 'Basic Worker', action: 'home' },
+  'checklist-screen': { label: 'Setup',        action: 'abort' },
+  'summary-screen':   { label: 'Checklist',    action: 'back-to-checklist' },
+  'history-screen':   { label: 'Basic Worker', action: 'home' },
+};
+
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
+  currentScreen = id;
+  const cfg = backConfig[id];
+  if (cfg) document.getElementById('back-label').textContent = cfg.label;
   if (id === 'history-screen') renderHistory();
+}
+
+function handleBack() {
+  const cfg = backConfig[currentScreen];
+  if (!cfg) return;
+  if (cfg.action === 'home')               { window.location.href = 'index.html'; }
+  else if (cfg.action === 'abort')         { confirmAbort(); }
+  else if (cfg.action === 'back-to-checklist') { showScreen('checklist-screen'); renderItems(); }
 }
 
 // ─── Start Checklist ──────────────────────────────────────

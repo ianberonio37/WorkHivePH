@@ -303,10 +303,10 @@
 
   <!-- Top nav -->
   <div class="flex items-center justify-between mb-6">
-    <a href="index.html" class="nav-pill">
+    <button id="back-btn" onclick="handleBack()" class="nav-pill">
       <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-      Back to Basic Worker
-    </a>
+      <span id="back-label">Basic Worker</span>
+    </button>
     <button onclick="showHistory()" class="nav-pill">
       <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       History
@@ -533,9 +533,29 @@ let pendingRecord = null;
 // ═══════════════════════════════════════════
 // UTILS
 // ═══════════════════════════════════════════
+let currentScreen = 'setup-screen';
+
+const backConfig = {
+  'setup-screen':   { label: 'Basic Worker', action: 'home' },
+  'entry-screen':   { label: 'Setup',        action: 'abort' },
+  'summary-screen': { label: 'Entry',        action: 'back-to-entry' },
+  'history-screen': { label: 'Basic Worker', action: 'home' },
+};
+
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  currentScreen = id;
+  const cfg = backConfig[id];
+  if (cfg) document.getElementById('back-label').textContent = cfg.label;
+}
+
+function handleBack() {
+  const cfg = backConfig[currentScreen];
+  if (!cfg) return;
+  if (cfg.action === 'home')          { window.location.href = 'index.html'; }
+  else if (cfg.action === 'abort')    { openAbortModal(); }
+  else if (cfg.action === 'back-to-entry') { showScreen('entry-screen'); renderPartsList(); }
 }
 
 function fmtDate(dateStr) {
