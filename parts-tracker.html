@@ -625,7 +625,7 @@ function initSetup() {
     recent.forEach(entry => {
       const opt = document.createElement('option');
       const dateStr = entry.date ? entry.date.split('T')[0] : '';
-      const label = [entry.machine || entry.equipment || entry.equipmentName || '', dateStr ? fmtDate(dateStr) : ''].filter(Boolean).join(' — ');
+      const label = [entry.machine || entry.equipment || entry.equipmentName || '', dateStr ? fmtDate(dateStr) : ''].filter(Boolean).join(' | ');
       opt.value = label || 'Logbook Entry';
       opt.textContent = opt.value;
       select.appendChild(opt);
@@ -636,7 +636,7 @@ function initSetup() {
 function onJobRefSelect(val) {
   if (val) {
     document.getElementById('job-ref-text').value = val;
-    document.getElementById('job-ref-text').placeholder = 'Selected from logbook — or type to override';
+    document.getElementById('job-ref-text').placeholder = 'Selected from logbook, or type to override';
   }
 }
 

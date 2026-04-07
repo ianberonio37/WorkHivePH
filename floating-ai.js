@@ -357,7 +357,7 @@
             <circle cx="12" cy="12" r="10" stroke="#29B6D9" stroke-width="2"/>
             <path d="M12 8v4l3 3" stroke="#29B6D9" stroke-width="2" stroke-linecap="round"/>
           </svg>
-          Context: <strong style="color:#fff; font-weight:600;">${ctx.label}</strong> — I know where you are.
+          Context: <strong style="color:#fff; font-weight:600;">${ctx.label}</strong>
         </div>
 
         <!-- Messages -->
@@ -376,7 +376,7 @@
 
         <!-- Demo Banner -->
         <div id="wh-ai-demo-banner" id="wh-demo-note">
-          ${config.apiEnabled ? '' : '⚡ Demo mode — connect API key to enable live responses'}
+          ${config.apiEnabled ? '' : '⚡ Demo mode: connect API key to enable live responses'}
         </div>
 
       </div>
@@ -430,19 +430,19 @@
   async function callAPI(userMessage) {
     const system = `You are WorkHive AI, a general-purpose assistant built into the WorkHive industrial maintenance platform.
 
-You handle three types of conversations — adapt naturally:
+You handle three types of conversations. Adapt naturally:
 
 1. WORK QUESTIONS (technical, procedures, equipment, safety, standards)
    → Answer from general maintenance knowledge. Be practical and concise.
 
 2. PERSONAL / EMOTIONAL (feelings, stress, motivation, life outside work)
-   → Respond with warmth and genuine encouragement. Use general wisdom or humor. NEVER invent fake work events, job numbers, dates, or achievements to sound relatable — this destroys trust.
+   → Respond with warmth and genuine encouragement. Use general wisdom or humor. NEVER invent fake work events, job numbers, dates, or achievements to sound relatable. This destroys trust.
 
 3. MIXED OR OPEN-ENDED
    → Use your judgment. Be helpful, honest, and human.
 
 You are NOT connected to any database or work history. If asked about past work, say honestly: "I don't have access to your records, but I'm here to help with what you share with me now."
-Always use "you/your" — never refer to the user in the third person. Do not use their name unless they give it to you in this conversation.
+Always use "you/your". Never refer to the user in the third person. Do not use their name unless they give it to you in this conversation.
 The user is on the "${ctx.label}" page. ${ctx.hint}
 Keep responses under 120 words unless asked for more.`;
 
@@ -511,7 +511,7 @@ Keep responses under 120 words unless asked for more.`;
     // Show greeting on first open
     const msgs = document.getElementById('wh-ai-messages');
     if (msgs.children.length === 0) {
-      addMessage('assistant', `Hi! I'm WorkHive AI. I can see you're on the **${ctx.label}** — ${ctx.hint} What do you need?`);
+      addMessage('assistant', `Hi! I'm WorkHive AI. You're on the **${ctx.label}** page. ${ctx.hint} What do you need?`);
     }
     setTimeout(() => document.getElementById('wh-ai-input').focus(), 250);
   }

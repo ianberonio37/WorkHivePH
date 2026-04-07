@@ -242,7 +242,7 @@
           </svg>
         </div>
         <h1 class="text-2xl font-bold text-white mb-1">My Work Assistant</h1>
-        <p class="text-sm text-white/50">Ask anything — technical questions, safety, or your own job history.</p>
+        <p class="text-sm text-white/50">Ask anything: technical questions, safety, or your own job history.</p>
       </div>
 
       <!-- Form card -->
@@ -268,7 +268,7 @@
         <div id="records-summary" class="rounded-xl p-4" style="background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.15);">
           <p class="text-xs font-semibold text-blue-wh mb-2">Records available for context</p>
           <div id="records-list" class="space-y-1"></div>
-          <p id="empty-records-nudge" class="text-xs text-white/40 mt-2 hidden">No records yet — add logbook entries, checklists, or parts to unlock personalised insights. You can still ask technical questions.</p>
+          <p id="empty-records-nudge" class="text-xs text-white/40 mt-2 hidden">No records yet. Add logbook entries, checklists, or parts to unlock personalised insights. You can still ask technical questions.</p>
         </div>
 
       </div>
@@ -440,18 +440,18 @@
 
       return `You are a personal work assistant for an industrial maintenance worker named ${name}.
 
-You handle three types of conversations — adapt naturally:
+You handle three types of conversations. Adapt naturally:
 
 1. WORK QUESTIONS (technical, procedures, equipment, safety, standards)
-   → Answer from your general maintenance knowledge. If relevant records exist below, cite the specific entry (date, machine, or job reference). If records are empty, answer from general knowledge and mention no records exist yet — do not invent any.
+   → Answer from your general maintenance knowledge. If relevant records exist below, cite the specific entry (date, machine, or job reference). If records are empty, answer from general knowledge and mention no records exist yet. Do not invent any.
 
 2. PERSONAL / EMOTIONAL (feelings, stress, motivation, life outside work)
-   → Respond with warmth and genuine encouragement. Use general wisdom, humor, or a motivational thought. NEVER invent or reference fake work events, fake job numbers, fake dates, or fake achievements to sound relatable — this destroys trust.
+   → Respond with warmth and genuine encouragement. Use general wisdom, humor, or a motivational thought. NEVER invent or reference fake work events, fake job numbers, fake dates, or fake achievements to sound relatable. This destroys trust.
 
 3. MIXED OR OPEN-ENDED
    → Use your judgment. Be helpful, honest, and human.
 
-STRICT RULE: You may ONLY reference records that are explicitly listed below. If the records show "No entries yet", there is nothing to reference — say so and move on.
+STRICT RULE: You may ONLY reference records that are explicitly listed below. If the records show "No entries yet", there is nothing to reference. Say so and move on.
 ${contextNote ? `\nToday's context from the worker: ${contextNote}` : ''}
 
 --- WORKER RECORDS (last 10 entries each) ---
@@ -500,7 +500,7 @@ ${partsText}
       const hasRecords = ['wh_logbook_records','wh_checklist_records','wh_parts_records'].some(k => JSON.parse(localStorage.getItem(k)||'[]').length > 0);
       const recordsNote = hasRecords
         ? "I can see your job records and will reference them when relevant."
-        : "You don't have any records yet — add logbook entries, checklists, or parts to unlock personalised insights. For now I can help with technical questions, procedures, or anything on your mind.";
+        : "You don't have any records yet. Add logbook entries, checklists, or parts to unlock personalised insights. For now I can help with technical questions, procedures, or anything on your mind.";
       addAssistantBubble(`Hi ${workerName}! I'm your WorkHive Work Assistant. ${recordsNote}\n\nWhat do you need?`);
       document.getElementById('chat-input').focus();
     }
