@@ -467,8 +467,16 @@ function loadEntries() {
 }
 
 function saveEntries(entries) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-  document.getElementById('sync-badge').classList.remove('hidden');
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    document.getElementById('sync-badge').classList.remove('hidden');
+  } catch (e) {
+    if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+      alert('Storage is full. Try deleting some old entries to free up space, or the photo may be too large.');
+    } else {
+      alert('Could not save entry: ' + e.message);
+    }
+  }
 }
 
 function addEntry(entry) {
@@ -720,10 +728,20 @@ document.getElementById('f-photo').addEventListener('change', function() {
 
   const reader = new FileReader();
   reader.onload = function(ev) {
-    currentPhotoData = ev.target.result;
-    document.getElementById('photo-thumb').src = currentPhotoData;
-    document.getElementById('photo-preview').classList.remove('hidden');
-    document.getElementById('photo-label').textContent = file.name;
+    const img = new Image();
+    img.onload = function() {
+      const MAX = 800;
+      const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width  = Math.round(img.width  * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      currentPhotoData = canvas.toDataURL('image/jpeg', 0.7);
+      document.getElementById('photo-thumb').src = currentPhotoData;
+      document.getElementById('photo-preview').classList.remove('hidden');
+      document.getElementById('photo-label').textContent = file.name;
+    };
+    img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
 });
