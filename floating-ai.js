@@ -507,9 +507,121 @@ Be concise, practical, and use bold for key terms. Keep responses under 120 word
     document.getElementById('wh-ai-panel').classList.remove('open');
   }
 
+  // ─── Drag + Snap ─────────────────────────────────────────────────────────────
+  const STORAGE_KEY = 'wh-ai-position';
+  let snapSide = 'right'; // 'left' | 'right'
+
+  function applyPosition(side, bottomPx) {
+    const widget = document.getElementById('wh-ai-widget');
+    const panel  = document.getElementById('wh-ai-panel');
+    snapSide = side;
+
+    widget.style.left   = side === 'left'  ? '16px' : 'auto';
+    widget.style.right  = side === 'right' ? '16px' : 'auto';
+    widget.style.bottom = bottomPx + 'px';
+    widget.style.top    = 'auto';
+
+    // Flip panel to the correct side so it stays on screen
+    panel.style.left  = side === 'left'  ? '0'    : 'auto';
+    panel.style.right = side === 'right' ? '0'    : 'auto';
+  }
+
+  function loadSavedPosition() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if (saved && (saved.side === 'left' || saved.side === 'right') && typeof saved.bottom === 'number') {
+        applyPosition(saved.side, Math.max(16, Math.min(saved.bottom, window.innerHeight - 80)));
+        return;
+      }
+    } catch (_) {}
+    applyPosition('right', 24);
+  }
+
+  function savePosition(side, bottom) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ side, bottom })); } catch (_) {}
+  }
+
+  function makeDraggable() {
+    const trigger = document.getElementById('wh-ai-trigger');
+    let dragging = false;
+    let didDrag  = false;
+    let startX, startY, startBottom, startLeft, startRight;
+
+    function onStart(e) {
+      const touch = e.touches ? e.touches[0] : e;
+      dragging  = true;
+      didDrag   = false;
+      startX    = touch.clientX;
+      startY    = touch.clientY;
+
+      const widget = document.getElementById('wh-ai-widget');
+      const rect   = widget.getBoundingClientRect();
+      startBottom  = window.innerHeight - rect.bottom;
+      startLeft    = rect.left;
+      startRight   = window.innerWidth - rect.right;
+
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup',   onEnd);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('touchend',  onEnd);
+    }
+
+    function onMove(e) {
+      if (!dragging) return;
+      if (e.cancelable) e.preventDefault();
+
+      const touch = e.touches ? e.touches[0] : e;
+      const dx = touch.clientX - startX;
+      const dy = touch.clientY - startY;
+
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) didDrag = true;
+      if (!didDrag) return;
+
+      const widget = document.getElementById('wh-ai-widget');
+      const newBottom = Math.max(16, Math.min(startBottom - dy, window.innerHeight - 80));
+
+      // Follow finger/cursor freely while dragging
+      if (snapSide === 'right') {
+        widget.style.right  = Math.max(0, startRight - dx) + 'px';
+      } else {
+        widget.style.left   = Math.max(0, startLeft + dx) + 'px';
+      }
+      widget.style.bottom = newBottom + 'px';
+    }
+
+    function onEnd(e) {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup',   onEnd);
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend',  onEnd);
+
+      if (!didDrag) { dragging = false; return; }
+      dragging = false;
+
+      // Snap to nearest horizontal edge
+      const widget = document.getElementById('wh-ai-widget');
+      const rect   = widget.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const side    = centerX < window.innerWidth / 2 ? 'left' : 'right';
+      const bottom  = Math.max(16, Math.min(window.innerHeight - rect.bottom, window.innerHeight - 80));
+
+      applyPosition(side, window.innerHeight - rect.bottom);
+      savePosition(side, window.innerHeight - rect.bottom);
+    }
+
+    trigger.addEventListener('mousedown',  onStart);
+    trigger.addEventListener('touchstart', onStart, { passive: true });
+
+    // Only fire click (open/close) when NOT dragging
+    trigger.addEventListener('click', (e) => {
+      if (didDrag) { didDrag = false; return; }
+      isOpen ? closePanel() : openPanel();
+    });
+  }
+
   // ─── Event Wiring ─────────────────────────────────────────────────────────────
   function wireEvents() {
-    document.getElementById('wh-ai-trigger').addEventListener('click', () => isOpen ? closePanel() : openPanel());
+    makeDraggable();
     document.getElementById('wh-ai-close').addEventListener('click', closePanel);
     document.getElementById('wh-ai-send').addEventListener('click', handleSend);
 
@@ -553,6 +665,7 @@ Be concise, practical, and use bold for key terms. Keep responses under 120 word
   // ─── Init ─────────────────────────────────────────────────────────────────────
   function init() {
     buildWidget();
+    loadSavedPosition();
     wireEvents();
   }
 
