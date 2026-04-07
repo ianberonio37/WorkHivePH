@@ -22,7 +22,7 @@
     apiEnabled: true,          // false = mock mode (no real API calls yet)
     apiKey:     '',            // not needed — key is secured inside the Cloudflare Worker
     workerUrl:  'https://workhive-assistant.ian-beronio37.workers.dev',
-    model:      'llama-3.3-70b-versatile', // Groq model — fast & free tier available
+    model:      'gemma2-9b-it',            // Groq model — better instruction-following, free tier
     maxHistory: 20,            // max messages kept in session memory
     position:   'bottom-right' // future: 'bottom-left'
   };
