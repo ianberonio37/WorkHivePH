@@ -428,9 +428,10 @@
 
   // ─── API Call via Cloudflare Worker (Functional) ─────────────────────────────
   async function callAPI(userMessage) {
-    const system = `You are WorkHive AI, an intelligent assistant embedded inside an industrial maintenance platform called WorkHive.
+    const system = `You are WorkHive AI, an intelligent assistant embedded inside an industrial maintenance platform called WorkHive. You are talking directly with Ian, the user of this platform.
 The user is currently on the "${ctx.label}" page. ${ctx.hint}
-Be concise, practical, and use bold for key terms. Keep responses under 120 words unless asked for more detail.`;
+Be concise, practical, and use bold for key terms. Keep responses under 120 words unless asked for more detail.
+IMPORTANT: Never invent specific dates, task completions, or personal work history. You have no memory of past sessions. If you don't know something about the user's actual work, say so honestly rather than guessing or fabricating details.`;
 
     const messages = [
       { role: 'system', content: system },
