@@ -354,10 +354,6 @@
       <a href="#features"  class="nav-link">Features</a>
       <a href="#impact"    class="nav-link">Impact</a>
       <a href="#community" class="nav-link">Community</a>
-      <a href="logbook.html" class="nav-link flex items-center gap-1.5" style="color: #F7A21B;">
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        Logbook
-      </a>
     </div>
 
     <div class="hidden md:flex items-center gap-3">
@@ -379,10 +375,6 @@
     <a href="#features"  class="block py-3 text-white/80 font-medium hover:text-white transition-colors">Features</a>
     <a href="#impact"    class="block py-3 text-white/80 font-medium hover:text-white transition-colors">Impact</a>
     <a href="#community" class="block py-3 text-white/80 font-medium hover:text-white transition-colors">Community</a>
-    <a href="logbook.html" class="block py-3 font-semibold transition-colors flex items-center gap-2" style="color: #F7A21B;">
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-      Digital Logbook
-    </a>
     <div class="pt-4 flex flex-col gap-3">
       <a href="#" class="btn-ghost text-sm text-center">Sign In</a>
       <a href="#join" class="btn-primary text-sm text-center">Join WorkHive</a>
@@ -459,89 +451,84 @@
         </div>
       </div>
 
-      <!-- Right visual -->
+      <!-- Right visual: Worker Evolution Preview -->
       <div class="relative flex justify-center lg:justify-end">
-        <!-- main card -->
         <div class="relative w-full max-w-sm lg:max-w-md">
-          <!-- glow ring -->
-          <div class="absolute inset-0 rounded-3xl opacity-40 pointer-events-none"
-               style="background: radial-gradient(ellipse at center, rgba(41,182,217,0.35) 0%, transparent 70%); filter: blur(30px); transform: scale(1.2);"></div>
 
-          <div class="relative rounded-3xl overflow-hidden border border-white/10"
-               style="background: linear-gradient(145deg, rgba(42,61,88,0.8) 0%, rgba(31,46,69,0.95) 100%); box-shadow: 0 32px 80px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.07);">
+          <!-- glow ring -->
+          <div class="absolute inset-0 rounded-3xl opacity-30 pointer-events-none"
+               style="background: radial-gradient(ellipse at center, rgba(247,162,27,0.3) 0%, transparent 70%); filter: blur(40px); transform: scale(1.2);"></div>
+
+          <div class="relative rounded-3xl border border-white/10 overflow-hidden"
+               style="background: linear-gradient(145deg, rgba(42,61,88,0.85) 0%, rgba(22,32,50,0.97) 100%); box-shadow: 0 32px 80px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.07);">
 
             <!-- card header -->
             <div class="px-6 pt-6 pb-4 border-b border-white/[0.07]">
-              <div class="flex items-center justify-between mb-4">
-                <span class="tag-blue">LIVE DASHBOARD</span>
-                <span class="text-white/30 text-xs font-medium">workhiveph.com</span>
-              </div>
-              <h3 class="font-bold text-white text-lg leading-snug">Work Order #WH-2026-0412</h3>
-              <p class="text-white/45 text-sm mt-0.5">Centrifugal Pump P-104 · Plant Cebu</p>
+              <p class="text-[10px] text-orange-wh font-bold uppercase tracking-[0.15em] mb-1">Your Growth Path</p>
+              <h3 class="font-black text-white text-lg leading-snug">Where will <span style="background: linear-gradient(135deg,#F7A21B,#FDB94A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">you</span> stop?</h3>
             </div>
 
-            <!-- status row -->
-            <div class="px-6 py-4 grid grid-cols-3 gap-3 border-b border-white/[0.07]">
-              <div class="text-center">
-                <p class="text-[10px] text-white/35 uppercase tracking-widest mb-1">Status</p>
-                <span class="inline-block bg-orange-wh/15 text-orange-wh text-xs font-semibold px-2.5 py-1 rounded-full">In Progress</span>
-              </div>
-              <div class="text-center">
-                <p class="text-[10px] text-white/35 uppercase tracking-widest mb-1">Priority</p>
-                <span class="inline-block bg-red-500/15 text-red-400 text-xs font-semibold px-2.5 py-1 rounded-full">Critical</span>
-              </div>
-              <div class="text-center">
-                <p class="text-[10px] text-white/35 uppercase tracking-widest mb-1">ETA</p>
-                <span class="inline-block bg-blue-wh/15 text-blue-wh text-xs font-semibold px-2.5 py-1 rounded-full">2h 15m</span>
-              </div>
-            </div>
+            <!-- Stage rows -->
+            <div class="divide-y divide-white/[0.06]">
 
-            <!-- AI insight -->
-            <div class="px-6 py-4 border-b border-white/[0.07]">
-              <p class="text-[10px] text-white/35 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="#29B6D9"><circle cx="5" cy="5" r="5"/></svg>
-                AI Insight
-              </p>
-              <p class="text-sm text-white/75 leading-relaxed">
-                Vibration anomaly detected 3 days prior.
-                <span class="text-blue-wh font-medium">Isolation Forest</span> flagged bearing wear pattern.
-                Recommended PM within 72 hours.
-              </p>
-            </div>
-
-            <!-- assigned tech -->
-            <div class="px-6 py-4">
-              <p class="text-[10px] text-white/35 uppercase tracking-widest mb-3">Assigned Technician</p>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-navy-wh"
-                       style="background: linear-gradient(135deg, #F7A21B, #FDB94A);">JR</div>
-                  <div>
-                    <p class="text-sm font-semibold text-white">Juan Reyes</p>
-                    <p class="text-xs text-white/40">Vibration Analyst · Lvl 3</p>
-                  </div>
+              <!-- Stage 1 -->
+              <div onclick="openStagePopup(1)" class="px-6 py-4 flex items-center gap-4 cursor-pointer hover:bg-white/[0.04] transition-colors">
+                <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-xs font-black text-navy-wh" style="background: linear-gradient(135deg,#F7A21B,#FDB94A);">01</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-white font-semibold text-sm">Basic Worker</p>
+                  <p class="text-white/40 text-xs mt-0.5 truncate">Logbook · Checklist · Parts Tracker · Incident Report</p>
                 </div>
-                <div class="flex gap-1">
-                  <div class="w-2 h-2 rounded-full bg-green-400"></div>
-                  <p class="text-xs text-white/45">Online</p>
-                </div>
+                <span class="flex-shrink-0 text-[10px] font-bold px-2 py-1 rounded-full" style="background:rgba(247,162,27,0.12); color:#F7A21B;">Free</span>
               </div>
+
+              <!-- Stage 2 -->
+              <div onclick="openStagePopup(2)" class="px-6 py-4 flex items-center gap-4 cursor-pointer hover:bg-white/[0.04] transition-colors">
+                <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-xs font-black" style="background:rgba(41,182,217,0.15); color:#29B6D9; border:1px solid rgba(41,182,217,0.25);">02</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-white font-semibold text-sm">Advanced Worker</p>
+                  <p class="text-white/40 text-xs mt-0.5 truncate">PM Scheduler · Health Log · Root Cause · Skills Badge</p>
+                </div>
+                <span class="flex-shrink-0 text-[10px] font-bold px-2 py-1 rounded-full" style="background:rgba(41,182,217,0.1); color:#29B6D9;">Free</span>
+              </div>
+
+              <!-- Stage 3 -->
+              <div onclick="openStagePopup(3)" class="px-6 py-4 flex items-center gap-4 cursor-pointer hover:bg-white/[0.04] transition-colors" style="background: rgba(247,162,27,0.03);">
+                <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-xs font-black" style="background:rgba(247,162,27,0.15); color:#F7A21B; border:1px solid rgba(247,162,27,0.25);">03</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-white font-semibold text-sm">Cyborg Worker</p>
+                  <p class="text-white/40 text-xs mt-0.5 truncate">Failure Predictor · AI Copilot · Smart Work Orders</p>
+                </div>
+                <span class="flex-shrink-0 text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1" style="background:rgba(247,162,27,0.12); color:#F7A21B;">
+                  <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                  AI
+                </span>
+              </div>
+
+              <!-- Stage 4 -->
+              <div onclick="openStagePopup(4)" class="px-6 py-4 flex items-center gap-4 cursor-pointer hover:bg-white/[0.04] transition-colors" style="background: rgba(247,162,27,0.05);">
+                <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-xs font-black" style="background: linear-gradient(135deg,rgba(247,162,27,0.25),rgba(41,182,217,0.15)); color:#FDB94A; border:1px solid rgba(247,162,27,0.3);">04</div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-bold text-sm" style="background: linear-gradient(135deg,#F7A21B,#FDB94A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">Superhuman Worker</p>
+                  <p class="text-white/40 text-xs mt-0.5 truncate">Knowledge Vault · AI Reviewer · Marketplace Profile</p>
+                </div>
+                <span class="flex-shrink-0 text-[10px] font-bold px-2 py-1 rounded-full" style="background:linear-gradient(135deg,rgba(247,162,27,0.15),rgba(41,182,217,0.1)); color:#FDB94A; border:1px solid rgba(247,162,27,0.2);">Elite</span>
+              </div>
+
             </div>
+
+            <!-- CTA -->
+            <div class="px-6 py-5 border-t border-white/[0.07]">
+              <button onclick="openAllToolsPopup()" class="btn-primary text-sm w-full text-center block">See All Tools</button>
+            </div>
+
           </div>
 
-          <!-- floating badge: AI prediction -->
-          <div class="absolute -top-5 -right-4 rounded-2xl px-4 py-3 border border-white/10 shadow-xl"
+          <!-- floating label -->
+          <div class="absolute -top-4 -right-3 rounded-xl px-3 py-2 border border-white/10 shadow-xl"
                style="background: linear-gradient(135deg, rgba(247,162,27,0.2) 0%, rgba(31,46,69,0.95) 100%); backdrop-filter: blur(12px);">
-            <p class="text-[10px] text-orange-wh font-semibold uppercase tracking-wider mb-0.5">Predicted Failure</p>
-            <p class="text-white font-bold text-sm">Bearing · 68h</p>
+            <p class="text-[10px] text-orange-wh font-semibold uppercase tracking-wider mb-0">4 Stages of Growth</p>
           </div>
 
-          <!-- floating badge: skill match -->
-          <div class="absolute -bottom-5 -left-4 rounded-2xl px-4 py-3 border border-white/10 shadow-xl"
-               style="background: linear-gradient(135deg, rgba(41,182,217,0.2) 0%, rgba(31,46,69,0.95) 100%); backdrop-filter: blur(12px);">
-            <p class="text-[10px] text-blue-wh font-semibold uppercase tracking-wider mb-0.5">Skill Match</p>
-            <p class="text-white font-bold text-sm">98% · AI Matched</p>
-          </div>
         </div>
       </div>
     </div>
@@ -1276,6 +1263,172 @@
       container.appendChild(beam);
     }
   })();
+</script>
+
+<!-- ── Stage Popup Overlay ── -->
+<div id="stage-popup-overlay" onclick="closeStagePopup()" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(10,18,28,0.75); backdrop-filter:blur(6px); display:none;">
+  <div id="stage-popup" onclick="event.stopPropagation()" class="relative w-full max-w-2xl rounded-3xl border border-white/10 overflow-hidden" style="background: linear-gradient(145deg, rgba(42,61,88,0.97) 0%, rgba(22,32,50,0.99) 100%); box-shadow: 0 40px 100px -12px rgba(0,0,0,0.8); max-height: 90vh; display: flex; flex-direction: column;">
+
+    <!-- popup top bar: stage tabs + close -->
+    <div class="px-5 pt-5 pb-0 flex-shrink-0">
+      <div class="flex items-center justify-between mb-4">
+        <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-white/40">Your Growth Path</p>
+        <button onclick="closeStagePopup()" class="w-8 h-8 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <!-- stage tabs -->
+      <div id="popup-tabs-row" class="grid grid-cols-4 gap-1.5 mb-5">
+        <button onclick="switchPopupStage(1)" id="ptab-1" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
+          <span class="text-[10px] font-bold block text-white/40 mb-0.5">01</span>
+          <span class="text-xs font-bold block text-white/60 leading-tight">Basic</span>
+        </button>
+        <button onclick="switchPopupStage(2)" id="ptab-2" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
+          <span class="text-[10px] font-bold block text-white/40 mb-0.5">02</span>
+          <span class="text-xs font-bold block text-white/60 leading-tight">Advanced</span>
+        </button>
+        <button onclick="switchPopupStage(3)" id="ptab-3" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
+          <span class="text-[10px] font-bold block text-white/40 mb-0.5">03</span>
+          <span class="text-xs font-bold block text-white/60 leading-tight">Cyborg</span>
+        </button>
+        <button onclick="switchPopupStage(4)" id="ptab-4" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
+          <span class="text-[10px] font-bold block text-white/40 mb-0.5">04</span>
+          <span class="text-xs font-bold block text-white/60 leading-tight">Superhuman</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- stage info -->
+    <div id="popup-stage-info" class="px-5 pb-4 border-b border-white/[0.07] flex-shrink-0">
+      <p id="popup-stage-label" class="text-[10px] font-bold uppercase tracking-[0.15em] mb-1" style="color:#F7A21B;"></p>
+      <p id="popup-stage-quote" class="text-white/45 text-xs italic"></p>
+    </div>
+
+    <!-- tools grid (scrollable) -->
+    <div id="popup-tools" class="p-5 grid grid-cols-2 gap-3 overflow-y-auto"></div>
+
+  </div>
+</div>
+
+<style>
+  .popup-tab { background: rgba(255,255,255,0.03); cursor: pointer; }
+  .popup-tab:hover { background: rgba(255,255,255,0.06); }
+  .popup-tab.active { border-color: rgba(247,162,27,0.35) !important; background: rgba(247,162,27,0.08) !important; }
+  .popup-tab.active span { color: white !important; }
+  .popup-tab.active-blue { border-color: rgba(41,182,217,0.35) !important; background: rgba(41,182,217,0.08) !important; }
+  .popup-tab.active-blue span { color: white !important; }
+</style>
+
+<script>
+  const stageData = {
+    1: {
+      label: 'Stage 1: Basic Worker',
+      name: 'Basic Worker',
+      quote: '"You show up. You do the job. You document it."',
+      color: '#F7A21B',
+      tabClass: 'active',
+      tools: [
+        { name: 'Digital Logbook', desc: 'Record daily jobs, open/close status, and photos.', link: 'logbook.html', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+        { name: 'Work Checklist', desc: 'Standard pre/post task checklists per job type.', link: 'checklist.html', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4' },
+        { name: 'Parts Used Tracker', desc: 'Log consumables and parts per job.', link: null, icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
+        { name: 'Incident Reporter', desc: 'Quick photo + description for breakdowns or near-misses.', link: null, icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' },
+      ]
+    },
+    2: {
+      label: 'Stage 2: Advanced Worker',
+      name: 'Advanced Worker',
+      quote: '"You don\'t wait for problems. You prevent them."',
+      color: '#29B6D9',
+      tabClass: 'active-blue',
+      tools: [
+        { name: 'PM Scheduler', desc: 'Calendar-based preventive maintenance planner.', link: null, icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
+        { name: 'Equipment Health Log', desc: 'Simple condition trend tracker per asset.', link: null, icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
+        { name: 'Root Cause Logger', desc: 'Structured 5-Why entry per failure event.', link: null, icon: 'M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z' },
+        { name: 'Skills Badge Tracker', desc: 'Record completed training and certifications.', link: null, icon: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z' },
+      ]
+    },
+    3: {
+      label: 'Stage 3: Cyborg Worker',
+      name: 'Cyborg Worker',
+      quote: '"You and AI work as one. Your output exceeds what any human can do alone."',
+      color: '#F7A21B',
+      tabClass: 'active',
+      tools: [
+        { name: 'Failure Predictor Feed', desc: 'AI-flagged equipment alerts for your area.', link: null, icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
+        { name: 'Smart Work Order Generator', desc: 'AI drafts work orders from your logbook patterns.', link: null, icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z' },
+        { name: 'AI Copilot', desc: 'Ask questions from your plant\'s own history and manuals.', link: null, icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
+        { name: 'Learning Path Recommender', desc: 'AI suggests your next skill based on your gaps.', link: null, icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
+      ]
+    },
+    4: {
+      label: 'Stage 4: Superhuman Worker',
+      name: 'Superhuman Worker',
+      quote: '"You don\'t just work the system. You make the system smarter for everyone."',
+      color: '#FDB94A',
+      tabClass: 'active',
+      tools: [
+        { name: 'Knowledge Vault Contributor', desc: 'Feed your expertise into the org\'s AI memory.', link: null, icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' },
+        { name: 'Asset Intelligence Reviewer', desc: 'Validate or override AI predictions to train the model.', link: null, icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+        { name: 'Mentorship Tracker', desc: 'Log coaching sessions and track who you\'ve leveled up.', link: null, icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' },
+        { name: 'Marketplace Profile', desc: 'Verified expert profile discoverable by other plants.', link: null, icon: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064' },
+      ]
+    }
+  };
+
+  function renderPopupStage(n) {
+    const s = stageData[n];
+    document.getElementById('popup-stage-label').textContent = s.label;
+    document.getElementById('popup-stage-label').style.color = s.color;
+    document.getElementById('popup-stage-quote').textContent = s.quote;
+
+    // update tabs
+    [1,2,3,4].forEach(i => {
+      const tab = document.getElementById('ptab-' + i);
+      tab.classList.remove('active', 'active-blue');
+    });
+    document.getElementById('ptab-' + n).classList.add(s.tabClass);
+
+    const grid = document.getElementById('popup-tools');
+    grid.innerHTML = s.tools.map(t => {
+      const isLink = t.link !== null;
+      const tag = isLink ? `a href="${t.link}"` : 'div';
+      const closeTag = isLink ? 'a' : 'div';
+      return `<${tag} class="rounded-2xl p-4 border border-white/[0.07] ${isLink ? 'block hover:border-white/20 transition-colors' : ''}" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center mb-3" style="background: rgba(${s.color === '#29B6D9' ? '41,182,217' : '247,162,27'},0.12); border:1px solid rgba(${s.color === '#29B6D9' ? '41,182,217' : '247,162,27'},0.2);">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="${s.color}" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="${t.icon}"/></svg>
+        </div>
+        <p class="font-bold text-white text-xs mb-1">${t.name}</p>
+        <p class="text-white/40 text-[11px] leading-relaxed">${t.desc}</p>
+        ${isLink ? `<p class="text-[10px] font-semibold mt-2 flex items-center gap-1" style="color:${s.color}">Open Tool <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></p>` : ''}
+      </${closeTag}>`;
+    }).join('');
+  }
+
+  function switchPopupStage(n) {
+    renderPopupStage(n);
+  }
+
+  function openStagePopup(n) {
+    renderPopupStage(n);
+    document.getElementById('popup-tabs-row').style.display = 'none';
+    const overlay = document.getElementById('stage-popup-overlay');
+    overlay.style.display = 'flex';
+    requestAnimationFrame(() => overlay.style.opacity = '1');
+  }
+
+  function openAllToolsPopup() {
+    renderPopupStage(1);
+    document.getElementById('popup-tabs-row').style.display = 'grid';
+    const overlay = document.getElementById('stage-popup-overlay');
+    overlay.style.display = 'flex';
+    requestAnimationFrame(() => overlay.style.opacity = '1');
+  }
+
+  function closeStagePopup() {
+    document.getElementById('stage-popup-overlay').style.display = 'none';
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeStagePopup(); });
 </script>
 
 </body>
