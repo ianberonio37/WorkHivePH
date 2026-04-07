@@ -322,7 +322,7 @@
 
       <!-- Trigger Button -->
       <button id="wh-ai-trigger" aria-label="Open AI Assistant">
-        <span id="wh-ai-tooltip">Ask AI Assistant</span>
+        <span id="wh-ai-tooltip">Quick Help</span>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.96 9.96 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z" fill="rgba(22,32,50,0.9)"/>
           <circle cx="8.5"  cy="12" r="1.2" fill="#162032"/>
@@ -678,6 +678,8 @@ Keep responses under 120 words unless asked for more.`;
 
   // ─── Init ─────────────────────────────────────────────────────────────────────
   function init() {
+    // Don't show floating widget on the Work Assistant page — it has its own dedicated AI
+    if (window.location.pathname.toLowerCase().includes('assistant')) return;
     buildWidget();
     loadSavedPosition();
     wireEvents();
