@@ -604,7 +604,8 @@ function initSetup() {
     const recent = [...logbook].reverse().slice(0, 15);
     recent.forEach(entry => {
       const opt = document.createElement('option');
-      const label = [entry.equipment || entry.equipmentName || '', fmtDate(entry.date || entry.timestamp?.split('T')[0] || '')].filter(Boolean).join(' — ');
+      const dateStr = entry.date ? entry.date.split('T')[0] : '';
+      const label = [entry.machine || entry.equipment || entry.equipmentName || '', dateStr ? fmtDate(dateStr) : ''].filter(Boolean).join(' — ');
       opt.value = label || 'Logbook Entry';
       opt.textContent = opt.value;
       select.appendChild(opt);
