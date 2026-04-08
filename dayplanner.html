@@ -255,7 +255,7 @@
         </div>
         <div>
           <label style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Start Time</label>
-          <input class="wh-input" id="m-start" type="time" />
+          <input class="wh-input" id="m-start" type="time" oninput="(function(){const s=document.getElementById('m-start').value,e=document.getElementById('m-end');e.min=s;if(e.value&&e.value<=s){const[h,m]=s.split(':').map(Number);const t=(h*60+m+60)%1440;e.value=(String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0'))}})()" />
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
@@ -1056,6 +1056,7 @@ function openAddModal(date, startTime, endTime, title, category) {
   document.getElementById('m-date').value = date || toYMD(currentDate);
   document.getElementById('m-start').value = startTime || '';
   document.getElementById('m-end').value = endTime || '';
+  document.getElementById('m-end').min = startTime || '';
   const cat = category || (selectedLogbookItem ? selectedLogbookItem.category : 'PM');
   const catMap = { Mechanical:'PM', Electrical:'CM', Hydraulic:'Inspection', Pneumatic:'Other', Instrumentation:'Other', Structural:'Inspection', Safety:'Inspection', General:'Other' };
   document.getElementById('m-category').value = catMap[cat] || 'Other';
@@ -1078,6 +1079,7 @@ function openEditModal(id) {
   document.getElementById('m-date').value = item.date || '';
   document.getElementById('m-start').value = item.startTime || '';
   document.getElementById('m-end').value = item.endTime || '';
+  document.getElementById('m-end').min = item.startTime || '';
   document.getElementById('m-category').value = item.category || 'Other';
   document.getElementById('m-notes').value = item.notes || '';
   document.getElementById('modal').classList.remove('hidden');
