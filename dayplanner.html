@@ -1096,6 +1096,9 @@ function saveScheduleItem() {
   const title = document.getElementById('m-title').value.trim();
   const date = document.getElementById('m-date').value;
   if (!title || !date) { alert('Title and date are required.'); return; }
+  const startVal = document.getElementById('m-start').value;
+  const endVal = document.getElementById('m-end').value;
+  if (startVal && endVal && endVal <= startVal) { alert('End Time must be after Start Time.'); return; }
 
   const existing = editingScheduleId ? scheduleItems.find(i=>i.id===editingScheduleId) : null;
   const payload = {
