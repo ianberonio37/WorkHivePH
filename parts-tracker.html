@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -513,9 +514,11 @@
 // ═══════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════
-const PARTS_KEY    = 'wh_parts_records';
-const LOGBOOK_KEY  = 'wh_logbook_v1';
-const WORKER_KEY   = 'wh_last_worker';
+const WORKER_KEY = 'wh_last_worker';
+const db = supabase.createClient(
+  'https://hzyvnjtisfgbksicrouu.supabase.co',
+  'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'
+);
 
 let state = {
   workerName: '',
@@ -607,7 +610,7 @@ function showError(id, msg) {
 // ═══════════════════════════════════════════
 // SETUP SCREEN
 // ═══════════════════════════════════════════
-function initSetup() {
+async function initSetup() {
   // Pre-fill worker name
   const saved = localStorage.getItem(WORKER_KEY);
   if (saved) document.getElementById('worker-name').value = saved;
@@ -615,21 +618,22 @@ function initSetup() {
   // Set today's date
   document.getElementById('job-date').value = new Date().toISOString().split('T')[0];
 
-  // Populate logbook dropdown
+  // Populate logbook dropdown from Supabase
   const select = document.getElementById('job-ref-select');
   select.innerHTML = '<option value="">-- Link to a Logbook Entry (optional) --</option>';
   try {
-    const logbook = JSON.parse(localStorage.getItem(LOGBOOK_KEY)) || [];
-    // Show last 15 entries, newest first
-    const recent = [...logbook].reverse().slice(0, 15);
-    recent.forEach(entry => {
-      const opt = document.createElement('option');
-      const dateStr = entry.date ? entry.date.split('T')[0] : '';
-      const label = [entry.machine || entry.equipment || entry.equipmentName || '', dateStr ? fmtDate(dateStr) : ''].filter(Boolean).join(' | ');
-      opt.value = label || 'Logbook Entry';
-      opt.textContent = opt.value;
-      select.appendChild(opt);
-    });
+    const workerName = saved || '';
+    if (workerName) {
+      const { data } = await db.from('logbook').select('machine,date').eq('worker_name', workerName).order('date', { ascending: false }).limit(15);
+      (data || []).forEach(entry => {
+        const opt = document.createElement('option');
+        const dateStr = entry.date ? entry.date.split('T')[0] : '';
+        const label = [entry.machine || '', dateStr ? fmtDate(dateStr) : ''].filter(Boolean).join(' | ');
+        opt.value = label || 'Logbook Entry';
+        opt.textContent = opt.value;
+        select.appendChild(opt);
+      });
+    }
   } catch(e) {}
 }
 
@@ -881,13 +885,20 @@ function renderSummary(record) {
   `).join('');
 }
 
-function saveAndHistory() {
+async function saveAndHistory() {
   if (!pendingRecord) return;
-  const records = getRecords();
-  records.push(pendingRecord);
-  localStorage.setItem(PARTS_KEY, JSON.stringify(records));
+  const { error } = await db.from('parts_records').insert({
+    id:          pendingRecord.id,
+    worker_name: pendingRecord.workerName,
+    job_ref:     pendingRecord.jobRef,
+    job_type:    pendingRecord.jobType,
+    date:        pendingRecord.date,
+    duration:    pendingRecord.duration,
+    parts:       pendingRecord.parts
+  });
+  if (error) { alert('Could not save record: ' + error.message); return; }
   pendingRecord = null;
-  renderHistory();
+  await renderHistory();
   showScreen('history-screen');
 }
 
@@ -901,18 +912,28 @@ function goHome() {
 // ═══════════════════════════════════════════
 // HISTORY SCREEN
 // ═══════════════════════════════════════════
-function showHistory() {
-  renderHistory();
+async function showHistory() {
+  await renderHistory();
   showScreen('history-screen');
 }
 
-function getRecords() {
-  try { return JSON.parse(localStorage.getItem(PARTS_KEY)) || []; }
-  catch(e) { return []; }
+async function getRecords() {
+  const workerName = localStorage.getItem(WORKER_KEY) || '';
+  if (!workerName) return [];
+  const { data, error } = await db
+    .from('parts_records')
+    .select('*')
+    .eq('worker_name', workerName)
+    .order('created_at', { ascending: false });
+  if (error) { console.error(error); return []; }
+  return data.map(r => ({
+    id: r.id, workerName: r.worker_name, jobRef: r.job_ref,
+    jobType: r.job_type, date: r.date, duration: r.duration, parts: r.parts
+  }));
 }
 
-function renderHistory() {
-  const records = getRecords().reverse();
+async function renderHistory() {
+  const records = await getRecords();
   const empty   = document.getElementById('history-empty');
   const list    = document.getElementById('history-list');
 

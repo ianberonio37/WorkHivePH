@@ -268,7 +268,7 @@
       </div>
       <div class="flex items-center gap-3">
         <span id="sync-badge" class="stat-pill text-white/40 hidden">
-          <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-400 mr-1.5"></span>Saved locally
+          <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-400 mr-1.5"></span>Saved to cloud
         </span>
         <a href="index.html#evolution" class="btn-secondary text-xs py-2 px-4">← Back to Basic Worker</a>
       </div>
@@ -501,39 +501,55 @@
     </div>
   </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ────────────────────────────────────────────
-// DATA LAYER — localStorage
+// SUPABASE SETUP
 // ────────────────────────────────────────────
-const STORAGE_KEY = 'wh_logbook_v1';
+const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-function loadEntries() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch { return []; }
+// ────────────────────────────────────────────
+// WORKER NAME (guest identity)
+// ────────────────────────────────────────────
+let WORKER_NAME = localStorage.getItem('wh_last_worker') || '';
+
+if (!WORKER_NAME) {
+  window.location.href = 'index.html?signin=1';
 }
 
-function saveEntries(entries) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-    document.getElementById('sync-badge').classList.remove('hidden');
-  } catch (e) {
-    if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
-      alert('Storage is full. Try deleting some old entries to free up space, or the photo may be too large.');
-    } else {
-      alert('Could not save entry: ' + e.message);
-    }
-  }
+// ────────────────────────────────────────────
+// DATA LAYER — Supabase
+// ────────────────────────────────────────────
+async function loadEntries() {
+  const { data, error } = await db
+    .from('logbook')
+    .select('*')
+    .eq('worker_name', WORKER_NAME)
+    .order('date', { ascending: false });
+  if (error) { console.error(error); return []; }
+  return data.map(r => ({
+    id: r.id, date: r.date, machine: r.machine, category: r.category,
+    problem: r.problem, action: r.action, knowledge: r.knowledge,
+    photo: r.photo, status: r.status
+  }));
 }
 
-function addEntry(entry) {
-  const entries = loadEntries();
-  entries.unshift(entry); // newest first
-  saveEntries(entries);
+async function addEntry(entry) {
+  const { error } = await db.from('logbook').insert({
+    id: entry.id, worker_name: WORKER_NAME, date: entry.date,
+    machine: entry.machine, category: entry.category, problem: entry.problem,
+    action: entry.action, knowledge: entry.knowledge, photo: entry.photo,
+    status: entry.status
+  });
+  if (error) { alert('Could not save entry: ' + error.message); return; }
+  document.getElementById('sync-badge').classList.remove('hidden');
 }
 
-function deleteEntry(id) {
-  const entries = loadEntries().filter(e => e.id !== id);
-  saveEntries(entries);
+async function deleteEntry(id) {
+  const { error } = await db.from('logbook').delete().eq('id', id).eq('worker_name', WORKER_NAME);
+  if (error) alert('Could not delete entry: ' + error.message);
 }
 
 // ────────────────────────────────────────────
@@ -579,8 +595,8 @@ function formatDate(iso) {
     + ' · ' + d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
 }
 
-function renderEntries() {
-  const entries = loadEntries();
+async function renderEntries() {
+  const entries = await loadEntries();
   const query = document.getElementById('search-input').value.trim().toLowerCase();
   const catFilter = document.getElementById('filter-category').value;
   const statusFilter = document.getElementById('filter-status').value;
@@ -672,8 +688,9 @@ function renderEntries() {
 // ────────────────────────────────────────────
 // MODAL — VIEW
 // ────────────────────────────────────────────
-function openModal(id) {
-  const entry = loadEntries().find(e => e.id === id);
+async function openModal(id) {
+  const entries = await loadEntries();
+  const entry = entries.find(e => e.id === id);
   if (!entry) return;
   const status = entry.status || 'Open';
 
@@ -724,8 +741,9 @@ function openModal(id) {
 // ────────────────────────────────────────────
 // MODAL — EDIT
 // ────────────────────────────────────────────
-function openEditModal(id) {
-  const entry = loadEntries().find(e => e.id === id);
+async function openEditModal(id) {
+  const entries = await loadEntries();
+  const entry = entries.find(e => e.id === id);
   if (!entry) return;
   const status = entry.status || 'Open';
 
@@ -779,20 +797,18 @@ function openEditModal(id) {
   updateStatusToggle('e-status');
 }
 
-function saveEdit(id) {
-  const entries = loadEntries();
-  const idx = entries.findIndex(e => e.id === id);
-  if (idx === -1) return;
-
-  entries[idx].machine   = document.getElementById('e-machine').value.trim() || entries[idx].machine;
-  entries[idx].category  = document.getElementById('e-category').value;
-  entries[idx].problem   = document.getElementById('e-problem').value.trim();
-  entries[idx].action    = document.getElementById('e-action').value.trim();
-  entries[idx].knowledge = document.getElementById('e-knowledge').value.trim();
-  entries[idx].status    = document.querySelector('input[name="e-status"]:checked').value;
-
-  saveEntries(entries);
-  renderEntries();
+async function saveEdit(id) {
+  const updates = {
+    machine:   document.getElementById('e-machine').value.trim(),
+    category:  document.getElementById('e-category').value,
+    problem:   document.getElementById('e-problem').value.trim(),
+    action:    document.getElementById('e-action').value.trim(),
+    knowledge: document.getElementById('e-knowledge').value.trim(),
+    status:    document.querySelector('input[name="e-status"]:checked').value,
+  };
+  const { error } = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME);
+  if (error) { alert('Could not update entry: ' + error.message); return; }
+  await renderEntries();
   showToast('Entry updated.');
   openModal(id);
 }
@@ -809,10 +825,10 @@ document.getElementById('modal').addEventListener('click', (e) => {
 // ────────────────────────────────────────────
 // DELETE
 // ────────────────────────────────────────────
-function confirmDelete(id) {
+async function confirmDelete(id) {
   if (confirm('Delete this entry? This cannot be undone.')) {
-    deleteEntry(id);
-    renderEntries();
+    await deleteEntry(id);
+    await renderEntries();
     showToast('Entry deleted.');
   }
 }
@@ -820,7 +836,7 @@ function confirmDelete(id) {
 // ────────────────────────────────────────────
 // FORM SUBMIT
 // ────────────────────────────────────────────
-document.getElementById('log-form').addEventListener('submit', function(e) {
+document.getElementById('log-form').addEventListener('submit', async function(e) {
   e.preventDefault();
 
   const machine   = document.getElementById('f-machine').value.trim();
@@ -844,9 +860,9 @@ document.getElementById('log-form').addEventListener('submit', function(e) {
     machine, category, problem, action, knowledge, photo, status
   };
 
-  addEntry(entry);
+  await addEntry(entry);
   clearForm();
-  renderEntries();
+  await renderEntries();
   showToast('Entry saved to your logbook.');
 });
 
@@ -1013,6 +1029,7 @@ document.addEventListener('change', function(e) {
 // ────────────────────────────────────────────
 renderEntries();
 updateStatusToggle('f-status');
+
 </script>
   <script src="floating-ai.js"></script>
 </body>

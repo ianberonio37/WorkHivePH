@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -724,7 +725,7 @@ function showScreen(id) {
   currentScreen = id;
   const cfg = backConfig[id];
   if (cfg) document.getElementById('back-label').textContent = cfg.label;
-  if (id === 'history-screen') renderHistory();
+  if (id === 'history-screen') renderHistory().catch(console.error);
 }
 
 function handleBack() {
@@ -841,7 +842,7 @@ document.getElementById('custom-item-input').addEventListener('keydown', functio
 });
 
 // ─── Complete Checklist ───────────────────────────────────
-function completeChecklist() {
+async function completeChecklist() {
   const uncheckedRequired = state.items.filter(i => i.required && !i.checked);
   const errEl = document.getElementById('checklist-error');
 
@@ -865,7 +866,7 @@ function completeChecklist() {
     items: state.items.map(i => ({ label: i.label, required: i.required, checked: i.checked, note: i.note, custom: i.custom }))
   };
 
-  saveRecord(record);
+  await saveRecord(record);
   renderSummary(record);
   showScreen('summary-screen');
 }
@@ -944,23 +945,43 @@ function startNew() {
   showScreen('setup-screen');
 }
 
-// ─── LocalStorage ─────────────────────────────────────────
-const STORAGE_KEY = 'wh_checklist_records';
+// ─── Supabase ─────────────────────────────────────────────
+const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-function saveRecord(record) {
-  const records = getRecords();
-  records.unshift(record);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+async function saveRecord(record) {
+  const { error } = await db.from('checklist_records').insert({
+    id: record.id,
+    worker_name: record.workerName,
+    job_type: record.jobType,
+    category: record.category,
+    start_time: record.startTime,
+    end_time: record.endTime,
+    items: record.items
+  });
+  if (error) console.error('Save error:', error.message);
 }
 
-function getRecords() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch { return []; }
+async function getRecords() {
+  const workerName = localStorage.getItem('wh_last_worker') || '';
+  if (!workerName) return [];
+  const { data, error } = await db
+    .from('checklist_records')
+    .select('*')
+    .eq('worker_name', workerName)
+    .order('end_time', { ascending: false });
+  if (error) { console.error(error); return []; }
+  return data.map(r => ({
+    id: r.id, workerName: r.worker_name, jobType: r.job_type,
+    category: r.category, startTime: r.start_time, endTime: r.end_time,
+    items: r.items
+  }));
 }
 
 // ─── History ──────────────────────────────────────────────
-function renderHistory() {
-  const records = getRecords();
+async function renderHistory() {
+  const records = await getRecords();
   const container = document.getElementById('history-list');
 
   if (records.length === 0) {

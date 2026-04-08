@@ -357,17 +357,38 @@
     </div>
 
     <div class="hidden md:flex items-center gap-3">
-      <a href="#" class="btn-ghost text-sm py-2 px-5">Sign In</a>
+      <div class="relative user-menu-wrapper">
+        <a href="#" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-2 px-5">Sign In</a>
+        <div id="user-menu" class="hidden absolute right-0 top-10 rounded-xl py-2 w-44 z-50" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+          <p class="text-[11px] text-white/30 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
+          <p id="user-menu-name" class="text-white text-sm font-bold px-4 pb-3 truncate"></p>
+          <div style="border-top:1px solid rgba(255,255,255,0.07);" class="pt-1">
+            <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/40 hover:text-white/70 transition-colors">Sign out</button>
+          </div>
+        </div>
+      </div>
       <a href="#join"      class="btn-primary text-sm py-2.5 px-6">Join WorkHive</a>
     </div>
 
-    <!-- Mobile hamburger -->
-    <button id="hamburger" aria-label="Open menu" class="md:hidden flex flex-col gap-1.5 p-2 rounded-lg hover:bg-white/10 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-orange-wh">
-      <span class="w-6 h-0.5 bg-white block transition-transform" id="bar1"></span>
-      <span class="w-6 h-0.5 bg-white block transition-opacity"  id="bar2"></span>
-      <span class="w-6 h-0.5 bg-white block transition-transform" id="bar3"></span>
-    </button>
-  </div>
+    <!-- Mobile Sign In (always visible on mobile) -->
+    <div class="md:hidden flex items-center gap-2">
+      <div class="relative user-menu-wrapper-mobile">
+        <a href="#" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-1.5 px-4">Sign In</a>
+        <div id="user-menu-mobile" class="hidden absolute right-0 top-10 rounded-xl py-2 w-44 z-50" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+          <p class="text-[11px] text-white/30 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
+          <p id="user-menu-name-mobile" class="text-white text-sm font-bold px-4 pb-3 truncate"></p>
+          <div style="border-top:1px solid rgba(255,255,255,0.07);" class="pt-1">
+            <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/40 hover:text-white/70 transition-colors">Sign out</button>
+          </div>
+        </div>
+      </div>
+      <!-- Mobile hamburger -->
+      <button id="hamburger" aria-label="Open menu" class="flex flex-col gap-1.5 p-2 rounded-lg hover:bg-white/10 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-orange-wh">
+        <span class="w-6 h-0.5 bg-white block transition-transform" id="bar1"></span>
+        <span class="w-6 h-0.5 bg-white block transition-opacity"  id="bar2"></span>
+        <span class="w-6 h-0.5 bg-white block transition-transform" id="bar3"></span>
+      </button>
+    </div>
 
   <!-- Mobile menu -->
   <div id="mobile-menu" class="md:hidden flex-col px-5 pb-5 gap-1 border-t border-white/[0.06]">
@@ -376,7 +397,7 @@
     <a href="#impact"    class="block py-3 text-white/80 font-medium hover:text-white transition-colors">Impact</a>
     <a href="#community" class="block py-3 text-white/80 font-medium hover:text-white transition-colors">Community</a>
     <div class="pt-4 flex flex-col gap-3">
-      <a href="#" class="btn-ghost text-sm text-center">Sign In</a>
+      <a href="#" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm text-center">Sign In</a>
       <a href="#join" class="btn-primary text-sm text-center">Join WorkHive</a>
     </div>
   </div>
@@ -1584,5 +1605,107 @@
 </script>
 
   <script src="floating-ai.js"></script>
+
+<!-- ── SIGN IN MODAL ── -->
+<div id="signin-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" style="background:rgba(0,0,0,0.75); backdrop-filter:blur(10px);">
+  <div class="relative rounded-2xl p-8 w-full max-w-sm mx-4" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 24px 80px rgba(0,0,0,0.5);">
+    <!-- Close -->
+    <button onclick="closeSignIn()" class="absolute top-4 right-4 text-white/30 hover:text-white/70 transition-colors text-xl leading-none">&times;</button>
+
+    <!-- Logo -->
+    <div class="flex justify-center mb-6">
+      <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-10 w-auto" />
+    </div>
+
+    <!-- Sign in form -->
+    <div id="signin-form">
+      <h2 class="text-xl font-black text-white mb-1">Welcome back</h2>
+      <p class="text-xs text-white/40 mb-6">Enter your name to access your records.</p>
+      <input id="signin-input" type="text" placeholder="Your name" autocomplete="name"
+        class="w-full rounded-xl px-4 py-3 text-sm text-white mb-2 outline-none"
+        style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);" />
+      <p id="signin-error" class="text-xs text-red-400 mb-3 hidden">Please enter your name.</p>
+      <button onclick="submitSignIn()" class="w-full rounded-xl py-3 text-sm font-bold" style="background:#F7A21B; color:#162032;">Enter WorkHive</button>
+      <p class="text-center text-xs text-white/25 mt-4">No password needed — just your name</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openSignIn(e) {
+    if (e) e.preventDefault();
+    const name = localStorage.getItem('wh_last_worker') || '';
+    if (name) { toggleUserMenu(e); return; }
+    document.getElementById('signin-modal').classList.remove('hidden');
+    setTimeout(() => document.getElementById('signin-input')?.focus(), 100);
+  }
+
+  function closeSignIn() {
+    document.getElementById('signin-modal').classList.add('hidden');
+  }
+
+  function submitSignIn() {
+    const val = document.getElementById('signin-input').value.trim();
+    if (!val) {
+      document.getElementById('signin-error').classList.remove('hidden');
+      return;
+    }
+    localStorage.setItem('wh_last_worker', val);
+    closeSignIn();
+    updateNavbarName(val);
+  }
+
+  function updateNavbarName(name) {
+    const first = name.split(' ')[0];
+    document.querySelectorAll('.signin-btn').forEach(el => el.textContent = first);
+    const nameEl = document.getElementById('user-menu-name');
+    if (nameEl) nameEl.textContent = name;
+    const nameElMobile = document.getElementById('user-menu-name-mobile');
+    if (nameElMobile) nameElMobile.textContent = name;
+  }
+
+  function toggleUserMenu(e) {
+    if (e) e.preventDefault();
+    // Toggle whichever menu is visible (desktop or mobile)
+    const isMobile = window.innerWidth < 768;
+    const menuId = isMobile ? 'user-menu-mobile' : 'user-menu';
+    document.getElementById(menuId).classList.toggle('hidden');
+  }
+
+  function signOut() {
+    localStorage.removeItem('wh_last_worker');
+    document.getElementById('user-menu').classList.add('hidden');
+    document.getElementById('user-menu-mobile').classList.add('hidden');
+    document.querySelectorAll('.signin-btn').forEach(el => el.textContent = 'Sign In');
+    document.getElementById('signin-input').value = '';
+  }
+
+  document.getElementById('signin-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitSignIn();
+  });
+
+  document.getElementById('signin-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeSignIn();
+  });
+
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('user-menu');
+    if (!menu.classList.contains('hidden') && !e.target.closest('.user-menu-wrapper')) {
+      menu.classList.add('hidden');
+    }
+    const menuMobile = document.getElementById('user-menu-mobile');
+    if (!menuMobile.classList.contains('hidden') && !e.target.closest('.user-menu-wrapper-mobile')) {
+      menuMobile.classList.add('hidden');
+    }
+  });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const name = localStorage.getItem('wh_last_worker');
+    if (name) updateNavbarName(name);
+    if (new URLSearchParams(window.location.search).get('signin') === '1') {
+      openSignIn(null);
+    }
+  });
+</script>
 </body>
 </html>

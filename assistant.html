@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -336,10 +337,13 @@
     const WORKER_URL = 'https://workhive-assistant.ian-beronio37.workers.dev';
 
     // ── Storage keys ──────────────────────────────────────────────
-    const KEY_WORKER   = 'wh_last_worker';
-    const KEY_LOGBOOK  = 'wh_logbook_v1';
-    const KEY_CHECKLIST= 'wh_checklist_records';
-    const KEY_PARTS    = 'wh_parts_records';
+    const KEY_WORKER = 'wh_last_worker';
+
+    // ── Supabase ──────────────────────────────────────────────────
+    const db = supabase.createClient(
+      'https://hzyvnjtisfgbksicrouu.supabase.co',
+      'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'
+    );
 
     // ── In-memory session state ───────────────────────────────────
     let sessionMessages = []; // {role, content} for Claude API
@@ -385,16 +389,25 @@
     }
 
     // ── Load records summary on setup screen ──────────────────────
-    function loadRecordsSummary() {
-      const logbook   = JSON.parse(localStorage.getItem(KEY_LOGBOOK)   || '[]');
-      const checklist = JSON.parse(localStorage.getItem(KEY_CHECKLIST) || '[]');
-      const parts     = JSON.parse(localStorage.getItem(KEY_PARTS)     || '[]');
+    async function loadRecordsSummary() {
+      const name = localStorage.getItem(KEY_WORKER) || '';
+      let logbookCount = 0, checklistCount = 0, partsCount = 0;
+      if (name) {
+        const [l, c, p] = await Promise.all([
+          db.from('logbook').select('id', { count: 'exact', head: true }).eq('worker_name', name),
+          db.from('checklist_records').select('id', { count: 'exact', head: true }).eq('worker_name', name),
+          db.from('parts_records').select('id', { count: 'exact', head: true }).eq('worker_name', name),
+        ]);
+        logbookCount = l.count || 0;
+        checklistCount = c.count || 0;
+        partsCount = p.count || 0;
+      }
 
       const list = document.getElementById('records-list');
       const items = [
-        { label: 'Logbook entries',    count: logbook.length,   color: '#F7A21B' },
-        { label: 'Checklist records',  count: checklist.length, color: '#29B6D9' },
-        { label: 'Parts used records', count: parts.length,     color: '#4ade80' },
+        { label: 'Logbook entries',    count: logbookCount,   color: '#F7A21B' },
+        { label: 'Checklist records',  count: checklistCount, color: '#29B6D9' },
+        { label: 'Parts used records', count: partsCount,     color: '#4ade80' },
       ];
       const nudge = document.getElementById('empty-records-nudge');
       if (nudge) nudge.classList.toggle('hidden', items.some(i => i.count > 0));
@@ -408,10 +421,15 @@
     }
 
     // ── Build system prompt with worker records ───────────────────
-    function buildSystemPrompt(name, contextNote) {
-      const logbook   = JSON.parse(localStorage.getItem(KEY_LOGBOOK)   || '[]').slice(0, 10);
-      const checklist = JSON.parse(localStorage.getItem(KEY_CHECKLIST) || '[]').slice(0, 10);
-      const parts     = JSON.parse(localStorage.getItem(KEY_PARTS)     || '[]').slice(0, 10);
+    async function buildSystemPrompt(name, contextNote) {
+      const [lRes, cRes, pRes] = await Promise.all([
+        db.from('logbook').select('*').eq('worker_name', name).order('date', { ascending: false }).limit(10),
+        db.from('checklist_records').select('*').eq('worker_name', name).order('end_time', { ascending: false }).limit(10),
+        db.from('parts_records').select('*').eq('worker_name', name).order('created_at', { ascending: false }).limit(10),
+      ]);
+      const logbook   = lRes.data || [];
+      const checklist = cRes.data || [];
+      const parts     = pRes.data || [];
 
       const fmtDate = iso => {
         try { return new Date(iso).toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' }); }
@@ -428,13 +446,13 @@
         ? checklist.map(r => {
             const done = (r.items || []).filter(i => i.checked).length;
             const total = (r.items || []).length;
-            return `[${fmtDate(r.startTime)}] Job: ${r.jobType || '—'} | Completed: ${done}/${total} items`;
+            return `[${fmtDate(r.start_time)}] Job: ${r.job_type || '—'} | Completed: ${done}/${total} items`;
           }).join('\n')
         : 'No checklist records yet.';
 
       const partsText = parts.length
         ? parts.map(r =>
-            `[${fmtDate(r.startTime || r.date)}] Job Ref: ${r.jobRef || '—'} | Parts: ${(r.parts || []).map(p => `${p.name} x${p.qty}`).join(', ') || '—'}`
+            `[${fmtDate(r.date)}] Job Ref: ${r.job_ref || '—'} | Parts: ${(r.parts || []).map(p => `${p.name} x${p.qty}`).join(', ') || '—'}`
           ).join('\n')
         : 'No parts records yet.';
 
@@ -468,7 +486,7 @@ ${partsText}
     }
 
     // ── Start chat ────────────────────────────────────────────────
-    function startChat() {
+    async function startChat() {
       const nameEl  = document.getElementById('worker-name');
       const nameErr = document.getElementById('name-error');
 
@@ -487,7 +505,7 @@ ${partsText}
 
       // Build fresh session
       sessionMessages = [];
-      const systemPrompt = buildSystemPrompt(workerName, contextNote);
+      const systemPrompt = await buildSystemPrompt(workerName, contextNote);
 
       // Store system prompt separately (not in messages array — passed at API call time)
       window._systemPrompt = systemPrompt;
@@ -497,7 +515,12 @@ ${partsText}
 
       // Show welcome message
       showScreen('chat-screen');
-      const hasRecords = ['wh_logbook_records','wh_checklist_records','wh_parts_records'].some(k => JSON.parse(localStorage.getItem(k)||'[]').length > 0);
+      const [lc, cc, pc] = await Promise.all([
+        db.from('logbook').select('id', { count: 'exact', head: true }).eq('worker_name', workerName),
+        db.from('checklist_records').select('id', { count: 'exact', head: true }).eq('worker_name', workerName),
+        db.from('parts_records').select('id', { count: 'exact', head: true }).eq('worker_name', workerName),
+      ]);
+      const hasRecords = (lc.count || 0) + (cc.count || 0) + (pc.count || 0) > 0;
       const recordsNote = hasRecords
         ? "I can see your job records and will reference them when relevant."
         : "You don't have any records yet. Add logbook entries, checklists, or parts to unlock personalised insights. For now I can help with technical questions, procedures, or anything on your mind.";
@@ -646,7 +669,7 @@ ${partsText}
       const savedName = localStorage.getItem(KEY_WORKER);
       if (savedName) document.getElementById('worker-name').value = savedName;
 
-      loadRecordsSummary();
+      loadRecordsSummary().catch(console.error);
     });
   </script>
   <script src="floating-ai.js"></script>
