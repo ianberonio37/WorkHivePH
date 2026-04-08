@@ -261,7 +261,8 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div>
           <label style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">End Time</label>
-          <input class="wh-input" id="m-end" type="time" />
+          <input class="wh-input" id="m-end" type="time" oninput="document.getElementById('m-end-error').style.display='none'" />
+          <div id="m-end-error" style="display:none;color:#f87171;font-size:0.7rem;margin-top:0.25rem">Must be after Start Time</div>
         </div>
         <div>
           <label style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Category</label>
@@ -1098,7 +1099,9 @@ function saveScheduleItem() {
   if (!title || !date) { alert('Title and date are required.'); return; }
   const startVal = document.getElementById('m-start').value;
   const endVal = document.getElementById('m-end').value;
-  if (startVal && endVal && endVal <= startVal) { alert('End Time must be after Start Time.'); return; }
+  const endErr = document.getElementById('m-end-error');
+  if (startVal && endVal && endVal <= startVal) { endErr.style.display='block'; document.getElementById('m-end').focus(); return; }
+  endErr.style.display='none';
 
   const existing = editingScheduleId ? scheduleItems.find(i=>i.id===editingScheduleId) : null;
   const payload = {
