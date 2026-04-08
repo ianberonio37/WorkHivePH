@@ -715,7 +715,7 @@ let currentScreen = 'setup-screen';
 const backConfig = {
   'setup-screen':     { label: 'Basic Worker', action: 'home' },
   'checklist-screen': { label: 'Setup',        action: 'abort' },
-  'summary-screen':   { label: 'Checklist',    action: 'back-to-checklist' },
+  'summary-screen':   { label: 'Setup',        action: 'new-checklist' },
   'history-screen':   { label: 'Basic Worker', action: 'home' },
 };
 
@@ -734,7 +734,7 @@ function handleBack() {
   if (!cfg) return;
   if (cfg.action === 'home')               { window.location.href = 'index.html'; }
   else if (cfg.action === 'abort')         { confirmAbort(); }
-  else if (cfg.action === 'back-to-checklist') { showScreen('checklist-screen'); renderItems(); }
+  else if (cfg.action === 'new-checklist') { startNew(); }
 }
 
 // ─── Start Checklist ──────────────────────────────────────
