@@ -538,6 +538,13 @@ Keep responses under 120 words unless asked for more.`;
     // Flip panel to the correct side so it stays on screen
     panel.style.left  = side === 'left'  ? '0'    : 'auto';
     panel.style.right = side === 'right' ? '0'    : 'auto';
+
+    // Flip tooltip to the correct side so it doesn't get buried
+    const tooltip = document.getElementById('wh-ai-tooltip');
+    if (tooltip) {
+      tooltip.style.left  = side === 'left'  ? '64px' : 'auto';
+      tooltip.style.right = side === 'right' ? '64px' : 'auto';
+    }
   }
 
   function loadSavedPosition() {
