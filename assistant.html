@@ -438,7 +438,7 @@
 
       const logbookText = logbook.length
         ? logbook.map(e =>
-            `[${fmtDate(e.date)}] Machine: ${e.machine || '—'} | Category: ${e.category || '—'} | Status: ${e.status || '—'}\n  Problem: ${e.problem || '—'}\n  Action: ${e.action || '—'}`
+            `[${fmtDate(e.date)}] Machine: ${e.machine || 'N/A'} | Category: ${e.category || 'N/A'} | Status: ${e.status || 'N/A'}\n  Problem: ${e.problem || 'N/A'}\n  Action: ${e.action || 'N/A'}`
           ).join('\n')
         : 'No logbook entries yet.';
 
@@ -446,13 +446,13 @@
         ? checklist.map(r => {
             const done = (r.items || []).filter(i => i.checked).length;
             const total = (r.items || []).length;
-            return `[${fmtDate(r.start_time)}] Job: ${r.job_type || '—'} | Completed: ${done}/${total} items`;
+            return `[${fmtDate(r.start_time)}] Job: ${r.job_type || 'N/A'} | Completed: ${done}/${total} items`;
           }).join('\n')
         : 'No checklist records yet.';
 
       const partsText = parts.length
         ? parts.map(r =>
-            `[${fmtDate(r.date)}] Job Ref: ${r.job_ref || '—'} | Parts: ${(r.parts || []).map(p => `${p.name} x${p.qty}`).join(', ') || '—'}`
+            `[${fmtDate(r.date)}] Job Ref: ${r.job_ref || 'N/A'} | Parts: ${(r.parts || []).map(p => `${p.name} x${p.qty}`).join(', ') || 'N/A'}`
           ).join('\n')
         : 'No parts records yet.';
 

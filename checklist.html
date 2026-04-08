@@ -1028,7 +1028,7 @@ async function renderHistory() {
               <div class="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 mt-0.5" style="background:${item.checked ? 'rgba(247,162,27,0.15)' : 'rgba(255,255,255,0.04)'}; border:1px solid ${item.checked ? 'rgba(247,162,27,0.3)' : 'rgba(255,255,255,0.06)'};">
                 ${item.checked ? `<svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="#F7A21B" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>` : ''}
               </div>
-              <p class="text-[11px] text-white/50 leading-snug ${item.checked ? '' : 'line-through opacity-40'}">${item.label}${item.note ? ` <span style="color:rgba(255,255,255,0.25); font-style:italic;"> — "${item.note}"</span>` : ''}</p>
+              <p class="text-[11px] text-white/50 leading-snug ${item.checked ? '' : 'line-through opacity-40'}">${item.label}${item.note ? ` <span style="color:rgba(255,255,255,0.25); font-style:italic;">: "${item.note}"</span>` : ''}</p>
             </div>
           `).join('')}
         </div>
