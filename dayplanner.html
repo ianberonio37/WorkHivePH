@@ -823,7 +823,8 @@ function renderWILO() {
     <div class="wilo-day-header" style="font-size:0.65rem;color:rgba(255,255,255,0.2)">Time</div>`;
   days.forEach(day => {
     const isToday = toYMD(day) === todayStr;
-    html += `<div class="wilo-day-header ${isToday ? 'today' : ''}">
+    const ymd = toYMD(day);
+    html += `<div class="wilo-day-header ${isToday ? 'today' : ''}" onclick="goToDilDay('${ymd}')" style="cursor:pointer" title="Open ${DAY_NAMES[day.getDay()]} in DILO">
       <div style="font-size:0.7rem">${DAY_NAMES[day.getDay()]}</div>
       <div style="font-size:1.1rem;font-weight:800;line-height:1">${day.getDate()}</div>
     </div>`;
@@ -1051,6 +1052,11 @@ function onSlotClick(date, time) {
   } else {
     openAddModal(date, time);
   }
+}
+
+function goToDilDay(ymd) {
+  currentDate = new Date(ymd + 'T00:00:00');
+  switchView('dilo');
 }
 
 // ─────────────────────────────────────────────
