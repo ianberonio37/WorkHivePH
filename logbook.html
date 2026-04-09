@@ -6,7 +6,8 @@
   <title>WorkHive Digital Logbook</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -43,6 +44,7 @@
       border-radius: 50%;
       filter: blur(80px);
       opacity: 0.18;
+      will-change: transform;
     }
     .beam-1 { width: 600px; height: 300px; background: #F7A21B; top: -80px; left: -100px; animation: drift1 12s ease-in-out infinite; }
     .beam-2 { width: 500px; height: 250px; background: #29B6D9; top: 20%; right: -80px; animation: drift2 15s ease-in-out infinite; }
