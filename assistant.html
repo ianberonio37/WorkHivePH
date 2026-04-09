@@ -351,19 +351,10 @@
     let isLoading = false;
 
     // ── Back navigation config ────────────────────────────────────
-    const backConfig = {
-      'setup-screen': { action: 'home' },
-      'chat-screen':  { action: 'back-to-setup' },
-    };
     let currentScreen = 'setup-screen';
 
     function handleBack() {
-      const cfg = backConfig[currentScreen];
-      if (cfg.action === 'home') {
-        window.location.href = 'index.html';
-      } else if (cfg.action === 'back-to-setup') {
-        showScreen('setup-screen');
-      }
+      window.location.href = 'index.html';
     }
 
     function showScreen(id) {
