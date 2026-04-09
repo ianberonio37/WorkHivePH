@@ -460,7 +460,11 @@
           }).join('\n')
         : 'No schedule items in this window.';
 
+      const todayISO = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+      const todayReadable = new Date().toLocaleDateString('en-PH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
       return `You are a personal work assistant for an industrial maintenance worker named ${name}.
+TODAY'S DATE: ${todayReadable} (${todayISO}). Use this as your reference for "today", "tomorrow", "yesterday", etc.
 
 You handle three types of conversations. Adapt naturally:
 
