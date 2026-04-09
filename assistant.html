@@ -503,23 +503,23 @@ ${partsText}
       // Persist for convenience
       localStorage.setItem(KEY_WORKER, workerName);
 
-      // Build fresh session
+      // Switch to chat immediately — no waiting
       sessionMessages = [];
-      const systemPrompt = await buildSystemPrompt(workerName, contextNote);
-
-      // Store system prompt separately (not in messages array — passed at API call time)
-      window._systemPrompt = systemPrompt;
-
-      // Update chat header
       document.getElementById('chat-worker-name').textContent = workerName;
-
-      // Show welcome message
       showScreen('chat-screen');
-      const [lc, cc, pc] = await Promise.all([
+      addTypingIndicator();
+
+      // Build system prompt and welcome message in background
+      const [systemPrompt, lc, cc, pc] = await Promise.all([
+        buildSystemPrompt(workerName, contextNote),
         db.from('logbook').select('id', { count: 'exact', head: true }).eq('worker_name', workerName),
         db.from('checklist_records').select('id', { count: 'exact', head: true }).eq('worker_name', workerName),
         db.from('parts_records').select('id', { count: 'exact', head: true }).eq('worker_name', workerName),
       ]);
+
+      window._systemPrompt = systemPrompt;
+      removeTypingIndicator();
+
       const hasRecords = (lc.count || 0) + (cc.count || 0) + (pc.count || 0) > 0;
       const recordsNote = hasRecords
         ? "I can see your job records and will reference them when relevant."
