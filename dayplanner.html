@@ -332,7 +332,7 @@ if (!WORKER_NAME) {
 let currentView = 'dilo';
 let currentDate = new Date();
 let logbookItems = [];
-let scheduleItems = JSON.parse(localStorage.getItem('wh_lifeplanner_' + WORKER_NAME) || '[]');
+let scheduleItems = [];
 let selectedLogbookItem = null;
 let editingScheduleId = null;
 
@@ -418,8 +418,88 @@ function toYMD(d) {
 }
 function todayYMD() { return toYMD(new Date()); }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
-function saveSchedule() { localStorage.setItem('wh_lifeplanner_' + WORKER_NAME, JSON.stringify(scheduleItems)); }
 function itemsOnDate(ymd) { return scheduleItems.filter(s => s.date === ymd); }
+
+// ─────────────────────────────────────────────
+// SUPABASE SCHEDULE SYNC
+// ─────────────────────────────────────────────
+function toDBRow(item) {
+  return {
+    id:          item.id,
+    worker_name: WORKER_NAME,
+    title:       item.title,
+    date:        item.date,
+    start_time:  item.startTime,
+    end_time:    item.endTime,
+    category:    item.category,
+    notes:       item.notes,
+    logbook_ref: item.logbookRef,
+    item_status: item.itemStatus,
+  };
+}
+
+function fromDBRow(row) {
+  return {
+    id:         row.id,
+    title:      row.title,
+    date:       row.date,
+    startTime:  row.start_time,
+    endTime:    row.end_time,
+    category:   row.category,
+    notes:      row.notes,
+    logbookRef: row.logbook_ref,
+    itemStatus: row.item_status,
+  };
+}
+
+async function loadSchedule() {
+  try {
+    const { data, error } = await db.from('schedule_items')
+      .select('*')
+      .eq('worker_name', WORKER_NAME)
+      .order('date', { ascending: true });
+    if (error) throw error;
+    scheduleItems = (data || []).map(fromDBRow);
+
+    // One-time migration from localStorage
+    const lsKey = 'wh_lifeplanner_' + WORKER_NAME;
+    const lsRaw = localStorage.getItem(lsKey);
+    if (lsRaw && scheduleItems.length === 0) {
+      const lsItems = JSON.parse(lsRaw);
+      if (lsItems.length > 0) {
+        const rows = lsItems.map(toDBRow);
+        const { error: uErr } = await db.from('schedule_items').upsert(rows);
+        if (!uErr) {
+          scheduleItems = lsItems;
+          localStorage.removeItem(lsKey);
+        }
+      }
+    }
+  } catch(e) {
+    console.warn('Schedule load failed, falling back to localStorage:', e);
+    scheduleItems = JSON.parse(localStorage.getItem('wh_lifeplanner_' + WORKER_NAME) || '[]');
+  }
+  renderSidebar();
+  render();
+}
+
+async function syncItemToSupabase(item) {
+  try {
+    const { error } = await db.from('schedule_items').upsert(toDBRow(item));
+    if (error) console.warn('Schedule sync failed:', error.message);
+  } catch(e) {
+    console.warn('Schedule sync error:', e);
+  }
+}
+
+async function deleteItemFromSupabase(id) {
+  try {
+    const { error } = await db.from('schedule_items').delete().eq('id', id);
+    if (error) console.warn('Schedule delete failed:', error.message);
+  } catch(e) {
+    console.warn('Schedule delete error:', e);
+  }
+}
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -1138,7 +1218,7 @@ function saveScheduleItem() {
     scheduleItems.push(payload);
   }
 
-  saveSchedule();
+  syncItemToSupabase(payload);
 
   // Sync Done → Closed in Logbook (Supabase)
   if (payload.itemStatus === 'done' && payload.logbookRef) {
@@ -1165,7 +1245,7 @@ function deleteScheduleItem() {
   if (!editingScheduleId) return;
   if (!confirm('Remove this scheduled item?')) return;
   scheduleItems = scheduleItems.filter(i => i.id !== editingScheduleId);
-  saveSchedule();
+  deleteItemFromSupabase(editingScheduleId);
   closeModal();
   render();
 }
@@ -1184,7 +1264,7 @@ document.addEventListener('keydown', e => {
 // INIT
 // ─────────────────────────────────────────────
 loadLogbook();
-render();
+loadSchedule();
 </script>
 </body>
 </html>

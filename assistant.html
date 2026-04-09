@@ -413,14 +413,18 @@
 
     // ── Build system prompt with worker records ───────────────────
     async function buildSystemPrompt(name, contextNote) {
-      const [lRes, cRes, pRes] = await Promise.all([
+      const pastDate   = new Date(Date.now() - 3  * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      const futureDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      const [lRes, cRes, pRes, sRes] = await Promise.all([
         db.from('logbook').select('*').eq('worker_name', name).order('date', { ascending: false }).limit(10),
         db.from('checklist_records').select('*').eq('worker_name', name).order('end_time', { ascending: false }).limit(10),
         db.from('parts_records').select('*').eq('worker_name', name).order('created_at', { ascending: false }).limit(10),
+        db.from('schedule_items').select('*').eq('worker_name', name).gte('date', pastDate).lte('date', futureDate).order('date', { ascending: true }).order('start_time', { ascending: true }),
       ]);
       const logbook   = lRes.data || [];
       const checklist = cRes.data || [];
       const parts     = pRes.data || [];
+      const schedule  = sRes.data || [];
 
       const fmtDate = iso => {
         try { return new Date(iso).toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' }); }
@@ -446,6 +450,15 @@
             `[${fmtDate(r.date)}] Job Ref: ${r.job_ref || 'N/A'} | Parts: ${(r.parts || []).map(p => `${p.name} x${p.qty}`).join(', ') || 'N/A'}`
           ).join('\n')
         : 'No parts records yet.';
+
+      const scheduleText = schedule.length
+        ? schedule.map(s => {
+            const time = s.start_time ? ` ${s.start_time}${s.end_time ? '-' + s.end_time : ''}` : '';
+            const status = s.item_status ? ` [${s.item_status}]` : '';
+            const notes = s.notes ? ` — ${s.notes.substring(0, 100)}` : '';
+            return `[${s.date}${time}] ${s.title || 'Untitled'} (${s.category || 'Other'})${status}${notes}`;
+          }).join('\n')
+        : 'No schedule items in this window.';
 
       return `You are a personal work assistant for an industrial maintenance worker named ${name}.
 
@@ -473,6 +486,9 @@ ${checklistText}
 
 PARTS USED:
 ${partsText}
+
+SCHEDULE (last 3 days + next 14 days):
+${scheduleText}
 --- END OF RECORDS ---`;
     }
 
