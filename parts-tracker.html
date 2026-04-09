@@ -308,7 +308,7 @@
       <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
       <span id="back-label">Basic Worker</span>
     </button>
-    <button onclick="showHistory()" class="nav-pill">
+    <button id="top-history-btn" onclick="showHistory()" class="nav-pill">
       <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       History
     </button>
@@ -551,6 +551,7 @@ function showScreen(id) {
   currentScreen = id;
   const cfg = backConfig[id];
   if (cfg) document.getElementById('back-label').textContent = cfg.label;
+  document.getElementById('top-history-btn').style.display = id === 'summary-screen' ? 'none' : '';
 }
 
 function handleBack() {
