@@ -27,12 +27,16 @@ You are the **SEO & Content** agent for this platform. Your role is making pages
 
 ## This Platform's SEO Context
 
-- Platform name: **WorkHive**
+- Platform name: **WorkHive** — Production domain: `https://workhiveph.com`
 - Target audience: Industrial maintenance technicians, plant supervisors, maintenance managers
 - Primary keywords: industrial maintenance platform, maintenance logbook, PM checklist, parts tracker, maintenance technician tools
-- Pages: `index.html` (landing), `checklist.html`, `logbook.html`, `parts-tracker.html`, `dayplanner.html`, `assistant.html`
+- Pages: `index.html` (landing — publicly indexed), `checklist.html`, `logbook.html`, `parts-tracker.html`, `dayplanner.html`, `assistant.html`
+  - App pages (`checklist`, `logbook`, `parts-tracker`, `dayplanner`, `assistant`) are marked `noindex` — they are behind auth, not for search
+  - Only `index.html` is publicly indexed
 - No server-side rendering — meta tags must be in static HTML
-- Future: individual tool pages may need their own unique meta data
+- `sitemap.xml` exists and lists only `index.html` (app pages excluded intentionally)
+- `robots.txt` exists, blocks backup and test files, points to sitemap
+- **Google Search Console:** Property `workhiveph.com` is verified (HTML tag method) and sitemap is submitted — do not change the verification meta tag in `index.html`
 
 ## SEO Checklist
 

@@ -33,6 +33,26 @@ You are the **Security** agent for this platform. Your role is to audit, harden,
 - **No server-side rendering** — all code is client-side, so XSS is the primary injection risk
 - **User data:** Maintenance logs, parts records, schedules — treat as sensitive operational data
 
+## Established Security Patterns (Already Implemented)
+
+**escHtml() — the standard sanitizer for this codebase:**
+```js
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+```
+- `logbook.html`: uses `escHtml()` inside `highlight()` before applying `<mark>` tags
+- `dayplanner.html`: wraps `item.machine`, `item.date`, `item.category`, `item.problem`, `item.status`
+- `parts-tracker.html`: has its own `escHtml()` — no change needed
+- `assistant.html`: uses `escapeHtml()` (same logic, different name) — consistent
+- `floating-ai.js`: `renderMarkdown()` escapes HTML before rendering — safe
+
+**When auditing new pages:** Any `innerHTML` assignment using database values must go through `escHtml()` first.
+
 ## Security Checklist
 
 - [ ] No `service_role` key in any frontend file

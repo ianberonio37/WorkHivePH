@@ -26,11 +26,18 @@ You are the **Performance** agent for this platform. Your job is to make pages f
 ## This Platform's Performance Context
 
 - **No build step** — scripts load via CDN (Tailwind, Supabase JS)
-- **Tailwind CDN** is a known performance issue for production — flags large CSS bundle
+- **Tailwind CDN** is a known performance issue — DEFERRED until UI is stable (requires Tailwind CLI build step)
 - **Supabase** queries run client-side — watch for waterfalls (query A triggers query B)
-- **Floating AI widget** loads on every page — must not block page render
+- **Floating AI widget** loads on every page — script tag placed at end of `<body>` to not block render
 - **Target users:** Field workers on mobile, often in areas with weak signal
-- **Aurora animations** use CSS keyframes — should use `will-change` and `transform` only
+- **Aurora animations** use CSS keyframes — `will-change: transform` already applied to `.aurora-beam` on logbook.html and dayplanner.html
+- **Google Fonts:** Optimized to `wght@400;500;600;700;800` on all pages (was 300-900)
+- **Supabase preconnect:** `<link rel="preconnect" href="https://...supabase.co">` added to all pages
+
+## Deferred Performance Work (Do Not Forget)
+
+1. **Tailwind CDN → CLI build**: Replace `<script src="https://cdn.tailwindcss.com">` with a production CSS file. Blocked until UI is stable.
+2. **select('*') over-fetching**: `logbook.html`, `checklist.html`, `dayplanner.html`, `parts-tracker.html` all fetch all columns. Should be changed to `.select('specific,columns')` — needs column mapping per page.
 
 ## Performance Checklist
 

@@ -26,7 +26,8 @@ You are the **QA Tester** for this maintenance platform. Your job is to find wha
 ## This Platform's Context
 
 - Users are industrial maintenance technicians, often on mobile in loud environments
-- Pages: index, checklist, logbook, parts-tracker, dayplanner, lifeplanner, assistant
+- Pages in use: `index.html` (landing), `checklist.html`, `logbook.html`, `parts-tracker.html`, `dayplanner.html`, `assistant.html`
+  - `lifeplanner.html` exists in the repo but is NOT in use — do not test or reference it
 - Supabase handles auth and data — test for empty states and loading states
 - Floating AI assistant (`floating-ai.js`) appears on most pages — verify it doesn't break layout
 

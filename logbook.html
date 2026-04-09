@@ -317,12 +317,25 @@
             <!-- Machine name -->
             <div>
               <label class="wh-label">Machine / Equipment ID</label>
-              <input id="f-machine" type="text" class="wh-input" placeholder="e.g. Pump P-204, Conveyor B-12" autocomplete="off" />
+              <input id="f-machine" type="text" class="wh-input" placeholder="e.g. Pump P-204, Conveyor B-12" autocomplete="off" list="machine-suggestions" />
+              <datalist id="machine-suggestions"></datalist>
+            </div>
+
+            <!-- Maintenance Type -->
+            <div>
+              <label class="wh-label">Maintenance Type</label>
+              <select id="f-maint-type" class="wh-input">
+                <option value="">Select type...</option>
+                <option value="Breakdown / Corrective">Breakdown / Corrective</option>
+                <option value="Preventive Maintenance">Preventive Maintenance</option>
+                <option value="Inspection">Inspection</option>
+                <option value="Project Work">Project Work</option>
+              </select>
             </div>
 
             <!-- Category -->
             <div>
-              <label class="wh-label">Failure Category</label>
+              <label class="wh-label">Discipline / Category</label>
               <select id="f-category" class="wh-input">
                 <option value="">Select category...</option>
                 <option value="Mechanical">Mechanical</option>
@@ -331,17 +344,15 @@
                 <option value="Pneumatic">Pneumatic</option>
                 <option value="Instrumentation">Instrumentation</option>
                 <option value="Lubrication">Lubrication</option>
-                <option value="Vibration">Vibration</option>
-                <option value="Corrosion">Corrosion</option>
                 <option value="Other">Other</option>
               </select>
             </div>
 
             <!-- What was wrong -->
             <div>
-              <label class="wh-label">What was wrong?</label>
+              <label class="wh-label">Symptom / What was wrong?</label>
               <div class="relative">
-                <textarea id="f-problem" class="wh-input pr-10" placeholder="Describe the symptom or failure..."></textarea>
+                <textarea id="f-problem" class="wh-input pr-10" placeholder="Describe what you observed — noise, leak, trip, error code..."></textarea>
                 <button type="button" id="voice-problem" title="Voice input"
                   class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
                   style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
@@ -350,6 +361,26 @@
                   </svg>
                 </button>
               </div>
+            </div>
+
+            <!-- Root Cause -->
+            <div>
+              <label class="wh-label">Root Cause</label>
+              <select id="f-root-cause" class="wh-input">
+                <option value="">Select root cause...</option>
+                <option value="Misalignment">Misalignment</option>
+                <option value="Contamination / Dirt">Contamination / Dirt</option>
+                <option value="Wear">Wear</option>
+                <option value="Overload">Overload</option>
+                <option value="Corrosion">Corrosion</option>
+                <option value="Lubrication Failure">Lubrication Failure</option>
+                <option value="Electrical Fault">Electrical Fault</option>
+                <option value="Mechanical Damage">Mechanical Damage</option>
+                <option value="Vibration / Fatigue">Vibration / Fatigue</option>
+                <option value="Human Error">Human Error</option>
+                <option value="Design Issue">Design Issue</option>
+                <option value="Unknown">Unknown</option>
+              </select>
             </div>
 
             <!-- What did you do -->
@@ -421,6 +452,12 @@
               <span id="voice-status-text">Listening...</span>
             </div>
 
+            <!-- Downtime Hours -->
+            <div>
+              <label class="wh-label">Downtime Hours <span class="text-white/30 font-normal normal-case">(optional)</span></label>
+              <input id="f-downtime" type="number" min="0" step="0.5" class="wh-input" placeholder="e.g. 2.5 — how long was the asset offline?" />
+            </div>
+
             <!-- Status -->
             <div>
               <label class="wh-label">Status</label>
@@ -460,8 +497,6 @@
               <option value="Pneumatic">Pneumatic</option>
               <option value="Instrumentation">Instrumentation</option>
               <option value="Lubrication">Lubrication</option>
-              <option value="Vibration">Vibration</option>
-              <option value="Corrosion">Corrosion</option>
               <option value="Other">Other</option>
             </select>
             <select id="filter-status" class="wh-input sm:w-36">
@@ -580,8 +615,6 @@ const catColors = {
   Pneumatic:       { bg: 'rgba(34,197,94,0.15)',  text: '#4ade80', border: 'rgba(34,197,94,0.25)' },
   Instrumentation: { bg: 'rgba(236,72,153,0.15)', text: '#f472b6', border: 'rgba(236,72,153,0.25)' },
   Lubrication:     { bg: 'rgba(234,179,8,0.15)',  text: '#facc15', border: 'rgba(234,179,8,0.25)' },
-  Vibration:       { bg: 'rgba(239,68,68,0.15)',  text: '#f87171', border: 'rgba(239,68,68,0.25)' },
-  Corrosion:       { bg: 'rgba(180,83,9,0.15)',   text: '#fb923c', border: 'rgba(180,83,9,0.25)' },
   Other:           { bg: 'rgba(255,255,255,0.07)', text: 'rgba(255,255,255,0.5)', border: 'rgba(255,255,255,0.12)' },
 };
 
@@ -624,6 +657,14 @@ function formatDate(iso) {
 
 async function renderEntries() {
   const entries = await loadEntries();
+
+  // Populate machine autocomplete from past entries
+  const datalist = document.getElementById('machine-suggestions');
+  if (datalist) {
+    const uniqueMachines = [...new Set(entries.map(e => e.machine).filter(Boolean))].sort();
+    datalist.innerHTML = uniqueMachines.map(m => `<option value="${escHtml(m)}">`).join('');
+  }
+
   const query = document.getElementById('search-input').value.trim().toLowerCase();
   const catFilter = document.getElementById('filter-category').value;
   const statusFilter = document.getElementById('filter-status').value;
@@ -633,7 +674,7 @@ async function renderEntries() {
     const matchStatus = !statusFilter || (e.status || 'Open') === statusFilter;
     if (!matchCat || !matchStatus) return false;
     if (!query) return true;
-    return [e.machine, e.problem, e.action, e.knowledge, e.category]
+    return [e.machine, e.problem, e.action, e.knowledge, e.category, e.root_cause, e.maintenance_type]
       .some(f => f && f.toLowerCase().includes(query));
   });
 
@@ -723,22 +764,32 @@ async function openModal(id) {
 
   document.getElementById('modal-content').innerHTML = `
     <div class="flex items-center gap-2 flex-wrap mb-1">
-      <h3 class="font-black text-xl text-white">${entry.machine}</h3>
+      <h3 class="font-black text-xl text-white">${escHtml(entry.machine)}</h3>
       ${catBadge(entry.category)}
       ${statusBadge(status)}
+    </div>
+    <div class="flex flex-wrap gap-2 mb-4">
+      ${entry.maintenance_type ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.12);color:#29B6D9;border:1px solid rgba(41,182,217,0.2)">${escHtml(entry.maintenance_type)}</span>` : ''}
+      ${entry.downtime_hours != null ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2)">${entry.downtime_hours}h downtime</span>` : ''}
     </div>
     <p class="text-xs text-white/30 mb-5">${formatDate(entry.date)}</p>
 
     ${entry.problem ? `
-    <div class="mb-5">
-      <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-1.5">What was wrong</p>
-      <p class="text-sm text-white/70 leading-relaxed">${entry.problem}</p>
+    <div class="mb-4">
+      <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-1.5">Symptom</p>
+      <p class="text-sm text-white/70 leading-relaxed">${escHtml(entry.problem)}</p>
+    </div>` : ''}
+
+    ${entry.root_cause ? `
+    <div class="mb-4">
+      <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-1.5">Root Cause</p>
+      <p class="text-sm text-white/70 leading-relaxed">${escHtml(entry.root_cause)}</p>
     </div>` : ''}
 
     ${entry.action ? `
     <div class="mb-5">
       <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-1.5">Action taken</p>
-      <p class="text-sm text-white/70 leading-relaxed">${entry.action}</p>
+      <p class="text-sm text-white/70 leading-relaxed">${escHtml(entry.action)}</p>
     </div>` : ''}
 
     ${entry.knowledge ? `
@@ -781,30 +832,50 @@ async function openEditModal(id) {
     <div class="space-y-4">
       <div>
         <label class="wh-label">Machine / Equipment ID</label>
-        <input id="e-machine" type="text" class="wh-input" value="${entry.machine}" />
+        <input id="e-machine" type="text" class="wh-input" value="${escHtml(entry.machine)}" list="machine-suggestions" />
       </div>
       <div>
-        <label class="wh-label">Failure Category</label>
+        <label class="wh-label">Maintenance Type</label>
+        <select id="e-maint-type" class="wh-input">
+          <option value="">Select type...</option>
+          ${['Breakdown / Corrective','Preventive Maintenance','Inspection','Project Work']
+            .map(t => `<option value="${t}" ${(entry.maintenance_type||'') === t ? 'selected' : ''}>${t}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <label class="wh-label">Discipline / Category</label>
         <select id="e-category" class="wh-input">
           <option value="">Select category...</option>
-          ${['Mechanical','Electrical','Hydraulic','Pneumatic','Instrumentation','Lubrication','Vibration','Corrosion','Other']
+          ${['Mechanical','Electrical','Hydraulic','Pneumatic','Instrumentation','Lubrication','Other']
             .map(c => `<option value="${c}" ${entry.category === c ? 'selected' : ''}>${c}</option>`).join('')}
         </select>
       </div>
       <div>
-        <label class="wh-label">What was wrong?</label>
-        <textarea id="e-problem" class="wh-input">${entry.problem || ''}</textarea>
+        <label class="wh-label">Symptom / What was wrong?</label>
+        <textarea id="e-problem" class="wh-input">${escHtml(entry.problem || '')}</textarea>
+      </div>
+      <div>
+        <label class="wh-label">Root Cause</label>
+        <select id="e-root-cause" class="wh-input">
+          <option value="">Select root cause...</option>
+          ${['Misalignment','Contamination / Dirt','Wear','Overload','Corrosion','Lubrication Failure','Electrical Fault','Mechanical Damage','Vibration / Fatigue','Human Error','Design Issue','Unknown']
+            .map(r => `<option value="${r}" ${(entry.root_cause||'') === r ? 'selected' : ''}>${r}</option>`).join('')}
+        </select>
       </div>
       <div>
         <label class="wh-label">What did you do?</label>
-        <textarea id="e-action" class="wh-input">${entry.action || ''}</textarea>
+        <textarea id="e-action" class="wh-input">${escHtml(entry.action || '')}</textarea>
       </div>
       <div>
         <label class="wh-label flex items-center gap-1.5">
           What should the next person know?
           <span class="text-orange-wh text-[10px] font-bold bg-orange-wh/10 px-1.5 py-0.5 rounded-full">Most Valuable</span>
         </label>
-        <textarea id="e-knowledge" class="wh-input">${entry.knowledge || ''}</textarea>
+        <textarea id="e-knowledge" class="wh-input">${escHtml(entry.knowledge || '')}</textarea>
+      </div>
+      <div>
+        <label class="wh-label">Downtime Hours <span class="text-white/30 font-normal normal-case">(optional)</span></label>
+        <input id="e-downtime" type="number" min="0" step="0.5" class="wh-input" value="${entry.downtime_hours != null ? entry.downtime_hours : ''}" placeholder="e.g. 2.5" />
       </div>
       <div>
         <label class="wh-label">Status</label>
@@ -825,13 +896,17 @@ async function openEditModal(id) {
 }
 
 async function saveEdit(id) {
+  const downtimeRaw = document.getElementById('e-downtime').value;
   const updates = {
-    machine:   document.getElementById('e-machine').value.trim(),
-    category:  document.getElementById('e-category').value,
-    problem:   document.getElementById('e-problem').value.trim(),
-    action:    document.getElementById('e-action').value.trim(),
-    knowledge: document.getElementById('e-knowledge').value.trim(),
-    status:    document.querySelector('input[name="e-status"]:checked').value,
+    machine:         document.getElementById('e-machine').value.trim(),
+    maintenance_type: document.getElementById('e-maint-type').value,
+    category:        document.getElementById('e-category').value,
+    problem:         document.getElementById('e-problem').value.trim(),
+    root_cause:      document.getElementById('e-root-cause').value,
+    action:          document.getElementById('e-action').value.trim(),
+    knowledge:       document.getElementById('e-knowledge').value.trim(),
+    downtime_hours:  downtimeRaw !== '' ? parseFloat(downtimeRaw) : null,
+    status:          document.querySelector('input[name="e-status"]:checked').value,
   };
   const { error } = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME);
   if (error) { alert('Could not update entry: ' + error.message); return; }
@@ -866,13 +941,17 @@ async function confirmDelete(id) {
 document.getElementById('log-form').addEventListener('submit', async function(e) {
   e.preventDefault();
 
-  const machine   = document.getElementById('f-machine').value.trim();
-  const category  = document.getElementById('f-category').value;
-  const problem   = document.getElementById('f-problem').value.trim();
-  const action    = document.getElementById('f-action').value.trim();
-  const knowledge = document.getElementById('f-knowledge').value.trim();
-  const photo     = currentPhotoData;
-  const status    = document.querySelector('input[name="f-status"]:checked').value;
+  const machine       = document.getElementById('f-machine').value.trim();
+  const maintType     = document.getElementById('f-maint-type').value;
+  const category      = document.getElementById('f-category').value;
+  const problem       = document.getElementById('f-problem').value.trim();
+  const rootCause     = document.getElementById('f-root-cause').value;
+  const action        = document.getElementById('f-action').value.trim();
+  const knowledge     = document.getElementById('f-knowledge').value.trim();
+  const downtimeRaw   = document.getElementById('f-downtime').value;
+  const downtimeHours = downtimeRaw !== '' ? parseFloat(downtimeRaw) : null;
+  const photo         = currentPhotoData;
+  const status        = document.querySelector('input[name="f-status"]:checked').value;
 
   if (!machine) {
     document.getElementById('f-machine').focus();
@@ -884,7 +963,9 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
   const entry = {
     id: Date.now().toString(),
     date: new Date().toISOString(),
-    machine, category, problem, action, knowledge, photo, status
+    machine, maintenance_type: maintType, category, problem,
+    root_cause: rootCause, action, knowledge, downtime_hours: downtimeHours,
+    photo, status
   };
 
   await addEntry(entry);

@@ -33,9 +33,12 @@ You are the **Architect** for this maintenance platform. Your role is tech lead:
 
 - Pure HTML/CSS/JS frontend (no React yet)
 - Supabase as the backend (auth, database, realtime)
-- Pages: index, checklist, logbook, parts-tracker, dayplanner, lifeplanner, assistant
-- Floating AI assistant (`floating-ai.js`) integrated across pages
+- Pages in use: `index.html` (landing), `checklist.html`, `logbook.html`, `parts-tracker.html`, `dayplanner.html`, `assistant.html`
+  - `lifeplanner.html` exists in the repo but is NOT in use — do not link to it or reference it as active
+- Floating AI assistant (`floating-ai.js`) integrated across pages; page context is set inside that file per page
 - Target users: industrial maintenance technicians (field workers, mobile-first)
+- Known Supabase tables: logbook entries, checklists, parts usage, schedule/planner items (dayplanner)
+- Production domain: `workhiveph.com` (static files, no server-side rendering)
 
 ## Output Format
 

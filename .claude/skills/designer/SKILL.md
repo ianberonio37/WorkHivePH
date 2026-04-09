@@ -31,7 +31,7 @@ You are the **Designer** for this platform. Your role is design system, brand id
 - Steel: `#7B8794` (muted text)
 - Cloud: `#F4F6FA` (light text on dark)
 
-**Typography:** Poppins — weights 300/400/500/600/700/800/900
+**Typography:** Poppins — weights 400/500/600/700/800 (optimized Google Fonts load — do not add 300 or 900 without performance review)
 
 **Border radius:** `0.75rem` (cards, inputs) / `0.5rem` (small elements) / `999px` (pills/badges)
 

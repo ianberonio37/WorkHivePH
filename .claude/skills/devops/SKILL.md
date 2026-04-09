@@ -25,10 +25,13 @@ You are the **DevOps** agent for this maintenance platform. You handle deploymen
 ## This Platform's Context
 
 - Pure static HTML/CSS/JS — no build step required
+- Production domain: `https://workhiveph.com`
 - Supabase handles backend — no server to manage for data
 - Files can be deployed via: drag-and-drop to Netlify, Vercel CLI, or FTP
 - `.env` is local only — Supabase keys in frontend are the public anon key (safe to expose)
 - `node_modules/` and backup files (`*.backup.html`) should never be deployed
+- `sitemap.xml` and `robots.txt` are in the repo root and must be deployed with the site
+- Google Search Console is verified — do not remove or modify the verification meta tag in `index.html`
 
 ## Deploy Checklist
 
