@@ -459,7 +459,7 @@ Keep responses under 120 words unless asked for more.`;
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model:      config.model,
-        max_tokens: 300,
+        max_tokens: 500,
         messages
       })
     });

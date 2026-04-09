@@ -437,7 +437,7 @@
 
       const logbookText = logbook.length
         ? logbook.map(e =>
-            `[${fmtDate(e.date)}] Machine: ${e.machine || 'N/A'} | Category: ${e.category || 'N/A'} | Status: ${e.status || 'N/A'}\n  Problem: ${e.problem || 'N/A'}\n  Action: ${e.action || 'N/A'}`
+            `[${fmtDate(e.date)}] Machine: ${e.machine || 'N/A'} | Type: ${e.maintenance_type || 'N/A'} | Category: ${e.category || 'N/A'} | Status: ${e.status || 'N/A'}\n  Problem: ${e.problem || 'N/A'}\n  Root Cause: ${e.root_cause || 'N/A'} | Downtime: ${e.downtime_hours != null ? e.downtime_hours + 'h' : 'N/A'}\n  Action: ${e.action || 'N/A'}`
           ).join('\n')
         : 'No logbook entries yet.';
 
