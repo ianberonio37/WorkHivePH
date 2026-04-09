@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /index.backup.html
+Disallow: /index.backup2.html
+Disallow: /checklist.backup.html
+Disallow: /logbook.backup.html
+Disallow: /index-v3-test.html
+
+Sitemap: https://workhiveph.com/sitemap.xml
