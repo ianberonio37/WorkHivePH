@@ -486,7 +486,7 @@
 
     <div class="flex gap-3">
       <button onclick="goHome()" class="btn-ghost flex-1">New Entry</button>
-      <button onclick="saveAndHistory()" class="btn-primary flex-1">Save to History</button>
+      <button onclick="showHistory()" class="btn-primary flex-1">View History</button>
     </div>
   </div>
 
@@ -541,7 +541,7 @@ let currentScreen = 'setup-screen';
 const backConfig = {
   'setup-screen':   { label: 'Basic Worker', action: 'home' },
   'entry-screen':   { label: 'Setup',        action: 'abort' },
-  'summary-screen': { label: 'Entry',        action: 'back-to-entry' },
+  'summary-screen': { label: 'Basic Worker', action: 'home' },
   'history-screen': { label: 'Basic Worker', action: 'home' },
 };
 
@@ -796,6 +796,20 @@ function completeEntry() {
 
   renderSummary(pendingRecord);
   showScreen('summary-screen');
+
+  // Auto-save to Supabase immediately
+  db.from('parts_records').insert({
+    id:          pendingRecord.id,
+    worker_name: pendingRecord.workerName,
+    job_ref:     pendingRecord.jobRef,
+    job_type:    pendingRecord.jobType,
+    date:        pendingRecord.date,
+    duration:    pendingRecord.duration,
+    parts:       pendingRecord.parts
+  }).then(({ error }) => {
+    if (error) alert('Could not save record: ' + error.message);
+    else pendingRecord = null;
+  });
 }
 
 // ═══════════════════════════════════════════
