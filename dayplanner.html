@@ -51,6 +51,12 @@
       .top-bar > div[style*="flex:1"] { display: none; }
     }
 
+    /* Mobile: collapse sidebar so calendar has full width */
+    @media (max-width: 640px) {
+      .sidebar { width: 48px; min-width: 48px; }
+      #sidebar-title, #sidebar-hint, #sidebar-count-label, #sidebar-items { display: none !important; }
+    }
+
     /* Sidebar items */
     .sidebar-header { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
     .sidebar-items { flex: 1; overflow-y: auto; padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; }
@@ -507,7 +513,7 @@ const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 // ─────────────────────────────────────────────
 // SIDEBAR
 // ─────────────────────────────────────────────
-let sidebarCollapsed = false;
+let sidebarCollapsed = window.innerWidth <= 640;
 function toggleSidebar() {
   sidebarCollapsed = !sidebarCollapsed;
   const sb = document.getElementById('sidebar');
@@ -1266,5 +1272,6 @@ document.addEventListener('keydown', e => {
 loadLogbook();
 loadSchedule();
 </script>
+<script src="floating-ai.js"></script>
 </body>
 </html>

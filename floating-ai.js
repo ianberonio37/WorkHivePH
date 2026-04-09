@@ -37,6 +37,7 @@
     if (path.includes('checklist'))     return { page: 'checklist',    label: 'Checklist',             hint: 'Guide me through inspection steps or explain checklist items.' };
     if (path.includes('parts-tracker')) return { page: 'parts-tracker',label: 'Parts Tracker',         hint: 'Help me find parts, check stock levels, or suggest reorder points.' };
     if (path.includes('assistant'))     return { page: 'assistant',    label: 'My Work Assistant',     hint: 'I can help you plan your shift, prioritise tasks, or answer technical questions.' };
+    if (path.includes('dayplanner'))    return { page: 'dayplanner',   label: 'Day Planner',           hint: 'Help me schedule tasks, prioritise my day, or plan my maintenance shift.' };
     return                              { page: 'home',                label: 'WorkHive Home',         hint: 'Ask me anything about the platform or industrial maintenance.' };
   }
 
