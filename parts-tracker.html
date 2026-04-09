@@ -332,7 +332,7 @@
       <p class="text-white/40 text-xs mb-5">Fill in the job details before logging parts.</p>
 
       <!-- Worker Name -->
-      <div class="mb-4">
+      <div id="name-row" class="mb-4">
         <label>Your Name *</label>
         <input id="worker-name" type="text" class="wh-input" placeholder="e.g. Juan dela Cruz" />
       </div>
@@ -611,9 +611,12 @@ function showError(id, msg) {
 // SETUP SCREEN
 // ═══════════════════════════════════════════
 async function initSetup() {
-  // Pre-fill worker name
+  // Pre-fill worker name and hide field if already saved
   const saved = localStorage.getItem(WORKER_KEY);
-  if (saved) document.getElementById('worker-name').value = saved;
+  if (saved) {
+    document.getElementById('worker-name').value = saved;
+    document.getElementById('name-row').style.display = 'none';
+  }
 
   // Set today's date
   document.getElementById('job-date').value = new Date().toISOString().split('T')[0];
