@@ -601,10 +601,19 @@ function statusBadge(status) {
 // ────────────────────────────────────────────
 // RENDER
 // ────────────────────────────────────────────
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 function highlight(text, query) {
-  if (!query || !text) return text || '';
+  if (!query || !text) return escHtml(text || '');
+  const safe = escHtml(text);
   const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
+  return safe.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
 }
 
 function formatDate(iso) {
