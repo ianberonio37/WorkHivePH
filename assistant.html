@@ -665,11 +665,14 @@ ${partsText}
 
     // ── Init ──────────────────────────────────────────────────────
     window.addEventListener('DOMContentLoaded', () => {
-      // Auto-fill saved worker name
       const savedName = localStorage.getItem(KEY_WORKER);
-      if (savedName) document.getElementById('worker-name').value = savedName;
-
-      loadRecordsSummary().catch(console.error);
+      if (savedName) {
+        // Already signed in — skip setup and go straight to chat
+        document.getElementById('worker-name').value = savedName;
+        startChat();
+      } else {
+        loadRecordsSummary().catch(console.error);
+      }
     });
   </script>
   <script src="floating-ai.js"></script>
