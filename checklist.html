@@ -790,14 +790,14 @@ function renderItems() {
         </div>
         <div class="flex-1 min-w-0">
           <div class="flex items-start gap-2 flex-wrap">
-            <p class="item-label flex-1">${item.label}</p>
+            <p class="item-label flex-1">${escHtml(item.label)}</p>
             ${item.required ? '<span class="badge-req mt-0.5">Required</span>' : ''}
             ${item.custom ? '<span style="font-size:0.6rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; background:rgba(41,182,217,0.1); border:1px solid rgba(41,182,217,0.25); color:#29B6D9; border-radius:999px; padding:1px 7px; flex-shrink:0;" class="mt-0.5">Custom</span>' : ''}
           </div>
         </div>
       </div>
       <div class="ml-9 mt-2" onclick="event.stopPropagation()">
-        <input type="text" class="note-input" placeholder="Add a note (optional)" value="${item.note}"
+        <input type="text" class="note-input" placeholder="Add a note (optional)" value="${escHtml(item.note)}"
           oninput="updateNote(${idx}, this.value)" />
       </div>
     </div>
@@ -890,15 +890,15 @@ function renderSummary(record) {
     <div class="grid grid-cols-2 gap-3">
       <div>
         <p class="text-[10px] text-white/35 uppercase tracking-wider font-semibold mb-0.5">Machine</p>
-        <p class="text-sm font-bold text-white">${record.machineName}</p>
+        <p class="text-sm font-bold text-white">${escHtml(record.machineName)}</p>
       </div>
       <div>
         <p class="text-[10px] text-white/35 uppercase tracking-wider font-semibold mb-0.5">Worker</p>
-        <p class="text-sm font-bold text-white">${record.workerName}</p>
+        <p class="text-sm font-bold text-white">${escHtml(record.workerName)}</p>
       </div>
       <div>
         <p class="text-[10px] text-white/35 uppercase tracking-wider font-semibold mb-0.5">Job Type</p>
-        <p class="text-sm font-bold text-white">${record.jobType}</p>
+        <p class="text-sm font-bold text-white">${escHtml(record.jobType)}</p>
       </div>
       <div>
         <p class="text-[10px] text-white/35 uppercase tracking-wider font-semibold mb-0.5">Duration</p>
@@ -906,7 +906,7 @@ function renderSummary(record) {
       </div>
       <div>
         <p class="text-[10px] text-white/35 uppercase tracking-wider font-semibold mb-0.5">Category</p>
-        <p class="text-sm font-bold text-white">${record.category}</p>
+        <p class="text-sm font-bold text-white">${escHtml(record.category)}</p>
       </div>
       <div>
         <p class="text-[10px] text-white/35 uppercase tracking-wider font-semibold mb-0.5">Completed</p>
@@ -925,8 +925,8 @@ function renderSummary(record) {
         ${item.checked ? `<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="#F7A21B" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>` : ''}
       </div>
       <div class="flex-1">
-        <p class="text-xs text-white/70 leading-snug">${item.label}</p>
-        ${item.note ? `<p class="text-[11px] text-white/35 mt-0.5 italic">"${item.note}"</p>` : ''}
+        <p class="text-xs text-white/70 leading-snug">${escHtml(item.label)}</p>
+        ${item.note ? `<p class="text-[11px] text-white/35 mt-0.5 italic">"${escHtml(item.note)}"</p>` : ''}
       </div>
     </div>
   `).join('');
@@ -958,7 +958,7 @@ function startNew() {
 
 // ─── Supabase ─────────────────────────────────────────────
 const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'; // anon/publishable key — safe to expose in frontend
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function saveRecord(record) {
@@ -1015,8 +1015,8 @@ async function renderHistory() {
       <div class="history-card">
         <div class="flex items-start justify-between gap-2 mb-2">
           <div>
-            <p class="text-xs font-bold text-white">${r.jobType} · ${r.category}</p>
-            <p class="text-[11px] text-white/40">${r.machineName} · ${formatDate(end)}</p>
+            <p class="text-xs font-bold text-white">${escHtml(r.jobType)} · ${escHtml(r.category)}</p>
+            <p class="text-[11px] text-white/40">${escHtml(r.machineName)} · ${formatDate(end)}</p>
           </div>
           <div class="text-right flex-shrink-0">
             <p class="text-xs font-bold text-orange-wh">${done}/${total}</p>
@@ -1032,7 +1032,7 @@ async function renderHistory() {
               <div class="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 mt-0.5" style="background:${item.checked ? 'rgba(247,162,27,0.15)' : 'rgba(255,255,255,0.04)'}; border:1px solid ${item.checked ? 'rgba(247,162,27,0.3)' : 'rgba(255,255,255,0.06)'};">
                 ${item.checked ? `<svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="#F7A21B" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>` : ''}
               </div>
-              <p class="text-[11px] text-white/50 leading-snug ${item.checked ? '' : 'line-through opacity-40'}">${item.label}${item.note ? ` <span style="color:rgba(255,255,255,0.25); font-style:italic;">: "${item.note}"</span>` : ''}</p>
+              <p class="text-[11px] text-white/50 leading-snug ${item.checked ? '' : 'line-through opacity-40'}">${escHtml(item.label)}${item.note ? ` <span style="color:rgba(255,255,255,0.25); font-style:italic;">: "${escHtml(item.note)}"</span>` : ''}</p>
             </div>
           `).join('')}
         </div>
@@ -1046,6 +1046,12 @@ function toggleHistoryDetail(idx) {
 }
 
 // ─── Utils ────────────────────────────────────────────────
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 function formatDate(d) {
   if (!(d instanceof Date)) d = new Date(d);
   return d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' +
