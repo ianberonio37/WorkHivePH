@@ -243,6 +243,32 @@
       border: 1px solid rgba(255,255,255,0.1);
     }
 
+    /* Criticality selector */
+    .criticality-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0.5rem;
+      border-radius: 0.625rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.4);
+      transition: all 0.15s;
+      user-select: none;
+      text-align: center;
+    }
+    .criticality-btn:focus-visible {
+      outline: 2px solid rgba(247,162,27,0.5);
+      outline-offset: 2px;
+    }
+    .criticality-btn.sel-Critical { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: #f87171; }
+    .criticality-btn.sel-Major    { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.4); color: #F7A21B; }
+    .criticality-btn.sel-Minor    { background: rgba(34,197,94,0.15);  border-color: rgba(34,197,94,0.4);  color: #4ade80; }
+
     /* Scrollbar */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -295,6 +321,10 @@
           <span class="stat-pill"><span id="total-count" class="text-orange-wh font-bold">0</span> <span class="text-white/40">entries</span></span>
           <span class="stat-pill"><span id="machine-count" class="text-blue-wh font-bold">0</span> <span class="text-white/40">machines</span></span>
           <span class="stat-pill"><span id="open-count" class="text-red-400 font-bold">0</span> <span class="text-white/40">open</span></span>
+          <button id="open-asset-modal-btn" class="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5">
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            Register Asset
+          </button>
         </div>
       </div>
     </div>
@@ -555,6 +585,87 @@
     </div>
   </div>
 
+<!-- ── ASSET REGISTRY MODAL ── -->
+<div id="asset-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="display:none; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
+  <div class="card w-full max-w-md max-h-[88vh] overflow-y-auto p-7 relative">
+    <button id="asset-modal-close" class="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+
+    <!-- Tabs -->
+    <div class="flex gap-1 mb-6 p-1 rounded-xl" style="background: rgba(22,32,50,0.8); border: 1px solid rgba(255,255,255,0.08);">
+      <button id="asset-tab-register" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all">Register Asset</button>
+      <button id="asset-tab-manage" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all">Manage Assets <span id="asset-count-badge" class="ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full" style="background:rgba(41,182,217,0.15);color:#29B6D9;display:none"></span></button>
+    </div>
+
+    <!-- Register view -->
+    <div id="asset-register-view">
+      <div class="space-y-4">
+        <div>
+          <label class="wh-label">Asset ID <span class="text-orange-wh text-[10px] normal-case font-semibold">required</span></label>
+          <input id="a-asset-id" type="text" class="wh-input" placeholder="e.g. PUMP-001, CONV-A03, MOTOR-12" autocomplete="off" />
+          <p class="text-[10px] text-white/25 mt-1">Use a unique code you already use on the plant floor.</p>
+        </div>
+        <div>
+          <label class="wh-label">Asset Name <span class="text-white/25 font-normal normal-case">(optional)</span></label>
+          <input id="a-name" type="text" class="wh-input" placeholder="e.g. Cooling Water Pump, Line 3 Conveyor" autocomplete="off" />
+        </div>
+        <div>
+          <label class="wh-label">Asset Type</label>
+          <select id="a-type" class="wh-input">
+            <option value="">Select type...</option>
+            <option value="Pump">Pump</option>
+            <option value="Motor">Motor</option>
+            <option value="Conveyor">Conveyor</option>
+            <option value="Compressor">Compressor</option>
+            <option value="HVAC">HVAC</option>
+            <option value="Boiler">Boiler</option>
+            <option value="Fan / Blower">Fan / Blower</option>
+            <option value="Gearbox">Gearbox</option>
+            <option value="Generator">Generator</option>
+            <option value="Valve">Valve</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="wh-label">Location / Area <span class="text-white/25 font-normal normal-case">(optional)</span></label>
+          <input id="a-location" type="text" class="wh-input" placeholder="e.g. Line 1, Utility Room, Boiler Bay" autocomplete="off" />
+        </div>
+        <div>
+          <label class="wh-label">Criticality <span class="text-white/25 font-normal normal-case">(if this asset fails, impact is...)</span></label>
+          <div class="grid grid-cols-3 gap-2 mt-1">
+            <label class="criticality-btn" id="crit-btn-Critical">
+              <input type="radio" name="a-criticality" value="Critical" class="hidden" />
+              Critical
+            </label>
+            <label class="criticality-btn" id="crit-btn-Major">
+              <input type="radio" name="a-criticality" value="Major" class="hidden" />
+              Major
+            </label>
+            <label class="criticality-btn" id="crit-btn-Minor">
+              <input type="radio" name="a-criticality" value="Minor" class="hidden" />
+              Minor
+            </label>
+          </div>
+        </div>
+        <div class="flex gap-2 pt-1">
+          <button id="asset-submit-btn" class="btn-primary flex-1">Register Asset</button>
+          <button id="asset-cancel-btn" class="btn-secondary px-4">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manage view -->
+    <div id="asset-manage-view" class="hidden">
+      <div id="asset-list-container"></div>
+      <button id="asset-add-another-btn" class="btn-secondary w-full text-xs mt-3 flex items-center justify-center gap-1.5">
+        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        Register another asset
+      </button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ────────────────────────────────────────────
@@ -609,6 +720,180 @@ async function deleteEntry(id) {
 }
 
 // ────────────────────────────────────────────
+// ASSET REGISTRY (localStorage)
+// ────────────────────────────────────────────
+const ASSETS_KEY = 'wh_assets_' + WORKER_NAME;
+
+function loadAssets() {
+  try { return JSON.parse(localStorage.getItem(ASSETS_KEY)) || []; }
+  catch { return []; }
+}
+
+function saveAssets(assets) {
+  localStorage.setItem(ASSETS_KEY, JSON.stringify(assets));
+}
+
+function openAssetModal(tab) {
+  const modal = document.getElementById('asset-modal');
+  modal.style.display = 'flex';
+  switchAssetTab(tab || 'register');
+  if (tab !== 'manage') clearAssetForm();
+}
+
+function closeAssetModal() {
+  document.getElementById('asset-modal').style.display = 'none';
+}
+
+function switchAssetTab(tab) {
+  const registerView = document.getElementById('asset-register-view');
+  const manageView   = document.getElementById('asset-manage-view');
+  const regBtn = document.getElementById('asset-tab-register');
+  const manBtn = document.getElementById('asset-tab-manage');
+  const activeStyle   = 'background: linear-gradient(135deg, rgba(247,162,27,0.2), rgba(247,162,27,0.05)); border: 1px solid rgba(247,162,27,0.35); color: #F7A21B;';
+  const inactiveStyle = 'background: transparent; border: 1px solid transparent; color: rgba(255,255,255,0.4);';
+
+  if (tab === 'register') {
+    registerView.classList.remove('hidden');
+    manageView.classList.add('hidden');
+    regBtn.style.cssText = activeStyle;
+    manBtn.style.cssText = inactiveStyle;
+  } else {
+    registerView.classList.add('hidden');
+    manageView.classList.remove('hidden');
+    manBtn.style.cssText = activeStyle;
+    regBtn.style.cssText = inactiveStyle;
+    renderAssetList();
+  }
+  refreshAssetCountBadge();
+}
+
+function refreshAssetCountBadge() {
+  const count = loadAssets().length;
+  const badge = document.getElementById('asset-count-badge');
+  if (count > 0) {
+    badge.textContent = count;
+    badge.style.display = 'inline';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function clearAssetForm() {
+  document.getElementById('a-asset-id').value = '';
+  document.getElementById('a-name').value = '';
+  document.getElementById('a-type').value = '';
+  document.getElementById('a-location').value = '';
+  document.querySelectorAll('input[name="a-criticality"]').forEach(r => { r.checked = false; });
+  ['Critical','Major','Minor'].forEach(v => {
+    document.getElementById('crit-btn-' + v).classList.remove('sel-Critical','sel-Major','sel-Minor');
+  });
+}
+
+function submitAsset() {
+  const assetId = document.getElementById('a-asset-id').value.trim();
+  if (!assetId) {
+    const el = document.getElementById('a-asset-id');
+    el.focus();
+    el.style.borderColor = 'rgba(239,68,68,0.6)';
+    setTimeout(() => { el.style.borderColor = ''; }, 2000);
+    return;
+  }
+  const assets = loadAssets();
+  if (assets.some(a => a.asset_id.toUpperCase() === assetId.toUpperCase())) {
+    showToast('Asset ID already registered.');
+    return;
+  }
+  const criticality = document.querySelector('input[name="a-criticality"]:checked');
+  const asset = {
+    id: Date.now().toString(),
+    asset_id: assetId,
+    name: document.getElementById('a-name').value.trim(),
+    type: document.getElementById('a-type').value,
+    location: document.getElementById('a-location').value.trim(),
+    criticality: criticality ? criticality.value : '',
+    registered_at: new Date().toISOString()
+  };
+  assets.push(asset);
+  saveAssets(assets);
+  updateAssetDatalist();
+  showToast(assetId + ' registered.');
+  switchAssetTab('manage');
+}
+
+function deleteAsset(id) {
+  if (!confirm('Remove this asset from the registry?')) return;
+  const assets = loadAssets().filter(a => a.id !== id);
+  saveAssets(assets);
+  updateAssetDatalist();
+  renderAssetList();
+  refreshAssetCountBadge();
+  showToast('Asset removed.');
+}
+
+function criticalityBadge(c) {
+  if (!c) return '';
+  const map = {
+    Critical: { bg: 'rgba(239,68,68,0.15)',  text: '#f87171', border: 'rgba(239,68,68,0.25)' },
+    Major:    { bg: 'rgba(247,162,27,0.15)',  text: '#F7A21B', border: 'rgba(247,162,27,0.25)' },
+    Minor:    { bg: 'rgba(34,197,94,0.15)',   text: '#4ade80', border: 'rgba(34,197,94,0.25)' },
+  };
+  const s = map[c] || map.Minor;
+  return `<span class="badge-category" style="background:${s.bg};color:${s.text};border:1px solid ${s.border};">${c}</span>`;
+}
+
+function renderAssetList() {
+  const assets = loadAssets();
+  const container = document.getElementById('asset-list-container');
+  if (assets.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-10 empty-state">
+        <svg class="w-10 h-10 mx-auto mb-3 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2h-4M9 3a2 2 0 002 2h2a2 2 0 002-2M9 3a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        <p class="text-sm text-white/40">No assets registered yet.</p>
+        <p class="text-xs text-white/25 mt-1">Register assets to keep your log entries consistent.</p>
+      </div>`;
+    return;
+  }
+  container.innerHTML = assets.map(a => `
+    <div class="rounded-xl p-4 mb-3 entry-card" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+      <div class="flex items-start justify-between gap-2">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap mb-1">
+            <span class="font-bold text-sm text-white">${escHtml(a.asset_id)}</span>
+            ${criticalityBadge(a.criticality)}
+            ${a.type ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.1);color:rgba(41,182,217,0.7);border:1px solid rgba(41,182,217,0.15)">${escHtml(a.type)}</span>` : ''}
+          </div>
+          ${a.name ? `<p class="text-xs text-white/60 mb-0.5">${escHtml(a.name)}</p>` : ''}
+          ${a.location ? `<p class="text-[11px] text-white/30">${escHtml(a.location)}</p>` : ''}
+        </div>
+        <button onclick="deleteAsset('${a.id}')" class="btn-danger text-[11px] py-1 px-2.5 flex-shrink-0">Remove</button>
+      </div>
+    </div>`).join('');
+}
+
+function updateAssetDatalist() {
+  const datalist = document.getElementById('machine-suggestions');
+  if (!datalist) return;
+  const assets = loadAssets();
+  datalist.innerHTML = assets.map(a => {
+    const label = a.name ? `${a.asset_id} — ${a.name}` : a.asset_id;
+    return `<option value="${escHtml(a.asset_id)}" label="${escHtml(label)}">`;
+  }).join('');
+}
+
+document.getElementById('asset-modal-close').addEventListener('click', closeAssetModal);
+document.getElementById('asset-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeAssetModal();
+});
+document.getElementById('open-asset-modal-btn').addEventListener('click', () => openAssetModal('register'));
+document.getElementById('asset-tab-register').addEventListener('click', () => switchAssetTab('register'));
+document.getElementById('asset-tab-manage').addEventListener('click', () => switchAssetTab('manage'));
+document.getElementById('asset-submit-btn').addEventListener('click', submitAsset);
+document.getElementById('asset-cancel-btn').addEventListener('click', closeAssetModal);
+document.getElementById('asset-add-another-btn').addEventListener('click', () => { clearAssetForm(); switchAssetTab('register'); });
+
+// ────────────────────────────────────────────
 // CATEGORY COLOR MAP
 // ────────────────────────────────────────────
 const catColors = {
@@ -661,11 +946,20 @@ function formatDate(iso) {
 async function renderEntries() {
   const entries = await loadEntries();
 
-  // Populate machine autocomplete from past entries
+  // Populate machine autocomplete — registered assets first, then unique past entries as fallback
   const datalist = document.getElementById('machine-suggestions');
   if (datalist) {
-    const uniqueMachines = [...new Set(entries.map(e => e.machine).filter(Boolean))].sort();
-    datalist.innerHTML = uniqueMachines.map(m => `<option value="${escHtml(m)}">`).join('');
+    const registeredAssets = loadAssets();
+    const registeredIds = new Set(registeredAssets.map(a => a.asset_id.toUpperCase()));
+    const assetOptions = registeredAssets.map(a => {
+      const label = a.name ? `${a.asset_id} — ${a.name}` : a.asset_id;
+      return `<option value="${escHtml(a.asset_id)}" label="${escHtml(label)}">`;
+    });
+    const pastOptions = [...new Set(entries.map(e => e.machine).filter(Boolean))]
+      .filter(m => !registeredIds.has(m.trim().toUpperCase()))
+      .sort()
+      .map(m => `<option value="${escHtml(m)}">`);
+    datalist.innerHTML = assetOptions.join('') + pastOptions.join('');
   }
 
   const query = document.getElementById('search-input').value.trim().toLowerCase();
@@ -1153,11 +1447,19 @@ function updateStatusToggle(nameAttr) {
 document.addEventListener('change', function(e) {
   if (e.target.name === 'f-status') updateStatusToggle('f-status');
   if (e.target.name === 'e-status') updateStatusToggle('e-status');
+  if (e.target.name === 'a-criticality' && e.target.checked) {
+    ['Critical','Major','Minor'].forEach(v => {
+      document.getElementById('crit-btn-' + v).classList.remove('sel-Critical','sel-Major','sel-Minor');
+    });
+    document.getElementById('crit-btn-' + e.target.value).classList.add('sel-' + e.target.value);
+  }
 });
 
 // ────────────────────────────────────────────
 // INIT
 // ────────────────────────────────────────────
+updateAssetDatalist();
+refreshAssetCountBadge();
 renderEntries();
 updateStatusToggle('f-status');
 
