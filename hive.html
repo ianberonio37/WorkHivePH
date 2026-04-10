@@ -165,12 +165,33 @@
       border-radius: 0.875rem;
       padding: 1rem;
       transition: border-color 0.2s;
+      border-left-width: 3px;
     }
     .feed-card:hover { border-color: rgba(255,255,255,0.15); }
     .feed-card.new-entry { animation: slideIn 0.3s ease; }
+    .feed-log-open   { border-left-color: #ef4444; }
+    .feed-log-closed { border-left-color: #22c55e; }
+    .feed-parts      { border-left-color: #29B6D9; }
     @keyframes slideIn {
       from { opacity: 0; transform: translateY(-8px); }
       to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .activity-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .activity-icon.log  { background: rgba(41,182,217,0.2); border: 1px solid rgba(41,182,217,0.3); }
+    .activity-icon.parts { background: rgba(41,182,217,0.12); border: 1px solid rgba(41,182,217,0.25); }
+
+    .welcome-stat {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      text-align: center;
+      flex: 1;
     }
 
     .status-badge {
@@ -297,6 +318,37 @@
       </div>
     </div>
 
+    <!-- ── VIEW: WELCOME (shown after joining, not creating) ── -->
+    <div id="view-welcome" class="hidden">
+      <div class="wh-card p-8 text-center max-w-sm mx-auto mt-8">
+        <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-5" style="background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3);">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#4ade80" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <p class="text-[11px] font-semibold text-white/40 uppercase tracking-widest mb-1">You're In</p>
+        <h2 id="welcome-hive-name" class="text-xl font-black text-white mb-2"></h2>
+        <p class="text-xs text-white/40 mb-6 leading-relaxed">Your records are now visible to your team:</p>
+
+        <div class="flex gap-3 mb-6">
+          <div class="welcome-stat">
+            <p class="text-2xl font-black text-white" id="welcome-log-count">—</p>
+            <p class="text-[11px] text-white/40 mt-1">Logbook Entries</p>
+          </div>
+          <div class="welcome-stat">
+            <p class="text-2xl font-black text-white" id="welcome-parts-count">—</p>
+            <p class="text-[11px] text-white/40 mt-1">Parts Records</p>
+          </div>
+        </div>
+
+        <div class="rounded-xl p-3 mb-6 text-left" style="background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.15);">
+          <p class="text-[11px] text-white/50 leading-relaxed">
+            Your registered assets and inventory items stay on this device for now. They'll sync to the hive in Stage 2.
+          </p>
+        </div>
+
+        <button id="btn-welcome-enter" class="btn-primary">Enter the Hive →</button>
+      </div>
+    </div>
+
     <!-- ── VIEW: BOARD ── -->
     <div id="view-board" class="hidden">
 
@@ -398,9 +450,10 @@ let HIVE_ID   = localStorage.getItem('wh_hive_id')   || '';
 let HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
 let HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
 
-let memberNames    = [];
+let memberNames     = [];
 let presenceChannel = null;
 let feedChannel     = null;
+let partsChannel    = null;
 
 // ── UTILS ──
 function escHtml(str) {
@@ -426,7 +479,7 @@ function timeAgo(isoStr) {
 }
 
 function showView(id) {
-  ['onboard','create','code','join','board'].forEach(v => {
+  ['onboard','create','code','join','welcome','board'].forEach(v => {
     document.getElementById('view-' + v).classList.add('hidden');
   });
   document.getElementById('view-' + id).classList.remove('hidden');
@@ -448,7 +501,7 @@ function catStyle(cat) {
   return `background:${c.bg}; color:${c.color};`;
 }
 
-// ── FEED CARD ──
+// ── FEED CARDS ──
 function buildFeedCard(entry, isNew) {
   const initial    = escHtml((entry.worker_name || '?')[0].toUpperCase());
   const workerName = escHtml(entry.worker_name || '');
@@ -458,10 +511,15 @@ function buildFeedCard(entry, isNew) {
   const status     = entry.status || 'Open';
   const time       = entry.created_at ? timeAgo(entry.created_at) : escHtml(entry.date || '');
   const statusCls  = status === 'Open' ? 'status-open' : 'status-closed';
+  const borderCls  = status === 'Open' ? 'feed-log-open' : 'feed-log-closed';
 
-  return `<div class="feed-card${isNew ? ' new-entry' : ''}">
+  return `<div class="feed-card ${borderCls}${isNew ? ' new-entry' : ''}">
     <div class="flex items-start gap-3">
-      <div class="avatar-initial">${initial}</div>
+      <div class="activity-icon log">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#29B6D9" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg>
+      </div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 flex-wrap mb-1">
           <span class="text-xs font-bold text-white/80">${workerName}</span>
@@ -471,6 +529,38 @@ function buildFeedCard(entry, isNew) {
         </div>
         <p class="text-sm font-semibold text-white">${machine}</p>
         ${problem ? `<p class="text-xs text-white/50 mt-0.5 leading-relaxed" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${problem}</p>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function buildPartsCard(record, isNew) {
+  const workerName = escHtml(record.worker_name || '');
+  const jobRef     = escHtml(record.job_ref     || '—');
+  const jobType    = escHtml(record.job_type    || '');
+  const time       = record.created_at ? timeAgo(record.created_at) : escHtml(record.date || '');
+  const parts      = Array.isArray(record.parts) ? record.parts : [];
+  const partSummary = parts.length
+    ? escHtml(parts.slice(0,2).map(p => p.name || p.partName || '').filter(Boolean).join(', ') + (parts.length > 2 ? ` +${parts.length - 2} more` : ''))
+    : '';
+
+  return `<div class="feed-card feed-parts${isNew ? ' new-entry' : ''}">
+    <div class="flex items-start gap-3">
+      <div class="activity-icon parts">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#29B6D9" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap mb-1">
+          <span class="text-xs font-bold text-white/80">${workerName}</span>
+          <span class="status-badge" style="background:rgba(41,182,217,0.15);color:#5fcce8;">Parts Used</span>
+          ${jobType ? `<span class="cat-badge" style="background:rgba(41,182,217,0.1);color:#60a5fa;">${jobType}</span>` : ''}
+          <span class="text-[11px] text-white/25 ml-auto">${time}</span>
+        </div>
+        <p class="text-sm font-semibold text-white">${jobRef}</p>
+        ${partSummary ? `<p class="text-xs text-white/50 mt-0.5">${partSummary}</p>` : ''}
+        <p class="text-[11px] text-white/30 mt-0.5">${parts.length} part${parts.length !== 1 ? 's' : ''} used</p>
       </div>
     </div>
   </div>`;
@@ -541,6 +631,11 @@ document.getElementById('btn-enter-board').addEventListener('click', () => {
   initBoard();
 });
 
+document.getElementById('btn-welcome-enter').addEventListener('click', () => {
+  showView('board');
+  initBoard();
+});
+
 // ── JOIN HIVE ──
 document.getElementById('join-code-input').addEventListener('input', function() {
   this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -590,8 +685,21 @@ async function submitJoin() {
   localStorage.setItem('wh_hive_role', 'worker');
   HIVE_ID = hive.id; HIVE_NAME = hive.name; HIVE_ROLE = 'worker';
 
-  showView('board');
-  initBoard();
+  await showWelcome(hive);
+}
+
+async function showWelcome(hive) {
+  document.getElementById('welcome-hive-name').textContent = escHtml(hive.name);
+
+  const [logRes, partsRes] = await Promise.all([
+    db.from('logbook').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME),
+    db.from('parts_records').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME)
+  ]);
+
+  document.getElementById('welcome-log-count').textContent   = logRes.count   || 0;
+  document.getElementById('welcome-parts-count').textContent = partsRes.count || 0;
+
+  showView('welcome');
 }
 
 // ── LEAVE HIVE ──
@@ -608,6 +716,7 @@ document.getElementById('btn-leave-hive').addEventListener('click', async () => 
 
   if (presenceChannel) db.removeChannel(presenceChannel);
   if (feedChannel)     db.removeChannel(feedChannel);
+  if (partsChannel)    db.removeChannel(partsChannel);
 
   HIVE_ID = ''; HIVE_NAME = ''; HIVE_ROLE = '';
   memberNames = [];
@@ -650,28 +759,51 @@ async function initBoard() {
 }
 
 async function loadFeed() {
-  if (!memberNames.length) {
-    document.getElementById('feed-empty').classList.remove('hidden');
-    return;
-  }
-
-  const { data: entries } = await db.from('logbook')
-    .select('id, worker_name, date, machine, category, problem, status, created_at')
-    .in('worker_name', memberNames)
-    .order('created_at', { ascending: false })
-    .limit(30);
-
   const feed    = document.getElementById('feed');
   const emptyEl = document.getElementById('feed-empty');
 
-  if (!entries || entries.length === 0) {
+  if (!memberNames.length) {
+    emptyEl.classList.remove('hidden'); return;
+  }
+
+  // Fetch logbook + parts_records + open count in parallel
+  const [logRes, partsRes, openRes] = await Promise.all([
+    db.from('logbook')
+      .select('id, worker_name, date, machine, category, problem, status, created_at')
+      .in('worker_name', memberNames)
+      .order('created_at', { ascending: false })
+      .limit(30),
+    db.from('parts_records')
+      .select('id, worker_name, job_ref, job_type, date, parts, created_at')
+      .in('worker_name', memberNames)
+      .order('created_at', { ascending: false })
+      .limit(20),
+    db.from('logbook')
+      .select('*', { count: 'exact', head: true })
+      .in('worker_name', memberNames)
+      .eq('status', 'Open')
+  ]);
+
+  const logEntries   = (logRes.data   || []).map(e => ({ ...e, _type: 'logbook' }));
+  const partsEntries = (partsRes.data || []).map(e => ({ ...e, _type: 'parts' }));
+
+  // Merge and sort by created_at (fall back to date string)
+  const sortKey = e => e.created_at || e.date || '';
+  const merged = [...logEntries, ...partsEntries]
+    .sort((a, b) => sortKey(b).localeCompare(sortKey(a)))
+    .slice(0, 40);
+
+  // Open work orders stat (exact count, not limited by fetch)
+  document.getElementById('stat-open').textContent = openRes.count || 0;
+
+  if (!merged.length) {
     emptyEl.classList.remove('hidden'); return;
   }
   emptyEl.classList.add('hidden');
 
-  const openCount = entries.filter(e => e.status === 'Open').length;
-  document.getElementById('stat-open').textContent = openCount;
-  feed.innerHTML = entries.map(e => buildFeedCard(e, false)).join('');
+  feed.innerHTML = merged.map(e =>
+    e._type === 'parts' ? buildPartsCard(e, false) : buildFeedCard(e, false)
+  ).join('');
 }
 
 // ── PRESENCE ──
@@ -716,18 +848,26 @@ function renderPresence() {
 
 // ── FEED REALTIME ──
 function startFeedRealtime() {
-  if (feedChannel) db.removeChannel(feedChannel);
+  if (feedChannel)  db.removeChannel(feedChannel);
+  if (partsChannel) db.removeChannel(partsChannel);
 
-  // Stage 1.5: filter client-side by memberNames since hive_id not yet on logbook table
+  // Stage 1.5: filter client-side by memberNames since hive_id not yet on tables
   // Stage 2: add filter: `hive_id=eq.${HIVE_ID}` when column is added
   feedChannel = db.channel('hive-feed:' + HIVE_ID)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'logbook' }, (payload) => {
       if (!memberNames.includes(payload.new.worker_name)) return;
-      prependFeed(payload.new);
+      prependFeed({ ...payload.new, _type: 'logbook' });
       if (payload.new.status === 'Open') {
         const cur = parseInt(document.getElementById('stat-open').textContent) || 0;
         document.getElementById('stat-open').textContent = cur + 1;
       }
+    })
+    .subscribe();
+
+  partsChannel = db.channel('hive-parts:' + HIVE_ID)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'parts_records' }, (payload) => {
+      if (!memberNames.includes(payload.new.worker_name)) return;
+      prependFeed({ ...payload.new, _type: 'parts' });
     })
     .subscribe();
 }
@@ -735,7 +875,7 @@ function startFeedRealtime() {
 function prependFeed(entry) {
   document.getElementById('feed-empty').classList.add('hidden');
   const div = document.createElement('div');
-  div.innerHTML = buildFeedCard(entry, true);
+  div.innerHTML = entry._type === 'parts' ? buildPartsCard(entry, true) : buildFeedCard(entry, true);
   const feed = document.getElementById('feed');
   feed.insertBefore(div.firstElementChild, feed.firstChild);
 }
@@ -769,6 +909,7 @@ function checkStockAlert() {
 window.addEventListener('beforeunload', () => {
   if (presenceChannel) db.removeChannel(presenceChannel);
   if (feedChannel)     db.removeChannel(feedChannel);
+  if (partsChannel)    db.removeChannel(partsChannel);
 });
 </script>
 </body>
