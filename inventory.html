@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Inventory Monitor — WorkHive</title>
+  <meta name="description" content="Track spare parts stock levels, link parts to assets, and get alerted before critical spares run out. WorkHive Inventory Monitor." />
+  <meta name="robots" content="noindex, follow" />
+  <link rel="canonical" href="https://workhiveph.com/inventory.html" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'orange-wh': '#F7A21B',
+            'blue-wh':   '#29B6D9',
+            'navy-wh':   '#162032',
+          },
+          fontFamily: { poppins: ['Poppins', 'sans-serif'] },
+        },
+      },
+    };
+  </script>
+  <style>
+    * { font-family: 'Poppins', sans-serif; }
+    body { background-color: #162032; min-height: 100vh; }
+
+    /* Aurora */
+    .aurora-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .aurora-beam { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.18; will-change: transform; }
+    .beam-1 { width: 600px; height: 300px; background: #F7A21B; top: -80px; left: -100px; animation: drift1 12s ease-in-out infinite; }
+    .beam-2 { width: 500px; height: 250px; background: #29B6D9; top: 20%; right: -80px; animation: drift2 15s ease-in-out infinite; }
+    .beam-3 { width: 400px; height: 200px; background: #F7A21B; bottom: 10%; left: 30%; animation: drift3 10s ease-in-out infinite; }
+    @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(60px,40px)} }
+    @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,60px)} }
+    @keyframes drift3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-30px)} }
+
+    .hex-pattern {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E");
+      background-size: 80px 92px;
+    }
+
+    /* Card */
+    .card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.6) 0%, rgba(22,32,50,0.9) 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 1rem;
+    }
+
+    /* Part card with colored left border */
+    .part-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.6) 0%, rgba(22,32,50,0.9) 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 1rem;
+      border-left-width: 3px;
+      animation: slide-in 0.22s ease;
+      transition: border-color 0.2s;
+    }
+    .part-card:hover { border-top-color: rgba(255,255,255,0.14); border-right-color: rgba(255,255,255,0.14); border-bottom-color: rgba(255,255,255,0.14); }
+    .part-card.stock-ok  { border-left-color: #4ade80; }
+    .part-card.stock-low { border-left-color: #F7A21B; }
+    .part-card.stock-out { border-left-color: #f87171; }
+    @keyframes slide-in { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+
+    /* Inputs */
+    .wh-input {
+      background: rgba(22,32,50,0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.75rem;
+      color: white;
+      padding: 0.75rem 1rem;
+      width: 100%;
+      font-size: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .wh-input:focus { border-color: rgba(247,162,27,0.5); box-shadow: 0 0 0 3px rgba(247,162,27,0.1); }
+    .wh-input::placeholder { color: rgba(255,255,255,0.25); }
+    textarea.wh-input { resize: vertical; min-height: 80px; }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, #F7A21B, #FDB94A);
+      color: #162032; font-weight: 700; border-radius: 0.75rem;
+      padding: 0.75rem 1.5rem; font-size: 0.875rem;
+      cursor: pointer; border: none; min-height: 44px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
+    .btn-primary:active { opacity: 0.75; transform: scale(0.98); }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7);
+      font-weight: 600; border-radius: 0.75rem;
+      padding: 0.75rem 1.5rem; font-size: 0.875rem;
+      cursor: pointer; border: 1px solid rgba(255,255,255,0.1); min-height: 44px;
+      transition: background 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+    .btn-danger {
+      background: rgba(239,68,68,0.1); color: rgba(239,68,68,0.85);
+      font-weight: 700; border-radius: 0.625rem;
+      padding: 0.5rem 1rem; font-size: 0.75rem;
+      cursor: pointer; border: 1px solid rgba(239,68,68,0.2); min-height: 44px;
+      transition: background 0.2s;
+    }
+    .btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+    .btn-green {
+      background: rgba(34,197,94,0.12); color: #4ade80;
+      font-weight: 700; border-radius: 0.625rem;
+      padding: 0.5rem 1rem; font-size: 0.75rem;
+      cursor: pointer; border: 1px solid rgba(34,197,94,0.25); min-height: 44px;
+      transition: background 0.2s;
+    }
+    .btn-green:hover { background: rgba(34,197,94,0.2); }
+
+    /* Label */
+    .wh-label {
+      display: block; font-size: 0.7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.4); margin-bottom: 0.4rem;
+    }
+
+    /* Stat pill */
+    .stat-pill {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px; padding: 0.35rem 0.9rem; font-size: 0.75rem;
+    }
+
+    /* Badge */
+    .badge {
+      display: inline-block; font-size: 0.65rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      padding: 0.2rem 0.6rem; border-radius: 999px;
+    }
+
+    /* Asset linker tags */
+    .asset-tag {
+      display: inline-flex; align-items: center;
+      padding: 0.35rem 0.75rem; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 600; cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.5);
+      transition: all 0.15s; user-select: none; min-height: 36px;
+    }
+    .asset-tag:hover { border-color: rgba(41,182,217,0.35); color: #29B6D9; }
+    .asset-tag.selected { background: rgba(41,182,217,0.15); border-color: rgba(41,182,217,0.4); color: #29B6D9; }
+
+    /* Photo */
+    .photo-thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.1); }
+
+    /* Transaction row */
+    .txn-row { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0.6rem 0; }
+    .txn-row:last-child { border-bottom: none; }
+
+    /* Empty */
+    .empty-state { opacity: 0.4; }
+
+    /* Search highlight */
+    mark { background: rgba(247,162,27,0.3); color: #FDB94A; border-radius: 2px; padding: 0 2px; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  </style>
+</head>
+
+<body class="text-white">
+
+  <!-- Aurora -->
+  <div class="aurora-bg">
+    <div class="aurora-beam beam-1"></div>
+    <div class="aurora-beam beam-2"></div>
+    <div class="aurora-beam beam-3"></div>
+  </div>
+  <div class="hex-pattern fixed inset-0 z-0 pointer-events-none opacity-60"></div>
+
+  <!-- NAVBAR -->
+  <nav class="relative z-10 border-b border-white/[0.06]" style="background: rgba(22,32,50,0.85); backdrop-filter: blur(16px);">
+    <div class="max-w-5xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="index.html">
+          <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-8 w-auto" />
+        </a>
+        <div class="w-px h-4 bg-white/15"></div>
+        <span class="text-xs font-semibold text-white/50 uppercase tracking-widest">Inventory Monitor</span>
+      </div>
+      <a href="index.html#evolution" class="btn-secondary text-xs py-2 px-4" style="min-height:unset;">← Back to Basic Worker</a>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="relative z-10 max-w-5xl mx-auto px-5 sm:px-8 py-8">
+
+    <!-- Header -->
+    <div class="mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Inventory Monitor</h1>
+          <p class="text-sm text-white/45 mt-1">Track spare parts stock, link parts to assets, and know before you run out.</p>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="stat-pill"><span id="stat-total" class="text-orange-wh font-bold">0</span> <span class="text-white/40">parts</span></span>
+          <span class="stat-pill"><span id="stat-low" class="font-bold" style="color:#F7A21B">0</span> <span class="text-white/40">low</span></span>
+          <span class="stat-pill"><span id="stat-out" class="text-red-400 font-bold">0</span> <span class="text-white/40">out</span></span>
+          <button id="btn-add-part" class="btn-primary text-xs py-2 px-4 flex items-center gap-1.5" style="min-height:unset;">
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            Add Part
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Low stock alert banner -->
+    <div id="low-stock-banner" class="hidden rounded-xl px-5 py-3.5 mb-5 flex items-center gap-3"
+         style="background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.2);">
+      <svg class="w-4 h-4 flex-shrink-0" style="color:#F7A21B" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+      </svg>
+      <span id="low-stock-banner-text" class="text-sm font-semibold" style="color:#F7A21B"></span>
+    </div>
+
+    <!-- Search + filter -->
+    <div class="card p-4 mb-5">
+      <div class="flex flex-col sm:flex-row gap-3">
+        <div class="relative flex-1">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input id="search-input" type="text" class="wh-input pl-9" placeholder="Search part name, number, or linked asset..." />
+        </div>
+        <select id="filter-category" class="wh-input sm:w-44">
+          <option value="">All categories</option>
+          <option value="Bearing">Bearing</option>
+          <option value="Seal">Seal</option>
+          <option value="Belt">Belt</option>
+          <option value="Filter">Filter</option>
+          <option value="Electrical">Electrical</option>
+          <option value="Fastener">Fastener</option>
+          <option value="Lubricant">Lubricant</option>
+          <option value="Other">Other</option>
+        </select>
+        <select id="filter-status" class="wh-input sm:w-40">
+          <option value="">All stock</option>
+          <option value="out">Out of stock</option>
+          <option value="low">Low stock</option>
+          <option value="ok">In stock</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Parts list -->
+    <div id="parts-list"></div>
+
+    <!-- Empty state -->
+    <div id="empty-state" class="text-center py-20 empty-state">
+      <svg class="w-12 h-12 mx-auto mb-4 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
+      </svg>
+      <p class="text-sm text-white/40 font-medium">No parts in inventory yet.</p>
+      <p class="text-xs text-white/25 mt-1">Add your first spare part to start monitoring stock levels.</p>
+      <button id="empty-add-btn" class="btn-primary text-sm mt-5 px-6">Add Your First Part</button>
+    </div>
+
+    <!-- No results -->
+    <div id="no-results" class="text-center py-16 empty-state hidden">
+      <svg class="w-10 h-10 mx-auto mb-3 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      <p class="text-sm text-white/40">No parts match your search.</p>
+    </div>
+
+  </main>
+
+  <!-- TOAST -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden">
+    <div class="rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2.5 shadow-xl"
+         style="background: linear-gradient(135deg, rgba(42,61,88,0.97), rgba(22,32,50,0.97)); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(12px);">
+      <svg id="toast-icon" class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+      </svg>
+      <span id="toast-text">Done.</span>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT PART MODAL -->
+  <div id="part-modal" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
+    <div class="card w-full max-w-lg max-h-[90vh] overflow-y-auto p-7 relative">
+      <button id="part-modal-close" class="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <h2 id="part-modal-title" class="font-black text-xl text-white mb-6">Add Part</h2>
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="wh-label">Part Number <span class="text-orange-wh text-[10px] normal-case font-semibold">required</span></label>
+            <input id="f-part-number" type="text" class="wh-input" placeholder="e.g. 6205-2RS" autocomplete="off" />
+          </div>
+          <div>
+            <label class="wh-label">Category</label>
+            <select id="f-category" class="wh-input">
+              <option value="">Select...</option>
+              <option value="Bearing">Bearing</option>
+              <option value="Seal">Seal</option>
+              <option value="Belt">Belt</option>
+              <option value="Filter">Filter</option>
+              <option value="Electrical">Electrical</option>
+              <option value="Fastener">Fastener</option>
+              <option value="Lubricant">Lubricant</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="wh-label">Part Name <span class="text-orange-wh text-[10px] normal-case font-semibold">required</span></label>
+          <input id="f-part-name" type="text" class="wh-input" placeholder="e.g. Deep Groove Ball Bearing" autocomplete="off" />
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="wh-label">Qty on Hand</label>
+            <input id="f-qty" type="number" min="0" step="1" class="wh-input" placeholder="0" />
+          </div>
+          <div>
+            <label class="wh-label">Min Qty <span class="text-white/25 text-[9px] normal-case font-normal">(reorder)</span></label>
+            <input id="f-min-qty" type="number" min="0" step="1" class="wh-input" placeholder="2" />
+          </div>
+          <div>
+            <label class="wh-label">Unit</label>
+            <select id="f-unit" class="wh-input">
+              <option value="pcs">pcs</option>
+              <option value="set">set</option>
+              <option value="kg">kg</option>
+              <option value="L">L</option>
+              <option value="m">m</option>
+              <option value="roll">roll</option>
+              <option value="box">box</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="wh-label">Bin / Storage Location <span class="text-white/25 font-normal normal-case">(optional)</span></label>
+          <input id="f-location" type="text" class="wh-input" placeholder="e.g. Bin A3, Shelf 2, Cabinet B" autocomplete="off" />
+        </div>
+        <div>
+          <label class="wh-label">Link to Assets <span class="text-white/25 font-normal normal-case">(which machines use this part?)</span></label>
+          <div id="asset-linker" class="flex flex-wrap gap-2 mt-1 rounded-xl p-3 min-h-[52px]"
+               style="background:rgba(22,32,50,0.4); border:1px solid rgba(255,255,255,0.08);">
+            <p id="asset-linker-empty" class="text-xs text-white/25 self-center">No assets registered. Register assets in the Logbook first.</p>
+          </div>
+        </div>
+        <div>
+          <label class="wh-label">Notes <span class="text-white/25 font-normal normal-case">(install tips, specs, gotchas)</span></label>
+          <textarea id="f-notes" class="wh-input" placeholder="e.g. Torque seal bolts to 25 Nm. Always replace bearing pairs together."></textarea>
+        </div>
+        <div>
+          <label class="wh-label">Photo <span class="text-white/25 font-normal normal-case">(optional)</span></label>
+          <input id="f-photo-input" type="file" accept="image/*" capture="environment" class="hidden" />
+          <label id="f-photo-dropzone" for="f-photo-input"
+            class="flex items-center gap-3 cursor-pointer rounded-xl px-4 py-3 border border-dashed border-white/15 hover:border-white/30 transition-colors"
+            style="background:rgba(255,255,255,0.03);">
+            <svg class="w-4 h-4 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <span class="text-xs text-white/35">Tap to attach photo</span>
+          </label>
+          <div id="f-photo-preview" class="hidden mt-2" style="position:relative; display:inline-block;">
+            <img id="f-photo-thumb" class="photo-thumb cursor-pointer" title="Tap to replace" />
+            <button id="f-photo-remove"
+              style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:rgba(30,30,40,0.95);border:1.5px solid rgba(255,255,255,0.18);border-radius:50%;color:rgba(255,255,255,0.75);font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+              &#x2715;
+            </button>
+          </div>
+        </div>
+        <div id="part-form-error" class="hidden text-xs text-red-400 rounded-lg px-3 py-2"
+             style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2);"></div>
+        <div class="flex gap-2 pt-1">
+          <button id="part-submit-btn" class="btn-primary flex-1">Save Part</button>
+          <button id="part-cancel-btn" class="btn-secondary px-4">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USE STOCK MODAL -->
+  <div id="use-modal" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
+    <div class="card w-full max-w-sm p-7 relative">
+      <button id="use-modal-close" class="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <h2 class="font-black text-lg text-white mb-1">Use Stock</h2>
+      <p id="use-modal-part-name" class="text-xs text-white/40 mb-5"></p>
+      <div class="space-y-4">
+        <div>
+          <label class="wh-label">Quantity Used</label>
+          <input id="use-qty" type="number" min="1" step="1" class="wh-input text-center text-xl font-bold" value="1" />
+          <p id="use-qty-available" class="text-[11px] text-white/30 mt-1.5 text-center"></p>
+        </div>
+        <div>
+          <label class="wh-label">Job Reference <span class="text-white/25 font-normal normal-case">(optional — for audit trail)</span></label>
+          <input id="use-job-ref" type="text" class="wh-input" placeholder="e.g. WO-2042, PM April Batch" autocomplete="off" />
+        </div>
+        <div id="use-modal-error" class="hidden text-xs text-red-400 rounded-lg px-3 py-2"
+             style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2);"></div>
+        <div class="flex gap-2">
+          <button id="use-submit-btn" class="btn-primary flex-1">Confirm Use</button>
+          <button id="use-cancel-btn" class="btn-secondary px-4">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESTOCK MODAL -->
+  <div id="restock-modal" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
+    <div class="card w-full max-w-sm p-7 relative">
+      <button id="restock-modal-close" class="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <h2 class="font-black text-lg text-white mb-1">Restock</h2>
+      <p id="restock-modal-part-name" class="text-xs text-white/40 mb-5"></p>
+      <div class="space-y-4">
+        <div>
+          <label class="wh-label">Quantity Added</label>
+          <input id="restock-qty" type="number" min="1" step="1" class="wh-input text-center text-xl font-bold" value="1" />
+        </div>
+        <div>
+          <label class="wh-label">Note <span class="text-white/25 font-normal normal-case">(optional)</span></label>
+          <input id="restock-note" type="text" class="wh-input" placeholder="e.g. From supplier, Emergency purchase" autocomplete="off" />
+        </div>
+        <div class="flex gap-2">
+          <button id="restock-submit-btn" class="btn-green flex-1">Confirm Restock</button>
+          <button id="restock-cancel-btn" class="btn-secondary px-4">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL MODAL -->
+  <div id="detail-modal" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
+    <div class="card w-full max-w-lg max-h-[88vh] overflow-y-auto p-7 relative">
+      <button id="detail-modal-close" class="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div id="detail-content"></div>
+    </div>
+  </div>
+
+<script>
+// ────────────────────────────────────────────
+// IDENTITY
+// ────────────────────────────────────────────
+const WORKER_NAME = localStorage.getItem('wh_last_worker') || '';
+if (!WORKER_NAME) window.location.href = 'index.html?signin=1';
+
+// ────────────────────────────────────────────
+// STORAGE
+// Stage 2: swap these functions for Supabase queries
+// ────────────────────────────────────────────
+const INV_KEY    = 'wh_inventory_'  + WORKER_NAME;
+const TXN_KEY    = 'wh_inv_txns_'   + WORKER_NAME;
+const ASSETS_KEY = 'wh_assets_'     + WORKER_NAME;
+
+function loadInventory()    { try { return JSON.parse(localStorage.getItem(INV_KEY))    || []; } catch { return []; } }
+function saveInventory(d)   { localStorage.setItem(INV_KEY, JSON.stringify(d)); }
+function loadTransactions() { try { return JSON.parse(localStorage.getItem(TXN_KEY))   || []; } catch { return []; } }
+function saveTransactions(d){ localStorage.setItem(TXN_KEY, JSON.stringify(d)); }
+function loadAssets()       { try { return JSON.parse(localStorage.getItem(ASSETS_KEY))|| []; } catch { return []; } }
+
+// ────────────────────────────────────────────
+// HELPERS
+// ────────────────────────────────────────────
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function highlight(text, q) {
+  if (!q || !text) return escHtml(text || '');
+  const safe = escHtml(text);
+  const esc  = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return safe.replace(new RegExp(`(${esc})`, 'gi'), '<mark>$1</mark>');
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' })
+       + ' · ' + d.toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit' });
+}
+
+function stockStatus(item) {
+  if (item.qty_on_hand <= 0) return 'out';
+  const threshold = item.min_qty > 0 ? item.min_qty : 1;
+  if (item.qty_on_hand <= threshold) return 'low';
+  return 'ok';
+}
+
+const STATUS_LABEL = { ok: 'In Stock', low: 'Low Stock', out: 'Out of Stock' };
+const STATUS_COLORS = {
+  ok:  { bg:'rgba(34,197,94,0.15)',  text:'#4ade80', border:'rgba(34,197,94,0.25)' },
+  low: { bg:'rgba(247,162,27,0.15)', text:'#F7A21B', border:'rgba(247,162,27,0.25)' },
+  out: { bg:'rgba(239,68,68,0.15)',  text:'#f87171', border:'rgba(239,68,68,0.25)' },
+};
+const CAT_COLORS = {
+  Bearing:    { bg:'rgba(247,162,27,0.15)', text:'#F7A21B',  border:'rgba(247,162,27,0.25)' },
+  Seal:       { bg:'rgba(139,92,246,0.15)', text:'#a78bfa',  border:'rgba(139,92,246,0.25)' },
+  Belt:       { bg:'rgba(234,179,8,0.15)',  text:'#facc15',  border:'rgba(234,179,8,0.25)' },
+  Filter:     { bg:'rgba(41,182,217,0.15)', text:'#29B6D9',  border:'rgba(41,182,217,0.25)' },
+  Electrical: { bg:'rgba(41,182,217,0.15)', text:'#29B6D9',  border:'rgba(41,182,217,0.25)' },
+  Fastener:   { bg:'rgba(255,255,255,0.08)',text:'rgba(255,255,255,0.5)', border:'rgba(255,255,255,0.12)' },
+  Lubricant:  { bg:'rgba(34,197,94,0.15)',  text:'#4ade80',  border:'rgba(34,197,94,0.25)' },
+  Other:      { bg:'rgba(255,255,255,0.07)',text:'rgba(255,255,255,0.45)',border:'rgba(255,255,255,0.12)' },
+};
+
+function statusBadge(st) {
+  const s = STATUS_COLORS[st];
+  return `<span class="badge" style="background:${s.bg};color:${s.text};border:1px solid ${s.border};">${STATUS_LABEL[st]}</span>`;
+}
+
+function catBadge(cat) {
+  if (!cat) return '';
+  const c = CAT_COLORS[cat] || CAT_COLORS.Other;
+  return `<span class="badge" style="background:${c.bg};color:${c.text};border:1px solid ${c.border};">${escHtml(cat)}</span>`;
+}
+
+function assetBadge(id) {
+  return `<span class="badge" style="background:rgba(41,182,217,0.1);color:rgba(41,182,217,0.75);border:1px solid rgba(41,182,217,0.18);">${escHtml(id)}</span>`;
+}
+
+function txnIcon(type) {
+  if (type === 'add')    return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;background:rgba(34,197,94,0.2);color:#4ade80;flex-shrink:0;">+</span>`;
+  if (type === 'use')    return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:rgba(239,68,68,0.15);color:#f87171;flex-shrink:0;">−</span>`;
+  if (type === 'adjust') return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;background:rgba(41,182,217,0.15);color:#29B6D9;flex-shrink:0;">~</span>`;
+  return '';
+}
+
+// ────────────────────────────────────────────
+// RENDER PARTS LIST
+// ────────────────────────────────────────────
+function renderParts() {
+  const items   = loadInventory();
+  const query   = document.getElementById('search-input').value.trim().toLowerCase();
+  const catF    = document.getElementById('filter-category').value;
+  const statusF = document.getElementById('filter-status').value;
+
+  // Stats
+  const lowCount = items.filter(i => stockStatus(i) === 'low').length;
+  const outCount = items.filter(i => stockStatus(i) === 'out').length;
+  document.getElementById('stat-total').textContent = items.length;
+  document.getElementById('stat-low').textContent   = lowCount;
+  document.getElementById('stat-out').textContent   = outCount;
+
+  // Alert banner
+  const alertCount = lowCount + outCount;
+  const banner = document.getElementById('low-stock-banner');
+  if (alertCount > 0) {
+    const parts = [];
+    if (outCount > 0) parts.push(`${outCount} part${outCount > 1 ? 's' : ''} out of stock`);
+    if (lowCount > 0) parts.push(`${lowCount} part${lowCount > 1 ? 's' : ''} running low`);
+    document.getElementById('low-stock-banner-text').textContent = parts.join(' · ') + ' — restock before the next job.';
+    banner.classList.remove('hidden');
+  } else {
+    banner.classList.add('hidden');
+  }
+
+  const list   = document.getElementById('parts-list');
+  const empty  = document.getElementById('empty-state');
+  const noRes  = document.getElementById('no-results');
+
+  if (items.length === 0) {
+    list.innerHTML = '';
+    empty.classList.remove('hidden');
+    noRes.classList.add('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  // Filter
+  let filtered = items.filter(item => {
+    if (catF    && item.category !== catF)             return false;
+    const st = stockStatus(item);
+    if (statusF === 'out' && st !== 'out')             return false;
+    if (statusF === 'low' && st !== 'low')             return false;
+    if (statusF === 'ok'  && st !== 'ok')              return false;
+    if (!query) return true;
+    const linked = (item.linked_asset_ids || []).join(' ').toLowerCase();
+    return [item.part_number, item.part_name, item.bin_location, linked]
+      .some(f => f && f.toLowerCase().includes(query));
+  });
+
+  // Sort: out first, then low, then ok; alpha within each group
+  const sortOrder = { out: 0, low: 1, ok: 2 };
+  filtered.sort((a, b) => {
+    const sd = sortOrder[stockStatus(a)] - sortOrder[stockStatus(b)];
+    return sd !== 0 ? sd : (a.part_name || '').localeCompare(b.part_name || '');
+  });
+
+  if (filtered.length === 0) {
+    list.innerHTML = '';
+    noRes.classList.remove('hidden');
+    return;
+  }
+  noRes.classList.add('hidden');
+
+  const q = query;
+  list.innerHTML = filtered.map(item => {
+    const st      = stockStatus(item);
+    const sc      = STATUS_COLORS[st];
+    const linked  = (item.linked_asset_ids || []).slice(0, 3);
+    const moreAss = Math.max(0, (item.linked_asset_ids || []).length - 3);
+    const pn      = highlight(item.part_number, q);
+    const nm      = highlight(item.part_name, q);
+
+    return `
+    <div class="part-card stock-${st} p-5 mb-3">
+      <div class="flex items-start gap-4">
+        ${item.photo ? `<img src="${item.photo}" class="photo-thumb flex-shrink-0 mt-0.5" />` : ''}
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-black text-sm tracking-wide text-white">${pn}</span>
+              ${catBadge(item.category)}
+              ${statusBadge(st)}
+            </div>
+            <button onclick="openDetailModal('${item.id}')" class="text-white/20 hover:text-white/60 transition-colors flex-shrink-0 p-1" style="min-height:unset;">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+          <p class="text-sm text-white/70 font-medium mb-2">${nm}</p>
+          <div class="flex items-center gap-2 flex-wrap mb-3">
+            ${item.bin_location ? `<span class="text-[11px] text-white/35 flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              ${escHtml(item.bin_location)}
+            </span>` : ''}
+            ${linked.map(a => assetBadge(a)).join('')}
+            ${moreAss > 0 ? `<span class="text-[10px] text-white/30">+${moreAss} more</span>` : ''}
+          </div>
+          <div class="flex items-end justify-between gap-3 flex-wrap">
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl font-black leading-none" style="color:${sc.text}">${item.qty_on_hand}</span>
+              <span class="text-xs text-white/40">${escHtml(item.unit || 'pcs')}</span>
+              ${item.min_qty > 0 ? `<span class="text-[11px] text-white/25">Min: ${item.min_qty}</span>` : ''}
+            </div>
+            <div class="flex gap-2">
+              <button onclick="openUseModal('${item.id}')" class="btn-danger text-xs px-3 flex items-center gap-1.5">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>
+                Use
+              </button>
+              <button onclick="openRestockModal('${item.id}')" class="btn-green text-xs px-3 flex items-center gap-1.5">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                Restock
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ────────────────────────────────────────────
+// ASSET LINKER
+// ────────────────────────────────────────────
+let selectedAssetIds = new Set();
+
+function renderAssetLinker() {
+  const assets  = loadAssets();
+  const linker  = document.getElementById('asset-linker');
+  const emptyEl = document.getElementById('asset-linker-empty');
+  if (assets.length === 0) {
+    linker.innerHTML = '';
+    linker.appendChild(emptyEl);
+    emptyEl.classList.remove('hidden');
+    return;
+  }
+  emptyEl.classList.add('hidden');
+  linker.innerHTML = assets.map(a => {
+    const label = a.name ? `${a.asset_id} — ${a.name}` : a.asset_id;
+    const sel   = selectedAssetIds.has(a.asset_id);
+    return `<button type="button" class="asset-tag${sel ? ' selected' : ''}" data-asset-id="${escHtml(a.asset_id)}">${escHtml(label)}</button>`;
+  }).join('');
+  linker.querySelectorAll('.asset-tag').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.assetId;
+      if (selectedAssetIds.has(id)) { selectedAssetIds.delete(id); btn.classList.remove('selected'); }
+      else                          { selectedAssetIds.add(id);    btn.classList.add('selected'); }
+    });
+  });
+}
+
+// ────────────────────────────────────────────
+// PHOTO ATTACH
+// ────────────────────────────────────────────
+let currentPhotoData = null;
+
+document.getElementById('f-photo-input').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = new Image();
+    img.onload = function() {
+      const MAX    = 600;
+      const scale  = Math.min(1, MAX / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width  = Math.round(img.width  * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      currentPhotoData = canvas.toDataURL('image/jpeg', 0.7);
+      document.getElementById('f-photo-thumb').src = currentPhotoData;
+      document.getElementById('f-photo-dropzone').classList.add('hidden');
+      const prev = document.getElementById('f-photo-preview');
+      prev.classList.remove('hidden'); prev.style.display = 'inline-block';
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('f-photo-thumb').addEventListener('click', () => {
+  document.getElementById('f-photo-input').value = '';
+  document.getElementById('f-photo-input').click();
+});
+
+document.getElementById('f-photo-remove').addEventListener('click', (e) => {
+  e.stopPropagation();
+  currentPhotoData = null;
+  document.getElementById('f-photo-input').value = '';
+  document.getElementById('f-photo-preview').style.display = 'none';
+  document.getElementById('f-photo-preview').classList.add('hidden');
+  document.getElementById('f-photo-dropzone').classList.remove('hidden');
+});
+
+// ────────────────────────────────────────────
+// ADD / EDIT PART MODAL
+// ────────────────────────────────────────────
+let editingItemId = null;
+
+function openAddModal(prefillId) {
+  editingItemId    = prefillId || null;
+  selectedAssetIds = new Set();
+  currentPhotoData = null;
+
+  // Reset form
+  ['f-part-number','f-part-name','f-location','f-notes'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('f-category').value = '';
+  document.getElementById('f-qty').value      = '';
+  document.getElementById('f-min-qty').value  = '';
+  document.getElementById('f-unit').value     = 'pcs';
+  document.getElementById('f-photo-preview').style.display = 'none';
+  document.getElementById('f-photo-preview').classList.add('hidden');
+  document.getElementById('f-photo-dropzone').classList.remove('hidden');
+  document.getElementById('part-form-error').classList.add('hidden');
+
+  if (prefillId) {
+    const item = loadInventory().find(i => i.id === prefillId);
+    if (!item) return;
+    document.getElementById('part-modal-title').textContent = 'Edit Part';
+    document.getElementById('f-part-number').value = item.part_number;
+    document.getElementById('f-part-name').value   = item.part_name;
+    document.getElementById('f-category').value    = item.category || '';
+    document.getElementById('f-qty').value         = item.qty_on_hand;
+    document.getElementById('f-min-qty').value     = item.min_qty || '';
+    document.getElementById('f-unit').value        = item.unit || 'pcs';
+    document.getElementById('f-location').value    = item.bin_location || '';
+    document.getElementById('f-notes').value       = item.notes || '';
+    selectedAssetIds = new Set(item.linked_asset_ids || []);
+    if (item.photo) {
+      currentPhotoData = item.photo;
+      document.getElementById('f-photo-thumb').src = item.photo;
+      document.getElementById('f-photo-dropzone').classList.add('hidden');
+      const prev = document.getElementById('f-photo-preview');
+      prev.classList.remove('hidden'); prev.style.display = 'inline-block';
+    }
+  } else {
+    document.getElementById('part-modal-title').textContent = 'Add Part';
+  }
+
+  renderAssetLinker();
+  document.getElementById('part-modal').style.display = 'flex';
+}
+
+function closePartModal() {
+  document.getElementById('part-modal').style.display = 'none';
+  editingItemId = null;
+}
+
+function submitPart() {
+  const partNumber = document.getElementById('f-part-number').value.trim();
+  const partName   = document.getElementById('f-part-name').value.trim();
+  const qtyRaw     = document.getElementById('f-qty').value;
+  const errEl      = document.getElementById('part-form-error');
+  errEl.classList.add('hidden');
+
+  if (!partNumber) { showFormError(errEl, 'Part Number is required.'); document.getElementById('f-part-number').focus(); return; }
+  if (!partName)   { showFormError(errEl, 'Part Name is required.'); document.getElementById('f-part-name').focus(); return; }
+  if (qtyRaw === '') { showFormError(errEl, 'Qty on Hand is required.'); document.getElementById('f-qty').focus(); return; }
+
+  const items = loadInventory();
+  if (items.some(i => i.part_number.toUpperCase() === partNumber.toUpperCase() && i.id !== editingItemId)) {
+    showFormError(errEl, 'A part with this Part Number already exists.');
+    document.getElementById('f-part-number').focus(); return;
+  }
+
+  const qty    = parseFloat(qtyRaw) || 0;
+  const minQty = parseFloat(document.getElementById('f-min-qty').value) || 0;
+  const now    = new Date().toISOString();
+  const payload = {
+    part_number:       partNumber,
+    part_name:         partName,
+    category:          document.getElementById('f-category').value,
+    unit:              document.getElementById('f-unit').value,
+    qty_on_hand:       qty,
+    min_qty:           minQty,
+    bin_location:      document.getElementById('f-location').value.trim(),
+    linked_asset_ids:  [...selectedAssetIds],
+    notes:             document.getElementById('f-notes').value.trim(),
+    photo:             currentPhotoData,
+    updated_at:        now,
+  };
+
+  if (editingItemId) {
+    const idx  = items.findIndex(i => i.id === editingItemId);
+    if (idx === -1) return;
+    const prev = items[idx];
+    items[idx] = { ...prev, ...payload, photo: currentPhotoData || prev.photo || null };
+    saveInventory(items);
+    const diff = qty - prev.qty_on_hand;
+    if (diff !== 0) addTransaction(editingItemId, 'adjust', diff, qty, 'Edited via part form');
+    showToast('Part updated.');
+  } else {
+    const item = { id: Date.now().toString(), ...payload, photo: currentPhotoData || null, created_at: now };
+    items.push(item);
+    saveInventory(items);
+    if (qty > 0) addTransaction(item.id, 'add', qty, qty, 'Initial stock entry');
+    showToast(`${partNumber} added to inventory.`);
+  }
+
+  closePartModal();
+  renderParts();
+}
+
+function showFormError(el, msg) { el.textContent = msg; el.classList.remove('hidden'); }
+
+// ────────────────────────────────────────────
+// USE STOCK MODAL
+// ────────────────────────────────────────────
+let activeItemId = null;
+
+function openUseModal(id) {
+  activeItemId = id;
+  const item = loadInventory().find(i => i.id === id);
+  if (!item) return;
+  document.getElementById('use-modal-part-name').textContent = `${item.part_number} — ${item.part_name}`;
+  document.getElementById('use-qty').value = '1';
+  document.getElementById('use-job-ref').value = '';
+  document.getElementById('use-qty-available').textContent = `Available: ${item.qty_on_hand} ${item.unit || 'pcs'}`;
+  document.getElementById('use-modal-error').classList.add('hidden');
+  document.getElementById('use-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('use-qty').select(), 80);
+}
+
+function closeUseModal() { document.getElementById('use-modal').style.display = 'none'; activeItemId = null; }
+
+function submitUse() {
+  const qty   = parseFloat(document.getElementById('use-qty').value) || 0;
+  const errEl = document.getElementById('use-modal-error');
+  errEl.classList.add('hidden');
+
+  if (qty <= 0) { errEl.textContent = 'Quantity must be greater than 0.'; errEl.classList.remove('hidden'); return; }
+
+  const items = loadInventory();
+  const idx   = items.findIndex(i => i.id === activeItemId);
+  if (idx === -1) return;
+
+  if (qty > items[idx].qty_on_hand) {
+    errEl.textContent = `Only ${items[idx].qty_on_hand} ${items[idx].unit || 'pcs'} available.`;
+    errEl.classList.remove('hidden'); return;
+  }
+
+  items[idx].qty_on_hand -= qty;
+  items[idx].updated_at   = new Date().toISOString();
+  saveInventory(items);
+  addTransaction(activeItemId, 'use', -qty, items[idx].qty_on_hand, document.getElementById('use-job-ref').value.trim());
+
+  const st = stockStatus(items[idx]);
+  closeUseModal();
+  renderParts();
+
+  if (st === 'out')
+    showToast(`${items[idx].part_number} is now OUT OF STOCK.`, 'warn');
+  else if (st === 'low')
+    showToast(`${items[idx].part_number} is LOW — ${items[idx].qty_on_hand} ${items[idx].unit || 'pcs'} remaining.`, 'warn');
+  else
+    showToast(`Used ${qty} ${items[idx].unit || 'pcs'} of ${items[idx].part_number}.`);
+}
+
+// ────────────────────────────────────────────
+// RESTOCK MODAL
+// ────────────────────────────────────────────
+function openRestockModal(id) {
+  activeItemId = id;
+  const item = loadInventory().find(i => i.id === id);
+  if (!item) return;
+  document.getElementById('restock-modal-part-name').textContent = `${item.part_number} — ${item.part_name}`;
+  document.getElementById('restock-qty').value  = '1';
+  document.getElementById('restock-note').value = '';
+  document.getElementById('restock-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('restock-qty').select(), 80);
+}
+
+function closeRestockModal() { document.getElementById('restock-modal').style.display = 'none'; activeItemId = null; }
+
+function submitRestock() {
+  const qty = parseFloat(document.getElementById('restock-qty').value) || 0;
+  if (qty <= 0) return;
+
+  const items = loadInventory();
+  const idx   = items.findIndex(i => i.id === activeItemId);
+  if (idx === -1) return;
+
+  items[idx].qty_on_hand += qty;
+  items[idx].updated_at   = new Date().toISOString();
+  saveInventory(items);
+  addTransaction(activeItemId, 'add', qty, items[idx].qty_on_hand, document.getElementById('restock-note').value.trim());
+
+  closeRestockModal();
+  renderParts();
+  showToast(`Restocked ${qty} ${items[idx].unit || 'pcs'} of ${items[idx].part_number}.`);
+}
+
+// ────────────────────────────────────────────
+// TRANSACTIONS (append-only audit trail)
+// ────────────────────────────────────────────
+function addTransaction(itemId, type, qtyChange, qtyAfter, note) {
+  const txns = loadTransactions();
+  txns.push({
+    id:          Date.now().toString() + Math.random().toString(36).slice(2, 6),
+    item_id:     itemId,
+    type,
+    qty_change:  qtyChange,
+    qty_after:   qtyAfter,
+    note:        note || '',
+    worker_name: WORKER_NAME,
+    created_at:  new Date().toISOString(),
+  });
+  saveTransactions(txns);
+}
+
+// ────────────────────────────────────────────
+// DETAIL MODAL
+// ────────────────────────────────────────────
+function openDetailModal(id) {
+  const item = loadInventory().find(i => i.id === id);
+  if (!item) return;
+  const txns = loadTransactions().filter(t => t.item_id === id).reverse().slice(0, 20);
+  const st   = stockStatus(item);
+  const sc   = STATUS_COLORS[st];
+
+  document.getElementById('detail-content').innerHTML = `
+    <div class="flex items-start gap-3 mb-1 pr-10">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap mb-1">
+          <span class="font-black text-xl text-white">${escHtml(item.part_number)}</span>
+          ${catBadge(item.category)}
+          ${statusBadge(st)}
+        </div>
+        <p class="text-base text-white/70 font-medium mb-4">${escHtml(item.part_name)}</p>
+      </div>
+      ${item.photo ? `<img src="${item.photo}" class="photo-thumb flex-shrink-0" />` : ''}
+    </div>
+
+    <div class="grid grid-cols-3 gap-3 mb-5">
+      <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
+        <div class="text-2xl font-black" style="color:${sc.text}">${item.qty_on_hand}</div>
+        <div class="text-[10px] text-white/35 uppercase tracking-wider mt-0.5">${escHtml(item.unit || 'pcs')} on hand</div>
+      </div>
+      <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
+        <div class="text-2xl font-black text-white/50">${item.min_qty || '—'}</div>
+        <div class="text-[10px] text-white/35 uppercase tracking-wider mt-0.5">Min / Reorder</div>
+      </div>
+      <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
+        <div class="text-xs font-bold text-white/55 mt-1 break-words">${escHtml(item.bin_location || '—')}</div>
+        <div class="text-[10px] text-white/35 uppercase tracking-wider mt-0.5">Location</div>
+      </div>
+    </div>
+
+    ${(item.linked_asset_ids || []).length > 0 ? `
+    <div class="mb-4">
+      <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-2">Linked Assets</p>
+      <div class="flex flex-wrap gap-1.5">${(item.linked_asset_ids || []).map(a => assetBadge(a)).join('')}</div>
+    </div>` : ''}
+
+    ${item.notes ? `
+    <div class="rounded-xl px-4 py-3 mb-5" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.12);">
+      <p class="text-[10px] text-orange-wh uppercase tracking-widest font-semibold mb-1.5">Notes</p>
+      <p class="text-sm text-white/65 leading-relaxed">${escHtml(item.notes)}</p>
+    </div>` : ''}
+
+    <div class="flex gap-2 mb-4">
+      <button onclick="closeDetailModal();openUseModal('${item.id}')" class="btn-danger flex-1 text-sm">Use Stock</button>
+      <button onclick="closeDetailModal();openRestockModal('${item.id}')" class="btn-green flex-1 text-sm">Restock</button>
+      <button onclick="closeDetailModal();openAddModal('${item.id}')" class="btn-secondary px-3 text-sm">Edit</button>
+    </div>
+    <button onclick="confirmDeleteItem('${item.id}')" class="w-full text-[11px] text-red-400/40 hover:text-red-400/70 transition-colors py-1">Remove from inventory</button>
+
+    <div class="border-t border-white/[0.07] mt-5 pt-4">
+      <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-3">Transaction History (last 20)</p>
+      ${txns.length === 0
+        ? '<p class="text-xs text-white/30 text-center py-4">No transactions yet.</p>'
+        : txns.map(t => `
+          <div class="txn-row flex items-start gap-3">
+            <div class="mt-0.5 flex-shrink-0">${txnIcon(t.type)}</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-bold text-white/75">${t.qty_change > 0 ? '+' : ''}${t.qty_change} ${escHtml(item.unit || 'pcs')}</span>
+                <span class="text-[11px] text-white/30 flex-shrink-0">${formatDate(t.created_at)}</span>
+              </div>
+              ${t.note ? `<p class="text-[11px] text-white/45 mt-0.5">${escHtml(t.note)}</p>` : ''}
+              <p class="text-[10px] text-white/20 mt-0.5">Stock after: ${t.qty_after} ${escHtml(item.unit || 'pcs')}</p>
+            </div>
+          </div>`).join('')
+      }
+    </div>`;
+
+  document.getElementById('detail-modal').style.display = 'flex';
+}
+
+function closeDetailModal() { document.getElementById('detail-modal').style.display = 'none'; }
+
+function confirmDeleteItem(id) {
+  const item = loadInventory().find(i => i.id === id);
+  if (!item) return;
+  if (!confirm(`Remove "${item.part_name}" (${item.part_number}) from inventory? This cannot be undone.`)) return;
+  saveInventory(loadInventory().filter(i => i.id !== id));
+  closeDetailModal();
+  renderParts();
+  showToast('Part removed from inventory.');
+}
+
+// ────────────────────────────────────────────
+// TOAST
+// ────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, type) {
+  const icon = document.getElementById('toast-icon');
+  document.getElementById('toast-text').textContent = msg;
+  if (type === 'warn') {
+    icon.style.color = '#F7A21B';
+    icon.innerHTML   = `<path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>`;
+  } else {
+    icon.style.color = '#4ade80';
+    icon.innerHTML   = `<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>`;
+  }
+  const toast = document.getElementById('toast');
+  toast.classList.remove('hidden');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.add('hidden'), 3200);
+}
+
+// ────────────────────────────────────────────
+// EVENT LISTENERS
+// ────────────────────────────────────────────
+document.getElementById('btn-add-part').addEventListener('click',   () => openAddModal());
+document.getElementById('empty-add-btn').addEventListener('click',  () => openAddModal());
+
+document.getElementById('part-modal-close').addEventListener('click', closePartModal);
+document.getElementById('part-submit-btn').addEventListener('click',  submitPart);
+document.getElementById('part-cancel-btn').addEventListener('click',  closePartModal);
+document.getElementById('part-modal').addEventListener('click', e => { if (e.target === document.getElementById('part-modal')) closePartModal(); });
+
+document.getElementById('use-modal-close').addEventListener('click',  closeUseModal);
+document.getElementById('use-submit-btn').addEventListener('click',   submitUse);
+document.getElementById('use-cancel-btn').addEventListener('click',   closeUseModal);
+document.getElementById('use-modal').addEventListener('click', e => { if (e.target === document.getElementById('use-modal')) closeUseModal(); });
+
+document.getElementById('restock-modal-close').addEventListener('click',  closeRestockModal);
+document.getElementById('restock-submit-btn').addEventListener('click',   submitRestock);
+document.getElementById('restock-cancel-btn').addEventListener('click',   closeRestockModal);
+document.getElementById('restock-modal').addEventListener('click', e => { if (e.target === document.getElementById('restock-modal')) closeRestockModal(); });
+
+document.getElementById('detail-modal-close').addEventListener('click', closeDetailModal);
+document.getElementById('detail-modal').addEventListener('click', e => { if (e.target === document.getElementById('detail-modal')) closeDetailModal(); });
+
+document.getElementById('search-input').addEventListener('input',    renderParts);
+document.getElementById('filter-category').addEventListener('change', renderParts);
+document.getElementById('filter-status').addEventListener('change',   renderParts);
+
+// ────────────────────────────────────────────
+// INIT
+// ────────────────────────────────────────────
+renderParts();
+</script>
+  <script src="floating-ai.js"></script>
+</body>
+</html>
