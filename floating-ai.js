@@ -316,7 +316,7 @@
 
         /* ── Mobile Adjustments ── */
         @media (max-width: 480px) {
-          #wh-ai-widget { bottom: 16px; right: 16px; }
+          #wh-ai-widget { bottom: max(16px, env(safe-area-inset-bottom)); right: 16px; }
           #wh-ai-panel  { width: calc(100vw - 32px); right: 0; }
         }
       </style>

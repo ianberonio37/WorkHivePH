@@ -1,0 +1,24 @@
+{
+  "name": "WorkHive — Industrial Maintenance Platform",
+  "short_name": "WorkHive",
+  "description": "Digital tools for industrial maintenance technicians — logbook, PM checklist, parts tracker, and AI assistant.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1e30",
+  "theme_color": "#F7A21B",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/brand_assets/workhive-logo-transparent.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/brand_assets/workhive-logo-transparent.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

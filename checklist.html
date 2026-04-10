@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Maintenance Checklist Tool — WorkHive</title>
   <meta name="description" content="Digital PM and inspection checklist for maintenance technicians. Log work orders, track completion, and sign off faster with WorkHive." />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://workhiveph.com/checklist.html" />
+  <link rel="manifest" href="/manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -62,6 +63,7 @@
       font-size: 0.875rem;
     }
     .sel-btn:hover { border-color: rgba(247,162,27,0.3); color: white; background: rgba(247,162,27,0.06); }
+    .sel-btn:active { background: rgba(247,162,27,0.12); transform: scale(0.98); }
     .sel-btn.selected { border-color: rgba(247,162,27,0.5); background: rgba(247,162,27,0.1); color: white; }
     .sel-btn.selected .sel-dot { background: #F7A21B; }
 
@@ -90,7 +92,7 @@
     .check-item.required-item.checked { border-left-color: #F7A21B; }
 
     .check-box {
-      width: 22px; height: 22px;
+      width: 36px; height: 36px;
       border-radius: 6px;
       border: 2px solid rgba(255,255,255,0.2);
       display: flex; align-items: center; justify-content: center;
@@ -139,6 +141,7 @@
       width: 100%;
     }
     .btn-primary:hover { opacity: 0.9; }
+    .btn-primary:active { opacity: 0.75; transform: scale(0.98); }
     .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
     .btn-secondary {
       background: transparent;
@@ -153,6 +156,7 @@
       width: 100%;
     }
     .btn-secondary:hover { border-color: rgba(255,255,255,0.2); color: white; }
+    .btn-secondary:active { background: rgba(255,255,255,0.06); transform: scale(0.98); }
 
     /* History entries */
     .history-card {
@@ -171,7 +175,7 @@
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 0.75rem;
       color: white;
-      font-size: 0.9375rem;
+      font-size: 1rem;
       padding: 0.875rem 1rem;
       width: 100%;
       outline: none;
