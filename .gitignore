@@ -5,3 +5,16 @@ screenshot.mjs
 serve.mjs
 ohzi.io_.png
 package-lock.json
+
+# Internal AI agent config — not for public deployment
+.claude/
+
+# Private business documents
+web context/
+
+# Test/scratch files
+index-v3-test.html
+
+# Backup files (already disallowed in robots.txt but keep out of repo)
+*.backup.html
+*.backup2.html

@@ -1,0 +1,8 @@
+[build]
+  publish = "."
+
+# Custom 404: any unknown path shows the homepage
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 404
