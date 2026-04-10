@@ -960,9 +960,7 @@ function startNew() {
 }
 
 // ─── Supabase ─────────────────────────────────────────────
-const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'; // anon/publishable key — safe to expose in frontend
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// db initialized after supabase-js CDN loads (see script block below)
 
 async function saveRecord(record) {
   const { error } = await db.from('checklist_records').insert({
@@ -1062,6 +1060,13 @@ function formatDate(d) {
 }
 </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // supabase-js is now loaded — safe to init
+    var db = supabase.createClient(
+      'https://hzyvnjtisfgbksicrouu.supabase.co',
+      'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ' // anon/publishable key — safe to expose in frontend
+    );
+  </script>
   <script src="floating-ai.js"></script>
 </body>
 </html>

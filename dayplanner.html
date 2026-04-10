@@ -332,9 +332,7 @@
 // ─────────────────────────────────────────────
 // SUPABASE
 // ─────────────────────────────────────────────
-const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'; // anon/publishable key — safe to expose in frontend
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// db initialized after supabase-js CDN loads (see script block below)
 let WORKER_NAME = localStorage.getItem('wh_last_worker') || '';
 if (!WORKER_NAME) {
   window.location.href = 'index.html?signin=1';
@@ -1290,11 +1288,18 @@ document.addEventListener('keydown', e => {
 });
 
 // ─────────────────────────────────────────────
-// INIT
+// INIT — runs after supabase-js CDN loads (see script block below)
 // ─────────────────────────────────────────────
-Promise.all([loadLogbook(), loadSchedule()]);
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // supabase-js is now loaded — safe to init
+  var db = supabase.createClient(
+    'https://hzyvnjtisfgbksicrouu.supabase.co',
+    'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ' // anon/publishable key — safe to expose in frontend
+  );
+  Promise.all([loadLogbook(), loadSchedule()]);
+</script>
 <script src="floating-ai.js"></script>
 </body>
 </html>

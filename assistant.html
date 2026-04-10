@@ -344,10 +344,8 @@
     const KEY_WORKER = 'wh_last_worker';
 
     // ── Supabase ──────────────────────────────────────────────────
-    const db = supabase.createClient(
-      'https://hzyvnjtisfgbksicrouu.supabase.co',
-      'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'
-    );
+    // Initialized in DOMContentLoaded (supabase-js loads at end of body)
+    let db;
 
     // ── In-memory session state ───────────────────────────────────
     let sessionMessages = []; // {role, content} for Claude API
@@ -680,6 +678,12 @@ ${scheduleText}
 
     // ── Init ──────────────────────────────────────────────────────
     window.addEventListener('DOMContentLoaded', () => {
+      // supabase-js is now loaded (script at end of body executed before DOMContentLoaded)
+      db = supabase.createClient(
+        'https://hzyvnjtisfgbksicrouu.supabase.co',
+        'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ' // anon/publishable key — safe to expose in frontend
+      );
+
       const savedName = localStorage.getItem(KEY_WORKER);
       if (savedName) {
         // Already signed in — skip setup and go straight to chat
