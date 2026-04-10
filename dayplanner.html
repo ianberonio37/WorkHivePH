@@ -58,7 +58,7 @@
     /* Mobile: collapse sidebar so calendar has full width */
     @media (max-width: 640px) {
       .sidebar { width: 48px; min-width: 48px; }
-      #sidebar-title, #sidebar-hint, #sidebar-count-label, #sidebar-items { display: none !important; }
+      .sidebar:not(.expanded) #sidebar-title, .sidebar:not(.expanded) #sidebar-hint, .sidebar:not(.expanded) #sidebar-count-label, .sidebar:not(.expanded) #sidebar-items { display: none; }
     }
 
     /* Sidebar items */
@@ -534,7 +534,11 @@ let sidebarCollapsed = window.innerWidth <= 640;
 function toggleSidebar() {
   sidebarCollapsed = !sidebarCollapsed;
   const sb = document.getElementById('sidebar');
-  sb.classList.toggle('collapsed', sidebarCollapsed);
+  sb.classList.toggle('expanded', !sidebarCollapsed);
+  if (window.innerWidth <= 640) {
+    sb.style.width = sidebarCollapsed ? '' : '280px';
+    sb.style.minWidth = sidebarCollapsed ? '' : '280px';
+  }
   document.getElementById('sidebar-title').style.display = sidebarCollapsed ? 'none' : 'flex';
   document.getElementById('sidebar-hint').style.display = sidebarCollapsed ? 'none' : 'block';
   document.getElementById('sidebar-count-label').style.display = sidebarCollapsed ? 'none' : 'block';
