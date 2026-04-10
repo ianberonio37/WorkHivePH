@@ -12,7 +12,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
     body { background-color: #162032; min-height: 100vh; color: white; margin: 0; }
@@ -1289,9 +1288,9 @@ document.addEventListener('keydown', e => {
 // ─────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────
-loadLogbook();
-loadSchedule();
+Promise.all([loadLogbook(), loadSchedule()]);
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="floating-ai.js"></script>
 </body>
 </html>
