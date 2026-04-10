@@ -159,7 +159,7 @@
       border-radius: 0.75rem;
       color: white;
       padding: 0.65rem 0.875rem;
-      font-size: 0.875rem;
+      font-size: 1rem;
       resize: none;
       outline: none;
       transition: border-color 0.2s;
@@ -419,10 +419,10 @@
       const pastDate   = new Date(Date.now() - 3  * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
       const futureDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
       const [lRes, cRes, pRes, sRes] = await Promise.all([
-        db.from('logbook').select('*').eq('worker_name', name).order('date', { ascending: false }).limit(10),
-        db.from('checklist_records').select('*').eq('worker_name', name).order('end_time', { ascending: false }).limit(10),
-        db.from('parts_records').select('*').eq('worker_name', name).order('created_at', { ascending: false }).limit(10),
-        db.from('schedule_items').select('*').eq('worker_name', name).gte('date', pastDate).lte('date', futureDate).order('date', { ascending: true }).order('start_time', { ascending: true }),
+        db.from('logbook').select('date,machine,maintenance_type,category,status,problem,root_cause,downtime_hours,action').eq('worker_name', name).order('date', { ascending: false }).limit(10),
+        db.from('checklist_records').select('start_time,job_type,items').eq('worker_name', name).order('end_time', { ascending: false }).limit(10),
+        db.from('parts_records').select('date,job_ref,parts').eq('worker_name', name).order('created_at', { ascending: false }).limit(10),
+        db.from('schedule_items').select('date,start_time,end_time,title,category,item_status,notes').eq('worker_name', name).gte('date', pastDate).lte('date', futureDate).order('date', { ascending: true }).order('start_time', { ascending: true }),
       ]);
       const logbook   = lRes.data || [];
       const checklist = cRes.data || [];

@@ -23,7 +23,7 @@
     apiKey:     '',            // not needed — key is secured inside the Cloudflare Worker
     workerUrl:  'https://workhive-assistant.ian-beronio37.workers.dev',
     model:      'meta-llama/llama-4-scout-17b-16e-instruct', // Groq model — Llama 4, fast & free tier
-    maxHistory: 20,            // max messages kept in session memory
+    maxHistory: 20,            // max messages kept in history array; half (10) are sent to model per request
     position:   'bottom-right' // future: 'bottom-left'
   };
 
@@ -93,7 +93,7 @@
           width: 56px;
           height: 56px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #F7A21B, #e8920a);
+          background: linear-gradient(135deg, #F7A21B, #FDB94A);
           border: none;
           cursor: pointer;
           display: flex;
@@ -292,7 +292,7 @@
         #wh-ai-input::placeholder { color: rgba(255,255,255,0.25); }
         #wh-ai-send {
           width: 36px; height: 36px;
-          background: linear-gradient(135deg, #F7A21B, #e8920a);
+          background: linear-gradient(135deg, #F7A21B, #FDB94A);
           border: none;
           border-radius: 10px;
           cursor: pointer;
