@@ -128,8 +128,8 @@
 
     /* Buttons */
     .btn-primary { background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; border-radius: 0.625rem; padding: 0.5rem 1rem; font-size: 0.8rem; cursor: pointer; transition: opacity 0.2s; border: none; }
-    .btn-primary:hover { opacity: 0.9; }
-    .btn-primary:active { opacity: 0.75; transform: scale(0.97); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
+    .btn-primary:active { opacity: 0.75; transform: scale(0.97); box-shadow: none; }
     .btn-ghost { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); font-weight: 500; border-radius: 0.625rem; padding: 0.4rem 0.75rem; font-size: 0.8rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s; }
     .btn-ghost:hover { background: rgba(255,255,255,0.1); color: white; }
     .btn-ghost:active { background: rgba(255,255,255,0.15); transform: scale(0.97); }
@@ -141,7 +141,7 @@
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: center; justify-content: center; }
     .modal-overlay.hidden { display: none; }
     .modal-box { background: linear-gradient(145deg, rgba(42,61,88,0.97) 0%, rgba(22,32,50,0.99) 100%); border: 1px solid rgba(255,255,255,0.1); border-radius: 1.25rem; width: 100%; max-width: 460px; padding: 1.5rem; box-shadow: 0 24px 80px rgba(0,0,0,0.5); }
-    .wh-input { background: rgba(22,32,50,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.625rem; color: white; padding: 0.625rem 0.875rem; width: 100%; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+    .wh-input { background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.625rem; color: white; padding: 0.625rem 0.875rem; width: 100%; font-size: 1rem; outline: none; transition: border-color 0.2s; }
     .wh-input:focus { border-color: rgba(247,162,27,0.5); }
     .wh-input::placeholder { color: rgba(255,255,255,0.2); }
     select.wh-input option { background: #1F2E45; }

@@ -66,12 +66,12 @@
     .card {
       background: linear-gradient(145deg, rgba(42,61,88,0.6) 0%, rgba(22,32,50,0.9) 100%);
       border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 1.25rem;
+      border-radius: 1rem;
     }
 
     /* Input styles */
     .wh-input {
-      background: rgba(22,32,50,0.8);
+      background: rgba(22,32,50,0.6);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 0.75rem;
       color: white;
@@ -100,8 +100,8 @@
       transition: opacity 0.2s, transform 0.1s;
       border: none;
     }
-    .btn-primary:hover { opacity: 0.9; }
-    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
+    .btn-primary:active { opacity: 0.75; transform: scale(0.98); box-shadow: none; }
 
     .btn-secondary {
       background: rgba(255,255,255,0.06);
