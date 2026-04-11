@@ -989,12 +989,14 @@ function confirmAbort() {
 // SUMMARY SCREEN
 // ═══════════════════════════════════════════
 function renderSummary(record) {
+  const linkedAsset = record.assetRefId ? _assets.find(a => a.id === record.assetRefId) : null;
   const details = [
     { label: 'Worker',    value: record.workerName },
     { label: 'Job Ref',   value: record.jobRef },
     { label: 'Job Type',  value: record.jobType },
     { label: 'Date',      value: fmtDate(record.date) },
     { label: 'Duration',  value: fmtDuration(record.duration) },
+    { label: 'Asset',     value: linkedAsset ? (linkedAsset.name ? linkedAsset.asset_id + ' — ' + linkedAsset.name : linkedAsset.asset_id) : 'None' },
     { label: 'Parts Used', value: `${record.parts.length} item${record.parts.length !== 1 ? 's' : ''}` },
   ];
 
@@ -1135,6 +1137,9 @@ function toggleHistoryDetail(i) {
 // ═══════════════════════════════════════════
 function resetState() {
   state = { workerName:'', jobRef:'', jobType:'', date:'', startTime:null, parts:[] };
+  _assetRefId = null;
+  const assetInput = document.getElementById('job-asset');
+  if (assetInput) assetInput.value = '';
   clearInterval(timerInterval);
 }
 

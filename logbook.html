@@ -764,7 +764,7 @@ function saveAssets(arr) {
   prev.forEach(a => {
     if (!arr.find(x => x.id === a.id)) {
       db.from('assets').delete().eq('id', a.id)
-        .then(({ error }) => { if (error) console.error('asset delete:', error.message); });
+        .then(({ error }) => { if (error) { console.error('asset delete:', error.message); showToast('Asset delete failed: ' + error.message); } });
     }
   });
   // Upsert changed/added assets
@@ -772,20 +772,21 @@ function saveAssets(arr) {
     const old = prev.find(o => o.id === asset.id);
     if (!old || JSON.stringify(old) !== JSON.stringify(asset)) {
       db.from('assets').upsert({ ...asset, worker_name: WORKER_NAME })
-        .then(({ error }) => { if (error) console.error('asset sync:', error.message); });
+        .then(({ error }) => { if (error) { console.error('asset sync:', error.message); showToast('Asset save failed: ' + error.message); } });
     }
   });
 }
 
 async function initAssets() {
   const lsAssets = JSON.parse(localStorage.getItem(ASSETS_KEY) || '[]');
-  const { data: sbAssets } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME).order('created_at');
+  const { data: sbAssets, error: sbErr } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME).order('asset_id');
+  if (sbErr) { console.error('assets load:', sbErr.message); showToast('Could not load assets: ' + sbErr.message); }
   if ((sbAssets || []).length === 0 && lsAssets.length > 0) {
     for (const a of lsAssets) {
       await db.from('assets').upsert({ ...a, worker_name: WORKER_NAME });
     }
     localStorage.removeItem(ASSETS_KEY);
-    const { data: migrated } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME).order('created_at');
+    const { data: migrated } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME).order('asset_id');
     _assets = migrated || [];
   } else {
     _assets = sbAssets || [];
