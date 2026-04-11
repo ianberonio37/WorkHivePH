@@ -530,6 +530,7 @@
 // STATE
 // ═══════════════════════════════════════════
 const WORKER_KEY = 'wh_last_worker';
+const HIVE_ID    = localStorage.getItem('wh_hive_id') || null;
 // db initialized after supabase-js CDN loads (see script block below)
 
 let state = {
@@ -888,7 +889,8 @@ function completeEntry() {
     job_type:    _snap.jobType,
     date:        _snap.date,
     duration:    _snap.duration,
-    parts:       _snap.parts
+    parts:       _snap.parts,
+    hive_id:     HIVE_ID
   }).then(async ({ error }) => {
     if (error) { alert('Could not save record: ' + error.message); return; }
     await deductFromInventory(_snap);
@@ -996,7 +998,8 @@ async function saveAndHistory() {
     job_type:    _snap.jobType,
     date:        _snap.date,
     duration:    _snap.duration,
-    parts:       _snap.parts
+    parts:       _snap.parts,
+    hive_id:     HIVE_ID
   });
   if (error) { alert('Could not save record: ' + error.message); return; }
   await deductFromInventory(_snap);

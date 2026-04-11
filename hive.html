@@ -402,6 +402,15 @@
         </div>
       </div>
 
+      <!-- Roster panel -->
+      <div class="mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Roster</p>
+          <button id="btn-toggle-members" style="color:#29B6D9; background:none; border:none; cursor:pointer; font-size:0.75rem; font-weight:600; min-height:44px; padding:0.5rem 0;">Show</button>
+        </div>
+        <div id="members-list" class="hidden" style="display:none; flex-direction:column; gap:0.5rem;"></div>
+      </div>
+
       <!-- My stock alert -->
       <div id="stock-alert" class="hidden mb-5 rounded-xl p-4" style="background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.25);">
         <div class="flex items-start gap-3">
@@ -433,6 +442,19 @@
 
   </div>
 </main>
+
+<!-- Supervisor leave modal -->
+<div id="modal-sup-leave" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
+  <div class="wh-card w-full max-w-lg p-6 mx-4 mb-6">
+    <h3 class="text-lg font-black text-white mb-1">You're the Supervisor</h3>
+    <p class="text-xs text-white/50 mb-5 leading-relaxed">Before you leave, you can transfer the supervisor role. Without a supervisor, no one can manage the hive or remove members.</p>
+    <label class="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Transfer role to</label>
+    <select id="sup-transfer-select" class="wh-input mb-4"></select>
+    <button id="btn-sup-transfer-leave" class="btn-primary mb-3">Transfer &amp; Leave</button>
+    <button id="btn-sup-leave-anyway" class="btn-ghost mb-3">Leave Without Transferring</button>
+    <button id="btn-sup-leave-cancel" class="btn-text" style="display:block; text-align:center; width:100%;">Cancel</button>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="floating-ai.js"></script>
@@ -704,24 +726,50 @@ async function showWelcome(hive) {
 
 // ── LEAVE HIVE ──
 document.getElementById('btn-leave-hive').addEventListener('click', async () => {
-  if (!confirm('Leave this hive? Your existing logbook entries stay in Supabase.')) return;
+  if (HIVE_ROLE === 'supervisor') {
+    const others = memberNames.filter(n => n !== WORKER_NAME);
+    if (others.length) {
+      const sel = document.getElementById('sup-transfer-select');
+      sel.innerHTML = others.map(n => `<option value="${escHtml(n)}">${escHtml(n)}</option>`).join('');
+      document.getElementById('modal-sup-leave').classList.remove('hidden');
+      return;
+    }
+  }
+  if (!confirm('Leave this hive? Your past contributions will no longer appear in the hive feed.')) return;
+  await performLeave();
+});
 
-  await db.from('hive_members')
-    .delete().eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME);
+document.getElementById('btn-sup-transfer-leave').addEventListener('click', async () => {
+  const target = document.getElementById('sup-transfer-select').value;
+  if (!target) return;
+  await db.from('hive_members').update({ role: 'supervisor' })
+    .eq('hive_id', HIVE_ID).eq('worker_name', target);
+  document.getElementById('modal-sup-leave').classList.add('hidden');
+  await performLeave();
+});
 
+document.getElementById('btn-sup-leave-anyway').addEventListener('click', async () => {
+  document.getElementById('modal-sup-leave').classList.add('hidden');
+  await performLeave();
+});
+
+document.getElementById('btn-sup-leave-cancel').addEventListener('click', () => {
+  document.getElementById('modal-sup-leave').classList.add('hidden');
+});
+
+async function performLeave() {
+  await db.from('hive_members').delete().eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME);
   localStorage.removeItem('wh_hive_id');
   localStorage.removeItem('wh_hive_name');
   localStorage.removeItem('wh_hive_role');
   localStorage.removeItem('wh_hive_code');
-
   if (presenceChannel) db.removeChannel(presenceChannel);
   if (feedChannel)     db.removeChannel(feedChannel);
   if (partsChannel)    db.removeChannel(partsChannel);
-
   HIVE_ID = ''; HIVE_NAME = ''; HIVE_ROLE = '';
   memberNames = [];
   showView('onboard');
-});
+}
 
 // ── SHOW INVITE CODE (supervisor) ──
 document.getElementById('btn-show-code').addEventListener('click', () => {
@@ -742,45 +790,75 @@ async function initBoard() {
 
   checkStockAlert();
 
-  // Load members
+  await Promise.all([loadMembers(), loadFeed()]);
+
+  startPresence();
+  startFeedRealtime();
+}
+
+// ── MEMBERS ──
+async function loadMembers() {
   const { data: members } = await db.from('hive_members')
     .select('worker_name, role')
-    .eq('hive_id', HIVE_ID);
+    .eq('hive_id', HIVE_ID)
+    .order('joined_at');
 
   memberNames = (members || []).map(m => m.worker_name);
   document.getElementById('stat-members').textContent = memberNames.length;
 
-  // Load initial feed
-  await loadFeed();
-
-  // Start realtime
-  startPresence();
-  startFeedRealtime();
+  const list = document.getElementById('members-list');
+  list.innerHTML = (members || []).map(m => {
+    const isMe    = m.worker_name === WORKER_NAME;
+    const isSup   = m.role === 'supervisor';
+    const canKick = HIVE_ROLE === 'supervisor' && !isMe;
+    return `<div class="flex items-center gap-3 p-3 rounded-xl" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); margin-bottom:0.5rem;">
+      <div class="avatar-initial">${escHtml(m.worker_name[0].toUpperCase())}</div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-white truncate">${escHtml(m.worker_name)}${isMe ? ' <span style="color:rgba(255,255,255,0.3);font-size:0.65rem;">(you)</span>' : ''}</p>
+        ${isSup ? '<span class="supervisor-tag" style="font-size:0.55rem; padding:1px 6px; margin-top:2px; display:inline-flex;">Supervisor</span>' : ''}
+      </div>
+      ${canKick ? `<button onclick="kickMember('${escHtml(m.worker_name)}')" class="btn-danger" style="font-size:0.7rem; padding:0.3rem 0.75rem; min-height:36px;">Remove</button>` : ''}
+    </div>`;
+  }).join('');
 }
+
+async function kickMember(workerName) {
+  if (!confirm(`Remove ${workerName} from the hive? Their past contributions will no longer appear in the feed.`)) return;
+  const { error } = await db.from('hive_members')
+    .delete().eq('hive_id', HIVE_ID).eq('worker_name', workerName);
+  if (error) { alert('Could not remove member: ' + error.message); return; }
+  await loadMembers();
+  await loadFeed();
+}
+
+document.getElementById('btn-toggle-members').addEventListener('click', () => {
+  const list = document.getElementById('members-list');
+  const btn  = document.getElementById('btn-toggle-members');
+  const isHidden = list.style.display === 'none';
+  list.style.display = isHidden ? 'flex' : 'none';
+  list.style.flexDirection = 'column';
+  btn.textContent = isHidden ? 'Hide' : 'Show';
+});
 
 async function loadFeed() {
   const feed    = document.getElementById('feed');
   const emptyEl = document.getElementById('feed-empty');
 
-  if (!memberNames.length) {
-    emptyEl.classList.remove('hidden'); return;
-  }
-
-  // Fetch logbook + parts_records + open count in parallel
+  // Fetch logbook + parts_records + open count in parallel (filter by hive_id — Option B)
   const [logRes, partsRes, openRes] = await Promise.all([
     db.from('logbook')
       .select('id, worker_name, date, machine, category, problem, status, created_at')
-      .in('worker_name', memberNames)
+      .eq('hive_id', HIVE_ID)
       .order('created_at', { ascending: false })
       .limit(30),
     db.from('parts_records')
       .select('id, worker_name, job_ref, job_type, date, parts, created_at')
-      .in('worker_name', memberNames)
+      .eq('hive_id', HIVE_ID)
       .order('created_at', { ascending: false })
       .limit(20),
     db.from('logbook')
       .select('*', { count: 'exact', head: true })
-      .in('worker_name', memberNames)
+      .eq('hive_id', HIVE_ID)
       .eq('status', 'Open')
   ]);
 
@@ -851,11 +929,11 @@ function startFeedRealtime() {
   if (feedChannel)  db.removeChannel(feedChannel);
   if (partsChannel) db.removeChannel(partsChannel);
 
-  // Stage 1.5: filter client-side by memberNames since hive_id not yet on tables
-  // Stage 2: add filter: `hive_id=eq.${HIVE_ID}` when column is added
   feedChannel = db.channel('hive-feed:' + HIVE_ID)
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'logbook' }, (payload) => {
-      if (!memberNames.includes(payload.new.worker_name)) return;
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'logbook',
+      filter: 'hive_id=eq.' + HIVE_ID
+    }, (payload) => {
       prependFeed({ ...payload.new, _type: 'logbook' });
       if (payload.new.status === 'Open') {
         const cur = parseInt(document.getElementById('stat-open').textContent) || 0;
@@ -865,8 +943,10 @@ function startFeedRealtime() {
     .subscribe();
 
   partsChannel = db.channel('hive-parts:' + HIVE_ID)
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'parts_records' }, (payload) => {
-      if (!memberNames.includes(payload.new.worker_name)) return;
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'parts_records',
+      filter: 'hive_id=eq.' + HIVE_ID
+    }, (payload) => {
       prependFeed({ ...payload.new, _type: 'parts' });
     })
     .subscribe();
@@ -891,16 +971,17 @@ function setConn(state) {
 }
 
 // ── STOCK ALERT (current worker's own inventory) ──
-function checkStockAlert() {
-  const inv = JSON.parse(localStorage.getItem('wh_inventory_' + WORKER_NAME) || '[]');
-  const out  = inv.filter(i => i.qty_on_hand <= 0);
-  const low  = inv.filter(i => i.qty_on_hand > 0 && i.qty_on_hand <= i.min_qty);
+async function checkStockAlert() {
+  const { data: inv } = await db.from('inventory_items')
+    .select('part_name, qty_on_hand, min_qty')
+    .eq('worker_name', WORKER_NAME);
+  if (!inv || !inv.length) return;
+  const out = inv.filter(i => i.qty_on_hand <= 0);
+  const low = inv.filter(i => i.qty_on_hand > 0 && i.qty_on_hand <= i.min_qty);
   if (!out.length && !low.length) return;
-
   const parts = [];
   if (out.length) parts.push(out.length + (out.length === 1 ? ' item out of stock' : ' items out of stock'));
   if (low.length) parts.push(low.length + (low.length === 1 ? ' item running low' : ' items running low'));
-
   document.getElementById('stock-alert-text').textContent = escHtml(parts.join(', ') + ' — check before your next job.');
   document.getElementById('stock-alert').classList.remove('hidden');
 }
