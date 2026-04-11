@@ -510,7 +510,7 @@ function saveTransactions(arr) {
 // HELPERS
 // ────────────────────────────────────────────
 function escHtml(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 function highlight(text, q) {
@@ -1006,7 +1006,7 @@ function openDetailModal(id) {
         </div>
         <p class="text-base text-white/70 font-medium mb-4">${escHtml(item.part_name)}</p>
       </div>
-      ${item.photo ? `<img src="${item.photo}" class="photo-thumb flex-shrink-0" />` : ''}
+      ${item.photo && (item.photo.startsWith('data:image/') || item.photo.startsWith('https://')) ? `<img src="${item.photo}" class="photo-thumb flex-shrink-0" />` : ''}
     </div>
 
     <div class="grid grid-cols-3 gap-3 mb-5">

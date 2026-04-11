@@ -971,7 +971,8 @@ async function saveRecord(record) {
     category: record.category,
     start_time: record.startTime,
     end_time: record.endTime,
-    items: record.items
+    items: record.items,
+    hive_id: HIVE_ID
   });
   if (error) console.error('Save error:', error.message);
 }
@@ -1066,6 +1067,7 @@ function formatDate(d) {
       'https://hzyvnjtisfgbksicrouu.supabase.co',
       'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ' // anon/publishable key — safe to expose in frontend
     );
+    var HIVE_ID = localStorage.getItem('wh_hive_id') || null;
   </script>
   <script src="floating-ai.js"></script>
 </body>

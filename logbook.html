@@ -535,6 +535,10 @@
               <option value="Open">Open</option>
               <option value="Closed">Closed</option>
             </select>
+            <button id="btn-export-csv" title="Export to CSV" style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; padding:0 0.875rem; color:rgba(255,255,255,0.6); cursor:pointer; display:flex; align-items:center; gap:6px; font-size:0.75rem; font-weight:600; white-space:nowrap; flex-shrink:0; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              CSV
+            </button>
           </div>
         </div>
 
@@ -721,7 +725,8 @@ async function loadEntries() {
     id: r.id, date: r.date, machine: r.machine, category: r.category,
     maintenance_type: r.maintenance_type, root_cause: r.root_cause,
     problem: r.problem, action: r.action, knowledge: r.knowledge,
-    downtime_hours: r.downtime_hours, photo: r.photo, status: r.status
+    downtime_hours: r.downtime_hours, photo: r.photo, status: r.status,
+    asset_ref_id: r.asset_ref_id || null
   }));
 }
 
@@ -787,6 +792,36 @@ async function initAssets() {
   }
   updateAssetDatalist();
   refreshAssetCountBadge();
+}
+
+// ── ASSET_REF_ID BACKFILL (one-time, silent) ──
+async function runAssetRefBackfill() {
+  const assets = loadAssets();
+  if (!assets.length) return;
+  const key = 'wh_assetref_backfilled_' + WORKER_NAME;
+  if (sessionStorage.getItem(key)) return;
+  sessionStorage.setItem(key, '1');
+
+  // Fetch logbook rows with no asset_ref_id
+  const { data: rows } = await db.from('logbook')
+    .select('id, machine')
+    .eq('worker_name', WORKER_NAME)
+    .is('asset_ref_id', null);
+  if (!rows || !rows.length) return;
+
+  // Build a lookup: asset_id (uppercase) → uuid
+  const lookup = {};
+  assets.forEach(a => { lookup[a.asset_id.toUpperCase()] = a.id; });
+
+  // Match and batch update
+  const matches = rows
+    .map(r => ({ id: r.id, ref: lookup[(r.machine || '').toUpperCase()] }))
+    .filter(r => r.ref);
+  if (!matches.length) return;
+
+  await Promise.all(matches.map(m =>
+    db.from('logbook').update({ asset_ref_id: m.ref }).eq('id', m.id)
+  ));
 }
 
 function openAssetModal(tab) {
@@ -1175,7 +1210,8 @@ function escHtml(str) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function highlight(text, query) {
@@ -1293,7 +1329,7 @@ async function renderEntries() {
         <p class="text-xs text-white/60 mt-1 leading-relaxed line-clamp-2">${knowledge}</p>
       </div>` : ''}
 
-      ${e.photo ? `<div class="mt-3"><img src="${e.photo}" class="photo-thumb" /></div>` : ''}
+      ${e.photo && (e.photo.startsWith('data:image/') || e.photo.startsWith('https://')) ? `<div class="mt-3"><img src="${e.photo}" class="photo-thumb" /></div>` : ''}
     </div>`;
   }).join('');
 }
@@ -1346,7 +1382,7 @@ async function openModal(id) {
       <p class="text-sm text-white/70 leading-relaxed">${escHtml(entry.knowledge)}</p>
     </div>` : ''}
 
-    ${entry.photo ? `
+    ${entry.photo && (entry.photo.startsWith('data:image/') || entry.photo.startsWith('https://')) ? `
     <div class="mb-5">
       <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-2">Photo</p>
       <img src="${entry.photo}" class="w-full rounded-xl border border-white/10 object-cover max-h-64" />
@@ -1455,6 +1491,7 @@ async function saveEdit(id) {
     downtime_hours:  downtimeRaw !== '' ? parseFloat(downtimeRaw) : null,
     status:          document.querySelector('input[name="e-status"]:checked').value,
     asset_ref_id:    assetMatch ? assetMatch.id : null,
+    hive_id:         HIVE_ID,
   };
   const { error } = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME);
   if (error) { alert('Could not update entry: ' + error.message); return; }
@@ -1678,6 +1715,32 @@ document.getElementById('filter-category').addEventListener('change', renderEntr
 document.getElementById('filter-status').addEventListener('change', renderEntries);
 
 // ────────────────────────────────────────────
+// CSV EXPORT
+// ────────────────────────────────────────────
+document.getElementById('btn-export-csv').addEventListener('click', async () => {
+  const entries = await loadEntries();
+  if (!entries.length) { showToast('No entries to export.'); return; }
+
+  const cols = ['Date','Machine','Category','Maintenance Type','Problem','Root Cause','Action Taken','Knowledge','Downtime (hrs)','Status'];
+  const esc  = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const rows = entries.map(e => [
+    e.date ? new Date(e.date).toLocaleDateString() : '',
+    e.machine, e.category, e.maintenance_type, e.problem,
+    e.root_cause, e.action, e.knowledge, e.downtime_hours ?? '', e.status
+  ].map(esc).join(','));
+
+  const csv  = [cols.map(esc).join(','), ...rows].join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `workhive-logbook-${WORKER_NAME}-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Exported ' + entries.length + ' entries.');
+});
+
+// ────────────────────────────────────────────
 // TOAST
 // ────────────────────────────────────────────
 let toastTimer;
@@ -1718,7 +1781,7 @@ document.addEventListener('change', function(e) {
 // ────────────────────────────────────────────
 // INIT
 // ────────────────────────────────────────────
-initAssets();
+initAssets().then(() => runAssetRefBackfill());
 renderEntries();
 updateStatusToggle('f-status');
 

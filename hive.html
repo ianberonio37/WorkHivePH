@@ -244,7 +244,26 @@
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-7 w-auto" />
     </a>
-    <span id="nav-worker" class="text-xs text-white/40 truncate max-w-[140px]"></span>
+    <div class="flex items-center gap-3">
+      <span id="nav-worker" class="text-xs text-white/40 truncate max-w-[120px]"></span>
+      <!-- Notification bell -->
+      <div class="relative" id="notif-wrapper" style="display:none;">
+        <button id="notif-bell" title="Notifications" style="position:relative; background:none; border:none; cursor:pointer; padding:6px; color:rgba(255,255,255,0.4); min-height:44px; min-width:44px; display:flex; align-items:center; justify-content:center;">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+          </svg>
+          <span id="notif-badge" class="hidden" style="position:absolute; top:6px; right:6px; width:8px; height:8px; border-radius:50%; background:#ef4444; border:2px solid rgba(22,32,50,1);"></span>
+        </button>
+        <!-- Dropdown panel -->
+        <div id="notif-panel" class="hidden" style="position:absolute; top:calc(100% + 4px); right:0; width:300px; background:rgba(22,32,50,0.98); border:1px solid rgba(255,255,255,0.1); border-radius:1rem; box-shadow:0 8px 32px rgba(0,0,0,0.5); backdrop-filter:blur(12px); z-index:100; overflow:hidden;">
+          <div class="px-4 pt-3 pb-2 border-b border-white/[0.07] flex items-center justify-between">
+            <p class="text-xs font-bold text-white/70">Notifications</p>
+            <button id="notif-mark-read" style="background:none;border:none;cursor:pointer;font-size:0.65rem;font-weight:600;color:rgba(255,255,255,0.3);">Mark all read</button>
+          </div>
+          <div id="notif-list" class="py-2" style="max-height:320px; overflow-y:auto;"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </nav>
 
@@ -372,6 +391,9 @@
           <button id="btn-show-code" class="hidden text-xs font-semibold" style="color:#29B6D9; background:none; border:none; cursor:pointer; min-height:44px; padding:0.5rem 0;">
             Show Invite Code
           </button>
+          <button id="btn-switch-hive" class="hidden text-xs font-semibold" style="color:rgba(255,255,255,0.35); background:none; border:none; cursor:pointer; min-height:44px; padding:0.5rem 0;">
+            Switch Hive
+          </button>
         </div>
       </div>
 
@@ -402,13 +424,48 @@
         </div>
       </div>
 
+      <!-- Analytics panel -->
+      <div id="analytics-panel" class="hidden mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">This Week</p>
+          <button id="btn-toggle-analytics" style="color:#29B6D9; background:none; border:none; cursor:pointer; font-size:0.75rem; font-weight:600; min-height:44px; padding:0.5rem 0;">Hide</button>
+        </div>
+        <div id="analytics-body">
+          <!-- stat tiles -->
+          <div class="grid grid-cols-3 gap-2 mb-3">
+            <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
+              <p class="text-xl font-black text-white" id="an-jobs-week">—</p>
+              <p class="text-[10px] text-white/35 mt-0.5">Jobs</p>
+            </div>
+            <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
+              <p class="text-xl font-black" style="color:#f87171" id="an-open-week">—</p>
+              <p class="text-[10px] text-white/35 mt-0.5">Still Open</p>
+            </div>
+            <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
+              <p class="text-xl font-black" style="color:#F7A21B" id="an-parts-week">—</p>
+              <p class="text-[10px] text-white/35 mt-0.5">Parts Jobs</p>
+            </div>
+          </div>
+          <!-- top categories -->
+          <div class="mb-3">
+            <p class="text-[10px] text-white/25 uppercase tracking-widest font-semibold mb-1.5">Top Categories</p>
+            <div id="an-categories" class="flex flex-col gap-1"></div>
+          </div>
+          <!-- hot assets -->
+          <div>
+            <p class="text-[10px] text-white/25 uppercase tracking-widest font-semibold mb-1.5">Most Active Assets</p>
+            <div id="an-assets" class="flex flex-col gap-1"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- Roster panel -->
       <div class="mb-5">
         <div class="flex items-center justify-between mb-2">
           <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Roster</p>
           <button id="btn-toggle-members" style="color:#29B6D9; background:none; border:none; cursor:pointer; font-size:0.75rem; font-weight:600; min-height:44px; padding:0.5rem 0;">Show</button>
         </div>
-        <div id="members-list" class="hidden" style="display:none; flex-direction:column; gap:0.5rem;"></div>
+        <div id="members-list" style="display:none; flex-direction:column; gap:0.5rem;"></div>
       </div>
 
       <!-- My stock alert -->
@@ -423,6 +480,18 @@
             <a href="inventory.html" class="text-xs font-semibold mt-1.5 inline-block" style="color:#F7A21B;">View Inventory →</a>
           </div>
         </div>
+      </div>
+
+      <!-- Team stock alert (supervisor only) -->
+      <div id="team-stock-alert" class="hidden mb-5 rounded-xl p-4" style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.18);">
+        <div class="flex items-center gap-2 mb-3">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#f87171" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+          <p class="text-xs font-bold text-red-400">Team Stock Issues</p>
+        </div>
+        <div id="team-stock-list" class="flex flex-col gap-2"></div>
+        <a href="inventory.html" class="text-[11px] font-semibold mt-2 inline-block" style="color:#f87171;">View your inventory →</a>
       </div>
 
       <!-- Activity feed -->
@@ -442,6 +511,17 @@
 
   </div>
 </main>
+
+<!-- Hive switcher modal -->
+<div id="modal-hive-switch" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
+  <div class="wh-card w-full max-w-lg p-6 mx-4 mb-6">
+    <h3 class="text-lg font-black text-white mb-1">Your Hives</h3>
+    <p class="text-xs text-white/40 mb-4">Switch between hives or join a new one.</p>
+    <div id="hive-switch-list" class="flex flex-col gap-2 mb-4"></div>
+    <button id="btn-hive-switch-join" class="btn-ghost mb-2">Join Another Hive</button>
+    <button id="btn-hive-switch-cancel" class="btn-text" style="display:block;text-align:center;width:100%;">Cancel</button>
+  </div>
+</div>
 
 <!-- Supervisor leave modal -->
 <div id="modal-sup-leave" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
@@ -468,19 +548,39 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const WORKER_NAME = localStorage.getItem('wh_last_worker') || '';
 if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; }
 
-let HIVE_ID   = localStorage.getItem('wh_hive_id')   || '';
-let HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
-let HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+// ── MULTI-HIVE STATE ──
+// hives stored as JSON array: [{id, name, role, code}]
+function getHiveList() {
+  try { return JSON.parse(localStorage.getItem('wh_hives') || '[]'); } catch { return []; }
+}
+function saveHiveList(list) { localStorage.setItem('wh_hives', JSON.stringify(list)); }
 
-let memberNames     = [];
-let presenceChannel = null;
-let feedChannel     = null;
-let partsChannel    = null;
+// Migrate legacy single-hive keys to list format on first load
+(function migrateLegacyHive() {
+  const legId   = localStorage.getItem('wh_hive_id');
+  const legName = localStorage.getItem('wh_hive_name');
+  const legRole = localStorage.getItem('wh_hive_role');
+  const legCode = localStorage.getItem('wh_hive_code');
+  if (legId && !getHiveList().find(h => h.id === legId)) {
+    saveHiveList([...getHiveList(), { id: legId, name: legName || '', role: legRole || 'worker', code: legCode || '' }]);
+    localStorage.setItem('wh_active_hive_id', legId);
+  }
+})();
+
+let HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
+let HIVE_NAME = (getHiveList().find(h => h.id === HIVE_ID) || {}).name || localStorage.getItem('wh_hive_name') || '';
+let HIVE_ROLE = (getHiveList().find(h => h.id === HIVE_ID) || {}).role || localStorage.getItem('wh_hive_role') || '';
+
+let memberNames       = [];
+let presenceChannel   = null;
+let feedChannel       = null;
+let partsChannel      = null;
+let checklistChannel  = null;
 
 // ── UTILS ──
 function escHtml(str) {
   return String(str || '')
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 function genCode() {
@@ -588,6 +688,45 @@ function buildPartsCard(record, isNew) {
   </div>`;
 }
 
+function buildChecklistCard(record, isNew) {
+  const workerName = escHtml(record.worker_name || '');
+  const machine    = escHtml(record.machine_name || '—');
+  const jobType    = escHtml(record.job_type    || '');
+  const category   = escHtml(record.category    || '');
+  const time       = record.end_time ? timeAgo(record.end_time) : '';
+  const items      = Array.isArray(record.items) ? record.items : [];
+  const done       = items.filter(i => i.checked).length;
+  const total      = items.length;
+  const pct        = total ? Math.round((done / total) * 100) : 0;
+  const allDone    = done === total;
+
+  return `<div class="feed-card${allDone ? ' feed-log-closed' : ' feed-parts'}${isNew ? ' new-entry' : ''}">
+    <div class="flex items-start gap-3">
+      <div class="activity-icon log" style="background:rgba(74,222,128,0.12);border-color:rgba(74,222,128,0.25);">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="${allDone ? '#4ade80' : '#94a3b8'}" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap mb-1">
+          <span class="text-xs font-bold text-white/80">${workerName}</span>
+          <span class="status-badge" style="background:rgba(74,222,128,0.12);color:#4ade80;">Checklist</span>
+          ${jobType   ? `<span class="cat-badge" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);">${jobType}</span>`   : ''}
+          ${category  ? `<span class="cat-badge" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);">${category}</span>`  : ''}
+          <span class="text-[11px] text-white/25 ml-auto">${time}</span>
+        </div>
+        <p class="text-sm font-semibold text-white">${machine}</p>
+        <div class="flex items-center gap-2 mt-1.5">
+          <div class="flex-1 rounded-full h-1" style="background:rgba(255,255,255,0.08);">
+            <div class="rounded-full h-1" style="width:${pct}%;background:${allDone ? '#4ade80' : '#F7A21B'};"></div>
+          </div>
+          <span class="text-[11px] text-white/40">${done}/${total}</span>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
 // ── INIT ──
 document.getElementById('nav-worker').textContent = WORKER_NAME;
 
@@ -637,10 +776,13 @@ async function submitCreate() {
     hive_id: hive.id, worker_name: WORKER_NAME, role: 'supervisor'
   });
 
-  localStorage.setItem('wh_hive_id',   hive.id);
-  localStorage.setItem('wh_hive_name', hive.name);
-  localStorage.setItem('wh_hive_role', 'supervisor');
-  localStorage.setItem('wh_hive_code', code);
+  localStorage.setItem('wh_hive_id',       hive.id);
+  localStorage.setItem('wh_hive_name',     hive.name);
+  localStorage.setItem('wh_hive_role',     'supervisor');
+  localStorage.setItem('wh_hive_code',     code);
+  localStorage.setItem('wh_active_hive_id', hive.id);
+  const _existing = getHiveList().filter(h => h.id !== hive.id);
+  saveHiveList([..._existing, { id: hive.id, name: hive.name, role: 'supervisor', code }]);
   HIVE_ID = hive.id; HIVE_NAME = hive.name; HIVE_ROLE = 'supervisor';
 
   document.getElementById('code-hive-name').textContent = escHtml(hive.name);
@@ -702,9 +844,12 @@ async function submitJoin() {
     errEl.classList.remove('hidden'); return;
   }
 
-  localStorage.setItem('wh_hive_id',   hive.id);
-  localStorage.setItem('wh_hive_name', hive.name);
-  localStorage.setItem('wh_hive_role', 'worker');
+  localStorage.setItem('wh_hive_id',        hive.id);
+  localStorage.setItem('wh_hive_name',      hive.name);
+  localStorage.setItem('wh_hive_role',      'worker');
+  localStorage.setItem('wh_active_hive_id', hive.id);
+  const _existingJ = getHiveList().filter(h => h.id !== hive.id);
+  saveHiveList([..._existingJ, { id: hive.id, name: hive.name, role: 'worker', code: '' }]);
   HIVE_ID = hive.id; HIVE_NAME = hive.name; HIVE_ROLE = 'worker';
 
   await showWelcome(hive);
@@ -759,16 +904,45 @@ document.getElementById('btn-sup-leave-cancel').addEventListener('click', () => 
 
 async function performLeave() {
   await db.from('hive_members').delete().eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME);
+
+  // Remove this hive from the list; switch to another if available
+  const remaining = getHiveList().filter(h => h.id !== HIVE_ID);
+  saveHiveList(remaining);
+
+  // Also clear legacy single-hive keys
   localStorage.removeItem('wh_hive_id');
   localStorage.removeItem('wh_hive_name');
   localStorage.removeItem('wh_hive_role');
   localStorage.removeItem('wh_hive_code');
-  if (presenceChannel) db.removeChannel(presenceChannel);
-  if (feedChannel)     db.removeChannel(feedChannel);
-  if (partsChannel)    db.removeChannel(partsChannel);
+  localStorage.removeItem('wh_active_hive_id');
+
+  if (presenceChannel)   db.removeChannel(presenceChannel);
+  if (feedChannel)       db.removeChannel(feedChannel);
+  if (partsChannel)      db.removeChannel(partsChannel);
+  if (checklistChannel)  db.removeChannel(checklistChannel);
+
   HIVE_ID = ''; HIVE_NAME = ''; HIVE_ROLE = '';
   memberNames = [];
-  showView('onboard');
+
+  // If user has other hives, offer to switch; otherwise go to onboard
+  if (remaining.length) {
+    renderHiveSwitcher();
+  } else {
+    showView('onboard');
+  }
+}
+
+function renderHiveSwitcher() {
+  const list = getHiveList();
+  if (!list.length) { showView('onboard'); return; }
+  // Auto-switch to the first remaining hive
+  const next = list[0];
+  localStorage.setItem('wh_active_hive_id', next.id);
+  localStorage.setItem('wh_hive_id',         next.id);
+  localStorage.setItem('wh_hive_name',        next.name);
+  localStorage.setItem('wh_hive_role',        next.role);
+  HIVE_ID = next.id; HIVE_NAME = next.name; HIVE_ROLE = next.role;
+  initBoard();
 }
 
 // ── SHOW INVITE CODE (supervisor) ──
@@ -788,9 +962,13 @@ async function initBoard() {
     if (savedCode) document.getElementById('code-strip-value').textContent = savedCode;
   }
 
-  checkStockAlert();
+  updateSwitchButton();
+  await Promise.all([checkStockAlert(), loadMembers(), loadFeed(), loadAnalytics(), buildNotifications()]);
+  // Team stock alert needs memberNames populated by loadMembers first
+  checkTeamStockAlert();
 
-  await Promise.all([loadMembers(), loadFeed()]);
+  // Silent backfill: stamp hive_id on pre-migration rows for all hive members
+  runHiveIdBackfill();
 
   startPresence();
   startFeedRealtime();
@@ -844,8 +1022,8 @@ async function loadFeed() {
   const feed    = document.getElementById('feed');
   const emptyEl = document.getElementById('feed-empty');
 
-  // Fetch logbook + parts_records + open count in parallel (filter by hive_id — Option B)
-  const [logRes, partsRes, openRes] = await Promise.all([
+  // Fetch logbook + parts_records + checklist_records + open count in parallel
+  const [logRes, partsRes, openRes, checkRes] = await Promise.all([
     db.from('logbook')
       .select('id, worker_name, date, machine, category, problem, status, created_at')
       .eq('hive_id', HIVE_ID)
@@ -859,15 +1037,21 @@ async function loadFeed() {
     db.from('logbook')
       .select('*', { count: 'exact', head: true })
       .eq('hive_id', HIVE_ID)
-      .eq('status', 'Open')
+      .eq('status', 'Open'),
+    db.from('checklist_records')
+      .select('id, worker_name, machine_name, job_type, category, end_time, items, created_at')
+      .eq('hive_id', HIVE_ID)
+      .order('end_time', { ascending: false })
+      .limit(20)
   ]);
 
-  const logEntries   = (logRes.data   || []).map(e => ({ ...e, _type: 'logbook' }));
-  const partsEntries = (partsRes.data || []).map(e => ({ ...e, _type: 'parts' }));
+  const logEntries       = (logRes.data   || []).map(e => ({ ...e, _type: 'logbook' }));
+  const partsEntries     = (partsRes.data || []).map(e => ({ ...e, _type: 'parts' }));
+  const checklistEntries = (checkRes.data || []).map(e => ({ ...e, _type: 'checklist' }));
 
   // Merge and sort by created_at (fall back to date string)
-  const sortKey = e => e.created_at || e.date || '';
-  const merged = [...logEntries, ...partsEntries]
+  const sortKey = e => e.created_at || e.end_time || e.date || '';
+  const merged = [...logEntries, ...partsEntries, ...checklistEntries]
     .sort((a, b) => sortKey(b).localeCompare(sortKey(a)))
     .slice(0, 40);
 
@@ -875,12 +1059,36 @@ async function loadFeed() {
   document.getElementById('stat-open').textContent = openRes.count || 0;
 
   if (!merged.length) {
+    // Fallback: if hive_id not yet on old entries, check by member names so existing hives aren't blank
+    if (memberNames.length > 1) {
+      const [oldLogRes, oldPartsRes] = await Promise.all([
+        db.from('logbook').select('id, worker_name, date, machine, category, problem, status, created_at')
+          .in('worker_name', memberNames).is('hive_id', null)
+          .order('created_at', { ascending: false }).limit(30),
+        db.from('parts_records').select('id, worker_name, job_ref, job_type, date, parts, created_at')
+          .in('worker_name', memberNames).is('hive_id', null)
+          .order('created_at', { ascending: false }).limit(20)
+      ]);
+      const oldMerged = [
+        ...(oldLogRes.data || []).map(e => ({ ...e, _type: 'logbook' })),
+        ...(oldPartsRes.data || []).map(e => ({ ...e, _type: 'parts' }))
+      ].sort((a, b) => (b.created_at || b.date || '').localeCompare(a.created_at || a.date || '')).slice(0, 40);
+      if (oldMerged.length) {
+        emptyEl.classList.add('hidden');
+        feed.innerHTML = oldMerged.map(e =>
+          e._type === 'parts' ? buildPartsCard(e, false) : buildFeedCard(e, false)
+        ).join('');
+        return;
+      }
+    }
     emptyEl.classList.remove('hidden'); return;
   }
   emptyEl.classList.add('hidden');
 
   feed.innerHTML = merged.map(e =>
-    e._type === 'parts' ? buildPartsCard(e, false) : buildFeedCard(e, false)
+    e._type === 'parts'     ? buildPartsCard(e, false)     :
+    e._type === 'checklist' ? buildChecklistCard(e, false) :
+    buildFeedCard(e, false)
   ).join('');
 }
 
@@ -926,8 +1134,9 @@ function renderPresence() {
 
 // ── FEED REALTIME ──
 function startFeedRealtime() {
-  if (feedChannel)  db.removeChannel(feedChannel);
-  if (partsChannel) db.removeChannel(partsChannel);
+  if (feedChannel)      db.removeChannel(feedChannel);
+  if (partsChannel)     db.removeChannel(partsChannel);
+  if (checklistChannel) db.removeChannel(checklistChannel);
 
   feedChannel = db.channel('hive-feed:' + HIVE_ID)
     .on('postgres_changes', {
@@ -950,12 +1159,23 @@ function startFeedRealtime() {
       prependFeed({ ...payload.new, _type: 'parts' });
     })
     .subscribe();
+
+  checklistChannel = db.channel('hive-checklist:' + HIVE_ID)
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'checklist_records',
+      filter: 'hive_id=eq.' + HIVE_ID
+    }, (payload) => {
+      prependFeed({ ...payload.new, _type: 'checklist' });
+    })
+    .subscribe();
 }
 
 function prependFeed(entry) {
   document.getElementById('feed-empty').classList.add('hidden');
   const div = document.createElement('div');
-  div.innerHTML = entry._type === 'parts' ? buildPartsCard(entry, true) : buildFeedCard(entry, true);
+  div.innerHTML = entry._type === 'parts'     ? buildPartsCard(entry, true)     :
+                  entry._type === 'checklist' ? buildChecklistCard(entry, true) :
+                  buildFeedCard(entry, true);
   const feed = document.getElementById('feed');
   feed.insertBefore(div.firstElementChild, feed.firstChild);
 }
@@ -986,11 +1206,300 @@ async function checkStockAlert() {
   document.getElementById('stock-alert').classList.remove('hidden');
 }
 
+// ── NOTIFICATION CENTER ──
+const NOTIF_KEY = 'wh_notifs_read_' + (localStorage.getItem('wh_hive_id') || '');
+let _notifs = [];
+
+function pushNotif(type, title, body, link) {
+  _notifs.push({ type, title, body, link, ts: Date.now() });
+  renderNotifs();
+}
+
+function renderNotifs() {
+  const readTs = parseInt(localStorage.getItem(NOTIF_KEY) || '0');
+  const unread = _notifs.filter(n => n.ts > readTs).length;
+
+  document.getElementById('notif-wrapper').style.display = 'flex';
+  document.getElementById('notif-badge').classList.toggle('hidden', unread === 0);
+
+  const list = document.getElementById('notif-list');
+  if (!_notifs.length) {
+    list.innerHTML = '<p class="text-xs text-white/30 text-center py-6">No notifications yet.</p>';
+    return;
+  }
+
+  const iconFor = type => {
+    if (type === 'stock-out')  return '<span style="width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0;margin-top:4px;"></span>';
+    if (type === 'stock-low')  return '<span style="width:8px;height:8px;border-radius:50%;background:#F7A21B;flex-shrink:0;margin-top:4px;"></span>';
+    if (type === 'open-wo')    return '<span style="width:8px;height:8px;border-radius:50%;background:#60a5fa;flex-shrink:0;margin-top:4px;"></span>';
+    return '<span style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.3);flex-shrink:0;margin-top:4px;"></span>';
+  };
+
+  list.innerHTML = [..._notifs].reverse().map(n => {
+    const isUnread = n.ts > readTs;
+    return `<div class="flex gap-3 px-4 py-2.5 hover:bg-white/[0.04] transition-colors" style="${isUnread ? 'background:rgba(255,255,255,0.03);' : ''}">
+      ${iconFor(n.type)}
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-semibold text-white/80">${escHtml(n.title)}</p>
+        <p class="text-[11px] text-white/45 leading-snug mt-0.5">${escHtml(n.body)}</p>
+        ${n.link ? `<a href="${n.link}" class="text-[11px] font-semibold mt-1 inline-block" style="color:#29B6D9;">${n.link.replace('.html','').replace('-',' ')} →</a>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('notif-bell').addEventListener('click', () => {
+  const panel = document.getElementById('notif-panel');
+  panel.classList.toggle('hidden');
+});
+
+document.getElementById('notif-mark-read').addEventListener('click', () => {
+  localStorage.setItem(NOTIF_KEY, Date.now());
+  renderNotifs();
+});
+
+document.addEventListener('click', e => {
+  const wrapper = document.getElementById('notif-wrapper');
+  if (!wrapper.contains(e.target)) {
+    document.getElementById('notif-panel').classList.add('hidden');
+  }
+});
+
+async function buildNotifications() {
+  _notifs = [];
+
+  // Own stock issues
+  const { data: inv } = await db.from('inventory_items')
+    .select('part_name, qty_on_hand, min_qty')
+    .eq('worker_name', WORKER_NAME);
+  (inv || []).forEach(i => {
+    if (i.qty_on_hand <= 0) {
+      pushNotif('stock-out', 'Out of stock', `${i.part_name} has 0 units remaining.`, 'inventory.html');
+    } else if (i.min_qty > 0 && i.qty_on_hand <= i.min_qty) {
+      pushNotif('stock-low', 'Low stock', `${i.part_name} is below reorder point (${i.qty_on_hand} left).`, 'inventory.html');
+    }
+  });
+
+  // Open work orders older than 48 hours
+  const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+  const { data: oldWOs } = await db.from('logbook')
+    .select('machine, date, created_at')
+    .eq('worker_name', WORKER_NAME)
+    .eq('status', 'Open')
+    .lt('created_at', cutoff)
+    .order('created_at', { ascending: false })
+    .limit(5);
+  if (oldWOs && oldWOs.length) {
+    pushNotif('open-wo', 'Open work orders',
+      `${oldWOs.length} WO${oldWOs.length > 1 ? 's' : ''} open for 48+ hrs (${escHtml(oldWOs[0].machine)} and others).`,
+      'logbook.html');
+  }
+
+  renderNotifs();
+}
+
+// ── ANALYTICS ──
+async function loadAnalytics() {
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  const [logRes, partsRes] = await Promise.all([
+    db.from('logbook')
+      .select('id, machine, category, status, created_at')
+      .eq('hive_id', HIVE_ID)
+      .gte('created_at', weekAgo),
+    db.from('parts_records')
+      .select('id, created_at')
+      .eq('hive_id', HIVE_ID)
+      .gte('created_at', weekAgo)
+  ]);
+
+  const logs   = logRes.data   || [];
+  const parts  = partsRes.data || [];
+
+  if (!logs.length && !parts.length) return; // nothing to show yet
+  document.getElementById('analytics-panel').classList.remove('hidden');
+
+  // Tile counts
+  document.getElementById('an-jobs-week').textContent  = logs.length;
+  document.getElementById('an-open-week').textContent  = logs.filter(e => e.status === 'Open').length;
+  document.getElementById('an-parts-week').textContent = parts.length;
+
+  // Top 3 categories
+  const catCount = {};
+  logs.forEach(e => { if (e.category) catCount[e.category] = (catCount[e.category] || 0) + 1; });
+  const topCats = Object.entries(catCount).sort((a,b) => b[1]-a[1]).slice(0, 3);
+  const maxCat  = topCats[0]?.[1] || 1;
+  const catColors = { Electrical:'#F7A21B', Mechanical:'#29B6D9', Hydraulic:'#a78bfa', Pneumatic:'#34d399', Instrumentation:'#fb923c' };
+  document.getElementById('an-categories').innerHTML = topCats.length
+    ? topCats.map(([cat, count]) => {
+        const pct  = Math.round((count / maxCat) * 100);
+        const col  = catColors[cat] || '#94a3b8';
+        return `<div>
+          <div class="flex justify-between mb-0.5">
+            <span class="text-[11px] text-white/60">${escHtml(cat)}</span>
+            <span class="text-[11px] font-bold text-white/50">${count}</span>
+          </div>
+          <div class="rounded-full h-1.5" style="background:rgba(255,255,255,0.06);">
+            <div class="rounded-full h-1.5" style="width:${pct}%;background:${col};transition:width 0.4s;"></div>
+          </div>
+        </div>`;
+      }).join('')
+    : '<p class="text-[11px] text-white/25">No categorised entries yet.</p>';
+
+  // Top 3 assets by log count
+  const assetCount = {};
+  logs.forEach(e => { if (e.machine) assetCount[e.machine] = (assetCount[e.machine] || 0) + 1; });
+  const topAssets = Object.entries(assetCount).sort((a,b) => b[1]-a[1]).slice(0, 3);
+  const maxAsset  = topAssets[0]?.[1] || 1;
+  document.getElementById('an-assets').innerHTML = topAssets.length
+    ? topAssets.map(([machine, count]) => {
+        const pct = Math.round((count / maxAsset) * 100);
+        return `<div>
+          <div class="flex justify-between mb-0.5">
+            <span class="text-[11px] font-semibold text-white/70 truncate">${escHtml(machine)}</span>
+            <span class="text-[11px] font-bold text-white/50 flex-shrink-0 ml-2">${count} ${count === 1 ? 'job' : 'jobs'}</span>
+          </div>
+          <div class="rounded-full h-1.5" style="background:rgba(255,255,255,0.06);">
+            <div class="rounded-full h-1.5" style="width:${pct}%;background:#29B6D9;transition:width 0.4s;"></div>
+          </div>
+        </div>`;
+      }).join('')
+    : '<p class="text-[11px] text-white/25">No asset data yet.</p>';
+}
+
+document.getElementById('btn-toggle-analytics').addEventListener('click', () => {
+  const body = document.getElementById('analytics-body');
+  const btn  = document.getElementById('btn-toggle-analytics');
+  const isHidden = body.style.display === 'none';
+  body.style.display = isHidden ? '' : 'none';
+  btn.textContent = isHidden ? 'Hide' : 'Show';
+});
+
+// ── TEAM STOCK ALERT (supervisor only) ──
+async function checkTeamStockAlert() {
+  if (HIVE_ROLE !== 'supervisor' || !memberNames.length) return;
+
+  const others = memberNames.filter(n => n !== WORKER_NAME);
+  if (!others.length) return;
+
+  const { data: inv } = await db.from('inventory_items')
+    .select('worker_name, part_name, qty_on_hand, min_qty')
+    .in('worker_name', others);
+  if (!inv || !inv.length) return;
+
+  // Group by worker, collect problems
+  const byWorker = {};
+  inv.forEach(i => {
+    const isOut = i.qty_on_hand <= 0;
+    const isLow = !isOut && i.min_qty > 0 && i.qty_on_hand <= i.min_qty;
+    if (!isOut && !isLow) return;
+    if (!byWorker[i.worker_name]) byWorker[i.worker_name] = { out: [], low: [] };
+    if (isOut) byWorker[i.worker_name].out.push(i.part_name);
+    else       byWorker[i.worker_name].low.push(i.part_name);
+  });
+
+  const workers = Object.keys(byWorker);
+  if (!workers.length) return;
+
+  const list = document.getElementById('team-stock-list');
+  list.innerHTML = workers.map(name => {
+    const { out, low } = byWorker[name];
+    const parts = [];
+    if (out.length) parts.push(`<span style="color:#f87171;font-weight:700;">${out.length} out</span>`);
+    if (low.length) parts.push(`<span style="color:#F7A21B;font-weight:700;">${low.length} low</span>`);
+    return `<div class="flex items-center gap-2">
+      <div class="avatar-initial" style="width:24px;height:24px;font-size:0.6rem;">${escHtml(name[0].toUpperCase())}</div>
+      <span class="text-xs text-white/70 font-semibold flex-1">${escHtml(name)}</span>
+      <span class="text-xs">${parts.join(' · ')}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('team-stock-alert').classList.remove('hidden');
+}
+
+// ── HIVE_ID BACKFILL (one-time, silent) ──
+async function runHiveIdBackfill() {
+  if (!memberNames.length || !HIVE_ID) return;
+  // Only run once per hive per session
+  const key = 'wh_backfilled_' + HIVE_ID;
+  if (sessionStorage.getItem(key)) return;
+  sessionStorage.setItem(key, '1');
+
+  // Stamp hive_id on logbook rows that belong to hive members but have no hive_id yet
+  await db.from('logbook')
+    .update({ hive_id: HIVE_ID })
+    .in('worker_name', memberNames)
+    .is('hive_id', null);
+
+  // Same for parts_records
+  await db.from('parts_records')
+    .update({ hive_id: HIVE_ID })
+    .in('worker_name', memberNames)
+    .is('hive_id', null);
+}
+
 // ── CLEANUP ──
+// ── HIVE SWITCHER ──
+function updateSwitchButton() {
+  const list = getHiveList();
+  const btn  = document.getElementById('btn-switch-hive');
+  if (list.length > 1) {
+    btn.classList.remove('hidden');
+    btn.textContent = `Switch Hive (${list.length})`;
+  } else {
+    btn.classList.add('hidden');
+  }
+}
+
+document.getElementById('btn-switch-hive').addEventListener('click', () => {
+  const list = getHiveList();
+  const modal = document.getElementById('modal-hive-switch');
+  document.getElementById('hive-switch-list').innerHTML = list.map(h => {
+    const isActive = h.id === HIVE_ID;
+    return `<button onclick="switchToHive('${escHtml(h.id)}')" class="flex items-center gap-3 p-3 rounded-xl w-full text-left transition-all" style="background:${isActive ? 'rgba(41,182,217,0.12); border:1px solid rgba(41,182,217,0.25);' : 'rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07);'}">
+      <div class="avatar-initial">${escHtml(h.name[0]?.toUpperCase() || '?')}</div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-bold text-white truncate">${escHtml(h.name)}</p>
+        <p class="text-[11px] text-white/35 capitalize">${escHtml(h.role)}</p>
+      </div>
+      ${isActive ? '<span class="text-[10px] font-bold" style="color:#29B6D9;">Active</span>' : ''}
+    </button>`;
+  }).join('');
+  modal.classList.remove('hidden');
+});
+
+async function switchToHive(id) {
+  document.getElementById('modal-hive-switch').classList.add('hidden');
+  if (id === HIVE_ID) return;
+  const h = getHiveList().find(x => x.id === id);
+  if (!h) return;
+  localStorage.setItem('wh_active_hive_id', h.id);
+  localStorage.setItem('wh_hive_id',         h.id);
+  localStorage.setItem('wh_hive_name',        h.name);
+  localStorage.setItem('wh_hive_role',        h.role);
+  HIVE_ID = h.id; HIVE_NAME = h.name; HIVE_ROLE = h.role;
+  memberNames = [];
+  if (presenceChannel)  db.removeChannel(presenceChannel);
+  if (feedChannel)      db.removeChannel(feedChannel);
+  if (partsChannel)     db.removeChannel(partsChannel);
+  if (checklistChannel) db.removeChannel(checklistChannel);
+  initBoard();
+}
+
+document.getElementById('btn-hive-switch-join').addEventListener('click', () => {
+  document.getElementById('modal-hive-switch').classList.add('hidden');
+  showView('onboard');
+});
+
+document.getElementById('btn-hive-switch-cancel').addEventListener('click', () => {
+  document.getElementById('modal-hive-switch').classList.add('hidden');
+});
+
 window.addEventListener('beforeunload', () => {
-  if (presenceChannel) db.removeChannel(presenceChannel);
-  if (feedChannel)     db.removeChannel(feedChannel);
-  if (partsChannel)    db.removeChannel(partsChannel);
+  if (presenceChannel)   db.removeChannel(presenceChannel);
+  if (feedChannel)       db.removeChannel(feedChannel);
+  if (partsChannel)      db.removeChannel(partsChannel);
+  if (checklistChannel)  db.removeChannel(checklistChannel);
 });
 </script>
 </body>

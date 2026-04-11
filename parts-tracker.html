@@ -371,6 +371,13 @@
         </div>
       </div>
 
+      <!-- Asset link (optional) -->
+      <div class="mb-4">
+        <label>Asset / Equipment <span style="color:rgba(255,255,255,0.3);font-weight:400;">(optional)</span></label>
+        <input id="job-asset" type="text" class="wh-input" list="job-asset-datalist" placeholder="Type asset ID to link..." autocomplete="off" />
+        <datalist id="job-asset-datalist"></datalist>
+      </div>
+
       <!-- Date -->
       <div class="mb-5">
         <label>Date *</label>
@@ -547,6 +554,30 @@ let editingIdx     = null;
 let pendingRecord  = null;
 let _invItems      = [];   // inventory items loaded from Supabase for the linked worker
 let _selectedInvId = null; // set when user picks from inv-datalist
+let _assets        = [];   // registered assets for asset picker
+let _assetRefId    = null; // UUID of the selected asset
+
+async function loadAssets() {
+  const workerName = localStorage.getItem(WORKER_KEY) || '';
+  if (!workerName) return;
+  const { data } = await db.from('assets')
+    .select('id, asset_id, name')
+    .eq('worker_name', workerName)
+    .order('asset_id');
+  _assets = data || [];
+  const dl = document.getElementById('job-asset-datalist');
+  if (!dl) return;
+  dl.innerHTML = _assets.map(a =>
+    `<option value="${escHtml(a.asset_id)}"${a.name ? ` label="${escHtml(a.asset_id + ' — ' + a.name)}"` : ''}>`
+  ).join('');
+}
+
+document.addEventListener('input', e => {
+  if (e.target.id !== 'job-asset') return;
+  const val = e.target.value.trim().toUpperCase();
+  const match = _assets.find(a => a.asset_id.toUpperCase() === val);
+  _assetRefId = match ? match.id : null;
+});
 
 async function loadInvItems() {
   const workerName = localStorage.getItem(WORKER_KEY) || '';
@@ -874,7 +905,8 @@ function completeEntry() {
     jobType:     state.jobType,
     date:        state.date,
     duration,
-    parts:       JSON.parse(JSON.stringify(state.parts))
+    parts:       JSON.parse(JSON.stringify(state.parts)),
+    assetRefId:  _assetRefId
   };
 
   renderSummary(pendingRecord);
@@ -883,14 +915,15 @@ function completeEntry() {
   // Auto-save to Supabase immediately
   const _snap = pendingRecord;
   db.from('parts_records').insert({
-    id:          _snap.id,
-    worker_name: _snap.workerName,
-    job_ref:     _snap.jobRef,
-    job_type:    _snap.jobType,
-    date:        _snap.date,
-    duration:    _snap.duration,
-    parts:       _snap.parts,
-    hive_id:     HIVE_ID
+    id:           _snap.id,
+    worker_name:  _snap.workerName,
+    job_ref:      _snap.jobRef,
+    job_type:     _snap.jobType,
+    date:         _snap.date,
+    duration:     _snap.duration,
+    parts:        _snap.parts,
+    hive_id:      HIVE_ID,
+    asset_ref_id: _snap.assetRefId || null
   }).then(async ({ error }) => {
     if (error) { alert('Could not save record: ' + error.message); return; }
     await deductFromInventory(_snap);
@@ -992,14 +1025,15 @@ async function saveAndHistory() {
   if (!pendingRecord) return;
   const _snap = pendingRecord;
   const { error } = await db.from('parts_records').insert({
-    id:          _snap.id,
-    worker_name: _snap.workerName,
-    job_ref:     _snap.jobRef,
-    job_type:    _snap.jobType,
-    date:        _snap.date,
-    duration:    _snap.duration,
-    parts:       _snap.parts,
-    hive_id:     HIVE_ID
+    id:           _snap.id,
+    worker_name:  _snap.workerName,
+    job_ref:      _snap.jobRef,
+    job_type:     _snap.jobType,
+    date:         _snap.date,
+    duration:     _snap.duration,
+    parts:        _snap.parts,
+    hive_id:      HIVE_ID,
+    asset_ref_id: _snap.assetRefId || null
   });
   if (error) { alert('Could not save record: ' + error.message); return; }
   await deductFromInventory(_snap);
@@ -1105,11 +1139,12 @@ function resetState() {
 }
 
 function escHtml(str) {
-  return String(str)
+  return String(str || '')
     .replace(/&/g,'&amp;')
     .replace(/</g,'&lt;')
     .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
 }
 
 // Close modals on backdrop click
@@ -1124,6 +1159,7 @@ document.getElementById('edit-modal').addEventListener('click', function(e) {
 document.addEventListener('DOMContentLoaded', () => {
   initSetup();
   loadInvItems();
+  loadAssets();
   document.getElementById('new-name').addEventListener('keydown', e => {
     if (e.key === 'Enter') addPart();
   });
