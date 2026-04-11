@@ -734,7 +734,47 @@ if (HIVE_ID) {
   showView('board');
   initBoard();
 } else {
-  showView('onboard');
+  // No local hive — check if user already has membership in Supabase (e.g. after sign-out, device switch)
+  (async function recoverHiveMembership() {
+    const { data: memberships } = await db
+      .from('hive_members')
+      .select('hive_id, role')
+      .eq('worker_name', WORKER_NAME);
+
+    if (!memberships || !memberships.length) {
+      showView('onboard');
+      return;
+    }
+
+    // Fetch hive names for all found memberships
+    const hiveIds = memberships.map(m => m.hive_id);
+    const { data: hives } = await db
+      .from('hives')
+      .select('id, name, code')
+      .in('id', hiveIds);
+
+    if (!hives || !hives.length) {
+      showView('onboard');
+      return;
+    }
+
+    // Restore to localStorage
+    const restored = hives.map(h => {
+      const m = memberships.find(x => x.hive_id === h.id);
+      return { id: h.id, name: h.name, role: m ? m.role : 'worker', code: h.code || '' };
+    });
+    saveHiveList(restored);
+    const first = restored[0];
+    localStorage.setItem('wh_active_hive_id', first.id);
+    localStorage.setItem('wh_hive_id',         first.id);
+
+    HIVE_ID   = first.id;
+    HIVE_NAME = first.name;
+    HIVE_ROLE = first.role;
+
+    showView('board');
+    initBoard();
+  })();
 }
 
 // ── ONBOARD ──
