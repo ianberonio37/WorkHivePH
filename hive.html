@@ -792,7 +792,7 @@ if (HIVE_ID) {
     const hiveIds = memberships.map(m => m.hive_id);
     const { data: hives } = await db
       .from('hives')
-      .select('id, name, code')
+      .select('id, name, code, created_by')
       .in('id', hiveIds);
 
     if (!hives || !hives.length) {
@@ -800,11 +800,19 @@ if (HIVE_ID) {
       return;
     }
 
-    // Restore to localStorage
-    const restored = hives.map(h => {
+    // Restore to localStorage — if user is the original creator but was demoted, reclaim supervisor
+    const restored = await Promise.all(hives.map(async h => {
       const m = memberships.find(x => x.hive_id === h.id);
-      return { id: h.id, name: h.name, role: m ? m.role : 'worker', code: h.code || '' };
-    });
+      let role = m ? m.role : 'worker';
+      if (role !== 'supervisor' && h.created_by === WORKER_NAME) {
+        await db.from('hive_members').upsert(
+          { hive_id: h.id, worker_name: WORKER_NAME, role: 'supervisor' },
+          { onConflict: 'hive_id,worker_name' }
+        );
+        role = 'supervisor';
+      }
+      return { id: h.id, name: h.name, role, code: h.code || '' };
+    }));
     saveHiveList(restored);
     const first = restored[0];
     localStorage.setItem('wh_active_hive_id', first.id);
@@ -907,7 +915,7 @@ async function submitJoin() {
   btn.textContent = 'Joining...'; btn.disabled = true;
 
   const { data: hive, error } = await db.from('hives')
-    .select('id, name')
+    .select('id, name, created_by')
     .eq('invite_code', codeVal)
     .single();
 
@@ -917,9 +925,11 @@ async function submitJoin() {
     errEl.classList.remove('hidden'); return;
   }
 
-  // Upsert — safe if already a member
+  // Original creator reclaims supervisor; everyone else joins as worker
+  const joinRole = hive.created_by === WORKER_NAME ? 'supervisor' : 'worker';
+
   const { error: joinErr } = await db.from('hive_members').upsert({
-    hive_id: hive.id, worker_name: WORKER_NAME, role: 'worker'
+    hive_id: hive.id, worker_name: WORKER_NAME, role: joinRole
   }, { onConflict: 'hive_id,worker_name' });
 
   if (joinErr) {
@@ -930,11 +940,12 @@ async function submitJoin() {
 
   localStorage.setItem('wh_hive_id',        hive.id);
   localStorage.setItem('wh_hive_name',      hive.name);
-  localStorage.setItem('wh_hive_role',      'worker');
+  localStorage.setItem('wh_hive_role',      joinRole);
   localStorage.setItem('wh_active_hive_id', hive.id);
+  if (joinRole === 'supervisor') localStorage.setItem('wh_hive_code', codeVal);
   const _existingJ = getHiveList().filter(h => h.id !== hive.id);
-  saveHiveList([..._existingJ, { id: hive.id, name: hive.name, role: 'worker', code: '' }]);
-  HIVE_ID = hive.id; HIVE_NAME = hive.name; HIVE_ROLE = 'worker';
+  saveHiveList([..._existingJ, { id: hive.id, name: hive.name, role: joinRole, code: codeVal }]);
+  HIVE_ID = hive.id; HIVE_NAME = hive.name; HIVE_ROLE = joinRole;
 
   await showWelcome(hive);
 }
@@ -1199,7 +1210,7 @@ function startPresence() {
       if (status === 'SUBSCRIBED') {
         setConn('live');
         await presenceChannel.track({ worker_name: WORKER_NAME, at: Date.now() });
-      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
         setConn('offline');
         renderPresenceFallback();
       }
