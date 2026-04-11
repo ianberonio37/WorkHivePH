@@ -454,26 +454,57 @@
     </div>
   </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ────────────────────────────────────────────
+// SUPABASE SETUP
+// ────────────────────────────────────────────
+const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 // ────────────────────────────────────────────
 // IDENTITY
 // ────────────────────────────────────────────
 const WORKER_NAME = localStorage.getItem('wh_last_worker') || '';
 if (!WORKER_NAME) window.location.href = 'index.html?signin=1';
 
-// ────────────────────────────────────────────
-// STORAGE
-// Stage 2: swap these functions for Supabase queries
-// ────────────────────────────────────────────
+// localStorage keys — migration source only, removed after first run
 const INV_KEY    = 'wh_inventory_'  + WORKER_NAME;
 const TXN_KEY    = 'wh_inv_txns_'   + WORKER_NAME;
 const ASSETS_KEY = 'wh_assets_'     + WORKER_NAME;
 
-function loadInventory()    { try { return JSON.parse(localStorage.getItem(INV_KEY))    || []; } catch { return []; } }
-function saveInventory(d)   { localStorage.setItem(INV_KEY, JSON.stringify(d)); }
-function loadTransactions() { try { return JSON.parse(localStorage.getItem(TXN_KEY))   || []; } catch { return []; } }
-function saveTransactions(d){ localStorage.setItem(TXN_KEY, JSON.stringify(d)); }
-function loadAssets()       { try { return JSON.parse(localStorage.getItem(ASSETS_KEY))|| []; } catch { return []; } }
+// ────────────────────────────────────────────
+// IN-MEMORY CACHE (populated from Supabase on init)
+// ────────────────────────────────────────────
+let _items  = [];
+let _txns   = [];
+let _assets = [];
+
+function loadInventory()    { return _items; }
+function loadTransactions() { return _txns; }
+function loadAssets()       { return _assets; }
+
+function saveInventory(arr) {
+  const prev = _items;
+  _items = arr;
+  arr.forEach(item => {
+    const old = prev.find(o => o.id === item.id);
+    if (!old || JSON.stringify(old) !== JSON.stringify(item)) {
+      db.from('inventory_items').upsert({ ...item, worker_name: WORKER_NAME })
+        .then(({ error }) => { if (error) console.error('inv sync:', error.message); });
+    }
+  });
+}
+
+function saveTransactions(arr) {
+  _txns = arr;
+  const last = arr[arr.length - 1];
+  if (last) {
+    db.from('inventory_transactions').insert(last)
+      .then(({ error }) => { if (error) console.error('txn sync:', error.message); });
+  }
+}
 
 // ────────────────────────────────────────────
 // HELPERS
@@ -1095,9 +1126,59 @@ document.getElementById('filter-category').addEventListener('change', renderPart
 document.getElementById('filter-status').addEventListener('change',   renderParts);
 
 // ────────────────────────────────────────────
+// DATA INIT — migrate from localStorage then load from Supabase
+// ────────────────────────────────────────────
+async function initData() {
+  const lsItems  = JSON.parse(localStorage.getItem(INV_KEY)    || '[]');
+  const lsTxns   = JSON.parse(localStorage.getItem(TXN_KEY)    || '[]');
+  const lsAssets = JSON.parse(localStorage.getItem(ASSETS_KEY) || '[]');
+
+  const [itemsRes, txnsRes, assetsRes] = await Promise.all([
+    db.from('inventory_items').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
+    db.from('inventory_transactions').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
+    db.from('assets').select('*').eq('worker_name', WORKER_NAME).order('created_at')
+  ]);
+
+  // Migrate inventory items + transactions from localStorage if Supabase is empty
+  if ((itemsRes.data || []).length === 0 && lsItems.length > 0) {
+    for (const item of lsItems) {
+      await db.from('inventory_items').upsert({ ...item, worker_name: WORKER_NAME });
+    }
+    for (const txn of lsTxns) {
+      await db.from('inventory_transactions').insert(txn).catch(() => {});
+    }
+    localStorage.removeItem(INV_KEY);
+    localStorage.removeItem(TXN_KEY);
+    const [ir, tr] = await Promise.all([
+      db.from('inventory_items').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
+      db.from('inventory_transactions').select('*').eq('worker_name', WORKER_NAME).order('created_at')
+    ]);
+    _items = ir.data || [];
+    _txns  = tr.data || [];
+  } else {
+    _items = itemsRes.data || [];
+    _txns  = txnsRes.data || [];
+  }
+
+  // Migrate assets from localStorage if Supabase is empty
+  if ((assetsRes.data || []).length === 0 && lsAssets.length > 0) {
+    for (const a of lsAssets) {
+      await db.from('assets').upsert({ ...a, worker_name: WORKER_NAME });
+    }
+    localStorage.removeItem(ASSETS_KEY);
+    const { data: migA } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME).order('created_at');
+    _assets = migA || [];
+  } else {
+    _assets = assetsRes.data || [];
+  }
+
+  renderParts();
+}
+
+// ────────────────────────────────────────────
 // INIT
 // ────────────────────────────────────────────
-renderParts();
+initData();
 </script>
   <script src="floating-ai.js"></script>
 </body>

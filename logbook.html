@@ -720,17 +720,49 @@ async function deleteEntry(id) {
 }
 
 // ────────────────────────────────────────────
-// ASSET REGISTRY (localStorage)
+// ASSET REGISTRY (Supabase)
 // ────────────────────────────────────────────
-const ASSETS_KEY = 'wh_assets_' + WORKER_NAME;
+const ASSETS_KEY = 'wh_assets_' + WORKER_NAME; // migration source only
 
-function loadAssets() {
-  try { return JSON.parse(localStorage.getItem(ASSETS_KEY)) || []; }
-  catch { return []; }
+let _assets = [];
+
+function loadAssets() { return _assets; }
+
+function saveAssets(arr) {
+  const prev = _assets;
+  _assets = arr;
+  // Delete removed assets
+  prev.forEach(a => {
+    if (!arr.find(x => x.id === a.id)) {
+      db.from('assets').delete().eq('id', a.id)
+        .then(({ error }) => { if (error) console.error('asset delete:', error.message); });
+    }
+  });
+  // Upsert changed/added assets
+  arr.forEach(asset => {
+    const old = prev.find(o => o.id === asset.id);
+    if (!old || JSON.stringify(old) !== JSON.stringify(asset)) {
+      db.from('assets').upsert({ ...asset, worker_name: WORKER_NAME })
+        .then(({ error }) => { if (error) console.error('asset sync:', error.message); });
+    }
+  });
 }
 
-function saveAssets(assets) {
-  localStorage.setItem(ASSETS_KEY, JSON.stringify(assets));
+async function initAssets() {
+  const lsAssets = JSON.parse(localStorage.getItem(ASSETS_KEY) || '[]');
+  const { data: sbAssets } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME).order('created_at');
+  if ((sbAssets || []).length === 0 && lsAssets.length > 0) {
+    for (const a of lsAssets) {
+      await db.from('assets').upsert({ ...a, worker_name: WORKER_NAME });
+    }
+    localStorage.removeItem(ASSETS_KEY);
+    const { data: migrated } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME).order('created_at');
+    _assets = migrated || [];
+  } else {
+    _assets = sbAssets || [];
+  }
+  updateAssetDatalist();
+  refreshAssetCountBadge();
 }
 
 function openAssetModal(tab) {
@@ -1458,8 +1490,7 @@ document.addEventListener('change', function(e) {
 // ────────────────────────────────────────────
 // INIT
 // ────────────────────────────────────────────
-updateAssetDatalist();
-refreshAssetCountBadge();
+initAssets();
 renderEntries();
 updateStatusToggle('f-status');
 

@@ -408,6 +408,12 @@
       <p class="text-white/70 text-xs font-semibold uppercase tracking-wider mb-3">Add a Part</p>
       <div class="space-y-3">
         <div>
+          <label>Link from Inventory <span style="color:rgba(255,255,255,0.3);font-weight:400;font-size:11px;">(optional — auto-deducts stock on save)</span></label>
+          <input id="inv-search" type="text" class="wh-input" list="inv-datalist" placeholder="Search by name or part number..." autocomplete="off" />
+          <datalist id="inv-datalist"></datalist>
+          <p id="inv-linked-note" class="text-xs mt-1" style="display:none;color:#4ade80;">Linked — stock will be deducted when this job is saved.</p>
+        </div>
+        <div>
           <label>Part Name / Description *</label>
           <input id="new-name" type="text" class="wh-input" placeholder="e.g. V-Belt A-42, Bearing 6205, Grease" />
         </div>
@@ -532,12 +538,76 @@ let state = {
   jobType:    '',
   date:       '',
   startTime:  null,
-  parts:      []   // { id, name, partNo, qty, unit, source }
+  parts:      []   // { id, name, partNo, qty, unit, source, inventory_item_id }
 };
 
-let timerInterval = null;
-let editingIdx = null;
-let pendingRecord = null;
+let timerInterval  = null;
+let editingIdx     = null;
+let pendingRecord  = null;
+let _invItems      = [];   // inventory items loaded from Supabase for the linked worker
+let _selectedInvId = null; // set when user picks from inv-datalist
+
+async function loadInvItems() {
+  const workerName = localStorage.getItem(WORKER_KEY) || '';
+  if (!workerName) return;
+  const { data } = await db.from('inventory_items')
+    .select('id, part_number, part_name, qty_on_hand, unit')
+    .eq('worker_name', workerName)
+    .order('part_name');
+  _invItems = data || [];
+  const dl = document.getElementById('inv-datalist');
+  if (!dl) return;
+  dl.innerHTML = _invItems.map(i =>
+    `<option value="${escHtml(i.part_name)} | ${escHtml(i.part_number)}">`
+  ).join('');
+}
+
+function onInvSearch(val) {
+  _selectedInvId = null;
+  document.getElementById('inv-linked-note').style.display = 'none';
+  if (!val.trim()) return;
+  const match = _invItems.find(i =>
+    val.toLowerCase() === `${i.part_name} | ${i.part_number}`.toLowerCase()
+  );
+  if (match) {
+    _selectedInvId = match.id;
+    document.getElementById('new-name').value   = match.part_name;
+    document.getElementById('new-partno').value = match.part_number;
+    document.getElementById('inv-linked-note').style.display = 'block';
+  }
+}
+
+async function deductFromInventory(record) {
+  const linked = record.parts.filter(p => p.inventory_item_id);
+  if (!linked.length) return;
+  const ids = [...new Set(linked.map(p => p.inventory_item_id))];
+  const { data: invItems } = await db.from('inventory_items')
+    .select('id, qty_on_hand, unit, part_number')
+    .in('id', ids)
+    .eq('worker_name', record.workerName);
+  if (!invItems || !invItems.length) return;
+  for (const part of linked) {
+    const inv = invItems.find(i => i.id === part.inventory_item_id);
+    if (!inv) continue;
+    const newQty = Math.max(0, inv.qty_on_hand - part.qty);
+    const now    = new Date().toISOString();
+    await db.from('inventory_items')
+      .update({ qty_on_hand: newQty, updated_at: now })
+      .eq('id', inv.id);
+    await db.from('inventory_transactions').insert({
+      id:          Date.now().toString() + Math.random().toString(36).slice(2, 6),
+      worker_name: record.workerName,
+      item_id:     inv.id,
+      type:        'use',
+      qty_change:  -part.qty,
+      qty_after:   newQty,
+      note:        `Job: ${record.jobRef}`,
+      job_ref:     record.jobRef,
+      created_at:  now,
+    });
+    inv.qty_on_hand = newQty; // update local ref for multi-part deductions on same item
+  }
+}
 
 // ═══════════════════════════════════════════
 // UTILS
@@ -722,19 +792,23 @@ function addPart() {
   if (!source)          return showError('add-error', 'Please select a source.');
 
   state.parts.push({
-    id:     Date.now(),
+    id:                Date.now(),
     name,
     partNo,
     qty,
     unit,
-    source
+    source,
+    inventory_item_id: _selectedInvId || null
   });
 
   // Clear form
-  document.getElementById('new-name').value   = '';
-  document.getElementById('new-partno').value = '';
-  document.getElementById('new-qty').value    = '';
-  document.getElementById('new-source').value = '';
+  document.getElementById('inv-search').value  = '';
+  _selectedInvId = null;
+  document.getElementById('inv-linked-note').style.display = 'none';
+  document.getElementById('new-name').value    = '';
+  document.getElementById('new-partno').value  = '';
+  document.getElementById('new-qty').value     = '';
+  document.getElementById('new-source').value  = '';
   document.getElementById('new-name').focus();
 
   renderPartsList();
@@ -763,6 +837,7 @@ function renderPartsList() {
           <div class="flex items-center gap-2 flex-wrap">
             <p class="text-white font-semibold text-sm">${escHtml(p.name)}</p>
             <span class="source-badge ${sourceBadgeClass(p.source)}">${sourceBadgeLabel(p.source)}</span>
+            ${p.inventory_item_id ? `<span class="source-badge" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.25);">Auto-deducts</span>` : ''}
           </div>
           ${p.partNo ? `<p class="text-white/40 text-xs mt-0.5">PN: ${escHtml(p.partNo)}</p>` : ''}
           <p class="text-white/60 text-sm mt-1"><span class="font-bold" style="color:#F7A21B;">${p.qty}</span> <span class="text-white/40">${p.unit}</span></p>
@@ -805,17 +880,19 @@ function completeEntry() {
   showScreen('summary-screen');
 
   // Auto-save to Supabase immediately
+  const _snap = pendingRecord;
   db.from('parts_records').insert({
-    id:          pendingRecord.id,
-    worker_name: pendingRecord.workerName,
-    job_ref:     pendingRecord.jobRef,
-    job_type:    pendingRecord.jobType,
-    date:        pendingRecord.date,
-    duration:    pendingRecord.duration,
-    parts:       pendingRecord.parts
-  }).then(({ error }) => {
-    if (error) alert('Could not save record: ' + error.message);
-    else pendingRecord = null;
+    id:          _snap.id,
+    worker_name: _snap.workerName,
+    job_ref:     _snap.jobRef,
+    job_type:    _snap.jobType,
+    date:        _snap.date,
+    duration:    _snap.duration,
+    parts:       _snap.parts
+  }).then(async ({ error }) => {
+    if (error) { alert('Could not save record: ' + error.message); return; }
+    await deductFromInventory(_snap);
+    pendingRecord = null;
   });
 }
 
@@ -911,16 +988,18 @@ function renderSummary(record) {
 
 async function saveAndHistory() {
   if (!pendingRecord) return;
+  const _snap = pendingRecord;
   const { error } = await db.from('parts_records').insert({
-    id:          pendingRecord.id,
-    worker_name: pendingRecord.workerName,
-    job_ref:     pendingRecord.jobRef,
-    job_type:    pendingRecord.jobType,
-    date:        pendingRecord.date,
-    duration:    pendingRecord.duration,
-    parts:       pendingRecord.parts
+    id:          _snap.id,
+    worker_name: _snap.workerName,
+    job_ref:     _snap.jobRef,
+    job_type:    _snap.jobType,
+    date:        _snap.date,
+    duration:    _snap.duration,
+    parts:       _snap.parts
   });
   if (error) { alert('Could not save record: ' + error.message); return; }
+  await deductFromInventory(_snap);
   pendingRecord = null;
   await renderHistory();
   showScreen('history-screen');
@@ -1041,9 +1120,11 @@ document.getElementById('edit-modal').addEventListener('click', function(e) {
 // Enter key on new-name triggers add
 document.addEventListener('DOMContentLoaded', () => {
   initSetup();
+  loadInvItems();
   document.getElementById('new-name').addEventListener('keydown', e => {
     if (e.key === 'Enter') addPart();
   });
+  document.getElementById('inv-search').addEventListener('input', e => onInvSearch(e.target.value));
 });
 </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
