@@ -1096,6 +1096,12 @@ async function loadFeed() {
 function startPresence() {
   if (presenceChannel) db.removeChannel(presenceChannel);
 
+  // If Realtime doesn't connect within 8s, fall back to offline state
+  let connTimeout = setTimeout(() => {
+    setConn('offline');
+    renderPresenceFallback();
+  }, 8000);
+
   presenceChannel = db.channel('hive-presence:' + HIVE_ID, {
     config: { presence: { key: WORKER_NAME } }
   });
@@ -1103,13 +1109,30 @@ function startPresence() {
   presenceChannel
     .on('presence', { event: 'sync' }, renderPresence)
     .subscribe(async (status) => {
+      clearTimeout(connTimeout);
       if (status === 'SUBSCRIBED') {
         setConn('live');
         await presenceChannel.track({ worker_name: WORKER_NAME, at: Date.now() });
       } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-        setConn('reconnecting');
+        setConn('offline');
+        renderPresenceFallback();
       }
     });
+}
+
+function renderPresenceFallback() {
+  const bar = document.getElementById('presence-bar');
+  if (!memberNames.length) {
+    bar.innerHTML = '<span class="presence-chip" style="color:rgba(255,255,255,0.2);font-style:italic;">Members offline</span>';
+    return;
+  }
+  bar.innerHTML = memberNames.map(name => {
+    const isMe = name === WORKER_NAME;
+    return `<div class="presence-chip">
+      <span class="presence-dot offline"></span>
+      ${escHtml(name)}${isMe ? '&nbsp;<span style="color:rgba(255,255,255,0.3);font-size:0.6rem">(you)</span>' : ''}
+    </div>`;
+  }).join('');
 }
 
 function renderPresence() {
