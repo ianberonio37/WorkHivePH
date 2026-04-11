@@ -1058,7 +1058,9 @@ async function initBoard() {
   }
 
   updateSwitchButton();
-  await Promise.all([checkStockAlert(), loadMembers(), loadFeed(), loadAnalytics(), buildNotifications(), loadApprovalQueue()]);
+  // allSettled — never rejects, so startPresence() is always reached even if one data load fails
+  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), loadAnalytics(), buildNotifications(), loadApprovalQueue()]);
+  _boardResults.forEach((r, i) => { if (r.status === 'rejected') console.error('initBoard step', i, 'failed:', r.reason); });
   // Team stock alert needs memberNames populated by loadMembers first
   checkTeamStockAlert();
 
