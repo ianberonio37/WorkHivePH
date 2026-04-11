@@ -779,14 +779,14 @@ function saveAssets(arr) {
 
 async function initAssets() {
   const lsAssets = JSON.parse(localStorage.getItem(ASSETS_KEY) || '[]');
-  const { data: sbAssets, error: sbErr } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME).order('asset_id');
+  const { data: sbAssets, error: sbErr } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME);
   if (sbErr) { console.error('assets load:', sbErr.message); showToast('Could not load assets: ' + sbErr.message); }
   if ((sbAssets || []).length === 0 && lsAssets.length > 0) {
     for (const a of lsAssets) {
       await db.from('assets').upsert({ ...a, worker_name: WORKER_NAME });
     }
     localStorage.removeItem(ASSETS_KEY);
-    const { data: migrated } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME).order('asset_id');
+    const { data: migrated } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME);
     _assets = migrated || [];
   } else {
     _assets = sbAssets || [];
@@ -881,7 +881,7 @@ function clearAssetForm() {
   });
 }
 
-function submitAsset() {
+async function submitAsset() {
   const assetId = document.getElementById('a-asset-id').value.trim();
   if (!assetId) {
     const el = document.getElementById('a-asset-id');
@@ -905,9 +905,17 @@ function submitAsset() {
     criticality: criticality ? criticality.value : '',
     registered_at: new Date().toISOString()
   };
-  assets.push(asset);
-  saveAssets(assets);
+  // Save to Supabase first — only update memory on confirmed success
+  const { error } = await db.from('assets').upsert({ ...asset, worker_name: WORKER_NAME });
+  if (error) {
+    console.error('asset save:', error.message);
+    showToast('Save failed: ' + error.message);
+    return;
+  }
+  _assets = [...assets, asset];
   updateAssetDatalist();
+  refreshAssetCountBadge();
+  renderAssetList();
   showToast(assetId + ' registered.');
   switchAssetTab('manage');
 }
