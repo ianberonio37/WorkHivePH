@@ -494,6 +494,23 @@
         <a href="inventory.html" class="text-[11px] font-semibold mt-2 inline-block" style="color:#f87171;">View your inventory →</a>
       </div>
 
+      <!-- Approval Queue (supervisor only) -->
+      <div id="approval-queue" class="hidden mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Approval Queue</p>
+            <span id="approval-badge" class="hidden text-[10px] font-black px-1.5 py-0.5 rounded-full" style="background:#F7A21B;color:#162032;min-width:18px;text-align:center;"></span>
+          </div>
+          <button id="btn-toggle-approval" style="color:#F7A21B;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;padding:0.5rem 0;">Hide</button>
+        </div>
+        <div id="approval-body">
+          <div id="approval-list" class="flex flex-col gap-2"></div>
+          <div id="approval-empty" class="hidden rounded-xl p-4 text-center" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+            <p class="text-xs text-white/30">All caught up — no pending items.</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Activity feed -->
       <div class="flex items-center justify-between mb-3">
         <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Hive Activity</p>
@@ -571,11 +588,15 @@ let HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getIte
 let HIVE_NAME = (getHiveList().find(h => h.id === HIVE_ID) || {}).name || localStorage.getItem('wh_hive_name') || '';
 let HIVE_ROLE = (getHiveList().find(h => h.id === HIVE_ID) || {}).role || localStorage.getItem('wh_hive_role') || '';
 
-let memberNames       = [];
-let presenceChannel   = null;
-let feedChannel       = null;
-let partsChannel      = null;
-let checklistChannel  = null;
+let memberNames         = [];
+let presenceChannel     = null;
+let feedChannel         = null;
+let partsChannel        = null;
+let checklistChannel    = null;
+let approvalChannel     = null;
+let workerApprovalCh    = null;
+let _pendingAssets      = [];
+let _pendingParts       = [];
 
 // ── UTILS ──
 function escHtml(str) {
@@ -1003,7 +1024,7 @@ async function initBoard() {
   }
 
   updateSwitchButton();
-  await Promise.all([checkStockAlert(), loadMembers(), loadFeed(), loadAnalytics(), buildNotifications()]);
+  await Promise.all([checkStockAlert(), loadMembers(), loadFeed(), loadAnalytics(), buildNotifications(), loadApprovalQueue()]);
   // Team stock alert needs memberNames populated by loadMembers first
   checkTeamStockAlert();
 
@@ -1012,6 +1033,8 @@ async function initBoard() {
 
   startPresence();
   startFeedRealtime();
+  startApprovalRealtime();
+  startWorkerApprovalListener();
 }
 
 // ── MEMBERS ──
@@ -1292,9 +1315,11 @@ function renderNotifs() {
   }
 
   const iconFor = type => {
-    if (type === 'stock-out')  return '<span style="width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0;margin-top:4px;"></span>';
-    if (type === 'stock-low')  return '<span style="width:8px;height:8px;border-radius:50%;background:#F7A21B;flex-shrink:0;margin-top:4px;"></span>';
-    if (type === 'open-wo')    return '<span style="width:8px;height:8px;border-radius:50%;background:#60a5fa;flex-shrink:0;margin-top:4px;"></span>';
+    if (type === 'stock-out')   return '<span style="width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0;margin-top:4px;"></span>';
+    if (type === 'stock-low')   return '<span style="width:8px;height:8px;border-radius:50%;background:#F7A21B;flex-shrink:0;margin-top:4px;"></span>';
+    if (type === 'open-wo')     return '<span style="width:8px;height:8px;border-radius:50%;background:#60a5fa;flex-shrink:0;margin-top:4px;"></span>';
+    if (type === 'approval-in') return '<span style="width:8px;height:8px;border-radius:50%;background:#F7A21B;flex-shrink:0;margin-top:4px;"></span>';
+    if (type === 'approval')    return '<span style="width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0;margin-top:4px;"></span>';
     return '<span style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.3);flex-shrink:0;margin-top:4px;"></span>';
   };
 
@@ -1480,6 +1505,146 @@ async function checkTeamStockAlert() {
   document.getElementById('team-stock-alert').classList.remove('hidden');
 }
 
+// ── APPROVAL QUEUE (supervisor only) ──
+async function loadApprovalQueue() {
+  if (HIVE_ROLE !== 'supervisor') return;
+  const [assetsRes, partsRes] = await Promise.all([
+    db.from('assets').select('*').eq('hive_id', HIVE_ID).eq('status', 'pending'),
+    db.from('inventory_items').select('*').eq('hive_id', HIVE_ID).eq('status', 'pending')
+  ]);
+  _pendingAssets = assetsRes.data || [];
+  _pendingParts  = partsRes.data  || [];
+  renderApprovalQueue();
+}
+
+function renderApprovalQueue() {
+  if (HIVE_ROLE !== 'supervisor') return;
+  const total  = _pendingAssets.length + _pendingParts.length;
+  const badge  = document.getElementById('approval-badge');
+  const queueEl = document.getElementById('approval-queue');
+
+  badge.textContent = total;
+  badge.classList.toggle('hidden', total === 0);
+  queueEl.classList.toggle('hidden', total === 0);
+
+  const list    = document.getElementById('approval-list');
+  const emptyEl = document.getElementById('approval-empty');
+
+  if (!total) {
+    list.innerHTML = '';
+    emptyEl.classList.remove('hidden');
+    return;
+  }
+  emptyEl.classList.add('hidden');
+
+  const assetCards = _pendingAssets.map(a => `
+    <div class="rounded-xl p-3" id="appr-asset-${escHtml(a.id)}" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.18);">
+      <div class="flex items-start gap-2 mb-2">
+        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 mt-0.5" style="background:rgba(41,182,217,0.12);color:#29B6D9;border:1px solid rgba(41,182,217,0.2);">ASSET</span>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-bold text-white">${escHtml(a.asset_id)}${a.name ? ' — ' + escHtml(a.name) : ''}</p>
+          <p class="text-[11px] text-white/40">by ${escHtml(a.submitted_by || a.worker_name)} · ${a.criticality ? escHtml(a.criticality) : 'No criticality set'}${a.location ? ' · ' + escHtml(a.location) : ''}</p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="approveItem('assets','${escHtml(a.id)}','${escHtml(a.submitted_by || a.worker_name)}','${escHtml(a.asset_id)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.25);min-height:36px;cursor:pointer;">Approve</button>
+        <button onclick="rejectItem('assets','${escHtml(a.id)}','${escHtml(a.submitted_by || a.worker_name)}','${escHtml(a.asset_id)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);min-height:36px;cursor:pointer;">Reject</button>
+      </div>
+    </div>`).join('');
+
+  const partCards = _pendingParts.map(p => `
+    <div class="rounded-xl p-3" id="appr-part-${escHtml(p.id)}" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.18);">
+      <div class="flex items-start gap-2 mb-2">
+        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 mt-0.5" style="background:rgba(139,92,246,0.12);color:#a78bfa;border:1px solid rgba(139,92,246,0.2);">PART</span>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-bold text-white">${escHtml(p.part_number)} — ${escHtml(p.part_name)}</p>
+          <p class="text-[11px] text-white/40">by ${escHtml(p.submitted_by || p.worker_name)} · Qty: ${p.qty_on_hand}${p.category ? ' · ' + escHtml(p.category) : ''}</p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="approveItem('inventory_items','${escHtml(p.id)}','${escHtml(p.submitted_by || p.worker_name)}','${escHtml(p.part_name)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.25);min-height:36px;cursor:pointer;">Approve</button>
+        <button onclick="rejectItem('inventory_items','${escHtml(p.id)}','${escHtml(p.submitted_by || p.worker_name)}','${escHtml(p.part_name)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);min-height:36px;cursor:pointer;">Reject</button>
+      </div>
+    </div>`).join('');
+
+  list.innerHTML = assetCards + partCards;
+}
+
+async function approveItem(table, id, submittedBy, label) {
+  const { error } = await db.from(table).update({
+    status:      'approved',
+    approved_by: WORKER_NAME,
+    approved_at: new Date().toISOString()
+  }).eq('id', id);
+  if (error) { showToast('Approve failed: ' + error.message); return; }
+
+  if (table === 'assets')           _pendingAssets = _pendingAssets.filter(a => a.id !== id);
+  else if (table === 'inventory_items') _pendingParts = _pendingParts.filter(p => p.id !== id);
+  renderApprovalQueue();
+  showToast(escHtml(label) + ' approved and published to hive.');
+  pushNotif('approval', 'Item Approved', `${label} submitted by ${submittedBy} was approved.`, null);
+}
+
+async function rejectItem(table, id, submittedBy, label) {
+  const { error } = await db.from(table).update({ status: 'rejected' }).eq('id', id);
+  if (error) { showToast('Reject failed: ' + error.message); return; }
+
+  if (table === 'assets')               _pendingAssets = _pendingAssets.filter(a => a.id !== id);
+  else if (table === 'inventory_items') _pendingParts  = _pendingParts.filter(p => p.id !== id);
+  renderApprovalQueue();
+  showToast(escHtml(label) + ' rejected.');
+}
+
+function startApprovalRealtime() {
+  if (HIVE_ROLE !== 'supervisor') return;
+  if (approvalChannel) db.removeChannel(approvalChannel);
+  approvalChannel = db.channel('hive-approval:' + HIVE_ID)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'assets', filter: 'hive_id=eq.' + HIVE_ID },
+      (payload) => {
+        if (payload.new.status === 'pending') {
+          _pendingAssets.push(payload.new);
+          renderApprovalQueue();
+          pushNotif('approval-in', 'Asset Pending Approval',
+            `${payload.new.submitted_by || payload.new.worker_name} submitted ${payload.new.asset_id}.`, null);
+        }
+      })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'inventory_items', filter: 'hive_id=eq.' + HIVE_ID },
+      (payload) => {
+        if (payload.new.status === 'pending') {
+          _pendingParts.push(payload.new);
+          renderApprovalQueue();
+          pushNotif('approval-in', 'Part Pending Approval',
+            `${payload.new.submitted_by || payload.new.worker_name} submitted ${payload.new.part_name}.`, null);
+        }
+      })
+    .subscribe();
+}
+
+function startWorkerApprovalListener() {
+  if (HIVE_ROLE === 'supervisor') return; // supervisor handles approvals, no need to listen
+  if (workerApprovalCh) db.removeChannel(workerApprovalCh);
+  workerApprovalCh = db.channel('worker-appr:' + WORKER_NAME)
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'assets', filter: 'worker_name=eq.' + WORKER_NAME },
+      (payload) => {
+        if (payload.new.status === 'approved') showToast('Your asset ' + payload.new.asset_id + ' was approved!');
+        if (payload.new.status === 'rejected') showToast('Your asset ' + payload.new.asset_id + ' was rejected by supervisor.');
+      })
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'inventory_items', filter: 'worker_name=eq.' + WORKER_NAME },
+      (payload) => {
+        if (payload.new.status === 'approved') showToast('Your part ' + payload.new.part_name + ' was approved!');
+        if (payload.new.status === 'rejected') showToast('Your part ' + payload.new.part_name + ' was rejected by supervisor.');
+      })
+    .subscribe();
+}
+
+document.getElementById('btn-toggle-approval').addEventListener('click', () => {
+  const body = document.getElementById('approval-body');
+  const btn  = document.getElementById('btn-toggle-approval');
+  const isHidden = body.style.display === 'none';
+  body.style.display = isHidden ? '' : 'none';
+  btn.textContent = isHidden ? 'Hide' : 'Show';
+});
+
 // ── HIVE_ID BACKFILL (one-time, silent) ──
 async function runHiveIdBackfill() {
   if (!memberNames.length || !HIVE_ID) return;
@@ -1542,10 +1707,13 @@ async function switchToHive(id) {
   localStorage.setItem('wh_hive_role',        h.role);
   HIVE_ID = h.id; HIVE_NAME = h.name; HIVE_ROLE = h.role;
   memberNames = [];
+  _pendingAssets = []; _pendingParts = [];
   if (presenceChannel)  db.removeChannel(presenceChannel);
   if (feedChannel)      db.removeChannel(feedChannel);
   if (partsChannel)     db.removeChannel(partsChannel);
   if (checklistChannel) db.removeChannel(checklistChannel);
+  if (approvalChannel)  db.removeChannel(approvalChannel);
+  if (workerApprovalCh) db.removeChannel(workerApprovalCh);
   initBoard();
 }
 
@@ -1563,6 +1731,8 @@ window.addEventListener('beforeunload', () => {
   if (feedChannel)       db.removeChannel(feedChannel);
   if (partsChannel)      db.removeChannel(partsChannel);
   if (checklistChannel)  db.removeChannel(checklistChannel);
+  if (approvalChannel)   db.removeChannel(approvalChannel);
+  if (workerApprovalCh)  db.removeChannel(workerApprovalCh);
 });
 </script>
 </body>

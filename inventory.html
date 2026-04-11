@@ -468,6 +468,7 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // ────────────────────────────────────────────
 const WORKER_NAME = localStorage.getItem('wh_last_worker') || '';
 if (!WORKER_NAME) window.location.href = 'index.html?signin=1';
+const HIVE_ID = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
 
 // localStorage keys — migration source only, removed after first run
 const INV_KEY    = 'wh_inventory_'  + WORKER_NAME;
@@ -856,6 +857,9 @@ function submitPart() {
     notes:             document.getElementById('f-notes').value.trim(),
     photo:             currentPhotoData,
     updated_at:        now,
+    status:            editingItemId ? undefined : (HIVE_ID ? 'pending' : 'approved'),
+    hive_id:           editingItemId ? undefined : (HIVE_ID || null),
+    submitted_by:      editingItemId ? undefined : WORKER_NAME,
   };
 
   if (editingItemId) {
@@ -872,7 +876,7 @@ function submitPart() {
     items.push(item);
     saveInventory(items);
     if (qty > 0) addTransaction(item.id, 'add', qty, qty, 'Initial stock entry');
-    showToast(`${partNumber} added to inventory.`);
+    showToast(HIVE_ID ? `${partNumber} submitted for supervisor approval.` : `${partNumber} added to inventory.`);
   }
 
   closePartModal();
@@ -1133,16 +1137,47 @@ async function initData() {
   const lsTxns   = JSON.parse(localStorage.getItem(TXN_KEY)    || '[]');
   const lsAssets = JSON.parse(localStorage.getItem(ASSETS_KEY) || '[]');
 
-  const [itemsRes, txnsRes, assetsRes] = await Promise.all([
-    db.from('inventory_items').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
+  // Load inventory: approved hive items + all my own (includes my pending) when in a hive
+  let itemsFetches, assetsFetches;
+  if (HIVE_ID) {
+    itemsFetches = Promise.all([
+      db.from('inventory_items').select('*').eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at'),
+      db.from('inventory_items').select('*').eq('worker_name', WORKER_NAME).order('created_at')
+    ]);
+    assetsFetches = Promise.all([
+      db.from('assets').select('*').eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at'),
+      db.from('assets').select('*').eq('worker_name', WORKER_NAME).order('created_at')
+    ]);
+  } else {
+    itemsFetches  = Promise.resolve([{ data: null }, { data: null }]);
+    assetsFetches = Promise.resolve([{ data: null }, { data: null }]);
+  }
+
+  const [itemsRes, txnsRes, assetsRes, [hiveItemsRes, myItemsRes], [hiveAssetsRes, myAssetsRes]] = await Promise.all([
+    HIVE_ID ? Promise.resolve({ data: null }) : db.from('inventory_items').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
     db.from('inventory_transactions').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
-    db.from('assets').select('*').eq('worker_name', WORKER_NAME).order('created_at')
+    HIVE_ID ? Promise.resolve({ data: null }) : db.from('assets').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
+    itemsFetches,
+    assetsFetches
   ]);
 
+  // Merge hive + my own, deduplicating by id
+  function mergeById(hiveData, myData) {
+    const seen = new Set();
+    const out = [];
+    for (const item of [...(myData || []), ...(hiveData || [])]) {
+      if (!seen.has(item.id)) { seen.add(item.id); out.push(item); }
+    }
+    return out;
+  }
+
+  const mergedItems  = HIVE_ID ? mergeById(hiveItemsRes.data,  myItemsRes.data)  : (itemsRes.data  || []);
+  const mergedAssets = HIVE_ID ? mergeById(hiveAssetsRes.data, myAssetsRes.data) : (assetsRes.data || []);
+
   // Migrate inventory items + transactions from localStorage if Supabase is empty
-  if ((itemsRes.data || []).length === 0 && lsItems.length > 0) {
+  if (mergedItems.length === 0 && lsItems.length > 0) {
     for (const item of lsItems) {
-      await db.from('inventory_items').upsert({ ...item, worker_name: WORKER_NAME });
+      await db.from('inventory_items').upsert({ ...item, worker_name: WORKER_NAME, status: 'approved' });
     }
     for (const txn of lsTxns) {
       await db.from('inventory_transactions').insert(txn).catch(() => {});
@@ -1156,20 +1191,20 @@ async function initData() {
     _items = ir.data || [];
     _txns  = tr.data || [];
   } else {
-    _items = itemsRes.data || [];
+    _items = mergedItems;
     _txns  = txnsRes.data || [];
   }
 
   // Migrate assets from localStorage if Supabase is empty
-  if ((assetsRes.data || []).length === 0 && lsAssets.length > 0) {
+  if (mergedAssets.length === 0 && lsAssets.length > 0) {
     for (const a of lsAssets) {
-      await db.from('assets').upsert({ ...a, worker_name: WORKER_NAME });
+      await db.from('assets').upsert({ ...a, worker_name: WORKER_NAME, status: 'approved' });
     }
     localStorage.removeItem(ASSETS_KEY);
     const { data: migA } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME).order('created_at');
     _assets = migA || [];
   } else {
-    _assets = assetsRes.data || [];
+    _assets = mergedAssets;
   }
 
   renderParts();

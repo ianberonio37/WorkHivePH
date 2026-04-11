@@ -705,7 +705,7 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // WORKER NAME (guest identity)
 // ────────────────────────────────────────────
 let WORKER_NAME = localStorage.getItem('wh_last_worker') || '';
-const HIVE_ID   = localStorage.getItem('wh_hive_id')   || null;
+const HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
 
 if (!WORKER_NAME) {
   window.location.href = 'index.html?signin=1';
@@ -779,17 +779,35 @@ function saveAssets(arr) {
 
 async function initAssets() {
   const lsAssets = JSON.parse(localStorage.getItem(ASSETS_KEY) || '[]');
-  const { data: sbAssets, error: sbErr } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME);
-  if (sbErr) { console.error('assets load:', sbErr.message); showToast('Could not load assets: ' + sbErr.message); }
-  if ((sbAssets || []).length === 0 && lsAssets.length > 0) {
+
+  let sbAssets = [];
+  if (HIVE_ID) {
+    // Load approved hive assets (from all members) + all my own assets (includes pending)
+    const [hiveRes, myRes] = await Promise.all([
+      db.from('assets').select('*').eq('hive_id', HIVE_ID).eq('status', 'approved'),
+      db.from('assets').select('*').eq('worker_name', WORKER_NAME)
+    ]);
+    if (hiveRes.error) { console.error('assets load:', hiveRes.error.message); showToast('Could not load assets: ' + hiveRes.error.message); }
+    // Merge, deduplicate by id (my own assets take precedence so pending status is preserved)
+    const seen = new Set();
+    for (const a of [...(myRes.data || []), ...(hiveRes.data || [])]) {
+      if (!seen.has(a.id)) { seen.add(a.id); sbAssets.push(a); }
+    }
+  } else {
+    const { data, error } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME);
+    if (error) { console.error('assets load:', error.message); showToast('Could not load assets: ' + error.message); }
+    sbAssets = data || [];
+  }
+
+  if (sbAssets.length === 0 && lsAssets.length > 0) {
     for (const a of lsAssets) {
-      await db.from('assets').upsert({ ...a, worker_name: WORKER_NAME });
+      await db.from('assets').upsert({ ...a, worker_name: WORKER_NAME, status: 'approved' });
     }
     localStorage.removeItem(ASSETS_KEY);
     const { data: migrated } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME);
     _assets = migrated || [];
   } else {
-    _assets = sbAssets || [];
+    _assets = sbAssets;
   }
   updateAssetDatalist();
   refreshAssetCountBadge();
@@ -903,7 +921,10 @@ async function submitAsset() {
     type: document.getElementById('a-type').value,
     location: document.getElementById('a-location').value.trim(),
     criticality: criticality ? criticality.value : '',
-    registered_at: new Date().toISOString()
+    registered_at: new Date().toISOString(),
+    status: HIVE_ID ? 'pending' : 'approved',
+    hive_id: HIVE_ID || null,
+    submitted_by: WORKER_NAME
   };
   // Save to Supabase first — only update memory on confirmed success
   const { error } = await db.from('assets').upsert({ ...asset, worker_name: WORKER_NAME });
@@ -916,7 +937,7 @@ async function submitAsset() {
   updateAssetDatalist();
   refreshAssetCountBadge();
   renderAssetList();
-  showToast(assetId + ' registered.');
+  showToast(HIVE_ID ? assetId + ' submitted for supervisor approval.' : assetId + ' registered.');
   switchAssetTab('manage');
 }
 
@@ -956,11 +977,12 @@ function renderAssetList() {
     return;
   }
   container.innerHTML = assets.map(a => `
-    <div class="rounded-xl p-4 mb-3 entry-card" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+    <div class="rounded-xl p-4 mb-3 entry-card" style="background: rgba(255,255,255,0.04); border: 1px solid ${a.status === 'pending' ? 'rgba(247,162,27,0.3)' : 'rgba(255,255,255,0.08)'};">
       <div class="flex items-start justify-between gap-2">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap mb-1">
             <span class="font-bold text-sm text-white">${escHtml(a.asset_id)}</span>
+            ${a.status === 'pending' ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">Pending Approval</span>' : ''}
             ${criticalityBadge(a.criticality)}
             ${a.type ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.1);color:rgba(41,182,217,0.7);border:1px solid rgba(41,182,217,0.15)">${escHtml(a.type)}</span>` : ''}
           </div>
@@ -1167,7 +1189,8 @@ document.getElementById('detail-tab-faults').addEventListener('click',      () =
 function updateAssetDatalist() {
   const datalist = document.getElementById('machine-suggestions');
   if (!datalist) return;
-  const assets = loadAssets();
+  // Only show approved assets in the autocomplete (pending ones are not yet validated)
+  const assets = loadAssets().filter(a => !a.status || a.status === 'approved');
   datalist.innerHTML = assets.map(a => {
     const label = a.name ? `${a.asset_id} — ${a.name}` : a.asset_id;
     return `<option value="${escHtml(a.asset_id)}" label="${escHtml(label)}">`;
