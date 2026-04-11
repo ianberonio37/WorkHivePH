@@ -529,6 +529,9 @@
   </div>
 </main>
 
+<!-- Toast notification -->
+<div id="hive-toast" class="hidden fixed bottom-6 left-1/2 z-50 px-4 py-3 rounded-xl text-sm font-semibold text-white shadow-xl" style="transform:translateX(-50%); background:rgba(30,44,65,0.97); border:1px solid rgba(255,255,255,0.12); max-width:calc(100vw - 2rem); text-align:center; pointer-events:none;"></div>
+
 <!-- Hive switcher modal -->
 <div id="modal-hive-switch" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
   <div class="wh-card w-full max-w-lg p-6 mx-4 mb-6">
@@ -602,6 +605,16 @@ let _pendingParts       = [];
 function escHtml(str) {
   return String(str || '')
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+let _toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('hive-toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.add('hidden'), 3000);
 }
 
 function genCode() {
@@ -757,10 +770,18 @@ if (HIVE_ID) {
 } else {
   // No local hive — check if user already has membership in Supabase (e.g. after sign-out, device switch)
   (async function recoverHiveMembership() {
-    const { data: memberships } = await db
+    const { data: memberships, error: recErr } = await db
       .from('hive_members')
       .select('hive_id, role')
       .eq('worker_name', WORKER_NAME);
+
+    if (recErr) {
+      // Query failed (network/server issue) — show onboard with a helpful hint
+      showView('onboard');
+      const sub = document.querySelector('#view-onboard p');
+      if (sub) sub.textContent = 'Could not reach your hive. Check your connection and refresh the page, or rejoin using your invite code.';
+      return;
+    }
 
     if (!memberships || !memberships.length) {
       showView('onboard');
@@ -788,6 +809,7 @@ if (HIVE_ID) {
     const first = restored[0];
     localStorage.setItem('wh_active_hive_id', first.id);
     localStorage.setItem('wh_hive_id',         first.id);
+    if (first.code) localStorage.setItem('wh_hive_code', first.code);
 
     HIVE_ID   = first.id;
     HIVE_NAME = first.name;
@@ -833,9 +855,10 @@ async function submitCreate() {
     return;
   }
 
-  await db.from('hive_members').insert({
+  const { error: mErr } = await db.from('hive_members').upsert({
     hive_id: hive.id, worker_name: WORKER_NAME, role: 'supervisor'
-  });
+  }, { onConflict: 'hive_id,worker_name' });
+  if (mErr) console.error('hive_members upsert:', mErr.message);
 
   localStorage.setItem('wh_hive_id',       hive.id);
   localStorage.setItem('wh_hive_name',     hive.name);
