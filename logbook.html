@@ -1403,7 +1403,7 @@ function selectAsset(assetId, assetName, assetRefId) {
 document.getElementById('asset-picker-btn').addEventListener('click', openAssetPicker);
 document.getElementById('asset-picker-modal-close').addEventListener('click', closeAssetPicker);
 document.getElementById('asset-picker-modal').addEventListener('click', function(e) { if (e.target === this) closeAssetPicker(); });
-document.getElementById('asset-picker-search').addEventListener('input', function() { renderAssetPickerList(this.value.trim()); });
+document.getElementById('asset-picker-search').addEventListener('input', debounce(function() { renderAssetPickerList(this.value.trim()); }, 200));
 document.getElementById('asset-picker-register-btn').addEventListener('click', function() {
   closeAssetPicker();
   openAssetModal('register');
@@ -1444,6 +1444,13 @@ function statusBadge(status) {
     return `<span class="badge-category" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.25);">Closed</span>`;
   }
   return `<span class="badge-category" style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.25);">Open</span>`;
+}
+
+// ────────────────────────────────────────────
+// UTILS
+// ────────────────────────────────────────────
+function debounce(fn, ms) {
+  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
 }
 
 // ────────────────────────────────────────────
@@ -1958,7 +1965,7 @@ function stopVoiceUI() {
 // ────────────────────────────────────────────
 // SEARCH + FILTER
 // ────────────────────────────────────────────
-document.getElementById('search-input').addEventListener('input', renderEntries);
+document.getElementById('search-input').addEventListener('input', debounce(renderEntries, 300));
 document.getElementById('filter-category').addEventListener('change', renderEntries);
 document.getElementById('filter-status').addEventListener('change', renderEntries);
 
@@ -2146,7 +2153,7 @@ function renderSelectedParts() {
 document.getElementById('btn-add-part').addEventListener('click', openPartsPicker);
 document.getElementById('parts-picker-modal-close').addEventListener('click', closePartsPicker);
 document.getElementById('parts-picker-modal').addEventListener('click', function(e) { if (e.target === this) closePartsPicker(); });
-document.getElementById('parts-picker-search').addEventListener('input', function() { renderPartsPickerList(this.value.trim()); });
+document.getElementById('parts-picker-search').addEventListener('input', debounce(function() { renderPartsPickerList(this.value.trim()); }, 200));
 document.getElementById('parts-picker-register-btn').addEventListener('click', function() {
   closePartsPicker();
   window.open('inventory.html', '_blank');
@@ -2242,7 +2249,9 @@ function restoreDraft() {
 }
 
 // Auto-save draft on any input/change in the log form
-document.getElementById('log-form').addEventListener('input', saveDraft);
+// Typing fields (input) are debounced to avoid a localStorage write on every keystroke.
+// Select/radio/checkbox (change) save immediately since they fire at most once per interaction.
+document.getElementById('log-form').addEventListener('input', debounce(saveDraft, 1500));
 document.getElementById('log-form').addEventListener('change', saveDraft);
 
 // ────────────────────────────────────────────

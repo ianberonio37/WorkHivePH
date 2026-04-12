@@ -511,6 +511,10 @@ function saveTransactions(arr) {
 // ────────────────────────────────────────────
 // HELPERS
 // ────────────────────────────────────────────
+function debounce(fn, ms) {
+  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+}
+
 function escHtml(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
@@ -1126,7 +1130,7 @@ document.getElementById('restock-modal').addEventListener('click', e => { if (e.
 document.getElementById('detail-modal-close').addEventListener('click', closeDetailModal);
 document.getElementById('detail-modal').addEventListener('click', e => { if (e.target === document.getElementById('detail-modal')) closeDetailModal(); });
 
-document.getElementById('search-input').addEventListener('input',    renderParts);
+document.getElementById('search-input').addEventListener('input',    debounce(renderParts, 300));
 document.getElementById('filter-category').addEventListener('change', renderParts);
 document.getElementById('filter-status').addEventListener('change',   renderParts);
 
