@@ -894,6 +894,7 @@ async function loadEntries() {
     problem: r.problem, action: r.action, knowledge: r.knowledge,
     downtime_hours: r.downtime_hours, photo: r.photo, status: r.status,
     asset_ref_id: r.asset_ref_id || null,
+    parts_used: r.parts_used || [],
     worker_name: r.worker_name   // needed for team view attribution
   }));
 }
@@ -905,7 +906,8 @@ async function addEntry(entry) {
     category: entry.category, problem: entry.problem, root_cause: entry.root_cause,
     action: entry.action, knowledge: entry.knowledge, downtime_hours: entry.downtime_hours,
     photo: entry.photo, status: entry.status, hive_id: HIVE_ID,
-    asset_ref_id: entry.asset_ref_id || null
+    asset_ref_id: entry.asset_ref_id || null,
+    parts_used: entry.parts_used || []
   });
   if (error) { alert('Could not save entry: ' + error.message); return; }
   document.getElementById('sync-badge').classList.remove('hidden');
@@ -1639,6 +1641,21 @@ async function openModal(id) {
       <img src="${entry.photo}" class="w-full rounded-xl border border-white/10 object-cover max-h-64" />
     </div>` : ''}
 
+    ${entry.parts_used && entry.parts_used.length ? `
+    <div class="mb-5">
+      <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-2">Parts Used</p>
+      <div class="space-y-1.5">
+        ${entry.parts_used.map(p => `
+          <div class="flex items-center justify-between rounded-lg px-3 py-2" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
+            <div>
+              <span class="text-xs font-semibold text-white/80">${escHtml(p.partName || '')}</span>
+              ${p.partNumber ? `<span class="text-[10px] text-white/35 ml-1">#${escHtml(p.partNumber)}</span>` : ''}
+            </div>
+            <span class="text-xs font-bold text-white/60">${p.qty} ${escHtml(p.unit || 'pcs')}</span>
+          </div>`).join('')}
+      </div>
+    </div>` : ''}
+
     <div class="flex gap-2 pt-2 border-t border-white/[0.07] mt-2">
       <button onclick="openEditModal('${entry.id}')" class="btn-primary flex-1 text-sm">Edit Entry</button>
       <button onclick="confirmDelete('${entry.id}'); document.getElementById('modal').classList.add('hidden');" class="btn-danger px-4 text-sm py-2">Delete</button>
@@ -1651,11 +1668,34 @@ async function openModal(id) {
 // ────────────────────────────────────────────
 // MODAL — EDIT
 // ────────────────────────────────────────────
+let _editPartsUsed = []; // tracks parts added during edit session
+
+function renderEditParts() {
+  const el = document.getElementById('e-parts-display');
+  if (!el) return;
+  if (!_editPartsUsed.length) { el.innerHTML = '<p class="text-xs text-white/30 py-1">No parts added yet.</p>'; return; }
+  el.innerHTML = _editPartsUsed.map((p, i) => `
+    <div class="flex items-center gap-2 rounded-lg px-3 py-2" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
+      <div class="flex-1 min-w-0">
+        <span class="text-xs font-semibold text-white/80">${escHtml(p.partName)}</span>
+        ${p.partNumber ? `<span class="text-[10px] text-white/35 ml-1">#${escHtml(p.partNumber)}</span>` : ''}
+      </div>
+      <input type="number" min="0.1" step="0.1" value="${p.qty}" class="wh-input text-xs w-16 text-center px-1 py-1"
+        onchange="_editPartsUsed[${i}].qty = parseFloat(this.value) || 1" />
+      <span class="text-[10px] text-white/40">${escHtml(p.unit || 'pcs')}</span>
+      <button onclick="_editPartsUsed.splice(${i},1); renderEditParts();"
+        class="w-7 h-7 rounded flex items-center justify-center flex-shrink-0" style="background:rgba(239,68,68,0.1);color:#f87171;">
+        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>`).join('');
+}
+
 async function openEditModal(id) {
   const entries = await loadEntries();
   const entry = entries.find(e => e.id === id);
   if (!entry) return;
   const status = entry.status || 'Open';
+  _editPartsUsed = (entry.parts_used || []).map(p => ({ ...p, _existing: true }));
 
   const mc = document.getElementById('modal-content');
   mc.innerHTML = `
@@ -1718,6 +1758,14 @@ async function openEditModal(id) {
           <label for="est-closed">Closed</label>
         </div>
       </div>
+      <div id="e-parts-section" class="${status === 'Closed' ? '' : 'hidden'} space-y-2">
+        <label class="wh-label">Parts Used <span class="text-white/30 font-normal normal-case">(from your inventory)</span></label>
+        <div id="e-parts-display" class="space-y-1.5"></div>
+        <button type="button" onclick="openPartsPickerForEdit()" class="btn-secondary w-full text-xs py-2.5 flex items-center justify-center gap-1.5" style="min-height:44px;">
+          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          Add Part Used
+        </button>
+      </div>
       <div class="flex gap-2 pt-2">
         <button onclick="saveEdit('${entry.id}')" class="btn-primary flex-1">Save Changes</button>
         <button onclick="openModal('${entry.id}')" class="btn-secondary px-4">Cancel</button>
@@ -1725,6 +1773,16 @@ async function openEditModal(id) {
     </div>
   `;
   updateStatusToggle('e-status');
+  renderEditParts();
+  // Show/hide parts section when status changes
+  document.querySelectorAll('input[name="e-status"]').forEach(r => {
+    r.addEventListener('change', () => {
+      const closed = r.value === 'Closed' && r.checked;
+      document.getElementById('e-parts-section').classList.toggle('hidden', !closed);
+      if (closed && _inventoryItems.length === 0) loadInventoryForPicker();
+    });
+  });
+  if (status === 'Closed' && _inventoryItems.length === 0) loadInventoryForPicker();
 }
 
 async function saveEdit(id) {
@@ -1743,9 +1801,19 @@ async function saveEdit(id) {
     status:          document.querySelector('input[name="e-status"]:checked').value,
     asset_ref_id:    assetMatch ? assetMatch.id : null,
     hive_id:         HIVE_ID,
+    parts_used:      _editPartsUsed.map(p => ({ partId: p.partId, partName: p.partName, partNumber: p.partNumber, qty: p.qty, unit: p.unit })),
   };
   const { error } = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME);
   if (error) { alert('Could not update entry: ' + error.message); return; }
+  // Deduct any newly added parts from inventory
+  for (const p of _editPartsUsed) {
+    if (!p.partId || p._existing) continue;
+    const item = _inventoryItems.find(i => i.id === p.partId);
+    const newQty = Math.max(0, (item?.qty_on_hand || 0) - p.qty);
+    db.from('inventory_items').update({ qty_on_hand: newQty }).eq('id', p.partId)
+      .then(({ error: e }) => { if (e) console.error('edit parts deduct:', e.message); });
+    if (item) item.qty_on_hand = newQty;
+  }
   await renderEntries();
   showToast('Entry updated.');
   openModal(id);
@@ -1808,7 +1876,8 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     date: new Date().toISOString(),
     machine, maintenance_type: maintType, category, problem,
     root_cause: rootCause, action, knowledge, downtime_hours: downtimeHours,
-    photo, status, asset_ref_id: _pendingAssetRefId
+    photo, status, asset_ref_id: _pendingAssetRefId,
+    parts_used: _partsUsed.map(p => ({ partId: p.partId, partName: p.partName, partNumber: p.partNumber, qty: p.qty, unit: p.unit }))
   };
 
   await addEntry(entry);
@@ -2083,7 +2152,19 @@ async function loadInventoryForPicker() {
   }
 }
 
+let _partsPickerMode = 'new'; // 'new' | 'edit'
+
 function openPartsPicker() {
+  _partsPickerMode = 'new';
+  const modal = document.getElementById('parts-picker-modal');
+  modal.style.display = 'flex';
+  document.getElementById('parts-picker-search').value = '';
+  renderPartsPickerList('');
+  setTimeout(() => document.getElementById('parts-picker-search').focus(), 80);
+}
+
+function openPartsPickerForEdit() {
+  _partsPickerMode = 'edit';
   const modal = document.getElementById('parts-picker-modal');
   modal.style.display = 'flex';
   document.getElementById('parts-picker-search').value = '';
@@ -2140,9 +2221,15 @@ function renderPartsPickerList(query) {
 }
 
 function selectPart(partId, partName, partNumber, unit) {
-  if (_partsUsed.some(p => p.partId === partId)) return;
-  _partsUsed.push({ partId, partName, partNumber, qty: 1, unit: unit || 'pcs' });
-  renderSelectedParts();
+  if (_partsPickerMode === 'edit') {
+    if (_editPartsUsed.some(p => p.partId === partId)) return;
+    _editPartsUsed.push({ partId, partName, partNumber, qty: 1, unit: unit || 'pcs' });
+    renderEditParts();
+  } else {
+    if (_partsUsed.some(p => p.partId === partId)) return;
+    _partsUsed.push({ partId, partName, partNumber, qty: 1, unit: unit || 'pcs' });
+    renderSelectedParts();
+  }
   renderPartsPickerList(document.getElementById('parts-picker-search').value.trim());
 }
 

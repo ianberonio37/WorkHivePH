@@ -626,7 +626,7 @@ async function deductFromInventory(record) {
     const { error: deductErr } = await db.from('inventory_items')
       .update({ qty_on_hand: newQty, updated_at: now })
       .eq('id', inv.id);
-    if (deductErr) { console.error('inventory deduct:', deductErr.message); showToast('Inventory deduction failed: ' + deductErr.message); continue; }
+    if (deductErr) { console.error('inventory deduct:', deductErr.message); alert('Inventory deduction failed: ' + deductErr.message); continue; }
     const { error: txnErr } = await db.from('inventory_transactions').insert({
       id:          Date.now().toString() + Math.random().toString(36).slice(2, 6),
       worker_name: record.workerName,
