@@ -761,6 +761,9 @@ function buildChecklistCard(record, isNew) {
   </div>`;
 }
 
+// ── NOTIFICATION CENTER state (declared here to avoid TDZ before initBoard call) ──
+let _notifs = [];
+
 // ── INIT ──
 document.getElementById('nav-worker').textContent = WORKER_NAME;
 
@@ -1330,7 +1333,6 @@ async function checkStockAlert() {
 
 // ── NOTIFICATION CENTER ──
 const NOTIF_KEY = 'wh_notifs_read_' + (localStorage.getItem('wh_hive_id') || '');
-let _notifs = [];
 
 function pushNotif(type, title, body, link) {
   _notifs.push({ type, title, body, link, ts: Date.now() });
