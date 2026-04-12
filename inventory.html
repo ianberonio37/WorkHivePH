@@ -489,7 +489,7 @@ function loadTransactions() { return _txns; }
 function loadAssets()       { return _assets; }
 
 function saveInventory(arr) {
-  const prev = _items;
+  const prev = _items.map(i => ({ ...i })); // deep-copy snapshot before overwrite
   _items = arr;
   arr.forEach(item => {
     const old = prev.find(o => o.id === item.id);
@@ -915,7 +915,7 @@ function submitUse() {
 
   if (qty <= 0) { errEl.textContent = 'Quantity must be greater than 0.'; errEl.classList.remove('hidden'); return; }
 
-  const items = loadInventory();
+  const items = loadInventory().map(i => ({ ...i })); // copy to avoid mutating _items in place
   const idx   = items.findIndex(i => i.id === activeItemId);
   if (idx === -1) return;
 
@@ -961,7 +961,7 @@ function submitRestock() {
   const qty = parseFloat(document.getElementById('restock-qty').value) || 0;
   if (qty <= 0) return;
 
-  const items = loadInventory();
+  const items = loadInventory().map(i => ({ ...i })); // copy to avoid mutating _items in place
   const idx   = items.findIndex(i => i.id === activeItemId);
   if (idx === -1) return;
 
