@@ -1145,15 +1145,6 @@ function resetState() {
   clearInterval(timerInterval);
 }
 
-function escHtml(str) {
-  return String(str || '')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#39;');
-}
-
 // Close modals on backdrop click
 document.getElementById('abort-modal').addEventListener('click', function(e) {
   if (e.target === this) closeAbortModal();
@@ -1174,6 +1165,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="utils.js"></script>
   <script>
     // supabase-js is now loaded — safe to init
     var db = supabase.createClient(

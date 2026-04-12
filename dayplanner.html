@@ -517,18 +517,6 @@ const MONTH_NAMES = ['January','February','March','April','May','June','July','A
 const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 // ─────────────────────────────────────────────
-// SECURITY
-// ─────────────────────────────────────────────
-function escHtml(str) {
-  return String(str || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-// ─────────────────────────────────────────────
 // SIDEBAR
 // ─────────────────────────────────────────────
 let sidebarCollapsed = window.innerWidth <= 640;
@@ -1293,6 +1281,7 @@ document.addEventListener('keydown', e => {
 // ─────────────────────────────────────────────
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="utils.js"></script>
 <script>
   // supabase-js is now loaded — safe to init
   var db = supabase.createClient(

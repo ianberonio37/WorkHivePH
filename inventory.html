@@ -455,6 +455,7 @@
   </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="utils.js"></script>
 <script>
 // ────────────────────────────────────────────
 // SUPABASE SETUP
@@ -511,14 +512,6 @@ function saveTransactions(arr) {
 // ────────────────────────────────────────────
 // HELPERS
 // ────────────────────────────────────────────
-function debounce(fn, ms) {
-  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
-}
-
-function escHtml(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-
 function highlight(text, q) {
   if (!q || !text) return escHtml(text || '');
   const safe = escHtml(text);

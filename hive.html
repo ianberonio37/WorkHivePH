@@ -557,6 +557,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="utils.js"></script>
 <script src="floating-ai.js"></script>
 <script>
 // ── SUPABASE SETUP ──
@@ -600,12 +601,6 @@ let approvalChannel     = null;
 let workerApprovalCh    = null;
 let _pendingAssets      = [];
 let _pendingParts       = [];
-
-// ── UTILS ──
-function escHtml(str) {
-  return String(str || '')
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
 
 let _toastTimer = null;
 function showToast(msg) {
