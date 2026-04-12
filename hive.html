@@ -762,10 +762,33 @@ let _notifs = [];
 // ── INIT ──
 document.getElementById('nav-worker').textContent = WORKER_NAME;
 
-if (HIVE_ID) {
-  showView('board');
-  initBoard();
-} else {
+(async function initHive() {
+  if (HIVE_ID) {
+    // Re-validate against DB — HIVE_ID in localStorage is not trusted alone
+    const { data: membership, error: valErr } = await db
+      .from('hive_members')
+      .select('role, status')
+      .eq('hive_id', HIVE_ID)
+      .eq('worker_name', WORKER_NAME)
+      .maybeSingle();
+
+    if (!valErr && (!membership || membership.status === 'kicked')) {
+      // Kicked or removed — clear all hive state and show onboard
+      ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name','wh_hive_code'].forEach(k => localStorage.removeItem(k));
+      HIVE_ID = ''; HIVE_NAME = ''; HIVE_ROLE = '';
+      showView('onboard');
+      return;
+    }
+    // Sync role from DB in case it changed
+    if (!valErr && membership) {
+      HIVE_ROLE = membership.role;
+      localStorage.setItem('wh_hive_role', membership.role);
+    }
+    showView('board');
+    initBoard();
+    return;
+  }
+
   // No local hive — check if user already has membership in Supabase (e.g. after sign-out, device switch)
   (async function recoverHiveMembership() {
     const { data: memberships, error: recErr } = await db
@@ -818,7 +841,7 @@ if (HIVE_ID) {
     showView('board');
     initBoard();
   })();
-}
+})();
 
 // ── ONBOARD ──
 document.getElementById('btn-go-create').addEventListener('click', () => showView('create'));
