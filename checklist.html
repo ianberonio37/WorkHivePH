@@ -974,7 +974,7 @@ async function saveRecord(record) {
     items: record.items,
     hive_id: HIVE_ID
   });
-  if (error) console.error('Save error:', error.message);
+  if (error) { console.error('Save error:', error.message); showToast('Checklist save failed: ' + error.message); }
 }
 
 async function getRecords() {

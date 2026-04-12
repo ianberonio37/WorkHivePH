@@ -468,7 +468,8 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // ────────────────────────────────────────────
 const WORKER_NAME = localStorage.getItem('wh_last_worker') || '';
 if (!WORKER_NAME) window.location.href = 'index.html?signin=1';
-const HIVE_ID = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+let HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+let HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
 
 // localStorage keys — migration source only, removed after first run
 const INV_KEY    = 'wh_inventory_'  + WORKER_NAME;
@@ -493,7 +494,7 @@ function saveInventory(arr) {
     const old = prev.find(o => o.id === item.id);
     if (!old || JSON.stringify(old) !== JSON.stringify(item)) {
       db.from('inventory_items').upsert({ ...item, worker_name: WORKER_NAME })
-        .then(({ error }) => { if (error) console.error('inv sync:', error.message); });
+        .then(({ error }) => { if (error) { console.error('inv sync:', error.message); showToast('Inventory save failed: ' + error.message); } });
     }
   });
 }
@@ -503,7 +504,7 @@ function saveTransactions(arr) {
   const last = arr[arr.length - 1];
   if (last) {
     db.from('inventory_transactions').insert(last)
-      .then(({ error }) => { if (error) console.error('txn sync:', error.message); });
+      .then(({ error }) => { if (error) { console.error('txn sync:', error.message); showToast('Transaction save failed: ' + error.message); } });
   }
 }
 
@@ -1180,7 +1181,7 @@ async function initData() {
       await db.from('inventory_items').upsert({ ...item, worker_name: WORKER_NAME, status: 'approved' });
     }
     for (const txn of lsTxns) {
-      await db.from('inventory_transactions').insert(txn).catch(() => {});
+      await db.from('inventory_transactions').insert(txn).catch(e => console.warn('txn migrate:', e.message));
     }
     localStorage.removeItem(INV_KEY);
     localStorage.removeItem(TXN_KEY);
@@ -1211,9 +1212,41 @@ async function initData() {
 }
 
 // ────────────────────────────────────────────
+// HIVE MEMBERSHIP RE-VALIDATION
+// ────────────────────────────────────────────
+async function validateHiveMembership() {
+  if (!HIVE_ID || !WORKER_NAME) return true; // solo worker — no gate needed
+  const { data: membership, error } = await db
+    .from('hive_members')
+    .select('role')
+    .eq('hive_id', HIVE_ID)
+    .eq('worker_name', WORKER_NAME)
+    .maybeSingle();
+  if (error) {
+    console.warn('Membership validation failed (DB error), using cached role:', error.message);
+    return true; // fail open
+  }
+  if (!membership) {
+    console.warn('Worker is no longer a hive member. Clearing hive state.');
+    ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name'].forEach(k => localStorage.removeItem(k));
+    HIVE_ID = null;
+    HIVE_ROLE = '';
+    return true; // solo mode — inventory still usable for own items
+  }
+  if (membership.role !== HIVE_ROLE) {
+    localStorage.setItem('wh_hive_role', membership.role);
+  }
+  HIVE_ROLE = membership.role;
+  return true;
+}
+
+// ────────────────────────────────────────────
 // INIT
 // ────────────────────────────────────────────
-initData();
+(async () => {
+  await validateHiveMembership();
+  initData();
+})();
 </script>
   <script src="floating-ai.js"></script>
 </body>

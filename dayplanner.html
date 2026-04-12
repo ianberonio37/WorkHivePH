@@ -796,8 +796,8 @@ function renderDILO() {
     untimedItems.forEach(item => {
       const c = getSchedColor(item.category);
       html += `<div style="background:${c.bg};color:${c.text};border:1px solid ${c.text}40;border-radius:0.5rem;padding:0.25rem 0.625rem;font-size:0.7rem;font-weight:600;cursor:pointer"
-        onclick="openEditModal('${item.id}')" title="${item.title}">
-        ${item.title}
+        onclick="openEditModal('${item.id}')" title="${escHtml(item.title)}">
+        ${escHtml(item.title)}
       </div>`;
     });
     html += `</div>`;
@@ -876,7 +876,7 @@ function renderDILO() {
     const doneStrike = status === 'done' ? 'text-decoration:line-through;' : '';
 
     html += `<div onclick="event.stopPropagation();openEditModal('${item.id}')"
-      title="${item.title}: ${item.startTime}${endLabel} [${sc.label}]"
+      title="${escHtml(item.title)}: ${item.startTime}${endLabel} [${sc.label}]"
       style="position:absolute;top:${top}px;left:${colLeft};width:${colW};height:${height}px;
              background:${blockBg};color:${blockColor};border:1px solid ${blockBorder}50;border-left:3px solid ${blockBorder};
              border-radius:0.4rem;padding:0.2rem 0.4rem;font-size:0.68rem;font-weight:600;
@@ -884,7 +884,7 @@ function renderDILO() {
       onmouseenter="this.style.filter='brightness(1.2)';this.style.opacity='1'"
       onmouseleave="this.style.filter='brightness(1)';this.style.opacity='${blockOpacity}'">
       <div style="display:flex;align-items:center;white-space:nowrap;overflow:hidden">${statusIcon}<span style="overflow:hidden;text-overflow:ellipsis;${doneStrike}">${item.startTime}${endLabel}</span></div>
-      ${showDetail ? `<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0.85;${doneStrike}">${item.title}</div>` : ''}
+      ${showDetail ? `<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0.85;${doneStrike}">${escHtml(item.title)}</div>` : ''}
     </div>`;
   });
 
@@ -997,14 +997,14 @@ function renderWILO() {
       const blockColor = status === 'done' ? '#68D391' : status === 'missed' ? '#FC5C5C' : c.text;
       const doneStrike = status === 'done' ? 'text-decoration:line-through;' : '';
       html += `<div onclick="event.stopPropagation();openEditModal('${item.id}')"
-        title="${item.title}: ${item.startTime}${item.endTime ? ' - '+item.endTime : ''} [${statusConfig[status].label}]"
+        title="${escHtml(item.title)}: ${item.startTime}${item.endTime ? ' - '+item.endTime : ''} [${statusConfig[status].label}]"
         style="position:absolute;top:${top}px;left:${colLeft};width:${colW};height:${height}px;
                background:${blockBg};color:${blockColor};border-left:2px solid ${blockBorder};
                border-radius:0.3rem;padding:1px 4px;font-size:0.6rem;font-weight:600;
                overflow:hidden;cursor:pointer;z-index:2;box-sizing:border-box;transition:filter 0.15s;opacity:${blockOpacity}"
         onmouseenter="this.style.filter='brightness(1.2)';this.style.opacity='1'"
         onmouseleave="this.style.filter='brightness(1)';this.style.opacity='${blockOpacity}'">
-        ${showTitle ? `<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${doneStrike}">${item.title}</div>` : ''}
+        ${showTitle ? `<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${doneStrike}">${escHtml(item.title)}</div>` : ''}
       </div>`;
     });
 
@@ -1054,7 +1054,7 @@ function renderMILO() {
     const maxDots = 5;
     const dotsHtml = dayItems.slice(0, maxDots).map(i => {
       const c = getSchedColor(i.category);
-      return `<span class="milo-dot" style="background:${c.text}" title="${i.title}"></span>`;
+      return `<span class="milo-dot" style="background:${c.text}" title="${escHtml(i.title)}"></span>`;
     }).join('');
     const more = dayItems.length > maxDots ? `<div class="milo-more">+${dayItems.length - maxDots} more</div>` : '';
 

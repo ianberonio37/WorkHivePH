@@ -869,7 +869,11 @@ async function submitCreate() {
   const { error: mErr } = await db.from('hive_members').upsert({
     hive_id: hive.id, worker_name: WORKER_NAME, role: 'supervisor'
   }, { onConflict: 'hive_id,worker_name' });
-  if (mErr) console.error('hive_members upsert:', mErr.message);
+  if (mErr) {
+    console.error('hive_members upsert:', mErr.message);
+    showToast('Hive created but membership could not be saved. Please refresh and try again.');
+    return;
+  }
 
   localStorage.setItem('wh_hive_id',       hive.id);
   localStorage.setItem('wh_hive_name',     hive.name);

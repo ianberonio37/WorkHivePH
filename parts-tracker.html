@@ -537,7 +537,7 @@
 // STATE
 // ═══════════════════════════════════════════
 const WORKER_KEY = 'wh_last_worker';
-const HIVE_ID    = localStorage.getItem('wh_hive_id') || null;
+const HIVE_ID    = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
 // db initialized after supabase-js CDN loads (see script block below)
 
 let state = {
@@ -623,10 +623,11 @@ async function deductFromInventory(record) {
     if (!inv) continue;
     const newQty = Math.max(0, inv.qty_on_hand - part.qty);
     const now    = new Date().toISOString();
-    await db.from('inventory_items')
+    const { error: deductErr } = await db.from('inventory_items')
       .update({ qty_on_hand: newQty, updated_at: now })
       .eq('id', inv.id);
-    await db.from('inventory_transactions').insert({
+    if (deductErr) { console.error('inventory deduct:', deductErr.message); showToast('Inventory deduction failed: ' + deductErr.message); continue; }
+    const { error: txnErr } = await db.from('inventory_transactions').insert({
       id:          Date.now().toString() + Math.random().toString(36).slice(2, 6),
       worker_name: record.workerName,
       item_id:     inv.id,
@@ -637,6 +638,7 @@ async function deductFromInventory(record) {
       job_ref:     record.jobRef,
       created_at:  now,
     });
+    if (txnErr) console.warn('txn log failed:', txnErr.message);
     inv.qty_on_hand = newQty; // update local ref for multi-part deductions on same item
   }
 }
