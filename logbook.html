@@ -307,6 +307,21 @@
     </div>
   </nav>
 
+  <!-- HIVE GATE OVERLAY -->
+  <div id="hive-gate" class="fixed inset-0 z-[60] items-center justify-center p-6" style="display:none; background:rgba(10,16,28,0.97); backdrop-filter:blur(12px);">
+    <div class="card w-full max-w-sm p-8 text-center">
+      <div class="w-14 h-14 rounded-2xl mx-auto mb-5 flex items-center justify-center" style="background:rgba(247,162,27,0.12); border:1px solid rgba(247,162,27,0.2);">
+        <svg class="w-7 h-7" style="color:#F7A21B" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+      </div>
+      <h2 class="font-black text-xl mb-2">Join a WorkHive First</h2>
+      <p class="text-sm mb-6" style="color:rgba(255,255,255,0.45);">The Logbook is a team tool. Create or join a Hive to start logging repairs with your team.</p>
+      <a href="hive.html" class="btn-primary block text-center mb-3" style="display:block; text-decoration:none; line-height:2.5;">Go to WorkHive Board</a>
+      <p class="text-xs" style="color:rgba(255,255,255,0.25);">You'll be brought back here once you're set up.</p>
+    </div>
+  </div>
+
   <!-- ── MAIN ── -->
   <main class="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 py-8">
 
@@ -345,11 +360,14 @@
 
           <form id="log-form" class="space-y-4">
 
-            <!-- Machine name -->
+            <!-- Machine picker -->
             <div>
-              <label class="wh-label">Machine / Equipment ID</label>
-              <input id="f-machine" type="text" class="wh-input" placeholder="e.g. Pump P-204, Conveyor B-12" autocomplete="off" list="machine-suggestions" />
-              <datalist id="machine-suggestions"></datalist>
+              <label class="wh-label">Machine / Equipment ID <span style="color:#f87171;font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
+              <button type="button" id="asset-picker-btn" class="wh-input text-left flex items-center justify-between gap-2" style="cursor:pointer; min-height:44px;">
+                <span id="asset-picker-label" class="truncate flex-1 text-sm" style="color:rgba(255,255,255,0.25);">Select or search asset...</span>
+                <svg class="w-4 h-4 flex-shrink-0" style="color:rgba(255,255,255,0.3)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <input type="hidden" id="f-machine" />
             </div>
 
             <!-- Maintenance Type -->
@@ -500,6 +518,16 @@
               </div>
             </div>
 
+            <!-- Parts Used (shown when status = Closed) -->
+            <div id="parts-used-section" class="hidden space-y-2">
+              <label class="wh-label">Parts Used <span class="text-white/30 font-normal normal-case">(from your inventory)</span></label>
+              <div id="selected-parts-display" class="space-y-1.5"></div>
+              <button type="button" id="btn-add-part" class="btn-secondary w-full text-xs py-2.5 flex items-center justify-center gap-1.5" style="min-height:44px;">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                Add Part Used
+              </button>
+            </div>
+
             <div class="flex gap-2 pt-1">
               <button type="submit" class="btn-primary flex-1">Save Entry</button>
               <button type="button" id="clear-form" class="btn-secondary px-4">Clear</button>
@@ -510,6 +538,15 @@
 
       <!-- ── RIGHT: LOG ENTRIES ── -->
       <div class="lg:col-span-3">
+
+        <!-- Open Jobs Panel -->
+        <div id="open-jobs-panel" class="card p-4 mb-4 hidden">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xs font-bold uppercase tracking-widest" style="color:rgba(239,68,68,0.8);">My Open Jobs</h3>
+            <span id="open-jobs-count" class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:rgba(239,68,68,0.1);color:#f87171;"></span>
+          </div>
+          <div id="open-jobs-list"></div>
+        </div>
 
         <!-- Search + Filter -->
         <div class="card p-4 mb-4">
@@ -692,6 +729,50 @@
   </div>
 </div>
 
+<!-- ASSET PICKER MODAL -->
+<div id="asset-picker-modal" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
+  <div class="card w-full max-w-md" style="max-height:82vh; display:flex; flex-direction:column;">
+    <div class="p-5 border-b" style="border-color:rgba(255,255,255,0.07);">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-sm">Select Asset</h3>
+        <button id="asset-picker-modal-close" class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4);">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <input id="asset-picker-search" type="text" class="wh-input" placeholder="Search by asset ID or name..." autocomplete="off" />
+    </div>
+    <div id="asset-picker-list" class="overflow-y-auto p-3" style="max-height:45vh;"></div>
+    <div class="p-3 border-t" style="border-color:rgba(255,255,255,0.07);">
+      <button id="asset-picker-register-btn" type="button" class="btn-secondary w-full text-xs py-2.5 flex items-center justify-center gap-1.5" style="min-height:44px;">
+        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        Asset not found — Register it
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- PARTS PICKER MODAL -->
+<div id="parts-picker-modal" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
+  <div class="card w-full max-w-md" style="max-height:82vh; display:flex; flex-direction:column;">
+    <div class="p-5 border-b" style="border-color:rgba(255,255,255,0.07);">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-sm">Select Part Used</h3>
+        <button id="parts-picker-modal-close" class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4);">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <input id="parts-picker-search" type="text" class="wh-input" placeholder="Search part name or number..." autocomplete="off" />
+    </div>
+    <div id="parts-picker-list" class="overflow-y-auto p-3" style="max-height:45vh;"></div>
+    <div class="p-3 border-t" style="border-color:rgba(255,255,255,0.07);">
+      <button id="parts-picker-register-btn" type="button" class="btn-secondary w-full text-xs py-2.5 flex items-center justify-center gap-1.5" style="min-height:44px;">
+        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        Part not in inventory — Register it
+      </button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ────────────────────────────────────────────
@@ -706,9 +787,21 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // ────────────────────────────────────────────
 let WORKER_NAME = localStorage.getItem('wh_last_worker') || '';
 const HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
 
 if (!WORKER_NAME) {
   window.location.href = 'index.html?signin=1';
+}
+
+// Hive gate: mandatory for logbook
+if (!HIVE_ID) {
+  document.getElementById('hive-gate').style.display = 'flex';
+}
+
+// Register Asset button: only supervisors can register directly in a hive
+if (HIVE_ID && HIVE_ROLE !== 'supervisor') {
+  const regBtn = document.getElementById('open-asset-modal-btn');
+  if (regBtn) regBtn.classList.add('hidden');
 }
 
 // ────────────────────────────────────────────
@@ -1197,6 +1290,79 @@ function updateAssetDatalist() {
   }).join('');
 }
 
+// ────────────────────────────────────────────
+// ASSET PICKER (replaces free-text datalist)
+// ────────────────────────────────────────────
+function openAssetPicker() {
+  const modal = document.getElementById('asset-picker-modal');
+  modal.style.display = 'flex';
+  document.getElementById('asset-picker-search').value = '';
+  renderAssetPickerList('');
+  setTimeout(() => document.getElementById('asset-picker-search').focus(), 80);
+}
+
+function closeAssetPicker() {
+  document.getElementById('asset-picker-modal').style.display = 'none';
+}
+
+function renderAssetPickerList(query) {
+  const assets = loadAssets().filter(a => !a.status || a.status === 'approved');
+  const q = (query || '').toLowerCase();
+  const filtered = q ? assets.filter(a =>
+    (a.asset_id || '').toLowerCase().includes(q) ||
+    (a.name || '').toLowerCase().includes(q) ||
+    (a.location || '').toLowerCase().includes(q)
+  ) : assets;
+
+  const list = document.getElementById('asset-picker-list');
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="text-center py-8">
+      <p class="text-sm" style="color:rgba(255,255,255,0.3);">${q ? 'No assets match &quot;' + escHtml(query) + '&quot;' : 'No assets registered yet.'}</p>
+      <p class="text-xs mt-1" style="color:rgba(255,255,255,0.2);">Use the button below to register this asset.</p>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(a => {
+    const label = a.name ? escHtml(a.asset_id) + ' <span style="color:rgba(255,255,255,0.5);font-weight:400;">' + escHtml(a.name) + '</span>' : escHtml(a.asset_id);
+    return `<button type="button" data-asset-id="${escHtml(a.asset_id)}" data-asset-name="${escHtml(a.name || a.asset_id)}" data-asset-ref="${a.id}"
+      class="w-full text-left rounded-xl p-3.5 mb-1.5 transition-colors" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); min-height:44px; cursor:pointer;"
+      onmouseover="this.style.background='rgba(247,162,27,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+      <div class="flex items-center gap-2">
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-white">${label}</p>
+          ${a.location ? '<p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.3);">' + escHtml(a.location) + '</p>' : ''}
+        </div>
+        ${criticalityBadge(a.criticality)}
+      </div>
+    </button>`;
+  }).join('');
+
+  list.querySelectorAll('button[data-asset-id]').forEach(btn => {
+    btn.addEventListener('click', () => selectAsset(btn.dataset.assetId, btn.dataset.assetName, btn.dataset.assetRef));
+  });
+}
+
+function selectAsset(assetId, assetName, assetRefId) {
+  document.getElementById('f-machine').value = assetId;
+  const labelEl = document.getElementById('asset-picker-label');
+  labelEl.textContent = assetId + (assetName && assetName !== assetId ? ' — ' + assetName : '');
+  labelEl.style.color = 'white';
+  _pendingAssetRefId = assetRefId || null;
+  closeAssetPicker();
+  saveDraft();
+}
+
+document.getElementById('asset-picker-btn').addEventListener('click', openAssetPicker);
+document.getElementById('asset-picker-modal-close').addEventListener('click', closeAssetPicker);
+document.getElementById('asset-picker-modal').addEventListener('click', function(e) { if (e.target === this) closeAssetPicker(); });
+document.getElementById('asset-picker-search').addEventListener('input', function() { renderAssetPickerList(this.value.trim()); });
+document.getElementById('asset-picker-register-btn').addEventListener('click', function() {
+  closeAssetPicker();
+  openAssetModal('register');
+});
+
 document.getElementById('asset-modal-close').addEventListener('click', closeAssetModal);
 document.getElementById('asset-modal').addEventListener('click', function(e) {
   if (e.target === this) closeAssetModal();
@@ -1262,22 +1428,6 @@ function formatDate(iso) {
 async function renderEntries() {
   const entries = await loadEntries();
 
-  // Populate machine autocomplete — registered assets first, then unique past entries as fallback
-  const datalist = document.getElementById('machine-suggestions');
-  if (datalist) {
-    const registeredAssets = loadAssets();
-    const registeredIds = new Set(registeredAssets.map(a => a.asset_id.toUpperCase()));
-    const assetOptions = registeredAssets.map(a => {
-      const label = a.name ? `${a.asset_id} — ${a.name}` : a.asset_id;
-      return `<option value="${escHtml(a.asset_id)}" label="${escHtml(label)}">`;
-    });
-    const pastOptions = [...new Set(entries.map(e => e.machine).filter(Boolean))]
-      .filter(m => !registeredIds.has(m.trim().toUpperCase()))
-      .sort()
-      .map(m => `<option value="${escHtml(m)}">`);
-    datalist.innerHTML = assetOptions.join('') + pastOptions.join('');
-  }
-
   const query = document.getElementById('search-input').value.trim().toLowerCase();
   const catFilter = document.getElementById('filter-category').value;
   const statusFilter = document.getElementById('filter-status').value;
@@ -1301,6 +1451,8 @@ async function renderEntries() {
   const list = document.getElementById('entries-list');
   const empty = document.getElementById('empty-state');
   const noResults = document.getElementById('no-results');
+
+  renderOpenJobs(entries);
 
   if (entries.length === 0) {
     list.innerHTML = '';
@@ -1557,12 +1709,6 @@ async function confirmDelete(id) {
 // ────────────────────────────────────────────
 let _pendingAssetRefId = null;
 
-document.getElementById('f-machine').addEventListener('input', function() {
-  const val   = this.value.trim().toUpperCase();
-  const match = loadAssets().find(a => a.asset_id.toUpperCase() === val);
-  _pendingAssetRefId = match ? match.id : null;
-});
-
 document.getElementById('log-form').addEventListener('submit', async function(e) {
   e.preventDefault();
 
@@ -1594,6 +1740,20 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
   };
 
   await addEntry(entry);
+  // Deduct inventory for parts used
+  for (const p of _partsUsed) {
+    if (!p.partId) continue;
+    const item = _inventoryItems.find(i => i.id === p.partId);
+    const newQty = Math.max(0, (item?.qty_on_hand || 0) - p.qty);
+    db.from('inventory_items').update({ qty_on_hand: newQty }).eq('id', p.partId)
+      .then(({ error }) => { if (error) console.error('parts deduct:', error.message); });
+    db.from('inventory_transactions').insert({
+      item_id: p.partId, worker_name: WORKER_NAME,
+      qty_change: -p.qty, type: 'use',
+      note: 'Used in job: ' + machine, job_ref: machine
+    }).then(({ error }) => { if (error) console.error('txn insert:', error.message); });
+    if (item) item.qty_on_hand = newQty; // update local cache
+  }
   clearForm();
   await renderEntries();
   showToast('Entry saved to your logbook.');
@@ -1611,6 +1771,16 @@ function clearForm() {
   document.getElementById('photo-dropzone').classList.remove('hidden');
   currentPhotoData    = null;
   _pendingAssetRefId  = null;
+  // Reset asset picker label
+  const labelEl = document.getElementById('asset-picker-label');
+  labelEl.textContent = 'Select or search asset...';
+  labelEl.style.color = 'rgba(255,255,255,0.25)';
+  // Reset parts
+  _partsUsed = [];
+  renderSelectedParts();
+  document.getElementById('parts-used-section').classList.add('hidden');
+  // Clear draft
+  localStorage.removeItem(DRAFT_KEY);
 }
 
 // ────────────────────────────────────────────
@@ -1800,7 +1970,12 @@ function updateStatusToggle(nameAttr) {
 }
 
 document.addEventListener('change', function(e) {
-  if (e.target.name === 'f-status') updateStatusToggle('f-status');
+  if (e.target.name === 'f-status') {
+    updateStatusToggle('f-status');
+    const isClosed = e.target.value === 'Closed';
+    document.getElementById('parts-used-section').classList.toggle('hidden', !isClosed);
+    if (isClosed && _inventoryItems.length === 0) loadInventoryForPicker();
+  }
   if (e.target.name === 'e-status') updateStatusToggle('e-status');
   if (e.target.name === 'a-criticality' && e.target.checked) {
     ['Critical','Major','Minor'].forEach(v => {
@@ -1811,9 +1986,228 @@ document.addEventListener('change', function(e) {
 });
 
 // ────────────────────────────────────────────
+// PARTS PICKER
+// ────────────────────────────────────────────
+let _partsUsed = []; // { partId, partName, partNumber, qty, unit }
+let _inventoryItems = [];
+
+async function loadInventoryForPicker() {
+  if (HIVE_ID) {
+    const [myRes, hiveRes] = await Promise.allSettled([
+      db.from('inventory_items').select('id, part_name, part_number, qty_on_hand, unit, bin_location').eq('worker_name', WORKER_NAME),
+      db.from('inventory_items').select('id, part_name, part_number, qty_on_hand, unit, bin_location').eq('hive_id', HIVE_ID).eq('status', 'approved')
+    ]);
+    const seen = new Set();
+    const merged = [];
+    for (const r of [...(myRes.value?.data || []), ...(hiveRes.value?.data || [])]) {
+      if (!seen.has(r.id)) { seen.add(r.id); merged.push(r); }
+    }
+    _inventoryItems = merged;
+  } else {
+    const { data } = await db.from('inventory_items').select('id, part_name, part_number, qty_on_hand, unit, bin_location').eq('worker_name', WORKER_NAME);
+    _inventoryItems = data || [];
+  }
+}
+
+function openPartsPicker() {
+  const modal = document.getElementById('parts-picker-modal');
+  modal.style.display = 'flex';
+  document.getElementById('parts-picker-search').value = '';
+  renderPartsPickerList('');
+  setTimeout(() => document.getElementById('parts-picker-search').focus(), 80);
+}
+
+function closePartsPicker() {
+  document.getElementById('parts-picker-modal').style.display = 'none';
+}
+
+function renderPartsPickerList(query) {
+  const q = (query || '').toLowerCase();
+  const filtered = q ? _inventoryItems.filter(i =>
+    (i.part_name || '').toLowerCase().includes(q) ||
+    (i.part_number || '').toLowerCase().includes(q)
+  ) : _inventoryItems;
+
+  const list = document.getElementById('parts-picker-list');
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="text-center py-8">
+      <p class="text-sm" style="color:rgba(255,255,255,0.3);">${q ? 'No parts match &quot;' + escHtml(query) + '&quot;' : 'No inventory items yet.'}</p>
+      <p class="text-xs mt-1" style="color:rgba(255,255,255,0.2);">Use the button below to register this part in Inventory.</p>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(i => {
+    const alreadyAdded = _partsUsed.some(p => p.partId === i.id);
+    const isOut = i.qty_on_hand <= 0;
+    const qtyColor = isOut ? '#f87171' : '#4ade80';
+    return `<button type="button" data-part-id="${i.id}" data-part-name="${escHtml(i.part_name)}" data-part-number="${escHtml(i.part_number || '')}" data-unit="${escHtml(i.unit || 'pcs')}"
+      class="w-full text-left rounded-xl p-3.5 mb-1.5 transition-colors ${alreadyAdded ? 'opacity-40' : ''}"
+      style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); min-height:44px; cursor:${alreadyAdded ? 'not-allowed' : 'pointer'};"
+      ${alreadyAdded ? 'disabled' : ''}
+      onmouseover="if(!this.disabled)this.style.background='rgba(41,182,217,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-white">${escHtml(i.part_name)}</p>
+          ${i.part_number ? '<p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.35);">' + escHtml(i.part_number) + '</p>' : ''}
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="text-sm font-bold" style="color:${qtyColor}">${i.qty_on_hand} <span class="text-xs font-normal" style="color:rgba(255,255,255,0.3);">${escHtml(i.unit || 'pcs')}</span></p>
+          ${alreadyAdded ? '<p class="text-[10px]" style="color:rgba(255,255,255,0.3);">Added</p>' : ''}
+        </div>
+      </div>
+    </button>`;
+  }).join('');
+
+  list.querySelectorAll('button[data-part-id]:not([disabled])').forEach(btn => {
+    btn.addEventListener('click', () => selectPart(btn.dataset.partId, btn.dataset.partName, btn.dataset.partNumber, btn.dataset.unit));
+  });
+}
+
+function selectPart(partId, partName, partNumber, unit) {
+  if (_partsUsed.some(p => p.partId === partId)) return;
+  _partsUsed.push({ partId, partName, partNumber, qty: 1, unit: unit || 'pcs' });
+  renderSelectedParts();
+  renderPartsPickerList(document.getElementById('parts-picker-search').value.trim());
+}
+
+function renderSelectedParts() {
+  const container = document.getElementById('selected-parts-display');
+  if (!_partsUsed.length) { container.innerHTML = ''; return; }
+  container.innerHTML = _partsUsed.map((p, idx) => `
+    <div class="flex items-center gap-2 rounded-xl px-3 py-2.5" style="background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.15);">
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-semibold text-white truncate">${escHtml(p.partName)}</p>
+        ${p.partNumber ? '<p class="text-[10px]" style="color:rgba(255,255,255,0.35);">' + escHtml(p.partNumber) + '</p>' : ''}
+      </div>
+      <div class="flex items-center gap-1.5 flex-shrink-0">
+        <span class="text-[10px]" style="color:rgba(255,255,255,0.4);">Qty:</span>
+        <input type="number" min="1" value="${p.qty}" inputmode="numeric"
+          onchange="_partsUsed[${idx}].qty = Math.max(1, parseInt(this.value)||1)"
+          class="text-xs text-center rounded-lg px-1 font-semibold"
+          style="width:3rem; background:rgba(22,32,50,0.8); border:1px solid rgba(255,255,255,0.12); color:white; min-height:32px;" />
+        <span class="text-[10px]" style="color:rgba(255,255,255,0.4);">${escHtml(p.unit)}</span>
+        <button type="button" onclick="_partsUsed.splice(${idx},1); renderSelectedParts();"
+          class="w-6 h-6 rounded-lg flex items-center justify-center ml-1"
+          style="background:rgba(239,68,68,0.1); color:#f87171; border:1px solid rgba(239,68,68,0.2); min-height:24px; cursor:pointer;">
+          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>`).join('');
+}
+
+document.getElementById('btn-add-part').addEventListener('click', openPartsPicker);
+document.getElementById('parts-picker-modal-close').addEventListener('click', closePartsPicker);
+document.getElementById('parts-picker-modal').addEventListener('click', function(e) { if (e.target === this) closePartsPicker(); });
+document.getElementById('parts-picker-search').addEventListener('input', function() { renderPartsPickerList(this.value.trim()); });
+document.getElementById('parts-picker-register-btn').addEventListener('click', function() {
+  closePartsPicker();
+  window.open('inventory.html', '_blank');
+  showToast('Register the part in Inventory, then come back here.');
+});
+
+// ────────────────────────────────────────────
+// OPEN JOBS PANEL
+// ────────────────────────────────────────────
+function renderOpenJobs(entries) {
+  const openEntries = entries.filter(e => (e.status || 'Open') === 'Open');
+  const panel = document.getElementById('open-jobs-panel');
+  const list  = document.getElementById('open-jobs-list');
+  const badge = document.getElementById('open-jobs-count');
+
+  if (!openEntries.length) { panel.classList.add('hidden'); return; }
+
+  panel.classList.remove('hidden');
+  badge.textContent = openEntries.length + (openEntries.length === 1 ? ' open job' : ' open jobs');
+
+  const displayed = openEntries.slice(0, 3);
+  list.innerHTML = displayed.map(e => `
+    <div class="rounded-xl p-3 mb-2 cursor-pointer" style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.15);"
+      onclick="openModal('${e.id}')"
+      onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='rgba(239,68,68,0.06)'">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-white truncate">${escHtml(e.machine || 'Unknown machine')}</p>
+          ${e.problem ? '<p class="text-xs mt-0.5 truncate" style="color:rgba(255,255,255,0.4);">' + escHtml(e.problem) + '</p>' : ''}
+        </div>
+        <div class="text-right flex-shrink-0 ml-2">
+          <p class="text-[10px]" style="color:rgba(255,255,255,0.3);">${e.date ? new Date(e.date).toLocaleDateString('en-PH', { month:'short', day:'numeric' }) : ''}</p>
+          <p class="text-[10px] font-bold mt-0.5" style="color:#f87171;">Open</p>
+        </div>
+      </div>
+    </div>`).join('');
+
+  if (openEntries.length > 3) {
+    list.innerHTML += `<p class="text-[11px] text-center mt-1" style="color:rgba(255,255,255,0.3);">+${openEntries.length - 3} more — use the "Open" filter below</p>`;
+  }
+}
+
+// ────────────────────────────────────────────
+// DRAFT SAVE / RESTORE
+// ────────────────────────────────────────────
+const DRAFT_KEY = 'wh_logbook_draft_' + WORKER_NAME;
+
+function saveDraft() {
+  const machine = document.getElementById('f-machine').value;
+  const problem = document.getElementById('f-problem').value;
+  const action  = document.getElementById('f-action').value;
+  if (!machine && !problem && !action) { localStorage.removeItem(DRAFT_KEY); return; }
+  localStorage.setItem(DRAFT_KEY, JSON.stringify({
+    machine,
+    assetRefId:  _pendingAssetRefId,
+    assetLabel:  document.getElementById('asset-picker-label').textContent,
+    maintType:   document.getElementById('f-maint-type').value,
+    category:    document.getElementById('f-category').value,
+    problem,
+    rootCause:   document.getElementById('f-root-cause').value,
+    action,
+    knowledge:   document.getElementById('f-knowledge').value,
+    downtime:    document.getElementById('f-downtime').value,
+    status:      document.querySelector('input[name="f-status"]:checked')?.value || 'Open'
+  }));
+}
+
+function restoreDraft() {
+  try {
+    const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+    if (!draft || !draft.machine) return;
+    document.getElementById('f-machine').value = draft.machine;
+    const labelEl = document.getElementById('asset-picker-label');
+    if (draft.assetLabel && draft.assetLabel !== 'Select or search asset...') {
+      labelEl.textContent = draft.assetLabel;
+      labelEl.style.color = 'white';
+    }
+    _pendingAssetRefId = draft.assetRefId || null;
+    if (draft.maintType) document.getElementById('f-maint-type').value = draft.maintType;
+    if (draft.category)  document.getElementById('f-category').value  = draft.category;
+    if (draft.problem)   document.getElementById('f-problem').value   = draft.problem;
+    if (draft.rootCause) document.getElementById('f-root-cause').value = draft.rootCause;
+    if (draft.action)    document.getElementById('f-action').value    = draft.action;
+    if (draft.knowledge) document.getElementById('f-knowledge').value = draft.knowledge;
+    if (draft.downtime)  document.getElementById('f-downtime').value  = draft.downtime;
+    if (draft.status) {
+      const radio = document.querySelector(`input[name="f-status"][value="${draft.status}"]`);
+      if (radio) { radio.checked = true; updateStatusToggle('f-status'); }
+      if (draft.status === 'Closed') document.getElementById('parts-used-section').classList.remove('hidden');
+    }
+    showToast('Draft restored. Continue where you left off.');
+  } catch(e) { localStorage.removeItem(DRAFT_KEY); }
+}
+
+// Auto-save draft on any input/change in the log form
+document.getElementById('log-form').addEventListener('input', saveDraft);
+document.getElementById('log-form').addEventListener('change', saveDraft);
+
+// ────────────────────────────────────────────
 // INIT
 // ────────────────────────────────────────────
-initAssets().then(() => runAssetRefBackfill());
+initAssets().then(() => {
+  runAssetRefBackfill();
+  renderAssetPickerList('');
+  restoreDraft();
+});
+loadInventoryForPicker();
 renderEntries();
 updateStatusToggle('f-status');
 
