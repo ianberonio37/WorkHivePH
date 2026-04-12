@@ -1064,7 +1064,24 @@ function formatDate(d) {
       'https://hzyvnjtisfgbksicrouu.supabase.co',
       'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ' // anon/publishable key — safe to expose in frontend
     );
-    var HIVE_ID = localStorage.getItem('wh_hive_id') || null;
+    var HIVE_ID = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+    var WORKER_NAME_CL = localStorage.getItem('wh_last_worker') || '';
+
+    async function validateHiveMembership() {
+      if (!HIVE_ID || !WORKER_NAME_CL) return;
+      const { data: membership, error } = await db
+        .from('hive_members')
+        .select('role, status')
+        .eq('hive_id', HIVE_ID)
+        .eq('worker_name', WORKER_NAME_CL)
+        .maybeSingle();
+      if (error) return; // fail open on network error
+      if (!membership || membership.status === 'kicked') {
+        ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name'].forEach(k => localStorage.removeItem(k));
+        HIVE_ID = null;
+      }
+    }
+    validateHiveMembership();
   </script>
   <script src="nav-hub.js"></script>
 </body>

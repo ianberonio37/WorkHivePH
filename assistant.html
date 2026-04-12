@@ -549,7 +549,7 @@ ${scheduleText}
       const container = document.getElementById('chat-messages');
       const wrap = document.createElement('div');
       wrap.className = 'flex justify-end fade-up';
-      wrap.innerHTML = `<div class="bubble-user">${escapeHtml(text)}</div>`;
+      wrap.innerHTML = `<div class="bubble-user">${escHtml(text)}</div>`;
       container.appendChild(wrap);
       scrollToBottom();
     }
@@ -559,7 +559,7 @@ ${scheduleText}
       const wrap = document.createElement('div');
       wrap.className = 'flex justify-start fade-up';
       // Simple markdown-ish: newlines to <br>, **bold**
-      const formatted = escapeHtml(text)
+      const formatted = escHtml(text)
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\n/g, '<br>');
       wrap.innerHTML = `<div class="bubble-assistant">${formatted}</div>`;
@@ -590,15 +590,6 @@ ${scheduleText}
     function scrollToBottom() {
       const c = document.getElementById('chat-messages');
       c.scrollTop = c.scrollHeight;
-    }
-
-    function escapeHtml(str) {
-      return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
     }
 
     // ── Send message ──────────────────────────────────────────────
