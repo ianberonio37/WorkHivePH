@@ -1046,9 +1046,9 @@ function openDetailModal(id) {
     <div class="flex gap-2 mb-4">
       <button onclick="closeDetailModal();openUseModal('${item.id}')" class="btn-danger flex-1 text-sm">Use Stock</button>
       <button onclick="closeDetailModal();openRestockModal('${item.id}')" class="btn-green flex-1 text-sm">Restock</button>
-      <button onclick="closeDetailModal();openAddModal('${item.id}')" class="btn-secondary px-3 text-sm">Edit</button>
+      ${(!HIVE_ID || HIVE_ROLE === 'supervisor') ? `<button onclick="closeDetailModal();openAddModal('${item.id}')" class="btn-secondary px-3 text-sm">Edit</button>` : ''}
     </div>
-    <button onclick="confirmDeleteItem('${item.id}')" class="w-full text-[11px] text-red-400/40 hover:text-red-400/70 transition-colors py-1">Remove from inventory</button>
+    ${(!HIVE_ID || HIVE_ROLE === 'supervisor') ? `<button onclick="confirmDeleteItem('${item.id}')" class="w-full text-[11px] text-red-400/40 hover:text-red-400/70 transition-colors py-1">Remove from inventory</button>` : ''}
 
     <div class="border-t border-white/[0.07] mt-5 pt-4">
       <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-3">Transaction History (last 20)</p>
@@ -1074,11 +1074,20 @@ function openDetailModal(id) {
 
 function closeDetailModal() { document.getElementById('detail-modal').style.display = 'none'; }
 
-function confirmDeleteItem(id) {
+async function confirmDeleteItem(id) {
   const item = loadInventory().find(i => i.id === id);
   if (!item) return;
   if (!confirm(`Remove "${item.part_name}" (${item.part_number}) from inventory? This cannot be undone.`)) return;
-  saveInventory(loadInventory().filter(i => i.id !== id));
+
+  if (HIVE_ID) {
+    const { error } = await db.from('inventory_items').delete().eq('id', id);
+    if (error) { alert('Could not remove part: ' + error.message); return; }
+    _items = _items.filter(i => i.id !== id);
+  } else {
+    saveInventory(loadInventory().filter(i => i.id !== id));
+    _items = loadInventory();
+  }
+
   closeDetailModal();
   renderParts();
   showToast('Part removed from inventory.');

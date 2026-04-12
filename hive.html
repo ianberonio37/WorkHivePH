@@ -771,7 +771,8 @@ if (HIVE_ID) {
     const { data: memberships, error: recErr } = await db
       .from('hive_members')
       .select('hive_id, role')
-      .eq('worker_name', WORKER_NAME);
+      .eq('worker_name', WORKER_NAME)
+      .neq('status', 'kicked');
 
     if (recErr) {
       // Query failed (network/server issue) — show onboard with a helpful hint
@@ -798,19 +799,12 @@ if (HIVE_ID) {
       return;
     }
 
-    // Restore to localStorage — if user is the original creator but was demoted, reclaim supervisor
-    const restored = await Promise.all(hives.map(async h => {
+    // Restore to localStorage — trust the role stored in hive_members (supervisor can re-assign via hive page)
+    const restored = hives.map(h => {
       const m = memberships.find(x => x.hive_id === h.id);
-      let role = m ? m.role : 'worker';
-      if (role !== 'supervisor' && h.created_by === WORKER_NAME) {
-        await db.from('hive_members').upsert(
-          { hive_id: h.id, worker_name: WORKER_NAME, role: 'supervisor' },
-          { onConflict: 'hive_id,worker_name' }
-        );
-        role = 'supervisor';
-      }
+      const role = m ? m.role : 'worker';
       return { id: h.id, name: h.name, role, code: h.code || '' };
-    }));
+    });
     saveHiveList(restored);
     const first = restored[0];
     localStorage.setItem('wh_active_hive_id', first.id);
@@ -862,7 +856,7 @@ async function submitCreate() {
   }
 
   const { error: mErr } = await db.from('hive_members').upsert({
-    hive_id: hive.id, worker_name: WORKER_NAME, role: 'supervisor'
+    hive_id: hive.id, worker_name: WORKER_NAME, role: 'supervisor', status: 'active'
   }, { onConflict: 'hive_id,worker_name' });
   if (mErr) {
     console.error('hive_members upsert:', mErr.message);
@@ -927,11 +921,23 @@ async function submitJoin() {
     errEl.classList.remove('hidden'); return;
   }
 
-  // Original creator reclaims supervisor; everyone else joins as worker
-  const joinRole = hive.created_by === WORKER_NAME ? 'supervisor' : 'worker';
+  // Check if this worker has been kicked from this hive
+  const { data: existingRow } = await db.from('hive_members')
+    .select('status')
+    .eq('hive_id', hive.id)
+    .eq('worker_name', WORKER_NAME)
+    .maybeSingle();
+
+  if (existingRow && existingRow.status === 'kicked') {
+    btn.textContent = 'Join Hive'; btn.disabled = false;
+    errEl.textContent = 'You have been removed from this hive. Contact the supervisor to be re-added.';
+    errEl.classList.remove('hidden'); return;
+  }
+
+  const joinRole = 'worker';
 
   const { error: joinErr } = await db.from('hive_members').upsert({
-    hive_id: hive.id, worker_name: WORKER_NAME, role: joinRole
+    hive_id: hive.id, worker_name: WORKER_NAME, role: joinRole, status: 'active'
   }, { onConflict: 'hive_id,worker_name' });
 
   if (joinErr) {
@@ -1078,8 +1084,9 @@ async function initBoard() {
 // ── MEMBERS ──
 async function loadMembers() {
   const { data: members } = await db.from('hive_members')
-    .select('worker_name, role')
+    .select('worker_name, role, status')
     .eq('hive_id', HIVE_ID)
+    .neq('status', 'kicked')
     .order('joined_at');
 
   memberNames = (members || []).map(m => m.worker_name);
@@ -1102,9 +1109,9 @@ async function loadMembers() {
 }
 
 async function kickMember(workerName) {
-  if (!confirm(`Remove ${workerName} from the hive? Their past contributions will no longer appear in the feed.`)) return;
+  if (!confirm(`Remove ${workerName} from the hive? They will not be able to rejoin unless a supervisor re-approves them.`)) return;
   const { error } = await db.from('hive_members')
-    .delete().eq('hive_id', HIVE_ID).eq('worker_name', workerName);
+    .update({ status: 'kicked' }).eq('hive_id', HIVE_ID).eq('worker_name', workerName);
   if (error) { alert('Could not remove member: ' + error.message); return; }
   await loadMembers();
   await loadFeed();
