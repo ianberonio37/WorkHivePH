@@ -548,6 +548,12 @@
           <div id="open-jobs-list"></div>
         </div>
 
+        <!-- Team / My Entries toggle (hive only) -->
+        <div id="view-toggle-bar" class="hidden mb-3 flex gap-2">
+          <button id="btn-view-mine" class="flex-1 rounded-xl py-2 text-xs font-bold transition-colors" style="background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">My Entries</button>
+          <button id="btn-view-team" class="flex-1 rounded-xl py-2 text-xs font-bold transition-colors" style="background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.08);">Team Feed</button>
+        </div>
+
         <!-- Search + Filter -->
         <div class="card p-4 mb-4">
           <div class="flex flex-col sm:flex-row gap-3">
@@ -853,19 +859,41 @@ function applyRoleUI() {
 // ────────────────────────────────────────────
 // DATA LAYER — Supabase
 // ────────────────────────────────────────────
+// 'mine' | 'team'
+let _viewMode = 'mine';
+
+function setViewMode(mode) {
+  _viewMode = mode;
+  const mine = document.getElementById('btn-view-mine');
+  const team = document.getElementById('btn-view-team');
+  if (!mine || !team) return;
+  const activeStyle  = 'background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);';
+  const inactiveStyle = 'background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.08);';
+  mine.style.cssText = mode === 'mine' ? activeStyle : inactiveStyle;
+  team.style.cssText = mode === 'team' ? activeStyle : inactiveStyle;
+  renderEntries();
+}
+
 async function loadEntries() {
-  const { data, error } = await db
-    .from('logbook')
-    .select('*')
-    .eq('worker_name', WORKER_NAME)
-    .order('date', { ascending: false });
+  let query = db.from('logbook').select('*');
+
+  if (HIVE_ID && _viewMode === 'team') {
+    // Team feed: all hive entries, newest first
+    query = query.eq('hive_id', HIVE_ID).order('date', { ascending: false });
+  } else {
+    // Personal view (default)
+    query = query.eq('worker_name', WORKER_NAME).order('date', { ascending: false });
+  }
+
+  const { data, error } = await query;
   if (error) { console.error(error); return []; }
   return data.map(r => ({
     id: r.id, date: r.date, machine: r.machine, category: r.category,
     maintenance_type: r.maintenance_type, root_cause: r.root_cause,
     problem: r.problem, action: r.action, knowledge: r.knowledge,
     downtime_hours: r.downtime_hours, photo: r.photo, status: r.status,
-    asset_ref_id: r.asset_ref_id || null
+    asset_ref_id: r.asset_ref_id || null,
+    worker_name: r.worker_name   // needed for team view attribution
   }));
 }
 
@@ -1541,6 +1569,7 @@ async function renderEntries() {
             ${statusBadge(e.status || 'Open')}
           </div>
           <span class="text-[11px] text-white/30">${formatDate(e.date)}</span>
+          ${_viewMode === 'team' && e.worker_name !== WORKER_NAME ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(41,182,217,0.12);color:#29B6D9;">${escHtml(e.worker_name)}</span>` : ''}
         </div>
         <svg class="w-4 h-4 text-white/20 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
       </div>
@@ -2269,6 +2298,17 @@ document.getElementById('log-form').addEventListener('change', saveDraft);
   if (!isMember) return; // gate is showing — stop all data loads
 
   applyRoleUI();
+
+  // Show team/mine toggle only when in a hive
+  if (HIVE_ID) {
+    const bar = document.getElementById('view-toggle-bar');
+    bar.classList.remove('hidden');
+    // Supervisors default to team view
+    if (HIVE_ROLE === 'supervisor') setViewMode('team');
+
+    document.getElementById('btn-view-mine').addEventListener('click', () => setViewMode('mine'));
+    document.getElementById('btn-view-team').addEventListener('click', () => setViewMode('team'));
+  }
 
   initAssets().then(() => {
     runAssetRefBackfill();
