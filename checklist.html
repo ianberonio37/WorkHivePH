@@ -339,7 +339,7 @@
       </div>
 
       <div id="checklist-error" class="text-xs text-red-400 font-medium mb-3 hidden"></div>
-      <button class="btn-primary mb-3" onclick="completeChecklist()">Complete Checklist</button>
+      <button id="complete-btn" class="btn-primary mb-3" onclick="completeChecklist(this)">Complete Checklist</button>
       <button class="btn-secondary" onclick="confirmAbort()">Cancel</button>
     </div>
 
@@ -851,7 +851,7 @@ document.getElementById('custom-item-input').addEventListener('keydown', functio
 });
 
 // ─── Complete Checklist ───────────────────────────────────
-async function completeChecklist() {
+async function completeChecklist(btn) {
   const uncheckedRequired = state.items.filter(i => i.required && !i.checked);
   const errEl = document.getElementById('checklist-error');
 
@@ -864,6 +864,7 @@ async function completeChecklist() {
     return;
   }
   errEl.classList.add('hidden');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
 
   const record = {
     id: Date.now(),
@@ -877,6 +878,7 @@ async function completeChecklist() {
   };
 
   await saveRecord(record);
+  if (btn) { btn.disabled = false; btn.textContent = 'Complete Checklist'; }
   renderSummary(record);
   showScreen('summary-screen');
 }
