@@ -786,22 +786,68 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // WORKER NAME (guest identity)
 // ────────────────────────────────────────────
 let WORKER_NAME = localStorage.getItem('wh_last_worker') || '';
-const HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
-const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
 
 if (!WORKER_NAME) {
   window.location.href = 'index.html?signin=1';
 }
 
-// Hive gate: mandatory for logbook
-if (!HIVE_ID) {
-  document.getElementById('hive-gate').style.display = 'flex';
+// ── Hive membership + role re-validation ─────────────────────────────────────
+// localStorage is not a source of truth. A worker may have been removed from
+// the hive or demoted since their last visit. We re-check the DB on every load.
+// Gate the entire page until validation resolves.
+async function validateHiveMembership() {
+  if (!HIVE_ID || !WORKER_NAME) {
+    // No hive in localStorage — show gate immediately, nothing to validate
+    document.getElementById('hive-gate').style.display = 'flex';
+    return false;
+  }
+
+  // Check DB: is this worker still a member of HIVE_ID?
+  const { data: membership, error } = await db
+    .from('hive_members')
+    .select('role')
+    .eq('hive_id', HIVE_ID)
+    .eq('worker_name', WORKER_NAME)
+    .maybeSingle();
+
+  if (error) {
+    // DB unreachable — fail safe: allow access with cached role, log the issue
+    console.warn('Membership validation failed (DB error), using cached role:', error.message);
+    return true;
+  }
+
+  if (!membership) {
+    // Worker is no longer a member of this hive (removed or hive deleted)
+    console.warn('Worker is no longer a hive member. Clearing hive state.');
+    localStorage.removeItem('wh_active_hive_id');
+    localStorage.removeItem('wh_hive_id');
+    localStorage.removeItem('wh_hive_role');
+    localStorage.removeItem('wh_hive_name');
+    HIVE_ID = null;
+    HIVE_ROLE = '';
+    document.getElementById('hive-gate').style.display = 'flex';
+    return false;
+  }
+
+  // Membership confirmed — sync role from DB (prevents stale supervisor role)
+  if (membership.role !== HIVE_ROLE) {
+    console.log(`Role updated from localStorage (${HIVE_ROLE}) to DB (${membership.role})`);
+    localStorage.setItem('wh_hive_role', membership.role);
+  }
+  HIVE_ROLE = membership.role;
+
+  return true;
 }
 
-// Register Asset button: only supervisors can register directly in a hive
-if (HIVE_ID && HIVE_ROLE !== 'supervisor') {
-  const regBtn = document.getElementById('open-asset-modal-btn');
-  if (regBtn) regBtn.classList.add('hidden');
+// Register Asset button: only supervisors can register directly in a hive.
+// Applied after validation resolves (see INIT block at bottom).
+function applyRoleUI() {
+  if (HIVE_ID && HIVE_ROLE !== 'supervisor') {
+    const regBtn = document.getElementById('open-asset-modal-btn');
+    if (regBtn) regBtn.classList.add('hidden');
+  }
 }
 
 // ────────────────────────────────────────────
@@ -2202,14 +2248,21 @@ document.getElementById('log-form').addEventListener('change', saveDraft);
 // ────────────────────────────────────────────
 // INIT
 // ────────────────────────────────────────────
-initAssets().then(() => {
-  runAssetRefBackfill();
-  renderAssetPickerList('');
-  restoreDraft();
-});
-loadInventoryForPicker();
-renderEntries();
-updateStatusToggle('f-status');
+(async () => {
+  const isMember = await validateHiveMembership();
+  if (!isMember) return; // gate is showing — stop all data loads
+
+  applyRoleUI();
+
+  initAssets().then(() => {
+    runAssetRefBackfill();
+    renderAssetPickerList('');
+    restoreDraft();
+  });
+  loadInventoryForPicker();
+  renderEntries();
+  updateStatusToggle('f-status');
+})();
 
 </script>
   <script src="floating-ai.js"></script>
