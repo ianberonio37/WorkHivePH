@@ -537,7 +537,7 @@
 // STATE
 // ═══════════════════════════════════════════
 const WORKER_KEY = 'wh_last_worker';
-const HIVE_ID    = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+let HIVE_ID    = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
 // db initialized after supabase-js CDN loads (see script block below)
 
 let state = {
@@ -1072,7 +1072,8 @@ async function getRecords() {
   if (error) { console.error(error); return []; }
   return data.map(r => ({
     id: r.id, workerName: r.worker_name, jobRef: r.job_ref,
-    jobType: r.job_type, date: r.date, duration: r.duration, parts: r.parts
+    jobType: r.job_type, date: r.date, duration: r.duration, parts: r.parts,
+    assetRefId: r.asset_ref_id || null
   }));
 }
 
@@ -1140,6 +1141,7 @@ function toggleHistoryDetail(i) {
 function resetState() {
   state = { workerName:'', jobRef:'', jobType:'', date:'', startTime:null, parts:[] };
   _assetRefId = null;
+  _selectedInvId = null;
   const assetInput = document.getElementById('job-asset');
   if (assetInput) assetInput.value = '';
   clearInterval(timerInterval);
