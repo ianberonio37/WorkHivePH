@@ -921,9 +921,9 @@ async function submitJoin() {
     errEl.classList.remove('hidden'); return;
   }
 
-  // Check if this worker has been kicked from this hive
+  // Check if this worker already has a membership row
   const { data: existingRow } = await db.from('hive_members')
-    .select('status')
+    .select('role, status')
     .eq('hive_id', hive.id)
     .eq('worker_name', WORKER_NAME)
     .maybeSingle();
@@ -934,17 +934,21 @@ async function submitJoin() {
     errEl.classList.remove('hidden'); return;
   }
 
-  const joinRole = 'worker';
+  // Preserve existing role (supervisor must not be downgraded to worker on rejoin)
+  const joinRole = existingRow ? existingRow.role : 'worker';
 
-  const { error: joinErr } = await db.from('hive_members').upsert({
-    hive_id: hive.id, worker_name: WORKER_NAME, role: joinRole, status: 'active'
-  }, { onConflict: 'hive_id,worker_name' });
-
-  if (joinErr) {
-    btn.textContent = 'Join Hive'; btn.disabled = false;
-    errEl.textContent = 'Could not join: ' + joinErr.message;
-    errEl.classList.remove('hidden'); return;
+  if (!existingRow) {
+    // New member — insert as worker
+    const { error: joinErr } = await db.from('hive_members').insert({
+      hive_id: hive.id, worker_name: WORKER_NAME, role: 'worker', status: 'active'
+    });
+    if (joinErr) {
+      btn.textContent = 'Join Hive'; btn.disabled = false;
+      errEl.textContent = 'Could not join: ' + joinErr.message;
+      errEl.classList.remove('hidden'); return;
+    }
   }
+  // Existing active member — just restore localStorage, no upsert needed
 
   localStorage.setItem('wh_hive_id',        hive.id);
   localStorage.setItem('wh_hive_name',      hive.name);
