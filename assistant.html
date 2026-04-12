@@ -385,23 +385,20 @@
     // ── Load records summary on setup screen ──────────────────────
     async function loadRecordsSummary() {
       const name = localStorage.getItem(KEY_WORKER) || '';
-      let logbookCount = 0, checklistCount = 0, partsCount = 0;
+      let logbookCount = 0, checklistCount = 0;
       if (name) {
-        const [l, c, p] = await Promise.all([
+        const [l, c] = await Promise.all([
           db.from('logbook').select('id', { count: 'exact', head: true }).eq('worker_name', name),
           db.from('checklist_records').select('id', { count: 'exact', head: true }).eq('worker_name', name),
-          db.from('parts_records').select('id', { count: 'exact', head: true }).eq('worker_name', name),
         ]);
         logbookCount = l.count || 0;
         checklistCount = c.count || 0;
-        partsCount = p.count || 0;
       }
 
       const list = document.getElementById('records-list');
       const items = [
-        { label: 'Logbook entries',    count: logbookCount,   color: '#F7A21B' },
-        { label: 'Checklist records',  count: checklistCount, color: '#29B6D9' },
-        { label: 'Parts used records', count: partsCount,     color: '#4ade80' },
+        { label: 'Logbook entries',   count: logbookCount,   color: '#F7A21B' },
+        { label: 'Checklist records', count: checklistCount, color: '#29B6D9' },
       ];
       const nudge = document.getElementById('empty-records-nudge');
       if (nudge) nudge.classList.toggle('hidden', items.some(i => i.count > 0));
@@ -418,15 +415,13 @@
     async function buildSystemPrompt(name, contextNote) {
       const pastDate   = new Date(Date.now() - 3  * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
       const futureDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-      const [lRes, cRes, pRes, sRes] = await Promise.all([
-        db.from('logbook').select('date,machine,maintenance_type,category,status,problem,root_cause,downtime_hours,action').eq('worker_name', name).order('date', { ascending: false }).limit(10),
+      const [lRes, cRes, sRes] = await Promise.all([
+        db.from('logbook').select('date,machine,maintenance_type,category,status,problem,root_cause,downtime_hours,action,parts_used').eq('worker_name', name).order('date', { ascending: false }).limit(10),
         db.from('checklist_records').select('start_time,job_type,items').eq('worker_name', name).order('end_time', { ascending: false }).limit(10),
-        db.from('parts_records').select('date,job_ref,parts').eq('worker_name', name).order('created_at', { ascending: false }).limit(10),
         db.from('schedule_items').select('date,start_time,end_time,title,category,item_status,notes').eq('worker_name', name).gte('date', pastDate).lte('date', futureDate).order('date', { ascending: true }).order('start_time', { ascending: true }),
       ]);
       const logbook   = lRes.data || [];
       const checklist = cRes.data || [];
-      const parts     = pRes.data || [];
       const schedule  = sRes.data || [];
 
       const fmtDate = iso => {
@@ -448,11 +443,13 @@
           }).join('\n')
         : 'No checklist records yet.';
 
-      const partsText = parts.length
-        ? parts.map(r =>
-            `[${fmtDate(r.date)}] Job Ref: ${r.job_ref || 'N/A'} | Parts: ${(r.parts || []).map(p => `${p.name} x${p.qty}`).join(', ') || 'N/A'}`
+      // Parts used — sourced from logbook entries (parts_used JSONB column)
+      const partsEntries = logbook.filter(e => (e.parts_used || []).length > 0);
+      const partsText = partsEntries.length
+        ? partsEntries.map(e =>
+            `[${fmtDate(e.date)}] Machine: ${e.machine || 'N/A'} | Parts: ${(e.parts_used || []).map(p => `${p.partName || p.name || 'Unknown'} x${p.qty}`).join(', ')}`
           ).join('\n')
-        : 'No parts records yet.';
+        : 'No parts used recorded in recent logbook entries.';
 
       const scheduleText = schedule.length
         ? schedule.map(s => {
@@ -466,8 +463,29 @@
       const todayISO = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
       const todayReadable = new Date().toLocaleDateString('en-PH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-      return `You are a personal work assistant for an industrial worker named ${name}.
+      return `You are a personal work assistant for an industrial worker named ${name}, built into the WorkHive platform.
 TODAY'S DATE: ${todayReadable} (${todayISO}). Use this as your reference for "today", "tomorrow", "yesterday", etc.
+
+--- PLATFORM CONTEXT ---
+WorkHive is a free industrial intelligence platform for field workers and their teams — from technicians to supervisors to plant managers. It is not limited to any one role.
+
+Current tools available on the platform:
+
+STAGE 1 — Core Worker Tools:
+- Digital Logbook (logbook.html): Record daily maintenance jobs — machine, problem, root cause, action taken, downtime, parts used, photos. Supports open/close status and asset linking.
+- Work Checklist (checklist.html): Standard pre/post task checklists per job type with pass/fail items and timestamps.
+- Day Planner (dayplanner.html): DILO (Day in the Life Of) / WILO / MILO / YILO multi-resolution scheduler. Plan daily, weekly, monthly, and yearly work. Integrates with logbook history.
+- My Work Assistant (assistant.html): This page. Ask technical questions, get insights from your own job records, or just talk through a problem.
+
+STAGE 2 — Team Tools:
+- WorkHive Live Board (hive.html): Join or create a team hive. Supervisors manage membership (workers can be removed/kicked and blocked from rejoining). Live activity feed shows team logbook entries in real time. Supervisors can approve/reject parts and asset submissions from workers.
+- Inventory Manager (inventory.html): Parts and consumables stock ledger. Workers can use stock and restock. In hive mode, only supervisors can edit or remove inventory items. New parts submitted by workers require supervisor approval before appearing in the shared catalog. Full transaction history per part.
+
+IMPORTANT PLATFORM NOTES:
+- The Parts Used Tracker (parts-tracker.html) has been retired. Parts used are now logged directly inside Logbook entries (when status = Closed, a "Parts Used" section appears).
+- Hive membership is enforced: a kicked worker cannot rejoin using the invite code. They must be re-added by a supervisor.
+- Supervisor roles are preserved across sign-out/sign-in cycles and device switches.
+--- END PLATFORM CONTEXT ---
 
 This person may be a field technician, supervisor, engineer, planner, or plant manager. Adapt your tone and depth to whoever they are. If their context note or records suggest their role, use that to calibrate. When in doubt, be clear and practical for any level.
 
@@ -476,10 +494,13 @@ You handle three types of conversations. Adapt naturally:
 1. WORK QUESTIONS (technical, procedures, equipment, safety, standards, planning, operations, management)
    → Answer from your general industrial knowledge. If relevant records exist below, cite the specific entry (date, machine, or job reference). If records are empty, answer from general knowledge and mention no records exist yet. Do not invent any.
 
-2. PERSONAL / EMOTIONAL (feelings, stress, motivation, life outside work)
-   → Respond with warmth and genuine encouragement. Use general wisdom, humor, or a motivational thought. NEVER invent or reference fake work events, fake job numbers, fake dates, or fake achievements to sound relatable. This destroys trust.
+2. PLATFORM QUESTIONS (how to use WorkHive, where to find a feature, what a tool does)
+   → Use the platform context above. Be specific about which page handles what.
 
-3. MIXED OR OPEN-ENDED
+3. PERSONAL / EMOTIONAL (feelings, stress, motivation, life outside work)
+   → Respond with warmth and genuine encouragement. NEVER invent or reference fake work events, fake job numbers, fake dates, or fake achievements to sound relatable. This destroys trust.
+
+4. MIXED OR OPEN-ENDED
    → Use your judgment. Be helpful, honest, and human.
 
 STRICT RULE: You may ONLY reference records that are explicitly listed below. If the records show "No entries yet", there is nothing to reference. Say so and move on.
@@ -493,7 +514,7 @@ ${logbookText}
 CHECKLISTS:
 ${checklistText}
 
-PARTS USED:
+PARTS USED (from logbook entries):
 ${partsText}
 
 SCHEDULE (last 3 days + next 14 days):
@@ -526,17 +547,16 @@ ${scheduleText}
       addTypingIndicator();
 
       // Build system prompt and welcome message in background
-      const [systemPrompt, lc, cc, pc] = await Promise.all([
+      const [systemPrompt, lc, cc] = await Promise.all([
         buildSystemPrompt(workerName, contextNote),
         db.from('logbook').select('id', { count: 'exact', head: true }).eq('worker_name', workerName),
         db.from('checklist_records').select('id', { count: 'exact', head: true }).eq('worker_name', workerName),
-        db.from('parts_records').select('id', { count: 'exact', head: true }).eq('worker_name', workerName),
       ]);
 
       window._systemPrompt = systemPrompt;
       removeTypingIndicator();
 
-      const hasRecords = (lc.count || 0) + (cc.count || 0) + (pc.count || 0) > 0;
+      const hasRecords = (lc.count || 0) + (cc.count || 0) > 0;
       const recordsNote = hasRecords
         ? "I can see your job records and will reference them when relevant."
         : "You don't have any records yet. Add logbook entries, checklists, or parts to unlock personalised insights. For now I can help with technical questions, procedures, or anything on your mind.";
