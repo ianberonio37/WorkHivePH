@@ -823,7 +823,7 @@ function closePartModal() {
   editingItemId = null;
 }
 
-function submitPart() {
+async function submitPart() {
   const partNumber = document.getElementById('f-part-number').value.trim();
   const partName   = document.getElementById('f-part-name').value.trim();
   const qtyRaw     = document.getElementById('f-qty').value;
@@ -872,7 +872,12 @@ function submitPart() {
   } else {
     const item = { id: Date.now().toString(), ...payload, photo: currentPhotoData || null, created_at: now };
     items.push(item);
-    saveInventory(items);
+    _items = items; // update local cache immediately
+
+    // Await DB insert before adding transaction — FK constraint requires item to exist first
+    const { error: insertErr } = await db.from('inventory_items').upsert({ ...item, worker_name: WORKER_NAME });
+    if (insertErr) { showFormError(errEl, 'Could not save part: ' + insertErr.message); return; }
+
     if (qty > 0) addTransaction(item.id, 'add', qty, qty, 'Initial stock entry');
     showToast(HIVE_ID ? `${partNumber} submitted for supervisor approval.` : `${partNumber} added to inventory.`);
   }
