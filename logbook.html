@@ -528,6 +528,27 @@
               </button>
             </div>
 
+            <!-- Work Tasklist Acknowledgment (shown when status = Closed) -->
+            <div id="tasklist-ack-section" class="hidden">
+              <div class="rounded-xl p-3" style="background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.18);">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-[11px] font-bold uppercase tracking-widest" style="color:#29B6D9;">Work Tasklist</p>
+                  <button type="button" id="btn-view-tasklist" class="text-[11px] font-semibold flex items-center gap-1" style="color:#29B6D9;background:none;border:none;cursor:pointer;min-height:44px;padding:0.25rem 0;">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    View Tasklist
+                  </button>
+                </div>
+                <label id="tasklist-ack-label" class="flex items-center gap-3 cursor-pointer" style="min-height:44px;">
+                  <input type="checkbox" id="tasklist-ack-check" class="hidden" />
+                  <div id="tasklist-ack-box" class="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-all" style="background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.2);">
+                    <svg id="tasklist-ack-tick" class="w-3.5 h-3.5 hidden" fill="none" viewBox="0 0 24 24" stroke="#4ade80" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                  </div>
+                  <span class="text-sm text-white/70">I have read the work tasklist for this job</span>
+                </label>
+                <p id="tasklist-ack-error" class="hidden text-[11px] mt-1.5" style="color:#f87171;">Please acknowledge you have read the work tasklist before closing.</p>
+              </div>
+            </div>
+
             <div class="flex gap-2 pt-1">
               <button type="submit" id="save-entry-btn" class="btn-primary flex-1">Save Entry</button>
               <button type="button" id="clear-form" class="btn-secondary px-4">Clear</button>
@@ -758,6 +779,29 @@
 </div>
 
 <!-- PARTS PICKER MODAL -->
+<!-- Work Tasklist Modal -->
+<div id="tasklist-modal" class="fixed inset-0 z-50 flex items-end justify-center" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); padding-bottom:env(safe-area-inset-bottom);">
+  <div class="card w-full max-w-lg mx-4 mb-4" style="max-height:85vh; display:flex; flex-direction:column;">
+    <div class="p-5 border-b flex-shrink-0" style="border-color:rgba(255,255,255,0.07);">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-sm text-white">Work Tasklist</h3>
+          <p id="tasklist-modal-subtitle" class="text-[11px] text-white/40 mt-0.5"></p>
+        </div>
+        <button id="tasklist-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="tasklist-modal-items" class="overflow-y-auto p-4 flex-1 flex flex-col gap-2"></div>
+    <div class="p-4 border-t flex-shrink-0" style="border-color:rgba(255,255,255,0.07);">
+      <label class="block text-[11px] font-semibold text-white/40 uppercase tracking-widest mb-2">Add Note <span class="normal-case font-normal">(optional)</span></label>
+      <textarea id="tasklist-modal-note" class="wh-input text-sm mb-3" rows="2" placeholder="Additional steps, observations, or deviations from procedure..."></textarea>
+      <button id="tasklist-modal-done" class="btn-primary w-full">Done — Back to Logbook</button>
+    </div>
+  </div>
+</div>
+
 <div id="parts-picker-modal" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
   <div class="card w-full max-w-md" style="max-height:82vh; display:flex; flex-direction:column;">
     <div class="p-5 border-b" style="border-color:rgba(255,255,255,0.07);">
@@ -897,6 +941,8 @@ async function loadEntries() {
     parts_used: r.parts_used || [],
     closed_at: r.closed_at || null,
     created_at: r.created_at || null,
+    tasklist_acknowledged: r.tasklist_acknowledged || false,
+    tasklist_note: r.tasklist_note || null,
     worker_name: r.worker_name   // needed for team view attribution
   }));
 }
@@ -910,7 +956,9 @@ async function addEntry(entry) {
     photo: entry.photo, status: entry.status, hive_id: HIVE_ID,
     asset_ref_id: entry.asset_ref_id || null,
     parts_used: entry.parts_used || [],
-    closed_at: entry.status === 'Closed' ? new Date().toISOString() : null
+    closed_at: entry.status === 'Closed' ? new Date().toISOString() : null,
+    tasklist_acknowledged: entry.tasklist_acknowledged || false,
+    tasklist_note: entry.tasklist_note || null
   });
   if (error) { alert('Could not save entry: ' + error.message); return; }
   document.getElementById('sync-badge').classList.remove('hidden');
@@ -1659,6 +1707,15 @@ async function openModal(id) {
       </div>
     </div>` : ''}
 
+    ${entry.status === 'Closed' ? `
+    <div class="flex items-center gap-2 mt-2 rounded-lg px-3 py-2" style="background:${entry.tasklist_acknowledged ? 'rgba(74,222,128,0.08)' : 'rgba(255,255,255,0.03)'};border:1px solid ${entry.tasklist_acknowledged ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.07)'};">
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="${entry.tasklist_acknowledged ? '#4ade80' : 'rgba(255,255,255,0.2)'}" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      <div class="flex-1 min-w-0">
+        <span class="text-xs font-semibold" style="color:${entry.tasklist_acknowledged ? '#4ade80' : 'rgba(255,255,255,0.3)'};">${entry.tasklist_acknowledged ? 'Work tasklist read' : 'Tasklist not acknowledged'}</span>
+        ${entry.tasklist_note ? `<p class="text-[10px] text-white/40 mt-0.5 truncate">${escHtml(entry.tasklist_note)}</p>` : ''}
+      </div>
+    </div>` : ''}
+
     <div class="flex gap-2 pt-2 border-t border-white/[0.07] mt-2">
       <button onclick="openEditModal('${entry.id}')" class="btn-primary flex-1 text-sm">Edit Entry</button>
       <button onclick="confirmDelete('${entry.id}'); document.getElementById('modal').classList.add('hidden');" class="btn-danger px-4 text-sm py-2">Delete</button>
@@ -1816,8 +1873,10 @@ async function saveEdit(id) {
     status:          newStatus,
     asset_ref_id:    assetMatch ? assetMatch.id : null,
     hive_id:         HIVE_ID,
-    parts_used:      _editPartsUsed.map(p => ({ partId: p.partId, partName: p.partName, partNumber: p.partNumber, qty: p.qty, unit: p.unit })),
-    closed_at:       closedAt,
+    parts_used:             _editPartsUsed.map(p => ({ partId: p.partId, partName: p.partName, partNumber: p.partNumber, qty: p.qty, unit: p.unit })),
+    closed_at:              closedAt,
+    tasklist_acknowledged:  existing?.tasklist_acknowledged || false,
+    tasklist_note:          existing?.tasklist_note || null,
   };
   const { error } = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME);
   if (error) { alert('Could not update entry: ' + error.message); return; }
@@ -1887,13 +1946,28 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     return;
   }
 
+  // Tasklist acknowledgment gate
+  const tasklistSection = document.getElementById('tasklist-ack-section');
+  const tasklistCheck   = document.getElementById('tasklist-ack-check');
+  if (!tasklistSection.classList.contains('hidden') && !tasklistCheck.checked) {
+    document.getElementById('tasklist-ack-error').classList.remove('hidden');
+    document.getElementById('tasklist-ack-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save Entry';
+    return;
+  }
+  const tasklistAcknowledged = !tasklistSection.classList.contains('hidden') && tasklistCheck.checked;
+  const tasklistNote         = tasklistCheck._savedNote || '';
+
   const entry = {
     id: Date.now().toString(),
     date: new Date().toISOString(),
     machine, maintenance_type: maintType, category, problem,
     root_cause: rootCause, action, knowledge, downtime_hours: downtimeHours,
     photo, status, asset_ref_id: _pendingAssetRefId,
-    parts_used: _partsUsed.map(p => ({ partId: p.partId, partName: p.partName, partNumber: p.partNumber, qty: p.qty, unit: p.unit }))
+    parts_used: _partsUsed.map(p => ({ partId: p.partId, partName: p.partName, partNumber: p.partNumber, qty: p.qty, unit: p.unit })),
+    tasklist_acknowledged: tasklistAcknowledged,
+    tasklist_note: tasklistNote,
   };
 
   await addEntry(entry);
@@ -1938,6 +2012,16 @@ function clearForm() {
   _partsUsed = [];
   renderSelectedParts();
   document.getElementById('parts-used-section').classList.add('hidden');
+  // Reset tasklist acknowledgment
+  const check = document.getElementById('tasklist-ack-check');
+  const box   = document.getElementById('tasklist-ack-box');
+  const tick  = document.getElementById('tasklist-ack-tick');
+  check.checked = false; check._savedNote = '';
+  box.style.background = 'rgba(255,255,255,0.06)';
+  box.style.borderColor = 'rgba(255,255,255,0.2)';
+  tick.classList.add('hidden');
+  document.getElementById('tasklist-ack-section').classList.add('hidden');
+  document.getElementById('tasklist-ack-error').classList.add('hidden');
   // Clear draft
   localStorage.removeItem(DRAFT_KEY);
 }
@@ -2114,6 +2198,126 @@ function showToast(msg) {
 }
 
 // ────────────────────────────────────────────
+// WORK TASKLIST
+// ────────────────────────────────────────────
+const TASKLIST_TEMPLATES = {
+  'Corrective Maintenance': {
+    'Mechanical':      ['Obtain work order / verbal instruction from supervisor','Isolate equipment and apply lockout/tagout (LOTO)','Verify zero energy state before starting work','Gather required tools and spare parts','Identify root cause of failure','Perform repair or replacement','Inspect repaired components before reassembly','Reassemble and torque bolts to spec','Remove LOTO and restore equipment','Run functional test and verify normal operation','Clean up work area','Update logbook with job details and root cause'],
+    'Electrical':      ['Obtain work order / verbal instruction from supervisor','De-energize circuit and apply LOTO','Test for absence of voltage with meter','Identify fault: open circuit, short, ground fault','Replace defective component (fuse, relay, contactor, etc.)','Verify correct wire connections and terminal tightness','Check insulation resistance if applicable','Remove LOTO and restore power','Test equipment operation under load','Clean panel and secure all covers','Update logbook with fault description and corrective action'],
+    'Instrumentation': ['Obtain work order and P&ID reference','Isolate instrument loop and apply LOTO','Identify instrument fault (sensor, transmitter, loop, wiring)','Replace or repair faulty instrument','Perform loop calibration and zero/span check','Verify signal at DCS/PLC matches field reading','Restore loop to service','Document calibration results in logbook'],
+    'Hydraulic':       ['Obtain work order and check hydraulic schematic','Depressurize hydraulic system before any work','Apply LOTO on power unit','Identify fault: seal, valve, pump, or line','Replace faulty component','Refill hydraulic fluid to correct level and type','Remove LOTO and restore system pressure gradually','Test operation and check for leaks','Update logbook'],
+    'Pneumatic':       ['Obtain work order','Isolate and bleed pneumatic system pressure to zero','Apply LOTO on compressor or supply valve','Identify fault: valve, actuator, fitting, or line','Replace faulty component','Restore air supply and verify pressure','Test pneumatic function','Update logbook'],
+    'Civil / Structural': ['Obtain work order and area safety clearance','Inspect damage extent before starting repair','Set up barricade or safety barriers around work area','Prepare materials: concrete, grout, steel, etc.','Perform repair work per specification','Inspect repaired area for quality','Remove barricades and clean area','Document repair in logbook'],
+    'Utilities':       ['Identify utility system affected (air, water, steam, gas)','Isolate supply and depressurize line','Apply LOTO on isolation valves','Repair or replace defective component','Check joints for leaks after repair','Restore utility and verify pressure/flow','Update logbook'],
+    'Automation / PLC':['Obtain work order and backup current PLC program','Identify fault: hardware, software, or communication','Apply LOTO if hardware work is required','Replace faulty module or correct program fault','Restore backup program and verify logic','Test I/O points and interlocks','Run equipment in manual then auto mode','Document changes in logbook'],
+    'Lubrication':     ['Identify equipment and lubrication point','Check current lubricant condition (color, viscosity, contamination)','Apply correct lubricant type and quantity per spec','Clean up excess grease or oil','Log lubrication performed in logbook'],
+    'HVAC':            ['De-energize HVAC unit and apply LOTO','Identify fault (compressor, fan, coil, refrigerant leak)','Perform repair or component replacement','Check refrigerant level and recharge if needed','Restore power and test operation','Verify temperature control is functioning','Update logbook'],
+  },
+  'Preventive Maintenance': {
+    'Mechanical':      ['Review PM schedule and equipment history','Prepare tools, lubricants, and replacement parts','Isolate equipment and apply LOTO','Clean equipment externally and internally','Inspect belts, chains, couplings for wear','Check and tighten all bolts and fasteners','Lubricate bearings and moving parts per schedule','Check alignment of shafts and couplings','Inspect seals and gaskets for leakage','Replace worn consumables (belts, seals, filters)','Restore equipment and perform trial run','Record PM completion and observations in logbook'],
+    'Electrical':      ['Review PM schedule and last inspection records','De-energize and apply LOTO','Inspect panel: check for signs of overheating, loose wires','Torque all terminal connections','Clean panel interior','Test insulation resistance (megger test)','Inspect contactors and relays for wear or pitting','Check overload relay settings vs. motor nameplate','Restore power and verify operation','Record PM results in logbook'],
+    'Instrumentation': ['Review calibration schedule and last calibration record','Isolate instrument loop safely','Perform zero and span calibration per procedure','Check transmitter for corrosion, moisture, or damage','Verify signal at control room matches field value','Test alarms and trips if applicable','Restore instrument to service','Record calibration data in logbook'],
+    'Hydraulic':       ['Check hydraulic fluid level and condition','Inspect all hoses, fittings, and cylinders for leaks','Check filter condition and replace if due','Verify system pressure settings against specification','Inspect pump and motor mounts for vibration','Test safety relief valve operation','Record PM completion in logbook'],
+    'Pneumatic':       ['Drain moisture from air receiver and filter bowls','Inspect pneumatic lines, fittings, and actuators for leaks','Lubricate air line lubricators with correct oil','Check compressor belt tension and condition','Verify pressure switch and relief valve settings','Record PM completion in logbook'],
+    'Civil / Structural': ['Inspect structural members for cracks, corrosion, or settlement','Check floor drains and drainage channels for blockage','Inspect roofing and wall cladding for damage or leaks','Check anchor bolts of machines for looseness','Perform minor repairs: grouting, patching, sealing','Document inspection findings in logbook'],
+    'Utilities':       ['Check utility system pressures and flow rates','Inspect pipes, valves, and fittings for leaks','Test safety relief valves for correct set pressure','Clean strainers and filters','Inspect pumps and compressors for vibration and noise','Lubricate valve stems and moving parts','Record PM completion in logbook'],
+    'Automation / PLC':['Review PLC diagnostic log for faults or warnings','Back up current PLC and HMI programs','Inspect I/O modules for indicator faults','Check battery backup voltage on PLC rack','Clean control panel with dry cloth, check cooling fans','Test critical interlocks and emergency stops','Verify HMI alarms and setpoints are correct','Record PM findings in logbook'],
+    'Lubrication':     ['Review lubrication schedule for all equipment in route','Inspect lubricant levels in gearboxes and reservoirs','Sample oil for analysis if on oil analysis program','Grease all designated points per type and quantity spec','Check for over-greasing or grease purge at seals','Replace oil in gearboxes if due per schedule','Record lubrication route completion in logbook'],
+    'HVAC':            ['Clean or replace air filters','Clean evaporator and condenser coils','Check refrigerant pressure and temperature','Inspect fan belts and motor mounts','Clean drain pans and condensate drain lines','Check thermostat/controller calibration','Run system and verify cooling/heating performance','Record PM results in logbook'],
+  },
+  'Project Work': {
+    'Mechanical':      ['Review project scope, drawings, and specifications','Obtain necessary permits (work, hot work, confined space, etc.)','Prepare materials, tools, and equipment list','Conduct pre-task safety briefing with team','Isolate affected systems and apply LOTO','Execute installation or modification per drawings','Inspect work quality at each stage','Perform dimensional and alignment checks','Commission equipment: run trial and observe','Hand over to operations with sign-off','Update logbook with project summary'],
+    'Electrical':      ['Review project drawings: single line, wiring diagram','Obtain necessary permits and approvals','Ensure correct cable sizing and breaker rating','Conduct pre-task safety briefing with team','Run conduit, pull cables, and terminate connections','Apply cable labeling per drawing','Inspect terminations and verify correct phasing','Perform insulation resistance test before energizing','Energize and test circuit function','Hand over to operations with sign-off','Update logbook with project summary'],
+    'Instrumentation': ['Review instrument data sheet and loop drawing','Obtain permits and approvals','Install instrument at correct location and orientation','Run signal cable and terminate per drawing','Perform loop calibration and functional test','Configure transmitter or controller setpoints','Verify signal at DCS/PLC and configure tag if needed','Hand over with calibration certificate','Update logbook with project summary'],
+  },
+};
+
+// Map logbook maintenance_type values to template keys
+const TASKLIST_TYPE_MAP = {
+  'Corrective Maintenance': 'Corrective Maintenance',
+  'Preventive Maintenance': 'Preventive Maintenance',
+  'Predictive Maintenance': 'Preventive Maintenance', // closest match
+  'Project Work':           'Project Work',
+};
+
+function getTasklist(maintType, category) {
+  const key = TASKLIST_TYPE_MAP[maintType];
+  if (!key) return null;
+  return TASKLIST_TEMPLATES[key]?.[category] || null;
+}
+
+function updateTasklistSection() {
+  const status   = document.querySelector('input[name="f-status"]:checked')?.value;
+  const maintType = document.getElementById('f-maint-type')?.value;
+  const category  = document.getElementById('f-category')?.value;
+  const section   = document.getElementById('tasklist-ack-section');
+  if (!section) return;
+  const isClosed  = status === 'Closed';
+  const tasks     = isClosed ? getTasklist(maintType, category) : null;
+  section.classList.toggle('hidden', !tasks);
+}
+
+// Checkbox toggle
+document.getElementById('tasklist-ack-label').addEventListener('click', () => {
+  const check = document.getElementById('tasklist-ack-check');
+  const box   = document.getElementById('tasklist-ack-box');
+  const tick  = document.getElementById('tasklist-ack-tick');
+  const err   = document.getElementById('tasklist-ack-error');
+  check.checked = !check.checked;
+  box.style.background  = check.checked ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.06)';
+  box.style.borderColor = check.checked ? '#4ade80' : 'rgba(255,255,255,0.2)';
+  tick.classList.toggle('hidden', !check.checked);
+  if (check.checked) err.classList.add('hidden');
+});
+
+// View Tasklist button
+document.getElementById('btn-view-tasklist').addEventListener('click', () => {
+  const maintType = document.getElementById('f-maint-type').value;
+  const category  = document.getElementById('f-category').value;
+  const tasks     = getTasklist(maintType, category);
+  if (!tasks) return;
+
+  const key = TASKLIST_TYPE_MAP[maintType];
+  document.getElementById('tasklist-modal-subtitle').textContent = `${key} — ${category}`;
+  document.getElementById('tasklist-modal-items').innerHTML = tasks.map((t, i) =>
+    `<div class="flex items-start gap-3 rounded-xl px-3 py-2.5" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+      <span class="text-[11px] font-black flex-shrink-0 mt-0.5" style="color:rgba(255,255,255,0.25);">${String(i + 1).padStart(2, '0')}</span>
+      <span class="text-sm text-white/80 leading-snug">${escHtml(t)}</span>
+    </div>`
+  ).join('');
+
+  // Restore any previously saved note
+  document.getElementById('tasklist-modal-note').value = document.getElementById('tasklist-ack-check')._savedNote || '';
+  document.getElementById('tasklist-modal').style.display = 'flex';
+});
+
+// Done button — auto-tick and save note
+document.getElementById('tasklist-modal-done').addEventListener('click', () => {
+  const check = document.getElementById('tasklist-ack-check');
+  const box   = document.getElementById('tasklist-ack-box');
+  const tick  = document.getElementById('tasklist-ack-tick');
+  const err   = document.getElementById('tasklist-ack-error');
+  // Store note on the checkbox element for retrieval on save
+  check._savedNote = document.getElementById('tasklist-modal-note').value.trim();
+  check.checked = true;
+  box.style.background  = 'rgba(74,222,128,0.15)';
+  box.style.borderColor = '#4ade80';
+  tick.classList.remove('hidden');
+  err.classList.add('hidden');
+  document.getElementById('tasklist-modal').style.display = 'none';
+});
+
+document.getElementById('tasklist-modal-close').addEventListener('click', () => {
+  document.getElementById('tasklist-modal').style.display = 'none';
+});
+
+// Close on backdrop tap
+document.getElementById('tasklist-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('tasklist-modal'))
+    document.getElementById('tasklist-modal').style.display = 'none';
+});
+
+// ────────────────────────────────────────────
 // STATUS TOGGLE STYLING
 // ────────────────────────────────────────────
 function updateStatusToggle(nameAttr) {
@@ -2134,6 +2338,17 @@ document.addEventListener('change', function(e) {
     const isClosed = e.target.value === 'Closed';
     document.getElementById('parts-used-section').classList.toggle('hidden', !isClosed);
     if (isClosed && _inventoryItems.length === 0) loadInventoryForPicker();
+    updateTasklistSection();
+    // Reset acknowledgment when toggling status
+    if (!isClosed) {
+      const check = document.getElementById('tasklist-ack-check');
+      const box   = document.getElementById('tasklist-ack-box');
+      const tick  = document.getElementById('tasklist-ack-tick');
+      check.checked = false; check._savedNote = '';
+      box.style.background = 'rgba(255,255,255,0.06)';
+      box.style.borderColor = 'rgba(255,255,255,0.2)';
+      tick.classList.add('hidden');
+    }
   }
   if (e.target.name === 'e-status') updateStatusToggle('e-status');
   if (e.target.name === 'a-criticality' && e.target.checked) {
@@ -2377,6 +2592,8 @@ function restoreDraft() {
 // Select/radio/checkbox (change) save immediately since they fire at most once per interaction.
 document.getElementById('log-form').addEventListener('input', debounce(saveDraft, 1500));
 document.getElementById('log-form').addEventListener('change', saveDraft);
+document.getElementById('f-maint-type').addEventListener('change', updateTasklistSection);
+document.getElementById('f-category').addEventListener('change', updateTasklistSection);
 
 // ────────────────────────────────────────────
 // INIT
