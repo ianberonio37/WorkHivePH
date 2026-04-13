@@ -354,7 +354,7 @@
           </div>
           <div class="welcome-stat">
             <p class="text-2xl font-black text-white" id="welcome-parts-count">—</p>
-            <p class="text-[11px] text-white/40 mt-1">Parts Records</p>
+            <p class="text-[11px] text-white/40 mt-1">Jobs Closed</p>
           </div>
         </div>
 
@@ -1062,13 +1062,13 @@ async function submitJoin() {
 async function showWelcome(hive) {
   document.getElementById('welcome-hive-name').textContent = escHtml(hive.name);
 
-  const [logRes, partsRes] = await Promise.all([
+  const [logRes, closedRes] = await Promise.all([
     db.from('logbook').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME),
-    db.from('parts_records').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME)
+    db.from('logbook').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME).eq('status', 'Closed')
   ]);
 
-  document.getElementById('welcome-log-count').textContent   = logRes.count   || 0;
-  document.getElementById('welcome-parts-count').textContent = partsRes.count || 0;
+  document.getElementById('welcome-log-count').textContent   = logRes.count    || 0;
+  document.getElementById('welcome-parts-count').textContent = closedRes.count || 0;
 
   showView('welcome');
 }
@@ -1249,18 +1249,13 @@ async function loadFeed() {
   const feed    = document.getElementById('feed');
   const emptyEl = document.getElementById('feed-empty');
 
-  // Fetch logbook + parts_records + checklist_records + open count in parallel
-  const [logRes, partsRes, openRes, checkRes] = await Promise.all([
+  // Fetch logbook + checklist_records + open count in parallel
+  const [logRes, openRes, checkRes] = await Promise.all([
     db.from('logbook')
       .select('id, worker_name, date, machine, category, problem, status, created_at')
       .eq('hive_id', HIVE_ID)
       .order('created_at', { ascending: false })
-      .limit(30),
-    db.from('parts_records')
-      .select('id, worker_name, job_ref, job_type, date, parts, created_at')
-      .eq('hive_id', HIVE_ID)
-      .order('created_at', { ascending: false })
-      .limit(20),
+      .limit(40),
     db.from('logbook')
       .select('*', { count: 'exact', head: true })
       .eq('hive_id', HIVE_ID)
@@ -1273,12 +1268,11 @@ async function loadFeed() {
   ]);
 
   const logEntries       = (logRes.data   || []).map(e => ({ ...e, _type: 'logbook' }));
-  const partsEntries     = (partsRes.data || []).map(e => ({ ...e, _type: 'parts' }));
   const checklistEntries = (checkRes.data || []).map(e => ({ ...e, _type: 'checklist' }));
 
   // Merge and sort by created_at (fall back to date string)
   const sortKey = e => e.created_at || e.end_time || e.date || '';
-  const merged = [...logEntries, ...partsEntries, ...checklistEntries]
+  const merged = [...logEntries, ...checklistEntries]
     .sort((a, b) => sortKey(b).localeCompare(sortKey(a)))
     .slice(0, 40);
 
@@ -1288,23 +1282,16 @@ async function loadFeed() {
   if (!merged.length) {
     // Fallback: if hive_id not yet on old entries, check by member names so existing hives aren't blank
     if (memberNames.length > 1) {
-      const [oldLogRes, oldPartsRes] = await Promise.all([
+      const [oldLogRes] = await Promise.all([
         db.from('logbook').select('id, worker_name, date, machine, category, problem, status, created_at')
           .in('worker_name', memberNames).is('hive_id', null)
-          .order('created_at', { ascending: false }).limit(30),
-        db.from('parts_records').select('id, worker_name, job_ref, job_type, date, parts, created_at')
-          .in('worker_name', memberNames).is('hive_id', null)
-          .order('created_at', { ascending: false }).limit(20)
+          .order('created_at', { ascending: false }).limit(40)
       ]);
-      const oldMerged = [
-        ...(oldLogRes.data || []).map(e => ({ ...e, _type: 'logbook' })),
-        ...(oldPartsRes.data || []).map(e => ({ ...e, _type: 'parts' }))
-      ].sort((a, b) => (b.created_at || b.date || '').localeCompare(a.created_at || a.date || '')).slice(0, 40);
+      const oldMerged = (oldLogRes.data || []).map(e => ({ ...e, _type: 'logbook' }))
+        .sort((a, b) => (b.created_at || b.date || '').localeCompare(a.created_at || a.date || '')).slice(0, 40);
       if (oldMerged.length) {
         emptyEl.classList.add('hidden');
-        feed.innerHTML = oldMerged.map(e =>
-          e._type === 'parts' ? buildPartsCard(e, false) : buildFeedCard(e, false)
-        ).join('');
+        feed.innerHTML = oldMerged.map(e => buildFeedCard(e, false)).join('');
         return;
       }
     }
@@ -1313,7 +1300,6 @@ async function loadFeed() {
   emptyEl.classList.add('hidden');
 
   feed.innerHTML = merged.map(e =>
-    e._type === 'parts'     ? buildPartsCard(e, false)     :
     e._type === 'checklist' ? buildChecklistCard(e, false) :
     buildFeedCard(e, false)
   ).join('');
@@ -1401,14 +1387,7 @@ function startFeedRealtime() {
     })
     .subscribe();
 
-  partsChannel = db.channel('hive-parts:' + HIVE_ID)
-    .on('postgres_changes', {
-      event: 'INSERT', schema: 'public', table: 'parts_records',
-      filter: 'hive_id=eq.' + HIVE_ID
-    }, (payload) => {
-      prependFeed({ ...payload.new, _type: 'parts' });
-    })
-    .subscribe();
+  // parts_records table retired — feed uses logbook only
 
   checklistChannel = db.channel('hive-checklist:' + HIVE_ID)
     .on('postgres_changes', {
@@ -1423,8 +1402,7 @@ function startFeedRealtime() {
 function prependFeed(entry) {
   document.getElementById('feed-empty').classList.add('hidden');
   const div = document.createElement('div');
-  div.innerHTML = entry._type === 'parts'     ? buildPartsCard(entry, true)     :
-                  entry._type === 'checklist' ? buildChecklistCard(entry, true) :
+  div.innerHTML = entry._type === 'checklist' ? buildChecklistCard(entry, true) :
                   buildFeedCard(entry, true);
   const feed = document.getElementById('feed');
   feed.insertBefore(div.firstElementChild, feed.firstChild);
@@ -2116,11 +2094,7 @@ async function runHiveIdBackfill() {
     .in('worker_name', memberNames)
     .is('hive_id', null);
 
-  // Same for parts_records
-  await db.from('parts_records')
-    .update({ hive_id: HIVE_ID })
-    .in('worker_name', memberNames)
-    .is('hive_id', null);
+  // parts_records table retired — no backfill needed
 }
 
 // ── CLEANUP ──
