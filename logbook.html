@@ -1919,6 +1919,7 @@ async function confirmDelete(id) {
 // FORM SUBMIT
 // ────────────────────────────────────────────
 let _pendingAssetRefId = null;
+let _tasklistNote = ''; // note from tasklist modal — module-level to survive re-renders
 
 document.getElementById('log-form').addEventListener('submit', async function(e) {
   e.preventDefault();
@@ -1958,7 +1959,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     return;
   }
   const tasklistAcknowledged = !tasklistSection.classList.contains('hidden') && tasklistCheck.checked;
-  const tasklistNote         = tasklistCheck._savedNote || '';
+  const tasklistNote         = _tasklistNote;
 
   const entry = {
     id: Date.now().toString(),
@@ -2017,7 +2018,7 @@ function clearForm() {
   const check = document.getElementById('tasklist-ack-check');
   const box   = document.getElementById('tasklist-ack-box');
   const tick  = document.getElementById('tasklist-ack-tick');
-  check.checked = false; check._savedNote = '';
+  check.checked = false; _tasklistNote = '';
   box.style.background = 'rgba(255,255,255,0.06)';
   box.style.borderColor = 'rgba(255,255,255,0.2)';
   tick.classList.add('hidden');
@@ -2230,15 +2231,21 @@ const TASKLIST_TEMPLATES = {
     'Mechanical':      ['Review project scope, drawings, and specifications','Obtain necessary permits (work, hot work, confined space, etc.)','Prepare materials, tools, and equipment list','Conduct pre-task safety briefing with team','Isolate affected systems and apply LOTO','Execute installation or modification per drawings','Inspect work quality at each stage','Perform dimensional and alignment checks','Commission equipment: run trial and observe','Hand over to operations with sign-off','Update logbook with project summary'],
     'Electrical':      ['Review project drawings: single line, wiring diagram','Obtain necessary permits and approvals','Ensure correct cable sizing and breaker rating','Conduct pre-task safety briefing with team','Run conduit, pull cables, and terminate connections','Apply cable labeling per drawing','Inspect terminations and verify correct phasing','Perform insulation resistance test before energizing','Energize and test circuit function','Hand over to operations with sign-off','Update logbook with project summary'],
     'Instrumentation': ['Review instrument data sheet and loop drawing','Obtain permits and approvals','Install instrument at correct location and orientation','Run signal cable and terminate per drawing','Perform loop calibration and functional test','Configure transmitter or controller setpoints','Verify signal at DCS/PLC and configure tag if needed','Hand over with calibration certificate','Update logbook with project summary'],
+    'Hydraulic':       ['Review project scope, hydraulic schematic, and specification','Obtain permits and safety clearances','Conduct pre-task safety briefing with team','Depressurize existing hydraulic system before any connection work','Install or modify hydraulic lines, fittings, cylinders, or valves per drawing','Ensure correct hose ratings and fittings for system pressure','Fill system with correct hydraulic fluid type to specified level','Remove LOTO and restore power to hydraulic power unit','Bleed air from system and check for leaks at all connections','Test system at operating pressure and verify function','Hand over to operations with sign-off','Update logbook with project summary'],
+    'Pneumatic':       ['Review project scope and pneumatic circuit drawing','Obtain permits and approvals','Conduct pre-task safety briefing with team','Isolate and depressurize existing air lines before connection work','Install or modify pneumatic lines, fittings, valves, or actuators per drawing','Ensure correct tubing and fitting ratings for system pressure','Restore air supply and check for leaks at all connections','Verify pressure settings at regulators and relief valves','Test pneumatic function in manual then automatic mode','Hand over to operations with sign-off','Update logbook with project summary'],
+    'Lubrication':     ['Review lubrication project scope — system upgrade, centralised lube, or new points','Obtain permits and approvals','Identify all lubrication points to be included in scope','Install grease lines, fittings, manifolds, or automatic lubrication components per drawing','Verify correct lubricant type for each application','Prime lines and verify lubricant reaches all end points','Label all lube points with lubricant type and service interval','Update equipment lubrication schedule to include new points','Hand over to maintenance team with updated schedule','Update logbook with project summary'],
+    'Other':           ['Review project scope, objective, and available documentation','Obtain required permits (work permit, hot work, confined space, heights, etc.)','Conduct pre-task safety briefing with team','Identify hazards and apply appropriate isolation and LOTO','Gather all required tools, materials, and equipment','Execute work per agreed scope and specification','Inspect quality of work at completion','Remove all isolation and LOTO','Test and verify function meets required outcome','Clean up work area and dispose of waste correctly','Hand over to operations or maintenance team with sign-off','Update logbook with project summary'],
   },
 };
 
 // Map logbook maintenance_type values to template keys
 const TASKLIST_TYPE_MAP = {
-  'Corrective Maintenance': 'Corrective Maintenance',
-  'Preventive Maintenance': 'Preventive Maintenance',
-  'Predictive Maintenance': 'Preventive Maintenance', // closest match
-  'Project Work':           'Project Work',
+  'Breakdown / Corrective':  'Corrective Maintenance',
+  'Corrective Maintenance':  'Corrective Maintenance',
+  'Preventive Maintenance':  'Preventive Maintenance',
+  'Predictive Maintenance':  'Preventive Maintenance', // closest match
+  'Inspection':              'Preventive Maintenance', // closest match
+  'Project Work':            'Project Work',
 };
 
 function getTasklist(maintType, category) {
@@ -2288,7 +2295,7 @@ document.getElementById('btn-view-tasklist').addEventListener('click', () => {
   ).join('');
 
   // Restore any previously saved note
-  document.getElementById('tasklist-modal-note').value = document.getElementById('tasklist-ack-check')._savedNote || '';
+  document.getElementById('tasklist-modal-note').value = _tasklistNote;
   document.getElementById('tasklist-modal').style.display = 'flex';
 });
 
@@ -2299,7 +2306,7 @@ document.getElementById('tasklist-modal-done').addEventListener('click', () => {
   const tick  = document.getElementById('tasklist-ack-tick');
   const err   = document.getElementById('tasklist-ack-error');
   // Store note on the checkbox element for retrieval on save
-  check._savedNote = document.getElementById('tasklist-modal-note').value.trim();
+  _tasklistNote = document.getElementById('tasklist-modal-note').value.trim();
   check.checked = true;
   box.style.background  = 'rgba(74,222,128,0.15)';
   box.style.borderColor = '#4ade80';
@@ -2310,7 +2317,7 @@ document.getElementById('tasklist-modal-done').addEventListener('click', () => {
 
 document.getElementById('tasklist-modal-close').addEventListener('click', () => {
   // Save note draft even when closing via X
-  document.getElementById('tasklist-ack-check')._savedNote = document.getElementById('tasklist-modal-note').value.trim();
+  _tasklistNote = document.getElementById('tasklist-modal-note').value.trim();
   document.getElementById('tasklist-modal').style.display = 'none';
 });
 
@@ -2347,7 +2354,7 @@ document.addEventListener('change', function(e) {
       const check = document.getElementById('tasklist-ack-check');
       const box   = document.getElementById('tasklist-ack-box');
       const tick  = document.getElementById('tasklist-ack-tick');
-      check.checked = false; check._savedNote = '';
+      check.checked = false; _tasklistNote = '';
       box.style.background = 'rgba(255,255,255,0.06)';
       box.style.borderColor = 'rgba(255,255,255,0.2)';
       tick.classList.add('hidden');
