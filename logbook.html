@@ -895,6 +895,8 @@ async function loadEntries() {
     downtime_hours: r.downtime_hours, photo: r.photo, status: r.status,
     asset_ref_id: r.asset_ref_id || null,
     parts_used: r.parts_used || [],
+    closed_at: r.closed_at || null,
+    created_at: r.created_at || null,
     worker_name: r.worker_name   // needed for team view attribution
   }));
 }
@@ -907,7 +909,8 @@ async function addEntry(entry) {
     action: entry.action, knowledge: entry.knowledge, downtime_hours: entry.downtime_hours,
     photo: entry.photo, status: entry.status, hive_id: HIVE_ID,
     asset_ref_id: entry.asset_ref_id || null,
-    parts_used: entry.parts_used || []
+    parts_used: entry.parts_used || [],
+    closed_at: entry.status === 'Closed' ? new Date().toISOString() : null
   });
   if (error) { alert('Could not save entry: ' + error.message); return; }
   document.getElementById('sync-badge').classList.remove('hidden');
@@ -1789,6 +1792,18 @@ async function saveEdit(id) {
   const downtimeRaw = document.getElementById('e-downtime').value;
   const machine     = document.getElementById('e-machine').value.trim();
   const assetMatch  = loadAssets().find(a => a.asset_id.toUpperCase() === machine.toUpperCase());
+  const newStatus   = document.querySelector('input[name="e-status"]:checked').value;
+
+  // Resolve closed_at: set when closing, clear when reopening, preserve if already closed
+  const entries   = await loadEntries();
+  const existing  = entries.find(e => e.id === id);
+  let closedAt;
+  if (newStatus === 'Closed') {
+    closedAt = existing?.closed_at || new Date().toISOString(); // preserve original close time if re-saving
+  } else {
+    closedAt = null; // reopened — reset the clock
+  }
+
   const updates = {
     machine,
     maintenance_type: document.getElementById('e-maint-type').value,
@@ -1798,10 +1813,11 @@ async function saveEdit(id) {
     action:          document.getElementById('e-action').value.trim(),
     knowledge:       document.getElementById('e-knowledge').value.trim(),
     downtime_hours:  downtimeRaw !== '' ? parseFloat(downtimeRaw) : null,
-    status:          document.querySelector('input[name="e-status"]:checked').value,
+    status:          newStatus,
     asset_ref_id:    assetMatch ? assetMatch.id : null,
     hive_id:         HIVE_ID,
     parts_used:      _editPartsUsed.map(p => ({ partId: p.partId, partName: p.partName, partNumber: p.partNumber, qty: p.qty, unit: p.unit })),
+    closed_at:       closedAt,
   };
   const { error } = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME);
   if (error) { alert('Could not update entry: ' + error.message); return; }

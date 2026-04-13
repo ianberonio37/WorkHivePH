@@ -538,6 +538,24 @@
         </div>
       </div>
 
+      <!-- MTTR (Mean Time to Repair) -->
+      <div id="mttr-panel" class="hidden mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">MTTR — Mean Time to Repair</p>
+          <button id="btn-toggle-mttr" style="color:#34d399;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;padding:0.5rem 0;">Show</button>
+        </div>
+        <div id="mttr-body" style="display:none;">
+          <p class="text-[10px] text-white/25 mb-2">Elapsed time from entry created to marked Closed. Clock time — includes non-working hours.</p>
+          <div id="mttr-summary" class="rounded-xl px-3 py-3 mb-2" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+            <div class="flex justify-between items-center">
+              <span class="text-[11px] text-white/40">Hive Average MTTR</span>
+              <span id="mttr-avg" class="text-lg font-black" style="color:#34d399;">—</span>
+            </div>
+          </div>
+          <div id="mttr-list" class="flex flex-col gap-2"></div>
+        </div>
+      </div>
+
       <!-- Hive Inventory (all members) -->
       <div id="hive-inventory-panel" class="hidden mb-5">
         <div class="flex items-center justify-between mb-2">
@@ -1150,7 +1168,7 @@ async function initBoard() {
 
   updateSwitchButton();
   // allSettled — never rejects, so startPresence() is always reached even if one data load fails
-  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), loadAnalytics(), buildNotifications(), loadApprovalQueue(), loadHiveInventory(), loadDowntime(), loadMtbf()]);
+  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), loadAnalytics(), buildNotifications(), loadApprovalQueue(), loadHiveInventory(), loadDowntime(), loadMtbf(), loadMttr()]);
   _boardResults.forEach((r, i) => { if (r.status === 'rejected') console.error('initBoard step', i, 'failed:', r.reason); });
   // Team stock alert needs memberNames populated by loadMembers first
   checkTeamStockAlert();
@@ -1817,6 +1835,14 @@ document.getElementById('btn-toggle-approval').addEventListener('click', () => {
   btn.textContent = isHidden ? 'Hide' : 'Show';
 });
 
+document.getElementById('btn-toggle-mttr').addEventListener('click', () => {
+  const body = document.getElementById('mttr-body');
+  const btn  = document.getElementById('btn-toggle-mttr');
+  const isHidden = body.style.display === 'none';
+  body.style.display = isHidden ? '' : 'none';
+  btn.textContent = isHidden ? 'Hide' : 'Show';
+});
+
 document.getElementById('btn-toggle-mtbf').addEventListener('click', () => {
   const body = document.getElementById('mtbf-body');
   const btn  = document.getElementById('btn-toggle-mtbf');
@@ -1840,6 +1866,78 @@ document.getElementById('btn-toggle-hive-inv').addEventListener('click', () => {
   body.style.display = isHidden ? '' : 'none';
   btn.textContent = isHidden ? 'Hide' : 'Show';
 });
+
+// ── MTTR (MEAN TIME TO REPAIR) ──
+async function loadMttr() {
+  if (!HIVE_ID) return;
+  const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+
+  const { data: closed } = await db.from('logbook')
+    .select('id, machine, worker_name, problem, created_at, closed_at')
+    .eq('hive_id', HIVE_ID)
+    .eq('status', 'Closed')
+    .not('closed_at', 'is', null)
+    .gte('closed_at', ninetyDaysAgo)
+    .order('closed_at', { ascending: false })
+    .limit(200);
+
+  if (!closed || !closed.length) return;
+  document.getElementById('mttr-panel').classList.remove('hidden');
+
+  const formatDuration = ms => {
+    const totalMins = Math.floor(ms / 60000);
+    const days  = Math.floor(totalMins / 1440);
+    const hrs   = Math.floor((totalMins % 1440) / 60);
+    const mins  = totalMins % 60;
+    if (days > 0)  return `${days}d ${hrs}h`;
+    if (hrs > 0)   return `${hrs}h ${mins}m`;
+    return `${mins}m`;
+  };
+
+  // Compute per-entry repair times
+  const entries = closed.map(e => ({
+    ...e,
+    repairMs: new Date(e.closed_at).getTime() - new Date(e.created_at).getTime()
+  })).filter(e => e.repairMs >= 0);
+
+  if (!entries.length) return;
+
+  // Hive average
+  const avgMs = entries.reduce((sum, e) => sum + e.repairMs, 0) / entries.length;
+  document.getElementById('mttr-avg').textContent = formatDuration(avgMs);
+
+  // Group by machine, compute per-asset average
+  const byMachine = {};
+  entries.forEach(e => {
+    const m = e.machine || 'Unknown';
+    if (!byMachine[m]) byMachine[m] = { total: 0, count: 0 };
+    byMachine[m].total += e.repairMs;
+    byMachine[m].count++;
+  });
+
+  const ranked = Object.entries(byMachine)
+    .map(([machine, { total, count }]) => ({ machine, avgMs: total / count, count }))
+    .sort((a, b) => b.avgMs - a.avgMs); // slowest to fix at top
+
+  const maxMs = ranked[0]?.avgMs || 1;
+
+  document.getElementById('mttr-list').innerHTML = ranked.map(item => {
+    const pct   = Math.round((item.avgMs / maxMs) * 100);
+    const ratio = item.avgMs / maxMs;
+    const color = ratio > 0.66 ? '#f87171' : ratio > 0.33 ? '#F7A21B' : '#34d399';
+    const label = item.count === 1 ? '1 repair' : `${item.count} repairs`;
+    return `<div class="rounded-xl px-3 py-2.5" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+      <div class="flex items-center justify-between mb-1">
+        <span class="text-xs font-bold text-white truncate mr-2">${escHtml(item.machine)}</span>
+        <span class="text-[11px] font-black flex-shrink-0" style="color:${color};">avg ${escHtml(formatDuration(item.avgMs))}</span>
+      </div>
+      <div class="rounded-full h-1.5 mb-1.5" style="background:rgba(255,255,255,0.06);">
+        <div class="rounded-full h-1.5 transition-all duration-500" style="width:${pct}%;background:${color};"></div>
+      </div>
+      <span class="text-[10px] text-white/30">${escHtml(label)} in 90 days</span>
+    </div>`;
+  }).join('');
+}
 
 // ── MTBF PER ASSET ──
 async function loadMtbf() {
