@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Skill Matrix | WorkHive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0f1923;
+      color: #F4F6FA;
+      min-height: 100vh;
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+
+    /* ── Aurora background ── */
+    .aurora {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 0; overflow: hidden;
+    }
+    .aurora-blob {
+      position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.07;
+    }
+    .aurora-blob-1 { width: 500px; height: 500px; background: #29B6D9; top: -100px; left: -100px; }
+    .aurora-blob-2 { width: 400px; height: 400px; background: #F7A21B; bottom: 0; right: -100px; }
+
+    /* ── Layout ── */
+    .page { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+    /* ── Header ── */
+    .page-header { margin-bottom: 1.5rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 800; color: #fff; }
+    .page-header p { font-size: 0.8rem; color: #7B8794; margin-top: 0.25rem; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-80px);
+      background: rgba(31,46,69,0.97); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: 0.8rem;
+      color: #fff; z-index: 9999; transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      display: flex; align-items: center; gap: 0.5rem; max-width: 320px;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast-icon { font-size: 1rem; }
+
+    /* ── Cards ── */
+    .card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem; padding: 1.25rem;
+    }
+
+    /* ── Radar chart section ── */
+    .chart-section { margin-bottom: 1.5rem; }
+    .chart-section .card { display: flex; flex-direction: column; align-items: center; }
+    .chart-title { font-size: 0.9rem; font-weight: 600; color: #fff; align-self: flex-start; margin-bottom: 0.5rem; }
+    .chart-legend { display: flex; gap: 1rem; margin-top: 0.75rem; font-size: 0.7rem; color: #7B8794; }
+    .chart-legend span { display: flex; align-items: center; gap: 0.35rem; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+    #radar-canvas { max-width: 280px; max-height: 280px; }
+    .chart-fallback { display: none; width: 100%; }
+    .chart-fallback table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+    .chart-fallback td { padding: 0.4rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .chart-fallback .label { color: #7B8794; }
+    .chart-fallback .val { text-align: right; font-weight: 600; }
+
+    /* ── Discipline cards ── */
+    .section-title { font-size: 0.75rem; font-weight: 600; color: #7B8794; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; }
+    .discipline-cards { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
+
+    .disc-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem;
+      border-left: 4px solid var(--disc-color);
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .disc-card:active { transform: scale(0.98); }
+    .disc-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
+    .disc-card-name { font-size: 0.9rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 0.5rem; }
+    .disc-icon { width: 20px; height: 20px; color: var(--disc-color); }
+    .disc-level-badge {
+      font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.5rem;
+      border-radius: 999px; background: rgba(255,255,255,0.08);
+      color: var(--disc-color); border: 1px solid var(--disc-color);
+    }
+    .disc-card-progress { margin-bottom: 0.6rem; }
+    .level-dots { display: flex; gap: 6px; margin-bottom: 0.4rem; }
+    .level-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.15);
+      transition: all 0.2s;
+    }
+    .level-dot.earned { background: var(--disc-color); border-color: var(--disc-color); }
+    .level-dot.target { border-color: var(--disc-color); background: rgba(255,255,255,0.05); }
+    .progress-bar-bg { height: 4px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; border-radius: 999px; background: var(--disc-color); transition: width 0.5s; }
+    .disc-card-footer { display: flex; align-items: center; justify-content: space-between; }
+    .disc-target-row { font-size: 0.7rem; color: #7B8794; }
+    .disc-cta { font-size: 0.7rem; font-weight: 600; color: var(--disc-color); display: flex; align-items: center; gap: 0.25rem; }
+    .disc-cta svg { width: 12px; height: 12px; }
+    .disc-card.primary-badge .disc-card-name::after {
+      content: 'Primary'; font-size: 0.55rem; font-weight: 600;
+      background: var(--disc-color); color: #162032; border-radius: 999px;
+      padding: 0.1rem 0.4rem; margin-left: 0.25rem;
+    }
+
+    /* ── Target stepper ── */
+    .target-section { margin-bottom: 1.5rem; }
+    .target-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .target-item { display: flex; align-items: center; justify-content: space-between; background: rgba(22,32,50,0.4); border-radius: 0.75rem; padding: 0.6rem 0.75rem; }
+    .target-name { font-size: 0.72rem; font-weight: 600; color: #F4F6FA; flex: 1; }
+    .stepper { display: flex; align-items: center; gap: 0.35rem; }
+    .step-btn {
+      width: 28px; height: 28px; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.05); color: #fff; font-size: 1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: background 0.15s;
+      min-width: 44px; min-height: 44px;
+    }
+    .step-btn:active { background: rgba(255,255,255,0.15); }
+    .step-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .step-val { font-size: 0.85rem; font-weight: 700; color: #fff; width: 18px; text-align: center; }
+    .target-save-btn {
+      width: 100%; margin-top: 0.75rem;
+      background: linear-gradient(135deg, #F7A21B, #FDB94A);
+      color: #162032; font-weight: 700; border: none; border-radius: 0.75rem;
+      padding: 0.75rem 1.5rem; font-size: 0.875rem; cursor: pointer;
+      font-family: 'Poppins', sans-serif; transition: all 0.2s;
+    }
+    .target-save-btn:active { opacity: 0.75; transform: scale(0.98); }
+    .target-save-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ── Onboarding ── */
+    #onboarding-section { display: none; margin-bottom: 1.5rem; }
+    .onboard-card { text-align: center; padding: 2rem 1.5rem; }
+    .onboard-card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .onboard-card p { font-size: 0.8rem; color: #7B8794; margin-bottom: 1.5rem; }
+    .primary-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.25rem; }
+    .primary-option {
+      padding: 0.75rem 0.5rem; border-radius: 0.75rem; border: 2px solid rgba(255,255,255,0.1);
+      background: rgba(22,32,50,0.4); cursor: pointer; font-size: 0.75rem; font-weight: 600;
+      color: #7B8794; transition: all 0.2s; text-align: center;
+    }
+    .primary-option:active { transform: scale(0.96); }
+    .primary-option.selected { border-color: var(--disc-color); color: var(--disc-color); background: rgba(255,255,255,0.04); }
+
+    /* ── Modals (full-screen bottom-sheet) ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px); z-index: 500;
+      display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-sheet {
+      background: linear-gradient(180deg, #1a2a3e, #162032);
+      border-radius: 1.25rem 1.25rem 0 0;
+      border: 1px solid rgba(255,255,255,0.08);
+      width: 100%; max-width: 680px;
+      max-height: 92vh; display: flex; flex-direction: column;
+      transform: translateY(40px); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .modal-overlay.open .modal-sheet { transform: translateY(0); }
+    .modal-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 999px; margin: 0.75rem auto 0; }
+    .modal-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 1rem 1.25rem 0.75rem;
+    }
+    .modal-title { font-size: 1rem; font-weight: 700; color: #fff; }
+    .modal-subtitle { font-size: 0.7rem; color: #7B8794; margin-top: 0.15rem; }
+    .modal-close-btn {
+      width: 36px; height: 36px; border-radius: 0.5rem; border: none;
+      background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5);
+      cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      min-width: 44px; min-height: 44px;
+    }
+    .modal-body { overflow-y: auto; flex: 1; padding: 0 1.25rem 1.25rem; }
+    .modal-footer { padding: 0.75rem 1.25rem 1rem; border-top: 1px solid rgba(255,255,255,0.06); }
+
+    /* ── Lesson modal ── */
+    .lesson-body { font-size: 0.82rem; color: rgba(255,255,255,0.8); line-height: 1.7; }
+    .lesson-body h3 { font-size: 0.9rem; font-weight: 700; color: #fff; margin: 1.25rem 0 0.4rem; }
+    .lesson-body p { margin-bottom: 0.75rem; }
+    .lesson-read-gate {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.75rem; color: #7B8794; margin-bottom: 0.75rem;
+    }
+    .scroll-hint { font-size: 0.7rem; color: #7B8794; text-align: center; margin-bottom: 0.5rem; }
+    .btn-primary {
+      width: 100%; background: linear-gradient(135deg, #F7A21B, #FDB94A);
+      color: #162032; font-weight: 700; border: none; border-radius: 0.75rem;
+      padding: 0.875rem 1.5rem; font-size: 0.875rem; cursor: pointer;
+      font-family: 'Poppins', sans-serif; transition: all 0.2s;
+    }
+    .btn-primary:active { opacity: 0.75; transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+    .btn-ghost {
+      width: 100%; background: transparent; color: rgba(255,255,255,0.5);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 0.75rem;
+      padding: 0.75rem 1.5rem; font-size: 0.85rem; cursor: pointer;
+      font-family: 'Poppins', sans-serif; transition: all 0.2s; margin-top: 0.5rem;
+    }
+    .btn-ghost:active { background: rgba(255,255,255,0.08); }
+
+    /* ── Exam modal ── */
+    .exam-progress-bar { height: 3px; background: rgba(255,255,255,0.08); border-radius: 999px; margin-bottom: 1rem; overflow: hidden; }
+    .exam-progress-fill { height: 100%; background: #29B6D9; border-radius: 999px; transition: width 0.3s; }
+    .exam-progress-label { font-size: 0.7rem; color: #7B8794; text-align: right; margin-top: -0.85rem; margin-bottom: 0.75rem; }
+    .exam-question { font-size: 0.9rem; font-weight: 600; color: #fff; line-height: 1.5; margin-bottom: 1rem; }
+    .exam-options { display: flex; flex-direction: column; gap: 0.5rem; }
+    .exam-option {
+      display: flex; align-items: center; gap: 0.75rem;
+      background: rgba(22,32,50,0.5); border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 0.75rem; padding: 0.875rem 1rem;
+      cursor: pointer; transition: all 0.15s; font-size: 0.82rem; color: #F4F6FA;
+      min-height: 56px; text-align: left; width: 100%;
+      font-family: 'Poppins', sans-serif;
+    }
+    .exam-option:active { background: rgba(41,182,217,0.1); }
+    .exam-option.selected { border-color: #29B6D9; background: rgba(41,182,217,0.1); color: #fff; }
+    .exam-option.correct { border-color: #4ade80; background: rgba(74,222,128,0.1); color: #4ade80; }
+    .exam-option.wrong { border-color: #f87171; background: rgba(248,113,113,0.1); color: #f87171; }
+    .exam-option.reveal-correct { border-color: #4ade80; background: rgba(74,222,128,0.07); }
+    .option-letter {
+      width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 700;
+      background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5);
+    }
+    .exam-option.selected .option-letter { background: #29B6D9; color: #162032; }
+    .exam-option.correct .option-letter { background: #4ade80; color: #162032; }
+    .exam-option.wrong .option-letter { background: #f87171; color: #162032; }
+    .exam-option.reveal-correct .option-letter { background: #4ade80; color: #162032; }
+    .exam-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; }
+    .nav-dots { display: flex; gap: 5px; }
+    .nav-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.15); }
+    .nav-dot.answered { background: #29B6D9; }
+    .nav-dot.current { background: #fff; }
+    .btn-next {
+      background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032;
+      font-weight: 700; border: none; border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem; font-size: 0.82rem; cursor: pointer;
+      font-family: 'Poppins', sans-serif; transition: all 0.2s; min-width: 44px; min-height: 44px;
+    }
+    .btn-next:disabled { opacity: 0.3; cursor: not-allowed; }
+    .btn-next:active { opacity: 0.75; }
+
+    /* ── Result modal ── */
+    .result-badge-wrap { text-align: center; padding: 1.5rem 0 1rem; }
+    .result-badge-hex {
+      width: 100px; height: 100px; margin: 0 auto 1rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; font-weight: 900;
+      clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+      animation: badgePop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes badgePop { from { transform: scale(0) rotate(-15deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
+    .result-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 0.25rem; }
+    .result-score { font-size: 0.85rem; color: #7B8794; margin-bottom: 0.5rem; }
+    .result-msg { font-size: 0.8rem; color: rgba(255,255,255,0.6); line-height: 1.6; }
+    .result-review { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.35rem; }
+    .result-review-item {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+      font-size: 0.72rem; color: rgba(255,255,255,0.6); padding: 0.4rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .result-review-item .ri-icon { font-size: 0.8rem; flex-shrink: 0; margin-top: 1px; }
+    .cooldown-timer { font-size: 0.75rem; color: #F7A21B; font-weight: 600; margin-top: 0.5rem; }
+
+    /* ── Loading skeleton ── */
+    .skeleton { background: rgba(255,255,255,0.06); border-radius: 0.5rem; animation: shimmer 1.5s infinite; }
+    @keyframes shimmer { 0%,100%{opacity:0.5} 50%{opacity:1} }
+    .skel-chart { width: 260px; height: 260px; border-radius: 50%; margin: 0 auto; }
+    .skel-card { height: 90px; border-radius: 1rem; margin-bottom: 0.75rem; }
+
+    /* ── Misc ── */
+    .hidden { display: none !important; }
+    .text-cyan { color: #29B6D9; }
+    .text-green { color: #4ade80; }
+    .text-amber { color: #F7A21B; }
+    .text-red { color: #f87171; }
+  </style>
+</head>
+<body>
+
+<div class="aurora" aria-hidden="true">
+  <div class="aurora-blob aurora-blob-1"></div>
+  <div class="aurora-blob aurora-blob-2"></div>
+</div>
+
+<!-- Toast -->
+<div id="toast" role="alert" aria-live="polite">
+  <span id="toast-icon">✓</span>
+  <span id="toast-text"></span>
+</div>
+
+<main class="page">
+
+  <!-- Header -->
+  <header class="page-header">
+    <h1>Skill Matrix</h1>
+    <p id="header-sub">Track your industrial competency across all disciplines</p>
+  </header>
+
+  <!-- Onboarding (first-time setup) -->
+  <section id="onboarding-section">
+    <div class="card onboard-card">
+      <h2>Choose Your Primary Discipline</h2>
+      <p>Your primary skill is set to target Level 5. All other skills default to Level 2. You can adjust targets anytime.</p>
+      <div class="primary-picker" id="primary-picker">
+        <!-- injected by JS -->
+      </div>
+      <button class="btn-primary" id="onboard-save-btn" disabled>Set Primary Discipline →</button>
+    </div>
+  </section>
+
+  <!-- Skeleton loaders -->
+  <section id="skeleton-section">
+    <div class="card chart-section" style="margin-bottom:1.5rem;">
+      <div class="skeleton skel-chart"></div>
+    </div>
+    <div class="skeleton skel-card"></div>
+    <div class="skeleton skel-card"></div>
+    <div class="skeleton skel-card"></div>
+  </section>
+
+  <!-- Main content (shown after load) -->
+  <div id="main-content" class="hidden">
+
+    <!-- Radar Chart -->
+    <section class="chart-section card" style="margin-bottom:1.5rem;">
+      <div class="chart-title">Skill Overview</div>
+      <canvas id="radar-canvas" width="280" height="280"></canvas>
+      <div class="chart-fallback" id="chart-fallback">
+        <table><tbody id="fallback-table"></tbody></table>
+      </div>
+      <div class="chart-legend">
+        <span><span class="legend-dot" style="background:#29B6D9"></span>Target</span>
+        <span><span class="legend-dot" style="background:#4ade80"></span>Actual</span>
+      </div>
+    </section>
+
+    <!-- Target Adjustment -->
+    <section class="target-section">
+      <div class="section-title">Your Targets</div>
+      <div class="target-grid" id="target-grid"><!-- injected --></div>
+      <button class="target-save-btn" id="target-save-btn">Save Targets</button>
+    </section>
+
+    <!-- Discipline Cards -->
+    <section class="discipline-cards-section">
+      <div class="section-title">Disciplines</div>
+      <div class="discipline-cards" id="discipline-cards"><!-- injected --></div>
+    </section>
+
+  </div><!-- /main-content -->
+
+</main>
+
+<!-- ─── Lesson Modal ─────────────────────────────────────────────────────── -->
+<div id="lesson-modal" class="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="lesson-title"></div>
+        <div class="modal-subtitle" id="lesson-subtitle"></div>
+      </div>
+      <button class="modal-close-btn" id="lesson-close-btn" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="lesson-body-scroll">
+      <div class="lesson-body" id="lesson-content"></div>
+    </div>
+    <div class="modal-footer">
+      <p class="scroll-hint" id="lesson-scroll-hint">Scroll to the bottom to unlock the exam</p>
+      <button class="btn-primary" id="lesson-exam-btn" disabled>Take Exam →</button>
+      <button class="btn-ghost" id="lesson-back-btn">Back to Matrix</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Exam Modal ───────────────────────────────────────────────────────── -->
+<div id="exam-modal" class="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="exam-title"></div>
+        <div class="modal-subtitle" id="exam-subtitle"></div>
+      </div>
+      <button class="modal-close-btn" id="exam-close-btn" aria-label="Close exam">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="exam-progress-bar"><div class="exam-progress-fill" id="exam-prog-fill"></div></div>
+      <div class="exam-progress-label" id="exam-prog-label"></div>
+      <div class="exam-question" id="exam-question-text"></div>
+      <div class="exam-options" id="exam-options-wrap"></div>
+    </div>
+    <div class="modal-footer">
+      <div class="exam-nav">
+        <div class="nav-dots" id="exam-nav-dots"></div>
+        <button class="btn-next" id="exam-next-btn" disabled>Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Result Modal ─────────────────────────────────────────────────────── -->
+<div id="result-modal" class="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-body">
+      <div class="result-badge-wrap">
+        <div class="result-badge-hex" id="result-badge-hex"></div>
+        <div class="result-title" id="result-title"></div>
+        <div class="result-score" id="result-score"></div>
+        <div class="result-msg" id="result-msg"></div>
+        <div class="cooldown-timer hidden" id="cooldown-timer"></div>
+      </div>
+      <div class="result-review" id="result-review"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-primary" id="result-primary-btn"></button>
+      <button class="btn-ghost" id="result-back-btn">Back to Matrix</button>
+    </div>
+  </div>
+</div>
+
+<script src="utils.js"></script>
+<script src="skill-content.js"></script>
+<script>
+// ─── Supabase ─────────────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ─── Identity ─────────────────────────────────────────────────────────────────
+const WORKER_NAME = localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName');
+if (!WORKER_NAME) { window.location.href = 'index.html'; }
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let _profile   = null;   // { primary_skill, targets }
+let _badges    = {};     // { Mechanical: [1,2,3], Electrical: [1], ... }
+let _radarChart = null;
+
+// Exam flow
+let _activeDiscipline  = null;
+let _activeLevel       = null;
+let _examAnswers       = [];   // index = question idx, value = chosen option idx
+let _examSubmitted     = false;
+let _currentQuestion   = 0;
+let _examQuestions     = [];
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+function showToast(msg, icon = '✓') {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = msg;
+  document.getElementById('toast-icon').textContent = icon;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+async function init() {
+  // Load profile and badges in parallel
+  const [profileRes, badgesRes] = await Promise.all([
+    db.from('skill_profiles').select('*').eq('worker_name', WORKER_NAME).maybeSingle(),
+    db.from('skill_badges').select('discipline, level').eq('worker_name', WORKER_NAME),
+  ]);
+
+  // Handle DB errors gracefully — use cached data if available
+  if (profileRes.error && profileRes.error.code !== 'PGRST116') {
+    console.warn('skill_profiles fetch error:', profileRes.error.message);
+  }
+
+  _profile = profileRes.data || null;
+
+  // Build badges map
+  _badges = {};
+  for (const d of DISCIPLINES) _badges[d] = [];
+  if (badgesRes.data) {
+    for (const b of badgesRes.data) {
+      if (_badges[b.discipline]) _badges[b.discipline].push(b.level);
+    }
+  }
+
+  document.getElementById('skeleton-section').classList.add('hidden');
+
+  if (!_profile) {
+    showOnboarding();
+  } else {
+    showMatrix();
+  }
+}
+
+// ─── Onboarding ───────────────────────────────────────────────────────────────
+function showOnboarding() {
+  document.getElementById('onboarding-section').style.display = 'block';
+  let selectedPrimary = null;
+
+  const picker = document.getElementById('primary-picker');
+  picker.innerHTML = DISCIPLINES.map(d => `
+    <div class="primary-option" data-disc="${escHtml(d)}" style="--disc-color:${DISCIPLINE_COLORS[d]}">
+      ${escHtml(d)}
+    </div>
+  `).join('');
+
+  picker.querySelectorAll('.primary-option').forEach(el => {
+    el.addEventListener('click', () => {
+      picker.querySelectorAll('.primary-option').forEach(e => e.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedPrimary = el.dataset.disc;
+      document.getElementById('onboard-save-btn').disabled = false;
+    });
+  });
+
+  document.getElementById('onboard-save-btn').addEventListener('click', async () => {
+    if (!selectedPrimary) return;
+    const btn = document.getElementById('onboard-save-btn');
+    btn.disabled = true; btn.textContent = 'Saving…';
+
+    const targets = {};
+    for (const d of DISCIPLINES) targets[d] = d === selectedPrimary ? 5 : 2;
+
+    const { error } = await db.from('skill_profiles').upsert({
+      worker_name: WORKER_NAME,
+      primary_skill: selectedPrimary,
+      targets,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'worker_name' });
+
+    if (error) {
+      showToast('Could not save profile. Please try again.', '✗');
+      btn.disabled = false; btn.textContent = 'Set Primary Discipline →';
+      return;
+    }
+
+    _profile = { primary_skill: selectedPrimary, targets };
+    document.getElementById('onboarding-section').style.display = 'none';
+    showToast('Profile saved! Welcome to Skill Matrix.', '🎯');
+    showMatrix();
+  });
+}
+
+// ─── Matrix View ──────────────────────────────────────────────────────────────
+function showMatrix() {
+  document.getElementById('main-content').classList.remove('hidden');
+  document.getElementById('header-sub').textContent =
+    `Primary: ${_profile.primary_skill} · ${WORKER_NAME}`;
+
+  renderTargetGrid();
+  renderDisciplineCards();
+  renderRadarChart();
+}
+
+// ─── Target Grid ──────────────────────────────────────────────────────────────
+function renderTargetGrid() {
+  const grid = document.getElementById('target-grid');
+  grid.innerHTML = DISCIPLINES.map(d => {
+    const isPrimary = d === _profile.primary_skill;
+    const current = _profile.targets[d] ?? (isPrimary ? 5 : 2);
+    const min = isPrimary ? 5 : 1;
+    const max = isPrimary ? 5 : 4;
+    return `
+      <div class="target-item" style="--disc-color:${DISCIPLINE_COLORS[d]}">
+        <div class="target-name" style="color:${DISCIPLINE_COLORS[d]}">${escHtml(d.split(' ')[0])}</div>
+        <div class="stepper">
+          <button class="step-btn" data-disc="${escHtml(d)}" data-dir="-1" ${current <= min ? 'disabled' : ''} aria-label="Decrease target">−</button>
+          <span class="step-val" id="step-val-${escHtml(d.replace(/ /g,'_'))}">${current}</span>
+          <button class="step-btn" data-disc="${escHtml(d)}" data-dir="1" ${current >= max ? 'disabled' : ''} aria-label="Increase target">+</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.step-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const disc = btn.dataset.disc;
+      const dir = parseInt(btn.dataset.dir);
+      const isPrimary = disc === _profile.primary_skill;
+      const min = isPrimary ? 5 : 1;
+      const max = isPrimary ? 5 : 4;
+      const current = _profile.targets[disc] ?? (isPrimary ? 5 : 2);
+      const next = Math.min(max, Math.max(min, current + dir));
+      _profile.targets[disc] = next;
+      renderTargetGrid(); // re-render to update disabled states
+      renderDisciplineCards();
+      renderRadarChart();
+    });
+  });
+}
+
+document.getElementById('target-save-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('target-save-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+
+  const { error } = await db.from('skill_profiles').upsert({
+    worker_name: WORKER_NAME,
+    primary_skill: _profile.primary_skill,
+    targets: _profile.targets,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: 'worker_name' });
+
+  if (error) {
+    showToast('Could not save targets. Please try again.', '✗');
+  } else {
+    showToast('Targets saved!', '✓');
+  }
+  btn.disabled = false; btn.textContent = 'Save Targets';
+});
+
+// ─── Discipline Cards ─────────────────────────────────────────────────────────
+function getActualLevel(disc) {
+  const earned = _badges[disc] || [];
+  if (!earned.length) return 0;
+  // Actual = highest consecutive level from 1
+  for (let l = 1; l <= 5; l++) {
+    if (!earned.includes(l)) return l - 1;
+  }
+  return 5;
+}
+
+function renderDisciplineCards() {
+  const container = document.getElementById('discipline-cards');
+  container.innerHTML = DISCIPLINES.map(disc => {
+    const color = DISCIPLINE_COLORS[disc];
+    const actual = getActualLevel(disc);
+    const target = _profile.targets[disc] ?? 2;
+    const isPrimary = disc === _profile.primary_skill;
+    const nextLevel = actual + 1;
+    const canAttempt = nextLevel <= 5 && nextLevel <= (target + 1);
+    const pct = target > 0 ? Math.round((actual / target) * 100) : 0;
+
+    const dots = Array.from({length: 5}, (_, i) => {
+      const lv = i + 1;
+      const earned = (lv <= actual);
+      const isTarget = (lv === target && !earned);
+      return `<div class="level-dot ${earned ? 'earned' : isTarget ? 'target' : ''}" title="Level ${lv}"></div>`;
+    }).join('');
+
+    const ctaText = actual >= target
+      ? 'Target reached ✓'
+      : canAttempt
+        ? `Start Level ${nextLevel} →`
+        : `Improve target to unlock`;
+
+    return `
+      <div class="disc-card ${isPrimary ? 'primary-badge' : ''}" style="--disc-color:${color}"
+           data-disc="${escHtml(disc)}" role="button" tabindex="0" aria-label="Open ${escHtml(disc)}">
+        <div class="disc-card-header">
+          <div class="disc-card-name">
+            <svg class="disc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="${DISCIPLINE_ICONS[disc]}"/>
+            </svg>
+            ${escHtml(disc)}
+          </div>
+          <div class="disc-level-badge">Lv ${actual} / ${target}</div>
+        </div>
+        <div class="disc-card-progress">
+          <div class="level-dots">${dots}</div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width:${pct}%"></div>
+          </div>
+        </div>
+        <div class="disc-card-footer">
+          <div class="disc-target-row">Target: Level ${target} · Actual: Level ${actual}</div>
+          <div class="disc-cta ${actual >= target ? 'text-green' : ''}">${escHtml(ctaText)}
+            ${actual < target && canAttempt ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>' : ''}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  container.querySelectorAll('.disc-card').forEach(card => {
+    card.addEventListener('click', () => openDiscipline(card.dataset.disc));
+    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openDiscipline(card.dataset.disc); });
+  });
+}
+
+// ─── Radar Chart ──────────────────────────────────────────────────────────────
+function renderRadarChart() {
+  const targets = DISCIPLINES.map(d => _profile.targets[d] ?? 2);
+  const actuals = DISCIPLINES.map(d => getActualLevel(d));
+  const labels = ['Mech', 'Elec', 'Inst', 'Fac Mgmt', 'Prod'];
+
+  try {
+    if (_radarChart) _radarChart.destroy();
+    const ctx = document.getElementById('radar-canvas').getContext('2d');
+    _radarChart = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Target', data: targets,
+            borderColor: '#29B6D9', backgroundColor: 'rgba(41,182,217,0.12)',
+            borderWidth: 2, pointBackgroundColor: '#29B6D9', pointRadius: 3,
+          },
+          {
+            label: 'Actual', data: actuals,
+            borderColor: '#4ade80', backgroundColor: 'rgba(74,222,128,0.12)',
+            borderWidth: 2, pointBackgroundColor: '#4ade80', pointRadius: 3,
+          },
+        ]
+      },
+      options: {
+        scales: {
+          r: {
+            min: 0, max: 5, ticks: { stepSize: 1, display: false },
+            grid: { color: 'rgba(255,255,255,0.07)' },
+            angleLines: { color: 'rgba(255,255,255,0.07)' },
+            pointLabels: { color: '#7B8794', font: { family: 'Poppins', size: 11 } },
+          }
+        },
+        plugins: { legend: { display: false } },
+        animation: { duration: 400 },
+      }
+    });
+    document.getElementById('chart-fallback').style.display = 'none';
+  } catch(e) {
+    // Chart.js CDN failed — show fallback table
+    console.warn('Chart.js unavailable:', e);
+    document.getElementById('radar-canvas').style.display = 'none';
+    document.getElementById('chart-fallback').style.display = 'block';
+    const tbody = document.getElementById('fallback-table');
+    tbody.innerHTML = DISCIPLINES.map((d, i) =>
+      `<tr><td class="label">${escHtml(d)}</td><td class="val" style="color:#29B6D9">${targets[i]}</td><td class="val" style="color:#4ade80">${actuals[i]}</td></tr>`
+    ).join('');
+  }
+}
+
+// ─── Open Discipline ──────────────────────────────────────────────────────────
+async function openDiscipline(disc) {
+  const actual = getActualLevel(disc);
+  const target = _profile.targets[disc] ?? 2;
+  const nextLevel = actual + 1;
+
+  if (actual >= 5 || actual >= target) {
+    showToast(actual >= 5 ? 'Maximum level reached!' : 'Raise your target to continue.', '🏆');
+    return;
+  }
+
+  // Check retake cooldown from DB
+  const { data: lastAttempt } = await db.from('skill_exam_attempts')
+    .select('attempted_at, passed')
+    .eq('worker_name', WORKER_NAME)
+    .eq('discipline', disc)
+    .eq('level', nextLevel)
+    .order('attempted_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (lastAttempt && !lastAttempt.passed) {
+    const elapsed = Date.now() - new Date(lastAttempt.attempted_at).getTime();
+    const cooldown = 24 * 60 * 60 * 1000;
+    if (elapsed < cooldown) {
+      const remaining = cooldown - elapsed;
+      const h = Math.floor(remaining / 3600000);
+      const m = Math.floor((remaining % 3600000) / 60000);
+      showToast(`Retake available in ${h}h ${m}m`, '⏱');
+      return;
+    }
+  }
+
+  openLesson(disc, nextLevel);
+}
+
+// ─── Lesson Modal ─────────────────────────────────────────────────────────────
+function openLesson(disc, level) {
+  _activeDiscipline = disc;
+  _activeLevel = level;
+
+  const content = SKILL_CONTENT[disc]?.[level];
+  if (!content) { showToast('Content not available.', '✗'); return; }
+
+  document.getElementById('lesson-title').textContent = `${disc} — Level ${level}`;
+  document.getElementById('lesson-subtitle').textContent = content.title;
+  document.getElementById('lesson-content').innerHTML = content.module;
+
+  const scrollEl = document.getElementById('lesson-body-scroll');
+  const examBtn = document.getElementById('lesson-exam-btn');
+  const hint = document.getElementById('lesson-scroll-hint');
+  examBtn.disabled = true;
+  hint.classList.remove('hidden');
+
+  // Check if draft exam exists
+  const draftKey = `wh_exam_draft_${WORKER_NAME}_${disc}_${level}`;
+  const draft = localStorage.getItem(draftKey);
+
+  function checkScroll() {
+    const nearBottom = scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 80;
+    if (nearBottom) {
+      examBtn.disabled = false;
+      hint.classList.add('hidden');
+      scrollEl.removeEventListener('scroll', checkScroll);
+    }
+  }
+  scrollEl.addEventListener('scroll', checkScroll);
+  scrollEl.scrollTop = 0; // reset scroll on open
+
+  // Restore draft notification
+  if (draft) {
+    showToast('Exam in progress — continue where you left off?', '📝');
+  }
+
+  openModal('lesson-modal');
+}
+
+document.getElementById('lesson-close-btn').addEventListener('click', closeLesson);
+document.getElementById('lesson-back-btn').addEventListener('click', closeLesson);
+function closeLesson() {
+  closeModal('lesson-modal');
+  resetExamFlow();
+}
+
+document.getElementById('lesson-exam-btn').addEventListener('click', () => {
+  closeModal('lesson-modal');
+  openExam();
+});
+
+// ─── Exam Modal ───────────────────────────────────────────────────────────────
+function openExam() {
+  const content = SKILL_CONTENT[_activeDiscipline]?.[_activeLevel];
+  if (!content) return;
+
+  _examQuestions = content.exam;
+  _examSubmitted = false;
+
+  // Restore draft if exists
+  const draftKey = `wh_exam_draft_${WORKER_NAME}_${_activeDiscipline}_${_activeLevel}`;
+  const draft = localStorage.getItem(draftKey);
+  if (draft) {
+    try {
+      const parsed = JSON.parse(draft);
+      _examAnswers = parsed.answers || new Array(10).fill(null);
+      _currentQuestion = parsed.currentQ || 0;
+    } catch { _examAnswers = new Array(10).fill(null); _currentQuestion = 0; }
+  } else {
+    _examAnswers = new Array(10).fill(null);
+    _currentQuestion = 0;
+  }
+
+  document.getElementById('exam-title').textContent = `${_activeDiscipline} — Level ${_activeLevel} Exam`;
+  document.getElementById('exam-subtitle').textContent = content.title;
+
+  renderExamQuestion();
+  openModal('exam-modal');
+}
+
+function renderExamQuestion() {
+  const q = _examQuestions[_currentQuestion];
+  const total = _examQuestions.length;
+
+  // Progress
+  const pct = (((_currentQuestion) / total) * 100);
+  document.getElementById('exam-prog-fill').style.width = pct + '%';
+  document.getElementById('exam-prog-label').textContent = `Question ${_currentQuestion + 1} of ${total}`;
+
+  // Question text
+  document.getElementById('exam-question-text').textContent = q.q;
+
+  // Options
+  const wrap = document.getElementById('exam-options-wrap');
+  const letters = ['A','B','C','D'];
+  wrap.innerHTML = q.options.map((opt, i) => `
+    <button class="exam-option${_examAnswers[_currentQuestion] === i ? ' selected' : ''}"
+            data-idx="${i}" type="button">
+      <span class="option-letter">${letters[i]}</span>
+      ${escHtml(opt)}
+    </button>
+  `).join('');
+
+  wrap.querySelectorAll('.exam-option').forEach(btn => {
+    btn.addEventListener('click', () => selectAnswer(parseInt(btn.dataset.idx)));
+  });
+
+  // Nav dots
+  const dotsEl = document.getElementById('exam-nav-dots');
+  dotsEl.innerHTML = _examQuestions.map((_, i) => {
+    const cls = i === _currentQuestion ? 'current' : _examAnswers[i] !== null ? 'answered' : '';
+    return `<div class="nav-dot ${cls}"></div>`;
+  }).join('');
+
+  // Next button
+  const nextBtn = document.getElementById('exam-next-btn');
+  const isLast = _currentQuestion === total - 1;
+  const allAnswered = _examAnswers.every(a => a !== null);
+  nextBtn.textContent = isLast ? (allAnswered ? 'Submit →' : 'Next →') : 'Next →';
+  nextBtn.disabled = _examAnswers[_currentQuestion] === null;
+}
+
+function selectAnswer(idx) {
+  if (_examSubmitted) return;
+  _examAnswers[_currentQuestion] = idx;
+
+  // Update option states
+  document.querySelectorAll('.exam-option').forEach((btn, i) => {
+    btn.classList.toggle('selected', i === idx);
+    btn.querySelector('.option-letter').style.background = i === idx ? '#29B6D9' : '';
+    btn.querySelector('.option-letter').style.color = i === idx ? '#162032' : '';
+  });
+
+  document.getElementById('exam-next-btn').disabled = false;
+
+  // Save draft
+  const draftKey = `wh_exam_draft_${WORKER_NAME}_${_activeDiscipline}_${_activeLevel}`;
+  localStorage.setItem(draftKey, JSON.stringify({ answers: _examAnswers, currentQ: _currentQuestion }));
+}
+
+document.getElementById('exam-next-btn').addEventListener('click', () => {
+  const total = _examQuestions.length;
+  const isLast = _currentQuestion === total - 1;
+  const allAnswered = _examAnswers.every(a => a !== null);
+
+  if (isLast && allAnswered) {
+    submitExam();
+  } else if (!isLast) {
+    _currentQuestion++;
+    renderExamQuestion();
+  }
+});
+
+document.getElementById('exam-close-btn').addEventListener('click', () => {
+  // Save draft before closing
+  if (!_examSubmitted && _activeDiscipline) {
+    const draftKey = `wh_exam_draft_${WORKER_NAME}_${_activeDiscipline}_${_activeLevel}`;
+    localStorage.setItem(draftKey, JSON.stringify({ answers: _examAnswers, currentQ: _currentQuestion }));
+  }
+  closeModal('exam-modal');
+  resetExamFlow();
+});
+
+async function submitExam() {
+  _examSubmitted = true;
+  const score = _examAnswers.reduce((acc, chosen, i) =>
+    acc + (chosen === _examQuestions[i].answer ? 1 : 0), 0);
+  const passed = score >= 7;
+  const disc = _activeDiscipline;
+  const level = _activeLevel;
+
+  // Clear draft
+  const draftKey = `wh_exam_draft_${WORKER_NAME}_${disc}_${level}`;
+  localStorage.removeItem(draftKey);
+
+  // Save attempt to DB
+  const attemptData = {
+    worker_name: WORKER_NAME,
+    discipline: disc,
+    level,
+    score,
+    passed,
+    answers: _examAnswers.map((chosen, i) => ({
+      q: i, chosen, correct: chosen === _examQuestions[i].answer
+    })),
+    attempted_at: new Date().toISOString(),
+  };
+
+  const { error: attemptErr } = await db.from('skill_exam_attempts').insert(attemptData);
+  if (attemptErr) {
+    console.error('attempt save error:', attemptErr.message);
+    showToast('Could not save attempt. Check connection.', '✗');
+  }
+
+  // Save badge if passed (UNIQUE constraint prevents duplication)
+  if (passed) {
+    const { error: badgeErr } = await db.from('skill_badges').upsert({
+      worker_name: WORKER_NAME,
+      discipline: disc,
+      level,
+      exam_score: score,
+      earned_at: new Date().toISOString(),
+    }, { onConflict: 'worker_name,discipline,level', ignoreDuplicates: true });
+
+    if (badgeErr) {
+      console.error('badge save error:', badgeErr.message);
+      showToast('Badge save failed. Please contact support.', '✗');
+    } else {
+      // Update local badge state
+      if (!_badges[disc].includes(level)) _badges[disc].push(level);
+    }
+  }
+
+  closeModal('exam-modal');
+  openResult(disc, level, score, passed);
+}
+
+// ─── Result Modal ─────────────────────────────────────────────────────────────
+function openResult(disc, level, score, passed) {
+  const color = DISCIPLINE_COLORS[disc];
+  const hexEl = document.getElementById('result-badge-hex');
+  hexEl.style.background = passed
+    ? `linear-gradient(135deg, ${color}, ${color}aa)`
+    : 'linear-gradient(135deg, #374151, #1f2937)';
+  hexEl.style.boxShadow = passed ? `0 0 40px ${color}40` : 'none';
+  hexEl.textContent = passed ? level : '✗';
+
+  document.getElementById('result-title').textContent = passed
+    ? `Level ${level} Unlocked!` : `Not Yet — Try Again`;
+  document.getElementById('result-score').textContent = `Score: ${score} / 10`;
+  document.getElementById('result-title').className = `result-title ${passed ? 'text-green' : 'text-amber'}`;
+
+  document.getElementById('result-msg').textContent = passed
+    ? `Excellent work! You've demonstrated ${LEVEL_LABELS[level]} competency in ${disc}.`
+    : `You need 7 or more correct answers to pass. Review the module and try again in 24 hours.`;
+
+  // Cooldown timer
+  const cdEl = document.getElementById('cooldown-timer');
+  if (!passed) {
+    cdEl.classList.remove('hidden');
+    cdEl.textContent = 'Retake available in: 24h 00m';
+    let remaining = 24 * 60 * 60 * 1000;
+    const interval = setInterval(() => {
+      remaining -= 60000;
+      if (remaining <= 0) { clearInterval(interval); cdEl.textContent = 'Retake now available'; return; }
+      const h = Math.floor(remaining / 3600000);
+      const m = Math.floor((remaining % 3600000) / 60000);
+      cdEl.textContent = `Retake available in: ${h}h ${m}m`;
+    }, 60000);
+  } else {
+    cdEl.classList.add('hidden');
+  }
+
+  // Answer review
+  const reviewEl = document.getElementById('result-review');
+  reviewEl.innerHTML = _examQuestions.map((q, i) => {
+    const correct = _examAnswers[i] === q.answer;
+    return `
+      <div class="result-review-item">
+        <span class="ri-icon ${correct ? 'text-green' : 'text-red'}">${correct ? '✓' : '✗'}</span>
+        <span>${escHtml(q.q)}</span>
+      </div>`;
+  }).join('');
+
+  // CTA buttons
+  const primaryBtn = document.getElementById('result-primary-btn');
+  if (passed && level < 5 && level < (_profile.targets[disc] ?? 2)) {
+    primaryBtn.textContent = `Continue to Level ${level + 1} →`;
+    primaryBtn.onclick = () => { closeModal('result-modal'); resetExamFlow(); openDiscipline(disc); };
+  } else {
+    primaryBtn.textContent = 'Back to Matrix';
+    primaryBtn.onclick = () => { closeModal('result-modal'); resetExamFlow(); refreshMatrix(); };
+  }
+
+  document.getElementById('result-back-btn').onclick = () => {
+    closeModal('result-modal');
+    resetExamFlow();
+    refreshMatrix();
+  };
+
+  openModal('result-modal');
+}
+
+// ─── Reset Flow ───────────────────────────────────────────────────────────────
+function resetExamFlow() {
+  _activeDiscipline = null;
+  _activeLevel      = null;
+  _examAnswers      = [];
+  _examSubmitted    = false;
+  _currentQuestion  = 0;
+  _examQuestions    = [];
+}
+
+function refreshMatrix() {
+  renderTargetGrid();
+  renderDisciplineCards();
+  renderRadarChart();
+}
+
+// ─── Modal helpers ────────────────────────────────────────────────────────────
+function openModal(id) {
+  const el = document.getElementById(id);
+  el.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  const el = document.getElementById(id);
+  el.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Close modal on backdrop click
+['lesson-modal','exam-modal','result-modal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => {
+    if (e.target.id === id) {
+      if (id === 'exam-modal' && !_examSubmitted && _activeDiscipline) {
+        // Save draft on backdrop close during exam
+        const draftKey = `wh_exam_draft_${WORKER_NAME}_${_activeDiscipline}_${_activeLevel}`;
+        localStorage.setItem(draftKey, JSON.stringify({ answers: _examAnswers, currentQ: _currentQuestion }));
+      }
+      closeModal(id);
+      if (id !== 'result-modal') resetExamFlow();
+    }
+  });
+});
+
+// ─── Start ────────────────────────────────────────────────────────────────────
+init();
+</script>
+<script src="nav-hub.js"></script>
+</body>
+</html>
