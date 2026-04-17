@@ -245,6 +245,29 @@
       to   { opacity: 1; transform: translateY(0); }
     }
     .slide-up { animation: slideUp 0.25s ease; }
+
+    /* Bottom sheet */
+    .sheet-overlay {
+      position: fixed; inset: 0; z-index: 50;
+      background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+      display: none; align-items: flex-end; justify-content: center;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .sheet-overlay.open { display: flex; }
+    .sheet-panel {
+      background: linear-gradient(145deg, rgba(30,44,65,0.98), rgba(22,32,50,0.99));
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 1.25rem 1.25rem 0 0;
+      width: 100%; max-width: 640px; padding: 1.5rem 1.25rem;
+      animation: sheetUp 0.25s ease;
+    }
+    @keyframes sheetUp {
+      from { transform: translateY(40px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    .sheet-handle {
+      width: 40px; height: 4px; border-radius: 2px;
+      background: rgba(255,255,255,0.15); margin: 0 auto 1.25rem;
+    }
   </style>
 </head>
 <body class="text-white">
@@ -574,6 +597,65 @@
       </svg>
       Add Asset
     </button>
+  </div>
+</div>
+
+<!-- ── PM COMPLETION BOTTOM SHEET ── -->
+<div id="completion-sheet" class="sheet-overlay" onclick="sheetBackdropClick(event)">
+  <div class="sheet-panel">
+    <div class="sheet-handle"></div>
+
+    <div class="flex items-start justify-between gap-3 mb-4">
+      <div>
+        <h3 class="font-bold text-base">Task Completed</h3>
+        <p id="sheet-item-text" class="text-sm text-white/50 mt-0.5 leading-snug"></p>
+      </div>
+      <span id="sheet-freq-badge" class="freq-badge flex-shrink-0 mt-1"></span>
+    </div>
+
+    <!-- Asset + date row -->
+    <div class="flex items-center gap-2 mb-4 px-3 py-2.5 rounded-xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
+      <svg class="w-4 h-4 text-white/30 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+      <div class="min-w-0">
+        <p id="sheet-asset-name" class="text-sm font-semibold text-white truncate"></p>
+        <p class="text-xs text-white/30">Completed: <span id="sheet-date" class="text-white/50"></span></p>
+      </div>
+    </div>
+
+    <!-- Findings textarea -->
+    <div class="mb-3">
+      <label class="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1.5">Findings / Observations <span class="text-white/20 font-normal normal-case">(optional)</span></label>
+      <textarea id="sheet-findings" rows="3" class="wh-input" placeholder="e.g. Bearing temperature normal, no leaks observed, greased per schedule..." style="resize:none;"></textarea>
+    </div>
+
+    <!-- Action taken -->
+    <div class="mb-4">
+      <label class="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1.5">Action Taken</label>
+      <input id="sheet-action" type="text" class="wh-input" placeholder="e.g. PM completed per schedule" />
+    </div>
+
+    <!-- Log to logbook toggle -->
+    <div class="flex items-center gap-3 mb-5 px-3 py-3 rounded-xl" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.2);">
+      <label class="flex items-center gap-3 cursor-pointer flex-1">
+        <div class="relative">
+          <input type="checkbox" id="sheet-log-toggle" class="sr-only" checked />
+          <div id="sheet-toggle-track" class="w-10 h-6 rounded-full transition-colors" style="background:#F7A21B;"></div>
+          <div id="sheet-toggle-thumb" class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform" style="transform:translateX(16px);"></div>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-white">Also save to Logbook</p>
+          <p class="text-xs text-white/40">Creates a Preventive Maintenance entry with these findings.</p>
+        </div>
+      </label>
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex gap-3">
+      <button class="btn-ghost" style="width:auto;padding:0.75rem 1.25rem;" onclick="closeSheet()">Cancel</button>
+      <button id="sheet-save-btn" class="btn-primary" onclick="submitCompletion()">
+        <span id="sheet-save-label">Save Completion</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -1151,35 +1233,138 @@ function renderDetail(asset) {
 }
 
 // ─────────────────────────────────────
-// MARK DONE
+// COMPLETION BOTTOM SHEET
 // ─────────────────────────────────────
-async function markDone(scopeItemId, btn) {
-  btn.disabled = true;
+let _sheetScopeItemId = null;
+let _sheetScopeItem   = null;
 
-  const payload = {
+// PM category → logbook category mapping
+const PM_CAT_TO_LOG_CAT = {
+  'Rotating Equipment': 'Mechanical',
+  'Static Equipment':   'Mechanical',
+  'Electrical':         'Electrical',
+  'Instrumentation':    'Instrumentation',
+  'HVAC':               'HVAC',
+  'Utility Systems':    'Utilities',
+  'Civil / Structural': 'Civil / Structural',
+  'Material Handling':  'Mechanical',
+};
+
+function markDone(scopeItemId, btn) {
+  // Find the scope item details
+  const item = scopeItems.find(i => i.id === scopeItemId);
+  if (!item) return;
+
+  _sheetScopeItemId = scopeItemId;
+  _sheetScopeItem   = item;
+
+  // Populate sheet
+  document.getElementById('sheet-item-text').textContent  = item.item_text;
+  document.getElementById('sheet-asset-name').textContent = currentAsset.asset_name;
+  document.getElementById('sheet-date').textContent       = new Date().toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
+  document.getElementById('sheet-findings').value         = '';
+  document.getElementById('sheet-action').value           = 'PM completed per schedule';
+  document.getElementById('sheet-save-label').textContent = 'Save Completion';
+  document.getElementById('sheet-save-btn').disabled      = false;
+
+  // Freq badge
+  const freqMap = { Monthly: 'freq-M', Quarterly: 'freq-Q', 'Semi-Annual': 'freq-SA', Yearly: 'freq-Y' };
+  const freqLbl = { Monthly: 'M', Quarterly: 'Q', 'Semi-Annual': 'SA', Yearly: 'Y' };
+  const fb = document.getElementById('sheet-freq-badge');
+  fb.className = `freq-badge ${freqMap[item.frequency] || ''}`;
+  fb.textContent = freqLbl[item.frequency] || item.frequency;
+
+  // Toggle wiring (only once)
+  const toggle = document.getElementById('sheet-log-toggle');
+  toggle.onchange = updateToggleUI;
+  toggle.checked  = true;
+  updateToggleUI();
+
+  openSheet();
+}
+
+function updateToggleUI() {
+  const on    = document.getElementById('sheet-log-toggle').checked;
+  const track = document.getElementById('sheet-toggle-track');
+  const thumb = document.getElementById('sheet-toggle-thumb');
+  track.style.background        = on ? '#F7A21B' : 'rgba(255,255,255,0.15)';
+  thumb.style.transform         = on ? 'translateX(16px)' : 'translateX(0)';
+  document.getElementById('sheet-save-label').textContent = on ? 'Save + Log in Logbook' : 'Save Completion';
+}
+
+function openSheet()  { document.getElementById('completion-sheet').classList.add('open'); }
+function closeSheet() { document.getElementById('completion-sheet').classList.remove('open'); }
+function sheetBackdropClick(e) { if (e.target === e.currentTarget) closeSheet(); }
+
+async function submitCompletion() {
+  const saveBtn   = document.getElementById('sheet-save-btn');
+  const saveLabel = document.getElementById('sheet-save-label');
+  saveBtn.disabled  = true;
+  saveLabel.textContent = 'Saving...';
+
+  const findings = document.getElementById('sheet-findings').value.trim();
+  const action   = document.getElementById('sheet-action').value.trim() || 'PM completed per schedule';
+  const logAlso  = document.getElementById('sheet-log-toggle').checked;
+  const now      = new Date().toISOString();
+
+  // 1. Save pm_completion
+  const compPayload = {
     asset_id:      currentAsset.id,
-    scope_item_id: scopeItemId,
+    scope_item_id: _sheetScopeItemId,
     hive_id:       HIVE_ID || null,
     worker_name:   WORKER_NAME,
     status:        'done',
-    completed_at:  new Date().toISOString(),
-    notes:         null,
+    notes:         findings || null,
+    completed_at:  now,
   };
 
-  const { data, error } = await db.from('pm_completions').insert(payload).select().single();
+  const { data: compData, error: compErr } = await db
+    .from('pm_completions').insert(compPayload).select().single();
 
-  if (error) {
-    console.error('markDone error:', error.message);
-    showToast('Failed to record completion. Please try again.');
-    btn.disabled = false;
+  if (compErr) {
+    console.error('pm_completion insert:', compErr.message);
+    showToast('Failed to save. Please try again.');
+    saveBtn.disabled = false;
+    saveLabel.textContent = logAlso ? 'Save + Log in Logbook' : 'Save Completion';
     return;
   }
 
-  completions.unshift(data);
-  showToast('Task marked as done.');
+  completions.unshift(compData);
+
+  // 2. Optionally save logbook entry
+  if (logAlso) {
+    const logCat = PM_CAT_TO_LOG_CAT[currentAsset.category] || 'Mechanical';
+    const logPayload = {
+      date:             now,
+      machine:          currentAsset.asset_name,
+      maintenance_type: 'Preventive Maintenance',
+      category:         logCat,
+      problem:          _sheetScopeItem.item_text,
+      action:           action,
+      knowledge:        findings || null,
+      status:           'Closed',
+      hive_id:          HIVE_ID || null,
+      worker_name:      WORKER_NAME,
+      asset_ref_id:     null,
+      pm_completion_id: compData.id,
+    };
+
+    const { error: logErr } = await db.from('logbook').insert(logPayload);
+    if (logErr) {
+      console.warn('logbook insert failed (PM still saved):', logErr.message);
+      showToast('PM saved. Logbook entry failed — check connection.');
+    } else {
+      showToast('PM saved and logged in Logbook.');
+    }
+  } else {
+    showToast('PM task marked as done.');
+  }
+
+  closeSheet();
   renderDetail(currentAsset);
   renderDashboard();
-  btn.disabled = false;
+  saveBtn.disabled = false;
+  saveLabel.textContent = logAlso ? 'Save + Log in Logbook' : 'Save Completion';
 }
 
 // ─────────────────────────────────────
