@@ -2208,6 +2208,8 @@ function clearForm() {
   document.getElementById('tasklist-ack-error').classList.add('hidden');
   // Clear draft
   localStorage.removeItem(DRAFT_KEY);
+  // Reset status toggle visual to Open
+  updateStatusToggle('f-status');
 }
 
 // ────────────────────────────────────────────
