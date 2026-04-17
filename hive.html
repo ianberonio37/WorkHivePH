@@ -671,6 +671,7 @@ let presenceChannel     = null;
 let feedChannel         = null;
 let partsChannel        = null;
 let checklistChannel    = null;
+let pmChannel           = null;
 let approvalChannel     = null;
 let workerApprovalCh    = null;
 let _pendingAssets      = [];
@@ -825,6 +826,39 @@ function buildChecklistCard(record, isNew) {
           </div>
           <span class="text-[11px] text-white/40">${done}/${total}</span>
         </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── PM COMPLETION FEED CARD ──
+function buildPMCard(record, isNew) {
+  const workerName = escHtml(record.worker_name || 'Unknown');
+  const assetName  = escHtml(record.asset_name  || 'Asset');
+  const itemText   = escHtml(record.item_text   || 'PM Task');
+  const freq       = record.frequency || '';
+  const time       = record.completed_at
+    ? new Date(record.completed_at).toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit', hour12: true })
+    : '';
+  const freqMap    = { Monthly: 'M', Quarterly: 'Q', 'Semi-Annual': 'SA', Yearly: 'Y' };
+  const freqCls    = { Monthly: 'rgba(41,182,217,0.15);color:#29B6D9', Quarterly: 'rgba(167,139,250,0.15);color:#a78bfa', 'Semi-Annual': 'rgba(251,191,36,0.15);color:#fbbf24', Yearly: 'rgba(247,162,27,0.15);color:#F7A21B' };
+
+  return `<div class="feed-card${isNew ? ' new-entry' : ''}" style="border-left-color:#F7A21B;">
+    <div class="flex items-start gap-3">
+      <div class="activity-icon log" style="background:rgba(247,162,27,0.12);border-color:rgba(247,162,27,0.3);">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#F7A21B" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap mb-1">
+          <span class="text-xs font-bold text-white/80">${workerName}</span>
+          <span class="status-badge" style="background:rgba(247,162,27,0.12);color:#F7A21B;">PM Done</span>
+          ${freq ? `<span class="cat-badge" style="background:${freqCls[freq] || 'rgba(255,255,255,0.06);color:rgba(255,255,255,0.4)'};">${freqMap[freq] || freq}</span>` : ''}
+          <span class="text-[11px] text-white/25 ml-auto">${time}</span>
+        </div>
+        <p class="text-sm font-semibold text-white/90 truncate">${assetName}</p>
+        <p class="text-xs text-white/50 truncate mt-0.5">${itemText}</p>
       </div>
     </div>
   </div>`;
@@ -1249,8 +1283,8 @@ async function loadFeed() {
   const feed    = document.getElementById('feed');
   const emptyEl = document.getElementById('feed-empty');
 
-  // Fetch logbook + checklist_records + open count in parallel
-  const [logRes, openRes, checkRes] = await Promise.all([
+  // Fetch logbook + checklist_records + pm_completions + open count in parallel
+  const [logRes, openRes, checkRes, pmRes] = await Promise.all([
     db.from('logbook')
       .select('id, worker_name, date, machine, category, problem, status, created_at')
       .eq('hive_id', HIVE_ID)
@@ -1264,15 +1298,29 @@ async function loadFeed() {
       .select('id, worker_name, machine_name, job_type, category, end_time, items, created_at')
       .eq('hive_id', HIVE_ID)
       .order('end_time', { ascending: false })
+      .limit(20),
+    db.from('pm_completions')
+      .select('id, worker_name, asset_id, scope_item_id, status, completed_at, pm_assets(asset_name), pm_scope_items(item_text, frequency)')
+      .eq('hive_id', HIVE_ID)
+      .eq('status', 'done')
+      .order('completed_at', { ascending: false })
       .limit(20)
   ]);
 
   const logEntries       = (logRes.data   || []).map(e => ({ ...e, _type: 'logbook' }));
   const checklistEntries = (checkRes.data || []).map(e => ({ ...e, _type: 'checklist' }));
+  const pmEntries        = (pmRes.data    || []).map(e => ({
+    ...e,
+    asset_name: e.pm_assets?.asset_name || '',
+    item_text:  e.pm_scope_items?.item_text || '',
+    frequency:  e.pm_scope_items?.frequency || '',
+    created_at: e.completed_at,
+    _type: 'pm',
+  }));
 
   // Merge and sort by created_at (fall back to date string)
   const sortKey = e => e.created_at || e.end_time || e.date || '';
-  const merged = [...logEntries, ...checklistEntries]
+  const merged = [...logEntries, ...checklistEntries, ...pmEntries]
     .sort((a, b) => sortKey(b).localeCompare(sortKey(a)))
     .slice(0, 40);
 
@@ -1301,6 +1349,7 @@ async function loadFeed() {
 
   feed.innerHTML = merged.map(e =>
     e._type === 'checklist' ? buildChecklistCard(e, false) :
+    e._type === 'pm'        ? buildPMCard(e, false) :
     buildFeedCard(e, false)
   ).join('');
 }
@@ -1373,6 +1422,7 @@ function startFeedRealtime() {
   if (feedChannel)      db.removeChannel(feedChannel);
   if (partsChannel)     db.removeChannel(partsChannel);
   if (checklistChannel) db.removeChannel(checklistChannel);
+  if (pmChannel)        db.removeChannel(pmChannel);
 
   feedChannel = db.channel('hive-feed:' + HIVE_ID)
     .on('postgres_changes', {
@@ -1397,12 +1447,34 @@ function startFeedRealtime() {
       prependFeed({ ...payload.new, _type: 'checklist' });
     })
     .subscribe();
+
+  pmChannel = db.channel('hive-pm:' + HIVE_ID)
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'pm_completions',
+      filter: 'hive_id=eq.' + HIVE_ID
+    }, async (payload) => {
+      // Fetch asset name and item text for the feed card
+      const [assetRes, itemRes] = await Promise.all([
+        db.from('pm_assets').select('asset_name').eq('id', payload.new.asset_id).maybeSingle(),
+        db.from('pm_scope_items').select('item_text, frequency').eq('id', payload.new.scope_item_id).maybeSingle(),
+      ]);
+      prependFeed({
+        ...payload.new,
+        asset_name: assetRes.data?.asset_name || 'Asset',
+        item_text:  itemRes.data?.item_text   || 'PM Task',
+        frequency:  itemRes.data?.frequency   || '',
+        created_at: payload.new.completed_at,
+        _type: 'pm',
+      });
+    })
+    .subscribe();
 }
 
 function prependFeed(entry) {
   document.getElementById('feed-empty').classList.add('hidden');
   const div = document.createElement('div');
   div.innerHTML = entry._type === 'checklist' ? buildChecklistCard(entry, true) :
+                  entry._type === 'pm'        ? buildPMCard(entry, true) :
                   buildFeedCard(entry, true);
   const feed = document.getElementById('feed');
   feed.insertBefore(div.firstElementChild, feed.firstChild);
@@ -2143,6 +2215,7 @@ async function switchToHive(id) {
   if (feedChannel)      db.removeChannel(feedChannel);
   if (partsChannel)     db.removeChannel(partsChannel);
   if (checklistChannel) db.removeChannel(checklistChannel);
+  if (pmChannel)        db.removeChannel(pmChannel);
   if (approvalChannel)  db.removeChannel(approvalChannel);
   if (workerApprovalCh) db.removeChannel(workerApprovalCh);
   initBoard();

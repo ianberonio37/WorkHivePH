@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>PM Scheduler — WorkHive</title>
+  <meta name="description" content="Plant Maintenance Scheduler. Add assets, assign PM scope by category, set frequencies, and track due dates. Syncs with your WorkHive hive board." />
+  <meta name="robots" content="noindex, follow" />
+  <link rel="canonical" href="https://workhiveph.com/pm-scheduler.html" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'orange-wh': '#F7A21B',
+            'blue-wh':   '#29B6D9',
+            'navy-wh':   '#162032',
+          },
+          fontFamily: { poppins: ['Poppins', 'sans-serif'] },
+        },
+      },
+    };
+  </script>
+  <style>
+    * { font-family: 'Poppins', sans-serif; }
+    body { background-color: #162032; min-height: 100vh; }
+
+    .aurora-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .aurora-bg::before {
+      content: ''; position: absolute; top: -20%; left: -10%; width: 60%; height: 60%;
+      background: radial-gradient(ellipse, rgba(247,162,27,0.07) 0%, transparent 70%); filter: blur(60px);
+    }
+    .aurora-bg::after {
+      content: ''; position: absolute; bottom: -20%; right: -10%; width: 60%; height: 60%;
+      background: radial-gradient(ellipse, rgba(41,182,217,0.05) 0%, transparent 70%); filter: blur(60px);
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .wh-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.6), rgba(31,46,69,0.8));
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 1rem;
+    }
+
+    .wh-input {
+      width: 100%; background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 0.75rem;
+      padding: 0.75rem 1rem; color: white; font-size: 0.9375rem; outline: none;
+      transition: border-color 0.2s; -webkit-appearance: none; appearance: none;
+    }
+    .wh-input:focus { border-color: #F7A21B; }
+    .wh-input::placeholder { color: rgba(255,255,255,0.3); }
+    select.wh-input option { background: #1e2d45; color: white; }
+
+    .btn-primary {
+      min-height: 44px; background: #F7A21B; color: #162032; font-weight: 700;
+      border-radius: 0.75rem; padding: 0.75rem 1.5rem; width: 100%;
+      font-size: 0.875rem; border: none; transition: background 0.2s, transform 0.1s;
+      cursor: pointer; display: block;
+    }
+    .btn-primary:hover { background: #D88A0E; }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { background: rgba(247,162,27,0.35); cursor: not-allowed; }
+
+    .btn-ghost {
+      min-height: 44px; background: transparent; color: rgba(255,255,255,0.7);
+      font-weight: 600; border-radius: 0.75rem; padding: 0.75rem 1.5rem; width: 100%;
+      font-size: 0.875rem; border: 1px solid rgba(255,255,255,0.15);
+      transition: border-color 0.2s, color 0.2s; cursor: pointer;
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.4); color: white; }
+    .btn-ghost:active { transform: scale(0.98); }
+
+    .btn-danger {
+      min-height: 40px; background: transparent; color: #ef4444; font-weight: 600;
+      border-radius: 0.75rem; padding: 0.5rem 1rem; font-size: 0.8125rem;
+      border: 1px solid rgba(239,68,68,0.3); transition: background 0.2s; cursor: pointer;
+    }
+    .btn-danger:hover { background: rgba(239,68,68,0.1); }
+
+    /* Scope item row */
+    .scope-row {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 0.75rem; padding: 0.75rem 1rem;
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      transition: border-color 0.2s;
+    }
+    .scope-row:hover { border-color: rgba(255,255,255,0.14); }
+    .scope-row.included { border-color: rgba(247,162,27,0.35); background: rgba(247,162,27,0.04); }
+    .scope-row.included .scope-check { background: #F7A21B; border-color: #F7A21B; }
+    .scope-row.included .scope-check::after {
+      content: ''; display: block; width: 6px; height: 10px;
+      border: 2px solid #162032; border-top: none; border-left: none;
+      transform: rotate(45deg) translate(-1px, -2px);
+    }
+
+    .scope-check {
+      width: 20px; height: 20px; border-radius: 5px; border: 2px solid rgba(255,255,255,0.2);
+      flex-shrink: 0; margin-top: 2px; cursor: pointer; transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Asset status badges */
+    .badge-overdue  { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .badge-duesoon  { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+    .badge-ontrack  { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
+    .badge-nodata   { background: rgba(156,163,175,0.15); color: #9ca3af; border: 1px solid rgba(156,163,175,0.3); }
+
+    .status-badge {
+      display: inline-flex; align-items: center; padding: 3px 10px;
+      border-radius: 999px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; white-space: nowrap;
+    }
+
+    /* Asset card */
+    .asset-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 1rem;
+      padding: 1rem; cursor: pointer; transition: border-color 0.2s, transform 0.1s;
+      border-left-width: 4px;
+    }
+    .asset-card:hover { border-color: rgba(255,255,255,0.18); transform: translateY(-1px); }
+    .asset-card.overdue  { border-left-color: #ef4444; }
+    .asset-card.duesoon  { border-left-color: #fbbf24; }
+    .asset-card.ontrack  { border-left-color: #4ade80; }
+    .asset-card.nodata   { border-left-color: rgba(156,163,175,0.4); }
+
+    /* Category pill */
+    .cat-pill {
+      display: inline-flex; align-items: center; padding: 2px 8px;
+      border-radius: 999px; font-size: 0.6rem; font-weight: 600; white-space: nowrap;
+    }
+
+    /* Frequency badge */
+    .freq-badge {
+      display: inline-flex; padding: 1px 7px; border-radius: 999px;
+      font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .freq-M  { background: rgba(41,182,217,0.15); color: #29B6D9; }
+    .freq-Q  { background: rgba(167,139,250,0.15); color: #a78bfa; }
+    .freq-SA { background: rgba(251,191,36,0.15);  color: #fbbf24; }
+    .freq-Y  { background: rgba(247,162,27,0.15);  color: #F7A21B; }
+
+    /* Detail scope row */
+    .detail-scope-row {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 0.75rem; padding: 0.875rem 1rem;
+      transition: border-color 0.2s;
+    }
+
+    /* Step indicator */
+    .step-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.2); transition: background 0.2s;
+    }
+    .step-dot.active { background: #F7A21B; }
+    .step-dot.done   { background: #4ade80; }
+
+    /* Progress bar */
+    .progress-bar {
+      height: 4px; border-radius: 2px; background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+    .progress-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
+
+    /* History item */
+    .history-row {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .history-row:last-child { border-bottom: none; }
+
+    /* Filter chip */
+    .filter-chip {
+      padding: 6px 14px; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.5);
+      background: transparent; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .filter-chip.active { background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.4); color: #F7A21B; }
+    .filter-chip:hover:not(.active) { color: rgba(255,255,255,0.8); border-color: rgba(255,255,255,0.25); }
+
+    /* Completion checkbox in detail view */
+    .complete-btn {
+      min-height: 36px; min-width: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid rgba(255,255,255,0.2); background: transparent;
+      cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+    }
+    .complete-btn:hover { border-color: #4ade80; background: rgba(34,197,94,0.1); }
+    .complete-btn.done { border-color: #4ade80; background: rgba(34,197,94,0.15); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: calc(80px + env(safe-area-inset-bottom)); left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(42,61,88,0.95); color: white; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: 0.875rem; font-weight: 500;
+      white-space: nowrap; opacity: 0; pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s; z-index: 999;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 30;
+      background: rgba(22,32,50,0.95); border-top: 1px solid rgba(255,255,255,0.07);
+      backdrop-filter: blur(12px);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .nav-tab {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 3px; flex: 1; min-height: 56px; color: rgba(255,255,255,0.4);
+      font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+      cursor: pointer; border: none; background: transparent; transition: color 0.15s;
+    }
+    .nav-tab.active { color: #F7A21B; }
+    .nav-tab svg { transition: color 0.15s; }
+
+    /* FAB */
+    .fab {
+      position: fixed; bottom: calc(68px + env(safe-area-inset-bottom)); right: 1.25rem;
+      width: 52px; height: 52px; border-radius: 50%; background: #F7A21B;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(247,162,27,0.4); border: none; cursor: pointer;
+      transition: background 0.2s, transform 0.15s; z-index: 20;
+    }
+    .fab:hover { background: #D88A0E; transform: scale(1.05); }
+    .fab:active { transform: scale(0.95); }
+
+    /* Slide up animation for wizard */
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .slide-up { animation: slideUp 0.25s ease; }
+  </style>
+</head>
+<body class="text-white">
+<div class="aurora-bg"></div>
+
+<!-- ── TOP NAV ── -->
+<nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(22,32,50,0.92);border-bottom:1px solid rgba(255,255,255,0.06);backdrop-filter:blur(12px);padding-top:env(safe-area-inset-top);">
+  <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-2 text-white/40 hover:text-white/70 transition-colors text-sm">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-7 w-auto" />
+    </a>
+    <div class="flex items-center gap-3">
+      <div id="hive-chip" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full text-xs" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:#F7A21B;">
+        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span id="hive-chip-name" class="font-semibold truncate max-w-[80px]"></span>
+      </div>
+      <span id="nav-worker" class="text-xs text-white/40 truncate max-w-[100px]"></span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════
+     SCREEN: DASHBOARD
+═══════════════════════════════════ -->
+<div id="screen-dashboard" class="screen active">
+  <div class="max-w-2xl mx-auto px-4 pt-20 pb-36 relative z-10">
+
+    <!-- Header -->
+    <div class="mb-5">
+      <h1 class="text-xl font-bold">PM Scheduler</h1>
+      <p id="dash-subtitle" class="text-sm text-white/40 mt-0.5">Track all your equipment PM tasks in one place.</p>
+    </div>
+
+    <!-- Summary stat row -->
+    <div class="grid grid-cols-3 gap-3 mb-5">
+      <div class="wh-card p-3 text-center">
+        <div id="stat-overdue" class="text-2xl font-bold text-red-400">0</div>
+        <div class="text-xs text-white/40 mt-0.5">Overdue</div>
+      </div>
+      <div class="wh-card p-3 text-center">
+        <div id="stat-duesoon" class="text-2xl font-bold text-yellow-400">0</div>
+        <div class="text-xs text-white/40 mt-0.5">Due Soon</div>
+      </div>
+      <div class="wh-card p-3 text-center">
+        <div id="stat-ontrack" class="text-2xl font-bold text-green-400">0</div>
+        <div class="text-xs text-white/40 mt-0.5">On Track</div>
+      </div>
+    </div>
+
+    <!-- Filter chips -->
+    <div id="filter-bar" class="flex gap-2 overflow-x-auto pb-1 mb-4" style="-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+      <button class="filter-chip active" data-filter="all">All</button>
+      <button class="filter-chip" data-filter="overdue">Overdue</button>
+      <button class="filter-chip" data-filter="duesoon">Due Soon</button>
+      <button class="filter-chip" data-filter="ontrack">On Track</button>
+    </div>
+
+    <!-- Category filter -->
+    <select id="cat-filter" class="wh-input mb-4" style="font-size:0.875rem;padding:0.625rem 1rem;">
+      <option value="">All Categories</option>
+    </select>
+
+    <!-- Asset list -->
+    <div id="asset-list" class="flex flex-col gap-3"></div>
+
+    <!-- Empty state -->
+    <div id="dash-empty" class="hidden wh-card p-10 text-center mt-4">
+      <div class="text-4xl mb-3">🏭</div>
+      <p class="font-semibold text-white/70">No assets yet</p>
+      <p class="text-sm text-white/30 mt-1">Tap the + button to add your first asset and set up its PM schedule.</p>
+    </div>
+
+    <!-- Loading state -->
+    <div id="dash-loading" class="text-center py-12 text-white/30 text-sm">Loading assets...</div>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" onclick="goAddAsset()">
+    <svg class="w-6 h-6 text-navy-wh" fill="none" viewBox="0 0 24 24" stroke="#162032" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+    </svg>
+  </button>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN: ADD ASSET (WIZARD)
+═══════════════════════════════════ -->
+<div id="screen-add" class="screen">
+  <div class="max-w-2xl mx-auto px-4 pt-20 pb-36 relative z-10">
+
+    <!-- Wizard header -->
+    <div class="mb-6">
+      <button onclick="goBack()" class="flex items-center gap-1.5 text-white/40 hover:text-white/70 text-sm mb-4 transition-colors">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        Back
+      </button>
+      <div class="flex items-center justify-between mb-3">
+        <h1 id="wizard-title" class="text-lg font-bold">Add Asset</h1>
+        <div id="step-indicator" class="flex gap-1.5 items-center"></div>
+      </div>
+      <div class="progress-bar">
+        <div id="wizard-progress" class="progress-fill" style="background:#F7A21B;width:25%;"></div>
+      </div>
+    </div>
+
+    <!-- STEP 1: Asset Info -->
+    <div id="step-1" class="wizard-step slide-up">
+      <p class="text-sm text-white/50 mb-5">Enter basic information about the equipment or asset.</p>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Asset / Equipment Name *</label>
+          <input id="w-name" type="text" class="wh-input" placeholder="e.g. Cooling Water Pump No. 1" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Tag / ID</label>
+            <input id="w-tag" type="text" class="wh-input" placeholder="e.g. CWP-001" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Location</label>
+            <input id="w-location" type="text" class="wh-input" placeholder="e.g. Pump Room A" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Category *</label>
+          <select id="w-category" class="wh-input" onchange="onCategoryChange()">
+            <option value="">Select equipment category...</option>
+            <option>Rotating Equipment</option>
+            <option>Static Equipment</option>
+            <option>Electrical</option>
+            <option>Instrumentation</option>
+            <option>HVAC</option>
+            <option>Utility Systems</option>
+            <option>Civil / Structural</option>
+            <option>Material Handling</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Criticality</label>
+          <div class="grid grid-cols-3 gap-2" id="crit-group">
+            <button type="button" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all" data-val="Critical" style="border-color:rgba(239,68,68,0.3);color:#f87171;background:transparent;" onclick="setCrit(this)">Critical</button>
+            <button type="button" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all selected" data-val="Major" style="border-color:rgba(251,191,36,0.5);color:#fbbf24;background:rgba(251,191,36,0.08);" onclick="setCrit(this)">Major</button>
+            <button type="button" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all" data-val="Minor" style="border-color:rgba(34,197,94,0.3);color:#4ade80;background:transparent;" onclick="setCrit(this)">Minor</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <button class="btn-primary" onclick="goStep(2)">Next: Select PM Scope</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Scope Selection -->
+    <div id="step-2" class="wizard-step hidden">
+      <p class="text-sm text-white/50 mb-2">Select which PM tasks apply to this asset and set each frequency.</p>
+      <p class="text-xs text-white/30 mb-4">Pre-loaded based on your category. Uncheck items you don't need, adjust frequencies, or add custom tasks.</p>
+
+      <div id="scope-list" class="space-y-2 mb-4"></div>
+
+      <!-- Add custom item -->
+      <div class="wh-card p-4 mt-3">
+        <p class="text-xs font-semibold text-white/40 uppercase tracking-wide mb-2">Add Custom Task</p>
+        <div class="flex gap-2">
+          <input id="custom-item-text" type="text" class="wh-input" placeholder="e.g. Inspect coupling guard" style="font-size:0.875rem;" />
+          <select id="custom-item-freq" class="wh-input" style="width:auto;min-width:130px;font-size:0.875rem;">
+            <option value="Monthly">Monthly</option>
+            <option value="Quarterly" selected>Quarterly</option>
+            <option value="Semi-Annual">Semi-Annual</option>
+            <option value="Yearly">Yearly</option>
+          </select>
+        </div>
+        <button class="btn-ghost mt-2" style="font-size:0.8125rem;padding:0.5rem 1rem;" onclick="addCustomItem()">+ Add Task</button>
+      </div>
+
+      <div class="flex gap-3 mt-6">
+        <button class="btn-ghost" style="width:auto;padding:0.75rem 1.25rem;" onclick="goStep(1)">Back</button>
+        <button class="btn-primary" onclick="goStep(3)">Next: Set Anchor Date</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Anchor Date -->
+    <div id="step-3" class="wizard-step hidden">
+      <p class="text-sm text-white/50 mb-5">When was this equipment last serviced? This is the starting point for all due date calculations.</p>
+
+      <div class="wh-card p-5 mb-4">
+        <label class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Last PM Date</label>
+        <input id="w-anchor" type="date" class="wh-input" />
+        <p class="text-xs text-white/30 mt-2">If never serviced before, leave blank — all tasks will show as overdue immediately to prompt action.</p>
+      </div>
+
+      <!-- Frequency info guide -->
+      <div class="wh-card p-4">
+        <p class="text-xs font-semibold text-white/40 uppercase tracking-wide mb-3">What each frequency means</p>
+        <div class="space-y-2">
+          <div class="flex items-center gap-2.5">
+            <span class="freq-badge freq-M">M</span>
+            <span class="text-sm text-white/60">Monthly — every 30 days</span>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <span class="freq-badge freq-Q">Q</span>
+            <span class="text-sm text-white/60">Quarterly — every 90 days</span>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <span class="freq-badge freq-SA">SA</span>
+            <span class="text-sm text-white/60">Semi-Annual — every 180 days</span>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <span class="freq-badge freq-Y">Y</span>
+            <span class="text-sm text-white/60">Yearly — every 365 days</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mt-6">
+        <button class="btn-ghost" style="width:auto;padding:0.75rem 1.25rem;" onclick="goStep(2)">Back</button>
+        <button class="btn-primary" onclick="goStep(4)">Next: Review</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Review & Save -->
+    <div id="step-4" class="wizard-step hidden">
+      <p class="text-sm text-white/50 mb-5">Review your asset setup before saving.</p>
+
+      <div class="wh-card p-5 mb-4 space-y-3">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p id="rev-name" class="font-bold text-lg leading-tight"></p>
+            <p id="rev-tag-loc" class="text-xs text-white/40 mt-0.5"></p>
+          </div>
+          <span id="rev-crit" class="status-badge flex-shrink-0 mt-1"></span>
+        </div>
+        <div class="h-px bg-white/5"></div>
+        <div class="flex items-center gap-2">
+          <span id="rev-cat-pill" class="cat-pill"></span>
+          <span id="rev-anchor" class="text-xs text-white/40"></span>
+        </div>
+      </div>
+
+      <div class="wh-card p-4 mb-4">
+        <p class="text-xs font-semibold text-white/40 uppercase tracking-wide mb-3">PM Scope (<span id="rev-count">0</span> tasks)</p>
+        <div id="rev-scope" class="space-y-2"></div>
+      </div>
+
+      <div class="flex gap-3 mt-6">
+        <button class="btn-ghost" style="width:auto;padding:0.75rem 1.25rem;" onclick="goStep(3)">Back</button>
+        <button id="btn-save-asset" class="btn-primary" onclick="saveAsset()">Save Asset</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN: ASSET DETAIL
+═══════════════════════════════════ -->
+<div id="screen-detail" class="screen">
+  <div class="max-w-2xl mx-auto px-4 pt-20 pb-36 relative z-10">
+
+    <!-- Back + actions -->
+    <div class="flex items-center justify-between mb-5">
+      <button onclick="goBack()" class="flex items-center gap-1.5 text-white/40 hover:text-white/70 text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        Back
+      </button>
+      <button id="btn-delete-asset" class="btn-danger hidden" onclick="confirmDeleteAsset()">Delete Asset</button>
+    </div>
+
+    <!-- Asset header card -->
+    <div class="wh-card p-5 mb-5">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div>
+          <h2 id="det-name" class="font-bold text-xl leading-tight"></h2>
+          <p id="det-tag-loc" class="text-sm text-white/40 mt-0.5"></p>
+        </div>
+        <span id="det-overall-status" class="status-badge flex-shrink-0 mt-1"></span>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <span id="det-cat" class="cat-pill"></span>
+        <span id="det-crit" class="status-badge text-[0.6rem]"></span>
+        <span id="det-anchor" class="text-xs text-white/30"></span>
+      </div>
+    </div>
+
+    <!-- PM Tasks section -->
+    <div class="mb-4">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-sm">PM Tasks</h3>
+        <span id="det-progress-text" class="text-xs text-white/40"></span>
+      </div>
+      <div id="det-tasks" class="space-y-2.5"></div>
+    </div>
+
+    <!-- History log -->
+    <div class="wh-card p-4">
+      <h3 class="font-semibold text-sm mb-3">Completion History</h3>
+      <div id="det-history" class="divide-y divide-white/5"></div>
+      <div id="det-history-empty" class="hidden text-center py-6 text-white/30 text-xs">No completions recorded yet.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── BOTTOM NAV ── -->
+<div class="bottom-nav">
+  <div class="flex max-w-2xl mx-auto px-4">
+    <button class="nav-tab active" id="tab-dashboard" onclick="showScreen('dashboard')">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+      </svg>
+      Dashboard
+    </button>
+    <button class="nav-tab" id="tab-add" onclick="goAddAsset()">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+      </svg>
+      Add Asset
+    </button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ══ SCRIPTS ══ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="utils.js"></script>
+<script>
+// ─────────────────────────────────────
+// SUPABASE SETUP
+// ─────────────────────────────────────
+const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ─────────────────────────────────────
+// IDENTITY + HIVE
+// ─────────────────────────────────────
+let WORKER_NAME = localStorage.getItem('wh_last_worker') || '';
+let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
+let HIVE_NAME   = localStorage.getItem('wh_hive_name') || '';
+
+if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; }
+
+// ─────────────────────────────────────
+// PM CATEGORY SCOPE TEMPLATES
+// Each item: { text, freq, defaultFreq }
+// freq: Monthly | Quarterly | Semi-Annual | Yearly
+// ─────────────────────────────────────
+const PM_TEMPLATES = {
+  'Rotating Equipment': [
+    { text: 'Check mechanical seal or packing for leaks', freq: 'Monthly' },
+    { text: 'Check bearing temperature (infrared or thermometer)', freq: 'Monthly' },
+    { text: 'Listen for abnormal noise or vibration', freq: 'Monthly' },
+    { text: 'Verify lubrication level in oil reservoirs', freq: 'Monthly' },
+    { text: 'Inspect coupling condition and guard', freq: 'Monthly' },
+    { text: 'Grease bearings per lubrication schedule', freq: 'Quarterly' },
+    { text: 'Inspect flexible coupling elements for wear', freq: 'Quarterly' },
+    { text: 'Check base plate bolts for looseness', freq: 'Quarterly' },
+    { text: 'Measure vibration and compare to baseline', freq: 'Quarterly' },
+    { text: 'Test motor insulation resistance (megger)', freq: 'Quarterly' },
+    { text: 'Inspect mechanical seal faces and replace if worn', freq: 'Semi-Annual' },
+    { text: 'Check shaft alignment with dial indicator', freq: 'Semi-Annual' },
+    { text: 'Clean motor cooling fins and air vents', freq: 'Semi-Annual' },
+    { text: 'Verify pump or fan performance vs. design', freq: 'Semi-Annual' },
+    { text: 'Full overhaul: disassemble, inspect, replace wear parts', freq: 'Yearly' },
+    { text: 'Replace bearings per OEM schedule', freq: 'Yearly' },
+    { text: 'Recalibrate instruments and controls', freq: 'Yearly' },
+    { text: 'Update equipment history card', freq: 'Yearly' },
+  ],
+  'Static Equipment': [
+    { text: 'Inspect for external corrosion, leaks, and coating damage', freq: 'Monthly' },
+    { text: 'Check pressure gauges and relief valves for correct reading', freq: 'Monthly' },
+    { text: 'Inspect all flanges and gasketed joints for leaks', freq: 'Monthly' },
+    { text: 'Inspect insulation and cladding condition', freq: 'Quarterly' },
+    { text: 'Check pressure safety valve (PSV) for corrosion or damage', freq: 'Quarterly' },
+    { text: 'Inspect support structures and hangers', freq: 'Quarterly' },
+    { text: 'Thickness measurement at corrosion-prone areas', freq: 'Semi-Annual' },
+    { text: 'Inspect nozzles and manhole areas for corrosion', freq: 'Semi-Annual' },
+    { text: 'Tighten flange bolts per torque specification', freq: 'Semi-Annual' },
+    { text: 'Internal inspection (vessel entry with PTW)', freq: 'Yearly' },
+    { text: 'Clean internal surfaces and remove scale', freq: 'Yearly' },
+    { text: 'Hydrostatic or NDT testing as required', freq: 'Yearly' },
+    { text: 'Update vessel inspection log and compliance records', freq: 'Yearly' },
+  ],
+  'Electrical': [
+    { text: 'Inspect panel for overheating signs or burn marks', freq: 'Monthly' },
+    { text: 'Verify all indicator lights and meters are functional', freq: 'Monthly' },
+    { text: 'Check cooling fans in MCC and VFDs for operation', freq: 'Monthly' },
+    { text: 'Torque all terminal connections in panels', freq: 'Quarterly' },
+    { text: 'Clean panel interiors with dry cloth or vacuum', freq: 'Quarterly' },
+    { text: 'Inspect cable insulation for deterioration or damage', freq: 'Quarterly' },
+    { text: 'Perform insulation resistance (megger) test on feeders', freq: 'Semi-Annual' },
+    { text: 'Test all circuit breakers for trip function', freq: 'Semi-Annual' },
+    { text: 'Inspect transformer for oil leaks and corrosion', freq: 'Semi-Annual' },
+    { text: 'Full thermographic scan of all panels', freq: 'Yearly' },
+    { text: 'Test and calibrate all protective relays', freq: 'Yearly' },
+    { text: 'Replace aging capacitors in power factor correction banks', freq: 'Yearly' },
+    { text: 'Update single-line diagram if any changes occurred', freq: 'Yearly' },
+  ],
+  'Instrumentation': [
+    { text: 'Check all instrument readings against expected process values', freq: 'Monthly' },
+    { text: 'Inspect for moisture ingress or corrosion on field instruments', freq: 'Monthly' },
+    { text: 'Verify zero and span calibration for critical transmitters', freq: 'Quarterly' },
+    { text: 'Inspect control valve positioners and air supplies', freq: 'Quarterly' },
+    { text: 'Check analyzer sample conditioning systems', freq: 'Quarterly' },
+    { text: 'Full calibration of pressure, level, and flow transmitters', freq: 'Semi-Annual' },
+    { text: 'Functional test of safety trips and interlocks', freq: 'Semi-Annual' },
+    { text: 'Inspect and clean analyzer cells', freq: 'Semi-Annual' },
+    { text: 'Loop accuracy verification against primary standard', freq: 'Yearly' },
+    { text: 'Replace consumable parts (filters, dryer tubes, electrode cells)', freq: 'Yearly' },
+    { text: 'Update calibration certificates and instrument records', freq: 'Yearly' },
+  ],
+  'HVAC': [
+    { text: 'Replace or clean air filters', freq: 'Monthly' },
+    { text: 'Inspect condensate drain pans and lines for blockage', freq: 'Monthly' },
+    { text: 'Check refrigerant pressure gauges', freq: 'Monthly' },
+    { text: 'Inspect fan belts for wear and proper tension', freq: 'Monthly' },
+    { text: 'Clean evaporator and condenser coils', freq: 'Quarterly' },
+    { text: 'Lubricate fan motor bearings', freq: 'Quarterly' },
+    { text: 'Check expansion valves and refrigerant charge', freq: 'Quarterly' },
+    { text: 'Test thermostat and controller calibration', freq: 'Quarterly' },
+    { text: 'Full cleaning of cooling tower fill and basin', freq: 'Semi-Annual' },
+    { text: 'Inspect cooling tower fan and gearbox', freq: 'Semi-Annual' },
+    { text: 'Check compressor oil level and condition', freq: 'Semi-Annual' },
+    { text: 'Refrigerant leak test and recharge if needed', freq: 'Yearly' },
+    { text: 'Inspect and clean ductwork', freq: 'Yearly' },
+    { text: 'Full overhaul of cooling tower per OEM schedule', freq: 'Yearly' },
+  ],
+  'Utility Systems': [
+    { text: 'Check boiler water treatment chemical levels', freq: 'Monthly' },
+    { text: 'Inspect air compressor oil level, belts, and filters', freq: 'Monthly' },
+    { text: 'Check water treatment dosing pumps operation', freq: 'Monthly' },
+    { text: 'Inspect compressed air dryer operation', freq: 'Monthly' },
+    { text: 'Blow down boiler and inspect blowdown valves', freq: 'Quarterly' },
+    { text: 'Clean air compressor aftercooler and separator', freq: 'Quarterly' },
+    { text: 'Test safety relief valves on air receivers', freq: 'Quarterly' },
+    { text: 'Check water softener resin and salt levels', freq: 'Quarterly' },
+    { text: 'Internal inspection of air receivers for corrosion', freq: 'Semi-Annual' },
+    { text: 'Boiler tube inspection and scale removal', freq: 'Semi-Annual' },
+    { text: 'Calibrate water treatment analyzers (pH, conductivity)', freq: 'Semi-Annual' },
+    { text: 'Change compressor oil and oil filter', freq: 'Semi-Annual' },
+    { text: 'Full boiler inspection and cleaning', freq: 'Yearly' },
+    { text: 'Replace air compressor air-end elements', freq: 'Yearly' },
+    { text: 'Full water treatment system audit', freq: 'Yearly' },
+    { text: 'Update all safety certificates and compliance documents', freq: 'Yearly' },
+  ],
+  'Civil / Structural': [
+    { text: 'Inspect floor drains and drainage channels for blockage', freq: 'Monthly' },
+    { text: 'Check building roof for leaks or ponding water', freq: 'Monthly' },
+    { text: 'Inspect anchor bolts of equipment for looseness', freq: 'Monthly' },
+    { text: 'Inspect structural members for cracks, corrosion, or settlement', freq: 'Quarterly' },
+    { text: 'Check expansion joints and seals', freq: 'Quarterly' },
+    { text: 'Inspect fire doors for proper sealing and operation', freq: 'Quarterly' },
+    { text: 'Detailed inspection of roofing and wall cladding', freq: 'Semi-Annual' },
+    { text: 'Check concrete floors for spalling or cracks', freq: 'Semi-Annual' },
+    { text: 'Inspect overhead crane runway beams (if applicable)', freq: 'Semi-Annual' },
+    { text: 'Structural assessment by qualified person', freq: 'Yearly' },
+    { text: 'Major repair or re-coating of corroded surfaces', freq: 'Yearly' },
+    { text: 'Update building inspection report', freq: 'Yearly' },
+  ],
+  'Material Handling': [
+    { text: 'Inspect conveyor belts for wear, tracking, and damage', freq: 'Monthly' },
+    { text: 'Check crane wire ropes and hooks for defects', freq: 'Monthly' },
+    { text: 'Inspect hoist brakes for adjustment and wear', freq: 'Monthly' },
+    { text: 'Lubricate all running tracks and guide rails', freq: 'Monthly' },
+    { text: 'Tension and align conveyor belts', freq: 'Quarterly' },
+    { text: 'Inspect gear reducers for oil level and leaks', freq: 'Quarterly' },
+    { text: 'Test crane load limiters and safety devices', freq: 'Quarterly' },
+    { text: 'Inspect conveyor rollers and idlers', freq: 'Quarterly' },
+    { text: 'Full crane inspection per applicable standard', freq: 'Semi-Annual' },
+    { text: 'Replace conveyor belt scrapers and skirting', freq: 'Semi-Annual' },
+    { text: 'Inspect and service hoist gear units', freq: 'Semi-Annual' },
+    { text: 'Test emergency stop and anti-collision systems', freq: 'Semi-Annual' },
+    { text: 'Full statutory crane inspection with certified inspector', freq: 'Yearly' },
+    { text: 'Replace wire ropes per manufacturer schedule', freq: 'Yearly' },
+    { text: 'Full conveyor mechanical audit', freq: 'Yearly' },
+    { text: 'Update all lifting equipment certificates', freq: 'Yearly' },
+  ],
+};
+
+// ─────────────────────────────────────
+// DUE DATE ENGINE
+// ─────────────────────────────────────
+const FREQ_DAYS = { 'Monthly': 30, 'Quarterly': 90, 'Semi-Annual': 180, 'Yearly': 365 };
+const DUE_SOON_DAYS = 14;
+
+function calcNextDue(lastDate, freq) {
+  if (!lastDate) return null;
+  const d = new Date(lastDate);
+  d.setDate(d.getDate() + (FREQ_DAYS[freq] || 90));
+  return d;
+}
+
+function getItemStatus(nextDue) {
+  if (!nextDue) return 'nodata';
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const due   = new Date(nextDue); due.setHours(0, 0, 0, 0);
+  const diff  = Math.floor((due - today) / 86400000);
+  if (diff < 0)              return 'overdue';
+  if (diff <= DUE_SOON_DAYS) return 'duesoon';
+  return 'ontrack';
+}
+
+function getAssetOverallStatus(items) {
+  if (!items || !items.length) return 'nodata';
+  if (items.some(i => i.status === 'overdue'))  return 'overdue';
+  if (items.some(i => i.status === 'duesoon'))  return 'duesoon';
+  if (items.some(i => i.status === 'nodata'))   return 'nodata';
+  return 'ontrack';
+}
+
+function formatDate(d) {
+  if (!d) return 'N/A';
+  return new Date(d).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function daysLabel(nextDue) {
+  if (!nextDue) return 'No date set';
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const due   = new Date(nextDue); due.setHours(0, 0, 0, 0);
+  const diff  = Math.floor((due - today) / 86400000);
+  if (diff < 0)  return `${Math.abs(diff)}d overdue`;
+  if (diff === 0) return 'Due today';
+  if (diff === 1) return 'Due tomorrow';
+  return `Due in ${diff}d`;
+}
+
+// ─────────────────────────────────────
+// STATE
+// ─────────────────────────────────────
+let assets        = [];
+let scopeItems    = [];
+let completions   = [];
+let currentAsset  = null;
+let currentScreen = 'dashboard';
+
+// Wizard state
+let wizardItems   = []; // [{text, freq, isCustom}]
+let selectedCrit  = 'Major';
+
+// ─────────────────────────────────────
+// CAT COLOR MAP
+// ─────────────────────────────────────
+const CAT_COLORS = {
+  'Rotating Equipment': { bg: 'rgba(41,182,217,0.15)', color: '#29B6D9' },
+  'Static Equipment':   { bg: 'rgba(167,139,250,0.15)', color: '#a78bfa' },
+  'Electrical':         { bg: 'rgba(251,191,36,0.15)',  color: '#fbbf24' },
+  'Instrumentation':    { bg: 'rgba(34,197,94,0.15)',   color: '#4ade80' },
+  'HVAC':               { bg: 'rgba(244,114,182,0.15)', color: '#f472b6' },
+  'Utility Systems':    { bg: 'rgba(247,162,27,0.15)',  color: '#F7A21B' },
+  'Civil / Structural': { bg: 'rgba(156,163,175,0.15)', color: '#9ca3af' },
+  'Material Handling':  { bg: 'rgba(249,115,22,0.15)',  color: '#f97316' },
+};
+
+function catPill(cat) {
+  const c = CAT_COLORS[cat] || { bg: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)' };
+  return `<span class="cat-pill" style="background:${c.bg};color:${c.color};">${cat}</span>`;
+}
+
+function freqBadge(freq) {
+  const map = { 'Monthly': 'M', 'Quarterly': 'Q', 'Semi-Annual': 'SA', 'Yearly': 'Y' };
+  const cls = { 'Monthly': 'freq-M', 'Quarterly': 'freq-Q', 'Semi-Annual': 'freq-SA', 'Yearly': 'freq-Y' };
+  return `<span class="freq-badge ${cls[freq] || ''}">${map[freq] || freq}</span>`;
+}
+
+function statusBadge(st) {
+  const map = {
+    overdue:  { cls: 'badge-overdue', label: 'Overdue' },
+    duesoon:  { cls: 'badge-duesoon', label: 'Due Soon' },
+    ontrack:  { cls: 'badge-ontrack', label: 'On Track' },
+    nodata:   { cls: 'badge-nodata',  label: 'No Data' },
+  };
+  const m = map[st] || map.nodata;
+  return `<span class="status-badge ${m.cls}">${m.label}</span>`;
+}
+
+function critBadge(crit) {
+  const map = {
+    Critical: 'background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);',
+    Major:    'background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);',
+    Minor:    'background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.25);',
+  };
+  return `<span class="status-badge" style="${map[crit] || ''}">${crit}</span>`;
+}
+
+// ─────────────────────────────────────
+// INIT
+// ─────────────────────────────────────
+async function init() {
+  document.getElementById('nav-worker').textContent = WORKER_NAME;
+
+  if (HIVE_ID && HIVE_NAME) {
+    const chip = document.getElementById('hive-chip');
+    chip.classList.remove('hidden');
+    chip.classList.add('flex');
+    document.getElementById('hive-chip-name').textContent = HIVE_NAME;
+  }
+
+  await loadData();
+  renderDashboard();
+
+  // Filter chips
+  document.getElementById('filter-bar').addEventListener('click', e => {
+    const chip = e.target.closest('.filter-chip');
+    if (!chip) return;
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    renderDashboard();
+  });
+
+  // Category filter
+  document.getElementById('cat-filter').addEventListener('change', renderDashboard);
+
+  // Subscribe to realtime PM completions (for cross-device sync)
+  if (HIVE_ID) subscribeRealtime();
+}
+
+// ─────────────────────────────────────
+// SUPABASE DATA LAYER
+// ─────────────────────────────────────
+async function loadData() {
+  if (!HIVE_ID && !WORKER_NAME) return;
+
+  const workerFilter = q => HIVE_ID
+    ? q.eq('hive_id', HIVE_ID)
+    : q.eq('worker_name', WORKER_NAME);
+
+  const [assetsRes, itemsRes, compRes] = await Promise.all([
+    workerFilter(db.from('pm_assets').select('*')).order('created_at', { ascending: true }),
+    workerFilter(db.from('pm_scope_items').select('*')).order('created_at', { ascending: true }),
+    workerFilter(db.from('pm_completions').select('*')).order('completed_at', { ascending: false }),
+  ]);
+
+  if (assetsRes.error) { console.error('pm_assets load:', assetsRes.error.message); return; }
+  assets      = assetsRes.data  || [];
+  scopeItems  = itemsRes.data   || [];
+  completions = compRes.data    || [];
+
+  // Populate category filter
+  const cats = [...new Set(assets.map(a => a.category))].sort();
+  const sel  = document.getElementById('cat-filter');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">All Categories</option>' +
+    cats.map(c => `<option value="${c}">${c}</option>`).join('');
+  if (prev) sel.value = prev;
+}
+
+async function subscribeRealtime() {
+  if (!HIVE_ID) return;
+  db.channel('pm-completions:' + HIVE_ID)
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'pm_completions',
+      filter: 'hive_id=eq.' + HIVE_ID
+    }, async payload => {
+      // Another team member logged a completion — refresh data
+      await loadData();
+      renderDashboard();
+      if (currentScreen === 'detail' && currentAsset && currentAsset.id === payload.new.asset_id) {
+        renderDetail(currentAsset);
+      }
+    })
+    .subscribe();
+}
+
+// ─────────────────────────────────────
+// DERIVE ENRICHED ITEMS FOR AN ASSET
+// ─────────────────────────────────────
+function getEnrichedItems(assetId) {
+  const items = scopeItems.filter(i => i.asset_id === assetId);
+  return items.map(item => {
+    const lastComp = completions
+      .filter(c => c.scope_item_id === item.id && c.status === 'done')
+      .sort((a, b) => new Date(b.completed_at) - new Date(a.completed_at))[0];
+
+    const lastDate  = lastComp ? lastComp.completed_at : item.anchor_date;
+    const nextDue   = calcNextDue(lastDate, item.frequency);
+    const st        = getItemStatus(nextDue);
+
+    return { ...item, lastComp, nextDue, itemStatus: st };
+  });
+}
+
+// ─────────────────────────────────────
+// DASHBOARD RENDER
+// ─────────────────────────────────────
+function renderDashboard() {
+  const loading = document.getElementById('dash-loading');
+  const empty   = document.getElementById('dash-empty');
+  const list    = document.getElementById('asset-list');
+
+  loading.classList.add('hidden');
+
+  const activeFilter = document.querySelector('.filter-chip.active')?.dataset.filter || 'all';
+  const catFilter    = document.getElementById('cat-filter').value;
+
+  // Build enriched assets
+  const enriched = assets.map(asset => {
+    const items   = getEnrichedItems(asset.id);
+    const overall = getAssetOverallStatus(items);
+    return { ...asset, enrichedItems: items, overall };
+  });
+
+  // Stats
+  document.getElementById('stat-overdue').textContent = enriched.filter(a => a.overall === 'overdue').length;
+  document.getElementById('stat-duesoon').textContent = enriched.filter(a => a.overall === 'duesoon').length;
+  document.getElementById('stat-ontrack').textContent = enriched.filter(a => a.overall === 'ontrack').length;
+
+  // Filter
+  let filtered = enriched;
+  if (activeFilter !== 'all') filtered = filtered.filter(a => a.overall === activeFilter);
+  if (catFilter)              filtered = filtered.filter(a => a.category === catFilter);
+
+  if (!filtered.length) {
+    empty.classList.remove('hidden');
+    list.innerHTML = '';
+    return;
+  }
+  empty.classList.add('hidden');
+
+  list.innerHTML = filtered.map(asset => {
+    const totalItems    = asset.enrichedItems.length;
+    const overdueItems  = asset.enrichedItems.filter(i => i.itemStatus === 'overdue').length;
+    const nextDueItem   = asset.enrichedItems
+      .filter(i => i.nextDue)
+      .sort((a, b) => new Date(a.nextDue) - new Date(b.nextDue))[0];
+
+    const nextDueLabel = nextDueItem
+      ? `Next: ${formatDate(nextDueItem.nextDue)} (${nextDueItem.text.split(' ').slice(0, 4).join(' ')}...)`
+      : 'No scheduled tasks';
+
+    return `
+      <div class="asset-card ${asset.overall}" onclick="openDetail('${asset.id}')">
+        <div class="flex items-start justify-between gap-3 mb-2">
+          <div class="flex-1 min-w-0">
+            <p class="font-bold text-base leading-tight truncate">${escHtml(asset.asset_name)}</p>
+            <p class="text-xs text-white/40 mt-0.5 truncate">
+              ${asset.tag_id ? `<span class="font-mono">${escHtml(asset.tag_id)}</span>` : ''}
+              ${asset.tag_id && asset.location ? ' · ' : ''}
+              ${asset.location ? escHtml(asset.location) : ''}
+            </p>
+          </div>
+          ${statusBadge(asset.overall)}
+        </div>
+
+        <div class="flex flex-wrap items-center gap-1.5 mb-3">
+          ${catPill(asset.category)}
+          ${critBadge(asset.criticality)}
+          ${overdueItems > 0 ? `<span class="text-xs font-semibold text-red-400">${overdueItems} task${overdueItems > 1 ? 's' : ''} overdue</span>` : ''}
+        </div>
+
+        <p class="text-xs text-white/30 mb-2 truncate">${nextDueLabel}</p>
+
+        <div class="progress-bar">
+          <div class="progress-fill" style="
+            width:${totalItems ? Math.round(((totalItems - overdueItems) / totalItems) * 100) : 100}%;
+            background:${asset.overall === 'overdue' ? '#ef4444' : asset.overall === 'duesoon' ? '#fbbf24' : '#4ade80'};
+          "></div>
+        </div>
+        <p class="text-xs text-white/25 mt-1">${totalItems} PM task${totalItems !== 1 ? 's' : ''}</p>
+      </div>
+    `;
+  }).join('');
+}
+
+// ─────────────────────────────────────
+// DETAIL RENDER
+// ─────────────────────────────────────
+function openDetail(assetId) {
+  currentAsset = assets.find(a => a.id === assetId);
+  if (!currentAsset) return;
+  showScreen('detail');
+  renderDetail(currentAsset);
+}
+
+function renderDetail(asset) {
+  const items   = getEnrichedItems(asset.id);
+  const overall = getAssetOverallStatus(items);
+
+  document.getElementById('det-name').textContent    = asset.asset_name;
+  document.getElementById('det-tag-loc').textContent =
+    [asset.tag_id, asset.location].filter(Boolean).join(' · ');
+  document.getElementById('det-overall-status').outerHTML =
+    `<span id="det-overall-status">${statusBadge(overall)}</span>`;
+  document.getElementById('det-cat').outerHTML  = `<span id="det-cat">${catPill(asset.category)}</span>`;
+  document.getElementById('det-crit').outerHTML = `<span id="det-crit">${critBadge(asset.criticality)}</span>`;
+  document.getElementById('det-anchor').textContent =
+    asset.last_anchor_date ? `Last anchor: ${formatDate(asset.last_anchor_date)}` : 'No anchor date';
+
+  // Delete button (supervisor or own asset)
+  const canDelete = !HIVE_ID || HIVE_ROLE === 'supervisor' || asset.worker_name === WORKER_NAME;
+  const delBtn = document.getElementById('btn-delete-asset');
+  canDelete ? delBtn.classList.remove('hidden') : delBtn.classList.add('hidden');
+
+  // Progress text
+  const done = items.filter(i => i.itemStatus === 'ontrack').length;
+  document.getElementById('det-progress-text').textContent = `${done}/${items.length} on track`;
+
+  // Tasks grouped by frequency
+  const freqOrder = ['Monthly', 'Quarterly', 'Semi-Annual', 'Yearly'];
+  const grouped   = {};
+  freqOrder.forEach(f => { grouped[f] = items.filter(i => i.frequency === f); });
+
+  const tasksEl = document.getElementById('det-tasks');
+  tasksEl.innerHTML = freqOrder.map(freq => {
+    if (!grouped[freq].length) return '';
+    return `
+      <div class="mb-4">
+        <div class="flex items-center gap-2 mb-2">
+          ${freqBadge(freq)}
+          <span class="text-xs text-white/40 font-semibold">${freq}</span>
+        </div>
+        <div class="space-y-2">
+          ${grouped[freq].map(item => {
+            const nextStr  = item.nextDue ? formatDate(item.nextDue) : 'Not set';
+            const daysStr  = daysLabel(item.nextDue);
+            const lastStr  = item.lastComp ? formatDate(item.lastComp.completed_at) : (asset.last_anchor_date ? `Anchor: ${formatDate(asset.last_anchor_date)}` : 'Never done');
+            return `
+              <div class="detail-scope-row">
+                <div class="flex items-start justify-between gap-3 mb-2">
+                  <p class="text-sm font-medium leading-snug flex-1">${escHtml(item.text)}</p>
+                  ${statusBadge(item.itemStatus)}
+                </div>
+                <div class="flex items-center justify-between">
+                  <div class="text-xs text-white/30 space-y-0.5">
+                    <div>Last done: <span class="text-white/50">${lastStr}</span></div>
+                    <div>Next due: <span class="${item.itemStatus === 'overdue' ? 'text-red-400' : item.itemStatus === 'duesoon' ? 'text-yellow-400' : 'text-white/50'}">${nextStr} (${daysStr})</span></div>
+                  </div>
+                  <button class="complete-btn ${item.itemStatus === 'ontrack' ? 'done' : ''}"
+                    onclick="markDone('${item.id}', this)"
+                    title="Mark as completed today">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="${item.itemStatus === 'ontrack' ? '#4ade80' : 'currentColor'}" stroke-width="2.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // History log
+  const assetComps = completions.filter(c => c.asset_id === asset.id)
+    .sort((a, b) => new Date(b.completed_at) - new Date(a.completed_at))
+    .slice(0, 20);
+
+  const histEl   = document.getElementById('det-history');
+  const histEmpty = document.getElementById('det-history-empty');
+
+  if (!assetComps.length) {
+    histEl.innerHTML = '';
+    histEmpty.classList.remove('hidden');
+  } else {
+    histEmpty.classList.add('hidden');
+    histEl.innerHTML = assetComps.map(c => {
+      const item    = scopeItems.find(i => i.id === c.scope_item_id);
+      const itemTxt = item ? item.text : 'Unknown task';
+      const statusCls = c.status === 'done' ? 'text-green-400' : 'text-yellow-400';
+      return `
+        <div class="history-row">
+          <div class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${c.status === 'done' ? 'bg-green-400' : 'bg-yellow-400'}"></div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm leading-snug truncate">${escHtml(itemTxt)}</p>
+            <p class="text-xs text-white/30 mt-0.5">
+              <span class="${statusCls} font-semibold">${c.status === 'done' ? 'Completed' : 'Deferred'}</span>
+              · ${escHtml(c.worker_name)} · ${formatDate(c.completed_at)}
+              ${c.notes ? `<br><span class="italic text-white/25">"${escHtml(c.notes)}"</span>` : ''}
+            </p>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+// ─────────────────────────────────────
+// MARK DONE
+// ─────────────────────────────────────
+async function markDone(scopeItemId, btn) {
+  btn.disabled = true;
+
+  const payload = {
+    asset_id:      currentAsset.id,
+    scope_item_id: scopeItemId,
+    hive_id:       HIVE_ID || null,
+    worker_name:   WORKER_NAME,
+    status:        'done',
+    completed_at:  new Date().toISOString(),
+    notes:         null,
+  };
+
+  const { data, error } = await db.from('pm_completions').insert(payload).select().single();
+
+  if (error) {
+    console.error('markDone error:', error.message);
+    showToast('Failed to record completion. Please try again.');
+    btn.disabled = false;
+    return;
+  }
+
+  completions.unshift(data);
+  showToast('Task marked as done.');
+  renderDetail(currentAsset);
+  renderDashboard();
+  btn.disabled = false;
+}
+
+// ─────────────────────────────────────
+// WIZARD
+// ─────────────────────────────────────
+let currentStep = 1;
+
+function goAddAsset() {
+  resetWizard();
+  showScreen('add');
+  setStep(1);
+}
+
+function resetWizard() {
+  currentStep   = 1;
+  wizardItems   = [];
+  selectedCrit  = 'Major';
+  document.getElementById('w-name').value     = '';
+  document.getElementById('w-tag').value      = '';
+  document.getElementById('w-location').value = '';
+  document.getElementById('w-category').value = '';
+  document.getElementById('w-anchor').value   = '';
+  document.querySelectorAll('.crit-btn').forEach(b => {
+    const isDefault = b.dataset.val === 'Major';
+    b.classList.toggle('selected', isDefault);
+    if (b.dataset.val === 'Critical') b.style.cssText = 'border-color:rgba(239,68,68,0.3);color:#f87171;background:transparent;';
+    if (b.dataset.val === 'Major')    b.style.cssText = 'border-color:rgba(251,191,36,0.5);color:#fbbf24;background:rgba(251,191,36,0.08);';
+    if (b.dataset.val === 'Minor')    b.style.cssText = 'border-color:rgba(34,197,94,0.3);color:#4ade80;background:transparent;';
+  });
+}
+
+function setCrit(btn) {
+  selectedCrit = btn.dataset.val;
+  document.querySelectorAll('.crit-btn').forEach(b => {
+    const active = b === btn;
+    if (b.dataset.val === 'Critical') b.style.cssText = `border-color:rgba(239,68,68,${active?'0.6':'0.3'});color:#f87171;background:${active?'rgba(239,68,68,0.12)':'transparent'};`;
+    if (b.dataset.val === 'Major')    b.style.cssText = `border-color:rgba(251,191,36,${active?'0.6':'0.3'});color:#fbbf24;background:${active?'rgba(251,191,36,0.12)':'transparent'};`;
+    if (b.dataset.val === 'Minor')    b.style.cssText = `border-color:rgba(34,197,94,${active?'0.5':'0.3'});color:#4ade80;background:${active?'rgba(34,197,94,0.1)':'transparent'};`;
+  });
+}
+
+function onCategoryChange() {
+  const cat = document.getElementById('w-category').value;
+  wizardItems = (PM_TEMPLATES[cat] || []).map(t => ({ ...t, isCustom: false }));
+}
+
+function addCustomItem() {
+  const text = document.getElementById('custom-item-text').value.trim();
+  const freq = document.getElementById('custom-item-freq').value;
+  if (!text) { showToast('Please enter a task description.'); return; }
+  wizardItems.push({ text, freq, isCustom: true });
+  document.getElementById('custom-item-text').value = '';
+  renderScopeList();
+}
+
+function renderScopeList() {
+  const container = document.getElementById('scope-list');
+  if (!wizardItems.length) {
+    container.innerHTML = '<p class="text-sm text-white/30 text-center py-6">Select a category to load PM scope templates.</p>';
+    return;
+  }
+
+  container.innerHTML = wizardItems.map((item, idx) => {
+    const included = item.included !== false;
+    const freqOpts = ['Monthly','Quarterly','Semi-Annual','Yearly']
+      .map(f => `<option value="${f}" ${item.freq === f ? 'selected' : ''}>${f}</option>`).join('');
+    return `
+      <div class="scope-row ${included ? 'included' : ''}" id="scope-row-${idx}">
+        <div class="scope-check" onclick="toggleScopeItem(${idx})"></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm leading-snug ${included ? 'text-white' : 'text-white/40'}">${escHtml(item.text)}</p>
+          <div class="flex items-center gap-2 mt-1.5">
+            ${item.isCustom ? '<span class="text-xs text-orange-400 font-semibold">Custom</span>' : ''}
+            <select class="text-xs font-semibold rounded-lg px-2 py-1 border outline-none transition-colors"
+              style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);"
+              onchange="updateItemFreq(${idx}, this.value)">
+              ${freqOpts}
+            </select>
+          </div>
+        </div>
+        ${item.isCustom ? `<button onclick="removeCustomItem(${idx})" class="text-white/20 hover:text-red-400 transition-colors p-1">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleScopeItem(idx) {
+  wizardItems[idx].included = wizardItems[idx].included === false ? true : false;
+  renderScopeList();
+}
+
+function updateItemFreq(idx, freq) {
+  wizardItems[idx].freq = freq;
+}
+
+function removeCustomItem(idx) {
+  wizardItems.splice(idx, 1);
+  renderScopeList();
+}
+
+function renderStepIndicator(step) {
+  const dots = document.getElementById('step-indicator');
+  dots.innerHTML = [1,2,3,4].map(s => {
+    const cls = s < step ? 'done' : s === step ? 'active' : '';
+    return `<div class="step-dot ${cls}"></div>`;
+  }).join('');
+
+  const progress = document.getElementById('wizard-progress');
+  progress.style.width = `${(step / 4) * 100}%`;
+
+  const titles = ['', 'Asset Info', 'PM Scope', 'Anchor Date', 'Review'];
+  document.getElementById('wizard-title').textContent = titles[step] || 'Add Asset';
+}
+
+function setStep(n) {
+  currentStep = n;
+  document.querySelectorAll('.wizard-step').forEach(el => el.classList.add('hidden'));
+  const el = document.getElementById(`step-${n}`);
+  if (el) { el.classList.remove('hidden'); el.classList.add('slide-up'); }
+  renderStepIndicator(n);
+}
+
+function goStep(n) {
+  if (n === 2) {
+    const name = document.getElementById('w-name').value.trim();
+    const cat  = document.getElementById('w-category').value;
+    if (!name) { showToast('Please enter an asset name.'); return; }
+    if (!cat)  { showToast('Please select a category.'); return; }
+    if (!wizardItems.length) onCategoryChange();
+    renderScopeList();
+  }
+  if (n === 3) {
+    const included = wizardItems.filter(i => i.included !== false);
+    if (!included.length) { showToast('Please include at least one PM task.'); return; }
+  }
+  if (n === 4) {
+    renderReview();
+  }
+  setStep(n);
+}
+
+function renderReview() {
+  const name     = document.getElementById('w-name').value.trim();
+  const tag      = document.getElementById('w-tag').value.trim();
+  const loc      = document.getElementById('w-location').value.trim();
+  const cat      = document.getElementById('w-category').value;
+  const anchor   = document.getElementById('w-anchor').value;
+  const included = wizardItems.filter(i => i.included !== false);
+
+  document.getElementById('rev-name').textContent     = name;
+  document.getElementById('rev-tag-loc').textContent   = [tag, loc].filter(Boolean).join(' · ') || 'No tag or location';
+  document.getElementById('rev-crit').outerHTML        = `<span id="rev-crit">${critBadge(selectedCrit)}</span>`;
+  document.getElementById('rev-cat-pill').outerHTML    = `<span id="rev-cat-pill">${catPill(cat)}</span>`;
+  document.getElementById('rev-anchor').textContent    = anchor ? `Anchor: ${formatDate(anchor)}` : 'No anchor date set';
+  document.getElementById('rev-count').textContent     = included.length;
+
+  document.getElementById('rev-scope').innerHTML = included.map(item => `
+    <div class="flex items-center gap-2">
+      ${freqBadge(item.freq)}
+      <span class="text-sm text-white/70 leading-snug">${escHtml(item.text)}</span>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────
+// SAVE ASSET
+// ─────────────────────────────────────
+async function saveAsset() {
+  const btn = document.getElementById('btn-save-asset');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  const name   = document.getElementById('w-name').value.trim();
+  const tag    = document.getElementById('w-tag').value.trim();
+  const loc    = document.getElementById('w-location').value.trim();
+  const cat    = document.getElementById('w-category').value;
+  const anchor = document.getElementById('w-anchor').value || null;
+  const items  = wizardItems.filter(i => i.included !== false);
+
+  const assetPayload = {
+    hive_id:          HIVE_ID || null,
+    worker_name:      WORKER_NAME,
+    asset_name:       name,
+    tag_id:           tag || null,
+    location:         loc || null,
+    category:         cat,
+    criticality:      selectedCrit,
+    last_anchor_date: anchor || null,
+  };
+
+  const { data: asset, error: assetErr } = await db
+    .from('pm_assets').insert(assetPayload).select().single();
+
+  if (assetErr) {
+    console.error('save asset:', assetErr.message);
+    showToast('Failed to save asset. Please try again.');
+    btn.disabled = false; btn.textContent = 'Save Asset';
+    return;
+  }
+
+  // Save scope items
+  const scopePayload = items.map(item => ({
+    asset_id:    asset.id,
+    hive_id:     HIVE_ID || null,
+    item_text:   item.text,
+    frequency:   item.freq,
+    anchor_date: anchor || null,
+    is_custom:   item.isCustom || false,
+  }));
+
+  const { error: itemsErr } = await db.from('pm_scope_items').insert(scopePayload);
+
+  if (itemsErr) {
+    console.error('save scope items:', itemsErr.message);
+    showToast('Asset saved but scope items failed. Please edit and retry.');
+  }
+
+  // Reload data
+  await loadData();
+  showToast(`${name} added successfully.`);
+  showScreen('dashboard');
+  renderDashboard();
+
+  btn.disabled = false; btn.textContent = 'Save Asset';
+}
+
+// ─────────────────────────────────────
+// DELETE ASSET
+// ─────────────────────────────────────
+function confirmDeleteAsset() {
+  if (!currentAsset) return;
+  if (!confirm(`Delete "${currentAsset.asset_name}" and all its PM data? This cannot be undone.`)) return;
+  deleteAsset();
+}
+
+async function deleteAsset() {
+  const { error } = await db.from('pm_assets').delete()
+    .eq('id', currentAsset.id).eq('worker_name', WORKER_NAME);
+
+  if (error) { showToast('Delete failed. Please try again.'); return; }
+
+  assets      = assets.filter(a => a.id !== currentAsset.id);
+  scopeItems  = scopeItems.filter(i => i.asset_id !== currentAsset.id);
+  completions = completions.filter(c => c.asset_id !== currentAsset.id);
+  currentAsset = null;
+
+  showToast('Asset deleted.');
+  showScreen('dashboard');
+  renderDashboard();
+}
+
+// ─────────────────────────────────────
+// SCREEN NAVIGATION
+// ─────────────────────────────────────
+function showScreen(name) {
+  currentScreen = name;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(`screen-${name}`).classList.add('active');
+
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const tab = document.getElementById(`tab-${name}`);
+  if (tab) tab.classList.add('active');
+
+  window.scrollTo(0, 0);
+}
+
+function goBack() {
+  if (currentScreen === 'add' || currentScreen === 'detail') {
+    showScreen('dashboard');
+  }
+}
+
+// ─────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────
+function escHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ─────────────────────────────────────
+// BOOT
+// ─────────────────────────────────────
+init();
+</script>
+
+<!--
+  ═══════════════════════════════════════════════════
+  SUPABASE TABLES REQUIRED
+  Run these in Supabase SQL Editor before using this tool.
+
+  create table pm_assets (
+    id               uuid default gen_random_uuid() primary key,
+    hive_id          uuid references hives(id) on delete cascade,
+    worker_name      text not null,
+    asset_name       text not null,
+    tag_id           text,
+    location         text,
+    category         text not null,
+    criticality      text default 'Major',
+    last_anchor_date date,
+    created_at       timestamptz default now()
+  );
+
+  create table pm_scope_items (
+    id          uuid default gen_random_uuid() primary key,
+    asset_id    uuid references pm_assets(id) on delete cascade,
+    hive_id     uuid,
+    item_text   text not null,
+    frequency   text not null,
+    anchor_date date,
+    is_custom   boolean default false,
+    created_at  timestamptz default now()
+  );
+
+  create table pm_completions (
+    id             uuid default gen_random_uuid() primary key,
+    asset_id       uuid references pm_assets(id) on delete cascade,
+    scope_item_id  uuid references pm_scope_items(id) on delete cascade,
+    hive_id        uuid,
+    worker_name    text not null,
+    status         text default 'done',
+    notes          text,
+    completed_at   timestamptz default now()
+  );
+
+  -- Enable Realtime
+  alter publication supabase_realtime add table pm_completions;
+
+  -- Row Level Security (optional but recommended)
+  alter table pm_assets       enable row level security;
+  alter table pm_scope_items  enable row level security;
+  alter table pm_completions  enable row level security;
+
+  create policy "anon read pm_assets"      on pm_assets      for select using (true);
+  create policy "anon insert pm_assets"    on pm_assets      for insert with check (true);
+  create policy "anon delete pm_assets"    on pm_assets      for delete using (true);
+  create policy "anon read pm_scope_items" on pm_scope_items for select using (true);
+  create policy "anon insert pm_scope_items" on pm_scope_items for insert with check (true);
+  create policy "anon read pm_completions"   on pm_completions for select using (true);
+  create policy "anon insert pm_completions" on pm_completions for insert with check (true);
+  ═══════════════════════════════════════════════════
+-->
+</body>
+</html>
