@@ -978,20 +978,28 @@ async function init() {
 async function loadData() {
   if (!HIVE_ID && !WORKER_NAME) return;
 
-  const workerFilter = q => HIVE_ID
-    ? q.eq('hive_id', HIVE_ID)
-    : q.eq('worker_name', WORKER_NAME);
-
-  const [assetsRes, itemsRes, compRes] = await Promise.all([
-    workerFilter(db.from('pm_assets').select('*')).order('created_at', { ascending: true }),
-    workerFilter(db.from('pm_scope_items').select('*')).order('created_at', { ascending: true }),
-    workerFilter(db.from('pm_completions').select('*')).order('completed_at', { ascending: false }),
-  ]);
+  // Load assets first — pm_scope_items has no worker_name, must join via asset_id
+  const assetsRes = await (HIVE_ID
+    ? db.from('pm_assets').select('*').eq('hive_id', HIVE_ID)
+    : db.from('pm_assets').select('*').eq('worker_name', WORKER_NAME)
+  ).order('created_at', { ascending: true });
 
   if (assetsRes.error) { console.error('pm_assets load:', assetsRes.error.message); return; }
-  assets      = assetsRes.data  || [];
-  scopeItems  = itemsRes.data   || [];
-  completions = compRes.data    || [];
+  assets = assetsRes.data || [];
+
+  if (!assets.length) { scopeItems = []; completions = []; return; }
+
+  const assetIds = assets.map(a => a.id);
+
+  // pm_scope_items has no worker_name — always filter by asset_id
+  // pm_completions has worker_name but asset_id filter is safer and consistent
+  const [itemsRes, compRes] = await Promise.all([
+    db.from('pm_scope_items').select('*').in('asset_id', assetIds).order('created_at', { ascending: true }),
+    db.from('pm_completions').select('*').in('asset_id', assetIds).order('completed_at', { ascending: false }),
+  ]);
+
+  scopeItems  = itemsRes.data || [];
+  completions = compRes.data  || [];
 
   // Populate category filter
   const cats = [...new Set(assets.map(a => a.category))].sort();
