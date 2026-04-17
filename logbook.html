@@ -1995,7 +1995,24 @@ async function loadPMTasksForAsset() {
 
   if (!matched.length) { panel.classList.add('hidden'); _pmItemsForAsset = []; return; }
 
-  const assetIds = matched.map(a => a.id);
+  // Filter by category alignment — only show PM tasks that match the logbook discipline
+  const PM_CAT_MAP = {
+    'Mechanical':      ['Rotating Equipment', 'Static Equipment'],
+    'Electrical':      ['Electrical'],
+    'Instrumentation': ['Instrumentation'],
+    'HVAC':            ['HVAC'],
+    'Lubrication':     ['Rotating Equipment'],
+    'Hydraulic':       ['Static Equipment'],
+    'Pneumatic':       ['Static Equipment'],
+  };
+  const allowedPMCats = PM_CAT_MAP[category] || [];
+  const categoryFiltered = allowedPMCats.length
+    ? matched.filter(a => allowedPMCats.includes(a.category))
+    : matched;
+
+  if (!categoryFiltered.length) { panel.classList.add('hidden'); _pmItemsForAsset = []; return; }
+
+  const assetIds = categoryFiltered.map(a => a.id);
 
   const [itemsRes, compsRes] = await Promise.all([
     db.from('pm_scope_items').select('id, asset_id, item_text, frequency, anchor_date').in('asset_id', assetIds),
