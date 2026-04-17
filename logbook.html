@@ -1512,6 +1512,7 @@ function selectAsset(assetId, assetName, assetRefId) {
 }
 
 document.getElementById('f-maint-type').addEventListener('change', loadPMTasksForAsset);
+document.getElementById('f-category').addEventListener('change', loadPMTasksForAsset);
 
 document.getElementById('asset-picker-btn').addEventListener('click', openAssetPicker);
 document.getElementById('asset-picker-modal-close').addEventListener('click', closeAssetPicker);
@@ -1965,9 +1966,10 @@ const LOG_DUE_SOON  = 14;
 async function loadPMTasksForAsset() {
   const machine   = document.getElementById('f-machine').value.trim();
   const maintType = document.getElementById('f-maint-type').value;
+  const category  = document.getElementById('f-category').value;
   const panel     = document.getElementById('pm-tasks-panel');
 
-  if (!machine || maintType !== 'Preventive Maintenance') {
+  if (!machine || maintType !== 'Preventive Maintenance' || !category) {
     panel.classList.add('hidden');
     _pmItemsForAsset = [];
     return;
