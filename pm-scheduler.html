@@ -353,7 +353,17 @@
 
     <!-- STEP 1: Asset Info -->
     <div id="step-1" class="wizard-step slide-up">
-      <p class="text-sm text-white/50 mb-5">Enter basic information about the equipment or asset.</p>
+
+      <!-- Pick from registered assets -->
+      <div class="wh-card p-4 mb-5">
+        <p class="text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Pick from Registered Assets</p>
+        <input id="asset-search" type="text" class="wh-input mb-2" placeholder="Search your registered assets..." oninput="filterRegisteredAssets()" style="font-size:0.875rem;" />
+        <div id="registered-asset-list" class="space-y-1.5 max-h-48 overflow-y-auto"></div>
+        <p id="reg-assets-empty" class="hidden text-xs text-white/30 text-center py-3">No registered assets found. Fill in the form below manually.</p>
+        <p id="reg-assets-loading" class="text-xs text-white/30 text-center py-3">Loading assets...</p>
+      </div>
+
+      <p class="text-xs text-white/30 mb-4 text-center">— or fill in manually —</p>
 
       <div class="space-y-4">
         <div>
@@ -778,15 +788,30 @@ function daysLabel(nextDue) {
 // ─────────────────────────────────────
 // STATE
 // ─────────────────────────────────────
-let assets        = [];
-let scopeItems    = [];
-let completions   = [];
-let currentAsset  = null;
-let currentScreen = 'dashboard';
+let assets           = [];
+let scopeItems       = [];
+let completions      = [];
+let registeredAssets = []; // from the shared 'assets' table (logbook)
+let currentAsset     = null;
+let currentScreen    = 'dashboard';
 
 // Wizard state
 let wizardItems   = []; // [{text, freq, isCustom}]
 let selectedCrit  = 'Major';
+
+// Asset type → PM category mapping
+const TYPE_TO_CATEGORY = {
+  'Pump':        'Rotating Equipment',
+  'Motor':       'Rotating Equipment',
+  'Fan / Blower':'Rotating Equipment',
+  'Compressor':  'Rotating Equipment',
+  'Gearbox':     'Rotating Equipment',
+  'Conveyor':    'Material Handling',
+  'HVAC':        'HVAC',
+  'Boiler':      'Utility Systems',
+  'Generator':   'Electrical',
+  'Valve':       'Static Equipment',
+};
 
 // ─────────────────────────────────────
 // CAT COLOR MAP
@@ -1158,6 +1183,116 @@ async function markDone(scopeItemId, btn) {
 }
 
 // ─────────────────────────────────────
+// REGISTERED ASSETS (from logbook assets table)
+// ─────────────────────────────────────
+async function loadRegisteredAssets() {
+  const listEl    = document.getElementById('registered-asset-list');
+  const emptyEl   = document.getElementById('reg-assets-empty');
+  const loadingEl = document.getElementById('reg-assets-loading');
+
+  loadingEl.classList.remove('hidden');
+
+  const queries = [
+    db.from('assets').select('id, name, asset_id, type, location, criticality').eq('worker_name', WORKER_NAME),
+  ];
+  if (HIVE_ID) {
+    queries.push(
+      db.from('assets').select('id, name, asset_id, type, location, criticality').eq('hive_id', HIVE_ID).eq('status', 'approved')
+    );
+  }
+
+  const results = await Promise.all(queries);
+  const all = [];
+  results.forEach(r => { if (r.data) all.push(...r.data); });
+
+  // Deduplicate by id
+  const seen = new Set();
+  registeredAssets = all.filter(a => { if (seen.has(a.id)) return false; seen.add(a.id); return true; });
+
+  loadingEl.classList.add('hidden');
+  renderRegisteredAssets(registeredAssets);
+}
+
+function renderRegisteredAssets(list) {
+  const listEl  = document.getElementById('registered-asset-list');
+  const emptyEl = document.getElementById('reg-assets-empty');
+
+  if (!list.length) {
+    listEl.innerHTML = '';
+    emptyEl.classList.remove('hidden');
+    return;
+  }
+  emptyEl.classList.add('hidden');
+
+  listEl.innerHTML = list.map(a => `
+    <button type="button" onclick="pickRegisteredAsset('${a.id}')"
+      class="w-full text-left px-3 py-2.5 rounded-xl border transition-all"
+      style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08);"
+      onmouseover="this.style.borderColor='rgba(247,162,27,0.4)'"
+      onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">
+      <div class="flex items-center justify-between gap-2">
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-white truncate">${escHtml(a.name)}</p>
+          <p class="text-xs text-white/40 truncate">
+            ${a.asset_id ? `<span class="font-mono">${escHtml(a.asset_id)}</span>` : ''}
+            ${a.asset_id && a.location ? ' · ' : ''}
+            ${a.location ? escHtml(a.location) : ''}
+          </p>
+        </div>
+        <span class="text-xs text-white/30 flex-shrink-0">${escHtml(a.type || '')}</span>
+      </div>
+    </button>
+  `).join('');
+}
+
+function filterRegisteredAssets() {
+  const q = document.getElementById('asset-search').value.toLowerCase();
+  if (!q) { renderRegisteredAssets(registeredAssets); return; }
+  renderRegisteredAssets(registeredAssets.filter(a =>
+    (a.name || '').toLowerCase().includes(q) ||
+    (a.asset_id || '').toLowerCase().includes(q) ||
+    (a.location || '').toLowerCase().includes(q) ||
+    (a.type || '').toLowerCase().includes(q)
+  ));
+}
+
+function pickRegisteredAsset(id) {
+  const a = registeredAssets.find(x => x.id === id);
+  if (!a) return;
+
+  // Auto-fill form fields
+  document.getElementById('w-name').value     = a.name     || '';
+  document.getElementById('w-tag').value      = a.asset_id || '';
+  document.getElementById('w-location').value = a.location || '';
+
+  // Map asset type to PM category
+  const mappedCat = TYPE_TO_CATEGORY[a.type] || '';
+  const catSel    = document.getElementById('w-category');
+  if (mappedCat) { catSel.value = mappedCat; onCategoryChange(); }
+
+  // Criticality
+  if (a.criticality) {
+    selectedCrit = a.criticality;
+    document.querySelectorAll('.crit-btn').forEach(b => {
+      const active = b.dataset.val === selectedCrit;
+      if (b.dataset.val === 'Critical') b.style.cssText = `border-color:rgba(239,68,68,${active?'0.6':'0.3'});color:#f87171;background:${active?'rgba(239,68,68,0.12)':'transparent'};`;
+      if (b.dataset.val === 'Major')    b.style.cssText = `border-color:rgba(251,191,36,${active?'0.6':'0.3'});color:#fbbf24;background:${active?'rgba(251,191,36,0.12)':'transparent'};`;
+      if (b.dataset.val === 'Minor')    b.style.cssText = `border-color:rgba(34,197,94,${active?'0.5':'0.3'});color:#4ade80;background:${active?'rgba(34,197,94,0.1)':'transparent'};`;
+    });
+  }
+
+  // Visual feedback: highlight the selected row
+  document.querySelectorAll('#registered-asset-list button').forEach(btn => {
+    btn.style.borderColor = 'rgba(255,255,255,0.08)';
+    btn.style.background  = 'rgba(255,255,255,0.04)';
+  });
+  event.currentTarget.style.borderColor = 'rgba(247,162,27,0.5)';
+  event.currentTarget.style.background  = 'rgba(247,162,27,0.06)';
+
+  showToast(`${a.name} loaded. Adjust fields if needed.`);
+}
+
+// ─────────────────────────────────────
 // WIZARD
 // ─────────────────────────────────────
 let currentStep = 1;
@@ -1166,6 +1301,7 @@ function goAddAsset() {
   resetWizard();
   showScreen('add');
   setStep(1);
+  loadRegisteredAssets();
 }
 
 function resetWizard() {
