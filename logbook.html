@@ -1975,6 +1975,10 @@ async function loadPMTasksForAsset() {
     return;
   }
 
+  // Clear stale tasks immediately before async fetch
+  panel.classList.add('hidden');
+  _pmItemsForAsset = [];
+
   // Find pm_assets matching this machine name OR tag_id
   let q = db.from('pm_assets').select('id, asset_name, tag_id, category');
   if (HIVE_ID) q = q.eq('hive_id', HIVE_ID);
