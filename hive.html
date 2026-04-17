@@ -655,6 +655,9 @@
         <p class="text-xs text-white/20 mt-1">Logbook entries from team members will appear here.</p>
       </div>
       <div id="feed" class="flex flex-col gap-3"></div>
+      <div id="feed-more" class="hidden mt-3">
+        <button onclick="loadMoreFeed()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.08);color:#29B6D9;border:1px solid rgba(41,182,217,0.25);">Load More</button>
+      </div>
 
     </div>
     <!-- ── END VIEW BOARD ── -->
@@ -735,6 +738,8 @@ let approvalChannel     = null;
 let workerApprovalCh    = null;
 let _pendingAssets      = [];
 let _pendingParts       = [];
+let _feedEntries        = [];
+let _feedDisplayCount   = 15;
 
 let _toastTimer = null;
 function showToast(msg) {
@@ -1399,20 +1404,33 @@ async function loadFeed() {
         .sort((a, b) => (b.created_at || b.date || '').localeCompare(a.created_at || a.date || '')).slice(0, 40);
       if (oldMerged.length) {
         emptyEl.classList.add('hidden');
-        feed.innerHTML = oldMerged.map(e => buildFeedCard(e, false)).join('');
+        _feedEntries      = oldMerged;
+        _feedDisplayCount = 15;
+        renderFeed();
         return;
       }
     }
     emptyEl.classList.remove('hidden'); return;
   }
   emptyEl.classList.add('hidden');
+  _feedEntries      = merged;
+  _feedDisplayCount = 15;
+  renderFeed();
+}
 
-  feed.innerHTML = merged.map(e =>
+function renderFeed() {
+  const feed    = document.getElementById('feed');
+  const moreWrap = document.getElementById('feed-more');
+  const visible = _feedEntries.slice(0, _feedDisplayCount);
+  feed.innerHTML = visible.map(e =>
     e._type === 'checklist' ? buildChecklistCard(e, false) :
     e._type === 'pm'        ? buildPMCard(e, false) :
     buildFeedCard(e, false)
   ).join('');
+  moreWrap.classList.toggle('hidden', _feedDisplayCount >= _feedEntries.length);
 }
+
+function loadMoreFeed() { _feedDisplayCount += 15; renderFeed(); }
 
 // ── PRESENCE ──
 function startPresence() {
