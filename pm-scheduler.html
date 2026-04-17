@@ -1554,7 +1554,7 @@ function renderScopeList() {
       <div class="scope-row ${included ? 'included' : ''}" id="scope-row-${idx}">
         <div class="scope-check" onclick="toggleScopeItem(${idx})"></div>
         <div class="flex-1 min-w-0">
-          <p class="text-sm leading-snug ${included ? 'text-white' : 'text-white/40'}">${escHtml(item.item_text)}</p>
+          <p class="text-sm leading-snug ${included ? 'text-white' : 'text-white/40'}">${escHtml(item.text)}</p>
           <div class="flex items-center gap-2 mt-1.5">
             ${item.isCustom ? '<span class="text-xs text-orange-400 font-semibold">Custom</span>' : ''}
             <select class="text-xs font-semibold rounded-lg px-2 py-1 border outline-none transition-colors"
@@ -1645,7 +1645,7 @@ function renderReview() {
   document.getElementById('rev-scope').innerHTML = included.map(item => `
     <div class="flex items-center gap-2">
       ${freqBadge(item.freq)}
-      <span class="text-sm text-white/70 leading-snug">${escHtml(item.item_text)}</span>
+      <span class="text-sm text-white/70 leading-snug">${escHtml(item.text)}</span>
     </div>
   `).join('');
 }
@@ -1690,7 +1690,7 @@ async function saveAsset() {
   const scopePayload = items.map(item => ({
     asset_id:    asset.id,
     hive_id:     HIVE_ID || null,
-    item_text:   item.item_text,
+    item_text:   item.text,
     frequency:   item.freq,
     anchor_date: anchor || null,
     is_custom:   item.isCustom || false,
