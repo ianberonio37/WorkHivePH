@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WorkHive — Platform Architecture</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #7d8590;
+      --amber: #f0a500;
+      --amber-dim: rgba(240,165,0,0.12);
+      --blue: #4493f8;
+      --blue-dim: rgba(68,147,248,0.12);
+      --green: #3fb950;
+      --green-dim: rgba(63,185,80,0.12);
+      --purple: #bc8cff;
+      --purple-dim: rgba(188,140,255,0.12);
+      --red: #f85149;
+      --red-dim: rgba(248,81,73,0.12);
+      --orange: #ff7b72;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      padding: 24px 32px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    header h1 { font-size: 18px; font-weight: 600; color: var(--text); }
+    header h1 span { color: var(--amber); }
+    .header-meta { display: flex; align-items: center; gap: 16px; }
+    .audited-badge {
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+    }
+    .audited-badge strong { color: var(--green); }
+
+    /* ── Legend ── */
+    .legend {
+      padding: 14px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .legend-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+    .legend-line { width: 28px; height: 2px; border-radius: 1px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+    /* ── Main diagram area ── */
+    .diagram-wrap {
+      position: relative;
+      width: 100%;
+      overflow-x: auto;
+    }
+    .diagram {
+      position: relative;
+      width: 1100px;
+      margin: 0 auto;
+      padding: 40px 32px 48px;
+    }
+
+    /* SVG overlay for arrows */
+    .diagram svg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    /* ── Rows ── */
+    .row {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .row + .row { margin-top: 64px; }
+
+    /* ── Node cards ── */
+    .node {
+      width: 160px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      padding: 12px 14px;
+      cursor: default;
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+      position: relative;
+    }
+    .node:hover {
+      border-color: var(--amber);
+      box-shadow: 0 0 0 3px var(--amber-dim), 0 4px 16px rgba(0,0,0,0.4);
+      transform: translateY(-2px);
+      z-index: 10;
+    }
+    .node-icon { font-size: 20px; margin-bottom: 6px; }
+    .node-name { font-size: 12px; font-weight: 700; color: var(--text); line-height: 1.3; }
+    .node-file { font-size: 10px; color: var(--muted); margin-top: 2px; font-family: monospace; }
+    .node-desc { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.4; }
+    .node-stage {
+      position: absolute;
+      top: 8px; right: 8px;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--amber-dim);
+      color: var(--amber);
+      letter-spacing: 0.03em;
+    }
+    .node.retired {
+      opacity: 0.4;
+      border-style: dashed;
+    }
+    .node.retired .node-stage { background: var(--red-dim); color: var(--red); }
+    .node.entry { border-color: var(--amber); }
+    .node.entry .node-icon { color: var(--amber); }
+
+    /* ── Section labels ── */
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .section-group { margin-bottom: 0; }
+
+    /* ── DB layer ── */
+    .db-layer {
+      margin-top: 72px;
+      padding: 0 0 24px;
+    }
+    .db-layer .section-label { margin-bottom: 16px; }
+    .db-grid {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .db-table {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      min-width: 140px;
+      transition: border-color 0.15s;
+    }
+    .db-table:hover { border-color: var(--blue); }
+    .db-table-name { font-size: 11px; font-weight: 700; color: var(--blue); font-family: monospace; }
+    .db-table-owner { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .db-table-cols { font-size: 10px; color: var(--muted); margin-top: 6px; line-height: 1.6; font-family: monospace; }
+    .db-col-risk { color: var(--orange); }
+
+    /* ── localStorage layer ── */
+    .ls-layer {
+      margin-top: 40px;
+      padding-bottom: 32px;
+    }
+    .ls-grid { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+    .ls-chain {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+    .ls-chain-label { font-size: 10px; font-weight: 700; color: var(--purple); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .ls-keys { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .ls-key {
+      font-size: 10px;
+      font-family: monospace;
+      background: var(--purple-dim);
+      color: var(--purple);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .ls-sep { font-size: 11px; color: var(--muted); }
+
+    /* ── Flow detail panel ── */
+    .flow-panel {
+      margin: 0 32px 32px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .flow-panel-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .flow-table { width: 100%; border-collapse: collapse; }
+    .flow-table th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+    .flow-table td { padding: 9px 16px; font-size: 12px; border-bottom: 1px solid rgba(48,54,61,0.5); vertical-align: top; }
+    .flow-table tr:last-child td { border-bottom: none; }
+    .flow-source { color: var(--amber); font-weight: 600; font-family: monospace; font-size: 11px; }
+    .flow-target { color: var(--blue); font-weight: 600; font-family: monospace; font-size: 11px; }
+    .flow-trigger { color: var(--muted); }
+    .risk-col { color: var(--orange); font-family: monospace; font-size: 11px; }
+
+    /* ── Tooltip ── */
+    #tooltip {
+      position: fixed;
+      background: #1c2128;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--text);
+      max-width: 260px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 100;
+      line-height: 1.6;
+    }
+    #tooltip.visible { opacity: 1; }
+    #tooltip strong { color: var(--amber); display: block; margin-bottom: 4px; }
+    #tooltip .t-risk { color: var(--orange); font-family: monospace; font-size: 11px; }
+
+    /* ── Arrow labels ── */
+    .arrow-label {
+      font-size: 10px;
+      fill: var(--muted);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 1140px) {
+      .diagram { width: 900px; }
+      .node { width: 136px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1><span>WorkHive</span> — Platform Architecture</h1>
+  <div class="header-meta">
+    <div class="audited-badge">Last audited: <strong>2026-04-18</strong> · All checks PASS</div>
+    <a href="index.html" style="font-size:12px;color:var(--muted);text-decoration:none;">← Back to platform</a>
+  </div>
+</header>
+
+<div style="padding:14px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+  <span class="legend-label">Legend</span>
+  <span class="legend-item">
+    <span class="legend-line" style="background:var(--orange);"></span> Write (cross-page insert)
+  </span>
+  <span class="legend-item">
+    <span class="legend-line" style="background:var(--blue);"></span> Read (cross-page query)
+  </span>
+  <span class="legend-item">
+    <span class="legend-line" style="background:var(--purple);height:2px;background:linear-gradient(90deg,var(--orange),var(--blue));"></span> Bidirectional
+  </span>
+  <span class="legend-item">
+    <span class="legend-dot" style="background:var(--amber-dim);border:1.5px solid var(--amber);"></span> Entry point
+  </span>
+  <span class="legend-item">
+    <span class="legend-dot" style="background:var(--surface);border:1.5px dashed var(--border);opacity:0.5;"></span> Retired
+  </span>
+  <span style="margin-left:auto;font-size:11px;color:var(--muted);">Hover nodes and arrows for detail</span>
+</div>
+
+<!-- ═══════════════════════════════════════════════ DIAGRAM ═══ -->
+<div class="diagram-wrap">
+  <div class="diagram" id="diagram">
+
+    <!-- SVG arrows — drawn by JS after layout -->
+    <svg id="arrows" aria-hidden="true"></svg>
+
+    <!-- Row 0: Entry -->
+    <div class="section-label">Entry Point</div>
+    <div class="row" id="row-entry">
+      <div class="node entry" id="n-index"
+           data-tip="<strong>index.html</strong>Landing page. Workers sign in, set identity (wh_last_worker), join or create a Hive. Gate for all other pages.">
+        <div class="node-icon">🏠</div>
+        <div class="node-name">Home / Sign In</div>
+        <div class="node-file">index.html</div>
+        <div class="node-desc">Identity gate. Hive join / create.</div>
+      </div>
+    </div>
+
+    <!-- Row 1: Stage 1 tools -->
+    <div class="row" id="row-s1" style="margin-top:56px;">
+      <div class="node" id="n-logbook"
+           data-tip="<strong>logbook.html</strong>Primary maintenance log. Owns the logbook table. Also writes pm_completions when PM tasks are checked inside a log entry.">
+        <div class="node-stage">S1</div>
+        <div class="node-icon">📋</div>
+        <div class="node-name">Logbook</div>
+        <div class="node-file">logbook.html</div>
+        <div class="node-desc">Work records, faults, PM logs.</div>
+      </div>
+      <div class="node" id="n-checklist"
+           data-tip="<strong>checklist.html</strong>Shift checklists. Writes to checklist_records. Excluded from nav-hub by design.">
+        <div class="node-stage">S1</div>
+        <div class="node-icon">✅</div>
+        <div class="node-name">Checklist</div>
+        <div class="node-file">checklist.html</div>
+        <div class="node-desc">Shift checks. Writes checklist_records.</div>
+      </div>
+      <div class="node" id="n-dayplanner"
+           data-tip="<strong>dayplanner.html</strong>DILO / WILO / MILO / YILO planner. Worker-scoped. No cross-page data writes.">
+        <div class="node-stage">S1</div>
+        <div class="node-icon">📅</div>
+        <div class="node-name">Day Planner</div>
+        <div class="node-file">dayplanner.html</div>
+        <div class="node-desc">DILO / WILO / MILO / YILO.</div>
+      </div>
+      <div class="node" id="n-assistant"
+           data-tip="<strong>assistant.html</strong>AI chat. Full platform context in system prompt. No DB writes. Must list all active pages.">
+        <div class="node-stage">S1</div>
+        <div class="node-icon">🤖</div>
+        <div class="node-name">AI Assistant</div>
+        <div class="node-file">assistant.html</div>
+        <div class="node-desc">Platform-aware AI chat.</div>
+      </div>
+    </div>
+
+    <!-- Row 2: Stage 2 tools -->
+    <div class="row" id="row-s2" style="margin-top:56px;">
+      <div class="node" id="n-hive"
+           data-tip="<strong>hive.html</strong>Team hub. Reads from logbook, pm_completions, and checklist_records for the activity feed. Owns hive_members. Gate: requires HIVE_ID.">
+        <div class="node-stage">S2</div>
+        <div class="node-icon">🐝</div>
+        <div class="node-name">Hive Board</div>
+        <div class="node-file">hive.html</div>
+        <div class="node-desc">Team feed. Reads 3 tables.</div>
+      </div>
+      <div class="node" id="n-inventory"
+           data-tip="<strong>inventory.html</strong>Parts/tools catalog. Bidirectional link with logbook — parts used in a log entry create inventory transactions.">
+        <div class="node-stage">S2</div>
+        <div class="node-icon">📦</div>
+        <div class="node-name">Inventory</div>
+        <div class="node-file">inventory.html</div>
+        <div class="node-desc">Parts catalog. Linked to logbook.</div>
+      </div>
+      <div class="node" id="n-pm"
+           data-tip="<strong>pm-scheduler.html</strong>Preventive maintenance schedule. On completion: writes pm_completions AND logbook. Risk columns: category (must use task category, not asset), closed_at, maintenance_type.">
+        <div class="node-stage">S2</div>
+        <div class="node-icon">🔧</div>
+        <div class="node-name">PM Scheduler</div>
+        <div class="node-file">pm-scheduler.html</div>
+        <div class="node-desc">PM tasks, completions, asset mgmt.</div>
+      </div>
+      <div class="node" id="n-skill"
+           data-tip="<strong>skillmatrix.html</strong>5-discipline skill levels, exams, badges, radar chart. Worker-scoped. No cross-page data writes.">
+        <div class="node-stage">S2</div>
+        <div class="node-icon">🎯</div>
+        <div class="node-name">Skill Matrix</div>
+        <div class="node-file">skillmatrix.html</div>
+        <div class="node-desc">Skills, exams, badges, radar.</div>
+      </div>
+    </div>
+
+    <!-- Retired row -->
+    <div class="row" id="row-retired" style="margin-top:56px;">
+      <div class="node retired" id="n-parts"
+           data-tip="<strong>parts-tracker.html — RETIRED</strong>Parts were folded into logbook.html. This page is kept for reference only. No nav-hub entry. No live links.">
+        <div class="node-stage">RETIRED</div>
+        <div class="node-icon">🗄️</div>
+        <div class="node-name">Parts Tracker</div>
+        <div class="node-file">parts-tracker.html</div>
+        <div class="node-desc">Retired. Parts now in logbook.</div>
+      </div>
+    </div>
+
+  </div><!-- /diagram -->
+</div><!-- /diagram-wrap -->
+
+<!-- ═══════════════════════ DB TABLES ═══════════════════════ -->
+<div style="padding:0 32px;">
+  <div class="db-layer">
+    <div class="section-label">Supabase Tables — Ownership + Risk Columns</div>
+    <div class="db-grid">
+
+      <div class="db-table">
+        <div class="db-table-name">logbook</div>
+        <div class="db-table-owner">Owner: logbook.html</div>
+        <div class="db-table-cols">
+          date · machine · maintenance_type<br>
+          category · problem · action<br>
+          knowledge · status · <span class="db-col-risk">closed_at</span><br>
+          hive_id · worker_name<br>
+          asset_ref_id · pm_completion_id
+        </div>
+      </div>
+
+      <div class="db-table">
+        <div class="db-table-name">pm_completions</div>
+        <div class="db-table-owner">Owner: pm-scheduler.html</div>
+        <div class="db-table-cols">
+          asset_id · scope_item_id<br>
+          completed_at · findings<br>
+          action_taken · <span class="db-col-risk">hive_id</span><br>
+          <span class="db-col-risk">worker_name</span> · next_due
+        </div>
+      </div>
+
+      <div class="db-table">
+        <div class="db-table-name">checklist_records</div>
+        <div class="db-table-owner">Owner: checklist.html</div>
+        <div class="db-table-cols">
+          checklist_id · worker_name<br>
+          submitted_at · results<br>
+          <span class="db-col-risk">hive_id</span>
+        </div>
+      </div>
+
+      <div class="db-table">
+        <div class="db-table-name">hive_members</div>
+        <div class="db-table-owner">Owner: hive.html</div>
+        <div class="db-table-cols">
+          hive_id · worker_name<br>
+          role · status · joined_at<br>
+          created_by
+        </div>
+      </div>
+
+      <div class="db-table">
+        <div class="db-table-name">inventory_items</div>
+        <div class="db-table-owner">Owner: inventory.html</div>
+        <div class="db-table-cols">
+          name · category · qty<br>
+          unit · min_qty · hive_id<br>
+          worker_name · status
+        </div>
+      </div>
+
+      <div class="db-table">
+        <div class="db-table-name">pm_assets</div>
+        <div class="db-table-owner">Owner: pm-scheduler.html</div>
+        <div class="db-table-cols">
+          name · <span class="db-col-risk">category</span> · location<br>
+          hive_id · worker_name<br>
+          registered_at
+        </div>
+      </div>
+
+      <div class="db-table">
+        <div class="db-table-name">pm_scope_items</div>
+        <div class="db-table-owner">Owner: pm-scheduler.html</div>
+        <div class="db-table-cols">
+          asset_id · item_text<br>
+          frequency · <span class="db-col-risk">category</span><br>
+          created_at
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ LOCALSTORAGE ═══ -->
+  <div class="ls-layer">
+    <div class="section-label">LocalStorage Key Chains (identity gate — all pages must read all aliases)</div>
+    <div class="ls-grid">
+      <div class="ls-chain">
+        <div class="ls-chain-label">Worker Identity</div>
+        <div class="ls-keys">
+          <span class="ls-key">wh_last_worker</span>
+          <span class="ls-sep">||</span>
+          <span class="ls-key">wh_worker_name</span>
+          <span class="ls-sep">||</span>
+          <span class="ls-key">workerName</span>
+          <span class="ls-sep">→ redirect if empty</span>
+        </div>
+      </div>
+      <div class="ls-chain">
+        <div class="ls-chain-label">Hive ID</div>
+        <div class="ls-keys">
+          <span class="ls-key">wh_active_hive_id</span>
+          <span class="ls-sep">||</span>
+          <span class="ls-key">wh_hive_id</span>
+          <span class="ls-sep">→ null if absent</span>
+        </div>
+      </div>
+      <div class="ls-chain">
+        <div class="ls-chain-label">Hive Role</div>
+        <div class="ls-keys">
+          <span class="ls-key">wh_hive_role</span>
+          <span class="ls-sep">· always re-validate from DB</span>
+        </div>
+      </div>
+      <div class="ls-chain">
+        <div class="ls-chain-label">Nav Hub</div>
+        <div class="ls-keys">
+          <span class="ls-key">wh-hub-position</span>
+          <span class="ls-sep">· FAB snap position (left/right)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ DATA FLOW TABLE ═══ -->
+  <div class="flow-panel">
+    <div class="flow-panel-header">Cross-Page Data Flows — Living Registry</div>
+    <table class="flow-table">
+      <thead>
+        <tr>
+          <th>Source</th>
+          <th>Target Table</th>
+          <th>Trigger</th>
+          <th>Risk Columns (must verify on every change)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="flow-source">pm-scheduler.html</span></td>
+          <td><span class="flow-target">logbook</span></td>
+          <td class="flow-trigger">User marks PM task done with "Log to Logbook" on</td>
+          <td><span class="risk-col">category</span> (use task's PM category, not asset category) · <span class="risk-col">closed_at</span> (always set when Closed) · <span class="risk-col">maintenance_type</span></td>
+        </tr>
+        <tr>
+          <td><span class="flow-source">pm-scheduler.html</span></td>
+          <td><span class="flow-target">pm_completions</span></td>
+          <td class="flow-trigger">Same PM task completion trigger</td>
+          <td><span class="risk-col">hive_id</span> · <span class="risk-col">worker_name</span></td>
+        </tr>
+        <tr>
+          <td><span class="flow-source">logbook.html</span></td>
+          <td><span class="flow-target">pm_completions</span></td>
+          <td class="flow-trigger">User logs a PM entry with PM tasks checked</td>
+          <td><span class="risk-col">hive_id</span> · <span class="risk-col">worker_name</span> · <span class="risk-col">scope_item_id</span></td>
+        </tr>
+        <tr>
+          <td><span class="flow-source">hive.html</span> ← reads</td>
+          <td><span class="flow-target">logbook + pm_completions + checklist_records</span></td>
+          <td class="flow-trigger">Hive feed load on page open</td>
+          <td>All three tables must have <span class="risk-col">hive_id</span> populated · Old rows without hive_id fall to worker-name fallback</td>
+        </tr>
+        <tr>
+          <td><span class="flow-source">inventory.html</span> ↔</td>
+          <td><span class="flow-target">logbook (parts used)</span></td>
+          <td class="flow-trigger">Parts used added to a logbook entry</td>
+          <td>Transaction must reference logbook entry id · Inventory qty decremented</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════════════════ NAV HUB STATUS ═══ -->
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:32px;">
+    <div class="flow-panel" style="flex:1;min-width:280px;">
+      <div class="flow-panel-header">Nav Hub Registry Status</div>
+      <table class="flow-table">
+        <thead><tr><th>Page</th><th>In nav-hub.js</th><th>Match string</th></tr></thead>
+        <tbody>
+          <tr><td>index.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">index, /</code></td></tr>
+          <tr><td>logbook.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">logbook</code></td></tr>
+          <tr><td>dayplanner.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">dayplanner</code></td></tr>
+          <tr><td>assistant.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">assistant</code></td></tr>
+          <tr><td>hive.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">hive</code></td></tr>
+          <tr><td>inventory.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">inventory</code></td></tr>
+          <tr><td>pm-scheduler.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">pm-scheduler</code></td></tr>
+          <tr><td>skillmatrix.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">skillmatrix</code></td></tr>
+          <tr><td>checklist.html</td><td style="color:var(--muted)">— Excluded by design</td><td></td></tr>
+          <tr><td>parts-tracker.html</td><td style="color:var(--red)">✗ Retired</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="flow-panel" style="flex:1;min-width:280px;">
+      <div class="flow-panel-header">Integrity Audit — Last Run 2026-04-18</div>
+      <table class="flow-table">
+        <thead><tr><th>Check</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>Nav Hub Registry (all live pages)</td><td style="color:var(--green)">✓ PASS</td></tr>
+          <tr><td>utils.js load order</td><td style="color:var(--green)">✓ PASS</td></tr>
+          <tr><td>Identity key fallback chain</td><td style="color:var(--green)">✓ PASS</td></tr>
+          <tr><td>Hive ID fallback chain</td><td style="color:var(--green)">✓ PASS</td></tr>
+          <tr><td>AI assistant platform context</td><td style="color:var(--green)">✓ PASS</td></tr>
+          <tr><td>Retired page references</td><td style="color:var(--green)">✓ PASS</td></tr>
+          <tr><td>floating-ai.js page context registry</td><td style="color:var(--green)">✓ PASS</td></tr>
+          <tr><td>Cross-page insert field parity</td><td style="color:var(--green)">✓ PASS</td></tr>
+          <tr><td>Category mapping source correctness</td><td style="color:var(--green)">✓ PASS</td></tr>
+          <tr><td>Data flow registry completeness</td><td style="color:var(--green)">✓ PASS</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /padding wrap -->
+
+<!-- ═══════════════════════ TOOLTIP ═══ -->
+<div id="tooltip"></div>
+
+<script>
+  // ── Tooltip ──
+  const tip = document.getElementById('tooltip');
+  document.querySelectorAll('[data-tip]').forEach(el => {
+    el.addEventListener('mouseenter', e => {
+      tip.innerHTML = el.dataset.tip;
+      tip.classList.add('visible');
+    });
+    el.addEventListener('mousemove', e => {
+      let x = e.clientX + 16, y = e.clientY + 16;
+      if (x + 270 > window.innerWidth) x = e.clientX - 274;
+      if (y + 120 > window.innerHeight) y = e.clientY - 124;
+      tip.style.left = x + 'px';
+      tip.style.top  = y + 'px';
+    });
+    el.addEventListener('mouseleave', () => tip.classList.remove('visible'));
+  });
+
+  // ── SVG Arrows ──
+  function mid(el) {
+    const r = el.getBoundingClientRect();
+    const dr = document.getElementById('diagram').getBoundingClientRect();
+    return {
+      x: r.left - dr.left + r.width / 2,
+      y: r.top  - dr.top  + r.height / 2,
+      top:    r.top    - dr.top,
+      bottom: r.bottom - dr.top,
+      left:   r.left   - dr.left,
+      right:  r.right  - dr.left,
+    };
+  }
+
+  function arrow(svg, x1, y1, x2, y2, color, label, dashed) {
+    const dx = x2 - x1, dy = y2 - y1;
+    const cx1 = x1, cy1 = y1 + dy * 0.4;
+    const cx2 = x2, cy2 = y2 - dy * 0.4;
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', `M${x1},${y1} C${cx1},${cy1} ${cx2},${cy2} ${x2},${y2}`);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', color);
+    path.setAttribute('stroke-width', '1.8');
+    path.setAttribute('opacity', '0.65');
+    if (dashed) path.setAttribute('stroke-dasharray', '5,4');
+    // arrowhead
+    const angle = Math.atan2(y2 - cy2, x2 - cx2);
+    const aw = 7, ah = 5;
+    const p1x = x2 - aw * Math.cos(angle) + ah * Math.sin(angle);
+    const p1y = y2 - aw * Math.sin(angle) - ah * Math.cos(angle);
+    const p2x = x2 - aw * Math.cos(angle) - ah * Math.sin(angle);
+    const p2y = y2 - aw * Math.sin(angle) + ah * Math.cos(angle);
+    const head = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    head.setAttribute('points', `${x2},${y2} ${p1x},${p1y} ${p2x},${p2y}`);
+    head.setAttribute('fill', color);
+    head.setAttribute('opacity', '0.65');
+    svg.appendChild(path);
+    svg.appendChild(head);
+    if (label) {
+      const mx = (x1 + x2) / 2 + 6;
+      const my = (y1 + y2) / 2;
+      const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+      txt.setAttribute('x', mx);
+      txt.setAttribute('y', my);
+      txt.setAttribute('class', 'arrow-label');
+      txt.setAttribute('text-anchor', 'start');
+      txt.setAttribute('dominant-baseline', 'middle');
+      txt.textContent = label;
+      svg.appendChild(txt);
+    }
+  }
+
+  function drawArrows() {
+    const svg = document.getElementById('arrows');
+    svg.innerHTML = '';
+
+    const ORANGE = '#ff7b72';
+    const BLUE   = '#4493f8';
+
+    const nIndex    = document.getElementById('n-index');
+    const nLogbook  = document.getElementById('n-logbook');
+    const nChecklist= document.getElementById('n-checklist');
+    const nDayplan  = document.getElementById('n-dayplanner');
+    const nAssistant= document.getElementById('n-assistant');
+    const nHive     = document.getElementById('n-hive');
+    const nInventory= document.getElementById('n-inventory');
+    const nPM       = document.getElementById('n-pm');
+    const nSkill    = document.getElementById('n-skill');
+
+    // index → each stage1 (entry gate)
+    const idx = mid(nIndex);
+    [nLogbook, nChecklist, nDayplan, nAssistant].forEach(n => {
+      const m = mid(n);
+      arrow(svg, idx.x, idx.bottom, m.x, m.top, '#30363d', '', false);
+    });
+
+    // stage1 → stage2 (nav hub connections, subtle)
+    [nLogbook, nDayplan, nAssistant].forEach(n => {
+      const m1 = mid(n);
+      [nHive, nInventory, nPM, nSkill].forEach(n2 => {
+        const m2 = mid(n2);
+        arrow(svg, m1.x, m1.bottom, m2.x, m2.top, '#21262d', '', false);
+      });
+    });
+
+    // ── Data flow arrows (meaningful ones only) ──
+
+    // PM Scheduler WRITES logbook (orange, prominent)
+    const pm  = mid(nPM);
+    const lb  = mid(nLogbook);
+    arrow(svg,
+      pm.left + 10, pm.y,
+      lb.right - 10, lb.y,
+      ORANGE, 'write: category·closed_at·maintenance_type', false);
+
+    // Logbook WRITES pm_completions (goes to hive via pm, show as logbook→hive via pm path)
+    // Show as logbook → pm-scheduler (bidirectional, dashed)
+    arrow(svg,
+      lb.right - 10, lb.y + 12,
+      pm.left + 10, pm.y + 12,
+      BLUE, 'writes pm_completions', true);
+
+    // Hive READS logbook (blue)
+    const hive = mid(nHive);
+    arrow(svg,
+      lb.left + 20, lb.bottom,
+      hive.left + 20, hive.top,
+      BLUE, 'reads feed', false);
+
+    // Hive READS pm_completions (from pm)
+    arrow(svg,
+      pm.x, pm.bottom,
+      hive.right - 20, hive.top,
+      BLUE, 'reads pm feed', false);
+
+    // Hive READS checklist_records
+    const ck = mid(nChecklist);
+    arrow(svg,
+      ck.left + 16, ck.bottom,
+      hive.x, hive.top,
+      BLUE, 'reads checklist feed', false);
+
+    // Inventory ↔ Logbook
+    const inv = mid(nInventory);
+    arrow(svg,
+      inv.left + 10, inv.y,
+      lb.right - 10, lb.y - 12,
+      ORANGE, 'parts used', false);
+    arrow(svg,
+      lb.right - 10, lb.y + 24,
+      inv.left + 10, inv.y + 12,
+      BLUE, '', true);
+  }
+
+  // Draw after layout settles
+  window.addEventListener('load', () => { setTimeout(drawArrows, 80); });
+  window.addEventListener('resize', () => { setTimeout(drawArrows, 80); });
+</script>
+</body>
+</html>
