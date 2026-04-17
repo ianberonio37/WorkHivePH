@@ -528,6 +528,18 @@
               </button>
             </div>
 
+            <!-- PM Tasks Panel (shown when Preventive Maintenance + asset has PM schedule) -->
+            <div id="pm-tasks-panel" class="hidden">
+              <div class="rounded-xl p-3" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.2);">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-[11px] font-bold uppercase tracking-widest" style="color:#F7A21B;">PM Tasks for this Asset</p>
+                  <span id="pm-tasks-count" class="text-[11px] text-white/30"></span>
+                </div>
+                <p class="text-[11px] text-white/40 mb-3">Tick the PM tasks you completed during this job. They will be marked done and their schedules updated.</p>
+                <div id="pm-tasks-list" class="flex flex-col gap-2"></div>
+              </div>
+            </div>
+
             <!-- Work Tasklist Acknowledgment (shown when status = Closed) -->
             <div id="tasklist-ack-section" class="hidden">
               <div class="rounded-xl p-3" style="background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.18);">
@@ -1480,7 +1492,10 @@ function selectAsset(assetId, assetName, assetRefId) {
   _pendingAssetRefId = assetRefId || null;
   closeAssetPicker();
   saveDraft();
+  loadPMTasksForAsset();
 }
+
+document.getElementById('f-maint-type').addEventListener('change', loadPMTasksForAsset);
 
 document.getElementById('asset-picker-btn').addEventListener('click', openAssetPicker);
 document.getElementById('asset-picker-modal-close').addEventListener('click', closeAssetPicker);
@@ -1918,7 +1933,126 @@ async function confirmDelete(id) {
 // ────────────────────────────────────────────
 // FORM SUBMIT
 // ────────────────────────────────────────────
-let _pendingAssetRefId = null;
+let _pendingAssetRefId  = null;
+let _pmItemsForAsset    = [];
+
+const LOG_FREQ_DAYS = { Monthly: 30, Quarterly: 90, 'Semi-Annual': 180, Yearly: 365 };
+const LOG_DUE_SOON  = 14;
+
+async function loadPMTasksForAsset() {
+  const machine   = document.getElementById('f-machine').value.trim();
+  const maintType = document.getElementById('f-maint-type').value;
+  const panel     = document.getElementById('pm-tasks-panel');
+
+  if (!machine || maintType !== 'Preventive Maintenance') {
+    panel.classList.add('hidden');
+    _pmItemsForAsset = [];
+    return;
+  }
+
+  // Find pm_assets matching this machine name
+  let q = db.from('pm_assets').select('id, asset_name, category');
+  if (HIVE_ID) q = q.eq('hive_id', HIVE_ID);
+  else         q = q.eq('worker_name', WORKER_NAME);
+  const { data: pmAssets } = await q;
+
+  const ml = machine.toLowerCase();
+  const matched = (pmAssets || []).filter(a => {
+    const al = (a.asset_name || '').toLowerCase();
+    return al === ml || al.includes(ml) || ml.includes(al);
+  });
+
+  if (!matched.length) { panel.classList.add('hidden'); _pmItemsForAsset = []; return; }
+
+  const assetIds = matched.map(a => a.id);
+
+  const [itemsRes, compsRes] = await Promise.all([
+    db.from('pm_scope_items').select('id, asset_id, item_text, frequency, anchor_date').in('asset_id', assetIds),
+    db.from('pm_completions').select('scope_item_id, completed_at').in('asset_id', assetIds).eq('status', 'done').order('completed_at', { ascending: false }),
+  ]);
+
+  const items = itemsRes.data || [];
+  const comps = compsRes.data || [];
+
+  if (!items.length) { panel.classList.add('hidden'); _pmItemsForAsset = []; return; }
+
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const order = { overdue: 0, duesoon: 1, nodata: 2, ontrack: 3 };
+
+  _pmItemsForAsset = items.map(item => {
+    const lastComp = comps.find(c => c.scope_item_id === item.id);
+    const lastDate = lastComp ? lastComp.completed_at : item.anchor_date;
+    let status = 'nodata';
+    if (lastDate) {
+      const next = new Date(lastDate);
+      next.setDate(next.getDate() + (LOG_FREQ_DAYS[item.frequency] || 90));
+      next.setHours(0, 0, 0, 0);
+      const diff = Math.floor((next - today) / 86400000);
+      status = diff < 0 ? 'overdue' : diff <= LOG_DUE_SOON ? 'duesoon' : 'ontrack';
+    }
+    const asset = matched.find(a => a.id === item.asset_id);
+    return { ...item, status, assetName: asset?.asset_name || '' };
+  }).sort((a, b) => order[a.status] - order[b.status]);
+
+  renderPMTasksPanel();
+  panel.classList.remove('hidden');
+}
+
+function renderPMTasksPanel() {
+  const statusMap = {
+    overdue:  { label: 'Overdue',  cls: 'color:#f87171;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);' },
+    duesoon:  { label: 'Due Soon', cls: 'color:#fbbf24;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.25);' },
+    nodata:   { label: 'No Data',  cls: 'color:#9ca3af;background:rgba(156,163,175,0.1);border:1px solid rgba(156,163,175,0.2);' },
+    ontrack:  { label: 'On Track', cls: 'color:#4ade80;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);' },
+  };
+  const freqMap = { Monthly: 'M', Quarterly: 'Q', 'Semi-Annual': 'SA', Yearly: 'Y' };
+  const freqCls = { Monthly: 'rgba(41,182,217,0.15);color:#29B6D9', Quarterly: 'rgba(167,139,250,0.15);color:#a78bfa', 'Semi-Annual': 'rgba(251,191,36,0.15);color:#fbbf24', Yearly: 'rgba(247,162,27,0.15);color:#F7A21B' };
+
+  const overdueDueSoon = _pmItemsForAsset.filter(i => i.status === 'overdue' || i.status === 'duesoon');
+  document.getElementById('pm-tasks-count').textContent =
+    `${overdueDueSoon.length} need attention`;
+
+  document.getElementById('pm-tasks-list').innerHTML = _pmItemsForAsset.map(item => {
+    const s     = statusMap[item.status] || statusMap.nodata;
+    const precheck = item.status === 'overdue' || item.status === 'duesoon';
+    return `
+      <label class="flex items-start gap-3 cursor-pointer p-2.5 rounded-xl transition-colors"
+        style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+        <input type="checkbox" class="pm-task-check hidden" data-item-id="${item.id}" data-asset-id="${item.asset_id}" ${precheck ? 'checked' : ''} />
+        <div class="pm-check-box w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5 transition-all"
+          style="background:${precheck ? 'rgba(247,162,27,0.2)' : 'rgba(255,255,255,0.06)'};border:2px solid ${precheck ? '#F7A21B' : 'rgba(255,255,255,0.2)'};">
+          <svg class="w-3 h-3 ${precheck ? '' : 'hidden'}" fill="none" viewBox="0 0 24 24" stroke="#F7A21B" stroke-width="3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm text-white/80 leading-snug">${escHtml(item.item_text)}</p>
+          <div class="flex items-center gap-1.5 mt-1">
+            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style="background:${freqCls[item.frequency] || 'rgba(255,255,255,0.08);color:rgba(255,255,255,0.4)'};">${freqMap[item.frequency] || item.frequency}</span>
+            <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style="${s.cls}">${s.label}</span>
+          </div>
+        </div>
+      </label>
+    `;
+  }).join('');
+
+  // Wire checkboxes
+  document.querySelectorAll('.pm-task-check').forEach(cb => {
+    cb.addEventListener('change', function() {
+      const box = this.parentElement.querySelector('.pm-check-box');
+      const tick = box.querySelector('svg');
+      if (this.checked) {
+        box.style.background = 'rgba(247,162,27,0.2)';
+        box.style.borderColor = '#F7A21B';
+        tick.classList.remove('hidden');
+      } else {
+        box.style.background = 'rgba(255,255,255,0.06)';
+        box.style.borderColor = 'rgba(255,255,255,0.2)';
+        tick.classList.add('hidden');
+      }
+    });
+  });
+}
 let _tasklistNote = ''; // note from tasklist modal — module-level to survive re-renders
 
 document.getElementById('log-form').addEventListener('submit', async function(e) {
@@ -1973,6 +2107,23 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
   };
 
   await addEntry(entry);
+
+  // Save PM completions for checked PM tasks
+  const checkedPM = [...document.querySelectorAll('.pm-task-check:checked')];
+  if (checkedPM.length > 0) {
+    const pmPayloads = checkedPM.map(cb => ({
+      asset_id:      cb.dataset.assetId,
+      scope_item_id: cb.dataset.itemId,
+      hive_id:       HIVE_ID || null,
+      worker_name:   WORKER_NAME,
+      status:        'done',
+      notes:         `Logged via Logbook — ${machine}`,
+      completed_at:  entry.date,
+    }));
+    const { error: pmErr } = await db.from('pm_completions').insert(pmPayloads);
+    if (pmErr) console.warn('PM completions save failed:', pmErr.message);
+  }
+
   // Deduct inventory for parts used
   for (const p of _partsUsed) {
     if (!p.partId) continue;
@@ -1987,9 +2138,12 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     }).then(({ error }) => { if (error) console.error('txn insert:', error.message); });
     if (item) item.qty_on_hand = newQty; // update local cache
   }
+  const pmSaved = [...document.querySelectorAll('.pm-task-check:checked')].length;
   clearForm();
   await renderEntries();
-  showToast('Entry saved to your logbook.');
+  showToast(pmSaved > 0
+    ? `Entry saved. ${pmSaved} PM task${pmSaved > 1 ? 's' : ''} updated.`
+    : 'Entry saved to your logbook.');
   saveBtn.disabled = false;
   saveBtn.textContent = 'Save Entry';
 });
@@ -2006,6 +2160,9 @@ function clearForm() {
   document.getElementById('photo-dropzone').classList.remove('hidden');
   currentPhotoData    = null;
   _pendingAssetRefId  = null;
+  _pmItemsForAsset    = [];
+  document.getElementById('pm-tasks-panel').classList.add('hidden');
+  document.getElementById('pm-tasks-list').innerHTML = '';
   // Reset asset picker label
   const labelEl = document.getElementById('asset-picker-label');
   labelEl.textContent = 'Select or search asset...';
