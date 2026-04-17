@@ -33,12 +33,16 @@
   function detectPageContext() {
     const path = window.location.pathname.toLowerCase();
 
-    if (path.includes('logbook'))       return { page: 'logbook',      label: 'Digital Logbook',      hint: 'Help me fill in maintenance records, suggest failure modes, or explain fields.' };
-    if (path.includes('checklist'))     return { page: 'checklist',    label: 'Checklist',             hint: 'Guide me through inspection steps or explain checklist items.' };
-    if (path.includes('parts-tracker')) return { page: 'parts-tracker',label: 'Parts Tracker',         hint: 'Help me find parts, check stock levels, or suggest reorder points.' };
-    if (path.includes('assistant'))     return { page: 'assistant',    label: 'My Work Assistant',     hint: 'I can help you plan your shift, prioritise tasks, or answer technical questions.' };
-    if (path.includes('dayplanner'))    return { page: 'dayplanner',   label: 'Day Planner',           hint: 'Help me schedule tasks, prioritise my day, or plan my maintenance shift.' };
-    return                              { page: 'home',                label: 'WorkHive Home',         hint: 'Ask me anything about the platform or industrial maintenance.' };
+    if (path.includes('logbook'))       return { page: 'logbook',       label: 'Digital Logbook',       hint: 'Help me fill in maintenance records, suggest failure modes, or explain fields.' };
+    if (path.includes('checklist'))     return { page: 'checklist',     label: 'Checklist',              hint: 'Guide me through inspection steps or explain checklist items.' };
+    if (path.includes('parts-tracker')) return { page: 'parts-tracker', label: 'Parts Tracker',          hint: 'Help me find parts, check stock levels, or suggest reorder points.' };
+    if (path.includes('assistant'))     return { page: 'assistant',     label: 'My Work Assistant',      hint: 'I can help you plan your shift, prioritise tasks, or answer technical questions.' };
+    if (path.includes('dayplanner'))    return { page: 'dayplanner',    label: 'Day Planner',            hint: 'Help me schedule tasks, prioritise my day, or plan my maintenance shift.' };
+    if (path.includes('pm-scheduler'))  return { page: 'pm-scheduler',  label: 'PM Scheduler',           hint: 'Help me set up PM scope, suggest frequencies, or explain maintenance tasks for this equipment.' };
+    if (path.includes('hive'))          return { page: 'hive',          label: 'WorkHive Board',         hint: 'Ask about team performance, PM health, downtime trends, or how to use the board.' };
+    if (path.includes('inventory'))     return { page: 'inventory',     label: 'Inventory Manager',      hint: 'Help me with stock levels, reorder points, or parts management best practices.' };
+    if (path.includes('skillmatrix'))   return { page: 'skillmatrix',   label: 'Skill Matrix',           hint: 'Ask about discipline requirements, exam tips, or how to progress through skill levels.' };
+    return                              { page: 'home',                 label: 'WorkHive Home',          hint: 'Ask me anything about the platform or industrial maintenance.' };
   }
 
   // ─── Mock Responses (Demo Mode) ──────────────────────────────────────────────
@@ -56,8 +60,28 @@
       "A good reorder point = (Average Daily Usage × Lead Time in Days) + Safety Stock. Want me to help calculate it for a specific part?",
       "For critical spares, consider keeping at least one unit on-hand regardless of usage frequency — downtime cost usually outweighs holding cost.",
     ],
+    'pm-scheduler': [
+      "For **rotating equipment** (pumps, motors, fans), typical PM frequencies: lubrication monthly, mechanical inspection quarterly, overhaul yearly. Want help building a scope for a specific machine?",
+      "A good PM scope for a **centrifugal pump** includes: seal leak check, bearing temperature, vibration check, coupling alignment, lubrication, and impeller inspection. I can suggest frequencies for each.",
+      "**Criticality** helps prioritise PMs. Mark assets as Critical if failure causes safety risk or major production loss — these should have tighter frequencies and more scope items.",
+    ],
+    hive: [
+      "The **PM Health panel** on the board shows overdue and due-soon asset counts for your team. Tap it to expand the full breakdown.",
+      "If a team member's PM completions aren't showing on the board, check that their PM Scheduler is linked to the same hive ID.",
+      "The live feed shows logbook entries and PM completions in real time. Orange cards are PM completions, blue cards are logbook entries.",
+    ],
+    inventory: [
+      "A good **reorder point** = (Average Daily Usage × Lead Time in Days) + Safety Stock. Want me to help calculate it for a specific part?",
+      "For critical spares, keep at least one unit on-hand regardless of usage — downtime cost usually outweighs holding cost.",
+      "In hive mode, workers can use and restock parts, but only supervisors can add, edit, or remove items from the shared catalog.",
+    ],
+    skillmatrix: [
+      "To progress through skill levels, pass the exam for each discipline at each level. You need to pass Level 1 before unlocking Level 2.",
+      "The **radar chart** shows your competency profile across all 5 disciplines at a glance. Aim for a balanced profile for a well-rounded maintenance role.",
+      "**Level 3 (Competent)** is the standard target for most field technicians. Levels 4 and 5 (Proficient and Master) are for specialists and leads.",
+    ],
     default: [
-      "I'm your WorkHive AI Assistant. I can help you with maintenance logs, checklists, parts management, and shift planning. What do you need?",
+      "I'm your WorkHive AI Assistant. I can help with maintenance logs, PM scheduling, checklists, parts management, skill tracking, and shift planning. What do you need?",
       "Great question. While I'm in demo mode right now, once connected to the AI backend I can give you real-time answers based on your specific equipment and history.",
     ]
   };
@@ -429,22 +453,26 @@
 
   // ─── API Call via Cloudflare Worker (Functional) ─────────────────────────────
   async function callAPI(userMessage) {
-    const system = `You are WorkHive AI, a general-purpose assistant built into the WorkHive industrial maintenance platform.
+    const system = `You are WorkHive AI, a general-purpose assistant built into the WorkHive industrial maintenance platform. WorkHive is a free industrial intelligence platform for field workers and their teams.
+
+PLATFORM TOOLS (so you can answer "where do I find X?" questions):
+- Digital Logbook (logbook.html): Log daily maintenance jobs — machine, problem, root cause, action taken, downtime, parts used. When status = Closed, a Parts Used section appears. Supports asset linking and photo uploads.
+- Work Checklist (checklist.html): Standard pre/post task checklists per job type with pass/fail items.
+- Day Planner (dayplanner.html): DILO/WILO/MILO/YILO multi-resolution scheduler. Plan daily, weekly, monthly, and yearly work.
+- My Work Assistant (assistant.html): Full AI assistant with access to the worker's own logbook and checklist records for personalised insights.
+- WorkHive Live Board (hive.html): Team collaboration hub. Live activity feed of logbook entries and PM completions. PM Health panel shows overdue/due-soon assets. Supervisors manage team membership and approve shared catalog submissions.
+- Inventory Manager (inventory.html): Parts and consumables stock ledger. Workers use and restock parts. Supervisors control the shared catalog.
+- PM Scheduler (pm-scheduler.html): Plant Maintenance scheduling. Register assets, assign PM scope checklists by category (Rotating Equipment, Electrical, HVAC, Utility Systems, etc.), set frequencies (Monthly, Quarterly, Semi-Annual, Yearly), and track due dates. Completing a PM task optionally creates a linked Logbook entry. When logging a Preventive Maintenance entry in the Logbook, pending PM tasks for that asset appear automatically.
+- Skill Matrix (skillmatrix.html): Competency tracking across 5 disciplines (Mechanical, Electrical, Instrumentation, HVAC, Civil/Structural). Progress through 5 levels (Awareness → Master) by passing exams. Earn badges. Radar chart shows competency profile.
+- Parts Tracker: Retired. Parts are now logged inside Logbook entries.
 
 You handle three types of conversations. Adapt naturally:
+1. WORK QUESTIONS (technical, procedures, equipment, safety, standards) → Answer from general maintenance knowledge. Be practical and concise.
+2. PLATFORM QUESTIONS (how to use WorkHive, where to find a feature) → Use the platform context above. Be specific about which page handles what.
+3. PERSONAL / EMOTIONAL → Respond with warmth. NEVER invent fake work events or achievements.
 
-1. WORK QUESTIONS (technical, procedures, equipment, safety, standards)
-   → Answer from general maintenance knowledge. Be practical and concise.
-
-2. PERSONAL / EMOTIONAL (feelings, stress, motivation, life outside work)
-   → Respond with warmth and genuine encouragement. Use general wisdom or humor. NEVER invent fake work events, job numbers, dates, or achievements to sound relatable. This destroys trust.
-
-3. MIXED OR OPEN-ENDED
-   → Use your judgment. Be helpful, honest, and human.
-
-You are NOT connected to any database or work history. If asked about past work, say honestly: "I don't have access to your records, but I'm here to help with what you share with me now."
-Always use "you/your". Never refer to the user in the third person. Do not use their name unless they give it to you in this conversation.
-The user is on the "${ctx.label}" page. ${ctx.hint}
+You are NOT connected to any database or work history in this widget. If asked about past work, say: "I don't have access to your records here — use the AI Work Assistant page for that."
+Always use "you/your". The user is on the "${ctx.label}" page. ${ctx.hint}
 Keep responses under 120 words unless asked for more.`;
 
     const messages = [
