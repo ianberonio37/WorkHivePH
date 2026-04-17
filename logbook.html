@@ -1950,16 +1950,18 @@ async function loadPMTasksForAsset() {
     return;
   }
 
-  // Find pm_assets matching this machine name
-  let q = db.from('pm_assets').select('id, asset_name, category');
+  // Find pm_assets matching this machine name OR tag_id
+  let q = db.from('pm_assets').select('id, asset_name, tag_id, category');
   if (HIVE_ID) q = q.eq('hive_id', HIVE_ID);
   else         q = q.eq('worker_name', WORKER_NAME);
   const { data: pmAssets } = await q;
 
   const ml = machine.toLowerCase();
   const matched = (pmAssets || []).filter(a => {
-    const al = (a.asset_name || '').toLowerCase();
-    return al === ml || al.includes(ml) || ml.includes(al);
+    const al  = (a.asset_name || '').toLowerCase();
+    const tid = (a.tag_id     || '').toLowerCase();
+    return al === ml || al.includes(ml) || ml.includes(al)
+        || (tid && (tid === ml || tid.includes(ml) || ml.includes(tid)));
   });
 
   if (!matched.length) { panel.classList.add('hidden'); _pmItemsForAsset = []; return; }
