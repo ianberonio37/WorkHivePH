@@ -570,15 +570,6 @@
       </div>
     </div>
 
-    <!-- PM Tasks section -->
-    <div class="mb-4">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="font-semibold text-sm">PM Tasks</h3>
-        <span id="det-progress-text" class="text-xs text-white/40"></span>
-      </div>
-      <div id="det-tasks" class="space-y-2.5"></div>
-    </div>
-
     <!-- Add Task -->
     <div class="wh-card p-4 mb-4">
       <button id="btn-add-task-toggle" onclick="toggleAddTaskForm()" class="w-full flex items-center justify-between text-sm font-semibold transition-colors" style="color:rgba(247,162,27,0.8);">
@@ -588,7 +579,7 @@
       <div id="add-task-form" class="hidden mt-4 space-y-3">
         <div>
           <label class="block text-xs font-semibold mb-1.5" style="color:rgba(255,255,255,0.4);">STANDARD TASKS FOR THIS CATEGORY</label>
-          <select id="add-task-template" class="wh-input text-sm">
+          <select id="add-task-template" class="wh-input">
             <option value="">— Pick a standard task or write your own below —</option>
           </select>
         </div>
@@ -607,6 +598,15 @@
         </div>
         <button onclick="saveNewTask()" class="btn-primary w-full">Add Task</button>
       </div>
+    </div>
+
+    <!-- PM Tasks section -->
+    <div class="mb-4">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-sm">PM Tasks</h3>
+        <span id="det-progress-text" class="text-xs text-white/40"></span>
+      </div>
+      <div id="det-tasks" class="space-y-2.5"></div>
     </div>
 
     <!-- History log -->
