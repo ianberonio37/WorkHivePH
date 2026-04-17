@@ -1881,14 +1881,8 @@ function goBack() {
 }
 
 // ─────────────────────────────────────
-// UTILS
+// UTILS — escHtml sourced from utils.js
 // ─────────────────────────────────────
-function escHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
 
 let toastTimer = null;
 function showToast(msg) {
