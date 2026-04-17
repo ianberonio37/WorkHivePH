@@ -1958,6 +1958,7 @@ async function confirmDelete(id) {
 // ────────────────────────────────────────────
 let _pendingAssetRefId  = null;
 let _pmItemsForAsset    = [];
+let _pmOnTrackExpanded  = false;
 
 const LOG_FREQ_DAYS = { Monthly: 30, Quarterly: 90, 'Semi-Annual': 180, Yearly: 365 };
 const LOG_DUE_SOON  = 14;
@@ -2011,16 +2012,17 @@ async function loadPMTasksForAsset() {
   _pmItemsForAsset = items.map(item => {
     const lastComp = comps.find(c => c.scope_item_id === item.id);
     const lastDate = lastComp ? lastComp.completed_at : item.anchor_date;
-    let status = 'nodata';
+    let status = 'nodata'; let nextDue = null; let diff = null;
     if (lastDate) {
       const next = new Date(lastDate);
       next.setDate(next.getDate() + (LOG_FREQ_DAYS[item.frequency] || 90));
       next.setHours(0, 0, 0, 0);
-      const diff = Math.floor((next - today) / 86400000);
+      diff   = Math.floor((next - today) / 86400000);
       status = diff < 0 ? 'overdue' : diff <= LOG_DUE_SOON ? 'duesoon' : 'ontrack';
+      nextDue = next;
     }
     const asset = matched.find(a => a.id === item.asset_id);
-    return { ...item, status, assetName: asset?.asset_name || '' };
+    return { ...item, status, nextDue, diff, assetName: asset?.asset_name || '' };
   }).sort((a, b) => order[a.status] - order[b.status]);
 
   renderPMTasksPanel();
@@ -2028,21 +2030,28 @@ async function loadPMTasksForAsset() {
 }
 
 function renderPMTasksPanel() {
-  const statusMap = {
-    overdue:  { label: 'Overdue',  cls: 'color:#f87171;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);' },
-    duesoon:  { label: 'Due Soon', cls: 'color:#fbbf24;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.25);' },
-    nodata:   { label: 'No Data',  cls: 'color:#9ca3af;background:rgba(156,163,175,0.1);border:1px solid rgba(156,163,175,0.2);' },
-    ontrack:  { label: 'On Track', cls: 'color:#4ade80;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);' },
-  };
   const freqMap = { Monthly: 'M', Quarterly: 'Q', 'Semi-Annual': 'SA', Yearly: 'Y' };
   const freqCls = { Monthly: 'rgba(41,182,217,0.15);color:#29B6D9', Quarterly: 'rgba(167,139,250,0.15);color:#a78bfa', 'Semi-Annual': 'rgba(251,191,36,0.15);color:#fbbf24', Yearly: 'rgba(247,162,27,0.15);color:#F7A21B' };
 
-  const overdueDueSoon = _pmItemsForAsset.filter(i => i.status === 'overdue' || i.status === 'duesoon');
-  document.getElementById('pm-tasks-count').textContent =
-    `${overdueDueSoon.length} need attention`;
+  const needsAttention = _pmItemsForAsset.filter(i => i.status === 'overdue' || i.status === 'duesoon' || i.status === 'nodata');
+  const onTrack        = _pmItemsForAsset.filter(i => i.status === 'ontrack');
 
-  document.getElementById('pm-tasks-list').innerHTML = _pmItemsForAsset.map(item => {
-    const s     = statusMap[item.status] || statusMap.nodata;
+  // Header count
+  document.getElementById('pm-tasks-count').textContent =
+    needsAttention.length ? `${needsAttention.length} need${needsAttention.length === 1 ? 's' : ''} attention` : 'All tasks on track';
+
+  function daysLabel(item) {
+    if (item.status === 'overdue')  return `<span style="color:#f87171;font-size:10px;">${Math.abs(item.diff)} day${Math.abs(item.diff) === 1 ? '' : 's'} overdue</span>`;
+    if (item.status === 'duesoon')  return `<span style="color:#fbbf24;font-size:10px;">due in ${item.diff} day${item.diff === 1 ? '' : 's'}</span>`;
+    if (item.status === 'nodata')   return `<span style="color:rgba(255,255,255,0.25);font-size:10px;">no history</span>`;
+    if (item.nextDue) {
+      const d = item.nextDue;
+      return `<span style="color:rgba(255,255,255,0.25);font-size:10px;">next: ${d.toLocaleDateString('en-PH',{month:'short',day:'numeric'})}</span>`;
+    }
+    return '';
+  }
+
+  function taskRow(item) {
     const precheck = item.status === 'overdue' || item.status === 'duesoon';
     return `
       <label class="flex items-start gap-3 cursor-pointer p-2.5 rounded-xl transition-colors"
@@ -2056,31 +2065,55 @@ function renderPMTasksPanel() {
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-sm text-white/80 leading-snug">${escHtml(item.item_text)}</p>
-          <div class="flex items-center gap-1.5 mt-1">
+          <div class="flex items-center gap-1.5 mt-1 flex-wrap">
             <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style="background:${freqCls[item.frequency] || 'rgba(255,255,255,0.08);color:rgba(255,255,255,0.4)'};">${freqMap[item.frequency] || item.frequency}</span>
-            <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style="${s.cls}">${s.label}</span>
+            ${daysLabel(item)}
           </div>
         </div>
-      </label>
-    `;
-  }).join('');
+      </label>`;
+  }
+
+  let html = needsAttention.map(taskRow).join('');
+
+  if (onTrack.length) {
+    const chevron = _pmOnTrackExpanded ? 'rotate(180deg)' : '';
+    html += `
+      <button type="button" onclick="togglePMOnTrack()"
+        class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl mt-1 transition-colors"
+        style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);font-size:12px;">
+        <span>${onTrack.length} task${onTrack.length === 1 ? '' : 's'} on track</span>
+        <svg style="width:14px;height:14px;transform:${chevron};transition:transform 0.2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>`;
+    if (_pmOnTrackExpanded) {
+      html += `<div class="mt-1 space-y-1">${onTrack.map(taskRow).join('')}</div>`;
+    }
+  }
+
+  document.getElementById('pm-tasks-list').innerHTML = html;
 
   // Wire checkboxes
   document.querySelectorAll('.pm-task-check').forEach(cb => {
     cb.addEventListener('change', function() {
-      const box = this.parentElement.querySelector('.pm-check-box');
+      const box  = this.parentElement.querySelector('.pm-check-box');
       const tick = box.querySelector('svg');
       if (this.checked) {
-        box.style.background = 'rgba(247,162,27,0.2)';
+        box.style.background  = 'rgba(247,162,27,0.2)';
         box.style.borderColor = '#F7A21B';
         tick.classList.remove('hidden');
       } else {
-        box.style.background = 'rgba(255,255,255,0.06)';
+        box.style.background  = 'rgba(255,255,255,0.06)';
         box.style.borderColor = 'rgba(255,255,255,0.2)';
         tick.classList.add('hidden');
       }
     });
   });
+}
+
+function togglePMOnTrack() {
+  _pmOnTrackExpanded = !_pmOnTrackExpanded;
+  renderPMTasksPanel();
 }
 let _tasklistNote = ''; // note from tasklist modal — module-level to survive re-renders
 
@@ -2190,6 +2223,7 @@ function clearForm() {
   currentPhotoData    = null;
   _pendingAssetRefId  = null;
   _pmItemsForAsset    = [];
+  _pmOnTrackExpanded  = false;
   document.getElementById('pm-tasks-panel').classList.add('hidden');
   document.getElementById('pm-tasks-list').innerHTML = '';
   // Reset asset picker label
