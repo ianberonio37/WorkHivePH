@@ -473,9 +473,25 @@
             <div id="an-categories" class="flex flex-col gap-1"></div>
           </div>
           <!-- hot assets -->
-          <div>
+          <div class="mb-3">
             <p class="text-[10px] text-white/25 uppercase tracking-widest font-semibold mb-1.5">Most Active Assets</p>
             <div id="an-assets" class="flex flex-col gap-1"></div>
+          </div>
+          <!-- PM this week -->
+          <div id="an-pm-wrap" class="hidden">
+            <div class="h-px mb-3" style="background:rgba(255,255,255,0.05);"></div>
+            <p class="text-[10px] text-white/25 uppercase tracking-widest font-semibold mb-1.5">PM This Week</p>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] text-white/50">Tasks completed</span>
+              <span class="text-[11px] font-black" style="color:#F7A21B;" id="an-pm-week">0</span>
+            </div>
+            <div id="an-pm-worker-wrap" class="hidden flex items-center justify-between">
+              <span class="text-[11px] text-white/50">Top PM worker</span>
+              <span class="text-[11px] font-semibold text-white/70">
+                <span id="an-pm-worker-name"></span>
+                <span class="text-white/30 ml-1" id="an-pm-worker-count"></span>
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -513,6 +529,49 @@
         </div>
         <div id="team-stock-list" class="flex flex-col gap-2"></div>
         <a href="inventory.html" class="text-[11px] font-semibold mt-2 inline-block" style="color:#f87171;">View your inventory →</a>
+      </div>
+
+      <!-- PM Overdue Alert -->
+      <div id="pm-overdue-alert" class="hidden mb-5 rounded-xl p-4" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="#f87171" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+          </svg>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-bold text-red-400 mb-0.5">PM Tasks Overdue</p>
+            <p class="text-xs text-white/60" id="pm-overdue-text"></p>
+            <a href="pm-scheduler.html" class="text-xs font-semibold mt-1.5 inline-block" style="color:#f87171;">Open PM Scheduler →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- PM Health Panel -->
+      <div id="pm-health-panel" class="hidden mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">PM Health</p>
+          <button id="btn-toggle-pm-health" style="color:#F7A21B;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;padding:0.5rem 0;">Show</button>
+        </div>
+        <div id="pm-health-body" style="display:none;">
+          <div class="grid grid-cols-4 gap-2 mb-3">
+            <div class="rounded-xl p-2.5 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
+              <p class="text-lg font-black text-white" id="pm-health-assets">—</p>
+              <p class="text-[9px] text-white/35 mt-0.5 leading-tight">Assets</p>
+            </div>
+            <div class="rounded-xl p-2.5 text-center" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.18);">
+              <p class="text-lg font-black text-red-400" id="pm-health-overdue">—</p>
+              <p class="text-[9px] text-white/35 mt-0.5 leading-tight">Overdue</p>
+            </div>
+            <div class="rounded-xl p-2.5 text-center" style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.18);">
+              <p class="text-lg font-black text-yellow-400" id="pm-health-duesoon">—</p>
+              <p class="text-[9px] text-white/35 mt-0.5 leading-tight">Due Soon</p>
+            </div>
+            <div class="rounded-xl p-2.5 text-center" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.18);">
+              <p class="text-lg font-black" style="color:#F7A21B;" id="pm-health-week">—</p>
+              <p class="text-[9px] text-white/35 mt-0.5 leading-tight">Done/Wk</p>
+            </div>
+          </div>
+          <a href="pm-scheduler.html" class="text-[11px] font-semibold" style="color:#F7A21B;">Open PM Scheduler →</a>
+        </div>
       </div>
 
       <!-- Asset Downtime (open work orders) -->
@@ -859,6 +918,7 @@ function buildPMCard(record, isNew) {
         </div>
         <p class="text-sm font-semibold text-white/90 truncate">${assetName}</p>
         <p class="text-xs text-white/50 truncate mt-0.5">${itemText}</p>
+        <a href="pm-scheduler.html" class="text-[11px] font-semibold mt-1 inline-block" style="color:#F7A21B;">View in PM Scheduler →</a>
       </div>
     </div>
   </div>`;
@@ -1202,7 +1262,7 @@ async function initBoard() {
 
   updateSwitchButton();
   // allSettled — never rejects, so startPresence() is always reached even if one data load fails
-  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), loadAnalytics(), buildNotifications(), loadApprovalQueue(), loadHiveInventory(), loadDowntime(), loadMtbf(), loadMttr()]);
+  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), loadAnalytics(), buildNotifications(), loadApprovalQueue(), loadHiveInventory(), loadDowntime(), loadMtbf(), loadMttr(), loadPMHealth()]);
   _boardResults.forEach((r, i) => { if (r.status === 'rejected') console.error('initBoard step', i, 'failed:', r.reason); });
   // Team stock alert needs memberNames populated by loadMembers first
   checkTeamStockAlert();
@@ -1458,14 +1518,23 @@ function startFeedRealtime() {
         db.from('pm_assets').select('asset_name').eq('id', payload.new.asset_id).maybeSingle(),
         db.from('pm_scope_items').select('item_text, frequency').eq('id', payload.new.scope_item_id).maybeSingle(),
       ]);
-      prependFeed({
+      const entry = {
         ...payload.new,
         asset_name: assetRes.data?.asset_name || 'Asset',
         item_text:  itemRes.data?.item_text   || 'PM Task',
         frequency:  itemRes.data?.frequency   || '',
         created_at: payload.new.completed_at,
         _type: 'pm',
-      });
+      };
+      prependFeed(entry);
+
+      // Live toast for other team members
+      if (payload.new.worker_name !== WORKER_NAME) {
+        const who   = payload.new.worker_name || 'Someone';
+        const asset = entry.asset_name;
+        const task  = entry.item_text.split(' ').slice(0, 6).join(' ');
+        showHiveToast(`${who} completed PM: ${task}… on ${asset}`);
+      }
     })
     .subscribe();
 }
@@ -1599,6 +1668,88 @@ async function buildNotifications() {
   renderNotifs();
 }
 
+// ── PM HEALTH ──
+const HIVE_FREQ_DAYS = { Monthly: 30, Quarterly: 90, 'Semi-Annual': 180, Yearly: 365 };
+const HIVE_DUE_SOON  = 14;
+
+async function loadPMHealth() {
+  if (!HIVE_ID) return;
+
+  const [assetsRes, itemsRes, compsRes] = await Promise.all([
+    db.from('pm_assets').select('id, asset_name').eq('hive_id', HIVE_ID),
+    db.from('pm_scope_items').select('id, asset_id, frequency, anchor_date').eq('hive_id', HIVE_ID),
+    db.from('pm_completions').select('scope_item_id, completed_at, worker_name').eq('hive_id', HIVE_ID).eq('status', 'done').order('completed_at', { ascending: false }),
+  ]);
+
+  const pmAssets = assetsRes.data || [];
+  const pmItems  = itemsRes.data  || [];
+  const pmComps  = compsRes.data  || [];
+
+  if (!pmAssets.length) return;
+
+  // Calculate status per item
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  let overdue = 0, dueSoon = 0;
+
+  pmItems.forEach(item => {
+    const lastComp = pmComps.find(c => c.scope_item_id === item.id);
+    const lastDate = lastComp ? lastComp.completed_at : item.anchor_date;
+    if (!lastDate) { overdue++; return; }
+    const days = HIVE_FREQ_DAYS[item.frequency] || 90;
+    const next = new Date(lastDate);
+    next.setDate(next.getDate() + days);
+    next.setHours(0, 0, 0, 0);
+    const diff = Math.floor((next - today) / 86400000);
+    if (diff < 0)               overdue++;
+    else if (diff <= HIVE_DUE_SOON) dueSoon++;
+  });
+
+  // PM done this week
+  const weekAgo   = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const weekComps = pmComps.filter(c => c.completed_at >= weekAgo);
+
+  // Show PM health panel
+  document.getElementById('pm-health-panel').classList.remove('hidden');
+  document.getElementById('pm-health-assets').textContent  = pmAssets.length;
+  document.getElementById('pm-health-overdue').textContent = overdue;
+  document.getElementById('pm-health-duesoon').textContent = dueSoon;
+  document.getElementById('pm-health-week').textContent    = weekComps.length;
+
+  // PM overdue alert banner
+  if (overdue > 0) {
+    document.getElementById('pm-overdue-text').textContent =
+      `${overdue} PM task${overdue > 1 ? 's' : ''} overdue across hive assets.`;
+    document.getElementById('pm-overdue-alert').classList.remove('hidden');
+  }
+
+  // Analytics PM row
+  if (weekComps.length > 0) {
+    document.getElementById('an-pm-week').textContent = weekComps.length;
+    document.getElementById('an-pm-wrap').classList.remove('hidden');
+
+    const pmWorkerCount = {};
+    weekComps.forEach(c => { pmWorkerCount[c.worker_name] = (pmWorkerCount[c.worker_name] || 0) + 1; });
+    const top = Object.entries(pmWorkerCount).sort((a, b) => b[1] - a[1])[0];
+    if (top) {
+      document.getElementById('an-pm-worker-name').textContent  = top[0];
+      document.getElementById('an-pm-worker-count').textContent = `${top[1]} task${top[1] > 1 ? 's' : ''}`;
+      document.getElementById('an-pm-worker-wrap').classList.remove('hidden');
+    }
+  }
+
+  // Notification bell — PM overdue
+  if (overdue > 0) {
+    pushNotif('pm-overdue', 'PM Tasks Overdue',
+      `${overdue} PM task${overdue > 1 ? 's' : ''} overdue — check PM Scheduler.`,
+      'pm-scheduler.html');
+  }
+  if (dueSoon > 0) {
+    pushNotif('pm-duesoon', 'PM Due Soon',
+      `${dueSoon} PM task${dueSoon > 1 ? 's' : ''} due within ${HIVE_DUE_SOON} days.`,
+      'pm-scheduler.html');
+  }
+}
+
 // ── ANALYTICS ──
 async function loadAnalytics() {
   const weekAgo      = new Date(Date.now() -  7 * 24 * 60 * 60 * 1000).toISOString();
@@ -1698,6 +1849,14 @@ async function loadAnalytics() {
 document.getElementById('btn-toggle-analytics').addEventListener('click', () => {
   const body = document.getElementById('analytics-body');
   const btn  = document.getElementById('btn-toggle-analytics');
+  const isHidden = body.style.display === 'none';
+  body.style.display = isHidden ? '' : 'none';
+  btn.textContent = isHidden ? 'Hide' : 'Show';
+});
+
+document.getElementById('btn-toggle-pm-health').addEventListener('click', () => {
+  const body = document.getElementById('pm-health-body');
+  const btn  = document.getElementById('btn-toggle-pm-health');
   const isHidden = body.style.display === 'none';
   body.style.display = isHidden ? '' : 'none';
   btn.textContent = isHidden ? 'Hide' : 'Show';
