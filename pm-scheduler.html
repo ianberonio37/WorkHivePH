@@ -845,9 +845,9 @@ function getItemStatus(nextDue) {
 
 function getAssetOverallStatus(items) {
   if (!items || !items.length) return 'nodata';
-  if (items.some(i => i.status === 'overdue'))  return 'overdue';
-  if (items.some(i => i.status === 'duesoon'))  return 'duesoon';
-  if (items.some(i => i.status === 'nodata'))   return 'nodata';
+  if (items.some(i => i.itemStatus === 'overdue'))  return 'overdue';
+  if (items.some(i => i.itemStatus === 'duesoon'))  return 'duesoon';
+  if (items.some(i => i.itemStatus === 'nodata'))   return 'nodata';
   return 'ontrack';
 }
 
@@ -1090,7 +1090,7 @@ function renderDashboard() {
       .sort((a, b) => new Date(a.nextDue) - new Date(b.nextDue))[0];
 
     const nextDueLabel = nextDueItem
-      ? `Next: ${formatDate(nextDueItem.nextDue)} (${nextDueItem.text.split(' ').slice(0, 4).join(' ')}...)`
+      ? `Next: ${formatDate(nextDueItem.nextDue)} (${(nextDueItem.item_text || '').split(' ').slice(0, 4).join(' ')}...)`
       : 'No scheduled tasks';
 
     return `
