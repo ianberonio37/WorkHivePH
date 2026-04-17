@@ -577,11 +577,15 @@
         <svg id="add-task-chevron" class="w-4 h-4 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
       </button>
       <div id="add-task-form" class="hidden mt-4 space-y-3">
+        <!-- Category tabs -->
         <div>
-          <label class="block text-xs font-semibold mb-1.5" style="color:rgba(255,255,255,0.4);">STANDARD TASKS FOR THIS CATEGORY</label>
-          <select id="add-task-template" class="wh-input">
-            <option value="">— Pick a standard task or write your own below —</option>
-          </select>
+          <label class="block text-xs font-semibold mb-2" style="color:rgba(255,255,255,0.4);">CATEGORY</label>
+          <div id="tmpl-cat-tabs" class="flex flex-wrap gap-1.5"></div>
+        </div>
+        <!-- Task chips -->
+        <div id="tmpl-chips-wrap">
+          <label class="block text-xs font-semibold mb-2" style="color:rgba(255,255,255,0.4);">STANDARD TASKS — tap one to fill below</label>
+          <div id="tmpl-chips" class="flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-1"></div>
         </div>
         <div>
           <label class="block text-xs font-semibold mb-1.5" style="color:rgba(255,255,255,0.4);">TASK DESCRIPTION</label>
@@ -1796,33 +1800,84 @@ function toggleAddTaskForm() {
   if (isHidden) populateTemplateOptions();
 }
 
+let _tmplActiveCat = '';
+
 function populateTemplateOptions() {
-  const templates     = PM_TEMPLATES[currentAsset.category] || [];
+  _tmplActiveCat = currentAsset.category || Object.keys(PM_TEMPLATES)[0];
+  renderCatTabs();
+  renderTaskChips();
+}
+
+function renderCatTabs() {
+  const tabsEl = document.getElementById('tmpl-cat-tabs');
+  const cats   = Object.keys(PM_TEMPLATES);
+  tabsEl.innerHTML = cats.map(cat => {
+    const isActive = cat === _tmplActiveCat;
+    const style = isActive
+      ? 'background:rgba(247,162,27,0.18);color:#F7A21B;border-color:rgba(247,162,27,0.5);'
+      : 'background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.45);border-color:rgba(255,255,255,0.1);';
+    return `<button type="button" onclick="selectTmplCat('${escHtml(cat)}')"
+      class="px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors"
+      style="${style}">${escHtml(cat)}</button>`;
+  }).join('');
+}
+
+function selectTmplCat(cat) {
+  _tmplActiveCat = cat;
+  renderCatTabs();
+  renderTaskChips();
+}
+
+function renderTaskChips() {
   const existingTexts = scopeItems
     .filter(i => i.asset_id === currentAsset.id)
     .map(i => (i.item_text || '').toLowerCase());
 
-  const unused = templates.filter(t => !existingTexts.includes(t.text.toLowerCase()));
-  const sel    = document.getElementById('add-task-template');
-  sel.innerHTML = '<option value="">— Pick a standard task or write your own below —</option>' +
-    unused.map(t => `<option value="${escHtml(t.text)}" data-freq="${t.freq}">${escHtml(t.text)}</option>`).join('');
+  const templates = (PM_TEMPLATES[_tmplActiveCat] || [])
+    .filter(t => !existingTexts.includes(t.text.toLowerCase()));
 
-  sel.onchange = function() {
-    const opt = this.options[this.selectedIndex];
-    if (opt.value) {
-      document.getElementById('add-task-text').value = opt.value;
-      if (opt.dataset.freq) document.getElementById('add-task-freq').value = opt.dataset.freq;
-    }
-  };
+  const chipsEl = document.getElementById('tmpl-chips');
+  const wrap    = document.getElementById('tmpl-chips-wrap');
+
+  if (!templates.length) {
+    chipsEl.innerHTML = '<p class="text-xs text-white/25 py-2">All standard tasks for this category already added.</p>';
+    return;
+  }
+
+  const freqColor = { Monthly: '#29B6D9', Quarterly: '#a78bfa', 'Semi-Annual': '#fb923c', Yearly: '#4ade80' };
+  const currentText = document.getElementById('add-task-text').value.trim();
+
+  chipsEl.innerHTML = templates.map(t => {
+    const isSelected = currentText === t.text;
+    const fc = freqColor[t.freq] || '#ffffff';
+    const bg = isSelected ? 'rgba(247,162,27,0.15)' : 'rgba(255,255,255,0.04)';
+    const border = isSelected ? 'rgba(247,162,27,0.5)' : 'rgba(255,255,255,0.08)';
+    return `<button type="button"
+      onclick="pickTaskChip('${escHtml(t.text).replace(/'/g,"&#39;")}','${t.freq}')"
+      class="flex items-center justify-between gap-3 w-full text-left px-3 py-2 rounded-lg border text-sm transition-colors"
+      style="background:${bg};border-color:${border};">
+      <span class="leading-snug">${escHtml(t.text)}</span>
+      <span class="text-[0.65rem] font-semibold flex-shrink-0 px-1.5 py-0.5 rounded" style="background:rgba(255,255,255,0.06);color:${fc};">${t.freq}</span>
+    </button>`;
+  }).join('');
+}
+
+function pickTaskChip(text, freq) {
+  document.getElementById('add-task-text').value  = text;
+  document.getElementById('add-task-freq').value  = freq;
+  renderTaskChips(); // refresh to highlight selected
 }
 
 async function saveNewTask() {
-  const text     = document.getElementById('add-task-text').value.trim();
-  const freq     = document.getElementById('add-task-freq').value;
-  const tmplVal  = document.getElementById('add-task-template').value;
-  const isCustom = !tmplVal || tmplVal !== text;
+  const text = document.getElementById('add-task-text').value.trim();
+  const freq = document.getElementById('add-task-freq').value;
 
   if (!text) { showToast('Please enter a task description.'); return; }
+
+  const existingTexts = scopeItems
+    .filter(i => i.asset_id === currentAsset.id)
+    .map(i => (i.item_text || '').toLowerCase());
+  const isCustom = !(PM_TEMPLATES[_tmplActiveCat] || []).some(t => t.text.toLowerCase() === text.toLowerCase());
 
   const { data, error } = await db.from('pm_scope_items').insert({
     asset_id:    currentAsset.id,
@@ -1836,8 +1891,7 @@ async function saveNewTask() {
   if (error) { showToast('Failed to add task: ' + error.message); return; }
 
   scopeItems.push(data);
-  document.getElementById('add-task-text').value     = '';
-  document.getElementById('add-task-template').value = '';
+  document.getElementById('add-task-text').value = '';
   document.getElementById('add-task-form').classList.add('hidden');
   document.getElementById('add-task-chevron').style.transform = '';
   showToast('Task added.');
