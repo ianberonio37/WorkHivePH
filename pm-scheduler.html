@@ -1374,7 +1374,12 @@ async function submitCompletion() {
 
   // 2. Optionally save logbook entry
   if (logAlso) {
-    const logCat = PM_CAT_TO_LOG_CAT[currentAsset.category] || 'Mechanical';
+    // Resolve the task's actual PM category by scanning templates (task may be from a different category than the asset)
+    const taskText = (_sheetScopeItem.item_text || '').toLowerCase();
+    const taskPMCat = Object.keys(PM_TEMPLATES).find(cat =>
+      PM_TEMPLATES[cat].some(t => t.text.toLowerCase() === taskText)
+    ) || currentAsset.category;
+    const logCat = PM_CAT_TO_LOG_CAT[taskPMCat] || PM_CAT_TO_LOG_CAT[currentAsset.category] || 'Mechanical';
     const logPayload = {
       date:             now,
       machine:          currentAsset.asset_name,
@@ -1384,6 +1389,7 @@ async function submitCompletion() {
       action:           action,
       knowledge:        findings || null,
       status:           'Closed',
+      closed_at:        now,
       hive_id:          HIVE_ID || null,
       worker_name:      WORKER_NAME,
       asset_ref_id:     null,
