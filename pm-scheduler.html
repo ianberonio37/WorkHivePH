@@ -676,7 +676,7 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // ─────────────────────────────────────
 // IDENTITY + HIVE
 // ─────────────────────────────────────
-let WORKER_NAME = localStorage.getItem('wh_last_worker') || '';
+let WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
 let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
 let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
 let HIVE_NAME   = localStorage.getItem('wh_hive_name') || '';
@@ -1832,5 +1832,6 @@ init();
   create policy "anon insert pm_completions" on pm_completions for insert with check (true);
   ═══════════════════════════════════════════════════
 -->
+<script src="nav-hub.js"></script>
 </body>
 </html>

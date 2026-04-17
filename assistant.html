@@ -478,13 +478,16 @@ STAGE 1 — Core Worker Tools:
 - My Work Assistant (assistant.html): This page. Ask technical questions, get insights from your own job records, or just talk through a problem.
 
 STAGE 2 — Team Tools:
-- WorkHive Live Board (hive.html): Join or create a team hive. Supervisors manage membership (workers can be removed/kicked and blocked from rejoining). Live activity feed shows team logbook entries in real time. Supervisors can approve/reject parts and asset submissions from workers.
+- WorkHive Live Board (hive.html): Join or create a team hive. Supervisors manage membership (workers can be removed/kicked and blocked from rejoining). Live activity feed shows team logbook entries and PM completions in real time. PM Health panel shows overdue/due-soon asset counts. Supervisors can approve/reject parts and asset submissions from workers.
 - Inventory Manager (inventory.html): Parts and consumables stock ledger. Workers can use stock and restock. In hive mode, only supervisors can edit or remove inventory items. New parts submitted by workers require supervisor approval before appearing in the shared catalog. Full transaction history per part.
+- PM Scheduler (pm-scheduler.html): Plant Maintenance scheduling tool. Register assets, assign PM scope checklists by category (Rotating Equipment, Electrical, HVAC, etc.), set frequencies (Monthly, Quarterly, Semi-Annual, Yearly), and track due dates. When marking a PM task done, a bottom sheet captures findings and action taken — it optionally creates a linked logbook entry. PM completions sync to the WorkHive Live Board in real time. When logging a Preventive Maintenance entry in the Logbook, overdue and due-soon PM tasks for the selected asset appear automatically so both records update in one action. Assets can be picked directly from the Logbook's registered asset list.
+- Skill Matrix (skillmatrix.html): Competency tracking for maintenance disciplines (Mechanical, Electrical, Instrumentation, HVAC, Civil/Structural). Workers progress through 5 levels (Awareness → Master) per discipline by passing exams. Earn badges per level. Radar chart shows overall competency profile. Hive supervisors can see team skill coverage.
 
 IMPORTANT PLATFORM NOTES:
 - The Parts Used Tracker (parts-tracker.html) has been retired. Parts used are now logged directly inside Logbook entries (when status = Closed, a "Parts Used" section appears).
 - Hive membership is enforced: a kicked worker cannot rejoin using the invite code. They must be re-added by a supervisor.
 - Supervisor roles are preserved across sign-out/sign-in cycles and device switches.
+- PM Scheduler and Logbook are bidirectionally linked: completing a PM task can create a logbook entry, and saving a logbook PM entry can update PM completion records simultaneously.
 --- END PLATFORM CONTEXT ---
 
 This person may be a field technician, supervisor, engineer, planner, or plant manager. Adapt your tone and depth to whoever they are. If their context note or records suggest their role, use that to calibrate. When in doubt, be clear and practical for any level.
