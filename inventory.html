@@ -262,6 +262,12 @@
     <!-- Parts list -->
     <div id="parts-list"></div>
 
+    <!-- Load More -->
+    <div id="inv-load-more-wrap" class="hidden mt-1 pb-4">
+      <button onclick="loadMoreInventory()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">Load More</button>
+      <p id="inv-count-label" class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.3);"></p>
+    </div>
+
     <!-- Empty state -->
     <div id="empty-state" class="text-center py-20 empty-state">
       <svg class="w-12 h-12 mx-auto mb-4 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -477,6 +483,9 @@ const INV_KEY    = 'wh_inventory_'  + WORKER_NAME;
 const TXN_KEY    = 'wh_inv_txns_'   + WORKER_NAME;
 const ASSETS_KEY = 'wh_assets_'     + WORKER_NAME;
 
+let _invDisplayCount = 30;
+function loadMoreInventory() { _invDisplayCount += 30; renderParts(); }
+
 // ────────────────────────────────────────────
 // IN-MEMORY CACHE (populated from Supabase on init)
 // ────────────────────────────────────────────
@@ -636,12 +645,19 @@ function renderParts() {
   if (filtered.length === 0) {
     list.innerHTML = '';
     noRes.classList.remove('hidden');
+    document.getElementById('inv-load-more-wrap').classList.add('hidden');
     return;
   }
   noRes.classList.add('hidden');
 
+  const visible = filtered.slice(0, _invDisplayCount);
+  const wrap = document.getElementById('inv-load-more-wrap');
+  const lbl  = document.getElementById('inv-count-label');
+  wrap.classList.toggle('hidden', _invDisplayCount >= filtered.length);
+  lbl.textContent = `Showing ${visible.length} of ${filtered.length} parts`;
+
   const q = query;
-  list.innerHTML = filtered.map(item => {
+  list.innerHTML = visible.map(item => {
     const st      = stockStatus(item);
     const sc      = STATUS_COLORS[st];
     const linked  = (item.linked_asset_ids || []).slice(0, 3);
@@ -1139,9 +1155,9 @@ document.getElementById('restock-modal').addEventListener('click', e => { if (e.
 document.getElementById('detail-modal-close').addEventListener('click', closeDetailModal);
 document.getElementById('detail-modal').addEventListener('click', e => { if (e.target === document.getElementById('detail-modal')) closeDetailModal(); });
 
-document.getElementById('search-input').addEventListener('input',    debounce(renderParts, 300));
-document.getElementById('filter-category').addEventListener('change', renderParts);
-document.getElementById('filter-status').addEventListener('change',   renderParts);
+document.getElementById('search-input').addEventListener('input',    debounce(() => { _invDisplayCount = 30; renderParts(); }, 300));
+document.getElementById('filter-category').addEventListener('change', () => { _invDisplayCount = 30; renderParts(); });
+document.getElementById('filter-status').addEventListener('change',   () => { _invDisplayCount = 30; renderParts(); });
 
 // ────────────────────────────────────────────
 // DATA INIT — migrate from localStorage then load from Supabase

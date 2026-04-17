@@ -335,6 +335,12 @@
     <!-- Asset list -->
     <div id="asset-list" class="flex flex-col gap-3"></div>
 
+    <!-- Load More -->
+    <div id="pm-load-more-wrap" class="hidden mt-1 pb-4">
+      <button onclick="loadMorePM()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">Load More</button>
+      <p id="pm-count-label" class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.3);"></p>
+    </div>
+
     <!-- Empty state -->
     <div id="dash-empty" class="hidden wh-card p-10 text-center mt-4">
       <div class="text-4xl mb-3">🏭</div>
@@ -877,6 +883,8 @@ let completions      = [];
 let registeredAssets = []; // from the shared 'assets' table (logbook)
 let currentAsset     = null;
 let currentScreen    = 'dashboard';
+let _pmDisplayCount  = 10;
+function loadMorePM() { _pmDisplayCount += 10; renderDashboard(); }
 
 // Wizard state
 let wizardItems   = []; // [{text, freq, isCustom}]
@@ -963,11 +971,12 @@ async function init() {
     if (!chip) return;
     document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
+    _pmDisplayCount = 10;
     renderDashboard();
   });
 
   // Category filter
-  document.getElementById('cat-filter').addEventListener('change', renderDashboard);
+  document.getElementById('cat-filter').addEventListener('change', () => { _pmDisplayCount = 10; renderDashboard(); });
 
   // Subscribe to realtime PM completions (for cross-device sync)
   if (HIVE_ID) subscribeRealtime();
@@ -1079,11 +1088,18 @@ function renderDashboard() {
   if (!filtered.length) {
     empty.classList.remove('hidden');
     list.innerHTML = '';
+    document.getElementById('pm-load-more-wrap').classList.add('hidden');
     return;
   }
   empty.classList.add('hidden');
 
-  list.innerHTML = filtered.map(asset => {
+  const visible = filtered.slice(0, _pmDisplayCount);
+  const pmWrap = document.getElementById('pm-load-more-wrap');
+  const pmLbl  = document.getElementById('pm-count-label');
+  pmWrap.classList.toggle('hidden', _pmDisplayCount >= filtered.length);
+  pmLbl.textContent = `Showing ${visible.length} of ${filtered.length} assets`;
+
+  list.innerHTML = visible.map(asset => {
     const totalItems    = asset.enrichedItems.length;
     const overdueItems  = asset.enrichedItems.filter(i => i.itemStatus === 'overdue').length;
     const nextDueItem   = asset.enrichedItems

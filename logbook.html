@@ -623,6 +623,12 @@
           <!-- JS renders here -->
         </div>
 
+        <!-- Load More -->
+        <div id="logbook-load-more-wrap" class="hidden mt-1 pb-4">
+          <button onclick="loadMoreLogbook()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">Load More</button>
+          <p id="logbook-count-label" class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.3);"></p>
+        </div>
+
         <!-- Empty state -->
         <div id="empty-state" class="text-center py-20 empty-state">
           <svg class="w-12 h-12 mx-auto mb-4 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -928,7 +934,16 @@ function setViewMode(mode) {
   const inactiveStyle = 'background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.08);';
   mine.style.cssText = mode === 'mine' ? activeStyle : inactiveStyle;
   team.style.cssText = mode === 'team' ? activeStyle : inactiveStyle;
+  _logbookDisplayCount = 20;
   renderEntries();
+}
+
+let _allEntries = [];
+let _logbookDisplayCount = 20;
+
+function loadMoreLogbook() {
+  _logbookDisplayCount += 20;
+  renderEntries(false);
 }
 
 async function loadEntries() {
@@ -944,7 +959,7 @@ async function loadEntries() {
 
   const { data, error } = await query;
   if (error) { console.error(error); return []; }
-  return data.map(r => ({
+  _allEntries = data.map(r => ({
     id: r.id, date: r.date, machine: r.machine, category: r.category,
     maintenance_type: r.maintenance_type, root_cause: r.root_cause,
     problem: r.problem, action: r.action, knowledge: r.knowledge,
@@ -955,8 +970,9 @@ async function loadEntries() {
     created_at: r.created_at || null,
     tasklist_acknowledged: r.tasklist_acknowledged || false,
     tasklist_note: r.tasklist_note || null,
-    worker_name: r.worker_name   // needed for team view attribution
+    worker_name: r.worker_name
   }));
+  return _allEntries;
 }
 
 async function addEntry(entry) {
@@ -1559,8 +1575,9 @@ function formatDate(iso) {
     + ' · ' + d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
 }
 
-async function renderEntries() {
-  const entries = await loadEntries();
+async function renderEntries(reload = true) {
+  if (reload || !_allEntries.length) await loadEntries();
+  const entries = _allEntries;
 
   const query = document.getElementById('search-input').value.trim().toLowerCase();
   const catFilter = document.getElementById('filter-category').value;
@@ -1605,7 +1622,13 @@ async function renderEntries() {
 
   noResults.classList.add('hidden');
 
-  list.innerHTML = filtered.map(e => {
+  const visible = filtered.slice(0, _logbookDisplayCount);
+  const wrap = document.getElementById('logbook-load-more-wrap');
+  const lbl  = document.getElementById('logbook-count-label');
+  wrap.classList.toggle('hidden', _logbookDisplayCount >= filtered.length);
+  lbl.textContent = `Showing ${visible.length} of ${filtered.length} entries`;
+
+  list.innerHTML = visible.map(e => {
     const q = query;
     const machine = highlight(e.machine, q);
     const problem = highlight(e.problem, q);
@@ -2316,9 +2339,9 @@ function stopVoiceUI() {
 // ────────────────────────────────────────────
 // SEARCH + FILTER
 // ────────────────────────────────────────────
-document.getElementById('search-input').addEventListener('input', debounce(renderEntries, 300));
-document.getElementById('filter-category').addEventListener('change', renderEntries);
-document.getElementById('filter-status').addEventListener('change', renderEntries);
+document.getElementById('search-input').addEventListener('input', debounce(() => { _logbookDisplayCount = 20; renderEntries(false); }, 300));
+document.getElementById('filter-category').addEventListener('change', () => { _logbookDisplayCount = 20; renderEntries(false); });
+document.getElementById('filter-status').addEventListener('change', () => { _logbookDisplayCount = 20; renderEntries(false); });
 
 // ────────────────────────────────────────────
 // CSV EXPORT
