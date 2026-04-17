@@ -1182,7 +1182,7 @@ function renderDetail(asset) {
             return `
               <div class="detail-scope-row">
                 <div class="flex items-start justify-between gap-3 mb-2">
-                  <p class="text-sm font-medium leading-snug flex-1">${escHtml(item.text)}</p>
+                  <p class="text-sm font-medium leading-snug flex-1">${escHtml(item.item_text)}</p>
                   ${statusBadge(item.itemStatus)}
                 </div>
                 <div class="flex items-center justify-between">
@@ -1221,7 +1221,7 @@ function renderDetail(asset) {
     histEmpty.classList.add('hidden');
     histEl.innerHTML = assetComps.map(c => {
       const item    = scopeItems.find(i => i.id === c.scope_item_id);
-      const itemTxt = item ? item.text : 'Unknown task';
+      const itemTxt = item ? item.item_text : 'Unknown task';
       const statusCls = c.status === 'done' ? 'text-green-400' : 'text-yellow-400';
       return `
         <div class="history-row">
@@ -1554,7 +1554,7 @@ function renderScopeList() {
       <div class="scope-row ${included ? 'included' : ''}" id="scope-row-${idx}">
         <div class="scope-check" onclick="toggleScopeItem(${idx})"></div>
         <div class="flex-1 min-w-0">
-          <p class="text-sm leading-snug ${included ? 'text-white' : 'text-white/40'}">${escHtml(item.text)}</p>
+          <p class="text-sm leading-snug ${included ? 'text-white' : 'text-white/40'}">${escHtml(item.item_text)}</p>
           <div class="flex items-center gap-2 mt-1.5">
             ${item.isCustom ? '<span class="text-xs text-orange-400 font-semibold">Custom</span>' : ''}
             <select class="text-xs font-semibold rounded-lg px-2 py-1 border outline-none transition-colors"
@@ -1645,7 +1645,7 @@ function renderReview() {
   document.getElementById('rev-scope').innerHTML = included.map(item => `
     <div class="flex items-center gap-2">
       ${freqBadge(item.freq)}
-      <span class="text-sm text-white/70 leading-snug">${escHtml(item.text)}</span>
+      <span class="text-sm text-white/70 leading-snug">${escHtml(item.item_text)}</span>
     </div>
   `).join('');
 }
@@ -1690,7 +1690,7 @@ async function saveAsset() {
   const scopePayload = items.map(item => ({
     asset_id:    asset.id,
     hive_id:     HIVE_ID || null,
-    item_text:   item.text,
+    item_text:   item.item_text,
     frequency:   item.freq,
     anchor_date: anchor || null,
     is_custom:   item.isCustom || false,
@@ -1715,10 +1715,10 @@ async function saveAsset() {
 // ─────────────────────────────────────
 // DELETE ASSET
 // ─────────────────────────────────────
-function confirmDeleteAsset() {
+async function confirmDeleteAsset() {
   if (!currentAsset) return;
   if (!confirm(`Delete "${currentAsset.asset_name}" and all its PM data? This cannot be undone.`)) return;
-  deleteAsset();
+  await deleteAsset();
 }
 
 async function deleteAsset() {

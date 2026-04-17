@@ -755,7 +755,7 @@ function startChecklist() {
   }
   err.classList.add('hidden');
 
-  state.workerName = localStorage.getItem('wh_last_worker') || 'Unknown';
+  state.workerName = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || 'Unknown';
   state.machineName = machineName;
   state.jobType = selectedJobType;
   state.category = selectedCategory;
@@ -980,7 +980,7 @@ async function saveRecord(record) {
 }
 
 async function getRecords() {
-  const workerName = localStorage.getItem('wh_last_worker') || '';
+  const workerName = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
   if (!workerName) return [];
   const { data, error } = await db
     .from('checklist_records')
@@ -1065,7 +1065,7 @@ function formatDate(d) {
       'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ' // anon/publishable key — safe to expose in frontend
     );
     var HIVE_ID = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
-    var WORKER_NAME_CL = localStorage.getItem('wh_last_worker') || '';
+    var WORKER_NAME_CL = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
 
     async function validateHiveMembership() {
       if (!HIVE_ID || !WORKER_NAME_CL) return;

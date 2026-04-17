@@ -918,13 +918,13 @@ function selectAnswer(idx) {
   localStorage.setItem(draftKey, JSON.stringify({ answers: _examAnswers, currentQ: _currentQuestion }));
 }
 
-document.getElementById('exam-next-btn').addEventListener('click', () => {
+document.getElementById('exam-next-btn').addEventListener('click', async () => {
   const total = _examQuestions.length;
   const isLast = _currentQuestion === total - 1;
   const allAnswered = _examAnswers.every(a => a !== null);
 
   if (isLast && allAnswered) {
-    submitExam();
+    await submitExam();
   } else if (!isLast) {
     _currentQuestion++;
     renderExamQuestion();

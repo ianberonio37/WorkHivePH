@@ -699,7 +699,7 @@ const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'; // anon k
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ── IDENTITY ──
-const WORKER_NAME = localStorage.getItem('wh_last_worker') || '';
+const WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
 if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; }
 
 // ── MULTI-HIVE STATE ──

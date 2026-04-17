@@ -848,7 +848,7 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // ────────────────────────────────────────────
 // WORKER NAME (guest identity)
 // ────────────────────────────────────────────
-let WORKER_NAME = localStorage.getItem('wh_last_worker') || '';
+let WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
 let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
 let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
 
@@ -2132,7 +2132,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     const item = _inventoryItems.find(i => i.id === p.partId);
     const newQty = Math.max(0, (item?.qty_on_hand || 0) - p.qty);
     db.from('inventory_items').update({ qty_on_hand: newQty }).eq('id', p.partId)
-      .then(({ error }) => { if (error) console.error('parts deduct:', error.message); });
+      .then(({ error }) => { if (error) { console.error('parts deduct:', error.message); showToast('Stock update failed: ' + error.message); } });
     db.from('inventory_transactions').insert({
       item_id: p.partId, worker_name: WORKER_NAME,
       qty_change: -p.qty, type: 'use',
