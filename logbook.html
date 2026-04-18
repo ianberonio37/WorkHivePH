@@ -468,7 +468,7 @@
             <!-- Photo attach -->
             <div>
               <label class="wh-label">Attach Photo (optional)</label>
-              <input id="f-photo" type="file" accept="image/*" capture="environment" class="hidden" />
+              <input id="f-photo" type="file" accept="image/*" class="hidden" />
 
               <!-- Empty state: tap to attach -->
               <label id="photo-dropzone" for="f-photo"
@@ -481,7 +481,7 @@
               </label>
 
               <!-- Filled state: thumbnail with X and tap-to-replace -->
-              <div id="photo-preview" class="hidden mt-2" style="position: relative; display: inline-block;">
+              <div id="photo-preview" class="hidden mt-2" style="position: relative;">
                 <img id="photo-thumb" class="photo-thumb cursor-pointer" title="Tap to replace photo" />
                 <button type="button" id="photo-remove-btn"
                   style="position: absolute; top: -6px; right: -6px; width: 20px; height: 20px;
@@ -2271,7 +2271,6 @@ function clearForm() {
   document.getElementById('log-form').reset();
   const preview = document.getElementById('photo-preview');
   preview.classList.add('hidden');
-  preview.style.display = 'none';
   document.getElementById('photo-dropzone').classList.remove('hidden');
   currentPhotoData    = null;
   _pendingAssetRefId  = null;
@@ -2325,7 +2324,6 @@ document.getElementById('f-photo').addEventListener('change', function() {
       document.getElementById('photo-dropzone').classList.add('hidden');
       const preview = document.getElementById('photo-preview');
       preview.classList.remove('hidden');
-      preview.style.display = 'inline-block';
     };
     img.src = ev.target.result;
   };
@@ -2343,7 +2341,6 @@ document.getElementById('photo-remove-btn').addEventListener('click', function(e
   e.stopPropagation();
   currentPhotoData = null;
   document.getElementById('f-photo').value = '';
-  document.getElementById('photo-preview').style.display = 'none';
   document.getElementById('photo-preview').classList.add('hidden');
   document.getElementById('photo-dropzone').classList.remove('hidden');
 });
