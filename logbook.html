@@ -1866,6 +1866,25 @@ async function openEditModal(id) {
           Add Part Used
         </button>
       </div>
+      <div id="e-tasklist-section" class="${status === 'Closed' && getTasklist(entry.maintenance_type, entry.category) ? '' : 'hidden'}">
+        <div class="rounded-xl p-3" style="background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.18);">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-[11px] font-bold uppercase tracking-widest" style="color:#29B6D9;">Work Tasklist</p>
+            <button type="button" id="e-btn-view-tasklist" class="text-[11px] font-semibold flex items-center gap-1" style="color:#29B6D9;background:none;border:none;cursor:pointer;min-height:44px;padding:0.25rem 0;">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              View Tasklist
+            </button>
+          </div>
+          <label id="e-tasklist-ack-label" class="flex items-center gap-3 cursor-pointer" style="min-height:44px;">
+            <input type="checkbox" id="e-tasklist-ack-check" class="hidden" ${entry.tasklist_acknowledged ? 'checked' : ''} />
+            <div id="e-tasklist-ack-box" class="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-all" style="background:${entry.tasklist_acknowledged ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.06)'};border:2px solid ${entry.tasklist_acknowledged ? '#4ade80' : 'rgba(255,255,255,0.2)'};">
+              <svg id="e-tasklist-ack-tick" class="w-3.5 h-3.5 ${entry.tasklist_acknowledged ? '' : 'hidden'}" fill="none" viewBox="0 0 24 24" stroke="#4ade80" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <span class="text-sm text-white/70">I have read the work tasklist for this job</span>
+          </label>
+          <p id="e-tasklist-ack-error" class="hidden text-[11px] mt-1.5" style="color:#f87171;">Please acknowledge you have read the work tasklist before closing.</p>
+        </div>
+      </div>
       <div class="flex gap-2 pt-2">
         <button onclick="saveEdit('${entry.id}')" class="btn-primary flex-1">Save Changes</button>
         <button onclick="openModal('${entry.id}')" class="btn-secondary px-4">Cancel</button>
@@ -1874,11 +1893,58 @@ async function openEditModal(id) {
   `;
   updateStatusToggle('e-status');
   renderEditParts();
-  // Show/hide parts section when status changes
+
+  // Tasklist ack checkbox toggle in edit modal
+  const eAckLabel = document.getElementById('e-tasklist-ack-label');
+  if (eAckLabel) {
+    eAckLabel.addEventListener('click', () => {
+      const check = document.getElementById('e-tasklist-ack-check');
+      const box   = document.getElementById('e-tasklist-ack-box');
+      const tick  = document.getElementById('e-tasklist-ack-tick');
+      const err   = document.getElementById('e-tasklist-ack-error');
+      check.checked = !check.checked;
+      box.style.background  = check.checked ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.06)';
+      box.style.borderColor = check.checked ? '#4ade80' : 'rgba(255,255,255,0.2)';
+      tick.classList.toggle('hidden', !check.checked);
+      if (check.checked && err) err.classList.add('hidden');
+    });
+  }
+
+  // View Tasklist button in edit modal
+  const eBtnView = document.getElementById('e-btn-view-tasklist');
+  if (eBtnView) {
+    eBtnView.addEventListener('click', () => {
+      const maintType = document.getElementById('e-maint-type').value;
+      const category  = document.getElementById('e-category').value;
+      const tasks     = getTasklist(maintType, category);
+      if (!tasks) return;
+      const key = TASKLIST_TYPE_MAP[maintType];
+      document.getElementById('tasklist-modal-subtitle').textContent = `${key} — ${category}`;
+      document.getElementById('tasklist-modal-items').innerHTML = tasks.map((t, i) =>
+        `<div class="flex items-start gap-3 rounded-xl px-3 py-2.5" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+          <span class="text-[11px] font-black flex-shrink-0 mt-0.5" style="color:rgba(255,255,255,0.25);">${String(i + 1).padStart(2, '0')}</span>
+          <span class="text-sm text-white/80 leading-snug">${escHtml(t)}</span>
+        </div>`
+      ).join('');
+      document.getElementById('tasklist-modal-note').value = _tasklistNote;
+      // When Done is clicked from edit-modal context, tick the edit checkbox
+      _tasklistDoneTarget = 'edit';
+      document.getElementById('tasklist-modal').style.display = 'flex';
+    });
+  }
+
+  // Show/hide parts section and tasklist section when status changes
   document.querySelectorAll('input[name="e-status"]').forEach(r => {
     r.addEventListener('change', () => {
-      const closed = r.value === 'Closed' && r.checked;
+      const closed    = r.value === 'Closed' && r.checked;
+      const maintType = document.getElementById('e-maint-type').value;
+      const category  = document.getElementById('e-category').value;
       document.getElementById('e-parts-section').classList.toggle('hidden', !closed);
+      const eTaskSect = document.getElementById('e-tasklist-section');
+      if (eTaskSect) {
+        const hasTasks = closed && !!getTasklist(maintType, category);
+        eTaskSect.classList.toggle('hidden', !hasTasks);
+      }
       if (closed && _inventoryItems.length === 0) loadInventoryForPicker();
     });
   });
@@ -1914,9 +1980,10 @@ async function saveEdit(id) {
     hive_id:         HIVE_ID,
     parts_used:             _editPartsUsed.map(p => ({ partId: p.partId, partName: p.partName, partNumber: p.partNumber, qty: p.qty, unit: p.unit })),
     closed_at:              closedAt,
-    tasklist_acknowledged:  existing?.tasklist_acknowledged || false,
-    tasklist_note:          existing?.tasklist_note || null,
+    tasklist_acknowledged:  document.getElementById('e-tasklist-ack-check')?.checked ?? existing?.tasklist_acknowledged ?? false,
+    tasklist_note:          _tasklistNote || existing?.tasklist_note || null,
   };
+  _tasklistNote = ''; // clear so it doesn't bleed into the next edit session
   const { error } = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME);
   if (error) { alert('Could not update entry: ' + error.message); return; }
   // Deduct any newly added parts from inventory
@@ -2521,19 +2588,23 @@ document.getElementById('btn-view-tasklist').addEventListener('click', () => {
   document.getElementById('tasklist-modal').style.display = 'flex';
 });
 
-// Done button — auto-tick and save note
+// Done button — auto-tick and save note (works for both add form and edit modal)
+let _tasklistDoneTarget = 'add'; // 'add' | 'edit'
 document.getElementById('tasklist-modal-done').addEventListener('click', () => {
-  const check = document.getElementById('tasklist-ack-check');
-  const box   = document.getElementById('tasklist-ack-box');
-  const tick  = document.getElementById('tasklist-ack-tick');
-  const err   = document.getElementById('tasklist-ack-error');
-  // Store note on the checkbox element for retrieval on save
   _tasklistNote = document.getElementById('tasklist-modal-note').value.trim();
-  check.checked = true;
-  box.style.background  = 'rgba(74,222,128,0.15)';
-  box.style.borderColor = '#4ade80';
-  tick.classList.remove('hidden');
-  err.classList.add('hidden');
+  const prefix = _tasklistDoneTarget === 'edit' ? 'e-' : '';
+  const check = document.getElementById(`${prefix}tasklist-ack-check`);
+  const box   = document.getElementById(`${prefix}tasklist-ack-box`);
+  const tick  = document.getElementById(`${prefix}tasklist-ack-tick`);
+  const err   = document.getElementById(`${prefix}tasklist-ack-error`);
+  if (check) {
+    check.checked = true;
+    box.style.background  = 'rgba(74,222,128,0.15)';
+    box.style.borderColor = '#4ade80';
+    tick.classList.remove('hidden');
+    if (err) err.classList.add('hidden');
+  }
+  _tasklistDoneTarget = 'add'; // reset
   document.getElementById('tasklist-modal').style.display = 'none';
 });
 
