@@ -527,206 +527,50 @@
               <h3 class="font-black text-white text-lg leading-snug">Tools built for <span style="background: linear-gradient(135deg,#F7A21B,#FDB94A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">your job</span></h3>
             </div>
 
-            <!-- Honeycomb 3D Stage Grid -->
-            <div style="padding:18px 10px 4px; position:relative;">
+            <!-- Stage Cards Grid -->
+            <div style="padding: 16px 16px 8px;">
               <style>
-                @keyframes hc3-pulse { 0%,100%{opacity:.72} 50%{opacity:1} }
-                .hc3-elite { animation: hc3-pulse 2.8s ease-in-out infinite; will-change: opacity; }
-                .hc3-cell  { cursor:pointer; transition: filter .18s; }
-                .hc3-cell:hover  { filter: brightness(1.18); }
-                .hc3-cell:active { filter: brightness(.88); }
+                @keyframes hc3-pulse { 0%,100%{opacity:.8; box-shadow:0 0 16px rgba(247,162,27,0.12)} 50%{opacity:1; box-shadow:0 0 28px rgba(247,162,27,0.22)} }
+                .hc3-elite { animation: hc3-pulse 2.8s ease-in-out infinite; }
+                .stage-card { cursor:pointer; transition: transform .18s, box-shadow .18s; }
+                .stage-card:hover  { transform: translateY(-2px); }
+                .stage-card:active { transform: scale(0.97); opacity: 0.85; }
               </style>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
 
-              <!--
-                Pointy-top hexagons, r=58, extrusion d=(+3,+8) = depth down-right.
-                Centers: C1(80,80) C2(180.4,80) C3(130.2,167) C4(230.6,167)
-                Top-face vertices (cx±50.2, cy±29/58):
-                  C1: 130.2,109 | 80,138 | 29.8,109 | 29.8,51 | 80,22 | 130.2,51
-                  C2: 230.6,109 | 180.4,138 | 130.2,109 | 130.2,51 | 180.4,22 | 230.6,51
-                  C3: 180.4,196 | 130.2,225 | 80,196 | 80,138 | 130.2,109 | 180.4,138
-                  C4: 280.8,196 | 230.6,225 | 180.4,196 | 180.4,138 | 230.6,109 | 280.8,138
-                3D side panels: bottom 2 edges of each hex extruded by (+3,+8)
-              -->
-              <svg width="100%" viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <!-- ── TOP FACE GRADIENTS ── -->
-                  <!-- C1: Steel blue — grounded, solid -->
-                  <linearGradient id="hc3t1" x1="30%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%"   stop-color="#4A9FD4" stop-opacity=".75"/>
-                    <stop offset="100%" stop-color="#081524" stop-opacity="1"/>
-                  </linearGradient>
-                  <!-- C2: Teal — advancing -->
-                  <linearGradient id="hc3t2" x1="30%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%"   stop-color="#00C4B4" stop-opacity=".72"/>
-                    <stop offset="100%" stop-color="#051612" stop-opacity="1"/>
-                  </linearGradient>
-                  <!-- C3: Violet — AI power -->
-                  <linearGradient id="hc3t3" x1="30%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%"   stop-color="#9B59E8" stop-opacity=".72"/>
-                    <stop offset="100%" stop-color="#0C071E" stop-opacity="1"/>
-                  </linearGradient>
-                  <!-- C4: Gold — elite, transcendent -->
-                  <linearGradient id="hc3t4" x1="20%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%"   stop-color="#FFD166" stop-opacity=".9"/>
-                    <stop offset="45%"  stop-color="#F7A21B" stop-opacity=".7"/>
-                    <stop offset="100%" stop-color="#0A1020" stop-opacity="1"/>
-                  </linearGradient>
+                <!-- Card 1: Basic Worker -->
+                <div class="stage-card" onclick="openStagePopup(1)" style="border-radius:14px; border:1px solid rgba(74,159,212,0.2); border-top:3px solid #4A9FD4; background:linear-gradient(150deg,rgba(74,159,212,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
+                  <p style="font-size:9px;font-weight:900;color:#5BB8F5;letter-spacing:0.14em;margin:0 0 7px;">01</p>
+                  <p style="font-size:14px;font-weight:800;color:#E8F4FF;line-height:1.2;margin:0 0 6px;">Basic<br>Worker</p>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.38);line-height:1.45;margin:0 0 10px;">Log jobs &amp; track downtime</p>
+                  <span style="font-size:9px;font-weight:800;color:#7DCFFF;background:rgba(74,159,212,0.18);border-radius:20px;padding:3px 9px;">Free</span>
+                </div>
 
-                  <!-- ── SIDE-WALL GRADIENTS (darker = depth) ── -->
-                  <linearGradient id="hc3s1r" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%"   stop-color="#1B4A72" stop-opacity="1"/>
-                    <stop offset="100%" stop-color="#0A2440" stop-opacity="1"/>
-                  </linearGradient>
-                  <linearGradient id="hc3s1l" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%"   stop-color="#0E2E4E" stop-opacity="1"/>
-                    <stop offset="100%" stop-color="#060F1E" stop-opacity="1"/>
-                  </linearGradient>
-                  <linearGradient id="hc3s2r" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%"   stop-color="#00615A" stop-opacity="1"/>
-                    <stop offset="100%" stop-color="#003830" stop-opacity="1"/>
-                  </linearGradient>
-                  <linearGradient id="hc3s2l" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%"   stop-color="#003E38" stop-opacity="1"/>
-                    <stop offset="100%" stop-color="#001E1A" stop-opacity="1"/>
-                  </linearGradient>
-                  <linearGradient id="hc3s3r" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%"   stop-color="#4A1E90" stop-opacity="1"/>
-                    <stop offset="100%" stop-color="#250E50" stop-opacity="1"/>
-                  </linearGradient>
-                  <linearGradient id="hc3s3l" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%"   stop-color="#2E1260" stop-opacity="1"/>
-                    <stop offset="100%" stop-color="#140830" stop-opacity="1"/>
-                  </linearGradient>
-                  <linearGradient id="hc3s4r" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%"   stop-color="#C07800" stop-opacity="1"/>
-                    <stop offset="100%" stop-color="#7A4C00" stop-opacity="1"/>
-                  </linearGradient>
-                  <linearGradient id="hc3s4l" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%"   stop-color="#7A4C00" stop-opacity="1"/>
-                    <stop offset="100%" stop-color="#3E2400" stop-opacity="1"/>
-                  </linearGradient>
-                </defs>
+                <!-- Card 2: Advanced Worker -->
+                <div class="stage-card" onclick="openStagePopup(2)" style="border-radius:14px; border:1px solid rgba(0,196,180,0.2); border-top:3px solid #00C4B4; background:linear-gradient(150deg,rgba(0,196,180,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
+                  <p style="font-size:9px;font-weight:900;color:#4DEDE0;letter-spacing:0.14em;margin:0 0 7px;">02</p>
+                  <p style="font-size:14px;font-weight:800;color:#E0FFFC;line-height:1.2;margin:0 0 6px;">Advanced<br>Worker</p>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.38);line-height:1.45;margin:0 0 10px;">Analytics &amp; asset history</p>
+                  <span style="font-size:9px;font-weight:800;color:#4DEDE0;background:rgba(0,196,180,0.16);border-radius:20px;padding:3px 9px;">Free</span>
+                </div>
 
-                <!-- ══════════════════════════════════════════
-                     LAYER 1 — 3D SIDE PANELS (drawn first, behind top faces)
-                     Each hex: right wall (v0→v1) + bottom-left wall (v1→v2), extruded (+3,+8)
-                     ══════════════════════════════════════════ -->
+                <!-- Card 3: Cyborg Worker -->
+                <div class="stage-card" onclick="openStagePopup(3)" style="border-radius:14px; border:1px solid rgba(155,89,232,0.2); border-top:3px solid #9B59E8; background:linear-gradient(150deg,rgba(155,89,232,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
+                  <p style="font-size:9px;font-weight:900;color:#C4A0FF;letter-spacing:0.14em;margin:0 0 7px;">03</p>
+                  <p style="font-size:14px;font-weight:800;color:#EEE5FF;line-height:1.2;margin:0 0 6px;">Cyborg<br>Worker</p>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.38);line-height:1.45;margin:0 0 10px;">AI diagnosis &amp; guidance</p>
+                  <span style="font-size:9px;font-weight:800;color:#C4A0FF;background:rgba(155,89,232,0.18);border-radius:20px;padding:3px 9px;">⚡ AI</span>
+                </div>
 
-                <!-- C1 sides -->
-                <polygon points="130.2,109 80,138  83,146 133.2,117" fill="url(#hc3s1r)"/>
-                <polygon points="80,138   29.8,109 32.8,117 83,146"  fill="url(#hc3s1l)"/>
-                <!-- C2 sides -->
-                <polygon points="230.6,109 180.4,138 183.4,146 233.6,117" fill="url(#hc3s2r)"/>
-                <polygon points="180.4,138 130.2,109 133.2,117 183.4,146"  fill="url(#hc3s2l)"/>
-                <!-- C3 sides -->
-                <polygon points="180.4,196 130.2,225 133.2,233 183.4,204" fill="url(#hc3s3r)"/>
-                <polygon points="130.2,225 80,196   83,204   133.2,233"   fill="url(#hc3s3l)"/>
-                <!-- C4 sides -->
-                <polygon points="280.8,196 230.6,225 233.6,233 283.8,204" fill="url(#hc3s4r)"/>
-                <polygon points="230.6,225 180.4,196 183.4,204 233.6,233" fill="url(#hc3s4l)"/>
+                <!-- Card 4: Superhuman -->
+                <div class="stage-card hc3-elite" onclick="openStagePopup(4)" style="border-radius:14px; border:1px solid rgba(255,184,0,0.3); border-top:3px solid #FFB800; background:linear-gradient(150deg,rgba(247,162,27,0.16) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
+                  <p style="font-size:9px;font-weight:900;color:#FFD166;letter-spacing:0.14em;margin:0 0 7px;">04</p>
+                  <p style="font-size:14px;font-weight:800;color:#FFF0C0;line-height:1.2;margin:0 0 6px;">Super-<br>human</p>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.38);line-height:1.45;margin:0 0 10px;">Predictive intel &amp; leadership</p>
+                  <span style="font-size:9px;font-weight:800;color:#FFD166;background:rgba(247,162,27,0.2);border-radius:20px;padding:3px 9px;border:1px solid rgba(255,184,0,0.35);">Elite</span>
+                </div>
 
-                <!-- Bottom cap edges — thin dark line sealing each extrusion -->
-                <polyline points="32.8,117 83,146 133.2,117" fill="none" stroke="#000" stroke-width=".6" stroke-opacity=".35"/>
-                <polyline points="133.2,117 183.4,146 233.6,117" fill="none" stroke="#000" stroke-width=".6" stroke-opacity=".35"/>
-                <polyline points="83,204 133.2,233 183.4,204" fill="none" stroke="#000" stroke-width=".6" stroke-opacity=".35"/>
-                <polyline points="183.4,204 233.6,233 283.8,204" fill="none" stroke="#000" stroke-width=".6" stroke-opacity=".35"/>
-
-                <!-- ══════════════════════════════════════════
-                     LAYER 2 — TOP FACES + TEXT
-                     ══════════════════════════════════════════ -->
-
-                <!-- ── CELL 1 — Basic Worker ── -->
-                <g class="hc3-cell" onclick="openStagePopup(1)">
-                  <!-- face -->
-                  <polygon points="130.2,109 80,138 29.8,109 29.8,51 80,22 130.2,51"
-                           fill="url(#hc3t1)" stroke="#5BB8F5" stroke-width="1" stroke-opacity=".6"/>
-                  <!-- top-edge rim highlight (simulates light catching top) -->
-                  <polyline points="29.8,51 80,22 130.2,51"
-                            fill="none" stroke="#A8D8FF" stroke-width="1.2" stroke-opacity=".55"/>
-                  <!-- inner face sheen (diagonal highlight) -->
-                  <line x1="80" y1="22" x2="110" y2="90"
-                        stroke="white" stroke-width="18" stroke-opacity=".04"/>
-                  <!-- content -->
-                  <text x="80" y="60" text-anchor="middle" fill="#7DCFFF"
-                        font-family="system-ui,sans-serif" font-size="9" font-weight="900" letter-spacing="1.5">01</text>
-                  <text x="80" y="76" text-anchor="middle" fill="#E8F4FF"
-                        font-family="system-ui,sans-serif" font-size="11.5" font-weight="800">Basic</text>
-                  <text x="80" y="90" text-anchor="middle" fill="#E8F4FF"
-                        font-family="system-ui,sans-serif" font-size="11.5" font-weight="800">Worker</text>
-                  <rect x="61" y="100" width="38" height="13" rx="6.5" fill="#4A9FD4" fill-opacity=".28"/>
-                  <text x="80" y="110" text-anchor="middle" fill="#7DCFFF"
-                        font-family="system-ui,sans-serif" font-size="8.5" font-weight="800">Free</text>
-                </g>
-
-                <!-- ── CELL 2 — Advanced Worker ── -->
-                <g class="hc3-cell" onclick="openStagePopup(2)">
-                  <polygon points="230.6,109 180.4,138 130.2,109 130.2,51 180.4,22 230.6,51"
-                           fill="url(#hc3t2)" stroke="#00E5D1" stroke-width="1" stroke-opacity=".55"/>
-                  <polyline points="130.2,51 180.4,22 230.6,51"
-                            fill="none" stroke="#80FFF5" stroke-width="1.2" stroke-opacity=".5"/>
-                  <line x1="180.4" y1="22" x2="210" y2="90"
-                        stroke="white" stroke-width="18" stroke-opacity=".04"/>
-                  <text x="180.4" y="60" text-anchor="middle" fill="#4DEDE0"
-                        font-family="system-ui,sans-serif" font-size="9" font-weight="900" letter-spacing="1.5">02</text>
-                  <text x="180.4" y="76" text-anchor="middle" fill="#E0FFFC"
-                        font-family="system-ui,sans-serif" font-size="11.5" font-weight="800">Advanced</text>
-                  <text x="180.4" y="90" text-anchor="middle" fill="#E0FFFC"
-                        font-family="system-ui,sans-serif" font-size="11.5" font-weight="800">Worker</text>
-                  <rect x="161.4" y="100" width="38" height="13" rx="6.5" fill="#00C4B4" fill-opacity=".22"/>
-                  <text x="180.4" y="110" text-anchor="middle" fill="#4DEDE0"
-                        font-family="system-ui,sans-serif" font-size="8.5" font-weight="800">Free</text>
-                </g>
-
-                <!-- ── CELL 3 — Cyborg Worker ── -->
-                <g class="hc3-cell" onclick="openStagePopup(3)">
-                  <polygon points="180.4,196 130.2,225 80,196 80,138 130.2,109 180.4,138"
-                           fill="url(#hc3t3)" stroke="#B07EFF" stroke-width="1" stroke-opacity=".55"/>
-                  <polyline points="80,138 130.2,109 180.4,138"
-                            fill="none" stroke="#D4B8FF" stroke-width="1.2" stroke-opacity=".5"/>
-                  <line x1="130.2" y1="109" x2="155" y2="175"
-                        stroke="white" stroke-width="18" stroke-opacity=".04"/>
-                  <text x="130.2" y="147" text-anchor="middle" fill="#C4A0FF"
-                        font-family="system-ui,sans-serif" font-size="9" font-weight="900" letter-spacing="1.5">03</text>
-                  <text x="130.2" y="163" text-anchor="middle" fill="#EEE5FF"
-                        font-family="system-ui,sans-serif" font-size="11.5" font-weight="800">Cyborg</text>
-                  <text x="130.2" y="177" text-anchor="middle" fill="#EEE5FF"
-                        font-family="system-ui,sans-serif" font-size="11.5" font-weight="800">Worker</text>
-                  <rect x="111.2" y="187" width="38" height="13" rx="6.5" fill="#7C3AED" fill-opacity=".25"/>
-                  <text x="130.2" y="197" text-anchor="middle" fill="#C4A0FF"
-                        font-family="system-ui,sans-serif" font-size="8.5" font-weight="800">⚡ AI</text>
-                </g>
-
-                <!-- ── CELL 4 — Superhuman Worker (animated pulse) ── -->
-                <g class="hc3-cell hc3-elite" onclick="openStagePopup(4)">
-                  <!-- outer glow ring — no filter, just wide semi-transparent stroke -->
-                  <polygon points="280.8,196 230.6,225 180.4,196 180.4,138 230.6,109 280.8,138"
-                           fill="none" stroke="#FFD166" stroke-width="5" stroke-opacity=".15"/>
-                  <!-- face -->
-                  <polygon points="280.8,196 230.6,225 180.4,196 180.4,138 230.6,109 280.8,138"
-                           fill="url(#hc3t4)" stroke="#FFB800" stroke-width="1.2" stroke-opacity=".85"/>
-                  <polyline points="180.4,138 230.6,109 280.8,138"
-                            fill="none" stroke="#FFE599" stroke-width="1.5" stroke-opacity=".75"/>
-                  <line x1="230.6" y1="109" x2="258" y2="175"
-                        stroke="white" stroke-width="22" stroke-opacity=".06"/>
-                  <text x="230.6" y="147" text-anchor="middle" fill="#FFD166"
-                        font-family="system-ui,sans-serif" font-size="9" font-weight="900" letter-spacing="1.5">04</text>
-                  <text x="230.6" y="162" text-anchor="middle" fill="#FFF0C0"
-                        font-family="system-ui,sans-serif" font-size="11" font-weight="900">Super-</text>
-                  <text x="230.6" y="176" text-anchor="middle" fill="#FFF0C0"
-                        font-family="system-ui,sans-serif" font-size="11" font-weight="900">human</text>
-                  <rect x="211.6" y="186" width="38" height="13" rx="6.5"
-                        fill="#F7A21B" fill-opacity=".28" stroke="#FFB800" stroke-width=".8" stroke-opacity=".6"/>
-                  <text x="230.6" y="196" text-anchor="middle" fill="#FFD166"
-                        font-family="system-ui,sans-serif" font-size="8.5" font-weight="900">Elite</text>
-                </g>
-
-                <!-- ── SHARED-EDGE BRIGHT SEAMS (where cells touch, light catches) ── -->
-                <line x1="130.2" y1="51"  x2="130.2" y2="109" stroke="white" stroke-width=".8" stroke-opacity=".14"/>
-                <line x1="80"    y1="138" x2="130.2" y2="109" stroke="white" stroke-width=".8" stroke-opacity=".12"/>
-                <line x1="130.2" y1="109" x2="180.4" y2="138" stroke="white" stroke-width=".8" stroke-opacity=".12"/>
-                <line x1="180.4" y1="138" x2="230.6" y2="109" stroke="white" stroke-width=".8" stroke-opacity=".12"/>
-                <line x1="180.4" y1="138" x2="180.4" y2="196" stroke="white" stroke-width=".8" stroke-opacity=".14"/>
-              </svg>
+              </div>
             </div>
 
             <!-- CTA -->
