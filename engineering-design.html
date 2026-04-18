@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Engineering Design Calculator — WorkHive</title>
+  <meta name="robots" content="noindex, follow" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { 'orange-wh': '#F7A21B', 'blue-wh': '#29B6D9', 'navy-wh': '#162032' },
+          fontFamily: { poppins: ['Poppins', 'sans-serif'] },
+        },
+      },
+    };
+  </script>
+  <style>
+    * { font-family: 'Poppins', sans-serif; }
+    body { background-color: #162032; min-height: 100vh; }
+
+    .aurora-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .aurora-beam { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.15; }
+    .beam-1 { width: 600px; height: 300px; background: #F7A21B; top: -80px; left: -100px; animation: drift1 12s ease-in-out infinite; }
+    .beam-2 { width: 500px; height: 250px; background: #29B6D9; top: 20%; right: -80px; animation: drift2 15s ease-in-out infinite; }
+    .beam-3 { width: 400px; height: 200px; background: #F7A21B; bottom: 10%; left: 30%; animation: drift3 10s ease-in-out infinite; }
+    @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(60px,40px)} }
+    @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,60px)} }
+    @keyframes drift3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-30px)} }
+
+    .card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.6) 0%, rgba(22,32,50,0.9) 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 1rem;
+    }
+    .wh-input {
+      background: rgba(22,32,50,0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.75rem;
+      color: white;
+      padding: 0.75rem 1rem;
+      width: 100%;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .wh-input:focus { border-color: rgba(247,162,27,0.5); }
+    .wh-input::placeholder { color: rgba(255,255,255,0.3); }
+    select.wh-input option { background: #1F2E45; color: white; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #F7A21B, #FDB94A);
+      color: #162032;
+      font-weight: 700;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.875rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
+    .btn-primary:active { opacity: 0.75; transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .btn-ghost {
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-weight: 500;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.875rem;
+      border: 1px solid rgba(255,255,255,0.15);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.35); color: white; }
+
+    /* Page tabs */
+    .page-tab {
+      padding: 0.6rem 1.25rem;
+      border-radius: 0.625rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      background: transparent;
+    }
+    .page-tab.active {
+      background: rgba(247,162,27,0.15);
+      color: #F7A21B;
+      border: 1px solid rgba(247,162,27,0.3);
+    }
+    .page-tab:hover:not(.active) { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+
+    /* Discipline pills */
+    .discipline-pill {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border-radius: 0.75rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.5);
+      background: rgba(22,32,50,0.4);
+    }
+    .discipline-pill.active {
+      border-color: #F7A21B;
+      color: #F7A21B;
+      background: rgba(247,162,27,0.1);
+    }
+
+    /* Calc type cards */
+    .calc-card {
+      padding: 1rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(31,46,69,0.6);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+    }
+    .calc-card:hover:not(.disabled) { border-color: rgba(247,162,27,0.4); background: rgba(247,162,27,0.05); }
+    .calc-card.selected { border-color: #F7A21B; background: rgba(247,162,27,0.1); }
+    .calc-card.disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Toggle button groups */
+    .toggle-group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .toggle-btn {
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.6);
+      background: rgba(22,32,50,0.5);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .toggle-btn:hover { border-color: rgba(247,162,27,0.4); color: rgba(255,255,255,0.9); }
+    .toggle-btn.active {
+      background: rgba(247,162,27,0.2);
+      border-color: #F7A21B;
+      color: #F7A21B;
+      font-weight: 600;
+    }
+
+    /* Input label */
+    .field-label { font-size: 0.78rem; font-weight: 500; color: rgba(255,255,255,0.5); margin-bottom: 0.35rem; }
+    .field-unit { font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-left: 0.5rem; }
+
+    /* Input with unit suffix */
+    .input-group { position: relative; }
+    .input-group .wh-input { padding-right: 3rem; }
+    .input-unit {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.35);
+      pointer-events: none;
+    }
+
+    /* Step indicator */
+    .step-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transition: all 0.2s;
+    }
+    .step-dot.active { background: #F7A21B; width: 20px; border-radius: 4px; }
+    .step-dot.done { background: rgba(247,162,27,0.4); }
+
+    /* Report styles — clean/neutral for printing */
+    #report-panel {
+      background: white;
+      color: #1a1a1a;
+      font-family: 'Poppins', sans-serif;
+      border-radius: 0.75rem;
+      padding: 2.5rem;
+      font-size: 0.85rem;
+      line-height: 1.7;
+    }
+    #report-panel h1 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; color: #1a1a1a; }
+    #report-panel h2 { font-size: 0.85rem; font-weight: 700; color: #1a1a1a; margin: 1.25rem 0 0.5rem; border-bottom: 1.5px solid #e0e0e0; padding-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    #report-panel h3 { font-size: 0.82rem; font-weight: 600; color: #333; margin: 0.75rem 0 0.25rem; }
+    #report-panel table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0.5rem 0; }
+    #report-panel th { background: #f5f5f5; text-align: left; padding: 0.4rem 0.6rem; border: 1px solid #ddd; font-weight: 600; font-size: 0.78rem; }
+    #report-panel td { padding: 0.4rem 0.6rem; border: 1px solid #ddd; }
+    #report-panel td.num { text-align: right; font-family: monospace; }
+    #report-panel .total-row td { font-weight: 700; background: #f9f9f9; }
+    #report-panel .result-highlight { background: #fffbf0; border: 1.5px solid #F7A21B; border-radius: 0.5rem; padding: 0.75rem 1rem; margin: 0.75rem 0; }
+    #report-panel .result-highlight .res-label { font-size: 0.78rem; color: #666; }
+    #report-panel .result-highlight .res-value { font-size: 1.3rem; font-weight: 700; color: #D88A0E; }
+    #report-panel .sig-block { margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+    #report-panel .sig-line { border-top: 1px solid #999; padding-top: 0.25rem; font-size: 0.75rem; color: #666; margin-top: 2rem; }
+
+    /* History card */
+    .hist-card {
+      background: rgba(31,46,69,0.6);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0.75rem;
+      padding: 1rem 1.25rem;
+      transition: border-color 0.2s;
+    }
+    .hist-card:hover { border-color: rgba(247,162,27,0.3); }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%);
+      background: rgba(31,46,69,0.97); color: white;
+      padding: 0.75rem 1.5rem; border-radius: 999px;
+      font-size: 0.85rem; font-weight: 500;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      z-index: 9999; opacity: 0; transition: opacity 0.3s;
+      border: 1px solid rgba(255,255,255,0.1);
+      white-space: nowrap;
+    }
+    #toast.show { opacity: 1; }
+
+    /* Loading spinner */
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid rgba(22,32,50,0.3);
+      border-top-color: #162032;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Print styles */
+    @media print {
+      body > *:not(#print-wrapper) { display: none !important; }
+      #print-wrapper { display: block !important; }
+      #report-panel { box-shadow: none; border-radius: 0; padding: 1.5cm; }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  </style>
+</head>
+<body class="text-white">
+
+<!-- Aurora -->
+<div class="aurora-bg">
+  <div class="aurora-beam beam-1"></div>
+  <div class="aurora-beam beam-2"></div>
+  <div class="aurora-beam beam-3"></div>
+</div>
+
+<!-- Hive Gate -->
+<div id="hive-gate" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(22,32,50,0.97)">
+  <div class="card p-8 max-w-sm w-full mx-4 text-center">
+    <div style="font-size:2.5rem;margin-bottom:1rem;">🔒</div>
+    <h2 class="text-xl font-bold mb-2">Hive Required</h2>
+    <p class="text-sm mb-6" style="color:rgba(255,255,255,0.5)">The Engineering Design Calculator is a team feature. Join or create a Hive to access it.</p>
+    <a href="hive.html" class="btn-primary inline-block" style="text-decoration:none;">Go to Hive Setup</a>
+  </div>
+</div>
+
+<!-- Print wrapper (hidden normally, shown on print) -->
+<div id="print-wrapper" style="display:none;"></div>
+
+<div class="relative z-10 min-h-screen pb-24">
+
+  <!-- Header -->
+  <div style="background:rgba(22,32,50,0.8);border-bottom:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(12px);" class="sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="index.html" style="color:rgba(255,255,255,0.4);font-size:0.8rem;text-decoration:none;" class="hidden sm:block">← Back</a>
+        <div>
+          <div class="font-bold text-sm" style="color:#F7A21B;">Engineering Design</div>
+          <div class="text-xs" style="color:rgba(255,255,255,0.4);">Design Calculation Tool</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="page-tab active" data-tab="calculator" onclick="switchTab('calculator')">Calculator</button>
+        <button class="page-tab" data-tab="history" onclick="switchTab('history')">History</button>
+        <button class="page-tab" data-tab="guide" onclick="switchTab('guide')">Guide</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ TAB: CALCULATOR ══════════════════════ -->
+  <div id="tab-calculator" class="max-w-7xl mx-auto px-4 pt-6">
+
+    <!-- Step indicator -->
+    <div class="flex items-center gap-2 mb-6">
+      <div class="step-dot active" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+      <div class="step-dot" id="dot-4"></div>
+      <span class="text-xs ml-2" style="color:rgba(255,255,255,0.4);" id="step-label">Step 1 of 4 — Select Discipline</span>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-6">
+
+      <!-- LEFT: Wizard -->
+      <div class="lg:w-2/5 flex flex-col gap-4">
+
+        <!-- Step 1: Discipline -->
+        <div class="card p-5" id="step1-card">
+          <div class="text-xs font-600 mb-3" style="color:#F7A21B;text-transform:uppercase;letter-spacing:0.08em;">Step 1 — Discipline</div>
+          <div class="flex gap-3">
+            <button class="discipline-pill active" data-disc="Mechanical" onclick="selectDiscipline('Mechanical')">⚙️ Mechanical</button>
+            <button class="discipline-pill" data-disc="Plumbing" onclick="selectDiscipline('Plumbing')">🔧 Plumbing</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Calc Type -->
+        <div class="card p-5" id="step2-card" style="opacity:0.5;pointer-events:none;">
+          <div class="text-xs font-600 mb-3" style="color:#F7A21B;text-transform:uppercase;letter-spacing:0.08em;">Step 2 — Calculation Type</div>
+          <div id="calc-type-grid" class="grid grid-cols-1 gap-2"></div>
+        </div>
+
+        <!-- Step 3: Inputs -->
+        <div class="card p-5" id="step3-card" style="opacity:0.5;pointer-events:none;">
+          <div class="text-xs font-600 mb-3" style="color:#F7A21B;text-transform:uppercase;letter-spacing:0.08em;">Step 3 — Project &amp; Inputs</div>
+          <div id="input-form-area">
+            <p class="text-sm" style="color:rgba(255,255,255,0.3);">Select a calculation type first.</p>
+          </div>
+        </div>
+
+        <!-- Step 4: Calculate button -->
+        <div id="step4-card" style="opacity:0.5;pointer-events:none;">
+          <button id="calc-btn" class="btn-primary w-full text-center" onclick="runCalculation()" disabled>
+            Run Calculation
+          </button>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Report Preview -->
+      <div class="lg:w-3/5">
+        <!-- Empty state -->
+        <div id="report-empty" class="card p-10 text-center" style="min-height:400px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div style="font-size:3rem;margin-bottom:1rem;">📐</div>
+          <div class="font-semibold text-lg mb-2">No Report Yet</div>
+          <div class="text-sm" style="color:rgba(255,255,255,0.4);">Fill in the inputs on the left and click<br><strong style="color:#F7A21B;">Run Calculation</strong> to generate your report.</div>
+        </div>
+
+        <!-- Loading state -->
+        <div id="report-loading" class="card p-10 text-center hidden" style="min-height:400px;display:none;flex-direction:column;align-items:center;justify-content:center;">
+          <div class="spinner mb-4" style="width:36px;height:36px;border-width:3px;border-color:rgba(247,162,27,0.2);border-top-color:#F7A21B;"></div>
+          <div class="font-semibold mb-1">Calculating...</div>
+          <div class="text-sm" style="color:rgba(255,255,255,0.4);">Running calculation and generating report</div>
+        </div>
+
+        <!-- Report output -->
+        <div id="report-output" class="hidden">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-sm font-semibold" style="color:rgba(255,255,255,0.7);">Report Preview</div>
+            <div class="flex gap-2">
+              <button class="btn-ghost text-sm py-2 px-4" onclick="printReport()">🖨 Print / Save PDF</button>
+              <button class="btn-primary text-sm py-2 px-4" onclick="saveCalc()">💾 Save</button>
+            </div>
+          </div>
+          <div id="report-panel"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ TAB: HISTORY ══════════════════════ -->
+  <div id="tab-history" class="hidden max-w-4xl mx-auto px-4 pt-6">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="font-bold text-lg">Calculation History</h2>
+        <p class="text-sm" style="color:rgba(255,255,255,0.4);">All saved calculations for your hive</p>
+      </div>
+    </div>
+    <div id="history-list">
+      <div class="text-center py-16" style="color:rgba(255,255,255,0.3);">
+        <div style="font-size:2rem;margin-bottom:0.75rem;">📋</div>
+        <div>No saved calculations yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ TAB: GUIDE ══════════════════════ -->
+  <div id="tab-guide" class="hidden max-w-3xl mx-auto px-4 pt-6">
+    <div class="card p-6">
+      <h2 class="font-bold text-lg mb-4" style="color:#F7A21B;">Calculation Guide</h2>
+
+      <h3 class="font-semibold mb-2">HVAC Cooling Load — Simplified Total Heat Gain</h3>
+      <p class="text-sm mb-3" style="color:rgba(255,255,255,0.6);">Determines the total cooling requirement for a space based on all heat sources.</p>
+      <div class="card p-4 mb-4" style="background:rgba(22,32,50,0.5);">
+        <div class="text-xs font-mono" style="color:#FDB94A;line-height:2;">
+          Q_total = Q_walls + Q_roof + Q_glass + Q_people + Q_equipment + Q_lighting + Q_infiltration<br>
+          Q_walls = U × A_wall × ΔT<br>
+          Q_roof = U × A_roof × ΔT × 1.15 (solar factor)<br>
+          Q_glass = (0.57 × A × ΔT) + (A × SHGC × 200)<br>
+          Q_people = N × (sensible + latent) W/person<br>
+          Q_equipment = kW × 1000 × 0.85 (diversity factor)<br>
+          Q_lighting = W/m² × floor area<br>
+          Q_infiltration = 0.5 ACH × Volume × 0.35 × ΔT<br>
+          Q_design = Q_total × 1.10 (safety margin)
+        </div>
+      </div>
+
+      <h3 class="font-semibold mb-2">Standards Applied</h3>
+      <ul class="text-sm space-y-1" style="color:rgba(255,255,255,0.6);">
+        <li>• PSME Code — Philippine Society of Mechanical Engineers</li>
+        <li>• ASHRAE Fundamentals Handbook (2021)</li>
+        <li>• ASHRAE Standard 62.1 — Ventilation for Acceptable Indoor Air Quality</li>
+        <li>• National Building Code of the Philippines (PD 1096)</li>
+        <li>• DOLE OSH Standards for workplace ventilation</li>
+      </ul>
+
+      <h3 class="font-semibold mt-4 mb-2">Philippine Design Conditions</h3>
+      <table class="w-full text-sm" style="border-collapse:collapse;">
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+          <td class="py-2 pr-4" style="color:rgba(255,255,255,0.5);">Outdoor Design (Metro Manila)</td>
+          <td class="py-2 font-semibold">35°C DB / 28°C WB</td>
+        </tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+          <td class="py-2 pr-4" style="color:rgba(255,255,255,0.5);">Indoor Comfort (Office)</td>
+          <td class="py-2 font-semibold">24°C / 55% RH</td>
+        </tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+          <td class="py-2 pr-4" style="color:rgba(255,255,255,0.5);">Safety Factor</td>
+          <td class="py-2 font-semibold">10% on total heat gain</td>
+        </tr>
+        <tr>
+          <td class="py-2 pr-4" style="color:rgba(255,255,255,0.5);">Ton of Refrigeration</td>
+          <td class="py-2 font-semibold">1 TR = 3.517 kW</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Nav -->
+<script src="nav-hub.js"></script>
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+'use strict';
+
+const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+let WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
+
+if (!WORKER_NAME) { window.location.href = 'index.html'; }
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let _discipline  = 'Mechanical';
+let _calcType    = null;
+let _lastResults = null;
+let _lastNarrative = null;
+let _lastInputs  = null;
+let _currentStep = 1;
+
+// ─── Calc type definitions ────────────────────────────────────────────────────
+const CALC_TYPES = {
+  Mechanical: [
+    { id: 'HVAC Cooling Load',    icon: '❄️',  desc: 'Room heat gain, AC capacity in kW / TR', available: true  },
+    { id: 'Ventilation / ACH',    icon: '💨',  desc: 'Air changes per hour, fan CFM',           available: false },
+    { id: 'Pump Sizing (TDH)',    icon: '💧',  desc: 'Total Dynamic Head, pump HP selection',   available: false },
+    { id: 'Pipe Sizing',          icon: '🔩',  desc: 'Flow velocity, pipe diameter',            available: false },
+    { id: 'Compressed Air',       icon: '🌬️', desc: 'Compressor CFM demand calculation',       available: false },
+  ],
+  Plumbing: [
+    { id: 'Water Supply Pipe Sizing', icon: '🚰', desc: "Hunter's Fixture Unit Method",          available: false },
+    { id: 'Hot Water Demand',         icon: '🌡️', desc: 'Daily hot water demand, heater sizing', available: false },
+    { id: 'Drainage Pipe Sizing',     icon: '🏗️', desc: 'Drainage fixture units, pipe diameter', available: false },
+    { id: 'Septic Tank Sizing',       icon: '🏭', desc: 'Tank capacity per occupancy',            available: false },
+  ],
+};
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+function showToast(msg, duration = 3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ─── Tab switching ────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  ['calculator','history','guide'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab);
+    document.querySelector(`[data-tab="${t}"]`).classList.toggle('active', t === tab);
+  });
+  if (tab === 'history') loadHistory();
+}
+
+// ─── Step management ─────────────────────────────────────────────────────────
+function setStep(n) {
+  _currentStep = n;
+  const labels = ['Select Discipline','Select Calculation Type','Fill in Inputs','Calculate'];
+  document.getElementById('step-label').textContent = `Step ${n} of 4 — ${labels[n-1]}`;
+  [1,2,3,4].forEach(i => {
+    const dot = document.getElementById('dot-' + i);
+    dot.classList.toggle('active', i === n);
+    dot.classList.toggle('done', i < n);
+  });
+  // Enable/disable cards
+  const s2 = document.getElementById('step2-card');
+  const s3 = document.getElementById('step3-card');
+  const s4 = document.getElementById('step4-card');
+  s2.style.opacity = n >= 2 ? '1' : '0.5';
+  s2.style.pointerEvents = n >= 2 ? 'auto' : 'none';
+  s3.style.opacity = n >= 3 ? '1' : '0.5';
+  s3.style.pointerEvents = n >= 3 ? 'auto' : 'none';
+  s4.style.opacity = n >= 4 ? '1' : '0.5';
+  s4.style.pointerEvents = n >= 4 ? 'auto' : 'none';
+}
+
+// ─── Discipline selector ──────────────────────────────────────────────────────
+function selectDiscipline(disc) {
+  _discipline = disc;
+  _calcType   = null;
+  document.querySelectorAll('.discipline-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.disc === disc);
+  });
+  renderCalcTypes();
+  setStep(2);
+  // Reset form & report
+  document.getElementById('input-form-area').innerHTML = '<p class="text-sm" style="color:rgba(255,255,255,0.3);">Select a calculation type first.</p>';
+  showEmpty();
+}
+
+// ─── Calc type grid ───────────────────────────────────────────────────────────
+function renderCalcTypes() {
+  const grid = document.getElementById('calc-type-grid');
+  grid.innerHTML = '';
+  (CALC_TYPES[_discipline] || []).forEach(ct => {
+    const div = document.createElement('div');
+    div.className = 'calc-card' + (ct.available ? '' : ' disabled');
+    div.dataset.id = ct.id;
+    div.innerHTML = `
+      <div class="flex items-center gap-2">
+        <span style="font-size:1.2rem;">${ct.icon}</span>
+        <div>
+          <div class="font-semibold text-sm">${ct.id}</div>
+          <div class="text-xs" style="color:rgba(255,255,255,0.4);">${ct.desc}</div>
+        </div>
+        ${!ct.available ? '<span class="ml-auto text-xs px-2 py-0.5 rounded-full" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.3);">Soon</span>' : ''}
+      </div>`;
+    if (ct.available) div.onclick = () => selectCalcType(ct.id);
+    grid.appendChild(div);
+  });
+}
+
+function selectCalcType(id) {
+  _calcType = id;
+  document.querySelectorAll('.calc-card').forEach(c => {
+    c.classList.toggle('selected', c.dataset.id === id);
+  });
+  renderInputForm(id);
+  setStep(3);
+  showEmpty();
+}
+
+// ─── Input form renderer ──────────────────────────────────────────────────────
+function renderInputForm(calcType) {
+  const area = document.getElementById('input-form-area');
+  if (calcType === 'HVAC Cooling Load') {
+    area.innerHTML = `
+      <!-- Project name -->
+      <div class="mb-4">
+        <div class="field-label">Project / Room Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Admin Office — 2nd Floor" />
+      </div>
+
+      <!-- Building type toggle -->
+      <div class="mb-4">
+        <div class="field-label">Building Type</div>
+        <div class="toggle-group" id="tg-building">
+          ${['Office','Industrial','Residential','Hospital','Food Processing'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-building','${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <!-- Room function toggle -->
+      <div class="mb-4">
+        <div class="field-label">Room Function</div>
+        <div class="toggle-group" id="tg-function">
+          ${['Office','Conference','Server Room','Production Floor','Warehouse','Retail'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-function','${v}');applyRoomDefaults('${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <!-- Room dimensions -->
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Floor Area</div>
+          <div class="input-group">
+            <input id="f-floor-area" class="wh-input" type="number" placeholder="0" min="0" />
+            <span class="input-unit">m²</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Ceiling Height</div>
+          <div class="input-group">
+            <input id="f-ceiling" class="wh-input" type="number" placeholder="3.0" value="3.0" min="0" step="0.1" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Wall Area <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(leave blank = auto)</span></div>
+          <div class="input-group">
+            <input id="f-wall-area" class="wh-input" type="number" placeholder="Auto" min="0" />
+            <span class="input-unit">m²</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Glass / Window Area <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(blank = 20%)</span></div>
+          <div class="input-group">
+            <input id="f-glass-area" class="wh-input" type="number" placeholder="Auto" min="0" />
+            <span class="input-unit">m²</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Occupancy & Loads -->
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">No. of Persons</div>
+          <div class="input-group">
+            <input id="f-persons" class="wh-input" type="number" placeholder="0" min="0" value="10" />
+            <span class="input-unit">pax</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Equipment Load</div>
+          <div class="input-group">
+            <input id="f-equip" class="wh-input" type="number" placeholder="0" min="0" value="2" step="0.5" />
+            <span class="input-unit">kW</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Insulation toggle -->
+      <div class="mb-4">
+        <div class="field-label">Wall / Roof Insulation</div>
+        <div class="toggle-group" id="tg-insulation">
+          ${['Standard','Good','Excellent'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-insulation','${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <!-- Glass type toggle -->
+      <div class="mb-4">
+        <div class="field-label">Glass / Window Type</div>
+        <div class="toggle-group" id="tg-glass">
+          ${['Standard','Tinted','LowE'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-glass','${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <!-- Climate conditions -->
+      <div class="mb-1">
+        <div class="field-label">Climate Conditions <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(Philippine defaults pre-filled)</span></div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <div class="field-label">Outdoor Temp</div>
+            <div class="input-group">
+              <input id="f-outdoor-temp" class="wh-input" type="number" value="35" min="0" />
+              <span class="input-unit">°C</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Indoor Temp (Target)</div>
+            <div class="input-group">
+              <input id="f-indoor-temp" class="wh-input" type="number" value="24" min="0" />
+              <span class="input-unit">°C</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+}
+
+// ─── Toggle button groups ─────────────────────────────────────────────────────
+function toggle(groupId, value) {
+  document.querySelectorAll(`#${groupId} .toggle-btn`).forEach(b => {
+    b.classList.toggle('active', b.textContent.trim() === value);
+  });
+}
+
+function getToggle(groupId) {
+  const active = document.querySelector(`#${groupId} .toggle-btn.active`);
+  return active ? active.textContent.trim() : '';
+}
+
+function applyRoomDefaults(roomFunc) {
+  const defaults = {
+    'Office':           { persons: 10, equip: 2  },
+    'Conference':       { persons: 20, equip: 3  },
+    'Server Room':      { persons: 2,  equip: 10 },
+    'Production Floor': { persons: 30, equip: 15 },
+    'Warehouse':        { persons: 5,  equip: 5  },
+    'Retail':           { persons: 20, equip: 3  },
+  };
+  const d = defaults[roomFunc];
+  if (!d) return;
+  const pEl = document.getElementById('f-persons');
+  const eEl = document.getElementById('f-equip');
+  if (pEl) pEl.value = d.persons;
+  if (eEl) eEl.value = d.equip;
+}
+
+// ─── Collect inputs from form ─────────────────────────────────────────────────
+function collectInputs() {
+  const v = id => document.getElementById(id)?.value || '';
+  return {
+    project_name:    v('f-project')      || 'Untitled Room',
+    building_type:   getToggle('tg-building'),
+    room_function:   getToggle('tg-function'),
+    floor_area:      parseFloat(v('f-floor-area')) || 0,
+    ceiling_height:  parseFloat(v('f-ceiling'))    || 3.0,
+    wall_area:       parseFloat(v('f-wall-area'))  || 0,
+    glass_area:      parseFloat(v('f-glass-area')) || 0,
+    persons:         parseFloat(v('f-persons'))    || 0,
+    equipment_kw:    parseFloat(v('f-equip'))      || 0,
+    insulation:      getToggle('tg-insulation'),
+    glass_type:      getToggle('tg-glass'),
+    outdoor_temp:    parseFloat(v('f-outdoor-temp')) || 35,
+    indoor_temp:     parseFloat(v('f-indoor-temp'))  || 24,
+  };
+}
+
+// ─── Run calculation ──────────────────────────────────────────────────────────
+async function runCalculation() {
+  const inputs = collectInputs();
+
+  if (!inputs.floor_area || inputs.floor_area <= 0) {
+    showToast('Please enter the floor area.');
+    return;
+  }
+
+  showLoading();
+
+  try {
+    const { data, error } = await db.functions.invoke('engineering-calc-agent', {
+      body: { calc_type: _calcType, inputs }
+    });
+
+    if (error || !data) throw new Error(error?.message || 'No response from calculation engine.');
+    if (data.error) throw new Error(data.error);
+
+    _lastResults   = data.results;
+    _lastNarrative = data.narrative;
+    _lastInputs    = inputs;
+
+    renderReport(inputs, data.results, data.narrative);
+    showToast('Calculation complete!');
+
+  } catch (err) {
+    showEmpty();
+    showToast('Error: ' + err.message, 5000);
+    console.error(err);
+  }
+}
+
+// ─── Report states ────────────────────────────────────────────────────────────
+function showEmpty() {
+  document.getElementById('report-empty').style.display   = 'flex';
+  document.getElementById('report-loading').style.display = 'none';
+  document.getElementById('report-output').classList.add('hidden');
+}
+function showLoading() {
+  document.getElementById('report-empty').style.display   = 'none';
+  document.getElementById('report-loading').style.display = 'flex';
+  document.getElementById('report-output').classList.add('hidden');
+}
+function showReport() {
+  document.getElementById('report-empty').style.display   = 'none';
+  document.getElementById('report-loading').style.display = 'none';
+  document.getElementById('report-output').classList.remove('hidden');
+}
+
+// ─── Render report HTML ───────────────────────────────────────────────────────
+function renderReport(inputs, results, narrative) {
+  const now   = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const c = results.components;
+
+  const html = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div>
+        <h1>DESIGN CALCULATION</h1>
+        <div style="font-size:0.8rem;color:#555;">HVAC Cooling Load — Simplified Total Heat Gain Method</div>
+      </div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;">
+        <div>Rev. 0</div>
+        <div>Date: ${dateStr}</div>
+      </div>
+    </div>
+
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:35%;">Project / Room Name</th><td>${escHtml(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${escHtml(WORKER_NAME)}</td></tr>
+      <tr><th>Building Type</th><td>${escHtml(inputs.building_type)}</td><th>PRC License No.</th><td style="color:#aaa;">_______________</td></tr>
+      <tr><th>Room Function</th><td>${escHtml(inputs.room_function)}</td><th>Checked by</th><td style="color:#aaa;">_______________</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td style="color:#aaa;">_______________</td></tr>
+    </table>
+
+    <h2>1. Objective</h2>
+    <p style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || '')}</p>
+
+    <h2>2. Applicable Codes and Standards</h2>
+    <ul style="font-size:0.82rem;color:#333;padding-left:1.25rem;line-height:2;">
+      <li>PSME Code — Philippine Society of Mechanical Engineers (Latest Edition)</li>
+      <li>ASHRAE Fundamentals Handbook 2021</li>
+      <li>ASHRAE Standard 62.1 — Ventilation for Acceptable Indoor Air Quality</li>
+      <li>National Building Code of the Philippines (PD 1096)</li>
+      <li>DOLE OSH Standards — Workplace Ventilation Requirements</li>
+    </ul>
+
+    <h2>3. Design Criteria and Assumptions</h2>
+    <p style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || '')}</p>
+    <table style="margin-top:0.5rem;">
+      <tr><th>Parameter</th><th>Value</th><th>Parameter</th><th>Value</th></tr>
+      <tr><td>Floor Area</td><td class="num">${inputs.floor_area} m²</td><td>Ceiling Height</td><td class="num">${inputs.ceiling_height} m</td></tr>
+      <tr><td>Outdoor Design Temp</td><td class="num">${inputs.outdoor_temp}°C</td><td>Indoor Design Temp</td><td class="num">${inputs.indoor_temp}°C</td></tr>
+      <tr><td>Wall / Roof Insulation</td><td class="num">${escHtml(inputs.insulation)}</td><td>Glass Type</td><td class="num">${escHtml(inputs.glass_type)}</td></tr>
+      <tr><td>Occupancy</td><td class="num">${inputs.persons} persons</td><td>Equipment Load</td><td class="num">${inputs.equipment_kw} kW</td></tr>
+      <tr><td>U-value (Wall)</td><td class="num">${results.inputs_used.u_wall} W/m²·K</td><td>U-value (Roof)</td><td class="num">${results.inputs_used.u_roof} W/m²·K</td></tr>
+      <tr><td>Glass SHGC</td><td class="num">${results.inputs_used.shgc}</td><td>Safety Margin</td><td class="num">10%</td></tr>
+    </table>
+
+    <h2>4. Calculation Proper</h2>
+
+    <h3>4.1 Wall Heat Gain</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula: Q = U × A<sub>wall</sub> × ΔT<br>
+      Given: U = ${results.inputs_used.u_wall} W/m²·K, A = ${results.inputs_used.wall_area} m², ΔT = ${results.inputs_used.delta_t}°C<br>
+      <strong>Q<sub>walls</sub> = ${results.inputs_used.u_wall} × ${results.inputs_used.wall_area} × ${results.inputs_used.delta_t} = ${c.q_walls.toLocaleString()} W</strong>
+    </p>
+
+    <h3>4.2 Roof Heat Gain</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula: Q = U × A<sub>roof</sub> × ΔT × 1.15 (solar correction factor)<br>
+      Given: U = ${results.inputs_used.u_roof} W/m²·K, A = ${results.inputs_used.roof_area} m², ΔT = ${results.inputs_used.delta_t}°C<br>
+      <strong>Q<sub>roof</sub> = ${results.inputs_used.u_roof} × ${results.inputs_used.roof_area} × ${results.inputs_used.delta_t} × 1.15 = ${c.q_roof.toLocaleString()} W</strong>
+    </p>
+
+    <h3>4.3 Glass / Window Heat Gain</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula: Q = (0.57 × A × ΔT) + (A × SHGC × 200)<br>
+      Given: SHGC = ${results.inputs_used.shgc}, A<sub>glass</sub> = ${results.inputs_used.glass_area} m²<br>
+      <strong>Q<sub>glass</sub> = (0.57 × ${results.inputs_used.glass_area} × ${results.inputs_used.delta_t}) + (${results.inputs_used.glass_area} × ${results.inputs_used.shgc} × 200) = ${c.q_glass.toLocaleString()} W</strong>
+    </p>
+
+    <h3>4.4 Occupant Heat Gain</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula: Q = N × (Sensible + Latent) W/person<br>
+      Given: N = ${inputs.persons} persons, Sensible = ${results.inputs_used.heat_per_person.sensible} W, Latent = ${results.inputs_used.heat_per_person.latent} W<br>
+      <strong>Q<sub>people</sub> = ${inputs.persons} × (${results.inputs_used.heat_per_person.sensible} + ${results.inputs_used.heat_per_person.latent}) = ${c.q_people.toLocaleString()} W</strong>
+    </p>
+
+    <h3>4.5 Equipment Heat Gain</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula: Q = kW × 1000 × 0.85 (diversity factor)<br>
+      Given: Equipment load = ${inputs.equipment_kw} kW<br>
+      <strong>Q<sub>equipment</sub> = ${inputs.equipment_kw} × 1000 × 0.85 = ${c.q_equipment.toLocaleString()} W</strong>
+    </p>
+
+    <h3>4.6 Lighting Heat Gain</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula: Q = W/m² × Floor Area<br>
+      Given: Lighting density = ${results.inputs_used.lighting_wpm2} W/m², Floor area = ${inputs.floor_area} m²<br>
+      <strong>Q<sub>lighting</sub> = ${results.inputs_used.lighting_wpm2} × ${inputs.floor_area} = ${c.q_lighting.toLocaleString()} W</strong>
+    </p>
+
+    <h3>4.7 Infiltration Heat Gain</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula: Q = 0.5 ACH × Volume × 0.35 × ΔT<br>
+      Given: Volume = ${inputs.floor_area} × ${inputs.ceiling_height} = ${(inputs.floor_area * inputs.ceiling_height).toFixed(1)} m³<br>
+      <strong>Q<sub>infiltration</sub> = 0.5 × ${(inputs.floor_area * inputs.ceiling_height).toFixed(1)} × 0.35 × ${results.inputs_used.delta_t} = ${c.q_infiltration.toLocaleString()} W</strong>
+    </p>
+
+    <h2>5. Results Summary</h2>
+    <table>
+      <tr><th>Heat Gain Component</th><th style="text-align:right;">Heat Gain (W)</th></tr>
+      <tr><td>4.1 Walls</td><td class="num">${c.q_walls.toLocaleString()}</td></tr>
+      <tr><td>4.2 Roof</td><td class="num">${c.q_roof.toLocaleString()}</td></tr>
+      <tr><td>4.3 Glass / Windows</td><td class="num">${c.q_glass.toLocaleString()}</td></tr>
+      <tr><td>4.4 Occupants</td><td class="num">${c.q_people.toLocaleString()}</td></tr>
+      <tr><td>4.5 Equipment</td><td class="num">${c.q_equipment.toLocaleString()}</td></tr>
+      <tr><td>4.6 Lighting</td><td class="num">${c.q_lighting.toLocaleString()}</td></tr>
+      <tr><td>4.7 Infiltration</td><td class="num">${c.q_infiltration.toLocaleString()}</td></tr>
+      <tr class="total-row"><td>Sensible Sub-total</td><td class="num">${results.q_sensible_total.toLocaleString()}</td></tr>
+      <tr><td>Latent Heat (42% of occupant heat)</td><td class="num">${results.q_latent.toLocaleString()}</td></tr>
+      <tr class="total-row"><td>Total Heat Gain</td><td class="num">${results.q_total.toLocaleString()}</td></tr>
+      <tr class="total-row"><td>Design Heat Gain (×1.10 safety margin)</td><td class="num">${results.q_design.toLocaleString()}</td></tr>
+    </table>
+
+    <div class="result-highlight" style="margin-top:1rem;">
+      <div class="res-label">Required AC Capacity</div>
+      <div class="res-value">${results.kW} kW &nbsp;/&nbsp; ${results.TR} TR</div>
+      <div style="margin-top:0.5rem;font-size:0.82rem;color:#555;">
+        <strong>Recommended Standard AC Size:</strong> ${results.recommended_kW} kW (${results.recommended_TR} TR)
+      </div>
+    </div>
+
+    <h2>6. Recommendations</h2>
+    <p style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || '')}</p>
+
+    <div class="sig-block">
+      <div>
+        <div class="sig-line">Prepared by</div>
+        <div style="font-size:0.78rem;margin-top:0.25rem;">${escHtml(WORKER_NAME)}</div>
+        <div style="font-size:0.75rem;color:#999;">PRC License No.: _______________</div>
+      </div>
+      <div>
+        <div class="sig-line">Checked by</div>
+        <div style="font-size:0.78rem;margin-top:0.25rem;">&nbsp;</div>
+        <div style="font-size:0.75rem;color:#999;">PRC License No.: _______________</div>
+      </div>
+      <div>
+        <div class="sig-line">Approved by</div>
+        <div style="font-size:0.78rem;margin-top:0.25rem;">&nbsp;</div>
+        <div style="font-size:0.75rem;color:#999;">PRC License No.: _______________</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── Print ─────────────────────────────────────────────────────────────────────
+function printReport() {
+  const pw = document.getElementById('print-wrapper');
+  pw.innerHTML = document.getElementById('report-panel').outerHTML;
+  pw.style.display = 'block';
+  window.print();
+  pw.style.display = 'none';
+  pw.innerHTML = '';
+}
+
+// ─── Save calculation ─────────────────────────────────────────────────────────
+async function saveCalc() {
+  if (!_lastResults || !_lastInputs) return;
+
+  const { error } = await db.from('engineering_calcs').insert({
+    hive_id:      HIVE_ID,
+    worker_name:  WORKER_NAME,
+    discipline:   _discipline,
+    calc_type:    _calcType,
+    project_name: _lastInputs.project_name,
+    inputs:       _lastInputs,
+    results:      _lastResults,
+    narrative:    _lastNarrative,
+  });
+
+  if (error) {
+    showToast('Save failed: ' + error.message, 5000);
+  } else {
+    showToast('Calculation saved to history.');
+  }
+}
+
+// ─── Load history ──────────────────────────────────────────────────────────────
+async function loadHistory() {
+  const list = document.getElementById('history-list');
+  list.innerHTML = '<div class="text-center py-8" style="color:rgba(255,255,255,0.3);">Loading...</div>';
+
+  const { data, error } = await db
+    .from('engineering_calcs')
+    .select('*')
+    .eq('hive_id', HIVE_ID)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (error || !data?.length) {
+    list.innerHTML = `<div class="text-center py-16" style="color:rgba(255,255,255,0.3);">
+      <div style="font-size:2rem;margin-bottom:0.75rem;">📋</div>
+      <div>No saved calculations yet.</div>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = data.map(row => {
+    const d   = new Date(row.created_at);
+    const dt  = d.toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' });
+    const res = row.results;
+    const summary = res?.recommended_kW
+      ? `${res.recommended_kW} kW / ${res.recommended_TR} TR`
+      : '';
+    return `
+      <div class="hist-card mb-3">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold text-sm truncate">${escHtml(row.project_name || 'Untitled')}</div>
+            <div class="text-xs mt-0.5" style="color:rgba(255,255,255,0.4);">${escHtml(row.calc_type)} &nbsp;·&nbsp; ${escHtml(row.discipline)}</div>
+            ${summary ? `<div class="text-xs mt-1" style="color:#F7A21B;font-weight:600;">Result: ${escHtml(summary)}</div>` : ''}
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-xs" style="color:rgba(255,255,255,0.3);">${dt}</div>
+            <div class="flex gap-2 mt-2">
+              <button class="btn-ghost text-xs py-1 px-3" onclick='viewHistoryReport(${JSON.stringify(row).replace(/'/g,"&#39;")})'>View</button>
+              <button class="btn-ghost text-xs py-1 px-3" style="border-color:rgba(239,68,68,0.3);color:rgba(239,68,68,0.7);" onclick="deleteCalc('${row.id}')">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function viewHistoryReport(row) {
+  switchTab('calculator');
+  _discipline    = row.discipline;
+  _calcType      = row.calc_type;
+  _lastResults   = row.results;
+  _lastNarrative = row.narrative;
+  _lastInputs    = row.inputs;
+  renderReport(row.inputs, row.results, row.narrative);
+}
+
+async function deleteCalc(id) {
+  if (!confirm('Delete this calculation?')) return;
+  const { error } = await db.from('engineering_calcs').delete().eq('id', id);
+  if (error) { showToast('Delete failed.'); return; }
+  showToast('Deleted.');
+  loadHistory();
+}
+
+// ─── XSS safety ───────────────────────────────────────────────────────────────
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+async function init() {
+  // Hive gate
+  if (!HIVE_ID) {
+    document.getElementById('hive-gate').classList.remove('hidden');
+    return;
+  }
+
+  // Validate membership
+  const { data: membership } = await db
+    .from('hive_members')
+    .select('role')
+    .eq('hive_id', HIVE_ID)
+    .eq('worker_name', WORKER_NAME)
+    .maybeSingle();
+
+  if (!membership) {
+    ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name'].forEach(k => localStorage.removeItem(k));
+    HIVE_ID = null;
+    document.getElementById('hive-gate').classList.remove('hidden');
+    return;
+  }
+
+  HIVE_ROLE = membership.role;
+  localStorage.setItem('wh_hive_role', HIVE_ROLE);
+
+  // Init wizard
+  selectDiscipline('Mechanical');
+}
+
+init();
+</script>
+</body>
+</html>
