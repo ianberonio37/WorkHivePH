@@ -367,7 +367,7 @@
           <div class="flex items-center justify-between mb-3">
             <div class="text-sm font-semibold" style="color:rgba(255,255,255,0.7);">Report Preview</div>
             <div class="flex gap-2">
-              <button class="btn-ghost text-sm py-2 px-4" onclick="printReport()">🖨 Print / Save PDF</button>
+              <button class="btn-ghost text-sm py-2 px-4" onclick="printReport()">⬇ Download PDF</button>
               <button class="btn-primary text-sm py-2 px-4" onclick="saveCalc()">💾 Save</button>
             </div>
           </div>
@@ -453,6 +453,9 @@
 
 <!-- Nav -->
 <script src="nav-hub.js"></script>
+
+<!-- html2pdf — clean PDF export without browser headers/footers -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -1206,47 +1209,34 @@ function renderVentReport(inputs, results, narrative) {
   showReport();
 }
 
-// ─── Print (opens clean new window, no browser URL/title in PDF) ──────────────
+// ─── Download PDF (html2pdf — no browser headers/footers/URL) ────────────────
 function printReport() {
-  const reportHtml = document.getElementById('report-panel').innerHTML;
-  const projectName = _lastInputs?.project_name || 'Design Calculation';
+  const reportEl = document.getElementById('report-panel');
+  if (!reportEl) return;
 
-  const win = window.open('', '_blank', 'width=900,height=700');
-  win.document.write(`<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>${escHtml(projectName)}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
-    @page { size: A4; margin: 1.8cm 2cm; }
-    body { margin: 0; padding: 2rem; background: white; color: #1a1a1a; font-size: 0.85rem; line-height: 1.7; }
-    h1 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
-    h2 { font-size: 0.85rem; font-weight: 700; margin: 1.25rem 0 0.5rem; border-bottom: 1.5px solid #e0e0e0; padding-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    h3 { font-size: 0.82rem; font-weight: 600; margin: 0.75rem 0 0.25rem; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0.5rem 0; }
-    th { background: #f5f5f5; text-align: left; padding: 0.4rem 0.6rem; border: 1px solid #ddd; font-weight: 600; font-size: 0.78rem; }
-    td { padding: 0.4rem 0.6rem; border: 1px solid #ddd; }
-    td.num { text-align: right; font-family: monospace; }
-    .total-row td { font-weight: 700; background: #f9f9f9; }
-    .result-highlight { background: #fffbf0; border: 1.5px solid #F7A21B; border-radius: 0.5rem; padding: 0.75rem 1rem; margin: 0.75rem 0; }
-    .res-label { font-size: 0.78rem; color: #666; }
-    .res-value { font-size: 1.3rem; font-weight: 700; color: #D88A0E; }
-    .sig-block { margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
-    .sig-line { border-top: 1px solid #999; padding-top: 0.25rem; font-size: 0.75rem; color: #666; margin-top: 2rem; }
-    ul { padding-left: 1.25rem; }
-    p { margin: 0.25rem 0 0.5rem; }
-    .no-print { display: none !important; }
-    .editable-field { border-bottom: none; outline: none; }
-  </style>
-</head>
-<body>
-${reportHtml}
-<script>window.onload = function(){ window.print(); }<\/script>
-</body>
-</html>`);
-  win.document.close();
+  const projectName = _lastInputs?.project_name || 'Design Calculation';
+  const fileName = projectName.replace(/[^a-z0-9]/gi, '_').replace(/_+/g, '_') + '_Report.pdf';
+
+  // Temporarily hide no-print elements and strip editable underlines
+  const noPrintEls = reportEl.querySelectorAll('.no-print');
+  noPrintEls.forEach(el => el.style.display = 'none');
+  const editableEls = reportEl.querySelectorAll('.editable-field');
+  editableEls.forEach(el => el.style.borderBottom = 'none');
+
+  const opt = {
+    margin:      [14, 16, 14, 16], // top, right, bottom, left in mm
+    filename:    fileName,
+    image:       { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+    jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak:   { mode: ['avoid-all', 'css', 'legacy'] }
+  };
+
+  html2pdf().set(opt).from(reportEl).save().then(() => {
+    // Restore no-print and editable styles after PDF is generated
+    noPrintEls.forEach(el => el.style.display = '');
+    editableEls.forEach(el => el.style.borderBottom = '1.5px dashed #F7A21B');
+  });
 }
 
 // ─── Save calculation ─────────────────────────────────────────────────────────
