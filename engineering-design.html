@@ -1222,20 +1222,24 @@ function printReport() {
   noPrintEls.forEach(el => el.style.display = 'none');
   const editableEls = reportEl.querySelectorAll('.editable-field');
   editableEls.forEach(el => el.style.borderBottom = 'none');
+  // Add bottom padding so html2pdf does not clip the last page on mobile
+  const origPadding = reportEl.style.paddingBottom;
+  reportEl.style.paddingBottom = '40px';
 
   const opt = {
     margin:      [14, 16, 14, 16], // top, right, bottom, left in mm
     filename:    fileName,
     image:       { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-    jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak:   { mode: ['avoid-all', 'css', 'legacy'] }
+    html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
+    jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    // no pagebreak mode — avoid-all causes a blank first page on mobile
   };
 
   html2pdf().set(opt).from(reportEl).save().then(() => {
-    // Restore no-print and editable styles after PDF is generated
+    // Restore styles after PDF is generated
     noPrintEls.forEach(el => el.style.display = '');
     editableEls.forEach(el => el.style.borderBottom = '1.5px dashed #F7A21B');
+    reportEl.style.paddingBottom = origPadding;
   });
 }
 
