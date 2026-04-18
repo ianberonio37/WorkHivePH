@@ -1226,6 +1226,21 @@ function printReport() {
   const origPadding = reportEl.style.paddingBottom;
   reportEl.style.paddingBottom = '40px';
 
+  // Inject page-break rules so html2pdf never splits a table row, heading, or
+  // result block across two pages
+  const styleTag = document.createElement('style');
+  styleTag.id = 'pdf-pagebreak-rules';
+  styleTag.textContent = `
+    #report-panel tr   { page-break-inside: avoid; break-inside: avoid; }
+    #report-panel td   { page-break-inside: avoid; break-inside: avoid; }
+    #report-panel th   { page-break-inside: avoid; break-inside: avoid; }
+    #report-panel h2   { page-break-after: avoid;  break-after: avoid; }
+    #report-panel h3   { page-break-after: avoid;  break-after: avoid; }
+    #report-panel .result-highlight { page-break-inside: avoid; break-inside: avoid; }
+    #report-panel .sig-block        { page-break-inside: avoid; break-inside: avoid; }
+  `;
+  document.head.appendChild(styleTag);
+
   const opt = {
     margin:      [14, 16, 14, 16], // top, right, bottom, left in mm
     filename:    fileName,
@@ -1240,6 +1255,7 @@ function printReport() {
     noPrintEls.forEach(el => el.style.display = '');
     editableEls.forEach(el => el.style.borderBottom = '1.5px dashed #F7A21B');
     reportEl.style.paddingBottom = origPadding;
+    document.getElementById('pdf-pagebreak-rules')?.remove();
   });
 }
 
