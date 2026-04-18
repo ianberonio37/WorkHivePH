@@ -396,53 +396,8 @@
 
   <!-- ══════════════════════ TAB: GUIDE ══════════════════════ -->
   <div id="tab-guide" class="hidden max-w-3xl mx-auto px-4 pt-6">
-    <div class="card p-6">
-      <h2 class="font-bold text-lg mb-4" style="color:#F7A21B;">Calculation Guide</h2>
-
-      <h3 class="font-semibold mb-2">HVAC Cooling Load - Simplified Total Heat Gain</h3>
-      <p class="text-sm mb-3" style="color:rgba(255,255,255,0.6);">Determines the total cooling requirement for a space based on all heat sources.</p>
-      <div class="card p-4 mb-4" style="background:rgba(22,32,50,0.5);">
-        <div class="text-xs font-mono" style="color:#FDB94A;line-height:2;">
-          Q_total = Q_walls + Q_roof + Q_glass + Q_people + Q_equipment + Q_lighting + Q_infiltration<br>
-          Q_walls = U × A_wall × ΔT<br>
-          Q_roof = U × A_roof × ΔT × 1.15 (solar factor)<br>
-          Q_glass = (0.57 × A × ΔT) + (A × SHGC × 200)<br>
-          Q_people = N × (sensible + latent) W/person<br>
-          Q_equipment = kW × 1000 × 0.85 (diversity factor)<br>
-          Q_lighting = W/m² × floor area<br>
-          Q_infiltration = 0.5 ACH × Volume × 0.35 × ΔT<br>
-          Q_design = Q_total × 1.10 (safety margin)
-        </div>
-      </div>
-
-      <h3 class="font-semibold mb-2">Standards Applied</h3>
-      <ul class="text-sm space-y-1" style="color:rgba(255,255,255,0.6);">
-        <li>• PSME Code — Philippine Society of Mechanical Engineers</li>
-        <li>• ASHRAE Fundamentals Handbook (2021)</li>
-        <li>• ASHRAE Standard 62.1 — Ventilation for Acceptable Indoor Air Quality</li>
-        <li>• National Building Code of the Philippines (PD 1096)</li>
-        <li>• DOLE OSH Standards for workplace ventilation</li>
-      </ul>
-
-      <h3 class="font-semibold mt-4 mb-2">Philippine Design Conditions</h3>
-      <table class="w-full text-sm" style="border-collapse:collapse;">
-        <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
-          <td class="py-2 pr-4" style="color:rgba(255,255,255,0.5);">Outdoor Design (Metro Manila)</td>
-          <td class="py-2 font-semibold">35°C DB / 28°C WB</td>
-        </tr>
-        <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
-          <td class="py-2 pr-4" style="color:rgba(255,255,255,0.5);">Indoor Comfort (Office)</td>
-          <td class="py-2 font-semibold">24°C / 55% RH</td>
-        </tr>
-        <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
-          <td class="py-2 pr-4" style="color:rgba(255,255,255,0.5);">Safety Factor</td>
-          <td class="py-2 font-semibold">10% on total heat gain</td>
-        </tr>
-        <tr>
-          <td class="py-2 pr-4" style="color:rgba(255,255,255,0.5);">Ton of Refrigeration</td>
-          <td class="py-2 font-semibold">1 TR = 3.517 kW</td>
-        </tr>
-      </table>
+    <div id="guide-content" class="card p-6">
+      <!-- Populated by renderGuide() when Guide tab is opened -->
     </div>
   </div>
 
@@ -513,6 +468,171 @@ function switchTab(tab) {
     document.querySelector(`[data-tab="${t}"]`).classList.toggle('active', t === tab);
   });
   if (tab === 'history') loadHistory();
+  if (tab === 'guide') renderGuide();
+}
+
+// ─── Guide — renders context-sensitive help for the active calc type ──────────
+const GUIDES = {
+  'HVAC Cooling Load': {
+    title: 'HVAC Cooling Load - Simplified Total Heat Gain',
+    subtitle: 'Determines the total cooling requirement for a space based on all heat sources.',
+    standards: ['PSME Code - Philippine Society of Mechanical Engineers','ASHRAE Fundamentals Handbook (2021)','National Building Code of the Philippines (PD 1096)'],
+    formulas: [
+      'Q_total = Q_walls + Q_roof + Q_glass + Q_people + Q_equipment + Q_lighting + Q_infiltration',
+      'Q_walls = U x A_wall x deltaT',
+      'Q_roof = U x A_roof x deltaT x 1.15  (solar correction factor)',
+      'Q_glass = (0.57 x A x deltaT) + (A x SHGC x 200)',
+      'Q_people = N x (sensible + latent) W/person',
+      'Q_equipment = kW x 1000 x 0.85  (diversity factor)',
+      'Q_lighting = W/m2 x floor area',
+      'Q_infiltration = 0.5 ACH x Volume x 0.35 x deltaT',
+      'Q_design = Q_total x 1.10  (10% safety margin)',
+    ],
+    fields: [
+      { name: 'Floor Area (m2)', tip: 'Internal floor area of the space being cooled.' },
+      { name: 'Ceiling Height (m)', tip: 'Floor-to-ceiling height. Default 3.0 m.' },
+      { name: 'Wall Area (m2)', tip: 'Leave blank to auto-calculate: sqrt(floor area) x 4 x ceiling height.' },
+      { name: 'Glass / Window Area (m2)', tip: 'Leave blank to auto-calculate as 20% of wall area.' },
+      { name: 'No. of Persons', tip: 'Peak occupancy count in the space.' },
+      { name: 'Equipment Load (kW)', tip: 'Total connected electrical equipment (computers, machines, etc.).' },
+      { name: 'Insulation', tip: 'Standard = old / no insulation. Good = typical commercial. Excellent = well-insulated modern building.' },
+      { name: 'Glass Type', tip: 'Standard = clear single-pane. Tinted = tinted glass. LowE = low-emissivity coated glass (best).' },
+      { name: 'Outdoor Temp', tip: 'Philippine design condition: 35°C for Metro Manila and most urban areas.' },
+      { name: 'Indoor Temp', tip: 'Target indoor comfort temperature. 24°C is standard for office comfort.' },
+    ],
+    notes: [
+      '1 Ton of Refrigeration (TR) = 3.517 kW.',
+      'Results are rounded up to the nearest standard AC unit size.',
+      'This simplified method is suitable for spaces under 5,000 m2. For larger spaces, use full ASHRAE CLTD/CLF method.',
+      'Safety factor of 10% is already included in Q_design.',
+    ],
+  },
+
+  'Ventilation / ACH': {
+    title: 'Ventilation / ACH - ASHRAE 62.1 Ventilation Rate Procedure',
+    subtitle: 'Determines the required outdoor air supply and fan sizing to maintain acceptable indoor air quality.',
+    standards: ['ASHRAE Standard 62.1 - Ventilation for Acceptable Indoor Air Quality','PSME Code','DOLE OSH Standards for workplace ventilation'],
+    formulas: [
+      'Vbz = (Rp x Pz) + (Ra x Az)',
+      'Vbz = breathing zone outdoor airflow (L/s)',
+      'Rp = per-person outdoor air rate (L/s/person) - from ASHRAE Table 6-1',
+      'Ra = per-area outdoor air rate (L/s/m2) - from ASHRAE Table 6-1',
+      'Pz = number of occupants,  Az = floor area (m2)',
+      'Required ACH = max(ASHRAE calc, minimum ACH for space type)',
+      'Supply airflow (CMH) = Required ACH x Room Volume',
+      'Design airflow = Supply airflow x 1.15  (15% safety margin)',
+    ],
+    fields: [
+      { name: 'Room / Space Type', tip: 'Selects the ASHRAE 62.1 Table 6-1 Rp and Ra values automatically. Exhaust-only spaces (Toilet, Kitchen) switch to minimum ACH method.' },
+      { name: 'Ventilation Type', tip: 'Supply and Exhaust = balanced system. Supply Only = positive pressure. Exhaust Only = negative pressure (toilets, kitchens).' },
+      { name: 'Floor Area (m2)', tip: 'Internal floor area of the ventilated space.' },
+      { name: 'Ceiling Height (m)', tip: 'Used to calculate room volume for ACH. Default 3.0 m.' },
+      { name: 'No. of Persons', tip: 'Peak occupancy. Set to 0 for exhaust-only spaces (toilet, kitchen) - those use minimum ACH only.' },
+    ],
+    notes: [
+      'Toilet and kitchen spaces use minimum ACH (exhaust-only method), not the occupancy-based Vbz formula.',
+      'Fan sizing is rounded up to the next standard commercial fan CMH size.',
+      'CMH = cubic meters per hour. CFM = cubic feet per minute (1 L/s = 2.119 CFM).',
+      'For spaces with high internal pollutants (labs, kitchens), consult ASHRAE Table 6-4 for exhaust rates.',
+    ],
+  },
+
+  'Pump Sizing (TDH)': {
+    title: 'Pump Sizing - Total Dynamic Head (TDH) Method',
+    subtitle: 'Determines the pump head and motor horsepower required to move fluid through a piping system.',
+    standards: ['PSME Code - Philippine Society of Mechanical Engineers','Hydraulic Institute Standards (ANSI/HI)','ASHRAE HVAC Systems and Equipment Handbook'],
+    formulas: [
+      'TDH = Hs + Hf + Hv + Hp',
+      'Hs = Static Head = elevation difference between suction and discharge (m)',
+      'Hf = Friction Head = pipe friction losses + fittings allowance (m)',
+      'Hv = Velocity Head = V2 / (2g)  where V = pipe velocity (m/s)',
+      'Hp = Pressure Head = system back-pressure requirement (m)',
+      '',
+      'Friction Head (Hazen-Williams):',
+      'hf = (10.67 x L x Q^1.852) / (C^1.852 x D^4.87)',
+      'Q = flow rate (m3/s), D = pipe diameter (m), C = material C-factor',
+      '',
+      'Hydraulic Power (kW) = rho x g x Q x TDH / 1000',
+      'Brake Power (kW) = Hydraulic Power / Pump Efficiency',
+      'Motor Power (kW) = Brake Power / Motor Efficiency',
+      'Motor Power (HP) = Motor Power (kW) / 0.7457',
+    ],
+    fields: [
+      { name: 'Flow Rate (L/min)', tip: 'Required system flow. For HVAC chilled water: use 0.043 L/s per kW of cooling load as a starting point.' },
+      { name: 'Static Head (m)', tip: 'Vertical height difference between pump centerline and the highest discharge point. This is the most critical input.' },
+      { name: 'Total Pipe Length (m)', tip: 'Sum of suction pipe length and discharge pipe length. Do not add fittings here - use Fittings Allowance % instead.' },
+      { name: 'Pipe Diameter (mm)', tip: 'Enter 0 to auto-select based on flow rate at 1.5 m/s target velocity. Acceptable velocity range: 0.9 - 3.0 m/s.' },
+      { name: 'Pipe Material', tip: 'Determines Hazen-Williams C factor: PVC/HDPE=150 (smoothest), Stainless/Copper=140, GI=120, Cast Iron=100 (roughest).' },
+      { name: 'Suction Head (m)', tip: 'Positive value if pump is below the fluid level (flooded suction - preferred). Negative value if pump must lift fluid (suction lift - limits NPSHa).' },
+      { name: 'Discharge Pressure Head (m)', tip: 'Additional back-pressure at the discharge point (e.g. pressure vessel, elevated tank). Set to 0 if discharging to open atmosphere.' },
+      { name: 'Pump Efficiency (%)', tip: 'Typical centrifugal pumps: 60-80%. Use 70% if unknown. Get actual value from pump curve after selection.' },
+      { name: 'Motor Efficiency (%)', tip: 'Standard motors: 85-95%. Use 90% if unknown. Higher for larger motors (>15 HP).' },
+      { name: 'Fittings Allowance (%)', tip: 'Additional head loss for elbows, valves, tees, reducers. 20% is standard for typical systems. Use 30-40% for complex piping.' },
+      { name: 'Fluid Density (kg/m3)', tip: 'Water = 1000. Chilled water = 999. Hot water (80°C) = 972. Seawater = 1025. Glycol 30% = 1040.' },
+    ],
+    notes: [
+      'Always verify NPSHa (available) is greater than NPSHr (required from pump curve) to avoid cavitation.',
+      'Pump HP is rounded up to the next standard commercial size: 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 5.0, 7.5, 10.0...',
+      'Flooded suction (positive suction head) is always preferred over suction lift to protect the pump.',
+      'For closed-loop systems (chilled water, hot water), static head may be zero if the loop is balanced.',
+      'The 20% fittings allowance covers standard fittings. Add more for gate valves (0.1m), check valves (2-5m), strainers (1-3m).',
+    ],
+  },
+};
+
+function renderGuide() {
+  const el = document.getElementById('guide-content');
+  if (!el) return;
+
+  const guide = GUIDES[_calcType];
+
+  if (!guide) {
+    el.innerHTML = `
+      <h2 class="font-bold text-lg mb-3" style="color:#F7A21B;">Calculation Guide</h2>
+      <p class="text-sm" style="color:rgba(255,255,255,0.5);">
+        ${_calcType ? `No guide available yet for "${escHtml(_calcType)}". Select a different calculation type or check back after it is built.` : 'Select a discipline and calculation type first, then open the Guide tab to see field descriptions, formulas, and tips.'}
+      </p>`;
+    return;
+  }
+
+  const formulaHtml = guide.formulas.length
+    ? `<div class="card p-4 mb-5" style="background:rgba(22,32,50,0.5);">
+        <div class="text-xs font-mono" style="color:#FDB94A;line-height:2.1;">
+          ${guide.formulas.map(f => f ? escHtml(f) : '<br>').join('<br>')}
+        </div>
+       </div>` : '';
+
+  const fieldsHtml = guide.fields.length
+    ? `<h3 class="font-semibold mt-5 mb-3">Input Field Reference</h3>
+       <div style="display:flex;flex-direction:column;gap:0.6rem;">
+         ${guide.fields.map(f => `
+           <div style="background:rgba(22,32,50,0.4);border-radius:0.6rem;padding:0.6rem 0.85rem;">
+             <div style="font-size:0.82rem;font-weight:600;color:#F7A21B;margin-bottom:0.15rem;">${escHtml(f.name)}</div>
+             <div style="font-size:0.78rem;color:rgba(255,255,255,0.55);">${escHtml(f.tip)}</div>
+           </div>`).join('')}
+       </div>` : '';
+
+  const notesHtml = guide.notes.length
+    ? `<h3 class="font-semibold mt-5 mb-2">Important Notes</h3>
+       <ul class="text-sm space-y-1" style="color:rgba(255,255,255,0.55);">
+         ${guide.notes.map(n => `<li>• ${escHtml(n)}</li>`).join('')}
+       </ul>` : '';
+
+  const stdHtml = guide.standards.length
+    ? `<h3 class="font-semibold mt-5 mb-2">Standards Applied</h3>
+       <ul class="text-sm space-y-1" style="color:rgba(255,255,255,0.55);">
+         ${guide.standards.map(s => `<li>• ${escHtml(s)}</li>`).join('')}
+       </ul>` : '';
+
+  el.innerHTML = `
+    <h2 class="font-bold text-lg mb-1" style="color:#F7A21B;">${escHtml(guide.title)}</h2>
+    <p class="text-sm mb-4" style="color:rgba(255,255,255,0.55);">${escHtml(guide.subtitle)}</p>
+    <h3 class="font-semibold mb-2">Formula</h3>
+    ${formulaHtml}
+    ${fieldsHtml}
+    ${notesHtml}
+    ${stdHtml}
+  `;
 }
 
 // ─── Step management ─────────────────────────────────────────────────────────
