@@ -873,7 +873,7 @@ async function submitPart() {
     notes:             document.getElementById('f-notes').value.trim(),
     photo:             currentPhotoData,
     updated_at:        now,
-    status:            editingItemId ? undefined : (HIVE_ID ? 'pending' : 'approved'),
+    status:            editingItemId ? undefined : (HIVE_ID && HIVE_ROLE !== 'supervisor' ? 'pending' : 'approved'),
     hive_id:           editingItemId ? undefined : (HIVE_ID || null),
     submitted_by:      editingItemId ? undefined : WORKER_NAME,
   };
