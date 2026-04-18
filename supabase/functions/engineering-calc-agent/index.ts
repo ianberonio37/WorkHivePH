@@ -130,6 +130,99 @@ function calcHVACCoolingLoad(inputs: Record<string, number | string>) {
   };
 }
 
+// ─── Ventilation / ACH Calculation (ASHRAE 62.1 Ventilation Rate Procedure) ──
+
+// Rp = outdoor air per person (L/s/person), Ra = per unit area (L/s/m²)
+const VENTILATION_RATES: Record<string, { rp: number; ra: number; min_ach: number; label: string }> = {
+  "Office":           { rp: 2.5, ra: 0.30, min_ach: 6,  label: "Office - General" },
+  "Conference":       { rp: 2.5, ra: 0.30, min_ach: 10, label: "Conference / Meeting Room" },
+  "Server Room":      { rp: 0.0, ra: 0.00, min_ach: 20, label: "Server Room / Data Center" },
+  "Production Floor": { rp: 2.5, ra: 0.50, min_ach: 10, label: "Production / Manufacturing Floor" },
+  "Warehouse":        { rp: 0.0, ra: 0.15, min_ach: 4,  label: "Warehouse / Storage" },
+  "Toilet / CR":      { rp: 0.0, ra: 0.00, min_ach: 10, label: "Toilet / Comfort Room (exhaust)" },
+  "Kitchen":          { rp: 0.0, ra: 0.00, min_ach: 15, label: "Commercial Kitchen (exhaust)" },
+  "Laboratory":       { rp: 2.5, ra: 0.50, min_ach: 10, label: "Laboratory" },
+  "Lobby":            { rp: 2.5, ra: 0.30, min_ach: 4,  label: "Lobby / Reception" },
+  "Hospital Ward":    { rp: 2.5, ra: 0.30, min_ach: 6,  label: "Hospital Ward" },
+};
+
+// Standard fan sizes in CMH (cubic meters per hour)
+const FAN_SIZES_CMH = [100,150,200,300,400,500,600,750,1000,1200,1500,2000,2500,3000,4000,5000,6000,8000,10000];
+
+function roundUpToFanSize(cmh: number): number {
+  return FAN_SIZES_CMH.find(s => s >= cmh) || Math.ceil(cmh / 500) * 500;
+}
+
+function calcVentilationACH(inputs: Record<string, number | string>) {
+  const floorArea     = Number(inputs.floor_area);
+  const ceilingHeight = Number(inputs.ceiling_height) || 3.0;
+  const persons       = Number(inputs.persons)        || 0;
+  const roomFunction  = String(inputs.room_function   || "Office");
+  const ventType      = String(inputs.vent_type       || "Supply and Exhaust");
+
+  const volume = floorArea * ceilingHeight; // m3
+
+  const rates = VENTILATION_RATES[roomFunction] || { rp: 2.5, ra: 0.30, min_ach: 6, label: roomFunction };
+
+  // ASHRAE 62.1 Ventilation Rate Procedure
+  // Breathing zone outdoor airflow (L/s)
+  let vbz = (rates.rp * persons) + (rates.ra * floorArea);
+
+  // For exhaust-only rooms (toilet, kitchen), use minimum ACH method
+  const useMinACH = (rates.rp === 0 && rates.ra === 0);
+  if (useMinACH) {
+    vbz = (rates.min_ach * volume) / 3.6; // convert CMH to L/s: divide by 3.6
+  }
+
+  // Required ACH from ASHRAE calc
+  const achFromASHRAE = (vbz * 3.6) / volume; // L/s to CMH: multiply by 3.6, then / volume
+
+  // Use the more conservative of ASHRAE calc vs minimum ACH
+  const requiredACH = Math.max(achFromASHRAE, rates.min_ach);
+
+  // Supply airflow
+  const supplyAirflow_CMH = requiredACH * volume;          // m3/hr
+  const supplyAirflow_LS  = supplyAirflow_CMH / 3.6;       // L/s
+  const supplyAirflow_CFM = supplyAirflow_LS * 2.119;      // CFM
+
+  // Design airflow with 15% safety margin
+  const designAirflow_CMH = supplyAirflow_CMH * 1.15;
+  const designAirflow_CFM = supplyAirflow_CFM * 1.15;
+
+  // Fan sizing
+  const recommendedFan_CMH = roundUpToFanSize(designAirflow_CMH);
+  const recommendedFan_CFM = Math.round(recommendedFan_CMH / 3.6 * 2.119);
+
+  // Outdoor air fraction (if supply+exhaust, outdoor air = vbz)
+  const outdoorAir_CMH = vbz * 3.6;
+  const outdoorAir_CFM = vbz * 2.119;
+
+  return {
+    room_volume:          Math.round(volume * 10) / 10,
+    vbz_ls:               Math.round(vbz * 10) / 10,
+    ach_ashrae:           Math.round(achFromASHRAE * 100) / 100,
+    required_ach:         Math.round(requiredACH * 100) / 100,
+    min_ach_required:     rates.min_ach,
+    supply_cmh:           Math.round(supplyAirflow_CMH),
+    supply_ls:            Math.round(supplyAirflow_LS * 10) / 10,
+    supply_cfm:           Math.round(supplyAirflow_CFM),
+    design_cmh:           Math.round(designAirflow_CMH),
+    design_cfm:           Math.round(designAirflow_CFM),
+    recommended_fan_cmh:  recommendedFan_CMH,
+    recommended_fan_cfm:  recommendedFan_CFM,
+    outdoor_air_cmh:      Math.round(outdoorAir_CMH),
+    outdoor_air_cfm:      Math.round(outdoorAir_CFM),
+    inputs_used: {
+      rp:           rates.rp,
+      ra:           rates.ra,
+      min_ach:      rates.min_ach,
+      space_label:  rates.label,
+      vent_type:    ventType,
+      use_min_ach:  useMinACH,
+    }
+  };
+}
+
 // ─── Gemini AI — Report Narrative ────────────────────────────────────────────
 
 async function generateReportNarrative(
@@ -212,6 +305,8 @@ serve(async (req) => {
 
     if (calc_type === "HVAC Cooling Load") {
       results = calcHVACCoolingLoad(inputs);
+    } else if (calc_type === "Ventilation / ACH") {
+      results = calcVentilationACH(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

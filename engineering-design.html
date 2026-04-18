@@ -482,7 +482,7 @@ let _currentStep = 1;
 const CALC_TYPES = {
   Mechanical: [
     { id: 'HVAC Cooling Load',    icon: '❄️',  desc: 'Room heat gain, AC capacity in kW / TR', available: true  },
-    { id: 'Ventilation / ACH',    icon: '💨',  desc: 'Air changes per hour, fan CFM',           available: false },
+    { id: 'Ventilation / ACH',    icon: '💨',  desc: 'Air changes per hour, fan CMH / CFM',     available: true  },
     { id: 'Pump Sizing (TDH)',    icon: '💧',  desc: 'Total Dynamic Head, pump HP selection',   available: false },
     { id: 'Pipe Sizing',          icon: '🔩',  desc: 'Flow velocity, pipe diameter',            available: false },
     { id: 'Compressed Air',       icon: '🌬️', desc: 'Compressor CFM demand calculation',       available: false },
@@ -708,6 +708,71 @@ function renderInputForm(calcType) {
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
+
+  if (calcType === 'Ventilation / ACH') {
+    area.innerHTML = `
+      <!-- Project name -->
+      <div class="mb-4">
+        <div class="field-label">Project / Room Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Production Area - Building A" />
+      </div>
+
+      <!-- Room function -->
+      <div class="mb-4">
+        <div class="field-label">Room / Space Type</div>
+        <div class="toggle-group" id="tg-function">
+          ${['Office','Conference','Server Room','Production Floor','Warehouse','Toilet / CR','Kitchen','Laboratory','Lobby','Hospital Ward'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-function','${v}');applyVentDefaults('${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <!-- Ventilation type -->
+      <div class="mb-4">
+        <div class="field-label">Ventilation Type</div>
+        <div class="toggle-group" id="tg-vent-type">
+          ${['Supply and Exhaust','Supply Only','Exhaust Only'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-vent-type','${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <!-- Room dimensions -->
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Floor Area</div>
+          <div class="input-group">
+            <input id="f-floor-area" class="wh-input" type="number" placeholder="0" min="0" />
+            <span class="input-unit">m²</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Ceiling Height</div>
+          <div class="input-group">
+            <input id="f-ceiling" class="wh-input" type="number" placeholder="3.0" value="3.0" min="0" step="0.1" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Occupancy -->
+      <div class="mb-4">
+        <div class="field-label">No. of Persons <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(0 for unoccupied / exhaust-only spaces)</span></div>
+        <div class="input-group" style="max-width:160px;">
+          <input id="f-persons" class="wh-input" type="number" placeholder="0" min="0" value="10" />
+          <span class="input-unit">pax</span>
+        </div>
+      </div>
+
+      <!-- Info box -->
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
+        Method: ASHRAE 62.1 Ventilation Rate Procedure.<br>
+        Rp and Ra values auto-filled by space type. Uses the more conservative of ASHRAE calc vs minimum ACH requirement.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
 }
 
 // ─── Toggle button groups ─────────────────────────────────────────────────────
@@ -720,6 +785,25 @@ function toggle(groupId, value) {
 function getToggle(groupId) {
   const active = document.querySelector(`#${groupId} .toggle-btn.active`);
   return active ? active.textContent.trim() : '';
+}
+
+function applyVentDefaults(roomFunc) {
+  const defaults = {
+    'Office':           { persons: 10  },
+    'Conference':       { persons: 20  },
+    'Server Room':      { persons: 2   },
+    'Production Floor': { persons: 30  },
+    'Warehouse':        { persons: 5   },
+    'Toilet / CR':      { persons: 0   },
+    'Kitchen':          { persons: 0   },
+    'Laboratory':       { persons: 10  },
+    'Lobby':            { persons: 15  },
+    'Hospital Ward':    { persons: 10  },
+  };
+  const d = defaults[roomFunc];
+  if (!d) return;
+  const pEl = document.getElementById('f-persons');
+  if (pEl) pEl.value = d.persons;
 }
 
 function applyRoomDefaults(roomFunc) {
@@ -742,21 +826,36 @@ function applyRoomDefaults(roomFunc) {
 // ─── Collect inputs from form ─────────────────────────────────────────────────
 function collectInputs() {
   const v = id => document.getElementById(id)?.value || '';
-  return {
-    project_name:    v('f-project')      || 'Untitled Room',
-    building_type:   getToggle('tg-building'),
-    room_function:   getToggle('tg-function'),
-    floor_area:      parseFloat(v('f-floor-area')) || 0,
-    ceiling_height:  parseFloat(v('f-ceiling'))    || 3.0,
-    wall_area:       parseFloat(v('f-wall-area'))  || 0,
-    glass_area:      parseFloat(v('f-glass-area')) || 0,
-    persons:         parseFloat(v('f-persons'))    || 0,
-    equipment_kw:    parseFloat(v('f-equip'))      || 0,
-    insulation:      getToggle('tg-insulation'),
-    glass_type:      getToggle('tg-glass'),
-    outdoor_temp:    parseFloat(v('f-outdoor-temp')) || 35,
-    indoor_temp:     parseFloat(v('f-indoor-temp'))  || 24,
+  const base = {
+    project_name:   v('f-project') || 'Untitled Room',
+    floor_area:     parseFloat(v('f-floor-area')) || 0,
+    ceiling_height: parseFloat(v('f-ceiling'))    || 3.0,
+    persons:        parseFloat(v('f-persons'))    || 0,
+    room_function:  getToggle('tg-function') || '',
   };
+
+  if (_calcType === 'HVAC Cooling Load') {
+    return {
+      ...base,
+      building_type:  getToggle('tg-building'),
+      wall_area:      parseFloat(v('f-wall-area'))    || 0,
+      glass_area:     parseFloat(v('f-glass-area'))   || 0,
+      equipment_kw:   parseFloat(v('f-equip'))        || 0,
+      insulation:     getToggle('tg-insulation'),
+      glass_type:     getToggle('tg-glass'),
+      outdoor_temp:   parseFloat(v('f-outdoor-temp')) || 35,
+      indoor_temp:    parseFloat(v('f-indoor-temp'))  || 24,
+    };
+  }
+
+  if (_calcType === 'Ventilation / ACH') {
+    return {
+      ...base,
+      vent_type: getToggle('tg-vent-type') || 'Supply and Exhaust',
+    };
+  }
+
+  return base;
 }
 
 // ─── Run calculation ──────────────────────────────────────────────────────────
@@ -782,7 +881,11 @@ async function runCalculation() {
     _lastNarrative = data.narrative;
     _lastInputs    = inputs;
 
-    renderReport(inputs, data.results, data.narrative);
+    if (_calcType === 'Ventilation / ACH') {
+      renderVentReport(inputs, data.results, data.narrative);
+    } else {
+      renderReport(inputs, data.results, data.narrative);
+    }
     showToast('Calculation complete!');
 
   } catch (err) {
@@ -965,6 +1068,144 @@ function renderReport(inputs, results, narrative) {
   showReport();
 }
 
+// ─── Render Ventilation / ACH Report ─────────────────────────────────────────
+function renderVentReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const r       = results;
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before printing. In the print dialog, uncheck "Headers and footers" for a clean PDF.
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div>
+        <h1>DESIGN CALCULATION</h1>
+        <div style="font-size:0.8rem;color:#555;">Ventilation - Air Changes per Hour (ASHRAE 62.1)</div>
+      </div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;">
+        <div>Rev. ${e('0')}</div>
+        <div>Date: ${dateStr}</div>
+      </div>
+    </div>
+
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">Project / Room Name</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Space Type</th><td>${e(r.inputs_used.space_label)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Ventilation Type</th><td>${e(r.inputs_used.vent_type)}</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
+    </table>
+
+    <h2>1. Objective</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || '')}</p>
+
+    <h2>2. Applicable Codes and Standards</h2>
+    <ul style="font-size:0.82rem;color:#333;padding-left:1.25rem;line-height:2;">
+      <li>ASHRAE Standard 62.1 - Ventilation for Acceptable Indoor Air Quality (Latest Edition)</li>
+      <li>PSME Code - Philippine Society of Mechanical Engineers</li>
+      <li>National Building Code of the Philippines (PD 1096)</li>
+      <li>DOLE OSH Standards - Workplace Ventilation Requirements</li>
+      <li>ASHRAE Fundamentals Handbook 2021</li>
+    </ul>
+
+    <h2>3. Design Criteria and Assumptions</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || '')}</p>
+    <table style="margin-top:0.5rem;">
+      <tr><th>Parameter</th><th>Value</th><th>Parameter</th><th>Value</th></tr>
+      <tr><td>Floor Area</td><td class="num">${inputs.floor_area} m2</td><td>Ceiling Height</td><td class="num">${inputs.ceiling_height} m</td></tr>
+      <tr><td>Room Volume</td><td class="num">${r.room_volume} m3</td><td>Occupancy</td><td class="num">${inputs.persons} persons</td></tr>
+      <tr><td>Outdoor Air Rate (Rp)</td><td class="num">${r.inputs_used.rp} L/s/person</td><td>Outdoor Air Rate (Ra)</td><td class="num">${r.inputs_used.ra} L/s/m2</td></tr>
+      <tr><td>Minimum ACH Required</td><td class="num">${r.inputs_used.min_ach} ACH</td><td>Safety Margin</td><td class="num">15%</td></tr>
+    </table>
+
+    <h2>4. Calculation Proper</h2>
+
+    <h3>4.1 Breathing Zone Outdoor Airflow (Vbz)</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula (ASHRAE 62.1 Sec. 6.2): Vbz = (Rp x Pz) + (Ra x Az)<br>
+      Given: Rp = ${r.inputs_used.rp} L/s/person, Pz = ${inputs.persons} persons, Ra = ${r.inputs_used.ra} L/s/m2, Az = ${inputs.floor_area} m2<br>
+      ${r.inputs_used.use_min_ach
+        ? `Note: Exhaust-only space - using minimum ACH method: Vbz = (min_ACH x Volume) / 3600<br>
+           <strong>Vbz = (${r.inputs_used.min_ach} x ${r.room_volume}) / 3600 = ${r.vbz_ls} L/s</strong>`
+        : `<strong>Vbz = (${r.inputs_used.rp} x ${inputs.persons}) + (${r.inputs_used.ra} x ${inputs.floor_area}) = ${r.vbz_ls} L/s</strong>`
+      }
+    </p>
+
+    <h3>4.2 Required Air Changes per Hour</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula: ACH = (Vbz x 3600) / Room Volume<br>
+      Given: Vbz = ${r.vbz_ls} L/s, Volume = ${r.room_volume} m3<br>
+      ACH from ASHRAE = (${r.vbz_ls} x 3600) / (${r.room_volume} x 1000) = ${r.ach_ashrae} ACH<br>
+      Minimum ACH required (${r.inputs_used.space_label}) = ${r.inputs_used.min_ach} ACH<br>
+      <strong>Design ACH = max(${r.ach_ashrae}, ${r.inputs_used.min_ach}) = ${r.required_ach} ACH</strong>
+    </p>
+
+    <h3>4.3 Supply Airflow</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula: Q_supply = ACH x Volume<br>
+      Given: ACH = ${r.required_ach}, Volume = ${r.room_volume} m3<br>
+      Q_supply = ${r.required_ach} x ${r.room_volume} = ${r.supply_cmh} m3/hr (${r.supply_cfm} CFM / ${r.supply_ls} L/s)<br>
+      Design airflow with 15% safety margin = ${r.supply_cmh} x 1.15 = <strong>${r.design_cmh} m3/hr (${r.design_cfm} CFM)</strong>
+    </p>
+
+    <h3>4.4 Outdoor Air Requirement</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Minimum outdoor air = Vbz = ${r.vbz_ls} L/s = ${r.outdoor_air_cmh} m3/hr (${r.outdoor_air_cfm} CFM)<br>
+      This is the minimum fresh air that must be introduced to meet ASHRAE 62.1 requirements.
+    </p>
+
+    <h2>5. Results Summary</h2>
+    <table>
+      <tr><th>Parameter</th><th style="text-align:right;">Value</th><th style="text-align:right;">Unit</th></tr>
+      <tr><td>Room Volume</td><td class="num">${r.room_volume}</td><td class="num">m3</td></tr>
+      <tr><td>Breathing Zone Outdoor Airflow (Vbz)</td><td class="num">${r.vbz_ls}</td><td class="num">L/s</td></tr>
+      <tr><td>Required ACH (ASHRAE 62.1)</td><td class="num">${r.ach_ashrae}</td><td class="num">ACH</td></tr>
+      <tr><td>Minimum ACH (Code Requirement)</td><td class="num">${r.inputs_used.min_ach}</td><td class="num">ACH</td></tr>
+      <tr class="total-row"><td>Design ACH (Governing Value)</td><td class="num">${r.required_ach}</td><td class="num">ACH</td></tr>
+      <tr><td>Supply Airflow</td><td class="num">${r.supply_cmh}</td><td class="num">m3/hr</td></tr>
+      <tr><td>Supply Airflow</td><td class="num">${r.supply_cfm}</td><td class="num">CFM</td></tr>
+      <tr><td>Design Airflow (with 15% safety margin)</td><td class="num">${r.design_cmh}</td><td class="num">m3/hr</td></tr>
+      <tr><td>Minimum Outdoor Air</td><td class="num">${r.outdoor_air_cmh}</td><td class="num">m3/hr</td></tr>
+    </table>
+
+    <div class="result-highlight" style="margin-top:1rem;">
+      <div class="res-label">Recommended Fan Capacity</div>
+      <div class="res-value">${r.recommended_fan_cmh.toLocaleString()} m3/hr / ${r.recommended_fan_cfm.toLocaleString()} CFM</div>
+      <div style="margin-top:0.5rem;font-size:0.82rem;color:#555;">
+        <strong>Required ACH:</strong> ${r.required_ach} ACH &nbsp;|&nbsp;
+        <strong>Design Airflow:</strong> ${r.design_cmh} m3/hr
+      </div>
+    </div>
+
+    <h2>6. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || '')}</p>
+
+    <div class="sig-block">
+      <div>
+        <div class="sig-line">Prepared by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.78rem;margin-top:0.25rem;">${escHtml(WORKER_NAME)}</div>
+        <div style="font-size:0.75rem;color:#999;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
+      </div>
+      <div>
+        <div class="sig-line">Checked by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.78rem;margin-top:0.25rem;min-width:120px;display:inline-block;">&nbsp;</div>
+        <div style="font-size:0.75rem;color:#999;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
+      </div>
+      <div>
+        <div class="sig-line">Approved by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.78rem;margin-top:0.25rem;min-width:120px;display:inline-block;">&nbsp;</div>
+        <div style="font-size:0.75rem;color:#999;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
 // ─── Print (opens clean new window, no browser URL/title in PDF) ──────────────
 function printReport() {
   const reportHtml = document.getElementById('report-panel').innerHTML;
@@ -1084,7 +1325,11 @@ function viewHistoryReport(row) {
   _lastResults   = row.results;
   _lastNarrative = row.narrative;
   _lastInputs    = row.inputs;
-  renderReport(row.inputs, row.results, row.narrative);
+  if (row.calc_type === 'Ventilation / ACH') {
+    renderVentReport(row.inputs, row.results, row.narrative);
+  } else {
+    renderReport(row.inputs, row.results, row.narrative);
+  }
 }
 
 async function deleteCalc(id) {
