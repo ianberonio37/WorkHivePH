@@ -1933,21 +1933,7 @@ async function openEditModal(id) {
     });
   }
 
-  // Show/hide parts section and tasklist section when status changes
-  document.querySelectorAll('input[name="e-status"]').forEach(r => {
-    r.addEventListener('change', () => {
-      const closed    = r.value === 'Closed' && r.checked;
-      const maintType = document.getElementById('e-maint-type').value;
-      const category  = document.getElementById('e-category').value;
-      document.getElementById('e-parts-section').classList.toggle('hidden', !closed);
-      const eTaskSect = document.getElementById('e-tasklist-section');
-      if (eTaskSect) {
-        const hasTasks = closed && !!getTasklist(maintType, category);
-        eTaskSect.classList.toggle('hidden', !hasTasks);
-      }
-      if (closed && _inventoryItems.length === 0) loadInventoryForPicker();
-    });
-  });
+  // Status change for edit modal is handled by the global document 'change' listener.
   if (status === 'Closed' && _inventoryItems.length === 0) loadInventoryForPicker();
 }
 
@@ -2503,6 +2489,7 @@ const TASKLIST_TEMPLATES = {
     'Automation / PLC':['Obtain work order and backup current PLC program','Identify fault: hardware, software, or communication','Apply LOTO if hardware work is required','Replace faulty module or correct program fault','Restore backup program and verify logic','Test I/O points and interlocks','Run equipment in manual then auto mode','Document changes in logbook'],
     'Lubrication':     ['Identify equipment and lubrication point','Check current lubricant condition (color, viscosity, contamination)','Apply correct lubricant type and quantity per spec','Clean up excess grease or oil','Log lubrication performed in logbook'],
     'HVAC':            ['De-energize HVAC unit and apply LOTO','Identify fault (compressor, fan, coil, refrigerant leak)','Perform repair or component replacement','Check refrigerant level and recharge if needed','Restore power and test operation','Verify temperature control is functioning','Update logbook'],
+    'Other':           ['Obtain work order or verbal instruction from supervisor','Assess the fault and identify the scope of work','Obtain required permits and apply LOTO where applicable','Gather required tools, materials, and equipment','Identify root cause of the fault or failure','Perform repair, replacement, or corrective action','Inspect work quality before restoring equipment','Remove LOTO and restore equipment to service','Run functional test and verify normal operation','Clean up work area','Update logbook with job details and root cause'],
   },
   'Preventive Maintenance': {
     'Mechanical':      ['Review PM schedule and equipment history','Prepare tools, lubricants, and replacement parts','Isolate equipment and apply LOTO','Clean equipment externally and internally','Inspect belts, chains, couplings for wear','Check and tighten all bolts and fasteners','Lubricate bearings and moving parts per schedule','Check alignment of shafts and couplings','Inspect seals and gaskets for leakage','Replace worn consumables (belts, seals, filters)','Restore equipment and perform trial run','Record PM completion and observations in logbook'],
@@ -2515,6 +2502,7 @@ const TASKLIST_TEMPLATES = {
     'Automation / PLC':['Review PLC diagnostic log for faults or warnings','Back up current PLC and HMI programs','Inspect I/O modules for indicator faults','Check battery backup voltage on PLC rack','Clean control panel with dry cloth, check cooling fans','Test critical interlocks and emergency stops','Verify HMI alarms and setpoints are correct','Record PM findings in logbook'],
     'Lubrication':     ['Review lubrication schedule for all equipment in route','Inspect lubricant levels in gearboxes and reservoirs','Sample oil for analysis if on oil analysis program','Grease all designated points per type and quantity spec','Check for over-greasing or grease purge at seals','Replace oil in gearboxes if due per schedule','Record lubrication route completion in logbook'],
     'HVAC':            ['Clean or replace air filters','Clean evaporator and condenser coils','Check refrigerant pressure and temperature','Inspect fan belts and motor mounts','Clean drain pans and condensate drain lines','Check thermostat/controller calibration','Run system and verify cooling/heating performance','Record PM results in logbook'],
+    'Other':           ['Review PM schedule and equipment history for this task','Prepare tools, materials, and any consumables required','Isolate equipment and apply LOTO as applicable','Perform inspection, cleaning, and scheduled maintenance tasks','Check for signs of wear, damage, leakage, or abnormal condition','Replace consumables or worn components as required','Restore equipment and remove LOTO','Perform functional test and verify equipment operates normally','Clean up work area','Record PM completion and all observations in logbook'],
   },
   'Project Work': {
     'Mechanical':      ['Review project scope, drawings, and specifications','Obtain necessary permits (work, hot work, confined space, etc.)','Prepare materials, tools, and equipment list','Conduct pre-task safety briefing with team','Isolate affected systems and apply LOTO','Execute installation or modification per drawings','Inspect work quality at each stage','Perform dimensional and alignment checks','Commission equipment: run trial and observe','Hand over to operations with sign-off','Update logbook with project summary'],
@@ -2653,7 +2641,20 @@ document.addEventListener('change', function(e) {
       tick.classList.add('hidden');
     }
   }
-  if (e.target.name === 'e-status') updateStatusToggle('e-status');
+  if (e.target.name === 'e-status') {
+    updateStatusToggle('e-status');
+    const isClosed  = e.target.value === 'Closed';
+    const ePartsSect = document.getElementById('e-parts-section');
+    const eTaskSect  = document.getElementById('e-tasklist-section');
+    if (ePartsSect) ePartsSect.classList.toggle('hidden', !isClosed);
+    if (eTaskSect) {
+      // Prefer the actual stored value as fallback when the select shows blank
+      const maintType = document.getElementById('e-maint-type')?.value || (_editingEntry?.maintenance_type ?? '');
+      const category  = document.getElementById('e-category')?.value  || (_editingEntry?.category ?? '');
+      eTaskSect.classList.toggle('hidden', !(isClosed && !!getTasklist(maintType, category)));
+    }
+    if (isClosed && _inventoryItems.length === 0) loadInventoryForPicker();
+  }
   if (e.target.name === 'a-criticality' && e.target.checked) {
     ['Critical','Major','Minor'].forEach(v => {
       document.getElementById('crit-btn-' + v).classList.remove('sel-Critical','sel-Major','sel-Minor');
