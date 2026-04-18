@@ -573,8 +573,8 @@ function selectCalcType(id) {
   document.querySelectorAll('.calc-card').forEach(c => {
     c.classList.toggle('selected', c.dataset.id === id);
   });
-  renderInputForm(id);
   setStep(3);
+  renderInputForm(id);
   showEmpty();
 }
 
