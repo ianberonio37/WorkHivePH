@@ -223,6 +223,143 @@ function calcVentilationACH(inputs: Record<string, number | string>) {
   };
 }
 
+// ─── Pump Sizing (TDH) Calculation ───────────────────────────────────────────
+// Method: Darcy-Weisbach for friction head + static head + velocity head + fittings
+// Standards: PSME, ASHRAE, Hydraulic Institute
+
+// Pipe friction factor approximation (Hazen-Williams C factor → converted to Darcy-Weisbach)
+// We use Hazen-Williams formula: V = 0.8492 * C * R^0.63 * S^0.54
+// For simplicity in field design: use explicit head loss formula
+
+const PIPE_C_VALUES: Record<string, number> = {
+  "PVC":                 150,
+  "Galvanized Steel":    120,
+  "Cast Iron":           100,
+  "Stainless Steel":     140,
+  "HDPE":                150,
+  "Copper":              140,
+};
+
+// Standard pump HP sizes (commercial pumps available in PH)
+const PUMP_HP_SIZES = [0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 5.0, 7.5, 10.0, 15.0, 20.0, 25.0, 30.0, 40.0, 50.0, 75.0, 100.0];
+
+function roundUpToPumpHP(hp: number): number {
+  return PUMP_HP_SIZES.find(s => s >= hp) || Math.ceil(hp / 5) * 5;
+}
+
+// Standard pipe sizes (nominal diameter in mm)
+const PIPE_SIZES_MM = [15, 20, 25, 32, 40, 50, 65, 80, 100, 125, 150, 200, 250, 300, 350, 400];
+
+// Recommended velocity range: 0.9 - 3.0 m/s for water in pipes
+// Select pipe diameter to keep velocity between 1.0 - 2.5 m/s
+function selectPipeDiameter(flowM3s: number, targetVelocity = 1.5): number {
+  // A = Q / V, D = sqrt(4A/pi)
+  const area = flowM3s / targetVelocity;
+  const diamM = Math.sqrt((4 * area) / Math.PI);
+  const diamMM = diamM * 1000;
+  return PIPE_SIZES_MM.find(d => d >= diamMM) || Math.ceil(diamMM / 25) * 25;
+}
+
+function calcPumpSizingTDH(inputs: Record<string, number | string>) {
+  const flowRate       = Number(inputs.flow_rate);       // L/min
+  const staticHead     = Number(inputs.static_head);     // m (suction + discharge elevation diff)
+  const pipeLength     = Number(inputs.pipe_length);     // m (total equivalent length)
+  const pipeDiaInput   = Number(inputs.pipe_diameter);   // mm (0 = auto-select)
+  const pipeMaterial   = String(inputs.pipe_material || "PVC");
+  const pumpEfficiency = Number(inputs.pump_efficiency) || 70; // %
+  const motorEfficiency= Number(inputs.motor_efficiency) || 90; // %
+  const fluidDensity   = Number(inputs.fluid_density)   || 1000; // kg/m3 (water=1000)
+  const pressureHead   = Number(inputs.pressure_head)   || 0;   // m (discharge pressure requirement)
+  const fittingsAllowance = Number(inputs.fittings_allowance) || 20; // % extra for fittings
+
+  // Convert flow rate to m3/s
+  const flowM3s  = flowRate / (1000 * 60); // L/min to m3/s
+  const flowM3hr = flowRate * 60 / 1000;   // L/min to m3/hr
+
+  // Auto-select or use input pipe diameter
+  const pipeDiaMM = pipeDiaInput > 0 ? pipeDiaInput : selectPipeDiameter(flowM3s);
+  const pipeDiaM  = pipeDiaMM / 1000;
+  const pipeArea  = Math.PI * Math.pow(pipeDiaM / 2, 2); // m2
+
+  // Flow velocity
+  const velocity = flowM3s / pipeArea; // m/s
+
+  // Hazen-Williams friction head loss
+  // hf = (10.67 * L * Q^1.852) / (C^1.852 * D^4.87)
+  // where Q in m3/s, D in m, L in m
+  const C = PIPE_C_VALUES[pipeMaterial] || 150;
+  const hfBase = (10.67 * pipeLength * Math.pow(flowM3s, 1.852)) / (Math.pow(C, 1.852) * Math.pow(pipeDiaM, 4.87));
+
+  // Add fittings allowance
+  const hfTotal = hfBase * (1 + fittingsAllowance / 100);
+
+  // Velocity head
+  const g = 9.81;
+  const velocityHead = Math.pow(velocity, 2) / (2 * g);
+
+  // Total Dynamic Head
+  const TDH = staticHead + hfTotal + velocityHead + pressureHead;
+
+  // Hydraulic power (kW)
+  const hydraulicPower = (fluidDensity * g * flowM3s * TDH) / 1000; // kW
+
+  // Brake power (shaft power, accounting for pump efficiency)
+  const brakePower = hydraulicPower / (pumpEfficiency / 100); // kW
+
+  // Motor power (accounting for motor efficiency)
+  const motorPower = brakePower / (motorEfficiency / 100); // kW
+
+  // Convert to HP
+  const motorHP = motorPower / 0.7457;
+
+  // Round up to next standard pump HP
+  const recommendedHP = roundUpToPumpHP(motorHP);
+  const recommendedKW = Math.round(recommendedHP * 0.7457 * 100) / 100;
+
+  // NPSH available estimate (simplified, assumes suction lift scenario)
+  const suctionHead  = Number(inputs.suction_head) || 0; // m (positive = flooded, negative = lift)
+  const vaporPressure = 0.25; // m at 30°C water approximation
+  const atmHead = 10.33; // m water at sea level (Philippine coastal plants)
+  const npshA = atmHead + suctionHead - vaporPressure - (hfBase * 0.3); // simplified
+
+  return {
+    // Flow
+    flow_lpm:         flowRate,
+    flow_m3hr:        Math.round(flowM3hr * 100) / 100,
+    // Pipe
+    pipe_dia_mm:      pipeDiaMM,
+    pipe_velocity:    Math.round(velocity * 100) / 100,
+    velocity_ok:      velocity >= 0.9 && velocity <= 3.0,
+    // Head components
+    static_head:      Math.round(staticHead * 100) / 100,
+    friction_head:    Math.round(hfTotal * 100) / 100,
+    velocity_head:    Math.round(velocityHead * 100) / 100,
+    pressure_head:    Math.round(pressureHead * 100) / 100,
+    TDH:              Math.round(TDH * 100) / 100,
+    // Power
+    hydraulic_kw:     Math.round(hydraulicPower * 100) / 100,
+    brake_kw:         Math.round(brakePower * 100) / 100,
+    motor_kw:         Math.round(motorPower * 100) / 100,
+    motor_hp:         Math.round(motorHP * 100) / 100,
+    recommended_hp:   recommendedHP,
+    recommended_kw:   recommendedKW,
+    // NPSH
+    npsh_available:   Math.round(npshA * 100) / 100,
+    // Efficiencies used
+    inputs_used: {
+      pipe_material:       pipeMaterial,
+      C_factor:            C,
+      pipe_dia_mm:         pipeDiaMM,
+      pipe_dia_source:     pipeDiaInput > 0 ? "User input" : "Auto-selected",
+      fittings_allowance:  fittingsAllowance,
+      pump_efficiency:     pumpEfficiency,
+      motor_efficiency:    motorEfficiency,
+      fluid_density:       fluidDensity,
+      hf_base:             Math.round(hfBase * 100) / 100,
+    }
+  };
+}
+
 // ─── Gemini AI — Report Narrative ────────────────────────────────────────────
 
 async function generateReportNarrative(
@@ -307,6 +444,8 @@ serve(async (req) => {
       results = calcHVACCoolingLoad(inputs);
     } else if (calc_type === "Ventilation / ACH") {
       results = calcVentilationACH(inputs);
+    } else if (calc_type === "Pump Sizing (TDH)") {
+      results = calcPumpSizingTDH(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

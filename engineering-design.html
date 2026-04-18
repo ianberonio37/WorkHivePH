@@ -486,7 +486,7 @@ const CALC_TYPES = {
   Mechanical: [
     { id: 'HVAC Cooling Load',    icon: '❄️',  desc: 'Room heat gain, AC capacity in kW / TR', available: true  },
     { id: 'Ventilation / ACH',    icon: '💨',  desc: 'Air changes per hour, fan CMH / CFM',     available: true  },
-    { id: 'Pump Sizing (TDH)',    icon: '💧',  desc: 'Total Dynamic Head, pump HP selection',   available: false },
+    { id: 'Pump Sizing (TDH)',    icon: '💧',  desc: 'Total Dynamic Head, pump HP selection',   available: true  },
     { id: 'Pipe Sizing',          icon: '🔩',  desc: 'Flow velocity, pipe diameter',            available: false },
     { id: 'Compressed Air',       icon: '🌬️', desc: 'Compressor CFM demand calculation',       available: false },
   ],
@@ -776,6 +776,132 @@ function renderInputForm(calcType) {
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
+
+  if (calcType === 'Pump Sizing (TDH)') {
+    area.innerHTML = `
+      <!-- Project name -->
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Cooling Water Pump - Building A" />
+      </div>
+
+      <!-- Fluid type toggle -->
+      <div class="mb-4">
+        <div class="field-label">Fluid</div>
+        <div class="toggle-group" id="tg-fluid">
+          ${['Water','Chilled Water','Hot Water','Glycol Solution','Seawater'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-fluid','${v}');applyFluidDefaults('${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <!-- Flow rate & static head -->
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Flow Rate (Q)</div>
+          <div class="input-group">
+            <input id="f-flow-rate" class="wh-input" type="number" placeholder="0" min="0" />
+            <span class="input-unit">L/min</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Static Head</div>
+          <div class="input-group">
+            <input id="f-static-head" class="wh-input" type="number" placeholder="0" min="0" step="0.5" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pipe length & diameter -->
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Total Pipe Length <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(suction + discharge)</span></div>
+          <div class="input-group">
+            <input id="f-pipe-length" class="wh-input" type="number" placeholder="0" min="0" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Pipe Diameter <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(0 = auto)</span></div>
+          <div class="input-group">
+            <input id="f-pipe-dia" class="wh-input" type="number" placeholder="Auto" min="0" value="0" />
+            <span class="input-unit">mm</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pipe material -->
+      <div class="mb-4">
+        <div class="field-label">Pipe Material</div>
+        <div class="toggle-group" id="tg-pipe-mat">
+          ${['PVC','Galvanized Steel','Stainless Steel','HDPE','Copper','Cast Iron'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-pipe-mat','${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <!-- Suction head & pressure head -->
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Suction Head <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(+ flooded, - lift)</span></div>
+          <div class="input-group">
+            <input id="f-suction-head" class="wh-input" type="number" placeholder="0" step="0.5" value="0" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Discharge Pressure Head <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(system back-pressure)</span></div>
+          <div class="input-group">
+            <input id="f-pressure-head" class="wh-input" type="number" placeholder="0" min="0" step="0.5" value="0" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Efficiencies & fittings -->
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div>
+          <div class="field-label">Pump Efficiency</div>
+          <div class="input-group">
+            <input id="f-pump-eff" class="wh-input" type="number" value="70" min="1" max="100" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Motor Efficiency</div>
+          <div class="input-group">
+            <input id="f-motor-eff" class="wh-input" type="number" value="90" min="1" max="100" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Fittings Allowance</div>
+          <div class="input-group">
+            <input id="f-fittings" class="wh-input" type="number" value="20" min="0" max="100" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fluid density (auto-filled) -->
+      <div class="mb-4">
+        <div class="field-label">Fluid Density <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(auto-filled by fluid type)</span></div>
+        <div class="input-group" style="max-width:160px;">
+          <input id="f-fluid-density" class="wh-input" type="number" value="1000" min="0" />
+          <span class="input-unit">kg/m³</span>
+        </div>
+      </div>
+
+      <!-- Info box -->
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
+        Method: Hazen-Williams friction loss + Darcy-Weisbach velocity head.<br>
+        TDH = Static Head + Friction Head + Velocity Head + Pressure Head. Standard: PSME / Hydraulic Institute.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
 }
 
 // ─── Toggle button groups ─────────────────────────────────────────────────────
@@ -807,6 +933,18 @@ function applyVentDefaults(roomFunc) {
   if (!d) return;
   const pEl = document.getElementById('f-persons');
   if (pEl) pEl.value = d.persons;
+}
+
+function applyFluidDefaults(fluid) {
+  const densities = {
+    'Water':            1000,
+    'Chilled Water':    999,
+    'Hot Water':        983,
+    'Glycol Solution':  1040,
+    'Seawater':         1025,
+  };
+  const el = document.getElementById('f-fluid-density');
+  if (el) el.value = densities[fluid] || 1000;
 }
 
 function applyRoomDefaults(roomFunc) {
@@ -858,6 +996,24 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Pump Sizing (TDH)') {
+    return {
+      project_name:        v('f-project') || 'Untitled Pump System',
+      flow_rate:           parseFloat(v('f-flow-rate'))      || 0,
+      static_head:         parseFloat(v('f-static-head'))    || 0,
+      pipe_length:         parseFloat(v('f-pipe-length'))    || 0,
+      pipe_diameter:       parseFloat(v('f-pipe-dia'))       || 0,
+      pipe_material:       getToggle('tg-pipe-mat')          || 'PVC',
+      suction_head:        parseFloat(v('f-suction-head'))   || 0,
+      pressure_head:       parseFloat(v('f-pressure-head'))  || 0,
+      pump_efficiency:     parseFloat(v('f-pump-eff'))       || 70,
+      motor_efficiency:    parseFloat(v('f-motor-eff'))      || 90,
+      fittings_allowance:  parseFloat(v('f-fittings'))       || 20,
+      fluid_type:          getToggle('tg-fluid')             || 'Water',
+      fluid_density:       parseFloat(v('f-fluid-density'))  || 1000,
+    };
+  }
+
   return base;
 }
 
@@ -865,7 +1021,12 @@ function collectInputs() {
 async function runCalculation() {
   const inputs = collectInputs();
 
-  if (!inputs.floor_area || inputs.floor_area <= 0) {
+  if (_calcType === 'Pump Sizing (TDH)') {
+    if (!inputs.flow_rate || inputs.flow_rate <= 0) {
+      showToast('Please enter the flow rate.');
+      return;
+    }
+  } else if (!inputs.floor_area || inputs.floor_area <= 0) {
     showToast('Please enter the floor area.');
     return;
   }
@@ -886,6 +1047,8 @@ async function runCalculation() {
 
     if (_calcType === 'Ventilation / ACH') {
       renderVentReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Pump Sizing (TDH)') {
+      renderPumpReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -1209,6 +1372,161 @@ function renderVentReport(inputs, results, narrative) {
   showReport();
 }
 
+// ─── Pump Sizing Report ───────────────────────────────────────────────────────
+function renderPumpReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+
+  const velWarn = !results.velocity_ok
+    ? `<tr style="background:#fff3cd;"><td colspan="2" style="color:#7a5a00;font-size:0.78rem;">
+        Warning: Pipe velocity is ${results.pipe_velocity} m/s. Recommended range: 0.9 - 3.0 m/s.
+        ${results.pipe_velocity < 0.9 ? 'Velocity too low — consider reducing pipe diameter.' : 'Velocity too high — consider increasing pipe diameter.'}
+       </td></tr>` : '';
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading. Fields with dashed underlines are editable.
+    </div>
+
+    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">PUMP SIZING DESIGN CALCULATION</h1>
+    <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">Total Dynamic Head (TDH) Method - Hazen-Williams / Hydraulic Institute</div>
+
+    <h2>1. PROJECT INFORMATION</h2>
+    <table>
+      <tr><td style="width:35%;">Project / System Name</td><td>${e(inputs.project_name)}</td></tr>
+      <tr><td>Location</td><td>${e('')}</td></tr>
+      <tr><td>Owner / Client</td><td>${e('')}</td></tr>
+      <tr><td>Prepared by</td><td>${e('')}</td></tr>
+      <tr><td>PRC License No.</td><td>${e('')}</td></tr>
+      <tr><td>Date</td><td>${e(dateStr)}</td></tr>
+    </table>
+
+    <h2>2. OBJECTIVE</h2>
+    <p>${e(narrative?.objective || 'To determine the Total Dynamic Head (TDH) and select the appropriate pump horsepower for the subject piping system.')}</p>
+
+    <h2>3. DESIGN BASIS AND ASSUMPTIONS</h2>
+    <p>${e(narrative?.assumptions || 'Standard hydraulic design conditions applied. Hazen-Williams friction loss method used. Fittings accounted for via equivalent length allowance.')}</p>
+
+    <h2>4. DESIGN INPUTS</h2>
+    <table>
+      <tr><th>Parameter</th><th>Value</th><th>Unit</th></tr>
+      <tr><td>Fluid Type</td><td>${escHtml(inputs.fluid_type || 'Water')}</td><td>-</td></tr>
+      <tr><td>Fluid Density</td><td>${escHtml(String(inputs.fluid_density || 1000))}</td><td>kg/m3</td></tr>
+      <tr><td>Design Flow Rate (Q)</td><td>${escHtml(String(inputs.flow_rate))}</td><td>L/min</td></tr>
+      <tr><td>Static Head (elevation diff)</td><td>${escHtml(String(inputs.static_head))}</td><td>m</td></tr>
+      <tr><td>Total Pipe Length</td><td>${escHtml(String(inputs.pipe_length))}</td><td>m</td></tr>
+      <tr><td>Pipe Material</td><td>${escHtml(inputs.pipe_material || 'PVC')}</td><td>-</td></tr>
+      <tr><td>Pipe Diameter</td><td>${escHtml(String(results.pipe_dia_mm))} ${results.inputs_used?.pipe_dia_source === 'Auto-selected' ? '(auto-selected)' : '(user input)'}</td><td>mm</td></tr>
+      <tr><td>Suction Head</td><td>${escHtml(String(inputs.suction_head || 0))}</td><td>m</td></tr>
+      <tr><td>Discharge Pressure Head</td><td>${escHtml(String(inputs.pressure_head || 0))}</td><td>m</td></tr>
+      <tr><td>Pump Efficiency (assumed)</td><td>${escHtml(String(inputs.pump_efficiency || 70))}</td><td>%</td></tr>
+      <tr><td>Motor Efficiency (assumed)</td><td>${escHtml(String(inputs.motor_efficiency || 90))}</td><td>%</td></tr>
+      <tr><td>Fittings / Minor Losses Allowance</td><td>${escHtml(String(inputs.fittings_allowance || 20))}</td><td>% of pipe friction</td></tr>
+      <tr><td>Hazen-Williams C Factor</td><td>${escHtml(String(results.inputs_used?.C_factor || '-'))}</td><td>-</td></tr>
+    </table>
+
+    <h2>5. CALCULATION</h2>
+
+    <h3>5.1 Flow Rate Conversion</h3>
+    <table>
+      <tr><th>Parameter</th><th class="num">Value</th><th>Unit</th></tr>
+      <tr><td>Design Flow Rate</td><td class="num">${results.flow_lpm}</td><td>L/min</td></tr>
+      <tr><td>Design Flow Rate</td><td class="num">${results.flow_m3hr}</td><td>m3/hr</td></tr>
+    </table>
+
+    <h3>5.2 Pipe Velocity Check</h3>
+    <table>
+      <tr><th>Parameter</th><th class="num">Value</th><th>Unit</th></tr>
+      <tr><td>Selected Pipe Diameter</td><td class="num">${results.pipe_dia_mm}</td><td>mm (nominal)</td></tr>
+      <tr><td>Flow Velocity</td><td class="num">${results.pipe_velocity}</td><td>m/s</td></tr>
+      <tr><td>Acceptable Range</td><td class="num">0.9 - 3.0</td><td>m/s</td></tr>
+      <tr><td>Status</td><td class="num" style="color:${results.velocity_ok ? '#2e7d32' : '#b71c1c'};font-weight:700;">${results.velocity_ok ? 'ACCEPTABLE' : 'OUT OF RANGE'}</td><td>-</td></tr>
+      ${velWarn}
+    </table>
+
+    <h3>5.3 Total Dynamic Head (TDH) Components</h3>
+    <table>
+      <tr><th>Head Component</th><th>Formula</th><th class="num">Value (m)</th></tr>
+      <tr><td>Static Head (Hs)</td><td>Elevation difference</td><td class="num">${results.static_head}</td></tr>
+      <tr><td>Friction Head (Hf)</td><td>Hazen-Williams + ${inputs.fittings_allowance || 20}% fittings</td><td class="num">${results.friction_head}</td></tr>
+      <tr><td>Velocity Head (Hv)</td><td>V² / 2g</td><td class="num">${results.velocity_head}</td></tr>
+      <tr><td>Pressure Head (Hp)</td><td>System back-pressure</td><td class="num">${results.pressure_head}</td></tr>
+      <tr class="total-row"><td colspan="2"><strong>Total Dynamic Head (TDH)</strong></td><td class="num"><strong>${results.TDH}</strong></td></tr>
+    </table>
+
+    <h3>5.4 Pump Power Calculation</h3>
+    <table>
+      <tr><th>Parameter</th><th>Formula</th><th class="num">Value</th><th>Unit</th></tr>
+      <tr><td>Hydraulic Power</td><td>rho x g x Q x TDH</td><td class="num">${results.hydraulic_kw}</td><td>kW</td></tr>
+      <tr><td>Brake Power (shaft)</td><td>Hydraulic / Pump Eff.</td><td class="num">${results.brake_kw}</td><td>kW</td></tr>
+      <tr><td>Motor Power</td><td>Brake / Motor Eff.</td><td class="num">${results.motor_kw}</td><td>kW</td></tr>
+      <tr><td>Motor Power</td><td>Motor kW / 0.7457</td><td class="num">${results.motor_hp}</td><td>HP</td></tr>
+    </table>
+
+    <h3>5.5 NPSH Available (NPSHa) - Simplified</h3>
+    <table>
+      <tr><th>Parameter</th><th class="num">Value</th><th>Unit</th></tr>
+      <tr><td>Atmospheric Head (sea level)</td><td class="num">10.33</td><td>m</td></tr>
+      <tr><td>Suction Head</td><td class="num">${inputs.suction_head || 0}</td><td>m</td></tr>
+      <tr><td>Vapor Pressure Head (30°C)</td><td class="num">0.25</td><td>m</td></tr>
+      <tr><td>NPSHa (available)</td><td class="num"><strong>${results.npsh_available}</strong></td><td>m</td></tr>
+      <tr><td>Note</td><td colspan="2" style="font-size:0.78rem;color:#666;">Verify NPSHa > NPSHr from pump curve before final selection.</td></tr>
+    </table>
+
+    <h2>6. RESULTS SUMMARY</h2>
+    <div class="result-highlight">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <div class="res-label">Total Dynamic Head (TDH)</div>
+          <div class="res-value">${results.TDH} m</div>
+        </div>
+        <div>
+          <div class="res-label">Design Flow Rate</div>
+          <div class="res-value">${results.flow_lpm} L/min</div>
+        </div>
+        <div>
+          <div class="res-label">Required Motor Power</div>
+          <div class="res-value">${results.motor_hp} HP (${results.motor_kw} kW)</div>
+        </div>
+        <div>
+          <div class="res-label">Recommended Pump Selection</div>
+          <div class="res-value">${results.recommended_hp} HP (${results.recommended_kw} kW)</div>
+        </div>
+      </div>
+    </div>
+
+    <table style="margin-top:0.5rem;">
+      <tr><th>Parameter</th><th class="num">Computed</th><th class="num">Recommended (Next Standard Size)</th></tr>
+      <tr><td>Motor Power</td><td class="num">${results.motor_hp} HP</td><td class="num"><strong>${results.recommended_hp} HP (${results.recommended_kw} kW)</strong></td></tr>
+      <tr><td>Total Dynamic Head</td><td class="num" colspan="2">${results.TDH} m</td></tr>
+      <tr><td>Pipe Diameter</td><td class="num" colspan="2">${results.pipe_dia_mm} mm nominal</td></tr>
+      <tr><td>Pipe Velocity</td><td class="num" colspan="2">${results.pipe_velocity} m/s (${results.velocity_ok ? 'acceptable' : 'review required'})</td></tr>
+    </table>
+
+    <h2>7. RECOMMENDATIONS</h2>
+    <p>${e(narrative?.recommendations || 'Provide a pump with minimum capacity as computed. Verify NPSHa exceeds pump NPSHr before final selection. Install pressure gauges on suction and discharge for commissioning verification.')}</p>
+
+    <div class="sig-block">
+      <div>
+        <div class="sig-line">Prepared by</div>
+        <div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div>
+      </div>
+      <div>
+        <div class="sig-line">PRC License No. / PTR No.</div>
+        <div style="margin-top:2rem;" class="sig-line">Date</div>
+      </div>
+      <div>
+        <div class="sig-line">Checked / Approved by</div>
+        <div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
 // ─── Download PDF (html2pdf — no browser headers/footers/URL) ────────────────
 function printReport() {
   const reportEl = document.getElementById('report-panel');
@@ -1337,6 +1655,8 @@ function viewHistoryReport(row) {
   _lastInputs    = row.inputs;
   if (row.calc_type === 'Ventilation / ACH') {
     renderVentReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Pump Sizing (TDH)') {
+    renderPumpReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
