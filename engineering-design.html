@@ -205,6 +205,8 @@
     #report-panel .result-highlight .res-value { font-size: 1.3rem; font-weight: 700; color: #D88A0E; }
     #report-panel .sig-block { margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
     #report-panel .sig-line { border-top: 1px solid #999; padding-top: 0.25rem; font-size: 0.75rem; color: #666; margin-top: 2rem; }
+    #report-panel .editable-field { border-bottom: 1.5px dashed #F7A21B; outline: none; min-width: 40px; display: inline-block; cursor: text; }
+    #report-panel .editable-field:focus { background: #fffbf0; border-radius: 2px; }
 
     /* History card */
     .hist-card {
@@ -397,7 +399,7 @@
     <div class="card p-6">
       <h2 class="font-bold text-lg mb-4" style="color:#F7A21B;">Calculation Guide</h2>
 
-      <h3 class="font-semibold mb-2">HVAC Cooling Load — Simplified Total Heat Gain</h3>
+      <h3 class="font-semibold mb-2">HVAC Cooling Load - Simplified Total Heat Gain</h3>
       <p class="text-sm mb-3" style="color:rgba(255,255,255,0.6);">Determines the total cooling requirement for a space based on all heat sources.</p>
       <div class="card p-4 mb-4" style="background:rgba(22,32,50,0.5);">
         <div class="text-xs font-mono" style="color:#FDB94A;line-height:2;">
@@ -809,51 +811,56 @@ function showReport() {
 
 // ─── Render report HTML ───────────────────────────────────────────────────────
 function renderReport(inputs, results, narrative) {
-  const now   = new Date();
+  const now     = new Date();
   const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
-  const c = results.components;
+  const c       = results.components;
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
 
   const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before printing. In the print dialog, uncheck "Headers and footers" for a clean PDF.
+    </div>
+
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div>
         <h1>DESIGN CALCULATION</h1>
-        <div style="font-size:0.8rem;color:#555;">HVAC Cooling Load — Simplified Total Heat Gain Method</div>
+        <div style="font-size:0.8rem;color:#555;">HVAC Cooling Load - Simplified Total Heat Gain Method</div>
       </div>
       <div style="text-align:right;font-size:0.78rem;color:#555;">
-        <div>Rev. 0</div>
+        <div>Rev. ${e('0')}</div>
         <div>Date: ${dateStr}</div>
       </div>
     </div>
 
     <h2>Project Information</h2>
     <table>
-      <tr><th style="width:35%;">Project / Room Name</th><td>${escHtml(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${escHtml(WORKER_NAME)}</td></tr>
-      <tr><th>Building Type</th><td>${escHtml(inputs.building_type)}</td><th>PRC License No.</th><td style="color:#aaa;">_______________</td></tr>
-      <tr><th>Room Function</th><td>${escHtml(inputs.room_function)}</td><th>Checked by</th><td style="color:#aaa;">_______________</td></tr>
-      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td style="color:#aaa;">_______________</td></tr>
+      <tr><th style="width:30%;">Project / Room Name</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Building Type</th><td>${e(inputs.building_type)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Room Function</th><td>${e(inputs.room_function)}</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
     </table>
 
     <h2>1. Objective</h2>
-    <p style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || '')}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || '')}</p>
 
     <h2>2. Applicable Codes and Standards</h2>
     <ul style="font-size:0.82rem;color:#333;padding-left:1.25rem;line-height:2;">
-      <li>PSME Code — Philippine Society of Mechanical Engineers (Latest Edition)</li>
+      <li>PSME Code - Philippine Society of Mechanical Engineers (Latest Edition)</li>
       <li>ASHRAE Fundamentals Handbook 2021</li>
-      <li>ASHRAE Standard 62.1 — Ventilation for Acceptable Indoor Air Quality</li>
+      <li>ASHRAE Standard 62.1 - Ventilation for Acceptable Indoor Air Quality</li>
       <li>National Building Code of the Philippines (PD 1096)</li>
-      <li>DOLE OSH Standards — Workplace Ventilation Requirements</li>
+      <li>DOLE OSH Standards - Workplace Ventilation Requirements</li>
     </ul>
 
     <h2>3. Design Criteria and Assumptions</h2>
-    <p style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || '')}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || '')}</p>
     <table style="margin-top:0.5rem;">
       <tr><th>Parameter</th><th>Value</th><th>Parameter</th><th>Value</th></tr>
       <tr><td>Floor Area</td><td class="num">${inputs.floor_area} m²</td><td>Ceiling Height</td><td class="num">${inputs.ceiling_height} m</td></tr>
       <tr><td>Outdoor Design Temp</td><td class="num">${inputs.outdoor_temp}°C</td><td>Indoor Design Temp</td><td class="num">${inputs.indoor_temp}°C</td></tr>
       <tr><td>Wall / Roof Insulation</td><td class="num">${escHtml(inputs.insulation)}</td><td>Glass Type</td><td class="num">${escHtml(inputs.glass_type)}</td></tr>
       <tr><td>Occupancy</td><td class="num">${inputs.persons} persons</td><td>Equipment Load</td><td class="num">${inputs.equipment_kw} kW</td></tr>
-      <tr><td>U-value (Wall)</td><td class="num">${results.inputs_used.u_wall} W/m²·K</td><td>U-value (Roof)</td><td class="num">${results.inputs_used.u_roof} W/m²·K</td></tr>
+      <tr><td>U-value (Wall)</td><td class="num">${results.inputs_used.u_wall} W/m2.K</td><td>U-value (Roof)</td><td class="num">${results.inputs_used.u_roof} W/m2.K</td></tr>
       <tr><td>Glass SHGC</td><td class="num">${results.inputs_used.shgc}</td><td>Safety Margin</td><td class="num">10%</td></tr>
     </table>
 
@@ -861,51 +868,51 @@ function renderReport(inputs, results, narrative) {
 
     <h3>4.1 Wall Heat Gain</h3>
     <p style="font-size:0.82rem;color:#444;">
-      Formula: Q = U × A<sub>wall</sub> × ΔT<br>
-      Given: U = ${results.inputs_used.u_wall} W/m²·K, A = ${results.inputs_used.wall_area} m², ΔT = ${results.inputs_used.delta_t}°C<br>
-      <strong>Q<sub>walls</sub> = ${results.inputs_used.u_wall} × ${results.inputs_used.wall_area} × ${results.inputs_used.delta_t} = ${c.q_walls.toLocaleString()} W</strong>
+      Formula: Q = U x A_wall x DT<br>
+      Given: U = ${results.inputs_used.u_wall} W/m2.K, A = ${results.inputs_used.wall_area} m2, DT = ${results.inputs_used.delta_t} deg C<br>
+      <strong>Q_walls = ${results.inputs_used.u_wall} x ${results.inputs_used.wall_area} x ${results.inputs_used.delta_t} = ${c.q_walls.toLocaleString()} W</strong>
     </p>
 
     <h3>4.2 Roof Heat Gain</h3>
     <p style="font-size:0.82rem;color:#444;">
-      Formula: Q = U × A<sub>roof</sub> × ΔT × 1.15 (solar correction factor)<br>
-      Given: U = ${results.inputs_used.u_roof} W/m²·K, A = ${results.inputs_used.roof_area} m², ΔT = ${results.inputs_used.delta_t}°C<br>
-      <strong>Q<sub>roof</sub> = ${results.inputs_used.u_roof} × ${results.inputs_used.roof_area} × ${results.inputs_used.delta_t} × 1.15 = ${c.q_roof.toLocaleString()} W</strong>
+      Formula: Q = U x A_roof x DT x 1.15 (solar correction factor)<br>
+      Given: U = ${results.inputs_used.u_roof} W/m2.K, A = ${results.inputs_used.roof_area} m2, DT = ${results.inputs_used.delta_t} deg C<br>
+      <strong>Q_roof = ${results.inputs_used.u_roof} x ${results.inputs_used.roof_area} x ${results.inputs_used.delta_t} x 1.15 = ${c.q_roof.toLocaleString()} W</strong>
     </p>
 
     <h3>4.3 Glass / Window Heat Gain</h3>
     <p style="font-size:0.82rem;color:#444;">
-      Formula: Q = (0.57 × A × ΔT) + (A × SHGC × 200)<br>
-      Given: SHGC = ${results.inputs_used.shgc}, A<sub>glass</sub> = ${results.inputs_used.glass_area} m²<br>
-      <strong>Q<sub>glass</sub> = (0.57 × ${results.inputs_used.glass_area} × ${results.inputs_used.delta_t}) + (${results.inputs_used.glass_area} × ${results.inputs_used.shgc} × 200) = ${c.q_glass.toLocaleString()} W</strong>
+      Formula: Q = (0.57 x A x DT) + (A x SHGC x 200)<br>
+      Given: SHGC = ${results.inputs_used.shgc}, A_glass = ${results.inputs_used.glass_area} m2<br>
+      <strong>Q_glass = (0.57 x ${results.inputs_used.glass_area} x ${results.inputs_used.delta_t}) + (${results.inputs_used.glass_area} x ${results.inputs_used.shgc} x 200) = ${c.q_glass.toLocaleString()} W</strong>
     </p>
 
     <h3>4.4 Occupant Heat Gain</h3>
     <p style="font-size:0.82rem;color:#444;">
-      Formula: Q = N × (Sensible + Latent) W/person<br>
+      Formula: Q = N x (Sensible + Latent) W/person<br>
       Given: N = ${inputs.persons} persons, Sensible = ${results.inputs_used.heat_per_person.sensible} W, Latent = ${results.inputs_used.heat_per_person.latent} W<br>
-      <strong>Q<sub>people</sub> = ${inputs.persons} × (${results.inputs_used.heat_per_person.sensible} + ${results.inputs_used.heat_per_person.latent}) = ${c.q_people.toLocaleString()} W</strong>
+      <strong>Q_people = ${inputs.persons} x (${results.inputs_used.heat_per_person.sensible} + ${results.inputs_used.heat_per_person.latent}) = ${c.q_people.toLocaleString()} W</strong>
     </p>
 
     <h3>4.5 Equipment Heat Gain</h3>
     <p style="font-size:0.82rem;color:#444;">
-      Formula: Q = kW × 1000 × 0.85 (diversity factor)<br>
+      Formula: Q = kW x 1000 x 0.85 (diversity factor)<br>
       Given: Equipment load = ${inputs.equipment_kw} kW<br>
-      <strong>Q<sub>equipment</sub> = ${inputs.equipment_kw} × 1000 × 0.85 = ${c.q_equipment.toLocaleString()} W</strong>
+      <strong>Q_equipment = ${inputs.equipment_kw} x 1000 x 0.85 = ${c.q_equipment.toLocaleString()} W</strong>
     </p>
 
     <h3>4.6 Lighting Heat Gain</h3>
     <p style="font-size:0.82rem;color:#444;">
-      Formula: Q = W/m² × Floor Area<br>
-      Given: Lighting density = ${results.inputs_used.lighting_wpm2} W/m², Floor area = ${inputs.floor_area} m²<br>
-      <strong>Q<sub>lighting</sub> = ${results.inputs_used.lighting_wpm2} × ${inputs.floor_area} = ${c.q_lighting.toLocaleString()} W</strong>
+      Formula: Q = W/m2 x Floor Area<br>
+      Given: Lighting density = ${results.inputs_used.lighting_wpm2} W/m2, Floor area = ${inputs.floor_area} m2<br>
+      <strong>Q_lighting = ${results.inputs_used.lighting_wpm2} x ${inputs.floor_area} = ${c.q_lighting.toLocaleString()} W</strong>
     </p>
 
     <h3>4.7 Infiltration Heat Gain</h3>
     <p style="font-size:0.82rem;color:#444;">
-      Formula: Q = 0.5 ACH × Volume × 0.35 × ΔT<br>
-      Given: Volume = ${inputs.floor_area} × ${inputs.ceiling_height} = ${(inputs.floor_area * inputs.ceiling_height).toFixed(1)} m³<br>
-      <strong>Q<sub>infiltration</sub> = 0.5 × ${(inputs.floor_area * inputs.ceiling_height).toFixed(1)} × 0.35 × ${results.inputs_used.delta_t} = ${c.q_infiltration.toLocaleString()} W</strong>
+      Formula: Q = 0.5 ACH x Volume x 0.35 x DT<br>
+      Given: Volume = ${inputs.floor_area} x ${inputs.ceiling_height} = ${(inputs.floor_area * inputs.ceiling_height).toFixed(1)} m3<br>
+      <strong>Q_infiltration = 0.5 x ${(inputs.floor_area * inputs.ceiling_height).toFixed(1)} x 0.35 x ${results.inputs_used.delta_t} = ${c.q_infiltration.toLocaleString()} W</strong>
     </p>
 
     <h2>5. Results Summary</h2>
@@ -921,35 +928,35 @@ function renderReport(inputs, results, narrative) {
       <tr class="total-row"><td>Sensible Sub-total</td><td class="num">${results.q_sensible_total.toLocaleString()}</td></tr>
       <tr><td>Latent Heat (42% of occupant heat)</td><td class="num">${results.q_latent.toLocaleString()}</td></tr>
       <tr class="total-row"><td>Total Heat Gain</td><td class="num">${results.q_total.toLocaleString()}</td></tr>
-      <tr class="total-row"><td>Design Heat Gain (×1.10 safety margin)</td><td class="num">${results.q_design.toLocaleString()}</td></tr>
+      <tr class="total-row"><td>Design Heat Gain (x1.10 safety margin)</td><td class="num">${results.q_design.toLocaleString()}</td></tr>
     </table>
 
     <div class="result-highlight" style="margin-top:1rem;">
       <div class="res-label">Required AC Capacity</div>
-      <div class="res-value">${results.kW} kW &nbsp;/&nbsp; ${results.TR} TR</div>
+      <div class="res-value">${results.kW} kW / ${results.TR} TR</div>
       <div style="margin-top:0.5rem;font-size:0.82rem;color:#555;">
         <strong>Recommended Standard AC Size:</strong> ${results.recommended_kW} kW (${results.recommended_TR} TR)
       </div>
     </div>
 
     <h2>6. Recommendations</h2>
-    <p style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || '')}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || '')}</p>
 
     <div class="sig-block">
       <div>
         <div class="sig-line">Prepared by</div>
-        <div style="font-size:0.78rem;margin-top:0.25rem;">${escHtml(WORKER_NAME)}</div>
-        <div style="font-size:0.75rem;color:#999;">PRC License No.: _______________</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.78rem;margin-top:0.25rem;">${escHtml(WORKER_NAME)}</div>
+        <div style="font-size:0.75rem;color:#999;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
       </div>
       <div>
         <div class="sig-line">Checked by</div>
-        <div style="font-size:0.78rem;margin-top:0.25rem;">&nbsp;</div>
-        <div style="font-size:0.75rem;color:#999;">PRC License No.: _______________</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.78rem;margin-top:0.25rem;min-width:120px;display:inline-block;">&nbsp;</div>
+        <div style="font-size:0.75rem;color:#999;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
       </div>
       <div>
         <div class="sig-line">Approved by</div>
-        <div style="font-size:0.78rem;margin-top:0.25rem;">&nbsp;</div>
-        <div style="font-size:0.75rem;color:#999;">PRC License No.: _______________</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.78rem;margin-top:0.25rem;min-width:120px;display:inline-block;">&nbsp;</div>
+        <div style="font-size:0.75rem;color:#999;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
       </div>
     </div>
   `;
@@ -958,14 +965,47 @@ function renderReport(inputs, results, narrative) {
   showReport();
 }
 
-// ─── Print ─────────────────────────────────────────────────────────────────────
+// ─── Print (opens clean new window, no browser URL/title in PDF) ──────────────
 function printReport() {
-  const pw = document.getElementById('print-wrapper');
-  pw.innerHTML = document.getElementById('report-panel').outerHTML;
-  pw.style.display = 'block';
-  window.print();
-  pw.style.display = 'none';
-  pw.innerHTML = '';
+  const reportHtml = document.getElementById('report-panel').innerHTML;
+  const projectName = _lastInputs?.project_name || 'Design Calculation';
+
+  const win = window.open('', '_blank', 'width=900,height=700');
+  win.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>${escHtml(projectName)}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
+    @page { size: A4; margin: 1.8cm 2cm; }
+    body { margin: 0; padding: 2rem; background: white; color: #1a1a1a; font-size: 0.85rem; line-height: 1.7; }
+    h1 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
+    h2 { font-size: 0.85rem; font-weight: 700; margin: 1.25rem 0 0.5rem; border-bottom: 1.5px solid #e0e0e0; padding-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    h3 { font-size: 0.82rem; font-weight: 600; margin: 0.75rem 0 0.25rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0.5rem 0; }
+    th { background: #f5f5f5; text-align: left; padding: 0.4rem 0.6rem; border: 1px solid #ddd; font-weight: 600; font-size: 0.78rem; }
+    td { padding: 0.4rem 0.6rem; border: 1px solid #ddd; }
+    td.num { text-align: right; font-family: monospace; }
+    .total-row td { font-weight: 700; background: #f9f9f9; }
+    .result-highlight { background: #fffbf0; border: 1.5px solid #F7A21B; border-radius: 0.5rem; padding: 0.75rem 1rem; margin: 0.75rem 0; }
+    .res-label { font-size: 0.78rem; color: #666; }
+    .res-value { font-size: 1.3rem; font-weight: 700; color: #D88A0E; }
+    .sig-block { margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+    .sig-line { border-top: 1px solid #999; padding-top: 0.25rem; font-size: 0.75rem; color: #666; margin-top: 2rem; }
+    ul { padding-left: 1.25rem; }
+    p { margin: 0.25rem 0 0.5rem; }
+    .no-print { display: none !important; }
+    .editable-field { border-bottom: none; outline: none; }
+  </style>
+</head>
+<body>
+${reportHtml}
+<script>window.onload = function(){ window.print(); }<\/script>
+</body>
+</html>`);
+  win.document.close();
 }
 
 // ─── Save calculation ─────────────────────────────────────────────────────────
