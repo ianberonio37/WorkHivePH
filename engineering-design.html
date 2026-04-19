@@ -1669,9 +1669,9 @@ function renderInputForm(calcType) {
       <div id="slope-section" class="mb-4">
         <div class="field-label">Drain Slope</div>
         <div class="toggle-group" id="tg-slope">
-          <button class="toggle-btn" onclick="toggle('tg-slope','1%')">1% (1/8" per ft)</button>
-          <button class="toggle-btn active" onclick="toggle('tg-slope','2%')">2% (1/4" per ft)</button>
-          <button class="toggle-btn" onclick="toggle('tg-slope','4%')">4% (1/2" per ft)</button>
+          <button class="toggle-btn" data-val="1%" onclick="toggle('tg-slope','1%')">1% (1/8" per ft)</button>
+          <button class="toggle-btn active" data-val="2%" onclick="toggle('tg-slope','2%')">2% (1/4" per ft)</button>
+          <button class="toggle-btn" data-val="4%" onclick="toggle('tg-slope','4%')">4% (1/2" per ft)</button>
         </div>
       </div>
 
@@ -1779,8 +1779,8 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Number of Compartments</div>
         <div class="toggle-group" id="tg-compartments">
-          <button class="toggle-btn" onclick="toggle('tg-compartments','1')">1 (up to 10 persons)</button>
-          <button class="toggle-btn active" onclick="toggle('tg-compartments','2')">2 (PPC standard)</button>
+          <button class="toggle-btn" data-val="1" onclick="toggle('tg-compartments','1')">1 (up to 10 persons)</button>
+          <button class="toggle-btn active" data-val="2" onclick="toggle('tg-compartments','2')">2 (PPC standard)</button>
         </div>
       </div>
 
@@ -1844,16 +1844,16 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Circuit Type</div>
         <div class="toggle-group" id="tg-circuit-type">
-          <button class="toggle-btn active" onclick="toggle('tg-circuit-type','Branch Circuit');applyVDLimit('Branch Circuit')">Branch Circuit (3% limit)</button>
-          <button class="toggle-btn" onclick="toggle('tg-circuit-type','Feeder');applyVDLimit('Feeder')">Feeder (2% limit)</button>
+          <button class="toggle-btn active" data-val="Branch Circuit" onclick="toggle('tg-circuit-type','Branch Circuit');applyVDLimit('Branch Circuit')">Branch Circuit (3% limit)</button>
+          <button class="toggle-btn" data-val="Feeder" onclick="toggle('tg-circuit-type','Feeder');applyVDLimit('Feeder')">Feeder (2% limit)</button>
         </div>
       </div>
 
       <div class="mb-4">
         <div class="field-label">Phase Configuration</div>
         <div class="toggle-group" id="tg-vd-phase">
-          <button class="toggle-btn active" onclick="toggle('tg-vd-phase','Single-phase');applyVDPhaseDefaults('Single-phase')">Single-phase (230V)</button>
-          <button class="toggle-btn" onclick="toggle('tg-vd-phase','Three-phase');applyVDPhaseDefaults('Three-phase')">Three-phase (400V)</button>
+          <button class="toggle-btn active" data-val="Single-phase" onclick="toggle('tg-vd-phase','Single-phase');applyVDPhaseDefaults('Single-phase')">Single-phase (230V)</button>
+          <button class="toggle-btn" data-val="Three-phase" onclick="toggle('tg-vd-phase','Three-phase');applyVDPhaseDefaults('Three-phase')">Three-phase (400V)</button>
         </div>
       </div>
 
@@ -1895,7 +1895,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Conductor Size</div>
         <div class="toggle-group" id="tg-vd-wire" style="flex-wrap:wrap;">
           ${['2.0','3.5','5.5','8.0','14','22','30','38','50','60','80','100'].map((v,i) =>
-            `<button class="toggle-btn${i===1?' active':''}" onclick="toggle('tg-vd-wire','${v}')">${v} mm²</button>`
+            `<button class="toggle-btn${i===1?' active':''}" data-val="${v}" onclick="toggle('tg-vd-wire','${v}')">${v} mm²</button>`
           ).join('')}
         </div>
       </div>
@@ -1903,7 +1903,7 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Conductor Material</div>
         <div class="toggle-group" id="tg-vd-mat">
-          <button class="toggle-btn active" onclick="toggle('tg-vd-mat','Copper')">Copper (THHN/THWN)</button>
+          <button class="toggle-btn active" data-val="Copper" onclick="toggle('tg-vd-mat','Copper')">Copper (THHN/THWN)</button>
           <button class="toggle-btn" onclick="toggle('tg-vd-mat','Aluminium')">Aluminium</button>
         </div>
       </div>
@@ -1935,8 +1935,8 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Phase Configuration</div>
         <div class="toggle-group" id="tg-ws-phase">
-          <button class="toggle-btn active" onclick="toggle('tg-ws-phase','Single-phase');applyWSPhaseVoltage('Single-phase')">Single-phase (230V)</button>
-          <button class="toggle-btn" onclick="toggle('tg-ws-phase','Three-phase');applyWSPhaseVoltage('Three-phase')">Three-phase (400V)</button>
+          <button class="toggle-btn active" data-val="Single-phase" onclick="toggle('tg-ws-phase','Single-phase');applyWSPhaseVoltage('Single-phase')">Single-phase (230V)</button>
+          <button class="toggle-btn" data-val="Three-phase" onclick="toggle('tg-ws-phase','Three-phase');applyWSPhaseVoltage('Three-phase')">Three-phase (400V)</button>
         </div>
       </div>
 
@@ -1977,10 +1977,10 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Conductors in Conduit (current-carrying)</div>
         <div class="toggle-group" id="tg-ws-fill">
-          <button class="toggle-btn active" onclick="toggle('tg-ws-fill','1-3')">1-3 (no derating)</button>
-          <button class="toggle-btn" onclick="toggle('tg-ws-fill','4-6')">4-6 (x0.80)</button>
-          <button class="toggle-btn" onclick="toggle('tg-ws-fill','7-9')">7-9 (x0.70)</button>
-          <button class="toggle-btn" onclick="toggle('tg-ws-fill','10-20')">10-20 (x0.50)</button>
+          <button class="toggle-btn active" data-val="1-3" onclick="toggle('tg-ws-fill','1-3')">1-3 (no derating)</button>
+          <button class="toggle-btn" data-val="4-6" onclick="toggle('tg-ws-fill','4-6')">4-6 (x0.80)</button>
+          <button class="toggle-btn" data-val="7-9" onclick="toggle('tg-ws-fill','7-9')">7-9 (x0.70)</button>
+          <button class="toggle-btn" data-val="10-20" onclick="toggle('tg-ws-fill','10-20')">10-20 (x0.50)</button>
         </div>
       </div>
 
@@ -1996,13 +1996,13 @@ function renderInputForm(calcType) {
 // ─── Toggle button groups ─────────────────────────────────────────────────────
 function toggle(groupId, value) {
   document.querySelectorAll(`#${groupId} .toggle-btn`).forEach(b => {
-    b.classList.toggle('active', b.textContent.trim() === value);
+    b.classList.toggle('active', (b.dataset.val || b.textContent.trim()) === value);
   });
 }
 
 function getToggle(groupId) {
   const active = document.querySelector(`#${groupId} .toggle-btn.active`);
-  return active ? active.textContent.trim() : '';
+  return active ? (active.dataset.val || active.textContent.trim()) : '';
 }
 
 function applyVentDefaults(roomFunc) {
