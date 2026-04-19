@@ -446,7 +446,7 @@ const CALC_TYPES = {
     { id: 'Compressed Air',       icon: '🌬️', desc: 'Compressor CFM demand, receiver, pipe',   available: true  },
   ],
   Plumbing: [
-    { id: 'Water Supply Pipe Sizing', icon: '🚰', desc: "Hunter's Fixture Unit Method",          available: false },
+    { id: 'Water Supply Pipe Sizing', icon: '🚰', desc: "Hunter's Fixture Unit Method",          available: true  },
     { id: 'Hot Water Demand',         icon: '🌡️', desc: 'Daily hot water demand, heater sizing', available: false },
     { id: 'Drainage Pipe Sizing',     icon: '🏗️', desc: 'Drainage fixture units, pipe diameter', available: false },
     { id: 'Septic Tank Sizing',       icon: '🏭', desc: 'Tank capacity per occupancy',            available: false },
@@ -601,6 +601,42 @@ const GUIDES = {
       'Pressure drop is given in both m (metres of head) and kPa. Use kPa when specifying control valves and pressure regulators.',
       'Total friction loss from this calculation feeds directly into Pump Sizing TDH as the Friction Head (Hf) component.',
       'Nominal pipe diameter is the commercial pipe size designation — actual inside diameter varies by pipe schedule (Sch 40, 80, etc.).',
+    ],
+  },
+
+  'Water Supply Pipe Sizing': {
+    title: "Water Supply Pipe Sizing - Hunter's Fixture Unit Method",
+    subtitle: "Determines peak domestic water demand from fixture units, selects the main supply pipe diameter, and checks available system pressure using the Philippine Plumbing Code / UPC method.",
+    standards: ["Philippine Plumbing Code (based on UPC / IPC)","ASPE Plumbing Engineering Design Handbook","NSPC (National Structural Code of the Philippines) — Plumbing Section","Philippine National Standard (PNS) — Plumbing Fixtures"],
+    formulas: [
+      "Total WFU = sum of (WFU per fixture x quantity)",
+      "",
+      "Hunter's Curve — WFU to peak flow:",
+      "Peak flow (L/s) = interpolated from HUNTERS_CURVE piecewise table",
+      "(Based on Roy B. Hunter's empirical data, adopted by UPC/PPC)",
+      "",
+      "Pipe velocity:  V = Q / A   where A = pi x (D/2)^2",
+      "Friction loss (Hazen-Williams):",
+      "hf = (10.67 x L x Q^1.852) / (C^1.852 x D^4.87)",
+      "",
+      "Pressure available:  P_avail = P_static - hf_total - P_min_fixture",
+    ],
+    fields: [
+      { name: 'Fixture List', tip: 'Add every plumbing fixture served by this supply main. WFU (Water Fixture Units) are automatically assigned from the Philippine Plumbing Code table. Use Custom only for non-standard fixtures.' },
+      { name: 'Supply Type', tip: 'Cold and Hot = typical residential/commercial (count both cold and hot separately). Cold Only = industrial washdown, irrigation, fire suppression.' },
+      { name: 'Pipe Material', tip: 'PVC C=150 (most common in PH, lowest cost). HDPE C=150 (flexible, trench-less). GI (Galvanized Iron) C=120 (older buildings). Copper C=140 (premium, corrosion resistant).' },
+      { name: 'Static Supply Pressure (m)', tip: 'Pressure at the meter or building entry point in metres of head. 1 bar = 10.2 m. Typical MWSS/LWD supply: 15-25 m. Ask the water utility or measure with a gauge.' },
+      { name: 'Pipe Length (m)', tip: 'Straight run of the main supply pipe from entry to the furthest fixture. Do not add fittings — use Fittings Allowance % for that.' },
+      { name: 'Fittings Allowance (%)', tip: '20% is standard for a straightforward building. Use 30-40% for systems with many bends, gate valves, or reducers. This is added as equivalent pipe length.' },
+      { name: 'Min. Fixture Pressure (m)', tip: 'Minimum operating pressure required at the highest or most remote fixture. Water closet (flush valve): 10.5 m (1.0 bar). Shower: 5.3 m (0.5 bar). Use 10.5 m if unsure.' },
+    ],
+    notes: [
+      "Hunter's Fixture Unit method is the standard in the Philippine Plumbing Code (PPC) and its UPC basis. It reflects the probability that not all fixtures operate simultaneously.",
+      "WFU values: Water Closet (Flush Valve) = 10, Water Closet (Flush Tank) = 3, Lavatory = 1, Kitchen Sink = 2, Bathtub = 2, Shower = 2, Urinal (Flush Valve) = 5.",
+      "Acceptable pipe velocity: 0.9 m/s minimum (silting risk below), 2.5 m/s maximum (erosion/noise risk above) for domestic water supply.",
+      "If pressure check fails (P_avail < 0), either increase supply pressure, reduce pipe length, upsize the pipe, or install a booster pump.",
+      "PVC is the dominant material for domestic water in Philippine buildings. Specify NSF 61-certified PVC for potable water contact.",
+      "For multi-storey buildings: calculate each riser separately. Account for static head loss going up (1 m height = 1 m pressure drop).",
     ],
   },
 
@@ -1233,6 +1269,83 @@ function renderInputForm(calcType) {
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
+
+  if (calcType === 'Water Supply Pipe Sizing') {
+    const FIXTURE_OPTIONS = ['Water Closet (Flush Valve)','Water Closet (Flush Tank)','Urinal (Flush Valve)','Urinal (Flush Tank)','Lavatory / Hand Sink','Kitchen Sink (residential)','Kitchen Sink (commercial)','Bathtub / Shower','Shower Head','Laundry Tray','Washing Machine','Drinking Fountain','Hose Bibb (each)','Floor Drain','Mop Sink','Custom'];
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Office Building - Domestic Water Supply" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Supply Type</div>
+        <div class="toggle-group" id="tg-supply-type">
+          ${['Cold and Hot','Cold Only','Hot Only'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-supply-type','${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Pipe Material</div>
+        <div class="toggle-group" id="tg-pipe-mat">
+          ${['PVC','Copper','Galvanized Steel','HDPE','Stainless Steel'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-pipe-mat','${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Total Pipe Length</div>
+          <div class="input-group">
+            <input id="f-pipe-length" class="wh-input" type="number" value="0" min="0" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Fittings Allowance</div>
+          <div class="input-group">
+            <input id="f-fittings" class="wh-input" type="number" value="20" min="0" max="100" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Supply Pressure (at meter)</div>
+          <div class="input-group">
+            <input id="f-supply-press" class="wh-input" type="number" value="350" min="0" />
+            <span class="input-unit">kPa</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Min. Residual Pressure</div>
+          <div class="input-group">
+            <input id="f-min-press" class="wh-input" type="number" value="70" min="0" />
+            <span class="input-unit">kPa</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-2">
+        <div class="field-label">Plumbing Fixtures</div>
+        <div id="fixture-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;"></div>
+        <button class="btn-ghost text-sm py-2 px-4" onclick="addFixtureRow()">+ Add Fixture</button>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Method: Hunter's Fixture Unit Method (Philippine Plumbing Code / UPC). Converts fixture units to peak demand flow via Hunter's curve. Standard: PPC / ASHRAE.
+      </div>
+    `;
+    addFixtureRow('Water Closet (Flush Tank)', 4);
+    addFixtureRow('Lavatory / Hand Sink', 4);
+    addFixtureRow('Kitchen Sink (commercial)', 1);
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
 }
 
 // ─── Toggle button groups ─────────────────────────────────────────────────────
@@ -1296,6 +1409,44 @@ function toggleCustomCFM(id) {
   const sel  = document.getElementById(`tool-type-${id}`)?.value;
   const wrap = document.getElementById(`custom-cfm-wrap-${id}`);
   if (wrap) wrap.style.display = sel === 'Custom' ? 'flex' : 'none';
+}
+
+const FIXTURE_OPTIONS = ['Water Closet (Flush Valve)','Water Closet (Flush Tank)','Urinal (Flush Valve)','Urinal (Flush Tank)','Lavatory / Hand Sink','Kitchen Sink (residential)','Kitchen Sink (commercial)','Bathtub / Shower','Shower Head','Laundry Tray','Washing Machine','Drinking Fountain','Hose Bibb (each)','Floor Drain','Mop Sink','Custom'];
+
+let _fixtureRowId = 0;
+function addFixtureRow(defaultFixture = 'Water Closet (Flush Tank)', defaultQty = 1) {
+  const id  = ++_fixtureRowId;
+  const row = document.createElement('div');
+  row.id    = `fixture-row-${id}`;
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 70px 70px 70px 28px;gap:0.4rem;align-items:center;';
+  row.innerHTML = `
+    <select class="wh-input text-sm py-2" id="fix-type-${id}" onchange="toggleCustomFixture(${id})">
+      ${FIXTURE_OPTIONS.map(t => `<option value="${t}"${t===defaultFixture?' selected':''}>${t}</option>`).join('')}
+    </select>
+    <div class="input-group" style="min-width:0;">
+      <input id="fix-qty-${id}" class="wh-input text-sm py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.7rem;">qty</span>
+    </div>
+    <div class="input-group" style="min-width:0;display:none;" id="fix-wfu-wrap-${id}">
+      <input id="fix-wfu-${id}" class="wh-input text-sm py-2" type="number" value="1" min="0" placeholder="WFU" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.65rem;">WFU</span>
+    </div>
+    <div class="input-group" style="min-width:0;display:none;" id="fix-lpm-wrap-${id}">
+      <input id="fix-lpm-${id}" class="wh-input text-sm py-2" type="number" value="3.8" min="0" placeholder="L/min" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.65rem;">L/min</span>
+    </div>
+    <button onclick="document.getElementById('fixture-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+  `;
+  document.getElementById('fixture-list').appendChild(row);
+}
+
+function toggleCustomFixture(id) {
+  const sel = document.getElementById(`fix-type-${id}`)?.value;
+  const wfuWrap = document.getElementById(`fix-wfu-wrap-${id}`);
+  const lpmWrap = document.getElementById(`fix-lpm-wrap-${id}`);
+  const isCustom = sel === 'Custom';
+  if (wfuWrap) wfuWrap.style.display = isCustom ? 'flex' : 'none';
+  if (lpmWrap) lpmWrap.style.display = isCustom ? 'flex' : 'none';
 }
 
 function applyServiceDefaults(service) {
@@ -1375,6 +1526,28 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Water Supply Pipe Sizing') {
+    const fixtures = [];
+    document.querySelectorAll('#fixture-list > div[id^="fixture-row-"]').forEach(row => {
+      const rid  = row.id.replace('fixture-row-', '');
+      const type = document.getElementById(`fix-type-${rid}`)?.value || '';
+      const qty  = parseFloat(document.getElementById(`fix-qty-${rid}`)?.value) || 1;
+      const wfu  = parseFloat(document.getElementById(`fix-wfu-${rid}`)?.value) || 1;
+      const lpm  = parseFloat(document.getElementById(`fix-lpm-${rid}`)?.value) || 3.8;
+      if (type) fixtures.push({ fixture_type: type, quantity: qty, custom_wfu: wfu, custom_lpm: lpm });
+    });
+    return {
+      project_name:        v('f-project') || 'Untitled Water Supply',
+      supply_type:         getToggle('tg-supply-type') || 'Cold and Hot',
+      pipe_material:       getToggle('tg-pipe-mat') || 'PVC',
+      pipe_length:         parseFloat(v('f-pipe-length'))    || 0,
+      fittings_allowance:  parseFloat(v('f-fittings'))       || 20,
+      supply_pressure:     parseFloat(v('f-supply-press'))   || 350,
+      min_pressure:        parseFloat(v('f-min-press'))      || 70,
+      fixtures,
+    };
+  }
+
   if (_calcType === 'Compressed Air') {
     // Collect all tool rows
     const tools = [];
@@ -1443,6 +1616,11 @@ async function runCalculation() {
       showToast('Please add at least one tool or piece of equipment.');
       return;
     }
+  } else if (_calcType === 'Water Supply Pipe Sizing') {
+    if (!inputs.fixtures || inputs.fixtures.length === 0) {
+      showToast('Please add at least one plumbing fixture.');
+      return;
+    }
   } else if (!inputs.floor_area || inputs.floor_area <= 0) {
     showToast('Please enter the floor area.');
     return;
@@ -1470,6 +1648,8 @@ async function runCalculation() {
       renderPipeReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Compressed Air') {
       renderAirReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Water Supply Pipe Sizing') {
+      renderWaterSupplyReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -2205,6 +2385,177 @@ function renderPumpReport(inputs, results, narrative) {
   showReport();
 }
 
+// ─── Water Supply Pipe Sizing Report ─────────────────────────────────────────
+function renderWaterSupplyReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+
+  const velStatus = results.velocity_ok
+    ? `<span style="color:#2e7d32;font-weight:700;">ACCEPTABLE</span>`
+    : `<span style="color:#b71c1c;font-weight:700;">OUT OF RANGE</span>`;
+
+  const pressStatus = results.pressure_ok
+    ? `<span style="color:#2e7d32;font-weight:700;">ADEQUATE</span>`
+    : `<span style="color:#b71c1c;font-weight:700;">INSUFFICIENT — booster pump may be required</span>`;
+
+  const fixtureRows = (results.fixture_breakdown || []).map(f => `
+    <tr>
+      <td>${escHtml(f.fixture)}</td>
+      <td class="num">${f.qty}</td>
+      <td class="num">${f.wfu_each}</td>
+      <td class="num">${f.wfu_total}</td>
+      <td class="num">${f.lpm_each}</td>
+      <td class="num">${f.lpm_total}</td>
+    </tr>`).join('');
+
+  const compRows = (results.size_comparison || []).map(r => `
+    <tr style="${r.recommended ? 'background:#fffbf0;font-weight:700;' : ''}">
+      <td>${r.dia_mm} mm${r.recommended ? ' (recommended)' : ''}</td>
+      <td class="num">${r.velocity}</td>
+      <td class="num">${r.hf_per_m}</td>
+      <td class="num" style="color:${r.ok ? '#2e7d32' : '#b71c1c'};">${r.ok ? 'OK' : r.velocity < 0.9 ? 'Too slow' : 'Too fast'}</td>
+    </tr>`).join('');
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading.
+    </div>
+
+    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">WATER SUPPLY PIPE SIZING CALCULATION</h1>
+    <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">Hunter's Fixture Unit Method - Philippine Plumbing Code / UPC</div>
+
+    <h2>1. PROJECT INFORMATION</h2>
+    <table>
+      <tr><td style="width:35%;">Project / System Name</td><td>${e(inputs.project_name)}</td></tr>
+      <tr><td>Location</td><td>${e('')}</td></tr>
+      <tr><td>Owner / Client</td><td>${e('')}</td></tr>
+      <tr><td>Prepared by</td><td>${e('')}</td></tr>
+      <tr><td>PRC License No.</td><td>${e('')}</td></tr>
+      <tr><td>Date</td><td>${e(dateStr)}</td></tr>
+    </table>
+
+    <h2>2. OBJECTIVE</h2>
+    <p>${e(narrative?.objective || "To determine the peak domestic water demand using Hunter's Fixture Unit Method and to select the appropriate water supply main pipe diameter for the subject building.")}</p>
+
+    <h2>3. REFERENCES / STANDARDS</h2>
+    <table>
+      <tr><td style="width:35%;">Plumbing Code</td><td>Philippine Plumbing Code (based on UPC / IPC)</td></tr>
+      <tr><td>Fixture Unit Method</td><td>Hunter's Method — ASPE Plumbing Engineering Design Handbook</td></tr>
+      <tr><td>Pipe Material Standard</td><td>PNS / NSF 61 — Potable Water Contact Materials</td></tr>
+      <tr><td>Friction Loss</td><td>Hazen-Williams Formula</td></tr>
+    </table>
+
+    <h2>4. DESIGN BASIS AND ASSUMPTIONS</h2>
+    <p>${e(narrative?.assumptions || "Hunter's Fixture Unit (WFU) values per Philippine Plumbing Code / UPC Table A-2. Peak flow determined by piecewise interpolation of Hunter's empirical curve. Hazen-Williams friction loss applied with material C factor. Equivalent pipe length includes fittings allowance. Minimum fixture operating pressure as specified. Supply pressure from water utility/storage tank as provided.")}</p>
+
+    <h2>5. FIXTURE SCHEDULE</h2>
+    <table>
+      <tr>
+        <th>Fixture Type</th>
+        <th class="num">Qty</th>
+        <th class="num">WFU each</th>
+        <th class="num">WFU total</th>
+        <th class="num">L/min each</th>
+        <th class="num">L/min total</th>
+      </tr>
+      ${fixtureRows}
+      <tr class="total-row">
+        <td colspan="3"><strong>Total Fixture Units (WFU)</strong></td>
+        <td class="num"><strong>${results.total_wfu}</strong></td>
+        <td></td>
+        <td></td>
+      </tr>
+    </table>
+
+    <h2>6. PEAK DEMAND CALCULATION (Hunter's Curve)</h2>
+    <table>
+      <tr><th>Parameter</th><th class="num">Value</th><th>Unit</th></tr>
+      <tr><td>Total Water Fixture Units (WFU)</td><td class="num">${results.total_wfu}</td><td>WFU</td></tr>
+      <tr><td>Peak Design Flow (Hunter's Curve)</td><td class="num">${results.peak_lps}</td><td>L/s</td></tr>
+      <tr><td>Peak Design Flow</td><td class="num">${results.peak_lpm}</td><td>L/min</td></tr>
+      <tr><td>Peak Design Flow</td><td class="num">${results.peak_m3hr}</td><td>m3/hr</td></tr>
+    </table>
+
+    <h2>7. PIPE SIZE COMPARISON (Velocity Method)</h2>
+    <p style="font-size:0.82rem;color:#555;margin-bottom:0.5rem;">
+      Pipe material: ${escHtml(String(inputs.pipe_material || 'PVC'))} &nbsp;|&nbsp;
+      C factor: ${escHtml(String(results.inputs_used?.C_factor || 150))} &nbsp;|&nbsp;
+      Acceptable velocity: 0.90 - 2.50 m/s
+    </p>
+    <table>
+      <tr>
+        <th>Pipe Diameter</th>
+        <th class="num">Velocity (m/s)</th>
+        <th class="num">hf (m/m)</th>
+        <th class="num">Status</th>
+      </tr>
+      ${compRows}
+    </table>
+
+    <h2>8. FRICTION LOSS AND PRESSURE CHECK</h2>
+    <table>
+      <tr><th>Parameter</th><th class="num">Value</th><th>Unit</th></tr>
+      <tr><td>Recommended Pipe Diameter</td><td class="num">${results.recommended_dia_mm}</td><td>mm</td></tr>
+      <tr><td>Flow Velocity</td><td class="num">${results.pipe_velocity}</td><td>m/s &nbsp; ${velStatus}</td></tr>
+      <tr><td>Friction Loss per Metre</td><td class="num">${results.hf_per_m}</td><td>m/m</td></tr>
+      <tr><td>Equivalent Pipe Length (with ${escHtml(String(results.inputs_used?.fittings_pct || 20))}% fittings allowance)</td><td class="num">${results.equiv_length}</td><td>m</td></tr>
+      <tr><td>Total Friction Head Loss</td><td class="num">${results.hf_total_m}</td><td>m</td></tr>
+      <tr><td>Total Friction Loss</td><td class="num">${results.press_drop_kpa}</td><td>kPa</td></tr>
+      <tr><td>Static Supply Pressure</td><td class="num">${escHtml(String(inputs.static_pressure || 0))}</td><td>m</td></tr>
+      <tr><td>Minimum Fixture Pressure Required</td><td class="num">${results.min_pressure}</td><td>m</td></tr>
+      <tr><td>Available Pressure at Fixtures</td><td class="num"><strong>${results.pressure_available}</strong></td><td>m &nbsp; ${pressStatus}</td></tr>
+    </table>
+
+    <h2>9. RESULTS SUMMARY</h2>
+    <div class="result-highlight">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <div class="res-label">Total WFU</div>
+          <div class="res-value">${results.total_wfu} WFU</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">Water Fixture Units</div>
+        </div>
+        <div>
+          <div class="res-label">Peak Design Flow</div>
+          <div class="res-value">${results.peak_lps} L/s</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.peak_lpm} L/min via Hunter's Curve</div>
+        </div>
+        <div>
+          <div class="res-label">Recommended Pipe</div>
+          <div class="res-value">${results.recommended_dia_mm} mm</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${escHtml(String(inputs.pipe_material || 'PVC'))} at ${results.pipe_velocity} m/s</div>
+        </div>
+        <div>
+          <div class="res-label">Pressure Check</div>
+          <div class="res-value" style="color:${results.pressure_ok ? '#2e7d32' : '#b71c1c'};">${results.pressure_ok ? 'PASS' : 'FAIL'}</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.pressure_available} m available</div>
+        </div>
+      </div>
+    </div>
+
+    <h2>10. RECOMMENDATIONS</h2>
+    <p>${e(narrative?.recommendations || 'Install the recommended pipe diameter as the minimum domestic water supply main. Verify supply pressure with the local water utility before finalizing design. If pressure check fails, consider installing a booster pump or pressurized storage tank. Use NSF 61-certified PVC for all potable water piping. Provide isolation valves at all branch connections and fixture groups for maintainability.')}</p>
+
+    <div class="sig-block">
+      <div>
+        <div class="sig-line">Prepared by</div>
+        <div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div>
+      </div>
+      <div>
+        <div class="sig-line">PRC License No. / PTR No.</div>
+        <div style="margin-top:2rem;" class="sig-line">Date</div>
+      </div>
+      <div>
+        <div class="sig-line">Checked / Approved by</div>
+        <div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
 // ─── Download PDF (html2pdf — no browser headers/footers/URL) ────────────────
 function printReport() {
   const reportEl = document.getElementById('report-panel');
@@ -2339,6 +2690,8 @@ function viewHistoryReport(row) {
     renderPipeReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Compressed Air') {
     renderAirReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Water Supply Pipe Sizing') {
+    renderWaterSupplyReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
