@@ -1520,6 +1520,122 @@ function calcFirePumpSizing(inputs: Record<string, number | string>): Record<str
   };
 }
 
+// ─── Fire Protection: Stairwell Pressurization (NFPA 92) ─────────────────────
+
+function calcStairwellPressurization(inputs: Record<string, number | string>): Record<string, unknown> {
+  const building_type   = (inputs.building_type as string)   || 'Sprinklered';
+  const N_stairwells    = Number(inputs.n_stairwells)        || 1;
+  const N_floors        = Number(inputs.n_floors)            || 5;
+  const doors_per_floor = Number(inputs.doors_per_floor)     || 1;
+  const door_fit        = (inputs.door_fit as string)        || 'Average';
+  const delta_P_Pa      = Number(inputs.delta_P)             || (building_type === 'Sprinklered' ? 25 : 50);
+  const door_W          = Number(inputs.door_width)          || 0.90;  // m
+  const door_H          = Number(inputs.door_height)         || 2.10;  // m
+  const fan_static_Pa   = Number(inputs.fan_static_pressure) || 400;   // Pa
+  const fan_eff_pct     = Number(inputs.fan_efficiency)      || 60;    // %
+  const safety_factor   = 1.20;
+
+  // NFPA 92 Table B.1 — leakage area per door (m²)
+  const door_leakage_map: Record<string, number> = {
+    'Tight':   0.019,
+    'Average': 0.039,
+    'Loose':   0.052,
+  };
+  const A_door_m2 = door_leakage_map[door_fit] || 0.039;
+
+  // Wall leakage per floor — NFPA 92 typical stairwell wall: 0.0009 m² per m² of wall
+  // Assume stairwell perimeter ~12 m, floor-to-floor 3 m → wall area = 36 m² per floor
+  const A_wall_per_floor = 36 * 0.0009; // ~0.032 m²
+
+  // Total leakage area per stairwell
+  const N_doors_total  = N_floors * doors_per_floor;
+  const A_door_total   = N_doors_total * A_door_m2;
+  const A_wall_total   = N_floors * A_wall_per_floor;
+  const A_total_m2     = A_door_total + A_wall_total;
+
+  // Pressurization airflow (NFPA 92 Eq. 6.4.1.1)
+  // Q = Cd × A × sqrt(2 × ΔP / ρ)
+  const Cd    = 0.65;
+  const rho   = 1.20; // kg/m³ (air at ~25°C, sea level)
+  const Q_m3s = Cd * A_total_m2 * Math.sqrt(2 * delta_P_Pa / rho);
+
+  // Per stairwell and total
+  const Q_per_stairwell_m3s   = Q_m3s;
+  const Q_total_m3s           = Q_m3s * N_stairwells;
+  const Q_design_m3s          = Q_total_m3s * safety_factor;
+
+  // Convert to m³/h (CMH) — standard Philippine fan rating unit
+  const Q_design_CMH = Q_design_m3s * 3600;
+  const Q_per_CMH    = Q_per_stairwell_m3s * 3600;
+
+  // Door opening force check (NFPA 92 max = 133 N)
+  const A_door_panel = door_W * door_H; // m²
+  const F_pressure_N = delta_P_Pa * A_door_panel; // simplified: ΔP × door area
+  const F_closer_N   = 45; // typical door closer force (N)
+  const F_total_N    = F_pressure_N + F_closer_N;
+  const door_force_ok = F_total_N <= 133;
+
+  // Fan motor power
+  const P_fan_kW   = (Q_design_m3s * fan_static_Pa) / (fan_eff_pct / 100 * 1000);
+  const P_fan_HP   = P_fan_kW * 1.341;
+
+  // Select next standard HP
+  const std_HP = [0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 5.0, 7.5, 10.0, 15.0, 20.0, 25.0, 30.0];
+  let selected_HP = std_HP[std_HP.length - 1];
+  for (const hp of std_HP) {
+    if (hp >= P_fan_HP) { selected_HP = hp; break; }
+  }
+
+  // NFPA 92 design pressure limits
+  const delta_P_min = building_type === 'Sprinklered' ? 12.5 : 25; // Pa
+  const delta_P_max = 87; // Pa (NFPA 92 — max before door becomes too hard to open)
+
+  const round3 = (n: number) => Math.round(n * 1000) / 1000;
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+  const round1 = (n: number) => Math.round(n * 10) / 10;
+
+  return {
+    building_type,
+    N_stairwells,
+    N_floors,
+    doors_per_floor,
+    N_doors_total,
+    door_fit,
+    A_door_m2,
+    A_door_total:            round3(A_door_total),
+    A_wall_per_floor:        round3(A_wall_per_floor),
+    A_wall_total:            round3(A_wall_total),
+    A_total_m2:              round3(A_total_m2),
+    delta_P_Pa,
+    delta_P_min,
+    delta_P_max,
+    delta_P_ok:              delta_P_Pa >= delta_P_min && delta_P_Pa <= delta_P_max,
+    Cd,
+    Q_per_stairwell_m3s:     round3(Q_per_stairwell_m3s),
+    Q_per_CMH:               round1(Q_per_CMH),
+    Q_total_m3s:             round3(Q_total_m3s),
+    Q_design_m3s:            round3(Q_design_m3s),
+    Q_design_CMH:            round1(Q_design_CMH),
+    safety_factor,
+    door_W,
+    door_H,
+    A_door_panel:            round2(A_door_panel),
+    F_pressure_N:            round1(F_pressure_N),
+    F_closer_N,
+    F_total_N:               round1(F_total_N),
+    door_force_ok,
+    fan_static_Pa,
+    fan_eff_pct,
+    P_fan_kW:                round2(P_fan_kW),
+    P_fan_HP:                round2(P_fan_HP),
+    selected_HP,
+    inputs_used: {
+      building_type, N_stairwells, N_floors, doors_per_floor,
+      door_fit, A_door_m2, delta_P_Pa, fan_static_Pa, fan_eff_pct,
+    },
+  };
+}
+
 // ─── Main Handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -1567,6 +1683,8 @@ serve(async (req) => {
       results = calcFireSprinklerHydraulic(inputs);
     } else if (calc_type === "Fire Pump Sizing") {
       results = calcFirePumpSizing(inputs);
+    } else if (calc_type === "Stairwell Pressurization") {
+      results = calcStairwellPressurization(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

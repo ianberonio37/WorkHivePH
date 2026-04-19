@@ -486,7 +486,7 @@ const CALC_TYPES = {
   'Fire Protection': [
     { id: 'Fire Sprinkler Hydraulic', icon: '🚿', desc: 'NFPA 13 design area method, flow and pressure', available: true  },
     { id: 'Fire Pump Sizing',         icon: '🔥', desc: 'Required flow and pressure, motor HP, NFPA 20',  available: true  },
-    { id: 'Stairwell Pressurization', icon: '🪜', desc: 'Airflow to maintain pressure differential, NFPA 92', available: false },
+    { id: 'Stairwell Pressurization', icon: '🪜', desc: 'Airflow to maintain pressure differential, NFPA 92', available: true  },
     { id: 'Fire Alarm Battery',       icon: '🔋', desc: '24h standby + 5-min alarm, battery Ah, NFPA 72', available: false },
   ],
 };
@@ -1007,6 +1007,51 @@ const GUIDES = {
       'Jockey (pressure maintenance) pump: NFPA 20 — flow = 1% of fire pump rated flow, pressure = fire pump pressure + 10%. Keeps system pressurized between alarms to detect leaks.',
       'Pump efficiency default: 70% for preliminary design. Motor efficiency: 90%. Update these from the actual pump curve once a vendor is selected.',
       'The fire pump must have a dedicated power supply and cannot share a circuit with other building loads — PEC and BFP IRR requirement.',
+    ],
+  },
+
+  'Stairwell Pressurization': {
+    title: 'Stairwell Pressurization — NFPA 92 (Standard for Smoke Control Systems)',
+    subtitle: 'Determines the supply airflow required to maintain a positive pressure differential across stairwell doors, preventing smoke from entering the means of egress. Required by BFP for buildings 6 floors and above.',
+    standards: ['NFPA 92 — Standard for Smoke Control Systems (Latest Edition)','BFP IRR — Bureau of Fire Protection Implementing Rules and Regulations (high-rise provisions)','National Building Code of the Philippines (PD 1096) — Section on Fire Exits and Stairwells','ASHRAE Handbook — HVAC Applications, Chapter 53 (Smoke Control)'],
+    formulas: [
+      'Q = Cd x A_total x sqrt(2 x deltaP / rho)',
+      '  Cd = discharge coefficient = 0.65 (NFPA 92)',
+      '  A_total = total leakage area (m²) = door leakage + wall leakage',
+      '  deltaP = design pressure differential (Pa)',
+      '  rho = air density = 1.20 kg/m³ (25°C, sea level)',
+      '',
+      'Door leakage area (NFPA 92 Table B.1):',
+      '  Tight door:   0.019 m² per door',
+      '  Average door: 0.039 m² per door',
+      '  Loose door:   0.052 m² per door',
+      '',
+      'Design pressure differential (NFPA 92):',
+      '  Sprinklered building:     min 12.5 Pa, recommended 25 Pa',
+      '  Non-sprinklered building: min 25.0 Pa, recommended 50 Pa',
+      '  Maximum (all buildings):  87 Pa (above this, door is too hard to open)',
+      '',
+      'Door opening force check:',
+      '  F_total = F_door_closer + (deltaP x A_door_panel)',
+      '  NFPA 92 maximum: 133 N (30 lbf)',
+      '',
+      'Fan motor power: P_kW = Q (m³/s) x static pressure (Pa) / (fan efficiency x 1000)',
+    ],
+    fields: [
+      { name: 'Building Type', tip: 'Sprinklered: minimum 12.5 Pa differential (NFPA 92 Section 6.4). Non-sprinklered: minimum 25 Pa. Higher pressure means more air, larger fan — but watch the door opening force limit of 133 N.' },
+      { name: 'Number of Stairwells', tip: 'Each stairwell is pressurized independently by its own fan. A typical 2-stairwell building needs 2 pressurization fans.' },
+      { name: 'Number of Floors Served', tip: 'The pressurization fan must overcome leakage through all floor-level doors simultaneously. More floors = more leakage area = more airflow required.' },
+      { name: 'Door Fit', tip: 'Average (0.039 m²): standard Philippine construction quality. Tight (0.019 m²): well-fitted with brush seals. Loose (0.052 m²): older buildings. Use Average unless door specifications are confirmed.' },
+      { name: 'Design Pressure Differential', tip: 'Pre-filled based on building type. Do not exceed 87 Pa — above this the door opening force exceeds 133 N (NFPA 92 limit) and occupants may be trapped during evacuation.' },
+      { name: 'Fan Static Pressure', tip: 'Total static pressure the fan must overcome in the ductwork. 300-500 Pa is typical for stairwell pressurization. Higher if the supply duct is long or has many fittings.' },
+    ],
+    notes: [
+      'NFPA 92 design pressure range: 12.5 Pa min (sprinklered) or 25 Pa min (non-sprinklered), 87 Pa max. The tool checks both limits and flags if out of range.',
+      'BFP Philippines requires stairwell pressurization for buildings above 6 floors (per BFP IRR high-rise provisions). Below 6 floors, natural pressurization through door gaps may be acceptable.',
+      'Door opening force limit of 133 N (30 lbf) per NFPA 92. If exceeded at the design pressure, reduce deltaP or specify doors with lighter closers.',
+      'A 20% safety factor is applied to the calculated airflow before fan selection — this accounts for construction tolerances and future door seal degradation.',
+      'For buildings with elevator shafts adjacent to stairwells, add 0.056 m² leakage per elevator door level to the total leakage area.',
+      'Pressurization fans must operate on emergency power (UPS or generator) — they are part of the building fire safety system, not comfort HVAC.',
     ],
   },
 };
@@ -2098,6 +2143,95 @@ function renderInputForm(calcType) {
     document.getElementById('calc-btn').disabled = false;
   }
 
+  if (calcType === 'Stairwell Pressurization') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Bldg A — Stairwell Pressurization System" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Building Type <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(sets minimum pressure differential)</span></div>
+        <div class="toggle-group" id="tg-bldg-type">
+          <button class="toggle-btn active" data-val="Sprinklered" onclick="toggle('tg-bldg-type','Sprinklered');applyPressDefaults('Sprinklered')">Sprinklered (min 12.5 Pa)</button>
+          <button class="toggle-btn" data-val="Non-Sprinklered" onclick="toggle('tg-bldg-type','Non-Sprinklered');applyPressDefaults('Non-Sprinklered')">Non-Sprinklered (min 25 Pa)</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div>
+          <div class="field-label">No. of Stairwells</div>
+          <input id="f-n-stairwells" class="wh-input" type="number" value="2" min="1" />
+        </div>
+        <div>
+          <div class="field-label">No. of Floors Served</div>
+          <input id="f-n-floors" class="wh-input" type="number" value="10" min="1" />
+        </div>
+        <div>
+          <div class="field-label">Doors per Floor</div>
+          <input id="f-doors-per-floor" class="wh-input" type="number" value="1" min="1" max="4" />
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Door Fit / Seal Quality <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(NFPA 92 Table B.1 leakage area)</span></div>
+        <div class="toggle-group" id="tg-door-fit">
+          <button class="toggle-btn" data-val="Tight" onclick="toggle('tg-door-fit','Tight')">Tight (0.019 m² — brush seals)</button>
+          <button class="toggle-btn active" data-val="Average" onclick="toggle('tg-door-fit','Average')">Average (0.039 m² — standard)</button>
+          <button class="toggle-btn" data-val="Loose" onclick="toggle('tg-door-fit','Loose')">Loose (0.052 m² — older buildings)</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Design Pressure Differential <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(max 87 Pa)</span></div>
+          <div class="input-group">
+            <input id="f-delta-p" class="wh-input" type="number" value="25" min="12" max="87" />
+            <span class="input-unit">Pa</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Fan Static Pressure</div>
+          <div class="input-group">
+            <input id="f-fan-static" class="wh-input" type="number" value="400" min="100" />
+            <span class="input-unit">Pa</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div>
+          <div class="field-label">Door Width</div>
+          <div class="input-group">
+            <input id="f-door-w" class="wh-input" type="number" value="0.90" min="0.6" step="0.05" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Door Height</div>
+          <div class="input-group">
+            <input id="f-door-h" class="wh-input" type="number" value="2.10" min="1.8" step="0.05" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Fan Efficiency</div>
+          <div class="input-group">
+            <input id="f-fan-eff" class="wh-input" type="number" value="60" min="40" max="90" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Standard: NFPA 92 / BFP IRR. Design ΔP pre-filled by building type. A 20% safety factor is applied to the computed airflow. Door opening force is checked against the NFPA 92 limit of 133 N.
+      </div>
+    `;
+    applyPressDefaults('Sprinklered');
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
   if (calcType === 'Fire Sprinkler Hydraulic') {
     area.innerHTML = `
       <div class="mb-4">
@@ -2341,6 +2475,11 @@ function applyVentDefaults(roomFunc) {
   if (!d) return;
   const pEl = document.getElementById('f-persons');
   if (pEl) pEl.value = d.persons;
+}
+
+function applyPressDefaults(buildingType) {
+  const el = document.getElementById('f-delta-p');
+  if (el) el.value = buildingType === 'Non-Sprinklered' ? '50' : '25';
 }
 
 function applyFPSuctionDefaults(type) {
@@ -2857,6 +2996,22 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Stairwell Pressurization') {
+    return {
+      project_name:        v('f-project')          || 'Untitled Stairwell Pressurization',
+      building_type:       getToggle('tg-bldg-type') || 'Sprinklered',
+      n_stairwells:        parseFloat(v('f-n-stairwells'))    || 2,
+      n_floors:            parseFloat(v('f-n-floors'))        || 10,
+      doors_per_floor:     parseFloat(v('f-doors-per-floor')) || 1,
+      door_fit:            getToggle('tg-door-fit')  || 'Average',
+      delta_P:             parseFloat(v('f-delta-p'))         || 25,
+      door_width:          parseFloat(v('f-door-w'))          || 0.90,
+      door_height:         parseFloat(v('f-door-h'))          || 2.10,
+      fan_static_pressure: parseFloat(v('f-fan-static'))      || 400,
+      fan_efficiency:      parseFloat(v('f-fan-eff'))         || 60,
+    };
+  }
+
   if (_calcType === 'Fire Pump Sizing') {
     return {
       project_name:       v('f-project')         || 'Untitled Fire Pump System',
@@ -2941,6 +3096,11 @@ async function runCalculation() {
       showToast('Please add at least one plumbing fixture.');
       return;
     }
+  } else if (_calcType === 'Stairwell Pressurization') {
+    if (!inputs.n_floors || inputs.n_floors < 1) {
+      showToast('Please enter the number of floors served.');
+      return;
+    }
   } else if (_calcType === 'Fire Pump Sizing') {
     if (!inputs.required_flow || inputs.required_flow <= 0) {
       showToast('Please enter the required system flow (L/min).');
@@ -2996,6 +3156,8 @@ async function runCalculation() {
       renderVDReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Wire Sizing') {
       renderWireSizingReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Stairwell Pressurization') {
+      renderStairwellPressReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Fire Pump Sizing') {
       renderFirePumpReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Fire Sprinkler Hydraulic') {
@@ -4676,6 +4838,169 @@ function renderWaterSupplyReport(inputs, results, narrative) {
       <div>
         <div class="sig-line">Checked / Approved by</div>
         <div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── Fire Protection: Stairwell Pressurization Report (NFPA 92) ──────────────
+function renderStairwellPressReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const r       = results;
+  const dpStatus = r.delta_P_ok
+    ? `<span style="color:#2e7d32;font-weight:600;">OK — within NFPA 92 limits (${r.delta_P_min}–${r.delta_P_max} Pa)</span>`
+    : `<span style="color:#b71c1c;font-weight:600;">WARNING — outside NFPA 92 limits (${r.delta_P_min}–${r.delta_P_max} Pa)</span>`;
+  const forceStatus = r.door_force_ok
+    ? `<span style="color:#2e7d32;font-weight:600;">${r.F_total_N} N — OK (limit: 133 N)</span>`
+    : `<span style="color:#b71c1c;font-weight:600;">${r.F_total_N} N — EXCEEDS NFPA 92 LIMIT of 133 N. Reduce design pressure or specify lighter door closer.</span>`;
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div>
+        <h1>DESIGN CALCULATION</h1>
+        <div style="font-size:0.8rem;color:#555;">Stairwell Pressurization — NFPA 92</div>
+      </div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;">
+        <div>Rev. ${e('0')}</div>
+        <div>Date: ${dateStr}</div>
+      </div>
+    </div>
+
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">Project / System Name</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Building Type</th><td>${e(r.building_type)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Calculation Standard</th><td>NFPA 92 / BFP IRR</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
+    </table>
+
+    <h2>1. Objective</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || 'To determine the required supply airflow for stairwell pressurization to maintain a positive pressure differential across stairwell doors, preventing smoke migration into the means of egress in compliance with NFPA 92 and BFP requirements.')}</p>
+
+    <h2>2. Applicable Codes and Standards</h2>
+    <ul style="font-size:0.82rem;color:#333;padding-left:1.25rem;line-height:2;">
+      <li>NFPA 92 — Standard for Smoke Control Systems (Latest Edition)</li>
+      <li>BFP IRR — Bureau of Fire Protection Implementing Rules and Regulations (High-Rise Provisions)</li>
+      <li>National Building Code of the Philippines (PD 1096) — Fire Safety Requirements</li>
+      <li>ASHRAE Handbook — HVAC Applications, Chapter 53 (Smoke Control)</li>
+    </ul>
+
+    <h2>3. Design Criteria and Assumptions</h2>
+    <table style="margin-top:0.5rem;">
+      <tr><th>Parameter</th><th>Value</th><th>Parameter</th><th>Value</th></tr>
+      <tr><td>Building Type</td><td class="num">${escHtml(r.building_type)}</td><td>No. of Stairwells</td><td class="num">${r.N_stairwells}</td></tr>
+      <tr><td>Floors Served</td><td class="num">${r.N_floors} floors</td><td>Doors per Floor</td><td class="num">${r.doors_per_floor}</td></tr>
+      <tr><td>Total Stairwell Doors</td><td class="num">${r.N_doors_total} doors</td><td>Door Fit / Seal Quality</td><td class="num">${escHtml(r.door_fit)}</td></tr>
+      <tr><td>Leakage Area per Door</td><td class="num">${r.A_door_m2} m²</td><td>Design Pressure Differential</td><td class="num">${r.delta_P_Pa} Pa</td></tr>
+      <tr><td>Door Dimensions</td><td class="num">${r.door_W} m × ${r.door_H} m</td><td>Fan Static Pressure</td><td class="num">${r.fan_static_Pa} Pa</td></tr>
+      <tr><td>Discharge Coefficient (Cd)</td><td class="num">${r.Cd}</td><td>Fan Efficiency</td><td class="num">${r.fan_eff_pct}%</td></tr>
+      <tr><td>Air Density (ρ)</td><td class="num">1.20 kg/m³ (25°C, sea level)</td><td>Safety Factor</td><td class="num">${((r.safety_factor - 1) * 100).toFixed(0)}%</td></tr>
+    </table>
+
+    <h2>4. Calculation Proper</h2>
+
+    <h3>4.1 Total Leakage Area</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Door leakage: ${r.N_doors_total} doors × ${r.A_door_m2} m²/door = ${r.A_door_total} m²<br>
+      Wall leakage: ${r.N_floors} floors × ${r.A_wall_per_floor} m²/floor = ${r.A_wall_total} m²<br>
+      <strong>Total leakage area per stairwell A_total = ${r.A_total_m2} m²</strong>
+    </p>
+
+    <h3>4.2 Design Pressure Differential Check</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      NFPA 92 limits for ${escHtml(r.building_type)} building: ${r.delta_P_min} Pa (min) to ${r.delta_P_max} Pa (max)<br>
+      Design pressure: ${r.delta_P_Pa} Pa — ${dpStatus}
+    </p>
+
+    <h3>4.3 Pressurization Airflow per Stairwell</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula (NFPA 92 Eq. 6.4.1.1): Q = Cd × A_total × sqrt(2 × ΔP / ρ)<br>
+      Q = ${r.Cd} × ${r.A_total_m2} × sqrt(2 × ${r.delta_P_Pa} / 1.20)<br>
+      <strong>Q per stairwell = ${r.Q_per_stairwell_m3s} m³/s (${r.Q_per_CMH} m³/h)</strong>
+    </p>
+
+    <h3>4.4 Total System Airflow with Safety Factor</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Total (all stairwells) = ${r.Q_per_stairwell_m3s} × ${r.N_stairwells} = ${r.Q_total_m3s} m³/s<br>
+      Apply ${((r.safety_factor - 1) * 100).toFixed(0)}% safety factor: Q_design = ${r.Q_total_m3s} × ${r.safety_factor} = ${r.Q_design_m3s} m³/s<br>
+      <strong>Q_design = ${r.Q_design_m3s} m³/s (${r.Q_design_CMH} m³/h CMH)</strong>
+    </p>
+
+    <h3>4.5 Door Opening Force Check</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Door panel area = ${r.door_W} × ${r.door_H} = ${r.A_door_panel} m²<br>
+      Force from pressure = ${r.delta_P_Pa} Pa × ${r.A_door_panel} m² = ${r.F_pressure_N} N<br>
+      Door closer force (typical) = ${r.F_closer_N} N<br>
+      <strong>Total door opening force = ${r.F_total_N} N — ${forceStatus}</strong>
+    </p>
+
+    <h3>4.6 Fan Motor Sizing</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula: P_kW = Q (m³/s) × static pressure (Pa) / (fan efficiency × 1000)<br>
+      P = ${r.Q_design_m3s} × ${r.fan_static_Pa} / (${r.fan_eff_pct / 100} × 1000) = ${r.P_fan_kW} kW (${r.P_fan_HP} HP)<br>
+      <strong>Selected fan motor: ${r.selected_HP} HP</strong>
+    </p>
+
+    <h2>5. Results Summary</h2>
+    <div class="result-highlight">
+      <div class="res-item">
+        <div class="res-label">Total Design Airflow</div>
+        <div class="res-value">${r.Q_design_CMH} <span style="font-size:0.7em;">m³/h</span></div>
+      </div>
+      <div class="res-item">
+        <div class="res-label">Airflow per Stairwell</div>
+        <div class="res-value">${r.Q_per_CMH} <span style="font-size:0.7em;">m³/h</span></div>
+      </div>
+      <div class="res-item">
+        <div class="res-label">Selected Fan Motor</div>
+        <div class="res-value">${r.selected_HP} <span style="font-size:0.7em;">HP</span></div>
+      </div>
+      <div class="res-item">
+        <div class="res-label">Door Opening Force</div>
+        <div class="res-value" style="color:${r.door_force_ok ? '#2e7d32' : '#b71c1c'}">${r.F_total_N} <span style="font-size:0.7em;">N ${r.door_force_ok ? '✓' : '⚠'}</span></div>
+      </div>
+    </div>
+
+    <h2>6. Pressurization Fan Schedule</h2>
+    <table>
+      <tr><th>Parameter</th><th>Value</th></tr>
+      <tr><td>Number of Fans Required</td><td class="num">${r.N_stairwells} fan(s) — one per stairwell</td></tr>
+      <tr><td>Airflow per Fan</td><td class="num">${r.Q_per_CMH} m³/h (${r.Q_per_stairwell_m3s} m³/s)</td></tr>
+      <tr style="font-weight:700;background:#fffbf0;"><td>Total System Airflow (with 20% SF)</td><td class="num">${r.Q_design_CMH} m³/h (${r.Q_design_m3s} m³/s)</td></tr>
+      <tr><td>Design Pressure Differential</td><td class="num">${r.delta_P_Pa} Pa</td></tr>
+      <tr><td>Fan Static Pressure</td><td class="num">${r.fan_static_Pa} Pa</td></tr>
+      <tr><td>Fan Motor Power</td><td class="num">${r.P_fan_kW} kW / ${r.P_fan_HP} HP</td></tr>
+      <tr style="font-weight:700;background:#fffbf0;"><td>Selected Fan Motor Size</td><td class="num">${r.selected_HP} HP</td></tr>
+      <tr><td>Door Opening Force</td><td class="num" style="color:${r.door_force_ok ? '#2e7d32' : '#b71c1c'}">${r.F_total_N} N (NFPA 92 limit: 133 N) — ${r.door_force_ok ? 'PASS' : 'FAIL — reduce deltaP'}</td></tr>
+    </table>
+
+    <h2>7. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Provide ${r.N_stairwells} pressurization fan(s), each rated at ${r.Q_per_CMH} m³/h at ${r.fan_static_Pa} Pa static pressure with a ${r.selected_HP} HP motor.\n2. Design pressure differential of ${r.delta_P_Pa} Pa is ${r.delta_P_ok ? 'within' : 'OUTSIDE'} NFPA 92 limits (${r.delta_P_min}–${r.delta_P_max} Pa).\n3. Door opening force of ${r.F_total_N} N is ${r.door_force_ok ? 'acceptable (below 133 N limit)' : 'UNACCEPTABLE — exceeds 133 N. Reduce design pressure or specify door closers rated below 45 N.'}.\n4. Pressurization fans must be connected to emergency power (generator or UPS) per BFP IRR — they are part of the building fire safety system.\n5. For buildings with elevator shafts adjacent to stairwells, add 0.056 m² leakage per elevator door level to the total leakage area and recheck airflow.\n6. Submit this calculation to the Bureau of Fire Protection (BFP) as part of the building permit application for high-rise or fire-protected occupancies.`)}</p>
+
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Prepared by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Checked by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Approved by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
     </div>
   `;
