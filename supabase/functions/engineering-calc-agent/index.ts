@@ -1287,23 +1287,66 @@ Respond in JSON format only:
     const kw  = rec.recommended_kW  ?? rec.design_kW  ?? '';
     const tr  = rec.recommended_TR  ?? rec.design_TR  ?? '';
 
-    let recommendations = "Provide equipment with a minimum combined capacity as computed in the results above. Consult the results summary table for specific values.";
+    let recommendations = "Refer to the results summary table for specific design values. Ensure all equipment is selected to meet or exceed the computed minimum requirements, and that installation complies with the applicable Philippine and international engineering standards.";
+
     if (calcType === "HVAC Cooling Load" && kw) {
-      recommendations = `Provide air conditioning unit(s) with minimum capacity of ${kw} kW${tr ? ` (${tr} TR)` : ''}. Ensure proper ventilation per ASHRAE 62.1 minimum outdoor air requirements.`;
+      recommendations = `Provide air conditioning unit(s) with minimum combined capacity of ${kw} kW${tr ? ` (${tr} TR)` : ''}. Ensure proper outdoor air ventilation per ASHRAE 62.1 and PNS/ASHRAE 55 thermal comfort standards.`;
+    } else if (calcType === "Ventilation / ACH") {
+      const fan = rec.recommended_fan_cmh ?? rec.design_cmh ?? '';
+      const ach = rec.required_ach ?? rec.ach_ashrae ?? '';
+      recommendations = `Provide supply/exhaust fans with minimum combined capacity of ${fan} CMH to achieve ${ach} air changes per hour. Size ductwork for a maximum face velocity of 2.5 m/s. Verify outdoor air fraction meets ASHRAE 62.1 minimum requirements.`;
+    } else if (calcType === "Pump Sizing (TDH)") {
+      const hp = rec.recommended_hp ?? '';
+      const tdh = rec.TDH ?? '';
+      recommendations = `Provide a centrifugal pump rated at minimum ${hp} hp (TDH = ${tdh} m). Select a pump with an efficiency curve that encompasses the design point. Install with gate valves, check valve, and pressure gauge on discharge per PSME standards.`;
+    } else if (calcType === "Pipe Sizing") {
+      const dia = rec.pipe_dia_mm ?? rec.recommended_dia_mm ?? '';
+      recommendations = `Use minimum ${dia} mm nominal bore pipe for the design flow rate. Verify actual velocity stays within 1.5–3.0 m/s for liquid services. Install expansion joints and supports per PSME Piping Code.`;
+    } else if (calcType === "Compressed Air") {
+      const hp = rec.recommended_hp ?? '';
+      const cfm = rec.recommended_cfm ?? '';
+      const pipe = rec.recommended_pipe_mm ?? '';
+      recommendations = `Provide a rotary screw or reciprocating compressor rated at minimum ${hp} hp (${cfm} CFM FAD). Size distribution piping at ${pipe} mm minimum bore. Install an air dryer and particulate filter downstream of the receiver to protect pneumatic equipment.`;
+    } else if (calcType === "Water Supply Pipe Sizing") {
+      const dia = rec.recommended_dia_mm ?? '';
+      recommendations = `Use minimum ${dia} mm nominal bore pipe for the main supply branch. Verify static pressure at the most remote fixture is not less than 70 kPa. Install pressure-reducing valves where supply pressure exceeds 550 kPa per the Philippine Plumbing Code.`;
+    } else if (calcType === "Hot Water Demand") {
+      const heater = rec.recommended_heater_kW ?? rec.heater_kW_computed ?? '';
+      const storage = rec.recommended_storage_L ?? '';
+      recommendations = `Provide a water heater rated at minimum ${heater} kW with ${storage} L storage capacity. Insulate all hot water piping to minimize heat loss. Install a tempering valve to deliver water at maximum 50°C at fixtures per PPC safety requirements.`;
+    } else if (calcType === "Drainage Pipe Sizing") {
+      const branch = rec.branch_dia_mm ?? rec.recommended_dia_mm ?? '';
+      recommendations = `Use minimum ${branch} mm nominal bore for the branch drain and size the stack accordingly per the Philippine Plumbing Code Table of fixture unit loads. Maintain minimum 2% slope on horizontal branches. Provide cleanouts at every change of direction and at 15 m intervals.`;
+    } else if (calcType === "Septic Tank Sizing") {
+      const vol = rec.total_volume_L ?? '';
+      recommendations = `Construct a septic tank with minimum liquid capacity of ${vol} L using watertight reinforced concrete or fiberglass. Provide inspection covers on each compartment and a subsurface leachfield sized per DENR DAO 2016-08 effluent standards. Desludge per the computed interval.`;
+    } else if (calcType === "Load Estimation") {
+      const kva = rec.total_kVA ?? rec.demand_kVA ?? rec.demand_kW ?? '';
+      recommendations = `Size the main circuit breaker and service entrance conductors for minimum ${kva} kVA demand load with 20% future expansion margin. Provide separate circuit breakers for each circuit per PEC 2017. Label all breakers and maintain an accurate load schedule as a permanent record.`;
+    } else if (calcType === "Voltage Drop") {
+      const vd = rec.vd_pct ?? '';
+      const pass = rec.pass;
+      recommendations = pass === false
+        ? `Computed voltage drop of ${vd}% exceeds the allowable limit. Increase conductor size or reduce circuit length to bring voltage drop within limits per PEC 2017. Consider using a higher-voltage distribution system for long runs.`
+        : `Computed voltage drop of ${vd}% is within the allowable limit. Maintain this conductor size and route. Document this calculation in the project electrical design file.`;
+    } else if (calcType === "Wire Sizing") {
+      const wire = rec.recommended_size_mm2 ?? '';
+      const breaker = rec.recommended_breaker_A ?? '';
+      recommendations = `Use ${wire} mm² THHN/THWN-2 copper conductor in conduit. Protect with a ${breaker} A molded-case circuit breaker per PEC 2017 Table 3.10.1. Verify derating factors for ambient temperature and conduit fill before finalizing.`;
     } else if (calcType === "Fire Alarm Battery") {
       const ah = rec.Ah_required ?? '';
       const cfg = rec.battery_config ?? '';
-      recommendations = `Provide sealed lead-acid (SLA/VRLA) batteries rated at minimum ${ah} Ah. Recommended battery bank: ${cfg}. Replace every 3-5 years per NFPA 72 §10.6.11. Submit this calculation to BFP as part of the fire alarm permit package.`;
+      recommendations = `Provide sealed lead-acid (SLA/VRLA) batteries rated at minimum ${ah} Ah. Recommended battery bank: ${cfg}. Replace every 3–5 years per NFPA 72 §10.6.11. Submit this calculation to BFP as part of the fire alarm permit package.`;
     } else if (calcType === "Fire Sprinkler Hydraulic") {
       const flow = rec.Q_total ?? '';
       const press = rec.P_source ?? '';
-      recommendations = `Provide a fire pump rated at minimum ${flow} L/min at ${press} bar. Submit to BFP as part of the fire protection permit application. A PRC-licensed engineer must sign and seal this document before BFP submission.`;
+      recommendations = `Provide a fire pump rated at minimum ${flow} L/min at ${press} bar. Provide a dedicated fire water storage tank sized for the computed duration. Submit to BFP as part of the fire protection permit application. A PRC-licensed engineer must sign and seal this document.`;
     } else if (calcType === "Fire Pump Sizing") {
       const bhp = rec.motor_hp ?? '';
-      recommendations = `Provide a fire pump with motor rated at minimum ${bhp} hp. Verify pump curve at 150% flow per NFPA 20. Submit to BFP as part of the fire protection permit package.`;
+      recommendations = `Provide a fire pump with motor rated at minimum ${bhp} hp. Verify the pump curve at 150% rated flow per NFPA 20 §4.28. Submit to BFP as part of the fire protection permit package. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
     } else if (calcType === "Stairwell Pressurization") {
       const q = rec.Q_total_m3h ?? '';
-      recommendations = `Provide pressurization fans supplying minimum ${q} m³/h total. Verify door opening force does not exceed 133 N. Submit to BFP as part of the smoke control permit package.`;
+      recommendations = `Provide pressurization fans supplying minimum ${q} m³/h total across all stairwells. Verify door opening force does not exceed 133 N per NFPA 92. Commission and test the system with all doors closed before occupancy. Submit to BFP as part of the smoke control permit package.`;
     }
     return {
       objective: `To determine the required ${calcType} design parameters for the subject project in accordance with applicable Philippine and international engineering standards.`,
