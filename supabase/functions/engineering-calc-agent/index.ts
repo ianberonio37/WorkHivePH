@@ -1347,6 +1347,11 @@ Respond in JSON format only:
     } else if (calcType === "Stairwell Pressurization") {
       const q = rec.Q_total_m3h ?? '';
       recommendations = `Provide pressurization fans supplying minimum ${q} m³/h total across all stairwells. Verify door opening force does not exceed 133 N per NFPA 92. Commission and test the system with all doors closed before occupancy. Submit to BFP as part of the smoke control permit package.`;
+    } else if (calcType === "Elevator Traffic Analysis") {
+      const rtt = rec.RTT_s ?? '';
+      const intv = rec.interval_s ?? '';
+      const hc = rec.HC_pct ?? '';
+      recommendations = `Computed RTT is ${rtt} s (interval ${intv} s, HC% ${hc}%). Install group supervisory control to optimize dispatching. At least one elevator must comply with BP 344 / RA 10754 (min car 1100 mm × 1400 mm, Braille controls). If interval exceeds the target, consider increasing speed or adding an elevator. Submit traffic analysis to DPWH / LGU as part of the building permit application. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
     }
     return {
       objective: `To determine the required ${calcType} design parameters for the subject project in accordance with applicable Philippine and international engineering standards.`,
@@ -1354,6 +1359,79 @@ Respond in JSON format only:
       recommendations,
     };
   }
+}
+
+// ─── Vertical Transportation: Elevator Traffic Analysis (CIBSE Guide D / ASME A17.1) ─
+
+function calcElevatorTraffic(inputs: Record<string, number | string>): Record<string, unknown> {
+  const n_floors     = Number(inputs.n_floors)     || 12;   // floors served
+  const floor_height = Number(inputs.floor_height) || 3.5;  // m
+  const population   = Number(inputs.population)   || 500;  // persons
+  const n_elevators  = Number(inputs.n_elevators)  || 3;
+  const capacity     = Number(inputs.capacity)      || 13;   // persons
+  const speed        = Number(inputs.speed)         || 1.5;  // m/s
+  const t_door_open  = Number(inputs.t_door_open)  || 2.5;  // s
+  const t_door_close = Number(inputs.t_door_close) || 3.0;  // s
+  const t_dwell      = Number(inputs.t_dwell)       || 2.0;  // s
+  const occupancy    = (inputs.occupancy_type as string) || 'Office';
+
+  const loading_efficiency = 0.80; // CIBSE Guide D: 80% car loading
+  const effective_pax = Math.round(capacity * loading_efficiency);
+
+  // Total rise (m) — ground floor to highest floor
+  const H_m = Math.round((n_floors - 1) * floor_height * 10) / 10;
+
+  // Flight time (round trip, no acceleration correction for standard speeds)
+  const t_flight_s = Math.round((2 * H_m / speed) * 10) / 10;
+
+  // Average number of stops (S) — CIBSE Guide D formula:
+  // S = n * [1 - (1 - 1/n)^P]  where n = floors-1 (excluding ground), P = effective_pax
+  const n = n_floors - 1;
+  const S_raw = n * (1 - Math.pow(1 - 1 / n, effective_pax));
+  const avg_stops = Math.round(S_raw * 10) / 10;
+
+  // Stop time = (dwell + door open + door close) × avg_stops
+  const t_per_stop = t_dwell + t_door_open + t_door_close;
+  const t_stops_s  = Math.round(t_per_stop * avg_stops * 10) / 10;
+
+  // Loading/unloading time — estimated as 0.8 s per passenger (CIBSE typical)
+  const t_load_s = Math.round(effective_pax * 0.8 * 10) / 10;
+
+  // Round Trip Time (s)
+  const RTT_s = Math.round((t_flight_s + t_stops_s + t_load_s) * 10) / 10;
+
+  // Interval between arrivals (s)
+  const interval_s = Math.round((RTT_s / n_elevators) * 10) / 10;
+
+  // 5-minute handling capacity (persons)
+  const capacity_5min = Math.round((n_elevators * 300 / RTT_s) * effective_pax);
+
+  // HC% = capacity_5min / population × 100
+  const HC_pct = Math.round((capacity_5min / population) * 1000) / 10;
+
+  // Target values by occupancy type (CIBSE Guide D)
+  const targets: Record<string, { interval: number; HC: number }> = {
+    'Office':       { interval: 30, HC: 12 },
+    'Residential':  { interval: 60, HC: 7  },
+    'Hotel':        { interval: 40, HC: 10 },
+    'Mixed-Use':    { interval: 40, HC: 11 },
+  };
+  const tgt = targets[occupancy] || targets['Office'];
+
+  return {
+    H_m,
+    t_flight_s,
+    avg_stops,
+    t_stops_s,
+    t_load_s,
+    RTT_s,
+    interval_s,
+    effective_pax,
+    capacity_5min,
+    HC_pct,
+    target_interval_s: tgt.interval,
+    target_HC_pct:     tgt.HC,
+  };
 }
 
 // ─── Fire Protection: Fire Sprinkler Hydraulic (NFPA 13 Design Area Method) ──
@@ -1852,6 +1930,8 @@ serve(async (req) => {
       results = calcStairwellPressurization(inputs);
     } else if (calc_type === "Fire Alarm Battery") {
       results = calcFireAlarmBattery(inputs);
+    } else if (calc_type === "Elevator Traffic Analysis") {
+      results = calcElevatorTraffic(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

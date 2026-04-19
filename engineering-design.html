@@ -346,6 +346,7 @@
             <button class="discipline-pill" data-disc="Plumbing" onclick="selectDiscipline('Plumbing')">🔧 Plumbing</button>
             <button class="discipline-pill" data-disc="Electrical" onclick="selectDiscipline('Electrical')">⚡ Electrical</button>
             <button class="discipline-pill" data-disc="Fire Protection" onclick="selectDiscipline('Fire Protection')">🔥 Fire Protection</button>
+            <button class="discipline-pill" data-disc="Vertical Transportation" onclick="selectDiscipline('Vertical Transportation')">🛗 Vertical Transportation</button>
           </div>
         </div>
 
@@ -489,6 +490,10 @@ const CALC_TYPES = {
     { id: 'Fire Pump Sizing',         icon: '🔥', desc: 'Required flow and pressure, motor HP, NFPA 20',  available: true  },
     { id: 'Stairwell Pressurization', icon: '🪜', desc: 'Airflow to maintain pressure differential, NFPA 92', available: true  },
     { id: 'Fire Alarm Battery',       icon: '🔋', desc: '24h standby + 5-min alarm, battery Ah, NFPA 72', available: true  },
+  ],
+  'Vertical Transportation': [
+    { id: 'Elevator Traffic Analysis', icon: '🛗', desc: 'RTT, interval, handling capacity — ASME A17.1 / EN 81', available: true  },
+    { id: 'Hoist Capacity',            icon: '🏗️', desc: 'SWL, wire rope safety factor, hoist motor sizing',      available: false },
   ],
 };
 
@@ -1088,6 +1093,53 @@ const GUIDES = {
       'NFPA 72 requires the battery charger to fully recharge the battery within 48 hours after a full discharge.',
       'Pre-filled current values are typical field values. Always verify against actual equipment datasheets before finalizing — especially for the FACP panel current and notification appliances.',
       'BFP Philippines requires fire alarm systems to have battery backup. The battery calculation is part of the fire protection engineering submittal.',
+    ],
+  },
+
+  'Elevator Traffic Analysis': {
+    title: 'Elevator Traffic Analysis — ASME A17.1 / EN 81 / CIBSE Guide D',
+    subtitle: 'Determines Round Trip Time (RTT), interval between elevator arrivals, and 5-minute handling capacity (HC%) to verify whether the elevator installation meets the building\'s up-peak traffic demand.',
+    standards: ['ASME A17.1 — Safety Code for Elevators and Escalators','EN 81-1 / EN 81-2 — Safety Rules for Construction of Elevators','CIBSE Guide D — Transportation Systems in Buildings','Philippine Electrical Code — Article on Elevators, Dumbwaiters, and Escalators','RA 10754 / BP 344 — Accessibility Law (elevator requirements for PWD)'],
+    formulas: [
+      'RTT  = t_flight + t_dwell_per_stop x avg_stops + t_door x 2 x avg_stops + t_load_unload',
+      '     = (2H / v) + (t_s x S) + (2 x t_d x S) + (t_l + t_u)',
+      '',
+      'Where:',
+      '  H = total rise (m) = floors x floor_height',
+      '  v = rated speed (m/s)',
+      '  S = avg number of stops (estimated as ~2/3 of floors served)',
+      '  t_s = dwell time per stop (s) — typical 2-4 s',
+      '  t_d = door open or close time (s) — typical 2-3 s each',
+      '  t_l = loading time (s) — typical 12-15 s for full car',
+      '  t_u = unloading time (s) — typical 8-12 s',
+      '',
+      'Interval = RTT / N_elevators  (seconds between arrivals)',
+      '',
+      '5-Minute Handling Capacity (HC%):',
+      '  HC% = (N_elevators x 300s / RTT x capacity_persons) / population x 100',
+      '',
+      'Grade of Service:',
+      '  HC% >= 12% = Excellent | 11% = Good | 9% = Adequate | <8% = Poor',
+      '  Interval <= 30s = Excellent | 30-40s = Good | 40-60s = Adequate | >60s = Poor',
+    ],
+    fields: [
+      { name: 'Number of Floors', tip: 'Total number of floors served by the elevator group, including ground floor. For example, Ground + 9 upper floors = 10 floors.' },
+      { name: 'Total Rise / Building Height', tip: 'Total vertical travel distance in meters from lowest to highest served floor. Example: 10 floors x 3.5 m = 35 m. Compute as floors_served x floor_height_m.' },
+      { name: 'Building Population', tip: 'Total number of persons in the building during the busiest period (typically morning up-peak). For offices: 1 person per 8-10 m² of net usable floor area is a common estimate.' },
+      { name: 'Number of Elevators in Group', tip: 'Number of elevators serving the same floors in a coordinated group. Single elevators are trivially analysed — groups of 2-8 are the typical range for Philippine mid-rise to high-rise buildings.' },
+      { name: 'Rated Capacity (persons)', tip: 'Design occupancy from the elevator nameplate. Common: 8 persons (630 kg), 13 persons (1000 kg), 17 persons (1275 kg). Philippine code: 1 person = 75 kg.' },
+      { name: 'Rated Speed', tip: 'From elevator specification. Common: 1.0 m/s (low-rise up to 5 floors), 1.5-1.75 m/s (mid-rise 6-15 floors), 2.5-3.0 m/s (high-rise 16-30 floors), 5-10 m/s (super-high-rise).' },
+      { name: 'Floor-to-Floor Height', tip: 'Typical Philippine commercial: 3.5 m for typical office/residential. 4.0-5.0 m for ground floor retail/lobby. Use the floor-to-floor dimension from the architectural drawings.' },
+      { name: 'Occupancy Type', tip: 'Drives the target interval and HC% benchmark. Office buildings have the most demanding up-peak (8-9 AM). Residential is less demanding. Hotel is spread across day. Mixed-use must be analyzed per component.' },
+    ],
+    notes: [
+      'The 5-minute up-peak is the critical design scenario — all analysis is based on morning rush when everyone arrives at once.',
+      'Typical Philippine commercial building targets: Interval <= 40 seconds, HC% >= 11%.',
+      'Car loading efficiency: in practice, elevators fill to ~80% of rated capacity during busy periods. The calc uses 80% by default.',
+      'Average stops (S) is estimated at ~2/3 of served floors for the up-peak scenario — this is a CIBSE Guide D simplification.',
+      'Round Trip Time depends heavily on door timing and dwell time — slow doors are a common cause of poor service in older Philippine buildings.',
+      'For BP 344 / RA 10754 accessibility compliance: at least one elevator must have a minimum car size of 1100mm x 1400mm and accessible controls.',
+      'Always submit elevator design calculations to DPWH / LGU Building Official as part of the building permit application.',
     ],
   },
 };
@@ -2555,6 +2607,104 @@ function renderInputForm(calcType) {
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
+
+  if (calcType === 'Elevator Traffic Analysis') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Building Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Bldg A — Elevator Traffic Study" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Occupancy Type</div>
+        <div class="toggle-group" id="tg-occupancy">
+          <button class="toggle-btn active" data-val="Office" onclick="toggle('tg-occupancy','Office')">Office</button>
+          <button class="toggle-btn" data-val="Residential" onclick="toggle('tg-occupancy','Residential')">Residential</button>
+          <button class="toggle-btn" data-val="Hotel" onclick="toggle('tg-occupancy','Hotel')">Hotel</button>
+          <button class="toggle-btn" data-val="Mixed-Use" onclick="toggle('tg-occupancy','Mixed-Use')">Mixed-Use</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Number of Floors Served</div>
+          <input id="f-n-floors" class="wh-input" type="number" value="12" min="2" max="100" />
+        </div>
+        <div>
+          <div class="field-label">Floor-to-Floor Height</div>
+          <div class="input-group">
+            <input id="f-floor-height" class="wh-input" type="number" value="3.5" min="2.5" max="10" step="0.1" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Building Population</div>
+          <div class="input-group">
+            <input id="f-population" class="wh-input" type="number" value="500" min="10" />
+            <span class="input-unit">persons</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Number of Elevators</div>
+          <input id="f-n-elevators" class="wh-input" type="number" value="3" min="1" max="20" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Rated Capacity</div>
+          <div class="toggle-group" id="tg-capacity">
+            <button class="toggle-btn" data-val="8" onclick="toggle('tg-capacity','8')">8 persons (630 kg)</button>
+            <button class="toggle-btn active" data-val="13" onclick="toggle('tg-capacity','13')">13 persons (1000 kg)</button>
+            <button class="toggle-btn" data-val="17" onclick="toggle('tg-capacity','17')">17 persons (1275 kg)</button>
+            <button class="toggle-btn" data-val="20" onclick="toggle('tg-capacity','20')">20 persons (1600 kg)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Rated Speed</div>
+          <div class="toggle-group" id="tg-speed">
+            <button class="toggle-btn" data-val="1.0" onclick="toggle('tg-speed','1.0')">1.0 m/s (low-rise)</button>
+            <button class="toggle-btn active" data-val="1.5" onclick="toggle('tg-speed','1.5')">1.5 m/s (mid-rise)</button>
+            <button class="toggle-btn" data-val="2.5" onclick="toggle('tg-speed','2.5')">2.5 m/s (high-rise)</button>
+            <button class="toggle-btn" data-val="3.5" onclick="toggle('tg-speed','3.5')">3.5 m/s (super high-rise)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div>
+          <div class="field-label">Door Open Time</div>
+          <div class="input-group">
+            <input id="f-t-door-open" class="wh-input" type="number" value="2.5" min="1" max="5" step="0.5" />
+            <span class="input-unit">s</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Door Close Time</div>
+          <div class="input-group">
+            <input id="f-t-door-close" class="wh-input" type="number" value="3.0" min="1" max="5" step="0.5" />
+            <span class="input-unit">s</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Dwell Time / Stop</div>
+          <div class="input-group">
+            <input id="f-t-dwell" class="wh-input" type="number" value="2.0" min="1" max="8" step="0.5" />
+            <span class="input-unit">s</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.25rem;">
+        Standard: ASME A17.1 / EN 81 / CIBSE Guide D. Car loading efficiency assumed at 80%. Average stops estimated per CIBSE formula. Up-peak (5-minute) scenario used throughout.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
 }
 
 // ─── Toggle button groups ─────────────────────────────────────────────────────
@@ -3173,6 +3323,22 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Elevator Traffic Analysis') {
+    return {
+      project_name:    v('f-project')                           || 'Untitled Elevator Traffic Study',
+      occupancy_type:  getToggle('tg-occupancy')                || 'Office',
+      n_floors:        parseFloat(v('f-n-floors'))              || 12,
+      floor_height:    parseFloat(v('f-floor-height'))          || 3.5,
+      population:      parseFloat(v('f-population'))            || 500,
+      n_elevators:     parseFloat(v('f-n-elevators'))           || 3,
+      capacity:        parseFloat(getToggle('tg-capacity'))     || 13,
+      speed:           parseFloat(getToggle('tg-speed'))        || 1.5,
+      t_door_open:     parseFloat(v('f-t-door-open'))           || 2.5,
+      t_door_close:    parseFloat(v('f-t-door-close'))          || 3.0,
+      t_dwell:         parseFloat(v('f-t-dwell'))               || 2.0,
+    };
+  }
+
   return base;
 }
 
@@ -3252,6 +3418,11 @@ async function runCalculation() {
       showToast('Please enter at least one device or notification appliance.');
       return;
     }
+  } else if (_calcType === 'Elevator Traffic Analysis') {
+    if (!inputs.population || inputs.population < 10) {
+      showToast('Please enter the building population (minimum 10 persons).');
+      return;
+    }
   } else if (!inputs.floor_area || inputs.floor_area <= 0) {
     showToast('Please enter the floor area.');
     return;
@@ -3301,6 +3472,8 @@ async function runCalculation() {
       renderFireSprinklerReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Fire Alarm Battery') {
       renderFireAlarmBatteryReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Elevator Traffic Analysis') {
+      renderElevatorTrafficReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -5632,6 +5805,156 @@ function renderFireAlarmBatteryReport(inputs, results, narrative) {
 
     <h2>7. Recommendations</h2>
     <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Provide sealed lead-acid (SLA/VRLA) batteries rated at minimum ${r.Ah_required} Ah at ${inputs.system_voltage} V DC.\n2. Recommended battery bank: ${r.battery_config || r.selected_Ah + ' Ah'} — verify availability with FACP manufacturer.\n3. Install batteries inside or adjacent to the FACP cabinet in a clean, cool, ventilated location per NFPA 72.\n4. Verify battery compatibility with the specific FACP charging circuit before procurement.\n5. Replace batteries every 3-5 years per NFPA 72 §10.6.11 or per manufacturer recommendation, whichever is more frequent.\n6. Submit this calculation to the Bureau of Fire Protection (BFP) as part of the fire alarm permit application package.\n7. A PRC-licensed Electrical or Electronics Engineer must sign and seal this document before submission to BFP.`)}</p>
+
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Prepared by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Checked by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Approved by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── Elevator Traffic Analysis Report (ASME A17.1 / EN 81 / CIBSE Guide D) ──
+function renderElevatorTrafficReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const r       = results;
+
+  const intervalGrade = r.interval_s <= 30 ? 'Excellent' : r.interval_s <= 40 ? 'Good' : r.interval_s <= 60 ? 'Adequate' : 'Poor';
+  const hcGrade       = r.HC_pct >= 12 ? 'Excellent' : r.HC_pct >= 11 ? 'Good' : r.HC_pct >= 9 ? 'Adequate' : 'Poor';
+  const gradeColor    = (g) => g === 'Excellent' ? '#2e7d32' : g === 'Good' ? '#1565c0' : g === 'Adequate' ? '#e65100' : '#c62828';
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div>
+        <h1>DESIGN CALCULATION</h1>
+        <div style="font-size:0.8rem;color:#555;">Elevator Traffic Analysis — ASME A17.1 / EN 81 / CIBSE Guide D</div>
+      </div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;">
+        <div>Rev. ${e('0')}</div>
+        <div>Date: ${dateStr}</div>
+      </div>
+    </div>
+
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">Project / Building Name</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Occupancy Type</th><td>${escHtml(inputs.occupancy_type)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Calculation Standard</th><td>ASME A17.1 / EN 81 / CIBSE Guide D</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
+    </table>
+
+    <h2>1. Objective</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || `To analyze the vertical transportation capacity of the proposed elevator installation and verify that the round trip time (RTT), interval between arrivals, and 5-minute handling capacity (HC%) meet the grade of service requirements for a ${inputs.occupancy_type.toLowerCase()} building with ${inputs.population} occupants served by ${inputs.n_elevators} elevator(s), per CIBSE Guide D and ASME A17.1.`)}</p>
+
+    <h2>2. References</h2>
+    <p style="font-size:0.83rem;color:#333;">ASME A17.1 — Safety Code for Elevators and Escalators<br>
+    EN 81-1 / EN 81-2 — Safety Rules for Construction of Lifts<br>
+    CIBSE Guide D — Transportation Systems in Buildings<br>
+    National Building Code of the Philippines (PD 1096)<br>
+    BP 344 / RA 10754 — Accessibility Law (elevator requirements for PWD)</p>
+
+    <h2>3. Design Parameters</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Number of Floors Served</td><td class="num">${escHtml(String(inputs.n_floors))} floors</td></tr>
+      <tr><td>Floor-to-Floor Height</td><td class="num">${escHtml(String(inputs.floor_height))} m</td></tr>
+      <tr><td>Total Rise (H)</td><td class="num">${r.H_m} m</td></tr>
+      <tr><td>Building Population (up-peak)</td><td class="num">${escHtml(String(inputs.population))} persons</td></tr>
+      <tr><td>Number of Elevators in Group</td><td class="num">${escHtml(String(inputs.n_elevators))}</td></tr>
+      <tr><td>Rated Capacity</td><td class="num">${escHtml(String(inputs.capacity))} persons</td></tr>
+      <tr><td>Car Loading Efficiency (CIBSE)</td><td class="num">80%</td></tr>
+      <tr><td>Effective Passengers per Trip</td><td class="num">${r.effective_pax} persons</td></tr>
+      <tr><td>Rated Speed</td><td class="num">${escHtml(String(inputs.speed))} m/s</td></tr>
+      <tr><td>Door Open Time</td><td class="num">${escHtml(String(inputs.t_door_open))} s</td></tr>
+      <tr><td>Door Close Time</td><td class="num">${escHtml(String(inputs.t_door_close))} s</td></tr>
+      <tr><td>Dwell Time per Stop</td><td class="num">${escHtml(String(inputs.t_dwell))} s</td></tr>
+      <tr><td>Average Number of Stops (S) — CIBSE formula</td><td class="num">${r.avg_stops}</td></tr>
+    </table>
+
+    <h2>4. Round Trip Time Calculation</h2>
+    <p style="font-size:0.83rem;color:#333;"><strong>Formula (CIBSE Guide D):</strong></p>
+    <p style="font-size:0.83rem;color:#333;">
+      RTT = t<sub>flight</sub> + (t<sub>dwell</sub> + t<sub>door open</sub> + t<sub>door close</sub>) × S + t<sub>load</sub> + t<sub>unload</sub>
+    </p>
+    <p style="font-size:0.83rem;color:#333;"><strong>Where:</strong></p>
+    <p style="font-size:0.83rem;color:#333;">
+      t<sub>flight</sub> = 2H / v = 2 × ${r.H_m} / ${escHtml(String(inputs.speed))} = ${r.t_flight_s} s<br>
+      Average stops S = ${r.avg_stops} (CIBSE formula: n × [1 − (1 − 1/n)<sup>P</sup>])<br>
+      Stop time = (t<sub>dwell</sub> + t<sub>open</sub> + t<sub>close</sub>) × S = (${escHtml(String(inputs.t_dwell))} + ${escHtml(String(inputs.t_door_open))} + ${escHtml(String(inputs.t_door_close))}) × ${r.avg_stops} = ${r.t_stops_s} s<br>
+      t<sub>load/unload</sub> = ${r.t_load_s} s (estimated from car loading time)
+    </p>
+    <p style="font-size:0.83rem;color:#333;"><strong>RTT = ${r.t_flight_s} + ${r.t_stops_s} + ${r.t_load_s} = <strong>${r.RTT_s} seconds</strong></strong></p>
+
+    <h2>5. Results Summary</h2>
+    <div class="result-highlight" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Round Trip Time (RTT)</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.RTT_s} s</div>
+        <div style="font-size:0.75rem;color:#555;">${(r.RTT_s / 60).toFixed(1)} minutes</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Interval Between Arrivals</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.interval_s} s</div>
+        <div style="font-size:0.75rem;font-weight:700;color:${gradeColor(intervalGrade)};">${intervalGrade}</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">5-Min Handling Capacity (HC%)</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.HC_pct}%</div>
+        <div style="font-size:0.75rem;font-weight:700;color:${gradeColor(hcGrade)};">${hcGrade}</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">5-Min Capacity (persons)</div>
+        <div style="font-size:1.4rem;font-weight:700;color:#162032;">${r.capacity_5min} persons</div>
+        <div style="font-size:0.75rem;color:#555;">of ${inputs.population} total occupants</div>
+      </div>
+    </div>
+
+    <h2>6. Grade of Service Assessment</h2>
+    <div class="table-wrap">
+    <table>
+      <tr><th>Parameter</th><th class="num">Calculated</th><th class="num">Target (${escHtml(inputs.occupancy_type)})</th><th class="num">Grade</th></tr>
+      <tr>
+        <td>Interval (s)</td>
+        <td class="num">${r.interval_s} s</td>
+        <td class="num">${r.target_interval_s} s</td>
+        <td class="num" style="font-weight:700;color:${gradeColor(intervalGrade)};">${intervalGrade}</td>
+      </tr>
+      <tr>
+        <td>Handling Capacity HC% (5 min)</td>
+        <td class="num">${r.HC_pct}%</td>
+        <td class="num">${r.target_HC_pct}%</td>
+        <td class="num" style="font-weight:700;color:${gradeColor(hcGrade)};">${hcGrade}</td>
+      </tr>
+    </table>
+    </div>
+    <p style="font-size:0.78rem;color:#555;margin-top:0.5rem;">Grade criteria: Interval ≤30s = Excellent, ≤40s = Good, ≤60s = Adequate, >60s = Poor. HC% ≥12% = Excellent, ≥11% = Good, ≥9% = Adequate, &lt;8% = Poor.</p>
+
+    <h2>7. Assumptions</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Up-peak scenario (morning arrival) used as the critical design case.\n2. Car loading efficiency of 80% of rated capacity per CIBSE Guide D.\n3. Average stops (S) computed using CIBSE formula: S = n × [1 − (1 − 1/n)^P] where n = floors and P = effective passengers.\n4. Loading/unloading time estimated proportional to car capacity.\n5. All elevators in the group operate simultaneously under group supervisory control.\n6. Floor heights are uniform throughout the building.`)}</p>
+
+    <h2>8. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Computed interval of ${r.interval_s} s (${intervalGrade}) and HC% of ${r.HC_pct}% (${hcGrade}) — verify against occupancy-specific grade of service targets.\n2. Install group supervisory control to optimize dispatching and minimize passenger waiting time.\n3. Specify door operator with re-opening device (light curtain or safety edge) per ASME A17.1 and BP 344 accessibility requirements.\n4. At least one elevator in the group must comply with BP 344 / RA 10754: minimum car size 1100 mm × 1400 mm, Braille controls, audible floor announcements.\n5. If interval exceeds the target, consider: (a) increasing speed, (b) adding one elevator to the group, or (c) reducing car loading efficiency assumption.\n6. Submit elevator specifications and traffic analysis to DPWH / LGU Building Official as part of the building permit application.\n7. A PRC-licensed Mechanical Engineer must sign and seal this document before submission.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
