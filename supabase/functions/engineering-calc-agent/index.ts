@@ -1352,6 +1352,11 @@ Respond in JSON format only:
       const intv = rec.interval_s ?? '';
       const hc = rec.HC_pct ?? '';
       recommendations = `Computed RTT is ${rtt} s (interval ${intv} s, HC% ${hc}%). Install group supervisory control to optimize dispatching. At least one elevator must comply with BP 344 / RA 10754 (min car 1100 mm × 1400 mm, Braille controls). If interval exceeds the target, consider increasing speed or adding an elevator. Submit traffic analysis to DPWH / LGU as part of the building permit application. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
+    } else if (calcType === "Shaft Design") {
+      const d = rec.d_std_mm ?? rec.d_min_mm ?? '';
+      const mat = (inputs.material as string) || '';
+      const twist = rec.twist_deg_per_m ?? '';
+      recommendations = `Specify ${d} mm diameter ${mat} solid shaft. Calculated minimum: ${rec.d_min_mm ?? ''} mm. Angle of twist: ${twist}°/m (ASME limit: 1.0°/m). Verify critical speed — operating speed must be below 50% of first critical speed. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
     } else if (calcType === "Bearing Life (L10)") {
       const life = rec.L10h_adj ?? rec.L10h ?? '';
       const pass = rec.life_check ?? '';
@@ -1374,6 +1379,93 @@ Respond in JSON format only:
       recommendations,
     };
   }
+}
+
+// ─── Machine Design: Shaft Design (ASME B106.1M / Shigley's Elliptic) ───────
+
+function calcShaftDesign(inputs: Record<string, number | string>): Record<string, unknown> {
+  const power_kW         = Number(inputs.power_kW)          || 7.5;
+  const shaft_rpm        = Number(inputs.shaft_rpm)          || 1450;
+  const transverse_load_N= Number(inputs.transverse_load_N)  || 2000;
+  const span_mm          = Number(inputs.span_mm)            || 300;
+  const material         = (inputs.material as string)       || 'AISI 1045';
+  const keyway           = (inputs.keyway as string)         || 'Yes';
+  const shock_type       = (inputs.shock_type as string)     || 'Minor';
+
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+  const round1 = (n: number) => Math.round(n * 10)  / 10;
+
+  // Material ultimate tensile strength (MPa)
+  const Sut_map: Record<string, number> = {
+    'AISI 1020': 380,
+    'AISI 1045': 570,
+    'AISI 4140': 655,
+    'AISI 4340': 1035,
+  };
+  const Sut_MPa = Sut_map[material] || 570;
+
+  // Allowable shear stress
+  const Ss_factor = keyway === 'Yes' ? 0.18 : 0.30;
+  const Ss_allow_MPa = round1(Ss_factor * Sut_MPa);
+  const Ss_allow_Pa  = Ss_allow_MPa * 1e6;
+
+  // Shock factors
+  const shock_map: Record<string, { Kb: number; Kt: number }> = {
+    'Steady':   { Kb: 1.0, Kt: 1.0 },
+    'Minor':    { Kb: 1.5, Kt: 1.0 },
+    'Moderate': { Kb: 2.0, Kt: 1.5 },
+    'Heavy':    { Kb: 3.0, Kt: 2.0 },
+  };
+  const { Kb, Kt } = shock_map[shock_type] || shock_map['Minor'];
+
+  // Torque (N·m)
+  const T_Nm = round1(power_kW * 9549.3 / shaft_rpm);
+
+  // Bending moment — simply supported, point load at midspan
+  const M_Nm = round1(transverse_load_N * (span_mm / 1000) / 4);
+
+  // Combined load term (ASME elliptic)
+  const combined_Nm = round1(Math.sqrt(Math.pow(Kb * M_Nm, 2) + Math.pow(Kt * T_Nm, 2)));
+
+  // Minimum diameter (m)
+  const d_cubed_m3 = (16 / Math.PI) * combined_Nm / Ss_allow_Pa;
+  const d_min_m    = Math.pow(d_cubed_m3, 1/3);
+  const d_min_mm   = round1(d_min_m * 1000);
+
+  // Standard shaft diameters (mm) — PH market
+  const std_diams = [15,16,17,18,19,20,22,24,25,28,30,32,35,38,40,42,45,48,50,52,55,58,60,63,65,70,75,80,85,90,95,100,105,110,115,120];
+  let d_std_mm = std_diams[std_diams.length - 1];
+  for (const d of std_diams) {
+    if (d >= d_min_mm) { d_std_mm = d; break; }
+  }
+
+  // Angle of twist
+  const G = 80e9; // Pa (steel)
+  const d_std_m = d_std_mm / 1000;
+  const J_m4 = (Math.PI * Math.pow(d_std_m, 4)) / 32;
+  const L_m  = span_mm / 1000;
+  const twist_rad = (T_Nm * L_m) / (G * J_m4);
+  const twist_deg = round2(twist_rad * 180 / Math.PI);
+  const twist_deg_per_m = round2(twist_deg / L_m);
+
+  return {
+    power_kW: round2(power_kW),
+    Sut_MPa,
+    Ss_allow_MPa,
+    Ss_allow_Pa: round1(Ss_allow_Pa / 1e6) + ' MPa', // display only
+    Kb,
+    Kt,
+    T_Nm,
+    M_Nm,
+    combined_Nm,
+    d_cubed_m3: round2(d_cubed_m3 * 1e6).toFixed(2) + 'e-6',
+    d_min_mm,
+    d_std_mm,
+    J_m4: (J_m4 * 1e8).toFixed(3) + 'e-8',
+    twist_rad: round2(twist_rad * 1000) / 1000,
+    twist_deg,
+    twist_deg_per_m,
+  };
 }
 
 // ─── Machine Design: Bearing Life L10 (ISO 281:2007) ────────────────────────
@@ -2238,6 +2330,8 @@ serve(async (req) => {
       results = calcFireAlarmBattery(inputs);
     } else if (calc_type === "Elevator Traffic Analysis") {
       results = calcElevatorTraffic(inputs);
+    } else if (calc_type === "Shaft Design") {
+      results = calcShaftDesign(inputs);
     } else if (calc_type === "Bearing Life (L10)") {
       results = calcBearingLife(inputs);
     } else if (calc_type === "V-Belt Drive Design") {

@@ -499,7 +499,7 @@ const CALC_TYPES = {
   'Machine Design': [
     { id: 'V-Belt Drive Design',  icon: '🔄', desc: 'Sheave sizing, belt length, no. of belts — RMA / ASME', available: true  },
     { id: 'Bearing Life (L10)',   icon: '⚙️', desc: 'Dynamic load rating, L10 hours — ISO 281',              available: true  },
-    { id: 'Shaft Design',         icon: '🔩', desc: 'Torsion + bending, ASME shaft sizing',                  available: false },
+    { id: 'Shaft Design',         icon: '🔩', desc: 'Torsion + bending, ASME shaft sizing',                  available: true  },
     { id: 'Bolt Torque & Preload',icon: '🔧', desc: 'Fastener tightening torque, preload — ISO 898',         available: false },
   ],
 };
@@ -1278,6 +1278,52 @@ const GUIDES = {
       'For high-temperature operation (>120°C), apply temperature factor ft from the bearing catalog — it reduces the effective C rating.',
       'In Philippine industrial plants, bearings run in humid and dusty environments. Specify a sealed bearing (2RS suffix for SKF/FAG) or apply adequate re-lubrication intervals. Contamination is the leading failure cause in plant-floor applications.',
       'When in doubt, verify the bearing number in the SKF, FAG, or NSK online catalog — they provide a direct L10h calculator using actual catalog data.',
+    ],
+  },
+
+  'Shaft Design': {
+    title: 'Shaft Design — ASME B17.1 / Shigley\'s Combined Loading Method',
+    subtitle: 'Sizes a solid circular shaft under combined torsion and bending using the ASME elliptic failure criterion. Determines the minimum shaft diameter for the applied loads and target safety factor, then selects the nearest standard shaft size.',
+    standards: ['ASME B17.1 — Keys and Keyseats','ASME B106.1M — Design of Transmission Shafting','Shigley\'s Mechanical Engineering Design (ASME elliptic criterion)','PSME Code — Philippine Mechanical Engineering Code'],
+    formulas: [
+      'Torque (T):',
+      '  T = P × 9549 / n  (kW to N·m at n RPM)',
+      '  or  T = P × 7121 / n  (HP to N·m)',
+      '',
+      'Bending Moment (M):',
+      '  M = F × L  (transverse load × span between supports)',
+      '',
+      'ASME Elliptic Criterion (combined loading):',
+      '  d³ = (16 / π) × SF × √[ (Kb×M)² + (Kt×T)² ] / Ss_allow',
+      '',
+      'Where:',
+      '  Kb = bending shock factor (1.5–2.0 for minor shock)',
+      '  Kt = torsion shock factor (1.0–1.5 for minor shock)',
+      '  Ss_allow = allowable shear stress = 0.30 × Sut (for no keyway)',
+      '           = 0.18 × Sut (shaft with keyway — ASME reduction)',
+      '  Sut = ultimate tensile strength of shaft material (MPa)',
+      '',
+      'Angle of Twist (θ):',
+      '  θ = T × L / (G × J)  (radians)',
+      '  J = π × d⁴ / 32  (polar moment of inertia)',
+      '  G ≈ 80 GPa for steel',
+    ],
+    fields: [
+      { name: 'Power Transmitted', tip: 'Shaft power in kW or HP. This is the actual power being transmitted through the shaft — not the motor nameplate power. If unknown, use motor rated power × drive efficiency as an estimate.' },
+      { name: 'Shaft Speed (RPM)', tip: 'Speed of the shaft being designed. For a motor shaft, use motor RPM. For a driven shaft, use the driven speed after the speed ratio. Torque is inversely proportional to speed — a slow shaft carries much higher torque than a fast one for the same power.' },
+      { name: 'Transverse Load (F)', tip: 'Bending load acting perpendicular to the shaft axis. Sources: belt tension (tight + slack side resultant), gear tangential/radial force, overhung load from a pulley or coupling. This is often the dominant term in shaft sizing for belt-driven equipment.' },
+      { name: 'Support Span (L)', tip: 'Distance between the two bearing supports in mm. Longer span = larger bending moment = larger shaft diameter. For overhung loads (load applied outside the bearings), use the overhang distance instead.' },
+      { name: 'Shaft Material', tip: 'AISI 1045 (Sut = 570 MPa) is the standard Philippine shaft material — widely available. AISI 1020 (Sut = 380 MPa) for light-duty. AISI 4340 (Sut = 1035 MPa) for high-strength shafts. Material choice directly sets the allowable shear stress.' },
+      { name: 'Keyway Present', tip: 'A keyway introduces a stress concentration. ASME B106.1M reduces the allowable shear stress from 0.30×Sut to 0.18×Sut when a keyway is present. Always select "Yes" unless the shaft uses a shrink fit or spline instead of a key.' },
+      { name: 'Shock/Loading Type', tip: 'Kb and Kt shock factors per ASME B106.1M. Uniform/steady: Kb=1.0, Kt=1.0. Minor shock (fans, pumps): Kb=1.5, Kt=1.0. Moderate shock (compressors, conveyors): Kb=2.0, Kt=1.5. Heavy shock (crushers, presses): Kb=3.0, Kt=2.0.' },
+    ],
+    notes: [
+      'The ASME elliptic criterion is a conservative design method — it is appropriate for preliminary shaft sizing. For critical or highly cyclic applications, a full fatigue analysis (Goodman or Gerber criterion) should follow.',
+      'Standard shaft diameters available in Philippine market (mm): 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 90, 100, 110, 120. Always round UP to the next standard size.',
+      'Keyway stress concentration: the ASME 0.18×Sut factor already accounts for the stress concentration. Do not apply an additional Kt factor for the keyway on top of this.',
+      'For long shafts, check the angle of twist — ASME recommends limiting twist to 0.5–1.0°/meter of shaft length to prevent vibration and coupling problems.',
+      'Critical speed (lateral): the shaft\'s natural frequency must be well above operating speed. Rule of thumb: critical speed should be at least 2× the operating speed. Use Dunkerley\'s method for multi-disk shafts.',
+      'Philippine material sourcing: AISI 1045 cold-drawn shafting is available in round bar from steel distributors (Pag-asa Steel, Steel Asia). Verify the mill certificate Sut before use — re-rolled or imported bars may not meet AISI spec.',
     ],
   },
 };
@@ -3104,6 +3150,88 @@ function renderInputForm(calcType) {
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
+
+  if (calcType === 'Shaft Design') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Shaft Tag</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Pump P-101 — Drive Shaft" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Power Transmitted</div>
+          <div class="toggle-group" id="tg-shaft-power-unit">
+            <button class="toggle-btn active" data-val="kW" onclick="toggle('tg-shaft-power-unit','kW')">kW</button>
+            <button class="toggle-btn" data-val="HP" onclick="toggle('tg-shaft-power-unit','HP')">HP</button>
+          </div>
+          <div class="input-group" style="margin-top:0.5rem;">
+            <input id="f-shaft-power" class="wh-input" type="number" value="7.5" min="0.1" step="0.1" />
+            <span class="input-unit">kW / HP</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Shaft Speed</div>
+          <div class="input-group">
+            <input id="f-shaft-rpm" class="wh-input" type="number" value="1450" min="1" />
+            <span class="input-unit">RPM</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Transverse Load (F) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">belt / gear force</span></div>
+          <div class="input-group">
+            <input id="f-transverse-load" class="wh-input" type="number" value="2000" min="0" />
+            <span class="input-unit">N</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Support Span (L)</div>
+          <div class="input-group">
+            <input id="f-span" class="wh-input" type="number" value="300" min="10" />
+            <span class="input-unit">mm</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Shaft Material</div>
+        <div class="toggle-group" id="tg-shaft-mat">
+          <button class="toggle-btn" data-val="AISI 1020" onclick="toggle('tg-shaft-mat','AISI 1020')">AISI 1020 (Sut 380 MPa)</button>
+          <button class="toggle-btn active" data-val="AISI 1045" onclick="toggle('tg-shaft-mat','AISI 1045')">AISI 1045 (Sut 570 MPa)</button>
+          <button class="toggle-btn" data-val="AISI 4140" onclick="toggle('tg-shaft-mat','AISI 4140')">AISI 4140 (Sut 655 MPa)</button>
+          <button class="toggle-btn" data-val="AISI 4340" onclick="toggle('tg-shaft-mat','AISI 4340')">AISI 4340 (Sut 1035 MPa)</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Keyway Present?</div>
+          <div class="toggle-group" id="tg-keyway">
+            <button class="toggle-btn active" data-val="Yes" onclick="toggle('tg-keyway','Yes')">Yes — Ss = 0.18×Sut</button>
+            <button class="toggle-btn" data-val="No" onclick="toggle('tg-keyway','No')">No — Ss = 0.30×Sut</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Loading / Shock Type <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">ASME B106.1M</span></div>
+          <div class="toggle-group" id="tg-shock">
+            <button class="toggle-btn" data-val="Steady" onclick="toggle('tg-shock','Steady')">Steady (Kb=1.0, Kt=1.0)</button>
+            <button class="toggle-btn active" data-val="Minor" onclick="toggle('tg-shock','Minor')">Minor shock (Kb=1.5, Kt=1.0)</button>
+            <button class="toggle-btn" data-val="Moderate" onclick="toggle('tg-shock','Moderate')">Moderate (Kb=2.0, Kt=1.5)</button>
+            <button class="toggle-btn" data-val="Heavy" onclick="toggle('tg-shock','Heavy')">Heavy (Kb=3.0, Kt=2.0)</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.25rem;">
+        Standard: ASME B106.1M / Shigley's elliptic criterion. Minimum diameter calculated then rounded UP to nearest standard shaft size. Angle of twist also computed (ASME limit: 0.5–1.0°/m).
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
 }
 
 // ─── Toggle button groups ─────────────────────────────────────────────────────
@@ -3743,6 +3871,24 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Shaft Design') {
+    const powerUnit = getToggle('tg-shaft-power-unit') || 'kW';
+    const rawPower  = parseFloat(v('f-shaft-power')) || 7.5;
+    const power_kW  = powerUnit === 'HP' ? rawPower * 0.746 : rawPower;
+    return {
+      project_name:     v('f-project')                       || 'Untitled Shaft Design',
+      power_kW,
+      power_unit:       powerUnit,
+      power_input:      rawPower,
+      shaft_rpm:        parseFloat(v('f-shaft-rpm'))         || 1450,
+      transverse_load_N:parseFloat(v('f-transverse-load'))   || 2000,
+      span_mm:          parseFloat(v('f-span'))              || 300,
+      material:         getToggle('tg-shaft-mat')            || 'AISI 1045',
+      keyway:           getToggle('tg-keyway')               || 'Yes',
+      shock_type:       getToggle('tg-shock')                || 'Minor',
+    };
+  }
+
   if (_calcType === 'Bearing Life (L10)') {
     return {
       project_name:    v('f-project')                            || 'Untitled Bearing Check',
@@ -3885,6 +4031,15 @@ async function runCalculation() {
       showToast('Please enter at least one device or notification appliance.');
       return;
     }
+  } else if (_calcType === 'Shaft Design') {
+    if (!inputs.power_kW || inputs.power_kW <= 0) {
+      showToast('Please enter the power transmitted.');
+      return;
+    }
+    if (!inputs.shaft_rpm || inputs.shaft_rpm <= 0) {
+      showToast('Please enter the shaft speed (RPM).');
+      return;
+    }
   } else if (_calcType === 'Bearing Life (L10)') {
     if (!inputs.C_kN || inputs.C_kN <= 0) {
       showToast('Please enter the dynamic load rating (C) from the bearing catalog.');
@@ -3964,6 +4119,8 @@ async function runCalculation() {
       renderFireAlarmBatteryReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Elevator Traffic Analysis') {
       renderElevatorTrafficReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Shaft Design') {
+      renderShaftDesignReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Bearing Life (L10)') {
       renderBearingLifeReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'V-Belt Drive Design') {
@@ -6301,6 +6458,148 @@ function renderFireAlarmBatteryReport(inputs, results, narrative) {
 
     <h2>7. Recommendations</h2>
     <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Provide sealed lead-acid (SLA/VRLA) batteries rated at minimum ${r.Ah_required} Ah at ${inputs.system_voltage} V DC.\n2. Recommended battery bank: ${r.battery_config || r.selected_Ah + ' Ah'} — verify availability with FACP manufacturer.\n3. Install batteries inside or adjacent to the FACP cabinet in a clean, cool, ventilated location per NFPA 72.\n4. Verify battery compatibility with the specific FACP charging circuit before procurement.\n5. Replace batteries every 3-5 years per NFPA 72 §10.6.11 or per manufacturer recommendation, whichever is more frequent.\n6. Submit this calculation to the Bureau of Fire Protection (BFP) as part of the fire alarm permit application package.\n7. A PRC-licensed Electrical or Electronics Engineer must sign and seal this document before submission to BFP.`)}</p>
+
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Prepared by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Checked by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Approved by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── Shaft Design Report — ASME B106.1M / Shigley's Elliptic Criterion ──────
+function renderShaftDesignReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const r       = results;
+
+  const twistOk    = r.twist_deg_per_m <= 1.0;
+  const twistColor = twistOk ? '#2e7d32' : '#e65100';
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div>
+        <h1>DESIGN CALCULATION</h1>
+        <div style="font-size:0.8rem;color:#555;">Shaft Design — ASME B106.1M / Shigley's Combined Loading (Elliptic Criterion)</div>
+      </div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;">
+        <div>Rev. ${e('0')}</div>
+        <div>Date: ${dateStr}</div>
+      </div>
+    </div>
+
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">Project / Shaft Tag</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Shaft Material</th><td>${escHtml(inputs.material)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Calculation Standard</th><td>ASME B106.1M / Shigley's MED</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
+    </table>
+
+    <h2>1. Objective</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || `To determine the minimum diameter of a solid circular shaft transmitting ${inputs.power_input} ${inputs.power_unit} at ${inputs.shaft_rpm} RPM under combined torsion and bending, with ${inputs.shock_type.toLowerCase()} shock loading${inputs.keyway === 'Yes' ? ' and a keyway present' : ''}, using ${inputs.material} shaft material (Sut = ${r.Sut_MPa} MPa), per ASME B106.1M.`)}</p>
+
+    <h2>2. References</h2>
+    <p style="font-size:0.83rem;color:#333;">ASME B106.1M — Design of Transmission Shafting<br>
+    ASME B17.1 — Keys and Keyseats<br>
+    Shigley's Mechanical Engineering Design — Combined Loading, Elliptic Criterion<br>
+    PSME Code — Philippine Mechanical Engineering Code</p>
+
+    <h2>3. Design Parameters</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Power Transmitted</td><td class="num">${escHtml(String(inputs.power_input))} ${escHtml(inputs.power_unit)} (${r.power_kW} kW)</td></tr>
+      <tr><td>Shaft Speed</td><td class="num">${escHtml(String(inputs.shaft_rpm))} RPM</td></tr>
+      <tr><td>Transverse Load (F)</td><td class="num">${escHtml(String(inputs.transverse_load_N))} N</td></tr>
+      <tr><td>Support Span (L)</td><td class="num">${escHtml(String(inputs.span_mm))} mm</td></tr>
+      <tr><td>Shaft Material</td><td>${escHtml(inputs.material)} — Sut = ${r.Sut_MPa} MPa</td></tr>
+      <tr><td>Keyway Present</td><td>${escHtml(inputs.keyway)}</td></tr>
+      <tr><td>Allowable Shear Stress (Ss)</td><td class="num">${r.Ss_allow_MPa} MPa (${inputs.keyway === 'Yes' ? '0.18' : '0.30'} × Sut)</td></tr>
+      <tr><td>Shock / Loading Type</td><td>${escHtml(inputs.shock_type)}</td></tr>
+      <tr><td>Bending Shock Factor (Kb)</td><td class="num">${r.Kb}</td></tr>
+      <tr><td>Torsion Shock Factor (Kt)</td><td class="num">${r.Kt}</td></tr>
+    </table>
+
+    <h2>4. Applied Loads</h2>
+    <p style="font-size:0.83rem;color:#333;"><strong>Torque (T):</strong></p>
+    <p style="font-size:0.83rem;color:#333;">
+      T = P × 9549 / n = ${r.power_kW} kW × 9549 / ${escHtml(String(inputs.shaft_rpm))} = <strong>${r.T_Nm} N·m</strong>
+    </p>
+    <p style="font-size:0.83rem;color:#333;"><strong>Bending Moment (M):</strong></p>
+    <p style="font-size:0.83rem;color:#333;">
+      M = F × L / 4 (simply supported, midspan load) = ${escHtml(String(inputs.transverse_load_N))} N × ${escHtml(String(inputs.span_mm))} mm / 4 = <strong>${r.M_Nm} N·m</strong>
+    </p>
+
+    <h2>5. Minimum Shaft Diameter — ASME Elliptic Criterion</h2>
+    <p style="font-size:0.83rem;color:#333;"><strong>Formula (ASME B106.1M):</strong></p>
+    <p style="font-size:0.83rem;color:#333;">
+      d³ = (16 / π) × √[ (Kb × M)² + (Kt × T)² ] / Ss<sub>allow</sub>
+    </p>
+    <p style="font-size:0.83rem;color:#333;">
+      Combined load = √[ (${r.Kb} × ${r.M_Nm})² + (${r.Kt} × ${r.T_Nm})² ] = ${r.combined_Nm} N·m<br>
+      d³ = (16 / π) × ${r.combined_Nm} / ${r.Ss_allow_Pa} = ${r.d_cubed_m3} m³<br>
+      d<sub>min</sub> = ${r.d_min_mm} mm (calculated)
+    </p>
+    <p style="font-size:0.83rem;color:#333;"><strong>Standard shaft diameter selected: <strong>${r.d_std_mm} mm</strong> (next standard size ≥ ${r.d_min_mm} mm)</strong></p>
+
+    <h2>6. Angle of Twist Check</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      θ = T × L / (G × J)<br>
+      J = π × d⁴ / 32 = π × (${r.d_std_mm}/1000)⁴ / 32 = ${r.J_m4} m⁴<br>
+      θ = ${r.T_Nm} × ${escHtml(String(inputs.span_mm))}/1000 / (80×10⁹ × ${r.J_m4}) = ${r.twist_rad} rad<br>
+      = <strong>${r.twist_deg}° over span</strong> = <strong style="color:${twistColor};">${r.twist_deg_per_m}°/m</strong>
+      &nbsp;<span style="font-weight:700;color:${twistColor};">${twistOk ? '(OK — ASME limit: 0.5–1.0°/m)' : '(WARN — exceeds ASME 1.0°/m limit — increase diameter)'}</span>
+    </p>
+
+    <h2>7. Results Summary</h2>
+    <div class="result-highlight" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Min. Shaft Diameter</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.d_min_mm} mm</div>
+        <div style="font-size:0.75rem;color:#555;">calculated</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Standard Shaft Selected</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.d_std_mm} mm</div>
+        <div style="font-size:0.75rem;color:#555;">${inputs.material}</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Torque (T)</div>
+        <div style="font-size:1.4rem;font-weight:700;color:#162032;">${r.T_Nm} N·m</div>
+        <div style="font-size:0.75rem;color:#555;">at ${escHtml(String(inputs.shaft_rpm))} RPM</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Angle of Twist</div>
+        <div style="font-size:1.4rem;font-weight:700;color:${twistColor};">${r.twist_deg_per_m}°/m</div>
+        <div style="font-size:0.75rem;font-weight:600;color:${twistColor};">${twistOk ? 'OK' : 'WARN — exceeds limit'}</div>
+      </div>
+    </div>
+
+    <h2>8. Assumptions</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Solid circular cross-section shaft.\n2. Simply supported beam model for bending — transverse load applied at midspan between the two bearing supports.\n3. Shock factors Kb = ${r.Kb} and Kt = ${r.Kt} per ASME B106.1M Table for ${inputs.shock_type.toLowerCase()} shock loading.\n4. Allowable shear stress Ss = ${inputs.keyway === 'Yes' ? '0.18' : '0.30'} × Sut = ${r.Ss_allow_MPa} MPa (${inputs.keyway === 'Yes' ? 'keyway present — ASME B106.1M reduction applied' : 'no keyway'}).\n5. Shear modulus G = 80 GPa for steel.\n6. Bending moment simplified to F×L/4 (point load at midspan). If the load is applied at a different location, revise M accordingly.`)}</p>
+
+    <h2>9. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Specify ${r.d_std_mm} mm diameter ${inputs.material} solid shaft (cold-drawn round bar). Minimum calculated diameter: ${r.d_min_mm} mm.\n2. ${inputs.keyway === 'Yes' ? 'Design keyway per ASME B17.1 — key width = d/4, key height = d/4. Verify keyway stress concentration does not govern over the ASME allowable used here.' : 'No keyway — use shrink fit or interference fit for hub attachment. Verify fit tolerance per ISO 286.'}\n3. Angle of twist: ${r.twist_deg_per_m}°/m — ${twistOk ? 'within ASME limit of 0.5–1.0°/m.' : 'EXCEEDS ASME limit. Increase to next standard diameter to reduce twist.'}\n4. Verify shaft critical speed — operating speed must be below 50% of the first critical (whirling) speed.\n5. Source AISI ${inputs.material.replace('AISI ', '')} round bar from a PNS/ASTM-certified supplier and verify mill certificate Sut before fabrication.\n6. A PRC-licensed Mechanical Engineer must sign and seal this document before use as a fabrication basis.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
