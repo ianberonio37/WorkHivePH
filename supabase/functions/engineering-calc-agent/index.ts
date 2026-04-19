@@ -1262,36 +1262,48 @@ Respond in JSON format only:
   "recommendations": "..."
 }`;
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.3, maxOutputTokens: 512 },
-      }),
-    }
-  );
-
-  const json = await res.json();
-  const text = json?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-  const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-
   try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.3, maxOutputTokens: 512 },
+        }),
+      }
+    );
+
+    const json = await res.json();
+    const text = json?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     const parsed = JSON.parse(cleaned);
     if (parsed.objective && parsed.assumptions && parsed.recommendations) return parsed;
     throw new Error("incomplete");
   } catch {
-    // Gemini unavailable or returned unparseable JSON — build fallback from results directly
+    // Gemini unavailable, rate-limited, or returned unparseable JSON — build fallback from results directly
     const rec = results as Record<string, unknown>;
-    const kw  = rec.recommended_kW  ?? rec.design_kW  ?? rec.Q_total        ?? '';
+    const kw  = rec.recommended_kW  ?? rec.design_kW  ?? '';
     const tr  = rec.recommended_TR  ?? rec.design_TR  ?? '';
-    const hasKW = kw !== '' && kw !== undefined;
 
     let recommendations = "Provide equipment with a minimum combined capacity as computed in the results above. Consult the results summary table for specific values.";
-    if (calcType === "HVAC Cooling Load" && hasKW) {
+    if (calcType === "HVAC Cooling Load" && kw) {
       recommendations = `Provide air conditioning unit(s) with minimum capacity of ${kw} kW${tr ? ` (${tr} TR)` : ''}. Ensure proper ventilation per ASHRAE 62.1 minimum outdoor air requirements.`;
+    } else if (calcType === "Fire Alarm Battery") {
+      const ah = rec.Ah_required ?? '';
+      const cfg = rec.battery_config ?? '';
+      recommendations = `Provide sealed lead-acid (SLA/VRLA) batteries rated at minimum ${ah} Ah. Recommended battery bank: ${cfg}. Replace every 3-5 years per NFPA 72 §10.6.11. Submit this calculation to BFP as part of the fire alarm permit package.`;
+    } else if (calcType === "Fire Sprinkler Hydraulic") {
+      const flow = rec.Q_total ?? '';
+      const press = rec.P_source ?? '';
+      recommendations = `Provide a fire pump rated at minimum ${flow} L/min at ${press} bar. Submit to BFP as part of the fire protection permit application. A PRC-licensed engineer must sign and seal this document before BFP submission.`;
+    } else if (calcType === "Fire Pump Sizing") {
+      const bhp = rec.motor_hp ?? '';
+      recommendations = `Provide a fire pump with motor rated at minimum ${bhp} hp. Verify pump curve at 150% flow per NFPA 20. Submit to BFP as part of the fire protection permit package.`;
+    } else if (calcType === "Stairwell Pressurization") {
+      const q = rec.Q_total_m3h ?? '';
+      recommendations = `Provide pressurization fans supplying minimum ${q} m³/h total. Verify door opening force does not exceed 133 N. Submit to BFP as part of the smoke control permit package.`;
     }
     return {
       objective: `To determine the required ${calcType} design parameters for the subject project in accordance with applicable Philippine and international engineering standards.`,
