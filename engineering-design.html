@@ -266,6 +266,125 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── BOM + SOW styles ───────────────────────────────────────── */
+    .bom-tab-btn {
+      padding: 0.45rem 1rem;
+      border-radius: 0.625rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      background: transparent;
+      transition: all 0.2s;
+    }
+    .bom-tab-btn.active { background: rgba(247,162,27,0.15); color: #F7A21B; border-color: rgba(247,162,27,0.3); }
+    .bom-tab-btn:hover:not(.active) { color: rgba(255,255,255,0.8); }
+
+    .bom-checklist-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      padding: 0.65rem 0.75rem;
+      border-radius: 0.625rem;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(22,32,50,0.45);
+      margin-bottom: 0.45rem;
+      transition: border-color 0.15s;
+    }
+    .bom-checklist-item.unchecked { opacity: 0.42; }
+    .bom-item-check {
+      width: 18px; height: 18px; flex-shrink: 0;
+      border-radius: 4px;
+      cursor: pointer;
+      accent-color: #F7A21B;
+      margin-top: 3px;
+    }
+    .bom-item-fields { flex: 1; display: flex; flex-direction: column; gap: 0.35rem; min-width: 0; }
+    .bom-item-row { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
+    .bom-item-input {
+      background: rgba(22,32,50,0.7);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.45rem;
+      color: white;
+      padding: 0.3rem 0.55rem;
+      font-size: 0.78rem;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+    }
+    .bom-item-input:focus { border-color: rgba(247,162,27,0.5); }
+    .bom-item-input.desc { flex: 1; min-width: 120px; }
+    .bom-item-input.spec { flex: 1; min-width: 100px; }
+    .bom-item-input.qty  { width: 54px; text-align: center; }
+    .bom-item-input.rmk  { flex: 1; min-width: 80px; }
+    .bom-item-select {
+      background: rgba(22,32,50,0.7);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.45rem;
+      color: white;
+      padding: 0.3rem 0.4rem;
+      font-size: 0.78rem;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+      width: 62px;
+    }
+    .bom-delete-btn {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.25);
+      cursor: pointer;
+      font-size: 0.95rem;
+      padding: 0.2rem 0.3rem;
+      border-radius: 4px;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+    .bom-delete-btn:hover { color: rgba(239,68,68,0.7); }
+
+    .sow-checklist-item {
+      padding: 0.7rem 0.75rem;
+      border-radius: 0.625rem;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(22,32,50,0.45);
+      margin-bottom: 0.45rem;
+    }
+    .sow-checklist-item.unchecked { opacity: 0.42; }
+    .sow-item-header { display: flex; align-items: flex-start; gap: 0.65rem; cursor: pointer; }
+    .sow-item-body  { margin-top: 0.45rem; margin-left: 1.7rem; font-size: 0.76rem; color: rgba(255,255,255,0.45); line-height: 1.55; }
+
+    /* BOM and SOW white contractor document panels */
+    .doc-panel {
+      background: white;
+      color: #1a1a1a;
+      border-radius: 0.75rem;
+      padding: 2rem;
+      font-size: 0.84rem;
+      font-family: 'Poppins', sans-serif;
+      line-height: 1.7;
+    }
+    @media (max-width: 640px) { .doc-panel { padding: 1rem; font-size: 0.77rem; } }
+    .doc-panel h1 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.2rem; color: #1a1a1a; }
+    .doc-panel h2 { font-size: 0.82rem; font-weight: 700; margin: 1.1rem 0 0.45rem; border-bottom: 1.5px solid #e0e0e0; padding-bottom: 0.2rem; text-transform: uppercase; letter-spacing: 0.05em; color: #1a1a1a; }
+    .doc-panel .doc-header-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 2px solid #1a1a1a; }
+    .doc-panel .doc-meta { font-size: 0.76rem; color: #555; line-height: 1.6; }
+    .doc-panel .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .doc-panel table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 0; }
+    .doc-panel th { background: #f0f0f0; text-align: left; padding: 0.4rem 0.55rem; border: 1px solid #ccc; font-weight: 600; font-size: 0.76rem; }
+    .doc-panel td { padding: 0.35rem 0.55rem; border: 1px solid #ddd; vertical-align: middle; }
+    .doc-panel td input {
+      border: none; outline: none; background: transparent;
+      font-size: inherit; font-family: inherit;
+      color: #1a1a1a; width: 100%; padding: 0; min-width: 20px;
+    }
+    .doc-panel td input[type="number"] { width: 50px; text-align: center; }
+    .doc-panel .sow-clause { margin: 0.65rem 0; }
+    .doc-panel .sow-clause-header { font-weight: 700; display: flex; gap: 0.5rem; }
+    .doc-panel .sow-clause-no { color: #D88A0E; min-width: 2.5rem; }
+    .doc-panel .sow-clause-body { margin-top: 0.2rem; padding-left: 3rem; color: #333; }
+    .doc-panel .sig-block { margin-top: 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .doc-panel .sig-line { border-top: 1px solid #999; padding-top: 0.3rem; font-size: 0.74rem; color: #666; margin-top: 2rem; }
+    .doc-panel .editable-field { border-bottom: 1.5px dashed #F7A21B; outline: none; min-width: 60px; display: inline-block; background: transparent; }
+
     /* Print styles */
     @media print {
       body > *:not(#print-wrapper) { display: none !important; }
@@ -401,6 +520,84 @@
           </div>
           <div id="report-panel"></div>
         </div>
+
+        <!-- ═══════════════ BOM + SOW SECTION ═══════════════ -->
+        <div id="bom-sow-section" class="hidden mt-6">
+
+          <!-- Trigger card -->
+          <div id="bom-trigger">
+            <div class="card p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <div class="flex-1">
+                <div class="font-semibold text-sm" style="color:#F7A21B;">📋 Generate BOM + Scope of Works</div>
+                <div class="text-xs mt-0.5" style="color:rgba(255,255,255,0.4);">AI will generate a standard procurement list and contractor scope from this calculation result</div>
+              </div>
+              <button onclick="generateBomSowChecklist()" class="btn-primary text-sm py-2 px-5 whitespace-nowrap flex-shrink-0">Generate</button>
+            </div>
+          </div>
+
+          <!-- Loading state -->
+          <div id="bom-loading" class="hidden card p-8 text-center mt-4">
+            <div class="spinner mx-auto mb-3" style="width:32px;height:32px;border-width:3px;border-color:rgba(247,162,27,0.2);border-top-color:#F7A21B;"></div>
+            <div class="font-semibold text-sm mb-1">Generating standard items...</div>
+            <div class="text-xs" style="color:rgba(255,255,255,0.4);">AI is preparing BOM and SOW from your calculation results</div>
+          </div>
+
+          <!-- Checklist panel -->
+          <div id="bom-checklist-panel" class="hidden card p-5 mt-4">
+            <div class="flex items-center justify-between mb-4">
+              <div class="font-semibold text-sm" style="color:rgba(255,255,255,0.85);">Review and customize</div>
+              <div class="text-xs" style="color:rgba(255,255,255,0.35);">Check items to include in documents</div>
+            </div>
+            <!-- Tabs -->
+            <div class="flex gap-2 mb-4">
+              <button onclick="switchBomTab('bom')" id="bom-tab-bom" class="bom-tab-btn active">📦 BOM Items</button>
+              <button onclick="switchBomTab('sow')" id="bom-tab-sow" class="bom-tab-btn">📄 SOW Sections</button>
+            </div>
+            <!-- BOM list -->
+            <div id="bom-items-list"></div>
+            <!-- SOW list -->
+            <div id="sow-sections-list" class="hidden"></div>
+            <!-- Actions row -->
+            <div class="flex gap-2 flex-wrap mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,0.07);">
+              <button onclick="addBomRow()" id="bom-add-row-btn" class="btn-ghost text-xs py-2 px-3">+ Add Item</button>
+              <button onclick="addSowRow()" id="sow-add-row-btn" class="btn-ghost text-xs py-2 px-3 hidden">+ Add Section</button>
+              <button onclick="generateDocuments()" class="btn-primary text-sm py-2 px-5 ml-auto">Generate Documents →</button>
+            </div>
+          </div>
+
+          <!-- Documents preview -->
+          <div id="bom-preview" class="hidden mt-4">
+
+            <!-- BOM document -->
+            <div class="mb-5">
+              <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+                <div class="font-semibold text-sm" style="color:rgba(255,255,255,0.8);">Bill of Materials</div>
+                <div class="flex gap-2">
+                  <button onclick="backToChecklist()" class="btn-ghost text-xs py-1.5 px-3">← Edit</button>
+                  <button onclick="downloadBomCsv()" class="btn-ghost text-xs py-1.5 px-3">⬇ CSV</button>
+                  <button onclick="downloadBomDocPdf()" class="btn-ghost text-xs py-1.5 px-3">⬇ PDF</button>
+                </div>
+              </div>
+              <div id="bom-table-preview"></div>
+            </div>
+
+            <!-- SOW document -->
+            <div class="mb-5">
+              <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+                <div class="font-semibold text-sm" style="color:rgba(255,255,255,0.8);">Scope of Works</div>
+                <div class="flex gap-2">
+                  <button onclick="downloadSowPdf()" class="btn-ghost text-xs py-1.5 px-3">⬇ PDF</button>
+                </div>
+              </div>
+              <div id="sow-doc-preview"></div>
+            </div>
+
+            <!-- Save combined -->
+            <button onclick="saveWithBomSow()" class="btn-primary w-full text-sm py-3">💾 Save Calculation + BOM + SOW to History</button>
+
+          </div>
+        </div>
+        <!-- ═══════════════ END BOM + SOW ═══════════════ -->
 
       </div>
     </div>
@@ -4665,6 +4862,9 @@ function showReport() {
   document.getElementById('report-empty').style.display   = 'none';
   document.getElementById('report-loading').style.display = 'none';
   document.getElementById('report-output').classList.remove('hidden');
+  // Show BOM+SOW trigger, reset to idle state
+  document.getElementById('bom-sow-section').classList.remove('hidden');
+  resetBomSow();
 }
 
 // ─── Render report HTML ───────────────────────────────────────────────────────
@@ -8170,7 +8370,7 @@ function printReport() {
 async function saveCalc() {
   if (!_lastResults || !_lastInputs) return;
 
-  const { error } = await db.from('engineering_calcs').insert({
+  const payload = {
     hive_id:      HIVE_ID,
     worker_name:  WORKER_NAME,
     discipline:   _discipline,
@@ -8179,13 +8379,61 @@ async function saveCalc() {
     inputs:       _lastInputs,
     results:      _lastResults,
     narrative:    _lastNarrative,
-  });
+  };
 
+  const { error } = await db.from('engineering_calcs').insert(payload);
   if (error) {
     showToast('Save failed: ' + error.message, 5000);
   } else {
     showToast('Calculation saved to history.');
   }
+}
+
+async function saveWithBomSow() {
+  if (!_lastResults || !_lastInputs) { showToast('No calculation to save.'); return; }
+
+  // Collect final BOM from preview table inputs
+  const bomRows = collectBomFromPreview();
+  // Collect final SOW text from preview
+  const sowText = document.getElementById('sow-doc-preview')?.innerText || '';
+
+  const payload = {
+    hive_id:      HIVE_ID,
+    worker_name:  WORKER_NAME,
+    discipline:   _discipline,
+    calc_type:    _calcType,
+    project_name: _lastInputs.project_name,
+    inputs:       _lastInputs,
+    results:      _lastResults,
+    narrative:    _lastNarrative,
+    bom_data:     bomRows,
+    sow_text:     sowText,
+  };
+
+  const { error } = await db.from('engineering_calcs').insert(payload);
+  if (error) {
+    showToast('Save failed: ' + error.message, 5000);
+  } else {
+    showToast('Saved with BOM + SOW.');
+  }
+}
+
+function collectBomFromPreview() {
+  const rows = document.querySelectorAll('#bom-table-preview tbody tr');
+  const items = [];
+  rows.forEach(tr => {
+    const inputs = tr.querySelectorAll('input');
+    if (inputs.length >= 5) {
+      items.push({
+        description:   inputs[0].value,
+        specification: inputs[1].value,
+        qty:           parseFloat(inputs[2].value) || 0,
+        unit:          inputs[3].value,
+        remarks:       inputs[4].value,
+      });
+    }
+  });
+  return items;
 }
 
 // ─── Load history ──────────────────────────────────────────────────────────────
@@ -8275,6 +8523,386 @@ async function deleteCalc(id) {
   if (error) { showToast('Delete failed.'); return; }
   showToast('Deleted.');
   loadHistory();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BOM + SOW WIZARD
+// ═══════════════════════════════════════════════════════════════════════════════
+
+let _bomItems    = [];
+let _sowSections = [];
+let _activeBomTab = 'bom';
+
+function resetBomSow() {
+  _bomItems    = [];
+  _sowSections = [];
+  _activeBomTab = 'bom';
+  document.getElementById('bom-trigger').classList.remove('hidden');
+  document.getElementById('bom-loading').classList.add('hidden');
+  document.getElementById('bom-checklist-panel').classList.add('hidden');
+  document.getElementById('bom-preview').classList.add('hidden');
+}
+
+// ─── Step 1: Call edge function, show checklist ───────────────────────────────
+async function generateBomSowChecklist() {
+  if (!_lastResults || !_lastInputs) { showToast('Run a calculation first.'); return; }
+  if (_discipline !== 'Mechanical' || _calcType !== 'HVAC Cooling Load') {
+    showToast('BOM + SOW is currently available for HVAC Cooling Load only.', 4000);
+    return;
+  }
+
+  document.getElementById('bom-trigger').classList.add('hidden');
+  document.getElementById('bom-loading').classList.remove('hidden');
+
+  try {
+    const { data, error } = await db.functions.invoke('engineering-bom-sow', {
+      body: {
+        discipline:   _discipline,
+        calc_type:    _calcType,
+        calc_inputs:  _lastInputs,
+        calc_results: _lastResults,
+      },
+    });
+
+    if (error) throw new Error(error.message);
+    if (data?.error) throw new Error(data.error);
+
+    _bomItems    = (data.bom_items    || []).map((item, i) => ({ ...item, item_no: i + 1 }));
+    _sowSections = data.sow_sections  || [];
+
+    document.getElementById('bom-loading').classList.add('hidden');
+    document.getElementById('bom-checklist-panel').classList.remove('hidden');
+    switchBomTab('bom');
+
+  } catch (err) {
+    document.getElementById('bom-loading').classList.add('hidden');
+    document.getElementById('bom-trigger').classList.remove('hidden');
+    showToast('Error: ' + err.message, 5000);
+  }
+}
+
+// ─── Tab switcher ─────────────────────────────────────────────────────────────
+function switchBomTab(tab) {
+  _activeBomTab = tab;
+  document.getElementById('bom-items-list').classList.toggle('hidden', tab !== 'bom');
+  document.getElementById('sow-sections-list').classList.toggle('hidden', tab !== 'sow');
+  document.getElementById('bom-tab-bom').classList.toggle('active', tab === 'bom');
+  document.getElementById('bom-tab-sow').classList.toggle('active', tab === 'sow');
+  document.getElementById('bom-add-row-btn').classList.toggle('hidden', tab !== 'bom');
+  document.getElementById('sow-add-row-btn').classList.toggle('hidden', tab !== 'sow');
+  if (tab === 'bom') renderBomChecklist();
+  else renderSowChecklist();
+}
+
+// ─── Render BOM checklist ─────────────────────────────────────────────────────
+function renderBomChecklist() {
+  const container = document.getElementById('bom-items-list');
+  if (!_bomItems.length) {
+    container.innerHTML = '<div class="text-sm text-center py-4" style="color:rgba(255,255,255,0.3);">No items yet. Click + Add Item.</div>';
+    return;
+  }
+  container.innerHTML = _bomItems.map((item, i) => `
+    <div class="bom-checklist-item ${item.checked === false ? 'unchecked' : ''}" id="bom-row-${i}">
+      <input type="checkbox" class="bom-item-check" ${item.checked !== false ? 'checked' : ''} onchange="toggleBomItem(${i})" />
+      <div class="bom-item-fields">
+        <div class="bom-item-row">
+          <input class="bom-item-input desc" type="text" placeholder="Description" value="${escHtml(item.description || '')}"
+            oninput="_bomItems[${i}].description=this.value" />
+        </div>
+        <div class="bom-item-row">
+          <input class="bom-item-input spec" type="text" placeholder="Specification" value="${escHtml(item.specification || '')}"
+            oninput="_bomItems[${i}].specification=this.value" />
+          <input class="bom-item-input qty" type="number" min="0" step="0.1" value="${item.qty ?? 1}"
+            oninput="_bomItems[${i}].qty=parseFloat(this.value)||0" />
+          <select class="bom-item-select" onchange="_bomItems[${i}].unit=this.value">
+            ${['unit','m','set','pc','lot','kg','roll','pair'].map(u =>
+              `<option value="${u}" ${item.unit === u ? 'selected' : ''}>${u}</option>`
+            ).join('')}
+          </select>
+        </div>
+        <div class="bom-item-row">
+          <input class="bom-item-input rmk" type="text" placeholder="Remarks (optional)" value="${escHtml(item.remarks || '')}"
+            oninput="_bomItems[${i}].remarks=this.value" />
+        </div>
+      </div>
+      <button class="bom-delete-btn" onclick="deleteBomRow(${i})" title="Remove">✕</button>
+    </div>`).join('');
+}
+
+function toggleBomItem(i) {
+  _bomItems[i].checked = !(_bomItems[i].checked === false);
+  document.getElementById('bom-row-' + i)?.classList.toggle('unchecked', _bomItems[i].checked === false);
+}
+
+function deleteBomRow(i) {
+  _bomItems.splice(i, 1);
+  renderBomChecklist();
+}
+
+function addBomRow() {
+  _bomItems.push({ item_no: _bomItems.length + 1, description: '', specification: '', qty: 1, unit: 'unit', remarks: '', checked: true });
+  renderBomChecklist();
+  // Scroll to last item
+  const list = document.getElementById('bom-items-list');
+  list.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ─── Render SOW checklist ─────────────────────────────────────────────────────
+function renderSowChecklist() {
+  const container = document.getElementById('sow-sections-list');
+  if (!_sowSections.length) {
+    container.innerHTML = '<div class="text-sm text-center py-4" style="color:rgba(255,255,255,0.3);">No sections yet.</div>';
+    return;
+  }
+  container.innerHTML = _sowSections.map((sec, i) => `
+    <div class="sow-checklist-item ${sec.checked === false ? 'unchecked' : ''}" id="sow-row-${i}">
+      <div class="sow-item-header" onclick="toggleSowExpand(${i})">
+        <input type="checkbox" class="bom-item-check" ${sec.checked !== false ? 'checked' : ''}
+          onclick="event.stopPropagation(); toggleSowItem(${i})" />
+        <div style="flex:1;min-width:0;">
+          <span class="text-xs font-semibold" style="color:#F7A21B;">${escHtml(sec.section_no || '')}</span>
+          <span class="text-sm font-semibold ml-1" style="color:rgba(255,255,255,0.85);">${escHtml(sec.title || '')}</span>
+        </div>
+        <span class="text-xs" style="color:rgba(255,255,255,0.3);" id="sow-toggle-icon-${i}">▼</span>
+      </div>
+      <div class="sow-item-body" id="sow-body-${i}" style="display:none;">
+        <textarea class="bom-item-input" style="width:100%;min-height:64px;resize:vertical;padding:0.4rem 0.55rem;font-size:0.76rem;"
+          oninput="_sowSections[${i}].content=this.value">${escHtml(sec.content || '')}</textarea>
+      </div>
+    </div>`).join('');
+}
+
+function toggleSowItem(i) {
+  _sowSections[i].checked = !(_sowSections[i].checked === false);
+  document.getElementById('sow-row-' + i)?.classList.toggle('unchecked', _sowSections[i].checked === false);
+}
+
+function toggleSowExpand(i) {
+  const body = document.getElementById('sow-body-' + i);
+  const icon = document.getElementById('sow-toggle-icon-' + i);
+  const hidden = body.style.display === 'none';
+  body.style.display = hidden ? 'block' : 'none';
+  if (icon) icon.textContent = hidden ? '▲' : '▼';
+}
+
+function addSowRow() {
+  const nextNo = (_sowSections.length + 1) + '.0';
+  _sowSections.push({ section_no: nextNo, title: 'New Section', content: '', checked: true });
+  renderSowChecklist();
+}
+
+// ─── Step 2: Generate Documents (no API call — format from checklist) ─────────
+function generateDocuments() {
+  const checkedBom = _bomItems.filter(it => it.checked !== false);
+  const checkedSow = _sowSections.filter(s => s.checked !== false);
+
+  if (!checkedBom.length && !checkedSow.length) {
+    showToast('Check at least one item or section.'); return;
+  }
+
+  document.getElementById('bom-checklist-panel').classList.add('hidden');
+  renderBomTablePreview(checkedBom);
+  renderSowDocPreview(checkedSow);
+  document.getElementById('bom-preview').classList.remove('hidden');
+  document.getElementById('bom-preview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function backToChecklist() {
+  document.getElementById('bom-preview').classList.add('hidden');
+  document.getElementById('bom-checklist-panel').classList.remove('hidden');
+  switchBomTab(_activeBomTab);
+}
+
+// ─── Render BOM white document table ─────────────────────────────────────────
+function renderBomTablePreview(items) {
+  const proj    = escHtml(_lastInputs?.project_name || 'Untitled Project');
+  const today   = new Date().toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const calcRef = `HVAC-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+
+  const rows = items.map((it, i) => `
+    <tr>
+      <td style="text-align:center;width:36px;">${i + 1}</td>
+      <td><input type="text" value="${escHtml(it.description || '')}" /></td>
+      <td><input type="text" value="${escHtml(it.specification || '')}" /></td>
+      <td style="text-align:center;"><input type="number" value="${it.qty ?? 1}" min="0" step="0.1" /></td>
+      <td style="text-align:center;width:50px;"><input type="text" value="${escHtml(it.unit || 'unit')}" /></td>
+      <td><input type="text" value="${escHtml(it.remarks || '')}" /></td>
+    </tr>`).join('');
+
+  document.getElementById('bom-table-preview').innerHTML = `
+    <div class="doc-panel" id="bom-doc-content">
+      <div class="doc-header-row">
+        <div>
+          <h1>BILL OF MATERIALS</h1>
+          <div class="doc-meta">Project: <strong>${proj}</strong></div>
+          <div class="doc-meta">Ref: ${calcRef}</div>
+          <div class="doc-meta">Discipline: Mechanical — HVAC</div>
+        </div>
+        <div class="doc-meta" style="text-align:right;">
+          <div>Prepared by: <span class="editable-field" contenteditable="true">${escHtml(WORKER_NAME)}</span></div>
+          <div>Date: ${today}</div>
+          <div>Rev: 0</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:36px;">#</th>
+              <th>Description</th>
+              <th>Specification</th>
+              <th style="width:60px;text-align:center;">Qty</th>
+              <th style="width:50px;text-align:center;">Unit</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:1.5rem;font-size:0.76rem;color:#555;border-top:1px solid #e0e0e0;padding-top:0.75rem;">
+        <strong>Notes:</strong> Quantities are based on the HVAC Cooling Load calculation result.
+        Engineer shall verify quantities on-site before procurement.
+        All materials shall conform to applicable Philippine and international standards.
+      </div>
+
+      <div class="sig-block">
+        <div>
+          <div class="sig-line">Prepared by</div>
+          <div style="font-size:0.76rem;color:#555;margin-top:0.25rem;">Name / Signature / License No.</div>
+        </div>
+        <div>
+          <div class="sig-line">Checked by</div>
+          <div style="font-size:0.76rem;color:#555;margin-top:0.25rem;">Name / Signature / License No.</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ─── Render SOW white contractor document ─────────────────────────────────────
+function renderSowDocPreview(sections) {
+  const proj    = escHtml(_lastInputs?.project_name || 'Untitled Project');
+  const today   = new Date().toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const calcRef = `HVAC-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const kw      = _lastResults?.recommended_kW   || '';
+  const tr      = _lastResults?.recommended_TR   || '';
+  const units   = _lastResults?.recommended_units || '';
+  const unitKW  = _lastResults?.ac_size_kw        || '';
+
+  const clausesHtml = sections.map(sec => `
+    <div class="sow-clause">
+      <div class="sow-clause-header">
+        <span class="sow-clause-no">${escHtml(sec.section_no)}</span>
+        <span class="sow-clause-title">${escHtml(sec.title)}</span>
+      </div>
+      <div class="sow-clause-body">${escHtml(sec.content || '')}</div>
+    </div>`).join('');
+
+  document.getElementById('sow-doc-preview').innerHTML = `
+    <div class="doc-panel" id="sow-doc-content">
+      <div class="doc-header-row">
+        <div>
+          <h1>SCOPE OF WORKS</h1>
+          <div class="doc-meta">Project: <strong>${proj}</strong></div>
+          <div class="doc-meta">Ref: ${calcRef}</div>
+          <div class="doc-meta">System: Air-Conditioning — Split-Type, ${units} unit(s) × ${unitKW} kW (${kw} kW / ${tr} TR total)</div>
+        </div>
+        <div class="doc-meta" style="text-align:right;">
+          <div>Prepared by: <span class="editable-field" contenteditable="true">${escHtml(WORKER_NAME)}</span></div>
+          <div>Date: ${today}</div>
+          <div>Rev: 0</div>
+        </div>
+      </div>
+
+      ${clausesHtml}
+
+      <div style="margin-top:1.5rem;font-size:0.76rem;color:#555;border-top:1px solid #e0e0e0;padding-top:0.75rem;">
+        This Scope of Works is based on the HVAC Cooling Load Design Calculation (Ref: ${calcRef}).
+        The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements.
+        Any deviations from this scope must be approved in writing by the Engineer before execution.
+      </div>
+
+      <div class="sig-block">
+        <div>
+          <div class="sig-line">Prepared by — Mechanical Engineer</div>
+          <div style="font-size:0.76rem;color:#555;margin-top:0.25rem;">Name / PRC License No. / Date</div>
+        </div>
+        <div>
+          <div class="sig-line">Approved by — Project Manager / Owner</div>
+          <div style="font-size:0.76rem;color:#555;margin-top:0.25rem;">Name / Position / Date</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ─── Downloads ────────────────────────────────────────────────────────────────
+function downloadBomCsv() {
+  const checkedBom = _bomItems.filter(it => it.checked !== false);
+  if (!checkedBom.length) { showToast('No BOM items selected.'); return; }
+
+  const header = ['Item No.','Description','Specification','Qty','Unit','Remarks'];
+  const rows   = checkedBom.map((it, i) => [
+    i + 1,
+    `"${(it.description || '').replace(/"/g, '""')}"`,
+    `"${(it.specification || '').replace(/"/g, '""')}"`,
+    it.qty ?? '',
+    it.unit || '',
+    `"${(it.remarks || '').replace(/"/g, '""')}"`,
+  ].join(','));
+
+  const csv  = [header.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const proj = (_lastInputs?.project_name || 'BOM').replace(/[^a-z0-9]/gi, '_');
+  a.href     = url;
+  a.download = `BOM_${proj}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('BOM CSV downloaded.');
+}
+
+function downloadBomDocPdf() {
+  const el = document.getElementById('bom-doc-content');
+  if (!el) { showToast('No BOM to download.'); return; }
+  const proj = (_lastInputs?.project_name || 'BOM').replace(/[^a-z0-9]/gi, '_');
+  const style = document.createElement('style');
+  style.id = 'bom-pdf-rules';
+  style.textContent = '#bom-doc-content tr, #bom-doc-content td, #bom-doc-content th { page-break-inside: avoid; break-inside: avoid; }';
+  document.head.appendChild(style);
+  el.style.paddingBottom = '40px';
+  html2pdf().set({
+    margin: [10, 10, 10, 10],
+    filename: `BOM_${proj}_${new Date().toISOString().slice(0,10)}.pdf`,
+    html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+  }).from(el).save().then(() => {
+    el.style.paddingBottom = '';
+    document.getElementById('bom-pdf-rules')?.remove();
+    showToast('BOM PDF saved.');
+  });
+}
+
+function downloadSowPdf() {
+  const el = document.getElementById('sow-doc-content');
+  if (!el) { showToast('No SOW to download.'); return; }
+  const proj = (_lastInputs?.project_name || 'SOW').replace(/[^a-z0-9]/gi, '_');
+  const style = document.createElement('style');
+  style.id = 'sow-pdf-rules';
+  style.textContent = '#sow-doc-content p, #sow-doc-content .sow-clause { page-break-inside: avoid; break-inside: avoid; } #sow-doc-content h2 { break-after: avoid; }';
+  document.head.appendChild(style);
+  el.style.paddingBottom = '40px';
+  html2pdf().set({
+    margin: [12, 15, 12, 15],
+    filename: `SOW_${proj}_${new Date().toISOString().slice(0,10)}.pdf`,
+    html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+  }).from(el).save().then(() => {
+    el.style.paddingBottom = '';
+    document.getElementById('sow-pdf-rules')?.remove();
+    showToast('SOW PDF saved.');
+  });
 }
 
 // ─── XSS safety ───────────────────────────────────────────────────────────────
