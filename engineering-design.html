@@ -442,7 +442,7 @@ const CALC_TYPES = {
     { id: 'HVAC Cooling Load',    icon: '❄️',  desc: 'Room heat gain, AC capacity in kW / TR', available: true  },
     { id: 'Ventilation / ACH',    icon: '💨',  desc: 'Air changes per hour, fan CMH / CFM',     available: true  },
     { id: 'Pump Sizing (TDH)',    icon: '💧',  desc: 'Total Dynamic Head, pump HP selection',   available: true  },
-    { id: 'Pipe Sizing',          icon: '🔩',  desc: 'Flow velocity, pipe diameter',            available: false },
+    { id: 'Pipe Sizing',          icon: '🔩',  desc: 'Flow velocity, pipe diameter selection',  available: true  },
     { id: 'Compressed Air',       icon: '🌬️', desc: 'Compressor CFM demand calculation',       available: false },
   ],
   Plumbing: [
@@ -534,6 +534,39 @@ const GUIDES = {
       'Fan sizing is rounded up to the next standard commercial fan CMH size.',
       'CMH = cubic meters per hour. CFM = cubic feet per minute (1 L/s = 2.119 CFM).',
       'For spaces with high internal pollutants (labs, kitchens), consult ASHRAE Table 6-4 for exhaust rates.',
+    ],
+  },
+
+  'Pipe Sizing': {
+    title: 'Pipe Sizing - Velocity Method + Hazen-Williams',
+    subtitle: 'Selects the correct pipe diameter to maintain flow velocity within acceptable range and computes total friction pressure loss.',
+    standards: ['PSME Code - Philippine Society of Mechanical Engineers','ASHRAE HVAC Systems and Equipment Handbook','Hydraulic Institute Standards'],
+    formulas: [
+      'Velocity:  V = Q / A   where A = pi x (D/2)^2',
+      'Pipe selected: smallest D where V_min <= V <= V_max for service type',
+      '',
+      'Friction loss (Hazen-Williams):',
+      'hf = (10.67 x L x Q^1.852) / (C^1.852 x D^4.87)',
+      'Q in m3/s, D in m, L = equivalent length (pipe + fittings)',
+      '',
+      'Equivalent length:  L_eq = L_pipe x (1 + fittings_allowance / 100)',
+      'Pressure drop (kPa/m) = hf_per_m x rho x g / 1000',
+      'Reynolds number:  Re = V x D / nu  (nu = 0.8e-6 m2/s at 30°C)',
+    ],
+    fields: [
+      { name: 'Service Type', tip: 'Sets the acceptable velocity range automatically. Chilled/Hot Water: 0.6-3.0 m/s. Condenser Water: 0.9-3.5 m/s. Fire Protection: 1.5-4.5 m/s. Also auto-fills fluid density.' },
+      { name: 'Flow Rate (L/min)', tip: 'Required system flow through this pipe segment. For HVAC chilled water: 0.043 L/s per kW of cooling load is a common starting point.' },
+      { name: 'Pipe Length (m)', tip: 'Straight pipe run only. Do not add fittings here — use Fittings Allowance % instead. Measure from start to end of the segment.' },
+      { name: 'Pipe Material', tip: 'Determines Hazen-Williams C factor: PVC/HDPE=150, Stainless/Copper=140, GI=120, Cast Iron=100. Higher C = smoother pipe = lower friction loss.' },
+      { name: 'Fittings Allowance (%)', tip: 'Extra pipe length equivalent to cover all elbows, tees, valves, reducers. 20% is standard for typical runs. Use 30-40% for complex or heavily valved systems.' },
+      { name: 'Fluid Density (kg/m3)', tip: 'Auto-filled by service type. Water=1000, Chilled water=999, Hot water (80°C)=972. Only change if using a special fluid.' },
+    ],
+    notes: [
+      'The report shows a comparison table of pipe sizes near the recommended selection — use this to compare velocity and pressure drop trade-offs.',
+      'Turbulent flow (Re > 4000) is normal and expected for most water systems. Laminar flow (Re < 2300) is unusual and may indicate oversized pipe or very low flow.',
+      'Pressure drop is given in both m (metres of head) and kPa. Use kPa when specifying control valves and pressure regulators.',
+      'Total friction loss from this calculation feeds directly into Pump Sizing TDH as the Friction Head (Hf) component.',
+      'Nominal pipe diameter is the commercial pipe size designation — actual inside diameter varies by pipe schedule (Sch 40, 80, etc.).',
     ],
   },
 
@@ -1022,6 +1055,79 @@ function renderInputForm(calcType) {
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
+
+  if (calcType === 'Pipe Sizing') {
+    area.innerHTML = `
+      <!-- Project name -->
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Chilled Water Distribution - Level 2" />
+      </div>
+
+      <!-- Service type -->
+      <div class="mb-4">
+        <div class="field-label">Service Type</div>
+        <div class="toggle-group" id="tg-service">
+          ${['Chilled Water Supply','Chilled Water Return','Hot Water Supply','Condenser Water','Cold Water Supply','Fire Protection','General Water'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-service','${v}');applyServiceDefaults('${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <!-- Flow rate & pipe length -->
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Flow Rate (Q)</div>
+          <div class="input-group">
+            <input id="f-flow-rate" class="wh-input" type="number" placeholder="0" min="0" />
+            <span class="input-unit">L/min</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Pipe Length</div>
+          <div class="input-group">
+            <input id="f-pipe-length" class="wh-input" type="number" placeholder="0" min="0" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pipe material -->
+      <div class="mb-4">
+        <div class="field-label">Pipe Material</div>
+        <div class="toggle-group" id="tg-pipe-mat">
+          ${['PVC','Galvanized Steel','Stainless Steel','HDPE','Copper','Cast Iron'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-pipe-mat','${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <!-- Fittings allowance & fluid density -->
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Fittings Allowance</div>
+          <div class="input-group">
+            <input id="f-fittings" class="wh-input" type="number" value="20" min="0" max="100" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Fluid Density <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(auto by service)</span></div>
+          <div class="input-group">
+            <input id="f-fluid-density" class="wh-input" type="number" value="1000" min="0" />
+            <span class="input-unit">kg/m³</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info box -->
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
+        Method: Velocity method + Hazen-Williams friction loss. Selects smallest pipe diameter that keeps velocity within acceptable range for the selected service type. Standard: PSME / ASHRAE.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
 }
 
 // ─── Toggle button groups ─────────────────────────────────────────────────────
@@ -1053,6 +1159,22 @@ function applyVentDefaults(roomFunc) {
   if (!d) return;
   const pEl = document.getElementById('f-persons');
   if (pEl) pEl.value = d.persons;
+}
+
+function applyServiceDefaults(service) {
+  const defaults = {
+    'Chilled Water Supply':  { density: 999  },
+    'Chilled Water Return':  { density: 999  },
+    'Hot Water Supply':      { density: 983  },
+    'Condenser Water':       { density: 1000 },
+    'Cold Water Supply':     { density: 1000 },
+    'Fire Protection':       { density: 1000 },
+    'General Water':         { density: 1000 },
+  };
+  const d = defaults[service];
+  if (!d) return;
+  const el = document.getElementById('f-fluid-density');
+  if (el) el.value = d.density;
 }
 
 function applyFluidDefaults(fluid) {
@@ -1116,6 +1238,18 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Pipe Sizing') {
+    return {
+      project_name:        v('f-project') || 'Untitled Pipe System',
+      flow_rate:           parseFloat(v('f-flow-rate'))     || 0,
+      pipe_length:         parseFloat(v('f-pipe-length'))   || 0,
+      service_type:        getToggle('tg-service')          || 'General Water',
+      pipe_material:       getToggle('tg-pipe-mat')         || 'PVC',
+      fittings_allowance:  parseFloat(v('f-fittings'))      || 20,
+      fluid_density:       parseFloat(v('f-fluid-density')) || 1000,
+    };
+  }
+
   if (_calcType === 'Pump Sizing (TDH)') {
     return {
       project_name:        v('f-project') || 'Untitled Pump System',
@@ -1169,6 +1303,8 @@ async function runCalculation() {
       renderVentReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Pump Sizing (TDH)') {
       renderPumpReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Pipe Sizing') {
+      renderPipeReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -1492,6 +1628,142 @@ function renderVentReport(inputs, results, narrative) {
   showReport();
 }
 
+// ─── Pipe Sizing Report ───────────────────────────────────────────────────────
+function renderPipeReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+
+  const velStatus = results.velocity_ok
+    ? `<span style="color:#2e7d32;font-weight:700;">ACCEPTABLE</span>`
+    : `<span style="color:#b71c1c;font-weight:700;">OUT OF RANGE</span>`;
+
+  const compRows = (results.size_comparison || []).map(r => `
+    <tr style="${r.recommended ? 'background:#fffbf0;font-weight:700;' : ''}">
+      <td>${r.dia_mm} mm${r.recommended ? ' (recommended)' : ''}</td>
+      <td class="num">${r.velocity}</td>
+      <td class="num">${r.hf_per_m}</td>
+      <td class="num">${r.press_kpa_m}</td>
+      <td class="num" style="color:${r.velocity >= results.velocity_min && r.velocity <= results.velocity_max ? '#2e7d32' : '#b71c1c'};">
+        ${r.velocity >= results.velocity_min && r.velocity <= results.velocity_max ? 'OK' : r.velocity < results.velocity_min ? 'Too slow' : 'Too fast'}
+      </td>
+    </tr>`).join('');
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading.
+    </div>
+
+    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">PIPE SIZING DESIGN CALCULATION</h1>
+    <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">Velocity Method + Hazen-Williams Friction Loss - PSME / ASHRAE</div>
+
+    <h2>1. PROJECT INFORMATION</h2>
+    <table>
+      <tr><td style="width:35%;">Project / System Name</td><td>${e(inputs.project_name)}</td></tr>
+      <tr><td>Location</td><td>${e('')}</td></tr>
+      <tr><td>Owner / Client</td><td>${e('')}</td></tr>
+      <tr><td>Prepared by</td><td>${e('')}</td></tr>
+      <tr><td>PRC License No.</td><td>${e('')}</td></tr>
+      <tr><td>Date</td><td>${e(dateStr)}</td></tr>
+    </table>
+
+    <h2>2. OBJECTIVE</h2>
+    <p>${e(narrative?.objective || 'To determine the appropriate pipe diameter for the subject piping system based on acceptable flow velocity and to compute the total friction pressure loss.')}</p>
+
+    <h2>3. DESIGN BASIS AND ASSUMPTIONS</h2>
+    <p>${e(narrative?.assumptions || 'Hazen-Williams friction loss method applied. Pipe diameter selected to maintain flow velocity within the acceptable range for the specified service type. Fittings accounted for via equivalent length allowance.')}</p>
+
+    <h2>4. DESIGN INPUTS</h2>
+    <table>
+      <tr><th>Parameter</th><th>Value</th><th>Unit</th></tr>
+      <tr><td>Service Type</td><td>${escHtml(inputs.service_type || 'General Water')}</td><td>-</td></tr>
+      <tr><td>Design Flow Rate (Q)</td><td>${escHtml(String(inputs.flow_rate))}</td><td>L/min</td></tr>
+      <tr><td>Pipe Length</td><td>${escHtml(String(inputs.pipe_length))}</td><td>m</td></tr>
+      <tr><td>Pipe Material</td><td>${escHtml(inputs.pipe_material || 'PVC')}</td><td>-</td></tr>
+      <tr><td>Hazen-Williams C Factor</td><td>${escHtml(String(results.inputs_used?.C_factor || '-'))}</td><td>-</td></tr>
+      <tr><td>Fittings Allowance</td><td>${escHtml(String(inputs.fittings_allowance || 20))}</td><td>% of pipe length</td></tr>
+      <tr><td>Equivalent Pipe Length (incl. fittings)</td><td>${escHtml(String(results.equiv_length))}</td><td>m</td></tr>
+      <tr><td>Fluid Density</td><td>${escHtml(String(inputs.fluid_density || 1000))}</td><td>kg/m3</td></tr>
+      <tr><td>Acceptable Velocity Range</td><td>${escHtml(String(results.velocity_min))} - ${escHtml(String(results.velocity_max))}</td><td>m/s</td></tr>
+    </table>
+
+    <h2>5. CALCULATION</h2>
+
+    <h3>5.1 Flow Rate Conversion</h3>
+    <table>
+      <tr><th>Parameter</th><th class="num">Value</th><th>Unit</th></tr>
+      <tr><td>Design Flow Rate</td><td class="num">${results.flow_lpm}</td><td>L/min</td></tr>
+      <tr><td>Design Flow Rate</td><td class="num">${results.flow_lps}</td><td>L/s</td></tr>
+      <tr><td>Design Flow Rate</td><td class="num">${results.flow_m3hr}</td><td>m3/hr</td></tr>
+    </table>
+
+    <h3>5.2 Pipe Size Comparison</h3>
+    <table>
+      <tr><th>Pipe Diameter</th><th class="num">Velocity (m/s)</th><th class="num">Hf (m/m)</th><th class="num">Press. Drop (kPa/m)</th><th class="num">Status</th></tr>
+      ${compRows}
+    </table>
+    <p style="font-size:0.78rem;color:#666;margin-top:0.25rem;">Acceptable velocity range for ${escHtml(inputs.service_type || 'General Water')}: ${results.velocity_min} - ${results.velocity_max} m/s</p>
+
+    <h3>5.3 Selected Pipe — Friction Loss Summary</h3>
+    <table>
+      <tr><th>Parameter</th><th class="num">Value</th><th>Unit</th></tr>
+      <tr><td>Selected Pipe Diameter</td><td class="num"><strong>${results.recommended_dia_mm}</strong></td><td>mm nominal</td></tr>
+      <tr><td>Flow Velocity</td><td class="num">${results.recommended_velocity}</td><td>m/s</td></tr>
+      <tr><td>Velocity Status</td><td class="num">${velStatus}</td><td>-</td></tr>
+      <tr><td>Reynolds Number</td><td class="num">${results.reynolds_number?.toLocaleString()}</td><td>-</td></tr>
+      <tr><td>Flow Regime</td><td class="num">${escHtml(results.flow_regime || '-')}</td><td>-</td></tr>
+      <tr><td>Friction Loss Rate</td><td class="num">${results.hf_per_m}</td><td>m/m</td></tr>
+      <tr><td>Pressure Drop Rate</td><td class="num">${results.press_drop_per_m}</td><td>kPa/m</td></tr>
+      <tr><td>Velocity Head</td><td class="num">${results.velocity_head}</td><td>m</td></tr>
+      <tr class="total-row"><td>Total Friction Head Loss</td><td class="num"><strong>${results.hf_total}</strong></td><td>m</td></tr>
+      <tr class="total-row"><td>Total Pressure Drop</td><td class="num"><strong>${results.press_drop_total}</strong></td><td>kPa</td></tr>
+    </table>
+
+    <h2>6. RESULTS SUMMARY</h2>
+    <div class="result-highlight">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <div class="res-label">Recommended Pipe Diameter</div>
+          <div class="res-value">${results.recommended_dia_mm} mm</div>
+        </div>
+        <div>
+          <div class="res-label">Flow Velocity</div>
+          <div class="res-value">${results.recommended_velocity} m/s</div>
+        </div>
+        <div>
+          <div class="res-label">Total Friction Head Loss</div>
+          <div class="res-value">${results.hf_total} m</div>
+        </div>
+        <div>
+          <div class="res-label">Total Pressure Drop</div>
+          <div class="res-value">${results.press_drop_total} kPa</div>
+        </div>
+      </div>
+    </div>
+
+    <h2>7. RECOMMENDATIONS</h2>
+    <p>${e(narrative?.recommendations || 'Provide piping with the recommended nominal diameter as computed. Verify pipe schedule and pressure rating are appropriate for the operating pressure. Install isolation valves and balancing valves as required by system design.')}</p>
+
+    <div class="sig-block">
+      <div>
+        <div class="sig-line">Prepared by</div>
+        <div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div>
+      </div>
+      <div>
+        <div class="sig-line">PRC License No. / PTR No.</div>
+        <div style="margin-top:2rem;" class="sig-line">Date</div>
+      </div>
+      <div>
+        <div class="sig-line">Checked / Approved by</div>
+        <div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
 // ─── Pump Sizing Report ───────────────────────────────────────────────────────
 function renderPumpReport(inputs, results, narrative) {
   const now     = new Date();
@@ -1777,6 +2049,8 @@ function viewHistoryReport(row) {
     renderVentReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Pump Sizing (TDH)') {
     renderPumpReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Pipe Sizing') {
+    renderPipeReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }

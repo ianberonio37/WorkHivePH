@@ -360,6 +360,118 @@ function calcPumpSizingTDH(inputs: Record<string, number | string>) {
   };
 }
 
+// ─── Pipe Sizing Calculation (Velocity Method + Hazen-Williams) ──────────────
+// Standards: PSME, ASHRAE, ASHRAE Plumbing Engineering Design Guide
+// Selects pipe diameter to keep velocity within acceptable range,
+// then computes pressure drop per metre and total friction loss.
+
+// Velocity limits by service type (m/s)
+const VELOCITY_LIMITS: Record<string, { min: number; max: number; recommended: number; label: string }> = {
+  "Chilled Water Supply":  { min: 0.6, max: 3.0, recommended: 1.5, label: "Chilled Water Supply" },
+  "Chilled Water Return":  { min: 0.6, max: 3.0, recommended: 1.2, label: "Chilled Water Return" },
+  "Hot Water Supply":      { min: 0.6, max: 3.0, recommended: 1.5, label: "Hot Water Supply" },
+  "Condenser Water":       { min: 0.9, max: 3.5, recommended: 2.0, label: "Condenser Water" },
+  "Cold Water Supply":     { min: 0.6, max: 2.5, recommended: 1.2, label: "Cold Water Supply (Domestic)" },
+  "Fire Protection":       { min: 1.5, max: 4.5, recommended: 3.0, label: "Fire Protection / Sprinkler" },
+  "Steam":                 { min: 10,  max: 40,  recommended: 25,  label: "Steam (Low Pressure)" },
+  "Compressed Air":        { min: 5,   max: 15,  recommended: 8,   label: "Compressed Air" },
+  "General Water":         { min: 0.6, max: 3.0, recommended: 1.5, label: "General Water Service" },
+};
+
+function calcPipeSizing(inputs: Record<string, number | string>) {
+  const flowLPM       = Number(inputs.flow_rate);        // L/min
+  const pipeLength    = Number(inputs.pipe_length);      // m
+  const serviceType   = String(inputs.service_type || "General Water");
+  const pipeMaterial  = String(inputs.pipe_material || "PVC");
+  const fittingsPct   = Number(inputs.fittings_allowance) || 20; // %
+  const fluidDensity  = Number(inputs.fluid_density) || 1000;    // kg/m3
+
+  const flowM3s  = flowLPM / (1000 * 60);
+  const flowM3hr = flowLPM * 60 / 1000;
+  const flowLPS  = flowLPM / 60;
+
+  const limits = VELOCITY_LIMITS[serviceType] || VELOCITY_LIMITS["General Water"];
+  const C      = PIPE_C_VALUES[pipeMaterial] || 150;
+  const g      = 9.81;
+
+  // Try each standard pipe size and find the best fit
+  const candidates = PIPE_SIZES_MM.map(dMM => {
+    const dM   = dMM / 1000;
+    const area = Math.PI * Math.pow(dM / 2, 2);
+    const v    = flowM3s / area;
+    // Hazen-Williams head loss per metre (m/m)
+    const hfPerM = (10.67 * Math.pow(flowM3s, 1.852)) / (Math.pow(C, 1.852) * Math.pow(dM, 4.87));
+    const pressDropPerM = hfPerM * fluidDensity * g / 1000; // kPa/m
+    return { dMM, v, hfPerM, pressDropPerM };
+  });
+
+  // Recommended: smallest pipe that keeps velocity <= max AND >= min
+  const recommended = candidates.find(c => c.v <= limits.max && c.v >= limits.min)
+    || candidates.find(c => c.v <= limits.max)
+    || candidates[candidates.length - 1];
+
+  // Also compute for one size smaller (to show comparison)
+  const smallerIdx = PIPE_SIZES_MM.indexOf(recommended.dMM) - 1;
+  const smaller = smallerIdx >= 0 ? candidates[smallerIdx] : null;
+
+  // Total friction loss for recommended pipe
+  const equivLength  = pipeLength * (1 + fittingsPct / 100); // equivalent pipe length incl fittings
+  const hfTotal      = recommended.hfPerM * equivLength;     // m
+  const pressDropTot = recommended.pressDropPerM * equivLength; // kPa
+
+  // Velocity head
+  const velocityHead = Math.pow(recommended.v, 2) / (2 * g); // m
+
+  // Reynolds number (approximate, for water at ~30°C: kinematic viscosity ~0.8e-6 m2/s)
+  const nu = 0.8e-6; // m2/s kinematic viscosity water at 30°C
+  const Re = (recommended.v * (recommended.dMM / 1000)) / nu;
+  const flowRegime = Re < 2300 ? "Laminar" : Re < 4000 ? "Transitional" : "Turbulent";
+
+  // Build size comparison table (±2 sizes around recommended)
+  const recIdx = PIPE_SIZES_MM.indexOf(recommended.dMM);
+  const compRange = candidates.slice(Math.max(0, recIdx - 2), recIdx + 3);
+
+  return {
+    // Flow
+    flow_lpm:          flowLPM,
+    flow_m3hr:         Math.round(flowM3hr * 100) / 100,
+    flow_lps:          Math.round(flowLPS * 100) / 100,
+    // Recommended pipe
+    recommended_dia_mm:    recommended.dMM,
+    recommended_velocity:  Math.round(recommended.v * 100) / 100,
+    velocity_ok:           recommended.v >= limits.min && recommended.v <= limits.max,
+    velocity_min:          limits.min,
+    velocity_max:          limits.max,
+    velocity_recommended:  limits.recommended,
+    // Friction losses
+    hf_per_m:          Math.round(recommended.hfPerM * 1000) / 1000,  // m/m
+    press_drop_per_m:  Math.round(recommended.pressDropPerM * 1000) / 1000, // kPa/m
+    equiv_length:      Math.round(equivLength * 10) / 10,
+    hf_total:          Math.round(hfTotal * 100) / 100,
+    press_drop_total:  Math.round(pressDropTot * 100) / 100,
+    velocity_head:     Math.round(velocityHead * 1000) / 1000,
+    // Flow regime
+    reynolds_number:   Math.round(Re),
+    flow_regime:       flowRegime,
+    // Comparison table
+    size_comparison: compRange.map(c => ({
+      dia_mm:         c.dMM,
+      velocity:       Math.round(c.v * 100) / 100,
+      hf_per_m:       Math.round(c.hfPerM * 1000) / 1000,
+      press_kpa_m:    Math.round(c.pressDropPerM * 1000) / 1000,
+      recommended:    c.dMM === recommended.dMM,
+    })),
+    inputs_used: {
+      service_type:   serviceType,
+      pipe_material:  pipeMaterial,
+      C_factor:       C,
+      fittings_pct:   fittingsPct,
+      equiv_length:   Math.round(equivLength * 10) / 10,
+      velocity_limits: limits,
+    }
+  };
+}
+
 // ─── Gemini AI — Report Narrative ────────────────────────────────────────────
 
 async function generateReportNarrative(
@@ -446,6 +558,8 @@ serve(async (req) => {
       results = calcVentilationACH(inputs);
     } else if (calc_type === "Pump Sizing (TDH)") {
       results = calcPumpSizingTDH(inputs);
+    } else if (calc_type === "Pipe Sizing") {
+      results = calcPipeSizing(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),
