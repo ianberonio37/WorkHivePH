@@ -752,6 +752,185 @@ function calcWaterSupplyPipeSizing(inputs: Record<string, number | string>) {
   };
 }
 
+// ─── Electrical: Load Estimation — PEC Article 2.10 / 2.20 ──────────────────
+const LOAD_DEMAND_FACTOR: Record<string, number> = {
+  "Lighting (General)": 1.0, "Lighting (Emergency)": 1.0,
+  "Convenience Receptacles": 1.0, "Air Conditioning (Unit)": 1.0,
+  "Air Conditioning (Central Chiller)": 1.0,
+  "Motor (General)": 1.25, "Motor (Fire Pump)": 1.25,
+  "Water Heater": 1.0, "Elevator / Escalator": 1.25,
+  "Server / IT Equipment": 1.0, "Kitchen Equipment": 1.0,
+  "Welding Equipment": 0.5, "Custom": 1.0,
+};
+const STANDARD_BREAKER_A = [15,20,30,40,50,60,70,80,90,100,125,150,175,200,225,250,300,350,400,500,600];
+
+function calcLoadEstimation(inputs: Record<string, number | string>): Record<string, unknown> {
+  const loads      = inputs.loads as Array<{ load_type: string; quantity: number; watts_each: number; power_factor: number }> || [];
+  const phaseConfig = String(inputs.phase_config || "3-Phase 4-Wire (400V)");
+  const isThreePhase = phaseConfig.includes("3-Phase");
+  const voltage    = isThreePhase ? 400 : 230;
+
+  const breakdown = loads.map(l => {
+    const qty     = Number(l.quantity) || 1;
+    const w       = Number(l.watts_each) || 0;
+    const pf      = Number(l.power_factor) || 0.85;
+    const df      = LOAD_DEMAND_FACTOR[l.load_type] || 1.0;
+    const connVA  = qty * w / pf;
+    const demVA   = connVA * df;
+    return {
+      load_type: l.load_type, qty,
+      watts_each: w, pf, demand_factor: df,
+      connected_va: Math.round(connVA),
+      demand_va:    Math.round(demVA),
+    };
+  });
+
+  const totalConnVA  = breakdown.reduce((s, l) => s + l.connected_va, 0);
+  const totalDemVA   = breakdown.reduce((s, l) => s + l.demand_va, 0);
+  const factor       = isThreePhase ? (Math.sqrt(3) * voltage) : voltage;
+  const computedA    = totalDemVA / factor;
+  const withSpare    = computedA * 1.25;
+  const recBreaker   = STANDARD_BREAKER_A.find(s => s >= withSpare) || Math.ceil(withSpare / 25) * 25;
+
+  return {
+    phase_config:         phaseConfig,
+    voltage,
+    total_connected_va:   Math.round(totalConnVA),
+    total_connected_kva:  Math.round(totalConnVA / 1000 * 100) / 100,
+    total_connected_kw:   Math.round(totalConnVA * 0.85 / 1000 * 100) / 100,
+    total_demand_va:      Math.round(totalDemVA),
+    total_demand_kva:     Math.round(totalDemVA / 1000 * 100) / 100,
+    total_demand_kw:      Math.round(totalDemVA * 0.85 / 1000 * 100) / 100,
+    computed_ampacity:    Math.round(computedA * 100) / 100,
+    ampacity_with_spare:  Math.round(withSpare * 100) / 100,
+    recommended_breaker_A: recBreaker,
+    load_breakdown:       breakdown,
+  };
+}
+
+// ─── Electrical: Voltage Drop — PEC Article 2.10.19 / 2.20 ──────────────────
+const WIRE_SIZES_MM2 = [2.0, 3.5, 5.5, 8.0, 14, 22, 30, 38, 50, 60, 80, 100, 125, 150, 200, 250];
+const RESISTIVITY_CU = 0.0220; // Ω·mm²/m at 75°C for copper (THHN/THWN)
+const RESISTIVITY_AL = 0.0354; // Ω·mm²/m at 75°C for aluminium
+
+function calcVoltageDrop(inputs: Record<string, number | string>): Record<string, unknown> {
+  const circuitType  = String(inputs.circuit_type || "Branch Circuit");
+  const phase        = String(inputs.phase || "Single-phase");
+  const voltage      = Number(inputs.voltage) || 230;
+  const current      = Number(inputs.current) || 20;
+  const wireLength   = Number(inputs.wire_length) || 30;
+  const conductorMM2 = Number(inputs.conductor_mm2) || 3.5;
+  const material     = String(inputs.conductor_mat || "Copper");
+  const vdLimit      = Number(inputs.vd_limit) || 3;
+
+  const resistivity = material === "Aluminium" ? RESISTIVITY_AL : RESISTIVITY_CU;
+  const R = resistivity * 1000 / conductorMM2; // Ω/km
+  const factor = phase === "Three-phase" ? Math.sqrt(3) : 2;
+
+  const computeVD = (sizeMM2: number) => {
+    const r = resistivity * 1000 / sizeMM2;
+    const vd = factor * current * r * wireLength / 1000;
+    const vdPct = (vd / voltage) * 100;
+    const maxLen = (vdLimit / 100 * voltage * 1000) / (factor * current * r);
+    return { size_mm2: sizeMM2, resistance: Math.round(r * 100) / 100, vd_v: Math.round(vd * 100) / 100, vd_pct: Math.round(vdPct * 100) / 100, pass: vdPct <= vdLimit, max_length_m: Math.round(maxLen), is_selected: sizeMM2 === conductorMM2 };
+  };
+
+  const vdV    = factor * current * R * wireLength / 1000;
+  const vdPct  = (vdV / voltage) * 100;
+  const maxLen = (vdLimit / 100 * voltage * 1000) / (factor * current * R);
+  const vdLimitV = vdLimit / 100 * voltage;
+
+  const comparison = WIRE_SIZES_MM2.map(s => computeVD(s));
+
+  return {
+    circuit_type: circuitType, phase, voltage, current, wire_length: wireLength,
+    conductor_mm2: conductorMM2, conductor_mat: material,
+    vd_limit: vdLimit, vd_limit_volts: Math.round(vdLimitV * 100) / 100,
+    resistivity, resistance_ohm_km: Math.round(R * 100) / 100,
+    vd_volts: Math.round(vdV * 100) / 100,
+    vd_pct:   Math.round(vdPct * 100) / 100,
+    pass:     vdPct <= vdLimit,
+    max_length_m: Math.round(maxLen),
+    size_comparison: comparison,
+  };
+}
+
+// ─── Electrical: Wire Sizing — PEC Table 3.10.1 ──────────────────────────────
+// Copper THHN/THWN-2 at 75°C — table ampacities
+const PEC_AMPACITY_75C: Record<number, number> = {
+  2.0: 20, 3.5: 25, 5.5: 35, 8.0: 50, 14: 65, 22: 85, 30: 100,
+  38: 115, 50: 135, 60: 150, 80: 175, 100: 200, 125: 230, 150: 260, 200: 300, 250: 340,
+};
+const TEMP_FACTOR_75C: Record<number, number> = {
+  30: 1.00, 35: 0.94, 40: 0.87, 45: 0.82, 50: 0.75, 55: 0.67, 60: 0.58, 65: 0.47,
+};
+const FILL_FACTOR: Record<string, number> = {
+  "1-3": 1.00, "4-6": 0.80, "7-9": 0.70, "10-20": 0.50,
+};
+
+function calcWireSizing(inputs: Record<string, number | string>): Record<string, unknown> {
+  const loadType    = String(inputs.load_type   || "General Load");
+  const phase       = String(inputs.phase       || "Single-phase");
+  const voltage     = Number(inputs.voltage)    || 230;
+  const powerW      = Number(inputs.power_w)    || 1000;
+  const pf          = Number(inputs.power_factor) || 0.85;
+  const ambientTemp = Number(inputs.ambient_temp) || 30;
+  const conduitFill = String(inputs.conduit_fill || "1-3");
+
+  const isMotor = loadType.includes("Motor") || loadType.includes("HVAC");
+  const isContinuous = loadType.includes("continuous") || loadType.includes("Lighting");
+  const demandMult = (isMotor || isContinuous) ? 1.25 : 1.0;
+
+  const sqrt3 = Math.sqrt(3);
+  const loadCurrent = phase === "Three-phase"
+    ? powerW / (voltage * sqrt3 * pf)
+    : powerW / (voltage * pf);
+  const designCurrent = loadCurrent * demandMult;
+
+  // Nearest temp factor (round down to nearest table entry)
+  const tempKeys = Object.keys(TEMP_FACTOR_75C).map(Number).sort((a, b) => a - b);
+  const tempKey  = tempKeys.filter(k => k <= ambientTemp).pop() || 30;
+  const tempFactor = TEMP_FACTOR_75C[tempKey] || 1.0;
+  const fillFactor = FILL_FACTOR[conduitFill] || 1.0;
+
+  const sizeComparison = WIRE_SIZES_MM2.map(s => {
+    const tableA   = PEC_AMPACITY_75C[s] || 0;
+    const correctedA = tableA * tempFactor * fillFactor;
+    return {
+      size_mm2:         s,
+      ampacity_table:   tableA,
+      temp_factor:      tempFactor,
+      fill_factor:      fillFactor,
+      corrected_ampacity: Math.round(correctedA * 10) / 10,
+      adequate:         correctedA >= designCurrent,
+      recommended:      false,
+    };
+  });
+
+  // Find smallest adequate size
+  const recEntry = sizeComparison.find(c => c.adequate);
+  if (recEntry) recEntry.recommended = true;
+  const recSizeMM2     = recEntry?.size_mm2 || WIRE_SIZES_MM2[WIRE_SIZES_MM2.length - 1];
+  const recAmpacity    = recEntry?.corrected_ampacity || 0;
+  const recBreaker     = STANDARD_BREAKER_A.find(s => s >= designCurrent) || Math.ceil(designCurrent / 5) * 5;
+
+  return {
+    load_type: loadType, phase, voltage,
+    power_w: powerW, power_factor: pf,
+    load_current:    Math.round(loadCurrent * 100) / 100,
+    demand_multiplier: demandMult,
+    design_current:  Math.round(designCurrent * 100) / 100,
+    ambient_temp:    ambientTemp,
+    temp_factor:     tempFactor,
+    conduit_fill:    conduitFill,
+    fill_factor:     fillFactor,
+    recommended_size_mm2:   recSizeMM2,
+    recommended_ampacity:   recAmpacity,
+    recommended_breaker_A:  recBreaker,
+    size_comparison: sizeComparison,
+  };
+}
+
 // ─── Septic Tank Sizing — Occupancy-Based Method (PPC / DOH) ─────────────────
 // Standards: Philippine Plumbing Code, DOH Sanitation Code (P.D. 856),
 // DENR DAO 2016-08 Effluent Standards, DPWH Blue Book
@@ -1147,6 +1326,12 @@ serve(async (req) => {
       results = calcDrainagePipeSizing(inputs);
     } else if (calc_type === "Septic Tank Sizing") {
       results = calcSepticTankSizing(inputs);
+    } else if (calc_type === "Load Estimation") {
+      results = calcLoadEstimation(inputs);
+    } else if (calc_type === "Voltage Drop") {
+      results = calcVoltageDrop(inputs);
+    } else if (calc_type === "Wire Sizing") {
+      results = calcWireSizing(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

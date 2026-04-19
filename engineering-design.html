@@ -320,6 +320,7 @@
           <div class="flex gap-3">
             <button class="discipline-pill active" data-disc="Mechanical" onclick="selectDiscipline('Mechanical')">⚙️ Mechanical</button>
             <button class="discipline-pill" data-disc="Plumbing" onclick="selectDiscipline('Plumbing')">🔧 Plumbing</button>
+            <button class="discipline-pill" data-disc="Electrical" onclick="selectDiscipline('Electrical')">⚡ Electrical</button>
           </div>
         </div>
 
@@ -450,6 +451,13 @@ const CALC_TYPES = {
     { id: 'Hot Water Demand',         icon: '🌡️', desc: 'Daily hot water demand, heater sizing', available: true  },
     { id: 'Drainage Pipe Sizing',     icon: '🏗️', desc: 'Drainage fixture units, pipe diameter', available: true  },
     { id: 'Septic Tank Sizing',       icon: '🏭', desc: 'Tank capacity per occupancy',            available: true  },
+  ],
+  Electrical: [
+    { id: 'Load Estimation',  icon: '📋', desc: 'Panel schedule, demand factor, service size', available: true  },
+    { id: 'Voltage Drop',     icon: '📉', desc: 'VD % check, conductor length limits',         available: true  },
+    { id: 'Wire Sizing',      icon: '🔌', desc: 'Ampacity, conductor size per PEC Table 3.10', available: true  },
+    { id: 'Short Circuit',    icon: '⚡', desc: 'Fault current, breaker interrupting capacity', available: false },
+    { id: 'Lighting Design',  icon: '💡', desc: 'Lumen method, number of fixtures per room',   available: false },
   ],
 };
 
@@ -791,6 +799,108 @@ const GUIDES = {
       'Flooded suction (positive suction head) is always preferred over suction lift to protect the pump.',
       'For closed-loop systems (chilled water, hot water), static head may be zero if the loop is balanced.',
       'The 20% fittings allowance covers standard fittings. Add more for gate valves (0.1m), check valves (2-5m), strainers (1-3m).',
+    ],
+  },
+
+  'Load Estimation': {
+    title: 'Load Estimation — Panel Schedule Method',
+    subtitle: 'Computes total connected load, applies demand factors, and determines the required service entrance ampacity and feeder size per Philippine Electrical Code (PEC).',
+    standards: ['Philippine Electrical Code (PEC) 2017 — based on NEC','PEC Article 2.20 — Feeders and Services','PEC Article 2.10 — Branch Circuits','NFPA 70 (NEC) — National Electrical Code'],
+    formulas: [
+      'Connected Load (VA) = sum of (Qty x Wattage x Power Factor)',
+      '',
+      'Demand Load (VA) = Connected Load x Demand Factor',
+      '(Demand factors per PEC: lighting 100%, HVAC 100%, motors 125% largest + 100% rest)',
+      '',
+      'Service Ampacity (A) = Demand Load (VA) / (Voltage x sqrt(3))  [3-phase]',
+      'Service Ampacity (A) = Demand Load (VA) / Voltage              [1-phase]',
+      '',
+      'Service Size = round up to next standard breaker rating',
+      'Standard sizes: 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 175, 200, 225, 250, 300, 350, 400, 500, 600 A',
+    ],
+    fields: [
+      { name: 'Load Schedule', tip: 'Add every load on this panel or service. Select the load type — it determines which demand factor PEC requires. Enter rated wattage from nameplate.' },
+      { name: 'System Voltage', tip: '230V single-phase is standard for residential. 400V three-phase (3P+N) is standard for commercial and industrial. 208V is rare in PH (US-sourced equipment only).' },
+      { name: 'Phase Configuration', tip: 'Single-phase: 2-wire (hot+neutral) or 3-wire (hot+hot+neutral). Three-phase: 3-wire or 4-wire (3 phases + neutral). Most commercial panels in PH are 3-phase 4-wire.' },
+      { name: 'Power Factor', tip: 'Pure resistive loads (heaters, incandescent): PF=1.0. Fluorescent/LED lighting: PF=0.85-0.95. Motors: PF=0.85. Air conditioning: PF=0.85. Use 0.85 if unsure.' },
+      { name: 'Demand Factor', tip: 'The probability that not all loads run simultaneously. PEC mandates 100% for lighting and receptacles. Motors: 125% for largest, 100% for rest. HVAC: 100%.' },
+    ],
+    notes: [
+      'PEC requires 25% spare capacity on all feeders and service entrances — the calculated ampacity is the minimum; the actual installed service should be at least 125% of that.',
+      'Motor loads are sized at 125% of nameplate FLA (Full Load Amperes) for the branch circuit. Include this 125% in the load schedule for motors.',
+      'Lighting and receptacle circuits: PEC 2.10 limits 15A branch circuits to 1,440 VA (80% of 1,800 VA). 20A circuits: 1,920 VA maximum.',
+      'Air conditioning: always include the compressor nameplate FLA, not just the rated cooling output in kW.',
+      'Philippine standard voltage: 220-230V single-phase, 380-400V three-phase (meralco/distribution standard). Always confirm the actual utility supply voltage before design.',
+    ],
+  },
+
+  'Voltage Drop': {
+    title: 'Voltage Drop Calculation — PEC Article 2.10 / 2.20',
+    subtitle: 'Computes the voltage drop percentage for a given conductor run and verifies compliance with PEC limits (3% branch circuit, 5% total feeder + branch).',
+    standards: ['Philippine Electrical Code (PEC) 2017 — Article 2.10.19 (Branch Circuit VD)','PEC Article 2.20 (Feeder VD)','NFPA 70 (NEC) — Section 210.19, 215.2'],
+    formulas: [
+      'Single-phase:  VD (V) = 2 x I x R x L / 1000',
+      'Three-phase:   VD (V) = sqrt(3) x I x R x L / 1000',
+      '',
+      'Where:',
+      'I = load current (A)',
+      'R = conductor resistance (ohm/km) from PEC Table',
+      'L = one-way wire length (m)',
+      '',
+      'VD % = VD (V) / System Voltage x 100',
+      '',
+      'PEC Limits:',
+      'Branch circuit: VD % <= 3%',
+      'Feeder: VD % <= 2%  (so total feeder + branch <= 5%)',
+      '',
+      'Max conductor length:  L_max = (VD_limit x V x 1000) / (2 x I x R)  [1-phase]',
+    ],
+    fields: [
+      { name: 'System Voltage', tip: '230V for 1-phase residential/branch. 400V for 3-phase feeders. Use the actual operating voltage, not the nominal.' },
+      { name: 'Load Current (A)', tip: 'Actual design current. For motor loads: use nameplate FLA. For general circuits: divide total watts by (voltage x power factor).' },
+      { name: 'One-Way Wire Length (m)', tip: 'Distance from panel to the last load in the circuit. Do NOT double it — the formula already accounts for both conductors (factor of 2 for 1-phase, sqrt(3) for 3-phase).' },
+      { name: 'Conductor Size', tip: 'Philippine standard copper conductor sizes: 2.0, 3.5, 5.5, 8.0, 14, 22, 30, 38, 50, 60, 80, 100, 125, 150, 200, 250 sqmm (metric sizes, not AWG).' },
+      { name: 'Circuit Type', tip: 'Branch Circuit: from panel to individual loads. PEC limit = 3%. Feeder: from main panel to sub-panel. PEC limit = 2% (so total from utility to load stays within 5%).' },
+    ],
+    notes: [
+      'Philippine wiring uses metric conductor sizes (mm2), not AWG. Common sizes: 2.0 mm2 (15A), 3.5 mm2 (20A), 5.5 mm2 (30A), 8.0 mm2 (40A), 14 mm2 (60A), 22 mm2 (80A), 30 mm2 (100A).',
+      'Copper resistivity at 75°C: approx 0.0220 ohm·mm2/m. Aluminium: 0.0354 ohm·mm2/m (higher resistance, rarely used for branch circuits in PH).',
+      'Resistance R (ohm/km) = resistivity x 1000 / conductor_area_mm2.',
+      'Long motor feeders (>30 m) almost always fail the 3% VD limit with minimum wire size. Always calculate before finalizing conductor size for motors.',
+      'Voltage drop degrades motor torque. A 5% VD causes approximately 10% torque reduction — critical for motor-driven equipment.',
+    ],
+  },
+
+  'Wire Sizing': {
+    title: 'Wire Sizing — Ampacity Method (PEC Table 3.10.1)',
+    subtitle: 'Selects the minimum conductor size that safely carries the design current based on PEC ampacity tables, with correction factors for conduit fill, ambient temperature, and motor loads.',
+    standards: ['Philippine Electrical Code (PEC) 2017 — Article 3.10 (Conductors for General Wiring)','PEC Table 3.10.1 (Allowable Ampacities — Copper)','PEC Table 3.10.14 (Correction Factors for Ambient Temp)','PEC Article 4.30 (Motors)'],
+    formulas: [
+      'Design Current (A) = Connected Load (W) / (Voltage x PF x sqrt(3))  [3-phase]',
+      'Design Current (A) = Connected Load (W) / (Voltage x PF)            [1-phase]',
+      '',
+      'For motors: Design Current = Nameplate FLA x 1.25  (PEC Art. 4.30)',
+      '',
+      'Corrected Ampacity = Table Ampacity x Temp Factor x Conduit Fill Factor',
+      '',
+      'Select: smallest conductor where Corrected Ampacity >= Design Current',
+      '',
+      'Breaker size: round up to next standard size',
+      'Standard breaker sizes (A): 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 175, 200 A',
+    ],
+    fields: [
+      { name: 'Load Type', tip: 'Motors need 125% design current per PEC. Continuous loads (>3 hours) also need 125% conductor rating. Resistive loads (heaters) use 100%. Lighting: 100%.' },
+      { name: 'Load Power (W or VA)', tip: 'Nameplate watts or VA. For motors: use HP — the tool converts using standard motor FLA tables. For HVAC: use compressor nameplate FLA directly.' },
+      { name: 'Conductor Type', tip: 'THHN/THWN-2: 75°C rating, most common in Philippine conduit wiring. Use 75°C column from PEC Table 3.10.1 for all standard installations.' },
+      { name: 'Conduit Fill', tip: 'Number of current-carrying conductors in the conduit. 1-3: no derating. 4-6: multiply ampacity by 0.80. 7-9: x0.70. 10-20: x0.50. PEC Table 3.10.15.' },
+      { name: 'Ambient Temperature (°C)', tip: 'For THHN at 30°C: factor = 1.00 (no correction). At 35°C: 0.94. At 40°C: 0.87. At 45°C: 0.82. Philippine outdoor conduit runs often see 40-45°C.' },
+    ],
+    notes: [
+      'PEC Table 3.10.1 Copper THHN/THWN-2 at 75°C: 2.0mm2=20A, 3.5mm2=25A, 5.5mm2=35A, 8.0mm2=50A, 14mm2=65A, 22mm2=85A, 30mm2=100A, 38mm2=115A, 50mm2=135A, 60mm2=150A, 80mm2=175A, 100mm2=200A.',
+      'Minimum wire size in Philippine practice: 2.0 mm2 for 15A branch circuits, 3.5 mm2 for 20A. Never specify below 2.0 mm2 for power circuits.',
+      'Ground wire (EGC) size is separate from phase conductor — sized per PEC Table 3.16. Typically one size smaller than phase conductor.',
+      'Motor branch circuit: conductor must be rated at minimum 125% of motor FLA. Breaker is sized at 250% of FLA for inverse time breakers (PEC Article 4.30.52).',
+      'Voltage drop is NOT automatically satisfied by ampacity compliance. Always run a separate voltage drop check, especially for runs longer than 30 m.',
     ],
   },
 };
@@ -1682,6 +1792,205 @@ function renderInputForm(calcType) {
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
+
+  if (calcType === 'Load Estimation') {
+    const LOAD_TYPES = ['Lighting (General)','Lighting (Emergency)','Convenience Receptacles','Air Conditioning (Unit)','Air Conditioning (Central Chiller)','Motor (General)','Motor (Fire Pump)','Water Heater','Elevator / Escalator','Server / IT Equipment','Kitchen Equipment','Welding Equipment','Custom'];
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Panel Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. MDP-1 — Main Distribution Panel, Floor 3" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">System Configuration</div>
+        <div class="toggle-group" id="tg-phase">
+          ${['1-Phase 2-Wire (230V)','1-Phase 3-Wire (230V)','3-Phase 3-Wire (400V)','3-Phase 4-Wire (400V)'].map((v,i) =>
+            `<button class="toggle-btn${i===3?' active':''}" onclick="toggle('tg-phase','${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <div class="mb-2">
+        <div class="field-label">Load Schedule</div>
+        <div style="display:grid;grid-template-columns:1fr 55px 80px 80px 28px;gap:0.3rem;align-items:center;margin-bottom:0.3rem;">
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Load Type</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Qty</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Watts each</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">PF</div>
+          <div></div>
+        </div>
+        <div id="load-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;"></div>
+        <button class="btn-ghost text-sm py-2 px-4" onclick="addLoadRow()">+ Add Load</button>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Standard: Philippine Electrical Code (PEC) 2017. Motor loads are automatically sized at 125% FLA per PEC Article 4.30. Service entrance includes 25% spare capacity per PEC Article 2.20.
+      </div>
+    `;
+    addLoadRow('Lighting (General)', 10, 40, 0.95);
+    addLoadRow('Convenience Receptacles', 6, 180, 1.0);
+    addLoadRow('Air Conditioning (Unit)', 2, 1500, 0.85);
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
+  if (calcType === 'Voltage Drop') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Circuit Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Panel LP-1 to Motor Panel MP-3, 3rd Floor" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Circuit Type</div>
+        <div class="toggle-group" id="tg-circuit-type">
+          <button class="toggle-btn active" onclick="toggle('tg-circuit-type','Branch Circuit');applyVDLimit('Branch Circuit')">Branch Circuit (3% limit)</button>
+          <button class="toggle-btn" onclick="toggle('tg-circuit-type','Feeder');applyVDLimit('Feeder')">Feeder (2% limit)</button>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Phase Configuration</div>
+        <div class="toggle-group" id="tg-vd-phase">
+          <button class="toggle-btn active" onclick="toggle('tg-vd-phase','Single-phase');applyVDPhaseDefaults('Single-phase')">Single-phase (230V)</button>
+          <button class="toggle-btn" onclick="toggle('tg-vd-phase','Three-phase');applyVDPhaseDefaults('Three-phase')">Three-phase (400V)</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">System Voltage</div>
+          <div class="input-group">
+            <input id="f-vd-voltage" class="wh-input" type="number" value="230" min="100" />
+            <span class="input-unit">V</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">VD Limit</div>
+          <div class="input-group">
+            <input id="f-vd-limit" class="wh-input" type="number" value="3" min="1" max="5" step="0.5" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Load Current</div>
+          <div class="input-group">
+            <input id="f-vd-current" class="wh-input" type="number" value="20" min="0.1" step="0.1" />
+            <span class="input-unit">A</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">One-Way Wire Length</div>
+          <div class="input-group">
+            <input id="f-vd-length" class="wh-input" type="number" value="30" min="1" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Conductor Size</div>
+        <div class="toggle-group" id="tg-vd-wire" style="flex-wrap:wrap;">
+          ${['2.0','3.5','5.5','8.0','14','22','30','38','50','60','80','100'].map((v,i) =>
+            `<button class="toggle-btn${i===1?' active':''}" onclick="toggle('tg-vd-wire','${v}')">${v} mm²</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Conductor Material</div>
+        <div class="toggle-group" id="tg-vd-mat">
+          <button class="toggle-btn active" onclick="toggle('tg-vd-mat','Copper')">Copper (THHN/THWN)</button>
+          <button class="toggle-btn" onclick="toggle('tg-vd-mat','Aluminium')">Aluminium</button>
+        </div>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        PEC Limits: Branch circuit max 3% VD. Feeder max 2% VD. Total (feeder + branch) must not exceed 5%. Formula: VD = 2×I×R×L/1000 (1-phase) or sqrt(3)×I×R×L/1000 (3-phase).
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
+  if (calcType === 'Wire Sizing') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Circuit Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Branch Circuit — 2nd Floor Lighting Panel" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Load Type</div>
+        <div class="toggle-group" id="tg-ws-load-type">
+          ${['General Load','Motor (continuous)','HVAC Compressor','Lighting (continuous)','Receptacle'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-ws-load-type','${v}');applyWSLoadDefaults('${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Phase Configuration</div>
+        <div class="toggle-group" id="tg-ws-phase">
+          <button class="toggle-btn active" onclick="toggle('tg-ws-phase','Single-phase');applyWSPhaseVoltage('Single-phase')">Single-phase (230V)</button>
+          <button class="toggle-btn" onclick="toggle('tg-ws-phase','Three-phase');applyWSPhaseVoltage('Three-phase')">Three-phase (400V)</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">System Voltage</div>
+          <div class="input-group">
+            <input id="f-ws-voltage" class="wh-input" type="number" value="230" min="100" />
+            <span class="input-unit">V</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Load Power</div>
+          <div class="input-group">
+            <input id="f-ws-power" class="wh-input" type="number" value="1000" min="1" />
+            <span class="input-unit">W</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Power Factor</div>
+          <div class="input-group">
+            <input id="f-ws-pf" class="wh-input" type="number" value="0.85" min="0.5" max="1.0" step="0.05" />
+            <span class="input-unit">ratio</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Ambient Temperature</div>
+          <div class="input-group">
+            <input id="f-ws-temp" class="wh-input" type="number" value="30" min="15" max="75" />
+            <span class="input-unit">°C</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Conductors in Conduit (current-carrying)</div>
+        <div class="toggle-group" id="tg-ws-fill">
+          <button class="toggle-btn active" onclick="toggle('tg-ws-fill','1-3')">1-3 (no derating)</button>
+          <button class="toggle-btn" onclick="toggle('tg-ws-fill','4-6')">4-6 (x0.80)</button>
+          <button class="toggle-btn" onclick="toggle('tg-ws-fill','7-9')">7-9 (x0.70)</button>
+          <button class="toggle-btn" onclick="toggle('tg-ws-fill','10-20')">10-20 (x0.50)</button>
+        </div>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Standard: PEC Table 3.10.1 (THHN/THWN-2 copper, 75°C). Motor loads automatically use 125% FLA per PEC Article 4.30. Correction factors applied for ambient temperature and conduit fill.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
 }
 
 // ─── Toggle button groups ─────────────────────────────────────────────────────
@@ -1897,6 +2206,66 @@ function applySepticDefaults(occType) {
   if (el) el.value = rates[occType] || 150;
 }
 
+// ─── Electrical helpers ───────────────────────────────────────────────────────
+const LOAD_TYPE_OPTIONS = ['Lighting (General)','Lighting (Emergency)','Convenience Receptacles','Air Conditioning (Unit)','Air Conditioning (Central Chiller)','Motor (General)','Motor (Fire Pump)','Water Heater','Elevator / Escalator','Server / IT Equipment','Kitchen Equipment','Welding Equipment','Custom'];
+const LOAD_TYPE_PF      = {'Lighting (General)':0.95,'Lighting (Emergency)':0.90,'Convenience Receptacles':1.0,'Air Conditioning (Unit)':0.85,'Air Conditioning (Central Chiller)':0.85,'Motor (General)':0.85,'Motor (Fire Pump)':0.85,'Water Heater':1.0,'Elevator / Escalator':0.85,'Server / IT Equipment':0.90,'Kitchen Equipment':0.95,'Welding Equipment':0.70,'Custom':0.85};
+const LOAD_TYPE_DEMAND  = {'Lighting (General)':1.0,'Lighting (Emergency)':1.0,'Convenience Receptacles':1.0,'Air Conditioning (Unit)':1.0,'Air Conditioning (Central Chiller)':1.0,'Motor (General)':1.25,'Motor (Fire Pump)':1.25,'Water Heater':1.0,'Elevator / Escalator':1.25,'Server / IT Equipment':1.0,'Kitchen Equipment':1.0,'Welding Equipment':0.5,'Custom':1.0};
+
+let _loadRowId = 0;
+function addLoadRow(defaultType = 'Lighting (General)', defaultQty = 1, defaultW = 100, defaultPF = 0.95) {
+  const id  = ++_loadRowId;
+  const row = document.createElement('div');
+  row.id    = `load-row-${id}`;
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 55px 80px 80px 28px;gap:0.4rem;align-items:center;';
+  row.innerHTML = `
+    <select class="wh-input text-sm py-2" id="lt-type-${id}" onchange="applyLoadDefaults(${id})">
+      ${LOAD_TYPE_OPTIONS.map(t => `<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
+    </select>
+    <div class="input-group" style="min-width:0;">
+      <input id="lt-qty-${id}" class="wh-input text-sm py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.6rem;">qty</span>
+    </div>
+    <div class="input-group" style="min-width:0;">
+      <input id="lt-w-${id}" class="wh-input text-sm py-2" type="number" value="${defaultW}" min="1" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.6rem;">W</span>
+    </div>
+    <div class="input-group" style="min-width:0;">
+      <input id="lt-pf-${id}" class="wh-input text-sm py-2" type="number" value="${defaultPF}" min="0.5" max="1.0" step="0.05" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.6rem;">PF</span>
+    </div>
+    <button onclick="document.getElementById('load-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+  `;
+  document.getElementById('load-list').appendChild(row);
+}
+
+function applyLoadDefaults(id) {
+  const sel = document.getElementById(`lt-type-${id}`)?.value;
+  const pfEl = document.getElementById(`lt-pf-${id}`);
+  if (pfEl && LOAD_TYPE_PF[sel] !== undefined) pfEl.value = LOAD_TYPE_PF[sel];
+}
+
+function applyVDLimit(circuitType) {
+  const el = document.getElementById('f-vd-limit');
+  if (el) el.value = circuitType === 'Feeder' ? 2 : 3;
+}
+
+function applyVDPhaseDefaults(phase) {
+  const el = document.getElementById('f-vd-voltage');
+  if (el) el.value = phase === 'Three-phase' ? 400 : 230;
+}
+
+function applyWSLoadDefaults(loadType) {
+  const pfEl = document.getElementById('f-ws-pf');
+  if (!pfEl) return;
+  const pf = {'General Load':0.85,'Motor (continuous)':0.85,'HVAC Compressor':0.85,'Lighting (continuous)':0.95,'Receptacle':1.0};
+  if (pf[loadType] !== undefined) pfEl.value = pf[loadType];
+}
+
+function applyWSPhaseVoltage(phase) {
+  const el = document.getElementById('f-ws-voltage');
+  if (el) el.value = phase === 'Three-phase' ? 400 : 230;
+}
+
 function applyServiceDefaults(service) {
   const defaults = {
     'Chilled Water Supply':  { density: 999  },
@@ -1971,6 +2340,50 @@ function collectInputs() {
     return {
       ...base,
       vent_type: getToggle('tg-vent-type') || 'Supply and Exhaust',
+    };
+  }
+
+  if (_calcType === 'Load Estimation') {
+    const loads = [];
+    document.querySelectorAll('#load-list > div[id^="load-row-"]').forEach(row => {
+      const rid  = row.id.replace('load-row-', '');
+      const type = document.getElementById(`lt-type-${rid}`)?.value || '';
+      const qty  = parseFloat(document.getElementById(`lt-qty-${rid}`)?.value) || 1;
+      const w    = parseFloat(document.getElementById(`lt-w-${rid}`)?.value) || 0;
+      const pf   = parseFloat(document.getElementById(`lt-pf-${rid}`)?.value) || 0.85;
+      if (type) loads.push({ load_type: type, quantity: qty, watts_each: w, power_factor: pf });
+    });
+    return {
+      project_name:  v('f-project') || 'Untitled Panel',
+      phase_config:  getToggle('tg-phase') || '3-Phase 4-Wire (400V)',
+      loads,
+    };
+  }
+
+  if (_calcType === 'Voltage Drop') {
+    return {
+      project_name:  v('f-project') || 'Untitled Circuit',
+      circuit_type:  getToggle('tg-circuit-type') || 'Branch Circuit',
+      phase:         getToggle('tg-vd-phase') || 'Single-phase',
+      voltage:       parseFloat(v('f-vd-voltage'))  || 230,
+      current:       parseFloat(v('f-vd-current'))  || 20,
+      wire_length:   parseFloat(v('f-vd-length'))   || 30,
+      conductor_mm2: parseFloat(getToggle('tg-vd-wire') || '3.5'),
+      conductor_mat: getToggle('tg-vd-mat') || 'Copper',
+      vd_limit:      parseFloat(v('f-vd-limit'))    || 3,
+    };
+  }
+
+  if (_calcType === 'Wire Sizing') {
+    return {
+      project_name:  v('f-project') || 'Untitled Circuit',
+      load_type:     getToggle('tg-ws-load-type') || 'General Load',
+      phase:         getToggle('tg-ws-phase') || 'Single-phase',
+      voltage:       parseFloat(v('f-ws-voltage')) || 230,
+      power_w:       parseFloat(v('f-ws-power'))   || 1000,
+      power_factor:  parseFloat(v('f-ws-pf'))      || 0.85,
+      ambient_temp:  parseFloat(v('f-ws-temp'))    || 30,
+      conduit_fill:  getToggle('tg-ws-fill') || '1-3',
     };
   }
 
@@ -2133,6 +2546,21 @@ async function runCalculation() {
       showToast('Please enter the number of occupants.');
       return;
     }
+  } else if (_calcType === 'Load Estimation') {
+    if (!inputs.loads || inputs.loads.length === 0) {
+      showToast('Please add at least one load to the schedule.');
+      return;
+    }
+  } else if (_calcType === 'Voltage Drop') {
+    if (!inputs.current || inputs.current <= 0) {
+      showToast('Please enter the load current.');
+      return;
+    }
+  } else if (_calcType === 'Wire Sizing') {
+    if (!inputs.power_w || inputs.power_w <= 0) {
+      showToast('Please enter the load power.');
+      return;
+    }
   } else if (_calcType === 'Water Supply Pipe Sizing') {
     if (!inputs.fixtures || inputs.fixtures.length === 0) {
       showToast('Please add at least one plumbing fixture.');
@@ -2173,6 +2601,12 @@ async function runCalculation() {
       renderDrainageReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Septic Tank Sizing') {
       renderSepticReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Load Estimation') {
+      renderLoadReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Voltage Drop') {
+      renderVDReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Wire Sizing') {
+      renderWireSizingReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -2904,6 +3338,337 @@ function renderPumpReport(inputs, results, narrative) {
     </div>
   `;
 
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── Load Estimation Report ───────────────────────────────────────────────────
+function renderLoadReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+
+  const loadRows = (results.load_breakdown || []).map(l => `
+    <tr>
+      <td>${escHtml(l.load_type)}</td>
+      <td class="num">${l.qty}</td>
+      <td class="num">${l.watts_each}</td>
+      <td class="num">${l.pf}</td>
+      <td class="num">${l.demand_factor}</td>
+      <td class="num">${l.connected_va}</td>
+      <td class="num">${l.demand_va}</td>
+    </tr>`).join('');
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading.
+    </div>
+    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">ELECTRICAL LOAD ESTIMATION — PANEL SCHEDULE</h1>
+    <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">Philippine Electrical Code (PEC) 2017 — Articles 2.10 and 2.20</div>
+
+    <h2>1. PROJECT INFORMATION</h2>
+    <table>
+      <tr><td style="width:35%;">Project / Panel Name</td><td>${e(inputs.project_name)}</td></tr>
+      <tr><td>Location</td><td>${e('')}</td></tr>
+      <tr><td>Owner / Client</td><td>${e('')}</td></tr>
+      <tr><td>Prepared by</td><td>${e('')}</td></tr>
+      <tr><td>PRC License No.</td><td>${e('')}</td></tr>
+      <tr><td>Date</td><td>${e(dateStr)}</td></tr>
+    </table>
+
+    <h2>2. OBJECTIVE</h2>
+    <p>${e(narrative?.objective || 'To estimate the total electrical load, apply demand factors per PEC, and determine the required service entrance or feeder ampacity and breaker size for the subject panel.')}</p>
+
+    <h2>3. REFERENCES / STANDARDS</h2>
+    <table>
+      <tr><td style="width:35%;">Electrical Code</td><td>Philippine Electrical Code (PEC) 2017 — based on NEC 2014</td></tr>
+      <tr><td>Branch Circuits</td><td>PEC Article 2.10 — Branch Circuits</td></tr>
+      <tr><td>Feeders / Service</td><td>PEC Article 2.20 — Feeders and Services</td></tr>
+      <tr><td>Motor Loads</td><td>PEC Article 4.30 — Motors (125% FLA rule)</td></tr>
+    </table>
+
+    <h2>4. DESIGN BASIS AND ASSUMPTIONS</h2>
+    <p>${e(narrative?.assumptions || `System configuration: ${escHtml(results.phase_config)}. Motor loads sized at 125% of nameplate FLA per PEC Article 4.30. Welding equipment demand factor: 50%. All other loads: 100% demand factor. Service entrance includes 25% spare capacity per PEC Article 2.20. Power factors applied per load type.`)}</p>
+
+    <h2>5. LOAD SCHEDULE</h2>
+    <table>
+      <tr>
+        <th>Load Description</th>
+        <th class="num">Qty</th>
+        <th class="num">W each</th>
+        <th class="num">PF</th>
+        <th class="num">Demand Factor</th>
+        <th class="num">Connected VA</th>
+        <th class="num">Demand VA</th>
+      </tr>
+      ${loadRows}
+      <tr class="total-row">
+        <td colspan="5"><strong>TOTAL</strong></td>
+        <td class="num"><strong>${results.total_connected_va} VA</strong></td>
+        <td class="num"><strong>${results.total_demand_va} VA</strong></td>
+      </tr>
+    </table>
+
+    <h2>6. SERVICE CALCULATION</h2>
+    <table>
+      <tr><th>Parameter</th><th class="num">Value</th><th>Unit</th></tr>
+      <tr><td>Total Connected Load</td><td class="num">${results.total_connected_va}</td><td>VA (${results.total_connected_kva} kVA)</td></tr>
+      <tr><td>Total Demand Load</td><td class="num">${results.total_demand_va}</td><td>VA (${results.total_demand_kva} kVA)</td></tr>
+      <tr><td>System Voltage</td><td class="num">${results.voltage}</td><td>V (${escHtml(results.phase_config)})</td></tr>
+      <tr><td>Computed Service Ampacity</td><td class="num">${results.computed_ampacity}</td><td>A</td></tr>
+      <tr><td>With 25% Spare Capacity</td><td class="num">${results.ampacity_with_spare}</td><td>A</td></tr>
+      <tr class="total-row"><td><strong>Recommended Service / MCCB Size</strong></td><td class="num"><strong>${results.recommended_breaker_A}</strong></td><td><strong>Amperes</strong></td></tr>
+    </table>
+
+    <h2>7. RESULTS SUMMARY</h2>
+    <div class="result-highlight">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <div class="res-label">Total Connected Load</div>
+          <div class="res-value">${results.total_connected_kva} kVA</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.total_connected_kw} kW</div>
+        </div>
+        <div>
+          <div class="res-label">Total Demand Load</div>
+          <div class="res-value">${results.total_demand_kva} kVA</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.total_demand_kw} kW</div>
+        </div>
+        <div>
+          <div class="res-label">Service Ampacity</div>
+          <div class="res-value">${results.ampacity_with_spare} A</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">incl. 25% spare</div>
+        </div>
+        <div>
+          <div class="res-label">Recommended MCCB</div>
+          <div class="res-value">${results.recommended_breaker_A} A</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${escHtml(results.phase_config)}</div>
+        </div>
+      </div>
+    </div>
+
+    <h2>8. RECOMMENDATIONS</h2>
+    <p>${e(narrative?.recommendations || `Install a ${results.recommended_breaker_A} A main circuit breaker (MCCB) for this panel. Size all feeder conductors to carry at minimum ${results.ampacity_with_spare} A continuously. Provide a sub-panel with spare circuit breaker slots for future loads. Verify voltage drop on all feeders supplying this panel — run a separate voltage drop calculation for runs exceeding 30 m.`)}</p>
+
+    <div class="sig-block">
+      <div><div class="sig-line">Prepared by</div><div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div></div>
+      <div><div class="sig-line">PRC License No. / PTR No.</div><div style="margin-top:2rem;" class="sig-line">Date</div></div>
+      <div><div class="sig-line">Checked / Approved by</div><div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div></div>
+    </div>
+  `;
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── Voltage Drop Report ──────────────────────────────────────────────────────
+function renderVDReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+
+  const passColor  = results.pass ? '#2e7d32' : '#b71c1c';
+  const passLabel  = results.pass
+    ? `<span style="color:#2e7d32;font-weight:700;">PASS — within ${results.vd_limit}% limit</span>`
+    : `<span style="color:#b71c1c;font-weight:700;">FAIL — exceeds ${results.vd_limit}% limit</span>`;
+
+  const sizeRows = (results.size_comparison || []).map(r => `
+    <tr style="${r.is_selected ? 'background:#fffbf0;font-weight:700;' : ''}">
+      <td>${r.size_mm2} mm²${r.is_selected ? ' (selected)' : ''}</td>
+      <td class="num">${r.resistance}</td>
+      <td class="num">${r.vd_v}</td>
+      <td class="num">${r.vd_pct}</td>
+      <td class="num" style="color:${r.pass ? '#2e7d32' : '#b71c1c'};">${r.pass ? 'PASS' : 'FAIL'}</td>
+      <td class="num">${r.max_length_m}</td>
+    </tr>`).join('');
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading.
+    </div>
+    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">VOLTAGE DROP CALCULATION</h1>
+    <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">Philippine Electrical Code (PEC) 2017 — Article 2.10.19 / 2.20</div>
+
+    <h2>1. PROJECT INFORMATION</h2>
+    <table>
+      <tr><td style="width:35%;">Project / Circuit Name</td><td>${e(inputs.project_name)}</td></tr>
+      <tr><td>Location</td><td>${e('')}</td></tr>
+      <tr><td>Prepared by</td><td>${e('')}</td></tr>
+      <tr><td>PRC License No.</td><td>${e('')}</td></tr>
+      <tr><td>Date</td><td>${e(dateStr)}</td></tr>
+    </table>
+
+    <h2>2. DESIGN PARAMETERS</h2>
+    <table>
+      <tr><th>Parameter</th><th class="num">Value</th><th>Unit</th></tr>
+      <tr><td>Circuit Type</td><td colspan="2">${escHtml(results.circuit_type)} — PEC limit: ${results.vd_limit}%</td></tr>
+      <tr><td>Phase Configuration</td><td colspan="2">${escHtml(results.phase)}</td></tr>
+      <tr><td>System Voltage</td><td class="num">${results.voltage}</td><td>V</td></tr>
+      <tr><td>Load Current</td><td class="num">${results.current}</td><td>A</td></tr>
+      <tr><td>One-Way Wire Length</td><td class="num">${results.wire_length}</td><td>m</td></tr>
+      <tr><td>Conductor Size</td><td class="num">${results.conductor_mm2}</td><td>mm²</td></tr>
+      <tr><td>Conductor Material</td><td colspan="2">${escHtml(results.conductor_mat)}</td></tr>
+      <tr><td>Resistivity (at 75°C)</td><td class="num">${results.resistivity}</td><td>Ω·mm²/m</td></tr>
+      <tr><td>Conductor Resistance (R)</td><td class="num">${results.resistance_ohm_km}</td><td>Ω/km</td></tr>
+    </table>
+
+    <h2>3. VOLTAGE DROP CALCULATION</h2>
+    <table>
+      <tr><th>Step</th><th class="num">Value</th><th>Unit</th></tr>
+      <tr><td>Formula (${results.phase === 'Single-phase' ? '1-phase' : '3-phase'}): VD = ${results.phase === 'Single-phase' ? '2' : '√3'} × I × R × L / 1000</td><td colspan="2"></td></tr>
+      <tr><td>Voltage Drop</td><td class="num">${results.vd_volts}</td><td>V</td></tr>
+      <tr class="total-row"><td><strong>Voltage Drop %</strong></td><td class="num"><strong>${results.vd_pct}</strong></td><td><strong>% &nbsp; ${passLabel}</strong></td></tr>
+      <tr><td>Max Allowable VD</td><td class="num">${results.vd_limit_volts}</td><td>V (${results.vd_limit}% of ${results.voltage} V)</td></tr>
+      <tr><td>Max Conductor Length at this size</td><td class="num">${results.max_length_m}</td><td>m</td></tr>
+    </table>
+
+    <h2>4. CONDUCTOR SIZE COMPARISON</h2>
+    <table>
+      <tr>
+        <th>Size (mm²)</th>
+        <th class="num">R (Ω/km)</th>
+        <th class="num">VD (V)</th>
+        <th class="num">VD (%)</th>
+        <th class="num">Status</th>
+        <th class="num">Max Length (m)</th>
+      </tr>
+      ${sizeRows}
+    </table>
+
+    <h2>5. RESULTS SUMMARY</h2>
+    <div class="result-highlight">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <div class="res-label">Voltage Drop</div>
+          <div class="res-value">${results.vd_volts} V</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.vd_pct}% of ${results.voltage} V</div>
+        </div>
+        <div>
+          <div class="res-label">PEC Compliance</div>
+          <div class="res-value" style="color:${passColor};">${results.pass ? 'PASS' : 'FAIL'}</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">Limit: ${results.vd_limit}%</div>
+        </div>
+        <div>
+          <div class="res-label">Conductor Size</div>
+          <div class="res-value">${results.conductor_mm2} mm²</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${escHtml(results.conductor_mat)} THHN</div>
+        </div>
+        <div>
+          <div class="res-label">Max Safe Length</div>
+          <div class="res-value">${results.max_length_m} m</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">at this wire size and load</div>
+        </div>
+      </div>
+    </div>
+
+    <h2>6. RECOMMENDATIONS</h2>
+    <p>${e(narrative?.recommendations || (results.pass
+      ? `Selected conductor ${results.conductor_mm2} mm² ${escHtml(results.conductor_mat)} THHN/THWN complies with PEC voltage drop limits. Maximum allowable one-way run length at this conductor size and current is ${results.max_length_m} m. Verify conductor ampacity separately — voltage drop compliance does not guarantee ampacity adequacy.`
+      : `Selected conductor ${results.conductor_mm2} mm² exceeds the PEC ${results.vd_limit}% voltage drop limit. Upsize the conductor — refer to the size comparison table above for the smallest size that passes. Alternatively, reduce the circuit length or split the load into two circuits from a closer sub-panel.`))}</p>
+
+    <div class="sig-block">
+      <div><div class="sig-line">Prepared by</div><div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div></div>
+      <div><div class="sig-line">PRC License No. / PTR No.</div><div style="margin-top:2rem;" class="sig-line">Date</div></div>
+      <div><div class="sig-line">Checked / Approved by</div><div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div></div>
+    </div>
+  `;
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── Wire Sizing Report ───────────────────────────────────────────────────────
+function renderWireSizingReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+
+  const sizeRows = (results.size_comparison || []).map(r => `
+    <tr style="${r.recommended ? 'background:#fffbf0;font-weight:700;' : ''}">
+      <td>${r.size_mm2} mm²${r.recommended ? ' (recommended)' : ''}</td>
+      <td class="num">${r.ampacity_table}</td>
+      <td class="num">${r.temp_factor}</td>
+      <td class="num">${r.fill_factor}</td>
+      <td class="num">${r.corrected_ampacity}</td>
+      <td class="num" style="color:${r.adequate ? '#2e7d32' : '#b71c1c'};">${r.adequate ? 'OK' : 'Undersized'}</td>
+    </tr>`).join('');
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading.
+    </div>
+    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">WIRE SIZING CALCULATION — AMPACITY METHOD</h1>
+    <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">PEC Table 3.10.1 — Copper THHN/THWN-2 at 75°C</div>
+
+    <h2>1. PROJECT INFORMATION</h2>
+    <table>
+      <tr><td style="width:35%;">Project / Circuit Name</td><td>${e(inputs.project_name)}</td></tr>
+      <tr><td>Location</td><td>${e('')}</td></tr>
+      <tr><td>Prepared by</td><td>${e('')}</td></tr>
+      <tr><td>PRC License No.</td><td>${e('')}</td></tr>
+      <tr><td>Date</td><td>${e(dateStr)}</td></tr>
+    </table>
+
+    <h2>2. DESIGN PARAMETERS</h2>
+    <table>
+      <tr><th>Parameter</th><th class="num">Value</th><th>Unit</th></tr>
+      <tr><td>Load Type</td><td colspan="2">${escHtml(results.load_type)}</td></tr>
+      <tr><td>Phase Configuration</td><td colspan="2">${escHtml(results.phase)}</td></tr>
+      <tr><td>System Voltage</td><td class="num">${results.voltage}</td><td>V</td></tr>
+      <tr><td>Load Power</td><td class="num">${results.power_w}</td><td>W</td></tr>
+      <tr><td>Power Factor</td><td class="num">${results.power_factor}</td><td></td></tr>
+      <tr><td>Computed Load Current (I = P / V / PF)</td><td class="num">${results.load_current}</td><td>A</td></tr>
+      <tr><td>Design Current (with demand multiplier ${results.demand_multiplier}x)</td><td class="num"><strong>${results.design_current}</strong></td><td>A</td></tr>
+      <tr><td>Ambient Temperature</td><td class="num">${results.ambient_temp}</td><td>°C</td></tr>
+      <tr><td>Temperature Correction Factor</td><td class="num">${results.temp_factor}</td><td></td></tr>
+      <tr><td>Conduit Fill Group</td><td colspan="2">${escHtml(results.conduit_fill)} conductors → factor ${results.fill_factor}</td></tr>
+    </table>
+
+    <h2>3. CONDUCTOR SIZE COMPARISON (PEC Table 3.10.1)</h2>
+    <table>
+      <tr>
+        <th>Size (mm²)</th>
+        <th class="num">Table Ampacity (A)</th>
+        <th class="num">Temp Factor</th>
+        <th class="num">Fill Factor</th>
+        <th class="num">Corrected Ampacity (A)</th>
+        <th class="num">Status</th>
+      </tr>
+      ${sizeRows}
+    </table>
+
+    <h2>4. RESULTS SUMMARY</h2>
+    <div class="result-highlight">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <div class="res-label">Design Current</div>
+          <div class="res-value">${results.design_current} A</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.demand_multiplier}x multiplier applied</div>
+        </div>
+        <div>
+          <div class="res-label">Recommended Wire</div>
+          <div class="res-value">${results.recommended_size_mm2} mm²</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">Copper THHN/THWN-2</div>
+        </div>
+        <div>
+          <div class="res-label">Corrected Ampacity</div>
+          <div class="res-value">${results.recommended_ampacity} A</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">after temp & fill correction</div>
+        </div>
+        <div>
+          <div class="res-label">Recommended Breaker</div>
+          <div class="res-value">${results.recommended_breaker_A} A</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">next standard size</div>
+        </div>
+      </div>
+    </div>
+
+    <h2>5. RECOMMENDATIONS</h2>
+    <p>${e(narrative?.recommendations || `Use ${results.recommended_size_mm2} mm² copper THHN/THWN-2 conductor for this circuit. Install a ${results.recommended_breaker_A} A circuit breaker. Ensure conduit fill does not exceed the assumed ${escHtml(results.conduit_fill)} current-carrying conductors. Run a separate voltage drop calculation for circuit runs exceeding 30 m — ampacity compliance does not guarantee acceptable voltage drop.`)}</p>
+
+    <div class="sig-block">
+      <div><div class="sig-line">Prepared by</div><div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div></div>
+      <div><div class="sig-line">PRC License No. / PTR No.</div><div style="margin-top:2rem;" class="sig-line">Date</div></div>
+      <div><div class="sig-line">Checked / Approved by</div><div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div></div>
+    </div>
+  `;
   document.getElementById('report-panel').innerHTML = html;
   showReport();
 }
@@ -3668,6 +4433,12 @@ function viewHistoryReport(row) {
     renderDrainageReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Septic Tank Sizing') {
     renderSepticReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Load Estimation') {
+    renderLoadReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Voltage Drop') {
+    renderVDReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Wire Sizing') {
+    renderWireSizingReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
