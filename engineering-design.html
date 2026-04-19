@@ -4356,6 +4356,11 @@ async function runCalculation() {
       showToast('Please enter the building population (minimum 10 persons).');
       return;
     }
+  } else if (_calcType === 'Short Circuit') {
+    if (!inputs.xfmr_kva || inputs.xfmr_kva <= 0) {
+      showToast('Please select the transformer kVA rating.');
+      return;
+    }
   } else if (!inputs.floor_area || inputs.floor_area <= 0) {
     showToast('Please enter the floor area.');
     return;
