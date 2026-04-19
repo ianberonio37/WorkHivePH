@@ -1289,6 +1289,99 @@ Respond in JSON format only:
   }
 }
 
+// ─── Fire Protection: Fire Sprinkler Hydraulic (NFPA 13 Design Area Method) ──
+
+function calcFireSprinklerHydraulic(inputs: Record<string, number | string>): Record<string, unknown> {
+  const hazard      = (inputs.occupancy_hazard as string) || 'Ordinary Group 1';
+  const K           = Number(inputs.k_factor)          || 80;   // L/min / bar^0.5
+  const P_min       = Number(inputs.operating_pressure) || 0.7; // bar at remote sprinkler
+  const pipe_mat    = (inputs.pipe_material as string)  || 'Black Steel';
+  const pipe_length = Number(inputs.pipe_length)        || 30;  // m, riser to remote head
+
+  // NFPA 13 design parameters by occupancy hazard classification
+  const hazardTable: Record<string, { density: number; area: number; coverage: number; hose: number; duration: number }> = {
+    'Light Hazard':       { density: 4.1,  area: 139, coverage: 18.6, hose: 250,  duration: 30  },
+    'Ordinary Group 1':   { density: 6.1,  area: 139, coverage: 12.1, hose: 500,  duration: 60  },
+    'Ordinary Group 2':   { density: 8.1,  area: 139, coverage: 12.1, hose: 500,  duration: 60  },
+    'Extra Hazard Grp 1': { density: 12.2, area: 232, coverage: 9.3,  hose: 950,  duration: 90  },
+    'Extra Hazard Grp 2': { density: 16.3, area: 279, coverage: 9.3,  hose: 950,  duration: 120 },
+  };
+  const hd = hazardTable[hazard] || hazardTable['Ordinary Group 1'];
+
+  // Hazen-Williams C factor by pipe material
+  const C_map: Record<string, number> = { 'Black Steel': 120, 'CPVC': 150, 'Copper': 140 };
+  const C = C_map[pipe_mat] || 120;
+
+  // Number of sprinklers in design area
+  const N_sprinklers = Math.ceil(hd.area / hd.coverage);
+
+  // Flow per sprinkler from density method
+  const Q_per_sprinkler_density = (hd.density * hd.area) / N_sprinklers; // L/min
+
+  // Required pressure from K-factor: P = (Q/K)^2
+  const P_required = Math.pow(Q_per_sprinkler_density / K, 2);
+  const P_design   = Math.max(P_required, P_min); // bar
+
+  // Actual flow per sprinkler at design pressure: Q = K x sqrt(P)
+  const Q_per_head = K * Math.sqrt(P_design);
+  const Q_sprinklers_total = Q_per_head * N_sprinklers; // L/min
+
+  // Auto-select pipe diameter to keep velocity <= 3.0 m/s
+  const std_sizes = [25, 32, 40, 50, 65, 80, 100, 125, 150]; // mm
+  let pipe_dia = 150;
+  for (const d of std_sizes) {
+    const A_m2 = Math.PI * Math.pow(d / 1000, 2) / 4;
+    const v    = (Q_sprinklers_total / 1000 / 60) / A_m2;
+    if (v <= 3.0) { pipe_dia = d; break; }
+  }
+
+  // Hazen-Williams friction loss: hL (bar/m) = 6.05e4 x Q^1.85 / (C^1.85 x d^4.87)
+  const hL_per_m  = 6.05e4 * Math.pow(Q_sprinklers_total, 1.85) / (Math.pow(C, 1.85) * Math.pow(pipe_dia, 4.87));
+  const H_friction = hL_per_m * pipe_length; // bar
+
+  // Required source pressure = design pressure + friction losses
+  const P_source     = P_design + H_friction;
+  const P_source_kPa = P_source * 100;
+
+  // Total flow including hose stream allowance
+  const Q_hose  = hd.hose;
+  const Q_total = Q_sprinklers_total + Q_hose;
+
+  // Water storage volume
+  const water_L  = Q_total * hd.duration;
+  const water_m3 = water_L / 1000;
+
+  // Velocity check
+  const A_pipe   = Math.PI * Math.pow(pipe_dia / 1000, 2) / 4;
+  const velocity = (Q_sprinklers_total / 1000 / 60) / A_pipe;
+
+  return {
+    hazard,
+    N_sprinklers,
+    Q_per_head:           Math.round(Q_per_head * 10) / 10,
+    P_design:             Math.round(P_design * 100) / 100,
+    Q_sprinklers_total:   Math.round(Q_sprinklers_total),
+    Q_hose,
+    Q_total:              Math.round(Q_total),
+    pipe_dia,
+    pipe_material:        pipe_mat,
+    velocity:             Math.round(velocity * 100) / 100,
+    H_friction:           Math.round(H_friction * 1000) / 1000,
+    P_source:             Math.round(P_source * 100) / 100,
+    P_source_kPa:         Math.round(P_source_kPa),
+    duration:             hd.duration,
+    water_volume_L:       Math.round(water_L),
+    water_volume_m3:      Math.round(water_m3 * 100) / 100,
+    density:              hd.density,
+    design_area:          hd.area,
+    coverage_per_head:    hd.coverage,
+    inputs_used: {
+      hazard, K, P_design, pipe_dia, C, pipe_length, density: hd.density,
+      design_area: hd.area, N_sprinklers, hose: hd.hose, duration: hd.duration,
+    },
+  };
+}
+
 // ─── Main Handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -1332,6 +1425,8 @@ serve(async (req) => {
       results = calcVoltageDrop(inputs);
     } else if (calc_type === "Wire Sizing") {
       results = calcWireSizing(inputs);
+    } else if (calc_type === "Fire Sprinkler Hydraulic") {
+      results = calcFireSprinklerHydraulic(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

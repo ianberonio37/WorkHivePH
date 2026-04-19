@@ -344,6 +344,7 @@
             <button class="discipline-pill active" data-disc="Mechanical" onclick="selectDiscipline('Mechanical')">⚙️ Mechanical</button>
             <button class="discipline-pill" data-disc="Plumbing" onclick="selectDiscipline('Plumbing')">🔧 Plumbing</button>
             <button class="discipline-pill" data-disc="Electrical" onclick="selectDiscipline('Electrical')">⚡ Electrical</button>
+            <button class="discipline-pill" data-disc="Fire Protection" onclick="selectDiscipline('Fire Protection')">🔥 Fire Protection</button>
           </div>
         </div>
 
@@ -481,6 +482,12 @@ const CALC_TYPES = {
     { id: 'Wire Sizing',      icon: '🔌', desc: 'Ampacity, conductor size per PEC Table 3.10', available: true  },
     { id: 'Short Circuit',    icon: '⚡', desc: 'Fault current, breaker interrupting capacity', available: false },
     { id: 'Lighting Design',  icon: '💡', desc: 'Lumen method, number of fixtures per room',   available: false },
+  ],
+  'Fire Protection': [
+    { id: 'Fire Sprinkler Hydraulic', icon: '🚿', desc: 'NFPA 13 design area method, flow and pressure', available: true  },
+    { id: 'Fire Pump Sizing',         icon: '🔥', desc: 'Required flow and pressure, motor HP, NFPA 20',  available: false },
+    { id: 'Stairwell Pressurization', icon: '🪜', desc: 'Airflow to maintain pressure differential, NFPA 92', available: false },
+    { id: 'Fire Alarm Battery',       icon: '🔋', desc: '24h standby + 5-min alarm, battery Ah, NFPA 72', available: false },
   ],
 };
 
@@ -924,6 +931,44 @@ const GUIDES = {
       'Ground wire (EGC) size is separate from phase conductor — sized per PEC Table 3.16. Typically one size smaller than phase conductor.',
       'Motor branch circuit: conductor must be rated at minimum 125% of motor FLA. Breaker is sized at 250% of FLA for inverse time breakers (PEC Article 4.30.52).',
       'Voltage drop is NOT automatically satisfied by ampacity compliance. Always run a separate voltage drop check, especially for runs longer than 30 m.',
+    ],
+  },
+
+  'Fire Sprinkler Hydraulic': {
+    title: 'Fire Sprinkler Hydraulic Calculation — NFPA 13 Design Area Method',
+    subtitle: 'Determines the required flow, pressure, and pipe size for an automatic sprinkler system using the density/area method prescribed in NFPA 13. Used for BFP permit submissions in the Philippines.',
+    standards: ['NFPA 13 (Standard for the Installation of Sprinkler Systems) — latest edition adopted by BFP','BFP IRR (Bureau of Fire Protection Implementing Rules and Regulations)','National Building Code of the Philippines (PD 1096) — Fire Protection Chapter','NFPA 20 (Standard for the Installation of Stationary Fire Pumps)'],
+    formulas: [
+      'Q per sprinkler (L/min) = K x sqrt(P)',
+      '  K = K-factor (80 L/min/bar^0.5 standard, 115 extended coverage)',
+      '  P = operating pressure at sprinkler (bar)',
+      '',
+      'Number of sprinklers = ceil(Design Area / Coverage per head)',
+      '',
+      'Q_sprinklers (L/min) = Q_per_head x N_sprinklers',
+      'Q_total = Q_sprinklers + Hose Stream Allowance',
+      '',
+      'Hazen-Williams pipe friction:',
+      '  hL (bar/m) = 6.05e4 x Q^1.85 / (C^1.85 x d^4.87)',
+      '  C: Black Steel = 120, CPVC = 150, Copper = 140',
+      '',
+      'P_source (bar) = P_design + H_friction',
+      'Water Volume (L) = Q_total x Duration (min)',
+    ],
+    fields: [
+      { name: 'Occupancy Hazard', tip: 'NFPA 13 classification: Light (offices, hotels), Ordinary Grp 1 (parking, libraries), Ordinary Grp 2 (manufacturing, cold storage), Extra Hazard (spray painting, flammable liquid). Pre-fills density, design area, and hose allowance automatically.' },
+      { name: 'K-Factor', tip: 'Standard Response sprinklers: K=80 L/min/bar^0.5. Extended Coverage (EC): K=115. Large Drop (LD): K=161. Use K=80 for most commercial and industrial Philippine projects.' },
+      { name: 'Operating Pressure at Remote Sprinkler', tip: 'Minimum 0.7 bar (70 kPa) per NFPA 13 for standard spray sprinklers. Higher pressure improves coverage uniformity but increases pump requirements.' },
+      { name: 'Pipe Material', tip: 'Black Steel Schedule 40 (C=120): standard for Philippine industrial and commercial. CPVC (C=150): residential and light commercial. Copper (C=140): high-end or corrosive environments.' },
+      { name: 'Pipe Length', tip: 'Measured from the riser connection to the most remote sprinkler head. Include bends and fittings using a 20-30% equivalent length allowance on top of straight run.' },
+    ],
+    notes: [
+      'Pre-filled values per NFPA 13: Light Hazard — 4.1 mm/min density, 139 m2 design area, 250 L/min hose, 30 min duration.',
+      'Ordinary Group 1 — 6.1 mm/min, 139 m2, 500 L/min hose, 60 min. Ordinary Group 2 — 8.1 mm/min, 139 m2, 500 L/min hose, 60 min.',
+      'Extra Hazard Group 1 — 12.2 mm/min, 232 m2, 950 L/min hose, 90 min. Extra Hazard Group 2 — 16.3 mm/min, 279 m2, 950 L/min hose, 120 min.',
+      'Philippine pre-fills: Ordinary Group 1 is the correct default for most commercial and manufacturing occupancies registered with BFP.',
+      'Hose stream allowance is mandatory per NFPA 13 — it accounts for fire department hose connections used simultaneously with sprinkler flow.',
+      'The BFP requires this calculation to be signed by a PRC-licensed Mechanical or Fire Protection Engineer before issuing an occupancy permit.',
     ],
   },
 };
@@ -2014,6 +2059,107 @@ function renderInputForm(calcType) {
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
+
+  if (calcType === 'Fire Sprinkler Hydraulic') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Bldg A Ground Floor — Sprinkler System" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Occupancy Hazard Classification <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(NFPA 13 — auto-fills design parameters)</span></div>
+        <div class="toggle-group" id="tg-hazard">
+          ${[
+            ['Light Hazard',       'Office, hotel, school'],
+            ['Ordinary Group 1',   'Parking, library, laundry'],
+            ['Ordinary Group 2',   'Manufacturing, cold storage'],
+            ['Extra Hazard Grp 1', 'Woodworking, die casting'],
+            ['Extra Hazard Grp 2', 'Flammable liquids, spray painting'],
+          ].map(([v, hint], i) =>
+            `<button class="toggle-btn${i===1?' active':''}" data-val="${v}" onclick="toggle('tg-hazard','${v}');applyHazardDefaults('${v}')" title="${hint}">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Design Area <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(auto-filled)</span></div>
+          <div class="input-group">
+            <input id="f-design-area" class="wh-input" type="number" value="139" min="1" />
+            <span class="input-unit">m²</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Design Density <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(auto-filled)</span></div>
+          <div class="input-group">
+            <input id="f-density" class="wh-input" type="number" value="6.1" min="0.1" step="0.1" />
+            <span class="input-unit">mm/min</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Coverage per Sprinkler Head <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(auto-filled)</span></div>
+          <div class="input-group">
+            <input id="f-coverage" class="wh-input" type="number" value="12.1" min="1" step="0.1" />
+            <span class="input-unit">m²/head</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Hose Stream Allowance <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(auto-filled)</span></div>
+          <div class="input-group">
+            <input id="f-hose" class="wh-input" type="number" value="500" min="0" />
+            <span class="input-unit">L/min</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Sprinkler Type / K-Factor</div>
+        <div class="toggle-group" id="tg-kfactor">
+          <button class="toggle-btn active" data-val="80" onclick="toggle('tg-kfactor','80')">Standard (K=80)</button>
+          <button class="toggle-btn" data-val="115" onclick="toggle('tg-kfactor','115')">Extended Coverage (K=115)</button>
+          <button class="toggle-btn" data-val="161" onclick="toggle('tg-kfactor','161')">Large Drop (K=161)</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Min. Operating Pressure at Remote Head</div>
+          <div class="input-group">
+            <input id="f-op-pressure" class="wh-input" type="number" value="0.7" min="0.3" step="0.1" />
+            <span class="input-unit">bar</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Pipe Length (riser to remote head)</div>
+          <div class="input-group">
+            <input id="f-pipe-length" class="wh-input" type="number" placeholder="30" min="1" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Pipe Material</div>
+        <div class="toggle-group" id="tg-fp-pipe-mat">
+          <button class="toggle-btn active" data-val="Black Steel" onclick="toggle('tg-fp-pipe-mat','Black Steel')">Black Steel Sch 40 (C=120)</button>
+          <button class="toggle-btn" data-val="CPVC" onclick="toggle('tg-fp-pipe-mat','CPVC')">CPVC (C=150)</button>
+          <button class="toggle-btn" data-val="Copper" onclick="toggle('tg-fp-pipe-mat','Copper')">Copper (C=140)</button>
+        </div>
+      </div>
+
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Standard: NFPA 13 / BFP IRR. Design area and density are pre-filled by occupancy hazard. Pipe size is auto-selected to keep velocity under 3.0 m/s. Hose stream allowance is always included per NFPA 13.
+      </div>
+    `;
+    // Apply Ordinary Group 1 defaults on load
+    applyHazardDefaults('Ordinary Group 1');
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
 }
 
 // ─── Toggle button groups ─────────────────────────────────────────────────────
@@ -2045,6 +2191,23 @@ function applyVentDefaults(roomFunc) {
   if (!d) return;
   const pEl = document.getElementById('f-persons');
   if (pEl) pEl.value = d.persons;
+}
+
+function applyHazardDefaults(hazard) {
+  const tbl = {
+    'Light Hazard':       { density: 4.1,  area: 139, coverage: 18.6, hose: 250  },
+    'Ordinary Group 1':   { density: 6.1,  area: 139, coverage: 12.1, hose: 500  },
+    'Ordinary Group 2':   { density: 8.1,  area: 139, coverage: 12.1, hose: 500  },
+    'Extra Hazard Grp 1': { density: 12.2, area: 232, coverage: 9.3,  hose: 950  },
+    'Extra Hazard Grp 2': { density: 16.3, area: 279, coverage: 9.3,  hose: 950  },
+  };
+  const d = tbl[hazard];
+  if (!d) return;
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  set('f-density', d.density);
+  set('f-design-area', d.area);
+  set('f-coverage', d.coverage);
+  set('f-hose', d.hose);
 }
 
 const TOOL_OPTIONS = ['Angle Grinder','Impact Wrench 1/2','Impact Wrench 3/4','Air Drill','Die Grinder','Blow Gun','Sand Blaster','Paint Spray Gun','Pneumatic Cylinder','Air Hammer','Ratchet Wrench','Air Sander','Needle Scaler','Air Saw','Custom'];
@@ -2537,6 +2700,21 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Fire Sprinkler Hydraulic') {
+    return {
+      project_name:         v('f-project') || 'Untitled Sprinkler System',
+      occupancy_hazard:     getToggle('tg-hazard')       || 'Ordinary Group 1',
+      design_area:          parseFloat(v('f-design-area')) || 139,
+      density:              parseFloat(v('f-density'))     || 6.1,
+      coverage_per_head:    parseFloat(v('f-coverage'))    || 12.1,
+      hose_stream:          parseFloat(v('f-hose'))        || 500,
+      k_factor:             parseFloat(getToggle('tg-kfactor')) || 80,
+      operating_pressure:   parseFloat(v('f-op-pressure')) || 0.7,
+      pipe_length:          parseFloat(v('f-pipe-length')) || 30,
+      pipe_material:        getToggle('tg-fp-pipe-mat')    || 'Black Steel',
+    };
+  }
+
   return base;
 }
 
@@ -2589,6 +2767,11 @@ async function runCalculation() {
       showToast('Please add at least one plumbing fixture.');
       return;
     }
+  } else if (_calcType === 'Fire Sprinkler Hydraulic') {
+    if (!inputs.pipe_length || inputs.pipe_length <= 0) {
+      showToast('Please enter the pipe length from riser to remote sprinkler.');
+      return;
+    }
   } else if (!inputs.floor_area || inputs.floor_area <= 0) {
     showToast('Please enter the floor area.');
     return;
@@ -2630,6 +2813,8 @@ async function runCalculation() {
       renderVDReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Wire Sizing') {
       renderWireSizingReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Fire Sprinkler Hydraulic') {
+      renderFireSprinklerReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -4306,6 +4491,165 @@ function renderWaterSupplyReport(inputs, results, narrative) {
       <div>
         <div class="sig-line">Checked / Approved by</div>
         <div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── Fire Protection: Fire Sprinkler Hydraulic Report ────────────────────────
+function renderFireSprinklerReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const r       = results;
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div>
+        <h1>DESIGN CALCULATION</h1>
+        <div style="font-size:0.8rem;color:#555;">Fire Sprinkler Hydraulic — NFPA 13 Design Area Method</div>
+      </div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;">
+        <div>Rev. ${e('0')}</div>
+        <div>Date: ${dateStr}</div>
+      </div>
+    </div>
+
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">Project / System Name</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Occupancy Hazard</th><td>${e(r.hazard)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Calculation Standard</th><td>NFPA 13 / BFP IRR</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
+    </table>
+
+    <h2>1. Objective</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || 'To determine the required flow, operating pressure, and pipe size for the automatic fire sprinkler system using the NFPA 13 Design Area Method in compliance with BFP requirements.')}</p>
+
+    <h2>2. Applicable Codes and Standards</h2>
+    <ul style="font-size:0.82rem;color:#333;padding-left:1.25rem;line-height:2;">
+      <li>NFPA 13 — Standard for the Installation of Sprinkler Systems (Latest Edition)</li>
+      <li>BFP IRR — Bureau of Fire Protection Implementing Rules and Regulations</li>
+      <li>National Building Code of the Philippines (PD 1096) — Fire Protection Chapter</li>
+      <li>NFPA 20 — Standard for the Installation of Stationary Fire Pumps (for pump sizing)</li>
+    </ul>
+
+    <h2>3. Design Criteria and Assumptions</h2>
+    <table style="margin-top:0.5rem;">
+      <tr><th>Parameter</th><th>Value</th><th>Parameter</th><th>Value</th></tr>
+      <tr><td>Occupancy Hazard Classification</td><td class="num">${escHtml(r.hazard)}</td><td>Design Density</td><td class="num">${r.density} mm/min</td></tr>
+      <tr><td>Design Area</td><td class="num">${r.design_area} m²</td><td>Coverage per Head</td><td class="num">${r.coverage_per_head} m²/head</td></tr>
+      <tr><td>Sprinkler K-Factor</td><td class="num">K = ${r.inputs_used.K} L/min/bar^0.5</td><td>Min. Operating Pressure</td><td class="num">${inputs.operating_pressure} bar</td></tr>
+      <tr><td>Pipe Material</td><td class="num">${escHtml(r.pipe_material)}</td><td>Hazen-Williams C</td><td class="num">${r.inputs_used.C}</td></tr>
+      <tr><td>Pipe Length (riser to remote)</td><td class="num">${inputs.pipe_length} m</td><td>Hose Stream Allowance</td><td class="num">${r.Q_hose} L/min</td></tr>
+    </table>
+
+    <h2>4. Calculation Proper</h2>
+
+    <h3>4.1 Number of Sprinklers in Design Area</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula: N = ceil(Design Area / Coverage per Head)<br>
+      N = ceil(${r.design_area} / ${r.coverage_per_head}) = <strong>${r.N_sprinklers} sprinklers</strong>
+    </p>
+
+    <h3>4.2 Flow per Sprinkler Head</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula: Q = K x sqrt(P)<br>
+      Design pressure P = ${r.P_design} bar (higher of min. required ${inputs.operating_pressure} bar and density-derived pressure)<br>
+      Q per head = ${r.inputs_used.K} x sqrt(${r.P_design}) = <strong>${r.Q_per_head} L/min per sprinkler</strong>
+    </p>
+
+    <h3>4.3 Total Sprinkler Flow</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Q_sprinklers = Q per head x N sprinklers = ${r.Q_per_head} x ${r.N_sprinklers} = <strong>${r.Q_sprinklers_total} L/min</strong>
+    </p>
+
+    <h3>4.4 Pipe Friction Loss — Hazen-Williams Formula</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula: hL (bar/m) = 6.05 x 10^4 x Q^1.85 / (C^1.85 x d^4.87)<br>
+      Given: Q = ${r.Q_sprinklers_total} L/min, C = ${r.inputs_used.C}, d = ${r.pipe_dia} mm, L = ${inputs.pipe_length} m<br>
+      Pipe velocity = ${r.velocity} m/s (acceptable: under 3.0 m/s)<br>
+      <strong>Total friction loss H_f = ${r.H_friction} bar over ${inputs.pipe_length} m</strong>
+    </p>
+
+    <h3>4.5 Required Source Pressure</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      P_source = P_design + H_friction = ${r.P_design} + ${r.H_friction} = <strong>${r.P_source} bar (${r.P_source_kPa} kPa)</strong>
+    </p>
+
+    <h3>4.6 Total System Flow (with Hose Stream)</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Q_total = Q_sprinklers + Hose Stream = ${r.Q_sprinklers_total} + ${r.Q_hose} = <strong>${r.Q_total} L/min</strong><br>
+      Hose stream allowance per NFPA 13 for ${escHtml(r.hazard)} occupancy: ${r.Q_hose} L/min
+    </p>
+
+    <h3>4.7 Water Storage Volume</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Duration for ${escHtml(r.hazard)}: ${r.duration} minutes<br>
+      V = Q_total x Duration = ${r.Q_total} x ${r.duration} = <strong>${r.water_volume_L.toLocaleString()} L (${r.water_volume_m3} m³)</strong>
+    </p>
+
+    <h2>5. Results Summary</h2>
+    <div class="result-highlight">
+      <div class="res-item">
+        <div class="res-label">Total Design Flow</div>
+        <div class="res-value">${r.Q_total} <span style="font-size:0.7em;">L/min</span></div>
+      </div>
+      <div class="res-item">
+        <div class="res-label">Required Source Pressure</div>
+        <div class="res-value">${r.P_source} <span style="font-size:0.7em;">bar</span></div>
+      </div>
+      <div class="res-item">
+        <div class="res-label">Water Storage Volume</div>
+        <div class="res-value">${r.water_volume_L.toLocaleString()} <span style="font-size:0.7em;">L</span> / ${r.water_volume_m3} <span style="font-size:0.7em;">m³</span></div>
+      </div>
+      <div class="res-item">
+        <div class="res-label">Selected Pipe Diameter</div>
+        <div class="res-value">${r.pipe_dia} <span style="font-size:0.7em;">mm Ø</span></div>
+      </div>
+    </div>
+
+    <h2>6. System Design Summary</h2>
+    <table>
+      <tr><th>Parameter</th><th>Value</th></tr>
+      <tr><td>No. of Sprinklers (design area)</td><td class="num">${r.N_sprinklers} heads</td></tr>
+      <tr><td>Flow per Sprinkler</td><td class="num">${r.Q_per_head} L/min at ${r.P_design} bar</td></tr>
+      <tr><td>Sprinkler System Flow</td><td class="num">${r.Q_sprinklers_total} L/min</td></tr>
+      <tr><td>Hose Stream Allowance</td><td class="num">${r.Q_hose} L/min</td></tr>
+      <tr style="font-weight:700;background:#fffbf0;"><td>Total Design Flow</td><td class="num">${r.Q_total} L/min</td></tr>
+      <tr><td>Required Source Pressure</td><td class="num">${r.P_source} bar (${r.P_source_kPa} kPa)</td></tr>
+      <tr><td>Friction Loss in Distribution Pipe</td><td class="num">${r.H_friction} bar</td></tr>
+      <tr><td>Selected Pipe Diameter</td><td class="num">${r.pipe_dia} mm nominal bore, ${escHtml(r.pipe_material)} Schedule 40</td></tr>
+      <tr><td>Flow Velocity in Pipe</td><td class="num">${r.velocity} m/s</td></tr>
+      <tr><td>Design Duration</td><td class="num">${r.duration} minutes</td></tr>
+      <tr style="font-weight:700;background:#fffbf0;"><td>Required Water Storage</td><td class="num">${r.water_volume_L.toLocaleString()} L / ${r.water_volume_m3} m³</td></tr>
+    </table>
+
+    <h2>7. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Provide a fire pump rated at minimum ${r.Q_total} L/min at ${r.P_source} bar (${r.P_source_kPa} kPa). Coordinate with fire pump sizing calculation (NFPA 20).\n2. Provide a water storage tank with minimum capacity of ${r.water_volume_L.toLocaleString()} L (${r.water_volume_m3} m3) dedicated to fire fighting.\n3. Use ${r.pipe_dia}mm ${r.pipe_material} Schedule 40 for the main distribution pipe from the riser to the design area.\n4. Submit this calculation to the Bureau of Fire Protection (BFP) as part of the fire protection permit application package.\n5. A PRC-licensed Mechanical or Fire Protection Engineer must sign and seal this document before submission to BFP.`)}</p>
+
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Prepared by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Checked by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Approved by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
     </div>
   `;
