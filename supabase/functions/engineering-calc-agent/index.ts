@@ -1279,12 +1279,24 @@ Respond in JSON format only:
   const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
 
   try {
-    return JSON.parse(cleaned);
+    const parsed = JSON.parse(cleaned);
+    if (parsed.objective && parsed.assumptions && parsed.recommendations) return parsed;
+    throw new Error("incomplete");
   } catch {
+    // Gemini unavailable or returned unparseable JSON — build fallback from results directly
+    const rec = results as Record<string, unknown>;
+    const kw  = rec.recommended_kW  ?? rec.design_kW  ?? rec.Q_total        ?? '';
+    const tr  = rec.recommended_TR  ?? rec.design_TR  ?? '';
+    const hasKW = kw !== '' && kw !== undefined;
+
+    let recommendations = "Provide equipment with a minimum combined capacity as computed in the results above. Consult the results summary table for specific values.";
+    if (calcType === "HVAC Cooling Load" && hasKW) {
+      recommendations = `Provide air conditioning unit(s) with minimum capacity of ${kw} kW${tr ? ` (${tr} TR)` : ''}. Ensure proper ventilation per ASHRAE 62.1 minimum outdoor air requirements.`;
+    }
     return {
-      objective: "To determine the required cooling load and recommend appropriate air conditioning capacity for the subject space.",
-      assumptions: "Standard Philippine tropical climate conditions applied. Outdoor design conditions: 35°C DB / 28°C WB. Indoor design conditions: 24°C / 55% RH. Safety factor of 10% applied to total heat gain.",
-      recommendations: `Provide air conditioning unit(s) with minimum capacity of ${(results as Record<string, unknown>).recommended_kW} kW (${(results as Record<string, unknown>).recommended_TR} TR). Ensure proper ventilation per ASHRAE 62.1.`,
+      objective: `To determine the required ${calcType} design parameters for the subject project in accordance with applicable Philippine and international engineering standards.`,
+      assumptions: "Standard Philippine tropical climate and code conditions applied. Safety factors as specified in the applicable standard have been applied to all computed values.",
+      recommendations,
     };
   }
 }
