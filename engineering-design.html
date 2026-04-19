@@ -483,7 +483,7 @@ const CALC_TYPES = {
     { id: 'Load Estimation',  icon: '📋', desc: 'Panel schedule, demand factor, service size', available: true  },
     { id: 'Voltage Drop',     icon: '📉', desc: 'VD % check, conductor length limits',         available: true  },
     { id: 'Wire Sizing',      icon: '🔌', desc: 'Ampacity, conductor size per PEC Table 3.10', available: true  },
-    { id: 'Short Circuit',    icon: '⚡', desc: 'Fault current, breaker interrupting capacity', available: false },
+    { id: 'Short Circuit',    icon: '⚡', desc: 'Fault current, breaker interrupting capacity', available: true  },
     { id: 'Lighting Design',  icon: '💡', desc: 'Lumen method, number of fixtures per room',   available: false },
   ],
   'Fire Protection': [
@@ -500,7 +500,7 @@ const CALC_TYPES = {
     { id: 'V-Belt Drive Design',  icon: '🔄', desc: 'Sheave sizing, belt length, no. of belts — RMA / ASME', available: true  },
     { id: 'Bearing Life (L10)',   icon: '⚙️', desc: 'Dynamic load rating, L10 hours — ISO 281',              available: true  },
     { id: 'Shaft Design',         icon: '🔩', desc: 'Torsion + bending, ASME shaft sizing',                  available: true  },
-    { id: 'Bolt Torque & Preload',icon: '🔧', desc: 'Fastener tightening torque, preload — ISO 898',         available: false },
+    { id: 'Bolt Torque & Preload',icon: '🔧', desc: 'Fastener tightening torque, preload — ISO 898',         available: true  },
   ],
 };
 
@@ -947,6 +947,47 @@ const GUIDES = {
     ],
   },
 
+  'Short Circuit': {
+    title: 'Short Circuit Analysis — Fault Current & Breaker Interrupting Capacity',
+    subtitle: 'Calculates the available 3-phase symmetrical fault current at a distribution panel and verifies that the installed breaker interrupting capacity (IC) meets or exceeds the fault level. Required for PEC compliance and panel schedule submissions.',
+    standards: ['Philippine Electrical Code (PEC) 2017 — Article 1.30 (Short Circuit Current Rating)','IEEE Std 141 (Red Book) — Recommended Practice for Electric Power Distribution','IEC 60909 — Short-Circuit Currents in Three-Phase AC Systems','PEC Article 2.40 (Overcurrent Protection)'],
+    formulas: [
+      'Transformer Impedance Method (most common for LV systems):',
+      '  Isc = kVA_transformer / (sqrt(3) x kV_secondary x Z%/100)',
+      '  where Z% = transformer impedance percent (typically 4-6% for Philippine distribution)',
+      '',
+      'Cable Impedance Reduction:',
+      '  Z_cable = (R + jX) x Length  [Ω]',
+      '  For copper THHN: R ≈ 0.0175 / conductor_area (Ω/m)',
+      '',
+      'Total Impedance:',
+      '  Z_total = Z_transformer + Z_cable',
+      '  Isc_panel = V_LL / (sqrt(3) x Z_total)',
+      '',
+      'Breaker IC Check:',
+      '  IC_required >= Isc_panel  (PASS)',
+      '  IC_required < Isc_panel   (FAIL — upsize breaker)',
+      '',
+      'Asymmetry Factor (X/R ratio):',
+      '  Peak fault = 1.8 x Isc  (conservative per IEC 60909)',
+    ],
+    fields: [
+      { name: 'Transformer kVA', tip: 'Installed transformer capacity at the nearest substation or distribution transformer serving the panel. Typical Philippine values: 25, 50, 75, 100, 167, 250, 500 kVA.' },
+      { name: 'Transformer Impedance (%Z)', tip: 'From the transformer nameplate. Philippine distribution transformers (MERALCO/coops): typically 4% for ≤100 kVA, 4.5% for 100-500 kVA, 5.5% for >500 kVA. Conservatively use 4% if unknown (gives highest fault current = worst case).' },
+      { name: 'Secondary Voltage', tip: '380/400V three-phase (most Philippine industrial). 220/230V single-phase residential. Use 400V for three-phase commercial/industrial.' },
+      { name: 'Cable Size (mm2)', tip: 'Conductor cross-section from the transformer secondary to the main panel. Larger cable = lower impedance = higher fault current at panel.' },
+      { name: 'Cable Length (m)', tip: 'One-way cable run from transformer to the panel under study. Longer run = higher cable impedance = lower fault current at panel.' },
+      { name: 'Installed Breaker IC (kA)', tip: 'The interrupting capacity (IC) stamped on the breaker. Philippine standard: 6 kA (residential/small commercial), 10 kA (commercial), 25 kA (industrial), 50 kA (substation level). Check nameplate — do not assume.' },
+    ],
+    notes: [
+      'Conservative approach: use the minimum transformer impedance (4%) — this gives the maximum fault current, which is the worst-case for breaker sizing.',
+      'MERALCO primary supply: fault current at the transformer primary is typically 25 kA. The transformer impedance limits it on the secondary side.',
+      'A FAIL result means the breaker may rupture or explode during a fault event — this is a critical safety deficiency requiring immediate correction.',
+      'Always check the IC of every breaker in the panel, not just the main breaker — branch breakers also need IC >= available fault current at the panel.',
+      'For accuracy, request the utility company (MERALCO / local EC) for the available fault current at the point of connection.',
+    ],
+  },
+
   'Fire Sprinkler Hydraulic': {
     title: 'Fire Sprinkler Hydraulic Calculation — NFPA 13 Design Area Method',
     subtitle: 'Determines the required flow, pressure, and pipe size for an automatic sprinkler system using the density/area method prescribed in NFPA 13. Used for BFP permit submissions in the Philippines.',
@@ -1324,6 +1365,53 @@ const GUIDES = {
       'For long shafts, check the angle of twist — ASME recommends limiting twist to 0.5–1.0°/meter of shaft length to prevent vibration and coupling problems.',
       'Critical speed (lateral): the shaft\'s natural frequency must be well above operating speed. Rule of thumb: critical speed should be at least 2× the operating speed. Use Dunkerley\'s method for multi-disk shafts.',
       'Philippine material sourcing: AISI 1045 cold-drawn shafting is available in round bar from steel distributors (Pag-asa Steel, Steel Asia). Verify the mill certificate Sut before use — re-rolled or imported bars may not meet AISI spec.',
+    ],
+  },
+
+  'Bolt Torque & Preload': {
+    title: 'Bolt Torque & Preload — ISO 898-1 / VDI 2230 / ASME PCC-1',
+    subtitle: 'Calculates bolt preload (clamping force) from tightening torque, verifies that proof load is not exceeded, checks joint separation under external load, and determines the minimum number of bolts required for the joint.',
+    standards: ['ISO 898-1 — Mechanical Properties of Fasteners: Bolts and Screws','VDI 2230 — Systematic Calculation of High-Duty Bolted Joints','ASME PCC-1 — Guidelines for Pressure Boundary Bolted Flange Joint Assembly','PSME Code — Philippine Mechanical Engineering Code'],
+    formulas: [
+      'Tightening Torque (T):',
+      '  T = K × d × Fi',
+      '  K = nut factor (0.11–0.20 depending on lubrication)',
+      '  d = nominal bolt diameter (m)',
+      '  Fi = desired preload (N)',
+      '',
+      'Target Preload:',
+      '  Fi = 0.75 × Fp  (75% of proof load — typical for reusable joints)',
+      '  Fp = At × Sp  (proof load)',
+      '  At = tensile stress area (mm²) from ISO 898-1 table',
+      '  Sp = proof strength of bolt grade (MPa)',
+      '',
+      'Bolt Stress Check:',
+      '  σ_bolt = Fi / At  (must be ≤ Sp)',
+      '',
+      'Joint Separation Check:',
+      '  n_bolts_min = F_external / (Fi × safety_factor)',
+      '  Round UP to nearest whole number',
+      '',
+      'Proof Strength (Sp) by ISO 898-1 Grade:',
+      '  Grade 4.6: Sp = 225 MPa   Grade 4.8: Sp = 310 MPa',
+      '  Grade 8.8: Sp = 600 MPa   Grade 10.9: Sp = 830 MPa',
+      '  Grade 12.9: Sp = 970 MPa',
+    ],
+    fields: [
+      { name: 'Bolt Size', tip: 'Metric bolt nominal diameter and pitch in mm. Example: M16×2.0 means 16mm diameter, 2.0mm thread pitch. The tensile stress area (At) is taken from ISO 898-1 tables — it is smaller than the nominal cross-section because it uses the thread root area.' },
+      { name: 'Bolt Grade', tip: 'ISO 898-1 property class. Grade 8.8 is the most common in Philippine industrial use — widely available from fastener suppliers. Grade 10.9 for high-strength structural joints. Grade 4.6/4.8 for light-duty. Never use Grade 12.9 in outdoor/humid environments without corrosion protection.' },
+      { name: 'Nut Factor (K)', tip: 'Accounts for friction in the thread and under the bolt head. K = 0.11 (molybdenum disulfide grease), K = 0.13 (machine oil / anti-seize), K = 0.15 (zinc-plated, dry), K = 0.20 (plain steel, unlubricated). Using the wrong K is the most common cause of under- or over-torquing.' },
+      { name: 'Preload Percentage', tip: '75% of proof load (Fi = 0.75×Fp) is the standard for reusable bolts (fastened/unfastened more than once). 90% for permanent joints (torqued once, never removed). Never exceed 100% of proof load — the bolt will yield.' },
+      { name: 'External Joint Load', tip: 'Total external force trying to separate the joint, in kN. For flanged pipe: pressure × pipe bore area. For structural: applied load. For equipment baseplates: seismic or vibration load. This determines the minimum number of bolts needed to prevent joint separation.' },
+      { name: 'Number of Bolts', tip: 'Enter the actual number of bolts in the joint. The tool checks whether this is sufficient versus the minimum required for joint separation. If the actual count is less than the minimum, the joint will open under load.' },
+    ],
+    notes: [
+      'The nut factor K is the biggest source of error in bolt torque calculations — a factor of 2 variation in K changes the preload by 2×. Always verify lubrication conditions and use the correct K.',
+      'Torque wrenches have ±4% accuracy at best. Even with the correct K value, actual bolt preload varies ±25–30% due to friction variation. For critical joints (pressure vessels, structural), use bolt elongation or ultrasonic measurement instead of torque alone.',
+      'ASME PCC-1 guideline for gasketed flange joints: retighten after the first thermal cycle. Gasket creep relaxes preload by 10–20% in the first 24 hours at operating temperature.',
+      'Grade 8.8 bolts are heat-treated — never weld them. Welding destroys the heat treatment and reduces the property class to 4.6 or lower.',
+      'In the Philippine humid environment: use hot-dip galvanized or stainless steel (A2-70) for outdoor joints. Plain carbon steel bolts corrode rapidly in coastal or chemical plant environments, seizing in the nut and making removal impossible.',
+      'Cross-torquing pattern: for flanged joints, always tighten in a star/cross pattern in multiple passes (30%, 70%, 100% of target torque). Single-pass torquing causes uneven gasket loading and flange distortion.',
     ],
   },
 };
@@ -2415,6 +2503,77 @@ function renderInputForm(calcType) {
     document.getElementById('calc-btn').disabled = false;
   }
 
+  if (calcType === 'Short Circuit') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Panel Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. MDP — Ground Floor Distribution Panel" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Transformer kVA Rating</div>
+        <div class="toggle-group" id="tg-sc-kva">
+          ${[25,50,100,167,250,500,1000].map((v,i) =>
+            `<button class="toggle-btn${i===2?' active':''}" onclick="toggle('tg-sc-kva','${v}')">${v} kVA</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Transformer Impedance (%Z)</div>
+          <div class="input-group">
+            <input id="f-sc-z" class="wh-input" type="number" value="4.5" min="1" max="15" step="0.5" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Secondary Voltage (L-L)</div>
+          <div class="toggle-group" id="tg-sc-volt">
+            <button class="toggle-btn active" onclick="toggle('tg-sc-volt','400')">400 V (3ph)</button>
+            <button class="toggle-btn" onclick="toggle('tg-sc-volt','380')">380 V (3ph)</button>
+            <button class="toggle-btn" onclick="toggle('tg-sc-volt','230')">230 V (1ph)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Cable Size (mm²)</div>
+          <div class="toggle-group" id="tg-sc-cable">
+            ${[22,30,38,50,60,80,100].map((v,i) =>
+              `<button class="toggle-btn${i===2?' active':''}" onclick="toggle('tg-sc-cable','${v}')">${v}</button>`
+            ).join('')}
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Cable Length (one-way)</div>
+          <div class="input-group">
+            <input id="f-sc-len" class="wh-input" type="number" value="30" min="1" max="500" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Installed Breaker IC Rating</div>
+        <div class="toggle-group" id="tg-sc-ic">
+          <button class="toggle-btn" onclick="toggle('tg-sc-ic','6')">6 kA</button>
+          <button class="toggle-btn active" onclick="toggle('tg-sc-ic','10')">10 kA</button>
+          <button class="toggle-btn" onclick="toggle('tg-sc-ic','25')">25 kA</button>
+          <button class="toggle-btn" onclick="toggle('tg-sc-ic','36')">36 kA</button>
+          <button class="toggle-btn" onclick="toggle('tg-sc-ic','50')">50 kA</button>
+        </div>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Standards: PEC 2017 Article 1.30 / IEEE 141 (Red Book) / IEC 60909. Transformer impedance method — conservative approach using minimum %Z for worst-case fault current.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
   if (calcType === 'Fire Alarm Battery') {
     area.innerHTML = `
       <div class="mb-4">
@@ -3232,6 +3391,83 @@ function renderInputForm(calcType) {
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
+
+  if (calcType === 'Bolt Torque & Preload') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Joint Tag</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Pump P-101 — Discharge Flange Bolting" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Bolt Size</div>
+          <div class="toggle-group" id="tg-bolt-size">
+            <button class="toggle-btn" data-val="M10" onclick="toggle('tg-bolt-size','M10');applyBoltDefaults('M10')">M10</button>
+            <button class="toggle-btn" data-val="M12" onclick="toggle('tg-bolt-size','M12');applyBoltDefaults('M12')">M12</button>
+            <button class="toggle-btn active" data-val="M16" onclick="toggle('tg-bolt-size','M16');applyBoltDefaults('M16')">M16</button>
+            <button class="toggle-btn" data-val="M20" onclick="toggle('tg-bolt-size','M20');applyBoltDefaults('M20')">M20</button>
+            <button class="toggle-btn" data-val="M24" onclick="toggle('tg-bolt-size','M24');applyBoltDefaults('M24')">M24</button>
+            <button class="toggle-btn" data-val="M30" onclick="toggle('tg-bolt-size','M30');applyBoltDefaults('M30')">M30</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Bolt Grade (ISO 898-1)</div>
+          <div class="toggle-group" id="tg-bolt-grade">
+            <button class="toggle-btn" data-val="4.6" onclick="toggle('tg-bolt-grade','4.6')">4.6</button>
+            <button class="toggle-btn" data-val="4.8" onclick="toggle('tg-bolt-grade','4.8')">4.8</button>
+            <button class="toggle-btn active" data-val="8.8" onclick="toggle('tg-bolt-grade','8.8')">8.8</button>
+            <button class="toggle-btn" data-val="10.9" onclick="toggle('tg-bolt-grade','10.9')">10.9</button>
+            <button class="toggle-btn" data-val="12.9" onclick="toggle('tg-bolt-grade','12.9')">12.9</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Nut Factor (K) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">friction condition</span></div>
+          <div class="toggle-group" id="tg-nut-factor">
+            <button class="toggle-btn" data-val="0.11" onclick="toggle('tg-nut-factor','0.11')">0.11 — MoS₂ grease</button>
+            <button class="toggle-btn" data-val="0.13" onclick="toggle('tg-nut-factor','0.13')">0.13 — Machine oil</button>
+            <button class="toggle-btn active" data-val="0.15" onclick="toggle('tg-nut-factor','0.15')">0.15 — Zinc-plated dry</button>
+            <button class="toggle-btn" data-val="0.20" onclick="toggle('tg-nut-factor','0.20')">0.20 — Plain steel dry</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Preload Target</div>
+          <div class="toggle-group" id="tg-preload-pct">
+            <button class="toggle-btn active" data-val="75" onclick="toggle('tg-preload-pct','75')">75% Fp (reusable joint)</button>
+            <button class="toggle-btn" data-val="90" onclick="toggle('tg-preload-pct','90')">90% Fp (permanent joint)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">External Joint Load</div>
+          <div class="input-group">
+            <input id="f-ext-load" class="wh-input" type="number" value="50" min="0" step="1" />
+            <span class="input-unit">kN</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Number of Bolts in Joint</div>
+          <input id="f-n-bolts" class="wh-input" type="number" value="8" min="1" max="100" />
+        </div>
+      </div>
+
+      <div id="bolt-info-row" style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.6rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.55);margin-bottom:0.75rem;">
+        M16 × 2.0 — At = 157 mm² — Sp = 600 MPa (Grade 8.8)
+      </div>
+
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
+        Standard: ISO 898-1 / VDI 2230 / ASME PCC-1. Tightening torque T = K × d × Fi. Joint separation check verifies minimum bolt count required.
+      </div>
+    `;
+    applyBoltDefaults('M16');
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
 }
 
 // ─── Toggle button groups ─────────────────────────────────────────────────────
@@ -3263,6 +3499,29 @@ function applyVentDefaults(roomFunc) {
   if (!d) return;
   const pEl = document.getElementById('f-persons');
   if (pEl) pEl.value = d.persons;
+}
+
+function applyBoltDefaults(size) {
+  // ISO 898-1 tensile stress areas (mm²) and standard pitches
+  const boltData = {
+    M10: { At: 58.0,  pitch: 1.5, label: 'M10 × 1.5' },
+    M12: { At: 84.3,  pitch: 1.75,label: 'M12 × 1.75' },
+    M16: { At: 157,   pitch: 2.0, label: 'M16 × 2.0' },
+    M20: { At: 245,   pitch: 2.5, label: 'M20 × 2.5' },
+    M24: { At: 353,   pitch: 3.0, label: 'M24 × 3.0' },
+    M30: { At: 561,   pitch: 3.5, label: 'M30 × 3.5' },
+  };
+  const d = boltData[size];
+  if (!d) return;
+  // Update info row
+  const infoRow = document.getElementById('bolt-info-row');
+  if (infoRow) {
+    const gradeEl = document.querySelector('#tg-bolt-grade .toggle-btn.active');
+    const grade   = gradeEl ? gradeEl.dataset.val : '8.8';
+    const spMap   = {'4.6':225,'4.8':310,'8.8':600,'10.9':830,'12.9':970};
+    const sp      = spMap[grade] || 600;
+    infoRow.textContent = `${d.label} — At = ${d.At} mm² — Sp = ${sp} MPa (Grade ${grade})`;
+  }
 }
 
 function applyBeltDefaults(section) {
@@ -3678,6 +3937,18 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Short Circuit') {
+    return {
+      project_name:  v('f-project') || 'Untitled Panel',
+      xfmr_kva:      parseFloat(getToggle('tg-sc-kva') || '100'),
+      z_pct:         parseFloat(v('f-sc-z'))   || 4.5,
+      voltage_ll:    parseFloat(getToggle('tg-sc-volt') || '400'),
+      cable_mm2:     parseFloat(getToggle('tg-sc-cable') || '38'),
+      cable_len_m:   parseFloat(v('f-sc-len')) || 30,
+      breaker_ic_kA: parseFloat(getToggle('tg-sc-ic') || '10'),
+    };
+  }
+
   if (_calcType === 'Septic Tank Sizing') {
     return {
       project_name:      v('f-project') || 'Untitled Septic Tank',
@@ -3871,6 +4142,18 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Bolt Torque & Preload') {
+    return {
+      project_name:   v('f-project')                          || 'Untitled Bolted Joint',
+      bolt_size:      getToggle('tg-bolt-size')               || 'M16',
+      bolt_grade:     getToggle('tg-bolt-grade')              || '8.8',
+      nut_factor:     parseFloat(getToggle('tg-nut-factor'))  || 0.15,
+      preload_pct:    parseFloat(getToggle('tg-preload-pct')) || 75,
+      ext_load_kN:    parseFloat(v('f-ext-load'))             || 50,
+      n_bolts:        parseFloat(v('f-n-bolts'))              || 8,
+    };
+  }
+
   if (_calcType === 'Shaft Design') {
     const powerUnit = getToggle('tg-shaft-power-unit') || 'kW';
     const rawPower  = parseFloat(v('f-shaft-power')) || 7.5;
@@ -4031,6 +4314,11 @@ async function runCalculation() {
       showToast('Please enter at least one device or notification appliance.');
       return;
     }
+  } else if (_calcType === 'Bolt Torque & Preload') {
+    if (!inputs.n_bolts || inputs.n_bolts < 1) {
+      showToast('Please enter the number of bolts in the joint.');
+      return;
+    }
   } else if (_calcType === 'Shaft Design') {
     if (!inputs.power_kW || inputs.power_kW <= 0) {
       showToast('Please enter the power transmitted.');
@@ -4119,6 +4407,8 @@ async function runCalculation() {
       renderFireAlarmBatteryReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Elevator Traffic Analysis') {
       renderElevatorTrafficReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Bolt Torque & Preload') {
+      renderBoltTorqueReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Shaft Design') {
       renderShaftDesignReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Bearing Life (L10)') {
@@ -4127,6 +4417,8 @@ async function runCalculation() {
       renderVBeltReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Hoist Capacity') {
       renderHoistCapacityReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Short Circuit') {
+      renderShortCircuitReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -6149,6 +6441,146 @@ function renderFirePumpReport(inputs, results, narrative) {
   showReport();
 }
 
+// ─── Electrical: Short Circuit Analysis Report ───────────────────────────────
+function renderShortCircuitReport(inputs, results, narrative) {
+  const now = new Date();
+  const r   = results;
+
+  const icPass   = r.ic_check === 'PASS';
+  const passCol  = icPass ? '#22c55e' : '#ef4444';
+  const passLabel= icPass ? 'PASS' : 'FAIL';
+
+  const html = `
+    <div style="max-width:800px;margin:0 auto;font-family:'Poppins',sans-serif;color:#162032;background:#fff;padding:2.5rem;border-radius:1rem;">
+
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #162032;padding-bottom:1rem;margin-bottom:1.5rem;">
+        <div>
+          <div style="font-size:1.3rem;font-weight:800;color:#162032;">SHORT CIRCUIT ANALYSIS</div>
+          <div style="font-size:0.8rem;color:#555;margin-top:0.2rem;">Fault Current &amp; Breaker Interrupting Capacity Verification</div>
+        </div>
+        <div style="text-align:right;font-size:0.72rem;color:#555;">
+          <div>Date: ${now.toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'})}</div>
+          <div>Standard: PEC 2017 / IEC 60909 / IEEE 141</div>
+        </div>
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;margin-bottom:1.5rem;font-size:0.78rem;">
+        <tr><td style="padding:0.3rem 0.5rem;font-weight:600;width:35%;color:#555;">Project / Panel</td><td style="padding:0.3rem 0.5rem;">${inputs.project_name}</td><td style="padding:0.3rem 0.5rem;font-weight:600;width:20%;color:#555;">Engineer</td><td style="padding:0.3rem 0.5rem;">_________________</td></tr>
+        <tr><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Transformer</td><td style="padding:0.3rem 0.5rem;">${inputs.xfmr_kva} kVA, ${inputs.z_pct}%Z</td><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Date</td><td style="padding:0.3rem 0.5rem;">${now.toLocaleDateString('en-PH')}</td></tr>
+        <tr><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">System Voltage</td><td style="padding:0.3rem 0.5rem;">${inputs.voltage_ll} V (L-L)</td><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Cable Run</td><td style="padding:0.3rem 0.5rem;">${inputs.cable_mm2} mm² Cu, ${inputs.cable_len_m} m</td></tr>
+      </table>
+
+      <div style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
+        <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">OBJECTIVE</div>
+        <div id="sc-obj" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.objective || 'To determine the available 3-phase symmetrical fault current at the subject distribution panel and verify that the installed overcurrent protective device has sufficient interrupting capacity in accordance with PEC 2017 and IEC 60909.'}</div>
+      </div>
+
+      <div style="font-weight:700;font-size:0.85rem;color:#162032;border-bottom:1px solid #ddd;padding-bottom:0.4rem;margin-bottom:1rem;">REFERENCES</div>
+      <ul style="font-size:0.78rem;margin:0 0 1.5rem 1.2rem;color:#333;line-height:1.8;">
+        <li>Philippine Electrical Code (PEC) 2017 — Article 1.30 (Short-Circuit Current Ratings)</li>
+        <li>IEC 60909 — Short-Circuit Currents in Three-Phase AC Systems</li>
+        <li>IEEE Std 141 (Red Book) — Recommended Practice for Electric Power Distribution</li>
+        <li>PEC Article 2.40 — Overcurrent Protection</li>
+      </ul>
+
+      <div style="font-weight:700;font-size:0.85rem;color:#162032;border-bottom:1px solid #ddd;padding-bottom:0.4rem;margin-bottom:1rem;">SYSTEM PARAMETERS</div>
+      <table style="width:100%;border-collapse:collapse;font-size:0.78rem;margin-bottom:1.5rem;">
+        <thead><tr style="background:#162032;color:#fff;">
+          <th style="padding:0.5rem 0.75rem;text-align:left;">Parameter</th>
+          <th style="padding:0.5rem 0.75rem;text-align:center;">Value</th>
+          <th style="padding:0.5rem 0.75rem;text-align:left;">Remark</th>
+        </tr></thead>
+        <tbody>
+          <tr style="background:#f8f9fa;"><td style="padding:0.4rem 0.75rem;">Transformer Rating</td><td style="padding:0.4rem 0.75rem;text-align:center;">${inputs.xfmr_kva} kVA</td><td style="padding:0.4rem 0.75rem;">Distribution transformer</td></tr>
+          <tr><td style="padding:0.4rem 0.75rem;">Transformer Impedance (%Z)</td><td style="padding:0.4rem 0.75rem;text-align:center;">${inputs.z_pct}%</td><td style="padding:0.4rem 0.75rem;">Nameplate value</td></tr>
+          <tr style="background:#f8f9fa;"><td style="padding:0.4rem 0.75rem;">Secondary Voltage (L-L)</td><td style="padding:0.4rem 0.75rem;text-align:center;">${inputs.voltage_ll} V</td><td style="padding:0.4rem 0.75rem;">Three-phase system</td></tr>
+          <tr><td style="padding:0.4rem 0.75rem;">Cable Size</td><td style="padding:0.4rem 0.75rem;text-align:center;">${inputs.cable_mm2} mm²</td><td style="padding:0.4rem 0.75rem;">Copper conductor (Cu)</td></tr>
+          <tr style="background:#f8f9fa;"><td style="padding:0.4rem 0.75rem;">Cable Length (one-way)</td><td style="padding:0.4rem 0.75rem;text-align:center;">${inputs.cable_len_m} m</td><td style="padding:0.4rem 0.75rem;">Transformer to panel</td></tr>
+          <tr><td style="padding:0.4rem 0.75rem;">Installed Breaker IC</td><td style="padding:0.4rem 0.75rem;text-align:center;">${inputs.breaker_ic_kA} kA</td><td style="padding:0.4rem 0.75rem;">Nameplate interrupting capacity</td></tr>
+        </tbody>
+      </table>
+
+      <div style="font-weight:700;font-size:0.85rem;color:#162032;border-bottom:1px solid #ddd;padding-bottom:0.4rem;margin-bottom:1rem;">CALCULATION PROCEDURE</div>
+      <div style="font-size:0.78rem;line-height:2;margin-bottom:1.5rem;color:#333;">
+        <p><strong>Step 1 — Transformer Base Impedance (Z_base)</strong></p>
+        <p style="margin-left:1rem;">Z_base = V² / kVA = (${inputs.voltage_ll})² / (${inputs.xfmr_kva} × 1000) = <strong>${r.Z_base_ohm} Ω</strong></p>
+
+        <p><strong>Step 2 — Transformer Impedance (Z_xfmr)</strong></p>
+        <p style="margin-left:1rem;">Z_xfmr = Z_base × (%Z / 100) = ${r.Z_base_ohm} × ${inputs.z_pct/100} = <strong>${r.Z_xfmr_ohm} Ω</strong></p>
+
+        <p><strong>Step 3 — Cable Resistance (R_cable)</strong></p>
+        <p style="margin-left:1rem;">R_cu = 0.0175 Ω·mm²/m (copper resistivity)</p>
+        <p style="margin-left:1rem;">R_cable = (R_cu / cable_mm²) × length = (0.0175 / ${inputs.cable_mm2}) × ${inputs.cable_len_m} = <strong>${r.R_cable_ohm} Ω</strong></p>
+
+        <p><strong>Step 4 — Total Impedance (Z_total)</strong></p>
+        <p style="margin-left:1rem;">Z_total = Z_xfmr + R_cable = ${r.Z_xfmr_ohm} + ${r.R_cable_ohm} = <strong>${r.Z_total_ohm} Ω</strong></p>
+
+        <p><strong>Step 5 — 3-Phase Symmetrical Fault Current (Isc)</strong></p>
+        <p style="margin-left:1rem;">Isc = V_LL / (√3 × Z_total) = ${inputs.voltage_ll} / (1.7321 × ${r.Z_total_ohm}) = <strong>${r.Isc_kA} kA rms</strong></p>
+
+        <p><strong>Step 6 — Asymmetrical Peak Fault Current</strong></p>
+        <p style="margin-left:1rem;">Ipeak = 1.8 × Isc = 1.8 × ${r.Isc_kA} = <strong>${r.Ipeak_kA} kA peak</strong> (IEC 60909 asymmetry factor)</p>
+
+        <p><strong>Step 7 — Breaker IC Verification</strong></p>
+        <p style="margin-left:1rem;">IC_installed = ${inputs.breaker_ic_kA} kA | Isc_available = ${r.Isc_kA} kA</p>
+        <p style="margin-left:1rem;font-weight:700;color:${passCol};">Result: ${passLabel} — Breaker IC is ${icPass ? 'adequate' : 'INSUFFICIENT — upgrade required'}</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+        <div style="background:#162032;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
+          <div style="font-size:0.7rem;opacity:0.6;text-transform:uppercase;margin-bottom:0.25rem;">Available Fault Current</div>
+          <div style="font-size:1.8rem;font-weight:800;color:#F7A21B;">${r.Isc_kA} kA</div>
+          <div style="font-size:0.68rem;opacity:0.5;">3-phase symmetrical rms</div>
+        </div>
+        <div style="background:${icPass?'#16a34a':'#dc2626'};color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
+          <div style="font-size:0.7rem;opacity:0.8;text-transform:uppercase;margin-bottom:0.25rem;">Breaker IC Check</div>
+          <div style="font-size:1.8rem;font-weight:800;">${passLabel}</div>
+          <div style="font-size:0.68rem;opacity:0.8;">${inputs.breaker_ic_kA} kA installed vs ${r.Isc_kA} kA required</div>
+        </div>
+        <div style="background:#1F2E45;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
+          <div style="font-size:0.7rem;opacity:0.6;text-transform:uppercase;margin-bottom:0.25rem;">Peak Asymmetrical</div>
+          <div style="font-size:1.8rem;font-weight:800;color:#29B6D9;">${r.Ipeak_kA} kA</div>
+          <div style="font-size:0.68rem;opacity:0.5;">1.8 × Isc (IEC 60909)</div>
+        </div>
+        <div style="background:#1F2E45;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
+          <div style="font-size:0.7rem;opacity:0.6;text-transform:uppercase;margin-bottom:0.25rem;">Total Z at Panel</div>
+          <div style="font-size:1.8rem;font-weight:800;color:#29B6D9;">${r.Z_total_ohm} Ω</div>
+          <div style="font-size:0.68rem;opacity:0.5;">Xfmr + Cable impedance</div>
+        </div>
+      </div>
+
+      <div style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
+        <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">ASSUMPTIONS</div>
+        <div id="sc-assum" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.assumptions || 'Transformer impedance method used per IEC 60909. Infinite bus assumption at the primary side (utility source impedance neglected — conservative). Cable reactance neglected (R only) for LV systems. Asymmetry factor of 1.8 applied per IEC 60909 for peak fault determination.'}</div>
+      </div>
+
+      <div style="background:#f8f9fa;border-left:4px solid #F7A21B;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
+        <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">RECOMMENDATIONS</div>
+        <div id="sc-rec" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.recommendations || 'See calculation above.'}</div>
+      </div>
+
+      <div style="margin-top:3rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;font-size:0.75rem;">
+        <div style="border-top:1px solid #162032;padding-top:0.5rem;">
+          <div style="font-weight:700;">Prepared by:</div>
+          <div style="margin-top:0.25rem;color:#555;">Signature over Printed Name</div>
+          <div style="margin-top:1rem;">PRC Lic. No.: _____________________</div>
+          <div>PTR No.: _____________________</div>
+          <div>Date: _____________________</div>
+        </div>
+        <div style="border-top:1px solid #162032;padding-top:0.5rem;">
+          <div style="font-weight:700;">Checked / Noted by:</div>
+          <div style="margin-top:0.25rem;color:#555;">Signature over Printed Name</div>
+          <div style="margin-top:1rem;">PRC Lic. No.: _____________________</div>
+          <div>PTR No.: _____________________</div>
+          <div>Date: _____________________</div>
+        </div>
+      </div>
+
+    </div>`;
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
 // ─── Fire Protection: Fire Sprinkler Hydraulic Report ────────────────────────
 function renderFireSprinklerReport(inputs, results, narrative) {
   const now     = new Date();
@@ -6458,6 +6890,141 @@ function renderFireAlarmBatteryReport(inputs, results, narrative) {
 
     <h2>7. Recommendations</h2>
     <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Provide sealed lead-acid (SLA/VRLA) batteries rated at minimum ${r.Ah_required} Ah at ${inputs.system_voltage} V DC.\n2. Recommended battery bank: ${r.battery_config || r.selected_Ah + ' Ah'} — verify availability with FACP manufacturer.\n3. Install batteries inside or adjacent to the FACP cabinet in a clean, cool, ventilated location per NFPA 72.\n4. Verify battery compatibility with the specific FACP charging circuit before procurement.\n5. Replace batteries every 3-5 years per NFPA 72 §10.6.11 or per manufacturer recommendation, whichever is more frequent.\n6. Submit this calculation to the Bureau of Fire Protection (BFP) as part of the fire alarm permit application package.\n7. A PRC-licensed Electrical or Electronics Engineer must sign and seal this document before submission to BFP.`)}</p>
+
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Prepared by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Checked by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Approved by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── Bolt Torque & Preload Report — ISO 898-1 / VDI 2230 / ASME PCC-1 ───────
+function renderBoltTorqueReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const r       = results;
+
+  const jointOk    = r.joint_check === 'PASS';
+  const jointColor = jointOk ? '#2e7d32' : '#c62828';
+  const stressOk   = r.stress_check === 'PASS';
+  const stressColor= stressOk ? '#2e7d32' : '#c62828';
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div>
+        <h1>DESIGN CALCULATION</h1>
+        <div style="font-size:0.8rem;color:#555;">Bolt Torque & Preload — ISO 898-1 / VDI 2230 / ASME PCC-1</div>
+      </div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;">
+        <div>Rev. ${e('0')}</div>
+        <div>Date: ${dateStr}</div>
+      </div>
+    </div>
+
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">Project / Joint Tag</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Bolt Specification</th><td>${escHtml(inputs.bolt_size)} Grade ${escHtml(inputs.bolt_grade)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Calculation Standard</th><td>ISO 898-1 / VDI 2230 / ASME PCC-1</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
+    </table>
+
+    <h2>1. Objective</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || `To determine the tightening torque and preload for ${escHtml(inputs.bolt_size)} Grade ${escHtml(inputs.bolt_grade)} bolts (At = ${r.At_mm2} mm²) using a nut factor K = ${inputs.nut_factor}, and to verify that the ${inputs.n_bolts}-bolt joint does not separate under an external load of ${inputs.ext_load_kN} kN, per ISO 898-1 and VDI 2230.`)}</p>
+
+    <h2>2. References</h2>
+    <p style="font-size:0.83rem;color:#333;">ISO 898-1 — Mechanical Properties of Fasteners: Bolts and Screws<br>
+    VDI 2230 — Systematic Calculation of High-Duty Bolted Joints<br>
+    ASME PCC-1 — Guidelines for Pressure Boundary Bolted Flange Joint Assembly<br>
+    PSME Code — Philippine Mechanical Engineering Code</p>
+
+    <h2>3. Bolt Properties</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Bolt Size and Pitch</td><td>${escHtml(r.bolt_label)}</td></tr>
+      <tr><td>Nominal Diameter (d)</td><td class="num">${r.d_mm} mm</td></tr>
+      <tr><td>Tensile Stress Area (At)</td><td class="num">${r.At_mm2} mm² (ISO 898-1 Table)</td></tr>
+      <tr><td>Bolt Grade</td><td>ISO 898-1 Grade ${escHtml(inputs.bolt_grade)}</td></tr>
+      <tr><td>Proof Strength (Sp)</td><td class="num">${r.Sp_MPa} MPa</td></tr>
+      <tr><td>Proof Load (Fp = At × Sp)</td><td class="num">${r.Fp_kN} kN</td></tr>
+      <tr><td>Nut Factor (K)</td><td class="num">${inputs.nut_factor} (${r.nut_condition})</td></tr>
+      <tr><td>Preload Target</td><td class="num">${inputs.preload_pct}% of proof load</td></tr>
+    </table>
+
+    <h2>4. Preload Calculation</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      F<sub>p</sub> = At × Sp = ${r.At_mm2} mm² × ${r.Sp_MPa} MPa = ${r.Fp_kN} kN<br>
+      Target Preload: F<sub>i</sub> = ${inputs.preload_pct}% × ${r.Fp_kN} kN = <strong>${r.Fi_kN} kN per bolt</strong>
+    </p>
+    <p style="font-size:0.83rem;color:#333;"><strong>Bolt Stress Check:</strong></p>
+    <p style="font-size:0.83rem;color:#333;">
+      σ<sub>bolt</sub> = F<sub>i</sub> / At = ${r.Fi_kN} × 1000 / ${r.At_mm2} = ${r.sigma_bolt_MPa} MPa<br>
+      Sp = ${r.Sp_MPa} MPa — Status: <strong style="color:${stressColor};">${r.stress_check} (${r.sigma_bolt_MPa} MPa ${stressOk ? '≤' : '>'} ${r.Sp_MPa} MPa)</strong>
+    </p>
+
+    <h2>5. Tightening Torque</h2>
+    <p style="font-size:0.83rem;color:#333;"><strong>Formula (VDI 2230):</strong> T = K × d × F<sub>i</sub></p>
+    <p style="font-size:0.83rem;color:#333;">
+      T = ${inputs.nut_factor} × ${r.d_mm} mm × ${r.Fi_kN} × 1000 N<br>
+      T = <strong>${r.torque_Nm} N·m</strong>
+    </p>
+
+    <h2>6. Joint Separation Check</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      Total clamping force = ${inputs.n_bolts} bolts × ${r.Fi_kN} kN = ${r.total_clamp_kN} kN<br>
+      External load = ${inputs.ext_load_kN} kN<br>
+      Safety factor against separation = ${r.total_clamp_kN} / ${inputs.ext_load_kN} = <strong>${r.separation_sf}</strong><br>
+      Minimum bolts required (SF ≥ 1.5) = ⌈${inputs.ext_load_kN} × 1.5 / ${r.Fi_kN}⌉ = <strong>${r.n_bolts_min}</strong> bolts<br>
+      Actual bolts provided: ${inputs.n_bolts} — Status: <strong style="color:${jointColor};">${r.joint_check}</strong>
+    </p>
+
+    <h2>7. Results Summary</h2>
+    <div class="result-highlight" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Tightening Torque</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.torque_Nm} N·m</div>
+        <div style="font-size:0.75rem;color:#555;">${escHtml(inputs.bolt_size)} Gr ${escHtml(inputs.bolt_grade)}, K=${inputs.nut_factor}</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Preload per Bolt</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.Fi_kN} kN</div>
+        <div style="font-size:0.75rem;color:#555;">${inputs.preload_pct}% of Fp = ${r.Fp_kN} kN</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Separation Safety Factor</div>
+        <div style="font-size:1.6rem;font-weight:800;color:${jointColor};">${r.separation_sf}</div>
+        <div style="font-size:0.75rem;font-weight:700;color:${jointColor};">${r.joint_check} (min 1.5)</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Min. Bolts Required</div>
+        <div style="font-size:1.6rem;font-weight:800;color:${jointColor};">${r.n_bolts_min}</div>
+        <div style="font-size:0.75rem;color:#555;">${inputs.n_bolts} provided</div>
+      </div>
+    </div>
+
+    <h2>8. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Tighten all ${escHtml(inputs.bolt_size)} Grade ${escHtml(inputs.bolt_grade)} bolts to ${r.torque_Nm} N·m using a calibrated torque wrench (K = ${inputs.nut_factor} — ${r.nut_condition}).\n2. Apply torque in a cross/star pattern in three passes: 30% (${r.torque_30pct} N·m) → 70% (${r.torque_70pct} N·m) → 100% (${r.torque_Nm} N·m). Single-pass torquing causes uneven flange loading.\n3. Joint separation check: SF = ${r.separation_sf} — ${jointOk ? 'PASS. Joint is adequate with ' + inputs.n_bolts + ' bolts.' : 'FAIL. Minimum ' + r.n_bolts_min + ' bolts required. Add bolts or increase bolt size/grade.'}\n4. For gasketed flanges: retighten to target torque after first thermal cycle (gasket creep relaxes preload by 10–20%).\n5. In Philippine outdoor or humid environments: use hot-dip galvanized or stainless A2-70 bolts. Apply anti-seize compound to threads to prevent galling and allow future disassembly.\n6. A PRC-licensed Mechanical Engineer must sign and seal this document before use as a bolting procedure basis.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">

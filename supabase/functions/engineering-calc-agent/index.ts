@@ -1372,6 +1372,12 @@ Respond in JSON format only:
       const rope = rec.rope_recommendation ?? '';
       const hp = rec.motor_hp_std ?? '';
       recommendations = `Provide wire rope with minimum breaking force of ${mbf} kN (${rope}). Hoist motor: ${hp} HP with duty class M3/M4. Maintain SF ${rec.safety_factor_check} per ASME B30.2. Inspect wire rope daily (visual) and monthly (detailed) per DOLE D.O. 13. Runway structure must be verified by a structural engineer. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
+    } else if (calcType === "Short Circuit") {
+      const isc  = rec.Isc_kA ?? '';
+      const chk  = rec.ic_check ?? '';
+      const ic   = (inputs.breaker_ic_kA as number) ?? '';
+      const recIC = rec.ic_min_recommended ?? '';
+      recommendations = `Available fault current at panel: ${isc} kA (3-phase symmetrical). Breaker IC check: ${chk}. ${chk === 'FAIL' ? `Installed IC of ${ic} kA is insufficient — replace with minimum ${recIC} kA interrupting capacity breaker immediately. This is a critical safety deficiency.` : `Installed IC of ${ic} kA is adequate for ${isc} kA available fault.`} Verify IC rating of every branch breaker in this panel — fault current is the same at all points in the same panel. Request utility confirmation of available fault current at the point of delivery for final documentation. A PRC-licensed Electrical Engineer must sign and seal this document.`;
     } else if (calcType === "Bolt Torque & Preload") {
       const torque = rec.torque_Nm ?? '';
       const size   = (inputs.bolt_size as string) || '';
@@ -1386,6 +1392,59 @@ Respond in JSON format only:
       recommendations,
     };
   }
+}
+
+// ─── Electrical: Short Circuit Analysis (PEC 2017 / IEC 60909 / IEEE 141) ────
+
+function calcShortCircuit(inputs: Record<string, number | string>): Record<string, unknown> {
+  const round4 = (v: number) => Math.round(v * 10000) / 10000;
+  const round2 = (v: number) => Math.round(v * 100) / 100;
+
+  const xfmr_kva   = Number(inputs.xfmr_kva   ?? 100);
+  const z_pct      = Number(inputs.z_pct       ?? 4.5);
+  const voltage_ll = Number(inputs.voltage_ll  ?? 400);
+  const cable_mm2  = Number(inputs.cable_mm2   ?? 38);
+  const cable_len_m= Number(inputs.cable_len_m ?? 30);
+  const breaker_ic = Number(inputs.breaker_ic_kA ?? 10);
+
+  // Step 1: Transformer base impedance
+  const Z_base_ohm = round4(Math.pow(voltage_ll, 2) / (xfmr_kva * 1000));
+
+  // Step 2: Transformer impedance
+  const Z_xfmr_ohm = round4(Z_base_ohm * (z_pct / 100));
+
+  // Step 3: Cable resistance (copper resistivity 0.0175 Ω·mm²/m)
+  const R_cable_ohm = round4((0.0175 / cable_mm2) * cable_len_m);
+
+  // Step 4: Total impedance
+  const Z_total_ohm = round4(Z_xfmr_ohm + R_cable_ohm);
+
+  // Step 5: 3-phase symmetrical fault current
+  const Isc_A = voltage_ll / (Math.sqrt(3) * Z_total_ohm);
+  const Isc_kA = round2(Isc_A / 1000);
+
+  // Step 6: Asymmetrical peak (IEC 60909 factor 1.8)
+  const Ipeak_kA = round2(1.8 * Isc_kA);
+
+  // Step 7: Breaker IC check
+  const ic_check = breaker_ic >= Isc_kA ? 'PASS' : 'FAIL';
+  const ic_margin = round2(breaker_ic - Isc_kA);
+
+  // Recommended minimum IC
+  const IC_STANDARD = [6, 10, 25, 36, 50, 65, 100];
+  const ic_min_recommended = IC_STANDARD.find(v => v >= Isc_kA) ?? 100;
+
+  return {
+    Z_base_ohm,
+    Z_xfmr_ohm,
+    R_cable_ohm,
+    Z_total_ohm,
+    Isc_kA,
+    Ipeak_kA,
+    ic_check,
+    ic_margin,
+    ic_min_recommended,
+  };
 }
 
 // ─── Machine Design: Bolt Torque & Preload (ISO 898-1 / VDI 2230 / ASME PCC-1) ─
@@ -2441,6 +2500,8 @@ serve(async (req) => {
       results = calcHoistCapacity(inputs);
     } else if (calc_type === "Bolt Torque & Preload") {
       results = calcBoltTorque(inputs);
+    } else if (calc_type === "Short Circuit") {
+      results = calcShortCircuit(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),
