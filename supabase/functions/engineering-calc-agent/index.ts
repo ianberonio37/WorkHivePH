@@ -1236,8 +1236,8 @@ async function generateReportNarrative(
   results: Record<string, unknown>
 ): Promise<{ objective: string; assumptions: string; recommendations: string }> {
 
-  const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-  if (!GEMINI_API_KEY) {
+  const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
+  if (!GROQ_API_KEY) {
     return {
       objective: "To determine the required cooling load and recommend appropriate air conditioning capacity for the subject space.",
       assumptions: "Standard Philippine tropical climate conditions applied. Outdoor design conditions: 35°C DB / 28°C WB. Indoor design conditions: 24°C / 55% RH. Safety factor of 10% applied to total heat gain.",
@@ -1264,19 +1264,25 @@ Respond in JSON format only:
 
   try {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      "https://api.groq.com/openai/v1/chat/completions",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${GROQ_API_KEY}`,
+        },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 512 },
+          model: "llama-3.3-70b-versatile",
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.3,
+          max_tokens: 512,
+          response_format: { type: "json_object" },
         }),
       }
     );
 
     const json = await res.json();
-    const text = json?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const text = json?.choices?.[0]?.message?.content || "";
     const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     const parsed = JSON.parse(cleaned);
     if (parsed.objective && parsed.assumptions && parsed.recommendations) return parsed;
