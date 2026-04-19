@@ -752,6 +752,118 @@ function calcWaterSupplyPipeSizing(inputs: Record<string, number | string>) {
   };
 }
 
+// ─── Drainage Pipe Sizing — DFU Method (Philippine Plumbing Code / UPC) ─────
+// Standards: PPC Table 7-3 (DFU values), UPC Table 7-5 (pipe sizing),
+// Manning's formula for self-cleansing velocity verification
+
+const DRAIN_DFU: Record<string, { dfu: number; label: string }> = {
+  "Water Closet":               { dfu: 4, label: "Water Closet" },
+  "Lavatory / Hand Sink":       { dfu: 1, label: "Lavatory / Hand Sink" },
+  "Bathtub":                    { dfu: 2, label: "Bathtub" },
+  "Shower":                     { dfu: 2, label: "Shower" },
+  "Kitchen Sink (residential)": { dfu: 2, label: "Kitchen Sink (residential)" },
+  "Kitchen Sink (commercial)":  { dfu: 4, label: "Kitchen Sink (commercial)" },
+  "Urinal (flush valve)":       { dfu: 4, label: "Urinal (flush valve)" },
+  "Urinal (flush tank)":        { dfu: 2, label: "Urinal (flush tank)" },
+  "Floor Drain (50mm)":         { dfu: 2, label: "Floor Drain (50mm)" },
+  "Floor Drain (75mm)":         { dfu: 3, label: "Floor Drain (75mm)" },
+  "Laundry Tray":               { dfu: 2, label: "Laundry Tray" },
+  "Washing Machine":            { dfu: 2, label: "Washing Machine" },
+  "Dishwasher":                 { dfu: 2, label: "Dishwasher" },
+  "Drinking Fountain":          { dfu: 1, label: "Drinking Fountain" },
+  "Mop Sink":                   { dfu: 3, label: "Mop Sink" },
+  "Custom":                     { dfu: 0, label: "Custom" },
+};
+
+// UPC Table 7-5 — Horizontal branches at 1%, 2%, 4% slope (mm → max DFU)
+const HORIZ_DRAIN_TABLE: Record<string, Record<number, number>> = {
+  "1%": { 75: 21, 100: 96,  125: 216, 150: 384,  200: 864,  250: 1584, 300: 2520 },
+  "2%": { 50: 21, 75: 42,  100: 180, 125: 390,  150: 700,  200: 1600, 250: 2900, 300: 4600 },
+  "4%": { 40: 3,  50: 21,  75: 42,  100: 180,  125: 390,  150: 700,  200: 1600 },
+};
+
+// UPC Table 7-5 — Stacks (total DFU on stack)
+const STACK_TABLE: Record<number, number> = {
+  50: 10, 75: 48, 100: 240, 125: 540, 150: 960, 200: 2200, 250: 3800, 300: 6000,
+};
+
+// Manning's n per pipe material
+const MANNING_N: Record<string, number> = {
+  "PVC": 0.009, "Cast Iron": 0.012, "Concrete": 0.013, "Clay Tile": 0.013,
+};
+
+function calcDrainagePipeSizing(inputs: Record<string, number | string>): Record<string, unknown> {
+  const fixtures     = inputs.fixtures as Array<{ fixture_type: string; quantity: number; custom_dfu?: number }> || [];
+  const systemType   = String(inputs.system_type || "Horizontal Branch");
+  const slopeStr     = String(inputs.slope || "2%");
+  const slopePct     = parseFloat(slopeStr) / 100;
+  const pipeMaterial = String(inputs.pipe_material || "PVC");
+  const n            = MANNING_N[pipeMaterial] || 0.009;
+
+  // Sum DFU
+  const fixtureBreakdown = fixtures.map(f => {
+    const info    = DRAIN_DFU[f.fixture_type] || DRAIN_DFU["Custom"];
+    const qty     = Number(f.quantity) || 1;
+    const dfuEach = f.fixture_type === "Custom" ? (Number(f.custom_dfu) || 1) : info.dfu;
+    return {
+      fixture:   info.label || f.fixture_type,
+      qty,
+      dfu_each:  dfuEach,
+      dfu_total: qty * dfuEach,
+    };
+  });
+
+  const totalDFU = fixtureBreakdown.reduce((s, f) => s + f.dfu_total, 0);
+
+  // Select table based on system type
+  const isStack = systemType === "Drain Stack";
+  const tableRaw: Record<number, number> = isStack ? STACK_TABLE : (HORIZ_DRAIN_TABLE[slopeStr] || HORIZ_DRAIN_TABLE["2%"]);
+  const sortedSizes = Object.keys(tableRaw).map(Number).sort((a, b) => a - b);
+
+  // Smallest diameter where capacity >= totalDFU
+  const recommended = sortedSizes.find(d => tableRaw[d] >= totalDFU) || sortedSizes[sortedSizes.length - 1];
+
+  // Manning's flow capacity for each pipe size (half-full for horizontal, full for stacks)
+  const halfFull = !isStack;
+  const candidates = sortedSizes.filter(d => d >= sortedSizes[0] && d <= Math.max(recommended * 2, 300));
+
+  const comparison = candidates.map(dMM => {
+    const dM  = dMM / 1000;
+    const A   = halfFull ? (Math.PI * dM * dM / 8) : (Math.PI * dM * dM / 4);
+    const R   = dM / 4; // hydraulic radius = D/4 (same for half-full and full in circular pipe)
+    const S   = isStack ? 1.0 : slopePct; // stacks: use 1.0 vertical slope for Manning's
+    const Q   = (1 / n) * A * Math.pow(R, 2 / 3) * Math.pow(S, 1 / 2);
+    const V   = Q / A;
+    return {
+      dia_mm:      dMM,
+      max_dfu:     tableRaw[dMM] || 0,
+      q_ls:        Math.round(Q * 1000 * 100) / 100,
+      velocity:    Math.round(V * 100) / 100,
+      velocity_ok: V >= 0.6,
+      ok:          (tableRaw[dMM] || 0) >= totalDFU,
+      recommended: dMM === recommended,
+    };
+  });
+
+  const recData      = comparison.find(c => c.dia_mm === recommended);
+  const slopeMmPerM  = Math.round(slopePct * 1000 * 10) / 10;
+
+  return {
+    total_dfu:           totalDFU,
+    system_type:         systemType,
+    slope_pct:           parseFloat(slopeStr),
+    slope_mm_per_m:      isStack ? null : slopeMmPerM,
+    recommended_dia_mm:  recommended,
+    capacity_q_ls:       recData?.q_ls || 0,
+    design_velocity:     recData?.velocity || 0,
+    velocity_ok:         (recData?.velocity || 0) >= 0.6,
+    pipe_material:       pipeMaterial,
+    manning_n:           n,
+    fixture_breakdown:   fixtureBreakdown,
+    size_comparison:     comparison,
+  };
+}
+
 // ─── Hot Water Demand — ASHRAE Use Rate Method ───────────────────────────────
 // Standards: ASHRAE HVAC Applications Handbook Ch.50, Philippine Plumbing Code
 // Method: Sum daily demand per use type → heat energy → heater power → storage
@@ -946,6 +1058,8 @@ serve(async (req) => {
       results = calcWaterSupplyPipeSizing(inputs);
     } else if (calc_type === "Hot Water Demand") {
       results = calcHotWaterDemand(inputs);
+    } else if (calc_type === "Drainage Pipe Sizing") {
+      results = calcDrainagePipeSizing(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

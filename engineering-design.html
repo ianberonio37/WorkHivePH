@@ -448,7 +448,7 @@ const CALC_TYPES = {
   Plumbing: [
     { id: 'Water Supply Pipe Sizing', icon: '🚰', desc: "Hunter's Fixture Unit Method",          available: true  },
     { id: 'Hot Water Demand',         icon: '🌡️', desc: 'Daily hot water demand, heater sizing', available: true  },
-    { id: 'Drainage Pipe Sizing',     icon: '🏗️', desc: 'Drainage fixture units, pipe diameter', available: false },
+    { id: 'Drainage Pipe Sizing',     icon: '🏗️', desc: 'Drainage fixture units, pipe diameter', available: true  },
     { id: 'Septic Tank Sizing',       icon: '🏭', desc: 'Tank capacity per occupancy',            available: false },
   ],
 };
@@ -601,6 +601,39 @@ const GUIDES = {
       'Pressure drop is given in both m (metres of head) and kPa. Use kPa when specifying control valves and pressure regulators.',
       'Total friction loss from this calculation feeds directly into Pump Sizing TDH as the Friction Head (Hf) component.',
       'Nominal pipe diameter is the commercial pipe size designation — actual inside diameter varies by pipe schedule (Sch 40, 80, etc.).',
+    ],
+  },
+
+  'Drainage Pipe Sizing': {
+    title: 'Drainage Pipe Sizing - Drainage Fixture Unit (DFU) Method',
+    subtitle: 'Selects the minimum drain pipe diameter for horizontal branches, stacks, and building drains based on total drainage fixture units per Philippine Plumbing Code / UPC.',
+    standards: ['Philippine Plumbing Code (PPC) — based on UPC/IPC','UPC Table 7-3 (DFU values) and Table 7-5 (pipe sizes)','Manning's Formula — open-channel flow verification','NSPC (National Structural Code of the Philippines) — Plumbing Section'],
+    formulas: [
+      'Total DFU = sum of (DFU per fixture x quantity)',
+      '',
+      'Pipe diameter: smallest size from UPC Table 7-5 where max DFU >= total DFU',
+      '',
+      "Manning's formula — flow capacity verification:",
+      'Q = (1/n) x A x R^(2/3) x S^(1/2)',
+      'A = pi x (D/2)^2 / 2  (half-full cross section)',
+      'R = D/4  (hydraulic radius for circular pipe)',
+      'S = slope (m/m)',
+      '',
+      'Self-cleansing velocity: V = Q / A  (must be >= 0.6 m/s)',
+    ],
+    fields: [
+      { name: 'System Type', tip: 'Horizontal Branch: connects fixtures to a stack. Drain Stack: vertical pipe carrying drainage from multiple floors. Building Drain: lowest horizontal pipe, connects to sewer.' },
+      { name: 'Drain Slope', tip: 'Minimum slope for self-cleansing velocity. 2% (1/4 inch per foot) is standard in Philippine practice. Use 1% only for long runs where 2% is impossible. Never design below 1%.' },
+      { name: 'Pipe Material', tip: 'PVC (n=0.009) is standard in Philippine buildings. Cast Iron (n=0.012) for noise-sensitive floors. Manning n is higher for rougher pipes — affects flow capacity calculation.' },
+      { name: 'Fixture List', tip: 'Add every fixture drained by this pipe segment. DFU values are assigned automatically from UPC Table 7-3. Use Custom for non-standard fixtures and enter the DFU directly.' },
+    ],
+    notes: [
+      'DFU values (UPC Table 7-3): Water Closet=4, Lavatory=1, Bathtub/Shower=2, Kitchen Sink=2, Commercial Kitchen Sink=4, Urinal (flush valve)=4, Floor Drain=2-3, Mop Sink=3, Washing Machine=2.',
+      'Horizontal pipe at 2% slope (1/4" per foot): 75mm handles 42 DFU, 100mm handles 180 DFU, 150mm handles 700 DFU, 200mm handles 1600 DFU.',
+      'Stack pipe: 100mm handles 240 DFU total, 150mm handles 960 DFU total.',
+      'Minimum self-cleansing velocity is 0.6 m/s. Below this, solids settle and the pipe blocks. Never use a slope below 1% on a horizontal drain.',
+      'A 75mm (3") pipe cannot serve a water closet as a horizontal branch even if DFU count is met — this is a UPC hard rule. Use 100mm minimum for WC connections.',
+      'Vent pipes are sized separately (not covered in this calculator). Every P-trap requires a vent within the code-specified distance.',
     ],
   },
 
@@ -1466,6 +1499,64 @@ function renderInputForm(calcType) {
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
+
+  if (calcType === 'Drainage Pipe Sizing') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Office Building — Floor 2 Drainage Branch" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">System Type</div>
+        <div class="toggle-group" id="tg-drain-system">
+          ${['Horizontal Branch','Drain Stack','Building Drain'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-drain-system','${v}');updateDrainSlopeVisibility()">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <div id="slope-section" class="mb-4">
+        <div class="field-label">Drain Slope</div>
+        <div class="toggle-group" id="tg-slope">
+          <button class="toggle-btn" onclick="toggle('tg-slope','1%')">1% (1/8" per ft)</button>
+          <button class="toggle-btn active" onclick="toggle('tg-slope','2%')">2% (1/4" per ft)</button>
+          <button class="toggle-btn" onclick="toggle('tg-slope','4%')">4% (1/2" per ft)</button>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Pipe Material</div>
+        <div class="toggle-group" id="tg-drain-mat">
+          ${['PVC','Cast Iron','Concrete','Clay Tile'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-drain-mat','${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <div class="mb-2">
+        <div class="field-label">Plumbing Fixtures (served by this drain)</div>
+        <div style="display:grid;grid-template-columns:1fr 70px 70px 70px 28px;gap:0.3rem;align-items:center;margin-bottom:0.3rem;">
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Fixture Type</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Qty</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">DFU each</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">(auto)</div>
+          <div></div>
+        </div>
+        <div id="drain-fixture-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;"></div>
+        <button class="btn-ghost text-sm py-2 px-4" onclick="addDrainFixtureRow()">+ Add Fixture</button>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Method: DFU (Drainage Fixture Unit) Method per Philippine Plumbing Code / UPC Table 7-5. Manning's formula verifies self-cleansing velocity (min 0.6 m/s).
+      </div>
+    `;
+    addDrainFixtureRow('Water Closet', 4);
+    addDrainFixtureRow('Lavatory / Hand Sink', 4);
+    addDrainFixtureRow('Floor Drain (50mm)', 2);
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
 }
 
 // ─── Toggle button groups ─────────────────────────────────────────────────────
@@ -1617,6 +1708,55 @@ function toggleCustomRate(id) {
   }
 }
 
+const DRAIN_FIXTURE_OPTIONS = ['Water Closet','Lavatory / Hand Sink','Bathtub','Shower','Kitchen Sink (residential)','Kitchen Sink (commercial)','Urinal (flush valve)','Urinal (flush tank)','Floor Drain (50mm)','Floor Drain (75mm)','Laundry Tray','Washing Machine','Dishwasher','Drinking Fountain','Mop Sink','Custom'];
+const DRAIN_DFU_VALUES     = {'Water Closet':4,'Lavatory / Hand Sink':1,'Bathtub':2,'Shower':2,'Kitchen Sink (residential)':2,'Kitchen Sink (commercial)':4,'Urinal (flush valve)':4,'Urinal (flush tank)':2,'Floor Drain (50mm)':2,'Floor Drain (75mm)':3,'Laundry Tray':2,'Washing Machine':2,'Dishwasher':2,'Drinking Fountain':1,'Mop Sink':3,'Custom':0};
+
+let _drainRowId = 0;
+function addDrainFixtureRow(defaultType = 'Water Closet', defaultQty = 1) {
+  const id  = ++_drainRowId;
+  const row = document.createElement('div');
+  row.id    = `drain-row-${id}`;
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 70px 70px 70px 28px;gap:0.4rem;align-items:center;';
+  row.innerHTML = `
+    <select class="wh-input text-sm py-2" id="drain-type-${id}" onchange="toggleCustomDFU(${id})">
+      ${DRAIN_FIXTURE_OPTIONS.map(t => `<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
+    </select>
+    <div class="input-group" style="min-width:0;">
+      <input id="drain-qty-${id}" class="wh-input text-sm py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.65rem;">qty</span>
+    </div>
+    <div class="input-group" style="min-width:0;" id="drain-dfu-wrap-${id}">
+      <input id="drain-dfu-${id}" class="wh-input text-sm py-2" type="number" value="${DRAIN_DFU_VALUES[defaultType]||0}" min="0" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.65rem;">DFU</span>
+    </div>
+    <div style="font-size:0.7rem;color:rgba(255,255,255,0.3);text-align:center;" id="drain-total-${id}">x${defaultQty}</div>
+    <button onclick="document.getElementById('drain-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+  `;
+  document.getElementById('drain-fixture-list').appendChild(row);
+  toggleCustomDFU(id);
+}
+
+function toggleCustomDFU(id) {
+  const sel = document.getElementById(`drain-type-${id}`)?.value;
+  const inp = document.getElementById(`drain-dfu-${id}`);
+  if (!inp) return;
+  if (sel !== 'Custom') {
+    inp.value    = DRAIN_DFU_VALUES[sel] || 0;
+    inp.readOnly = true;
+    inp.style.opacity = '0.6';
+  } else {
+    inp.value    = 1;
+    inp.readOnly = false;
+    inp.style.opacity = '1';
+  }
+}
+
+function updateDrainSlopeVisibility() {
+  const system = getToggle('tg-drain-system');
+  const slopeSection = document.getElementById('slope-section');
+  if (slopeSection) slopeSection.style.display = system === 'Drain Stack' ? 'none' : '';
+}
+
 function applyServiceDefaults(service) {
   const defaults = {
     'Chilled Water Supply':  { density: 999  },
@@ -1691,6 +1831,24 @@ function collectInputs() {
     return {
       ...base,
       vent_type: getToggle('tg-vent-type') || 'Supply and Exhaust',
+    };
+  }
+
+  if (_calcType === 'Drainage Pipe Sizing') {
+    const fixtures = [];
+    document.querySelectorAll('#drain-fixture-list > div[id^="drain-row-"]').forEach(row => {
+      const rid  = row.id.replace('drain-row-', '');
+      const type = document.getElementById(`drain-type-${rid}`)?.value || '';
+      const qty  = parseFloat(document.getElementById(`drain-qty-${rid}`)?.value) || 1;
+      const dfu  = parseFloat(document.getElementById(`drain-dfu-${rid}`)?.value) || 0;
+      if (type) fixtures.push({ fixture_type: type, quantity: qty, custom_dfu: dfu });
+    });
+    return {
+      project_name:  v('f-project') || 'Untitled Drainage System',
+      system_type:   getToggle('tg-drain-system') || 'Horizontal Branch',
+      slope:         getToggle('tg-slope') || '2%',
+      pipe_material: getToggle('tg-drain-mat') || 'PVC',
+      fixtures,
     };
   }
 
@@ -1811,6 +1969,11 @@ async function runCalculation() {
       showToast('Please add at least one hot water use type.');
       return;
     }
+  } else if (_calcType === 'Drainage Pipe Sizing') {
+    if (!inputs.fixtures || inputs.fixtures.length === 0) {
+      showToast('Please add at least one fixture to drain.');
+      return;
+    }
   } else if (_calcType === 'Water Supply Pipe Sizing') {
     if (!inputs.fixtures || inputs.fixtures.length === 0) {
       showToast('Please add at least one plumbing fixture.');
@@ -1847,6 +2010,8 @@ async function runCalculation() {
       renderWaterSupplyReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Hot Water Demand') {
       renderHotWaterReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Drainage Pipe Sizing') {
+      renderDrainageReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -2582,6 +2747,161 @@ function renderPumpReport(inputs, results, narrative) {
   showReport();
 }
 
+// ─── Drainage Pipe Sizing Report ─────────────────────────────────────────────
+function renderDrainageReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+
+  const velStatus = results.velocity_ok
+    ? `<span style="color:#2e7d32;font-weight:700;">ADEQUATE (self-cleansing)</span>`
+    : `<span style="color:#b71c1c;font-weight:700;">BELOW 0.6 m/s — increase slope</span>`;
+
+  const fixtureRows = (results.fixture_breakdown || []).map(f => `
+    <tr>
+      <td>${escHtml(f.fixture)}</td>
+      <td class="num">${f.qty}</td>
+      <td class="num">${f.dfu_each}</td>
+      <td class="num">${f.dfu_total}</td>
+    </tr>`).join('');
+
+  const compRows = (results.size_comparison || []).map(r => `
+    <tr style="${r.recommended ? 'background:#fffbf0;font-weight:700;' : ''}">
+      <td>${r.dia_mm} mm${r.recommended ? ' (recommended)' : ''}</td>
+      <td class="num">${r.max_dfu}</td>
+      <td class="num">${r.q_ls}</td>
+      <td class="num">${r.velocity}</td>
+      <td class="num" style="color:${r.velocity_ok ? '#2e7d32' : '#b71c1c'};">${r.velocity_ok ? 'OK' : 'Low'}</td>
+      <td class="num" style="color:${r.ok ? '#2e7d32' : '#b71c1c'};">${r.ok ? 'OK' : 'Undersized'}</td>
+    </tr>`).join('');
+
+  const isStack    = results.system_type === 'Drain Stack';
+  const slopeLabel = isStack ? 'N/A (vertical)' : `${results.slope_pct}% (${results.slope_mm_per_m} mm/m)`;
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading.
+    </div>
+
+    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">DRAINAGE PIPE SIZING CALCULATION</h1>
+    <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">Drainage Fixture Unit (DFU) Method — Philippine Plumbing Code / UPC Table 7-5</div>
+
+    <h2>1. PROJECT INFORMATION</h2>
+    <table>
+      <tr><td style="width:35%;">Project / System Name</td><td>${e(inputs.project_name)}</td></tr>
+      <tr><td>Location</td><td>${e('')}</td></tr>
+      <tr><td>Owner / Client</td><td>${e('')}</td></tr>
+      <tr><td>Prepared by</td><td>${e('')}</td></tr>
+      <tr><td>PRC License No.</td><td>${e('')}</td></tr>
+      <tr><td>Date</td><td>${e(dateStr)}</td></tr>
+    </table>
+
+    <h2>2. OBJECTIVE</h2>
+    <p>${e(narrative?.objective || `To determine the minimum drain pipe diameter for a ${escHtml(results.system_type)} serving the listed fixtures using the Drainage Fixture Unit (DFU) method per Philippine Plumbing Code / UPC Table 7-5, and to verify self-cleansing velocity using Manning's formula.`)}</p>
+
+    <h2>3. REFERENCES / STANDARDS</h2>
+    <table>
+      <tr><td style="width:35%;">Plumbing Code</td><td>Philippine Plumbing Code (PPC) — based on UPC / IPC</td></tr>
+      <tr><td>DFU Values</td><td>UPC Table 7-3 — Drainage Fixture Units</td></tr>
+      <tr><td>Pipe Sizing Table</td><td>UPC Table 7-5 — Size of Horizontal Fixture Branches and Stacks</td></tr>
+      <tr><td>Flow Verification</td><td>Manning's Formula for Open-Channel / Partially Full Pipe Flow</td></tr>
+    </table>
+
+    <h2>4. DESIGN BASIS AND ASSUMPTIONS</h2>
+    <p>${e(narrative?.assumptions || `DFU values assigned per UPC Table 7-3. Pipe selected from UPC Table 7-5 — smallest diameter where maximum DFU capacity exceeds total DFU. Manning's formula applied to verify self-cleansing velocity at half-full flow condition (standard for horizontal drains). Minimum self-cleansing velocity: 0.6 m/s. Manning's roughness n = ${results.manning_n} for ${escHtml(results.pipe_material || inputs.pipe_material)}.`)}</p>
+
+    <h2>5. DESIGN PARAMETERS</h2>
+    <table>
+      <tr><th>Parameter</th><th class="num">Value</th><th>Unit</th></tr>
+      <tr><td>System Type</td><td colspan="2">${escHtml(results.system_type)}</td></tr>
+      <tr><td>Pipe Material</td><td colspan="2">${escHtml(results.pipe_material || inputs.pipe_material)}</td></tr>
+      <tr><td>Manning's Roughness (n)</td><td class="num">${results.manning_n}</td><td>dimensionless</td></tr>
+      <tr><td>Drain Slope</td><td colspan="2">${slopeLabel}</td></tr>
+      <tr><td>Min. Self-Cleansing Velocity</td><td class="num">0.60</td><td>m/s</td></tr>
+    </table>
+
+    <h2>6. FIXTURE SCHEDULE</h2>
+    <table>
+      <tr>
+        <th>Fixture Type</th>
+        <th class="num">Qty</th>
+        <th class="num">DFU each</th>
+        <th class="num">DFU total</th>
+      </tr>
+      ${fixtureRows}
+      <tr class="total-row">
+        <td colspan="3"><strong>Total Drainage Fixture Units (DFU)</strong></td>
+        <td class="num"><strong>${results.total_dfu}</strong></td>
+      </tr>
+    </table>
+
+    <h2>7. PIPE SIZE SELECTION AND MANNING'S VERIFICATION</h2>
+    <p style="font-size:0.82rem;color:#555;margin-bottom:0.5rem;">
+      System: ${escHtml(results.system_type)} &nbsp;|&nbsp;
+      Slope: ${slopeLabel} &nbsp;|&nbsp;
+      Material: ${escHtml(results.pipe_material || inputs.pipe_material)} (n = ${results.manning_n})
+    </p>
+    <table>
+      <tr>
+        <th>Pipe Diameter</th>
+        <th class="num">Max DFU (table)</th>
+        <th class="num">Q (L/s)</th>
+        <th class="num">Velocity (m/s)</th>
+        <th class="num">Self-cleansing</th>
+        <th class="num">DFU Status</th>
+      </tr>
+      ${compRows}
+    </table>
+
+    <h2>8. RESULTS SUMMARY</h2>
+    <div class="result-highlight">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <div class="res-label">Total DFU</div>
+          <div class="res-value">${results.total_dfu} DFU</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.fixture_breakdown?.length || 0} fixture type(s)</div>
+        </div>
+        <div>
+          <div class="res-label">Recommended Pipe</div>
+          <div class="res-value">${results.recommended_dia_mm} mm</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${escHtml(results.pipe_material || inputs.pipe_material)}</div>
+        </div>
+        <div>
+          <div class="res-label">Flow Capacity</div>
+          <div class="res-value">${results.capacity_q_ls} L/s</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">at half-full, ${slopeLabel}</div>
+        </div>
+        <div>
+          <div class="res-label">Velocity Check</div>
+          <div class="res-value" style="color:${results.velocity_ok ? '#2e7d32' : '#b71c1c'};">${results.velocity_ok ? 'PASS' : 'FAIL'}</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.design_velocity} m/s (min 0.6)</div>
+        </div>
+      </div>
+    </div>
+
+    <h2>9. RECOMMENDATIONS</h2>
+    <p>${e(narrative?.recommendations || `Install a minimum ${results.recommended_dia_mm} mm ${escHtml(results.pipe_material || inputs.pipe_material)} drain pipe. Maintain the specified slope throughout the run — any reduction in slope reduces self-cleansing velocity and risks blockage. All water closet connections must use a minimum 100 mm branch regardless of DFU count. Provide a cleanout at every change of direction and at a maximum 15 m spacing on horizontal runs. Size all vent pipes separately per Philippine Plumbing Code.`)}</p>
+
+    <div class="sig-block">
+      <div>
+        <div class="sig-line">Prepared by</div>
+        <div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div>
+      </div>
+      <div>
+        <div class="sig-line">PRC License No. / PTR No.</div>
+        <div style="margin-top:2rem;" class="sig-line">Date</div>
+      </div>
+      <div>
+        <div class="sig-line">Checked / Approved by</div>
+        <div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
 // ─── Hot Water Demand Report ──────────────────────────────────────────────────
 function renderHotWaterReport(inputs, results, narrative) {
   const now     = new Date();
@@ -3036,6 +3356,8 @@ function viewHistoryReport(row) {
     renderWaterSupplyReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Hot Water Demand') {
     renderHotWaterReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Drainage Pipe Sizing') {
+    renderDrainageReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
