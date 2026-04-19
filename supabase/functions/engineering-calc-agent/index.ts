@@ -1352,6 +1352,11 @@ Respond in JSON format only:
       const intv = rec.interval_s ?? '';
       const hc = rec.HC_pct ?? '';
       recommendations = `Computed RTT is ${rtt} s (interval ${intv} s, HC% ${hc}%). Install group supervisory control to optimize dispatching. At least one elevator must comply with BP 344 / RA 10754 (min car 1100 mm × 1400 mm, Braille controls). If interval exceeds the target, consider increasing speed or adding an elevator. Submit traffic analysis to DPWH / LGU as part of the building permit application. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
+    } else if (calcType === "Bearing Life (L10)") {
+      const life = rec.L10h_adj ?? rec.L10h ?? '';
+      const pass = rec.life_check ?? '';
+      const creq = rec.C_required_kN ?? '';
+      recommendations = `Adjusted bearing life (Lna): ${life} hours — ${pass}. ${pass === 'FAIL' ? 'Select a bearing with C ≥ ' + creq + ' kN.' : 'Bearing is adequate for the application.'} Verify static rating C0 against peak shock loads. Specify sealed bearing (2RS) for humid/dusty Philippine plant environments. Establish lubrication intervals per manufacturer. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
     } else if (calcType === "V-Belt Drive Design") {
       const nb   = rec.n_belts ?? '';
       const belt = rec.belt_designation ?? '';
@@ -1369,6 +1374,80 @@ Respond in JSON format only:
       recommendations,
     };
   }
+}
+
+// ─── Machine Design: Bearing Life L10 (ISO 281:2007) ────────────────────────
+
+function calcBearingLife(inputs: Record<string, number | string>): Record<string, unknown> {
+  const bearing_type    = (inputs.bearing_type as string) || 'Ball';
+  const C_kN            = Number(inputs.C_kN)            || 25.5;
+  const speed_rpm       = Number(inputs.speed_rpm)        || 1450;
+  const Fr_kN           = Number(inputs.Fr_kN)            || 5.0;
+  const Fa_kN           = Number(inputs.Fa_kN)            || 0;
+  const reliability_pct = Number(inputs.reliability_pct)  || 90;
+  const required_life_h = Number(inputs.required_life_h)  || 25000;
+
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+  const round1 = (n: number) => Math.round(n * 10)  / 10;
+
+  // Life exponent
+  const p_exp = bearing_type === 'Roller' ? 10/3 : 3;
+
+  // Load factors X, Y based on Fa/Fr ratio (ISO 281 simplified for deep groove ball bearings)
+  const Fa_Fr_ratio = round2(Fr_kN > 0 ? Fa_kN / Fr_kN : 0);
+  let X = 1.0, Y = 0.0;
+  if (Fa_kN > 0) {
+    if (bearing_type === 'Ball') {
+      // Deep groove ball bearing: ISO 281 simplified
+      if (Fa_Fr_ratio <= 0.44) { X = 1.0; Y = 0.0;  }
+      else if (Fa_Fr_ratio <= 0.72) { X = 0.56; Y = 1.71; }
+      else if (Fa_Fr_ratio <= 1.02) { X = 0.56; Y = 1.40; }
+      else if (Fa_Fr_ratio <= 1.44) { X = 0.56; Y = 1.27; }
+      else if (Fa_Fr_ratio <= 2.28) { X = 0.56; Y = 1.17; }
+      else { X = 0.56; Y = 1.00; }
+    } else {
+      // Roller bearing: typically X=0.4, Y depends on contact angle (use 1.5 as conservative)
+      X = 0.67; Y = 0.67;
+    }
+  }
+
+  // Equivalent dynamic load
+  const P_kN = round2(X * Fr_kN + Y * Fa_kN);
+  const C_over_P = round2(C_kN / P_kN);
+
+  // Basic rating life (million revolutions)
+  const L10_Mrev = round2(Math.pow(C_over_P, p_exp));
+
+  // L10 in hours
+  const L10h = Math.round(L10_Mrev * 1e6 / (60 * speed_rpm));
+
+  // Reliability factor a1
+  const a1_map: Record<number, number> = { 90: 1.00, 95: 0.62, 99: 0.21, 96: 0.53, 97: 0.44, 98: 0.33 };
+  const a1 = a1_map[reliability_pct] ?? 1.00;
+
+  // Adjusted life
+  const L10h_adj = Math.round(a1 * L10h);
+
+  // Pass/fail
+  const life_check = L10h_adj >= required_life_h ? 'PASS' : 'FAIL';
+
+  // Minimum C required to meet required life at current reliability
+  const C_required_kN = round1(P_kN * Math.pow((required_life_h / a1 * 60 * speed_rpm) / 1e6, 1 / p_exp));
+
+  return {
+    p_exp: bearing_type === 'Roller' ? '10/3' : '3',
+    Fa_Fr_ratio,
+    X,
+    Y,
+    P_kN,
+    C_over_P,
+    L10_Mrev,
+    L10h,
+    a1,
+    L10h_adj,
+    life_check,
+    C_required_kN,
+  };
 }
 
 // ─── Machine Design: V-Belt Drive (RMA IP-20 / ASME B17.1) ──────────────────
@@ -2159,6 +2238,8 @@ serve(async (req) => {
       results = calcFireAlarmBattery(inputs);
     } else if (calc_type === "Elevator Traffic Analysis") {
       results = calcElevatorTraffic(inputs);
+    } else if (calc_type === "Bearing Life (L10)") {
+      results = calcBearingLife(inputs);
     } else if (calc_type === "V-Belt Drive Design") {
       results = calcVBeltDrive(inputs);
     } else if (calc_type === "Hoist Capacity") {

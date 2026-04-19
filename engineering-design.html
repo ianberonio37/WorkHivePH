@@ -498,7 +498,7 @@ const CALC_TYPES = {
   ],
   'Machine Design': [
     { id: 'V-Belt Drive Design',  icon: '🔄', desc: 'Sheave sizing, belt length, no. of belts — RMA / ASME', available: true  },
-    { id: 'Bearing Life (L10)',   icon: '⚙️', desc: 'Dynamic load rating, L10 hours — ISO 281',              available: false },
+    { id: 'Bearing Life (L10)',   icon: '⚙️', desc: 'Dynamic load rating, L10 hours — ISO 281',              available: true  },
     { id: 'Shaft Design',         icon: '🔩', desc: 'Torsion + bending, ASME shaft sizing',                  available: false },
     { id: 'Bolt Torque & Preload',icon: '🔧', desc: 'Fastener tightening torque, preload — ISO 898',         available: false },
   ],
@@ -1235,6 +1235,49 @@ const GUIDES = {
       'Belt tension: V-belts must be tensioned to the manufacturer specification at installation and re-tensioned after the first 4–8 hours of operation. Under-tension causes slippage and heat; over-tension causes premature bearing failure.',
       'Philippine field tip: most belt failures in Philippine industrial plants are caused by misalignment (sheaves not in the same plane) and under-tensioning after installation — not by undersizing. Always check sheave alignment with a straightedge before commissioning.',
       'Classical V-belt standard lengths (in mm) are designated by section + datum length number. Example: B-100 = Section B, 100-inch datum length. Stock sizes are available from local suppliers (Abrasives & Hardware, industrial distributors).',
+    ],
+  },
+
+  'Bearing Life (L10)': {
+    title: 'Bearing Life Calculation — ISO 281 (L10 Basic Rating Life)',
+    subtitle: 'Calculates the basic rating life L10 (hours) and adjusted rating life Lna for a rolling element bearing under combined radial and axial loading, using the ISO 281 equivalent dynamic load method.',
+    standards: ['ISO 281:2007 — Rolling Bearings: Dynamic Load Ratings and Rating Life','ISO 76 — Static Load Ratings','ABMA Standard 9 / 11 — Ball and Roller Bearing Life','PSME Code — Philippine Mechanical Engineering Code'],
+    formulas: [
+      'Equivalent Dynamic Bearing Load (P):',
+      '  P = X × Fr + Y × Fa',
+      '  Fr = radial load (kN), Fa = axial load (kN)',
+      '  X, Y = load factors from ISO 281 Table (depends on bearing type and Fa/C0 ratio)',
+      '  For pure radial load: P = Fr (X=1, Y=0)',
+      '',
+      'Basic Rating Life (L10):',
+      '  L10 (rev) = (C / P)^p × 10^6',
+      '  p = 3 for ball bearings, 10/3 for roller bearings',
+      '  C = basic dynamic load rating from bearing catalog (kN)',
+      '',
+      'L10 in hours:',
+      '  L10h = L10 (rev) / (60 × n)  where n = speed in RPM',
+      '',
+      'Adjusted Rating Life (Lna):',
+      '  Lna = a1 × aISO × L10h',
+      '  a1 = reliability factor (1.0 at 90%, 0.62 at 95%, 0.21 at 99%)',
+      '  aISO = life modification factor (simplified: 1.0 for standard industrial conditions)',
+    ],
+    fields: [
+      { name: 'Bearing Type', tip: 'Ball bearings (deep groove, angular contact): exponent p = 3. Roller bearings (cylindrical, tapered, spherical): exponent p = 10/3 ≈ 3.33. Roller bearings carry higher radial loads; ball bearings handle combined radial + axial better.' },
+      { name: 'Basic Dynamic Load Rating (C)', tip: 'From the bearing manufacturer\'s catalog (SKF, FAG, NSK, NTN, Timken). The C rating is the constant load under which the bearing achieves L10 = 1 million revolutions. Always use the catalog C value for the specific bearing number being checked.' },
+      { name: 'Radial Load (Fr)', tip: 'Force acting perpendicular to the shaft axis. For belt drives: Fr = tight-side tension + slack-side tension. For gear drives: Fr = tangential force / cos(pressure angle). Units: kN.' },
+      { name: 'Axial Load (Fa)', tip: 'Force acting along the shaft axis. Thrust from helical gears, worm gears, or angled belt drives. For pure spur gear or V-belt drives with no misalignment: Fa ≈ 0. Units: kN.' },
+      { name: 'Operating Speed', tip: 'Shaft speed in RPM at the bearing location. Life in hours is inversely proportional to speed — doubling the speed halves the life in hours.' },
+      { name: 'Reliability', tip: 'ISO 281 L10 = 90% reliability (10% of bearings fail before L10h). For critical equipment: specify L5 (95%) or L1 (99%). Reliability factor a1: 90%=1.0, 95%=0.62, 99%=0.21.' },
+      { name: 'Required Life (target)', tip: 'Target bearing service life in hours. Industrial standards: 20,000–30,000 h for electric motors and pumps, 40,000–60,000 h for gearboxes, 100,000+ h for critical continuous process equipment. Compare computed L10h against this target.' },
+    ],
+    notes: [
+      'L10 life means 10% of bearings in a large population will fail before L10h under identical conditions — 90% will survive. It is NOT a guarantee that a single bearing lasts that long.',
+      'The most common cause of premature bearing failure is not fatigue (the failure mode L10 addresses) but contamination, lubrication failure, misalignment, or overloading — none of which are captured in the L10 formula.',
+      'Always check the static load rating (C0) as well — if the equivalent static load P0 > C0, the bearing will be permanently deformed even if L10h is adequate.',
+      'For high-temperature operation (>120°C), apply temperature factor ft from the bearing catalog — it reduces the effective C rating.',
+      'In Philippine industrial plants, bearings run in humid and dusty environments. Specify a sealed bearing (2RS suffix for SKF/FAG) or apply adequate re-lubrication intervals. Contamination is the leading failure cause in plant-floor applications.',
+      'When in doubt, verify the bearing number in the SKF, FAG, or NSK online catalog — they provide a direct L10h calculator using actual catalog data.',
     ],
   },
 };
@@ -2981,6 +3024,86 @@ function renderInputForm(calcType) {
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
+
+  if (calcType === 'Bearing Life (L10)') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Equipment Tag</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Pump P-101 — Drive End Bearing" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Bearing Type</div>
+        <div class="toggle-group" id="tg-bearing-type">
+          <button class="toggle-btn active" data-val="Ball" onclick="toggle('tg-bearing-type','Ball')">Ball Bearing (p = 3)</button>
+          <button class="toggle-btn" data-val="Roller" onclick="toggle('tg-bearing-type','Roller')">Roller Bearing (p = 10/3)</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Dynamic Load Rating (C) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">from catalog</span></div>
+          <div class="input-group">
+            <input id="f-C-rating" class="wh-input" type="number" value="25.5" min="0.1" step="0.1" />
+            <span class="input-unit">kN</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Operating Speed</div>
+          <div class="input-group">
+            <input id="f-speed-rpm" class="wh-input" type="number" value="1450" min="1" />
+            <span class="input-unit">RPM</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Radial Load (Fr)</div>
+          <div class="input-group">
+            <input id="f-Fr" class="wh-input" type="number" value="5.0" min="0" step="0.1" />
+            <span class="input-unit">kN</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Axial Load (Fa) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(0 if none)</span></div>
+          <div class="input-group">
+            <input id="f-Fa" class="wh-input" type="number" value="0" min="0" step="0.1" />
+            <span class="input-unit">kN</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Reliability Target</div>
+          <div class="toggle-group" id="tg-reliability">
+            <button class="toggle-btn active" data-val="90" onclick="toggle('tg-reliability','90')">90% — L10 (standard)</button>
+            <button class="toggle-btn" data-val="95" onclick="toggle('tg-reliability','95')">95% — L5 (critical)</button>
+            <button class="toggle-btn" data-val="99" onclick="toggle('tg-reliability','99')">99% — L1 (very critical)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Required Life (target)</div>
+          <div class="input-group">
+            <input id="f-required-life" class="wh-input" type="number" value="25000" min="100" />
+            <span class="input-unit">hours</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Bearing Number <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(optional — for report reference)</span></div>
+        <input id="f-bearing-no" class="wh-input" placeholder="e.g. SKF 6308, FAG 22216, NSK 6210" />
+      </div>
+
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.25rem;">
+        Standard: ISO 281:2007. X=1, Y=0 for pure radial load. For combined loading with Fa &gt; 0, load factors X and Y are auto-selected from ISO 281 Table based on Fa/Fr ratio.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
 }
 
 // ─── Toggle button groups ─────────────────────────────────────────────────────
@@ -3620,6 +3743,20 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Bearing Life (L10)') {
+    return {
+      project_name:    v('f-project')                            || 'Untitled Bearing Check',
+      bearing_no:      v('f-bearing-no')                        || '',
+      bearing_type:    getToggle('tg-bearing-type')             || 'Ball',
+      C_kN:            parseFloat(v('f-C-rating'))              || 25.5,
+      speed_rpm:       parseFloat(v('f-speed-rpm'))             || 1450,
+      Fr_kN:           parseFloat(v('f-Fr'))                    || 5.0,
+      Fa_kN:           parseFloat(v('f-Fa'))                    || 0,
+      reliability_pct: parseFloat(getToggle('tg-reliability'))  || 90,
+      required_life_h: parseFloat(v('f-required-life'))         || 25000,
+    };
+  }
+
   if (_calcType === 'V-Belt Drive Design') {
     const powerUnit = getToggle('tg-power-unit') || 'kW';
     const rawPower  = parseFloat(v('f-motor-power')) || 7.5;
@@ -3748,6 +3885,15 @@ async function runCalculation() {
       showToast('Please enter at least one device or notification appliance.');
       return;
     }
+  } else if (_calcType === 'Bearing Life (L10)') {
+    if (!inputs.C_kN || inputs.C_kN <= 0) {
+      showToast('Please enter the dynamic load rating (C) from the bearing catalog.');
+      return;
+    }
+    if (!inputs.Fr_kN || inputs.Fr_kN <= 0) {
+      showToast('Please enter the radial load (Fr).');
+      return;
+    }
   } else if (_calcType === 'V-Belt Drive Design') {
     if (!inputs.power_kW || inputs.power_kW <= 0) {
       showToast('Please enter the motor power.');
@@ -3818,6 +3964,8 @@ async function runCalculation() {
       renderFireAlarmBatteryReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Elevator Traffic Analysis') {
       renderElevatorTrafficReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Bearing Life (L10)') {
+      renderBearingLifeReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'V-Belt Drive Design') {
       renderVBeltReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Hoist Capacity') {
@@ -6153,6 +6301,140 @@ function renderFireAlarmBatteryReport(inputs, results, narrative) {
 
     <h2>7. Recommendations</h2>
     <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Provide sealed lead-acid (SLA/VRLA) batteries rated at minimum ${r.Ah_required} Ah at ${inputs.system_voltage} V DC.\n2. Recommended battery bank: ${r.battery_config || r.selected_Ah + ' Ah'} — verify availability with FACP manufacturer.\n3. Install batteries inside or adjacent to the FACP cabinet in a clean, cool, ventilated location per NFPA 72.\n4. Verify battery compatibility with the specific FACP charging circuit before procurement.\n5. Replace batteries every 3-5 years per NFPA 72 §10.6.11 or per manufacturer recommendation, whichever is more frequent.\n6. Submit this calculation to the Bureau of Fire Protection (BFP) as part of the fire alarm permit application package.\n7. A PRC-licensed Electrical or Electronics Engineer must sign and seal this document before submission to BFP.`)}</p>
+
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Prepared by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Checked by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Approved by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── Bearing Life (L10) Report — ISO 281 ────────────────────────────────────
+function renderBearingLifeReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const r       = results;
+
+  const lifeOk    = r.L10h_adj >= inputs.required_life_h;
+  const lifeColor = lifeOk ? '#2e7d32' : '#c62828';
+  const lifeNote  = lifeOk ? 'PASS — meets required life' : 'FAIL — bearing undersized for required life';
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div>
+        <h1>DESIGN CALCULATION</h1>
+        <div style="font-size:0.8rem;color:#555;">Bearing Life Calculation — ISO 281:2007 (L10 Basic Rating Life)</div>
+      </div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;">
+        <div>Rev. ${e('0')}</div>
+        <div>Date: ${dateStr}</div>
+      </div>
+    </div>
+
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">Equipment / Location</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Bearing Number</th><td>${inputs.bearing_no ? escHtml(inputs.bearing_no) : e('(enter bearing number)')}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Calculation Standard</th><td>ISO 281:2007 / ABMA Std. 9 & 11</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
+    </table>
+
+    <h2>1. Objective</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || `To verify that the selected ${escHtml(inputs.bearing_type.toLowerCase())} bearing${inputs.bearing_no ? ' (' + inputs.bearing_no + ')' : ''} with a basic dynamic load rating C = ${inputs.C_kN} kN achieves the required service life of ${inputs.required_life_h.toLocaleString()} hours at ${inputs.speed_rpm} RPM under the applied loading conditions, at ${inputs.reliability_pct}% reliability per ISO 281:2007.`)}</p>
+
+    <h2>2. References</h2>
+    <p style="font-size:0.83rem;color:#333;">ISO 281:2007 — Rolling Bearings: Dynamic Load Ratings and Rating Life<br>
+    ISO 76 — Rolling Bearings: Static Load Ratings<br>
+    ABMA Standard 9 / 11 — Ball and Roller Bearing Life<br>
+    Bearing manufacturer catalog (SKF, FAG, NSK, NTN, or equivalent)</p>
+
+    <h2>3. Bearing Parameters</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Bearing Type</td><td>${escHtml(inputs.bearing_type)} Bearing</td></tr>
+      <tr><td>Bearing Number (reference)</td><td>${inputs.bearing_no ? escHtml(inputs.bearing_no) : '—'}</td></tr>
+      <tr><td>Basic Dynamic Load Rating (C)</td><td class="num">${escHtml(String(inputs.C_kN))} kN</td></tr>
+      <tr><td>Life Exponent (p)</td><td class="num">${r.p_exp} (${inputs.bearing_type === 'Ball' ? 'ball bearing' : 'roller bearing'})</td></tr>
+      <tr><td>Operating Speed (n)</td><td class="num">${escHtml(String(inputs.speed_rpm))} RPM</td></tr>
+      <tr><td>Radial Load (Fr)</td><td class="num">${escHtml(String(inputs.Fr_kN))} kN</td></tr>
+      <tr><td>Axial Load (Fa)</td><td class="num">${escHtml(String(inputs.Fa_kN))} kN</td></tr>
+      <tr><td>Fa / Fr Ratio</td><td class="num">${r.Fa_Fr_ratio}</td></tr>
+      <tr><td>Radial Load Factor (X)</td><td class="num">${r.X}</td></tr>
+      <tr><td>Axial Load Factor (Y)</td><td class="num">${r.Y}</td></tr>
+      <tr><td>Reliability</td><td class="num">${escHtml(String(inputs.reliability_pct))}% (L${100 - inputs.reliability_pct})</td></tr>
+      <tr><td>Reliability Factor (a1)</td><td class="num">${r.a1}</td></tr>
+    </table>
+
+    <h2>4. Equivalent Dynamic Bearing Load</h2>
+    <p style="font-size:0.83rem;color:#333;"><strong>Formula (ISO 281):</strong> P = X × F<sub>r</sub> + Y × F<sub>a</sub></p>
+    <p style="font-size:0.83rem;color:#333;">
+      P = ${r.X} × ${escHtml(String(inputs.Fr_kN))} + ${r.Y} × ${escHtml(String(inputs.Fa_kN))}<br>
+      P = <strong>${r.P_kN} kN</strong>
+    </p>
+
+    <h2>5. Basic Rating Life Calculation</h2>
+    <p style="font-size:0.83rem;color:#333;"><strong>Formula (ISO 281):</strong></p>
+    <p style="font-size:0.83rem;color:#333;">
+      L10 = (C / P)<sup>p</sup> × 10<sup>6</sup> revolutions<br>
+      L10 = (${escHtml(String(inputs.C_kN))} / ${r.P_kN})<sup>${r.p_exp}</sup> × 10<sup>6</sup> = <strong>${r.L10_Mrev} × 10<sup>6</sup> rev</strong>
+    </p>
+    <p style="font-size:0.83rem;color:#333;"><strong>Converting to hours:</strong></p>
+    <p style="font-size:0.83rem;color:#333;">
+      L10h = L10 × 10<sup>6</sup> / (60 × n)<br>
+      L10h = ${r.L10_Mrev} × 10<sup>6</sup> / (60 × ${escHtml(String(inputs.speed_rpm))}) = <strong>${r.L10h.toLocaleString()} hours</strong>
+    </p>
+    <p style="font-size:0.83rem;color:#333;"><strong>Adjusted Rating Life:</strong></p>
+    <p style="font-size:0.83rem;color:#333;">
+      L<sub>na</sub> = a1 × a<sub>ISO</sub> × L10h = ${r.a1} × 1.0 × ${r.L10h.toLocaleString()} = <strong>${r.L10h_adj.toLocaleString()} hours</strong>
+    </p>
+
+    <h2>6. Results Summary</h2>
+    <div class="result-highlight" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">L10 Basic Rating Life</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.L10h.toLocaleString()} h</div>
+        <div style="font-size:0.75rem;color:#555;">at 90% reliability</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Adjusted Life (Lna)</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.L10h_adj.toLocaleString()} h</div>
+        <div style="font-size:0.75rem;color:#555;">at ${escHtml(String(inputs.reliability_pct))}% reliability</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Equivalent Load (P)</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.P_kN} kN</div>
+        <div style="font-size:0.75rem;color:#555;">C/P = ${r.C_over_P}</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Life vs. Required</div>
+        <div style="font-size:1.4rem;font-weight:800;color:${lifeColor};">${lifeOk ? 'PASS' : 'FAIL'}</div>
+        <div style="font-size:0.72rem;font-weight:700;color:${lifeColor};">${escHtml(lifeNote)}</div>
+      </div>
+    </div>
+
+    <h2>7. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Adjusted bearing life (Lna) at ${inputs.reliability_pct}% reliability: ${r.L10h_adj.toLocaleString()} hours — ${lifeOk ? 'meets' : 'does NOT meet'} the required ${inputs.required_life_h.toLocaleString()} hours target.\n${lifeOk ? '2. Selected bearing is adequate for the application.' : '2. BEARING UNDERSIZED — select a bearing with higher C rating. Required C_min = ' + r.C_required_kN + ' kN.'}\n3. Equivalent dynamic load P = ${r.P_kN} kN with C/P ratio = ${r.C_over_P}. For long life, target C/P ≥ 3 for critical equipment.\n4. Verify static load rating (C0) independently — if peak shock loads occur, check P0 vs. C0 to avoid permanent deformation.\n5. In Philippine humid/dusty conditions, specify sealed bearing (e.g. 2RS suffix) or establish re-lubrication intervals per bearing manufacturer recommendation.\n6. Perform vibration monitoring (SPM or envelope analysis) to confirm actual bearing condition — calculated L10 life is a statistical estimate, not a guarantee for any individual bearing.\n7. A PRC-licensed Mechanical Engineer must sign and seal this document before use as a design basis.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
