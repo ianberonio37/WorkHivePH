@@ -1352,6 +1352,11 @@ Respond in JSON format only:
       const intv = rec.interval_s ?? '';
       const hc = rec.HC_pct ?? '';
       recommendations = `Computed RTT is ${rtt} s (interval ${intv} s, HC% ${hc}%). Install group supervisory control to optimize dispatching. At least one elevator must comply with BP 344 / RA 10754 (min car 1100 mm × 1400 mm, Braille controls). If interval exceeds the target, consider increasing speed or adding an elevator. Submit traffic analysis to DPWH / LGU as part of the building permit application. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
+    } else if (calcType === "V-Belt Drive Design") {
+      const nb   = rec.n_belts ?? '';
+      const belt = rec.belt_designation ?? '';
+      const ddia = rec.driven_dia_mm ?? '';
+      recommendations = `Provide ${nb} matched Section ${(inputs.belt_section as string) || ''} belt(s), designation ${belt}. Driven sheave: ${ddia} mm pitch diameter. Tension to manufacturer spec and re-tension after 4–8 hours. Verify sheave alignment before commissioning. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
     } else if (calcType === "Hoist Capacity") {
       const mbf = rec.MBF_kN ?? '';
       const rope = rec.rope_recommendation ?? '';
@@ -1364,6 +1369,124 @@ Respond in JSON format only:
       recommendations,
     };
   }
+}
+
+// ─── Machine Design: V-Belt Drive (RMA IP-20 / ASME B17.1) ──────────────────
+
+function calcVBeltDrive(inputs: Record<string, number | string>): Record<string, unknown> {
+  const power_kW       = Number(inputs.power_kW)       || 7.5;
+  const service_factor = Number(inputs.service_factor)  || 1.2;
+  const driver_rpm     = Number(inputs.driver_rpm)      || 1450;
+  const driven_rpm     = Number(inputs.driven_rpm)      || 720;
+  const belt_section   = (inputs.belt_section as string) || 'B';
+  const driver_dia_mm  = Number(inputs.driver_dia_mm)   || 150;
+  const center_dist_mm = Number(inputs.center_dist_mm)  || 500;
+
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+  const round1 = (n: number) => Math.round(n * 10)  / 10;
+
+  // Design power
+  const design_power_kW  = round2(power_kW * service_factor);
+  const rated_power_kW   = round2(power_kW);
+
+  // Speed ratio and driven sheave diameter
+  const speed_ratio     = round2(driver_rpm / driven_rpm);
+  const driven_dia_mm   = Math.round(driver_dia_mm * speed_ratio / 5) * 5; // round to 5mm
+  const actual_driven_rpm = Math.round(driver_rpm * driver_dia_mm / driven_dia_mm);
+
+  // Belt speed (m/s)
+  const belt_speed_ms = round2(Math.PI * (driver_dia_mm / 1000) * driver_rpm / 60);
+
+  // Belt length (mm)
+  const C  = center_dist_mm;
+  const D  = driven_dia_mm;
+  const d  = driver_dia_mm;
+  const L_calc = 2 * C + (Math.PI / 2) * (D + d) + Math.pow(D - d, 2) / (4 * C);
+  const belt_length_mm = Math.round(L_calc);
+
+  // Belt designation — RMA standard lengths per section (datum length in inches, label in mm)
+  // Approximate standard lengths (mm) for each section
+  const std_lengths: Record<string, number[]> = {
+    A: [500,530,560,580,610,640,660,690,710,740,760,790,810,840,860,890,910,940,965,990,1015,1040,1065,1090,1120,1145,1170,1220,1270,1320,1370,1420,1470,1525,1575,1625,1680,1730,1780,1830,1880,1930,1980,2030,2080,2130,2180,2230,2290,2340,2390],
+    B: [610,640,690,710,740,760,790,810,840,860,890,910,940,965,990,1015,1040,1065,1090,1120,1145,1170,1220,1270,1320,1370,1420,1470,1525,1575,1625,1680,1730,1780,1830,1880,1930,1980,2030,2130,2230,2330,2430,2540,2640,2740,2840,2950,3050,3150],
+    C: [965,990,1040,1090,1120,1170,1220,1270,1320,1370,1420,1470,1525,1575,1625,1680,1730,1780,1830,1880,1930,1980,2030,2080,2130,2180,2230,2290,2340,2390,2540,2640,2740,2840,2950,3050,3150,3350,3550,3750,3950,4060,4160,4370,4570,4780,5080],
+    D: [2540,2640,2740,2840,2950,3050,3150,3350,3550,3750,3950,4060,4160,4370,4570,4780,5080,5330,5590,5840,6100,6350,6600],
+  };
+  const lengths = std_lengths[belt_section] || std_lengths['B'];
+  let selected_length = lengths[lengths.length - 1];
+  for (const l of lengths) {
+    if (l >= belt_length_mm) { selected_length = l; break; }
+  }
+
+  // Belt designation: section + datum number (datum ≈ length in inches, RMA convention)
+  const datum_inches = Math.round(selected_length / 25.4);
+  const belt_designation = `${belt_section}-${datum_inches}`;
+
+  // Arc of contact on small sheave (degrees)
+  const arc_deg = round1(180 - 60 * (D - d) / C);
+
+  // Arc correction factor Kθ (RMA IP-20 interpolated)
+  function getKtheta(theta: number): number {
+    if (theta >= 180) return 1.00;
+    if (theta >= 174) return 0.99;
+    if (theta >= 168) return 0.97;
+    if (theta >= 162) return 0.96;
+    if (theta >= 156) return 0.94;
+    if (theta >= 150) return 0.92;
+    if (theta >= 144) return 0.91;
+    if (theta >= 138) return 0.89;
+    if (theta >= 132) return 0.87;
+    if (theta >= 126) return 0.85;
+    if (theta >= 120) return 0.82;
+    if (theta >= 114) return 0.80;
+    if (theta >= 108) return 0.77;
+    return 0.74;
+  }
+  const K_theta = getKtheta(arc_deg);
+
+  // Belt length correction factor KL (relative to standard reference length per section)
+  const ref_lengths: Record<string, number> = { A: 914, B: 1270, C: 1575, D: 2540 };
+  const L_ref = ref_lengths[belt_section] || 1270;
+  const K_L = round2(Math.pow(selected_length / L_ref, 0.09)); // RMA empirical exponent
+
+  // Rated power per belt (RMA IP-20 table approximation)
+  // Power rating ≈ empirical formula based on sheave dia and belt speed
+  // Using simplified RMA table interpolation
+  const section_factors: Record<string, number> = { A: 1.0, B: 1.75, C: 3.2, D: 6.5 };
+  const sf = section_factors[belt_section] || 1.75;
+  const power_per_belt_kW = round2(sf * Math.pow(driver_dia_mm / 100, 0.5) * Math.pow(belt_speed_ms / 10, 0.7));
+
+  // Corrected power per belt
+  const corrected_power_kW = round2(power_per_belt_kW * K_theta * K_L);
+
+  // Number of belts
+  const n_belts_calc = round2(design_power_kW / corrected_power_kW);
+  const n_belts = Math.ceil(n_belts_calc);
+
+  // Capacity and margin
+  const total_power_capacity_kW = round2(n_belts * corrected_power_kW);
+  const capacity_margin_pct = Math.round((total_power_capacity_kW / design_power_kW - 1) * 100);
+
+  return {
+    rated_power_kW,
+    design_power_kW,
+    speed_ratio,
+    driven_dia_mm,
+    actual_driven_rpm,
+    belt_speed_ms,
+    belt_length_mm,
+    selected_length,
+    belt_designation,
+    arc_deg,
+    K_theta,
+    K_L,
+    power_per_belt_kW,
+    corrected_power_kW,
+    n_belts_calc,
+    n_belts,
+    total_power_capacity_kW,
+    capacity_margin_pct,
+  };
 }
 
 // ─── Vertical Transportation: Hoist Capacity (ASME B30.2 / B30.16) ───────────
@@ -2036,6 +2159,8 @@ serve(async (req) => {
       results = calcFireAlarmBattery(inputs);
     } else if (calc_type === "Elevator Traffic Analysis") {
       results = calcElevatorTraffic(inputs);
+    } else if (calc_type === "V-Belt Drive Design") {
+      results = calcVBeltDrive(inputs);
     } else if (calc_type === "Hoist Capacity") {
       results = calcHoistCapacity(inputs);
     } else {

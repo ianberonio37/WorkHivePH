@@ -347,6 +347,7 @@
             <button class="discipline-pill" data-disc="Electrical" onclick="selectDiscipline('Electrical')">⚡ Electrical</button>
             <button class="discipline-pill" data-disc="Fire Protection" onclick="selectDiscipline('Fire Protection')">🔥 Fire Protection</button>
             <button class="discipline-pill" data-disc="Vertical Transportation" onclick="selectDiscipline('Vertical Transportation')">🛗 Vertical Transportation</button>
+            <button class="discipline-pill" data-disc="Machine Design" onclick="selectDiscipline('Machine Design')">⚙️ Machine Design</button>
           </div>
         </div>
 
@@ -494,6 +495,12 @@ const CALC_TYPES = {
   'Vertical Transportation': [
     { id: 'Elevator Traffic Analysis', icon: '🛗', desc: 'RTT, interval, handling capacity — ASME A17.1 / EN 81', available: true  },
     { id: 'Hoist Capacity',            icon: '🏗️', desc: 'SWL, wire rope safety factor, hoist motor sizing',      available: true  },
+  ],
+  'Machine Design': [
+    { id: 'V-Belt Drive Design',  icon: '🔄', desc: 'Sheave sizing, belt length, no. of belts — RMA / ASME', available: true  },
+    { id: 'Bearing Life (L10)',   icon: '⚙️', desc: 'Dynamic load rating, L10 hours — ISO 281',              available: false },
+    { id: 'Shaft Design',         icon: '🔩', desc: 'Torsion + bending, ASME shaft sizing',                  available: false },
+    { id: 'Bolt Torque & Preload',icon: '🔧', desc: 'Fastener tightening torque, preload — ISO 898',         available: false },
   ],
 };
 
@@ -1184,6 +1191,50 @@ const GUIDES = {
       'Runway beam and supporting structure must be engineered for the maximum hoist load with dynamic factors (impact factor typically 1.25 for overhead cranes per AISC).',
       'In the Philippines, overhead cranes above 1-tonne capacity require DOLE accreditation of the riggers and a third-party inspection certificate before use.',
       'Wire rope grade: standard hoisting uses Improved Plow Steel (IPS) or Extra Improved Plow Steel (EIPS). EIPS gives higher breaking strength for the same diameter — preferred for tight drum/sheave arrangements.',
+    ],
+  },
+
+  'V-Belt Drive Design': {
+    title: 'V-Belt Drive Design — RMA IP-20 / ASME B17.1 / AGMA',
+    subtitle: 'Sizes a classical or narrow V-belt drive: selects belt section, determines sheave (pulley) diameters, calculates belt length, arc-of-contact correction, and number of belts required for the design power with service factor applied.',
+    standards: ['RMA IP-20 — Mechanical Power Transmission Association (belt design standard)','ASME B17.1 — Keys and Keyseats','AGMA 9002 — Bores and Keyways for Flexible Couplings','PSME Code — Philippine Mechanical Engineering Code (power transmission)'],
+    formulas: [
+      'Design Power = Rated Power × Service Factor (Ks)',
+      '',
+      'Speed Ratio (VR) = Driver RPM / Driven RPM = D_driven / D_driver',
+      '',
+      'Belt Speed (V) = π × D_driver (m) × N_driver (RPM) / 60  [m/s]',
+      '  Maximum belt speed: 25–30 m/s (classical V-belt)',
+      '',
+      'Belt Pitch Length (L) = 2C + π/2 × (D + d) + (D − d)² / (4C)',
+      '  C = center distance (m)',
+      '  D = driven sheave pitch diameter (m)',
+      '  d = driver sheave pitch diameter (m)',
+      '',
+      'Arc of Contact on Small Sheave:',
+      '  θ = 180° − 60 × (D − d) / C',
+      '  Arc correction factor Kθ from RMA table (1.0 at 180°, ~0.83 at 120°)',
+      '',
+      'Number of Belts = Design Power / (Rated Power per Belt × Kθ × KL)',
+      '  KL = belt length correction factor',
+      '  Round UP to nearest whole number',
+    ],
+    fields: [
+      { name: 'Motor Power', tip: 'Nameplate power of the driving motor in kW. This is the rated power before applying the service factor. Do not use the design power here — the tool applies the service factor internally.' },
+      { name: 'Service Factor (Ks)', tip: 'Accounts for load fluctuations beyond steady running. RMA IP-20 values: 1.0 = uniform load (centrifugal pump), 1.1–1.2 = moderate shock (fan, blower), 1.3–1.5 = heavy shock (crusher, conveyor with starts). Use 1.2–1.3 for most industrial maintenance applications.' },
+      { name: 'Driver Speed (motor RPM)', tip: 'Synchronous or nameplate speed of the driving motor. Common Philippine industrial motors: 1450 RPM (4-pole, 50 Hz) or 960 RPM (6-pole, 50 Hz). Use actual nameplate speed.' },
+      { name: 'Driven Speed (equipment RPM)', tip: 'Required shaft speed of the driven equipment (pump, fan, conveyor). Check the equipment nameplate or engineering spec. The tool computes the speed ratio and driven sheave size from this.' },
+      { name: 'Belt Section', tip: 'Classical sections (A/B/C/D): A = light duty (<5 kW), B = medium (5–15 kW), C = heavy (15–75 kW), D = very heavy (>75 kW). Narrow sections (3V/5V/8V) transmit more power per belt in less space — preferred for new designs. Use the same section as existing belts when replacing.' },
+      { name: 'Driver Sheave Diameter', tip: 'Pitch diameter of the small (driver) sheave. Larger diameter = lower belt stress = longer belt life. RMA minimum sheave diameters per belt section: A = 75mm, B = 125mm, C = 200mm, D = 300mm. Pre-filled to the recommended minimum — increase if space allows.' },
+      { name: 'Center Distance', tip: 'Distance between shaft centers in mm. Ideal range: 1.5×(D+d) to 3×(D+d). Too short = small arc of contact = more belts needed. Too long = belt flutter at high speed. Pre-filled to 1.5× sum of sheave diameters as a starting estimate.' },
+    ],
+    notes: [
+      'Always apply the service factor from RMA IP-20 Table 1 based on the driven machine type and daily hours of operation. Using a service factor of 1.0 on a machine with shock loading is the most common belt drive failure cause.',
+      'Arc of contact on the small sheave must be ≥120° for classical V-belts. Below 120°, the Kθ correction factor drops significantly and more belts are needed.',
+      'Matched belt sets: when more than one belt is required, always specify matched/banded belts from the same manufacturer lot. Unmatched belts have slightly different lengths and one belt carries most of the load, failing prematurely.',
+      'Belt tension: V-belts must be tensioned to the manufacturer specification at installation and re-tensioned after the first 4–8 hours of operation. Under-tension causes slippage and heat; over-tension causes premature bearing failure.',
+      'Philippine field tip: most belt failures in Philippine industrial plants are caused by misalignment (sheaves not in the same plane) and under-tensioning after installation — not by undersizing. Always check sheave alignment with a straightedge before commissioning.',
+      'Classical V-belt standard lengths (in mm) are designated by section + datum length number. Example: B-100 = Section B, 100-inch datum length. Stock sizes are available from local suppliers (Abrasives & Hardware, industrial distributors).',
     ],
   },
 };
@@ -2846,6 +2897,90 @@ function renderInputForm(calcType) {
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
+
+  if (calcType === 'V-Belt Drive Design') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Drive Tag</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Cooling Tower Fan — Belt Drive" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Motor Power</div>
+          <div class="toggle-group" id="tg-power-unit">
+            <button class="toggle-btn active" data-val="kW" onclick="toggle('tg-power-unit','kW')">kW</button>
+            <button class="toggle-btn" data-val="HP" onclick="toggle('tg-power-unit','HP')">HP</button>
+          </div>
+          <div class="input-group" style="margin-top:0.5rem;">
+            <input id="f-motor-power" class="wh-input" type="number" value="7.5" min="0.1" step="0.1" />
+            <span class="input-unit" id="power-unit-label">kW</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Service Factor (Ks) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">RMA IP-20</span></div>
+          <div class="toggle-group" id="tg-ks">
+            <button class="toggle-btn" data-val="1.0" onclick="toggle('tg-ks','1.0')">1.0 — Uniform (pump)</button>
+            <button class="toggle-btn active" data-val="1.2" onclick="toggle('tg-ks','1.2')">1.2 — Moderate (fan)</button>
+            <button class="toggle-btn" data-val="1.4" onclick="toggle('tg-ks','1.4')">1.4 — Heavy (conveyor)</button>
+            <button class="toggle-btn" data-val="1.6" onclick="toggle('tg-ks','1.6')">1.6 — Shock (crusher)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Driver Speed (Motor)</div>
+          <div class="toggle-group" id="tg-driver-rpm">
+            <button class="toggle-btn" data-val="960" onclick="toggle('tg-driver-rpm','960')">960 RPM (6-pole)</button>
+            <button class="toggle-btn active" data-val="1450" onclick="toggle('tg-driver-rpm','1450')">1450 RPM (4-pole)</button>
+            <button class="toggle-btn" data-val="2900" onclick="toggle('tg-driver-rpm','2900')">2900 RPM (2-pole)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Driven Speed (Equipment)</div>
+          <div class="input-group">
+            <input id="f-driven-rpm" class="wh-input" type="number" value="720" min="10" />
+            <span class="input-unit">RPM</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Belt Section <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(classical)</span></div>
+          <div class="toggle-group" id="tg-belt-section">
+            <button class="toggle-btn" data-val="A" onclick="toggle('tg-belt-section','A');applyBeltDefaults('A')">A (light)</button>
+            <button class="toggle-btn active" data-val="B" onclick="toggle('tg-belt-section','B');applyBeltDefaults('B')">B (medium)</button>
+            <button class="toggle-btn" data-val="C" onclick="toggle('tg-belt-section','C');applyBeltDefaults('C')">C (heavy)</button>
+            <button class="toggle-btn" data-val="D" onclick="toggle('tg-belt-section','D');applyBeltDefaults('D')">D (v. heavy)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Driver Sheave Pitch Dia.</div>
+          <div class="input-group">
+            <input id="f-driver-dia" class="wh-input" type="number" value="125" min="50" step="5" />
+            <span class="input-unit">mm</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Center Distance <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(shaft to shaft)</span></div>
+        <div class="input-group">
+          <input id="f-center-dist" class="wh-input" type="number" value="500" min="100" step="10" />
+          <span class="input-unit">mm</span>
+        </div>
+      </div>
+
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.25rem;">
+        Standard: RMA IP-20 / ASME B17.1. Arc of contact correction (Kθ) and belt length factor (KL) applied automatically. Number of belts rounded up to nearest whole number.
+      </div>
+    `;
+    applyBeltDefaults('B');
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
 }
 
 // ─── Toggle button groups ─────────────────────────────────────────────────────
@@ -2877,6 +3012,27 @@ function applyVentDefaults(roomFunc) {
   if (!d) return;
   const pEl = document.getElementById('f-persons');
   if (pEl) pEl.value = d.persons;
+}
+
+function applyBeltDefaults(section) {
+  // RMA IP-20 minimum driver sheave pitch diameters and typical center distance
+  const defaults = {
+    A: { minDia: 75,  dia: 100 },
+    B: { minDia: 125, dia: 150 },
+    C: { minDia: 200, dia: 250 },
+    D: { minDia: 300, dia: 350 },
+  };
+  const d = defaults[section];
+  if (!d) return;
+  const diaEl = document.getElementById('f-driver-dia');
+  if (diaEl && Number(diaEl.value) < d.minDia) diaEl.value = d.dia;
+  // Also update power unit label
+  const unit = document.getElementById('power-unit-label');
+  const tgUnit = document.getElementById('tg-power-unit');
+  if (unit && tgUnit) {
+    const active = tgUnit.querySelector('.toggle-btn.active');
+    if (active) unit.textContent = active.dataset.val;
+  }
 }
 
 function applyPressDefaults(buildingType) {
@@ -3464,6 +3620,24 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'V-Belt Drive Design') {
+    const powerUnit = getToggle('tg-power-unit') || 'kW';
+    const rawPower  = parseFloat(v('f-motor-power')) || 7.5;
+    const power_kW  = powerUnit === 'HP' ? rawPower * 0.746 : rawPower;
+    return {
+      project_name:    v('f-project')                         || 'Untitled Belt Drive',
+      power_kW,
+      power_unit:      powerUnit,
+      power_input:     rawPower,
+      service_factor:  parseFloat(getToggle('tg-ks'))         || 1.2,
+      driver_rpm:      parseFloat(getToggle('tg-driver-rpm')) || 1450,
+      driven_rpm:      parseFloat(v('f-driven-rpm'))          || 720,
+      belt_section:    getToggle('tg-belt-section')           || 'B',
+      driver_dia_mm:   parseFloat(v('f-driver-dia'))          || 150,
+      center_dist_mm:  parseFloat(v('f-center-dist'))         || 500,
+    };
+  }
+
   if (_calcType === 'Hoist Capacity') {
     return {
       project_name:    v('f-project')                          || 'Untitled Hoist System',
@@ -3574,6 +3748,15 @@ async function runCalculation() {
       showToast('Please enter at least one device or notification appliance.');
       return;
     }
+  } else if (_calcType === 'V-Belt Drive Design') {
+    if (!inputs.power_kW || inputs.power_kW <= 0) {
+      showToast('Please enter the motor power.');
+      return;
+    }
+    if (!inputs.driven_rpm || inputs.driven_rpm <= 0) {
+      showToast('Please enter the driven equipment speed (RPM).');
+      return;
+    }
   } else if (_calcType === 'Hoist Capacity') {
     if (!inputs.rated_load_kg || inputs.rated_load_kg <= 0) {
       showToast('Please enter the rated load (SWL).');
@@ -3635,6 +3818,8 @@ async function runCalculation() {
       renderFireAlarmBatteryReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Elevator Traffic Analysis') {
       renderElevatorTrafficReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'V-Belt Drive Design') {
+      renderVBeltReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Hoist Capacity') {
       renderHoistCapacityReport(inputs, data.results, data.narrative);
     } else {
@@ -5968,6 +6153,150 @@ function renderFireAlarmBatteryReport(inputs, results, narrative) {
 
     <h2>7. Recommendations</h2>
     <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Provide sealed lead-acid (SLA/VRLA) batteries rated at minimum ${r.Ah_required} Ah at ${inputs.system_voltage} V DC.\n2. Recommended battery bank: ${r.battery_config || r.selected_Ah + ' Ah'} — verify availability with FACP manufacturer.\n3. Install batteries inside or adjacent to the FACP cabinet in a clean, cool, ventilated location per NFPA 72.\n4. Verify battery compatibility with the specific FACP charging circuit before procurement.\n5. Replace batteries every 3-5 years per NFPA 72 §10.6.11 or per manufacturer recommendation, whichever is more frequent.\n6. Submit this calculation to the Bureau of Fire Protection (BFP) as part of the fire alarm permit application package.\n7. A PRC-licensed Electrical or Electronics Engineer must sign and seal this document before submission to BFP.`)}</p>
+
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Prepared by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Checked by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Approved by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── V-Belt Drive Design Report (RMA IP-20 / ASME B17.1) ────────────────────
+function renderVBeltReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const r       = results;
+
+  const arcOk    = r.arc_deg >= 120;
+  const arcColor = arcOk ? '#2e7d32' : '#c62828';
+  const arcNote  = arcOk ? 'OK' : 'WARN — increase center distance';
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div>
+        <h1>DESIGN CALCULATION</h1>
+        <div style="font-size:0.8rem;color:#555;">V-Belt Drive Design — RMA IP-20 / ASME B17.1</div>
+      </div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;">
+        <div>Rev. ${e('0')}</div>
+        <div>Date: ${dateStr}</div>
+      </div>
+    </div>
+
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">Project / Drive Tag</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Belt Section</th><td>Classical Section ${escHtml(inputs.belt_section)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Calculation Standard</th><td>RMA IP-20 / ASME B17.1</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
+    </table>
+
+    <h2>1. Objective</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || `To design a classical V-belt drive transmitting ${inputs.power_input} ${inputs.power_unit} (${r.design_power_kW} kW design power) from a ${inputs.driver_rpm} RPM driver to a ${inputs.driven_rpm} RPM driven shaft, using Section ${inputs.belt_section} belts, in accordance with RMA IP-20 and ASME B17.1.`)}</p>
+
+    <h2>2. References</h2>
+    <p style="font-size:0.83rem;color:#333;">RMA IP-20 — Mechanical Power Transmission Association: Classical V-Belt Drives<br>
+    ASME B17.1 — Keys and Keyseats<br>
+    PSME Code — Philippine Mechanical Engineering Code<br>
+    Belt manufacturer engineering catalog (Gates, Dayco, Bando, or equivalent)</p>
+
+    <h2>3. Design Parameters</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Rated Motor Power</td><td class="num">${escHtml(String(inputs.power_input))} ${escHtml(inputs.power_unit)} (${r.rated_power_kW} kW)</td></tr>
+      <tr><td>Service Factor (Ks) — RMA IP-20</td><td class="num">${escHtml(String(inputs.service_factor))}</td></tr>
+      <tr><td>Design Power</td><td class="num"><strong>${r.design_power_kW} kW</strong></td></tr>
+      <tr><td>Driver Speed</td><td class="num">${escHtml(String(inputs.driver_rpm))} RPM</td></tr>
+      <tr><td>Driven Speed (Required)</td><td class="num">${escHtml(String(inputs.driven_rpm))} RPM</td></tr>
+      <tr><td>Speed Ratio (VR)</td><td class="num">${r.speed_ratio} : 1</td></tr>
+      <tr><td>Driver Sheave Pitch Diameter (d)</td><td class="num">${escHtml(String(inputs.driver_dia_mm))} mm</td></tr>
+      <tr><td>Driven Sheave Pitch Diameter (D)</td><td class="num">${r.driven_dia_mm} mm</td></tr>
+      <tr><td>Actual Driven Speed (from sheave ratio)</td><td class="num">${r.actual_driven_rpm} RPM</td></tr>
+      <tr><td>Center Distance (C)</td><td class="num">${escHtml(String(inputs.center_dist_mm))} mm</td></tr>
+    </table>
+
+    <h2>4. Belt Speed</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      V = π × d × N<sub>driver</sub> / 60,000<br>
+      V = π × ${escHtml(String(inputs.driver_dia_mm))} mm × ${escHtml(String(inputs.driver_rpm))} RPM / 60,000 = <strong>${r.belt_speed_ms} m/s</strong>
+    </p>
+    <p style="font-size:0.83rem;color:#333;">Maximum recommended belt speed for Section ${escHtml(inputs.belt_section)}: 25 m/s. Status: <strong style="color:${r.belt_speed_ms <= 25 ? '#2e7d32' : '#c62828'};">${r.belt_speed_ms <= 25 ? 'OK' : 'EXCEEDS LIMIT — reduce sheave diameter or increase belt section'}</strong></p>
+
+    <h2>5. Belt Length</h2>
+    <p style="font-size:0.83rem;color:#333;"><strong>Formula (RMA IP-20):</strong></p>
+    <p style="font-size:0.83rem;color:#333;">
+      L = 2C + π/2 × (D + d) + (D − d)² / (4C)<br>
+      L = 2(${escHtml(String(inputs.center_dist_mm))}) + π/2 × (${r.driven_dia_mm} + ${escHtml(String(inputs.driver_dia_mm))}) + (${r.driven_dia_mm} − ${escHtml(String(inputs.driver_dia_mm))})² / (4 × ${escHtml(String(inputs.center_dist_mm))})<br>
+      L = ${r.belt_length_mm} mm <strong>(${r.belt_designation})</strong>
+    </p>
+
+    <h2>6. Arc of Contact</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      θ = 180° − 60 × (D − d) / C<br>
+      θ = 180° − 60 × (${r.driven_dia_mm} − ${escHtml(String(inputs.driver_dia_mm))}) / ${escHtml(String(inputs.center_dist_mm))} = <strong>${r.arc_deg}°</strong>
+      &nbsp;<span style="font-weight:700;color:${arcColor};">${arcNote}</span>
+    </p>
+    <p style="font-size:0.83rem;color:#333;">Arc correction factor (Kθ) = <strong>${r.K_theta}</strong></p>
+
+    <h2>7. Number of Belts</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      Rated power per belt (Section ${escHtml(inputs.belt_section)}, d = ${escHtml(String(inputs.driver_dia_mm))} mm, ${escHtml(String(inputs.driver_rpm))} RPM) = ${r.power_per_belt_kW} kW<br>
+      Belt length factor (KL) = ${r.K_L}<br>
+      Corrected power per belt = ${r.power_per_belt_kW} × ${r.K_theta} × ${r.K_L} = ${r.corrected_power_kW} kW/belt<br>
+      Number of belts = Design Power / Corrected Power per Belt<br>
+      = ${r.design_power_kW} / ${r.corrected_power_kW} = ${r.n_belts_calc} → <strong>${r.n_belts} belts (rounded up)</strong>
+    </p>
+
+    <h2>8. Results Summary</h2>
+    <div class="result-highlight" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Number of Belts</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.n_belts}</div>
+        <div style="font-size:0.75rem;color:#555;">Section ${escHtml(inputs.belt_section)} — matched set</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Belt Designation</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.belt_designation}</div>
+        <div style="font-size:0.75rem;color:#555;">Nominal length ${r.belt_length_mm} mm</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Driven Sheave Dia.</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.driven_dia_mm} mm</div>
+        <div style="font-size:0.75rem;color:#555;">Actual speed: ${r.actual_driven_rpm} RPM</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Arc of Contact</div>
+        <div style="font-size:1.6rem;font-weight:800;color:${arcColor};">${r.arc_deg}°</div>
+        <div style="font-size:0.75rem;font-weight:700;color:${arcColor};">${arcNote}</div>
+      </div>
+    </div>
+
+    <h2>9. Assumptions</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Classical V-belt, Section ${inputs.belt_section}, per RMA IP-20 standard dimensions.\n2. Service factor Ks = ${inputs.service_factor} applied per RMA IP-20 Table 1 for the stated driven machine type.\n3. Rated power per belt from RMA IP-20 power rating tables interpolated for driver sheave diameter and RPM.\n4. Belt length correction factor KL based on computed belt pitch length relative to standard reference length for Section ${inputs.belt_section}.\n5. All sheave pitch diameters per RMA groove standards.\n6. Center distance is as specified — verify physical space in the field before ordering belts.`)}</p>
+
+    <h2>10. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Provide ${r.n_belts} matched/banded Section ${inputs.belt_section} belt(s), designation ${r.belt_designation}. Always specify matched belts — unmatched belts load unevenly and fail prematurely.\n2. Driver sheave: ${inputs.driver_dia_mm} mm pitch diameter. Driven sheave: ${r.driven_dia_mm} mm pitch diameter.\n3. Tension belts to manufacturer specification immediately after installation and re-tension after the first 4–8 hours of operation.\n4. Verify sheave alignment with a straightedge across both sheave faces before commissioning — misalignment is the leading cause of premature belt failure in Philippine industrial plants.\n5. Design power capacity: ${r.total_power_capacity_kW} kW (${r.n_belts} belts × ${r.corrected_power_kW} kW/belt). This exceeds the design power of ${r.design_power_kW} kW by ${r.capacity_margin_pct}%.\n6. A PRC-licensed Mechanical Engineer must sign and seal this document before use as a design basis.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
