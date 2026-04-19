@@ -1372,6 +1372,13 @@ Respond in JSON format only:
       const rope = rec.rope_recommendation ?? '';
       const hp = rec.motor_hp_std ?? '';
       recommendations = `Provide wire rope with minimum breaking force of ${mbf} kN (${rope}). Hoist motor: ${hp} HP with duty class M3/M4. Maintain SF ${rec.safety_factor_check} per ASME B30.2. Inspect wire rope daily (visual) and monthly (detailed) per DOLE D.O. 13. Runway structure must be verified by a structural engineer. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
+    } else if (calcType === "Bolt Torque & Preload") {
+      const torque = rec.torque_Nm ?? '';
+      const size   = (inputs.bolt_size as string) || '';
+      const grade  = (inputs.bolt_grade as string) || '';
+      const sf     = rec.separation_sf ?? '';
+      const jchk   = rec.joint_check ?? '';
+      recommendations = `Tighten ${size} Grade ${grade} bolts to ${torque} N·m using a calibrated torque wrench. Use the 3-pass cross-torquing method: 30% → 70% → 100% of target torque. Joint separation SF = ${sf} (${jchk}). Never reuse torque-to-yield bolts (Grade 10.9 / 12.9 one-time use). Apply thread lubricant (K=${(inputs.nut_factor as number) ?? ''}) consistently — dry/lubricated torque differs by up to 30%. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
     }
     return {
       objective: `To determine the required ${calcType} design parameters for the subject project in accordance with applicable Philippine and international engineering standards.`,
@@ -1379,6 +1386,100 @@ Respond in JSON format only:
       recommendations,
     };
   }
+}
+
+// ─── Machine Design: Bolt Torque & Preload (ISO 898-1 / VDI 2230 / ASME PCC-1) ─
+
+function calcBoltTorque(inputs: Record<string, number | string>): Record<string, unknown> {
+  const round2 = (v: number) => Math.round(v * 100) / 100;
+  const round1 = (v: number) => Math.round(v * 10) / 10;
+
+  // Bolt data: [nominal_dia_mm, stress_area_mm2]
+  const BOLT_DATA: Record<string, [number, number]> = {
+    'M10': [10,  58.0],
+    'M12': [12,  84.3],
+    'M16': [16, 157.0],
+    'M20': [20, 245.0],
+    'M24': [24, 353.0],
+    'M30': [30, 561.0],
+  };
+
+  // Proof strength (Sp) in MPa per grade — ISO 898-1
+  const SP_MAP: Record<string, number> = {
+    '4.6':  225,
+    '4.8':  310,
+    '8.8':  600,
+    '10.9': 830,
+    '12.9': 970,
+  };
+
+  const bolt_size    = String(inputs.bolt_size  || 'M16');
+  const bolt_grade   = String(inputs.bolt_grade || '8.8');
+  const nut_factor   = Number(inputs.nut_factor  ?? 0.20);
+  const preload_pct  = Number(inputs.preload_pct ?? 75);
+  const ext_load_kN  = Number(inputs.ext_load_kN ?? 0);
+  const n_bolts      = Math.max(1, Math.round(Number(inputs.n_bolts ?? 4)));
+
+  const [d_mm, At_mm2] = BOLT_DATA[bolt_size] ?? [16, 157];
+  const Sp_MPa         = SP_MAP[bolt_grade]   ?? 600;
+
+  // Proof load & preload
+  const Fp_kN  = round2((At_mm2 * Sp_MPa) / 1000);
+  const Fi_kN  = round2((preload_pct / 100) * Fp_kN);
+
+  // Stress check
+  const sigma_MPa  = round1((Fi_kN * 1000) / At_mm2);
+  const stress_util = round1((sigma_MPa / Sp_MPa) * 100); // %
+  const stress_check = sigma_MPa <= Sp_MPa ? 'PASS' : 'FAIL';
+
+  // Tightening torque T = K × d × Fi
+  const d_m      = d_mm / 1000;
+  const Fi_N     = Fi_kN * 1000;
+  const torque_Nm = round1(nut_factor * d_m * Fi_N);
+
+  // 3-pass torque values
+  const torque_30pct = round1(torque_Nm * 0.30);
+  const torque_70pct = round1(torque_Nm * 0.70);
+
+  // Joint separation check
+  const total_clamp_kN = round2(n_bolts * Fi_kN);
+  const separation_sf  = ext_load_kN > 0 ? round2(total_clamp_kN / ext_load_kN) : null;
+  const n_bolts_min    = ext_load_kN > 0 ? Math.ceil((ext_load_kN * 1.5) / Fi_kN) : 1;
+  const joint_check    = n_bolts >= n_bolts_min ? 'PASS' : 'FAIL';
+
+  // Nut factor condition label
+  const NUT_LABELS: Record<string, string> = {
+    '0.12': 'Waxed/MoS2 lubricated',
+    '0.15': 'Machine oil lubricated',
+    '0.20': 'As-received (dry)',
+    '0.25': 'Heavily oxidised/dirty',
+  };
+  const nut_condition = NUT_LABELS[String(nut_factor)] ?? `K=${nut_factor}`;
+
+  return {
+    bolt_size,
+    bolt_grade,
+    d_mm,
+    At_mm2,
+    Sp_MPa,
+    Fp_kN,
+    preload_pct,
+    Fi_kN,
+    sigma_MPa,
+    stress_util,
+    stress_check,
+    nut_factor,
+    nut_condition,
+    torque_Nm,
+    torque_30pct,
+    torque_70pct,
+    n_bolts,
+    ext_load_kN,
+    total_clamp_kN,
+    separation_sf,
+    n_bolts_min,
+    joint_check,
+  };
 }
 
 // ─── Machine Design: Shaft Design (ASME B106.1M / Shigley's Elliptic) ───────
@@ -2338,6 +2439,8 @@ serve(async (req) => {
       results = calcVBeltDrive(inputs);
     } else if (calc_type === "Hoist Capacity") {
       results = calcHoistCapacity(inputs);
+    } else if (calc_type === "Bolt Torque & Preload") {
+      results = calcBoltTorque(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),
