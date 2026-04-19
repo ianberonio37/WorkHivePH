@@ -106,7 +106,8 @@
 
     /* Discipline pills */
     .discipline-pill {
-      flex: 1;
+      flex: 1 1 auto;
+      min-width: calc(50% - 0.75rem);
       padding: 0.6rem 0.5rem;
       border-radius: 0.75rem;
       font-size: 0.78rem;
@@ -340,7 +341,7 @@
         <!-- Step 1: Discipline -->
         <div class="card p-5" id="step1-card">
           <div class="text-xs font-600 mb-3" style="color:#F7A21B;text-transform:uppercase;letter-spacing:0.08em;">Step 1 — Discipline</div>
-          <div class="flex gap-3">
+          <div class="flex gap-3" style="flex-wrap:wrap;">
             <button class="discipline-pill active" data-disc="Mechanical" onclick="selectDiscipline('Mechanical')">⚙️ Mechanical</button>
             <button class="discipline-pill" data-disc="Plumbing" onclick="selectDiscipline('Plumbing')">🔧 Plumbing</button>
             <button class="discipline-pill" data-disc="Electrical" onclick="selectDiscipline('Electrical')">⚡ Electrical</button>
