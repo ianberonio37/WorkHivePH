@@ -1352,6 +1352,11 @@ Respond in JSON format only:
       const intv = rec.interval_s ?? '';
       const hc = rec.HC_pct ?? '';
       recommendations = `Computed RTT is ${rtt} s (interval ${intv} s, HC% ${hc}%). Install group supervisory control to optimize dispatching. At least one elevator must comply with BP 344 / RA 10754 (min car 1100 mm × 1400 mm, Braille controls). If interval exceeds the target, consider increasing speed or adding an elevator. Submit traffic analysis to DPWH / LGU as part of the building permit application. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
+    } else if (calcType === "Hoist Capacity") {
+      const mbf = rec.MBF_kN ?? '';
+      const rope = rec.rope_recommendation ?? '';
+      const hp = rec.motor_hp_std ?? '';
+      recommendations = `Provide wire rope with minimum breaking force of ${mbf} kN (${rope}). Hoist motor: ${hp} HP with duty class M3/M4. Maintain SF ${rec.safety_factor_check} per ASME B30.2. Inspect wire rope daily (visual) and monthly (detailed) per DOLE D.O. 13. Runway structure must be verified by a structural engineer. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
     }
     return {
       objective: `To determine the required ${calcType} design parameters for the subject project in accordance with applicable Philippine and international engineering standards.`,
@@ -1359,6 +1364,105 @@ Respond in JSON format only:
       recommendations,
     };
   }
+}
+
+// ─── Vertical Transportation: Hoist Capacity (ASME B30.2 / B30.16) ───────────
+
+function calcHoistCapacity(inputs: Record<string, number | string>): Record<string, unknown> {
+  const rated_load_kg   = Number(inputs.rated_load_kg)   || 2000;
+  const hook_weight_kg  = Number(inputs.hook_weight_kg)  || 30;
+  const sling_weight_kg = Number(inputs.sling_weight_kg) || 15;
+  const lift_height_m   = Number(inputs.lift_height_m)   || 6;
+  const lift_speed_mpm  = Number(inputs.lift_speed_mpm)  || 8;
+  const n_parts         = Number(inputs.n_parts)         || 1;
+  const safety_factor   = Number(inputs.safety_factor)   || 5;
+  const mech_eff_pct    = Number(inputs.mech_eff_pct)    || 82;
+
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+  const round1 = (n: number) => Math.round(n * 10) / 10;
+
+  // Gross load
+  const gross_load_kg = rated_load_kg + hook_weight_kg + sling_weight_kg;
+  const gross_load_kN = round2(gross_load_kg * 9.81 / 1000);
+
+  // Minimum breaking force
+  const MBF_kg = gross_load_kg * safety_factor;
+  const MBF_kN = round2(MBF_kg * 9.81 / 1000);
+
+  // Rope efficiency factor (0.98 per sheave/part)
+  const rope_eff_per_part = 0.98;
+  const rope_efficiency_factor = round2(Math.pow(rope_eff_per_part, n_parts));
+
+  // Rope pull (N)
+  const rope_pull_kg = round1(gross_load_kg / (n_parts * rope_efficiency_factor));
+  const rope_pull_N  = Math.round(rope_pull_kg * 9.81);
+
+  // Speed in m/s
+  const speed_ms = round2(lift_speed_mpm / 60);
+
+  // Power at rope (W)
+  const power_W = Math.round(rope_pull_N * speed_ms);
+
+  // Motor HP (calculated)
+  const mech_eff = mech_eff_pct / 100;
+  const motor_hp_calc = round2(power_W / (mech_eff * 746));
+
+  // Standard motor HP sizes (IEC/NEMA common sizes used in Philippines)
+  const std_hp = [0.5, 1, 1.5, 2, 3, 5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 200];
+  const motor_hp_with_sf = motor_hp_calc * 1.15; // 15% service factor
+  let motor_hp_std = std_hp[std_hp.length - 1];
+  for (const hp of std_hp) {
+    if (hp >= motor_hp_with_sf) { motor_hp_std = hp; break; }
+  }
+  const motor_kW = round2(motor_hp_std * 0.746);
+
+  // Wire rope recommendation based on MBF_kN
+  // Common 6×19 IWRC EIPS wire rope breaking strengths (approximate)
+  const rope_sizes = [
+    { dia: '8 mm',  MBF: 38.7 },
+    { dia: '10 mm', MBF: 60.4 },
+    { dia: '12 mm', MBF: 87.1 },
+    { dia: '14 mm', MBF: 118 },
+    { dia: '16 mm', MBF: 154 },
+    { dia: '18 mm', MBF: 195 },
+    { dia: '20 mm', MBF: 241 },
+    { dia: '22 mm', MBF: 291 },
+    { dia: '24 mm', MBF: 347 },
+    { dia: '26 mm', MBF: 406 },
+    { dia: '28 mm', MBF: 471 },
+    { dia: '32 mm', MBF: 615 },
+    { dia: '36 mm', MBF: 779 },
+  ];
+  let selected_rope = rope_sizes[rope_sizes.length - 1];
+  for (const r of rope_sizes) {
+    if (r.MBF >= MBF_kN) { selected_rope = r; break; }
+  }
+  const rope_recommendation = `${selected_rope.dia} diameter, 6×19 IWRC EIPS wire rope (MBF = ${selected_rope.MBF} kN)`;
+
+  // Rope length on drum
+  const dead_wrap_length = 3 * Math.PI * 0.15; // approx 3 wraps on ~150mm core drum
+  const rope_length_m = Math.ceil(lift_height_m * n_parts + dead_wrap_length);
+
+  // Safety factor check
+  const safety_factor_check = safety_factor >= 5 ? 'PASS' : 'FAIL';
+
+  return {
+    gross_load_kg,
+    gross_load_kN,
+    MBF_kg,
+    MBF_kN,
+    rope_efficiency_factor,
+    rope_pull_kg,
+    rope_pull_N,
+    speed_ms,
+    power_W,
+    motor_hp_calc,
+    motor_hp_std,
+    motor_kW,
+    rope_recommendation,
+    rope_length_m,
+    safety_factor_check,
+  };
 }
 
 // ─── Vertical Transportation: Elevator Traffic Analysis (CIBSE Guide D / ASME A17.1) ─
@@ -1932,6 +2036,8 @@ serve(async (req) => {
       results = calcFireAlarmBattery(inputs);
     } else if (calc_type === "Elevator Traffic Analysis") {
       results = calcElevatorTraffic(inputs);
+    } else if (calc_type === "Hoist Capacity") {
+      results = calcHoistCapacity(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

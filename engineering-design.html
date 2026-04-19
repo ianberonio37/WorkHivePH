@@ -493,7 +493,7 @@ const CALC_TYPES = {
   ],
   'Vertical Transportation': [
     { id: 'Elevator Traffic Analysis', icon: '🛗', desc: 'RTT, interval, handling capacity — ASME A17.1 / EN 81', available: true  },
-    { id: 'Hoist Capacity',            icon: '🏗️', desc: 'SWL, wire rope safety factor, hoist motor sizing',      available: false },
+    { id: 'Hoist Capacity',            icon: '🏗️', desc: 'SWL, wire rope safety factor, hoist motor sizing',      available: true  },
   ],
 };
 
@@ -1140,6 +1140,50 @@ const GUIDES = {
       'Round Trip Time depends heavily on door timing and dwell time — slow doors are a common cause of poor service in older Philippine buildings.',
       'For BP 344 / RA 10754 accessibility compliance: at least one elevator must have a minimum car size of 1100mm x 1400mm and accessible controls.',
       'Always submit elevator design calculations to DPWH / LGU Building Official as part of the building permit application.',
+    ],
+  },
+
+  'Hoist Capacity': {
+    title: 'Hoist Capacity & Wire Rope Sizing — ASME B30.2 / ASME B30.16 / PCAB Standards',
+    subtitle: 'Determines the Safe Working Load (SWL), selects the wire rope based on minimum breaking force with the required safety factor, and sizes the hoist motor in horsepower based on lifted load, lifting speed, and mechanical efficiency.',
+    standards: ['ASME B30.2 — Overhead and Gantry Cranes','ASME B30.16 — Overhead Hoists (Underhung)','ASME B30.9 — Slings','PCAB (Philippine Contractors Accreditation Board) — Rigging Standards','DOLE D.O. 13 (s. 1998) — Guidelines Governing Occupational Safety and Health in the Construction Industry','AISC Steel Construction Manual — Beam and runway design'],
+    formulas: [
+      'Gross Load (GL) = Rated Load + Hook/Block Weight + Sling Weight',
+      '',
+      'Wire Rope Minimum Breaking Force (MBF):',
+      '  MBF = GL × Safety Factor',
+      '  Safety Factor: 5 (general hoisting), 6 (personnel hoisting — prohibited by ASME B30.2)',
+      '',
+      'Rope Pull (P) = GL / (N_parts × rope_efficiency)',
+      '  N_parts = number of rope parts supporting the load',
+      '  rope_efficiency per part ≈ 0.98 (sheave/bearing factor)',
+      '',
+      'Hoist Motor HP:',
+      '  Power (W) = P × V  (rope pull × lifting speed)',
+      '  Motor HP = Power / (mechanical_efficiency × 746)',
+      '',
+      'Drum Capacity:',
+      '  Rope length required = lift_height × N_parts',
+      '  Drum flange diameter = drum_core + 2 × (layers × rope_dia × 1.15)',
+    ],
+    fields: [
+      { name: 'Rated Load (SWL)', tip: 'The maximum load the hoist is rated to lift, in kg. This is the net load — do NOT include the hook block or slings here; those are added separately as dead weight.' },
+      { name: 'Hook / Block Weight', tip: 'Weight of the lower hook block assembly (sheave block, hook, swivel, link) in kg. Typical single-sheave hook blocks for industrial hoists: 15-80 kg. This adds to the gross load and affects rope selection.' },
+      { name: 'Sling / Rigging Weight', tip: 'Estimated weight of chain slings, wire rope slings, or shackles used to attach the load. Typical: 5-50 kg. Include if significant relative to the rated load.' },
+      { name: 'Lifting Speed', tip: 'Rated lifting speed in m/min. Typical values: 3-6 m/min (maintenance/slow), 10-15 m/min (standard industrial), 20-30 m/min (high-speed production). Higher speed requires a larger motor.' },
+      { name: 'Lift Height', tip: 'Vertical distance from lowest hook position to highest hook position, in meters. Determines rope length on drum. Include any below-floor or pit depth if applicable.' },
+      { name: 'Number of Rope Parts', tip: 'Also called "parts of line" or "falls." A single-part line (1 fall) has rope pull = gross load. A 2-part line halves the rope pull but requires twice the rope speed. Standard hoists: 1-4 parts. More parts = slower but lower rope tension.' },
+      { name: 'Hoist Type', tip: 'Electric chain hoist (typical for <5 tonnes, maintenance use). Wire rope electric hoist (5-100 tonnes, production use). Manual chain hoist (maintenance only, no motor sizing needed). Manila rope — never use for industrial hoisting.' },
+      { name: 'Mechanical Efficiency', tip: 'Overall drive efficiency from motor to drum. Wire rope electric hoist with gear reducer: 80-85%. Chain hoist: 65-75%. Higher efficiency = smaller motor needed.' },
+    ],
+    notes: [
+      'ASME B30.2 requires a minimum safety factor of 5:1 on wire rope for overhead hoisting. Never specify a safety factor below 5.',
+      'Personnel hoisting with a wire rope hoist is prohibited by ASME B30.2 — a dedicated personnel lift with SF ≥ 10 is required.',
+      'Wire rope must be inspected daily (visual) and monthly (detailed) per DOLE D.O. 13. Remove from service if: broken wires exceed 10% of rope wires in one rope lay, or if any kink, crush, or bird-cage deformation is present.',
+      'Drum rope capacity must include 3 dead wraps minimum at all times — the rope anchor on the drum is not rated for full load.',
+      'Runway beam and supporting structure must be engineered for the maximum hoist load with dynamic factors (impact factor typically 1.25 for overhead cranes per AISC).',
+      'In the Philippines, overhead cranes above 1-tonne capacity require DOLE accreditation of the riggers and a third-party inspection certificate before use.',
+      'Wire rope grade: standard hoisting uses Improved Plow Steel (IPS) or Extra Improved Plow Steel (EIPS). EIPS gives higher breaking strength for the same diameter — preferred for tight drum/sheave arrangements.',
     ],
   },
 };
@@ -2705,6 +2749,103 @@ function renderInputForm(calcType) {
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
+
+  if (calcType === 'Hoist Capacity') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Equipment Tag</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Bldg A — Overhead Crane 5T" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Hoist Type</div>
+        <div class="toggle-group" id="tg-hoist-type">
+          <button class="toggle-btn active" data-val="Wire Rope Electric" onclick="toggle('tg-hoist-type','Wire Rope Electric')">Wire Rope Electric</button>
+          <button class="toggle-btn" data-val="Electric Chain" onclick="toggle('tg-hoist-type','Electric Chain')">Electric Chain</button>
+          <button class="toggle-btn" data-val="Manual Chain" onclick="toggle('tg-hoist-type','Manual Chain')">Manual Chain (Hand)</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Rated Load (SWL)</div>
+          <div class="input-group">
+            <input id="f-rated-load" class="wh-input" type="number" value="2000" min="50" />
+            <span class="input-unit">kg</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Hook / Block Weight</div>
+          <div class="input-group">
+            <input id="f-hook-weight" class="wh-input" type="number" value="30" min="0" />
+            <span class="input-unit">kg</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Sling / Rigging Weight</div>
+          <div class="input-group">
+            <input id="f-sling-weight" class="wh-input" type="number" value="15" min="0" />
+            <span class="input-unit">kg</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Lift Height</div>
+          <div class="input-group">
+            <input id="f-lift-height" class="wh-input" type="number" value="6" min="1" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Lifting Speed</div>
+          <div class="toggle-group" id="tg-lift-speed">
+            <button class="toggle-btn" data-val="3" onclick="toggle('tg-lift-speed','3')">3 m/min (slow)</button>
+            <button class="toggle-btn active" data-val="8" onclick="toggle('tg-lift-speed','8')">8 m/min (standard)</button>
+            <button class="toggle-btn" data-val="15" onclick="toggle('tg-lift-speed','15')">15 m/min (fast)</button>
+            <button class="toggle-btn" data-val="25" onclick="toggle('tg-lift-speed','25')">25 m/min (high-speed)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Parts of Line (rope falls)</div>
+          <div class="toggle-group" id="tg-n-parts">
+            <button class="toggle-btn active" data-val="1" onclick="toggle('tg-n-parts','1')">1 part</button>
+            <button class="toggle-btn" data-val="2" onclick="toggle('tg-n-parts','2')">2 parts</button>
+            <button class="toggle-btn" data-val="4" onclick="toggle('tg-n-parts','4')">4 parts</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Safety Factor</div>
+          <div class="toggle-group" id="tg-sf">
+            <button class="toggle-btn active" data-val="5" onclick="toggle('tg-sf','5')">5 : 1 (ASME B30.2 minimum)</button>
+            <button class="toggle-btn" data-val="6" onclick="toggle('tg-sf','6')">6 : 1 (heavy industrial)</button>
+            <button class="toggle-btn" data-val="8" onclick="toggle('tg-sf','8')">8 : 1 (critical lifts)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Mechanical Efficiency</div>
+          <div class="toggle-group" id="tg-mech-eff">
+            <button class="toggle-btn" data-val="70" onclick="toggle('tg-mech-eff','70')">70% (chain hoist)</button>
+            <button class="toggle-btn active" data-val="82" onclick="toggle('tg-mech-eff','82')">82% (wire rope hoist)</button>
+            <button class="toggle-btn" data-val="88" onclick="toggle('tg-mech-eff','88')">88% (gear motor)</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.25rem;">
+        Standard: ASME B30.2 / B30.16. Minimum safety factor 5:1 per ASME B30.2. Sheave efficiency 98% per part of line. Motor sized at 115% of calculated power with standard service factor.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
 }
 
 // ─── Toggle button groups ─────────────────────────────────────────────────────
@@ -3323,6 +3464,21 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Hoist Capacity') {
+    return {
+      project_name:    v('f-project')                          || 'Untitled Hoist System',
+      hoist_type:      getToggle('tg-hoist-type')              || 'Wire Rope Electric',
+      rated_load_kg:   parseFloat(v('f-rated-load'))           || 2000,
+      hook_weight_kg:  parseFloat(v('f-hook-weight'))          || 30,
+      sling_weight_kg: parseFloat(v('f-sling-weight'))         || 15,
+      lift_height_m:   parseFloat(v('f-lift-height'))          || 6,
+      lift_speed_mpm:  parseFloat(getToggle('tg-lift-speed'))  || 8,
+      n_parts:         parseFloat(getToggle('tg-n-parts'))     || 1,
+      safety_factor:   parseFloat(getToggle('tg-sf'))          || 5,
+      mech_eff_pct:    parseFloat(getToggle('tg-mech-eff'))    || 82,
+    };
+  }
+
   if (_calcType === 'Elevator Traffic Analysis') {
     return {
       project_name:    v('f-project')                           || 'Untitled Elevator Traffic Study',
@@ -3418,6 +3574,11 @@ async function runCalculation() {
       showToast('Please enter at least one device or notification appliance.');
       return;
     }
+  } else if (_calcType === 'Hoist Capacity') {
+    if (!inputs.rated_load_kg || inputs.rated_load_kg <= 0) {
+      showToast('Please enter the rated load (SWL).');
+      return;
+    }
   } else if (_calcType === 'Elevator Traffic Analysis') {
     if (!inputs.population || inputs.population < 10) {
       showToast('Please enter the building population (minimum 10 persons).');
@@ -3474,6 +3635,8 @@ async function runCalculation() {
       renderFireAlarmBatteryReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Elevator Traffic Analysis') {
       renderElevatorTrafficReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Hoist Capacity') {
+      renderHoistCapacityReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -5805,6 +5968,148 @@ function renderFireAlarmBatteryReport(inputs, results, narrative) {
 
     <h2>7. Recommendations</h2>
     <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Provide sealed lead-acid (SLA/VRLA) batteries rated at minimum ${r.Ah_required} Ah at ${inputs.system_voltage} V DC.\n2. Recommended battery bank: ${r.battery_config || r.selected_Ah + ' Ah'} — verify availability with FACP manufacturer.\n3. Install batteries inside or adjacent to the FACP cabinet in a clean, cool, ventilated location per NFPA 72.\n4. Verify battery compatibility with the specific FACP charging circuit before procurement.\n5. Replace batteries every 3-5 years per NFPA 72 §10.6.11 or per manufacturer recommendation, whichever is more frequent.\n6. Submit this calculation to the Bureau of Fire Protection (BFP) as part of the fire alarm permit application package.\n7. A PRC-licensed Electrical or Electronics Engineer must sign and seal this document before submission to BFP.`)}</p>
+
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Prepared by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Checked by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Approved by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── Hoist Capacity Report (ASME B30.2 / B30.16) ────────────────────────────
+function renderHoistCapacityReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const r       = results;
+  const sfColor = r.safety_factor_check === 'PASS' ? '#2e7d32' : '#c62828';
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div>
+        <h1>DESIGN CALCULATION</h1>
+        <div style="font-size:0.8rem;color:#555;">Hoist Capacity & Wire Rope Sizing — ASME B30.2 / ASME B30.16 / PCAB Standards</div>
+      </div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;">
+        <div>Rev. ${e('0')}</div>
+        <div>Date: ${dateStr}</div>
+      </div>
+    </div>
+
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">Project / Equipment Tag</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Hoist Type</th><td>${escHtml(inputs.hoist_type)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Calculation Standard</th><td>ASME B30.2 / B30.16 / DOLE D.O. 13</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
+    </table>
+
+    <h2>1. Objective</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || `To determine the Safe Working Load (SWL), select the appropriate wire rope based on the minimum breaking force with the required safety factor of ${inputs.safety_factor}:1, and size the hoist motor in horsepower for the ${escHtml(inputs.hoist_type)} hoist with a rated capacity of ${inputs.rated_load_kg} kg at ${inputs.lift_speed_mpm} m/min lifting speed, in accordance with ASME B30.2 and DOLE D.O. 13.`)}</p>
+
+    <h2>2. References</h2>
+    <p style="font-size:0.83rem;color:#333;">ASME B30.2 — Overhead and Gantry Cranes<br>
+    ASME B30.16 — Overhead Hoists (Underhung)<br>
+    ASME B30.9 — Slings<br>
+    DOLE D.O. 13 (s. 1998) — Occupational Safety and Health in the Construction Industry<br>
+    PCAB — Philippine Contractors Accreditation Board Rigging Standards</p>
+
+    <h2>3. Design Parameters</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Rated Load (SWL)</td><td class="num">${escHtml(String(inputs.rated_load_kg))} kg</td></tr>
+      <tr><td>Hook / Block Dead Weight</td><td class="num">${escHtml(String(inputs.hook_weight_kg))} kg</td></tr>
+      <tr><td>Sling / Rigging Weight</td><td class="num">${escHtml(String(inputs.sling_weight_kg))} kg</td></tr>
+      <tr><td>Gross Load (GL)</td><td class="num"><strong>${r.gross_load_kg} kg</strong></td></tr>
+      <tr><td>Lift Height</td><td class="num">${escHtml(String(inputs.lift_height_m))} m</td></tr>
+      <tr><td>Lifting Speed</td><td class="num">${escHtml(String(inputs.lift_speed_mpm))} m/min</td></tr>
+      <tr><td>Parts of Line (rope falls)</td><td class="num">${escHtml(String(inputs.n_parts))}</td></tr>
+      <tr><td>Applied Safety Factor</td><td class="num">${escHtml(String(inputs.safety_factor))} : 1 (ASME B30.2 minimum = 5:1)</td></tr>
+      <tr><td>Mechanical Efficiency</td><td class="num">${escHtml(String(inputs.mech_eff_pct))}%</td></tr>
+    </table>
+
+    <h2>4. Gross Load Calculation</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      GL = Rated Load + Hook/Block Weight + Sling/Rigging Weight<br>
+      GL = ${escHtml(String(inputs.rated_load_kg))} + ${escHtml(String(inputs.hook_weight_kg))} + ${escHtml(String(inputs.sling_weight_kg))} = <strong>${r.gross_load_kg} kg</strong> (${r.gross_load_kN} kN)
+    </p>
+
+    <h2>5. Wire Rope Minimum Breaking Force</h2>
+    <p style="font-size:0.83rem;color:#333;"><strong>Formula (ASME B30.2):</strong></p>
+    <p style="font-size:0.83rem;color:#333;">
+      MBF = Gross Load × Safety Factor<br>
+      MBF = ${r.gross_load_kg} kg × ${escHtml(String(inputs.safety_factor))} = <strong>${r.MBF_kg} kg</strong> (${r.MBF_kN} kN)
+    </p>
+    <p style="font-size:0.83rem;color:#333;"><strong>Recommended wire rope:</strong> ${escHtml(r.rope_recommendation)} — minimum breaking force ≥ ${r.MBF_kN} kN</p>
+
+    <h2>6. Rope Pull and Motor Sizing</h2>
+    <p style="font-size:0.83rem;color:#333;"><strong>Rope Pull per Part:</strong></p>
+    <p style="font-size:0.83rem;color:#333;">
+      Rope Pull (P) = GL / (N<sub>parts</sub> × η<sub>rope</sub><sup>N</sup>)<br>
+      η<sub>rope</sub> per sheave = 0.98 (bearing sheave efficiency)<br>
+      P = ${r.gross_load_kg} kg / (${escHtml(String(inputs.n_parts))} × ${r.rope_efficiency_factor}) = <strong>${r.rope_pull_kg} kg</strong> (${r.rope_pull_N} N)
+    </p>
+    <p style="font-size:0.83rem;color:#333;"><strong>Hoist Motor Power:</strong></p>
+    <p style="font-size:0.83rem;color:#333;">
+      Power (W) = Rope Pull (N) × Lifting Speed (m/s)<br>
+      = ${r.rope_pull_N} N × ${r.speed_ms} m/s = ${r.power_W} W<br><br>
+      Motor HP = Power / (η<sub>mechanical</sub> × 746)<br>
+      = ${r.power_W} / (${escHtml(String(inputs.mech_eff_pct / 100))} × 746) = ${r.motor_hp_calc} HP (calculated)<br>
+      <strong>Standard motor selected: ${r.motor_hp_std} HP</strong> (next standard size with 15% service factor)
+    </p>
+
+    <h2>7. Rope Length and Drum Check</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      Minimum rope length = Lift Height × Parts of Line + Dead Wraps (3 minimum)<br>
+      = ${escHtml(String(inputs.lift_height_m))} m × ${escHtml(String(inputs.n_parts))} + 3 wraps ≈ <strong>${r.rope_length_m} m</strong>
+    </p>
+
+    <h2>8. Results Summary</h2>
+    <div class="result-highlight" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Gross Load</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.gross_load_kg} kg</div>
+        <div style="font-size:0.75rem;color:#555;">${r.gross_load_kN} kN</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Min. Breaking Force (MBF)</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.MBF_kN} kN</div>
+        <div style="font-size:0.75rem;color:#555;">SF = ${escHtml(String(inputs.safety_factor))}:1</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Hoist Motor (Standard)</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.motor_hp_std} HP</div>
+        <div style="font-size:0.75rem;color:#555;">${r.motor_kW} kW</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Safety Factor Check</div>
+        <div style="font-size:1.6rem;font-weight:800;color:${sfColor};">${r.safety_factor_check}</div>
+        <div style="font-size:0.75rem;color:#555;">ASME B30.2 min = 5:1</div>
+      </div>
+    </div>
+
+    <h2>9. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Provide wire rope with minimum breaking force of ${r.MBF_kN} kN. Recommended: ${r.rope_recommendation}.\n2. Hoist motor: specify ${r.motor_hp_std} HP (${r.motor_kW} kW) with duty class M3/M4 for standard industrial use.\n3. Maintain safety factor of ${inputs.safety_factor}:1 minimum per ASME B30.2. Do not exceed the rated SWL of ${inputs.rated_load_kg} kg under any circumstances.\n4. Wire rope must be inspected daily (visual) and monthly (detailed) per DOLE D.O. 13. Remove from service if broken wires exceed 10% of total wires in one rope lay.\n5. Maintain minimum 3 dead wraps on the drum at all times — the drum anchor is not rated for full working load.\n6. Runway beam and support structure must be verified by a structural engineer for the gross load with a dynamic impact factor of 1.25.\n7. In the Philippines, cranes above 1-tonne capacity require DOLE accreditation of riggers and a third-party inspection certificate before commissioning.\n8. A PRC-licensed Mechanical Engineer must sign and seal this document before use as a design basis.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
