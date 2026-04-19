@@ -5,33 +5,32 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// ─── Gemini Flash REST helper ─────────────────────────────────────────────────
+// ─── Groq LLM helper (OpenAI-compatible, free tier) ──────────────────────────
 
-async function callGemini(prompt: string): Promise<string> {
-  const GEMINI_KEY = Deno.env.get("GEMINI_API_KEY") || "";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+async function callGroq(prompt: string): Promise<string> {
+  const GROQ_KEY = Deno.env.get("GROQ_API_KEY") || "";
 
-  const body = {
-    contents: [{ parts: [{ text: prompt }] }],
-    generationConfig: {
-      temperature: 0.2,
-      responseMimeType: "application/json",
-    },
-  };
-
-  const res = await fetch(url, {
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${GROQ_KEY}`,
+    },
+    body: JSON.stringify({
+      model: "llama-3.3-70b-versatile",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.2,
+      response_format: { type: "json_object" },
+    }),
   });
 
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(`Gemini API error ${res.status}: ${err}`);
+    throw new Error(`Groq API error ${res.status}: ${err}`);
   }
 
   const data = await res.json();
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+  return data?.choices?.[0]?.message?.content || "{}";
 }
 
 // ─── HVAC BOM + SOW Agent ─────────────────────────────────────────────────────
@@ -105,7 +104,7 @@ Each content must be 3-5 sentences in professional Philippine engineering contra
 
 Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
 
-  const raw = await callGemini(prompt);
+  const raw = await callGroq(prompt);
   const parsed = JSON.parse(raw);
 
   return {
@@ -122,7 +121,17 @@ serve(async (req) => {
   }
 
   try {
-    const { discipline, calc_type, calc_inputs, calc_results } = await req.json();
+    const body = await req.json();
+
+    // Diagnostic endpoint
+    if (body.action === "list_models") {
+      const models = await listModels();
+      return new Response(JSON.stringify({ models }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { discipline, calc_type, calc_inputs, calc_results } = body;
 
     if (!discipline || !calc_type || !calc_results) {
       return new Response(
@@ -155,3 +164,11 @@ serve(async (req) => {
     );
   }
 });
+
+// Diagnostic: POST { "action": "list_models" } to see available models
+async function listModels(): Promise<string[]> {
+  const key = Deno.env.get("GEMINI_API_KEY") || "";
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+  const data = await res.json();
+  return (data.models || []).map((m: { name: string }) => m.name);
+}
