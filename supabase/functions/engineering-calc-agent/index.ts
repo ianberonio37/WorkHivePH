@@ -1636,6 +1636,116 @@ function calcStairwellPressurization(inputs: Record<string, number | string>): R
   };
 }
 
+// ─── Fire Protection: Fire Alarm Battery Standby (NFPA 72) ───────────────────
+
+function calcFireAlarmBattery(inputs: Record<string, number | string>): Record<string, unknown> {
+  const system_voltage   = Number(inputs.system_voltage)    || 24;   // V (12 or 24)
+  const standby_hours    = Number(inputs.standby_hours)     || 24;   // 24h standard, 60h supervising
+  const alarm_minutes    = Number(inputs.alarm_minutes)     || 5;    // minutes
+  const safety_factor    = 1.25;                                     // NFPA 72 mandatory 25%
+
+  // Panel currents (mA)
+  const panel_standby_mA = Number(inputs.panel_standby_mA) || 50;
+  const panel_alarm_mA   = Number(inputs.panel_alarm_mA)   || 200;
+
+  // Device counts
+  const n_addr_smoke   = Number(inputs.n_addr_smoke)   || 0; // addressable smoke/heat
+  const n_conv_smoke   = Number(inputs.n_conv_smoke)   || 0; // conventional 4-wire smoke
+  const n_heat         = Number(inputs.n_heat)         || 0; // heat detectors
+  const n_pull         = Number(inputs.n_pull)         || 0; // manual pull stations
+  const n_horn_strobe  = Number(inputs.n_horn_strobe)  || 0; // horn + strobe (24V)
+  const n_strobe       = Number(inputs.n_strobe)       || 0; // strobe only (24V)
+  const n_bell         = Number(inputs.n_bell)         || 0; // bells
+
+  // Typical device currents (mA) per NFPA 72 / manufacturer defaults
+  const DEVICE_CURRENT: Record<string, { standby: number; alarm: number }> = {
+    addr_smoke:  { standby: 0.3,  alarm: 3.0   },
+    conv_smoke:  { standby: 0.5,  alarm: 20.0  },
+    heat:        { standby: 0.3,  alarm: 15.0  },
+    pull:        { standby: 0.1,  alarm: 0.5   },
+    horn_strobe: { standby: 0.0,  alarm: 100.0 },
+    strobe:      { standby: 0.0,  alarm: 75.0  },
+    bell:        { standby: 0.0,  alarm: 80.0  },
+  };
+
+  // Total standby current (mA)
+  const I_standby_devices =
+    n_addr_smoke  * DEVICE_CURRENT.addr_smoke.standby +
+    n_conv_smoke  * DEVICE_CURRENT.conv_smoke.standby +
+    n_heat        * DEVICE_CURRENT.heat.standby +
+    n_pull        * DEVICE_CURRENT.pull.standby +
+    n_horn_strobe * DEVICE_CURRENT.horn_strobe.standby +
+    n_strobe      * DEVICE_CURRENT.strobe.standby +
+    n_bell        * DEVICE_CURRENT.bell.standby;
+
+  const I_standby_total_mA = panel_standby_mA + I_standby_devices;
+
+  // Total alarm current (mA)
+  const I_alarm_devices =
+    n_addr_smoke  * DEVICE_CURRENT.addr_smoke.alarm +
+    n_conv_smoke  * DEVICE_CURRENT.conv_smoke.alarm +
+    n_heat        * DEVICE_CURRENT.heat.alarm +
+    n_pull        * DEVICE_CURRENT.pull.alarm +
+    n_horn_strobe * DEVICE_CURRENT.horn_strobe.alarm +
+    n_strobe      * DEVICE_CURRENT.strobe.alarm +
+    n_bell        * DEVICE_CURRENT.bell.alarm;
+
+  const I_alarm_total_mA = panel_alarm_mA + I_alarm_devices;
+
+  // Battery capacity (Ah)
+  const Ah_standby = (I_standby_total_mA / 1000) * standby_hours;
+  const Ah_alarm   = (I_alarm_total_mA   / 1000) * (alarm_minutes / 60);
+  const Ah_calc    = Ah_standby + Ah_alarm;
+  const Ah_required = Ah_calc * safety_factor;
+
+  // Standard battery sizes (Ah) — common Philippine/ASEAN market
+  const std_Ah = [1.2, 2.6, 4.5, 7, 12, 17, 18, 26, 33, 40, 55, 65, 75, 100, 120, 150, 200];
+  let selected_Ah = std_Ah[std_Ah.length - 1];
+  for (const ah of std_Ah) {
+    if (ah >= Ah_required) { selected_Ah = ah; break; }
+  }
+
+  // Number of batteries (series for 24V system: 2× 12V; single for 12V)
+  const n_batteries   = system_voltage === 24 ? 2 : 1;
+  const battery_volts = system_voltage === 24 ? 12 : 12;
+
+  // Charger current check — NFPA 72: must recharge within 48 hours
+  const I_charger_min_A  = selected_Ah / 48;   // minimum charger current (A)
+  const I_charger_rec_A  = selected_Ah / 10;   // recommended C/10 rate (A)
+
+  const round3 = (n: number) => Math.round(n * 1000) / 1000;
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+
+  return {
+    system_voltage,
+    standby_hours,
+    alarm_minutes,
+    panel_standby_mA,
+    panel_alarm_mA,
+    n_addr_smoke, n_conv_smoke, n_heat, n_pull, n_horn_strobe, n_strobe, n_bell,
+    I_standby_devices:    round2(I_standby_devices),
+    I_standby_total_mA:   round2(I_standby_total_mA),
+    I_alarm_devices:      round2(I_alarm_devices),
+    I_alarm_total_mA:     round2(I_alarm_total_mA),
+    Ah_standby:           round3(Ah_standby),
+    Ah_alarm:             round3(Ah_alarm),
+    Ah_calc:              round3(Ah_calc),
+    safety_factor,
+    Ah_required:          round3(Ah_required),
+    selected_Ah,
+    n_batteries,
+    battery_volts,
+    battery_config:       system_voltage === 24 ? `2 × 12V ${selected_Ah}Ah in series` : `1 × 12V ${selected_Ah}Ah`,
+    I_charger_min_A:      round2(I_charger_min_A),
+    I_charger_rec_A:      round2(I_charger_rec_A),
+    device_currents:      DEVICE_CURRENT,
+    inputs_used: {
+      system_voltage, standby_hours, alarm_minutes, panel_standby_mA, panel_alarm_mA,
+      n_addr_smoke, n_conv_smoke, n_heat, n_pull, n_horn_strobe, n_strobe, n_bell,
+    },
+  };
+}
+
 // ─── Main Handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -1685,6 +1795,8 @@ serve(async (req) => {
       results = calcFirePumpSizing(inputs);
     } else if (calc_type === "Stairwell Pressurization") {
       results = calcStairwellPressurization(inputs);
+    } else if (calc_type === "Fire Alarm Battery") {
+      results = calcFireAlarmBattery(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

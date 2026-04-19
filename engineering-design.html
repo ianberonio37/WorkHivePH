@@ -487,7 +487,7 @@ const CALC_TYPES = {
     { id: 'Fire Sprinkler Hydraulic', icon: '🚿', desc: 'NFPA 13 design area method, flow and pressure', available: true  },
     { id: 'Fire Pump Sizing',         icon: '🔥', desc: 'Required flow and pressure, motor HP, NFPA 20',  available: true  },
     { id: 'Stairwell Pressurization', icon: '🪜', desc: 'Airflow to maintain pressure differential, NFPA 92', available: true  },
-    { id: 'Fire Alarm Battery',       icon: '🔋', desc: '24h standby + 5-min alarm, battery Ah, NFPA 72', available: false },
+    { id: 'Fire Alarm Battery',       icon: '🔋', desc: '24h standby + 5-min alarm, battery Ah, NFPA 72', available: true  },
   ],
 };
 
@@ -1052,6 +1052,41 @@ const GUIDES = {
       'A 20% safety factor is applied to the calculated airflow before fan selection — this accounts for construction tolerances and future door seal degradation.',
       'For buildings with elevator shafts adjacent to stairwells, add 0.056 m² leakage per elevator door level to the total leakage area.',
       'Pressurization fans must operate on emergency power (UPS or generator) — they are part of the building fire safety system, not comfort HVAC.',
+    ],
+  },
+
+  'Fire Alarm Battery': {
+    title: 'Fire Alarm Battery Standby Calculation — NFPA 72 (National Fire Alarm and Signaling Code)',
+    subtitle: 'Determines the minimum battery capacity (Ah) required to power the fire alarm control panel (FACP) and all connected devices through 24 hours standby plus 5 minutes full alarm, with a mandatory 25% safety margin per NFPA 72.',
+    standards: ['NFPA 72 — National Fire Alarm and Signaling Code (Latest Edition)','BFP IRR — Bureau of Fire Protection Implementing Rules and Regulations','National Building Code of the Philippines (PD 1096) — Fire Detection and Alarm Requirements'],
+    formulas: [
+      'Ah_standby = I_standby_total (mA) x Standby Hours / 1000',
+      'Ah_alarm   = I_alarm_total (mA) x Alarm Minutes / 60 / 1000',
+      'Ah_calculated = Ah_standby + Ah_alarm',
+      'Ah_required = Ah_calculated x 1.25  (25% safety margin — NFPA 72 mandatory)',
+      '',
+      'Select: next standard battery size >= Ah_required',
+      '',
+      'Charger recharge check (NFPA 72: within 48 hours):',
+      '  Minimum charger current = Ah_selected / 48 A',
+      '  Recommended charger: C/10 rate = Ah_selected / 10 A',
+    ],
+    fields: [
+      { name: 'System Voltage', tip: '24 VDC is standard for Philippine commercial FACP (2x 12V batteries in series). 12 VDC for small residential panels. Verify on the FACP nameplate before specifying batteries.' },
+      { name: 'Standby Requirement', tip: 'NFPA 72 standard: 24 hours standby + 5 minutes alarm. Supervising stations (central monitoring): 60 hours standby + 5 minutes alarm. Use 24h for all typical building applications.' },
+      { name: 'Panel Standby Current', tip: 'From the FACP datasheet (Istandby or Iquiescent). Typical small FACP: 50-100 mA. Large addressable system: 200-500 mA. Always use the actual panel datasheet value — this is the biggest variable in the calc.' },
+      { name: 'Panel Alarm Current', tip: 'From the FACP datasheet (Ialarm). This is the panel electronics only — notification appliance current is added separately. Typical: 200-500 mA.' },
+      { name: 'Addressable Smoke/Heat Detectors', tip: 'SLC (Signaling Line Circuit) devices. Standby: ~0.3 mA each. Alarm: ~3 mA each. Much lower alarm current than conventional because the panel drives them via the loop, not direct power.' },
+      { name: 'Conventional 4-Wire Smoke Detectors', tip: 'Separate power and signal wires. Standby: ~0.5 mA. Alarm: ~20 mA each. Common in older Philippine buildings and smaller systems.' },
+      { name: 'Horn/Strobe Notification Appliances', tip: 'Highest alarm current draw — 75-150 mA each. This is usually the dominant term in the alarm Ah calc. Always confirm from the device datasheet. Pre-filled at 100 mA for typical 24V horn/strobe.' },
+    ],
+    notes: [
+      'NFPA 72 Table 10.6.7 requires 25% additional capacity above the calculated Ah — this is mandatory, not optional.',
+      'For 24 VDC systems: use 2 × 12V sealed lead-acid (SLA) batteries in series. Both must be identical Ah rating.',
+      'Standard Ah sizes available in Philippine market: 1.2, 2.6, 4.5, 7, 12, 17, 18, 26, 33, 40, 55, 65, 75, 100 Ah.',
+      'NFPA 72 requires the battery charger to fully recharge the battery within 48 hours after a full discharge.',
+      'Pre-filled current values are typical field values. Always verify against actual equipment datasheets before finalizing — especially for the FACP panel current and notification appliances.',
+      'BFP Philippines requires fire alarm systems to have battery backup. The battery calculation is part of the fire protection engineering submittal.',
     ],
   },
 };
@@ -2143,6 +2178,81 @@ function renderInputForm(calcType) {
     document.getElementById('calc-btn').disabled = false;
   }
 
+  if (calcType === 'Fire Alarm Battery') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Panel Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Bldg A — FACP Battery Sizing" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">System Voltage</div>
+          <div class="toggle-group" id="tg-sys-volt">
+            <button class="toggle-btn" data-val="12" onclick="toggle('tg-sys-volt','12')">12 VDC (residential)</button>
+            <button class="toggle-btn active" data-val="24" onclick="toggle('tg-sys-volt','24')">24 VDC (commercial)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Standby Requirement</div>
+          <div class="toggle-group" id="tg-standby-hrs">
+            <button class="toggle-btn active" data-val="24" onclick="toggle('tg-standby-hrs','24')">24 hrs (standard)</button>
+            <button class="toggle-btn" data-val="60" onclick="toggle('tg-standby-hrs','60')">60 hrs (supervising station)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Panel Standby Current</div>
+          <div class="input-group">
+            <input id="f-panel-standby" class="wh-input" type="number" value="50" min="1" />
+            <span class="input-unit">mA</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Panel Alarm Current</div>
+          <div class="input-group">
+            <input id="f-panel-alarm" class="wh-input" type="number" value="200" min="1" />
+            <span class="input-unit">mA</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:0.78rem;color:#F7A21B;font-weight:600;margin-bottom:0.5rem;margin-top:0.25rem;">Detection Devices</div>
+      <div style="display:grid;grid-template-columns:1fr 70px;gap:0.4rem;align-items:center;font-size:0.75rem;color:rgba(255,255,255,0.4);margin-bottom:0.3rem;padding:0 0.25rem;">
+        <div>Device Type (standby mA / alarm mA)</div><div style="text-align:center;">Count</div>
+      </div>
+      ${[
+        ['f-n-addr-smoke',  'Addressable smoke / heat detectors (0.3 mA / 3 mA)',  0],
+        ['f-n-conv-smoke',  'Conventional 4-wire smoke detectors (0.5 mA / 20 mA)', 0],
+        ['f-n-heat',        'Heat detectors — conventional (0.3 mA / 15 mA)',       0],
+        ['f-n-pull',        'Manual pull stations (0.1 mA / 0.5 mA)',               0],
+      ].map(([id, label, def]) => `
+        <div style="display:grid;grid-template-columns:1fr 70px;gap:0.4rem;align-items:center;margin-bottom:0.4rem;">
+          <div style="font-size:0.78rem;color:rgba(255,255,255,0.65);padding:0 0.25rem;">${label}</div>
+          <input id="${id}" class="wh-input" type="number" value="${def}" min="0" style="padding:0.5rem;text-align:center;" />
+        </div>`).join('')}
+
+      <div style="font-size:0.78rem;color:#F7A21B;font-weight:600;margin-bottom:0.5rem;margin-top:0.75rem;">Notification Appliances</div>
+      ${[
+        ['f-n-horn-strobe', 'Horn + Strobe units 24V (0 mA / 100 mA)',    0],
+        ['f-n-strobe',      'Strobe only units 24V (0 mA / 75 mA)',        0],
+        ['f-n-bell',        'Bells (0 mA / 80 mA)',                        0],
+      ].map(([id, label, def]) => `
+        <div style="display:grid;grid-template-columns:1fr 70px;gap:0.4rem;align-items:center;margin-bottom:0.4rem;">
+          <div style="font-size:0.78rem;color:rgba(255,255,255,0.65);padding:0 0.25rem;">${label}</div>
+          <input id="${id}" class="wh-input" type="number" value="${def}" min="0" style="padding:0.5rem;text-align:center;" />
+        </div>`).join('')}
+
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Standard: NFPA 72. A mandatory 25% safety margin is applied to the calculated Ah. Alarm duration is 5 minutes. Battery config for 24V: 2 × 12V in series.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
   if (calcType === 'Stairwell Pressurization') {
     area.innerHTML = `
       <div class="mb-4">
@@ -3044,6 +3154,24 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Fire Alarm Battery') {
+    return {
+      project_name:       v('f-project')              || 'Untitled Fire Alarm System',
+      system_voltage:     parseFloat(getToggle('tg-sys-volt'))    || 24,
+      standby_hours:      parseFloat(getToggle('tg-standby-hrs')) || 24,
+      alarm_minutes:      5,
+      panel_standby_mA:   parseFloat(v('f-panel-standby'))        || 50,
+      panel_alarm_mA:     parseFloat(v('f-panel-alarm'))          || 200,
+      n_addr_smoke:       parseFloat(v('f-n-addr-smoke'))         || 0,
+      n_conv_smoke:       parseFloat(v('f-n-conv-smoke'))         || 0,
+      n_heat:             parseFloat(v('f-n-heat'))               || 0,
+      n_pull:             parseFloat(v('f-n-pull'))               || 0,
+      n_horn_strobe:      parseFloat(v('f-n-horn-strobe'))        || 0,
+      n_strobe:           parseFloat(v('f-n-strobe'))             || 0,
+      n_bell:             parseFloat(v('f-n-bell'))               || 0,
+    };
+  }
+
   return base;
 }
 
@@ -3115,6 +3243,14 @@ async function runCalculation() {
       showToast('Please enter the pipe length from riser to remote sprinkler.');
       return;
     }
+  } else if (_calcType === 'Fire Alarm Battery') {
+    const total = (inputs.n_addr_smoke || 0) + (inputs.n_conv_smoke || 0) +
+                  (inputs.n_heat || 0) + (inputs.n_pull || 0) +
+                  (inputs.n_horn_strobe || 0) + (inputs.n_strobe || 0) + (inputs.n_bell || 0);
+    if (total === 0) {
+      showToast('Please enter at least one device or notification appliance.');
+      return;
+    }
   } else if (!inputs.floor_area || inputs.floor_area <= 0) {
     showToast('Please enter the floor area.');
     return;
@@ -3162,6 +3298,8 @@ async function runCalculation() {
       renderFirePumpReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Fire Sprinkler Hydraulic') {
       renderFireSprinklerReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Fire Alarm Battery') {
+      renderFireAlarmBatteryReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -5319,6 +5457,180 @@ function renderFireSprinklerReport(inputs, results, narrative) {
 
     <h2>7. Recommendations</h2>
     <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Provide a fire pump rated at minimum ${r.Q_total} L/min at ${r.P_source} bar (${r.P_source_kPa} kPa). Coordinate with fire pump sizing calculation (NFPA 20).\n2. Provide a water storage tank with minimum capacity of ${r.water_volume_L.toLocaleString()} L (${r.water_volume_m3} m3) dedicated to fire fighting.\n3. Use ${r.pipe_dia}mm ${r.pipe_material} Schedule 40 for the main distribution pipe from the riser to the design area.\n4. Submit this calculation to the Bureau of Fire Protection (BFP) as part of the fire protection permit application package.\n5. A PRC-licensed Mechanical or Fire Protection Engineer must sign and seal this document before submission to BFP.`)}</p>
+
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Prepared by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Checked by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Approved by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── Fire Alarm Battery Standby Report (NFPA 72) ─────────────────────────────
+function renderFireAlarmBatteryReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const r       = results;
+  const dc      = r.device_currents || {};
+
+  const deviceRows = [
+    { label: 'Addressable Smoke Detectors',  key: 'addr_smoke',  n: inputs.n_addr_smoke  },
+    { label: 'Conventional Smoke Detectors', key: 'conv_smoke',  n: inputs.n_conv_smoke  },
+    { label: 'Heat Detectors',               key: 'heat',        n: inputs.n_heat        },
+    { label: 'Manual Pull Stations',         key: 'pull',        n: inputs.n_pull        },
+    { label: 'Horn/Strobe Appliances',       key: 'horn_strobe', n: inputs.n_horn_strobe },
+    { label: 'Strobe-Only Appliances',       key: 'strobe',      n: inputs.n_strobe      },
+    { label: 'Bells',                        key: 'bell',        n: inputs.n_bell        },
+  ].filter(d => d.n && d.n > 0).map(d => ({
+    ...d,
+    mA_s: dc[d.key]?.standby ?? 0,
+    mA_a: dc[d.key]?.alarm   ?? 0,
+  }));
+
+  const deviceTableRows = deviceRows.map(d => `
+    <tr>
+      <td>${escHtml(d.label)}</td>
+      <td class="num">${d.n}</td>
+      <td class="num">${d.mA_s}</td>
+      <td class="num">${d.mA_a}</td>
+      <td class="num">${(d.n * d.mA_s).toFixed(1)}</td>
+      <td class="num">${(d.n * d.mA_a).toFixed(1)}</td>
+    </tr>
+  `).join('');
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div>
+        <h1>DESIGN CALCULATION</h1>
+        <div style="font-size:0.8rem;color:#555;">Fire Alarm Battery Standby — NFPA 72 (National Fire Alarm and Signaling Code)</div>
+      </div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;">
+        <div>Rev. ${e('0')}</div>
+        <div>Date: ${dateStr}</div>
+      </div>
+    </div>
+
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">Project / System Name</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>System Voltage</th><td>${escHtml(String(inputs.system_voltage))} V DC</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Calculation Standard</th><td>NFPA 72 / BFP IRR</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
+    </table>
+
+    <h2>1. Objective</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || `To determine the minimum battery capacity (Ah) required for the fire alarm control panel (FACP) to operate in standby mode for ${inputs.standby_hours} hours and alarm mode for ${inputs.alarm_minutes} minutes, per NFPA 72 Section 10.6 and BFP IRR requirements.`)}</p>
+
+    <h2>2. References</h2>
+    <p style="font-size:0.83rem;color:#333;">NFPA 72 (National Fire Alarm and Signaling Code) — Section 10.6: Secondary Power Supplies<br>
+    BFP IRR (Bureau of Fire Protection Implementing Rules and Regulations)<br>
+    Equipment manufacturer current draw specifications</p>
+
+    <h2>3. System Parameters</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>System Nominal Voltage</td><td class="num">${escHtml(String(inputs.system_voltage))} V DC</td></tr>
+      <tr><td>Required Standby Duration (NFPA 72 §10.6)</td><td class="num">${escHtml(String(inputs.standby_hours))} hours</td></tr>
+      <tr><td>Required Alarm Duration (NFPA 72 §10.6)</td><td class="num">${escHtml(String(inputs.alarm_minutes))} minutes</td></tr>
+      <tr><td>Safety Factor (NFPA 72 §10.6.7)</td><td class="num">× 1.25 (25%)</td></tr>
+    </table>
+
+    <h2>4. Device Load Schedule</h2>
+    <p style="font-size:0.8rem;color:#555;">All current draws are per-device values. Total = Quantity × Current per device.</p>
+    <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Device / Appliance</th>
+        <th class="num">Qty</th>
+        <th class="num">Standby mA/unit</th>
+        <th class="num">Alarm mA/unit</th>
+        <th class="num">Total Standby mA</th>
+        <th class="num">Total Alarm mA</th>
+      </tr>
+      <tr>
+        <td>FACP Panel Board</td>
+        <td class="num">1</td>
+        <td class="num">${escHtml(String(inputs.panel_standby_mA))}</td>
+        <td class="num">${escHtml(String(inputs.panel_alarm_mA))}</td>
+        <td class="num">${escHtml(String(inputs.panel_standby_mA))}</td>
+        <td class="num">${escHtml(String(inputs.panel_alarm_mA))}</td>
+      </tr>
+      ${deviceTableRows}
+      <tr style="font-weight:700;background:#fffbf0;">
+        <td colspan="4">Total System Current Draw</td>
+        <td class="num">${r.I_standby_total_mA} mA</td>
+        <td class="num">${r.I_alarm_total_mA} mA</td>
+      </tr>
+    </table>
+    </div>
+
+    <h2>5. Battery Capacity Calculation</h2>
+    <p style="font-size:0.83rem;color:#333;"><strong>Formula (NFPA 72 §10.6.7):</strong></p>
+    <p style="font-size:0.83rem;color:#333;">
+      Ah<sub>required</sub> = [ (I<sub>standby</sub> × T<sub>standby</sub>) + (I<sub>alarm</sub> × T<sub>alarm</sub>/60) ] / 1000 × SF
+    </p>
+    <p style="font-size:0.83rem;color:#333;">Where:</p>
+    <p style="font-size:0.83rem;color:#333;">
+      I<sub>standby</sub> = ${r.I_standby_total_mA} mA (total standby current)<br>
+      T<sub>standby</sub> = ${escHtml(String(inputs.standby_hours))} hours<br>
+      I<sub>alarm</sub> = ${r.I_alarm_total_mA} mA (total alarm current)<br>
+      T<sub>alarm</sub> = ${escHtml(String(inputs.alarm_minutes))} minutes<br>
+      SF = 1.25 (safety factor per NFPA 72)
+    </p>
+    <p style="font-size:0.83rem;color:#333;"><strong>Calculation:</strong></p>
+    <p style="font-size:0.83rem;color:#333;">
+      Standby Ah = ${r.I_standby_total_mA} mA × ${escHtml(String(inputs.standby_hours))} h / 1000 = ${r.Ah_standby} Ah<br>
+      Alarm Ah = ${r.I_alarm_total_mA} mA × ${escHtml(String(inputs.alarm_minutes))} min / 60 / 1000 = ${r.Ah_alarm} Ah<br>
+      Subtotal = ${r.Ah_standby} + ${r.Ah_alarm} = ${r.Ah_calc} Ah<br>
+      With 1.25 safety factor: ${r.Ah_calc} × 1.25 = <strong>${r.Ah_required} Ah</strong>
+    </p>
+
+    <h2>6. Results Summary</h2>
+    <div class="result-highlight" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Minimum Battery Capacity</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.Ah_required} Ah</div>
+        <div style="font-size:0.75rem;color:#555;">@ ${escHtml(String(inputs.system_voltage))} V DC</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Recommended Battery Bank</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${escHtml(r.battery_config || (r.selected_Ah + ' Ah'))}</div>
+        <div style="font-size:0.75rem;color:#555;">Standard SLA / VRLA battery</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Total Standby Current</div>
+        <div style="font-size:1.4rem;font-weight:700;color:#162032;">${r.I_standby_total_mA} mA</div>
+        <div style="font-size:0.75rem;color:#555;">${(r.I_standby_total_mA/1000).toFixed(3)} A</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Total Alarm Current</div>
+        <div style="font-size:1.4rem;font-weight:700;color:#162032;">${r.I_alarm_total_mA} mA</div>
+        <div style="font-size:0.75rem;color:#555;">${(r.I_alarm_total_mA/1000).toFixed(3)} A</div>
+      </div>
+    </div>
+
+    <h2>7. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Provide sealed lead-acid (SLA/VRLA) batteries rated at minimum ${r.Ah_required} Ah at ${inputs.system_voltage} V DC.\n2. Recommended battery bank: ${r.battery_config || r.selected_Ah + ' Ah'} — verify availability with FACP manufacturer.\n3. Install batteries inside or adjacent to the FACP cabinet in a clean, cool, ventilated location per NFPA 72.\n4. Verify battery compatibility with the specific FACP charging circuit before procurement.\n5. Replace batteries every 3-5 years per NFPA 72 §10.6.11 or per manufacturer recommendation, whichever is more frequent.\n6. Submit this calculation to the Bureau of Fire Protection (BFP) as part of the fire alarm permit application package.\n7. A PRC-licensed Electrical or Electronics Engineer must sign and seal this document before submission to BFP.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
