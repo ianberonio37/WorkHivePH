@@ -484,7 +484,7 @@ const CALC_TYPES = {
     { id: 'Voltage Drop',     icon: '📉', desc: 'VD % check, conductor length limits',         available: true  },
     { id: 'Wire Sizing',      icon: '🔌', desc: 'Ampacity, conductor size per PEC Table 3.10', available: true  },
     { id: 'Short Circuit',    icon: '⚡', desc: 'Fault current, breaker interrupting capacity', available: true  },
-    { id: 'Lighting Design',  icon: '💡', desc: 'Lumen method, number of fixtures per room',   available: false },
+    { id: 'Lighting Design',  icon: '💡', desc: 'Lumen method, number of fixtures per room',   available: true  },
   ],
   'Fire Protection': [
     { id: 'Fire Sprinkler Hydraulic', icon: '🚿', desc: 'NFPA 13 design area method, flow and pressure', available: true  },
@@ -985,6 +985,46 @@ const GUIDES = {
       'A FAIL result means the breaker may rupture or explode during a fault event — this is a critical safety deficiency requiring immediate correction.',
       'Always check the IC of every breaker in the panel, not just the main breaker — branch breakers also need IC >= available fault current at the panel.',
       'For accuracy, request the utility company (MERALCO / local EC) for the available fault current at the point of connection.',
+    ],
+  },
+
+  'Lighting Design': {
+    title: 'Lighting Design — Lumen Method (IES/IESNA)',
+    subtitle: 'Determines the number of luminaires required to achieve the target illuminance level for a given space using the Zonal Cavity (Lumen) Method. Standard method for PEC compliance and building permit submissions.',
+    standards: ['Philippine Electrical Code (PEC) 2017 — Article 3.60 (Lighting)','IES/IESNA RP-1 (Office Lighting), RP-7 (Industrial), RP-28 (Schools)','National Building Code of the Philippines (PD 1096)','DOLE OSH Standards — Minimum Illumination Levels'],
+    formulas: [
+      'N = (E x A) / (F x CU x LLF)',
+      '',
+      'Where:',
+      '  N   = number of luminaires required',
+      '  E   = required illuminance (lux)',
+      '  A   = room floor area (m2)',
+      '  F   = luminaire lumen output (lumens per fixture)',
+      '  CU  = Coefficient of Utilization (from IES tables, based on RCR)',
+      '  LLF = Light Loss Factor (dirt, lamp depreciation)',
+      '',
+      'Room Cavity Ratio (RCR):',
+      '  RCR = 5 x h_rc x (L + W) / (L x W)',
+      '  h_rc = ceiling height - work plane height  (mounting height above work plane)',
+      '',
+      'Light Loss Factor (LLF):',
+      '  LLF = RSDD x LDD  (room surface dirt x lamp lumen depreciation)',
+      '  Typical: 0.70 (dirty industrial), 0.75 (commercial), 0.80 (clean office)',
+    ],
+    fields: [
+      { name: 'Space Type', tip: 'Pre-fills the IES recommended illuminance (lux) and LLF automatically. Override the lux value if needed.' },
+      { name: 'Floor Area (m2)', tip: 'Internal floor area of the space being lit.' },
+      { name: 'Room Length & Width (m)', tip: 'Used to calculate the Room Cavity Ratio (RCR). If only floor area is known, assume a square room (L = W = sqrt(A)).' },
+      { name: 'Ceiling Height (m)', tip: 'Floor to ceiling. Default 3.0 m.' },
+      { name: 'Luminaire Type', tip: 'Pre-fills the lumen output per fixture. Standard LED panel (600x600mm): 3200 lm. LED batten (1200mm): 2200 lm. LED high bay (150W): 18000 lm. Fluorescent T8 2x36W: 5400 lm.' },
+      { name: 'Maintenance (LLF)', tip: '0.80 = clean office/commercial. 0.75 = typical commercial/school. 0.70 = industrial/dirty environment.' },
+    ],
+    notes: [
+      'IES minimum illuminance (PEC/DOLE): Office general = 500 lux. Conference room = 300 lux. Corridor = 100 lux. Toilet = 150 lux. Warehouse = 150 lux. Production floor = 300-500 lux. Fine inspection = 1000 lux.',
+      'CU (Coefficient of Utilization) depends on RCR and reflectance values. This calc uses IES typical values: RCR 1-2 = 0.72, RCR 3-4 = 0.62, RCR 5-6 = 0.54, RCR 7-8 = 0.46, RCR 9-10 = 0.40.',
+      'LED panels are the standard choice for Philippine office and commercial projects. High bay LEDs for industrial spaces (ceiling > 6 m).',
+      'Diversity: actual layouts may require more fixtures to eliminate dark zones — add 10-15% to calculated N as a practical allowance.',
+      'Philippine grid voltage is 230V / 60 Hz. Verify fixture compatibility before specification.',
     ],
   },
 
@@ -2574,6 +2614,105 @@ function renderInputForm(calcType) {
     document.getElementById('calc-btn').disabled = false;
   }
 
+  if (calcType === 'Lighting Design') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Room Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Office Area — 2nd Floor" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Space Type</div>
+        <div class="toggle-group" id="tg-ld-space">
+          ${['Office','Conference Room','Corridor','Toilet','Warehouse','Production Floor','School / Classroom','Retail'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-ld-space','${v}');applyLDSpaceDefaults('${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Room Length</div>
+          <div class="input-group">
+            <input id="f-ld-len" class="wh-input" type="number" value="10" min="1" oninput="updateLDArea()" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Room Width</div>
+          <div class="input-group">
+            <input id="f-ld-wid" class="wh-input" type="number" value="8" min="1" oninput="updateLDArea()" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Ceiling Height</div>
+          <div class="input-group">
+            <input id="f-ld-ceil" class="wh-input" type="number" value="3.0" min="2.0" step="0.1" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Required Illuminance</div>
+          <div class="input-group">
+            <input id="f-ld-lux" class="wh-input" type="number" value="500" min="50" />
+            <span class="input-unit">lux</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Luminaire Type</div>
+        <div class="toggle-group" id="tg-ld-fixture">
+          <button class="toggle-btn active" onclick="toggle('tg-ld-fixture','LED Panel 600x600');applyLDFixtureDefaults('LED Panel 600x600')">LED Panel 600x600</button>
+          <button class="toggle-btn" onclick="toggle('tg-ld-fixture','LED Batten 1200mm');applyLDFixtureDefaults('LED Batten 1200mm')">LED Batten 1200mm</button>
+          <button class="toggle-btn" onclick="toggle('tg-ld-fixture','LED High Bay 100W');applyLDFixtureDefaults('LED High Bay 100W')">LED High Bay 100W</button>
+          <button class="toggle-btn" onclick="toggle('tg-ld-fixture','LED High Bay 150W');applyLDFixtureDefaults('LED High Bay 150W')">LED High Bay 150W</button>
+          <button class="toggle-btn" onclick="toggle('tg-ld-fixture','Fluorescent T8 2x36W');applyLDFixtureDefaults('Fluorescent T8 2x36W')">Fluorescent T8 2×36W</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Lumens per Fixture</div>
+          <div class="input-group">
+            <input id="f-ld-lumens" class="wh-input" type="number" value="3200" min="100" />
+            <span class="input-unit">lm</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Wattage per Fixture</div>
+          <div class="input-group">
+            <input id="f-ld-watt" class="wh-input" type="number" value="36" min="5" />
+            <span class="input-unit">W</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Maintenance Factor (LLF)</div>
+        <div class="toggle-group" id="tg-ld-llf">
+          <button class="toggle-btn" onclick="toggle('tg-ld-llf','0.70')">0.70 — Industrial / Dirty</button>
+          <button class="toggle-btn" onclick="toggle('tg-ld-llf','0.75')">0.75 — Commercial / School</button>
+          <button class="toggle-btn active" onclick="toggle('tg-ld-llf','0.80')">0.80 — Clean Office</button>
+        </div>
+      </div>
+
+      <div id="ld-info-row" style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.15);border-radius:0.75rem;padding:0.6rem 1rem;font-size:0.75rem;color:rgba(255,255,255,0.55);margin-bottom:0.75rem;">
+        Space: Office | Target: 500 lux | Fixture: LED Panel 600x600 (3200 lm, 36W)
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.25rem;">
+        Standards: PEC 2017 Article 3.60 / IES RP-1 / DOLE OSH. Uses IES Lumen (Zonal Cavity) Method with RCR-based CU lookup.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
   if (calcType === 'Fire Alarm Battery') {
     area.innerHTML = `
       <div class="mb-4">
@@ -3545,6 +3684,59 @@ function applyBeltDefaults(section) {
   }
 }
 
+function applyLDSpaceDefaults(space) {
+  const LUX = {
+    'Office': 500, 'Conference Room': 300, 'Corridor': 100, 'Toilet': 150,
+    'Warehouse': 150, 'Production Floor': 300, 'School / Classroom': 400, 'Retail': 500,
+  };
+  const LLF = {
+    'Office': '0.80', 'Conference Room': '0.80', 'Corridor': '0.75', 'Toilet': '0.75',
+    'Warehouse': '0.70', 'Production Floor': '0.70', 'School / Classroom': '0.75', 'Retail': '0.80',
+  };
+  const luxEl = document.getElementById('f-ld-lux');
+  if (luxEl) luxEl.value = LUX[space] ?? 500;
+  const llf = LLF[space] ?? '0.80';
+  const tgLlf = document.getElementById('tg-ld-llf');
+  if (tgLlf) {
+    tgLlf.querySelectorAll('.toggle-btn').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('onclick')?.includes(`'${llf}'`));
+    });
+  }
+  updateLDInfo();
+}
+
+function applyLDFixtureDefaults(fixture) {
+  const LUMENS = {
+    'LED Panel 600x600': 3200, 'LED Batten 1200mm': 2200,
+    'LED High Bay 100W': 12000, 'LED High Bay 150W': 18000, 'Fluorescent T8 2x36W': 5400,
+  };
+  const WATTS = {
+    'LED Panel 600x600': 36, 'LED Batten 1200mm': 20,
+    'LED High Bay 100W': 100, 'LED High Bay 150W': 150, 'Fluorescent T8 2x36W': 72,
+  };
+  const lmEl = document.getElementById('f-ld-lumens');
+  const wEl  = document.getElementById('f-ld-watt');
+  if (lmEl) lmEl.value = LUMENS[fixture] ?? 3200;
+  if (wEl)  wEl.value  = WATTS[fixture]  ?? 36;
+  updateLDInfo();
+}
+
+function updateLDArea() {
+  const l = parseFloat(document.getElementById('f-ld-len')?.value) || 0;
+  const w = parseFloat(document.getElementById('f-ld-wid')?.value) || 0;
+  updateLDInfo();
+}
+
+function updateLDInfo() {
+  const space   = document.getElementById('tg-ld-space')?.querySelector('.toggle-btn.active')?.textContent || 'Office';
+  const lux     = document.getElementById('f-ld-lux')?.value || '500';
+  const fixture = document.getElementById('tg-ld-fixture')?.querySelector('.toggle-btn.active')?.textContent || 'LED Panel 600x600';
+  const lumens  = document.getElementById('f-ld-lumens')?.value || '3200';
+  const watt    = document.getElementById('f-ld-watt')?.value || '36';
+  const info    = document.getElementById('ld-info-row');
+  if (info) info.textContent = `Space: ${space} | Target: ${lux} lux | Fixture: ${fixture} (${lumens} lm, ${watt}W)`;
+}
+
 function applyPressDefaults(buildingType) {
   const el = document.getElementById('f-delta-p');
   if (el) el.value = buildingType === 'Non-Sprinklered' ? '50' : '25';
@@ -3934,6 +4126,21 @@ function collectInputs() {
       power_factor:  parseFloat(v('f-ws-pf'))      || 0.85,
       ambient_temp:  parseFloat(v('f-ws-temp'))    || 30,
       conduit_fill:  getToggle('tg-ws-fill') || '1-3',
+    };
+  }
+
+  if (_calcType === 'Lighting Design') {
+    return {
+      project_name:   v('f-project') || 'Untitled Room',
+      space_type:     getToggle('tg-ld-space')   || 'Office',
+      room_len_m:     parseFloat(v('f-ld-len'))  || 10,
+      room_wid_m:     parseFloat(v('f-ld-wid'))  || 8,
+      ceiling_ht_m:   parseFloat(v('f-ld-ceil')) || 3.0,
+      target_lux:     parseFloat(v('f-ld-lux'))  || 500,
+      fixture_type:   getToggle('tg-ld-fixture') || 'LED Panel 600x600',
+      lumens_per_fix: parseFloat(v('f-ld-lumens'))|| 3200,
+      watts_per_fix:  parseFloat(v('f-ld-watt')) || 36,
+      llf:            parseFloat(getToggle('tg-ld-llf') || '0.80'),
     };
   }
 
@@ -4356,6 +4563,11 @@ async function runCalculation() {
       showToast('Please enter the building population (minimum 10 persons).');
       return;
     }
+  } else if (_calcType === 'Lighting Design') {
+    if (!inputs.room_len_m || inputs.room_len_m <= 0 || !inputs.room_wid_m || inputs.room_wid_m <= 0) {
+      showToast('Please enter the room length and width.');
+      return;
+    }
   } else if (_calcType === 'Short Circuit') {
     if (!inputs.xfmr_kva || inputs.xfmr_kva <= 0) {
       showToast('Please select the transformer kVA rating.');
@@ -4424,6 +4636,8 @@ async function runCalculation() {
       renderHoistCapacityReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Short Circuit') {
       renderShortCircuitReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Lighting Design') {
+      renderLightingDesignReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -6442,6 +6656,141 @@ function renderFirePumpReport(inputs, results, narrative) {
     </div>
   `;
 
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── Electrical: Lighting Design Report ──────────────────────────────────────
+function renderLightingDesignReport(inputs, results, narrative) {
+  const now = new Date();
+  const r   = results;
+
+  const html = `
+    <div style="max-width:800px;margin:0 auto;font-family:'Poppins',sans-serif;color:#162032;background:#fff;padding:2.5rem;border-radius:1rem;">
+
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #162032;padding-bottom:1rem;margin-bottom:1.5rem;">
+        <div>
+          <div style="font-size:1.3rem;font-weight:800;color:#162032;">LIGHTING DESIGN CALCULATION</div>
+          <div style="font-size:0.8rem;color:#555;margin-top:0.2rem;">Lumen (Zonal Cavity) Method — IES / PEC 2017</div>
+        </div>
+        <div style="text-align:right;font-size:0.72rem;color:#555;">
+          <div>Date: ${now.toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'})}</div>
+          <div>Standard: IES RP-1 / PEC Article 3.60</div>
+        </div>
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;margin-bottom:1.5rem;font-size:0.78rem;">
+        <tr><td style="padding:0.3rem 0.5rem;font-weight:600;width:35%;color:#555;">Project / Room</td><td style="padding:0.3rem 0.5rem;">${inputs.project_name}</td><td style="padding:0.3rem 0.5rem;font-weight:600;width:20%;color:#555;">Engineer</td><td style="padding:0.3rem 0.5rem;">_________________</td></tr>
+        <tr><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Space Type</td><td style="padding:0.3rem 0.5rem;">${inputs.space_type}</td><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Date</td><td style="padding:0.3rem 0.5rem;">${now.toLocaleDateString('en-PH')}</td></tr>
+        <tr><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Room Dimensions</td><td style="padding:0.3rem 0.5rem;">${inputs.room_len_m} m × ${inputs.room_wid_m} m × ${inputs.ceiling_ht_m} m H</td><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Floor Area</td><td style="padding:0.3rem 0.5rem;">${r.floor_area_m2} m²</td></tr>
+      </table>
+
+      <div style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
+        <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">OBJECTIVE</div>
+        <div id="ld-obj" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.objective || `To determine the number of luminaires required to achieve ${inputs.target_lux} lux average maintained illuminance in the subject ${inputs.space_type.toLowerCase()} in accordance with IES recommended practice and PEC 2017 Article 3.60.`}</div>
+      </div>
+
+      <div style="font-weight:700;font-size:0.85rem;color:#162032;border-bottom:1px solid #ddd;padding-bottom:0.4rem;margin-bottom:1rem;">REFERENCES</div>
+      <ul style="font-size:0.78rem;margin:0 0 1.5rem 1.2rem;color:#333;line-height:1.8;">
+        <li>Philippine Electrical Code (PEC) 2017 — Article 3.60 (Lighting)</li>
+        <li>IES/IESNA RP-1 — Recommended Practice for Office Lighting</li>
+        <li>IES Lighting Handbook (Latest Edition) — Zonal Cavity Method</li>
+        <li>DOLE OSH Standards — Minimum Illumination Levels for Workplaces</li>
+        <li>National Building Code of the Philippines (PD 1096)</li>
+      </ul>
+
+      <div style="font-weight:700;font-size:0.85rem;color:#162032;border-bottom:1px solid #ddd;padding-bottom:0.4rem;margin-bottom:1rem;">DESIGN PARAMETERS</div>
+      <table style="width:100%;border-collapse:collapse;font-size:0.78rem;margin-bottom:1.5rem;">
+        <thead><tr style="background:#162032;color:#fff;">
+          <th style="padding:0.5rem 0.75rem;text-align:left;">Parameter</th>
+          <th style="padding:0.5rem 0.75rem;text-align:center;">Value</th>
+          <th style="padding:0.5rem 0.75rem;text-align:left;">Source</th>
+        </tr></thead>
+        <tbody>
+          <tr style="background:#f8f9fa;"><td style="padding:0.4rem 0.75rem;">Target Illuminance (E)</td><td style="padding:0.4rem 0.75rem;text-align:center;">${inputs.target_lux} lux</td><td style="padding:0.4rem 0.75rem;">IES / DOLE OSH minimum</td></tr>
+          <tr><td style="padding:0.4rem 0.75rem;">Floor Area (A)</td><td style="padding:0.4rem 0.75rem;text-align:center;">${r.floor_area_m2} m²</td><td style="padding:0.4rem 0.75rem;">${inputs.room_len_m} × ${inputs.room_wid_m} m</td></tr>
+          <tr style="background:#f8f9fa;"><td style="padding:0.4rem 0.75rem;">Luminaire Type</td><td style="padding:0.4rem 0.75rem;text-align:center;">${inputs.fixture_type}</td><td style="padding:0.4rem 0.75rem;">Specified</td></tr>
+          <tr><td style="padding:0.4rem 0.75rem;">Luminaire Output (F)</td><td style="padding:0.4rem 0.75rem;text-align:center;">${inputs.lumens_per_fix} lm/fixture</td><td style="padding:0.4rem 0.75rem;">Manufacturer datasheet</td></tr>
+          <tr style="background:#f8f9fa;"><td style="padding:0.4rem 0.75rem;">Wattage per Fixture</td><td style="padding:0.4rem 0.75rem;text-align:center;">${inputs.watts_per_fix} W</td><td style="padding:0.4rem 0.75rem;">Manufacturer datasheet</td></tr>
+          <tr><td style="padding:0.4rem 0.75rem;">Light Loss Factor (LLF)</td><td style="padding:0.4rem 0.75rem;text-align:center;">${inputs.llf}</td><td style="padding:0.4rem 0.75rem;">IES maintenance category</td></tr>
+        </tbody>
+      </table>
+
+      <div style="font-weight:700;font-size:0.85rem;color:#162032;border-bottom:1px solid #ddd;padding-bottom:0.4rem;margin-bottom:1rem;">CALCULATION PROCEDURE</div>
+      <div style="font-size:0.78rem;line-height:2;margin-bottom:1.5rem;color:#333;">
+        <p><strong>Step 1 — Room Cavity Ratio (RCR)</strong></p>
+        <p style="margin-left:1rem;">Work plane height = 0.85 m (standard desk height)</p>
+        <p style="margin-left:1rem;">h_rc = ceiling height − work plane = ${inputs.ceiling_ht_m} − 0.85 = <strong>${r.h_rc_m} m</strong></p>
+        <p style="margin-left:1rem;">RCR = 5 × h_rc × (L + W) / (L × W) = 5 × ${r.h_rc_m} × (${inputs.room_len_m} + ${inputs.room_wid_m}) / (${inputs.room_len_m} × ${inputs.room_wid_m}) = <strong>${r.RCR}</strong></p>
+
+        <p><strong>Step 2 — Coefficient of Utilization (CU)</strong></p>
+        <p style="margin-left:1rem;">From IES lookup table (assuming 80% ceiling / 50% wall / 20% floor reflectance):</p>
+        <p style="margin-left:1rem;">RCR = ${r.RCR} → <strong>CU = ${r.CU}</strong></p>
+
+        <p><strong>Step 3 — Number of Luminaires (N)</strong></p>
+        <p style="margin-left:1rem;">N = (E × A) / (F × CU × LLF)</p>
+        <p style="margin-left:1rem;">N = (${inputs.target_lux} × ${r.floor_area_m2}) / (${inputs.lumens_per_fix} × ${r.CU} × ${inputs.llf})</p>
+        <p style="margin-left:1rem;">N = ${r.N_exact} → Round up: <strong>N = ${r.N_fixtures} luminaires</strong></p>
+
+        <p><strong>Step 4 — Achieved Illuminance (Verification)</strong></p>
+        <p style="margin-left:1rem;">E_actual = (N × F × CU × LLF) / A = (${r.N_fixtures} × ${inputs.lumens_per_fix} × ${r.CU} × ${inputs.llf}) / ${r.floor_area_m2} = <strong>${r.E_actual_lux} lux</strong></p>
+
+        <p><strong>Step 5 — Electrical Load</strong></p>
+        <p style="margin-left:1rem;">Total lighting load = N × W/fixture = ${r.N_fixtures} × ${inputs.watts_per_fix} W = <strong>${r.total_watts} W (${r.total_kW} kW)</strong></p>
+        <p style="margin-left:1rem;">Lighting power density = ${r.total_watts} W / ${r.floor_area_m2} m² = <strong>${r.lpd_W_m2} W/m²</strong></p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+        <div style="background:#162032;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
+          <div style="font-size:0.7rem;opacity:0.6;text-transform:uppercase;margin-bottom:0.25rem;">No. of Luminaires</div>
+          <div style="font-size:1.8rem;font-weight:800;color:#F7A21B;">${r.N_fixtures}</div>
+          <div style="font-size:0.68rem;opacity:0.5;">${inputs.fixture_type}</div>
+        </div>
+        <div style="background:#162032;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
+          <div style="font-size:0.7rem;opacity:0.6;text-transform:uppercase;margin-bottom:0.25rem;">Achieved Illuminance</div>
+          <div style="font-size:1.8rem;font-weight:800;color:#F7A21B;">${r.E_actual_lux}</div>
+          <div style="font-size:0.68rem;opacity:0.5;">lux (target: ${inputs.target_lux} lux)</div>
+        </div>
+        <div style="background:#1F2E45;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
+          <div style="font-size:0.7rem;opacity:0.6;text-transform:uppercase;margin-bottom:0.25rem;">Total Lighting Load</div>
+          <div style="font-size:1.8rem;font-weight:800;color:#29B6D9;">${r.total_kW} kW</div>
+          <div style="font-size:0.68rem;opacity:0.5;">${r.total_watts} W total</div>
+        </div>
+        <div style="background:#1F2E45;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
+          <div style="font-size:0.7rem;opacity:0.6;text-transform:uppercase;margin-bottom:0.25rem;">Lighting Power Density</div>
+          <div style="font-size:1.8rem;font-weight:800;color:#29B6D9;">${r.lpd_W_m2}</div>
+          <div style="font-size:0.68rem;opacity:0.5;">W/m² (Room Cavity Ratio: ${r.RCR})</div>
+        </div>
+      </div>
+
+      <div style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
+        <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">ASSUMPTIONS</div>
+        <div id="ld-assum" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.assumptions || `Room surface reflectances: ceiling 80%, walls 50%, floor 20% (IES typical). Work plane height assumed at 0.85 m (standard desk height). CU derived from IES Zonal Cavity tables for specified RCR and reflectance values. LLF of ${inputs.llf} applied for expected maintenance category.`}</div>
+      </div>
+
+      <div style="background:#f8f9fa;border-left:4px solid #F7A21B;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
+        <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">RECOMMENDATIONS</div>
+        <div id="ld-rec" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.recommendations || 'See calculation above.'}</div>
+      </div>
+
+      <div style="margin-top:3rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;font-size:0.75rem;">
+        <div style="border-top:1px solid #162032;padding-top:0.5rem;">
+          <div style="font-weight:700;">Prepared by:</div>
+          <div style="margin-top:0.25rem;color:#555;">Signature over Printed Name</div>
+          <div style="margin-top:1rem;">PRC Lic. No.: _____________________</div>
+          <div>PTR No.: _____________________</div>
+          <div>Date: _____________________</div>
+        </div>
+        <div style="border-top:1px solid #162032;padding-top:0.5rem;">
+          <div style="font-weight:700;">Checked / Noted by:</div>
+          <div style="margin-top:0.25rem;color:#555;">Signature over Printed Name</div>
+          <div style="margin-top:1rem;">PRC Lic. No.: _____________________</div>
+          <div>PTR No.: _____________________</div>
+          <div>Date: _____________________</div>
+        </div>
+      </div>
+
+    </div>`;
   document.getElementById('report-panel').innerHTML = html;
   showReport();
 }

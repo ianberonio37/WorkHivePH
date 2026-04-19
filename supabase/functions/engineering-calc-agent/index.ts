@@ -1372,6 +1372,12 @@ Respond in JSON format only:
       const rope = rec.rope_recommendation ?? '';
       const hp = rec.motor_hp_std ?? '';
       recommendations = `Provide wire rope with minimum breaking force of ${mbf} kN (${rope}). Hoist motor: ${hp} HP with duty class M3/M4. Maintain SF ${rec.safety_factor_check} per ASME B30.2. Inspect wire rope daily (visual) and monthly (detailed) per DOLE D.O. 13. Runway structure must be verified by a structural engineer. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
+    } else if (calcType === "Lighting Design") {
+      const n   = rec.N_fixtures ?? '';
+      const lux = rec.E_actual_lux ?? '';
+      const lpd = rec.lpd_W_m2 ?? '';
+      const fix = (inputs.fixture_type as string) || '';
+      recommendations = `Provide ${n} units of ${fix} luminaires to achieve ${lux} lux maintained average illuminance. Arrange fixtures in a uniform grid for even distribution — calculate spacing-to-height ratio (SHR) and verify it does not exceed the fixture's maximum SHR per photometric data. Add 10-15% spare fixtures to the bill of materials to account for layout adjustments. Lighting power density: ${lpd} W/m² — verify against ASHRAE 90.1 or PEC limits for the space type. Provide dimming or occupancy sensors for energy compliance where required. A PRC-licensed Electrical Engineer must sign and seal this document.`;
     } else if (calcType === "Short Circuit") {
       const isc  = rec.Isc_kA ?? '';
       const chk  = rec.ic_check ?? '';
@@ -1392,6 +1398,67 @@ Respond in JSON format only:
       recommendations,
     };
   }
+}
+
+// ─── Electrical: Lighting Design — Lumen Method (IES / PEC 2017) ─────────────
+
+function calcLightingDesign(inputs: Record<string, number | string>): Record<string, unknown> {
+  const round2 = (v: number) => Math.round(v * 100) / 100;
+  const round1 = (v: number) => Math.round(v * 10) / 10;
+
+  const room_len    = Number(inputs.room_len_m      ?? 10);
+  const room_wid    = Number(inputs.room_wid_m      ?? 8);
+  const ceiling_ht  = Number(inputs.ceiling_ht_m    ?? 3.0);
+  const target_lux  = Number(inputs.target_lux      ?? 500);
+  const lumens      = Number(inputs.lumens_per_fix  ?? 3200);
+  const watts       = Number(inputs.watts_per_fix   ?? 36);
+  const llf         = Number(inputs.llf             ?? 0.80);
+
+  // Floor area
+  const floor_area_m2 = round2(room_len * room_wid);
+
+  // Step 1: Room Cavity Ratio
+  const work_plane = 0.85; // m (standard desk height)
+  const h_rc_m     = round2(ceiling_ht - work_plane);
+  const RCR        = round2(5 * h_rc_m * (room_len + room_wid) / (room_len * room_wid));
+
+  // Step 2: Coefficient of Utilization (IES typical, 80/50/20 reflectance)
+  // RCR → CU lookup (deep groove ball bearing equivalent for lighting)
+  const CU_TABLE: [number, number][] = [
+    [1, 0.75], [2, 0.72], [3, 0.66], [4, 0.62],
+    [5, 0.57], [6, 0.54], [7, 0.50], [8, 0.46], [9, 0.43], [10, 0.40],
+  ];
+  let CU = 0.72; // default RCR 1-2
+  for (const [rcr, cu] of CU_TABLE) {
+    if (RCR <= rcr) { CU = cu; break; }
+    CU = cu; // fallback to last entry
+  }
+  CU = round2(CU);
+
+  // Step 3: Number of luminaires
+  const N_exact    = round2((target_lux * floor_area_m2) / (lumens * CU * llf));
+  const N_fixtures = Math.ceil(N_exact);
+
+  // Step 4: Achieved illuminance
+  const E_actual_lux = round1((N_fixtures * lumens * CU * llf) / floor_area_m2);
+
+  // Step 5: Electrical load
+  const total_watts = N_fixtures * watts;
+  const total_kW    = round2(total_watts / 1000);
+  const lpd_W_m2    = round2(total_watts / floor_area_m2);
+
+  return {
+    floor_area_m2,
+    h_rc_m,
+    RCR,
+    CU,
+    N_exact,
+    N_fixtures,
+    E_actual_lux,
+    total_watts,
+    total_kW,
+    lpd_W_m2,
+  };
 }
 
 // ─── Electrical: Short Circuit Analysis (PEC 2017 / IEC 60909 / IEEE 141) ────
@@ -2500,6 +2567,8 @@ serve(async (req) => {
       results = calcHoistCapacity(inputs);
     } else if (calc_type === "Bolt Torque & Preload") {
       results = calcBoltTorque(inputs);
+    } else if (calc_type === "Lighting Design") {
+      results = calcLightingDesign(inputs);
     } else if (calc_type === "Short Circuit") {
       results = calcShortCircuit(inputs);
     } else {
