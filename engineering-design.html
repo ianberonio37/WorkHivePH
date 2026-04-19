@@ -45,7 +45,7 @@
       color: white;
       padding: 0.75rem 1rem;
       width: 100%;
-      font-size: 0.9rem;
+      font-size: 1rem;
       outline: none;
       transition: border-color 0.2s;
     }
@@ -83,15 +83,19 @@
 
     /* Page tabs */
     .page-tab {
-      padding: 0.6rem 1.25rem;
+      padding: 0.5rem 0.75rem;
       border-radius: 0.625rem;
-      font-size: 0.875rem;
+      font-size: 0.8rem;
       font-weight: 500;
       color: rgba(255,255,255,0.5);
       cursor: pointer;
       transition: all 0.2s;
       border: none;
       background: transparent;
+      white-space: nowrap;
+    }
+    @media (min-width: 480px) {
+      .page-tab { padding: 0.6rem 1.25rem; font-size: 0.875rem; }
     }
     .page-tab.active {
       background: rgba(247,162,27,0.15);
@@ -103,9 +107,9 @@
     /* Discipline pills */
     .discipline-pill {
       flex: 1;
-      padding: 0.75rem 1rem;
+      padding: 0.6rem 0.5rem;
       border-radius: 0.75rem;
-      font-size: 0.9rem;
+      font-size: 0.78rem;
       font-weight: 600;
       text-align: center;
       cursor: pointer;
@@ -113,6 +117,13 @@
       border: 2px solid rgba(255,255,255,0.1);
       color: rgba(255,255,255,0.5);
       background: rgba(22,32,50,0.4);
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    @media (min-width: 480px) {
+      .discipline-pill { padding: 0.75rem 1rem; font-size: 0.9rem; }
     }
     .discipline-pill.active {
       border-color: #F7A21B;
@@ -137,7 +148,7 @@
     /* Toggle button groups */
     .toggle-group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .toggle-btn {
-      padding: 0.4rem 0.9rem;
+      padding: 0.5rem 0.9rem;
       border-radius: 999px;
       font-size: 0.8rem;
       font-weight: 500;
@@ -146,6 +157,8 @@
       background: rgba(22,32,50,0.5);
       cursor: pointer;
       transition: all 0.15s;
+      min-height: 36px;
+      touch-action: manipulation;
     }
     .toggle-btn:hover { border-color: rgba(247,162,27,0.4); color: rgba(255,255,255,0.9); }
     .toggle-btn.active {
@@ -192,10 +205,19 @@
       font-size: 0.85rem;
       line-height: 1.7;
     }
+    @media (max-width: 640px) {
+      #report-panel { padding: 1rem; font-size: 0.78rem; }
+      #report-panel h1 { font-size: 0.95rem; }
+      #report-panel h2 { font-size: 0.78rem; }
+      #report-panel table { font-size: 0.72rem; }
+      #report-panel th, #report-panel td { padding: 0.3rem 0.4rem; }
+      #report-panel .result-highlight .res-value { font-size: 1.1rem; }
+    }
     #report-panel h1 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; color: #1a1a1a; }
     #report-panel h2 { font-size: 0.85rem; font-weight: 700; color: #1a1a1a; margin: 1.25rem 0 0.5rem; border-bottom: 1.5px solid #e0e0e0; padding-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; }
     #report-panel h3 { font-size: 0.82rem; font-weight: 600; color: #333; margin: 0.75rem 0 0.25rem; }
-    #report-panel table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0.5rem 0; }
+    #report-panel .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    #report-panel table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0.5rem 0; min-width: 0; }
     #report-panel th { background: #f5f5f5; text-align: left; padding: 0.4rem 0.6rem; border: 1px solid #ddd; font-weight: 600; font-size: 0.78rem; }
     #report-panel td { padding: 0.4rem 0.6rem; border: 1px solid #ddd; }
     #report-panel td.num { text-align: right; font-family: monospace; }
@@ -204,6 +226,7 @@
     #report-panel .result-highlight .res-label { font-size: 0.78rem; color: #666; }
     #report-panel .result-highlight .res-value { font-size: 1.3rem; font-weight: 700; color: #D88A0E; }
     #report-panel .sig-block { margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+    @media (max-width: 640px) { #report-panel .sig-block { grid-template-columns: 1fr; gap: 0.5rem; } }
     #report-panel .sig-line { border-top: 1px solid #999; padding-top: 0.25rem; font-size: 0.75rem; color: #666; margin-top: 2rem; }
     #report-panel .editable-field { border-bottom: 1.5px dashed #F7A21B; outline: none; min-width: 40px; display: inline-block; cursor: text; }
     #report-panel .editable-field:focus { background: #fffbf0; border-radius: 2px; }
@@ -365,11 +388,11 @@
 
         <!-- Report output -->
         <div id="report-output" class="hidden">
-          <div class="flex items-center justify-between mb-3">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
             <div class="text-sm font-semibold" style="color:rgba(255,255,255,0.7);">Report Preview</div>
             <div class="flex gap-2">
-              <button class="btn-ghost text-sm py-2 px-4" onclick="printReport()">⬇ Download PDF</button>
-              <button class="btn-primary text-sm py-2 px-4" onclick="saveCalc()">💾 Save</button>
+              <button class="btn-ghost text-sm py-2 px-4 flex-1 sm:flex-none" onclick="printReport()">⬇ Download PDF</button>
+              <button class="btn-primary text-sm py-2 px-4 flex-1 sm:flex-none" onclick="saveCalc()">💾 Save</button>
             </div>
           </div>
           <div id="report-panel"></div>
