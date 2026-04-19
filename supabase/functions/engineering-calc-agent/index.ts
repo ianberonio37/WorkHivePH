@@ -752,6 +752,91 @@ function calcWaterSupplyPipeSizing(inputs: Record<string, number | string>) {
   };
 }
 
+// ─── Septic Tank Sizing — Occupancy-Based Method (PPC / DOH) ─────────────────
+// Standards: Philippine Plumbing Code, DOH Sanitation Code (P.D. 856),
+// DENR DAO 2016-08 Effluent Standards, DPWH Blue Book
+
+const SEPTIC_WW_RATES: Record<string, number> = {
+  "Residential":              150,
+  "Office / Commercial":       50,
+  "School / Institutional":    45,
+  "Hospital / Clinic":        400,
+  "Restaurant / Food Service": 25,
+  "Hotel / Dormitory":        180,
+  "Industrial / Factory":      50,
+  "Custom":                   100,
+};
+
+function calcSepticTankSizing(inputs: Record<string, number | string>): Record<string, unknown> {
+  const occType      = String(inputs.occupancy_type || "Residential");
+  const occupants    = Number(inputs.occupants)      || 20;
+  const wwRate       = Number(inputs.ww_rate)        || (SEPTIC_WW_RATES[occType] || 150);
+  const retentionDays= Number(inputs.retention_days) || 1;
+  const desludgeYrs  = Number(inputs.desludge_years) || 3;
+  const liquidDepth  = Number(inputs.liquid_depth)   || 1.5;
+  const lwRatio      = Number(inputs.lw_ratio)       || 3;
+  const compartments = Number(inputs.compartments)   || 2;
+
+  // Volume components
+  const dailyFlowL    = occupants * wwRate;
+  const liquidVolL    = dailyFlowL * retentionDays;
+  const sludgeL       = 40 * occupants * desludgeYrs;   // PPC: 40 L/person/year
+  const scumL         = 15 * occupants * desludgeYrs;   // PPC: 15 L/person/year
+  const totalVolL     = liquidVolL + sludgeL + scumL;
+
+  // PPC minimum: 1000 L for any size building
+  const designVolL    = Math.max(totalVolL, 1000);
+  const designVolM3   = Math.round(designVolL / 1000 * 100) / 100;
+
+  // Dimensions
+  const floorAreaM2   = designVolM3 / liquidDepth;
+  const widthM        = Math.sqrt(floorAreaM2 / lwRatio);
+  const lengthM       = floorAreaM2 / widthM;
+  const totalDepthM   = liquidDepth + 0.30; // freeboard
+  const actualLWRatio = Math.round((lengthM / widthM) * 10) / 10;
+
+  // Round dimensions to practical 0.1 m increments
+  const widthR  = Math.ceil(widthM * 10) / 10;
+  const lengthR = Math.ceil(lengthM * 10) / 10;
+
+  // Compartment split: 2/3 and 1/3 per PPC
+  const comp1L   = Math.round(designVolL * (2 / 3));
+  const comp2L   = designVolL - comp1L;
+  const comp1Lm  = Math.round(lengthR * (2 / 3) * 10) / 10 + ' m';
+  const comp2Lm  = Math.round(lengthR * (1 / 3) * 10) / 10 + ' m';
+
+  return {
+    // Inputs echoed
+    occupancy_type:   occType,
+    occupants,
+    ww_rate:          wwRate,
+    retention_days:   retentionDays,
+    desludge_years:   desludgeYrs,
+    liquid_depth:     liquidDepth,
+    lw_ratio:         lwRatio,
+    compartments,
+    // Volumes
+    daily_flow_L:     Math.round(dailyFlowL),
+    liquid_volume_L:  Math.round(liquidVolL),
+    sludge_L:         Math.round(sludgeL),
+    scum_L:           Math.round(scumL),
+    total_volume_L:   Math.round(totalVolL),
+    design_volume_L:  Math.round(designVolL),
+    design_volume_m3: designVolM3,
+    // Dimensions
+    floor_area_m2:    Math.round(floorAreaM2 * 100) / 100,
+    tank_width_m:     widthR,
+    tank_length_m:    lengthR,
+    total_depth_m:    Math.round(totalDepthM * 10) / 10,
+    actual_lw_ratio:  actualLWRatio,
+    // Compartments
+    comp1_L:    comp1L,
+    comp2_L:    comp2L,
+    comp1_L_m:  comp1Lm,
+    comp2_L_m:  comp2Lm,
+  };
+}
+
 // ─── Drainage Pipe Sizing — DFU Method (Philippine Plumbing Code / UPC) ─────
 // Standards: PPC Table 7-3 (DFU values), UPC Table 7-5 (pipe sizing),
 // Manning's formula for self-cleansing velocity verification
@@ -1060,6 +1145,8 @@ serve(async (req) => {
       results = calcHotWaterDemand(inputs);
     } else if (calc_type === "Drainage Pipe Sizing") {
       results = calcDrainagePipeSizing(inputs);
+    } else if (calc_type === "Septic Tank Sizing") {
+      results = calcSepticTankSizing(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

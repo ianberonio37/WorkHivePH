@@ -449,7 +449,7 @@ const CALC_TYPES = {
     { id: 'Water Supply Pipe Sizing', icon: '🚰', desc: "Hunter's Fixture Unit Method",          available: true  },
     { id: 'Hot Water Demand',         icon: '🌡️', desc: 'Daily hot water demand, heater sizing', available: true  },
     { id: 'Drainage Pipe Sizing',     icon: '🏗️', desc: 'Drainage fixture units, pipe diameter', available: true  },
-    { id: 'Septic Tank Sizing',       icon: '🏭', desc: 'Tank capacity per occupancy',            available: false },
+    { id: 'Septic Tank Sizing',       icon: '🏭', desc: 'Tank capacity per occupancy',            available: true  },
   ],
 };
 
@@ -601,6 +601,46 @@ const GUIDES = {
       'Pressure drop is given in both m (metres of head) and kPa. Use kPa when specifying control valves and pressure regulators.',
       'Total friction loss from this calculation feeds directly into Pump Sizing TDH as the Friction Head (Hf) component.',
       'Nominal pipe diameter is the commercial pipe size designation — actual inside diameter varies by pipe schedule (Sch 40, 80, etc.).',
+    ],
+  },
+
+  'Septic Tank Sizing': {
+    title: 'Septic Tank Sizing - Occupancy-Based Method',
+    subtitle: 'Determines required septic tank liquid capacity, sludge and scum storage volume, total tank volume, and recommended dimensions per Philippine Plumbing Code and DOH standards.',
+    standards: ['Philippine Plumbing Code (PPC) — Septic Tank Design','DOH Administrative Order — Sanitation Code of the Philippines','DENR DAO 2016-08 — Effluent Standards','DPWH Blue Book — Sanitary Engineering'],
+    formulas: [
+      'Daily Sewage Flow (L/day) = Occupants x Wastewater Rate (L/person/day)',
+      '',
+      'Liquid Capacity (L) = Daily Sewage Flow x Retention Time (days)',
+      '',
+      'Sludge Storage (L) = Sludge Rate (L/person/yr) x Occupants x Desludging Interval (yr)',
+      'Scum Storage (L)  = Scum Rate (L/person/yr) x Occupants x Desludging Interval (yr)',
+      '',
+      'Total Tank Volume (L) = Liquid Capacity + Sludge Storage + Scum Storage',
+      '',
+      'Tank Dimensions:',
+      'Floor area (m2) = Total Volume / (Liquid Depth x 1000)',
+      'Width (m) = sqrt(Floor Area / L:W ratio)',
+      'Length (m) = Floor Area / Width',
+      'Total Depth (m) = Liquid Depth + Freeboard (0.30 m)',
+    ],
+    fields: [
+      { name: 'Occupancy Type', tip: 'Sets the wastewater generation rate automatically. Residential: 120-180 L/person/day. Office: 50-70 L/person/day. School: 40-60 L/student/day. Hospital: 350-500 L/bed/day. Use Custom to enter your own rate.' },
+      { name: 'Number of Occupants', tip: 'Total design population using this septic system. For residential: number of persons. For office: number of employees. For school: number of students + staff.' },
+      { name: 'Retention Time (days)', tip: 'How long wastewater stays in the tank for settling. PPC minimum: 1 day for residential. 2 days for institutional. 3 days for high-strength waste (food processing, hospitals).' },
+      { name: 'Desludging Interval (years)', tip: 'How often the tank will be pumped out. 3-5 years is typical for Philippine residential. Shorter interval = smaller sludge storage needed. Longer = more storage but less frequent service.' },
+      { name: 'Liquid Depth (m)', tip: 'Working liquid depth in the tank. PPC: minimum 1.2 m, maximum 2.4 m. Use 1.5 m for most designs — deeper tanks cost more to excavate and desludge.' },
+      { name: 'L:W Ratio', tip: 'Length to width ratio of the tank. PPC: 2:1 to 4:1. Use 3:1 for typical designs. Longer and narrower tanks provide better solids settling than square tanks.' },
+      { name: 'Number of Compartments', tip: '2-compartment tanks are required by PPC for systems serving more than 10 persons. First compartment (2/3 of volume) settles solids; second compartment (1/3) provides final settling before outlet.' },
+    ],
+    notes: [
+      'Wastewater generation rates (DOH/PPC): Residential 150 L/person/day, Office 50 L/person/day, School 45 L/student/day, Hospital 400 L/bed/day, Restaurant 25 L/meal, Hotel 180 L/room/day, Industrial 50 L/worker/day.',
+      'PPC minimum tank capacity: 1,000 L for 1-5 persons. For larger systems, use the formula.',
+      'Sludge accumulation: 40 L/person/year is the standard PPC design rate for domestic sewage.',
+      'Scum accumulation: 15 L/person/year is the standard allowance.',
+      'Two-compartment design: first compartment = 2/3 of total volume, second = 1/3. Required when serving more than 10 persons.',
+      'DENR requires a soil absorption field (leach field) after the septic tank. Size the leach field separately based on soil percolation test results.',
+      'For high-water-table areas (coastal Philippine towns): use an above-ground or elevated septic tank to prevent groundwater contamination.',
     ],
   },
 
@@ -1557,6 +1597,91 @@ function renderInputForm(calcType) {
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
+
+  if (calcType === 'Septic Tank Sizing') {
+    const OCC_OPTIONS = ['Residential','Office / Commercial','School / Institutional','Hospital / Clinic','Restaurant / Food Service','Hotel / Dormitory','Industrial / Factory','Custom'];
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Barangay Hall — Septic Tank" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Occupancy Type</div>
+        <div class="toggle-group" id="tg-occ-type" style="flex-wrap:wrap;">
+          ${OCC_OPTIONS.map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-occ-type','${v}');applySepticDefaults('${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Number of Occupants</div>
+          <div class="input-group">
+            <input id="f-occupants" class="wh-input" type="number" value="20" min="1" />
+            <span class="input-unit">persons</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Wastewater Rate</div>
+          <div class="input-group">
+            <input id="f-ww-rate" class="wh-input" type="number" value="150" min="10" />
+            <span class="input-unit">L/p/day</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Retention Time</div>
+          <div class="input-group">
+            <input id="f-retention" class="wh-input" type="number" value="1" min="1" max="5" step="0.5" />
+            <span class="input-unit">days</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Desludging Interval</div>
+          <div class="input-group">
+            <input id="f-desludge" class="wh-input" type="number" value="3" min="1" max="10" />
+            <span class="input-unit">years</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Liquid Depth</div>
+          <div class="input-group">
+            <input id="f-liq-depth" class="wh-input" type="number" value="1.5" min="1.2" max="2.4" step="0.1" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">L:W Ratio</div>
+          <div class="input-group">
+            <input id="f-lw-ratio" class="wh-input" type="number" value="3" min="2" max="4" step="0.5" />
+            <span class="input-unit">ratio</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Number of Compartments</div>
+        <div class="toggle-group" id="tg-compartments">
+          <button class="toggle-btn" onclick="toggle('tg-compartments','1')">1 (up to 10 persons)</button>
+          <button class="toggle-btn active" onclick="toggle('tg-compartments','2')">2 (PPC standard)</button>
+        </div>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Method: Philippine Plumbing Code occupancy-based method. Tank volume = Liquid Retention + Sludge Storage + Scum Storage. Standards: PPC, DOH Sanitation Code, DENR DAO 2016-08.
+      </div>
+    `;
+    applySepticDefaults('Residential');
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
 }
 
 // ─── Toggle button groups ─────────────────────────────────────────────────────
@@ -1757,6 +1882,21 @@ function updateDrainSlopeVisibility() {
   if (slopeSection) slopeSection.style.display = system === 'Drain Stack' ? 'none' : '';
 }
 
+function applySepticDefaults(occType) {
+  const rates = {
+    'Residential':              150,
+    'Office / Commercial':       50,
+    'School / Institutional':    45,
+    'Hospital / Clinic':        400,
+    'Restaurant / Food Service': 25,
+    'Hotel / Dormitory':        180,
+    'Industrial / Factory':      50,
+    'Custom':                   100,
+  };
+  const el = document.getElementById('f-ww-rate');
+  if (el) el.value = rates[occType] || 150;
+}
+
 function applyServiceDefaults(service) {
   const defaults = {
     'Chilled Water Supply':  { density: 999  },
@@ -1831,6 +1971,20 @@ function collectInputs() {
     return {
       ...base,
       vent_type: getToggle('tg-vent-type') || 'Supply and Exhaust',
+    };
+  }
+
+  if (_calcType === 'Septic Tank Sizing') {
+    return {
+      project_name:      v('f-project') || 'Untitled Septic Tank',
+      occupancy_type:    getToggle('tg-occ-type') || 'Residential',
+      occupants:         parseFloat(v('f-occupants'))  || 20,
+      ww_rate:           parseFloat(v('f-ww-rate'))    || 150,
+      retention_days:    parseFloat(v('f-retention'))  || 1,
+      desludge_years:    parseFloat(v('f-desludge'))   || 3,
+      liquid_depth:      parseFloat(v('f-liq-depth'))  || 1.5,
+      lw_ratio:          parseFloat(v('f-lw-ratio'))   || 3,
+      compartments:      parseInt(getToggle('tg-compartments') || '2'),
     };
   }
 
@@ -1974,6 +2128,11 @@ async function runCalculation() {
       showToast('Please add at least one fixture to drain.');
       return;
     }
+  } else if (_calcType === 'Septic Tank Sizing') {
+    if (!inputs.occupants || inputs.occupants <= 0) {
+      showToast('Please enter the number of occupants.');
+      return;
+    }
   } else if (_calcType === 'Water Supply Pipe Sizing') {
     if (!inputs.fixtures || inputs.fixtures.length === 0) {
       showToast('Please add at least one plumbing fixture.');
@@ -2012,6 +2171,8 @@ async function runCalculation() {
       renderHotWaterReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Drainage Pipe Sizing') {
       renderDrainageReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Septic Tank Sizing') {
+      renderSepticReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -2747,6 +2908,153 @@ function renderPumpReport(inputs, results, narrative) {
   showReport();
 }
 
+// ─── Septic Tank Sizing Report ────────────────────────────────────────────────
+function renderSepticReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+
+  const comp = results.compartments || 1;
+  const compRows = comp >= 2
+    ? `<tr><td>Compartment 1 (primary settling)</td><td class="num">${results.comp1_L}</td><td>L</td><td>${results.comp1_L_m} m</td></tr>
+       <tr><td>Compartment 2 (secondary settling)</td><td class="num">${results.comp2_L}</td><td>L</td><td>${results.comp2_L_m} m</td></tr>`
+    : `<tr><td>Single compartment</td><td class="num">${results.total_volume_L}</td><td>L</td><td>${results.tank_length_m} m</td></tr>`;
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading.
+    </div>
+
+    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">SEPTIC TANK SIZING CALCULATION</h1>
+    <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">Occupancy-Based Method — Philippine Plumbing Code / DOH Sanitation Code</div>
+
+    <h2>1. PROJECT INFORMATION</h2>
+    <table>
+      <tr><td style="width:35%;">Project / System Name</td><td>${e(inputs.project_name)}</td></tr>
+      <tr><td>Location</td><td>${e('')}</td></tr>
+      <tr><td>Owner / Client</td><td>${e('')}</td></tr>
+      <tr><td>Prepared by</td><td>${e('')}</td></tr>
+      <tr><td>PRC License No.</td><td>${e('')}</td></tr>
+      <tr><td>Date</td><td>${e(dateStr)}</td></tr>
+    </table>
+
+    <h2>2. OBJECTIVE</h2>
+    <p>${e(narrative?.objective || `To determine the required septic tank liquid capacity, sludge and scum storage volumes, total tank volume, and recommended dimensions for a ${escHtml(results.occupancy_type)} facility serving ${results.occupants} persons, in accordance with the Philippine Plumbing Code and DOH Sanitation Code.`)}</p>
+
+    <h2>3. REFERENCES / STANDARDS</h2>
+    <table>
+      <tr><td style="width:35%;">Primary Standard</td><td>Philippine Plumbing Code (PPC) — Septic Tank Design Requirements</td></tr>
+      <tr><td>Health Standard</td><td>DOH Administrative Order — Sanitation Code of the Philippines (P.D. 856)</td></tr>
+      <tr><td>Effluent Standard</td><td>DENR DAO 2016-08 — Revised Effluent Standards</td></tr>
+      <tr><td>Public Works</td><td>DPWH Blue Book — Sanitary Engineering</td></tr>
+    </table>
+
+    <h2>4. DESIGN BASIS AND ASSUMPTIONS</h2>
+    <p>${e(narrative?.assumptions || `Occupancy type: ${escHtml(results.occupancy_type)}. Wastewater generation rate: ${results.ww_rate} L/person/day per DOH / PPC design values. Retention time of ${results.retention_days} day(s) for primary treatment. Desludging interval of ${results.desludge_years} year(s). Sludge accumulation rate: 40 L/person/year (PPC standard). Scum accumulation: 15 L/person/year. Liquid depth: ${results.liquid_depth} m. Length-to-width ratio: ${results.lw_ratio}:1. Freeboard: 0.30 m.`)}</p>
+
+    <h2>5. DESIGN PARAMETERS</h2>
+    <table>
+      <tr><th>Parameter</th><th class="num">Value</th><th>Unit</th></tr>
+      <tr><td>Occupancy Type</td><td colspan="2">${escHtml(results.occupancy_type)}</td></tr>
+      <tr><td>Design Population</td><td class="num">${results.occupants}</td><td>persons</td></tr>
+      <tr><td>Wastewater Generation Rate</td><td class="num">${results.ww_rate}</td><td>L/person/day</td></tr>
+      <tr><td>Retention Time</td><td class="num">${results.retention_days}</td><td>days</td></tr>
+      <tr><td>Desludging Interval</td><td class="num">${results.desludge_years}</td><td>years</td></tr>
+      <tr><td>Sludge Accumulation Rate</td><td class="num">40</td><td>L/person/year (PPC standard)</td></tr>
+      <tr><td>Scum Accumulation Rate</td><td class="num">15</td><td>L/person/year (PPC standard)</td></tr>
+      <tr><td>Liquid Depth</td><td class="num">${results.liquid_depth}</td><td>m</td></tr>
+      <tr><td>Freeboard</td><td class="num">0.30</td><td>m</td></tr>
+      <tr><td>L:W Ratio</td><td class="num">${results.lw_ratio}:1</td><td></td></tr>
+      <tr><td>Number of Compartments</td><td class="num">${comp}</td><td></td></tr>
+    </table>
+
+    <h2>6. VOLUME CALCULATION</h2>
+    <table>
+      <tr><th>Component</th><th class="num">Formula</th><th class="num">Volume (L)</th></tr>
+      <tr><td>Daily Sewage Flow</td><td class="num">${results.occupants} x ${results.ww_rate} L/p/day</td><td class="num">${results.daily_flow_L}</td></tr>
+      <tr><td>Liquid Retention Volume</td><td class="num">${results.daily_flow_L} x ${results.retention_days} day(s)</td><td class="num">${results.liquid_volume_L}</td></tr>
+      <tr><td>Sludge Storage</td><td class="num">40 x ${results.occupants} x ${results.desludge_years} yr</td><td class="num">${results.sludge_L}</td></tr>
+      <tr><td>Scum Storage</td><td class="num">15 x ${results.occupants} x ${results.desludge_years} yr</td><td class="num">${results.scum_L}</td></tr>
+      <tr class="total-row">
+        <td><strong>Total Required Volume</strong></td>
+        <td class="num"><strong>${results.liquid_volume_L} + ${results.sludge_L} + ${results.scum_L}</strong></td>
+        <td class="num"><strong>${results.total_volume_L} L</strong></td>
+      </tr>
+      <tr style="background:#fffbf0;">
+        <td><strong>Applied Volume (PPC minimum 1,000 L or computed, whichever is greater)</strong></td>
+        <td></td>
+        <td class="num"><strong>${results.design_volume_L} L</strong></td>
+      </tr>
+    </table>
+
+    <h2>7. TANK DIMENSIONS</h2>
+    <table>
+      <tr><th>Parameter</th><th class="num">Value</th><th>Unit</th></tr>
+      <tr><td>Design Volume</td><td class="num">${results.design_volume_L}</td><td>L = ${results.design_volume_m3} m3</td></tr>
+      <tr><td>Liquid Depth</td><td class="num">${results.liquid_depth}</td><td>m</td></tr>
+      <tr><td>Required Floor Area</td><td class="num">${results.floor_area_m2}</td><td>m2</td></tr>
+      <tr><td>Tank Width</td><td class="num">${results.tank_width_m}</td><td>m</td></tr>
+      <tr><td>Tank Length</td><td class="num">${results.tank_length_m}</td><td>m</td></tr>
+      <tr><td>Total Depth (liquid + freeboard)</td><td class="num">${results.total_depth_m}</td><td>m</td></tr>
+      <tr><td>L:W Ratio (actual)</td><td class="num">${results.actual_lw_ratio}:1</td><td></td></tr>
+    </table>
+
+    ${comp >= 2 ? `
+    <h2>8. COMPARTMENT SCHEDULE</h2>
+    <table>
+      <tr><th>Compartment</th><th class="num">Volume (L)</th><th>Unit</th><th>Length</th></tr>
+      ${compRows}
+    </table>` : ''}
+
+    <h2>${comp >= 2 ? '9' : '8'}. RESULTS SUMMARY</h2>
+    <div class="result-highlight">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <div class="res-label">Daily Sewage Flow</div>
+          <div class="res-value">${results.daily_flow_L} L/day</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.occupants} persons x ${results.ww_rate} L/p/day</div>
+        </div>
+        <div>
+          <div class="res-label">Total Tank Volume</div>
+          <div class="res-value">${results.design_volume_L} L</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.design_volume_m3} m3</div>
+        </div>
+        <div>
+          <div class="res-label">Tank Dimensions</div>
+          <div class="res-value">${results.tank_length_m} x ${results.tank_width_m} m</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">depth ${results.total_depth_m} m (incl. freeboard)</div>
+        </div>
+        <div>
+          <div class="res-label">Compartments</div>
+          <div class="res-value">${comp}</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${comp >= 2 ? `${results.comp1_L} L + ${results.comp2_L} L` : 'single chamber'}</div>
+        </div>
+      </div>
+    </div>
+
+    <h2>${comp >= 2 ? '10' : '9'}. RECOMMENDATIONS</h2>
+    <p>${e(narrative?.recommendations || `Construct a ${comp}-compartment septic tank with internal dimensions of ${results.tank_length_m} m (L) x ${results.tank_width_m} m (W) x ${results.total_depth_m} m (D). Use 150 mm thick reinforced concrete walls and base slab. Install a properly designed soil absorption field (leach field) after the outlet of the septic tank — size separately based on site percolation test per DENR requirements. Schedule desludging every ${results.desludge_years} years. Provide a watertight manhole cover over each compartment for inspection and desludging access. Install inlet and outlet baffles to prevent scum carryover. In high-water-table areas, anchor the tank against buoyancy.`)}</p>
+
+    <div class="sig-block">
+      <div>
+        <div class="sig-line">Prepared by</div>
+        <div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div>
+      </div>
+      <div>
+        <div class="sig-line">PRC License No. / PTR No.</div>
+        <div style="margin-top:2rem;" class="sig-line">Date</div>
+      </div>
+      <div>
+        <div class="sig-line">Checked / Approved by</div>
+        <div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
 // ─── Drainage Pipe Sizing Report ─────────────────────────────────────────────
 function renderDrainageReport(inputs, results, narrative) {
   const now     = new Date();
@@ -3358,6 +3666,8 @@ function viewHistoryReport(row) {
     renderHotWaterReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Drainage Pipe Sizing') {
     renderDrainageReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Septic Tank Sizing') {
+    renderSepticReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
