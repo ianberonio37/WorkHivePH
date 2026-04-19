@@ -443,7 +443,7 @@ const CALC_TYPES = {
     { id: 'Ventilation / ACH',    icon: '💨',  desc: 'Air changes per hour, fan CMH / CFM',     available: true  },
     { id: 'Pump Sizing (TDH)',    icon: '💧',  desc: 'Total Dynamic Head, pump HP selection',   available: true  },
     { id: 'Pipe Sizing',          icon: '🔩',  desc: 'Flow velocity, pipe diameter selection',  available: true  },
-    { id: 'Compressed Air',       icon: '🌬️', desc: 'Compressor CFM demand calculation',       available: false },
+    { id: 'Compressed Air',       icon: '🌬️', desc: 'Compressor CFM demand, receiver, pipe',   available: true  },
   ],
   Plumbing: [
     { id: 'Water Supply Pipe Sizing', icon: '🚰', desc: "Hunter's Fixture Unit Method",          available: false },
@@ -534,6 +534,40 @@ const GUIDES = {
       'Fan sizing is rounded up to the next standard commercial fan CMH size.',
       'CMH = cubic meters per hour. CFM = cubic feet per minute (1 L/s = 2.119 CFM).',
       'For spaces with high internal pollutants (labs, kitchens), consult ASHRAE Table 6-4 for exhaust rates.',
+    ],
+  },
+
+  'Compressed Air': {
+    title: 'Compressed Air System - Connected Load Method',
+    subtitle: 'Determines required compressor FAD (Free Air Delivery), receiver tank size, and distribution pipe diameter for a pneumatic system.',
+    standards: ['PSME Code - Philippine Society of Mechanical Engineers','ISO 8573 - Compressed Air Quality','CAGI (Compressed Air and Gas Institute) Standards'],
+    formulas: [
+      'Connected Load = sum of (CFM per tool x quantity)',
+      'Demand CFM = sum of (CFM x duty cycle) per tool',
+      'After Diversity = Demand CFM x Diversity Factor',
+      'Sub-total = After Diversity x (1 + leakage %)',
+      'Design FAD = Sub-total x Safety Factor',
+      '',
+      'Receiver tank (CAGI method):',
+      'V (m3) = (Q x t x Pa) / (P1 - P2)',
+      'Q = compressor FAD (m3/min), t = 1 min, Pa = 1.01 bar(a)',
+      'P1 = cut-in pressure (bar(a)), P2 = working pressure (bar(a))',
+    ],
+    fields: [
+      { name: 'Tool / Equipment list', tip: 'Add every pneumatic tool that will be connected. Use the rated CFM from the tool nameplate or manufacturer spec. For unknown tools, use Custom and enter the CFM directly.' },
+      { name: 'Working Pressure (bar(g))', tip: 'Pressure at the point of use. Most pneumatic tools work at 6-7 bar(g). Spray painting needs 4-5 bar(g). Sand blasting needs 6-8 bar(g).' },
+      { name: 'Diversity Factor (ratio)', tip: 'Fraction of tools actually running at the same time. For a workshop: 0.5-0.7. For an assembly line: 0.7-0.9. Use 0.7 if unsure.' },
+      { name: 'Safety Factor (ratio)', tip: '1.25 = 25% margin for future expansion and peaks. Always apply at least 1.20. Use 1.50 for systems expected to grow significantly.' },
+      { name: 'Leakage Allowance (%)', tip: 'New systems: 5-10%. Older systems with aged fittings: 15-20%. Never design without a leakage allowance — even new systems leak 5-8%.' },
+      { name: 'Distribution Pipe Length (m)', tip: 'Total length of the main distribution header from compressor to the furthest outlet. Used to size the pipe diameter.' },
+    ],
+    notes: [
+      'FAD (Free Air Delivery) is the compressor output in cubic feet per minute at standard atmospheric conditions (not at working pressure).',
+      'Duty cycle is the fraction of time a tool is actually consuming air during operation. Impact wrench: ~25% (intermittent). Sand blaster: ~50% (continuous).',
+      'Receiver tank stores air to handle peak demand without the compressor cycling too frequently. Larger tank = fewer starts per hour = longer compressor life.',
+      'Distribution pipe is sized at 8 m/s velocity. For long runs (>50 m), consider 6 m/s to limit pressure drop.',
+      'Standard compressor HP sizes available in PH: 1, 2, 3, 5, 7.5, 10, 15, 20, 25, 30, 40, 50, 75, 100 HP.',
+      'Compressed air quality (ISO 8573): specify air dryer and filtration class depending on application — painting and food require higher quality than general workshop use.',
     ],
   },
 
@@ -1128,6 +1162,77 @@ function renderInputForm(calcType) {
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
+
+  if (calcType === 'Compressed Air') {
+    area.innerHTML = `
+      <!-- Project name -->
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Production Floor Compressed Air System" />
+      </div>
+
+      <!-- System parameters -->
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div>
+          <div class="field-label">Working Pressure</div>
+          <div class="input-group">
+            <input id="f-working-pressure" class="wh-input" type="number" value="7" min="1" max="20" step="0.5" />
+            <span class="input-unit">bar(g)</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Diversity Factor</div>
+          <div class="input-group">
+            <input id="f-diversity" class="wh-input" type="number" value="0.70" min="0.1" max="1" step="0.05" />
+            <span class="input-unit">ratio</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Safety Factor</div>
+          <div class="input-group">
+            <input id="f-safety" class="wh-input" type="number" value="1.25" min="1" max="2" step="0.05" />
+            <span class="input-unit">ratio</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Distribution Pipe Length</div>
+          <div class="input-group">
+            <input id="f-pipe-length" class="wh-input" type="number" value="0" min="0" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Leakage Allowance</div>
+          <div class="input-group">
+            <input id="f-leakage" class="wh-input" type="number" value="10" min="0" max="50" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tool list -->
+      <div class="mb-2">
+        <div class="field-label">Pneumatic Tools / Equipment</div>
+        <div id="tool-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;"></div>
+        <button class="btn-ghost text-sm py-2 px-4" onclick="addToolRow()">+ Add Tool</button>
+      </div>
+
+      <!-- Info box -->
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Method: Connected load + demand factor + diversity factor + leakage allowance + safety margin.<br>
+        Standard: PSME / ISO 8573 / CAGI. Outputs: compressor FAD (CFM), receiver tank size (L), distribution pipe diameter.
+      </div>
+    `;
+    // Seed with 3 default tool rows
+    addToolRow('Impact Wrench 1/2', 2);
+    addToolRow('Blow Gun', 3);
+    addToolRow('Angle Grinder', 1);
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
 }
 
 // ─── Toggle button groups ─────────────────────────────────────────────────────
@@ -1159,6 +1264,38 @@ function applyVentDefaults(roomFunc) {
   if (!d) return;
   const pEl = document.getElementById('f-persons');
   if (pEl) pEl.value = d.persons;
+}
+
+const TOOL_OPTIONS = ['Angle Grinder','Impact Wrench 1/2','Impact Wrench 3/4','Air Drill','Die Grinder','Blow Gun','Sand Blaster','Paint Spray Gun','Pneumatic Cylinder','Air Hammer','Ratchet Wrench','Air Sander','Needle Scaler','Air Saw','Custom'];
+
+let _toolRowId = 0;
+function addToolRow(defaultTool = 'Impact Wrench 1/2', defaultQty = 1) {
+  const id  = ++_toolRowId;
+  const row = document.createElement('div');
+  row.id    = `tool-row-${id}`;
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 80px 80px 28px;gap:0.4rem;align-items:center;';
+  row.innerHTML = `
+    <select class="wh-input text-sm py-2" id="tool-type-${id}" onchange="toggleCustomCFM(${id})">
+      ${TOOL_OPTIONS.map(t => `<option value="${t}"${t===defaultTool?' selected':''}>${t}</option>`).join('')}
+    </select>
+    <div class="input-group" style="min-width:0;">
+      <input id="tool-qty-${id}" class="wh-input text-sm py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.7rem;">qty</span>
+    </div>
+    <div class="input-group" style="min-width:0;" id="custom-cfm-wrap-${id}" style="display:none;">
+      <input id="tool-cfm-${id}" class="wh-input text-sm py-2" type="number" value="0" min="0" placeholder="CFM" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.7rem;">CFM</span>
+    </div>
+    <button onclick="document.getElementById('tool-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+  `;
+  document.getElementById('tool-list').appendChild(row);
+  toggleCustomCFM(id);
+}
+
+function toggleCustomCFM(id) {
+  const sel  = document.getElementById(`tool-type-${id}`)?.value;
+  const wrap = document.getElementById(`custom-cfm-wrap-${id}`);
+  if (wrap) wrap.style.display = sel === 'Custom' ? 'flex' : 'none';
 }
 
 function applyServiceDefaults(service) {
@@ -1238,6 +1375,27 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Compressed Air') {
+    // Collect all tool rows
+    const tools = [];
+    document.querySelectorAll('#tool-list > div[id^="tool-row-"]').forEach(row => {
+      const rid  = row.id.replace('tool-row-', '');
+      const type = document.getElementById(`tool-type-${rid}`)?.value || '';
+      const qty  = parseFloat(document.getElementById(`tool-qty-${rid}`)?.value) || 1;
+      const cfm  = parseFloat(document.getElementById(`tool-cfm-${rid}`)?.value) || 0;
+      if (type) tools.push({ tool_type: type, quantity: qty, custom_cfm: cfm });
+    });
+    return {
+      project_name:      v('f-project') || 'Untitled Compressed Air System',
+      working_pressure:  parseFloat(v('f-working-pressure')) || 7,
+      diversity_factor:  parseFloat(v('f-diversity'))        || 0.70,
+      safety_factor:     parseFloat(v('f-safety'))           || 1.25,
+      pipe_length:       parseFloat(v('f-pipe-length'))      || 0,
+      leakage_allowance: parseFloat(v('f-leakage'))          || 10,
+      tools,
+    };
+  }
+
   if (_calcType === 'Pipe Sizing') {
     return {
       project_name:        v('f-project') || 'Untitled Pipe System',
@@ -1275,9 +1433,14 @@ function collectInputs() {
 async function runCalculation() {
   const inputs = collectInputs();
 
-  if (_calcType === 'Pump Sizing (TDH)') {
+  if (_calcType === 'Pump Sizing (TDH)' || _calcType === 'Pipe Sizing') {
     if (!inputs.flow_rate || inputs.flow_rate <= 0) {
       showToast('Please enter the flow rate.');
+      return;
+    }
+  } else if (_calcType === 'Compressed Air') {
+    if (!inputs.tools || inputs.tools.length === 0) {
+      showToast('Please add at least one tool or piece of equipment.');
       return;
     }
   } else if (!inputs.floor_area || inputs.floor_area <= 0) {
@@ -1305,6 +1468,8 @@ async function runCalculation() {
       renderPumpReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Pipe Sizing') {
       renderPipeReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Compressed Air') {
+      renderAirReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -1620,6 +1785,127 @@ function renderVentReport(inputs, results, narrative) {
         <div class="sig-line">Approved by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.78rem;margin-top:0.25rem;min-width:120px;display:inline-block;">&nbsp;</div>
         <div style="font-size:0.75rem;color:#999;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── Compressed Air Report ───────────────────────────────────────────────────
+function renderAirReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+
+  const toolRows = (results.tool_breakdown || []).map(t => `
+    <tr>
+      <td>${escHtml(t.tool)}</td>
+      <td class="num">${t.qty}</td>
+      <td class="num">${t.cfm_each}</td>
+      <td class="num">${t.total_cfm}</td>
+      <td class="num">${Math.round(t.duty * 100)}%</td>
+      <td class="num">${t.demand_cfm}</td>
+    </tr>`).join('');
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading.
+    </div>
+
+    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">COMPRESSED AIR SYSTEM DESIGN CALCULATION</h1>
+    <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">Connected Load + Demand Factor Method - PSME / ISO 8573 / CAGI</div>
+
+    <h2>1. PROJECT INFORMATION</h2>
+    <table>
+      <tr><td style="width:35%;">Project / System Name</td><td>${e(inputs.project_name)}</td></tr>
+      <tr><td>Location</td><td>${e('')}</td></tr>
+      <tr><td>Owner / Client</td><td>${e('')}</td></tr>
+      <tr><td>Prepared by</td><td>${e('')}</td></tr>
+      <tr><td>PRC License No.</td><td>${e('')}</td></tr>
+      <tr><td>Date</td><td>${e(dateStr)}</td></tr>
+    </table>
+
+    <h2>2. OBJECTIVE</h2>
+    <p>${e(narrative?.objective || 'To determine the required compressor free air delivery (FAD), receiver tank capacity, and distribution pipe diameter for the subject compressed air system.')}</p>
+
+    <h2>3. DESIGN BASIS AND ASSUMPTIONS</h2>
+    <p>${e(narrative?.assumptions || 'Connected load method applied with demand factors per tool type. Diversity factor accounts for simultaneous use. Leakage allowance included per industry standard. Safety factor applied for future expansion.')}</p>
+
+    <h2>4. DESIGN PARAMETERS</h2>
+    <table>
+      <tr><th>Parameter</th><th>Value</th><th>Unit</th></tr>
+      <tr><td>Working Pressure</td><td>${escHtml(String(inputs.working_pressure || 7))}</td><td>bar(g)</td></tr>
+      <tr><td>Diversity Factor</td><td>${escHtml(String(inputs.diversity_factor || 0.70))}</td><td>ratio (${Math.round((inputs.diversity_factor||0.70)*100)}%)</td></tr>
+      <tr><td>Safety Factor</td><td>${escHtml(String(inputs.safety_factor || 1.25))}</td><td>ratio (${Math.round(((inputs.safety_factor||1.25)-1)*100)}% margin)</td></tr>
+      <tr><td>Leakage Allowance</td><td>${escHtml(String(inputs.leakage_allowance || 10))}</td><td>%</td></tr>
+      <tr><td>Distribution Pipe Length</td><td>${escHtml(String(inputs.pipe_length || 0))}</td><td>m</td></tr>
+    </table>
+
+    <h2>5. CONNECTED LOAD SCHEDULE</h2>
+    <table>
+      <tr><th>Tool / Equipment</th><th class="num">Qty</th><th class="num">CFM each</th><th class="num">Total CFM</th><th class="num">Duty Cycle</th><th class="num">Demand CFM</th></tr>
+      ${toolRows}
+      <tr class="total-row">
+        <td colspan="3"><strong>Total Connected Load</strong></td>
+        <td class="num"><strong>${results.connected_cfm}</strong></td>
+        <td></td>
+        <td class="num"><strong>${results.demand_cfm}</strong></td>
+      </tr>
+    </table>
+
+    <h2>6. DEMAND CALCULATION</h2>
+    <table>
+      <tr><th>Step</th><th>Factor</th><th class="num">CFM</th></tr>
+      <tr><td>Total Demand CFM (duty-weighted)</td><td>-</td><td class="num">${results.demand_cfm}</td></tr>
+      <tr><td>After Diversity Factor</td><td>x ${inputs.diversity_factor || 0.70}</td><td class="num">${results.diversity_cfm}</td></tr>
+      <tr><td>+ Leakage Allowance</td><td>+${inputs.leakage_allowance || 10}%</td><td class="num">${results.leakage_cfm}</td></tr>
+      <tr><td>Sub-total</td><td>-</td><td class="num">${results.total_cfm}</td></tr>
+      <tr class="total-row"><td><strong>Design FAD (with safety factor)</strong></td><td>x ${inputs.safety_factor || 1.25}</td><td class="num"><strong>${results.design_cfm} CFM</strong></td></tr>
+    </table>
+
+    <h2>7. RESULTS SUMMARY</h2>
+    <div class="result-highlight">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <div class="res-label">Required FAD</div>
+          <div class="res-value">${results.design_cfm} CFM</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.design_lps} L/s / ${results.design_m3min} m3/min</div>
+        </div>
+        <div>
+          <div class="res-label">Recommended Compressor</div>
+          <div class="res-value">${results.recommended_hp} HP</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.recommended_cfm} CFM rated</div>
+        </div>
+        <div>
+          <div class="res-label">Receiver Tank</div>
+          <div class="res-value">${results.recommended_receiver_L} L</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">Computed: ${results.receiver_litres} L</div>
+        </div>
+        <div>
+          <div class="res-label">Distribution Pipe</div>
+          <div class="res-value">${results.recommended_pipe_mm} mm</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">Nominal diameter @ 8 m/s</div>
+        </div>
+      </div>
+    </div>
+
+    <h2>8. RECOMMENDATIONS</h2>
+    <p>${e(narrative?.recommendations || 'Provide a compressor with minimum FAD as computed. Install an air receiver tank of the recommended capacity. Use recommended nominal pipe diameter for distribution headers. Conduct regular leak testing — system leakage should not exceed 10% of compressor output.')}</p>
+
+    <div class="sig-block">
+      <div>
+        <div class="sig-line">Prepared by</div>
+        <div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div>
+      </div>
+      <div>
+        <div class="sig-line">PRC License No. / PTR No.</div>
+        <div style="margin-top:2rem;" class="sig-line">Date</div>
+      </div>
+      <div>
+        <div class="sig-line">Checked / Approved by</div>
+        <div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div>
       </div>
     </div>
   `;
@@ -2051,6 +2337,8 @@ function viewHistoryReport(row) {
     renderPumpReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Pipe Sizing') {
     renderPipeReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Compressed Air') {
+    renderAirReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }

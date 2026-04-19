@@ -472,6 +472,148 @@ function calcPipeSizing(inputs: Record<string, number | string>) {
   };
 }
 
+// ─── Compressed Air System Calculation ───────────────────────────────────────
+// Method: Connected load method with demand factor + diversity factor
+// Standards: PSME, ISO 8573, Compressed Air & Gas Institute (CAGI)
+// Output: Required compressor FAD (Free Air Delivery) in CFM and L/s,
+//         receiver tank size, and distribution pipe sizing.
+
+// Tool demand factors (% of rated consumption actually used simultaneously)
+const TOOL_DEMAND: Record<string, { cfm: number; label: string; duty: number }> = {
+  "Angle Grinder":      { cfm: 5.0,  label: "Angle Grinder (4-5 in)",     duty: 0.25 },
+  "Impact Wrench 1/2":  { cfm: 4.0,  label: "Impact Wrench (1/2 in)",      duty: 0.25 },
+  "Impact Wrench 3/4":  { cfm: 7.0,  label: "Impact Wrench (3/4 in)",      duty: 0.25 },
+  "Air Drill":          { cfm: 3.0,  label: "Air Drill",                   duty: 0.30 },
+  "Die Grinder":        { cfm: 4.0,  label: "Die Grinder",                 duty: 0.25 },
+  "Blow Gun":           { cfm: 2.5,  label: "Blow Gun / Air Duster",       duty: 0.20 },
+  "Sand Blaster":       { cfm: 50.0, label: "Sand / Bead Blaster",         duty: 0.50 },
+  "Paint Spray Gun":    { cfm: 12.0, label: "Spray Paint Gun",             duty: 0.40 },
+  "Pneumatic Cylinder": { cfm: 2.0,  label: "Pneumatic Cylinder (small)",  duty: 0.50 },
+  "Air Hammer":         { cfm: 3.5,  label: "Air Hammer / Chisel",         duty: 0.20 },
+  "Ratchet Wrench":     { cfm: 2.5,  label: "Ratchet Wrench",              duty: 0.20 },
+  "Air Sander":         { cfm: 6.0,  label: "Air Sander (random orbital)", duty: 0.30 },
+  "Needle Scaler":      { cfm: 4.0,  label: "Needle Scaler",               duty: 0.25 },
+  "Air Saw":            { cfm: 5.0,  label: "Air Saw (reciprocating)",     duty: 0.20 },
+  "Custom":             { cfm: 0.0,  label: "Custom Tool",                 duty: 0.50 },
+};
+
+// Standard compressor sizes (HP → FAD in CFM approx)
+const COMPRESSOR_HP_CFM: Array<{ hp: number; cfm: number }> = [
+  { hp: 1,   cfm: 4   }, { hp: 2,   cfm: 8   }, { hp: 3,   cfm: 12  },
+  { hp: 5,   cfm: 20  }, { hp: 7.5, cfm: 30  }, { hp: 10,  cfm: 40  },
+  { hp: 15,  cfm: 60  }, { hp: 20,  cfm: 80  }, { hp: 25,  cfm: 100 },
+  { hp: 30,  cfm: 120 }, { hp: 40,  cfm: 160 }, { hp: 50,  cfm: 200 },
+  { hp: 60,  cfm: 240 }, { hp: 75,  cfm: 300 }, { hp: 100, cfm: 400 },
+];
+
+function roundUpToCompressorHP(cfm: number): { hp: number; cfm: number } {
+  return COMPRESSOR_HP_CFM.find(c => c.cfm >= cfm) || { hp: Math.ceil(cfm / 4), cfm };
+}
+
+function calcCompressedAir(inputs: Record<string, number | string>) {
+  // Parse tool entries: array of { tool_type, quantity, custom_cfm }
+  const tools = inputs.tools as Array<{ tool_type: string; quantity: number; custom_cfm?: number }> || [];
+  const workingPressure   = Number(inputs.working_pressure)    || 7.0;  // bar(g)
+  const diversityFactor   = Number(inputs.diversity_factor)    || 0.70; // 70% default
+  const safetyFactor      = Number(inputs.safety_factor)       || 1.25; // 25% margin
+  const pipeLength        = Number(inputs.pipe_length)         || 0;    // m distribution
+  const leakagePct        = Number(inputs.leakage_allowance)   || 10;   // % for leakage
+  const receiverPressure  = workingPressure + 1.5;                      // bar(a) cut-in
+  const atmPressure       = 1.01325;                                    // bar(a)
+
+  // Sum connected load (CFM at working pressure, free air equivalent)
+  const toolBreakdown = tools.map(t => {
+    const info   = TOOL_DEMAND[t.tool_type] || TOOL_DEMAND["Custom"];
+    const cfmPer = t.tool_type === "Custom" ? (t.custom_cfm || 0) : info.cfm;
+    const qty    = Number(t.quantity) || 1;
+    const totalCFM = cfmPer * qty;
+    const demandCFM = totalCFM * info.duty;  // demand-weighted
+    return {
+      tool:       info.label || t.tool_type,
+      qty,
+      cfm_each:   cfmPer,
+      total_cfm:  Math.round(totalCFM * 10) / 10,
+      duty:       info.duty,
+      demand_cfm: Math.round(demandCFM * 10) / 10,
+    };
+  });
+
+  const connectedCFM = toolBreakdown.reduce((s, t) => s + t.total_cfm, 0);
+  const demandCFM    = toolBreakdown.reduce((s, t) => s + t.demand_cfm, 0);
+
+  // Apply diversity factor (not all tools run simultaneously)
+  const diversityCFM = demandCFM * diversityFactor;
+
+  // Add leakage allowance
+  const leakageCFM   = diversityCFM * (leakagePct / 100);
+  const totalCFM     = diversityCFM + leakageCFM;
+
+  // Apply safety factor
+  const designCFM    = totalCFM * safetyFactor;
+
+  // Convert to L/s and m3/min
+  const designLPS    = designCFM * 0.4719;
+  const designM3min  = designCFM * 0.02832;
+
+  // Select standard compressor
+  const compressor = roundUpToCompressorHP(designCFM);
+
+  // Receiver tank sizing (CAGI method)
+  // V = (Q x t x Pa) / (P1 - P2)
+  // Q = compressor FAD (m3/min), t = on-time (min), Pa = atm pressure (bar), P1-P2 = pressure differential
+  const Q_m3min  = compressor.cfm * 0.02832;
+  const t_min    = 1.0;           // 1 minute on-time assumption
+  const P1       = receiverPressure;
+  const P2       = workingPressure;
+  const receiverM3 = (Q_m3min * t_min * atmPressure) / (P1 - P2);
+  const receiverL  = receiverM3 * 1000;
+
+  // Round up to standard receiver sizes (litres)
+  const STD_RECEIVERS = [100,150,200,300,500,750,1000,1500,2000,3000,5000];
+  const recommendedReceiver = STD_RECEIVERS.find(r => r >= receiverL) || Math.ceil(receiverL / 100) * 100;
+
+  // Distribution pipe sizing for compressed air
+  // Use velocity method: recommended 6-10 m/s for distribution headers
+  // Flow in SCFM at atmospheric conditions
+  const atmFlowM3s = designLPS / 1000; // m3/s at atm
+  // At working pressure, volume is reduced: V_system = V_atm * Pa / P_system
+  const P_abs = workingPressure + atmPressure;
+  const sysFlowM3s = atmFlowM3s * (atmPressure / P_abs);
+  const targetV  = 8.0; // m/s recommended for distribution
+  const areaNeed = sysFlowM3s / targetV;
+  const diaNeed  = Math.sqrt((4 * areaNeed) / Math.PI) * 1000; // mm
+  const recPipeMM = PIPE_SIZES_MM.find(d => d >= diaNeed) || Math.ceil(diaNeed / 25) * 25;
+
+  return {
+    // Connected load
+    connected_cfm:       Math.round(connectedCFM * 10) / 10,
+    demand_cfm:          Math.round(demandCFM * 10) / 10,
+    diversity_cfm:       Math.round(diversityCFM * 10) / 10,
+    leakage_cfm:         Math.round(leakageCFM * 10) / 10,
+    total_cfm:           Math.round(totalCFM * 10) / 10,
+    design_cfm:          Math.round(designCFM * 10) / 10,
+    design_lps:          Math.round(designLPS * 10) / 10,
+    design_m3min:        Math.round(designM3min * 100) / 100,
+    // Compressor selection
+    recommended_hp:      compressor.hp,
+    recommended_cfm:     compressor.cfm,
+    // Receiver
+    receiver_m3:         Math.round(receiverM3 * 100) / 100,
+    receiver_litres:     Math.round(receiverL),
+    recommended_receiver_L: recommendedReceiver,
+    // Pipe
+    recommended_pipe_mm: recPipeMM,
+    // Tool breakdown
+    tool_breakdown:      toolBreakdown,
+    inputs_used: {
+      working_pressure:   workingPressure,
+      diversity_factor:   diversityFactor,
+      safety_factor:      safetyFactor,
+      leakage_pct:        leakagePct,
+    }
+  };
+}
+
 // ─── Gemini AI — Report Narrative ────────────────────────────────────────────
 
 async function generateReportNarrative(
@@ -560,6 +702,8 @@ serve(async (req) => {
       results = calcPumpSizingTDH(inputs);
     } else if (calc_type === "Pipe Sizing") {
       results = calcPipeSizing(inputs);
+    } else if (calc_type === "Compressed Air") {
+      results = calcCompressedAir(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),
