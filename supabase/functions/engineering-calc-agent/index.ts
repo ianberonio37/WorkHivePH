@@ -614,6 +614,244 @@ function calcCompressedAir(inputs: Record<string, number | string>) {
   };
 }
 
+// ─── Water Supply Pipe Sizing (Hunter's Fixture Unit Method) ─────────────────
+// Standards: Philippine Plumbing Code (PPC), UPC, ASHRAE Plumbing Design Guide
+// Method: Sum fixture units → convert to peak flow (L/s) via Hunter's curve →
+//         select pipe diameter to keep velocity 0.9 - 2.5 m/s
+
+// Fixture units and flow rates (Philippine Plumbing Code / UPC Table A-2)
+const FIXTURE_UNITS: Record<string, { wfu: number; pfr_lpm: number; label: string; type: string }> = {
+  "Water Closet (Flush Valve)":  { wfu: 10, pfr_lpm: 18.9, label: "Water Closet (Flush Valve)",   type: "cold" },
+  "Water Closet (Flush Tank)":   { wfu: 3,  pfr_lpm: 9.5,  label: "Water Closet (Flush Tank)",    type: "cold" },
+  "Urinal (Flush Valve)":        { wfu: 5,  pfr_lpm: 11.4, label: "Urinal (Flush Valve)",          type: "cold" },
+  "Urinal (Flush Tank)":         { wfu: 3,  pfr_lpm: 5.7,  label: "Urinal (Flush Tank)",           type: "cold" },
+  "Lavatory / Hand Sink":        { wfu: 1,  pfr_lpm: 3.8,  label: "Lavatory / Hand Sink",          type: "both" },
+  "Kitchen Sink (residential)":  { wfu: 2,  pfr_lpm: 7.6,  label: "Kitchen Sink (Residential)",    type: "both" },
+  "Kitchen Sink (commercial)":   { wfu: 4,  pfr_lpm: 11.4, label: "Kitchen Sink (Commercial)",     type: "both" },
+  "Bathtub / Shower":            { wfu: 2,  pfr_lpm: 9.5,  label: "Bathtub / Shower",              type: "both" },
+  "Shower Head":                 { wfu: 2,  pfr_lpm: 7.6,  label: "Shower Head",                   type: "both" },
+  "Laundry Tray":                { wfu: 3,  pfr_lpm: 9.5,  label: "Laundry Tray",                  type: "both" },
+  "Washing Machine":             { wfu: 3,  pfr_lpm: 11.4, label: "Washing Machine",                type: "both" },
+  "Drinking Fountain":           { wfu: 1,  pfr_lpm: 1.9,  label: "Drinking Fountain",             type: "cold" },
+  "Hose Bibb (each)":            { wfu: 3,  pfr_lpm: 11.4, label: "Hose Bibb / Garden Tap",        type: "cold" },
+  "Floor Drain":                 { wfu: 1,  pfr_lpm: 3.8,  label: "Floor Drain (trap primer)",     type: "cold" },
+  "Mop Sink":                    { wfu: 3,  pfr_lpm: 11.4, label: "Mop Sink",                      type: "both" },
+  "Custom":                      { wfu: 0,  pfr_lpm: 0,    label: "Custom Fixture",                 type: "both" },
+};
+
+// Hunter's curve: WFU → peak flow (L/s) — piecewise interpolation
+// Based on Table A-3 of Philippine Plumbing Code
+const HUNTERS_CURVE: Array<{ wfu: number; lps: number }> = [
+  { wfu: 1,    lps: 0.10 }, { wfu: 2,    lps: 0.13 }, { wfu: 3,    lps: 0.16 },
+  { wfu: 5,    lps: 0.22 }, { wfu: 10,   lps: 0.32 }, { wfu: 20,   lps: 0.50 },
+  { wfu: 30,   lps: 0.65 }, { wfu: 40,   lps: 0.76 }, { wfu: 50,   lps: 0.85 },
+  { wfu: 75,   lps: 1.05 }, { wfu: 100,  lps: 1.22 }, { wfu: 150,  lps: 1.52 },
+  { wfu: 200,  lps: 1.79 }, { wfu: 300,  lps: 2.25 }, { wfu: 400,  lps: 2.65 },
+  { wfu: 500,  lps: 3.00 }, { wfu: 750,  lps: 3.66 }, { wfu: 1000, lps: 4.20 },
+  { wfu: 1500, lps: 5.00 }, { wfu: 2000, lps: 5.70 },
+];
+
+function hunterLPS(totalWFU: number): number {
+  if (totalWFU <= 0) return 0;
+  const curve = HUNTERS_CURVE;
+  if (totalWFU <= curve[0].wfu) return curve[0].lps;
+  if (totalWFU >= curve[curve.length - 1].wfu) return curve[curve.length - 1].lps;
+  for (let i = 0; i < curve.length - 1; i++) {
+    if (totalWFU >= curve[i].wfu && totalWFU <= curve[i + 1].wfu) {
+      const t = (totalWFU - curve[i].wfu) / (curve[i + 1].wfu - curve[i].wfu);
+      return curve[i].lps + t * (curve[i + 1].lps - curve[i].lps);
+    }
+  }
+  return 0;
+}
+
+function calcWaterSupplyPipeSizing(inputs: Record<string, number | string>) {
+  const fixtures    = inputs.fixtures as Array<{ fixture_type: string; quantity: number; custom_wfu?: number; custom_lpm?: number }> || [];
+  const supplyType  = String(inputs.supply_type || "Cold and Hot");
+  const pipeMaterial= String(inputs.pipe_material || "PVC");
+  const pipeLength  = Number(inputs.pipe_length)  || 0;
+  const minPressure = Number(inputs.min_pressure) || 70;  // kPa min residual at fixture
+  const supplyPress = Number(inputs.supply_pressure) || 350; // kPa available at meter/main
+  const fittingsPct = Number(inputs.fittings_allowance) || 20;
+
+  // Sum fixture units
+  const fixtureBreakdown = fixtures.map(f => {
+    const info   = FIXTURE_UNITS[f.fixture_type] || FIXTURE_UNITS["Custom"];
+    const qty    = Number(f.quantity) || 1;
+    const wfuEa  = f.fixture_type === "Custom" ? (f.custom_wfu || 1) : info.wfu;
+    const lpmEa  = f.fixture_type === "Custom" ? (f.custom_lpm || 3.8) : info.pfr_lpm;
+    return {
+      fixture:    info.label || f.fixture_type,
+      qty,
+      wfu_each:   wfuEa,
+      total_wfu:  wfuEa * qty,
+      lpm_each:   lpmEa,
+      total_lpm:  Math.round(lpmEa * qty * 10) / 10,
+    };
+  });
+
+  const totalWFU = fixtureBreakdown.reduce((s, f) => s + f.total_wfu, 0);
+
+  // Hunter's curve: WFU → peak design flow
+  const peakLPS  = hunterLPS(totalWFU);
+  const peakLPM  = peakLPS * 60;
+  const peakM3hr = peakLPS * 3.6;
+
+  // Select pipe diameter (velocity 0.9 - 2.5 m/s for water supply)
+  const C = PIPE_C_VALUES[pipeMaterial] || 150;
+  const flowM3s = peakLPS / 1000;
+
+  const pipeCandidates = PIPE_SIZES_MM.map(dMM => {
+    const dM   = dMM / 1000;
+    const area = Math.PI * Math.pow(dM / 2, 2);
+    const v    = flowM3s / area;
+    const hfPerM = (10.67 * Math.pow(flowM3s, 1.852)) / (Math.pow(C, 1.852) * Math.pow(dM, 4.87));
+    return { dMM, v, hfPerM };
+  });
+
+  const recommended = pipeCandidates.find(c => c.v <= 2.5 && c.v >= 0.9)
+    || pipeCandidates.find(c => c.v <= 2.5)
+    || pipeCandidates[pipeCandidates.length - 1];
+
+  const equivLength  = pipeLength * (1 + fittingsPct / 100);
+  const hfTotal      = recommended.hfPerM * equivLength;       // m head
+  const pressDropKPa = hfTotal * 9.81;                         // kPa (approx, water)
+
+  // Pressure check
+  const pressAvail    = supplyPress - pressDropKPa;
+  const pressureOk    = pressAvail >= minPressure;
+
+  // Size comparison
+  const recIdx    = PIPE_SIZES_MM.indexOf(recommended.dMM);
+  const compRange = pipeCandidates.slice(Math.max(0, recIdx - 2), recIdx + 3);
+
+  return {
+    total_wfu:          totalWFU,
+    peak_lps:           Math.round(peakLPS * 1000) / 1000,
+    peak_lpm:           Math.round(peakLPM * 10) / 10,
+    peak_m3hr:          Math.round(peakM3hr * 100) / 100,
+    recommended_dia_mm: recommended.dMM,
+    pipe_velocity:      Math.round(recommended.v * 100) / 100,
+    velocity_ok:        recommended.v >= 0.9 && recommended.v <= 2.5,
+    hf_per_m:           Math.round(recommended.hfPerM * 1000) / 1000,
+    equiv_length:       Math.round(equivLength * 10) / 10,
+    hf_total_m:         Math.round(hfTotal * 100) / 100,
+    press_drop_kpa:     Math.round(pressDropKPa * 10) / 10,
+    pressure_available: Math.round(pressAvail * 10) / 10,
+    pressure_ok:        pressureOk,
+    min_pressure:       minPressure,
+    fixture_breakdown:  fixtureBreakdown,
+    size_comparison: compRange.map(c => ({
+      dia_mm:    c.dMM,
+      velocity:  Math.round(c.v * 100) / 100,
+      hf_per_m:  Math.round(c.hfPerM * 1000) / 1000,
+      ok:        c.v >= 0.9 && c.v <= 2.5,
+      recommended: c.dMM === recommended.dMM,
+    })),
+    inputs_used: { C_factor: C, pipe_material: pipeMaterial, fittings_pct: fittingsPct },
+  };
+}
+
+// ─── Hot Water Demand — ASHRAE Use Rate Method ───────────────────────────────
+// Standards: ASHRAE HVAC Applications Handbook Ch.50, Philippine Plumbing Code
+// Method: Sum daily demand per use type → heat energy → heater power → storage
+
+const HW_DEMAND_RATES: Record<string, { rate_L: number; label: string }> = {
+  "Hotel Room":                { rate_L: 135,  label: "Hotel Room" },
+  "Hospital Bed":              { rate_L: 225,  label: "Hospital Bed" },
+  "Dormitory / Boarding":      { rate_L: 90,   label: "Dormitory / Boarding" },
+  "Office Worker":             { rate_L: 6,    label: "Office Worker" },
+  "Restaurant Meal":           { rate_L: 12,   label: "Restaurant Meal" },
+  "Residential (person)":      { rate_L: 70,   label: "Residential" },
+  "Shower Stall":              { rate_L: 60,   label: "Shower Stall" },
+  "Commercial Kitchen":        { rate_L: 15,   label: "Commercial Kitchen" },
+  "Laundry (residential)":     { rate_L: 60,   label: "Laundry (residential)" },
+  "Laundry (commercial)":      { rate_L: 100,  label: "Laundry (commercial)" },
+  "Lavatory (hand wash)":      { rate_L: 4,    label: "Lavatory (hand wash)" },
+  "Custom":                    { rate_L: 0,    label: "Custom" },
+};
+
+const HW_HEATER_KW = [1.5,2.0,3.0,4.0,5.0,6.0,8.0,10.0,12.0,15.0,18.0,20.0,24.0,30.0,36.0,40.0,48.0,60.0,72.0,80.0,100.0];
+const HW_TANK_SIZES_L = [50,80,100,120,150,200,250,300,400,500,750,1000,1500,2000,2500,3000,4000,5000];
+
+function calcHotWaterDemand(inputs: Record<string, number | string>): Record<string, unknown> {
+  const uses          = inputs.uses as Array<{ use_type: string; quantity: number; daily_count: number; custom_rate_L?: number }> || [];
+  const T_supply      = Number(inputs.supply_temp)    || 28;
+  const T_hot         = Number(inputs.hot_temp)       || 60;
+  const recoveryHrs   = Number(inputs.recovery_hours) || 2;
+  const peakFraction  = Number(inputs.peak_fraction)  || 0.25;
+  const storageFactor = Number(inputs.storage_factor) || 1.25;
+  const pipeLossPct   = Number(inputs.pipe_loss_pct)  || 10;
+
+  const deltaT = T_hot - T_supply;
+  const Cp     = 4.186; // kJ/(kg·°C)
+
+  // Build use breakdown
+  const useBreakdown = uses.map(u => {
+    const info   = HW_DEMAND_RATES[u.use_type] || HW_DEMAND_RATES["Custom"];
+    const qty    = Number(u.quantity)    || 1;
+    const count  = Number(u.daily_count) || 1;
+    const rateL  = u.use_type === "Custom" ? (Number(u.custom_rate_L) || 0) : info.rate_L;
+    const dailyL = qty * count * rateL;
+    return {
+      use_type:   info.label || u.use_type,
+      qty,
+      daily_count: count,
+      rate_L:     rateL,
+      daily_L:    Math.round(dailyL),
+    };
+  });
+
+  const totalDailyNetL = useBreakdown.reduce((s, u) => s + u.daily_L, 0);
+
+  // Apply pipe heat loss (increases volume needed from heater)
+  const totalDailyL = Math.round(totalDailyNetL * (1 + pipeLossPct / 100));
+
+  // Peak hour demand
+  const peakHourL = Math.round(totalDailyL * peakFraction);
+
+  // Storage volume
+  const storageLComputed   = Math.round(peakHourL * storageFactor);
+  const recommendedStorageL = HW_TANK_SIZES_L.find(s => s >= storageLComputed) || Math.ceil(storageLComputed / 500) * 500;
+
+  // Heat energy: Q = m * Cp * deltaT
+  const heatEnergyKJ  = totalDailyL * Cp * deltaT;
+  const heatEnergyKWh = heatEnergyKJ / 3600;
+
+  // Heater power: deliver all energy within recovery time
+  const heaterKWComputed    = heatEnergyKJ / (recoveryHrs * 3600);
+  const recommendedHeaterKW = HW_HEATER_KW.find(s => s >= heaterKWComputed) || Math.ceil(heaterKWComputed);
+
+  // Recovery rate at recommended heater
+  const recoveryLPH = Math.round((recommendedHeaterKW * 3600) / (Cp * deltaT));
+
+  return {
+    // Temperatures
+    T_supply,
+    T_hot,
+    delta_T:             deltaT,
+    // Demand
+    total_daily_without_loss_L: Math.round(totalDailyNetL),
+    pipe_loss_pct:       pipeLossPct,
+    total_daily_L:       totalDailyL,
+    peak_fraction:       peakFraction,
+    peak_hour_L:         peakHourL,
+    storage_factor:      storageFactor,
+    storage_L_computed:  storageLComputed,
+    recommended_storage_L: recommendedStorageL,
+    // Heat energy
+    heat_energy_kJ:      Math.round(heatEnergyKJ),
+    heat_energy_kWh:     Math.round(heatEnergyKWh * 10) / 10,
+    // Heater
+    heater_kW_computed:  Math.round(heaterKWComputed * 100) / 100,
+    recommended_heater_kW: recommendedHeaterKW,
+    recovery_rate_lph:   recoveryLPH,
+    recovery_hours:      recoveryHrs,
+    // Breakdown
+    use_breakdown:       useBreakdown,
+  };
+}
+
 // ─── Gemini AI — Report Narrative ────────────────────────────────────────────
 
 async function generateReportNarrative(
@@ -704,6 +942,10 @@ serve(async (req) => {
       results = calcPipeSizing(inputs);
     } else if (calc_type === "Compressed Air") {
       results = calcCompressedAir(inputs);
+    } else if (calc_type === "Water Supply Pipe Sizing") {
+      results = calcWaterSupplyPipeSizing(inputs);
+    } else if (calc_type === "Hot Water Demand") {
+      results = calcHotWaterDemand(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

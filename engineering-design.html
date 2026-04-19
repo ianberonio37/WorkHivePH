@@ -447,7 +447,7 @@ const CALC_TYPES = {
   ],
   Plumbing: [
     { id: 'Water Supply Pipe Sizing', icon: '🚰', desc: "Hunter's Fixture Unit Method",          available: true  },
-    { id: 'Hot Water Demand',         icon: '🌡️', desc: 'Daily hot water demand, heater sizing', available: false },
+    { id: 'Hot Water Demand',         icon: '🌡️', desc: 'Daily hot water demand, heater sizing', available: true  },
     { id: 'Drainage Pipe Sizing',     icon: '🏗️', desc: 'Drainage fixture units, pipe diameter', available: false },
     { id: 'Septic Tank Sizing',       icon: '🏭', desc: 'Tank capacity per occupancy',            available: false },
   ],
@@ -601,6 +601,45 @@ const GUIDES = {
       'Pressure drop is given in both m (metres of head) and kPa. Use kPa when specifying control valves and pressure regulators.',
       'Total friction loss from this calculation feeds directly into Pump Sizing TDH as the Friction Head (Hf) component.',
       'Nominal pipe diameter is the commercial pipe size designation — actual inside diameter varies by pipe schedule (Sch 40, 80, etc.).',
+    ],
+  },
+
+  'Hot Water Demand': {
+    title: 'Hot Water Demand - Occupancy / Use Rate Method',
+    subtitle: 'Determines daily hot water consumption, peak hourly demand, required storage tank volume, and water heater power for a building or system.',
+    standards: ['ASHRAE HVAC Applications Handbook — Chapter 50 (Service Water Heating)','Philippine Plumbing Code (based on UPC / IPC)','PSME Code — Philippine Society of Mechanical Engineers','PNS / NSF 61 — Potable Water Contact Materials'],
+    formulas: [
+      'Daily Demand (L/day) = sum of (Qty x Uses/day x Rate L/use)',
+      'With Pipe Heat Loss: Daily Demand_adj = Daily Demand x (1 + loss%/100)',
+      '',
+      'Peak Hour Demand (L/hr) = Daily Demand_adj x Peak Hour Fraction',
+      '(Peak fraction: 0.25 = top 25% of daily demand occurs in 1 hour)',
+      '',
+      'Storage Volume (L) = Peak Hour Demand x Storage Safety Factor',
+      '',
+      'Heat Energy (kJ) = m x Cp x deltaT',
+      'm = daily demand (kg), Cp = 4.186 kJ/kgC, deltaT = T_hot - T_supply',
+      '',
+      'Heater Power (kW) = Heat Energy (kJ) / (Recovery Time hrs x 3600)',
+      'Round up to next commercial heater size',
+    ],
+    fields: [
+      { name: 'Use / Occupancy list', tip: 'Add each type of hot water user. Select the category (Hotel Room, Shower, etc.) and the tool auto-assigns the ASHRAE demand rate in L/use. Use "Custom" for non-standard uses and enter the rate manually.' },
+      { name: 'Daily Usage Count', tip: 'How many times per day each unit uses hot water. Hotel rooms: 1. Office washrooms: 8-12. Restaurant meals: 1 per meal served. Showers: 1-2 per person per day.' },
+      { name: 'Supply Temperature (°C)', tip: 'Incoming cold water temperature. In the Philippines, tap water is 28-30°C year-round (no seasonal variation unlike temperate countries). Default: 28°C.' },
+      { name: 'Hot Water Temperature (°C)', tip: 'Required storage temperature. 60°C is recommended by WHO to prevent Legionella growth. Some PH systems use 55°C for smaller heaters — acceptable for low-risk buildings.' },
+      { name: 'Recovery Time (hrs)', tip: 'Hours available for the heater to reheat the tank from cold. 2 hours is standard for commercial systems. Residential systems can use 3-4 hours for a smaller heater.' },
+      { name: 'Peak Hour Fraction', tip: 'Fraction of daily demand that occurs in the single busiest hour. 0.25 = 25% (typical hotel/residential). 0.30 = 30% (gym, hospital with defined shift peaks).' },
+      { name: 'Storage Safety Factor', tip: '1.25 = 25% extra storage above peak hour demand. Accounts for higher-than-expected usage. Use 1.50 for critical systems (hospitals, hotels) where running out of hot water is unacceptable.' },
+      { name: 'Pipe Heat Loss (%)', tip: 'Energy lost through uninsulated or poorly insulated hot water pipes. 10% is standard for insulated systems. Increase to 15-20% for long runs or poorly insulated older buildings.' },
+    ],
+    notes: [
+      'Philippine tropical advantage: inlet water at 28°C vs. 5°C in cold climates means deltaT = 32°C vs. 55°C — the heater works nearly half as hard for the same output. Always use 28°C as inlet default, not 15°C.',
+      'ASHRAE demand rates (L/day per unit): Hotel room=135, Hospital bed=225, Dormitory person=90, Restaurant meal=12, Office worker=6, Residential person=70.',
+      'Shower stall: 60 L/use at 42°C delivery temp. Mix with cold water at the fixture — do not size the heater at 42°C delivery.',
+      'Storage temperature must be 60°C minimum to kill Legionella bacteria in the tank. This is a health code requirement, not a comfort preference.',
+      'Commercial heater sizes available in PH: 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 12.0, 15.0, 18.0, 20.0, 24.0, 30.0, 36.0, 40.0, 48.0, 60.0, 72.0, 80.0, 100.0 kW.',
+      'For solar-assisted systems: size the backup heater for 30% of computed power (solar covers ~70% in PH conditions).',
     ],
   },
 
@@ -1346,6 +1385,87 @@ function renderInputForm(calcType) {
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
+
+  if (calcType === 'Hot Water Demand') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Hotel ABC — Domestic Hot Water System" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Supply Water Temp (cold inlet)</div>
+          <div class="input-group">
+            <input id="f-supply-temp" class="wh-input" type="number" value="28" min="10" max="40" />
+            <span class="input-unit">°C</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Hot Water Setpoint</div>
+          <div class="input-group">
+            <input id="f-hot-temp" class="wh-input" type="number" value="60" min="45" max="85" />
+            <span class="input-unit">°C</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Recovery Time</div>
+          <div class="input-group">
+            <input id="f-recovery-hrs" class="wh-input" type="number" value="2" min="0.5" max="12" step="0.5" />
+            <span class="input-unit">hrs</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Peak Hour Fraction</div>
+          <div class="input-group">
+            <input id="f-peak-fraction" class="wh-input" type="number" value="0.25" min="0.10" max="0.50" step="0.05" />
+            <span class="input-unit">ratio</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Storage Safety Factor</div>
+          <div class="input-group">
+            <input id="f-storage-factor" class="wh-input" type="number" value="1.25" min="1.0" max="2.0" step="0.05" />
+            <span class="input-unit">ratio</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Pipe Heat Loss</div>
+          <div class="input-group">
+            <input id="f-pipe-loss" class="wh-input" type="number" value="10" min="0" max="30" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-2">
+        <div class="field-label">Hot Water Users / Occupancy</div>
+        <div style="display:grid;grid-template-columns:1fr 70px 70px 70px 28px;gap:0.3rem;align-items:center;margin-bottom:0.3rem;">
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Use Type</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Qty</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Uses/day</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">L/use</div>
+          <div></div>
+        </div>
+        <div id="hw-use-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;"></div>
+        <button class="btn-ghost text-sm py-2 px-4" onclick="addUseRow()">+ Add Use Type</button>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Method: ASHRAE Hot Water Demand Rate Method. Heat energy = m x Cp x deltaT. Philippine inlet default: 28°C (tropical year-round). Standard: ASHRAE Handbook — HVAC Applications, Chapter 50.
+      </div>
+    `;
+    addUseRow('Hotel Room', 20, 1);
+    addUseRow('Lavatory (hand wash)', 20, 10);
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
 }
 
 // ─── Toggle button groups ─────────────────────────────────────────────────────
@@ -1449,6 +1569,54 @@ function toggleCustomFixture(id) {
   if (lpmWrap) lpmWrap.style.display = isCustom ? 'flex' : 'none';
 }
 
+const HW_USE_OPTIONS = ['Hotel Room','Hospital Bed','Dormitory / Boarding','Office Worker','Restaurant Meal','Residential (person)','Shower Stall','Commercial Kitchen','Laundry (residential)','Laundry (commercial)','Lavatory (hand wash)','Custom'];
+const HW_USE_RATES   = { 'Hotel Room':135,'Hospital Bed':225,'Dormitory / Boarding':90,'Office Worker':6,'Restaurant Meal':12,'Residential (person)':70,'Shower Stall':60,'Commercial Kitchen':15,'Laundry (residential)':60,'Laundry (commercial)':100,'Lavatory (hand wash)':4,'Custom':0 };
+
+let _useRowId = 0;
+function addUseRow(defaultType = 'Hotel Room', defaultQty = 10, defaultCount = 1) {
+  const id  = ++_useRowId;
+  const row = document.createElement('div');
+  row.id    = `hw-use-row-${id}`;
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 70px 70px 70px 28px;gap:0.4rem;align-items:center;';
+  row.innerHTML = `
+    <select class="wh-input text-sm py-2" id="hw-type-${id}" onchange="toggleCustomRate(${id})">
+      ${HW_USE_OPTIONS.map(t => `<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
+    </select>
+    <div class="input-group" style="min-width:0;">
+      <input id="hw-qty-${id}" class="wh-input text-sm py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.65rem;">qty</span>
+    </div>
+    <div class="input-group" style="min-width:0;">
+      <input id="hw-count-${id}" class="wh-input text-sm py-2" type="number" value="${defaultCount}" min="1" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.65rem;">/day</span>
+    </div>
+    <div class="input-group" style="min-width:0;" id="hw-rate-wrap-${id}">
+      <input id="hw-rate-${id}" class="wh-input text-sm py-2" type="number" value="${HW_USE_RATES[defaultType]||0}" min="0" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.65rem;">L</span>
+    </div>
+    <button onclick="document.getElementById('hw-use-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+  `;
+  document.getElementById('hw-use-list').appendChild(row);
+  toggleCustomRate(id);
+}
+
+function toggleCustomRate(id) {
+  const sel  = document.getElementById(`hw-type-${id}`)?.value;
+  const wrap = document.getElementById(`hw-rate-wrap-${id}`);
+  const inp  = document.getElementById(`hw-rate-${id}`);
+  if (!wrap || !inp) return;
+  // Auto-fill the rate from the lookup table; only editable for Custom
+  if (sel !== 'Custom') {
+    inp.value    = HW_USE_RATES[sel] || 0;
+    inp.readOnly = true;
+    inp.style.opacity = '0.6';
+  } else {
+    inp.value    = 0;
+    inp.readOnly = false;
+    inp.style.opacity = '1';
+  }
+}
+
 function applyServiceDefaults(service) {
   const defaults = {
     'Chilled Water Supply':  { density: 999  },
@@ -1523,6 +1691,28 @@ function collectInputs() {
     return {
       ...base,
       vent_type: getToggle('tg-vent-type') || 'Supply and Exhaust',
+    };
+  }
+
+  if (_calcType === 'Hot Water Demand') {
+    const uses = [];
+    document.querySelectorAll('#hw-use-list > div[id^="hw-use-row-"]').forEach(row => {
+      const rid   = row.id.replace('hw-use-row-', '');
+      const type  = document.getElementById(`hw-type-${rid}`)?.value || '';
+      const qty   = parseFloat(document.getElementById(`hw-qty-${rid}`)?.value) || 1;
+      const count = parseFloat(document.getElementById(`hw-count-${rid}`)?.value) || 1;
+      const rate  = parseFloat(document.getElementById(`hw-rate-${rid}`)?.value) || 0;
+      if (type) uses.push({ use_type: type, quantity: qty, daily_count: count, custom_rate_L: rate });
+    });
+    return {
+      project_name:    v('f-project') || 'Untitled Hot Water System',
+      supply_temp:     parseFloat(v('f-supply-temp'))    || 28,
+      hot_temp:        parseFloat(v('f-hot-temp'))       || 60,
+      recovery_hours:  parseFloat(v('f-recovery-hrs'))   || 2,
+      peak_fraction:   parseFloat(v('f-peak-fraction'))  || 0.25,
+      storage_factor:  parseFloat(v('f-storage-factor')) || 1.25,
+      pipe_loss_pct:   parseFloat(v('f-pipe-loss'))      || 10,
+      uses,
     };
   }
 
@@ -1616,6 +1806,11 @@ async function runCalculation() {
       showToast('Please add at least one tool or piece of equipment.');
       return;
     }
+  } else if (_calcType === 'Hot Water Demand') {
+    if (!inputs.uses || inputs.uses.length === 0) {
+      showToast('Please add at least one hot water use type.');
+      return;
+    }
   } else if (_calcType === 'Water Supply Pipe Sizing') {
     if (!inputs.fixtures || inputs.fixtures.length === 0) {
       showToast('Please add at least one plumbing fixture.');
@@ -1650,6 +1845,8 @@ async function runCalculation() {
       renderAirReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Water Supply Pipe Sizing') {
       renderWaterSupplyReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Hot Water Demand') {
+      renderHotWaterReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -2385,6 +2582,151 @@ function renderPumpReport(inputs, results, narrative) {
   showReport();
 }
 
+// ─── Hot Water Demand Report ──────────────────────────────────────────────────
+function renderHotWaterReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+
+  const deltaT = results.delta_T || (results.T_hot - results.T_supply);
+
+  const useRows = (results.use_breakdown || []).map(u => `
+    <tr>
+      <td>${escHtml(u.use_type)}</td>
+      <td class="num">${u.qty}</td>
+      <td class="num">${u.daily_count}</td>
+      <td class="num">${u.rate_L}</td>
+      <td class="num">${u.daily_L}</td>
+    </tr>`).join('');
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading.
+    </div>
+
+    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">HOT WATER DEMAND CALCULATION</h1>
+    <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">Occupancy / Use Rate Method — ASHRAE HVAC Applications Chapter 50</div>
+
+    <h2>1. PROJECT INFORMATION</h2>
+    <table>
+      <tr><td style="width:35%;">Project / System Name</td><td>${e(inputs.project_name)}</td></tr>
+      <tr><td>Location</td><td>${e('')}</td></tr>
+      <tr><td>Owner / Client</td><td>${e('')}</td></tr>
+      <tr><td>Prepared by</td><td>${e('')}</td></tr>
+      <tr><td>PRC License No.</td><td>${e('')}</td></tr>
+      <tr><td>Date</td><td>${e(dateStr)}</td></tr>
+    </table>
+
+    <h2>2. OBJECTIVE</h2>
+    <p>${e(narrative?.objective || 'To determine the daily hot water demand, peak hour demand, required storage tank volume, and water heater power for the subject building.')}</p>
+
+    <h2>3. REFERENCES / STANDARDS</h2>
+    <table>
+      <tr><td style="width:35%;">Primary Reference</td><td>ASHRAE HVAC Applications Handbook — Chapter 50 (Service Water Heating)</td></tr>
+      <tr><td>Demand Rates</td><td>ASHRAE Table 50-3 (Hot Water Demand per Unit)</td></tr>
+      <tr><td>Plumbing Code</td><td>Philippine Plumbing Code (based on UPC / IPC)</td></tr>
+      <tr><td>Temperature Standard</td><td>WHO — 60°C minimum storage for Legionella prevention</td></tr>
+    </table>
+
+    <h2>4. DESIGN BASIS AND ASSUMPTIONS</h2>
+    <p>${e(narrative?.assumptions || `Philippine tropical climate applied: cold water supply temperature of ${results.T_supply}°C (year-round average, no seasonal variation). Hot water storage temperature of ${results.T_hot}°C per WHO Legionella prevention guidelines. ASHRAE occupancy-based demand rates used. Pipe heat loss of ${results.pipe_loss_pct || inputs.pipe_loss_pct}% applied. Peak hour fraction of ${results.peak_fraction || inputs.peak_fraction} used to determine hourly demand. Recovery time of ${results.recovery_hours || inputs.recovery_hours} hours assumed.`)}</p>
+
+    <h2>5. DESIGN PARAMETERS</h2>
+    <table>
+      <tr><th>Parameter</th><th class="num">Value</th><th>Unit</th></tr>
+      <tr><td>Supply (cold inlet) Temperature</td><td class="num">${results.T_supply}</td><td>°C</td></tr>
+      <tr><td>Hot Water Storage Temperature</td><td class="num">${results.T_hot}</td><td>°C</td></tr>
+      <tr><td>Temperature Rise (deltaT)</td><td class="num">${deltaT}</td><td>°C</td></tr>
+      <tr><td>Recovery Time</td><td class="num">${results.recovery_hours}</td><td>hours</td></tr>
+      <tr><td>Peak Hour Fraction</td><td class="num">${results.peak_fraction}</td><td>ratio</td></tr>
+      <tr><td>Storage Safety Factor</td><td class="num">${results.storage_factor}</td><td>ratio</td></tr>
+      <tr><td>Pipe Heat Loss Allowance</td><td class="num">${results.pipe_loss_pct}</td><td>%</td></tr>
+    </table>
+
+    <h2>6. HOT WATER USE SCHEDULE</h2>
+    <table>
+      <tr>
+        <th>Use Type</th>
+        <th class="num">Qty</th>
+        <th class="num">Uses/day</th>
+        <th class="num">L/use</th>
+        <th class="num">Daily L</th>
+      </tr>
+      ${useRows}
+      <tr class="total-row">
+        <td colspan="4"><strong>Total Daily Demand (net)</strong></td>
+        <td class="num"><strong>${results.total_daily_without_loss_L} L/day</strong></td>
+      </tr>
+      <tr style="background:#fffbf0;">
+        <td colspan="4"><strong>+ Pipe Heat Loss (${results.pipe_loss_pct}%)</strong></td>
+        <td class="num"><strong>${results.total_daily_L} L/day</strong></td>
+      </tr>
+    </table>
+
+    <h2>7. DEMAND AND HEATER SIZING CALCULATION</h2>
+    <table>
+      <tr><th>Step</th><th class="num">Value</th><th>Unit</th></tr>
+      <tr><td>Total Daily Demand (adjusted)</td><td class="num">${results.total_daily_L}</td><td>L/day</td></tr>
+      <tr><td>Peak Hour Demand (${Math.round((results.peak_fraction||0.25)*100)}% of daily)</td><td class="num">${results.peak_hour_L}</td><td>L/hr</td></tr>
+      <tr><td>Required Storage Volume (x${results.storage_factor} safety factor)</td><td class="num">${results.storage_L_computed}</td><td>L</td></tr>
+      <tr><td colspan="3" style="padding-top:0.5rem;font-weight:600;font-size:0.82rem;">Heat Energy Calculation: Q = m × Cp × ΔT</td></tr>
+      <tr><td>Mass of water (daily demand)</td><td class="num">${results.total_daily_L}</td><td>kg</td></tr>
+      <tr><td>Specific heat of water (Cp)</td><td class="num">4.186</td><td>kJ/(kg·°C)</td></tr>
+      <tr><td>Temperature rise (ΔT)</td><td class="num">${deltaT}</td><td>°C</td></tr>
+      <tr><td>Total heat energy required</td><td class="num">${results.heat_energy_kJ}</td><td>kJ</td></tr>
+      <tr><td>Total heat energy</td><td class="num">${results.heat_energy_kWh}</td><td>kWh/day</td></tr>
+      <tr class="total-row"><td><strong>Required Heater Power (${results.recovery_hours}-hr recovery)</strong></td><td class="num"><strong>${results.heater_kW_computed}</strong></td><td><strong>kW</strong></td></tr>
+    </table>
+
+    <h2>8. RESULTS SUMMARY</h2>
+    <div class="result-highlight">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <div class="res-label">Total Daily Demand</div>
+          <div class="res-value">${results.total_daily_L} L/day</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">incl. ${results.pipe_loss_pct}% pipe loss</div>
+        </div>
+        <div>
+          <div class="res-label">Peak Hour Demand</div>
+          <div class="res-value">${results.peak_hour_L} L/hr</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">at ${Math.round((results.peak_fraction||0.25)*100)}% peak fraction</div>
+        </div>
+        <div>
+          <div class="res-label">Storage Tank</div>
+          <div class="res-value">${results.recommended_storage_L} L</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">computed: ${results.storage_L_computed} L min.</div>
+        </div>
+        <div>
+          <div class="res-label">Water Heater</div>
+          <div class="res-value">${results.recommended_heater_kW} kW</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">recovery: ${results.recovery_rate_lph} L/hr</div>
+        </div>
+      </div>
+    </div>
+
+    <h2>9. RECOMMENDATIONS</h2>
+    <p>${e(narrative?.recommendations || `Provide a water heater with a minimum continuous power rating of ${results.recommended_heater_kW} kW. Provide a storage tank with a minimum volume of ${results.recommended_storage_L} L. Maintain storage temperature at ${results.T_hot}°C to prevent Legionella growth. Insulate all hot water distribution pipes to limit heat loss. Install a mixing valve at each point of use to deliver water at 42-45°C for user safety while maintaining 60°C at the heater.`)}</p>
+
+    <div class="sig-block">
+      <div>
+        <div class="sig-line">Prepared by</div>
+        <div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div>
+      </div>
+      <div>
+        <div class="sig-line">PRC License No. / PTR No.</div>
+        <div style="margin-top:2rem;" class="sig-line">Date</div>
+      </div>
+      <div>
+        <div class="sig-line">Checked / Approved by</div>
+        <div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
 // ─── Water Supply Pipe Sizing Report ─────────────────────────────────────────
 function renderWaterSupplyReport(inputs, results, narrative) {
   const now     = new Date();
@@ -2692,6 +3034,8 @@ function viewHistoryReport(row) {
     renderAirReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Water Supply Pipe Sizing') {
     renderWaterSupplyReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Hot Water Demand') {
+    renderHotWaterReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
