@@ -485,7 +485,7 @@ const CALC_TYPES = {
   ],
   'Fire Protection': [
     { id: 'Fire Sprinkler Hydraulic', icon: '🚿', desc: 'NFPA 13 design area method, flow and pressure', available: true  },
-    { id: 'Fire Pump Sizing',         icon: '🔥', desc: 'Required flow and pressure, motor HP, NFPA 20',  available: false },
+    { id: 'Fire Pump Sizing',         icon: '🔥', desc: 'Required flow and pressure, motor HP, NFPA 20',  available: true  },
     { id: 'Stairwell Pressurization', icon: '🪜', desc: 'Airflow to maintain pressure differential, NFPA 92', available: false },
     { id: 'Fire Alarm Battery',       icon: '🔋', desc: '24h standby + 5-min alarm, battery Ah, NFPA 72', available: false },
   ],
@@ -969,6 +969,44 @@ const GUIDES = {
       'Philippine pre-fills: Ordinary Group 1 is the correct default for most commercial and manufacturing occupancies registered with BFP.',
       'Hose stream allowance is mandatory per NFPA 13 — it accounts for fire department hose connections used simultaneously with sprinkler flow.',
       'The BFP requires this calculation to be signed by a PRC-licensed Mechanical or Fire Protection Engineer before issuing an occupancy permit.',
+    ],
+  },
+
+  'Fire Pump Sizing': {
+    title: 'Fire Pump Sizing — NFPA 20 (Standard for the Installation of Stationary Fire Pumps)',
+    subtitle: 'Determines the Total Dynamic Head, shaft power (BHP), and motor HP required for the fire pump. Inputs are typically taken directly from the Fire Sprinkler Hydraulic calculation. Includes jockey pump sizing and NFPA 20 motor rating check.',
+    standards: ['NFPA 20 — Standard for the Installation of Stationary Fire Pumps (Latest Edition)','NFPA 13 — Standard for the Installation of Sprinkler Systems (source of required flow and pressure)','BFP IRR — Bureau of Fire Protection Implementing Rules and Regulations','National Building Code of the Philippines (PD 1096)'],
+    formulas: [
+      'TDH (m) = Required Pressure Head (m) + Static Elevation (m) + Friction Loss (m) - Suction Head (m)',
+      '  Required Pressure Head (m) = Required Pressure (bar) x 10.197',
+      '  Hazen-Williams friction: hL (bar/m) = 6.05e4 x Q^1.85 / (C^1.85 x d^4.87)',
+      '',
+      'Pump Shaft Power (kW) = 9.81 x Q (m³/s) x TDH (m) / pump efficiency',
+      'Motor Input Power (kW) = Shaft Power / motor efficiency',
+      '',
+      'NFPA 20 Motor Rating:',
+      '  Electric Motor: rated power >= Shaft Power x 1.15 (115% rule)',
+      '  Diesel Engine: rated power >= Shaft Power x 1.20 (120% rule)',
+      '',
+      'Select: next standard fire pump HP >= NFPA 20 required HP',
+      '',
+      'Jockey Pump: Q = 1% of fire pump flow; P = fire pump pressure + 10%',
+    ],
+    fields: [
+      { name: 'Required Flow (L/min)', tip: 'Take directly from the Fire Sprinkler Hydraulic calculation — use Q_total (sprinkler flow + hose stream). Do NOT use sprinkler flow only; hose stream must be included per NFPA 13/20.' },
+      { name: 'Required Pressure at System Connection', tip: 'Take from the Fire Sprinkler Hydraulic calc — use P_source (required source pressure). This is the pressure the pump must deliver at its discharge, before pipe losses to the sprinkler riser.' },
+      { name: 'Elevation (m)', tip: 'Vertical distance from pump centerline to the highest sprinkler connection. For buildings with multiple floors, measure to the top floor riser. Zero for single-story.' },
+      { name: 'Suction Type', tip: 'Flooded suction (pump below tank/reservoir): preferred, reduces TDH. Suction lift (pump above water source): increases TDH and risks cavitation. NFPA 20 strongly recommends flooded suction for fire pumps.' },
+      { name: 'Pipe Material', tip: 'Steel Schedule 40 (C=120): standard for fire pump suction and discharge piping in the Philippines. Cast Iron (C=100): older installations. Stainless Steel (C=140): food/pharma plants.' },
+      { name: 'Drive Type', tip: 'Electric Motor: NFPA 20 requires motor rated at 115% of pump BHP. Diesel Engine: requires 120% and is mandatory as backup in high-rise buildings and critical occupancies per BFP IRR.' },
+    ],
+    notes: [
+      'NFPA 20 requires that the fire pump be capable of delivering 150% of rated flow at 65% of rated pressure (overload point). The selected pump curve must pass through this point.',
+      'Philippine BFP requires a diesel-driven backup fire pump for buildings above 6 floors or with Extra Hazard occupancy.',
+      'Standard fire pump HP sizes available in the Philippine market: 5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 200, 250, 300, 400, 500 HP.',
+      'Jockey (pressure maintenance) pump: NFPA 20 — flow = 1% of fire pump rated flow, pressure = fire pump pressure + 10%. Keeps system pressurized between alarms to detect leaks.',
+      'Pump efficiency default: 70% for preliminary design. Motor efficiency: 90%. Update these from the actual pump curve once a vendor is selected.',
+      'The fire pump must have a dedicated power supply and cannot share a circuit with other building loads — PEC and BFP IRR requirement.',
     ],
   },
 };
@@ -2160,6 +2198,118 @@ function renderInputForm(calcType) {
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
+
+  if (calcType === 'Fire Pump Sizing') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Bldg A — Fire Pump System" />
+      </div>
+
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.25);border-radius:0.75rem;padding:0.65rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">
+        <strong style="color:#F7A21B;">Tip:</strong> Use Q_total and P_source from the Fire Sprinkler Hydraulic calculation as inputs here.
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Required System Flow</div>
+          <div class="input-group">
+            <input id="f-req-flow" class="wh-input" type="number" placeholder="e.g. 1250" min="1" />
+            <span class="input-unit">L/min</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Required Pressure at System Connection</div>
+          <div class="input-group">
+            <input id="f-req-pressure" class="wh-input" type="number" placeholder="e.g. 7.5" min="0.1" step="0.1" />
+            <span class="input-unit">bar</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Static Elevation (pump to highest outlet)</div>
+          <div class="input-group">
+            <input id="f-elevation" class="wh-input" type="number" placeholder="0" min="0" step="0.5" value="0" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Pipe Length (suction + discharge)</div>
+          <div class="input-group">
+            <input id="f-fp-pipe-length" class="wh-input" type="number" placeholder="20" min="1" value="20" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Suction Configuration</div>
+        <div class="toggle-group" id="tg-suction-type">
+          <button class="toggle-btn active" data-val="Flooded Suction" onclick="toggle('tg-suction-type','Flooded Suction');applyFPSuctionDefaults('Flooded Suction')">Flooded Suction (preferred)</button>
+          <button class="toggle-btn" data-val="Suction Lift" onclick="toggle('tg-suction-type','Suction Lift');applyFPSuctionDefaults('Suction Lift')">Suction Lift</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label" id="suction-head-label">Suction Head (flooded depth)</div>
+          <div class="input-group">
+            <input id="f-suction-head" class="wh-input" type="number" placeholder="1.5" min="0" step="0.5" value="1.5" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Pipe Diameter <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">(0 = auto)</span></div>
+          <div class="input-group">
+            <input id="f-fp-pipe-dia" class="wh-input" type="number" placeholder="0" min="0" value="0" />
+            <span class="input-unit">mm</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Pipe Material</div>
+        <div class="toggle-group" id="tg-fp-mat">
+          <button class="toggle-btn active" data-val="Steel" onclick="toggle('tg-fp-mat','Steel')">Steel Sch 40 (C=120)</button>
+          <button class="toggle-btn" data-val="Cast Iron" onclick="toggle('tg-fp-mat','Cast Iron')">Cast Iron (C=100)</button>
+          <button class="toggle-btn" data-val="Stainless Steel" onclick="toggle('tg-fp-mat','Stainless Steel')">Stainless Steel (C=140)</button>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Drive Type</div>
+        <div class="toggle-group" id="tg-drive-type">
+          <button class="toggle-btn active" data-val="Electric Motor" onclick="toggle('tg-drive-type','Electric Motor')">Electric Motor (115% rule)</button>
+          <button class="toggle-btn" data-val="Diesel Engine" onclick="toggle('tg-drive-type','Diesel Engine')">Diesel Engine (120% rule)</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Pump Efficiency</div>
+          <div class="input-group">
+            <input id="f-fp-pump-eff" class="wh-input" type="number" value="70" min="40" max="95" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Motor Efficiency</div>
+          <div class="input-group">
+            <input id="f-fp-motor-eff" class="wh-input" type="number" value="90" min="70" max="98" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Standard: NFPA 20. Motor is rated at 115% of pump BHP (Electric) or 120% (Diesel) per NFPA 20. Pipe diameter auto-selected for velocity under 2.5 m/s if set to 0. Jockey pump sizing included in output.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
 }
 
 // ─── Toggle button groups ─────────────────────────────────────────────────────
@@ -2191,6 +2341,13 @@ function applyVentDefaults(roomFunc) {
   if (!d) return;
   const pEl = document.getElementById('f-persons');
   if (pEl) pEl.value = d.persons;
+}
+
+function applyFPSuctionDefaults(type) {
+  const label = document.getElementById('suction-head-label');
+  if (label) label.textContent = type === 'Flooded Suction' ? 'Suction Head (flooded depth)' : 'Suction Lift (pump above water)';
+  const el = document.getElementById('f-suction-head');
+  if (el) el.value = type === 'Flooded Suction' ? '1.5' : '3.0';
 }
 
 function applyHazardDefaults(hazard) {
@@ -2700,6 +2857,23 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Fire Pump Sizing') {
+    return {
+      project_name:       v('f-project')         || 'Untitled Fire Pump System',
+      required_flow:      parseFloat(v('f-req-flow'))       || 0,
+      required_pressure:  parseFloat(v('f-req-pressure'))   || 0,
+      elevation:          parseFloat(v('f-elevation'))       || 0,
+      pipe_length:        parseFloat(v('f-fp-pipe-length'))  || 20,
+      suction_type:       getToggle('tg-suction-type')       || 'Flooded Suction',
+      suction_head:       parseFloat(v('f-suction-head'))    || 1.5,
+      pipe_diameter:      parseFloat(v('f-fp-pipe-dia'))     || 0,
+      pipe_material:      getToggle('tg-fp-mat')             || 'Steel',
+      drive_type:         getToggle('tg-drive-type')         || 'Electric Motor',
+      pump_efficiency:    parseFloat(v('f-fp-pump-eff'))     || 70,
+      motor_efficiency:   parseFloat(v('f-fp-motor-eff'))    || 90,
+    };
+  }
+
   if (_calcType === 'Fire Sprinkler Hydraulic') {
     return {
       project_name:         v('f-project') || 'Untitled Sprinkler System',
@@ -2767,6 +2941,15 @@ async function runCalculation() {
       showToast('Please add at least one plumbing fixture.');
       return;
     }
+  } else if (_calcType === 'Fire Pump Sizing') {
+    if (!inputs.required_flow || inputs.required_flow <= 0) {
+      showToast('Please enter the required system flow (L/min).');
+      return;
+    }
+    if (!inputs.required_pressure || inputs.required_pressure <= 0) {
+      showToast('Please enter the required pressure at system connection (bar).');
+      return;
+    }
   } else if (_calcType === 'Fire Sprinkler Hydraulic') {
     if (!inputs.pipe_length || inputs.pipe_length <= 0) {
       showToast('Please enter the pipe length from riser to remote sprinkler.');
@@ -2813,6 +2996,8 @@ async function runCalculation() {
       renderVDReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Wire Sizing') {
       renderWireSizingReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Fire Pump Sizing') {
+      renderFirePumpReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Fire Sprinkler Hydraulic') {
       renderFireSprinklerReport(inputs, data.results, data.narrative);
     } else {
@@ -4491,6 +4676,181 @@ function renderWaterSupplyReport(inputs, results, narrative) {
       <div>
         <div class="sig-line">Checked / Approved by</div>
         <div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── Fire Protection: Fire Pump Sizing Report (NFPA 20) ──────────────────────
+function renderFirePumpReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const r       = results;
+  const nfpaPct = r.drive_type === 'Diesel Engine' ? '120%' : '115%';
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div>
+        <h1>DESIGN CALCULATION</h1>
+        <div style="font-size:0.8rem;color:#555;">Fire Pump Sizing — NFPA 20</div>
+      </div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;">
+        <div>Rev. ${e('0')}</div>
+        <div>Date: ${dateStr}</div>
+      </div>
+    </div>
+
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">Project / System Name</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Drive Type</th><td>${e(r.drive_type)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Calculation Standard</th><td>NFPA 20 / BFP IRR</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
+    </table>
+
+    <h2>1. Objective</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || 'To determine the Total Dynamic Head (TDH), shaft power (BHP), and motor HP required for the fire pump in compliance with NFPA 20 and BFP requirements.')}</p>
+
+    <h2>2. Applicable Codes and Standards</h2>
+    <ul style="font-size:0.82rem;color:#333;padding-left:1.25rem;line-height:2;">
+      <li>NFPA 20 — Standard for the Installation of Stationary Fire Pumps (Latest Edition)</li>
+      <li>NFPA 13 — Standard for the Installation of Sprinkler Systems (source of required flow and pressure)</li>
+      <li>BFP IRR — Bureau of Fire Protection Implementing Rules and Regulations</li>
+      <li>National Building Code of the Philippines (PD 1096) — Fire Protection Chapter</li>
+    </ul>
+
+    <h2>3. Design Criteria and Assumptions</h2>
+    <table style="margin-top:0.5rem;">
+      <tr><th>Parameter</th><th>Value</th><th>Parameter</th><th>Value</th></tr>
+      <tr><td>Required System Flow</td><td class="num">${r.Q_Lmin} L/min</td><td>Required Pressure at Connection</td><td class="num">${r.P_req_bar} bar</td></tr>
+      <tr><td>Static Elevation</td><td class="num">${r.elev_m} m</td><td>Suction Configuration</td><td class="num">${escHtml(r.suction_type)}</td></tr>
+      <tr><td>Suction Head / Lift</td><td class="num">${r.suction_head_m} m</td><td>Pipe Material</td><td class="num">${escHtml(r.pipe_material)}</td></tr>
+      <tr><td>Pipe Diameter (selected)</td><td class="num">${r.pipe_dia} mm</td><td>Hazen-Williams C</td><td class="num">${r.inputs_used.C}</td></tr>
+      <tr><td>Pump Efficiency</td><td class="num">${r.pump_eff_pct}%</td><td>Motor Efficiency</td><td class="num">${r.motor_eff_pct}%</td></tr>
+      <tr><td>Drive Type</td><td class="num">${escHtml(r.drive_type)}</td><td>NFPA 20 Motor Factor</td><td class="num">${nfpaPct} of pump BHP</td></tr>
+    </table>
+
+    <h2>4. Calculation Proper</h2>
+
+    <h3>4.1 Pressure Head Conversion</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Required pressure at system connection: ${r.P_req_bar} bar<br>
+      Conversion: 1 bar = 10.197 m H2O<br>
+      <strong>Required pressure head = ${r.P_req_bar} x 10.197 = ${r.P_req_m} m</strong>
+    </p>
+
+    <h3>4.2 Pipe Friction Loss — Hazen-Williams</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula: hL (bar/m) = 6.05 x 10^4 x Q^1.85 / (C^1.85 x d^4.87)<br>
+      Given: Q = ${r.Q_Lmin} L/min, C = ${r.inputs_used.C}, d = ${r.pipe_dia} mm, L = ${r.inputs_used.pipe_length} m<br>
+      Pipe flow velocity = ${r.velocity} m/s (acceptable: 1.5 - 2.5 m/s for fire pump piping)<br>
+      <strong>Total pipe friction loss = ${r.H_friction_m} m</strong>
+    </p>
+
+    <h3>4.3 Total Dynamic Head (TDH)</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula: TDH = Pressure Head + Elevation + Friction Loss ${r.suction_type === 'Flooded Suction' ? '- Suction Head' : '+ Suction Lift'}<br>
+      TDH = ${r.P_req_m} + ${r.elev_m} + ${r.H_friction_m} ${r.suction_type === 'Flooded Suction' ? '- ' : '+ '}${r.suction_head_m}<br>
+      <strong>TDH = ${r.TDH_m} m (${r.TDH_bar} bar)</strong>
+    </p>
+
+    <h3>4.4 Pump Shaft Power (BHP)</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula: P_shaft (kW) = 9.81 x Q (m³/s) x TDH (m) / pump efficiency<br>
+      Q = ${r.Q_Lmin} L/min = ${(r.Q_Lmin / 1000 / 60).toFixed(4)} m³/s<br>
+      P_shaft = 9.81 x ${(r.Q_Lmin / 1000 / 60).toFixed(4)} x ${r.TDH_m} / ${r.pump_eff_pct / 100}<br>
+      <strong>P_shaft = ${r.P_shaft_kW} kW (${r.P_shaft_HP} HP)</strong>
+    </p>
+
+    <h3>4.5 Motor Input Power</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      Formula: P_motor = P_shaft / motor efficiency<br>
+      P_motor = ${r.P_shaft_kW} / ${r.motor_eff_pct / 100} = <strong>${r.P_motor_kW} kW (${r.P_motor_HP} HP)</strong>
+    </p>
+
+    <h3>4.6 NFPA 20 Motor Rating Check</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      NFPA 20 requires ${escHtml(r.drive_type)} to be rated at minimum ${nfpaPct} of pump shaft BHP:<br>
+      Required motor rating = ${r.P_shaft_HP} x ${r.nfpa_factor} = <strong>${r.P_nfpa_HP} HP (${r.P_nfpa_kW} kW)</strong><br>
+      Next standard fire pump motor size: <strong>${r.selected_HP} HP (${r.selected_kW.toFixed(1)} kW)</strong>
+    </p>
+
+    <h3>4.7 NFPA 20 Overload Point Verification</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      NFPA 20 requires pump to deliver 150% rated flow at 65% rated pressure:<br>
+      Overload flow = ${r.Q_Lmin} x 1.50 = <strong>${r.Q_overload} L/min</strong><br>
+      Overload pressure = ${r.P_req_bar} x 0.65 = <strong>${r.P_overload} bar</strong><br>
+      Verify selected pump curve passes through this point when obtaining vendor submittal.
+    </p>
+
+    <h3>4.8 Jockey Pump Sizing</h3>
+    <p style="font-size:0.82rem;color:#444;">
+      NFPA 20: Jockey pump flow = 1% of fire pump rated flow; pressure = fire pump pressure + 10%<br>
+      Q_jockey = ${r.Q_Lmin} x 0.01 = <strong>${r.Q_jockey_Lmin} L/min</strong><br>
+      P_jockey = ${r.P_req_bar} x 1.10 = <strong>${r.P_jockey_bar} bar</strong><br>
+      Selected jockey pump motor: <strong>${r.selected_jockey_HP} HP</strong>
+    </p>
+
+    <h2>5. Results Summary</h2>
+    <div class="result-highlight">
+      <div class="res-item">
+        <div class="res-label">Total Dynamic Head</div>
+        <div class="res-value">${r.TDH_m} <span style="font-size:0.7em;">m</span></div>
+      </div>
+      <div class="res-item">
+        <div class="res-label">Selected Motor Size</div>
+        <div class="res-value">${r.selected_HP} <span style="font-size:0.7em;">HP</span></div>
+      </div>
+      <div class="res-item">
+        <div class="res-label">Pump Shaft Power</div>
+        <div class="res-value">${r.P_shaft_kW} <span style="font-size:0.7em;">kW</span> / ${r.P_shaft_HP} <span style="font-size:0.7em;">HP</span></div>
+      </div>
+      <div class="res-item">
+        <div class="res-label">Jockey Pump</div>
+        <div class="res-value">${r.Q_jockey_Lmin} <span style="font-size:0.7em;">L/min @ ${r.P_jockey_bar} bar</span></div>
+      </div>
+    </div>
+
+    <h2>6. Fire Pump Schedule</h2>
+    <table>
+      <tr><th>Parameter</th><th>Value</th></tr>
+      <tr><td>Rated Flow</td><td class="num">${r.Q_Lmin} L/min</td></tr>
+      <tr><td>Rated Pressure (TDH)</td><td class="num">${r.TDH_m} m (${r.TDH_bar} bar)</td></tr>
+      <tr><td>Pump Shaft Power (BHP)</td><td class="num">${r.P_shaft_kW} kW / ${r.P_shaft_HP} HP</td></tr>
+      <tr><td>NFPA 20 Required Motor Rating (${nfpaPct})</td><td class="num">${r.P_nfpa_kW} kW / ${r.P_nfpa_HP} HP</td></tr>
+      <tr style="font-weight:700;background:#fffbf0;"><td>Selected Motor Size</td><td class="num">${r.selected_HP} HP (${r.selected_kW.toFixed(1)} kW) — ${escHtml(r.drive_type)}</td></tr>
+      <tr><td>Selected Pipe Diameter</td><td class="num">${r.pipe_dia} mm nominal bore, ${escHtml(r.pipe_material)} Schedule 40</td></tr>
+      <tr><td>Flow Velocity in Pipe</td><td class="num">${r.velocity} m/s</td></tr>
+      <tr><td>Overload Point (NFPA 20)</td><td class="num">${r.Q_overload} L/min at ${r.P_overload} bar</td></tr>
+      <tr style="font-weight:700;background:#fffbf0;"><td>Jockey Pump</td><td class="num">${r.Q_jockey_Lmin} L/min at ${r.P_jockey_bar} bar — ${r.selected_jockey_HP} HP motor</td></tr>
+    </table>
+
+    <h2>7. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Provide a ${r.drive_type.toLowerCase()} fire pump rated at ${r.Q_Lmin} L/min at ${r.TDH_m} m TDH (${r.TDH_bar} bar). Motor must be rated at minimum ${r.selected_HP} HP per NFPA 20.\n2. Verify the selected pump curve passes through the overload point: ${r.Q_overload} L/min at ${r.P_overload} bar.\n3. Provide a jockey (pressure maintenance) pump rated at ${r.Q_jockey_Lmin} L/min at ${r.P_jockey_bar} bar with a ${r.selected_jockey_HP} HP motor.\n4. Fire pump must have a dedicated power supply independent of the building's normal electrical distribution per PEC and BFP IRR.\n5. For buildings above 6 floors or Extra Hazard occupancy, a diesel-driven backup pump is required by BFP IRR.\n6. Submit this calculation to the Bureau of Fire Protection (BFP) as part of the fire protection permit application.`)}</p>
+
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Prepared by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Checked by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Approved by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
     </div>
   `;

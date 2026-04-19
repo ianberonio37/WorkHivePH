@@ -1394,6 +1394,132 @@ function calcFireSprinklerHydraulic(inputs: Record<string, number | string>): Re
   };
 }
 
+// ─── Fire Protection: Fire Pump Sizing (NFPA 20) ─────────────────────────────
+
+function calcFirePumpSizing(inputs: Record<string, number | string>): Record<string, unknown> {
+  const Q_Lmin         = Number(inputs.required_flow)        || 500;   // L/min from sprinkler calc
+  const P_req_bar      = Number(inputs.required_pressure)    || 7.0;   // bar at system connection
+  const elev_m         = Number(inputs.elevation)            || 0;     // m, pump to highest outlet
+  const suction_type   = (inputs.suction_type as string)     || 'Flooded Suction';
+  const suction_head   = Number(inputs.suction_head)         || 1.5;   // m (positive = flooded, value used as magnitude)
+  const pipe_mat       = (inputs.pipe_material as string)    || 'Steel';
+  const pipe_length    = Number(inputs.pipe_length)          || 20;    // m, suction + discharge combined
+  const pipe_dia_mm    = Number(inputs.pipe_diameter)        || 0;     // 0 = auto-select
+  const pump_eff_pct   = Number(inputs.pump_efficiency)      || 70;    // %
+  const motor_eff_pct  = Number(inputs.motor_efficiency)     || 90;    // %
+  const drive_type     = (inputs.drive_type as string)       || 'Electric Motor';
+
+  // Hazen-Williams C factor
+  const C_map: Record<string, number> = { 'Steel': 120, 'Cast Iron': 100, 'Stainless Steel': 140 };
+  const C = C_map[pipe_mat] || 120;
+
+  // Convert required pressure to head (1 bar = 10.197 m H2O)
+  const P_req_m = P_req_bar * 10.197;
+
+  // Auto-select pipe diameter if not specified (target velocity 1.5–2.5 m/s)
+  const std_sizes = [50, 65, 80, 100, 125, 150, 200, 250, 300]; // mm
+  const Q_m3s = Q_Lmin / 1000 / 60;
+  let pipe_dia = pipe_dia_mm > 0 ? pipe_dia_mm : 100;
+  if (pipe_dia_mm === 0) {
+    for (const d of std_sizes) {
+      const A = Math.PI * Math.pow(d / 1000, 2) / 4;
+      const v = Q_m3s / A;
+      if (v <= 2.5) { pipe_dia = d; break; }
+    }
+  }
+
+  // Pipe velocity
+  const A_pipe = Math.PI * Math.pow(pipe_dia / 1000, 2) / 4;
+  const velocity = Q_m3s / A_pipe;
+
+  // Hazen-Williams friction loss (bar/m → convert to m H2O: ×10.197)
+  const hL_bar_per_m = 6.05e4 * Math.pow(Q_Lmin, 1.85) / (Math.pow(C, 1.85) * Math.pow(pipe_dia, 4.87));
+  const H_friction_m = hL_bar_per_m * pipe_length * 10.197;
+
+  // Suction head contribution
+  // Flooded: positive suction head reduces TDH; Suction lift: negative (adds to TDH)
+  const suction_contribution = suction_type === 'Flooded Suction' ? -suction_head : suction_head;
+
+  // Total Dynamic Head
+  // TDH = Required pressure head + Static elevation + Friction loss - Suction head (if flooded)
+  const TDH_m = P_req_m + elev_m + H_friction_m + suction_contribution;
+
+  // Pump shaft power (BHP)
+  // P_kW = (ρ × g × Q × H) / (η_pump × 1000) = 9.81 × Q_m3s × TDH_m / (pump_eff/100)
+  const P_shaft_kW = (9.81 * Q_m3s * TDH_m) / (pump_eff_pct / 100);
+  const P_shaft_HP = P_shaft_kW * 1.341;
+
+  // Motor input power
+  const P_motor_kW = P_shaft_kW / (motor_eff_pct / 100);
+  const P_motor_HP = P_motor_kW * 1.341;
+
+  // NFPA 20 motor rating requirement
+  // Electric motor: rated at 115% of pump BHP; Diesel: 120%
+  const nfpa_factor = drive_type === 'Diesel Engine' ? 1.20 : 1.15;
+  const P_nfpa_kW   = P_shaft_kW * nfpa_factor;
+  const P_nfpa_HP   = P_nfpa_kW * 1.341;
+
+  // Select next standard fire pump HP size
+  const std_HP = [5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 200, 250, 300, 400, 500];
+  let selected_HP = std_HP[std_HP.length - 1];
+  for (const hp of std_HP) {
+    if (hp >= P_nfpa_HP) { selected_HP = hp; break; }
+  }
+  const selected_kW = selected_HP / 1.341;
+
+  // NFPA 20 overload check: pump must deliver 150% flow at 65% pressure
+  const Q_overload  = Q_Lmin * 1.5;
+  const P_overload  = P_req_bar * 0.65;
+
+  // Jockey pump sizing (NFPA 20: 1% of fire pump flow, pressure + 10%)
+  const Q_jockey_Lmin   = Math.ceil(Q_Lmin * 0.01);
+  const P_jockey_bar    = P_req_bar * 1.10;
+  const P_jockey_kW     = (9.81 * (Q_jockey_Lmin / 1000 / 60) * (P_jockey_bar * 10.197)) / 0.70;
+  const P_jockey_HP     = P_jockey_kW * 1.341;
+  let selected_jockey_HP = 1.0;
+  for (const hp of std_HP) {
+    if (hp >= P_jockey_HP) { selected_jockey_HP = hp; break; }
+  }
+
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+
+  return {
+    Q_Lmin,
+    P_req_bar,
+    TDH_m:           round2(TDH_m),
+    TDH_bar:          round2(TDH_m / 10.197),
+    P_req_m:          round2(P_req_m),
+    elev_m,
+    H_friction_m:     round2(H_friction_m),
+    suction_type,
+    suction_head_m:   suction_head,
+    pipe_dia,
+    pipe_material:    pipe_mat,
+    velocity:         round2(velocity),
+    P_shaft_kW:       round2(P_shaft_kW),
+    P_shaft_HP:       round2(P_shaft_HP),
+    P_motor_kW:       round2(P_motor_kW),
+    P_motor_HP:       round2(P_motor_HP),
+    nfpa_factor,
+    P_nfpa_kW:        round2(P_nfpa_kW),
+    P_nfpa_HP:        round2(P_nfpa_HP),
+    selected_HP,
+    selected_kW:      round2(selected_kW),
+    drive_type,
+    Q_overload,
+    P_overload:       round2(P_overload),
+    Q_jockey_Lmin,
+    P_jockey_bar:     round2(P_jockey_bar),
+    selected_jockey_HP,
+    pump_eff_pct,
+    motor_eff_pct,
+    inputs_used: {
+      Q_Lmin, P_req_bar, elev_m, suction_type, suction_head,
+      pipe_mat, pipe_dia, C, pipe_length, pump_eff_pct, motor_eff_pct, drive_type,
+    },
+  };
+}
+
 // ─── Main Handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -1439,6 +1565,8 @@ serve(async (req) => {
       results = calcWireSizing(inputs);
     } else if (calc_type === "Fire Sprinkler Hydraulic") {
       results = calcFireSprinklerHydraulic(inputs);
+    } else if (calc_type === "Fire Pump Sizing") {
+      results = calcFirePumpSizing(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),
