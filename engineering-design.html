@@ -4461,31 +4461,8 @@ function escHtml(str) {
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 async function init() {
-  // Hive gate
-  if (!HIVE_ID) {
-    document.getElementById('hive-gate').classList.remove('hidden');
-    return;
-  }
-
-  // Validate membership
-  const { data: membership } = await db
-    .from('hive_members')
-    .select('role')
-    .eq('hive_id', HIVE_ID)
-    .eq('worker_name', WORKER_NAME)
-    .maybeSingle();
-
-  if (!membership) {
-    ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name'].forEach(k => localStorage.removeItem(k));
-    HIVE_ID = null;
-    document.getElementById('hive-gate').classList.remove('hidden');
-    return;
-  }
-
-  HIVE_ROLE = membership.role;
-  localStorage.setItem('wh_hive_role', HIVE_ROLE);
-
-  // Init wizard
+  // Engineering calculator works in solo and hive mode — no hard hive gate
+  // Init wizard immediately
   selectDiscipline('Mechanical');
 }
 
