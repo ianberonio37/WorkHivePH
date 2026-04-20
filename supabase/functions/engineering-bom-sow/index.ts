@@ -599,6 +599,108 @@ Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
   };
 }
 
+// ─── Hot Water Demand BOM + SOW Agent ────────────────────────────────────────
+
+async function hotWaterBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project        = inputs.project_name          || "Hot Water System Project";
+  const tSupply        = inputs.supply_temp            || 28;
+  const tHot           = inputs.hot_temp               || 60;
+  const deltaT         = results.delta_T               || (Number(tHot) - Number(tSupply));
+  const totalDailyL    = results.total_daily_L         || "N/A";
+  const peakHourL      = results.peak_hour_L           || "N/A";
+  const recStorageL    = results.recommended_storage_L || "N/A";
+  const recHeaterKW    = results.recommended_heater_kW || "N/A";
+  const recoveryLPH    = results.recovery_rate_lph     || "N/A";
+  const recoveryHrs    = inputs.recovery_hours         || 2;
+  const heatKWh        = results.heat_energy_kWh       || "N/A";
+  const pipeLossPct    = inputs.pipe_loss_pct          || 10;
+
+  // Estimate pipe quantities from storage size and likely building scale
+  const storageL       = Number(recStorageL) || 200;
+  const pipeLen        = storageL > 500 ? 40 : storageL > 200 ? 25 : 15; // rough distribution run
+  const nFixtures      = (() => {
+    const us = inputs.uses as Array<{ quantity: number }> || [];
+    return Math.max(4, us.reduce((s, u) => s + (Number(u.quantity) || 1), 0));
+  })();
+  const nIsolation     = Math.max(2, Math.round(pipeLen / 15));
+  const nSupports      = Math.max(4, Math.round(pipeLen / 2));
+  const isElectric     = Number(recHeaterKW) <= 36;  // >36 kW typically gas/heat pump
+  const heaterVoltage  = Number(recHeaterKW) > 6 ? "400V/3Ph/60Hz" : "230V/1Ph/60Hz";
+
+  const prompt = `You are a licensed Mechanical/Sanitary Engineer in the Philippines preparing official procurement and contracting documents for a domestic hot water system installation.
+
+CALCULATION RESULT:
+Project: ${project}
+Cold Water Inlet Temperature: ${tSupply}°C (Philippine tropical default)
+Hot Water Supply Temperature: ${tHot}°C
+Temperature Rise (ΔT): ${deltaT}°C
+Total Daily Hot Water Demand: ${totalDailyL} L/day (incl. ${pipeLossPct}% pipe heat loss)
+Peak Hour Demand: ${peakHourL} L/hr
+Recommended Storage Tank: ${recStorageL} litres
+Recommended Heater Capacity: ${recHeaterKW} kW
+Recovery Rate: ${recoveryLPH} L/hr
+Recovery Time: ${recoveryHrs} hours
+Daily Heat Energy: ${heatKWh} kWh/day
+Estimated Hot Water Pipe Run: ${pipeLen} m
+
+TASK: Generate a JSON object with exactly two arrays.
+
+ARRAY 1 — "bom_items": Standard Philippine plumbing contractor Bill of Materials for hot water system.
+Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
+
+Required items:
+1. Hot Water Storage Tank — qty: 1 unit — specify ${recStorageL} litres, ${tHot}°C rated, glass-lined or stainless steel inner tank, polyurethane foam insulation, working pressure 600 kPa, complete with anode rod, temperature-pressure relief valve, drain valve, and inspection port
+2. Water Heater / Heating Element — qty: 1 unit — specify ${recHeaterKW} kW${isElectric ? `, ${heaterVoltage}, immersion-type electric heating element, thermostat-controlled, CHED/BPS approved` : `, gas-fired or heat pump type, rated at ${recHeaterKW} kW input, thermostat with high-limit safety cutout`}, recovery rate ${recoveryLPH} L/hr at ΔT ${deltaT}°C
+3. Temperature-Pressure Relief Valve (T&P Valve) — qty: 1 pc — specify set at 700 kPa / 99°C, ANSI/ASME rated, 3/4 in discharge, with full-size drain to floor drain — checked: true (mandatory per Philippine Plumbing Code)
+4. Expansion Tank (thermal expansion) — qty: 1 unit — specify pre-charged diaphragm type, sized for ${recStorageL}L system, 350–700 kPa operating range, ASME-rated — checked: true (required in closed systems)
+5. Mixing Valve / Thermostatic Mixing Valve (TMV) — qty: 1 unit — specify ASSE 1017 listed, set at ${Math.min(Number(tHot) - 5, 55)}°C delivery temperature, to prevent scalding at fixtures, ${Math.max(nFixtures * 2, 15)} L/min capacity
+6. Hot Water Supply Pipe, CPVC — qty: ${pipeLen} m — specify 20 mm or 25 mm nominal, ASTM D2846, rated 82°C / 600 kPa, in 6-m lengths
+7. Cold Water Feed Pipe, PVC PN10 — qty: ${Math.round(pipeLen * 0.4)} m — specify 20 mm or 25 mm nominal, potable water rated NSF/PNS 65, for heater inlet
+8. Pipe Insulation, pre-formed closed-cell foam — qty: ${pipeLen} m — specify 19mm wall thickness, aluminum foil jacket, for all hot water supply pipes to minimise heat loss
+9. Isolation Ball Valve (hot water rated) — qty: ${nIsolation + 2} pcs — specify 20–25 mm, full bore, PTFE-seated, rated 120°C / PN16, at heater inlet/outlet and branch takeoffs
+10. Check Valve (anti-siphon) — qty: 1 pc — specify 20–25 mm, spring-loaded, PN16, at cold water inlet to heater
+11. Angle Valve (fixture stop valve, chrome) — qty: ${nFixtures} pcs — specify 15 mm (1/2 in), chrome-plated brass, 1 per hot water fixture connection
+12. Pipe Supports and Hangers — qty: ${nSupports} sets — specify galvanized pipe clamp, CPVC-compatible cushion liner, spacing per Philippine Plumbing Code (max 1.2 m for CPVC)
+13. ${isElectric ? 'Electrical Wiring, THHN Cu' : 'Gas Supply Piping, Schedule 40 Black Steel'} — qty: ${isElectric ? Math.round(pipeLen * 1.5) : Math.round(pipeLen * 0.5)} m — specify ${isElectric ? `size per PEC 2017 for ${recHeaterKW} kW load at ${heaterVoltage}, dedicated circuit, GFCI-protected` : `25 mm nominal, threaded fittings, leak tested at 1.5x working pressure, per PSME gas code`}
+14. Floor Drain (near heater and T&P relief discharge) — qty: 1 pc — specify 100 mm dia, chrome strainer, for T&P valve discharge line termination
+15. Miscellaneous (Teflon tape, pipe cement, hangers, labels, access panel) — qty: 1 lot — specify hot water pipe labels in red/orange per Philippine Plumbing Code
+
+ARRAY 2 — "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
+Each object: { "section_no": string, "title": string, "content": string, "checked": boolean }
+
+Required sections:
+- "1.0" General Scope — checked: true
+- "2.0" Applicable Standards and Codes — checked: true (list: Philippine Plumbing Code (PPC), ASHRAE HVAC Applications Handbook Chapter 50 (Service Water Heating), NSF/PNS 65 potable water materials, ANSI/ASME for relief valves, ASSE 1017 thermostatic mixing valve, PEC 2017 for electrical connections, DOLE OSH, BPS/CHED equipment approval)
+- "3.0" Materials — checked: true (glass-lined or SS storage tank rated ${tHot}°C, CPVC hot water pipe ASTM D2846, all valves PN16 and 120°C rated, insulation 19mm closed-cell foam with foil jacket)
+- "4.1" Equipment Supply and Delivery — checked: true (submit heater performance data sheet, BPS/CHED approval certificate, tank warranty card, T&P valve certification before delivery)
+- "4.2" Heater and Tank Installation — checked: true (specify floor-mounted or wall-mounted per equipment type, vibration isolation pad, minimum 600 mm clearance on service side, drip pan under tank connected to floor drain)
+- "4.3" Hot Water Piping Works — checked: true (CPVC pipe at 20–25 mm nominal, all joints solvent-cemented per ASTM D2846, slope toward drain point, all pipes insulated 19mm closed-cell foam, pipe labelled red/orange per PPC)
+- "4.4" Safety Devices — checked: true (T&P relief valve mandatory at heater, full-size 3/4 in discharge pipe to floor drain, no valves on discharge line, thermostatic mixing valve at distribution header set at ${Math.min(Number(tHot) - 5, 55)}°C, expansion tank on cold water feed in closed system)
+- "4.5" Electrical Connections — checked: ${isElectric ? 'true' : 'false'} (dedicated circuit per PEC 2017, GFCI protection, disconnect within sight of heater, wire sized for ${recHeaterKW} kW at ${heaterVoltage})
+- "4.6" Pressure Testing — checked: true (hydrostatic test at 2× working pressure (1,200 kPa) for 30 minutes, all joints and connections leak-free, document and submit test records before insulation)
+- "4.7" Disinfection and Commissioning — checked: true (flush system, set thermostat to ${tHot}°C, verify recovery rate ${recoveryLPH} L/hr within ${recoveryHrs} hours, check T&P valve operation, verify TMV outlet temperature, submit commissioning report)
+- "4.8" As-Built Documentation — checked: true
+- "5.0" Inclusions — checked: false
+- "6.0" Exclusions — checked: false (civil / structural works, plumbing fixtures beyond stop valves, electrical panel upgrade if required, gas meter or utility connection fees)
+- "7.0" Warranty — checked: false (tank: 5-year manufacturer warranty on inner tank, 1-year on components; 1 year workmanship from acceptance)
+
+Each content must be 3-5 sentences in professional Philippine engineering contractor style. Reference: ${recHeaterKW} kW heater, ${recStorageL}L storage, ${tHot}°C supply at ${recoveryLPH} L/hr recovery, for ${project}.
+
+Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -641,6 +743,8 @@ serve(async (req) => {
       result = await compressedAirBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Plumbing" && calc_type === "Water Supply Pipe Sizing") {
       result = await waterSupplyBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Plumbing" && calc_type === "Hot Water Demand") {
+      result = await hotWaterBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),
