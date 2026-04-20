@@ -1065,6 +1065,65 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Electrical Lighting Design BOM + SOW Agent ───────────────────────────────
+
+async function lightingDesignBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project      = inputs.project_name      || "Lighting Project";
+  const spaceType    = inputs.space_type        || "Office";
+  const roomLenM     = inputs.room_len_m        ?? "N/A";
+  const roomWidM     = inputs.room_wid_m        ?? "N/A";
+  const ceilingHtM   = inputs.ceiling_ht_m      ?? "N/A";
+  const targetLux    = inputs.target_lux        ?? "N/A";
+  const lumensPerFix = inputs.lumens_per_fix     ?? "N/A";
+  const wattsPerFix  = inputs.watts_per_fix      ?? "N/A";
+  const llf          = inputs.llf               ?? 0.80;
+  const floorAreaM2  = results.floor_area_m2    ?? "N/A";
+  const rcr          = results.RCR              ?? "N/A";
+  const cu           = results.CU               ?? "N/A";
+  const nFixtures    = results.N_fixtures        ?? "N/A";
+  const eActualLux   = results.E_actual_lux     ?? "N/A";
+  const totalWatts   = results.total_watts      ?? "N/A";
+  const totalKW      = results.total_kW         ?? "N/A";
+  const lpdWm2       = results.lpd_W_m2         ?? "N/A";
+
+  const prompt = `You are a Philippine electrical engineering expert (PEC 2017, IES). Generate a professional BOM and SOW for a LIGHTING DESIGN and installation project.
+
+PROJECT: ${project}
+SPACE TYPE: ${spaceType}
+ROOM DIMENSIONS: ${roomLenM} m × ${roomWidM} m, ceiling height ${ceilingHtM} m
+FLOOR AREA: ${floorAreaM2} m²
+TARGET ILLUMINANCE: ${targetLux} lux
+FIXTURE: ${lumensPerFix} lm per fixture, ${wattsPerFix} W per fixture
+LIGHT LOSS FACTOR (LLF): ${llf}
+ROOM CAVITY RATIO (RCR): ${rcr}
+COEFFICIENT OF UTILIZATION (CU): ${cu}
+REQUIRED FIXTURES: ${nFixtures} units
+ACHIEVED ILLUMINANCE: ${eActualLux} lux
+TOTAL CONNECTED LOAD: ${totalWatts} W (${totalKW} kW)
+LIGHTING POWER DENSITY (LPD): ${lpdWm2} W/m²
+STANDARDS: PEC 2017, IES Lighting Handbook (Lumen Method), ASHRAE 90.1 LPD limits, PEC Article 2.10
+
+Generate a JSON object with:
+1. "bom_items": array of 15 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: LED luminaire fixtures (${nFixtures} units — ${lumensPerFix} lm, ${wattsPerFix}W, CRI ≥ 80, color temperature per space type: office/corridor 4000K neutral white, warehouse/industrial 5000K daylight, restaurant/hotel 3000K warm white), emergency luminaire with battery backup (minimum 1 per room exit route, 90-min backup, 10 lux minimum on exit path), lighting circuit wiring (THHN/THWN copper, sized per ${totalWatts}W load + 25% continuous load factor), lighting circuit breaker (MCB, sized for circuit), lighting conduit (EMT, properly sized), conduit fittings and accessories, junction boxes (one per fixture cluster), lighting switches (per circuit zone, flush-mounted, rated 10A minimum), occupancy sensor or daylight sensor (if applicable to space type — offices, corridors), lighting panel/sub-panel (if dedicated lighting load), wire markers and circuit labels, ceiling grid or mounting hardware (for recessed or surface mount per ceiling type), fixture hangers and safety cables (per fixture weight), dimmer module or lighting control relay (if dimming specified), laminated lighting layout drawing (as-installed record)
+2. "sow_sections": array of 7 sections (each: section_no, title, content)
+   Cover: Scope of Works, Design Basis (IES Lumen Method, RCR ${rcr}, CU ${cu}, LLF ${llf}, target ${targetLux} lux, achieved ${eActualLux} lux, LPD ${lpdWm2} W/m² vs ASHRAE 90.1 limit for ${spaceType}), Fixture Installation (mounting height, aiming, spacing, uniformity ratio ≥ 0.7), Circuit Wiring and Conduit Works (conductor sizing for continuous lighting load × 125%, conduit fill, color coding per PEC), Emergency Lighting and Exit Signs (PEC Art. 2.10, minimum 10 lux on exit path, 90-min backup, monthly test procedure), Testing and Commissioning (illuminance measurement grid test with calibrated lux meter at work plane height — verify ≥ ${targetLux} lux at all measurement points, uniformity check, circuit continuity and insulation resistance test), Regulatory Compliance (PEC 2017, DOLE OSH lighting requirements for ${spaceType}, Electrical Permit, as-built lighting layout drawing submission)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -1121,6 +1180,8 @@ serve(async (req) => {
       result = await wireSizingBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Short Circuit") {
       result = await shortCircuitBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Electrical" && calc_type === "Lighting Design") {
+      result = await lightingDesignBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),
