@@ -208,6 +208,99 @@ Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
   };
 }
 
+// ─── Pump Sizing (TDH) BOM + SOW Agent ───────────────────────────────────────
+
+async function pumpBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project     = inputs.project_name  || "Pump System Project";
+  const fluidType   = inputs.fluid_type    || "Water";
+  const flowLPM     = results.flow_lpm     || inputs.flow_rate   || "N/A";
+  const flowM3hr    = results.flow_m3hr    || "N/A";
+  const tdh         = results.TDH          || "N/A";
+  const recHP       = results.recommended_hp || "N/A";
+  const recKW       = results.recommended_kw || "N/A";
+  const pipeDiaMM   = results.pipe_dia_mm  || (results.inputs_used as Record<string, unknown>)?.pipe_dia_mm || "N/A";
+  const pipeMat     = (results.inputs_used as Record<string, unknown>)?.pipe_material || inputs.pipe_material || "PVC";
+  const pipeLen     = inputs.pipe_length   || "N/A";
+  const staticHead  = inputs.static_head   || "N/A";
+  const pumpEff     = (results.inputs_used as Record<string, unknown>)?.pump_efficiency || inputs.pump_efficiency || 70;
+  const motorEff    = (results.inputs_used as Record<string, unknown>)?.motor_efficiency || inputs.motor_efficiency || 90;
+  const velocity    = results.pipe_velocity || "N/A";
+  const npshA       = results.npsh_available || "N/A";
+
+  const prompt = `You are a licensed Mechanical Engineer in the Philippines preparing official procurement and contracting documents for a pump system installation.
+
+CALCULATION RESULT:
+Project: ${project}
+Fluid: ${fluidType}
+Design Flow Rate: ${flowLPM} L/min (${flowM3hr} m³/hr)
+Total Dynamic Head (TDH): ${tdh} m
+Pipe Diameter: ${pipeDiaMM} mm (${pipeMat})
+Pipe Length: ${pipeLen} m (total equivalent)
+Static Head: ${staticHead} m
+Pipe Velocity: ${velocity} m/s
+NPSH Available: ${npshA} m
+Pump Efficiency: ${pumpEff}%  |  Motor Efficiency: ${motorEff}%
+Recommended Motor: ${recHP} hp (${recKW} kW)
+
+TASK: Generate a JSON object with exactly two arrays.
+
+ARRAY 1 — "bom_items": Standard Philippine mechanical contractor Bill of Materials for pump system.
+Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
+
+Required items:
+1. Centrifugal Pump — qty: 1 unit — specify ${recHP} hp, TDH ${tdh} m, ${flowM3hr} m³/hr, ${fluidType}, back-pull-out type, close-coupled or base-mounted
+2. Electric Motor — qty: 1 unit — specify ${recHP} hp (${recKW} kW), TEFC, IE2/IE3 efficiency, 460V/3Ph/60Hz (or 230V if <1.5 kW)
+3. Base Plate / Pump Base — qty: 1 set — specify epoxy-grouted, fabricated steel, drip rim
+4. Gate Valve, flanged — qty: 2 pcs — specify PN16, ${pipeDiaMM} mm, cast iron or bronze, suction and discharge isolation
+5. Check Valve (swing type), flanged — qty: 1 pc — specify PN16, ${pipeDiaMM} mm, cast iron, discharge side
+6. Flexible Coupling / Vibration Isolator — qty: 2 pcs — specify flanged rubber expansion joint, ${pipeDiaMM} mm, rated PN16
+7. Pressure Gauge with siphon — qty: 2 pcs — specify 0–${Math.ceil(Number(tdh) / 10) * 10 + 30} m (0–${Math.round((Number(tdh) + 30) * 0.0981)} bar), 100mm dial, glycerin-filled, suction and discharge
+8. Pipe, ${pipeMat} — qty: ${pipeLen} m — specify ${pipeDiaMM} mm nominal dia, PN10 or PN16, including fittings
+9. Pipe Fittings (elbows, tees, reducers) — qty: 1 lot — specify ${pipeDiaMM} mm, ${pipeMat}, match pipe class
+10. Pipe Supports and Hangers — qty: 1 lot — specify adjustable clevis hanger, galvanized, spacing per PSME
+11. Motor Control Center (MCC) / DOL Starter — qty: 1 unit — specify direct-on-line starter (DOL) if ≤7.5 hp or star-delta if >7.5 hp, MCCB, overload relay, ${recHP} hp rated
+12. Electrical Wiring, THHN Cu — qty: ${Math.round(Number(pipeLen) * 1.2 + 10)} m — specify size per PEC 2017 motor branch circuit, THHN insulation
+13. Pipe Insulation (for chilled water or hot water) — qty: ${pipeLen} m — specify closed-cell foam or pre-formed, 25mm thickness — checked: false (apply if chilled or hot water)
+14. Miscellaneous (bolts, gaskets, pipe sealant, grout) — qty: 1 lot
+
+Specifications must be specific: include HP, kW, flow, TDH, pipe size and class, valve PN rating. Match ${recHP} hp and ${pipeDiaMM} mm throughout.
+
+ARRAY 2 — "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
+Each object: { "section_no": string, "title": string, "content": string, "checked": boolean }
+
+Required sections:
+- "1.0" General Scope — checked: true
+- "2.0" Applicable Standards and Codes — checked: true (list: PSME Code, Hydraulic Institute Standards ANSI/HI, PEC 2017, Philippine Plumbing Code, DOLE OSH, manufacturer installation guidelines)
+- "3.0" Materials — checked: true (reference BOM, all materials PN16 rated, PSME-compliant)
+- "4.1" Equipment Supply and Delivery — checked: true (factory test certificates, performance curves to be submitted)
+- "4.2" Pump and Motor Installation — checked: true (specify epoxy grouting, shaft alignment within 0.05mm TIR, vibration isolation mounts, direction of rotation check before coupling)
+- "4.3" Piping Works — checked: true (specify ${pipeMat} pipe at ${pipeDiaMM} mm, support spacing, isolation valve locations, drain/vent points)
+- "4.4" Valves and Instrumentation — checked: true (gate valves suction and discharge, swing check valve, pressure gauges both sides)
+- "4.5" Electrical and Motor Starter — checked: true (reference PEC 2017, DOL or star-delta starter, overload relay set to motor FLA, dedicated circuit and MCCB)
+- "4.6" Hydrostatic Pressure Test — checked: true (test piping at 1.5× working pressure for minimum 30 minutes, no leaks, document results)
+- "4.7" Testing and Commissioning — checked: true (verify flow ${flowM3hr} m³/hr and TDH ${tdh} m at design point, measure motor current against nameplate, submit commissioning report)
+- "4.8" As-Built Documentation — checked: true
+- "5.0" Inclusions — checked: false
+- "6.0" Exclusions — checked: false (civil / structural works, foundation design, building permits, electrical panel upgrade if required)
+- "7.0" Warranty — checked: false (1 year equipment per manufacturer, 1 year workmanship from acceptance)
+
+Each content must be 3-5 sentences in professional Philippine engineering contractor style. Reference the specific system: ${recHP} hp centrifugal pump, ${flowM3hr} m³/hr at TDH ${tdh} m, ${fluidType}, for ${project}.
+
+Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -242,6 +335,8 @@ serve(async (req) => {
       result = await hvacBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Mechanical" && calc_type === "Ventilation / ACH") {
       result = await ventBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Mechanical" && calc_type === "Pump Sizing (TDH)") {
+      result = await pumpBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),
