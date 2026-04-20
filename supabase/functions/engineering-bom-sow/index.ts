@@ -898,6 +898,64 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Electrical Voltage Drop BOM + SOW Agent ─────────────────────────────────
+
+async function voltageDropBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project       = inputs.project_name     || "Electrical Project";
+  const circuitType   = results.circuit_type     || inputs.circuit_type   || "Branch Circuit";
+  const phase         = results.phase            || inputs.phase          || "Single-phase";
+  const voltage       = results.voltage          || inputs.voltage        || 230;
+  const current       = results.current          || inputs.current        || "N/A";
+  const wireLength    = results.wire_length      || inputs.wire_length    || "N/A";
+  const conductorMM2  = results.conductor_mm2    || inputs.conductor_mm2  || "N/A";
+  const conductorMat  = results.conductor_mat    || inputs.conductor_mat  || "Copper";
+  const vdPct         = results.vd_pct           ?? "N/A";
+  const vdVolts       = results.vd_volts         ?? "N/A";
+  const vdLimit       = results.vd_limit         ?? 3;
+  const pass          = results.pass             ?? false;
+  const maxLengthM    = results.max_length_m     ?? "N/A";
+  const passStr       = pass ? "PASS" : "FAIL — conductor size increase required";
+
+  // Find next larger passing conductor from size_comparison if failing
+  const comparison = results.size_comparison as Array<{ size_mm2: number; vd_pct: number; pass: boolean }> || [];
+  const nextPassSize = comparison.find(s => s.pass && s.size_mm2 > Number(conductorMM2));
+  const recommendedMM2 = pass ? conductorMM2 : (nextPassSize?.size_mm2 ?? conductorMM2);
+
+  const prompt = `You are a Philippine electrical engineering expert (PEC 2017). Generate a professional BOM and SOW for a VOLTAGE DROP COMPLIANCE wiring project.
+
+PROJECT: ${project}
+CIRCUIT TYPE: ${circuitType}
+PHASE: ${phase} — ${voltage}V
+DESIGN CURRENT: ${current} A
+CIRCUIT LENGTH: ${wireLength} m (one-way)
+SELECTED CONDUCTOR: ${conductorMM2} mm² ${conductorMat} THHN/THWN
+VOLTAGE DROP RESULT: ${vdVolts}V (${vdPct}%) — ${passStr}
+VOLTAGE DROP LIMIT: ${vdLimit}%
+MAXIMUM ALLOWABLE LENGTH @ selected size: ${maxLengthM} m
+RECOMMENDED CONDUCTOR SIZE (PEC-compliant): ${recommendedMM2} mm² ${conductorMat}
+STANDARDS: PEC 2017 Article 2.10.19 / 2.20, Philippine Electrical Code, DOLE OSH
+
+Generate a JSON object with:
+1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: Phase conductor (${recommendedMM2} mm² ${conductorMat} THHN/THWN, rated for ${voltage}V, length ${wireLength}m + 10% allowance for terminations), neutral conductor (same size as phase for single-phase; 50% of phase for three-phase balanced), equipment grounding conductor (EGC, green/green-yellow, sized per PEC Table 2.50.95), conduit (EMT for indoors, RSC for exposed/outdoor, sized per PEC conduit fill), conduit fittings and couplings, pull boxes (if circuit exceeds 30m or has more than 4 bends), circuit breaker (sized for design current with 125% for continuous loads), cable tray or cable support clips (if surface-mounted), wire markers/circuit labels (origin panel, circuit number, load description), terminal lugs (for terminations at both ends), junction box with cover (rated for conductor count), conduit strap/saddle anchors (every 1.5m on exposed conduit), wire pulling lubricant (for conduit runs over 15m), cable ties
+2. "sow_sections": array of 7 sections (each: section_no, title, content)
+   Cover: Scope of Works, Design Basis (PEC 2017 Art. 2.10.19, voltage drop ≤ ${vdLimit}% = ${Number(vdLimit)/100 * Number(voltage)} V max, conductor selection criteria), Conductor and Conduit Installation (pulling, bending radius, fill ratio per PEC, no sharp bends), Termination and Splicing (compression lugs, no taped splices in conduit — junction box only), Grounding and Continuity (EGC continuity, bonding at all metal conduit terminations), Testing and Verification (insulation resistance test ≥ 1 MΩ at 500V DC, continuity test, voltage drop field measurement under load — confirm ≤ ${vdLimit}%), Regulatory Compliance (PEC 2017, Electrical Permit, DOLE OSH, qualified licensed master electrician)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -948,6 +1006,8 @@ serve(async (req) => {
       result = await septicBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Load Estimation") {
       result = await loadEstBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Electrical" && calc_type === "Voltage Drop") {
+      result = await voltageDropBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),
