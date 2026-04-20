@@ -9006,20 +9006,35 @@ function downloadBomDocPdf() {
   const el = document.getElementById('bom-doc-content');
   if (!el) { showToast('No BOM to download.'); return; }
   const proj = (_lastInputs?.project_name || 'BOM').replace(/[^a-z0-9]/gi, '_');
+
+  // Replace all inputs with wrapping divs so long text is fully visible in PDF
+  const inputs = Array.from(el.querySelectorAll('input[type="text"], input[type="number"]'));
+  const inputSnapshots = inputs.map(inp => {
+    const div = document.createElement('div');
+    div.textContent = inp.value;
+    div.style.cssText = `font-size:${getComputedStyle(inp).fontSize};font-family:inherit;word-break:break-word;white-space:normal;padding:2px 0;line-height:1.4;`;
+    inp.parentNode.replaceChild(div, inp);
+    return { div, inp };
+  });
+
   const style = document.createElement('style');
   style.id = 'bom-pdf-rules';
   style.textContent = `
     #bom-doc-content tr, #bom-doc-content td, #bom-doc-content th { page-break-inside: avoid; break-inside: avoid; }
     #bom-doc-content .editable-field { border-bottom: none !important; border: none !important; outline: none !important; background: transparent !important; }
+    #bom-doc-content td, #bom-doc-content th { vertical-align: top; }
   `;
   document.head.appendChild(style);
   el.style.paddingBottom = '40px';
+
   html2pdf().set({
     margin: [10, 10, 10, 10],
     filename: `BOM_${proj}_${new Date().toISOString().slice(0,10)}.pdf`,
     html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
   }).from(el).save().then(() => {
+    // Restore inputs
+    inputSnapshots.forEach(({ div, inp }) => div.parentNode.replaceChild(inp, div));
     el.style.paddingBottom = '';
     document.getElementById('bom-pdf-rules')?.remove();
     showToast('BOM PDF saved.');
