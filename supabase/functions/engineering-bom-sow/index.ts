@@ -956,6 +956,64 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Electrical Wire Sizing BOM + SOW Agent ───────────────────────────────────
+
+async function wireSizingBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project       = inputs.project_name           || "Electrical Project";
+  const loadType      = results.load_type              || inputs.load_type      || "General Load";
+  const phase         = results.phase                  || inputs.phase          || "Single-phase";
+  const voltage       = results.voltage                || inputs.voltage        || 230;
+  const powerW        = results.power_w                || inputs.power_w        || "N/A";
+  const pf            = results.power_factor           || inputs.power_factor   || 0.85;
+  const loadCurrentA  = results.load_current           ?? "N/A";
+  const demandMult    = results.demand_multiplier      ?? 1.0;
+  const designCurrentA= results.design_current         ?? "N/A";
+  const ambientTemp   = results.ambient_temp           || inputs.ambient_temp   || 30;
+  const conduitFill   = results.conduit_fill           || inputs.conduit_fill   || "1-3";
+  const tempFactor    = results.temp_factor            ?? "N/A";
+  const fillFactor    = results.fill_factor            ?? "N/A";
+  const recSizeMM2    = results.recommended_size_mm2   ?? "N/A";
+  const recAmpacity   = results.recommended_ampacity   ?? "N/A";
+  const recBreakerA   = results.recommended_breaker_A  ?? "N/A";
+  const isMotor       = String(loadType).toLowerCase().includes("motor");
+
+  const prompt = `You are a Philippine electrical engineering expert (PEC 2017). Generate a professional BOM and SOW for a WIRE SIZING and circuit installation project.
+
+PROJECT: ${project}
+LOAD TYPE: ${loadType}
+PHASE: ${phase} — ${voltage}V
+LOAD POWER: ${powerW} W @ PF ${pf}
+LOAD CURRENT: ${loadCurrentA} A
+DEMAND MULTIPLIER: ${demandMult}x (${isMotor ? "motor/continuous load — PEC 125% rule" : "standard load"})
+DESIGN CURRENT: ${designCurrentA} A
+AMBIENT TEMPERATURE: ${ambientTemp}°C (correction factor: ${tempFactor})
+CONDUIT FILL: ${conduitFill} conductors (fill factor: ${fillFactor})
+RECOMMENDED CONDUCTOR SIZE: ${recSizeMM2} mm² Copper THHN/THWN
+CORRECTED AMPACITY: ${recAmpacity} A
+RECOMMENDED BREAKER: ${recBreakerA} A
+STANDARDS: PEC 2017 Table 3.10.1, PEC Article 2.10 / 2.30, DOLE OSH Electrical Safety
+
+Generate a JSON object with:
+1. "bom_items": array of 15 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: Phase conductor (${recSizeMM2} mm² Copper THHN/THWN 75°C, ${voltage}V rated), neutral conductor (same size as phase for single-phase; may be reduced for balanced 3-phase), equipment grounding conductor (EGC, green/green-yellow, sized per PEC Table 2.50.95 based on breaker ${recBreakerA}A), circuit breaker (${recBreakerA}A, interrupt capacity ≥ available fault current${isMotor ? ', thermal-magnetic or motor circuit protector' : ''}), conduit (EMT for concealed/indoor, RSC for exposed/outdoor — sized per PEC conduit fill table for ${recSizeMM2} mm² conductors), conduit fittings, locknuts, and bushings, pull boxes or junction boxes (at every 30m or 4 bends), wire markers and circuit labels (origin panel, circuit no., load description), terminal compression lugs (for all terminations — no bare wire twist connections), cable ties and conduit saddle/strap anchors (every 1.5m on exposed runs), panel knockout seal/reducer (if conduit enters existing panelboard), wire pulling lubricant, flexible conduit and connector (last 600mm to motor — if motor load), warning labels (voltage level, circuit identification), spare conduit cap/plugs (for unused knockouts)
+2. "sow_sections": array of 7 sections (each: section_no, title, content)
+   Cover: Scope of Works, Design Basis (PEC 2017 Table 3.10.1 ampacity with ${tempFactor} temperature correction and ${fillFactor} conduit fill correction, ${demandMult}x demand multiplier per PEC${isMotor ? ' Art. 2.30 motor branch circuit rules' : ' Art. 2.10 branch circuit rules'}), Conductor and Conduit Installation (no conductor smaller than minimum branch circuit size, bending radius ≥ 6× OD, maximum conduit fill per PEC, support intervals), Termination Works (compression lugs at all terminations, no splices inside conduit — use junction box, tighten to manufacturer torque spec), ${isMotor ? 'Motor Branch Circuit Requirements (locked-rotor current withstand, overload protection sizing, flexible conduit to motor terminal box),' : 'Circuit Protection (breaker sizing, coordination with upstream protective device,)'} Testing and Commissioning (insulation resistance ≥ 1 MΩ at 500V DC megger, continuity check on EGC, polarity verification, breaker trip test), Regulatory Compliance (PEC 2017, Electrical Permit, DOLE OSH, licensed master electrician, as-built drawings)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -1008,6 +1066,8 @@ serve(async (req) => {
       result = await loadEstBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Voltage Drop") {
       result = await voltageDropBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Electrical" && calc_type === "Wire Sizing") {
+      result = await wireSizingBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),
