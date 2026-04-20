@@ -848,6 +848,56 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Electrical Load Estimation BOM + SOW Agent ───────────────────────────────
+
+async function loadEstBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project       = inputs.project_name        || "Electrical Project";
+  const phaseConfig   = results.phase_config        || inputs.phase_config   || "3-Phase 4-Wire (400V)";
+  const voltage       = results.voltage             || 400;
+  const connKVA       = results.total_connected_kva ?? "N/A";
+  const demandKVA     = results.total_demand_kva    ?? "N/A";
+  const demandKW      = results.total_demand_kw     ?? "N/A";
+  const computedA     = results.computed_ampacity   ?? "N/A";
+  const spareA        = results.ampacity_with_spare ?? "N/A";
+  const breakerA      = results.recommended_breaker_A ?? "N/A";
+  const breakdown     = results.load_breakdown as Array<{ load_type: string; qty: number; watts_each: number; demand_va: number }> || [];
+  const loadSummary   = breakdown.slice(0, 12).map(l =>
+    `${l.load_type} x${l.qty} @ ${l.watts_each}W (${Math.round(l.demand_va / 1000 * 100) / 100} kVA demand)`
+  ).join("; ");
+
+  const prompt = `You are a Philippine electrical engineering expert (PEC 2017). Generate a professional BOM and SOW for an ELECTRICAL LOAD ESTIMATION and distribution board installation project.
+
+PROJECT: ${project}
+PHASE CONFIGURATION: ${phaseConfig} — ${voltage}V
+TOTAL CONNECTED LOAD: ${connKVA} kVA
+TOTAL DEMAND LOAD: ${demandKVA} kVA (${demandKW} kW)
+COMPUTED AMPACITY: ${computedA} A
+WITH 25% SPARE CAPACITY: ${spareA} A
+RECOMMENDED MAIN BREAKER: ${breakerA} A
+LOAD BREAKDOWN SUMMARY: ${loadSummary}
+STANDARDS: PEC 2017 (Philippine Electrical Code), PEC Article 2.10 / 2.20, DOE/ERC regulations, DOLE OSH Electrical Safety, NEC parallel reference
+
+Generate a JSON object with:
+1. "bom_items": array of 16 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: Main distribution board/panelboard (NEMA 1 surface/flush-mount, number of poles sized to load count), main MCCB/ACB circuit breaker (${breakerA}A, interrupt capacity ≥ 10 kA), phase bus bars (copper, properly rated), neutral/ground bus bars, equipment grounding conductor (EGC), individual branch circuit breakers (MCB, sized per load group — qty derived from load breakdown), THHN/THWN copper conductors (main feeder, sized for ${spareA}A), conduit (EMT or RSC, properly sized), load schedule nameplate (laminated or engraved), energy meter (kWh, class 1.0, utility-grade), surge protective device (SPD, Type 2, properly rated), cable lugs and terminal connectors, conduit fittings and accessories, panel enclosure padlock, warning labels (PEC-compliant arc flash / voltage warning), wire markers and cable ties
+2. "sow_sections": array of 8 sections (each: section_no, title, content)
+   Cover: Scope of Works, Design Basis (PEC 2017 Art. 2.10/2.20, demand factor method, 25% spare), Distribution Board Installation (mounting, clearances, labeling), Main and Branch Circuit Breaker Installation (sizing, discrimination/coordination, interrupt rating), Wiring and Conduit Works (conductor sizing, conduit fill, color coding per PEC), Grounding and Bonding System (EGC, ground rod, bonding), Testing and Commissioning (insulation resistance test ≥ 1 MΩ at 500V DC, continuity test, load test at 80% capacity, thermal scanning), Regulatory Compliance and Handover (PEC 2017, ERC/DOE, DOLE OSH, as-built load schedule submission)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -896,6 +946,8 @@ serve(async (req) => {
       result = await drainageBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Plumbing" && calc_type === "Septic Tank Sizing") {
       result = await septicBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Electrical" && calc_type === "Load Estimation") {
+      result = await loadEstBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),

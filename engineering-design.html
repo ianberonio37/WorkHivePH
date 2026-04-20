@@ -8552,6 +8552,7 @@ async function generateBomSowChecklist() {
   if (!_lastResults || !_lastInputs) { showToast('Run a calculation first.'); return; }
   const BOM_SOW_SUPPORTED = {
     'Mechanical': ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air'],
+    'Electrical': ['Load Estimation'],
     'Plumbing':   ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing'],
   };
   const supportedForDiscipline = BOM_SOW_SUPPORTED[_discipline] || [];
@@ -8731,12 +8732,15 @@ function renderBomTablePreview(items) {
   const isPump  = _calcType === 'Pump Sizing (TDH)';
   const isPipe  = _calcType === 'Pipe Sizing';
   const isCAir  = _calcType === 'Compressed Air';
-  const isWS     = _calcType === 'Water Supply Pipe Sizing';
-  const isHW     = _calcType === 'Hot Water Demand';
-  const isDrain  = _calcType === 'Drainage Pipe Sizing';
-  const isSeptic = _calcType === 'Septic Tank Sizing';
-  const calcRef = `${isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
-  const disciplineSystem = isSeptic
+  const isWS      = _calcType === 'Water Supply Pipe Sizing';
+  const isHW      = _calcType === 'Hot Water Demand';
+  const isDrain   = _calcType === 'Drainage Pipe Sizing';
+  const isSeptic  = _calcType === 'Septic Tank Sizing';
+  const isLoadEst = _calcType === 'Load Estimation';
+  const calcRef = `${isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const disciplineSystem = isLoadEst
+    ? `Electrical — Load Estimation (${_lastResults?.phase_config || _lastInputs?.phase_config || '3-Phase'}, ${_lastResults?.total_demand_kva || ''}kVA Demand, ${_lastResults?.recommended_breaker_A || ''}A Main Breaker)`
+    : isSeptic
     ? `Plumbing — Septic Tank (${_lastResults?.occupancy_type || _lastInputs?.occupancy_type || 'Residential'}, ${_lastResults?.occupants || _lastInputs?.occupants || ''}p, ${_lastResults?.design_volume_L || ''}L / ${_lastResults?.design_volume_m3 || ''}m³)`
     : isDrain
     ? `Plumbing — Drainage System (${_lastResults?.inputs_used?.system_type || _lastInputs?.system_type || 'Sanitary'}, ${_lastResults?.recommended_dia_mm || ''}mm ${_lastResults?.inputs_used?.pipe_material || _lastInputs?.pipe_material || 'uPVC'}, ${_lastResults?.total_dfu || ''} DFU)`
@@ -8814,7 +8818,9 @@ function renderBomTablePreview(items) {
       <div style="margin-top:1.25rem;font-size:0.76rem;color:#333;border-top:1px solid #e0e0e0;padding-top:0.75rem;">
         <strong>Notes:</strong>
         <div class="editable-field" contenteditable="true" style="display:block;margin-top:0.3rem;min-height:2.5rem;color:#555;line-height:1.6;">
-          ${isSeptic
+          ${isLoadEst
+            ? `Quantities are based on the Electrical Load Estimation design calculation result (PEC 2017, Article 2.10/2.20). All electrical materials and equipment shall conform to PEC 2017, DOE/ERC regulations, and DOLE OSH Electrical Safety standards. All circuit breakers shall have an interrupt capacity not less than the available fault current at the point of installation. Conductor sizing shall comply with PEC ampacity tables with applicable correction factors. Contractor shall submit material compliance certificates, brand/model data sheets, and circuit breaker coordination study for Engineer's approval prior to procurement.`
+            : isSeptic
             ? `Quantities are based on the Septic Tank Sizing design calculation result (Philippine Plumbing Code, DOH Sanitation Code P.D. 856, DENR DAO 2016-08). Engineer shall verify all quantities on-site before construction. The septic tank shall be watertight reinforced concrete or equivalent approved material. Contractor shall conduct a water tightness test (fill to overflow level, hold 24 hours, zero visible leakage). All works require a Sanitary Permit from the LGU and compliance with DENR effluent standards for the leachfield. Desludging shall be performed by a DOH/DENR-licensed operator at the computed interval.`
             : isDrain
             ? `Quantities are based on the Drainage Pipe Sizing design calculation result (Philippine Plumbing Code, ASTM D3034). Engineer shall verify all quantities on-site before procurement. All drainage piping and fittings shall conform to PPC and ASTM D3034 requirements. No sharp T-fittings on horizontal drainage runs — use 45° wyes and long-sweep elbows only. Contractor shall submit material compliance certificates and test results (water test at flood level or air test at 35 kPa for 15 minutes) for Engineer's approval.`
@@ -8892,16 +8898,19 @@ function renderSowDocPreview(sections) {
   const isPump  = _calcType === 'Pump Sizing (TDH)';
   const isPipe  = _calcType === 'Pipe Sizing';
   const isCAir  = _calcType === 'Compressed Air';
-  const isWS     = _calcType === 'Water Supply Pipe Sizing';
-  const isHW     = _calcType === 'Hot Water Demand';
-  const isDrain  = _calcType === 'Drainage Pipe Sizing';
-  const isSeptic = _calcType === 'Septic Tank Sizing';
-  const calcRef = `${isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const isWS      = _calcType === 'Water Supply Pipe Sizing';
+  const isHW      = _calcType === 'Hot Water Demand';
+  const isDrain   = _calcType === 'Drainage Pipe Sizing';
+  const isSeptic  = _calcType === 'Septic Tank Sizing';
+  const isLoadEst = _calcType === 'Load Estimation';
+  const calcRef = `${isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
   const unitKW = _lastResults?.ac_size_kw        || '';
-  const ventSystemLine = isSeptic
+  const ventSystemLine = isLoadEst
+    ? `Electrical Distribution — ${_lastResults?.phase_config || _lastInputs?.phase_config || '3-Phase 4-Wire (400V)'}, Connected Load ${_lastResults?.total_connected_kva || ''}kVA, Demand Load ${_lastResults?.total_demand_kva || ''}kVA (${_lastResults?.total_demand_kw || ''}kW), Computed Ampacity ${_lastResults?.computed_ampacity || ''}A, Main Breaker ${_lastResults?.recommended_breaker_A || ''}A`
+    : isSeptic
     ? `Septic Tank — ${_lastResults?.occupancy_type || _lastInputs?.occupancy_type || 'Residential'}, ${_lastResults?.occupants || _lastInputs?.occupants || ''} persons, Design Volume ${_lastResults?.design_volume_L || ''}L (${_lastResults?.design_volume_m3 || ''}m³), ${_lastResults?.tank_length_m || ''}m L × ${_lastResults?.tank_width_m || ''}m W × ${_lastResults?.total_depth_m || ''}m D, ${_lastResults?.compartments || 2} compartments, desludge every ${_lastResults?.desludge_years || _lastInputs?.desludge_years || 3} years`
     : isDrain
     ? `Drainage System — ${_lastResults?.inputs_used?.system_type || _lastInputs?.system_type || 'Sanitary'}, ${_lastResults?.recommended_dia_mm || ''}mm ${_lastResults?.inputs_used?.pipe_material || _lastInputs?.pipe_material || 'uPVC'} Pipe, ${_lastResults?.total_dfu || ''} DFU, Slope ${_lastResults?.slope_pct || ''}%, Velocity ${_lastResults?.design_velocity || ''} m/s`
@@ -8967,7 +8976,9 @@ function renderSowDocPreview(sections) {
       <div style="margin-top:1.5rem;font-size:0.76rem;border-top:1px solid #e0e0e0;padding-top:0.75rem;">
         <strong>General Notes:</strong>
         <div class="editable-field" contenteditable="true" style="display:block;margin-top:0.3rem;min-height:3rem;color:#555;line-height:1.7;">
-${isSeptic
+${isLoadEst
+  ? `This Scope of Works is based on the Electrical Load Estimation Design Calculation (Ref: ${escHtml(calcRef)}) using the Demand Factor Method per PEC 2017 Article 2.10/2.20. The Contractor shall comply with all applicable Philippine electrical codes, standards, and regulations including PEC 2017, DOE/ERC distribution standards, and DOLE OSH Electrical Safety regulations. All electrical works shall be performed by a licensed master electrician under the supervision of a registered electrical engineer. An Electrical Permit shall be secured from the LGU prior to commencement of works. Upon completion, a Certificate of Final Electrical Inspection (CFEI) shall be obtained from the local electrical inspection authority. As-built load schedule and single-line diagram shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  : isSeptic
   ? `This Scope of Works is based on the Septic Tank Sizing Design Calculation (Ref: ${escHtml(calcRef)}) using the PPC Occupancy-Based Method. The Contractor shall comply with all applicable Philippine codes and standards including the Philippine Plumbing Code (PPC), DOH Sanitation Code (P.D. 856), DENR DAO 2016-08 Effluent Standards, DPWH Blue Book, and LGU Sanitary Permit requirements. The septic tank shall be constructed watertight (RC or approved equivalent) and tested by filling to overflow level and holding for 24 hours with zero visible leakage. Leachfield or soakpit design shall comply with DENR DAO 2016-08. Desludging shall be performed by a DOH/DENR-licensed operator at the computed desludging interval. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isDrain
   ? `This Scope of Works is based on the Drainage Pipe Sizing Design Calculation (Ref: ${escHtml(calcRef)}) per the Philippine Plumbing Code (PPC) and ASTM D3034. The Contractor shall comply with all applicable Philippine codes and standards including PPC, ASTM D3034, ASTM D2665, and DOLE OSH Standards. No sharp T-fittings shall be used on horizontal drainage runs — only 45° wyes and long-sweep elbows are permitted. All drainage lines shall be tested by water test at flood level or air test at 35 kPa held for a minimum of 15 minutes before concealment. Cleanout plugs shall be installed every 15m on horizontal runs and at all direction changes. Contractor shall submit material compliance certificates and test results for Engineer's approval. Any deviations from this scope must be approved in writing by the Engineer before execution.`
