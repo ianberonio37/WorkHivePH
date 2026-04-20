@@ -796,6 +796,58 @@ Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
   };
 }
 
+// ─── Septic Tank Sizing BOM + SOW Agent ──────────────────────────────────────
+
+async function septicBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project     = inputs.project_name   || "Septic Tank Project";
+  const occType     = results.occupancy_type || inputs.occupancy_type || "Residential";
+  const occupants   = results.occupants      || inputs.occupants      || "N/A";
+  const designVolL  = results.design_volume_L  ?? "N/A";
+  const designVolM3 = results.design_volume_m3 ?? "N/A";
+  const widthM      = results.tank_width_m     ?? "N/A";
+  const lengthM     = results.tank_length_m    ?? "N/A";
+  const totalDepthM = results.total_depth_m    ?? "N/A";
+  const compartments= results.compartments     ?? inputs.compartments ?? 2;
+  const desludgeYrs = results.desludge_years   ?? inputs.desludge_years ?? 3;
+  const comp1L      = results.comp1_L          ?? "N/A";
+  const comp2L      = results.comp2_L          ?? "N/A";
+  const comp1Lm     = results.comp1_L_m        ?? "N/A";
+  const comp2Lm     = results.comp2_L_m        ?? "N/A";
+  const dailyFlowL  = results.daily_flow_L     ?? "N/A";
+
+  const prompt = `You are a Philippine sanitary engineering expert. Generate a professional BOM and SOW for a SEPTIC TANK construction project.
+
+PROJECT: ${project}
+OCCUPANCY TYPE: ${occType}
+OCCUPANTS: ${occupants} persons
+DAILY WASTEWATER FLOW: ${dailyFlowL} L/day
+DESIGN VOLUME: ${designVolL} L (${designVolM3} m³)
+TANK DIMENSIONS: ${lengthM} m L × ${widthM} m W × ${totalDepthM} m total depth (incl. 300mm freeboard)
+COMPARTMENTS: ${compartments} (Compartment 1: ${comp1L}L / ${comp1Lm}; Compartment 2: ${comp2L}L / ${comp2Lm})
+DESLUDGING INTERVAL: ${desludgeYrs} years
+STANDARDS: Philippine Plumbing Code (PPC), DOH Sanitation Code (P.D. 856), DENR DAO 2016-08, DPWH Blue Book
+
+Generate a JSON object with:
+1. "bom_items": array of 16 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: Reinforced concrete works (formwork, rebars 10mm dia, concrete CHB 150mm hollow blocks alternative), Tank excavation (add 0.5m working space each side), waterproofing membrane (crystalline or epoxy), inlet tee (100mm uPVC sanitary tee with 150mm submerged drop), outlet tee (100mm uPVC sanitary tee with 150mm submerged drop), baffles/dividing wall with transfer port, inspection covers (precast RC or HDPE 600mm dia), vent pipe (75mm uPVC, min 2m above grade), inlet pipe from building (100mm uPVC), distribution box or leachfield inspection box (if leachfield required), gravel/crushed rock (leachfield bed), perforated drain pipe 100mm for leachfield, backfill and compaction, bioactivator/seeding compound (for startup), desludging access port/sump, warning sign/marker post
+2. "sow_sections": array of 8 sections (each: section_no, title, content)
+   Cover: Scope of Works, Design Basis (PPC occupancy method, P.D. 856), Tank Construction (RC or CHB, watertight), Inlet/Outlet/Baffle/Vent Configuration (PPC-compliant), Leachfield or Soakpit (DENR DAO 2016-08 effluent disposal), Testing and Commissioning (water tightness test — fill to overflow and hold 24 hours, zero visible leakage), Desludging and Maintenance Schedule (every ${desludgeYrs} years by licensed operator), Regulatory Compliance (DENR, LGU sanitary permit, DOH)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -842,6 +894,8 @@ serve(async (req) => {
       result = await hotWaterBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Plumbing" && calc_type === "Drainage Pipe Sizing") {
       result = await drainageBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Plumbing" && calc_type === "Septic Tank Sizing") {
+      result = await septicBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),

@@ -8552,7 +8552,7 @@ async function generateBomSowChecklist() {
   if (!_lastResults || !_lastInputs) { showToast('Run a calculation first.'); return; }
   const BOM_SOW_SUPPORTED = {
     'Mechanical': ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air'],
-    'Plumbing':   ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing'],
+    'Plumbing':   ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing'],
   };
   const supportedForDiscipline = BOM_SOW_SUPPORTED[_discipline] || [];
   if (!supportedForDiscipline.includes(_calcType)) {
@@ -8731,11 +8731,14 @@ function renderBomTablePreview(items) {
   const isPump  = _calcType === 'Pump Sizing (TDH)';
   const isPipe  = _calcType === 'Pipe Sizing';
   const isCAir  = _calcType === 'Compressed Air';
-  const isWS    = _calcType === 'Water Supply Pipe Sizing';
-  const isHW    = _calcType === 'Hot Water Demand';
-  const isDrain = _calcType === 'Drainage Pipe Sizing';
-  const calcRef = `${isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
-  const disciplineSystem = isDrain
+  const isWS     = _calcType === 'Water Supply Pipe Sizing';
+  const isHW     = _calcType === 'Hot Water Demand';
+  const isDrain  = _calcType === 'Drainage Pipe Sizing';
+  const isSeptic = _calcType === 'Septic Tank Sizing';
+  const calcRef = `${isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const disciplineSystem = isSeptic
+    ? `Plumbing — Septic Tank (${_lastResults?.occupancy_type || _lastInputs?.occupancy_type || 'Residential'}, ${_lastResults?.occupants || _lastInputs?.occupants || ''}p, ${_lastResults?.design_volume_L || ''}L / ${_lastResults?.design_volume_m3 || ''}m³)`
+    : isDrain
     ? `Plumbing — Drainage System (${_lastResults?.inputs_used?.system_type || _lastInputs?.system_type || 'Sanitary'}, ${_lastResults?.recommended_dia_mm || ''}mm ${_lastResults?.inputs_used?.pipe_material || _lastInputs?.pipe_material || 'uPVC'}, ${_lastResults?.total_dfu || ''} DFU)`
     : isHW
     ? `Plumbing — Hot Water System (${_lastResults?.recommended_heater_kW || ''}kW Heater, ${_lastResults?.recommended_storage_L || ''}L Tank, ${_lastInputs?.hot_temp || ''}°C)`
@@ -8811,7 +8814,9 @@ function renderBomTablePreview(items) {
       <div style="margin-top:1.25rem;font-size:0.76rem;color:#333;border-top:1px solid #e0e0e0;padding-top:0.75rem;">
         <strong>Notes:</strong>
         <div class="editable-field" contenteditable="true" style="display:block;margin-top:0.3rem;min-height:2.5rem;color:#555;line-height:1.6;">
-          ${isDrain
+          ${isSeptic
+            ? `Quantities are based on the Septic Tank Sizing design calculation result (Philippine Plumbing Code, DOH Sanitation Code P.D. 856, DENR DAO 2016-08). Engineer shall verify all quantities on-site before construction. The septic tank shall be watertight reinforced concrete or equivalent approved material. Contractor shall conduct a water tightness test (fill to overflow level, hold 24 hours, zero visible leakage). All works require a Sanitary Permit from the LGU and compliance with DENR effluent standards for the leachfield. Desludging shall be performed by a DOH/DENR-licensed operator at the computed interval.`
+            : isDrain
             ? `Quantities are based on the Drainage Pipe Sizing design calculation result (Philippine Plumbing Code, ASTM D3034). Engineer shall verify all quantities on-site before procurement. All drainage piping and fittings shall conform to PPC and ASTM D3034 requirements. No sharp T-fittings on horizontal drainage runs — use 45° wyes and long-sweep elbows only. Contractor shall submit material compliance certificates and test results (water test at flood level or air test at 35 kPa for 15 minutes) for Engineer's approval.`
             : isHW
             ? `Quantities are based on the Hot Water Demand design calculation result (ASHRAE Hot Water Demand Rate Method). Engineer shall verify all quantities on-site before procurement. All hot water equipment and piping shall conform to Philippine Plumbing Code, NSF/PNS 65, and BPS/CHED approval requirements. Contractor shall submit equipment data sheets and compliance certificates for Engineer's approval prior to procurement.`
@@ -8887,15 +8892,18 @@ function renderSowDocPreview(sections) {
   const isPump  = _calcType === 'Pump Sizing (TDH)';
   const isPipe  = _calcType === 'Pipe Sizing';
   const isCAir  = _calcType === 'Compressed Air';
-  const isWS    = _calcType === 'Water Supply Pipe Sizing';
-  const isHW    = _calcType === 'Hot Water Demand';
-  const isDrain = _calcType === 'Drainage Pipe Sizing';
-  const calcRef = `${isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const isWS     = _calcType === 'Water Supply Pipe Sizing';
+  const isHW     = _calcType === 'Hot Water Demand';
+  const isDrain  = _calcType === 'Drainage Pipe Sizing';
+  const isSeptic = _calcType === 'Septic Tank Sizing';
+  const calcRef = `${isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
   const unitKW = _lastResults?.ac_size_kw        || '';
-  const ventSystemLine = isDrain
+  const ventSystemLine = isSeptic
+    ? `Septic Tank — ${_lastResults?.occupancy_type || _lastInputs?.occupancy_type || 'Residential'}, ${_lastResults?.occupants || _lastInputs?.occupants || ''} persons, Design Volume ${_lastResults?.design_volume_L || ''}L (${_lastResults?.design_volume_m3 || ''}m³), ${_lastResults?.tank_length_m || ''}m L × ${_lastResults?.tank_width_m || ''}m W × ${_lastResults?.total_depth_m || ''}m D, ${_lastResults?.compartments || 2} compartments, desludge every ${_lastResults?.desludge_years || _lastInputs?.desludge_years || 3} years`
+    : isDrain
     ? `Drainage System — ${_lastResults?.inputs_used?.system_type || _lastInputs?.system_type || 'Sanitary'}, ${_lastResults?.recommended_dia_mm || ''}mm ${_lastResults?.inputs_used?.pipe_material || _lastInputs?.pipe_material || 'uPVC'} Pipe, ${_lastResults?.total_dfu || ''} DFU, Slope ${_lastResults?.slope_pct || ''}%, Velocity ${_lastResults?.design_velocity || ''} m/s`
     : isHW
     ? `Hot Water System — ${_lastResults?.recommended_heater_kW || ''} kW Heater, ${_lastResults?.recommended_storage_L || ''}L Storage Tank, ${_lastInputs?.hot_temp || ''}°C Supply, ${_lastResults?.recovery_rate_lph || ''} L/hr Recovery, ${_lastResults?.total_daily_L || ''}L/day Demand`
@@ -8959,7 +8967,9 @@ function renderSowDocPreview(sections) {
       <div style="margin-top:1.5rem;font-size:0.76rem;border-top:1px solid #e0e0e0;padding-top:0.75rem;">
         <strong>General Notes:</strong>
         <div class="editable-field" contenteditable="true" style="display:block;margin-top:0.3rem;min-height:3rem;color:#555;line-height:1.7;">
-${isDrain
+${isSeptic
+  ? `This Scope of Works is based on the Septic Tank Sizing Design Calculation (Ref: ${escHtml(calcRef)}) using the PPC Occupancy-Based Method. The Contractor shall comply with all applicable Philippine codes and standards including the Philippine Plumbing Code (PPC), DOH Sanitation Code (P.D. 856), DENR DAO 2016-08 Effluent Standards, DPWH Blue Book, and LGU Sanitary Permit requirements. The septic tank shall be constructed watertight (RC or approved equivalent) and tested by filling to overflow level and holding for 24 hours with zero visible leakage. Leachfield or soakpit design shall comply with DENR DAO 2016-08. Desludging shall be performed by a DOH/DENR-licensed operator at the computed desludging interval. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  : isDrain
   ? `This Scope of Works is based on the Drainage Pipe Sizing Design Calculation (Ref: ${escHtml(calcRef)}) per the Philippine Plumbing Code (PPC) and ASTM D3034. The Contractor shall comply with all applicable Philippine codes and standards including PPC, ASTM D3034, ASTM D2665, and DOLE OSH Standards. No sharp T-fittings shall be used on horizontal drainage runs — only 45° wyes and long-sweep elbows are permitted. All drainage lines shall be tested by water test at flood level or air test at 35 kPa held for a minimum of 15 minutes before concealment. Cleanout plugs shall be installed every 15m on horizontal runs and at all direction changes. Contractor shall submit material compliance certificates and test results for Engineer's approval. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isHW
   ? `This Scope of Works is based on the Hot Water Demand Design Calculation (Ref: ${escHtml(calcRef)}) using the ASHRAE Hot Water Demand Rate Method. The Contractor shall comply with all applicable Philippine codes and standards including the Philippine Plumbing Code (PPC), NSF/PNS 65 for potable water materials, ASSE 1017 for thermostatic mixing valves, ANSI/ASME for T&P relief valves, PEC 2017 for electrical connections, and BPS/CHED equipment approval requirements. Equipment data sheets, compliance certificates, and tank warranty documentation shall be submitted for Engineer's approval prior to procurement. Any deviations from this scope must be approved in writing by the Engineer before execution.`
