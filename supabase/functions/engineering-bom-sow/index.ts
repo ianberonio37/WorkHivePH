@@ -701,6 +701,101 @@ Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
   };
 }
 
+// ─── Drainage Pipe Sizing BOM + SOW Agent ────────────────────────────────────
+
+async function drainageBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project      = inputs.project_name       || "Drainage System Project";
+  const systemType   = results.system_type       || inputs.system_type  || "Horizontal Branch";
+  const pipeMat      = results.pipe_material     || inputs.pipe_material || "PVC";
+  const pipeDiaMM    = results.recommended_dia_mm || "N/A";
+  const totalDFU     = results.total_dfu         || "N/A";
+  const slopePct     = results.slope_pct         || "2";
+  const slopeMmPerM  = results.slope_mm_per_m    || "20";
+  const velocity     = results.design_velocity   || "N/A";
+  const capacityLS   = results.capacity_q_ls     || "N/A";
+  const isStack      = String(systemType).includes("Stack");
+
+  const nFixtures    = (() => {
+    const fx = inputs.fixtures as Array<{ quantity: number }> || [];
+    return Math.max(4, fx.reduce((s, f) => s + (Number(f.quantity) || 1), 0));
+  })();
+  const pipeLen      = isStack ? 20 : 30;  // rough estimate: stacks ~20m vertical, branches ~30m
+  const nCleanouts   = Math.max(2, Math.round(pipeLen / 15));
+  const nSupports    = Math.max(4, Math.round(pipeLen / 2));
+  const nBranches    = Math.max(2, Math.round(nFixtures / 3));
+  const nVents       = Math.max(2, Math.round(nFixtures / 4));
+
+  const prompt = `You are a licensed Sanitary/Mechanical Engineer in the Philippines preparing official procurement and contracting documents for a building drainage and sanitary piping system installation.
+
+CALCULATION RESULT:
+Project: ${project}
+System Type: ${systemType}
+Pipe Material: ${pipeMat}
+Recommended Pipe Diameter: ${pipeDiaMM} mm (nominal)
+Total Drainage Fixture Units (DFU): ${totalDFU} DFU (Philippine Plumbing Code Table)
+${isStack ? 'Drain Stack — vertical riser' : `Pipe Slope: ${slopePct}% (${slopeMmPerM} mm/m fall)`}
+Design Flow Capacity: ${capacityLS} L/s (Manning's equation, ${isStack ? 'full-bore' : 'half-full'})
+Design Velocity: ${velocity} m/s (minimum 0.6 m/s for self-cleansing)
+
+TASK: Generate a JSON object with exactly two arrays.
+
+ARRAY 1 — "bom_items": Standard Philippine sanitary contractor Bill of Materials for drainage and sanitary piping system.
+Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
+
+Required items:
+1. Drainage Pipe, ${pipeMat} — qty: ${pipeLen} m — specify ${pipeDiaMM} mm nominal dia, ASTM D3034 (PVC sewer) or PNS equivalent, in 3-m or 6-m lengths, for ${systemType}
+2. Drainage Fittings — 45° Wye / Long-sweep 90° Elbows — qty: ${Math.max(4, Math.round(pipeLen / 5))} pcs — specify ${pipeDiaMM} mm, ${pipeMat}, sanitary drainage type (no T-fittings on horizontal drains), per Philippine Plumbing Code
+3. Drainage Fittings — Sanitary Tee / Combination Wye — qty: ${nBranches} pcs — specify ${pipeDiaMM} mm, ${pipeMat}, for branch connections
+4. Pipe Reducers / Couplings — qty: ${Math.max(2, Math.round(pipeLen / 10))} pcs — specify ${pipeDiaMM} mm, ${pipeMat}
+5. Cleanout Plugs with Access Frame — qty: ${nCleanouts} sets — specify ${pipeDiaMM} mm, ${pipeMat}, at every change of direction, at base of each stack, and every 15 m of horizontal run per Philippine Plumbing Code
+6. Floor Drain with P-Trap — qty: ${Math.max(2, Math.round(nFixtures / 4))} pcs — specify 100 mm or 150 mm dia, chrome ABS or cast iron strainer, integral P-trap, deep-seal 76 mm minimum water seal
+7. P-Trap for Fixtures — qty: ${nFixtures} pcs — specify 32–50 mm dia as required per fixture, PVC, 76 mm minimum water seal, one per fixture without integral trap
+8. Vent Pipe, ${pipeMat} — qty: ${Math.round(pipeLen * 0.6)} m — specify 50 mm or 75 mm nominal, ${pipeMat}, individual vents to each fixture or loop vent per Philippine Plumbing Code
+9. Vent Fittings — 45° Elbows, Tees — qty: ${nVents * 2} pcs — specify 50–75 mm, ${pipeMat}, for vent stack connections
+10. Stack Base Fitting (sanitary tee with 45° inlet) — qty: ${isStack ? Math.max(1, Math.round(nFixtures / 10)) : 0} pc — specify ${pipeDiaMM} mm, for drain stack base to building drain — checked: ${isStack ? 'true' : 'false'}
+11. Pipe Hangers and Supports — qty: ${nSupports} sets — specify perforated metal strap or clevis hanger, galvanized, spacing per Philippine Plumbing Code (max 1.2 m for PVC, 3 m for cast iron)
+12. Pipe Sleeves through Slabs/Walls — qty: ${Math.max(4, nFixtures)} pcs — specify 25 mm oversize galvanized steel sleeve with fire-rated annular sealant at fire-rated assemblies
+13. Roof Vent Flashing / Vent Terminal — qty: ${Math.max(1, Math.round(nVents / 2))} pc — specify lead or PVC flashing, for vent stack termination 150 mm minimum above roof, with bird screen
+14. Grease Trap (if kitchen/canteen drainage) — qty: 1 unit — specify flow-rated to match kitchen fixture DFU, pre-cast concrete or prefab HDPE, with access covers and basket strainer — checked: false (include if scope covers kitchen/canteen drainage)
+15. Miscellaneous (solvent cement, pipe primer, anchors, pipe labels) — qty: 1 lot — specify per ${pipeMat} jointing requirements; drainage pipes labelled per Philippine Plumbing Code
+
+ARRAY 2 — "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
+Each object: { "section_no": string, "title": string, "content": string, "checked": boolean }
+
+Required sections:
+- "1.0" General Scope — checked: true
+- "2.0" Applicable Standards and Codes — checked: true (list: Philippine Plumbing Code (PPC) — based on UPC/IPC, ASTM D3034 for PVC sewer pipe, PSME Code, National Building Code of the Philippines PD 1096, DOLE OSH Standards, DOH requirements for sanitary works)
+- "3.0" Materials — checked: true (${pipeMat} pipe ASTM D3034 or PNS equivalent at ${pipeDiaMM} mm, all fittings sanitary drainage type — no sharp-turn tees on horizontal runs, all traps minimum 76 mm water seal)
+- "4.1" Material Delivery and Inspection — checked: true (pipe and fittings inspected on delivery, ASTM/PNS compliance markings verified, damaged pipe rejected and replaced)
+- "4.2" Pipe Installation — checked: true (specify jointing method for ${pipeMat} — solvent cement per ASTM D2564, pipe slope at ${slopePct}% (${slopeMmPerM} mm/m), all horizontal runs sloped continuously toward outlet, no back-grading, support at max 1.2 m spacing)
+- "4.3" Trap and Cleanout Installation — checked: true (one trap per fixture, 76 mm minimum water seal, cleanouts at every direction change and stack base, accessible and within 600 mm of finished floor or wall per PPC, accessible cleanout cover flush with finished surface)
+- "4.4" Vent System Installation — checked: true (individual or loop vents per PPC, vent stack terminated 150 mm minimum above roof and 300 mm from any window or opening, no vent connection within 300 mm below flood level rim of fixture)
+- "4.5" Drain Stack and Building Drain" — checked: ${isStack ? 'true' : 'false'} (drain stack plumb within 1:100, supported at each floor with riser clamp, base fitting at stack foot, stack extends as vent above highest branch)
+- "4.6" Pipe Supports and Sleeves — checked: true (PVC hangers every 1.2 m, sleeves at all slab and wall penetrations, fire-rated annular sealant at fire-rated assemblies, no pipe resting on structural elements without proper saddle support)
+- "4.7" Water Test (Air or Water Tightness Test) — checked: true (water test: fill system to flood-level rim of highest fixture and hold 15 minutes, zero leaks, OR air test at 35 kPa for 15 minutes, document and submit test records)
+- "4.8" Commissioning and Handover — checked: true (flush all lines, verify trap water seals, verify cleanout accessibility, check slope with spirit level at representative locations, submit as-built drawings)
+- "4.9" As-Built Documentation — checked: true
+- "5.0" Inclusions — checked: false
+- "6.0" Exclusions — checked: false (civil / structural works including trenching for underground drainage, sewage treatment plant, septic tank unless specified, building permits and sanitary engineer PRC fees)
+- "7.0" Warranty — checked: false (1 year workmanship from acceptance; leaks or blockages within warranty period remedied at Contractor's cost)
+
+Each content must be 3-5 sentences in professional Philippine engineering contractor style. Reference: ${pipeDiaMM} mm ${pipeMat} ${systemType} drainage, ${totalDFU} DFU, ${isStack ? 'vertical stack' : `slope ${slopePct}%`}, for ${project}.
+
+Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -745,6 +840,8 @@ serve(async (req) => {
       result = await waterSupplyBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Plumbing" && calc_type === "Hot Water Demand") {
       result = await hotWaterBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Plumbing" && calc_type === "Drainage Pipe Sizing") {
+      result = await drainageBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),

@@ -8552,7 +8552,7 @@ async function generateBomSowChecklist() {
   if (!_lastResults || !_lastInputs) { showToast('Run a calculation first.'); return; }
   const BOM_SOW_SUPPORTED = {
     'Mechanical': ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air'],
-    'Plumbing':   ['Water Supply Pipe Sizing', 'Hot Water Demand'],
+    'Plumbing':   ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing'],
   };
   const supportedForDiscipline = BOM_SOW_SUPPORTED[_discipline] || [];
   if (!supportedForDiscipline.includes(_calcType)) {
@@ -8733,8 +8733,11 @@ function renderBomTablePreview(items) {
   const isCAir  = _calcType === 'Compressed Air';
   const isWS    = _calcType === 'Water Supply Pipe Sizing';
   const isHW    = _calcType === 'Hot Water Demand';
-  const calcRef = `${isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
-  const disciplineSystem = isHW
+  const isDrain = _calcType === 'Drainage Pipe Sizing';
+  const calcRef = `${isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const disciplineSystem = isDrain
+    ? `Plumbing — Drainage System (${_lastResults?.inputs_used?.system_type || _lastInputs?.system_type || 'Sanitary'}, ${_lastResults?.recommended_dia_mm || ''}mm ${_lastResults?.inputs_used?.pipe_material || _lastInputs?.pipe_material || 'uPVC'}, ${_lastResults?.total_dfu || ''} DFU)`
+    : isHW
     ? `Plumbing — Hot Water System (${_lastResults?.recommended_heater_kW || ''}kW Heater, ${_lastResults?.recommended_storage_L || ''}L Tank, ${_lastInputs?.hot_temp || ''}°C)`
     : isWS
     ? `Plumbing — Water Supply (${_lastInputs?.supply_type || 'Cold and Hot'}, ${_lastResults?.recommended_dia_mm || ''}mm ${_lastResults?.inputs_used?.pipe_material || _lastInputs?.pipe_material || ''}, ${_lastResults?.total_wfu || ''} WFU)`
@@ -8808,7 +8811,9 @@ function renderBomTablePreview(items) {
       <div style="margin-top:1.25rem;font-size:0.76rem;color:#333;border-top:1px solid #e0e0e0;padding-top:0.75rem;">
         <strong>Notes:</strong>
         <div class="editable-field" contenteditable="true" style="display:block;margin-top:0.3rem;min-height:2.5rem;color:#555;line-height:1.6;">
-          ${isHW
+          ${isDrain
+            ? `Quantities are based on the Drainage Pipe Sizing design calculation result (Philippine Plumbing Code, ASTM D3034). Engineer shall verify all quantities on-site before procurement. All drainage piping and fittings shall conform to PPC and ASTM D3034 requirements. No sharp T-fittings on horizontal drainage runs — use 45° wyes and long-sweep elbows only. Contractor shall submit material compliance certificates and test results (water test at flood level or air test at 35 kPa for 15 minutes) for Engineer's approval.`
+            : isHW
             ? `Quantities are based on the Hot Water Demand design calculation result (ASHRAE Hot Water Demand Rate Method). Engineer shall verify all quantities on-site before procurement. All hot water equipment and piping shall conform to Philippine Plumbing Code, NSF/PNS 65, and BPS/CHED approval requirements. Contractor shall submit equipment data sheets and compliance certificates for Engineer's approval prior to procurement.`
             : isWS
             ? `Quantities are based on the Water Supply Pipe Sizing design calculation result (Hunter's Fixture Unit Method, Philippine Plumbing Code). Engineer shall verify all quantities on-site before procurement. All piping and fittings shall be NSF/PNS 65 potable water rated. Contractor shall submit material compliance certificates for Engineer's approval prior to procurement.`
@@ -8884,12 +8889,15 @@ function renderSowDocPreview(sections) {
   const isCAir  = _calcType === 'Compressed Air';
   const isWS    = _calcType === 'Water Supply Pipe Sizing';
   const isHW    = _calcType === 'Hot Water Demand';
-  const calcRef = `${isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const isDrain = _calcType === 'Drainage Pipe Sizing';
+  const calcRef = `${isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
   const unitKW = _lastResults?.ac_size_kw        || '';
-  const ventSystemLine = isHW
+  const ventSystemLine = isDrain
+    ? `Drainage System — ${_lastResults?.inputs_used?.system_type || _lastInputs?.system_type || 'Sanitary'}, ${_lastResults?.recommended_dia_mm || ''}mm ${_lastResults?.inputs_used?.pipe_material || _lastInputs?.pipe_material || 'uPVC'} Pipe, ${_lastResults?.total_dfu || ''} DFU, Slope ${_lastResults?.slope_pct || ''}%, Velocity ${_lastResults?.design_velocity || ''} m/s`
+    : isHW
     ? `Hot Water System — ${_lastResults?.recommended_heater_kW || ''} kW Heater, ${_lastResults?.recommended_storage_L || ''}L Storage Tank, ${_lastInputs?.hot_temp || ''}°C Supply, ${_lastResults?.recovery_rate_lph || ''} L/hr Recovery, ${_lastResults?.total_daily_L || ''}L/day Demand`
     : isWS
     ? `Water Supply — ${_lastInputs?.supply_type || 'Cold and Hot'}, ${_lastResults?.recommended_dia_mm || ''}mm ${_lastResults?.inputs_used?.pipe_material || _lastInputs?.pipe_material || ''} Pipe, ${_lastResults?.total_wfu || ''} WFU, Peak Flow ${_lastResults?.peak_lps || ''} L/s`
@@ -8951,7 +8959,9 @@ function renderSowDocPreview(sections) {
       <div style="margin-top:1.5rem;font-size:0.76rem;border-top:1px solid #e0e0e0;padding-top:0.75rem;">
         <strong>General Notes:</strong>
         <div class="editable-field" contenteditable="true" style="display:block;margin-top:0.3rem;min-height:3rem;color:#555;line-height:1.7;">
-${isHW
+${isDrain
+  ? `This Scope of Works is based on the Drainage Pipe Sizing Design Calculation (Ref: ${escHtml(calcRef)}) per the Philippine Plumbing Code (PPC) and ASTM D3034. The Contractor shall comply with all applicable Philippine codes and standards including PPC, ASTM D3034, ASTM D2665, and DOLE OSH Standards. No sharp T-fittings shall be used on horizontal drainage runs — only 45° wyes and long-sweep elbows are permitted. All drainage lines shall be tested by water test at flood level or air test at 35 kPa held for a minimum of 15 minutes before concealment. Cleanout plugs shall be installed every 15m on horizontal runs and at all direction changes. Contractor shall submit material compliance certificates and test results for Engineer's approval. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  : isHW
   ? `This Scope of Works is based on the Hot Water Demand Design Calculation (Ref: ${escHtml(calcRef)}) using the ASHRAE Hot Water Demand Rate Method. The Contractor shall comply with all applicable Philippine codes and standards including the Philippine Plumbing Code (PPC), NSF/PNS 65 for potable water materials, ASSE 1017 for thermostatic mixing valves, ANSI/ASME for T&P relief valves, PEC 2017 for electrical connections, and BPS/CHED equipment approval requirements. Equipment data sheets, compliance certificates, and tank warranty documentation shall be submitted for Engineer's approval prior to procurement. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isWS
   ? `This Scope of Works is based on the Water Supply Pipe Sizing Design Calculation (Ref: ${escHtml(calcRef)}) using Hunter's Fixture Unit Method per the Philippine Plumbing Code. The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including the Philippine Plumbing Code (PPC), NSF/PNS 65 for potable water materials, PSME, and LWUA/MWSS connection standards. Material compliance certificates for all pipes, fittings, and valves shall be submitted for Engineer's approval prior to procurement. Any deviations from this scope must be approved in writing by the Engineer before execution.`
