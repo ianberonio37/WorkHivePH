@@ -8552,8 +8552,9 @@ async function generateBomSowChecklist() {
   if (!_lastResults || !_lastInputs) { showToast('Run a calculation first.'); return; }
   const BOM_SOW_SUPPORTED = {
     'Mechanical': ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air'],
-    'Electrical': ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design'],
-    'Plumbing':   ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing'],
+    'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design'],
+    'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing'],
+    'Fire Protection': ['Fire Sprinkler Hydraulic'],
   };
   const supportedForDiscipline = BOM_SOW_SUPPORTED[_discipline] || [];
   if (!supportedForDiscipline.includes(_calcType)) {
@@ -8739,10 +8740,13 @@ function renderBomTablePreview(items) {
   const isLoadEst = _calcType === 'Load Estimation';
   const isVD      = _calcType === 'Voltage Drop';
   const isWire    = _calcType === 'Wire Sizing';
-  const isSC      = _calcType === 'Short Circuit';
-  const isLight   = _calcType === 'Lighting Design';
-  const calcRef = `${isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
-  const disciplineSystem = isLight
+  const isSC       = _calcType === 'Short Circuit';
+  const isLight    = _calcType === 'Lighting Design';
+  const isFSprink  = _calcType === 'Fire Sprinkler Hydraulic';
+  const calcRef = `${isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const disciplineSystem = isFSprink
+    ? `Fire Protection — Fire Sprinkler Hydraulic (${_lastInputs?.hazard || ''}, ${_lastResults?.N_sprinklers || ''} heads, Q=${_lastResults?.Q_total || ''}L/min, ${_lastResults?.pipe_dia || ''}mm ${_lastResults?.pipe_material || ''} riser)`
+    : isLight
     ? `Electrical — Lighting Design (${_lastInputs?.space_type || 'Office'}, ${_lastResults?.N_fixtures || ''}× ${_lastInputs?.watts_per_fix || ''}W LED, ${_lastResults?.E_actual_lux || ''}lux achieved, LPD ${_lastResults?.lpd_W_m2 || ''}W/m²)`
     : isSC
     ? `Electrical — Short Circuit Analysis (${_lastInputs?.xfmr_kva || ''}kVA Xfmr, Z=${_lastInputs?.z_pct || ''}%, Isc=${_lastResults?.Isc_kA || ''}kA, IC ${_lastResults?.ic_check || ''} — min ${_lastResults?.ic_min_recommended || ''}kA required)`
@@ -8925,14 +8929,17 @@ function renderSowDocPreview(sections) {
   const isLoadEst = _calcType === 'Load Estimation';
   const isVD      = _calcType === 'Voltage Drop';
   const isWire    = _calcType === 'Wire Sizing';
-  const isSC      = _calcType === 'Short Circuit';
-  const isLight   = _calcType === 'Lighting Design';
-  const calcRef = `${isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const isSC       = _calcType === 'Short Circuit';
+  const isLight    = _calcType === 'Lighting Design';
+  const isFSprink  = _calcType === 'Fire Sprinkler Hydraulic';
+  const calcRef = `${isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
   const unitKW = _lastResults?.ac_size_kw        || '';
-  const ventSystemLine = isLight
+  const ventSystemLine = isFSprink
+    ? `Fire Sprinkler Hydraulic — ${_lastInputs?.hazard || ''} Hazard, ${_lastResults?.N_sprinklers || ''} sprinkler heads, Q_total=${_lastResults?.Q_total || ''}L/min, P_design=${_lastResults?.P_design || ''}kPa, ${_lastResults?.pipe_dia || ''}mm ${_lastResults?.pipe_material || ''} riser, Duration ${_lastResults?.duration || ''}min, Storage ${_lastResults?.water_volume_m3 || ''}m³`
+    : isLight
     ? `Lighting Design — ${_lastInputs?.space_type || 'Office'}, ${_lastInputs?.room_len_m || ''}m × ${_lastInputs?.room_wid_m || ''}m (${_lastResults?.floor_area_m2 || ''}m²), Target ${_lastInputs?.target_lux || ''}lux, Achieved ${_lastResults?.E_actual_lux || ''}lux, ${_lastResults?.N_fixtures || ''} × ${_lastInputs?.watts_per_fix || ''}W LED Fixtures, Total ${_lastResults?.total_kW || ''}kW, LPD ${_lastResults?.lpd_W_m2 || ''}W/m²`
     : isSC
     ? `Short Circuit Analysis — ${_lastInputs?.xfmr_kva || ''}kVA Xfmr @ Z=${_lastInputs?.z_pct || ''}%, ${_lastInputs?.voltage_ll || 400}V, Cable ${_lastInputs?.cable_mm2 || ''}mm²×${_lastInputs?.cable_len_m || ''}m, Isc=${_lastResults?.Isc_kA || ''}kA sym / ${_lastResults?.Ipeak_kA || ''}kA peak, IC ${_lastResults?.ic_check || ''} (min ${_lastResults?.ic_min_recommended || ''}kA required)`

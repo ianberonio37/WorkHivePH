@@ -1124,6 +1124,70 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Fire Protection: Fire Sprinkler Hydraulic BOM + SOW Agent ───────────────
+
+async function fireSprinklerBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project        = inputs.project_name       || "Fire Protection Project";
+  const hazard         = results.hazard             || inputs.occupancy_hazard  || "Ordinary Group 1";
+  const kFactor        = inputs.k_factor            ?? 80;
+  const pipeMat        = results.pipe_material      || inputs.pipe_material     || "Black Steel";
+  const pipeLength     = inputs.pipe_length         ?? 30;
+  const nSprinklers    = results.N_sprinklers        ?? "N/A";
+  const qPerHead       = results.Q_per_head          ?? "N/A";
+  const pDesign        = results.P_design            ?? "N/A";
+  const qSprinklers    = results.Q_sprinklers_total  ?? "N/A";
+  const qHose          = results.Q_hose              ?? "N/A";
+  const qTotal         = results.Q_total             ?? "N/A";
+  const pipeDiaMM      = results.pipe_dia            ?? "N/A";
+  const velocity       = results.velocity            ?? "N/A";
+  const pSource        = results.P_source            ?? "N/A";
+  const pSourceKPa     = results.P_source_kPa        ?? "N/A";
+  const duration       = results.duration            ?? 60;
+  const waterVolL      = results.water_volume_L      ?? "N/A";
+  const waterVolM3     = results.water_volume_m3     ?? "N/A";
+  const density        = results.density             ?? "N/A";
+  const designArea     = results.design_area         ?? "N/A";
+  const coverageHead   = results.coverage_per_head   ?? "N/A";
+
+  const prompt = `You are a Philippine fire protection engineering expert (NFPA 13, BFP Philippines). Generate a professional BOM and SOW for a FIRE SPRINKLER SYSTEM installation project.
+
+PROJECT: ${project}
+OCCUPANCY HAZARD: ${hazard}
+DESIGN DENSITY: ${density} mm/min
+DESIGN AREA: ${designArea} m²
+COVERAGE PER HEAD: ${coverageHead} m²/sprinkler
+K-FACTOR: ${kFactor} (L/min / bar^0.5)
+SPRINKLERS IN DESIGN AREA: ${nSprinklers} heads
+FLOW PER SPRINKLER: ${qPerHead} L/min @ ${pDesign} bar
+TOTAL SPRINKLER FLOW: ${qSprinklers} L/min
+HOSE STREAM ALLOWANCE: ${qHose} L/min
+TOTAL SYSTEM DEMAND: ${qTotal} L/min @ ${pSource} bar (${pSourceKPa} kPa) at source
+PIPE: ${pipeDiaMM} mm ${pipeMat}, ${pipeLength} m riser to remote head, velocity ${velocity} m/s
+DURATION: ${duration} minutes
+WATER STORAGE REQUIRED: ${waterVolL} L (${waterVolM3} m³)
+STANDARDS: NFPA 13 (Sprinkler Systems), NFPA 25 (Inspection/Testing), BFP Philippines Fire Code (RA 9514), Philippine Fire Code IRR, Local BFP Authority Having Jurisdiction (AHJ)
+
+Generate a JSON object with:
+1. "bom_items": array of 18 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: Upright/pendant sprinkler heads (${nSprinklers} heads minimum in design area — K=${kFactor}, rated temperature 68°C standard or 79°C intermediate, UL/FM listed), additional spare sprinkler heads (minimum 6 spare heads per NFPA 13 + wrench), sprinkler head escutcheon plates (for ceiling-recessed pendant type), main distribution pipe — riser (${pipeDiaMM} mm ${pipeMat} Schedule 40, ${pipeLength} m), branch line pipe (25–40 mm ${pipeMat} Schedule 40 — sized per NFPA 13 pipe schedule or hydraulic), cross main pipe (50–65 mm ${pipeMat} Schedule 40), pipe fittings and grooved couplings (tees, elbows, reducers — UL/FM listed, grooved or threaded), pipe hangers and supports (per NFPA 13 hanger spacing — max 3.7 m for branch lines), flow control valve / OS&Y gate valve (full-bore, UL/FM listed, with tamper switch), alarm check valve with waterflow alarm switch (UL listed, with retard chamber), alarm bell / water motor gong (outdoor audible alarm), alarm pressure gauge set (one above and one below alarm check valve), inspector's test and drain valve (2-piece ball valve, minimum 25 mm), fire department connection / siamese connection (65×65 mm twin inlet, chrome-plated, BFP-compliant), water storage tank (${waterVolL}L minimum — ${waterVolM3} m³ reinforced concrete or GRP/HDPE), pressure gauge at system riser (0–21 bar glycerin-filled), anti-freeze or dry-pipe valve (if required for exposed/outdoor areas — specify for Philippines climate — usually not required in tropical settings), pipe identification labels and directional arrows (per NFPA 13 color coding)
+2. "sow_sections": array of 8 sections (each: section_no, title, content)
+   Cover: Scope of Works, Design Basis (NFPA 13 Design Area Method, ${hazard} classification, density ${density} mm/min over ${designArea} m², K-factor ${kFactor}, total demand ${qTotal} L/min @ ${pSource} bar), Sprinkler Head Layout and Coverage (maximum spacing ${coverageHead} m² per head, minimum clearance requirements, obstruction rules per NFPA 13), Pipe Installation (pipe sizing per NFPA 13 hydraulic calculation, hanger spacing, flushing before connection), Valves Alarm Devices and FDC (OS&Y valve locations, alarm check valve, waterflow alarm switch, fire department connection per BFP), Water Supply and Storage Tank (${waterVolM3} m³ dedicated fire water storage, fill rate, isolation from domestic supply), Inspection Testing and Commissioning (hydrostatic test at 200 kPa above working pressure or 1,380 kPa minimum for 2 hours — NFPA 13 Section 29, flush test, alarm test, BFP acceptance inspection), Regulatory Compliance (RA 9514 Philippine Fire Code, BFP permit, Authority Having Jurisdiction sign-off, NFPA 13 / NFPA 25 maintenance schedule)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -1182,6 +1246,8 @@ serve(async (req) => {
       result = await shortCircuitBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Lighting Design") {
       result = await lightingDesignBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Fire Protection" && calc_type === "Fire Sprinkler Hydraulic") {
+      result = await fireSprinklerBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),
