@@ -399,6 +399,101 @@ Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
   };
 }
 
+// ─── Compressed Air BOM + SOW Agent ──────────────────────────────────────────
+
+async function compressedAirBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project       = inputs.project_name         || "Compressed Air System Project";
+  const recHP         = results.recommended_hp       || "N/A";
+  const recCFM        = results.recommended_cfm      || "N/A";
+  const designCFM     = results.design_cfm           || "N/A";
+  const designLPS     = results.design_lps           || "N/A";
+  const designM3min   = results.design_m3min         || "N/A";
+  const recReceiverL  = results.recommended_receiver_L || "N/A";
+  const recPipeMM     = results.recommended_pipe_mm  || "N/A";
+  const workingBar    = (results.inputs_used as Record<string, unknown>)?.working_pressure || inputs.working_pressure || 7;
+  const pipeLen       = inputs.pipe_length           || "N/A";
+  const leakagePct    = (results.inputs_used as Record<string, unknown>)?.leakage_pct || inputs.leakage_allowance || 10;
+
+  // Quantity estimates
+  const pLen        = Number(pipeLen) || 30;
+  const nDropLegs   = Math.max(2, Math.round(pLen / 10)); // drop legs every ~10 m
+  const nIsolation  = Math.max(2, Math.round(pLen / 15));
+  const nSupports   = Math.max(4, Math.round(pLen / 2));
+  const nFil        = 1; // filter-regulator-lubricator sets
+
+  const prompt = `You are a licensed Mechanical Engineer in the Philippines preparing official procurement and contracting documents for a compressed air system installation.
+
+CALCULATION RESULT:
+Project: ${project}
+Working Pressure: ${workingBar} bar(g)
+Design FAD Required: ${designCFM} CFM (${designLPS} L/s / ${designM3min} m³/min)
+Recommended Compressor: ${recHP} hp / ${recCFM} CFM FAD
+Recommended Air Receiver: ${recReceiverL} litres
+Recommended Distribution Pipe: ${recPipeMM} mm
+Distribution Pipe Length: ${pipeLen} m
+Leakage Allowance: ${leakagePct}%
+
+TASK: Generate a JSON object with exactly two arrays.
+
+ARRAY 1 — "bom_items": Standard Philippine mechanical contractor Bill of Materials for compressed air system.
+Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
+
+Required items:
+1. Air Compressor, Rotary Screw — qty: 1 unit — specify ${recHP} hp, ${recCFM} CFM FAD, ${workingBar} bar working pressure, air-cooled, direct drive, CAGI-certified
+2. Air Receiver Tank — qty: 1 unit — specify ${recReceiverL} litres, working pressure ${workingBar} bar(g), ASME-coded or PNS pressure vessel, complete with safety relief valve, drain valve, pressure gauge, and sight glass
+3. Air Dryer (Refrigerated Type) — qty: 1 unit — specify ${recCFM} CFM capacity, pressure dew point -3°C to +3°C, ISO 8573-1 Class 4 moisture, matched to compressor FAD
+4. Pre-filter (Coalescing), 1 micron — qty: 1 unit — specify ${recCFM} CFM, ISO 8573-1 Class 3 oil, at compressor outlet
+5. After-filter (Particulate), 0.01 micron — qty: 1 unit — specify ${recCFM} CFM, ISO 8573-1 Class 1, downstream of dryer
+6. Distribution Pipe, Black Steel Schedule 40 — qty: ${pLen} m — specify ${recPipeMM} mm nominal bore, threaded or flanged connections, in 6-m lengths
+7. Pipe Fittings (elbows, tees, unions) — qty: 1 lot — specify ${recPipeMM} mm, black steel, Class 150, PSME-compliant
+8. Drop Leg Assembly with Auto Drain — qty: ${nDropLegs} sets — specify ${recPipeMM} mm tee, 25 mm drop leg, ball valve, automatic condensate drain
+9. Ball Valve, full bore — qty: ${nIsolation} pcs — specify ${recPipeMM} mm, PN16, chrome-plated brass or cast iron, for sectional isolation
+10. Safety Relief Valve (distribution header) — qty: 1 pc — specify set pressure ${Math.ceil(Number(workingBar) * 1.1 * 10) / 10} bar(g), ASME-certified, at header inlet
+11. Pressure Gauge (distribution) — qty: ${Math.max(2, nDropLegs)} pcs — specify 0–${Math.ceil(Number(workingBar) * 2)} bar, 100mm dial, glycerin-filled, at key points
+12. Filter-Regulator-Lubricator (FRL) Unit — qty: ${nFil} set — specify ${recPipeMM} mm port, 0–${workingBar} bar range, at point-of-use headers — checked: false (supply if process requires lubrication)
+13. Pipe Supports and Hangers — qty: ${nSupports} sets — specify galvanized clevis hanger, PSME spacing, slope 1:200 toward drop legs
+14. Condensate Drain System — qty: 1 lot — specify automatic electronic timer drain at compressor, receiver, dryer, and each filter; PVC condensate collection line to drain
+15. Miscellaneous (Teflon tape, pipe compound, hose connectors, labels) — qty: 1 lot
+
+Specifications must be specific: include HP, CFM, bar pressure, pipe size and schedule, filter micron rating, ISO 8573-1 class. All rated for ${workingBar} bar(g) minimum.
+
+ARRAY 2 — "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
+Each object: { "section_no": string, "title": string, "content": string, "checked": boolean }
+
+Required sections:
+- "1.0" General Scope — checked: true
+- "2.0" Applicable Standards and Codes — checked: true (list: PSME Code, ISO 8573-1 Compressed Air Purity, ISO 1217 Compressor Performance, CAGI Standards, ASME Section VIII pressure vessels, PEC 2017, DOLE OSH Compressed Gas Safety)
+- "3.0" Materials — checked: true (reference BOM, black steel Schedule 40 for distribution, all equipment rated ${workingBar} bar(g) minimum, ASME pressure vessel code for receiver)
+- "4.1" Equipment Supply and Delivery — checked: true (CAGI performance data sheets, pressure vessel certificates, factory test reports to be submitted prior to delivery)
+- "4.2" Compressor and Receiver Installation — checked: true (specify concrete pad, vibration isolation mounts, levelling, minimum 1-metre clearance for maintenance access, compressor room ventilation)
+- "4.3" Air Treatment Equipment — checked: true (dryer inlet/outlet isolation valves, bypass line for dryer maintenance, filter differential pressure gauges, auto-drain connections)
+- "4.4" Distribution Piping Works — checked: true (black steel Schedule 40 at ${recPipeMM} mm, slope 1:200 toward drop legs for condensate drainage, all joints threaded or flanged with PTFE, pressure test before insulation)
+- "4.5" Drop Legs and Point-of-Use Connections — checked: true (drop legs at low points and at each use point, automatic condensate drains at all low points, FRL sets at process connections if required)
+- "4.6" Electrical Connections and Control — checked: true (dedicated circuit per PEC 2017, motor starter or VFD for compressor, pressure switch for automatic start/stop, overload protection)
+- "4.7" Pressure Testing — checked: true (pneumatic leak test at 1.1× working pressure with soapy water, all joints checked, zero leakage acceptable, document and submit records)
+- "4.8" System Commissioning — checked: true (verify compressor FAD ${recCFM} CFM at ${workingBar} bar, check dryer dew point, verify auto-start/stop, measure system leakage — must be < ${leakagePct}% of FAD, submit commissioning report)
+- "4.9" As-Built Documentation — checked: true
+- "5.0" Inclusions — checked: false
+- "6.0" Exclusions — checked: false (civil works, compressor room construction, utility connections unless specified, piping beyond drop leg outlets)
+- "7.0" Warranty — checked: false (1 year equipment per manufacturer, 1 year workmanship from acceptance; compressor extended warranty if available)
+
+Each content must be 3-5 sentences in professional Philippine engineering contractor style. Reference the specific system: ${recHP} hp rotary screw compressor, ${recCFM} CFM at ${workingBar} bar, ${recReceiverL}L receiver, for ${project}.
+
+Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -437,6 +532,8 @@ serve(async (req) => {
       result = await pumpBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Mechanical" && calc_type === "Pipe Sizing") {
       result = await pipeSizingBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Mechanical" && calc_type === "Compressed Air") {
+      result = await compressedAirBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),
