@@ -301,6 +301,104 @@ Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
   };
 }
 
+// ─── Pipe Sizing BOM + SOW Agent ─────────────────────────────────────────────
+
+async function pipeSizingBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project     = inputs.project_name    || "Pipe System Project";
+  const serviceType = (results.inputs_used as Record<string, unknown>)?.service_type || inputs.service_type || "General Water";
+  const pipeMat     = (results.inputs_used as Record<string, unknown>)?.pipe_material || inputs.pipe_material || "PVC";
+  const pipeDiaMM   = results.recommended_dia_mm || "N/A";
+  const pipeLen     = inputs.pipe_length     || "N/A";
+  const equivLen    = (results.inputs_used as Record<string, unknown>)?.equiv_length || "N/A";
+  const flowLPM     = results.flow_lpm       || inputs.flow_rate || "N/A";
+  const flowM3hr    = results.flow_m3hr      || "N/A";
+  const velocity    = results.recommended_velocity || "N/A";
+  const hfPerM      = results.hf_per_m       || "N/A";
+  const hfTotal     = results.hf_total       || "N/A";
+  const pressTotal  = results.press_drop_total || "N/A";
+  const flowRegime  = results.flow_regime    || "Turbulent";
+  const fittingsPct = (results.inputs_used as Record<string, unknown>)?.fittings_pct || inputs.fittings_allowance || 20;
+
+  // Estimate accessory quantities from pipe length
+  const pLen       = Number(pipeLen) || 30;
+  const nIsolation = Math.max(2, Math.round(pLen / 15));  // isolation valves every ~15 m
+  const nElbows    = Math.max(4, Math.round(pLen / 5));   // elbows every ~5 m
+  const nSupports  = Math.max(3, Math.round(pLen / 2));   // supports every 2 m
+  const nPressGauge= 2;
+  const nDrain     = Math.max(1, Math.round(pLen / 20));
+
+  const prompt = `You are a licensed Mechanical Engineer in the Philippines preparing official procurement and contracting documents for a piping system installation.
+
+CALCULATION RESULT:
+Project: ${project}
+Service Type: ${serviceType}
+Pipe Material: ${pipeMat}
+Recommended Pipe Diameter: ${pipeDiaMM} mm (nominal)
+Pipe Length: ${pipeLen} m (measured) / ${equivLen} m (equivalent, including ${fittingsPct}% fittings allowance)
+Design Flow Rate: ${flowLPM} L/min (${flowM3hr} m³/hr)
+Design Velocity: ${velocity} m/s
+Friction Loss: ${hfPerM} m/m (total: ${hfTotal} m / ${pressTotal} kPa)
+Flow Regime: ${flowRegime}
+
+TASK: Generate a JSON object with exactly two arrays.
+
+ARRAY 1 — "bom_items": Standard Philippine mechanical contractor Bill of Materials for piping works.
+Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
+
+Required items:
+1. Pipe, ${pipeMat} — qty: ${pLen} m — specify ${pipeDiaMM} mm nominal dia, include applicable pressure class (PN10/PN16/Schedule 40 depending on material), in 6-m lengths
+2. Pipe Fittings — Elbows 90° — qty: ${nElbows} pcs — specify ${pipeDiaMM} mm, ${pipeMat}, same pressure class as pipe
+3. Pipe Fittings — Tees (equal) — qty: ${Math.max(2, Math.round(nElbows / 3))} pcs — specify ${pipeDiaMM} mm, ${pipeMat}
+4. Pipe Fittings — Reducers / Couplings — qty: ${Math.max(2, Math.round(nElbows / 4))} pcs — specify ${pipeDiaMM} mm, ${pipeMat}
+5. Isolation Valve (gate or ball type) — qty: ${nIsolation} pcs — specify ${pipeDiaMM} mm, PN16, bronze or cast iron, sectional isolation
+6. Check Valve (swing type) — qty: ${nDrain} pc — specify ${pipeDiaMM} mm, PN16, at pump discharge or riser base — checked: false (if no pump in scope)
+7. Drain Valve / Blow-off Valve — qty: ${nDrain} pcs — specify 20 mm, bronze ball valve with hose bib
+8. Pressure Gauge with siphon — qty: ${nPressGauge} pcs — specify 0–${Math.ceil((Number(hfTotal) + 30) * 0.1) * 100} kPa, 100mm dial, glycerin-filled
+9. Pipe Supports and Hangers — qty: ${nSupports} sets — specify adjustable clevis hanger, galvanized, PSME-compliant spacing for ${pipeMat} at ${pipeDiaMM} mm
+10. Pipe Insulation (if chilled water or hot water service) — qty: ${pLen} m — specify pre-formed glass wool or closed-cell foam 25mm, with aluminum jacket — checked: false (apply if chilled or hot water)
+11. Flanges and Gaskets — qty: 1 lot — specify ${pipeDiaMM} mm, PN16, flat face or raised face, with spiral wound or rubber gaskets, for equipment connections
+12. Welding Consumables / Jointing Materials — qty: 1 lot — specify per pipe material: solvent cement for PVC, Teflon tape + pipe compound for threaded, argon + filler rod for SS/Cu
+13. Miscellaneous (anchors, pipe labels, supports, testing plugs) — qty: 1 lot
+
+Specifications must be specific: include pipe diameter, pressure class, material grade, and Philippine standards compliance (PSME, PNS). All sizes must match ${pipeDiaMM} mm throughout.
+
+ARRAY 2 — "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
+Each object: { "section_no": string, "title": string, "content": string, "checked": boolean }
+
+Required sections:
+- "1.0" General Scope — checked: true
+- "2.0" Applicable Standards and Codes — checked: true (list: PSME Code, Philippine Plumbing Code (based on UPC/IPC), ASTM material standards for ${pipeMat}, Hydraulic Institute Standards, PEC 2017 for any electrical components, DOLE OSH)
+- "3.0" Materials — checked: true (reference BOM, state ${pipeMat} pipe at ${pipeDiaMM} mm nominal, specify ASTM or PNS standard, all valves PN16 minimum)
+- "4.1" Equipment and Material Delivery — checked: true (include inspection on delivery, material test certificates for ${pipeMat} pipe and fittings)
+- "4.2" Pipe Fabrication and Installation — checked: true (specify cutting, jointing method for ${pipeMat}, support spacing per PSME, slope requirements for drainage if applicable, alignment and grading)
+- "4.3" Valve and Instrument Installation — checked: true (specify orientation, isolation valve placement, pressure gauge siphon requirement, access provision for maintenance)
+- "4.4" Pipe Supports and Anchors — checked: true (specify hanger type, PSME maximum spacing for ${pipeDiaMM} mm ${pipeMat} pipe, seismic provision if applicable)
+- "4.5" Insulation Works — checked: false (if chilled water or hot water: closed-cell foam or glass wool 25mm, aluminum jacket, all joints sealed with vapor barrier tape)
+- "4.6" Pressure Testing — checked: true (hydrostatic test at 1.5× working pressure, minimum 30 minutes, zero pressure drop, document and submit test records)
+- "4.7" Flushing and Cleaning — checked: true (flush at minimum 1.5× design velocity before commissioning, water quality test for potable or process systems, chemical cleaning for chilled water per ASHRAE guideline)
+- "4.8" Commissioning and Handover — checked: true (verify flow ${flowM3hr} m³/hr and velocity ${velocity} m/s at design point, submit as-built drawings and commissioning report)
+- "4.9" As-Built Documentation — checked: true
+- "5.0" Inclusions — checked: false
+- "6.0" Exclusions — checked: false (civil / structural works, equipment foundations, electrical connections unless specified, building permits)
+- "7.0" Warranty — checked: false (1 year workmanship from acceptance; material warranty per manufacturer)
+
+Each content must be 3-5 sentences in professional Philippine engineering contractor style. Reference the specific system: ${pipeDiaMM} mm ${pipeMat} pipe, ${serviceType}, ${flowM3hr} m³/hr design flow, for ${project}.
+
+Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -337,6 +435,8 @@ serve(async (req) => {
       result = await ventBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Mechanical" && calc_type === "Pump Sizing (TDH)") {
       result = await pumpBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Mechanical" && calc_type === "Pipe Sizing") {
+      result = await pipeSizingBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),
