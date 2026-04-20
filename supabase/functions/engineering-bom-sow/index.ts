@@ -1014,6 +1014,57 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Electrical Short Circuit BOM + SOW Agent ────────────────────────────────
+
+async function shortCircuitBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project       = inputs.project_name       || "Electrical Project";
+  const xfmrKVA       = inputs.xfmr_kva           ?? "N/A";
+  const zPct          = inputs.z_pct              ?? "N/A";
+  const voltageLLV    = inputs.voltage_ll          ?? 400;
+  const cableMM2      = inputs.cable_mm2           ?? "N/A";
+  const cableLenM     = inputs.cable_len_m         ?? "N/A";
+  const breakerIC     = inputs.breaker_ic_kA       ?? "N/A";
+  const IscKA         = results.Isc_kA             ?? "N/A";
+  const IpeakKA       = results.Ipeak_kA           ?? "N/A";
+  const icCheck       = results.ic_check           ?? "N/A";
+  const icMargin      = results.ic_margin          ?? "N/A";
+  const icMinRec      = results.ic_min_recommended ?? "N/A";
+  const ZtotalOhm     = results.Z_total_ohm        ?? "N/A";
+  const icFail        = String(icCheck) === "FAIL";
+
+  const prompt = `You are a Philippine electrical engineering expert (PEC 2017). Generate a professional BOM and SOW for a SHORT CIRCUIT ANALYSIS and breaker interrupting capacity compliance project.
+
+PROJECT: ${project}
+TRANSFORMER: ${xfmrKVA} kVA, Z = ${zPct}%, ${voltageLLV}V line-to-line
+CABLE TO PANEL: ${cableMM2} mm² × ${cableLenM} m
+TOTAL IMPEDANCE: ${ZtotalOhm} Ω
+3-PHASE FAULT CURRENT (Isc): ${IscKA} kA symmetrical
+ASYMMETRICAL PEAK (Ipeak): ${IpeakKA} kA
+INSTALLED BREAKER IC: ${breakerIC} kA — ${icCheck}${icFail ? ` (INSUFFICIENT — must be upgraded to minimum ${icMinRec} kA)` : ` (margin: +${icMargin} kA)`}
+MINIMUM RECOMMENDED IC: ${icMinRec} kA
+STANDARDS: PEC 2017 Article 1.30, PEC Article 2.40, IEEE Std 141 (Red Book), IEC 60909
+
+Generate a JSON object with:
+1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: Main circuit breaker (MCCB or ACB — minimum IC ${icMinRec} kA at ${voltageLLV}V${icFail ? `, REPLACEMENT REQUIRED — installed unit undersized` : ``}), branch circuit breakers (MCCBs — IC ≥ ${icMinRec} kA, sized per branch loads), current transformer (CT) for metering (if panel > 100A), arc flash warning labels (NFPA 70E / PEC-compliant, incident energy and PPE level), arc flash boundary markers, short circuit study report holder/binder (for panel schedule record), bus bar shorting link (for fault current test, 1 set per panel), personal protective equipment (PPE) — arc-rated FR clothing and face shield (for commissioning work near energized bus), insulated tools (1000V rated), ground fault indicator light or relay (per PEC 2017), panel enclosure padlock set, cable bus duct or switchgear cubicle (if fault level requires metal-enclosed gear), thermal imaging window port (installed on panel door for ongoing maintenance), insulating mat (IEC 61111 Class 1 minimum, for work area protection)
+2. "sow_sections": array of 7 sections (each: section_no, title, content)
+   Cover: Scope of Works, Design Basis (PEC 2017 Art. 1.30, IEC 60909 transformer impedance method, 3-phase symmetrical fault ${IscKA} kA, asymmetrical peak ${IpeakKA} kA), ${icFail ? `Breaker Upgrade Requirement (installed ${breakerIC} kA IC is INSUFFICIENT for ${IscKA} kA fault level — replace with minimum ${icMinRec} kA IC-rated breaker before energization — PEC Art. 1.30 non-negotiable)` : `Breaker IC Verification (installed ${breakerIC} kA IC confirmed adequate for ${IscKA} kA fault level with ${icMargin} kA safety margin)`}, Arc Flash Hazard Assessment and Labeling (incident energy analysis, PPE levels, arc flash boundary marking per NFPA 70E / PEC), Panel Schedule and Single-Line Diagram Update (as-built SLD showing transformer, feeder cable, fault current level at each panel), Testing and Commissioning (insulation resistance test, breaker contact resistance test, trip test, IR thermal scan of bus connections under load), Regulatory Compliance (PEC 2017 Art. 1.30 and 2.40, Electrical Permit, DOLE OSH, short circuit study report filed with as-built documents)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -1068,6 +1119,8 @@ serve(async (req) => {
       result = await voltageDropBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Wire Sizing") {
       result = await wireSizingBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Electrical" && calc_type === "Short Circuit") {
+      result = await shortCircuitBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),

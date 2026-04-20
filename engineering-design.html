@@ -8552,7 +8552,7 @@ async function generateBomSowChecklist() {
   if (!_lastResults || !_lastInputs) { showToast('Run a calculation first.'); return; }
   const BOM_SOW_SUPPORTED = {
     'Mechanical': ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air'],
-    'Electrical': ['Load Estimation', 'Voltage Drop', 'Wire Sizing'],
+    'Electrical': ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit'],
     'Plumbing':   ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing'],
   };
   const supportedForDiscipline = BOM_SOW_SUPPORTED[_discipline] || [];
@@ -8739,8 +8739,11 @@ function renderBomTablePreview(items) {
   const isLoadEst = _calcType === 'Load Estimation';
   const isVD      = _calcType === 'Voltage Drop';
   const isWire    = _calcType === 'Wire Sizing';
-  const calcRef = `${isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
-  const disciplineSystem = isWire
+  const isSC      = _calcType === 'Short Circuit';
+  const calcRef = `${isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const disciplineSystem = isSC
+    ? `Electrical — Short Circuit Analysis (${_lastInputs?.xfmr_kva || ''}kVA Xfmr, Z=${_lastInputs?.z_pct || ''}%, Isc=${_lastResults?.Isc_kA || ''}kA, IC ${_lastResults?.ic_check || ''} — min ${_lastResults?.ic_min_recommended || ''}kA required)`
+    : isWire
     ? `Electrical — Wire Sizing (${_lastResults?.load_type || _lastInputs?.load_type || 'General Load'}, ${_lastResults?.phase || _lastInputs?.phase || 'Single-phase'} ${_lastResults?.voltage || _lastInputs?.voltage || 230}V, ${_lastResults?.recommended_size_mm2 || ''}mm² Cu THHN, ${_lastResults?.recommended_breaker_A || ''}A Breaker)`
     : isVD
     ? `Electrical — Voltage Drop (${_lastResults?.circuit_type || _lastInputs?.circuit_type || 'Branch Circuit'}, ${_lastResults?.conductor_mm2 || _lastInputs?.conductor_mm2 || ''}mm² ${_lastResults?.conductor_mat || _lastInputs?.conductor_mat || 'Copper'}, ${_lastResults?.wire_length || _lastInputs?.wire_length || ''}m, VD ${_lastResults?.vd_pct || ''}% — ${_lastResults?.pass ? 'PASS' : 'FAIL'})`
@@ -8824,7 +8827,9 @@ function renderBomTablePreview(items) {
       <div style="margin-top:1.25rem;font-size:0.76rem;color:#333;border-top:1px solid #e0e0e0;padding-top:0.75rem;">
         <strong>Notes:</strong>
         <div class="editable-field" contenteditable="true" style="display:block;margin-top:0.3rem;min-height:2.5rem;color:#555;line-height:1.6;">
-          ${isWire
+          ${isSC
+            ? `Quantities are based on the Short Circuit Analysis design calculation result (PEC 2017 Art. 1.30, IEC 60909). The 3-phase symmetrical fault current at the panel is ${_lastResults?.Isc_kA || ''} kA (asymmetrical peak ${_lastResults?.Ipeak_kA || ''} kA). All circuit breakers shall have an interrupting capacity not less than ${_lastResults?.ic_min_recommended || ''} kA at ${_lastInputs?.voltage_ll || 400}V. ${_lastResults?.ic_check === 'FAIL' ? 'WARNING: The currently installed breaker IC is INSUFFICIENT for the calculated fault level and must be replaced before energization.' : 'The installed breaker IC has been verified as adequate.'} Arc flash labels shall comply with NFPA 70E / PEC requirements. Contractor shall submit breaker data sheets and short circuit study report for Engineer's approval prior to procurement.`
+            : isWire
             ? `Quantities are based on the Wire Sizing design calculation result (PEC 2017, Table 3.10.1) with temperature correction factor ${_lastResults?.temp_factor || ''} at ${_lastResults?.ambient_temp || _lastInputs?.ambient_temp || ''}°C and conduit fill factor ${_lastResults?.fill_factor || ''} for ${_lastResults?.conduit_fill || _lastInputs?.conduit_fill || ''} conductors. All conductors shall be Copper THHN/THWN-2 rated 75°C at the system voltage. Conductor ampacity shall not be less than the design current including applicable demand multiplier. Contractor shall submit material test certificates and conductor data sheets for Engineer's approval prior to procurement.`
             : isVD
             ? `Quantities are based on the Voltage Drop design calculation result (PEC 2017, Article 2.10.19/2.20). All conductors shall be ${_lastResults?.conductor_mat || 'Copper'} THHN/THWN rated for the system voltage. Conductor size shall comply with the PEC voltage drop limit of ${_lastResults?.vd_limit || 3}% for the circuit type. Insulation resistance test (≥ 1 MΩ at 500V DC) and voltage drop field measurement under load shall be conducted prior to energization. Contractor shall submit material test certificates for all conductors for Engineer's approval prior to procurement.`
@@ -8915,12 +8920,15 @@ function renderSowDocPreview(sections) {
   const isLoadEst = _calcType === 'Load Estimation';
   const isVD      = _calcType === 'Voltage Drop';
   const isWire    = _calcType === 'Wire Sizing';
-  const calcRef = `${isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const isSC      = _calcType === 'Short Circuit';
+  const calcRef = `${isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
   const unitKW = _lastResults?.ac_size_kw        || '';
-  const ventSystemLine = isWire
+  const ventSystemLine = isSC
+    ? `Short Circuit Analysis — ${_lastInputs?.xfmr_kva || ''}kVA Xfmr @ Z=${_lastInputs?.z_pct || ''}%, ${_lastInputs?.voltage_ll || 400}V, Cable ${_lastInputs?.cable_mm2 || ''}mm²×${_lastInputs?.cable_len_m || ''}m, Isc=${_lastResults?.Isc_kA || ''}kA sym / ${_lastResults?.Ipeak_kA || ''}kA peak, IC ${_lastResults?.ic_check || ''} (min ${_lastResults?.ic_min_recommended || ''}kA required)`
+    : isWire
     ? `Wire Sizing — ${_lastResults?.load_type || _lastInputs?.load_type || 'General Load'}, ${_lastResults?.phase || _lastInputs?.phase || 'Single-phase'} ${_lastResults?.voltage || _lastInputs?.voltage || 230}V, ${_lastResults?.power_w || _lastInputs?.power_w || ''}W @ PF ${_lastResults?.power_factor || _lastInputs?.power_factor || 0.85}, Design Current ${_lastResults?.design_current || ''}A (${_lastResults?.demand_multiplier || 1}x), Recommended ${_lastResults?.recommended_size_mm2 || ''}mm² Cu THHN (${_lastResults?.recommended_ampacity || ''}A), Breaker ${_lastResults?.recommended_breaker_A || ''}A`
     : isVD
     ? `Voltage Drop Compliance — ${_lastResults?.circuit_type || _lastInputs?.circuit_type || 'Branch Circuit'}, ${_lastResults?.phase || _lastInputs?.phase || 'Single-phase'} ${_lastResults?.voltage || _lastInputs?.voltage || 230}V, ${_lastResults?.current || _lastInputs?.current || ''}A, ${_lastResults?.wire_length || _lastInputs?.wire_length || ''}m run, ${_lastResults?.conductor_mm2 || _lastInputs?.conductor_mm2 || ''}mm² ${_lastResults?.conductor_mat || _lastInputs?.conductor_mat || 'Copper'} THHN/THWN, VD ${_lastResults?.vd_pct || ''}% (limit ${_lastResults?.vd_limit || 3}%) — ${_lastResults?.pass ? 'PASS' : 'FAIL'}`
@@ -8992,7 +9000,9 @@ function renderSowDocPreview(sections) {
       <div style="margin-top:1.5rem;font-size:0.76rem;border-top:1px solid #e0e0e0;padding-top:0.75rem;">
         <strong>General Notes:</strong>
         <div class="editable-field" contenteditable="true" style="display:block;margin-top:0.3rem;min-height:3rem;color:#555;line-height:1.7;">
-${isWire
+${isSC
+  ? `This Scope of Works is based on the Short Circuit Analysis Design Calculation (Ref: ${escHtml(calcRef)}) using the Transformer Impedance Method per PEC 2017 Article 1.30 and IEC 60909. The calculated 3-phase symmetrical fault current is ${_lastResults?.Isc_kA || ''} kA with an asymmetrical peak of ${_lastResults?.Ipeak_kA || ''} kA. ${_lastResults?.ic_check === 'FAIL' ? `The installed breaker interrupting capacity is INSUFFICIENT — breaker replacement with minimum ${_lastResults?.ic_min_recommended || ''} kA IC-rated unit is mandatory before system energization per PEC 2017 Art. 1.30.` : `The installed breaker IC has been confirmed adequate with a ${_lastResults?.ic_margin || ''} kA safety margin.`} Arc flash hazard analysis shall be performed and labels installed per NFPA 70E / PEC requirements. All electrical works shall be performed by a licensed master electrician under the supervision of a registered electrical engineer. The short circuit study report shall be filed with the as-built panel schedule and single-line diagram. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  : isWire
   ? `This Scope of Works is based on the Wire Sizing Design Calculation (Ref: ${escHtml(calcRef)}) using PEC 2017 Table 3.10.1 ampacity with temperature and conduit fill correction factors. The Contractor shall comply with all applicable Philippine electrical codes and standards including PEC 2017, and DOLE OSH Electrical Safety regulations. All conductors shall be Copper THHN/THWN-2 rated 75°C. Motor branch circuits shall comply with PEC Article 2.30 requirements for locked-rotor current withstand and overload protection. All electrical works shall be performed by a licensed master electrician under the supervision of a registered electrical engineer. An Electrical Permit shall be secured from the LGU prior to commencement. As-built wiring diagrams shall be submitted upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isVD
   ? `This Scope of Works is based on the Voltage Drop Design Calculation (Ref: ${escHtml(calcRef)}) per PEC 2017 Article 2.10.19/2.20. The Contractor shall comply with all applicable Philippine electrical codes and standards including PEC 2017 and DOLE OSH Electrical Safety regulations. Voltage drop shall not exceed ${_lastResults?.vd_limit || 3}% of nominal voltage (${Math.round((Number(_lastResults?.vd_limit || 3) / 100) * Number(_lastResults?.voltage || _lastInputs?.voltage || 230) * 100) / 100}V max) under full load conditions as measured at the load terminals. All electrical works shall be performed by a licensed master electrician under the supervision of a registered electrical engineer. An Electrical Permit shall be secured from the LGU prior to commencement. As-built wiring diagrams shall be submitted upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
