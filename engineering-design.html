@@ -9008,7 +9008,10 @@ function downloadBomDocPdf() {
   const proj = (_lastInputs?.project_name || 'BOM').replace(/[^a-z0-9]/gi, '_');
   const style = document.createElement('style');
   style.id = 'bom-pdf-rules';
-  style.textContent = '#bom-doc-content tr, #bom-doc-content td, #bom-doc-content th { page-break-inside: avoid; break-inside: avoid; }';
+  style.textContent = `
+    #bom-doc-content tr, #bom-doc-content td, #bom-doc-content th { page-break-inside: avoid; break-inside: avoid; }
+    #bom-doc-content .editable-field { border-bottom: none !important; border: none !important; outline: none !important; background: transparent !important; }
+  `;
   document.head.appendChild(style);
   el.style.paddingBottom = '40px';
   html2pdf().set({
@@ -9029,7 +9032,11 @@ function downloadSowPdf() {
   const proj = (_lastInputs?.project_name || 'SOW').replace(/[^a-z0-9]/gi, '_');
   const style = document.createElement('style');
   style.id = 'sow-pdf-rules';
-  style.textContent = '#sow-doc-content p, #sow-doc-content .sow-clause { page-break-inside: avoid; break-inside: avoid; } #sow-doc-content h2 { break-after: avoid; }';
+  style.textContent = `
+    #sow-doc-content p, #sow-doc-content .sow-clause { page-break-inside: avoid; break-inside: avoid; }
+    #sow-doc-content h2 { break-after: avoid; }
+    #sow-doc-content .editable-field { border-bottom: none !important; border: none !important; outline: none !important; background: transparent !important; }
+  `;
   document.head.appendChild(style);
   el.style.paddingBottom = '40px';
   html2pdf().set({
