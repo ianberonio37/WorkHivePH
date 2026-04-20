@@ -2755,7 +2755,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Transformer kVA Rating</div>
         <div class="toggle-group" id="tg-sc-kva">
           ${[25,50,100,167,250,500,1000].map((v,i) =>
-            `<button class="toggle-btn${i===2?' active':''}" onclick="toggle('tg-sc-kva','${v}')">${v} kVA</button>`
+            `<button class="toggle-btn${i===2?' active':''}" data-val="${v}" onclick="toggle('tg-sc-kva','${v}')">${v} kVA</button>`
           ).join('')}
         </div>
       </div>
@@ -2771,9 +2771,9 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Secondary Voltage (L-L)</div>
           <div class="toggle-group" id="tg-sc-volt">
-            <button class="toggle-btn active" onclick="toggle('tg-sc-volt','400')">400 V (3ph)</button>
-            <button class="toggle-btn" onclick="toggle('tg-sc-volt','380')">380 V (3ph)</button>
-            <button class="toggle-btn" onclick="toggle('tg-sc-volt','230')">230 V (1ph)</button>
+            <button class="toggle-btn active" data-val="400" onclick="toggle('tg-sc-volt','400')">400 V (3ph)</button>
+            <button class="toggle-btn" data-val="380" onclick="toggle('tg-sc-volt','380')">380 V (3ph)</button>
+            <button class="toggle-btn" data-val="230" onclick="toggle('tg-sc-volt','230')">230 V (1ph)</button>
           </div>
         </div>
       </div>
@@ -2783,7 +2783,7 @@ function renderInputForm(calcType) {
           <div class="field-label">Cable Size (mm²)</div>
           <div class="toggle-group" id="tg-sc-cable">
             ${[22,30,38,50,60,80,100].map((v,i) =>
-              `<button class="toggle-btn${i===2?' active':''}" onclick="toggle('tg-sc-cable','${v}')">${v}</button>`
+              `<button class="toggle-btn${i===2?' active':''}" data-val="${v}" onclick="toggle('tg-sc-cable','${v}')">${v}</button>`
             ).join('')}
           </div>
         </div>
@@ -2799,11 +2799,11 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Installed Breaker IC Rating</div>
         <div class="toggle-group" id="tg-sc-ic">
-          <button class="toggle-btn" onclick="toggle('tg-sc-ic','6')">6 kA</button>
-          <button class="toggle-btn active" onclick="toggle('tg-sc-ic','10')">10 kA</button>
-          <button class="toggle-btn" onclick="toggle('tg-sc-ic','25')">25 kA</button>
-          <button class="toggle-btn" onclick="toggle('tg-sc-ic','36')">36 kA</button>
-          <button class="toggle-btn" onclick="toggle('tg-sc-ic','50')">50 kA</button>
+          <button class="toggle-btn" data-val="6" onclick="toggle('tg-sc-ic','6')">6 kA</button>
+          <button class="toggle-btn active" data-val="10" onclick="toggle('tg-sc-ic','10')">10 kA</button>
+          <button class="toggle-btn" data-val="25" onclick="toggle('tg-sc-ic','25')">25 kA</button>
+          <button class="toggle-btn" data-val="36" onclick="toggle('tg-sc-ic','36')">36 kA</button>
+          <button class="toggle-btn" data-val="50" onclick="toggle('tg-sc-ic','50')">50 kA</button>
         </div>
       </div>
 
