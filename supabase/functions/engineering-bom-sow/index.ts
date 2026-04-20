@@ -113,6 +113,101 @@ Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
   };
 }
 
+// ─── Ventilation / ACH BOM + SOW Agent ───────────────────────────────────────
+
+async function ventBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project    = inputs.project_name  || "Ventilation Project";
+  const spaceType  = (results.inputs_used as Record<string, unknown>)?.space_label || inputs.room_function || "General Space";
+  const ventType   = (results.inputs_used as Record<string, unknown>)?.vent_type   || inputs.vent_type    || "Supply and Exhaust";
+  const floorArea  = inputs.floor_area    || "N/A";
+  const persons    = inputs.persons       || 0;
+  const reqACH     = results.required_ach || "N/A";
+  const fanCMH     = results.recommended_fan_cmh || results.design_cmh || "N/A";
+  const fanCFM     = results.recommended_fan_cfm || results.design_cfm || "N/A";
+  const designCMH  = results.design_cmh   || fanCMH;
+  const isExhaust  = String(ventType).toLowerCase().includes("exhaust");
+  const isSupply   = String(ventType).toLowerCase().includes("supply");
+  const isBoth     = isExhaust && isSupply;
+
+  // Estimate quantities from floor area
+  const area      = Number(floorArea) || 50;
+  const ductM     = Math.round(area / 5);           // rough duct run
+  const grilles   = Math.max(2, Math.round(area / 15)); // 1 grille per 15 m²
+  const dampers   = Math.max(1, Math.round(area / 30));
+  const nFans     = isBoth ? 2 : 1;
+
+  const prompt = `You are a licensed Mechanical Engineer in the Philippines preparing official procurement and contracting documents for a ventilation system installation.
+
+CALCULATION RESULT:
+Project: ${project}
+Space Type: ${spaceType}
+Ventilation Type: ${ventType}
+Floor Area: ${floorArea} m²
+Occupancy: ${persons} persons
+Required ACH: ${reqACH} ACH
+Design Airflow: ${designCMH} m³/hr (${fanCFM} CFM)
+Recommended Fan: ${fanCMH} m³/hr capacity
+Estimated duct run: ${ductM} m (linear)
+Estimated grille/diffuser count: ${grilles} pcs
+Number of fans: ${nFans} (${isBoth ? 'supply fan + exhaust fan' : isExhaust ? 'exhaust fan only' : 'supply fan only'})
+
+TASK: Generate a JSON object with exactly two arrays.
+
+ARRAY 1 — "bom_items": Standard Philippine mechanical contractor Bill of Materials for ventilation.
+Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
+
+Required items (use calculated quantities above):
+1. Inline/Centrifugal Fan (${isExhaust || isBoth ? 'Exhaust' : 'Supply'}) — qty: 1 unit — specify ${fanCMH} m³/hr, static pressure, voltage
+2. ${isBoth ? 'Supply Fan — qty: 1 unit — specify capacity and motor spec' : 'Flexible Duct Connector — qty: 2 pcs — specify size to match fan outlet'}
+3. Galvanized Steel Ductwork (Supply or Exhaust, as applicable) — qty: ${ductM} m — specify gauge, 1.0mm G.I. standard
+4. Duct Insulation, pre-formed glass wool 25mm — qty: ${ductM} m — for supply air ducts only; skip if exhaust only
+5. Supply Air Diffuser / Exhaust Grille — qty: ${grilles} pcs — specify size (e.g. 300×150mm or 600×600mm), aluminum
+6. Volume Control Damper (manual) — qty: ${dampers} pcs — specify size, galvanized steel, opposed blade
+7. Fire Damper (fusible link, 72°C) — qty: ${dampers} pcs — specify UL-listed, matching duct size — checked: false (optional per fire code)
+8. Motorized Fresh Air Damper — qty: 1 pc — specify 24VAC actuator, normally closed — checked: ${isBoth ? 'true' : 'false'}
+9. Electrical Wiring, THHN 2.0mm² Cu, 3-wire — qty: ${nFans * 10} m — specify color code per PEC 2017
+10. On/Off Switch with pilot light — qty: ${nFans} pc — specify 15A, surface-mounted
+11. Flexible Metal Duct, 150mm dia — qty: 4 m — for terminal connections
+12. Miscellaneous (duct sealant, hangers, fasteners, damper clips) — qty: 1 lot
+
+Specifications must be specific: include airflow in m³/hr, voltage (230V/1Ph or 460V/3Ph), material grade, duct gauge, grille size. Match ${fanCMH} m³/hr capacity.
+
+ARRAY 2 — "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
+Each object: { "section_no": string, "title": string, "content": string, "checked": boolean }
+
+Required sections:
+- "1.0" General Scope — checked: true
+- "2.0" Applicable Standards and Codes — checked: true (list: ASHRAE 62.1, PSME Code, PEC 2017, DOLE OSH Standards for workplace ventilation, National Building Code PD 1096, NFPA 90A for duct construction)
+- "3.0" Materials — checked: true (reference BOM, state Philippine standards compliance, G.I. duct SMACNA standards)
+- "4.1" Equipment Supply and Delivery — checked: true
+- "4.2" Fan and Motor Installation — checked: true (specify vibration isolation mounts, flexible connectors, direction of rotation test)
+- "4.3" Ductwork Fabrication and Installation — checked: true (specify SMACNA standards, gauge, sealing with UL-listed sealant, 25 Pa pressure test)
+- "4.4" Grilles, Diffusers, and Dampers — checked: true (specify balancing procedure, airflow measurement at each terminal)
+- "4.5" Electrical Connections — checked: true (reference PEC 2017, motor starter or direct-on-line starter, overload protection)
+- "4.6" Fire Damper Installation — checked: false (where penetrating fire-rated partitions per BFP IRR)
+- "4.7" Testing, Balancing, and Commissioning — checked: true (measure actual ACH, compare to design ${reqACH} ACH, submit TAB report, ASHRAE 111 method)
+- "4.8" As-Built Documentation — checked: true
+- "5.0" Inclusions — checked: false
+- "6.0" Exclusions — checked: false (civil/building works, mechanical rooms, structural supports beyond scope)
+- "7.0" Warranty — checked: false (1 year equipment per manufacturer, 1 year workmanship from acceptance)
+
+Each content must be 3-5 sentences in professional Philippine engineering contractor style. Reference the specific system: ${ventType} ventilation for ${spaceType}, ${fanCMH} m³/hr design airflow, serving ${project}.
+
+Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -145,6 +240,8 @@ serve(async (req) => {
     // Discipline router — add branches here for Pump Sizing, Electrical, etc.
     if (discipline === "Mechanical" && calc_type === "HVAC Cooling Load") {
       result = await hvacBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Mechanical" && calc_type === "Ventilation / ACH") {
+      result = await ventBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),
