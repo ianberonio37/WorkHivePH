@@ -494,6 +494,111 @@ Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
   };
 }
 
+// ─── Water Supply Pipe Sizing BOM + SOW Agent ────────────────────────────────
+
+async function waterSupplyBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project      = inputs.project_name    || "Water Supply Project";
+  const supplyType   = inputs.supply_type     || "Cold and Hot";
+  const pipeMat      = (results.inputs_used as Record<string, unknown>)?.pipe_material || inputs.pipe_material || "PVC";
+  const pipeDiaMM    = results.recommended_dia_mm || "N/A";
+  const pipeLen      = inputs.pipe_length     || "N/A";
+  const equivLen     = results.equiv_length   || "N/A";
+  const totalWFU     = results.total_wfu      || "N/A";
+  const peakLPS      = results.peak_lps       || "N/A";
+  const peakLPM      = results.peak_lpm       || "N/A";
+  const velocity     = results.pipe_velocity  || "N/A";
+  const hfTotal      = results.hf_total_m     || "N/A";
+  const pressAvail   = results.pressure_available || "N/A";
+  const minPress     = results.min_pressure   || inputs.min_pressure || 70;
+  const supplyPress  = inputs.supply_pressure || 350;
+  const fittingsPct  = (results.inputs_used as Record<string, unknown>)?.fittings_pct || inputs.fittings_allowance || 20;
+  const hasHot       = String(supplyType).includes("Hot");
+
+  const pLen         = Number(pipeLen) || 30;
+  const nIsolation   = Math.max(2, Math.round(pLen / 15));
+  const nSupports    = Math.max(4, Math.round(pLen / 2));
+  const nFixtures    = (() => {
+    const fx = inputs.fixtures as Array<{ quantity: number }> || [];
+    return fx.reduce((s, f) => s + (Number(f.quantity) || 1), 0);
+  })();
+  const nAngle       = Math.max(nFixtures, 4);
+
+  const prompt = `You are a licensed Mechanical/Sanitary Engineer in the Philippines preparing official procurement and contracting documents for a domestic water supply piping system installation.
+
+CALCULATION RESULT:
+Project: ${project}
+Supply Type: ${supplyType}
+Pipe Material: ${pipeMat}
+Recommended Pipe Diameter: ${pipeDiaMM} mm (nominal, main line)
+Pipe Length: ${pipeLen} m (measured) / ${equivLen} m (equivalent, incl. ${fittingsPct}% fittings)
+Total Fixture Units (WFU): ${totalWFU} WFU (Hunter's Method, Philippine Plumbing Code)
+Peak Design Flow: ${peakLPS} L/s (${peakLPM} L/min)
+Pipe Velocity: ${velocity} m/s
+Friction Head Loss: ${hfTotal} m total
+Supply Pressure: ${supplyPress} kPa available at meter / Minimum residual: ${minPress} kPa
+Residual Pressure at Furthest Fixture: ${pressAvail} kPa
+
+TASK: Generate a JSON object with exactly two arrays.
+
+ARRAY 1 — "bom_items": Standard Philippine sanitary/plumbing contractor Bill of Materials for domestic water supply system.
+Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
+
+Required items:
+1. Water Supply Pipe, ${pipeMat} — qty: ${pLen} m — specify ${pipeDiaMM} mm nominal dia, PN10 pressure class (or Schedule 40 if CPVC), NSF/PNS 65 potable water rated, in 6-m lengths
+2. Pipe Fittings — Elbows 90° — qty: ${Math.max(4, Math.round(pLen / 5))} pcs — specify ${pipeDiaMM} mm, ${pipeMat}, same pressure class, potable water grade
+3. Pipe Fittings — Tees (equal and reducing) — qty: ${Math.max(2, Math.round(pLen / 8))} pcs — specify ${pipeDiaMM} mm, ${pipeMat}, per Philippine Plumbing Code
+4. Pipe Fittings — Reducers / Couplings — qty: ${Math.max(2, Math.round(pLen / 10))} pcs — specify ${pipeDiaMM} mm, ${pipeMat}
+5. Gate Valve / Ball Valve (isolation), full bore — qty: ${nIsolation} pcs — specify ${pipeDiaMM} mm, PN16, bronze, for sectional isolation and at each riser base
+6. Angle Valve (fixture stop valve) — qty: ${nAngle} pcs — specify 15 mm (1/2 in), chrome-plated brass, 1 per fixture connection
+7. Pressure Reducing Valve (PRV) — qty: 1 pc — specify inlet: ${supplyPress} kPa, outlet: ${Math.min(Number(supplyPress) - 50, 250)} kPa, bronze body, spring-loaded, per Philippine Plumbing Code — checked: ${Number(supplyPress) > 300 ? 'true' : 'false'} (required if supply pressure > 300 kPa)
+8. Water Meter — qty: 1 pc — specify ${pipeDiaMM} mm, multi-jet type, MWSS/LWUA approved, flanged or threaded connections
+9. Backflow Preventer / Check Valve — qty: 1 pc — specify ${pipeDiaMM} mm, double-check assembly type, PN16, at meter outlet per Philippine Plumbing Code
+10. ${hasHot ? 'Hot Water Supply Pipe, CPVC or Cu' : 'Cold Water Branch Pipe, PVC'} — qty: ${Math.round(pLen * 0.5)} m — specify 20 mm or 15 mm as required for branch lines to fixtures
+11. Pipe Insulation (for hot water lines) — qty: ${hasHot ? Math.round(pLen * 0.5) : 0} m — specify closed-cell foam 13mm, aluminum foil jacket, for all hot water pipes — checked: ${hasHot ? 'true' : 'false'}
+12. Pipe Supports and Hangers — qty: ${nSupports} sets — specify galvanized pipe clamp or clevis hanger, spacing per Philippine Plumbing Code (${pipeMat} at ${pipeDiaMM} mm)
+13. Pressure Gauge (at PRV outlet and riser base) — qty: 2 pcs — specify 0–700 kPa, 100mm dial, glycerin-filled
+14. Pipe Labelling and Colour Banding — qty: 1 lot — specify per Philippine Plumbing Code: cold water = blue, hot water = red/orange
+15. Miscellaneous (Teflon tape, pipe cement for PVC, hangers, anchors, cleanouts) — qty: 1 lot
+
+Specifications must reference PNS/NSF potable water standards, ${pipeDiaMM} mm throughout main line. All valves and fittings rated for potable water contact.
+
+ARRAY 2 — "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
+Each object: { "section_no": string, "title": string, "content": string, "checked": boolean }
+
+Required sections:
+- "1.0" General Scope — checked: true
+- "2.0" Applicable Standards and Codes — checked: true (list: Philippine Plumbing Code (PPC) — based on UPC/IPC, NSF/PNS 65 potable water piping, PSME Code, LWUA/MWSS connection standards, PEC 2017 for any electrical components, DOLE OSH)
+- "3.0" Materials — checked: true (reference BOM, all pipes and fittings potable water rated NSF/PNS 65, ${pipeMat} at ${pipeDiaMM} mm nominal, all valves bronze or NSF-approved material)
+- "4.1" Equipment and Material Delivery — checked: true (material test certificates and NSF/PNS compliance certificates to be submitted; all materials inspected on delivery before installation)
+- "4.2" Pipe Installation — checked: true (specify jointing method for ${pipeMat}, support spacing per Philippine Plumbing Code, 25mm clearance from structural elements, grading toward drain points, sleeve through walls)
+- "4.3" Valve and Meter Installation — checked: true (isolation valves at each riser base and branch takeoff, water meter accessible for reading, PRV accessible for adjustment)
+- "4.4" Pipe Supports and Sleeves — checked: true (hanger spacing per PPC, all pipe penetrations through slabs/walls with galvanized sleeves sealed with fire-rated sealant at fire-rated assemblies)
+- "4.5" Hot Water Piping Works — checked: ${hasHot ? 'true' : 'false'} (CPVC or copper for hot water lines, all hot water pipes insulated with closed-cell foam 13mm, slope toward drain for system draining)
+- "4.6" Pressure Testing — checked: true (hydrostatic test at 2× working pressure (${Math.round(Number(supplyPress) * 2)} kPa) or minimum 1,000 kPa for 30 minutes, all joints and valves checked for leaks, document and submit test records)
+- "4.7" Disinfection and Flushing — checked: true (flush system at 1.5× design velocity, disinfect with chlorine solution 50 ppm for 24 hours per Philippine Plumbing Code, flush until residual chlorine < 0.5 ppm before connection to fixtures)
+- "4.8" Commissioning and Handover — checked: true (verify flow at furthest fixture, measure residual pressure (must be ≥ ${minPress} kPa), check all fixture stop valves, submit commissioning report and water quality test results)
+- "4.9" As-Built Documentation — checked: true
+- "5.0" Inclusions — checked: false
+- "6.0" Exclusions — checked: false (civil / structural works, plumbing fixtures and fittings beyond stop valves, MWSS/LWUA service connection fees, water treatment equipment)
+- "7.0" Warranty — checked: false (1 year workmanship from acceptance; material warranty per manufacturer; leaks discovered within warranty period repaired at Contractor's cost)
+
+Each content must be 3-5 sentences in professional Philippine engineering contractor style. Reference: ${pipeDiaMM} mm ${pipeMat} pipe, ${supplyType} supply, ${peakLPS} L/s peak flow (${totalWFU} WFU), for ${project}.
+
+Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -534,6 +639,8 @@ serve(async (req) => {
       result = await pipeSizingBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Mechanical" && calc_type === "Compressed Air") {
       result = await compressedAirBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Plumbing" && calc_type === "Water Supply Pipe Sizing") {
+      result = await waterSupplyBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),
