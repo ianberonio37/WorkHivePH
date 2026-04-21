@@ -1585,6 +1585,120 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Chiller System — Air Cooled BOM + SOW Agent ─────────────────────────────
+
+async function chillerAirCooledBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project         = inputs.project_name    || "Chiller Plant Project";
+  const nUnits          = Number(inputs.n_units  ?? results.n_units ?? 1);
+  const nominalTR       = Number(results.nominal_TR_each ?? 50);
+  const nominalKW       = Number(results.nominal_kW_each ?? nominalTR * 3.517);
+  const totalTR         = Number(results.nominal_total_TR ?? nominalTR * nUnits);
+  const designKW        = Number(results.Q_design_kW ?? 0);
+  const compPowerKW     = Number(results.P_total_kW ?? 0);
+  const compPerUnitKW   = Number(results.P_per_unit_kW ?? compPowerKW / nUnits);
+  const totalKVA        = Number(results.total_kVA ?? compPowerKW / 0.85);
+  const totalAmp        = Number(results.total_A_at_400V ?? 0);
+  const chwFlowLps      = Number(results.Q_flow_lps ?? 0);
+  const chwFlowM3h      = Number(results.Q_flow_m3h ?? 0);
+  const airflowCMH      = Number(results.Q_airflow_CMH ?? 0);
+  const airflowPerUnit  = Number(results.Q_airflow_CMH_per_unit ?? airflowCMH / nUnits);
+  const ambientTemp     = Number(inputs.ambient_temp_C ?? 35);
+  const chwSupply       = Number(inputs.chw_supply_C ?? 7);
+  const chwReturn       = Number(inputs.chw_return_C ?? 12);
+  const dTchw           = Number(results.dT_chw_C ?? (chwReturn - chwSupply));
+  const cop             = Number(inputs.cop ?? 3.0);
+  const copCheck        = String(results.cop_check ?? "PASS");
+  const ashraMinCop     = Number(results.ashrae_min_cop ?? 2.84);
+  const refrigerant     = String(results.refrigerant ?? "R-32 or R-410A");
+  const safetyFactor    = Number(inputs.safety_factor ?? 1.15);
+
+  // COP FAIL flag — drives mandatory upgrade language in SOW
+  const isCopFail = copCheck === "FAIL";
+  const copNote   = isCopFail
+    ? `FAIL — specified COP ${cop} is below ASHRAE 90.1 minimum of ${ashraMinCop}. Equipment must be re-selected with COP ≥ ${ashraMinCop} before procurement. Proceed with BOM procurement only after COP-compliant equipment is confirmed from manufacturer.`
+    : `PASS — COP ${cop} meets ASHRAE 90.1 minimum of ${ashraMinCop}.`;
+
+  // Multi-unit flag — N+1 language for 2+ chillers
+  const isMultiUnit = nUnits >= 2;
+  const redundancyNote = isMultiUnit
+    ? `N+1 redundancy configuration: ${nUnits} units at ${nominalTR} TR each. Lead-lag sequencing required. Each unit must be capable of carrying the design load independently during standby operation.`
+    : `Single chiller configuration — no built-in redundancy. Consider portable rental chiller contingency plan for critical facilities.`;
+
+  // CHW pipe sizing estimate (velocity 1.5 m/s)
+  const chwPipeEst_mm = Math.ceil(Math.sqrt((chwFlowLps / (Math.PI / 4 * 1.5)) * 1e6) / 25) * 25;
+
+  const prompt = `You are a licensed Mechanical Engineer in the Philippines preparing official procurement and contracting documents for an AIR-COOLED CHILLER PLANT installation.
+
+PROJECT: ${project}
+DISCIPLINE: HVAC Systems — Air-Cooled Chiller Plant
+STANDARDS: ASHRAE 90.1 (energy efficiency), ASHRAE 15 (refrigerant safety), PSME Code, PEC 2017 (electrical), PGBC/BERDE (green building)
+
+CALCULATION RESULTS:
+- Building Cooling Load (input): ${designKW / safetyFactor} kW
+- Design Load (with ${safetyFactor}× safety factor): ${designKW} kW
+- Number of Chiller Units: ${nUnits}
+- Selected Nominal Capacity: ${nUnits} × ${nominalTR} TR (${nominalKW} kW) each
+- Total Installed Capacity: ${totalTR} TR
+- Compressor Power per Unit: ${compPerUnitKW} kW
+- Total Compressor Power: ${compPowerKW} kW
+- Apparent Power: ${totalKVA} kVA
+- Full Load Current (3-phase 400V): ${totalAmp} A
+- COP: ${cop} — ASHRAE 90.1 Check: ${copNote}
+- CHW Supply / Return: ${chwSupply}°C / ${chwReturn}°C (ΔT = ${dTchw}°C)
+- CHW Flow Rate: ${chwFlowLps} L/s (${chwFlowM3h} m³/h)
+- Condenser Airflow: ${airflowCMH} CMH total (${airflowPerUnit} CMH per unit)
+- Design Ambient Temperature: ${ambientTemp}°C
+- Refrigerant: ${refrigerant}
+- Redundancy: ${redundancyNote}
+
+Generate a JSON object with exactly two arrays:
+
+ARRAY 1 — "bom_items": 15 items for a complete air-cooled chiller plant BOM.
+Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
+
+Required items (use the calculated quantities above):
+1. Air-Cooled Chiller Unit — ${nominalTR} TR (${nominalKW} kW) each, ${refrigerant}, COP ≥ ${cop} at ${ambientTemp}°C ambient, ASHRAE 90.1 compliant, factory-tested — qty: ${nUnits}
+2. Chiller Controller / BMS Interface — DDC controller with Modbus/BACnet, CHW setpoint reset, lead-lag sequencing (${isMultiUnit ? 'mandatory for ' + nUnits + ' units' : 'optional for single unit'}) — qty: 1 set
+3. Chilled Water Pump, Base-Mounted — end-suction centrifugal pump, ${Math.round(chwFlowM3h)} m³/h, rated head TBD by hydraulic design, TEFC motor — qty: ${isMultiUnit ? nUnits + 1 : 2} (${isMultiUnit ? 'N+1 duty-standby per chiller' : 'duty + standby'})
+4. Chilled Water Pipe, Insulated Carbon Steel Schedule 40 — estimated ~${chwPipeEst_mm}mm nominal dia, pre-insulated with 50mm closed-cell foam, all joints flanged or groove-coupled — qty: 1 lot
+5. Chilled Water Valves and Fittings — butterfly valves (isolation), globe valves (balancing), strainer, flexible connectors at each chiller/pump — qty: 1 lot
+6. Expansion Tank, Closed-Type — ASME rated, pre-charged, sized for ${Math.round(chwFlowM3h * 0.05)} L minimum — qty: 1 unit
+7. Chemical Dosing System — inhibitor dosing pot, glycol feeder (if required), water quality test kit, initial chemical charge — qty: 1 set
+8. Main Circuit Breaker / Disconnect, 3-phase — MCCB rated ≥ ${Math.ceil(totalAmp * 1.25 / 10) * 10} A, 400V 3-phase, one per chiller — qty: ${nUnits}
+9. Power Wiring, 3-phase, Cu XLPE — from MCC/switchboard to each chiller, estimated 30m run per unit, size per PEC 2017 at ${Math.ceil(compPerUnitKW / 0.85 / (Math.sqrt(3) * 0.4) * 1.25)} A — qty: ${nUnits * 30} m
+10. Control Wiring, Shielded — from BMS/DDC to each chiller for monitoring and control — qty: 1 lot
+11. Equipment Mounting Frames and Anti-Vibration Pads — structural steel mounting frame, neoprene anti-vibration pads rated for chiller weight, each unit — qty: ${nUnits} sets
+12. Refrigerant Leak Detection System — electrochemical sensor per machine room, alarm panel, per ASHRAE 15 — qty: 1 set
+13. Safety Signage and Labels — refrigerant type, pressure ratings, SWL, emergency shutdown location, ASHRAE 15 and PSME required — qty: 1 lot
+14. Insulation and Vapor Barrier, CHW Pipes — 50mm closed-cell elastomeric foam, vapor-sealed all joints, for all chilled water pipes and fittings in conditioned space — qty: 1 lot
+15. Commissioning, Testing and Balancing — factory witness test report, site commissioning by manufacturer-authorized engineer, hydronic balancing, COP verification at design conditions, O&M manual — qty: 1 lot${isCopFail ? ' — HOLD: do not commission until COP-compliant equipment is confirmed' : ''}
+
+ARRAY 2 — "sow_sections": 8 sections (each: section_no, title, content).
+Cover:
+1. Scope of Works — install ${nUnits} × ${nominalTR} TR air-cooled chiller(s), CHW distribution, pumps, controls, electrical, commissioning for ${project}
+2. Design Basis — ASHRAE 90.1, cooling load ${designKW} kW (${(designKW/3.517).toFixed(1)} TR) with ${safetyFactor}× safety, CHW ${chwSupply}/${chwReturn}°C, ambient ${ambientTemp}°C, COP ${cop} — ${copCheck}${isCopFail ? ` — FAIL: re-select equipment before procurement` : ''}
+3. Equipment Supply and Installation — chiller placement with minimum 1.2m clearance all sides for condenser airflow, no condenser air recirculation, alignment per manufacturer, ${isMultiUnit ? 'lead-lag sequencing controller wired and commissioned' : 'BMS connection'}, anti-vibration mounts required
+4. Chilled Water System — CHW piping at ${chwFlowLps} L/s (${chwFlowM3h} m³/h), insulate all CHW pipes with 50mm closed-cell foam vapor-sealed, hydronic balancing by certified TAB contractor after commissioning, system flushing before connection to chiller evaporator
+5. Refrigerant Safety (ASHRAE 15) — ${refrigerant} refrigerant, leak detection required in equipment room, ventilation minimum 6 ACH per ASHRAE 15, refrigerant charge log to be maintained, only PSME/EPA-certified technicians to handle refrigerant
+6. Electrical Works — ${totalKVA} kVA total, 3-phase 400V supply, ${totalAmp} A FLA, MCCB per unit rated ≥ ${Math.ceil(totalAmp * 1.25 / 10) * 10} A, all electrical works by PEC-licensed master electrician, electrical permit from LGU before commencement
+7. Testing and Commissioning — system pressure test at 1.5× working pressure, CHW flow balancing, COP verification at design conditions (${ambientTemp}°C ambient, ${chwSupply}°C supply, ${chwReturn}°C return), factory witness test report required, O&M manual and as-built drawings to Owner${isCopFail ? ` — MANDATORY HOLD POINT: do not energize or commission until COP-compliant replacement equipment is confirmed` : ''}
+8. Regulatory Compliance — PSME Code, ASHRAE 90.1/15, PEC 2017, PGBC/BERDE energy performance requirements, DOLE OSH for refrigerant handling, LGU building permit and mechanical permit, PRC-licensed Mechanical Engineer to sign and seal this design calculation
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw    = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -1655,6 +1769,8 @@ serve(async (req) => {
       result = await elevatorTrafficBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Vertical Transportation" && calc_type === "Hoist Capacity") {
       result = await hoistCapacityBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "HVAC Systems" && calc_type === "Chiller System — Air Cooled") {
+      result = await chillerAirCooledBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),
