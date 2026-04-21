@@ -9028,13 +9028,6 @@ function printReport() {
   const editableEls = reportEl.querySelectorAll('.editable-field');
   editableEls.forEach(el => el.style.borderBottom = 'none');
 
-  // Strip the panel's own padding so html2pdf margins are the only whitespace.
-  // Keeping both causes double-margin — content overflows the page and gets clipped.
-  const origPadding = reportEl.style.padding;
-  reportEl.style.padding = '0';
-  // Small bottom buffer so html2pdf does not clip the very last line
-  reportEl.style.paddingBottom = '8px';
-
   // Inject page-break rules so html2pdf never splits a table row, heading, or
   // result block across two pages
   const styleTag = document.createElement('style');
@@ -9052,11 +9045,18 @@ function printReport() {
   document.head.appendChild(styleTag);
 
   const opt = {
-    margin:      [16, 16, 16, 16], // top, right, bottom, left in mm — uniform 16mm margin
+    margin:      [14, 14, 14, 14], // mm — uniform margin; panel's own padding provides inner whitespace
     filename:    fileName,
     image:       { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
-    jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    html2canvas: {
+      scale:          2,
+      useCORS:        true,
+      letterRendering: true,
+      scrollY:        0,
+      // Force layout at A4 width (794px at 96dpi) so content never overflows right edge
+      windowWidth:    794,
+    },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     // no pagebreak mode — avoid-all causes a blank first page on mobile
   };
 
@@ -9064,7 +9064,6 @@ function printReport() {
     // Restore styles after PDF is generated
     noPrintEls.forEach(el => el.style.display = '');
     editableEls.forEach(el => el.style.borderBottom = '1.5px dashed #F7A21B');
-    reportEl.style.padding = origPadding;
     document.getElementById('pdf-pagebreak-rules')?.remove();
   });
 }
