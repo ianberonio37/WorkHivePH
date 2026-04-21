@@ -8555,7 +8555,7 @@ async function generateBomSowChecklist() {
     'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design'],
     'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing'],
     'Fire Protection':         ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],
-    'Vertical Transportation': ['Elevator Traffic Analysis'],
+    'Vertical Transportation': ['Elevator Traffic Analysis', 'Hoist Capacity'],
   };
   const supportedForDiscipline = BOM_SOW_SUPPORTED[_discipline] || [];
   if (!supportedForDiscipline.includes(_calcType)) {
@@ -8748,8 +8748,11 @@ function renderBomTablePreview(items) {
   const isSPress   = _calcType === 'Stairwell Pressurization';
   const isFABatt   = _calcType === 'Fire Alarm Battery';
   const isElev     = _calcType === 'Elevator Traffic Analysis';
-  const calcRef = `${isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
-  const disciplineSystem = isElev
+  const isHoist    = _calcType === 'Hoist Capacity';
+  const calcRef = `${isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const disciplineSystem = isHoist
+    ? `Vertical Transportation — Hoist Capacity (${_lastInputs?.hoist_type || ''}, SWL=${_lastInputs?.rated_load_kg || ''}kg, GL=${_lastResults?.gross_load_kg || ''}kg, MBF=${_lastResults?.MBF_kN || ''}kN, SF=${_lastInputs?.safety_factor || ''}:1 ${_lastResults?.safety_factor_check || ''}, Motor=${_lastResults?.motor_hp_std || ''}HP)`
+    : isElev
     ? `Vertical Transportation — Elevator Traffic Analysis (${_lastInputs?.occupancy_type || ''}, ${_lastInputs?.n_elevators || ''}× elevators, ${_lastInputs?.capacity || ''}pax @ ${_lastInputs?.speed || ''}m/s, RTT=${_lastResults?.RTT_s || ''}s, Interval=${_lastResults?.interval_s || ''}s, HC=${_lastResults?.HC_pct || ''}%)`
     : isFABatt
     ? `Fire Protection — Fire Alarm Battery (${_lastInputs?.system_voltage || 24}V DC, ${_lastInputs?.standby_hours || 24}h standby + ${_lastInputs?.alarm_minutes || 5}min alarm, Required ${_lastResults?.Ah_required || ''}Ah, Selected: ${_lastResults?.battery_config || _lastResults?.selected_Ah + 'Ah'})`
@@ -8949,12 +8952,15 @@ function renderSowDocPreview(sections) {
   const isSPress   = _calcType === 'Stairwell Pressurization';
   const isFABatt   = _calcType === 'Fire Alarm Battery';
   const isElev     = _calcType === 'Elevator Traffic Analysis';
-  const calcRef = `${isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const isHoist    = _calcType === 'Hoist Capacity';
+  const calcRef = `${isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
   const unitKW = _lastResults?.ac_size_kw        || '';
-  const ventSystemLine = isElev
+  const ventSystemLine = isHoist
+    ? `Hoist Capacity — ${_lastInputs?.hoist_type || ''}, SWL=${_lastInputs?.rated_load_kg || ''}kg, GL=${_lastResults?.gross_load_kg || ''}kg, MBF=${_lastResults?.MBF_kN || ''}kN (SF=${_lastInputs?.safety_factor || ''}:1 ${_lastResults?.safety_factor_check || ''}), Motor=${_lastResults?.motor_hp_std || ''}HP (${_lastResults?.motor_kW || ''}kW), Rope=${_lastResults?.rope_recommendation || ''}`
+    : isElev
     ? `Elevator Traffic Analysis — ${_lastInputs?.occupancy_type || ''}, ${_lastInputs?.n_elevators || ''}× elevators × ${_lastInputs?.capacity || ''}pax @ ${_lastInputs?.speed || ''}m/s, ${_lastInputs?.n_floors || ''} floors, RTT=${_lastResults?.RTT_s || ''}s, Interval=${_lastResults?.interval_s || ''}s, HC=${_lastResults?.HC_pct || ''}%, 5-min capacity=${_lastResults?.capacity_5min || ''} persons`
     : isFABatt
     ? `Fire Alarm Battery — ${_lastInputs?.system_voltage || 24}V DC, ${_lastInputs?.standby_hours || 24}h standby + ${_lastInputs?.alarm_minutes || 5}min alarm, I_standby=${_lastResults?.I_standby_total_mA || ''}mA, I_alarm=${_lastResults?.I_alarm_total_mA || ''}mA, Required=${_lastResults?.Ah_required || ''}Ah, Selected: ${_lastResults?.battery_config || _lastResults?.selected_Ah + 'Ah'}`

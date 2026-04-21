@@ -1505,6 +1505,86 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Vertical Transportation: Hoist Capacity BOM + SOW Agent ─────────────────
+
+async function hoistCapacityBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project        = inputs.project_name    || "Hoist System Project";
+  const hoistType      = String(inputs.hoist_type    || "Wire Rope Electric");
+  const ratedLoadKg    = Number(inputs.rated_load_kg  ?? 2000);
+  const hookWeightKg   = Number(inputs.hook_weight_kg ?? 30);
+  const slingWeightKg  = Number(inputs.sling_weight_kg ?? 15);
+  const liftHeightM    = Number(inputs.lift_height_m  ?? 6);
+  const liftSpeedMpm   = Number(inputs.lift_speed_mpm ?? 8);
+  const nParts         = Number(inputs.n_parts        ?? 1);
+  const safetyFactor   = Number(inputs.safety_factor  ?? 5);
+  const mechEffPct     = Number(inputs.mech_eff_pct   ?? 82);
+
+  const grossLoadKg    = results.gross_load_kg       ?? (ratedLoadKg + hookWeightKg + slingWeightKg);
+  const grossLoadKN    = results.gross_load_kN        ?? "N/A";
+  const MBF_kg         = results.MBF_kg              ?? "N/A";
+  const MBF_kN         = results.MBF_kN              ?? "N/A";
+  const ropeRec        = String(results.rope_recommendation ?? "6×19 IWRC wire rope");
+  const ropeLengthM    = results.rope_length_m        ?? "N/A";
+  const motorHpStd     = results.motor_hp_std         ?? "N/A";
+  const motorKW        = results.motor_kW             ?? "N/A";
+  const sfCheck        = String(results.safety_factor_check ?? "PASS");
+  const ropePullKg     = results.rope_pull_kg         ?? "N/A";
+
+  // PASS/FAIL flag — safety factor below ASME B30.2 minimum of 5:1
+  const isSFail        = sfCheck === "FAIL";
+  const sfNote         = isSFail
+    ? `CRITICAL: Safety factor of ${safetyFactor}:1 is BELOW the ASME B30.2 minimum of 5:1. The hoist MUST NOT be commissioned until the wire rope is upgraded to meet the minimum breaking force. SOW must include a HOLD POINT at rope installation pending third-party inspection.`
+    : `Safety factor of ${safetyFactor}:1 meets ASME B30.2 minimum of 5:1 — acceptable.`;
+
+  // Hoist type flags — chain hoist vs wire rope electric vs manual
+  const isChain        = hoistType.toLowerCase().includes("chain");
+  const isManual       = hoistType.toLowerCase().includes("manual");
+  const ropeOrChain    = isChain ? "load chain" : "wire rope";
+  const doleNote       = Number(ratedLoadKg) > 1000
+    ? `DOLE D.O. 13 requires third-party inspection and DOLE accreditation of riggers for hoists above 1 tonne. Include this in SOW as a mandatory pre-commissioning step.`
+    : `DOLE D.O. 13 rigging safety standards apply. Rigger competency verification required before first lift.`;
+
+  const prompt = `You are a Philippine mechanical engineering expert in lifting and rigging (ASME B30.2, ASME B30.16, DOLE D.O. 13). Generate a professional BOM and SOW for a HOIST SYSTEM installation project.
+
+PROJECT: ${project}
+HOIST TYPE: ${hoistType}
+RATED LOAD (SWL): ${ratedLoadKg} kg
+HOOK / BLOCK DEAD WEIGHT: ${hookWeightKg} kg
+SLING / RIGGING WEIGHT: ${slingWeightKg} kg
+GROSS LOAD (GL): ${grossLoadKg} kg (${grossLoadKN} kN)
+LIFT HEIGHT: ${liftHeightM} m
+LIFTING SPEED: ${liftSpeedMpm} m/min
+PARTS OF LINE (rope falls): ${nParts}
+SAFETY FACTOR: ${safetyFactor}:1 — ${sfNote}
+MECHANICAL EFFICIENCY: ${mechEffPct}%
+WIRE ROPE / CHAIN: MBF required = ${MBF_kN} kN (${MBF_kg} kg) — Recommended: ${ropeRec}
+ROPE / CHAIN LENGTH: ${ropeLengthM} m minimum
+ROPE PULL PER PART: ${ropePullKg} kg
+HOIST MOTOR: ${motorHpStd} HP (${motorKW} kW)
+${doleNote}
+STANDARDS: ASME B30.2 (Overhead & Gantry Cranes), ASME B30.16 (Overhead Hoists), ASME B30.9 (Slings), DOLE D.O. 13 s.1998, PCAB Rigging Standards
+
+Generate a JSON object with:
+1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: ${isChain ? `Electric chain hoist — ${ratedLoadKg} kg SWL, ${liftSpeedMpm} m/min, ASME B30.16 compliant, pendant-operated (1 unit)` : `Wire rope electric hoist — ${ratedLoadKg} kg SWL, ${liftSpeedMpm} m/min, ${motorHpStd} HP motor, ASME B30.2 compliant (1 unit)`}; hoist motor — ${motorHpStd} HP (${motorKW} kW), TEFC, Class F insulation, designed for S3/S4 duty cycle, IP55 (${isManual ? "not required — manual hoist" : "1 unit"}); ${ropeOrChain} — ${isChain ? `grade 80 alloy steel load chain, ${ropeLengthM} m, SWL ${ratedLoadKg} kg, ASME B30.9` : `${ropeRec}, ${ropeLengthM} m minimum, MBF ≥ ${MBF_kN} kN, ASME B30.2 SF = ${safetyFactor}:1`} (1 set); hook block assembly — swivel hook with safety latch, rated ${ratedLoadKg} kg SWL, forged alloy steel, ASME B30.10 (1 unit); upper suspension / trolley — plain trolley or motorized trolley for I-beam runway, rated ≥ ${Number(grossLoadKg) * 1.25} kg, adjustable flange (1 unit); runway beam / monorail — wide-flange I-beam, structural steel (verify size with structural engineer for ${grossLoadKg} kg gross load with 1.25 dynamic impact factor), length per field layout (1 set); end stops / bumpers — welded steel stops at both ends of runway beam, rated for full loaded trolley impact (2 units per runway); runway beam support brackets and connections — welded or bolted to building structure (structural engineer to verify adequacy for ${grossLoadKg} kg + 25% impact); wire rope drum and sheave set (if multi-part reeving, ${nParts} parts of line) — grooved drum, flanged sheaves, minimum D/d ratio = 18 per ASME B30.2 (1 set); hoist limit switches — upper and lower travel limit switches, automatic cut-off, per ASME B30.16 (1 set); pendant control station — push-button pendant, UP/DOWN/STOP, cord-suspended at operator reach height, IP65 (${isManual ? "not applicable — manual hoist" : "1 unit"}); sling set — wire rope slings or chain slings, rated ${ratedLoadKg} kg SWL, ASME B30.9, with identification tags (1 set); safety signage — SWL rating plate permanently attached to hoist, rigging safety signs at lift area, per DOLE D.O. 13 (1 set); load test weights and third-party inspection service — static test at 125% SWL = ${Math.round(ratedLoadKg * 1.25)} kg, dynamic test per ASME B30.2 Section 2-2.2, DOLE-accredited third-party inspector${isSFail ? " — MANDATORY HOLD POINT before commissioning due to safety factor FAIL" : ""}
+2. "sow_sections": array of 8 sections (each: section_no, title, content)
+   Cover: Scope of Works, Design Basis (ASME B30.2 SWL method, ${ratedLoadKg} kg SWL, GL=${grossLoadKg} kg, MBF=${MBF_kN} kN required, SF=${safetyFactor}:1 — ${sfCheck}${isSFail ? " — WIRE ROPE UPGRADE MANDATORY before commissioning" : ""}), Structural Verification (runway beam and support structure must be verified by PRC-licensed Civil/Structural Engineer for ${grossLoadKg} kg gross load with 1.25 dynamic impact factor before hoist installation), Hoist and Trolley Installation (alignment, end stop installation, limit switch setting, lubrication, per ASME B30.16 manufacturer instructions), Wire Rope / Chain Installation and Reeving (${ropeOrChain} installation, reeving diagram for ${nParts} parts of line, minimum 3 dead wraps on drum, end termination per ASME B30.2, mandatory pre-use inspection before first lift), Rigging and Sling Requirements (ASME B30.9 sling inspection, angle factor, tag verification, DOLE D.O. 13 rigger competency — ${doleNote}), Load Testing and Third-Party Inspection (static proof load test at 125% SWL = ${Math.round(ratedLoadKg * 1.25)} kg, dynamic load test at 100% SWL through full travel per ASME B30.2 Section 2-2.2, DOLE-accredited inspector, certificate of compliance before first operational use${isSFail ? " — THIS STEP IS A MANDATORY HOLD POINT: do not commission until safety factor deficiency is resolved and re-inspected" : ""}), Regulatory Compliance and Maintenance (DOLE D.O. 13, PCAB rigging standards, daily visual inspection log, monthly detailed inspection, annual third-party re-inspection, wire rope replacement criteria per ASME B30.2, PRC-licensed Mechanical Engineer sign-off on this calculation)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -1573,6 +1653,8 @@ serve(async (req) => {
       result = await fireAlarmBatteryBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Vertical Transportation" && calc_type === "Elevator Traffic Analysis") {
       result = await elevatorTrafficBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Vertical Transportation" && calc_type === "Hoist Capacity") {
+      result = await hoistCapacityBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),
