@@ -8554,7 +8554,8 @@ async function generateBomSowChecklist() {
     'Mechanical': ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air'],
     'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design'],
     'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing'],
-    'Fire Protection': ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],
+    'Fire Protection':         ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],
+    'Vertical Transportation': ['Elevator Traffic Analysis'],
   };
   const supportedForDiscipline = BOM_SOW_SUPPORTED[_discipline] || [];
   if (!supportedForDiscipline.includes(_calcType)) {
@@ -8746,8 +8747,11 @@ function renderBomTablePreview(items) {
   const isFPump    = _calcType === 'Fire Pump Sizing';
   const isSPress   = _calcType === 'Stairwell Pressurization';
   const isFABatt   = _calcType === 'Fire Alarm Battery';
-  const calcRef = `${isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
-  const disciplineSystem = isFABatt
+  const isElev     = _calcType === 'Elevator Traffic Analysis';
+  const calcRef = `${isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const disciplineSystem = isElev
+    ? `Vertical Transportation — Elevator Traffic Analysis (${_lastInputs?.occupancy_type || ''}, ${_lastInputs?.n_elevators || ''}× elevators, ${_lastInputs?.capacity || ''}pax @ ${_lastInputs?.speed || ''}m/s, RTT=${_lastResults?.RTT_s || ''}s, Interval=${_lastResults?.interval_s || ''}s, HC=${_lastResults?.HC_pct || ''}%)`
+    : isFABatt
     ? `Fire Protection — Fire Alarm Battery (${_lastInputs?.system_voltage || 24}V DC, ${_lastInputs?.standby_hours || 24}h standby + ${_lastInputs?.alarm_minutes || 5}min alarm, Required ${_lastResults?.Ah_required || ''}Ah, Selected: ${_lastResults?.battery_config || _lastResults?.selected_Ah + 'Ah'})`
     : isSPress
     ? `Fire Protection — Stairwell Pressurization (${_lastResults?.building_type || ''}, ${_lastResults?.N_stairwells || ''}× fans, ${_lastResults?.Q_per_CMH || ''}m³/h each, ΔP=${_lastResults?.delta_P_Pa || ''}Pa, ${_lastResults?.selected_HP || ''}HP motor)`
@@ -8944,12 +8948,15 @@ function renderSowDocPreview(sections) {
   const isFPump    = _calcType === 'Fire Pump Sizing';
   const isSPress   = _calcType === 'Stairwell Pressurization';
   const isFABatt   = _calcType === 'Fire Alarm Battery';
-  const calcRef = `${isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const isElev     = _calcType === 'Elevator Traffic Analysis';
+  const calcRef = `${isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
   const unitKW = _lastResults?.ac_size_kw        || '';
-  const ventSystemLine = isFABatt
+  const ventSystemLine = isElev
+    ? `Elevator Traffic Analysis — ${_lastInputs?.occupancy_type || ''}, ${_lastInputs?.n_elevators || ''}× elevators × ${_lastInputs?.capacity || ''}pax @ ${_lastInputs?.speed || ''}m/s, ${_lastInputs?.n_floors || ''} floors, RTT=${_lastResults?.RTT_s || ''}s, Interval=${_lastResults?.interval_s || ''}s, HC=${_lastResults?.HC_pct || ''}%, 5-min capacity=${_lastResults?.capacity_5min || ''} persons`
+    : isFABatt
     ? `Fire Alarm Battery — ${_lastInputs?.system_voltage || 24}V DC, ${_lastInputs?.standby_hours || 24}h standby + ${_lastInputs?.alarm_minutes || 5}min alarm, I_standby=${_lastResults?.I_standby_total_mA || ''}mA, I_alarm=${_lastResults?.I_alarm_total_mA || ''}mA, Required=${_lastResults?.Ah_required || ''}Ah, Selected: ${_lastResults?.battery_config || _lastResults?.selected_Ah + 'Ah'}`
     : isSPress
     ? `Stairwell Pressurization — ${_lastResults?.building_type || ''}, ${_lastResults?.N_stairwells || ''} stairwells, ${_lastResults?.N_floors || ''} floors, ΔP=${_lastResults?.delta_P_Pa || ''}Pa, Q_design=${_lastResults?.Q_design_CMH || ''}m³/h, Fan ${_lastResults?.selected_HP || ''}HP, Door force=${_lastResults?.F_total_N || ''}N (${_lastResults?.door_force_ok ? 'OK' : 'EXCEEDS LIMIT'})`

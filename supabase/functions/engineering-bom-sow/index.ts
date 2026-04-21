@@ -1422,6 +1422,89 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Vertical Transportation: Elevator Traffic Analysis BOM + SOW Agent ───────
+
+async function elevatorTrafficBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project        = inputs.project_name   || "Elevator Installation Project";
+  const occupancyType  = String(inputs.occupancy_type || "Office");
+  const nFloors        = Number(inputs.n_floors        ?? 12);
+  const floorHeight    = Number(inputs.floor_height    ?? 3.5);
+  const population     = Number(inputs.population      ?? 500);
+  const nElevators     = Number(inputs.n_elevators     ?? 3);
+  const capacity       = Number(inputs.capacity        ?? 13);
+  const speed          = Number(inputs.speed           ?? 1.5);
+  const tDoorOpen      = Number(inputs.t_door_open     ?? 2.5);
+  const tDoorClose     = Number(inputs.t_door_close    ?? 3.0);
+  const tDwell         = Number(inputs.t_dwell         ?? 2.0);
+
+  const RTT_s          = results.RTT_s          ?? "N/A";
+  const interval_s     = results.interval_s     ?? "N/A";
+  const HC_pct         = results.HC_pct         ?? "N/A";
+  const capacity_5min  = results.capacity_5min  ?? "N/A";
+  const H_m            = results.H_m            ?? (nFloors * floorHeight).toFixed(1);
+  const avg_stops      = results.avg_stops      ?? "N/A";
+  const effective_pax  = results.effective_pax  ?? Math.round(capacity * 0.8);
+  const target_interval = results.target_interval_s ?? (occupancyType === "Office" ? 30 : 40);
+  const target_HC      = results.target_HC_pct  ?? (occupancyType === "Office" ? 12 : 11);
+
+  // Grade assessment flags — drive document tone
+  const intervalNum    = Number(interval_s);
+  const hcNum          = Number(HC_pct);
+  const intervalGrade  = intervalNum <= 30 ? "Excellent" : intervalNum <= 40 ? "Good" : intervalNum <= 60 ? "Adequate" : "Poor";
+  const hcGrade        = hcNum >= 12 ? "Excellent" : hcNum >= 11 ? "Good" : hcNum >= 9 ? "Adequate" : "Poor";
+  const isPoor         = intervalGrade === "Poor" || hcGrade === "Poor";
+  const gradeNote      = isPoor
+    ? `WARNING: Grade of service is POOR (Interval=${interval_s}s, HC=${HC_pct}%). SOW must include a remediation clause — consider increasing speed, adding an elevator to the group, or adjusting group supervisory control before building permit submission.`
+    : `Grade of service is ${intervalGrade} / ${hcGrade} (Interval=${interval_s}s vs target ${target_interval}s, HC=${HC_pct}% vs target ${target_HC}%) — acceptable for a ${occupancyType} building.`;
+
+  // Speed tier drives machine room and drive type recommendations
+  const isHighSpeed    = speed >= 2.5;
+  const machineType    = isHighSpeed ? "Gearless traction machine (VVVF drive)" : "Geared traction machine (VVVF drive)";
+  const motorKW        = Math.round(capacity * speed * 0.15 * nElevators); // rough estimate
+
+  const prompt = `You are a Philippine vertical transportation engineering expert (ASME A17.1, EN 81, CIBSE Guide D). Generate a professional BOM and SOW for an ELEVATOR INSTALLATION project based on the traffic analysis results.
+
+PROJECT: ${project}
+OCCUPANCY TYPE: ${occupancyType}
+BUILDING: ${nFloors} floors, ${floorHeight} m floor-to-floor, total rise ${H_m} m
+POPULATION SERVED: ${population} persons (up-peak scenario)
+ELEVATOR GROUP: ${nElevators} elevator(s), ${capacity}-person capacity each
+RATED SPEED: ${speed} m/s — Machine type: ${machineType}
+DOOR TIMING: Open ${tDoorOpen}s / Close ${tDoorClose}s / Dwell ${tDwell}s
+AVERAGE STOPS PER TRIP: ${avg_stops}
+EFFECTIVE PASSENGERS PER TRIP (80% loading): ${effective_pax}
+
+TRAFFIC ANALYSIS RESULTS:
+- Round Trip Time (RTT): ${RTT_s} seconds
+- Interval Between Arrivals: ${interval_s} s (target: ${target_interval} s for ${occupancyType})
+- 5-Min Handling Capacity (HC%): ${HC_pct}% (target: ${target_HC}% for ${occupancyType})
+- 5-Min Capacity: ${capacity_5min} persons of ${population} total
+- Interval Grade: ${intervalGrade} | HC Grade: ${hcGrade}
+- ${gradeNote}
+
+STANDARDS: ASME A17.1 (Safety Code for Elevators), EN 81-1/EN 81-2 (Safety Rules for Lifts), CIBSE Guide D (Transportation Systems), National Building Code PD 1096, BP 344 / RA 10754 (Accessibility Law — PWD requirements), Philippine Electrical Code (PEC) for elevator motor circuits
+
+Generate a JSON object with:
+1. "bom_items": array of 16 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: Traction elevator machine — ${machineType}, ${capacity}-person (${capacity * 75}kg) rated load, ${speed} m/s, ${nElevators} units (ASME A17.1 compliant, factory-tested); elevator car and sling — ${capacity}-person rated, GI sheet cab with stainless steel interior finish, LED lighting, ventilation fan, emergency light, intercom (${nElevators} units); counterweight assembly — cast iron blocks, guided by T-section guide rails (${nElevators} sets); guide rails — T-section steel, cold-drawn, for car and counterweight (${nElevators} sets, rail length = ${H_m} m per set × 2); suspension ropes / steel wire ropes — 6×19 construction or 8×19, factor of safety ≥12 per ASME A17.1 (${nElevators} sets); VVVF drive / variable voltage variable frequency controller — regenerative type preferred, rated for ${speed} m/s, ${capacity * 75}kg (${nElevators} units); automatic rescue device / ARD — brings car to nearest floor on power failure, required for ${nFloors}-floor building (${nElevators} units); landing doors and frames — stainless steel, 2-panel center-opening, ${nFloors} floors × ${nElevators} elevators = ${nFloors * nElevators} sets (ASME A17.1 door interlock required); car door operator and safety edge / light curtain — full-height infrared light curtain, re-opening on obstruction, per ASME A17.1 Section 2.11 (${nElevators} units); group supervisory controller / group dispatch panel — microprocessor-based, up/down collective with destination dispatch option, for ${nElevators}-elevator group (1 unit); machine room or machine room-less MRL panel — control cabinet with main breaker, door interlock monitoring, overload protection (${nElevators} units); pit equipment — buffers (spring or oil type per speed ${speed} m/s), pit stop switch, pit lighting, sump pump if required (${nElevators} pits); PWD-compliant car — one car in group must have: minimum 1100 mm × 1400 mm interior, Braille + tactile controls, audible floor announcements, handrail, mirror per BP 344 / RA 10754 (1 unit designated); intercom and emergency phone — two-way communication to building security or monitoring station, per ASME A17.1 Section 2.27 (${nElevators} units); elevator shaft construction — reinforced concrete hoistway, minimum ${nElevators} shaft(s), internal dimensions per car size + clearances per ASME A17.1 (civil works — contractor to confirm dimensions); annual maintenance and inspection kit — lubrication, brake adjustment, safety gear test, governor test, load test tools per ASME A17.1 Section 8.6 (1 set per elevator group)
+2. "sow_sections": array of 8 sections (each: section_no, title, content)
+   Cover: Scope of Works, Traffic Analysis Basis (CIBSE Guide D up-peak method, ${nElevators} elevators × ${capacity}-person @ ${speed} m/s, RTT=${RTT_s}s, Interval=${interval_s}s [${intervalGrade}], HC=${HC_pct}% [${hcGrade}]${isPoor ? " — REMEDIATION REQUIRED before permit submission" : " — acceptable for " + occupancyType}), Elevator Equipment Supply and Installation (traction machine, ropes, guide rails, counterweight, VVVF drive installation per ASME A17.1 Section 2), Hoistway and Machine Room Works (hoistway dimensional requirements per ASME A17.1, machine room ventilation, emergency lighting, fire rating of hoistway walls per NBC), Electrical Works (motor circuit sizing per PEC Art. 6.20 for elevator motors, machine room panel, emergency power connection, lighting circuit), Accessibility Compliance — BP 344 / RA 10754 (one designated PWD-accessible car with Braille controls, 1100×1400mm minimum car size, audible announcements, handrail, mirror, tactile floor indicators at landings), Inspection Testing and Commissioning (no-load and full-load test, governor and safety gear drop test, door interlock test, ARD test, buffer compression test, speed test per ASME A17.1 Section 8 — witnessed by DPWH / LGU building official and OSHC-accredited elevator inspector), Regulatory Compliance (National Building Code PD 1096, ASME A17.1 acceptance inspection, LGU elevator permit, BP 344 / RA 10754 PWD compliance, annual mandatory inspection per DOLE-OSHC, O&M manual and log book submission)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -1488,6 +1571,8 @@ serve(async (req) => {
       result = await stairwellPressBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Fire Protection" && calc_type === "Fire Alarm Battery") {
       result = await fireAlarmBatteryBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Vertical Transportation" && calc_type === "Elevator Traffic Analysis") {
+      result = await elevatorTrafficBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),
