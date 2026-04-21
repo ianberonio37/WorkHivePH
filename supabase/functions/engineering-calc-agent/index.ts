@@ -472,6 +472,126 @@ function calcPipeSizing(inputs: Record<string, number | string>) {
   };
 }
 
+// ─── Chiller System — Air Cooled Calculation ─────────────────────────────────
+// Method: Heat balance — Q_design = load × safety, P = Q/COP, Q_rejection = Q + P
+// Standards: ASHRAE 90.1 (min COP), ASHRAE 15 (safety), PSME Code
+function calcChillerAirCooled(inputs: Record<string, number | string>) {
+  const Q_input_kW   = Number(inputs.cooling_load_kW)  || 0;   // building cooling load
+  const ambientTemp  = Number(inputs.ambient_temp_C)    || 35;  // design ambient °C
+  const chwSupply    = Number(inputs.chw_supply_C)      || 7;   // CHW supply temp °C
+  const chwReturn    = Number(inputs.chw_return_C)      || 12;  // CHW return temp °C
+  const cop          = Number(inputs.cop)               || 3.0; // COP (dimensionless)
+  const safetyFactor = Number(inputs.safety_factor)     || 1.15;
+  const nUnits       = Math.max(1, Math.round(Number(inputs.n_units) || 1));
+
+  // 1. Design cooling load (with safety/diversity margin)
+  const Q_design_kW  = Q_input_kW * safetyFactor;
+  const Q_design_TR  = Q_design_kW / 3.517;
+
+  // 2. Compressor power input (first law: P = Q / COP)
+  const P_total_kW   = Q_design_kW / cop;
+
+  // 3. Heat rejection to condenser (first law: Q_rej = Q + W)
+  const Q_rejection_kW = Q_design_kW + P_total_kW;
+
+  // 4. Per-unit capacity and power
+  const Q_per_unit_kW  = Q_design_kW  / nUnits;
+  const Q_per_unit_TR  = Q_per_unit_kW / 3.517;
+  const P_per_unit_kW  = P_total_kW   / nUnits;
+
+  // 5. Nominal chiller size — round up to nearest standard tonnage
+  const STD_SIZES_TR = [5,7.5,10,15,20,25,30,40,50,60,75,100,125,150,200,250,300,350,400,450,500];
+  const nominal_TR_each = STD_SIZES_TR.find(s => s >= Q_per_unit_TR) || Math.ceil(Q_per_unit_TR / 25) * 25;
+  const nominal_kW_each = nominal_TR_each * 3.517;
+  const nominal_total_TR = nominal_TR_each * nUnits;
+
+  // 6. Condenser airflow — air-cooled rejection
+  // Q_airflow (m³/s) = Q_rejection / (rho × cp × delta_T_cond)
+  // rho=1.2 kg/m³, cp=1.005 kJ/(kg·K), delta_T_cond=15°C (typ. for air-cooled)
+  const rho = 1.2; const cp = 1.005; const dT_cond = 15;
+  const Q_airflow_m3s  = Q_rejection_kW / (rho * cp * dT_cond);
+  const Q_airflow_CMH  = Q_airflow_m3s * 3600;                // m³/h
+  const Q_airflow_CFM  = Q_airflow_m3s * 2118.88;             // CFM
+
+  // Per unit condenser airflow
+  const Q_airflow_CMH_per_unit = Q_airflow_CMH / nUnits;
+
+  // 7. Chilled water flow rate
+  // Q_flow (L/s) = Q_design_kW / (cp_water × delta_T_chw)
+  // cp_water = 4.187 kJ/(kg·K), rho_water = 1.0 kg/L
+  const dT_chw       = Math.max(1, chwReturn - chwSupply);    // °C delta-T
+  const Q_flow_lps   = Q_design_kW / (4.187 * dT_chw);       // L/s
+  const Q_flow_m3h   = Q_flow_lps * 3.6;                      // m³/h
+  const Q_flow_GPM   = Q_flow_lps * 15.8508;                  // US GPM
+
+  // 8. ASHRAE 90.1 COP check
+  // Min COP for air-cooled chillers: 2.84 (<528 kW), 2.80 (≥528 kW)
+  const ashrae_min_cop = Q_design_kW >= 528 ? 2.80 : 2.84;
+  const cop_check      = cop >= ashrae_min_cop ? 'PASS' : 'FAIL';
+  const cop_margin     = parseFloat((cop - ashrae_min_cop).toFixed(3));
+
+  // 9. Electrical supply estimate (kVA at PF=0.85)
+  const total_kVA = P_total_kW / 0.85;
+  const total_A_at_400V = (total_kVA * 1000) / (Math.sqrt(3) * 400);  // 3-phase 400V
+
+  // 10. Refrigerant note (R-32 / R-410A at 35°C ambient typical)
+  const refrigerant = ambientTemp >= 35 ? 'R-32 or R-410A (verified at 35°C ambient per ASHRAE 15)' : 'R-32 or R-410A';
+
+  return {
+    // Inputs echoed back
+    inputs_used: {
+      cooling_load_kW: Q_input_kW,
+      ambient_temp_C: ambientTemp,
+      chw_supply_C: chwSupply,
+      chw_return_C: chwReturn,
+      cop,
+      safety_factor: safetyFactor,
+      n_units: nUnits,
+    },
+    // Design load
+    Q_input_kW:        parseFloat(Q_input_kW.toFixed(2)),
+    Q_design_kW:       parseFloat(Q_design_kW.toFixed(2)),
+    Q_design_TR:       parseFloat(Q_design_TR.toFixed(2)),
+    safety_factor:     safetyFactor,
+    // Compressor
+    P_total_kW:        parseFloat(P_total_kW.toFixed(2)),
+    P_per_unit_kW:     parseFloat(P_per_unit_kW.toFixed(2)),
+    cop_used:          cop,
+    // Heat rejection
+    Q_rejection_kW:    parseFloat(Q_rejection_kW.toFixed(2)),
+    // Per-unit sizing
+    n_units:           nUnits,
+    Q_per_unit_kW:     parseFloat(Q_per_unit_kW.toFixed(2)),
+    Q_per_unit_TR:     parseFloat(Q_per_unit_TR.toFixed(2)),
+    nominal_TR_each,
+    nominal_kW_each:   parseFloat(nominal_kW_each.toFixed(1)),
+    nominal_total_TR,
+    // Condenser airflow
+    Q_airflow_m3s:     parseFloat(Q_airflow_m3s.toFixed(3)),
+    Q_airflow_CMH:     parseFloat(Q_airflow_CMH.toFixed(0)),
+    Q_airflow_CFM:     parseFloat(Q_airflow_CFM.toFixed(0)),
+    Q_airflow_CMH_per_unit: parseFloat(Q_airflow_CMH_per_unit.toFixed(0)),
+    dT_cond_C:         dT_cond,
+    // CHW system
+    dT_chw_C:          parseFloat(dT_chw.toFixed(1)),
+    Q_flow_lps:        parseFloat(Q_flow_lps.toFixed(2)),
+    Q_flow_m3h:        parseFloat(Q_flow_m3h.toFixed(2)),
+    Q_flow_GPM:        parseFloat(Q_flow_GPM.toFixed(1)),
+    // Electrical
+    total_kVA:         parseFloat(total_kVA.toFixed(1)),
+    total_A_at_400V:   parseFloat(total_A_at_400V.toFixed(1)),
+    // Compliance
+    ashrae_min_cop,
+    cop_check,
+    cop_margin,
+    refrigerant,
+    // Ambient correction note
+    ambient_note: ambientTemp >= 35
+      ? 'High ambient (≥35°C). Verify chiller performance data is rated at 35°C ambient — not default 30°C/32°C catalog conditions.'
+      : 'Ambient below 35°C. Standard catalog data typically applicable.',
+  };
+}
+
 // ─── Compressed Air System Calculation ───────────────────────────────────────
 // Method: Connected load method with demand factor + diversity factor
 // Standards: PSME, ISO 8573, Compressed Air & Gas Institute (CAGI)
@@ -2577,6 +2697,8 @@ serve(async (req) => {
       results = calcLightingDesign(inputs);
     } else if (calc_type === "Short Circuit") {
       results = calcShortCircuit(inputs);
+    } else if (calc_type === "Chiller System — Air Cooled") {
+      results = calcChillerAirCooled(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),
