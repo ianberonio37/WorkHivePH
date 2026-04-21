@@ -1267,6 +1267,79 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Fire Protection: Stairwell Pressurization BOM + SOW Agent ───────────────
+
+async function stairwellPressBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project        = inputs.project_name      || "Stairwell Pressurization Project";
+  const buildingType   = results.building_type    || inputs.building_type   || "Sprinklered";
+  const nStairwells    = Number(results.N_stairwells   ?? inputs.n_stairwells    ?? 2);
+  const nFloors        = Number(results.N_floors        ?? inputs.n_floors        ?? 10);
+  const doorFit        = String(results.door_fit        ?? inputs.door_fit        ?? "Average");
+  const deltaP         = Number(results.delta_P_Pa      ?? inputs.delta_P         ?? 25);
+  const fanStaticPa    = Number(results.fan_static_Pa   ?? inputs.fan_static_pressure ?? 400);
+  const fanEffPct      = Number(results.fan_eff_pct     ?? inputs.fan_efficiency  ?? 60);
+
+  const Q_per_CMH      = results.Q_per_CMH        ?? "N/A";
+  const Q_design_CMH   = results.Q_design_CMH     ?? "N/A";
+  const Q_design_m3s   = results.Q_design_m3s     ?? "N/A";
+  const P_fan_kW       = results.P_fan_kW         ?? "N/A";
+  const P_fan_HP       = results.P_fan_HP         ?? "N/A";
+  const selected_HP    = results.selected_HP      ?? "N/A";
+  const F_total_N      = results.F_total_N        ?? "N/A";
+  const door_force_ok  = Boolean(results.door_force_ok ?? true);
+  const delta_P_ok     = Boolean(results.delta_P_ok    ?? true);
+  const delta_P_min    = results.delta_P_min      ?? (buildingType === "Sprinklered" ? 12.5 : 25);
+  const delta_P_max    = results.delta_P_max      ?? 87;
+  const A_total_m2     = results.A_total_m2       ?? "N/A";
+  const N_doors_total  = results.N_doors_total    ?? "N/A";
+
+  // Conditional flags
+  const forceWarn = !door_force_ok;
+  const forceNote = forceWarn
+    ? `WARNING: Door opening force of ${F_total_N} N EXCEEDS NFPA 92 limit of 133 N. SOW must include a clause to reduce design pressure or specify lighter door closers before BFP approval.`
+    : `Door opening force of ${F_total_N} N is within NFPA 92 limit of 133 N — acceptable.`;
+  const pressNote = !delta_P_ok
+    ? `WARNING: Design pressure differential of ${deltaP} Pa is OUTSIDE NFPA 92 limits (${delta_P_min}–${delta_P_max} Pa). SOW must flag this for design review.`
+    : `Design pressure differential of ${deltaP} Pa is within NFPA 92 limits (${delta_P_min}–${delta_P_max} Pa).`;
+
+  const prompt = `You are a Philippine fire protection engineering expert (NFPA 92, BFP Philippines). Generate a professional BOM and SOW for a STAIRWELL PRESSURIZATION SYSTEM installation project.
+
+PROJECT: ${project}
+BUILDING TYPE: ${buildingType}
+NUMBER OF STAIRWELLS: ${nStairwells} (one pressurization fan per stairwell)
+FLOORS SERVED: ${nFloors} floors
+TOTAL STAIRWELL DOORS: ${N_doors_total} doors (${doorFit} fit — NFPA 92 Table B.1)
+TOTAL LEAKAGE AREA PER STAIRWELL: ${A_total_m2} m²
+DESIGN PRESSURE DIFFERENTIAL: ${deltaP} Pa — ${pressNote}
+FAN STATIC PRESSURE: ${fanStaticPa} Pa
+FAN EFFICIENCY: ${fanEffPct}%
+AIRFLOW PER STAIRWELL: ${Q_per_CMH} m³/h
+TOTAL DESIGN AIRFLOW (all stairwells, with 20% safety factor): ${Q_design_CMH} m³/h (${Q_design_m3s} m³/s)
+FAN MOTOR POWER: ${P_fan_kW} kW (${P_fan_HP} HP) → Selected: ${selected_HP} HP
+DOOR OPENING FORCE: ${F_total_N} N — ${forceNote}
+STANDARDS: NFPA 92 (Smoke Control Systems), BFP IRR (Bureau of Fire Protection), National Building Code PD 1096, ASHRAE Handbook HVAC Applications Chapter 53
+
+Generate a JSON object with:
+1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: Pressurization fan unit — centrifugal or axial, direct-drive, high-temperature rated 250°C/2hr (${nStairwells} units, each ${Q_per_CMH} m³/h at ${fanStaticPa} Pa static, ${selected_HP} HP motor, AMCA certified, smoke-rated per UL 705 or equivalent), pressurization fan motor — TEFC, ${selected_HP} HP, IE3 efficiency, IP55, suitable for emergency power operation (${nStairwells} units), variable frequency drive / VFD with bypass (optional — for modulating airflow to maintain target pressure differential; include if building has automated smoke control per NFPA 92 Section 7), fan inlet and discharge ductwork — galvanized steel, minimum 1.2 mm thick (total duct length per stairwell, including vertical riser to roof or mechanical room), supply air grilles / diffusers in stairwell — sized for ${Q_per_CMH} m³/h, ceiling or high-wall mounted (one per floor level, ${nFloors} units per stairwell, ${nStairwells} stairwells total = ${nFloors * nStairwells} units), duct access panels and balancing dampers (for commissioning and balancing per NFPA 92), backdraft damper at fan discharge (prevents reverse flow when fan is off — ${nStairwells} units), pressure differential sensor / controller (differential pressure transducer, 0-100 Pa range, paired with VFD if modulating control; audible and visual alarm on loss of pressure — ${nStairwells} units), emergency power transfer — automatic transfer switch (ATS) for fan power circuit; pressurization fans operate on emergency power per BFP IRR; generator connection or UPS interface), stairwell door weatherstripping and seals (upgrade to ${doorFit}-fit seals per NFPA 92 Table B.1 if required; perimeter brush or compression seal for all ${N_doors_total} stairwell doors), door closer hardware — rated for fire exit doors (all ${N_doors_total} stairwell doors; ensure opening force does not exceed 133 N per NFPA 92${forceWarn ? `; REDUCE door closer force or increase seal quality to bring door opening force below 133 N — current calc shows ${F_total_N} N` : ""}), duct insulation (50 mm mineral wool or equivalent for any ductwork passing through non-rated spaces), vibration isolation and fan mounting springs (per fan manufacturer specification, inertia base if required), commissioning instruments — handheld differential pressure meter, anemometer, tachometer (for BFP acceptance test and NFPA 92 commissioning verification)
+2. "sow_sections": array of 8 sections (each: section_no, title, content)
+   Cover: Scope of Works, Design Basis (NFPA 92 pressurization method, ${buildingType} building, ${deltaP} Pa design differential, ${Q_design_CMH} m³/h total, ${nStairwells} fans at ${selected_HP} HP each), Fan Installation (mounting, alignment, vibration isolation, motor connection, emergency power circuit), Ductwork and Air Distribution (duct sizing, routing from fan to stairwell supply grilles, duct penetrations through fire-rated walls sealed with fire dampers or intumescent sealant), Pressure Control and Instrumentation (pressure differential sensor installation, VFD setup if applicable, alarm setpoints, BAS interface), Door Seals and Hardware (installation of weatherstripping on all ${N_doors_total} stairwell doors, door closer adjustment to maintain opening force below 133 N per NFPA 92${forceWarn ? ` — current design shows ${F_total_N} N which EXCEEDS the limit — MANDATORY redesign required before BFP approval` : ""}), Inspection Testing and Commissioning (pressurization test with all stairwell doors closed, differential pressure verification at each floor, door opening force measurement, emergency power transfer test, NFPA 92 Chapter 8 acceptance test witnessed by BFP AHJ), Regulatory Compliance (RA 9514 Philippine Fire Code, BFP high-rise provisions, PRC-licensed Mechanical Engineer sign-off, O&M manual and maintenance schedule submission per NFPA 92 Chapter 9)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -1329,6 +1402,8 @@ serve(async (req) => {
       result = await fireSprinklerBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Fire Protection" && calc_type === "Fire Pump Sizing") {
       result = await firePumpBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Fire Protection" && calc_type === "Stairwell Pressurization") {
+      result = await stairwellPressBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),

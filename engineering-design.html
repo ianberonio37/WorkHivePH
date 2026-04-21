@@ -8554,7 +8554,7 @@ async function generateBomSowChecklist() {
     'Mechanical': ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air'],
     'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design'],
     'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing'],
-    'Fire Protection': ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing'],
+    'Fire Protection': ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization'],
   };
   const supportedForDiscipline = BOM_SOW_SUPPORTED[_discipline] || [];
   if (!supportedForDiscipline.includes(_calcType)) {
@@ -8744,8 +8744,11 @@ function renderBomTablePreview(items) {
   const isLight    = _calcType === 'Lighting Design';
   const isFSprink  = _calcType === 'Fire Sprinkler Hydraulic';
   const isFPump    = _calcType === 'Fire Pump Sizing';
-  const calcRef = `${isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
-  const disciplineSystem = isFPump
+  const isSPress   = _calcType === 'Stairwell Pressurization';
+  const calcRef = `${isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const disciplineSystem = isSPress
+    ? `Fire Protection — Stairwell Pressurization (${_lastResults?.building_type || ''}, ${_lastResults?.N_stairwells || ''}× fans, ${_lastResults?.Q_per_CMH || ''}m³/h each, ΔP=${_lastResults?.delta_P_Pa || ''}Pa, ${_lastResults?.selected_HP || ''}HP motor)`
+    : isFPump
     ? `Fire Protection — Fire Pump Sizing (${_lastInputs?.drive_type || 'Electric Motor'}, ${_lastResults?.recommended_hp || ''}HP, TDH=${_lastResults?.TDH || ''}m, Q=${_lastResults?.flow_lpm || _lastInputs?.required_flow || ''}L/min, ${_lastResults?.pipe_dia_mm || ''}mm pipe)`
     : isFSprink
     ? `Fire Protection — Fire Sprinkler Hydraulic (${_lastInputs?.hazard || ''}, ${_lastResults?.N_sprinklers || ''} heads, Q=${_lastResults?.Q_total || ''}L/min, ${_lastResults?.pipe_dia || ''}mm ${_lastResults?.pipe_material || ''} riser)`
@@ -8936,12 +8939,15 @@ function renderSowDocPreview(sections) {
   const isLight    = _calcType === 'Lighting Design';
   const isFSprink  = _calcType === 'Fire Sprinkler Hydraulic';
   const isFPump    = _calcType === 'Fire Pump Sizing';
-  const calcRef = `${isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const isSPress   = _calcType === 'Stairwell Pressurization';
+  const calcRef = `${isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
   const unitKW = _lastResults?.ac_size_kw        || '';
-  const ventSystemLine = isFPump
+  const ventSystemLine = isSPress
+    ? `Stairwell Pressurization — ${_lastResults?.building_type || ''}, ${_lastResults?.N_stairwells || ''} stairwells, ${_lastResults?.N_floors || ''} floors, ΔP=${_lastResults?.delta_P_Pa || ''}Pa, Q_design=${_lastResults?.Q_design_CMH || ''}m³/h, Fan ${_lastResults?.selected_HP || ''}HP, Door force=${_lastResults?.F_total_N || ''}N (${_lastResults?.door_force_ok ? 'OK' : 'EXCEEDS LIMIT'})`
+    : isFPump
     ? `Fire Pump Sizing — ${_lastInputs?.drive_type || 'Electric Motor'}, ${_lastResults?.recommended_hp || ''}HP (${_lastResults?.recommended_kw || ''}kW), TDH=${_lastResults?.TDH || ''}m, Q=${_lastResults?.flow_lpm || _lastInputs?.required_flow || ''}L/min @ ${_lastInputs?.required_pressure || ''}bar, ${_lastResults?.pipe_dia_mm || ''}mm ${_lastInputs?.pipe_material || 'Steel'} pipe, NPSHa=${_lastResults?.npsh_available || ''}m`
     : isFSprink
     ? `Fire Sprinkler Hydraulic — ${_lastInputs?.hazard || ''} Hazard, ${_lastResults?.N_sprinklers || ''} sprinkler heads, Q_total=${_lastResults?.Q_total || ''}L/min, P_design=${_lastResults?.P_design || ''}kPa, ${_lastResults?.pipe_dia || ''}mm ${_lastResults?.pipe_material || ''} riser, Duration ${_lastResults?.duration || ''}min, Storage ${_lastResults?.water_volume_m3 || ''}m³`
