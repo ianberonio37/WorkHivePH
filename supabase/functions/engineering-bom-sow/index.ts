@@ -1340,6 +1340,88 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Fire Protection: Fire Alarm Battery BOM + SOW Agent ─────────────────────
+
+async function fireAlarmBatteryBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project          = inputs.project_name      || "Fire Alarm System Project";
+  const sysVoltage       = Number(inputs.system_voltage    ?? 24);
+  const standbyHours     = Number(inputs.standby_hours     ?? 24);
+  const alarmMinutes     = Number(inputs.alarm_minutes     ?? 5);
+  const panelStandbyMA   = Number(inputs.panel_standby_mA  ?? 50);
+  const panelAlarmMA     = Number(inputs.panel_alarm_mA    ?? 200);
+  const nAddrSmoke       = Number(inputs.n_addr_smoke       ?? 0);
+  const nConvSmoke       = Number(inputs.n_conv_smoke       ?? 0);
+  const nHeat            = Number(inputs.n_heat             ?? 0);
+  const nPull            = Number(inputs.n_pull             ?? 0);
+  const nHornStrobe      = Number(inputs.n_horn_strobe      ?? 0);
+  const nStrobe          = Number(inputs.n_strobe           ?? 0);
+  const nBell            = Number(inputs.n_bell             ?? 0);
+
+  const I_standby        = results.I_standby_total_mA ?? "N/A";
+  const I_alarm          = results.I_alarm_total_mA   ?? "N/A";
+  const Ah_standby       = results.Ah_standby         ?? "N/A";
+  const Ah_alarm         = results.Ah_alarm           ?? "N/A";
+  const Ah_calc          = results.Ah_calc            ?? "N/A";
+  const Ah_required      = results.Ah_required        ?? "N/A";
+  const selected_Ah      = results.selected_Ah        ?? "N/A";
+  const battery_config   = String(results.battery_config ?? `${selected_Ah} Ah SLA/VRLA @ ${sysVoltage}V DC`);
+
+  // Total device count for BOM quantities
+  const totalDetectors   = nAddrSmoke + nConvSmoke + nHeat + nPull;
+  const totalAppliances  = nHornStrobe + nStrobe + nBell;
+  const totalDevices     = totalDetectors + totalAppliances;
+
+  const prompt = `You are a Philippine fire protection engineering expert (NFPA 72, BFP Philippines). Generate a professional BOM and SOW for a FIRE ALARM SYSTEM BATTERY STANDBY installation project.
+
+PROJECT: ${project}
+SYSTEM VOLTAGE: ${sysVoltage} V DC
+REQUIRED STANDBY: ${standbyHours} hours (NFPA 72 §10.6)
+REQUIRED ALARM: ${alarmMinutes} minutes (NFPA 72 §10.6)
+SAFETY FACTOR: 1.25 (25% per NFPA 72 §10.6.7)
+
+DEVICE SCHEDULE:
+- FACP Panel: 1 unit (standby ${panelStandbyMA} mA, alarm ${panelAlarmMA} mA)
+- Addressable Smoke Detectors: ${nAddrSmoke} units
+- Conventional Smoke Detectors: ${nConvSmoke} units
+- Heat Detectors: ${nHeat} units
+- Manual Pull Stations: ${nPull} units
+- Horn/Strobe Appliances: ${nHornStrobe} units
+- Strobe-Only Appliances: ${nStrobe} units
+- Bells: ${nBell} units
+- Total Devices: ${totalDevices} units
+
+BATTERY CALCULATION RESULTS:
+- Total Standby Current: ${I_standby} mA
+- Total Alarm Current: ${I_alarm} mA
+- Standby Ah: ${Ah_standby} Ah
+- Alarm Ah: ${Ah_alarm} Ah
+- Calculated Ah (before SF): ${Ah_calc} Ah
+- Required Ah (with 1.25 SF): ${Ah_required} Ah
+- Recommended Battery Bank: ${battery_config}
+
+STANDARDS: NFPA 72 (National Fire Alarm and Signaling Code) Section 10.6, BFP IRR (Bureau of Fire Protection), National Building Code PD 1096, PEC (Philippine Electrical Code) for wiring
+
+Generate a JSON object with:
+1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: Fire alarm control panel / FACP (addressable or conventional per device schedule, ${sysVoltage}V DC, UL listed, with integral battery charger rated for ${battery_config}, BFP-listed), sealed lead-acid / VRLA standby batteries — the computed bank (${battery_config} minimum, ${sysVoltage}V system — confirm exact configuration: e.g. two 12V batteries in series for 24V system; capacity per NFPA 72 §10.6.7), battery cabinet / rack inside or adjacent to FACP (ventilated, lockable, UL listed for battery storage), addressable smoke detectors — photo-electric type, 2-wire addressable protocol, ${nAddrSmoke} units (UL 268 / EN 54-7, BFP-listed — qty from calc, if 0 omit), conventional smoke detectors — 4-wire, ${nConvSmoke} units (UL 268, BFP-listed — qty from calc, if 0 omit), heat detectors — fixed-temperature or rate-of-rise, ${nHeat} units (UL 521 / EN 54-5, BFP-listed), manual pull stations / break-glass call points — ${nPull} units (UL 38 / BS 5839, surface-mount, red), combination horn/strobe notification appliances — ${nHornStrobe} units (UL 1638 / UL 1971, 15/75 cd minimum, NFPA 72 §18.5), strobe-only appliances — ${nStrobe} units (UL 1971, for hearing-impaired areas), alarm bells — ${nBell} units (6-inch or 10-inch, ${sysVoltage}V DC, weatherproof for outdoor), fire alarm wiring — fire-rated (FPL, FPLR or FPLP) 2-wire twisted pair for initiating circuits and 2-wire for notification circuits (total linear metres estimated from device count and building layout), conduit — EMT or rigid metallic for fire alarm wiring, minimum 19 mm (3/4 inch) (total linear metres), end-of-line resistors (one per initiating circuit and notification circuit — per FACP manufacturer specification), annunciator panel / remote display (lobby-mounted, LED zone display, ${sysVoltage}V DC, for high-rise buildings required by BFP IRR), commissioning and spare parts kit (smoke detector cleaning tool, 5% spare devices per device type, replacement FACP fuses)
+2. "sow_sections": array of 8 sections (each: section_no, title, content)
+   Cover: Scope of Works, Design Basis (NFPA 72 §10.6 battery sizing method, ${sysVoltage}V DC system, ${standbyHours}h standby + ${alarmMinutes}min alarm, ${Ah_required} Ah required, ${battery_config} selected), FACP and Battery Installation (panel location, battery cabinet mounting, charger wiring, ventilation, temperature range per NFPA 72 §10.6.9), Initiating Devices — Detectors and Pull Stations (mounting heights per NFPA 72 Chapter 17, spacing rules, end-of-line resistors, Class A or Class B wiring per NFPA 72 §12.3), Notification Appliances — Horns Strobes and Bells (placement per NFPA 72 Chapter 18, sound pressure levels, strobe candela requirements for hearing-impaired compliance, notification circuit wiring), Fire Alarm Wiring and Conduit (FPL/FPLR/FPLP rated cable, all wiring in metallic conduit per PEC, separation from power wiring, conduit fill per PEC), Inspection Testing and Commissioning (100% point-to-point test, battery load test — disconnect AC and verify ${standbyHours}h standby + ${alarmMinutes}min alarm operation per NFPA 72 §14.4, alarm sound test, BFP acceptance inspection, as-built drawings), Regulatory Compliance (RA 9514 Philippine Fire Code, NFPA 72 acceptance test witnessed by BFP AHJ, PRC-licensed Electrical or Electronics Engineer sign-off, battery replacement schedule every 3-5 years per NFPA 72 §10.6.11, O&M manual submission)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -1404,6 +1486,8 @@ serve(async (req) => {
       result = await firePumpBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Fire Protection" && calc_type === "Stairwell Pressurization") {
       result = await stairwellPressBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Fire Protection" && calc_type === "Fire Alarm Battery") {
+      result = await fireAlarmBatteryBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),
