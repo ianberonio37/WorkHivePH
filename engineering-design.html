@@ -8368,8 +8368,7 @@ function renderChillerAirCooledReport(inputs, results, narrative) {
     </div>
   `;
 
-  const panel = document.getElementById('report-output');
-  panel.innerHTML = html;
+  document.getElementById('report-panel').innerHTML = html;
   showReport();
 }
 
