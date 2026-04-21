@@ -705,7 +705,8 @@ const CALC_TYPES = {
     { id: 'Bolt Torque & Preload',icon: '🔧', desc: 'Fastener tightening torque, preload — ISO 898',         available: true  },
   ],
   'HVAC Systems': [
-    { id: 'Chiller System — Air Cooled', icon: '🧊', desc: 'Chiller tonnage, COP, compressor kW, condenser airflow — ASHRAE', available: true },
+    { id: 'Chiller System — Air Cooled',   icon: '🧊', desc: 'Chiller tonnage, COP, compressor kW, condenser airflow — ASHRAE', available: true },
+    { id: 'Chiller System — Water Cooled', icon: '💧', desc: 'Water-cooled chiller: COP, CW loop, cooling tower heat rejection — ASHRAE 90.1', available: true },
   ],
 };
 
@@ -1713,6 +1714,45 @@ const GUIDES = {
       'ASHRAE 90.1 minimum full-load COP for air-cooled chillers: 2.84 (EER 9.7) for units <528 kW. Check IPLV for part-load efficiency in buildings with variable occupancy (offices, malls).',
       'Chiller clearance requirements: minimum 1.2 m on all sides for airflow. Air-cooled units recirculate hot condenser air if stacked or enclosed — always check airflow path in the equipment room or roof layout.',
       'For two-chiller systems: use one chiller at 50-60% load as the lead unit, stage on the second chiller when load exceeds 80%. This keeps both units operating near their best efficiency point.',
+    ],
+  },
+
+  'Chiller System — Water Cooled': {
+    title: 'Chiller System — Water Cooled (ASHRAE 90.1 / PSME Code)',
+    subtitle: 'Sizes a water-cooled chiller plant: cooling capacity (TR/kW), compressor power, condenser water (CW) flow, cooling tower heat rejection, chilled water (CHW) flow, and ASHRAE 90.1 minimum COP check by chiller type (centrifugal, screw, scroll, reciprocating).',
+    standards: [
+      'ASHRAE 90.1 — Energy Standard for Buildings (min COP: Centrifugal 5.00–6.10, Screw 4.45–4.90, Scroll/Recip 3.80)',
+      'ASHRAE 15 — Safety Standard for Refrigeration Systems (refrigerant safety, ventilation, leak detection)',
+      'ASHRAE Handbook HVAC Systems and Equipment — chiller selection and cooling tower design',
+      'CTI STD-201 — Cooling Technology Institute standard for cooling tower performance',
+      'PSME Code — Philippine Society of Mechanical Engineers chiller and cooling tower installation',
+      'PGBC / BERDE — Green Building Code energy performance requirements',
+    ],
+    formulas: [
+      'Q_design (kW) = Cooling Load × Safety Factor',
+      'P_compressor (kW) = Q_design / COP  [first law: W = Q / COP]',
+      'Q_rejection (kW) = Q_design + P_compressor  [first law: Q_cond = Q_evap + W]',
+      'CHW Flow (L/s) = Q_design / (4.187 × ΔT_chw)',
+      'CW Flow (L/s) = Q_rejection / (4.187 × ΔT_cw)',
+      'Cooling Tower Capacity (TR) = Q_rejection / 3.517',
+    ],
+    fields: [
+      { name: 'Total Cooling Load (kW)', tip: 'Building or system cooling load in kW — take from HVAC Cooling Load calculation. Add 10–15% for piping heat gain (CHW distribution losses) before entering here.' },
+      { name: 'Chiller Type', tip: 'Centrifugal: best for large plants >150 TR, highest COP (5.0–7.0), common in malls, hospitals, and office towers. Screw: medium plants 50–500 TR, COP 4.5–5.5. Scroll: small plants <100 TR. Reciprocating: older type, lowest efficiency, being phased out in new designs.' },
+      { name: 'CHW Supply / Return Temp', tip: 'Standard: 7°C supply / 12°C return (5°C ΔT). High-delta: 6°C / 14°C (8°C ΔT) — reduces pump flow 37%, saves pump energy. Hospital/data center: 6°C supply for dehumidification. Larger ΔT = smaller pipe, smaller pump — always design for maximum practical ΔT.' },
+      { name: 'Condenser Water Supply Temp (from cooling tower)', tip: 'CW leaving the cooling tower and entering the chiller condenser. Philippine design: 29°C (wet-bulb ~27°C, approach 2°C). Conservative: 32°C. Lower CW supply temperature = higher chiller COP. Never use CW supply below 18°C — chiller may trip on low-condensing pressure.' },
+      { name: 'Condenser Water Return Temp (to cooling tower)', tip: 'CW leaving chiller condenser and returning to cooling tower for re-cooling. Standard: CW supply + 5°C. Larger ΔT = smaller CW pump and pipe but requires larger cooling tower. Common range: 34–37°C.' },
+      { name: 'COP (Coefficient of Performance)', tip: 'Water-cooled COP is much higher than air-cooled because condensing temperature is lower (water at 29–32°C vs air at 35°C+). Centrifugal: 5.5–7.0. Screw: 4.5–5.5. Scroll: 4.0–5.0. Reciprocating: 3.5–4.5. ASHRAE 90.1 minimums are stricter for water-cooled.' },
+      { name: 'Safety / Diversity Factor', tip: 'Apply 1.10–1.15 (10–15% margin) to account for load uncertainty, future growth, and simultaneous demand peaks. For central plants serving multiple zones, 1.10 is typically sufficient if load calculations are well-documented.' },
+      { name: 'Number of Chiller Units', tip: 'Two chillers at 60% each provides N+1 redundancy — recommended for hospitals, hotels, data centers. Three or more for large central plants (>500 TR). A single chiller is only acceptable for non-critical facilities with a portable chiller contingency plan.' },
+    ],
+    notes: [
+      'Water-cooled chillers are 15–30% more efficient than air-cooled at the same capacity because condenser water (29–32°C) is cooler than outdoor air (35°C) — lower condensing temperature = higher COP.',
+      'ASHRAE 90.1 COP minimums for water-cooled are much stricter: Centrifugal ≥ 5.00 (<150 TR), 5.55 (150–300 TR), 6.10 (>300 TR). Screw ≥ 4.45 (<150 TR), 4.90 (≥150 TR). Specify chillers rated at the actual CW supply temperature (29–32°C) — not default 30°C/35°F catalog conditions.',
+      'Cooling tower sizing: size the tower for Q_rejection (not Q_cooling). Q_rejection = Q_evap + W_compressor — always larger than the cooling load. A common mistake is sizing the cooling tower equal to the chiller TR rating.',
+      'CW pipe sizing: design at 2.4–3.0 L/s per 100 kW (1.5–2.0 gpm/ton). CW velocity: 1.5–3.0 m/s in carbon steel pipe. Treat CW with corrosion and scale inhibitors — cooling tower water is open-loop and concentrates dissolved solids.',
+      'Condenser water treatment is mandatory: biological (Legionella risk), scale, and corrosion inhibitors. ASHRAE Guideline 12 governs cooling tower water quality for Legionella prevention — this is a health code requirement in the Philippines.',
+      'For machine room design: water-cooled chillers need a machine room (ASHRAE 15 Class A2 refrigerant ventilation). Cooling tower is typically roof-mounted. CW pipes run vertically from mechanical room to roof — allow for pump head budget.',
     ],
   },
 };
@@ -3546,6 +3586,105 @@ function renderInputForm(calcType) {
     document.getElementById('calc-btn').disabled = false;
   }
 
+  if (calcType === 'Chiller System — Water Cooled') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Office Tower — Central Water-Cooled Chiller Plant" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Total Cooling Load (kW) <span style="color:#F7A21B;font-size:0.75rem;">— from HVAC Cooling Load calc or measured demand</span></div>
+        <div class="input-group">
+          <input id="f-cooling-load" class="wh-input" type="number" value="0" min="1" step="1" />
+          <span class="input-unit">kW</span>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Chiller Type <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">determines ASHRAE 90.1 minimum COP</span></div>
+        <div class="toggle-group" id="tg-chiller-type">
+          <button class="toggle-btn active" data-val="Centrifugal" onclick="toggle('tg-chiller-type','Centrifugal')">Centrifugal</button>
+          <button class="toggle-btn" data-val="Screw" onclick="toggle('tg-chiller-type','Screw')">Screw</button>
+          <button class="toggle-btn" data-val="Scroll" onclick="toggle('tg-chiller-type','Scroll')">Scroll</button>
+          <button class="toggle-btn" data-val="Reciprocating" onclick="toggle('tg-chiller-type','Reciprocating')">Reciprocating</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">CHW Supply Temperature</div>
+          <div class="toggle-group" id="tg-chw-supply">
+            <button class="toggle-btn" data-val="6" onclick="toggle('tg-chw-supply','6')">6°C (cold)</button>
+            <button class="toggle-btn active" data-val="7" onclick="toggle('tg-chw-supply','7')">7°C (standard)</button>
+            <button class="toggle-btn" data-val="8" onclick="toggle('tg-chw-supply','8')">8°C (mild)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">CHW Return Temperature</div>
+          <div class="toggle-group" id="tg-chw-return">
+            <button class="toggle-btn" data-val="11" onclick="toggle('tg-chw-return','11')">11°C (4°C ΔT)</button>
+            <button class="toggle-btn active" data-val="12" onclick="toggle('tg-chw-return','12')">12°C (5°C ΔT)</button>
+            <button class="toggle-btn" data-val="14" onclick="toggle('tg-chw-return','14')">14°C (7°C ΔT)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">CW Supply Temp <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">from cooling tower</span></div>
+          <div class="toggle-group" id="tg-cw-supply">
+            <button class="toggle-btn active" data-val="29" onclick="toggle('tg-cw-supply','29')">29°C (PH std)</button>
+            <button class="toggle-btn" data-val="30" onclick="toggle('tg-cw-supply','30')">30°C</button>
+            <button class="toggle-btn" data-val="32" onclick="toggle('tg-cw-supply','32')">32°C (conservative)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">CW Return Temp <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">to cooling tower</span></div>
+          <div class="toggle-group" id="tg-cw-return">
+            <button class="toggle-btn" data-val="34" onclick="toggle('tg-cw-return','34')">34°C (5°C ΔT)</button>
+            <button class="toggle-btn active" data-val="35" onclick="toggle('tg-cw-return','35')">35°C (6°C ΔT)</button>
+            <button class="toggle-btn" data-val="37" onclick="toggle('tg-cw-return','37')">37°C (8°C ΔT)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">COP <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">water-cooled is higher than air-cooled</span></div>
+          <div class="input-group">
+            <input id="f-cop" class="wh-input" type="number" value="5.5" min="2.0" max="9.0" step="0.1" />
+            <span class="input-unit">—</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Safety / Diversity Factor</div>
+          <div class="toggle-group" id="tg-safety">
+            <button class="toggle-btn active" data-val="1.10" onclick="toggle('tg-safety','1.10')">1.10 (+10%)</button>
+            <button class="toggle-btn" data-val="1.15" onclick="toggle('tg-safety','1.15')">1.15 (+15%)</button>
+            <button class="toggle-btn" data-val="1.20" onclick="toggle('tg-safety','1.20')">1.20 (+20%)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Number of Chiller Units</div>
+        <div class="toggle-group" id="tg-n-units">
+          <button class="toggle-btn" data-val="1" onclick="toggle('tg-n-units','1')">1 unit</button>
+          <button class="toggle-btn active" data-val="2" onclick="toggle('tg-n-units','2')">2 units (N+1)</button>
+          <button class="toggle-btn" data-val="3" onclick="toggle('tg-n-units','3')">3 units</button>
+        </div>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.25rem;">
+        Method: Q_design = Load × SF | P = Q/COP | Q_rejection = Q + P (1st Law) | CW Flow = Q_rej / (4.187 × ΔT_cw).<br>
+        Standards: ASHRAE 90.1 (COP by type), ASHRAE 15 (refrigerant safety), CTI STD-201 (cooling tower), PSME Code.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
   if (calcType === 'Chiller System — Air Cooled') {
     area.innerHTML = `
       <div class="mb-4">
@@ -4783,6 +4922,21 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Chiller System — Water Cooled') {
+    return {
+      project_name:     v('f-project')                            || 'Untitled Water-Cooled Chiller System',
+      cooling_load_kW:  parseFloat(v('f-cooling-load'))           || 0,
+      chiller_type:     getToggle('tg-chiller-type')              || 'Centrifugal',
+      chw_supply_C:     parseFloat(getToggle('tg-chw-supply'))    || 7,
+      chw_return_C:     parseFloat(getToggle('tg-chw-return'))    || 12,
+      cw_supply_C:      parseFloat(getToggle('tg-cw-supply'))     || 29,
+      cw_return_C:      parseFloat(getToggle('tg-cw-return'))     || 35,
+      cop:              parseFloat(v('f-cop'))                     || 5.5,
+      safety_factor:    parseFloat(getToggle('tg-safety'))        || 1.10,
+      n_units:          parseFloat(getToggle('tg-n-units'))       || 2,
+    };
+  }
+
   if (_calcType === 'Chiller System — Air Cooled') {
     return {
       project_name:     v('f-project')                          || 'Untitled Chiller System',
@@ -4927,6 +5081,19 @@ async function runCalculation() {
       showToast('Please select the transformer kVA rating.');
       return;
     }
+  } else if (_calcType === 'Chiller System — Water Cooled') {
+    if (!inputs.cooling_load_kW || inputs.cooling_load_kW <= 0) {
+      showToast('Please enter the total cooling load (kW).');
+      return;
+    }
+    if (inputs.chw_return_C <= inputs.chw_supply_C) {
+      showToast('CHW return temperature must be higher than CHW supply temperature.');
+      return;
+    }
+    if (inputs.cw_return_C <= inputs.cw_supply_C) {
+      showToast('CW return temperature must be higher than CW supply temperature.');
+      return;
+    }
   } else if (_calcType === 'Chiller System — Air Cooled') {
     if (!inputs.cooling_load_kW || inputs.cooling_load_kW <= 0) {
       showToast('Please enter the total cooling load (kW).');
@@ -5001,6 +5168,8 @@ async function runCalculation() {
       renderShortCircuitReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Lighting Design') {
       renderLightingDesignReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Chiller System — Water Cooled') {
+      renderChillerWaterCooledReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Chiller System — Air Cooled') {
       renderChillerAirCooledReport(inputs, data.results, data.narrative);
     } else {
@@ -8184,6 +8353,187 @@ function renderVBeltReport(inputs, results, narrative) {
         <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
         <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
       </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── Chiller System — Water Cooled Report ────────────────────────────────────
+function renderChillerWaterCooledReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const r       = results;
+  const copColor = r.cop_check === 'PASS' ? '#2e7d32' : '#c62828';
+  const copBg    = r.cop_check === 'PASS' ? '#e8f5e9' : '#ffebee';
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div>
+        <h1>DESIGN CALCULATION</h1>
+        <div style="font-size:0.8rem;color:#555;">Chiller System — Water Cooled | ASHRAE 90.1 / ASHRAE 15 / CTI STD-201 / PSME Code</div>
+      </div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;">
+        <div>Rev. ${e('0')}</div>
+        <div>Date: ${dateStr}</div>
+      </div>
+    </div>
+
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">Project / System</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>System Type</th><td>Water-Cooled Chiller Plant</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Calculation Standard</th><td>ASHRAE 90.1, ASHRAE 15, CTI STD-201, PSME Code</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
+    </table>
+
+    <h2>Objective</h2>
+    <p>${escHtml(narrative?.objective || `Size a water-cooled chiller plant for the stated cooling load. Determine chiller capacity (TR/kW), compressor power, condenser water (CW) flow, cooling tower heat rejection capacity, chilled water (CHW) flow, and verify COP against ASHRAE 90.1 minimum efficiency requirements for ${inputs.chiller_type} chillers.`)}</p>
+
+    <h2>Design Parameters</h2>
+    <table>
+      <tr><th>Building Cooling Load (input)</th><td><strong>${r.Q_input_kW} kW</strong> (${(r.Q_input_kW / 3.517).toFixed(1)} TR)</td></tr>
+      <tr><th>Chiller Type</th><td>${escHtml(inputs.chiller_type)}</td></tr>
+      <tr><th>CHW Supply / Return Temperature</th><td>${inputs.chw_supply_C}°C / ${inputs.chw_return_C}°C (ΔT = ${r.dT_chw_C}°C)</td></tr>
+      <tr><th>CW Supply / Return Temperature</th><td>${inputs.cw_supply_C}°C / ${inputs.cw_return_C}°C (ΔT = ${r.dT_cw_C}°C)</td></tr>
+      <tr><th>COP (Coefficient of Performance)</th><td>${inputs.cop}</td></tr>
+      <tr><th>Safety / Diversity Factor</th><td>${inputs.safety_factor} (${((inputs.safety_factor - 1) * 100).toFixed(0)}% margin)</td></tr>
+      <tr><th>Number of Chiller Units</th><td>${inputs.n_units}</td></tr>
+      <tr><th>Refrigerant</th><td>${escHtml(r.refrigerant || 'R-134a or R-1234ze (per manufacturer specification)')}</td></tr>
+    </table>
+
+    <h2>References / Standards</h2>
+    <table>
+      <tr><th>ASHRAE 90.1</th><td>Energy Standard — min COP: Centrifugal 5.00/5.55/6.10 (by size), Screw 4.45/4.90, Scroll/Recip 3.80</td></tr>
+      <tr><th>ASHRAE 15</th><td>Safety Standard for Refrigeration Systems — ventilation, leak detection, refrigerant limits</td></tr>
+      <tr><th>CTI STD-201</th><td>Cooling Technology Institute — cooling tower performance testing and rating</td></tr>
+      <tr><th>ASHRAE Guideline 12</th><td>Minimizing the Risk of Legionellosis (cooling tower water treatment)</td></tr>
+      <tr><th>PSME Code</th><td>Philippine Society of Mechanical Engineers — chiller and cooling tower installation</td></tr>
+      <tr><th>PGBC / BERDE</th><td>Green Building Code energy performance requirements</td></tr>
+    </table>
+
+    <h2>Assumptions</h2>
+    <p>${escHtml(narrative?.assumptions || `Safety/diversity factor ${inputs.safety_factor} applied to input cooling load before equipment sizing. CHW ΔT = ${r.dT_chw_C}°C (supply ${inputs.chw_supply_C}°C, return ${inputs.chw_return_C}°C). CW ΔT = ${r.dT_cw_C}°C (supply ${inputs.cw_supply_C}°C, return ${inputs.cw_return_C}°C). Water cp = 4.187 kJ/(kg·K), density = 1.0 kg/L. Motor power factor 0.85 for electrical supply sizing. Cooling tower sized for full heat rejection load (Q_evap + W_compressor). Nominal chiller capacity selected from standard TR sizes.`)}</p>
+
+    <h2>Calculation</h2>
+
+    <h3>Step 1 — Design Cooling Load (with Safety Margin)</h3>
+    <table>
+      <tr><th>Building Cooling Load (input)</th><td>Q<sub>input</sub> = ${r.Q_input_kW} kW = ${(r.Q_input_kW / 3.517).toFixed(1)} TR</td></tr>
+      <tr><th>Safety Factor</th><td>SF = ${inputs.safety_factor}</td></tr>
+      <tr><th>Design Cooling Load</th><td><strong>Q<sub>design</sub> = ${r.Q_input_kW} × ${inputs.safety_factor} = ${r.Q_design_kW} kW = ${r.Q_design_TR} TR</strong></td></tr>
+    </table>
+
+    <h3>Step 2 — Compressor Power Input</h3>
+    <table>
+      <tr><th>Formula</th><td>P = Q<sub>design</sub> / COP</td></tr>
+      <tr><th>Calculation</th><td>P = ${r.Q_design_kW} / ${inputs.cop}</td></tr>
+      <tr><th>Total Compressor Power</th><td><strong>P = ${r.P_total_kW} kW</strong></td></tr>
+      <tr><th>Power per Unit</th><td>${r.P_per_unit_kW} kW per chiller unit</td></tr>
+    </table>
+
+    <h3>Step 3 — Condenser Heat Rejection (First Law of Thermodynamics)</h3>
+    <table>
+      <tr><th>Formula</th><td>Q<sub>rejection</sub> = Q<sub>design</sub> + P<sub>compressor</sub></td></tr>
+      <tr><th>Calculation</th><td>Q<sub>rejection</sub> = ${r.Q_design_kW} + ${r.P_total_kW}</td></tr>
+      <tr><th>Total Condenser Heat Rejection</th><td><strong>${r.Q_rejection_kW} kW = ${r.Q_rejection_TR} TR</strong></td></tr>
+      <tr><th>Cooling Tower Required Capacity</th><td><strong>${r.Q_rejection_TR} TR (size cooling tower for this value — NOT the chiller TR)</strong></td></tr>
+    </table>
+
+    <h3>Step 4 — Condenser Water (CW) Flow Rate</h3>
+    <table>
+      <tr><th>Formula</th><td>Q<sub>cw</sub> = Q<sub>rejection</sub> / (c<sub>p,water</sub> × ΔT<sub>cw</sub>)</td></tr>
+      <tr><th>CW ΔT</th><td>${inputs.cw_return_C}°C − ${inputs.cw_supply_C}°C = ${r.dT_cw_C}°C</td></tr>
+      <tr><th>Calculation</th><td>Q<sub>cw</sub> = ${r.Q_rejection_kW} / (4.187 × ${r.dT_cw_C})</td></tr>
+      <tr><th>CW Flow Rate</th><td><strong>${r.Q_cw_lps} L/s = ${r.Q_cw_m3h} m³/h = ${r.Q_cw_GPM} GPM</strong></td></tr>
+    </table>
+
+    <h3>Step 5 — Chilled Water (CHW) Flow Rate</h3>
+    <table>
+      <tr><th>Formula</th><td>Q<sub>chw</sub> = Q<sub>design</sub> / (c<sub>p,water</sub> × ΔT<sub>chw</sub>)</td></tr>
+      <tr><th>CHW ΔT</th><td>${inputs.chw_return_C}°C − ${inputs.chw_supply_C}°C = ${r.dT_chw_C}°C</td></tr>
+      <tr><th>Calculation</th><td>Q<sub>chw</sub> = ${r.Q_design_kW} / (4.187 × ${r.dT_chw_C})</td></tr>
+      <tr><th>CHW Flow Rate</th><td><strong>${r.Q_chw_lps} L/s = ${r.Q_chw_m3h} m³/h = ${r.Q_chw_GPM} GPM</strong></td></tr>
+    </table>
+
+    <h3>Step 6 — Chiller Unit Selection</h3>
+    <table>
+      <tr><th>Calculated Capacity per Unit</th><td>${r.Q_per_unit_kW} kW = ${r.Q_per_unit_TR.toFixed(1)} TR</td></tr>
+      <tr><th>Number of Units</th><td>${inputs.n_units}</td></tr>
+      <tr><th>Selected Nominal Size (each)</th><td><strong>${r.nominal_TR_each} TR (${r.nominal_kW_each} kW) per unit</strong></td></tr>
+      <tr><th>Total Installed Capacity</th><td>${r.nominal_total_TR} TR = ${(r.nominal_total_TR * 3.517).toFixed(1)} kW</td></tr>
+    </table>
+
+    <h3>Step 7 — ASHRAE 90.1 COP Compliance Check (${escHtml(inputs.chiller_type)})</h3>
+    <table>
+      <tr><th>Design COP</th><td>${inputs.cop}</td></tr>
+      <tr><th>ASHRAE 90.1 Minimum COP</th><td>${r.ashrae_min_cop} (${escHtml(inputs.chiller_type)}, ${r.Q_design_kW} kW design load)</td></tr>
+      <tr><th>COP Margin</th><td>${r.cop_margin >= 0 ? '+' : ''}${r.cop_margin}</td></tr>
+      <tr>
+        <th>Compliance Result</th>
+        <td style="background:${copBg};color:${copColor};font-weight:700;">
+          ${r.cop_check === 'PASS' ? '✓ PASS — COP meets ASHRAE 90.1 minimum' : '✗ FAIL — COP below ASHRAE 90.1 minimum. Select equipment with higher COP.'}
+        </td>
+      </tr>
+    </table>
+
+    <h3>Step 8 — Electrical Supply Requirements</h3>
+    <table>
+      <tr><th>Total Compressor Power</th><td>${r.P_total_kW} kW</td></tr>
+      <tr><th>Power Factor (assumed)</th><td>0.85</td></tr>
+      <tr><th>Apparent Power</th><td>${r.total_kVA} kVA</td></tr>
+      <tr><th>Full Load Current (3-phase, 400V)</th><td>${r.total_A_at_400V} A</td></tr>
+    </table>
+
+    <h2>Summary of Results</h2>
+    <div class="result-highlight">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">Design Load</div>
+          <div style="font-size:1.5rem;font-weight:800;color:#1a1a1a;">${r.Q_design_kW} kW</div>
+          <div style="font-size:0.8rem;color:#555;">${r.Q_design_TR} TR (with ${inputs.safety_factor}× safety)</div>
+        </div>
+        <div>
+          <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">Selected Chiller(s)</div>
+          <div style="font-size:1.5rem;font-weight:800;color:#1a1a1a;">${inputs.n_units} × ${r.nominal_TR_each} TR</div>
+          <div style="font-size:0.8rem;color:#555;">${inputs.chiller_type} | ${r.nominal_kW_each} kW each</div>
+        </div>
+        <div>
+          <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">Cooling Tower Capacity</div>
+          <div style="font-size:1.5rem;font-weight:800;color:#1a1a1a;">${r.Q_rejection_TR} TR</div>
+          <div style="font-size:0.8rem;color:#555;">${r.Q_rejection_kW} kW heat rejection</div>
+        </div>
+        <div>
+          <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">COP Check</div>
+          <div style="font-size:1.5rem;font-weight:800;color:${copColor};">${r.cop_check}</div>
+          <div style="font-size:0.8rem;color:#555;">COP ${inputs.cop} vs min ${r.ashrae_min_cop} (ASHRAE 90.1)</div>
+        </div>
+        <div>
+          <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">CHW Flow Rate</div>
+          <div style="font-size:1.5rem;font-weight:800;color:#1a1a1a;">${r.Q_chw_lps} L/s</div>
+          <div style="font-size:0.8rem;color:#555;">${r.Q_chw_m3h} m³/h | ${r.Q_chw_GPM} GPM</div>
+        </div>
+        <div>
+          <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">CW Flow Rate</div>
+          <div style="font-size:1.5rem;font-weight:800;color:#1a1a1a;">${r.Q_cw_lps} L/s</div>
+          <div style="font-size:0.8rem;color:#555;">${r.Q_cw_m3h} m³/h | ${r.Q_cw_GPM} GPM</div>
+        </div>
+      </div>
+    </div>
+
+    <h2>Recommendations</h2>
+    <p>${escHtml(narrative?.recommendations || `1. Procure ${inputs.n_units} water-cooled ${inputs.chiller_type} chiller(s) each rated ${r.nominal_TR_each} TR (${r.nominal_kW_each} kW) with COP ≥ ${inputs.cop} at ${inputs.cw_supply_C}°C CW supply — verify manufacturer performance data at this exact entering condenser water temperature. 2. Size cooling tower for ${r.Q_rejection_TR} TR (${r.Q_rejection_kW} kW) heat rejection — NOT the chiller TR rating. 3. Design CW pipe for ${r.Q_cw_lps} L/s at ${r.dT_cw_C}°C ΔT; CHW pipe for ${r.Q_chw_lps} L/s at ${r.dT_chw_C}°C ΔT. 4. Implement CW water treatment per ASHRAE Guideline 12 (Legionella prevention is a health code requirement). 5. Provide minimum 6 ACH mechanical ventilation in chiller room per ASHRAE 15. 6. Provide 3-phase 400V supply; estimated FLA ${r.total_A_at_400V} A.`)}</p>
+
+    <div class="sig-block">
+      <div><div class="sig-line">${e(WORKER_NAME)}</div><div>Prepared by — Mechanical Engineer</div><div>PRC No.: ${e('')} | PTR No.: ${e('')}</div></div>
+      <div><div class="sig-line">${e('')}</div><div>Checked by</div><div>PRC No.: ${e('')}</div></div>
+      <div><div class="sig-line">${e('')}</div><div>Approved by / Client</div></div>
     </div>
   `;
 

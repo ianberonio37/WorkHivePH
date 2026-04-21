@@ -472,6 +472,116 @@ function calcPipeSizing(inputs: Record<string, number | string>) {
   };
 }
 
+// ─── Chiller System — Water Cooled Calculation ───────────────────────────────
+// Method: Q_design = load × SF, P = Q/COP, Q_rejection = Q+P (first law)
+// CW flow via Q_rejection, CHW flow via Q_design, ASHRAE 90.1 COP by chiller type
+function calcChillerWaterCooled(inputs: Record<string, number | string>) {
+  const Q_input_kW   = Number(inputs.cooling_load_kW)  || 0;
+  const chillerType  = String(inputs.chiller_type      || 'Centrifugal');
+  const chwSupply    = Number(inputs.chw_supply_C)     || 7;
+  const chwReturn    = Number(inputs.chw_return_C)     || 12;
+  const cwSupply     = Number(inputs.cw_supply_C)      || 29;
+  const cwReturn     = Number(inputs.cw_return_C)      || 35;
+  const cop          = Number(inputs.cop)              || 5.5;
+  const safetyFactor = Number(inputs.safety_factor)    || 1.10;
+  const nUnits       = Math.max(1, Math.round(Number(inputs.n_units) || 2));
+
+  // 1. Design load
+  const Q_design_kW = Q_input_kW * safetyFactor;
+  const Q_design_TR = Q_design_kW / 3.517;
+
+  // 2. Compressor power
+  const P_total_kW    = Q_design_kW / cop;
+  const P_per_unit_kW = P_total_kW / nUnits;
+
+  // 3. Heat rejection to condenser water (first law)
+  const Q_rejection_kW = Q_design_kW + P_total_kW;
+  const Q_rejection_TR = parseFloat((Q_rejection_kW / 3.517).toFixed(2));
+
+  // 4. Per-unit capacity
+  const Q_per_unit_kW = Q_design_kW / nUnits;
+  const Q_per_unit_TR = Q_per_unit_kW / 3.517;
+
+  // 5. Nominal chiller size
+  const STD_SIZES_TR = [10,15,20,25,30,40,50,60,75,100,125,150,200,250,300,350,400,500,600,800,1000];
+  const nominal_TR_each = STD_SIZES_TR.find(s => s >= Q_per_unit_TR) || Math.ceil(Q_per_unit_TR / 50) * 50;
+  const nominal_kW_each = parseFloat((nominal_TR_each * 3.517).toFixed(1));
+  const nominal_total_TR = nominal_TR_each * nUnits;
+
+  // 6. CW flow rate
+  const dT_cw      = Math.max(1, cwReturn - cwSupply);
+  const Q_cw_lps   = Q_rejection_kW / (4.187 * dT_cw);
+  const Q_cw_m3h   = Q_cw_lps * 3.6;
+  const Q_cw_GPM   = Q_cw_lps * 15.8508;
+
+  // 7. CHW flow rate
+  const dT_chw     = Math.max(1, chwReturn - chwSupply);
+  const Q_chw_lps  = Q_design_kW / (4.187 * dT_chw);
+  const Q_chw_m3h  = Q_chw_lps * 3.6;
+  const Q_chw_GPM  = Q_chw_lps * 15.8508;
+
+  // 8. ASHRAE 90.1 minimum COP by chiller type and size
+  // Water-cooled minimums (ASHRAE 90.1-2019 Table 6.8.1-3)
+  let ashrae_min_cop: number;
+  const type = chillerType.toLowerCase();
+  if (type.includes('centrifugal')) {
+    if (Q_design_kW < 528)       ashrae_min_cop = 5.00;  // < 150 TR
+    else if (Q_design_kW < 1055) ashrae_min_cop = 5.55;  // 150–300 TR
+    else                          ashrae_min_cop = 6.10;  // > 300 TR
+  } else if (type.includes('screw')) {
+    ashrae_min_cop = Q_design_kW < 528 ? 4.45 : 4.90;
+  } else if (type.includes('scroll')) {
+    ashrae_min_cop = 4.45;
+  } else {
+    ashrae_min_cop = 3.80; // reciprocating / other
+  }
+  const cop_check  = cop >= ashrae_min_cop ? 'PASS' : 'FAIL';
+  const cop_margin = parseFloat((cop - ashrae_min_cop).toFixed(3));
+
+  // 9. Electrical
+  const total_kVA        = parseFloat((P_total_kW / 0.85).toFixed(1));
+  const total_A_at_400V  = parseFloat((total_kVA * 1000 / (Math.sqrt(3) * 400)).toFixed(1));
+
+  // 10. Refrigerant (water-cooled: R-134a large centrifugal, R-1234ze new, R-32 screw/scroll)
+  const refrigerant = type.includes('centrifugal')
+    ? 'R-134a or R-1234ze(E) (low-GWP, preferred for new centrifugal installations)'
+    : 'R-32 or R-410A (screw/scroll — verify per manufacturer specification)';
+
+  return {
+    inputs_used: { cooling_load_kW: Q_input_kW, chiller_type: chillerType, chw_supply_C: chwSupply, chw_return_C: chwReturn, cw_supply_C: cwSupply, cw_return_C: cwReturn, cop, safety_factor: safetyFactor, n_units: nUnits },
+    Q_input_kW:          parseFloat(Q_input_kW.toFixed(2)),
+    Q_design_kW:         parseFloat(Q_design_kW.toFixed(2)),
+    Q_design_TR:         parseFloat(Q_design_TR.toFixed(2)),
+    safety_factor:       safetyFactor,
+    P_total_kW:          parseFloat(P_total_kW.toFixed(2)),
+    P_per_unit_kW:       parseFloat(P_per_unit_kW.toFixed(2)),
+    cop_used:            cop,
+    Q_rejection_kW:      parseFloat(Q_rejection_kW.toFixed(2)),
+    Q_rejection_TR,
+    n_units:             nUnits,
+    Q_per_unit_kW:       parseFloat(Q_per_unit_kW.toFixed(2)),
+    Q_per_unit_TR:       parseFloat(Q_per_unit_TR.toFixed(2)),
+    nominal_TR_each,
+    nominal_kW_each,
+    nominal_total_TR,
+    dT_cw_C:             parseFloat(dT_cw.toFixed(1)),
+    Q_cw_lps:            parseFloat(Q_cw_lps.toFixed(2)),
+    Q_cw_m3h:            parseFloat(Q_cw_m3h.toFixed(2)),
+    Q_cw_GPM:            parseFloat(Q_cw_GPM.toFixed(1)),
+    dT_chw_C:            parseFloat(dT_chw.toFixed(1)),
+    Q_chw_lps:           parseFloat(Q_chw_lps.toFixed(2)),
+    Q_chw_m3h:           parseFloat(Q_chw_m3h.toFixed(2)),
+    Q_chw_GPM:           parseFloat(Q_chw_GPM.toFixed(1)),
+    ashrae_min_cop,
+    cop_check,
+    cop_margin,
+    total_kVA,
+    total_A_at_400V,
+    refrigerant,
+    chiller_type:        chillerType,
+  };
+}
+
 // ─── Chiller System — Air Cooled Calculation ─────────────────────────────────
 // Method: Heat balance — Q_design = load × safety, P = Q/COP, Q_rejection = Q + P
 // Standards: ASHRAE 90.1 (min COP), ASHRAE 15 (safety), PSME Code
@@ -2697,6 +2807,8 @@ serve(async (req) => {
       results = calcLightingDesign(inputs);
     } else if (calc_type === "Short Circuit") {
       results = calcShortCircuit(inputs);
+    } else if (calc_type === "Chiller System — Water Cooled") {
+      results = calcChillerWaterCooled(inputs);
     } else if (calc_type === "Chiller System — Air Cooled") {
       results = calcChillerAirCooled(inputs);
     } else {
