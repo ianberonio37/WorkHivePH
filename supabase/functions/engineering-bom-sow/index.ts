@@ -1188,6 +1188,85 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Fire Protection: Fire Pump Sizing BOM + SOW Agent ───────────────────────
+
+async function firePumpBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project        = inputs.project_name      || "Fire Pump System Project";
+  const requiredFlow   = inputs.required_flow     ?? results.flow_lpm    ?? "N/A";
+  const requiredPressBar = Number(inputs.required_pressure ?? 0);
+  const requiredPressKPa = (requiredPressBar * 100).toFixed(0);
+  const elevation      = inputs.elevation         ?? 0;
+  const suctionType    = inputs.suction_type      || "Flooded Suction";
+  const suctionHead    = inputs.suction_head      ?? 1.5;
+  const pipeDia        = results.pipe_dia_mm      ?? inputs.pipe_diameter ?? "N/A";
+  const pipeMat        = inputs.pipe_material     || "Steel";
+  const driveType      = inputs.drive_type        || "Electric Motor";
+  const pumpEff        = inputs.pump_efficiency   ?? 70;
+  const motorEff       = inputs.motor_efficiency  ?? 90;
+
+  const TDH            = results.TDH              ?? "N/A";
+  const flowLpm        = results.flow_lpm         ?? requiredFlow;
+  const hydraulicKw    = results.hydraulic_kw     ?? "N/A";
+  const brakeKw        = results.brake_kw         ?? "N/A";
+  const motorKw        = results.motor_kw         ?? "N/A";
+  const motorHp        = results.motor_hp         ?? "N/A";
+  const recommendedHp  = results.recommended_hp   ?? "N/A";
+  const recommendedKw  = results.recommended_kw   ?? "N/A";
+  const pipeVelocity   = results.pipe_velocity    ?? "N/A";
+  const npshAvail      = results.npsh_available   ?? "N/A";
+  const staticHead     = results.static_head      ?? elevation;
+  const frictionHead   = results.friction_head    ?? "N/A";
+
+  // NFPA 20 motor rating: 115% for electric, 120% for diesel
+  const isDiesel       = String(driveType).toLowerCase().includes("diesel");
+  const nfpa20Pct      = isDiesel ? 120 : 115;
+  const nfpa20Note     = isDiesel
+    ? `Diesel drive selected — NFPA 20 requires motor rated at minimum 120% of pump BHP. Diesel backup is MANDATORY per BFP IRR for high-rise buildings and critical occupancies.`
+    : `Electric motor drive — NFPA 20 requires motor rated at minimum 115% of pump BHP. A diesel backup pump is required in high-rise or critical occupancies per BFP IRR.`;
+
+  const prompt = `You are a Philippine fire protection engineering expert (NFPA 20, BFP Philippines). Generate a professional BOM and SOW for a FIRE PUMP SYSTEM installation project.
+
+PROJECT: ${project}
+DESIGN FLOW RATE: ${flowLpm} L/min
+REQUIRED PRESSURE AT PUMP DISCHARGE: ${requiredPressBar} bar (${requiredPressKPa} kPa)
+TOTAL DYNAMIC HEAD (TDH): ${TDH} m
+  - Static Head: ${staticHead} m
+  - Friction Head: ${frictionHead} m
+ELEVATION (pump CL to highest sprinkler): ${elevation} m
+SUCTION TYPE: ${suctionType} (suction head: ${suctionHead} m)
+PIPE: ${pipeDia} mm ${pipeMat} Schedule 40, velocity ${pipeVelocity} m/s
+PUMP EFFICIENCY: ${pumpEff}%
+MOTOR EFFICIENCY: ${motorEff}%
+HYDRAULIC POWER: ${hydraulicKw} kW
+BRAKE POWER (BHP): ${brakeKw} kW
+MOTOR INPUT POWER: ${motorKw} kW (${motorHp} HP)
+RECOMMENDED MOTOR RATING (NFPA 20 at ${nfpa20Pct}%): ${recommendedHp} HP (${recommendedKw} kW)
+DRIVE TYPE: ${driveType}
+NPSHa (available): ${npshAvail} m
+NFPA 20 NOTE: ${nfpa20Note}
+STANDARDS: NFPA 20 (Stationary Fire Pumps), NFPA 13 (Sprinkler Systems — source of flow/pressure), BFP Philippines Fire Code (RA 9514), Philippine Fire Code IRR, National Building Code PD 1096
+
+Generate a JSON object with:
+1. "bom_items": array of 16 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: Fire pump unit — end suction centrifugal (${flowLpm} L/min @ ${TDH} m TDH, ${recommendedHp} HP ${driveType}, UL/FM listed — NFPA 20 Section 4), pump baseplate and coupling guard (common baseplate, flexible coupling, stainless guard), electric motor — TEFC (${recommendedHp} HP, ${nfpa20Pct}% of BHP per NFPA 20, IP55 enclosure, IE3 efficiency class), diesel engine driver (if applicable — ${isDiesel ? `backup required per BFP IRR, engine HP = ${nfpa20Pct}% x BHP` : "not required for this installation — electric primary selected"}), jockey (pressure maintenance) pump (small centrifugal, approx. 10% of main pump flow, maintains system pressure to prevent false alarms), jockey pump motor (fractional HP, DOL starter), main pump suction pipe — ${pipeDia}mm ${pipeMat} Sch.40 with eccentric reducer and isolation valve (flooded suction configuration per NFPA 20), main pump discharge pipe — ${pipeDia}mm ${pipeMat} Sch.40 with concentric reducer to system main, pump discharge check valve (swing type, UL/FM listed — prevents backflow on pump shutdown), pump discharge gate valve / butterfly valve (OS&Y or LI type with tamper switch, UL/FM listed), pressure relief valve (set at 10% above churn pressure — NFPA 20 requirement), pressure gauges — suction and discharge (glycerin-filled, 0–21 bar, per NFPA 20), flow meter / test header with sight glass or ultrasonic flow meter (for periodic flow testing per NFPA 25), fire pump controller — automatic pressure-sensing type (UL listed per NFPA 20, auto-start on pressure drop, manual stop only, alarm panel with remote signal), automatic transfer switch / ATS (if diesel backup is provided — transfers power on utility failure), vibration isolation pads and anchor bolts (per pump manufacturer specification, seismic restraint if required)
+2. "sow_sections": array of 8 sections (each: section_no, title, content)
+   Cover: Scope of Works, Design Basis (NFPA 20 design criteria, ${flowLpm} L/min @ ${requiredPressBar} bar, TDH=${TDH}m, ${driveType} drive, ${nfpa20Note}), Pump and Driver Installation (alignment, baseplate grouting, coupling guard, vibration isolation, NFPA 20 Section 4 clearance requirements), Piping Connections (suction eccentric reducer, discharge concentric reducer, pipe sizing per NFPA 20 velocity limits, hanger spacing, flanged connections to pump nozzles), Valves Instrumentation and Controller (OS&Y isolation valves with tamper switches, check valve, pressure gauges on suction and discharge, automatic fire pump controller per UL 218 / NFPA 20 — auto-start, manual-stop-only, alarm outputs), Jockey Pump (sizing and installation, pressure setting to maintain system at ${(requiredPressBar * 100).toFixed(0)} kPa ± 35 kPa, prevent nuisance starts), Inspection Testing and Commissioning (churn/no-flow test, 100% flow test, 150% flow test at 65% pressure per NFPA 20 Section 12, pressure relief valve test, controller and ATS test, BFP acceptance inspection), Regulatory Compliance (RA 9514 Philippine Fire Code, NFPA 20 acceptance test witnessed by BFP AHJ, PRC-licensed Mechanical Engineer sign-off, O&M manual submission)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -1248,6 +1327,8 @@ serve(async (req) => {
       result = await lightingDesignBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Fire Protection" && calc_type === "Fire Sprinkler Hydraulic") {
       result = await fireSprinklerBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Fire Protection" && calc_type === "Fire Pump Sizing") {
+      result = await firePumpBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),

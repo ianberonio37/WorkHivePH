@@ -8554,7 +8554,7 @@ async function generateBomSowChecklist() {
     'Mechanical': ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air'],
     'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design'],
     'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing'],
-    'Fire Protection': ['Fire Sprinkler Hydraulic'],
+    'Fire Protection': ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing'],
   };
   const supportedForDiscipline = BOM_SOW_SUPPORTED[_discipline] || [];
   if (!supportedForDiscipline.includes(_calcType)) {
@@ -8743,8 +8743,11 @@ function renderBomTablePreview(items) {
   const isSC       = _calcType === 'Short Circuit';
   const isLight    = _calcType === 'Lighting Design';
   const isFSprink  = _calcType === 'Fire Sprinkler Hydraulic';
-  const calcRef = `${isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
-  const disciplineSystem = isFSprink
+  const isFPump    = _calcType === 'Fire Pump Sizing';
+  const calcRef = `${isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const disciplineSystem = isFPump
+    ? `Fire Protection — Fire Pump Sizing (${_lastInputs?.drive_type || 'Electric Motor'}, ${_lastResults?.recommended_hp || ''}HP, TDH=${_lastResults?.TDH || ''}m, Q=${_lastResults?.flow_lpm || _lastInputs?.required_flow || ''}L/min, ${_lastResults?.pipe_dia_mm || ''}mm pipe)`
+    : isFSprink
     ? `Fire Protection — Fire Sprinkler Hydraulic (${_lastInputs?.hazard || ''}, ${_lastResults?.N_sprinklers || ''} heads, Q=${_lastResults?.Q_total || ''}L/min, ${_lastResults?.pipe_dia || ''}mm ${_lastResults?.pipe_material || ''} riser)`
     : isLight
     ? `Electrical — Lighting Design (${_lastInputs?.space_type || 'Office'}, ${_lastResults?.N_fixtures || ''}× ${_lastInputs?.watts_per_fix || ''}W LED, ${_lastResults?.E_actual_lux || ''}lux achieved, LPD ${_lastResults?.lpd_W_m2 || ''}W/m²)`
@@ -8932,12 +8935,15 @@ function renderSowDocPreview(sections) {
   const isSC       = _calcType === 'Short Circuit';
   const isLight    = _calcType === 'Lighting Design';
   const isFSprink  = _calcType === 'Fire Sprinkler Hydraulic';
-  const calcRef = `${isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const isFPump    = _calcType === 'Fire Pump Sizing';
+  const calcRef = `${isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
   const unitKW = _lastResults?.ac_size_kw        || '';
-  const ventSystemLine = isFSprink
+  const ventSystemLine = isFPump
+    ? `Fire Pump Sizing — ${_lastInputs?.drive_type || 'Electric Motor'}, ${_lastResults?.recommended_hp || ''}HP (${_lastResults?.recommended_kw || ''}kW), TDH=${_lastResults?.TDH || ''}m, Q=${_lastResults?.flow_lpm || _lastInputs?.required_flow || ''}L/min @ ${_lastInputs?.required_pressure || ''}bar, ${_lastResults?.pipe_dia_mm || ''}mm ${_lastInputs?.pipe_material || 'Steel'} pipe, NPSHa=${_lastResults?.npsh_available || ''}m`
+    : isFSprink
     ? `Fire Sprinkler Hydraulic — ${_lastInputs?.hazard || ''} Hazard, ${_lastResults?.N_sprinklers || ''} sprinkler heads, Q_total=${_lastResults?.Q_total || ''}L/min, P_design=${_lastResults?.P_design || ''}kPa, ${_lastResults?.pipe_dia || ''}mm ${_lastResults?.pipe_material || ''} riser, Duration ${_lastResults?.duration || ''}min, Storage ${_lastResults?.water_volume_m3 || ''}m³`
     : isLight
     ? `Lighting Design — ${_lastInputs?.space_type || 'Office'}, ${_lastInputs?.room_len_m || ''}m × ${_lastInputs?.room_wid_m || ''}m (${_lastResults?.floor_area_m2 || ''}m²), Target ${_lastInputs?.target_lux || ''}lux, Achieved ${_lastResults?.E_actual_lux || ''}lux, ${_lastResults?.N_fixtures || ''} × ${_lastInputs?.watts_per_fix || ''}W LED Fixtures, Total ${_lastResults?.total_kW || ''}kW, LPD ${_lastResults?.lpd_W_m2 || ''}W/m²`
