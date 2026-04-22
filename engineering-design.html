@@ -11389,6 +11389,8 @@ ${isLight
   ? `This Scope of Works is based on the Pipe Sizing Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including PSME, Philippine Plumbing Code, applicable ASTM material standards, and DOLE OSH Standards. Material test certificates for pipe and fittings shall be submitted for Engineer's approval prior to procurement. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isPump
   ? `This Scope of Works is based on the Pump Sizing (TDH) Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including PSME, Hydraulic Institute Standards (ANSI/HI), PEC 2017, and DOLE OSH Standards. Factory performance test certificates and certified pump curves shall be submitted prior to equipment procurement. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  : isSDS
+  ? `This Scope of Works is based on the Storm Drain / Stormwater Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes and standards including the DPWH Flood Control Design Manual, DPWH Blue Book Standard Specifications, PAGASA rainfall data, NSCP, and RA 9275 (Clean Water Act) for stormwater discharge. LGU Building Permit and DPWH road-crossing permit shall be secured before construction. All works shall be subject to CCTV inspection and as-built survey before final acceptance. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isVent
   ? `This Scope of Works is based on the Ventilation / ACH Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including ASHRAE 62.1, PSME, NFPA 90A, PEC 2017, and DOLE OSH Standards for workplace ventilation. Duct construction shall comply with SMACNA standards. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isAHUS
@@ -11410,7 +11412,13 @@ ${isLight
               <span class="editable-field" contenteditable="true">${escHtml(WORKER_NAME)}</span>
             </div>
             <div style="font-size:0.74rem;color:#555;">
-              <span class="editable-field" contenteditable="true">Mechanical Engineer</span>
+              <span class="editable-field" contenteditable="true">${
+                (isLoadEst || isVD || isWire || isSC || isLight) ? 'Electrical Engineer'
+                : (isDrain || isWS || isHW || isSeptic || isWaterSoftS || isWTS || isSTPS || isSDS) ? 'Sanitary Engineer'
+                : (isFSprink || isFPump || isSPress || isFABatt) ? 'Fire Protection Engineer'
+                : (isElev || isHoist) ? 'Mechanical Engineer'
+                : 'Mechanical Engineer'
+              }</span>
             </div>
             <div style="font-size:0.74rem;color:#555;">
               PRC Lic. No.: <span class="editable-field" contenteditable="true">_____________</span>
