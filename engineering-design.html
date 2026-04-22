@@ -6683,9 +6683,9 @@ function renderLoadReport(inputs, results, narrative) {
     <p>${e(narrative?.recommendations || `Install a ${results.recommended_breaker_A} A main circuit breaker (MCCB) for this panel. Size all feeder conductors to carry at minimum ${results.ampacity_with_spare} A continuously. Provide a sub-panel with spare circuit breaker slots for future loads. Verify voltage drop on all feeders supplying this panel — run a separate voltage drop calculation for runs exceeding 30 m.`)}</p>
 
     <div class="sig-block">
-      <div><div class="sig-line">Prepared by</div><div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div></div>
-      <div><div class="sig-line">PRC License No. / PTR No.</div><div style="margin-top:2rem;" class="sig-line">Date</div></div>
-      <div><div class="sig-line">Checked / Approved by</div><div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div></div>
+      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.72rem;color:#555;">Electrical Engineer / Prepared by</div><div style="margin-top:0.3rem;font-size:0.72rem;">PRC Lic. No.: ${e('_____________')}</div><div style="font-size:0.72rem;">PTR No.: ${e('_____________')}</div><div style="font-size:0.72rem;">Date: ${e('_____________')}</div></div>
+      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.72rem;color:#555;">Project Engineer / Checked by</div><div style="margin-top:0.3rem;font-size:0.72rem;">Company: ${e('_____________')}</div><div style="font-size:0.72rem;">Date: ${e('_____________')}</div></div>
+      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.72rem;color:#555;">Owner / Client Representative</div><div style="margin-top:0.3rem;font-size:0.72rem;">Date: ${e('_____________')}</div></div>
     </div>
   `;
   document.getElementById('report-panel').innerHTML = html;
@@ -6798,9 +6798,9 @@ function renderVDReport(inputs, results, narrative) {
       : `Selected conductor ${results.conductor_mm2} mm² exceeds the PEC ${results.vd_limit}% voltage drop limit. Upsize the conductor — refer to the size comparison table above for the smallest size that passes. Alternatively, reduce the circuit length or split the load into two circuits from a closer sub-panel.`))}</p>
 
     <div class="sig-block">
-      <div><div class="sig-line">Prepared by</div><div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div></div>
-      <div><div class="sig-line">PRC License No. / PTR No.</div><div style="margin-top:2rem;" class="sig-line">Date</div></div>
-      <div><div class="sig-line">Checked / Approved by</div><div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div></div>
+      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.72rem;color:#555;">Electrical Engineer / Prepared by</div><div style="margin-top:0.3rem;font-size:0.72rem;">PRC Lic. No.: ${e('_____________')}</div><div style="font-size:0.72rem;">PTR No.: ${e('_____________')}</div><div style="font-size:0.72rem;">Date: ${e('_____________')}</div></div>
+      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.72rem;color:#555;">Project Engineer / Checked by</div><div style="margin-top:0.3rem;font-size:0.72rem;">Company: ${e('_____________')}</div><div style="font-size:0.72rem;">Date: ${e('_____________')}</div></div>
+      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.72rem;color:#555;">Owner / Client Representative</div><div style="margin-top:0.3rem;font-size:0.72rem;">Date: ${e('_____________')}</div></div>
     </div>
   `;
   document.getElementById('report-panel').innerHTML = html;
@@ -6897,9 +6897,9 @@ function renderWireSizingReport(inputs, results, narrative) {
     <p>${e(narrative?.recommendations || `Use ${results.recommended_size_mm2} mm² copper THHN/THWN-2 conductor for this circuit. Install a ${results.recommended_breaker_A} A circuit breaker. Ensure conduit fill does not exceed the assumed ${escHtml(results.conduit_fill)} current-carrying conductors. Run a separate voltage drop calculation for circuit runs exceeding 30 m — ampacity compliance does not guarantee acceptable voltage drop.`)}</p>
 
     <div class="sig-block">
-      <div><div class="sig-line">Prepared by</div><div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div></div>
-      <div><div class="sig-line">PRC License No. / PTR No.</div><div style="margin-top:2rem;" class="sig-line">Date</div></div>
-      <div><div class="sig-line">Checked / Approved by</div><div style="margin-top:2rem;" class="sig-line">Signature over Printed Name</div></div>
+      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.72rem;color:#555;">Electrical Engineer / Prepared by</div><div style="margin-top:0.3rem;font-size:0.72rem;">PRC Lic. No.: ${e('_____________')}</div><div style="font-size:0.72rem;">PTR No.: ${e('_____________')}</div><div style="font-size:0.72rem;">Date: ${e('_____________')}</div></div>
+      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.72rem;color:#555;">Project Engineer / Checked by</div><div style="margin-top:0.3rem;font-size:0.72rem;">Company: ${e('_____________')}</div><div style="font-size:0.72rem;">Date: ${e('_____________')}</div></div>
+      <div><div class="sig-line">${e('________________________')}</div><div style="font-size:0.72rem;color:#555;">Owner / Client Representative</div><div style="margin-top:0.3rem;font-size:0.72rem;">Date: ${e('_____________')}</div></div>
     </div>
   `;
   document.getElementById('report-panel').innerHTML = html;
@@ -7866,6 +7866,7 @@ function renderFirePumpReport(inputs, results, narrative) {
 function renderLightingDesignReport(inputs, results, narrative) {
   const now = new Date();
   const r   = results;
+  const e   = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
 
   const html = `
     <div style="max-width:800px;margin:0 auto;font-family:'Poppins',sans-serif;color:#162032;background:#fff;padding:2.5rem;border-radius:1rem;">
@@ -7882,7 +7883,7 @@ function renderLightingDesignReport(inputs, results, narrative) {
       </div>
 
       <table style="width:100%;border-collapse:collapse;margin-bottom:1.5rem;font-size:0.78rem;">
-        <tr><td style="padding:0.3rem 0.5rem;font-weight:600;width:35%;color:#555;">Project / Room</td><td style="padding:0.3rem 0.5rem;">${inputs.project_name}</td><td style="padding:0.3rem 0.5rem;font-weight:600;width:20%;color:#555;">Engineer</td><td style="padding:0.3rem 0.5rem;">_________________</td></tr>
+        <tr><td style="padding:0.3rem 0.5rem;font-weight:600;width:35%;color:#555;">Project / Room</td><td style="padding:0.3rem 0.5rem;">${inputs.project_name}</td><td style="padding:0.3rem 0.5rem;font-weight:600;width:20%;color:#555;">Engineer</td><td style="padding:0.3rem 0.5rem;">${e('_________________')}</td></tr>
         <tr><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Space Type</td><td style="padding:0.3rem 0.5rem;">${inputs.space_type}</td><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Date</td><td style="padding:0.3rem 0.5rem;">${now.toLocaleDateString('en-PH')}</td></tr>
         <tr><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Room Dimensions</td><td style="padding:0.3rem 0.5rem;">${inputs.room_len_m} m × ${inputs.room_wid_m} m × ${inputs.ceiling_ht_m} m H</td><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Floor Area</td><td style="padding:0.3rem 0.5rem;">${r.floor_area_m2} m²</td></tr>
       </table>
@@ -7975,21 +7976,10 @@ function renderLightingDesignReport(inputs, results, narrative) {
         <div id="ld-rec" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.recommendations || 'See calculation above.'}</div>
       </div>
 
-      <div style="margin-top:3rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;font-size:0.75rem;">
-        <div style="border-top:1px solid #162032;padding-top:0.5rem;">
-          <div style="font-weight:700;">Prepared by:</div>
-          <div style="margin-top:0.25rem;color:#555;">Signature over Printed Name</div>
-          <div style="margin-top:1rem;">PRC Lic. No.: _____________________</div>
-          <div>PTR No.: _____________________</div>
-          <div>Date: _____________________</div>
-        </div>
-        <div style="border-top:1px solid #162032;padding-top:0.5rem;">
-          <div style="font-weight:700;">Checked / Noted by:</div>
-          <div style="margin-top:0.25rem;color:#555;">Signature over Printed Name</div>
-          <div style="margin-top:1rem;">PRC Lic. No.: _____________________</div>
-          <div>PTR No.: _____________________</div>
-          <div>Date: _____________________</div>
-        </div>
+      <div class="sig-block" style="display:flex;flex-wrap:wrap;gap:1.5rem;margin-top:2rem;padding-top:1rem;border-top:1px solid #ccc;">
+        <div style="flex:1 1 200px;"><div style="margin-top:2rem;border-top:1px solid #999;padding-top:0.3rem;font-size:0.75rem;"><div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div><div style="color:#555;">Electrical Engineer / Prepared by</div><div style="margin-top:0.2rem;">PRC Lic. No.: ${e('_____________')}</div><div>PTR No.: ${e('_____________')}</div><div>Date: ${e('_____________')}</div></div></div>
+        <div style="flex:1 1 200px;"><div style="margin-top:2rem;border-top:1px solid #999;padding-top:0.3rem;font-size:0.75rem;"><div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div><div style="color:#555;">Project Engineer / Checked by</div><div style="margin-top:0.2rem;">Company: ${e('_____________')}</div><div>Date: ${e('_____________')}</div></div></div>
+        <div style="flex:1 1 200px;"><div style="margin-top:2rem;border-top:1px solid #999;padding-top:0.3rem;font-size:0.75rem;"><div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div><div style="color:#555;">Owner / Client Representative</div><div style="margin-top:0.2rem;">Date: ${e('_____________')}</div></div></div>
       </div>
 
     </div>`;
@@ -8001,6 +7991,7 @@ function renderLightingDesignReport(inputs, results, narrative) {
 function renderShortCircuitReport(inputs, results, narrative) {
   const now = new Date();
   const r   = results;
+  const e   = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
 
   const icPass   = r.ic_check === 'PASS';
   const passCol  = icPass ? '#22c55e' : '#ef4444';
@@ -8021,7 +8012,7 @@ function renderShortCircuitReport(inputs, results, narrative) {
       </div>
 
       <table style="width:100%;border-collapse:collapse;margin-bottom:1.5rem;font-size:0.78rem;">
-        <tr><td style="padding:0.3rem 0.5rem;font-weight:600;width:35%;color:#555;">Project / Panel</td><td style="padding:0.3rem 0.5rem;">${inputs.project_name}</td><td style="padding:0.3rem 0.5rem;font-weight:600;width:20%;color:#555;">Engineer</td><td style="padding:0.3rem 0.5rem;">_________________</td></tr>
+        <tr><td style="padding:0.3rem 0.5rem;font-weight:600;width:35%;color:#555;">Project / Panel</td><td style="padding:0.3rem 0.5rem;">${inputs.project_name}</td><td style="padding:0.3rem 0.5rem;font-weight:600;width:20%;color:#555;">Engineer</td><td style="padding:0.3rem 0.5rem;">${e('_________________')}</td></tr>
         <tr><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Transformer</td><td style="padding:0.3rem 0.5rem;">${inputs.xfmr_kva} kVA, ${inputs.z_pct}%Z</td><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Date</td><td style="padding:0.3rem 0.5rem;">${now.toLocaleDateString('en-PH')}</td></tr>
         <tr><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">System Voltage</td><td style="padding:0.3rem 0.5rem;">${inputs.voltage_ll} V (L-L)</td><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Cable Run</td><td style="padding:0.3rem 0.5rem;">${inputs.cable_mm2} mm² Cu, ${inputs.cable_len_m} m</td></tr>
       </table>
@@ -8115,21 +8106,10 @@ function renderShortCircuitReport(inputs, results, narrative) {
         <div id="sc-rec" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.recommendations || 'See calculation above.'}</div>
       </div>
 
-      <div style="margin-top:3rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;font-size:0.75rem;">
-        <div style="border-top:1px solid #162032;padding-top:0.5rem;">
-          <div style="font-weight:700;">Prepared by:</div>
-          <div style="margin-top:0.25rem;color:#555;">Signature over Printed Name</div>
-          <div style="margin-top:1rem;">PRC Lic. No.: _____________________</div>
-          <div>PTR No.: _____________________</div>
-          <div>Date: _____________________</div>
-        </div>
-        <div style="border-top:1px solid #162032;padding-top:0.5rem;">
-          <div style="font-weight:700;">Checked / Noted by:</div>
-          <div style="margin-top:0.25rem;color:#555;">Signature over Printed Name</div>
-          <div style="margin-top:1rem;">PRC Lic. No.: _____________________</div>
-          <div>PTR No.: _____________________</div>
-          <div>Date: _____________________</div>
-        </div>
+      <div class="sig-block" style="display:flex;flex-wrap:wrap;gap:1.5rem;margin-top:2rem;padding-top:1rem;border-top:1px solid #ccc;">
+        <div style="flex:1 1 200px;"><div style="margin-top:2rem;border-top:1px solid #999;padding-top:0.3rem;font-size:0.75rem;"><div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div><div style="color:#555;">Electrical Engineer / Prepared by</div><div style="margin-top:0.2rem;">PRC Lic. No.: ${e('_____________')}</div><div>PTR No.: ${e('_____________')}</div><div>Date: ${e('_____________')}</div></div></div>
+        <div style="flex:1 1 200px;"><div style="margin-top:2rem;border-top:1px solid #999;padding-top:0.3rem;font-size:0.75rem;"><div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div><div style="color:#555;">Project Engineer / Checked by</div><div style="margin-top:0.2rem;">Company: ${e('_____________')}</div><div>Date: ${e('_____________')}</div></div></div>
+        <div style="flex:1 1 200px;"><div style="margin-top:2rem;border-top:1px solid #999;padding-top:0.3rem;font-size:0.75rem;"><div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div><div style="color:#555;">Owner / Client Representative</div><div style="margin-top:0.2rem;">Date: ${e('_____________')}</div></div></div>
       </div>
 
     </div>`;
