@@ -1633,6 +1633,74 @@ Use short unit codes only (unit, set, pcs, m, lot, run) — never descriptive ph
   };
 }
 
+// ─── Electrical: Power Factor Correction BOM + SOW Agent ─────────────────────
+
+async function pfcBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project       = inputs.project_name    || "Power Factor Correction Project";
+  const kw            = results.kw             || inputs.load_kw      || "";
+  const pfExisting    = results.pf_existing    || inputs.pf_existing  || "";
+  const pfTarget      = results.pf_target      || inputs.pf_target    || "";
+  const voltageV      = inputs.voltage_v       || 400;
+  const phases        = inputs.phases          || 3;
+  const kvarRequired  = results.kvar_required  || "";
+  const selectedKvar  = results.selected_kvar  || "";
+  const kvaReduction  = results.kva_reduction  || "";
+  const currentRedPct = results.current_reduction_pct || "";
+  const meralcoPenalty= results.meralco_penalty ?? false;
+
+  const prompt = `You are a senior electrical engineer in the Philippines preparing a Bill of Materials and Scope of Works for a Power Factor Correction (capacitor bank) installation.
+
+PROJECT: ${project}
+SYSTEM: ${voltageV}V, ${phases}-phase
+LOAD: ${kw} kW at existing PF = ${pfExisting} → target PF = ${pfTarget}
+REQUIRED: ${kvarRequired} kVAR → SELECTED CAPACITOR BANK: ${selectedKvar} kVAR
+kVA REDUCTION: ${kvaReduction} kVA | Feeder current reduction: ${currentRedPct}%
+MERALCO PF SURCHARGE: ${meralcoPenalty ? `YES — existing PF ${pfExisting} is below 0.85 threshold; surcharge eliminated after correction` : "NO — existing PF is above 0.85"}
+STANDARDS: IEEE 18 (Shunt Power Capacitors), IEEE 1036 (Application Guide), PEC 2017 Article 4.60, IEC 60831-1
+
+BOM REQUIREMENTS (minimum 14 items):
+1. Power Factor Correction Capacitor Bank — ${selectedKvar} kVAR, ${voltageV}V, ${phases}-phase, IEC 60831-1 certified, self-healing type; Qty: 1 set
+2. Automatic Power Factor Controller (APFC) — 12-step or matching steps, RS-485/Modbus capable; Qty: 1 unit (if APFC panel specified)
+3. Series Detuning Reactor — 7% (189 Hz detuning) for harmonic protection, rated for capacitor current; Qty: 1 set (if harmonic loads present)
+4. Dedicated MCCB / Capacitor Fused Switch — rated ≥ 135% of capacitor rated current per PEC Art. 4.60.14; Qty: 1 unit
+5. Discharge Resistors — factory-installed in capacitor bank, reduces voltage to <50V in 5 min per IEEE 18; Qty: included in bank
+6. Copper Conductors — sized at 135% of capacitor rated current, THHN/THWN-2 75°C rated; Qty: per single-line diagram
+7. Conduit (IMC or PVC Schedule 40) — per PEC wiring method for system voltage; Qty: per layout drawing
+8. Capacitor Panel Enclosure — IP31 minimum indoor, with din-rail, busbars, and door interlocks; Qty: 1 unit (if freestanding panel)
+9. Copper Busbars — tinned copper, current-rated; Qty: per panel design
+10. Power Analyzer / Metering — true-RMS multi-function meter with PF, kVAR, kWh, harmonic THD display; Qty: 1 unit
+11. Control Transformer — 240V/24V AC for APFC controller supply; Qty: 1 unit
+12. Panel Mounting Hardware and Cable Trays — for panel installation and cable routing; Qty: per layout
+13. Grounding Materials — ground bus, ground wire, lugs, per PEC Art. 2.50; Qty: per layout
+14. Warning Labels and Nameplate — per PEC and DOLE OSH; Qty: 1 set
+
+Return a JSON object with two keys:
+- "bom_items": array of objects with keys: item_no, description, specification, qty, unit, remarks
+- "sow_sections": array of objects with keys: section_no, title, items (array of strings)
+
+SOW REQUIREMENTS (7 sections):
+1. Scope of Works and Design Basis — reference IEEE 18, IEEE 1036, PEC Art. 4.60, IEC 60831-1; state load and target PF
+2. Capacitor Bank and Panel Supply — IEC 60831-1 certification, self-healing type, factory test, discharge resistors, IP rating
+3. Capacitor Bank Installation — location (MDB or subdistribution board), mounting, busbar connections, torque specs
+4. Protection and Wiring — MCCB/fused switch at 135% rating, conductor sizing at 135% capacitor rated current, conduit fill
+5. APFC Controller and Metering — step sequencing, anti-hunting timer, power analyzer with PF and harmonic THD display
+6. Testing and Commissioning — insulation resistance test (≥1 MΩ at 500V DC), PF measurement before and after (power analyzer), harmonic check if VFDs present, APFC step cycling test
+7. Documentation and Warranty — as-built single-line diagram, test reports, O&M manual, PF measurement report to Owner and Meralco, electrical permit
+
+Respond ONLY with a valid JSON object. No markdown, no explanation.`;
+
+  const raw    = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Electrical: Generator Sizing BOM + SOW Agent ────────────────────────────
 
 async function generatorSizingBomSowAgent(
@@ -2847,6 +2915,8 @@ serve(async (req) => {
       result = await lightingDesignBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Solar PV System") {
       result = await solarPVBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Electrical" && calc_type === "Power Factor Correction") {
+      result = await pfcBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Generator Sizing") {
       result = await generatorSizingBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Fire Protection" && calc_type === "Fire Sprinkler Hydraulic") {

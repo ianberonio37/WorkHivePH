@@ -4130,6 +4130,81 @@ function calcSolarPV(inputs: Record<string, unknown>): Record<string, unknown> {
   };
 }
 
+// ─── Electrical: Power Factor Correction — IEEE 18 / IEEE 1036 / PEC Art. 4.60 ─
+
+function calcPFC(inputs: Record<string, unknown>): Record<string, unknown> {
+  const round2 = (v: number) => Math.round(v * 100) / 100;
+  const round4 = (v: number) => Math.round(v * 10000) / 10000;
+
+  const kw         = Number(inputs.load_kw)      || 100;
+  const pfExisting = Number(inputs.pf_existing)  || 0.75;
+  const pfTarget   = Number(inputs.pf_target)    || 0.95;
+  const voltageV   = Number(inputs.voltage_v)    || 400;
+  const phases     = Number(inputs.phases)       || 3;
+  const monthlyKwh = Number(inputs.monthly_kwh)  || 0;
+  const meralcoRate= Number(inputs.meralco_rate) || 0;
+
+  // Step 1: angles
+  const phi1Rad = Math.acos(pfExisting);
+  const phi2Rad = Math.acos(pfTarget);
+  const phi1Deg = round2((phi1Rad * 180) / Math.PI);
+  const phi2Deg = round2((phi2Rad * 180) / Math.PI);
+  const tanPhi1 = round4(Math.tan(phi1Rad));
+  const tanPhi2 = round4(Math.tan(phi2Rad));
+
+  // Step 2: required kVAR
+  const kvarRequired = round2(kw * (tanPhi1 - tanPhi2));
+
+  // Step 3: select standard size
+  const stdSizes = [5,10,15,20,25,30,40,50,60,75,100,150,200,300,400,500];
+  const selectedKvar = stdSizes.find(s => s >= kvarRequired) ?? Math.ceil(kvarRequired / 50) * 50;
+
+  // Step 4: kVA before and after
+  const kvaBefore = round2(kw / pfExisting);
+  const kvaAfter  = round2(kw / pfTarget);
+  const kvaReduction = round2(kvaBefore - kvaAfter);
+
+  // Step 5: feeder current
+  const divisor = phases === 3 ? (Math.sqrt(3) * voltageV) : voltageV;
+  const currentBefore    = round2((kvaBefore * 1000) / divisor);
+  const currentAfter     = round2((kvaAfter  * 1000) / divisor);
+  const currentReduction = round2(currentBefore - currentAfter);
+  const currentRedPct    = round2((currentReduction / currentBefore) * 100);
+
+  // Step 6: Meralco PF surcharge (threshold 0.85)
+  const meralcoPenalty = pfExisting < 0.85;
+  const surchargePct   = meralcoPenalty ? round2((0.85 - pfExisting) / 0.85 * 100) : 0;
+
+  // Optional: monthly savings estimate
+  let monthlySavingsPhp = 0;
+  if (meralcoPenalty && monthlyKwh > 0 && meralcoRate > 0) {
+    const monthlyBill = monthlyKwh * meralcoRate;
+    monthlySavingsPhp = round2(monthlyBill * (surchargePct / 100));
+  }
+
+  return {
+    kw,
+    pf_existing:          pfExisting,
+    pf_target:            pfTarget,
+    phi1_deg:             phi1Deg,
+    phi2_deg:             phi2Deg,
+    tan_phi1:             tanPhi1,
+    tan_phi2:             tanPhi2,
+    kvar_required:        kvarRequired,
+    selected_kvar:        selectedKvar,
+    kva_before:           kvaBefore,
+    kva_after:            kvaAfter,
+    kva_reduction:        kvaReduction,
+    current_before:       currentBefore,
+    current_after:        currentAfter,
+    current_reduction:    currentReduction,
+    current_reduction_pct: currentRedPct,
+    meralco_penalty:      meralcoPenalty,
+    surcharge_pct:        surchargePct,
+    monthly_savings_php:  monthlySavingsPhp > 0 ? monthlySavingsPhp : undefined,
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -4219,6 +4294,8 @@ serve(async (req) => {
       results = calcGeneratorSizing(inputs);
     } else if (calc_type === "Solar PV System") {
       results = calcSolarPV(inputs);
+    } else if (calc_type === "Power Factor Correction") {
+      results = calcPFC(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),
