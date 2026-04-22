@@ -1943,6 +1943,137 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Cooling Tower Sizing BOM + SOW Agent ────────────────────────────────────
+
+async function coolingTowerBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project      = inputs.project_name  || "Cooling Tower Project";
+  const loadSource   = String(inputs.load_source || "direct");
+  const nCells       = Number(results.n_cells  ?? inputs.n_cells ?? 1);
+  const qRejKW       = Number(results.q_rejection_kw ?? 0);
+  const qRejTR       = Number(results.q_rejection_tr ?? 0);
+  const qCellKW      = Number(results.q_cell_kw ?? 0);
+  const qCellTR      = Number(results.q_cell_tr ?? 0);
+  const ewt          = Number(results.ewt ?? inputs.ewt ?? 37);
+  const lwt          = Number(results.lwt ?? inputs.lwt ?? 32);
+  const wbt          = Number(results.wbt ?? inputs.wbt ?? 27);
+  const range        = Number(results.range_c ?? (ewt - lwt));
+  const approach     = Number(results.approach_c ?? (lwt - wbt));
+  const coc          = Number(results.coc ?? inputs.coc ?? 4);
+  const lgRatio      = Number(results.lg_ratio ?? inputs.lg_ratio ?? 1.2);
+  const qWlps        = Number(results.q_w_lps ?? 0);
+  const qWm3hr       = Number(results.q_w_m3hr ?? 0);
+  const fanFlowCMH   = Number(results.fan_flow_CMH ?? 0);
+  const fanKWstd     = Number(results.fan_kw_std ?? 0);
+  const fanKWtotal   = Number(results.fan_kw_total ?? 0);
+  const makeupLhr    = Number(results.makeup_lhr ?? 0);
+  const makeupM3day  = Number(results.makeup_m3day ?? 0);
+  const evapLhr      = Number(results.evap_lhr ?? 0);
+  const blowdownLhr  = Number(results.blowdown_lhr ?? 0);
+  const ashraeCheck  = String(results.ashrae_ct_check ?? "PASS");
+  const fanKW100kw   = Number(results.fan_kw_per_100kw ?? 0);
+  const isAshraePass = ashraeCheck.startsWith("PASS") || ashraeCheck.startsWith("✓");
+
+  // Condenser water pipe size estimate (velocity ~1.5 m/s)
+  const cwPipeMm = qWlps > 0
+    ? Math.ceil(Math.sqrt((4 * qWlps / 1000) / (Math.PI * 1.5)) * 1000 / 25) * 25
+    : 100;
+
+  const chillerNote = loadSource === "chiller"
+    ? `Heat source: chiller plant. Cooling tower sized for CONDENSER REJECTION load — NOT chiller nominal TR. Q_rejection = Q_evap + W_compressor.`
+    : `Heat source: direct process heat rejection of ${qRejKW} kW.`;
+
+  const prompt = `You are a licensed Mechanical Engineer in the Philippines preparing official procurement and contracting documents for a COOLING TOWER installation.
+
+PROJECT: ${project}
+STANDARDS: CTI STD-201 (cooling tower performance), ASHRAE GRP-214 (water loss), ASHRAE 90.1 (fan power ≤ 4 kW/100 kW), ASHRAE Guideline 12 (Legionella control), PSME Code, DOLE OSH, PEC 2017, PGBC/BERDE
+
+CALCULATION RESULTS:
+- Heat Source: ${chillerNote}
+- Total Heat Rejection: ${qRejKW} kW = ${qRejTR} TR
+- Number of Cells: ${nCells} × ${qCellKW} kW (${qCellTR} TR) per cell
+- Entering Water Temperature (EWT): ${ewt}°C
+- Leaving Water Temperature (LWT): ${lwt}°C
+- Wet Bulb Temperature (WBT): ${wbt}°C
+- Range: ${range}°C | Approach: ${approach}°C (CTI STD-201 minimum 2°C)
+- Cycles of Concentration: ${coc}
+- L/G Ratio: ${lgRatio}
+- Circulation Flow: ${qWlps} L/s (${qWm3hr} m³/h) — estimated CW pipe ~${cwPipeMm}mm
+- Fan Airflow: ${fanFlowCMH} m³/h total
+- Fan Motor: ${fanKWstd} kW per cell (${fanKWtotal} kW total)
+- Fan Power Index: ${fanKW100kw} kW/100 kW — ASHRAE 90.1 limit 4.0 kW/100 kW — ${isAshraePass ? "PASS" : "FAIL — select high-efficiency fan or add cells"}
+- Makeup Water: ${makeupLhr} L/hr (${makeupM3day} m³/day) — Evap: ${evapLhr} L/hr, Blowdown: ${blowdownLhr} L/hr
+
+TASK: Generate a JSON object with exactly two arrays.
+
+ARRAY 1 — "bom_items": 18 items for a complete cooling tower installation.
+Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
+
+Required items:
+1. Cooling Tower, Induced-Draft Counterflow, FRP — qty: ${nCells} — spec: ${qCellKW} kW (${qCellTR} TR) heat rejection per cell, EWT ${ewt}°C / LWT ${lwt}°C / WBT ${wbt}°C, CTI STD-201 certified, drift eliminators ≤0.001%, PVC fill media, hot-dip galvanized or FRP basin
+2. Fan Motor, TEFC IE3 premium efficiency — qty: ${nCells} — spec: ${fanKWstd} kW per cell, 3-phase 400V/60Hz, IP55, direct-drive or V-belt as per tower manufacturer${!isAshraePass ? " — HOLD: fan power index exceeds ASHRAE 90.1 limit; re-select before procurement" : ""}
+3. Fan Motor VFD (Variable Frequency Drive) — qty: ${nCells} — spec: ${fanKWstd} kW, IP54, bypass mode, 3-phase 400V/60Hz — checked: false
+4. Condenser Water Pump, Base-Mounted Centrifugal — qty: ${Math.max(2, nCells + 1)} — spec: ${Math.round(qWm3hr / nCells)} m³/h per pump, head TBD from hydraulic design, TEFC motor, duty-standby configuration
+5. Condenser Water Piping, CS Schedule 40 Galvanized — qty: 1 lot — spec: ~${cwPipeMm}mm nominal dia, hot-dip galvanized interior or epoxy-lined for CW service, grooved or flanged joints
+6. Y-Strainer, Flanged — qty: ${nCells + 2} — spec: DN${cwPipeMm}mm, 40-mesh stainless screen, PN16, before each pump and CT cell inlet
+7. Butterfly Valve, Isolation — qty: 1 lot — spec: DN${cwPipeMm}mm, PN16, EPDM seat, cast iron body, locking handle — isolation at each pump suction/discharge and CT cell supply/return
+8. Manual Balancing Valve — qty: ${nCells} — spec: DN${cwPipeMm}mm, PN16, graduated scale with memory stop — one per CT cell return
+9. Flexible Pipe Connectors, Braided Rubber — qty: ${nCells * 2 + 4} — spec: DN${cwPipeMm}mm × 300mm, PN16, stainless braid, at all pump suction/discharge and CT cell connections
+10. Automatic Water Level Control Valve (Makeup) — qty: ${nCells} — spec: float-operated or solenoid-operated makeup water valve, PN10, 25mm inlet, for CT basin level control
+11. Makeup Water Piping — qty: 1 lot — spec: ${makeupM3day} m³/day demand (${makeupLhr} L/hr), 25mm domestic water feed to each basin, with ball valve isolation and backflow preventer
+12. Chemical Dosing System — qty: 1 set — spec: automatic dosing pump for corrosion inhibitor, scale inhibitor, and biocide (Legionella control per ASHRAE Guideline 12); chemical day tank; water quality test kit; side-stream filtration unit (10–25 micron) with multimedia filter
+13. Conductivity Controller with Blowdown Solenoid — qty: ${nCells} — spec: automatic blowdown control to maintain CoC = ${coc}, conductivity setpoint adjustable, 24V solenoid bleed-off valve
+14. Structural Steel Support Frame and Basin Curb — qty: 1 lot — spec: hot-dip galvanized, designed for CT operating weight including water, per structural engineer's certification; anchor bolts per seismic zone (NSCP)
+15. Drift Eliminator Replacement Set — qty: ${nCells} — spec: PVC, ≤0.001% drift loss per CTI STD-201; included for handover to Owner as first replacement set — checked: false
+16. Electrical Works — qty: 1 lot — spec: MCCB per cell (${Math.ceil(fanKWstd * 1.25 / 0.85 / (Math.sqrt(3) * 0.4) * 1.25)} A, 3-pole, 400V, 18kA AIC), wiring THHN 3.5mm² (3C) per PEC 2017, conduit in CT area to be rigid galvanized or PVC Schedule 40 (corrosive environment)
+17. Legionella Water Management Plan — qty: 1 lot — spec: risk assessment by qualified water treatment specialist, written water safety plan per ASHRAE Guideline 12, monthly water quality logs for COC, pH, biocide residual
+18. Testing, Balancing, and Commissioning — qty: 1 lot — spec: CTI STD-201 performance test at design conditions (EWT ${ewt}°C, WBT ${wbt}°C), measured LWT ≤ ${lwt + 0.5}°C; CW flow balance within ±10% of ${qWm3hr} m³/h; fan motor current ≤ nameplate FLA; ASHRAE 90.1 fan power ≤ 4 kW/100 kW verified; commissioning report signed by PRC-licensed Mechanical Engineer
+
+ARRAY 2 — "sow_sections": 8 sections of Scope of Works in Philippine engineering document style.
+Each object: { "section_no": number, "title": string, "content": string, "checked": true }
+
+IMPORTANT: Each "content" must be a full professional specification paragraph of at least 4–6 complete sentences. Write as a licensed engineer giving binding contractual requirements. Use "The Contractor shall..." sentence structure. Include specific dimensions, standards, test pressures, tolerances, and acceptance criteria. Do NOT use one-word bullets or vague phrases.
+
+Required sections:
+
+1. Scope Overview
+content: State that the Contractor shall furnish, deliver, install, test, commission, and hand over a complete and operational cooling tower system for ${project}. Include: ${nCells} cell(s) × ${qCellTR} TR per cell (${qRejTR} TR total heat rejection at EWT ${ewt}°C / LWT ${lwt}°C / WBT ${wbt}°C, CTI STD-201 certified), condenser water pumps (duty-standby, ${qWm3hr} m³/h total flow), makeup water system (${makeupM3day} m³/day), chemical treatment and Legionella control per ASHRAE Guideline 12, fan motors ${fanKWstd} kW per cell, structural support frame, electrical supply per PEC 2017, and full commissioning per CTI STD-201.
+
+2. Cooling Tower Equipment Installation
+content: Describe installation requirements for CTI STD-201 compliance: level mounting on structural steel frame (certified for operating weight including water), anchor bolts per NSCP seismic zone, minimum 2× tower diameter clearance on air inlet faces, no recirculation of exhaust air into air inlet, drift eliminator inspection access from grade or permanent access platform. Tower basin to be cleaned and flushed before chemical treatment start-up. CT orientation shall place prevailing wind on the air inlet face — Contractor to confirm with Architect/Structural Engineer before final placement.
+
+3. Condenser Water Piping System
+content: Detail CW piping installation: ${cwPipeMm}mm CS Sch.40 galvanized (interior hot-dip or epoxy-lined) for condenser water service, flanged or grooved mechanical joints, Y-strainers before each pump and cell inlet (40-mesh SS screen, PN16), isolation butterfly valves at all main connections, manual balancing valve per CT cell return (PN16, graduated scale), braided rubber flexible connectors at all pump and CT connections (DN${cwPipeMm}mm × 300mm, PN16). System shall be hydrostatically tested at 1.5× working pressure (minimum 600 kPa) for 4 hours with zero visible leakage. CW flow shall be balanced to within ±10% of design flow (${qWm3hr} m³/h total, ${(qWm3hr/nCells).toFixed(1)} m³/h per cell).
+
+4. Makeup Water and Blowdown Control
+content: Makeup water piping shall be sized for ${makeupM3day} m³/day demand (${makeupLhr} L/hr), fed from the domestic water supply to each CT basin via float-operated or solenoid makeup valve, with ball valve isolation and a backflow preventer (RP-type, ASSE 1013) to prevent contamination of potable water supply. A conductivity controller with automatic bleed-off solenoid valve shall be installed per cell, factory-set to maintain cycles of concentration = ${coc} (adjustable range 2–8). Blowdown rate per cell = ${blowdownLhr} L/hr at CoC ${coc}. A flow meter on the makeup line is recommended for water consumption monitoring. Total water consumption = ${makeupM3day} m³/day — Contractor to verify adequacy of incoming water supply pressure (minimum 200 kPa at valve) before proceeding.
+
+5. Fan and Electrical Works
+content: Fan motors (${fanKWstd} kW per cell, TEFC IE3, IP55, 3-phase 400V/60Hz) shall be installed per cooling tower manufacturer's instructions with proper belt tension or direct-drive coupling as applicable. Fan power index = ${fanKW100kw} kW per 100 kW heat rejection — ASHRAE 90.1 limit 4.0 kW/100 kW — ${isAshraePass ? "PASS. This shall be field-verified during commissioning at design conditions." : "FAIL — Contractor shall NOT energize fan motors until a high-efficiency fan assembly achieving ≤4.0 kW/100 kW is installed and confirmed by engineer."}  MCCB (3-pole, 400V, 18kA AIC) shall be installed per cell. All wiring shall be THHN 3.5mm² (3C) minimum per PEC 2017, in rigid galvanized conduit or PVC Schedule 40 in the cooling tower area (corrosive/wet environment). Electrical permit from LGU Building Official shall be obtained before any electrical works commence.
+
+6. Chemical Water Treatment and Legionella Control
+content: The Contractor shall install a complete automatic chemical dosing system per ASHRAE Guideline 12 for Legionella risk management: corrosion inhibitor, scale inhibitor, and biocide dosing pumps with chemical day tanks, wired to an automatic timer or water meter pulse; a side-stream filtration unit (10–25 micron multimedia filter, minimum 10% of system flow) to remove suspended solids that harbor Legionella biofilm; a written water safety plan (Legionella Water Management Plan) prepared by a qualified water treatment specialist before system start-up; and monthly water quality monitoring with log (pH: 7.0–8.5, conductivity at target CoC ${coc}, biocide residual per product spec, Legionella colony count < 100 CFU/L). System shall be disinfected with hyperchlorination (50 ppm free chlorine, 24-hr contact) before first commissioning and after any shutdown exceeding 7 days.
+
+7. Testing, Commissioning, and Performance Verification
+content: The Contractor shall conduct a CTI STD-201 thermal performance test after system stabilization (minimum 4 hours of steady-state operation at ≥75% design load). Test measurements shall include: (a) EWT — measured within ±0.5°C of ${ewt}°C; (b) LWT — measured ≤ ${(lwt + 0.5).toFixed(1)}°C; (c) WBT — measured on-site with sling psychrometer or calibrated sensor; (d) CW flow — within ±10% of ${qWm3hr} m³/h verified by clamp-on ultrasonic meter; (e) fan motor current — shall not exceed nameplate FLA of each motor; (f) fan power index — shall be ≤ 4.0 kW/100 kW per ASHRAE 90.1; (g) drift — visual check and manufacturer's drift eliminator certification ≤0.001%. TAB report and commissioning report shall be signed by a PRC-licensed Mechanical Engineer and submitted to the Owner and Engineer of Record.
+
+8. Regulatory Compliance and Handover
+content: The Contractor shall be fully responsible for compliance with all applicable Philippine codes and standards: CTI STD-201 — cooling tower performance certification; ASHRAE GRP-214 — water loss and makeup water calculation basis; ASHRAE 90.1 — fan power ≤ 4.0 kW/100 kW heat rejection; ASHRAE Guideline 12 — Legionella Water Management Plan (mandatory before start-up); PSME Code — mechanical installation and LGU Mechanical Permit required before works begin; PEC 2017 — all electrical installations; NSCP — structural support frame design and seismic anchorage; DOLE OSH — safety requirements for rotating equipment, chemical handling, and hot water systems; PGBC/BERDE — water efficiency documentation (makeup water consumption = ${makeupM3day} m³/day). At project completion, the Contractor shall hand over: O&M manuals, as-built drawings, CTI certified performance data sheets, chemical dosing log, commissioning report, Legionella risk assessment, and one complete set of spare fill media and drift eliminator panels per cell. A PRC-licensed Mechanical Engineer shall sign and seal all as-built mechanical drawings.
+
+Respond with ONLY the JSON object. No explanation outside the JSON.`;
+
+  const raw    = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -2019,6 +2150,8 @@ serve(async (req) => {
       result = await chillerWaterCooledBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "HVAC Systems" && calc_type === "AHU Sizing") {
       result = await ahuBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "HVAC Systems" && calc_type === "Cooling Tower Sizing") {
+      result = await coolingTowerBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),
