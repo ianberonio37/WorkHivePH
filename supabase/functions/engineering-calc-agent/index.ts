@@ -3061,6 +3061,170 @@ function calcAHUSizing(inputs: Record<string, number | string>) {
   };
 }
 
+// ─── Water Softener Sizing ───────────────────────────────────────────────────
+
+const SOFTENER_TANK_SIZES: [number, number, number][] = [
+  // [dia_in, ht_in, resin_L]
+  [8,  44,  25], [9,  48,  35], [10, 54,  50], [12, 52,  70],
+  [13, 54,  85], [14, 65, 120], [16, 65, 160], [18, 65, 200],
+  [21, 62, 270], [24, 72, 400], [30, 72, 600], [36, 72, 900],
+];
+
+function selectSoftenerTank(resinL: number): { dia_in: number; ht_in: number; resin_L: number } {
+  for (const [d, h, r] of SOFTENER_TANK_SIZES) {
+    if (r >= resinL) return { dia_in: d, ht_in: h, resin_L: r };
+  }
+  const last = SOFTENER_TANK_SIZES[SOFTENER_TANK_SIZES.length - 1];
+  return { dia_in: last[0], ht_in: last[1], resin_L: last[2] };
+}
+
+const BRINE_TANK_SIZES = [100, 150, 200, 300, 500, 750, 1000, 1500, 2000];
+
+function selectBrineTank(minL: number): number {
+  return BRINE_TANK_SIZES.find(s => s >= minL) ?? BRINE_TANK_SIZES[BRINE_TANK_SIZES.length - 1];
+}
+
+function calcWaterSoftenerSizing(inputs: Record<string, number | string>): Record<string, unknown> {
+  const demandSource = String(inputs.demand_source || 'direct');
+  const nPeople      = Number(inputs.n_people) || 0;
+  const perCapita    = Number(inputs.per_capita_lpd) || 200;
+
+  let demandLpd: number;
+  if (demandSource === 'people') {
+    if (nPeople <= 0) return { error: "Number of people must be greater than 0." };
+    demandLpd = nPeople * perCapita;
+  } else {
+    demandLpd = Number(inputs.demand_lpd) || 0;
+    if (demandLpd <= 0) return { error: "Daily water demand must be greater than 0." };
+  }
+
+  const inletHardness  = Math.max(1,   Number(inputs.inlet_hardness)   || 200); // mg/L as CaCO3
+  const targetHardness = Math.max(0,   Number(inputs.target_hardness)  || 17);  // mg/L
+  const regenInterval  = Math.max(1, Math.min(7, Number(inputs.regen_interval) || 3)); // days
+  const saltDose       = Math.max(40, Math.min(150, Number(inputs.salt_dose_gL) || 80)); // g NaCl/L resin
+  const nUnits         = Math.max(1, Math.round(Number(inputs.n_units) || 1));
+  const safetyFactor   = 1.2;
+
+  if (inletHardness <= targetHardness) {
+    return { error: `Inlet hardness (${inletHardness} mg/L) must be greater than target hardness (${targetHardness} mg/L).` };
+  }
+
+  // Hardness in grains per gallon (reference)
+  const inletGpg  = parseFloat((inletHardness  / 17.1).toFixed(2));
+  const targetGpg = parseFloat((targetHardness / 17.1).toFixed(2));
+
+  // Hardness classification
+  const hardnessClass =
+    inletHardness < 60  ? 'Slightly Hard'   :
+    inletHardness < 120 ? 'Moderately Hard' :
+    inletHardness < 180 ? 'Hard'            :
+    inletHardness < 300 ? 'Very Hard'       : 'Extremely Hard';
+
+  // PNS 1998 / WHO check
+  const pnsCheck = inletHardness <= 300
+    ? `WITHIN PNS 1998 limit (≤300 mg/L) — softening recommended for equipment protection`
+    : `EXCEEDS PNS 1998 limit (300 mg/L) — softening mandatory`;
+
+  // Step 1: Daily hardness load
+  const removalMgL  = inletHardness - targetHardness;
+  const dailyLoadG  = parseFloat((demandLpd * removalMgL / 1000).toFixed(1)); // g CaCO3/day
+
+  // Step 2: Load per regen cycle (all units combined, with safety factor)
+  const loadPerCycleG = parseFloat((dailyLoadG * regenInterval * safetyFactor).toFixed(0));
+
+  // Step 3: Resin exchange capacity (empirical, based on salt dose)
+  const exchCapacityGperL =
+    saltDose <= 40  ? 35 :
+    saltDose <= 60  ? 40 :
+    saltDose <= 80  ? 45 :
+    saltDose <= 120 ? 50 : 55;
+
+  // Step 4: Resin volume per unit
+  const resinLperUnit  = parseFloat((loadPerCycleG / exchCapacityGperL / nUnits).toFixed(1));
+  const resinFt3       = parseFloat((resinLperUnit / 28.317).toFixed(2));
+
+  // Step 5: Select standard tank (per unit)
+  const tank           = selectSoftenerTank(resinLperUnit);
+  const selectedResinL = tank.resin_L;
+  const tankDiaMm      = Math.round(tank.dia_in * 25.4);
+  const tankHtMm       = Math.round(tank.ht_in  * 25.4);
+
+  // Step 6: Service flow rates based on selected resin volume
+  const minFlowLpm    = parseFloat((selectedResinL * 6  / 60).toFixed(1)); // 6 BV/hr
+  const maxFlowLpm    = parseFloat((selectedResinL * 25 / 60).toFixed(1)); // 25 BV/hr
+  const designFlowLpm = parseFloat((demandLpd / (8 * 60)).toFixed(1));     // 8 hr/day peak operation basis
+  const flowCheck     = designFlowLpm >= minFlowLpm && designFlowLpm <= maxFlowLpm
+    ? `PASS — Design flow ${designFlowLpm} L/min is within ${minFlowLpm}–${maxFlowLpm} L/min`
+    : designFlowLpm < minFlowLpm
+      ? `LOW — Design flow ${designFlowLpm} L/min is below minimum ${minFlowLpm} L/min; consider smaller tank or shorter regen interval`
+      : `HIGH — Design flow ${designFlowLpm} L/min exceeds maximum ${maxFlowLpm} L/min; add units or increase tank size`;
+
+  // Step 7: Backwash flow rate (5 GPM/ft² of tank cross-section = ~204 L/min/m²)
+  const tankDiaM     = tank.dia_in * 0.0254;
+  const tankAreaM2   = Math.PI / 4 * tankDiaM * tankDiaM;
+  const backwashLpm  = parseFloat((tankAreaM2 * 204).toFixed(0));
+
+  // Step 8: Salt consumption
+  const saltPerRegenKg  = parseFloat((selectedResinL * saltDose / 1000).toFixed(1));
+  const monthlySaltKg   = parseFloat((saltPerRegenKg * nUnits * 30 / regenInterval).toFixed(1));
+
+  // Step 9: Brine tank sizing (hold 3 months of salt; NaCl bulk density ~1.2 kg/L)
+  const brineTankMinL = Math.ceil(monthlySaltKg * 3 / 1.2);
+  const brineTankL    = selectBrineTank(brineTankMinL);
+
+  // Step 10: Regeneration water waste (backwash + brine rinse + slow rinse ≈ 5 BV per regen)
+  const rinseWaterL    = parseFloat((selectedResinL * 5).toFixed(0));
+  const monthlyRinseM3 = parseFloat((rinseWaterL * nUnits * 30 / regenInterval / 1000).toFixed(2));
+  const efficiencyPct  = parseFloat((100 - (rinseWaterL * nUnits / (demandLpd * regenInterval)) * 100).toFixed(1));
+
+  return {
+    // Input summary
+    demand_lpd:          parseFloat(demandLpd.toFixed(0)),
+    demand_m3day:        parseFloat((demandLpd / 1000).toFixed(3)),
+    inlet_hardness_mgL:  inletHardness,
+    inlet_hardness_gpg:  inletGpg,
+    target_hardness_mgL: targetHardness,
+    target_hardness_gpg: targetGpg,
+    hardness_class:      hardnessClass,
+    pns_check:           pnsCheck,
+    removal_mgL:         removalMgL,
+    regen_interval_days: regenInterval,
+    salt_dose_gL:        saltDose,
+    n_units:             nUnits,
+    exch_capacity_gL:    exchCapacityGperL,
+    safety_factor:       safetyFactor,
+    // Loads
+    daily_load_g:        dailyLoadG,
+    load_per_cycle_g:    loadPerCycleG,
+    // Resin
+    resin_L_per_unit:    resinLperUnit,
+    resin_ft3_per_unit:  resinFt3,
+    // Tank (per unit)
+    tank_dia_in:         tank.dia_in,
+    tank_ht_in:          tank.ht_in,
+    tank_dia_mm:         tankDiaMm,
+    tank_ht_mm:          tankHtMm,
+    selected_resin_L:    selectedResinL,
+    // Flow
+    min_flow_lpm:        minFlowLpm,
+    max_flow_lpm:        maxFlowLpm,
+    design_flow_lpm:     designFlowLpm,
+    flow_check:          flowCheck,
+    backwash_lpm:        backwashLpm,
+    // Salt & brine
+    salt_per_regen_kg:   saltPerRegenKg,
+    monthly_salt_kg:     monthlySaltKg,
+    brine_tank_min_L:    brineTankMinL,
+    brine_tank_L:        brineTankL,
+    // Rinse water
+    rinse_water_L_per_regen: rinseWaterL,
+    monthly_rinse_m3:    monthlyRinseM3,
+    efficiency_pct:      efficiencyPct,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -3134,6 +3298,8 @@ serve(async (req) => {
       results = calcAHUSizing(inputs);
     } else if (calc_type === "Cooling Tower Sizing") {
       results = calcCoolingTowerSizing(inputs);
+    } else if (calc_type === "Water Softener Sizing") {
+      results = calcWaterSoftenerSizing(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),
