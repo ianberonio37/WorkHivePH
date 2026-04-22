@@ -2797,8 +2797,8 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Demand Input Method</div>
         <div class="toggle-group" id="tg-ws-demand-source">
-          <button class="toggle-btn active" onclick="toggle('tg-ws-demand-source','direct');setWSDemandFields()">Direct Entry (L/day)</button>
-          <button class="toggle-btn" onclick="toggle('tg-ws-demand-source','people');setWSDemandFields()">By Occupancy</button>
+          <button class="toggle-btn active" data-val="direct" onclick="toggle('tg-ws-demand-source','direct');setWSDemandFields()">Direct Entry (L/day)</button>
+          <button class="toggle-btn" data-val="people" onclick="toggle('tg-ws-demand-source','people');setWSDemandFields()">By Occupancy</button>
         </div>
       </div>
 
@@ -3228,11 +3228,11 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Luminaire Type</div>
         <div class="toggle-group" id="tg-ld-fixture">
-          <button class="toggle-btn active" onclick="toggle('tg-ld-fixture','LED Panel 600x600');applyLDFixtureDefaults('LED Panel 600x600')">LED Panel 600x600</button>
-          <button class="toggle-btn" onclick="toggle('tg-ld-fixture','LED Batten 1200mm');applyLDFixtureDefaults('LED Batten 1200mm')">LED Batten 1200mm</button>
-          <button class="toggle-btn" onclick="toggle('tg-ld-fixture','LED High Bay 100W');applyLDFixtureDefaults('LED High Bay 100W')">LED High Bay 100W</button>
-          <button class="toggle-btn" onclick="toggle('tg-ld-fixture','LED High Bay 150W');applyLDFixtureDefaults('LED High Bay 150W')">LED High Bay 150W</button>
-          <button class="toggle-btn" onclick="toggle('tg-ld-fixture','Fluorescent T8 2x36W');applyLDFixtureDefaults('Fluorescent T8 2x36W')">Fluorescent T8 2×36W</button>
+          <button class="toggle-btn active" data-val="LED Panel 600x600" onclick="toggle('tg-ld-fixture','LED Panel 600x600');applyLDFixtureDefaults('LED Panel 600x600')">LED Panel 600x600</button>
+          <button class="toggle-btn" data-val="LED Batten 1200mm" onclick="toggle('tg-ld-fixture','LED Batten 1200mm');applyLDFixtureDefaults('LED Batten 1200mm')">LED Batten 1200mm</button>
+          <button class="toggle-btn" data-val="LED High Bay 100W" onclick="toggle('tg-ld-fixture','LED High Bay 100W');applyLDFixtureDefaults('LED High Bay 100W')">LED High Bay 100W</button>
+          <button class="toggle-btn" data-val="LED High Bay 150W" onclick="toggle('tg-ld-fixture','LED High Bay 150W');applyLDFixtureDefaults('LED High Bay 150W')">LED High Bay 150W</button>
+          <button class="toggle-btn" data-val="Fluorescent T8 2x36W" onclick="toggle('tg-ld-fixture','Fluorescent T8 2x36W');applyLDFixtureDefaults('Fluorescent T8 2x36W')">Fluorescent T8 2×36W</button>
         </div>
       </div>
 
@@ -4736,7 +4736,7 @@ function updateLDArea() {
 function updateLDInfo() {
   const space   = document.getElementById('tg-ld-space')?.querySelector('.toggle-btn.active')?.textContent || 'Office';
   const lux     = document.getElementById('f-ld-lux')?.value || '500';
-  const fixture = document.getElementById('tg-ld-fixture')?.querySelector('.toggle-btn.active')?.textContent || 'LED Panel 600x600';
+  const fixture = document.getElementById('tg-ld-fixture')?.querySelector('.toggle-btn.active')?.dataset?.val || document.getElementById('tg-ld-fixture')?.querySelector('.toggle-btn.active')?.textContent || 'LED Panel 600x600';
   const lumens  = document.getElementById('f-ld-lumens')?.value || '3200';
   const watt    = document.getElementById('f-ld-watt')?.value || '36';
   const info    = document.getElementById('ld-info-row');
