@@ -10405,8 +10405,13 @@ function downloadSowPdf() {
   const style = document.createElement('style');
   style.id = 'sow-pdf-rules';
   style.textContent = `
-    #sow-doc-content p, #sow-doc-content .sow-clause { page-break-inside: avoid; break-inside: avoid; }
-    #sow-doc-content h2 { break-after: avoid; }
+    #sow-doc-content .sow-clause        { page-break-inside: avoid; break-inside: avoid; }
+    #sow-doc-content .sow-clause-header { page-break-after:  avoid; break-after:  avoid; }
+    #sow-doc-content .sow-clause-body   { page-break-inside: avoid; break-inside: avoid; }
+    #sow-doc-content h1, #sow-doc-content h2 { page-break-after: avoid; break-after: avoid; }
+    #sow-doc-content p                  { page-break-inside: avoid; break-inside: avoid; }
+    #sow-doc-content .doc-header-row    { page-break-inside: avoid; break-inside: avoid; }
+    #sow-doc-content .general-notes     { page-break-inside: avoid; break-inside: avoid; }
     #sow-doc-content .editable-field { border-bottom: none !important; border: none !important; outline: none !important; background: transparent !important; }
   `;
   document.head.appendChild(style);
@@ -10419,10 +10424,12 @@ function downloadSowPdf() {
   el.style.maxWidth = '680px';
 
   html2pdf().set({
-    margin: [12, 15, 12, 15],
-    filename: `SOW_${proj}_${new Date().toISOString().slice(0,10)}.pdf`,
+    margin:      [12, 15, 12, 15],
+    filename:    `SOW_${proj}_${new Date().toISOString().slice(0,10)}.pdf`,
+    image:       { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2, useCORS: true, scrollY: 0, scrollX: 0 },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak:   { mode: 'css' },
   }).from(el).save().then(() => {
     el.style.paddingBottom = '';
     el.style.width    = sowOrigWidth;
