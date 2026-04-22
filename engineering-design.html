@@ -7294,28 +7294,40 @@ function renderBoilerReport(inputs, results, narrative) {
 
       <!-- Results Summary -->
       <h2 style="font-size:1rem;font-weight:700;border-bottom:1px solid #ddd;padding-bottom:0.3rem;margin-top:1.5rem;">5. RESULTS SUMMARY</h2>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem;">
-        <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
-          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Boiler Capacity (each)</div>
-          <div style="font-size:1.4rem;font-weight:700;color:#F7A21B;">${e(r.q_boiler_kw)} kW</div>
-          <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">${e(r.q_boiler_bhp)} BHP</div>
-        </div>
-        <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
-          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Total Installed</div>
-          <div style="font-size:1.4rem;font-weight:700;color:#F7A21B;">${e(r.total_capacity_kw)} kW</div>
-          <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">${e(r.total_capacity_bhp)} BHP</div>
-        </div>
-        <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
-          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Fuel Consumption</div>
-          <div style="font-size:1.4rem;font-weight:700;color:#29B6D9;">${e(r.fuel_consumption_kg_hr)} kg/hr</div>
-          <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">${e(inputs.fuel_type)}</div>
-        </div>
-        <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
-          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Blowdown Rate</div>
-          <div style="font-size:1.4rem;font-weight:700;color:#29B6D9;">${e(r.blowdown_pct)} %</div>
-          <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">${e(r.blowdown_kg_hr)} kg/hr</div>
-        </div>
-      </div>
+      <table style="width:100%;border-collapse:separate;border-spacing:0.5rem;margin-bottom:1rem;page-break-inside:avoid;break-inside:avoid;">
+        <tr>
+          <td style="width:50%;padding:0;vertical-align:top;">
+            <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
+              <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Boiler Capacity (each)</div>
+              <div style="font-size:1.4rem;font-weight:700;color:#F7A21B;">${e(r.q_boiler_kw)} kW</div>
+              <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">${e(r.q_boiler_bhp)} BHP</div>
+            </div>
+          </td>
+          <td style="width:50%;padding:0;vertical-align:top;">
+            <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
+              <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Total Installed</div>
+              <div style="font-size:1.4rem;font-weight:700;color:#F7A21B;">${e(r.total_capacity_kw)} kW</div>
+              <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">${e(r.total_capacity_bhp)} BHP</div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0;vertical-align:top;">
+            <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
+              <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Fuel Consumption</div>
+              <div style="font-size:1.4rem;font-weight:700;color:#29B6D9;">${e(r.fuel_consumption_kg_hr)} kg/hr</div>
+              <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">${e(inputs.fuel_type)}</div>
+            </div>
+          </td>
+          <td style="padding:0;vertical-align:top;">
+            <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
+              <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Blowdown Rate</div>
+              <div style="font-size:1.4rem;font-weight:700;color:#29B6D9;">${e(r.blowdown_pct)} %</div>
+              <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">${e(r.blowdown_kg_hr)} kg/hr</div>
+            </div>
+          </td>
+        </tr>
+      </table>
 
       <!-- Checks table -->
       <table style="width:100%;border-collapse:collapse;font-size:0.88rem;margin-top:0.5rem;">
@@ -7429,28 +7441,40 @@ function renderHotWaterBoilerReport(inputs, results, narrative) {
 
       <!-- 4. Results Summary -->
       <h2 style="font-size:1rem;font-weight:700;border-bottom:1px solid #ddd;padding-bottom:0.3rem;margin-top:1.5rem;">4. RESULTS SUMMARY</h2>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem;">
-        <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
-          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Boiler Capacity (each)</div>
-          <div style="font-size:1.4rem;font-weight:700;color:#F7A21B;">${e(r.q_boiler_kw)} kW</div>
-          <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">${e(r.q_boiler_bhp)} BHP</div>
-        </div>
-        <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
-          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Total Installed</div>
-          <div style="font-size:1.4rem;font-weight:700;color:#F7A21B;">${e(r.total_capacity_kw)} kW</div>
-          <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">${e(r.total_capacity_bhp)} BHP</div>
-        </div>
-        <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
-          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Fuel Consumption</div>
-          <div style="font-size:1.4rem;font-weight:700;color:#29B6D9;">${e(r.fuel_consumption_kg_hr)} kg/hr</div>
-          <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">${e(inputs.fuel_type)}</div>
-        </div>
-        <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
-          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Safety Valve Min</div>
-          <div style="font-size:1.4rem;font-weight:700;color:#29B6D9;">${e(r.safety_valve_min_kw)} kW</div>
-          <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">ASME Sec IV / PD 8</div>
-        </div>
-      </div>
+      <table style="width:100%;border-collapse:separate;border-spacing:0.5rem;margin-bottom:1rem;page-break-inside:avoid;break-inside:avoid;">
+        <tr>
+          <td style="width:50%;padding:0;vertical-align:top;">
+            <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
+              <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Boiler Capacity (each)</div>
+              <div style="font-size:1.4rem;font-weight:700;color:#F7A21B;">${e(r.q_boiler_kw)} kW</div>
+              <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">${e(r.q_boiler_bhp)} BHP</div>
+            </div>
+          </td>
+          <td style="width:50%;padding:0;vertical-align:top;">
+            <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
+              <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Total Installed</div>
+              <div style="font-size:1.4rem;font-weight:700;color:#F7A21B;">${e(r.total_capacity_kw)} kW</div>
+              <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">${e(r.total_capacity_bhp)} BHP</div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0;vertical-align:top;">
+            <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
+              <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Fuel Consumption</div>
+              <div style="font-size:1.4rem;font-weight:700;color:#29B6D9;">${e(r.fuel_consumption_kg_hr)} kg/hr</div>
+              <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">${e(inputs.fuel_type)}</div>
+            </div>
+          </td>
+          <td style="padding:0;vertical-align:top;">
+            <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
+              <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Safety Valve Min</div>
+              <div style="font-size:1.4rem;font-weight:700;color:#29B6D9;">${e(r.safety_valve_min_kw)} kW</div>
+              <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">ASME Sec IV / PD 8</div>
+            </div>
+          </td>
+        </tr>
+      </table>
 
       <table style="width:100%;border-collapse:collapse;font-size:0.88rem;margin-top:0.5rem;">
         <tr><th style="background:#162032;color:#fff;padding:0.4rem 0.6rem;text-align:left;">Check</th><th style="background:#162032;color:#fff;padding:0.4rem 0.6rem;text-align:left;">Value</th><th style="background:#162032;color:#fff;padding:0.4rem 0.6rem;text-align:left;">Status</th></tr>
@@ -11450,7 +11474,7 @@ function resetBomSow() {
 async function generateBomSowChecklist() {
   if (!_lastResults || !_lastInputs) { showToast('Run a calculation first.'); return; }
   const BOM_SOW_SUPPORTED = {
-    'Mechanical': ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air'],
+    'Mechanical': ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air', 'Boiler System'],
     'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design'],
     'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)', 'Storm Drain / Stormwater'],
     'Fire Protection':         ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],

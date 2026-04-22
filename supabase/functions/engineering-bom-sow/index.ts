@@ -2473,6 +2473,143 @@ Respond with ONLY the JSON object. No explanation outside the JSON.`;
   };
 }
 
+// ─── Boiler System BOM + SOW Agent ───────────────────────────────────────────
+
+async function boilerBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project       = inputs.project_name   || "Boiler System Project";
+  const boilerType    = String(results.boiler_type || inputs.boiler_type || "Steam");
+  const isSteam       = boilerType === "Steam";
+  const fuelType      = String(inputs.fuel_type  || "Diesel");
+  const numBoilers    = Number(inputs.num_boilers ?? 1);
+  const qBoilerKw     = results.q_boiler_kw    ?? "N/A";
+  const qBoilerBhp    = results.q_boiler_bhp   ?? "N/A";
+  const totalKw       = results.total_capacity_kw ?? qBoilerKw;
+  const fuelKghr      = results.fuel_consumption_kg_hr ?? "N/A";
+  const fuelLhr       = results.fuel_consumption_lhr   ?? "N/A";
+  const safetyValve   = results.safety_valve_min_kg_hr ?? results.safety_valve_min_kw ?? "N/A";
+  const safetyUnit    = isSteam ? "kg/hr" : "kW";
+
+  // Steam-only fields
+  const steamDemand   = results.steam_demand_kg_hr  ?? inputs.steam_demand   ?? "N/A";
+  const designPressure= results.design_pressure_barg ?? inputs.design_pressure ?? "N/A";
+  const satTemp       = results.t_sat_c ?? "N/A";
+  const blowdownPct   = results.blowdown_pct  ?? "N/A";
+  const blowdownKghr  = results.blowdown_kg_hr ?? "N/A";
+  const tFeedwater    = inputs.feedwater_temp ?? 80;
+  const tdsMax        = inputs.tds_max        ?? 3500;
+  const tdsMakeup     = inputs.tds_makeup     ?? 200;
+
+  // Hot water fields
+  const supplyTemp    = inputs.supply_temp    ?? results.system_pressure_barg ?? "N/A";
+  const returnTemp    = inputs.return_temp    ?? "N/A";
+  const deltaT        = results.delta_t_c     ?? "N/A";
+  const hwPressure    = results.system_pressure_barg ?? "N/A";
+  const flowLhr       = inputs.flow_rate_lhr  ?? "N/A";
+
+  // Fuel storage qty (rough: 8 hours at full load + 20% reserve)
+  const fuelKghrNum   = Number(fuelKghr) || 0;
+  const tankLitres    = Math.round(fuelKghrNum * 8 * 1.2 / (fuelType === "Diesel" ? 0.84 : fuelType === "LPG" ? 0.54 : 0.96));
+  const condensatePipe= isSteam ? "50 mm" : "N/A";
+  const steamPipeDia  = isSteam ? (Number(steamDemand) > 1000 ? "100 mm" : Number(steamDemand) > 500 ? "80 mm" : "65 mm") : "N/A";
+  const hwPipeDia     = !isSteam ? (Number(flowLhr) > 5000 ? "80 mm" : Number(flowLhr) > 2000 ? "65 mm" : "50 mm") : "N/A";
+
+  const systemDesc = isSteam
+    ? `${numBoilers > 1 ? numBoilers + '×' : ''}${qBoilerBhp} BHP (${qBoilerKw} kW) ${fuelType}-fired steam boiler at ${designPressure} barg / ${satTemp}°C, steam flow ${steamDemand} kg/hr`
+    : `${numBoilers > 1 ? numBoilers + '×' : ''}${qBoilerBhp} BHP (${qBoilerKw} kW) ${fuelType}-fired hot water boiler, supply ${supplyTemp}°C / return ${returnTemp}°C, ΔT ${deltaT}°C`;
+
+  const standards = isSteam
+    ? "ASME BPVC Section I (Power Boilers), Philippine Boiler and Pressure Vessel Code (PD 8), PSME Code, PEC 2017, DOLE OSH Department Order No. 13-98, DOE Circular DC2021-11-0019 (energy audit for >500 kW boilers)"
+    : "ASME BPVC Section IV (Heating Boilers), Philippine Boiler and Pressure Vessel Code (PD 8), PSME Code, Philippine Plumbing Code, PEC 2017, DOLE OSH Department Order No. 13-98";
+
+  const prompt = `You are a licensed Mechanical Engineer in the Philippines preparing official procurement and contracting documents for a ${boilerType.toLowerCase()} boiler system installation.
+
+CALCULATION RESULT:
+Project: ${project}
+Boiler Type: ${boilerType}
+Fuel: ${fuelType}
+Number of Boilers: ${numBoilers}
+Boiler Capacity (each): ${qBoilerBhp} BHP (${qBoilerKw} kW)
+Total Installed Capacity: ${totalKw} kW
+${isSteam ? `Design Pressure: ${designPressure} barg | Saturation Temperature: ${satTemp}°C
+Steam Demand: ${steamDemand} kg/hr
+Feedwater Temperature: ${tFeedwater}°C
+Blowdown Rate: ${blowdownPct}% (${blowdownKghr} kg/hr)
+TDS Makeup: ${tdsMakeup} ppm | TDS Max: ${tdsMax} ppm
+Safety Valve Rating: ${safetyValve} ${safetyUnit}
+Steam Pipe (estimated): ${steamPipeDia}
+Condensate Return Pipe: ${condensatePipe}` : `Supply Temperature: ${supplyTemp}°C | Return Temperature: ${returnTemp}°C | ΔT: ${deltaT}°C
+Flow Rate: ${flowLhr} L/hr
+System Pressure: ${hwPressure} barg
+Safety Valve Rating: ${safetyValve} ${safetyUnit}
+HW Distribution Pipe (estimated): ${hwPipeDia}`}
+Fuel Consumption: ${fuelKghr} kg/hr${fuelType !== "Natural Gas" ? ` (${fuelLhr} L/hr)` : ""}
+Estimated Fuel Storage Tank: ${tankLitres} L (8-hr reserve at full load, ×1.20 safety margin)
+
+TASK: Generate a JSON object with exactly two arrays.
+
+ARRAY 1 — "bom_items": Standard Philippine mechanical contractor Bill of Materials for a ${boilerType.toLowerCase()} boiler room installation.
+Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
+
+Required items (adapt to ${boilerType} type):
+1. ${boilerType} Boiler — qty: ${numBoilers} unit — specify ${fuelType}-fired, ${qBoilerBhp} BHP (${qBoilerKw} kW) per unit, ${isSteam ? `design pressure ${designPressure} barg, ASME Sec I stamped` : `working pressure ${hwPressure} barg, ASME Sec IV stamped`}, PD 8 compliant, CE/UL listed burner
+2. Burner Assembly — qty: ${numBoilers} unit — specify forced-draft, modulating type, rated for ${fuelType}${fuelType === "Diesel" ? " (HSD, Bunker C capable)" : ""}, CE marked, integrated air-fuel ratio controller
+3. ${isSteam ? "Steam Safety Valve" : "Pressure Relief Valve (PRV)"} — qty: ${numBoilers * 2} pcs — specify ${isSteam ? `ASME Sec I stamped, set pressure ≤ ${(Number(designPressure) * 1.05 + 0.1).toFixed(1)} barg, ${safetyValve} kg/hr` : `ASME Sec IV / PD 8, set pressure ≤ ${(Number(hwPressure) + 0.5).toFixed(1)} barg, ${safetyValve} kW rated`}, spring-loaded, full-lift type
+4. ${isSteam ? "Feedwater Pump / Boiler Feed Unit" : "Circulation Pump"} — qty: ${numBoilers} set — specify ${isSteam ? `minimum 110% of maximum boiler steam output capacity, duplex pump set with standby, 316 SS impeller, variable speed drive` : `design flow ${flowLhr} L/hr, variable speed drive (VSD), TEFC motor, IE3 efficiency`}
+5. ${isSteam ? "Deaerator / Feed Tank" : "Expansion Tank"} — qty: 1 unit — specify ${isSteam ? `spray-tray type, 30-minute hold capacity, rated for ${designPressure} barg, 316 SS internals, thermostatic vent, O₂ removal ≥ 0.005 cc/L` : `closed expansion tank, ASME stamped, pre-charge pressure per system, rated at ${hwPressure} barg`}
+6. ${isSteam ? "Steam Header / Distribution Manifold" : "Hot Water Buffer / Header Manifold"} — qty: 1 set — specify ${isSteam ? `Schedule 40 carbon steel, ${steamPipeDia} nominal, PN40 rated, flanged connections with isolation per boiler` : `Schedule 40 carbon steel, ${hwPipeDia} nominal, PN16 rated, flanged connections`}
+7. ${isSteam ? "Steam Piping" : "HW Distribution Piping"} — qty: 1 lot — specify ${isSteam ? `Schedule 40 CS pipe ${steamPipeDia} nominal, 150# class flanges, 25mm mineral wool insulation with aluminum jacket` : `Schedule 40 CS or pre-insulated pipe ${hwPipeDia} nominal, 50mm PU foam insulation, aluminum jacket`}, within boiler room
+8. ${isSteam ? "Condensate Return System" : "Return Piping"} — qty: 1 set — specify ${isSteam ? `${condensatePipe} Schedule 40 CS or CPVC, condensate pump if below grade, float-type steam trap at each end point, 25mm insulation` : `${hwPipeDia} Schedule 40 CS, 50mm PU foam insulation, aluminum jacket`}
+9. ${isSteam ? "Blowdown Separator and Blowdown Tank" : "Air Separator / Dirt Strainer"} — qty: 1 set — specify ${isSteam ? `continuous blowdown (CBD) with heat exchanger for energy recovery, intermittent blowdown (IBD) tank ≥ 1,000L capacity, TDS controller at ${tdsMax} ppm setpoint` : `combination air/dirt separator, magnetic, rated ${hwPressure} barg, auto-vent, ${hwPipeDia} connections`}
+10. ${isSteam ? "Water Treatment System (Boiler Water)" : "Water Treatment System (HW Circuit)"} — qty: 1 set — specify ${isSteam ? `twin-bed softener (to ≤ 5 ppm hardness), chemical dosing pump × 3 (oxygen scavenger, scale inhibitor, corrosion inhibitor), TDS meter and blowdown controller` : `inhibitor dosing unit, pH controller 8.2–9.0, inline dosing pot with isolation valves`}
+11. ${fuelType === "Natural Gas" ? "Gas Pressure Regulator Set and Gas Train" : `${fuelType} Day Tank / Fuel Storage Tank`} — qty: 1 set — specify ${fuelType === "Natural Gas" ? "dual-stage pressure regulator, slam-shut valve, MAOP rating, PNOC/DOE compliant, gas leak detection with automatic shut-off" : `double-walled, ${tankLitres} L capacity, UL listed, 3-hr fire-rated, level gauge, overfill protection, fuel transfer pump`}
+12. Combustion Flue / Exhaust Stack — qty: 1 lot — specify insulated single-wall or twin-wall flue stack, appropriate draft calculation diameter, height ≥ 2 m above roof line, DENR-compliant, with CO/CO₂ sampling port
+13. Instrumentation and Controls — qty: 1 lot — specify boiler management system (BMS), flame detector, high-pressure cut-off, low-water level cut-off, temperature and pressure transmitters, ${isSteam ? "steam flow meter" : "energy meter (BTU meter)"}, interconnected to BAS terminal
+14. Boiler Room Ventilation — qty: 1 set — specify forced-draft inlet louver (≥10 air changes/hr), exhaust fan, explosion-proof rated for boiler room hazardous area classification
+15. Electrical Works — qty: 1 lot — specify MCC panel with MCCB, burner interlock circuit, emergency stop, PEC 2017 compliant, explosion-proof wiring in boiler room, earthing system
+16. Insulation Works (Boiler Shell and Piping) — qty: 1 lot — specify 75mm mineral wool or ceramic fiber blanket on boiler shell (hot surfaces), 25–50mm mineral wool on steam/HW piping, all with aluminum jacket
+17. Miscellaneous (bolts, gaskets, flanges, supports, commissioning chemicals, spares) — qty: 1 lot
+
+Specifications must be specific: include boiler rating (BHP and kW), operating pressure, fuel type, ASME/PD 8 stamp requirements, and Philippine code compliance throughout.
+
+ARRAY 2 — "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
+Each object: { "section_no": string, "title": string, "content": string, "checked": boolean }
+
+Required sections:
+- "1.0" General Scope — checked: true (describe the complete boiler room installation: ${systemDesc}, including all mechanical, piping, instrumentation, electrical, and commissioning works)
+- "2.0" Applicable Standards and Codes — checked: true (list: ${standards})
+- "3.0" Materials and Equipment — checked: true (all boilers shall be ASME stamped and PD 8 registered; burners CE marked; all pressure vessels inspected and registered with DOLE Boiler Inspection Branch before operation)
+- "4.1" Boiler and Burner Installation — checked: true (specify foundation grouting, minimum clearances per ASME/PD 8 and manufacturer (minimum 1.0 m sides, 1.5 m front/rear), burner alignment, combustion air supply, flue connection, refractory inspection and curing procedure before first firing)
+- "4.2" Pressure Vessel and Safety Device Installation — checked: true (safety valves to be set and sealed by DOLE-accredited boiler inspector; pressure gauges calibrated per PD 8; low-water cut-off tested per ASME Sec ${isSteam ? "I" : "IV"} CSD-1)
+- "4.3" ${isSteam ? "Steam and Condensate Piping" : "Hot Water Piping"} — checked: true (specify material: Schedule 40 CS, slope: ${isSteam ? "minimum 1:100 toward condensate trap" : "minimum 1:200 for air venting"}, support spacing per PSME, thermal expansion loops or expansion joints at headers, all welds 100% VT and 10% RT per ANSI B31.1)
+- "4.4" ${isSteam ? "Feedwater and Blowdown System" : "Expansion and Make-Up Water System"} — checked: true (${isSteam ? `deaerator commissioning procedure (check dissolved O₂ ≤ 0.005 cc/L), blowdown tank temperature ≤ 60°C before drain, TDS controller calibration at ${tdsMax} ppm setpoint, continuous and intermittent blowdown valves tested` : `expansion tank pre-charge verification, make-up water float valve setting, inhibitor dosing commissioning, system fill and venting procedure`})
+- "4.5" Fuel System — checked: true (${fuelType === "Natural Gas" ? "gas train leak test at 1.5× MAOP, PNOC clearance, DOE gas permit required before connection, gas leak detection system calibration" : `fuel tank pressure test, leak test for all fuel lines at 1.5× design pressure, fire protection provisions per BFP, fuel transfer pump commissioning, 8-hr fuel reserve to be confirmed before first firing`})
+- "4.6" Water Treatment and Chemical Dosing — checked: true (${isSteam ? `softener commissioning (verify hardness ≤ 5 ppm post-softener), initial boiler water conditioning per manufacturer, chemical dosing calibration, blowdown controller set at ${tdsMax} ppm, pre-operational boilout with alkaline solution to remove mill scale and oil` : `system fill with pre-treated water, inhibitor dosing commissioning, pH setpoint 8.2–9.0, initial system purge and vent to remove dissolved oxygen before first heat-up`})
+- "4.7" Instrumentation and Controls — checked: true (boiler management system (BMS) programming and loop testing; burner flame scanner calibration; low-water level alarm and cut-off function test; high-pressure cut-off test; ${isSteam ? "steam flow meter calibration" : "BTU energy meter calibration"}; all interlocks verified before live firing)
+- "4.8" Boiler Room Safety and Ventilation — checked: true (boiler room air changes minimum 10 per hour verified by air flow measurement; explosion-proof wiring inspection; emergency stop button test; CO₂/CO alarm sensor calibration; fire suppression system pre-commissioning if provided; DOLE boiler inspection clearance to be obtained before first firing)
+- "4.9" Hydraulic/Hydrostatic Pressure Test — checked: true (all piping systems pressure tested at 1.5× maximum working pressure, minimum 30 minutes, zero drop, witnessed by DOLE boiler inspector; boiler shell tested per ASME Sec ${isSteam ? "I" : "IV"} before insulation is applied)
+- "4.10" First Firing and Performance Test — checked: true (dry-out firing sequence per manufacturer (low fire → full fire over 48–72 hours for ${isSteam ? "steam" : "hot water"} boilers to cure refractory and prevent thermal shock); combustion analysis: CO₂ target 13–14% for ${fuelType === "Natural Gas" ? "gas" : "oil/diesel"}, O₂ 2–3%, CO < 100 ppm; verify design output of ${qBoilerKw} kW at design pressure; thermal efficiency measurement and submission)
+- "4.11" Testing, Commissioning, and Handover — checked: true (submit commissioning report signed by PRC-licensed ME; submit DOLE Certificate of Boiler Inspection and Registration; submit as-built drawings, O&M manuals, manufacturer warranties; train Owner's operators for minimum 4 hours on safe operation, emergency shutdown, blowdown, and routine maintenance)
+- "5.0" Inclusions — checked: false (list what is included: boiler, burner, all piping within boiler room, controls, insulation, commissioning, DOLE inspection coordination, operator training)
+- "6.0" Exclusions — checked: false (civil and structural works, boiler room building shell, chimney foundation, electrical service entrance, fuel supply main line, water source connection, building permits, DENR air emission permit)
+- "7.0" Warranty — checked: false (1 year workmanship from DOLE acceptance; 1 year parts and labor per boiler manufacturer; pressure vessel warranty per ASME and PD 8 registration; burner warranty per manufacturer)
+
+Each section content must be 3–5 sentences in professional Philippine engineering contractor style. Reference the specific system: ${systemDesc}, for project ${project}. All safety and compliance requirements must cite the specific Philippine code or ASME section.
+
+Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
+
+  const raw    = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -2513,6 +2650,8 @@ serve(async (req) => {
       result = await pipeSizingBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Mechanical" && calc_type === "Compressed Air") {
       result = await compressedAirBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Mechanical" && calc_type === "Boiler System") {
+      result = await boilerBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Plumbing" && calc_type === "Water Supply Pipe Sizing") {
       result = await waterSupplyBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Plumbing" && calc_type === "Hot Water Demand") {
