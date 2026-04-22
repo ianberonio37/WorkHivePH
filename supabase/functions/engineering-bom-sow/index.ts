@@ -1687,6 +1687,66 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Electrical: Cable Tray Sizing BOM + SOW Agent ───────────────────────────
+
+async function cableTrayBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project       = inputs.project_name    || "Cable Tray Route Project";
+  const trayType      = inputs.tray_type       || "Ladder";
+  const depthMm       = inputs.depth_mm        || 75;
+  const fillLimitPct  = inputs.fill_ratio_pct  || 40;
+  const spanM         = inputs.span_m          || 1.5;
+  const runLengthM    = inputs.run_length_m    || 30;
+  const selWidthMm    = results.selected_width_mm  || "";
+  const fillActualPct = results.fill_actual_pct    || "";
+  const fillCheck     = results.fill_check         || "";
+  const nemaClass     = results.nema_load_class    || "";
+  const deratingFactor= results.derating_factor    ?? 1.0;
+  const deratingApplies = Number(deratingFactor) < 1.0;
+  const cables        = (inputs.cables as Array<{ cable_type: string; od_mm: number; qty: number }>) || [];
+  const cableSummary  = cables.map(c => `${c.qty}× ${c.cable_type} (OD ${c.od_mm} mm)`).join(", ");
+
+  const prompt = `You are a Philippine electrical engineering expert (NEMA VE 1, NEC Article 392, PEC 2017 Article 3.92). Generate a professional BOM and SOW for a CABLE TRAY SIZING and installation project.
+
+PROJECT: ${project}
+TRAY TYPE: ${trayType}
+SELECTED TRAY: ${selWidthMm} mm wide × ${depthMm} mm deep ${trayType} cable tray
+NEMA VE 1 LOAD CLASS: ${nemaClass}
+FILL: ${fillActualPct}% (limit ${fillLimitPct}%) — ${fillCheck}
+SUPPORT SPAN: ${spanM} m
+CABLE TRAY RUN LENGTH: ${runLengthM} m
+CABLES: ${cableSummary}
+AMPACITY DERATING: ${deratingApplies ? `APPLIES — fill exceeds 30%, derate conductors to 80% per NEC 392.80` : `NOT REQUIRED — fill ≤ 30%`}
+STANDARDS: NEMA VE 1, NEMA VE 2, NEC Article 392, NEC 310.15, PEC 2017 Article 3.92
+
+Generate a JSON object with:
+1. "bom_items": array of 12 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: Cable Tray — ${trayType} Type (${selWidthMm} mm W × ${depthMm} mm D, hot-dip galvanized steel per NEMA VE 1 Load Class ${nemaClass}, 12-gauge steel minimum, factory-punched rungs at 150/300 mm spacing for Ladder type — supply ${runLengthM} m plus 10% cutting allowance), Cable Tray Covers (solid galvanized steel cover, same width as tray — for outdoor, dusty, or mechanical damage risk areas; quantity per drawing), Cable Tray Splice Plates (NEMA VE 1 matching galvanized splice bars, fitted with self-aligning feature, minimum 2 bolts per side — 2 sets per 3 m tray section), Horizontal Elbows 90° (${selWidthMm} mm matching tray, hot-dip galvanized, bend radius per NEMA VE 1 — quantity per routing plan), Horizontal Tees and Crosses (matching tray width and depth, galvanized — quantity per routing plan), Vertical Elbows — Rise/Drop (matching width, galvanized, for elevation changes — quantity per routing plan), End Closures / Cable Entry Plates (galvanized steel end plates per tray opening, prevent animal ingress — 2 per each tray end), Cable Tray Wall Brackets / Trapeze Hangers (galvanized steel wall-mounted brackets or trapeze hanger assemblies, load-rated for NEMA Class ${nemaClass} at ${spanM} m span — quantity = ${Math.ceil(Number(runLengthM) / Number(spanM)) + 2} sets minimum), Threaded Rod and Beam Clamps (M10 or M12 galvanized threaded rod with beam clamps and nuts for trapeze hangers — complete set), Cable Tray Divider Strip (longitudinal divider rail for segregating power cables from control/instrumentation cables per NEMA VE 2 — quantity per run length), Bonding Jumpers and Earth Continuity Clamps (copper bonding jumper per splice, earthing lug at each bracket point, 6 mm² green/yellow bonding cable — complete set per NEMA VE 2 Section 4 for electrical continuity of the entire tray run), Installation Hardware — Complete Set (stainless steel M8/M10 bolts, spring nuts, washers, hex nuts, nylon cable ties, warning labels, PEC Art. 3.92 labeling — complete lot)
+
+2. "sow_sections": array of 7 sections (each: section_no, title, content)
+   Write each content as a full professional paragraph starting with "The Contractor shall..." — do NOT use bullet points or keyword lists. Each section must be 3–6 sentences of contractor-facing specification language.
+   Cover:
+   Section 1 — Scope of Works and Design Basis: state that this SOW covers supply, fabrication, installation, earthing, and testing of a ${selWidthMm} mm × ${depthMm} mm ${trayType} cable tray system for project ${project} along the route as shown in the Electrical Layout Drawings; reference calculation basis (NEMA VE 1 Load Class ${nemaClass}, NEC Article 392, PEC 2017 Article 3.92); state the total cable fill is ${fillActualPct}% (${fillCheck} — limit ${fillLimitPct}%); state that ${deratingApplies ? `conductor ampacity derating at 80% is required because fill exceeds 30% per NEC 392.80 — all power cable ampacities shall be derated accordingly` : `no conductor ampacity derating is required as fill does not exceed 30% per NEC 392.80`}; state route total length ${runLengthM} m with ${spanM} m support spacing
+   Section 2 — Material Supply and Approval: cover supply of NEMA VE 1 Load Class ${nemaClass} hot-dip galvanized steel ${trayType} cable tray, ${selWidthMm} mm wide × ${depthMm} mm deep; require submittal of NEMA VE 1 compliance certificate, load class certification, and hot-dip galvanizing certificate (ASTM A123) to the Engineer for approval before procurement; specify matching fittings (elbows, tees, reducers, splice plates) from the same manufacturer for dimensional compatibility; specify cable tray divider for separation of power cables from control and signal cables
+   Section 3 — Installation and Support: cover installation of cable tray on galvanized steel wall brackets or trapeze hangers at ${spanM} m centres maximum, anchored to building structure using wedge anchors or beam clamps per NEMA VE 2; state required clearances — minimum 300 mm above tray for cable installation access, 150 mm minimum side clearance per NEC 392.6; specify level installation (±5 mm/m tolerance) with all fittings properly aligned; cover installation of cable tray covers at all outdoor, exposed, or fire-rated sections
+   Section 4 — Cable Routing and Tray Fill: cover cable installation within the cable tray shall not exceed the calculated fill of ${fillActualPct}% (limit ${fillLimitPct}% per NEC 392.22); cables shall be arranged in a single or multiple layers as required by the fill calculation, with power cables segregated from control and instrumentation cables by a tray divider; all cables to be secured at tray entry/exit points and at each support with approved nylon cable ties or cleats; cables shall have sufficient slack at equipment connections for thermal expansion and maintenance access
+   Section 5 — Earthing and Bonding: cover installation of copper bonding jumpers across every splice plate and fitting joint to ensure electrical continuity of the complete cable tray system per NEMA VE 2 Section 4 and PEC 2017 Article 2.50; earthing lugs to be installed at every support bracket and connected to the building main earth using 6 mm² green/yellow copper conductors; measured earth continuity resistance of the complete tray run shall not exceed 1 Ω end-to-end; submit measured results to the Engineer as part of the commissioning test report
+   Section 6 — Testing and Inspection: cover pre-installation inspection of all cable tray sections for galvanizing defects, dimensional compliance with NEMA VE 1, and damaged rungs or rails; post-installation inspection to verify span compliance, levelness, secure anchoring, and correct fitting alignment; earth continuity test of the complete tray run (end-to-end resistance ≤ 1 Ω); visual inspection of fill ratio compliance (actual fill ≤ ${fillLimitPct}%); all test and inspection results to be recorded in a commissioning test report and submitted to the Engineer for approval
+   Section 7 — Documentation and Regulatory Compliance: cover submission of Electrical Permit from the LGU before commencement of installation; all electrical works to be performed by a licensed master electrician under the supervision of a PRC-licensed Electrical Engineer; submission of as-built cable tray layout drawings showing all tray routes, fittings, support locations, cable groupings, and earthing connections; submission of NEMA VE 1 compliance certificates, galvanizing certificates, and load class certification for all materials; final commissioning test report including earth continuity results and fill ratio inspection; minimum 12-month warranty on all supplied materials against manufacturing defects and corrosion failure
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw    = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Electrical: Generator Sizing BOM + SOW Agent ────────────────────────────
 
 async function generatorSizingBomSowAgent(
@@ -2903,6 +2963,8 @@ serve(async (req) => {
       result = await solarPVBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Power Factor Correction") {
       result = await pfcBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Electrical" && calc_type === "Cable Tray Sizing") {
+      result = await cableTrayBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Generator Sizing") {
       result = await generatorSizingBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Fire Protection" && calc_type === "Fire Sprinkler Hydraulic") {

@@ -1681,6 +1681,17 @@ Respond in JSON format only:
         ? ` Installation eliminates the Meralco PF surcharge currently incurred — correction to PF ${pfT} brings the system above the 0.85 threshold.`
         : '';
       recommendations = `Install a ${kvar} kVAR capacitor bank (IEEE 18 / IEC 60831-1) at the main distribution board. This reduces feeder current by ${curRed} A (${curPct}%) and kVA demand by ${kvaRed} kVA.${surcharge} Protect with a dedicated MCCB sized at 135% of capacitor rated current per PEC 2017 Article 4.60.14. Include factory-installed discharge resistors (terminal voltage < 50V within 5 minutes per IEEE 18). If VFDs or other harmonic loads are present, specify a 7% series detuning reactor. Verify achieved PF with a power analyzer under full load before project closeout. A PRC-licensed Electrical Engineer must sign and seal this document.`;
+    } else if (calcType === "Cable Tray Sizing") {
+      const selW    = rec.selected_width_mm  ?? '';
+      const depth   = (inputs.depth_mm as number) || 75;
+      const tType   = (inputs.tray_type as string) || 'Ladder';
+      const fill    = rec.fill_actual_pct    ?? '';
+      const fillChk = rec.fill_check         ?? '';
+      const nema    = rec.nema_load_class    ?? '';
+      const span    = (inputs.span_m as number) || 1.5;
+      const df      = rec.derating_factor    ?? 1.0;
+      const derate  = Number(df) < 1.0;
+      recommendations = `Provide a ${selW} mm wide × ${depth} mm deep ${tType} cable tray (NEMA VE 1 Load Class ${nema}, hot-dip galvanized steel for industrial use). Support at ${span} m centres. Actual cable fill: ${fill}% — Fill Check: ${fillChk} per NEC 392.22. ${derate ? `Fill exceeds 30% derating threshold — apply 80% derating factor to all power conductor ampacities per NEC 392.80 (NEC 310.15). Verify each conductor's derated ampacity equals or exceeds its design current.` : `Actual fill does not exceed 30% — no ampacity derating required for ${tType} tray.`} Separate power cables from control and instrumentation cables using a tray divider or a separate adjacent tray per NEMA VE 2 to minimize electromagnetic interference. Provide covers for outdoor sections or where physical protection is needed. A PRC-licensed Electrical Engineer must sign and seal this calculation for building permit submission.`;
     } else if (calcType === "Bolt Torque & Preload") {
       const torque = rec.torque_Nm ?? '';
       const size   = (inputs.bolt_size as string) || '';
@@ -4218,6 +4229,93 @@ function calcPFC(inputs: Record<string, unknown>): Record<string, unknown> {
   };
 }
 
+// ─── Electrical: Cable Tray Sizing — NEMA VE 1 / NEC 392 / PEC 2017 Art. 3.92 ─
+
+function calcCableTray(inputs: Record<string, unknown>): Record<string, unknown> {
+  const round2 = (v: number) => Math.round(v * 100) / 100;
+
+  const trayType      = String(inputs.tray_type      || 'Ladder');
+  const depthMm       = Number(inputs.depth_mm       || 75);
+  const fillRatioPct  = Number(inputs.fill_ratio_pct || 40);
+  const spanM         = Number(inputs.span_m         || 1.5);
+  const runLengthM    = Number(inputs.run_length_m   || 30);
+  const cables        = (inputs.cables as Array<{ cable_type: string; od_mm: number; qty: number; weight_kg_m?: number | null }>) || [];
+
+  // Standard tray widths (NEMA VE 1, mm)
+  const stdWidths = [100, 150, 200, 300, 450, 600, 750, 900];
+
+  // NEMA VE 1 load classes: [class label, max kg/m]
+  const nemaClasses: Array<[string, number]> = [
+    ['8A',  11.9],
+    ['12A', 17.9],
+    ['16A', 23.8],
+    ['20A', 29.8],
+    ['24A', 35.7],
+    ['32A', 47.6],
+  ];
+
+  // Step 1: per-cable fill area and weight
+  let totalFillArea = 0;
+  let totalWeightKgM = 0;
+
+  for (const cable of cables) {
+    const od  = Number(cable.od_mm)  || 0;
+    const qty = Number(cable.qty)    || 1;
+    // Weight: use provided value, else estimate 0.01 kg/m per mm of OD (rule-of-thumb)
+    const wtKgM = (cable.weight_kg_m != null && Number(cable.weight_kg_m) > 0)
+      ? Number(cable.weight_kg_m)
+      : od * 0.01;
+
+    const areaPerCable = (Math.PI / 4) * od * od;
+    totalFillArea  += areaPerCable * qty;
+    totalWeightKgM += wtKgM * qty;
+  }
+  totalFillArea  = round2(totalFillArea);
+  totalWeightKgM = round2(totalWeightKgM);
+
+  // Step 2: required tray width
+  const fillDecimal  = fillRatioPct / 100;
+  const reqWidthRaw  = depthMm > 0 ? totalFillArea / (fillDecimal * depthMm) : 0;
+  const reqWidthMm   = round2(reqWidthRaw);
+  const selWidthMm   = stdWidths.find(w => w >= reqWidthRaw) ?? 900;
+
+  // Step 3: actual fill %
+  const trayArea     = selWidthMm * depthMm;
+  const fillActualPct= trayArea > 0 ? round2((totalFillArea / trayArea) * 100) : 0;
+  const fillCheck    = fillActualPct <= fillRatioPct ? 'PASS' : 'FAIL';
+
+  // Step 4: load per span and NEMA class
+  const loadPerSpan  = round2(totalWeightKgM * spanM);
+  let nemaClass = 'Custom (> 32A)';
+  for (const [label, maxKgM] of nemaClasses) {
+    if (totalWeightKgM <= maxKgM) { nemaClass = label; break; }
+  }
+
+  // Step 5: derating factor (NEC 392.80)
+  // Ladder / Ventilated Trough: derate if fill > 30%
+  // Solid Bottom: derate if fill > 40% of inside tray cross-section (stricter)
+  const deratingThreshold = trayType === 'Solid Bottom' ? 40 : 30;
+  const deratingFactor    = fillActualPct > deratingThreshold ? 0.80 : 1.0;
+
+  return {
+    tray_type:           trayType,
+    depth_mm:            depthMm,
+    fill_ratio_pct:      fillRatioPct,
+    span_m:              spanM,
+    run_length_m:        runLengthM,
+    total_fill_area_mm2: totalFillArea,
+    required_width_mm:   reqWidthMm,
+    selected_width_mm:   selWidthMm,
+    fill_actual_pct:     fillActualPct,
+    fill_check:          fillCheck,
+    total_weight_kg_m:   totalWeightKgM,
+    load_per_span_kg:    loadPerSpan,
+    nema_load_class:     nemaClass,
+    derating_factor:     deratingFactor,
+    derating_applies:    deratingFactor < 1.0,
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -4309,6 +4407,8 @@ serve(async (req) => {
       results = calcSolarPV(inputs);
     } else if (calc_type === "Power Factor Correction") {
       results = calcPFC(inputs);
+    } else if (calc_type === "Cable Tray Sizing") {
+      results = calcCableTray(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

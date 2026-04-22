@@ -696,6 +696,7 @@ const CALC_TYPES = {
     { id: 'Generator Sizing', icon: '🔋', desc: 'Running kVA, starting kVA (motor surge), genset size, diesel fuel consumption — ISO 8528-1 / PEC / NFPA 110', available: true  },
     { id: 'Solar PV System',  icon: '☀️', desc: 'Array kWp, panel count, string sizing, inverter kW, battery bank (off-grid/hybrid), annual yield, roof area — IEC 62548 / PEC Art. 6 / DOE Net Metering', available: true  },
     { id: 'Power Factor Correction', icon: '🔋', desc: 'Capacitor bank kVAR, PF improvement, kVA reduction, feeder current reduction, Meralco PF surcharge check — IEEE 18 / IEEE 1036 / PEC 2017', available: true  },
+    { id: 'Cable Tray Sizing', icon: '📐', desc: 'Fill area, tray width selection, NEMA VE 1 load class, span load, NEC 310.15 ampacity derating — NEMA VE 1 / NEC 392 / PEC 2017 Art. 3.92', available: true  },
   ],
   'Fire Protection': [
     { id: 'Fire Sprinkler Hydraulic', icon: '🚿', desc: 'NFPA 13 design area method, flow and pressure', available: true  },
@@ -1683,6 +1684,63 @@ const GUIDES = {
       "Over-correction warning: if the capacitor bank generates more kVAR than the load consumes, the system goes capacitive (leading PF). This can cause voltage rise and reverse reactive flow — do not target PF > 0.98 unless load is stable.",
       "Automatic PF Controller (APFC): for loads that vary during the day (manufacturing with variable motors), use an APFC panel with switchable capacitor steps. A fixed bank over-corrects at light load.",
       "Capacitor location: at the main switchboard for billing PF improvement; at individual motor control centers for additional feeder loss savings.",
+    ],
+  },
+
+  'Cable Tray Sizing': {
+    title: 'Cable Tray Sizing — Fill Area, Width Selection, Span Load',
+    subtitle: 'Determines the minimum cable tray width based on total cable fill area against NEC 392 fill ratio limits. Calculates load per span for NEMA VE 1 load class selection and applies NEC 310.15 / NEC 392.80 ampacity derating when fill exceeds 30%. Aligned with NEMA VE 1, NEC Article 392, and PEC 2017 Article 3.92.',
+    standards: [
+      'NEMA VE 1 — Metal Cable Tray Systems (Load Classes, Materials, Construction)',
+      'NEC Article 392 — Cable Trays (Fill, Ampacity, Installation)',
+      'NEC Section 310.15 — Ampacity Calculations (Derating for Bundled Cables)',
+      'PEC 2017 Article 3.92 — Cable Trays (Philippine Electrical Code)',
+      'NEMA VE 2 — Metal Cable Tray Installation Guidelines',
+    ],
+    formulas: [
+      'Fill Area Calculation:',
+      '  A_fill (mm²) = Σ [ Qty × (π/4) × OD² ]   for each cable group',
+      '',
+      'Required Tray Width:',
+      '  W_required (mm) = A_fill / (fill_ratio × depth_mm)',
+      '  → Select next standard width ≥ W_required',
+      '  Standard widths (mm): 100, 150, 200, 300, 450, 600, 750, 900',
+      '',
+      'Actual Fill %:',
+      '  Fill_actual (%) = A_fill / (W_selected × depth_mm) × 100',
+      '  → Limit: ≤ 40% for mixed power + control (NEC 392.22)',
+      '  → Limit: ≤ 50% for control/instrument cable only',
+      '',
+      'Cable Weight and Span Load:',
+      '  W_total (kg/m) = Σ [ Qty × weight_per_m ]',
+      '  Load_per_span (kg) = W_total × span_m',
+      '',
+      'NEMA VE 1 Load Classes (per unit length):',
+      '  Class 8A:  ≤ 11.9 kg/m (8 lb/ft)',
+      '  Class 12A: ≤ 17.9 kg/m (12 lb/ft)',
+      '  Class 16A: ≤ 23.8 kg/m (16 lb/ft)',
+      '  Class 20A: ≤ 29.8 kg/m (20 lb/ft)',
+      '  Class 24A: ≤ 35.7 kg/m (24 lb/ft)',
+      '  Class 32A: ≤ 47.6 kg/m (32 lb/ft)',
+      '',
+      'Ampacity Derating (NEC 392.80 / NEC 310.15):',
+      '  Fill ≤ 30% : No derating — 100% ampacity',
+      '  30% < Fill ≤ 40% : Derate to 80% of base ampacity',
+      '  Solid Bottom Tray : Apply additional manufacturer correction',
+    ],
+    fields: [
+      { name: 'Tray Type', tip: 'Ladder: most common for power cables — ventilated, best heat dissipation. Ventilated Trough: solid side rails, ventilated bottom — good for control and mixed cables. Solid Bottom: fully enclosed — higher fire resistance, used where cable drip protection is needed. NEC 392 and NEMA VE 1 cover all types.' },
+      { name: 'Tray Depth', tip: 'Standard depths: 50 mm (shallow — control cables), 75 mm (medium — mixed), 100 mm (standard — power), 150 mm (deep — large power cables or high fill). Deeper tray increases fill area but adds structural weight.' },
+      { name: 'Fill Ratio Limit', tip: '40% for mixed power and control cables per NEC 392.22. 50% for control and instrumentation cable only. Never exceed the fill ratio — overloaded trays trap heat, accelerate insulation degradation, and become a fire hazard.' },
+      { name: 'Support Span', tip: 'Standard spans: 1.2 m (4 ft) to 3.0 m (10 ft). Shorter spans needed for heavy power cables or when using standard-gauge tray. Typical for industrial: 1.5–2.4 m. Span determines the NEMA VE 1 load class required — heavier cables and wider trays need shorter spans or higher load class.' },
+      { name: 'Cable OD', tip: 'Outer diameter of the cable in mm. Read from the cable manufacturer\'s data sheet. If unknown: estimate 1.5× the conductor diameter for single-core, or use typical values: 16 mm² = ~15 mm OD, 35 mm² = ~19 mm, 70 mm² = ~25 mm, 120 mm² = ~32 mm, 185 mm² = ~41 mm.' },
+    ],
+    notes: [
+      'Fill area basis: all cable ODs are squared and multiplied by π/4 (circle area formula). This correctly accounts for the circular cross-section of each cable — not the bounding square.',
+      'Cable weight estimate (when not provided): the tool uses 0.01 kg/m per mm of OD as a rule-of-thumb for typical copper-conductor PVC/XLPE cables. Always use manufacturer data for critical span load calculations.',
+      'Ladder tray vs. solid bottom derating: NEC 392.80 permits full ampacity for ladder and ventilated trough when fill does not exceed 30% of inside tray cross-section. Solid bottom trays require additional derating per NEC Table 392.80(C).',
+      'PEC 2017 Art. 3.92 mirrors NEC Article 392. For Philippine projects, verify that tray material and finish meet the NEMA VE 1 requirements specified in the project electrical specifications.',
+      'Material: hot-dip galvanized steel is standard for industrial and outdoor use. Aluminum is used in corrosive environments. Stainless steel (304/316) for extreme corrosion (offshore, chemical plants).',
     ],
   },
 
@@ -4203,6 +4261,81 @@ function renderInputForm(calcType) {
     return;
   }
 
+  if (calcType === 'Cable Tray Sizing') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Cable Route Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Main Cable Tray Route — Substation to MDB Level 1" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Tray Type</div>
+          <div class="toggle-group" id="tg-ct-type" style="flex-wrap:wrap;">
+            <button class="toggle-btn active" data-val="Ladder" onclick="toggle('tg-ct-type','Ladder')">Ladder</button>
+            <button class="toggle-btn" data-val="Ventilated Trough" onclick="toggle('tg-ct-type','Ventilated Trough')">Vent. Trough</button>
+            <button class="toggle-btn" data-val="Solid Bottom" onclick="toggle('tg-ct-type','Solid Bottom')">Solid Bottom</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Tray Depth</div>
+          <div class="toggle-group" id="tg-ct-depth">
+            <button class="toggle-btn" data-val="50" onclick="toggle('tg-ct-depth','50')">50 mm</button>
+            <button class="toggle-btn active" data-val="75" onclick="toggle('tg-ct-depth','75')">75 mm</button>
+            <button class="toggle-btn" data-val="100" onclick="toggle('tg-ct-depth','100')">100 mm</button>
+            <button class="toggle-btn" data-val="150" onclick="toggle('tg-ct-depth','150')">150 mm</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Fill Ratio Limit <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(NEC 392.22)</span></div>
+          <div class="toggle-group" id="tg-ct-fill">
+            <button class="toggle-btn active" data-val="40" onclick="toggle('tg-ct-fill','40')">40% (mixed)</button>
+            <button class="toggle-btn" data-val="50" onclick="toggle('tg-ct-fill','50')">50% (ctrl only)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Support Span</div>
+          <div class="toggle-group" id="tg-ct-span" style="flex-wrap:wrap;">
+            <button class="toggle-btn" data-val="1.2" onclick="toggle('tg-ct-span','1.2')">1.2 m</button>
+            <button class="toggle-btn active" data-val="1.5" onclick="toggle('tg-ct-span','1.5')">1.5 m</button>
+            <button class="toggle-btn" data-val="1.8" onclick="toggle('tg-ct-span','1.8')">1.8 m</button>
+            <button class="toggle-btn" data-val="2.4" onclick="toggle('tg-ct-span','2.4')">2.4 m</button>
+            <button class="toggle-btn" data-val="3.0" onclick="toggle('tg-ct-span','3.0')">3.0 m</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Tray Run Length <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(for BOM quantity estimate)</span></div>
+        <div class="input-group">
+          <input id="f-ct-run" class="wh-input" type="number" value="30" min="1" step="1" />
+          <span class="input-unit">m</span>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Cable Schedule</div>
+        <div style="display:grid;grid-template-columns:2fr 80px 60px 80px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.4);padding:0 0.25rem;">
+          <div>Description</div><div style="text-align:center;">OD (mm)</div><div style="text-align:center;">Qty</div><div style="text-align:center;">kg/m (opt)</div><div></div>
+        </div>
+        <div id="ct-cable-list" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem;"></div>
+        <button class="btn-ghost text-sm py-2 px-4" onclick="addCTCableRow()">+ Add Cable</button>
+      </div>
+
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        NEMA VE 1 / NEC Art. 392 / PEC 2017 Art. 3.92. Fill = Σ(Qty × π/4 × OD²). Derating at 80% when fill &gt; 30% (NEC 392.80). Standard widths: 100, 150, 200, 300, 450, 600, 750, 900 mm.
+      </div>
+    `;
+    addCTCableRow('Power', 25, 3);
+    addCTCableRow('Control', 12, 6);
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+    return;
+  }
+
   if (calcType === 'Voltage Drop') {
     area.innerHTML = `
       <div class="mb-4">
@@ -6282,6 +6415,35 @@ function applyGenLoadDefaults(id) {
   if (pfEl && LOAD_TYPE_PF[sel] !== undefined) pfEl.value = LOAD_TYPE_PF[sel];
 }
 
+// ─── Cable Tray cable row helper ──────────────────────────────────────────────
+const CT_CABLE_TYPE_OPTIONS = ['Power', 'Control', 'Instrumentation', 'Signal', 'Fiber Optic'];
+let _ctCableRowId = 0;
+function addCTCableRow(defaultType = 'Power', defaultOD = 25, defaultQty = 1, defaultWeight = '') {
+  const id  = ++_ctCableRowId;
+  const row = document.createElement('div');
+  row.id    = `ct-cable-row-${id}`;
+  row.style.cssText = 'display:grid;grid-template-columns:2fr 80px 60px 80px 28px;gap:0.35rem;align-items:center;';
+  row.innerHTML = `
+    <select class="wh-input text-sm py-2" id="ct-type-${id}">
+      ${CT_CABLE_TYPE_OPTIONS.map(t => `<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
+    </select>
+    <div class="input-group" style="min-width:0;">
+      <input id="ct-od-${id}" class="wh-input text-sm py-2" type="number" value="${defaultOD}" min="1" step="0.5" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.6rem;">mm</span>
+    </div>
+    <div class="input-group" style="min-width:0;">
+      <input id="ct-qty-${id}" class="wh-input text-sm py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.6rem;">qty</span>
+    </div>
+    <div class="input-group" style="min-width:0;">
+      <input id="ct-w-${id}" class="wh-input text-sm py-2" type="number" value="${defaultWeight}" min="0" step="0.01" placeholder="auto" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.55rem;">kg/m</span>
+    </div>
+    <button onclick="document.getElementById('ct-cable-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+  `;
+  document.getElementById('ct-cable-list').appendChild(row);
+}
+
 function applyVDLimit(circuitType) {
   const el = document.getElementById('f-vd-limit');
   if (el) el.value = circuitType === 'Feeder' ? 2 : 3;
@@ -6488,6 +6650,27 @@ function collectInputs() {
       phases:        parseFloat(getToggle('tg-pfc-phases') || '3'),
       monthly_kwh:   parseFloat(v('f-pfc-kwh'))                       || 0,
       meralco_rate:  parseFloat(v('f-pfc-rate'))                      || 0,
+    };
+  }
+
+  if (_calcType === 'Cable Tray Sizing') {
+    const cables = [];
+    document.querySelectorAll('#ct-cable-list > div[id^="ct-cable-row-"]').forEach(row => {
+      const rid    = row.id.replace('ct-cable-row-', '');
+      const ctype  = document.getElementById(`ct-type-${rid}`)?.value || 'Power';
+      const od     = parseFloat(document.getElementById(`ct-od-${rid}`)?.value)  || 0;
+      const qty    = parseFloat(document.getElementById(`ct-qty-${rid}`)?.value) || 1;
+      const wt     = parseFloat(document.getElementById(`ct-w-${rid}`)?.value)   || 0;
+      if (od > 0) cables.push({ cable_type: ctype, od_mm: od, qty, weight_kg_m: wt || null });
+    });
+    return {
+      project_name:   v('f-project') || 'Untitled Cable Route',
+      tray_type:      getToggle('tg-ct-type')  || 'Ladder',
+      depth_mm:       parseFloat(getToggle('tg-ct-depth')  || '75'),
+      fill_ratio_pct: parseFloat(getToggle('tg-ct-fill')   || '40'),
+      span_m:         parseFloat(getToggle('tg-ct-span')   || '1.5'),
+      run_length_m:   parseFloat(v('f-ct-run'))             || 30,
+      cables,
     };
   }
 
@@ -7163,6 +7346,11 @@ async function runCalculation() {
       showToast('Please select the existing power factor.');
       return;
     }
+  } else if (_calcType === 'Cable Tray Sizing') {
+    if (!inputs.cables || inputs.cables.length === 0) {
+      showToast('Please add at least one cable to the schedule.');
+      return;
+    }
   } else if (_calcType === 'Voltage Drop') {
     if (!inputs.current || inputs.current <= 0) {
       showToast('Please enter the load current.');
@@ -7404,6 +7592,8 @@ async function runCalculation() {
       renderSolarPVReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Power Factor Correction') {
       renderPFCReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Cable Tray Sizing') {
+      renderCableTrayReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Load Estimation') {
       renderLoadReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Voltage Drop') {
@@ -8995,6 +9185,206 @@ function renderPFCReport(inputs, results, narrative) {
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
           <div style="font-size:0.74rem;color:#555;">${e('Owner / Client Representative')}</div>
           <div style="font-size:0.74rem;color:#555;">Date: ${e(new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}))}</div>
+          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  panel.innerHTML = reportHTML;
+  showReport();
+}
+
+// ─── Cable Tray Sizing Report ─────────────────────────────────────────────────
+function renderCableTrayReport(inputs, results, narrative) {
+  const panel = document.getElementById('report-panel');
+  if (!panel) return;
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
+
+  const trayType       = inputs.tray_type      || 'Ladder';
+  const depthMm        = inputs.depth_mm       || 75;
+  const fillLimit      = inputs.fill_ratio_pct || 40;
+  const spanM          = inputs.span_m         || 1.5;
+  const runLengthM     = inputs.run_length_m   || 30;
+  const projName       = inputs.project_name   || 'Cable Tray Sizing Project';
+
+  const totalFillArea  = results.total_fill_area_mm2  ?? '';
+  const reqWidth       = results.required_width_mm    ?? '';
+  const selWidth       = results.selected_width_mm    ?? '';
+  const fillActual     = results.fill_actual_pct      ?? '';
+  const fillCheck      = results.fill_check           ?? '';
+  const fillPass       = (fillCheck === 'PASS');
+  const totalWeightPm  = results.total_weight_kg_m    ?? '';
+  const loadPerSpan    = results.load_per_span_kg     ?? '';
+  const nemaClass      = results.nema_load_class      ?? '';
+  const deratingFactor = results.derating_factor      ?? 1.0;
+  const deratingApplies= deratingFactor < 1.0;
+  const cables         = inputs.cables || [];
+
+  const cableTableRows = cables.map((c, i) => {
+    const od  = c.od_mm  ?? 0;
+    const qty = c.qty    ?? 1;
+    const wt  = c.weight_kg_m ?? (od * 0.01);
+    const fillArea = Math.round((Math.PI / 4) * od * od * qty * 100) / 100;
+    return `<tr>
+      <td>${i + 1}</td>
+      <td>${e(c.cable_type || '')}</td>
+      <td class="num">${e(od)}</td>
+      <td class="num">${e(qty)}</td>
+      <td class="num">${e(Math.round((Math.PI / 4) * od * od * 100) / 100)}</td>
+      <td class="num">${e(fillArea)}</td>
+      <td class="num">${e(Math.round(wt * 100) / 100)}</td>
+    </tr>`;
+  }).join('');
+
+  const reportHTML = `
+  <div class="report-wrap">
+    <div class="report-header">
+      <div>
+        <h1 class="report-title">CABLE TRAY SIZING — DESIGN CALCULATION</h1>
+        <div class="report-meta">Project: ${e(projName)}</div>
+        <div class="report-meta">Prepared by: ${e(WORKER_NAME || '')}</div>
+        <div class="report-meta">Date: ${e(dateStr)}</div>
+        <div class="report-meta">Doc No.: ${e('ELEC-CT-' + now.toISOString().slice(0,10).replace(/-/g,''))}</div>
+      </div>
+      <div class="report-logo-block">
+        <div style="font-size:0.75rem;font-weight:700;color:#1a56db;">NEMA VE 1</div>
+        <div style="font-size:0.7rem;color:#555;">NEC Art. 392</div>
+        <div style="font-size:0.7rem;color:#555;">PEC 2017 Art. 3.92</div>
+      </div>
+    </div>
+
+    <h2>1. OBJECTIVE</h2>
+    <p>${e(narrative?.objective || `Determine the minimum cable tray width and NEMA VE 1 load class for the cable route identified as "${projName}". The sizing is based on the total cable fill area relative to the allowable fill ratio per NEC Article 392 and PEC 2017 Article 3.92, and the cable weight per span per NEMA VE 1.`)}</p>
+
+    <h2>2. APPLICABLE STANDARDS</h2>
+    <table>
+      <tr><td style="width:35%;">NEMA VE 1</td><td>Metal Cable Tray Systems — Material, Construction, Load Classes</td></tr>
+      <tr><td>NEMA VE 2</td><td>Metal Cable Tray Installation Guidelines</td></tr>
+      <tr><td>NEC Article 392</td><td>Cable Trays — Fill Limits, Ampacity, Installation Requirements</td></tr>
+      <tr><td>NEC Section 310.15</td><td>Ampacity of Conductors — Bundling / Stacking Derating</td></tr>
+      <tr><td>PEC 2017 Art. 3.92</td><td>Philippine Electrical Code — Cable Trays</td></tr>
+    </table>
+
+    <h2>3. DESIGN BASIS AND ASSUMPTIONS</h2>
+    <p>${e(narrative?.assumptions || `Tray type: ${trayType}. Tray depth: ${depthMm} mm. Fill ratio limit: ${fillLimit}% per NEC 392.22 (mixed power and control). Support span: ${spanM} m. Cable tray run length: ${runLengthM} m. Standard tray widths per NEMA VE 1: 100, 150, 200, 300, 450, 600, 750, 900 mm. Cable weight estimated at 0.01 kg/(m·mm of OD) where manufacturer data is not provided. Ampacity derating per NEC 392.80: no derating if fill ≤ 30%; derate to 80% of base ampacity if fill > 30%.`)}</p>
+
+    <h2>4. CABLE SCHEDULE AND FILL AREA</h2>
+    <table>
+      <tr>
+        <th>No.</th><th>Type</th><th class="num">OD (mm)</th><th class="num">Qty</th>
+        <th class="num">Area/cable (mm²)</th><th class="num">Total Area (mm²)</th><th class="num">Unit wt (kg/m)</th>
+      </tr>
+      ${cableTableRows}
+      <tr class="total-row">
+        <td colspan="5"><strong>TOTAL FILL AREA</strong></td>
+        <td class="num"><strong>${e(totalFillArea)}</strong></td>
+        <td class="num"><strong>${e(totalWeightPm)} kg/m</strong></td>
+      </tr>
+    </table>
+
+    <h2>5. TRAY WIDTH CALCULATION</h2>
+    <table>
+      <tr><th>Step</th><th>Parameter</th><th class="num">Value</th><th>Unit / Remarks</th></tr>
+      <tr><td>1</td><td>Total Cable Fill Area</td><td class="num">${e(totalFillArea)}</td><td>mm²</td></tr>
+      <tr><td>2</td><td>Fill Ratio Limit (NEC 392.22)</td><td class="num">${e(fillLimit)}</td><td>%</td></tr>
+      <tr><td>3</td><td>Tray Depth</td><td class="num">${e(depthMm)}</td><td>mm</td></tr>
+      <tr><td>4</td><td>Required Width = Fill Area / (Fill% × Depth)</td><td class="num">${e(reqWidth)}</td><td>mm</td></tr>
+      <tr class="total-row"><td>5</td><td><strong>Selected Standard Tray Width (NEMA VE 1)</strong></td><td class="num"><strong>${e(selWidth)}</strong></td><td><strong>mm (next standard size ≥ required)</strong></td></tr>
+      <tr><td>6</td><td>Actual Fill = Fill Area / (Width × Depth) × 100</td><td class="num">${e(fillActual)}</td><td>% (limit: ${e(fillLimit)}%)</td></tr>
+      <tr class="total-row"><td>7</td><td><strong>Fill Check</strong></td>
+        <td class="num" style="color:${fillPass ? '#0a0' : '#c00'};"><strong>${e(fillCheck)}</strong></td>
+        <td><strong>${fillPass ? 'Within fill limit' : 'EXCEEDS fill limit — increase tray size or reduce cables'}</strong></td>
+      </tr>
+    </table>
+
+    <h2>6. SPAN LOAD AND NEMA VE 1 LOAD CLASS</h2>
+    <table>
+      <tr><th>Parameter</th><th class="num">Value</th><th>Unit</th></tr>
+      <tr><td>Total Cable Weight per Metre</td><td class="num">${e(totalWeightPm)}</td><td>kg/m</td></tr>
+      <tr><td>Support Span</td><td class="num">${e(spanM)}</td><td>m</td></tr>
+      <tr><td>Load per Span</td><td class="num">${e(loadPerSpan)}</td><td>kg/span</td></tr>
+      <tr class="total-row"><td><strong>Required NEMA VE 1 Load Class</strong></td><td class="num"><strong>${e(nemaClass)}</strong></td><td><strong>—</strong></td></tr>
+    </table>
+    <div style="font-size:0.78rem;color:#888;margin-top:0.5rem;">
+      NEMA VE 1 Classes: 8A ≤ 11.9 kg/m, 12A ≤ 17.9 kg/m, 16A ≤ 23.8 kg/m, 20A ≤ 29.8 kg/m, 24A ≤ 35.7 kg/m, 32A ≤ 47.6 kg/m.
+      Loads exceeding 47.6 kg/m: consult manufacturer for heavy-duty custom tray.
+    </div>
+
+    <h2>7. AMPACITY DERATING (NEC 392.80 / NEC 310.15)</h2>
+    <table>
+      <tr><td style="width:45%;">Tray Type</td><td>${e(trayType)}</td></tr>
+      <tr><td>Actual Fill Percentage</td><td>${e(fillActual)}%</td></tr>
+      <tr><td>Derating Threshold</td><td>30% of tray cross-section (NEC 392.80)</td></tr>
+      <tr class="total-row"><td><strong>Derating Factor</strong></td>
+        <td><strong style="color:${deratingApplies ? '#c60' : '#0a0'};">${e(deratingFactor)}× ${deratingApplies ? '— Conductors must be derated to 80% of base ampacity (NEC 392.80)' : '— No derating required (fill ≤ 30%)'}</strong></td>
+      </tr>
+    </table>
+
+    <h2>8. RESULTS SUMMARY</h2>
+    <div class="result-highlight">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+        <div>
+          <div class="res-label">Selected Tray Width</div>
+          <div class="res-value">${e(selWidth)} mm</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${e(trayType)}, ${e(depthMm)} mm deep</div>
+        </div>
+        <div>
+          <div class="res-label">Actual Fill</div>
+          <div class="res-value" style="color:${fillPass ? 'inherit' : '#c00'};">${e(fillActual)}%</div>
+          <div style="font-size:0.78rem;color:${fillPass ? '#888' : '#c00'};margin-top:0.1rem;">${fillPass ? 'PASS' : 'FAIL'} (limit ${e(fillLimit)}%)</div>
+        </div>
+        <div>
+          <div class="res-label">NEMA Load Class</div>
+          <div class="res-value">${e(nemaClass)}</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${e(loadPerSpan)} kg per ${e(spanM)} m span</div>
+        </div>
+        <div>
+          <div class="res-label">Derating Factor</div>
+          <div class="res-value" style="color:${deratingApplies ? '#c60' : 'inherit'};">${e(deratingFactor)}×</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${deratingApplies ? '80% ampacity — fill > 30%' : 'No derating — fill ≤ 30%'}</div>
+        </div>
+        <div>
+          <div class="res-label">Total Fill Area</div>
+          <div class="res-value">${e(totalFillArea)} mm²</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${cables.length} cable group(s)</div>
+        </div>
+        <div>
+          <div class="res-label">Tray Run Length</div>
+          <div class="res-value">${e(runLengthM)} m</div>
+          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${e(selWidth)}mm × ${e(depthMm)}mm × ${e(runLengthM)}m</div>
+        </div>
+      </div>
+    </div>
+
+    <h2>9. RECOMMENDATIONS</h2>
+    <p>${e(narrative?.recommendations || `Provide a ${selWidth} mm wide × ${depthMm} mm deep ${trayType} cable tray (NEMA VE 1 Load Class ${nemaClass}, hot-dip galvanized steel per NEMA VE 1 for indoor/industrial use or stainless steel for corrosive environments). Support at ${spanM} m centres on structural brackets anchored to walls or columns. ${deratingApplies ? `Actual fill (${fillActual}%) exceeds the 30% threshold — apply 80% derating factor to all power conductor ampacities per NEC 392.80 (NEC 310.15). Verify that each conductor\'s derated ampacity equals or exceeds the design current.` : `Actual fill (${fillActual}%) does not exceed 30% — no ampacity derating required for ladder/ventilated trough tray.`} Separate power cables from control and instrumentation cables using a tray divider or separate tray per NEMA VE 2 to minimize EMI. Provide cover for outdoor sections or where physical damage is possible. All cable tray installation by a licensed master electrician under a PRC-licensed Electrical Engineer. A signed and sealed calculation must be submitted for building permit.`)}</p>
+
+    <!-- SIGNATURE BLOCK -->
+    <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div>
+        <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-size:0.78rem;font-weight:700;">${e(WORKER_NAME || '')}</div>
+          <div style="font-size:0.74rem;color:#555;">${e('Electrical Engineer')}</div>
+          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
+          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+        </div>
+      </div>
+      <div>
+        <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
+          <div style="font-size:0.74rem;color:#555;">${e('Electrical Engineer')}</div>
+          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
+          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+        </div>
+      </div>
+      <div>
+        <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
+          <div style="font-size:0.74rem;color:#555;">${e('Owner / Client Representative')}</div>
+          <div style="font-size:0.74rem;color:#555;">Date: ${e(dateStr)}</div>
           <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
@@ -12522,6 +12912,8 @@ function viewHistoryReport(row) {
     renderSolarPVReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Power Factor Correction') {
     renderPFCReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Cable Tray Sizing') {
+    renderCableTrayReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
@@ -12558,7 +12950,7 @@ async function generateBomSowChecklist() {
   if (!_lastResults || !_lastInputs) { showToast('Run a calculation first.'); return; }
   const BOM_SOW_SUPPORTED = {
     'Mechanical': ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air', 'Boiler System'],
-    'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design', 'Generator Sizing', 'Solar PV System', 'Power Factor Correction'],
+    'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design', 'Generator Sizing', 'Solar PV System', 'Power Factor Correction', 'Cable Tray Sizing'],
     'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)', 'Storm Drain / Stormwater'],
     'Fire Protection':         ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],
     'Vertical Transportation': ['Elevator Traffic Analysis', 'Hoist Capacity'],
@@ -12759,6 +13151,7 @@ function renderBomTablePreview(items) {
   const isGen      = _calcType === 'Generator Sizing';
   const isSolarPV  = _calcType === 'Solar PV System';
   const isPFC      = _calcType === 'Power Factor Correction';
+  const isCT       = _calcType === 'Cable Tray Sizing';
   const isFSprink  = _calcType === 'Fire Sprinkler Hydraulic';
   const isFPump    = _calcType === 'Fire Pump Sizing';
   const isSPress   = _calcType === 'Stairwell Pressurization';
@@ -12768,7 +13161,7 @@ function renderBomTablePreview(items) {
   const isChiller   = _calcType === 'Chiller System — Air Cooled';
   const isChillerWC = _calcType === 'Chiller System — Water Cooled';
   const isAHU       = _calcType === 'AHU Sizing';
-  const calcRef = `${isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const calcRef = `${isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const disciplineSystem = isAHU
     ? `HVAC Systems — AHU (${_lastResults?.n_units || ''}× ${_lastResults?.nominal_AHU_CMH_each || ''}CMH, ${_lastResults?.Q_coil_total_kW || ''}kW/${_lastResults?.Q_coil_TR || ''}TR coil, ${_lastResults?.fan_hp_std || ''}HP fan, CHW ${_lastResults?.chw_supply_C || ''}/${_lastResults?.chw_return_C || ''}°C, ${_lastResults?.Q_chw_lps || ''}L/s)`
     : isChillerWC
@@ -12799,6 +13192,8 @@ function renderBomTablePreview(items) {
     ? `Electrical — Load Estimation (${_lastResults?.phase_config || _lastInputs?.phase_config || '3-Phase'}, ${_lastResults?.total_demand_kva || ''}kVA Demand, ${_lastResults?.recommended_breaker_A || ''}A Main Breaker)`
     : isSolarPV
     ? `Electrical — Solar PV System (${_lastResults?.system_type || ''}, ${_lastResults?.location || ''} ${_lastResults?.psh_hr || ''}h PSH, Array ${_lastResults?.actual_array_kwp || ''}kWp, ${_lastResults?.panel_qty || ''}× ${_lastInputs?.panel_wp || ''}Wp panels, Inverter ${_lastResults?.inverter_kw || ''}kW, Annual Yield ${_lastResults?.annual_yield_kwh || ''}kWh/yr)`
+    : isCT
+    ? `Electrical — Cable Tray Sizing (${_lastInputs?.tray_type || 'Ladder'}, ${_lastResults?.selected_width_mm || ''}mm W × ${_lastInputs?.depth_mm || ''}mm D, Fill ${_lastResults?.fill_actual_pct || ''}% (${_lastResults?.fill_check || ''}), Load Class ${_lastResults?.nema_load_class || ''}, Derating ${_lastResults?.derating_factor || 1.0}×, Span ${_lastInputs?.span_m || ''}m)`
     : isPFC
     ? `Electrical — Power Factor Correction (${_lastResults?.kw || ''}kW load, PF ${_lastResults?.pf_existing || ''} → ${_lastResults?.pf_target || ''}, Capacitor Bank ${_lastResults?.selected_kvar || ''}kVAR, kVA reduction ${_lastResults?.kva_reduction || ''}kVA, Current reduction ${_lastResults?.current_reduction || ''}A)`
     : isGen
@@ -13007,6 +13402,7 @@ function renderSowDocPreview(sections) {
   const isGenS     = _calcType === 'Generator Sizing';
   const isSolarPVS = _calcType === 'Solar PV System';
   const isPFCS     = _calcType === 'Power Factor Correction';
+  const isCTS      = _calcType === 'Cable Tray Sizing';
   const isFSprink  = _calcType === 'Fire Sprinkler Hydraulic';
   const isFPump    = _calcType === 'Fire Pump Sizing';
   const isSPress   = _calcType === 'Stairwell Pressurization';
@@ -13016,7 +13412,7 @@ function renderSowDocPreview(sections) {
   const isChillerS   = _calcType === 'Chiller System — Air Cooled';
   const isChillerWCS = _calcType === 'Chiller System — Water Cooled';
   const isAHUS       = _calcType === 'AHU Sizing';
-  const calcRef = `${isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const calcRef = `${isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
@@ -13049,6 +13445,8 @@ function renderSowDocPreview(sections) {
     ? `Voltage Drop Compliance — ${_lastResults?.circuit_type || _lastInputs?.circuit_type || 'Branch Circuit'}, ${_lastResults?.phase || _lastInputs?.phase || 'Single-phase'} ${_lastResults?.voltage || _lastInputs?.voltage || 230}V, ${_lastResults?.current || _lastInputs?.current || ''}A, ${_lastResults?.wire_length || _lastInputs?.wire_length || ''}m run, ${_lastResults?.conductor_mm2 || _lastInputs?.conductor_mm2 || ''}mm² ${_lastResults?.conductor_mat || _lastInputs?.conductor_mat || 'Copper'} THHN/THWN, VD ${_lastResults?.vd_pct || ''}% (limit ${_lastResults?.vd_limit || 3}%) — ${_lastResults?.pass ? 'PASS' : 'FAIL'}`
     : isLoadEst
     ? `Electrical Distribution — ${_lastResults?.phase_config || _lastInputs?.phase_config || '3-Phase 4-Wire (400V)'}, Connected Load ${_lastResults?.total_connected_kva || ''}kVA, Demand Load ${_lastResults?.total_demand_kva || ''}kVA (${_lastResults?.total_demand_kw || ''}kW), Computed Ampacity ${_lastResults?.computed_ampacity || ''}A, Main Breaker ${_lastResults?.recommended_breaker_A || ''}A`
+    : isCTS
+    ? `Cable Tray Sizing — ${_lastInputs?.tray_type || 'Ladder'} Tray, ${_lastResults?.selected_width_mm || ''}mm W × ${_lastInputs?.depth_mm || ''}mm D, Total Fill Area ${_lastResults?.total_fill_area_mm2 || ''} mm², Fill ${_lastResults?.fill_actual_pct || ''}% (Limit ${_lastInputs?.fill_ratio_pct || 40}%) — ${_lastResults?.fill_check || ''}, NEMA Load Class ${_lastResults?.nema_load_class || ''}, Derating Factor ${_lastResults?.derating_factor || 1.0}×, Span ${_lastInputs?.span_m || ''}m, Run ${_lastInputs?.run_length_m || ''}m`
     : isPFCS
     ? `Power Factor Correction — ${_lastInputs?.load_kw || ''}kW at PF ${_lastInputs?.pf_existing || ''} → ${_lastInputs?.pf_target || ''} (${_lastInputs?.voltage_v || ''}V ${_lastInputs?.phases || 3}-phase), Required ${_lastResults?.kvar_required || ''} kVAR → Selected ${_lastResults?.selected_kvar || ''} kVAR capacitor bank, kVA reduction ${_lastResults?.kva_reduction || ''} kVA, Feeder current reduction ${_lastResults?.current_reduction || ''} A (${_lastResults?.current_reduction_pct || ''}%), Meralco PF surcharge: ${_lastResults?.meralco_penalty ? 'APPLIES — eliminated after correction' : 'N/A (PF ≥ 0.85)'}`
     : isSolarPVS
