@@ -697,6 +697,7 @@ const CALC_TYPES = {
     { id: 'Solar PV System',  icon: '☀️', desc: 'Array kWp, panel count, string sizing, inverter kW, battery bank (off-grid/hybrid), annual yield, roof area — IEC 62548 / PEC Art. 6 / DOE Net Metering', available: true  },
     { id: 'Power Factor Correction', icon: '🔋', desc: 'Capacitor bank kVAR, PF improvement, kVA reduction, feeder current reduction, Meralco PF surcharge check — IEEE 18 / IEEE 1036 / PEC 2017', available: true  },
     { id: 'Cable Tray Sizing', icon: '📐', desc: 'Fill area, tray width selection, NEMA VE 1 load class, span load, NEC 310.15 ampacity derating — NEMA VE 1 / NEC 392 / PEC 2017 Art. 3.92', available: true  },
+    { id: 'UPS Sizing', icon: '🔌', desc: 'UPS kVA selection, loading %, battery Ah, battery config, input breaker, autonomy verification — IEC 62040-3 / IEEE 446 / IEEE 1184 / PEC 2017 Art. 7', available: true  },
   ],
   'Fire Protection': [
     { id: 'Fire Sprinkler Hydraulic', icon: '🚿', desc: 'NFPA 13 design area method, flow and pressure', available: true  },
@@ -1741,6 +1742,67 @@ const GUIDES = {
       'Ladder tray vs. solid bottom derating: NEC 392.80 permits full ampacity for ladder and ventilated trough when fill does not exceed 30% of inside tray cross-section. Solid bottom trays require additional derating per NEC Table 392.80(C).',
       'PEC 2017 Art. 3.92 mirrors NEC Article 392. For Philippine projects, verify that tray material and finish meet the NEMA VE 1 requirements specified in the project electrical specifications.',
       'Material: hot-dip galvanized steel is standard for industrial and outdoor use. Aluminum is used in corrosive environments. Stainless steel (304/316) for extreme corrosion (offshore, chemical plants).',
+    ],
+  },
+
+  'UPS Sizing': {
+    title: 'UPS Sizing — kVA Rating, Battery Ah and Autonomy Verification',
+    subtitle: 'Determines the minimum UPS kVA rating based on total connected load and growth factor, calculates the VRLA battery bank Ah requirement for the specified backup time, and verifies loading percentage against the 80% recommended limit. Aligned with IEC 62040-3, IEEE 446, IEEE 1184, and PEC 2017 Article 7.',
+    standards: [
+      'IEC 62040-1 — Safety Requirements for UPS',
+      'IEC 62040-3 — Performance Requirements and Test Methods (VFI/VI/VFD classification)',
+      'IEEE 446 — Recommended Practice for Emergency and Standby Power (Buff Book)',
+      'IEEE 1184 — Guide for Batteries for Uninterruptible Power Systems (VRLA sizing)',
+      'PEC 2017 Article 7 — Emergency and Standby Systems',
+    ],
+    formulas: [
+      'Total Connected VA:',
+      '  VA_total = Σ (VA_per_unit × Qty)   for each load group',
+      '',
+      'Design VA (with growth factor):',
+      '  VA_design = VA_total × growth_factor',
+      '',
+      'Minimum UPS kVA (at 80% loading recommendation):',
+      '  kVA_min = VA_design / 1000 / 0.80',
+      '  → Select next standard kVA ≥ kVA_min',
+      '  Standard sizes (kVA): 1, 2, 3, 5, 6, 8, 10, 15, 20, 25, 30, 40,',
+      '                         50, 60, 80, 100, 120, 160, 200, 250, 300, 400, 500',
+      '',
+      'Battery Ah Required (IEC 62040-3 / IEEE 1184):',
+      '  Ah = (kW_design × t_backup_h) / (V_dc × DOD × η_UPS × η_wire)',
+      '  Where: DOD = 0.80  (VRLA design depth of discharge per IEEE 1184)',
+      '         η_UPS = UPS inverter efficiency (0.94–0.98)',
+      '         η_wire = 0.98  (battery cable efficiency)',
+      '         V_dc = DC bus voltage (auto-selected by UPS kVA range)',
+      '',
+      'Battery DC Bus Voltage Auto-Selection:',
+      '  ≤ 10 kVA   → 96 V  (8 × 12V cells in series)',
+      '  10–40 kVA  → 192 V (16 × 12V cells)',
+      '  40–100 kVA → 240 V (20 × 12V cells)',
+      '  > 100 kVA  → 480 V (40 × 12V cells)',
+      '',
+      'Loading %:',
+      '  Loading = VA_design / (kVA_selected × 1000) × 100',
+      '  Recommended: ≤ 80% for thermal headroom and redundancy (IEEE 446)',
+      '',
+      'Input Current (3-Phase 415V):',
+      '  I_in = VA_input / (√3 × 415)',
+      '  VA_input = VA_design / η_UPS',
+      '  Input Breaker = 125% × I_in, rounded up to standard size',
+    ],
+    fields: [
+      { name: 'UPS Topology', tip: 'Online Double-Conversion (IEC 62040-3 VFI-SS-111): output is always inverter-fed — zero transfer time, best isolation from input disturbances. Recommended for servers, medical equipment, and precision instruments. Line Interactive (VI-SS-111): follows utility until voltage is out of range, then switches to inverter — transfer time < 4 ms. Offline/Standby (VFD-SS-111): normally bypassed, switches on failure — transfer time < 10 ms, for non-critical loads.' },
+      { name: 'Phase', tip: '1-Phase 230V: for single-phase UPS systems up to ~20 kVA. 3-Phase 415V: for larger systems, data centres, and UPS >20 kVA.' },
+      { name: 'Backup Time', tip: 'Set to cover the generator start and stabilisation period (10–15 min if a genset is present), or to allow graceful IT shutdown (30–60 min), or full session runtime (≥ 60 min). IEEE 446 Section 6 guidance: process-critical loads use 30 min minimum.' },
+      { name: 'Growth Factor', tip: 'Multiply connected load by this factor for future load additions. Typical: 1.20 (20% headroom) for general projects, 1.25 for data centres. Combined with the 80% loading limit, the UPS will be at ~64–67% utilisation on Day 1.' },
+      { name: 'Load VA and PF', tip: 'Apparent power (VA) per load group. PF guidance: IT/servers = 0.9–1.0 (modern SMPS); motors = 0.7–0.85; lighting = 0.8–0.95. If unknown, use 0.9 as a conservative default.' },
+    ],
+    notes: [
+      'UPS loading limit: ≤ 80% of rated kVA per IEEE 446. Operating above 80% raises internal temperature, reduces MTBF, and leaves no headroom for load additions.',
+      'VRLA battery DOD: IEC 62040-3 and IEEE 1184 recommend 80% maximum depth of discharge. Exceeding 80% DOD consistently shortens service life below the rated 3–5 year figure.',
+      'Battery life in Philippine climate: VRLA batteries in float service typically last 3–5 years. Ambient temperature above 25°C halves battery life every 10°C above reference per IEEE 1184 — plan replacement budget at Year 3 for installations in unconditioned spaces.',
+      'Topology IEC classification: VFI = Voltage and Frequency Independent (online double-conversion). VI = Voltage Independent (line interactive). VFD = Voltage and Frequency Dependent (offline/standby). The UPS nameplate or datasheet must state the IEC class for permit submission.',
+      'PEC 2017 Article 7 requires an approved listing and a dedicated branch circuit for UPS units serving emergency loads. A PRC-licensed Electrical Engineer must sign and seal the sizing calculation for building permit submission.',
     ],
   },
 
@@ -4336,6 +4398,86 @@ function renderInputForm(calcType) {
     return;
   }
 
+  if (calcType === 'UPS Sizing') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / UPS Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Server Room UPS — IT Load Protection" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">UPS Topology</div>
+          <div class="toggle-group" id="tg-ups-topology" style="flex-wrap:wrap;">
+            <button class="toggle-btn active" data-val="Online (Double-Conversion)" onclick="toggle('tg-ups-topology','Online (Double-Conversion)')">Online</button>
+            <button class="toggle-btn" data-val="Line Interactive" onclick="toggle('tg-ups-topology','Line Interactive')">Line Interactive</button>
+            <button class="toggle-btn" data-val="Offline (Standby)" onclick="toggle('tg-ups-topology','Offline (Standby)')">Offline</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Phase</div>
+          <div class="toggle-group" id="tg-ups-phase">
+            <button class="toggle-btn" data-val="1-Phase" onclick="toggle('tg-ups-phase','1-Phase')">1-Phase 230V</button>
+            <button class="toggle-btn active" data-val="3-Phase" onclick="toggle('tg-ups-phase','3-Phase')">3-Phase 415V</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Backup Time <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(min)</span></div>
+          <div class="toggle-group" id="tg-ups-backup" style="flex-wrap:wrap;">
+            <button class="toggle-btn" data-val="10" onclick="toggle('tg-ups-backup','10')">10</button>
+            <button class="toggle-btn" data-val="15" onclick="toggle('tg-ups-backup','15')">15</button>
+            <button class="toggle-btn" data-val="20" onclick="toggle('tg-ups-backup','20')">20</button>
+            <button class="toggle-btn active" data-val="30" onclick="toggle('tg-ups-backup','30')">30</button>
+            <button class="toggle-btn" data-val="45" onclick="toggle('tg-ups-backup','45')">45</button>
+            <button class="toggle-btn" data-val="60" onclick="toggle('tg-ups-backup','60')">60</button>
+            <button class="toggle-btn" data-val="90" onclick="toggle('tg-ups-backup','90')">90</button>
+            <button class="toggle-btn" data-val="120" onclick="toggle('tg-ups-backup','120')">120</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Growth Factor <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(future loads)</span></div>
+          <div class="toggle-group" id="tg-ups-growth" style="flex-wrap:wrap;">
+            <button class="toggle-btn" data-val="1.10" onclick="toggle('tg-ups-growth','1.10')">1.10</button>
+            <button class="toggle-btn active" data-val="1.20" onclick="toggle('tg-ups-growth','1.20')">1.20</button>
+            <button class="toggle-btn" data-val="1.25" onclick="toggle('tg-ups-growth','1.25')">1.25</button>
+            <button class="toggle-btn" data-val="1.30" onclick="toggle('tg-ups-growth','1.30')">1.30</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">UPS Efficiency <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(inverter — affects battery sizing)</span></div>
+        <div class="toggle-group" id="tg-ups-eff">
+          <button class="toggle-btn" data-val="0.94" onclick="toggle('tg-ups-eff','0.94')">94%</button>
+          <button class="toggle-btn active" data-val="0.96" onclick="toggle('tg-ups-eff','0.96')">96%</button>
+          <button class="toggle-btn" data-val="0.98" onclick="toggle('tg-ups-eff','0.98')">98%</button>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Load Schedule</div>
+        <div style="display:grid;grid-template-columns:3fr 70px 55px 50px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.4);padding:0 0.25rem;">
+          <div>Description</div><div style="text-align:center;">VA/unit</div><div style="text-align:center;">PF</div><div style="text-align:center;">Qty</div><div></div>
+        </div>
+        <div id="ups-load-list" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem;"></div>
+        <button class="btn-ghost text-sm py-2 px-4" onclick="addUPSLoadRow()">+ Add Load</button>
+      </div>
+
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        IEC 62040-3 / IEEE 446 / IEEE 1184 / PEC 2017 Art. 7. Ah = (kW × t_h) / (V_dc × DOD × η). DC bus auto-selected by kVA. Loading ≤ 80% recommended. DOD = 0.80 for VRLA.
+      </div>
+    `;
+    addUPSLoadRow('Servers / IT Equipment', 3000, 0.9, 2);
+    addUPSLoadRow('Network Switches', 500, 1.0, 4);
+    addUPSLoadRow('Workstations', 800, 0.9, 5);
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+    return;
+  }
+
   if (calcType === 'Voltage Drop') {
     area.innerHTML = `
       <div class="mb-4">
@@ -6444,6 +6586,32 @@ function addCTCableRow(defaultType = 'Power', defaultOD = 25, defaultQty = 1, de
   document.getElementById('ct-cable-list').appendChild(row);
 }
 
+// ─── UPS load row helper ──────────────────────────────────────────────────────
+let _upsLoadRowId = 0;
+function addUPSLoadRow(defaultDesc = 'Load', defaultVA = 1000, defaultPF = 0.9, defaultQty = 1) {
+  const id  = ++_upsLoadRowId;
+  const row = document.createElement('div');
+  row.id    = `ups-load-row-${id}`;
+  row.style.cssText = 'display:grid;grid-template-columns:3fr 70px 55px 50px 28px;gap:0.35rem;align-items:center;';
+  row.innerHTML = `
+    <input id="ups-desc-${id}" class="wh-input text-sm py-2" type="text" value="${escHtml(String(defaultDesc))}" placeholder="Load description" style="padding:0.5rem 0.4rem;" />
+    <div class="input-group" style="min-width:0;">
+      <input id="ups-va-${id}" class="wh-input text-sm py-2" type="number" value="${defaultVA}" min="1" step="1" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.6rem;">VA</span>
+    </div>
+    <div class="input-group" style="min-width:0;">
+      <input id="ups-pf-${id}" class="wh-input text-sm py-2" type="number" value="${defaultPF}" min="0.1" max="1.0" step="0.01" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.55rem;">PF</span>
+    </div>
+    <div class="input-group" style="min-width:0;">
+      <input id="ups-qty-${id}" class="wh-input text-sm py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.55rem;">qty</span>
+    </div>
+    <button onclick="document.getElementById('ups-load-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+  `;
+  document.getElementById('ups-load-list').appendChild(row);
+}
+
 function applyVDLimit(circuitType) {
   const el = document.getElementById('f-vd-limit');
   if (el) el.value = circuitType === 'Feeder' ? 2 : 3;
@@ -6671,6 +6839,27 @@ function collectInputs() {
       span_m:         parseFloat(getToggle('tg-ct-span')   || '1.5'),
       run_length_m:   parseFloat(v('f-ct-run'))             || 30,
       cables,
+    };
+  }
+
+  if (_calcType === 'UPS Sizing') {
+    const loads = [];
+    document.querySelectorAll('#ups-load-list > div[id^="ups-load-row-"]').forEach(row => {
+      const rid  = row.id.replace('ups-load-row-', '');
+      const desc = document.getElementById(`ups-desc-${rid}`)?.value || 'Load';
+      const va   = parseFloat(document.getElementById(`ups-va-${rid}`)?.value)  || 0;
+      const pf   = parseFloat(document.getElementById(`ups-pf-${rid}`)?.value)  || 0.9;
+      const qty  = parseFloat(document.getElementById(`ups-qty-${rid}`)?.value) || 1;
+      if (va > 0) loads.push({ description: desc, va_per_unit: va, power_factor: pf, qty });
+    });
+    return {
+      project_name:  v('f-project') || 'Untitled UPS Project',
+      topology:      getToggle('tg-ups-topology') || 'Online (Double-Conversion)',
+      phase:         getToggle('tg-ups-phase')    || '3-Phase',
+      backup_min:    parseFloat(getToggle('tg-ups-backup') || '30'),
+      growth_factor: parseFloat(getToggle('tg-ups-growth') || '1.20'),
+      ups_eff:       parseFloat(getToggle('tg-ups-eff')    || '0.96'),
+      loads,
     };
   }
 
@@ -7351,6 +7540,11 @@ async function runCalculation() {
       showToast('Please add at least one cable to the schedule.');
       return;
     }
+  } else if (_calcType === 'UPS Sizing') {
+    if (!inputs.loads || inputs.loads.length === 0) {
+      showToast('Please add at least one load to the load schedule.');
+      return;
+    }
   } else if (_calcType === 'Voltage Drop') {
     if (!inputs.current || inputs.current <= 0) {
       showToast('Please enter the load current.');
@@ -7594,6 +7788,8 @@ async function runCalculation() {
       renderPFCReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Cable Tray Sizing') {
       renderCableTrayReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'UPS Sizing') {
+      renderUPSSizingReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Load Estimation') {
       renderLoadReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Voltage Drop') {
@@ -9363,6 +9559,226 @@ function renderCableTrayReport(inputs, results, narrative) {
 
     <h2>9. RECOMMENDATIONS</h2>
     <p>${e(narrative?.recommendations || `Provide a ${selWidth} mm wide × ${depthMm} mm deep ${trayType} cable tray (NEMA VE 1 Load Class ${nemaClass}, hot-dip galvanized steel per NEMA VE 1 for indoor/industrial use or stainless steel for corrosive environments). Support at ${spanM} m centres on structural brackets anchored to walls or columns. ${deratingApplies ? `Actual fill (${fillActual}%) exceeds the ${trayType === 'Solid Bottom' ? '40%' : '30%'} threshold — apply 80% derating factor to all power conductor ampacities per NEC 392.80 (NEC 310.15). Verify that each conductor\'s derated ampacity equals or exceeds the design current.` : `Actual fill (${fillActual}%) does not exceed the ${trayType === 'Solid Bottom' ? '40%' : '30%'} threshold — no ampacity derating required.`} Separate power cables from control and instrumentation cables using a tray divider or separate tray per NEMA VE 2 to minimize EMI. Provide cover for outdoor sections or where physical damage is possible. All cable tray installation by a licensed master electrician under a PRC-licensed Electrical Engineer. A signed and sealed calculation must be submitted for building permit.`)}</p>
+
+    <!-- SIGNATURE BLOCK -->
+    <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div>
+        <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-size:0.78rem;font-weight:700;">${e(WORKER_NAME || '')}</div>
+          <div style="font-size:0.74rem;color:#555;">${e('Electrical Engineer')}</div>
+          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
+          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+        </div>
+      </div>
+      <div>
+        <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
+          <div style="font-size:0.74rem;color:#555;">${e('Electrical Engineer')}</div>
+          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
+          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+        </div>
+      </div>
+      <div>
+        <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
+          <div style="font-size:0.74rem;color:#555;">${e('Owner / Client Representative')}</div>
+          <div style="font-size:0.74rem;color:#555;">Date: ${e(dateStr)}</div>
+          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  panel.innerHTML = reportHTML;
+  showReport();
+}
+
+// ─── UPS Sizing Report ────────────────────────────────────────────────────────
+function renderUPSSizingReport(inputs, results, narrative) {
+  const panel = document.getElementById('report-panel');
+  if (!panel) return;
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
+
+  const topology      = inputs.topology      || 'Online (Double-Conversion)';
+  const phase         = inputs.phase         || '3-Phase';
+  const backupMin     = inputs.backup_min    || 30;
+  const growthFactor  = inputs.growth_factor || 1.20;
+  const upsEff        = inputs.ups_eff       || 0.96;
+  const projName      = inputs.project_name  || 'UPS Sizing Project';
+  const loads         = inputs.loads         || [];
+
+  const totalConnVA   = results.total_connected_va  ?? '';
+  const totalConnKW   = results.total_connected_kw  ?? '';
+  const avgPF         = results.avg_pf              ?? '';
+  const designVA      = results.design_va           ?? '';
+  const designKW      = results.design_kw           ?? '';
+  const selectedKVA   = results.selected_kva        ?? '';
+  const loadingPct    = results.loading_pct         ?? '';
+  const loadingOK     = Number(loadingPct) <= 80;
+  const battV         = results.battery_voltage_v   ?? '';
+  const cellsInSeries = results.cells_in_series     ?? '';
+  const ahRequired    = results.ah_required         ?? '';
+  const selectedAh    = results.selected_ah         ?? '';
+  const battConfig    = results.battery_config      ?? '';
+  const runtimeMin    = results.actual_runtime_min  ?? '';
+  const runtimeOK     = Number(runtimeMin) >= Number(backupMin);
+  const inputVA       = results.input_va            ?? '';
+  const inputCurrentA = results.input_current_a     ?? '';
+  const inputBreakerA = results.input_breaker_a     ?? '';
+  const outputCurrentA= results.output_current_a    ?? '';
+
+  // Build load schedule rows
+  const loadRows = loads.map((l, i) => {
+    const totalVA = (Number(l.va_per_unit) * Number(l.qty)).toFixed(0);
+    return `<tr>
+      <td class="num">${i + 1}</td>
+      <td>${e(l.description || 'Load')}</td>
+      <td class="num">${e(l.va_per_unit)}</td>
+      <td class="num">${e(l.power_factor ?? 0.9)}</td>
+      <td class="num">${e(l.qty)}</td>
+      <td class="num">${e(totalVA)}</td>
+    </tr>`;
+  }).join('');
+
+  const reportHTML = `
+  <div class="report-doc">
+    <!-- HEADER -->
+    <div class="report-header">
+      <div class="report-stamp">IEC 62040-3 | IEEE 446 | IEEE 1184 | PEC 2017 Art. 7</div>
+      <h1>UPS SIZING CALCULATION</h1>
+      <div class="report-subtitle">${e(projName)}</div>
+      <div class="report-meta">
+        Prepared by: ${e(WORKER_NAME || '')} &nbsp;|&nbsp; Date: ${e(dateStr)} &nbsp;|&nbsp;
+        Ref: ELEC-UPS-${now.toISOString().slice(0,10).replace(/-/g,'')}
+      </div>
+    </div>
+
+    <h2>1. OBJECTIVE</h2>
+    <p>${e(narrative?.objective || `To determine the minimum UPS kVA rating and battery bank Ah requirement for the ${projName} in accordance with IEC 62040-3, IEEE 446, IEEE 1184, and PEC 2017 Article 7.`)}</p>
+
+    <h2>2. STANDARDS REFERENCED</h2>
+    <table>
+      <tr><th>Standard</th><th>Description</th></tr>
+      <tr><td>IEC 62040-1</td><td>Safety Requirements for UPS Systems</td></tr>
+      <tr><td>IEC 62040-3</td><td>Performance Requirements and Test Methods — VFI/VI/VFD Classification</td></tr>
+      <tr><td>IEEE 446</td><td>Recommended Practice for Emergency and Standby Power (Buff Book)</td></tr>
+      <tr><td>IEEE 1184</td><td>Guide for Batteries for Uninterruptible Power Systems (VRLA Sizing)</td></tr>
+      <tr><td>PEC 2017 Art. 7</td><td>Emergency and Standby Systems (Philippine Electrical Code)</td></tr>
+    </table>
+
+    <h2>3. DESIGN BASIS</h2>
+    <table>
+      <tr><th>Parameter</th><th>Value</th></tr>
+      <tr><td>UPS Topology</td><td>${e(topology)} <span style="color:#888;font-size:0.78rem;">(IEC 62040-3 ${topology === 'Online (Double-Conversion)' ? 'VFI-SS-111' : topology === 'Line Interactive' ? 'VI-SS-111' : 'VFD-SS-111'})</span></td></tr>
+      <tr><td>Phase Configuration</td><td>${e(phase)}</td></tr>
+      <tr><td>Design Backup Time</td><td>${e(backupMin)} minutes</td></tr>
+      <tr><td>Growth Factor</td><td>${e(growthFactor)} × connected load</td></tr>
+      <tr><td>UPS Inverter Efficiency</td><td>${e(Math.round(Number(upsEff) * 100))}%</td></tr>
+      <tr><td>Battery DOD (VRLA per IEEE 1184)</td><td>80% maximum depth of discharge</td></tr>
+      <tr><td>Battery Cell Type</td><td>VRLA (Valve-Regulated Lead-Acid), 12V nominal per cell</td></tr>
+    </table>
+
+    <h2>4. CONNECTED LOAD SCHEDULE</h2>
+    <div style="overflow-x:auto;">
+    <table>
+      <tr>
+        <th class="num">No.</th><th>Description</th>
+        <th class="num">VA/Unit</th><th class="num">PF</th>
+        <th class="num">Qty</th><th class="num">Total VA</th>
+      </tr>
+      ${loadRows}
+      <tr class="total-row">
+        <td colspan="5"><strong>TOTAL CONNECTED LOAD</strong></td>
+        <td class="num"><strong>${e(totalConnVA)} VA</strong></td>
+      </tr>
+    </table>
+    </div>
+
+    <h2>5. UPS SIZING CALCULATION</h2>
+    <table>
+      <tr><th>Step</th><th>Parameter</th><th class="num">Value</th><th>Remarks</th></tr>
+      <tr><td>1</td><td>Total Connected VA</td><td class="num">${e(totalConnVA)}</td><td>VA — sum of all loads</td></tr>
+      <tr><td>2</td><td>Total Connected kW</td><td class="num">${e(totalConnKW)}</td><td>kW — weighted by PF</td></tr>
+      <tr><td>3</td><td>Weighted Average PF</td><td class="num">${e(avgPF)}</td><td>kW / VA_total</td></tr>
+      <tr><td>4</td><td>Design VA (×${e(growthFactor)} growth)</td><td class="num">${e(designVA)}</td><td>VA</td></tr>
+      <tr><td>5</td><td>Design kW (×${e(growthFactor)} growth)</td><td class="num">${e(designKW)}</td><td>kW</td></tr>
+      <tr><td>6</td><td>Min. UPS kVA at 80% Loading</td><td class="num">${e(Math.ceil(Number(designVA) / 1000 / 0.8 * 10) / 10)}</td><td>kVA — IEEE 446 §5.4 loading limit</td></tr>
+      <tr class="total-row"><td>7</td><td><strong>Selected Standard UPS</strong></td>
+        <td class="num"><strong>${e(selectedKVA)} kVA</strong></td>
+        <td><strong>${e(topology)}</strong></td>
+      </tr>
+      <tr><td>8</td><td>Actual Loading</td>
+        <td class="num" style="color:${loadingOK ? '#0a0' : '#c00'};"><strong>${e(loadingPct)}%</strong></td>
+        <td style="color:${loadingOK ? '#0a0' : '#c00'};">${loadingOK ? 'PASS — within 80% limit' : 'FAIL — exceeds 80% limit'}</td>
+      </tr>
+      <tr><td>9</td><td>Input VA (Output / η)</td><td class="num">${e(inputVA)}</td><td>VA — at ${e(Math.round(Number(upsEff)*100))}% UPS efficiency</td></tr>
+      <tr><td>10</td><td>Input Current (${phase})</td><td class="num">${e(inputCurrentA)}</td><td>A — at ${phase === '3-Phase' ? '415V L-L' : '230V'}</td></tr>
+      <tr class="total-row"><td>11</td><td><strong>Recommended Input Breaker</strong></td>
+        <td class="num"><strong>${e(inputBreakerA)} A</strong></td>
+        <td><strong>= 125% × ${e(inputCurrentA)} A, rounded up</strong></td>
+      </tr>
+      <tr><td>12</td><td>Output Current</td><td class="num">${e(outputCurrentA)}</td><td>A — at ${phase === '3-Phase' ? '415V L-L' : '230V'} full load</td></tr>
+    </table>
+
+    <h2>6. BATTERY BANK SIZING</h2>
+    <table>
+      <tr><th>Step</th><th>Parameter</th><th class="num">Value</th><th>Remarks</th></tr>
+      <tr><td>1</td><td>Design Load (kW)</td><td class="num">${e(designKW)}</td><td>kW at full design load</td></tr>
+      <tr><td>2</td><td>Backup Time Required</td><td class="num">${e(backupMin)}</td><td>minutes</td></tr>
+      <tr><td>3</td><td>Battery DC Bus Voltage</td><td class="num">${e(battV)}</td><td>V — ${e(cellsInSeries)} × 12V cells in series</td></tr>
+      <tr><td>4</td><td>VRLA DOD (IEEE 1184)</td><td class="num">0.80</td><td>80% max depth of discharge</td></tr>
+      <tr><td>5</td><td>UPS Efficiency</td><td class="num">${e(Math.round(Number(upsEff)*100))}%</td><td>Inverter/charger combined</td></tr>
+      <tr><td>6</td><td>Wire Efficiency</td><td class="num">98%</td><td>2% cable loss allowance</td></tr>
+      <tr><td>7</td><td>Ah = (kW × t_h) / (V_dc × DOD × η_UPS × η_wire)</td><td class="num">${e(ahRequired)}</td><td>Ah required</td></tr>
+      <tr class="total-row"><td>8</td><td><strong>Selected Standard Battery Ah</strong></td>
+        <td class="num"><strong>${e(selectedAh)} Ah</strong></td>
+        <td><strong>Next standard size ≥ ${e(ahRequired)} Ah</strong></td>
+      </tr>
+      <tr><td>9</td><td>Battery Configuration</td><td colspan="2">${e(battConfig)}</td></tr>
+      <tr class="total-row"><td>10</td><td><strong>Actual Autonomy (Verification)</strong></td>
+        <td class="num" style="color:${runtimeOK ? '#0a0' : '#c00'};"><strong>${e(runtimeMin)} min</strong></td>
+        <td style="color:${runtimeOK ? '#0a0' : '#c00'};"><strong>${runtimeOK ? `PASS — ≥ ${backupMin} min required` : `FAIL — below ${backupMin} min required`}</strong></td>
+      </tr>
+    </table>
+
+    <h2>7. RESULTS SUMMARY</h2>
+    <div class="results-grid">
+      <div class="result-highlight">
+        <div class="res-label">Selected UPS</div>
+        <div class="res-value">${e(selectedKVA)} kVA</div>
+        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${e(topology)}</div>
+      </div>
+      <div class="result-highlight">
+        <div class="res-label">System Loading</div>
+        <div class="res-value" style="color:${loadingOK ? '#22c55e' : '#ef4444'};">${e(loadingPct)}%</div>
+        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${loadingOK ? 'PASS — ≤ 80%' : 'FAIL — > 80%'}</div>
+      </div>
+      <div class="result-highlight">
+        <div class="res-label">Battery Bank</div>
+        <div class="res-value" style="font-size:0.9rem;">${e(battConfig)}</div>
+        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">VRLA @ ${e(battV)}V DC bus</div>
+      </div>
+      <div class="result-highlight">
+        <div class="res-label">Backup Autonomy</div>
+        <div class="res-value" style="color:${runtimeOK ? '#22c55e' : '#ef4444'};">${e(runtimeMin)} min</div>
+        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${runtimeOK ? `PASS — ≥ ${backupMin} min` : `FAIL — < ${backupMin} min`}</div>
+      </div>
+      <div class="result-highlight">
+        <div class="res-label">Input Breaker</div>
+        <div class="res-value">${e(inputBreakerA)} A</div>
+        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">Dedicated circuit</div>
+      </div>
+      <div class="result-highlight">
+        <div class="res-label">Output Current</div>
+        <div class="res-value">${e(outputCurrentA)} A</div>
+        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${phase === '3-Phase' ? '415V 3-Phase' : '230V 1-Phase'}</div>
+      </div>
+    </div>
+
+    <h2>8. RECOMMENDATIONS</h2>
+    <p>${e(narrative?.recommendations || `Install a ${selectedKVA} kVA ${topology} UPS (IEC 62040-3 ${topology === 'Online (Double-Conversion)' ? 'VFI-SS-111' : topology === 'Line Interactive' ? 'VI-SS-111' : 'VFD-SS-111'}) at the proposed location. System loading is ${loadingPct}% — within the IEEE 446 recommended ≤ 80% limit. Battery bank: ${battConfig}, rated backup ${runtimeMin} minutes at design load. Provide a static bypass module to allow UPS maintenance without interrupting supply to critical loads. Input supply shall be from a dedicated ${inputBreakerA}A MCCB circuit; do not share with other loads. Commission with a full-load battery discharge test per IEC 62040-3 and verify actual runtime ≥ ${backupMin} minutes before handover. Plan battery replacement at Year 3 for unconditioned equipment rooms or Year 5 for air-conditioned spaces per IEEE 1184 life expectancy guidance. A PRC-licensed Electrical Engineer must sign and seal this calculation for building permit submission.`)}</p>
 
     <!-- SIGNATURE BLOCK -->
     <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
@@ -12916,6 +13332,8 @@ function viewHistoryReport(row) {
     renderPFCReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Cable Tray Sizing') {
     renderCableTrayReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'UPS Sizing') {
+    renderUPSSizingReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
@@ -12952,7 +13370,7 @@ async function generateBomSowChecklist() {
   if (!_lastResults || !_lastInputs) { showToast('Run a calculation first.'); return; }
   const BOM_SOW_SUPPORTED = {
     'Mechanical': ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air', 'Boiler System'],
-    'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design', 'Generator Sizing', 'Solar PV System', 'Power Factor Correction', 'Cable Tray Sizing'],
+    'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design', 'Generator Sizing', 'Solar PV System', 'Power Factor Correction', 'Cable Tray Sizing', 'UPS Sizing'],
     'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)', 'Storm Drain / Stormwater'],
     'Fire Protection':         ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],
     'Vertical Transportation': ['Elevator Traffic Analysis', 'Hoist Capacity'],
@@ -13154,6 +13572,7 @@ function renderBomTablePreview(items) {
   const isSolarPV  = _calcType === 'Solar PV System';
   const isPFC      = _calcType === 'Power Factor Correction';
   const isCT       = _calcType === 'Cable Tray Sizing';
+  const isUPS      = _calcType === 'UPS Sizing';
   const isFSprink  = _calcType === 'Fire Sprinkler Hydraulic';
   const isFPump    = _calcType === 'Fire Pump Sizing';
   const isSPress   = _calcType === 'Stairwell Pressurization';
@@ -13163,7 +13582,7 @@ function renderBomTablePreview(items) {
   const isChiller   = _calcType === 'Chiller System — Air Cooled';
   const isChillerWC = _calcType === 'Chiller System — Water Cooled';
   const isAHU       = _calcType === 'AHU Sizing';
-  const calcRef = `${isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const calcRef = `${isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const disciplineSystem = isAHU
     ? `HVAC Systems — AHU (${_lastResults?.n_units || ''}× ${_lastResults?.nominal_AHU_CMH_each || ''}CMH, ${_lastResults?.Q_coil_total_kW || ''}kW/${_lastResults?.Q_coil_TR || ''}TR coil, ${_lastResults?.fan_hp_std || ''}HP fan, CHW ${_lastResults?.chw_supply_C || ''}/${_lastResults?.chw_return_C || ''}°C, ${_lastResults?.Q_chw_lps || ''}L/s)`
     : isChillerWC
@@ -13194,6 +13613,8 @@ function renderBomTablePreview(items) {
     ? `Electrical — Load Estimation (${_lastResults?.phase_config || _lastInputs?.phase_config || '3-Phase'}, ${_lastResults?.total_demand_kva || ''}kVA Demand, ${_lastResults?.recommended_breaker_A || ''}A Main Breaker)`
     : isSolarPV
     ? `Electrical — Solar PV System (${_lastResults?.system_type || ''}, ${_lastResults?.location || ''} ${_lastResults?.psh_hr || ''}h PSH, Array ${_lastResults?.actual_array_kwp || ''}kWp, ${_lastResults?.panel_qty || ''}× ${_lastInputs?.panel_wp || ''}Wp panels, Inverter ${_lastResults?.inverter_kw || ''}kW, Annual Yield ${_lastResults?.annual_yield_kwh || ''}kWh/yr)`
+    : isUPS
+    ? `Electrical — UPS Sizing (${_lastInputs?.topology || 'Online'}, ${_lastInputs?.phase || '3-Phase'}, ${_lastResults?.selected_kva || ''}kVA, Loading ${_lastResults?.loading_pct || ''}%, Battery ${_lastResults?.battery_config || ''}, Backup ${_lastResults?.actual_runtime_min || ''}min, Input Breaker ${_lastResults?.input_breaker_a || ''}A)`
     : isCT
     ? `Electrical — Cable Tray Sizing (${_lastInputs?.tray_type || 'Ladder'}, ${_lastResults?.selected_width_mm || ''}mm W × ${_lastInputs?.depth_mm || ''}mm D, Fill ${_lastResults?.fill_actual_pct || ''}% (${_lastResults?.fill_check || ''}), Load Class ${_lastResults?.nema_load_class || ''}, Derating ${_lastResults?.derating_factor || 1.0}×, Span ${_lastInputs?.span_m || ''}m)`
     : isPFC
@@ -13328,6 +13749,8 @@ function renderBomTablePreview(items) {
             ? `Quantities are based on the Generator Sizing design calculation result (ISO 8528-1, PEC 2017 Article 7, NFPA 110). Selected genset: ${_lastResults?.selected_kva || ''}kVA / ${_lastResults?.selected_kw || ''}kW at PF 0.8 for ${_lastResults?.application || ''} service. Engineer shall verify all quantities on-site before procurement. All equipment and materials shall conform to ISO 8528-1, PEC 2017, NFPA 110, IEC 60947, and DENR AO 2016-07 emission standards. Factory test certificates and as-built drawings shall be submitted for Engineer's approval. Contractor shall obtain all required permits including Electrical Permit, DOLE OSH installation permit, and LGU/DENR fuel storage permit prior to commencement.`
             : isCT
             ? `Quantities are based on the Cable Tray Sizing design calculation result (NEMA VE 1 Load Class ${_lastResults?.nema_load_class || ''}, NEC Article 392, PEC 2017 Article 3.92). Selected tray: ${_lastResults?.selected_width_mm || ''}mm W × ${_lastInputs?.depth_mm || ''}mm D ${_lastInputs?.tray_type || 'Ladder'} type, actual fill ${_lastResults?.fill_actual_pct || ''}% (${_lastResults?.fill_check || ''}), span ${_lastInputs?.span_m || ''}m, run ${_lastInputs?.run_length_m || ''}m. ${Number(_lastResults?.derating_factor) < 1.0 ? `Ampacity derating factor ${_lastResults?.derating_factor}× applies — conductor ampacities shall be derated per NEC 392.80 / NEC 310.15 before procurement of cables.` : `No ampacity derating required — fill does not exceed the ${_lastInputs?.tray_type === 'Solid Bottom' ? '40%' : '30%'} threshold.`} Engineer shall verify all quantities on-site before procurement. All cable tray materials shall carry NEMA VE 1 compliance certification and hot-dip galvanizing certificate (ASTM A123). Contractor shall submit material data sheets, load class certificates, and galvanizing certificates for Engineer's approval prior to procurement.`
+            : isUPS
+            ? `Quantities are based on the UPS Sizing design calculation result (IEC 62040-3, IEEE 446, IEEE 1184, PEC 2017 Article 7). Selected UPS: ${_lastResults?.selected_kva || ''}kVA ${_lastInputs?.topology || 'Online (Double-Conversion)'}, ${_lastInputs?.phase || '3-Phase'}, system loading ${_lastResults?.loading_pct || ''}% (≤ 80% limit per IEEE 446). Battery bank: ${_lastResults?.battery_config || ''} — rated backup ${_lastResults?.actual_runtime_min || ''}min at design load. Input breaker: ${_lastResults?.input_breaker_a || ''}A. ${_lastResults?.loading_pct > 80 ? 'WARNING: System loading exceeds 80% — increase UPS kVA or reduce connected load before procurement.' : 'System loading is within the recommended 80% limit.'} Engineer shall verify all quantities on-site before procurement. UPS shall carry IEC 62040-1 / IEC 62040-3 certification. Submit UPS datasheet, battery runtime test certificate, and panel single-line diagram for Engineer\'s approval prior to procurement.`
             : `Quantities are based on the HVAC Cooling Load design calculation result. Engineer shall verify all quantities on-site before procurement. All materials shall conform to applicable Philippine and international standards (PSME, ASHRAE, PEC 2017). Contractor shall submit material submittals for Engineer's approval prior to procurement.`
           }
         </div>
@@ -13407,6 +13830,7 @@ function renderSowDocPreview(sections) {
   const isSolarPVS = _calcType === 'Solar PV System';
   const isPFCS     = _calcType === 'Power Factor Correction';
   const isCTS      = _calcType === 'Cable Tray Sizing';
+  const isUPSS     = _calcType === 'UPS Sizing';
   const isFSprink  = _calcType === 'Fire Sprinkler Hydraulic';
   const isFPump    = _calcType === 'Fire Pump Sizing';
   const isSPress   = _calcType === 'Stairwell Pressurization';
@@ -13416,7 +13840,7 @@ function renderSowDocPreview(sections) {
   const isChillerS   = _calcType === 'Chiller System — Air Cooled';
   const isChillerWCS = _calcType === 'Chiller System — Water Cooled';
   const isAHUS       = _calcType === 'AHU Sizing';
-  const calcRef = `${isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const calcRef = `${isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
@@ -13449,6 +13873,8 @@ function renderSowDocPreview(sections) {
     ? `Voltage Drop Compliance — ${_lastResults?.circuit_type || _lastInputs?.circuit_type || 'Branch Circuit'}, ${_lastResults?.phase || _lastInputs?.phase || 'Single-phase'} ${_lastResults?.voltage || _lastInputs?.voltage || 230}V, ${_lastResults?.current || _lastInputs?.current || ''}A, ${_lastResults?.wire_length || _lastInputs?.wire_length || ''}m run, ${_lastResults?.conductor_mm2 || _lastInputs?.conductor_mm2 || ''}mm² ${_lastResults?.conductor_mat || _lastInputs?.conductor_mat || 'Copper'} THHN/THWN, VD ${_lastResults?.vd_pct || ''}% (limit ${_lastResults?.vd_limit || 3}%) — ${_lastResults?.pass ? 'PASS' : 'FAIL'}`
     : isLoadEst
     ? `Electrical Distribution — ${_lastResults?.phase_config || _lastInputs?.phase_config || '3-Phase 4-Wire (400V)'}, Connected Load ${_lastResults?.total_connected_kva || ''}kVA, Demand Load ${_lastResults?.total_demand_kva || ''}kVA (${_lastResults?.total_demand_kw || ''}kW), Computed Ampacity ${_lastResults?.computed_ampacity || ''}A, Main Breaker ${_lastResults?.recommended_breaker_A || ''}A`
+    : isUPSS
+    ? `UPS Sizing — ${_lastInputs?.topology || 'Online (Double-Conversion)'}, ${_lastInputs?.phase || '3-Phase'}, Connected ${_lastResults?.total_connected_va || ''}VA → Design ${_lastResults?.design_va || ''}VA (×${_lastInputs?.growth_factor || 1.2}), Selected ${_lastResults?.selected_kva || ''}kVA UPS (Loading ${_lastResults?.loading_pct || ''}%), Battery ${_lastResults?.battery_config || ''}, Backup ${_lastResults?.actual_runtime_min || ''}min, Input Breaker ${_lastResults?.input_breaker_a || ''}A`
     : isCTS
     ? `Cable Tray Sizing — ${_lastInputs?.tray_type || 'Ladder'} Tray, ${_lastResults?.selected_width_mm || ''}mm W × ${_lastInputs?.depth_mm || ''}mm D, Total Fill Area ${_lastResults?.total_fill_area_mm2 || ''} mm², Fill ${_lastResults?.fill_actual_pct || ''}% (Limit ${_lastInputs?.fill_ratio_pct || 40}%) — ${_lastResults?.fill_check || ''}, NEMA Load Class ${_lastResults?.nema_load_class || ''}, Derating Factor ${_lastResults?.derating_factor || 1.0}×, Span ${_lastInputs?.span_m || ''}m, Run ${_lastInputs?.run_length_m || ''}m`
     : isPFCS
@@ -13583,6 +14009,8 @@ ${isLight
   ? `This Scope of Works is based on the Generator Sizing Design Calculation (Ref: ${escHtml(calcRef)}) per ISO 8528-1, PEC 2017 Article 7 (Emergency and Standby Systems), and NFPA 110 (Emergency and Standby Power Systems). The selected ${_lastResults?.selected_kva || ''}kVA / ${_lastResults?.selected_kw || ''}kW diesel generator set is rated for ${_lastResults?.application || ''} service at ${_lastResults?.phase_config || _lastInputs?.phase_config || '3-Phase'} 415V/240V 60 Hz, with a system loading of ${_lastResults?.loading_pct || ''}% at running demand. The ATS shall transfer to emergency power within 10 seconds per NFPA 110 Level 1 requirements. The minimum fuel tank capacity of ${_lastResults?.tank_8hr_litres || ''}L ensures 8-hour continuous operation at 100% load as required by NFPA 110. The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including: PEC 2017 Article 7 (standby system wiring), NFPA 110 (transfer time, fuel storage, periodic testing), ISO 8528-1 (genset ratings and acceptance testing), IEC 60947 (ATS and switchgear), DENR AO 2016-07 (diesel engine emission standards), DOLE OSH mechanical and electrical installation permit requirements, and LGU/DENR fuel storage permit for tanks exceeding 200L. A block load acceptance test at 25%/50%/75%/100% rated load shall be witnessed by the Engineer and a licensed PRC Electrical Engineer (PEE) before practical completion. As-built drawings, O&M manual, factory test certificate, and warranty registration shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isCTS
   ? `This Scope of Works is based on the Cable Tray Sizing Design Calculation (Ref: ${escHtml(calcRef)}) per NEMA VE 1 (Metal Cable Tray Systems), NEMA VE 2 (Installation Guidelines), NEC Article 392 (Cable Trays), NEC Section 310.15 (Ampacity), and PEC 2017 Article 3.92. The selected cable tray is ${_lastResults?.selected_width_mm || ''}mm wide × ${_lastInputs?.depth_mm || ''}mm deep ${_lastInputs?.tray_type || 'Ladder'} type, NEMA VE 1 Load Class ${_lastResults?.nema_load_class || ''}, supported at ${_lastInputs?.span_m || ''}m centres, total run ${_lastInputs?.run_length_m || ''}m. Actual cable fill: ${_lastResults?.fill_actual_pct || ''}% (limit ${_lastInputs?.fill_ratio_pct || 40}%) — ${_lastResults?.fill_check || ''}. ${Number(_lastResults?.derating_factor) < 1.0 ? `NOTE: Actual fill exceeds the ${_lastInputs?.tray_type === 'Solid Bottom' ? '40%' : '30%'} derating threshold — all power conductor ampacities shall be derated to ${Math.round(Number(_lastResults?.derating_factor) * 100)}% per NEC 392.80 / NEC 310.15. Verify derated ampacity meets design current before cable procurement.` : `No ampacity derating required — fill does not exceed the ${_lastInputs?.tray_type === 'Solid Bottom' ? '40%' : '30%'} threshold per NEC 392.80.`} The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including: NEMA VE 1 and NEMA VE 2 (material, fabrication, installation, and earthing of metal cable tray systems), NEC Article 392 and PEC 2017 Article 3.92 (fill limits, support spacing, cable grouping, and earthing continuity), NEC 310.15 (conductor ampacity derating where applicable), PEC Article 2.50 (earthing and bonding — copper bonding jumpers at every splice and earthing lugs at every support bracket), and DOLE OSH Electrical Safety Standards. All cable tray materials shall carry NEMA VE 1 compliance certification and hot-dip galvanizing certificate (ASTM A123 minimum 85 µm average coating). Power cables shall be segregated from control and instrumentation cables by a tray divider or separate adjacent tray per NEMA VE 2. An Electrical Permit shall be obtained from the LGU prior to commencement. All electrical works shall be performed by a licensed master electrician under the supervision of a PRC-licensed Electrical Engineer. As-built cable tray layout drawings, NEMA VE 1 certificates, galvanizing test reports, and earth continuity test results (end-to-end resistance ≤ 1 Ω) shall be submitted to the Owner and Engineer upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  : isUPSS
+  ? `This Scope of Works is based on the UPS Sizing Design Calculation (Ref: ${escHtml(calcRef)}) per IEC 62040-1 (Safety Requirements for UPS), IEC 62040-3 (Performance Requirements — ${_lastInputs?.topology || 'Online (Double-Conversion)'} class), IEEE 446 (Emergency and Standby Power), IEEE 1184 (Batteries for UPS), and PEC 2017 Article 7 (Emergency and Standby Systems). The selected UPS is ${_lastResults?.selected_kva || ''}kVA ${_lastInputs?.topology || 'Online (Double-Conversion)'} type, ${_lastInputs?.phase || '3-Phase'}, with a system loading of ${_lastResults?.loading_pct || ''}% of rated kVA. The battery bank is ${_lastResults?.battery_config || ''}, rated for a minimum backup autonomy of ${_lastResults?.actual_runtime_min || ''} minutes at design load. The input supply shall be from a dedicated ${_lastResults?.input_breaker_a || ''}A circuit breaker, and the UPS shall be provided with a static bypass for maintenance. The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including: IEC 62040-1 and IEC 62040-3 (UPS safety and performance), IEEE 446 (loading limits — ≤ 80% of rated kVA), IEEE 1184 (VRLA battery sizing, DOD = 80%, replacement at ≤ 80% rated capacity), PEC 2017 Article 7 (dedicated branch circuit, LGU Electrical Permit, signed and sealed calculation), and DOLE OSH Electrical Safety Standards. The UPS shall carry IEC 62040-1 / IEC 62040-3 certification from an accredited test laboratory. VRLA batteries shall be from a reputable manufacturer with a minimum 3-year warranty. An Electrical Permit shall be obtained from the LGU prior to installation. All electrical works shall be performed by a licensed master electrician under the supervision of a PRC-licensed Electrical Engineer. Commissioning shall include a full-load battery discharge test per IEC 62040-3 — actual measured runtime shall equal or exceed the design backup time. As-built single-line diagram, UPS commissioning test report, battery runtime test results, and equipment warranty documents shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : `This Scope of Works is based on the HVAC Cooling Load Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including PSME, ASHRAE, PEC 2017, and DOLE OSH Standards. Any deviations from this scope must be approved in writing by the Engineer before execution. The Contractor shall coordinate with other trades to avoid conflicts and ensure a complete and functional installation.`
 }
         </div>

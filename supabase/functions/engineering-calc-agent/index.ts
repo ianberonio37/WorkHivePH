@@ -1692,6 +1692,16 @@ Respond in JSON format only:
       const df      = rec.derating_factor    ?? 1.0;
       const derate  = Number(df) < 1.0;
       recommendations = `Provide a ${selW} mm wide × ${depth} mm deep ${tType} cable tray (NEMA VE 1 Load Class ${nema}, hot-dip galvanized steel for industrial use). Support at ${span} m centres. Actual cable fill: ${fill}% — Fill Check: ${fillChk} per NEC 392.22. ${derate ? `Fill exceeds 30% derating threshold — apply 80% derating factor to all power conductor ampacities per NEC 392.80 (NEC 310.15). Verify each conductor's derated ampacity equals or exceeds its design current.` : `Actual fill does not exceed 30% — no ampacity derating required for ${tType} tray.`} Separate power cables from control and instrumentation cables using a tray divider or a separate adjacent tray per NEMA VE 2 to minimize electromagnetic interference. Provide covers for outdoor sections or where physical protection is needed. A PRC-licensed Electrical Engineer must sign and seal this calculation for building permit submission.`;
+    } else if (calcType === "UPS Sizing") {
+      const selKVA   = rec.selected_kva        ?? '';
+      const loadPct  = rec.loading_pct         ?? '';
+      const bCfg     = rec.battery_config      ?? '';
+      const bMin     = rec.actual_runtime_min  ?? '';
+      const brkA     = rec.input_breaker_a     ?? '';
+      const topo     = (inputs.topology as string) || 'Online (Double-Conversion)';
+      const backup   = (inputs.backup_min as number) || 30;
+      const iecClass = topo === 'Online (Double-Conversion)' ? 'VFI-SS-111' : topo === 'Line Interactive' ? 'VI-SS-111' : 'VFD-SS-111';
+      recommendations = `Install a ${selKVA} kVA ${topo} UPS (IEC 62040-3 ${iecClass}) at the proposed location. System loading is ${loadPct}% — within the IEEE 446 recommended ≤ 80% limit for thermal headroom and future load additions. Battery bank: ${bCfg}, rated backup ${bMin} minutes at design load (required: ${backup} min). Provide a static bypass module to allow UPS maintenance without interrupting supply to critical loads. Input supply shall be from a dedicated ${brkA}A MCCB circuit — do not share with non-critical loads. Commission with a full-load battery discharge test per IEC 62040-3 and verify actual runtime ≥ ${backup} minutes before handover. Plan VRLA battery replacement at Year 3 for unconditioned rooms or Year 5 for air-conditioned spaces per IEEE 1184. A PRC-licensed Electrical Engineer must sign and seal this calculation for building permit submission.`;
     } else if (calcType === "Bolt Torque & Preload") {
       const torque = rec.torque_Nm ?? '';
       const size   = (inputs.bolt_size as string) || '';
@@ -4316,6 +4326,110 @@ function calcCableTray(inputs: Record<string, unknown>): Record<string, unknown>
   };
 }
 
+// ─── Electrical: UPS Sizing — IEC 62040-3 / IEEE 446 / IEEE 1184 / PEC Art. 7 ─
+
+function calcUPS(inputs: Record<string, unknown>): Record<string, unknown> {
+  const round2 = (v: number) => Math.round(v * 100) / 100;
+
+  const topology     = String(inputs.topology    || 'Online (Double-Conversion)');
+  const phase        = String(inputs.phase       || '3-Phase');
+  const backupMin    = Number(inputs.backup_min  || 30);
+  const growthFactor = Number(inputs.growth_factor || 1.20);
+  const upsEff       = Number(inputs.ups_eff     || 0.96);
+  const loads        = (inputs.loads as Array<{ description: string; va_per_unit: number; power_factor: number; qty: number }>) || [];
+
+  // Step 1: Total connected VA and weighted W
+  let totalConnectedVA = 0;
+  let totalConnectedW  = 0;
+  for (const load of loads) {
+    const loadVA = Number(load.va_per_unit) * Number(load.qty);
+    const loadW  = loadVA * Number(load.power_factor || 0.9);
+    totalConnectedVA += loadVA;
+    totalConnectedW  += loadW;
+  }
+  totalConnectedVA = round2(totalConnectedVA);
+  totalConnectedW  = round2(totalConnectedW);
+  const avgPF = totalConnectedVA > 0 ? round2(totalConnectedW / totalConnectedVA) : 0.90;
+
+  // Step 2: Design VA / kW with growth factor
+  const designVA = round2(totalConnectedVA * growthFactor);
+  const designKW = round2(totalConnectedW  * growthFactor);
+
+  // Step 3: Select standard UPS kVA (at 80% loading recommendation per IEEE 446)
+  const minKVA = designVA / 1000 / 0.8;
+  const stdSizes = [1,2,3,5,6,8,10,15,20,25,30,40,50,60,80,100,120,160,200,250,300,400,500];
+  const selectedKVA = stdSizes.find(s => s >= minKVA) ?? Math.ceil(minKVA / 50) * 50;
+  const loadingPct  = round2((designVA / (selectedKVA * 1000)) * 100);
+
+  // Step 4: Battery DC bus voltage auto-selection
+  let batteryV: number;
+  let cellsInSeries: number;
+  if      (selectedKVA <= 10)  { batteryV = 96;  cellsInSeries = 8;  }
+  else if (selectedKVA <= 40)  { batteryV = 192; cellsInSeries = 16; }
+  else if (selectedKVA <= 100) { batteryV = 240; cellsInSeries = 20; }
+  else                         { batteryV = 480; cellsInSeries = 40; }
+
+  // Step 5: Battery Ah required
+  // Ah = (kW_design × t_h) / (V_dc × DOD × η_UPS × η_wire)
+  const DOD      = 0.80;
+  const wireEff  = 0.98;
+  const ahRequired = round2(
+    (designKW * (backupMin / 60)) / (batteryV / 1000 * DOD * upsEff * wireEff)
+  );
+
+  // Step 6: Select standard Ah
+  const stdAh = [7,9,12,17,26,38,40,65,100,150,200,250,300,400,500];
+  const selectedAh = stdAh.find(a => a >= ahRequired) ?? Math.ceil(ahRequired / 50) * 50;
+  const batteryConfig = `${cellsInSeries} × 12V ${selectedAh}Ah VRLA (sealed lead-acid)`;
+
+  // Step 7: Actual runtime verification
+  const actualRuntimeMin = round2(
+    (selectedAh * (batteryV / 1000) * DOD * upsEff * wireEff) / designKW * 60
+  );
+
+  // Step 8: Input power and current
+  const inputVA = round2(designVA / upsEff);
+  const inputKW = round2(designKW / upsEff);
+  const voltageIn = phase === '3-Phase' ? 415 : 230;
+  const inputCurrentA = phase === '3-Phase'
+    ? round2(inputVA / (Math.sqrt(3) * voltageIn))
+    : round2(inputVA / voltageIn);
+
+  // Step 9: Input breaker at 125% per PEC Art. 7
+  const stdBreakers = [16,20,25,32,40,50,63,80,100,125,160,200,250,315,400,500,630,800,1000,1250];
+  const inputBreakerA = stdBreakers.find(b => b >= inputCurrentA * 1.25) ?? Math.ceil(inputCurrentA * 1.25 / 100) * 100;
+
+  // Step 10: Output current
+  const voltageOut = phase === '3-Phase' ? 415 : 230;
+  const outputCurrentA = phase === '3-Phase'
+    ? round2(designVA / (Math.sqrt(3) * voltageOut))
+    : round2(designVA / voltageOut);
+
+  return {
+    topology,
+    phase,
+    total_connected_va:  totalConnectedVA,
+    total_connected_kw:  totalConnectedW,
+    avg_pf:              avgPF,
+    design_va:           designVA,
+    design_kw:           designKW,
+    growth_factor:       growthFactor,
+    selected_kva:        selectedKVA,
+    loading_pct:         loadingPct,
+    battery_voltage_v:   batteryV,
+    cells_in_series:     cellsInSeries,
+    ah_required:         ahRequired,
+    selected_ah:         selectedAh,
+    battery_config:      batteryConfig,
+    actual_runtime_min:  actualRuntimeMin,
+    input_va:            inputVA,
+    input_kw:            inputKW,
+    input_current_a:     inputCurrentA,
+    input_breaker_a:     inputBreakerA,
+    output_current_a:    outputCurrentA,
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -4409,6 +4523,8 @@ serve(async (req) => {
       results = calcPFC(inputs);
     } else if (calc_type === "Cable Tray Sizing") {
       results = calcCableTray(inputs);
+    } else if (calc_type === "UPS Sizing") {
+      results = calcUPS(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

@@ -1747,6 +1747,69 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Electrical: UPS Sizing BOM + SOW Agent ──────────────────────────────────
+
+async function upsSizingBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project      = inputs.project_name    || "UPS Installation Project";
+  const topology     = inputs.topology        || "Online (Double-Conversion)";
+  const phase        = inputs.phase           || "3-Phase";
+  const backupMin    = inputs.backup_min      || 30;
+  const growthFactor = inputs.growth_factor   || 1.20;
+  const upsEff       = inputs.ups_eff         || 0.96;
+  const selectedKVA  = results.selected_kva   || "";
+  const loadingPct   = results.loading_pct    || "";
+  const battConfig   = results.battery_config || "";
+  const battV        = results.battery_voltage_v || "";
+  const selectedAh   = results.selected_ah    || "";
+  const runtimeMin   = results.actual_runtime_min || "";
+  const inputBreakerA= results.input_breaker_a || "";
+  const inputCurrentA= results.input_current_a || "";
+  const iecClass     = topology === "Online (Double-Conversion)" ? "VFI-SS-111" : topology === "Line Interactive" ? "VI-SS-111" : "VFD-SS-111";
+
+  const prompt = `You are a Philippine electrical engineering expert (IEC 62040-3, IEEE 446, IEEE 1184, PEC 2017 Article 7). Generate a professional BOM and SOW for a UPS SIZING and installation project.
+
+PROJECT: ${project}
+UPS TOPOLOGY: ${topology} (IEC 62040-3 ${iecClass})
+PHASE: ${phase}
+SELECTED UPS: ${selectedKVA} kVA
+SYSTEM LOADING: ${loadingPct}% (≤ 80% recommended per IEEE 446)
+GROWTH FACTOR: ${growthFactor}×
+UPS EFFICIENCY: ${Math.round(Number(upsEff) * 100)}%
+BATTERY BANK: ${battConfig} (${battV}V DC bus, ${selectedAh}Ah per string)
+BACKUP AUTONOMY: ${runtimeMin} minutes at design load (required: ${backupMin} min)
+INPUT BREAKER: ${inputBreakerA}A dedicated MCCB
+INPUT CURRENT: ${inputCurrentA}A at full load
+STANDARDS: IEC 62040-1, IEC 62040-3 (${iecClass}), IEEE 446, IEEE 1184, PEC 2017 Article 7
+
+Generate a JSON object with:
+1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: UPS Main Unit (${selectedKVA} kVA ${topology} UPS, IEC 62040-3 ${iecClass} certified, ${phase}, input voltage ${phase === "3-Phase" ? "415V ±15% 3-phase 4-wire 60Hz" : "230V ±15% single-phase 60Hz"}, output voltage ${phase === "3-Phase" ? "415V/240V" : "230V"} ±2% regulated, THDv < 2% at linear load, efficiency ≥ ${Math.round(Number(upsEff) * 100)}%, static bypass included, RS-232/SNMP monitoring port, hot-swappable batteries if applicable), Static Bypass Panel (motorized static bypass with open/neutral/UPS positions — for maintenance without loss of supply to critical loads — rated for ${selectedKVA} kVA), Maintenance Bypass Breaker (manual maintenance bypass MCCB, ${Math.ceil(Number(inputCurrentA) * 1.25)} A, interlocked with UPS output breaker to prevent paralleling), VRLA Battery Cabinets (${battConfig} — factory-assembled battery string in ventilated steel cabinet with battery management system, temperature sensor, and individual cell fusing — IEC 62040-1 rated), Battery Disconnect Switch (lockable DC isolator switch rated for ${battV}V DC, ${Math.ceil(Number(selectedAh) * 1.2)} A — one per battery string, for maintenance isolation), Battery Cable Set (flexible copper battery cables, cross-linked PE insulation rated for ${battV}V DC, colour-coded red/black, pre-terminated with compression lugs — complete set per string), UPS Input Isolator / Incomer MCCB (${inputBreakerA}A MCCB, 3-pole, interrupt capacity ≥ 25 kA at 415V — for dedicated UPS input feeder from main distribution panel), UPS Output Distribution Panel (busbar rated for ${selectedKVA} kVA, with individual outgoing MCBs or MCCBs for each critical load circuit — labelled, lockable, with surge protection device on outgoing bus), Network UPS / SNMP Card (SNMP v1/v2/v3 card for remote monitoring of UPS status, battery level, load %, alarms, runtime remaining — integration with building management system or DCIM if applicable), UPS Monitoring Software (vendor-supplied UPS software licence for graceful shutdown of servers on battery — compatible with major hypervisors; include 1-year support subscription), Equipment Base Frame / Seismic Anchor Set (galvanized steel housekeeping pad or anti-vibration isolation frame, seismic anchor bolts for floor fixing of UPS and battery cabinets per ASCE 7 seismic zone requirements), Power Cable — UPS Input (THHN/THWN copper, sized for ${inputBreakerA}A feeder, in EMT or RSC conduit from MDB to UPS input incomer — length per drawing), Power Cable — UPS Output (THHN/THWN copper, sized per output panel schedule, in EMT conduit from UPS to output distribution panel — length per drawing), Earthing and Bonding Set (copper earthing conductor 16–25 mm² from UPS frame, battery cabinet frame, and bypass panel to building earth bus — complete with compression lugs and earth label tags per PEC Article 2.50)
+
+2. "sow_sections": array of 7 sections (each: section_no, title, content)
+   Write each content as a full professional paragraph starting with "The Contractor shall..." — do NOT use bullet points. Each section must be 3–6 sentences of contractor-facing specification language.
+   Cover:
+   Section 1 — Scope of Works and Design Basis: state this SOW covers supply, installation, commissioning, and testing of a ${selectedKVA} kVA ${topology} UPS system (IEC 62040-3 ${iecClass}) for project ${project}; reference calculation basis (IEEE 446 loading ${loadingPct}% ≤ 80%, backup autonomy ${runtimeMin} min ≥ ${backupMin} min required, growth factor ${growthFactor}×); state battery bank is ${battConfig} at ${battV}V DC bus; state input incomer is ${inputBreakerA}A dedicated MCCB and static bypass is included for maintenance
+   Section 2 — Material Supply and Factory Certification: cover supply of a ${selectedKVA} kVA ${topology} UPS carrying valid IEC 62040-1 and IEC 62040-3 ${iecClass} certificates from an accredited test laboratory; require submission of UPS datasheet, factory test report (load bank discharge test at 100% load confirming ≥ ${runtimeMin} min runtime), battery datasheet (IEC 62040-1 rated VRLA, ${selectedAh}Ah per cell), and SNMP card specifications for Engineer's approval before procurement; specify that the UPS manufacturer shall provide a minimum 2-year warranty on the UPS unit and batteries
+   Section 3 — Installation Requirements: cover installation of UPS and battery cabinets on a galvanized steel housekeeping pad anchored to the structural floor slab; state minimum clearances — 1 m front access, 0.6 m rear and side clearance per IEC 62040-1 installation requirements; specify input and output cabling in EMT or RSC conduit, sized per the approved panel schedule; state battery room or UPS room shall be air-conditioned to 20–25°C ambient per IEEE 1184 to achieve design battery life; cover installation of seismic anchor brackets where applicable
+   Section 4 — Electrical Connections and Earthing: cover connection of the ${inputBreakerA}A MCCB input incomer from the main distribution board on a dedicated feeder — the UPS input shall not share a circuit with other loads; static bypass shall be wired to a separate bypass source feeder (same bus as input, independently fused) to allow complete UPS isolation for maintenance; output distribution panel shall be wired to all critical loads as shown on the approved single-line diagram; UPS frame, battery cabinet, and bypass panel shall be bonded to the building main earth using 16–25 mm² copper conductors per PEC Article 2.50; measured earth resistance shall not exceed 5 Ω
+   Section 5 — Battery Installation and Management: cover installation of battery cabinets adjacent to the UPS within the allowable DC cable length (typically ≤ 5 m for VRLA strings) to minimise voltage drop and inductance; battery strings to be connected in the polarity sequence specified by the UPS manufacturer — reverse polarity will damage the UPS rectifier/inverter and void warranty; install individual string isolation switches (DC rated for ${battV}V) for safe battery replacement under load (hot-swap procedure per manufacturer documentation); battery management system shall monitor individual cell voltage, temperature, and state of charge — alarms to be wired to the SNMP card and building BMS
+   Section 6 — Testing and Commissioning: cover pre-commissioning checks including insulation resistance test (>1 MΩ at 500V DC on all AC wiring), DC polarity and voltage verification of each battery string, and earthing continuity test; functional tests to include UPS self-test, mains simulation failure (transfer to battery and back), bypass transfer, and alarm verification; full-load battery discharge test per IEC 62040-3 — connect design load (${selectedKVA} kVA × ${loadingPct}% = design VA), record battery voltage, load and runtime every 5 minutes until battery low-voltage cutout, confirm measured runtime ≥ ${backupMin} min; all test results to be recorded in a commissioning test report signed by the Contractor and witnessed by the Engineer
+   Section 7 — Documentation and Regulatory Compliance: cover submission of Electrical Permit from the LGU before commencement; all electrical works to be performed by a licensed master electrician under supervision of a PRC-licensed Electrical Engineer; submission of as-built single-line diagram showing UPS, bypass, battery bank, input/output breakers, and all distribution circuits; submission of IEC 62040-1 and IEC 62040-3 certificates, factory test report, battery datasheets, and SNMP card configuration guide; commissioning test report including discharge test results; UPS and battery warranty registration documents; O&M manual covering routine maintenance schedule, battery replacement procedure, and emergency bypass procedure
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw    = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Electrical: Generator Sizing BOM + SOW Agent ────────────────────────────
 
 async function generatorSizingBomSowAgent(
@@ -2965,6 +3028,8 @@ serve(async (req) => {
       result = await pfcBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Cable Tray Sizing") {
       result = await cableTrayBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Electrical" && calc_type === "UPS Sizing") {
+      result = await upsSizingBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Generator Sizing") {
       result = await generatorSizingBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Fire Protection" && calc_type === "Fire Sprinkler Hydraulic") {
