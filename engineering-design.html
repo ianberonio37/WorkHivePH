@@ -723,6 +723,7 @@ const CALC_TYPES = {
     { id: 'Duct Sizing (Equal Friction)',  icon: '🌀', desc: 'Circular / rectangular duct sizing, velocity check, segment pressure drop, fan static pressure, fan motor HP — ASHRAE Ch.21 / SMACNA / PSME', available: true },
     { id: 'Refrigerant Pipe Sizing',       icon: '🧊', desc: 'ACR copper tube sizing for suction, discharge, and liquid lines — velocity check, pressure drop, ΔT equivalent — R-410A/R-32/R-22/R-407C/R-134a — ASHRAE Refrigeration / ASTM B280 / PSME', available: true },
     { id: 'FCU Selection',                 icon: '🌡️', desc: 'Fan coil unit selection per room — CHW flow rate, main pipe sizing, diversity factor — ASHRAE HVAC Systems / PSME', available: true },
+    { id: 'Expansion Tank Sizing',         icon: '🫙', desc: 'Bladder/diaphragm expansion tank for closed hydronic loops — CHW, HHW, CW — ASHRAE acceptance ratio method / ASME VIII / PSME', available: true },
   ],
 };
 
@@ -2474,6 +2475,39 @@ const GUIDES = {
       'PRC-licensed Mechanical Engineer sign-off is required for HVAC duct system designs submitted for LGU Building Permit. SMACNA duct construction class (Pressure Class ½, 1, or 2 inch w.g.) must be specified on drawings based on operating static pressure.',
       'Flexible duct connections to diffusers shall not exceed 1.5 m per SMACNA. Do NOT use this tool to size flexible duct runs — flex roughness is 15–20× higher than galvanized steel.',
       'Total system static pressure for fan selection = duct ΔP (from this tool) + AHU internal components (cooling coil, filters, heating coil: typically 200–500 Pa) + terminal device pressure drop (50–150 Pa). Always get AHU ESP from the equipment manufacturer datasheet.',
+    ],
+  },
+
+  'Expansion Tank Sizing': {
+    title: 'Expansion Tank Sizing — Bladder/Diaphragm Type (ASHRAE Acceptance Ratio Method)',
+    subtitle: 'Sizes a closed bladder or diaphragm expansion tank for hydronic systems (chilled water, heating hot water, or condenser water) using the ASHRAE acceptance ratio method. Computes the water expansion factor from specific volume tables, pre-charge pressure from static head, and selects the smallest standard tank size. Aligned with ASHRAE 2023 HVAC Systems and Equipment Handbook, ASME BPVC Section VIII, and PSME Code.',
+    standards: [
+      'ASHRAE 2023 HVAC Systems and Equipment Handbook — Chapter 12 (Hydronic Heating and Cooling)',
+      'ASME Boiler and Pressure Vessel Code Section VIII — Pressure Vessels',
+      'ASHRAE Standard 90.1 — Energy Standard for Buildings',
+      'PSME Code — Philippine Society of Mechanical Engineers (Hydronic Systems)',
+    ],
+    formulas: [
+      { label: 'Water Expansion Factor', eq: 'E_w = (v_max − v_fill) / v_fill   [dimensionless]   v = specific volume of water at temperature (L/kg) from ASHRAE/IAPWS tables' },
+      { label: 'Net Expansion Volume', eq: 'V_exp = V_sys × E_w   [L]' },
+      { label: 'Acceptance Factor', eq: 'α = 1 − P_fill_abs / P_max_abs   (should be ≥ 0.25)' },
+      { label: 'Required Tank Volume', eq: 'V_tank = V_exp / α = (V_sys × E_w) / (1 − P_fill_abs / P_max_abs)   [L]' },
+      { label: 'Pre-Charge Pressure', eq: 'P_pre (kPa g) = 9.81 × h_static (m)   rounded up to nearest 10 kPa, minimum 30 kPa' },
+    ],
+    fields: [
+      { name: 'System Type', tip: 'Chilled Water (CHW): 6–18°C range, low expansion factor. Heating Hot Water (HHW): 60–90°C, high expansion — tank will be significantly larger. Condenser Water (CW): 25–40°C.' },
+      { name: 'System Volume (L)', tip: 'Total water content of all pipes, equipment, coils, and heat exchangers. Direct entry is most accurate. Rule of thumb: 8 L/kW for CHW, 10 L/kW for HHW, 6 L/kW for CW (ASHRAE preliminary estimate).' },
+      { name: 'Fill Temperature (°C)', tip: 'Temperature of water when the system is initially filled — typically 20°C (ambient). This is v_fill in the expansion factor formula.' },
+      { name: 'Max Operating Temperature (°C)', tip: 'Highest water temperature during system operation. For CHW this is the return temperature maximum (12–18°C). For HHW this is the supply temperature (60–90°C). Use the design maximum, not the average.' },
+      { name: 'Static Head (m)', tip: 'Vertical height of the highest point in the system above the expansion tank connection point. This sets the minimum pre-charge pressure to prevent tank bladder collapse. Example: 10-storey building at 3.5m/floor ≈ 35m.' },
+      { name: 'Max System Pressure (kPa g)', tip: 'Maximum allowable working pressure at the expansion tank — set by the pressure relief valve minus 10% safety margin. Typical values: 300 kPa (low-rise), 600 kPa (mid-rise), 1000 kPa (high-rise). Must not exceed the MAWP of the weakest component (often the FCU coil at 1000 kPa).' },
+    ],
+    notes: [
+      'The acceptance factor α must be ≥ 0.25 for a properly sized tank. If α < 0.25, either reduce the pre-charge pressure (lower static head connection point), increase the relief valve setting, or install an intermediate pressure-reducing valve to lower the static head seen by the tank.',
+      'Pre-charge pressure is set at the factory to match the static head. Always verify the tank nameplate pre-charge pressure before installation — tanks shipped at 50 kPa default and must be re-charged with nitrogen to match the actual system static head.',
+      'Standard bladder tank sizes (commercial): 8, 12, 18, 24, 35, 50, 60, 80, 100, 150, 200, 300, 400, 500, 750, 1000, 1500, 2000 L. Sizes above 500 L are typically floor-mounted vertical or horizontal type.',
+      'For HHW systems above 80°C, verify that the selected bladder material (EPDM standard) is rated for the maximum temperature. At 90°C+, specify EPDM high-temperature or butyl rubber bladder explicitly on the specification.',
+      'Glycol solutions reduce water density and increase specific volume compared to pure water. For antifreeze mixes, apply a 10–15% volume correction to the calculated tank size depending on glycol concentration — this calculator assumes pure water.',
     ],
   },
 
@@ -4674,6 +4708,90 @@ function renderInputForm(calcType) {
     addDuctSegRow('Branch-1 (Zone A)', 400, 12, 'Supply Branch');
     addDuctSegRow('Branch-2 (Zone B)', 300, 8, 'Supply Branch');
     addDuctSegRow('Return Main', 1000, 18, 'Return Main');
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+    return;
+  }
+
+  if (calcType === 'Expansion Tank Sizing') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-et-project" class="wh-input" placeholder="e.g. CHW Expansion Tank — 3rd Floor Plant Room" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">System Type</div>
+        <div class="toggle-group" id="tg-et-systype" style="flex-wrap:wrap;">
+          <button class="toggle-btn active" data-val="Chilled Water"       onclick="toggle('tg-et-systype','Chilled Water');setExpTankDefaults('Chilled Water')">Chilled Water</button>
+          <button class="toggle-btn" data-val="Heating Hot Water"          onclick="toggle('tg-et-systype','Heating Hot Water');setExpTankDefaults('Heating Hot Water')">Heating Hot Water</button>
+          <button class="toggle-btn" data-val="Condenser Water"            onclick="toggle('tg-et-systype','Condenser Water');setExpTankDefaults('Condenser Water')">Condenser Water</button>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">System Volume Method</div>
+        <div class="toggle-group" id="tg-et-volmethod">
+          <button class="toggle-btn active" data-val="Direct Entry"        onclick="toggle('tg-et-volmethod','Direct Entry');showEtVolSection('Direct Entry')">Direct Entry</button>
+          <button class="toggle-btn" data-val="Estimate from kW"           onclick="toggle('tg-et-volmethod','Estimate from kW');showEtVolSection('Estimate from kW')">Estimate from kW</button>
+        </div>
+      </div>
+
+      <div id="et-direct-section" class="mb-4">
+        <div class="field-label">System Water Volume <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(all pipes + equipment)</span></div>
+        <div class="input-group">
+          <input id="f-et-vol" class="wh-input" type="number" value="500" min="1" step="10" />
+          <span class="input-unit">L</span>
+        </div>
+      </div>
+
+      <div id="et-estimate-section" class="mb-4" style="display:none;">
+        <div class="field-label">System Capacity <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(for volume estimate)</span></div>
+        <div class="input-group">
+          <input id="f-et-kw" class="wh-input" type="number" value="100" min="1" step="10" />
+          <span class="input-unit">kW</span>
+        </div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:0.4rem;">Rule of thumb: CHW 8 L/kW · HHW 10 L/kW · CW 6 L/kW (ASHRAE preliminary)</div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Fill Temperature <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(ambient at fill)</span></div>
+          <div class="input-group">
+            <input id="f-et-fill-temp" class="wh-input" type="number" value="20" min="0" max="50" step="1" />
+            <span class="input-unit">°C</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Max Operating Temperature</div>
+          <div class="input-group">
+            <input id="f-et-max-temp" class="wh-input" type="number" value="18" min="1" max="99" step="1" />
+            <span class="input-unit">°C</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Static Head <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(height above tank)</span></div>
+          <div class="input-group">
+            <input id="f-et-head" class="wh-input" type="number" value="10" min="0" step="0.5" />
+            <span class="input-unit">m</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Max System Pressure <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(relief valve − 10%)</span></div>
+          <div class="input-group">
+            <input id="f-et-maxpress" class="wh-input" type="number" value="400" min="100" step="25" />
+            <span class="input-unit">kPa g</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        ASHRAE Acceptance Ratio Method. V_tank = (V_sys × E_w) / (1 − P_fill_abs / P_max_abs). Acceptance factor α ≥ 0.25 required. Pre-charge = 9.81 × static head (kPa). ASME BPVC Section VIII.
+      </div>
+    `;
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
     return;
@@ -6980,6 +7098,27 @@ function toggleDuctAspect() {
   if (el) el.style.display = shape === 'Rectangular' ? '' : 'none';
 }
 
+// ─── Expansion Tank Sizing helpers ────────────────────────────────────────────
+const ET_DEFAULTS = {
+  'Chilled Water':     { maxTemp: 18,  maxPress: 400 },
+  'Heating Hot Water': { maxTemp: 85,  maxPress: 600 },
+  'Condenser Water':   { maxTemp: 38,  maxPress: 400 },
+};
+function setExpTankDefaults(type) {
+  const d = ET_DEFAULTS[type] || ET_DEFAULTS['Chilled Water'];
+  const mt = document.getElementById('f-et-max-temp');
+  const mp = document.getElementById('f-et-maxpress');
+  if (mt) mt.value = d.maxTemp;
+  if (mp) mp.value = d.maxPress;
+}
+function showEtVolSection(method) {
+  const direct   = document.getElementById('et-direct-section');
+  const estimate = document.getElementById('et-estimate-section');
+  if (!direct || !estimate) return;
+  direct.style.display   = method === 'Direct Entry'     ? '' : 'none';
+  estimate.style.display = method === 'Estimate from kW' ? '' : 'none';
+}
+
 // ─── FCU Selection room row helper ────────────────────────────────────────────
 let _fcuRoomRowId = 0;
 function addFCURoomRow(defaultName = 'Room', defaultArea = 30, defaultLoad = 5.0, defaultQty = 1) {
@@ -7267,6 +7406,21 @@ function collectInputs() {
       duct_material: getToggle('tg-duct-mat')     || 'Galvanized Steel',
       aspect_ratio:  parseFloat(getToggle('tg-duct-aspect') || '2'),
       segments,
+    };
+  }
+
+  if (_calcType === 'Expansion Tank Sizing') {
+    const volMethod = getToggle('tg-et-volmethod') || 'Direct Entry';
+    return {
+      project_name:       v('f-et-project')    || 'Expansion Tank Project',
+      system_type:        getToggle('tg-et-systype') || 'Chilled Water',
+      volume_method:      volMethod,
+      system_kw:          parseFloat(v('f-et-kw'))       || 100,
+      system_volume_L:    parseFloat(v('f-et-vol'))       || 500,
+      fill_temp_c:        parseFloat(v('f-et-fill-temp')) || 20,
+      max_temp_c:         parseFloat(v('f-et-max-temp'))  || 18,
+      static_head_m:      parseFloat(v('f-et-head'))      || 10,
+      max_pressure_kpa_g: parseFloat(v('f-et-maxpress'))  || 400,
     };
   }
 
@@ -8018,6 +8172,21 @@ async function runCalculation() {
       showToast('Please add at least one duct segment.');
       return;
     }
+  } else if (_calcType === 'Expansion Tank Sizing') {
+    const effVol = inputs.volume_method === 'Estimate from kW'
+      ? inputs.system_kw : inputs.system_volume_L;
+    if (!effVol || effVol <= 0) {
+      showToast('Please enter a valid system volume or capacity.');
+      return;
+    }
+    if (inputs.max_temp_c <= inputs.fill_temp_c) {
+      showToast('Max operating temperature must be greater than fill temperature.');
+      return;
+    }
+    if (inputs.max_pressure_kpa_g <= 0) {
+      showToast('Please enter a valid maximum system pressure.');
+      return;
+    }
   } else if (_calcType === 'FCU Selection') {
     if (!inputs.rooms || inputs.rooms.length === 0) {
       showToast('Please add at least one room.');
@@ -8289,6 +8458,8 @@ async function runCalculation() {
       renderDuctSizingReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Refrigerant Pipe Sizing') {
       renderRefrigPipeReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Expansion Tank Sizing') {
+      renderExpansionTankReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'FCU Selection') {
       renderFCUSelectionReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Load Estimation') {
@@ -10485,6 +10656,163 @@ function renderDuctSizingReport(inputs, results, narrative) {
           <div style="font-size:0.74rem;color:#555;">Date: ${e(dateStr)}</div>
           <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
         </div>
+      </div>
+    </div>
+  </div>`;
+
+  panel.innerHTML = reportHTML;
+  showReport();
+}
+
+// ─── Expansion Tank Sizing Report ────────────────────────────────────────────
+function renderExpansionTankReport(inputs, results, narrative) {
+  const panel = document.getElementById('report-panel');
+  if (!panel) return;
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
+  const dateStr = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const projName    = inputs.project_name       || 'Expansion Tank Project';
+  const sysType     = inputs.system_type        || 'Chilled Water';
+  const volMethod   = inputs.volume_method      || 'Direct Entry';
+  const sysVolL     = Number(results.system_volume_L  || 0).toFixed(1);
+  const fillT       = inputs.fill_temp_c        ?? 20;
+  const maxT        = inputs.max_temp_c         ?? 18;
+  const headM       = inputs.static_head_m      ?? 10;
+  const maxPressG   = inputs.max_pressure_kpa_g ?? 400;
+
+  const Ew          = Number(results.expansion_factor_Ew || 0);
+  const netExpL     = Number(results.net_expansion_L     || 0).toFixed(2);
+  const reqTankL    = Number(results.required_tank_L     || 0).toFixed(2);
+  const selTankL    = results.selected_tank_L            || '—';
+  const alpha       = Number(results.acceptance_factor   || 0);
+  const prechargeG  = results.precharge_kpa_g            || '—';
+  const fillPressG  = results.fill_press_kpa_g           || '—';
+  const fillPressA  = Number(results.fill_press_kpa_abs  || 0).toFixed(2);
+  const maxPressA   = Number(results.max_press_kpa_abs   || 0).toFixed(2);
+  const pressCheck  = results.pressure_check             || '—';
+  const tempCheck   = results.temp_check                 || '—';
+  const vFill       = Number(results.v_fill_L_kg         || 0).toFixed(5);
+  const vMax        = Number(results.v_max_L_kg          || 0).toFixed(5);
+
+  const alphaColor  = alpha >= 0.25 ? '#10b981' : alpha >= 0.15 ? '#f97316' : '#ef4444';
+  const pressOK     = pressCheck.startsWith('OK');
+
+  const reportHTML = `
+  <div style="padding:2.5rem;background:#fff;color:#1a1a1a;font-family:'Segoe UI',Arial,sans-serif;font-size:0.92rem;line-height:1.6;">
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.75rem 1rem;margin-bottom:1.5rem;font-size:0.85rem;color:#7a5800;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading.
+    </div>
+
+    <!-- Header -->
+    <div style="border-bottom:3px solid #1a3a5c;padding-bottom:1rem;margin-bottom:1.5rem;">
+      <div style="font-size:1.5rem;font-weight:700;color:#1a3a5c;">Expansion Tank Sizing Report</div>
+      <div style="font-size:0.9rem;color:#555;margin-top:0.3rem;">ASHRAE Acceptance Ratio Method — Bladder/Diaphragm Type — ASME BPVC Section VIII</div>
+      <table style="width:100%;margin-top:1rem;border-collapse:collapse;">
+        <tr>
+          <td style="width:50%;vertical-align:top;">
+            <div style="font-size:0.8rem;color:#888;">Project / System</div>
+            <div style="font-weight:600;">${e(projName)}</div>
+          </td>
+          <td style="width:25%;vertical-align:top;">
+            <div style="font-size:0.8rem;color:#888;">Prepared by</div>
+            <div>${e('Engineer')}</div>
+          </td>
+          <td style="width:25%;vertical-align:top;">
+            <div style="font-size:0.8rem;color:#888;">Date</div>
+            <div>${e(dateStr)}</div>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- 1. Objective -->
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">1. Objective</h2>
+    <div class="narrative-block" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.5rem;padding:0.9rem 1.1rem;color:#334155;">
+      ${narrative?.objective ? escHtml(narrative.objective) : `Size a closed bladder expansion tank for the ${escHtml(sysType)} system of ${escHtml(projName)}. The tank must accommodate the volumetric expansion of ${escHtml(sysVolL)} L of water as it heats from fill temperature ${fillT}°C to maximum operating temperature ${maxT}°C, while maintaining system pressure within the design range.`}
+    </div>
+
+    <!-- 2. Standards -->
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">2. Applicable Standards</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;">
+      <thead>
+        <tr>
+          <th style="background:#1a3a5c;color:#fff;padding:0.5rem 0.75rem;text-align:left;width:45%;">Standard</th>
+          <th style="background:#1a3a5c;color:#fff;padding:0.5rem 0.75rem;text-align:left;">Application</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background:#f8fafc;"><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">ASHRAE 2023 HVAC Systems &amp; Equipment Hbk Ch.12</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">Hydronic system expansion tank sizing method</td></tr>
+        <tr><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">ASME BPVC Section VIII</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">Pressure vessel design and rating</td></tr>
+        <tr style="background:#f8fafc;"><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">ASHRAE Standard 90.1</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">Hydronic system energy efficiency</td></tr>
+        <tr><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">PSME Code</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">Philippine hydronic installation requirements</td></tr>
+      </tbody>
+    </table>
+
+    <!-- 3. Design Basis -->
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">3. Design Basis</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;">
+      <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;width:55%;font-weight:600;">System Type</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${escHtml(sysType)}</td></tr>
+      <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Volume Method</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${escHtml(volMethod)}${volMethod === 'Estimate from kW' ? ` (${inputs.system_kw || ''}kW × rule-of-thumb factor)` : ''}</td></tr>
+      <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">System Water Volume</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${sysVolL} L</td></tr>
+      <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Fill Temperature (v_fill)</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${fillT}°C → v = ${vFill} L/kg</td></tr>
+      <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Max Operating Temperature (v_max)</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${maxT}°C → v = ${vMax} L/kg</td></tr>
+      <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Static Head</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${headM} m above tank</td></tr>
+      <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Maximum System Pressure</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${maxPressG} kPa g (${maxPressA} kPa abs)</td></tr>
+    </table>
+
+    <!-- 4. Calculation -->
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">4. Calculation</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;">
+      <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;width:55%;font-weight:600;">Water Expansion Factor E_w</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">(${vMax} − ${vFill}) / ${vFill} = <strong>${Ew.toFixed(5)}</strong></td></tr>
+      <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Net Expansion Volume</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${sysVolL} L × ${Ew.toFixed(5)} = <strong>${netExpL} L</strong></td></tr>
+      <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Pre-Charge Pressure</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">9.81 × ${headM} m → rounded up = <strong>${prechargeG} kPa g</strong></td></tr>
+      <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Fill (Min) Pressure</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${prechargeG} + 15 kPa margin = <strong>${fillPressG} kPa g (${fillPressA} kPa abs)</strong></td></tr>
+      <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Acceptance Factor α</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">1 − ${fillPressA} / ${maxPressA} = <strong style="color:${alphaColor};">${alpha.toFixed(4)}</strong> ${alpha >= 0.25 ? '✓ ≥ 0.25' : '⚠ < 0.25'}</td></tr>
+      <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Required Tank Volume</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${netExpL} L / ${alpha.toFixed(4)} = <strong>${reqTankL} L</strong></td></tr>
+    </table>
+
+    <!-- 5. Results Summary -->
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">5. Results Summary</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1rem;">
+      <div style="background:#f0f7ff;border:2px solid #1a3a5c;border-radius:0.5rem;padding:1rem;page-break-inside:avoid;">
+        <div style="font-size:0.78rem;color:#3b82f6;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Selected Tank Size</div>
+        <div style="font-size:2rem;font-weight:700;color:#1a3a5c;">${selTankL} L</div>
+        <div style="font-size:0.85rem;color:#555;">Bladder/diaphragm, closed type</div>
+      </div>
+      <div style="background:#f0fff4;border:1px solid #a7f3d0;border-radius:0.5rem;padding:1rem;page-break-inside:avoid;">
+        <div style="font-size:0.78rem;color:#10b981;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Net Expansion Volume</div>
+        <div style="font-size:1.6rem;font-weight:700;color:#1a3a5c;">${netExpL} L</div>
+        <div style="font-size:0.85rem;color:#555;">E_w = ${Ew.toFixed(5)}</div>
+      </div>
+      <div style="background:${alpha >= 0.25 ? '#f0fff4' : alpha >= 0.15 ? '#fff7ed' : '#fef2f2'};border:1px solid ${alpha >= 0.25 ? '#a7f3d0' : alpha >= 0.15 ? '#fed7aa' : '#fecaca'};border-radius:0.5rem;padding:1rem;page-break-inside:avoid;">
+        <div style="font-size:0.78rem;color:${alphaColor};font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Acceptance Factor α</div>
+        <div style="font-size:1.6rem;font-weight:700;color:#1a3a5c;">${alpha.toFixed(4)}</div>
+        <div style="font-size:0.85rem;color:#555;">${alpha >= 0.25 ? 'OK — adequate' : alpha >= 0.15 ? 'Marginal — review' : 'Poor — re-design'}</div>
+      </div>
+      <div style="background:${pressOK ? '#f0fff4' : '#fff7ed'};border:1px solid ${pressOK ? '#a7f3d0' : '#fed7aa'};border-radius:0.5rem;padding:1rem;page-break-inside:avoid;">
+        <div style="font-size:0.78rem;color:${pressOK ? '#10b981' : '#f97316'};font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Pressure Check</div>
+        <div style="font-size:1.05rem;font-weight:700;color:#1a3a5c;">${pressOK ? 'PASS' : 'REVIEW'}</div>
+        <div style="font-size:0.8rem;color:#555;">${escHtml(String(pressCheck))}</div>
+      </div>
+    </div>
+
+    <!-- 6. Recommendations -->
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">6. Recommendations</h2>
+    <div class="narrative-block" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.5rem;padding:0.9rem 1.1rem;color:#334155;">
+      ${narrative?.recommendations ? escHtml(narrative.recommendations) : `Provide a ${selTankL} L closed bladder expansion tank (ASME BPVC Section VIII rated) pre-charged to ${prechargeG} kPa g with dry nitrogen. Connect at the pump suction side (point of no pressure change) per ASHRAE 2023 HVAC Systems Handbook Chapter 12. Set pressure relief valve at ${Math.round(Number(maxPressG) * 1.15)} kPa g (15% above max operating pressure). Verify pre-charge pressure at site against actual static head measurement before system fill. ${alpha < 0.25 ? 'WARNING: acceptance factor is below the ASHRAE minimum of 0.25 — review system pressures before procurement.' : 'Acceptance factor is within ASHRAE acceptable range.'}`}
+    </div>
+
+    <!-- Signature Block -->
+    <div class="sig-block" style="margin-top:3rem;padding-top:1.5rem;border-top:1px solid #e5e7eb;display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+      <div>
+        <div style="border-bottom:1px solid #333;margin-bottom:0.3rem;min-height:2rem;"></div>
+        <div style="font-size:0.8rem;color:#555;">${e('Mechanical Engineer')} | PRC License No. ${e('XXXXXXX')}</div>
+        <div style="font-size:0.8rem;color:#888;">Prepared by</div>
+      </div>
+      <div>
+        <div style="border-bottom:1px solid #333;margin-bottom:0.3rem;min-height:2rem;"></div>
+        <div style="font-size:0.8rem;color:#555;">${e('Principal / Project Manager')}</div>
+        <div style="font-size:0.8rem;color:#888;">Reviewed by</div>
       </div>
     </div>
   </div>`;
@@ -14395,6 +14723,8 @@ function viewHistoryReport(row) {
     renderRefrigPipeReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'FCU Selection') {
     renderFCUSelectionReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Expansion Tank Sizing') {
+    renderExpansionTankReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
@@ -14435,7 +14765,7 @@ async function generateBomSowChecklist() {
     'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)', 'Storm Drain / Stormwater'],
     'Fire Protection':         ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],
     'Vertical Transportation': ['Elevator Traffic Analysis', 'Hoist Capacity'],
-    'HVAC Systems':            ['Chiller System — Air Cooled', 'Chiller System — Water Cooled', 'AHU Sizing', 'Cooling Tower Sizing', 'Duct Sizing (Equal Friction)', 'Refrigerant Pipe Sizing', 'FCU Selection'],
+    'HVAC Systems':            ['Chiller System — Air Cooled', 'Chiller System — Water Cooled', 'AHU Sizing', 'Cooling Tower Sizing', 'Duct Sizing (Equal Friction)', 'Refrigerant Pipe Sizing', 'FCU Selection', 'Expansion Tank Sizing'],
   };
   const supportedForDiscipline = BOM_SOW_SUPPORTED[_discipline] || [];
   if (!supportedForDiscipline.includes(_calcType)) {
@@ -14646,8 +14976,11 @@ function renderBomTablePreview(items) {
   const isDS        = _calcType === 'Duct Sizing (Equal Friction)';
   const isRP        = _calcType === 'Refrigerant Pipe Sizing';
   const isFC        = _calcType === 'FCU Selection';
-  const calcRef = `${isFC ? 'HVAC-FCU' : isRP ? 'HVAC-RPS' : isDS ? 'HVAC-DS' : isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
-  const disciplineSystem = isFC
+  const isET        = _calcType === 'Expansion Tank Sizing';
+  const calcRef = `${isET ? 'HVAC-ET' : isFC ? 'HVAC-FCU' : isRP ? 'HVAC-RPS' : isDS ? 'HVAC-DS' : isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const disciplineSystem = isET
+    ? `HVAC Systems — Expansion Tank Sizing (${_lastInputs?.system_type || 'Chilled Water'}, V=${_lastResults?.system_volume_L || _lastInputs?.system_volume_L || ''}L, Fill ${_lastInputs?.fill_temp_c || 20}°C→Max ${_lastInputs?.max_temp_c || ''}°C, Head ${_lastInputs?.static_head_m || ''}m, Pmax ${_lastInputs?.max_pressure_kpa_g || ''}kPa g, Tank ${_lastResults?.selected_tank_L || ''}L bladder, α=${_lastResults?.acceptance_factor ?? ''})`
+    : isFC
     ? `HVAC Systems — FCU Selection (${_lastInputs?.pipe_system || '2-Pipe'}, ${_lastInputs?.mounting_type || 'Ceiling Cassette'}, ${(_lastInputs?.rooms || []).length} rooms, ${_lastResults?.total_units || ''} units, ${_lastResults?.total_design_kw || ''}kW / ${_lastResults?.total_design_tr || ''}TR, CHW ${_lastInputs?.chw_supply_c || 7}/${_lastInputs?.chw_return_c || 12}°C, ${_lastResults?.total_chw_lps || ''}L/s, Main ${_lastResults?.main_pipe_nps_mm || ''}mm NPS)`
     : isRP
     ? `HVAC Systems — Refrigerant Pipe Sizing (${_lastInputs?.refrigerant || 'R-410A'}, ${_lastInputs?.capacity_kw || ''}kW, ${_lastInputs?.application || 'AC'} Evap ${_lastResults?.evap_temp_c ?? ''}°C / Cond ${_lastInputs?.cond_temp_c || 40}°C, ${(_lastInputs?.lines || []).length} lines)`
@@ -14917,12 +15250,15 @@ function renderSowDocPreview(sections) {
   const isDSS        = _calcType === 'Duct Sizing (Equal Friction)';
   const isRPS        = _calcType === 'Refrigerant Pipe Sizing';
   const isFCS        = _calcType === 'FCU Selection';
-  const calcRef = `${isFCS ? 'HVAC-FCU' : isRPS ? 'HVAC-RPS' : isDSS ? 'HVAC-DS' : isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const isETS        = _calcType === 'Expansion Tank Sizing';
+  const calcRef = `${isETS ? 'HVAC-ET' : isFCS ? 'HVAC-FCU' : isRPS ? 'HVAC-RPS' : isDSS ? 'HVAC-DS' : isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
   const unitKW = _lastResults?.ac_size_kw        || '';
-  const ventSystemLine = isFCS
+  const ventSystemLine = isETS
+    ? `Expansion Tank Sizing — ${_lastInputs?.system_type || 'Chilled Water'}, System Vol ${_lastResults?.system_volume_L || _lastInputs?.system_volume_L || ''}L, Fill ${_lastInputs?.fill_temp_c || 20}°C → Max ${_lastInputs?.max_temp_c || ''}°C (E_w=${_lastResults?.expansion_ratio ?? ''}), Static Head ${_lastInputs?.static_head_m || ''}m (Pre-charge ${_lastResults?.precharge_kpa_g || ''}kPa g), Fill Pressure ${_lastResults?.fill_pressure_kpa_g || ''}kPa g, Pmax ${_lastInputs?.max_pressure_kpa_g || ''}kPa g, α=${_lastResults?.acceptance_factor ?? ''} — ASHRAE min 0.25, Required ${_lastResults?.required_volume_L || ''}L → Selected ${_lastResults?.selected_tank_L || ''}L bladder tank`
+    : isFCS
     ? `FCU Selection — ${_lastInputs?.pipe_system || '2-Pipe'} ${_lastInputs?.mounting_type || 'Ceiling Cassette'}, ${(_lastInputs?.rooms || []).length} rooms, ${_lastResults?.total_units || ''} FCUs, ${_lastResults?.total_connected_kw || ''}kW connected / ${_lastResults?.total_design_kw || ''}kW design (DF=${_lastInputs?.diversity_factor || 0.85}), CHW ${_lastInputs?.chw_supply_c || 7}°C/${_lastInputs?.chw_return_c || 12}°C ΔT=${(Number(_lastInputs?.chw_return_c || 12) - Number(_lastInputs?.chw_supply_c || 7)).toFixed(1)}°C, ${_lastResults?.total_chw_lps || ''}L/s, ${_lastResults?.main_pipe_nps_mm || ''}mm NPS SCH40 main`
     : isRPS
     ? `Refrigerant Pipe Sizing — ${_lastInputs?.refrigerant || 'R-410A'}, ${_lastInputs?.capacity_kw || ''}kW, ${_lastInputs?.application || 'AC'} (Evap ${_lastResults?.evap_temp_c ?? ''}°C / Cond ${_lastInputs?.cond_temp_c || 40}°C), ${(_lastInputs?.lines || []).length} lines${(_lastResults?.lines || []).length > 0 ? ': ' + (_lastResults?.lines || []).map(l => `${l.name} ${l.selected_od_mm}mm OD`).join(', ') : ''}`

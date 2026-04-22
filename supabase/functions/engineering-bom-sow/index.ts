@@ -3180,6 +3180,76 @@ Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
   };
 }
 
+// ─── HVAC: Expansion Tank Sizing BOM + SOW Agent ─────────────────────────────
+
+async function expansionTankBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project    = inputs.project_name      || "Expansion Tank Sizing Project";
+  const sysType    = String(inputs.system_type    || "Chilled Water");
+  const sysVol     = Number(results.system_volume_L || inputs.system_volume_L || 0).toFixed(0);
+  const fillT      = Number(inputs.fill_temp_c    || 20).toFixed(0);
+  const maxT       = Number(inputs.max_temp_c     || 18).toFixed(0);
+  const head       = Number(inputs.static_head_m  || 10).toFixed(1);
+  const pMax       = Number(inputs.max_pressure_kpa_g || 400).toFixed(0);
+  const tankL      = results.selected_tank_L  ?? "—";
+  const reqL       = Number(results.required_volume_L || 0).toFixed(1);
+  const alpha      = results.acceptance_factor ?? "—";
+  const precharge  = results.precharge_kpa_g  ?? "—";
+  const fillP      = results.fill_pressure_kpa_g ?? "—";
+
+  const prompt = `You are a senior Mechanical/HVAC engineer in the Philippines preparing a Bill of Materials (BOM) and Scope of Works (SOW) for the installation of a pre-pressurised bladder expansion tank on a closed hydronic loop per ASHRAE 2023 Handbook HVAC Systems and Equipment, ASME BPVC Section VIII, and PSME Code.
+
+Project: ${project}
+System type: ${sysType}
+System water volume: ${sysVol} L
+Fill temperature: ${fillT}°C | Maximum operating temperature: ${maxT}°C
+Static head: ${head} m | Maximum system pressure: ${pMax} kPa g
+Pre-charge pressure: ${precharge} kPa g | Fill pressure: ${fillP} kPa g
+Acceptance factor (α): ${alpha} (ASHRAE minimum: 0.25)
+Required acceptance volume: ${reqL} L → Selected tank: ${tankL} L bladder/diaphragm
+
+Generate a JSON object with exactly two keys:
+
+"bom_items": array of 10 objects, each with:
+  { "description": string, "specification": string, "unit": string, "quantity": number, "remarks": string }
+
+BOM items must cover:
+1. Bladder Expansion Tank — pre-pressurised, ASME VIII-listed, ${tankL}L, EPDM bladder, rated for ${pMax} kPa g MAWP — qty: 1 unit
+2. Tank Isolation Valve — full-bore ball valve, PN25, same pipe size as tank connection — qty: 1 pc
+3. Pressure Gauge — 0–${Math.round(Number(pMax) * 1.5)} kPa range, glycerin-filled, 100mm dial, ½" BSP connection — qty: 1 pc
+4. Tank Connection Pipe — Black Steel SCH40, ASTM A53 Grade B, sized to match tank port — qty: 1 lot
+5. Pipe Insulation (tank connection) — closed-cell elastomeric foam 19mm, ASTM C534 — qty: 1 lot
+6. System Fill / Make-up Water Connection — ½" make-up water solenoid valve with backflow preventer — qty: 1 set
+7. Pressure Relief Valve — set to ${pMax} kPa g, ASME-stamped, bronze body — qty: 1 pc
+8. Manual Drain Valve — ½" ball valve at tank drain port — qty: 1 pc
+9. Air Separator — magnetic, inline, to remove dissolved gases before they accumulate in tank — qty: 1 unit
+10. Pipe Hangers and Supports — per MSS SP-58, galvanised, for tank connection piping — qty: 1 lot
+
+"sow_sections": array of 5 objects, each with:
+  { "section_no": string, "title": string, "items": string[] }
+
+SOW sections:
+- "1.0" Scope of Works (supply, install, and commission ${tankL}L pre-pressurised EPDM bladder expansion tank on the ${sysType} closed hydronic loop, system volume ${sysVol}L, α=${alpha})
+- "2.0" Design Standards and References (ASHRAE 2023 Handbook HVAC Systems and Equipment Ch.12; ASME BPVC Section VIII Division 1; ASHRAE 90.1; PSME Code; ASTM A53 Grade B piping; ASTM C534 insulation)
+- "3.0" Materials and Equipment (ASME VIII-listed bladder tank, EPDM bladder rated ≥${pMax} kPa MAWP; PN25 full-bore isolation valve; glycerin-filled pressure gauge; ASTM A53 Grade B SCH40 connection piping; closed-cell elastomeric insulation ASTM C534 19mm minimum)
+- "4.0" Installation Requirements (locate tank on suction side of primary pump at point of no pressure change; set factory pre-charge to ${precharge} kPa g with system depressurised; fill system to ${fillP} kPa g before start-up; install with tank neck up for top-mounted connections; provide access for periodic inspection per ASME VIII)
+- "5.0" Testing and Commissioning (verify pre-charge pressure matches factory setting ${precharge} kPa g; system pressure test at 1.25× MAWP = ${Math.round(Number(pMax)*1.25)} kPa for 1 hour; confirm α ≥ 0.25 after commissioning per ASHRAE; verify pressure relief valve opens at ${pMax} kPa g; submit commissioning report with pressure readings and acceptance factor calculation; PRC-licensed Mechanical Engineer to sign and seal)
+
+Each section items array must contain 3–5 bullet strings in professional Philippine engineering contractor style. Reference specific standards and actual project parameters (${tankL}L tank, α=${alpha}, ${sysType}).
+
+Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
+
+  const raw    = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -3284,6 +3354,8 @@ serve(async (req) => {
       result = await refrigPipeSizingBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "HVAC Systems" && calc_type === "FCU Selection") {
       result = await fcuSelectionBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "HVAC Systems" && calc_type === "Expansion Tank Sizing") {
+      result = await expansionTankBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),

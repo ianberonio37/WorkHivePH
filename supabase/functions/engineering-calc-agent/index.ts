@@ -1724,6 +1724,19 @@ Respond in JSON format only:
       const anyWarn  = lineArr.some(l => l.vel_check !== 'OK');
       const lineSummary = lineArr.map(l => `${l.name} (${l.line_type}): ${l.selected_od_mm}mm OD, v=${l.velocity_ms}m/s ${l.vel_check}, ΔT=${l.delta_t_k}K`).join('; ');
       recommendations = `Procure ASTM B280 ACR copper tubing for all ${refrig} refrigerant line sets — capacity ${capKw}kW, ${app} service, evaporating ${evapT}°C / condensing ${condT}°C. Line schedule: ${lineSummary}. ${anyWarn ? 'WARNING: one or more lines have velocity outside the ASHRAE recommended range — re-size before procurement.' : 'All lines are within ASHRAE velocity limits.'} Insulate all suction lines with minimum 19mm closed-cell elastomeric foam (ASTM C534) before pressure testing. Install oil traps at all suction vertical riser bases. All brazed joints shall use OFN (nitrogen purge brazing). Pressure test at 1.1× MAWP with dry nitrogen; evacuate to ≤500 microns before refrigerant charge. Refrigerant charge by weight per manufacturer specification adjusted for actual line length. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
+    } else if (calcType === "Expansion Tank Sizing") {
+      const sysType   = (inputs.system_type as string) || 'Chilled Water';
+      const tankL     = rec.selected_tank_L   ?? '';
+      const reqL      = rec.required_volume_L ?? '';
+      const alpha     = rec.acceptance_factor ?? '';
+      const pPrech    = rec.precharge_kpa_g   ?? '';
+      const pFill     = rec.fill_pressure_kpa_g ?? '';
+      const pMax      = rec.max_pressure_kpa_g  ?? (inputs.max_pressure_kpa_g ?? '');
+      const Ew        = rec.expansion_ratio    ?? '';
+      const Vexp      = rec.V_expansion_L      ?? '';
+      const sysVol    = rec.system_volume_L    ?? '';
+      const passAlpha = Number(alpha) >= 0.25;
+      recommendations = `Install a ${tankL}L pre-pressurised bladder/diaphragm expansion tank (ASME VIII-listed) on the ${sysType} closed-loop system. Required acceptance volume: ${reqL}L; acceptance factor α = ${alpha} (ASHRAE min 0.25 — ${passAlpha ? 'PASS' : 'FAIL: increase system maximum pressure or reduce fill pressure'}). Set factory pre-charge to ${pPrech} kPa g; confirm system fill pressure at ${pFill} kPa g before commissioning. System expansion volume: ${Vexp}L (E_w = ${Ew} for system volume ${sysVol}L). System maximum allowable working pressure: ${pMax} kPa g. ${!passAlpha ? `WARNING: Acceptance factor ${alpha} is below ASHRAE minimum of 0.25 — specify a larger tank or increase maximum pressure setting. ` : ''}Use EPDM bladder for CHW/HHW service. Install isolation valve, pressure gauge, and manual drain between the tank connection and the main pipe. Locate tank on the suction side of the primary pump at the point of no pressure change. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
     } else if (calcType === "FCU Selection") {
       const rooms      = Array.isArray(rec.rooms) ? rec.rooms as Array<{room_name:string; selected_model:string; qty:number; selected_kw:number}> : [];
       const totalDesKW = rec.total_design_kw  ?? '';
@@ -4608,6 +4621,113 @@ function calcDuctSizing(inputs: Record<string, unknown>): Record<string, unknown
   };
 }
 
+// ─── Expansion Tank Sizing — ASHRAE Acceptance Ratio Method / ASME VIII ──────
+
+// Water specific volume table (ASHRAE/IAPWS, L/kg) at key temperatures (°C)
+const WATER_SPEC_VOL: Array<[number, number]> = [
+  [0,  1.00013], [4,  1.00000], [10, 1.00030], [20, 1.00177],
+  [30, 1.00435], [40, 1.00786], [50, 1.01207], [60, 1.01705],
+  [70, 1.02277], [80, 1.02900], [90, 1.03601], [95, 1.03996], [99, 1.04305],
+];
+
+function waterSpecVol(tempC: number): number {
+  // Linear interpolation between table points; clamp to range
+  const t = Math.max(0, Math.min(99, tempC));
+  for (let i = 0; i < WATER_SPEC_VOL.length - 1; i++) {
+    const [t0, v0] = WATER_SPEC_VOL[i];
+    const [t1, v1] = WATER_SPEC_VOL[i + 1];
+    if (t >= t0 && t <= t1) {
+      return v0 + (v1 - v0) * (t - t0) / (t1 - t0);
+    }
+  }
+  return WATER_SPEC_VOL[WATER_SPEC_VOL.length - 1][1];
+}
+
+// Standard bladder/diaphragm expansion tank sizes (L)
+const EXP_TANK_SIZES = [8, 12, 18, 24, 35, 50, 60, 80, 100, 150, 200, 300, 400, 500, 750, 1000, 1500, 2000];
+
+function calcExpansionTank(inputs: Record<string, unknown>): Record<string, unknown> {
+  const r3 = (v: number) => Math.round(v * 1000) / 1000;
+  const r2 = (v: number) => Math.round(v * 100) / 100;
+
+  const systemType    = (inputs.system_type   as string) || 'Chilled Water';
+  const volumeMethod  = (inputs.volume_method as string) || 'Direct Entry';
+  const systemKw      = Number(inputs.system_kw      ?? 0);
+  const fillTempC     = Number(inputs.fill_temp_c    ?? 20);
+  const maxTempC      = Number(inputs.max_temp_c     ?? 18);
+  const staticHeadM   = Number(inputs.static_head_m  ?? 10);
+  const maxPressKpaG  = Number(inputs.max_pressure_kpa_g ?? 400);
+
+  // Determine system volume (L)
+  const KW_TO_VOL: Record<string, number> = {
+    'Chilled Water':     8,
+    'Heating Hot Water': 10,
+    'Condenser Water':   6,
+  };
+  let systemVolumeL = Number(inputs.system_volume_L ?? 0);
+  if (volumeMethod === 'Estimate from kW' && systemKw > 0) {
+    systemVolumeL = systemKw * (KW_TO_VOL[systemType] ?? 8);
+  }
+
+  // Water specific volumes
+  const vFill = waterSpecVol(fillTempC);   // L/kg at fill temperature
+  const vMax  = waterSpecVol(maxTempC);    // L/kg at max operating temperature
+
+  // Net expansion ratio (ASHRAE 2023 Handbook Fundamentals Ch.12)
+  const E_w = (vMax - vFill) / vFill;
+
+  // Net expansion volume (L)
+  const V_expansion = systemVolumeL * E_w;
+
+  // Pre-charge pressure (gauge, kPa): cover static head + safety margin
+  // Pre-charge = max(30, ceil(9.81 × h / 10) × 10) kPa g (round up to nearest 10)
+  const prechargeCalc = (9.81 * staticHeadM * 1000) / 1000; // kPa from head
+  const prechargeKpaG = Math.max(30, Math.ceil(prechargeCalc / 10) * 10);
+
+  // Fill pressure = pre-charge + 15 kPa safety margin
+  const fillPressureKpaG = prechargeKpaG + 15;
+
+  // Convert pressures to absolute (add 101.3 kPa atm)
+  const P_atm        = 101.3;
+  const P_fill_abs   = fillPressureKpaG  + P_atm;
+  const P_max_abs    = maxPressKpaG      + P_atm;
+
+  // Acceptance factor α (ASHRAE minimum = 0.25)
+  const alpha = 1 - P_fill_abs / P_max_abs;
+  const alphaCheck = alpha >= 0.25 ? 'PASS' : 'FAIL — increase Pmax or reduce fill pressure';
+
+  // Required tank volume (L) — ASME VIII acceptance ratio method
+  // V_tank = V_expansion / α
+  const requiredVolumeL = alpha > 0 ? V_expansion / alpha : 9999;
+
+  // Select standard tank size
+  const selectedTankL = EXP_TANK_SIZES.find(s => s >= requiredVolumeL) ?? EXP_TANK_SIZES[EXP_TANK_SIZES.length - 1];
+
+  // Pressure check: fill pressure must be < max pressure
+  const pressureCheck = fillPressureKpaG < maxPressKpaG ? 'PASS' : 'FAIL — fill pressure exceeds max system pressure';
+
+  return {
+    system_type:           systemType,
+    volume_method:         volumeMethod,
+    system_volume_L:       r2(systemVolumeL),
+    fill_temp_c:           fillTempC,
+    max_temp_c:            maxTempC,
+    v_fill:                r3(vFill),
+    v_max:                 r3(vMax),
+    expansion_ratio:       r3(E_w),
+    V_expansion_L:         r2(V_expansion),
+    static_head_m:         staticHeadM,
+    precharge_kpa_g:       prechargeKpaG,
+    fill_pressure_kpa_g:   fillPressureKpaG,
+    max_pressure_kpa_g:    maxPressKpaG,
+    acceptance_factor:     r3(alpha),
+    acceptance_check:      alphaCheck,
+    required_volume_L:     r2(requiredVolumeL),
+    selected_tank_L:       selectedTankL,
+    pressure_check:        pressureCheck,
+  };
+}
+
 // ─── FCU Selection — ASHRAE HVAC Systems and Equipment Handbook ───────────────
 
 // Standard FCU capacity tiers (manufacturer-agnostic, kW nominal at 7°C CHW / 27°C DB room)
@@ -5044,6 +5164,8 @@ serve(async (req) => {
       results = calcRefrigPipeSizing(inputs);
     } else if (calc_type === "FCU Selection") {
       results = calcFCUSelection(inputs);
+    } else if (calc_type === "Expansion Tank Sizing") {
+      results = calcExpansionTank(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),
