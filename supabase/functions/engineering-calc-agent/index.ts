@@ -1659,6 +1659,18 @@ Respond in JSON format only:
       const ic   = (inputs.breaker_ic_kA as number) ?? '';
       const recIC = rec.ic_min_recommended ?? '';
       recommendations = `Available fault current at panel: ${isc} kA (3-phase symmetrical). Breaker IC check: ${chk}. ${chk === 'FAIL' ? `Installed IC of ${ic} kA is insufficient — replace with minimum ${recIC} kA interrupting capacity breaker immediately. This is a critical safety deficiency.` : `Installed IC of ${ic} kA is adequate for ${isc} kA available fault.`} Verify IC rating of every branch breaker in this panel — fault current is the same at all points in the same panel. Request utility confirmation of available fault current at the point of delivery for final documentation. A PRC-licensed Electrical Engineer must sign and seal this document.`;
+    } else if (calcType === "Generator Sizing") {
+      const sel  = rec.selected_kva ?? '';
+      const selKW = rec.selected_kw ?? '';
+      const fuel  = rec.fuel_100pct_lhr ?? '';
+      const tank  = rec.tank_8hr_litres ?? '';
+      const load  = rec.loading_pct ?? '';
+      const app   = (inputs.application as string) || 'Standby (ESP)';
+      const start = rec.start_method ?? '';
+      const startKVA = rec.starting_kva ?? 0;
+      const runKVA   = rec.running_kva ?? 0;
+      const ctrl = Number(startKVA) > Number(runKVA) ? `Motor starting surge (${startKVA} kVA, ${start}) is the controlling factor — not running load.` : `Running demand (${runKVA} kVA) is the controlling factor.`;
+      recommendations = `Provide a ${sel} kVA (${selKW} kW) diesel generator set rated for ${app} duty per ISO 8528-1. ${ctrl} Operating loading at running demand: ${load}% — within the 75-80% recommended loading range for diesel generators. Design fuel tank for minimum 8-hour full-load operation: ${tank} liters. Connect to an Automatic Transfer Switch (ATS) per PEC Article 7 — transfer time must not exceed 10 seconds for emergency loads. Submit generator installation plans to LGU / DPWH for building permit endorsement. A PRC-licensed Electrical Engineer must sign and seal this document.`;
     } else if (calcType === "Bolt Torque & Preload") {
       const torque = rec.torque_Nm ?? '';
       const size   = (inputs.bolt_size as string) || '';
@@ -3954,6 +3966,85 @@ function calcBoiler(inputs: Record<string, number | string>): Record<string, unk
   };
 }
 
+// ─── Electrical: Generator Sizing — ISO 8528-1 / PEC Art. 7 / NFPA 110 ───────
+const STD_GEN_KVA = [10,15,20,25,30,40,50,62.5,75,87.5,100,125,150,175,200,250,300,350,400,450,500,600,750,875,1000,1250,1500,2000];
+
+function calcGeneratorSizing(inputs: Record<string, unknown>): Record<string, unknown> {
+  const round2 = (v: number) => Math.round(v * 100) / 100;
+
+  const loads = (inputs.loads as Array<{ load_type: string; quantity: number; watts_each: number; power_factor: number }>) || [];
+  const overallPF    = Number(inputs.overall_pf)    || 0.85;
+  const safetyFactor = Number(inputs.safety_factor) || 1.25;
+  const motorHP      = Number(inputs.motor_hp)      || 0;
+  const startMethod  = String(inputs.start_method || "DOL");
+  const application  = String(inputs.application  || "Standby (ESP)");
+
+  // Step 1: Running demand
+  const breakdown = loads.map(l => {
+    const qty = Number(l.quantity) || 1;
+    const w   = Number(l.watts_each) || 0;
+    const pf  = Number(l.power_factor) || 0.85;
+    const df  = LOAD_DEMAND_FACTOR[l.load_type] || 1.0;
+    const connVA = qty * w / pf;
+    const demVA  = connVA * df;
+    return { load_type: l.load_type, qty, watts_each: w, pf, demand_factor: df,
+             connected_va: Math.round(connVA), demand_va: Math.round(demVA) };
+  });
+
+  const totalDemandVA  = breakdown.reduce((s, l) => s + l.demand_va, 0);
+  const totalDemandKVA = round2(totalDemandVA / 1000);
+  const runningKW      = round2(totalDemandKVA * overallPF);
+  const runningKVA     = round2(totalDemandKVA);
+
+  // Step 2: Starting kVA (largest motor DOL surge)
+  const motorKW = round2(motorHP * 0.7457); // HP to kW
+  let startMultiplier = 1.0;
+  if (startMethod === "DOL")          startMultiplier = 3.5; // 6-7× FLA ≈ 3-4× kVA (conservative 3.5)
+  else if (startMethod === "Soft Starter") startMultiplier = 1.75;
+  else if (startMethod === "VFD")     startMultiplier = 1.25;
+  const startingKVA = round2(motorHP > 0 ? (motorKW / 0.85) * startMultiplier : 0);
+
+  // Step 3: Design kVA
+  const controllingKVA = Math.max(runningKVA, startingKVA);
+  const designKVA      = round2(controllingKVA * safetyFactor);
+
+  // Step 4: Select standard generator size
+  const selectedKVA = STD_GEN_KVA.find(s => s >= designKVA) || STD_GEN_KVA[STD_GEN_KVA.length - 1];
+  const selectedKW  = round2(selectedKVA * 0.8); // standard alternator PF 0.8
+  const loadingPct  = round2((runningKVA / selectedKVA) * 100);
+
+  // Step 5: Fuel consumption (diesel, ~0.25 L/kWh rule of thumb)
+  const fuel100KW    = round2(selectedKW * 1.0);
+  const fuel100LHr   = round2(fuel100KW * 0.25);
+  const fuel75LHr    = round2(fuel100KW * 0.75 * 0.25);
+  const tank8hrL     = Math.ceil(fuel100LHr * 8);
+
+  return {
+    phase_config:        inputs.phase_config,
+    application,
+    load_breakdown:      breakdown,
+    total_demand_va:     Math.round(totalDemandVA),
+    total_demand_kva:    totalDemandKVA,
+    overall_pf:          overallPF,
+    running_kw:          runningKW,
+    running_kva:         runningKVA,
+    motor_hp:            motorHP,
+    motor_kw:            motorKW,
+    start_method:        startMethod,
+    start_multiplier:    startMultiplier,
+    starting_kva:        startingKVA,
+    controlling_kva:     round2(controllingKVA),
+    safety_factor:       safetyFactor,
+    design_kva:          designKVA,
+    selected_kva:        selectedKVA,
+    selected_kw:         selectedKW,
+    loading_pct:         loadingPct,
+    fuel_75pct_lhr:      fuel75LHr,
+    fuel_100pct_lhr:     fuel100LHr,
+    tank_8hr_litres:     tank8hrL,
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -4039,6 +4130,8 @@ serve(async (req) => {
       results = calcStormDrain(inputs);
     } else if (calc_type === "Boiler System") {
       results = calcBoiler(inputs);
+    } else if (calc_type === "Generator Sizing") {
+      results = calcGeneratorSizing(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

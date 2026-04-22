@@ -692,7 +692,8 @@ const CALC_TYPES = {
     { id: 'Voltage Drop',     icon: '📉', desc: 'VD % check, conductor length limits',         available: true  },
     { id: 'Wire Sizing',      icon: '🔌', desc: 'Ampacity, conductor size per PEC Table 3.10', available: true  },
     { id: 'Short Circuit',    icon: '⚡', desc: 'Fault current, breaker interrupting capacity', available: true  },
-    { id: 'Lighting Design',  icon: '💡', desc: 'Lumen method, number of fixtures per room',   available: true  },
+    { id: 'Lighting Design',   icon: '💡', desc: 'Lumen method, number of fixtures per room',   available: true  },
+    { id: 'Generator Sizing', icon: '🔋', desc: 'Running kVA, starting kVA (motor surge), genset size, diesel fuel consumption — ISO 8528-1 / PEC / NFPA 110', available: true  },
   ],
   'Fire Protection': [
     { id: 'Fire Sprinkler Hydraulic', icon: '🚿', desc: 'NFPA 13 design area method, flow and pressure', available: true  },
@@ -1532,6 +1533,45 @@ const GUIDES = {
       'LED panels are the standard choice for Philippine office and commercial projects. High bay LEDs for industrial spaces (ceiling > 6 m).',
       'Diversity: actual layouts may require more fixtures to eliminate dark zones — add 10-15% to calculated N as a practical allowance.',
       'Philippine grid voltage is 230V / 60 Hz. Verify fixture compatibility before specification.',
+    ],
+  },
+
+  'Generator Sizing': {
+    title: 'Generator Sizing — Running kVA, Starting kVA & Fuel Consumption',
+    subtitle: 'Determines the required standby/prime generator kVA by computing total running demand, largest motor starting surge (DOL), and selects the next standard generator size per ISO 8528-1 and NFPA 110.',
+    standards: ['ISO 8528-1 — Reciprocating Internal Combustion Engine Driven AC Generator Sets','Philippine Electrical Code (PEC) 2017 — Article 7 (Emergency and Standby Systems)','NFPA 110 — Standard for Emergency and Standby Power Systems','IEC 60034-1 — Rotating Electrical Machines (alternator rating)'],
+    formulas: [
+      'Running kVA = Total Demand kW / Overall PF',
+      '',
+      'Starting kVA (motor surge) = Largest motor kW × DOL start multiplier / motor PF',
+      '  DOL start multiplier: typically 6–7× FLA → equivalent to ~3–4× running kVA',
+      '  Soft-starter / VFD: multiplier ≈ 1.5–2× (greatly reduces generator size)',
+      '',
+      'Design kVA = max(Running kVA, Starting kVA) × safety factor (typically 1.1–1.25)',
+      '',
+      'Select standard generator size ≥ Design kVA',
+      'Standard generator kVA: 10, 15, 20, 25, 30, 40, 50, 62.5, 75, 87.5, 100, 125, 150, 175, 200,',
+      '  250, 300, 350, 400, 450, 500, 600, 750, 875, 1000, 1250, 1500, 2000 kVA',
+      '',
+      'Diesel fuel consumption (L/hr) ≈ 0.25 × Generator kW output  (at full load)',
+      '  (Rule of thumb: 250 mL/kWh for modern diesel gensets)',
+      '',
+      'Alternator output (kW) = Generator kVA × Alternator PF (typically 0.8)',
+    ],
+    fields: [
+      { name: 'Load Schedule', tip: 'Add every load that will run on generator power. For standby gensets, include only critical loads. For prime power, include all loads. Generator sizing is typically based on the worst-case simultaneous running scenario.' },
+      { name: 'Largest Motor HP', tip: 'The biggest motor that starts DOL (direct online) while the generator is running. This creates a current surge 6-7× the motor FLA and is usually the controlling factor for generator size. Enter 0 if no motors or if all motors use soft starters or VFDs.' },
+      { name: 'Motor Starting Method', tip: 'DOL (direct online): heaviest surge — generator must be oversized significantly. Soft Starter: reduces starting current to ~1.5-2× FLA. VFD: gentlest start — generator can be sized closer to running load only. DOL is most common in Philippine industrial sites.' },
+      { name: 'System Voltage & Phase', tip: '400V 3-phase is standard for commercial/industrial. 230V single-phase for small residential/backup.' },
+      { name: 'Safety Factor', tip: '1.1 = tight budget (10% margin). 1.2 = standard practice. 1.25 = recommended for motors and inductive loads. 1.3+ = for critical systems or future expansion. Philippine practice: 1.2–1.25 is most common.' },
+      { name: 'Generator Application', tip: 'Standby: starts on mains failure, rated for 80% load at PRP rating. Prime: runs continuously as main source, rated at 100% continuous load. Emergency: must start within 10 seconds per PEC Article 7 / NFPA 110.' },
+    ],
+    notes: [
+      'ISO 8528-1 defines four power ratings: COP (Continuous Operating Power), PRP (Prime Rated Power), LTP (Limited Time Power), ESP (Emergency Standby Power). Philippine practice: most standby gensets are rated at ESP — reduce rated capacity by 10% for continuous use.',
+      'Transient voltage dip on motor start (DOL): typically 20-35% voltage sag on the genset bus. Sensitive loads (computers, medical equipment) may trip on this dip — consider ATS time delay or a separate UPS circuit.',
+      'Diesel fuel: a 200 kVA genset running at 80% load consumes approximately 32-40 L/hr. Always provide a minimum 8-hour fuel tank at full load per NFPA 110.',
+      'Philippine context: Meralco areas experience frequent planned outages (load shedding). Standby generators are standard for commercial buildings, manufacturing, hospitals, and hotels. BFP and DPWH require emergency gensets in buildings above 3 floors or with fire pumps.',
+      'PEC Article 7 (Emergency Systems): emergency power must be restored within 10 seconds of normal power failure for life-safety loads (fire alarm, emergency lighting, fire pumps, elevators).',
     ],
   },
 
@@ -3767,6 +3807,93 @@ function renderInputForm(calcType) {
     document.getElementById('calc-btn').disabled = false;
   }
 
+  if (calcType === 'Generator Sizing') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Generator Tag</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. GEN-1 — 200 kVA Standby Diesel Generator" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">System Configuration</div>
+        <div class="toggle-group" id="tg-gen-phase">
+          ${['1-Phase 2-Wire (230V)','3-Phase 4-Wire (400V)'].map((v,i) =>
+            `<button class="toggle-btn${i===1?' active':''}" onclick="toggle('tg-gen-phase','${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Generator Application</div>
+        <div class="toggle-group" id="tg-gen-app">
+          ${['Standby (ESP)','Prime Power (PRP)','Emergency (10 s)'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-gen-app','${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <div class="mb-2">
+        <div class="field-label">Connected Load Schedule</div>
+        <div style="display:grid;grid-template-columns:1fr 55px 80px 80px 28px;gap:0.3rem;align-items:center;margin-bottom:0.3rem;">
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Load Type</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Qty</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Watts each</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">PF</div>
+          <div></div>
+        </div>
+        <div id="gen-load-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;"></div>
+        <button class="btn-ghost text-sm py-2 px-4" onclick="addGenLoadRow()">+ Add Load</button>
+      </div>
+
+      <div class="mb-4" style="margin-top:0.75rem;">
+        <div class="field-label">Largest Motor (DOL Start)</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <div style="font-size:0.78rem;color:rgba(255,255,255,0.45);margin-bottom:0.3rem;">Motor Size</div>
+            <div class="input-group">
+              <input id="f-gen-motor-hp" class="wh-input" type="number" value="0" min="0" step="1" placeholder="0 = no large motor" />
+              <span class="input-unit">HP</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:0.78rem;color:rgba(255,255,255,0.45);margin-bottom:0.3rem;">Starting Method</div>
+            <select id="f-gen-start-method" class="wh-input">
+              <option value="DOL">DOL (Direct Online)</option>
+              <option value="Soft Starter">Soft Starter</option>
+              <option value="VFD">VFD (Variable Frequency Drive)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Overall Power Factor</div>
+          <div class="input-group">
+            <input id="f-gen-pf" class="wh-input" type="number" value="0.85" min="0.5" max="1.0" step="0.05" />
+            <span class="input-unit">PF</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Safety Factor</div>
+          <div class="input-group">
+            <input id="f-gen-sf" class="wh-input" type="number" value="1.25" min="1.0" max="2.0" step="0.05" />
+            <span class="input-unit">×</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        ISO 8528-1 / PEC Article 7 / NFPA 110. Generator kVA = max(Running kVA, Starting kVA) × Safety Factor. DOL motor start surge ≈ 3× running kVA of that motor. Diesel fuel ≈ 0.25 L/kWh.
+      </div>
+    `;
+    addGenLoadRow('Lighting (General)', 10, 40, 0.95);
+    addGenLoadRow('Convenience Receptacles', 6, 180, 1.0);
+    addGenLoadRow('Air Conditioning (Unit)', 2, 1500, 0.85);
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
   if (calcType === 'Voltage Drop') {
     area.innerHTML = `
       <div class="mb-4">
@@ -5813,6 +5940,39 @@ function applyLoadDefaults(id) {
   if (pfEl && LOAD_TYPE_PF[sel] !== undefined) pfEl.value = LOAD_TYPE_PF[sel];
 }
 
+let _genLoadRowId = 0;
+function addGenLoadRow(defaultType = 'Lighting (General)', defaultQty = 1, defaultW = 100, defaultPF = 0.95) {
+  const id  = ++_genLoadRowId;
+  const row = document.createElement('div');
+  row.id    = `gen-load-row-${id}`;
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 55px 80px 80px 28px;gap:0.4rem;align-items:center;';
+  row.innerHTML = `
+    <select class="wh-input text-sm py-2" id="glt-type-${id}" onchange="applyGenLoadDefaults(${id})">
+      ${LOAD_TYPE_OPTIONS.map(t => `<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
+    </select>
+    <div class="input-group" style="min-width:0;">
+      <input id="glt-qty-${id}" class="wh-input text-sm py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.6rem;">qty</span>
+    </div>
+    <div class="input-group" style="min-width:0;">
+      <input id="glt-w-${id}" class="wh-input text-sm py-2" type="number" value="${defaultW}" min="1" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.6rem;">W</span>
+    </div>
+    <div class="input-group" style="min-width:0;">
+      <input id="glt-pf-${id}" class="wh-input text-sm py-2" type="number" value="${defaultPF}" min="0.5" max="1.0" step="0.05" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.6rem;">PF</span>
+    </div>
+    <button onclick="document.getElementById('gen-load-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+  `;
+  document.getElementById('gen-load-list').appendChild(row);
+}
+
+function applyGenLoadDefaults(id) {
+  const sel = document.getElementById(`glt-type-${id}`)?.value;
+  const pfEl = document.getElementById(`glt-pf-${id}`);
+  if (pfEl && LOAD_TYPE_PF[sel] !== undefined) pfEl.value = LOAD_TYPE_PF[sel];
+}
+
 function applyVDLimit(circuitType) {
   const el = document.getElementById('f-vd-limit');
   if (el) el.value = circuitType === 'Feeder' ? 2 : 3;
@@ -5953,6 +6113,28 @@ function collectInputs() {
       project_name:  v('f-project') || 'Untitled Panel',
       phase_config:  getToggle('tg-phase') || '3-Phase 4-Wire (400V)',
       loads,
+    };
+  }
+
+  if (_calcType === 'Generator Sizing') {
+    const genLoads = [];
+    document.querySelectorAll('#gen-load-list > div[id^="gen-load-row-"]').forEach(row => {
+      const rid  = row.id.replace('gen-load-row-', '');
+      const type = document.getElementById(`glt-type-${rid}`)?.value || '';
+      const qty  = parseFloat(document.getElementById(`glt-qty-${rid}`)?.value) || 1;
+      const w    = parseFloat(document.getElementById(`glt-w-${rid}`)?.value) || 0;
+      const pf   = parseFloat(document.getElementById(`glt-pf-${rid}`)?.value) || 0.85;
+      if (type) genLoads.push({ load_type: type, quantity: qty, watts_each: w, power_factor: pf });
+    });
+    return {
+      project_name:   v('f-project') || 'Untitled Generator',
+      phase_config:   getToggle('tg-gen-phase') || '3-Phase 4-Wire (400V)',
+      application:    getToggle('tg-gen-app') || 'Standby (ESP)',
+      motor_hp:       parseFloat(v('f-gen-motor-hp'))  || 0,
+      start_method:   document.getElementById('f-gen-start-method')?.value || 'DOL',
+      overall_pf:     parseFloat(v('f-gen-pf')) || 0.85,
+      safety_factor:  parseFloat(v('f-gen-sf')) || 1.25,
+      loads:          genLoads,
     };
   }
 
@@ -6605,6 +6787,11 @@ async function runCalculation() {
       showToast('Please add at least one load to the schedule.');
       return;
     }
+  } else if (_calcType === 'Generator Sizing') {
+    if (!inputs.loads || inputs.loads.length === 0) {
+      showToast('Please add at least one load to the schedule.');
+      return;
+    }
   } else if (_calcType === 'Voltage Drop') {
     if (!inputs.current || inputs.current <= 0) {
       showToast('Please enter the load current.');
@@ -6840,6 +7027,8 @@ async function runCalculation() {
       renderDrainageReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Septic Tank Sizing') {
       renderSepticReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Generator Sizing') {
+      renderGeneratorReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Load Estimation') {
       renderLoadReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Voltage Drop') {
@@ -7925,6 +8114,175 @@ function renderPumpReport(inputs, results, narrative) {
   `;
 
   document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── Generator Sizing Report ─────────────────────────────────────────────────
+function renderGeneratorReport(inputs, results, narrative) {
+  const e = escHtml;
+  const r = results;
+  const n = narrative || {};
+
+  const stdSizes = [10,15,20,25,30,40,50,62.5,75,87.5,100,125,150,175,200,250,300,350,400,450,500,600,750,875,1000,1250,1500,2000];
+
+  document.getElementById('report-panel').innerHTML = `
+    <div style="max-width:900px;margin:0 auto;padding:2.5rem;background:#fff;color:#1a1a1a;border-radius:1rem;font-family:'Times New Roman',Times,serif;font-size:0.9rem;line-height:1.6;">
+
+      <div style="text-align:center;border-bottom:2px solid #162032;padding-bottom:1rem;margin-bottom:1.5rem;">
+        <div style="font-size:1.4rem;font-weight:700;color:#162032;text-transform:uppercase;letter-spacing:1px;">Design Calculation Report</div>
+        <div style="font-size:1rem;color:#333;margin-top:0.3rem;">Generator Sizing — ${e(inputs.application || 'Standby')} Diesel Genset</div>
+        <div style="font-size:0.85rem;color:#444;margin-top:0.4rem;">${e(inputs.project_name || 'Untitled Project')}</div>
+      </div>
+
+      <table style="width:100%;margin-bottom:1.5rem;font-size:0.82rem;border-collapse:collapse;">
+        <tr>
+          <td style="width:25%;color:#555;">Project:</td>
+          <td style="font-weight:600;" contenteditable="true" style="border-bottom:1.5px dashed #F7A21B;outline:none;">${e(inputs.project_name || '________________________')}</td>
+          <td style="width:25%;color:#555;">Date:</td>
+          <td contenteditable="true" style="border-bottom:1.5px dashed #F7A21B;outline:none;">${new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'})}</td>
+        </tr>
+        <tr>
+          <td style="color:#555;">Application:</td><td>${e(inputs.application || 'Standby (ESP)')}</td>
+          <td style="color:#555;">Phase Config:</td><td>${e(inputs.phase_config || '3-Phase 4-Wire (400V)')}</td>
+        </tr>
+        <tr>
+          <td style="color:#555;">Prepared by:</td>
+          <td contenteditable="true" style="border-bottom:1.5px dashed #F7A21B;outline:none;">________________________</td>
+          <td style="color:#555;">Checked by:</td>
+          <td contenteditable="true" style="border-bottom:1.5px dashed #F7A21B;outline:none;">________________________</td>
+        </tr>
+      </table>
+
+      ${n.objective ? `<h2 style="font-size:1rem;font-weight:700;color:#162032;margin:1.2rem 0 0.4rem;border-bottom:1px solid #ddd;padding-bottom:0.2rem;">1. Objective</h2><p>${e(n.objective)}</p>` : ''}
+
+      <h2 style="font-size:1rem;font-weight:700;color:#162032;margin:1.2rem 0 0.4rem;border-bottom:1px solid #ddd;padding-bottom:0.2rem;">2. References / Standards</h2>
+      <ul style="margin:0 0 1rem 1.2rem;font-size:0.85rem;">
+        <li>ISO 8528-1 — Reciprocating IC Engine Driven AC Generator Sets</li>
+        <li>Philippine Electrical Code (PEC) 2017 — Article 7 (Emergency and Standby Systems)</li>
+        <li>NFPA 110 — Standard for Emergency and Standby Power Systems</li>
+        <li>IEC 60034-1 — Rotating Electrical Machines</li>
+      </ul>
+
+      ${n.assumptions ? `<h2 style="font-size:1rem;font-weight:700;color:#162032;margin:1.2rem 0 0.4rem;border-bottom:1px solid #ddd;padding-bottom:0.2rem;">3. Design Assumptions</h2><p>${e(n.assumptions)}</p>` : ''}
+
+      <h2 style="font-size:1rem;font-weight:700;color:#162032;margin:1.2rem 0 0.4rem;border-bottom:1px solid #ddd;padding-bottom:0.2rem;">4. Connected Load Schedule</h2>
+      <div class="table-wrap">
+      <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+        <tr>
+          <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Load Type</th>
+          <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:right;">Qty</th>
+          <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:right;">W each</th>
+          <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:right;">PF</th>
+          <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:right;">Dem. Factor</th>
+          <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:right;">Demand VA</th>
+        </tr>
+        ${(r.load_breakdown || []).map(row => `
+        <tr style="border-bottom:1px solid #eee;">
+          <td style="padding:0.35rem 0.5rem;">${e(row.load_type)}</td>
+          <td style="padding:0.35rem 0.5rem;text-align:right;">${row.qty}</td>
+          <td style="padding:0.35rem 0.5rem;text-align:right;">${(row.watts_each||0).toLocaleString()}</td>
+          <td style="padding:0.35rem 0.5rem;text-align:right;">${row.pf}</td>
+          <td style="padding:0.35rem 0.5rem;text-align:right;">${row.demand_factor}</td>
+          <td style="padding:0.35rem 0.5rem;text-align:right;">${(row.demand_va||0).toLocaleString()}</td>
+        </tr>`).join('')}
+        <tr style="font-weight:700;border-top:2px solid #162032;">
+          <td colspan="5" style="padding:0.35rem 0.5rem;">Total Connected / Demand</td>
+          <td style="padding:0.35rem 0.5rem;text-align:right;">${(r.total_demand_va||0).toLocaleString()} VA</td>
+        </tr>
+      </table>
+      </div>
+
+      <h2 style="font-size:1rem;font-weight:700;color:#162032;margin:1.2rem 0 0.4rem;border-bottom:1px solid #ddd;padding-bottom:0.2rem;">5. Calculation Steps</h2>
+
+      <p><strong>Step 1 — Running kVA</strong></p>
+      <p>Total Demand = ${(r.total_demand_va||0).toLocaleString()} VA = ${r.total_demand_kva||0} kVA</p>
+      <p>Overall PF = ${r.overall_pf||0.85}</p>
+      <p>Running kW = ${r.running_kw||0} kW</p>
+      <p>Running kVA = ${r.running_kva||0} kVA</p>
+
+      <p><strong>Step 2 — Starting kVA (Largest Motor Surge)</strong></p>
+      <p>Largest motor: ${r.motor_hp||0} HP = ${r.motor_kw||0} kW (${e(r.start_method||'DOL')} start)</p>
+      <p>Starting kVA multiplier: ${r.start_multiplier||0}×</p>
+      <p>Starting kVA = ${r.starting_kva||0} kVA</p>
+
+      <p><strong>Step 3 — Design kVA</strong></p>
+      <p>Controlling kVA = max(Running ${r.running_kva||0} kVA, Starting ${r.starting_kva||0} kVA) = ${r.controlling_kva||0} kVA</p>
+      <p>Safety Factor = ${r.safety_factor||1.25}×</p>
+      <p>Design kVA = ${r.design_kva||0} kVA</p>
+
+      <p><strong>Step 4 — Standard Generator Size Selection</strong></p>
+      <p>Next standard size ≥ ${r.design_kva||0} kVA → <strong>${r.selected_kva||0} kVA</strong></p>
+      <p>Rated kW output = ${r.selected_kw||0} kW (at PF 0.8)</p>
+      <p>% Loading at running demand = ${r.loading_pct||0}%</p>
+
+      <p><strong>Step 5 — Fuel Consumption</strong></p>
+      <p>At 75% load: ${r.fuel_75pct_lhr||0} L/hr</p>
+      <p>At 100% load: ${r.fuel_100pct_lhr||0} L/hr</p>
+      <p>Minimum 8-hour tank capacity (100% load) = ${r.tank_8hr_litres||0} L</p>
+
+      <h2 style="font-size:1rem;font-weight:700;color:#162032;margin:1.2rem 0 0.4rem;border-bottom:1px solid #ddd;padding-bottom:0.2rem;">6. Summary of Results</h2>
+
+      <table style="width:100%;border-collapse:separate;border-spacing:0.5rem;margin-bottom:1rem;page-break-inside:avoid;break-inside:avoid;">
+        <tr>
+          <td style="width:50%;padding:0;vertical-align:top;">
+            <div class="result-highlight" style="background:#f0f4ff;border:2px solid #162032;border-radius:0.6rem;padding:0.85rem 1rem;text-align:center;page-break-inside:avoid;break-inside:avoid;">
+              <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Selected Generator</div>
+              <div style="font-size:1.5rem;font-weight:800;color:#162032;">${r.selected_kva||0} kVA</div>
+              <div style="font-size:0.82rem;color:#333;">${r.selected_kw||0} kW @ PF 0.8</div>
+            </div>
+          </td>
+          <td style="width:50%;padding:0;vertical-align:top;">
+            <div class="result-highlight" style="background:#fff8e1;border:2px solid #F7A21B;border-radius:0.6rem;padding:0.85rem 1rem;text-align:center;page-break-inside:avoid;break-inside:avoid;">
+              <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Running kVA</div>
+              <div style="font-size:1.5rem;font-weight:800;color:#D88A0E;">${r.running_kva||0} kVA</div>
+              <div style="font-size:0.82rem;color:#333;">${r.running_kw||0} kW demand</div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0;vertical-align:top;">
+            <div class="result-highlight" style="background:#fff0f0;border:2px solid #c0392b;border-radius:0.6rem;padding:0.85rem 1rem;text-align:center;page-break-inside:avoid;break-inside:avoid;">
+              <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Starting kVA (surge)</div>
+              <div style="font-size:1.5rem;font-weight:800;color:#c0392b;">${r.starting_kva||0} kVA</div>
+              <div style="font-size:0.82rem;color:#333;">${r.motor_hp||0} HP motor, ${e(r.start_method||'DOL')}</div>
+            </div>
+          </td>
+          <td style="padding:0;vertical-align:top;">
+            <div class="result-highlight" style="background:#f0fff4;border:2px solid #27ae60;border-radius:0.6rem;padding:0.85rem 1rem;text-align:center;page-break-inside:avoid;break-inside:avoid;">
+              <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Fuel (100% load)</div>
+              <div style="font-size:1.5rem;font-weight:800;color:#27ae60;">${r.fuel_100pct_lhr||0} L/hr</div>
+              <div style="font-size:0.82rem;color:#333;">${r.tank_8hr_litres||0} L min tank (8 hr)</div>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      ${n.recommendations ? `<h2 style="font-size:1rem;font-weight:700;color:#162032;margin:1.2rem 0 0.4rem;border-bottom:1px solid #ddd;padding-bottom:0.2rem;">7. Recommendations</h2><p>${e(n.recommendations)}</p>` : ''}
+
+      <div style="margin-top:2rem;padding-top:1rem;border-top:1px solid #ddd;">
+        <div style="display:flex;gap:2rem;flex-wrap:wrap;">
+          <div style="flex:1 1 200px;">
+            <div style="border-top:1px solid #999;padding-top:0.3rem;font-size:0.75rem;">
+              <div style="font-weight:700;color:#1a1a1a;">________________________</div>
+              <div style="color:#555;">Electrical Engineer / Prepared by</div>
+              <div style="margin-top:0.2rem;">PRC Lic. No.: _____________</div>
+              <div>PTR No.: _____________</div>
+              <div>Date: _____________</div>
+            </div>
+          </div>
+          <div style="flex:1 1 200px;">
+            <div style="border-top:1px solid #999;padding-top:0.3rem;font-size:0.75rem;">
+              <div style="font-weight:700;color:#1a1a1a;">________________________</div>
+              <div style="color:#555;">Electrical Engineer / Checked by</div>
+              <div style="margin-top:0.2rem;">PRC Lic. No.: _____________</div>
+              <div>PTR No.: _____________</div>
+              <div>Date: _____________</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
   showReport();
 }
 
@@ -11439,6 +11797,8 @@ function viewHistoryReport(row) {
     renderSTPReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Storm Drain / Stormwater') {
     renderStormDrainReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Generator Sizing') {
+    renderGeneratorReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
@@ -11475,7 +11835,7 @@ async function generateBomSowChecklist() {
   if (!_lastResults || !_lastInputs) { showToast('Run a calculation first.'); return; }
   const BOM_SOW_SUPPORTED = {
     'Mechanical': ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air', 'Boiler System'],
-    'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design'],
+    'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design', 'Generator Sizing'],
     'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)', 'Storm Drain / Stormwater'],
     'Fire Protection':         ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],
     'Vertical Transportation': ['Elevator Traffic Analysis', 'Hoist Capacity'],
