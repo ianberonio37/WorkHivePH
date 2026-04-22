@@ -10662,7 +10662,7 @@ function renderBomTablePreview(items) {
       </div>
 
       <!-- NOTES — editable -->
-      <div style="margin-top:1.25rem;font-size:0.76rem;color:#333;border-top:1px solid #e0e0e0;padding-top:0.75rem;">
+      <div class="bom-notes-block" style="margin-top:1.25rem;font-size:0.76rem;color:#333;border-top:1px solid #e0e0e0;padding-top:0.75rem;">
         <strong>Notes:</strong>
         <div class="editable-field" contenteditable="true" style="display:block;margin-top:0.3rem;min-height:2.5rem;color:#555;line-height:1.6;">
           ${isLight
@@ -11684,6 +11684,7 @@ function downloadBomDocPdf() {
     #bom-doc-content p { page-break-inside: avoid; break-inside: avoid; }
     #bom-doc-content .doc-header-row { page-break-inside: avoid; break-inside: avoid; }
     #bom-doc-content .sig-block { page-break-inside: avoid; break-inside: avoid; }
+    #bom-doc-content .bom-notes-block { page-break-inside: avoid; break-inside: avoid; }
     #bom-doc-content .result-highlight { page-break-inside: avoid; break-inside: avoid; }
     #bom-doc-content .editable-field { border-bottom: none !important; border: none !important; outline: none !important; background: transparent !important; }
     #bom-doc-content td, #bom-doc-content th { vertical-align: top; }
