@@ -330,7 +330,7 @@
       font-size: 0.78rem;
       font-family: 'Poppins', sans-serif;
       outline: none;
-      width: 62px;
+      width: 90px;
     }
     .bom-delete-btn {
       background: none;
@@ -11922,9 +11922,11 @@ function renderBomChecklist() {
           <input class="bom-item-input qty" type="number" min="0" step="0.1" value="${item.qty ?? 1}"
             oninput="_bomItems[${i}].qty=parseFloat(this.value)||0" />
           <select class="bom-item-select" onchange="_bomItems[${i}].unit=this.value">
-            ${['unit','m','set','pc','lot','kg','roll','pair'].map(u =>
-              `<option value="${u}" ${item.unit === u ? 'selected' : ''}>${u}</option>`
-            ).join('')}
+            ${(() => {
+              const stdUnits = ['unit','set','pc','lot','m','m²','m³','kg','L','roll','pair','panel','breaker','tank','battery','length','run','assembly'];
+              const opts = stdUnits.includes(item.unit) ? stdUnits : [...stdUnits, item.unit];
+              return opts.map(u => `<option value="${u}" ${item.unit === u ? 'selected' : ''}>${u}</option>`).join('');
+            })()}
           </select>
         </div>
         <div class="bom-item-row">
