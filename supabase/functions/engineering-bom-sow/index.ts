@@ -1699,6 +1699,134 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Chiller System — Water Cooled BOM + SOW Agent ───────────────────────────
+
+async function chillerWaterCooledBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project        = inputs.project_name   || "Water-Cooled Chiller Plant Project";
+  const chillerType    = String(inputs.chiller_type  || results.chiller_type || "Centrifugal");
+  const nUnits         = Number(inputs.n_units  ?? results.n_units ?? 2);
+  const nominalTR      = Number(results.nominal_TR_each  ?? 100);
+  const nominalKW      = Number(results.nominal_kW_each  ?? nominalTR * 3.517);
+  const totalTR        = Number(results.nominal_total_TR ?? nominalTR * nUnits);
+  const designKW       = Number(results.Q_design_kW ?? 0);
+  const compPowerKW    = Number(results.P_total_kW  ?? 0);
+  const compPerUnitKW  = Number(results.P_per_unit_kW ?? compPowerKW / nUnits);
+  const totalKVA       = Number(results.total_kVA ?? compPowerKW / 0.85);
+  const totalAmp       = Number(results.total_A_at_400V ?? 0);
+  const chwFlowLps     = Number(results.Q_chw_lps ?? 0);
+  const chwFlowM3h     = Number(results.Q_chw_m3h ?? 0);
+  const cwFlowLps      = Number(results.Q_cw_lps  ?? 0);
+  const cwFlowM3h      = Number(results.Q_cw_m3h  ?? 0);
+  const qRejectionKW   = Number(results.Q_rejection_kW ?? 0);
+  const qRejectionTR   = Number(results.Q_rejection_TR ?? 0);
+  const chwSupply      = Number(inputs.chw_supply_C ?? 7);
+  const chwReturn      = Number(inputs.chw_return_C ?? 12);
+  const cwSupply       = Number(inputs.cw_supply_C  ?? 29);
+  const cwReturn       = Number(inputs.cw_return_C  ?? 35);
+  const dTchw          = Number(results.dT_chw_C ?? (chwReturn - chwSupply));
+  const dTcw           = Number(results.dT_cw_C  ?? (cwReturn - cwSupply));
+  const cop            = Number(inputs.cop ?? 5.5);
+  const copCheck       = String(results.cop_check ?? "PASS");
+  const ashraeMinCop   = Number(results.ashrae_min_cop ?? 5.00);
+  const refrigerant    = String(results.refrigerant ?? "R-134a or R-1234ze(E)");
+  const safetyFactor   = Number(inputs.safety_factor ?? 1.10);
+
+  // COP FAIL flag — mandatory upgrade language
+  const isCopFail = copCheck === "FAIL";
+  const copNote   = isCopFail
+    ? `FAIL — COP ${cop} is below ASHRAE 90.1 minimum of ${ashraeMinCop} for ${chillerType}. Equipment must be re-selected before procurement. HOLD: do not procure until COP-compliant chiller is confirmed by manufacturer data sheet.`
+    : `PASS — COP ${cop} meets ASHRAE 90.1 minimum of ${ashraeMinCop} for ${chillerType}.`;
+
+  // Multi-unit / redundancy flag
+  const isMultiUnit    = nUnits >= 2;
+  const redundancyNote = isMultiUnit
+    ? `${nUnits}-unit configuration with lead-lag sequencing. Each unit capable of carrying full design load during standby.`
+    : `Single-unit configuration — no built-in redundancy. Provide portable chiller contingency for critical facilities.`;
+
+  // Chiller type flag — centrifugal needs magnetic bearings note; screw/scroll different
+  const isCentrifugal = chillerType.toLowerCase().includes("centrifugal");
+
+  // Cooling tower note — must be sized for Q_rejection, not Q_evap
+  const ctNote = `Cooling tower MUST be sized for heat REJECTION load of ${qRejectionTR} TR (${qRejectionKW} kW) — NOT the chiller nominal TR of ${nominalTR * nUnits} TR. Q_rejection = Q_evap + W_compressor. This is a common sizing error that results in an undersized cooling tower and high condenser water temperatures that degrade chiller COP.`;
+
+  // CHW pipe diameter estimate (velocity ~1.5 m/s)
+  const chwPipeMm = Math.ceil(Math.sqrt((chwFlowLps / (Math.PI / 4 * 1.5)) * 1e6) / 25) * 25;
+  // CW pipe diameter estimate (velocity ~2.0 m/s)
+  const cwPipeMm  = Math.ceil(Math.sqrt((cwFlowLps  / (Math.PI / 4 * 2.0)) * 1e6) / 25) * 25;
+
+  const prompt = `You are a licensed Mechanical Engineer in the Philippines preparing official procurement and contracting documents for a WATER-COOLED CHILLER PLANT installation.
+
+PROJECT: ${project}
+CHILLER TYPE: ${chillerType}
+STANDARDS: ASHRAE 90.1 (COP: ${ashraeMinCop} min for ${chillerType}), ASHRAE 15 (refrigerant safety), ASHRAE Guideline 12 (Legionella/CW treatment), CTI STD-201 (cooling tower), PSME Code, PEC 2017, PGBC/BERDE
+
+CALCULATION RESULTS:
+- Building Cooling Load: ${designKW / safetyFactor} kW (safety factor: ${safetyFactor})
+- Design Load: ${designKW} kW
+- Number of Chiller Units: ${nUnits} × ${nominalTR} TR (${nominalKW} kW each)
+- Total Installed Capacity: ${totalTR} TR
+- Compressor Power per Unit: ${compPerUnitKW} kW
+- Total Compressor Power: ${compPowerKW} kW | ${totalKVA} kVA | ${totalAmp} A FLA (3-phase 400V)
+- COP: ${cop} — ASHRAE 90.1 Check: ${copNote}
+- CHW Supply/Return: ${chwSupply}°C / ${chwReturn}°C (ΔT = ${dTchw}°C)
+- CHW Flow Rate: ${chwFlowLps} L/s (${chwFlowM3h} m³/h) — estimated pipe ~${chwPipeMm}mm
+- Condenser Heat Rejection: ${qRejectionKW} kW = ${qRejectionTR} TR
+- ${ctNote}
+- CW Supply/Return: ${cwSupply}°C / ${cwReturn}°C (ΔT = ${dTcw}°C)
+- CW Flow Rate: ${cwFlowLps} L/s (${cwFlowM3h} m³/h) — estimated pipe ~${cwPipeMm}mm
+- Refrigerant: ${refrigerant}
+- Redundancy: ${redundancyNote}
+
+Generate a JSON object with exactly two arrays:
+
+ARRAY 1 — "bom_items": 17 items for a complete water-cooled chiller plant.
+Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
+
+Required items:
+1. Water-Cooled ${chillerType} Chiller — ${nominalTR} TR (${nominalKW} kW) each, ${refrigerant}, COP ≥ ${cop} at ${cwSupply}°C entering condenser water, ASHRAE 90.1 compliant, factory-tested with certified performance data sheet — qty: ${nUnits}${isCopFail ? ' — HOLD: re-select with COP ≥ ' + ashraeMinCop + ' before procurement' : ''}
+2. Cooling Tower, Induced-Draft Counterflow — sized for ${qRejectionTR} TR heat rejection (${qRejectionKW} kW), NOT chiller TR — CW range ${dTcw}°C, entering ${cwReturn}°C / leaving ${cwSupply}°C, CTI certified, FRP construction, drift eliminator ≤0.001% — qty: ${nUnits} cells
+3. Chilled Water Pump (CHW), Base-Mounted — end-suction centrifugal, ${Math.round(chwFlowM3h)} m³/h, head TBD hydraulic design, TEFC motor, back pull-out design — qty: ${isMultiUnit ? nUnits + 1 : 2} (duty-standby)
+4. Condenser Water Pump (CW), Base-Mounted — end-suction centrifugal, ${Math.round(cwFlowM3h)} m³/h, head TBD hydraulic design, TEFC motor — qty: ${isMultiUnit ? nUnits + 1 : 2} (duty-standby)
+5. Chilled Water Pipe, Carbon Steel Schedule 40 — ~${chwPipeMm}mm nominal dia, flanged or grooved joints, hydrostatically tested 1.5× working pressure — qty: 1 lot
+6. Condenser Water Pipe, Carbon Steel Schedule 40 — ~${cwPipeMm}mm nominal dia, galvanized interior or epoxy-lined for CW service, flanged or grooved — qty: 1 lot
+7. CHW Pipe Insulation — 50mm closed-cell elastomeric foam, vapor-sealed all joints and fittings, for all CHW pipes in conditioned space — qty: 1 lot
+8. Chilled and Condenser Water Valves — butterfly valves (isolation), globe valves (balancing), Y-strainers (before each pump and chiller), flexible connectors at all rotating equipment — qty: 1 lot
+9. Expansion Tank, Closed Bladder-Type, CHW Loop — ASME rated, pre-charged nitrogen, sized for ${Math.round(chwFlowM3h * 0.05)} L minimum — qty: 1 unit
+10. Chemical Dosing System — corrosion inhibitor, scale inhibitor, biocide (Legionella control per ASHRAE Guideline 12), automatic dosing pump, chemical day tank, water quality test kit — qty: 1 set
+11. Cooling Tower Basin Treatment — side-stream filtration unit (10–25 micron), bleed-off valve with conductivity controller, sand or multimedia filter — qty: 1 set
+12. Chiller Controller / BMS Interface — DDC controller, Modbus/BACnet gateway, ${isMultiUnit ? 'lead-lag sequencing (mandatory for ' + nUnits + ' chillers)' : 'BMS integration'}, CHW setpoint reset, cooling tower fan staging, alarm monitoring — qty: 1 set
+13. Refrigerant Leak Detection — electrochemical sensor per machine room, rated for ${refrigerant}, audible/visual alarm, per ASHRAE 15 — qty: 1 set
+14. Machine Room Ventilation — minimum 6 ACH mechanical exhaust per ASHRAE 15, ${chillerType === 'Centrifugal' ? 'interlocked with refrigerant leak detector' : 'interlocked with leak detector'}, explosion-proof fan if required by refrigerant class — qty: 1 set
+15. Electrical MCC / Disconnect — MCCB rated ≥ ${Math.ceil(totalAmp * 1.25 / 10) * 10} A total, 3-phase 400V, individual disconnect per chiller and per pump, with overload protection — qty: 1 set
+16. Equipment Inertia Bases and Anti-Vibration Isolators — spring/neoprene isolators for all chillers and pumps, inertia bases for pumps to reduce vibration transmission to structure — qty: ${nUnits + (isMultiUnit ? nUnits + 2 : 4)} sets
+17. Commissioning, TAB, and Water Treatment Start-Up — hydronic balancing by certified TAB contractor, COP field verification at design conditions (${cwSupply}°C entering condenser water, ${chwSupply}°C CHW supply), factory witness test report, Legionella risk assessment, O&M manual and as-built drawings — qty: 1 lot${isCopFail ? ' — MANDATORY HOLD POINT: do not commission until COP-compliant equipment is installed and verified' : ''}
+
+ARRAY 2 — "sow_sections": 8 sections (each: section_no, title, content).
+Cover:
+1. Scope of Works — supply and install ${nUnits} × ${nominalTR} TR water-cooled ${chillerType} chiller(s), ${nUnits}-cell cooling tower (${qRejectionTR} TR rejection), CHW/CW pump systems, BMS controls, chemical treatment, and commissioning
+2. Design Basis — ASHRAE 90.1, ${designKW} kW design load (${(designKW/3.517).toFixed(1)} TR) with ${safetyFactor}× safety, CHW ${chwSupply}/${chwReturn}°C, CW ${cwSupply}/${cwReturn}°C, COP ${cop} — ${copCheck}${isCopFail ? ': FAIL — RE-SELECT EQUIPMENT BEFORE PROCUREMENT' : ''}. Cooling tower rated for ${qRejectionTR} TR (NOT chiller TR)
+3. Equipment Supply and Installation — chiller placement per ASHRAE 15 machine room requirements, minimum aisle clearance, seismic restraint per PSME, anti-vibration isolation required for all rotating equipment, cooling tower on structural steel support frame (structural engineer to confirm adequacy for tower weight)
+4. Chilled Water and Condenser Water Systems — CHW: ${chwFlowLps} L/s (${chwFlowM3h} m³/h), pipe ~${chwPipeMm}mm CS Sch.40, insulate CHW pipes 50mm closed-cell foam vapor-sealed. CW: ${cwFlowLps} L/s (${cwFlowM3h} m³/h), pipe ~${cwPipeMm}mm CS Sch.40 galvanized/epoxy lined. Hydronic balancing mandatory after commissioning
+5. Cooling Tower and Water Treatment (Legionella Compliance) — cooling tower sized for ${qRejectionTR} TR heat rejection. Water treatment per ASHRAE Guideline 12: corrosion inhibitor, scale inhibitor, biocide dosing, side-stream filtration, conductivity bleed-off control. Legionella risk assessment by qualified water treatment specialist before system start-up. Monthly water quality log mandatory for regulatory compliance
+6. Refrigerant Safety (ASHRAE 15) — ${refrigerant} refrigerant, machine room ventilation minimum 6 ACH, electrochemical leak detector mandatory, alarm to BMS, refrigerant charge log maintained, only PSME/EPA-certified technicians to handle refrigerant
+7. Electrical Works — ${totalKVA} kVA total, 3-phase 400V supply, ${totalAmp} A FLA, MCCB rating ≥ ${Math.ceil(totalAmp * 1.25 / 10) * 10} A, all electrical works by PEC-licensed master electrician, Electrical Permit from LGU before commencement${isCopFail ? '. NOTE: Do not energize equipment until COP-compliant replacement is installed' : ''}
+8. Testing, Commissioning, and Regulatory Compliance — hydronic TAB by certified contractor, COP field verification at ${cwSupply}°C entering CW / ${chwSupply}°C CHW supply, factory witness test report, Legionella risk assessment report, PSME Code, ASHRAE 90.1/15, CTI STD-201, PEC 2017, PGBC/BERDE energy compliance, DOLE OSH, LGU Mechanical Permit, PRC-licensed Mechanical Engineer sign-off${isCopFail ? '. MANDATORY HOLD POINT: system must not be commissioned until COP-compliant chiller is confirmed installed and tested' : ''}
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw    = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -1771,6 +1899,8 @@ serve(async (req) => {
       result = await hoistCapacityBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "HVAC Systems" && calc_type === "Chiller System — Air Cooled") {
       result = await chillerAirCooledBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "HVAC Systems" && calc_type === "Chiller System — Water Cooled") {
+      result = await chillerWaterCooledBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),
