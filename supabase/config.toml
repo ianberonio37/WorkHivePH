@@ -1,0 +1,11 @@
+
+[functions.engineering-calc-agent]
+enabled = true
+verify_jwt = false
+import_map = "./functions/engineering-calc-agent/deno.json"
+entrypoint = "./functions/engineering-calc-agent/index.ts"
+
+[functions.engineering-bom-sow]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/engineering-bom-sow/index.ts"
