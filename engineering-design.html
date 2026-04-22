@@ -720,6 +720,7 @@ const CALC_TYPES = {
     { id: 'Chiller System — Water Cooled', icon: '💧', desc: 'Water-cooled chiller: COP, CW loop, cooling tower heat rejection — ASHRAE 90.1', available: true },
     { id: 'AHU Sizing',                    icon: '🌬️', desc: 'Supply airflow (CMH/CFM), cooling coil (kW/TR), CHW flow, fan HP — ASHRAE 62.1 / 90.1', available: true },
     { id: 'Cooling Tower Sizing',          icon: '🌊', desc: 'Heat rejection, circ water flow, evaporation/makeup water, fan motor — CTI Std-201 / ASHRAE 90.1', available: true },
+    { id: 'Duct Sizing (Equal Friction)',  icon: '🌀', desc: 'Circular / rectangular duct sizing, velocity check, segment pressure drop, fan static pressure, fan motor HP — ASHRAE Ch.21 / SMACNA / PSME', available: true },
   ],
 };
 
@@ -2414,6 +2415,63 @@ const GUIDES = {
       'Makeup water is a significant operational cost. At 1,000 TR heat rejection, makeup is approximately 25-35 m³/day at CoC 4. At CoC 3, makeup increases by ~25%. Specify chemical water treatment program to achieve CoC 4-5 without scaling or biological fouling.',
       'Evaporation accounts for ~65-75% of makeup water. The remaining is blowdown. Drift eliminators on modern fills reduce drift to 0.001-0.005% — far below old splash-fill towers (0.1-0.2%). Specify drift eliminators when tower is near occupied areas or parking.',
       'ASHRAE 90.1 efficiency: cooling tower fan power should not exceed 0.054 kW/kW of heat rejection at full load. Modern counterflow induced-draft towers typically achieve 0.030-0.045 kW/kW. Crossflow towers are slightly less efficient. If fan power ratio exceeds 0.054, select a larger tower or higher-efficiency fan.',
+    ],
+  },
+
+  'Duct Sizing (Equal Friction)': {
+    title: 'Duct Sizing — Equal Friction Method (ASHRAE Chapter 21 / SMACNA)',
+    subtitle: 'Sizes circular or rectangular supply and return air ducts by holding pressure drop per unit length constant at a design friction rate. Outputs duct dimensions, velocities, segment pressure drops, system total pressure, and fan motor HP. Aligned with ASHRAE 2021 Fundamentals Chapter 21, SMACNA HVAC Duct Construction Standards, and PSME Code.',
+    standards: [
+      'ASHRAE 2021 Fundamentals Handbook — Chapter 21 (Duct Design, Equal Friction Method)',
+      'SMACNA HVAC Duct Construction Standards (3rd Ed.) — duct sizing, velocity limits, fittings allowances',
+      'ASHRAE 62.1 — Ventilation for Indoor Air Quality: supply velocity limits (Main ≤ 8 m/s, Branch ≤ 5 m/s)',
+      'PSME Code — Philippine Society of Mechanical Engineers: HVAC mechanical system installation',
+      'PEC 2017 Article 4.30 — Fan motor sizing and branch circuit protection',
+    ],
+    formulas: [
+      'Equal Friction — Circular Duct (Darcy-Weisbach + Blasius, ASHRAE Ch.21):',
+      '  D (m) = [K × Q^1.75 / fr]^(1/4.75)',
+      '  K = 8 × 0.3164 × ρ × (π×ν)^0.25 / (π² × 4^0.25)',
+      '  Q = airflow (m³/s)    fr = design friction rate (Pa/m)',
+      '  ρ = air density (kg/m³)   ν = kinematic viscosity (m²/s)',
+      '  Standard air: ρ = 1.20, ν = 1.505×10⁻⁵ m²/s (20°C)',
+      '  Tropical air: ρ = 1.15, ν = 1.652×10⁻⁵ m²/s (35°C)',
+      '',
+      'Rectangular Duct — ASHRAE Hydraulic Equivalent Diameter:',
+      '  De = 1.30 × (a×b)^0.625 / (a+b)^0.25',
+      '  Solve for a and b at target aspect ratio (r = b/a):',
+      '  a = De × (1+r)^0.25 / (1.30 × r^0.625)    b = r × a',
+      '  Round a, b up to nearest 50 mm',
+      '',
+      'Velocity Check (SMACNA / ASHRAE 62.1):',
+      '  v (m/s) = Q / A   Supply Main ≤ 8 m/s, Branch ≤ 5 m/s',
+      '  Return Main ≤ 6 m/s, Return Branch ≤ 4 m/s',
+      '',
+      'Segment Pressure Drop (actual, at standard size):',
+      '  ΔP (Pa) = f × ρ × v² × L / (2 × D_h)',
+      '  System Total ΔP = Σ(ΔP per segment)',
+      '  Fan Static Pressure = System Total × 1.50  (+50% fittings, SMACNA)',
+      '',
+      'Fan Motor:',
+      '  P_fan (kW) = Q_fan (m³/s) × ΔP_fan (Pa) / (η_fan × η_motor × 1000)',
+      '  η_fan = 0.65 (centrifugal)   η_motor = 0.85',
+      '  Select next standard HP ≥ P_fan / 0.746',
+    ],
+    fields: [
+      { name: 'Duct Shape', tip: 'Circular: lower friction for same flow area, easier to seal, preferred for main ducts. Rectangular: fits tight ceiling spaces, easier to branch. Rectangular ducts are sized using ASHRAE hydraulic equivalent diameter — actual W×H computed from De at the selected aspect ratio.' },
+      { name: 'Design Friction Rate (Pa/m)', tip: 'Target pressure drop per metre of straight duct. Philippine practice: 1.0 Pa/m standard for supply mains. Lower (0.8 Pa/m): quieter, larger ducts, less fan power. Higher (1.2–1.5 Pa/m): compact ducts, more fan power. Use 0.8 for libraries / theatres, 1.0–1.2 for offices, 1.5 for industrial.' },
+      { name: 'Air Density', tip: 'Standard 1.20 kg/m³ at 20°C sea level (ASHRAE standard). Tropical 1.15 kg/m³ at 35°C — recommended for Philippine projects. Lower density reduces mass flow for the same volume flow; ducts may need to be slightly larger to maintain supply air mass.' },
+      { name: 'Duct Material', tip: 'Galvanized steel (roughness 0.09 mm): PH standard, durable, fireproof. Aluminum (0.05 mm): lighter, corrosion-resistant, coastal projects. Flexible duct (roughness ~1.5 mm): ONLY for short connections ≤1.5 m to diffusers — never for main runs. This tool does not model roughness in the friction factor for simplicity; a roughness correction may add 5–15% to actual ΔP.' },
+      { name: 'Max Aspect Ratio (Rect.)', tip: 'Width-to-height ratio. SMACNA recommends ≤4:1. 2:1 most common for ceiling concealment. Avoid >4:1 — friction increases rapidly and structural reinforcement required per SMACNA.' },
+      { name: 'Segment Airflow (L/s)', tip: 'Volume flow for this duct segment. Supply mains carry total fan flow. Branches carry terminal zone flow. Convert CFM to L/s: 1 CFM = 0.472 L/s. From cooling load: 1 kW at 10°C ΔT ≈ 24 L/s supply air (cp_air=1.0 kJ/kg·°C, ρ=1.2).' },
+      { name: 'Segment Length (m)', tip: 'Straight duct run length only. Do NOT include fittings — the 50% system allowance is applied automatically. For critical path analysis, measure the longest supply run from AHU to the farthest terminal.' },
+    ],
+    notes: [
+      'The 50% fittings pressure allowance (1.5× total duct ΔP) is a conservative SMACNA preliminary sizing rule. For final design, calculate each fitting equivalent length from ASHRAE Chapter 21 loss coefficient tables and add to the duct run length.',
+      'ASHRAE 62.1 velocity limits: Supply mains ≤ 8 m/s, branches ≤ 5 m/s (reduce to 5 m/s for open-plan offices for noise compliance). Return mains ≤ 6 m/s, return branches ≤ 4 m/s. Exceeding limits causes turbulence noise and higher fan power.',
+      'PRC-licensed Mechanical Engineer sign-off is required for HVAC duct system designs submitted for LGU Building Permit. SMACNA duct construction class (Pressure Class ½, 1, or 2 inch w.g.) must be specified on drawings based on operating static pressure.',
+      'Flexible duct connections to diffusers shall not exceed 1.5 m per SMACNA. Do NOT use this tool to size flexible duct runs — flex roughness is 15–20× higher than galvanized steel.',
+      'Total system static pressure for fan selection = duct ΔP (from this tool) + AHU internal components (cooling coil, filters, heating coil: typically 200–500 Pa) + terminal device pressure drop (50–150 Pa). Always get AHU ESP from the equipment manufacturer datasheet.',
     ],
   },
 };
@@ -4473,6 +4531,82 @@ function renderInputForm(calcType) {
     addUPSLoadRow('Servers / IT Equipment', 3000, 0.9, 2);
     addUPSLoadRow('Network Switches', 500, 1.0, 4);
     addUPSLoadRow('Workstations', 800, 0.9, 5);
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+    return;
+  }
+
+  if (calcType === 'Duct Sizing (Equal Friction)') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Office Floor 3 — Supply Air Distribution" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Duct Shape</div>
+          <div class="toggle-group" id="tg-duct-shape">
+            <button class="toggle-btn active" data-val="Circular" onclick="toggle('tg-duct-shape','Circular');toggleDuctAspect()">Circular</button>
+            <button class="toggle-btn" data-val="Rectangular" onclick="toggle('tg-duct-shape','Rectangular');toggleDuctAspect()">Rectangular</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Friction Rate <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(Pa/m)</span></div>
+          <div class="toggle-group" id="tg-duct-fr" style="flex-wrap:wrap;">
+            <button class="toggle-btn" data-val="0.8" onclick="toggle('tg-duct-fr','0.8')">0.8</button>
+            <button class="toggle-btn active" data-val="1.0" onclick="toggle('tg-duct-fr','1.0')">1.0</button>
+            <button class="toggle-btn" data-val="1.2" onclick="toggle('tg-duct-fr','1.2')">1.2</button>
+            <button class="toggle-btn" data-val="1.5" onclick="toggle('tg-duct-fr','1.5')">1.5</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Air Density <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(kg/m³)</span></div>
+          <div class="toggle-group" id="tg-duct-rho">
+            <button class="toggle-btn active" data-val="1.20" onclick="toggle('tg-duct-rho','1.20')">1.20 std</button>
+            <button class="toggle-btn" data-val="1.15" onclick="toggle('tg-duct-rho','1.15')">1.15 tropical</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Duct Material</div>
+          <div class="toggle-group" id="tg-duct-mat" style="flex-wrap:wrap;">
+            <button class="toggle-btn active" data-val="Galvanized Steel" onclick="toggle('tg-duct-mat','Galvanized Steel')">Galv. Steel</button>
+            <button class="toggle-btn" data-val="Aluminum" onclick="toggle('tg-duct-mat','Aluminum')">Aluminum</button>
+            <button class="toggle-btn" data-val="Flexible" onclick="toggle('tg-duct-mat','Flexible')">Flexible</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="duct-aspect-row" class="mb-4" style="display:none;">
+        <div class="field-label">Max Aspect Ratio <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(W:H)</span></div>
+        <div class="toggle-group" id="tg-duct-aspect">
+          <button class="toggle-btn" data-val="1" onclick="toggle('tg-duct-aspect','1')">1:1</button>
+          <button class="toggle-btn active" data-val="2" onclick="toggle('tg-duct-aspect','2')">2:1</button>
+          <button class="toggle-btn" data-val="3" onclick="toggle('tg-duct-aspect','3')">3:1</button>
+          <button class="toggle-btn" data-val="4" onclick="toggle('tg-duct-aspect','4')">4:1</button>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Duct Segment Schedule</div>
+        <div style="display:grid;grid-template-columns:2fr 70px 70px 100px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.4);padding:0 0.25rem;">
+          <div>Segment</div><div style="text-align:center;">Flow L/s</div><div style="text-align:center;">Length m</div><div style="text-align:center;">Type</div><div></div>
+        </div>
+        <div id="duct-seg-list" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem;"></div>
+        <button class="btn-ghost text-sm py-2 px-4" onclick="addDuctSegRow()">+ Add Segment</button>
+      </div>
+
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        ASHRAE Ch.21 Equal Friction. D = (K × Q^1.75 / fr)^(1/4.75). Fan static = Σ(fr × L) × 1.50 fittings factor. Velocity: Mains ≤ 8 m/s, Branches ≤ 5 m/s (SMACNA / ASHRAE 62.1).
+      </div>
+    `;
+    addDuctSegRow('Supply Main', 1200, 20, 'Supply Main');
+    addDuctSegRow('Branch-1 (Zone A)', 400, 12, 'Supply Branch');
+    addDuctSegRow('Branch-2 (Zone B)', 300, 8, 'Supply Branch');
+    addDuctSegRow('Return Main', 1000, 18, 'Return Main');
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
     return;
@@ -6612,6 +6746,38 @@ function addUPSLoadRow(defaultDesc = 'Load', defaultVA = 1000, defaultPF = 0.9, 
   document.getElementById('ups-load-list').appendChild(row);
 }
 
+// ─── Duct Sizing segment row helper ──────────────────────────────────────────
+const DUCT_SEG_TYPES = ['Supply Main','Supply Branch','Return Main','Return Branch'];
+let _ductSegRowId = 0;
+function addDuctSegRow(defaultName = 'Segment', defaultFlow = 500, defaultLen = 10, defaultType = 'Supply Main') {
+  const id  = ++_ductSegRowId;
+  const row = document.createElement('div');
+  row.id    = `duct-seg-row-${id}`;
+  row.style.cssText = 'display:grid;grid-template-columns:2fr 70px 70px 100px 28px;gap:0.35rem;align-items:center;';
+  row.innerHTML = `
+    <input id="duct-name-${id}" class="wh-input text-sm py-2" type="text" value="${escHtml(String(defaultName))}" placeholder="Segment name" style="padding:0.5rem 0.4rem;" />
+    <div class="input-group" style="min-width:0;">
+      <input id="duct-flow-${id}" class="wh-input text-sm py-2" type="number" value="${defaultFlow}" min="1" step="1" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.6rem;">L/s</span>
+    </div>
+    <div class="input-group" style="min-width:0;">
+      <input id="duct-len-${id}" class="wh-input text-sm py-2" type="number" value="${defaultLen}" min="0.1" step="0.5" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.6rem;">m</span>
+    </div>
+    <select class="wh-input text-sm py-2" id="duct-type-${id}">
+      ${DUCT_SEG_TYPES.map(t => `<option value="${t}"${t === defaultType ? ' selected' : ''}>${t}</option>`).join('')}
+    </select>
+    <button onclick="document.getElementById('duct-seg-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+  `;
+  document.getElementById('duct-seg-list').appendChild(row);
+}
+
+function toggleDuctAspect() {
+  const shape = getToggle('tg-duct-shape') || 'Circular';
+  const el = document.getElementById('duct-aspect-row');
+  if (el) el.style.display = shape === 'Rectangular' ? '' : 'none';
+}
+
 function applyVDLimit(circuitType) {
   const el = document.getElementById('f-vd-limit');
   if (el) el.value = circuitType === 'Feeder' ? 2 : 3;
@@ -6839,6 +7005,27 @@ function collectInputs() {
       span_m:         parseFloat(getToggle('tg-ct-span')   || '1.5'),
       run_length_m:   parseFloat(v('f-ct-run'))             || 30,
       cables,
+    };
+  }
+
+  if (_calcType === 'Duct Sizing (Equal Friction)') {
+    const segments = [];
+    document.querySelectorAll('#duct-seg-list > div[id^="duct-seg-row-"]').forEach(row => {
+      const rid  = row.id.replace('duct-seg-row-', '');
+      const name = document.getElementById(`duct-name-${rid}`)?.value || 'Segment';
+      const flow = parseFloat(document.getElementById(`duct-flow-${rid}`)?.value) || 0;
+      const len  = parseFloat(document.getElementById(`duct-len-${rid}`)?.value)  || 0;
+      const type = document.getElementById(`duct-type-${rid}`)?.value || 'Supply Main';
+      if (flow > 0 && len > 0) segments.push({ name, flow_lps: flow, length_m: len, seg_type: type });
+    });
+    return {
+      project_name:  v('f-project') || 'Untitled Duct System',
+      duct_shape:    getToggle('tg-duct-shape')   || 'Circular',
+      friction_rate: parseFloat(getToggle('tg-duct-fr')     || '1.0'),
+      air_density:   parseFloat(getToggle('tg-duct-rho')    || '1.20'),
+      duct_material: getToggle('tg-duct-mat')     || 'Galvanized Steel',
+      aspect_ratio:  parseFloat(getToggle('tg-duct-aspect') || '2'),
+      segments,
     };
   }
 
@@ -7545,6 +7732,11 @@ async function runCalculation() {
       showToast('Please add at least one load to the load schedule.');
       return;
     }
+  } else if (_calcType === 'Duct Sizing (Equal Friction)') {
+    if (!inputs.segments || inputs.segments.length === 0) {
+      showToast('Please add at least one duct segment.');
+      return;
+    }
   } else if (_calcType === 'Voltage Drop') {
     if (!inputs.current || inputs.current <= 0) {
       showToast('Please enter the load current.');
@@ -7790,6 +7982,8 @@ async function runCalculation() {
       renderCableTrayReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'UPS Sizing') {
       renderUPSSizingReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Duct Sizing (Equal Friction)') {
+      renderDuctSizingReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Load Estimation') {
       renderLoadReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Voltage Drop') {
@@ -9801,6 +9995,185 @@ function renderUPSSizingReport(inputs, results, narrative) {
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
+          <div style="font-size:0.74rem;color:#555;">${e('Owner / Client Representative')}</div>
+          <div style="font-size:0.74rem;color:#555;">Date: ${e(dateStr)}</div>
+          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  panel.innerHTML = reportHTML;
+  showReport();
+}
+
+// ─── Duct Sizing (Equal Friction) Report ─────────────────────────────────────
+function renderDuctSizingReport(inputs, results, narrative) {
+  const panel = document.getElementById('report-panel');
+  if (!panel) return;
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
+
+  const projName     = inputs.project_name  || 'Duct Sizing Project';
+  const ductShape    = inputs.duct_shape    || 'Circular';
+  const frRate       = inputs.friction_rate || 1.0;
+  const airDensity   = inputs.air_density   || 1.20;
+  const ductMat      = inputs.duct_material || 'Galvanized Steel';
+  const aspectRatio  = inputs.aspect_ratio  || 2;
+  const segments     = inputs.segments      || [];
+
+  const totalDpPa    = results.total_dp_pa       ?? '';
+  const fanStaticPa  = results.fan_static_pa     ?? '';
+  const fanMotorHp   = results.fan_motor_hp_std  ?? '';
+  const fanMotorKw   = results.fan_motor_kw      ?? '';
+  const maxFlowLps   = results.max_flow_lps      ?? '';
+  const totalLenM    = results.total_length_m    ?? '';
+  const segResults   = results.segments          || [];
+
+  // Velocity status colour
+  const velColour = vc => vc === 'OK' ? '#22c55e' : vc === 'WARNING' ? '#f59e0b' : '#ef4444';
+
+  const segRows = segResults.map((s, i) => `
+    <tr>
+      <td style="text-align:center;">${i + 1}</td>
+      <td>${escHtml(s.name || segments[i]?.name || '')}</td>
+      <td>${escHtml(s.seg_type || '')}</td>
+      <td class="num">${s.flow_lps}</td>
+      <td class="num">${s.length_m}</td>
+      <td class="num"><strong>${escHtml(String(s.dim || ''))}</strong></td>
+      <td class="num">${s.velocity_ms}</td>
+      <td class="num" style="color:${velColour(s.vel_check)};font-weight:700;">${s.vel_check || ''}</td>
+      <td class="num">${s.dp_pa}</td>
+    </tr>`).join('');
+
+  const reportHTML = `
+  <div class="report-wrapper">
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading.
+    </div>
+
+    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">HVAC DUCT SIZING — EQUAL FRICTION METHOD</h1>
+    <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">ASHRAE 2021 Fundamentals Ch.21 / SMACNA HVAC Duct Construction Standards / PSME Code</div>
+
+    <h2>1. PROJECT INFORMATION</h2>
+    <table>
+      <tr><td style="width:35%;">Project / System</td><td>${e(projName)}</td></tr>
+      <tr><td>Location</td><td>${e('')}</td></tr>
+      <tr><td>Client / Owner</td><td>${e('')}</td></tr>
+      <tr><td>Prepared by</td><td>${e('')}</td></tr>
+      <tr><td>PRC License No.</td><td>${e('')}</td></tr>
+      <tr><td>Date</td><td>${e(dateStr)}</td></tr>
+    </table>
+
+    <h2>2. OBJECTIVE</h2>
+    <p>${e(narrative?.objective || `To size the supply and return air ductwork for the ${escHtml(projName)} using the Equal Friction Method per ASHRAE 2021 Fundamentals Chapter 21, maintaining a constant pressure drop per unit length throughout the duct system. Outputs include duct dimensions, air velocities, segment pressure drops, required fan static pressure, and fan motor HP.`)}</p>
+
+    <h2>3. APPLICABLE STANDARDS</h2>
+    <table>
+      <tr><td style="width:35%;">ASHRAE Ch.21</td><td>2021 Fundamentals Handbook — Duct Design, Equal Friction Method, Darcy-Weisbach + Blasius</td></tr>
+      <tr><td>SMACNA</td><td>HVAC Duct Construction Standards (3rd Ed.) — Pressure class, gauge, reinforcement, support, fittings</td></tr>
+      <tr><td>ASHRAE 62.1</td><td>Ventilation for Acceptable Indoor Air Quality — velocity limits and minimum OA rates</td></tr>
+      <tr><td>PSME Code</td><td>Philippine Society of Mechanical Engineers — HVAC system design and installation</td></tr>
+      <tr><td>PEC 2017 Art. 4.30</td><td>Fan motor branch circuit and overcurrent protection</td></tr>
+    </table>
+
+    <h2>4. DESIGN BASIS</h2>
+    <table>
+      <tr><td style="width:35%;">Duct Shape</td><td>${e(ductShape)}</td></tr>
+      <tr><td>Duct Material</td><td>${e(ductMat)}</td></tr>
+      <tr><td>Design Friction Rate</td><td>${e(frRate + ' Pa/m')}</td></tr>
+      <tr><td>Air Density</td><td>${e(airDensity + ' kg/m³  (standard: 1.20 @ 20°C; tropical: 1.15 @ 35°C)')}</td></tr>
+      ${ductShape === 'Rectangular' ? `<tr><td>Max Aspect Ratio</td><td>${e(aspectRatio + ':1')}</td></tr>` : ''}
+      <tr><td>Fan Efficiency (assumed)</td><td>${e('η_fan = 0.65  (centrifugal fan, ASHRAE 90.1 typical)')}</td></tr>
+      <tr><td>Motor Efficiency (assumed)</td><td>${e('η_motor = 0.85')}</td></tr>
+      <tr><td>Fittings Allowance</td><td>${e('1.50× total straight-run ΔP  (SMACNA preliminary +50%)')}</td></tr>
+    </table>
+
+    <h2>5. DUCT SEGMENT SCHEDULE</h2>
+    <div style="overflow-x:auto;">
+      <table style="min-width:620px;">
+        <tr>
+          <th style="text-align:center;width:30px;">#</th>
+          <th>Segment</th>
+          <th>Type</th>
+          <th class="num">Flow<br>(L/s)</th>
+          <th class="num">Length<br>(m)</th>
+          <th class="num">Duct Size</th>
+          <th class="num">Velocity<br>(m/s)</th>
+          <th class="num">Vel<br>Check</th>
+          <th class="num">ΔP<br>(Pa)</th>
+        </tr>
+        ${segRows}
+        <tr class="total-row">
+          <td colspan="8" style="text-align:right;"><strong>TOTAL DUCT PRESSURE DROP</strong></td>
+          <td class="num"><strong>${totalDpPa} Pa</strong></td>
+        </tr>
+      </table>
+    </div>
+
+    <h2>6. SYSTEM PRESSURE AND FAN MOTOR SIZING</h2>
+    <table>
+      <tr><th>Parameter</th><th class="num">Value</th><th>Unit / Note</th></tr>
+      <tr><td>Total Duct ΔP (straight runs)</td><td class="num">${totalDpPa}</td><td>Pa — sum of all segment pressure drops</td></tr>
+      <tr><td>Fittings Allowance Factor</td><td class="num">1.50</td><td>SMACNA preliminary: +50% for elbows, tees, reducers, dampers</td></tr>
+      <tr class="total-row"><td><strong>Required Fan Static Pressure</strong></td><td class="num"><strong>${fanStaticPa}</strong></td><td><strong>Pa  = Total ΔP × 1.50</strong></td></tr>
+      <tr><td>Maximum Segment Flow (fan flow)</td><td class="num">${maxFlowLps}</td><td>L/s  = ${Math.round(Number(maxFlowLps) * 3.6 * 100) / 100} m³/h</td></tr>
+      <tr><td>Fan Motor Power (calculated)</td><td class="num">${fanMotorKw}</td><td>kW  = Q × ΔP_fan / (η_fan × η_motor × 1000)</td></tr>
+      <tr><td>Fan Motor Power (HP calculated)</td><td class="num">${results.fan_motor_hp_calc ?? ''}</td><td>HP  = ${fanMotorKw} kW / 0.746</td></tr>
+      <tr class="total-row"><td><strong>Selected Standard Fan Motor</strong></td><td class="num"><strong>${fanMotorHp}</strong></td><td><strong>HP standard  (next size ≥ calculated)</strong></td></tr>
+      <tr><td>Total Duct System Length</td><td class="num">${totalLenM}</td><td>m  (straight runs only — fittings excluded)</td></tr>
+    </table>
+
+    <h2>7. RESULTS SUMMARY</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem;">
+      <div class="result-card">
+        <div class="res-label">Total Duct ΔP</div>
+        <div class="res-value">${totalDpPa} Pa</div>
+        <div class="res-sub">straight runs only</div>
+      </div>
+      <div class="result-card">
+        <div class="res-label">Fan Static Pressure</div>
+        <div class="res-value">${fanStaticPa} Pa</div>
+        <div class="res-sub">incl. 50% fittings</div>
+      </div>
+      <div class="result-card">
+        <div class="res-label">Fan Motor (Std)</div>
+        <div class="res-value">${fanMotorHp} HP</div>
+        <div class="res-sub">${fanMotorKw} kW</div>
+      </div>
+      <div class="result-card">
+        <div class="res-label">Max Flow (Fan)</div>
+        <div class="res-value">${maxFlowLps} L/s</div>
+        <div class="res-sub">${Math.round(Number(maxFlowLps) * 3.6 * 100) / 100} m³/h</div>
+      </div>
+    </div>
+
+    <h2>8. RECOMMENDATIONS</h2>
+    <p>${e(narrative?.recommendations || `1. Duct sizes shown are CALCULATED sizes — round up to the nearest standard duct dimension before procurement. Verify all dimensions fit within the available ceiling plenum depth.\n2. Velocity limit check: ${segResults.some(s => s.vel_check !== 'OK') ? 'WARNING — one or more segments exceed the ASHRAE 62.1 / SMACNA velocity limit. Increase duct size or reduce airflow.' : 'All segments are within ASHRAE 62.1 velocity limits.'}\n3. The fan static pressure of ${fanStaticPa} Pa covers duct straight runs + fittings allowance only. Add AHU internal pressure drop (cooling coil, filters, heating coil: typically 200–500 Pa) and terminal device pressure drop (50–150 Pa each) when specifying the fan.\n4. All ductwork shall be constructed to the appropriate SMACNA pressure class. Leakage testing per SMACNA Air Duct Leakage Test Manual is required for mains at ≥ 1 in. w.g. (250 Pa).\n5. A Testing, Adjusting, and Balancing (TAB) report confirming design airflows at all diffusers (within ±10%) is required before building final acceptance.`)}</p>
+
+    <!-- SIGNATURE BLOCK -->
+    <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div>
+        <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-size:0.78rem;font-weight:700;">${e(typeof WORKER_NAME !== 'undefined' ? WORKER_NAME : '')}</div>
+          <div style="font-size:0.74rem;color:#555;">${e('Mechanical Engineer')}</div>
+          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
+          <div style="font-size:0.74rem;color:#555;">PTR No.: ${e('_____________')}</div>
+          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+        </div>
+      </div>
+      <div>
+        <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-size:0.78rem;font-weight:700;">${e('_________________________')}</div>
+          <div style="font-size:0.74rem;color:#555;">${e('Project Engineer / Manager')}</div>
+          <div style="font-size:0.74rem;color:#555;">Company: ${e('_____________')}</div>
+          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+        </div>
+      </div>
+      <div>
+        <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-size:0.78rem;font-weight:700;">${e('_________________________')}</div>
           <div style="font-size:0.74rem;color:#555;">${e('Owner / Client Representative')}</div>
           <div style="font-size:0.74rem;color:#555;">Date: ${e(dateStr)}</div>
           <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
@@ -13334,6 +13707,8 @@ function viewHistoryReport(row) {
     renderCableTrayReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'UPS Sizing') {
     renderUPSSizingReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Duct Sizing (Equal Friction)') {
+    renderDuctSizingReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
@@ -13374,7 +13749,7 @@ async function generateBomSowChecklist() {
     'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)', 'Storm Drain / Stormwater'],
     'Fire Protection':         ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],
     'Vertical Transportation': ['Elevator Traffic Analysis', 'Hoist Capacity'],
-    'HVAC Systems':            ['Chiller System — Air Cooled', 'Chiller System — Water Cooled', 'AHU Sizing', 'Cooling Tower Sizing'],
+    'HVAC Systems':            ['Chiller System — Air Cooled', 'Chiller System — Water Cooled', 'AHU Sizing', 'Cooling Tower Sizing', 'Duct Sizing (Equal Friction)'],
   };
   const supportedForDiscipline = BOM_SOW_SUPPORTED[_discipline] || [];
   if (!supportedForDiscipline.includes(_calcType)) {
@@ -13582,8 +13957,11 @@ function renderBomTablePreview(items) {
   const isChiller   = _calcType === 'Chiller System — Air Cooled';
   const isChillerWC = _calcType === 'Chiller System — Water Cooled';
   const isAHU       = _calcType === 'AHU Sizing';
-  const calcRef = `${isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
-  const disciplineSystem = isAHU
+  const isDS        = _calcType === 'Duct Sizing (Equal Friction)';
+  const calcRef = `${isDS ? 'HVAC-DS' : isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const disciplineSystem = isDS
+    ? `HVAC Systems — Duct Sizing (${_lastInputs?.duct_shape || 'Circular'}, fr=${_lastInputs?.friction_rate || 1.0} Pa/m, ${_lastInputs?.duct_material || 'Galvanized Steel'}, ${(_lastInputs?.segments || []).length} segments, System ΔP ${_lastResults?.total_dp_pa || ''}Pa, Fan Static ${_lastResults?.fan_static_pa || ''}Pa, Fan Motor ${_lastResults?.fan_motor_hp_std || ''}HP)`
+    : isAHU
     ? `HVAC Systems — AHU (${_lastResults?.n_units || ''}× ${_lastResults?.nominal_AHU_CMH_each || ''}CMH, ${_lastResults?.Q_coil_total_kW || ''}kW/${_lastResults?.Q_coil_TR || ''}TR coil, ${_lastResults?.fan_hp_std || ''}HP fan, CHW ${_lastResults?.chw_supply_C || ''}/${_lastResults?.chw_return_C || ''}°C, ${_lastResults?.Q_chw_lps || ''}L/s)`
     : isChillerWC
     ? `HVAC Systems — Water-Cooled Chiller Plant (${_lastInputs?.n_units || _lastResults?.n_units || ''}× ${_lastResults?.nominal_TR_each || ''}TR, ${_lastResults?.nominal_total_TR || ''}TR total, COP ${_lastInputs?.cop || ''} — ${_lastResults?.cop_check || ''}, CHW ${_lastInputs?.chw_supply_C || ''}/${_lastInputs?.chw_return_C || ''}°C, CW ${_lastInputs?.cw_supply_C || ''}/${_lastInputs?.cw_return_C || ''}°C, CT ${_lastResults?.Q_rejection_TR || ''}TR)`
@@ -13751,6 +14129,8 @@ function renderBomTablePreview(items) {
             ? `Quantities are based on the Cable Tray Sizing design calculation result (NEMA VE 1 Load Class ${_lastResults?.nema_load_class || ''}, NEC Article 392, PEC 2017 Article 3.92). Selected tray: ${_lastResults?.selected_width_mm || ''}mm W × ${_lastInputs?.depth_mm || ''}mm D ${_lastInputs?.tray_type || 'Ladder'} type, actual fill ${_lastResults?.fill_actual_pct || ''}% (${_lastResults?.fill_check || ''}), span ${_lastInputs?.span_m || ''}m, run ${_lastInputs?.run_length_m || ''}m. ${Number(_lastResults?.derating_factor) < 1.0 ? `Ampacity derating factor ${_lastResults?.derating_factor}× applies — conductor ampacities shall be derated per NEC 392.80 / NEC 310.15 before procurement of cables.` : `No ampacity derating required — fill does not exceed the ${_lastInputs?.tray_type === 'Solid Bottom' ? '40%' : '30%'} threshold.`} Engineer shall verify all quantities on-site before procurement. All cable tray materials shall carry NEMA VE 1 compliance certification and hot-dip galvanizing certificate (ASTM A123). Contractor shall submit material data sheets, load class certificates, and galvanizing certificates for Engineer's approval prior to procurement.`
             : isUPS
             ? `Quantities are based on the UPS Sizing design calculation result (IEC 62040-3, IEEE 446, IEEE 1184, PEC 2017 Article 7). Selected UPS: ${_lastResults?.selected_kva || ''}kVA ${_lastInputs?.topology || 'Online (Double-Conversion)'}, ${_lastInputs?.phase || '3-Phase'}, system loading ${_lastResults?.loading_pct || ''}% (≤ 80% limit per IEEE 446). Battery bank: ${_lastResults?.battery_config || ''} — rated backup ${_lastResults?.actual_runtime_min || ''}min at design load. Input breaker: ${_lastResults?.input_breaker_a || ''}A. ${_lastResults?.loading_pct > 80 ? 'WARNING: System loading exceeds 80% — increase UPS kVA or reduce connected load before procurement.' : 'System loading is within the recommended 80% limit.'} Engineer shall verify all quantities on-site before procurement. UPS shall carry IEC 62040-1 / IEC 62040-3 certification. Submit UPS datasheet, battery runtime test certificate, and panel single-line diagram for Engineer\'s approval prior to procurement.`
+            : isDS
+            ? `Quantities are based on the Duct Sizing (Equal Friction Method) design calculation result (ASHRAE 2021 Fundamentals Chapter 21, SMACNA HVAC Duct Construction Standards, PSME Code). ${_lastInputs?.duct_shape || 'Circular'} ${_lastInputs?.duct_material || 'Galvanized Steel'} ductwork, design friction rate ${_lastInputs?.friction_rate || 1.0} Pa/m, air density ${_lastInputs?.air_density || 1.20} kg/m³. System duct pressure drop: ${_lastResults?.total_dp_pa || ''}Pa. Fan static pressure (with 50% fittings allowance): ${_lastResults?.fan_static_pa || ''}Pa. Fan motor: ${_lastResults?.fan_motor_hp_std || ''}HP standard. Total duct length: ${_lastResults?.total_length_m || ''}m. NOTE: Duct lengths, elbow counts, diffuser quantities, and mounting hardware are indicative — Contractor shall quantify all items from final duct layout drawings before procurement. Engineer shall verify all quantities on-site before procurement. All galvanized steel ductwork shall comply with SMACNA construction standards (gauge and reinforcement per pressure class). Submit fan performance curve, duct construction drawings (with pressure class designation), and material test certificates for Engineer's approval prior to procurement.`
             : `Quantities are based on the HVAC Cooling Load design calculation result. Engineer shall verify all quantities on-site before procurement. All materials shall conform to applicable Philippine and international standards (PSME, ASHRAE, PEC 2017). Contractor shall submit material submittals for Engineer's approval prior to procurement.`
           }
         </div>
@@ -13840,12 +14220,15 @@ function renderSowDocPreview(sections) {
   const isChillerS   = _calcType === 'Chiller System — Air Cooled';
   const isChillerWCS = _calcType === 'Chiller System — Water Cooled';
   const isAHUS       = _calcType === 'AHU Sizing';
-  const calcRef = `${isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const isDSS        = _calcType === 'Duct Sizing (Equal Friction)';
+  const calcRef = `${isDSS ? 'HVAC-DS' : isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
   const unitKW = _lastResults?.ac_size_kw        || '';
-  const ventSystemLine = isAHUS
+  const ventSystemLine = isDSS
+    ? `Duct Sizing (Equal Friction) — ${_lastInputs?.duct_shape || 'Circular'} ${_lastInputs?.duct_material || 'Galvanized Steel'}, fr=${_lastInputs?.friction_rate || 1.0} Pa/m, ρ=${_lastInputs?.air_density || 1.20} kg/m³, ${(_lastInputs?.segments || []).length} segments, Total ΔP=${_lastResults?.total_dp_pa || ''}Pa, Fan Static=${_lastResults?.fan_static_pa || ''}Pa (×1.5 fittings), Max Flow ${_lastResults?.max_flow_lps || ''}L/s, Fan Motor ${_lastResults?.fan_motor_hp_std || ''}HP`
+    : isAHUS
     ? `AHU Sizing — ${_lastResults?.n_units || ''}× ${_lastResults?.nominal_AHU_CMH_each || ''}CMH (${_lastResults?.nominal_AHU_CMH_total || ''}CMH total), Coil ${_lastResults?.Q_coil_total_kW || ''}kW (${_lastResults?.Q_coil_TR || ''}TR), Fan ${_lastResults?.fan_hp_std || ''}HP @ ${_lastResults?.fan_static_Pa || ''}Pa, CHW ${_lastResults?.chw_supply_C || ''}/${_lastResults?.chw_return_C || ''}°C ΔT=${_lastResults?.dT_chw_C || ''}°C, ${_lastResults?.Q_chw_lps || ''}L/s, Fan Power ${_lastResults?.fan_power_W_lps || ''}W/L·s — ${_lastResults?.fan_power_check || ''}`
     : isChillerWCS
     ? `Water-Cooled Chiller Plant — ${_lastInputs?.n_units || _lastResults?.n_units || ''}× ${_lastResults?.nominal_TR_each || ''}TR (${_lastResults?.nominal_kW_each || ''}kW), ${_lastResults?.nominal_total_TR || ''}TR total, COP ${_lastInputs?.cop || ''} — ${_lastResults?.cop_check || ''} (ASHRAE 90.1 min ${_lastResults?.ashrae_min_cop || ''}), CHW ${_lastInputs?.chw_supply_C || ''}/${_lastInputs?.chw_return_C || ''}°C ΔT=${_lastResults?.dT_chw_C || ''}°C, ${_lastResults?.Q_chw_flow_lps || ''}L/s CHW, CW ${_lastInputs?.cw_supply_C || ''}/${_lastInputs?.cw_return_C || ''}°C ${_lastResults?.Q_cw_flow_lps || ''}L/s, CT ${_lastResults?.Q_rejection_TR || ''}TR heat rejection`
@@ -14011,6 +14394,8 @@ ${isLight
   ? `This Scope of Works is based on the Cable Tray Sizing Design Calculation (Ref: ${escHtml(calcRef)}) per NEMA VE 1 (Metal Cable Tray Systems), NEMA VE 2 (Installation Guidelines), NEC Article 392 (Cable Trays), NEC Section 310.15 (Ampacity), and PEC 2017 Article 3.92. The selected cable tray is ${_lastResults?.selected_width_mm || ''}mm wide × ${_lastInputs?.depth_mm || ''}mm deep ${_lastInputs?.tray_type || 'Ladder'} type, NEMA VE 1 Load Class ${_lastResults?.nema_load_class || ''}, supported at ${_lastInputs?.span_m || ''}m centres, total run ${_lastInputs?.run_length_m || ''}m. Actual cable fill: ${_lastResults?.fill_actual_pct || ''}% (limit ${_lastInputs?.fill_ratio_pct || 40}%) — ${_lastResults?.fill_check || ''}. ${Number(_lastResults?.derating_factor) < 1.0 ? `NOTE: Actual fill exceeds the ${_lastInputs?.tray_type === 'Solid Bottom' ? '40%' : '30%'} derating threshold — all power conductor ampacities shall be derated to ${Math.round(Number(_lastResults?.derating_factor) * 100)}% per NEC 392.80 / NEC 310.15. Verify derated ampacity meets design current before cable procurement.` : `No ampacity derating required — fill does not exceed the ${_lastInputs?.tray_type === 'Solid Bottom' ? '40%' : '30%'} threshold per NEC 392.80.`} The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including: NEMA VE 1 and NEMA VE 2 (material, fabrication, installation, and earthing of metal cable tray systems), NEC Article 392 and PEC 2017 Article 3.92 (fill limits, support spacing, cable grouping, and earthing continuity), NEC 310.15 (conductor ampacity derating where applicable), PEC Article 2.50 (earthing and bonding — copper bonding jumpers at every splice and earthing lugs at every support bracket), and DOLE OSH Electrical Safety Standards. All cable tray materials shall carry NEMA VE 1 compliance certification and hot-dip galvanizing certificate (ASTM A123 minimum 85 µm average coating). Power cables shall be segregated from control and instrumentation cables by a tray divider or separate adjacent tray per NEMA VE 2. An Electrical Permit shall be obtained from the LGU prior to commencement. All electrical works shall be performed by a licensed master electrician under the supervision of a PRC-licensed Electrical Engineer. As-built cable tray layout drawings, NEMA VE 1 certificates, galvanizing test reports, and earth continuity test results (end-to-end resistance ≤ 1 Ω) shall be submitted to the Owner and Engineer upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isUPSS
   ? `This Scope of Works is based on the UPS Sizing Design Calculation (Ref: ${escHtml(calcRef)}) per IEC 62040-1 (Safety Requirements for UPS), IEC 62040-3 (Performance Requirements — ${_lastInputs?.topology || 'Online (Double-Conversion)'} class), IEEE 446 (Emergency and Standby Power), IEEE 1184 (Batteries for UPS), and PEC 2017 Article 7 (Emergency and Standby Systems). The selected UPS is ${_lastResults?.selected_kva || ''}kVA ${_lastInputs?.topology || 'Online (Double-Conversion)'} type, ${_lastInputs?.phase || '3-Phase'}, with a system loading of ${_lastResults?.loading_pct || ''}% of rated kVA. The battery bank is ${_lastResults?.battery_config || ''}, rated for a minimum backup autonomy of ${_lastResults?.actual_runtime_min || ''} minutes at design load. The input supply shall be from a dedicated ${_lastResults?.input_breaker_a || ''}A circuit breaker, and the UPS shall be provided with a static bypass for maintenance. The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including: IEC 62040-1 and IEC 62040-3 (UPS safety and performance), IEEE 446 (loading limits — ≤ 80% of rated kVA), IEEE 1184 (VRLA battery sizing, DOD = 80%, replacement at ≤ 80% rated capacity), PEC 2017 Article 7 (dedicated branch circuit, LGU Electrical Permit, signed and sealed calculation), and DOLE OSH Electrical Safety Standards. The UPS shall carry IEC 62040-1 / IEC 62040-3 certification from an accredited test laboratory. VRLA batteries shall be from a reputable manufacturer with a minimum 3-year warranty. An Electrical Permit shall be obtained from the LGU prior to installation. All electrical works shall be performed by a licensed master electrician under the supervision of a PRC-licensed Electrical Engineer. Commissioning shall include a full-load battery discharge test per IEC 62040-3 — actual measured runtime shall equal or exceed the design backup time. As-built single-line diagram, UPS commissioning test report, battery runtime test results, and equipment warranty documents shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  : isDSS
+  ? `This Scope of Works is based on the Duct Sizing Design Calculation using the Equal Friction Method (Ref: ${escHtml(calcRef)}) per ASHRAE 2021 Fundamentals Handbook Chapter 21 (Duct Design), SMACNA HVAC Duct Construction Standards (3rd Edition), ASHRAE 62.1 (Ventilation for Acceptable Indoor Air Quality), PSME Code (HVAC mechanical system installation), and PEC 2017 Article 4.30 (fan motor branch circuit). The duct system is designed for ${_lastInputs?.duct_shape || 'Circular'} ${_lastInputs?.duct_material || 'Galvanized Steel'} ductwork at a design friction rate of ${_lastInputs?.friction_rate || 1.0} Pa/m and air density of ${_lastInputs?.air_density || 1.20} kg/m³. The ${(_lastInputs?.segments || []).length}-segment system results in a calculated duct pressure drop of ${_lastResults?.total_dp_pa || ''}Pa, and a fan static pressure of ${_lastResults?.fan_static_pa || ''}Pa (including 50% SMACNA fittings allowance). Fan motor: ${_lastResults?.fan_motor_hp_std || ''}HP standard. The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including: SMACNA HVAC Duct Construction Standards (pressure class, gauge, reinforcement, and support spacing); ASHRAE 62.1 (minimum ventilation rates, supply velocity limits — Main ≤ 8 m/s, Branch ≤ 5 m/s, Return ≤ 6 m/s); ASHRAE 2021 Chapter 21 (equal friction sizing, fitting pressure loss); PSME Code (mechanical equipment, ductwork installation, and LGU Mechanical Permit); PEC 2017 Article 4.30 (fan motor branch circuit, short-circuit protection); DOLE OSH Standards for mechanical equipment installation; and the National Building Code of the Philippines (PD 1096) for HVAC system permits. All ductwork shall be galvanized steel (or approved equivalent) constructed to the appropriate SMACNA pressure class — supply mains: 1 in. w.g. class minimum, branches: ½ in. w.g. class. Leakage testing per SMACNA HVAC Air Duct Leakage Test Manual is required for all mains operating at ≥ 1 in. w.g. static pressure. Flexible duct connections to diffusers shall not exceed 1.5 m in length. The Contractor shall submit the following for Engineer's approval prior to procurement: (a) shop drawings showing duct dimensions, routing, hangers, and pressure class designation, (b) fan performance curve at design flow and static pressure, (c) material certification for galvanized steel gauges, (d) SMACNA leakage test results, and (e) TAB (Testing, Adjusting, Balancing) report after installation confirming design airflows at all terminals within ±10%. A Mechanical Permit and sign-off by a PRC-licensed Mechanical Engineer are required before system start-up. As-built duct layout drawings and TAB report shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : `This Scope of Works is based on the HVAC Cooling Load Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including PSME, ASHRAE, PEC 2017, and DOLE OSH Standards. Any deviations from this scope must be approved in writing by the Engineer before execution. The Contractor shall coordinate with other trades to avoid conflicts and ensure a complete and functional installation.`
 }
         </div>

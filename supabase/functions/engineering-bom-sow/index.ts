@@ -2954,6 +2954,75 @@ Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
   };
 }
 
+// ─── HVAC: Duct Sizing BOM + SOW Agent ───────────────────────────────────────
+
+async function ductSizingBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project      = inputs.project_name  || "HVAC Duct System Project";
+  const ductShape    = String(inputs.duct_shape    || "Circular");
+  const frRate       = Number(inputs.friction_rate || 1.0);
+  const airDensity   = Number(inputs.air_density   || 1.20);
+  const ductMat      = String(inputs.duct_material || "Galvanized Steel");
+  const nSegments    = ((inputs.segments as unknown[]) || []).length;
+  const totalDpPa    = Number(results.total_dp_pa  || 0);
+  const fanStaticPa  = Number(results.fan_static_pa || 0);
+  const fanMotorHp   = Number(results.fan_motor_hp_std || 0);
+  const fanMotorKw   = Number(results.fan_motor_kw || 0);
+  const maxFlowLps   = Number(results.max_flow_lps || 0);
+  const totalLenM    = Number(results.total_length_m || 0);
+
+  const systemDesc = `${ductShape} ${ductMat} ductwork, fr=${frRate} Pa/m, ρ=${airDensity} kg/m³, ${nSegments} segments, System ΔP=${totalDpPa}Pa, Fan Static=${fanStaticPa}Pa, Fan Motor=${fanMotorHp}HP (${fanMotorKw}kW), Max Flow=${maxFlowLps}L/s, Total Length=${totalLenM}m`;
+
+  const prompt = `You are a senior HVAC engineer preparing a Bill of Materials (BOM) and Scope of Works (SOW) for a Philippine HVAC duct system based on an Equal Friction Method design calculation. All items, quantities, and specifications must reflect Philippine procurement practice (PSME Code, SMACNA standards, ASHRAE 62.1).
+
+System: ${systemDesc}
+Project: ${project}
+
+Generate a JSON object with exactly two keys:
+
+"bom_items": array of 12 objects, each with:
+  { "description": string, "specification": string, "unit": string, "quantity": number, "remarks": string }
+
+BOM items must cover:
+1. Supply air rectangular or circular ductwork (gauge per SMACNA pressure class)
+2. Return air ductwork
+3. Duct insulation (25mm acoustic/thermal lining for supply mains)
+4. Duct fittings allowance (elbows, tees, reducers — 30% extra of straight run by weight)
+5. Supply air diffusers / grilles
+6. Return air grilles
+7. Volume control dampers (VCD) — manual balancing
+8. Fan unit (centrifugal inline or AHU fan section, ${fanMotorHp}HP / ${fanMotorKw}kW)
+9. Fan motor VFD (variable frequency drive)
+10. Flexible duct connections to fan (anti-vibration, max 300mm)
+11. Duct support hangers (galvanized threaded rod + trapeze, per SMACNA)
+12. TAB (Testing, Adjusting, Balancing) service (lump sum)
+
+"sow_sections": array of 6 objects, each with:
+  { "section_no": string, "title": string, "items": string[] }
+
+SOW sections:
+- "1.0" Scope of Works (duct fabrication, installation, insulation, commissioning for ${systemDesc})
+- "2.0" Design Standards and References (ASHRAE Ch.21 equal friction; SMACNA Duct Construction Standards — pressure class per operating static; ASHRAE 62.1 velocity limits; PSME Code; PEC 2017 Art.4.30)
+- "3.0" Materials and Equipment (galvanized steel gauge per SMACNA; duct insulation spec; diffuser and grille spec; VCD spec; fan and motor spec with VFD)
+- "4.0" Installation Requirements (support spacing per SMACNA; joint sealing; flex duct ≤1.5m; TAB by accredited TAB contractor)
+- "5.0" Testing and Commissioning (SMACNA duct leakage test; TAB report within ±10% of design airflow at all terminals; fan performance verification)
+- "6.0" Submittals and Documentation (shop drawings with SMACNA pressure class; fan performance curve; material certificates; TAB report; O&M manual; as-built drawings)
+
+Each section items array must contain 3–5 bullet strings in professional Philippine engineering contractor style. Reference specific standards and the system parameters.
+
+Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
+
+  const raw    = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -3052,6 +3121,8 @@ serve(async (req) => {
       result = await ahuBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "HVAC Systems" && calc_type === "Cooling Tower Sizing") {
       result = await coolingTowerBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "HVAC Systems" && calc_type === "Duct Sizing (Equal Friction)") {
+      result = await ductSizingBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),

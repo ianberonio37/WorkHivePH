@@ -4430,6 +4430,147 @@ function calcUPS(inputs: Record<string, unknown>): Record<string, unknown> {
   };
 }
 
+// ─── HVAC: Duct Sizing — Equal Friction Method (ASHRAE Ch.21 / SMACNA) ────────
+
+function calcDuctSizing(inputs: Record<string, unknown>): Record<string, unknown> {
+  const round2 = (v: number) => Math.round(v * 100) / 100;
+
+  const ductShape    = String(inputs.duct_shape    || "Circular");
+  const frictionRate = Number(inputs.friction_rate || 1.0);   // Pa/m
+  const rho          = Number(inputs.air_density   || 1.20);  // kg/m³
+  const aspectRatio  = Number(inputs.aspect_ratio  || 2);     // max W/H for rectangular
+  const segments     = (inputs.segments as Array<{
+    name: string; flow_lps: number; length_m: number; seg_type: string;
+  }>) || [];
+
+  const mu = 1.81e-5;        // dynamic viscosity Pa·s (constant for HVAC range)
+  const nu = mu / rho;       // kinematic viscosity m²/s
+
+  // Standard circular duct diameters (mm)
+  const CIRC_STD_MM = [100,125,150,175,200,225,250,300,350,400,450,500,550,600,650,700,750,800,900,1000,1100,1200];
+  // Standard motor HP sizes
+  const STD_HP = [0.5,0.75,1.0,1.5,2.0,3.0,5.0,7.5,10,15,20,25,30,40,50,60,75,100,125,150,200];
+
+  // ASHRAE 62.1 / SMACNA velocity limits (m/s)
+  const VEL_LIMITS: Record<string, number> = {
+    "Supply Main":   8.0,
+    "Supply Branch": 5.0,
+    "Return Main":   6.0,
+    "Return Branch": 4.0,
+  };
+
+  // Equal friction formula (Darcy-Weisbach + Blasius):
+  // fr = K × Q^1.75 / D^4.75   where K = 8×0.3164×ρ×(π×ν)^0.25 / (π²×4^0.25)
+  const K = 8 * 0.3164 * rho * Math.pow(Math.PI * nu, 0.25) /
+            (Math.PI * Math.PI * Math.pow(4, 0.25));
+
+  const segResults = segments.map(seg => {
+    const Qm3s = Number(seg.flow_lps) / 1000;
+    if (Qm3s <= 0) return null;
+
+    // Theoretical D for circular duct
+    const D_calc_m = Math.pow(K * Math.pow(Qm3s, 1.75) / frictionRate, 1 / 4.75);
+
+    let D_h_m: number;   // hydraulic diameter used for Re and ΔP
+    let area_m2: number;
+    let dim: string;
+
+    if (ductShape === "Circular") {
+      const D_calc_mm = D_calc_m * 1000;
+      const D_std_mm  = CIRC_STD_MM.find(s => s >= D_calc_mm) ??
+                        Math.ceil(D_calc_mm / 50) * 50;
+      D_h_m   = D_std_mm / 1000;
+      area_m2 = Math.PI * D_h_m * D_h_m / 4;
+      dim     = `Ø${D_std_mm} mm`;
+    } else {
+      // Rectangular: ASHRAE De = 1.30 × (a×b)^0.625 / (a+b)^0.25 = D_calc_m
+      // With b = r×a:  De = 1.30 × r^0.625 × a / (1+r)^0.25
+      // → a = De × (1+r)^0.25 / (1.30 × r^0.625)
+      const r   = aspectRatio;
+      const a_m = D_calc_m * Math.pow(1 + r, 0.25) / (1.30 * Math.pow(r, 0.625));
+      const b_m = r * a_m;
+      // Round up to nearest 50 mm
+      const a_mm = Math.ceil(a_m * 1000 / 50) * 50;
+      const b_mm = Math.ceil(b_m * 1000 / 50) * 50;
+      area_m2 = (a_mm / 1000) * (b_mm / 1000);
+      // Hydraulic diameter for pressure drop: D_h = 4A/P = 2ab/(a+b)
+      D_h_m   = 2 * (a_mm / 1000) * (b_mm / 1000) / ((a_mm + b_mm) / 1000);
+      const wMm = Math.max(a_mm, b_mm);
+      const hMm = Math.min(a_mm, b_mm);
+      dim = `${wMm} × ${hMm} mm`;
+    }
+
+    // Velocity at standard size
+    const v = Qm3s / area_m2;
+
+    // Reynolds number
+    const Re = v * D_h_m / nu;
+
+    // Friction factor
+    let f: number;
+    if (Re < 4000) {
+      f = 64 / Re;  // laminar (rare in HVAC)
+    } else if (Re <= 100000) {
+      f = 0.3164 / Math.pow(Re, 0.25);  // Blasius smooth
+    } else {
+      // Swamee-Jain (smooth approximation, ε = 0.09 mm for galvanized steel)
+      const eps = 0.00009;
+      const term = eps / (3.7 * D_h_m) + 5.74 / Math.pow(Re, 0.9);
+      f = 0.25 / Math.pow(Math.log10(term), 2);
+    }
+
+    // Segment pressure drop (Pa)
+    const dp_pa = round2(f * rho * v * v * Number(seg.length_m) / (2 * D_h_m));
+
+    // Velocity check
+    const velLimit = VEL_LIMITS[seg.seg_type] ?? 6;
+    const velCheck = v <= velLimit ? "OK" : v <= velLimit * 1.2 ? "WARNING" : "HIGH";
+
+    return {
+      name:         seg.name,
+      seg_type:     seg.seg_type,
+      flow_lps:     Number(seg.flow_lps),
+      length_m:     Number(seg.length_m),
+      dim,
+      velocity_ms:  round2(v),
+      Re:           Math.round(Re),
+      f:            Math.round(f * 10000) / 10000,
+      dp_pa,
+      vel_check:    velCheck,
+      vel_limit_ms: velLimit,
+    };
+  }).filter(Boolean);
+
+  // System totals
+  const totalDpPa     = round2(segResults.reduce((s, r) => s + (r?.dp_pa ?? 0), 0));
+  const fanStaticPa   = round2(totalDpPa * 1.5);
+  const totalLengthM  = round2(segments.reduce((s, seg) => s + Number(seg.length_m), 0));
+  const maxFlowLps    = segments.reduce((m, seg) => Math.max(m, Number(seg.flow_lps)), 0);
+  const totalFlowM3s  = maxFlowLps / 1000;
+
+  // Fan motor kW = Q × ΔP_fan / (η_fan × η_motor × 1000)
+  const fanMotorKw      = round2(totalFlowM3s * fanStaticPa / (0.65 * 0.85 * 1000));
+  const fanMotorHpCalc  = round2(fanMotorKw / 0.746);
+  const fanMotorHpStd   = STD_HP.find(h => h >= fanMotorHpCalc) ??
+                          Math.ceil(fanMotorHpCalc * 10) / 10;
+
+  return {
+    segments:            segResults,
+    total_dp_pa:         totalDpPa,
+    fittings_factor:     1.5,
+    fan_static_pa:       fanStaticPa,
+    total_length_m:      totalLengthM,
+    max_flow_lps:        maxFlowLps,
+    fan_motor_kw:        fanMotorKw,
+    fan_motor_hp_calc:   fanMotorHpCalc,
+    fan_motor_hp_std:    fanMotorHpStd,
+    duct_shape:          ductShape,
+    friction_rate:       frictionRate,
+    air_density:         rho,
+    duct_material:       String(inputs.duct_material || "Galvanized Steel"),
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -4525,6 +4666,8 @@ serve(async (req) => {
       results = calcCableTray(inputs);
     } else if (calc_type === "UPS Sizing") {
       results = calcUPS(inputs);
+    } else if (calc_type === "Duct Sizing (Equal Friction)") {
+      results = calcDuctSizing(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),
