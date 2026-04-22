@@ -7278,8 +7278,8 @@ function renderBoilerReport(inputs, results, narrative) {
       <p style="font-size:0.88rem;">Total installed capacity (${e(inputs.num_boilers)} boiler${parseInt(inputs.num_boilers)>1?'s':''}): <strong>${e(r.total_capacity_kw)} kW (${e(r.total_capacity_bhp)} BHP)</strong></p>
 
       <h3 style="font-size:0.92rem;font-weight:700;margin-top:1rem;">4.3 Fuel Consumption</h3>
-      <p style="font-size:0.88rem;">F = Q_boiler / (LHV × η)</p>
-      <p style="font-size:0.88rem;">= ${e(r.q_boiler_kw)} kW / (${e(r.fuel_lhv_kj_kg)} kJ/kg × ${(parseFloat(inputs.efficiency_pct)/100).toFixed(2)})</p>
+      <p style="font-size:0.88rem;">F = Q_boiler × 3600 / (LHV × η)</p>
+      <p style="font-size:0.88rem;">= ${e(r.q_boiler_kw)} kW × 3600 / (${e(r.fuel_lhv_kj_kg)} kJ/kg × ${(parseFloat(inputs.efficiency_pct)/100).toFixed(2)})</p>
       <p style="font-size:0.88rem;">= <strong>${e(r.fuel_consumption_kg_hr)} kg/hr</strong>${r.fuel_consumption_lhr ? ` (${e(r.fuel_consumption_lhr)} L/hr)` : ''}</p>
 
       <h3 style="font-size:0.92rem;font-weight:700;margin-top:1rem;">4.4 Blowdown &amp; Makeup Water</h3>
@@ -7419,8 +7419,8 @@ function renderHotWaterBoilerReport(inputs, results, narrative) {
       <p style="font-size:0.88rem;">Total installed capacity (${e(inputs.num_boilers)} boiler${parseInt(inputs.num_boilers)>1?'s':''}): <strong>${e(r.total_capacity_kw)} kW (${e(r.total_capacity_bhp)} BHP)</strong></p>
 
       <h3 style="font-size:0.92rem;font-weight:700;margin-top:1rem;">3.4 Fuel Consumption</h3>
-      <p style="font-size:0.88rem;">F = Q_boiler / (LHV × η) × 3600</p>
-      <p style="font-size:0.88rem;">= ${e(r.q_boiler_kw)} kW / (${e(r.fuel_lhv_kj_kg)} kJ/kg × ${(parseFloat(inputs.efficiency_pct)/100).toFixed(2)})</p>
+      <p style="font-size:0.88rem;">F = Q_boiler × 3600 / (LHV × η)</p>
+      <p style="font-size:0.88rem;">= ${e(r.q_boiler_kw)} kW × 3600 / (${e(r.fuel_lhv_kj_kg)} kJ/kg × ${(parseFloat(inputs.efficiency_pct)/100).toFixed(2)})</p>
       <p style="font-size:0.88rem;">= <strong>${e(r.fuel_consumption_kg_hr)} kg/hr</strong>${r.fuel_consumption_lhr ? ` (${e(r.fuel_consumption_lhr)} L/hr)` : ''}</p>
 
       <h3 style="font-size:0.92rem;font-weight:700;margin-top:1rem;">3.5 Safety Relief Valve Minimum Capacity</h3>
