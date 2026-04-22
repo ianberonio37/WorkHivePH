@@ -1540,6 +1540,112 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Electrical: Solar PV System BOM + SOW Agent ─────────────────────────────
+
+async function solarPVBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project       = inputs.project_name     || "Solar PV Project";
+  const systemType    = results.system_type     || inputs.system_type     || "Grid-Tied";
+  const location      = results.location        || inputs.location        || "Metro Manila";
+  const pshHr         = results.psh_hr          ?? inputs.psh_hr          ?? 4.5;
+  const panelQty      = results.panel_qty       ?? "N/A";
+  const panelWp       = inputs.panel_wp         ?? results.panel_wp       ?? 450;
+  const actualKWp     = results.actual_array_kwp ?? "N/A";
+  const panelsPerStr  = results.panels_per_string ?? "N/A";
+  const numStrings    = results.num_strings     ?? "N/A";
+  const inverterKW    = results.inverter_kw     ?? "N/A";
+  const roofAreaM2    = results.total_roof_area_m2 ?? "N/A";
+  const annualYield   = results.annual_yield_kwh ?? "N/A";
+  const co2Kg         = results.co2_reduction_kg ?? "N/A";
+  const isOffGrid     = String(systemType).includes("Off-Grid") || String(systemType).includes("Hybrid");
+  const battKWh       = results.battery_kwh     ?? 0;
+  const battAh        = results.battery_ah      ?? 0;
+  const battV         = inputs.battery_voltage  ?? results.battery_voltage ?? 48;
+
+  const prompt = `You are a senior electrical engineer in the Philippines preparing a Bill of Materials and Scope of Works for a Solar PV System.
+
+PROJECT: ${project}
+SYSTEM TYPE: ${systemType}
+LOCATION: ${location} (PSH: ${pshHr} h/day)
+ARRAY: ${actualKWp} kWp — ${panelQty} panels × ${panelWp} Wp each
+STRING CONFIG: ${panelsPerStr} panels/string × ${numStrings} strings (1000V DC IEC 62548)
+INVERTER: ${inverterKW} kW (grid-tie / hybrid inverter)
+ROOF AREA: ${roofAreaM2} m²
+ANNUAL YIELD: ${annualYield} kWh/yr | CO₂ REDUCTION: ${co2Kg} kg/yr
+${isOffGrid ? `BATTERY BANK: ${battKWh} kWh / ${battAh} Ah @ ${battV}V DC (Off-Grid/Hybrid)` : "NET METERING: Grid-Tied — DOE DC2015-07-0012 net metering application required"}
+
+Generate a professional BOM and SOW for this project.
+
+RETURN JSON ONLY in this exact format:
+{
+  "bom_items": [
+    { "description": "...", "specification": "...", "qty": 1, "unit": "unit", "remarks": "..." }
+  ],
+  "sow_sections": [
+    { "title": "...", "content": "The Contractor shall..." }
+  ]
+}
+
+BOM REQUIREMENTS (minimum 18 items):
+1. Solar PV Modules — ${panelWp} Wp monocrystalline PERC/TOPCon, IEC 61215 / IEC 61730 certified; Qty: ${panelQty} pcs
+2. Solar Mounting Structure — Aluminum anodized roof-mount rail system; Qty: for ${panelQty} panels set
+3. String Inverter — ${inverterKW} kW grid-tie inverter, IEC 61727, DOE-approved, anti-islanding protection; Qty: 1 unit
+4. DC Combiner Box — ${numStrings}-string, with fuses, surge arrester, disconnect; Qty: 1 unit
+5. DC Solar Cable — 6mm² UV-resistant double-insulated (IEC 62930), for string wiring; Qty: estimate meters run
+6. AC Output Cable — 3.5mm²–5.5mm² THHN Cu for inverter AC output to panel; Qty: estimate run
+7. DC Circuit Breaker — string-rated 600/1000V DC MCB; Qty: ${numStrings} pcs
+8. AC Circuit Breaker — 2P/4P, rated for inverter output current; Qty: 1 unit
+9. Surge Protection Device (DC) — 1000V DC, 40kA; Qty: 2 unit
+10. Surge Protection Device (AC) — Type 2, 40kA; Qty: 1 unit
+11. Solar Disconnect Switch (DC) — load-break rated 1000V DC; Qty: 1 unit
+12. Energy Meter (Bidirectional) — for net metering, Meralco-approved; Qty: 1 unit
+13. Grounding/Bonding Cable — 6mm² bare/green Cu for module frames, racking; Qty: estimate run
+14. Ground Rod and Clamps — copper-coated 16mm × 1.5m; Qty: 2 set
+15. Conduit and Fittings — EMT/PVC for cable protection; Qty: estimate lot
+16. Cable Trays / Cleats — aluminum or powder-coated steel; Qty: lot
+${isOffGrid ? `17. Battery Bank — LiFePO4 or VRLA, ${battV}V ${battAh}Ah system; Qty: 1 set
+18. Battery Enclosure / Cabinet — IP44, ventilated, with smoke detector; Qty: 1 unit
+19. Charge Controller / Battery Management System (BMS); Qty: 1 unit
+20. Isolation Transformer (if required by local utility); Qty: 1 unit` : `17. Net Metering Application Package — DOE DC2015-07-0012, Meralco technical requirements; Qty: 1 lot
+18. Commissioning and Testing — IV curve tracing, insulation resistance test, anti-islanding test; Qty: 1 lot`}
+
+SOW REQUIREMENTS (8 sections):
+1. Scope of Works and Design Basis
+2. Solar PV Module Supply and Installation (IEC 62548 string voltage, tilt angle, clearances)
+3. Mounting Structure and Roof Works (structural adequacy, waterproofing, load check)
+4. Inverter and Electrical Balance of System (BOS) Installation
+5. DC Wiring, Combiner, and Protection Devices (1.25× Isc cable sizing per IEC 62548)
+6. AC Interconnection and Metering (net metering for grid-tied; battery integration for off-grid/hybrid)
+7. Earthing, Bonding, and Lightning Protection (PEC Art. 6, IEC 62561)
+8. Testing, Commissioning, and Regulatory Compliance (DOE permit, PEC Electrical Permit, Meralco net metering, IEC 61727 anti-islanding verification)
+
+Write each SOW section as full professional paragraphs starting with "The Contractor shall..." — NOT bullet points.
+Use short unit codes only (unit, set, pcs, m, lot, run) — never descriptive phrases in the unit field.`;
+
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${Deno.env.get("GROQ_API_KEY")}`,
+    },
+    body: JSON.stringify({
+      model: "llama-3.3-70b-versatile",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.3,
+      max_tokens: 4096,
+      response_format: { type: "json_object" },
+    }),
+  });
+
+  if (!response.ok) throw new Error(`Groq API error ${response.status}`);
+  const data = await response.json();
+  const content = data.choices?.[0]?.message?.content || "{}";
+  return JSON.parse(content);
+}
+
 // ─── Electrical: Generator Sizing BOM + SOW Agent ────────────────────────────
 
 async function generatorSizingBomSowAgent(
@@ -2752,6 +2858,8 @@ serve(async (req) => {
       result = await shortCircuitBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Lighting Design") {
       result = await lightingDesignBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Electrical" && calc_type === "Solar PV System") {
+      result = await solarPVBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Generator Sizing") {
       result = await generatorSizingBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Fire Protection" && calc_type === "Fire Sprinkler Hydraulic") {

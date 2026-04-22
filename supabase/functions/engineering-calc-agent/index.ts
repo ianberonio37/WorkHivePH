@@ -4045,6 +4045,91 @@ function calcGeneratorSizing(inputs: Record<string, unknown>): Record<string, un
   };
 }
 
+// ─── Electrical: Solar PV System — IEC 62548 / PEC Art. 6 / DOE Net Metering ─
+const PH_PSH: Record<string, number> = {
+  "Metro Manila": 4.5, "Cebu": 4.8, "Davao": 4.9, "Iloilo": 4.7,
+  "Baguio": 4.2, "CDO": 4.6, "Zamboanga": 4.9, "Batangas": 4.6,
+  "Legazpi": 4.4, "Tacloban": 4.5,
+};
+
+function calcSolarPV(inputs: Record<string, unknown>): Record<string, unknown> {
+  const round2 = (v: number) => Math.round(v * 100) / 100;
+
+  const systemType    = String(inputs.system_type   || "Grid-Tied");
+  const location      = String(inputs.location      || "Metro Manila");
+  const dailyEnergy   = Number(inputs.daily_energy_kwh)  || 50;
+  const panelWp       = Number(inputs.panel_wp)          || 450;
+  const panelVoc      = Number(inputs.panel_voc)         || 49.5;
+  const panelAreaM2   = Number(inputs.panel_area_m2)     || 1.7;
+  const deratingPct   = Number(inputs.derating_pct)      || 80;
+  const inverterEffPct = Number(inputs.inverter_eff_pct) || 96;
+  const autonomyDays  = Number(inputs.autonomy_days)     || 1;
+  const dodPct        = Number(inputs.dod_pct)           || 80;
+  const battVoltage   = Number(inputs.battery_voltage)   || 48;
+
+  // Step 1: Peak Sun Hours
+  const psh = PH_PSH[location] ?? Number(inputs.psh_hr) ?? 4.5;
+
+  // Step 2: System efficiency
+  const derating    = deratingPct / 100;
+  const inverterEff = inverterEffPct / 100;
+  const sysEff      = round2(derating * inverterEff);
+
+  // Step 3: Required array power
+  const requiredArrayKWp = round2(dailyEnergy / (psh * sysEff));
+
+  // Step 4: Panel count (ceil to next whole panel)
+  const panelQty = Math.ceil(requiredArrayKWp * 1000 / panelWp);
+
+  // Step 5: Actual array kWp
+  const actualArrayKWp = round2(panelQty * panelWp / 1000);
+
+  // Step 6: String sizing (IEC 62548 — 1000 V DC max string voltage)
+  const panelsPerString = Math.floor(1000 / panelVoc);
+  const numStrings      = Math.ceil(panelQty / panelsPerString);
+
+  // Step 7: Inverter capacity (1:1 DC/AC ratio, standard)
+  const inverterKW = round2(actualArrayKWp);
+
+  // Step 8: Annual energy yield
+  const annualYieldKWh = round2(actualArrayKWp * psh * 365 * sysEff);
+
+  // Step 9: Roof area
+  const roofAreaM2 = round2(panelQty * panelAreaM2);
+
+  // Step 10: CO2 reduction (Philippine grid emission factor 0.72 kg CO2/kWh)
+  const co2ReductionKg = round2(annualYieldKWh * 0.72);
+
+  // Step 11: Battery bank (Off-Grid / Hybrid only)
+  const isOffGrid = systemType.includes("Off-Grid") || systemType.includes("Hybrid");
+  const batteryKWh = isOffGrid ? round2(dailyEnergy * autonomyDays / (dodPct / 100)) : 0;
+  const batteryAh  = isOffGrid ? Math.ceil(batteryKWh * 1000 / battVoltage) : 0;
+
+  return {
+    system_type:         systemType,
+    location,
+    psh_hr:              psh,
+    daily_energy_kwh:    dailyEnergy,
+    derating_pct:        deratingPct,
+    inverter_eff_pct:    inverterEffPct,
+    system_efficiency:   sysEff,
+    required_array_kwp:  requiredArrayKWp,
+    panel_wp:            panelWp,
+    panel_qty:           panelQty,
+    actual_array_kwp:    actualArrayKWp,
+    panels_per_string:   panelsPerString,
+    num_strings:         numStrings,
+    panel_area_m2:       panelAreaM2,
+    total_roof_area_m2:  roofAreaM2,
+    inverter_kw:         inverterKW,
+    annual_yield_kwh:    annualYieldKWh,
+    co2_reduction_kg:    co2ReductionKg,
+    battery_kwh:         batteryKWh,
+    battery_ah:          batteryAh,
+    battery_voltage:     battVoltage,
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -4132,6 +4217,8 @@ serve(async (req) => {
       results = calcBoiler(inputs);
     } else if (calc_type === "Generator Sizing") {
       results = calcGeneratorSizing(inputs);
+    } else if (calc_type === "Solar PV System") {
+      results = calcSolarPV(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

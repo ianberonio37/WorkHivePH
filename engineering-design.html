@@ -694,6 +694,7 @@ const CALC_TYPES = {
     { id: 'Short Circuit',    icon: '⚡', desc: 'Fault current, breaker interrupting capacity', available: true  },
     { id: 'Lighting Design',   icon: '💡', desc: 'Lumen method, number of fixtures per room',   available: true  },
     { id: 'Generator Sizing', icon: '🔋', desc: 'Running kVA, starting kVA (motor surge), genset size, diesel fuel consumption — ISO 8528-1 / PEC / NFPA 110', available: true  },
+    { id: 'Solar PV System',  icon: '☀️', desc: 'Array kWp, panel count, string sizing, inverter kW, battery bank (off-grid/hybrid), annual yield, roof area — IEC 62548 / PEC Art. 6 / DOE Net Metering', available: true  },
   ],
   'Fire Protection': [
     { id: 'Fire Sprinkler Hydraulic', icon: '🚿', desc: 'NFPA 13 design area method, flow and pressure', available: true  },
@@ -1574,6 +1575,65 @@ const GUIDES = {
       'Diesel fuel: a 200 kVA genset running at 80% load consumes approximately 32-40 L/hr. Always provide a minimum 8-hour fuel tank at full load per NFPA 110.',
       'Philippine context: Meralco areas experience frequent planned outages (load shedding). Standby generators are standard for commercial buildings, manufacturing, hospitals, and hotels. BFP and DPWH require emergency gensets in buildings above 3 floors or with fire pumps.',
       'PEC Article 7 (Emergency Systems): emergency power must be restored within 10 seconds of normal power failure for life-safety loads (fire alarm, emergency lighting, fire pumps, elevators).',
+    ],
+  },
+
+  'Solar PV System': {
+    title: "Solar PV System — Array Sizing, String Design & Energy Yield",
+    subtitle: "Determines the required solar panel array (kWp), number of panels, string configuration, inverter capacity, battery bank (off-grid/hybrid), annual energy yield, and required roof area per IEC 62548, PEC 2017 Article 6, and DOE Net Metering rules.",
+    standards: [
+      "IEC 62548 — Photovoltaic Arrays: Design Requirements",
+      "Philippine Electrical Code (PEC) 2017 — Article 6 (Solar PV Systems)",
+      "DOE Department Circular DC2015-07-0012 — Net Metering Program Rules",
+      "IEC 61730 / IEC 61215 — PV Module Safety and Performance",
+      "IEEE 1547 — Standard for Interconnection of Distributed Energy Resources",
+    ],
+    formulas: [
+      "Required Array Power (kWp) = Daily Energy (kWh/day) / (PSH × Derating × Inverter Eff.)",
+      "",
+      "Philippine Peak Sun Hours (PSH) by location:",
+      "  Metro Manila: 4.5 h/day   Cebu: 4.8 h/day    Davao: 4.9 h/day",
+      "  Iloilo: 4.7 h/day         Baguio: 4.2 h/day  Zamboanga: 4.9 h/day",
+      "  Batangas: 4.6 h/day       Legazpi: 4.4 h/day  Tacloban: 4.5 h/day",
+      "  Cagayan de Oro: 4.6 h/day",
+      "",
+      "Number of Panels = ceil(Required Array kWp × 1000 / Panel Wp)",
+      "Actual Array kWp = Panels × Panel Wp / 1000",
+      "",
+      "String Sizing (IEC 62548):",
+      "  Max String Voltage = 1000 V (residential/commercial, ≤500 kWp)",
+      "  Panels per String = floor(1000 V / Panel Voc)",
+      "  Strings in Parallel = ceil(Panel Count / Panels per String)",
+      "",
+      "Inverter Capacity (kW) ≈ Actual Array kWp × 1.0  (1:1 DC/AC ratio, typical)",
+      "",
+      "Annual Energy Yield (kWh/yr) = Actual kWp × PSH × 365 × Derating × Inverter Eff.",
+      "",
+      "Battery Bank (Off-Grid / Hybrid only):",
+      "  Battery Energy (kWh) = Daily Energy × Autonomy Days / DoD",
+      "  Battery Capacity (Ah) = Battery Energy × 1000 / System Voltage",
+      "",
+      "Required Roof Area (m²) = Panel Count × Panel Area (≈1.7 m² standard)",
+      "",
+      "CO₂ Reduction (kg/yr) = Annual Yield × 0.72 kg CO₂/kWh  (Philippine grid factor)",
+    ],
+    fields: [
+      { name: "System Type", tip: "Grid-Tied: panels + inverter connected to Meralco/utility grid, excess exported via net metering. Off-Grid: battery bank required, no utility connection. Hybrid: grid-tied with battery backup for critical loads." },
+      { name: "Location / Peak Sun Hours", tip: "PSH (Peak Sun Hours) is the daily equivalent full-sun hours for your location. Philippine values range from 4.2 (Baguio highlands) to 4.9 (Davao/Zamboanga). Select your city or enter a custom value from PAGASA solar irradiance data." },
+      { name: "Daily Energy Demand (kWh/day)", tip: "Total electrical energy consumed per day. Read this from your electric bill (monthly kWh / 30) or sum all load wattages × hours of use. A typical Philippine household: 10-20 kWh/day. Office: 50-200 kWh/day." },
+      { name: "Panel Wp Rating", tip: "Rated peak power of each solar panel in watts-peak (Wp). Common sizes: 300 Wp, 400 Wp, 450 Wp, 550 Wp. Higher Wp panels require fewer panels for the same array capacity — preferred for roof-area-limited sites." },
+      { name: "Panel Voc", tip: "Open-circuit voltage of the panel (from the datasheet). Used to compute string sizing — how many panels can be connected in series without exceeding the 1000 V DC string voltage limit per IEC 62548 / PEC Art. 6." },
+      { name: "System Derating Factor", tip: "Accounts for real-world losses: soiling (dust), wiring resistance, module mismatch, temperature derating (Philippine heat reduces panel output ≈5-15%), and other system losses. Typical: 75-85%. PVsyst default: 80%." },
+      { name: "Inverter Efficiency", tip: "CEC weighted efficiency of the inverter. Modern string inverters: 95-98%. Use 96% as a conservative default. Micro-inverters are slightly higher but cost more. Central inverters for large arrays: 97-98%." },
+      { name: "Battery Autonomy (Off-Grid/Hybrid)", tip: "Number of days the battery can power the load without solar generation (cloudy days). Philippines: 1 day is standard for hybrid backup. Off-grid remote sites: 2-3 days. More autonomy = larger, more expensive battery." },
+      { name: "Depth of Discharge (DoD)", tip: "Maximum fraction of battery capacity that can be used. Lithium (LiFePO4): 80-90% DoD. Sealed Lead-Acid (VRLA): 50-60% DoD. Exceeding DoD shortens battery life significantly. Default 80% suits lithium." },
+    ],
+    notes: [
+      "DOE Net Metering (DC2015-07-0012): residential systems up to 100 kWp qualify. Excess energy is exported to the grid and credited at the generation charge rate on your next Meralco bill.",
+      "PEC 2017 Article 6 requires a DC disconnect, AC disconnect, and anti-islanding protection for all grid-tied systems. The inverter must be DOE-Type Tested or carry IEC 61727 certification.",
+      "Philippine roof pitch: most residential roofs are 10-30° tilt. An equator-facing tilt of 10-15° is optimal for year-round generation. Avoid north-facing panels — output drops 15-25%.",
+      "Temperature derating: Philippine ambient 35°C → panel cell temp ≈55°C. A typical panel loses 0.35-0.40%/°C above 25°C. At 55°C: ≈10-12% power loss. The 80% derating factor already accounts for this.",
+      "Inverter sizing rule: PEC Article 6 limits the inverter AC output to ≤100% of the contract demand with Meralco. For net-metered systems, size the inverter to match the array, not to exceed the approved load.",
     ],
   },
 
@@ -3896,6 +3956,127 @@ function renderInputForm(calcType) {
     document.getElementById('calc-btn').disabled = false;
   }
 
+  if (calcType === 'Solar PV System') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Rooftop Solar — Building A, 50 kWp Grid-Tied" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">System Type</div>
+        <div class="toggle-group" id="tg-pv-type">
+          ${['Grid-Tied','Off-Grid','Hybrid'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-pv-type','${v}');togglePVBatteryFields()">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Location <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(sets Peak Sun Hours)</span></div>
+        <div class="toggle-group" id="tg-pv-loc" style="flex-wrap:wrap;">
+          ${[['Metro Manila','4.5'],['Cebu','4.8'],['Davao','4.9'],['Iloilo','4.7'],['Baguio','4.2'],['CDO','4.6'],['Zamboanga','4.9'],['Batangas','4.6'],['Legazpi','4.4'],['Tacloban','4.5'],['Custom','']].map(([loc,psh],i) =>
+            `<button class="toggle-btn${i===0?' active':''}" data-val="${loc}" onclick="setPVLocation('${loc}','${psh}')">${loc}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Peak Sun Hours (PSH)</div>
+          <div class="input-group">
+            <input id="f-pv-psh" class="wh-input" type="number" value="4.5" min="2.0" max="8.0" step="0.1" />
+            <span class="input-unit">h/day</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Daily Energy Demand</div>
+          <div class="input-group">
+            <input id="f-pv-energy" class="wh-input" type="number" value="50" min="1" step="0.5" />
+            <span class="input-unit">kWh/day</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Panel Wp Rating</div>
+          <div class="toggle-group" id="tg-pv-wp" style="flex-wrap:wrap;">
+            ${[300,400,450,550,600].map((v,i) =>
+              `<button class="toggle-btn${i===2?' active':''}" data-val="${v}" onclick="toggle('tg-pv-wp','${v}')">${v} Wp</button>`
+            ).join('')}
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Panel Voc (open-circuit)</div>
+          <div class="input-group">
+            <input id="f-pv-voc" class="wh-input" type="number" value="49.5" min="20" max="120" step="0.5" />
+            <span class="input-unit">V</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div>
+          <div class="field-label">Panel Area</div>
+          <div class="input-group">
+            <input id="f-pv-panel-area" class="wh-input" type="number" value="1.7" min="1.0" max="3.0" step="0.1" />
+            <span class="input-unit">m²</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">System Derating</div>
+          <div class="input-group">
+            <input id="f-pv-derating" class="wh-input" type="number" value="80" min="60" max="100" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Inverter Efficiency</div>
+          <div class="input-group">
+            <input id="f-pv-inv-eff" class="wh-input" type="number" value="96" min="80" max="100" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Battery fields (shown for Off-Grid / Hybrid) -->
+      <div id="pv-battery-fields">
+        <div class="grid grid-cols-3 gap-3 mb-4">
+          <div>
+            <div class="field-label">Autonomy Days</div>
+            <div class="input-group">
+              <input id="f-pv-autonomy" class="wh-input" type="number" value="1" min="0.5" max="7" step="0.5" />
+              <span class="input-unit">days</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Depth of Discharge</div>
+            <div class="input-group">
+              <input id="f-pv-dod" class="wh-input" type="number" value="80" min="40" max="100" />
+              <span class="input-unit">%</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Battery Voltage</div>
+            <div class="toggle-group" id="tg-pv-bvolt">
+              <button class="toggle-btn" data-val="12" onclick="toggle('tg-pv-bvolt','12')">12 V</button>
+              <button class="toggle-btn" data-val="24" onclick="toggle('tg-pv-bvolt','24')">24 V</button>
+              <button class="toggle-btn active" data-val="48" onclick="toggle('tg-pv-bvolt','48')">48 V</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        IEC 62548 / PEC Art. 6 / DOE Net Metering DC2015-07-0012. Array kWp = Daily kWh / (PSH × Derating × Inv. Eff.). String voltage limit: 1000 V DC (max series panels = floor(1000 / Voc)).
+      </div>
+    `;
+    togglePVBatteryFields();
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
   if (calcType === 'Voltage Drop') {
     area.innerHTML = `
       <div class="mb-4">
@@ -5985,6 +6166,19 @@ function applyVDPhaseDefaults(phase) {
   if (el) el.value = phase === 'Three-phase' ? 400 : 230;
 }
 
+function setPVLocation(loc, psh) {
+  document.querySelectorAll('#tg-pv-loc .toggle-btn').forEach(b => b.classList.toggle('active', (b.dataset.val || b.textContent.trim()) === loc));
+  const el = document.getElementById('f-pv-psh');
+  if (el && psh) { el.value = psh; el.readOnly = true; el.style.opacity = '0.6'; }
+  else if (el)   { el.readOnly = false; el.style.opacity = '1'; el.focus(); }
+}
+
+function togglePVBatteryFields() {
+  const sysType = getToggle('tg-pv-type') || 'Grid-Tied';
+  const el = document.getElementById('pv-battery-fields');
+  if (el) el.style.display = sysType === 'Grid-Tied' ? 'none' : '';
+}
+
 function applyWSLoadDefaults(loadType) {
   const pfEl = document.getElementById('f-ws-pf');
   if (!pfEl) return;
@@ -6137,6 +6331,24 @@ function collectInputs() {
       overall_pf:     parseFloat(v('f-gen-pf')) || 0.85,
       safety_factor:  parseFloat(v('f-gen-sf')) || 1.25,
       loads:          genLoads,
+    };
+  }
+
+  if (_calcType === 'Solar PV System') {
+    return {
+      project_name:    v('f-project') || 'Untitled Solar PV System',
+      system_type:     getToggle('tg-pv-type')   || 'Grid-Tied',
+      location:        (document.querySelector('#tg-pv-loc .toggle-btn.active')?.dataset.val) || 'Metro Manila',
+      psh_hr:          parseFloat(v('f-pv-psh'))        || 4.5,
+      daily_energy_kwh: parseFloat(v('f-pv-energy'))   || 50,
+      panel_wp:        parseFloat(getToggle('tg-pv-wp') || '450'),
+      panel_voc:       parseFloat(v('f-pv-voc'))        || 49.5,
+      panel_area_m2:   parseFloat(v('f-pv-panel-area')) || 1.7,
+      derating_pct:    parseFloat(v('f-pv-derating'))   || 80,
+      inverter_eff_pct: parseFloat(v('f-pv-inv-eff'))  || 96,
+      autonomy_days:   parseFloat(v('f-pv-autonomy'))   || 1,
+      dod_pct:         parseFloat(v('f-pv-dod'))        || 80,
+      battery_voltage: parseFloat(getToggle('tg-pv-bvolt') || '48'),
     };
   }
 
@@ -6794,6 +7006,15 @@ async function runCalculation() {
       showToast('Please add at least one load to the schedule.');
       return;
     }
+  } else if (_calcType === 'Solar PV System') {
+    if (!inputs.daily_energy_kwh || inputs.daily_energy_kwh <= 0) {
+      showToast('Please enter the daily energy demand (kWh/day).');
+      return;
+    }
+    if (!inputs.panel_wp || inputs.panel_wp <= 0) {
+      showToast('Please select a panel Wp rating.');
+      return;
+    }
   } else if (_calcType === 'Voltage Drop') {
     if (!inputs.current || inputs.current <= 0) {
       showToast('Please enter the load current.');
@@ -7031,6 +7252,8 @@ async function runCalculation() {
       renderSepticReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Generator Sizing') {
       renderGeneratorReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Solar PV System') {
+      renderSolarPVReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Load Estimation') {
       renderLoadReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Voltage Drop') {
@@ -8297,6 +8520,162 @@ function renderGeneratorReport(inputs, results, narrative) {
       </div>
     </div>
   `;
+  showReport();
+}
+
+// ─── Solar PV System Report ───────────────────────────────────────────────────
+function renderSolarPVReport(inputs, results, narrative) {
+  const ef = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const e  = escHtml;
+  const panel = document.getElementById('report-output');
+  const isOffGrid = (inputs.system_type || '').includes('Off-Grid') || (inputs.system_type || '').includes('Hybrid');
+
+  const reportHTML = `
+  <div class="report-container" id="report-print-area" style="background:#fff;color:#1a1a2e;font-family:'Segoe UI',Arial,sans-serif;padding:2rem;max-width:900px;margin:0 auto;">
+
+    <!-- Header -->
+    <div style="text-align:center;border-bottom:2px solid #162032;padding-bottom:1rem;margin-bottom:1.5rem;">
+      <div style="font-size:1.4rem;font-weight:700;color:#162032;text-transform:uppercase;letter-spacing:1px;">Design Calculation Report</div>
+      <div style="font-size:1rem;color:#333;margin-top:0.3rem;">Solar PV System — ${e(inputs.system_type || 'Grid-Tied')}</div>
+      <div style="font-size:0.85rem;color:#444;margin-top:0.4rem;">${e(inputs.project_name || 'Untitled Project')}</div>
+    </div>
+
+    <!-- Edit tip -->
+    <div class="no-print" style="background:#fff8e6;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 1rem;font-size:0.78rem;color:#7a5200;margin-bottom:1.25rem;">
+      Click any <u>underlined field</u> to edit before printing or saving as PDF.
+    </div>
+
+    <!-- Project Info -->
+    <table style="width:100%;border-collapse:collapse;margin-bottom:1.5rem;font-size:0.82rem;">
+      <tr><th style="background:#162032;color:#fff;padding:0.5rem;text-align:left;width:35%;">Field</th><th style="background:#162032;color:#fff;padding:0.5rem;text-align:left;">Value</th></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Project / System Name</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">${ef(inputs.project_name || 'Untitled Solar PV System')}</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">System Type</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">${e(inputs.system_type || 'Grid-Tied')}</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Location</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">${e(results.location || inputs.location || 'Metro Manila')}</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Peak Sun Hours (PSH)</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">${e(results.psh_hr || inputs.psh_hr || 4.5)} h/day</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Daily Energy Demand</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">${e(inputs.daily_energy_kwh || 0)} kWh/day</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Panel Rating</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">${e(inputs.panel_wp || 450)} Wp per panel</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Panel Voc</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">${e(inputs.panel_voc || 49.5)} V</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">System Derating Factor</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">${e(inputs.derating_pct || 80)} % (soiling, wiring, temp, mismatch)</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Inverter Efficiency</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">${e(inputs.inverter_eff_pct || 96)} %</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Prepared by</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">${ef('Engineer Name')}</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;color:#555;">Date</td><td style="padding:0.4rem 0.5rem;">${ef(new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}))}</td></tr>
+    </table>
+
+    <!-- Key Results -->
+    <h2 style="font-size:1rem;font-weight:700;color:#162032;border-bottom:2px solid #162032;padding-bottom:0.4rem;margin-bottom:1rem;">1. Summary of Results</h2>
+    <div style="page-break-inside:avoid;break-inside:avoid;">
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.5rem;">
+        <div class="result-highlight" style="background:#f0f7ff;border:2px solid #162032;border-radius:0.5rem;padding:1rem;text-align:center;">
+          <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Array Capacity</div>
+          <div style="font-size:2rem;font-weight:800;color:#162032;">${e(results.actual_array_kwp || 0)}</div>
+          <div style="font-size:0.8rem;color:#666;">kWp (actual)</div>
+          <div style="font-size:0.75rem;color:#888;margin-top:0.3rem;">Required: ${e(results.required_array_kwp || 0)} kWp</div>
+        </div>
+        <div class="result-highlight" style="background:#f0fff4;border:2px solid #22c55e;border-radius:0.5rem;padding:1rem;text-align:center;">
+          <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Panel Count</div>
+          <div style="font-size:2rem;font-weight:800;color:#1a6b3c;">${e(results.panel_qty || 0)}</div>
+          <div style="font-size:0.8rem;color:#666;">panels × ${e(inputs.panel_wp || 450)} Wp</div>
+          <div style="font-size:0.75rem;color:#888;margin-top:0.3rem;">${e(results.panels_per_string || 0)} panels/string × ${e(results.num_strings || 0)} strings</div>
+        </div>
+        <div class="result-highlight" style="background:#fffbf0;border:2px solid #F7A21B;border-radius:0.5rem;padding:1rem;text-align:center;">
+          <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Inverter Capacity</div>
+          <div style="font-size:2rem;font-weight:800;color:#7a5200;">${e(results.inverter_kw || 0)}</div>
+          <div style="font-size:0.8rem;color:#666;">kW</div>
+          <div style="font-size:0.75rem;color:#888;margin-top:0.3rem;">DC/AC ratio ≈ 1.0</div>
+        </div>
+        <div class="result-highlight" style="background:#fef3f2;border:2px solid #ef4444;border-radius:0.5rem;padding:1rem;text-align:center;">
+          <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Annual Yield</div>
+          <div style="font-size:2rem;font-weight:800;color:#991b1b;">${e(results.annual_yield_kwh || 0)}</div>
+          <div style="font-size:0.8rem;color:#666;">kWh/year</div>
+          <div style="font-size:0.75rem;color:#888;margin-top:0.3rem;">CO₂ saved: ${e(results.co2_reduction_kg || 0)} kg/yr</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calculation Steps -->
+    <h2 style="font-size:1rem;font-weight:700;color:#162032;border-bottom:2px solid #162032;padding-bottom:0.4rem;margin-bottom:1rem;">2. Calculation Steps</h2>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:1.5rem;font-size:0.82rem;">
+      <tr><th style="background:#162032;color:#fff;padding:0.5rem;text-align:left;">Step</th><th style="background:#162032;color:#fff;padding:0.5rem;text-align:left;">Parameter</th><th style="background:#162032;color:#fff;padding:0.5rem;text-align:right;">Value</th></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">1</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Peak Sun Hours (${e(results.location || inputs.location || '')})</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;">${e(results.psh_hr || inputs.psh_hr || 4.5)} h/day</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">2</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Daily Energy Demand</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;">${e(inputs.daily_energy_kwh || 0)} kWh/day</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">3</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Derating Factor (${e(inputs.derating_pct || 80)}%) × Inverter Eff. (${e(inputs.inverter_eff_pct || 96)}%)</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;">${e(results.system_efficiency || 0)}</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">4</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Required Array = Energy / (PSH × System Eff.)</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.required_array_kwp || 0)} kWp</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">5</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Panel Count = ⌈Required kWp × 1000 / ${e(inputs.panel_wp || 450)} Wp⌉</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.panel_qty || 0)} panels</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">6</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Actual Array = ${e(results.panel_qty || 0)} × ${e(inputs.panel_wp || 450)} Wp / 1000</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.actual_array_kwp || 0)} kWp</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">7</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">String Config: ⌊1000 V / ${e(inputs.panel_voc || 49.5)} V Voc⌋ = ${e(results.panels_per_string || 0)} panels/string; ⌈${e(results.panel_qty || 0)} / ${e(results.panels_per_string || 0)}⌉ = ${e(results.num_strings || 0)} strings</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;">${e(results.panels_per_string || 0)}S × ${e(results.num_strings || 0)}P</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">8</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Annual Yield = ${e(results.actual_array_kwp || 0)} kWp × ${e(results.psh_hr || inputs.psh_hr || 4.5)} h × 365 × ${e(results.system_efficiency || 0)}</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.annual_yield_kwh || 0)} kWh/yr</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">9</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Roof Area = ${e(results.panel_qty || 0)} panels × ${e(inputs.panel_area_m2 || 1.7)} m²/panel</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.total_roof_area_m2 || 0)} m²</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">10</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">CO₂ Reduction = ${e(results.annual_yield_kwh || 0)} kWh × 0.72 kg CO₂/kWh</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.co2_reduction_kg || 0)} kg/yr</td></tr>
+    </table>
+
+    <!-- Battery section (Off-Grid / Hybrid) -->
+    ${isOffGrid ? `
+    <h2 style="font-size:1rem;font-weight:700;color:#162032;border-bottom:2px solid #162032;padding-bottom:0.4rem;margin-bottom:1rem;">3. Battery Bank (${e(inputs.system_type || '')})</h2>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:1.5rem;font-size:0.82rem;">
+      <tr><th style="background:#162032;color:#fff;padding:0.5rem;text-align:left;">Parameter</th><th style="background:#162032;color:#fff;padding:0.5rem;text-align:right;">Value</th></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Autonomy Days</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;">${e(inputs.autonomy_days || 1)} day(s)</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Depth of Discharge (DoD)</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;">${e(inputs.dod_pct || 80)} %</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">System Voltage</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;">${e(inputs.battery_voltage || 48)} V DC</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Required Battery Energy</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.battery_kwh || 0)} kWh</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Required Battery Capacity</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.battery_ah || 0)} Ah @ ${e(inputs.battery_voltage || 48)} V</td></tr>
+    </table>` : ''}
+
+    <!-- Narrative -->
+    ${narrative?.objective ? `
+    <h2 style="font-size:1rem;font-weight:700;color:#162032;border-bottom:2px solid #162032;padding-bottom:0.4rem;margin-bottom:1rem;">${isOffGrid ? '4' : '3'}. Design Objective</h2>
+    <div class="narrative-block" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.75rem 1rem;font-size:0.82rem;color:#333;line-height:1.6;margin-bottom:1.5rem;">${e(narrative.objective)}</div>` : ''}
+    ${narrative?.assumptions ? `
+    <h2 style="font-size:1rem;font-weight:700;color:#162032;border-bottom:2px solid #162032;padding-bottom:0.4rem;margin-bottom:1rem;">${isOffGrid ? '5' : '4'}. Design Assumptions</h2>
+    <div class="narrative-block" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.75rem 1rem;font-size:0.82rem;color:#333;line-height:1.6;margin-bottom:1.5rem;">${e(narrative.assumptions)}</div>` : ''}
+    ${narrative?.recommendations ? `
+    <h2 style="font-size:1rem;font-weight:700;color:#162032;border-bottom:2px solid #162032;padding-bottom:0.4rem;margin-bottom:1rem;">${isOffGrid ? '6' : '5'}. Recommendations</h2>
+    <div class="narrative-block" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.75rem 1rem;font-size:0.82rem;color:#333;line-height:1.6;margin-bottom:1.5rem;">${e(narrative.recommendations)}</div>` : ''}
+
+    <!-- Compliance Notes -->
+    <h2 style="font-size:1rem;font-weight:700;color:#162032;border-bottom:2px solid #162032;padding-bottom:0.4rem;margin-bottom:1rem;">${isOffGrid ? '7' : '6'}. Standards &amp; Compliance</h2>
+    <div style="font-size:0.78rem;color:#444;line-height:1.7;margin-bottom:1.5rem;">
+      <div>• IEC 62548 — PV Array Design Requirements (string voltage ≤1000 V DC, 1.25× Isc cable sizing)</div>
+      <div>• PEC 2017 Article 6 — Solar PV Systems (DC disconnect, AC disconnect, anti-islanding protection)</div>
+      <div>• DOE Department Circular DC2015-07-0012 — Net Metering Program Rules (systems ≤100 kWp)</div>
+      <div>• IEC 61730 / IEC 61215 — PV Module Safety and Performance Certification</div>
+      <div>• IEEE 1547 — Standard for Interconnection of Distributed Energy Resources</div>
+      <div>• Philippine Grid Emission Factor: 0.72 kg CO₂/kWh (DOE)</div>
+    </div>
+
+    <!-- Signature block -->
+    <div class="sig-block" style="margin-top:2rem;display:flex;flex-wrap:wrap;gap:1.5rem;border-top:1px solid #ccc;padding-top:1.5rem;">
+      <div style="flex:1 1 200px;">
+        <div style="height:2.5rem;"></div>
+        <div style="border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-size:0.78rem;font-weight:700;">${ef('_________________________')}</div>
+          <div style="font-size:0.74rem;color:#555;">${ef('Electrical Engineer')}</div>
+          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${ef('_____________')}</div>
+          <div style="font-size:0.74rem;color:#555;">PTR No.: ${ef('_____________')}</div>
+          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+        </div>
+      </div>
+      <div style="flex:1 1 200px;">
+        <div style="height:2.5rem;"></div>
+        <div style="border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-size:0.78rem;font-weight:700;">${ef('_________________________')}</div>
+          <div style="font-size:0.74rem;color:#555;">${ef('Project Engineer / Manager')}</div>
+          <div style="font-size:0.74rem;color:#555;">Company: ${ef('_____________')}</div>
+          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+        </div>
+      </div>
+      <div style="flex:1 1 200px;">
+        <div style="height:2.5rem;"></div>
+        <div style="border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-size:0.78rem;font-weight:700;">${ef('_________________________')}</div>
+          <div style="font-size:0.74rem;color:#555;">${ef('Owner / Client Representative')}</div>
+          <div style="font-size:0.74rem;color:#555;">Date: ${ef(new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}))}</div>
+          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  panel.innerHTML = reportHTML;
   showReport();
 }
 
@@ -11813,6 +12192,8 @@ function viewHistoryReport(row) {
     renderStormDrainReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Generator Sizing') {
     renderGeneratorReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Solar PV System') {
+    renderSolarPVReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
@@ -11849,7 +12230,7 @@ async function generateBomSowChecklist() {
   if (!_lastResults || !_lastInputs) { showToast('Run a calculation first.'); return; }
   const BOM_SOW_SUPPORTED = {
     'Mechanical': ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air', 'Boiler System'],
-    'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design', 'Generator Sizing'],
+    'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design', 'Generator Sizing', 'Solar PV System'],
     'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)', 'Storm Drain / Stormwater'],
     'Fire Protection':         ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],
     'Vertical Transportation': ['Elevator Traffic Analysis', 'Hoist Capacity'],
@@ -12048,6 +12429,7 @@ function renderBomTablePreview(items) {
   const isSC       = _calcType === 'Short Circuit';
   const isLight    = _calcType === 'Lighting Design';
   const isGen      = _calcType === 'Generator Sizing';
+  const isSolarPV  = _calcType === 'Solar PV System';
   const isFSprink  = _calcType === 'Fire Sprinkler Hydraulic';
   const isFPump    = _calcType === 'Fire Pump Sizing';
   const isSPress   = _calcType === 'Stairwell Pressurization';
@@ -12057,7 +12439,7 @@ function renderBomTablePreview(items) {
   const isChiller   = _calcType === 'Chiller System — Air Cooled';
   const isChillerWC = _calcType === 'Chiller System — Water Cooled';
   const isAHU       = _calcType === 'AHU Sizing';
-  const calcRef = `${isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const calcRef = `${isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const disciplineSystem = isAHU
     ? `HVAC Systems — AHU (${_lastResults?.n_units || ''}× ${_lastResults?.nominal_AHU_CMH_each || ''}CMH, ${_lastResults?.Q_coil_total_kW || ''}kW/${_lastResults?.Q_coil_TR || ''}TR coil, ${_lastResults?.fan_hp_std || ''}HP fan, CHW ${_lastResults?.chw_supply_C || ''}/${_lastResults?.chw_return_C || ''}°C, ${_lastResults?.Q_chw_lps || ''}L/s)`
     : isChillerWC
@@ -12086,6 +12468,8 @@ function renderBomTablePreview(items) {
     ? `Electrical — Voltage Drop (${_lastResults?.circuit_type || _lastInputs?.circuit_type || 'Branch Circuit'}, ${_lastResults?.conductor_mm2 || _lastInputs?.conductor_mm2 || ''}mm² ${_lastResults?.conductor_mat || _lastInputs?.conductor_mat || 'Copper'}, ${_lastResults?.wire_length || _lastInputs?.wire_length || ''}m, VD ${_lastResults?.vd_pct || ''}% — ${_lastResults?.pass ? 'PASS' : 'FAIL'})`
     : isLoadEst
     ? `Electrical — Load Estimation (${_lastResults?.phase_config || _lastInputs?.phase_config || '3-Phase'}, ${_lastResults?.total_demand_kva || ''}kVA Demand, ${_lastResults?.recommended_breaker_A || ''}A Main Breaker)`
+    : isSolarPV
+    ? `Electrical — Solar PV System (${_lastResults?.system_type || ''}, ${_lastResults?.location || ''} ${_lastResults?.psh_hr || ''}h PSH, Array ${_lastResults?.actual_array_kwp || ''}kWp, ${_lastResults?.panel_qty || ''}× ${_lastInputs?.panel_wp || ''}Wp panels, Inverter ${_lastResults?.inverter_kw || ''}kW, Annual Yield ${_lastResults?.annual_yield_kwh || ''}kWh/yr)`
     : isGen
     ? `Electrical — Generator Sizing (${_lastResults?.selected_kva || ''}kVA / ${_lastResults?.selected_kw || ''}kW @ PF 0.8, ${_lastResults?.application || ''}, Running ${_lastResults?.running_kva || ''}kVA, Design ${_lastResults?.design_kva || ''}kVA, Loading ${_lastResults?.loading_pct || ''}%, Tank ${_lastResults?.tank_8hr_litres || ''}L)`
     : isSeptic
@@ -12208,6 +12592,8 @@ function renderBomTablePreview(items) {
             ? `Quantities are based on the Pump Sizing (TDH) design calculation result. Engineer shall verify all quantities on-site before procurement. All pump and piping materials shall conform to applicable standards (PSME, Hydraulic Institute ANSI/HI, PEC 2017). Factory performance test certificates and pump curves shall be submitted for Engineer's approval prior to procurement.`
             : isVent
             ? `Quantities are based on the Ventilation / ACH design calculation result (ASHRAE 62.1). Engineer shall verify all quantities on-site before procurement. All materials shall conform to applicable Philippine and international standards (PSME, ASHRAE, PEC 2017, SMACNA). Contractor shall submit material submittals for Engineer's approval prior to procurement.`
+            : isSolarPV
+            ? `Quantities are based on the Solar PV System design calculation result (IEC 62548, PEC 2017 Article 6, DOE Net Metering DC2015-07-0012). System: ${_lastResults?.system_type || ''} — ${_lastResults?.actual_array_kwp || ''}kWp array (${_lastResults?.panel_qty || ''}× ${_lastInputs?.panel_wp || ''}Wp panels, ${_lastResults?.panels_per_string || ''} panels/string × ${_lastResults?.num_strings || ''} strings), inverter ${_lastResults?.inverter_kw || ''}kW, annual yield ${_lastResults?.annual_yield_kwh || ''}kWh/yr. Engineer shall verify all quantities on-site before procurement. All modules shall be IEC 61215 / IEC 61730 certified. Inverter shall carry IEC 61727 anti-islanding certification and DOE Type Test approval. String DC cabling sized for 1.25× Isc per IEC 62548. AC interconnection shall comply with IEEE 1547 and Meralco net metering technical requirements. Submit module and inverter datasheets, IEC certificates, and Meralco net metering application documents for Engineer's approval prior to procurement.`
             : isGen
             ? `Quantities are based on the Generator Sizing design calculation result (ISO 8528-1, PEC 2017 Article 7, NFPA 110). Selected genset: ${_lastResults?.selected_kva || ''}kVA / ${_lastResults?.selected_kw || ''}kW at PF 0.8 for ${_lastResults?.application || ''} service. Engineer shall verify all quantities on-site before procurement. All equipment and materials shall conform to ISO 8528-1, PEC 2017, NFPA 110, IEC 60947, and DENR AO 2016-07 emission standards. Factory test certificates and as-built drawings shall be submitted for Engineer's approval. Contractor shall obtain all required permits including Electrical Permit, DOLE OSH installation permit, and LGU/DENR fuel storage permit prior to commencement.`
             : `Quantities are based on the HVAC Cooling Load design calculation result. Engineer shall verify all quantities on-site before procurement. All materials shall conform to applicable Philippine and international standards (PSME, ASHRAE, PEC 2017). Contractor shall submit material submittals for Engineer's approval prior to procurement.`
@@ -12286,6 +12672,7 @@ function renderSowDocPreview(sections) {
   const isSC       = _calcType === 'Short Circuit';
   const isLight    = _calcType === 'Lighting Design';
   const isGenS     = _calcType === 'Generator Sizing';
+  const isSolarPVS = _calcType === 'Solar PV System';
   const isFSprink  = _calcType === 'Fire Sprinkler Hydraulic';
   const isFPump    = _calcType === 'Fire Pump Sizing';
   const isSPress   = _calcType === 'Stairwell Pressurization';
@@ -12295,7 +12682,7 @@ function renderSowDocPreview(sections) {
   const isChillerS   = _calcType === 'Chiller System — Air Cooled';
   const isChillerWCS = _calcType === 'Chiller System — Water Cooled';
   const isAHUS       = _calcType === 'AHU Sizing';
-  const calcRef = `${isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const calcRef = `${isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
@@ -12328,6 +12715,8 @@ function renderSowDocPreview(sections) {
     ? `Voltage Drop Compliance — ${_lastResults?.circuit_type || _lastInputs?.circuit_type || 'Branch Circuit'}, ${_lastResults?.phase || _lastInputs?.phase || 'Single-phase'} ${_lastResults?.voltage || _lastInputs?.voltage || 230}V, ${_lastResults?.current || _lastInputs?.current || ''}A, ${_lastResults?.wire_length || _lastInputs?.wire_length || ''}m run, ${_lastResults?.conductor_mm2 || _lastInputs?.conductor_mm2 || ''}mm² ${_lastResults?.conductor_mat || _lastInputs?.conductor_mat || 'Copper'} THHN/THWN, VD ${_lastResults?.vd_pct || ''}% (limit ${_lastResults?.vd_limit || 3}%) — ${_lastResults?.pass ? 'PASS' : 'FAIL'}`
     : isLoadEst
     ? `Electrical Distribution — ${_lastResults?.phase_config || _lastInputs?.phase_config || '3-Phase 4-Wire (400V)'}, Connected Load ${_lastResults?.total_connected_kva || ''}kVA, Demand Load ${_lastResults?.total_demand_kva || ''}kVA (${_lastResults?.total_demand_kw || ''}kW), Computed Ampacity ${_lastResults?.computed_ampacity || ''}A, Main Breaker ${_lastResults?.recommended_breaker_A || ''}A`
+    : isSolarPVS
+    ? `Solar PV System — ${_lastResults?.system_type || ''}, ${_lastResults?.location || ''} (PSH ${_lastResults?.psh_hr || ''}h/day), Array ${_lastResults?.actual_array_kwp || ''}kWp (${_lastResults?.panel_qty || ''}× ${_lastInputs?.panel_wp || ''}Wp, ${_lastResults?.panels_per_string || ''}S×${_lastResults?.num_strings || ''}P), Inverter ${_lastResults?.inverter_kw || ''}kW, Annual Yield ${_lastResults?.annual_yield_kwh || ''}kWh/yr, Roof Area ${_lastResults?.total_roof_area_m2 || ''}m², CO₂ reduction ${_lastResults?.co2_reduction_kg || ''}kg/yr`
     : isGenS
     ? `Generator Sizing — ${_lastResults?.selected_kva || ''}kVA / ${_lastResults?.selected_kw || ''}kW (${_lastResults?.application || ''}), ${_lastResults?.phase_config || _lastInputs?.phase_config || '3-Phase'}, Running ${_lastResults?.running_kva || ''}kVA / ${_lastResults?.running_kw || ''}kW, Design ${_lastResults?.design_kva || ''}kVA (${_lastResults?.safety_factor || 1.25}× SF), Loading ${_lastResults?.loading_pct || ''}%, Fuel ${_lastResults?.fuel_100pct_lhr || ''}L/hr @ 100% load, Tank ${_lastResults?.tank_8hr_litres || ''}L (8-hr NFPA 110)`
     : isSeptic
@@ -12448,6 +12837,8 @@ ${isLight
   ? `This Scope of Works is based on the Chiller System — Water Cooled Design Calculation (Ref: ${escHtml(calcRef)}) per ASHRAE 90.1 / ASHRAE 15 / ASHRAE Guideline 12 / PSME Code. The selected chiller(s) are rated at ${_lastResults?.nominal_TR_each || ''}TR each (${_lastResults?.nominal_total_TR || ''}TR total, chiller type: ${_lastInputs?.chiller_type || ''}) with COP ${_lastInputs?.cop || ''} — ${_lastResults?.cop_check || ''} per ASHRAE 90.1 minimum COP ${_lastResults?.ashrae_min_cop || ''}${_lastResults?.cop_check === 'FAIL' ? ` — FAIL: re-select equipment with COP ≥ ${_lastResults?.ashrae_min_cop || ''} before procurement.` : '.'} Cooling tower sized at ${_lastResults?.Q_rejection_TR || ''}TR heat rejection (Q_rejection = Q_evap + W_compressor — NOT the chiller nominal TR). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including: PSME Code, ASHRAE 90.1 (energy efficiency), ASHRAE 15 (refrigerant safety — minimum 6 ACH machine room ventilation, electrochemical leak detection), ASHRAE Guideline 12 (Legionella prevention — cooling tower water treatment program mandatory; provide biological testing and chemical dosing plan before commissioning), CTI STD-201 (cooling tower thermal performance), PEC 2017 (electrical supply at ${_lastResults?.total_kVA || ''}kVA / ${_lastResults?.total_A_at_400V || ''}A FLA), and PGBC/BERDE green building energy performance requirements. Chiller performance data at design condenser water conditions (${_lastInputs?.cw_supply_C || ''}°C / ${_lastInputs?.cw_return_C || ''}°C) shall be certified by the manufacturer and submitted for Engineer's approval before procurement. Cooling tower thermal performance shall be certified to CTI STD-201 at design wet-bulb conditions. Factory witness test report, Legionella water treatment plan, and site commissioning by manufacturer-authorized engineer are mandatory. COP shall be field-verified at design conditions. Mechanical Permit from the LGU and sign-off by a PRC-licensed Mechanical Engineer are required before system energization. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isChillerS
   ? `This Scope of Works is based on the Chiller System — Air Cooled Design Calculation (Ref: ${escHtml(calcRef)}) per ASHRAE 90.1 / ASHRAE 15 / PSME Code. The selected chiller(s) are rated at ${_lastResults?.nominal_TR_each || ''}TR each (${_lastResults?.nominal_total_TR || ''}TR total) with COP ${_lastInputs?.cop || ''} — ${_lastResults?.cop_check || ''} per ASHRAE 90.1 minimum COP ${_lastResults?.ashrae_min_cop || ''}${_lastResults?.cop_check === 'FAIL' ? ` — FAIL: re-select equipment with COP ≥ ${_lastResults?.ashrae_min_cop || ''} before procurement.` : '.'}  The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including PSME Code, ASHRAE 90.1 (energy efficiency), ASHRAE 15 (refrigerant safety — minimum ventilation 6 ACH in equipment room, electrochemical leak detection required), PEC 2017 (electrical supply at ${_lastResults?.total_kVA || ''}kVA / ${_lastResults?.total_A_at_400V || ''}A FLA), and PGBC/BERDE green building energy performance requirements. Chiller performance data at ${_lastInputs?.ambient_temp_C || 35}°C ambient shall be certified by the manufacturer and submitted for Engineer's approval before procurement. Factory witness test report and site commissioning by manufacturer-authorized engineer are mandatory. COP shall be field-verified at design conditions (${_lastInputs?.ambient_temp_C || 35}°C ambient, ${_lastInputs?.chw_supply_C || ''}°C CHW supply). Mechanical Permit from the LGU and sign-off by a PRC-licensed Mechanical Engineer are required before system energization. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  : isSolarPVS
+  ? `This Scope of Works is based on the Solar PV System Design Calculation (Ref: ${escHtml(calcRef)}) per IEC 62548 (PV Array Design Requirements), PEC 2017 Article 6 (Solar PV Systems), DOE Department Circular DC2015-07-0012 (Net Metering Program Rules), and IEEE 1547 (Distributed Energy Resource Interconnection). The system is a ${_lastResults?.system_type || ''} Solar PV installation with a designed array capacity of ${_lastResults?.actual_array_kwp || ''}kWp (${_lastResults?.panel_qty || ''}× ${_lastInputs?.panel_wp || ''}Wp modules, ${_lastResults?.panels_per_string || ''} panels/string × ${_lastResults?.num_strings || ''} strings) and a ${_lastResults?.inverter_kw || ''}kW grid-tie inverter (or hybrid inverter with battery interface for Off-Grid/Hybrid systems). Expected annual energy yield is ${_lastResults?.annual_yield_kwh || ''}kWh/yr based on ${_lastResults?.psh_hr || ''}h/day PSH at ${_lastResults?.location || ''}, with an estimated CO₂ reduction of ${_lastResults?.co2_reduction_kg || ''}kg/yr (Philippine grid emission factor 0.72 kg CO₂/kWh). The Contractor shall comply with all applicable codes and requirements including: PEC 2017 Article 6 (DC disconnect, AC disconnect, ground fault protection, anti-islanding per IEC 61727), IEC 62548 (1000V DC string voltage limit, 1.25× Isc cable sizing, module grounding), IEC 61730 and IEC 61215 (module safety and performance), DOE-Type Test approval for the inverter, Meralco Distribution Code and net metering technical requirements (for Grid-Tied and Hybrid systems), DOLE OSH electrical safety permit, and LGU building permit for rooftop structures. All PV modules shall carry valid IEC 61215 / IEC 61730 certificates. The inverter shall carry IEC 61727 anti-islanding certification and must be on the DOE-approved list of PV inverters before connection to the utility grid. A commissioning test report including IV curve tracing, insulation resistance test (>1 MΩ at 1000V DC), and anti-islanding verification shall be submitted to the Owner and Meralco before commercial operation. As-built drawings, O&M manual, module warranties (minimum 10 years product, 25 years performance), and inverter warranty documentation shall be submitted upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isGenS
   ? `This Scope of Works is based on the Generator Sizing Design Calculation (Ref: ${escHtml(calcRef)}) per ISO 8528-1, PEC 2017 Article 7 (Emergency and Standby Systems), and NFPA 110 (Emergency and Standby Power Systems). The selected ${_lastResults?.selected_kva || ''}kVA / ${_lastResults?.selected_kw || ''}kW diesel generator set is rated for ${_lastResults?.application || ''} service at ${_lastResults?.phase_config || _lastInputs?.phase_config || '3-Phase'} 415V/240V 60 Hz, with a system loading of ${_lastResults?.loading_pct || ''}% at running demand. The ATS shall transfer to emergency power within 10 seconds per NFPA 110 Level 1 requirements. The minimum fuel tank capacity of ${_lastResults?.tank_8hr_litres || ''}L ensures 8-hour continuous operation at 100% load as required by NFPA 110. The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including: PEC 2017 Article 7 (standby system wiring), NFPA 110 (transfer time, fuel storage, periodic testing), ISO 8528-1 (genset ratings and acceptance testing), IEC 60947 (ATS and switchgear), DENR AO 2016-07 (diesel engine emission standards), DOLE OSH mechanical and electrical installation permit requirements, and LGU/DENR fuel storage permit for tanks exceeding 200L. A block load acceptance test at 25%/50%/75%/100% rated load shall be witnessed by the Engineer and a licensed PRC Electrical Engineer (PEE) before practical completion. As-built drawings, O&M manual, factory test certificate, and warranty registration shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : `This Scope of Works is based on the HVAC Cooling Load Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including PSME, ASHRAE, PEC 2017, and DOLE OSH Standards. Any deviations from this scope must be approved in writing by the Engineer before execution. The Contractor shall coordinate with other trades to avoid conflicts and ensure a complete and functional installation.`
