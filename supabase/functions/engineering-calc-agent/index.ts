@@ -1724,6 +1724,19 @@ Respond in JSON format only:
       const anyWarn  = lineArr.some(l => l.vel_check !== 'OK');
       const lineSummary = lineArr.map(l => `${l.name} (${l.line_type}): ${l.selected_od_mm}mm OD, v=${l.velocity_ms}m/s ${l.vel_check}, ΔT=${l.delta_t_k}K`).join('; ');
       recommendations = `Procure ASTM B280 ACR copper tubing for all ${refrig} refrigerant line sets — capacity ${capKw}kW, ${app} service, evaporating ${evapT}°C / condensing ${condT}°C. Line schedule: ${lineSummary}. ${anyWarn ? 'WARNING: one or more lines have velocity outside the ASHRAE recommended range — re-size before procurement.' : 'All lines are within ASHRAE velocity limits.'} Insulate all suction lines with minimum 19mm closed-cell elastomeric foam (ASTM C534) before pressure testing. Install oil traps at all suction vertical riser bases. All brazed joints shall use OFN (nitrogen purge brazing). Pressure test at 1.1× MAWP with dry nitrogen; evacuate to ≤500 microns before refrigerant charge. Refrigerant charge by weight per manufacturer specification adjusted for actual line length. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
+    } else if (calcType === "FCU Selection") {
+      const rooms      = Array.isArray(rec.rooms) ? rec.rooms as Array<{room_name:string; selected_model:string; qty:number; selected_kw:number}> : [];
+      const totalDesKW = rec.total_design_kw  ?? '';
+      const totalDesTR = rec.total_design_tr  ?? '';
+      const totalChw   = rec.total_chw_lps    ?? '';
+      const mainNps    = rec.main_pipe_nps_mm ?? '';
+      const velCheck   = rec.vel_check        ?? '';
+      const totalUnits = rec.total_units      ?? '';
+      const divF       = rec.diversity_factor ?? (inputs.diversity_factor ?? 0.85);
+      const pipeSys    = (inputs.pipe_system  as string) || '2-Pipe (Cooling Only)';
+      const mount      = (inputs.mounting_type as string) || 'Ceiling Cassette';
+      const roomSummary = rooms.slice(0, 5).map(r => `${r.room_name}: ${r.qty}× ${r.selected_model} (${r.selected_kw}kW)`).join('; ');
+      recommendations = `Install ${totalUnits} fan coil units (${mount}) on a ${pipeSys} chilled water system. Design load: ${totalDesKW} kW / ${totalDesTR} TR after applying diversity factor ${divF}. Total CHW flow: ${totalChw} L/s — size main at ${mainNps} mm NPS Black Steel SCH40 (velocity ${velCheck}). FCU summary: ${roomSummary}${rooms.length > 5 ? ` and ${rooms.length - 5} more rooms` : ''}. Verify CHW branch pipe sizes per ASHRAE at 0.6–2.5 m/s. Balance each FCU with a circuit balancing valve (PICV) for equal CHW distribution. Specify EER ≥ 3.5 per ASHRAE 90.1. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
     } else if (calcType === "Bolt Torque & Preload") {
       const torque = rec.torque_Nm ?? '';
       const size   = (inputs.bolt_size as string) || '';
@@ -4595,6 +4608,118 @@ function calcDuctSizing(inputs: Record<string, unknown>): Record<string, unknown
   };
 }
 
+// ─── FCU Selection — ASHRAE HVAC Systems and Equipment Handbook ───────────────
+
+// Standard FCU capacity tiers (manufacturer-agnostic, kW nominal at 7°C CHW / 27°C DB room)
+const FCU_CATALOG = [
+  { model: 'FCU-06', kw: 1.76,  tr: 0.50, cmh: 340  },
+  { model: 'FCU-09', kw: 2.64,  tr: 0.75, cmh: 510  },
+  { model: 'FCU-12', kw: 3.52,  tr: 1.00, cmh: 680  },
+  { model: 'FCU-18', kw: 5.28,  tr: 1.50, cmh: 1020 },
+  { model: 'FCU-24', kw: 7.03,  tr: 2.00, cmh: 1360 },
+  { model: 'FCU-30', kw: 8.79,  tr: 2.50, cmh: 1700 },
+  { model: 'FCU-36', kw: 10.55, tr: 3.00, cmh: 2040 },
+  { model: 'FCU-42', kw: 12.31, tr: 3.50, cmh: 2380 },
+  { model: 'FCU-48', kw: 14.07, tr: 4.00, cmh: 2720 },
+  { model: 'FCU-60', kw: 17.58, tr: 5.00, cmh: 3400 },
+];
+
+// CHW pipe — Black Steel Schedule 40 nominal pipe sizes (NPS mm, ID mm)
+const CHW_PIPES = [
+  { nps_mm:  15, id_mm:  15.80 },
+  { nps_mm:  20, id_mm:  21.34 },
+  { nps_mm:  25, id_mm:  26.64 },
+  { nps_mm:  32, id_mm:  35.05 },
+  { nps_mm:  40, id_mm:  40.89 },
+  { nps_mm:  50, id_mm:  52.50 },
+  { nps_mm:  65, id_mm:  62.71 },
+  { nps_mm:  80, id_mm:  77.93 },
+  { nps_mm: 100, id_mm: 102.26 },
+  { nps_mm: 125, id_mm: 128.19 },
+  { nps_mm: 150, id_mm: 154.05 },
+  { nps_mm: 200, id_mm: 202.72 },
+];
+
+function calcFCUSelection(inputs: Record<string, unknown>): Record<string, unknown> {
+  const chwSup        = Number(inputs.chw_supply_c  ?? 7);
+  const chwRet        = Number(inputs.chw_return_c  ?? 12);
+  const divFactor     = Number(inputs.diversity_factor ?? 0.85);
+  const dT_chw        = chwRet - chwSup;                       // °C
+  const CP_WATER      = 4.187;                                  // kJ/(kg·K)
+  const V_TARGET_MS   = 1.5;                                    // m/s CHW main design velocity
+
+  const roomInputs = (inputs.rooms as Array<{room_name:string; area_m2:number; cooling_load_kw:number; qty:number}>) || [];
+
+  let totalRequiredKW = 0;
+  let totalConnectedKW = 0;
+  let totalConnectedTR = 0;
+  let totalUnits = 0;
+
+  const roomResults = roomInputs.map(r => {
+    const loadPerUnit = Number(r.cooling_load_kw ?? 0);
+    const qty         = Number(r.qty ?? 1);
+
+    // Select smallest FCU tier that meets the per-unit load
+    const selected = FCU_CATALOG.find(f => f.kw >= loadPerUnit) ?? FCU_CATALOG[FCU_CATALOG.length - 1];
+
+    const totalRoomKW      = loadPerUnit * qty;
+    const selectedTotalKW  = selected.kw  * qty;
+    const selectedTotalTR  = selected.tr  * qty;
+    const chw_flow_per_unit = dT_chw > 0 ? selected.kw / (CP_WATER * dT_chw) : 0;  // L/s
+    const chw_flow_total    = chw_flow_per_unit * qty;
+
+    totalRequiredKW  += totalRoomKW;
+    totalConnectedKW += selectedTotalKW;
+    totalConnectedTR += selectedTotalTR;
+    totalUnits       += qty;
+
+    return {
+      room_name:          r.room_name || 'Room',
+      area_m2:            r.area_m2 || 0,
+      cooling_load_kw:    loadPerUnit,
+      qty,
+      selected_model:     selected.model,
+      selected_kw:        Number(selected.kw.toFixed(2)),
+      selected_tr:        Number(selected.tr.toFixed(2)),
+      airflow_cmh:        selected.cmh * qty,
+      chw_flow_lps_unit:  Number(chw_flow_per_unit.toFixed(3)),
+      chw_flow_lps_total: Number(chw_flow_total.toFixed(3)),
+    };
+  });
+
+  const totalDesignKW  = totalRequiredKW  * divFactor;
+  const totalDesignTR  = totalDesignKW / 3.517;
+  const totalChwLps    = dT_chw > 0 ? totalDesignKW / (CP_WATER * dT_chw) : 0;
+
+  // CHW main pipe selection (velocity method at V_TARGET_MS)
+  const totalChwM3s = totalChwLps / 1000;
+  const dReqM       = Math.sqrt(4 * totalChwM3s / (Math.PI * V_TARGET_MS));
+  const dReqMm      = dReqM * 1000;
+  const selectedPipe = CHW_PIPES.find(p => p.id_mm >= dReqMm) ?? CHW_PIPES[CHW_PIPES.length - 1];
+  const actualVelMs  = totalChwM3s > 0
+    ? totalChwM3s / (Math.PI * Math.pow(selectedPipe.id_mm / 2000, 2))
+    : 0;
+
+  return {
+    rooms:              roomResults,
+    total_required_kw:  Number(totalRequiredKW.toFixed(2)),
+    total_connected_kw: Number(totalConnectedKW.toFixed(2)),
+    total_connected_tr: Number(totalConnectedTR.toFixed(2)),
+    total_design_kw:    Number(totalDesignKW.toFixed(2)),
+    total_design_tr:    Number(totalDesignTR.toFixed(2)),
+    total_chw_lps:      Number(totalChwLps.toFixed(3)),
+    total_units:        totalUnits,
+    chw_supply_c:       chwSup,
+    chw_return_c:       chwRet,
+    dT_chw_c:           Number(dT_chw.toFixed(1)),
+    main_pipe_nps_mm:   selectedPipe.nps_mm,
+    main_pipe_id_mm:    selectedPipe.id_mm,
+    main_pipe_vel_ms:   Number(actualVelMs.toFixed(2)),
+    vel_check:          actualVelMs >= 1.0 && actualVelMs <= 2.0 ? 'OK' : actualVelMs < 1.0 ? 'Low — check stratification' : 'High — upsize pipe',
+    diversity_factor:   divFactor,
+  };
+}
+
 // ─── Refrigerant Pipe Sizing — ASHRAE Velocity Method / ASTM B280 ────────────
 
 // ASTM B280 ACR copper tube standard sizes: OD mm, wall mm, ID mm
@@ -4917,6 +5042,8 @@ serve(async (req) => {
       results = calcDuctSizing(inputs);
     } else if (calc_type === "Refrigerant Pipe Sizing") {
       results = calcRefrigPipeSizing(inputs);
+    } else if (calc_type === "FCU Selection") {
+      results = calcFCUSelection(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

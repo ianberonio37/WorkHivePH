@@ -3101,6 +3101,85 @@ Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
   };
 }
 
+// ─── HVAC: FCU Selection BOM + SOW Agent ──────────────────────────────────────
+
+async function fcuSelectionBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project    = inputs.project_name    || "FCU Selection Project";
+  const pipeSys    = String(inputs.pipe_system    || "2-Pipe (Cooling Only)");
+  const mountType  = String(inputs.mounting_type  || "Ceiling Cassette");
+  const chwSup     = Number(inputs.chw_supply_c   || 7);
+  const chwRet     = Number(inputs.chw_return_c   || 12);
+  const divF       = Number(inputs.diversity_factor || 0.85);
+  const totalDesKW = Number(results.total_design_kw  || 0).toFixed(2);
+  const totalDesTR = Number(results.total_design_tr  || 0).toFixed(2);
+  const totalChw   = Number(results.total_chw_lps    || 0).toFixed(3);
+  const mainNps    = results.main_pipe_nps_mm  ?? "—";
+  const totalUnits = Number(results.total_units || 0);
+  const roomArr    = (results.rooms as Array<{room_name:string; qty:number; selected_model:string; selected_kw:number; selected_tr:number; airflow_cmh:number; chw_flow_lps_total:number}>) || [];
+
+  const roomSummary = roomArr.map(r =>
+    `${r.room_name}: ${r.qty}× ${r.selected_model} (${r.selected_kw}kW/${r.selected_tr}TR each, ${r.airflow_cmh}CMH, CHW ${r.chw_flow_lps_total}L/s total)`
+  ).join("; ");
+
+  const prompt = `You are a senior HVAC/Mechanical engineer in the Philippines preparing a Bill of Materials (BOM) and Scope of Works (SOW) for fan coil unit (FCU) installation per ASHRAE HVAC Systems and Equipment Handbook and PSME Code.
+
+Project: ${project}
+Pipe system: ${pipeSys}
+Mounting type: ${mountType}
+CHW supply/return: ${chwSup}°C / ${chwRet}°C (ΔT = ${(chwRet - chwSup).toFixed(1)}°C)
+Diversity factor: ${divF}
+Design load: ${totalDesKW} kW / ${totalDesTR} TR
+Total CHW flow: ${totalChw} L/s
+CHW main pipe: ${mainNps} mm NPS Black Steel SCH40
+Total FCU units: ${totalUnits}
+Room schedule: ${roomSummary}
+
+Generate a JSON object with exactly two keys:
+
+"bom_items": array of 12 objects, each with:
+  { "description": string, "specification": string, "unit": string, "quantity": number, "remarks": string }
+
+BOM items must cover:
+1. Fan Coil Units — ${mountType} type, ${pipeSys} coil configuration, per FCU schedule above — qty: ${totalUnits} units
+2. CHW Supply Piping — Black Steel SCH40, ${mainNps}mm NPS main, per ASTM A53 Grade B — qty: 1 lot
+3. CHW Return Piping — Black Steel SCH40, same sizing as supply — qty: 1 lot
+4. Chilled Water Valves — ball valves for isolation (supply + return per FCU) — qty: ${totalUnits * 2} pcs
+5. Pressure Independent Control Valves (PICV) — for CHW balancing, one per FCU — qty: ${totalUnits} pcs
+6. CHW Branch Piping — copper or Black Steel, sized per individual FCU flow — qty: 1 lot
+7. Pipe Insulation — closed-cell elastomeric foam 19mm thick, for all CHW piping (ASTM C534) — qty: 1 lot
+8. FCU Condensate Drain Piping — UPVC Schedule 40, 20mm minimum, sloped 1:100 to nearest drain — qty: 1 lot
+9. Pipe Hangers and Supports — clevis hangers with insulation shields, galvanized, per MSS SP-58 — qty: 1 lot
+10. FCU Controls — digital room thermostat with 2-position CHW valve actuator per FCU — qty: ${totalUnits} sets
+11. Flexible Connections — braided stainless steel, supply and return connection per FCU — qty: ${totalUnits * 2} pcs
+12. Air Vent and Drain Valves — automatic air vents at high points, manual drains at low points — qty: 1 lot
+
+"sow_sections": array of 6 objects, each with:
+  { "section_no": string, "title": string, "items": string[] }
+
+SOW sections:
+- "1.0" Scope of Works (supply, install, and commission ${totalUnits} FCUs at ${totalDesKW}kW / ${totalDesTR}TR design load, ${pipeSys}, ${mountType} mounting)
+- "2.0" Design Standards and References (ASHRAE 2023 HVAC Systems and Equipment Handbook; ASHRAE 62.1 ventilation; ASHRAE 90.1 efficiency EER ≥ 3.5; PSME Code; ASTM A53 piping; ASTM C534 insulation)
+- "3.0" Materials and Equipment (FCU specs: ${pipeSys} coil, ${mountType}, nominal capacities per schedule; Black Steel SCH40 ASTM A53 Grade B piping; closed-cell elastomeric insulation ASTM C534 19mm min; PICV balancing valves)
+- "4.0" Installation Requirements (pipe slope for condensate: 1:100 minimum; pipe insulation to extend to FCU coil connection; FCU mounting height per ASHRAE 62.1 effective air distribution; electrical connection per PEC 2017 Article 4; CHW velocity 0.6–2.5 m/s in branches)
+- "5.0" Testing and Commissioning (hydrostatic test at 1.5× working pressure for 1 hour minimum; flush CHW piping before FCU connection; balance CHW flow at each FCU via PICV per ASHRAE commissioning guidelines; verify FCU cooling capacity at design CHW flow; TAB report required)
+- "6.0" Submittals and Documentation (manufacturer FCU product data sheets; ASTM A53 material certificate for CHW piping; hydrostatic test record; TAB report within ±10% design airflows; as-built drawings; O&M manuals and spare parts list; PRC-licensed ME signature on final documents)
+
+Each section items array must contain 3–5 bullet strings in professional Philippine engineering contractor style. Reference specific standards and the project parameters (${totalDesKW}kW, ${totalUnits} FCUs, ${mainNps}mm NPS main, ${pipeSys}).
+
+Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
+
+  const raw    = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -3203,6 +3282,8 @@ serve(async (req) => {
       result = await ductSizingBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "HVAC Systems" && calc_type === "Refrigerant Pipe Sizing") {
       result = await refrigPipeSizingBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "HVAC Systems" && calc_type === "FCU Selection") {
+      result = await fcuSelectionBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),

@@ -722,6 +722,7 @@ const CALC_TYPES = {
     { id: 'Cooling Tower Sizing',          icon: '🌊', desc: 'Heat rejection, circ water flow, evaporation/makeup water, fan motor — CTI Std-201 / ASHRAE 90.1', available: true },
     { id: 'Duct Sizing (Equal Friction)',  icon: '🌀', desc: 'Circular / rectangular duct sizing, velocity check, segment pressure drop, fan static pressure, fan motor HP — ASHRAE Ch.21 / SMACNA / PSME', available: true },
     { id: 'Refrigerant Pipe Sizing',       icon: '🧊', desc: 'ACR copper tube sizing for suction, discharge, and liquid lines — velocity check, pressure drop, ΔT equivalent — R-410A/R-32/R-22/R-407C/R-134a — ASHRAE Refrigeration / ASTM B280 / PSME', available: true },
+    { id: 'FCU Selection',                 icon: '🌡️', desc: 'Fan coil unit selection per room — CHW flow rate, main pipe sizing, diversity factor — ASHRAE HVAC Systems / PSME', available: true },
   ],
 };
 
@@ -2473,6 +2474,38 @@ const GUIDES = {
       'PRC-licensed Mechanical Engineer sign-off is required for HVAC duct system designs submitted for LGU Building Permit. SMACNA duct construction class (Pressure Class ½, 1, or 2 inch w.g.) must be specified on drawings based on operating static pressure.',
       'Flexible duct connections to diffusers shall not exceed 1.5 m per SMACNA. Do NOT use this tool to size flexible duct runs — flex roughness is 15–20× higher than galvanized steel.',
       'Total system static pressure for fan selection = duct ΔP (from this tool) + AHU internal components (cooling coil, filters, heating coil: typically 200–500 Pa) + terminal device pressure drop (50–150 Pa). Always get AHU ESP from the equipment manufacturer datasheet.',
+    ],
+  },
+
+  'FCU Selection': {
+    title: 'FCU Selection — Chilled Water Fan Coil Unit Sizing (ASHRAE / PSME)',
+    subtitle: 'Selects a standard fan coil unit (FCU) for each room based on cooling load, then calculates chilled water flow rates, main pipe size, and total plant load with diversity factor. Aligned with ASHRAE HVAC Systems and Equipment Handbook, ASHRAE 62.1, ASHRAE 90.1, and PSME Code.',
+    standards: [
+      'ASHRAE 2023 HVAC Systems and Equipment Handbook — Chapter 4 (Fan Coil Units)',
+      'ASHRAE Standard 62.1 — Ventilation for Acceptable Indoor Air Quality',
+      'ASHRAE Standard 90.1 — Energy Standard for Buildings',
+      'PSME Code — Philippine Society of Mechanical Engineers (HVAC and Refrigeration)',
+    ],
+    formulas: [
+      { label: 'CHW Flow per Room', eq: 'Q_chw = Q_room_kW / (Cp_w × ΔT_chw)   [L/s]   Cp_w = 4.187 kJ/(kg·K)   ΔT_chw = T_return − T_supply (°C)' },
+      { label: 'Total Design Load', eq: 'Q_design = Σ(room_load_kW × qty) × diversity_factor   [kW]' },
+      { label: 'Total CHW Flow', eq: 'Q_chw_total = Q_design / (4.187 × ΔT_chw)   [L/s]' },
+      { label: 'Main Pipe Diameter', eq: 'D_req = sqrt(4 × Q_total_m³s / (π × v_target))   [m]   v_target = 1.5 m/s (CHW main, Black Steel SCH40)' },
+      { label: 'FCU Tier Selection', eq: 'Select smallest standard FCU where nominal kW ≥ room load per unit. Standard tiers: 0.50, 0.75, 1.00, 1.50, 2.00, 2.50, 3.00, 3.50, 4.00, 5.00 TR' },
+    ],
+    fields: [
+      { name: 'Pipe System', tip: '2-Pipe (Cooling Only): single chilled water circuit, no heating. 4-Pipe (Cooling + Heating): separate CHW and HHW coils — used in offices and hotels where heating is required seasonally.' },
+      { name: 'Mounting Type', tip: 'Ceiling Cassette: exposed ceiling, 4-way blow — most common in Philippines commercial. Concealed Ceiling: ducted FCU above false ceiling — quieter, cleaner look. Floor-Mounted: under window sill. Wall-Mounted: high wall unit.' },
+      { name: 'CHW Supply / Return (°C)', tip: 'Standard: 7°C supply / 12°C return (ΔT=5°C). Higher ΔT (6–8°C) reduces pipe size and pump energy but needs larger coil. Coordinate ΔT with chiller plant designer.' },
+      { name: 'Diversity Factor', tip: 'Not all rooms peak simultaneously. ASHRAE: 0.70–0.90 for commercial. 0.85 is typical for offices. Hospitals/hotels with 24/7 occupancy: 0.90–0.95.' },
+      { name: 'Room Schedule', tip: 'Enter each room or zone with area, design cooling load per FCU unit (kW), and number of FCUs. The calculator selects the smallest standard FCU tier that meets the load and computes CHW flow per unit.' },
+    ],
+    notes: [
+      'FCU nominal capacity is at standard rating conditions: 7°C CHW supply, 27°C DB / 19°C WB entering air. Apply 10% capacity derating for critical spaces or if entering air conditions are more extreme.',
+      'Increasing CHW ΔT from 5°C to 8°C reduces flow by 37.5%, dropping the main pipe one size and cutting pump power by ~65% (cubic pump law). Coordinate ΔT with chiller plant design.',
+      'CHW velocity limits: branch pipes 0.6–2.5 m/s; main header 1.0–2.0 m/s. Below 0.6 m/s, stratification reduces heat transfer. Above 2.5 m/s, erosion and noise.',
+      'For 4-pipe systems, size the hot water (HHW) circuit separately. Typical HHW: 60°C supply / 50°C return, ΔT=10°C. HHW flow is ~30–50% of CHW flow for comparable heating load.',
+      'FCU fan motor is included in the FCU package. Typical fan power: 15–50 W per kW of cooling. Specify EER ≥ 3.5 for tropical climate per ASHRAE 90.1 to comply with PGBC / BERDE green building requirements.',
     ],
   },
 
@@ -4641,6 +4674,74 @@ function renderInputForm(calcType) {
     addDuctSegRow('Branch-1 (Zone A)', 400, 12, 'Supply Branch');
     addDuctSegRow('Branch-2 (Zone B)', 300, 8, 'Supply Branch');
     addDuctSegRow('Return Main', 1000, 18, 'Return Main');
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+    return;
+  }
+
+  if (calcType === 'FCU Selection') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-fcu-project" class="wh-input" placeholder="e.g. FCU System — 3rd Floor Office Block" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Pipe System</div>
+          <div class="toggle-group" id="tg-pipe-sys" style="flex-wrap:wrap;">
+            <button class="toggle-btn active" data-val="2-Pipe (Cooling Only)"      onclick="toggle('tg-pipe-sys','2-Pipe (Cooling Only)')">2-Pipe (Cooling Only)</button>
+            <button class="toggle-btn" data-val="4-Pipe (Cooling + Heating)"        onclick="toggle('tg-pipe-sys','4-Pipe (Cooling + Heating)')">4-Pipe (C+H)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Mounting Type</div>
+          <div class="toggle-group" id="tg-fcu-mount" style="flex-wrap:wrap;">
+            <button class="toggle-btn active" data-val="Ceiling Cassette"   onclick="toggle('tg-fcu-mount','Ceiling Cassette')">Ceiling Cassette</button>
+            <button class="toggle-btn" data-val="Concealed Ceiling"         onclick="toggle('tg-fcu-mount','Concealed Ceiling')">Concealed Ceiling</button>
+            <button class="toggle-btn" data-val="Floor-Mounted"             onclick="toggle('tg-fcu-mount','Floor-Mounted')">Floor-Mounted</button>
+            <button class="toggle-btn" data-val="Wall-Mounted"              onclick="toggle('tg-fcu-mount','Wall-Mounted')">Wall-Mounted</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div>
+          <div class="field-label">CHW Supply Temp</div>
+          <div class="input-group">
+            <input id="f-chw-supply" class="wh-input" type="number" value="7" min="3" max="15" step="0.5" />
+            <span class="input-unit">°C</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">CHW Return Temp</div>
+          <div class="input-group">
+            <input id="f-chw-return" class="wh-input" type="number" value="12" min="8" max="20" step="0.5" />
+            <span class="input-unit">°C</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Diversity Factor</div>
+          <input id="f-diversity" class="wh-input" type="number" value="0.85" min="0.50" max="1.00" step="0.01" />
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Room / Zone Schedule</div>
+        <div style="display:grid;grid-template-columns:2fr 65px 80px 55px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.4);padding:0 0.25rem;">
+          <div>Room / Zone Name</div><div style="text-align:center;">Area (m²)</div><div style="text-align:center;">Load (kW)</div><div style="text-align:center;">Qty</div><div></div>
+        </div>
+        <div id="fcu-room-list" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem;"></div>
+        <button class="btn-ghost text-sm py-2 px-4" onclick="addFCURoomRow()">+ Add Room</button>
+      </div>
+
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        ASHRAE Fan Coil Unit Selection. Q_chw = Q_kW / (4.187 × ΔT). Main pipe sized at 1.5 m/s (Black Steel SCH40). Diversity factor 0.85 typical for offices (ASHRAE). Standard FCU tiers: 0.5 TR to 5.0 TR.
+      </div>
+    `;
+    addFCURoomRow('Office 1',        50, 5.5, 2);
+    addFCURoomRow('Conference Room',  80, 9.0, 1);
+    addFCURoomRow('Reception',        40, 3.5, 1);
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
     return;
@@ -6879,6 +6980,23 @@ function toggleDuctAspect() {
   if (el) el.style.display = shape === 'Rectangular' ? '' : 'none';
 }
 
+// ─── FCU Selection room row helper ────────────────────────────────────────────
+let _fcuRoomRowId = 0;
+function addFCURoomRow(defaultName = 'Room', defaultArea = 30, defaultLoad = 5.0, defaultQty = 1) {
+  const id  = ++_fcuRoomRowId;
+  const row = document.createElement('div');
+  row.id    = `fcu-room-row-${id}`;
+  row.style.cssText = 'display:grid;grid-template-columns:2fr 65px 80px 55px 28px;gap:0.35rem;align-items:center;';
+  row.innerHTML = `
+    <input id="fcu-name-${id}" class="wh-input py-2" type="text"   value="${escHtml(String(defaultName))}" placeholder="Room name" style="font-size:16px;padding:0.5rem 0.4rem;" />
+    <input id="fcu-area-${id}" class="wh-input py-2" type="number" value="${defaultArea}"  min="1"   step="1"   style="font-size:16px;padding:0.5rem 0.4rem;" />
+    <input id="fcu-load-${id}" class="wh-input py-2" type="number" value="${defaultLoad}"  min="0.1" step="0.1" style="font-size:16px;padding:0.5rem 0.4rem;" />
+    <input id="fcu-qty-${id}"  class="wh-input py-2" type="number" value="${defaultQty}"   min="1"   step="1"   style="font-size:16px;padding:0.5rem 0.4rem;" />
+    <button onclick="document.getElementById('fcu-room-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+  `;
+  document.getElementById('fcu-room-list').appendChild(row);
+}
+
 // ─── Refrigerant Pipe Sizing line row helper ──────────────────────────────────
 const REFRIG_LINE_TYPES = ['Suction — Horizontal','Suction — Vertical Riser','Discharge','Liquid'];
 let _refrigLineRowId = 0;
@@ -7149,6 +7267,27 @@ function collectInputs() {
       duct_material: getToggle('tg-duct-mat')     || 'Galvanized Steel',
       aspect_ratio:  parseFloat(getToggle('tg-duct-aspect') || '2'),
       segments,
+    };
+  }
+
+  if (_calcType === 'FCU Selection') {
+    const rooms = [];
+    document.querySelectorAll('#fcu-room-list > div[id^="fcu-room-row-"]').forEach(row => {
+      const rid  = row.id.replace('fcu-room-row-', '');
+      const name = document.getElementById(`fcu-name-${rid}`)?.value || 'Room';
+      const area = parseFloat(document.getElementById(`fcu-area-${rid}`)?.value) || 0;
+      const load = parseFloat(document.getElementById(`fcu-load-${rid}`)?.value) || 0;
+      const qty  = parseInt(document.getElementById(`fcu-qty-${rid}`)?.value)    || 1;
+      if (load > 0) rooms.push({ room_name: name, area_m2: area, cooling_load_kw: load, qty });
+    });
+    return {
+      project_name:     v('f-fcu-project') || 'FCU Selection Project',
+      pipe_system:      getToggle('tg-pipe-sys')    || '2-Pipe (Cooling Only)',
+      mounting_type:    getToggle('tg-fcu-mount')   || 'Ceiling Cassette',
+      chw_supply_c:     parseFloat(v('f-chw-supply'))  || 7,
+      chw_return_c:     parseFloat(v('f-chw-return'))  || 12,
+      diversity_factor: parseFloat(v('f-diversity'))   || 0.85,
+      rooms,
     };
   }
 
@@ -7879,6 +8018,19 @@ async function runCalculation() {
       showToast('Please add at least one duct segment.');
       return;
     }
+  } else if (_calcType === 'FCU Selection') {
+    if (!inputs.rooms || inputs.rooms.length === 0) {
+      showToast('Please add at least one room.');
+      return;
+    }
+    if (inputs.rooms.some(r => r.cooling_load_kw <= 0)) {
+      showToast('All rooms need a cooling load greater than 0 kW.');
+      return;
+    }
+    if (inputs.chw_return_c <= inputs.chw_supply_c) {
+      showToast('CHW return temperature must be higher than supply temperature.');
+      return;
+    }
   } else if (_calcType === 'Refrigerant Pipe Sizing') {
     if (!inputs.lines || inputs.lines.length === 0) {
       showToast('Please add at least one refrigerant line.');
@@ -8137,6 +8289,8 @@ async function runCalculation() {
       renderDuctSizingReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Refrigerant Pipe Sizing') {
       renderRefrigPipeReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'FCU Selection') {
+      renderFCUSelectionReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Load Estimation') {
       renderLoadReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Voltage Drop') {
@@ -10331,6 +10485,215 @@ function renderDuctSizingReport(inputs, results, narrative) {
           <div style="font-size:0.74rem;color:#555;">Date: ${e(dateStr)}</div>
           <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
         </div>
+      </div>
+    </div>
+  </div>`;
+
+  panel.innerHTML = reportHTML;
+  showReport();
+}
+
+// ─── FCU Selection Report ─────────────────────────────────────────────────────
+function renderFCUSelectionReport(inputs, results, narrative) {
+  const panel = document.getElementById('report-panel');
+  if (!panel) return;
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
+  const dateStr = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const projName  = inputs.project_name  || 'FCU Selection Project';
+  const pipeSys   = inputs.pipe_system   || '2-Pipe (Cooling Only)';
+  const mountType = inputs.mounting_type || 'Ceiling Cassette';
+  const chwSup    = inputs.chw_supply_c  ?? 7;
+  const chwRet    = inputs.chw_return_c  ?? 12;
+  const divF      = inputs.diversity_factor ?? 0.85;
+  const rooms     = inputs.rooms || [];
+
+  const totalConnKW  = Number(results.total_connected_kw  || 0).toFixed(2);
+  const totalConnTR  = Number(results.total_connected_tr  || 0).toFixed(2);
+  const totalReqKW   = Number(results.total_required_kw   || 0).toFixed(2);
+  const totalDesKW   = Number(results.total_design_kw     || 0).toFixed(2);
+  const totalDesTR   = Number(results.total_design_tr     || 0).toFixed(2);
+  const totalChwLps  = Number(results.total_chw_lps       || 0).toFixed(3);
+  const mainNps      = results.main_pipe_nps_mm  || '—';
+  const mainVel      = Number(results.main_pipe_vel_ms || 0).toFixed(2);
+  const totalUnits   = results.total_units || 0;
+  const roomResults  = results.rooms || [];
+
+  const roomRows = roomResults.map((r, i) => `
+    <tr>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">${escHtml(r.room_name || rooms[i]?.room_name || '')}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${escHtml(String(rooms[i]?.area_m2 || '—'))}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${Number(r.cooling_load_kw || 0).toFixed(2)}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${escHtml(String(r.qty || 1))}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;font-weight:600;">${escHtml(r.selected_model || '—')}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${Number(r.selected_kw || 0).toFixed(2)}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${Number(r.selected_tr || 0).toFixed(2)}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${escHtml(String(r.airflow_cmh || '—'))}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${Number(r.chw_flow_lps_total || 0).toFixed(3)}</td>
+    </tr>`).join('');
+
+  const reportHTML = `
+  <div style="padding:2.5rem;background:#fff;color:#1a1a1a;font-family:'Segoe UI',Arial,sans-serif;font-size:0.92rem;line-height:1.6;">
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.75rem 1rem;margin-bottom:1.5rem;font-size:0.85rem;color:#7a5800;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading.
+    </div>
+
+    <!-- Header -->
+    <div style="border-bottom:3px solid #1a3a5c;padding-bottom:1rem;margin-bottom:1.5rem;">
+      <div style="font-size:1.5rem;font-weight:700;color:#1a3a5c;">Fan Coil Unit (FCU) Selection Report</div>
+      <div style="font-size:0.9rem;color:#555;margin-top:0.3rem;">ASHRAE HVAC Systems and Equipment Handbook / PSME Code</div>
+      <table style="width:100%;margin-top:1rem;border-collapse:collapse;">
+        <tr>
+          <td style="width:50%;vertical-align:top;">
+            <div style="font-size:0.8rem;color:#888;">Project / System</div>
+            <div style="font-weight:600;">${e(projName)}</div>
+          </td>
+          <td style="width:25%;vertical-align:top;">
+            <div style="font-size:0.8rem;color:#888;">Prepared by</div>
+            <div>${e('Engineer')}</div>
+          </td>
+          <td style="width:25%;vertical-align:top;">
+            <div style="font-size:0.8rem;color:#888;">Date</div>
+            <div>${e(dateStr)}</div>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- 1. Objective -->
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">1. Objective</h2>
+    <div class="narrative-block" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.5rem;padding:0.9rem 1.1rem;color:#334155;">
+      ${narrative?.objective ? escHtml(narrative.objective) : `Select standard fan coil units for ${escHtml(String(rooms.length))} room(s) of ${escHtml(projName)} based on room cooling loads. Compute chilled water flow rates per unit, total plant design load with diversity factor (${divF}), and size the chilled water main pipe. Pipe system: ${escHtml(pipeSys)}. Mounting: ${escHtml(mountType)}.`}
+    </div>
+
+    <!-- 2. Standards -->
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">2. Applicable Standards</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;">
+      <thead>
+        <tr>
+          <th style="background:#1a3a5c;color:#fff;padding:0.5rem 0.75rem;text-align:left;width:40%;">Standard</th>
+          <th style="background:#1a3a5c;color:#fff;padding:0.5rem 0.75rem;text-align:left;">Application</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background:#f8fafc;"><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">ASHRAE 2023 HVAC Systems &amp; Equipment Hbk</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">FCU selection and rating methodology</td></tr>
+        <tr><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">ASHRAE Standard 62.1</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">Minimum ventilation rates per occupancy</td></tr>
+        <tr style="background:#f8fafc;"><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">ASHRAE Standard 90.1</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">Energy efficiency — EER ≥ 3.5 for tropical climate</td></tr>
+        <tr><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">PSME Code</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">Philippine HVAC installation and commissioning</td></tr>
+      </tbody>
+    </table>
+
+    <!-- 3. Design Basis -->
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">3. Design Basis</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;">
+      <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;width:45%;font-weight:600;">Pipe System</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${escHtml(pipeSys)}</td></tr>
+      <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Mounting Type</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${escHtml(mountType)}</td></tr>
+      <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">CHW Supply Temperature</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${chwSup}°C</td></tr>
+      <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">CHW Return Temperature</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${chwRet}°C</td></tr>
+      <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">CHW ΔT</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${(Number(chwRet) - Number(chwSup)).toFixed(1)}°C</td></tr>
+      <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Diversity Factor</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${divF} (per ASHRAE — commercial buildings)</td></tr>
+      <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Number of Rooms / Zones</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${rooms.length}</td></tr>
+      <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Total FCU Units</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${totalUnits} units</td></tr>
+    </table>
+
+    <!-- 4. Velocity Limits -->
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">4. CHW Velocity Design Limits</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;">
+      <thead>
+        <tr>
+          <th style="background:#1a3a5c;color:#fff;padding:0.5rem 0.75rem;text-align:left;">Pipe Location</th>
+          <th style="background:#1a3a5c;color:#fff;padding:0.5rem 0.75rem;text-align:center;">Min (m/s)</th>
+          <th style="background:#1a3a5c;color:#fff;padding:0.5rem 0.75rem;text-align:center;">Max (m/s)</th>
+          <th style="background:#1a3a5c;color:#fff;padding:0.5rem 0.75rem;text-align:left;">Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background:#f8fafc;"><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">Main CHW Header</td><td style="padding:0.5rem;text-align:center;border-bottom:1px solid #e5e7eb;">1.0</td><td style="padding:0.5rem;text-align:center;border-bottom:1px solid #e5e7eb;">2.0</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">Design target 1.5 m/s</td></tr>
+        <tr><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">Branch / Riser</td><td style="padding:0.5rem;text-align:center;border-bottom:1px solid #e5e7eb;">0.6</td><td style="padding:0.5rem;text-align:center;border-bottom:1px solid #e5e7eb;">2.5</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">Min 0.6 m/s to prevent stratification</td></tr>
+        <tr style="background:#f8fafc;"><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">FCU Coil Connection</td><td style="padding:0.5rem;text-align:center;border-bottom:1px solid #e5e7eb;">0.3</td><td style="padding:0.5rem;text-align:center;border-bottom:1px solid #e5e7eb;">1.0</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">Per FCU coil connection size</td></tr>
+      </tbody>
+    </table>
+
+    <!-- 5. Room Schedule + FCU Selection -->
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">5. Room Schedule and FCU Selection</h2>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;min-width:680px;border-collapse:collapse;font-size:0.85rem;">
+        <thead>
+          <tr>
+            <th style="background:#1a3a5c;color:#fff;padding:0.5rem 0.75rem;text-align:left;">Room / Zone</th>
+            <th style="background:#1a3a5c;color:#fff;padding:0.5rem 0.4rem;text-align:center;">Area (m²)</th>
+            <th style="background:#1a3a5c;color:#fff;padding:0.5rem 0.4rem;text-align:center;">Load/Unit (kW)</th>
+            <th style="background:#1a3a5c;color:#fff;padding:0.5rem 0.4rem;text-align:center;">Qty</th>
+            <th style="background:#1a3a5c;color:#fff;padding:0.5rem 0.4rem;text-align:center;">FCU Model</th>
+            <th style="background:#1a3a5c;color:#fff;padding:0.5rem 0.4rem;text-align:center;">Nom. kW</th>
+            <th style="background:#1a3a5c;color:#fff;padding:0.5rem 0.4rem;text-align:center;">Nom. TR</th>
+            <th style="background:#1a3a5c;color:#fff;padding:0.5rem 0.4rem;text-align:center;">Airflow (CMH)</th>
+            <th style="background:#1a3a5c;color:#fff;padding:0.5rem 0.4rem;text-align:center;">CHW Flow (L/s)</th>
+          </tr>
+        </thead>
+        <tbody>${roomRows}</tbody>
+        <tfoot>
+          <tr style="background:#f0f4f8;font-weight:700;">
+            <td colspan="3" style="padding:0.55rem 0.75rem;border-top:2px solid #1a3a5c;">TOTALS (Connected)</td>
+            <td style="padding:0.55rem 0.4rem;text-align:center;border-top:2px solid #1a3a5c;">${totalUnits}</td>
+            <td style="padding:0.55rem 0.4rem;border-top:2px solid #1a3a5c;"></td>
+            <td style="padding:0.55rem 0.4rem;text-align:center;border-top:2px solid #1a3a5c;">${totalConnKW}</td>
+            <td style="padding:0.55rem 0.4rem;text-align:center;border-top:2px solid #1a3a5c;">${totalConnTR}</td>
+            <td style="padding:0.55rem 0.4rem;border-top:2px solid #1a3a5c;"></td>
+            <td style="padding:0.55rem 0.4rem;border-top:2px solid #1a3a5c;"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- 6. Results Summary -->
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">6. Results Summary</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1rem;">
+      <div style="background:#f0f7ff;border:1px solid #bfdbfe;border-radius:0.5rem;padding:1rem;page-break-inside:avoid;">
+        <div style="font-size:0.78rem;color:#3b82f6;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Connected Load</div>
+        <div style="font-size:1.6rem;font-weight:700;color:#1a3a5c;">${totalConnKW} kW</div>
+        <div style="font-size:0.85rem;color:#555;">${totalConnTR} TR nominal</div>
+      </div>
+      <div style="background:#f0fff4;border:1px solid #a7f3d0;border-radius:0.5rem;padding:1rem;page-break-inside:avoid;">
+        <div style="font-size:0.78rem;color:#10b981;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Design Load (DF=${divF})</div>
+        <div style="font-size:1.6rem;font-weight:700;color:#1a3a5c;">${totalDesKW} kW</div>
+        <div style="font-size:0.85rem;color:#555;">${totalDesTR} TR</div>
+      </div>
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:0.5rem;padding:1rem;page-break-inside:avoid;">
+        <div style="font-size:0.78rem;color:#f97316;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Total CHW Flow</div>
+        <div style="font-size:1.6rem;font-weight:700;color:#1a3a5c;">${totalChwLps} L/s</div>
+        <div style="font-size:0.85rem;color:#555;">ΔT = ${(Number(chwRet) - Number(chwSup)).toFixed(1)}°C (${chwSup}°C / ${chwRet}°C)</div>
+      </div>
+      <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:0.5rem;padding:1rem;page-break-inside:avoid;">
+        <div style="font-size:0.78rem;color:#8b5cf6;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">CHW Main Pipe</div>
+        <div style="font-size:1.6rem;font-weight:700;color:#1a3a5c;">${mainNps} mm NPS</div>
+        <div style="font-size:0.85rem;color:#555;">v = ${mainVel} m/s (SCH40)</div>
+      </div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;margin-top:0.5rem;">
+      <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;width:55%;font-weight:600;">Total Room Load (sum of all rooms × qty)</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${totalReqKW} kW</td></tr>
+      <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Design Load after Diversity (${divF} × connected req. load)</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${totalDesKW} kW / ${totalDesTR} TR</td></tr>
+      <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Total FCU Units Selected</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${totalUnits} units</td></tr>
+      <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">CHW Main Pipe (Black Steel SCH40)</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${mainNps} mm NPS @ ${mainVel} m/s</td></tr>
+    </table>
+
+    <!-- 7. Recommendations -->
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">7. Recommendations</h2>
+    <div class="narrative-block" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.5rem;padding:0.9rem 1.1rem;color:#334155;">
+      ${narrative?.recommendations ? escHtml(narrative.recommendations) : `Install ${totalUnits} fan coil units totalling ${totalConnKW} kW / ${totalConnTR} TR connected, with a design load of ${totalDesKW} kW / ${totalDesTR} TR after applying the ${divF} diversity factor. Size the chilled water main at ${mainNps} mm NPS (Black Steel SCH40) at ${mainVel} m/s. Use ${chwSup}°C supply / ${chwRet}°C return, ΔT = ${(Number(chwRet) - Number(chwSup)).toFixed(1)}°C. Coordinate final FCU model selection and CHW branch pipe sizing with the approved chiller plant capacity.`}
+    </div>
+
+    <!-- Signature Block -->
+    <div class="sig-block" style="margin-top:3rem;padding-top:1.5rem;border-top:1px solid #e5e7eb;display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+      <div>
+        <div style="border-bottom:1px solid #333;margin-bottom:0.3rem;min-height:2rem;"></div>
+        <div style="font-size:0.8rem;color:#555;">${e('Mechanical Engineer')} | PRC License No. ${e('XXXXXXX')}</div>
+        <div style="font-size:0.8rem;color:#888;">Prepared by</div>
+      </div>
+      <div>
+        <div style="border-bottom:1px solid #333;margin-bottom:0.3rem;min-height:2rem;"></div>
+        <div style="font-size:0.8rem;color:#555;">${e('Principal / Project Manager')}</div>
+        <div style="font-size:0.8rem;color:#888;">Reviewed by</div>
       </div>
     </div>
   </div>`;
@@ -14030,6 +14393,8 @@ function viewHistoryReport(row) {
     renderDuctSizingReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Refrigerant Pipe Sizing') {
     renderRefrigPipeReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'FCU Selection') {
+    renderFCUSelectionReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
@@ -14070,7 +14435,7 @@ async function generateBomSowChecklist() {
     'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)', 'Storm Drain / Stormwater'],
     'Fire Protection':         ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],
     'Vertical Transportation': ['Elevator Traffic Analysis', 'Hoist Capacity'],
-    'HVAC Systems':            ['Chiller System — Air Cooled', 'Chiller System — Water Cooled', 'AHU Sizing', 'Cooling Tower Sizing', 'Duct Sizing (Equal Friction)', 'Refrigerant Pipe Sizing'],
+    'HVAC Systems':            ['Chiller System — Air Cooled', 'Chiller System — Water Cooled', 'AHU Sizing', 'Cooling Tower Sizing', 'Duct Sizing (Equal Friction)', 'Refrigerant Pipe Sizing', 'FCU Selection'],
   };
   const supportedForDiscipline = BOM_SOW_SUPPORTED[_discipline] || [];
   if (!supportedForDiscipline.includes(_calcType)) {
@@ -14280,8 +14645,11 @@ function renderBomTablePreview(items) {
   const isAHU       = _calcType === 'AHU Sizing';
   const isDS        = _calcType === 'Duct Sizing (Equal Friction)';
   const isRP        = _calcType === 'Refrigerant Pipe Sizing';
-  const calcRef = `${isRP ? 'HVAC-RPS' : isDS ? 'HVAC-DS' : isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
-  const disciplineSystem = isRP
+  const isFC        = _calcType === 'FCU Selection';
+  const calcRef = `${isFC ? 'HVAC-FCU' : isRP ? 'HVAC-RPS' : isDS ? 'HVAC-DS' : isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const disciplineSystem = isFC
+    ? `HVAC Systems — FCU Selection (${_lastInputs?.pipe_system || '2-Pipe'}, ${_lastInputs?.mounting_type || 'Ceiling Cassette'}, ${(_lastInputs?.rooms || []).length} rooms, ${_lastResults?.total_units || ''} units, ${_lastResults?.total_design_kw || ''}kW / ${_lastResults?.total_design_tr || ''}TR, CHW ${_lastInputs?.chw_supply_c || 7}/${_lastInputs?.chw_return_c || 12}°C, ${_lastResults?.total_chw_lps || ''}L/s, Main ${_lastResults?.main_pipe_nps_mm || ''}mm NPS)`
+    : isRP
     ? `HVAC Systems — Refrigerant Pipe Sizing (${_lastInputs?.refrigerant || 'R-410A'}, ${_lastInputs?.capacity_kw || ''}kW, ${_lastInputs?.application || 'AC'} Evap ${_lastResults?.evap_temp_c ?? ''}°C / Cond ${_lastInputs?.cond_temp_c || 40}°C, ${(_lastInputs?.lines || []).length} lines)`
     : isDS
     ? `HVAC Systems — Duct Sizing (${_lastInputs?.duct_shape || 'Circular'}, fr=${_lastInputs?.friction_rate || 1.0} Pa/m, ${_lastInputs?.duct_material || 'Galvanized Steel'}, ${(_lastInputs?.segments || []).length} segments, System ΔP ${_lastResults?.total_dp_pa || ''}Pa, Fan Static ${_lastResults?.fan_static_pa || ''}Pa, Fan Motor ${_lastResults?.fan_motor_hp_std || ''}HP)`
@@ -14548,12 +14916,15 @@ function renderSowDocPreview(sections) {
   const isAHUS       = _calcType === 'AHU Sizing';
   const isDSS        = _calcType === 'Duct Sizing (Equal Friction)';
   const isRPS        = _calcType === 'Refrigerant Pipe Sizing';
-  const calcRef = `${isRPS ? 'HVAC-RPS' : isDSS ? 'HVAC-DS' : isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const isFCS        = _calcType === 'FCU Selection';
+  const calcRef = `${isFCS ? 'HVAC-FCU' : isRPS ? 'HVAC-RPS' : isDSS ? 'HVAC-DS' : isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
   const unitKW = _lastResults?.ac_size_kw        || '';
-  const ventSystemLine = isRPS
+  const ventSystemLine = isFCS
+    ? `FCU Selection — ${_lastInputs?.pipe_system || '2-Pipe'} ${_lastInputs?.mounting_type || 'Ceiling Cassette'}, ${(_lastInputs?.rooms || []).length} rooms, ${_lastResults?.total_units || ''} FCUs, ${_lastResults?.total_connected_kw || ''}kW connected / ${_lastResults?.total_design_kw || ''}kW design (DF=${_lastInputs?.diversity_factor || 0.85}), CHW ${_lastInputs?.chw_supply_c || 7}°C/${_lastInputs?.chw_return_c || 12}°C ΔT=${(Number(_lastInputs?.chw_return_c || 12) - Number(_lastInputs?.chw_supply_c || 7)).toFixed(1)}°C, ${_lastResults?.total_chw_lps || ''}L/s, ${_lastResults?.main_pipe_nps_mm || ''}mm NPS SCH40 main`
+    : isRPS
     ? `Refrigerant Pipe Sizing — ${_lastInputs?.refrigerant || 'R-410A'}, ${_lastInputs?.capacity_kw || ''}kW, ${_lastInputs?.application || 'AC'} (Evap ${_lastResults?.evap_temp_c ?? ''}°C / Cond ${_lastInputs?.cond_temp_c || 40}°C), ${(_lastInputs?.lines || []).length} lines${(_lastResults?.lines || []).length > 0 ? ': ' + (_lastResults?.lines || []).map(l => `${l.name} ${l.selected_od_mm}mm OD`).join(', ') : ''}`
     : isDSS
     ? `Duct Sizing (Equal Friction) — ${_lastInputs?.duct_shape || 'Circular'} ${_lastInputs?.duct_material || 'Galvanized Steel'}, fr=${_lastInputs?.friction_rate || 1.0} Pa/m, ρ=${_lastInputs?.air_density || 1.20} kg/m³, ${(_lastInputs?.segments || []).length} segments, Total ΔP=${_lastResults?.total_dp_pa || ''}Pa, Fan Static=${_lastResults?.fan_static_pa || ''}Pa (×1.5 fittings), Max Flow ${_lastResults?.max_flow_lps || ''}L/s, Fan Motor ${_lastResults?.fan_motor_hp_std || ''}HP`
