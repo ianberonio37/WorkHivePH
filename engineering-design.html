@@ -7327,7 +7327,7 @@ function renderBoilerReport(inputs, results, narrative) {
 
       <!-- Recommendations -->
       <h2 style="font-size:1rem;font-weight:700;border-bottom:1px solid #ddd;padding-bottom:0.3rem;margin-top:1.5rem;">6. RECOMMENDATIONS</h2>
-      <div class="narrative-block" style="font-size:0.88rem;">${narrative ? `<p>${e(narrative)}</p>` : `
+      <div class="narrative-block" style="font-size:0.88rem;">${narrative?.recommendations ? `<p>${e(narrative.recommendations)}</p>` : `
         <p>Provide ${e(inputs.num_boilers)} × ${e(r.q_boiler_kw)} kW (${e(r.q_boiler_bhp)} BHP) ${e(inputs.boiler_type)} boiler(s) fired on ${e(inputs.fuel_type)}. Total installed capacity: ${e(r.total_capacity_kw)} kW (${e(r.total_capacity_bhp)} BHP). Design steam demand: ${e(r.design_steam_demand_kg_hr)} kg/hr at ${e(inputs.steam_pressure_barg)} bar g.</p>
         <p>Fuel consumption: ${e(r.fuel_consumption_kg_hr)} kg/hr. Maintain blowdown at ${e(r.blowdown_pct)}% (${e(r.blowdown_kg_hr)} kg/hr) based on makeup water TDS of ${e(inputs.tds_makeup_ppm)} ppm and max boiler water TDS of ${e(inputs.tds_max_ppm)} ppm. Makeup water requirement: ${e(r.makeup_water_kg_hr)} kg/hr.</p>
         <p>Provide safety valve(s) with minimum rated capacity of ${e(r.safety_valve_min_kg_hr)} kg/hr per ASME BPVC / PD 8. Boiler installation shall comply with PD 8, DOLE OSH Standards, and local Building Permit requirements. Annual inspection by a DOLE-accredited boiler inspector is mandatory.</p>
