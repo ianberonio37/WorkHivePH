@@ -959,6 +959,105 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Water Treatment System BOM + SOW Agent ──────────────────────────────────
+
+async function waterTreatmentBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project        = inputs.project_name      || "Water Treatment System Project";
+  const demandLpd      = inputs.demand_lpd         || results.demand_lpd         || "N/A";
+  const rawSource      = inputs.raw_source         || "Unknown";
+  const turbidityNtu   = inputs.turbidity_ntu      ?? "N/A";
+  const ironMg         = inputs.iron_mg            ?? "N/A";
+  const bacteriaConcern = inputs.bacteria_concern  || "Yes";
+  const intendedUse    = inputs.intended_use       || "Potable Water";
+  const peakFactor     = inputs.peak_factor        || 1.5;
+  const peakFlowLpm    = results.peak_flow_Lpm     ?? "N/A";
+  const filterDiaMm    = results.filter_vessel_dia_mm ?? "N/A";
+  const filterAreaM2   = results.filter_area_m2    ?? "N/A";
+  const filterType     = results.filter_type       || "Multimedia";
+  const needsCoag      = results.needs_coag_floc   ?? false;
+  const needsIron      = results.needs_iron_removal ?? false;
+  const needsDisinf    = results.needs_disinfection ?? true;
+  const disinfMethod   = results.disinfection_method || "Chlorination";
+  const cl2DoseMg      = results.cl2_dose_mg_L     ?? "N/A";
+  const naoclLpd       = results.naocl_daily_L     ?? "N/A";
+  const alumDoseMg     = results.alum_dose_mg_L    ?? "N/A";
+  const storageTankL   = results.storage_tank_L    ?? "N/A";
+  const pnsStatus      = results.pns_compliance_status || "REVIEW";
+  const trainSteps     = (results.train_steps as string[]) || [];
+
+  const trainSummary = trainSteps.map((s, i) => `Step ${i+1}: ${s}`).join('; ');
+
+  const prompt = `You are a Philippine water treatment engineering expert. Generate a professional BOM and SOW for a WATER TREATMENT SYSTEM installation project.
+
+PROJECT: ${project}
+RAW WATER SOURCE: ${rawSource}
+DAILY DEMAND: ${demandLpd} L/day
+PEAK FLOW: ${peakFlowLpm} L/min
+INLET TURBIDITY: ${turbidityNtu} NTU
+INLET IRON: ${ironMg} mg/L
+BACTERIA CONCERN: ${bacteriaConcern}
+INTENDED USE: ${intendedUse}
+PEAK FACTOR: ${peakFactor}
+TREATMENT TRAIN: ${trainSummary}
+FILTER: ${filterType} filter, ${filterDiaMm}mm vessel, ${filterAreaM2} m² bed area
+COAGULATION/FLOCCULATION REQUIRED: ${needsCoag}
+IRON REMOVAL REQUIRED: ${needsIron}
+DISINFECTION REQUIRED: ${needsDisinf}, Method: ${disinfMethod}
+CHLORINE DOSE: ${cl2DoseMg} mg/L, NaOCl consumption: ${naoclLpd} L/day (10% solution)
+ALUM DOSE (if coag): ${alumDoseMg} mg/L
+STORAGE TANK: ${storageTankL} L
+PNS 1998 COMPLIANCE STATUS: ${pnsStatus}
+STANDARDS: PNS 1998 (Philippine National Standard for Drinking Water), DOH Drinking Water Regulations, WHO Guidelines 4th Edition, AWWA Design of Water Treatment Facilities, NSF/ANSI 61, Philippine Plumbing Code (PPC), DOLE OSH
+
+Generate a JSON object with:
+1. "bom_items": array of 18 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include these items in order:
+   1. Raw Water Pump (if source is borehole/deep well) — centrifugal submersible pump, capacity ${peakFlowLpm} L/min, head per site survey, SS 304 impeller, NSF/ANSI 61 wetted parts — qty: 1 unit (mark as conditional if source is municipal/surface)
+   2. Raw Water Storage/Break Tank — ${Math.round(Number(storageTankL) * 0.5 || 500)}L polyethylene or RC tank, NSF/ANSI 61 rated, inlet float valve, overflow and drain outlets — qty: 1 unit
+   3. ${filterType} Filter Vessel — ${filterDiaMm}mm FRP pressure vessel, rated 6 bar, top distributor, bottom collector lateral assembly, ${filterType === 'Greensand' ? 'greensand media 900mm bed depth, silica underbedding 300mm' : 'multimedia (anthracite, sand, gravel) 750mm bed depth'}, automatic backwash valve — qty: 1 unit
+   4. ${needsIron ? 'Greensand Iron Removal Filter — ' + filterDiaMm + 'mm FRP vessel, greensand media, KMnO4 regenerant feed system, 900mm bed depth — qty: 1 unit' : 'Sediment Pre-Filter (5 micron cartridge) — 20" housing, polypropylene sediment cartridge, NSF/ANSI 42, 25–50mm inlet/outlet — qty: 1 unit'}
+   5. ${needsCoag ? 'Coagulation/Flocculation Tank — GRP or HDPE tank, alum dosing point at inlet, mechanical stirrer/paddle flocculator, sized for 20-minute retention time at peak flow — qty: 1 unit' : 'Backwash Controller and Automatic Valve Assembly — timer-controlled automatic backwash valve, digital controller, compatible with filter vessel — qty: 1 set'}
+   6. ${needsDisinf ? (disinfMethod.includes('UV') ? 'UV Disinfection Unit — 40 mJ/cm² minimum dose, SS 316L chamber, quartz sleeve, electronic ballast, flow-proportional control, NSF/ANSI 55 Class A certified — qty: 1 unit' : 'Chemical Dosing Pump (Chlorine) — diaphragm-type metering pump, output ' + peakFlowLpm + ' L/min at rated pressure, PVDF wetted parts, NSF/ANSI 61 rated, adjustable stroke — qty: 1 unit') : 'Flow Meter — electromagnetic or paddle-wheel type, 25–50mm, pulse output for dosing control — qty: 1 unit'}
+   7. Chemical Dosing Tank (NaOCl) — ${Math.max(50, Math.round(Number(naoclLpd) * 7 || 100))}L HDPE chemical-grade tank, vent cap, level indicator, lockable lid, for 7-day NaOCl storage at ${naoclLpd} L/day — qty: 1 unit
+   8. ${needsCoag ? 'Alum (Aluminum Sulfate) Solution Tank — HDPE 100L tank, mechanical agitator, dosing pump connection, spill containment tray — qty: 1 unit' : 'Chemical Injection Quill and Static Mixer — SS 316L injection quill, pipe mixer for rapid chlorine dispersion — qty: 1 set'}
+   9. Activated Carbon Filter (post-treatment) — ${filterDiaMm}mm FRP vessel, granular activated carbon (GAC) 600mm bed depth, EBCT 10 min, NSF/ANSI 61, automatic backwash — qty: ${Number(turbidityNtu || 0) > 5 ? '1 unit (turbidity > 5 NTU — required)' : '1 unit (optional — recommended for taste/odor control)'}
+   10. Treated Water Storage Tank — ${storageTankL}L capacity (1-day demand), polyethylene or RC construction, covered, NSF/ANSI 61 rated, inlet float valve, overflow, drain, man-way for cleaning — qty: 1 unit
+   11. Transfer/Booster Pump (treated water to distribution) — centrifugal pump, capacity ${peakFlowLpm} L/min at distribution pressure, SS 304 impeller, NSF/ANSI 61, with pressure tank 24L minimum — qty: 1 set
+   12. Pressure Gauges (inlet, interstage, outlet) — 0–700 kPa, 63mm glycerin-filled, 1/4" BSP — qty: 4 pcs
+   13. Water Quality Test Kit — digital turbidity meter (NTU), colorimetric iron test kit, free chlorine DPD test kit (0–5 mg/L), pH meter — qty: 1 set (for commissioning and routine monitoring)
+   14. Interconnecting Pipework — 32–50mm uPVC PN10 or SS 304 piping between treatment stages, NSF/PNS 65 rated, ball valves at each unit inlet/outlet for isolation, union fittings for easy service — qty: 1 lot
+   15. Chemical Room Equipment — spill containment bund (GRP or HDPE), eyewash station, PPE hooks, chemical warning labels, ventilation louver — qty: 1 lot (DOLE OSH compliance)
+   16. Electrical and Control Panel — IP55 enclosure, ON/OFF controls for all pumps, alarm for high/low level, hour meters, properly rated MCBs per PEC 2017 — qty: 1 lot
+   17. Pipe Supports, Anchors, and Fittings — galvanized pipe clamps, wall anchors, reducers, couplings for complete installation — qty: 1 lot
+   18. Miscellaneous (Teflon tape, PVC cement, pipe labels per PNS 65 color code, safety signs, cable ties) — qty: 1 lot
+
+2. "sow_sections": array of 9 sections (each: section_no, title, content)
+   Cover:
+   - "1.0" General Scope (design, supply, install, test, and commission complete Water Treatment System for ${demandLpd} L/day from ${rawSource} source, producing outlet water compliant with PNS 1998 / DOH standards — turbidity ≤ 1 NTU potable, iron ≤ 0.3 mg/L, free chlorine 0.2–0.5 mg/L at point of use)
+   - "2.0" Applicable Standards (PNS 1998, DOH Administrative Order on Water Quality, WHO 4th Edition Guidelines, AWWA design standards, NSF/ANSI 61, Philippine Plumbing Code, DOLE OSH chemical safety, PEC 2017 for electrical)
+   - "3.0" Equipment Supply and Submittal Requirements (all wetted equipment NSF/ANSI 61 certified; submit manufacturer data sheets, pressure vessel certificates, media gradation analysis, and NSF certificates for Engineer's approval before procurement; raw water quality analysis report from DOH-accredited laboratory required before design finalization)
+   - "4.1" Civil and Structural Works (concrete pad for filter vessels and tanks — minimum 150mm thick RC slab; chemical room with 300mm bunded floor, drain to sump, forced ventilation minimum 10 ACH; all anchor bolts per NSCP seismic zone)
+   - "4.2" Treatment Equipment Installation (filter vessel installation on level pad, minimum 1.0m service clearance on all sides; backwash drain to be piped to waste/drainage; chemical dosing lines labeled; injection points upstream of static mixer; storage tanks to be covered and vented through insect screen)
+   - "4.3" Disinfection and Chemical Dosing System (${needsDisinf ? `chlorine dosing set at ${cl2DoseMg} mg/L to achieve CT ≥ 30 mg·min/L; free chlorine residual target 0.5 mg/L post-contact tank; NaOCl stored in locked chemical room; dose to be verified by daily grab sample using DPD test kit` : 'disinfection not required — install sampling tap at treated water outlet for periodic water quality verification'})
+   - "5.0" Testing and Commissioning (pre-commissioning raw water quality test by DOH-accredited laboratory; 72-hour continuous operation test; daily grab samples for turbidity, iron, pH, free chlorine during commissioning; final treated water quality report to be submitted confirming PNS 1998 compliance before handover)
+   - "6.0" Safety and Environmental Compliance (DOLE OSH requirements for chemical handling — chlorine/alum/KMnO4 SDS to be posted in chemical room; spill containment capacity ≥ 110% of largest chemical container; backwash wastewater to be discharged to DENR-compliant disposal point — not directly to drainage without settlement; operator must hold TESDA or DOH water treatment certificate)
+   - "7.0" Maintenance, Training, and Handover (media replacement schedule per manufacturer spec; monthly backwash frequency check; weekly water quality monitoring log; quarterly chemical stock inspection; annual pressure vessel inspection; 1-year warranty on all equipment; O&M manual; operator training minimum 8 hours covering backwash procedure, chemical dosing, daily water quality testing, and emergency shutdown)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Electrical Load Estimation BOM + SOW Agent ───────────────────────────────
 
 async function loadEstBomSowAgent(
@@ -2235,6 +2334,8 @@ serve(async (req) => {
       result = await septicBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Plumbing" && calc_type === "Water Softener Sizing") {
       result = await waterSoftenerBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Plumbing" && calc_type === "Water Treatment System") {
+      result = await waterTreatmentBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Load Estimation") {
       result = await loadEstBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Voltage Drop") {
