@@ -10960,10 +10960,10 @@ function renderWaterSoftenerReport(inputs, results, narrative) {
     <!-- 1. Design Basis -->
     <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">1. Design Basis</h2>
     <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
-      <thead><tr style="background:#162032;color:#fff;">
-        <th style="padding:0.4rem 0.6rem;text-align:left;width:35%;">Parameter</th>
-        <th style="padding:0.4rem 0.6rem;text-align:left;">Value</th>
-        <th style="padding:0.4rem 0.6rem;text-align:left;">Reference</th>
+      <thead><tr>
+        <th style="padding:0.4rem 0.6rem;text-align:left;width:35%;background:#162032;color:#fff;">Parameter</th>
+        <th style="padding:0.4rem 0.6rem;text-align:left;background:#162032;color:#fff;">Value</th>
+        <th style="padding:0.4rem 0.6rem;text-align:left;background:#162032;color:#fff;">Reference</th>
       </tr></thead>
       <tbody>
         <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Daily Water Demand</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${demandSrc}</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">NBCP / NPC / design input</td></tr>
@@ -11004,10 +11004,10 @@ function renderWaterSoftenerReport(inputs, results, narrative) {
     <!-- 4. Tank Selection & Service Flow -->
     <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">4. Tank Selection &amp; Service Flow</h2>
     <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
-      <thead><tr style="background:#162032;color:#fff;">
-        <th style="padding:0.4rem 0.6rem;text-align:left;">Parameter</th>
-        <th style="padding:0.4rem 0.6rem;text-align:left;">Value</th>
-        <th style="padding:0.4rem 0.6rem;text-align:left;">Reference</th>
+      <thead><tr>
+        <th style="padding:0.4rem 0.6rem;text-align:left;background:#162032;color:#fff;">Parameter</th>
+        <th style="padding:0.4rem 0.6rem;text-align:left;background:#162032;color:#fff;">Value</th>
+        <th style="padding:0.4rem 0.6rem;text-align:left;background:#162032;color:#fff;">Reference</th>
       </tr></thead>
       <tbody>
         <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Selected Tank Size</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.tank_dia_in}" × ${r.tank_ht_in}" H (${r.tank_dia_mm} mm × ${r.tank_ht_mm} mm H)</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Manufacturer standard</td></tr>
@@ -11024,10 +11024,10 @@ function renderWaterSoftenerReport(inputs, results, narrative) {
     <!-- 5. Salt & Brine System -->
     <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">5. Salt &amp; Brine Tank Sizing</h2>
     <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
-      <thead><tr style="background:#162032;color:#fff;">
-        <th style="padding:0.4rem 0.6rem;text-align:left;">Parameter</th>
-        <th style="padding:0.4rem 0.6rem;text-align:left;">Value</th>
-        <th style="padding:0.4rem 0.6rem;text-align:left;">Basis</th>
+      <thead><tr>
+        <th style="padding:0.4rem 0.6rem;text-align:left;background:#162032;color:#fff;">Parameter</th>
+        <th style="padding:0.4rem 0.6rem;text-align:left;background:#162032;color:#fff;">Value</th>
+        <th style="padding:0.4rem 0.6rem;text-align:left;background:#162032;color:#fff;">Basis</th>
       </tr></thead>
       <tbody>
         <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Salt per Regeneration (per unit)</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.salt_per_regen_kg} kg NaCl</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.selected_resin_L} L × ${r.salt_dose_gL} g/L ÷ 1,000</td></tr>
@@ -11077,9 +11077,9 @@ function renderWaterSoftenerReport(inputs, results, narrative) {
     <!-- Applicable Standards -->
     <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">8. Applicable Standards</h2>
     <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
-      <thead><tr style="background:#162032;color:#fff;">
-        <th style="padding:0.4rem 0.6rem;text-align:left;">Standard</th>
-        <th style="padding:0.4rem 0.6rem;text-align:left;">Scope</th>
+      <thead><tr>
+        <th style="padding:0.4rem 0.6rem;text-align:left;background:#162032;color:#fff;">Standard</th>
+        <th style="padding:0.4rem 0.6rem;text-align:left;background:#162032;color:#fff;">Scope</th>
       </tr></thead>
       <tbody>
         <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;">NSF/ANSI 44</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Residential cation exchange water softeners — capacity, efficiency, structural integrity</td></tr>
