@@ -7887,7 +7887,7 @@ function renderLightingDesignReport(inputs, results, narrative) {
         <tr><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Room Dimensions</td><td style="padding:0.3rem 0.5rem;">${inputs.room_len_m} m × ${inputs.room_wid_m} m × ${inputs.ceiling_ht_m} m H</td><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Floor Area</td><td style="padding:0.3rem 0.5rem;">${r.floor_area_m2} m²</td></tr>
       </table>
 
-      <div style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
+      <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">OBJECTIVE</div>
         <div id="ld-obj" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.objective || `To determine the number of luminaires required to achieve ${inputs.target_lux} lux average maintained illuminance in the subject ${inputs.space_type.toLowerCase()} in accordance with IES recommended practice and PEC 2017 Article 3.60.`}</div>
       </div>
@@ -7965,12 +7965,12 @@ function renderLightingDesignReport(inputs, results, narrative) {
         </div>
       </div>
 
-      <div style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
+      <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">ASSUMPTIONS</div>
         <div id="ld-assum" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.assumptions || `Room surface reflectances: ceiling 80%, walls 50%, floor 20% (IES typical). Work plane height assumed at 0.85 m (standard desk height). CU derived from IES Zonal Cavity tables for specified RCR and reflectance values. LLF of ${inputs.llf} applied for expected maintenance category.`}</div>
       </div>
 
-      <div style="background:#f8f9fa;border-left:4px solid #F7A21B;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
+      <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #F7A21B;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">RECOMMENDATIONS</div>
         <div id="ld-rec" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.recommendations || 'See calculation above.'}</div>
       </div>
@@ -8026,7 +8026,7 @@ function renderShortCircuitReport(inputs, results, narrative) {
         <tr><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">System Voltage</td><td style="padding:0.3rem 0.5rem;">${inputs.voltage_ll} V (L-L)</td><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Cable Run</td><td style="padding:0.3rem 0.5rem;">${inputs.cable_mm2} mm² Cu, ${inputs.cable_len_m} m</td></tr>
       </table>
 
-      <div style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
+      <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">OBJECTIVE</div>
         <div id="sc-obj" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.objective || 'To determine the available 3-phase symmetrical fault current at the subject distribution panel and verify that the installed overcurrent protective device has sufficient interrupting capacity in accordance with PEC 2017 and IEC 60909.'}</div>
       </div>
@@ -8105,12 +8105,12 @@ function renderShortCircuitReport(inputs, results, narrative) {
         </div>
       </div>
 
-      <div style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
+      <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">ASSUMPTIONS</div>
         <div id="sc-assum" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.assumptions || 'Transformer impedance method used per IEC 60909. Infinite bus assumption at the primary side (utility source impedance neglected — conservative). Cable reactance neglected (R only) for LV systems. Asymmetry factor of 1.8 applied per IEC 60909 for peak fault determination.'}</div>
       </div>
 
-      <div style="background:#f8f9fa;border-left:4px solid #F7A21B;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
+      <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #F7A21B;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">RECOMMENDATIONS</div>
         <div id="sc-rec" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.recommendations || 'See calculation above.'}</div>
       </div>
