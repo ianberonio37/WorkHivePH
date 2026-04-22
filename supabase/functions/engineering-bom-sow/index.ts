@@ -1159,6 +1159,94 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Storm Drain / Stormwater BOM + SOW Agent ────────────────────────────────
+
+async function stormDrainBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project       = inputs.project_name    || "Storm Drain / Stormwater";
+  const areaMode      = inputs.area_mode       || "single";
+  const totalAreaHa   = results.total_area_ha  ?? inputs.area_ha ?? "N/A";
+  const compositeC    = results.composite_c    ?? inputs.c_value ?? "N/A";
+  const returnPeriod  = results.return_period_yr ?? inputs.return_period ?? 10;
+  const intensityMmhr = results.intensity_mmhr ?? inputs.intensity_mmhr ?? 75;
+  const tcMin         = results.tc_min         ?? inputs.tc_min ?? 15;
+  const slopePct      = results.slope_pct      ?? inputs.slope_pct ?? 0.5;
+  const pipeMaterial  = results.pipe_material  ?? inputs.pipe_material ?? "uPVC";
+  const manningN      = results.manning_n      ?? inputs.manning_n ?? 0.011;
+  const dRequiredMm   = results.d_required_mm  ?? "N/A";
+  const dSelectedMm   = results.d_selected_mm  ?? "N/A";
+  const designFlowLps = results.design_flow_lps ?? "N/A";
+  const designFlowM3s = results.design_flow_m3s ?? "N/A";
+  const qCapLps       = results.q_capacity_lps  ?? "N/A";
+  const fullPipeVel   = results.full_pipe_vel_ms ?? "N/A";
+  const maxVel        = results.max_velocity_ms  ?? "N/A";
+  const velCheck      = results.velocity_check   || "REVIEW";
+  const flowRatioPct  = results.flow_ratio_pct   ?? "N/A";
+
+  const prompt = `You are a Philippine civil and sanitary engineering expert. Generate a professional BOM and SOW for a STORM DRAIN / STORMWATER DRAINAGE construction project.
+
+PROJECT: ${project}
+CATCHMENT AREA: ${totalAreaHa} ha (${areaMode === 'composite' ? 'composite multi-zone' : 'single zone'})
+COMPOSITE RUNOFF COEFFICIENT (C): ${compositeC}
+RETURN PERIOD: ${returnPeriod}-year storm event
+RAINFALL INTENSITY: ${intensityMmhr} mm/hr at tc = ${tcMin} min (PAGASA IDF)
+METHOD: Rational Method — Q = C×i×A/360
+DESIGN FLOW: ${designFlowM3s} m³/s (${designFlowLps} L/s)
+REQUIRED PIPE DIAMETER: ${dRequiredMm} mm (calculated)
+SELECTED PIPE DIAMETER: ${dSelectedMm} mm (DPWH standard, minimum 300 mm)
+PIPE MATERIAL: ${pipeMaterial} (Manning's n = ${manningN})
+PIPE SLOPE: ${slopePct}%
+PIPE CAPACITY (full-flow): ${qCapLps} L/s
+FLOW VELOCITY: ${fullPipeVel} m/s (DPWH limit: 0.6–${maxVel} m/s) — ${velCheck}
+FLOW RATIO: ${flowRatioPct}% of full capacity
+STANDARDS: DPWH Flood Control Design Manual, PAGASA IDF, DPWH Blue Book, NSCP, PNS/ISO pipe standards
+
+Generate a JSON object with:
+1. "bom_items": array of 16 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include these items in order:
+   1. Storm Drain Pipe — ${dSelectedMm} mm nominal diameter ${pipeMaterial} pipe, PN6 or PN10 (pressure rating per site conditions), DPWH-approved, socket and spigot jointing with rubber ring — qty: per linear meter of drain run (Contractor to quantify from layout drawing)
+   2. Catch Basin / Storm Inlet — precast RC catch basin, 600×600 mm (minimum), 150 mm RC walls, haunched base, mortar-bedded to pipe invert, kerb inlet or grated top — qty: as per layout (typically 1 per 20–30 m spacing in paved areas)
+   3. Grated Cover / CI Grating — cast iron heavy-duty grating, 600×600 mm, HS20 traffic-rated where in vehicular areas, anti-theft bolted frame — qty: matching catch basin count
+   4. Manhole (RC Type) — 1200 mm diameter RC manhole, 150 mm wall, benched invert, step irons, min 1.2 m depth, precast or in-situ RC construction per DPWH Standard Drawing — qty: at all junctions and max 50 m spacing along drain run
+   5. Manhole Frame and Cover (CI/DI) — cast iron or ductile iron frame and lid, 600 mm clear opening, HS20-rated where in road, anti-theft bolt — qty: matching manhole count
+   6. Concrete Pipe Bedding and Surround — Class B granular bedding (25mm crushed gravel), 150 mm bed below pipe, 300 mm surround to pipe springline, compacted in 150 mm layers — qty: per linear meter
+   7. Pipe Jointing Material — rubber ring push-fit gaskets (factory-supplied with pipe), joint lubricant, HDPE or uPVC coupler fittings at bends and branches — qty: 1 lot
+   8. Concrete Headwall / Outfall Structure — RC headwall at pipe outfall, 200 mm RC, weep holes, toe slab, riprap energy dissipation pad (0.5 m × pipe dia.) at downstream end — qty: 1 unit per outfall
+   9. Riprap / Erosion Protection — 150–300 mm hand-placed riprap at outfall and along open channel transitions, geotextile filter fabric underlayer — qty: as required at outfall
+   10. Excavation and Trenching — machine excavation in suitable ground, trench width = pipe OD + 600 mm, shoring if > 1.5 m deep, stockpile and haul spoil — qty: per linear meter (volume per trench dimensions)
+   11. Dewatering — submersible pump, wellpoint or sump dewatering during pipe laying in wet ground, continuous monitoring — qty: 1 lot (provisional — per actual site conditions)
+   12. Trench Backfill and Compaction — selected fill (CBR ≥ 15%), compacted in 200 mm layers at 95% Standard Proctor Density, proctor tests at 50 m intervals — qty: per linear meter
+   13. Road / Pavement Reinstatement — reinstatement of existing road pavement (asphalt or concrete) over trench zone per DPWH standard repair detail, matching existing pavement thickness — qty: per linear meter in paved areas
+   14. Inlet Protection / Trash Guard — 50 mm SS 304 bar grating trash guard at pipe inlet, bolted to headwall or catch basin to prevent debris blockage — qty: 1 unit per inlet structure
+   15. CCTV Pipe Inspection (post-construction) — CCTV survey of completed drain run after backfill to verify line, level, and joint integrity before final acceptance — qty: per linear meter of drain installed
+   16. Miscellaneous — pipe markers (every 20 m), manhole numbering plaques, as-built survey, temporary diversion drain during construction, site safety signage, spoil disposal — qty: 1 lot
+
+2. "sow_sections": array of 9 sections (each: section_no, title, content)
+   Cover:
+   - "1.0" General Scope (design, supply, and construct a complete storm drain system to convey the ${returnPeriod}-year design storm runoff of ${designFlowLps} L/s from a ${totalAreaHa} ha catchment; all work in accordance with DPWH Flood Control Design Manual and DPWH Blue Book Standard Specifications; contractor shall verify all quantities from final layout drawings — BOM is for planning purposes only)
+   - "2.0" Applicable Standards and Permits (DPWH Drainage Design Manual; DPWH Blue Book Standard Specifications for Highways, Bridges and Airports; PAGASA IDF data; NSCP; PNS/ISO 4435 for uPVC sewer pipes; LGU Building Permit and DPWH permit where crossing national road; environmental compliance for discharge to receiving water body per RA 9275 Clean Water Act)
+   - "3.0" Site Investigation and Setting Out (topographic survey and as-built check; hydraulic grade line confirmation — invert levels to be set to achieve minimum ${slopePct}% slope throughout; confirm soil classification and groundwater level before finalsing trench and shoring design; all manholes to be surveyed and referenced to benchmark)
+   - "4.1" Pipe Laying and Jointing (trench excavation to designed invert levels; Class B granular bedding compacted to 95% SPD before pipe laying; ${dSelectedMm} mm ${pipeMaterial} pipe laid true to line and grade — maximum 5 mm horizontal deviation per 3 m rod; rubber ring joints lubricated per manufacturer instructions; no open-cut joints permitted; post-laying alignment check by laser or string line before backfill)
+   - "4.2" Catch Basins and Manholes (precast or in-situ RC catch basins and manholes constructed per DPWH standard drawings; invert benching mortar-finished to direct flow; all lid frames grouted level; CI grating and manhole covers to be HS20-rated in vehicular areas; step irons in all manholes at 300 mm vertical spacing; joint between precast sections to be bituminous-sealed watertight)
+   - "4.3" Outfall and Erosion Protection (RC headwall constructed at all outfall locations; riprap energy dissipation pad min 1.5× pipe diameter length on receiving channel bed; geotextile filter fabric under all riprap; outfall invert to be at or above ordinary high-water level of receiving watercourse; if below HWL, provide flap gate to prevent backflow)
+   - "4.4" Backfill, Compaction, and Pavement Reinstatement (selected fill backfill in 200 mm compacted layers; 95% SPD throughout; field density test every 50 m minimum; road pavement reinstatement to match existing layer-by-layer — subbase, base course, and wearing course; asphalt to be hot-mix ACI, concrete to be minimum 3000 psi; line-marking reinstated where applicable)
+   - "5.0" Testing and Inspection (CCTV survey of all completed drain runs after backfill — contractor to provide CCTV report with video and defect log; any misaligned joints, displaced pipes, or infiltration to be repaired before acceptance; water-test all manhole benching and catch basin bases — no visible seepage after 30 min; as-built survey of all inverts and manhole rim levels to be submitted within 5 days of final section completion)
+   - "6.0" Regulatory Compliance, Safety, and Handover (trench safety per DOLE OSH Standards — shoring mandatory for depths > 1.2 m; traffic management plan for works on or near roads — DPWH and LGU traffic permit required; confined space entry permit for manhole works; CCTV inspection report and as-built drawings submitted with handover package; O&M guide covering manhole cleaning schedule (annual), catch basin desludging (semi-annual), outfall inspection after each major storm event; 1-year defects liability period — contractor responsible for any settlement or drainage failure)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Electrical Load Estimation BOM + SOW Agent ───────────────────────────────
 
 async function loadEstBomSowAgent(
@@ -2439,6 +2527,8 @@ serve(async (req) => {
       result = await waterTreatmentBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Plumbing" && calc_type === "Wastewater Treatment (STP)") {
       result = await wastewaterSTPBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Plumbing" && calc_type === "Storm Drain / Stormwater") {
+      result = await stormDrainBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Load Estimation") {
       result = await loadEstBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Voltage Drop") {

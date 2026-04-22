@@ -10811,7 +10811,7 @@ async function generateBomSowChecklist() {
   const BOM_SOW_SUPPORTED = {
     'Mechanical': ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air'],
     'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design'],
-    'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)'],
+    'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)', 'Storm Drain / Stormwater'],
     'Fire Protection':         ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],
     'Vertical Transportation': ['Elevator Traffic Analysis', 'Hoist Capacity'],
     'HVAC Systems':            ['Chiller System — Air Cooled', 'Chiller System — Water Cooled', 'AHU Sizing', 'Cooling Tower Sizing'],
@@ -11000,6 +11000,7 @@ function renderBomTablePreview(items) {
   const isWaterSoft   = _calcType === 'Water Softener Sizing';
   const isWT          = _calcType === 'Water Treatment System';
   const isSTP         = _calcType === 'Wastewater Treatment (STP)';
+  const isSD          = _calcType === 'Storm Drain / Stormwater';
   const isLoadEst = _calcType === 'Load Estimation';
   const isVD      = _calcType === 'Voltage Drop';
   const isWire    = _calcType === 'Wire Sizing';
@@ -11014,7 +11015,7 @@ function renderBomTablePreview(items) {
   const isChiller   = _calcType === 'Chiller System — Air Cooled';
   const isChillerWC = _calcType === 'Chiller System — Water Cooled';
   const isAHU       = _calcType === 'AHU Sizing';
-  const calcRef = `${isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const calcRef = `${isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const disciplineSystem = isAHU
     ? `HVAC Systems — AHU (${_lastResults?.n_units || ''}× ${_lastResults?.nominal_AHU_CMH_each || ''}CMH, ${_lastResults?.Q_coil_total_kW || ''}kW/${_lastResults?.Q_coil_TR || ''}TR coil, ${_lastResults?.fan_hp_std || ''}HP fan, CHW ${_lastResults?.chw_supply_C || ''}/${_lastResults?.chw_return_C || ''}°C, ${_lastResults?.Q_chw_lps || ''}L/s)`
     : isChillerWC
@@ -11057,6 +11058,8 @@ function renderBomTablePreview(items) {
     ? `Plumbing — Water Treatment System (${_lastInputs?.demand_lpd || ''}L/day, ${_lastInputs?.raw_source || ''} source, turbidity ${_lastInputs?.turbidity_ntu || ''} NTU, iron ${_lastInputs?.iron_mg || ''} mg/L, ${(_lastResults?.train_steps || []).length}-stage treatment train, storage ${_lastResults?.storage_tank_L || ''}L)`
     : isSTP
     ? `Plumbing — Wastewater Treatment Plant / STP (${_lastResults?.flow_m3_day || ''} m³/day, BOD ${_lastInputs?.bod_influent || ''}→${_lastInputs?.bod_effluent || ''} mg/L, aeration ${_lastResults?.aeration_vol_m3 || ''} m³, blower ${_lastResults?.blower_recommended_m3_min || ''} m³/min @ ${_lastResults?.blower_kw || ''} kW, sludge ${_lastResults?.sludge_kg_day || ''} kg DS/day, ${_lastResults?.denr_status || ''})`
+    : isSD
+    ? `Plumbing — Storm Drain / Stormwater (${_lastResults?.total_area_ha || ''}ha catchment, C=${_lastResults?.composite_c || ''}, ${_lastInputs?.return_period || ''}yr storm, Q=${_lastResults?.design_flow_lps || ''} L/s, ${_lastResults?.d_selected_mm || ''}mm ${_lastInputs?.pipe_material || ''} pipe @ ${_lastInputs?.slope_pct || ''}% slope, V=${_lastResults?.full_pipe_vel_ms || ''} m/s — ${_lastResults?.velocity_check || ''})`
     : isCAir
     ? `Mechanical — Compressed Air System (${_lastResults?.recommended_hp || ''} hp, ${_lastResults?.recommended_cfm || ''} CFM @ ${_lastResults?.inputs_used?.working_pressure || _lastInputs?.working_pressure || ''} bar)`
     : isPipe
@@ -11151,6 +11154,8 @@ function renderBomTablePreview(items) {
             ? `Quantities are based on the Water Treatment System design calculation result (Multi-Stage Treatment Train Method, PNS 1998 / DOH / WHO / AWWA). The treatment train is designed for ${_lastInputs?.demand_lpd || ''}L/day demand from a ${_lastInputs?.raw_source || ''} source (inlet turbidity ${_lastInputs?.turbidity_ntu || ''} NTU, iron ${_lastInputs?.iron_mg || ''} mg/L). Filter vessel(s) are sized at AWWA filtration rates (multimedia: 10 m/hr, greensand: 8 m/hr). ${_lastResults?.needs_disinfection ? `Disinfection method: ${_lastResults?.disinfection_method || 'Chlorination'} per WHO/DOH chlorination guidelines (CT ≥ 30 mg·min/L for 3-log Giardia inactivation). ` : ''}All equipment in contact with potable water shall be NSF/ANSI 61 certified. Chemical dosing equipment shall carry manufacturer's water treatment grade certification. Contractor shall submit equipment data sheets, NSF/ANSI 61 certificates, and media specifications for Engineer's approval prior to procurement. All quantities are indicative — verify with as-built site survey before ordering.`
             : isSTP
             ? `Quantities are based on the Wastewater Treatment Plant (STP) design calculation result (Activated Sludge Method, Metcalf & Eddy). The STP is designed for ${_lastResults?.flow_m3_day || ''} m³/day average daily flow, BOD reduction from ${_lastInputs?.bod_influent || ''} mg/L to ${_lastInputs?.bod_effluent || ''} mg/L (${_lastResults?.bod_removal_pct || ''}% removal), with an aeration tank volume of ${_lastResults?.aeration_vol_m3 || ''} m³ (HRT ${_lastResults?.aeration_hrt_hr || ''} hr). Sludge production is ${_lastResults?.sludge_kg_day || ''} kg dry solids/day — sludge disposal must be by a DOH/DENR-licensed hauler. DENR DAO 2016-08 effluent compliance status: ${_lastResults?.denr_status || ''}. Contractor shall obtain DENR Environmental Compliance Certificate (ECC) and DOH Sanitation Permit before construction. All mechanical equipment shall be PSME Code compliant. Submit equipment data sheets for Engineer's approval prior to procurement.`
+            : isSD
+            ? `Quantities are based on the Storm Drain / Stormwater design calculation result (Rational Method, DPWH Drainage Design Guidelines). The drain is sized for the ${_lastInputs?.return_period || ''}yr design storm — design flow ${_lastResults?.design_flow_lps || ''} L/s from ${_lastResults?.total_area_ha || ''} ha catchment (C=${_lastResults?.composite_c || ''}). Selected pipe: ${_lastResults?.d_selected_mm || ''} mm ${_lastInputs?.pipe_material || ''} at ${_lastInputs?.slope_pct || ''}% slope, full-pipe velocity ${_lastResults?.full_pipe_vel_ms || ''} m/s (${_lastResults?.velocity_check || ''}). NOTE: Pipe lengths, catch basin quantities, and manhole counts are indicative — Contractor shall quantify all items from final layout and longitudinal section drawings before procurement. CCTV inspection of all completed pipe runs is required before final acceptance per DPWH specifications.`
             : isCAir
             ? `Quantities are based on the Compressed Air System design calculation result. Engineer shall verify all quantities on-site before procurement. All equipment and piping shall conform to applicable Philippine and international standards (PSME, ISO 8573-1, CAGI, ASME Section VIII for pressure vessels, PEC 2017). CAGI performance data sheets and pressure vessel certificates shall be submitted for Engineer's approval prior to procurement.`
             : isPipe
@@ -11228,6 +11233,7 @@ function renderSowDocPreview(sections) {
   const isWaterSoftS  = _calcType === 'Water Softener Sizing';
   const isWTS         = _calcType === 'Water Treatment System';
   const isSTPS        = _calcType === 'Wastewater Treatment (STP)';
+  const isSDS         = _calcType === 'Storm Drain / Stormwater';
   const isLoadEst = _calcType === 'Load Estimation';
   const isVD      = _calcType === 'Voltage Drop';
   const isWire    = _calcType === 'Wire Sizing';
@@ -11242,7 +11248,7 @@ function renderSowDocPreview(sections) {
   const isChillerS   = _calcType === 'Chiller System — Air Cooled';
   const isChillerWCS = _calcType === 'Chiller System — Water Cooled';
   const isAHUS       = _calcType === 'AHU Sizing';
-  const calcRef = `${isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const calcRef = `${isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
@@ -11289,6 +11295,8 @@ function renderSowDocPreview(sections) {
     ? `Water Treatment System — ${_lastInputs?.raw_source || ''} source, ${_lastInputs?.demand_lpd || ''}L/day, Turbidity ${_lastInputs?.turbidity_ntu || ''} NTU → ${_lastResults?.projected_turbidity_out || ''}NTU out, Iron ${_lastInputs?.iron_mg || ''} → ${_lastResults?.projected_iron_out || ''} mg/L out, ${(_lastResults?.train_steps || []).length}-stage treatment train, Storage ${_lastResults?.storage_tank_L || ''}L`
     : isSTPS
     ? `Wastewater Treatment Plant (STP) — ${_lastResults?.flow_m3_day || ''} m³/day ADF, BOD ${_lastInputs?.bod_influent || ''}→${_lastInputs?.bod_effluent || ''} mg/L (${_lastResults?.bod_removal_pct || ''}% removal), Aeration Tank ${_lastResults?.aeration_vol_m3 || ''} m³ (HRT ${_lastResults?.aeration_hrt_hr || ''} hr), Blower ${_lastResults?.blower_recommended_m3_min || ''} m³/min @ ${_lastResults?.blower_kw || ''} kW, Sludge ${_lastResults?.sludge_kg_day || ''} kg DS/day, DENR: ${_lastResults?.denr_status || ''}`
+    : isSDS
+    ? `Storm Drain / Stormwater — ${_lastResults?.total_area_ha || ''}ha catchment, C=${_lastResults?.composite_c || ''}, ${_lastInputs?.return_period || ''}yr storm, Q=${_lastResults?.design_flow_lps || ''} L/s, ${_lastResults?.d_selected_mm || ''}mm ${_lastInputs?.pipe_material || ''} @ ${_lastInputs?.slope_pct || ''}% slope, V=${_lastResults?.full_pipe_vel_ms || ''} m/s — ${_lastResults?.velocity_check || ''}`
     : isCAir
     ? `Compressed Air System — ${_lastResults?.recommended_hp || ''} hp Rotary Screw Compressor, ${_lastResults?.recommended_cfm || ''} CFM FAD @ ${_lastResults?.inputs_used?.working_pressure || _lastInputs?.working_pressure || ''} bar, ${_lastResults?.recommended_receiver_L || ''}L Receiver, ${_lastResults?.recommended_pipe_mm || ''}mm Distribution Pipe`
     : isPipe
