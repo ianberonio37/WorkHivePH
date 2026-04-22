@@ -3023,6 +3023,84 @@ Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
   };
 }
 
+// ─── HVAC: Refrigerant Pipe Sizing BOM + SOW Agent ───────────────────────────
+
+async function refrigPipeSizingBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project    = inputs.project_name  || "Refrigerant Pipe Sizing Project";
+  const refrig     = String(inputs.refrigerant || "R-410A");
+  const capKw      = Number(inputs.capacity_kw || 0);
+  const app        = String(inputs.application || "AC");
+  const condTemp   = Number(inputs.cond_temp_c || 40);
+  const evapTemp   = results.evap_temp_c ?? "";
+  const massFlow   = results.mass_flow_kgs ?? "";
+  const lineArr    = (results.lines as Array<{name:string;line_type:string;selected_od_mm:number;selected_id_mm:number;equiv_length_m:number;velocity_ms:number;vel_check:string}>) || [];
+
+  const linesSummary = lineArr.map(l =>
+    `${l.name} (${l.line_type}): ${l.selected_od_mm}mm OD ACR copper, L=${l.equiv_length_m}m, v=${l.velocity_ms}m/s ${l.vel_check}`
+  ).join("; ");
+
+  const totalSucLenM  = lineArr.filter(l => l.line_type.includes("Suction")).reduce((s, l) => s + l.equiv_length_m, 0);
+  const totalDisLenM  = lineArr.filter(l => l.line_type === "Discharge").reduce((s, l) => s + l.equiv_length_m, 0);
+  const totalLiqLenM  = lineArr.filter(l => l.line_type === "Liquid").reduce((s, l) => s + l.equiv_length_m, 0);
+  const totalLenM     = lineArr.reduce((s, l) => s + l.equiv_length_m, 0);
+
+  const systemDesc = `${refrig} refrigerant, ${capKw}kW ${app} service, evap ${evapTemp}°C / cond ${condTemp}°C, ṁ=${massFlow}kg/s. Lines: ${linesSummary}`;
+
+  const prompt = `You are a senior Refrigeration/HVAC engineer in the Philippines preparing a Bill of Materials (BOM) and Scope of Works (SOW) for refrigerant pipe installation per ASTM B280 and ASHRAE 2022 Refrigeration Handbook Chapter 1.
+
+System: ${systemDesc}
+Project: ${project}
+Total suction line length: ${totalSucLenM} m
+Total discharge line length: ${totalDisLenM} m
+Total liquid line length: ${totalLiqLenM} m
+Total pipe length: ${totalLenM} m
+
+Generate a JSON object with exactly two keys:
+
+"bom_items": array of 12 objects, each with:
+  { "description": string, "specification": string, "unit": string, "quantity": number, "remarks": string }
+
+BOM items must cover:
+1. Suction line ACR copper tube (ASTM B280) — sized per design, dehydrated and capped — qty: ${Math.ceil(totalSucLenM * 1.10)} m (10% wastage)
+2. Discharge line ACR copper tube (ASTM B280) — sized per design — qty: ${Math.ceil(totalDisLenM * 1.10)} m
+3. Liquid line ACR copper tube (ASTM B280) — sized per design — qty: ${Math.ceil(totalLiqLenM * 1.10)} m
+4. Suction line insulation — closed-cell elastomeric foam, 19mm thick, ASTM C534, pre-slit with self-adhesive seam — qty: ${Math.ceil(totalSucLenM * 1.10)} m
+5. Discharge and liquid line insulation — closed-cell elastomeric foam, 9mm thick — qty: ${Math.ceil((totalDisLenM + totalLiqLenM) * 1.10)} m
+6. Copper fittings and elbows allowance (solder/braze type, ACR grade) — 20% extra of straight run — qty: 1 lot
+7. Nitrogen (OFN) for purge brazing and pressure testing — 99.999% dry nitrogen — qty: 3 cylinders
+8. Silver brazing alloy (15% Ag) and flux — for all brazed joints — qty: 1 lot
+9. Pipe hangers and supports (insulated pipe saddles, galvanized steel brackets, threaded rod) — 1.5m spacing — qty: ${Math.ceil(totalLenM / 1.5)} sets
+10. Refrigerant charge, ${refrig} — per manufacturer specification adjusted for actual line set length (${capKw}kW system) — qty: 1 lot
+11. Filter drier (replaceable core, bidirectional) — liquid line, rated for ${refrig} — qty: ${lineArr.filter(l=>l.line_type==="Liquid").length || 1} pc
+12. Sight glass with moisture indicator — liquid line, rated for ${refrig} — qty: ${lineArr.filter(l=>l.line_type==="Liquid").length || 1} pc
+
+"sow_sections": array of 6 objects, each with:
+  { "section_no": string, "title": string, "items": string[] }
+
+SOW sections:
+- "1.0" Scope of Works (supply, install, and commission ${refrig} refrigerant line sets for ${capKw}kW ${app} system per ASTM B280 and ASHRAE Refrigeration Handbook Ch.1)
+- "2.0" Design Standards and References (ASTM B280 ACR copper tube; ASHRAE 2022 Refrigeration Handbook Chapter 1 velocity method; ASHRAE 90.1 insulation; PEC 2017 Article 4 branch circuit protection; PSME Code)
+- "3.0" Materials and Equipment (ASTM B280 ACR copper must be dehydrated and capped; ${refrig} refrigerant must have safety data sheet; insulation spec ASTM C534; filter drier and sight glass specs)
+- "4.0" Installation Requirements (OFN nitrogen purge brazing for all joints; oil traps at suction riser bases; suction line pitch toward compressor; insulate suction lines before pressure test; no bare copper in wet/outdoor areas)
+- "5.0" Testing and Commissioning (pressure test at 1.1× MAWP with dry nitrogen — 24-hour hold minimum; evacuation to ≤500 microns with vacuum pump before charging; refrigerant charge by weight per manufacturer; record charge weight on equipment tag)
+- "6.0" Submittals and Documentation (ASTM B280 material certificate; refrigerant SDS; pressure test chart and evacuation log; refrigerant weight-in record; as-built drawings showing all joints, routing, and insulation; O&M manual)
+
+Each section items array must contain 3–5 bullet strings in professional Philippine engineering contractor style. Reference specific standards and the system parameters (${refrig}, ${capKw}kW, ASTM B280).
+
+Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
+
+  const raw    = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -3123,6 +3201,8 @@ serve(async (req) => {
       result = await coolingTowerBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "HVAC Systems" && calc_type === "Duct Sizing (Equal Friction)") {
       result = await ductSizingBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "HVAC Systems" && calc_type === "Refrigerant Pipe Sizing") {
+      result = await refrigPipeSizingBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),

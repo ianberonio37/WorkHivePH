@@ -1714,6 +1714,16 @@ Respond in JSON format only:
       const segs   = Array.isArray(rec.segments) ? rec.segments as Array<{vel_check: string}> : [];
       const velWarn = segs.some(s => s.vel_check !== 'OK');
       recommendations = `Provide ${shape} ${mat} ductwork sized at ${fr} Pa/m friction rate per ASHRAE 2021 Fundamentals Chapter 21 Equal Friction Method. Total straight-run ΔP: ${dpPa} Pa; required fan static pressure including 50% SMACNA fittings allowance: ${fanPa} Pa. Size supply fan at maximum segment flow ${flow} L/s; specify a ${hp} HP (${kw} kW) centrifugal fan motor per the standard size schedule. ${velWarn ? 'WARNING: one or more duct segments exceed the ASHRAE 62.1 / SMACNA velocity limit — review those segments and increase duct size or reduce airflow before finalising.' : 'All segments are within ASHRAE 62.1 / SMACNA velocity limits.'} Add AHU internal resistance (cooling coil, filters: typically 200–500 Pa) and terminal device resistance (50–150 Pa each) to the fan static pressure when specifying the fan. A Testing, Adjusting, and Balancing (TAB) report confirming design airflows at all diffusers within ±10% is mandatory before building acceptance. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
+    } else if (calcType === "Refrigerant Pipe Sizing") {
+      const refrig   = (inputs.refrigerant as string) || 'R-410A';
+      const capKw    = rec.capacity_kw  ?? (inputs.capacity_kw ?? '');
+      const app      = (inputs.application as string) || 'AC';
+      const evapT    = rec.evap_temp_c  ?? '';
+      const condT    = rec.cond_temp_c  ?? (inputs.cond_temp_c ?? 40);
+      const lineArr  = Array.isArray(rec.lines) ? rec.lines as Array<{name:string;line_type:string;selected_od_mm:number;velocity_ms:number;vel_check:string;delta_t_k:number}> : [];
+      const anyWarn  = lineArr.some(l => l.vel_check !== 'OK');
+      const lineSummary = lineArr.map(l => `${l.name} (${l.line_type}): ${l.selected_od_mm}mm OD, v=${l.velocity_ms}m/s ${l.vel_check}, ΔT=${l.delta_t_k}K`).join('; ');
+      recommendations = `Procure ASTM B280 ACR copper tubing for all ${refrig} refrigerant line sets — capacity ${capKw}kW, ${app} service, evaporating ${evapT}°C / condensing ${condT}°C. Line schedule: ${lineSummary}. ${anyWarn ? 'WARNING: one or more lines have velocity outside the ASHRAE recommended range — re-size before procurement.' : 'All lines are within ASHRAE velocity limits.'} Insulate all suction lines with minimum 19mm closed-cell elastomeric foam (ASTM C534) before pressure testing. Install oil traps at all suction vertical riser bases. All brazed joints shall use OFN (nitrogen purge brazing). Pressure test at 1.1× MAWP with dry nitrogen; evacuate to ≤500 microns before refrigerant charge. Refrigerant charge by weight per manufacturer specification adjusted for actual line length. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
     } else if (calcType === "Bolt Torque & Preload") {
       const torque = rec.torque_Nm ?? '';
       const size   = (inputs.bolt_size as string) || '';
@@ -4585,6 +4595,228 @@ function calcDuctSizing(inputs: Record<string, unknown>): Record<string, unknown
   };
 }
 
+// ─── Refrigerant Pipe Sizing — ASHRAE Velocity Method / ASTM B280 ────────────
+
+// ASTM B280 ACR copper tube standard sizes: OD mm, wall mm, ID mm
+const ACR_TUBES = [
+  { od_mm:  6.35, wall_mm: 0.813, id_mm:  4.724 },
+  { od_mm:  9.52, wall_mm: 0.813, id_mm:  7.894 },
+  { od_mm: 12.70, wall_mm: 0.813, id_mm: 11.074 },
+  { od_mm: 15.88, wall_mm: 0.889, id_mm: 14.102 },
+  { od_mm: 19.05, wall_mm: 0.889, id_mm: 17.272 },
+  { od_mm: 22.22, wall_mm: 1.016, id_mm: 20.188 },
+  { od_mm: 28.58, wall_mm: 1.016, id_mm: 26.548 },
+  { od_mm: 34.93, wall_mm: 1.016, id_mm: 32.898 },
+  { od_mm: 41.28, wall_mm: 1.143, id_mm: 38.994 },
+  { od_mm: 53.98, wall_mm: 1.270, id_mm: 51.440 },
+  { od_mm: 66.68, wall_mm: 1.270, id_mm: 64.140 },
+  { od_mm: 79.38, wall_mm: 1.524, id_mm: 76.332 },
+];
+
+// Refrigerant properties — pre-computed from ASHRAE/NIST at Philippine operating conditions
+// Key: [refrigerant][evap_temp_c] → suction props | [refrigerant][cond_temp_c] → cond props
+type EvapProps = { h_fg: number; rho_suc: number; mu_suc: number; dpdt_suc: number; };
+type CondProps = { rho_dis: number; rho_liq: number; mu_dis: number; dpdt_dis: number; };
+
+const REFRIG_EVAP: Record<string, Record<string, EvapProps>> = {
+  "R-410A": {
+    "5":   { h_fg: 197, rho_suc: 27.7, mu_suc: 1.20e-5, dpdt_suc: 44 },
+    "-10": { h_fg: 204, rho_suc: 19.5, mu_suc: 1.15e-5, dpdt_suc: 36 },
+    "-35": { h_fg: 213, rho_suc:  8.9, mu_suc: 1.08e-5, dpdt_suc: 22 },
+  },
+  "R-32": {
+    "5":   { h_fg: 352, rho_suc: 23.7, mu_suc: 1.20e-5, dpdt_suc: 49 },
+    "-10": { h_fg: 364, rho_suc: 17.0, mu_suc: 1.15e-5, dpdt_suc: 39 },
+    "-35": { h_fg: 379, rho_suc:  8.0, mu_suc: 1.08e-5, dpdt_suc: 25 },
+  },
+  "R-22": {
+    "5":   { h_fg: 204, rho_suc: 18.0, mu_suc: 1.18e-5, dpdt_suc: 29 },
+    "-10": { h_fg: 210, rho_suc: 13.7, mu_suc: 1.13e-5, dpdt_suc: 23 },
+    "-35": { h_fg: 217, rho_suc:  5.7, mu_suc: 1.07e-5, dpdt_suc: 12 },
+  },
+  "R-407C": {
+    "5":   { h_fg: 202, rho_suc: 22.5, mu_suc: 1.20e-5, dpdt_suc: 38 },
+    "-10": { h_fg: 209, rho_suc: 15.0, mu_suc: 1.14e-5, dpdt_suc: 30 },
+    "-35": { h_fg: 218, rho_suc:  7.0, mu_suc: 1.07e-5, dpdt_suc: 18 },
+  },
+  "R-134a": {
+    "5":   { h_fg: 194, rho_suc: 17.0, mu_suc: 1.12e-5, dpdt_suc: 17 },
+    "-10": { h_fg: 197, rho_suc:  9.8, mu_suc: 1.07e-5, dpdt_suc: 12 },
+    "-35": { h_fg: 200, rho_suc:  3.2, mu_suc: 0.98e-5, dpdt_suc:  5 },
+  },
+};
+
+const REFRIG_COND: Record<string, Record<number, CondProps>> = {
+  "R-410A": {
+    40: { rho_dis: 100, rho_liq: 1055, mu_dis: 1.60e-5, dpdt_dis: 65 },
+    45: { rho_dis: 117, rho_liq: 1015, mu_dis: 1.65e-5, dpdt_dis: 73 },
+    50: { rho_dis: 137, rho_liq:  975, mu_dis: 1.70e-5, dpdt_dis: 82 },
+  },
+  "R-32": {
+    40: { rho_dis: 102, rho_liq:  990, mu_dis: 1.60e-5, dpdt_dis: 70 },
+    45: { rho_dis: 121, rho_liq:  950, mu_dis: 1.65e-5, dpdt_dis: 79 },
+    50: { rho_dis: 144, rho_liq:  906, mu_dis: 1.70e-5, dpdt_dis: 88 },
+  },
+  "R-22": {
+    40: { rho_dis:  77, rho_liq: 1125, mu_dis: 1.50e-5, dpdt_dis: 44 },
+    45: { rho_dis:  90, rho_liq: 1090, mu_dis: 1.55e-5, dpdt_dis: 50 },
+    50: { rho_dis: 104, rho_liq: 1052, mu_dis: 1.60e-5, dpdt_dis: 56 },
+  },
+  "R-407C": {
+    40: { rho_dis:  87, rho_liq: 1050, mu_dis: 1.55e-5, dpdt_dis: 55 },
+    45: { rho_dis: 103, rho_liq: 1010, mu_dis: 1.60e-5, dpdt_dis: 63 },
+    50: { rho_dis: 122, rho_liq:  968, mu_dis: 1.65e-5, dpdt_dis: 71 },
+  },
+  "R-134a": {
+    40: { rho_dis:  57, rho_liq: 1147, mu_dis: 1.30e-5, dpdt_dis: 29 },
+    45: { rho_dis:  67, rho_liq: 1113, mu_dis: 1.35e-5, dpdt_dis: 33 },
+    50: { rho_dis:  80, rho_liq: 1077, mu_dis: 1.40e-5, dpdt_dis: 38 },
+  },
+};
+
+// Application → evaporating temperature mapping (Philippine practice)
+const APP_EVAP_TEMP: Record<string, number> = {
+  "AC":                      5,
+  "Low-Temp Refrigeration": -10,
+  "Freezer":                -35,
+};
+
+// Velocity limits [min, max] m/s by line type
+const VEL_LIMITS: Record<string, { min: number; max: number }> = {
+  "Suction — Horizontal":      { min: 4,   max: 10  },
+  "Suction — Vertical Riser":  { min: 6,   max: 12  },
+  "Discharge":                 { min: 5,   max: 15  },
+  "Liquid":                    { min: 0.5, max: 1.5  },
+};
+
+function calcRefrigPipeSizing(inputs: Record<string, unknown>): Record<string, unknown> {
+  const r2  = (v: number) => Math.round(v * 100) / 100;
+  const r3  = (v: number) => Math.round(v * 1000) / 1000;
+
+  const refrigerant  = String(inputs.refrigerant  || "R-410A");
+  const capacity_kw  = Number(inputs.capacity_kw  || 10);
+  const application  = String(inputs.application  || "AC");
+  const cond_temp_c  = Number(inputs.cond_temp_c  || 40);
+  const lines        = (inputs.lines as Array<{ name: string; line_type: string; equiv_length_m: number }>) || [];
+
+  // Clamp cond_temp to nearest table key
+  const condKeys = [40, 45, 50];
+  const condKey  = condKeys.reduce((a, b) => Math.abs(b - cond_temp_c) < Math.abs(a - cond_temp_c) ? b : a);
+  const evapTemp = APP_EVAP_TEMP[application] ?? 5;
+  const evapKey  = [-35, -10, 5].reduce((a, b) => Math.abs(b - evapTemp) < Math.abs(a - evapTemp) ? b : a);
+
+  const evapProps = REFRIG_EVAP[refrigerant]?.[String(evapKey)];
+  const condProps = REFRIG_COND[refrigerant]?.[condKey];
+
+  if (!evapProps || !condProps) {
+    return { error: `Property data not available for ${refrigerant} at evap ${evapKey}°C / cond ${condKey}°C` };
+  }
+
+  const h_fg     = evapProps.h_fg;       // kJ/kg
+  const mass_flow = capacity_kw / h_fg;  // kg/s  (ṁ = Q_kW / h_fg)
+  const eps_m    = 1.5e-9;               // copper roughness (m) — essentially smooth
+
+  const lineResults = lines.map(line => {
+    const lineType   = line.line_type || "Suction — Horizontal";
+    const lengthM    = Number(line.equiv_length_m) || 1;
+
+    // Select density, viscosity, and dpdt based on line type
+    let rho: number, mu: number, dpdt_kpa_k: number;
+    if (lineType === "Discharge") {
+      rho        = condProps.rho_dis;
+      mu         = condProps.mu_dis;
+      dpdt_kpa_k = condProps.dpdt_dis;
+    } else if (lineType === "Liquid") {
+      rho        = condProps.rho_liq;
+      mu         = condProps.mu_dis;  // liquid viscosity approx
+      dpdt_kpa_k = condProps.dpdt_dis;
+    } else {
+      // Suction (Horizontal or Vertical Riser)
+      rho        = evapProps.rho_suc;
+      mu         = evapProps.mu_suc;
+      dpdt_kpa_k = evapProps.dpdt_suc;
+    }
+
+    const nu = mu / rho;  // kinematic viscosity (m²/s)
+    const qv = mass_flow / rho; // volume flow (m³/s)
+
+    const limits = VEL_LIMITS[lineType] || { min: 1, max: 10 };
+
+    // Select smallest ASTM B280 tube where velocity is within limits
+    let selected = ACR_TUBES[ACR_TUBES.length - 1]; // fallback to largest
+    for (const tube of ACR_TUBES) {
+      const id_m = tube.id_mm / 1000;
+      const area = Math.PI * (id_m / 2) ** 2;
+      const v    = qv / area;
+      if (v >= limits.min && v <= limits.max) {
+        selected = tube;
+        break;
+      }
+    }
+
+    const id_m    = selected.id_mm / 1000;
+    const area    = Math.PI * (id_m / 2) ** 2;
+    const velocity = qv / area;
+
+    // Darcy-Weisbach friction factor
+    const re = velocity * id_m / nu;
+    let f: number;
+    if (re < 2300) {
+      f = 64 / re; // laminar
+    } else if (re < 100000) {
+      f = 0.3164 / Math.pow(re, 0.25); // Blasius
+    } else {
+      // Swamee-Jain (copper — near smooth, eps/D ≈ 0)
+      const log_arg = eps_m / (3.7 * id_m) + 5.74 / Math.pow(re, 0.9);
+      f = 0.25 / Math.pow(Math.log10(log_arg), 2);
+    }
+
+    const dp_pa_m   = f * rho * velocity ** 2 / (2 * id_m);   // Pa/m
+    const dp_total  = dp_pa_m * lengthM;                        // Pa total
+    const delta_t_k = dp_total / (dpdt_kpa_k * 1000);          // K equiv
+
+    // Velocity check
+    let vel_check: string;
+    if (velocity > limits.max) {
+      vel_check = "HIGH";
+    } else if (velocity < limits.min) {
+      vel_check = lineType.includes("Vertical") ? "LOW (oil return risk)" : "LOW";
+    } else {
+      vel_check = "OK";
+    }
+
+    return {
+      name:            line.name,
+      line_type:       lineType,
+      equiv_length_m:  r2(lengthM),
+      selected_od_mm:  r2(selected.od_mm),
+      selected_id_mm:  r2(selected.id_mm),
+      velocity_ms:     r2(velocity),
+      vel_check,
+      re:              Math.round(re),
+      f:               r3(f),
+      dp_pa_m:         r2(dp_pa_m),
+      dp_total_pa:     Math.round(dp_total),
+      delta_t_k:       r3(delta_t_k),
+      rho_used:        r2(rho),
+    };
+  });
+
+  const anyWarn = lineResults.some(l => l.vel_check !== "OK");
+
+  return {
+    refrigerant,
+    capacity_kw:    r2(capacity_kw),
+    application,
+    evap_temp_c:    evapKey,
+    cond_temp_c:    condKey,
+    h_fg_kj_kg:     r2(h_fg),
+    mass_flow_kgs:  r3(mass_flow),
+    lines:          lineResults,
+    any_velocity_warning: anyWarn,
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -4682,6 +4914,8 @@ serve(async (req) => {
       results = calcUPS(inputs);
     } else if (calc_type === "Duct Sizing (Equal Friction)") {
       results = calcDuctSizing(inputs);
+    } else if (calc_type === "Refrigerant Pipe Sizing") {
+      results = calcRefrigPipeSizing(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

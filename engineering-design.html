@@ -721,6 +721,7 @@ const CALC_TYPES = {
     { id: 'AHU Sizing',                    icon: '🌬️', desc: 'Supply airflow (CMH/CFM), cooling coil (kW/TR), CHW flow, fan HP — ASHRAE 62.1 / 90.1', available: true },
     { id: 'Cooling Tower Sizing',          icon: '🌊', desc: 'Heat rejection, circ water flow, evaporation/makeup water, fan motor — CTI Std-201 / ASHRAE 90.1', available: true },
     { id: 'Duct Sizing (Equal Friction)',  icon: '🌀', desc: 'Circular / rectangular duct sizing, velocity check, segment pressure drop, fan static pressure, fan motor HP — ASHRAE Ch.21 / SMACNA / PSME', available: true },
+    { id: 'Refrigerant Pipe Sizing',       icon: '🧊', desc: 'ACR copper tube sizing for suction, discharge, and liquid lines — velocity check, pressure drop, ΔT equivalent — R-410A/R-32/R-22/R-407C/R-134a — ASHRAE Refrigeration / ASTM B280 / PSME', available: true },
   ],
 };
 
@@ -2472,6 +2473,39 @@ const GUIDES = {
       'PRC-licensed Mechanical Engineer sign-off is required for HVAC duct system designs submitted for LGU Building Permit. SMACNA duct construction class (Pressure Class ½, 1, or 2 inch w.g.) must be specified on drawings based on operating static pressure.',
       'Flexible duct connections to diffusers shall not exceed 1.5 m per SMACNA. Do NOT use this tool to size flexible duct runs — flex roughness is 15–20× higher than galvanized steel.',
       'Total system static pressure for fan selection = duct ΔP (from this tool) + AHU internal components (cooling coil, filters, heating coil: typically 200–500 Pa) + terminal device pressure drop (50–150 Pa). Always get AHU ESP from the equipment manufacturer datasheet.',
+    ],
+  },
+
+  'Refrigerant Pipe Sizing': {
+    title: 'Refrigerant Pipe Sizing — Velocity Method (ASHRAE Refrigeration Handbook / ASTM B280)',
+    subtitle: 'Sizes ACR copper tubing for suction, discharge, and liquid refrigerant lines using the ASHRAE velocity method. Reports velocity, pressure drop (Pa/kPa), and ΔT equivalent (°C) for each line. Supports R-410A, R-32, R-22, R-407C, and R-134a at Philippine operating conditions. Aligned with ASHRAE 2022 Refrigeration Handbook Ch.1, ASHRAE Standard 15, ASTM B280 (ACR copper tube), ASME B31.5, and PSME Code.',
+    standards: [
+      'ASHRAE 2022 Refrigeration Handbook — Chapter 1 (Halocarbon Refrigeration Systems — Pipe Sizing)',
+      'ASHRAE Standard 15 — Safety Standard for Refrigeration Systems',
+      'ASTM B280 — Standard Specification for Seamless Copper Tube for Air Conditioning and Refrigeration Field Service',
+      'ASME B31.5 — Refrigeration Piping and Heat Transfer Components',
+      'PSME Code — Philippine Society of Mechanical Engineers (Refrigeration and Air Conditioning)',
+    ],
+    formulas: [
+      { label: 'Mass Flow Rate', eq: 'ṁ = Q_kW / h_fg   [kg/s]   h_fg = latent heat of refrigerant at evap. temp (kJ/kg)' },
+      { label: 'Volume Flow per Line', eq: 'Q_v = ṁ / ρ   [m³/s]   ρ_suction = sat. vapour + 10°C superheat; ρ_discharge = sat. vapour at T_cond; ρ_liquid = sat. liquid at T_cond' },
+      { label: 'Pipe Velocity', eq: 'v = Q_v / A   [m/s]   A = π × ID² / 4   (ACR tube internal cross-section)' },
+      { label: 'Pressure Drop (Darcy-Weisbach)', eq: 'ΔP = f × ρ × v² × L / (2 × D)   [Pa]   f from Blasius (Re ≤ 100,000) or Swamee-Jain (Re > 100,000)' },
+      { label: 'ΔT Equivalent', eq: 'ΔT_eq = ΔP / (dP/dT)_sat   [°C]   (dP/dT)_sat is refrigerant saturation slope at operating condition)' },
+    ],
+    fields: [
+      { name: 'Refrigerant', tip: 'R-410A: current PH standard for splits. R-32: newer, lower GWP (675 vs 2088). R-22: legacy, being phased out. R-407C: R-22 drop-in retrofit. R-134a: chillers and medium-temp.' },
+      { name: 'System Capacity (kW)', tip: 'Total system cooling or refrigerating capacity. 1 TR = 3.517 kW. Common: 1-HP split ≈ 2.5 kW, 5-HP ≈ 12 kW.' },
+      { name: 'Application', tip: 'Sets evaporating temperature: Air Conditioning = +5°C (comfort cooling), Low-Temp Refrigeration = −10°C (food), Freezer = −35°C (blast/storage).' },
+      { name: 'Condensing Temperature (°C)', tip: '40°C: cool night / 45°C: typical Philippine design day (35°C ambient) / 50°C: hot season or poorly ventilated plant room.' },
+      { name: 'Line Schedule', tip: 'Add each refrigerant line with type and equivalent length. Equivalent length = straight pipe + fitting equivalents. Use 1.5× straight run as a preliminary estimate or refer to ASHRAE fitting tables.' },
+    ],
+    notes: [
+      'Suction risers (vertical, refrigerant flowing upward) require minimum 6 m/s for oil return against gravity. Where part-load operation reduces velocity below 4 m/s, install a double-riser with trap.',
+      'Liquid line pressure drop must not exceed the available subcooling at the condenser. Flash gas before the TXV causes loss of capacity and hunting. Ensure ΔP_liquid < (T_subcooling × dP/dT_liq).',
+      'R-22 is being phased out per the Montreal Protocol and Philippine Clean Air Act (RA 8749, DENR DAO). R-410A and R-32 are the DENR-compliant replacements for new systems.',
+      'All refrigerant piping joints must be brazed (silver-copper filler per ASME B31.5) — never soldered. Brazing must be performed under nitrogen purge to prevent copper oxide scale. Pressure test at 1.1× design pressure with dry nitrogen before evacuation.',
+      'Equivalent length includes straight pipe + all fitting equivalents (elbows, tees, service valves, solenoid valves). A common rule of thumb is 1.5× straight pipe length for systems with a moderate number of fittings.',
     ],
   },
 };
@@ -4607,6 +4641,73 @@ function renderInputForm(calcType) {
     addDuctSegRow('Branch-1 (Zone A)', 400, 12, 'Supply Branch');
     addDuctSegRow('Branch-2 (Zone B)', 300, 8, 'Supply Branch');
     addDuctSegRow('Return Main', 1000, 18, 'Return Main');
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+    return;
+  }
+
+  if (calcType === 'Refrigerant Pipe Sizing') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Split AC System — 3rd Floor Office" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Refrigerant</div>
+          <div class="toggle-group" id="tg-refrig" style="flex-wrap:wrap;">
+            <button class="toggle-btn active" data-val="R-410A" onclick="toggle('tg-refrig','R-410A')">R-410A</button>
+            <button class="toggle-btn" data-val="R-32"   onclick="toggle('tg-refrig','R-32')">R-32</button>
+            <button class="toggle-btn" data-val="R-22"   onclick="toggle('tg-refrig','R-22')">R-22</button>
+            <button class="toggle-btn" data-val="R-407C" onclick="toggle('tg-refrig','R-407C')">R-407C</button>
+            <button class="toggle-btn" data-val="R-134a" onclick="toggle('tg-refrig','R-134a')">R-134a</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">System Capacity <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(kW)</span></div>
+          <div class="input-group">
+            <input id="f-capacity" class="wh-input" type="number" value="10" min="0.5" step="0.5" />
+            <span class="input-unit">kW</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Application</div>
+          <div class="toggle-group" id="tg-application" style="flex-wrap:wrap;">
+            <button class="toggle-btn active" data-val="Air Conditioning"       onclick="toggle('tg-application','Air Conditioning')">AC (+5°C)</button>
+            <button class="toggle-btn" data-val="Low-Temp Refrigeration"        onclick="toggle('tg-application','Low-Temp Refrigeration')">Low-Temp (−10°C)</button>
+            <button class="toggle-btn" data-val="Freezer"                       onclick="toggle('tg-application','Freezer')">Freezer (−35°C)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Condensing Temperature</div>
+          <div class="toggle-group" id="tg-cond-temp">
+            <button class="toggle-btn" data-val="40" onclick="toggle('tg-cond-temp','40')">40°C</button>
+            <button class="toggle-btn active" data-val="45" onclick="toggle('tg-cond-temp','45')">45°C</button>
+            <button class="toggle-btn" data-val="50" onclick="toggle('tg-cond-temp','50')">50°C</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Refrigerant Line Schedule</div>
+        <div style="display:grid;grid-template-columns:2fr 120px 70px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.72rem;color:rgba(255,255,255,0.4);padding:0 0.25rem;">
+          <div>Line Name</div><div style="text-align:center;">Line Type</div><div style="text-align:center;">Equiv. Length (m)</div><div></div>
+        </div>
+        <div id="refrig-line-list" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem;"></div>
+        <button class="btn-ghost text-sm py-2 px-4" onclick="addRefrigLineRow()">+ Add Line</button>
+      </div>
+
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        ASHRAE Velocity Method. Suction Horiz. 4–10 m/s, Suction Riser 6–12 m/s, Discharge 5–15 m/s, Liquid ≤ 1.5 m/s. ACR copper tube per ASTM B280. ΔT_eq = ΔP / (dP/dT)_sat.
+      </div>
+    `;
+    addRefrigLineRow('Suction Line', 'Suction — Horizontal', 15);
+    addRefrigLineRow('Discharge Line', 'Discharge', 15);
+    addRefrigLineRow('Liquid Line', 'Liquid', 15);
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
     return;
@@ -6778,6 +6879,28 @@ function toggleDuctAspect() {
   if (el) el.style.display = shape === 'Rectangular' ? '' : 'none';
 }
 
+// ─── Refrigerant Pipe Sizing line row helper ──────────────────────────────────
+const REFRIG_LINE_TYPES = ['Suction — Horizontal','Suction — Vertical Riser','Discharge','Liquid'];
+let _refrigLineRowId = 0;
+function addRefrigLineRow(defaultName = 'Line', defaultType = 'Suction — Horizontal', defaultLen = 15) {
+  const id  = ++_refrigLineRowId;
+  const row = document.createElement('div');
+  row.id    = `refrig-line-row-${id}`;
+  row.style.cssText = 'display:grid;grid-template-columns:2fr 120px 70px 28px;gap:0.35rem;align-items:center;';
+  row.innerHTML = `
+    <input id="refrig-name-${id}" class="wh-input text-sm py-2" type="text" value="${escHtml(String(defaultName))}" placeholder="Line name" style="padding:0.5rem 0.4rem;" />
+    <select class="wh-input text-sm py-2" id="refrig-type-${id}">
+      ${REFRIG_LINE_TYPES.map(t => `<option value="${t}"${t === defaultType ? ' selected' : ''}>${t}</option>`).join('')}
+    </select>
+    <div class="input-group" style="min-width:0;">
+      <input id="refrig-len-${id}" class="wh-input text-sm py-2" type="number" value="${defaultLen}" min="0.5" step="0.5" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.6rem;">m</span>
+    </div>
+    <button onclick="document.getElementById('refrig-line-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+  `;
+  document.getElementById('refrig-line-list').appendChild(row);
+}
+
 function applyVDLimit(circuitType) {
   const el = document.getElementById('f-vd-limit');
   if (el) el.value = circuitType === 'Feeder' ? 2 : 3;
@@ -7026,6 +7149,25 @@ function collectInputs() {
       duct_material: getToggle('tg-duct-mat')     || 'Galvanized Steel',
       aspect_ratio:  parseFloat(getToggle('tg-duct-aspect') || '2'),
       segments,
+    };
+  }
+
+  if (_calcType === 'Refrigerant Pipe Sizing') {
+    const lines = [];
+    document.querySelectorAll('#refrig-line-list > div[id^="refrig-line-row-"]').forEach(row => {
+      const rid  = row.id.replace('refrig-line-row-', '');
+      const name = document.getElementById(`refrig-name-${rid}`)?.value || 'Line';
+      const type = document.getElementById(`refrig-type-${rid}`)?.value || 'Suction — Horizontal';
+      const len  = parseFloat(document.getElementById(`refrig-len-${rid}`)?.value) || 0;
+      if (len > 0) lines.push({ name, line_type: type, equiv_length_m: len });
+    });
+    return {
+      project_name: v('f-project') || 'Refrigerant Piping Project',
+      refrigerant:  getToggle('tg-refrig')        || 'R-410A',
+      capacity_kw:  parseFloat(v('f-capacity'))   || 10,
+      application:  getToggle('tg-application')   || 'Air Conditioning',
+      cond_temp_c:  parseFloat(getToggle('tg-cond-temp') || '45'),
+      lines,
     };
   }
 
@@ -7737,6 +7879,15 @@ async function runCalculation() {
       showToast('Please add at least one duct segment.');
       return;
     }
+  } else if (_calcType === 'Refrigerant Pipe Sizing') {
+    if (!inputs.lines || inputs.lines.length === 0) {
+      showToast('Please add at least one refrigerant line.');
+      return;
+    }
+    if (!inputs.capacity_kw || inputs.capacity_kw <= 0) {
+      showToast('Please enter a valid system capacity (kW).');
+      return;
+    }
   } else if (_calcType === 'Voltage Drop') {
     if (!inputs.current || inputs.current <= 0) {
       showToast('Please enter the load current.');
@@ -7984,6 +8135,8 @@ async function runCalculation() {
       renderUPSSizingReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Duct Sizing (Equal Friction)') {
       renderDuctSizingReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Refrigerant Pipe Sizing') {
+      renderRefrigPipeReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Load Estimation') {
       renderLoadReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Voltage Drop') {
@@ -10151,6 +10304,172 @@ function renderDuctSizingReport(inputs, results, narrative) {
 
     <h2>8. RECOMMENDATIONS</h2>
     <p>${e(narrative?.recommendations || `1. Duct sizes shown are CALCULATED sizes — round up to the nearest standard duct dimension before procurement. Verify all dimensions fit within the available ceiling plenum depth.\n2. Velocity limit check: ${segResults.some(s => s.vel_check !== 'OK') ? 'WARNING — one or more segments exceed the ASHRAE 62.1 / SMACNA velocity limit. Increase duct size or reduce airflow.' : 'All segments are within ASHRAE 62.1 velocity limits.'}\n3. The fan static pressure of ${fanStaticPa} Pa covers duct straight runs + fittings allowance only. Add AHU internal pressure drop (cooling coil, filters, heating coil: typically 200–500 Pa) and terminal device pressure drop (50–150 Pa each) when specifying the fan.\n4. All ductwork shall be constructed to the appropriate SMACNA pressure class. Leakage testing per SMACNA Air Duct Leakage Test Manual is required for mains at ≥ 1 in. w.g. (250 Pa).\n5. A Testing, Adjusting, and Balancing (TAB) report confirming design airflows at all diffusers (within ±10%) is required before building final acceptance.`)}</p>
+
+    <!-- SIGNATURE BLOCK -->
+    <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div>
+        <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-size:0.78rem;font-weight:700;">${e(typeof WORKER_NAME !== 'undefined' ? WORKER_NAME : '')}</div>
+          <div style="font-size:0.74rem;color:#555;">${e('Mechanical Engineer')}</div>
+          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
+          <div style="font-size:0.74rem;color:#555;">PTR No.: ${e('_____________')}</div>
+          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+        </div>
+      </div>
+      <div>
+        <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-size:0.78rem;font-weight:700;">${e('_________________________')}</div>
+          <div style="font-size:0.74rem;color:#555;">${e('Project Engineer / Manager')}</div>
+          <div style="font-size:0.74rem;color:#555;">Company: ${e('_____________')}</div>
+          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+        </div>
+      </div>
+      <div>
+        <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-size:0.78rem;font-weight:700;">${e('_________________________')}</div>
+          <div style="font-size:0.74rem;color:#555;">${e('Owner / Client Representative')}</div>
+          <div style="font-size:0.74rem;color:#555;">Date: ${e(dateStr)}</div>
+          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  panel.innerHTML = reportHTML;
+  showReport();
+}
+
+// ─── Refrigerant Pipe Sizing Report ──────────────────────────────────────────
+function renderRefrigPipeReport(inputs, results, narrative) {
+  const panel = document.getElementById('report-panel');
+  if (!panel) return;
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
+
+  const projName   = inputs.project_name || 'Refrigerant Pipe Sizing Project';
+  const refrig     = inputs.refrigerant  || 'R-410A';
+  const capKw      = inputs.capacity_kw  || '';
+  const app        = inputs.application  || 'AC';
+  const condTemp   = inputs.cond_temp_c  || 40;
+  const inpLines   = inputs.lines        || [];
+
+  const evapTemp   = results.evap_temp_c   ?? '';
+  const mdot       = results.mass_flow_kgs ?? '';
+  const lineResults = results.lines        || [];
+
+  const velColour = vc => vc === 'OK' ? '#22c55e' : vc === 'HIGH' ? '#f59e0b' : vc === 'LOW (oil return risk)' ? '#ef4444' : '#ef4444';
+
+  const lineRows = lineResults.map((l, i) => `
+    <tr>
+      <td style="text-align:center;">${i + 1}</td>
+      <td>${escHtml(l.name || inpLines[i]?.name || '')}</td>
+      <td>${escHtml(l.line_type || '')}</td>
+      <td class="num">${l.equiv_length_m}</td>
+      <td class="num">${l.selected_od_mm}<br><span style="font-size:0.72rem;color:#888;">ID ${l.selected_id_mm}</span></td>
+      <td class="num">${l.velocity_ms}</td>
+      <td class="num" style="color:${velColour(l.vel_check)};font-weight:700;">${escHtml(l.vel_check || '')}</td>
+      <td class="num">${l.dp_total_pa}</td>
+      <td class="num">${l.delta_t_k}</td>
+    </tr>`).join('');
+
+  const reportHTML = `
+  <div class="report-wrapper">
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading.
+    </div>
+
+    <h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">HVAC REFRIGERANT PIPE SIZING — VELOCITY METHOD</h1>
+    <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">ASHRAE 2022 Refrigeration Handbook Ch.1 / ASTM B280 ACR Copper Tube / ASHRAE 90.1 Insulation</div>
+
+    <h2>1. PROJECT INFORMATION</h2>
+    <table>
+      <tr><td style="width:35%;">Project / System</td><td>${e(projName)}</td></tr>
+      <tr><td>Location</td><td>${e('')}</td></tr>
+      <tr><td>Client / Owner</td><td>${e('')}</td></tr>
+      <tr><td>Prepared by</td><td>${e(typeof WORKER_NAME !== 'undefined' ? WORKER_NAME : '')}</td></tr>
+      <tr><td>PRC License No.</td><td>${e('')}</td></tr>
+      <tr><td>Date</td><td>${e(dateStr)}</td></tr>
+    </table>
+
+    <h2>2. OBJECTIVE</h2>
+    <p>${e(narrative?.objective || `To size the ${refrig} refrigerant line sets for the ${escHtml(projName)} system using the ASHRAE velocity method per ASHRAE 2022 Refrigeration Handbook Chapter 1. Outputs include ACR copper tube selection (ASTM B280), refrigerant velocity, line pressure drop, and equivalent temperature loss for each line type — Suction, Discharge, and Liquid.`)}</p>
+
+    <h2>3. APPLICABLE STANDARDS</h2>
+    <table>
+      <tr><td style="width:35%;">ASHRAE Refrig. Hbk Ch.1</td><td>2022 Refrigeration Handbook — Refrigerant-Side Equipment, velocity method for ACR copper line sizing</td></tr>
+      <tr><td>ASTM B280</td><td>Seamless Copper Tube for Air Conditioning and Refrigeration Field Service (ACR grade)</td></tr>
+      <tr><td>ASHRAE 90.1</td><td>Energy Standard for Buildings — pipe insulation thickness requirements</td></tr>
+      <tr><td>PEC 2017 Art. 4</td><td>Philippine Electrical Code — compressor branch circuit protection (175% FLA)</td></tr>
+      <tr><td>PSME Code</td><td>Philippine Society of Mechanical Engineers — refrigerating system design and installation</td></tr>
+    </table>
+
+    <h2>4. DESIGN BASIS</h2>
+    <table>
+      <tr><td style="width:35%;">Refrigerant</td><td>${e(refrig)}</td></tr>
+      <tr><td>System Capacity</td><td>${e(capKw + ' kW')}</td></tr>
+      <tr><td>Application</td><td>${e(app)}</td></tr>
+      <tr><td>Evaporating Temperature</td><td>${e(evapTemp + ' °C')}</td></tr>
+      <tr><td>Condensing Temperature</td><td>${e(condTemp + ' °C')}</td></tr>
+      <tr><td>Mass Flow Rate (ṁ)</td><td>${e(mdot + ' kg/s')}  [ṁ = Q / h_fg]</td></tr>
+      <tr><td>Pipe Material</td><td>${e('ACR Copper Tube — ASTM B280, dehydrated and capped')}</td></tr>
+      <tr><td>Roughness (ε)</td><td>${e('0.0015 µm  (drawn copper tubing, ASHRAE)')}</td></tr>
+    </table>
+
+    <h2>5. VELOCITY DESIGN LIMITS (ASHRAE 2022 Refrig. Hbk Ch.1)</h2>
+    <table>
+      <tr><th>Line Type</th><th class="num">Min (m/s)</th><th class="num">Max (m/s)</th><th>Note</th></tr>
+      <tr><td>Suction — Horizontal</td><td class="num">4</td><td class="num">10</td><td>Noise and pressure drop limit</td></tr>
+      <tr><td>Suction — Vertical Riser</td><td class="num">6</td><td class="num">12</td><td>Minimum 6 m/s for oil return up riser</td></tr>
+      <tr><td>Discharge</td><td class="num">5</td><td class="num">15</td><td>Pressure drop and noise limit</td></tr>
+      <tr><td>Liquid</td><td class="num">0.5</td><td class="num">1.5</td><td>Prevent flashing before expansion device</td></tr>
+    </table>
+
+    <h2>6. REFRIGERANT LINE SCHEDULE</h2>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;min-width:580px;">
+        <tr>
+          <th style="text-align:center;width:28px;">#</th>
+          <th>Line Name</th>
+          <th>Line Type</th>
+          <th class="num">Equiv.<br>Length (m)</th>
+          <th class="num">Pipe OD / ID<br>(mm) ASTM B280</th>
+          <th class="num">Velocity<br>(m/s)</th>
+          <th class="num">Vel<br>Check</th>
+          <th class="num">Total ΔP<br>(Pa)</th>
+          <th class="num">ΔT Equiv<br>(K)</th>
+        </tr>
+        ${lineRows}
+      </table>
+    </div>
+    <p style="font-size:0.75rem;color:#777;margin-top:0.4rem;">ΔT equiv = pressure drop converted to saturation temperature loss using refrigerant slope at operating conditions. Keep total ΔT per line ≤ 1 K for suction (≤ 2 K for discharge) per ASHRAE guidance.</p>
+
+    <h2>7. RESULTS SUMMARY</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem;page-break-inside:avoid;break-inside:avoid;">
+      <div class="result-card">
+        <div class="res-label">Refrigerant</div>
+        <div class="res-value">${escHtml(refrig)}</div>
+        <div class="res-sub">${escHtml(app)} — ${evapTemp}°C evap</div>
+      </div>
+      <div class="result-card">
+        <div class="res-label">Capacity</div>
+        <div class="res-value">${capKw} kW</div>
+        <div class="res-sub">ṁ = ${mdot} kg/s</div>
+      </div>
+      <div class="result-card">
+        <div class="res-label">Lines Sized</div>
+        <div class="res-value">${lineResults.length}</div>
+        <div class="res-sub">${lineResults.filter(l => l.vel_check === 'OK').length} OK / ${lineResults.filter(l => l.vel_check !== 'OK').length} warn</div>
+      </div>
+      <div class="result-card">
+        <div class="res-label">Cond. Temp</div>
+        <div class="res-value">${condTemp} °C</div>
+        <div class="res-sub">design condensing</div>
+      </div>
+    </div>
+
+    <h2>8. RECOMMENDATIONS</h2>
+    <p>${e(narrative?.recommendations || `1. All ACR copper tubing shall conform to ASTM B280 — verify pipe is marked "ACR" and is dehydrated/capped before installation. Do NOT use plumbing-grade (Type L/K) copper.\n2. Suction line insulation: minimum 19 mm closed-cell elastomeric foam (ASTM C534) on all suction lines to prevent condensation and limit heat gain — install before pressure testing.\n3. Oil traps: provide a P-trap at the base of each suction vertical riser and at intervals of 6 m on long vertical risers per ASHRAE recommendations.\n4. Nitrogen purge brazing: all brazed joints shall be made under a dry nitrogen purge (OFN) to prevent copper oxide scale — scale contamination is a leading cause of TXV and compressor failure.\n5. Pressure test at 1.1× maximum allowable working pressure (dry nitrogen), then evacuate to ≤ 500 microns before refrigerant charging.\n6. Refrigerant charge by weight per manufacturer specification, corrected for actual line set length. Record charge weight on the equipment nameplate tag.\n7. Lines flagged WARN require re-sizing or system redesign before procurement.`)}</p>
 
     <!-- SIGNATURE BLOCK -->
     <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
@@ -13709,6 +14028,8 @@ function viewHistoryReport(row) {
     renderUPSSizingReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Duct Sizing (Equal Friction)') {
     renderDuctSizingReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Refrigerant Pipe Sizing') {
+    renderRefrigPipeReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
@@ -13749,7 +14070,7 @@ async function generateBomSowChecklist() {
     'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)', 'Storm Drain / Stormwater'],
     'Fire Protection':         ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],
     'Vertical Transportation': ['Elevator Traffic Analysis', 'Hoist Capacity'],
-    'HVAC Systems':            ['Chiller System — Air Cooled', 'Chiller System — Water Cooled', 'AHU Sizing', 'Cooling Tower Sizing', 'Duct Sizing (Equal Friction)'],
+    'HVAC Systems':            ['Chiller System — Air Cooled', 'Chiller System — Water Cooled', 'AHU Sizing', 'Cooling Tower Sizing', 'Duct Sizing (Equal Friction)', 'Refrigerant Pipe Sizing'],
   };
   const supportedForDiscipline = BOM_SOW_SUPPORTED[_discipline] || [];
   if (!supportedForDiscipline.includes(_calcType)) {
@@ -13958,8 +14279,11 @@ function renderBomTablePreview(items) {
   const isChillerWC = _calcType === 'Chiller System — Water Cooled';
   const isAHU       = _calcType === 'AHU Sizing';
   const isDS        = _calcType === 'Duct Sizing (Equal Friction)';
-  const calcRef = `${isDS ? 'HVAC-DS' : isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
-  const disciplineSystem = isDS
+  const isRP        = _calcType === 'Refrigerant Pipe Sizing';
+  const calcRef = `${isRP ? 'HVAC-RPS' : isDS ? 'HVAC-DS' : isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const disciplineSystem = isRP
+    ? `HVAC Systems — Refrigerant Pipe Sizing (${_lastInputs?.refrigerant || 'R-410A'}, ${_lastInputs?.capacity_kw || ''}kW, ${_lastInputs?.application || 'AC'} Evap ${_lastResults?.evap_temp_c ?? ''}°C / Cond ${_lastInputs?.cond_temp_c || 40}°C, ${(_lastInputs?.lines || []).length} lines)`
+    : isDS
     ? `HVAC Systems — Duct Sizing (${_lastInputs?.duct_shape || 'Circular'}, fr=${_lastInputs?.friction_rate || 1.0} Pa/m, ${_lastInputs?.duct_material || 'Galvanized Steel'}, ${(_lastInputs?.segments || []).length} segments, System ΔP ${_lastResults?.total_dp_pa || ''}Pa, Fan Static ${_lastResults?.fan_static_pa || ''}Pa, Fan Motor ${_lastResults?.fan_motor_hp_std || ''}HP)`
     : isAHU
     ? `HVAC Systems — AHU (${_lastResults?.n_units || ''}× ${_lastResults?.nominal_AHU_CMH_each || ''}CMH, ${_lastResults?.Q_coil_total_kW || ''}kW/${_lastResults?.Q_coil_TR || ''}TR coil, ${_lastResults?.fan_hp_std || ''}HP fan, CHW ${_lastResults?.chw_supply_C || ''}/${_lastResults?.chw_return_C || ''}°C, ${_lastResults?.Q_chw_lps || ''}L/s)`
@@ -14129,6 +14453,8 @@ function renderBomTablePreview(items) {
             ? `Quantities are based on the Cable Tray Sizing design calculation result (NEMA VE 1 Load Class ${_lastResults?.nema_load_class || ''}, NEC Article 392, PEC 2017 Article 3.92). Selected tray: ${_lastResults?.selected_width_mm || ''}mm W × ${_lastInputs?.depth_mm || ''}mm D ${_lastInputs?.tray_type || 'Ladder'} type, actual fill ${_lastResults?.fill_actual_pct || ''}% (${_lastResults?.fill_check || ''}), span ${_lastInputs?.span_m || ''}m, run ${_lastInputs?.run_length_m || ''}m. ${Number(_lastResults?.derating_factor) < 1.0 ? `Ampacity derating factor ${_lastResults?.derating_factor}× applies — conductor ampacities shall be derated per NEC 392.80 / NEC 310.15 before procurement of cables.` : `No ampacity derating required — fill does not exceed the ${_lastInputs?.tray_type === 'Solid Bottom' ? '40%' : '30%'} threshold.`} Engineer shall verify all quantities on-site before procurement. All cable tray materials shall carry NEMA VE 1 compliance certification and hot-dip galvanizing certificate (ASTM A123). Contractor shall submit material data sheets, load class certificates, and galvanizing certificates for Engineer's approval prior to procurement.`
             : isUPS
             ? `Quantities are based on the UPS Sizing design calculation result (IEC 62040-3, IEEE 446, IEEE 1184, PEC 2017 Article 7). Selected UPS: ${_lastResults?.selected_kva || ''}kVA ${_lastInputs?.topology || 'Online (Double-Conversion)'}, ${_lastInputs?.phase || '3-Phase'}, system loading ${_lastResults?.loading_pct || ''}% (≤ 80% limit per IEEE 446). Battery bank: ${_lastResults?.battery_config || ''} — rated backup ${_lastResults?.actual_runtime_min || ''}min at design load. Input breaker: ${_lastResults?.input_breaker_a || ''}A. ${_lastResults?.loading_pct > 80 ? 'WARNING: System loading exceeds 80% — increase UPS kVA or reduce connected load before procurement.' : 'System loading is within the recommended 80% limit.'} Engineer shall verify all quantities on-site before procurement. UPS shall carry IEC 62040-1 / IEC 62040-3 certification. Submit UPS datasheet, battery runtime test certificate, and panel single-line diagram for Engineer\'s approval prior to procurement.`
+            : isRP
+            ? `Quantities are based on the Refrigerant Pipe Sizing design calculation result (ASHRAE 2022 Refrigeration Handbook Chapter 1, ASTM B280, PEC 2017 Article 4). ${_lastInputs?.refrigerant || 'R-410A'} system, capacity ${_lastInputs?.capacity_kw || ''}kW, evaporating ${_lastResults?.evap_temp_c ?? ''}°C / condensing ${_lastInputs?.cond_temp_c || 40}°C. ${(_lastInputs?.lines || []).map(l => `${l.name}: ${l.line_type}, ${l.equiv_length_m}m`).join('; ')}. All ACR copper tubing shall be ASTM B280 dehydrated and capped. Line sets shall be insulated per ASHRAE 90.1 — minimum 19 mm closed-cell elastomeric for suction lines. Refrigerant quantity and charge shall be calculated by the refrigeration contractor based on actual line set length. Engineer shall verify all quantities on-site before procurement. Contractor shall submit material datasheets and AHRI-certified equipment submittals for Engineer's approval prior to procurement.`
             : isDS
             ? `Quantities are based on the Duct Sizing (Equal Friction Method) design calculation result (ASHRAE 2021 Fundamentals Chapter 21, SMACNA HVAC Duct Construction Standards, PSME Code). ${_lastInputs?.duct_shape || 'Circular'} ${_lastInputs?.duct_material || 'Galvanized Steel'} ductwork, design friction rate ${_lastInputs?.friction_rate || 1.0} Pa/m, air density ${_lastInputs?.air_density || 1.20} kg/m³. System duct pressure drop: ${_lastResults?.total_dp_pa || ''}Pa. Fan static pressure (with 50% fittings allowance): ${_lastResults?.fan_static_pa || ''}Pa. Fan motor: ${_lastResults?.fan_motor_hp_std || ''}HP standard. Total duct length: ${_lastResults?.total_length_m || ''}m. NOTE: Duct lengths, elbow counts, diffuser quantities, and mounting hardware are indicative — Contractor shall quantify all items from final duct layout drawings before procurement. Engineer shall verify all quantities on-site before procurement. All galvanized steel ductwork shall comply with SMACNA construction standards (gauge and reinforcement per pressure class). Submit fan performance curve, duct construction drawings (with pressure class designation), and material test certificates for Engineer's approval prior to procurement.`
             : `Quantities are based on the HVAC Cooling Load design calculation result. Engineer shall verify all quantities on-site before procurement. All materials shall conform to applicable Philippine and international standards (PSME, ASHRAE, PEC 2017). Contractor shall submit material submittals for Engineer's approval prior to procurement.`
@@ -14221,12 +14547,15 @@ function renderSowDocPreview(sections) {
   const isChillerWCS = _calcType === 'Chiller System — Water Cooled';
   const isAHUS       = _calcType === 'AHU Sizing';
   const isDSS        = _calcType === 'Duct Sizing (Equal Friction)';
-  const calcRef = `${isDSS ? 'HVAC-DS' : isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const isRPS        = _calcType === 'Refrigerant Pipe Sizing';
+  const calcRef = `${isRPS ? 'HVAC-RPS' : isDSS ? 'HVAC-DS' : isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
   const unitKW = _lastResults?.ac_size_kw        || '';
-  const ventSystemLine = isDSS
+  const ventSystemLine = isRPS
+    ? `Refrigerant Pipe Sizing — ${_lastInputs?.refrigerant || 'R-410A'}, ${_lastInputs?.capacity_kw || ''}kW, ${_lastInputs?.application || 'AC'} (Evap ${_lastResults?.evap_temp_c ?? ''}°C / Cond ${_lastInputs?.cond_temp_c || 40}°C), ${(_lastInputs?.lines || []).length} lines${(_lastResults?.lines || []).length > 0 ? ': ' + (_lastResults?.lines || []).map(l => `${l.name} ${l.selected_od_mm}mm OD`).join(', ') : ''}`
+    : isDSS
     ? `Duct Sizing (Equal Friction) — ${_lastInputs?.duct_shape || 'Circular'} ${_lastInputs?.duct_material || 'Galvanized Steel'}, fr=${_lastInputs?.friction_rate || 1.0} Pa/m, ρ=${_lastInputs?.air_density || 1.20} kg/m³, ${(_lastInputs?.segments || []).length} segments, Total ΔP=${_lastResults?.total_dp_pa || ''}Pa, Fan Static=${_lastResults?.fan_static_pa || ''}Pa (×1.5 fittings), Max Flow ${_lastResults?.max_flow_lps || ''}L/s, Fan Motor ${_lastResults?.fan_motor_hp_std || ''}HP`
     : isAHUS
     ? `AHU Sizing — ${_lastResults?.n_units || ''}× ${_lastResults?.nominal_AHU_CMH_each || ''}CMH (${_lastResults?.nominal_AHU_CMH_total || ''}CMH total), Coil ${_lastResults?.Q_coil_total_kW || ''}kW (${_lastResults?.Q_coil_TR || ''}TR), Fan ${_lastResults?.fan_hp_std || ''}HP @ ${_lastResults?.fan_static_Pa || ''}Pa, CHW ${_lastResults?.chw_supply_C || ''}/${_lastResults?.chw_return_C || ''}°C ΔT=${_lastResults?.dT_chw_C || ''}°C, ${_lastResults?.Q_chw_lps || ''}L/s, Fan Power ${_lastResults?.fan_power_W_lps || ''}W/L·s — ${_lastResults?.fan_power_check || ''}`
@@ -14394,6 +14723,8 @@ ${isLight
   ? `This Scope of Works is based on the Cable Tray Sizing Design Calculation (Ref: ${escHtml(calcRef)}) per NEMA VE 1 (Metal Cable Tray Systems), NEMA VE 2 (Installation Guidelines), NEC Article 392 (Cable Trays), NEC Section 310.15 (Ampacity), and PEC 2017 Article 3.92. The selected cable tray is ${_lastResults?.selected_width_mm || ''}mm wide × ${_lastInputs?.depth_mm || ''}mm deep ${_lastInputs?.tray_type || 'Ladder'} type, NEMA VE 1 Load Class ${_lastResults?.nema_load_class || ''}, supported at ${_lastInputs?.span_m || ''}m centres, total run ${_lastInputs?.run_length_m || ''}m. Actual cable fill: ${_lastResults?.fill_actual_pct || ''}% (limit ${_lastInputs?.fill_ratio_pct || 40}%) — ${_lastResults?.fill_check || ''}. ${Number(_lastResults?.derating_factor) < 1.0 ? `NOTE: Actual fill exceeds the ${_lastInputs?.tray_type === 'Solid Bottom' ? '40%' : '30%'} derating threshold — all power conductor ampacities shall be derated to ${Math.round(Number(_lastResults?.derating_factor) * 100)}% per NEC 392.80 / NEC 310.15. Verify derated ampacity meets design current before cable procurement.` : `No ampacity derating required — fill does not exceed the ${_lastInputs?.tray_type === 'Solid Bottom' ? '40%' : '30%'} threshold per NEC 392.80.`} The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including: NEMA VE 1 and NEMA VE 2 (material, fabrication, installation, and earthing of metal cable tray systems), NEC Article 392 and PEC 2017 Article 3.92 (fill limits, support spacing, cable grouping, and earthing continuity), NEC 310.15 (conductor ampacity derating where applicable), PEC Article 2.50 (earthing and bonding — copper bonding jumpers at every splice and earthing lugs at every support bracket), and DOLE OSH Electrical Safety Standards. All cable tray materials shall carry NEMA VE 1 compliance certification and hot-dip galvanizing certificate (ASTM A123 minimum 85 µm average coating). Power cables shall be segregated from control and instrumentation cables by a tray divider or separate adjacent tray per NEMA VE 2. An Electrical Permit shall be obtained from the LGU prior to commencement. All electrical works shall be performed by a licensed master electrician under the supervision of a PRC-licensed Electrical Engineer. As-built cable tray layout drawings, NEMA VE 1 certificates, galvanizing test reports, and earth continuity test results (end-to-end resistance ≤ 1 Ω) shall be submitted to the Owner and Engineer upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isUPSS
   ? `This Scope of Works is based on the UPS Sizing Design Calculation (Ref: ${escHtml(calcRef)}) per IEC 62040-1 (Safety Requirements for UPS), IEC 62040-3 (Performance Requirements — ${_lastInputs?.topology || 'Online (Double-Conversion)'} class), IEEE 446 (Emergency and Standby Power), IEEE 1184 (Batteries for UPS), and PEC 2017 Article 7 (Emergency and Standby Systems). The selected UPS is ${_lastResults?.selected_kva || ''}kVA ${_lastInputs?.topology || 'Online (Double-Conversion)'} type, ${_lastInputs?.phase || '3-Phase'}, with a system loading of ${_lastResults?.loading_pct || ''}% of rated kVA. The battery bank is ${_lastResults?.battery_config || ''}, rated for a minimum backup autonomy of ${_lastResults?.actual_runtime_min || ''} minutes at design load. The input supply shall be from a dedicated ${_lastResults?.input_breaker_a || ''}A circuit breaker, and the UPS shall be provided with a static bypass for maintenance. The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including: IEC 62040-1 and IEC 62040-3 (UPS safety and performance), IEEE 446 (loading limits — ≤ 80% of rated kVA), IEEE 1184 (VRLA battery sizing, DOD = 80%, replacement at ≤ 80% rated capacity), PEC 2017 Article 7 (dedicated branch circuit, LGU Electrical Permit, signed and sealed calculation), and DOLE OSH Electrical Safety Standards. The UPS shall carry IEC 62040-1 / IEC 62040-3 certification from an accredited test laboratory. VRLA batteries shall be from a reputable manufacturer with a minimum 3-year warranty. An Electrical Permit shall be obtained from the LGU prior to installation. All electrical works shall be performed by a licensed master electrician under the supervision of a PRC-licensed Electrical Engineer. Commissioning shall include a full-load battery discharge test per IEC 62040-3 — actual measured runtime shall equal or exceed the design backup time. As-built single-line diagram, UPS commissioning test report, battery runtime test results, and equipment warranty documents shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  : isRPS
+  ? `This Scope of Works is based on the Refrigerant Pipe Sizing Design Calculation (Ref: ${escHtml(calcRef)}) per ASHRAE 2022 Refrigeration Handbook Chapter 1 (Refrigerant-Side Equipment, velocity sizing method), ASTM B280 (Seamless Copper Tube for Air Conditioning and Refrigeration Field Service), ASHRAE 90.1 (pipe insulation requirements), and PEC 2017 Article 4 (branch circuit protection for compressor equipment). The system uses ${_lastInputs?.refrigerant || 'R-410A'} refrigerant with a capacity of ${_lastInputs?.capacity_kw || ''}kW, designed for ${_lastInputs?.application || 'Air Conditioning'} service at evaporating temperature ${_lastResults?.evap_temp_c ?? ''}°C and condensing temperature ${_lastInputs?.cond_temp_c || 40}°C. ${(_lastResults?.lines || []).length > 0 ? 'Sized line sets: ' + (_lastResults?.lines || []).map(l => `${l.name} (${l.line_type}) — ${l.selected_od_mm}mm OD (${l.selected_id_mm}mm ID) ACR copper, velocity ${l.velocity_ms}m/s, ΔP ${l.dp_pa_m !== undefined ? (l.dp_pa_m * l.equiv_length_m).toFixed(0) : ''}Pa, ΔT equiv ${l.delta_t_k}K`).join('; ') + '.' : ''} The Contractor shall comply with all applicable codes and standards including: ASTM B280 (all copper tubing shall be ACR grade — dehydrated, capped, and clearly marked); ASHRAE 2022 Refrigeration Handbook Chapter 1 (velocity limits: Suction Horizontal 4–10 m/s, Suction Vertical Riser 6–12 m/s minimum for oil return, Discharge 5–15 m/s, Liquid ≤ 1.5 m/s); ASHRAE 90.1 (minimum pipe insulation thickness — suction lines shall be insulated with minimum 19 mm closed-cell elastomeric foam to prevent condensation and limit heat gain; discharge and liquid lines insulated where exposed to heat sources or direct sunlight); PEC 2017 Article 4 (compressor branch circuit: 175% of full-load current for branch circuit conductors, 175–225% for overcurrent protection per HACR rating); DOLE OSH Mechanical Safety Standards; and Philippine PSME Code for refrigerating systems. Oil traps shall be provided at the base of each suction vertical riser per ASHRAE recommendations — double riser if pipe sizing is controlled by part-load oil return requirements. All brazed joints shall use nitrogen purge brazing (OFN — oxygen-free nitrogen purge) to prevent copper oxide formation. Leak testing shall be performed at 1.1× maximum allowable working pressure using dry nitrogen. Evacuation to ≤ 500 microns before refrigerant charging. Refrigerant charge shall be by weight per manufacturer specification, adjusted for actual line set length. The Contractor shall submit: (a) ACR copper tube material certifications (ASTM B280 compliance), (b) insulation material data sheets (closed-cell elastomeric, ASTM C534 compliant), (c) refrigerant handling certifications for all installation personnel, (d) commissioning report including leak test pressure chart, evacuation log (micron gauge reading), and refrigerant weight-in record. As-built drawings showing line set routing, insulation, and all field joints shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isDSS
   ? `This Scope of Works is based on the Duct Sizing Design Calculation using the Equal Friction Method (Ref: ${escHtml(calcRef)}) per ASHRAE 2021 Fundamentals Handbook Chapter 21 (Duct Design), SMACNA HVAC Duct Construction Standards (3rd Edition), ASHRAE 62.1 (Ventilation for Acceptable Indoor Air Quality), PSME Code (HVAC mechanical system installation), and PEC 2017 Article 4.30 (fan motor branch circuit). The duct system is designed for ${_lastInputs?.duct_shape || 'Circular'} ${_lastInputs?.duct_material || 'Galvanized Steel'} ductwork at a design friction rate of ${_lastInputs?.friction_rate || 1.0} Pa/m and air density of ${_lastInputs?.air_density || 1.20} kg/m³. The ${(_lastInputs?.segments || []).length}-segment system results in a calculated duct pressure drop of ${_lastResults?.total_dp_pa || ''}Pa, and a fan static pressure of ${_lastResults?.fan_static_pa || ''}Pa (including 50% SMACNA fittings allowance). Fan motor: ${_lastResults?.fan_motor_hp_std || ''}HP standard. The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including: SMACNA HVAC Duct Construction Standards (pressure class, gauge, reinforcement, and support spacing); ASHRAE 62.1 (minimum ventilation rates, supply velocity limits — Main ≤ 8 m/s, Branch ≤ 5 m/s, Return ≤ 6 m/s); ASHRAE 2021 Chapter 21 (equal friction sizing, fitting pressure loss); PSME Code (mechanical equipment, ductwork installation, and LGU Mechanical Permit); PEC 2017 Article 4.30 (fan motor branch circuit, short-circuit protection); DOLE OSH Standards for mechanical equipment installation; and the National Building Code of the Philippines (PD 1096) for HVAC system permits. All ductwork shall be galvanized steel (or approved equivalent) constructed to the appropriate SMACNA pressure class — supply mains: 1 in. w.g. class minimum, branches: ½ in. w.g. class. Leakage testing per SMACNA HVAC Air Duct Leakage Test Manual is required for all mains operating at ≥ 1 in. w.g. static pressure. Flexible duct connections to diffusers shall not exceed 1.5 m in length. The Contractor shall submit the following for Engineer's approval prior to procurement: (a) shop drawings showing duct dimensions, routing, hangers, and pressure class designation, (b) fan performance curve at design flow and static pressure, (c) material certification for galvanized steel gauges, (d) SMACNA leakage test results, and (e) TAB (Testing, Adjusting, Balancing) report after installation confirming design airflows at all terminals within ±10%. A Mechanical Permit and sign-off by a PRC-licensed Mechanical Engineer are required before system start-up. As-built duct layout drawings and TAB report shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : `This Scope of Works is based on the HVAC Cooling Load Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including PSME, ASHRAE, PEC 2017, and DOLE OSH Standards. Any deviations from this scope must be approved in writing by the Engineer before execution. The Contractor shall coordinate with other trades to avoid conflicts and ensure a complete and functional installation.`
