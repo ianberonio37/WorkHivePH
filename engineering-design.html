@@ -10371,15 +10371,24 @@ function downloadBomDocPdf() {
   document.head.appendChild(style);
   el.style.paddingBottom = '40px';
 
+  // Pin width to A4 landscape content area (297mm − 10mm×2 margins = 277mm = 1047px at 96dpi)
+  // prevents right-edge overflow without changing the page layout
+  const origWidth    = el.style.width;
+  const origMaxWidth = el.style.maxWidth;
+  el.style.width    = '1047px';
+  el.style.maxWidth = '1047px';
+
   html2pdf().set({
     margin: [10, 10, 10, 10],
     filename: `BOM_${proj}_${new Date().toISOString().slice(0,10)}.pdf`,
-    html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+    html2canvas: { scale: 2, useCORS: true, scrollY: 0, scrollX: 0 },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
   }).from(el).save().then(() => {
-    // Restore inputs
+    // Restore inputs and styles
     inputSnapshots.forEach(({ div, inp }) => div.parentNode.replaceChild(inp, div));
     el.style.paddingBottom = '';
+    el.style.width    = origWidth;
+    el.style.maxWidth = origMaxWidth;
     document.getElementById('bom-pdf-rules')?.remove();
     showToast('BOM PDF saved.');
   });
@@ -10398,13 +10407,22 @@ function downloadSowPdf() {
   `;
   document.head.appendChild(style);
   el.style.paddingBottom = '40px';
+
+  // Pin width to A4 portrait content area (210mm − 15mm×2 margins = 180mm = 680px at 96dpi)
+  const sowOrigWidth    = el.style.width;
+  const sowOrigMaxWidth = el.style.maxWidth;
+  el.style.width    = '680px';
+  el.style.maxWidth = '680px';
+
   html2pdf().set({
     margin: [12, 15, 12, 15],
     filename: `SOW_${proj}_${new Date().toISOString().slice(0,10)}.pdf`,
-    html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+    html2canvas: { scale: 2, useCORS: true, scrollY: 0, scrollX: 0 },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
   }).from(el).save().then(() => {
     el.style.paddingBottom = '';
+    el.style.width    = sowOrigWidth;
+    el.style.maxWidth = sowOrigMaxWidth;
     document.getElementById('sow-pdf-rules')?.remove();
     showToast('SOW PDF saved.');
   });
