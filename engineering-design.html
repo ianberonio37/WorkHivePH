@@ -10092,7 +10092,7 @@ function renderDuctSizingReport(inputs, results, narrative) {
 
     <h2>5. DUCT SEGMENT SCHEDULE</h2>
     <div style="overflow-x:auto;">
-      <table style="min-width:620px;">
+      <table style="width:100%;min-width:540px;">
         <tr>
           <th style="text-align:center;width:30px;">#</th>
           <th>Segment</th>
@@ -10126,7 +10126,7 @@ function renderDuctSizingReport(inputs, results, narrative) {
     </table>
 
     <h2>7. RESULTS SUMMARY</h2>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem;page-break-inside:avoid;break-inside:avoid;">
       <div class="result-card">
         <div class="res-label">Total Duct ΔP</div>
         <div class="res-value">${totalDpPa} Pa</div>

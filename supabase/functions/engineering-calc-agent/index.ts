@@ -1702,6 +1702,18 @@ Respond in JSON format only:
       const backup   = (inputs.backup_min as number) || 30;
       const iecClass = topo === 'Online (Double-Conversion)' ? 'VFI-SS-111' : topo === 'Line Interactive' ? 'VI-SS-111' : 'VFD-SS-111';
       recommendations = `Install a ${selKVA} kVA ${topo} UPS (IEC 62040-3 ${iecClass}) at the proposed location. System loading is ${loadPct}% — within the IEEE 446 recommended ≤ 80% limit for thermal headroom and future load additions. Battery bank: ${bCfg}, rated backup ${bMin} minutes at design load (required: ${backup} min). Provide a static bypass module to allow UPS maintenance without interrupting supply to critical loads. Input supply shall be from a dedicated ${brkA}A MCCB circuit — do not share with non-critical loads. Commission with a full-load battery discharge test per IEC 62040-3 and verify actual runtime ≥ ${backup} minutes before handover. Plan VRLA battery replacement at Year 3 for unconditioned rooms or Year 5 for air-conditioned spaces per IEEE 1184. A PRC-licensed Electrical Engineer must sign and seal this calculation for building permit submission.`;
+    } else if (calcType === "Duct Sizing (Equal Friction)") {
+      const hp     = rec.fan_motor_hp_std  ?? '';
+      const kw     = rec.fan_motor_kw      ?? '';
+      const fanPa  = rec.fan_static_pa     ?? '';
+      const dpPa   = rec.total_dp_pa       ?? '';
+      const flow   = rec.max_flow_lps      ?? '';
+      const shape  = (inputs.duct_shape   as string) || 'Circular';
+      const mat    = (inputs.duct_material as string) || 'Galvanized Steel';
+      const fr     = inputs.friction_rate ?? 1.0;
+      const segs   = Array.isArray(rec.segments) ? rec.segments as Array<{vel_check: string}> : [];
+      const velWarn = segs.some(s => s.vel_check !== 'OK');
+      recommendations = `Provide ${shape} ${mat} ductwork sized at ${fr} Pa/m friction rate per ASHRAE 2021 Fundamentals Chapter 21 Equal Friction Method. Total straight-run ΔP: ${dpPa} Pa; required fan static pressure including 50% SMACNA fittings allowance: ${fanPa} Pa. Size supply fan at maximum segment flow ${flow} L/s; specify a ${hp} HP (${kw} kW) centrifugal fan motor per the standard size schedule. ${velWarn ? 'WARNING: one or more duct segments exceed the ASHRAE 62.1 / SMACNA velocity limit — review those segments and increase duct size or reduce airflow before finalising.' : 'All segments are within ASHRAE 62.1 / SMACNA velocity limits.'} Add AHU internal resistance (cooling coil, filters: typically 200–500 Pa) and terminal device resistance (50–150 Pa each) to the fan static pressure when specifying the fan. A Testing, Adjusting, and Balancing (TAB) report confirming design airflows at all diffusers within ±10% is mandatory before building acceptance. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
     } else if (calcType === "Bolt Torque & Preload") {
       const torque = rec.torque_Nm ?? '';
       const size   = (inputs.bolt_size as string) || '';
@@ -4443,7 +4455,9 @@ function calcDuctSizing(inputs: Record<string, unknown>): Record<string, unknown
     name: string; flow_lps: number; length_m: number; seg_type: string;
   }>) || [];
 
-  const mu = 1.81e-5;        // dynamic viscosity Pa·s (constant for HVAC range)
+  // Dynamic viscosity: 1.81e-5 Pa·s at 20°C (standard); 1.90e-5 Pa·s at 35°C (tropical)
+  // Per ASHRAE 2021 Ch.21 / maintenance-expert skill: ρ<1.175 signals tropical selection
+  const mu = rho < 1.175 ? 1.90e-5 : 1.81e-5;
   const nu = mu / rho;       // kinematic viscosity m²/s
 
   // Standard circular duct diameters (mm)
