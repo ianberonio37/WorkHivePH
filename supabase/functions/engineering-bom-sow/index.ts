@@ -1058,6 +1058,107 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Wastewater Treatment (STP) BOM + SOW Agent ──────────────────────────────
+
+async function wastewaterSTPBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project        = inputs.project_name      || "Wastewater Treatment Plant (STP)";
+  const flowM3Day      = results.flow_m3_day       ?? inputs.flow_direct_m3d ?? "N/A";
+  const population     = inputs.population         || "N/A";
+  const bodIn          = inputs.bod_influent        ?? "N/A";
+  const bodOut         = inputs.bod_effluent        ?? "N/A";
+  const bodRemPct      = results.bod_removal_pct    ?? "N/A";
+  const aerVolM3       = results.aeration_vol_m3    ?? "N/A";
+  const aerHrtHr       = results.aeration_hrt_hr    ?? "N/A";
+  const aerDims        = results.aeration_dims      ?? "N/A";
+  const srtDays        = inputs.srt_days            ?? "N/A";
+  const mlssMgL        = inputs.mlss_mg_l           ?? "N/A";
+  const blowerM3Min    = results.blower_recommended_m3_min ?? "N/A";
+  const blowerKw       = results.blower_kw          ?? "N/A";
+  const primDiaM       = results.prim_dia_m         ?? "N/A";
+  const primAreaM2     = results.prim_area_m2       ?? "N/A";
+  const secDiaM        = results.sec_dia_m          ?? "N/A";
+  const secAreaM2      = results.sec_area_m2        ?? "N/A";
+  const sludgeKgDay    = results.sludge_kg_day      ?? "N/A";
+  const sludgeM3Day    = results.sludge_m3_day      ?? "N/A";
+  const disinfection   = String(inputs.disinfection || "Chlorination");
+  const cl2DoseMgL     = results.cl2_dose_mg_l      ?? "N/A";
+  const naoclLpd       = results.naocl_lpd          ?? "N/A";
+  const contactTankM3  = results.contact_tank_m3    ?? "N/A";
+  const peakFlowLps    = results.peak_flow_lps      ?? "N/A";
+  const denrStatus     = results.denr_status        || "REVIEW";
+  const o2TotalKgDay   = results.o2_total_kg_day    ?? "N/A";
+
+  const prompt = `You are a Philippine sanitary and mechanical engineering expert. Generate a professional BOM and SOW for a WASTEWATER TREATMENT PLANT (STP) construction project.
+
+PROJECT: ${project}
+DESIGN POPULATION: ${population} persons
+AVERAGE DAILY FLOW (ADF): ${flowM3Day} m³/day
+PEAK FLOW: ${peakFlowLps} L/s (1.5× ADF)
+BOD INFLUENT / EFFLUENT: ${bodIn} mg/L → ${bodOut} mg/L (${bodRemPct}% removal)
+PROCESS: Conventional Activated Sludge
+SRT / MLSS: ${srtDays} days / ${mlssMgL} mg/L
+PRIMARY CLARIFIER: ${primDiaM} m diameter, ${primAreaM2} m² surface area
+AERATION TANK: ${aerVolM3} m³ (HRT ${aerHrtHr} hr), Dimensions ${aerDims}
+TOTAL O₂ DEMAND: ${o2TotalKgDay} kg O₂/day
+BLOWER: ${blowerM3Min} m³/min @ ${blowerKw} kW (with 20% safety factor)
+SECONDARY CLARIFIER: ${secDiaM} m diameter, ${secAreaM2} m² surface area
+SLUDGE PRODUCTION: ${sludgeKgDay} kg dry solids/day (${sludgeM3Day} m³/day at 1% DS)
+DISINFECTION: ${disinfection}${disinfection === 'Chlorination' ? ` — Cl₂ dose ${cl2DoseMgL} mg/L, NaOCl (10%) ${naoclLpd} L/day, contact tank ${contactTankM3} m³` : ' — UV 40 mJ/cm²'}
+DENR DAO 2016-08 STATUS: ${denrStatus}
+STANDARDS: DENR DAO 2016-08 (BOD ≤ 30 mg/L, TSS ≤ 50 mg/L, pH 6–9), DOH PD 856, Metcalf & Eddy (5th Ed.), PSME Code, DOLE OSH
+
+Generate a JSON object with:
+1. "bom_items": array of 20 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include these items in order:
+   1. Influent Pump/Lift Station — submersible sewage pump, capacity ${peakFlowLps} L/s, 15mm solids handling, SS 316 impeller, duplex (duty+standby), IP68, with level float controls and auto-alternating panel — qty: 2 units (duty+standby)
+   2. Bar Screen / Fine Screen — manual or mechanical bar screen, 25mm spacing, SS 316, with scum/screenings basket, removable for cleaning — qty: 1 unit
+   3. Grit Chamber / Grit Trap — horizontal flow grit chamber, sized for peak flow ${peakFlowLps} L/s, SS 316L weir plate, manual cleanout — qty: 1 unit
+   4. Primary Clarifier Tank (RC) — ${primDiaM} m diameter circular RC settling tank, ${primAreaM2} m² surface area, 3.5 m SWD, hopper bottom, scum baffle, effluent weir, sludge drain valve — qty: 1 unit
+   5. Aeration Tank (RC) — ${aerDims} RC aeration basin, volume ${aerVolM3} m³, internal baffles for plug flow, concrete lined with epoxy, overflow weir to secondary clarifier — qty: 1 unit
+   6. Fine Bubble Diffuser System — EPDM membrane disc diffusers, OTE ≥ 8% (standard conditions), grid layout at tank floor, SS 316 air distribution headers, HDPE drop pipes — qty: 1 lot (sized for ${aerVolM3} m³ tank)
+   7. Blower Unit (Duty+Standby) — rotary lobe or screw blower, capacity ${blowerM3Min} m³/min each at 50 kPa discharge pressure, ${blowerKw} kW motor with VFD, IP55, silencer, check valve, pressure gauge — qty: 2 units (duty+standby)
+   8. Blower Control Panel — IP55 enclosure, auto-alternating duty/standby, DO sensor input for blower modulation, hour meters, fault alarm — qty: 1 lot
+   9. Secondary Clarifier Tank (RC) — ${secDiaM} m diameter circular RC clarifier, ${secAreaM2} m² surface area, 4.0 m SWD, peripheral weir, sludge hopper, RAS sump — qty: 1 unit
+   10. Return Activated Sludge (RAS) Pump — submersible or dry-pit centrifugal, capacity 50–100% of ADF (${Math.round(Number(flowM3Day) * 0.75 / 24 * 1000 / 60 || 5)} L/min nominal), SS 316 wetted parts, duplex — qty: 2 units (duty+standby)
+   11. Waste Activated Sludge (WAS) Pump — progressive cavity or peristaltic pump, capacity ${sludgeM3Day} m³/day (${Math.round(Number(sludgeM3Day) / 24 * 1000 / 60 || 2)} L/min), SS 316 — qty: 1 unit
+   12. Sludge Holding Tank (RC) — min 20 m³ capacity RC tank, covered, dewatering drain, overflow, level indicator — qty: 1 unit
+   13. ${disinfection === 'Chlorination' ? `Chlorination Contact Tank (RC) — ${contactTankM3} m³ RC baffled contact tank (30-min HRT at peak flow), SS 316 baffles — qty: 1 unit` : 'UV Disinfection Channel — stainless steel UV channel, 40 mJ/cm² dose at peak flow, NSF/ANSI 55 Class A, electronic ballast, quartz sleeves, flow-proportional control — qty: 1 unit'}
+   14. ${disinfection === 'Chlorination' ? `Chemical Dosing System (NaOCl) — peristaltic metering pump ${naoclLpd} L/day capacity, HDPE dosing tank ${Math.max(50, Math.round(Number(naoclLpd) * 7 || 100))}L (7-day storage), injection quill, flow meter — qty: 1 set` : 'Post-Chlorination Residual Dosing (backup) — small NaOCl dosing pump for residual maintenance, 20L HDPE tank — qty: 1 set'}
+   15. Effluent Flow Meter — electromagnetic flow meter, flanged, sized for peak flow, 4–20mA output for SCADA, SS 316 electrodes — qty: 1 unit
+   16. Interconnecting Pipework — uPVC or DI pipe PN10, all process lines between tanks, sewage-grade fittings, isolation gate/ball valves at each unit inlet/outlet, air release valves on force mains — qty: 1 lot
+   17. Electrical and SCADA Panel — MCC panel IP55, auto/manual controls for all pumps and blowers, alarm annunciator (high level, pump fault, blower fault, DO alarm), hour meters, energy meter — qty: 1 lot (PEC 2017 compliant)
+   18. Civil and Structural Works — all RC tank construction per structural drawings, epoxy lining of all wet surfaces, access ladders, grating covers, pipe supports, earthworks, site drainage, perimeter fencing — qty: 1 lot
+   19. Online Water Quality Monitor — DO meter (in aeration tank), pH/ORP meter (in effluent), with continuous display and alarm outputs — qty: 1 set
+   20. Miscellaneous — pipe labels, valve tags, safety signs (confined space, chemical hazard), PPE hooks, eyewash station, O&M tool kit — qty: 1 lot
+
+2. "sow_sections": array of 10 sections (each: section_no, title, content)
+   Cover:
+   - "1.0" General Scope (design, supply, construct, install, test, and commission complete Wastewater Treatment Plant for ${flowM3Day} m³/day ADF — achieving DENR DAO 2016-08 Class D effluent: BOD ≤ ${bodOut} mg/L, TSS ≤ 50 mg/L, pH 6–9)
+   - "2.0" Applicable Standards and Permits (DENR DAO 2016-08 — ECC and Sewage Discharge Permit required before commissioning; DOH PD 856 — Sanitary Permit from LGU; PSME Code for mechanical equipment; DOLE OSH for confined space and chemical safety; DENR-accredited laboratory for effluent testing)
+   - "3.0" Civil and Structural Works (all RC tanks watertight — water-fill test required; epoxy lining of all wet surfaces; minimum 150 mm RC slab for all equipment pads; confined space access provisions — hatches, ventilation, safety ladders; seismic zone design per NSCP; perimeter fencing)
+   - "4.1" Preliminary Treatment Installation (bar screen, grit chamber, and lift station installation; screenings collection and disposal; grit washout drainage)
+   - "4.2" Primary Treatment — Clarifier (primary clarifier construction and installation; sludge draw-off piping to sludge holding tank; scum removal connection; effluent weir leveling — must be within ±3mm horizontal)
+   - "4.3" Biological Treatment — Aeration Tank and Blowers (aeration tank construction; diffuser grid installation — all EPDM membrane discs at uniform spacing; blower installation on vibration-isolated base; blower discharge piping sized for ${blowerM3Min} m³/min; VFD commissioning and DO setpoint configuration at 2.0 mg/L)
+   - "4.4" Secondary Clarifier and Sludge Return (secondary clarifier construction; RAS pump installation and commissioning — initial RAS/Q ratio 0.5; WAS pump connection to sludge holding tank; sludge wasting schedule per ${srtDays}-day SRT)
+   - "4.5" Disinfection and Effluent Discharge (${disinfection === 'Chlorination' ? `contact tank construction; NaOCl dosing pump commissioning at ${cl2DoseMgL} mg/L dose; target effluent residual 0.2–0.5 mg/L free chlorine; chlorine contact time minimum 30 min` : `UV unit installation; minimum 40 mJ/cm² dose verification at peak flow; quartz sleeve cleaning schedule — monthly`}; effluent flow meter calibration; effluent discharge to approved receiving water body with DENR Sewage Discharge Permit)
+   - "5.0" Testing and Commissioning (civil watertightness test before backfill — all RC tanks; mechanical run test for all pumps and blowers — 4-hour continuous; biological start-up — seed sludge from existing STP or commercial MLSS activator; 72-hour continuous STP operation test with daily effluent sampling; DENR-accredited lab analysis for BOD, TSS, pH, DO — results to be submitted as commissioning report; blower DO control calibration)
+   - "6.0" Regulatory Compliance, Training, and Handover (DENR ECC compliance documentation; DOH Sanitation Permit renewal support; operator training minimum 16 hours — covering daily operations, DO control, sludge wasting, chemical handling, confined space entry, DENR sampling procedures; O&M manual including maintenance schedules for diffusers, RAS pumps, blowers, and UV/chlorination system; sludge disposal agreement with DOH/DENR-licensed hauler; 1-year warranty on all mechanical equipment; monthly effluent water quality monitoring log for DENR compliance)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Electrical Load Estimation BOM + SOW Agent ───────────────────────────────
 
 async function loadEstBomSowAgent(
@@ -2336,6 +2437,8 @@ serve(async (req) => {
       result = await waterSoftenerBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Plumbing" && calc_type === "Water Treatment System") {
       result = await waterTreatmentBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Plumbing" && calc_type === "Wastewater Treatment (STP)") {
+      result = await wastewaterSTPBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Load Estimation") {
       result = await loadEstBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Voltage Drop") {
