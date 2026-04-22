@@ -681,6 +681,7 @@ const CALC_TYPES = {
     { id: 'Hot Water Demand',         icon: '🌡️', desc: 'Daily hot water demand, heater sizing', available: true  },
     { id: 'Drainage Pipe Sizing',     icon: '🏗️', desc: 'Drainage fixture units, pipe diameter', available: true  },
     { id: 'Septic Tank Sizing',       icon: '🏭', desc: 'Tank capacity per occupancy',            available: true  },
+    { id: 'Water Softener Sizing',    icon: '💧', desc: 'Ion exchange resin sizing, salt & brine tank, regeneration schedule — NSF/ANSI 44 / WQA', available: true },
   ],
   Electrical: [
     { id: 'Load Estimation',  icon: '📋', desc: 'Panel schedule, demand factor, service size', available: true  },
@@ -901,6 +902,55 @@ const GUIDES = {
       'Two-compartment design: first compartment = 2/3 of total volume, second = 1/3. Required when serving more than 10 persons.',
       'DENR requires a soil absorption field (leach field) after the septic tank. Size the leach field separately based on soil percolation test results.',
       'For high-water-table areas (coastal Philippine towns): use an above-ground or elevated septic tank to prevent groundwater contamination.',
+    ],
+  },
+
+  'Water Softener Sizing': {
+    title: 'Water Softener Sizing — Ion Exchange Method',
+    subtitle: 'Determines the required ion exchange resin volume, standard mineral tank size, salt consumption, brine tank capacity, and regeneration schedule to reduce water hardness to a target level.',
+    standards: [
+      'NSF/ANSI 44 — Residential Cation Exchange Water Softeners',
+      'WQA (Water Quality Association) — Commercial Sizing Guidelines',
+      'PNS 1998 — Philippine National Standard for Drinking Water (hardness limit 300 mg/L as CaCO3)',
+      'ASHRAE Guideline 12 — Legionella control (for cooling tower makeup water applications)',
+      'PSME Code — Plumbing system design requirements',
+    ],
+    formulas: [
+      'Hardness in GPG = Hardness (mg/L as CaCO3) ÷ 17.1',
+      '',
+      'Daily Hardness Load (g/day) = Demand (L/day) × Removal Required (mg/L) ÷ 1000',
+      '',
+      'Load per Cycle (g) = Daily Load × Regen Interval (days) × Safety Factor (1.20)',
+      '',
+      'Resin Exchange Capacity (g CaCO3/L):',
+      '  40 g NaCl/L dose → 35 g/L capacity',
+      '  60 g NaCl/L dose → 40 g/L capacity',
+      '  80 g NaCl/L dose → 45 g/L capacity (standard)',
+      ' 120 g NaCl/L dose → 50 g/L capacity',
+      '',
+      'Resin Volume per Unit (L) = Load per Cycle ÷ Exchange Capacity ÷ No. of Units',
+      '',
+      'Salt per Regen (kg) = Resin Volume (L) × Salt Dose (g/L) ÷ 1000',
+      'Monthly Salt (kg)   = Salt/Regen × No. of Units × 30 ÷ Regen Interval',
+      '',
+      'Service Flow: Min = 6 BV/hr, Max = 25 BV/hr (BV = Bed Volumes = resin volume in L)',
+      'Backwash Flow (L/min) = Tank Cross-Section (m²) × 204 L/min/m²',
+    ],
+    fields: [
+      { name: 'Demand Source', tip: 'Direct entry: enter total daily water demand in L/day. By Occupancy: enter number of people and per capita use — system calculates demand automatically. Use By Occupancy for early-stage design; Direct Entry when the flow meter or water bill data is available.' },
+      { name: 'Daily Water Demand (L/day)', tip: 'Total volume of water to be softened per day. 1 m³/day = 1,000 L/day. Typical Philippine commercial: hotel 300-500 L/room/day, hospital 400-600 L/bed/day, laundry 50-80 L/kg dry linen, boiler makeup 5-10% of steam output.' },
+      { name: 'Inlet Hardness (mg/L as CaCO3)', tip: 'Get this from your water quality test report. Philippine municipal water (MWSS/LWUA): typically 80-150 mg/L. Deep well groundwater: 150-400 mg/L. Very hard water >300 mg/L exceeds PNS 1998 limit and requires softening. 1 gpg = 17.1 mg/L.' },
+      { name: 'Target Hardness (mg/L)', tip: 'Desired outlet hardness after softening. "Soft" = 17 mg/L (1 gpg) for general use. For boiler feed: 0-5 mg/L (effectively zero). For cooling tower makeup: 50-85 mg/L is acceptable. For laundry: 50 mg/L. Too soft (0 mg/L) can cause corrosion in copper pipes.' },
+      { name: 'Regeneration Interval (days)', tip: 'How often the resin is recharged with salt brine. 1-3 days for commercial systems with high demand. 5-7 days for light commercial or residential. Shorter interval = smaller resin volume needed but more salt/water consumption per week.' },
+      { name: 'Salt Dosage (g NaCl/L resin)', tip: '80 g/L is the industry standard — balances resin capacity against salt efficiency. Lower dose (40 g/L): uses less salt per regen but capacity drops 20%. Higher dose (120 g/L): gains 10% more capacity but salt consumption jumps 50%. 80 g/L is recommended for most Philippine commercial applications.' },
+      { name: 'Number of Units', tip: '1 unit (simplex): system is offline during regeneration (1-2 hrs). 2 units (duplex): one unit always on service — continuous soft water. Use duplex for hospitals, hotels, and continuous-process industries where even brief hardness breakthrough is unacceptable.' },
+    ],
+    notes: [
+      'Philippine groundwater hardness by region: Metro Manila (MWSS) 80-120 mg/L; Luzon deep wells 150-300 mg/L; Visayas/Mindanao varies widely — always test before sizing.',
+      'Hardness classification: <60 mg/L = Slightly Hard; 60-120 = Moderately Hard; 120-180 = Hard; 180-300 = Very Hard; >300 = Extremely Hard (PNS 1998 limit).',
+      'Standard mineral tank sizes (dia × height): 8"×44", 9"×48", 10"×54", 12"×52", 13"×54", 14"×65", 16"×65", 18"×65", 21"×62", 24"×72". Always go to the next standard size up.',
+      'Regeneration water waste: each regen cycle consumes ~5 bed volumes (backwash + brine draw + slow rinse). Factor this into wastewater load calculations.',
+      'For boiler feed applications: hardness must be near zero (<5 mg/L). Consider a two-stage system: softener + demineralizer (mixed bed or RO) for critical boiler applications.',
     ],
   },
 
@@ -2733,6 +2783,124 @@ function renderInputForm(calcType) {
       </div>
     `;
     applySepticDefaults('Residential');
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
+  if (calcType === 'Water Softener Sizing') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Hotel Boiler Room — Water Softener" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Demand Input Method</div>
+        <div class="toggle-group" id="tg-ws-demand-source">
+          <button class="toggle-btn active" onclick="toggle('tg-ws-demand-source','direct');setWSDemandFields()">Direct Entry (L/day)</button>
+          <button class="toggle-btn" onclick="toggle('tg-ws-demand-source','people');setWSDemandFields()">By Occupancy</button>
+        </div>
+      </div>
+
+      <div id="ws-direct-row" class="mb-4">
+        <div class="field-label">Daily Water Demand</div>
+        <div class="input-group">
+          <input id="f-demand-lpd" class="wh-input" type="number" value="5000" min="1" />
+          <span class="input-unit">L/day</span>
+        </div>
+      </div>
+
+      <div id="ws-people-row" class="mb-4 hidden">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <div class="field-label">Number of People</div>
+            <div class="input-group">
+              <input id="f-n-people" class="wh-input" type="number" value="50" min="1" />
+              <span class="input-unit">persons</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Per Capita Use</div>
+            <div class="input-group">
+              <input id="f-per-capita" class="wh-input" type="number" value="200" min="10" />
+              <span class="input-unit">L/p/day</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Inlet Hardness</div>
+          <div class="toggle-group" id="tg-ws-inlet" style="flex-wrap:wrap;margin-bottom:0.4rem;">
+            <button class="toggle-btn" onclick="toggle('tg-ws-inlet','80');document.getElementById('f-inlet-hardness').value=80">80</button>
+            <button class="toggle-btn" onclick="toggle('tg-ws-inlet','150');document.getElementById('f-inlet-hardness').value=150">150</button>
+            <button class="toggle-btn active" onclick="toggle('tg-ws-inlet','200');document.getElementById('f-inlet-hardness').value=200">200</button>
+            <button class="toggle-btn" onclick="toggle('tg-ws-inlet','300');document.getElementById('f-inlet-hardness').value=300">300</button>
+          </div>
+          <div class="input-group">
+            <input id="f-inlet-hardness" class="wh-input" type="number" value="200" min="1" />
+            <span class="input-unit">mg/L CaCO₃</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Target Hardness</div>
+          <div class="toggle-group" id="tg-ws-target" style="flex-wrap:wrap;margin-bottom:0.4rem;">
+            <button class="toggle-btn" onclick="toggle('tg-ws-target','0');document.getElementById('f-target-hardness').value=0">0 (RO)</button>
+            <button class="toggle-btn active" onclick="toggle('tg-ws-target','17');document.getElementById('f-target-hardness').value=17">17 (1 gpg)</button>
+            <button class="toggle-btn" onclick="toggle('tg-ws-target','50');document.getElementById('f-target-hardness').value=50">50</button>
+            <button class="toggle-btn" onclick="toggle('tg-ws-target','85');document.getElementById('f-target-hardness').value=85">85</button>
+          </div>
+          <div class="input-group">
+            <input id="f-target-hardness" class="wh-input" type="number" value="17" min="0" />
+            <span class="input-unit">mg/L CaCO₃</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Regeneration Interval</div>
+          <div class="toggle-group" id="tg-ws-regen" style="flex-wrap:wrap;margin-bottom:0.4rem;">
+            <button class="toggle-btn" onclick="toggle('tg-ws-regen','1');document.getElementById('f-regen-interval').value=1">1 day</button>
+            <button class="toggle-btn" onclick="toggle('tg-ws-regen','2');document.getElementById('f-regen-interval').value=2">2 days</button>
+            <button class="toggle-btn active" onclick="toggle('tg-ws-regen','3');document.getElementById('f-regen-interval').value=3">3 days</button>
+            <button class="toggle-btn" onclick="toggle('tg-ws-regen','5');document.getElementById('f-regen-interval').value=5">5 days</button>
+            <button class="toggle-btn" onclick="toggle('tg-ws-regen','7');document.getElementById('f-regen-interval').value=7">7 days</button>
+          </div>
+          <div class="input-group">
+            <input id="f-regen-interval" class="wh-input" type="number" value="3" min="1" max="7" />
+            <span class="input-unit">days</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Salt Dosage</div>
+          <div class="toggle-group" id="tg-ws-salt" style="flex-wrap:wrap;margin-bottom:0.4rem;">
+            <button class="toggle-btn" onclick="toggle('tg-ws-salt','40');document.getElementById('f-salt-dose').value=40">40 g/L</button>
+            <button class="toggle-btn" onclick="toggle('tg-ws-salt','60');document.getElementById('f-salt-dose').value=60">60 g/L</button>
+            <button class="toggle-btn active" onclick="toggle('tg-ws-salt','80');document.getElementById('f-salt-dose').value=80">80 g/L</button>
+            <button class="toggle-btn" onclick="toggle('tg-ws-salt','120');document.getElementById('f-salt-dose').value=120">120 g/L</button>
+          </div>
+          <div class="input-group">
+            <input id="f-salt-dose" class="wh-input" type="number" value="80" min="40" max="150" />
+            <span class="input-unit">g NaCl/L resin</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Number of Units</div>
+        <div class="toggle-group" id="tg-ws-units">
+          <button class="toggle-btn active" onclick="toggle('tg-ws-units','1')">1 — Simplex</button>
+          <button class="toggle-btn" onclick="toggle('tg-ws-units','2')">2 — Duplex (continuous)</button>
+          <button class="toggle-btn" onclick="toggle('tg-ws-units','3')">3 — Lead/Lag/Standby</button>
+        </div>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Method: Ion exchange capacity method per WQA commercial sizing guidelines. Resin capacity based on salt dose. Tank sizes per standard mineral tank dimensions. Standards: NSF/ANSI 44, PNS 1998.
+      </div>
+    `;
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
@@ -5008,6 +5176,22 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Water Softener Sizing') {
+    const demandSource = getToggle('tg-ws-demand-source') || 'direct';
+    return {
+      project_name:    v('f-project') || 'Water Softener System',
+      demand_source:   demandSource,
+      demand_lpd:      parseFloat(v('f-demand-lpd'))     || 5000,
+      n_people:        parseFloat(v('f-n-people'))        || 50,
+      per_capita_lpd:  parseFloat(v('f-per-capita'))      || 200,
+      inlet_hardness:  parseFloat(v('f-inlet-hardness'))  || 200,
+      target_hardness: parseFloat(v('f-target-hardness')) || 17,
+      regen_interval:  parseFloat(v('f-regen-interval'))  || 3,
+      salt_dose_gL:    parseFloat(v('f-salt-dose'))       || 80,
+      n_units:         parseInt(getToggle('tg-ws-units')  || '1'),
+    };
+  }
+
   if (_calcType === 'Drainage Pipe Sizing') {
     const fixtures = [];
     document.querySelectorAll('#drain-fixture-list > div[id^="drain-row-"]').forEach(row => {
@@ -5365,6 +5549,14 @@ function setAHUDefaults() {
 }
 
 // Cooling Tower — show/hide direct vs chiller input rows
+function setWSDemandFields() {
+  const src = getToggle('tg-ws-demand-source') || 'direct';
+  const directRow = document.getElementById('ws-direct-row');
+  const peopleRow = document.getElementById('ws-people-row');
+  if (directRow) directRow.classList.toggle('hidden', src !== 'direct');
+  if (peopleRow) peopleRow.classList.toggle('hidden', src !== 'people');
+}
+
 function setCTLoadFields() {
   const src = getToggle('tg-load-source') || 'direct';
   const directRow  = document.getElementById('ct-direct-row');
@@ -5553,6 +5745,23 @@ async function runCalculation() {
       showToast('Leaving water temp (LWT) must be greater than wet-bulb temp (WBT). Minimum approach is 2°C.');
       return;
     }
+  } else if (_calcType === 'Water Softener Sizing') {
+    if (inputs.demand_source === 'people' && (!inputs.n_people || inputs.n_people <= 0)) {
+      showToast('Please enter the number of people.');
+      return;
+    }
+    if (inputs.demand_source === 'direct' && (!inputs.demand_lpd || inputs.demand_lpd <= 0)) {
+      showToast('Please enter the daily water demand (L/day).');
+      return;
+    }
+    if (!inputs.inlet_hardness || inputs.inlet_hardness <= 0) {
+      showToast('Please enter the inlet water hardness.');
+      return;
+    }
+    if (inputs.inlet_hardness <= inputs.target_hardness) {
+      showToast('Inlet hardness must be greater than target hardness.');
+      return;
+    }
   } else if (!inputs.floor_area || inputs.floor_area <= 0) {
     showToast('Please enter the floor area.');
     return;
@@ -5626,6 +5835,8 @@ async function runCalculation() {
       renderAHUSizingReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Cooling Tower Sizing') {
       renderCoolingTowerReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Water Softener Sizing') {
+      renderWaterSoftenerReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -9883,6 +10094,10 @@ function viewHistoryReport(row) {
     renderVDReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Wire Sizing') {
     renderWireSizingReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Cooling Tower Sizing') {
+    renderCoolingTowerReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Water Softener Sizing') {
+    renderWaterSoftenerReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
@@ -10694,6 +10909,206 @@ function renderCoolingTowerReport(inputs, results, narrative) {
         </div>
       </div>
       <div>
+        <div style="margin-top:2rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
+          <div style="color:#555;">${e('Owner / Client Representative')}</div>
+          <div style="color:#555;">Date: ${e('_____________')}</div>
+          <div style="color:#888;margin-top:0.2rem;">Approved by</div>
+        </div>
+      </div>
+    </div>
+
+  </div>`;
+
+  showReport();
+}
+
+// ─── Water Softener Sizing Report ────────────────────────────────────────────
+function renderWaterSoftenerReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const r       = results;
+
+  const demandSrc = inputs.demand_source === 'people'
+    ? `${r.demand_lpd?.toLocaleString()} L/day (${inputs.n_people} persons × ${inputs.per_capita_lpd || 200} L/person-day)`
+    : `${r.demand_lpd?.toLocaleString()} L/day (direct input)`;
+
+  const flowStatus = r.flow_check || '';
+  const flowOk     = flowStatus.startsWith('PASS');
+  const flowColor  = flowOk ? '#16a34a' : '#dc2626';
+
+  document.getElementById('report-panel').innerHTML = `
+  <div class="doc-panel" id="report-content">
+
+    <!-- Header -->
+    <div class="doc-header-row" style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid #162032;">
+      <div style="flex:1;">
+        <div style="font-size:1.3rem;font-weight:800;color:#162032;text-transform:uppercase;letter-spacing:0.04em;">Design Calculation Report</div>
+        <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;margin-top:0.2rem;">Water Softener Sizing</div>
+        <div style="color:#555;font-size:0.85rem;margin-top:0.15rem;">Ion Exchange Resin Sizing — NSF/ANSI 44 / PNS 1998 / WQA</div>
+      </div>
+      <div style="text-align:right;font-size:0.8rem;color:#555;line-height:1.8;">
+        <div><strong>Project:</strong> ${e(inputs.project_name || 'Untitled Project')}</div>
+        <div><strong>Location:</strong> ${e(inputs.project_location || '—')}</div>
+        <div><strong>Prepared by:</strong> ${e(inputs.engineer_name || '—')}</div>
+        <div><strong>Date:</strong> ${dateStr}</div>
+        <div><strong>Rev:</strong> ${e('0')}</div>
+      </div>
+    </div>
+
+    <!-- 1. Design Basis -->
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">1. Design Basis</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+      <thead><tr style="background:#162032;color:#fff;">
+        <th style="padding:0.4rem 0.6rem;text-align:left;width:35%;">Parameter</th>
+        <th style="padding:0.4rem 0.6rem;text-align:left;">Value</th>
+        <th style="padding:0.4rem 0.6rem;text-align:left;">Reference</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Daily Water Demand</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${demandSrc}</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">NBCP / NPC / design input</td></tr>
+        <tr><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Inlet Water Hardness</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.inlet_hardness_mgL} mg/L as CaCO₃ (${r.inlet_hardness_gpg} gpg)</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Lab analysis / source data</td></tr>
+        <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Hardness Classification</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;">${r.hardness_class}</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">WQA classification</td></tr>
+        <tr><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Target Treated Hardness</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.target_hardness_mgL} mg/L as CaCO₃ (${r.target_hardness_gpg} gpg)</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">NSF/ANSI 44 / WHO</td></tr>
+        <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Hardness Removal Required</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.removal_mgL} mg/L as CaCO₃</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Inlet − Target</td></tr>
+        <tr><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">PNS 1998 Status</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.pns_check}</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">PNS 1998 (PNSDW)</td></tr>
+        <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Regeneration Interval</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.regen_interval_days} day(s)</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Design input</td></tr>
+        <tr><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Salt Dose</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.salt_dose_gL} g NaCl / L resin</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Manufacturer data / WQA</td></tr>
+        <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Number of Softener Units</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.n_units}</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Design input</td></tr>
+        <tr><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Safety Factor</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.safety_factor}× on load per cycle</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Engineering practice</td></tr>
+      </tbody>
+    </table>
+
+    <!-- 2. Daily Hardness Load -->
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">2. Daily Hardness Load</h2>
+    <div class="narrative-block" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;">
+      <p style="margin:0 0 0.4rem;"><strong>Daily hardness load (g CaCO₃/day):</strong></p>
+      <p style="margin:0 0 0.3rem;">Q<sub>d</sub> × ΔH = ${r.demand_lpd?.toLocaleString()} L/day × ${r.removal_mgL} mg/L ÷ 1,000 = <strong>${r.daily_load_g?.toLocaleString()} g CaCO₃/day</strong></p>
+      <p style="margin:0;"><strong>Load per regeneration cycle (with ${r.safety_factor}× safety factor):</strong><br>
+        ${r.daily_load_g} g/day × ${r.regen_interval_days} days × ${r.safety_factor} = <strong>${r.load_per_cycle_g?.toLocaleString()} g CaCO₃/cycle</strong>
+      </p>
+    </div>
+
+    <!-- 3. Resin Volume Sizing -->
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">3. Resin Volume Sizing</h2>
+    <div class="narrative-block" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;">
+      <p style="margin:0 0 0.3rem;"><strong>Exchange capacity at ${r.salt_dose_gL} g/L salt dose:</strong> ${r.exch_capacity_gL} g CaCO₃ / L resin</p>
+      <p style="margin:0 0 0.3rem;"><strong>Resin volume per unit:</strong><br>
+        Load / Capacity / Units = ${r.load_per_cycle_g} g ÷ ${r.exch_capacity_gL} g/L ÷ ${r.n_units} = <strong>${r.resin_L_per_unit} L (${r.resin_ft3_per_unit} ft³) per unit</strong>
+      </p>
+    </div>
+    <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;padding:0.75rem 1.2rem;border-radius:0.5rem;margin-top:0.7rem;font-size:0.85rem;">
+      <strong>Required Resin Volume per Unit: ${r.resin_L_per_unit} L (${r.resin_ft3_per_unit} ft³)</strong>
+    </div>
+
+    <!-- 4. Tank Selection & Service Flow -->
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">4. Tank Selection &amp; Service Flow</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+      <thead><tr style="background:#162032;color:#fff;">
+        <th style="padding:0.4rem 0.6rem;text-align:left;">Parameter</th>
+        <th style="padding:0.4rem 0.6rem;text-align:left;">Value</th>
+        <th style="padding:0.4rem 0.6rem;text-align:left;">Reference</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Selected Tank Size</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.tank_dia_in}" × ${r.tank_ht_in}" H (${r.tank_dia_mm} mm × ${r.tank_ht_mm} mm H)</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Manufacturer standard</td></tr>
+        <tr><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Actual Resin Volume (selected)</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:700;color:#162032;">${r.selected_resin_L} L per unit</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Tank catalog</td></tr>
+        <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Design Service Flow</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.design_flow_lpm} L/min (16 hr/day operation)</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Q<sub>d</sub> ÷ (16 × 60)</td></tr>
+        <tr><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Allowable Flow Range</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.min_flow_lpm} – ${r.max_flow_lpm} L/min (6–25 BV/hr)</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">NSF/ANSI 44 / WQA</td></tr>
+        <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Flow Check</td>
+          <td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:700;color:${flowColor};">${r.flow_check}</td>
+          <td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Service flow vs. BV/hr limits</td></tr>
+        <tr><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Backwash Flow Rate</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.backwash_lpm} L/min (5 GPM/ft²)</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Manufacturer / WQA</td></tr>
+      </tbody>
+    </table>
+
+    <!-- 5. Salt & Brine System -->
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">5. Salt &amp; Brine Tank Sizing</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+      <thead><tr style="background:#162032;color:#fff;">
+        <th style="padding:0.4rem 0.6rem;text-align:left;">Parameter</th>
+        <th style="padding:0.4rem 0.6rem;text-align:left;">Value</th>
+        <th style="padding:0.4rem 0.6rem;text-align:left;">Basis</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Salt per Regeneration (per unit)</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.salt_per_regen_kg} kg NaCl</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.selected_resin_L} L × ${r.salt_dose_gL} g/L ÷ 1,000</td></tr>
+        <tr><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Monthly Salt Consumption (all units)</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:700;">${r.monthly_salt_kg} kg/month</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.salt_per_regen_kg} × ${r.n_units} units × 30 ÷ ${r.regen_interval_days} days</td></tr>
+        <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Brine Tank Min. Volume Required</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.brine_tank_min_L} L (3-month salt storage)</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">3 × monthly salt ÷ 1.2 kg/L</td></tr>
+        <tr><td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Selected Brine Tank</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:700;color:#162032;">${r.brine_tank_L} L</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Standard size ≥ minimum</td></tr>
+      </tbody>
+    </table>
+
+    <!-- 6. Regeneration Water & System Efficiency -->
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">6. Regeneration Water &amp; System Efficiency</h2>
+    <div class="narrative-block" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;">
+      <p style="margin:0 0 0.3rem;"><strong>Rinse water per regeneration (per unit):</strong> ${r.selected_resin_L} L resin × 5 BV = <strong>${r.rinse_water_L_per_regen} L</strong></p>
+      <p style="margin:0 0 0.3rem;"><strong>Monthly regeneration water waste (all units):</strong> ${r.rinse_water_L_per_regen} L × ${r.n_units} units × 30 ÷ ${r.regen_interval_days} ÷ 1,000 = <strong>${r.monthly_rinse_m3} m³/month</strong></p>
+      <p style="margin:0;"><strong>System water efficiency:</strong> <span style="font-weight:700;color:${r.efficiency_pct >= 90 ? '#16a34a' : r.efficiency_pct >= 75 ? '#d97706' : '#dc2626'};">${r.efficiency_pct}%</span></p>
+    </div>
+
+    <!-- Summary Box -->
+    <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;padding:1rem 1.2rem;border-radius:0.5rem;margin-top:1rem;font-size:0.85rem;">
+      <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.5rem;">DESIGN SUMMARY</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.3rem 1.5rem;">
+        <div>Units: <strong>${r.n_units} × ${r.tank_dia_in}" × ${r.tank_ht_in}" tank</strong></div>
+        <div>Resin: <strong>${r.selected_resin_L} L / unit</strong></div>
+        <div>Service flow: <strong>${r.design_flow_lpm} L/min</strong></div>
+        <div>Brine tank: <strong>${r.brine_tank_L} L</strong></div>
+        <div>Regen interval: <strong>Every ${r.regen_interval_days} day(s)</strong></div>
+        <div>Salt / regen: <strong>${r.salt_per_regen_kg} kg NaCl</strong></div>
+        <div>Monthly salt: <strong>${r.monthly_salt_kg} kg/month</strong></div>
+        <div>Efficiency: <strong>${r.efficiency_pct}%</strong></div>
+      </div>
+    </div>
+
+    <!-- Engineering Narrative -->
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">7. Engineering Narrative</h2>
+    <div class="narrative-block">
+      <div class="narrative-box" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;margin-bottom:0.5rem;">
+        <strong>Objective:</strong><br>${escHtml(narrative?.objective || '')}
+      </div>
+      <div class="narrative-box" style="background:#f8f9fa;border-left:3px solid #1A9ABF;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;margin-bottom:0.5rem;">
+        <strong>Assumptions:</strong><br>${escHtml(narrative?.assumptions || '')}
+      </div>
+      <div class="narrative-box" style="background:#f8f9fa;border-left:3px solid #F7A21B;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;">
+        <strong>Recommendations:</strong><br>${escHtml(narrative?.recommendations || '')}
+      </div>
+    </div>
+
+    <!-- Applicable Standards -->
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">8. Applicable Standards</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+      <thead><tr style="background:#162032;color:#fff;">
+        <th style="padding:0.4rem 0.6rem;text-align:left;">Standard</th>
+        <th style="padding:0.4rem 0.6rem;text-align:left;">Scope</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;">NSF/ANSI 44</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Residential cation exchange water softeners — capacity, efficiency, structural integrity</td></tr>
+        <tr><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;">PNS 1998 / PNSDW</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Philippine National Standards for Drinking Water — hardness limit ≤300 mg/L as CaCO₃</td></tr>
+        <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;">WQA (Water Quality Association)</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Hardness classification, salt dose, service flow, and regeneration guidelines</td></tr>
+        <tr><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;">WHO Guidelines</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Drinking water quality — hardness aesthetic guideline ≤500 mg/L; no health limit</td></tr>
+        <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;">PSME / NBCP</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Philippine Mechanical Engineering Code — water treatment system design</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Signature Block -->
+    <div class="sig-block" style="display:flex;flex-wrap:wrap;gap:1.5rem;margin-top:2rem;padding-top:1rem;border-top:1px solid #ccc;">
+      <div style="flex:1 1 200px;">
+        <div style="margin-top:2rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
+          <div style="color:#555;">${e('Sanitary / Mechanical Engineer')}</div>
+          <div style="color:#555;">PRC License No.: ${e('_____________')}</div>
+          <div style="color:#888;margin-top:0.2rem;">Prepared by</div>
+        </div>
+      </div>
+      <div style="flex:1 1 200px;">
+        <div style="margin-top:2rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
+          <div style="color:#555;">${e('Project Engineer / Manager')}</div>
+          <div style="color:#555;">Company: ${e('_____________')}</div>
+          <div style="color:#888;margin-top:0.2rem;">Checked / Reviewed by</div>
+        </div>
+      </div>
+      <div style="flex:1 1 200px;">
         <div style="margin-top:2rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
           <div style="color:#555;">${e('Owner / Client Representative')}</div>
