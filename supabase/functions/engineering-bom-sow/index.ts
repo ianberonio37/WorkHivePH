@@ -5,6 +5,23 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// ─── BOM unit sanitizer ───────────────────────────────────────────────────────
+// Groq sometimes puts descriptive text in the `unit` field.
+// Clamp any value longer than 12 characters or containing spaces back to "unit".
+const VALID_UNITS = new Set([
+  'unit','set','pc','pcs','lot','m','m²','m³','kg','L','roll','pair',
+  'panel','breaker','tank','battery','length','run','assembly','bag',
+  'sheet','drum','box','can','tube','bar','bundle',
+]);
+function sanitizeBomItems(items: unknown[]): unknown[] {
+  return items.map((item: unknown) => {
+    const it = item as Record<string, unknown>;
+    const raw = String(it.unit || 'unit').trim();
+    const clean = VALID_UNITS.has(raw.toLowerCase()) ? raw : (raw.length > 12 || raw.includes(' ') ? 'unit' : raw);
+    return { ...it, unit: clean };
+  });
+}
+
 // ─── Groq LLM helper — 6-model fallback chain ────────────────────────────────
 //
 // Order: best prose quality first, highest capacity last.
@@ -2764,6 +2781,7 @@ serve(async (req) => {
       );
     }
 
+    result.bom_items = sanitizeBomItems(result.bom_items);
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
