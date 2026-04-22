@@ -9044,26 +9044,29 @@ function printReport() {
   `;
   document.head.appendChild(styleTag);
 
+  // Pin the panel to a fixed A4-compatible width before capture so html2canvas
+  // always renders content at the correct width — prevents both left-edge cutoff
+  // (from windowWidth resizing the whole page layout) and right-edge overflow.
+  // A4 content area at 14mm margins = 182mm = ~688px at 96dpi.
+  // Panel padding 2.5rem (40px each side) is already included inside that width.
+  const origWidth    = reportEl.style.width;
+  const origMaxWidth = reportEl.style.maxWidth;
+  reportEl.style.width    = '688px';
+  reportEl.style.maxWidth = '688px';
+
   const opt = {
-    margin:      [14, 14, 14, 14], // mm — uniform margin; panel's own padding provides inner whitespace
+    margin:      [14, 14, 14, 14],
     filename:    fileName,
     image:       { type: 'jpeg', quality: 0.98 },
-    html2canvas: {
-      scale:          2,
-      useCORS:        true,
-      letterRendering: true,
-      scrollY:        0,
-      // Force layout at A4 width (794px at 96dpi) so content never overflows right edge
-      windowWidth:    794,
-    },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    // no pagebreak mode — avoid-all causes a blank first page on mobile
+    html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0, scrollX: 0 },
+    jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
 
   html2pdf().set(opt).from(reportEl).save().then(() => {
-    // Restore styles after PDF is generated
     noPrintEls.forEach(el => el.style.display = '');
     editableEls.forEach(el => el.style.borderBottom = '1.5px dashed #F7A21B');
+    reportEl.style.width    = origWidth;
+    reportEl.style.maxWidth = origMaxWidth;
     document.getElementById('pdf-pagebreak-rules')?.remove();
   });
 }
