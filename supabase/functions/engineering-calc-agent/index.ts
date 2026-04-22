@@ -4013,10 +4013,10 @@ function calcGeneratorSizing(inputs: Record<string, unknown>): Record<string, un
   const selectedKW  = round2(selectedKVA * 0.8); // standard alternator PF 0.8
   const loadingPct  = round2((runningKVA / selectedKVA) * 100);
 
-  // Step 5: Fuel consumption (diesel, ~0.25 L/kWh rule of thumb)
-  const fuel100KW    = round2(selectedKW * 1.0);
-  const fuel100LHr   = round2(fuel100KW * 0.25);
-  const fuel75LHr    = round2(fuel100KW * 0.75 * 0.25);
+  // Step 5: Fuel consumption (diesel)
+  // SFC at 100% load ~0.30 L/kWh; at 75% load ~0.27 L/kWh (ISO 3046-1 / manufacturer data)
+  const fuel100LHr   = round2(selectedKW * 0.30);
+  const fuel75LHr    = round2(selectedKW * 0.75 * 0.27);
   const tank8hrL     = Math.ceil(fuel100LHr * 8);
 
   return {
