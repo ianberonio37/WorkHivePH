@@ -6888,12 +6888,12 @@ function addRefrigLineRow(defaultName = 'Line', defaultType = 'Suction — Horiz
   row.id    = `refrig-line-row-${id}`;
   row.style.cssText = 'display:grid;grid-template-columns:2fr 120px 70px 28px;gap:0.35rem;align-items:center;';
   row.innerHTML = `
-    <input id="refrig-name-${id}" class="wh-input text-sm py-2" type="text" value="${escHtml(String(defaultName))}" placeholder="Line name" style="padding:0.5rem 0.4rem;" />
-    <select class="wh-input text-sm py-2" id="refrig-type-${id}">
+    <input id="refrig-name-${id}" class="wh-input py-2" type="text" value="${escHtml(String(defaultName))}" placeholder="Line name" style="font-size:16px;padding:0.5rem 0.4rem;" />
+    <select class="wh-input py-2" id="refrig-type-${id}" style="font-size:16px;padding:0.5rem 0.4rem;">
       ${REFRIG_LINE_TYPES.map(t => `<option value="${t}"${t === defaultType ? ' selected' : ''}>${t}</option>`).join('')}
     </select>
     <div class="input-group" style="min-width:0;">
-      <input id="refrig-len-${id}" class="wh-input text-sm py-2" type="number" value="${defaultLen}" min="0.5" step="0.5" style="padding:0.5rem 0.4rem;" />
+      <input id="refrig-len-${id}" class="wh-input py-2" type="number" value="${defaultLen}" min="0.5" step="0.5" style="font-size:16px;padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.6rem;">m</span>
     </div>
     <button onclick="document.getElementById('refrig-line-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>

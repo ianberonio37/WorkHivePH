@@ -4677,6 +4677,7 @@ const REFRIG_COND: Record<string, Record<number, CondProps>> = {
 // Application → evaporating temperature mapping (Philippine practice)
 const APP_EVAP_TEMP: Record<string, number> = {
   "AC":                      5,
+  "Air Conditioning":        5,   // form submits this value
   "Low-Temp Refrigeration": -10,
   "Freezer":                -35,
 };
