@@ -1625,25 +1625,12 @@ SOW REQUIREMENTS (8 sections):
 Write each SOW section as full professional paragraphs starting with "The Contractor shall..." — NOT bullet points.
 Use short unit codes only (unit, set, pcs, m, lot, run) — never descriptive phrases in the unit field.`;
 
-  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${Deno.env.get("GROQ_API_KEY")}`,
-    },
-    body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.3,
-      max_tokens: 4096,
-      response_format: { type: "json_object" },
-    }),
-  });
-
-  if (!response.ok) throw new Error(`Groq API error ${response.status}`);
-  const data = await response.json();
-  const content = data.choices?.[0]?.message?.content || "{}";
-  return JSON.parse(content);
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
 }
 
 // ─── Electrical: Generator Sizing BOM + SOW Agent ────────────────────────────

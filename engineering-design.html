@@ -8527,7 +8527,7 @@ function renderGeneratorReport(inputs, results, narrative) {
 function renderSolarPVReport(inputs, results, narrative) {
   const ef = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const e  = escHtml;
-  const panel = document.getElementById('report-output');
+  const panel = document.getElementById('report-panel');
   const isOffGrid = (inputs.system_type || '').includes('Off-Grid') || (inputs.system_type || '').includes('Hybrid');
 
   const reportHTML = `
