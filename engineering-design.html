@@ -8119,37 +8119,46 @@ function renderPumpReport(inputs, results, narrative) {
 
 // ─── Generator Sizing Report ─────────────────────────────────────────────────
 function renderGeneratorReport(inputs, results, narrative) {
-  const e = escHtml;
+  const ef = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r = results;
   const n = narrative || {};
-
-  const stdSizes = [10,15,20,25,30,40,50,62.5,75,87.5,100,125,150,175,200,250,300,350,400,450,500,600,750,875,1000,1250,1500,2000];
+  const dateStr = new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'});
 
   document.getElementById('report-panel').innerHTML = `
-    <div style="max-width:900px;margin:0 auto;padding:2.5rem;background:#fff;color:#1a1a1a;border-radius:1rem;font-family:'Times New Roman',Times,serif;font-size:0.9rem;line-height:1.6;">
+    <div style="padding:2.5rem;background:#fff;color:#1a1a1a;border-radius:1rem;font-family:'Times New Roman',Times,serif;font-size:0.9rem;line-height:1.6;">
+
+      <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+        <strong>Tip:</strong> Click any underlined field to edit before downloading.
+      </div>
 
       <div style="text-align:center;border-bottom:2px solid #162032;padding-bottom:1rem;margin-bottom:1.5rem;">
         <div style="font-size:1.4rem;font-weight:700;color:#162032;text-transform:uppercase;letter-spacing:1px;">Design Calculation Report</div>
-        <div style="font-size:1rem;color:#333;margin-top:0.3rem;">Generator Sizing — ${e(inputs.application || 'Standby')} Diesel Genset</div>
-        <div style="font-size:0.85rem;color:#444;margin-top:0.4rem;">${e(inputs.project_name || 'Untitled Project')}</div>
+        <div style="font-size:1rem;color:#333;margin-top:0.3rem;">Generator Sizing — ${escHtml(inputs.application || 'Standby')} Diesel Genset</div>
+        <div style="font-size:0.85rem;color:#444;margin-top:0.4rem;">${escHtml(inputs.project_name || 'Untitled Project')}</div>
       </div>
 
       <table style="width:100%;margin-bottom:1.5rem;font-size:0.82rem;border-collapse:collapse;">
         <tr>
           <td style="width:25%;color:#555;">Project:</td>
-          <td style="font-weight:600;" contenteditable="true" style="border-bottom:1.5px dashed #F7A21B;outline:none;">${e(inputs.project_name || '________________________')}</td>
+          <td style="font-weight:600;">${ef(inputs.project_name || '')}</td>
           <td style="width:25%;color:#555;">Date:</td>
-          <td contenteditable="true" style="border-bottom:1.5px dashed #F7A21B;outline:none;">${new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'})}</td>
+          <td>${ef(dateStr)}</td>
         </tr>
         <tr>
-          <td style="color:#555;">Application:</td><td>${e(inputs.application || 'Standby (ESP)')}</td>
-          <td style="color:#555;">Phase Config:</td><td>${e(inputs.phase_config || '3-Phase 4-Wire (400V)')}</td>
+          <td style="color:#555;">Application:</td><td>${escHtml(inputs.application || 'Standby (ESP)')}</td>
+          <td style="color:#555;">Phase Config:</td><td>${escHtml(inputs.phase_config || '3-Phase 4-Wire (400V)')}</td>
         </tr>
         <tr>
           <td style="color:#555;">Prepared by:</td>
-          <td contenteditable="true" style="border-bottom:1.5px dashed #F7A21B;outline:none;">________________________</td>
+          <td>${ef('')}</td>
           <td style="color:#555;">Checked by:</td>
-          <td contenteditable="true" style="border-bottom:1.5px dashed #F7A21B;outline:none;">________________________</td>
+          <td>${ef('')}</td>
+        </tr>
+        <tr>
+          <td style="color:#555;">Owner / Client:</td>
+          <td>${ef('')}</td>
+          <td style="color:#555;">PRC Lic. No.:</td>
+          <td>${ef('')}</td>
         </tr>
       </table>
 
@@ -8263,20 +8272,20 @@ function renderGeneratorReport(inputs, results, narrative) {
         <div style="display:flex;gap:2rem;flex-wrap:wrap;">
           <div style="flex:1 1 200px;">
             <div style="border-top:1px solid #999;padding-top:0.3rem;font-size:0.75rem;">
-              <div style="font-weight:700;color:#1a1a1a;">________________________</div>
+              <div style="font-weight:700;color:#1a1a1a;">${ef('')}</div>
               <div style="color:#555;">Electrical Engineer / Prepared by</div>
-              <div style="margin-top:0.2rem;">PRC Lic. No.: _____________</div>
-              <div>PTR No.: _____________</div>
-              <div>Date: _____________</div>
+              <div style="margin-top:0.2rem;">PRC Lic. No.: ${ef('')}</div>
+              <div>PTR No.: ${ef('')}</div>
+              <div>Date: ${ef(dateStr)}</div>
             </div>
           </div>
           <div style="flex:1 1 200px;">
             <div style="border-top:1px solid #999;padding-top:0.3rem;font-size:0.75rem;">
-              <div style="font-weight:700;color:#1a1a1a;">________________________</div>
+              <div style="font-weight:700;color:#1a1a1a;">${ef('')}</div>
               <div style="color:#555;">Electrical Engineer / Checked by</div>
-              <div style="margin-top:0.2rem;">PRC Lic. No.: _____________</div>
-              <div>PTR No.: _____________</div>
-              <div>Date: _____________</div>
+              <div style="margin-top:0.2rem;">PRC Lic. No.: ${ef('')}</div>
+              <div>PTR No.: ${ef('')}</div>
+              <div>Date: ${ef(dateStr)}</div>
             </div>
           </div>
         </div>
