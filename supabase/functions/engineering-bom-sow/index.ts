@@ -1652,46 +1652,32 @@ async function pfcBomSowAgent(
   const currentRedPct = results.current_reduction_pct || "";
   const meralcoPenalty= results.meralco_penalty ?? false;
 
-  const prompt = `You are a senior electrical engineer in the Philippines preparing a Bill of Materials and Scope of Works for a Power Factor Correction (capacitor bank) installation.
+  const prompt = `You are a Philippine electrical engineering expert (IEEE 18, IEEE 1036, PEC 2017 Art. 4.60, IEC 60831-1). Generate a professional BOM and SOW for a POWER FACTOR CORRECTION (capacitor bank) installation project.
 
 PROJECT: ${project}
 SYSTEM: ${voltageV}V, ${phases}-phase
 LOAD: ${kw} kW at existing PF = ${pfExisting} → target PF = ${pfTarget}
 REQUIRED: ${kvarRequired} kVAR → SELECTED CAPACITOR BANK: ${selectedKvar} kVAR
 kVA REDUCTION: ${kvaReduction} kVA | Feeder current reduction: ${currentRedPct}%
-MERALCO PF SURCHARGE: ${meralcoPenalty ? `YES — existing PF ${pfExisting} is below 0.85 threshold; surcharge eliminated after correction` : "NO — existing PF is above 0.85"}
-STANDARDS: IEEE 18 (Shunt Power Capacitors), IEEE 1036 (Application Guide), PEC 2017 Article 4.60, IEC 60831-1
+MERALCO PF SURCHARGE: ${meralcoPenalty ? `YES — existing PF ${pfExisting} is below 0.85 threshold; surcharge eliminated after correction to PF ${pfTarget}` : `NO — existing PF ${pfExisting} is above Meralco 0.85 threshold`}
+STANDARDS: IEEE 18, IEEE 1036, PEC 2017 Article 4.60, IEC 60831-1
 
-BOM REQUIREMENTS (minimum 14 items):
-1. Power Factor Correction Capacitor Bank — ${selectedKvar} kVAR, ${voltageV}V, ${phases}-phase, IEC 60831-1 certified, self-healing type; Qty: 1 set
-2. Automatic Power Factor Controller (APFC) — 12-step or matching steps, RS-485/Modbus capable; Qty: 1 unit (if APFC panel specified)
-3. Series Detuning Reactor — 7% (189 Hz detuning) for harmonic protection, rated for capacitor current; Qty: 1 set (if harmonic loads present)
-4. Dedicated MCCB / Capacitor Fused Switch — rated ≥ 135% of capacitor rated current per PEC Art. 4.60.14; Qty: 1 unit
-5. Discharge Resistors — factory-installed in capacitor bank, reduces voltage to <50V in 5 min per IEEE 18; Qty: included in bank
-6. Copper Conductors — sized at 135% of capacitor rated current, THHN/THWN-2 75°C rated; Qty: per single-line diagram
-7. Conduit (IMC or PVC Schedule 40) — per PEC wiring method for system voltage; Qty: per layout drawing
-8. Capacitor Panel Enclosure — IP31 minimum indoor, with din-rail, busbars, and door interlocks; Qty: 1 unit (if freestanding panel)
-9. Copper Busbars — tinned copper, current-rated; Qty: per panel design
-10. Power Analyzer / Metering — true-RMS multi-function meter with PF, kVAR, kWh, harmonic THD display; Qty: 1 unit
-11. Control Transformer — 240V/24V AC for APFC controller supply; Qty: 1 unit
-12. Panel Mounting Hardware and Cable Trays — for panel installation and cable routing; Qty: per layout
-13. Grounding Materials — ground bus, ground wire, lugs, per PEC Art. 2.50; Qty: per layout
-14. Warning Labels and Nameplate — per PEC and DOLE OSH; Qty: 1 set
+Generate a JSON object with:
+1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: Power Factor Correction Capacitor Bank (${selectedKvar} kVAR, ${voltageV}V, ${phases}-phase, IEC 60831-1 certified self-healing type, factory-installed discharge resistors per IEEE 18 — terminal voltage < 50V within 5 minutes after disconnection, IP31 minimum indoor rating), Automatic Power Factor Controller / APFC (12-step microprocessor-based controller, RS-485/Modbus communication port, anti-hunting timer to prevent excessive switching cycles, LCD display showing PF, kVAR, step status), Series Detuning Reactor 7% (tuned to 189 Hz to prevent harmonic resonance with VFDs and non-linear loads — rated for 1.3× capacitor rated current, Class H insulation), Dedicated MCCB for Capacitor Feeder (molded-case circuit breaker rated at ≥ 135% of capacitor rated current per PEC Art. 4.60.14 and IEEE 1036 — provide time-delay characteristic to allow capacitor inrush), Capacitor Panel Enclosure (sheet metal IP31 indoor panel with busbar, din-rail, door interlock and padlock provision, nameplate, anti-condensation heater for humid environments), Copper Busbars (tinned copper, current-rated to 125% of capacitor bank rated current, insulated phase segregation, per PEC Art. 4.60), Copper Conductors — Capacitor Feeder (THHN/THWN-2 75°C copper, sized at 135% of capacitor rated current per PEC Art. 4.60.14 and IEEE 1036), Conduit System (IMC rigid metallic conduit or PVC Schedule 40 for LV, sized per PEC Table 3.10.1, with liquid-tight fittings at panel knockouts), Power Analyzer / Energy Meter (true-RMS multifunction meter with power factor, kW, kVAR, kVAh, harmonic THD display — DIN rail or panel mount), Control Transformer (240V/24V AC for APFC controller and auxiliary relay supply, VA rated to controller load + 20% margin), Earthing and Grounding Materials (copper earth bus, 16 mm² green/yellow earth wire, compression lugs, earth bar, bonded to capacitor bank frame and panel enclosure per PEC Art. 2.50), Cable Tray / Cable Duct (perforated cable tray or PVC duct for routing power and control cables, sized for cable fill ≤ 40%), Warning Labels and Safety Signs (DANGER — CAPACITOR BANK, DISCHARGE TIME, PPE requirement labels per DOLE OSH and PEC Art. 4.60), Installation Accessories (mounting bolts, anti-vibration pads, terminal lugs, heat shrink tubing, ferrules, cable ties — complete set)
 
-Return a JSON object with two keys:
-- "bom_items": array of objects with keys: item_no, description, specification, qty, unit, remarks
-- "sow_sections": array of objects with keys: section_no, title, items (array of strings)
+2. "sow_sections": array of 7 sections (each: section_no, title, content)
+   Write each content as a full professional paragraph starting with "The Contractor shall..." — do NOT use bullet points or keyword lists. Each section must be 3–6 sentences of contractor-facing specification language.
+   Cover:
+   Section 1 — Scope of Works and Design Basis: state that this SOW covers supply, installation, testing, and commissioning of a ${selectedKvar} kVAR power factor correction capacitor bank at ${voltageV}V ${phases}-phase for project ${project}; reference calculation basis (IEEE 18, IEEE 1036, PEC 2017 Article 4.60, IEC 60831-1); state existing PF ${pfExisting} → target PF ${pfTarget}; state kVA reduction ${kvaReduction} kVA and feeder current reduction ${currentRedPct}%; ${meralcoPenalty ? `state that the existing PF of ${pfExisting} is below the Meralco DSM 0.85 threshold and that installation of the specified capacitor bank will eliminate the PF surcharge after correction to PF ${pfTarget}` : `state that correction improves kVA demand and reduces feeder I²R losses`}
+   Section 2 — Capacitor Bank and APFC Panel Supply: cover supply of IEC 60831-1 certified self-healing capacitor bank at ${selectedKvar} kVAR; factory-installed discharge resistors per IEEE 18; APFC controller with anti-hunting timer; 7% detuning reactor for harmonic protection; factory test certificate requirements; submittal of equipment data sheets and IEC certificates for Engineer's approval before procurement
+   Section 3 — Capacitor Bank Installation: cover installation at the main distribution board or nearest distribution panel to the load; panel mounting and anchoring; busbar connection torque per manufacturer specification; minimum clearances per PEC; anti-condensation provisions; labeling per PEC Art. 4.60 and DOLE OSH
+   Section 4 — Protection and Wiring: cover dedicated MCCB rated at 135% of capacitor rated current per PEC Art. 4.60.14; conductor sizing at 135% per IEEE 1036; conduit fill per PEC Table 3.10.1; conductor insulation resistance test ≥ 1 MΩ at 500V DC before energization; earthing and bonding per PEC Art. 2.50
+   Section 5 — APFC Controller, Metering, and Commissioning: cover APFC controller programming for step count matching the capacitor bank; anti-hunting timer setting (minimum 30 seconds between switching cycles); power analyzer setup for PF, kVAR, kWh, and THD monitoring; pre-energization insulation resistance test; power factor measurement with calibrated power analyzer before and after installation under full load to verify PF ≥ ${pfTarget}; harmonic THD measurement if VFDs or non-linear loads are present
+   Section 6 — Testing and Commissioning: cover insulation resistance test of all conductors (≥ 1 MΩ at 500V DC megger); step-by-step energization of capacitor bank; APFC automatic switching cycle test (verify each step switches in/out correctly); PF measurement at MDB before correction and after full bank energization — results recorded in test report; ATS or disconnect switching test; 4-hour continuous operation monitoring after full energization; all test results witnessed by the Engineer
+   Section 7 — Documentation, Permits, and Warranty: cover Electrical Permit from LGU before commencement; all electrical works by a licensed master electrician under the supervision of a PRC-licensed Electrical Engineer; as-built single-line diagram showing capacitor bank, APFC, protection, and metering; certified PF measurement test report (before and after) submitted to Owner and Meralco as required for DSM compliance; O&M manual and manufacturer's warranty documentation submitted at project completion; warranty minimum 12 months on capacitor bank and APFC controller
 
-SOW REQUIREMENTS (7 sections):
-1. Scope of Works and Design Basis — reference IEEE 18, IEEE 1036, PEC Art. 4.60, IEC 60831-1; state load and target PF
-2. Capacitor Bank and Panel Supply — IEC 60831-1 certification, self-healing type, factory test, discharge resistors, IP rating
-3. Capacitor Bank Installation — location (MDB or subdistribution board), mounting, busbar connections, torque specs
-4. Protection and Wiring — MCCB/fused switch at 135% rating, conductor sizing at 135% capacitor rated current, conduit fill
-5. APFC Controller and Metering — step sequencing, anti-hunting timer, power analyzer with PF and harmonic THD display
-6. Testing and Commissioning — insulation resistance test (≥1 MΩ at 500V DC), PF measurement before and after (power analyzer), harmonic check if VFDs present, APFC step cycling test
-7. Documentation and Warranty — as-built single-line diagram, test reports, O&M manual, PF measurement report to Owner and Meralco, electrical permit
-
-Respond ONLY with a valid JSON object. No markdown, no explanation.`;
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
   const raw    = await callGroq(prompt);
   const parsed = JSON.parse(raw);
