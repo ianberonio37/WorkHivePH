@@ -12175,7 +12175,11 @@ function renderStormDrainReport(inputs, r, narrative) {
             <td style="padding:0.35rem 0.5rem;font-weight:600;">Composite Runoff Coefficient (C)</td>
             <td style="padding:0.35rem 0.5rem;font-weight:700;">${e(r.composite_c)}</td>
           </tr>
-          ${r.zone_table ? r.zone_table : ''}
+          ${Array.isArray(r.zone_table) && r.zone_table.length ? r.zone_table.map((z, i) => `
+          <tr${i % 2 === 0 ? ' style="background:#f8f9fa;"' : ''}>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;padding-left:1.5rem;">↳ ${e(z.zone)}: ${e(z.area_ha)} ha, C = ${e(z.c)}</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">Weight contribution: ${Math.round(z.weight * 100)}%</td>
+          </tr>`).join('') : ''}
           <tr style="background:#f8f9fa;">
             <td style="padding:0.35rem 0.5rem;font-weight:600;">Return Period</td>
             <td style="padding:0.35rem 0.5rem;">${e(rp)}-year storm event</td>
@@ -12263,15 +12267,15 @@ function renderStormDrainReport(inputs, r, narrative) {
           </tr>
           <tr style="background:#f8f9fa;">
             <td style="padding:0.35rem 0.5rem;font-weight:600;">Min. Velocity (self-cleaning)</td>
-            <td style="padding:0.35rem 0.5rem;">${e(r.full_pipe_vel_ms)} m/s</td>
+            <td style="padding:0.35rem 0.5rem;">0.6 m/s (limit)</td>
             <td style="padding:0.35rem 0.5rem;">≥ 0.6 m/s</td>
-            <td style="padding:0.35rem 0.5rem;">${pass(parseFloat(r.velocity_ms) >= 0.6)}</td>
+            <td style="padding:0.35rem 0.5rem;">${pass(parseFloat(r.full_pipe_vel_ms) >= 0.6)}</td>
           </tr>
           <tr>
             <td style="padding:0.35rem 0.5rem;font-weight:600;">Max. Velocity (erosion limit)</td>
-            <td style="padding:0.35rem 0.5rem;">${e(r.full_pipe_vel_ms)} m/s</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.max_velocity_ms)} m/s (limit)</td>
             <td style="padding:0.35rem 0.5rem;">≤ ${e(r.max_velocity_ms)} m/s</td>
-            <td style="padding:0.35rem 0.5rem;">${pass(parseFloat(r.velocity_ms) <= parseFloat(r.max_velocity_ms))}</td>
+            <td style="padding:0.35rem 0.5rem;">${pass(parseFloat(r.full_pipe_vel_ms) <= parseFloat(r.max_velocity_ms))}</td>
           </tr>
         </tbody>
       </table>
