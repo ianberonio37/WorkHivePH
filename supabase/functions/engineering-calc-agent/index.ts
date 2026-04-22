@@ -1556,6 +1556,13 @@ Respond in JSON format only:
     } else if (calcType === "Septic Tank Sizing") {
       const vol = rec.total_volume_L ?? '';
       recommendations = `Construct a septic tank with minimum liquid capacity of ${vol} L using watertight reinforced concrete or fiberglass. Provide inspection covers on each compartment and a subsurface leachfield sized per DENR DAO 2016-08 effluent standards. Desludge per the computed interval.`;
+    } else if (calcType === "Wastewater Treatment (STP)") {
+      const flow   = rec.flow_m3_day   ?? '';
+      const aVol   = rec.aeration_vol_m3 ?? '';
+      const bod    = rec.effluent_bod   ?? '';
+      const sludge = rec.sludge_kg_day  ?? '';
+      const denr   = rec.denr_status    ?? 'REVIEW';
+      recommendations = `The activated sludge STP is sized for ${flow} m³/day average daily flow with an aeration tank volume of ${aVol} m³. Projected effluent BOD is ${bod} mg/L — DENR DAO 2016-08 status: ${denr}. Sludge production is ${sludge} kg dry solids/day — engage a DOH/DENR-licensed septage hauler for removal. Secure DENR Environmental Compliance Certificate (ECC) and DOH Sanitation Permit before construction. Provide minimum 2× duty+standby blowers with VFD. Verify actual wastewater BOD and flow by site measurement before finalizing detailed design.`;
     } else if (calcType === "Water Treatment System") {
       const filterDia  = rec.selected_filter_dia_mm ?? '';
       const trainSteps = Array.isArray(rec.train_steps) ? (rec.train_steps as string[]).join(' → ') : '';
@@ -3444,6 +3451,148 @@ function calcWaterTreatmentSystem(inputs: Record<string, number | string>): Reco
   };
 }
 
+// ─── Wastewater Treatment (STP) — Activated Sludge Method ───────────────────
+
+function calcWastewaterSTP(inputs: Record<string, number | string>): Record<string, unknown> {
+  const flowSource   = String(inputs.flow_source    || 'population');
+  const population   = Number(inputs.population     || 200);
+  const perCapLpd    = Number(inputs.per_capita_lpd || 150);
+  const flowDirectM3 = Number(inputs.flow_direct_m3d || 30);
+  const bodIn        = Number(inputs.bod_influent   || 220);
+  const bodOut       = Number(inputs.bod_effluent   || 30);
+  const srtDays      = Number(inputs.srt_days       || 8);
+  const mlssMgL      = Number(inputs.mlss_mg_l      || 3000);
+  const disinfection = String(inputs.disinfection   || 'Chlorination');
+
+  // Design flow
+  const flowM3Day  = flowSource === 'population' ? population * perCapLpd / 1000 : flowDirectM3;
+  const flowM3Hr   = flowM3Day / 24;
+  const peakFactor = 1.5;
+  const peakFlowM3Hr = flowM3Hr * peakFactor;
+  const peakFlowLps  = peakFlowM3Hr * 1000 / 3600;
+
+  // BOD loading
+  const bodLoadKgDay     = bodIn * flowM3Day / 1000;
+  const bodRemovedKgDay  = (bodIn - bodOut) * flowM3Day / 1000;
+  const bodRemovalPct    = Math.round((bodIn - bodOut) / bodIn * 100 * 10) / 10;
+
+  // Activated sludge parameters
+  const Y   = 0.60;  // yield coefficient, kg VSS/kg BOD
+  const kd  = 0.06;  // endogenous decay, /day
+  const mlvssRatio = 0.80; // VSS/TSS
+  const mlvssMgL   = mlssMgL * mlvssRatio;
+
+  // Aeration tank volume — SRT method: V = Q × Y × SRT × (S0-Se) / (X × (1 + kd×SRT))
+  const aerVolM3Raw = (flowM3Day * Y * srtDays * (bodIn - bodOut)) / (mlvssMgL * (1 + kd * srtDays) / 1000);
+  const aerVolM3    = Math.ceil(aerVolM3Raw * 10) / 10;
+  const aerHrtHr    = Math.round(aerVolM3 / flowM3Hr * 10) / 10;
+
+  // Tank dimensions: L:W:D = 2:1:4 typical, depth 4m
+  const depth   = 4.0;
+  const planArea = aerVolM3 / depth;
+  const width   = Math.ceil(Math.sqrt(planArea / 2) * 10) / 10;
+  const length  = Math.ceil(width * 2 * 10) / 10;
+  const aerDims = `${length} m × ${width} m × ${depth} m`;
+
+  // MLVSS in tank
+  const mlvssKg = Math.round(mlvssMgL * aerVolM3 / 1000 * 10) / 10;
+  const fmRatio = Math.round(bodRemovedKgDay / mlvssKg * 1000) / 1000;
+
+  // Oxygen demand: O2 = a×BOD_removed + b×MLVSS×V (kg/day)
+  const a = 0.50; const b = 0.10;
+  const o2Synthesis    = Math.round(a * bodRemovedKgDay * 10) / 10;
+  const o2Endogenous   = Math.round(b * mlvssMgL * aerVolM3 / 1000 * 10) / 10;
+  const o2TotalKgDay   = Math.round((o2Synthesis + o2Endogenous) * 10) / 10;
+
+  // Blower: O2 demand kg/day → m3/min air (STE 8%, air density 1.2 kg/m3, O2 fraction 0.232)
+  // kg O2/day ÷ (0.232 × 1.2 kg/m3 × 0.08 STE × 1440 min/day)
+  const blowerM3Min    = Math.round(o2TotalKgDay / (0.232 * 1.2 * 0.08 * 1440) * 100) / 100;
+  const blowerRecM3Min = Math.round(blowerM3Min * 1.2 * 100) / 100; // 20% safety
+  const blowerKw       = Math.ceil(blowerRecM3Min * 0.55 * 10) / 10; // ~0.55 kW per m3/min
+
+  // Primary clarifier: SOR = 28 m3/m2/day
+  const primSor     = 28;
+  const primAreaM2  = Math.round(flowM3Day / primSor * 100) / 100;
+  const primDiaM    = Math.round(Math.sqrt(primAreaM2 * 4 / Math.PI) * 10) / 10;
+  const primDepthM  = 3.5;
+  const primHdtHr   = Math.round(primAreaM2 * primDepthM / flowM3Hr * 10) / 10;
+
+  // Secondary clarifier: SOR = 20 m3/m2/day
+  const secSor    = 20;
+  const secAreaM2 = Math.round(flowM3Day / secSor * 100) / 100;
+  const secDiaM   = Math.round(Math.sqrt(secAreaM2 * 4 / Math.PI) * 10) / 10;
+  const secDepthM = 4.0;
+
+  // Sludge production: Px = Y_obs × BOD_removed, Y_obs = Y/(1+kd×SRT)
+  const yObs         = Y / (1 + kd * srtDays);
+  const sludgeKgDay  = Math.round(yObs * bodRemovedKgDay * 10) / 10;
+  const sludgeM3Day  = Math.round(sludgeKgDay / 10 * 100) / 100; // at 1% DS (10 kg/m3)
+  const wasM3Day     = Math.round(sludgeM3Day * 100) / 100;
+  const desludgeDays = Math.round(20 / sludgeM3Day * 10) / 10; // assume 20 m3 sludge holding
+  const desludgeFreq = `Every ${desludgeDays} days (at ${sludgeM3Day} m³/day production, 20 m³ holding tank)`;
+
+  // Disinfection
+  const cl2DoseMgL   = 5.0; // mg/L for secondary effluent
+  const naoclLpd     = Math.round(cl2DoseMgL * flowM3Day * 0.083 * 10) / 10; // 10% NaOCl, 0.083 L per gram
+  const contactTankM3 = Math.round(peakFlowM3Hr / 60 * 30 * 10) / 10; // 30-min contact at peak flow
+
+  // Projected effluent quality
+  const effluentBod  = bodOut;
+  const effluentTss  = Math.round(mlssMgL * 0.005 * 10) / 10; // ~0.5% carryover from secondary clarifier, typ 10-20 mg/L
+  const effluentTssAdj = Math.max(effluentTss, 10); // minimum 10 mg/L realistic
+
+  const denrStatus = effluentBod <= 30 && effluentTssAdj <= 50 ? 'COMPLIANT' : 'REVIEW';
+
+  return {
+    flow_source:         flowSource,
+    flow_m3_day:         Math.round(flowM3Day * 10) / 10,
+    flow_m3_hr:          Math.round(flowM3Hr * 100) / 100,
+    peak_flow_m3_hr:     Math.round(peakFlowM3Hr * 100) / 100,
+    peak_flow_lps:       Math.round(peakFlowLps * 10) / 10,
+    bod_load_kg_day:     Math.round(bodLoadKgDay * 10) / 10,
+    bod_removed_kg_day:  Math.round(bodRemovedKgDay * 10) / 10,
+    bod_removal_pct:     bodRemovalPct,
+    // Aeration tank
+    aeration_vol_m3:     aerVolM3,
+    aeration_hrt_hr:     aerHrtHr,
+    aeration_dims:       aerDims,
+    mlvss_mg_l:          mlvssMgL,
+    mlvss_kg:            mlvssKg,
+    fm_ratio:            fmRatio,
+    // O2 and blower
+    o2_synthesis_kg_day:   o2Synthesis,
+    o2_endogenous_kg_day:  o2Endogenous,
+    o2_total_kg_day:       o2TotalKgDay,
+    blower_m3_min:         blowerM3Min,
+    blower_recommended_m3_min: blowerRecM3Min,
+    blower_kw:             blowerKw,
+    // Primary clarifier
+    prim_sor:       primSor,
+    prim_area_m2:   primAreaM2,
+    prim_dia_m:     primDiaM,
+    prim_depth_m:   primDepthM,
+    prim_hdt_hr:    primHdtHr,
+    // Secondary clarifier
+    sec_sor:        secSor,
+    sec_area_m2:    secAreaM2,
+    sec_dia_m:      secDiaM,
+    sec_depth_m:    secDepthM,
+    // Sludge
+    sludge_kg_day:  sludgeKgDay,
+    sludge_m3_day:  sludgeM3Day,
+    was_m3_day:     wasM3Day,
+    desludge_freq:  desludgeFreq,
+    // Disinfection
+    cl2_dose_mg_l:   cl2DoseMgL,
+    naocl_lpd:       naoclLpd,
+    contact_tank_m3: contactTankM3,
+    // Effluent quality
+    effluent_bod:   effluentBod,
+    effluent_tss:   effluentTssAdj,
+    denr_status:    denrStatus,
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -3523,6 +3672,8 @@ serve(async (req) => {
       results = calcWaterSoftenerSizing(inputs);
     } else if (calc_type === "Water Treatment System") {
       results = calcWaterTreatmentSystem(inputs);
+    } else if (calc_type === "Wastewater Treatment (STP)") {
+      results = calcWastewaterSTP(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

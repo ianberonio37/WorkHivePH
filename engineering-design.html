@@ -683,6 +683,7 @@ const CALC_TYPES = {
     { id: 'Septic Tank Sizing',       icon: '🏭', desc: 'Tank capacity per occupancy',            available: true  },
     { id: 'Water Softener Sizing',    icon: '💧', desc: 'Ion exchange resin sizing, salt & brine tank, regeneration schedule — NSF/ANSI 44 / WQA', available: true },
     { id: 'Water Treatment System',   icon: '🏭', desc: 'Treatment train, filter sizing, chlorination dosing, iron removal — PNS 1998 / DOH / WHO', available: true },
+    { id: 'Wastewater Treatment (STP)', icon: '♻️', desc: 'Sewage treatment plant sizing — activated sludge, aeration, sludge — DENR DAO 2016-08 / DOH PD 856', available: true },
   ],
   Electrical: [
     { id: 'Load Estimation',  icon: '📋', desc: 'Panel schedule, demand factor, service size', available: true  },
@@ -1010,6 +1011,71 @@ const GUIDES = {
       'Iron removal: aeration + greensand filter is the standard Philippine solution. Aeration oxidizes Fe²⁺ (soluble) to Fe³⁺ (insoluble, filterable). KMnO₄ regenerates the greensand media.',
       'UV disinfection: effective against Giardia and Cryptosporidium (resistant to chlorine at low doses). Best combined with chlorine for a complete barrier. Recommended for hospital, hotel, food processing.',
       'Sodium hypochlorite (NaOCl 12%) is the preferred disinfectant in the Philippines — safer to handle than chlorine gas, widely available. Store away from sunlight; potency degrades 1%/month.',
+    ],
+  },
+
+  'Wastewater Treatment (STP)': {
+    title: 'Wastewater Treatment Plant (STP) Sizing — Activated Sludge Method',
+    subtitle: 'Sizes a complete sewage treatment plant: design flow, primary settling, aeration tank (activated sludge), secondary clarifier, oxygen demand, blower sizing, sludge production, and disinfection — with DENR DAO 2016-08 effluent quality compliance check.',
+    standards: [
+      'DENR DAO 2016-08 — Revised Effluent Standards (BOD ≤30 mg/L, TSS ≤50 mg/L, pH 6–9 for Class D discharge)',
+      'DOH Sanitation Code — Presidential Decree No. 856 (sewage disposal requirements)',
+      'Metcalf & Eddy — Wastewater Engineering: Treatment and Resource Recovery (5th Ed.)',
+      'ADB — Design Guidelines for Small-Scale Sewage Treatment Plants in Southeast Asia',
+      'PSME Code — Mechanical equipment for wastewater treatment',
+      'DOLE OSH Standards — Confined space, chemical handling for STP operations',
+    ],
+    formulas: [
+      'Design Flow (m³/day) = Population × Per Capita Wastewater (L/person/day) ÷ 1,000',
+      '  Per capita (domestic residential): 150–200 L/person/day',
+      '  Per capita (office/commercial):    60–80 L/person/day',
+      '  Return flow factor (sewage/water supply): 0.70–0.85',
+      '',
+      'BOD Load (kg/day) = BOD Influent (mg/L) × Design Flow (m³/day) ÷ 1,000',
+      '  Typical domestic BOD influent: 200–300 mg/L',
+      '',
+      'Aeration Tank Volume (m³) — SRT method (Metcalf & Eddy):',
+      '  V = Q × Y × SRT × (S₀ − Se) ÷ (X × (1 + kd × SRT))',
+      '  Y (yield coefficient): 0.5–0.7 kg VSS/kg BOD',
+      '  kd (decay coefficient): 0.05–0.10 /day',
+      '  X (MLSS): 2,000–4,000 mg/L (activated sludge)',
+      '  SRT (sludge retention time): 5–15 days',
+      '  S₀ = influent BOD, Se = effluent BOD target',
+      '',
+      'Hydraulic Retention Time (HRT, hr) = V (m³) ÷ Q (m³/hr)',
+      '  Typical aeration HRT: 4–8 hr',
+      '',
+      'Oxygen Demand (kg O₂/day) = a × BOD_removed + b × MLVSS × V',
+      '  a (synthesis): 0.50 kg O₂/kg BOD, b (endogenous): 0.10 kg O₂/kg MLVSS/day',
+      '',
+      'Standard Blower Capacity (m³/min) = O₂_demand ÷ (0.232 × 1.2 × 0.08 × 60)',
+      '  Add 20% safety factor; standard transfer efficiency (STE): 8%',
+      '',
+      'Primary Clarifier — Surface Overflow Rate (SOR): 24–32 m³/m²/day',
+      '  Area (m²) = Q (m³/day) ÷ SOR; Detention Time: 1.5–2.5 hr',
+      '',
+      'Secondary Clarifier — SOR: 16–24 m³/m²/day',
+      '  Area (m²) = Q (m³/day) ÷ SOR',
+      '',
+      'Sludge Production (kg dry solids/day) = 0.7 × BOD_removed (kg/day) × (1 − 0.77/SRT)',
+      '  Sludge volume (m³/day) at 1% DS ≈ Sludge_kg ÷ 10',
+    ],
+    fields: [
+      { name: 'Population / Flow Source', tip: 'Choose "By Population" to enter number of people (design population × per-capita wastewater generation rate). Choose "Direct Flow" to enter the measured or design average daily flow in m³/day directly. For new developments, always use population-based sizing. Add 25% peaking factor for peak hour flow.' },
+      { name: 'Design Population', tip: 'Total number of persons served by the STP. For residential: use maximum occupancy. For commercial/office: use peak occupancy (typically 80% of floor area ÷ 8 m²/person for office). Always design for end-of-project-life population (20-year projection for large plants).' },
+      { name: 'Per Capita Wastewater (L/person/day)', tip: 'Typical Philippine values: 150 L/person/day (residential), 60–80 L/person/day (office/commercial), 200–300 L/bed/day (hospital). Return flow = approximately 80% of water supply consumption. Adjust based on local water consumption data if available.' },
+      { name: 'BOD Influent (mg/L)', tip: 'Biochemical Oxygen Demand of raw sewage. Typical domestic wastewater: 200–300 mg/L. Weak: <150 mg/L. Medium: 200 mg/L. Strong: >300 mg/L. For industrial mixed wastewater, measure actual BOD from 5-day lab test. Higher BOD = larger aeration tank and more oxygen demand.' },
+      { name: 'BOD Effluent Target (mg/L)', tip: 'DENR DAO 2016-08 effluent standard: BOD ≤ 30 mg/L for Class C/D receiving water body (most urban discharges). Class A/B (fishery/recreation): ≤ 10 mg/L. Enter 10 if discharging near sensitive water bodies or if LGU requires Class A/B standard. Lower target = larger aeration tank.' },
+      { name: 'System Type', tip: 'Activated Sludge (CAS): most common for medium-large plants (>50 m³/day), well-established, requires blower and RAS pump. SBR (Sequencing Batch Reactor): good for intermittent flows, smaller footprint, automated. MBR (Membrane Bioreactor): high effluent quality, smallest footprint but highest CAPEX. MBBR: good for retrofits. For this calculator, Activated Sludge (Conventional) is used.' },
+      { name: 'SRT (Sludge Retention Time, days)', tip: 'How long the biological sludge stays in the system before wasting. Short SRT (5–8 days): smaller tank, less nitrification. Long SRT (10–20 days): more stable, nitrification occurs, more sludge. For tropical Philippines (25–30°C), SRT of 5–8 days is typical for BOD removal only. Use 10–15 days if nitrification (ammonia removal) is required.' },
+      { name: 'MLSS (mg/L)', tip: 'Mixed Liquor Suspended Solids — concentration of biomass in the aeration tank. Higher MLSS = smaller aeration tank but more clarifier loading. Typical range: 2,000–4,000 mg/L for conventional activated sludge. Using 3,000 mg/L is a good starting point for most Philippine commercial STP designs.' },
+    ],
+    notes: [
+      'DENR DAO 2016-08 requires Environmental Compliance Certificate (ECC) for all STP projects. BOD ≤ 30 mg/L, TSS ≤ 50 mg/L, and pH 6–9 for Class D water bodies. Contact DENR-EMB regional office for specific permit requirements.',
+      'DOH PD 856 (Sanitation Code) requires a Sanitary Permit from the LGU for STP construction and operation. Annual renewal is required.',
+      'Sludge from STP (septage/biosolids) must be disposed of by a DOH/DENR-licensed desludging operator. Do not discharge sludge to storm drains.',
+      'For STP serving a food establishment, hospital, or industrial source, characterize actual wastewater — BOD and TSS may be significantly higher than domestic values and will require larger tanks.',
+      'Aeration equipment (blowers, diffusers) is the highest-maintenance item in an STP. Specify at least 2 duty+standby blowers. Fine-bubble diffusers are more energy-efficient than coarse-bubble.',
     ],
   },
 
@@ -3078,6 +3144,123 @@ function renderInputForm(calcType) {
 
       <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
         Method: Multimedia filter sizing per AWWA standards (filtration rate 8–10 m/hr). Chlorination dosing per EPA CT guidance (CT ≥30 mg·min/L). Treatment train selected automatically based on raw water quality. Standards: PNS 1998, DOH AO 2017-0010, WHO, AWWA.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
+  if (calcType === 'Wastewater Treatment (STP)') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Condominium STP — 500 persons" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Flow Input Method</div>
+        <div class="toggle-group" id="tg-stp-source">
+          <button class="toggle-btn active" data-val="population" onclick="toggle('tg-stp-source','population');setSTPFlowFields()">By Population</button>
+          <button class="toggle-btn" data-val="direct" onclick="toggle('tg-stp-source','direct');setSTPFlowFields()">Direct Flow (m³/day)</button>
+        </div>
+      </div>
+
+      <div id="stp-pop-row" class="mb-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <div class="field-label">Design Population</div>
+            <div class="input-group">
+              <input id="f-stp-population" class="wh-input" type="number" value="200" min="1" />
+              <span class="input-unit">persons</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Per Capita Wastewater</div>
+            <div class="toggle-group" id="tg-stp-percapita" style="margin-bottom:0.4rem;flex-wrap:wrap;">
+              <button class="toggle-btn" data-val="70" onclick="toggle('tg-stp-percapita','70');document.getElementById('f-stp-percapita').value=70">70 Office</button>
+              <button class="toggle-btn active" data-val="150" onclick="toggle('tg-stp-percapita','150');document.getElementById('f-stp-percapita').value=150">150 Residential</button>
+              <button class="toggle-btn" data-val="200" onclick="toggle('tg-stp-percapita','200');document.getElementById('f-stp-percapita').value=200">200 Mixed</button>
+            </div>
+            <div class="input-group">
+              <input id="f-stp-percapita" class="wh-input" type="number" value="150" min="30" />
+              <span class="input-unit">L/p/day</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="stp-direct-row" class="mb-4 hidden">
+        <div class="field-label">Average Daily Wastewater Flow</div>
+        <div class="input-group">
+          <input id="f-stp-flow-direct" class="wh-input" type="number" value="30" min="0.5" step="0.5" />
+          <span class="input-unit">m³/day</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">BOD Influent</div>
+          <div class="toggle-group" id="tg-stp-bod-in" style="margin-bottom:0.4rem;flex-wrap:wrap;">
+            <button class="toggle-btn" data-val="150" onclick="toggle('tg-stp-bod-in','150');document.getElementById('f-stp-bod-in').value=150">150 Weak</button>
+            <button class="toggle-btn active" data-val="220" onclick="toggle('tg-stp-bod-in','220');document.getElementById('f-stp-bod-in').value=220">220 Typical</button>
+            <button class="toggle-btn" data-val="300" onclick="toggle('tg-stp-bod-in','300');document.getElementById('f-stp-bod-in').value=300">300 Strong</button>
+          </div>
+          <div class="input-group">
+            <input id="f-stp-bod-in" class="wh-input" type="number" value="220" min="50" />
+            <span class="input-unit">mg/L BOD</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">BOD Effluent Target</div>
+          <div class="toggle-group" id="tg-stp-bod-out" style="margin-bottom:0.4rem;flex-wrap:wrap;">
+            <button class="toggle-btn active" data-val="30" onclick="toggle('tg-stp-bod-out','30');document.getElementById('f-stp-bod-out').value=30">30 DENR D</button>
+            <button class="toggle-btn" data-val="10" onclick="toggle('tg-stp-bod-out','10');document.getElementById('f-stp-bod-out').value=10">10 DENR A/B</button>
+          </div>
+          <div class="input-group">
+            <input id="f-stp-bod-out" class="wh-input" type="number" value="30" min="5" max="50" />
+            <span class="input-unit">mg/L BOD</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">SRT (Sludge Retention Time)</div>
+          <div class="toggle-group" id="tg-stp-srt" style="margin-bottom:0.4rem;flex-wrap:wrap;">
+            <button class="toggle-btn" data-val="5" onclick="toggle('tg-stp-srt','5');document.getElementById('f-stp-srt').value=5">5d BOD only</button>
+            <button class="toggle-btn active" data-val="8" onclick="toggle('tg-stp-srt','8');document.getElementById('f-stp-srt').value=8">8d Standard</button>
+            <button class="toggle-btn" data-val="15" onclick="toggle('tg-stp-srt','15');document.getElementById('f-stp-srt').value=15">15d Nitrify</button>
+          </div>
+          <div class="input-group">
+            <input id="f-stp-srt" class="wh-input" type="number" value="8" min="3" max="30" />
+            <span class="input-unit">days</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">MLSS (Aeration Tank)</div>
+          <div class="toggle-group" id="tg-stp-mlss" style="margin-bottom:0.4rem;flex-wrap:wrap;">
+            <button class="toggle-btn" data-val="2000" onclick="toggle('tg-stp-mlss','2000');document.getElementById('f-stp-mlss').value=2000">2000</button>
+            <button class="toggle-btn active" data-val="3000" onclick="toggle('tg-stp-mlss','3000');document.getElementById('f-stp-mlss').value=3000">3000</button>
+            <button class="toggle-btn" data-val="4000" onclick="toggle('tg-stp-mlss','4000');document.getElementById('f-stp-mlss').value=4000">4000</button>
+          </div>
+          <div class="input-group">
+            <input id="f-stp-mlss" class="wh-input" type="number" value="3000" min="1000" max="6000" step="100" />
+            <span class="input-unit">mg/L MLSS</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Disinfection Method</div>
+        <div class="toggle-group" id="tg-stp-disinf" style="flex-wrap:wrap;">
+          <button class="toggle-btn active" data-val="Chlorination" onclick="toggle('tg-stp-disinf','Chlorination')">Chlorination (NaOCl)</button>
+          <button class="toggle-btn" data-val="UV" onclick="toggle('tg-stp-disinf','UV')">UV Disinfection</button>
+          <button class="toggle-btn" data-val="None" onclick="toggle('tg-stp-disinf','None')">None</button>
+        </div>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Method: Activated Sludge (Conventional) — SRT sizing method per Metcalf & Eddy. Includes primary clarifier, aeration tank, secondary clarifier, blower sizing, sludge production, and effluent quality check vs DENR DAO 2016-08. Standards: DENR DAO 2016-08, DOH PD 856, Metcalf & Eddy.
       </div>
     `;
     setStep(4);
@@ -5355,6 +5538,22 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Wastewater Treatment (STP)') {
+    const flowSource = getToggle('tg-stp-source') || 'population';
+    return {
+      project_name:    v('f-project') || 'Wastewater Treatment Plant (STP)',
+      flow_source:     flowSource,
+      population:      parseFloat(v('f-stp-population'))   || 200,
+      per_capita_lpd:  parseFloat(v('f-stp-percapita'))    || 150,
+      flow_direct_m3d: parseFloat(v('f-stp-flow-direct'))  || 30,
+      bod_influent:    parseFloat(v('f-stp-bod-in'))        || 220,
+      bod_effluent:    parseFloat(v('f-stp-bod-out'))       || 30,
+      srt_days:        parseFloat(v('f-stp-srt'))           || 8,
+      mlss_mg_l:       parseFloat(v('f-stp-mlss'))          || 3000,
+      disinfection:    getToggle('tg-stp-disinf')           || 'Chlorination',
+    };
+  }
+
   if (_calcType === 'Water Treatment System') {
     const demandSource = getToggle('tg-wt-demand-source') || 'direct';
     return {
@@ -5753,6 +5952,12 @@ function setWSDemandFields() {
   if (peopleRow) peopleRow.classList.toggle('hidden', src !== 'people');
 }
 
+function setSTPFlowFields() {
+  const src = getToggle('tg-stp-source') || 'population';
+  document.getElementById('stp-pop-row')?.classList.toggle('hidden', src !== 'population');
+  document.getElementById('stp-direct-row')?.classList.toggle('hidden', src !== 'direct');
+}
+
 function setWTDemandFields() {
   const src = getToggle('tg-wt-demand-source') || 'direct';
   document.getElementById('wt-direct-row')?.classList.toggle('hidden', src !== 'direct');
@@ -5969,6 +6174,19 @@ async function runCalculation() {
       showToast('Leaving water temp (LWT) must be greater than wet-bulb temp (WBT). Minimum approach is 2°C.');
       return;
     }
+  } else if (_calcType === 'Wastewater Treatment (STP)') {
+    if (inputs.flow_source === 'population' && (!inputs.population || inputs.population <= 0)) {
+      showToast('Please enter the design population.');
+      return;
+    }
+    if (inputs.flow_source === 'direct' && (!inputs.flow_direct_m3d || inputs.flow_direct_m3d <= 0)) {
+      showToast('Please enter the daily wastewater flow.');
+      return;
+    }
+    if (!inputs.bod_influent || inputs.bod_influent <= 0) {
+      showToast('Please enter the BOD influent concentration.');
+      return;
+    }
   } else if (_calcType === 'Water Treatment System') {
     if (inputs.demand_source === 'people' && (!inputs.n_people || inputs.n_people <= 0)) {
       showToast('Please enter the number of people.');
@@ -6072,6 +6290,8 @@ async function runCalculation() {
       renderWaterSoftenerReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Water Treatment System') {
       renderWaterTreatmentReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Wastewater Treatment (STP)') {
+      renderSTPReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -10315,6 +10535,8 @@ function viewHistoryReport(row) {
     renderWaterSoftenerReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Water Treatment System') {
     renderWaterTreatmentReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Wastewater Treatment (STP)') {
+    renderSTPReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
@@ -11628,6 +11850,372 @@ function renderWaterTreatmentReport(inputs, results, narrative) {
 
   </div>`;
 
+  showReport();
+}
+
+// ─── Wastewater Treatment (STP) Report ───────────────────────────────────────
+
+function renderSTPReport(inputs, r, narrative) {
+  const e = v => escHtml(v ?? '');
+  const proj      = inputs.project_name || 'Wastewater Treatment Plant (STP)';
+  const flowSrc   = inputs.flow_source || 'population';
+  const pop       = inputs.population  || '';
+  const perCap    = inputs.per_capita_lpd || '';
+  const bodIn     = inputs.bod_influent   || '';
+  const bodOut    = inputs.bod_effluent   || '';
+  const srt       = inputs.srt_days       || '';
+  const mlss      = inputs.mlss_mg_l      || '';
+  const disinf    = inputs.disinfection   || 'Chlorination';
+
+  const pass = c => c ? '<span style="color:#16a34a;font-weight:700;">PASS</span>' : '<span style="color:#dc2626;font-weight:700;">FAIL</span>';
+  const status = (r.denr_status || 'REVIEW') === 'COMPLIANT'
+    ? '<span style="color:#16a34a;font-weight:700;">COMPLIANT — DENR DAO 2016-08</span>'
+    : '<span style="color:#dc2626;font-weight:700;">REVIEW — Check effluent targets</span>';
+
+  document.getElementById('report-panel').innerHTML = `
+    <div id="report-content">
+      <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+        <strong>Tip:</strong> Click any underlined field to edit before printing. In the print dialog, uncheck "Headers and footers" for a clean PDF.
+      </div>
+
+      <!-- HEADER -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;gap:1rem;flex-wrap:wrap;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.72rem;font-weight:700;color:#888;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.15rem;">DESIGN CALCULATION REPORT</div>
+          <h1 class="editable-field" contenteditable="true" style="font-size:1.15rem;font-weight:800;margin-bottom:0.35rem;color:#1a1a1a;">${e(proj)}</h1>
+          <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;margin-top:0.2rem;">Wastewater Treatment Plant — Activated Sludge</div>
+          <div style="font-size:0.78rem;color:#555;margin-top:0.3rem;">
+            Prepared by: <span class="editable-field" contenteditable="true">${escHtml(WORKER_NAME)}</span> &nbsp;|&nbsp;
+            Date: <span class="editable-field" contenteditable="true">${new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'})}</span> &nbsp;|&nbsp;
+            Doc No.: <span class="editable-field" contenteditable="true">PLMB-STP-${new Date().toISOString().slice(0,10).replace(/-/g,'')}</span>
+          </div>
+        </div>
+        <div style="text-align:right;font-size:0.72rem;color:#888;white-space:nowrap;">
+          <div style="font-weight:700;">PSME / DENR DAO 2016-08</div>
+          <div>DOH PD 856 | Metcalf & Eddy</div>
+        </div>
+      </div>
+
+      <!-- DESIGN BASIS -->
+      <h2 style="font-size:0.88rem;font-weight:700;color:#1a1a1a;border-bottom:2px solid #162032;padding-bottom:0.3rem;margin-bottom:0.6rem;">1. Design Basis</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-bottom:1.2rem;">
+        <tbody>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;width:40%;">Flow Basis</td>
+            <td style="padding:0.35rem 0.5rem;">${flowSrc === 'population' ? `${e(pop)} persons × ${e(perCap)} L/p/day` : `Direct entry`}</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Average Daily Flow (Q)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.flow_m3_day)} m³/day &nbsp;(${e(r.flow_m3_hr)} m³/hr)</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Peak Flow (1.5× Q)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.peak_flow_m3_hr)} m³/hr &nbsp;(${e(r.peak_flow_lps)} L/s)</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">BOD Influent / Effluent Target</td>
+            <td style="padding:0.35rem 0.5rem;">${e(bodIn)} mg/L → ${e(bodOut)} mg/L &nbsp;(${e(r.bod_removal_pct)}% removal)</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">BOD Load</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.bod_load_kg_day)} kg BOD/day influent &nbsp;|&nbsp; ${e(r.bod_removed_kg_day)} kg BOD/day removed</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">SRT / MLSS</td>
+            <td style="padding:0.35rem 0.5rem;">${e(srt)} days &nbsp;|&nbsp; ${e(mlss)} mg/L MLSS</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Disinfection</td>
+            <td style="padding:0.35rem 0.5rem;">${e(disinf)}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- PRIMARY CLARIFIER -->
+      <h2 style="font-size:0.88rem;font-weight:700;color:#1a1a1a;border-bottom:2px solid #162032;padding-bottom:0.3rem;margin-bottom:0.6rem;">2. Primary Clarifier Sizing</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-bottom:1.2rem;">
+        <thead>
+          <tr>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Parameter</th>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Calculated</th>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Standard Range</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Surface Overflow Rate (SOR)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.prim_sor)} m³/m²/day</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">24–32 m³/m²/day</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Clarifier Surface Area</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.prim_area_m2)} m²</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">—</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Clarifier Diameter</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.prim_dia_m)} m (circular)</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">—</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Hydraulic Detention Time (HDT)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.prim_hdt_hr)} hr</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">1.5–2.5 hr</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Tank Depth / Side Water Depth</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.prim_depth_m)} m</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">2.5–4.5 m</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- AERATION TANK -->
+      <h2 style="font-size:0.88rem;font-weight:700;color:#1a1a1a;border-bottom:2px solid #162032;padding-bottom:0.3rem;margin-bottom:0.6rem;">3. Aeration Tank (Activated Sludge)</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-bottom:1.2rem;">
+        <thead>
+          <tr>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Parameter</th>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Calculated</th>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Standard Range</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Aeration Tank Volume (V)</td>
+            <td style="padding:0.35rem 0.5rem;font-weight:700;">${e(r.aeration_vol_m3)} m³</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">Per SRT method</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Hydraulic Retention Time (HRT)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.aeration_hrt_hr)} hr</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">4–8 hr</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Tank Dimensions (L × W × D)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.aeration_dims)}</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">Depth 3.5–5 m</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">F/M Ratio</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.fm_ratio)} kg BOD/kg MLVSS/day</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">0.05–0.20</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">MLVSS</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.mlvss_mg_l)} mg/L (${e(r.mlvss_kg)} kg in tank)</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">VSS/TSS ≈ 0.8</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- OXYGEN & BLOWER -->
+      <h2 style="font-size:0.88rem;font-weight:700;color:#1a1a1a;border-bottom:2px solid #162032;padding-bottom:0.3rem;margin-bottom:0.6rem;">4. Oxygen Demand & Blower Sizing</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-bottom:1.2rem;">
+        <thead>
+          <tr>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Parameter</th>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Calculated</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">O₂ Demand (Synthesis)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.o2_synthesis_kg_day)} kg O₂/day</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">O₂ Demand (Endogenous)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.o2_endogenous_kg_day)} kg O₂/day</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Total O₂ Demand</td>
+            <td style="padding:0.35rem 0.5rem;font-weight:700;">${e(r.o2_total_kg_day)} kg O₂/day</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Blower Capacity Required</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.blower_m3_min)} m³/min (STE = 8%)</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Recommended Blower (with 20% safety)</td>
+            <td style="padding:0.35rem 0.5rem;font-weight:700;">${e(r.blower_recommended_m3_min)} m³/min &nbsp;(${e(r.blower_kw)} kW motor)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- SECONDARY CLARIFIER -->
+      <h2 style="font-size:0.88rem;font-weight:700;color:#1a1a1a;border-bottom:2px solid #162032;padding-bottom:0.3rem;margin-bottom:0.6rem;">5. Secondary Clarifier Sizing</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-bottom:1.2rem;">
+        <tbody>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;width:40%;">Surface Overflow Rate (SOR)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.sec_sor)} m³/m²/day &nbsp;(standard: 16–24)</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Surface Area Required</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.sec_area_m2)} m²</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Clarifier Diameter</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.sec_dia_m)} m (circular)</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Side Water Depth</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.sec_depth_m)} m</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- SLUDGE -->
+      <h2 style="font-size:0.88rem;font-weight:700;color:#1a1a1a;border-bottom:2px solid #162032;padding-bottom:0.3rem;margin-bottom:0.6rem;">6. Sludge Production</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-bottom:1.2rem;">
+        <tbody>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;width:40%;">Net Sludge Production</td>
+            <td style="padding:0.35rem 0.5rem;font-weight:700;">${e(r.sludge_kg_day)} kg dry solids/day</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Sludge Volume (at 1% DS)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.sludge_m3_day)} m³/day</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Wasting Rate (WAS)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.was_m3_day)} m³/day (from secondary clarifier underflow)</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Desludging / Hauling Frequency</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.desludge_freq)}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      ${disinf !== 'None' ? `
+      <!-- DISINFECTION -->
+      <h2 style="font-size:0.88rem;font-weight:700;color:#1a1a1a;border-bottom:2px solid #162032;padding-bottom:0.3rem;margin-bottom:0.6rem;">7. Disinfection</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-bottom:1.2rem;">
+        <tbody>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;width:40%;">Method</td>
+            <td style="padding:0.35rem 0.5rem;">${e(disinf)}</td>
+          </tr>
+          ${disinf === 'Chlorination' ? `
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Cl₂ Dose</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.cl2_dose_mg_l)} mg/L (effluent residual target 0.2–0.5 mg/L)</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">NaOCl Consumption (10%)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.naocl_lpd)} L/day</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Contact Tank Volume</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.contact_tank_m3)} m³ (30-min contact time at peak flow)</td>
+          </tr>` : `
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">UV Dose</td>
+            <td style="padding:0.35rem 0.5rem;">40 mJ/cm² minimum (NSF/ANSI 55 Class A)</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">UV Unit Flow Capacity</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.peak_flow_lps)} L/s (peak flow)</td>
+          </tr>`}
+        </tbody>
+      </table>` : ''}
+
+      <!-- DESIGN SUMMARY -->
+      <div class="result-highlight narrative-block" style="background:#f0f9ff;border:2px solid #162032;border-radius:0.75rem;padding:1rem 1.25rem;margin-bottom:1.25rem;">
+        <div style="font-size:0.85rem;font-weight:700;color:#162032;margin-bottom:0.6rem;border-bottom:1px solid #c7d9e8;padding-bottom:0.3rem;">Design Summary — DENR DAO 2016-08 Compliance</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem 2rem;font-size:0.8rem;">
+          <div><span style="font-weight:600;">Average Daily Flow:</span> ${e(r.flow_m3_day)} m³/day</div>
+          <div><span style="font-weight:600;">Aeration Tank:</span> ${e(r.aeration_vol_m3)} m³ (HRT ${e(r.aeration_hrt_hr)} hr)</div>
+          <div><span style="font-weight:600;">BOD Removal:</span> ${e(r.bod_removal_pct)}% (${e(bodIn)} → ${e(bodOut)} mg/L)</div>
+          <div><span style="font-weight:600;">Blower:</span> ${e(r.blower_recommended_m3_min)} m³/min @ ${e(r.blower_kw)} kW</div>
+          <div><span style="font-weight:600;">Sludge Produced:</span> ${e(r.sludge_kg_day)} kg DS/day</div>
+          <div><span style="font-weight:600;">Overall Status:</span> ${status}</div>
+        </div>
+      </div>
+
+      <!-- EFFLUENT QUALITY -->
+      <h2 style="font-size:0.88rem;font-weight:700;color:#1a1a1a;border-bottom:2px solid #162032;padding-bottom:0.3rem;margin-bottom:0.6rem;">Projected Effluent Quality vs DENR DAO 2016-08</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-bottom:1.25rem;">
+        <thead>
+          <tr>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Parameter</th>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Projected Effluent</th>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">DENR Limit (Class D)</th>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">BOD₅</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.effluent_bod)} mg/L</td>
+            <td style="padding:0.35rem 0.5rem;">≤ 30 mg/L</td>
+            <td style="padding:0.35rem 0.5rem;">${pass(parseFloat(r.effluent_bod) <= 30)}</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">TSS</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.effluent_tss)} mg/L</td>
+            <td style="padding:0.35rem 0.5rem;">≤ 50 mg/L</td>
+            <td style="padding:0.35rem 0.5rem;">${pass(parseFloat(r.effluent_tss) <= 50)}</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">pH</td>
+            <td style="padding:0.35rem 0.5rem;">6.5 – 7.5 (typical)</td>
+            <td style="padding:0.35rem 0.5rem;">6 – 9</td>
+            <td style="padding:0.35rem 0.5rem;">${pass(true)}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- NARRATIVE -->
+      <h2 style="font-size:0.88rem;font-weight:700;color:#1a1a1a;border-bottom:2px solid #162032;padding-bottom:0.3rem;margin-bottom:0.6rem;">Engineering Narrative</h2>
+      <div class="narrative-block" style="font-size:0.8rem;color:#333;line-height:1.7;margin-bottom:1.2rem;">
+        <p><strong>Objective:</strong> <span class="editable-field" contenteditable="true">${e(narrative?.objective || `Size a ${r.flow_m3_day} m³/day activated sludge sewage treatment plant achieving DENR DAO 2016-08 Class D effluent standards (BOD ≤ 30 mg/L, TSS ≤ 50 mg/L).`)}</span></p>
+        <p><strong>Assumptions:</strong> <span class="editable-field" contenteditable="true">${e(narrative?.assumptions || `Conventional activated sludge process. SRT = ${srt} days, MLSS = ${mlss} mg/L. Yield coefficient Y = 0.6, decay coefficient kd = 0.06/day. Primary clarifier SOR = 28 m³/m²/day, secondary clarifier SOR = 20 m³/m²/day. Fine-bubble aeration, standard transfer efficiency (STE) = 8%. Peak flow factor = 1.5×.`)}</span></p>
+        <p><strong>Recommendations:</strong> <span class="editable-field" contenteditable="true">${e(narrative?.recommendations || `1. Obtain DOH Sanitation Permit and DENR ECC before construction. 2. Characterize actual wastewater BOD, TSS, and flow by measurement before finalizing design. 3. Specify 2× duty+standby blowers with VFD. 4. Install RAS (Return Activated Sludge) pump sized at 50–100% of Q. 5. Sludge disposal by DOH/DENR-licensed hauler only. 6. Provide sludge thickener or drying bed sized for ${r.sludge_m3_day} m³/day wet sludge.`)}</span></p>
+      </div>
+
+      <!-- APPLICABLE STANDARDS -->
+      <h2 style="font-size:0.88rem;font-weight:700;color:#1a1a1a;border-bottom:2px solid #162032;padding-bottom:0.3rem;margin-bottom:0.6rem;">Applicable Standards</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:0.78rem;margin-bottom:1.25rem;">
+        <tbody>
+          <tr><td style="padding:0.3rem 0.5rem;font-weight:600;width:35%;">DENR DAO 2016-08</td><td style="padding:0.3rem 0.5rem;">Revised Effluent Standards — BOD ≤ 30 mg/L, TSS ≤ 50 mg/L, pH 6–9 (Class D)</td></tr>
+          <tr style="background:#f8f9fa;"><td style="padding:0.3rem 0.5rem;font-weight:600;">DOH PD 856</td><td style="padding:0.3rem 0.5rem;">Philippine Sanitation Code — Sanitary Permit for STP operation</td></tr>
+          <tr><td style="padding:0.3rem 0.5rem;font-weight:600;">Metcalf & Eddy</td><td style="padding:0.3rem 0.5rem;">Wastewater Engineering: Treatment and Resource Recovery (5th Ed.) — Design basis</td></tr>
+          <tr style="background:#f8f9fa;"><td style="padding:0.3rem 0.5rem;font-weight:600;">PSME Code</td><td style="padding:0.3rem 0.5rem;">Philippine Mechanical Engineering Code — Blower and mechanical equipment design</td></tr>
+          <tr><td style="padding:0.3rem 0.5rem;font-weight:600;">DOLE OSH</td><td style="padding:0.3rem 0.5rem;">Confined space entry, chemical safety for STP operations</td></tr>
+        </tbody>
+      </table>
+
+      <!-- SIGNATURE BLOCK -->
+      <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+        <div>
+          <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+            <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;"><span class="editable-field" contenteditable="true">${escHtml(WORKER_NAME)}</span></div>
+            <div style="font-size:0.74rem;color:#555;"><span class="editable-field" contenteditable="true">Sanitary / Mechanical Engineer</span></div>
+            <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: <span class="editable-field" contenteditable="true">_____________</span></div>
+            <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+          </div>
+        </div>
+        <div>
+          <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+            <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;"><span class="editable-field" contenteditable="true">_________________________</span></div>
+            <div style="font-size:0.74rem;color:#555;"><span class="editable-field" contenteditable="true">Project Engineer / Manager</span></div>
+            <div style="font-size:0.74rem;color:#555;">Company: <span class="editable-field" contenteditable="true">_____________</span></div>
+            <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+          </div>
+        </div>
+        <div>
+          <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+            <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;"><span class="editable-field" contenteditable="true">_________________________</span></div>
+            <div style="font-size:0.74rem;color:#555;"><span class="editable-field" contenteditable="true">Owner / Client Representative</span></div>
+            <div style="font-size:0.74rem;color:#555;">Date: <span class="editable-field" contenteditable="true">_____________</span></div>
+            <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+          </div>
+        </div>
+      </div>
+
+    </div>`;
   showReport();
 }
 
