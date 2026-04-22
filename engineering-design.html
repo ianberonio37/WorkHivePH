@@ -684,6 +684,7 @@ const CALC_TYPES = {
     { id: 'Water Softener Sizing',    icon: '💧', desc: 'Ion exchange resin sizing, salt & brine tank, regeneration schedule — NSF/ANSI 44 / WQA', available: true },
     { id: 'Water Treatment System',   icon: '🏭', desc: 'Treatment train, filter sizing, chlorination dosing, iron removal — PNS 1998 / DOH / WHO', available: true },
     { id: 'Wastewater Treatment (STP)', icon: '♻️', desc: 'Sewage treatment plant sizing — activated sludge, aeration, sludge — DENR DAO 2016-08 / DOH PD 856', available: true },
+    { id: 'Storm Drain / Stormwater',   icon: '🌧️', desc: 'Rational Method catchment flow, pipe sizing (Manning\'s), velocity check — DPWH / PAGASA', available: true },
   ],
   Electrical: [
     { id: 'Load Estimation',  icon: '📋', desc: 'Panel schedule, demand factor, service size', available: true  },
@@ -1011,6 +1012,65 @@ const GUIDES = {
       'Iron removal: aeration + greensand filter is the standard Philippine solution. Aeration oxidizes Fe²⁺ (soluble) to Fe³⁺ (insoluble, filterable). KMnO₄ regenerates the greensand media.',
       'UV disinfection: effective against Giardia and Cryptosporidium (resistant to chlorine at low doses). Best combined with chlorine for a complete barrier. Recommended for hospital, hotel, food processing.',
       'Sodium hypochlorite (NaOCl 12%) is the preferred disinfectant in the Philippines — safer to handle than chlorine gas, widely available. Store away from sunlight; potency degrades 1%/month.',
+    ],
+  },
+
+  'Storm Drain / Stormwater': {
+    title: 'Storm Drain / Stormwater Sizing — Rational Method + Manning\'s Equation',
+    subtitle: 'Computes design storm runoff using the Rational Method (DPWH), sizes the storm drain pipe using Manning\'s equation, and checks velocity against DPWH self-cleaning and erosion limits. Supports up to 3 sub-catchment zones with different land uses.',
+    standards: [
+      'DPWH Drainage Design Guidelines — Flood Control Design Manual (Storm Drain Sizing)',
+      'PAGASA — Philippine Atmospheric, Geophysical and Astronomical Services Administration (IDF curves, rainfall intensity data)',
+      'NSCP (National Structural Code of the Philippines) — Hydrology provisions',
+      'ASCE/EWRI 45-05 — Standard Guidelines for the Design of Urban Stormwater Systems',
+      'DPWH Blue Book — Standard Specifications for Highways, Bridges, and Airports',
+    ],
+    formulas: [
+      'Rational Method (DPWH): Q = C × i × A / 360',
+      '  Q = design flow (m³/s)',
+      '  C = composite runoff coefficient (dimensionless)',
+      '  i = rainfall intensity (mm/hr) at time of concentration',
+      '  A = catchment area (ha)',
+      '',
+      'Composite C (weighted): C = Σ(Ci × Ai) / ΣAi',
+      '',
+      'Manning\'s Equation — Pipe Flow (full):',
+      '  Q = (1/n) × A × R^(2/3) × S^(1/2)',
+      '  For circular pipe full: Q = (0.3117/n) × D^(8/3) × S^(1/2)',
+      '  D_required = [Q × n / (0.3117 × S^0.5)]^(3/8)  [meters]',
+      '',
+      'Flow Velocity (full pipe): V = Q / (π/4 × D²)  [m/s]',
+      '',
+      'Manning\'s n values:',
+      '  uPVC / HDPE:        n = 0.011',
+      '  Precast concrete:   n = 0.013',
+      '  CMP / corrugated:   n = 0.024',
+      '',
+      'DPWH minimum pipe diameter: 300 mm',
+      'DPWH velocity limits: 0.6 m/s ≤ V ≤ 3.0 m/s (concrete), ≤ 5.0 m/s (HDPE/uPVC)',
+      '',
+      'PAGASA typical 10-yr return period intensity (Metro Manila): ~75 mm/hr (1-hr duration)',
+      'Typical return periods:',
+      '  2-yr:  minor drainage (residential subdivision)',
+      '  5-yr:  collector road drainage',
+      '  10-yr: arterial road / commercial area drainage',
+      '  25-yr: major drainage / flood-prone areas',
+    ],
+    fields: [
+      { name: 'Catchment Area (ha)', tip: 'Total tributary area draining to the pipe or channel. 1 hectare = 10,000 m². For a rooftop: use roof plan area. For a subdivision road: use road width × length contributing to one inlet. For a compound: use total site area × fraction draining to one outlet.' },
+      { name: 'Runoff Coefficient (C)', tip: 'Ratio of runoff to rainfall. DPWH typical values: Roof / impervious paved = 0.90–0.95. Commercial area = 0.70–0.90. Residential (dense) = 0.50–0.70. Residential (sparse/lawn) = 0.25–0.50. Parks / open grass = 0.10–0.35. Use weighted average (composite C) when the catchment has mixed land uses.' },
+      { name: 'Rainfall Intensity (mm/hr)', tip: 'Use PAGASA IDF curves for the project location at the design return period and time of concentration. Metro Manila 10-yr, 30-min intensity ≈ 90–110 mm/hr. For inland provinces, intensity is typically lower — consult PAGASA Synoptic Data. If no site data is available, use 75 mm/hr as a conservative default for Metro Manila 10-yr, 60-min duration.' },
+      { name: 'Return Period', tip: '2-year: minor residential drainage (frequent nuisance flooding acceptable). 5-year: collector road and subdivision. 10-year: arterial road, commercial, and industrial. 25-year: major outfall, flood-prone areas, and critical infrastructure. DPWH Drainage Design Guidelines specifies 10-yr as minimum for arterial roads.' },
+      { name: 'Time of Concentration (min)', tip: 'Time for runoff to travel from the farthest point of the catchment to the design point. Short tc = higher peak intensity. For small urban catchments (< 2 ha): 5–15 min is typical. For larger catchments: use Kirpich formula (tc = 0.0195 × L^0.77 / S^0.385, where L is flow path length in m, S is slope in m/m). Minimum tc = 5 min.' },
+      { name: 'Pipe Slope (%)', tip: 'Longitudinal slope of the storm drain pipe. Minimum slope for self-cleaning velocity (≥ 0.6 m/s): for 300mm concrete pipe, minimum slope ≈ 0.3%. For paved areas, the pipe slope often follows the road grade. Steep slopes (>5%) may require velocity check for erosion — concrete and uPVC have different velocity limits.' },
+      { name: 'Pipe Material', tip: 'uPVC (PVC): smooth, n=0.011, common for smaller diameters (300–600mm), light weight, easy jointing. Precast Concrete (RCP): n=0.013, standard for large diameters (600mm+), widely available in PH. HDPE Corrugated: n=0.011–0.024, flexible, good for unstable ground. Concrete Box Culvert: for large flows — requires separate hydraulic design.' },
+    ],
+    notes: [
+      'The Rational Method is suitable for catchment areas up to approximately 80 ha. For larger catchments or complex systems, use SWMM or HEC-HMS continuous simulation.',
+      'DPWH requires a minimum pipe diameter of 300 mm for all public storm drains. Private systems may use smaller pipes internally.',
+      'Always check the outfall capacity — a correctly sized pipe that discharges into an undersized channel or a tidal/flooded outfall will still cause flooding.',
+      'For Metro Manila projects, verify actual rainfall intensity with PAGASA Engineering Hydrology Division for IDF curves at the exact municipality.',
+      'Velocity check is critical: below 0.6 m/s sediment will deposit and block the pipe. Above 3.0 m/s (concrete) or 5.0 m/s (uPVC/HDPE) pipe erosion and joint damage will occur.',
     ],
   },
 
@@ -3261,6 +3321,140 @@ function renderInputForm(calcType) {
 
       <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
         Method: Activated Sludge (Conventional) — SRT sizing method per Metcalf & Eddy. Includes primary clarifier, aeration tank, secondary clarifier, blower sizing, sludge production, and effluent quality check vs DENR DAO 2016-08. Standards: DENR DAO 2016-08, DOH PD 856, Metcalf & Eddy.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
+  if (calcType === 'Storm Drain / Stormwater') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Drain Reference</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Building A — Parking Lot Storm Drain" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Area Input Method</div>
+        <div class="toggle-group" id="tg-sd-area-mode">
+          <button class="toggle-btn active" data-val="single" onclick="toggle('tg-sd-area-mode','single');setSDAreaMode()">Single Zone</button>
+          <button class="toggle-btn" data-val="composite" onclick="toggle('tg-sd-area-mode','composite');setSDAreaMode()">Composite (up to 3 zones)</button>
+        </div>
+      </div>
+
+      <!-- SINGLE ZONE -->
+      <div id="sd-single-zone" class="mb-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <div class="field-label">Catchment Area</div>
+            <div class="input-group">
+              <input id="f-sd-area" class="wh-input" type="number" value="0.5" min="0.001" step="0.01" />
+              <span class="input-unit">ha</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Runoff Coefficient (C)</div>
+            <div class="toggle-group" id="tg-sd-c" style="flex-wrap:wrap;margin-bottom:0.4rem;">
+              <button class="toggle-btn" data-val="0.35" onclick="toggle('tg-sd-c','0.35');document.getElementById('f-sd-c').value=0.35">0.35 Lawn</button>
+              <button class="toggle-btn" data-val="0.60" onclick="toggle('tg-sd-c','0.60');document.getElementById('f-sd-c').value=0.60">0.60 Resid.</button>
+              <button class="toggle-btn active" data-val="0.80" onclick="toggle('tg-sd-c','0.80');document.getElementById('f-sd-c').value=0.80">0.80 Comm.</button>
+              <button class="toggle-btn" data-val="0.92" onclick="toggle('tg-sd-c','0.92');document.getElementById('f-sd-c').value=0.92">0.92 Paved</button>
+            </div>
+            <div class="input-group">
+              <input id="f-sd-c" class="wh-input" type="number" value="0.80" min="0.05" max="1.0" step="0.01" />
+              <span class="input-unit">C value</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPOSITE ZONES (hidden by default) -->
+      <div id="sd-composite-zones" class="hidden mb-4">
+        <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-bottom:0.5rem;">Enter area (ha) and C for each zone. Leave area blank to exclude a zone.</div>
+        <div class="grid grid-cols-3 gap-2" style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-bottom:0.3rem;">
+          <div>Zone</div><div>Area (ha)</div><div>C value</div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-2">
+          <div style="font-size:0.78rem;color:rgba(255,255,255,0.7);display:flex;align-items:center;">Paved / Roof</div>
+          <div><input id="f-sd-z1-area" class="wh-input" type="number" value="0.2" min="0" step="0.01" /></div>
+          <div><input id="f-sd-z1-c" class="wh-input" type="number" value="0.90" min="0.05" max="1.0" step="0.01" /></div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-2">
+          <div style="font-size:0.78rem;color:rgba(255,255,255,0.7);display:flex;align-items:center;">Landscaped</div>
+          <div><input id="f-sd-z2-area" class="wh-input" type="number" value="0.2" min="0" step="0.01" /></div>
+          <div><input id="f-sd-z2-c" class="wh-input" type="number" value="0.35" min="0.05" max="1.0" step="0.01" /></div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-2">
+          <div style="font-size:0.78rem;color:rgba(255,255,255,0.7);display:flex;align-items:center;">Other</div>
+          <div><input id="f-sd-z3-area" class="wh-input" type="number" value="0.1" min="0" step="0.01" /></div>
+          <div><input id="f-sd-z3-c" class="wh-input" type="number" value="0.60" min="0.05" max="1.0" step="0.01" /></div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Return Period</div>
+        <div class="toggle-group" id="tg-sd-rp" style="flex-wrap:wrap;">
+          <button class="toggle-btn" data-val="2"  onclick="toggle('tg-sd-rp','2');setSDIntensity()">2-yr Minor</button>
+          <button class="toggle-btn" data-val="5"  onclick="toggle('tg-sd-rp','5');setSDIntensity()">5-yr Collector</button>
+          <button class="toggle-btn active" data-val="10" onclick="toggle('tg-sd-rp','10');setSDIntensity()">10-yr Arterial</button>
+          <button class="toggle-btn" data-val="25" onclick="toggle('tg-sd-rp','25');setSDIntensity()">25-yr Major</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Rainfall Intensity</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:0.3rem;">Auto-filled from PAGASA Metro Manila IDF. Override for other locations.</div>
+          <div class="input-group">
+            <input id="f-sd-intensity" class="wh-input" type="number" value="75" min="10" step="1" />
+            <span class="input-unit">mm/hr</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Time of Concentration</div>
+          <div class="toggle-group" id="tg-sd-tc" style="flex-wrap:wrap;margin-bottom:0.4rem;">
+            <button class="toggle-btn" data-val="5" onclick="toggle('tg-sd-tc','5');document.getElementById('f-sd-tc').value=5">5 min</button>
+            <button class="toggle-btn" data-val="10" onclick="toggle('tg-sd-tc','10');document.getElementById('f-sd-tc').value=10">10 min</button>
+            <button class="toggle-btn active" data-val="15" onclick="toggle('tg-sd-tc','15');document.getElementById('f-sd-tc').value=15">15 min</button>
+            <button class="toggle-btn" data-val="30" onclick="toggle('tg-sd-tc','30');document.getElementById('f-sd-tc').value=30">30 min</button>
+          </div>
+          <div class="input-group">
+            <input id="f-sd-tc" class="wh-input" type="number" value="15" min="5" max="120" />
+            <span class="input-unit">min</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Pipe Slope</div>
+          <div class="toggle-group" id="tg-sd-slope" style="flex-wrap:wrap;margin-bottom:0.4rem;">
+            <button class="toggle-btn" data-val="0.3" onclick="toggle('tg-sd-slope','0.3');document.getElementById('f-sd-slope').value=0.3">0.3%</button>
+            <button class="toggle-btn active" data-val="0.5" onclick="toggle('tg-sd-slope','0.5');document.getElementById('f-sd-slope').value=0.5">0.5%</button>
+            <button class="toggle-btn" data-val="1.0" onclick="toggle('tg-sd-slope','1.0');document.getElementById('f-sd-slope').value=1.0">1.0%</button>
+            <button class="toggle-btn" data-val="2.0" onclick="toggle('tg-sd-slope','2.0');document.getElementById('f-sd-slope').value=2.0">2.0%</button>
+          </div>
+          <div class="input-group">
+            <input id="f-sd-slope" class="wh-input" type="number" value="0.5" min="0.1" max="20" step="0.1" />
+            <span class="input-unit">% slope</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Pipe Material</div>
+          <div class="toggle-group" id="tg-sd-material" style="flex-wrap:wrap;margin-bottom:0.4rem;">
+            <button class="toggle-btn active" data-val="uPVC" onclick="toggle('tg-sd-material','uPVC');setSDManning()">uPVC</button>
+            <button class="toggle-btn" data-val="Concrete" onclick="toggle('tg-sd-material','Concrete');setSDManning()">Concrete</button>
+            <button class="toggle-btn" data-val="HDPE" onclick="toggle('tg-sd-material','HDPE');setSDManning()">HDPE</button>
+          </div>
+          <div class="input-group">
+            <input id="f-sd-n" class="wh-input" type="number" value="0.011" min="0.008" max="0.030" step="0.001" />
+            <span class="input-unit">Manning's n</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Method: Rational Method (DPWH Drainage Design Guidelines) for design flow; Manning's Equation for pipe sizing. Rainfall intensity preset from PAGASA Metro Manila IDF data. DPWH minimum pipe: 300 mm. Velocity check: 0.6–3.0 m/s (concrete) / 0.6–5.0 m/s (uPVC/HDPE).
       </div>
     `;
     setStep(4);
@@ -5538,6 +5732,32 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Storm Drain / Stormwater') {
+    const areaMode = getToggle('tg-sd-area-mode') || 'single';
+    return {
+      project_name:  v('f-project') || 'Storm Drain',
+      area_mode:     areaMode,
+      // single zone
+      area_ha:       parseFloat(v('f-sd-area'))      || 0.5,
+      c_value:       parseFloat(v('f-sd-c'))          || 0.80,
+      // composite zones
+      z1_area:       parseFloat(v('f-sd-z1-area'))    || 0,
+      z1_c:          parseFloat(v('f-sd-z1-c'))        || 0.90,
+      z2_area:       parseFloat(v('f-sd-z2-area'))    || 0,
+      z2_c:          parseFloat(v('f-sd-z2-c'))        || 0.35,
+      z3_area:       parseFloat(v('f-sd-z3-area'))    || 0,
+      z3_c:          parseFloat(v('f-sd-z3-c'))        || 0.60,
+      // storm params
+      return_period: parseFloat(getToggle('tg-sd-rp')) || 10,
+      intensity_mmhr: parseFloat(v('f-sd-intensity')) || 75,
+      tc_min:        parseFloat(v('f-sd-tc'))          || 15,
+      // pipe params
+      slope_pct:     parseFloat(v('f-sd-slope'))       || 0.5,
+      pipe_material: getToggle('tg-sd-material')       || 'uPVC',
+      manning_n:     parseFloat(v('f-sd-n'))            || 0.011,
+    };
+  }
+
   if (_calcType === 'Wastewater Treatment (STP)') {
     const flowSource = getToggle('tg-stp-source') || 'population';
     return {
@@ -6174,6 +6394,19 @@ async function runCalculation() {
       showToast('Leaving water temp (LWT) must be greater than wet-bulb temp (WBT). Minimum approach is 2°C.');
       return;
     }
+  } else if (_calcType === 'Storm Drain / Stormwater') {
+    if (!inputs.intensity_mmhr || inputs.intensity_mmhr <= 0) {
+      showToast('Please enter a valid rainfall intensity.');
+      return;
+    }
+    if (!inputs.slope_pct || inputs.slope_pct <= 0) {
+      showToast('Please enter a valid pipe slope.');
+      return;
+    }
+    if (inputs.area_mode === 'single' && (!inputs.area_ha || inputs.area_ha <= 0)) {
+      showToast('Please enter the catchment area.');
+      return;
+    }
   } else if (_calcType === 'Wastewater Treatment (STP)') {
     if (inputs.flow_source === 'population' && (!inputs.population || inputs.population <= 0)) {
       showToast('Please enter the design population.');
@@ -6292,6 +6525,8 @@ async function runCalculation() {
       renderWaterTreatmentReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Wastewater Treatment (STP)') {
       renderSTPReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Storm Drain / Stormwater') {
+      renderStormDrainReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -10537,6 +10772,8 @@ function viewHistoryReport(row) {
     renderWaterTreatmentReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Wastewater Treatment (STP)') {
     renderSTPReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Storm Drain / Stormwater') {
+    renderStormDrainReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
@@ -11860,6 +12097,245 @@ function renderWaterTreatmentReport(inputs, results, narrative) {
 
   </div>`;
 
+  showReport();
+}
+
+// ─── Storm Drain helpers ──────────────────────────────────────────────────────
+
+function setSDAreaMode() {
+  const mode = getToggle('tg-sd-area-mode') || 'single';
+  document.getElementById('sd-single-zone')?.classList.toggle('hidden', mode !== 'single');
+  document.getElementById('sd-composite-zones')?.classList.toggle('hidden', mode !== 'composite');
+}
+
+function setSDIntensity() {
+  const rp = getToggle('tg-sd-rp') || '10';
+  // PAGASA Metro Manila approximate IDF presets (mm/hr) at 15-min tc
+  const presets = { '2': 55, '5': 65, '10': 75, '25': 90 };
+  const el = document.getElementById('f-sd-intensity');
+  if (el && presets[rp]) el.value = presets[rp];
+}
+
+function setSDManning() {
+  const mat = getToggle('tg-sd-material') || 'uPVC';
+  const n = { 'uPVC': 0.011, 'Concrete': 0.013, 'HDPE': 0.011 };
+  const el = document.getElementById('f-sd-n');
+  if (el && n[mat]) el.value = n[mat];
+}
+
+// ─── Storm Drain / Stormwater Report ─────────────────────────────────────────
+
+function renderStormDrainReport(inputs, r, narrative) {
+  const e = v => escHtml(v ?? '');
+  const proj      = inputs.project_name   || 'Storm Drain';
+  const matLabel  = inputs.pipe_material  || 'uPVC';
+  const rp        = inputs.return_period  || 10;
+  const tc        = inputs.tc_min         || 15;
+  const slope     = inputs.slope_pct      || 0.5;
+  const intensity = inputs.intensity_mmhr || 75;
+
+  const pass = c => c ? '<span style="color:#16a34a;font-weight:700;">✓ PASS</span>' : '<span style="color:#dc2626;font-weight:700;">✗ FAIL</span>';
+  const velStatus = (r.velocity_check || 'FAIL') === 'PASS'
+    ? '<span style="color:#16a34a;font-weight:700;">PASS — velocity within DPWH limits</span>'
+    : '<span style="color:#dc2626;font-weight:700;">REVIEW — check slope or pipe size</span>';
+
+  document.getElementById('report-panel').innerHTML = `
+    <div id="report-content">
+      <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+        <strong>Tip:</strong> Click any underlined field to edit before printing. In the print dialog, uncheck "Headers and footers" for a clean PDF.
+      </div>
+
+      <!-- HEADER -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;gap:1rem;flex-wrap:wrap;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.72rem;font-weight:700;color:#888;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.15rem;">DESIGN CALCULATION REPORT</div>
+          <h1 class="editable-field" contenteditable="true" style="font-size:1.15rem;font-weight:800;margin-bottom:0.35rem;color:#1a1a1a;">${e(proj)}</h1>
+          <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;margin-top:0.2rem;">Storm Drain / Stormwater Sizing — Rational Method</div>
+          <div style="font-size:0.78rem;color:#555;margin-top:0.3rem;">
+            Prepared by: <span class="editable-field" contenteditable="true">${escHtml(WORKER_NAME)}</span> &nbsp;|&nbsp;
+            Date: <span class="editable-field" contenteditable="true">${new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'})}</span> &nbsp;|&nbsp;
+            Doc No.: <span class="editable-field" contenteditable="true">PLMB-SD-${new Date().toISOString().slice(0,10).replace(/-/g,'')}</span>
+          </div>
+        </div>
+        <div style="text-align:right;font-size:0.72rem;color:#888;white-space:nowrap;">
+          <div style="font-weight:700;">DPWH Drainage Guidelines</div>
+          <div>PAGASA IDF | Manning's Eq.</div>
+        </div>
+      </div>
+
+      <!-- CATCHMENT PARAMETERS -->
+      <h2 style="font-size:0.88rem;font-weight:700;color:#1a1a1a;border-bottom:2px solid #162032;padding-bottom:0.3rem;margin-bottom:0.6rem;">1. Catchment Parameters</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-bottom:1.2rem;">
+        <tbody>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;width:40%;">Catchment Area (A)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.total_area_ha)} ha &nbsp;(${e(r.total_area_m2)} m²)</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Composite Runoff Coefficient (C)</td>
+            <td style="padding:0.35rem 0.5rem;font-weight:700;">${e(r.composite_c)}</td>
+          </tr>
+          ${r.zone_table ? r.zone_table : ''}
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Return Period</td>
+            <td style="padding:0.35rem 0.5rem;">${e(rp)}-year storm event</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Time of Concentration (tc)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(tc)} min</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Rainfall Intensity (i)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(intensity)} mm/hr &nbsp;(PAGASA ${e(rp)}-yr, ${e(tc)}-min duration)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- DESIGN FLOW -->
+      <h2 style="font-size:0.88rem;font-weight:700;color:#1a1a1a;border-bottom:2px solid #162032;padding-bottom:0.3rem;margin-bottom:0.6rem;">2. Design Storm Flow — Rational Method</h2>
+      <div class="narrative-block" style="background:#f8f9fa;border-radius:0.5rem;padding:0.75rem 1rem;font-size:0.8rem;margin-bottom:1rem;font-family:monospace;">
+        Q = C × i × A / 360<br>
+        Q = ${e(r.composite_c)} × ${e(intensity)} mm/hr × ${e(r.total_area_ha)} ha / 360<br>
+        <strong>Q = ${e(r.design_flow_m3s)} m³/s &nbsp;(${e(r.design_flow_ls)} L/s)</strong>
+      </div>
+
+      <!-- PIPE SIZING -->
+      <h2 style="font-size:0.88rem;font-weight:700;color:#1a1a1a;border-bottom:2px solid #162032;padding-bottom:0.3rem;margin-bottom:0.6rem;">3. Pipe Sizing — Manning's Equation</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-bottom:1.2rem;">
+        <thead>
+          <tr>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Parameter</th>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Value</th>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Pipe Material</td>
+            <td style="padding:0.35rem 0.5rem;">${e(matLabel)}</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">Manning's n = ${e(inputs.manning_n)}</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Pipe Slope (S)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(slope)}% &nbsp;(${e(r.slope_mm)} m/m)</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">—</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Calculated Min. Diameter</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.d_calc_mm)} mm</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">D = [Q×n / (0.3117×S⁰·⁵)]^(3/8)</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;font-size:0.9rem;">Recommended Pipe Diameter</td>
+            <td style="padding:0.35rem 0.5rem;font-weight:800;font-size:1rem;color:#162032;">${e(r.recommended_dia_mm)} mm</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">Next standard size ≥ ${e(r.d_calc_mm)} mm; min 300 mm (DPWH)</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Pipe Capacity (full, Q_cap)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.q_cap_m3s)} m³/s &nbsp;(${e(r.q_cap_ls)} L/s)</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">${pass(parseFloat(r.q_cap_m3s) >= parseFloat(r.design_flow_m3s))}</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Capacity Ratio (Q/Q_cap)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.flow_ratio_pct)}%</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">Design flow as % of full-pipe capacity</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- VELOCITY CHECK -->
+      <h2 style="font-size:0.88rem;font-weight:700;color:#1a1a1a;border-bottom:2px solid #162032;padding-bottom:0.3rem;margin-bottom:0.6rem;">4. Flow Velocity Check</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-bottom:1.2rem;">
+        <thead>
+          <tr>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Parameter</th>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Calculated</th>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">DPWH Limit</th>
+            <th style="background:#162032;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Flow Velocity (V at full)</td>
+            <td style="padding:0.35rem 0.5rem;font-weight:700;">${e(r.velocity_ms)} m/s</td>
+            <td style="padding:0.35rem 0.5rem;">0.6 – ${e(r.max_velocity_ms)} m/s</td>
+            <td style="padding:0.35rem 0.5rem;">${velStatus}</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Min. Velocity (self-cleaning)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.velocity_ms)} m/s</td>
+            <td style="padding:0.35rem 0.5rem;">≥ 0.6 m/s</td>
+            <td style="padding:0.35rem 0.5rem;">${pass(parseFloat(r.velocity_ms) >= 0.6)}</td>
+          </tr>
+          <tr>
+            <td style="padding:0.35rem 0.5rem;font-weight:600;">Max. Velocity (erosion limit)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.velocity_ms)} m/s</td>
+            <td style="padding:0.35rem 0.5rem;">≤ ${e(r.max_velocity_ms)} m/s</td>
+            <td style="padding:0.35rem 0.5rem;">${pass(parseFloat(r.velocity_ms) <= parseFloat(r.max_velocity_ms))}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- SUMMARY BOX -->
+      <div class="result-highlight narrative-block" style="background:#f0f9ff;border:2px solid #162032;border-radius:0.75rem;padding:1rem 1.25rem;margin-bottom:1.25rem;">
+        <div style="font-size:0.85rem;font-weight:700;color:#162032;margin-bottom:0.6rem;border-bottom:1px solid #c7d9e8;padding-bottom:0.3rem;">Design Summary — DPWH Compliance</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem 2rem;font-size:0.8rem;">
+          <div><span style="font-weight:600;">Catchment Area:</span> ${e(r.total_area_ha)} ha (C = ${e(r.composite_c)})</div>
+          <div><span style="font-weight:600;">Design Flow:</span> ${e(r.design_flow_m3s)} m³/s (${e(r.design_flow_ls)} L/s)</div>
+          <div><span style="font-weight:600;">Pipe Size:</span> ${e(r.recommended_dia_mm)} mm ${e(matLabel)}, S = ${e(slope)}%</div>
+          <div><span style="font-weight:600;">Flow Velocity:</span> ${e(r.velocity_ms)} m/s</div>
+          <div><span style="font-weight:600;">Pipe Capacity:</span> ${e(r.q_cap_ls)} L/s (${e(r.flow_ratio_pct)}% utilization)</div>
+          <div><span style="font-weight:600;">Velocity Check:</span> ${velStatus}</div>
+        </div>
+      </div>
+
+      <!-- NARRATIVE -->
+      <h2 style="font-size:0.88rem;font-weight:700;color:#1a1a1a;border-bottom:2px solid #162032;padding-bottom:0.3rem;margin-bottom:0.6rem;">Engineering Narrative</h2>
+      <div class="narrative-block" style="font-size:0.8rem;color:#333;line-height:1.7;margin-bottom:1.2rem;">
+        <p><strong>Objective:</strong> <span class="editable-field" contenteditable="true">${e(narrative?.objective || `Size a ${e(r.recommended_dia_mm)} mm ${matLabel} storm drain to convey the ${rp}-year design storm runoff of ${e(r.design_flow_ls)} L/s from a ${e(r.total_area_ha)} ha catchment per DPWH Drainage Design Guidelines.`)}</span></p>
+        <p><strong>Assumptions:</strong> <span class="editable-field" contenteditable="true">${e(narrative?.assumptions || `Rational Method (Q = CiA/360). Composite runoff coefficient C = ${e(r.composite_c)}. Rainfall intensity ${e(intensity)} mm/hr at ${rp}-yr return period, tc = ${tc} min (PAGASA Metro Manila IDF). Manning's n = ${e(inputs.manning_n)} for ${matLabel}. Pipe designed to flow full at design flow.`)}</span></p>
+        <p><strong>Recommendations:</strong> <span class="editable-field" contenteditable="true">${e(narrative?.recommendations || `1. Use ${e(r.recommended_dia_mm)} mm ${matLabel} storm drain at ${slope}% slope. 2. Verify actual PAGASA IDF data for project municipality. 3. Provide catch basins at maximum 30 m spacing. 4. Check outfall channel capacity — pipe capacity is only valid if the outfall can accept the full design flow. 5. DPWH minimum manhole spacing: 60 m. 6. Provide cleanout access at all bends and direction changes.`)}</span></p>
+      </div>
+
+      <!-- STANDARDS -->
+      <h2 style="font-size:0.88rem;font-weight:700;color:#1a1a1a;border-bottom:2px solid #162032;padding-bottom:0.3rem;margin-bottom:0.6rem;">Applicable Standards</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:0.78rem;margin-bottom:1.25rem;">
+        <tbody>
+          <tr><td style="padding:0.3rem 0.5rem;font-weight:600;width:35%;">DPWH Drainage Guidelines</td><td style="padding:0.3rem 0.5rem;">Flood Control Design Manual — Rational Method and Manning's Equation for storm drain sizing</td></tr>
+          <tr style="background:#f8f9fa;"><td style="padding:0.3rem 0.5rem;font-weight:600;">PAGASA</td><td style="padding:0.3rem 0.5rem;">Philippine Atmospheric, Geophysical & Astronomical Services Administration — IDF curves</td></tr>
+          <tr><td style="padding:0.3rem 0.5rem;font-weight:600;">DPWH Blue Book</td><td style="padding:0.3rem 0.5rem;">Standard Specifications for Highways, Bridges and Airports — pipe material standards</td></tr>
+          <tr style="background:#f8f9fa;"><td style="padding:0.3rem 0.5rem;font-weight:600;">NSCP</td><td style="padding:0.3rem 0.5rem;">National Structural Code of the Philippines — hydrology and drainage provisions</td></tr>
+        </tbody>
+      </table>
+
+      <!-- SIGNATURE BLOCK -->
+      <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+        <div>
+          <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+            <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;"><span class="editable-field" contenteditable="true">${escHtml(WORKER_NAME)}</span></div>
+            <div style="font-size:0.74rem;color:#555;"><span class="editable-field" contenteditable="true">Civil / Sanitary Engineer</span></div>
+            <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: <span class="editable-field" contenteditable="true">_____________</span></div>
+            <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+          </div>
+        </div>
+        <div>
+          <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+            <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;"><span class="editable-field" contenteditable="true">_________________________</span></div>
+            <div style="font-size:0.74rem;color:#555;"><span class="editable-field" contenteditable="true">Project Engineer / Manager</span></div>
+            <div style="font-size:0.74rem;color:#555;">Company: <span class="editable-field" contenteditable="true">_____________</span></div>
+            <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+          </div>
+        </div>
+        <div>
+          <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+            <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;"><span class="editable-field" contenteditable="true">_________________________</span></div>
+            <div style="font-size:0.74rem;color:#555;"><span class="editable-field" contenteditable="true">Owner / Client Representative</span></div>
+            <div style="font-size:0.74rem;color:#555;">Date: <span class="editable-field" contenteditable="true">_____________</span></div>
+            <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
   showReport();
 }
 

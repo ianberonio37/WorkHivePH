@@ -1570,6 +1570,14 @@ Respond in JSON format only:
       const storage    = rec.storage_tank_m3 ?? '';
       const pns        = rec.pns_1998_status ?? '';
       recommendations  = `Install the treatment train: ${trainSteps}. Multimedia/sand filter: ${filterDia} mm pressure vessel. Chlorination dose: ${cl2} mg/L NaOCl; provide a calibrated dosing pump and contact tank. Treated water storage: ${storage} m³ (1-day demand). Projected outlet quality: ${pns}. Conduct water quality testing (turbidity, iron, pH, coliform, residual chlorine) after commissioning and every 6 months per DOH/LWUA requirements.`;
+    } else if (calcType === "Storm Drain / Stormwater") {
+      const D    = rec.d_selected_mm ?? '';
+      const Q    = rec.design_flow_lps ?? '';
+      const V    = rec.full_pipe_vel_ms ?? '';
+      const chk  = rec.velocity_check ?? '';
+      const rp   = rec.return_period_yr ?? '';
+      const mat  = rec.pipe_material ?? '';
+      recommendations = `Provide ${D} mm ${mat} storm drain pipe for the design catchment. Design flow is ${Q} L/s (${rp}-year return period, Rational Method). Full-pipe velocity is ${V} m/s — velocity check: ${chk}. Maintain minimum 0.6 m/s self-cleaning velocity and maximum slope per DPWH Drainage Design Guidelines. Install cleanouts at every junction and at 50 m maximum intervals. Verify catchment area and runoff coefficient with as-built site grading plans before finalising.`;
     } else if (calcType === "Load Estimation") {
       const kva = rec.total_kVA ?? rec.demand_kVA ?? rec.demand_kW ?? '';
       recommendations = `Size the main circuit breaker and service entrance conductors for minimum ${kva} kVA demand load with 20% future expansion margin. Provide separate circuit breakers for each circuit per PEC 2017. Label all breakers and maintain an accurate load schedule as a permanent record.`;
@@ -3593,6 +3601,108 @@ function calcWastewaterSTP(inputs: Record<string, number | string>): Record<stri
   };
 }
 
+// ─── Storm Drain / Stormwater — Rational Method + Manning's Pipe Sizing ───────
+
+const SD_STANDARD_DIAMETERS_MM = [300, 375, 450, 525, 600, 675, 750, 900, 1050, 1200, 1350, 1500];
+
+function calcStormDrain(inputs: Record<string, number | string>): Record<string, unknown> {
+  const areaMode       = String(inputs.area_mode       || 'single');
+  const intensityMmhr  = Number(inputs.intensity_mmhr  || 75);
+  const tcMin          = Number(inputs.tc_min          || 15);
+  const returnPeriod   = Number(inputs.return_period   || 10);
+  const slopePct       = Number(inputs.slope_pct       || 0.5);
+  const pipeMaterial   = String(inputs.pipe_material   || 'uPVC');
+  const manningN       = Number(inputs.manning_n       || 0.011);
+
+  // Determine catchment area and runoff coefficient
+  let totalAreaHa = Number(inputs.area_ha || 0.5);
+  let compositeC  = Number(inputs.c_value || 0.80);
+  let zoneTable: { zone: string; area_ha: number; c: number; weight: number }[] = [];
+
+  if (areaMode === 'composite') {
+    const z1a = Number(inputs.z1_area || 0);
+    const z1c = Number(inputs.z1_c   || 0.90);
+    const z2a = Number(inputs.z2_area || 0);
+    const z2c = Number(inputs.z2_c   || 0.35);
+    const z3a = Number(inputs.z3_area || 0);
+    const z3c = Number(inputs.z3_c   || 0.60);
+
+    const zones = [
+      { zone: 'Zone 1', area_ha: z1a, c: z1c },
+      { zone: 'Zone 2', area_ha: z2a, c: z2c },
+      { zone: 'Zone 3', area_ha: z3a, c: z3c },
+    ].filter(z => z.area_ha > 0);
+
+    totalAreaHa = zones.reduce((s, z) => s + z.area_ha, 0) || 0.5;
+    const sumCA = zones.reduce((s, z) => s + z.c * z.area_ha, 0);
+    compositeC  = totalAreaHa > 0 ? Math.round((sumCA / totalAreaHa) * 1000) / 1000 : 0.80;
+
+    zoneTable = zones.map(z => ({
+      zone:    z.zone,
+      area_ha: z.area_ha,
+      c:       z.c,
+      weight:  Math.round((z.c * z.area_ha / totalAreaHa) * 1000) / 1000,
+    }));
+  }
+
+  // Rational Method: Q = C × i × A / 360  (m³/s, i in mm/hr, A in ha)
+  const Q_m3s = compositeC * intensityMmhr * totalAreaHa / 360;
+
+  // Pipe sizing: D_req = (Q × n / (0.3117 × sqrt(S)))^(3/8) in metres
+  const S = slopePct / 100;
+  const sqrtS = Math.sqrt(S);
+  const D_req_m   = Math.pow((Q_m3s * manningN) / (0.3117 * sqrtS), 3 / 8);
+  const D_req_mm  = D_req_m * 1000;
+
+  // Round up to next DPWH standard diameter (minimum 300 mm)
+  const D_sel_mm = SD_STANDARD_DIAMETERS_MM.find(d => d >= D_req_mm) || SD_STANDARD_DIAMETERS_MM[SD_STANDARD_DIAMETERS_MM.length - 1];
+
+  // Full-pipe capacity of selected pipe
+  const D_sel_m   = D_sel_mm / 1000;
+  const Q_cap_m3s = (0.3117 / manningN) * Math.pow(D_sel_m, 8 / 3) * sqrtS;
+
+  // Full-pipe velocity
+  const A_pipe    = Math.PI / 4 * D_sel_m * D_sel_m;
+  const V_m_s     = Q_cap_m3s / A_pipe;
+
+  // Velocity limits per material
+  const maxVel = (pipeMaterial === 'uPVC' || pipeMaterial === 'HDPE') ? 5.0 : 3.0;
+  const velocityCheck = V_m_s >= 0.6 && V_m_s <= maxVel ? 'PASS' : 'FAIL';
+  const velocityNote  = V_m_s < 0.6
+    ? `Low velocity (${Math.round(V_m_s * 100) / 100} m/s < 0.6 m/s minimum) — increase slope or verify flow.`
+    : V_m_s > maxVel
+    ? `High velocity (${Math.round(V_m_s * 100) / 100} m/s > ${maxVel} m/s max for ${pipeMaterial}) — increase pipe diameter or reduce slope.`
+    : `Velocity ${Math.round(V_m_s * 100) / 100} m/s is within acceptable range (0.6–${maxVel} m/s).`;
+
+  const flowRatioPct = Math.round((Q_m3s / Q_cap_m3s) * 1000) / 10; // %
+
+  return {
+    area_mode:         areaMode,
+    total_area_ha:     Math.round(totalAreaHa * 1000) / 1000,
+    composite_c:       Math.round(compositeC * 1000) / 1000,
+    return_period_yr:  returnPeriod,
+    intensity_mmhr:    intensityMmhr,
+    tc_min:            tcMin,
+    slope_pct:         slopePct,
+    pipe_material:     pipeMaterial,
+    manning_n:         manningN,
+    // Rational Method results
+    design_flow_m3s:   Math.round(Q_m3s * 100000) / 100000,
+    design_flow_lps:   Math.round(Q_m3s * 1000 * 10) / 10,
+    // Pipe sizing
+    d_required_mm:     Math.round(D_req_mm * 10) / 10,
+    d_selected_mm:     D_sel_mm,
+    q_capacity_m3s:    Math.round(Q_cap_m3s * 100000) / 100000,
+    q_capacity_lps:    Math.round(Q_cap_m3s * 1000 * 10) / 10,
+    full_pipe_vel_ms:  Math.round(V_m_s * 100) / 100,
+    flow_ratio_pct:    flowRatioPct,
+    velocity_check:    velocityCheck,
+    velocity_note:     velocityNote,
+    max_velocity_ms:   maxVel,
+    zone_table:        zoneTable,
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -3674,6 +3784,8 @@ serve(async (req) => {
       results = calcWaterTreatmentSystem(inputs);
     } else if (calc_type === "Wastewater Treatment (STP)") {
       results = calcWastewaterSTP(inputs);
+    } else if (calc_type === "Storm Drain / Stormwater") {
+      results = calcStormDrain(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),
