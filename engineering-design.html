@@ -1541,7 +1541,8 @@ const GUIDES = {
     subtitle: 'Determines the required standby/prime generator kVA by computing total running demand, largest motor starting surge (DOL), and selects the next standard generator size per ISO 8528-1 and NFPA 110.',
     standards: ['ISO 8528-1 — Reciprocating Internal Combustion Engine Driven AC Generator Sets','Philippine Electrical Code (PEC) 2017 — Article 7 (Emergency and Standby Systems)','NFPA 110 — Standard for Emergency and Standby Power Systems','IEC 60034-1 — Rotating Electrical Machines (alternator rating)'],
     formulas: [
-      'Running kVA = Total Demand kW / Overall PF',
+      'Running kVA = Σ (Qty × Watts_each / Load_PF × Demand_Factor) / 1000',
+      'Running kW  = Running kVA × Overall_PF',
       '',
       'Starting kVA (motor surge) = Largest motor kW × DOL start multiplier / motor PF',
       '  DOL start multiplier: typically 6–7× FLA → equivalent to ~3–4× running kVA',
@@ -1553,8 +1554,9 @@ const GUIDES = {
       'Standard generator kVA: 10, 15, 20, 25, 30, 40, 50, 62.5, 75, 87.5, 100, 125, 150, 175, 200,',
       '  250, 300, 350, 400, 450, 500, 600, 750, 875, 1000, 1250, 1500, 2000 kVA',
       '',
-      'Diesel fuel consumption (L/hr) ≈ 0.25 × Generator kW output  (at full load)',
-      '  (Rule of thumb: 250 mL/kWh for modern diesel gensets)',
+      'Diesel fuel consumption (L/hr) ≈ 0.30 × Generator kW output  (at 100% load)',
+      '  At 75% load: ≈ 0.27 L/kWh (SFC improves at partial load — ISO 3046-1)',
+      '  Rule of thumb: 280–350 mL/kWh for modern diesel gensets at rated load',
       '',
       'Alternator output (kW) = Generator kVA × Alternator PF (typically 0.8)',
     ],
@@ -3884,7 +3886,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
-        ISO 8528-1 / PEC Article 7 / NFPA 110. Generator kVA = max(Running kVA, Starting kVA) × Safety Factor. DOL motor start surge ≈ 3× running kVA of that motor. Diesel fuel ≈ 0.25 L/kWh.
+        ISO 8528-1 / PEC Article 7 / NFPA 110. Generator kVA = max(Running kVA, Starting kVA) × Safety Factor. DOL motor start surge ≈ 3–3.5× running kVA of that motor. Diesel fuel ≈ 0.30 L/kWh at 100% load (ISO 3046-1).
       </div>
     `;
     addGenLoadRow('Lighting (General)', 10, 40, 0.95);
