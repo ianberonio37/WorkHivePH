@@ -1699,6 +1699,102 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── AHU Sizing BOM + SOW Agent ──────────────────────────────────────────────
+
+async function ahuBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project      = inputs.project_name   || "AHU Project";
+  const spaceType    = inputs.space_type      || "Office";
+  const nUnits       = Number(results.n_units || inputs.n_units || 1);
+  const ahuCMH       = Number(results.nominal_AHU_CMH_each || 0);
+  const ahuCMHtotal  = Number(results.nominal_AHU_CMH_total || ahuCMH * nUnits);
+  const coilKW       = Number(results.Q_coil_total_kW || 0);
+  const coilTR       = Number(results.Q_coil_TR || 0);
+  const fanHP        = Number(results.fan_hp_std || 0);
+  const fanHP_total  = Number(results.fan_hp_total || fanHP * nUnits);
+  const chwLps       = Number(results.Q_chw_lps || 0);
+  const fanStatic    = Number(results.fan_static_Pa || inputs.fan_static_Pa || 400);
+  const chwSupply    = Number(results.chw_supply_C || inputs.chw_supply_C || 7);
+  const chwReturn    = Number(results.chw_return_C || inputs.chw_return_C || 12);
+  const oaPct        = Number(results.oa_pct_used || 20);
+  const fanPowerWlps = Number(results.fan_power_W_lps || 0);
+  const fanCheck     = String(results.fan_power_check || 'PASS');
+  const qoaCMH       = Number(results.Q_oa_CMH || 0);
+  const totalFanKVA  = Number(results.total_fan_kVA || 0);
+  const totalFanA    = Number(results.total_fan_A_400V || 0);
+  const isFanFail    = fanCheck.startsWith('FAIL');
+  // CHW pipe size estimate: velocity = 1.5 m/s → D = sqrt(4Q/π/v) in mm
+  const chwPipeMm    = chwLps > 0 ? Math.ceil(Math.sqrt((4 * chwLps / 1000) / (Math.PI * 1.5)) * 1000 / 25) * 25 : 50;
+  // OA duct estimate: velocity ~2.5 m/s → size
+  const oaDuctCMH_each = qoaCMH / nUnits;
+
+  const prompt = `You are a licensed Mechanical Engineer in the Philippines preparing official procurement and contracting documents for an Air Handling Unit (AHU) installation.
+
+CALCULATION RESULTS:
+Project: ${project}
+Space Type: ${spaceType}
+AHU Units: ${nUnits}× AHU, each rated at ${ahuCMH} m³/h (${ahuCMHtotal} m³/h total)
+Cooling Coil: ${coilKW} kW (${coilTR} TR) total — CHW ${chwSupply}°C / ${chwReturn}°C supply/return
+CHW Flow: ${chwLps} L/s total — estimated pipe size: ${chwPipeMm}mm
+Fan Motor: ${fanHP} HP each (${fanHP_total} HP total) at ${fanStatic} Pa static pressure
+Fan Power Index: ${fanPowerWlps} W/(L/s) — ASHRAE 90.1 limit 0.82 — ${isFanFail ? 'FAIL — VFD and higher-efficiency fan required; spec fan to achieve ≤0.82 W/(L/s)' : 'PASS'}
+Outside Air: ${oaPct}% — ${qoaCMH} m³/h total (${oaDuctCMH_each.toFixed(0)} m³/h per unit)
+Electrical: ${totalFanKVA} kVA / ${totalFanA} A FLA (fan motors, 3-phase 400V)
+
+TASK: Generate a JSON object with exactly two arrays.
+
+ARRAY 1 — "bom_items": Standard Philippine AHU contractor Bill of Materials.
+Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
+
+Required items:
+1. Air Handling Unit, draw-through type — qty: ${nUnits} — spec: ${ahuCMH} m³/h each, ${coilKW/nUnits} kW cooling coil, ${fanHP} HP supply fan, G4+F7 filter section, CHW ${chwSupply}/${chwReturn}°C
+2. Supply Fan Motor, IE3 premium efficiency — qty: ${nUnits} — spec: ${fanHP} HP (${(fanHP*0.7457).toFixed(1)} kW), 3-phase 400V/60Hz, TEFC
+3. Variable Frequency Drive (VFD) — qty: ${nUnits} — spec: ${(fanHP*0.7457).toFixed(1)} kW, IP54, bypass mode
+4. Pre-Filter, G4 panel type — qty: ${nUnits * 4} pcs — spec: 595×595×48mm or as required by AHU manufacturer
+5. Bag Filter, F7 medium-efficiency — qty: ${nUnits * 4} pcs — spec: 592×592×600mm, 6-pocket
+6. Outside Air Motorized Damper with Actuator — qty: ${nUnits} — spec: low-leakage, AMCA-rated, 24V actuator, fail-closed
+7. Chilled Water Supply Valve, 2-way modulating — qty: ${nUnits} — spec: PN16, DN based on ${chwPipeMm}mm pipe, CV per coil manufacturer
+8. Chilled Water Return Valve, balancing — qty: ${nUnits} — spec: PN16, manual balancing, DN${chwPipeMm}
+9. CHW Flexible Connection, braided stainless — qty: ${nUnits * 2} — spec: DN${chwPipeMm}, 300mm length, PN16
+10. CHW Piping, copper/black steel — qty: 1 lot — spec: DN${chwPipeMm}mm supply and return, insulated with 25mm Armaflex
+11. Pipe Insulation, closed-cell elastomeric — qty: 1 lot — spec: 25mm thick, for CHW supply and return pipes
+12. Supply Air Ductwork, GI sheet metal — qty: 1 lot — spec: SMACNA Class 1 (≤500 Pa), gauge per SMACNA Table 5-1, with insulation
+13. Return / Exhaust Air Ductwork — qty: 1 lot — spec: SMACNA Class 1, uninsulated (return air duct)
+14. Outside Air Intake Ductwork with Louver — qty: 1 lot — spec: ${oaDuctCMH_each.toFixed(0)} m³/h per unit, bird/insect screen, rain louver
+15. Vibration Isolators, spring type — qty: ${nUnits * 4} — spec: 25mm deflection, load-rated for AHU weight
+16. Condensate Drain Pan and Trap — qty: ${nUnits} — spec: stainless steel, 50mm trap seal, min 20mm PVC drain line
+17. MCCB Circuit Breaker, 3-pole — qty: ${nUnits} — spec: ${Math.ceil(totalFanA * 1.25 / nUnits)}A, 400V, 18kA AIC
+18. Wiring, THHN 5.5mm² (3C) — qty: 1 lot — spec: from MCCB to VFD to AHU motor per PEC 2017
+19. Anti-vibration Mounting Pads (supplemental) — qty: ${nUnits * 4} — spec: neoprene, 50 Shore A, for AHU base frame
+20. Commissioning and TAB (Testing, Adjusting, Balancing) — qty: 1 lot — spec: ASHRAE 111 balancing procedure, airflow and CHW ΔT verification report
+21. Miscellaneous (hangers, supports, sealing, access doors) — qty: 1 lot — spec: per SMACNA
+
+ARRAY 2 — "sow_sections": 8 sections of Scope of Works.
+Each object: { "section_no": number, "title": string, "items": [string, ...] }
+
+Required sections:
+1. Scope Overview — describe AHU installation, CHW coil connection, duct connection, controls, commissioning
+2. Air Handling Unit Installation — base frame, vibration isolators, alignment, access clearance (min 1.0m service side)
+3. Ductwork and Air Distribution — SMACNA construction, insulation spec, duct testing at 500 Pa, supply/return/OA ductwork
+4. Chilled Water Coil Piping — CHW pipe installation (DN${chwPipeMm}mm), insulation, strainer, 2-way control valve, balancing valve, flushing and pressure test (1.5× working pressure)
+5. Electrical and Controls — VFD installation (${isFanFail ? 'MANDATORY — fan power index ' + fanPowerWlps + ' W/(L/s) exceeds ASHRAE 90.1 limit 0.82 — VFD + high-efficiency fan required before energization' : 'REQUIRED — fan power index ' + fanPowerWlps + ' W/(L/s) ≤ 0.82 PASS'}), motor wiring per PEC 2017, OA damper actuator wiring, BAS integration point
+6. Filtration — G4 pre-filter + F7 bag filter installation, filter gauge (Magnehelic), filter replacement procedure, initial spare set included in contract
+7. Testing and Commissioning — factory performance data review, TAB (Testing Adjusting Balancing) per ASHRAE 111, airflow verification (±10%), CHW ΔT verification, noise level check (≤NC-45 for office), VFD operation test, fail-safe testing
+8. Regulatory Compliance — ASHRAE 62.1 OA rate verification (${oaPct}% = ${qoaCMH} m³/h), ASHRAE 90.1 fan power index ≤0.82 W/(L/s) compliance certification, PSME Code installation requirements, PEC 2017 electrical, LGU Mechanical Permit, PRC-licensed Mechanical Engineer sign-off before system energization
+
+Respond with ONLY the JSON object. No explanation outside the JSON.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Chiller System — Water Cooled BOM + SOW Agent ───────────────────────────
 
 async function chillerWaterCooledBomSowAgent(
@@ -1901,6 +1997,8 @@ serve(async (req) => {
       result = await chillerAirCooledBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "HVAC Systems" && calc_type === "Chiller System — Water Cooled") {
       result = await chillerWaterCooledBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "HVAC Systems" && calc_type === "AHU Sizing") {
+      result = await ahuBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),

@@ -707,6 +707,7 @@ const CALC_TYPES = {
   'HVAC Systems': [
     { id: 'Chiller System — Air Cooled',   icon: '🧊', desc: 'Chiller tonnage, COP, compressor kW, condenser airflow — ASHRAE', available: true },
     { id: 'Chiller System — Water Cooled', icon: '💧', desc: 'Water-cooled chiller: COP, CW loop, cooling tower heat rejection — ASHRAE 90.1', available: true },
+    { id: 'AHU Sizing',                    icon: '🌬️', desc: 'Supply airflow (CMH/CFM), cooling coil (kW/TR), CHW flow, fan HP — ASHRAE 62.1 / 90.1', available: true },
   ],
 };
 
@@ -1753,6 +1754,50 @@ const GUIDES = {
       'CW pipe sizing: design at 2.4–3.0 L/s per 100 kW (1.5–2.0 gpm/ton). CW velocity: 1.5–3.0 m/s in carbon steel pipe. Treat CW with corrosion and scale inhibitors — cooling tower water is open-loop and concentrates dissolved solids.',
       'Condenser water treatment is mandatory: biological (Legionella risk), scale, and corrosion inhibitors. ASHRAE Guideline 12 governs cooling tower water quality for Legionella prevention — this is a health code requirement in the Philippines.',
       'For machine room design: water-cooled chillers need a machine room (ASHRAE 15 Class A2 refrigerant ventilation). Cooling tower is typically roof-mounted. CW pipes run vertically from mechanical room to roof — allow for pump head budget.',
+    ],
+  },
+
+  'AHU Sizing': {
+    title: 'Air Handling Unit (AHU) Sizing (ASHRAE 62.1 / ASHRAE 90.1 / PSME Code)',
+    subtitle: 'Sizes an AHU for a zone or building: supply airflow (CMH/CFM), cooling coil capacity (kW/TR), outside air (OA) volume, chilled water flow, fan motor HP, air changes per hour (ACH), and ASHRAE 90.1 fan power compliance.',
+    standards: [
+      'ASHRAE 62.1 — Ventilation for Acceptable Indoor Air Quality (minimum OA rates)',
+      'ASHRAE 90.1 — Energy Standard: fan power ≤ 0.82 W/(L/s) at design airflow',
+      'ASHRAE Handbook — HVAC Systems and Equipment: AHU selection, coil sizing, psychrometrics',
+      'PSME Code — Philippine Society of Mechanical Engineers: AHU installation and duct design',
+      'PGBC / BERDE — Green Building Code: indoor air quality and energy performance',
+    ],
+    formulas: [
+      'Q_design (kW) = Cooling Load × Safety Factor',
+      'Q_sensible (kW) = Q_design × SHR',
+      'Q_latent (kW) = Q_design × (1 − SHR)',
+      'Q_supply (m³/s) = Q_sensible / (ρ × Cp × ΔT_sa)  [ρ=1.2 kg/m³, Cp=1.005 kJ/kg·K]',
+      'T_mixed (°C) = OA% × T_outside + (1−OA%) × T_room',
+      'Q_coil (kW) = ρ × Cp × Q_supply × (T_mixed − T_supply) / SHR',
+      'CHW Flow (L/s) = Q_coil / (4.187 × ΔT_chw)',
+      'P_fan (kW) = Q_supply_m3s × ΔP_fan_Pa / (η_fan × 1000)',
+      'Fan Power Index (W/L·s) = P_fan×1000 / Q_supply_lps  [ASHRAE 90.1 max: 0.82]',
+      'ACH = Q_supply_CMH / Zone Volume (m³)',
+    ],
+    fields: [
+      { name: 'Total Cooling Load (kW)', tip: 'Zone or AHU served-area cooling load in kW. Source from HVAC Cooling Load calculation. Include safety/diversity factor separately — do not pre-apply it to this input.' },
+      { name: 'Space Type', tip: 'Determines SHR default. Office/Conference: SHR 0.75 (moderate latent). Server Room: SHR 1.0 (sensible-only). Production Floor: SHR 0.65 (high latent from workers). Hospital Ward: SHR 0.72. Retail: SHR 0.70.' },
+      { name: 'Sensible Heat Ratio (SHR)', tip: 'Fraction of cooling load that is sensible (dry heat). Philippine climate adds significant latent load (humidity). Office: 0.70–0.80. Server room: 1.0. Kitchen: 0.50–0.60. Verify against psychrometric analysis for critical applications.' },
+      { name: 'Room / Zone Temperature', tip: 'Design room set-point (dry-bulb). PSME Code standard: 24°C ±1°C for comfort. Data center: 18–21°C. Hospital: 22–24°C. Production floor: 26–28°C acceptable where radiant heat sources are present.' },
+      { name: 'Supply Air Temperature', tip: 'Temperature of air leaving the AHU cooling coil. Standard: 13–15°C for comfort AHU (ΔT = 9–11°C from room). Low supply temp (11–12°C) reduces airflow but risks condensation on ducts. High supply temp (16–18°C) increases airflow and duct size. 14°C is the Philippine standard for central AHUs.' },
+      { name: 'Outside Air %', tip: 'ASHRAE 62.1 minimum: 15–20% for most occupied spaces. Office: minimum 10 L/s/person (about 15–20%). Server rooms: 0–5% (heat recirculation). Clean rooms: up to 100% OA. Higher OA improves air quality but increases coil load — use enthalpy recovery wheel for high OA applications.' },
+      { name: 'Fan Static Pressure (Pa)', tip: 'Total external static pressure the fan must overcome — sum of duct friction, coil DP, filter DP, damper losses. Small AHU (duct <20m): 200–350 Pa. Medium AHU (20–50m duct): 350–600 Pa. Large central AHU with long distribution: 600–900 Pa. Oversizing by 30% is typical for design margin.' },
+      { name: 'Fan + Motor Efficiency (η)', tip: 'Combined fan mechanical efficiency × motor efficiency. AMCA-rated fans: 65–75% at design point. EC (electronically commutated) motors: 85–92%. Typical design value: 0.65. For high-efficiency ECM AHU: 0.75–0.80. Never use 0.80+ unless equipment has AMCA-certified performance data at design airflow.' },
+      { name: 'CHW Supply / Return Temp', tip: 'Standard for coil: 7°C supply / 12°C return (5°C ΔT). Higher return temp (14°C, 7°C ΔT) reduces CHW flow by 28% — saves pump energy and allows smaller pipes. Match to chiller plant CHW design conditions — AHU coil must be selected to achieve design supply air temperature at specified CHW temperatures.' },
+      { name: 'Number of AHU Units', tip: 'N+1 is standard for critical facilities. For zoned systems, each zone typically gets its own AHU sized for that zone only. Central AHUs serving multiple zones need zone-level VAV boxes (variable air volume) for individual temperature control. Single-AHU-per-floor is typical for Philippine commercial buildings.' },
+    ],
+    notes: [
+      'Supply air temperature: standard range 13–15°C. At 14°C supply and 24°C room, ΔT = 10°C — this produces airflow of about 285 CMH per kW of sensible load. At 12°C supply (ΔT = 12°C), airflow is 237 CMH/kW — smaller ducts, but colder coil needed.',
+      'OA fraction affects coil load significantly. At 20% OA with 35°C outside air and 24°C room, mixed air temperature rises to 26.2°C instead of 24°C — this adds ~9% to coil load. At 30% OA it adds ~14%. Always recalculate coil load from mixed air, not room temperature alone.',
+      'ASHRAE 62.1 minimum ventilation: 10 L/s/person for office (plus 0.3 L/s/m² area component). Dense occupancy (lecture halls, call centers) requires more OA. Underproviding OA risks IAQ complaints, sick building syndrome, and regulatory non-compliance.',
+      'ASHRAE 90.1 fan power limit: 0.82 W/(L/s) at design airflow for simple-box AHUs. Exceeding this means either the fan static is too high (overlong or undersized ductwork) or fan efficiency is too low. EC motors and variable-speed drives help meet this limit.',
+      'Filter selection impacts static pressure: G4 pre-filter adds 50–80 Pa, F7 bag filter adds 80–120 Pa, HEPA adds 200–300 Pa. Select filter initial DP at clean condition — final DP at replacement is typically 2× initial. Use final DP for fan sizing.',
+      'Chilled water coil face velocity: 2.0–2.5 m/s at design airflow is ideal for moisture carryover prevention. Above 2.5 m/s risks condensate droplet entrainment. Below 1.5 m/s, coil is oversized but performance is fine. Calculate face velocity = Q_supply / coil_face_area.',
     ],
   },
 };
@@ -3765,6 +3810,164 @@ function renderInputForm(calcType) {
     document.getElementById('calc-btn').disabled = false;
   }
 
+  if (calcType === 'AHU Sizing') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. 3F Office — AHU-301" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Space Type <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">sets default SHR</span></div>
+        <div class="toggle-group" id="tg-space-type">
+          <button class="toggle-btn active" data-val="Office" onclick="toggle('tg-space-type','Office');setAHUDefaults()">Office</button>
+          <button class="toggle-btn" data-val="Conference" onclick="toggle('tg-space-type','Conference');setAHUDefaults()">Conference</button>
+          <button class="toggle-btn" data-val="Server Room" onclick="toggle('tg-space-type','Server Room');setAHUDefaults()">Server Room</button>
+          <button class="toggle-btn" data-val="Production Floor" onclick="toggle('tg-space-type','Production Floor');setAHUDefaults()">Production Floor</button>
+          <button class="toggle-btn" data-val="Hospital Ward" onclick="toggle('tg-space-type','Hospital Ward');setAHUDefaults()">Hospital Ward</button>
+          <button class="toggle-btn" data-val="Retail" onclick="toggle('tg-space-type','Retail');setAHUDefaults()">Retail</button>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Total Cooling Load (kW) <span style="color:#F7A21B;font-size:0.75rem;">— zone/AHU served area, from HVAC Cooling Load calc</span></div>
+        <div class="input-group">
+          <input id="f-cooling-load" class="wh-input" type="number" value="0" min="1" step="1" />
+          <span class="input-unit">kW</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Sensible Heat Ratio (SHR)</div>
+          <div class="input-group">
+            <input id="f-shr" class="wh-input" type="number" value="0.75" min="0.50" max="1.00" step="0.01" />
+            <span class="input-unit">—</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Safety / Diversity Factor</div>
+          <div class="toggle-group" id="tg-safety">
+            <button class="toggle-btn active" data-val="1.10" onclick="toggle('tg-safety','1.10')">1.10 (+10%)</button>
+            <button class="toggle-btn" data-val="1.15" onclick="toggle('tg-safety','1.15')">1.15 (+15%)</button>
+            <button class="toggle-btn" data-val="1.20" onclick="toggle('tg-safety','1.20')">1.20 (+20%)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Room / Zone Temperature</div>
+          <div class="toggle-group" id="tg-room-temp">
+            <button class="toggle-btn" data-val="22" onclick="toggle('tg-room-temp','22')">22°C (hospital)</button>
+            <button class="toggle-btn active" data-val="24" onclick="toggle('tg-room-temp','24')">24°C (comfort)</button>
+            <button class="toggle-btn" data-val="26" onclick="toggle('tg-room-temp','26')">26°C (industrial)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Supply Air Temperature</div>
+          <div class="toggle-group" id="tg-supply-temp">
+            <button class="toggle-btn" data-val="12" onclick="toggle('tg-supply-temp','12')">12°C (cold)</button>
+            <button class="toggle-btn active" data-val="14" onclick="toggle('tg-supply-temp','14')">14°C (standard)</button>
+            <button class="toggle-btn" data-val="16" onclick="toggle('tg-supply-temp','16')">16°C (warm)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Outside Air %  <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">ASHRAE 62.1</span></div>
+          <div class="toggle-group" id="tg-oa-pct">
+            <button class="toggle-btn" data-val="10" onclick="toggle('tg-oa-pct','10')">10% (low)</button>
+            <button class="toggle-btn active" data-val="20" onclick="toggle('tg-oa-pct','20')">20% (office)</button>
+            <button class="toggle-btn" data-val="30" onclick="toggle('tg-oa-pct','30')">30% (dense)</button>
+            <button class="toggle-btn" data-val="100" onclick="toggle('tg-oa-pct','100')">100% (OAU)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Fan Total Static Pressure</div>
+          <div class="toggle-group" id="tg-fan-static">
+            <button class="toggle-btn" data-val="250" onclick="toggle('tg-fan-static','250')">250 Pa (compact)</button>
+            <button class="toggle-btn active" data-val="400" onclick="toggle('tg-fan-static','400')">400 Pa (standard)</button>
+            <button class="toggle-btn" data-val="600" onclick="toggle('tg-fan-static','600')">600 Pa (long duct)</button>
+            <button class="toggle-btn" data-val="800" onclick="toggle('tg-fan-static','800')">800 Pa (large)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">CHW Supply Temperature</div>
+          <div class="toggle-group" id="tg-chw-supply">
+            <button class="toggle-btn" data-val="6" onclick="toggle('tg-chw-supply','6')">6°C (cold)</button>
+            <button class="toggle-btn active" data-val="7" onclick="toggle('tg-chw-supply','7')">7°C (standard)</button>
+            <button class="toggle-btn" data-val="10" onclick="toggle('tg-chw-supply','10')">10°C (high-delta)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">CHW Return Temperature</div>
+          <div class="toggle-group" id="tg-chw-return">
+            <button class="toggle-btn active" data-val="12" onclick="toggle('tg-chw-return','12')">12°C (5°C ΔT)</button>
+            <button class="toggle-btn" data-val="14" onclick="toggle('tg-chw-return','14')">14°C (7°C ΔT)</button>
+            <button class="toggle-btn" data-val="17" onclick="toggle('tg-chw-return','17')">17°C (10°C ΔT)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Fan + Motor Efficiency (η)</div>
+          <div class="toggle-group" id="tg-eta">
+            <button class="toggle-btn" data-val="0.55" onclick="toggle('tg-eta','0.55')">0.55 (low)</button>
+            <button class="toggle-btn active" data-val="0.65" onclick="toggle('tg-eta','0.65')">0.65 (standard)</button>
+            <button class="toggle-btn" data-val="0.75" onclick="toggle('tg-eta','0.75')">0.75 (EC motor)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Number of AHU Units</div>
+          <div class="toggle-group" id="tg-n-units">
+            <button class="toggle-btn active" data-val="1" onclick="toggle('tg-n-units','1')">1 unit</button>
+            <button class="toggle-btn" data-val="2" onclick="toggle('tg-n-units','2')">2 units (N+1)</button>
+            <button class="toggle-btn" data-val="3" onclick="toggle('tg-n-units','3')">3 units</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Floor Area <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">for ACH check</span></div>
+          <div class="input-group">
+            <input id="f-floor-area" class="wh-input" type="number" value="0" min="0" step="1" />
+            <span class="input-unit">m²</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Ceiling Height <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">for ACH check</span></div>
+          <div class="toggle-group" id="tg-ceiling">
+            <button class="toggle-btn" data-val="2.7" onclick="toggle('tg-ceiling','2.7')">2.7m (low)</button>
+            <button class="toggle-btn active" data-val="3.0" onclick="toggle('tg-ceiling','3.0')">3.0m (std)</button>
+            <button class="toggle-btn" data-val="4.0" onclick="toggle('tg-ceiling','4.0')">4.0m (high)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Number of Occupants <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">for ASHRAE 62.1 OA check (0 = skip)</span></div>
+        <div class="input-group">
+          <input id="f-persons" class="wh-input" type="number" value="0" min="0" step="1" />
+          <span class="input-unit">persons</span>
+        </div>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.25rem;">
+        Method: Q_supply = Q_sensible / (ρ × Cp × ΔT_sa) | Q_coil from mixed-air conditions | P_fan = Q × ΔP / η.<br>
+        Standards: ASHRAE 62.1 (OA min 10 L/s/person), ASHRAE 90.1 (fan ≤ 0.82 W/L·s), PSME Code.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
   if (calcType === 'V-Belt Drive Design') {
     area.innerHTML = `
       <div class="mb-4">
@@ -4950,7 +5153,43 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'AHU Sizing') {
+    return {
+      project_name:    v('f-project')                            || 'Untitled AHU',
+      cooling_load_kW: parseFloat(v('f-cooling-load'))           || 0,
+      space_type:      getToggle('tg-space-type')               || 'Office',
+      shr:             parseFloat(v('f-shr'))                    || 0.75,
+      safety_factor:   parseFloat(getToggle('tg-safety'))       || 1.10,
+      room_temp_C:     parseFloat(getToggle('tg-room-temp'))    || 24,
+      supply_temp_C:   parseFloat(getToggle('tg-supply-temp'))  || 14,
+      oa_pct:          parseFloat(getToggle('tg-oa-pct'))       || 20,
+      fan_static_Pa:   parseFloat(getToggle('tg-fan-static'))   || 400,
+      chw_supply_C:    parseFloat(getToggle('tg-chw-supply'))   || 7,
+      chw_return_C:    parseFloat(getToggle('tg-chw-return'))   || 12,
+      eta_fan:         parseFloat(getToggle('tg-eta'))           || 0.65,
+      n_units:         parseFloat(getToggle('tg-n-units'))      || 1,
+      floor_area:      parseFloat(v('f-floor-area'))             || 0,
+      ceiling_height:  parseFloat(getToggle('tg-ceiling'))      || 3.0,
+      persons:         parseFloat(v('f-persons'))                || 0,
+    };
+  }
+
   return base;
+}
+
+// AHU Sizing — auto-fill SHR when space type changes
+function setAHUDefaults() {
+  const spaceType = getToggle('tg-space-type') || 'Office';
+  const shrDefaults = {
+    'Office':          0.75,
+    'Conference':      0.72,
+    'Server Room':     1.00,
+    'Production Floor':0.65,
+    'Hospital Ward':   0.72,
+    'Retail':          0.70,
+  };
+  const shrEl = document.getElementById('f-shr');
+  if (shrEl) shrEl.value = shrDefaults[spaceType] || 0.75;
 }
 
 // ─── Run calculation ──────────────────────────────────────────────────────────
@@ -5103,6 +5342,19 @@ async function runCalculation() {
       showToast('CHW return temperature must be higher than CHW supply temperature.');
       return;
     }
+  } else if (_calcType === 'AHU Sizing') {
+    if (!inputs.cooling_load_kW || inputs.cooling_load_kW <= 0) {
+      showToast('Please enter the zone cooling load (kW).');
+      return;
+    }
+    if (inputs.supply_temp_C >= inputs.room_temp_C) {
+      showToast('Supply air temperature must be lower than room temperature.');
+      return;
+    }
+    if (inputs.chw_return_C <= inputs.chw_supply_C) {
+      showToast('CHW return temperature must be higher than CHW supply temperature.');
+      return;
+    }
   } else if (!inputs.floor_area || inputs.floor_area <= 0) {
     showToast('Please enter the floor area.');
     return;
@@ -5172,6 +5424,8 @@ async function runCalculation() {
       renderChillerWaterCooledReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Chiller System — Air Cooled') {
       renderChillerAirCooledReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'AHU Sizing') {
+      renderAHUSizingReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -9014,6 +9268,216 @@ function renderElevatorTrafficReport(inputs, results, narrative) {
   showReport();
 }
 
+// ─── AHU Sizing Report ────────────────────────────────────────────────────────
+function renderAHUSizingReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const r       = results;
+  const fanColor = r.fan_power_check === 'PASS' ? '#2e7d32' : '#c62828';
+  const fanBg    = r.fan_power_check === 'PASS' ? '#e8f5e9' : '#ffebee';
+  const oaColor  = r.oa_check === 'PASS' ? '#2e7d32' : r.oa_check === 'FAIL' ? '#c62828' : '#555';
+  const oaBg     = r.oa_check === 'PASS' ? '#e8f5e9' : r.oa_check === 'FAIL' ? '#ffebee' : '#f5f5f5';
+
+  const html = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
+      <strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div>
+        <h1>DESIGN CALCULATION</h1>
+        <div style="font-size:0.8rem;color:#555;">Air Handling Unit (AHU) Sizing | ASHRAE 62.1 / ASHRAE 90.1 / PSME Code</div>
+      </div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;">
+        <div>Rev. ${e('0')}</div>
+        <div>Date: ${dateStr}</div>
+      </div>
+    </div>
+
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">Project / AHU Tag</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Space Type</th><td>${escHtml(inputs.space_type)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Calculation Standard</th><td>ASHRAE 62.1, ASHRAE 90.1, PSME Code</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
+    </table>
+
+    <h2>Objective</h2>
+    <p>${escHtml(narrative?.objective || `Size an Air Handling Unit (AHU) for the stated zone cooling load. Determine supply airflow (CMH/CFM), cooling coil capacity (kW/TR), outside air quantity for ASHRAE 62.1 compliance, chilled water flow rate, fan motor horsepower, and verify fan power against ASHRAE 90.1 maximum fan power index of 0.82 W/(L/s).`)}</p>
+
+    <h2>Design Parameters</h2>
+    <table>
+      <tr><th>Zone Cooling Load (input)</th><td><strong>${r.Q_input_kW} kW</strong> (${(r.Q_input_kW/3.517).toFixed(1)} TR)</td></tr>
+      <tr><th>Sensible Heat Ratio (SHR)</th><td>${inputs.shr} (${(inputs.shr*100).toFixed(0)}% sensible, ${((1-inputs.shr)*100).toFixed(0)}% latent)</td></tr>
+      <tr><th>Safety / Diversity Factor</th><td>${inputs.safety_factor} (${((inputs.safety_factor-1)*100).toFixed(0)}% margin)</td></tr>
+      <tr><th>Room / Zone Temperature (design)</th><td>${inputs.room_temp_C}°C dry-bulb</td></tr>
+      <tr><th>Supply Air Temperature</th><td>${inputs.supply_temp_C}°C (ΔT = ${r.dT_sa}°C)</td></tr>
+      <tr><th>Outside Air Fraction</th><td>${r.oa_pct_used}%</td></tr>
+      <tr><th>Fan Total Static Pressure</th><td>${r.fan_static_Pa} Pa</td></tr>
+      <tr><th>Fan + Motor Efficiency (η)</th><td>${(r.eta_fan*100).toFixed(0)}%</td></tr>
+      <tr><th>CHW Supply / Return Temperature</th><td>${r.chw_supply_C}°C / ${r.chw_return_C}°C (ΔT = ${r.dT_chw_C}°C)</td></tr>
+      <tr><th>Number of AHU Units</th><td>${r.n_units}</td></tr>
+    </table>
+
+    <h2>References / Standards</h2>
+    <table>
+      <tr><th>ASHRAE 62.1</th><td>Ventilation for Acceptable Indoor Air Quality — minimum OA: 10 L/s/person (office)</td></tr>
+      <tr><th>ASHRAE 90.1</th><td>Energy Standard — fan power index ≤ 0.82 W/(L/s) at design airflow</td></tr>
+      <tr><th>ASHRAE Handbook</th><td>HVAC Systems and Equipment — AHU selection, coil sizing, psychrometrics</td></tr>
+      <tr><th>PSME Code</th><td>Philippine Society of Mechanical Engineers — AHU installation and duct design</td></tr>
+      <tr><th>PGBC / BERDE</th><td>Green Building Code — indoor air quality and energy performance requirements</td></tr>
+    </table>
+
+    <h2>Assumptions</h2>
+    <table>
+      <tr><th>Air density (ρ)</th><td>1.2 kg/m³ (sea level, 24°C)</td></tr>
+      <tr><th>Air specific heat (Cp)</th><td>1.005 kJ/(kg·K)</td></tr>
+      <tr><th>Water specific heat (Cp,w)</th><td>4.187 kJ/(kg·K)</td></tr>
+      <tr><th>Design ambient dry-bulb</th><td>35°C (Philippine tropical climate)</td></tr>
+      <tr><th>ASHRAE 62.1 OA minimum</th><td>10 L/s/person (Table 6-1, Office space type)</td></tr>
+      <tr><th>ASHRAE 90.1 fan power limit</th><td>0.82 W/(L/s) at design airflow (simple-box AHU)</td></tr>
+    </table>
+
+    <h2>Step 1 — Design Cooling Load (with Safety Factor)</h2>
+    <table>
+      <tr><th>Zone Cooling Load</th><td>Q_input = ${r.Q_input_kW} kW = ${(r.Q_input_kW/3.517).toFixed(1)} TR</td></tr>
+      <tr><th>Safety Factor Applied</th><td>SF = ${r.safety_factor}</td></tr>
+      <tr><th style="background:#fffde7;">Design Cooling Load</th><td><strong>Q_design = ${r.Q_input_kW} × ${r.safety_factor} = ${r.Q_design_kW} kW (${r.Q_design_TR} TR)</strong></td></tr>
+      <tr><th>Sensible Component</th><td>Q_sensible = ${r.Q_design_kW} × ${r.shr} = <strong>${r.Q_sensible_kW} kW</strong></td></tr>
+      <tr><th>Latent Component</th><td>Q_latent = ${r.Q_design_kW} × ${(1-r.shr).toFixed(2)} = <strong>${r.Q_latent_kW} kW</strong></td></tr>
+    </table>
+
+    <h2>Step 2 — Supply Air Quantity</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      Q_supply = Q_sensible / (ρ × Cp × ΔT_sa)<br>
+      Q_supply = ${r.Q_sensible_kW} / (1.2 × 1.005 × ${r.dT_sa}) = <strong>${r.Q_sa_m3s} m³/s = ${r.Q_sa_CMH} m³/h (${r.Q_sa_CFM} CFM)</strong>
+    </p>
+    <table>
+      <tr><th>Supply Temperature Differential (ΔT)</th><td>${inputs.room_temp_C}°C − ${inputs.supply_temp_C}°C = ${r.dT_sa}°C</td></tr>
+      <tr><th>Total Supply Airflow</th><td><strong>${r.Q_sa_CMH} m³/h (${r.Q_sa_CFM} CFM | ${r.Q_sa_m3s} m³/s)</strong></td></tr>
+      <tr><th>Per-Unit Airflow</th><td>${r.Q_sa_CMH_each} m³/h per AHU (${r.n_units}× units)</td></tr>
+    </table>
+
+    <h2>Step 3 — Outside Air / Mixed Air</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      T_mixed = OA% × T_ambient + (1−OA%) × T_room<br>
+      T_mixed = ${r.oa_pct_used}% × 35 + ${100-r.oa_pct_used}% × ${inputs.room_temp_C} = <strong>${r.T_mixed}°C</strong>
+    </p>
+    <table>
+      <tr><th>Outside Air Flow</th><td>Q_OA = ${r.Q_sa_CMH} × ${r.oa_pct_used}% = <strong>${r.Q_oa_CMH} m³/h (${(r.Q_oa_CMH/3.6).toFixed(1)} L/s)</strong></td></tr>
+      <tr><th>Return / Recirculation Air</th><td>Q_RA = ${r.Q_sa_CMH} − ${r.Q_oa_CMH} = <strong>${r.Q_ra_CMH} m³/h</strong></td></tr>
+      <tr><th>Mixed Air Temperature</th><td><strong>${r.T_mixed}°C</strong></td></tr>
+      ${r.persons > 0 ? `<tr><th>OA per Person</th><td>${r.oa_per_person_lps} L/s/person — ASHRAE 62.1 minimum: ${r.ashrae_oa_min_lps_person} L/s/person — <strong style="color:${oaColor};">${r.oa_check}</strong></td></tr>` : `<tr><th>OA Compliance Check</th><td style="color:#888;">N/A — occupant count not entered. Enter persons for ASHRAE 62.1 check.</td></tr>`}
+    </table>
+
+    <h2>Step 4 — Cooling Coil Capacity</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      Sensible coil load = ρ × Cp × Q_supply × (T_mixed − T_supply)<br>
+      Q_coil,sensible = 1.2 × 1.005 × ${r.Q_sa_m3s} × (${r.T_mixed} − ${inputs.supply_temp_C}) = <strong>${r.Q_coil_sensible_kW} kW</strong><br>
+      Q_coil,total = Q_coil,sensible / SHR = ${r.Q_coil_sensible_kW} / ${r.shr} = <strong>${r.Q_coil_total_kW} kW (${r.Q_coil_TR} TR)</strong>
+    </p>
+    <table>
+      <tr><th>Sensible Coil Load</th><td>${r.Q_coil_sensible_kW} kW</td></tr>
+      <tr><th>Latent Coil Load</th><td>${r.Q_coil_latent_kW} kW (dehumidification)</td></tr>
+      <tr><th style="background:#fffde7;">Total Cooling Coil Capacity</th><td><strong>${r.Q_coil_total_kW} kW (${r.Q_coil_TR} TR)</strong></td></tr>
+    </table>
+
+    <h2>Step 5 — Chilled Water Flow Rate</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      Q_CHW = Q_coil / (Cp,w × ΔT_chw) = ${r.Q_coil_total_kW} / (4.187 × ${r.dT_chw_C}) = <strong>${r.Q_chw_lps} L/s</strong>
+    </p>
+    <table>
+      <tr><th>CHW Temperature Differential (ΔT)</th><td>${r.chw_supply_C}°C supply / ${r.chw_return_C}°C return = ${r.dT_chw_C}°C</td></tr>
+      <tr><th style="background:#fffde7;">CHW Flow Rate</th><td><strong>${r.Q_chw_lps} L/s (${r.Q_chw_m3h} m³/h | ${r.Q_chw_GPM} US GPM)</strong></td></tr>
+    </table>
+
+    <h2>Step 6 — Fan Motor Sizing</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      P_fan = Q_supply × ΔP_fan / (η × 1000) = ${r.Q_sa_m3s} × ${r.fan_static_Pa} / (${r.eta_fan} × 1000) = <strong>${r.P_fan_kW} kW</strong><br>
+      Fan Power Index = P_fan × 1000 / Q_supply_L/s = ${(r.Q_sa_m3s*1000).toFixed(1)} L/s → <strong>${r.fan_power_W_lps} W/(L/s)</strong>
+    </p>
+    <table>
+      <tr><th>Total Fan Motor Power</th><td>${r.P_fan_kW} kW total (${r.P_fan_kW_each} kW per unit)</td></tr>
+      <tr><th style="background:#fffde7;">Selected Fan Motor (per unit)</th><td><strong>${r.fan_hp_std} HP (${(r.fan_hp_std*0.7457).toFixed(1)} kW, ${r.n_units}× AHUs = ${r.fan_hp_total} HP total)</strong></td></tr>
+      <tr><th>ASHRAE 90.1 Fan Power Check</th><td style="background:${fanBg};color:${fanColor};font-weight:700;">${r.fan_power_W_lps} W/(L/s) — limit: ${r.ashrae_fan_max} W/(L/s) — ${r.fan_power_check}</td></tr>
+    </table>
+
+    <h2>Step 7 — Air Changes Per Hour (ACH) Check</h2>
+    <table>
+      ${r.floor_area > 0 ? `
+      <tr><th>Zone Volume</th><td>${r.zone_volume} m³ (${r.floor_area} m² × ${r.ceiling_height} m H)</td></tr>
+      <tr><th style="background:#fffde7;">Actual ACH</th><td><strong>${r.ach_actual} ACH</strong> (${r.Q_sa_CMH} m³/h ÷ ${r.zone_volume} m³)</td></tr>
+      ` : `<tr><th>ACH Check</th><td style="color:#888;">Floor area not entered — enter floor area and ceiling height for ACH calculation.</td></tr>`}
+    </table>
+
+    <h2>Step 8 — Summary of Results</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin:1rem 0;">
+      <div class="result-highlight">
+        <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">Selected AHU Size</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#1a1a1a;">${r.nominal_AHU_CMH_each} <span style="font-size:0.7rem;">CMH each</span></div>
+        <div style="font-size:0.72rem;color:#555;">${r.n_units}× units = ${r.nominal_AHU_CMH_total} CMH total</div>
+      </div>
+      <div class="result-highlight">
+        <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">Cooling Coil</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#1a1a1a;">${r.Q_coil_total_kW} <span style="font-size:0.7rem;">kW</span></div>
+        <div style="font-size:0.72rem;color:#555;">${r.Q_coil_TR} TR total coil capacity</div>
+      </div>
+      <div class="result-highlight">
+        <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">Fan Motor (each)</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#1a1a1a;">${r.fan_hp_std} <span style="font-size:0.7rem;">HP</span></div>
+        <div style="font-size:0.72rem;color:#555;">${(r.fan_hp_std*0.7457).toFixed(1)} kW | ${r.fan_power_W_lps} W/L·s</div>
+      </div>
+      <div class="result-highlight">
+        <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">Supply Airflow</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#1a1a1a;">${r.Q_sa_CMH} <span style="font-size:0.7rem;">CMH</span></div>
+        <div style="font-size:0.72rem;color:#555;">${r.Q_sa_CFM} CFM | ${r.Q_sa_m3s} m³/s</div>
+      </div>
+      <div class="result-highlight">
+        <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">CHW Flow</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#1a1a1a;">${r.Q_chw_lps} <span style="font-size:0.7rem;">L/s</span></div>
+        <div style="font-size:0.72rem;color:#555;">${r.Q_chw_GPM} US GPM | ${r.Q_chw_m3h} m³/h</div>
+      </div>
+      <div class="result-highlight" style="background:${fanBg};border:1px solid ${fanColor}40;">
+        <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">ASHRAE 90.1 Fan Power</div>
+        <div style="font-size:1.4rem;font-weight:800;color:${fanColor};">${r.fan_power_check === 'PASS' ? 'PASS' : 'FAIL'}</div>
+        <div style="font-size:0.72rem;color:#555;">${r.fan_power_W_lps} W/L·s (max 0.82)</div>
+      </div>
+    </div>
+
+    <h2>Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `Select an AHU rated at ${r.nominal_AHU_CMH_each} m³/h (${r.n_units} unit${r.n_units>1?'s':''}) with a cooling coil capacity of not less than ${r.Q_coil_total_kW} kW (${r.Q_coil_TR} TR) at CHW conditions of ${r.chw_supply_C}°C/${r.chw_return_C}°C. Fan motor shall be ${r.fan_hp_std} HP with variable frequency drive (VFD) for part-load energy savings. Chilled water coil face velocity shall not exceed 2.5 m/s to prevent condensate carryover. Provide minimum ${r.oa_pct_used}% outside air with motorized damper and actuator. Install pre-filter (G4) and bag filter (F7) in sequence. Fan power shall be verified not to exceed ${r.ashrae_fan_max} W/(L/s) per ASHRAE 90.1.`)}</p>
+
+    <!-- SIGNATURE BLOCK -->
+    <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div>
+        <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;">PREPARED BY</div>
+          <div style="font-size:0.75rem;color:#555;" contenteditable="true" class="editable-field">${escHtml(WORKER_NAME)}</div>
+          <div style="font-size:0.72rem;color:#888;">Mechanical Engineer / Designer</div>
+        </div>
+      </div>
+      <div>
+        <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;">CHECKED BY</div>
+          <div style="font-size:0.75rem;color:#555;" contenteditable="true" class="editable-field"> </div>
+          <div style="font-size:0.72rem;color:#888;">PRC Lic. No.: <span contenteditable="true" class="editable-field"> </span></div>
+        </div>
+      </div>
+      <div>
+        <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;">APPROVED BY</div>
+          <div style="font-size:0.75rem;color:#555;" contenteditable="true" class="editable-field"> </div>
+          <div style="font-size:0.72rem;color:#888;">PRC Lic. No.: <span contenteditable="true" class="editable-field"> </span></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
 // ─── Download PDF (html2pdf — no browser headers/footers/URL) ────────────────
 function printReport() {
   const reportEl = document.getElementById('report-panel');
@@ -9257,7 +9721,7 @@ async function generateBomSowChecklist() {
     'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing'],
     'Fire Protection':         ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],
     'Vertical Transportation': ['Elevator Traffic Analysis', 'Hoist Capacity'],
-    'HVAC Systems':            ['Chiller System — Air Cooled', 'Chiller System — Water Cooled'],
+    'HVAC Systems':            ['Chiller System — Air Cooled', 'Chiller System — Water Cooled', 'AHU Sizing'],
   };
   const supportedForDiscipline = BOM_SOW_SUPPORTED[_discipline] || [];
   if (!supportedForDiscipline.includes(_calcType)) {
@@ -9451,10 +9915,13 @@ function renderBomTablePreview(items) {
   const isFABatt   = _calcType === 'Fire Alarm Battery';
   const isElev     = _calcType === 'Elevator Traffic Analysis';
   const isHoist    = _calcType === 'Hoist Capacity';
-  const isChiller  = _calcType === 'Chiller System — Air Cooled';
+  const isChiller   = _calcType === 'Chiller System — Air Cooled';
   const isChillerWC = _calcType === 'Chiller System — Water Cooled';
-  const calcRef = `${isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
-  const disciplineSystem = isChillerWC
+  const isAHU       = _calcType === 'AHU Sizing';
+  const calcRef = `${isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const disciplineSystem = isAHU
+    ? `HVAC Systems — AHU (${_lastResults?.n_units || ''}× ${_lastResults?.nominal_AHU_CMH_each || ''}CMH, ${_lastResults?.Q_coil_total_kW || ''}kW/${_lastResults?.Q_coil_TR || ''}TR coil, ${_lastResults?.fan_hp_std || ''}HP fan, CHW ${_lastResults?.chw_supply_C || ''}/${_lastResults?.chw_return_C || ''}°C, ${_lastResults?.Q_chw_lps || ''}L/s)`
+    : isChillerWC
     ? `HVAC Systems — Water-Cooled Chiller Plant (${_lastInputs?.n_units || _lastResults?.n_units || ''}× ${_lastResults?.nominal_TR_each || ''}TR, ${_lastResults?.nominal_total_TR || ''}TR total, COP ${_lastInputs?.cop || ''} — ${_lastResults?.cop_check || ''}, CHW ${_lastInputs?.chw_supply_C || ''}/${_lastInputs?.chw_return_C || ''}°C, CW ${_lastInputs?.cw_supply_C || ''}/${_lastInputs?.cw_return_C || ''}°C, CT ${_lastResults?.Q_rejection_TR || ''}TR)`
     : isChiller
     ? `HVAC Systems — Air-Cooled Chiller Plant (${_lastInputs?.n_units || _lastResults?.n_units || ''}× ${_lastResults?.nominal_TR_each || ''}TR, ${_lastResults?.nominal_total_TR || ''}TR total, COP ${_lastInputs?.cop || ''} — ${_lastResults?.cop_check || ''}, CHW ${_lastInputs?.chw_supply_C || ''}/${_lastInputs?.chw_return_C || ''}°C, ${_lastResults?.Q_flow_lps || ''}L/s)`
@@ -9661,14 +10128,17 @@ function renderSowDocPreview(sections) {
   const isFABatt   = _calcType === 'Fire Alarm Battery';
   const isElev     = _calcType === 'Elevator Traffic Analysis';
   const isHoist    = _calcType === 'Hoist Capacity';
-  const isChillerS  = _calcType === 'Chiller System — Air Cooled';
+  const isChillerS   = _calcType === 'Chiller System — Air Cooled';
   const isChillerWCS = _calcType === 'Chiller System — Water Cooled';
-  const calcRef = `${isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const isAHUS       = _calcType === 'AHU Sizing';
+  const calcRef = `${isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
   const unitKW = _lastResults?.ac_size_kw        || '';
-  const ventSystemLine = isChillerWCS
+  const ventSystemLine = isAHUS
+    ? `AHU Sizing — ${_lastResults?.n_units || ''}× ${_lastResults?.nominal_AHU_CMH_each || ''}CMH (${_lastResults?.nominal_AHU_CMH_total || ''}CMH total), Coil ${_lastResults?.Q_coil_total_kW || ''}kW (${_lastResults?.Q_coil_TR || ''}TR), Fan ${_lastResults?.fan_hp_std || ''}HP @ ${_lastResults?.fan_static_Pa || ''}Pa, CHW ${_lastResults?.chw_supply_C || ''}/${_lastResults?.chw_return_C || ''}°C ΔT=${_lastResults?.dT_chw_C || ''}°C, ${_lastResults?.Q_chw_lps || ''}L/s, Fan Power ${_lastResults?.fan_power_W_lps || ''}W/L·s — ${_lastResults?.fan_power_check || ''}`
+    : isChillerWCS
     ? `Water-Cooled Chiller Plant — ${_lastInputs?.n_units || _lastResults?.n_units || ''}× ${_lastResults?.nominal_TR_each || ''}TR (${_lastResults?.nominal_kW_each || ''}kW), ${_lastResults?.nominal_total_TR || ''}TR total, COP ${_lastInputs?.cop || ''} — ${_lastResults?.cop_check || ''} (ASHRAE 90.1 min ${_lastResults?.ashrae_min_cop || ''}), CHW ${_lastInputs?.chw_supply_C || ''}/${_lastInputs?.chw_return_C || ''}°C ΔT=${_lastResults?.dT_chw_C || ''}°C, ${_lastResults?.Q_chw_flow_lps || ''}L/s CHW, CW ${_lastInputs?.cw_supply_C || ''}/${_lastInputs?.cw_return_C || ''}°C ${_lastResults?.Q_cw_flow_lps || ''}L/s, CT ${_lastResults?.Q_rejection_TR || ''}TR heat rejection`
     : isChillerS
     ? `Air-Cooled Chiller Plant — ${_lastInputs?.n_units || _lastResults?.n_units || ''}× ${_lastResults?.nominal_TR_each || ''}TR (${_lastResults?.nominal_kW_each || ''}kW), ${_lastResults?.nominal_total_TR || ''}TR total, COP ${_lastInputs?.cop || ''} — ${_lastResults?.cop_check || ''} (ASHRAE 90.1 min ${_lastResults?.ashrae_min_cop || ''}), CHW ${_lastInputs?.chw_supply_C || ''}/${_lastInputs?.chw_return_C || ''}°C ΔT=${_lastResults?.dT_chw_C || ''}°C, ${_lastResults?.Q_flow_lps || ''}L/s, ${_lastResults?.Q_airflow_CMH || ''}CMH condenser airflow`
@@ -9786,6 +10256,8 @@ ${isLight
   ? `This Scope of Works is based on the Pump Sizing (TDH) Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including PSME, Hydraulic Institute Standards (ANSI/HI), PEC 2017, and DOLE OSH Standards. Factory performance test certificates and certified pump curves shall be submitted prior to equipment procurement. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isVent
   ? `This Scope of Works is based on the Ventilation / ACH Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including ASHRAE 62.1, PSME, NFPA 90A, PEC 2017, and DOLE OSH Standards for workplace ventilation. Duct construction shall comply with SMACNA standards. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  : isAHUS
+  ? `This Scope of Works is based on the Air Handling Unit (AHU) Sizing Design Calculation (Ref: ${escHtml(calcRef)}) per ASHRAE 62.1 / ASHRAE 90.1 / PSME Code. The selected AHU(s) shall be rated at ${_lastResults?.nominal_AHU_CMH_each || ''}m³/h each (${_lastResults?.n_units || ''}× units, ${_lastResults?.nominal_AHU_CMH_total || ''}m³/h total) with a cooling coil capacity of not less than ${_lastResults?.Q_coil_total_kW || ''}kW (${_lastResults?.Q_coil_TR || ''}TR) at CHW conditions of ${_lastResults?.chw_supply_C || ''}°C/${_lastResults?.chw_return_C || ''}°C. Fan motor shall be ${_lastResults?.fan_hp_std || ''}HP per unit with variable frequency drive (VFD). Fan power index is ${_lastResults?.fan_power_W_lps || ''} W/(L/s) — ASHRAE 90.1 limit: 0.82 W/(L/s) — ${_lastResults?.fan_power_check || ''}. The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including: ASHRAE 62.1 (minimum outside air ${_lastResults?.Q_oa_CMH || ''}m³/h at ${_lastResults?.oa_pct_used || ''}% OA fraction), ASHRAE 90.1 (fan power index limit 0.82 W/(L/s) — provide VFD for all fans), PSME Code (AHU installation and ductwork), SMACNA (duct construction standards), PEC 2017 (electrical supply at ${_lastResults?.total_fan_kVA || ''}kVA fan load), and PGBC/BERDE green building indoor air quality requirements. Chilled water coil face velocity shall not exceed 2.5 m/s. Provide G4 pre-filter and F7 bag filter in series upstream of the coil. Factory performance data (airflow, coil capacity at design CHW conditions, fan curve) shall be submitted for Engineer's approval before procurement. Mechanical Permit from the LGU and sign-off by a PRC-licensed Mechanical Engineer are required before system energization. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isChillerWCS
   ? `This Scope of Works is based on the Chiller System — Water Cooled Design Calculation (Ref: ${escHtml(calcRef)}) per ASHRAE 90.1 / ASHRAE 15 / ASHRAE Guideline 12 / PSME Code. The selected chiller(s) are rated at ${_lastResults?.nominal_TR_each || ''}TR each (${_lastResults?.nominal_total_TR || ''}TR total, chiller type: ${_lastInputs?.chiller_type || ''}) with COP ${_lastInputs?.cop || ''} — ${_lastResults?.cop_check || ''} per ASHRAE 90.1 minimum COP ${_lastResults?.ashrae_min_cop || ''}${_lastResults?.cop_check === 'FAIL' ? ` — FAIL: re-select equipment with COP ≥ ${_lastResults?.ashrae_min_cop || ''} before procurement.` : '.'} Cooling tower sized at ${_lastResults?.Q_rejection_TR || ''}TR heat rejection (Q_rejection = Q_evap + W_compressor — NOT the chiller nominal TR). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including: PSME Code, ASHRAE 90.1 (energy efficiency), ASHRAE 15 (refrigerant safety — minimum 6 ACH machine room ventilation, electrochemical leak detection), ASHRAE Guideline 12 (Legionella prevention — cooling tower water treatment program mandatory; provide biological testing and chemical dosing plan before commissioning), CTI STD-201 (cooling tower thermal performance), PEC 2017 (electrical supply at ${_lastResults?.total_kVA || ''}kVA / ${_lastResults?.total_A_at_400V || ''}A FLA), and PGBC/BERDE green building energy performance requirements. Chiller performance data at design condenser water conditions (${_lastInputs?.cw_supply_C || ''}°C / ${_lastInputs?.cw_return_C || ''}°C) shall be certified by the manufacturer and submitted for Engineer's approval before procurement. Cooling tower thermal performance shall be certified to CTI STD-201 at design wet-bulb conditions. Factory witness test report, Legionella water treatment plan, and site commissioning by manufacturer-authorized engineer are mandatory. COP shall be field-verified at design conditions. Mechanical Permit from the LGU and sign-off by a PRC-licensed Mechanical Engineer are required before system energization. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isChillerS

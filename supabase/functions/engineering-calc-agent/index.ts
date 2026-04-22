@@ -2742,6 +2742,185 @@ function calcFireAlarmBattery(inputs: Record<string, number | string>): Record<s
 
 // ─── Main Handler ─────────────────────────────────────────────────────────────
 
+// ─── AHU Sizing Calculation ───────────────────────────────────────────────────
+// Method: Psychrometric supply-air approach (sensible heat method)
+// Standards: ASHRAE 62.1 (ventilation), ASHRAE 90.1 (fan power), PSME Code
+// Outputs: supply airflow (CMH/CFM), cooling coil capacity (kW/TR),
+//          CHW flow (L/s), fan power (kW/HP), ACH, OA compliance.
+
+// Standard nominal AHU sizes (CMH) — common Philippine market offerings
+const AHU_STD_SIZES_CMH = [
+  1000, 1500, 2000, 3000, 4000, 5000, 6000, 8000, 10000,
+  12000, 15000, 20000, 25000, 30000, 40000, 50000, 60000,
+];
+
+// Standard fan motor HP sizes
+const FAN_MOTOR_HP = [0.5, 0.75, 1, 1.5, 2, 3, 5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100];
+
+function roundUpToAHUSize(cmh: number): number {
+  return AHU_STD_SIZES_CMH.find(s => s >= cmh) || Math.ceil(cmh / 5000) * 5000;
+}
+function roundUpToFanHP(kw: number): number {
+  const hp = kw / 0.7457;
+  return FAN_MOTOR_HP.find(s => s >= hp) || Math.ceil(hp / 10) * 10;
+}
+
+function calcAHUSizing(inputs: Record<string, number | string>) {
+  const Q_input_kW    = Number(inputs.cooling_load_kW) || 0;    // zone total cooling load (kW)
+  const shr           = Math.min(1.0, Math.max(0.5, Number(inputs.shr) || 0.75)); // sensible heat ratio
+  const T_room        = Number(inputs.room_temp_C)     || 24;   // design room dry-bulb (°C)
+  const T_supply      = Number(inputs.supply_temp_C)   || 14;   // supply air temp (°C)
+  const oa_pct        = Math.min(100, Math.max(0, Number(inputs.oa_pct) || 20)) / 100; // OA fraction
+  const chwSupply     = Number(inputs.chw_supply_C)    || 7;    // CHW supply (°C)
+  const chwReturn     = Number(inputs.chw_return_C)    || 12;   // CHW return (°C)
+  const fan_static_Pa = Number(inputs.fan_static_Pa)   || 400;  // total fan static pressure (Pa)
+  const eta_fan       = Math.min(0.95, Math.max(0.30, Number(inputs.eta_fan) || 0.65)); // fan+motor combined
+  const safetyFactor  = Number(inputs.safety_factor)   || 1.10;
+  const nUnits        = Math.max(1, Math.round(Number(inputs.n_units) || 1));
+  const floorArea     = Number(inputs.floor_area)      || 0;    // m² (for ACH check)
+  const ceilingHeight = Number(inputs.ceiling_height)  || 3.0;  // m
+  const persons       = Number(inputs.persons)         || 0;    // occupants (for OA check)
+  const spaceType     = String(inputs.space_type || 'Office');
+
+  // 1. Design cooling load (with safety factor)
+  const Q_design_kW   = Q_input_kW * safetyFactor;
+  const Q_design_TR   = Q_design_kW / 3.517;
+
+  // 2. Sensible and latent split
+  const Q_sensible_kW = Q_design_kW * shr;
+  const Q_latent_kW   = Q_design_kW * (1 - shr);
+
+  // 3. Supply air quantity (sensible heat method)
+  //    Q_sa (m³/s) = Q_sensible / (ρ × Cp × ΔT_sa)
+  //    ρ = 1.2 kg/m³, Cp = 1.005 kJ/(kg·K)
+  const rho   = 1.2;
+  const cp    = 1.005;
+  const dT_sa = Math.max(1, T_room - T_supply);   // supply temperature differential
+  const Q_sa_m3s    = Q_sensible_kW / (rho * cp * dT_sa);  // m³/s
+  const Q_sa_CMH    = Q_sa_m3s * 3600;                     // m³/h
+  const Q_sa_CFM    = Q_sa_m3s * 2118.88;                  // CFM
+
+  // Per-unit values
+  const Q_sa_CMH_each = Q_sa_CMH / nUnits;
+
+  // 4. Outside air quantity (ASHRAE 62.1)
+  const Q_oa_m3s  = Q_sa_m3s * oa_pct;
+  const Q_oa_CMH  = Q_oa_m3s * 3600;
+  const Q_oa_lps  = Q_oa_m3s * 1000;
+  const Q_ra_CMH  = Q_sa_CMH - Q_oa_CMH;   // return/recirculation air
+
+  // ASHRAE 62.1 minimum OA: 10 L/s/person (office) — check
+  const oa_per_person_lps = persons > 0 ? Q_oa_lps / persons : null;
+  const ashrae_oa_min_lps_person = 10;  // L/s/person (office, ASHRAE 62.1 Table 6-1)
+  const oa_check = persons > 0
+    ? (oa_per_person_lps! >= ashrae_oa_min_lps_person ? 'PASS' : 'FAIL')
+    : 'N/A (no occupant count)';
+
+  // 5. Mixed air temperature (mass balance, no latent correction)
+  const T_outside = 35;  // design ambient dry-bulb for PH
+  const T_mixed   = (oa_pct * T_outside) + ((1 - oa_pct) * T_room);
+
+  // 6. Cooling coil capacity (coil must handle mixed→supply)
+  //    Sensible coil load = ρ × Cp × Q_sa × (T_mixed − T_supply)
+  const Q_coil_sensible_kW = rho * cp * Q_sa_m3s * (T_mixed - T_supply);
+  const Q_coil_total_kW    = Q_coil_sensible_kW / shr;  // gross coil capacity (incl. latent)
+  const Q_coil_TR          = Q_coil_total_kW / 3.517;
+  const Q_coil_latent_kW   = Q_coil_total_kW - Q_coil_sensible_kW;
+
+  // 7. Chilled water flow rate
+  const dT_chw       = Math.max(1, chwReturn - chwSupply);
+  const Q_chw_lps    = Q_coil_total_kW / (4.187 * dT_chw);   // L/s
+  const Q_chw_m3h    = Q_chw_lps * 3.6;                       // m³/h
+  const Q_chw_GPM    = Q_chw_lps * 15.8508;                   // US GPM
+
+  // 8. Fan motor power
+  //    P_fan (kW) = Q_sa_m3s × ΔP_fan / η_combined
+  const P_fan_kW      = (Q_sa_m3s * fan_static_Pa) / (eta_fan * 1000);  // kW
+  const P_fan_kW_each = P_fan_kW / nUnits;
+  const fan_hp_std    = roundUpToFanHP(P_fan_kW_each);
+  const fan_hp_total  = fan_hp_std * nUnits;
+
+  // ASHRAE 90.1 fan power limitation: max 0.82 W/(L/s) at design airflow
+  const fan_power_W_lps    = (P_fan_kW * 1000) / (Q_sa_m3s * 1000);   // W/(L/s)
+  const ashrae_fan_max     = 0.82;
+  const fan_power_check    = fan_power_W_lps <= ashrae_fan_max ? 'PASS' : 'FAIL (exceed 0.82 W/L·s limit — reduce static or increase fan efficiency)';
+
+  // 9. ACH check
+  const zone_volume       = floorArea * ceilingHeight;  // m³
+  const ach_actual        = zone_volume > 0 ? (Q_sa_CMH / zone_volume) : null;
+
+  // 10. Nominal AHU selection (round up to standard size per unit)
+  const nominal_AHU_CMH_each = roundUpToAHUSize(Q_sa_CMH_each);
+  const nominal_AHU_CMH_total = nominal_AHU_CMH_each * nUnits;
+
+  // 11. Electrical supply estimate (fan only — coil is hydronic)
+  const total_fan_kVA     = P_fan_kW / 0.85;  // kVA (PF=0.85)
+  const total_fan_A_400V  = (total_fan_kVA * 1000) / (Math.sqrt(3) * 400);
+
+  return {
+    // Design load
+    Q_input_kW:              parseFloat(Q_input_kW.toFixed(2)),
+    Q_design_kW:             parseFloat(Q_design_kW.toFixed(2)),
+    Q_design_TR:             parseFloat(Q_design_TR.toFixed(2)),
+    Q_sensible_kW:           parseFloat(Q_sensible_kW.toFixed(2)),
+    Q_latent_kW:             parseFloat(Q_latent_kW.toFixed(2)),
+    shr,
+    safety_factor:           safetyFactor,
+    // Air side
+    T_room,
+    T_supply,
+    T_mixed:                 parseFloat(T_mixed.toFixed(1)),
+    dT_sa:                   parseFloat(dT_sa.toFixed(1)),
+    Q_sa_m3s:                parseFloat(Q_sa_m3s.toFixed(3)),
+    Q_sa_CMH:                parseFloat(Q_sa_CMH.toFixed(0)),
+    Q_sa_CFM:                parseFloat(Q_sa_CFM.toFixed(0)),
+    Q_sa_CMH_each:           parseFloat(Q_sa_CMH_each.toFixed(0)),
+    Q_oa_CMH:                parseFloat(Q_oa_CMH.toFixed(0)),
+    Q_ra_CMH:                parseFloat(Q_ra_CMH.toFixed(0)),
+    oa_pct_used:             Math.round(oa_pct * 100),
+    // OA compliance
+    oa_per_person_lps:       oa_per_person_lps !== null ? parseFloat(oa_per_person_lps.toFixed(2)) : null,
+    oa_check,
+    ashrae_oa_min_lps_person,
+    // Cooling coil
+    Q_coil_sensible_kW:      parseFloat(Q_coil_sensible_kW.toFixed(2)),
+    Q_coil_latent_kW:        parseFloat(Q_coil_latent_kW.toFixed(2)),
+    Q_coil_total_kW:         parseFloat(Q_coil_total_kW.toFixed(2)),
+    Q_coil_TR:               parseFloat(Q_coil_TR.toFixed(2)),
+    // CHW system
+    dT_chw_C:                parseFloat(dT_chw.toFixed(1)),
+    Q_chw_lps:               parseFloat(Q_chw_lps.toFixed(2)),
+    Q_chw_m3h:               parseFloat(Q_chw_m3h.toFixed(2)),
+    Q_chw_GPM:               parseFloat(Q_chw_GPM.toFixed(1)),
+    chw_supply_C:            chwSupply,
+    chw_return_C:            chwReturn,
+    // Fan
+    fan_static_Pa,
+    eta_fan,
+    P_fan_kW:                parseFloat(P_fan_kW.toFixed(2)),
+    P_fan_kW_each:           parseFloat(P_fan_kW_each.toFixed(2)),
+    fan_hp_std,
+    fan_hp_total,
+    fan_power_W_lps:         parseFloat(fan_power_W_lps.toFixed(3)),
+    fan_power_check,
+    ashrae_fan_max,
+    // Selected AHU
+    n_units:                 nUnits,
+    nominal_AHU_CMH_each,
+    nominal_AHU_CMH_total,
+    // Zone data
+    floor_area:              floorArea,
+    ceiling_height:          ceilingHeight,
+    zone_volume:             parseFloat(zone_volume.toFixed(1)),
+    ach_actual:              ach_actual !== null ? parseFloat(ach_actual.toFixed(1)) : null,
+    persons,
+    space_type:              spaceType,
+    // Electrical (fan motors)
+    total_fan_kVA:           parseFloat(total_fan_kVA.toFixed(1)),
+    total_fan_A_400V:        parseFloat(total_fan_A_400V.toFixed(1)),
+  };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -2811,6 +2990,8 @@ serve(async (req) => {
       results = calcChillerWaterCooled(inputs);
     } else if (calc_type === "Chiller System — Air Cooled") {
       results = calcChillerAirCooled(inputs);
+    } else if (calc_type === "AHU Sizing") {
+      results = calcAHUSizing(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),
