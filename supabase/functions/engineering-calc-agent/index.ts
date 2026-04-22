@@ -1578,6 +1578,15 @@ Respond in JSON format only:
       const rp   = rec.return_period_yr ?? '';
       const mat  = rec.pipe_material ?? '';
       recommendations = `Provide ${D} mm ${mat} storm drain pipe for the design catchment. Design flow is ${Q} L/s (${rp}-year return period, Rational Method). Full-pipe velocity is ${V} m/s — velocity check: ${chk}. Maintain minimum 0.6 m/s self-cleaning velocity and maximum slope per DPWH Drainage Design Guidelines. Install cleanouts at every junction and at 50 m maximum intervals. Verify catchment area and runoff coefficient with as-built site grading plans before finalising.`;
+    } else if (calcType === "Boiler System") {
+      const bhp   = rec.q_boiler_bhp ?? '';
+      const qkw   = rec.q_boiler_kw ?? '';
+      const fuel  = rec.fuel_consumption_kg_hr ?? '';
+      const fuelT = String(inputs.fuel_type || 'fuel');
+      const bd    = rec.blowdown_pct ?? '';
+      const sv    = rec.safety_valve_min_kg_hr ?? '';
+      const n     = inputs.num_boilers ?? 1;
+      recommendations = `Provide ${n} × ${qkw} kW (${bhp} BHP) ${String(inputs.boiler_type || 'steam')} boiler(s) fired on ${fuelT}. Fuel consumption: ${fuel} kg/hr per boiler. Maintain continuous blowdown at ${bd}% to control total dissolved solids within allowable limits. Install safety relief valve(s) with minimum rated capacity of ${sv} kg/hr per ASME BPVC / PD 8. Boiler installation requires DOLE-accredited Third Party Inspector certification and annual statutory inspection under PD 8.`;
     } else if (calcType === "Load Estimation") {
       const kva = rec.total_kVA ?? rec.demand_kVA ?? rec.demand_kW ?? '';
       recommendations = `Size the main circuit breaker and service entrance conductors for minimum ${kva} kVA demand load with 20% future expansion margin. Provide separate circuit breakers for each circuit per PEC 2017. Label all breakers and maintain an accurate load schedule as a permanent record.`;
@@ -3703,6 +3712,173 @@ function calcStormDrain(inputs: Record<string, number | string>): Record<string,
   };
 }
 
+// ─── Boiler System Calculation ───────────────────────────────────────────────
+//
+// Steam tables (saturation): pressure → hg, hf, T_sat
+// Interpolated from IAPWS-IF97 saturation curve (0.1–50 bar abs)
+// P_abs (bar a) = P_gauge (bar g) + 1.01325
+//
+// Outputs: Q_boiler (kW), BHP, fuel consumption, blowdown %, makeup water,
+//          safety valve minimum capacity
+//
+// Standards: PD 8, ASME BPVC Sec I/IV, PSME Code, DOLE OSH
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Steam saturation table [P_bara, T_sat_C, hg_kJ_kg, hf_kJ_kg]
+const STEAM_TABLE: [number, number, number, number][] = [
+  [0.006113, 0.01, 2500.9, 0.0],
+  [0.1,      45.8, 2584.7, 191.8],
+  [0.5,      81.3, 2645.4, 340.5],
+  [1.0,      99.6, 2675.0, 417.5],
+  [1.5,     111.4, 2693.1, 467.2],
+  [2.0,     120.2, 2706.3, 504.7],
+  [3.0,     133.5, 2724.9, 561.2],
+  [4.0,     143.6, 2738.1, 604.7],
+  [5.0,     151.8, 2748.1, 640.1],
+  [6.0,     158.8, 2756.4, 670.4],
+  [7.0,     165.0, 2763.2, 697.2],
+  [8.0,     170.4, 2769.0, 721.0],
+  [9.0,     175.4, 2773.8, 742.8],
+  [10.0,    179.9, 2777.8, 762.6],
+  [12.0,    187.9, 2784.3, 798.4],
+  [15.0,    198.3, 2791.5, 844.6],
+  [20.0,    212.4, 2798.7, 908.4],
+  [25.0,    223.9, 2802.0, 962.0],
+  [30.0,    233.8, 2803.0, 1008.3],
+  [40.0,    250.4, 2800.3, 1087.4],
+  [50.0,    263.9, 2794.2, 1154.2],
+];
+
+function interpolateSteamTable(p_bara: number): { t_sat: number; hg: number; hf_sat: number } {
+  const tbl = STEAM_TABLE;
+  if (p_bara <= tbl[0][0]) return { t_sat: tbl[0][1], hg: tbl[0][2], hf_sat: tbl[0][3] };
+  if (p_bara >= tbl[tbl.length - 1][0]) {
+    const last = tbl[tbl.length - 1];
+    return { t_sat: last[1], hg: last[2], hf_sat: last[3] };
+  }
+  for (let i = 0; i < tbl.length - 1; i++) {
+    const [p0, t0, hg0, hf0] = tbl[i];
+    const [p1, t1, hg1, hf1] = tbl[i + 1];
+    if (p_bara >= p0 && p_bara <= p1) {
+      const f = (p_bara - p0) / (p1 - p0);
+      return {
+        t_sat:   Math.round((t0  + f * (t1  - t0))  * 10) / 10,
+        hg:      Math.round((hg0 + f * (hg1 - hg0)) * 10) / 10,
+        hf_sat:  Math.round((hf0 + f * (hf1 - hf0)) * 10) / 10,
+      };
+    }
+  }
+  return { t_sat: 100, hg: 2675, hf_sat: 418 };
+}
+
+// Feedwater enthalpy approximation: hf_fw ≈ Cp_water × T_fw (kJ/kg), Cp = 4.187 kJ/kg·K
+function fwEnthalpy(t_fw_c: number): number {
+  return Math.round(4.187 * t_fw_c * 10) / 10;
+}
+
+// Fuel LHV (kJ/kg) and density (kg/L) where applicable
+const FUEL_LHV: Record<string, number> = {
+  'LPG':         46100,
+  'Diesel':      42700,
+  'Bunker C':    40200,
+  'Natural Gas': 50000,
+  'Biomass':     15000,
+};
+// kg/L for liquid fuels (Natural Gas and Biomass don't use volume)
+const FUEL_DENSITY: Record<string, number> = {
+  'LPG':    0.54,
+  'Diesel': 0.84,
+  'Bunker C': 0.96,
+};
+
+function calcBoiler(inputs: Record<string, number | string>): Record<string, unknown> {
+  const boilerType      = String(inputs.boiler_type      || 'Steam');
+  const loadMode        = String(inputs.load_mode        || 'Steam Demand (kg/hr)');
+  const steamDemandIn   = Number(inputs.steam_demand_kg_hr || 0);
+  const heatLoadKW      = Number(inputs.heat_load_kw     || 0);
+  const numBoilers      = Math.max(1, Number(inputs.num_boilers || 1));
+  const pGauge          = Number(inputs.steam_pressure_barg || 7);
+  const fwTempC         = Number(inputs.fw_temp_c        || 80);
+  const fuelType        = String(inputs.fuel_type        || 'LPG');
+  const effPct          = Number(inputs.efficiency_pct   || 82);
+  const safetyFactor    = Number(inputs.safety_factor    || 1.25);
+  const tdsMakeup       = Number(inputs.tds_makeup_ppm   || 200);
+  const tdsMax          = Math.max(tdsMakeup + 1, Number(inputs.tds_max_ppm || 3000));
+
+  // Steam properties
+  const p_bara = pGauge + 1.01325;
+  const { t_sat, hg, hf_sat } = interpolateSteamTable(p_bara);
+  const hf_fw  = fwEnthalpy(fwTempC);
+  const delta_h = Math.round((hg - hf_fw) * 10) / 10;  // kJ/kg
+
+  // Steam demand
+  let steamDemandKgHr: number;
+  if (loadMode.includes('Heat Load')) {
+    // Back-calculate steam demand from heat load
+    // Q_kW = steam_demand × delta_h / 3600 → steam_demand = Q_kW × 3600 / delta_h
+    steamDemandKgHr = delta_h > 0 ? Math.round(heatLoadKW * 3600 / delta_h * 10) / 10 : 0;
+  } else {
+    steamDemandKgHr = steamDemandIn;
+  }
+
+  // Design demand with safety factor (per boiler)
+  const designSteamKgHr = Math.round(steamDemandKgHr * safetyFactor * 10) / 10;
+
+  // Boiler heat output
+  const q_boiler_kw = delta_h > 0
+    ? Math.round(designSteamKgHr * delta_h / 3600 * 10) / 10
+    : 0;
+  const q_boiler_bhp = Math.round(q_boiler_kw / 9.8095 * 10) / 10;
+
+  // Total installed
+  const total_kw  = Math.round(q_boiler_kw  * numBoilers * 10) / 10;
+  const total_bhp = Math.round(q_boiler_bhp * numBoilers * 10) / 10;
+
+  // Fuel consumption (per boiler)
+  const lhv = FUEL_LHV[fuelType] || 42700;
+  const eta = effPct / 100;
+  const fuel_kg_hr = lhv > 0 && eta > 0
+    ? Math.round(q_boiler_kw / (lhv / 3600 * eta) * 100) / 100
+    : 0;
+  // Volumetric (L/hr) for liquid fuels
+  const densityKgL = FUEL_DENSITY[fuelType];
+  const fuel_l_hr  = densityKgL
+    ? Math.round(fuel_kg_hr / densityKgL * 10) / 10
+    : null;
+
+  // Blowdown
+  const blowdownPct = tdsMax > tdsMakeup
+    ? Math.round(tdsMakeup / (tdsMax - tdsMakeup) * 1000) / 10  // 1 decimal %
+    : 0;
+  const blowdownKgHr    = Math.round(designSteamKgHr * blowdownPct / 100 * 10) / 10;
+  const makeupWaterKgHr = Math.round((designSteamKgHr + blowdownKgHr) * 10) / 10;
+
+  // Safety valve minimum
+  const safetyValveMinKgHr = Math.round(designSteamKgHr * 1.1 * 10) / 10;
+
+  return {
+    boiler_type:              boilerType,
+    steam_pressure_bara:      Math.round(p_bara * 1000) / 1000,
+    t_sat_c:                  t_sat,
+    hg_kj_kg:                 hg,
+    hf_fw_kj_kg:              hf_fw,
+    delta_h_kj_kg:            delta_h,
+    steam_demand_kg_hr:       steamDemandKgHr,
+    design_steam_demand_kg_hr:designSteamKgHr,
+    q_boiler_kw:              q_boiler_kw,
+    q_boiler_bhp:             q_boiler_bhp,
+    total_capacity_kw:        total_kw,
+    total_capacity_bhp:       total_bhp,
+    fuel_lhv_kj_kg:           lhv,
+    fuel_consumption_kg_hr:   fuel_kg_hr,
+    fuel_consumption_lhr:     fuel_l_hr,
+    blowdown_pct:             blowdownPct,
+    blowdown_kg_hr:           blowdownKgHr,
+    makeup_water_kg_hr:       makeupWaterKgHr,
+    safety_valve_min_kg_hr:   safetyValveMinKgHr,
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -3786,6 +3962,8 @@ serve(async (req) => {
       results = calcWastewaterSTP(inputs);
     } else if (calc_type === "Storm Drain / Stormwater") {
       results = calcStormDrain(inputs);
+    } else if (calc_type === "Boiler System") {
+      results = calcBoiler(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),
