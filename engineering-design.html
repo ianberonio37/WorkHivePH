@@ -8232,6 +8232,7 @@ function renderGeneratorReport(inputs, results, narrative) {
       <p>At 100% load: ${r.fuel_100pct_lhr||0} L/hr</p>
       <p>Minimum 8-hour tank capacity (100% load) = ${r.tank_8hr_litres||0} L</p>
 
+      <div style="page-break-inside:avoid;break-inside:avoid;">
       <h2 style="font-size:1rem;font-weight:700;color:#162032;margin:1.2rem 0 0.4rem;border-bottom:1px solid #ddd;padding-bottom:0.2rem;">6. Summary of Results</h2>
 
       <table style="width:100%;border-collapse:separate;border-spacing:0.5rem;margin-bottom:1rem;page-break-inside:avoid;break-inside:avoid;">
@@ -8268,6 +8269,7 @@ function renderGeneratorReport(inputs, results, narrative) {
           </td>
         </tr>
       </table>
+      </div>
 
       ${n.recommendations ? `<h2 style="font-size:1rem;font-weight:700;color:#162032;margin:1.2rem 0 0.4rem;border-bottom:1px solid #ddd;padding-bottom:0.2rem;">7. Recommendations</h2><p>${e(n.recommendations)}</p>` : ''}
 
