@@ -880,6 +880,85 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Water Softener Sizing BOM + SOW Agent ───────────────────────────────────
+
+async function waterSoftenerBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project        = inputs.project_name       || "Water Softener Project";
+  const demandLpd      = inputs.demand_lpd          || results.demand_lpd          || "N/A";
+  const inletHardness  = inputs.inlet_hardness_mg   || results.inlet_hardness_mg   || "N/A";
+  const targetHardness = inputs.target_hardness     || results.target_hardness     || "50";
+  const resinVolumeL   = results.resin_volume_L     ?? "N/A";
+  const mineralTank    = results.mineral_tank_size  ?? "N/A";
+  const brineTankL     = results.brine_tank_size_L  ?? "N/A";
+  const saltKgRegen    = results.salt_kg_per_regen  ?? "N/A";
+  const regenFreqDays  = results.regen_freq_days    ?? "N/A";
+  const saltType       = results.salt_type          || inputs.salt_type || "NaCl";
+  const resinType      = results.resin_type         || "Na-form strong acid cation exchange";
+  const flowCheckLabel = results.flow_check_label   || results.flow_check || "N/A";
+  const designFlowLpm  = results.design_flow_Lpm    ?? "N/A";
+  const minFlowLpm     = results.min_flow_Lpm       ?? "N/A";
+  const regenSystem    = results.regen_system       || inputs.regen_type || "Timer-initiated";
+
+  const prompt = `You are a Philippine water treatment engineering expert. Generate a professional BOM and SOW for a WATER SOFTENER SYSTEM installation project.
+
+PROJECT: ${project}
+DAILY WATER DEMAND: ${demandLpd} L/day
+INLET HARDNESS: ${inletHardness} mg/L as CaCO3
+TARGET OUTLET HARDNESS: ≤ ${targetHardness} mg/L as CaCO3 (per PNS 1998 limit)
+RESIN VOLUME: ${resinVolumeL} L (${resinType} resin)
+MINERAL TANK SIZE: ${mineralTank}
+BRINE TANK CAPACITY: ${brineTankL} L
+SALT CONSUMPTION: ${saltKgRegen} kg ${saltType} per regeneration
+REGENERATION FREQUENCY: every ${regenFreqDays} days
+REGENERATION SYSTEM: ${regenSystem}
+DESIGN FLOW: ${designFlowLpm} L/min — Flow Check: ${flowCheckLabel} (min service flow: ${minFlowLpm} L/min)
+STANDARDS: NSF/ANSI 44 (Residential/Commercial Cation Exchange Softeners), WQA (Water Quality Association) Commercial Sizing Guidelines, PNS 1998 (Philippine National Standard for Drinking Water — hardness limit), Philippine Plumbing Code (PPC), DOH Drinking Water Regulations
+
+Generate a JSON object with:
+1. "bom_items": array of 15 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include:
+   1. Water Softener Unit (mineral tank + resin + distributor assembly) — qty: 1 unit — specify ${mineralTank} fiberglass mineral tank, ${resinVolumeL}L of NSF/ANSI 61 certified ${resinType} resin, internal distributor basket, top and bottom screen assemblies, NSF/ANSI 44 certified, rated for ${designFlowLpm} L/min service flow
+   2. Automatic Control Valve (timer or meter-initiated) — qty: 1 unit — specify ${regenSystem} regeneration controller, NSF/ANSI 61 certified, digital timer/meter-head, selectable regen cycles, compatible with mineral tank outlet
+   3. Brine Tank with Salt Grid — qty: 1 unit — specify ${brineTankL}L polyethylene brine tank, safety float valve, brine line with flow control, salt storage platform/grid to prevent salt bridging, overflow connection, NSF/ANSI 61 rated
+   4. Ion Exchange Resin (spare stock — 1st fill included in unit) — qty: 25 kg — specify NSF/ANSI 61 certified ${resinType} resin, grain capacity per manufacturer spec, for first-year replenishment stock
+   5. Salt (${saltType}, water softener grade) — qty: ${Math.max(20, Math.round(Number(saltKgRegen) * 4))} kg — specify water softener grade (not road salt or rock salt), 99.5% purity minimum, in 10 or 25 kg bags
+   6. Bypass Valve Assembly (3-valve bypass) — qty: 1 set — specify inlet ball valve, outlet ball valve, bypass ball valve — 25mm or 32mm full-bore, PN16, food-grade safe, allows service without interrupting water supply
+   7. Inlet/Outlet Pipe Connection Kit — qty: 1 lot — specify 25mm or 32mm PVC PN10, NSF/PNS 65 potable water rated, fittings for connection to existing supply line and distribution header
+   8. Brine Line Tubing — qty: 3 m — specify 9.5mm (3/8") polyethylene tubing, food-grade, UV-stabilized, with compression fittings from brine tank to control valve
+   9. Drain Line Tubing — qty: 5 m — specify 12mm or 16mm polyethylene or PVC drain tubing, from control valve to nearest floor drain, slope to drain per Philippine Plumbing Code
+   10. Pressure Gauge (inlet and outlet) — qty: 2 pcs — specify 0–700 kPa, 63mm dial, glycerin-filled, with 1/4" BSP connection — for monitoring pressure drop across resin bed
+   11. Sediment Pre-Filter (5 micron) — qty: 1 unit — specify 10" clear housing, 5-micron polypropylene sediment cartridge, 25mm inlet/outlet, wrench included, NSF/ANSI 42 rated — install upstream of softener to protect resin from particulate fouling
+   12. Backwash Filter (if sediment > 5 NTU) — qty: 1 unit — specify automatic backwash sediment filter, sized for system flow, multimedia or sand media — checked: ${Number(inletHardness) > 300 ? 'true' : 'false'} (include if inlet total suspended solids is high)
+   13. Water Quality Test Kit (hardness, TDS) — qty: 1 set — specify digital TDS meter + titration hardness test kit (as CaCO3), for pre-commissioning and periodic post-regeneration hardness verification
+   14. Pipe Supports, Hangers, Anchors — qty: 1 lot — specify galvanized pipe clamps, wall anchors for inlet/outlet piping and bypass assembly
+   15. Miscellaneous (Teflon tape, pipe cement PVC, labels "SOFTENED WATER / HARD WATER BYPASS", warning signs) — qty: 1 lot
+
+2. "sow_sections": array of 8 sections (each: section_no, title, content)
+   Cover:
+   - "1.0" General Scope (supply, install, commission water softener system for ${demandLpd} L/day demand at ${inletHardness} mg/L inlet hardness, outlet ≤ ${targetHardness} mg/L as CaCO3)
+   - "2.0" Applicable Standards and Codes (NSF/ANSI 44, NSF/ANSI 61, WQA, PNS 1998 hardness limit, Philippine Plumbing Code, DOH drinking water regulations, DOLE OSH)
+   - "3.0" Equipment Supply and Delivery (NSF/ANSI 44 certified unit, factory-tested, manufacturer data sheets and resin specification to be submitted for Engineer's approval before procurement)
+   - "4.1" Softener Unit Installation (positioning on level concrete pad, inlet/outlet orientation, minimum clearances for salt loading and service access — 600mm minimum side clearance, bracing for earthquake zone)
+   - "4.2" Bypass Valve and Plumbing Connections (3-valve bypass loop installation, pre-filter installation upstream, drain line routing to floor drain with air gap, brine line connection)
+   - "4.3" Control Valve Programming (timer/meter setting for ${regenFreqDays}-day regen cycle, brine draw time, backwash time, salt dose at ${saltKgRegen} kg per regen, delayed regen during off-peak hours — typically 2:00-4:00 AM)
+   - "5.0" Testing and Commissioning (pre-commissioning hardness test of inlet water, resin bed conditioning procedure — first 3 regen cycles to fully exchange resin, post-commissioning hardness test of outlet water — must read ≤ ${targetHardness} mg/L, pressure drop measurement across resin bed, water quality report to be submitted)
+   - "6.0" Maintenance and Handover (salt replenishment schedule every ${regenFreqDays} days × number of regen cycles per refill period, annual resin inspection, quarterly pre-filter cartridge change, 1-year warranty documentation, O&M manual handover, operator training for salt loading and bypass procedure)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Electrical Load Estimation BOM + SOW Agent ───────────────────────────────
 
 async function loadEstBomSowAgent(
@@ -2154,6 +2233,8 @@ serve(async (req) => {
       result = await drainageBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Plumbing" && calc_type === "Septic Tank Sizing") {
       result = await septicBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Plumbing" && calc_type === "Water Softener Sizing") {
+      result = await waterSoftenerBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Load Estimation") {
       result = await loadEstBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Voltage Drop") {
