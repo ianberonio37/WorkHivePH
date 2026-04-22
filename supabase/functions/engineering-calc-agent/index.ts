@@ -1556,6 +1556,13 @@ Respond in JSON format only:
     } else if (calcType === "Septic Tank Sizing") {
       const vol = rec.total_volume_L ?? '';
       recommendations = `Construct a septic tank with minimum liquid capacity of ${vol} L using watertight reinforced concrete or fiberglass. Provide inspection covers on each compartment and a subsurface leachfield sized per DENR DAO 2016-08 effluent standards. Desludge per the computed interval.`;
+    } else if (calcType === "Water Treatment System") {
+      const filterDia  = rec.selected_filter_dia_mm ?? '';
+      const trainSteps = Array.isArray(rec.train_steps) ? (rec.train_steps as string[]).join(' → ') : '';
+      const cl2        = rec.cl2_dose_mg_L ?? '';
+      const storage    = rec.storage_tank_m3 ?? '';
+      const pns        = rec.pns_1998_status ?? '';
+      recommendations  = `Install the treatment train: ${trainSteps}. Multimedia/sand filter: ${filterDia} mm pressure vessel. Chlorination dose: ${cl2} mg/L NaOCl; provide a calibrated dosing pump and contact tank. Treated water storage: ${storage} m³ (1-day demand). Projected outlet quality: ${pns}. Conduct water quality testing (turbidity, iron, pH, coliform, residual chlorine) after commissioning and every 6 months per DOH/LWUA requirements.`;
     } else if (calcType === "Load Estimation") {
       const kva = rec.total_kVA ?? rec.demand_kVA ?? rec.demand_kW ?? '';
       recommendations = `Size the main circuit breaker and service entrance conductors for minimum ${kva} kVA demand load with 20% future expansion margin. Provide separate circuit breakers for each circuit per PEC 2017. Label all breakers and maintain an accurate load schedule as a permanent record.`;
@@ -3223,6 +3230,220 @@ function calcWaterSoftenerSizing(inputs: Record<string, number | string>): Recor
   };
 }
 
+// ─── Water Treatment System ───────────────────────────────────────────────────
+
+function calcWaterTreatmentSystem(inputs: Record<string, number | string>): Record<string, unknown> {
+
+  // ── Inputs ──────────────────────────────────────────────────────────────────
+  const demandSource  = String(inputs.demand_source || 'direct');
+  const nPeople       = Number(inputs.n_people)     || 0;
+  const perCapita     = Number(inputs.per_capita_lpd) || 200;
+
+  let demandLpd: number;
+  if (demandSource === 'people') {
+    if (nPeople <= 0) return { error: "Number of people must be greater than 0." };
+    demandLpd = nPeople * perCapita;
+  } else {
+    demandLpd = Number(inputs.demand_lpd) || 0;
+    if (demandLpd <= 0) return { error: "Daily water demand must be greater than 0." };
+  }
+
+  const rawSource     = String(inputs.raw_source    || 'Deep Well / Bore');
+  const turbidityNTU  = Math.max(0, Number(inputs.turbidity_ntu)   || 10);
+  const ironMgL       = Math.max(0, Number(inputs.iron_mg)         || 0.3);
+  const bacteriaConcern = String(inputs.bacteria_concern || 'yes') === 'yes';
+  const intendedUse   = String(inputs.intended_use  || 'Potable');
+  const peakFactor    = Math.max(1.1, Math.min(3.0, Number(inputs.peak_factor) || 1.5));
+
+  // ── Derived flows ────────────────────────────────────────────────────────────
+  const demandM3d     = demandLpd / 1000;
+  const peakFlowM3hr  = parseFloat(((demandM3d * peakFactor) / 24).toFixed(3));
+  const avgFlowM3hr   = parseFloat((demandM3d / 24).toFixed(3));
+  const avgFlowLpm    = parseFloat((demandLpd / (24 * 60)).toFixed(2));
+
+  // ── Treatment train selection ────────────────────────────────────────────────
+  const needsCoagFloc    = turbidityNTU > 25;
+  const needsSedimentation = turbidityNTU > 50;
+  const needsIronRemoval  = ironMgL > 0.3;
+  const needsDisinfection = bacteriaConcern || rawSource === 'Surface Water' || rawSource === 'Rainwater';
+  const disinfMethod      = bacteriaConcern && demandLpd > 50000 ? 'Chlorination' : bacteriaConcern ? 'UV + Chlorination' : 'Chlorination';
+  const needsSoftener     = intendedUse === 'Boiler Makeup' || intendedUse === 'Cooling Tower Makeup';
+  const needsRO           = intendedUse === 'Boiler Makeup (High Pressure)';
+
+  // Treatment train sequence
+  const trainSteps: string[] = [];
+  if (needsCoagFloc)     trainSteps.push('Coagulation / Flocculation (Alum dosing)');
+  if (needsSedimentation) trainSteps.push('Sedimentation / Clarifier');
+  trainSteps.push(needsIronRemoval ? 'Iron Removal Filter (Greensand + Aeration)' : 'Multimedia Filter (Quartz sand + Anthracite)');
+  if (turbidityNTU > 5)  trainSteps.push('Activated Carbon Filter (Taste / Odor / Chlorine)');
+  if (needsDisinfection) trainSteps.push(disinfMethod === 'UV + Chlorination' ? 'UV Disinfection + Chlorination' : 'Chlorination (Sodium Hypochlorite dosing)');
+  if (needsSoftener)     trainSteps.push('Water Softener (Ion exchange — refer to Water Softener Sizing calc)');
+  if (needsRO)           trainSteps.push('Reverse Osmosis (RO — for high-pressure boiler makeup)');
+  trainSteps.push('Treated Water Storage Tank');
+
+  // ── PNS 1998 source quality check ────────────────────────────────────────────
+  const turbidityCheck  = turbidityNTU <= 5   ? 'WITHIN PNS 1998 limit (≤5 NTU) post-filtration achievable' : turbidityNTU <= 25  ? 'Filtration required to achieve PNS 1998 ≤5 NTU' : 'Coagulation + Filtration required for PNS 1998 compliance';
+  const ironCheck       = ironMgL <= 0.3 ? 'Within PNS 1998 limit (≤0.3 mg/L)' : ironMgL <= 1.0 ? 'EXCEEDS PNS 1998 limit — iron removal required' : 'Severely elevated — aeration + greensand filtration required';
+
+  // ── Turbidity classification ─────────────────────────────────────────────────
+  const turbidClass = turbidityNTU < 5   ? 'Clear'    : turbidityNTU < 25  ? 'Slightly Turbid'  : turbidityNTU < 100 ? 'Moderately Turbid' : 'Highly Turbid';
+
+  // ── 1. Multimedia / Sand Filter Sizing ────────────────────────────────────────
+  // Filtration rate: 8 m/hr (sand), 10 m/hr (multimedia)
+  const filtRate       = needsIronRemoval ? 8.0 : 10.0; // m/hr
+  const filterAreaM2   = parseFloat((peakFlowM3hr / filtRate).toFixed(3));
+  const filterDiaM     = parseFloat((Math.sqrt(filterAreaM2 * 4 / Math.PI)).toFixed(3));
+  // Select standard pressure filter diameter (mm): 400,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2400
+  const STD_FILTER_DIA = [400,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2400];
+  const reqDiaMm = filterDiaM * 1000;
+  const selFilterDiaMm = STD_FILTER_DIA.find(d => d >= reqDiaMm) ?? 2400;
+  const selFilterAreaM2 = parseFloat((Math.PI / 4 * (selFilterDiaMm / 1000) ** 2).toFixed(4));
+  const actualFiltRate  = parseFloat((peakFlowM3hr / selFilterAreaM2).toFixed(2));
+  // Backwash: 25 m/hr
+  const backwashFlowM3hr  = parseFloat((selFilterAreaM2 * 25).toFixed(2));
+  const backwashFlowLpm   = parseFloat((backwashFlowM3hr / 60 * 1000).toFixed(0));
+  const bedDepthMm        = needsIronRemoval ? 900 : 750; // mm
+  const filterTankHtMm    = bedDepthMm + 400 + 300; // media + freeboard + underdrain
+
+  // ── 2. Iron Removal (if needed) ─────────────────────────────────────────────
+  // Aeration: simple cascade or pressure aerator at 4:1 air:water
+  const aerationAirM3hr   = needsIronRemoval ? parseFloat((peakFlowM3hr * 4).toFixed(1)) : 0;
+  // Greensand media: ~3.5 kg/m²
+  const greensandKg        = needsIronRemoval ? parseFloat((selFilterAreaM2 * 3.5 * (bedDepthMm / 750)).toFixed(1)) : 0;
+  // KMnO4 regenerant dose: 0.25 g / g Fe removed
+  const ironRemovedGhr     = needsIronRemoval ? parseFloat((peakFlowM3hr * 1000 / 60 * (ironMgL - 0.1)).toFixed(1)) : 0;
+  const kmno4DoseGhr       = needsIronRemoval ? parseFloat((ironRemovedGhr * 0.25).toFixed(1)) : 0;
+  const kmno4DailyKg       = needsIronRemoval ? parseFloat((kmno4DoseGhr * 24 / 1000).toFixed(2)) : 0;
+
+  // ── 3. Coagulant dosing (if needed) ─────────────────────────────────────────
+  // Typical alum dose: 10-50 mg/L depending on turbidity
+  const alumDoseMgL        = needsCoagFloc
+    ? (turbidityNTU < 50 ? 10 : turbidityNTU < 100 ? 25 : 40) : 0;
+  const alumDailyKg        = needsCoagFloc
+    ? parseFloat((alumDoseMgL * demandM3d / 1000).toFixed(2)) : 0;
+
+  // ── 4. Chlorine disinfection dosing ──────────────────────────────────────────
+  // Cl2 dose by source quality
+  const cl2DoseMgL =
+    rawSource === 'Municipal Supply' ? 0.5 :
+    rawSource === 'Deep Well / Bore' ? 1.0 :
+    rawSource === 'Surface Water'    ? (turbidityNTU > 50 ? 5.0 : 3.0) :
+    rawSource === 'Rainwater'        ? 2.0 : 1.0;
+  const cl2DailyKg         = parseFloat((cl2DoseMgL * demandM3d / 1000).toFixed(3));
+  // NaOCl (12% liquid hypochlorite): 1 kg Cl2 ≈ 8.3 L of 12% NaOCl
+  const naoclDailyL        = parseFloat((cl2DailyKg * 8.3).toFixed(2));
+  // Contact tank sizing: CT ≥ 30 mg·min/L for 3-log Giardia at pH 7, 25°C (EPA/WHO)
+  const ctRequired         = 30; // mg·min/L  (conservative, for potable)
+  const contactTimeMin     = parseFloat((ctRequired / cl2DoseMgL).toFixed(1));
+  const contactTankM3      = parseFloat((peakFlowM3hr / 60 * contactTimeMin).toFixed(2));
+  // CT achieved check
+  const ctAchieved         = parseFloat((cl2DoseMgL * contactTimeMin).toFixed(1));
+  const ctCheck            = ctAchieved >= ctRequired ? `PASS — CT ${ctAchieved} mg·min/L ≥ required ${ctRequired} mg·min/L` : `FAIL — CT ${ctAchieved} mg·min/L < required ${ctRequired} mg·min/L`;
+
+  // ── 5. UV (if applicable) ────────────────────────────────────────────────────
+  // UV dose for 3-log reduction: 40 mJ/cm² (EPA UV Guidance)
+  const uvDoseMJcm2        = disinfMethod.includes('UV') ? 40 : 0;
+  const uvFlowM3hr         = disinfMethod.includes('UV') ? peakFlowM3hr : 0;
+
+  // ── 6. Storage tank ──────────────────────────────────────────────────────────
+  const storageTankM3      = parseFloat((demandM3d * 1.0).toFixed(1)); // 1 day storage
+  const storageTankL       = Math.round(storageTankM3 * 1000);
+
+  // ── 7. Activated carbon filter (if needed) ───────────────────────────────────
+  // Same diameter as main filter, empty bed contact time 10 min
+  const acFilterDiaMm     = turbidityNTU > 5 ? selFilterDiaMm : 0;
+  const acFiltAreaM2       = acFilterDiaMm > 0 ? selFilterAreaM2 : 0;
+  const acEBCT_min         = 10; // minutes
+  const acBedVolumeM3      = parseFloat((peakFlowM3hr / 60 * acEBCT_min).toFixed(3));
+  const acBedDepthMm       = acFilterDiaMm > 0 ? Math.round((acBedVolumeM3 / acFiltAreaM2) * 1000) : 0;
+
+  // ── 8. Treated water quality projection ──────────────────────────────────────
+  const projTurbidityNTU   = parseFloat((turbidityNTU * (needsCoagFloc ? 0.02 : needsSedimentation ? 0.05 : 0.1)).toFixed(2));
+  const projIronMgL        = needsIronRemoval ? parseFloat((ironMgL * 0.05).toFixed(3)) : ironMgL;
+  const projClResidualMgL  = needsDisinfection ? parseFloat((cl2DoseMgL * 0.3).toFixed(2)) : 0; // residual after contact
+  const meetsPN1998        = projTurbidityNTU <= 5 && projIronMgL <= 0.3 && (!bacteriaConcern || projClResidualMgL >= 0.2);
+  const pns1998Status      = meetsPN1998 ? 'MEETS PNS 1998 / PNSDW' : 'REVIEW required — check residual disinfectant or turbidity';
+
+  return {
+    // Input summary
+    demand_lpd:           parseFloat(demandLpd.toFixed(0)),
+    demand_m3d:           parseFloat(demandM3d.toFixed(3)),
+    peak_flow_m3hr:       peakFlowM3hr,
+    avg_flow_m3hr:        avgFlowM3hr,
+    avg_flow_lpm:         avgFlowLpm,
+    raw_source:           rawSource,
+    turbidity_ntu:        turbidityNTU,
+    turbidity_class:      turbidClass,
+    iron_mg:              ironMgL,
+    bacteria_concern:     bacteriaConcern,
+    intended_use:         intendedUse,
+    peak_factor:          peakFactor,
+
+    // PNS checks
+    turbidity_check:      turbidityCheck,
+    iron_check:           ironCheck,
+
+    // Treatment train
+    train_steps:          trainSteps,
+    needs_coag_floc:      needsCoagFloc,
+    needs_sedimentation:  needsSedimentation,
+    needs_iron_removal:   needsIronRemoval,
+    needs_disinfection:   needsDisinfection,
+    disinfection_method:  disinfMethod,
+    needs_softener_note:  needsSoftener,
+    needs_ro_note:        needsRO,
+
+    // Filter sizing
+    filtration_rate_mhr:  filtRate,
+    filter_area_req_m2:   filterAreaM2,
+    filter_dia_req_mm:    parseFloat(reqDiaMm.toFixed(0)),
+    selected_filter_dia_mm: selFilterDiaMm,
+    selected_filter_area_m2: selFilterAreaM2,
+    actual_filtration_rate: actualFiltRate,
+    backwash_flow_m3hr:   backwashFlowM3hr,
+    backwash_flow_lpm:    backwashFlowLpm,
+    filter_bed_depth_mm:  bedDepthMm,
+    filter_tank_height_mm: filterTankHtMm,
+
+    // Iron removal
+    iron_removal_air_m3hr: aerationAirM3hr,
+    greensand_media_kg:   greensandKg,
+    kmno4_daily_kg:       kmno4DailyKg,
+
+    // Coagulant
+    alum_dose_mg_L:       alumDoseMgL,
+    alum_daily_kg:        alumDailyKg,
+
+    // Disinfection
+    cl2_dose_mg_L:        cl2DoseMgL,
+    cl2_daily_kg:         cl2DailyKg,
+    naocl_daily_L:        naoclDailyL,
+    contact_time_min:     contactTimeMin,
+    contact_tank_m3:      contactTankM3,
+    ct_achieved:          ctAchieved,
+    ct_required:          ctRequired,
+    ct_check:             ctCheck,
+    uv_dose_mj_cm2:       uvDoseMJcm2,
+    uv_flow_m3hr:         uvFlowM3hr,
+
+    // AC filter
+    ac_filter_dia_mm:     acFilterDiaMm,
+    ac_bed_volume_m3:     acBedVolumeM3,
+    ac_bed_depth_mm:      acBedDepthMm,
+    ac_ebct_min:          acEBCT_min,
+
+    // Storage
+    storage_tank_m3:      storageTankM3,
+    storage_tank_L:       storageTankL,
+
+    // Projected output quality
+    proj_turbidity_ntu:   projTurbidityNTU,
+    proj_iron_mg_L:       projIronMgL,
+    proj_cl_residual_mg_L: projClResidualMgL,
+    pns_1998_status:      pns1998Status,
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -3300,6 +3521,8 @@ serve(async (req) => {
       results = calcCoolingTowerSizing(inputs);
     } else if (calc_type === "Water Softener Sizing") {
       results = calcWaterSoftenerSizing(inputs);
+    } else if (calc_type === "Water Treatment System") {
+      results = calcWaterTreatmentSystem(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),

@@ -682,6 +682,7 @@ const CALC_TYPES = {
     { id: 'Drainage Pipe Sizing',     icon: '🏗️', desc: 'Drainage fixture units, pipe diameter', available: true  },
     { id: 'Septic Tank Sizing',       icon: '🏭', desc: 'Tank capacity per occupancy',            available: true  },
     { id: 'Water Softener Sizing',    icon: '💧', desc: 'Ion exchange resin sizing, salt & brine tank, regeneration schedule — NSF/ANSI 44 / WQA', available: true },
+    { id: 'Water Treatment System',   icon: '🏭', desc: 'Treatment train, filter sizing, chlorination dosing, iron removal — PNS 1998 / DOH / WHO', available: true },
   ],
   Electrical: [
     { id: 'Load Estimation',  icon: '📋', desc: 'Panel schedule, demand factor, service size', available: true  },
@@ -951,6 +952,64 @@ const GUIDES = {
       'Standard mineral tank sizes (dia × height): 8"×44", 9"×48", 10"×54", 12"×52", 13"×54", 14"×65", 16"×65", 18"×65", 21"×62", 24"×72". Always go to the next standard size up.',
       'Regeneration water waste: each regen cycle consumes ~5 bed volumes (backwash + brine draw + slow rinse). Factor this into wastewater load calculations.',
       'For boiler feed applications: hardness must be near zero (<5 mg/L). Consider a two-stage system: softener + demineralizer (mixed bed or RO) for critical boiler applications.',
+    ],
+  },
+
+  'Water Treatment System': {
+    title: 'Water Treatment System Sizing — Multi-Stage Treatment Train',
+    subtitle: 'Designs a complete water treatment train for raw water (bore/well/surface/municipal) including multimedia filtration, iron removal, coagulation, chlorination/UV disinfection, and storage sizing to achieve PNS 1998 / DOH / WHO potable water quality standards.',
+    standards: [
+      'PNS 1998 / PNSDW — Philippine National Standards for Drinking Water (Turbidity ≤5 NTU, Iron ≤0.3 mg/L, Cl₂ residual 0.2–0.5 mg/L)',
+      'DOH Administrative Order 2017-0010 — Philippine Drinking Water Quality Standards',
+      'WHO Guidelines for Drinking-Water Quality (4th Ed.) — Turbidity, Iron, Disinfection',
+      'AWWA — Design of Water Treatment Facilities',
+      'EPA Disinfection Guidance Manual — CT values for Giardia and virus inactivation',
+      'PSME Code / Philippine Plumbing Code (PPC) — Water treatment system design',
+    ],
+    formulas: [
+      'Peak Flow (m³/hr) = Daily Demand (L/day) × Peak Factor ÷ 24,000',
+      '',
+      'Filter Area (m²) = Peak Flow (m³/hr) ÷ Filtration Rate (m/hr)',
+      '  Multimedia filter:   10 m/hr (AWWA standard)',
+      '  Greensand/Iron filter: 8 m/hr',
+      '',
+      'Filter Diameter (mm) → round up to nearest standard: 400, 500, 600, 700, 800, 900, 1000, 1200, 1400...',
+      '',
+      'Backwash Flow (m³/hr) = Filter Area (m²) × 25 m/hr',
+      '',
+      'Cl₂ Dose by source:',
+      '  Municipal re-chlorination: 0.5 mg/L',
+      '  Deep well / bore:          1.0 mg/L',
+      '  Surface water (low NTU):   3.0 mg/L',
+      '  Surface water (high NTU):  5.0 mg/L',
+      '  Rainwater:                 2.0 mg/L',
+      '',
+      'Cl₂ Consumption (kg/day) = Dose (mg/L) × Demand (m³/day) ÷ 1,000',
+      'NaOCl (12%) Volume (L/day) = Cl₂ (kg/day) × 8.3',
+      '',
+      'CT = Dose (mg/L) × Contact Time (min)',
+      'CT required: ≥30 mg·min/L for 3-log Giardia inactivation at pH 7, 25°C (EPA)',
+      '',
+      'Contact Tank Volume (m³) = Peak Flow (m³/hr) ÷ 60 × Contact Time (min)',
+      '',
+      'Storage Tank = 1 day design demand',
+    ],
+    fields: [
+      { name: 'Raw Water Source', tip: 'Determines baseline water quality assumptions and required treatment intensity. Municipal supply (MWSS/LWUA) is pre-treated — typically only re-chlorination needed. Deep well / bore: groundwater, often high iron and hardness. Surface water (river/lake/reservoir): highest turbidity and biological risk — coagulation + filtration + disinfection required. Rainwater: low turbidity, low hardness, but may have bacteria.' },
+      { name: 'Daily Demand (L/day)', tip: 'Total treated water demand per day. Use the same value as your Water Supply Pipe Sizing calculation. Philippine typical values: 200 L/person/day (residential), 350-500 L/room/day (hotel), 400-600 L/bed/day (hospital).' },
+      { name: 'Turbidity (NTU)', tip: 'Raw water turbidity from laboratory test. PNS 1998 limit is 5 NTU after treatment. Groundwater: typically <5 NTU. Rainy season surface water: 50-500 NTU. Always test at worst-case season (peak of rainy season) for design purposes.' },
+      { name: 'Iron Content (mg/L)', tip: 'Dissolved iron from laboratory test. PNS 1998 limit is 0.3 mg/L. Philippine deep well water commonly has 0.3-5 mg/L iron. High iron causes brown staining, scale in boilers, and clogging. Requires aeration + greensand filtration to remove.' },
+      { name: 'Bacteria / Pathogen Concern', tip: 'Yes = include disinfection in treatment train (chlorination, UV, or both). Always YES for surface water, rainwater, or any source with known contamination risk. For municipal supply, minimal re-chlorination is still recommended.' },
+      { name: 'Intended Use', tip: 'Potable water: must meet full PNS 1998 / DOH standards. Process/Industrial: lower standard, turbidity and iron removal may be sufficient. Boiler Makeup: requires softening (refer to Water Softener Sizing) + possible demineralization. Cooling Tower Makeup: requires softening and Legionella control (ASHRAE Guideline 12).' },
+      { name: 'Peak Factor', tip: 'Ratio of peak hourly flow to average hourly flow. Use 1.5 for commercial buildings, 2.0 for residential, 1.2 for industrial continuous process. The filter must handle peak flow — oversizing by peak factor ensures no breakthrough during high-demand periods.' },
+    ],
+    notes: [
+      'Always test raw water quality before sizing: turbidity, pH, iron, hardness, TDS, coliform (bacteriological). Do not assume based on source type alone — results vary widely by location and season.',
+      'For surface water sources: design to worst-case rainy season turbidity. A coagulant jar test (jar test procedure) should be performed to determine optimal alum dose before finalizing.',
+      'PNS 1998 / PNSDW key limits: Turbidity ≤5 NTU; Iron ≤0.3 mg/L; pH 6.5–8.5; Free residual chlorine 0.2–0.5 mg/L at point of use; Coliform = 0/100 mL.',
+      'Iron removal: aeration + greensand filter is the standard Philippine solution. Aeration oxidizes Fe²⁺ (soluble) to Fe³⁺ (insoluble, filterable). KMnO₄ regenerates the greensand media.',
+      'UV disinfection: effective against Giardia and Cryptosporidium (resistant to chlorine at low doses). Best combined with chlorine for a complete barrier. Recommended for hospital, hotel, food processing.',
+      'Sodium hypochlorite (NaOCl 12%) is the preferred disinfectant in the Philippines — safer to handle than chlorine gas, widely available. Store away from sunlight; potency degrades 1%/month.',
     ],
   },
 
@@ -2899,6 +2958,126 @@ function renderInputForm(calcType) {
 
       <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
         Method: Ion exchange capacity method per WQA commercial sizing guidelines. Resin capacity based on salt dose. Tank sizes per standard mineral tank dimensions. Standards: NSF/ANSI 44, PNS 1998.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
+  if (calcType === 'Water Treatment System') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Hotel Deep Well Treatment Plant" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Raw Water Source</div>
+        <div class="toggle-group" id="tg-wt-source" style="flex-wrap:wrap;">
+          <button class="toggle-btn" data-val="Municipal Supply" onclick="toggle('tg-wt-source','Municipal Supply');updateWTSourceDefaults('Municipal Supply')">Municipal Supply</button>
+          <button class="toggle-btn active" data-val="Deep Well / Bore" onclick="toggle('tg-wt-source','Deep Well / Bore');updateWTSourceDefaults('Deep Well / Bore')">Deep Well / Bore</button>
+          <button class="toggle-btn" data-val="Surface Water" onclick="toggle('tg-wt-source','Surface Water');updateWTSourceDefaults('Surface Water')">Surface Water</button>
+          <button class="toggle-btn" data-val="Rainwater" onclick="toggle('tg-wt-source','Rainwater');updateWTSourceDefaults('Rainwater')">Rainwater</button>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Demand Input Method</div>
+        <div class="toggle-group" id="tg-wt-demand-source">
+          <button class="toggle-btn active" data-val="direct" onclick="toggle('tg-wt-demand-source','direct');setWTDemandFields()">Direct Entry (L/day)</button>
+          <button class="toggle-btn" data-val="people" onclick="toggle('tg-wt-demand-source','people');setWTDemandFields()">By Occupancy</button>
+        </div>
+      </div>
+
+      <div id="wt-direct-row" class="mb-4">
+        <div class="field-label">Daily Water Demand</div>
+        <div class="input-group">
+          <input id="f-wt-demand" class="wh-input" type="number" value="10000" min="1" />
+          <span class="input-unit">L/day</span>
+        </div>
+      </div>
+
+      <div id="wt-people-row" class="mb-4 hidden">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <div class="field-label">Number of People</div>
+            <div class="input-group">
+              <input id="f-wt-n-people" class="wh-input" type="number" value="50" min="1" />
+              <span class="input-unit">persons</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Per Capita Use</div>
+            <div class="input-group">
+              <input id="f-wt-per-capita" class="wh-input" type="number" value="200" min="10" />
+              <span class="input-unit">L/p/day</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Raw Water Turbidity</div>
+          <div class="toggle-group" id="tg-wt-turb" style="flex-wrap:wrap;margin-bottom:0.4rem;">
+            <button class="toggle-btn" data-val="2" onclick="toggle('tg-wt-turb','2');document.getElementById('f-wt-turb').value=2">2 NTU</button>
+            <button class="toggle-btn active" data-val="10" onclick="toggle('tg-wt-turb','10');document.getElementById('f-wt-turb').value=10">10 NTU</button>
+            <button class="toggle-btn" data-val="50" onclick="toggle('tg-wt-turb','50');document.getElementById('f-wt-turb').value=50">50 NTU</button>
+            <button class="toggle-btn" data-val="150" onclick="toggle('tg-wt-turb','150');document.getElementById('f-wt-turb').value=150">150 NTU</button>
+          </div>
+          <div class="input-group">
+            <input id="f-wt-turb" class="wh-input" type="number" value="10" min="0" step="0.5" />
+            <span class="input-unit">NTU</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Iron Content (Fe)</div>
+          <div class="toggle-group" id="tg-wt-iron" style="flex-wrap:wrap;margin-bottom:0.4rem;">
+            <button class="toggle-btn" data-val="0.1" onclick="toggle('tg-wt-iron','0.1');document.getElementById('f-wt-iron').value=0.1">0.1</button>
+            <button class="toggle-btn active" data-val="0.5" onclick="toggle('tg-wt-iron','0.5');document.getElementById('f-wt-iron').value=0.5">0.5</button>
+            <button class="toggle-btn" data-val="2" onclick="toggle('tg-wt-iron','2');document.getElementById('f-wt-iron').value=2">2.0</button>
+            <button class="toggle-btn" data-val="5" onclick="toggle('tg-wt-iron','5');document.getElementById('f-wt-iron').value=5">5.0</button>
+          </div>
+          <div class="input-group">
+            <input id="f-wt-iron" class="wh-input" type="number" value="0.5" min="0" step="0.1" />
+            <span class="input-unit">mg/L Fe</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Bacteria / Pathogen Concern</div>
+        <div class="toggle-group" id="tg-wt-bacteria">
+          <button class="toggle-btn active" data-val="yes" onclick="toggle('tg-wt-bacteria','yes')">Yes — include disinfection</button>
+          <button class="toggle-btn" data-val="no" onclick="toggle('tg-wt-bacteria','no')">No — filtration only</button>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Intended Use</div>
+        <div class="toggle-group" id="tg-wt-use" style="flex-wrap:wrap;">
+          <button class="toggle-btn active" data-val="Potable" onclick="toggle('tg-wt-use','Potable')">Potable</button>
+          <button class="toggle-btn" data-val="Process / Industrial" onclick="toggle('tg-wt-use','Process / Industrial')">Process / Industrial</button>
+          <button class="toggle-btn" data-val="Boiler Makeup" onclick="toggle('tg-wt-use','Boiler Makeup')">Boiler Makeup</button>
+          <button class="toggle-btn" data-val="Cooling Tower Makeup" onclick="toggle('tg-wt-use','Cooling Tower Makeup')">Cooling Tower Makeup</button>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Peak Flow Factor</div>
+        <div class="toggle-group" id="tg-wt-peak" style="flex-wrap:wrap;margin-bottom:0.4rem;">
+          <button class="toggle-btn" data-val="1.2" onclick="toggle('tg-wt-peak','1.2');document.getElementById('f-wt-peak').value=1.2">1.2× Industrial</button>
+          <button class="toggle-btn active" data-val="1.5" onclick="toggle('tg-wt-peak','1.5');document.getElementById('f-wt-peak').value=1.5">1.5× Commercial</button>
+          <button class="toggle-btn" data-val="2.0" onclick="toggle('tg-wt-peak','2.0');document.getElementById('f-wt-peak').value=2.0">2.0× Residential</button>
+        </div>
+        <div class="input-group">
+          <input id="f-wt-peak" class="wh-input" type="number" value="1.5" min="1.1" max="3.0" step="0.1" />
+          <span class="input-unit">×</span>
+        </div>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Method: Multimedia filter sizing per AWWA standards (filtration rate 8–10 m/hr). Chlorination dosing per EPA CT guidance (CT ≥30 mg·min/L). Treatment train selected automatically based on raw water quality. Standards: PNS 1998, DOH AO 2017-0010, WHO, AWWA.
       </div>
     `;
     setStep(4);
@@ -5176,6 +5355,23 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Water Treatment System') {
+    const demandSource = getToggle('tg-wt-demand-source') || 'direct';
+    return {
+      project_name:      v('f-project') || 'Water Treatment System',
+      demand_source:     demandSource,
+      demand_lpd:        parseFloat(v('f-wt-demand'))     || 10000,
+      n_people:          parseFloat(v('f-wt-n-people'))   || 0,
+      per_capita_lpd:    parseFloat(v('f-wt-per-capita')) || 200,
+      raw_source:        getToggle('tg-wt-source')        || 'Deep Well / Bore',
+      turbidity_ntu:     parseFloat(v('f-wt-turb'))       || 10,
+      iron_mg:           parseFloat(v('f-wt-iron'))       || 0.5,
+      bacteria_concern:  getToggle('tg-wt-bacteria')      || 'yes',
+      intended_use:      getToggle('tg-wt-use')           || 'Potable',
+      peak_factor:       parseFloat(v('f-wt-peak'))       || 1.5,
+    };
+  }
+
   if (_calcType === 'Water Softener Sizing') {
     const demandSource = getToggle('tg-ws-demand-source') || 'direct';
     return {
@@ -5557,6 +5753,34 @@ function setWSDemandFields() {
   if (peopleRow) peopleRow.classList.toggle('hidden', src !== 'people');
 }
 
+function setWTDemandFields() {
+  const src = getToggle('tg-wt-demand-source') || 'direct';
+  document.getElementById('wt-direct-row')?.classList.toggle('hidden', src !== 'direct');
+  document.getElementById('wt-people-row')?.classList.toggle('hidden', src !== 'people');
+}
+
+function updateWTSourceDefaults(src) {
+  const turbEl = document.getElementById('f-wt-turb');
+  const ironEl = document.getElementById('f-wt-iron');
+  const defaults = {
+    'Municipal Supply':  { turb: 2,   iron: 0.1, turbVal: '2',   ironVal: '0.1' },
+    'Deep Well / Bore':  { turb: 10,  iron: 0.5, turbVal: '10',  ironVal: '0.5' },
+    'Surface Water':     { turb: 50,  iron: 0.3, turbVal: '50',  ironVal: '0.3' },
+    'Rainwater':         { turb: 5,   iron: 0.1, turbVal: '5',   ironVal: '0.1' },
+  };
+  const d = defaults[src];
+  if (!d) return;
+  if (turbEl) turbEl.value = d.turb;
+  if (ironEl) ironEl.value = d.iron;
+  // Activate matching preset buttons
+  document.querySelectorAll('#tg-wt-turb .toggle-btn').forEach(b => {
+    b.classList.toggle('active', (b.dataset.val || b.textContent.trim()) === d.turbVal);
+  });
+  document.querySelectorAll('#tg-wt-iron .toggle-btn').forEach(b => {
+    b.classList.toggle('active', (b.dataset.val || b.textContent.trim()) === d.ironVal);
+  });
+}
+
 function setCTLoadFields() {
   const src = getToggle('tg-load-source') || 'direct';
   const directRow  = document.getElementById('ct-direct-row');
@@ -5745,6 +5969,15 @@ async function runCalculation() {
       showToast('Leaving water temp (LWT) must be greater than wet-bulb temp (WBT). Minimum approach is 2°C.');
       return;
     }
+  } else if (_calcType === 'Water Treatment System') {
+    if (inputs.demand_source === 'people' && (!inputs.n_people || inputs.n_people <= 0)) {
+      showToast('Please enter the number of people.');
+      return;
+    }
+    if (inputs.demand_source === 'direct' && (!inputs.demand_lpd || inputs.demand_lpd <= 0)) {
+      showToast('Please enter a valid daily water demand.');
+      return;
+    }
   } else if (_calcType === 'Water Softener Sizing') {
     if (inputs.demand_source === 'people' && (!inputs.n_people || inputs.n_people <= 0)) {
       showToast('Please enter the number of people.');
@@ -5837,6 +6070,8 @@ async function runCalculation() {
       renderCoolingTowerReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Water Softener Sizing') {
       renderWaterSoftenerReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Water Treatment System') {
+      renderWaterTreatmentReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -10078,6 +10313,8 @@ function viewHistoryReport(row) {
     renderCoolingTowerReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Water Softener Sizing') {
     renderWaterSoftenerReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Water Treatment System') {
+    renderWaterTreatmentReport(row.inputs, row.results, row.narrative);
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
@@ -11077,6 +11314,277 @@ function renderWaterSoftenerReport(inputs, results, narrative) {
         <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;">WQA (Water Quality Association)</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Hardness classification, salt dose, service flow, and regeneration guidelines</td></tr>
         <tr><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;">WHO Guidelines</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Drinking water quality — hardness aesthetic guideline ≤500 mg/L; no health limit</td></tr>
         <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;">PSME / NBCP</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Philippine Mechanical Engineering Code — water treatment system design</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Signature Block -->
+    <div class="sig-block" style="display:flex;flex-wrap:wrap;gap:1.5rem;margin-top:2rem;padding-top:1rem;border-top:1px solid #ccc;">
+      <div style="flex:1 1 200px;">
+        <div style="margin-top:2rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
+          <div style="color:#555;">${e('Sanitary / Mechanical Engineer')}</div>
+          <div style="color:#555;">PRC License No.: ${e('_____________')}</div>
+          <div style="color:#888;margin-top:0.2rem;">Prepared by</div>
+        </div>
+      </div>
+      <div style="flex:1 1 200px;">
+        <div style="margin-top:2rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
+          <div style="color:#555;">${e('Project Engineer / Manager')}</div>
+          <div style="color:#555;">Company: ${e('_____________')}</div>
+          <div style="color:#888;margin-top:0.2rem;">Checked / Reviewed by</div>
+        </div>
+      </div>
+      <div style="flex:1 1 200px;">
+        <div style="margin-top:2rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
+          <div style="color:#555;">${e('Owner / Client Representative')}</div>
+          <div style="color:#555;">Date: ${e('_____________')}</div>
+          <div style="color:#888;margin-top:0.2rem;">Approved by</div>
+        </div>
+      </div>
+    </div>
+
+  </div>`;
+
+  showReport();
+}
+
+// ─── Water Treatment System Report ───────────────────────────────────────────
+function renderWaterTreatmentReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = (s, w) => `<span contenteditable="true" class="editable-field" style="min-width:${w||'120px'}">${escHtml(String(s || ''))}</span>`;
+  const r       = results;
+
+  const td  = (txt, bg, bold) => `<td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;${bg?'background:#f8f9fa;':''}${bold?'font-weight:600;':''}">${txt}</td>`;
+  const th  = txt => `<th style="padding:0.4rem 0.6rem;text-align:left;background:#162032;color:#fff;">${txt}</th>`;
+
+  const demandSrc = inputs.demand_source === 'people'
+    ? `${r.demand_lpd?.toLocaleString()} L/day (${inputs.n_people} persons × ${inputs.per_capita_lpd || 200} L/p/day)`
+    : `${r.demand_lpd?.toLocaleString()} L/day (direct input)`;
+
+  const trainHtml = (r.train_steps || []).map((step, i) =>
+    `<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.35rem;">
+       <span style="background:#162032;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;flex-shrink:0;">${i + 1}</span>
+       <span style="font-size:0.82rem;">${escHtml(step)}</span>
+     </div>`
+  ).join('');
+
+  const ctOk    = (r.ct_check || '').startsWith('PASS');
+  const ctColor = ctOk ? '#16a34a' : '#dc2626';
+  const pnsOk   = (r.pns_1998_status || '').startsWith('MEETS');
+  const pnsColor = pnsOk ? '#16a34a' : '#d97706';
+
+  document.getElementById('report-panel').innerHTML = `
+  <div class="doc-panel" id="report-content">
+
+    <!-- Header -->
+    <div class="doc-header-row" style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid #162032;">
+      <div style="flex:1;">
+        <div style="font-size:1.3rem;font-weight:800;color:#162032;text-transform:uppercase;letter-spacing:0.04em;">Design Calculation Report</div>
+        <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;margin-top:0.2rem;">Water Treatment System</div>
+        <div style="color:#555;font-size:0.85rem;margin-top:0.15rem;">Multi-Stage Treatment Train — PNS 1998 / DOH AO 2017-0010 / WHO / AWWA</div>
+      </div>
+      <div style="text-align:right;font-size:0.8rem;color:#555;line-height:1.8;">
+        <div><strong>Project:</strong> ${e(inputs.project_name || 'Untitled Project')}</div>
+        <div><strong>Location:</strong> ${e('—')}</div>
+        <div><strong>Prepared by:</strong> ${e('—')}</div>
+        <div><strong>Date:</strong> ${dateStr}</div>
+        <div><strong>Rev:</strong> ${e('0')}</div>
+      </div>
+    </div>
+
+    <!-- 1. Design Basis -->
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">1. Design Basis</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+      <thead><tr>${th('Parameter')}${th('Value')}${th('Reference')}</tr></thead>
+      <tbody>
+        <tr>${td('Daily Water Demand', true, true)}${td(demandSrc, true)}${td('NBCP / NPC / design input', true)}</tr>
+        <tr>${td('Peak Flow Rate', false, true)}${td(`${r.peak_flow_m3hr} m³/hr (peak factor ${r.peak_factor}×)`, false)}${td('AWWA / design input', false)}</tr>
+        <tr>${td('Average Flow Rate', true, true)}${td(`${r.avg_flow_m3hr} m³/hr  (${r.avg_flow_lpm} L/min)`, true)}${td('Demand ÷ 24 hrs', true)}</tr>
+        <tr>${td('Raw Water Source', false, true)}${td(r.raw_source, false)}${td('Design input', false)}</tr>
+        <tr>${td('Raw Turbidity', true, true)}${td(`${r.turbidity_ntu} NTU — ${r.turbidity_class}`, true)}${td('Lab analysis / design input', true)}</tr>
+        <tr>${td('Raw Iron Content', false, true)}${td(`${r.iron_mg} mg/L Fe`, false)}${td('Lab analysis / design input', false)}</tr>
+        <tr>${td('Bacteria / Pathogen Concern', true, true)}${td(r.bacteria_concern ? 'Yes — disinfection included' : 'No — filtration only', true)}${td('Design input', true)}</tr>
+        <tr>${td('Intended Use', false, true)}${td(r.intended_use, false)}${td('Design input', false)}</tr>
+      </tbody>
+    </table>
+
+    <!-- 2. PNS 1998 Raw Water Quality Assessment -->
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">2. Raw Water Quality Assessment (vs. PNS 1998)</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+      <thead><tr>${th('Parameter')}${th('Raw Value')}${th('PNS 1998 Limit')}${th('Status')}</tr></thead>
+      <tbody>
+        <tr style="background:#f8f9fa;">
+          <td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Turbidity</td>
+          <td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.turbidity_ntu} NTU</td>
+          <td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">≤5 NTU</td>
+          <td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-size:0.78rem;">${r.turbidity_check}</td>
+        </tr>
+        <tr>
+          <td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Iron (Fe)</td>
+          <td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.iron_mg} mg/L</td>
+          <td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">≤0.3 mg/L</td>
+          <td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-size:0.78rem;">${r.iron_check}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 3. Recommended Treatment Train -->
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">3. Recommended Treatment Train</h2>
+    <div style="background:#f8f9fa;border-left:3px solid #162032;padding:0.75rem 1rem;border-radius:0.25rem;">
+      ${trainHtml}
+    </div>
+
+    <!-- 4. Multimedia / Sand Filter Sizing -->
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">4. ${r.needs_iron_removal ? 'Iron Removal / Greensand' : 'Multimedia'} Filter Sizing</h2>
+    <div class="narrative-block" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;margin-bottom:0.7rem;">
+      <p style="margin:0 0 0.3rem;"><strong>Filtration rate:</strong> ${r.filtration_rate_mhr} m/hr (${r.needs_iron_removal ? 'Greensand / iron removal' : 'Multimedia — Quartz sand + Anthracite'})</p>
+      <p style="margin:0 0 0.3rem;"><strong>Required filter area:</strong> ${r.peak_flow_m3hr} m³/hr ÷ ${r.filtration_rate_mhr} m/hr = <strong>${r.filter_area_req_m2} m²</strong> → dia. ≥ ${r.filter_dia_req_mm} mm</p>
+      <p style="margin:0;"><strong>Selected standard tank:</strong> ⌀${r.selected_filter_dia_mm} mm pressure vessel → actual area ${r.selected_filter_area_m2} m² → actual filtration rate <strong>${r.actual_filtration_rate} m/hr</strong></p>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+      <thead><tr>${th('Parameter')}${th('Value')}${th('Reference')}</tr></thead>
+      <tbody>
+        <tr style="background:#f8f9fa;">${td('Selected Filter Vessel Diameter', true, true)}${td(`⌀${r.selected_filter_dia_mm} mm`, true)}${td('Standard pressure vessel catalog', true)}</tr>
+        <tr>${td('Filter Bed Depth', false, true)}${td(`${r.filter_bed_depth_mm} mm`, false)}${td('AWWA / manufacturer', false)}</tr>
+        <tr style="background:#f8f9fa;">${td('Vessel Height (bed + freeboard + underdrain)', true, true)}${td(`${r.filter_tank_height_mm} mm`, true)}${td('Engineering allowance', true)}</tr>
+        <tr>${td('Backwash Flow Rate', false, true)}${td(`${r.backwash_flow_m3hr} m³/hr  (${r.backwash_flow_lpm} L/min)`, false)}${td('25 m/hr backwash rate', false)}</tr>
+        ${r.needs_iron_removal ? `
+        <tr style="background:#f8f9fa;">${td('Greensand Media Required', true, true)}${td(`${r.greensand_media_kg} kg`, true)}${td('3.5 kg/m² × bed depth', true)}</tr>
+        <tr>${td('KMnO₄ Regenerant (daily)', false, true)}${td(`${r.kmno4_daily_kg} kg/day`, false)}${td('0.25 g / g Fe removed', false)}</tr>
+        <tr style="background:#f8f9fa;">${td('Aeration Air Requirement', true, true)}${td(`${r.iron_removal_air_m3hr} m³/hr`, true)}${td('4:1 air:water ratio', true)}</tr>
+        ` : ''}
+      </tbody>
+    </table>
+    <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;padding:0.75rem 1.2rem;border-radius:0.5rem;margin-top:0.7rem;font-size:0.85rem;">
+      <strong>Selected Filter: ⌀${r.selected_filter_dia_mm} mm × ${r.filter_tank_height_mm} mm H — Actual filtration rate: ${r.actual_filtration_rate} m/hr</strong>
+    </div>
+
+    ${r.needs_coag_floc ? `
+    <!-- 5. Coagulation / Flocculation -->
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">5. Coagulation / Flocculation (Alum Dosing)</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+      <thead><tr>${th('Parameter')}${th('Value')}${th('Basis')}</tr></thead>
+      <tbody>
+        <tr style="background:#f8f9fa;">${td('Turbidity (raw)', true, true)}${td(`${r.turbidity_ntu} NTU — ${r.turbidity_class}`, true)}${td('Lab analysis', true)}</tr>
+        <tr>${td('Alum Dose', false, true)}${td(`${r.alum_dose_mg_L} mg/L Al₂(SO₄)₃`, false)}${td('Jar test / AWWA typical', false)}</tr>
+        <tr style="background:#f8f9fa;">${td('Daily Alum Consumption', true, true)}${td(`${r.alum_daily_kg} kg/day`, true)}${td(`${r.alum_dose_mg_L} mg/L × ${r.demand_m3d} m³/day ÷ 1,000`, true)}</tr>
+      </tbody>
+    </table>
+    <div class="narrative-block" style="background:#fff3cd;border-left:3px solid #d97706;padding:0.6rem 0.8rem;border-radius:0.25rem;font-size:0.78rem;margin-top:0.5rem;color:#92400e;">
+      ⚠ <strong>Jar Test Required:</strong> The alum dose above (${r.alum_dose_mg_L} mg/L) is a typical starting value for turbidity ${r.turbidity_ntu} NTU. A laboratory jar test must be performed on the actual raw water sample to confirm the optimum coagulant dose and type before finalizing equipment sizing.
+    </div>
+    ` : ''}
+
+    <!-- 5/6. Disinfection -->
+    ${r.needs_disinfection ? `
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">${r.needs_coag_floc ? '6' : '5'}. Disinfection — ${escHtml(r.disinfection_method || 'Chlorination')}</h2>
+    <div class="narrative-block" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;margin-bottom:0.7rem;">
+      <p style="margin:0 0 0.3rem;"><strong>Cl₂ dose (${r.raw_source}):</strong> ${r.cl2_dose_mg_L} mg/L</p>
+      <p style="margin:0 0 0.3rem;"><strong>CT required (3-log Giardia, pH 7, 25°C):</strong> ≥${r.ct_required} mg·min/L</p>
+      <p style="margin:0 0 0.3rem;"><strong>Contact time:</strong> CT ÷ Dose = ${r.ct_required} ÷ ${r.cl2_dose_mg_L} = <strong>${r.contact_time_min} min</strong></p>
+      <p style="margin:0 0 0.3rem;"><strong>Contact tank volume:</strong> ${r.peak_flow_m3hr} m³/hr ÷ 60 × ${r.contact_time_min} min = <strong>${r.contact_tank_m3} m³</strong></p>
+      <p style="margin:0;font-weight:700;color:${ctColor};"><strong>CT Check: ${r.ct_check}</strong></p>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+      <thead><tr>${th('Parameter')}${th('Value')}${th('Basis')}</tr></thead>
+      <tbody>
+        <tr style="background:#f8f9fa;">${td('Cl₂ Daily Consumption', true, true)}${td(`${r.cl2_daily_kg} kg Cl₂/day`, true)}${td(`${r.cl2_dose_mg_L} mg/L × ${r.demand_m3d} m³/day ÷ 1,000`, true)}</tr>
+        <tr>${td('NaOCl (12%) Required', false, true)}${td(`${r.naocl_daily_L} L/day`, false)}${td('1 kg Cl₂ ≈ 8.3 L of 12% NaOCl', false)}</tr>
+        <tr style="background:#f8f9fa;">${td('Contact Tank Volume', true, true)}${td(`${r.contact_tank_m3} m³`, true)}${td('Peak flow × contact time', true)}</tr>
+        ${r.uv_dose_mj_cm2 ? `<tr>${td('UV Dose', false, true)}${td(`${r.uv_dose_mj_cm2} mJ/cm² at ${r.uv_flow_m3hr} m³/hr`, false)}${td('EPA UV Guidance (3-log)', false)}</tr>` : ''}
+      </tbody>
+    </table>
+    ` : ''}
+
+    <!-- Activated Carbon Filter -->
+    ${r.ac_filter_dia_mm > 0 ? `
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">Activated Carbon (GAC) Filter</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+      <thead><tr>${th('Parameter')}${th('Value')}${th('Basis')}</tr></thead>
+      <tbody>
+        <tr style="background:#f8f9fa;">${td('Vessel Diameter', true, true)}${td(`⌀${r.ac_filter_dia_mm} mm (same as multimedia filter)`, true)}${td('Matched vessel', true)}</tr>
+        <tr>${td('Empty Bed Contact Time (EBCT)', false, true)}${td(`${r.ac_ebct_min} min`, false)}${td('AWWA standard', false)}</tr>
+        <tr style="background:#f8f9fa;">${td('GAC Bed Volume', true, true)}${td(`${r.ac_bed_volume_m3} m³`, true)}${td('Peak flow × EBCT ÷ 60', true)}</tr>
+        <tr>${td('GAC Bed Depth', false, true)}${td(`${r.ac_bed_depth_mm} mm`, false)}${td('Bed volume ÷ filter area', false)}</tr>
+      </tbody>
+    </table>
+    ` : ''}
+
+    <!-- Storage Tank -->
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">Treated Water Storage Tank</h2>
+    <div class="narrative-block" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;">
+      <p style="margin:0;"><strong>Storage capacity (1-day demand):</strong> ${r.demand_lpd?.toLocaleString()} L/day × 1.0 = <strong>${r.storage_tank_L?.toLocaleString()} L (${r.storage_tank_m3} m³)</strong></p>
+    </div>
+
+    <!-- Design Summary -->
+    <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;padding:1rem 1.2rem;border-radius:0.5rem;margin-top:1rem;font-size:0.85rem;">
+      <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.5rem;">DESIGN SUMMARY</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.3rem 1.5rem;">
+        <div>Filter: <strong>⌀${r.selected_filter_dia_mm} mm × ${r.filter_tank_height_mm} mm H</strong></div>
+        <div>Backwash: <strong>${r.backwash_flow_m3hr} m³/hr</strong></div>
+        ${r.needs_disinfection ? `<div>Cl₂ dose: <strong>${r.cl2_dose_mg_L} mg/L → ${r.naocl_daily_L} L NaOCl/day</strong></div>` : ''}
+        ${r.needs_disinfection ? `<div>Contact tank: <strong>${r.contact_tank_m3} m³</strong></div>` : ''}
+        ${r.needs_coag_floc ? `<div>Alum: <strong>${r.alum_dose_mg_L} mg/L → ${r.alum_daily_kg} kg/day</strong></div>` : ''}
+        <div>Storage tank: <strong>${r.storage_tank_L?.toLocaleString()} L</strong></div>
+        <div style="grid-column:1/-1;font-weight:700;color:${pnsColor};margin-top:0.3rem;">${escHtml(r.pns_1998_status || '')}</div>
+      </div>
+    </div>
+
+    <!-- Projected Outlet Quality -->
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">Projected Outlet Water Quality</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+      <thead><tr>${th('Parameter')}${th('Projected Value')}${th('PNS 1998 Limit')}${th('Status')}</tr></thead>
+      <tbody>
+        <tr style="background:#f8f9fa;">
+          <td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Turbidity (post-filtration)</td>
+          <td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.proj_turbidity_ntu} NTU</td>
+          <td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">≤5 NTU</td>
+          <td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;color:${r.proj_turbidity_ntu <= 5 ? '#16a34a' : '#dc2626'};">${r.proj_turbidity_ntu <= 5 ? 'PASS' : 'REVIEW'}</td>
+        </tr>
+        <tr>
+          <td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Iron (post-filtration)</td>
+          <td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.proj_iron_mg_L} mg/L</td>
+          <td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">≤0.3 mg/L</td>
+          <td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;color:${r.proj_iron_mg_L <= 0.3 ? '#16a34a' : '#dc2626'};">${r.proj_iron_mg_L <= 0.3 ? 'PASS' : 'REVIEW'}</td>
+        </tr>
+        ${r.needs_disinfection ? `
+        <tr style="background:#f8f9fa;">
+          <td style="padding:0.35rem 0.6rem;font-weight:600;border:1px solid #dee2e6;">Residual Cl₂ (post-contact)</td>
+          <td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">${r.proj_cl_residual_mg_L} mg/L</td>
+          <td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">0.2–0.5 mg/L at point of use</td>
+          <td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;color:${r.proj_cl_residual_mg_L >= 0.2 ? '#16a34a' : '#dc2626'};">${r.proj_cl_residual_mg_L >= 0.2 ? 'PASS' : 'REVIEW'}</td>
+        </tr>` : ''}
+      </tbody>
+    </table>
+
+    <!-- Engineering Narrative -->
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">Engineering Narrative</h2>
+    <div class="narrative-block">
+      <div class="narrative-box" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;margin-bottom:0.5rem;">
+        <strong>Objective:</strong><br>${escHtml(narrative?.objective || '')}
+      </div>
+      <div class="narrative-box" style="background:#f8f9fa;border-left:3px solid #1A9ABF;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;margin-bottom:0.5rem;">
+        <strong>Assumptions:</strong><br>${escHtml(narrative?.assumptions || '')}
+      </div>
+      <div class="narrative-box" style="background:#f8f9fa;border-left:3px solid #F7A21B;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;">
+        <strong>Recommendations:</strong><br>${escHtml(narrative?.recommendations || '')}
+      </div>
+    </div>
+
+    <!-- Applicable Standards -->
+    <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">Applicable Standards</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+      <thead><tr>${th('Standard')}${th('Scope')}</tr></thead>
+      <tbody>
+        <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;">PNS 1998 / PNSDW</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Philippine National Standards for Drinking Water — turbidity ≤5 NTU, iron ≤0.3 mg/L, Cl₂ residual 0.2–0.5 mg/L</td></tr>
+        <tr><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;">DOH AO 2017-0010</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Philippine Drinking Water Quality Standards — monitoring, testing, compliance</td></tr>
+        <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;">WHO Guidelines (4th Ed.)</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Drinking water quality — turbidity, iron, disinfection byproducts, microbial risk</td></tr>
+        <tr><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;">AWWA</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Design of water treatment facilities — filtration rates, backwash, media specifications</td></tr>
+        <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;">EPA Disinfection Guidance Manual</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">CT values for Giardia and virus inactivation — 3-log CT requirement</td></tr>
+        <tr><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;font-weight:600;">PSME Code / PPC</td><td style="padding:0.35rem 0.6rem;border:1px solid #dee2e6;">Philippine Mechanical and Plumbing Code — water treatment system design and permitting</td></tr>
       </tbody>
     </table>
 
