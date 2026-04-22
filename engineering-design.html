@@ -10395,7 +10395,7 @@ function downloadBomDocPdf() {
     image:       { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2, useCORS: true, scrollY: 0, scrollX: 0 },
     jsPDF:       { unit: 'mm', format: 'a4', orientation: 'landscape' },
-    pagebreak:   { mode: 'css' },
+    pagebreak:   { mode: ['css', 'avoid-all'] },
   }).from(el).save().then(() => {
     // Restore inputs and styles
     inputSnapshots.forEach(({ div, inp }) => div.parentNode.replaceChild(inp, div));
@@ -10442,7 +10442,7 @@ function downloadSowPdf() {
     image:       { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2, useCORS: true, scrollY: 0, scrollX: 0 },
     jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak:   { mode: 'css' },
+    pagebreak:   { mode: ['css', 'avoid-all'] },
   }).from(el).save().then(() => {
     el.style.paddingBottom = '';
     el.style.width    = sowOrigWidth;
