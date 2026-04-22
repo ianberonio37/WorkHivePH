@@ -2603,74 +2603,157 @@ function renderInputForm(calcType) {
         <div class="field-label">Boiler Type</div>
         <div class="toggle-group" id="tg-boiler-type">
           ${['Steam','Hot Water'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-boiler-type','${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-boiler-type','${v}');toggleBoilerType()">${v}</button>`
           ).join('')}
         </div>
       </div>
 
-      <!-- Load input mode -->
-      <div class="mb-4">
-        <div class="field-label">Load Input Mode</div>
-        <div class="toggle-group" id="tg-load-mode">
-          ${['Steam Demand (kg/hr)','Heat Load (kW)'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-load-mode','${v}');toggleBoilerLoadMode()">${v}</button>`
-          ).join('')}
-        </div>
-      </div>
+      <!-- ── STEAM fields ─────────────────────────────────────── -->
+      <div id="blr-steam-fields">
 
-      <!-- Steam demand or heat load -->
-      <div id="boiler-steam-row" class="grid grid-cols-2 gap-3 mb-4">
-        <div>
-          <div class="field-label">Steam / Hot Water Demand</div>
-          <div class="input-group">
-            <input id="f-steam-demand" class="wh-input" type="number" placeholder="500" min="0" />
-            <span class="input-unit">kg/hr</span>
+        <!-- Load input mode -->
+        <div class="mb-4">
+          <div class="field-label">Load Input Mode</div>
+          <div class="toggle-group" id="tg-load-mode">
+            ${['Steam Demand (kg/hr)','Heat Load (kW)'].map((v,i) =>
+              `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-load-mode','${v}');toggleBoilerLoadMode()">${v}</button>`
+            ).join('')}
           </div>
         </div>
-        <div>
-          <div class="field-label">Number of Boilers</div>
-          <div class="input-group">
-            <input id="f-num-boilers" class="wh-input" type="number" placeholder="1" min="1" value="1" />
-            <span class="input-unit">units</span>
-          </div>
-        </div>
-      </div>
-      <div id="boiler-heat-row" class="grid grid-cols-2 gap-3 mb-4" style="display:none;">
-        <div>
-          <div class="field-label">Required Heat Load</div>
-          <div class="input-group">
-            <input id="f-heat-load" class="wh-input" type="number" placeholder="300" min="0" />
-            <span class="input-unit">kW</span>
-          </div>
-        </div>
-        <div>
-          <div class="field-label">Number of Boilers</div>
-          <div class="input-group">
-            <input id="f-num-boilers-b" class="wh-input" type="number" placeholder="1" min="1" value="1" />
-            <span class="input-unit">units</span>
-          </div>
-        </div>
-      </div>
 
-      <!-- Steam pressure + feedwater temp -->
-      <div class="grid grid-cols-2 gap-3 mb-4">
-        <div>
-          <div class="field-label">Steam Pressure (gauge)</div>
-          <div class="input-group">
-            <input id="f-steam-pressure" class="wh-input" type="number" placeholder="7" min="0" max="40" step="0.5" />
-            <span class="input-unit">bar g</span>
+        <!-- Steam demand row -->
+        <div id="boiler-steam-row" class="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <div class="field-label">Steam Demand</div>
+            <div class="input-group">
+              <input id="f-steam-demand" class="wh-input" type="number" placeholder="500" min="0" />
+              <span class="input-unit">kg/hr</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Number of Boilers</div>
+            <div class="input-group">
+              <input id="f-num-boilers" class="wh-input" type="number" placeholder="1" min="1" value="1" />
+              <span class="input-unit">units</span>
+            </div>
           </div>
         </div>
-        <div>
-          <div class="field-label">Feedwater Temperature</div>
-          <div class="input-group">
-            <input id="f-fw-temp" class="wh-input" type="number" placeholder="80" min="0" max="150" />
-            <span class="input-unit">°C</span>
-          </div>
-        </div>
-      </div>
 
-      <!-- Fuel type -->
+        <!-- Heat load row -->
+        <div id="boiler-heat-row" class="grid grid-cols-2 gap-3 mb-4" style="display:none;">
+          <div>
+            <div class="field-label">Required Heat Load</div>
+            <div class="input-group">
+              <input id="f-heat-load" class="wh-input" type="number" placeholder="300" min="0" />
+              <span class="input-unit">kW</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Number of Boilers</div>
+            <div class="input-group">
+              <input id="f-num-boilers-b" class="wh-input" type="number" placeholder="1" min="1" value="1" />
+              <span class="input-unit">units</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Steam pressure + feedwater temp -->
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <div class="field-label">Steam Pressure (gauge)</div>
+            <div class="input-group">
+              <input id="f-steam-pressure" class="wh-input" type="number" placeholder="7" min="0" max="40" step="0.5" />
+              <span class="input-unit">bar g</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Feedwater Temperature</div>
+            <div class="input-group">
+              <input id="f-fw-temp" class="wh-input" type="number" placeholder="80" min="0" max="150" />
+              <span class="input-unit">°C</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TDS fields -->
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <div class="field-label">Makeup Water TDS</div>
+            <div class="input-group">
+              <input id="f-tds-makeup" class="wh-input" type="number" placeholder="200" min="0" />
+              <span class="input-unit">ppm</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Max Boiler Water TDS</div>
+            <div class="input-group">
+              <input id="f-tds-max" class="wh-input" type="number" placeholder="3000" min="100" />
+              <span class="input-unit">ppm</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /blr-steam-fields -->
+
+      <!-- ── HOT WATER fields ─────────────────────────────────── -->
+      <div id="blr-hw-fields" style="display:none;">
+
+        <!-- Supply / return temps + flow -->
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <div class="field-label">Supply Temperature</div>
+            <div class="input-group">
+              <input id="f-hw-supply" class="wh-input" type="number" placeholder="80" min="40" max="95" />
+              <span class="input-unit">°C</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Return Temperature</div>
+            <div class="input-group">
+              <input id="f-hw-return" class="wh-input" type="number" placeholder="60" min="20" max="90" />
+              <span class="input-unit">°C</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <div class="field-label">Hot Water Flow Rate</div>
+            <div class="input-group">
+              <input id="f-hw-flow" class="wh-input" type="number" placeholder="5000" min="0" />
+              <span class="input-unit">L/hr</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Number of Boilers</div>
+            <div class="input-group">
+              <input id="f-num-boilers-hw" class="wh-input" type="number" placeholder="1" min="1" value="1" />
+              <span class="input-unit">units</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- System pressure (for relief valve reference) -->
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <div class="field-label">System Working Pressure</div>
+            <div class="input-group">
+              <input id="f-hw-pressure" class="wh-input" type="number" placeholder="3" min="0.5" max="10" step="0.5" />
+              <span class="input-unit">bar g</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Safety Factor</div>
+            <div class="input-group">
+              <input id="f-safety-factor-hw" class="wh-input" type="number" placeholder="1.25" min="1.0" max="2.0" step="0.05" />
+              <span class="input-unit">x</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /blr-hw-fields -->
+
+      <!-- ── SHARED: Fuel + Efficiency ───────────────────────── -->
       <div class="mb-4">
         <div class="field-label">Fuel Type</div>
         <div class="toggle-group" id="tg-fuel">
@@ -2680,7 +2763,6 @@ function renderInputForm(calcType) {
         </div>
       </div>
 
-      <!-- Efficiency + TDS fields -->
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
           <div class="field-label">Boiler Efficiency</div>
@@ -2689,7 +2771,7 @@ function renderInputForm(calcType) {
             <span class="input-unit">%</span>
           </div>
         </div>
-        <div>
+        <div id="blr-safety-steam-wrap">
           <div class="field-label">Safety Factor</div>
           <div class="input-group">
             <input id="f-safety-factor" class="wh-input" type="number" placeholder="1.25" min="1.0" max="2.0" step="0.05" />
@@ -2698,25 +2780,8 @@ function renderInputForm(calcType) {
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-3 mb-4">
-        <div>
-          <div class="field-label">Makeup Water TDS</div>
-          <div class="input-group">
-            <input id="f-tds-makeup" class="wh-input" type="number" placeholder="200" min="0" />
-            <span class="input-unit">ppm</span>
-          </div>
-        </div>
-        <div>
-          <div class="field-label">Max Boiler Water TDS</div>
-          <div class="input-group">
-            <input id="f-tds-max" class="wh-input" type="number" placeholder="3000" min="100" />
-            <span class="input-unit">ppm</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Info box -->
-      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
+      <!-- Info box (updates with boiler type) -->
+      <div id="blr-info-box" style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
         Q_boiler = steam_demand × (hg − hf_fw) / 3600 (kW). 1 BHP = 9.8095 kW. Blowdown % = TDS_makeup / (TDS_max − TDS_makeup) × 100.<br>
         Standards: PD 8 / PSME Code / ASME BPVC Sec I &amp; IV / DOLE OSH.
       </div>
@@ -5770,6 +5835,20 @@ function applyWSPhaseVoltage(phase) {
   if (el) el.value = phase === 'Three-phase' ? 400 : 230;
 }
 
+function toggleBoilerType() {
+  const isHW = (document.querySelector('#tg-boiler-type .toggle-btn.active')?.textContent || '') === 'Hot Water';
+  document.getElementById('blr-steam-fields').style.display = isHW ? 'none' : '';
+  document.getElementById('blr-hw-fields').style.display    = isHW ? ''     : 'none';
+  // hide steam-only safety factor row when HW (HW has its own inside the HW block)
+  const steamSafetyWrap = document.getElementById('blr-safety-steam-wrap');
+  if (steamSafetyWrap) steamSafetyWrap.style.display = isHW ? 'none' : '';
+  // update info box
+  const box = document.getElementById('blr-info-box');
+  if (box) box.innerHTML = isHW
+    ? 'Q = ṁ × Cp × ΔT (kW), where ṁ = flow × ρ_water, Cp = 4.187 kJ/kg·K, ΔT = T_supply − T_return. 1 BHP = 9.8095 kW.<br>Standards: ASME BPVC Sec IV / PD 8 / PSME Code / DOLE OSH.'
+    : 'Q_boiler = steam_demand × (hg − hf_fw) / 3600 (kW). 1 BHP = 9.8095 kW. Blowdown % = TDS_makeup / (TDS_max − TDS_makeup) × 100.<br>Standards: PD 8 / PSME Code / ASME BPVC Sec I &amp; IV / DOLE OSH.';
+}
+
 function toggleBoilerLoadMode() {
   const mode = document.querySelector('#tg-load-mode .toggle-btn.active')?.textContent || '';
   const isSteam = mode.includes('Steam');
@@ -6104,23 +6183,38 @@ function collectInputs() {
   }
 
   if (_calcType === 'Boiler System') {
-    const loadMode = getToggle('tg-load-mode') || 'Steam Demand (kg/hr)';
+    const boilerType  = getToggle('tg-boiler-type') || 'Steam';
+    const isHW        = boilerType === 'Hot Water';
+    if (isHW) {
+      return {
+        project_name:       v('f-project') || 'Untitled Hot Water Boiler',
+        boiler_type:        'Hot Water',
+        supply_temp_c:      parseFloat(v('f-hw-supply'))       || 80,
+        return_temp_c:      parseFloat(v('f-hw-return'))       || 60,
+        flow_rate_lhr:      parseFloat(v('f-hw-flow'))         || 0,
+        num_boilers:        parseFloat(v('f-num-boilers-hw'))  || 1,
+        system_pressure_barg: parseFloat(v('f-hw-pressure'))  || 3,
+        fuel_type:          getToggle('tg-fuel')               || 'LPG',
+        efficiency_pct:     parseFloat(v('f-boiler-eff'))      || 82,
+        safety_factor:      parseFloat(v('f-safety-factor-hw'))|| 1.25,
+      };
+    }
+    const loadMode    = getToggle('tg-load-mode') || 'Steam Demand (kg/hr)';
     const isSteamMode = loadMode.includes('Steam');
-    const numBoilers = parseFloat(isSteamMode ? v('f-num-boilers') : v('f-num-boilers-b')) || 1;
     return {
-      project_name:    v('f-project') || 'Untitled Boiler System',
-      boiler_type:     getToggle('tg-boiler-type') || 'Steam',
-      load_mode:       loadMode,
-      steam_demand_kg_hr: isSteamMode ? (parseFloat(v('f-steam-demand')) || 0) : 0,
-      heat_load_kw:    !isSteamMode  ? (parseFloat(v('f-heat-load'))     || 0) : 0,
-      num_boilers:     numBoilers,
+      project_name:        v('f-project') || 'Untitled Steam Boiler',
+      boiler_type:         'Steam',
+      load_mode:           loadMode,
+      steam_demand_kg_hr:  isSteamMode ? (parseFloat(v('f-steam-demand')) || 0) : 0,
+      heat_load_kw:        !isSteamMode ? (parseFloat(v('f-heat-load'))   || 0) : 0,
+      num_boilers:         parseFloat(v('f-num-boilers-b') || v('f-num-boilers')) || 1,
       steam_pressure_barg: parseFloat(v('f-steam-pressure')) || 7,
-      fw_temp_c:       parseFloat(v('f-fw-temp'))   || 80,
-      fuel_type:       getToggle('tg-fuel')         || 'LPG',
-      efficiency_pct:  parseFloat(v('f-boiler-eff')) || 82,
-      safety_factor:   parseFloat(v('f-safety-factor')) || 1.25,
-      tds_makeup_ppm:  parseFloat(v('f-tds-makeup')) || 200,
-      tds_max_ppm:     parseFloat(v('f-tds-max'))    || 3000,
+      fw_temp_c:           parseFloat(v('f-fw-temp'))        || 80,
+      fuel_type:           getToggle('tg-fuel')              || 'LPG',
+      efficiency_pct:      parseFloat(v('f-boiler-eff'))     || 82,
+      safety_factor:       parseFloat(v('f-safety-factor'))  || 1.25,
+      tds_makeup_ppm:      parseFloat(v('f-tds-makeup'))     || 200,
+      tds_max_ppm:         parseFloat(v('f-tds-max'))        || 3000,
     };
   }
 
@@ -6458,22 +6552,33 @@ async function runCalculation() {
       return;
     }
   } else if (_calcType === 'Boiler System') {
-    const isSteamMode = (inputs.load_mode || '').includes('Steam');
-    if (isSteamMode && (!inputs.steam_demand_kg_hr || inputs.steam_demand_kg_hr <= 0)) {
-      showToast('Please enter the steam / hot water demand.');
-      return;
-    }
-    if (!isSteamMode && (!inputs.heat_load_kw || inputs.heat_load_kw <= 0)) {
-      showToast('Please enter the required heat load.');
-      return;
-    }
-    if (!inputs.steam_pressure_barg || inputs.steam_pressure_barg < 0) {
-      showToast('Please enter the steam pressure.');
-      return;
-    }
-    if (inputs.tds_makeup_ppm >= inputs.tds_max_ppm) {
-      showToast('Makeup water TDS must be less than max boiler water TDS.');
-      return;
+    if (inputs.boiler_type === 'Hot Water') {
+      if (!inputs.flow_rate_lhr || inputs.flow_rate_lhr <= 0) {
+        showToast('Please enter the hot water flow rate.');
+        return;
+      }
+      if (!inputs.supply_temp_c || !inputs.return_temp_c || inputs.supply_temp_c <= inputs.return_temp_c) {
+        showToast('Supply temperature must be higher than return temperature.');
+        return;
+      }
+    } else {
+      const isSteamMode = (inputs.load_mode || '').includes('Steam');
+      if (isSteamMode && (!inputs.steam_demand_kg_hr || inputs.steam_demand_kg_hr <= 0)) {
+        showToast('Please enter the steam demand.');
+        return;
+      }
+      if (!isSteamMode && (!inputs.heat_load_kw || inputs.heat_load_kw <= 0)) {
+        showToast('Please enter the required heat load.');
+        return;
+      }
+      if (inputs.steam_pressure_barg == null || inputs.steam_pressure_barg < 0) {
+        showToast('Please enter the steam pressure.');
+        return;
+      }
+      if (inputs.tds_makeup_ppm >= inputs.tds_max_ppm) {
+        showToast('Makeup water TDS must be less than max boiler water TDS.');
+        return;
+      }
     }
   } else if (_calcType === 'Compressed Air') {
     if (!inputs.tools || inputs.tools.length === 0) {
@@ -7109,6 +7214,7 @@ function renderVentReport(inputs, results, narrative) {
 
 // ─── Boiler System Report ────────────────────────────────────────────────────
 function renderBoilerReport(inputs, results, narrative) {
+  if (inputs.boiler_type === 'Hot Water') { renderHotWaterBoilerReport(inputs, results, narrative); return; }
   const now     = new Date();
   const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
   const r = results || {};
@@ -7225,6 +7331,140 @@ function renderBoilerReport(inputs, results, narrative) {
         <p>Provide ${e(inputs.num_boilers)} × ${e(r.q_boiler_kw)} kW (${e(r.q_boiler_bhp)} BHP) ${e(inputs.boiler_type)} boiler(s) fired on ${e(inputs.fuel_type)}. Total installed capacity: ${e(r.total_capacity_kw)} kW (${e(r.total_capacity_bhp)} BHP). Design steam demand: ${e(r.design_steam_demand_kg_hr)} kg/hr at ${e(inputs.steam_pressure_barg)} bar g.</p>
         <p>Fuel consumption: ${e(r.fuel_consumption_kg_hr)} kg/hr. Maintain blowdown at ${e(r.blowdown_pct)}% (${e(r.blowdown_kg_hr)} kg/hr) based on makeup water TDS of ${e(inputs.tds_makeup_ppm)} ppm and max boiler water TDS of ${e(inputs.tds_max_ppm)} ppm. Makeup water requirement: ${e(r.makeup_water_kg_hr)} kg/hr.</p>
         <p>Provide safety valve(s) with minimum rated capacity of ${e(r.safety_valve_min_kg_hr)} kg/hr per ASME BPVC / PD 8. Boiler installation shall comply with PD 8, DOLE OSH Standards, and local Building Permit requirements. Annual inspection by a DOLE-accredited boiler inspector is mandatory.</p>
+      `}</div>
+
+      <!-- Signature -->
+      <div class="sig-block" style="margin-top:3rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+        <div>
+          <div style="border-top:1px solid #333;padding-top:0.4rem;font-size:0.82rem;">
+            <div>Prepared by:</div>
+            <div style="font-weight:700;margin-top:0.75rem;"><span class="editable-field" contenteditable="true">Engineer Name</span></div>
+            <div><span class="editable-field" contenteditable="true">Mechanical Engineer</span></div>
+            <div>PRC Lic. No. <span class="editable-field" contenteditable="true">XXXXXXX</span></div>
+          </div>
+        </div>
+        <div>
+          <div style="border-top:1px solid #333;padding-top:0.4rem;font-size:0.82rem;">
+            <div>Reviewed by:</div>
+            <div style="font-weight:700;margin-top:0.75rem;"><span class="editable-field" contenteditable="true">Reviewer Name</span></div>
+            <div><span class="editable-field" contenteditable="true">Project Manager</span></div>
+            <div>Date: <span class="editable-field" contenteditable="true">${dateStr}</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  `;
+  showReport();
+}
+
+// ─── Hot Water Boiler Report ─────────────────────────────────────────────────
+function renderHotWaterBoilerReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const r = results || {};
+  const e = escHtml;
+  const pass = v => v ? '<span style="color:#16a34a;font-weight:700;">✓ PASS</span>' : '<span style="color:#dc2626;font-weight:700;">✗ FAIL</span>';
+
+  document.getElementById('report-panel').innerHTML = `
+    <div id="report-content" style="font-family:'Times New Roman',serif;color:#1a1a1a;line-height:1.6;max-width:780px;margin:0 auto;padding:2.5rem;">
+
+      <!-- Header -->
+      <div style="text-align:center;border-bottom:2px solid #162032;padding-bottom:1rem;margin-bottom:1.5rem;">
+        <div style="font-size:0.8rem;color:#555;margin-bottom:0.3rem;">DESIGN CALCULATION REPORT</div>
+        <h1 style="font-size:1.3rem;font-weight:700;margin:0;">${e(inputs.project_name)}</h1>
+        <div style="font-size:0.85rem;color:#444;margin-top:0.4rem;">Hot Water Boiler System (${e(inputs.fuel_type)})</div>
+        <div style="font-size:0.78rem;color:#666;margin-top:0.25rem;">Date: ${dateStr} &nbsp;|&nbsp; Ref: MECH-HWB-001</div>
+      </div>
+
+      <!-- 1. Project Info -->
+      <h2 style="font-size:1rem;font-weight:700;border-bottom:1px solid #ddd;padding-bottom:0.3rem;margin-top:1.5rem;">1. PROJECT INFORMATION</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
+        <tr><th style="background:#162032;color:#fff;padding:0.4rem 0.6rem;text-align:left;">Parameter</th><th style="background:#162032;color:#fff;padding:0.4rem 0.6rem;text-align:left;">Value</th></tr>
+        <tr><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">Project / System</td><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">${e(inputs.project_name)}</td></tr>
+        <tr style="background:#f8f9fa;"><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">Boiler Type</td><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">Hot Water (Closed Loop)</td></tr>
+        <tr><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">Fuel Type</td><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">${e(inputs.fuel_type)}</td></tr>
+        <tr style="background:#f8f9fa;"><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">Number of Boilers</td><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">${e(inputs.num_boilers)}</td></tr>
+        <tr><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">Supply Temperature</td><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">${e(inputs.supply_temp_c)} °C</td></tr>
+        <tr style="background:#f8f9fa;"><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">Return Temperature</td><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">${e(inputs.return_temp_c)} °C</td></tr>
+        <tr><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">Temperature Rise (ΔT)</td><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">${e(r.delta_t_c)} °C</td></tr>
+        <tr style="background:#f8f9fa;"><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">Flow Rate</td><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">${e(inputs.flow_rate_lhr)} L/hr (${e(r.flow_rate_kgs)} kg/s)</td></tr>
+        <tr><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">System Working Pressure</td><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">${e(inputs.system_pressure_barg)} bar g</td></tr>
+        <tr style="background:#f8f9fa;"><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">Boiler Efficiency</td><td style="padding:0.3rem 0.6rem;border-bottom:1px solid #eee;">${e(inputs.efficiency_pct)} %</td></tr>
+        <tr><td style="padding:0.3rem 0.6rem;">Safety Factor</td><td style="padding:0.3rem 0.6rem;">${e(inputs.safety_factor)} ×</td></tr>
+      </table>
+
+      <!-- 2. Objective & Standards -->
+      <h2 style="font-size:1rem;font-weight:700;border-bottom:1px solid #ddd;padding-bottom:0.3rem;margin-top:1.5rem;">2. OBJECTIVE &amp; STANDARDS</h2>
+      <div class="narrative-block" style="font-size:0.88rem;">
+        <p>This calculation determines the required hot water boiler capacity (kW and BHP), fuel consumption rate, and minimum safety relief valve capacity for the closed-loop hot water heating system described above.</p>
+        <p><strong>Applicable Standards:</strong> Philippine Decree No. 8 (PD 8) — Boiler and Pressure Vessel Code; ASME BPVC Section IV (Heating Boilers); PSME Code; DOLE OSH Standards on Pressure Vessels; PNS/ISO 16528. Water quality per ASHRAE Guideline 12 / ASME Consensus on Operating Practices for Control of Water in Boilers.</p>
+      </div>
+
+      <!-- 3. Calculation -->
+      <h2 style="font-size:1rem;font-weight:700;border-bottom:1px solid #ddd;padding-bottom:0.3rem;margin-top:1.5rem;">3. CALCULATION</h2>
+
+      <h3 style="font-size:0.92rem;font-weight:700;margin-top:1rem;">3.1 Mass Flow Rate</h3>
+      <p style="font-size:0.88rem;">ṁ = Q_flow (L/hr) × ρ_water / 3600</p>
+      <p style="font-size:0.88rem;">= ${e(inputs.flow_rate_lhr)} L/hr × ${e(r.water_density_kg_l)} kg/L / 3600 = <strong>${e(r.flow_rate_kgs)} kg/s</strong></p>
+      <p style="font-size:0.88rem;color:#555;">(Water density at average temperature ${e(r.avg_temp_c)}°C ≈ ${e(r.water_density_kg_l)} kg/L)</p>
+
+      <h3 style="font-size:0.92rem;font-weight:700;margin-top:1rem;">3.2 Heat Output Required</h3>
+      <p style="font-size:0.88rem;">Q = ṁ × Cp × ΔT</p>
+      <p style="font-size:0.88rem;">= ${e(r.flow_rate_kgs)} kg/s × 4.187 kJ/kg·K × ${e(r.delta_t_c)} K</p>
+      <p style="font-size:0.88rem;">= <strong>${e(r.q_net_kw)} kW (${e(r.q_net_bhp)} BHP)</strong></p>
+
+      <h3 style="font-size:0.92rem;font-weight:700;margin-top:1rem;">3.3 Design Boiler Capacity (with safety factor)</h3>
+      <p style="font-size:0.88rem;">Q_design = Q_net × safety factor = ${e(r.q_net_kw)} × ${e(inputs.safety_factor)} = <strong>${e(r.q_boiler_kw)} kW (${e(r.q_boiler_bhp)} BHP)</strong> per boiler</p>
+      <p style="font-size:0.88rem;">Total installed capacity (${e(inputs.num_boilers)} boiler${parseInt(inputs.num_boilers)>1?'s':''}): <strong>${e(r.total_capacity_kw)} kW (${e(r.total_capacity_bhp)} BHP)</strong></p>
+
+      <h3 style="font-size:0.92rem;font-weight:700;margin-top:1rem;">3.4 Fuel Consumption</h3>
+      <p style="font-size:0.88rem;">F = Q_boiler / (LHV × η) × 3600</p>
+      <p style="font-size:0.88rem;">= ${e(r.q_boiler_kw)} kW / (${e(r.fuel_lhv_kj_kg)} kJ/kg × ${(parseFloat(inputs.efficiency_pct)/100).toFixed(2)})</p>
+      <p style="font-size:0.88rem;">= <strong>${e(r.fuel_consumption_kg_hr)} kg/hr</strong>${r.fuel_consumption_lhr ? ` (${e(r.fuel_consumption_lhr)} L/hr)` : ''}</p>
+
+      <h3 style="font-size:0.92rem;font-weight:700;margin-top:1rem;">3.5 Safety Relief Valve Minimum Capacity</h3>
+      <p style="font-size:0.88rem;">Per ASME BPVC Section IV / PD 8: minimum capacity = 1.1 × design output</p>
+      <p style="font-size:0.88rem;">= 1.1 × ${e(r.q_boiler_kw)} kW = <strong>${e(r.safety_valve_min_kw)} kW</strong></p>
+
+      <!-- 4. Results Summary -->
+      <h2 style="font-size:1rem;font-weight:700;border-bottom:1px solid #ddd;padding-bottom:0.3rem;margin-top:1.5rem;">4. RESULTS SUMMARY</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem;">
+        <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Boiler Capacity (each)</div>
+          <div style="font-size:1.4rem;font-weight:700;color:#F7A21B;">${e(r.q_boiler_kw)} kW</div>
+          <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">${e(r.q_boiler_bhp)} BHP</div>
+        </div>
+        <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Total Installed</div>
+          <div style="font-size:1.4rem;font-weight:700;color:#F7A21B;">${e(r.total_capacity_kw)} kW</div>
+          <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">${e(r.total_capacity_bhp)} BHP</div>
+        </div>
+        <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Fuel Consumption</div>
+          <div style="font-size:1.4rem;font-weight:700;color:#29B6D9;">${e(r.fuel_consumption_kg_hr)} kg/hr</div>
+          <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">${e(inputs.fuel_type)}</div>
+        </div>
+        <div class="result-highlight" style="background:linear-gradient(135deg,#162032,#1F2E45);color:#fff;border-radius:0.75rem;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">Safety Valve Min</div>
+          <div style="font-size:1.4rem;font-weight:700;color:#29B6D9;">${e(r.safety_valve_min_kw)} kW</div>
+          <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">ASME Sec IV / PD 8</div>
+        </div>
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;font-size:0.88rem;margin-top:0.5rem;">
+        <tr><th style="background:#162032;color:#fff;padding:0.4rem 0.6rem;text-align:left;">Check</th><th style="background:#162032;color:#fff;padding:0.4rem 0.6rem;text-align:left;">Value</th><th style="background:#162032;color:#fff;padding:0.4rem 0.6rem;text-align:left;">Status</th></tr>
+        <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;border-bottom:1px solid #eee;">ΔT ≥ 10°C (minimum effective range)</td><td style="padding:0.35rem 0.6rem;border-bottom:1px solid #eee;">${e(r.delta_t_c)} °C</td><td style="padding:0.35rem 0.6rem;border-bottom:1px solid #eee;">${pass(parseFloat(r.delta_t_c) >= 10)}</td></tr>
+        <tr><td style="padding:0.35rem 0.6rem;border-bottom:1px solid #eee;">Supply temp ≤ 95°C (open-vented limit)</td><td style="padding:0.35rem 0.6rem;border-bottom:1px solid #eee;">${e(inputs.supply_temp_c)} °C</td><td style="padding:0.35rem 0.6rem;border-bottom:1px solid #eee;">${pass(parseFloat(inputs.supply_temp_c) <= 95)}</td></tr>
+        <tr style="background:#f8f9fa;"><td style="padding:0.35rem 0.6rem;">Efficiency within range (65–95%)</td><td style="padding:0.35rem 0.6rem;">${e(inputs.efficiency_pct)} %</td><td style="padding:0.35rem 0.6rem;">${pass(parseFloat(inputs.efficiency_pct) >= 65 && parseFloat(inputs.efficiency_pct) <= 95)}</td></tr>
+      </table>
+
+      <!-- 5. Recommendations -->
+      <h2 style="font-size:1rem;font-weight:700;border-bottom:1px solid #ddd;padding-bottom:0.3rem;margin-top:1.5rem;">5. RECOMMENDATIONS</h2>
+      <div class="narrative-block" style="font-size:0.88rem;">${narrative?.recommendations ? `<p>${e(narrative.recommendations)}</p>` : `
+        <p>Provide ${e(inputs.num_boilers)} × ${e(r.q_boiler_kw)} kW (${e(r.q_boiler_bhp)} BHP) hot water boiler(s) fired on ${e(inputs.fuel_type)}. Total installed capacity: ${e(r.total_capacity_kw)} kW. System design: ${e(inputs.supply_temp_c)}°C supply / ${e(inputs.return_temp_c)}°C return at ${e(inputs.flow_rate_lhr)} L/hr flow rate.</p>
+        <p>Fuel consumption: ${e(r.fuel_consumption_kg_hr)} kg/hr per boiler${r.fuel_consumption_lhr ? ` (${e(r.fuel_consumption_lhr)} L/hr)` : ''}. Install safety relief valve(s) with minimum rated capacity of ${e(r.safety_valve_min_kw)} kW per ASME BPVC Section IV / PD 8.</p>
+        <p>Provide expansion tank sized per system volume. Install automatic air vents at all high points. Chemical treatment of closed loop water per ASHRAE Guideline 12 (inhibited water, pH 7.5–9.0). Annual statutory inspection by a DOLE-accredited boiler inspector is mandatory under PD 8.</p>
       `}</div>
 
       <!-- Signature -->

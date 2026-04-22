@@ -1583,10 +1583,18 @@ Respond in JSON format only:
       const qkw   = rec.q_boiler_kw ?? '';
       const fuel  = rec.fuel_consumption_kg_hr ?? '';
       const fuelT = String(inputs.fuel_type || 'fuel');
-      const bd    = rec.blowdown_pct ?? '';
-      const sv    = rec.safety_valve_min_kg_hr ?? '';
       const n     = inputs.num_boilers ?? 1;
-      recommendations = `Provide ${n} × ${qkw} kW (${bhp} BHP) ${String(inputs.boiler_type || 'steam')} boiler(s) fired on ${fuelT}. Fuel consumption: ${fuel} kg/hr per boiler. Maintain continuous blowdown at ${bd}% to control total dissolved solids within allowable limits. Install safety relief valve(s) with minimum rated capacity of ${sv} kg/hr per ASME BPVC / PD 8. Boiler installation requires DOLE-accredited Third Party Inspector certification and annual statutory inspection under PD 8.`;
+      if (String(inputs.boiler_type) === 'Hot Water') {
+        const svKw  = rec.safety_valve_min_kw ?? '';
+        const ts    = inputs.supply_temp_c ?? '';
+        const tr    = inputs.return_temp_c ?? '';
+        const fl    = inputs.flow_rate_lhr ?? '';
+        recommendations = `Provide ${n} × ${qkw} kW (${bhp} BHP) hot water boiler(s) fired on ${fuelT}. System: ${ts}°C supply / ${tr}°C return at ${fl} L/hr. Fuel consumption: ${fuel} kg/hr per boiler. Install safety relief valve(s) rated minimum ${svKw} kW per ASME BPVC Sec IV / PD 8. Provide closed-loop chemical treatment (inhibited water, pH 7.5–9.0) and expansion tank. Annual statutory inspection by a DOLE-accredited boiler inspector is mandatory.`;
+      } else {
+        const bd    = rec.blowdown_pct ?? '';
+        const sv    = rec.safety_valve_min_kg_hr ?? '';
+        recommendations = `Provide ${n} × ${qkw} kW (${bhp} BHP) steam boiler(s) fired on ${fuelT}. Fuel consumption: ${fuel} kg/hr per boiler. Maintain continuous blowdown at ${bd}% to control total dissolved solids within allowable limits. Install safety relief valve(s) with minimum rated capacity of ${sv} kg/hr per ASME BPVC / PD 8. Boiler installation requires DOLE-accredited Third Party Inspector certification and annual statutory inspection under PD 8.`;
+      }
     } else if (calcType === "Load Estimation") {
       const kva = rec.total_kVA ?? rec.demand_kVA ?? rec.demand_kW ?? '';
       recommendations = `Size the main circuit breaker and service entrance conductors for minimum ${kva} kVA demand load with 20% future expansion margin. Provide separate circuit breakers for each circuit per PEC 2017. Label all breakers and maintain an accurate load schedule as a permanent record.`;
@@ -3792,7 +3800,70 @@ const FUEL_DENSITY: Record<string, number> = {
 };
 
 function calcBoiler(inputs: Record<string, number | string>): Record<string, unknown> {
-  const boilerType      = String(inputs.boiler_type      || 'Steam');
+  const boilerType = String(inputs.boiler_type || 'Steam');
+
+  // ── HOT WATER BRANCH ────────────────────────────────────────────────────────
+  if (boilerType === 'Hot Water') {
+    const supplyTempC   = Number(inputs.supply_temp_c      || 80);
+    const returnTempC   = Number(inputs.return_temp_c      || 60);
+    const flowRateLhr   = Number(inputs.flow_rate_lhr      || 0);
+    const numBoilers    = Math.max(1, Number(inputs.num_boilers || 1));
+    const sysPressureG  = Number(inputs.system_pressure_barg || 3);
+    const fuelType      = String(inputs.fuel_type          || 'LPG');
+    const effPct        = Number(inputs.efficiency_pct     || 82);
+    const safetyFactor  = Number(inputs.safety_factor      || 1.25);
+
+    const deltaT        = supplyTempC - returnTempC;  // °C (= K for ΔT)
+    const avgTempC      = (supplyTempC + returnTempC) / 2;
+    // Water density at average temp (linear approx, valid 40–95°C)
+    const waterDensity  = Math.round((1000 - 0.4 * avgTempC) / 10) / 100;  // kg/L
+    const flowRateKgS   = Math.round(flowRateLhr * waterDensity / 3600 * 1000) / 1000;  // kg/s
+
+    // Q = ṁ × Cp × ΔT (kW),  Cp = 4.187 kJ/kg·K
+    const q_net_kw      = Math.round(flowRateKgS * 4.187 * deltaT * 10) / 10;
+    const q_net_bhp     = Math.round(q_net_kw / 9.8095 * 10) / 10;
+    const q_boiler_kw   = Math.round(q_net_kw * safetyFactor * 10) / 10;
+    const q_boiler_bhp  = Math.round(q_boiler_kw / 9.8095 * 10) / 10;
+    const total_kw      = Math.round(q_boiler_kw  * numBoilers * 10) / 10;
+    const total_bhp     = Math.round(q_boiler_bhp * numBoilers * 10) / 10;
+
+    // Fuel consumption
+    const lhv           = FUEL_LHV[fuelType] || 42700;
+    const eta           = effPct / 100;
+    const fuel_kg_hr    = lhv > 0 && eta > 0
+      ? Math.round(q_boiler_kw / (lhv / 3600 * eta) * 100) / 100
+      : 0;
+    const densityKgL    = FUEL_DENSITY[fuelType];
+    const fuel_l_hr     = densityKgL
+      ? Math.round(fuel_kg_hr / densityKgL * 10) / 10
+      : null;
+
+    // Safety relief valve: min capacity per ASME Sec IV = 1.1 × design output
+    const safety_valve_min_kw = Math.round(q_boiler_kw * 1.1 * 10) / 10;
+
+    return {
+      boiler_type:              'Hot Water',
+      supply_temp_c:            supplyTempC,
+      return_temp_c:            returnTempC,
+      delta_t_c:                deltaT,
+      avg_temp_c:               Math.round(avgTempC * 10) / 10,
+      water_density_kg_l:       waterDensity,
+      flow_rate_kgs:            flowRateKgS,
+      q_net_kw:                 q_net_kw,
+      q_net_bhp:                q_net_bhp,
+      q_boiler_kw:              q_boiler_kw,
+      q_boiler_bhp:             q_boiler_bhp,
+      total_capacity_kw:        total_kw,
+      total_capacity_bhp:       total_bhp,
+      fuel_lhv_kj_kg:           lhv,
+      fuel_consumption_kg_hr:   fuel_kg_hr,
+      fuel_consumption_lhr:     fuel_l_hr,
+      safety_valve_min_kw:      safety_valve_min_kw,
+      system_pressure_barg:     sysPressureG,
+    };
+  }
+
+  // ── STEAM BRANCH ────────────────────────────────────────────────────────────
   const loadMode        = String(inputs.load_mode        || 'Steam Demand (kg/hr)');
   const steamDemandIn   = Number(inputs.steam_demand_kg_hr || 0);
   const heatLoadKW      = Number(inputs.heat_load_kw     || 0);
