@@ -10188,7 +10188,11 @@ function renderSowDocPreview(sections) {
         <span class="sow-clause-no editable-field" contenteditable="true">${escHtml(sec.section_no)}</span>
         <span class="sow-clause-title editable-field" contenteditable="true" style="flex:1;">${escHtml(sec.title)}</span>
       </div>
-      <div class="sow-clause-body editable-field" contenteditable="true" style="min-height:1.5rem;">${escHtml(sec.content || '')}</div>
+      <div class="sow-clause-body editable-field" contenteditable="true" style="min-height:1.5rem;">${
+        Array.isArray(sec.items) && sec.items.length
+          ? sec.items.map(it => `• ${escHtml(it)}`).join('<br>')
+          : escHtml(sec.content || sec.description || sec.text || '')
+      }</div>
     </div>`).join('');
 
   document.getElementById('sow-doc-preview').innerHTML = `
