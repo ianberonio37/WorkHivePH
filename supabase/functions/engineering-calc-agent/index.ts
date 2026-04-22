@@ -3815,12 +3815,16 @@ function calcBoiler(inputs: Record<string, number | string>): Record<string, unk
 
     const deltaT        = supplyTempC - returnTempC;  // °C (= K for ΔT)
     const avgTempC      = (supplyTempC + returnTempC) / 2;
-    // Water density at average temp (linear approx, valid 40–95°C)
-    const waterDensity  = Math.round((1000 - 0.4 * avgTempC) / 10) / 100;  // kg/L
-    const flowRateKgS   = Math.round(flowRateLhr * waterDensity / 3600 * 1000) / 1000;  // kg/s
+    // Water density at average temp — least-squares fit of IAPWS data (40–95°C)
+    // ρ ≈ 1.0184 − 0.000619 × T  (kg/L), error ±0.3% vs IAPWS in range
+    const waterDensity  = Math.round((1.0184 - 0.000619 * avgTempC) * 10000) / 10000;  // kg/L, 4dp
+    // Compute Q directly from L/hr to avoid rounding cascade through flowRateKgS
+    // Q = (L/hr × ρ kg/L / 3600 s/hr) × Cp kJ/kg·K × ΔT K  (kW)
+    const flowRateKgS   = Math.round(flowRateLhr * waterDensity / 3600 * 10000) / 10000;  // kg/s, 4dp
+    const q_raw_kw      = flowRateLhr * waterDensity / 3600 * 4.187 * deltaT;  // unrounded
 
     // Q = ṁ × Cp × ΔT (kW),  Cp = 4.187 kJ/kg·K
-    const q_net_kw      = Math.round(flowRateKgS * 4.187 * deltaT * 10) / 10;
+    const q_net_kw      = Math.round(q_raw_kw * 10) / 10;
     const q_net_bhp     = Math.round(q_net_kw / 9.8095 * 10) / 10;
     const q_boiler_kw   = Math.round(q_net_kw * safetyFactor * 10) / 10;
     const q_boiler_bhp  = Math.round(q_boiler_kw / 9.8095 * 10) / 10;

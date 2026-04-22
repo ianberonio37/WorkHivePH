@@ -6207,7 +6207,7 @@ function collectInputs() {
       load_mode:           loadMode,
       steam_demand_kg_hr:  isSteamMode ? (parseFloat(v('f-steam-demand')) || 0) : 0,
       heat_load_kw:        !isSteamMode ? (parseFloat(v('f-heat-load'))   || 0) : 0,
-      num_boilers:         parseFloat(v('f-num-boilers-b') || v('f-num-boilers')) || 1,
+      num_boilers:         parseFloat(isSteamMode ? v('f-num-boilers') : v('f-num-boilers-b')) || 1,
       steam_pressure_barg: parseFloat(v('f-steam-pressure')) || 7,
       fw_temp_c:           parseFloat(v('f-fw-temp'))        || 80,
       fuel_type:           getToggle('tg-fuel')              || 'LPG',
