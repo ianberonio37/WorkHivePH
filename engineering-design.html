@@ -708,6 +708,7 @@ const CALC_TYPES = {
     { id: 'Chiller System — Air Cooled',   icon: '🧊', desc: 'Chiller tonnage, COP, compressor kW, condenser airflow — ASHRAE', available: true },
     { id: 'Chiller System — Water Cooled', icon: '💧', desc: 'Water-cooled chiller: COP, CW loop, cooling tower heat rejection — ASHRAE 90.1', available: true },
     { id: 'AHU Sizing',                    icon: '🌬️', desc: 'Supply airflow (CMH/CFM), cooling coil (kW/TR), CHW flow, fan HP — ASHRAE 62.1 / 90.1', available: true },
+    { id: 'Cooling Tower Sizing',          icon: '🌊', desc: 'Heat rejection, circ water flow, evaporation/makeup water, fan motor — CTI Std-201 / ASHRAE 90.1', available: true },
   ],
 };
 
@@ -1792,12 +1793,57 @@ const GUIDES = {
       { name: 'Number of AHU Units', tip: 'N+1 is standard for critical facilities. For zoned systems, each zone typically gets its own AHU sized for that zone only. Central AHUs serving multiple zones need zone-level VAV boxes (variable air volume) for individual temperature control. Single-AHU-per-floor is typical for Philippine commercial buildings.' },
     ],
     notes: [
-      'Supply air temperature: standard range 13–15°C. At 14°C supply and 24°C room, ΔT = 10°C — this produces airflow of about 285 CMH per kW of sensible load. At 12°C supply (ΔT = 12°C), airflow is 237 CMH/kW — smaller ducts, but colder coil needed.',
+      'Supply air temperature: standard range 13-15°C. At 14°C supply and 24°C room, ΔT = 10°C — this produces airflow of about 285 CMH per kW of sensible load. At 12°C supply (ΔT = 12°C), airflow is 237 CMH/kW — smaller ducts, but colder coil needed.',
       'OA fraction affects coil load significantly. At 20% OA with 35°C outside air and 24°C room, mixed air temperature rises to 26.2°C instead of 24°C — this adds ~9% to coil load. At 30% OA it adds ~14%. Always recalculate coil load from mixed air, not room temperature alone.',
       'ASHRAE 62.1 minimum ventilation: 10 L/s/person for office (plus 0.3 L/s/m² area component). Dense occupancy (lecture halls, call centers) requires more OA. Underproviding OA risks IAQ complaints, sick building syndrome, and regulatory non-compliance.',
       'ASHRAE 90.1 fan power limit: 0.82 W/(L/s) at design airflow for simple-box AHUs. Exceeding this means either the fan static is too high (overlong or undersized ductwork) or fan efficiency is too low. EC motors and variable-speed drives help meet this limit.',
       'Filter selection impacts static pressure: G4 pre-filter adds 50–80 Pa, F7 bag filter adds 80–120 Pa, HEPA adds 200–300 Pa. Select filter initial DP at clean condition — final DP at replacement is typically 2× initial. Use final DP for fan sizing.',
-      'Chilled water coil face velocity: 2.0–2.5 m/s at design airflow is ideal for moisture carryover prevention. Above 2.5 m/s risks condensate droplet entrainment. Below 1.5 m/s, coil is oversized but performance is fine. Calculate face velocity = Q_supply / coil_face_area.',
+      'Chilled water coil face velocity: 2.0-2.5 m/s at design airflow is ideal for moisture carryover prevention. Above 2.5 m/s risks condensate droplet entrainment. Below 1.5 m/s, coil is oversized but performance is fine. Calculate face velocity = Q_supply / coil_face_area.',
+    ],
+  },
+
+  'Cooling Tower Sizing': {
+    title: 'Cooling Tower Sizing (CTI Std-201 / ASHRAE 90.1 / PSME Code)',
+    subtitle: 'Sizes a cooling tower for a chilled water plant or process heat rejection: circulation flow, evaporation/blowdown/makeup water, fan airflow and motor per cell, approach and range check per CTI Std-201 and ASHRAE 90.1.',
+    standards: [
+      'CTI Std-201 — Cooling Technology Institute: performance acceptance test, minimum approach 2°C',
+      'ASHRAE 90.1 — Energy Standard: cooling tower fan power, efficiency criteria',
+      'ASHRAE GRP-214 — Evaporative Cooling Equipment: water loss calculation method',
+      'PSME Code — Philippine Society of Mechanical Engineers: mechanical equipment selection',
+      'Philippine Green Building Code — water efficiency: makeup water minimization requirements',
+    ],
+    formulas: [
+      'Q_rejection (kW) = Q_chiller × (1 + 1/COP)  [from chiller input]',
+      'Range (°C) = EWT − LWT  (entering minus leaving water temperature)',
+      'Approach (°C) = LWT − WBT  (leaving water minus design wet-bulb)',
+      'Q_circ (L/s) = Q_rejection / (Cp × Range)  [Cp = 4.187 kJ/kg·°C]',
+      '',
+      'Evaporation (L/hr) = 0.085% × Range × Q_circ_m3hr × 1000',
+      'Drift (L/hr) = 0.02% × Q_circ_m3hr × 1000  (modern film fill)',
+      'Blowdown (L/hr) = Evaporation / (CoC − 1)',
+      'Makeup Water (L/hr) = Evap + Drift + Blowdown',
+      '',
+      'Fan Airflow (m³/s) = Q_circ_lps / (L/G ratio × ρ_air)  [ρ_air = 1.15 kg/m³]',
+      'Fan Power (kW) ≈ Q_rejection × 0.040  (0.04 kW per kW heat rejection, axial fan)',
+    ],
+    fields: [
+      { name: 'Load Source', tip: 'Direct: input the total heat rejection load in kW. From Chiller: input chiller capacity in TR and COP — the calculator adds compressor work to get total tower heat rejection. For a 1,000 TR chiller at COP 4.5, heat rejection = 1,000 × 3.517 × (1 + 1/4.5) = 4,299 kW.' },
+      { name: 'Heat Rejection Load (kW)', tip: 'Total heat rejected by the tower. For water-cooled chiller plants: heat rejection = chiller capacity + compressor power. Typical ratio: 1.20-1.30× chiller kW. For COP 4.5: ratio = 1.222. For process cooling (heat exchangers), input the actual process heat load directly.' },
+      { name: 'Chiller Capacity (TR)', tip: 'Rated cooling capacity of the chiller in tons of refrigeration (TR). 1 TR = 3.517 kW. Used with COP to calculate total heat rejection. Source from chiller nameplate or HVAC Cooling Load calculation.' },
+      { name: 'Chiller COP', tip: 'Coefficient of performance at design conditions. Centrifugal chillers: 5.0-6.5 at full load. Screw chillers: 4.0-5.5. Reciprocating/scroll: 3.0-4.5. Use the part-load value (IPLV) for annual energy estimates, full-load COP for tower sizing. Philippine standard: 4.5 for centrifugal, 4.0 for screw.' },
+      { name: 'Entering Water Temp, EWT (°C)', tip: 'Hot water entering the cooling tower from the condenser — also called hot deck temperature. Standard for Philippine climate: 37°C. ASHRAE 90.1 compliance is tested at 35°C EWT. Higher EWT means smaller tower needed but puts more thermal stress on the chiller.' },
+      { name: 'Leaving Water Temp, LWT (°C)', tip: 'Cooled water leaving the tower to the condenser — also called cold deck temperature. Standard: 32°C. Range = EWT - LWT; typical 5-6°C. A 5°C range at 37/32°C is the Philippine design standard. Larger range = smaller tower flow but higher condenser inlet temp, which reduces chiller COP.' },
+      { name: 'Design Wet-Bulb Temp, WBT (°C)', tip: 'Ambient design wet-bulb temperature. Philippine values: Metro Manila 27-28°C, Cebu 27°C, Davao 26-27°C. Use ASHRAE IWEC weather data or PAGASA data for the project site. WBT is the theoretical minimum to which water can be cooled. Approach = LWT - WBT; minimum 2°C per CTI Std-201.' },
+      { name: 'Cycles of Concentration (CoC)', tip: 'Ratio of dissolved solids in tower basin to makeup water. Higher CoC = less blowdown = less makeup water. Typical: 3-5 cycles. Constrained by scale, corrosion, and biological growth potential. CoC 4-5 is standard with proper water treatment. CoC 3 is conservative for poor source water quality.' },
+      { name: 'Number of Cells', tip: 'Divide the tower into multiple cells for operational flexibility and N+1 redundancy. Common: 2 cells for redundancy (each at 50-60% capacity), N+1 for critical facilities. Multiple cells also allow capacity modulation by staging fans. Each cell gets independent fan motor; this calculator sizes per cell.' },
+      { name: 'L/G Ratio', tip: 'Liquid-to-gas mass flow ratio: water mass / air mass through the tower. Typical for film fill: 1.0-1.5 kg/kg. High L/G (>1.5): smaller tower footprint, more air needed. Low L/G (<1.0): larger air flow, larger fans. For preliminary sizing 1.2 is standard. Verify with manufacturer performance curves for final selection.' },
+    ],
+    notes: [
+      'Approach temperature is the critical design constraint. Approach = LWT - WBT. At 32°C LWT and 27°C WBT, approach = 5°C — comfortable. At 30°C LWT and 28°C WBT, approach = 2°C — at the CTI minimum and requires a very large, expensive tower. Never design below 2°C approach without manufacturer guarantee.',
+      'Philippine design standard: 37°C/32°C CW temperatures (5°C range), 27°C design WBT (5°C approach). This gives a 10°C total range+approach basis. Verify local WBT from PAGASA climate data for the project city — coastal and inland sites differ by 1-2°C.',
+      'Makeup water is a significant operational cost. At 1,000 TR heat rejection, makeup is approximately 25-35 m³/day at CoC 4. At CoC 3, makeup increases by ~25%. Specify chemical water treatment program to achieve CoC 4-5 without scaling or biological fouling.',
+      'Evaporation accounts for ~65-75% of makeup water. The remaining is blowdown. Drift eliminators on modern fills reduce drift to 0.001-0.005% — far below old splash-fill towers (0.1-0.2%). Specify drift eliminators when tower is near occupied areas or parking.',
+      'ASHRAE 90.1 efficiency: cooling tower fan power should not exceed 0.054 kW/kW of heat rejection at full load. Modern counterflow induced-draft towers typically achieve 0.030-0.045 kW/kW. Crossflow towers are slightly less efficient. If fan power ratio exceeds 0.054, select a larger tower or higher-efficiency fan.',
     ],
   },
 };
@@ -3968,6 +4014,114 @@ function renderInputForm(calcType) {
     document.getElementById('calc-btn').disabled = false;
   }
 
+  if (calcType === 'Cooling Tower Sizing') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. CT-1 — Chiller Plant Heat Rejection" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Load Source</div>
+        <div class="toggle-group" id="tg-load-source">
+          <button class="toggle-btn active" data-val="direct" onclick="toggle('tg-load-source','direct');setCTLoadFields()">Direct (input kW)</button>
+          <button class="toggle-btn" data-val="chiller" onclick="toggle('tg-load-source','chiller');setCTLoadFields()">From Chiller (TR + COP)</button>
+        </div>
+      </div>
+
+      <div id="ct-direct-row" class="mb-4">
+        <div class="field-label">Heat Rejection Load <span style="color:#F7A21B;font-size:0.75rem;">— total heat rejected by tower</span></div>
+        <div class="input-group">
+          <input id="f-q-rejection" class="wh-input" type="number" value="0" min="1" step="10" />
+          <span class="input-unit">kW</span>
+        </div>
+      </div>
+
+      <div id="ct-chiller-row" class="hidden">
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <div class="field-label">Chiller Capacity</div>
+            <div class="input-group">
+              <input id="f-chiller-tr" class="wh-input" type="number" value="500" min="10" step="10" />
+              <span class="input-unit">TR</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Chiller COP <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">at design conditions</span></div>
+            <div class="toggle-group" id="tg-chiller-cop">
+              <button class="toggle-btn" data-val="3.5" onclick="toggle('tg-chiller-cop','3.5')">3.5 (screw)</button>
+              <button class="toggle-btn active" data-val="4.5" onclick="toggle('tg-chiller-cop','4.5')">4.5 (standard)</button>
+              <button class="toggle-btn" data-val="5.5" onclick="toggle('tg-chiller-cop','5.5')">5.5 (centrifugal)</button>
+              <button class="toggle-btn" data-val="6.5" onclick="toggle('tg-chiller-cop','6.5')">6.5 (high-eff)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div>
+          <div class="field-label">Entering Water Temp (EWT)</div>
+          <div class="toggle-group" id="tg-ewt">
+            <button class="toggle-btn" data-val="35" onclick="toggle('tg-ewt','35')">35°C (ASHRAE)</button>
+            <button class="toggle-btn active" data-val="37" onclick="toggle('tg-ewt','37')">37°C (PH std)</button>
+            <button class="toggle-btn" data-val="40" onclick="toggle('tg-ewt','40')">40°C (hot)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Leaving Water Temp (LWT)</div>
+          <div class="toggle-group" id="tg-lwt">
+            <button class="toggle-btn" data-val="28" onclick="toggle('tg-lwt','28')">28°C (small ΔT)</button>
+            <button class="toggle-btn active" data-val="32" onclick="toggle('tg-lwt','32')">32°C (PH std)</button>
+            <button class="toggle-btn" data-val="35" onclick="toggle('tg-lwt','35')">35°C (large ΔT)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Design Wet-Bulb (WBT)</div>
+          <div class="toggle-group" id="tg-wbt">
+            <button class="toggle-btn" data-val="25" onclick="toggle('tg-wbt','25')">25°C (highland)</button>
+            <button class="toggle-btn active" data-val="27" onclick="toggle('tg-wbt','27')">27°C (Metro MNL)</button>
+            <button class="toggle-btn" data-val="28" onclick="toggle('tg-wbt','28')">28°C (coastal)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div>
+          <div class="field-label">Cycles of Concentration</div>
+          <div class="toggle-group" id="tg-coc">
+            <button class="toggle-btn" data-val="3" onclick="toggle('tg-coc','3')">3 (poor water)</button>
+            <button class="toggle-btn active" data-val="4" onclick="toggle('tg-coc','4')">4 (typical)</button>
+            <button class="toggle-btn" data-val="5" onclick="toggle('tg-coc','5')">5 (good treatment)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Number of Cells</div>
+          <div class="toggle-group" id="tg-ct-cells">
+            <button class="toggle-btn active" data-val="1" onclick="toggle('tg-ct-cells','1')">1 cell</button>
+            <button class="toggle-btn" data-val="2" onclick="toggle('tg-ct-cells','2')">2 cells</button>
+            <button class="toggle-btn" data-val="3" onclick="toggle('tg-ct-cells','3')">3 cells</button>
+            <button class="toggle-btn" data-val="4" onclick="toggle('tg-ct-cells','4')">4 cells</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">L/G Ratio <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">liq/gas mass</span></div>
+          <div class="toggle-group" id="tg-lg-ratio">
+            <button class="toggle-btn" data-val="1.0" onclick="toggle('tg-lg-ratio','1.0')">1.0 (high airflow)</button>
+            <button class="toggle-btn active" data-val="1.2" onclick="toggle('tg-lg-ratio','1.2')">1.2 (standard)</button>
+            <button class="toggle-btn" data-val="1.5" onclick="toggle('tg-lg-ratio','1.5')">1.5 (low airflow)</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.25rem;">
+        Method: Q_rejection = Q_chiller × (1 + 1/COP) | Q_circ = Q_rej / (Cp × Range) | Makeup = Evap + Drift + Blowdown.<br>
+        Standards: CTI Std-201 (approach ≥ 2°C), ASHRAE GRP-214 (water losses), ASHRAE 90.1 (tower efficiency).
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
   if (calcType === 'V-Belt Drive Design') {
     area.innerHTML = `
       <div class="mb-4">
@@ -5174,6 +5328,23 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Cooling Tower Sizing') {
+    const loadSource = getToggle('tg-load-source') || 'direct';
+    return {
+      project_name:    v('f-project')                              || 'Untitled Cooling Tower',
+      load_source:     loadSource,
+      q_rejection_kw:  loadSource === 'direct' ? (parseFloat(v('f-q-rejection')) || 0) : 0,
+      chiller_cap_tr:  loadSource === 'chiller' ? (parseFloat(v('f-chiller-tr')) || 0) : 0,
+      chiller_cop:     parseFloat(getToggle('tg-chiller-cop'))   || 4.5,
+      ewt:             parseFloat(getToggle('tg-ewt'))            || 37,
+      lwt:             parseFloat(getToggle('tg-lwt'))            || 32,
+      wbt:             parseFloat(getToggle('tg-wbt'))            || 27,
+      coc:             parseFloat(getToggle('tg-coc'))            || 4,
+      n_cells:         parseFloat(getToggle('tg-ct-cells'))       || 1,
+      lg_ratio:        parseFloat(getToggle('tg-lg-ratio'))       || 1.2,
+    };
+  }
+
   return base;
 }
 
@@ -5190,6 +5361,15 @@ function setAHUDefaults() {
   };
   const shrEl = document.getElementById('f-shr');
   if (shrEl) shrEl.value = shrDefaults[spaceType] || 0.75;
+}
+
+// Cooling Tower — show/hide direct vs chiller input rows
+function setCTLoadFields() {
+  const src = getToggle('tg-load-source') || 'direct';
+  const directRow  = document.getElementById('ct-direct-row');
+  const chillerRow = document.getElementById('ct-chiller-row');
+  if (directRow)  directRow.classList.toggle('hidden', src !== 'direct');
+  if (chillerRow) chillerRow.classList.toggle('hidden', src !== 'chiller');
 }
 
 // ─── Run calculation ──────────────────────────────────────────────────────────
@@ -5355,6 +5535,23 @@ async function runCalculation() {
       showToast('CHW return temperature must be higher than CHW supply temperature.');
       return;
     }
+  } else if (_calcType === 'Cooling Tower Sizing') {
+    if (inputs.load_source === 'direct' && (!inputs.q_rejection_kw || inputs.q_rejection_kw <= 0)) {
+      showToast('Please enter the heat rejection load (kW).');
+      return;
+    }
+    if (inputs.load_source === 'chiller' && (!inputs.chiller_cap_tr || inputs.chiller_cap_tr <= 0)) {
+      showToast('Please enter the chiller capacity (TR).');
+      return;
+    }
+    if (inputs.ewt <= inputs.lwt) {
+      showToast('Entering water temp (EWT) must be greater than leaving water temp (LWT).');
+      return;
+    }
+    if (inputs.lwt <= inputs.wbt) {
+      showToast('Leaving water temp (LWT) must be greater than wet-bulb temp (WBT). Minimum approach is 2°C.');
+      return;
+    }
   } else if (!inputs.floor_area || inputs.floor_area <= 0) {
     showToast('Please enter the floor area.');
     return;
@@ -5426,6 +5623,8 @@ async function runCalculation() {
       renderChillerAirCooledReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'AHU Sizing') {
       renderAHUSizingReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Cooling Tower Sizing') {
+      renderCoolingTowerReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -10321,6 +10520,191 @@ ${isLight
       </div>
 
     </div>`;
+}
+
+// ─── Cooling Tower Sizing Report ─────────────────────────────────────────────
+function renderCoolingTowerReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const r       = results;
+
+  const approachColor = r.approach_check === 'PASS' ? '#2e7d32' : r.approach_check.startsWith('MARGINAL') ? '#e65100' : '#c62828';
+  const approachBg    = r.approach_check === 'PASS' ? '#e8f5e9' : r.approach_check.startsWith('MARGINAL') ? '#fff3e0' : '#ffebee';
+  const ashraeColor   = r.ashrae_ct_check === 'PASS' ? '#2e7d32' : '#e65100';
+  const ashraesBg     = r.ashrae_ct_check === 'PASS' ? '#e8f5e9' : '#fff3e0';
+  const loadLabel     = r.load_source === 'chiller'
+    ? `From Chiller: ${r.chiller_tr_input} TR (${r.chiller_kw_input} kW) @ COP ${r.chiller_cop}`
+    : 'Direct input';
+
+  const panel = document.getElementById('report-panel');
+  panel.innerHTML = `
+  <div id="report-content" style="background:#fff;color:#1a1a1a;border-radius:1rem;padding:2rem;margin-top:1.5rem;font-family:'Segoe UI',Arial,sans-serif;font-size:0.85rem;line-height:1.6;">
+
+    <div style="border-bottom:3px solid #1a237e;padding-bottom:1rem;margin-bottom:1.5rem;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem;">
+        <div>
+          <div style="font-size:1.15rem;font-weight:800;color:#1a237e;letter-spacing:0.01em;">COOLING TOWER SIZING</div>
+          <div style="font-size:0.78rem;color:#555;margin-top:0.15rem;">Heat Rejection | Water Losses | Fan Sizing</div>
+        </div>
+        <div style="text-align:right;font-size:0.75rem;color:#666;">
+          <div>Ref: HVAC-CT-SIZING-${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}</div>
+          <div>Date: ${dateStr}</div>
+          <div>Prepared by: ${e('Engineer Name')}</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem 2rem;margin-bottom:1.5rem;font-size:0.8rem;">
+      <div><span style="color:#555;">Project:</span> ${e(inputs.project_name || 'Untitled Cooling Tower')}</div>
+      <div><span style="color:#555;">Location:</span> ${e('Site / Plant Location')}</div>
+      <div><span style="color:#555;">Load Source:</span> ${escHtml(loadLabel)}</div>
+      <div><span style="color:#555;">Number of Cells:</span> ${r.n_cells}</div>
+    </div>
+
+    <!-- Summary Metrics -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;margin-bottom:1.5rem;">
+      ${[
+        ['Heat Rejection', `${r.q_rejection_kw} kW`, `${r.q_rejection_tr} TR`],
+        ['Circ. Water Flow', `${r.q_w_lps} L/s`, `${r.q_w_m3hr} m³/hr`],
+        ['Makeup Water', `${r.makeup_lhr} L/hr`, `${r.makeup_m3day} m³/day`],
+        ['Fan Airflow / Cell', `${r.fan_flow_CMH_cell} m³/hr`, `${r.n_cells} cell(s)`],
+        ['Fan Motor / Cell', `${r.fan_kw_per_cell} kW calc.`, `${r.fan_kw_std} kW (std)`],
+        ['Approach / Range', `${r.approach_c}°C / ${r.range_c}°C`, 'approach / range'],
+      ].map(([label, val, sub]) => `
+        <div style="background:#f5f7ff;border:1px solid #dde;border-radius:0.6rem;padding:0.7rem 0.85rem;">
+          <div style="font-size:0.7rem;color:#555;margin-bottom:0.2rem;">${escHtml(label)}</div>
+          <div style="font-weight:700;font-size:1rem;color:#1a237e;">${escHtml(val)}</div>
+          <div style="font-size:0.68rem;color:#888;">${escHtml(sub)}</div>
+        </div>`).join('')}
+    </div>
+
+    <!-- Step 1: Load -->
+    <div style="margin-bottom:1.2rem;">
+      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-left:3px solid #1a237e;padding-left:0.6rem;margin-bottom:0.5rem;">Step 1 — Heat Rejection Load</div>
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+        <tr style="background:#f0f4ff;"><th style="padding:0.35rem 0.6rem;text-align:left;">Parameter</th><th style="padding:0.35rem 0.6rem;text-align:right;">Value</th><th style="padding:0.35rem 0.6rem;text-align:left;">Basis</th></tr>
+        ${r.load_source === 'chiller' ? `
+        <tr><td style="padding:0.3rem 0.6rem;">Chiller Capacity</td><td style="padding:0.3rem 0.6rem;text-align:right;">${r.chiller_tr_input} TR = ${r.chiller_kw_input} kW</td><td style="padding:0.3rem 0.6rem;color:#555;">Input</td></tr>
+        <tr><td style="padding:0.3rem 0.6rem;">Chiller COP</td><td style="padding:0.3rem 0.6rem;text-align:right;">${r.chiller_cop}</td><td style="padding:0.3rem 0.6rem;color:#555;">Input</td></tr>
+        <tr><td style="padding:0.3rem 0.6rem;">Heat Rejection Factor</td><td style="padding:0.3rem 0.6rem;text-align:right;">1 + 1/COP = ${(1 + 1/r.chiller_cop).toFixed(3)}</td><td style="padding:0.3rem 0.6rem;color:#555;">Q_rej = Q_chill × (1+1/COP)</td></tr>` : ''}
+        <tr style="background:#e8eaf6;font-weight:600;"><td style="padding:0.35rem 0.6rem;">Total Heat Rejection</td><td style="padding:0.35rem 0.6rem;text-align:right;">${r.q_rejection_kw} kW</td><td style="padding:0.35rem 0.6rem;color:#333;">${r.q_rejection_tr} TR</td></tr>
+      </table>
+    </div>
+
+    <!-- Step 2: Temperature Analysis -->
+    <div style="margin-bottom:1.2rem;">
+      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-left:3px solid #1a237e;padding-left:0.6rem;margin-bottom:0.5rem;">Step 2 — Temperature Analysis &amp; Approach Check</div>
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+        <tr style="background:#f0f4ff;"><th style="padding:0.35rem 0.6rem;text-align:left;">Parameter</th><th style="padding:0.35rem 0.6rem;text-align:right;">Value</th><th style="padding:0.35rem 0.6rem;text-align:left;">Limit / Ref</th></tr>
+        <tr><td style="padding:0.3rem 0.6rem;">Entering Water Temp (EWT)</td><td style="padding:0.3rem 0.6rem;text-align:right;">${r.ewt}°C</td><td style="padding:0.3rem 0.6rem;color:#555;">Hot deck (from condenser)</td></tr>
+        <tr><td style="padding:0.3rem 0.6rem;">Leaving Water Temp (LWT)</td><td style="padding:0.3rem 0.6rem;text-align:right;">${r.lwt}°C</td><td style="padding:0.3rem 0.6rem;color:#555;">Cold deck (to condenser)</td></tr>
+        <tr><td style="padding:0.3rem 0.6rem;">Design Wet-Bulb Temp (WBT)</td><td style="padding:0.3rem 0.6rem;text-align:right;">${r.wbt}°C</td><td style="padding:0.3rem 0.6rem;color:#555;">Ambient design — PAGASA / ASHRAE IWEC</td></tr>
+        <tr><td style="padding:0.3rem 0.6rem;">Range (EWT − LWT)</td><td style="padding:0.3rem 0.6rem;text-align:right;font-weight:600;">${r.range_c}°C</td><td style="padding:0.3rem 0.6rem;color:#555;">Thermal duty per kg of water</td></tr>
+        <tr style="background:${approachBg};font-weight:600;">
+          <td style="padding:0.35rem 0.6rem;">Approach (LWT − WBT)</td>
+          <td style="padding:0.35rem 0.6rem;text-align:right;color:${approachColor};">${r.approach_c}°C</td>
+          <td style="padding:0.35rem 0.6rem;">
+            <span style="background:${approachColor};color:#fff;padding:0.15rem 0.5rem;border-radius:999px;font-size:0.72rem;">${escHtml(r.approach_check)}</span>
+            &nbsp;Min 2°C — CTI Std-201
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Step 3: Circulation Water -->
+    <div style="margin-bottom:1.2rem;">
+      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-left:3px solid #1a237e;padding-left:0.6rem;margin-bottom:0.5rem;">Step 3 — Circulation Water Flow Rate</div>
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+        <tr style="background:#f0f4ff;"><th style="padding:0.35rem 0.6rem;text-align:left;">Parameter</th><th style="padding:0.35rem 0.6rem;text-align:right;">Value</th><th style="padding:0.35rem 0.6rem;text-align:left;">Formula</th></tr>
+        <tr><td style="padding:0.3rem 0.6rem;">Formula</td><td style="padding:0.3rem 0.6rem;text-align:right;font-family:monospace;font-size:0.75rem;">Q = ${r.q_rejection_kw} / (4.187 × ${r.range_c})</td><td style="padding:0.3rem 0.6rem;color:#555;">Q_circ = Q_rej / (Cp × Range)</td></tr>
+        <tr><td style="padding:0.3rem 0.6rem;">Circulation Flow</td><td style="padding:0.3rem 0.6rem;text-align:right;font-weight:600;">${r.q_w_lps} L/s</td><td style="padding:0.3rem 0.6rem;color:#555;">${r.q_w_m3hr} m³/hr — ${r.q_w_GPM} US GPM</td></tr>
+      </table>
+    </div>
+
+    <!-- Step 4: Water Losses -->
+    <div style="margin-bottom:1.2rem;">
+      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-left:3px solid #1a237e;padding-left:0.6rem;margin-bottom:0.5rem;">Step 4 — Water Loss Analysis (ASHRAE GRP-214)</div>
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+        <tr style="background:#f0f4ff;"><th style="padding:0.35rem 0.6rem;text-align:left;">Loss Type</th><th style="padding:0.35rem 0.6rem;text-align:right;">Rate</th><th style="padding:0.35rem 0.6rem;text-align:right;">L/hr</th><th style="padding:0.35rem 0.6rem;text-align:left;">Basis</th></tr>
+        <tr><td style="padding:0.3rem 0.6rem;">Evaporation</td><td style="padding:0.3rem 0.6rem;text-align:right;">0.085%/°C</td><td style="padding:0.3rem 0.6rem;text-align:right;font-weight:600;">${r.evap_lhr}</td><td style="padding:0.3rem 0.6rem;color:#555;">ASHRAE GRP-214; 0.085% × Range × Q_circ</td></tr>
+        <tr><td style="padding:0.3rem 0.6rem;">Drift (modern fill)</td><td style="padding:0.3rem 0.6rem;text-align:right;">0.02%</td><td style="padding:0.3rem 0.6rem;text-align:right;font-weight:600;">${r.drift_lhr}</td><td style="padding:0.3rem 0.6rem;color:#555;">With drift eliminators per CTI Std-201</td></tr>
+        <tr><td style="padding:0.3rem 0.6rem;">Blowdown (CoC = ${r.coc})</td><td style="padding:0.3rem 0.6rem;text-align:right;">E/(CoC−1)</td><td style="padding:0.3rem 0.6rem;text-align:right;font-weight:600;">${r.blowdown_lhr}</td><td style="padding:0.3rem 0.6rem;color:#555;">Maintain cycles of concentration = ${r.coc}</td></tr>
+        <tr style="background:#e3f2fd;font-weight:700;"><td style="padding:0.35rem 0.6rem;">Total Makeup Water</td><td style="padding:0.35rem 0.6rem;text-align:right;">—</td><td style="padding:0.35rem 0.6rem;text-align:right;">${r.makeup_lhr} L/hr</td><td style="padding:0.35rem 0.6rem;color:#333;">${r.makeup_m3day} m³/day</td></tr>
+      </table>
+    </div>
+
+    <!-- Step 5: Fan Sizing -->
+    <div style="margin-bottom:1.2rem;">
+      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-left:3px solid #1a237e;padding-left:0.6rem;margin-bottom:0.5rem;">Step 5 — Fan Airflow &amp; Motor Sizing</div>
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+        <tr style="background:#f0f4ff;"><th style="padding:0.35rem 0.6rem;text-align:left;">Parameter</th><th style="padding:0.35rem 0.6rem;text-align:right;">Total</th><th style="padding:0.35rem 0.6rem;text-align:right;">Per Cell</th><th style="padding:0.35rem 0.6rem;text-align:left;">Basis</th></tr>
+        <tr><td style="padding:0.3rem 0.6rem;">L/G Ratio</td><td style="padding:0.3rem 0.6rem;text-align:right;" colspan="2">${r.lg_ratio}</td><td style="padding:0.3rem 0.6rem;color:#555;">Water/air mass flow (film fill: 1.0–1.5 typical)</td></tr>
+        <tr><td style="padding:0.3rem 0.6rem;">Fan Airflow</td><td style="padding:0.3rem 0.6rem;text-align:right;font-weight:600;">${r.fan_flow_CMH} m³/hr</td><td style="padding:0.3rem 0.6rem;text-align:right;">${r.fan_flow_CMH_cell} m³/hr</td><td style="padding:0.3rem 0.6rem;color:#555;">m_air = Q_circ / L/G ÷ ρ_air (1.15 kg/m³)</td></tr>
+        <tr><td style="padding:0.3rem 0.6rem;">Fan Motor Power (calc.)</td><td style="padding:0.3rem 0.6rem;text-align:right;font-weight:600;">${r.fan_kw_total} kW</td><td style="padding:0.3rem 0.6rem;text-align:right;">${r.fan_kw_per_cell} kW</td><td style="padding:0.3rem 0.6rem;color:#555;">~0.040 kW/kW heat rejection (axial fan)</td></tr>
+        <tr style="background:#e8f5e9;font-weight:700;"><td style="padding:0.35rem 0.6rem;">Selected Fan Motor</td><td style="padding:0.35rem 0.6rem;text-align:right;" colspan="2">${r.fan_kw_std} kW per cell</td><td style="padding:0.35rem 0.6rem;color:#333;">Next standard motor size up</td></tr>
+      </table>
+    </div>
+
+    <!-- Step 6: ASHRAE 90.1 Check -->
+    <div style="margin-bottom:1.5rem;">
+      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-left:3px solid #1a237e;padding-left:0.6rem;margin-bottom:0.5rem;">Step 6 — ASHRAE 90.1 Tower Efficiency Check</div>
+      <div style="background:${ashraesBg};border:1px solid ${ashraeColor}22;border-radius:0.6rem;padding:0.75rem 1rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+          <div>
+            <div style="font-weight:700;font-size:0.85rem;color:${ashraeColor};">${escHtml(r.ashrae_ct_check)}</div>
+            <div style="font-size:0.76rem;color:#555;margin-top:0.2rem;">Fan Power Ratio: ${r.fan_kw_per_100kw} kW per 100 kW heat rejection (limit: 4.0 kW/100 kW — ASHRAE 90.1)</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:0.78rem;color:#555;">Number of Cells: <strong>${r.n_cells}</strong></div>
+            <div style="font-size:0.78rem;color:#555;">Heat per cell: <strong>${r.q_cell_kw} kW = ${r.q_cell_tr} TR</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Narrative -->
+    ${narrative ? `
+    <div style="margin-bottom:1.5rem;">
+      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-left:3px solid #1a237e;padding-left:0.6rem;margin-bottom:0.5rem;">Engineering Narrative</div>
+      <div style="font-size:0.8rem;color:#333;line-height:1.7;background:#fafbff;border:1px solid #e0e4f0;border-radius:0.6rem;padding:1rem;">${escHtml(narrative)}</div>
+    </div>` : ''}
+
+    <!-- Signature Block -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;margin-top:2rem;padding-top:1.2rem;border-top:1px solid #ccc;font-size:0.78rem;">
+      <div>
+        <div style="margin-top:2rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
+          <div style="color:#555;">${e('Mechanical Engineer')}</div>
+          <div style="color:#555;">PRC License No.: ${e('_____________')}</div>
+          <div style="color:#888;margin-top:0.2rem;">Prepared by</div>
+        </div>
+      </div>
+      <div>
+        <div style="margin-top:2rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
+          <div style="color:#555;">${e('Project Engineer / Manager')}</div>
+          <div style="color:#555;">Company: ${e('_____________')}</div>
+          <div style="color:#888;margin-top:0.2rem;">Checked / Reviewed by</div>
+        </div>
+      </div>
+      <div>
+        <div style="margin-top:2rem;border-top:1px solid #999;padding-top:0.3rem;">
+          <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
+          <div style="color:#555;">${e('Owner / Client Representative')}</div>
+          <div style="color:#555;">Date: ${e('_____________')}</div>
+          <div style="color:#888;margin-top:0.2rem;">Approved by</div>
+        </div>
+      </div>
+    </div>
+
+  </div>`;
+
+  document.getElementById('bom-sow-section').classList.remove('hidden');
+  document.getElementById('bom-trigger').classList.remove('hidden');
+  document.getElementById('bom-checklist-panel').classList.add('hidden');
+  document.getElementById('bom-preview').classList.add('hidden');
+  document.getElementById('bom-loading').classList.add('hidden');
 }
 
 // ─── Downloads ────────────────────────────────────────────────────────────────

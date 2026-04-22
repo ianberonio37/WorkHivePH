@@ -2740,6 +2740,146 @@ function calcFireAlarmBattery(inputs: Record<string, number | string>): Record<s
   };
 }
 
+// ─── Cooling Tower Sizing ─────────────────────────────────────────────────────
+// Method: Heat rejection + Merkel-based approach/range; ASHRAE GRP-214 water loss
+// Standards: ASHRAE 90.1 cooling-tower efficiency, CTI Std-201, PSME Code
+// Outputs: water flow, evaporation/drift/blowdown/makeup, fan airflow & motor, approach check
+
+// Standard fan motor sizes (kW) for cooling tower duty
+const CT_FAN_MOTOR_KW = [0.37, 0.55, 0.75, 1.1, 1.5, 2.2, 3.0, 3.7, 5.5, 7.5, 11, 15, 18.5, 22, 30, 37, 45, 55, 75, 90, 110];
+
+function roundUpToCTFanKW(kw: number): number {
+  return CT_FAN_MOTOR_KW.find(s => s >= kw) || Math.ceil(kw / 10) * 10;
+}
+
+function calcCoolingTowerSizing(inputs: Record<string, number | string>) {
+  const loadSource    = String(inputs.load_source || 'direct');
+  const ewt           = Number(inputs.ewt)            || 37;   // entering water temp °C
+  const lwt           = Number(inputs.lwt)            || 32;   // leaving water temp °C
+  const wbt           = Number(inputs.wbt)            || 27;   // design wet-bulb temp °C
+  const coc           = Math.max(2, Number(inputs.coc) || 4);  // cycles of concentration
+  const nCells        = Math.max(1, Math.round(Number(inputs.n_cells) || 1));
+  const lgRatio       = Math.max(0.8, Math.min(2.0, Number(inputs.lg_ratio) || 1.2));
+  const chillerCOP    = Math.max(2.0, Number(inputs.chiller_cop) || 4.5);
+
+  // ── 1. Heat rejection load ─────────────────────────────────────────────────
+  let qRejKW: number;
+  if (loadSource === 'chiller') {
+    const chillerTR = Number(inputs.chiller_cap_tr) || 0;
+    if (chillerTR <= 0) return { error: "Chiller capacity must be greater than zero." };
+    const chillerKW = chillerTR * 3.517;
+    // Heat rejection = chiller capacity + compressor work = Q_evap × (1 + 1/COP)
+    qRejKW = chillerKW * (1 + 1 / chillerCOP);
+  } else {
+    qRejKW = Number(inputs.q_rejection_kw) || 0;
+    if (qRejKW <= 0) return { error: "Heat rejection load must be greater than zero." };
+  }
+
+  // ── 2. Temperature checks ─────────────────────────────────────────────────
+  const range    = ewt - lwt;
+  const approach = lwt - wbt;
+  if (range    <= 0) return { error: "Entering water temp must be greater than leaving water temp." };
+  if (approach <= 0) return { error: "Leaving water temp must be greater than wet-bulb temp. Reduce LWT or check design WBT." };
+  if (approach < 2) return { error: `Approach of ${approach.toFixed(1)}°C is below 2°C minimum (CTI Std-201). Increase LWT or reduce WBT.` };
+
+  const qRejTR = qRejKW / 3.517;
+
+  // ── 3. Circulation water flow rate ────────────────────────────────────────
+  // Q_w = Q_rejection / (Cp × ΔT_range)  [Cp = 4.187 kJ/kg·°C, density ≈ 1 kg/L]
+  const Cp_water  = 4.187;
+  const qW_lps    = qRejKW / (Cp_water * range);        // L/s
+  const qW_m3hr   = qW_lps * 3.6;                       // m³/hr
+  const qW_lpm    = qW_lps * 60;                        // L/min
+  const qW_GPM    = qW_lps * 15.8508;                   // US GPM
+
+  // ── 4. Water losses (ASHRAE GRP-214 / CTI method) ─────────────────────────
+  // Evaporation: ~0.85% of circ flow per °C of range
+  const evap_lhr      = 0.00085 * range * qW_m3hr * 1000;   // L/hr
+  // Drift: 0.02% of circ flow (modern film fill with drift eliminators)
+  const drift_lhr     = 0.0002 * qW_m3hr * 1000;            // L/hr
+  // Blowdown: E / (CoC - 1) — maintains cycles of concentration
+  const blowdown_lhr  = evap_lhr / (coc - 1);               // L/hr
+  // Makeup = evaporation + drift + blowdown
+  const makeup_lhr    = evap_lhr + drift_lhr + blowdown_lhr;
+  const makeup_m3day  = makeup_lhr * 24 / 1000;
+
+  // ── 5. Fan airflow (air side) ─────────────────────────────────────────────
+  // L/G ratio = water mass flow / air mass flow
+  // m_air (kg/s) = qW_lps × ρ_water / L/G ≈ qW_lps / L/G (ρ_water ≈ 1 kg/L)
+  const rho_air       = 1.15;   // kg/m³ at ~27°C WBT, typical Philippine conditions
+  const mAir_kgs      = qW_lps / lgRatio;                   // kg/s air
+  const fanFlow_m3s   = mAir_kgs / rho_air;                 // m³/s
+  const fanFlow_CMH   = fanFlow_m3s * 3600;                 // m³/hr total
+  const fanFlow_CMH_cell = fanFlow_CMH / nCells;
+
+  // ── 6. Fan motor power ────────────────────────────────────────────────────
+  // Typical cooling tower: 0.035–0.045 kW per kW heat rejection
+  // Use 0.040 (mid range, axial fan, good fills)
+  const fanKW_total    = qRejKW * 0.040;
+  const fanKW_per_cell = fanKW_total / nCells;
+  const fanKW_std      = roundUpToCTFanKW(fanKW_per_cell);
+
+  // ── 7. Tower capacity per cell ────────────────────────────────────────────
+  const qCell_kW = qRejKW / nCells;
+  const qCell_TR = qRejTR / nCells;
+
+  // ── 8. Approach check (CTI Std-201 minimum 2°C) ──────────────────────────
+  const approach_check = approach >= 3 ? "PASS" : approach >= 2 ? "MARGINAL (2–3°C — verify with tower manufacturer)" : "FAIL";
+  const approach_min   = 2;  // °C per CTI Std-201
+
+  // ── 9. ASHRAE 90.1 cooling tower efficiency check ────────────────────────
+  // Minimum: 38.2 L/s per kW heat rejection (0.1228 gpm/ton is the US benchmark)
+  // Equivalently: at least 0.95 kW fan power per 100 kW heat rejection
+  const fanKW_per_100kW_rej = (fanKW_total / qRejKW) * 100;
+  const ashrae_ct_check = fanKW_per_100kW_rej <= 4.0 ? "PASS" : "REVIEW (fan power ratio > 4 kW/100 kW — check tower fill or sizing)";
+
+  // ── 10. Chiller tie-in data (if from chiller) ────────────────────────────
+  const chillerTR_input  = loadSource === 'chiller' ? Number(inputs.chiller_cap_tr) : null;
+  const chillerKW_input  = chillerTR_input !== null ? chillerTR_input * 3.517 : null;
+
+  return {
+    // Load
+    load_source:         loadSource,
+    q_rejection_kw:      parseFloat(qRejKW.toFixed(2)),
+    q_rejection_tr:      parseFloat(qRejTR.toFixed(2)),
+    chiller_tr_input:    chillerTR_input,
+    chiller_kw_input:    chillerKW_input !== null ? parseFloat(chillerKW_input.toFixed(2)) : null,
+    chiller_cop:         loadSource === 'chiller' ? chillerCOP : null,
+    // Design temps
+    ewt, lwt, wbt,
+    range_c:             parseFloat(range.toFixed(1)),
+    approach_c:          parseFloat(approach.toFixed(1)),
+    approach_check,
+    approach_min,
+    // Water flow
+    q_w_lps:             parseFloat(qW_lps.toFixed(2)),
+    q_w_m3hr:            parseFloat(qW_m3hr.toFixed(2)),
+    q_w_lpm:             parseFloat(qW_lpm.toFixed(1)),
+    q_w_GPM:             parseFloat(qW_GPM.toFixed(1)),
+    // Water losses
+    coc,
+    evap_lhr:            parseFloat(evap_lhr.toFixed(1)),
+    drift_lhr:           parseFloat(drift_lhr.toFixed(2)),
+    blowdown_lhr:        parseFloat(blowdown_lhr.toFixed(1)),
+    makeup_lhr:          parseFloat(makeup_lhr.toFixed(1)),
+    makeup_m3day:        parseFloat(makeup_m3day.toFixed(2)),
+    // Fan / air side
+    lg_ratio:            lgRatio,
+    fan_flow_CMH:        parseFloat(fanFlow_CMH.toFixed(0)),
+    fan_flow_CMH_cell:   parseFloat(fanFlow_CMH_cell.toFixed(0)),
+    fan_kw_total:        parseFloat(fanKW_total.toFixed(2)),
+    fan_kw_per_cell:     parseFloat(fanKW_per_cell.toFixed(2)),
+    fan_kw_std,
+    // Cells
+    n_cells:             nCells,
+    q_cell_kw:           parseFloat(qCell_kW.toFixed(2)),
+    q_cell_tr:           parseFloat(qCell_TR.toFixed(2)),
+    // Compliance
+    fan_kw_per_100kw:    parseFloat(fanKW_per_100kW_rej.toFixed(2)),
+    ashrae_ct_check,
+  };
+}
+
 // ─── Main Handler ─────────────────────────────────────────────────────────────
 
 // ─── AHU Sizing Calculation ───────────────────────────────────────────────────
@@ -2992,6 +3132,8 @@ serve(async (req) => {
       results = calcChillerAirCooled(inputs);
     } else if (calc_type === "AHU Sizing") {
       results = calcAHUSizing(inputs);
+    } else if (calc_type === "Cooling Tower Sizing") {
+      results = calcCoolingTowerSizing(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),
