@@ -2833,10 +2833,10 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Inlet Hardness</div>
           <div class="toggle-group" id="tg-ws-inlet" style="flex-wrap:wrap;margin-bottom:0.4rem;">
-            <button class="toggle-btn" onclick="toggle('tg-ws-inlet','80');document.getElementById('f-inlet-hardness').value=80">80</button>
-            <button class="toggle-btn" onclick="toggle('tg-ws-inlet','150');document.getElementById('f-inlet-hardness').value=150">150</button>
-            <button class="toggle-btn active" onclick="toggle('tg-ws-inlet','200');document.getElementById('f-inlet-hardness').value=200">200</button>
-            <button class="toggle-btn" onclick="toggle('tg-ws-inlet','300');document.getElementById('f-inlet-hardness').value=300">300</button>
+            <button class="toggle-btn" data-val="80" onclick="toggle('tg-ws-inlet','80');document.getElementById('f-inlet-hardness').value=80">80</button>
+            <button class="toggle-btn" data-val="150" onclick="toggle('tg-ws-inlet','150');document.getElementById('f-inlet-hardness').value=150">150</button>
+            <button class="toggle-btn active" data-val="200" onclick="toggle('tg-ws-inlet','200');document.getElementById('f-inlet-hardness').value=200">200</button>
+            <button class="toggle-btn" data-val="300" onclick="toggle('tg-ws-inlet','300');document.getElementById('f-inlet-hardness').value=300">300</button>
           </div>
           <div class="input-group">
             <input id="f-inlet-hardness" class="wh-input" type="number" value="200" min="1" />
@@ -2846,10 +2846,10 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Target Hardness</div>
           <div class="toggle-group" id="tg-ws-target" style="flex-wrap:wrap;margin-bottom:0.4rem;">
-            <button class="toggle-btn" onclick="toggle('tg-ws-target','0');document.getElementById('f-target-hardness').value=0">0 (RO)</button>
-            <button class="toggle-btn active" onclick="toggle('tg-ws-target','17');document.getElementById('f-target-hardness').value=17">17 (1 gpg)</button>
-            <button class="toggle-btn" onclick="toggle('tg-ws-target','50');document.getElementById('f-target-hardness').value=50">50</button>
-            <button class="toggle-btn" onclick="toggle('tg-ws-target','85');document.getElementById('f-target-hardness').value=85">85</button>
+            <button class="toggle-btn" data-val="0" onclick="toggle('tg-ws-target','0');document.getElementById('f-target-hardness').value=0">0 (RO)</button>
+            <button class="toggle-btn active" data-val="17" onclick="toggle('tg-ws-target','17');document.getElementById('f-target-hardness').value=17">17 (1 gpg)</button>
+            <button class="toggle-btn" data-val="50" onclick="toggle('tg-ws-target','50');document.getElementById('f-target-hardness').value=50">50</button>
+            <button class="toggle-btn" data-val="85" onclick="toggle('tg-ws-target','85');document.getElementById('f-target-hardness').value=85">85</button>
           </div>
           <div class="input-group">
             <input id="f-target-hardness" class="wh-input" type="number" value="17" min="0" />
@@ -2862,11 +2862,11 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Regeneration Interval</div>
           <div class="toggle-group" id="tg-ws-regen" style="flex-wrap:wrap;margin-bottom:0.4rem;">
-            <button class="toggle-btn" onclick="toggle('tg-ws-regen','1');document.getElementById('f-regen-interval').value=1">1 day</button>
-            <button class="toggle-btn" onclick="toggle('tg-ws-regen','2');document.getElementById('f-regen-interval').value=2">2 days</button>
-            <button class="toggle-btn active" onclick="toggle('tg-ws-regen','3');document.getElementById('f-regen-interval').value=3">3 days</button>
-            <button class="toggle-btn" onclick="toggle('tg-ws-regen','5');document.getElementById('f-regen-interval').value=5">5 days</button>
-            <button class="toggle-btn" onclick="toggle('tg-ws-regen','7');document.getElementById('f-regen-interval').value=7">7 days</button>
+            <button class="toggle-btn" data-val="1" onclick="toggle('tg-ws-regen','1');document.getElementById('f-regen-interval').value=1">1 day</button>
+            <button class="toggle-btn" data-val="2" onclick="toggle('tg-ws-regen','2');document.getElementById('f-regen-interval').value=2">2 days</button>
+            <button class="toggle-btn active" data-val="3" onclick="toggle('tg-ws-regen','3');document.getElementById('f-regen-interval').value=3">3 days</button>
+            <button class="toggle-btn" data-val="5" onclick="toggle('tg-ws-regen','5');document.getElementById('f-regen-interval').value=5">5 days</button>
+            <button class="toggle-btn" data-val="7" onclick="toggle('tg-ws-regen','7');document.getElementById('f-regen-interval').value=7">7 days</button>
           </div>
           <div class="input-group">
             <input id="f-regen-interval" class="wh-input" type="number" value="3" min="1" max="7" />
@@ -2876,10 +2876,10 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Salt Dosage</div>
           <div class="toggle-group" id="tg-ws-salt" style="flex-wrap:wrap;margin-bottom:0.4rem;">
-            <button class="toggle-btn" onclick="toggle('tg-ws-salt','40');document.getElementById('f-salt-dose').value=40">40 g/L</button>
-            <button class="toggle-btn" onclick="toggle('tg-ws-salt','60');document.getElementById('f-salt-dose').value=60">60 g/L</button>
-            <button class="toggle-btn active" onclick="toggle('tg-ws-salt','80');document.getElementById('f-salt-dose').value=80">80 g/L</button>
-            <button class="toggle-btn" onclick="toggle('tg-ws-salt','120');document.getElementById('f-salt-dose').value=120">120 g/L</button>
+            <button class="toggle-btn" data-val="40" onclick="toggle('tg-ws-salt','40');document.getElementById('f-salt-dose').value=40">40 g/L</button>
+            <button class="toggle-btn" data-val="60" onclick="toggle('tg-ws-salt','60');document.getElementById('f-salt-dose').value=60">60 g/L</button>
+            <button class="toggle-btn active" data-val="80" onclick="toggle('tg-ws-salt','80');document.getElementById('f-salt-dose').value=80">80 g/L</button>
+            <button class="toggle-btn" data-val="120" onclick="toggle('tg-ws-salt','120');document.getElementById('f-salt-dose').value=120">120 g/L</button>
           </div>
           <div class="input-group">
             <input id="f-salt-dose" class="wh-input" type="number" value="80" min="40" max="150" />
@@ -2891,9 +2891,9 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Number of Units</div>
         <div class="toggle-group" id="tg-ws-units">
-          <button class="toggle-btn active" onclick="toggle('tg-ws-units','1')">1 — Simplex</button>
-          <button class="toggle-btn" onclick="toggle('tg-ws-units','2')">2 — Duplex (continuous)</button>
-          <button class="toggle-btn" onclick="toggle('tg-ws-units','3')">3 — Lead/Lag/Standby</button>
+          <button class="toggle-btn active" data-val="1" onclick="toggle('tg-ws-units','1')">1 — Simplex</button>
+          <button class="toggle-btn" data-val="2" onclick="toggle('tg-ws-units','2')">2 — Duplex (continuous)</button>
+          <button class="toggle-btn" data-val="3" onclick="toggle('tg-ws-units','3')">3 — Lead/Lag/Standby</button>
         </div>
       </div>
 
