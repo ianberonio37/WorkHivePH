@@ -1671,6 +1671,16 @@ Respond in JSON format only:
       const runKVA   = rec.running_kva ?? 0;
       const ctrl = Number(startKVA) > Number(runKVA) ? `Motor starting surge (${startKVA} kVA, ${start}) is the controlling factor — not running load.` : `Running demand (${runKVA} kVA) is the controlling factor.`;
       recommendations = `Provide a ${sel} kVA (${selKW} kW) diesel generator set rated for ${app} duty per ISO 8528-1. ${ctrl} Operating loading at running demand: ${load}% — within the 75-80% recommended loading range for diesel generators. Design fuel tank for minimum 8-hour full-load operation: ${tank} liters. Connect to an Automatic Transfer Switch (ATS) per PEC Article 7 — transfer time must not exceed 10 seconds for emergency loads. Submit generator installation plans to LGU / DPWH for building permit endorsement. A PRC-licensed Electrical Engineer must sign and seal this document.`;
+    } else if (calcType === "Power Factor Correction") {
+      const kvar    = rec.selected_kvar        ?? '';
+      const pfT     = rec.pf_target            ?? '';
+      const curRed  = rec.current_reduction    ?? '';
+      const curPct  = rec.current_reduction_pct ?? '';
+      const kvaRed  = rec.kva_reduction        ?? '';
+      const surcharge = rec.meralco_penalty
+        ? ` Installation eliminates the Meralco PF surcharge currently incurred — correction to PF ${pfT} brings the system above the 0.85 threshold.`
+        : '';
+      recommendations = `Install a ${kvar} kVAR capacitor bank (IEEE 18 / IEC 60831-1) at the main distribution board. This reduces feeder current by ${curRed} A (${curPct}%) and kVA demand by ${kvaRed} kVA.${surcharge} Protect with a dedicated MCCB sized at 135% of capacitor rated current per PEC 2017 Article 4.60.14. Include factory-installed discharge resistors (terminal voltage < 50V within 5 minutes per IEEE 18). If VFDs or other harmonic loads are present, specify a 7% series detuning reactor. Verify achieved PF with a power analyzer under full load before project closeout. A PRC-licensed Electrical Engineer must sign and seal this document.`;
     } else if (calcType === "Bolt Torque & Preload") {
       const torque = rec.torque_Nm ?? '';
       const size   = (inputs.bolt_size as string) || '';
@@ -4176,10 +4186,13 @@ function calcPFC(inputs: Record<string, unknown>): Record<string, unknown> {
   const surchargePct   = meralcoPenalty ? round2((0.85 - pfExisting) / 0.85 * 100) : 0;
 
   // Optional: monthly savings estimate
+  // Meralco PF surcharge applies to the Distribution Charge only (~18% of total rate)
+  const MERALCO_DIST_CHARGE_FRACTION = 0.18;
   let monthlySavingsPhp = 0;
   if (meralcoPenalty && monthlyKwh > 0 && meralcoRate > 0) {
-    const monthlyBill = monthlyKwh * meralcoRate;
-    monthlySavingsPhp = round2(monthlyBill * (surchargePct / 100));
+    const distChargePerKwh = meralcoRate * MERALCO_DIST_CHARGE_FRACTION;
+    const monthlyDistCharge = monthlyKwh * distChargePerKwh;
+    monthlySavingsPhp = round2(monthlyDistCharge * (surchargePct / 100));
   }
 
   return {

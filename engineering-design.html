@@ -8835,8 +8835,7 @@ function renderPFCReport(inputs, results, narrative) {
   if (!panel) return;
   const now     = new Date();
   const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
-  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
-  const ef      = v => `<span contenteditable="true" class="editable-field">${escHtml(String(v ?? ''))}</span>`;
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
 
   const kw              = results.kw              ?? inputs.load_kw   ?? '';
   const pfExisting      = results.pf_existing      ?? inputs.pf_existing ?? '';
@@ -8859,7 +8858,7 @@ function renderPFCReport(inputs, results, narrative) {
   const meralcoRate     = inputs.meralco_rate       || '';
 
   const savingsLine = (monthlyKwh && meralcoRate && meralcoPenalty)
-    ? `<tr><td>Estimated Monthly PF Surcharge Savings</td><td class="num">${e(results.monthly_savings_php ?? '—')}</td><td>PHP/month</td></tr>`
+    ? `<tr><td>Estimated Monthly PF Surcharge Savings <span style="font-size:0.75rem;color:#888;">(est. on distribution charge ~18% of bill)</span></td><td class="num">${e(results.monthly_savings_php ?? '—')}</td><td>PHP/month</td></tr>`
     : '';
 
   const reportHTML = `
@@ -8867,10 +8866,10 @@ function renderPFCReport(inputs, results, narrative) {
     <div class="report-header">
       <div>
         <h1 class="report-title">POWER FACTOR CORRECTION — DESIGN CALCULATION</h1>
-        <div class="report-meta">Project: ${ef(projName)}</div>
-        <div class="report-meta">Prepared by: ${ef(WORKER_NAME || '')}</div>
-        <div class="report-meta">Date: ${ef(dateStr)}</div>
-        <div class="report-meta">Doc No.: ${ef('ELEC-PFC-' + now.toISOString().slice(0,10).replace(/-/g,''))}</div>
+        <div class="report-meta">Project: ${e(projName)}</div>
+        <div class="report-meta">Prepared by: ${e(WORKER_NAME || '')}</div>
+        <div class="report-meta">Date: ${e(dateStr)}</div>
+        <div class="report-meta">Doc No.: ${e('ELEC-PFC-' + now.toISOString().slice(0,10).replace(/-/g,''))}</div>
       </div>
       <div class="report-logo-block">
         <div style="font-size:0.75rem;font-weight:700;color:#1a56db;">IEEE 18 / IEEE 1036</div>
@@ -8925,11 +8924,11 @@ function renderPFCReport(inputs, results, narrative) {
     <table>
       <tr><td style="width:45%;">Meralco PF Threshold</td><td>0.85 monthly average PF</td></tr>
       <tr><td>Existing PF vs. Threshold</td><td>${meralcoPenalty
-        ? `<strong style="color:#c00;">${pfExisting} &lt; 0.85 — PF SURCHARGE APPLIES</strong>`
-        : `${pfExisting} ≥ 0.85 — No surcharge`}</td></tr>
-      <tr><td>Surcharge Rate (est.)</td><td>${meralcoPenalty ? `${e(surchargePct)}% of monthly bill` : 'N/A'}</td></tr>
-      <tr><td>Status After Correction to PF ${pfTarget}</td><td>${meralcoPenalty
-        ? `<strong style="color:#0a0;">Surcharge ELIMINATED — PF ${pfTarget} ≥ 0.85</strong>`
+        ? `<strong style="color:#c00;">${e(pfExisting)} &lt; 0.85 — PF SURCHARGE APPLIES</strong>`
+        : `${e(pfExisting)} ≥ 0.85 — No surcharge`}</td></tr>
+      <tr><td>Surcharge Rate (est.)</td><td>${meralcoPenalty ? `${e(surchargePct)}% of distribution charge (~18% of total bill)` : 'N/A'}</td></tr>
+      <tr><td>Status After Correction to PF ${e(pfTarget)}</td><td>${meralcoPenalty
+        ? `<strong style="color:#0a0;">Surcharge ELIMINATED — PF ${e(pfTarget)} ≥ 0.85</strong>`
         : 'N/A — no surcharge at existing PF'}</td></tr>
       ${savingsLine}
     </table>
@@ -8977,25 +8976,25 @@ function renderPFCReport(inputs, results, narrative) {
     <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
-          <div style="font-size:0.78rem;font-weight:700;">${ef(WORKER_NAME || '')}</div>
-          <div style="font-size:0.74rem;color:#555;">${ef('Electrical Engineer')}</div>
-          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${ef('_____________')}</div>
+          <div style="font-size:0.78rem;font-weight:700;">${e(WORKER_NAME || '')}</div>
+          <div style="font-size:0.74rem;color:#555;">${e('Electrical Engineer')}</div>
+          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
           <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
         </div>
       </div>
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
-          <div style="font-size:0.78rem;font-weight:700;">${ef('_________________')}</div>
-          <div style="font-size:0.74rem;color:#555;">${ef('Electrical Engineer')}</div>
-          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${ef('_____________')}</div>
+          <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
+          <div style="font-size:0.74rem;color:#555;">${e('Electrical Engineer')}</div>
+          <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
           <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
         </div>
       </div>
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
-          <div style="font-size:0.78rem;font-weight:700;">${ef('_________________')}</div>
-          <div style="font-size:0.74rem;color:#555;">${ef('Owner / Client Representative')}</div>
-          <div style="font-size:0.74rem;color:#555;">Date: ${ef(new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}))}</div>
+          <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
+          <div style="font-size:0.74rem;color:#555;">${e('Owner / Client Representative')}</div>
+          <div style="font-size:0.74rem;color:#555;">Date: ${e(new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}))}</div>
           <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
