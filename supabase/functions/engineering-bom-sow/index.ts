@@ -1523,6 +1523,63 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Electrical: Generator Sizing BOM + SOW Agent ────────────────────────────
+
+async function generatorSizingBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project        = inputs.project_name    || "Generator Project";
+  const application    = results.application    || inputs.application    || "Standby (ESP)";
+  const phaseConfig    = results.phase_config   || inputs.phase_config   || "3-Phase";
+  const runningKVA     = results.running_kva    ?? "N/A";
+  const runningKW      = results.running_kw     ?? "N/A";
+  const designKVA      = results.design_kva     ?? "N/A";
+  const selectedKVA    = results.selected_kva   ?? "N/A";
+  const selectedKW     = results.selected_kw    ?? "N/A";
+  const loadingPct     = results.loading_pct    ?? "N/A";
+  const safetyFactor   = results.safety_factor  ?? 1.25;
+  const motorHP        = results.motor_hp       ?? 0;
+  const startMethod    = results.start_method   || "DOL";
+  const startingKVA    = results.starting_kva   ?? 0;
+  const overallPF      = results.overall_pf     ?? 0.85;
+  const fuel100LHr     = results.fuel_100pct_lhr ?? "N/A";
+  const fuel75LHr      = results.fuel_75pct_lhr  ?? "N/A";
+  const tank8hrL       = results.tank_8hr_litres ?? "N/A";
+
+  const prompt = `You are a Philippine electrical engineering expert (PEC 2017, ISO 8528-1, NFPA 110). Generate a professional BOM and SOW for a GENERATOR SIZING and installation project.
+
+PROJECT: ${project}
+APPLICATION: ${application}
+PHASE CONFIGURATION: ${phaseConfig}
+OVERALL POWER FACTOR: ${overallPF}
+RUNNING DEMAND: ${runningKW} kW / ${runningKVA} kVA
+LARGEST MOTOR: ${motorHP} HP — Start Method: ${startMethod} — Starting kVA surge: ${startingKVA} kVA
+DESIGN kVA (with ${safetyFactor}× safety factor): ${designKVA} kVA
+SELECTED GENSET: ${selectedKVA} kVA / ${selectedKW} kW (at 0.8 PF)
+SYSTEM LOADING: ${loadingPct}% of rated capacity
+FUEL CONSUMPTION: ${fuel100LHr} L/hr at 100% load; ${fuel75LHr} L/hr at 75% load
+MINIMUM FUEL TANK (8-hr NFPA 110 runtime): ${tank8hrL} L
+STANDARDS: ISO 8528-1 (genset ratings), PEC 2017 Article 7 (standby systems), NFPA 110 (emergency/standby power), IEC 60947 (switchgear), Philippine DOLE OSH regulations
+
+Generate a JSON object with:
+1. "bom_items": array of 18 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: Diesel generator set (${selectedKVA} kVA / ${selectedKW} kW at 0.8 PF — ${phaseConfig}, 415V/240V, 60 Hz, ISO 8528-1 rated for ${application} service, EPA/Euro-3 compliant diesel engine, synchronous alternator, IP23 weather-protected enclosure), automatic voltage regulator (AVR) — integrated with alternator, ±1% voltage regulation, automatic transfer switch / ATS panel (rated for ${selectedKVA} kVA — 4-pole, motorized, with open/closed/neutral positions, auto/manual mode, set delay timers, PEC Art. 7 compliant), main circuit breaker for genset output (MCCB, rated ≥ 125% of ${selectedKW} kW FLA, interrupt capacity ≥ 25 kA), genset control panel / annunciator (digital controller — auto start/stop, fault alarm outputs: low oil pressure, high coolant temp, overcrank, overspeed, battery failure), battery set for engine starting (maintenance-free lead-acid or VRLA, 12V/24V per manufacturer spec, sized for ≥ 10 cold cranking starts), battery charger (trickle/float type, 10A minimum, with charge status indicator), diesel day tank / base tank (${tank8hrL}L minimum capacity — 8-hr runtime per NFPA 110, UL-listed steel tank with level gauge, vent, drain valve), fuel supply piping (black steel Schedule 40, 25–50 mm diameter from bulk tank to day tank to genset, with isolation valves and flexible connector), flexible exhaust connection and muffler (residential-grade or critical-grade muffler per ambient noise requirements, stainless steel flex bellows, weather-protected exhaust termination ≥ 3 m above grade), exhaust pipe and stack (75–150 mm black steel Schedule 40, insulated where passing through occupied spaces), anti-vibration mounts / base isolation pads (4-point neoprene isolators rated for genset weight, ≤ 5 mm deflection), generator room ventilation louvers (supply and exhaust, motorized dampers, sized for 100% combustion air plus cooling air), earthing / grounding conductor (copper, 16–25 mm² to earth electrode, bonded to genset frame and ATS enclosure, PEC Art. 1.50), output power cable (THHN/THWN copper, sized for ${selectedKW} kW load at 415V — 125% continuous load factor, in EMT conduit), cable tray or conduit system (EMT/IMC, properly sized, from genset to ATS to main distribution panel), remote annunciator panel (if genset room is unmanned — fault alarms, run hours, battery status — mounted at building entrance or security desk), genset commissioning and load bank test report (factory test certificate, site acceptance test at 100% load for minimum 2 hours)
+2. "sow_sections": array of 8 sections (each: section_no, title, content)
+   Cover: Scope of Works, Design Basis (ISO 8528-1 ${application} rating, ${phaseConfig} 415V/240V 60 Hz, running demand ${runningKW} kW / ${runningKVA} kVA, design kVA ${designKVA} kVA with ${safetyFactor}× safety factor, selected ${selectedKVA} kVA genset, system loading ${loadingPct}%, starting surge ${startingKVA} kVA via ${startMethod}), Generator Set Installation (concrete inertia base or structural steel skid, anti-vibration mounts, clearances per manufacturer — minimum 1 m all sides, exhaust routing, weatherproofing for outdoor-rated enclosure), Automatic Transfer Switch (ATS) Installation (4-pole ATS wiring to utility and genset bus, normal-to-emergency transfer time ≤ 10 sec per NFPA 110 for Level 1 systems, retransfer delay, test mode, bypass provision), Fuel System (day tank installation at ${tank8hrL}L minimum, bulk fuel storage if provided, fill point, vent routing, overflow containment — EPA/DENR spill containment requirements, fuel piping isolation valves), Ventilation and Exhaust System (supply air louvers for combustion + cooling — minimum 0.1 m²/100 kW genset rating, critical-grade muffler installation, exhaust stack height and clearance from openings per DOLE OSH, noise assessment if within 30 m of occupied building), Earthing and Bonding (genset frame, ATS enclosure, neutral bonding per PEC Art. 7 — single neutral bonding point, resistance ≤ 5 Ω to earth electrode, testing per PEC), Testing and Commissioning (factory test certificate review, no-load run 30 min, block load test at 25%/50%/75%/100% rated load — each step 15 min, ATS transfer and retransfer functional test, battery discharge and recharge test, fuel consumption verification, all fault alarm simulations, vibration and noise level measurement, test report sign-off by licensed PEE), Regulatory Compliance (PEC 2017 Article 7, NFPA 110 Level 1/Level 2 compliance, DOLE OSH mechanical and electrical installation permit, LGU/DENR permit for fuel storage if >200 L, as-built drawings, O&M manual, warranty registration)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Fire Protection: Fire Sprinkler Hydraulic BOM + SOW Agent ───────────────
 
 async function fireSprinklerBomSowAgent(
@@ -2678,6 +2735,8 @@ serve(async (req) => {
       result = await shortCircuitBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Lighting Design") {
       result = await lightingDesignBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Electrical" && calc_type === "Generator Sizing") {
+      result = await generatorSizingBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Fire Protection" && calc_type === "Fire Sprinkler Hydraulic") {
       result = await fireSprinklerBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Fire Protection" && calc_type === "Fire Pump Sizing") {

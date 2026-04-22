@@ -8120,6 +8120,7 @@ function renderPumpReport(inputs, results, narrative) {
 // ─── Generator Sizing Report ─────────────────────────────────────────────────
 function renderGeneratorReport(inputs, results, narrative) {
   const ef = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const e = escHtml;
   const r = results;
   const n = narrative || {};
   const dateStr = new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'});
