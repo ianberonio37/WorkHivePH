@@ -12169,7 +12169,7 @@ function renderStormDrainReport(inputs, r, narrative) {
         <tbody>
           <tr style="background:#f8f9fa;">
             <td style="padding:0.35rem 0.5rem;font-weight:600;width:40%;">Catchment Area (A)</td>
-            <td style="padding:0.35rem 0.5rem;">${e(r.total_area_ha)} ha &nbsp;(${e(r.total_area_m2)} m²)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.total_area_ha)} ha &nbsp;(${Math.round(r.total_area_ha * 10000)} m²)</td>
           </tr>
           <tr>
             <td style="padding:0.35rem 0.5rem;font-weight:600;">Composite Runoff Coefficient (C)</td>
@@ -12196,7 +12196,7 @@ function renderStormDrainReport(inputs, r, narrative) {
       <div class="narrative-block" style="background:#f8f9fa;border-radius:0.5rem;padding:0.75rem 1rem;font-size:0.8rem;margin-bottom:1rem;font-family:monospace;">
         Q = C × i × A / 360<br>
         Q = ${e(r.composite_c)} × ${e(intensity)} mm/hr × ${e(r.total_area_ha)} ha / 360<br>
-        <strong>Q = ${e(r.design_flow_m3s)} m³/s &nbsp;(${e(r.design_flow_ls)} L/s)</strong>
+        <strong>Q = ${e(r.design_flow_m3s)} m³/s &nbsp;(${e(r.design_flow_lps)} L/s)</strong>
       </div>
 
       <!-- PIPE SIZING -->
@@ -12217,23 +12217,23 @@ function renderStormDrainReport(inputs, r, narrative) {
           </tr>
           <tr style="background:#f8f9fa;">
             <td style="padding:0.35rem 0.5rem;font-weight:600;">Pipe Slope (S)</td>
-            <td style="padding:0.35rem 0.5rem;">${e(slope)}% &nbsp;(${e(r.slope_mm)} m/m)</td>
+            <td style="padding:0.35rem 0.5rem;">${e(slope)}% &nbsp;(${Math.round(slope / 100 * 1000) / 1000} m/m)</td>
             <td style="padding:0.35rem 0.5rem;color:#555;">—</td>
           </tr>
           <tr>
             <td style="padding:0.35rem 0.5rem;font-weight:600;">Calculated Min. Diameter</td>
-            <td style="padding:0.35rem 0.5rem;">${e(r.d_calc_mm)} mm</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.d_required_mm)} mm</td>
             <td style="padding:0.35rem 0.5rem;color:#555;">D = [Q×n / (0.3117×S⁰·⁵)]^(3/8)</td>
           </tr>
           <tr style="background:#f8f9fa;">
             <td style="padding:0.35rem 0.5rem;font-weight:600;font-size:0.9rem;">Recommended Pipe Diameter</td>
-            <td style="padding:0.35rem 0.5rem;font-weight:800;font-size:1rem;color:#162032;">${e(r.recommended_dia_mm)} mm</td>
-            <td style="padding:0.35rem 0.5rem;color:#555;">Next standard size ≥ ${e(r.d_calc_mm)} mm; min 300 mm (DPWH)</td>
+            <td style="padding:0.35rem 0.5rem;font-weight:800;font-size:1rem;color:#162032;">${e(r.d_selected_mm)} mm</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">Next standard size ≥ ${e(r.d_required_mm)} mm; min 300 mm (DPWH)</td>
           </tr>
           <tr>
             <td style="padding:0.35rem 0.5rem;font-weight:600;">Pipe Capacity (full, Q_cap)</td>
-            <td style="padding:0.35rem 0.5rem;">${e(r.q_cap_m3s)} m³/s &nbsp;(${e(r.q_cap_ls)} L/s)</td>
-            <td style="padding:0.35rem 0.5rem;color:#555;">${pass(parseFloat(r.q_cap_m3s) >= parseFloat(r.design_flow_m3s))}</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.q_capacity_m3s)} m³/s &nbsp;(${e(r.q_capacity_lps)} L/s)</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">${pass(parseFloat(r.q_capacity_m3s) >= parseFloat(r.design_flow_m3s))}</td>
           </tr>
           <tr style="background:#f8f9fa;">
             <td style="padding:0.35rem 0.5rem;font-weight:600;">Capacity Ratio (Q/Q_cap)</td>
@@ -12257,19 +12257,19 @@ function renderStormDrainReport(inputs, r, narrative) {
         <tbody>
           <tr>
             <td style="padding:0.35rem 0.5rem;font-weight:600;">Flow Velocity (V at full)</td>
-            <td style="padding:0.35rem 0.5rem;font-weight:700;">${e(r.velocity_ms)} m/s</td>
+            <td style="padding:0.35rem 0.5rem;font-weight:700;">${e(r.full_pipe_vel_ms)} m/s</td>
             <td style="padding:0.35rem 0.5rem;">0.6 – ${e(r.max_velocity_ms)} m/s</td>
             <td style="padding:0.35rem 0.5rem;">${velStatus}</td>
           </tr>
           <tr style="background:#f8f9fa;">
             <td style="padding:0.35rem 0.5rem;font-weight:600;">Min. Velocity (self-cleaning)</td>
-            <td style="padding:0.35rem 0.5rem;">${e(r.velocity_ms)} m/s</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.full_pipe_vel_ms)} m/s</td>
             <td style="padding:0.35rem 0.5rem;">≥ 0.6 m/s</td>
             <td style="padding:0.35rem 0.5rem;">${pass(parseFloat(r.velocity_ms) >= 0.6)}</td>
           </tr>
           <tr>
             <td style="padding:0.35rem 0.5rem;font-weight:600;">Max. Velocity (erosion limit)</td>
-            <td style="padding:0.35rem 0.5rem;">${e(r.velocity_ms)} m/s</td>
+            <td style="padding:0.35rem 0.5rem;">${e(r.full_pipe_vel_ms)} m/s</td>
             <td style="padding:0.35rem 0.5rem;">≤ ${e(r.max_velocity_ms)} m/s</td>
             <td style="padding:0.35rem 0.5rem;">${pass(parseFloat(r.velocity_ms) <= parseFloat(r.max_velocity_ms))}</td>
           </tr>
@@ -12281,10 +12281,10 @@ function renderStormDrainReport(inputs, r, narrative) {
         <div style="font-size:0.85rem;font-weight:700;color:#162032;margin-bottom:0.6rem;border-bottom:1px solid #c7d9e8;padding-bottom:0.3rem;">Design Summary — DPWH Compliance</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem 2rem;font-size:0.8rem;">
           <div><span style="font-weight:600;">Catchment Area:</span> ${e(r.total_area_ha)} ha (C = ${e(r.composite_c)})</div>
-          <div><span style="font-weight:600;">Design Flow:</span> ${e(r.design_flow_m3s)} m³/s (${e(r.design_flow_ls)} L/s)</div>
-          <div><span style="font-weight:600;">Pipe Size:</span> ${e(r.recommended_dia_mm)} mm ${e(matLabel)}, S = ${e(slope)}%</div>
-          <div><span style="font-weight:600;">Flow Velocity:</span> ${e(r.velocity_ms)} m/s</div>
-          <div><span style="font-weight:600;">Pipe Capacity:</span> ${e(r.q_cap_ls)} L/s (${e(r.flow_ratio_pct)}% utilization)</div>
+          <div><span style="font-weight:600;">Design Flow:</span> ${e(r.design_flow_m3s)} m³/s (${e(r.design_flow_lps)} L/s)</div>
+          <div><span style="font-weight:600;">Pipe Size:</span> ${e(r.d_selected_mm)} mm ${e(matLabel)}, S = ${e(slope)}%</div>
+          <div><span style="font-weight:600;">Flow Velocity:</span> ${e(r.full_pipe_vel_ms)} m/s</div>
+          <div><span style="font-weight:600;">Pipe Capacity:</span> ${e(r.q_capacity_lps)} L/s (${e(r.flow_ratio_pct)}% utilization)</div>
           <div><span style="font-weight:600;">Velocity Check:</span> ${velStatus}</div>
         </div>
       </div>
@@ -12292,9 +12292,9 @@ function renderStormDrainReport(inputs, r, narrative) {
       <!-- NARRATIVE -->
       <h2 style="font-size:0.88rem;font-weight:700;color:#1a1a1a;border-bottom:2px solid #162032;padding-bottom:0.3rem;margin-bottom:0.6rem;">Engineering Narrative</h2>
       <div class="narrative-block" style="font-size:0.8rem;color:#333;line-height:1.7;margin-bottom:1.2rem;">
-        <p><strong>Objective:</strong> <span class="editable-field" contenteditable="true">${e(narrative?.objective || `Size a ${e(r.recommended_dia_mm)} mm ${matLabel} storm drain to convey the ${rp}-year design storm runoff of ${e(r.design_flow_ls)} L/s from a ${e(r.total_area_ha)} ha catchment per DPWH Drainage Design Guidelines.`)}</span></p>
+        <p><strong>Objective:</strong> <span class="editable-field" contenteditable="true">${e(narrative?.objective || `Size a ${e(r.d_selected_mm)} mm ${matLabel} storm drain to convey the ${rp}-year design storm runoff of ${e(r.design_flow_lps)} L/s from a ${e(r.total_area_ha)} ha catchment per DPWH Drainage Design Guidelines.`)}</span></p>
         <p><strong>Assumptions:</strong> <span class="editable-field" contenteditable="true">${e(narrative?.assumptions || `Rational Method (Q = CiA/360). Composite runoff coefficient C = ${e(r.composite_c)}. Rainfall intensity ${e(intensity)} mm/hr at ${rp}-yr return period, tc = ${tc} min (PAGASA Metro Manila IDF). Manning's n = ${e(inputs.manning_n)} for ${matLabel}. Pipe designed to flow full at design flow.`)}</span></p>
-        <p><strong>Recommendations:</strong> <span class="editable-field" contenteditable="true">${e(narrative?.recommendations || `1. Use ${e(r.recommended_dia_mm)} mm ${matLabel} storm drain at ${slope}% slope. 2. Verify actual PAGASA IDF data for project municipality. 3. Provide catch basins at maximum 30 m spacing. 4. Check outfall channel capacity — pipe capacity is only valid if the outfall can accept the full design flow. 5. DPWH minimum manhole spacing: 60 m. 6. Provide cleanout access at all bends and direction changes.`)}</span></p>
+        <p><strong>Recommendations:</strong> <span class="editable-field" contenteditable="true">${e(narrative?.recommendations || `1. Use ${e(r.d_selected_mm)} mm ${matLabel} storm drain at ${slope}% slope. 2. Verify actual PAGASA IDF data for project municipality. 3. Provide catch basins at maximum 30 m spacing. 4. Check outfall channel capacity — pipe capacity is only valid if the outfall can accept the full design flow. 5. DPWH minimum manhole spacing: 60 m. 6. Provide cleanout access at all bends and direction changes.`)}</span></p>
       </div>
 
       <!-- STANDARDS -->
