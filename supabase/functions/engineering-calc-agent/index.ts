@@ -2869,7 +2869,7 @@ function calcCoolingTowerSizing(inputs: Record<string, number | string>) {
     fan_flow_CMH_cell:   parseFloat(fanFlow_CMH_cell.toFixed(0)),
     fan_kw_total:        parseFloat(fanKW_total.toFixed(2)),
     fan_kw_per_cell:     parseFloat(fanKW_per_cell.toFixed(2)),
-    fan_kw_std,
+    fan_kw_std:          fanKW_std,
     // Cells
     n_cells:             nCells,
     q_cell_kw:           parseFloat(qCell_kW.toFixed(2)),
