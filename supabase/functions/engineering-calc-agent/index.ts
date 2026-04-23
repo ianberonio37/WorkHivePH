@@ -1881,7 +1881,7 @@ function calcLightningProtection(inputs: Record<string, number | string>): Recor
 
   // Philippine Ng lookup (flashes/km²/yr, approximate PAGASA data)
   const NG_TABLE: Record<string, number> = {
-    "Metro Manila / NCR":      10,
+    "Metro Manila":            10,
     "Baguio / Cordillera":     12,
     "Ilocos Region":            8,
     "Cagayan Valley":          12,
@@ -1922,7 +1922,7 @@ function calcLightningProtection(inputs: Record<string, number | string>): Recor
     "Healthcare": 2,  "Critical Infrastructure": 2, "Explosive / Flammable": 5,
   };
   const cd = Cd[struct_type] ?? 1;
-  const Nt = round4(1e-5 / cd);
+  const Nt = parseFloat((1e-5 / cd).toFixed(8));
 
   const risk_ratio = round2(Nd / Nt);
   const risk_check = risk_ratio >= 2 ? "LPS REQUIRED" : risk_ratio >= 0.5 ? "LPS RECOMMENDED" : "LPS NOT REQUIRED (recommended for high-value structures)";
@@ -1960,24 +1960,25 @@ function calcLightningProtection(inputs: Record<string, number | string>): Recor
 
   return {
     // Risk assessment
-    Ad_m2:           Math.round(Ad),
-    Ng_flash_km2yr:  Ng,
-    Nd:              Nd,
-    Nt:              Nt,
-    risk_ratio:      risk_ratio,
-    risk_check:      risk_check,
+    Ad_m2:            Math.round(Ad),
+    ng_fl_km2_yr:     Ng,
+    Nd_strikes_yr:    Nd,
+    Cd:               cd,
+    Nt:               Nt,
+    risk_ratio:       risk_ratio,
+    risk_check:       risk_check,
 
     // LPL parameters
-    lpl_label:           lpl,
-    efficiency_pct:      lplP.eff,
-    min_peak_current_kA: lplP.I_min,
+    lpl_label:            lpl,
+    efficiency_pct:       lplP.eff,
+    I_min_kA:             lplP.I_min,
 
     // Air termination
-    air_term_method:     air_method,
-    rolling_sphere_R_m:  lplP.R,
-    mesh_size_m:         lplP.mesh,
-    prot_angle_deg:      prot_angle,
-    n_air_terminals_est: n_at,
+    air_term_method:      air_method,
+    rolling_sphere_R_m:   lplP.R,
+    mesh_size_m:          lplP.mesh,
+    protection_angle_deg: prot_angle,
+    n_air_terminals_est:  n_at,
 
     // Down conductors
     perimeter_m:      Math.round(perimeter),
