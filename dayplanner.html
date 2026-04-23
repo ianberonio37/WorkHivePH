@@ -269,12 +269,13 @@
     <div style="display:flex;flex-direction:column;gap:0.875rem">
       <div>
         <label style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Title *</label>
-        <input class="wh-input" id="m-title" placeholder="What needs to be done?" />
+        <input class="wh-input" id="m-title" placeholder="What needs to be done?" oninput="document.getElementById('m-required-error').style.display='none'" />
+        <div id="m-required-error" style="display:none;color:#f87171;font-size:0.7rem;margin-top:0.25rem">Title and date are required.</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div>
           <label style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Date *</label>
-          <input class="wh-input" id="m-date" type="date" />
+          <input class="wh-input" id="m-date" type="date" oninput="document.getElementById('m-required-error').style.display='none'" />
         </div>
         <div>
           <label style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Start Time</label>
@@ -506,7 +507,7 @@ async function syncItemToSupabase(item) {
 
 async function deleteItemFromSupabase(id) {
   try {
-    const { error } = await db.from('schedule_items').delete().eq('id', id);
+    const { error } = await db.from('schedule_items').delete().eq('id', id).eq('worker_name', WORKER_NAME);
     if (error) console.warn('Schedule delete failed:', error.message);
   } catch(e) {
     console.warn('Schedule delete error:', e);
@@ -1207,7 +1208,7 @@ function closeModal() {
 function saveScheduleItem() {
   const title = document.getElementById('m-title').value.trim();
   const date = document.getElementById('m-date').value;
-  if (!title || !date) { alert('Title and date are required.'); return; }
+  if (!title || !date) { document.getElementById('m-required-error').style.display = 'block'; (title ? document.getElementById('m-date') : document.getElementById('m-title')).focus(); return; }
   const startVal = document.getElementById('m-start').value;
   const endVal = document.getElementById('m-end').value;
   const endErr = document.getElementById('m-end-error');
@@ -1242,7 +1243,7 @@ function saveScheduleItem() {
       .update({ status: 'Closed' })
       .eq('id', payload.logbookRef)
       .then(({ error }) => {
-        if (error) console.warn('Logbook sync failed:', error.message);
+        if (error) { console.warn('Logbook sync failed:', error.message); alert('Item saved, but failed to close the linked logbook entry. Please close it manually.'); }
         else {
           // Remove from open items sidebar since it's now closed
           logbookItems = logbookItems.filter(i => i.id != payload.logbookRef);
