@@ -4383,6 +4383,7 @@ function renderInputForm(calcType) {
     _gtRowId = 0;
     addGTFixtureRow('Single Kitchen Sink', 7.6, 2);
     setStep(4);
+    document.getElementById('calc-btn').disabled = false;
     applyGTFacDefaults('Restaurant / Commercial Kitchen');
   }
 
@@ -11546,7 +11547,9 @@ function renderLPSReport(inputs, results, narrative) {
 
     <div class="report-section">
       <div class="report-section-title">8. Recommendations and Compliance Notes</div>
-      <div class="editable-field" contenteditable="true" style="line-height:1.75;color:#2c2c2c;">${escHtml(narrative || '')}</div>
+      ${narrative?.objective ? `<div style="font-size:0.72rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.3rem;">Objective</div><div class="editable-field" contenteditable="true" style="line-height:1.75;color:#2c2c2c;margin-bottom:0.75rem;">${escHtml(narrative.objective)}</div>` : ''}
+      ${narrative?.assumptions ? `<div style="font-size:0.72rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.3rem;">Assumptions</div><div class="editable-field" contenteditable="true" style="line-height:1.75;color:#2c2c2c;margin-bottom:0.75rem;">${escHtml(narrative.assumptions)}</div>` : ''}
+      ${narrative?.recommendations ? `<div style="font-size:0.72rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.3rem;">Recommendations</div><div class="editable-field" contenteditable="true" style="line-height:1.75;color:#2c2c2c;">${escHtml(narrative.recommendations)}</div>` : ''}
     </div>
 
     <div class="report-section">
