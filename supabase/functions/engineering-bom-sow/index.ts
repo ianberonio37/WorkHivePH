@@ -54,6 +54,7 @@ async function callGroq(prompt: string): Promise<string> {
         model,
         messages: [{ role: "user", content: prompt }],
         temperature: 0.2,
+        max_tokens: 8000,
         response_format: { type: "json_object" },
       }),
     });
