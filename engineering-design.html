@@ -638,6 +638,7 @@
 <div id="toast"></div>
 
 <!-- Nav -->
+<script src="utils.js"></script>
 <script src="nav-hub.js"></script>
 
 <!-- html2pdf — clean PDF export without browser headers/footers -->
@@ -687,6 +688,7 @@ const CALC_TYPES = {
     { id: 'Wastewater Treatment (STP)', icon: '♻️', desc: 'Sewage treatment plant sizing — activated sludge, aeration, sludge — DENR DAO 2016-08 / DOH PD 856', available: true },
     { id: 'Storm Drain / Stormwater',   icon: '🌧️', desc: 'Rational Method catchment flow, pipe sizing (Manning\'s), velocity check — DPWH / PAGASA', available: true },
     { id: 'Grease Trap Sizing',         icon: '🪣', desc: 'PDI BH-201 flow rate method, fixture-based, PDI standard size, grease retention, cleaning interval — PDI BH-201 / ASPE / PPC', available: true },
+    { id: 'Roof Drain Sizing',          icon: '🏠', desc: 'Roof drain body, vertical leader, horizontal leader, overflow drain — Rational Method, IPC §1106 / Philippine Plumbing Code', available: true },
   ],
   Electrical: [
     { id: 'Load Estimation',  icon: '📋', desc: 'Panel schedule, demand factor, service size', available: true  },
@@ -1202,6 +1204,49 @@ const GUIDES = {
       "Undersink grease traps (mechanical type): suitable for flow rates up to 4–10 GPM. Above 10 GPM, an in-ground gravity grease interceptor (1000L+) is required.",
       "All grease traps shall be accessible for inspection and pumping. In-ground interceptors shall have a minimum 300mm diameter access manhole for each compartment.",
       "The Philippine Plumbing Code requires a grease interceptor for every food service establishment connected to a public sewer.",
+    ],
+  },
+
+  'Roof Drain Sizing': {
+    title: "Roof Drain Sizing — IPC Chapter 11 / Philippine Plumbing Code",
+    subtitle: "Sizes roof drain bodies, vertical leaders (conductors), horizontal leaders, and overflow drains for building rooftops with impervious surfaces. Uses the Rational Method (C = 1.0) for design flow and IPC Table 1106.2 drain capacity values.",
+    standards: [
+      "IPC 2018 Chapter 11 — Storm Drainage (§1106 Roof Drain Sizing, §1101.7 Overflow Drains)",
+      "Philippine Plumbing Code (PPC) — adopts IPC with local amendments",
+      "ASPE Plumbing Engineering Design Handbook, Vol. 2 — Roof Drainage",
+      "PAGASA — Philippine Atmospheric, Geophysical and Astronomical Services Administration (IDF curves)",
+    ],
+    formulas: [
+      "Design Flow (Rational Method, C = 1.0 for impervious roof):",
+      "  Q_total (L/s) = I (mm/hr) × A_roof (m²) / 3600",
+      "  Q_each  (L/s) = Q_total / N_drains",
+      "",
+      "Drain Body: smallest size with capacity ≥ Q_each  (IPC Table 1106.2 / ASPE Vol. 2)",
+      "  Capacity table: 75mm=0.76, 100mm=1.51, 125mm=2.65, 150mm=4.16, 200mm=8.83 L/s",
+      "",
+      "Vertical Leader: same diameter as drain body (IPC §1106.3)",
+      "",
+      "Horizontal Leader (Manning's, half-full flow, n = 0.011 uPVC):",
+      "  Cap at slope = Cap_1% × √(slope_pct / 1.0)",
+      "  1% base capacities: 75mm=0.95, 100mm=1.89, 125mm=3.31, 150mm=5.20, 200mm=11.04 L/s",
+      "",
+      "Overflow Drain (IPC §1101.7 — required when parapet walls present):",
+      "  Same body size as primary drain; invert set +50 mm above primary drain invert",
+    ],
+    fields: [
+      { name: "Roof Drainage Area (m²)", tip: "Horizontal projection of the roof area draining to this drain system. For pitched roofs, use the plan area (horizontal projection). Include any adjacent wall area that drains onto the roof per ASPE guidance. Divide large roofs into zones — size each zone separately." },
+      { name: "Number of Primary Drains", tip: "IPC §1106.3 requires a minimum of 2 primary roof drains — no single point of failure. Larger roofs: one drain per 180–240 m² catchment zone. More drains reduce flow per drain, allowing smaller pipe sizes." },
+      { name: "Rainfall Intensity (mm/hr)", tip: "Use PAGASA IDF (Intensity-Duration-Frequency) curves for the project location. Metro Manila 10-yr, 60-min: ~100 mm/hr. Cebu: ~85 mm/hr. Davao: ~75 mm/hr. CDO: ~80 mm/hr. Baguio: ~65 mm/hr. Iloilo: ~70 mm/hr. Use 60-minute duration for roofs — short-duration peaks are absorbed by ponding on flat roofs." },
+      { name: "Parapet Walls Present?", tip: "When parapet walls enclose the roof, overflow drains are mandatory per IPC §1101.7. Blocked primary drains without overflow protection cause roof ponding — which can exceed structural live load and cause collapse. Overflow drain invert is set 50 mm above primary drain invert to activate only under ponding conditions." },
+      { name: "Horizontal Leader Slope (%)", tip: "Minimum 1% slope (1/8 in/ft per IPC). A 2% slope increases capacity by 41% (√2 factor). Maximum practical slope is typically 4% before siphonic effects occur. Match slope to available floor-to-floor height and coordination with other services." },
+      { name: "Pipe Material", tip: "uPVC: Manning n = 0.011, most common for internal building leaders, lightweight, easy to cut and join. Cast Iron: n = 0.013, used for fire-rated floor penetrations or heavy-duty applications. Galv. Steel: n = 0.013, older buildings or exposed installations." },
+    ],
+    notes: [
+      "Minimum 2 primary roof drains per IPC §1106.3 — single-drain roofs must not be designed.",
+      "Overflow drains are mandatory when parapet walls surround the roof per IPC §1101.7.",
+      "C = 1.0 for impervious (concrete, membrane) roofs. Green roofs may use C = 0.30–0.60.",
+      "Horizontal leaders are sized at half-full flow per IPC / ASPE practice — siphonic systems use different criteria.",
+      "Conduct roof flood test per IPC §1109 after installation to verify drainage performance.",
     ],
   },
 
@@ -4399,6 +4444,85 @@ function renderInputForm(calcType) {
     applyGTFacDefaults('Restaurant / Commercial Kitchen');
   }
 
+  if (calcType === 'Roof Drain Sizing') {
+    const RD_CITY_INTENSITY = { 'Metro Manila': 100, 'Cebu City': 85, 'Davao City': 75, 'Cagayan de Oro': 80, 'Baguio City': 65, 'Iloilo City': 70, 'Custom': null };
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Roof Reference</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Building A — 3rd Floor Roof Deck" />
+      </div>
+
+      <!-- Rainfall intensity preset -->
+      <div class="mb-4">
+        <div class="field-label">Design Rainfall Intensity <span style="color:rgba(255,255,255,0.35);font-size:0.7rem;font-weight:400;">(PAGASA 10-yr, 60-min — or enter custom)</span></div>
+        <div class="toggle-group mb-2" id="tg-rd-city">
+          ${Object.entries(RD_CITY_INTENSITY).map(([city, val], i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-rd-city','${city}');rdSetIntensity('${city}',${val})">${city}</button>`
+          ).join('')}
+        </div>
+        <div class="input-group">
+          <input id="f-intensity" class="wh-input" type="number" value="100" min="1" step="1" />
+          <span class="input-unit">mm/hr</span>
+        </div>
+      </div>
+
+      <!-- Roof area + number of drains -->
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Roof Drainage Area</div>
+          <div class="input-group">
+            <input id="f-roof-area" class="wh-input" type="number" placeholder="0" min="0" step="1" />
+            <span class="input-unit">m²</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">No. of Primary Drains <span style="color:#F7A21B;font-size:0.7rem;">min 2</span></div>
+          <div class="input-group">
+            <input id="f-n-drains" class="wh-input" type="number" value="2" min="1" step="1" />
+            <span class="input-unit">drains</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Parapet -->
+      <div class="mb-4">
+        <div class="field-label">Parapet Walls Present? <span style="color:rgba(255,255,255,0.35);font-size:0.7rem;font-weight:400;">(overflow drains required when Yes — IPC §1101.7)</span></div>
+        <div class="toggle-group" id="tg-parapet">
+          ${['Yes','No'].map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-parapet','${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <!-- Leader slope + pipe material -->
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Horizontal Leader Slope <span style="color:rgba(255,255,255,0.35);font-size:0.7rem;font-weight:400;">(min 1%)</span></div>
+          <div class="input-group">
+            <input id="f-leader-slope" class="wh-input" type="number" value="1.0" min="0.5" max="10" step="0.5" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Pipe Material</div>
+          <div class="toggle-group" id="tg-pipe-mat">
+            ${['uPVC','Cast Iron','Galv. Steel'].map((v,i) =>
+              `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-pipe-mat','${v}')">${v}</button>`
+            ).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Method: Rational Method (C = 1.0 for impervious roofs). Q = I × A / 3600 (L/s). Drain sizes per IPC Table 1106.2 / ASPE Vol. 2. Minimum 2 primary drains per IPC §1106.3. Overflow drains at +50 mm invert when parapet walls present.
+      </div>
+    `;
+    // Lock intensity to the initially-active preset (Metro Manila) on first render
+    rdSetIntensity('Metro Manila', 100);
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
   if (calcType === 'Load Estimation') {
     const LOAD_TYPES = ['Lighting (General)','Lighting (Emergency)','Convenience Receptacles','Air Conditioning (Unit)','Air Conditioning (Central Chiller)','Motor (General)','Motor (Fire Pump)','Water Heater','Elevator / Escalator','Server / IT Equipment','Kitchen Equipment','Welding Equipment','Custom'];
     area.innerHTML = `
@@ -7525,6 +7649,14 @@ function applyGTFacDefaults(facType) {
   if (mealsEl) { mealsEl.value = mealsMap[facType] || 200;  }
 }
 
+// ─── Roof Drain helpers ───────────────────────────────────────────────────────
+function rdSetIntensity(city, val) {
+  const el = document.getElementById('f-intensity');
+  if (!el) return;
+  if (val !== null) { el.value = val; el.readOnly = true; el.style.opacity = '0.6'; }
+  else              { el.value = '';  el.readOnly = false; el.style.opacity = '1'; el.focus(); }
+}
+
 // ─── Electrical helpers ───────────────────────────────────────────────────────
 const LOAD_TYPE_OPTIONS = ['Lighting (General)','Lighting (Emergency)','Convenience Receptacles','Air Conditioning (Unit)','Air Conditioning (Central Chiller)','Motor (General)','Motor (Fire Pump)','Water Heater','Elevator / Escalator','Server / IT Equipment','Kitchen Equipment','Welding Equipment','Custom'];
 const LOAD_TYPE_PF      = {'Lighting (General)':0.95,'Lighting (Emergency)':0.90,'Convenience Receptacles':1.0,'Air Conditioning (Unit)':0.85,'Air Conditioning (Central Chiller)':0.85,'Motor (General)':0.85,'Motor (Fire Pump)':0.85,'Water Heater':1.0,'Elevator / Escalator':0.85,'Server / IT Equipment':0.90,'Kitchen Equipment':0.95,'Welding Equipment':0.70,'Custom':0.85};
@@ -8281,6 +8413,18 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Roof Drain Sizing') {
+    return {
+      project_name:      v('f-project') || 'Untitled Roof Drain',
+      roof_area:         parseFloat(v('f-roof-area'))    || 0,
+      n_drains:          parseInt(v('f-n-drains'))       || 2,
+      intensity_mmhr:    parseFloat(v('f-intensity'))    || 100,
+      has_parapet:       getToggle('tg-parapet')         || 'Yes',
+      leader_slope_pct:  parseFloat(v('f-leader-slope')) || 1.0,
+      pipe_material:     getToggle('tg-pipe-mat')        || 'uPVC',
+    };
+  }
+
   if (_calcType === 'Wastewater Treatment (STP)') {
 
     const flowSource = getToggle('tg-stp-source') || 'population';
@@ -8842,6 +8986,15 @@ async function runCalculation() {
       showToast('Please add at least one fixture connected to the grease trap.');
       return;
     }
+  } else if (_calcType === 'Roof Drain Sizing') {
+    if (!inputs.roof_area || inputs.roof_area <= 0) {
+      showToast('Enter the roof drainage area (m²) before calculating.');
+      return;
+    }
+    if (!inputs.intensity_mmhr || inputs.intensity_mmhr <= 0) {
+      showToast('Enter the design rainfall intensity (mm/hr) before calculating.');
+      return;
+    }
   } else if (_calcType === 'Load Estimation') {
     if (!inputs.loads || inputs.loads.length === 0) {
       showToast('Please add at least one load to the schedule.');
@@ -9185,6 +9338,8 @@ async function runCalculation() {
       renderSepticReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Grease Trap Sizing') {
       renderGreaseTrapReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Roof Drain Sizing') {
+      renderRoofDrainReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Generator Sizing') {
       renderGeneratorReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Solar PV System') {
@@ -16148,6 +16303,8 @@ function viewHistoryReport(row) {
     renderSepticReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Grease Trap Sizing') {
     renderGreaseTrapReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Roof Drain Sizing') {
+    renderRoofDrainReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Load Estimation') {
     renderLoadReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Voltage Drop') {
@@ -16223,7 +16380,7 @@ async function generateBomSowChecklist() {
   const BOM_SOW_SUPPORTED = {
     'Mechanical': ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air', 'Boiler System'],
     'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design', 'Generator Sizing', 'Solar PV System', 'Power Factor Correction', 'Cable Tray Sizing', 'UPS Sizing', 'Lightning Protection System (LPS)', 'Earthing / Grounding System'],
-    'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)', 'Storm Drain / Stormwater', 'Grease Trap Sizing'],
+    'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)', 'Storm Drain / Stormwater', 'Grease Trap Sizing', 'Roof Drain Sizing'],
     'Fire Protection':         ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],
     'Vertical Transportation': ['Elevator Traffic Analysis', 'Hoist Capacity'],
     'HVAC Systems':            ['Chiller System — Air Cooled', 'Chiller System — Water Cooled', 'AHU Sizing', 'Cooling Tower Sizing', 'Duct Sizing (Equal Friction)', 'Refrigerant Pipe Sizing', 'FCU Selection', 'Expansion Tank Sizing'],
@@ -16416,6 +16573,7 @@ function renderBomTablePreview(items) {
   const isSTP         = _calcType === 'Wastewater Treatment (STP)';
   const isSD          = _calcType === 'Storm Drain / Stormwater';
   const isGT          = _calcType === 'Grease Trap Sizing';
+  const isRD          = _calcType === 'Roof Drain Sizing';
   const isLoadEst = _calcType === 'Load Estimation';
   const isVD      = _calcType === 'Voltage Drop';
   const isWire    = _calcType === 'Wire Sizing';
@@ -16608,6 +16766,8 @@ function renderBomTablePreview(items) {
             ? `Quantities are based on the Storm Drain / Stormwater design calculation result (Rational Method, DPWH Drainage Design Guidelines). The drain is sized for the ${_lastInputs?.return_period || ''}yr design storm — design flow ${_lastResults?.design_flow_lps || ''} L/s from ${_lastResults?.total_area_ha || ''} ha catchment (C=${_lastResults?.composite_c || ''}). Selected pipe: ${_lastResults?.d_selected_mm || ''} mm ${_lastInputs?.pipe_material || ''} at ${_lastInputs?.slope_pct || ''}% slope, full-pipe velocity ${_lastResults?.full_pipe_vel_ms || ''} m/s (${_lastResults?.velocity_check || ''}). NOTE: Pipe lengths, catch basin quantities, and manhole counts are indicative — Contractor shall quantify all items from final layout and longitudinal section drawings before procurement. CCTV inspection of all completed pipe runs is required before final acceptance per DPWH specifications.`
             : isGT
             ? `Quantities are based on the Grease Trap Sizing design calculation result (PDI BH-201 Flow Rate Method, Philippine Plumbing Code, DENR DAO 2016-08). The specified grease trap is a PDI-rated ${_lastResults?.pdi_gpm || ''} GPM hydro-mechanical grease interceptor with a liquid holding capacity of ${_lastResults?.liquid_cap_l?.toFixed ? _lastResults.liquid_cap_l.toFixed(0) : (_lastResults?.liquid_cap_l || '')} L and grease retention of ${_lastResults?.grease_ret_kg?.toFixed ? _lastResults.grease_ret_kg.toFixed(2) : (_lastResults?.grease_ret_kg || '')} kg. Recommended cleaning interval: ${_lastResults?.clean_interval_days || ''} days. The interceptor shall be a PDI-certified hydro-mechanical unit — domestic under-sink traps are NOT acceptable for commercial kitchen use per PPC. Installation shall be inside the kitchen, as close to the discharge point as possible, accessible for maintenance. Wastewater hauled from cleaning shall be by a DENR DAO 2016-08 accredited transporter. Contractor shall submit PDI certificate, product datasheet, and LGU Sanitary Permit before installation.`
+            : isRD
+            ? `Quantities are based on the Roof Drain Sizing design calculation result (Rational Method C=1.0, IPC Chapter 11, Philippine Plumbing Code). Design: ${_lastResults?.n_drains || ''} primary roof drain bodies (${_lastResults?.drain_size_mm || ''} mm nominal) with ${_lastResults?.drain_size_mm || ''} mm vertical leaders and ${_lastResults?.horiz_leader_mm || ''} mm horizontal leaders at ${_lastResults?.leader_slope_pct || ''}% slope. Design flow: ${_lastResults?.q_total_ls || ''} L/s at ${_lastResults?.intensity_mmhr || ''} mm/hr design rainfall. ${_lastResults?.overflow_drain_mm ? `Overflow drains: ${_lastResults.overflow_drain_mm} mm, invert +50 mm above primary drain invert (IPC §1101.7). ` : ''}Pipe material: ${_lastResults?.pipe_material || 'uPVC'}. Drain body quantities include strainer dome as standard accessory. Pipe lengths, fittings, and hanger quantities are indicative only — Contractor shall quantify from final roof drainage layout and section drawings. Roof flood test per IPC §1109 is required after installation. All materials shall comply with PPC and applicable ASTM standards (ASTM D2665 for PVC DWV, ASTM A74 for cast iron). Contractor shall submit material test reports and fitting manufacturer's product data for Engineer's approval prior to procurement.`
             : isCAir
             ? `Quantities are based on the Compressed Air System design calculation result. Engineer shall verify all quantities on-site before procurement. All equipment and piping shall conform to applicable Philippine and international standards (PSME, ISO 8573-1, CAGI, ASME Section VIII for pressure vessels, PEC 2017). CAGI performance data sheets and pressure vessel certificates shall be submitted for Engineer's approval prior to procurement.`
             : isPipe
@@ -16705,6 +16865,7 @@ function renderSowDocPreview(sections) {
   const isSTPS        = _calcType === 'Wastewater Treatment (STP)';
   const isSDS         = _calcType === 'Storm Drain / Stormwater';
   const isGTS         = _calcType === 'Grease Trap Sizing';
+  const isRDS         = _calcType === 'Roof Drain Sizing';
   const isLoadEst = _calcType === 'Load Estimation';
   const isVD      = _calcType === 'Voltage Drop';
   const isWire    = _calcType === 'Wire Sizing';
@@ -16803,6 +16964,8 @@ function renderSowDocPreview(sections) {
     ? `Storm Drain / Stormwater — ${_lastResults?.total_area_ha || ''}ha catchment, C=${_lastResults?.composite_c || ''}, ${_lastInputs?.return_period || ''}yr storm, Q=${_lastResults?.design_flow_lps || ''} L/s, ${_lastResults?.d_selected_mm || ''}mm ${_lastInputs?.pipe_material || ''} @ ${_lastInputs?.slope_pct || ''}% slope, V=${_lastResults?.full_pipe_vel_ms || ''} m/s — ${_lastResults?.velocity_check || ''}`
     : isGTS
     ? `Grease Trap Sizing — ${_lastInputs?.facility_type || ''}, PDI ${_lastResults?.pdi_gpm || ''} GPM, Q_design=${_lastResults?.q_design_gpm?.toFixed ? _lastResults.q_design_gpm.toFixed(2) : (_lastResults?.q_design_gpm || '')} GPM, Liquid Cap ${_lastResults?.liquid_cap_l?.toFixed ? _lastResults.liquid_cap_l.toFixed(0) : (_lastResults?.liquid_cap_l || '')} L, Grease Ret ${_lastResults?.grease_ret_kg?.toFixed ? _lastResults.grease_ret_kg.toFixed(2) : (_lastResults?.grease_ret_kg || '')} kg, Clean Interval ${_lastResults?.clean_interval_days || ''} days — PDI BH-201 / PPC / DENR DAO 2016-08`
+    : isRDS
+    ? `Roof Drain Sizing — ${_lastResults?.n_drains || ''}× ${_lastResults?.drain_size_mm || ''}mm primary drains, ${_lastResults?.horiz_leader_mm || ''}mm horizontal leaders @ ${_lastResults?.leader_slope_pct || ''}% slope, Q=${_lastResults?.q_total_ls || ''} L/s @ ${_lastResults?.intensity_mmhr || ''} mm/hr${_lastResults?.overflow_drain_mm ? `, ${_lastResults.overflow_drain_mm}mm overflow drains` : ''} — IPC §1106 / PPC, ${_lastResults?.overall_status || ''}`
     : isCAir
     ? `Compressed Air System — ${_lastResults?.recommended_hp || ''} hp Rotary Screw Compressor, ${_lastResults?.recommended_cfm || ''} CFM FAD @ ${_lastResults?.inputs_used?.working_pressure || _lastInputs?.working_pressure || ''} bar, ${_lastResults?.recommended_receiver_L || ''}L Receiver, ${_lastResults?.recommended_pipe_mm || ''}mm Distribution Pipe`
     : isPipe
@@ -16897,6 +17060,8 @@ ${isLight
   ? `This Scope of Works is based on the Pump Sizing (TDH) Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including PSME, Hydraulic Institute Standards (ANSI/HI), PEC 2017, and DOLE OSH Standards. Factory performance test certificates and certified pump curves shall be submitted prior to equipment procurement. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isSDS
   ? `This Scope of Works is based on the Storm Drain / Stormwater Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes and standards including the DPWH Flood Control Design Manual, DPWH Blue Book Standard Specifications, PAGASA rainfall data, NSCP, and RA 9275 (Clean Water Act) for stormwater discharge. LGU Building Permit and DPWH road-crossing permit shall be secured before construction. All works shall be subject to CCTV inspection and as-built survey before final acceptance. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  : isRDS
+  ? `This Scope of Works is based on the Roof Drain Sizing Design Calculation (Ref: ${escHtml(calcRef)}) using the Rational Method (C = 1.0, IPC Chapter 11, Philippine Plumbing Code). The roof drainage system is designed for a total flow of ${_lastResults?.q_total_ls || ''} L/s at a design rainfall intensity of ${_lastResults?.intensity_mmhr || ''} mm/hr (PAGASA IDF data). Primary system: ${_lastResults?.n_drains || ''} roof drain body(ies) at ${_lastResults?.drain_size_mm || ''} mm nominal with ${_lastResults?.drain_size_mm || ''} mm vertical leaders and ${_lastResults?.horiz_leader_mm || ''} mm horizontal leaders at ${_lastResults?.leader_slope_pct || ''}% slope (Manning n = ${_lastResults?.manning_n || ''}). ${_lastResults?.overflow_drain_mm ? `Overflow drains: ${_lastResults.overflow_drain_mm} mm body, invert set at +50 mm above primary drain invert per IPC §1101.7.` : 'No overflow drains required — no parapet walls present.'} The Contractor shall comply with all applicable Philippine codes and standards including the Philippine Plumbing Code (PPC), IPC 2018 Chapter 11, ASPE Plumbing Engineering Design Handbook Vol. 2, PAGASA IDF rainfall data, and DOLE OSH Standards. All roof drain bodies shall comply with ASME A112.21.2M (roof drain standard); all piping materials shall comply with ASTM D2665 (uPVC DWV) or ASTM A74 (cast iron) as applicable. Roof flood test per IPC §1109 is mandatory after installation — Contractor shall submit the test report to the Engineer before final acceptance. Cleanouts shall be provided at all changes of direction and at a maximum 10 m spacing on horizontal leaders. As-built drainage layout drawing and commissioning test report shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isGTS
   ? `This Scope of Works is based on the Grease Trap Sizing Design Calculation (Ref: ${escHtml(calcRef)}) using the PDI BH-201 Fixture Flow Rate Method. The selected grease trap is a PDI-rated ${_lastResults?.pdi_gpm || ''} GPM hydro-mechanical grease interceptor complying with the Philippine Plumbing Code (PPC), DENR DAO 2016-08 (FOG effluent limit 5 mg/L), ASPE Plumbing Engineering Design Handbook Vol. 2, and IAPMO/UPC Section 1015 (Grease Interceptors). The Contractor shall install the interceptor inside the kitchen, as close as possible to the discharge point of the grease-laden fixtures, with a properly accessible maintenance cover. Only cold-water fixtures shall be connected to the grease trap — hot water direct-discharge is not recommended as it reduces grease interception efficiency. Cleaning shall be performed every ${_lastResults?.clean_interval_days || ''} days (or earlier if fill exceeds 25% of liquid capacity), by a DENR DAO 2016-08 accredited hauler — manifests shall be retained by the Owner for DENR compliance audit. Domestic under-sink grease traps are NOT acceptable for commercial kitchen use per PPC — only PDI-certified hydro-mechanical interceptors are acceptable. The Contractor shall secure an LGU Sanitary Permit before installation. The grease interceptor unit shall carry a valid PDI certification mark and shall be installed per the manufacturer's installation instructions. As-built installation drawing, PDI certificate, hauling manifests, and O&M schedule shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isVent
@@ -16940,7 +17105,7 @@ ${isLight
             <div style="font-size:0.74rem;color:#555;">
               <span class="editable-field" contenteditable="true">${
                 (isLoadEst || isVD || isWire || isSC || isLight || isLPSS || isEGS || isUPSS || isCTS || isPFCS || isSolarPVS || isGenS) ? 'Electrical Engineer'
-                : (isDrain || isWS || isHW || isSeptic || isWaterSoftS || isWTS || isSTPS || isSDS || isGTS) ? 'Sanitary Engineer'
+                : (isDrain || isWS || isHW || isSeptic || isWaterSoftS || isWTS || isSTPS || isSDS || isGTS || isRDS) ? 'Sanitary Engineer'
                 : (isFSprink || isFPump || isSPress || isFABatt) ? 'Fire Protection Engineer'
                 : (isElev || isHoist) ? 'Mechanical Engineer'
                 : 'Mechanical Engineer'
@@ -17666,6 +17831,242 @@ function setSDManning() {
 }
 
 // ─── Storm Drain / Stormwater Report ─────────────────────────────────────────
+
+// ─── Roof Drain Sizing Report ──────────────────────────────────────────────────
+function renderRoofDrainReport(inputs, r, narrative) {
+  const escHtml2 = s => escHtml(s ?? '');
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const proj   = inputs.project_name  || 'Roof Drain';
+  const now    = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+  const passColor = r.overall_status === 'PASS' ? '#16a34a' : '#dc2626';
+  const passLabel = r.overall_status || 'PASS';
+
+  const html = `
+<div id="report-content" style="font-family:'Segoe UI',Arial,sans-serif;color:#1a1a1a;background:#fff;padding:1.5rem;max-width:900px;margin:0 auto;">
+
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+    <div>
+      <h1>DESIGN CALCULATION</h1>
+      <div style="font-size:0.8rem;color:#555;">Roof Drain Sizing — Rational Method, IPC Chapter 11</div>
+    </div>
+    <div style="text-align:right;font-size:0.78rem;color:#555;">
+      <div>Rev. ${e('0')}</div>
+      <div>Date: ${e(dateStr)}</div>
+      <div>Calc No.: ${e('RD-001')}</div>
+    </div>
+  </div>
+
+  <!-- Project info -->
+  <table style="width:100%;border-collapse:collapse;margin-bottom:1.2rem;font-size:0.82rem;">
+    <tr>
+      <td style="width:22%;font-weight:600;padding:0.3rem 0;">Project:</td>
+      <td>${e(proj)}</td>
+      <td style="width:22%;font-weight:600;padding:0.3rem 0;">Prepared by:</td>
+      <td>${e('Engr. ___________________')}</td>
+    </tr>
+    <tr>
+      <td style="font-weight:600;padding:0.3rem 0;">Location:</td>
+      <td>${e('___________________')}</td>
+      <td style="font-weight:600;padding:0.3rem 0;">Checked by:</td>
+      <td>${e('___________________')}</td>
+    </tr>
+    <tr>
+      <td style="font-weight:600;padding:0.3rem 0;">Discipline:</td>
+      <td>Plumbing / Storm Drainage</td>
+      <td style="font-weight:600;padding:0.3rem 0;">Approved by:</td>
+      <td>${e('___________________')}</td>
+    </tr>
+  </table>
+
+  <!-- Standards -->
+  <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:0.5rem;padding:0.75rem 1rem;margin-bottom:1.2rem;font-size:0.8rem;color:#0c4a6e;">
+    <strong>Applicable Standards:</strong> IPC 2018 Chapter 11 (§1106 Roof Drain Sizing, §1101.7 Overflow Drains) &bull;
+    Philippine Plumbing Code (PPC) — adopts IPC &bull; ASPE Plumbing Engineering Design Handbook Vol. 2 &bull;
+    PAGASA IDF Curves (Rainfall Intensity Data) &bull; ASME A112.21.2M (Roof Drain Standard)
+  </div>
+
+  <!-- Summary cards -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;margin-bottom:1.5rem;">
+    <div style="background:#f8fafc;border:2px solid ${passColor};border-radius:0.75rem;padding:0.75rem;text-align:center;">
+      <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:1px;">Overall Status</div>
+      <div style="font-size:1.6rem;font-weight:800;color:${passColor};">${escHtml2(passLabel)}</div>
+    </div>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.75rem;padding:0.75rem;text-align:center;">
+      <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:1px;">Design Flow</div>
+      <div style="font-size:1.4rem;font-weight:800;color:#0f766e;">${escHtml2(String(r.q_total_ls))} L/s</div>
+      <div style="font-size:0.72rem;color:#666;">${escHtml2(String(r.q_each_ls))} L/s per drain</div>
+    </div>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.75rem;padding:0.75rem;text-align:center;">
+      <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:1px;">Primary Drain</div>
+      <div style="font-size:1.4rem;font-weight:800;color:#0f766e;">${escHtml2(String(r.drain_size_mm))} mm</div>
+      <div style="font-size:0.72rem;color:#666;">${escHtml2(String(r.n_drains))} drains × ${escHtml2(String(r.drain_cap_ls))} L/s cap.</div>
+    </div>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.75rem;padding:0.75rem;text-align:center;">
+      <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:1px;">Horiz. Leader</div>
+      <div style="font-size:1.4rem;font-weight:800;color:#0f766e;">${escHtml2(String(r.horiz_leader_mm))} mm</div>
+      <div style="font-size:0.72rem;color:#666;">@ ${escHtml2(String(r.leader_slope_pct))}% slope</div>
+    </div>
+    ${r.overflow_drain_mm ? `
+    <div style="background:#fefce8;border:1px solid #fde047;border-radius:0.75rem;padding:0.75rem;text-align:center;">
+      <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:1px;">Overflow Drain</div>
+      <div style="font-size:1.4rem;font-weight:800;color:#ca8a04;">${escHtml2(String(r.overflow_drain_mm))} mm</div>
+      <div style="font-size:0.72rem;color:#666;">Invert +50 mm above primary</div>
+    </div>` : ''}
+  </div>
+
+  <!-- Section 1: Design Parameters -->
+  <h2 style="font-size:1rem;font-weight:700;border-bottom:1px solid #e2e8f0;padding-bottom:0.3rem;margin-top:1.5rem;">1. DESIGN PARAMETERS</h2>
+  <table style="width:100%;border-collapse:collapse;font-size:0.82rem;margin-bottom:1rem;">
+    <thead><tr>
+      <th style="background:#0f172a;color:#fff;padding:0.5rem;text-align:left;">Parameter</th>
+      <th style="background:#0f172a;color:#fff;padding:0.5rem;text-align:left;">Value</th>
+      <th style="background:#0f172a;color:#fff;padding:0.5rem;text-align:left;">Source</th>
+    </tr></thead>
+    <tbody>
+      <tr style="background:#f8fafc;"><td style="padding:0.4rem 0.5rem;">Roof Drainage Area (A)</td><td>${escHtml2(String(r.roof_area_m2))} m²</td><td>As-measured / architectural drawing</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;">Number of Primary Drains (N)</td><td>${escHtml2(String(r.n_drains))} drains</td><td>IPC §1106.3 — minimum 2</td></tr>
+      <tr style="background:#f8fafc;"><td style="padding:0.4rem 0.5rem;">Design Rainfall Intensity (I)</td><td>${escHtml2(String(r.intensity_mmhr))} mm/hr</td><td>PAGASA IDF Curves — 10-yr, 60-min</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;">Runoff Coefficient (C)</td><td>1.00</td><td>IPC §1101 — impervious roof surface</td></tr>
+      <tr style="background:#f8fafc;"><td style="padding:0.4rem 0.5rem;">Horizontal Leader Slope</td><td>${escHtml2(String(r.leader_slope_pct))}%</td><td>IPC min: 1% (1/8 in/ft)</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;">Pipe Material</td><td>${escHtml2(String(r.pipe_material))}</td><td>Manning n = ${escHtml2(String(r.manning_n))}</td></tr>
+      <tr style="background:#f8fafc;"><td style="padding:0.4rem 0.5rem;">Parapet Walls Present</td><td>${r.has_parapet ? 'Yes' : 'No'}</td><td>As-noted on architectural drawings</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Section 2: Design Flow -->
+  <h2 style="font-size:1rem;font-weight:700;border-bottom:1px solid #e2e8f0;padding-bottom:0.3rem;margin-top:1.5rem;">2. DESIGN FLOW — RATIONAL METHOD</h2>
+  <p style="font-size:0.82rem;color:#444;">
+    Formula (IPC §1101): Q_total (L/s) = C × I (mm/hr) × A (m²) / 3600<br>
+    Runoff coefficient C = 1.0 (impervious roof — concrete deck or waterproof membrane)<br>
+    Q_total = 1.0 × ${escHtml2(String(r.intensity_mmhr))} × ${escHtml2(String(r.roof_area_m2))} / 3600
+    = <strong>${escHtml2(String(r.q_total_ls))} L/s</strong><br>
+    Flow per drain: Q_each = ${escHtml2(String(r.q_total_ls))} / ${escHtml2(String(r.n_drains))}
+    = <strong>${escHtml2(String(r.q_each_ls))} L/s per drain</strong>
+  </p>
+
+  <!-- Section 3: Primary Drain Body -->
+  <h2 style="font-size:1rem;font-weight:700;border-bottom:1px solid #e2e8f0;padding-bottom:0.3rem;margin-top:1.5rem;">3. PRIMARY DRAIN BODY SELECTION</h2>
+  <p style="font-size:0.82rem;color:#444;">
+    Select smallest drain with capacity ≥ Q_each = ${escHtml2(String(r.q_each_ls))} L/s (IPC Table 1106.2 / ASPE Vol. 2):
+  </p>
+  <table style="width:100%;border-collapse:collapse;font-size:0.82rem;margin-bottom:0.75rem;">
+    <thead><tr>
+      <th style="background:#0f172a;color:#fff;padding:0.4rem 0.5rem;text-align:left;">Nominal Size (mm)</th>
+      <th style="background:#0f172a;color:#fff;padding:0.4rem 0.5rem;text-align:center;">Capacity (L/s)</th>
+      <th style="background:#0f172a;color:#fff;padding:0.4rem 0.5rem;text-align:center;">Adequate for Q_each?</th>
+    </tr></thead>
+    <tbody>
+      ${[[75,0.76],[100,1.51],[125,2.65],[150,4.16],[200,8.83]].map(([sz,cap]) => {
+        const adequate = cap >= r.q_each_ls;
+        const selected = sz === r.drain_size_mm;
+        const bg = selected ? 'background:#dcfce7;font-weight:700;' : (adequate ? 'background:#f8fafc;' : '');
+        return `<tr style="${bg}">
+          <td style="padding:0.4rem 0.5rem;">${sz} mm${selected ? ' ← SELECTED' : ''}</td>
+          <td style="padding:0.4rem 0.5rem;text-align:center;">${cap}</td>
+          <td style="padding:0.4rem 0.5rem;text-align:center;">${adequate ? '✓' : '✗'}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>
+  <p style="font-size:0.82rem;color:#444;">
+    <strong>Selected: ${escHtml2(String(r.drain_size_mm))} mm nominal roof drain body</strong>
+    — capacity ${escHtml2(String(r.drain_cap_ls))} L/s ≥ Q_each ${escHtml2(String(r.q_each_ls))} L/s ✓<br>
+    Quantity: ${escHtml2(String(r.n_drains))} units (IPC §1106.3 — minimum 2 required: ${r.n_drains >= 2 ? 'SATISFIED ✓' : 'NOT SATISFIED ✗'})
+  </p>
+
+  <!-- Section 4: Vertical Leader -->
+  <h2 style="font-size:1rem;font-weight:700;border-bottom:1px solid #e2e8f0;padding-bottom:0.3rem;margin-top:1.5rem;">4. VERTICAL LEADER (CONDUCTOR)</h2>
+  <p style="font-size:0.82rem;color:#444;">
+    Per IPC §1106.3, the vertical leader (conductor) shall be the same diameter as the drain body or larger.<br>
+    <strong>Vertical Leader: ${escHtml2(String(r.leader_size_mm))} mm nominal</strong> — same as drain body. Material: ${escHtml2(String(r.pipe_material))} (Manning n = ${escHtml2(String(r.manning_n))}).
+  </p>
+
+  <!-- Section 5: Horizontal Leader -->
+  <h2 style="font-size:1rem;font-weight:700;border-bottom:1px solid #e2e8f0;padding-bottom:0.3rem;margin-top:1.5rem;">5. HORIZONTAL LEADER / CONDUCTOR</h2>
+  <p style="font-size:0.82rem;color:#444;">
+    Capacity scales with slope: Cap_slope = Cap_1% × √(slope_pct / 1.0)<br>
+    At slope = ${escHtml2(String(r.leader_slope_pct))}%: scale factor = √(${escHtml2(String(r.leader_slope_pct))} / 1.0) = ${escHtml2(String(Math.round(Math.sqrt(r.leader_slope_pct) * 1000) / 1000))}<br>
+    Flow per leader = Q_each = ${escHtml2(String(r.q_each_ls))} L/s<br>
+    <strong>Selected: ${escHtml2(String(r.horiz_leader_mm))} mm nominal leader — capacity ${escHtml2(String(r.horiz_leader_cap_ls))} L/s at ${escHtml2(String(r.leader_slope_pct))}% slope ✓</strong>
+  </p>
+
+  <!-- Section 6: Overflow Drains -->
+  <h2 style="font-size:1rem;font-weight:700;border-bottom:1px solid #e2e8f0;padding-bottom:0.3rem;margin-top:1.5rem;">6. OVERFLOW DRAINS (IPC §1101.7)</h2>
+  ${r.overflow_drain_mm ? `
+  <p style="font-size:0.82rem;color:#444;">
+    Parapet walls present — overflow drains are required per IPC §1101.7 to prevent roof structural overload from ponding.<br>
+    Overflow drain body size: <strong>${escHtml2(String(r.overflow_drain_mm))} mm nominal</strong> (same as primary drain)<br>
+    Overflow drain invert: Set at <strong>+50 mm above primary drain invert</strong> — activates only under ponding conditions.<br>
+    Quantity: ${escHtml2(String(r.n_drains))} overflow drain(s) — one per primary drain location or as required by roof layout.
+  </p>` : `
+  <p style="font-size:0.82rem;color:#444;">
+    No parapet walls present — overflow drains are not required per IPC §1101.7. Verify at construction that perimeter edge allows free surface drainage.
+  </p>`}
+
+  <!-- Section 7: Compliance Summary -->
+  <h2 style="font-size:1rem;font-weight:700;border-bottom:1px solid #e2e8f0;padding-bottom:0.3rem;margin-top:1.5rem;">7. COMPLIANCE SUMMARY</h2>
+  <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+    <thead><tr>
+      <th style="background:#0f172a;color:#fff;padding:0.5rem;text-align:left;">Check</th>
+      <th style="background:#0f172a;color:#fff;padding:0.5rem;text-align:left;">Requirement</th>
+      <th style="background:#0f172a;color:#fff;padding:0.5rem;text-align:center;">Result</th>
+    </tr></thead>
+    <tbody>
+      <tr style="background:#f8fafc;">
+        <td style="padding:0.4rem 0.5rem;">Minimum Drain Count</td>
+        <td style="padding:0.4rem 0.5rem;">≥ 2 primary drains (IPC §1106.3)</td>
+        <td style="padding:0.4rem 0.5rem;text-align:center;font-weight:700;color:${r.n_drains >= 2 ? '#16a34a' : '#dc2626'};">${r.n_drains >= 2 ? 'PASS' : 'FAIL'}</td>
+      </tr>
+      <tr>
+        <td style="padding:0.4rem 0.5rem;">Drain Body Capacity</td>
+        <td style="padding:0.4rem 0.5rem;">Drain cap (${escHtml2(String(r.drain_cap_ls))} L/s) ≥ Q_each (${escHtml2(String(r.q_each_ls))} L/s)</td>
+        <td style="padding:0.4rem 0.5rem;text-align:center;font-weight:700;color:${r.drain_cap_ls >= r.q_each_ls ? '#16a34a' : '#dc2626'};">${r.drain_cap_ls >= r.q_each_ls ? 'PASS' : 'FAIL'}</td>
+      </tr>
+      <tr style="background:#f8fafc;">
+        <td style="padding:0.4rem 0.5rem;">Leader Capacity</td>
+        <td style="padding:0.4rem 0.5rem;">Leader cap (${escHtml2(String(r.horiz_leader_cap_ls))} L/s) ≥ Q_each (${escHtml2(String(r.q_each_ls))} L/s)</td>
+        <td style="padding:0.4rem 0.5rem;text-align:center;font-weight:700;color:${r.horiz_leader_cap_ls >= r.q_each_ls ? '#16a34a' : '#dc2626'};">${r.horiz_leader_cap_ls >= r.q_each_ls ? 'PASS' : 'FAIL'}</td>
+      </tr>
+      <tr>
+        <td style="padding:0.4rem 0.5rem;">Overflow Protection</td>
+        <td style="padding:0.4rem 0.5rem;">${escHtml2(r.overflow_check)}</td>
+        <td style="padding:0.4rem 0.5rem;text-align:center;font-weight:700;color:#16a34a;">${r.has_parapet ? 'PROVIDED' : 'N/A'}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Narrative -->
+  ${narrative?.objective     ? `<div style="margin-top:1.2rem;font-size:0.82rem;color:#444;"><strong>Objective:</strong> ${escHtml(narrative.objective)}</div>` : ''}
+  ${narrative?.assumptions   ? `<div style="margin-top:0.5rem;font-size:0.82rem;color:#444;"><strong>Assumptions:</strong> ${escHtml(narrative.assumptions)}</div>` : ''}
+  ${narrative?.recommendations ? `<div style="margin-top:0.5rem;font-size:0.82rem;color:#444;"><strong>Recommendations:</strong> ${escHtml(narrative.recommendations)}</div>` : ''}
+
+  <!-- Signature block -->
+  <div class="sig-block" style="display:flex;flex-wrap:wrap;gap:1.5rem;margin-top:2rem;border-top:1px solid #e2e8f0;padding-top:1rem;">
+    <div style="flex:1 1 200px;">
+      <div style="font-weight:600;font-size:0.82rem;margin-bottom:0.5rem;">Prepared by:</div>
+      <div>${e('________________________')}</div>
+      <div style="font-size:0.78rem;">PRC Lic. No.: ${e('_____________')}</div>
+      <div style="font-size:0.78rem;">PTR No.: ${e('_____________')}</div>
+    </div>
+    <div style="flex:1 1 200px;">
+      <div style="font-weight:600;font-size:0.82rem;margin-bottom:0.5rem;">Checked by:</div>
+      <div>${e('________________________')}</div>
+      <div style="font-size:0.78rem;">PRC Lic. No.: ${e('_____________')}</div>
+    </div>
+    <div style="flex:1 1 200px;">
+      <div style="font-weight:600;font-size:0.82rem;margin-bottom:0.5rem;">Approved by:</div>
+      <div>${e('________________________')}</div>
+      <div style="font-size:0.78rem;">Company: ${e('_____________')}</div>
+    </div>
+  </div>
+
+</div>`;
+
+  const panel = document.getElementById('report-panel');
+  if (panel) { panel.innerHTML = html; showReport(); }
+}
 
 function renderStormDrainReport(inputs, r, narrative) {
   const e = v => escHtml(v ?? '');

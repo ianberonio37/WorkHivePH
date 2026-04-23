@@ -43,6 +43,18 @@ const LIGHTING_WPM2: Record<string, number> = {
   "Retail":           20,
 };
 
+// ASHRAE design solar irradiance by orientation — Manila latitude ~14.6°N
+// Source: ASHRAE 2021 Fundamentals Ch. 18, peak design values for tropical latitudes.
+// "Mixed" preserves the original 200 W/m² default for unknown or multi-orientation facades.
+const SOLAR_IRRADIANCE_BY_ORIENTATION: Record<string, number> = {
+  "North":      90,
+  "South":      130,
+  "East":       700,
+  "West":       700,
+  "Horizontal": 950,
+  "Mixed":      200,
+};
+
 const AC_SIZES_KW = [0.75, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 7.5, 10.0, 12.5, 15.0, 20.0, 25.0];
 
 function roundUpToACSize(kw: number): number {
@@ -60,9 +72,10 @@ function calcHVACCoolingLoad(inputs: Record<string, number | string>) {
   const equipKW       = Number(inputs.equipment_kw);
   const outdoorTemp   = Number(inputs.outdoor_temp)  || 35;
   const indoorTemp    = Number(inputs.indoor_temp)   || 24;
-  const insulation    = String(inputs.insulation     || "Standard");
-  const glassType     = String(inputs.glass_type     || "Standard");
-  const roomFunction  = String(inputs.room_function  || "Office");
+  const insulation        = String(inputs.insulation         || "Standard");
+  const glassType         = String(inputs.glass_type         || "Standard");
+  const windowOrientation = String(inputs.window_orientation || "Mixed");
+  const roomFunction      = String(inputs.room_function      || "Office");
 
   const deltaT = outdoorTemp - indoorTemp;
 
@@ -73,8 +86,9 @@ function calcHVACCoolingLoad(inputs: Record<string, number | string>) {
   const uRoof  = ROOF_U_VALUES[insulation] || 0.50;
   const qRoof  = uRoof * roofArea * deltaT * 1.15;
 
-  const shgc   = GLASS_SHGC[glassType]    || 0.87;
-  const qGlass = (0.57 * glassArea * deltaT) + (glassArea * shgc * 200);
+  const shgc           = GLASS_SHGC[glassType] || 0.87;
+  const solarIrradiance = SOLAR_IRRADIANCE_BY_ORIENTATION[windowOrientation] ?? 200;
+  const qGlass          = (0.57 * glassArea * deltaT) + (glassArea * shgc * solarIrradiance);
 
   const heatPP          = HEAT_PER_PERSON[roomFunction] || { sensible: 75, latent: 55 };
   const qPeopleSensible = persons * heatPP.sensible;  // sensible portion only — goes into sensible sub-total
@@ -126,10 +140,12 @@ function calcHVACCoolingLoad(inputs: Record<string, number | string>) {
       roof_area:       Math.round(floorArea),
       u_wall:          uWall,
       u_roof:          uRoof,
-      shgc:            shgc,
-      delta_t:         deltaT,
-      lighting_wpm2:   litWpm2,
-      heat_per_person: heatPP,
+      shgc:               shgc,
+      window_orientation: windowOrientation,
+      solar_irradiance:   solarIrradiance,
+      delta_t:            deltaT,
+      lighting_wpm2:      litWpm2,
+      heat_per_person:    heatPP,
     }
   };
 }
@@ -1634,6 +1650,15 @@ Respond in JSON format only:
       const storage    = rec.storage_tank_m3 ?? '';
       const pns        = rec.pns_1998_status ?? '';
       recommendations  = `Install the treatment train: ${trainSteps}. Multimedia/sand filter: ${filterDia} mm pressure vessel. Chlorination dose: ${cl2} mg/L NaOCl; provide a calibrated dosing pump and contact tank. Treated water storage: ${storage} m³ (1-day demand). Projected outlet quality: ${pns}. Conduct water quality testing (turbidity, iron, pH, coliform, residual chlorine) after commissioning and every 6 months per DOH/LWUA requirements.`;
+    } else if (calcType === "Roof Drain Sizing") {
+      const D    = rec.drain_size_mm      ?? '';
+      const HL   = rec.horiz_leader_mm   ?? '';
+      const Q    = rec.q_total_ls        ?? '';
+      const n    = rec.n_drains          ?? '';
+      const slp  = rec.leader_slope_pct  ?? '';
+      const ovr  = rec.overflow_drain_mm ? `, with ${rec.overflow_drain_mm} mm overflow drains set at +50 mm above primary invert (IPC §1101.7)` : '';
+      const mat  = rec.pipe_material     ?? 'uPVC';
+      recommendations = `Provide ${n} × ${D} mm primary roof drain bodies with ${D} mm vertical leaders and ${HL} mm horizontal ${mat} leaders at ${slp}% slope${ovr}. Total design flow is ${Q} L/s. Install strainer domes on all drain bodies and verify positive fall to every drain. Conduct a roof flood test per IPC §1109 after installation. Provide accessible cleanouts at all changes of direction.`;
     } else if (calcType === "Storm Drain / Stormwater") {
       const D    = rec.d_selected_mm ?? '';
       const Q    = rec.design_flow_lps ?? '';
@@ -4022,6 +4047,99 @@ function calcGreaseTrapSizing(inputs: Record<string, unknown>): Record<string, u
   };
 }
 
+// ─── Roof Drain Sizing — IPC §1106 / Philippine Plumbing Code ────────────────
+
+// Roof drain body capacities (L/s) — IPC 2018 Table 1106.2 / ASPE Vol. 2
+// At 100 mm head above drain invert, C = 1.0 (impervious roof)
+const RD_DRAIN_SIZES_MM    = [75,   100,  125,  150,  200 ];
+const RD_DRAIN_CAP_LS      = [0.76, 1.51, 2.65, 4.16, 8.83];
+
+// Horizontal leader capacity at 1% slope (L/s) — Manning n = 0.011, half-full flow
+// Scales to other slopes: Cap_s = Cap_1% × √(slope_pct / 1.0)
+const RD_LEADER_SIZES_MM   = [75,   100,  125,  150,  200  ];
+const RD_LEADER_CAP_1PCT   = [0.95, 1.89, 3.31, 5.20, 11.04];
+
+function calcRoofDrainSizing(inputs: Record<string, number | string>): Record<string, unknown> {
+  const roofArea       = Number(inputs.roof_area        || 0);
+  const nDrains        = Math.max(1, Math.round(Number(inputs.n_drains       || 2)));
+  const intensityMmhr  = Number(inputs.intensity_mmhr   || 100);
+  const slopePct       = Number(inputs.leader_slope_pct || 1.0);
+  const hasParapet     = String(inputs.has_parapet || "Yes") === "Yes";
+  const pipeMaterial   = String(inputs.pipe_material    || "uPVC");
+
+  // Manning n by material
+  const manningN = (pipeMaterial === "Cast Iron" || pipeMaterial === "Galv. Steel") ? 0.013 : 0.011;
+
+  // Design flow — Rational Method, C = 1.0 for impervious roof (IPC §1101)
+  // Q (L/s) = I (mm/hr) × A (m²) / 3600
+  const Q_total_ls = (intensityMmhr * roofArea) / 3600;
+  const Q_each_ls  = nDrains > 0 ? Q_total_ls / nDrains : Q_total_ls;
+
+  // Primary roof drain body — first size whose capacity ≥ Q_each
+  let drainSizeMm = RD_DRAIN_SIZES_MM[RD_DRAIN_SIZES_MM.length - 1];
+  let drainCapLs  = RD_DRAIN_CAP_LS[RD_DRAIN_CAP_LS.length - 1];
+  for (let i = 0; i < RD_DRAIN_SIZES_MM.length; i++) {
+    if (RD_DRAIN_CAP_LS[i] >= Q_each_ls) {
+      drainSizeMm = RD_DRAIN_SIZES_MM[i];
+      drainCapLs  = RD_DRAIN_CAP_LS[i];
+      break;
+    }
+  }
+
+  // Vertical leader (conductor) — same diameter as drain body per IPC §1106.3
+  const leaderSizeMm = drainSizeMm;
+
+  // Horizontal leader — capacity scales with √(slope_pct / 1.0)
+  const slopeFactor = Math.sqrt(Math.max(slopePct, 0.1) / 1.0);
+  let horizLeaderSizeMm = RD_LEADER_SIZES_MM[RD_LEADER_SIZES_MM.length - 1];
+  let horizLeaderCapLs  = parseFloat((RD_LEADER_CAP_1PCT[RD_LEADER_SIZES_MM.length - 1] * slopeFactor).toFixed(2));
+  for (let i = 0; i < RD_LEADER_SIZES_MM.length; i++) {
+    const capAtSlope = RD_LEADER_CAP_1PCT[i] * slopeFactor;
+    if (capAtSlope >= Q_each_ls) {
+      horizLeaderSizeMm = RD_LEADER_SIZES_MM[i];
+      horizLeaderCapLs  = parseFloat(capAtSlope.toFixed(2));
+      break;
+    }
+  }
+
+  // Overflow drain — required when parapet walls present (IPC §1101.7)
+  // Same size as primary drain, invert +50 mm above primary invert
+  const overflowDrainMm: number | null = hasParapet ? drainSizeMm : null;
+
+  // Compliance
+  const drainCapOk     = drainCapLs >= Q_each_ls;
+  const minDrainsCheck = nDrains >= 2 ? "PASS" : "FAIL — minimum 2 primary roof drains required per IPC §1106.3";
+  const drainCapCheck  = drainCapOk
+    ? "PASS"
+    : `FAIL — Q_each (${Q_each_ls.toFixed(2)} L/s) exceeds maximum 200 mm drain capacity (8.83 L/s). Add more drains or split into zones.`;
+  const overflowCheck  = hasParapet
+    ? "Required — overflow drains specified at +50 mm above primary invert (IPC §1101.7)"
+    : "Not required — no parapet walls";
+  const overallStatus  = (nDrains >= 2 && drainCapOk) ? "PASS" : "FAIL";
+
+  return {
+    roof_area_m2:        parseFloat(roofArea.toFixed(1)),
+    n_drains:            nDrains,
+    intensity_mmhr:      intensityMmhr,
+    leader_slope_pct:    slopePct,
+    has_parapet:         hasParapet,
+    pipe_material:       pipeMaterial,
+    manning_n:           manningN,
+    q_total_ls:          parseFloat(Q_total_ls.toFixed(2)),
+    q_each_ls:           parseFloat(Q_each_ls.toFixed(2)),
+    drain_size_mm:       drainSizeMm,
+    drain_cap_ls:        drainCapLs,
+    leader_size_mm:      leaderSizeMm,
+    horiz_leader_mm:     horizLeaderSizeMm,
+    horiz_leader_cap_ls: horizLeaderCapLs,
+    overflow_drain_mm:   overflowDrainMm,
+    min_drains_check:    minDrainsCheck,
+    drain_cap_check:     drainCapCheck,
+    overflow_check:      overflowCheck,
+    overall_status:      overallStatus,
+  };
+}
+
 // ─── Storm Drain / Stormwater — Rational Method + Manning's Pipe Sizing ───────
 
 const SD_STANDARD_DIAMETERS_MM = [300, 375, 450, 525, 600, 675, 750, 900, 1050, 1200, 1350, 1500];
@@ -5545,6 +5663,8 @@ serve(async (req) => {
       results = calcWaterTreatmentSystem(inputs);
     } else if (calc_type === "Wastewater Treatment (STP)") {
       results = calcWastewaterSTP(inputs);
+    } else if (calc_type === "Roof Drain Sizing") {
+      results = calcRoofDrainSizing(inputs);
     } else if (calc_type === "Storm Drain / Stormwater") {
       results = calcStormDrain(inputs);
     } else if (calc_type === "Grease Trap Sizing") {
