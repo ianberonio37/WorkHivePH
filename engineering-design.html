@@ -11497,7 +11497,7 @@ function renderWireSizingReport(inputs, results, narrative) {
       <tr><td>System Voltage</td><td class="num">${results.voltage}</td><td>V</td></tr>
       <tr><td>Load Power</td><td class="num">${results.power_w}</td><td>W</td></tr>
       <tr><td>Power Factor</td><td class="num">${results.power_factor}</td><td></td></tr>
-      <tr><td>Computed Load Current (I = P / V / PF)</td><td class="num">${results.load_current}</td><td>A</td></tr>
+      <tr><td>Computed Load Current (I = P / ${results.phase === 'Three-phase' ? '√3 × V' : 'V'} / PF)</td><td class="num">${results.load_current}</td><td>A</td></tr>
       <tr><td>Design Current (with demand multiplier ${results.demand_multiplier}x)</td><td class="num"><strong>${results.design_current}</strong></td><td>A</td></tr>
       <tr><td>Ambient Temperature</td><td class="num">${results.ambient_temp}</td><td>°C</td></tr>
       <tr><td>Temperature Correction Factor</td><td class="num">${results.temp_factor}</td><td></td></tr>
