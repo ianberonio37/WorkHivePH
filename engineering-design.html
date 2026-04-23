@@ -8208,8 +8208,8 @@ async function runCalculation() {
       showToast('Please enter a valid system volume or capacity.');
       return;
     }
-    if (inputs.max_temp_c <= inputs.fill_temp_c) {
-      showToast('Max operating temperature must be greater than fill temperature.');
+    if (inputs.max_temp_c === inputs.fill_temp_c) {
+      showToast('Operating temperature cannot equal fill temperature — no thermal swing to size for.');
       return;
     }
     if (inputs.max_pressure_kpa_g <= 0) {
