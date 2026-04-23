@@ -227,6 +227,37 @@ function calcVentilationACH(inputs: Record<string, number | string>) {
   };
 }
 
+// ─── Water Kinematic Viscosity (temperature-dependent) ────────────────────────
+// ASHRAE 2021 Fundamentals Table 2 — Water Properties
+function kinematicViscosityWater(T_C: number): number {
+  const table: [number, number][] = [
+    [0,  1.787e-6], [5,  1.519e-6], [10, 1.307e-6], [15, 1.139e-6],
+    [20, 1.004e-6], [25, 0.893e-6], [30, 0.801e-6], [35, 0.727e-6],
+    [40, 0.658e-6], [50, 0.553e-6], [60, 0.475e-6], [70, 0.413e-6],
+    [80, 0.365e-6], [90, 0.326e-6], [100, 0.295e-6],
+  ];
+  if (T_C <= table[0][0]) return table[0][1];
+  if (T_C >= table[table.length - 1][0]) return table[table.length - 1][1];
+  for (let i = 0; i < table.length - 1; i++) {
+    if (T_C >= table[i][0] && T_C <= table[i + 1][0]) {
+      const t = (T_C - table[i][0]) / (table[i + 1][0] - table[i][0]);
+      return table[i][1] + t * (table[i + 1][1] - table[i][1]);
+    }
+  }
+  return 0.801e-6;
+}
+
+// Default fluid temperature (°C) by pipe service type
+function defaultFluidTempC(serviceType: string): number {
+  const defaults: Record<string, number> = {
+    'Chilled Water Supply': 7,  'Chilled Water Return': 12,
+    'Hot Water Supply':     80, 'Condenser Water':      35,
+    'Cold Water Supply':    20, 'Fire Protection':      20,
+    'General Water':        20,
+  };
+  return defaults[serviceType] ?? 20;
+}
+
 // ─── Pump Sizing (TDH) Calculation ───────────────────────────────────────────
 // Method: Darcy-Weisbach for friction head + static head + velocity head + fittings
 // Standards: PSME, ASHRAE, Hydraulic Institute
@@ -394,9 +425,13 @@ function calcPipeSizing(inputs: Record<string, number | string>) {
   const flowM3hr = flowLPM * 60 / 1000;
   const flowLPS  = flowLPM / 60;
 
-  const limits = VELOCITY_LIMITS[serviceType] || VELOCITY_LIMITS["General Water"];
-  const C      = PIPE_C_VALUES[pipeMaterial] || 150;
-  const g      = 9.81;
+  const fluidTempC = Number(inputs.fluid_temp_c ?? defaultFluidTempC(serviceType));
+  const C_base     = PIPE_C_VALUES[pipeMaterial] || 150;
+  // Hazen-Williams temperature correction (ASHRAE 2021 Fundamentals Ch.22):
+  // C_T = C_base × (1 + 0.01 × (T − 15.5))   where T in °C
+  const C          = Math.round(C_base * (1 + 0.01 * (fluidTempC - 15.5)) * 100) / 100;
+  const limits     = VELOCITY_LIMITS[serviceType] || VELOCITY_LIMITS["General Water"];
+  const g          = 9.81;
 
   // Try each standard pipe size and find the best fit
   const candidates = PIPE_SIZES_MM.map(dMM => {
@@ -426,8 +461,8 @@ function calcPipeSizing(inputs: Record<string, number | string>) {
   // Velocity head
   const velocityHead = Math.pow(recommended.v, 2) / (2 * g); // m
 
-  // Reynolds number (approximate, for water at ~30°C: kinematic viscosity ~0.8e-6 m2/s)
-  const nu = 0.8e-6; // m2/s kinematic viscosity water at 30°C
+  // Reynolds number — temperature-dependent kinematic viscosity (ASHRAE 2021 Table 2)
+  const nu = kinematicViscosityWater(fluidTempC);
   const Re = (recommended.v * (recommended.dMM / 1000)) / nu;
   const flowRegime = Re < 2300 ? "Laminar" : Re < 4000 ? "Transitional" : "Turbulent";
 
@@ -468,6 +503,8 @@ function calcPipeSizing(inputs: Record<string, number | string>) {
     inputs_used: {
       service_type:   serviceType,
       pipe_material:  pipeMaterial,
+      fluid_temp_c:   fluidTempC,
+      C_base:         C_base,
       C_factor:       C,
       fittings_pct:   fittingsPct,
       equiv_length:   Math.round(equivLength * 10) / 10,
@@ -524,23 +561,30 @@ function calcChillerWaterCooled(inputs: Record<string, number | string>) {
   const Q_chw_m3h  = Q_chw_lps * 3.6;
   const Q_chw_GPM  = Q_chw_lps * 15.8508;
 
-  // 8. ASHRAE 90.1 minimum COP by chiller type and size
+  // 8. ASHRAE 90.1 minimum COP and IPLV by chiller type and size
   // Water-cooled minimums (ASHRAE 90.1-2019 Table 6.8.1-3)
   let ashrae_min_cop: number;
+  let ashrae_min_iplv: number;
   const type = chillerType.toLowerCase();
   if (type.includes('centrifugal')) {
-    if (Q_design_kW < 528)       ashrae_min_cop = 5.00;  // < 150 TR
-    else if (Q_design_kW < 1055) ashrae_min_cop = 5.55;  // 150–300 TR
-    else                          ashrae_min_cop = 6.10;  // > 300 TR
+    if (Q_design_kW < 528)       { ashrae_min_cop = 5.00; ashrae_min_iplv = 6.28; }  // < 150 TR
+    else if (Q_design_kW < 1055) { ashrae_min_cop = 5.55; ashrae_min_iplv = 7.19; }  // 150–300 TR
+    else                          { ashrae_min_cop = 6.10; ashrae_min_iplv = 8.27; }  // > 300 TR
   } else if (type.includes('screw')) {
-    ashrae_min_cop = Q_design_kW < 528 ? 4.45 : 4.90;
+    if (Q_design_kW < 528) { ashrae_min_cop = 4.45; ashrae_min_iplv = 5.32; }
+    else                    { ashrae_min_cop = 4.90; ashrae_min_iplv = 5.86; }
   } else if (type.includes('scroll')) {
-    ashrae_min_cop = 4.45;
+    ashrae_min_cop = 4.45; ashrae_min_iplv = 5.32;
   } else {
-    ashrae_min_cop = 3.80; // reciprocating / other
+    ashrae_min_cop = 3.80; ashrae_min_iplv = 4.32; // reciprocating / other
   }
   const cop_check  = cop >= ashrae_min_cop ? 'PASS' : 'FAIL';
   const cop_margin = parseFloat((cop - ashrae_min_cop).toFixed(3));
+
+  // IPLV check (user-supplied from AHRI 550/590 chiller datasheet)
+  const iplv: number | null = inputs.iplv !== undefined && inputs.iplv !== '' ? Number(inputs.iplv) : null;
+  const iplv_check  = iplv !== null ? (iplv >= ashrae_min_iplv ? 'PASS' : 'FAIL') : null;
+  const iplv_margin = iplv !== null ? parseFloat((iplv - ashrae_min_iplv).toFixed(3)) : null;
 
   // 9. Electrical
   const total_kVA        = parseFloat((P_total_kW / 0.85).toFixed(1));
@@ -579,6 +623,10 @@ function calcChillerWaterCooled(inputs: Record<string, number | string>) {
     ashrae_min_cop,
     cop_check,
     cop_margin,
+    iplv,
+    ashrae_min_iplv,
+    iplv_check,
+    iplv_margin,
     total_kVA,
     total_A_at_400V,
     refrigerant,
@@ -638,11 +686,19 @@ function calcChillerAirCooled(inputs: Record<string, number | string>) {
   const Q_flow_m3h   = Q_flow_lps * 3.6;                      // m³/h
   const Q_flow_GPM   = Q_flow_lps * 15.8508;                  // US GPM
 
-  // 8. ASHRAE 90.1 COP check
-  // Min COP for air-cooled chillers: 2.84 (<528 kW), 2.80 (≥528 kW)
-  const ashrae_min_cop = Q_design_kW >= 528 ? 2.80 : 2.84;
-  const cop_check      = cop >= ashrae_min_cop ? 'PASS' : 'FAIL';
-  const cop_margin     = parseFloat((cop - ashrae_min_cop).toFixed(3));
+  // 8. ASHRAE 90.1 COP and IPLV check
+  // Air-cooled minimums (ASHRAE 90.1-2019 Table 6.8.1-7)
+  // Min COP: 2.84 (<528 kW / <150 TR), 2.80 (≥528 kW / ≥150 TR)
+  // Min IPLV: 3.50 (<528 kW), 3.45 (≥528 kW)
+  const ashrae_min_cop  = Q_design_kW >= 528 ? 2.80 : 2.84;
+  const ashrae_min_iplv = Q_design_kW >= 528 ? 3.45 : 3.50;
+  const cop_check       = cop >= ashrae_min_cop ? 'PASS' : 'FAIL';
+  const cop_margin      = parseFloat((cop - ashrae_min_cop).toFixed(3));
+
+  // IPLV check (user-supplied from AHRI 550/590 chiller datasheet)
+  const iplv: number | null = inputs.iplv !== undefined && inputs.iplv !== '' ? Number(inputs.iplv) : null;
+  const iplv_check  = iplv !== null ? (iplv >= ashrae_min_iplv ? 'PASS' : 'FAIL') : null;
+  const iplv_margin = iplv !== null ? parseFloat((iplv - ashrae_min_iplv).toFixed(3)) : null;
 
   // 9. Electrical supply estimate (kVA at PF=0.85)
   const total_kVA = P_total_kW / 0.85;
@@ -698,6 +754,10 @@ function calcChillerAirCooled(inputs: Record<string, number | string>) {
     ashrae_min_cop,
     cop_check,
     cop_margin,
+    iplv,
+    ashrae_min_iplv,
+    iplv_check,
+    iplv_margin,
     refrigerant,
     // Ambient correction note
     ambient_note: ambientTemp >= 35
@@ -1706,6 +1766,20 @@ Respond in JSON format only:
       const backup   = (inputs.backup_min as number) || 30;
       const iecClass = topo === 'Online (Double-Conversion)' ? 'VFI-SS-111' : topo === 'Line Interactive' ? 'VI-SS-111' : 'VFD-SS-111';
       recommendations = `Install a ${selKVA} kVA ${topo} UPS (IEC 62040-3 ${iecClass}) at the proposed location. System loading is ${loadPct}% — within the IEEE 446 recommended ≤ 80% limit for thermal headroom and future load additions. Battery bank: ${bCfg}, rated backup ${bMin} minutes at design load (required: ${backup} min). Provide a static bypass module to allow UPS maintenance without interrupting supply to critical loads. Input supply shall be from a dedicated ${brkA}A MCCB circuit — do not share with non-critical loads. Commission with a full-load battery discharge test per IEC 62040-3 and verify actual runtime ≥ ${backup} minutes before handover. Plan VRLA battery replacement at Year 3 for unconditioned rooms or Year 5 for air-conditioned spaces per IEEE 1184. A PRC-licensed Electrical Engineer must sign and seal this calculation for building permit submission.`;
+    } else if (calcType === "Earthing / Grounding System") {
+      const rEff     = rec.r_parallel_ohm ?? rec.r_single_ohm ?? '';
+      const rLim     = rec.r_limit_ohm    ?? '';
+      const passLbl  = rec.pass_label     || (rec.pass ? 'PASS' : 'FAIL');
+      const eType    = (inputs.electrode_type as string) || 'Rod';
+      const nElec    = (inputs.num_electrodes as number) || 1;
+      const sSys     = (inputs.system_type as string) || 'Residential / Commercial';
+      const gecSz    = rec.gec_mm2 ?? '';
+      const limitBasis = sSys === 'Substation / HV'
+        ? 'IEEE 80-2013'
+        : sSys === 'Industrial'
+        ? 'IEEE 142-2007'
+        : 'PEC 2017 Art. 2.50';
+      recommendations = `The earthing system uses ${nElec} ${eType.toLowerCase()} electrode${nElec > 1 ? 's' : ''} in ${sSys} configuration. Measured/calculated resistance: ${rEff} Ohm — ${passLbl} against the ${rLim} Ohm limit per ${limitBasis}. ${rec.pass ? 'The installation is compliant. Proceed with construction and conduct site acceptance testing using a four-pole Wenner or fall-of-potential method.' : `Ground resistance exceeds the ${rLim} Ohm limit. Increase electrodes, apply soil treatment (bentonite or GEM compound), or use deeper/longer electrodes before proceeding.`} GEC minimum size per PEC 2017 Table 2.50.66: ${gecSz} mm2 copper. All earthing conductors must be protected from mechanical damage per PEC 2017 Section 2.50.16. Bonding jumpers must achieve full electrical continuity per IEEE 80 bonding requirements. A PRC-licensed Electrical Engineer must sign and seal this calculation for building permit submission.`;
     } else if (calcType === "Duct Sizing (Equal Friction)") {
       const hp     = rec.fan_motor_hp_std  ?? '';
       const kw     = rec.fan_motor_kw      ?? '';
@@ -1761,6 +1835,17 @@ Respond in JSON format only:
       const sf     = rec.separation_sf ?? '';
       const jchk   = rec.joint_check ?? '';
       recommendations = `Tighten ${size} Grade ${grade} bolts to ${torque} N·m using a calibrated torque wrench. Use the 3-pass cross-torquing method: 30% → 70% → 100% of target torque. Joint separation SF = ${sf} (${jchk}). Never reuse torque-to-yield bolts (Grade 10.9 / 12.9 one-time use). Apply thread lubricant (K=${(inputs.nut_factor as number) ?? ''}) consistently — dry/lubricated torque differs by up to 30%. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
+    } else if (calcType === "Lightning Protection System (LPS)") {
+      const lpl   = (inputs.lpl as string) || 'LPL II';
+      const rchk  = rec.risk_check ?? '';
+      const ndc   = rec.n_down_conductors ?? '';
+      const nat   = rec.n_air_terminals_est ?? '';
+      const nel   = rec.n_electrodes ?? '';
+      const elLen = rec.min_electrode_length_m ?? '';
+      const R     = rec.rolling_sphere_R_m ?? '';
+      const mesh  = rec.mesh_size_m ?? '';
+      const eff   = rec.efficiency_pct ?? '';
+      recommendations = `Install an external LPS complying with IEC 62305-3 for ${lpl} (rolling sphere radius ${R} m, mesh ${mesh} m, efficiency ${eff}%). Risk assessment: ${rchk}. Air termination: ${nat} air terminals (Franklin rods or horizontal conductors) arranged per the rolling sphere / mesh method — all roof edges, corners, and ridges within protection radius. Down conductors: ${ndc} runs of ${(inputs.dc_material as string) || 'copper'} conductors at ${rec.dc_spacing_m ?? ''} m spacing along the building perimeter — route straight and vertical, minimum 0.2 m from doors and windows. Earth termination: ${nel} electrodes (minimum ${elLen} m each), Type ${(inputs.earth_type as string) || 'A'} per IEC 62305-3 — measure and verify earth resistance ≤ 10 Ω before commissioning. Bond all metal building elements (roof structure, pipes, conduits, HVAC) to the down conductor network per IEC 62305-3 Section 6. Provide SPDs at main panel per IEC 62305-4. A PRC-licensed Electrical Engineer must sign and seal this document. Submit LPS design drawings and earthing test results to the Building Official / BFP for permit clearance.`;
     }
     return {
       objective: `To determine the required ${calcType} design parameters for the subject project in accordance with applicable Philippine and international engineering standards.`,
@@ -1768,6 +1853,142 @@ Respond in JSON format only:
       recommendations,
     };
   }
+}
+
+// ─── Electrical: Lightning Protection System (LPS) — IEC 62305 / NFPA 780 ────
+
+function calcLightningProtection(inputs: Record<string, number | string>): Record<string, unknown> {
+  const round2 = (v: number) => Math.round(v * 100) / 100;
+  const round4 = (v: number) => Math.round(v * 10000) / 10000;
+
+  const L  = Number(inputs.building_length_m  ?? 20);
+  const W  = Number(inputs.building_width_m   ?? 15);
+  const H  = Number(inputs.building_height_m  ?? 10);
+  const lpl = (inputs.lpl as string) || 'LPL II';
+  const ng_loc = (inputs.ng_location as string) || 'Metro Manila';
+  const ng_custom = Number(inputs.ng_custom ?? 10);
+  const dc_material = (inputs.dc_material as string) || 'Copper';
+  const earth_type  = (inputs.earth_type  as string) || 'Type A — Radial / Vertical Electrodes';
+  const struct_type = (inputs.structure_type as string) || 'Residential';
+  const air_method  = (inputs.air_term_method as string) || 'Rolling Sphere';
+
+  // Philippine Ng lookup (flashes/km²/yr, approximate PAGASA data)
+  const NG_TABLE: Record<string, number> = {
+    "Metro Manila / NCR":      10,
+    "Baguio / Cordillera":     12,
+    "Ilocos Region":            8,
+    "Cagayan Valley":          12,
+    "Central Luzon":           10,
+    "CALABARZON":              10,
+    "Bicol Region":            14,
+    "Western Visayas":         10,
+    "Central Visayas (Cebu)":  10,
+    "Eastern Visayas":         12,
+    "Zamboanga Peninsula":     12,
+    "Northern Mindanao":       14,
+    "Davao Region":            14,
+    "SOCCSKSARGEN":            16,
+    "CARAGA":                  14,
+    "ARMM / BARMM":            14,
+    "Custom":                  ng_custom,
+  };
+  const Ng = NG_TABLE[ng_loc] ?? ng_custom;
+
+  // IEC 62305-3 Table 1 — LPL parameters
+  const LPL_TABLE: Record<string, { R: number; mesh: number; angle_base: number; dc_spacing: number; I_min: number; eff: number }> = {
+    "LPL I":   { R: 20, mesh: 5,  angle_base: 25, dc_spacing: 10, I_min: 3,  eff: 99 },
+    "LPL II":  { R: 30, mesh: 10, angle_base: 35, dc_spacing: 10, I_min: 5,  eff: 97 },
+    "LPL III": { R: 45, mesh: 15, angle_base: 45, dc_spacing: 15, I_min: 10, eff: 91 },
+    "LPL IV":  { R: 60, mesh: 20, angle_base: 55, dc_spacing: 20, I_min: 16, eff: 80 },
+  };
+  const lplP = LPL_TABLE[lpl] ?? LPL_TABLE["LPL II"];
+
+  // Collection area — IEC 62305-2 Annex A Eq. A.1
+  const Ad = L * W + 6 * H * (L + W) + 9 * Math.PI * H * H;
+
+  // Annual strike frequency
+  const Nd = round4(Ng * Ad * 1e-6);
+
+  // Tolerable annual strikes (simplified IEC 62305-2)
+  const Cd: Record<string, number> = {
+    "Residential": 1, "Commercial": 1, "Industrial": 2,
+    "Healthcare": 2,  "Critical Infrastructure": 2, "Explosive / Flammable": 5,
+  };
+  const cd = Cd[struct_type] ?? 1;
+  const Nt = round4(1e-5 / cd);
+
+  const risk_ratio = round2(Nd / Nt);
+  const risk_check = risk_ratio >= 2 ? "LPS REQUIRED" : risk_ratio >= 0.5 ? "LPS RECOMMENDED" : "LPS NOT REQUIRED (recommended for high-value structures)";
+
+  // Down conductors
+  const perimeter = 2 * (L + W);
+  const n_dc = Math.max(2, Math.ceil(perimeter / lplP.dc_spacing));
+
+  // Protection angle (IEC 62305-3 Table 2, simplified — angle reduces linearly to 0° at H=60m for LPL I)
+  const alpha_base = lplP.angle_base;
+  const h_ref = lplP.R; // height at which angle reaches 0
+  const prot_angle = Math.max(0, Math.round(alpha_base * (1 - Math.min(H, h_ref) / (h_ref * 2))));
+
+  // Air terminal estimate
+  let n_at: number;
+  if (air_method === "Mesh") {
+    const rows_L = Math.ceil(L / lplP.mesh) + 1;
+    const rows_W = Math.ceil(W / lplP.mesh) + 1;
+    n_at = rows_L + rows_W;
+  } else {
+    // Rolling sphere / protection angle: corners + edge intervals
+    n_at = 4 + 2 * Math.floor(L / lplP.dc_spacing) + 2 * Math.floor(W / lplP.dc_spacing);
+    n_at = Math.max(4, n_at);
+  }
+
+  // Earth termination (IEC 62305-3 Table 7 — Type A minimum electrode length)
+  const min_el = Math.max(5, round2(0.5 * H));
+
+  // Cable lengths (indicative)
+  const down_cond_length_m = Math.round(n_dc * H * 1.15); // 15% extra for routing
+  const earth_ring_m = Math.round(perimeter + 20);        // ring + bonding
+
+  // SPD recommendation
+  const spd_class = lpl === "LPL I" || lpl === "LPL II" ? "Class I + II combination" : "Class II";
+
+  return {
+    // Risk assessment
+    Ad_m2:           Math.round(Ad),
+    Ng_flash_km2yr:  Ng,
+    Nd:              Nd,
+    Nt:              Nt,
+    risk_ratio:      risk_ratio,
+    risk_check:      risk_check,
+
+    // LPL parameters
+    lpl_label:           lpl,
+    efficiency_pct:      lplP.eff,
+    min_peak_current_kA: lplP.I_min,
+
+    // Air termination
+    air_term_method:     air_method,
+    rolling_sphere_R_m:  lplP.R,
+    mesh_size_m:         lplP.mesh,
+    prot_angle_deg:      prot_angle,
+    n_air_terminals_est: n_at,
+
+    // Down conductors
+    perimeter_m:      Math.round(perimeter),
+    dc_spacing_m:     lplP.dc_spacing,
+    n_down_conductors: n_dc,
+    dc_material:      dc_material,
+    down_cond_length_m: down_cond_length_m,
+
+    // Earth termination
+    earth_type:              earth_type,
+    min_electrode_length_m:  min_el,
+    n_electrodes:            n_dc,
+    earth_resistance_target_ohm: 10,
+    earth_ring_length_m:     earth_ring_m,
+
+    // SPD
+    spd_class: spd_class,
+  };
 }
 
 // ─── Electrical: Lighting Design — Lumen Method (IES / PEC 2017) ─────────────
@@ -2719,12 +2940,17 @@ function calcStairwellPressurization(inputs: Record<string, number | string>): R
   const Q_design_CMH = Q_design_m3s * 3600;
   const Q_per_CMH    = Q_per_stairwell_m3s * 3600;
 
-  // Door opening force check (NFPA 92 max = 133 N)
-  const A_door_panel = door_W * door_H; // m²
-  const F_pressure_N = delta_P_Pa * A_door_panel; // simplified: ΔP × door area
-  const F_closer_N   = 45; // typical door closer force (N)
-  const F_total_N    = F_pressure_N + F_closer_N;
-  const door_force_ok = F_total_N <= 133;
+  // Door opening force check (NFPA 92 §6.5.1.1 max = 133 N / 30 lbf)
+  // Correct formula: F = F_dc + (ΔP × A × W) / (2 × (W - d))
+  // Pressure acts at door centroid (W/2 from hinge); force applied at handle (W - d from hinge).
+  // d = handle setback from latch edge = 0.076 m (3 in), per NFPA 92.
+  const A_door_panel     = door_W * door_H; // m²
+  const d                = 0.076; // m — handle setback from latch edge (NFPA 92, 3 in)
+  const lever_arm_factor = door_W / (2 * (door_W - d)); // moment arm correction
+  const F_pressure_N     = delta_P_Pa * A_door_panel * lever_arm_factor;
+  const F_closer_N       = 45; // typical door closer force (N)
+  const F_total_N        = F_pressure_N + F_closer_N;
+  const door_force_ok    = F_total_N <= 133;
 
   // Fan motor power
   const P_fan_kW   = (Q_design_m3s * fan_static_Pa) / (fan_eff_pct / 100 * 1000);
@@ -2739,7 +2965,7 @@ function calcStairwellPressurization(inputs: Record<string, number | string>): R
 
   // NFPA 92 design pressure limits
   const delta_P_min = building_type === 'Sprinklered' ? 12.5 : 25; // Pa
-  const delta_P_max = 87; // Pa (NFPA 92 — max before door becomes too hard to open)
+  const delta_P_max = 87; // Pa — NFPA 92 §6.4.1.4 code maximum (independent of door force check)
 
   const round3 = (n: number) => Math.round(n * 1000) / 1000;
   const round2 = (n: number) => Math.round(n * 100) / 100;
@@ -2770,6 +2996,8 @@ function calcStairwellPressurization(inputs: Record<string, number | string>): R
     safety_factor,
     door_W,
     door_H,
+    d,
+    lever_arm_factor:        round3(lever_arm_factor),
     A_door_panel:            round2(A_door_panel),
     F_pressure_N:            round1(F_pressure_N),
     F_closer_N,
@@ -4520,6 +4748,73 @@ function calcUPS(inputs: Record<string, unknown>): Record<string, unknown> {
   };
 }
 
+// ─── Earthing / Grounding System (PEC 2017 Art.2.50 / IEEE 80 / IEC 62305) ───
+
+function calcEarthing(inputs: Record<string, unknown>): Record<string, unknown> {
+  const elecType  = String(inputs.electrode_type   || "Rod");
+  const soilRho   = Number(inputs.soil_resistivity || 100);   // Ohm·m
+  const numElec   = Math.max(1, Math.round(Number(inputs.num_electrodes || 1)));
+  const sysType   = String(inputs.system_type      || "Residential / Commercial");
+
+  // Resistance limit per system type
+  const R_LIMIT   = sysType === "Substation / HV" ? 1.0
+                  : sysType === "Industrial"       ? 5.0
+                  :                                  10.0;  // residential/commercial
+
+  let rSingle = 0;
+  let platArea = 0;
+  let platRadius = 0;
+
+  if (elecType === "Rod") {
+    // Dwight (1936): R = (rho / 2*pi*L) * [ln(4L/d) - 1]
+    const L = Number(inputs.rod_length_m  || 3.0);
+    const d = Number(inputs.rod_dia_mm    || 16) / 1000;  // convert mm to m
+    rSingle = (soilRho / (2 * Math.PI * L)) * (Math.log(4 * L / d) - 1);
+  } else if (elecType === "Plate") {
+    // R = rho / (4 * r),  r = sqrt(A / pi)
+    const W = Number(inputs.plate_width_m  || 0.6);
+    const H = Number(inputs.plate_height_m || 0.6);
+    platArea   = W * H;
+    platRadius = Math.sqrt(platArea / Math.PI);
+    rSingle    = soilRho / (4 * platRadius);
+  } else {
+    // Ring/Loop — Sunde (1968): R = (rho / 2*pi^2*D) * [ln(8D/d) - 2]
+    const D = Number(inputs.ring_dia_m       || 10);
+    const d = Number(inputs.ring_cond_dia_mm || 10) / 1000;  // mm to m
+    rSingle = (soilRho / (2 * Math.PI * Math.PI * D)) * (Math.log(8 * D / d) - 2);
+  }
+
+  // Parallel electrodes (simplified: adequate spacing assumed)
+  const rParallel = rSingle / numElec;
+  const effectiveR = numElec > 1 ? rParallel : rSingle;
+  const pass = effectiveR <= R_LIMIT;
+
+  // GEC sizing per PEC 2017 Table 2.50.66 (service conductor mm² → GEC mm²)
+  const svcCond = Number(inputs.service_cond_mm2 || 35);
+  let gecMm2 = 6;
+  let gecLabel = "min";
+  if (svcCond <= 35)       { gecMm2 = 6;   gecLabel = "min 6 mm2"; }
+  else if (svcCond <= 50)  { gecMm2 = 10;  gecLabel = "min 10 mm2"; }
+  else if (svcCond <= 95)  { gecMm2 = 16;  gecLabel = "min 16 mm2"; }
+  else if (svcCond <= 185) { gecMm2 = 35;  gecLabel = "min 35 mm2"; }
+  else if (svcCond <= 300) { gecMm2 = 50;  gecLabel = "min 50 mm2"; }
+  else                     { gecMm2 = 70;  gecLabel = "min 70 mm2"; }
+
+  const round3 = (v: number) => Math.round(v * 1000) / 1000;
+
+  return {
+    r_single_ohm:  round3(rSingle),
+    r_parallel_ohm: round3(rParallel),
+    r_limit_ohm:   R_LIMIT,
+    pass,
+    pass_label:    pass ? "PASS" : "FAIL",
+    gec_mm2:       gecMm2,
+    gec_label:     gecLabel,
+    plate_area_m2:  elecType === "Plate" ? Math.round(platArea * 10000) / 10000 : null,
+    plate_radius_m: elecType === "Plate" ? Math.round(platRadius * 10000) / 10000 : null,
+  };
+}
+
 // ─── HVAC: Duct Sizing — Equal Friction Method (ASHRAE Ch.21 / SMACNA) ────────
 
 function calcDuctSizing(inputs: Record<string, unknown>): Record<string, unknown> {
@@ -5204,8 +5499,12 @@ serve(async (req) => {
       results = calcPFC(inputs);
     } else if (calc_type === "Cable Tray Sizing") {
       results = calcCableTray(inputs);
+    } else if (calc_type === "Lightning Protection System (LPS)") {
+      results = calcLightningProtection(inputs);
     } else if (calc_type === "UPS Sizing") {
       results = calcUPS(inputs);
+    } else if (calc_type === "Earthing / Grounding System") {
+      results = calcEarthing(inputs);
     } else if (calc_type === "Duct Sizing (Equal Friction)") {
       results = calcDuctSizing(inputs);
     } else if (calc_type === "Refrigerant Pipe Sizing") {

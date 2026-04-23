@@ -686,6 +686,7 @@ const CALC_TYPES = {
     { id: 'Water Treatment System',   icon: '🏭', desc: 'Treatment train, filter sizing, chlorination dosing, iron removal — PNS 1998 / DOH / WHO', available: true },
     { id: 'Wastewater Treatment (STP)', icon: '♻️', desc: 'Sewage treatment plant sizing — activated sludge, aeration, sludge — DENR DAO 2016-08 / DOH PD 856', available: true },
     { id: 'Storm Drain / Stormwater',   icon: '🌧️', desc: 'Rational Method catchment flow, pipe sizing (Manning\'s), velocity check — DPWH / PAGASA', available: true },
+    { id: 'Grease Trap Sizing',         icon: '🪣', desc: 'PDI BH-201 flow rate method, fixture-based, PDI standard size, grease retention, cleaning interval — PDI BH-201 / ASPE / PPC', available: true },
   ],
   Electrical: [
     { id: 'Load Estimation',  icon: '📋', desc: 'Panel schedule, demand factor, service size', available: true  },
@@ -698,6 +699,8 @@ const CALC_TYPES = {
     { id: 'Power Factor Correction', icon: '🔋', desc: 'Capacitor bank kVAR, PF improvement, kVA reduction, feeder current reduction, Meralco PF surcharge check — IEEE 18 / IEEE 1036 / PEC 2017', available: true  },
     { id: 'Cable Tray Sizing', icon: '📐', desc: 'Fill area, tray width selection, NEMA VE 1 load class, span load, NEC 310.15 ampacity derating — NEMA VE 1 / NEC 392 / PEC 2017 Art. 3.92', available: true  },
     { id: 'UPS Sizing', icon: '🔌', desc: 'UPS kVA selection, loading %, battery Ah, battery config, input breaker, autonomy verification — IEC 62040-3 / IEEE 446 / IEEE 1184 / PEC 2017 Art. 7', available: true  },
+    { id: 'Lightning Protection System (LPS)', icon: '🌩️', desc: 'Collection area, annual strike frequency, LPL selection, rolling sphere / mesh, down conductor count, earth termination — IEC 62305 / NFPA 780 / PEC', available: true  },
+    { id: 'Earthing / Grounding System', icon: '⚡', desc: 'Ground electrode resistance (Dwight/Sunde formulas), parallel rods, GEC conductor sizing, pass/fail vs. resistance limit — PEC 2017 Art. 2.50 / IEEE 80 / IEC 62305', available: true  },
   ],
   'Fire Protection': [
     { id: 'Fire Sprinkler Hydraulic', icon: '🚿', desc: 'NFPA 13 design area method, flow and pressure', available: true  },
@@ -915,21 +918,29 @@ const GUIDES = {
       'Velocity:  V = Q / A   where A = pi x (D/2)^2',
       'Pipe selected: smallest D where V_min <= V <= V_max for service type',
       '',
+      'Hazen-Williams temperature correction (ASHRAE 2021 Fundamentals Ch.22):',
+      'C_T = C_base x (1 + 0.01 x (T - 15.5))   where T in degC',
+      'Cold fluids (CHW 7°C): C_T < C_base — higher friction loss',
+      'Hot fluids (HHW 80°C): C_T > C_base — lower friction loss',
+      '',
       'Friction loss (Hazen-Williams):',
-      'hf = (10.67 x L x Q^1.852) / (C^1.852 x D^4.87)',
+      'hf = (10.67 x L x Q^1.852) / (C_T^1.852 x D^4.87)',
       'Q in m3/s, D in m, L = equivalent length (pipe + fittings)',
       '',
       'Equivalent length:  L_eq = L_pipe x (1 + fittings_allowance / 100)',
       'Pressure drop (kPa/m) = hf_per_m x rho x g / 1000',
-      'Reynolds number:  Re = V x D / nu  (nu = 0.8e-6 m2/s at 30°C)',
+      'Reynolds number:  Re = V x D / nu',
+      'nu = kinematic viscosity of water at operating temperature (ASHRAE Table 2)',
+      '  7°C=1.414e-6, 20°C=1.004e-6, 30°C=0.801e-6, 35°C=0.727e-6, 80°C=0.365e-6 m2/s',
     ],
     fields: [
-      { name: 'Service Type', tip: 'Sets the acceptable velocity range automatically. Chilled/Hot Water: 0.6-3.0 m/s. Condenser Water: 0.9-3.5 m/s. Fire Protection: 1.5-4.5 m/s. Also auto-fills fluid density.' },
+      { name: 'Service Type', tip: 'Sets the acceptable velocity range and auto-fills fluid temperature and density. Chilled/Hot Water: 0.6-3.0 m/s. Condenser Water: 0.9-3.5 m/s. Fire Protection: 1.5-4.5 m/s.' },
       { name: 'Flow Rate (L/min)', tip: 'Required system flow through this pipe segment. For HVAC chilled water: 0.043 L/s per kW of cooling load is a common starting point.' },
       { name: 'Pipe Length (m)', tip: 'Straight pipe run only. Do not add fittings here — use Fittings Allowance % instead. Measure from start to end of the segment.' },
-      { name: 'Pipe Material', tip: 'Determines Hazen-Williams C factor: PVC/HDPE=150, Stainless/Copper=140, GI=120, Cast Iron=100. Higher C = smoother pipe = lower friction loss.' },
+      { name: 'Pipe Material', tip: 'Determines base Hazen-Williams C factor: PVC/HDPE=150, Stainless/Copper=140, GI=120, Cast Iron=100. The C factor is then corrected for fluid temperature.' },
       { name: 'Fittings Allowance (%)', tip: 'Extra pipe length equivalent to cover all elbows, tees, valves, reducers. 20% is standard for typical runs. Use 30-40% for complex or heavily valved systems.' },
       { name: 'Fluid Density (kg/m3)', tip: 'Auto-filled by service type. Water=1000, Chilled water=999, Hot water (80°C)=972. Only change if using a special fluid.' },
+      { name: 'Fluid Temperature (°C)', tip: 'Auto-filled by service type: CHW Supply=7°C, HHW=80°C, Condenser=35°C, Cold/General=20°C. Used for H-W temperature correction and kinematic viscosity (Re calculation).' },
     ],
     notes: [
       'The report shows a comparison table of pipe sizes near the recommended selection — use this to compare velocity and pressure drop trade-offs.',
@@ -1143,6 +1154,52 @@ const GUIDES = {
       'Always check the outfall capacity — a correctly sized pipe that discharges into an undersized channel or a tidal/flooded outfall will still cause flooding.',
       'For Metro Manila projects, verify actual rainfall intensity with PAGASA Engineering Hydrology Division for IDF curves at the exact municipality.',
       'Velocity check is critical: below 0.6 m/s sediment will deposit and block the pipe. Above 3.0 m/s (concrete) or 5.0 m/s (uPVC/HDPE) pipe erosion and joint damage will occur.',
+    ],
+  },
+
+  'Grease Trap Sizing': {
+    title: "Grease Trap Sizing — PDI BH-201 Flow Rate Method",
+    subtitle: "Sizes a grease trap (grease interceptor) for commercial kitchens and food service facilities using the Plumbing and Drainage Institute (PDI) BH-201 fixture flow rate method. Determines required flow rate capacity, liquid volume, grease retention capacity, and recommended cleaning interval.",
+    standards: [
+      "PDI BH-201 — Grease Interceptors (Plumbing and Drainage Institute)",
+      "ASPE Data Book Vol. 2 — Grease Interceptor Sizing (American Society of Plumbing Engineers)",
+      "Philippine Plumbing Code (PPC) — based on UPC/IPC, Section on Interceptors",
+      "IAPMO/UPC Section 1015 — Interceptors and Separators",
+      "DENR DAO 2016-08 — Revised Effluent Standards (FOG limit: 5 mg/L for Class D discharge)",
+    ],
+    formulas: [
+      "Total Fixture Flow (L/min) = Σ(Qty_i × Flow Rate_i)",
+      "",
+      "Design Flow Rate (L/min) = Total Fixture Flow × Simultaneous Use Factor (SUF)",
+      "  SUF = 0.75 (commercial kitchen, PDI standard default)",
+      "",
+      "Design Flow Rate (GPM) = Design Flow (L/min) ÷ 3.785",
+      "",
+      "PDI Standard Size = next standard size (GPM) ≥ Design GPM",
+      "  PDI standard sizes: 4, 6, 7, 10, 15, 20, 25, 35, 50, 75, 100 GPM",
+      "",
+      "Liquid Capacity (gallons) = PDI Size (GPM) × 2  [PDI BH-201]",
+      "Liquid Capacity (liters) = Liquid Capacity (gal) × 3.785",
+      "",
+      "Grease Retention Capacity (lbs) = PDI Size (GPM) × 1  [PDI BH-201]",
+      "Grease Retention Capacity (kg) = Grease Retention (lbs) × 0.4536",
+      "",
+      "Estimated Cleaning Interval (days) = (0.25 × Grease Retention kg) ÷ Daily Grease Load (kg/day)",
+      "  Daily Grease Load = Meals per Day × Grease per Meal factor (by facility type)",
+    ],
+    fields: [
+      { name: "Facility Type", tip: "Sets the Simultaneous Use Factor (SUF) and daily grease generation rate. Restaurant: SUF=0.75, ~15g grease/meal. Hotel Kitchen: SUF=0.75, ~20g/meal. Food Court: SUF=0.75, ~10g/meal. Food Processing: SUF=0.85, higher load. Institutional: SUF=0.75, ~8g/meal." },
+      { name: "Meals per Day", tip: "Total meal covers served daily — used to estimate daily grease load for computing cleaning interval. For food processing plants, enter daily production batches instead of meals." },
+      { name: "Fixture List", tip: "Add every kitchen fixture that will discharge through the grease trap. Only fixtures connected to the grease interceptor branch drain should be listed — general plumbing fixtures (toilets, lavatories) do not connect to grease traps. Double-check with the kitchen layout plan." },
+      { name: "Simultaneous Use Factor (SUF)", tip: "Fraction of all connected fixtures operating at the same time. PDI BH-201 default: 0.75 (75%). Higher for high-throughput industrial kitchens. Lower for small low-use pantries. Never set below 0.50 for commercial applications." },
+    ],
+    notes: [
+      "PDI BH-201 defines the flow rate method: grease trap capacity equals the design flow in GPM. A 10 GPM trap handles up to 10 GPM design flow, has 20 gallons (76L) liquid capacity and 10 lbs (4.5 kg) grease retention.",
+      "DENR DAO 2016-08 limits FOG (fats, oils, grease) in effluent to 5 mg/L for Class D discharge. Without a properly sized grease interceptor, most commercial kitchens will exceed this limit.",
+      "Cleaning interval: PDI recommends cleaning when grease and solids fill 25% of the liquid capacity. For a typical restaurant, this is every 1–4 weeks. Exceeding the cleaning interval causes grease to pass through into the sewer.",
+      "Undersink grease traps (mechanical type): suitable for flow rates up to 4–10 GPM. Above 10 GPM, an in-ground gravity grease interceptor (1000L+) is required.",
+      "All grease traps shall be accessible for inspection and pumping. In-ground interceptors shall have a minimum 300mm diameter access manhole for each compartment.",
+      "The Philippine Plumbing Code requires a grease interceptor for every food service establishment connected to a public sewer.",
     ],
   },
 
@@ -1810,6 +1867,112 @@ const GUIDES = {
     ],
   },
 
+  'Lightning Protection System (LPS)': {
+    title: "Lightning Protection System (LPS) — IEC 62305 Risk Assessment and Design",
+    subtitle: "Determines the expected annual lightning strike frequency for the structure (IEC 62305-2), selects the Lightning Protection Level (LPL I–IV), and designs the air termination network (rolling sphere / mesh / protection angle), down conductor layout, and earth termination system per IEC 62305-3.",
+    standards: [
+      "IEC 62305-1 — Protection Against Lightning: General Principles",
+      "IEC 62305-2 — Protection Against Lightning: Risk Management",
+      "IEC 62305-3 — Protection Against Lightning: Physical Damage to Structures and Life Hazard",
+      "IEC 62305-4 — Protection Against Lightning: Electrical and Electronic Systems Within Structures",
+      "NFPA 780 — Standard for the Installation of Lightning Protection Systems",
+      "PEC 2017 Article 2.50 — Grounding and Bonding (earthing requirements)",
+    ],
+    formulas: [
+      "Collection Area (IEC 62305-2 Annex A):",
+      "  Ad = L×W + 6×H×(L+W) + 9×π×H²   [m²]",
+      "",
+      "Annual Strike Frequency:",
+      "  Nd = Ng × Ad × 10⁻⁶   [strikes/year]",
+      "  where Ng = lightning flash density (flashes/km²/yr)",
+      "",
+      "Tolerable Strike Frequency (simplified):",
+      "  Nt = 10⁻⁵ / Cd   [per year]",
+      "  Cd = structure location factor (1 for ordinary, 5 for explosive)",
+      "",
+      "Risk Check: if Nd > Nt → LPS REQUIRED",
+      "",
+      "Down Conductor Count:",
+      "  n_dc = max(2, ceil(perimeter / dc_spacing))",
+      "  perimeter = 2 × (L + W)",
+      "",
+      "Earth Electrode Length (IEC 62305-3 Table 7):",
+      "  min_length = max(5, 0.5 × H)   [m] per electrode",
+    ],
+    fields: [
+      { name: "Structure Dimensions (L, W, H)", tip: "Length, width, and height of the building in metres. Height H has the largest effect on collection area — a 20 m tall building has ~8× more effective catchment area than a 5 m building of the same footprint." },
+      { name: "Location / Flash Density (Ng)", tip: "Lightning flash density in flashes/km²/yr. Select the Philippine region from the preset list — values are from PAGASA isoceraunic data. Use Custom for sites with a site-specific Ng from a lightning density map or PAGASA data." },
+      { name: "Structure Type", tip: "Affects the tolerable risk threshold (Nt). Explosive/Flammable structures have the lowest tolerance (Nt = 2×10⁻⁶) and almost always require LPL I. Healthcare and critical infrastructure use Nt = 5×10⁻⁶. Residential and commercial use Nt = 1×10⁻⁵." },
+      { name: "Protection Level (LPL)", tip: "LPL I (highest protection, 99% efficiency): rolling sphere R=20m, mesh 5×5m — required for explosive/healthcare. LPL II (97%): R=30m, mesh 10×10m — recommended for commercial/industrial. LPL III (91%): R=45m, mesh 15×15m. LPL IV (80%): R=60m — minimum for ordinary dwellings. If in doubt, specify one level higher than the risk assessment minimum." },
+      { name: "Air Termination Method", tip: "Rolling Sphere: geometrically the most accurate — a sphere of radius R is rolled over the building; wherever it touches is unprotected. Mesh: a conductor grid on the roof intercepts direct strikes — best for flat roofs. Protection Angle: simple method using a cone of protection angle α from the tip of a Franklin rod — use only for isolated simple structures, not for complex rooftops." },
+      { name: "Down Conductor Material", tip: "Copper (minimum 16 mm² solid or 25 mm² stranded): highest conductivity, recommended for permanent installation. Galvanized Steel (minimum 50 mm²): lower cost, adequate conductivity, suitable for industrial. Aluminium (minimum 25 mm²): use only where copper corrosion is a concern; never bury aluminium in concrete or soil without sleeving." },
+      { name: "Earth Termination Type", tip: "Type A (radial or vertical electrodes): minimum 2 electrodes, one per down conductor, placed symmetrically around the building — flexible for retro-fits. Type B (ring electrode or foundation electrode): a horizontal ring conductor around the perimeter of the structure at 0.5 m depth — preferred for new construction, provides the lowest and most uniform earth resistance." },
+    ],
+    notes: [
+      "IEC 62305-3 requires equipotential bonding of ALL metal building elements (structural steel, roof cladding, HVAC, pipes, conduits) to the LPS. Missing bonds create side-flash hazards inside the building.",
+      "Target earth resistance: ≤ 10 Ω for all LPLs per IEC 62305-3. Measure with a fall-of-potential method (IEEE Std 81). In high-resistivity Philippine laterite soils, use Type B ring electrode or bentonite backfill.",
+      "SPDs (Surge Protective Devices) per IEC 62305-4: always required at the main electrical panel when an external LPS is installed. LPL I/II → Class I+II combination SPD. LPL III/IV → Class II SPD minimum.",
+      "PEC 2017 requires LPS for buildings >15 m height, or any building storing hazardous materials, or hospitals and essential facilities. BFP (Bureau of Fire Protection) also requires LPS certification for occupancy permit for classified occupancies.",
+      "A PRC-licensed Electrical Engineer must sign and seal LPS design drawings for submission to the Building Official and BFP.",
+    ],
+  },
+
+  'Earthing / Grounding System': {
+    title: "Earthing / Grounding System — Ground Electrode Resistance, GEC Sizing",
+    subtitle: "Calculates the resistance of a buried ground electrode using the Dwight formula (rod), equivalent-radius formula (plate), or Sunde formula (ring/loop). Determines the number of parallel electrodes needed to meet the applicable resistance limit, and sizes the grounding electrode conductor per PEC 2017 Table 2.50.66. Aligned with PEC 2017 Article 2.50, IEEE 80, IEC 62305, and NEC Article 250.",
+    standards: [
+      "PEC 2017 Article 2.50 — Grounding and Bonding (Philippine Electrical Code)",
+      "IEEE 80-2013 — Guide for Safety in AC Substation Grounding",
+      "IEC 62305-3 — Protection Against Lightning: Physical Damage and Life Hazard",
+      "NEC Article 250 — Grounding and Bonding (reference for GEC sizing)",
+      "IEEE 142-2007 (Green Book) — Recommended Practice for Grounding of Industrial and Commercial Power Systems",
+    ],
+    formulas: [
+      "Rod Electrode Resistance (Dwight Formula):",
+      "  R = (rho / 2*pi*L) x [ln(4L/d) - 1]",
+      "  rho = soil resistivity (Ohm*m)   L = rod length (m)   d = rod diameter (m)",
+      "",
+      "Plate Electrode Resistance:",
+      "  R = rho / (4r)   where r = sqrt(A/pi) = equivalent radius of plate",
+      "  A = plate face area (m^2) = width * height",
+      "",
+      "Ring (Loop) Electrode Resistance (Sunde Formula):",
+      "  R = (rho / 2*pi^2*D) x [ln(8D/d) - 2]",
+      "  D = mean diameter of ring (m)   d = conductor diameter (m)",
+      "",
+      "Parallel Electrodes (simplified, spacing > 2x depth):",
+      "  R_N = R_single / N",
+      "  N = number of electrodes",
+      "",
+      "GEC Sizing (PEC Table 2.50.66 / NEC Table 250.66):",
+      "  Service conductor <= 35 mm2  -> GEC 8 mm2",
+      "  Service conductor <= 50 mm2  -> GEC 10 mm2",
+      "  Service conductor <= 70 mm2  -> GEC 16 mm2",
+      "  Service conductor <= 95 mm2  -> GEC 25 mm2",
+      "  Service conductor <= 120 mm2 -> GEC 35 mm2",
+      "  Service conductor <= 240 mm2 -> GEC 50 mm2",
+    ],
+    fields: [
+      { name: "System Type", tip: "Residential/Commercial: 10 Ohm limit per PEC 2017 Art. 2.50 / NEC 250.53. Industrial: 5 Ohm limit per PEC 2017 Art. 2.50.56 and IEEE 142 Green Book. Substation: 1 Ohm limit per IEEE 80. Telecommunications: 5 Ohm per IEC 62305 and DOST/NTC requirements." },
+      { name: "Electrode Type", tip: "Rod: driven vertically into earth. Most common for buildings. Standard Philippine practice uses 16mm diameter copper-bonded steel rod, 2.4m or 3m long. Plate: buried horizontally, typically 600x600mm copper plate at 1m depth. Ring: bare copper conductor (usually 50mm2) laid in a trench around the building perimeter, used in substation earthing grids." },
+      { name: "Soil Resistivity", tip: "Measured in Ohm*m. Typical Philippine values: Wet/marshy soil 10-100; Clay/loam 100-300; Sandy loam 300-500; Sand 500-2000; Gravel/rocky 2000-10000. For critical installations, conduct a 4-pin Wenner soil resistivity test per IEEE 81 before design." },
+      { name: "Number of Electrodes", tip: "If a single electrode does not meet the resistance limit, add more in parallel (well-separated, spacing > 2x electrode depth or length). For N identical electrodes with adequate spacing: R_N = R_single / N." },
+      { name: "Rod Length (m)", tip: "Standard lengths: 1.5m, 2.4m, 3.0m, 4.5m. Longer rods reach deeper, wetter soil layers and achieve lower resistance. Philippine BFP/LGU permits generally require minimum 2.4m rod length for buildings. Deep-driven rods (6m+) are used in high-resistivity soil areas." },
+      { name: "Rod Diameter (mm)", tip: "Standard: 16mm copper-bonded steel rod (most common in Philippine practice). Solid copper rods: 12mm or 16mm. Galvanized steel: 16mm or 20mm. Larger diameter reduces resistance only slightly; length is the dominant factor." },
+      { name: "Plate Width / Height (m)", tip: "Standard plate: 0.6m x 0.6m (0.36 m2). Larger plates lower resistance. Plate must be buried at least 0.5m below grade and in a permanently moist soil layer. Copper plate is preferred for Philippine coastal and industrial sites." },
+      { name: "Ring Diameter (m)", tip: "For building foundation ring electrodes, use the perimeter of the building foundation loop. For substation earthing grids, use the larger of the transformer yard dimensions. A 10m diameter ring (31m circumference) is typical for a small substation." },
+      { name: "Service Conductor Size (mm2)", tip: "The largest ungrounded (phase) conductor entering the service. Used to size the grounding electrode conductor per PEC Table 2.50.66. For example: 35mm2 service conductor requires 8mm2 GEC; 95mm2 service conductor requires 25mm2 GEC." },
+    ],
+    notes: [
+      "Resistance limits: 10 Ohm for residential/commercial (PEC Art. 2.50), 5 Ohm for industrial (IEEE 142 Green Book), 1 Ohm for substations (IEEE 80). Always check the AHJ (Authority Having Jurisdiction) requirement for the specific project.",
+      "Soil resistivity is the dominant variable in earth resistance calculations. A single soil resistivity value is used here; for critical installations, perform multi-depth Wenner measurements per IEEE 81 to capture seasonal variation.",
+      "The Dwight formula assumes a uniform soil model and that the rod top is at the surface. Buried rods (top below grade) require a correction factor. For most building installations, the error is within 5-10%.",
+      "Parallel electrode efficiency: the formula R_N = R_single/N is an approximation valid when electrode spacing exceeds twice the electrode length/depth. Closely spaced rods interact and the combined resistance is higher than predicted by this formula.",
+      "Philippine practice (PEC 2017 Art. 2.50.56): the grounding electrode conductor (GEC) must be continuous without splices and must be protected in rigid metallic conduit where subject to physical damage.",
+      "Touch voltage and step voltage limits are not computed in this simplified calculator. For substation grounding grid design (IEEE 80), a full ground grid analysis using dedicated software (CDEGS, WinIGS, or ETAP) is required for touch/step voltage safety verification.",
+    ],
+  },
+
   'Fire Sprinkler Hydraulic': {
     title: 'Fire Sprinkler Hydraulic Calculation — NFPA 13 Design Area Method',
     subtitle: 'Determines the required flow, pressure, and pipe size for an automatic sprinkler system using the density/area method prescribed in NFPA 13. Used for BFP permit submissions in the Philippines.',
@@ -1905,10 +2068,12 @@ const GUIDES = {
       'Design pressure differential (NFPA 92):',
       '  Sprinklered building:     min 12.5 Pa, recommended 25 Pa',
       '  Non-sprinklered building: min 25.0 Pa, recommended 50 Pa',
-      '  Maximum (all buildings):  87 Pa (above this, door is too hard to open)',
+      '  Maximum (all buildings):  87 Pa (NFPA 92 §6.4.1.4 code ceiling)',
       '',
-      'Door opening force check:',
-      '  F_total = F_door_closer + (deltaP x A_door_panel)',
+      'Door opening force check (NFPA 92 §6.5.1.1):',
+      '  F_total = F_dc + (deltaP x A x W) / (2 x (W - d))',
+      '  d = handle setback from latch edge = 0.076 m (3 in, NFPA 92)',
+      '  Lever arm factor = W / (2 x (W - d))',
       '  NFPA 92 maximum: 133 N (30 lbf)',
       '',
       'Fan motor power: P_kW = Q (m³/s) x static pressure (Pa) / (fan efficiency x 1000)',
@@ -3287,11 +3452,23 @@ function renderInputForm(calcType) {
         </div>
       </div>
 
+      <!-- Fluid temperature -->
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Fluid Temperature <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(auto by service)</span></div>
+          <div class="input-group">
+            <input id="f-fluid-temp" class="wh-input" type="number" value="20" min="-10" max="150" />
+            <span class="input-unit">°C</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Info box -->
       <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
-        Method: Velocity method + Hazen-Williams friction loss. Selects smallest pipe diameter that keeps velocity within acceptable range for the selected service type. Standard: PSME / ASHRAE.
+        Method: Velocity method + Hazen-Williams friction loss with temperature correction. C factor adjusted for fluid temperature: C_T = C_base × (1 + 0.01 × (T − 15.5)). Kinematic viscosity (Re) is also temperature-dependent. Standard: PSME / ASHRAE.
       </div>
     `;
+    applyServiceDefaults('Chilled Water Supply');
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
@@ -4157,6 +4334,57 @@ function renderInputForm(calcType) {
     document.getElementById('calc-btn').disabled = false;
   }
 
+
+  if (calcType === 'Grease Trap Sizing') {
+    const GT_FAC_TYPES = ['Restaurant / Commercial Kitchen','Hotel Kitchen','Food Court / Cafeteria','Food Processing Plant','Institutional / School Kitchen','Custom'];
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Restaurant XYZ — Grease Interceptor" />
+      </div>
+      <div class="mb-4">
+        <div class="field-label">Facility Type</div>
+        <div class="toggle-group" id="tg-gt-fac" style="flex-wrap:wrap;">
+          ${GT_FAC_TYPES.map((v,i) =>
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-gt-fac','${v}');applyGTFacDefaults('${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Meals per Day</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:0.3rem;">Used to estimate daily grease load and cleaning interval.</div>
+          <div class="input-group">
+            <input id="f-gt-meals" class="wh-input" type="number" value="200" min="1" step="1" />
+            <span class="input-unit">meals/day</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Simultaneous Use Factor</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:0.3rem;">PDI BH-201 default: 0.75</div>
+          <div class="input-group">
+            <input id="f-gt-suf" class="wh-input" type="number" value="0.75" min="0.50" max="1.0" step="0.01" />
+            <span class="input-unit">SUF</span>
+          </div>
+        </div>
+      </div>
+      <div class="mb-2" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">
+        <div class="field-label" style="margin:0;">Fixtures Connected to Grease Trap</div>
+        <button class="wh-btn-sm" onclick="addGTFixtureRow()">+ Add Fixture</button>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 100px 70px 28px;gap:4px;margin-bottom:0.3rem;font-size:0.72rem;color:rgba(255,255,255,0.5);padding:0 2px;">
+        <div>Fixture Type</div><div>Flow (L/min)</div><div>Qty</div><div></div>
+      </div>
+      <div id="gt-fixture-list" style="display:flex;flex-direction:column;gap:4px;"></div>
+      <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Method: PDI BH-201 Flow Rate Method. Q_design = Total fixture flow x SUF. PDI standard sizes: 4, 6, 7, 10, 15, 20, 25, 35, 50, 75, 100 GPM. Liquid capacity = PDI size x 2 gallons. Standards: PDI BH-201, ASPE, PPC.
+      </div>
+    `;
+    addGTFixtureRow('Single Kitchen Sink', 7.6, 2);
+    setStep(4);
+    applyGTFacDefaults('Restaurant / Commercial Kitchen');
+  }
+
   if (calcType === 'Load Estimation') {
     const LOAD_TYPES = ['Lighting (General)','Lighting (Emergency)','Convenience Receptacles','Air Conditioning (Unit)','Air Conditioning (Central Chiller)','Motor (General)','Motor (Fire Pump)','Water Heater','Elevator / Escalator','Server / IT Equipment','Kitchen Equipment','Welding Equipment','Custom'];
     area.innerHTML = `
@@ -4650,6 +4878,261 @@ function renderInputForm(calcType) {
     addUPSLoadRow('Servers / IT Equipment', 3000, 0.9, 2);
     addUPSLoadRow('Network Switches', 500, 1.0, 4);
     addUPSLoadRow('Workstations', 800, 0.9, 5);
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+    return;
+  }
+
+  if (calcType === 'Lightning Protection System (LPS)') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Building Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Main Office Building — LPS Design" />
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div>
+          <div class="field-label">Building Length L (m)</div>
+          <input id="f-lps-len" class="wh-input" type="number" value="30" min="1" />
+        </div>
+        <div>
+          <div class="field-label">Building Width W (m)</div>
+          <input id="f-lps-wid" class="wh-input" type="number" value="20" min="1" />
+        </div>
+        <div>
+          <div class="field-label">Building Height H (m)</div>
+          <input id="f-lps-ht" class="wh-input" type="number" value="12" min="1" />
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Location / Flash Density (Ng)</div>
+        <select id="f-lps-loc" class="wh-input" onchange="toggleLPSCustomNg()">
+          <option value="Metro Manila / NCR">Metro Manila / NCR — 10 fl/km²/yr</option>
+          <option value="Baguio / Cordillera">Baguio / Cordillera — 12 fl/km²/yr</option>
+          <option value="Ilocos Region">Ilocos Region — 8 fl/km²/yr</option>
+          <option value="Cagayan Valley">Cagayan Valley — 12 fl/km²/yr</option>
+          <option value="Central Luzon">Central Luzon — 10 fl/km²/yr</option>
+          <option value="CALABARZON">CALABARZON — 10 fl/km²/yr</option>
+          <option value="Bicol Region">Bicol Region — 14 fl/km²/yr</option>
+          <option value="Western Visayas">Western Visayas — 10 fl/km²/yr</option>
+          <option value="Central Visayas (Cebu)">Central Visayas (Cebu) — 10 fl/km²/yr</option>
+          <option value="Eastern Visayas">Eastern Visayas — 12 fl/km²/yr</option>
+          <option value="Zamboanga Peninsula">Zamboanga Peninsula — 12 fl/km²/yr</option>
+          <option value="Northern Mindanao">Northern Mindanao — 14 fl/km²/yr</option>
+          <option value="Davao Region">Davao Region — 14 fl/km²/yr</option>
+          <option value="SOCCSKSARGEN">SOCCSKSARGEN — 16 fl/km²/yr</option>
+          <option value="CARAGA">CARAGA — 14 fl/km²/yr</option>
+          <option value="ARMM / BARMM">ARMM / BARMM — 14 fl/km²/yr</option>
+          <option value="Custom">Custom (enter Ng below)</option>
+        </select>
+      </div>
+
+      <div id="lps-custom-ng-row" style="display:none;" class="mb-4">
+        <div class="field-label">Custom Ng (flashes/km²/yr)</div>
+        <input id="f-lps-ng" class="wh-input" type="number" value="10" min="1" max="50" />
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Structure Type</div>
+        <div class="toggle-group" id="tg-lps-struct" style="flex-wrap:wrap;">
+          <button class="toggle-btn active" data-val="Residential" onclick="toggle('tg-lps-struct','Residential')">Residential</button>
+          <button class="toggle-btn" data-val="Commercial" onclick="toggle('tg-lps-struct','Commercial')">Commercial</button>
+          <button class="toggle-btn" data-val="Industrial" onclick="toggle('tg-lps-struct','Industrial')">Industrial</button>
+          <button class="toggle-btn" data-val="Healthcare" onclick="toggle('tg-lps-struct','Healthcare')">Healthcare</button>
+          <button class="toggle-btn" data-val="Critical Infrastructure" onclick="toggle('tg-lps-struct','Critical Infrastructure')">Critical</button>
+          <button class="toggle-btn" data-val="Explosive / Flammable" onclick="toggle('tg-lps-struct','Explosive / Flammable')">Explosive / Flammable</button>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Lightning Protection Level (LPL)</div>
+        <div class="toggle-group" id="tg-lps-lpl">
+          <button class="toggle-btn" data-val="LPL I" onclick="toggle('tg-lps-lpl','LPL I')">LPL I — 99%</button>
+          <button class="toggle-btn active" data-val="LPL II" onclick="toggle('tg-lps-lpl','LPL II')">LPL II — 97%</button>
+          <button class="toggle-btn" data-val="LPL III" onclick="toggle('tg-lps-lpl','LPL III')">LPL III — 91%</button>
+          <button class="toggle-btn" data-val="LPL IV" onclick="toggle('tg-lps-lpl','LPL IV')">LPL IV — 80%</button>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="field-label">Air Termination Method</div>
+        <div class="toggle-group" id="tg-lps-method">
+          <button class="toggle-btn active" data-val="Rolling Sphere" onclick="toggle('tg-lps-method','Rolling Sphere')">Rolling Sphere</button>
+          <button class="toggle-btn" data-val="Mesh" onclick="toggle('tg-lps-method','Mesh')">Mesh</button>
+          <button class="toggle-btn" data-val="Protection Angle" onclick="toggle('tg-lps-method','Protection Angle')">Protection Angle</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Down Conductor Material</div>
+          <div class="toggle-group" id="tg-lps-dc">
+            <button class="toggle-btn active" data-val="Copper" onclick="toggle('tg-lps-dc','Copper')">Copper</button>
+            <button class="toggle-btn" data-val="Galvanized Steel" onclick="toggle('tg-lps-dc','Galvanized Steel')">Galv. Steel</button>
+            <button class="toggle-btn" data-val="Aluminum" onclick="toggle('tg-lps-dc','Aluminum')">Aluminium</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Earth Termination Type</div>
+          <div class="toggle-group" id="tg-lps-earth" style="flex-wrap:wrap;">
+            <button class="toggle-btn active" data-val="Type A — Radial / Vertical Electrodes" onclick="toggle('tg-lps-earth','Type A — Radial / Vertical Electrodes')">Type A (Radial)</button>
+            <button class="toggle-btn" data-val="Type B — Ring / Foundation Electrode" onclick="toggle('tg-lps-earth','Type B — Ring / Foundation Electrode')">Type B (Ring)</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        IEC 62305-2 Risk Assessment + IEC 62305-3 Design. Nd = Ng × Ad × 10⁻⁶. Collection area Ad = LW + 6H(L+W) + 9πH². LPL I: R=20m, mesh=5m. LPL II: R=30m, mesh=10m. Earth resistance target: ≤ 10 Ω.
+      </div>
+    `;
+    document.getElementById('f-lps-loc').addEventListener('change', toggleLPSCustomNg);
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+    return;
+  }
+
+  if (calcType === 'Earthing / Grounding System') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Building A Earthing System" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">System Type <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(resistance limit)</span></div>
+          <div class="toggle-group" id="tg-eg-systype" style="flex-wrap:wrap;">
+            <button class="toggle-btn active" data-val="Residential / Commercial" onclick="toggle('tg-eg-systype','Residential / Commercial')">Residential / Commercial (10 &Omega;)</button>
+            <button class="toggle-btn" data-val="Industrial" onclick="toggle('tg-eg-systype','Industrial')">Industrial (5 &Omega;)</button>
+            <button class="toggle-btn" data-val="Substation (IEEE 80)" onclick="toggle('tg-eg-systype','Substation (IEEE 80)')">Substation (1 &Omega;)</button>
+            <button class="toggle-btn" data-val="Telecommunications" onclick="toggle('tg-eg-systype','Telecommunications')">Telecom (5 &Omega;)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Electrode Type</div>
+          <div class="toggle-group" id="tg-eg-electype" style="flex-wrap:wrap;">
+            <button class="toggle-btn active" data-val="Rod" onclick="toggle('tg-eg-electype','Rod');toggleEGElecFields()">Rod</button>
+            <button class="toggle-btn" data-val="Plate" onclick="toggle('tg-eg-electype','Plate');toggleEGElecFields()">Plate</button>
+            <button class="toggle-btn" data-val="Ring" onclick="toggle('tg-eg-electype','Ring');toggleEGElecFields()">Ring / Loop</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Soil Resistivity &rho; <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(&Omega;&middot;m)</span></div>
+          <div class="toggle-group" id="tg-eg-soil" style="flex-wrap:wrap;" onchange="syncEGSoilInput()">
+            <button class="toggle-btn" data-val="50"    onclick="toggle('tg-eg-soil','50');document.getElementById('f-eg-rho').value='50'">50 (wet clay)</button>
+            <button class="toggle-btn active" data-val="100"   onclick="toggle('tg-eg-soil','100');document.getElementById('f-eg-rho').value='100'">100 (loam)</button>
+            <button class="toggle-btn" data-val="300"   onclick="toggle('tg-eg-soil','300');document.getElementById('f-eg-rho').value='300'">300 (sandy)</button>
+            <button class="toggle-btn" data-val="1000"  onclick="toggle('tg-eg-soil','1000');document.getElementById('f-eg-rho').value='1000'">1000 (gravel)</button>
+            <button class="toggle-btn" data-val="custom" onclick="toggle('tg-eg-soil','custom')">Custom</button>
+          </div>
+          <input id="f-eg-rho" class="wh-input mt-2" type="number" value="100" min="1" placeholder="Soil resistivity (Ohm*m)" />
+        </div>
+        <div>
+          <div class="field-label">Number of Parallel Electrodes</div>
+          <div class="toggle-group" id="tg-eg-num" style="flex-wrap:wrap;">
+            <button class="toggle-btn active" data-val="1" onclick="toggle('tg-eg-num','1')">1</button>
+            <button class="toggle-btn" data-val="2" onclick="toggle('tg-eg-num','2')">2</button>
+            <button class="toggle-btn" data-val="3" onclick="toggle('tg-eg-num','3')">3</button>
+            <button class="toggle-btn" data-val="4" onclick="toggle('tg-eg-num','4')">4</button>
+            <button class="toggle-btn" data-val="6" onclick="toggle('tg-eg-num','6')">6</button>
+            <button class="toggle-btn" data-val="8" onclick="toggle('tg-eg-num','8')">8</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rod fields -->
+      <div id="eg-rod-fields">
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <div class="field-label">Rod Length <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(m)</span></div>
+            <div class="toggle-group" id="tg-eg-rodlen" style="flex-wrap:wrap;">
+              <button class="toggle-btn" data-val="1.5" onclick="toggle('tg-eg-rodlen','1.5')">1.5 m</button>
+              <button class="toggle-btn" data-val="2.4" onclick="toggle('tg-eg-rodlen','2.4')">2.4 m</button>
+              <button class="toggle-btn active" data-val="3.0" onclick="toggle('tg-eg-rodlen','3.0')">3.0 m</button>
+              <button class="toggle-btn" data-val="4.5" onclick="toggle('tg-eg-rodlen','4.5')">4.5 m</button>
+              <button class="toggle-btn" data-val="6.0" onclick="toggle('tg-eg-rodlen','6.0')">6.0 m</button>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Rod Diameter <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(mm)</span></div>
+            <div class="toggle-group" id="tg-eg-roddia" style="flex-wrap:wrap;">
+              <button class="toggle-btn" data-val="12" onclick="toggle('tg-eg-roddia','12')">12 mm</button>
+              <button class="toggle-btn active" data-val="16" onclick="toggle('tg-eg-roddia','16')">16 mm</button>
+              <button class="toggle-btn" data-val="20" onclick="toggle('tg-eg-roddia','20')">20 mm</button>
+              <button class="toggle-btn" data-val="25" onclick="toggle('tg-eg-roddia','25')">25 mm</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plate fields -->
+      <div id="eg-plate-fields" style="display:none;">
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <div class="field-label">Plate Width <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(m)</span></div>
+            <input id="f-eg-pw" class="wh-input" type="number" value="0.6" min="0.1" step="0.1" placeholder="e.g. 0.6" />
+          </div>
+          <div>
+            <div class="field-label">Plate Height <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(m)</span></div>
+            <input id="f-eg-ph" class="wh-input" type="number" value="0.6" min="0.1" step="0.1" placeholder="e.g. 0.6" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Ring fields -->
+      <div id="eg-ring-fields" style="display:none;">
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <div class="field-label">Ring Mean Diameter <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(m)</span></div>
+            <input id="f-eg-ringd" class="wh-input" type="number" value="10" min="0.5" step="0.5" placeholder="e.g. 10 m" />
+          </div>
+          <div>
+            <div class="field-label">Conductor Diameter <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(mm)</span></div>
+            <div class="toggle-group" id="tg-eg-ringcond" style="flex-wrap:wrap;">
+              <button class="toggle-btn" data-val="8"  onclick="toggle('tg-eg-ringcond','8')">8 mm</button>
+              <button class="toggle-btn active" data-val="10" onclick="toggle('tg-eg-ringcond','10')">10 mm</button>
+              <button class="toggle-btn" data-val="13" onclick="toggle('tg-eg-ringcond','13')">13 mm</button>
+              <button class="toggle-btn" data-val="16" onclick="toggle('tg-eg-ringcond','16')">16 mm</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Service conductor and system voltage -->
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Largest Service Conductor <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(mm&sup2; for GEC sizing)</span></div>
+          <div class="toggle-group" id="tg-eg-svcond" style="flex-wrap:wrap;">
+            <button class="toggle-btn active" data-val="35"  onclick="toggle('tg-eg-svcond','35')">35 mm&sup2;</button>
+            <button class="toggle-btn" data-val="50"  onclick="toggle('tg-eg-svcond','50')">50 mm&sup2;</button>
+            <button class="toggle-btn" data-val="70"  onclick="toggle('tg-eg-svcond','70')">70 mm&sup2;</button>
+            <button class="toggle-btn" data-val="95"  onclick="toggle('tg-eg-svcond','95')">95 mm&sup2;</button>
+            <button class="toggle-btn" data-val="120" onclick="toggle('tg-eg-svcond','120')">120 mm&sup2;</button>
+            <button class="toggle-btn" data-val="150" onclick="toggle('tg-eg-svcond','150')">150 mm&sup2;</button>
+            <button class="toggle-btn" data-val="185" onclick="toggle('tg-eg-svcond','185')">185 mm&sup2;</button>
+            <button class="toggle-btn" data-val="240" onclick="toggle('tg-eg-svcond','240')">240 mm&sup2;</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">System Voltage <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(V L-L, for fault current ref.)</span></div>
+          <div class="toggle-group" id="tg-eg-sysvolt" style="flex-wrap:wrap;">
+            <button class="toggle-btn" data-val="230"   onclick="toggle('tg-eg-sysvolt','230')">230 V (1-ph)</button>
+            <button class="toggle-btn active" data-val="400"   onclick="toggle('tg-eg-sysvolt','400')">400 V (3-ph)</button>
+            <button class="toggle-btn" data-val="13800" onclick="toggle('tg-eg-sysvolt','13800')">13.8 kV</button>
+            <button class="toggle-btn" data-val="34500" onclick="toggle('tg-eg-sysvolt','34500')">34.5 kV</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        PEC 2017 Art. 2.50 / IEEE 80 / IEC 62305 / NEC Art. 250. Dwight formula (rod), equivalent-radius (plate), Sunde formula (ring). Limits: 10&Omega; commercial, 5&Omega; industrial, 1&Omega; substation. GEC sized per PEC Table 2.50.66.
+      </div>
+    `;
+    toggleEGElecFields();
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
     return;
@@ -5940,9 +6423,18 @@ function renderInputForm(calcType) {
         </div>
       </div>
 
+      <div class="mb-4">
+        <div class="field-label">IPLV / NPLV <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">from AHRI 550/590 chiller datasheet — leave blank if not yet available</span></div>
+        <div class="input-group">
+          <input id="f-iplv" class="wh-input" type="number" placeholder="e.g. 6.5" min="1.0" max="15.0" step="0.01" />
+          <span class="input-unit">—</span>
+        </div>
+        <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:0.25rem;">ASHRAE 90.1-2019 min IPLV: Centrifugal 6.28 / 7.19 / 8.27 (by size) · Screw 5.32 / 5.86 · Scroll 5.32 · Recip 4.32</div>
+      </div>
+
       <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.25rem;">
         Method: Q_design = Load × SF | P = Q/COP | Q_rejection = Q + P (1st Law) | CW Flow = Q_rej / (4.187 × ΔT_cw).<br>
-        Standards: ASHRAE 90.1 (COP by type), ASHRAE 15 (refrigerant safety), CTI STD-201 (cooling tower), PSME Code.
+        Standards: ASHRAE 90.1 (COP + IPLV by type), AHRI 550/590 (IPLV rating), ASHRAE 15 (refrigerant safety), CTI STD-201 (cooling tower), PSME Code.
       </div>
     `;
     setStep(4);
@@ -6020,9 +6512,18 @@ function renderInputForm(calcType) {
         </div>
       </div>
 
+      <div class="mb-4">
+        <div class="field-label">IPLV / NPLV <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;">from AHRI 550/590 chiller datasheet — leave blank if not yet available</span></div>
+        <div class="input-group">
+          <input id="f-iplv" class="wh-input" type="number" placeholder="e.g. 3.6" min="1.0" max="10.0" step="0.01" />
+          <span class="input-unit">—</span>
+        </div>
+        <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:0.25rem;">ASHRAE 90.1-2019 min IPLV: 3.50 (&lt;150 TR) · 3.45 (≥150 TR)</div>
+      </div>
+
       <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.25rem;">
         Method: Q_design = Load × Safety Factor | P_compressor = Q / COP | Q_rejection = Q + P (1st Law).<br>
-        Standards: ASHRAE 90.1 (min COP 2.84), ASHRAE 15 (refrigerant safety), PSME Code. CHW flow via Q = ṁ·cp·ΔT.
+        Standards: ASHRAE 90.1 (COP + IPLV min), AHRI 550/590 (IPLV rating), ASHRAE 15 (refrigerant safety), PSME Code. CHW flow via Q = ṁ·cp·ΔT.
       </div>
     `;
     setStep(4);
@@ -7116,6 +7617,24 @@ function toggleDuctAspect() {
   if (el) el.style.display = shape === 'Rectangular' ? '' : 'none';
 }
 
+// ─── Lightning Protection System (LPS) helpers ───────────────────────────────
+function toggleLPSCustomNg() {
+  const sel = document.getElementById('f-lps-loc');
+  const row = document.getElementById('lps-custom-ng-row');
+  if (row) row.style.display = sel && sel.value === 'Custom' ? '' : 'none';
+}
+
+// ─── Earthing / Grounding System helpers ──────────────────────────────────────
+function toggleEGElecFields() {
+  const t = getToggle('tg-eg-electype') || 'Rod';
+  const rod   = document.getElementById('eg-rod-fields');
+  const plate = document.getElementById('eg-plate-fields');
+  const ring  = document.getElementById('eg-ring-fields');
+  if (rod)   rod.style.display   = t === 'Rod'   ? '' : 'none';
+  if (plate) plate.style.display = t === 'Plate' ? '' : 'none';
+  if (ring)  ring.style.display  = t === 'Ring'  ? '' : 'none';
+}
+
 // ─── Expansion Tank Sizing helpers ────────────────────────────────────────────
 const ET_DEFAULTS = {
   'Chilled Water':     { maxTemp: 7,   maxPress: 400 },  // CHW supply temp (PH standard 7°C)
@@ -7253,18 +7772,20 @@ function applyBoilerFuelDefaults(fuel) {
 
 function applyServiceDefaults(service) {
   const defaults = {
-    'Chilled Water Supply':  { density: 999  },
-    'Chilled Water Return':  { density: 999  },
-    'Hot Water Supply':      { density: 983  },
-    'Condenser Water':       { density: 1000 },
-    'Cold Water Supply':     { density: 1000 },
-    'Fire Protection':       { density: 1000 },
-    'General Water':         { density: 1000 },
+    'Chilled Water Supply':  { density: 999,  temp: 7  },
+    'Chilled Water Return':  { density: 999,  temp: 12 },
+    'Hot Water Supply':      { density: 983,  temp: 80 },
+    'Condenser Water':       { density: 1000, temp: 35 },
+    'Cold Water Supply':     { density: 1000, temp: 20 },
+    'Fire Protection':       { density: 1000, temp: 20 },
+    'General Water':         { density: 1000, temp: 20 },
   };
   const d = defaults[service];
   if (!d) return;
-  const el = document.getElementById('f-fluid-density');
-  if (el) el.value = d.density;
+  const elDensity = document.getElementById('f-fluid-density');
+  if (elDensity) elDensity.value = d.density;
+  const elTemp = document.getElementById('f-fluid-temp');
+  if (elTemp) elTemp.value = d.temp;
 }
 
 function applyFluidDefaults(fluid) {
@@ -7534,6 +8055,44 @@ function collectInputs() {
       growth_factor: parseFloat(getToggle('tg-ups-growth') || '1.20'),
       ups_eff:       parseFloat(getToggle('tg-ups-eff')    || '0.96'),
       loads,
+    };
+  }
+
+  if (_calcType === 'Lightning Protection System (LPS)') {
+    const locSel = document.getElementById('f-lps-loc')?.value || 'Metro Manila / NCR';
+    return {
+      project_name:        v('f-project') || 'LPS Design Project',
+      building_length_m:   parseFloat(v('f-lps-len')) || 30,
+      building_width_m:    parseFloat(v('f-lps-wid')) || 20,
+      building_height_m:   parseFloat(v('f-lps-ht'))  || 12,
+      ng_location:         locSel,
+      ng_custom:           parseFloat(v('f-lps-ng'))   || 10,
+      structure_type:      getToggle('tg-lps-struct')  || 'Residential',
+      lpl:                 getToggle('tg-lps-lpl')     || 'LPL II',
+      air_term_method:     getToggle('tg-lps-method')  || 'Rolling Sphere',
+      dc_material:         getToggle('tg-lps-dc')      || 'Copper',
+      earth_type:          getToggle('tg-lps-earth')   || 'Type A — Radial / Vertical Electrodes',
+    };
+  }
+
+  if (_calcType === 'Earthing / Grounding System') {
+    const soilToggle = getToggle('tg-eg-soil') || '100';
+    const soilInput  = parseFloat(v('f-eg-rho')) || 100;
+    const soilRho    = soilToggle === 'custom' ? soilInput : (parseFloat(soilToggle) || soilInput);
+    return {
+      project_name:       v('f-project') || 'Earthing System',
+      system_type:        getToggle('tg-eg-systype')   || 'Residential / Commercial',
+      electrode_type:     getToggle('tg-eg-electype')  || 'Rod',
+      soil_resistivity:   soilRho,
+      num_electrodes:     parseInt(getToggle('tg-eg-num')     || '1'),
+      rod_length_m:       parseFloat(getToggle('tg-eg-rodlen') || '3.0'),
+      rod_dia_mm:         parseFloat(getToggle('tg-eg-roddia') || '16'),
+      plate_width_m:      parseFloat(v('f-eg-pw'))  || 0.6,
+      plate_height_m:     parseFloat(v('f-eg-ph'))  || 0.6,
+      ring_dia_m:         parseFloat(v('f-eg-ringd')) || 10,
+      ring_cond_dia_mm:   parseFloat(getToggle('tg-eg-ringcond') || '10'),
+      service_cond_mm2:   parseFloat(getToggle('tg-eg-svcond')  || '35'),
+      system_voltage:     parseFloat(getToggle('tg-eg-sysvolt') || '400'),
     };
   }
 
@@ -7808,6 +8367,7 @@ function collectInputs() {
       pipe_material:       getToggle('tg-pipe-mat')         || 'PVC',
       fittings_allowance:  parseFloat(v('f-fittings'))      || 20,
       fluid_density:       parseFloat(v('f-fluid-density')) || 1000,
+      fluid_temp_c:        parseFloat(v('f-fluid-temp'))    || 20,
     };
   }
 
@@ -7989,6 +8549,7 @@ function collectInputs() {
   }
 
   if (_calcType === 'Chiller System — Water Cooled') {
+    const iplvRaw = v('f-iplv');
     return {
       project_name:     v('f-project')                            || 'Untitled Water-Cooled Chiller System',
       cooling_load_kW:  parseFloat(v('f-cooling-load'))           || 0,
@@ -8000,10 +8561,12 @@ function collectInputs() {
       cop:              parseFloat(v('f-cop'))                     || 5.5,
       safety_factor:    parseFloat(getToggle('tg-safety'))        || 1.10,
       n_units:          parseFloat(getToggle('tg-n-units'))       || 2,
+      iplv:             iplvRaw !== '' ? parseFloat(iplvRaw) : '',
     };
   }
 
   if (_calcType === 'Chiller System — Air Cooled') {
+    const iplvRaw = v('f-iplv');
     return {
       project_name:     v('f-project')                          || 'Untitled Chiller System',
       cooling_load_kW:  parseFloat(v('f-cooling-load'))         || 0,
@@ -8013,6 +8576,7 @@ function collectInputs() {
       cop:              parseFloat(v('f-cop'))                   || 3.0,
       safety_factor:    parseFloat(getToggle('tg-safety'))      || 1.15,
       n_units:          parseFloat(getToggle('tg-n-units'))     || 1,
+      iplv:             iplvRaw !== '' ? parseFloat(iplvRaw) : '',
     };
   }
 
@@ -8217,6 +8781,19 @@ async function runCalculation() {
   } else if (_calcType === 'UPS Sizing') {
     if (!inputs.loads || inputs.loads.length === 0) {
       showToast('Please add at least one load to the load schedule.');
+      return;
+    }
+  } else if (_calcType === 'Earthing / Grounding System') {
+    if (!inputs.soil_resistivity || inputs.soil_resistivity <= 0) {
+      showToast('Please enter a valid soil resistivity value.');
+      return;
+    }
+    if (inputs.electrode_type === 'Rod' && (!inputs.rod_length_m || inputs.rod_length_m <= 0)) {
+      showToast('Please enter a valid rod length.');
+      return;
+    }
+    if (inputs.electrode_type === 'Ring' && (!inputs.ring_dia_m || inputs.ring_dia_m <= 0)) {
+      showToast('Please enter a valid ring diameter.');
       return;
     }
   } else if (_calcType === 'Duct Sizing (Equal Friction)') {
@@ -8459,6 +9036,19 @@ async function runCalculation() {
       showToast('Inlet hardness must be greater than target hardness.');
       return;
     }
+  } else if (_calcType === 'Lightning Protection System (LPS)') {
+    if (!inputs.building_length_m || inputs.building_length_m <= 0) {
+      showToast('Please enter a valid building length.');
+      return;
+    }
+    if (!inputs.building_width_m || inputs.building_width_m <= 0) {
+      showToast('Please enter a valid building width.');
+      return;
+    }
+    if (!inputs.building_height_m || inputs.building_height_m <= 0) {
+      showToast('Please enter a valid building height.');
+      return;
+    }
   } else if (!inputs.floor_area || inputs.floor_area <= 0) {
     showToast('Please enter the floor area.');
     return;
@@ -8506,6 +9096,10 @@ async function runCalculation() {
       renderCableTrayReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'UPS Sizing') {
       renderUPSSizingReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Lightning Protection System (LPS)') {
+      renderLPSReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Earthing / Grounding System') {
+      renderEarthingReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Duct Sizing (Equal Friction)') {
       renderDuctSizingReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Refrigerant Pipe Sizing') {
@@ -9364,7 +9958,9 @@ function renderPipeReport(inputs, results, narrative) {
       <tr><td>Design Flow Rate (Q)</td><td>${escHtml(String(inputs.flow_rate))}</td><td>L/min</td></tr>
       <tr><td>Pipe Length</td><td>${escHtml(String(inputs.pipe_length))}</td><td>m</td></tr>
       <tr><td>Pipe Material</td><td>${escHtml(inputs.pipe_material || 'PVC')}</td><td>-</td></tr>
-      <tr><td>Hazen-Williams C Factor</td><td>${escHtml(String(results.inputs_used?.C_factor || '-'))}</td><td>-</td></tr>
+      <tr><td>Fluid Temperature</td><td>${escHtml(String(results.inputs_used?.fluid_temp_c ?? inputs.fluid_temp_c ?? 20))}</td><td>°C</td></tr>
+      <tr><td>Hazen-Williams C Factor (base, at 15.5°C)</td><td>${escHtml(String(results.inputs_used?.C_base || '-'))}</td><td>-</td></tr>
+      <tr><td>Hazen-Williams C Factor (temp-corrected)</td><td>${escHtml(String(results.inputs_used?.C_factor || '-'))}</td><td>-</td></tr>
       <tr><td>Fittings Allowance</td><td>${escHtml(String(inputs.fittings_allowance || 20))}</td><td>% of pipe length</td></tr>
       <tr><td>Equivalent Pipe Length (incl. fittings)</td><td>${escHtml(String(results.equiv_length))}</td><td>m</td></tr>
       <tr><td>Fluid Density</td><td>${escHtml(String(inputs.fluid_density || 1000))}</td><td>kg/m3</td></tr>
@@ -10531,6 +11127,176 @@ function renderUPSSizingReport(inputs, results, narrative) {
           <div style="font-size:0.74rem;color:#555;">Date: ${e(dateStr)}</div>
           <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
         </div>
+      </div>
+    </div>
+  </div>`;
+
+  panel.innerHTML = reportHTML;
+  showReport();
+}
+
+// ─── Earthing / Grounding System Report ──────────────────────────────────────
+function renderEarthingReport(inputs, results, narrative) {
+  const panel = document.getElementById('report-panel');
+  if (!panel) return;
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
+
+  const projName   = inputs.project_name     || 'Earthing System';
+  const sysType    = inputs.system_type      || 'Residential / Commercial';
+  const elecType   = inputs.electrode_type   || 'Rod';
+  const soilRho    = inputs.soil_resistivity || 100;
+  const numElec    = inputs.num_electrodes   || 1;
+  const rodLen     = inputs.rod_length_m     || 3.0;
+  const rodDia     = inputs.rod_dia_mm       || 16;
+  const plateW     = inputs.plate_width_m    || 0.6;
+  const plateH     = inputs.plate_height_m   || 0.6;
+  const ringDia    = inputs.ring_dia_m       || 10;
+  const ringCond   = inputs.ring_cond_dia_mm || 10;
+  const svcCond    = inputs.service_cond_mm2 || 35;
+  const sysVolt    = inputs.system_voltage   || 400;
+
+  const rSingle    = results.r_single_ohm   ?? '';
+  const rParallel  = results.r_parallel_ohm ?? '';
+  const rLimit     = results.r_limit_ohm    ?? '';
+  const pass       = results.pass           ?? false;
+  const passLabel  = results.pass_label     || (pass ? 'PASS' : 'FAIL');
+  const gecMm2     = results.gec_mm2        ?? '';
+  const gecLabel   = results.gec_label      || '';
+  const platArea   = results.plate_area_m2  ?? '';
+  const platRadius = results.plate_radius_m ?? '';
+
+  const elecLabel = elecType === 'Rod'
+    ? `Vertical Rod (L=${rodLen} m, d=${rodDia} mm)`
+    : elecType === 'Plate'
+    ? `Buried Plate (${plateW} m x ${plateH} m)`
+    : `Ring/Loop (D=${ringDia} m, conductor d=${ringCond} mm)`;
+
+  const formulaLine = elecType === 'Rod'
+    ? `R = (rho / 2&pi;L) &times; [ln(4L/d) &minus; 1] &nbsp; [Dwight, 1936]`
+    : elecType === 'Plate'
+    ? `r = sqrt(A/&pi;); &nbsp; R = rho / (4r) &nbsp; [Plate electrode]`
+    : `R = (rho / 2&pi;&sup2;D) &times; [ln(8D/d) &minus; 2] &nbsp; [Sunde, 1968]`;
+
+  const parallelRow = numElec > 1
+    ? `<tr><td>Parallel Electrode Resistance (${numElec} electrodes)</td><td>${e(Number(rParallel).toFixed(3))} &Omega;</td></tr>`
+    : '';
+
+  const plateRows = elecType === 'Plate' ? `
+    <tr><td>Plate Area</td><td>${e(Number(platArea).toFixed(4))} m&#178;</td></tr>
+    <tr><td>Equivalent Radius (r)</td><td>${e(Number(platRadius).toFixed(4))} m</td></tr>` : '';
+
+  const passColor  = pass ? '#1a7f37' : '#b91c1c';
+  const passStyle  = `font-weight:700;color:${passColor};`;
+  const effectiveR = numElec > 1 ? rParallel : rSingle;
+
+  const limitBasis = sysType === 'Substation / HV'
+    ? 'IEEE 80-2013 (substation earthing)'
+    : sysType === 'Industrial'
+    ? 'IEEE 142-2007 (industrial power systems)'
+    : 'PEC 2017 Art. 2.50 (residential/commercial)';
+
+  const reportHTML = `
+  <div class="report-doc">
+    <div class="report-header">
+      <div class="report-stamp">PEC 2017 Art. 2.50 | IEEE 80-2013 | IEEE 142-2007 | IEC 62305-3</div>
+      <h1>EARTHING / GROUNDING SYSTEM CALCULATION</h1>
+      <div class="report-subtitle">${e(projName)}</div>
+      <div class="report-meta">
+        Prepared by: ${e(WORKER_NAME || '')} &nbsp;|&nbsp; Date: ${e(dateStr)} &nbsp;|&nbsp;
+        Ref: ELEC-EGS-${now.toISOString().slice(0,10).replace(/-/g,'')}
+      </div>
+    </div>
+
+    <h2>1. OBJECTIVE</h2>
+    <p>${e(narrative?.objective || `To design the earthing/grounding electrode system for ${projName}, determine ground electrode resistance using applicable empirical formulas, and verify compliance with the maximum resistance limit prescribed by ${limitBasis}.`)}</p>
+
+    <h2>2. STANDARDS REFERENCED</h2>
+    <table>
+      <tr><th>Standard</th><th>Description</th></tr>
+      <tr><td>PEC 2017 Art. 2.50</td><td>Grounding and Bonding (Philippine Electrical Code)</td></tr>
+      <tr><td>IEEE 80-2013</td><td>Guide for Safety in AC Substation Grounding</td></tr>
+      <tr><td>IEEE 142-2007</td><td>Recommended Practice for Grounding of Industrial Power Systems (Green Book)</td></tr>
+      <tr><td>IEC 62305-3</td><td>Protection Against Lightning: Physical Damage and Life Hazard</td></tr>
+      <tr><td>NEC Art. 250</td><td>Grounding and Bonding (reference)</td></tr>
+    </table>
+
+    <h2>3. DESIGN BASIS</h2>
+    <table>
+      <tr><th>Parameter</th><th>Value</th></tr>
+      <tr><td>Project / System</td><td>${e(projName)}</td></tr>
+      <tr><td>System Type</td><td>${e(sysType)}</td></tr>
+      <tr><td>System Voltage</td><td>${e(sysVolt)} V</td></tr>
+      <tr><td>Electrode Type</td><td>${e(elecLabel)}</td></tr>
+      <tr><td>Soil Resistivity (rho)</td><td>${e(soilRho)} &Omega;&middot;m</td></tr>
+      <tr><td>Number of Electrodes</td><td>${e(numElec)}</td></tr>
+      <tr><td>Service Conductor</td><td>${e(svcCond)} mm&#178;</td></tr>
+    </table>
+
+    <h2>4. CALCULATION</h2>
+    <h3>4.1 Single Electrode Resistance</h3>
+    <p>Formula applied: <code>${formulaLine}</code></p>
+    <table>
+      <tr><th>Parameter</th><th>Value</th></tr>
+      <tr><td>Soil Resistivity (rho)</td><td>${e(soilRho)} &Omega;&middot;m</td></tr>
+      ${elecType === 'Rod' ? `
+      <tr><td>Rod Length (L)</td><td>${e(rodLen)} m</td></tr>
+      <tr><td>Rod Diameter (d)</td><td>${e(rodDia)} mm = ${e((rodDia/1000).toFixed(4))} m</td></tr>` : ''}
+      ${elecType === 'Plate' ? plateRows : ''}
+      ${elecType === 'Ring' ? `
+      <tr><td>Ring Diameter (D)</td><td>${e(ringDia)} m</td></tr>
+      <tr><td>Conductor Diameter (d)</td><td>${e(ringCond)} mm = ${e((ringCond/1000).toFixed(4))} m</td></tr>` : ''}
+      <tr><td><strong>Single Electrode Resistance</strong></td><td><strong>${e(Number(rSingle).toFixed(3))} &Omega;</strong></td></tr>
+      ${parallelRow}
+    </table>
+
+    <h3>4.2 Grounding Electrode Conductor (GEC) Sizing</h3>
+    <p>GEC minimum cross-section per PEC 2017 Table 2.50.66 based on service conductor size:</p>
+    <table>
+      <tr><th>Parameter</th><th>Value</th></tr>
+      <tr><td>Service Conductor Size</td><td>${e(svcCond)} mm&#178;</td></tr>
+      <tr><td>Minimum GEC Size (PEC Table 2.50.66)</td><td><strong>${e(gecMm2)} mm&#178;</strong>${gecLabel ? ` (${e(gecLabel)})` : ''}</td></tr>
+    </table>
+
+    <h2>5. RESULTS SUMMARY</h2>
+    <table>
+      <tr><th>Parameter</th><th>Value</th><th>Limit</th><th>Status</th></tr>
+      <tr>
+        <td>Ground Resistance (${numElec > 1 ? `${numElec} electrodes in parallel` : 'single electrode'})</td>
+        <td>${e(Number(effectiveR).toFixed(3))} &Omega;</td>
+        <td>&le; ${e(rLimit)} &Omega; (${e(sysType)})</td>
+        <td style="${passStyle}">${e(passLabel)}</td>
+      </tr>
+      <tr>
+        <td>GEC Minimum Size</td>
+        <td>${e(gecMm2)} mm&#178;</td>
+        <td>Per PEC Table 2.50.66</td>
+        <td style="font-weight:700;color:#1a7f37;">COMPLIANT</td>
+      </tr>
+    </table>
+
+    <h2>6. RECOMMENDATIONS</h2>
+    <p>${e(narrative?.recommendations || (pass
+      ? `The proposed earthing electrode system meets the maximum resistance limit of ${rLimit} Ohm for ${sysType} per ${limitBasis}. Verify soil resistivity on site using a four-pole (Wenner method) earth resistance meter before installation. Retest after installation using fall-of-potential or clamp-on earth tester. Record results in the site earthing test register.`
+      : `The calculated ground resistance exceeds the ${rLimit} Ohm limit for ${sysType}. Options: (1) increase number of parallel electrodes with at least 2x rod-length spacing; (2) use longer or larger-diameter rods; (3) apply soil treatment (bentonite, conductive concrete, or GEM compound); (4) use a deep-driven rod or ground plate configuration. Rerun calculation after design revision.`
+    ))}</p>
+
+    <div class="report-sig-block">
+      <div class="sig-col">
+        <div class="sig-line"></div>
+        <div style="font-size:0.85rem;font-weight:600;">${e(WORKER_NAME || 'Engineer of Record')}</div>
+        <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+      </div>
+      <div class="sig-col">
+        <div class="sig-line"></div>
+        <div style="font-size:0.85rem;font-weight:600;">${e('Reviewed by')}</div>
+        <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+      </div>
+      <div class="sig-col">
+        <div class="sig-line"></div>
+        <div style="font-size:0.85rem;font-weight:600;">${e('Approved by')}</div>
+        <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
       </div>
     </div>
   </div>`;
@@ -12289,10 +13055,13 @@ function renderStairwellPressReport(inputs, results, narrative) {
 
     <h3>4.5 Door Opening Force Check</h3>
     <p style="font-size:0.82rem;color:#444;">
-      Door panel area = ${r.door_W} × ${r.door_H} = ${r.A_door_panel} m²<br>
-      Force from pressure = ${r.delta_P_Pa} Pa × ${r.A_door_panel} m² = ${r.F_pressure_N} N<br>
-      Door closer force (typical) = ${r.F_closer_N} N<br>
-      <strong>Total door opening force = ${r.F_total_N} N — ${forceStatus}</strong>
+      Formula (NFPA 92 §6.5.1.1): F = F<sub>dc</sub> + (ΔP × A × W) / (2 × (W − d))<br>
+      &nbsp;&nbsp;W = door width = ${r.door_W} m &nbsp;|&nbsp; H = ${r.door_H} m &nbsp;|&nbsp; d = handle setback = ${r.d} m (3 in, NFPA 92)<br>
+      Door panel area: A = ${r.door_W} × ${r.door_H} = ${r.A_door_panel} m²<br>
+      Lever arm factor: W / (2 × (W − d)) = ${r.door_W} / (2 × ${(r.door_W - r.d).toFixed(3)}) = ${r.lever_arm_factor}<br>
+      Force from pressure: ΔP × A × lever arm = ${r.delta_P_Pa} × ${r.A_door_panel} × ${r.lever_arm_factor} = ${r.F_pressure_N} N<br>
+      Door closer force (typical): F<sub>dc</sub> = ${r.F_closer_N} N<br>
+      <strong>Total door opening force = ${r.F_pressure_N} + ${r.F_closer_N} = ${r.F_total_N} N — ${forceStatus}</strong>
     </p>
 
     <h3>4.6 Fan Motor Sizing</h3>
@@ -13731,7 +14500,8 @@ function renderChillerWaterCooledReport(inputs, results, narrative) {
 
     <h2>References / Standards</h2>
     <table>
-      <tr><th>ASHRAE 90.1</th><td>Energy Standard — min COP: Centrifugal 5.00/5.55/6.10 (by size), Screw 4.45/4.90, Scroll/Recip 3.80</td></tr>
+      <tr><th>ASHRAE 90.1</th><td>Energy Standard — min COP: Centrifugal 5.00/5.55/6.10 (by size), Screw 4.45/4.90, Scroll/Recip 3.80 — min IPLV: Centrifugal 6.28/7.19/8.27, Screw 5.32/5.86, Scroll 5.32, Recip 4.32</td></tr>
+      <tr><th>AHRI 550/590</th><td>Performance Rating of Water-Chilling and Heat Pump Water-Heating Packages — IPLV/NPLV rating methodology (weighted avg at 100/75/50/25% load)</td></tr>
       <tr><th>ASHRAE 15</th><td>Safety Standard for Refrigeration Systems — ventilation, leak detection, refrigerant limits</td></tr>
       <tr><th>CTI STD-201</th><td>Cooling Technology Institute — cooling tower performance testing and rating</td></tr>
       <tr><th>ASHRAE Guideline 12</th><td>Minimizing the Risk of Legionellosis (cooling tower water treatment)</td></tr>
@@ -13804,7 +14574,24 @@ function renderChillerWaterCooledReport(inputs, results, narrative) {
       </tr>
     </table>
 
-    <h3>Step 8 — Electrical Supply Requirements</h3>
+    <h3>Step 8 — ASHRAE 90.1 IPLV/NPLV Compliance Check (Part-Load Efficiency)</h3>
+    ${r.iplv !== null ? (() => {
+      const iplvColor  = r.iplv_check === 'PASS' ? '#2e7d32' : '#c62828';
+      const iplvBg     = r.iplv_check === 'PASS' ? '#e8f5e9' : '#ffebee';
+      return `<table>
+        <tr><th>IPLV/NPLV (from AHRI 550/590 datasheet)</th><td>${r.iplv}</td></tr>
+        <tr><th>ASHRAE 90.1 Minimum IPLV</th><td>${r.ashrae_min_iplv} (${escHtml(inputs.chiller_type)}, ${r.Q_design_kW} kW)</td></tr>
+        <tr><th>IPLV Margin</th><td>${r.iplv_margin >= 0 ? '+' : ''}${r.iplv_margin}</td></tr>
+        <tr>
+          <th>Compliance Result</th>
+          <td style="background:${iplvBg};color:${iplvColor};font-weight:700;">
+            ${r.iplv_check === 'PASS' ? '✓ PASS — IPLV meets ASHRAE 90.1 minimum' : '✗ FAIL — IPLV below ASHRAE 90.1 minimum. Chiller re-selection required. Review BOM and Generator Sizing if chiller model changes.'}
+          </td>
+        </tr>
+      </table>`;
+    })() : `<table><tr><th>IPLV/NPLV</th><td style="color:#888;">Not provided — enter value from AHRI 550/590 chiller datasheet to enable part-load compliance check.</td></tr><tr><th>Note</th><td>A chiller can pass the full-load COP check and still fail IPLV. IPLV check is mandatory for ASHRAE 90.1 compliance.</td></tr></table>`}
+
+    <h3>Step 9 — Electrical Supply Requirements</h3>
     <table>
       <tr><th>Total Compressor Power</th><td>${r.P_total_kW} kW</td></tr>
       <tr><th>Power Factor (assumed)</th><td>0.85</td></tr>
@@ -13836,6 +14623,16 @@ function renderChillerWaterCooledReport(inputs, results, narrative) {
           <div style="font-size:0.8rem;color:#555;">COP ${inputs.cop} vs min ${r.ashrae_min_cop} (ASHRAE 90.1)</div>
         </div>
         <div>
+          ${r.iplv !== null ? (() => {
+            const ic = r.iplv_check === 'PASS' ? '#2e7d32' : '#c62828';
+            return `<div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">IPLV Check</div>
+            <div style="font-size:1.5rem;font-weight:800;color:${ic};">${r.iplv_check}</div>
+            <div style="font-size:0.8rem;color:#555;">IPLV ${r.iplv} vs min ${r.ashrae_min_iplv} (ASHRAE 90.1)</div>`;
+          })() : `<div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">IPLV Check</div>
+            <div style="font-size:1.1rem;font-weight:700;color:#999;">Not provided</div>
+            <div style="font-size:0.8rem;color:#aaa;">Enter IPLV from AHRI 550/590 datasheet</div>`}
+        </div>
+        <div>
           <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">CHW Flow Rate</div>
           <div style="font-size:1.5rem;font-weight:800;color:#1a1a1a;">${r.Q_chw_lps} L/s</div>
           <div style="font-size:0.8rem;color:#555;">${r.Q_chw_m3h} m³/h | ${r.Q_chw_GPM} GPM</div>
@@ -13849,7 +14646,7 @@ function renderChillerWaterCooledReport(inputs, results, narrative) {
     </div>
 
     <h2>Recommendations</h2>
-    <p>${escHtml(narrative?.recommendations || `1. Procure ${inputs.n_units} water-cooled ${inputs.chiller_type} chiller(s) each rated ${r.nominal_TR_each} TR (${r.nominal_kW_each} kW) with COP ≥ ${inputs.cop} at ${inputs.cw_supply_C}°C CW supply — verify manufacturer performance data at this exact entering condenser water temperature. 2. Size cooling tower for ${r.Q_rejection_TR} TR (${r.Q_rejection_kW} kW) heat rejection — NOT the chiller TR rating. 3. Design CW pipe for ${r.Q_cw_lps} L/s at ${r.dT_cw_C}°C ΔT; CHW pipe for ${r.Q_chw_lps} L/s at ${r.dT_chw_C}°C ΔT. 4. Implement CW water treatment per ASHRAE Guideline 12 (Legionella prevention is a health code requirement). 5. Provide minimum 6 ACH mechanical ventilation in chiller room per ASHRAE 15. 6. Provide 3-phase 400V supply; estimated FLA ${r.total_A_at_400V} A.`)}</p>
+    <p>${escHtml(narrative?.recommendations || `1. Procure ${inputs.n_units} water-cooled ${inputs.chiller_type} chiller(s) each rated ${r.nominal_TR_each} TR (${r.nominal_kW_each} kW) with COP ≥ ${inputs.cop} and IPLV ≥ ${r.ashrae_min_iplv} (AHRI 550/590 certified) at ${inputs.cw_supply_C}°C CW supply. 2. If IPLV fails, re-select chiller model before finalising BOM and re-run Generator Sizing with updated chiller kW. 3. Size cooling tower for ${r.Q_rejection_TR} TR (${r.Q_rejection_kW} kW) heat rejection — NOT the chiller TR rating. 4. Design CW pipe for ${r.Q_cw_lps} L/s at ${r.dT_cw_C}°C ΔT; CHW pipe for ${r.Q_chw_lps} L/s at ${r.dT_chw_C}°C ΔT. 5. Implement CW water treatment per ASHRAE Guideline 12 (Legionella prevention is a health code requirement). 6. Provide minimum 6 ACH mechanical ventilation in chiller room per ASHRAE 15. 7. Provide 3-phase 400V supply; estimated FLA ${r.total_A_at_400V} A.`)}</p>
 
     <div class="sig-block">
       <div><div class="sig-line">${e(WORKER_NAME)}</div><div>Prepared by — Mechanical Engineer</div><div>PRC No.: ${e('')} | PTR No.: ${e('')}</div></div>
@@ -13911,7 +14708,8 @@ function renderChillerAirCooledReport(inputs, results, narrative) {
 
     <h2>References / Standards</h2>
     <table>
-      <tr><th>ASHRAE 90.1</th><td>Energy Standard for Buildings — minimum COP for air-cooled chillers: 2.84 (&lt;528 kW), 2.80 (≥528 kW)</td></tr>
+      <tr><th>ASHRAE 90.1</th><td>Energy Standard for Buildings — min COP: 2.84 (&lt;528 kW), 2.80 (≥528 kW) — min IPLV: 3.50 (&lt;528 kW), 3.45 (≥528 kW)</td></tr>
+      <tr><th>AHRI 550/590</th><td>Performance Rating of Water-Chilling and Heat Pump Water-Heating Packages — IPLV/NPLV rating methodology (weighted avg at 100/75/50/25% load)</td></tr>
       <tr><th>ASHRAE 15</th><td>Safety Standard for Refrigeration Systems — refrigerant charge limits, ventilation, leak detection</td></tr>
       <tr><th>ASHRAE Handbook — HVAC Systems</th><td>Chiller selection, condenser airflow, chilled water system design</td></tr>
       <tr><th>PSME Code</th><td>Philippine Society of Mechanical Engineers — chiller installation and system design</td></tr>
@@ -13983,7 +14781,24 @@ function renderChillerAirCooledReport(inputs, results, narrative) {
       </tr>
     </table>
 
-    <h3>Step 8 — Electrical Supply Requirements</h3>
+    <h3>Step 8 — ASHRAE 90.1 IPLV/NPLV Compliance Check (Part-Load Efficiency)</h3>
+    ${r.iplv !== null ? (() => {
+      const iplvColor  = r.iplv_check === 'PASS' ? '#2e7d32' : '#c62828';
+      const iplvBg     = r.iplv_check === 'PASS' ? '#e8f5e9' : '#ffebee';
+      return `<table>
+        <tr><th>IPLV/NPLV (from AHRI 550/590 datasheet)</th><td>${r.iplv}</td></tr>
+        <tr><th>ASHRAE 90.1 Minimum IPLV</th><td>${r.ashrae_min_iplv} (air-cooled, ${r.Q_design_kW >= 528 ? '≥528 kW' : '<528 kW'})</td></tr>
+        <tr><th>IPLV Margin</th><td>${r.iplv_margin >= 0 ? '+' : ''}${r.iplv_margin}</td></tr>
+        <tr>
+          <th>Compliance Result</th>
+          <td style="background:${iplvBg};color:${iplvColor};font-weight:700;">
+            ${r.iplv_check === 'PASS' ? '✓ PASS — IPLV meets ASHRAE 90.1 minimum' : '✗ FAIL — IPLV below ASHRAE 90.1 minimum. Chiller re-selection required. Review BOM and Generator Sizing if chiller model changes.'}
+          </td>
+        </tr>
+      </table>`;
+    })() : `<table><tr><th>IPLV/NPLV</th><td style="color:#888;">Not provided — enter value from AHRI 550/590 chiller datasheet to enable part-load compliance check.</td></tr><tr><th>Note</th><td>A chiller can pass the full-load COP check and still fail IPLV. IPLV check is mandatory for ASHRAE 90.1 compliance.</td></tr></table>`}
+
+    <h3>Step 9 — Electrical Supply Requirements</h3>
     <table>
       <tr><th>Total Active Power</th><td>${r.P_total_kW} kW</td></tr>
       <tr><th>Power Factor (assumed)</th><td>0.85</td></tr>
@@ -14015,6 +14830,16 @@ function renderChillerAirCooledReport(inputs, results, narrative) {
           <div style="font-size:0.8rem;color:#555;">COP ${inputs.cop} vs min ${r.ashrae_min_cop} (ASHRAE 90.1)</div>
         </div>
         <div>
+          ${r.iplv !== null ? (() => {
+            const ic = r.iplv_check === 'PASS' ? '#2e7d32' : '#c62828';
+            return `<div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">IPLV Check</div>
+            <div style="font-size:1.5rem;font-weight:800;color:${ic};">${r.iplv_check}</div>
+            <div style="font-size:0.8rem;color:#555;">IPLV ${r.iplv} vs min ${r.ashrae_min_iplv} (ASHRAE 90.1)</div>`;
+          })() : `<div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">IPLV Check</div>
+            <div style="font-size:1.1rem;font-weight:700;color:#999;">Not provided</div>
+            <div style="font-size:0.8rem;color:#aaa;">Enter IPLV from AHRI 550/590 datasheet</div>`}
+        </div>
+        <div>
           <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">CHW Flow Rate</div>
           <div style="font-size:1.5rem;font-weight:800;color:#1a1a1a;">${r.Q_flow_lps} L/s</div>
           <div style="font-size:0.8rem;color:#555;">${r.Q_flow_m3h} m³/h | ${r.Q_flow_GPM} GPM</div>
@@ -14030,7 +14855,7 @@ function renderChillerAirCooledReport(inputs, results, narrative) {
     ${r.ambient_note ? `<div style="background:#fff3e0;border:1px solid #e65100;border-radius:0.5rem;padding:0.6rem 0.75rem;margin-top:0.75rem;font-size:0.78rem;color:#e65100;"><strong>⚠ Ambient Note:</strong> ${escHtml(r.ambient_note)}</div>` : ''}
 
     <h2>Recommendations</h2>
-    <p>${escHtml(narrative?.recommendations || `1. Procure ${inputs.n_units} air-cooled chiller unit(s) each rated at ${r.nominal_TR_each} TR (${r.nominal_kW_each} kW) at ${inputs.ambient_temp_C}°C ambient — verify manufacturer catalog performance at this condition. 2. Ensure minimum 1.2 m clearance on all sides of each chiller for condenser airflow. 3. Provide 3-phase 400V supply with isolator per unit; total estimated FLA: ${r.total_A_at_400V} A. 4. Specify R-32 or R-410A refrigerant per ASHRAE 15; provide leak detection and ventilation per ASHRAE 15 requirements. 5. Design CHW distribution piping for ${r.Q_flow_lps} L/s at ${r.dT_chw_C}°C ΔT.`)}</p>
+    <p>${escHtml(narrative?.recommendations || `1. Procure ${inputs.n_units} air-cooled chiller unit(s) each rated at ${r.nominal_TR_each} TR (${r.nominal_kW_each} kW) at ${inputs.ambient_temp_C}°C ambient with COP ≥ ${inputs.cop} and IPLV ≥ ${r.ashrae_min_iplv} (AHRI 550/590 certified) — verify manufacturer catalog performance at this condition. 2. If IPLV fails, re-select chiller model before finalising BOM and re-run Generator Sizing with updated chiller kW. 3. Ensure minimum 1.2 m clearance on all sides of each chiller for condenser airflow. 4. Provide 3-phase 400V supply with isolator per unit; total estimated FLA: ${r.total_A_at_400V} A. 5. Specify R-32 or R-410A refrigerant per ASHRAE 15; provide leak detection and ventilation per ASHRAE 15 requirements. 6. Design CHW distribution piping for ${r.Q_flow_lps} L/s at ${r.dT_chw_C}°C ΔT.`)}</p>
 
     <div class="sig-block">
       <div><div class="sig-line">${e(WORKER_NAME)}</div><div>Prepared by — Mechanical Engineer</div><div>PRC No.: ${e('')} | PTR No.: ${e('')}</div></div>
@@ -14772,6 +15597,10 @@ function viewHistoryReport(row) {
     renderCableTrayReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'UPS Sizing') {
     renderUPSSizingReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Lightning Protection System (LPS)') {
+    renderLPSReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Earthing / Grounding System') {
+    renderEarthingReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Duct Sizing (Equal Friction)') {
     renderDuctSizingReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Refrigerant Pipe Sizing') {
@@ -14816,7 +15645,7 @@ async function generateBomSowChecklist() {
   if (!_lastResults || !_lastInputs) { showToast('Run a calculation first.'); return; }
   const BOM_SOW_SUPPORTED = {
     'Mechanical': ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air', 'Boiler System'],
-    'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design', 'Generator Sizing', 'Solar PV System', 'Power Factor Correction', 'Cable Tray Sizing', 'UPS Sizing'],
+    'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design', 'Generator Sizing', 'Solar PV System', 'Power Factor Correction', 'Cable Tray Sizing', 'UPS Sizing', 'Lightning Protection System (LPS)', 'Earthing / Grounding System'],
     'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)', 'Storm Drain / Stormwater'],
     'Fire Protection':         ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],
     'Vertical Transportation': ['Elevator Traffic Analysis', 'Hoist Capacity'],
@@ -15019,6 +15848,8 @@ function renderBomTablePreview(items) {
   const isPFC      = _calcType === 'Power Factor Correction';
   const isCT       = _calcType === 'Cable Tray Sizing';
   const isUPS      = _calcType === 'UPS Sizing';
+  const isLPS      = _calcType === 'Lightning Protection System (LPS)';
+  const isEG       = _calcType === 'Earthing / Grounding System';
   const isFSprink  = _calcType === 'Fire Sprinkler Hydraulic';
   const isFPump    = _calcType === 'Fire Pump Sizing';
   const isSPress   = _calcType === 'Stairwell Pressurization';
@@ -15032,7 +15863,7 @@ function renderBomTablePreview(items) {
   const isRP        = _calcType === 'Refrigerant Pipe Sizing';
   const isFC        = _calcType === 'FCU Selection';
   const isET        = _calcType === 'Expansion Tank Sizing';
-  const calcRef = `${isET ? 'HVAC-ET' : isFC ? 'HVAC-FCU' : isRP ? 'HVAC-RPS' : isDS ? 'HVAC-DS' : isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const calcRef = `${isET ? 'HVAC-ET' : isFC ? 'HVAC-FCU' : isRP ? 'HVAC-RPS' : isDS ? 'HVAC-DS' : isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLPS ? 'ELEC-LPS' : isEG ? 'ELEC-EGS' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const disciplineSystem = isET
     ? `HVAC Systems — Expansion Tank Sizing (${_lastInputs?.system_type || 'Chilled Water'}, V=${_lastResults?.system_volume_L || _lastInputs?.system_volume_L || ''}L, Fill ${_lastInputs?.fill_temp_c || 20}°C→Max ${_lastInputs?.max_temp_c || ''}°C, Head ${_lastInputs?.static_head_m || ''}m, Pmax ${_lastInputs?.max_pressure_kpa_g || ''}kPa g, Tank ${_lastResults?.selected_tank_L || ''}L bladder, α=${_lastResults?.acceptance_factor ?? ''})`
     : isFC
@@ -15071,6 +15902,10 @@ function renderBomTablePreview(items) {
     ? `Electrical — Load Estimation (${_lastResults?.phase_config || _lastInputs?.phase_config || '3-Phase'}, ${_lastResults?.total_demand_kva || ''}kVA Demand, ${_lastResults?.recommended_breaker_A || ''}A Main Breaker)`
     : isSolarPV
     ? `Electrical — Solar PV System (${_lastResults?.system_type || ''}, ${_lastResults?.location || ''} ${_lastResults?.psh_hr || ''}h PSH, Array ${_lastResults?.actual_array_kwp || ''}kWp, ${_lastResults?.panel_qty || ''}× ${_lastInputs?.panel_wp || ''}Wp panels, Inverter ${_lastResults?.inverter_kw || ''}kW, Annual Yield ${_lastResults?.annual_yield_kwh || ''}kWh/yr)`
+    : isLPS
+    ? `Electrical — Lightning Protection System LPS (${_lastInputs?.lpl || 'LPL II'}, ${_lastInputs?.structure_type || 'Residential'}, ${_lastInputs?.building_length_m || ''}×${_lastInputs?.building_width_m || ''}×${_lastInputs?.building_height_m || ''}m, Ng=${_lastResults?.Ng_flash_km2yr || ''} fl/km²/yr, Nd=${_lastResults?.Nd || ''}/yr, ${_lastResults?.n_down_conductors || ''}× DC, ${_lastResults?.n_electrodes || ''}× electrodes ${_lastResults?.min_electrode_length_m || ''}m, ${_lastResults?.risk_check || ''})`
+    : isEG
+    ? `Electrical — Earthing / Grounding System (${_lastInputs?.electrode_type || 'Rod'}, ${_lastInputs?.num_electrodes || 1}x electrode, rho=${_lastInputs?.soil_resistivity || ''}Ohm*m, R_single=${_lastResults?.r_single_ohm || ''}Ohm, R_parallel=${_lastResults?.r_parallel_ohm || ''}Ohm, ${_lastResults?.pass_label || ''} vs. ${_lastResults?.r_limit_ohm || ''}Ohm limit, GEC ${_lastResults?.gec_mm2 || ''}mm2)`
     : isUPS
     ? `Electrical — UPS Sizing (${_lastInputs?.topology || 'Online'}, ${_lastInputs?.phase || '3-Phase'}, ${_lastResults?.selected_kva || ''}kVA, Loading ${_lastResults?.loading_pct || ''}%, Battery ${_lastResults?.battery_config || ''}, Backup ${_lastResults?.actual_runtime_min || ''}min, Input Breaker ${_lastResults?.input_breaker_a || ''}A)`
     : isCT
@@ -15207,6 +16042,10 @@ function renderBomTablePreview(items) {
             ? `Quantities are based on the Generator Sizing design calculation result (ISO 8528-1, PEC 2017 Article 7, NFPA 110). Selected genset: ${_lastResults?.selected_kva || ''}kVA / ${_lastResults?.selected_kw || ''}kW at PF 0.8 for ${_lastResults?.application || ''} service. Engineer shall verify all quantities on-site before procurement. All equipment and materials shall conform to ISO 8528-1, PEC 2017, NFPA 110, IEC 60947, and DENR AO 2016-07 emission standards. Factory test certificates and as-built drawings shall be submitted for Engineer's approval. Contractor shall obtain all required permits including Electrical Permit, DOLE OSH installation permit, and LGU/DENR fuel storage permit prior to commencement.`
             : isCT
             ? `Quantities are based on the Cable Tray Sizing design calculation result (NEMA VE 1 Load Class ${_lastResults?.nema_load_class || ''}, NEC Article 392, PEC 2017 Article 3.92). Selected tray: ${_lastResults?.selected_width_mm || ''}mm W × ${_lastInputs?.depth_mm || ''}mm D ${_lastInputs?.tray_type || 'Ladder'} type, actual fill ${_lastResults?.fill_actual_pct || ''}% (${_lastResults?.fill_check || ''}), span ${_lastInputs?.span_m || ''}m, run ${_lastInputs?.run_length_m || ''}m. ${Number(_lastResults?.derating_factor) < 1.0 ? `Ampacity derating factor ${_lastResults?.derating_factor}× applies — conductor ampacities shall be derated per NEC 392.80 / NEC 310.15 before procurement of cables.` : `No ampacity derating required — fill does not exceed the ${_lastInputs?.tray_type === 'Solid Bottom' ? '40%' : '30%'} threshold.`} Engineer shall verify all quantities on-site before procurement. All cable tray materials shall carry NEMA VE 1 compliance certification and hot-dip galvanizing certificate (ASTM A123). Contractor shall submit material data sheets, load class certificates, and galvanizing certificates for Engineer's approval prior to procurement.`
+            : isLPS
+            ? `Quantities are based on the Lightning Protection System design calculation result (IEC 62305-1/-2/-3, NFPA 780, PEC 2017 Article 2.50). Structure: ${_lastInputs?.building_length_m || ''}m × ${_lastInputs?.building_width_m || ''}m × ${_lastInputs?.building_height_m || ''}m H, ${_lastInputs?.structure_type || 'Residential'}. Protection Level: ${_lastInputs?.lpl || 'LPL II'} (efficiency ${_lastResults?.efficiency_pct || ''}%, rolling sphere R=${_lastResults?.rolling_sphere_R_m || ''}m, mesh ${_lastResults?.mesh_size_m || ''}m). Risk assessment: Ng=${_lastResults?.Ng_flash_km2yr || ''} fl/km²/yr, Ad=${_lastResults?.Ad_m2 || ''}m², Nd=${_lastResults?.Nd || ''}/yr vs. Nt=${_lastResults?.Nt || ''}/yr — ${_lastResults?.risk_check || ''}. Air termination: ${_lastResults?.n_air_terminals_est || ''} units. Down conductors: ${_lastResults?.n_down_conductors || ''}× ${_lastInputs?.dc_material || 'Copper'} at ${_lastResults?.dc_spacing_m || ''}m spacing (${_lastResults?.down_cond_length_m || ''}m total). Earth termination: ${_lastInputs?.earth_type || 'Type A'}, ${_lastResults?.n_electrodes || ''}× electrodes min ${_lastResults?.min_electrode_length_m || ''}m each — target ≤ 10 Ω. SPD: ${_lastResults?.spd_class || 'Class II'} at main panel. Quantities are indicative based on perimeter dimensions — field verification required before procurement. All air terminals, down conductors, and earth electrodes shall comply with IEC 62305-3 material and cross-section requirements. Submit LPS design drawings and earth resistance test reports for Engineer's approval.`
+            : isEG
+            ? `Quantities are based on the Earthing / Grounding System design calculation result (PEC 2017 Article 2.50, IEEE 80, IEC 62305, NEC Article 250). Electrode type: ${_lastInputs?.electrode_type || 'Rod'}, ${_lastInputs?.num_electrodes || 1} electrode(s) in parallel, soil resistivity ${_lastInputs?.soil_resistivity || ''}Ohm*m. Calculated resistance: single electrode ${_lastResults?.r_single_ohm || ''}Ohm, combined ${_lastResults?.r_parallel_ohm || ''}Ohm (${_lastResults?.pass_label || ''} vs. ${_lastResults?.r_limit_ohm || ''}Ohm limit for ${_lastInputs?.system_type || 'Residential / Commercial'}). Grounding electrode conductor (GEC): ${_lastResults?.gec_mm2 || ''}mm2 copper per PEC Table 2.50.66. Engineer shall verify soil resistivity by on-site Wenner 4-pin test (IEEE 81) before procurement of electrodes. All copper-bonded steel rods shall comply with UL 467 or equivalent. GEC shall be continuous, without splices, and shall be protected in rigid metallic conduit where subject to physical damage. Submit material compliance certificates and earth resistance test results to the Engineer after installation.`
             : isUPS
             ? `Quantities are based on the UPS Sizing design calculation result (IEC 62040-3, IEEE 446, IEEE 1184, PEC 2017 Article 7). Selected UPS: ${_lastResults?.selected_kva || ''}kVA ${_lastInputs?.topology || 'Online (Double-Conversion)'}, ${_lastInputs?.phase || '3-Phase'}, system loading ${_lastResults?.loading_pct || ''}% (≤ 80% limit per IEEE 446). Battery bank: ${_lastResults?.battery_config || ''} — rated backup ${_lastResults?.actual_runtime_min || ''}min at design load. Input breaker: ${_lastResults?.input_breaker_a || ''}A. ${_lastResults?.loading_pct > 80 ? 'WARNING: System loading exceeds 80% — increase UPS kVA or reduce connected load before procurement.' : 'System loading is within the recommended 80% limit.'} Engineer shall verify all quantities on-site before procurement. UPS shall carry IEC 62040-1 / IEC 62040-3 certification. Submit UPS datasheet, battery runtime test certificate, and panel single-line diagram for Engineer\'s approval prior to procurement.`
             : isRP
@@ -15293,6 +16132,8 @@ function renderSowDocPreview(sections) {
   const isPFCS     = _calcType === 'Power Factor Correction';
   const isCTS      = _calcType === 'Cable Tray Sizing';
   const isUPSS     = _calcType === 'UPS Sizing';
+  const isLPSS     = _calcType === 'Lightning Protection System (LPS)';
+  const isEGS      = _calcType === 'Earthing / Grounding System';
   const isFSprink  = _calcType === 'Fire Sprinkler Hydraulic';
   const isFPump    = _calcType === 'Fire Pump Sizing';
   const isSPress   = _calcType === 'Stairwell Pressurization';
@@ -15306,7 +16147,7 @@ function renderSowDocPreview(sections) {
   const isRPS        = _calcType === 'Refrigerant Pipe Sizing';
   const isFCS        = _calcType === 'FCU Selection';
   const isETS        = _calcType === 'Expansion Tank Sizing';
-  const calcRef = `${isETS ? 'HVAC-ET' : isFCS ? 'HVAC-FCU' : isRPS ? 'HVAC-RPS' : isDSS ? 'HVAC-DS' : isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const calcRef = `${isETS ? 'HVAC-ET' : isFCS ? 'HVAC-FCU' : isRPS ? 'HVAC-RPS' : isDSS ? 'HVAC-DS' : isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLPSS ? 'ELEC-LPS' : isEGS ? 'ELEC-EGS' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
@@ -15347,6 +16188,10 @@ function renderSowDocPreview(sections) {
     ? `Voltage Drop Compliance — ${_lastResults?.circuit_type || _lastInputs?.circuit_type || 'Branch Circuit'}, ${_lastResults?.phase || _lastInputs?.phase || 'Single-phase'} ${_lastResults?.voltage || _lastInputs?.voltage || 230}V, ${_lastResults?.current || _lastInputs?.current || ''}A, ${_lastResults?.wire_length || _lastInputs?.wire_length || ''}m run, ${_lastResults?.conductor_mm2 || _lastInputs?.conductor_mm2 || ''}mm² ${_lastResults?.conductor_mat || _lastInputs?.conductor_mat || 'Copper'} THHN/THWN, VD ${_lastResults?.vd_pct || ''}% (limit ${_lastResults?.vd_limit || 3}%) — ${_lastResults?.pass ? 'PASS' : 'FAIL'}`
     : isLoadEst
     ? `Electrical Distribution — ${_lastResults?.phase_config || _lastInputs?.phase_config || '3-Phase 4-Wire (400V)'}, Connected Load ${_lastResults?.total_connected_kva || ''}kVA, Demand Load ${_lastResults?.total_demand_kva || ''}kVA (${_lastResults?.total_demand_kw || ''}kW), Computed Ampacity ${_lastResults?.computed_ampacity || ''}A, Main Breaker ${_lastResults?.recommended_breaker_A || ''}A`
+    : isLPSS
+    ? `Lightning Protection System — LPL ${_lastInputs?.lpl || 'II'}, ${_lastInputs?.ng_location || 'Metro Manila'} (Ng=${_lastResults?.ng_fl_km2_yr ?? ''}fl/km²/yr), ${_lastInputs?.building_length_m || ''}m×${_lastInputs?.building_width_m || ''}m×${_lastInputs?.building_height_m || ''}mH, Ad=${_lastResults?.Ad_m2 ?? ''}m², Nd=${_lastResults?.Nd_strikes_yr ?? ''}/yr vs Nt=${_lastResults?.Nt ?? ''} — ${_lastResults?.risk_check ?? ''}, R=${_lastResults?.rolling_sphere_R_m ?? ''}m, ${_lastResults?.n_down_conductors ?? ''} down conductors, ${_lastResults?.n_air_terminals_est ?? ''} air terminals, ${_lastResults?.n_electrodes ?? ''}× earth electrodes`
+    : isEGS
+    ? `Earthing / Grounding System — ${_lastInputs?.electrode_type || 'Rod'} electrode, ${_lastInputs?.num_electrodes || 1} unit(s), rho=${_lastInputs?.soil_resistivity || ''}Ohm*m, R_single=${_lastResults?.r_single || ''}Ohm, R_combined=${_lastResults?.r_parallel || ''}Ohm, ${_lastResults?.pass_label || ''} vs. ${_lastResults?.r_limit || ''}Ohm limit (${_lastInputs?.system_type || 'Residential / Commercial'}), GEC=${_lastResults?.gec_mm2 || ''}mm2, ${_lastInputs?.system_voltage || 400}V system`
     : isUPSS
     ? `UPS Sizing — ${_lastInputs?.topology || 'Online (Double-Conversion)'}, ${_lastInputs?.phase || '3-Phase'}, Connected ${_lastResults?.total_connected_va || ''}VA → Design ${_lastResults?.design_va || ''}VA (×${_lastInputs?.growth_factor || 1.2}), Selected ${_lastResults?.selected_kva || ''}kVA UPS (Loading ${_lastResults?.loading_pct || ''}%), Battery ${_lastResults?.battery_config || ''}, Backup ${_lastResults?.actual_runtime_min || ''}min, Input Breaker ${_lastResults?.input_breaker_a || ''}A`
     : isCTS
@@ -15483,6 +16328,10 @@ ${isLight
   ? `This Scope of Works is based on the Generator Sizing Design Calculation (Ref: ${escHtml(calcRef)}) per ISO 8528-1, PEC 2017 Article 7 (Emergency and Standby Systems), and NFPA 110 (Emergency and Standby Power Systems). The selected ${_lastResults?.selected_kva || ''}kVA / ${_lastResults?.selected_kw || ''}kW diesel generator set is rated for ${_lastResults?.application || ''} service at ${_lastResults?.phase_config || _lastInputs?.phase_config || '3-Phase'} 415V/240V 60 Hz, with a system loading of ${_lastResults?.loading_pct || ''}% at running demand. The ATS shall transfer to emergency power within 10 seconds per NFPA 110 Level 1 requirements. The minimum fuel tank capacity of ${_lastResults?.tank_8hr_litres || ''}L ensures 8-hour continuous operation at 100% load as required by NFPA 110. The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including: PEC 2017 Article 7 (standby system wiring), NFPA 110 (transfer time, fuel storage, periodic testing), ISO 8528-1 (genset ratings and acceptance testing), IEC 60947 (ATS and switchgear), DENR AO 2016-07 (diesel engine emission standards), DOLE OSH mechanical and electrical installation permit requirements, and LGU/DENR fuel storage permit for tanks exceeding 200L. A block load acceptance test at 25%/50%/75%/100% rated load shall be witnessed by the Engineer and a licensed PRC Electrical Engineer (PEE) before practical completion. As-built drawings, O&M manual, factory test certificate, and warranty registration shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isCTS
   ? `This Scope of Works is based on the Cable Tray Sizing Design Calculation (Ref: ${escHtml(calcRef)}) per NEMA VE 1 (Metal Cable Tray Systems), NEMA VE 2 (Installation Guidelines), NEC Article 392 (Cable Trays), NEC Section 310.15 (Ampacity), and PEC 2017 Article 3.92. The selected cable tray is ${_lastResults?.selected_width_mm || ''}mm wide × ${_lastInputs?.depth_mm || ''}mm deep ${_lastInputs?.tray_type || 'Ladder'} type, NEMA VE 1 Load Class ${_lastResults?.nema_load_class || ''}, supported at ${_lastInputs?.span_m || ''}m centres, total run ${_lastInputs?.run_length_m || ''}m. Actual cable fill: ${_lastResults?.fill_actual_pct || ''}% (limit ${_lastInputs?.fill_ratio_pct || 40}%) — ${_lastResults?.fill_check || ''}. ${Number(_lastResults?.derating_factor) < 1.0 ? `NOTE: Actual fill exceeds the ${_lastInputs?.tray_type === 'Solid Bottom' ? '40%' : '30%'} derating threshold — all power conductor ampacities shall be derated to ${Math.round(Number(_lastResults?.derating_factor) * 100)}% per NEC 392.80 / NEC 310.15. Verify derated ampacity meets design current before cable procurement.` : `No ampacity derating required — fill does not exceed the ${_lastInputs?.tray_type === 'Solid Bottom' ? '40%' : '30%'} threshold per NEC 392.80.`} The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including: NEMA VE 1 and NEMA VE 2 (material, fabrication, installation, and earthing of metal cable tray systems), NEC Article 392 and PEC 2017 Article 3.92 (fill limits, support spacing, cable grouping, and earthing continuity), NEC 310.15 (conductor ampacity derating where applicable), PEC Article 2.50 (earthing and bonding — copper bonding jumpers at every splice and earthing lugs at every support bracket), and DOLE OSH Electrical Safety Standards. All cable tray materials shall carry NEMA VE 1 compliance certification and hot-dip galvanizing certificate (ASTM A123 minimum 85 µm average coating). Power cables shall be segregated from control and instrumentation cables by a tray divider or separate adjacent tray per NEMA VE 2. An Electrical Permit shall be obtained from the LGU prior to commencement. All electrical works shall be performed by a licensed master electrician under the supervision of a PRC-licensed Electrical Engineer. As-built cable tray layout drawings, NEMA VE 1 certificates, galvanizing test reports, and earth continuity test results (end-to-end resistance ≤ 1 Ω) shall be submitted to the Owner and Engineer upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  : isLPSS
+  ? `This Scope of Works is based on the Lightning Protection System Design Calculation (Ref: ${escHtml(calcRef)}) per IEC 62305-1 (General Principles), IEC 62305-2 (Risk Management), IEC 62305-3 (Physical Damage to Structures and Life Hazard), IEC 62305-4 (Electrical and Electronic Systems — SPD protection), NFPA 780 (Standard for the Installation of Lightning Protection Systems), and PEC 2017 Article 2.50 (Earthing and Bonding). The LPS is designed for Protection Level ${_lastInputs?.lpl || 'II'} with a rolling sphere radius of ${_lastResults?.rolling_sphere_R_m ?? ''}m and a mesh size of ${_lastResults?.mesh_size_m ?? ''}m, providing a protection efficiency of ${_lastResults?.efficiency_pct ?? ''}%. The calculated annual strike frequency is Nd=${_lastResults?.Nd_strikes_yr ?? ''} strikes/yr versus a tolerable level of Nt=${_lastResults?.Nt ?? ''} — risk assessment result: ${_lastResults?.risk_check ?? ''}. The system consists of ${_lastResults?.n_air_terminals_est ?? ''} air-termination units, ${_lastResults?.n_down_conductors ?? ''} down conductors at ${_lastResults?.dc_spacing_m ?? ''}m centres, and ${_lastResults?.n_electrodes ?? ''} earth electrode(s) each with a minimum length of ${_lastResults?.min_electrode_length_m ?? ''}m. Type ${_lastResults?.spd_class ?? ''} Surge Protective Devices (SPDs) shall be installed for internal electrical protection per IEC 62305-4. The Contractor shall comply with all applicable codes and standards including: IEC 62305-3 (down-conductor cross-section — Cu min 50mm², Al min 70mm², galvanised steel min 50mm²; separation distance from metal parts; test joints at base of each down conductor), IEC 62305-4 (SPD coordination between entry point, distribution board, and sensitive equipment), PEC 2017 Article 2.50 (earth termination integration with LV system earthing), and NFPA 780 (installation of air terminals, conductors, and ground connections). Air-termination network shall comply with the rolling sphere method (R=${_lastResults?.rolling_sphere_R_m ?? ''}m) per IEC 62305-3 Annex D. All metallic services entering the structure (electrical, water, gas, telecommunications) shall be bonded to the LPS main equipotential bonding bar. Earth termination system resistance shall be as low as practicable — for LPL I/II the resistance of the complete earth termination network shall not exceed 10Ω. All connections shall be corrosion-resistant — use bi-metallic connectors where dissimilar metals join. The Contractor shall perform an earth resistance test (Fall-of-Potential method per IEEE 81) and submit results for Engineer's approval. Surge Protective Device (SPD) data sheets, including maximum continuous operating voltage (Uc), voltage protection level (Up), and nominal discharge current (In), shall be submitted for Engineer's approval before procurement. As-built lightning protection layout drawing, photographic records of all electrode installations, earth resistance test report, SPD installation certificates, and equipment warranty documents shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  : isEGS
+  ? `This Scope of Works is based on the Earthing / Grounding System Design Calculation (Ref: ${escHtml(calcRef)}) per PEC 2017 Article 2.50 (Grounding and Bonding), IEEE 80-2013 (Guide for Safety in AC Substation Grounding), IEC 62305-3 (Protection Against Lightning), IEEE 142-2007 Green Book (Grounding of Industrial and Commercial Power Systems), and NEC Article 250 (Grounding and Bonding). The earthing system consists of ${_lastInputs?.num_electrodes || 1} ${_lastInputs?.electrode_type || 'Rod'} electrode(s) installed in soil with measured resistivity of ${_lastInputs?.soil_resistivity || ''}Ohm*m. Calculated electrode resistance: single ${_lastResults?.r_single || ''}Ohm, combined ${_lastResults?.r_parallel || ''}Ohm. Result: ${_lastResults?.pass_label || ''} versus the ${_lastResults?.r_limit || ''}Ohm resistance limit for ${_lastInputs?.system_type || 'Residential / Commercial'} systems per PEC 2017. The grounding electrode conductor (GEC) shall be ${_lastResults?.gec_mm2 || ''}mm2 stranded bare copper, sized per PEC Table 2.50.66. The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including: PEC 2017 Article 2.50 (grounding and bonding — GEC continuity, no splices, mechanical protection in rigid conduit where subject to damage), IEEE 80-2013 (touch voltage and step voltage safety limits for industrial/substation installations), IEC 62305-3 (earthing for lightning protection systems — integration with down-conductors and SPDs), IEEE 142-2007 (system grounding for industrial power systems), DOLE OSH Electrical Safety Standards (grounding of all electrical equipment enclosures), and NEC Article 250 (reference for GEC and bonding jumper sizing). All copper-bonded steel ground rods shall comply with UL 467 (Grounding and Bonding Equipment) or equivalent and shall have minimum 0.25mm copper coating thickness. Ground rod driving shall be by mechanical driver only — manual driving is not permitted. All connections below grade shall be by exothermic welding (Cadweld or equivalent) or compression-type fittings approved for direct burial — no solder joints or standard mechanical lugs below grade. All above-grade connections shall use listed grounding clamps or mechanical lugs (UL 467). The Contractor shall perform an earth resistance test after installation using the Fall-of-Potential method (IEEE 81) or two-electrode method for individual rods. Test results shall be submitted to the Engineer for review before the system is energized. If measured resistance does not meet the design limit, additional electrodes shall be added at the Contractor's expense until compliance is achieved. An Electrical Permit shall be obtained from the LGU prior to commencement. All electrical works shall be performed by a licensed master electrician under the supervision of a PRC-licensed Electrical Engineer. As-built earthing layout drawing, UL 467 compliance certificates for rods, exothermic welding certificates, and earth resistance test reports shall be submitted to the Owner and Engineer upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isUPSS
   ? `This Scope of Works is based on the UPS Sizing Design Calculation (Ref: ${escHtml(calcRef)}) per IEC 62040-1 (Safety Requirements for UPS), IEC 62040-3 (Performance Requirements — ${_lastInputs?.topology || 'Online (Double-Conversion)'} class), IEEE 446 (Emergency and Standby Power), IEEE 1184 (Batteries for UPS), and PEC 2017 Article 7 (Emergency and Standby Systems). The selected UPS is ${_lastResults?.selected_kva || ''}kVA ${_lastInputs?.topology || 'Online (Double-Conversion)'} type, ${_lastInputs?.phase || '3-Phase'}, with a system loading of ${_lastResults?.loading_pct || ''}% of rated kVA. The battery bank is ${_lastResults?.battery_config || ''}, rated for a minimum backup autonomy of ${_lastResults?.actual_runtime_min || ''} minutes at design load. The input supply shall be from a dedicated ${_lastResults?.input_breaker_a || ''}A circuit breaker, and the UPS shall be provided with a static bypass for maintenance. The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including: IEC 62040-1 and IEC 62040-3 (UPS safety and performance), IEEE 446 (loading limits — ≤ 80% of rated kVA), IEEE 1184 (VRLA battery sizing, DOD = 80%, replacement at ≤ 80% rated capacity), PEC 2017 Article 7 (dedicated branch circuit, LGU Electrical Permit, signed and sealed calculation), and DOLE OSH Electrical Safety Standards. The UPS shall carry IEC 62040-1 / IEC 62040-3 certification from an accredited test laboratory. VRLA batteries shall be from a reputable manufacturer with a minimum 3-year warranty. An Electrical Permit shall be obtained from the LGU prior to installation. All electrical works shall be performed by a licensed master electrician under the supervision of a PRC-licensed Electrical Engineer. Commissioning shall include a full-load battery discharge test per IEC 62040-3 — actual measured runtime shall equal or exceed the design backup time. As-built single-line diagram, UPS commissioning test report, battery runtime test results, and equipment warranty documents shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isRPS
@@ -15503,7 +16352,7 @@ ${isLight
             </div>
             <div style="font-size:0.74rem;color:#555;">
               <span class="editable-field" contenteditable="true">${
-                (isLoadEst || isVD || isWire || isSC || isLight) ? 'Electrical Engineer'
+                (isLoadEst || isVD || isWire || isSC || isLight || isLPSS || isEGS || isUPSS || isCTS || isPFCS || isSolarPVS || isGenS) ? 'Electrical Engineer'
                 : (isDrain || isWS || isHW || isSeptic || isWaterSoftS || isWTS || isSTPS || isSDS) ? 'Sanitary Engineer'
                 : (isFSprink || isFPump || isSPress || isFABatt) ? 'Fire Protection Engineer'
                 : (isElev || isHoist) ? 'Mechanical Engineer'
