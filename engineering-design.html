@@ -2713,17 +2713,18 @@ function renderInputForm(calcType) {
 
       <!-- Building type toggle -->
       <div class="mb-4">
-        <div class="field-label">Building Type</div>
+        <div class="field-label">Building Type <span style="color:rgba(255,255,255,0.35);font-size:0.7rem;font-weight:400;">(for permit documentation — also suggests Room Function)</span></div>
         <div class="toggle-group" id="tg-building">
           ${['Office','Industrial','Residential','Hospital','Food Processing'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-building','${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-building','${v}');applyBuildingTypeDefaults('${v}')">${v}</button>`
           ).join('')}
         </div>
       </div>
 
       <!-- Room function toggle -->
       <div class="mb-4">
-        <div class="field-label">Room Function</div>
+        <div class="field-label">Room Function <span style="color:rgba(255,255,255,0.35);font-size:0.7rem;font-weight:400;">(drives heat load and lighting — override freely)</span></div>
+        <div id="room-function-hint" style="font-size:0.7rem;color:#F7A21B;margin-bottom:0.4rem;min-height:1rem;"></div>
         <div class="toggle-group" id="tg-function">
           ${['Office','Conference','Server Room','Production Floor','Warehouse','Retail'].map((v,i) =>
             `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-function','${v}');applyRoomDefaults('${v}')">${v}</button>`
@@ -7246,6 +7247,25 @@ function applyFluidDefaults(fluid) {
   };
   const el = document.getElementById('f-fluid-density');
   if (el) el.value = densities[fluid] || 1000;
+}
+
+function applyBuildingTypeDefaults(buildingType) {
+  // Map building type → suggested room function, then pre-fill persons/equipment.
+  // User can always override Room Function independently after this runs.
+  const suggested = {
+    'Office':          'Office',
+    'Industrial':      'Production Floor',
+    'Residential':     'Office',
+    'Hospital':        'Conference',
+    'Food Processing': 'Production Floor',
+  };
+  const roomFunc = suggested[buildingType];
+  if (!roomFunc) return;
+  toggle('tg-function', roomFunc);
+  applyRoomDefaults(roomFunc);
+  // Show the hint so the user knows it was auto-set
+  const hint = document.getElementById('room-function-hint');
+  if (hint) hint.textContent = `Auto-suggested from "${buildingType}" — you can override below.`;
 }
 
 function applyRoomDefaults(roomFunc) {
