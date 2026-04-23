@@ -1264,6 +1264,81 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Grease Trap Sizing BOM + SOW Agent ──────────────────────────────────────
+
+async function greaseTrapBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project         = inputs.project_name    || "Grease Trap Project";
+  const facilityType    = inputs.facility_type   || "Restaurant / Commercial Kitchen";
+  const mealsPerDay     = inputs.meals_per_day   ?? "N/A";
+  const suf             = results.suf_used       ?? inputs.suf ?? 0.75;
+  const totalFlowLpm    = results.total_flow_lpm ?? "N/A";
+  const qDesignLpm      = results.q_design_lpm   ?? "N/A";
+  const qDesignGpm      = results.q_design_gpm   ?? "N/A";
+  const pdiGpm          = results.pdi_gpm        ?? "N/A";
+  const liquidCapL      = results.liquid_cap_l   ?? "N/A";
+  const greaseRetKg     = results.grease_ret_kg  ?? "N/A";
+  const cleanIntervalDays = results.clean_interval_days ?? 30;
+
+  const prompt = `You are a Philippine sanitary engineering expert. Generate a professional BOM and SOW for a GREASE TRAP / GREASE INTERCEPTOR installation project.
+
+PROJECT: ${project}
+FACILITY TYPE: ${facilityType}
+MEALS PER DAY: ${mealsPerDay}
+SIMULTANEOUS USE FACTOR (SUF): ${suf}
+TOTAL FIXTURE FLOW: ${totalFlowLpm} LPM
+DESIGN FLOW (Q_design): ${qDesignLpm} LPM (${qDesignGpm} GPM)
+PDI STANDARD SIZE SELECTED: ${pdiGpm} GPM
+LIQUID HOLDING CAPACITY: ${liquidCapL} L (PDI: ${pdiGpm} GPM × 2 gal × 3.785 L/gal)
+GREASE RETENTION CAPACITY: ${greaseRetKg} kg
+RECOMMENDED CLEANOUT INTERVAL: every ${cleanIntervalDays} days
+STANDARDS: PDI BH-201 (Flow Rate Method), Philippine Plumbing Code (PPC), DENR DAO 2016-08 (Wastewater Effluent), PNS/ICS
+
+Generate a JSON object with:
+1. "bom_items": array of 15 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include these items in order:
+   1. Grease Interceptor Unit (PDI-rated) — PDI BH-201 certified grease interceptor, ${pdiGpm} GPM rated capacity, ${liquidCapL} L liquid holding, ${greaseRetKg} kg grease retention; cast iron, steel, or HDPE body; inlet baffle and outlet T-pipe; gastight bolted cover; PPC and DENR DAO 2016-08 compliant — qty: 1 unit
+   2. Inlet Pipe Connection — 100 mm (4-inch) PVC Schedule 40 inlet pipe from kitchen fixture drain header to grease interceptor inlet; includes 45° elbow, short nipple, and union for maintenance access — qty: 1 lot (per site layout)
+   3. Outlet Pipe Connection — 100 mm (4-inch) PVC Schedule 40 outlet pipe from grease interceptor outlet to building drain or septic tank connection; P-trap on outlet side; cleanout plug at low point — qty: 1 lot (per site layout)
+   4. Vent Pipe Assembly — 50 mm (2-inch) PVC Schedule 40 vent pipe from grease interceptor body to open air above roof line; anti-siphon vent valve if direct roof vent is not possible; all joints solvent-welded per PPC — qty: 1 lot
+   5. Grease Trap Cover / Access Lid — factory-supplied gastight bolted lid (matching interceptor unit); if installed in floor slab: 600 mm × 600 mm cast iron traffic-rated access cover, HS20-rated where in vehicular area, frame set in concrete haunch — qty: 1 set
+   6. Inlet and Outlet Fittings — 100 mm tee (for inlet drop pipe baffle), 100 mm 90° elbows (min 2), cleanout plugs (min 2), reducing bushings (if fixture piping is 75 mm), PVC solvent cement and primer — qty: 1 lot
+   7. Inlet Strainer / Basket — stainless steel SS 304 perforated basket strainer at interceptor inlet to capture food solids before grease chamber; removable for cleaning; mesh opening 5–10 mm — qty: 1 unit
+   8. Grease Waste Drum / Collection Container — 200 L HDPE closed-head drum with tight-lid, labelled "GREASE WASTE — HAZARDOUS" per DENR DAO 2013-22; used for collected grease during pump-out service; quantity per cleaning cycle — qty: 2 units (initial supply)
+   9. Interceptor Mounting / Concrete Pad — 150 mm thick reinforced concrete pad under interceptor; 3000 psi (20 MPa) concrete; 12 mm RSB mesh reinforcement; anti-vibration neoprene pads if interceptor is above ground — qty: 1 unit (dimensions per interceptor footprint + 150 mm edge clearance)
+   10. Trench / Slab Opening Works — breaking of existing floor tile and concrete slab (if unit is below-grade); excavation to design invert level; formwork and backfill; floor tile reinstatement in matching material and grout — qty: 1 lot (provisional per actual site condition)
+   11. Drain Piping — Branch lines to fixtures — 75 mm PVC Schedule 40 kitchen drain branch piping from individual fixtures (sinks, dishwasher, floor drains) to the common drain header feeding the interceptor; all slopes minimum 1:50 per PPC; cleanout plugs at each change of direction — qty: per linear meter (contractor to quantify from kitchen layout drawing)
+   12. Pressure Test Fittings and Test Plugs — rubber test plugs (100 mm and 50 mm); hand pump for air pressure test; all drain and vent lines tested at 0.3 bar (5 PSI) air pressure for 15 minutes with no pressure drop before covering — qty: 1 lot
+   13. Support Brackets and Pipe Hangers — galvanized steel pipe hangers at max 1.2 m spacing for horizontal runs; wall clamps for vertical stacks; all supports sized for pipe OD and weight when full — qty: 1 lot (per layout)
+   14. Inspection and Sampling Port — 100 mm PVC inspection tee with cleanout cap at outlet side of interceptor; provides access for sampling effluent per DENR DAO 2016-08 discharge monitoring requirements — qty: 1 unit
+   15. Miscellaneous — pipe labels ("GREASE WASTE DRAIN"), as-built drawing, cleaning log book, Contractor's Grease Management Plan per DENR DAO 2016-08, DENR discharge permit assistance, temporary plumbing covers during construction — qty: 1 lot
+
+2. "sow_sections": array of 8 sections (each: section_no, title, content)
+   Cover:
+   - "1.0" General Scope (supply, install, and commission a PDI BH-201-rated grease interceptor system for the ${facilityType}; design flow ${qDesignGpm} GPM — PDI selected unit: ${pdiGpm} GPM; liquid holding capacity ${liquidCapL} L; grease retention ${greaseRetKg} kg; all work in accordance with PDI BH-201, Philippine Plumbing Code (PPC), and DENR DAO 2016-08; BOM quantities are for planning purposes only — contractor shall verify all quantities against approved kitchen layout and as-built plans)
+   - "2.0" Applicable Standards and Permits (PDI BH-201 — Grease Interceptors (Flow Rate Method); Philippine Plumbing Code (PPC) — drain, waste, and vent requirements; DENR DAO 2016-08 — Revised Effluent Standards for Wastewater Discharge; DENR DAO 2013-22 — Grease Waste as Scheduled Waste; PNS/ICS 15:2003 — sanitary drainage; DOLE OSH Standards for confined space work; LGU Building Permit with plumbing permit; obtain DENR Discharge Permit if interceptor outlet discharges to public drain or water body)
+   - "3.0" Site Preparation and Slab Works (mark out interceptor location in coordination with kitchen layout and existing drain invert levels; confirm sufficient fall from kitchen fixtures to interceptor inlet (min 1:50 slope) and from interceptor outlet to building drain connection; core drill or break slab only where necessary for below-grade installation; all temporary openings to be barricaded and covered at end of each shift; reinstate slab and floor tiles in matching material after interceptor installation is complete and inspected)
+   - "4.0" Grease Interceptor Installation (install PDI-rated interceptor unit on 150 mm reinforced concrete pad at design invert; connect inlet and outlet piping using PVC Schedule 40 solvent-welded joints; install inlet drop baffle tee and outlet T-pipe per PDI BH-201 requirements; install vent pipe to open air above roof; ensure gastight lid is correctly seated and bolted; provide minimum 600 mm clear maintenance access around unit; install SS304 basket strainer at inlet; install DENR-compliant sampling port at outlet)
+   - "4.1" Drain and Vent Piping (route kitchen drain branch lines at minimum 1:50 fall to common header; common header to interceptor inlet at 1:50 minimum slope; all changes of direction via 45° bends — no 90° sweep below floor slab; cleanout plugs at each change of direction and at foot of each stack; vent piping to be independent of soil vent stack if discharging >0.6 m³/day; all solvent-welded joints cured 24 hours before pressure test)
+   - "5.0" Testing and Inspection (air pressure test all drain and vent lines at 0.3 bar for 15 minutes with no pressure drop before concealing; flow test: pour 10 L of water into each connected fixture and observe free drainage with no gurgling at fixtures — confirms correct venting; after commissioning, sample interceptor effluent and test for Oil and Grease (O&G) — must meet DENR DAO 2016-08 limit of 5 mg/L for Class SB/SC receiving waters; submit test results to building owner and LGU sanitary inspector; DENR inspection required before final occupancy clearance if facility serves >50 meals/day)
+   - "6.0" Maintenance and Cleanout Schedule (establish Grease Management Plan (GMP): interceptor to be cleaned every ${cleanIntervalDays} days based on ${mealsPerDay} meals/day and ${greaseRetKg} kg retention capacity; cleaning procedure — remove lid, pump out grease and liquid waste into sealed 200 L drums labelled per DENR DAO 2013-22, scrape baffle walls, rinse with hot water (not caustic chemicals), replace basket strainer, re-seat lid; engaged licensed environmental services contractor (LLDA/EMB-accredited) for grease waste hauling and disposal; maintain cleaning log book on-site for DENR inspection; if O&G in effluent exceeds 5 mg/L on any sampling event, reduce cleanout interval immediately)
+   - "7.0" Regulatory Compliance and Handover (submit as-built plumbing drawings showing grease interceptor location, pipe sizes, invert levels, and connection to building drain; provide manufacturer's data sheet and PDI certification for interceptor unit; submit Grease Management Plan (GMP) to LGU and DENR as required; provide owner training on daily pre-cleaning of basket strainer, visual grease level check, and emergency spill procedure; 1-year defects liability — contractor responsible for any joint failure, blockage attributable to incorrect installation, or interceptor unit defect within warranty period)
+   - "8.0" Health, Safety, and Environment (all confined space entry (below-grade interceptor pit) under confined space entry permit per DOLE OSH Rule 1977; PPE: chemical-resistant gloves, safety goggles, chemical apron, and respiratory protection during cleanout; no smoking or open flame near interceptor — methane/H2S gas hazard; grease waste is scheduled waste per DENR DAO 2013-22 — manifest required for every haul; do not discharge grease waste to floor drain, sewer, or storm drain — fine and penalty under RA 9275 Clean Water Act)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Electrical Load Estimation BOM + SOW Agent ───────────────────────────────
 
 async function loadEstBomSowAgent(
@@ -3386,6 +3461,8 @@ serve(async (req) => {
       result = await wastewaterSTPBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Plumbing" && calc_type === "Storm Drain / Stormwater") {
       result = await stormDrainBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Plumbing" && calc_type === "Grease Trap Sizing") {
+      result = await greaseTrapBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Load Estimation") {
       result = await loadEstBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Voltage Drop") {
