@@ -5129,7 +5129,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Cable Size (mm²)</div>
           <div class="toggle-group" id="tg-sc-cable">
-            ${[22,30,38,50,60,80,100].map((v,i) =>
+            ${[22,30,38,50,60,80,100,150,250].map((v,i) =>
               `<button class="toggle-btn${i===2?' active':''}" data-val="${v}" onclick="toggle('tg-sc-cable','${v}')">${v}</button>`
             ).join('')}
           </div>
