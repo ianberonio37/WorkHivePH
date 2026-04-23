@@ -11813,7 +11813,7 @@ function renderExpansionTankReport(inputs, results, narrative) {
   const vMax        = Number(results.v_max                || 0).toFixed(5);
 
   const alphaColor  = alpha >= 0.25 ? '#10b981' : alpha >= 0.15 ? '#f97316' : '#ef4444';
-  const pressOK     = pressCheck.startsWith('OK');
+  const pressOK     = pressCheck.startsWith('PASS');
 
   const reportHTML = `
   <div style="padding:2.5rem;background:#fff;color:#1a1a1a;font-family:'Segoe UI',Arial,sans-serif;font-size:0.92rem;line-height:1.6;">
