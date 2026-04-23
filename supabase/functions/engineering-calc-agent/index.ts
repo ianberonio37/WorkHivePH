@@ -1881,7 +1881,7 @@ function calcLightningProtection(inputs: Record<string, number | string>): Recor
 
   // Philippine Ng lookup (flashes/km²/yr, approximate PAGASA data)
   const NG_TABLE: Record<string, number> = {
-    "Metro Manila":            10,
+    "Metro Manila / NCR":      10,
     "Baguio / Cordillera":     12,
     "Ilocos Region":            8,
     "Cagayan Valley":          12,
