@@ -4345,6 +4345,23 @@ function renderInputForm(calcType) {
         </div>
       </div>
 
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Voc Temp. Coefficient <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(negative for mono/poly)</span></div>
+          <div class="input-group">
+            <input id="f-pv-temp-coeff" class="wh-input" type="number" value="-0.29" min="-0.50" max="0" step="0.01" />
+            <span class="input-unit">%/°C</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Min. Site Temp. <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(auto from location)</span></div>
+          <div class="input-group">
+            <input id="f-pv-tmin" class="wh-input" type="number" value="18" min="-10" max="30" step="1" />
+            <span class="input-unit">°C</span>
+          </div>
+        </div>
+      </div>
+
       <div class="grid grid-cols-3 gap-3 mb-4">
         <div>
           <div class="field-label">Panel Area</div>
@@ -4398,7 +4415,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
-        IEC 62548 / PEC Art. 6 / DOE Net Metering DC2015-07-0012. Array kWp = Daily kWh / (PSH × Derating × Inv. Eff.). String voltage limit: 1000 V DC (max series panels = floor(1000 / Voc)).
+        IEC 62548 / PEC Art. 6 / DOE Net Metering DC2015-07-0012. Array kWp = Daily kWh / (PSH × Derating × Inv. Eff.). String voltage limit: 1000 V DC — panels/string = ⌊1000 / Voc_max⌋ where Voc_max = Voc × (1 + coeff/100 × (T_min − 25)) per IEC 62548 cold-temperature check.
       </div>
     `;
     togglePVBatteryFields();
@@ -7178,11 +7195,15 @@ function applyVDPhaseDefaults(phase) {
   if (el) el.value = phase === 'Three-phase' ? 400 : 230;
 }
 
+const PV_T_MIN = { 'Metro Manila':18,'Cebu':20,'Davao':20,'Iloilo':20,'Baguio':8,'CDO':19,'Zamboanga':21,'Batangas':18,'Legazpi':17,'Tacloban':19 };
 function setPVLocation(loc, psh) {
   document.querySelectorAll('#tg-pv-loc .toggle-btn').forEach(b => b.classList.toggle('active', (b.dataset.val || b.textContent.trim()) === loc));
   const el = document.getElementById('f-pv-psh');
   if (el && psh) { el.value = psh; el.readOnly = true; el.style.opacity = '0.6'; }
   else if (el)   { el.readOnly = false; el.style.opacity = '1'; el.focus(); }
+  const tmin = document.getElementById('f-pv-tmin');
+  if (tmin && PV_T_MIN[loc] !== undefined) { tmin.value = PV_T_MIN[loc]; tmin.readOnly = true; tmin.style.opacity = '0.6'; }
+  else if (tmin) { tmin.readOnly = false; tmin.style.opacity = '1'; }
 }
 
 function togglePVBatteryFields() {
@@ -7374,6 +7395,8 @@ function collectInputs() {
       daily_energy_kwh: parseFloat(v('f-pv-energy'))   || 50,
       panel_wp:        parseFloat(getToggle('tg-pv-wp') || '450'),
       panel_voc:       parseFloat(v('f-pv-voc'))        || 49.5,
+      temp_coeff_voc:  parseFloat(v('f-pv-temp-coeff')) || -0.29,
+      t_min_c:         parseFloat(v('f-pv-tmin'))       || 18,
       panel_area_m2:   parseFloat(v('f-pv-panel-area')) || 1.7,
       derating_pct:    parseFloat(v('f-pv-derating'))   || 80,
       inverter_eff_pct: parseFloat(v('f-pv-inv-eff'))  || 96,
@@ -9840,7 +9863,8 @@ function renderSolarPVReport(inputs, results, narrative) {
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">4</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Required Array = Energy / (PSH × System Eff.)</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.required_array_kwp || 0)} kWp</td></tr>
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">5</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Panel Count = ⌈Required kWp × 1000 / ${e(inputs.panel_wp || 450)} Wp⌉</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.panel_qty || 0)} panels</td></tr>
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">6</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Actual Array = ${e(results.panel_qty || 0)} × ${e(inputs.panel_wp || 450)} Wp / 1000</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.actual_array_kwp || 0)} kWp</td></tr>
-      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">7</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">String Config: ⌊1000 V / ${e(inputs.panel_voc || 49.5)} V Voc⌋ = ${e(results.panels_per_string || 0)} panels/string; ⌈${e(results.panel_qty || 0)} / ${e(results.panels_per_string || 0)}⌉ = ${e(results.num_strings || 0)} strings</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;">${e(results.panels_per_string || 0)}S × ${e(results.num_strings || 0)}P</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">7a</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Voc at T_min — Voc_max = ${e(inputs.panel_voc || 49.5)} × (1 + (${e(results.temp_coeff_voc ?? inputs.temp_coeff_voc ?? -0.29)}/100) × (${e(results.t_min_c ?? inputs.t_min_c ?? 18)} − 25))</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.voc_max || 0)} V</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">7b</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">String Config: ⌊1000 V / ${e(results.voc_max || 0)} V Voc_max⌋ = ${e(results.panels_per_string || 0)} panels/string; ⌈${e(results.panel_qty || 0)} / ${e(results.panels_per_string || 0)}⌉ = ${e(results.num_strings || 0)} strings</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;">${e(results.panels_per_string || 0)}S × ${e(results.num_strings || 0)}P</td></tr>
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">8</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Annual Yield = ${e(results.actual_array_kwp || 0)} kWp × ${e(results.psh_hr || inputs.psh_hr || 4.5)} h × 365 × ${e(results.system_efficiency || 0)}</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.annual_yield_kwh || 0)} kWh/yr</td></tr>
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">9</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Roof Area = ${e(results.panel_qty || 0)} panels × ${e(inputs.panel_area_m2 || 1.7)} m²/panel</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.total_roof_area_m2 || 0)} m²</td></tr>
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">10</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">CO₂ Reduction = ${e(results.annual_yield_kwh || 0)} kWh × 0.72 kg CO₂/kWh</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.co2_reduction_kg || 0)} kg/yr</td></tr>

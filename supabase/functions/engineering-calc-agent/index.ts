@@ -4157,6 +4157,13 @@ const PH_PSH: Record<string, number> = {
   "Baguio": 4.2, "CDO": 4.6, "Zamboanga": 4.9, "Batangas": 4.6,
   "Legazpi": 4.4, "Tacloban": 4.5,
 };
+// Minimum recorded ambient temperature per Philippine location (°C) — PAGASA data
+// Used for IEC 62548 worst-case string Voc check (Voc increases at low temperature)
+const T_MIN_BY_LOCATION: Record<string, number> = {
+  "Metro Manila": 18, "Cebu": 20, "Davao": 20, "Iloilo": 20,
+  "Baguio": 8,  "CDO": 19, "Zamboanga": 21, "Batangas": 18,
+  "Legazpi": 17, "Tacloban": 19,
+};
 
 function calcSolarPV(inputs: Record<string, unknown>): Record<string, unknown> {
   const round2 = (v: number) => Math.round(v * 100) / 100;
@@ -4172,6 +4179,9 @@ function calcSolarPV(inputs: Record<string, unknown>): Record<string, unknown> {
   const autonomyDays  = Number(inputs.autonomy_days)     || 1;
   const dodPct        = Number(inputs.dod_pct)           || 80;
   const battVoltage   = Number(inputs.battery_voltage)   || 48;
+  // IEC 62548 Voc temperature derating — Voc increases at low ambient temp
+  const tempCoeffVoc  = Number(inputs.temp_coeff_voc     ?? -0.29); // %/°C (negative for monocrystalline)
+  const tMinC         = Number(inputs.t_min_c            ?? T_MIN_BY_LOCATION[location] ?? 18);
 
   // Step 1: Peak Sun Hours
   const psh = PH_PSH[location] ?? Number(inputs.psh_hr) ?? 4.5;
@@ -4190,8 +4200,10 @@ function calcSolarPV(inputs: Record<string, unknown>): Record<string, unknown> {
   // Step 5: Actual array kWp
   const actualArrayKWp = round2(panelQty * panelWp / 1000);
 
-  // Step 6: String sizing (IEC 62548 — 1000 V DC max string voltage)
-  const panelsPerString = Math.floor(1000 / panelVoc);
+  // Step 6: String sizing — IEC 62548, 1000 V DC max
+  // Voc increases at low ambient temperature; use worst-case cold-temp Voc for safe string limit
+  const Voc_max         = round2(panelVoc * (1 + (tempCoeffVoc / 100) * (tMinC - 25)));
+  const panelsPerString = Math.floor(1000 / Voc_max);
   const numStrings      = Math.ceil(panelQty / panelsPerString);
 
   // Step 7: Inverter capacity (1:1 DC/AC ratio, standard)
@@ -4223,6 +4235,9 @@ function calcSolarPV(inputs: Record<string, unknown>): Record<string, unknown> {
     panel_wp:            panelWp,
     panel_qty:           panelQty,
     actual_array_kwp:    actualArrayKWp,
+    temp_coeff_voc:      tempCoeffVoc,
+    t_min_c:             tMinC,
+    voc_max:             Voc_max,
     panels_per_string:   panelsPerString,
     num_strings:         numStrings,
     panel_area_m2:       panelAreaM2,
