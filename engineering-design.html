@@ -11390,6 +11390,217 @@ function renderEarthingReport(inputs, results, narrative) {
   showReport();
 }
 
+// ─── Lightning Protection System (LPS) Report ────────────────────────────────
+function renderLPSReport(inputs, results, narrative) {
+  const panel = document.getElementById('report-panel');
+  if (!panel) return;
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e  = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
+  const ef = s => `<span contenteditable="true" class="editable-field" style="font-style:italic;">${escHtml(String(s ?? ''))}</span>`;
+
+  const projName  = inputs.project_name        || 'LPS Project';
+  const loc       = inputs.ng_location         || 'Metro Manila';
+  const L         = inputs.building_length_m   || '';
+  const W         = inputs.building_width_m    || '';
+  const H         = inputs.building_height_m   || '';
+  const strType   = inputs.structure_type      || 'General Building';
+  const lpl       = inputs.lpl                 || 'LPL II';
+  const airMeth   = inputs.air_term_method     || 'Rolling Sphere';
+  const dcMat     = inputs.dc_material         || 'Copper';
+  const earthType = inputs.earth_type          || 'Rod';
+
+  const ng        = results.ng_fl_km2_yr         ?? '';
+  const Ad        = results.Ad_m2                ?? '';
+  const Nd        = results.Nd_strikes_yr         ?? '';
+  const Nt        = results.Nt                    ?? '';
+  const riskCheck = results.risk_check            || '';
+  const Cd        = results.Cd                    ?? '';
+  const rR        = results.rolling_sphere_R_m    ?? '';
+  const meshSz    = results.mesh_size_m           ?? '';
+  const alphaMax  = results.protection_angle_deg  ?? '';
+  const dcSpacing = results.dc_spacing_m          ?? '';
+  const nDC       = results.n_down_conductors     ?? '';
+  const nAT       = results.n_air_terminals_est   ?? '';
+  const elecLen   = results.min_electrode_length_m ?? '';
+  const nElec     = results.n_electrodes          ?? '';
+  const eff       = results.efficiency_pct        ?? '';
+  const spdClass  = results.spd_class             || '';
+  const Imin      = results.I_min_kA              ?? '';
+  const perim     = results.perimeter_m           ?? '';
+  const riskRatio = results.risk_ratio            ?? '';
+
+  const passColor = String(riskCheck).includes('REQUIRED') ? '#c0392b' : '#219150';
+  const passStyle = `font-weight:700;color:${passColor};`;
+
+  const reportHTML = `
+  <div class="report-container" id="lps-report-content">
+    <div class="report-header">
+      <div style="flex:1;">
+        <h2 class="editable-field" contenteditable="true" style="font-size:1.15rem;font-weight:800;margin:0 0 0.3rem;">LIGHTNING PROTECTION SYSTEM DESIGN REPORT</h2>
+        <div style="font-size:0.8rem;color:#555;">Project: ${e(projName)} &nbsp;|&nbsp; Date: ${e(dateStr)} &nbsp;|&nbsp; Standard: IEC 62305 / NFPA 780 / PEC 2017</div>
+      </div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;flex-shrink:0;">
+        <div>Prepared by: ${e(WORKER_NAME)}</div>
+        <div>Checked by: ${e('________________')}</div>
+        <div>Rev: ${e('0')}</div>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">1. Objective</div>
+      <div class="editable-field" contenteditable="true">This report presents the Lightning Protection System (LPS) design for ${ef(projName)}, a ${ef(strType)} measuring ${ef(L)}m &times; ${ef(W)}m &times; ${ef(H)}m (L&times;W&times;H), located in ${ef(loc)} (Ground Flash Density Ng = ${ef(ng)} fl/km&sup2;/yr, per PAGASA isoceraunic data). The design follows IEC 62305 Parts 1&ndash;4, NFPA 780, and PEC 2017 Article 2.50.</div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">2. Risk Assessment &mdash; IEC 62305-2</div>
+      <table class="results-table">
+        <thead><tr><th>Parameter</th><th>Symbol</th><th>Value</th><th>Reference</th></tr></thead>
+        <tbody>
+          <tr><td>Ground Flash Density</td><td>Ng</td><td>${e(ng)} fl/km&sup2;/yr</td><td>PAGASA &mdash; ${e(loc)}</td></tr>
+          <tr><td>Building Footprint</td><td>L &times; W</td><td>${e(L)} m &times; ${e(W)} m</td><td>Given</td></tr>
+          <tr><td>Building Height</td><td>H</td><td>${e(H)} m</td><td>Given</td></tr>
+          <tr><td>Collection Area</td><td>Ad</td><td>${e(Ad)} m&sup2;</td><td>IEC 62305-2 Annex A: Ad = LW + 6H(L+W) + 9&pi;H&sup2;</td></tr>
+          <tr><td>Annual Strike Frequency</td><td>Nd</td><td>${e(Nd)} strikes/yr</td><td>Nd = Ng &times; Ad &times; 10&#8315;&#8310;</td></tr>
+          <tr><td>Location Factor</td><td>Cd</td><td>${e(Cd)}</td><td>IEC 62305-2 Table B.2</td></tr>
+          <tr><td>Tolerable Strike Frequency</td><td>Nt</td><td>${e(Nt)} /yr</td><td>Nt = 10&#8315;&#8309; / Cd</td></tr>
+          <tr><td>Risk Ratio</td><td>Nd / Nt</td><td>${e(riskRatio)}</td><td>&lt; 1 = no LPS required; &ge; 1 = LPS required</td></tr>
+          <tr><td colspan="4" style="${passStyle} padding:0.4rem 0.6rem;">${e(riskCheck)}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">3. Lightning Protection Level (LPL) &mdash; IEC 62305-3</div>
+      <table class="results-table">
+        <thead><tr><th>Parameter</th><th>Value</th><th>Basis</th></tr></thead>
+        <tbody>
+          <tr><td>Selected LPL</td><td>${e(lpl)}</td><td>Risk assessment + structure classification</td></tr>
+          <tr><td>Rolling Sphere Radius (R)</td><td>${e(rR)} m</td><td>IEC 62305-3 Table 4</td></tr>
+          <tr><td>Mesh Size</td><td>${e(meshSz)} m &times; ${e(meshSz)} m</td><td>IEC 62305-3 Table 4</td></tr>
+          <tr><td>Max Protection Angle (&alpha;)</td><td>${e(alphaMax)}&deg;</td><td>IEC 62305-3 Table 4 (varies with H)</td></tr>
+          <tr><td>Minimum Peak Current</td><td>${e(Imin)} kA</td><td>IEC 62305-1 Table 5</td></tr>
+          <tr><td>Protection Efficiency</td><td>${e(eff)} %</td><td>IEC 62305-2 Eq. (6)</td></tr>
+          <tr><td>Air Termination Method</td><td>${e(airMeth)}</td><td>IEC 62305-3 Annex D</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">4. Air Termination Network</div>
+      <table class="results-table">
+        <thead><tr><th>Parameter</th><th>Value</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Method</td><td>${e(airMeth)}</td><td>Determines interception geometry</td></tr>
+          <tr><td>Rolling Sphere Radius (R)</td><td>${e(rR)} m</td><td>Defines protected zone boundary</td></tr>
+          <tr><td>Mesh Size (if mesh method)</td><td>${e(meshSz)} m &times; ${e(meshSz)} m</td><td>IEC 62305-3 Table 4 max</td></tr>
+          <tr><td>Estimated Air Terminals / Masts</td><td>${e(nAT)} units</td><td>Based on roof area / mesh or rolling sphere</td></tr>
+          <tr><td>Conductor Specification</td><td>${e(dcMat)} &mdash; min 50mm&sup2; Cu / 70mm&sup2; Al / 50mm&sup2; Galv. Steel</td><td>IEC 62305-3 Table 6</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">5. Down Conductor System</div>
+      <table class="results-table">
+        <thead><tr><th>Parameter</th><th>Value</th><th>Basis</th></tr></thead>
+        <tbody>
+          <tr><td>Building Perimeter</td><td>${e(perim)} m</td><td>2(L+W)</td></tr>
+          <tr><td>Max Spacing (IEC 62305-3)</td><td>${e(dcSpacing)} m</td><td>IEC 62305-3 Table 4 &mdash; ${e(lpl)}</td></tr>
+          <tr><td>Number of Down Conductors</td><td>${e(nDC)}</td><td>max(2, &lceil;perimeter / spacing&rceil;) &mdash; min 2 required</td></tr>
+          <tr><td>Material</td><td>${e(dcMat)}</td><td>Per project specification</td></tr>
+          <tr><td>Min Cross-Section</td><td>50 mm&sup2; Cu / 70 mm&sup2; Al / 50 mm&sup2; Fe (hot-dip galv.)</td><td>IEC 62305-3 Table 6</td></tr>
+          <tr><td>Test Joint</td><td>Required at base of each down conductor</td><td>IEC 62305-3 &sect;5.3.5</td></tr>
+          <tr><td>Separation Distance</td><td>Per IEC 62305-3 &sect;6.3 &mdash; avoid dangerous sparking</td><td>Based on LPL, separation material, path length</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">6. Earth Termination System &mdash; IEC 62305-3 &sect;5.4 / PEC 2017 Art. 2.50</div>
+      <table class="results-table">
+        <thead><tr><th>Parameter</th><th>Value</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Earth Electrode Type</td><td>${e(earthType)}</td><td>Selected per soil conditions</td></tr>
+          <tr><td>Number of Electrodes</td><td>${e(nElec)}</td><td>One per down conductor (IEC 62305-3 &sect;5.4.2)</td></tr>
+          <tr><td>Minimum Electrode Length</td><td>${e(elecLen)} m</td><td>max(5m, 0.5&times;H) per IEC 62305-3 Annex E</td></tr>
+          <tr><td>Target Earth Resistance</td><td>&le; 10 &Omega; (complete ring)</td><td>IEC 62305-3 &sect;5.4 &mdash; as low as practicable</td></tr>
+          <tr><td>Integration with LV Earthing</td><td>Bond at main equipotential bar</td><td>PEC 2017 Art. 2.50 / IEC 62305-3 &sect;6.2</td></tr>
+          <tr><td>Below-Grade Connections</td><td>Exothermic weld (Cadweld) or listed compression fitting</td><td>IEC 62305-3 &sect;5.4.3 &mdash; no solder joints</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">7. Internal LPS &mdash; Surge Protective Devices (SPDs) &mdash; IEC 62305-4</div>
+      <table class="results-table">
+        <thead><tr><th>Location</th><th>SPD Class / Type</th><th>Standard</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Main Distribution Board (MDB) / LV Entry</td><td>${e(spdClass)}</td><td>IEC 62305-4 / IEC 61643-11</td><td>Primary protection &mdash; 10/350&mu;s waveform; Up &le; 2.5kV for LPL I/II</td></tr>
+          <tr><td>Sub-Distribution Boards (SDB)</td><td>Type 2 (Class II)</td><td>IEC 61643-11</td><td>Secondary &mdash; 8/20&mu;s; Up &le; 1.5kV</td></tr>
+          <tr><td>Equipment / Sensitive Electronics</td><td>Type 3 (Class III)</td><td>IEC 61643-11</td><td>Point-of-use; Up &le; 1.0kV; within 10m of equipment</td></tr>
+          <tr><td>Telecommunications / Data Lines</td><td>Type 2/3 Data Line SPD</td><td>IEC 61643-21</td><td>All metallic signal cables (RJ45, RS-485, coax) require SPD at entry</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">8. Recommendations and Compliance Notes</div>
+      <div class="editable-field" contenteditable="true" style="line-height:1.75;color:#2c2c2c;">${escHtml(narrative || '')}</div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">9. Assumptions and Limitations</div>
+      <div class="editable-field" contenteditable="true" style="line-height:1.75;color:#2c2c2c;">
+        1. Ground flash density Ng is based on PAGASA isoceraunic data for the stated location. Site-specific Ng shall be used where available.<br>
+        2. Collection area Ad calculated per IEC 62305-2 Annex A for an isolated rectangular structure on flat terrain.<br>
+        3. Location factor Cd assumes ${e(strType)} classification per IEC 62305-2 Table B.2. Adjust if structure is on a hill or in an urban setting with taller nearby buildings.<br>
+        4. Air terminal count is an estimate; final count shall be confirmed by the LPS designer after reviewing architectural roof drawings.<br>
+        5. Earth electrode minimum length is per IEC 62305-3 Annex E for unknown soil resistivity. A soil resistivity survey (Wenner method, IEEE 81) is recommended before final earth design.<br>
+        6. SPD class recommendations are for general reference. Final SPD selection shall be based on LPZ zone-to-zone overvoltage analysis per IEC 62305-4.<br>
+        7. Separation distance calculations are not performed in this tool; the LPS installer shall compute per IEC 62305-3 &sect;6.3 using actual installation geometry.
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">10. References</div>
+      <div class="editable-field" contenteditable="true" style="line-height:1.9;color:#333;font-size:0.82rem;">
+        1. IEC 62305-1:2010 &mdash; Protection Against Lightning: General Principles<br>
+        2. IEC 62305-2:2010 &mdash; Protection Against Lightning: Risk Management<br>
+        3. IEC 62305-3:2010 &mdash; Protection Against Lightning: Physical Damage to Structures and Life Hazard<br>
+        4. IEC 62305-4:2010 &mdash; Protection Against Lightning: Electrical and Electronic Systems within Structures<br>
+        5. NFPA 780:2023 &mdash; Standard for the Installation of Lightning Protection Systems<br>
+        6. PEC 2017, Article 2.50 &mdash; Grounding and Bonding<br>
+        7. PAGASA Isoceraunic Map &mdash; Thunderstorm Day Data by Region (Philippines)<br>
+        8. IEC 61643-11:2011 &mdash; Low-voltage Surge Protective Devices connected to LV power systems<br>
+        9. IEEE Std 81-2012 &mdash; Guide for Measuring Earth Resistivity, Ground Impedance, and Earth Surface Potentials
+      </div>
+    </div>
+
+    <div class="sig-block">
+      <div class="sig-col">
+        <div class="sig-line"></div>
+        <div style="font-size:0.85rem;font-weight:600;">${e(WORKER_NAME)}</div>
+        <div style="font-size:0.72rem;color:#888;">Electrical Engineer &mdash; PRC Lic. No. ${e('_______')}</div>
+        <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+      </div>
+      <div class="sig-col">
+        <div class="sig-line"></div>
+        <div style="font-size:0.85rem;font-weight:600;">${e('Reviewed by')}</div>
+        <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+      </div>
+      <div class="sig-col">
+        <div class="sig-line"></div>
+        <div style="font-size:0.85rem;font-weight:600;">${e('Approved by')}</div>
+        <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+      </div>
+    </div>
+  </div>`;
+
+  panel.innerHTML = reportHTML;
+  showReport();
+}
+
 // ─── Duct Sizing (Equal Friction) Report ─────────────────────────────────────
 function renderDuctSizingReport(inputs, results, narrative) {
   const panel = document.getElementById('report-panel');
