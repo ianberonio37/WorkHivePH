@@ -1642,6 +1642,13 @@ Respond in JSON format only:
       const rp   = rec.return_period_yr ?? '';
       const mat  = rec.pipe_material ?? '';
       recommendations = `Provide ${D} mm ${mat} storm drain pipe for the design catchment. Design flow is ${Q} L/s (${rp}-year return period, Rational Method). Full-pipe velocity is ${V} m/s — velocity check: ${chk}. Maintain minimum 0.6 m/s self-cleaning velocity and maximum slope per DPWH Drainage Design Guidelines. Install cleanouts at every junction and at 50 m maximum intervals. Verify catchment area and runoff coefficient with as-built site grading plans before finalising.`;
+    } else if (calcType === "Grease Trap Sizing") {
+      const pdi     = rec.pdi_gpm         ?? '';
+      const capL    = rec.liquid_cap_l    ?? '';
+      const gretKg  = rec.grease_ret_kg   ?? '';
+      const days    = rec.clean_interval_days ?? '';
+      const qgpm    = rec.q_design_gpm    ?? '';
+      recommendations = `Install a PDI-rated ${pdi} GPM hydro-mechanical grease interceptor (PDI BH-201). Design flow is ${qgpm} GPM. Liquid holding capacity: ${capL} L; grease retention: ${gretKg} kg. Clean every ${days} days (or when fill exceeds 25% of liquid capacity) using a DENR DAO 2016-08 accredited hauler. Locate the interceptor inside the kitchen, as close as possible to the grease-laden discharge fixtures, with accessible maintenance cover. Secure LGU Sanitary Permit before installation.`;
     } else if (calcType === "Boiler System") {
       const bhp   = rec.q_boiler_bhp ?? '';
       const qkw   = rec.q_boiler_kw ?? '';
@@ -3964,6 +3971,56 @@ function calcWastewaterSTP(inputs: Record<string, number | string>): Record<stri
   };
 }
 
+// ─── Grease Trap Sizing — PDI BH-201 Flow Rate Method ─────────────────────────
+
+const PDI_STANDARD_GPM = [4, 6, 7, 10, 15, 20, 25, 35, 50, 75, 100];
+
+function calcGreaseTrapSizing(inputs: Record<string, unknown>): Record<string, unknown> {
+  const fixtures  = (inputs.fixtures as Array<{fixture_type: string; flow_lpm: number; qty: number}>) || [];
+  const suf       = Number(inputs.suf        || 0.75);
+  const mealsDay  = Number(inputs.meals_per_day || 0);
+
+  // Total connected flow
+  const totalFlowLPM = fixtures.reduce((sum, fx) => sum + Number(fx.flow_lpm) * Number(fx.qty), 0);
+
+  // Design flow with SUF
+  const qDesignLPM = totalFlowLPM * suf;
+  // Convert to GPM (1 L/min = 0.26417 GPM)
+  const qDesignGPM = qDesignLPM * 0.26417;
+
+  // Select next standard PDI GPM size >= q_design
+  const pdiGPM = PDI_STANDARD_GPM.find(g => g >= qDesignGPM) || PDI_STANDARD_GPM[PDI_STANDARD_GPM.length - 1];
+
+  // Liquid capacity: PDI GPM × 2 gal converted to litres
+  const liquidCapL = pdiGPM * 2 * 3.78541;
+
+  // Grease retention: PDI GPM × 0.4536 kg (1 lb per GPM)
+  const greaseRetKg = pdiGPM * 0.4536;
+
+  // Cleaning interval: greaseRetKg / (meals/day × 0.06 kg/meal × 0.5 fill limit)
+  let cleanIntervalDays = 0;
+  if (mealsDay > 0) {
+    const fogPerDay = mealsDay * 0.06;  // kg FOG/day
+    // Clean when 50% of grease retention is filled
+    cleanIntervalDays = Math.floor((greaseRetKg * 0.5) / fogPerDay);
+    if (cleanIntervalDays < 1) cleanIntervalDays = 1;
+    if (cleanIntervalDays > 90) cleanIntervalDays = 90;
+  } else {
+    cleanIntervalDays = 30; // default recommendation
+  }
+
+  return {
+    total_flow_lpm:        +totalFlowLPM.toFixed(2),
+    q_design_lpm:          +qDesignLPM.toFixed(2),
+    q_design_gpm:          +qDesignGPM.toFixed(2),
+    pdi_gpm:               pdiGPM,
+    liquid_cap_l:          +liquidCapL.toFixed(1),
+    grease_ret_kg:         +greaseRetKg.toFixed(2),
+    clean_interval_days:   cleanIntervalDays,
+    suf_used:              suf,
+  };
+}
+
 // ─── Storm Drain / Stormwater — Rational Method + Manning's Pipe Sizing ───────
 
 const SD_STANDARD_DIAMETERS_MM = [300, 375, 450, 525, 600, 675, 750, 900, 1050, 1200, 1350, 1500];
@@ -5489,6 +5546,8 @@ serve(async (req) => {
       results = calcWastewaterSTP(inputs);
     } else if (calc_type === "Storm Drain / Stormwater") {
       results = calcStormDrain(inputs);
+    } else if (calc_type === "Grease Trap Sizing") {
+      results = calcGreaseTrapSizing(inputs);
     } else if (calc_type === "Boiler System") {
       results = calcBoiler(inputs);
     } else if (calc_type === "Generator Sizing") {

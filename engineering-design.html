@@ -7459,6 +7459,58 @@ function applySepticDefaults(occType) {
   if (el) el.value = rates[occType] || 150;
 }
 
+// ─── Grease Trap helpers ─────────────────────────────────────────────────────
+const GT_FIXTURE_OPTIONS = ['Single Kitchen Sink','Double Sink (2-comp)','Three-Comp Sink','Dishwasher (commercial)','Mop / Service Sink','Pre-wash Spray Station','Floor Drain (kitchen area)','Floor Sink','Wok Range Drain','Custom'];
+const GT_FIXTURE_FLOWS   = {'Single Kitchen Sink':7.6,'Double Sink (2-comp)':15.1,'Three-Comp Sink':22.7,'Dishwasher (commercial)':11.4,'Mop / Service Sink':11.4,'Pre-wash Spray Station':11.4,'Floor Drain (kitchen area)':3.8,'Floor Sink':7.6,'Wok Range Drain':11.4,'Custom':0};
+let _gtRowId = 0;
+
+function addGTFixtureRow(defaultType = 'Single Kitchen Sink', defaultFlow = 7.6, defaultQty = 1) {
+  const id  = ++_gtRowId;
+  const row = document.createElement('div');
+  row.id    = `gt-row-${id}`;
+  row.style.cssText = 'display:grid;grid-template-columns:2fr 100px 70px 28px;gap:0.4rem;align-items:center;';
+  row.innerHTML = `
+    <select class="wh-input text-sm py-2" id="gt-type-${id}" onchange="toggleGTCustomFlow(${id})">
+      ${GT_FIXTURE_OPTIONS.map(t => `<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
+    </select>
+    <div class="input-group" style="min-width:0;">
+      <input id="gt-flow-${id}" class="wh-input text-sm py-2" type="number" value="${defaultFlow}" min="0" step="0.1" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.65rem;">L/m</span>
+    </div>
+    <div class="input-group" style="min-width:0;">
+      <input id="gt-qty-${id}" class="wh-input text-sm py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
+      <span class="input-unit" style="font-size:0.65rem;">qty</span>
+    </div>
+    <button onclick="document.getElementById('gt-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+  `;
+  document.getElementById('gt-fixture-list').appendChild(row);
+  toggleGTCustomFlow(id);
+}
+
+function toggleGTCustomFlow(id) {
+  const sel = document.getElementById(`gt-type-${id}`)?.value;
+  const inp = document.getElementById(`gt-flow-${id}`);
+  if (!inp) return;
+  if (sel !== 'Custom') {
+    inp.value    = GT_FIXTURE_FLOWS[sel] ?? 0;
+    inp.readOnly = true;
+    inp.style.opacity = '0.6';
+  } else {
+    inp.value    = 5.0;
+    inp.readOnly = false;
+    inp.style.opacity = '1';
+  }
+}
+
+function applyGTFacDefaults(facType) {
+  const sufMap   = {'Restaurant / Commercial Kitchen':0.75,'Hotel Kitchen':0.75,'Food Court / Cafeteria':0.75,'Food Processing Plant':0.85,'Institutional / School Kitchen':0.75,'Custom':0.75};
+  const mealsMap = {'Restaurant / Commercial Kitchen':200,'Hotel Kitchen':150,'Food Court / Cafeteria':400,'Food Processing Plant':300,'Institutional / School Kitchen':250,'Custom':200};
+  const sufEl   = document.getElementById('f-gt-suf');
+  const mealsEl = document.getElementById('f-gt-meals');
+  if (sufEl)   { sufEl.value   = sufMap[facType]   || 0.75; }
+  if (mealsEl) { mealsEl.value = mealsMap[facType] || 200;  }
+}
+
 // ─── Electrical helpers ───────────────────────────────────────────────────────
 const LOAD_TYPE_OPTIONS = ['Lighting (General)','Lighting (Emergency)','Convenience Receptacles','Air Conditioning (Unit)','Air Conditioning (Central Chiller)','Motor (General)','Motor (Fire Pump)','Water Heater','Elevator / Escalator','Server / IT Equipment','Kitchen Equipment','Welding Equipment','Custom'];
 const LOAD_TYPE_PF      = {'Lighting (General)':0.95,'Lighting (Emergency)':0.90,'Convenience Receptacles':1.0,'Air Conditioning (Unit)':0.85,'Air Conditioning (Central Chiller)':0.85,'Motor (General)':0.85,'Motor (Fire Pump)':0.85,'Water Heater':1.0,'Elevator / Escalator':0.85,'Server / IT Equipment':0.90,'Kitchen Equipment':0.95,'Welding Equipment':0.70,'Custom':0.85};
@@ -8190,7 +8242,33 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Grease Trap Sizing') {
+    const fixtures = [];
+    let rid = 1;
+    while (document.getElementById(`gt-row-${rid}`)) {
+      const typeEl = document.getElementById(`gt-type-${rid}`);
+      const flowEl = document.getElementById(`gt-flow-${rid}`);
+      const qtyEl  = document.getElementById(`gt-qty-${rid}`);
+      if (typeEl && flowEl && qtyEl) {
+        fixtures.push({
+          fixture_type: typeEl.value,
+          flow_lpm:     parseFloat(flowEl.value) || 0,
+          qty:          parseInt(qtyEl.value)    || 1,
+        });
+      }
+      rid++;
+    }
+    return {
+      project_name:  v('f-project') || 'Untitled Grease Trap',
+      facility_type: getToggle('tg-gt-fac') || 'Restaurant / Commercial Kitchen',
+      meals_per_day: parseFloat(v('f-gt-meals')) || 200,
+      suf:           parseFloat(v('f-gt-suf'))   || 0.75,
+      fixtures,
+    };
+  }
+
   if (_calcType === 'Wastewater Treatment (STP)') {
+
     const flowSource = getToggle('tg-stp-source') || 'population';
     return {
       project_name:    v('f-project') || 'Wastewater Treatment Plant (STP)',
@@ -8745,6 +8823,11 @@ async function runCalculation() {
       showToast('Please enter the number of occupants.');
       return;
     }
+  } else if (_calcType === 'Grease Trap Sizing') {
+    if (!inputs.fixtures || inputs.fixtures.length === 0) {
+      showToast('Please add at least one fixture connected to the grease trap.');
+      return;
+    }
   } else if (_calcType === 'Load Estimation') {
     if (!inputs.loads || inputs.loads.length === 0) {
       showToast('Please add at least one load to the schedule.');
@@ -9086,6 +9169,8 @@ async function runCalculation() {
       renderDrainageReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Septic Tank Sizing') {
       renderSepticReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Grease Trap Sizing') {
+      renderGreaseTrapReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Generator Sizing') {
       renderGeneratorReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Solar PV System') {
@@ -12493,6 +12578,268 @@ function renderSepticReport(inputs, results, narrative) {
   showReport();
 }
 
+// ─── Grease Trap Sizing Report ─────────────────────────────────────────────
+function renderGreaseTrapReport(inputs, results, narrative) {
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+
+  const r   = results  || {};
+  const inp = inputs   || {};
+  const fixtures = inp.fixtures || [];
+
+  const pdiGPM            = r.pdi_gpm             || 0;
+  const liquidCapL        = r.liquid_cap_l        || 0;
+  const greaseRetKg       = r.grease_ret_kg       || 0;
+  const cleanIntervalDays = r.clean_interval_days || 0;
+  const qDesignLPM        = r.q_design_lpm        || 0;
+  const qDesignGPM        = r.q_design_gpm        || 0;
+
+  // Build fixture rows
+  let fixtureRows = '';
+  fixtures.forEach((fx, idx) => {
+    const subtotal = (fx.flow_lpm * fx.qty).toFixed(1);
+    fixtureRows += `<tr>
+      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${idx + 1}</td>
+      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${escHtml(fx.fixture_type)}</td>
+      <td style="padding:6px 10px;border:1px solid #e2e8f0;text-align:center;">${fx.qty}</td>
+      <td style="padding:6px 10px;border:1px solid #e2e8f0;text-align:right;">${parseFloat(fx.flow_lpm).toFixed(1)}</td>
+      <td style="padding:6px 10px;border:1px solid #e2e8f0;text-align:right;">${subtotal}</td>
+    </tr>`;
+  });
+
+  const totalFlowLPM = fixtures.reduce((s, fx) => s + fx.flow_lpm * fx.qty, 0).toFixed(1);
+
+  const html = `
+<div class="report-doc" style="font-family:'Segoe UI',sans-serif;max-width:900px;margin:0 auto;padding:24px 32px;background:#fff;color:#1e293b;line-height:1.6;">
+
+  <!-- Header -->
+  <div style="text-align:center;border-bottom:3px solid #0f766e;padding-bottom:16px;margin-bottom:24px;">
+    <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#0f766e;font-weight:700;">Engineering Design Report</div>
+    <h1 style="margin:8px 0 4px;font-size:24px;font-weight:800;color:#0f172a;">Grease Trap / Interceptor Sizing</h1>
+    <div style="font-size:13px;color:#64748b;">PDI BH-201 Flow Rate Method &bull; Philippine Plumbing Code &bull; DENR DAO 2016-08</div>
+  </div>
+
+  <!-- Section 1: Project Information -->
+  <table style="width:100%;border-collapse:collapse;margin-bottom:24px;font-size:13px;">
+    <tr>
+      <td style="width:50%;padding:6px 0;vertical-align:top;">
+        <strong>Project Name:</strong><br>${e(inp.project_name || 'Project Name')}<br>
+        <strong>Facility Type:</strong><br>${e(inp.facility_type || '—')}<br>
+        <strong>Meals per Day:</strong><br>${e(inp.meals_per_day || '—')}
+      </td>
+      <td style="width:50%;padding:6px 0 6px 24px;vertical-align:top;">
+        <strong>Calculated by:</strong><br>${e('Engineer')}<br>
+        <strong>Date:</strong><br>${e(dateStr)}<br>
+        <strong>Reference No.:</strong><br>${e('PLMB-GT-001')}
+      </td>
+    </tr>
+  </table>
+
+  <!-- Section 2: Objective -->
+  <div style="margin-bottom:20px;">
+    <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;color:#0f766e;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:8px;">Objective</h2>
+    <p style="font-size:13px;margin:0;">${narrative ? escHtml(narrative) : 'Size a grease trap / interceptor for the facility using the PDI BH-201 fixture flow rate method to comply with the Philippine Plumbing Code (PPC) and DENR DAO 2016-08 FOG discharge limit of 5 mg/L.'}</p>
+  </div>
+
+  <!-- Section 3: References -->
+  <div style="margin-bottom:20px;">
+    <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;color:#0f766e;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:8px;">References / Standards</h2>
+    <ul style="font-size:13px;margin:0;padding-left:20px;line-height:1.8;">
+      <li>PDI BH-201 — Hydro-Mechanical Grease Interceptor Standard</li>
+      <li>ASPE Plumbing Engineering Design Handbook, Vol. 2</li>
+      <li>Philippine Plumbing Code (PPC) — Grease Trap Requirements</li>
+      <li>IAPMO/UPC Section 1015 — Grease Interceptors</li>
+      <li>DENR DAO 2016-08 — FOG effluent limit: 5 mg/L</li>
+    </ul>
+  </div>
+
+  <!-- Section 4: Design Basis -->
+  <div style="margin-bottom:20px;">
+    <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;color:#0f766e;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:8px;">Design Basis and Assumptions</h2>
+    <ul style="font-size:13px;margin:0;padding-left:20px;line-height:1.8;">
+      <li>Simultaneous Use Factor (SUF): <strong>${inp.suf || 0.75}</strong> (PDI BH-201 default)</li>
+      <li>Design flow = Sum of fixture flows (L/min) × SUF, converted to GPM</li>
+      <li>PDI standard size is next standard GPM capacity ≥ Q_design (GPM)</li>
+      <li>Liquid capacity = PDI GPM × 2 gal (7.571 L per GPM)</li>
+      <li>Grease retention = PDI GPM × 0.4536 kg</li>
+      <li>Cleaning interval based on meals/day and grease retention capacity</li>
+    </ul>
+  </div>
+
+  <!-- Section 5: Fixture Schedule -->
+  <div style="margin-bottom:20px;">
+    <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;color:#0f766e;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:8px;">Fixture Schedule</h2>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="background:#f0fdf4;">
+            <th style="padding:8px 10px;border:1px solid #e2e8f0;text-align:left;font-weight:600;">#</th>
+            <th style="padding:8px 10px;border:1px solid #e2e8f0;text-align:left;font-weight:600;">Fixture Type</th>
+            <th style="padding:8px 10px;border:1px solid #e2e8f0;text-align:center;font-weight:600;">Qty</th>
+            <th style="padding:8px 10px;border:1px solid #e2e8f0;text-align:right;font-weight:600;">Flow (L/min)</th>
+            <th style="padding:8px 10px;border:1px solid #e2e8f0;text-align:right;font-weight:600;">Subtotal (L/min)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${fixtureRows}
+          <tr style="background:#f8fafc;font-weight:700;">
+            <td colspan="4" style="padding:8px 10px;border:1px solid #e2e8f0;">Total Connected Flow</td>
+            <td style="padding:8px 10px;border:1px solid #e2e8f0;text-align:right;">${totalFlowLPM} L/min</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section 6: Design Flow -->
+  <div style="margin-bottom:20px;">
+    <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;color:#0f766e;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:8px;">Design Flow Calculation</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr style="background:#f8fafc;">
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;width:55%;">Total fixture flow (connected)</td>
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;">${totalFlowLPM} L/min</td>
+      </tr>
+      <tr>
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;">Simultaneous Use Factor (SUF)</td>
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;">${inp.suf || 0.75}</td>
+      </tr>
+      <tr style="background:#f8fafc;">
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;">Q_design = Total × SUF</td>
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;">${qDesignLPM.toFixed(2)} L/min</td>
+      </tr>
+      <tr>
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;">Q_design (converted)</td>
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;font-weight:700;">${qDesignGPM.toFixed(2)} GPM</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Section 7: PDI Size Selection -->
+  <div style="margin-bottom:20px;">
+    <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;color:#0f766e;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:8px;">PDI Standard Size Selection</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr style="background:#f8fafc;">
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;width:55%;">Required minimum (Q_design)</td>
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;">${qDesignGPM.toFixed(2)} GPM</td>
+      </tr>
+      <tr>
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;">PDI standard size selected</td>
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;font-weight:700;">${pdiGPM} GPM</td>
+      </tr>
+      <tr style="background:#f8fafc;">
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;">Liquid holding capacity</td>
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;">${liquidCapL.toFixed(1)} L (${(pdiGPM * 2).toFixed(0)} gal)</td>
+      </tr>
+      <tr>
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;">Grease retention capacity</td>
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;">${greaseRetKg.toFixed(2)} kg (${(greaseRetKg * 2.2046).toFixed(2)} lbs)</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Section 8: Cleaning Interval -->
+  <div style="margin-bottom:20px;">
+    <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;color:#0f766e;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:8px;">Recommended Cleaning Interval</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr style="background:#f8fafc;">
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;width:55%;">Meals served per day</td>
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;">${inp.meals_per_day || '—'}</td>
+      </tr>
+      <tr>
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;">Assumed FOG per meal</td>
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;">0.06 kg / meal</td>
+      </tr>
+      <tr style="background:#f8fafc;">
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;">Recommended cleaning interval</td>
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;font-weight:700;">${cleanIntervalDays} days</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Section 9: Result Summary Cards -->
+  <div style="margin-bottom:24px;">
+    <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;color:#0f766e;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:12px;">Result Summary</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;text-align:center;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#15803d;margin-bottom:4px;">PDI Size</div>
+        <div style="font-size:28px;font-weight:800;color:#0f766e;">${pdiGPM}</div>
+        <div style="font-size:12px;color:#64748b;">GPM</div>
+      </div>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:14px;text-align:center;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#1d4ed8;margin-bottom:4px;">Liquid Capacity</div>
+        <div style="font-size:28px;font-weight:800;color:#1e40af;">${liquidCapL.toFixed(0)}</div>
+        <div style="font-size:12px;color:#64748b;">Liters</div>
+      </div>
+      <div style="background:#fef9c3;border:1px solid #fde68a;border-radius:8px;padding:14px;text-align:center;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#92400e;margin-bottom:4px;">Grease Retention</div>
+        <div style="font-size:28px;font-weight:800;color:#b45309;">${greaseRetKg.toFixed(1)}</div>
+        <div style="font-size:12px;color:#64748b;">kg</div>
+      </div>
+      <div style="background:#fdf4ff;border:1px solid #e9d5ff;border-radius:8px;padding:14px;text-align:center;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#6b21a8;margin-bottom:4px;">Clean Interval</div>
+        <div style="font-size:28px;font-weight:800;color:#7c3aed;">${cleanIntervalDays}</div>
+        <div style="font-size:12px;color:#64748b;">days</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 10: Recommendations -->
+  <div style="margin-bottom:20px;">
+    <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;color:#0f766e;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:8px;">Recommendations</h2>
+    <ul style="font-size:13px;margin:0;padding-left:20px;line-height:1.8;">
+      <li>Install a <strong>PDI-rated ${pdiGPM} GPM</strong> hydro-mechanical grease interceptor.</li>
+      <li>Locate the interceptor inside the kitchen, as close as possible to the point of discharge.</li>
+      <li>Provide a <strong>cleanout access</strong> cover for routine maintenance.</li>
+      <li>Schedule cleaning every <strong>${cleanIntervalDays} days</strong> (or earlier if fill exceeds 25% of capacity).</li>
+      <li>Wastewater shall be hauled by a DENR-accredited transporter per DAO 2016-08.</li>
+      <li>Connect cold-water fixtures only; hot-water direct discharge to grease trap is not recommended.</li>
+    </ul>
+  </div>
+
+  <!-- Section 11: Design Notes -->
+  <div style="margin-bottom:28px;">
+    <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;color:#0f766e;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:8px;">Design Notes</h2>
+    <ul style="font-size:13px;margin:0;padding-left:20px;line-height:1.8;">
+      <li>PDI BH-201 standard sizes: 4, 6, 7, 10, 15, 20, 25, 35, 50, 75, 100 GPM.</li>
+      <li>Simultaneous Use Factor (SUF) of 0.75 is PDI BH-201 default; adjust for high-volume kitchens.</li>
+      <li>DENR DAO 2016-08 limits FOG in discharged wastewater to 5 mg/L.</li>
+      <li>Domestic under-sink grease traps are not acceptable for commercial kitchen use per PPC.</li>
+      <li>Large food facilities (&gt;100 GPM) should consider an outdoor concrete grease interceptor.</li>
+      <li>All calculations are based on fixture peak flow data per ASPE Plumbing Engineering Design Handbook.</li>
+    </ul>
+  </div>
+
+  <!-- Signature Block -->
+  <div style="margin-top:32px;border-top:2px solid #e2e8f0;padding-top:20px;">
+    <div style="display:flex;gap:32px;justify-content:space-between;">
+      <div style="flex:1;text-align:center;">
+        <div style="border-bottom:1px solid #94a3b8;margin-bottom:6px;height:40px;"></div>
+        <div style="font-size:12px;font-weight:700;">${e('Engineer Name')}</div>
+        <div style="font-size:11px;color:#64748b;">Sanitary Engineer</div>
+        <div style="font-size:11px;color:#64748b;">Prepared by</div>
+      </div>
+      <div style="flex:1;text-align:center;">
+        <div style="border-bottom:1px solid #94a3b8;margin-bottom:6px;height:40px;"></div>
+        <div style="font-size:12px;font-weight:700;">${e('Engineer Name')}</div>
+        <div style="font-size:11px;color:#64748b;">Sanitary Engineer</div>
+        <div style="font-size:11px;color:#64748b;">Checked by</div>
+      </div>
+      <div style="flex:1;text-align:center;">
+        <div style="border-bottom:1px solid #94a3b8;margin-bottom:6px;height:40px;"></div>
+        <div style="font-size:12px;font-weight:700;">${e('Engineer Name')}</div>
+        <div style="font-size:11px;color:#64748b;">Sanitary Engineer</div>
+        <div style="font-size:11px;color:#64748b;">Approved by</div>
+      </div>
+    </div>
+  </div>
+
+</div>`;
+
+  document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
 // ─── Drainage Pipe Sizing Report ─────────────────────────────────────────────
 function renderDrainageReport(inputs, results, narrative) {
   const now     = new Date();
@@ -15571,6 +15918,8 @@ function viewHistoryReport(row) {
     renderDrainageReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Septic Tank Sizing') {
     renderSepticReport(row.inputs, row.results, row.narrative);
+  } else if (row.calc_type === 'Grease Trap Sizing') {
+    renderGreaseTrapReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Load Estimation') {
     renderLoadReport(row.inputs, row.results, row.narrative);
   } else if (row.calc_type === 'Voltage Drop') {
@@ -15646,7 +15995,7 @@ async function generateBomSowChecklist() {
   const BOM_SOW_SUPPORTED = {
     'Mechanical': ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air', 'Boiler System'],
     'Electrical':      ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design', 'Generator Sizing', 'Solar PV System', 'Power Factor Correction', 'Cable Tray Sizing', 'UPS Sizing', 'Lightning Protection System (LPS)', 'Earthing / Grounding System'],
-    'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)', 'Storm Drain / Stormwater'],
+    'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)', 'Storm Drain / Stormwater', 'Grease Trap Sizing'],
     'Fire Protection':         ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],
     'Vertical Transportation': ['Elevator Traffic Analysis', 'Hoist Capacity'],
     'HVAC Systems':            ['Chiller System — Air Cooled', 'Chiller System — Water Cooled', 'AHU Sizing', 'Cooling Tower Sizing', 'Duct Sizing (Equal Friction)', 'Refrigerant Pipe Sizing', 'FCU Selection', 'Expansion Tank Sizing'],
@@ -15838,6 +16187,7 @@ function renderBomTablePreview(items) {
   const isWT          = _calcType === 'Water Treatment System';
   const isSTP         = _calcType === 'Wastewater Treatment (STP)';
   const isSD          = _calcType === 'Storm Drain / Stormwater';
+  const isGT          = _calcType === 'Grease Trap Sizing';
   const isLoadEst = _calcType === 'Load Estimation';
   const isVD      = _calcType === 'Voltage Drop';
   const isWire    = _calcType === 'Wire Sizing';
@@ -15863,7 +16213,7 @@ function renderBomTablePreview(items) {
   const isRP        = _calcType === 'Refrigerant Pipe Sizing';
   const isFC        = _calcType === 'FCU Selection';
   const isET        = _calcType === 'Expansion Tank Sizing';
-  const calcRef = `${isET ? 'HVAC-ET' : isFC ? 'HVAC-FCU' : isRP ? 'HVAC-RPS' : isDS ? 'HVAC-DS' : isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLPS ? 'ELEC-LPS' : isEG ? 'ELEC-EGS' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const calcRef = `${isET ? 'HVAC-ET' : isFC ? 'HVAC-FCU' : isRP ? 'HVAC-RPS' : isDS ? 'HVAC-DS' : isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLPS ? 'ELEC-LPS' : isEG ? 'ELEC-EGS' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isGT ? 'PLMB-GT' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const disciplineSystem = isET
     ? `HVAC Systems — Expansion Tank Sizing (${_lastInputs?.system_type || 'Chilled Water'}, V=${_lastResults?.system_volume_L || _lastInputs?.system_volume_L || ''}L, Fill ${_lastInputs?.fill_temp_c || 20}°C→Max ${_lastInputs?.max_temp_c || ''}°C, Head ${_lastInputs?.static_head_m || ''}m, Pmax ${_lastInputs?.max_pressure_kpa_g || ''}kPa g, Tank ${_lastResults?.selected_tank_L || ''}L bladder, α=${_lastResults?.acceptance_factor ?? ''})`
     : isFC
@@ -15930,6 +16280,8 @@ function renderBomTablePreview(items) {
     ? `Plumbing — Wastewater Treatment Plant / STP (${_lastResults?.flow_m3_day || ''} m³/day, BOD ${_lastInputs?.bod_influent || ''}→${_lastInputs?.bod_effluent || ''} mg/L, aeration ${_lastResults?.aeration_vol_m3 || ''} m³, blower ${_lastResults?.blower_recommended_m3_min || ''} m³/min @ ${_lastResults?.blower_kw || ''} kW, sludge ${_lastResults?.sludge_kg_day || ''} kg DS/day, ${_lastResults?.denr_status || ''})`
     : isSD
     ? `Plumbing — Storm Drain / Stormwater (${_lastResults?.total_area_ha || ''}ha catchment, C=${_lastResults?.composite_c || ''}, ${_lastInputs?.return_period || ''}yr storm, Q=${_lastResults?.design_flow_lps || ''} L/s, ${_lastResults?.d_selected_mm || ''}mm ${_lastInputs?.pipe_material || ''} pipe @ ${_lastInputs?.slope_pct || ''}% slope, V=${_lastResults?.full_pipe_vel_ms || ''} m/s — ${_lastResults?.velocity_check || ''})`
+    : isGT
+    ? `Plumbing — Grease Trap Sizing (${_lastInputs?.facility_type || ''}, PDI ${_lastResults?.pdi_gpm || ''}GPM, Q=${_lastResults?.q_design_gpm?.toFixed ? _lastResults.q_design_gpm.toFixed(2) : _lastResults?.q_design_gpm || ''}GPM, Liquid Cap ${_lastResults?.liquid_cap_l?.toFixed ? _lastResults.liquid_cap_l.toFixed(0) : _lastResults?.liquid_cap_l || ''}L, Grease Ret ${_lastResults?.grease_ret_kg?.toFixed ? _lastResults.grease_ret_kg.toFixed(2) : _lastResults?.grease_ret_kg || ''}kg, Clean Interval ${_lastResults?.clean_interval_days || ''}days)`
     : isCAir
     ? `Mechanical — Compressed Air System (${_lastResults?.recommended_hp || ''} hp, ${_lastResults?.recommended_cfm || ''} CFM @ ${_lastResults?.inputs_used?.working_pressure || _lastInputs?.working_pressure || ''} bar)`
     : isPipe
@@ -16026,6 +16378,8 @@ function renderBomTablePreview(items) {
             ? `Quantities are based on the Wastewater Treatment Plant (STP) design calculation result (Activated Sludge Method, Metcalf & Eddy). The STP is designed for ${_lastResults?.flow_m3_day || ''} m³/day average daily flow, BOD reduction from ${_lastInputs?.bod_influent || ''} mg/L to ${_lastInputs?.bod_effluent || ''} mg/L (${_lastResults?.bod_removal_pct || ''}% removal), with an aeration tank volume of ${_lastResults?.aeration_vol_m3 || ''} m³ (HRT ${_lastResults?.aeration_hrt_hr || ''} hr). Sludge production is ${_lastResults?.sludge_kg_day || ''} kg dry solids/day — sludge disposal must be by a DOH/DENR-licensed hauler. DENR DAO 2016-08 effluent compliance status: ${_lastResults?.denr_status || ''}. Contractor shall obtain DENR Environmental Compliance Certificate (ECC) and DOH Sanitation Permit before construction. All mechanical equipment shall be PSME Code compliant. Submit equipment data sheets for Engineer's approval prior to procurement.`
             : isSD
             ? `Quantities are based on the Storm Drain / Stormwater design calculation result (Rational Method, DPWH Drainage Design Guidelines). The drain is sized for the ${_lastInputs?.return_period || ''}yr design storm — design flow ${_lastResults?.design_flow_lps || ''} L/s from ${_lastResults?.total_area_ha || ''} ha catchment (C=${_lastResults?.composite_c || ''}). Selected pipe: ${_lastResults?.d_selected_mm || ''} mm ${_lastInputs?.pipe_material || ''} at ${_lastInputs?.slope_pct || ''}% slope, full-pipe velocity ${_lastResults?.full_pipe_vel_ms || ''} m/s (${_lastResults?.velocity_check || ''}). NOTE: Pipe lengths, catch basin quantities, and manhole counts are indicative — Contractor shall quantify all items from final layout and longitudinal section drawings before procurement. CCTV inspection of all completed pipe runs is required before final acceptance per DPWH specifications.`
+            : isGT
+            ? `Quantities are based on the Grease Trap Sizing design calculation result (PDI BH-201 Flow Rate Method, Philippine Plumbing Code, DENR DAO 2016-08). The specified grease trap is a PDI-rated ${_lastResults?.pdi_gpm || ''} GPM hydro-mechanical grease interceptor with a liquid holding capacity of ${_lastResults?.liquid_cap_l?.toFixed ? _lastResults.liquid_cap_l.toFixed(0) : (_lastResults?.liquid_cap_l || '')} L and grease retention of ${_lastResults?.grease_ret_kg?.toFixed ? _lastResults.grease_ret_kg.toFixed(2) : (_lastResults?.grease_ret_kg || '')} kg. Recommended cleaning interval: ${_lastResults?.clean_interval_days || ''} days. The interceptor shall be a PDI-certified hydro-mechanical unit — domestic under-sink traps are NOT acceptable for commercial kitchen use per PPC. Installation shall be inside the kitchen, as close to the discharge point as possible, accessible for maintenance. Wastewater hauled from cleaning shall be by a DENR DAO 2016-08 accredited transporter. Contractor shall submit PDI certificate, product datasheet, and LGU Sanitary Permit before installation.`
             : isCAir
             ? `Quantities are based on the Compressed Air System design calculation result. Engineer shall verify all quantities on-site before procurement. All equipment and piping shall conform to applicable Philippine and international standards (PSME, ISO 8573-1, CAGI, ASME Section VIII for pressure vessels, PEC 2017). CAGI performance data sheets and pressure vessel certificates shall be submitted for Engineer's approval prior to procurement.`
             : isPipe
@@ -16122,6 +16476,7 @@ function renderSowDocPreview(sections) {
   const isWTS         = _calcType === 'Water Treatment System';
   const isSTPS        = _calcType === 'Wastewater Treatment (STP)';
   const isSDS         = _calcType === 'Storm Drain / Stormwater';
+  const isGTS         = _calcType === 'Grease Trap Sizing';
   const isLoadEst = _calcType === 'Load Estimation';
   const isVD      = _calcType === 'Voltage Drop';
   const isWire    = _calcType === 'Wire Sizing';
@@ -16147,7 +16502,7 @@ function renderSowDocPreview(sections) {
   const isRPS        = _calcType === 'Refrigerant Pipe Sizing';
   const isFCS        = _calcType === 'FCU Selection';
   const isETS        = _calcType === 'Expansion Tank Sizing';
-  const calcRef = `${isETS ? 'HVAC-ET' : isFCS ? 'HVAC-FCU' : isRPS ? 'HVAC-RPS' : isDSS ? 'HVAC-DS' : isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLPSS ? 'ELEC-LPS' : isEGS ? 'ELEC-EGS' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const calcRef = `${isETS ? 'HVAC-ET' : isFCS ? 'HVAC-FCU' : isRPS ? 'HVAC-RPS' : isDSS ? 'HVAC-DS' : isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLPSS ? 'ELEC-LPS' : isEGS ? 'ELEC-EGS' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isGTS ? 'PLMB-GT' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
@@ -16218,6 +16573,8 @@ function renderSowDocPreview(sections) {
     ? `Wastewater Treatment Plant (STP) — ${_lastResults?.flow_m3_day || ''} m³/day ADF, BOD ${_lastInputs?.bod_influent || ''}→${_lastInputs?.bod_effluent || ''} mg/L (${_lastResults?.bod_removal_pct || ''}% removal), Aeration Tank ${_lastResults?.aeration_vol_m3 || ''} m³ (HRT ${_lastResults?.aeration_hrt_hr || ''} hr), Blower ${_lastResults?.blower_recommended_m3_min || ''} m³/min @ ${_lastResults?.blower_kw || ''} kW, Sludge ${_lastResults?.sludge_kg_day || ''} kg DS/day, DENR: ${_lastResults?.denr_status || ''}`
     : isSDS
     ? `Storm Drain / Stormwater — ${_lastResults?.total_area_ha || ''}ha catchment, C=${_lastResults?.composite_c || ''}, ${_lastInputs?.return_period || ''}yr storm, Q=${_lastResults?.design_flow_lps || ''} L/s, ${_lastResults?.d_selected_mm || ''}mm ${_lastInputs?.pipe_material || ''} @ ${_lastInputs?.slope_pct || ''}% slope, V=${_lastResults?.full_pipe_vel_ms || ''} m/s — ${_lastResults?.velocity_check || ''}`
+    : isGTS
+    ? `Grease Trap Sizing — ${_lastInputs?.facility_type || ''}, PDI ${_lastResults?.pdi_gpm || ''} GPM, Q_design=${_lastResults?.q_design_gpm?.toFixed ? _lastResults.q_design_gpm.toFixed(2) : (_lastResults?.q_design_gpm || '')} GPM, Liquid Cap ${_lastResults?.liquid_cap_l?.toFixed ? _lastResults.liquid_cap_l.toFixed(0) : (_lastResults?.liquid_cap_l || '')} L, Grease Ret ${_lastResults?.grease_ret_kg?.toFixed ? _lastResults.grease_ret_kg.toFixed(2) : (_lastResults?.grease_ret_kg || '')} kg, Clean Interval ${_lastResults?.clean_interval_days || ''} days — PDI BH-201 / PPC / DENR DAO 2016-08`
     : isCAir
     ? `Compressed Air System — ${_lastResults?.recommended_hp || ''} hp Rotary Screw Compressor, ${_lastResults?.recommended_cfm || ''} CFM FAD @ ${_lastResults?.inputs_used?.working_pressure || _lastInputs?.working_pressure || ''} bar, ${_lastResults?.recommended_receiver_L || ''}L Receiver, ${_lastResults?.recommended_pipe_mm || ''}mm Distribution Pipe`
     : isPipe
@@ -16312,6 +16669,8 @@ ${isLight
   ? `This Scope of Works is based on the Pump Sizing (TDH) Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including PSME, Hydraulic Institute Standards (ANSI/HI), PEC 2017, and DOLE OSH Standards. Factory performance test certificates and certified pump curves shall be submitted prior to equipment procurement. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isSDS
   ? `This Scope of Works is based on the Storm Drain / Stormwater Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes and standards including the DPWH Flood Control Design Manual, DPWH Blue Book Standard Specifications, PAGASA rainfall data, NSCP, and RA 9275 (Clean Water Act) for stormwater discharge. LGU Building Permit and DPWH road-crossing permit shall be secured before construction. All works shall be subject to CCTV inspection and as-built survey before final acceptance. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  : isGTS
+  ? `This Scope of Works is based on the Grease Trap Sizing Design Calculation (Ref: ${escHtml(calcRef)}) using the PDI BH-201 Fixture Flow Rate Method. The selected grease trap is a PDI-rated ${_lastResults?.pdi_gpm || ''} GPM hydro-mechanical grease interceptor complying with the Philippine Plumbing Code (PPC), DENR DAO 2016-08 (FOG effluent limit 5 mg/L), ASPE Plumbing Engineering Design Handbook Vol. 2, and IAPMO/UPC Section 1015 (Grease Interceptors). The Contractor shall install the interceptor inside the kitchen, as close as possible to the discharge point of the grease-laden fixtures, with a properly accessible maintenance cover. Only cold-water fixtures shall be connected to the grease trap — hot water direct-discharge is not recommended as it reduces grease interception efficiency. Cleaning shall be performed every ${_lastResults?.clean_interval_days || ''} days (or earlier if fill exceeds 25% of liquid capacity), by a DENR DAO 2016-08 accredited hauler — manifests shall be retained by the Owner for DENR compliance audit. Domestic under-sink grease traps are NOT acceptable for commercial kitchen use per PPC — only PDI-certified hydro-mechanical interceptors are acceptable. The Contractor shall secure an LGU Sanitary Permit before installation. The grease interceptor unit shall carry a valid PDI certification mark and shall be installed per the manufacturer's installation instructions. As-built installation drawing, PDI certificate, hauling manifests, and O&M schedule shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isVent
   ? `This Scope of Works is based on the Ventilation / ACH Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including ASHRAE 62.1, PSME, NFPA 90A, PEC 2017, and DOLE OSH Standards for workplace ventilation. Duct construction shall comply with SMACNA standards. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isAHUS
@@ -16353,7 +16712,7 @@ ${isLight
             <div style="font-size:0.74rem;color:#555;">
               <span class="editable-field" contenteditable="true">${
                 (isLoadEst || isVD || isWire || isSC || isLight || isLPSS || isEGS || isUPSS || isCTS || isPFCS || isSolarPVS || isGenS) ? 'Electrical Engineer'
-                : (isDrain || isWS || isHW || isSeptic || isWaterSoftS || isWTS || isSTPS || isSDS) ? 'Sanitary Engineer'
+                : (isDrain || isWS || isHW || isSeptic || isWaterSoftS || isWTS || isSTPS || isSDS || isGTS) ? 'Sanitary Engineer'
                 : (isFSprink || isFPump || isSPress || isFABatt) ? 'Fire Protection Engineer'
                 : (isElev || isHoist) ? 'Mechanical Engineer'
                 : 'Mechanical Engineer'
