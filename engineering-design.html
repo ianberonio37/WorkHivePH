@@ -7493,17 +7493,13 @@ function toggleGTCustomFlow(id) {
   const inp = document.getElementById(`gt-flow-${id}`);
   if (!inp) return;
   if (sel !== 'Custom') {
-    inp.value = GT_FIXTURE_FLOWS[sel] ?? 0;
-    inp.setAttribute('readonly', '');
-    inp.style.opacity       = '0.45';
-    inp.style.pointerEvents = 'none';
-    inp.style.cursor        = 'not-allowed';
+    inp.value    = GT_FIXTURE_FLOWS[sel] ?? 0;
+    inp.disabled = true;
+    inp.style.opacity = '0.5';
   } else {
-    inp.value = inp.value || 5.0;
-    inp.removeAttribute('readonly');
-    inp.style.opacity       = '1';
-    inp.style.pointerEvents = '';
-    inp.style.cursor        = '';
+    inp.value    = inp.value || 5.0;
+    inp.disabled = false;
+    inp.style.opacity = '1';
   }
 }
 
@@ -8249,8 +8245,8 @@ function collectInputs() {
 
   if (_calcType === 'Grease Trap Sizing') {
     const fixtures = [];
-    let rid = 1;
-    while (document.getElementById(`gt-row-${rid}`)) {
+    document.querySelectorAll('#gt-fixture-list > [id^="gt-row-"]').forEach(rowEl => {
+      const rid    = rowEl.id.replace('gt-row-', '');
       const typeEl = document.getElementById(`gt-type-${rid}`);
       const flowEl = document.getElementById(`gt-flow-${rid}`);
       const qtyEl  = document.getElementById(`gt-qty-${rid}`);
@@ -8261,8 +8257,7 @@ function collectInputs() {
           qty:          parseInt(qtyEl.value)    || 1,
         });
       }
-      rid++;
-    }
+    });
     return {
       project_name:  v('f-project') || 'Untitled Grease Trap',
       facility_type: getToggle('tg-gt-fac') || 'Restaurant / Commercial Kitchen',
