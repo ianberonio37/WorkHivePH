@@ -1047,7 +1047,7 @@ async function submitCreate() {
 
   if (error) {
     btn.textContent = 'Create Hive'; btn.disabled = false;
-    alert('Could not create hive: ' + error.message);
+    showToast('Could not create hive: ' + error.message);
     return;
   }
 
@@ -1229,22 +1229,44 @@ async function performLeave() {
 
   // If user has other hives, offer to switch; otherwise go to onboard
   if (remaining.length) {
-    renderHiveSwitcher();
+    await renderHiveSwitcher();
   } else {
     showView('onboard');
   }
 }
 
-function renderHiveSwitcher() {
+async function renderHiveSwitcher() {
   const list = getHiveList();
   if (!list.length) { showView('onboard'); return; }
-  // Auto-switch to the first remaining hive
+  // Auto-switch to the first remaining hive — validate membership from DB before loading
   const next = list[0];
+  const { data: membership, error: memErr } = await db.from('hive_members')
+    .select('role, status')
+    .eq('hive_id', next.id)
+    .eq('worker_name', WORKER_NAME)
+    .maybeSingle();
+  if (memErr) {
+    // DB unreachable — fail open: trust the cached role so the worker stays in
+    console.warn('renderHiveSwitcher membership check failed (offline?):', memErr.message);
+    localStorage.setItem('wh_active_hive_id', next.id);
+    localStorage.setItem('wh_hive_id',         next.id);
+    localStorage.setItem('wh_hive_name',        next.name);
+    localStorage.setItem('wh_hive_role',        next.role);
+    HIVE_ID = next.id; HIVE_NAME = next.name; HIVE_ROLE = next.role;
+    initBoard();
+    return;
+  }
+  if (!membership || membership.status === 'kicked') {
+    // Confirmed not a member (or kicked) — remove and try next hive
+    saveHiveList(list.filter(h => h.id !== next.id));
+    await renderHiveSwitcher();
+    return;
+  }
   localStorage.setItem('wh_active_hive_id', next.id);
   localStorage.setItem('wh_hive_id',         next.id);
   localStorage.setItem('wh_hive_name',        next.name);
-  localStorage.setItem('wh_hive_role',        next.role);
-  HIVE_ID = next.id; HIVE_NAME = next.name; HIVE_ROLE = next.role;
+  localStorage.setItem('wh_hive_role',        membership.role);
+  HIVE_ID = next.id; HIVE_NAME = next.name; HIVE_ROLE = membership.role;
   initBoard();
 }
 
@@ -1295,6 +1317,7 @@ async function loadMembers() {
       .eq('status', 'Open')
   ]);
 
+  if (membersRes.error) { console.error('loadMembers:', membersRes.error.message); showToast('Could not load members. Check your connection.'); }
   memberNames = (membersRes.data || []).map(m => m.worker_name);
   document.getElementById('stat-members').textContent = memberNames.length;
 
@@ -1330,7 +1353,7 @@ async function kickMember(workerName) {
   if (!confirm(`Remove ${workerName} from the hive? They will not be able to rejoin unless a supervisor re-approves them.`)) return;
   const { error } = await db.from('hive_members')
     .update({ status: 'kicked' }).eq('hive_id', HIVE_ID).eq('worker_name', workerName);
-  if (error) { alert('Could not remove member: ' + error.message); return; }
+  if (error) { showToast('Could not remove member: ' + error.message); return; }
   await loadMembers();
   await loadFeed();
 }
@@ -1668,13 +1691,15 @@ async function buildNotifications() {
     }
   });
 
-  // Open work orders older than 48 hours
+  // Open work orders older than 48 hours (scoped to current hive; include solo entries if no hive)
   const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
-  const { data: oldWOs } = await db.from('logbook')
+  let woQuery = db.from('logbook')
     .select('machine, date, created_at')
     .eq('worker_name', WORKER_NAME)
     .eq('status', 'Open')
-    .lt('created_at', cutoff)
+    .lt('created_at', cutoff);
+  if (HIVE_ID) woQuery = woQuery.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
+  const { data: oldWOs } = await woQuery
     .order('created_at', { ascending: false })
     .limit(5);
   if (oldWOs && oldWOs.length) {
@@ -1889,6 +1914,7 @@ async function checkTeamStockAlert() {
 
   const { data: inv } = await db.from('inventory_items')
     .select('worker_name, part_name, qty_on_hand, min_qty')
+    .eq('hive_id', HIVE_ID)
     .in('worker_name', others);
   if (!inv || !inv.length) return;
 
@@ -1988,6 +2014,7 @@ function renderApprovalQueue() {
 }
 
 async function approveItem(table, id, submittedBy, label) {
+  if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
   const { error } = await db.from(table).update({
     status:      'approved',
     approved_by: WORKER_NAME,
@@ -2003,6 +2030,7 @@ async function approveItem(table, id, submittedBy, label) {
 }
 
 async function rejectItem(table, id, submittedBy, label) {
+  if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
   const { error } = await db.from(table).update({ status: 'rejected' }).eq('id', id);
   if (error) { showToast('Reject failed: ' + error.message); return; }
 

@@ -42,6 +42,7 @@
     if (path.includes('hive'))          return { page: 'hive',          label: 'WorkHive Board',         hint: 'Ask about team performance, PM health, downtime trends, or how to use the board.' };
     if (path.includes('inventory'))     return { page: 'inventory',     label: 'Inventory Manager',      hint: 'Help me with stock levels, reorder points, or parts management best practices.' };
     if (path.includes('skillmatrix'))   return { page: 'skillmatrix',   label: 'Skill Matrix',           hint: 'Ask about discipline requirements, exam tips, or how to progress through skill levels.' };
+    if (path.includes('engineering-design')) return { page: 'engineering-design', label: 'Eng. Design Calculator', hint: 'Ask about calc types, formula inputs, Philippine standards (PEC, PSME, ASHRAE), or how to interpret results.' };
     return                              { page: 'home',                 label: 'WorkHive Home',          hint: 'Ask me anything about the platform or industrial maintenance.' };
   }
 
