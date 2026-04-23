@@ -4724,7 +4724,7 @@ function calcExpansionTank(inputs: Record<string, unknown>): Record<string, unkn
     max_temp_c:            maxTempC,
     v_fill:                r3(vLow),
     v_max:                 r3(vHigh),
-    expansion_ratio:       r3(E_w),
+    expansion_ratio:       Math.round(E_w * 100000) / 100000,  // 5dp so report formula multiplies correctly
     V_expansion_L:         r2(V_expansion),
     static_head_m:         staticHeadM,
     precharge_kpa_g:       prechargeKpaG,
