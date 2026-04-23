@@ -12705,12 +12705,14 @@ function renderShortCircuitReport(inputs, results, narrative) {
         <p><strong>Step 2 — Transformer Impedance (Z_xfmr)</strong></p>
         <p style="margin-left:1rem;">Z_xfmr = Z_base × (%Z / 100) = ${r.Z_base_ohm} × ${inputs.z_pct/100} = <strong>${r.Z_xfmr_ohm} Ω</strong></p>
 
-        <p><strong>Step 3 — Cable Resistance (R_cable)</strong></p>
-        <p style="margin-left:1rem;">R_cu = 0.0175 Ω·mm²/m (copper resistivity)</p>
-        <p style="margin-left:1rem;">R_cable = (R_cu / cable_mm²) × length = (0.0175 / ${inputs.cable_mm2}) × ${inputs.cable_len_m} = <strong>${r.R_cable_ohm} Ω</strong></p>
+        <p><strong>Step 3 — Cable Impedance (Z_cable)</strong></p>
+        <p style="margin-left:1rem;">R_cu = 0.0175 Ω·mm²/m (copper resistivity at 75°C)</p>
+        <p style="margin-left:1rem;">R_cable = (0.0175 / ${inputs.cable_mm2}) × ${inputs.cable_len_m} = <strong>${r.R_cable_ohm} Ω</strong></p>
+        <p style="margin-left:1rem;">X_cable = X_table(${inputs.cable_mm2} mm²) × ${inputs.cable_len_m} / 1000 = <strong>${r.X_cable_ohm} Ω</strong> (50 Hz, XLPE/PVC LV cable)</p>
+        <p style="margin-left:1rem;">Z_cable = √(R_cable² + X_cable²) = √(${r.R_cable_ohm}² + ${r.X_cable_ohm}²) = <strong>${r.Z_cable_ohm} Ω</strong></p>
 
         <p><strong>Step 4 — Total Impedance (Z_total)</strong></p>
-        <p style="margin-left:1rem;">Z_total = Z_xfmr + R_cable = ${r.Z_xfmr_ohm} + ${r.R_cable_ohm} = <strong>${r.Z_total_ohm} Ω</strong></p>
+        <p style="margin-left:1rem;">Z_total = Z_xfmr + Z_cable = ${r.Z_xfmr_ohm} + ${r.Z_cable_ohm} = <strong>${r.Z_total_ohm} Ω</strong></p>
 
         <p><strong>Step 5 — 3-Phase Symmetrical Fault Current (Isc)</strong></p>
         <p style="margin-left:1rem;">Isc = V_LL / (√3 × Z_total) = ${inputs.voltage_ll} / (1.7321 × ${r.Z_total_ohm}) = <strong>${r.Isc_kA} kA rms</strong></p>
@@ -12748,7 +12750,7 @@ function renderShortCircuitReport(inputs, results, narrative) {
 
       <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">ASSUMPTIONS</div>
-        <div id="sc-assum" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.assumptions || 'Transformer impedance method used per IEC 60909. Infinite bus assumption at the primary side (utility source impedance neglected — conservative). Cable reactance neglected (R only) for LV systems. Asymmetry factor of 1.8 applied per IEC 60909 for peak fault determination.'}</div>
+        <div id="sc-assum" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.assumptions || 'Transformer impedance method used per IEC 60909. Infinite bus assumption at the primary side (utility source impedance neglected — conservative). Cable impedance includes both resistance (R) and reactance (X) at 50 Hz per XLPE/PVC LV cable data; Z_cable = √(R² + X²). Asymmetry factor of 1.8 applied per IEC 60909 for peak fault determination.'}</div>
       </div>
 
       <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #F7A21B;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">

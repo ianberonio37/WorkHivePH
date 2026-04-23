@@ -1833,6 +1833,21 @@ function calcLightingDesign(inputs: Record<string, number | string>): Record<str
 
 // ─── Electrical: Short Circuit Analysis (PEC 2017 / IEC 60909 / IEEE 141) ────
 
+// Cable reactance at 50 Hz (Ω/km) — typical 4-core XLPE/PVC LV cable
+const CABLE_REACTANCE_OHM_KM: Array<[number, number]> = [
+  [14, 0.085], [22, 0.083], [30, 0.082], [38, 0.080],
+  [60, 0.079], [100, 0.077], [150, 0.076], [250, 0.074],
+];
+function cableReactance(mm2: number): number {
+  const t = Math.max(14, Math.min(250, mm2));
+  for (let i = 0; i < CABLE_REACTANCE_OHM_KM.length - 1; i++) {
+    const [s0, x0] = CABLE_REACTANCE_OHM_KM[i];
+    const [s1, x1] = CABLE_REACTANCE_OHM_KM[i + 1];
+    if (t >= s0 && t <= s1) return x0 + (x1 - x0) * (t - s0) / (s1 - s0);
+  }
+  return CABLE_REACTANCE_OHM_KM[CABLE_REACTANCE_OHM_KM.length - 1][1];
+}
+
 function calcShortCircuit(inputs: Record<string, number | string>): Record<string, unknown> {
   const round4 = (v: number) => Math.round(v * 10000) / 10000;
   const round2 = (v: number) => Math.round(v * 100) / 100;
@@ -1850,11 +1865,17 @@ function calcShortCircuit(inputs: Record<string, number | string>): Record<strin
   // Step 2: Transformer impedance
   const Z_xfmr_ohm = round4(Z_base_ohm * (z_pct / 100));
 
-  // Step 3: Cable resistance (copper resistivity 0.0175 Ω·mm²/m)
+  // Step 3: Cable resistance (copper resistivity 0.0175 Ω·mm²/m at 75°C)
   const R_cable_ohm = round4((0.0175 / cable_mm2) * cable_len_m);
 
-  // Step 4: Total impedance
-  const Z_total_ohm = round4(Z_xfmr_ohm + R_cable_ohm);
+  // Step 3b: Cable reactance at 50 Hz (per XLPE/PVC LV cable table)
+  const X_cable_ohm = round4(cableReactance(cable_mm2) * cable_len_m / 1000);
+
+  // Step 3c: Cable impedance magnitude Z_cable = √(R² + X²)
+  const Z_cable_ohm = round4(Math.sqrt(R_cable_ohm ** 2 + X_cable_ohm ** 2));
+
+  // Step 4: Total impedance — Z_xfmr in series with Z_cable
+  const Z_total_ohm = round4(Z_xfmr_ohm + Z_cable_ohm);
 
   // Step 5: 3-phase symmetrical fault current
   const Isc_A = voltage_ll / (Math.sqrt(3) * Z_total_ohm);
@@ -1875,6 +1896,8 @@ function calcShortCircuit(inputs: Record<string, number | string>): Record<strin
     Z_base_ohm,
     Z_xfmr_ohm,
     R_cable_ohm,
+    X_cable_ohm,
+    Z_cable_ohm,
     Z_total_ohm,
     Isc_kA,
     Ipeak_kA,
