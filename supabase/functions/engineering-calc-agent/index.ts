@@ -4673,12 +4673,18 @@ function calcExpansionTank(inputs: Record<string, unknown>): Record<string, unkn
     systemVolumeL = systemKw * (KW_TO_VOL[systemType] ?? 8);
   }
 
-  // Water specific volumes
-  const vFill = waterSpecVol(fillTempC);   // L/kg at fill temperature
-  const vMax  = waterSpecVol(maxTempC);    // L/kg at max operating temperature
+  // ASHRAE expansion factor: always computed between the higher and lower temperature.
+  // For HHW/CW: fill is ambient (cold), max is hot operating temp → normal case.
+  // For CHW:    fill is ambient (warm, e.g. 20°C), max is CHW supply (cold, e.g. 7°C) →
+  //             water CONTRACTS when system starts; we still size for the thermal swing.
+  //             Using T_high and T_low ensures E_w is always positive regardless of system type.
+  const T_high = Math.max(fillTempC, maxTempC);
+  const T_low  = Math.min(fillTempC, maxTempC);
+  const vHigh  = waterSpecVol(T_high);   // L/kg at the higher temperature
+  const vLow   = waterSpecVol(T_low);    // L/kg at the lower temperature (reference)
 
-  // Net expansion ratio (ASHRAE 2023 Handbook Fundamentals Ch.12)
-  const E_w = (vMax - vFill) / vFill;
+  // Net expansion ratio (ASHRAE 2023 Handbook HVAC Systems & Equipment Ch.12)
+  const E_w = (vHigh - vLow) / vLow;
 
   // Net expansion volume (L)
   const V_expansion = systemVolumeL * E_w;
@@ -4716,8 +4722,8 @@ function calcExpansionTank(inputs: Record<string, unknown>): Record<string, unkn
     system_volume_L:       r2(systemVolumeL),
     fill_temp_c:           fillTempC,
     max_temp_c:            maxTempC,
-    v_fill:                r3(vFill),
-    v_max:                 r3(vMax),
+    v_fill:                r3(vLow),
+    v_max:                 r3(vHigh),
     expansion_ratio:       r3(E_w),
     V_expansion_L:         r2(V_expansion),
     static_head_m:         staticHeadM,

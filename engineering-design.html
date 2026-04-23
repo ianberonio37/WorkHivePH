@@ -4764,9 +4764,9 @@ function renderInputForm(calcType) {
           </div>
         </div>
         <div>
-          <div class="field-label">Max Operating Temperature</div>
+          <div id="et-max-temp-label" class="field-label">Min Operating Temperature <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(CHW supply temp — lower than fill)</span></div>
           <div class="input-group">
-            <input id="f-et-max-temp" class="wh-input" type="number" value="18" min="1" max="99" step="1" />
+            <input id="f-et-max-temp" class="wh-input" type="number" value="7" min="1" max="99" step="1" />
             <span class="input-unit">°C</span>
           </div>
         </div>
@@ -7101,7 +7101,7 @@ function toggleDuctAspect() {
 
 // ─── Expansion Tank Sizing helpers ────────────────────────────────────────────
 const ET_DEFAULTS = {
-  'Chilled Water':     { maxTemp: 18,  maxPress: 400 },
+  'Chilled Water':     { maxTemp: 7,   maxPress: 400 },  // CHW supply temp (PH standard 7°C)
   'Heating Hot Water': { maxTemp: 85,  maxPress: 600 },
   'Condenser Water':   { maxTemp: 38,  maxPress: 400 },
 };
@@ -7111,6 +7111,15 @@ function setExpTankDefaults(type) {
   const mp = document.getElementById('f-et-maxpress');
   if (mt) mt.value = d.maxTemp;
   if (mp) mp.value = d.maxPress;
+  // Update label to clarify the temperature's role per system type
+  const lbl = document.getElementById('et-max-temp-label');
+  if (lbl) {
+    if (type === 'Chilled Water') {
+      lbl.innerHTML = 'Min Operating Temperature <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(CHW supply temp — lower than fill)</span>';
+    } else {
+      lbl.innerHTML = 'Max Operating Temperature <span style="color:rgba(255,255,255,0.25);font-size:0.7rem;">(system supply temp — higher than fill)</span>';
+    }
+  }
 }
 function showEtVolSection(method) {
   const direct   = document.getElementById('et-direct-section');
@@ -10701,19 +10710,18 @@ function renderExpansionTankReport(inputs, results, narrative) {
   const headM       = inputs.static_head_m      ?? 10;
   const maxPressG   = inputs.max_pressure_kpa_g ?? 400;
 
-  const Ew          = Number(results.expansion_factor_Ew || 0);
-  const netExpL     = Number(results.net_expansion_L     || 0).toFixed(2);
-  const reqTankL    = Number(results.required_tank_L     || 0).toFixed(2);
-  const selTankL    = results.selected_tank_L            || '—';
-  const alpha       = Number(results.acceptance_factor   || 0);
-  const prechargeG  = results.precharge_kpa_g            || '—';
-  const fillPressG  = results.fill_press_kpa_g           || '—';
-  const fillPressA  = Number(results.fill_press_kpa_abs  || 0).toFixed(2);
-  const maxPressA   = Number(results.max_press_kpa_abs   || 0).toFixed(2);
-  const pressCheck  = results.pressure_check             || '—';
-  const tempCheck   = results.temp_check                 || '—';
-  const vFill       = Number(results.v_fill_L_kg         || 0).toFixed(5);
-  const vMax        = Number(results.v_max_L_kg          || 0).toFixed(5);
+  const Ew          = Number(results.expansion_ratio      || 0);
+  const netExpL     = Number(results.V_expansion_L        || 0).toFixed(2);
+  const reqTankL    = Number(results.required_volume_L    || 0).toFixed(2);
+  const selTankL    = results.selected_tank_L             || '—';
+  const alpha       = Number(results.acceptance_factor    || 0);
+  const prechargeG  = results.precharge_kpa_g             || '—';
+  const fillPressG  = results.fill_pressure_kpa_g         || '—';
+  const fillPressA  = (Number(results.fill_pressure_kpa_g || 0) + 101.3).toFixed(1);
+  const maxPressA   = (Number(maxPressG) + 101.3).toFixed(1);
+  const pressCheck  = results.pressure_check              || '—';
+  const vFill       = Number(results.v_fill               || 0).toFixed(5);
+  const vMax        = Number(results.v_max                || 0).toFixed(5);
 
   const alphaColor  = alpha >= 0.25 ? '#10b981' : alpha >= 0.15 ? '#f97316' : '#ef4444';
   const pressOK     = pressCheck.startsWith('OK');
@@ -10775,8 +10783,8 @@ function renderExpansionTankReport(inputs, results, narrative) {
       <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;width:55%;font-weight:600;">System Type</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${escHtml(sysType)}</td></tr>
       <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Volume Method</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${escHtml(volMethod)}${volMethod === 'Estimate from kW' ? ` (${inputs.system_kw || ''}kW × rule-of-thumb factor)` : ''}</td></tr>
       <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">System Water Volume</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${sysVolL} L</td></tr>
-      <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Fill Temperature (v_fill)</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${fillT}°C → v = ${vFill} L/kg</td></tr>
-      <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Max Operating Temperature (v_max)</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${maxT}°C → v = ${vMax} L/kg</td></tr>
+      <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Fill Temperature</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${fillT}°C → v = ${vFill} L/kg</td></tr>
+      <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">${sysType === 'Chilled Water' ? 'Min Operating Temperature (CHW supply)' : 'Max Operating Temperature'}</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${maxT}°C → v = ${vMax} L/kg</td></tr>
       <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Static Head</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${headM} m above tank</td></tr>
       <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Maximum System Pressure</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${maxPressG} kPa g (${maxPressA} kPa abs)</td></tr>
     </table>
