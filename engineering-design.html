@@ -4380,6 +4380,7 @@ function renderInputForm(calcType) {
         Method: PDI BH-201 Flow Rate Method. Q_design = Total fixture flow x SUF. PDI standard sizes: 4, 6, 7, 10, 15, 20, 25, 35, 50, 75, 100 GPM. Liquid capacity = PDI size x 2 gallons. Standards: PDI BH-201, ASPE, PPC.
       </div>
     `;
+    _gtRowId = 0;
     addGTFixtureRow('Single Kitchen Sink', 7.6, 2);
     setStep(4);
     applyGTFacDefaults('Restaurant / Commercial Kitchen');
@@ -7492,13 +7493,17 @@ function toggleGTCustomFlow(id) {
   const inp = document.getElementById(`gt-flow-${id}`);
   if (!inp) return;
   if (sel !== 'Custom') {
-    inp.value    = GT_FIXTURE_FLOWS[sel] ?? 0;
-    inp.readOnly = true;
-    inp.style.opacity = '0.6';
+    inp.value = GT_FIXTURE_FLOWS[sel] ?? 0;
+    inp.setAttribute('readonly', '');
+    inp.style.opacity       = '0.45';
+    inp.style.pointerEvents = 'none';
+    inp.style.cursor        = 'not-allowed';
   } else {
-    inp.value    = 5.0;
-    inp.readOnly = false;
-    inp.style.opacity = '1';
+    inp.value = inp.value || 5.0;
+    inp.removeAttribute('readonly');
+    inp.style.opacity       = '1';
+    inp.style.pointerEvents = '';
+    inp.style.cursor        = '';
   }
 }
 
