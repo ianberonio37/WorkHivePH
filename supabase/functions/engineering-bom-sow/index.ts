@@ -1810,6 +1810,84 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Electrical: Earthing / Grounding System BOM + SOW Agent ─────────────────
+
+async function earthingBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project    = String(inputs.project_name     || "Earthing System Project");
+  const sysType    = String(inputs.system_type      || "Residential / Commercial");
+  const elecType   = String(inputs.electrode_type   || "Rod");
+  const soilRho    = inputs.soil_resistivity || 100;
+  const numElec    = inputs.num_electrodes   || 1;
+  const rodLen     = inputs.rod_length_m     || 3.0;
+  const rodDia     = inputs.rod_dia_mm       || 16;
+  const plateW     = inputs.plate_width_m    || 0.6;
+  const plateH     = inputs.plate_height_m   || 0.6;
+  const ringDia    = inputs.ring_dia_m       || 10;
+  const svcCond    = inputs.service_cond_mm2 || 35;
+  const sysVolt    = inputs.system_voltage   || 400;
+
+  const rSingle    = results.r_single_ohm   || "";
+  const rParallel  = results.r_parallel_ohm || "";
+  const rLimit     = results.r_limit_ohm    || "";
+  const passLabel  = results.pass_label     || "FAIL";
+  const gecMm2     = results.gec_mm2        || 6;
+
+  const elecDesc = elecType === "Rod"
+    ? `${numElec}x copper-bonded steel rod ${rodLen}m L x ${rodDia}mm dia`
+    : elecType === "Plate"
+    ? `${numElec}x copper plate ${plateW}m x ${plateH}m`
+    : `ring/loop conductor ${ringDia}m dia`;
+
+  const limitBasis = sysType === "Substation / HV"
+    ? "IEEE 80-2013 (1 Ohm max)"
+    : sysType === "Industrial"
+    ? "IEEE 142-2007 (5 Ohm max)"
+    : "PEC 2017 Art. 2.50 (10 Ohm max)";
+
+  const prompt = `You are a Philippine electrical engineering expert (PEC 2017 Art. 2.50, IEEE 80-2013, IEEE 142-2007, IEC 62305-3, NEC Art. 250). Generate a professional BOM and SOW for an EARTHING / GROUNDING SYSTEM installation project.
+
+PROJECT: ${project}
+SYSTEM TYPE: ${sysType}
+SYSTEM VOLTAGE: ${sysVolt}V
+ELECTRODE TYPE: ${elecType} (${elecDesc})
+SOIL RESISTIVITY: ${soilRho} Ohm-m
+NUMBER OF ELECTRODES: ${numElec}
+CALCULATED R (single): ${rSingle} Ohm
+CALCULATED R (combined): ${rParallel} Ohm
+RESISTANCE LIMIT: ${rLimit} Ohm (${limitBasis})
+COMPLIANCE STATUS: ${passLabel}
+GEC SIZE (PEC Table 2.50.66): ${gecMm2} mm2 copper
+SERVICE CONDUCTOR: ${svcCond} mm2
+
+Generate a JSON object with:
+1. "bom_items": array of 12 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: Ground Electrode (${elecDesc}, copper-bonded per UL 467 or equivalent — qty ${numElec}), Ground Electrode Clamp/Connector (exothermic weld or compression-type copper alloy connector, rated for direct burial — qty ${numElec}, one per electrode), Grounding Electrode Conductor / GEC (${gecMm2} mm2 bare or green-insulated stranded copper conductor per PEC Table 2.50.66, qty in metres from service entrance to electrode), GEC Conduit Protection (rigid metallic conduit — 25mm min dia — for GEC where subject to physical damage above grade, qty in metres), Ground Rod Driving Sleeve (for rod installation — one per rod electrode, qty ${numElec}), Earthing Inspection Pit / Test Point (precast concrete or polymer inspection pit with removable cover — for post-installation resistance testing access, qty per electrode cluster), Bonding Jumper — Main (main bonding jumper connecting neutral bus to ground bus in main distribution panel — bare copper, minimum ${gecMm2} mm2, qty 1), Bonding Conductor — Equipment (bare copper or green-insulated stranded conductor for bonding of all metallic equipment enclosures, conduits, and cable trays to the earthing system — qty in metres as per drawing), Soil Treatment Compound (bentonite or equivalent ground enhancement material — GEM or MarconiteR compound for zones with high soil resistivity > 200 Ohm-m — qty in kg depending on site conditions), Copper Ground Bus Bar (tinned copper bus bar 6mm x 50mm, drilled with holes for GEC and bonding conductor terminations — wall-mounted in MDB room, qty 1), Earthing Label / Identification Tape (yellow-green bicolour PVC label tape or embossed stainless ID marker for all earthing conductors per PEC 2017 Art. 2.50 colour identification requirements, qty 1 set), Earth Resistance Test Kit / Wenner Meter (four-pole earth resistance tester, Wenner method per IEEE 81 — for soil resistivity measurement and post-installation electrode resistance acceptance test, qty 1 — Contractor to provide)
+
+2. "sow_sections": array of 7 sections (each: section_no, title, content)
+   Write each content as a full professional paragraph starting with "The Contractor shall..." — do NOT use bullet points. Each section must be 3–6 sentences of contractor-facing specification language.
+   Cover:
+   Section 1 — Scope of Works and Design Basis: state this SOW covers supply, installation, testing, and commissioning of the complete earthing and grounding system for ${project}; state the system type is ${sysType} with a calculated combined electrode resistance of ${rParallel} Ohm (${passLabel} vs. ${rLimit} Ohm limit per ${limitBasis}); state electrode type is ${elecType} (${elecDesc}), soil resistivity ${soilRho} Ohm-m; state GEC is ${gecMm2} mm2 copper per PEC 2017 Table 2.50.66; reference applicable standards: PEC 2017 Article 2.50, IEEE 80-2013, IEEE 142-2007, IEC 62305-3, and NEC Article 250
+   Section 2 — Material Supply and Compliance: cover supply of ${numElec}x ${elecType.toLowerCase()} electrode(s) complying with UL 467 (copper-bonded steel with minimum 0.25 mm copper cladding) or equivalent approved standard; all copper conductors shall be Class B stranded per ASTM B8; require submission of material test certificates, product datasheets, and UL 467 compliance documentation for Engineer review and approval before procurement; bentonite or ground enhancement compound shall be submitted with manufacturer's published resistivity reduction data if soil treatment is specified
+   Section 3 — Excavation and Electrode Installation: cover excavation for horizontal conductors or inspection pits to the depths shown on the approved earthing layout drawing; vertical rod electrodes shall be driven to the full design depth of ${elecType === "Rod" ? rodLen : 3}m using a mechanical driver or slide hammer — driving shall stop if the rod buckles; plate electrodes shall be buried vertically with the top edge at minimum 600 mm below finished grade and oriented parallel to the building perimeter; ring/loop conductors shall be laid at minimum 500 mm below finished grade in a trench backfilled with compacted soil free of rocks or debris; all earthing conductors in direct contact with soil shall be bare copper or copper with heat-shrink insulation — no aluminium conductors are permitted in direct burial
+   Section 4 — Conductor Connections and Bonding: cover all conductor-to-electrode and conductor-to-conductor connections in soil using exothermic welding (Cadweld or approved equivalent) — mechanical clamps or crimp connectors shall be used only above grade where accessible for inspection; GEC shall run in rigid metallic conduit from the service entrance equipment to the first electrode where the conductor is subject to physical damage; the main bonding jumper connecting the neutral bus to the ground bus shall be installed in the service entrance equipment as a single unspliced conductor of minimum ${gecMm2} mm2; all metallic equipment enclosures, cable trays, conduits, and structural steel within the electrical room shall be bonded to the earthing system with minimum 6 mm2 copper bonding conductors per PEC 2017 Article 2.50
+   Section 5 — Soil Treatment (If Required): cover the application of bentonite or ground enhancement material (GEM) around each electrode if the initial pre-installation soil resistivity measurement exceeds ${Number(soilRho) > 200 ? "200" : "500"} Ohm-m — the Contractor shall submit the GEM product datasheet and manufacturer's installation procedure for Engineer approval before application; GEM shall be mixed to manufacturer-specified consistency and applied in a collar around each rod or beneath each plate electrode before backfilling; the Contractor shall allow a minimum 48-hour curing period before conducting the post-installation resistance test; if soil treatment does not achieve the required resistance limit, the Contractor shall propose additional electrodes or alternative electrode configurations for Engineer approval at no additional cost
+   Section 6 — Testing and Acceptance: cover pre-installation soil resistivity measurement by the Wenner four-pin method per IEEE 81 at the proposed electrode locations — results shall be submitted to the Engineer before driving any electrodes; post-installation acceptance test of each electrode using a calibrated fall-of-potential method or clamp-on earth resistance tester per IEEE 81 — the measured resistance of the combined electrode system shall not exceed ${rLimit} Ohm as required by ${limitBasis}; bonding continuity test — measure resistance from each bonded equipment frame to the main earth bus using a low-resistance ohmmeter, maximum 0.1 Ohm; all test results including soil resistivity, individual electrode resistance, combined resistance, and bonding continuity shall be recorded in the earthing test register and submitted to the Engineer within 5 working days of test completion; no concrete pouring or permanent backfill over electrodes shall occur until written acceptance of test results by the Engineer
+   Section 7 — Documentation and Regulatory Compliance: cover submission of Electrical Permit from the LGU before commencement of earthing works; all earthing installation works shall be performed under the direct supervision of a PRC-licensed Electrical Engineer; as-built earthing layout drawings showing electrode locations, depth, conductor routing, inspection pit locations, and all bonding connections shall be submitted within 30 days of project completion; documentation package shall include: soil resistivity test report, post-installation earth resistance test report, bonding continuity test report, material certificates, and earthing test register signed and sealed by the Engineer of Record; the earthing system shall be inspected and retested at minimum every 5 years in accordance with PEC 2017 and IEEE 142 recommendations — include this requirement in the O&M manual
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw    = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Electrical: Generator Sizing BOM + SOW Agent ────────────────────────────
 
 async function generatorSizingBomSowAgent(
@@ -3326,6 +3404,8 @@ serve(async (req) => {
       result = await cableTrayBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "UPS Sizing") {
       result = await upsSizingBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Electrical" && calc_type === "Earthing / Grounding System") {
+      result = await earthingBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Generator Sizing") {
       result = await generatorSizingBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Fire Protection" && calc_type === "Fire Sprinkler Hydraulic") {
