@@ -1963,6 +1963,91 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Electrical: Lightning Protection System BOM + SOW Agent ─────────────────
+
+async function lpsBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project     = inputs.project_name      || "LPS Project";
+  const strType     = inputs.structure_type    || "Commercial";
+  const lpl         = inputs.lpl               || "LPL II";
+  const airMeth     = inputs.air_term_method   || "Rolling Sphere";
+  const dcMat       = inputs.dc_material       || "Copper";
+  const earthType   = inputs.earth_type        || "Type A — Radial / Vertical Electrodes";
+  const loc         = inputs.ng_location       || "Metro Manila / NCR";
+  const rR          = results.rolling_sphere_R_m   ?? "30";
+  const meshSz      = results.mesh_size_m          ?? "10";
+  const nDC         = results.n_down_conductors    ?? "N/A";
+  const nAT         = results.n_air_terminals_est  ?? "N/A";
+  const dcSpacing   = results.dc_spacing_m         ?? "10";
+  const nElec       = results.n_electrodes         ?? "N/A";
+  const elecLen     = results.min_electrode_length_m ?? "N/A";
+  const spdClass    = results.spd_class            || "Class I + II combination";
+  const eff         = results.efficiency_pct       ?? "97";
+  const riskCheck   = results.risk_check           || "LPS REQUIRED";
+
+  const prompt = `You are a Philippine electrical engineering expert specializing in lightning protection systems. Generate a professional BOM and SOW for a LIGHTNING PROTECTION SYSTEM (LPS) installation project.
+
+PROJECT: ${project}
+STRUCTURE TYPE: ${strType}
+LOCATION: ${loc}
+LIGHTNING PROTECTION LEVEL: ${lpl} (${eff}% efficiency)
+RISK ASSESSMENT RESULT: ${riskCheck}
+AIR TERMINATION METHOD: ${airMeth}
+ROLLING SPHERE RADIUS: ${rR} m
+MESH SIZE: ${meshSz} m × ${meshSz} m
+ESTIMATED AIR TERMINALS / MASTS: ${nAT} units
+DOWN CONDUCTOR MATERIAL: ${dcMat}
+DOWN CONDUCTOR SPACING: ${dcSpacing} m
+NUMBER OF DOWN CONDUCTORS: ${nDC}
+EARTH TERMINATION TYPE: ${earthType}
+MINIMUM ELECTRODE LENGTH: ${elecLen} m
+NUMBER OF ELECTRODES: ${nElec}
+SPD CLASS: ${spdClass}
+STANDARDS: IEC 62305-1/2/3/4, NFPA 780, PEC 2017 Article 2.50
+
+Generate a JSON object with:
+1. "bom_items": array of 15 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include these items in order:
+   1. Air Termination Conductors / Tape — 25mm × 3mm flat copper tape or 8mm dia solid copper rod; corrosion-resistant; installed along roof ridge, parapet, and edges per ${airMeth} method; all joints with listed compression or exothermic connectors — qty: ${nAT} — unit: lot (per roof layout)
+   2. Air Termination Masts / Franklin Rods — stainless steel 316L or hot-dip galvanized steel rod, minimum 10mm dia × 300mm exposed above highest point; used at corners and high points of roof to supplement tape network; base clamp with stainless fasteners — qty: ${nAT} — unit: units
+   3. Down Conductors — ${dcMat === "Copper" ? "50mm² bare annealed copper rope conductor" : dcMat === "Aluminum" ? "70mm² aluminum conductor" : "50mm² hot-dip galvanized steel flat conductor 25mm × 4mm"}; installed in UV-resistant PVC conduit (25mm dia) where exposed; fixed with non-ferrous saddle clamps at 1m spacing — qty: ${nDC} runs — unit: lot (each run = full height of structure)
+   4. Test Joints — disconnectable test joint at base of each down conductor (500mm above finished floor level); allows earth resistance measurement per IEC 62305-3 §5.3.5; listed compression fitting, corrosion-resistant; labelled "LPS TEST JOINT — DO NOT DISCONNECT" — qty: ${nDC} — unit: units
+   5. Earth Electrode Assembly (${earthType}) — ${String(earthType).includes("Type A") ? `copper-bonded steel rod, 20mm dia × ${elecLen}m length; driven vertically at base of each down conductor; 10mm dia bare copper earth lead from test joint to rod top; bentonite backfill where soil resistivity > 200 Ω·m` : `25mm × 4mm copper tape ring electrode buried at 500mm depth around building perimeter; minimum burial depth 300mm; connected to all down conductors and main equipotential bonding bar`} — qty: ${nElec} — unit: units
+   6. Earth Rod Driving Materials and Coupling Sleeves — steel coupling sleeve for deep-drive extension; driving head (sacrificial); 3m extension rods if initial resistance > 10Ω after first rod; bentonite clay powder (20kg bag) per electrode for soil conditioning — qty: ${nElec} — unit: sets
+   7. Main Equipotential Bonding Bar (MEBB) — 50mm × 6mm tinned copper busbar, minimum 500mm long; wall-mounted in accessible location (ground floor electrical room or at cable entry point); connection lugs for down conductors, LV earth, water pipe, gas pipe, telecommunications earth — qty: 1 — unit: unit
+   8. Bonding Conductors (Metallic Services) — 16mm² bare copper conductor for bonding of water supply pipe, gas pipe, structural steel, and all metallic services entering structure to MEBB; listed compression connectors at each bond point; installed per IEC 62305-3 §6.2 — qty: 1 — unit: lot (per site survey)
+   9. Surge Protective Devices — SPD at MDB / LV Entry — ${spdClass} SPD at main distribution board LV supply entry; IEC 61643-11 certified; In ≥ 20kA (10/350μs for Type 1); Up ≤ 2.5kV; with backup fuse or built-in thermal disconnect; DIN-rail mount; 3-pole + N for 3-phase, 1-pole + N for single-phase; submit data sheet for Engineer approval — qty: 1 — unit: set
+   10. Surge Protective Devices — SPD at Sub-Distribution Boards — Type 2 (Class II) SPD at each SDB / panelboard; IEC 61643-11; In ≥ 10kA (8/20μs); Up ≤ 1.5kV; one set per SDB identified in load schedule — qty: per number of SDBs (contractor to count from single-line diagram) — unit: sets
+   11. Surge Protective Devices — Data / Telecommunications Lines — Type 2/3 data line SPD at all metallic cable entries (RJ45, RS-485, coax, telephone); IEC 61643-21; installed at demarcation point where external lines enter structure; flush-mount or wall-mount per cabling type — qty: 1 — unit: lot
+   12. LPS Conductor Supports and Saddle Clamps — non-ferrous saddle clamps (copper or stainless) for securing flat tape and round conductors to masonry, concrete, and structural steel; at 1m max spacing on horizontal runs, 1.5m on vertical runs; plastic-anchored where drilling into concrete block — qty: 1 — unit: lot (per linear meter of conductor run)
+   13. PVC Conduit and Fittings for Concealed Down Conductors — 25mm dia heavy-duty PVC conduit for protecting down conductors passing through occupied areas, below-grade sections, and areas subject to mechanical damage; LB fittings, couplings, and elbows as needed; conduit must be non-metallic to avoid eddy currents — qty: 1 — unit: lot (per linear meter)
+   14. Signage and Warning Labels — stainless steel engraved label at each test joint: "LPS TEST JOINT — DISCONNECT FOR TESTING ONLY"; roof access area warning sign: "LIGHTNING PROTECTION SYSTEM — AUTHORIZED PERSONNEL ONLY"; LPS single-line diagram in weatherproof frame at MEBB location — qty: 1 — unit: lot
+   15. Miscellaneous — earth resistance tester (Fall-of-Potential method per IEEE 81, 3-terminal Megger or equivalent); earth resistance test report (all electrodes, combined system); photographic records of all electrode installations; as-built LPS layout drawing; SPD installation certificates; IEC 62305-2 risk assessment report; O&M manual with cleaning and inspection schedule — qty: 1 — unit: lot
+
+2. "sow_sections": array of 8 sections (each: section_no, title, content)
+   Cover:
+   - "1.0" General Scope: supply, install, test, and commission a complete Lightning Protection System (LPS) for ${project} — a ${strType} in ${loc}. Design basis: IEC 62305-2 risk assessment result: ${riskCheck}. Protection Level: ${lpl} (${eff}% protection efficiency). Air termination method: ${airMeth}. System consists of: air termination network (${nAT} terminals), ${nDC} down conductors at ${dcSpacing}m spacing, ${nElec} earth electrodes (${earthType}), main equipotential bonding bar, and ${spdClass} SPDs. All work in accordance with IEC 62305-1/2/3/4, NFPA 780, and PEC 2017 Article 2.50. BOM quantities are estimates — contractor shall verify against approved architectural and electrical drawings.
+   - "2.0" Applicable Standards and Permits: IEC 62305-1:2010 (General Principles); IEC 62305-2:2010 (Risk Management); IEC 62305-3:2010 (Physical Damage — air termination, down conductors, earth termination, bonding); IEC 62305-4:2010 (Electrical and Electronic Systems — SPD zones); NFPA 780:2023 (Installation of LPS); PEC 2017 Article 2.50 (Earthing and Bonding); IEC 61643-11 (SPD for LV power systems); IEC 61643-21 (SPD for telecommunications); IEEE 81 (earth resistance measurement); DOLE OSH Electrical Safety Standards; LGU Electrical Permit required before installation — all electrical works by licensed master electrician under PRC-licensed Electrical Engineer.
+   - "3.0" Air Termination Network: install air termination network using ${airMeth} method to IEC 62305-3. Rolling sphere radius R=${rR}m defines the protected zone — any point on the roof not touched by a sphere of radius ${rR}m rolling over the air terminals is unprotected. Flat copper tape (25mm×3mm) installed along all roof edges, ridges, and parapets. Franklin rods installed at all corners and high points. All horizontal runs must have continuity — no gaps or high-impedance splices. Tape must not form a loop with unequal path lengths — split at midpoint and run both ways to nearest down-conductor connection. All joints silver-soldered, exothermic-welded, or compression-clamped (no bolted joints in areas subject to corrosion). Roof penetrations sealed against water ingress.
+   - "4.0" Down Conductor System: install ${nDC} down conductors of ${dcMat} at maximum ${dcSpacing}m spacing around building perimeter; each run must be as straight and vertical as possible — bends of radius < 0.2m are not permitted (IEC 62305-3 §5.3.2); protect all down conductors from 300mm below finished floor level to 2.4m above with 25mm PVC conduit; install disconnectable test joint at 500mm above finished floor per down conductor; minimum separation distance from all metallic structural elements per IEC 62305-3 §6.3 to prevent dangerous sparking; do not route down conductors through fuel store, gas room, or electrical switchroom.
+   - "5.0" Earth Termination System: install ${nElec} earth electrodes (${earthType}) per IEC 62305-3 §5.4; minimum electrode length ${elecLen}m per IEC 62305-3 Annex E (based on soil resistivity); after installation, measure resistance of each individual electrode using Fall-of-Potential method (IEEE 81 / IEC 62305-3 Annex E); combined system resistance target ≤ 10Ω; if combined resistance > 10Ω: add additional rods, use bentonite, or install ring electrode; submit all resistance readings for Engineer approval before connecting to building earthing system; integrate with LV system earth at MEBB — single point of connection to avoid circulating currents.
+   - "6.0" Equipotential Bonding: install MEBB at building electrical entry point; bond all metallic services entering structure (water, gas, telecommunications, structural steel, elevator rails) to MEBB with 16mm² Cu conductors per IEC 62305-3 §6.2; all bonds as close to building entry point as practicable; install ${spdClass} SPDs at MDB entry, Type 2 SPDs at all SDBs, and Type 2/3 data-line SPDs at all telecommunications entry points; SPD selection per IEC 62305-4 LPZ zone-to-zone analysis; Up of SPDs must be coordinated (MDB Up ≤ 2.5kV, SDB Up ≤ 1.5kV, equipment-level Up ≤ 1.0kV); submit SPD data sheets for Engineer approval before procurement.
+   - "7.0" Testing, Commissioning, and Handover: perform continuity test on complete LPS conductor network (air termination → down conductors → test joints → electrodes) — resistance from any air termination point to any earth electrode ≤ 1Ω; perform earth resistance test (Fall-of-Potential, IEEE 81) — all electrodes individually and combined system; SPD installation verification — correct polarity, backup protection, thermal disconnect functional; all test results documented and submitted to Engineer and Owner; as-built LPS layout drawing (roof plan, elevation, earth termination plan) with conductor routes, electrode locations, and bonding points; SPD certificates, electrode depth records, and photographic installation records; IEC 62305-2 risk assessment report; O&M manual including annual inspection checklist and 5-year electrode replacement schedule.
+   - "8.0" Maintenance Schedule and Owner Obligations: visual inspection after every severe thunderstorm (check for physical damage, disconnected conductors, or displaced air terminals); annual inspection by licensed electrical engineer (verify continuity, check test joints, inspect SPD condition indicators, measure earth resistance); 5-year full inspection (re-measure earth resistance of all individual electrodes, replace any SPD with tripped thermal disconnect, check exothermic welds for corrosion, verify bonding integrity of all metallic services); LPS inspection report to be kept on file for LGU/BFP/DOLE inspection; SPDs replaced immediately upon activation indicator showing fault; do not connect additional metallic services or make structural changes without informing the LPS designer — any change to building profile may invalidate risk assessment.
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw    = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Electrical: Generator Sizing BOM + SOW Agent ────────────────────────────
 
 async function generatorSizingBomSowAgent(
@@ -3483,6 +3568,8 @@ serve(async (req) => {
       result = await upsSizingBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Earthing / Grounding System") {
       result = await earthingBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Electrical" && calc_type === "Lightning Protection System (LPS)") {
+      result = await lpsBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Generator Sizing") {
       result = await generatorSizingBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Fire Protection" && calc_type === "Fire Sprinkler Hydraulic") {
