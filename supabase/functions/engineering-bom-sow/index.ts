@@ -1340,6 +1340,90 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Roof Drain Sizing BOM + SOW Agent ────────────────────────────────────────
+
+async function roofDrainBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project        = inputs.project_name       || "Roof Drain Sizing";
+  const nDrains        = results.n_drains          ?? inputs.n_drains          ?? 2;
+  const drainSizeMm    = results.drain_size_mm     ?? "N/A";
+  const leaderSizeMm   = results.leader_size_mm    ?? drainSizeMm;
+  const horizLeaderMm  = results.horiz_leader_mm   ?? "N/A";
+  const overflowMm     = results.overflow_drain_mm ?? null;
+  const qTotalLs       = results.q_total_ls        ?? "N/A";
+  const qEachLs        = results.q_each_ls         ?? "N/A";
+  const intensityMmhr  = results.intensity_mmhr    ?? inputs.intensity_mmhr    ?? 100;
+  const slopePct       = results.leader_slope_pct  ?? inputs.leader_slope_pct  ?? 1.0;
+  const pipeMaterial   = results.pipe_material     ?? inputs.pipe_material     ?? "uPVC";
+  const manningN       = results.manning_n         ?? 0.011;
+  const hasParapet     = results.has_parapet        ?? (inputs.has_parapet === "Yes");
+  const roofAreaM2     = results.roof_area_m2      ?? inputs.roof_area         ?? "N/A";
+  const overallStatus  = results.overall_status    || "PASS";
+
+  const astmPipe  = pipeMaterial === "uPVC" ? "ASTM D2665 (uPVC DWV)" : "ASTM A74 (cast iron)";
+  const overflowLine = overflowMm
+    ? `OVERFLOW DRAINS: ${nDrains} × ${overflowMm} mm overflow drain bodies, invert set at +50 mm above primary drain invert per IPC §1101.7`
+    : "OVERFLOW DRAINS: Not required — no parapet walls present";
+
+  const prompt = `You are a Philippine licensed sanitary / plumbing engineer. Generate a professional BOM and SOW for a ROOF DRAIN SYSTEM construction project.
+
+PROJECT: ${project}
+ROOF DRAINAGE AREA: ${roofAreaM2} m²
+DESIGN RAINFALL INTENSITY: ${intensityMmhr} mm/hr (PAGASA 10-yr, 60-min IDF)
+DESIGN METHOD: Rational Method — Q = I × A / 3600 (C = 1.0, impervious roof)
+TOTAL DESIGN FLOW: ${qTotalLs} L/s
+FLOW PER DRAIN: ${qEachLs} L/s
+NUMBER OF PRIMARY DRAINS: ${nDrains} (IPC §1106.3 minimum 2 drains)
+PRIMARY DRAIN BODY SIZE: ${drainSizeMm} mm nominal (ASME A112.21.2M)
+VERTICAL LEADER SIZE: ${leaderSizeMm} mm nominal
+HORIZONTAL LEADER SIZE: ${horizLeaderMm} mm ${pipeMaterial} at ${slopePct}% slope (Manning n = ${manningN})
+${overflowLine}
+PIPE MATERIAL: ${pipeMaterial} (${astmPipe})
+COMPLIANCE STATUS: ${overallStatus}
+STANDARDS: IPC 2018 Chapter 11 (§1106 Roof Drain Sizing, §1101.7 Overflow Drains), Philippine Plumbing Code (PPC), ASPE Plumbing Engineering Design Handbook Vol. 2, ASME A112.21.2M, PAGASA IDF Curves, DOLE OSH Standards
+
+Generate a JSON object with:
+1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include these items in order:
+   1. Primary Roof Drain Body — ${drainSizeMm} mm nominal cast iron or ABS roof drain body per ASME A112.21.2M, flat or low-profile strainer dome, integral membrane clamp and gravel stop, sediment bucket — qty: ${nDrains} units
+   2. Strainer Dome — heavy-duty cast iron or ABS strainer dome for ${drainSizeMm} mm drain body, domed profile to prevent debris bridging, removable for cleaning — qty: ${nDrains} units (included with drain body as standard accessory)
+   3. Vertical Roof Leader (Conductor) Pipe — ${leaderSizeMm} mm nominal ${pipeMaterial} pipe (${astmPipe}), Schedule 40 minimum wall, plain end with couplings — qty: per vertical height (m) of each leader — Contractor to quantify from drawings
+   4. Horizontal Leader Pipe — ${horizLeaderMm} mm nominal ${pipeMaterial} pipe (${astmPipe}), minimum ${slopePct}% slope, plain end with solvent-weld or mechanical couplings — qty: per linear meter of horizontal run — Contractor to quantify from drainage layout drawing
+   5. 90° Long-Radius Elbow — ${leaderSizeMm} mm ${pipeMaterial} long-radius elbow at base of each vertical leader to transition to horizontal run, sweep radius minimum 1.5× pipe diameter to minimise turbulence — qty: ${nDrains} units (minimum)
+   6. ${overflowMm ? `Overflow Roof Drain Body — ${overflowMm} mm nominal overflow drain body per ASME A112.21.2M, set at invert +50 mm above primary drain per IPC §1101.7; must discharge independently or through a separate leader — qty: ${nDrains} units` : `Pipe Coupling / Jointing Materials — solvent-weld couplings, primer and cement (ASTM D2564 for uPVC) or lead and oakum for cast iron; joint compound, Teflon tape for threaded fittings — qty: 1 lot`}
+   7. Cleanout Fitting — ${horizLeaderMm} mm cleanout plug with access cover at all changes of direction on horizontal leader and at maximum 10 m spacing per IPC §708; flush-mounted cover plate at finished ceiling — qty: as required from layout
+   8. Pipe Hanger / Support — heavy-duty clevis hanger for vertical leader at each floor penetration and at maximum 1.5 m spacing; adjustable iron ring hanger for horizontal leader at maximum 1.2 m spacing — qty: as required per layout (Contractor to quantify)
+   9. Roof Membrane Flashing — pre-formed ${drainSizeMm} mm lead or stainless steel clamping ring flashing, lapped minimum 150 mm over waterproof membrane, sealed with polyurethane sealant — qty: ${nDrains} units (plus ${overflowMm ? nDrains : 0} overflow units)
+   10. Roof Penetration Sleeve — galvanised steel or HDPE pipe sleeve through roof slab at each drain location, minimum 50 mm annular clearance, non-shrink grout seal, fire-rated where required by code — qty: ${nDrains} units (plus overflow units if any)
+   11. Test Plugs (Inflatable or Mechanical) — inflatable test plugs for flood test per IPC §1109; capable of holding 150 mm head of water for minimum 15 minutes without seepage — qty: ${nDrains} units
+   12. Waterproofing Sealant — polyurethane or silicone-based waterproofing sealant at all drain-to-membrane interfaces, UV-stable, compatible with roofing membrane material — qty: 1 lot
+   13. Pipe Insulation (Cold Lines) — 25 mm elastomeric foam insulation on horizontal leaders in conditioned spaces to prevent condensation; vapour barrier jacket where exposed — qty: per linear meter in conditioned areas
+   14. Miscellaneous — pipe markers at 3 m spacing, drain body identification tags, as-built drainage layout drawing, temporary covers during construction, site safety signage, commissioning test report — qty: 1 lot
+
+2. "sow_sections": array of 7 sections (each: section_no, title, content — full "The Contractor shall..." paragraphs, not bullets)
+   Cover:
+   - "1.0" General Scope: The Contractor shall design, supply, install, test, and commission a complete roof drainage system for a ${roofAreaM2} m² roof area, designed to convey the 10-year design storm runoff of ${qTotalLs} L/s at ${intensityMmhr} mm/hr rainfall intensity (PAGASA IDF data) to the building storm drainage system or approved point of discharge. The system shall comprise ${nDrains} primary roof drain bodies (${drainSizeMm} mm nominal), ${leaderSizeMm} mm vertical leaders, and ${horizLeaderMm} mm horizontal leaders at ${slopePct}% minimum slope${overflowMm ? `, plus ${nDrains} overflow drain bodies (${overflowMm} mm nominal) set at invert +50 mm above primary drain invert per IPC §1101.7` : ""}. All work shall comply with the Philippine Plumbing Code (PPC), IPC 2018 Chapter 11, ASPE Plumbing Engineering Design Handbook Vol. 2, and all applicable local government requirements. The Contractor shall verify all quantities from final architectural and structural drawings — the BOM is for planning purposes only.
+   - "2.0" Applicable Standards and Permits: The Contractor shall comply with all of the following: IPC 2018 Chapter 11 (Storm Drainage — §1106 Roof Drain Sizing, §1101.7 Overflow Drains, §1109 Roof Drain Testing); Philippine Plumbing Code (PPC) — adopts IPC with local amendments; ASPE Plumbing Engineering Design Handbook, Volume 2 — Plumbing Systems; ASME A112.21.2M — Roof Drain Standard; ASTM D2665 (uPVC DWV pipe) or ASTM A74 (cast iron pipe) as applicable; PAGASA IDF Curves for design rainfall intensity; DOLE OSH Standards for construction safety. The Contractor shall secure all required building permits, plumbing permits, and inspections from the Local Government Unit (LGU) before commencing installation.
+   - "3.0" Roof Drain Body Installation: The Contractor shall install ${nDrains} primary roof drain bodies (${drainSizeMm} mm nominal, ASME A112.21.2M) at locations shown on the drainage layout drawing, coordinating with the structural and waterproofing works. Each drain body shall be set flush with the finished roof surface with positive drainage fall towards the drain of minimum 1:100 on the roof deck. The membrane clamping ring shall be installed prior to application of the waterproofing membrane, and the upper clamping ring applied over the completed membrane with polyurethane sealant at all interfaces. Pre-formed lead or stainless steel flashing shall be lapped minimum 150 mm over the membrane and sealed continuously. The Contractor shall install strainer domes on all drain bodies and verify free rotation and positive seating before handover.${hasParapet ? ` Overflow drain bodies (${overflowMm} mm nominal) shall be installed at each primary drain location with the invert set at +50 mm above the primary drain invert per IPC §1101.7; overflow drains shall discharge independently through separate leaders or through a dedicated connection to the storm drain system — they shall NOT share a common trap or p-trap with primary drains.` : ""}
+   - "4.0" Vertical Leaders and Horizontal Piping: The Contractor shall install ${leaderSizeMm} mm nominal ${pipeMaterial} vertical leaders (conductors) from each roof drain body to the horizontal collector, supported with riser clamps at each floor penetration and at maximum 1.5 m vertical spacing. All penetrations through roof slabs and beams shall be sleeved with a galvanised steel pipe sleeve with 50 mm annular clearance, grouted solid with non-shrink mortar and fire-stopped where required. Horizontal leaders shall be installed at ${horizLeaderMm} mm nominal ${pipeMaterial}, pitched at minimum ${slopePct}% (${slopePct === 1 ? "1/8 in/ft" : slopePct + "%"}) throughout — no reverse-fall, no flat sections. All changes of direction shall use long-radius (sweep) fittings; no short-radius elbows on horizontal runs. Pipe hangers shall be installed at maximum 1.2 m spacing on horizontal runs. Cleanouts with flush access covers shall be provided at all changes of direction and at maximum 10 m spacing per IPC §708.
+   - "5.0" Testing — Roof Flood Test (IPC §1109): The Contractor shall conduct a roof flood test on the completed drainage system prior to installation of any finish materials and before final acceptance. The test shall be conducted as follows: (1) plug all drain bodies at the roof level using inflatable or mechanical test plugs rated for the test head; (2) flood the roof to a minimum 150 mm head of water (measured at the drain body); (3) maintain the test head for a minimum of 15 minutes without any visible seepage through the roof membrane, flashings, or deck penetrations; (4) record the test date, water level, and result in the commissioning test report; (5) any seepage or weeping at drain body flanges, sleeves, or membrane laps shall be repaired and the flood test repeated before acceptance. The Contractor shall submit the flood test report, signed by the responsible licensed plumber, to the Engineer within 3 days of the test.
+   - "6.0" Regulatory Compliance and Safety: The Contractor shall comply with all DOLE OSH Standards for construction safety, including proper scaffolding and fall protection for all roof-level works. A confined space entry permit shall be required for any work inside enclosed chases or ceiling spaces containing drain leaders. The Contractor shall maintain a clean and dry work area at all roofing penetrations to prevent water infiltration into the building during construction. All hot-works (welding, cutting) near waterproofing membrane shall require a hot-work permit from the fire safety officer. The Contractor shall not backfill or conceal any piping until it has been inspected and approved by the licensed plumber-in-charge and, where required, by the LGU plumbing inspector.
+   - "7.0" Handover and As-Built Documentation: Upon completion of all works and successful flood test, the Contractor shall submit the following to the Engineer and Owner: (1) as-built roof drainage layout drawing showing drain body locations, leader routes, invert levels, and cleanout positions; (2) flood test report per IPC §1109 signed by the licensed plumber; (3) manufacturer's data sheets for all drain bodies, pipe, and fittings installed; (4) material test reports or mill certificates for structural components; (5) O&M guide covering: drain body strainer dome cleaning (monthly), cleanout rodding (annual), flood-test repeat (every 5 years or after any roof membrane repair); (6) recommended spare strainer domes (minimum 2 units) handed over to the Owner. A 1-year defects liability period applies from the date of handover acceptance — the Contractor shall rectify any drainage failure, leak, or blockage attributable to defective materials or workmanship at no additional cost.
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+
+  return {
+    bom_items:    parsed.bom_items    || [],
+    sow_sections: parsed.sow_sections || [],
+  };
+}
+
 // ─── Electrical Load Estimation BOM + SOW Agent ───────────────────────────────
 
 async function loadEstBomSowAgent(
@@ -3549,6 +3633,8 @@ serve(async (req) => {
       result = await stormDrainBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Plumbing" && calc_type === "Grease Trap Sizing") {
       result = await greaseTrapBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Plumbing" && calc_type === "Roof Drain Sizing") {
+      result = await roofDrainBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Load Estimation") {
       result = await loadEstBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Voltage Drop") {
