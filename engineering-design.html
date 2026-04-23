@@ -758,7 +758,8 @@ const GUIDES = {
       'Q_total = Q_walls + Q_roof + Q_glass + Q_people + Q_equipment + Q_lighting + Q_infiltration',
       'Q_walls = U x A_wall x deltaT',
       'Q_roof = U x A_roof x deltaT x 1.15  (solar correction factor)',
-      'Q_glass = (0.57 x A x deltaT) + (A x SHGC x 200)',
+      'Q_glass = (0.57 x A x deltaT) + (A x SHGC x I_solar)',
+      '  I_solar: N=90, S=130, E=700, W=700, Horizontal=950, Mixed=200 W/m² (ASHRAE 2021, Manila ~14.6°N)',
       'Q_people = N x (sensible + latent) W/person',
       'Q_equipment = kW x 1000 x 0.85  (diversity factor)',
       'Q_lighting = W/m2 x floor area',
@@ -770,6 +771,7 @@ const GUIDES = {
       { name: 'Ceiling Height (m)', tip: 'Floor-to-ceiling height. Default 3.0 m.' },
       { name: 'Wall Area (m2)', tip: 'Leave blank to auto-calculate: sqrt(floor area) x 4 x ceiling height.' },
       { name: 'Glass / Window Area (m2)', tip: 'Leave blank to auto-calculate as 20% of wall area.' },
+      { name: 'Window Orientation', tip: 'Direction the glazed wall primarily faces. East and West facades receive up to 700 W/m² peak solar irradiance — 3.5× higher than Mixed (200 W/m²). North receives mostly diffuse (90 W/m²). Use Mixed if windows face multiple directions or orientation is unknown. Values per ASHRAE 2021 Fundamentals Ch. 18 for Manila latitude ~14.6°N.' },
       { name: 'No. of Persons', tip: 'Peak occupancy count in the space.' },
       { name: 'Equipment Load (kW)', tip: 'Total connected electrical equipment (computers, machines, etc.).' },
       { name: 'Insulation', tip: 'Standard = old / no insulation. Good = typical commercial. Excellent = well-insulated modern building.' },
@@ -2966,6 +2968,16 @@ function renderInputForm(calcType) {
         <div class="toggle-group" id="tg-glass">
           ${['Standard','Tinted','LowE'].map((v,i) =>
             `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-glass','${v}')">${v}</button>`
+          ).join('')}
+        </div>
+      </div>
+
+      <!-- Window orientation toggle -->
+      <div class="mb-4">
+        <div class="field-label">Window Orientation <span style="color:rgba(255,255,255,0.35);font-size:0.7rem;font-weight:400;">(East/West: 700 W/m² peak solar — 3.5× higher than Mixed)</span></div>
+        <div class="toggle-group" id="tg-orientation">
+          ${['North','South','East','West','Horizontal','Mixed'].map((v,i) =>
+            `<button class="toggle-btn${i===5?' active':''}" onclick="toggle('tg-orientation','${v}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -7908,10 +7920,11 @@ function collectInputs() {
       wall_area:      parseFloat(v('f-wall-area'))    || 0,
       glass_area:     parseFloat(v('f-glass-area'))   || 0,
       equipment_kw:   parseFloat(v('f-equip'))        || 0,
-      insulation:     getToggle('tg-insulation'),
-      glass_type:     getToggle('tg-glass'),
-      outdoor_temp:   parseFloat(v('f-outdoor-temp')) || 35,
-      indoor_temp:    parseFloat(v('f-indoor-temp'))  || 24,
+      insulation:         getToggle('tg-insulation'),
+      glass_type:         getToggle('tg-glass'),
+      window_orientation: getToggle('tg-orientation') || 'Mixed',
+      outdoor_temp:       parseFloat(v('f-outdoor-temp')) || 35,
+      indoor_temp:        parseFloat(v('f-indoor-temp'))  || 24,
     };
   }
 
@@ -9345,9 +9358,10 @@ function renderReport(inputs, results, narrative) {
 
     <h3>4.3 Glass / Window Heat Gain</h3>
     <p style="font-size:0.82rem;color:#444;">
-      Formula: Q = (0.57 x A x DT) + (A x SHGC x 200)<br>
-      Given: SHGC = ${results.inputs_used.shgc}, A_glass = ${results.inputs_used.glass_area} m2<br>
-      <strong>Q_glass = (0.57 x ${results.inputs_used.glass_area} x ${results.inputs_used.delta_t}) + (${results.inputs_used.glass_area} x ${results.inputs_used.shgc} x 200) = ${c.q_glass.toLocaleString()} W</strong>
+      Formula (ASHRAE 2021 Ch. 18): Q = (0.57 x A x DT) + (A x SHGC x I_solar)<br>
+      Window orientation: ${results.inputs_used.window_orientation} — design solar irradiance I_solar = ${results.inputs_used.solar_irradiance} W/m²<br>
+      Given: SHGC = ${results.inputs_used.shgc}, A_glass = ${results.inputs_used.glass_area} m²<br>
+      <strong>Q_glass = (0.57 x ${results.inputs_used.glass_area} x ${results.inputs_used.delta_t}) + (${results.inputs_used.glass_area} x ${results.inputs_used.shgc} x ${results.inputs_used.solar_irradiance}) = ${c.q_glass.toLocaleString()} W</strong>
     </p>
 
     <h3>4.4 Occupant Heat Gain</h3>
@@ -16467,7 +16481,7 @@ function renderBomTablePreview(items) {
     : isSolarPV
     ? `Electrical — Solar PV System (${_lastResults?.system_type || ''}, ${_lastResults?.location || ''} ${_lastResults?.psh_hr || ''}h PSH, Array ${_lastResults?.actual_array_kwp || ''}kWp, ${_lastResults?.panel_qty || ''}× ${_lastInputs?.panel_wp || ''}Wp panels, Inverter ${_lastResults?.inverter_kw || ''}kW, Annual Yield ${_lastResults?.annual_yield_kwh || ''}kWh/yr)`
     : isLPS
-    ? `Electrical — Lightning Protection System LPS (${_lastInputs?.lpl || 'LPL II'}, ${_lastInputs?.structure_type || 'Residential'}, ${_lastInputs?.building_length_m || ''}×${_lastInputs?.building_width_m || ''}×${_lastInputs?.building_height_m || ''}m, Ng=${_lastResults?.Ng_flash_km2yr || ''} fl/km²/yr, Nd=${_lastResults?.Nd || ''}/yr, ${_lastResults?.n_down_conductors || ''}× DC, ${_lastResults?.n_electrodes || ''}× electrodes ${_lastResults?.min_electrode_length_m || ''}m, ${_lastResults?.risk_check || ''})`
+    ? `Electrical — Lightning Protection System LPS (${_lastInputs?.lpl || 'LPL II'}, ${_lastInputs?.structure_type || 'Residential'}, ${_lastInputs?.building_length_m || ''}×${_lastInputs?.building_width_m || ''}×${_lastInputs?.building_height_m || ''}m, Ng=${_lastResults?.ng_fl_km2_yr || ''} fl/km²/yr, Nd=${_lastResults?.Nd_strikes_yr || ''}/yr, ${_lastResults?.n_down_conductors || ''}× DC, ${_lastResults?.n_electrodes || ''}× electrodes ${_lastResults?.min_electrode_length_m || ''}m, ${_lastResults?.risk_check || ''})`
     : isEG
     ? `Electrical — Earthing / Grounding System (${_lastInputs?.electrode_type || 'Rod'}, ${_lastInputs?.num_electrodes || 1}x electrode, rho=${_lastInputs?.soil_resistivity || ''}Ohm*m, R_single=${_lastResults?.r_single_ohm || ''}Ohm, R_parallel=${_lastResults?.r_parallel_ohm || ''}Ohm, ${_lastResults?.pass_label || ''} vs. ${_lastResults?.r_limit_ohm || ''}Ohm limit, GEC ${_lastResults?.gec_mm2 || ''}mm2)`
     : isUPS
