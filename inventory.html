@@ -1006,6 +1006,7 @@ function addTransaction(itemId, type, qtyChange, qtyAfter, note) {
     qty_after:   qtyAfter,
     note:        note || '',
     worker_name: WORKER_NAME,
+    hive_id:     HIVE_ID || null,
     created_at:  new Date().toISOString(),
   });
   saveTransactions(txns);
@@ -1093,13 +1094,14 @@ function openDetailModal(id) {
 function closeDetailModal() { document.getElementById('detail-modal').style.display = 'none'; }
 
 async function confirmDeleteItem(id) {
+  if (HIVE_ID && HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
   const item = loadInventory().find(i => i.id === id);
   if (!item) return;
   if (!confirm(`Remove "${item.part_name}" (${item.part_number}) from inventory? This cannot be undone.`)) return;
 
   if (HIVE_ID) {
-    const { error } = await db.from('inventory_items').delete().eq('id', id);
-    if (error) { alert('Could not remove part: ' + error.message); return; }
+    const { error } = await db.from('inventory_items').delete().eq('id', id).eq('hive_id', HIVE_ID);
+    if (error) { showToast('Could not remove part: ' + error.message); return; }
     _items = _items.filter(i => i.id !== id);
   } else {
     saveInventory(loadInventory().filter(i => i.id !== id));
@@ -1247,16 +1249,16 @@ async function validateHiveMembership() {
   if (!HIVE_ID || !WORKER_NAME) return true; // solo worker — no gate needed
   const { data: membership, error } = await db
     .from('hive_members')
-    .select('role')
+    .select('role, status')
     .eq('hive_id', HIVE_ID)
     .eq('worker_name', WORKER_NAME)
     .maybeSingle();
   if (error) {
     console.warn('Membership validation failed (DB error), using cached role:', error.message);
-    return true; // fail open
+    return true; // fail open — DB unreachable, trust cached role
   }
-  if (!membership) {
-    console.warn('Worker is no longer a hive member. Clearing hive state.');
+  if (!membership || membership.status === 'kicked') {
+    console.warn('Worker is no longer an active hive member. Clearing hive state.');
     ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name'].forEach(k => localStorage.removeItem(k));
     HIVE_ID = null;
     HIVE_ROLE = '';
@@ -1274,7 +1276,7 @@ async function validateHiveMembership() {
 // ────────────────────────────────────────────
 (async () => {
   await validateHiveMembership();
-  initData();
+  await initData();
 })();
 </script>
   <script src="nav-hub.js"></script>
