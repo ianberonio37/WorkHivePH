@@ -962,9 +962,39 @@ function critBadge(crit) {
 }
 
 // ─────────────────────────────────────
+// HIVE MEMBERSHIP RE-VALIDATION
+// ─────────────────────────────────────
+async function validateHiveMembership() {
+  if (!HIVE_ID || !WORKER_NAME) return; // solo worker — no gate needed
+  const { data: membership, error } = await db
+    .from('hive_members')
+    .select('role, status')
+    .eq('hive_id', HIVE_ID)
+    .eq('worker_name', WORKER_NAME)
+    .maybeSingle();
+  if (error) {
+    console.warn('PM Scheduler: membership check failed (DB error), using cached role:', error.message);
+    return; // fail open — DB unreachable, trust cached role
+  }
+  if (!membership || membership.status === 'kicked') {
+    console.warn('PM Scheduler: worker is no longer an active hive member. Clearing hive state.');
+    ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name'].forEach(k => localStorage.removeItem(k));
+    HIVE_ID = null;
+    HIVE_ROLE = '';
+    HIVE_NAME = '';
+    return;
+  }
+  if (membership.role !== HIVE_ROLE) {
+    localStorage.setItem('wh_hive_role', membership.role);
+  }
+  HIVE_ROLE = membership.role;
+}
+
+// ─────────────────────────────────────
 // INIT
 // ─────────────────────────────────────
 async function init() {
+  await validateHiveMembership();
   document.getElementById('nav-worker').textContent = WORKER_NAME;
 
   if (HIVE_ID && HIVE_NAME) {
@@ -1006,7 +1036,7 @@ async function loadData() {
     : db.from('pm_assets').select('*').eq('worker_name', WORKER_NAME)
   ).order('created_at', { ascending: true });
 
-  if (assetsRes.error) { console.error('pm_assets load:', assetsRes.error.message); return; }
+  if (assetsRes.error) { console.error('pm_assets load:', assetsRes.error.message); showToast('Could not load PM assets. Check your connection.'); return; }
   assets = assetsRes.data || [];
 
   if (!assets.length) { scopeItems = []; completions = []; return; }
@@ -1884,13 +1914,18 @@ async function saveNewTask() {
 // ─────────────────────────────────────
 async function confirmDeleteAsset() {
   if (!currentAsset) return;
+  if (HIVE_ID && HIVE_ROLE !== 'supervisor' && currentAsset.worker_name !== WORKER_NAME) {
+    showToast('Only supervisors can delete other members\' assets.'); return;
+  }
   if (!confirm(`Delete "${currentAsset.asset_name}" and all its PM data? This cannot be undone.`)) return;
   await deleteAsset();
 }
 
 async function deleteAsset() {
-  const { error } = await db.from('pm_assets').delete()
-    .eq('id', currentAsset.id).eq('worker_name', WORKER_NAME);
+  const deleteQuery = HIVE_ID
+    ? db.from('pm_assets').delete().eq('id', currentAsset.id).eq('hive_id', HIVE_ID)
+    : db.from('pm_assets').delete().eq('id', currentAsset.id).eq('worker_name', WORKER_NAME);
+  const { error } = await deleteQuery;
 
   if (error) { showToast('Delete failed. Please try again.'); return; }
 
