@@ -76,8 +76,9 @@ function calcHVACCoolingLoad(inputs: Record<string, number | string>) {
   const shgc   = GLASS_SHGC[glassType]    || 0.87;
   const qGlass = (0.57 * glassArea * deltaT) + (glassArea * shgc * 200);
 
-  const heatPP  = HEAT_PER_PERSON[roomFunction] || { sensible: 75, latent: 55 };
-  const qPeople = persons * (heatPP.sensible + heatPP.latent);
+  const heatPP          = HEAT_PER_PERSON[roomFunction] || { sensible: 75, latent: 55 };
+  const qPeopleSensible = persons * heatPP.sensible;  // sensible portion only — goes into sensible sub-total
+  const qPeopleLatent   = persons * heatPP.latent;    // latent portion — tracked separately
 
   const qEquipment = equipKW * 1000 * 0.85;
 
@@ -87,8 +88,10 @@ function calcHVACCoolingLoad(inputs: Record<string, number | string>) {
   const volume        = floorArea * ceilingHeight;
   const qInfiltration = 0.5 * volume * 0.35 * deltaT;
 
-  const qSensibleTotal = qWalls + qRoof + qGlass + qPeople + qEquipment + qLighting + qInfiltration;
-  const qLatent        = qPeople * 0.42;
+  // ASHRAE Cooling Load: sensible sub-total uses occupant SENSIBLE heat only.
+  // Latent heat (occupant moisture) is added separately — not as a % of combined people heat.
+  const qSensibleTotal = qWalls + qRoof + qGlass + qPeopleSensible + qEquipment + qLighting + qInfiltration;
+  const qLatent        = qPeopleLatent;
   const qTotal         = qSensibleTotal + qLatent;
   const qDesign        = qTotal * 1.10;
 
@@ -103,7 +106,8 @@ function calcHVACCoolingLoad(inputs: Record<string, number | string>) {
       q_walls:        Math.round(qWalls),
       q_roof:         Math.round(qRoof),
       q_glass:        Math.round(qGlass),
-      q_people:       Math.round(qPeople),
+      q_people:       Math.round(qPeopleSensible),
+      q_people_latent: Math.round(qPeopleLatent),
       q_equipment:    Math.round(qEquipment),
       q_lighting:     Math.round(qLighting),
       q_infiltration: Math.round(qInfiltration),

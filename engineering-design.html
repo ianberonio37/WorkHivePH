@@ -8620,9 +8620,10 @@ function renderReport(inputs, results, narrative) {
 
     <h3>4.4 Occupant Heat Gain</h3>
     <p style="font-size:0.82rem;color:#444;">
-      Formula: Q = N x (Sensible + Latent) W/person<br>
-      Given: N = ${inputs.persons} persons, Sensible = ${results.inputs_used.heat_per_person.sensible} W, Latent = ${results.inputs_used.heat_per_person.latent} W<br>
-      <strong>Q_people = ${inputs.persons} x (${results.inputs_used.heat_per_person.sensible} + ${results.inputs_used.heat_per_person.latent}) = ${c.q_people.toLocaleString()} W</strong>
+      Formula: Occupant heat is split — sensible portion enters the sensible sub-total; latent portion is tracked separately.<br>
+      Given: N = ${inputs.persons} persons, Sensible = ${results.inputs_used.heat_per_person.sensible} W/person, Latent = ${results.inputs_used.heat_per_person.latent} W/person<br>
+      <strong>Q_people,sensible = ${inputs.persons} × ${results.inputs_used.heat_per_person.sensible} = ${c.q_people.toLocaleString()} W</strong><br>
+      <strong>Q_people,latent = ${inputs.persons} × ${results.inputs_used.heat_per_person.latent} = ${c.q_people_latent.toLocaleString()} W</strong>
     </p>
 
     <h3>4.5 Equipment Heat Gain</h3>
@@ -8652,12 +8653,12 @@ function renderReport(inputs, results, narrative) {
       <tr><td>4.1 Walls</td><td class="num">${c.q_walls.toLocaleString()}</td></tr>
       <tr><td>4.2 Roof</td><td class="num">${c.q_roof.toLocaleString()}</td></tr>
       <tr><td>4.3 Glass / Windows</td><td class="num">${c.q_glass.toLocaleString()}</td></tr>
-      <tr><td>4.4 Occupants</td><td class="num">${c.q_people.toLocaleString()}</td></tr>
+      <tr><td>4.4 Occupants (sensible)</td><td class="num">${c.q_people.toLocaleString()}</td></tr>
       <tr><td>4.5 Equipment</td><td class="num">${c.q_equipment.toLocaleString()}</td></tr>
       <tr><td>4.6 Lighting</td><td class="num">${c.q_lighting.toLocaleString()}</td></tr>
       <tr><td>4.7 Infiltration</td><td class="num">${c.q_infiltration.toLocaleString()}</td></tr>
       <tr class="total-row"><td>Sensible Sub-total</td><td class="num">${results.q_sensible_total.toLocaleString()}</td></tr>
-      <tr><td>Latent Heat (42% of occupant heat)</td><td class="num">${results.q_latent.toLocaleString()}</td></tr>
+      <tr><td>Latent Heat (occupants: ${results.inputs_used.heat_per_person.latent} W/person × ${inputs.persons} persons)</td><td class="num">${results.q_latent.toLocaleString()}</td></tr>
       <tr class="total-row"><td>Total Heat Gain</td><td class="num">${results.q_total.toLocaleString()}</td></tr>
       <tr class="total-row"><td>Design Heat Gain (x1.10 safety margin)</td><td class="num">${results.q_design.toLocaleString()}</td></tr>
     </table>
