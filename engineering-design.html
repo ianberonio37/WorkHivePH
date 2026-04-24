@@ -16259,8 +16259,8 @@ function generateDrawing() {
   document.getElementById('drawing-loading').classList.remove('hidden');
   setTimeout(() => {
     if (_calcType === 'HVAC Cooling Load') {
-      const code = buildHVACMermaidCode(_lastInputs, _lastResults);
-      renderHVACDiagram(code);
+      const svg = buildHVACSvg(_lastInputs, _lastResults);
+      renderHVACDiagramSVG(svg, _lastInputs, _lastResults);
     } else if (_calcType === 'Load Estimation') {
       const svg = buildElectricalSLDSvg(_lastInputs, _lastResults);
       renderElectricalSLD(svg, _lastInputs, _lastResults);
@@ -16285,8 +16285,8 @@ function regenerateDrawing() {
   document.getElementById('drawing-loading').classList.remove('hidden');
   setTimeout(() => {
     if (_calcType === 'HVAC Cooling Load') {
-      const code = buildHVACMermaidCode(_lastInputs, _lastResults);
-      renderHVACDiagram(code);
+      const svg = buildHVACSvg(_lastInputs, _lastResults);
+      renderHVACDiagramSVG(svg, _lastInputs, _lastResults);
     } else if (_calcType === 'Load Estimation') {
       const svg = buildElectricalSLDSvg(_lastInputs, _lastResults);
       renderElectricalSLD(svg, _lastInputs, _lastResults);
@@ -17894,6 +17894,357 @@ function regenerateHVACDrawing() {
   }, 250);
 }
 
+// ─── HVAC System Schematic — SVG builder (ASHRAE 62.1 / PSME) ───────────────
+function buildHVACSvg(inputs, results) {
+  const r = results || {}, c = r.components || {};
+  const W = 1050, H = 467;
+
+  // ── Values ───────────────────────────────────────────────────────────────────
+  const proj    = escHtml(String(inputs.project_name        || 'Untitled'));
+  const area    = Number(inputs.floor_area                  || 50);
+  const ht      = Number(inputs.ceiling_height              || 3);
+  const persons = Number(inputs.persons                     || 5);
+  const fn      = escHtml(String(inputs.room_function       || 'Office'));
+  const indoorT = Number(inputs.indoor_temp                 || 24);
+  const outdoorT= Number(inputs.outdoor_temp                || 35);
+  const orient  = escHtml(String(inputs.window_orientation  || 'Mixed'));
+  const insul   = escHtml(String(inputs.insulation          || 'Standard'));
+  const glassT  = escHtml(String(inputs.glass_type          || 'Standard'));
+  const iu      = r.inputs_used || {};
+  const recKW   = Number(r.recommended_kW                   || 3.5);
+  const recTR   = Number(r.recommended_TR                   || 1.0);
+  const qDesign = Number(r.q_design                         || 3500);
+  const qSens   = Number(r.q_sensible_total                 || 2800);
+  const qLat    = Number(r.q_latent                         || 0);
+  const kW      = Number(r.kW                               || 0);
+  const TR      = Number(r.TR                               || 0);
+  const fmt     = v => Number(v).toLocaleString();
+
+  // Derived — airflows and duct sizing
+  const SA_TEMP      = 13;
+  const dT_coil      = Math.max(indoorT - SA_TEMP, 6);
+  const Q_sa_m3s     = qDesign / (1.2 * 1006 * dT_coil);
+  const Q_sa_m3h     = Math.round(Q_sa_m3s * 3600);
+  const Q_sa_cfm     = Math.round(Q_sa_m3h / 0.5886);
+  const Q_oa_lps     = persons * 2.5 + area * 0.3;          // ASHRAE 62.1 office defaults
+  const Q_oa_m3h     = Math.round(Q_oa_lps * 3.6);
+  const Q_ra_m3h     = Math.max(Q_sa_m3h - Q_oa_m3h, 0);
+  const oaPct        = Math.round(Q_oa_m3h / Math.max(Q_sa_m3h, 1) * 100);
+  const duct_mm      = Math.max(Math.round(Math.sqrt(Q_sa_m3s / 2.5) * 1000 / 50) * 50, 100);
+  const ductStr      = `${duct_mm}\u00d7${duct_mm}\u00a0mm`;
+  const eer          = 3.0;
+  const elecKW       = Math.round(recKW / eer * 10) / 10;
+
+  // ── Colors ───────────────────────────────────────────────────────────────────
+  const CC='#1a2e4a', SC='#5a6a7a', AO='#F7A21B';
+  const BL='#2980b9', BLL='#d6eaf8';
+  const GN='#27ae60', GNL='#d5f5e3';
+  const OG='#d35400', OGL='#fdebd0';
+  const RD='#c0392b';
+  const LG='#ecf0f1';
+
+  // ── Geometry ─────────────────────────────────────────────────────────────────
+  const OA_Y1=160, OA_Y2=212, OA_MID=(OA_Y1+OA_Y2)/2;    // OA duct band
+  const AHU_X=248, AHU_Y=115, AHU_W=170, AHU_H=230;       // AHU box
+  const AHU_R = AHU_X + AHU_W;                              // 418
+  const SA_DY1=AHU_Y+38, SA_DY2=AHU_Y+60;                  // supply duct horizontal
+  const PL_X=AHU_R+60, PL_W=18;                             // supply plenum x=478
+  const PL_Y1=AHU_Y+12, PL_Y2=AHU_Y+AHU_H-12;             // 127..333
+  const SP_X=PL_X+PL_W+26, SP_Y=AHU_Y, SP_W=258, SP_H=AHU_H;  // space: 522..780
+  const N_DIFF=4;
+  const DIFF_YS=Array.from({length:N_DIFF},(_,i)=>
+    PL_Y1+16 + i*Math.round((PL_Y2-PL_Y1-32)/(N_DIFF-1)));
+  const RA_Y1=AHU_Y+AHU_H+14, RA_Y2=RA_Y1+18, RA_MID=(RA_Y1+RA_Y2)/2; // 359,377
+  const ODU_X=18, ODU_Y=308, ODU_W=162, ODU_H=88;
+  const ES_X=SP_X+SP_W+12, ES_Y=48, ES_W=W-ES_X-13;        // schedule panel
+
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+  const tx =(x,y,t,o='')=>`<text x="${x}" y="${y}" ${o}>${t}</text>`;
+  const ln =(x1,y1,x2,y2,s='')=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${s}/>`;
+  const rc =(x,y,w,h,s='')=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" ${s}/>`;
+  const arR=(x,y,col)=>`<polygon points="${x},${y-5} ${x+11},${y} ${x},${y+5}" fill="${col}"/>`;
+  const arL=(x,y,col)=>`<polygon points="${x},${y-5} ${x-11},${y} ${x},${y+5}" fill="${col}"/>`;
+  const arD=(x,y,col)=>`<polygon points="${x-5},${y} ${x},${y+12} ${x+5},${y}" fill="${col}"/>`;
+  const arU=(x,y,col)=>`<polygon points="${x-5},${y} ${x},${y-12} ${x+5},${y}" fill="${col}"/>`;
+  const badge=(cx,cy,t)=>
+    `<rect x="${cx-22}" y="${cy-9}" width="44" height="16" rx="2" fill="${AO}" opacity="0.92"/>` +
+    `<text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="7" fill="#111" font-family="Arial" font-weight="700">${t}</text>`;
+
+  let s='';
+
+  // ── Background + margin ───────────────────────────────────────────────────────
+  s+=rc(0,0,W,H,`fill="#f8fafc"`);
+  s+=rc(11,11,W-22,H-22,`fill="none" stroke="${CC}" stroke-width="0.7" stroke-dasharray="4,3" opacity="0.4"`);
+
+  // ── Title banner ─────────────────────────────────────────────────────────────
+  s+=rc(11,11,W-22,26,`fill="${CC}" rx="0"`);
+  s+=tx(W/2,28,'HVAC SYSTEM SCHEMATIC \u2014 COOLING LOAD (ASHRAE\u00a062.1\u00a0/\u00a0PSME\u00a0Code)',
+    `text-anchor="middle" font-size="10.5" font-weight="700" fill="white" font-family="Arial"`);
+
+  // ── OA louver ────────────────────────────────────────────────────────────────
+  const LX=15,LY=OA_Y1-8,LW=38,LH=(OA_Y2-OA_Y1)+16;
+  s+=rc(LX,LY,LW,LH,`fill="${OGL}" stroke="${OG}" stroke-width="1.5" rx="2"`);
+  for(let i=0;i<5;i++){const sy=LY+5+i*(LH-10)/4; s+=ln(LX+4,sy,LX+LW-4,sy,`stroke="${OG}" stroke-width="1.5"`);}
+  s+=tx(LX+LW/2,LY-9,'OA INTAKE',`text-anchor="middle" font-size="6.5" font-weight="700" fill="${OG}" font-family="Arial"`);
+  s+=tx(LX+LW/2,LY-18,`${outdoorT}\u00b0C DB`,`text-anchor="middle" font-size="6.5" fill="${SC}" font-family="Arial"`);
+
+  // ── OA duct (louver → AHU) ───────────────────────────────────────────────────
+  s+=rc(LX+LW,OA_Y1,AHU_X-(LX+LW),OA_Y2-OA_Y1,`fill="${OGL}" stroke="${OG}" stroke-width="1.2"`);
+  const OA_MX=(LX+LW+AHU_X)/2;
+  s+=tx(OA_MX,OA_MID-4,`OA\u00a0=\u00a0${Q_oa_m3h}\u00a0m\u00b3/h`,`text-anchor="middle" font-size="7" font-weight="700" fill="${OG}" font-family="Arial"`);
+  s+=tx(OA_MX,OA_MID+9,`ASHRAE\u00a062.1\u00a0|\u00a0${oaPct}%\u00a0of\u00a0SA`,`text-anchor="middle" font-size="6.5" fill="${SC}" font-family="Arial"`);
+  s+=arR(AHU_X-6,OA_MID,OG);
+
+  // Filter F-01
+  const FX=78,FW=28;
+  s+=rc(FX,OA_Y1-2,FW,OA_Y2-OA_Y1+4,`fill="white" stroke="${OG}" stroke-width="1.5"`);
+  s+=ln(FX+4,OA_Y1+2,FX+FW-4,OA_Y2-2,`stroke="${OG}" stroke-width="1"`);
+  s+=ln(FX+4,OA_Y2-2,FX+FW-4,OA_Y1+2,`stroke="${OG}" stroke-width="1"`);
+  s+=badge(FX+FW/2,OA_Y2+13,'F-01');
+  s+=tx(FX+FW/2,OA_Y2+25,'FILTER',`text-anchor="middle" font-size="6" fill="${SC}" font-family="Arial"`);
+
+  // OA damper OAD-01
+  const DX=148,DW=28;
+  s+=rc(DX,OA_Y1-2,DW,OA_Y2-OA_Y1+4,`fill="white" stroke="${OG}" stroke-width="1.5"`);
+  s+=ln(DX+4,OA_Y1+4,DX+DW-4,OA_Y2-4,`stroke="${OG}" stroke-width="1.5"`);
+  s+=ln(DX+4,OA_MID,DX+DW-4,OA_MID,`stroke="${OG}" stroke-width="1.5"`);
+  s+=badge(DX+DW/2,OA_Y2+13,'OAD-01');
+  s+=tx(DX+DW/2,OA_Y2+25,'DAMPER',`text-anchor="middle" font-size="6" fill="${SC}" font-family="Arial"`);
+
+  // ── AHU box ──────────────────────────────────────────────────────────────────
+  s+=rc(AHU_X,AHU_Y,AHU_W,AHU_H,`fill="white" stroke="${CC}" stroke-width="2" rx="3"`);
+  s+=rc(AHU_X,AHU_Y,AHU_W,22,`fill="${CC}" rx="3"`);
+  s+=tx(AHU_X+AHU_W/2,AHU_Y+14,'AHU-01 / INDOOR UNIT',
+    `text-anchor="middle" font-size="8" font-weight="700" fill="white" font-family="Arial"`);
+  // OA inlet on left wall
+  s+=ln(AHU_X,OA_MID,AHU_X+14,OA_MID,`stroke="${OG}" stroke-width="4"`);
+  // RA inlet on left wall (bottom)
+  s+=ln(AHU_X,RA_MID,AHU_X+14,RA_MID,`stroke="${GN}" stroke-width="4"`);
+  // Mixing plenum divider
+  const MIX_Y=AHU_Y+68;
+  s+=ln(AHU_X+2,MIX_Y,AHU_X+AHU_W-2,MIX_Y,`stroke="${SC}" stroke-width="0.8" stroke-dasharray="4,2"`);
+  s+=tx(AHU_X+AHU_W/2,MIX_Y-6,'MIXING PLENUM',
+    `text-anchor="middle" font-size="6.5" fill="${SC}" font-family="Arial"`);
+  s+=tx(AHU_X+AHU_W/2,MIX_Y+9,`OA\u00a0${oaPct}%  \u2502  RA\u00a0${100-oaPct}%`,
+    `text-anchor="middle" font-size="6.5" fill="${SC}" font-family="Arial"`);
+  // Cooling coil wavy
+  const CC_Y=MIX_Y+18;
+  s+=tx(AHU_X+AHU_W/2,CC_Y+5,'COOLING COIL (CC-01)',
+    `text-anchor="middle" font-size="7" font-weight="700" fill="${BL}" font-family="Arial"`);
+  const SEGS=7, SEG_W=(AHU_W-24)/SEGS;
+  let coilPath=`M ${AHU_X+12} ${CC_Y+18}`;
+  for(let i=0;i<SEGS;i++){
+    coilPath+=` Q ${AHU_X+12+(i+0.5)*SEG_W} ${CC_Y+18+(i%2===0?-8:8)} ${AHU_X+12+(i+1)*SEG_W} ${CC_Y+18}`;
+  }
+  s+=`<path d="${coilPath}" fill="none" stroke="${BL}" stroke-width="2.5"/>`;
+  s+=tx(AHU_X+AHU_W/2,CC_Y+36,`SA Temp: ${SA_TEMP}\u00b0C  |  \u0394T\u00a0=\u00a0${Math.round(indoorT-SA_TEMP)}\u00b0C`,
+    `text-anchor="middle" font-size="6.5" fill="${SC}" font-family="Arial"`);
+  // Supply fan
+  const FC_X=AHU_X+AHU_W/2, FC_Y=MIX_Y+105, FR=23;
+  s+=`<circle cx="${FC_X}" cy="${FC_Y}" r="${FR}" fill="${BLL}" stroke="${CC}" stroke-width="1.5"/>`;
+  for(let i=0;i<3;i++){
+    const a=i*120*Math.PI/180;
+    s+=`<circle cx="${Math.round(FC_X+FR*0.6*Math.cos(a))}" cy="${Math.round(FC_Y+FR*0.6*Math.sin(a))}" r="7" fill="${BL}" opacity="0.7"/>`;
+  }
+  s+=`<circle cx="${FC_X}" cy="${FC_Y}" r="4" fill="${CC}"/>`;
+  s+=tx(FC_X,FC_Y+FR+12,'SF-01  SUPPLY FAN',
+    `text-anchor="middle" font-size="6.5" font-weight="700" fill="${CC}" font-family="Arial"`);
+  s+=tx(FC_X,FC_Y+FR+22,`${Q_sa_m3h}\u00a0m\u00b3/h\u00a0(${Q_sa_cfm}\u00a0CFM)`,
+    `text-anchor="middle" font-size="6.5" fill="${BL}" font-family="Arial"`);
+  // Capacity badge
+  s+=rc(AHU_X+8,AHU_Y+AHU_H-24,AHU_W-16,18,`fill="${AO}" fill-opacity="0.18" stroke="${AO}" stroke-width="1" rx="2"`);
+  s+=tx(AHU_X+AHU_W/2,AHU_Y+AHU_H-12,`${recKW}\u00a0kW\u00a0/\u00a0${recTR}\u00a0TR  |  EER\u00a0${eer}`,
+    `text-anchor="middle" font-size="7.5" font-weight="700" fill="${CC}" font-family="Arial"`);
+
+  // ── Supply duct horizontal (AHU right → plenum) ───────────────────────────────
+  s+=rc(AHU_R,SA_DY1,PL_X-AHU_R,SA_DY2-SA_DY1,`fill="${BLL}" stroke="${BL}" stroke-width="1.5"`);
+  s+=arR(AHU_R+8,(SA_DY1+SA_DY2)/2,BL);
+  s+=tx((AHU_R+PL_X)/2,(SA_DY1+SA_DY2)/2+5,'SA',`text-anchor="middle" font-size="6" font-weight="700" fill="${BL}" font-family="Arial"`);
+
+  // ── Supply plenum (vertical) ─────────────────────────────────────────────────
+  s+=rc(PL_X,PL_Y1,PL_W,PL_Y2-PL_Y1,`fill="${BLL}" stroke="${BL}" stroke-width="1.5"`);
+  s+=arD(PL_X+PL_W/2,PL_Y1+18,BL);
+  s+=tx(PL_X+PL_W+3,PL_Y1+10,'SUPPLY',`font-size="6.5" font-weight="700" fill="${BL}" font-family="Arial"`);
+  s+=tx(PL_X+PL_W+3,PL_Y1+20,'PLENUM',`font-size="6.5" fill="${BL}" font-family="Arial"`);
+  s+=tx(PL_X+PL_W+3,PL_Y1+30,ductStr,`font-size="6" fill="${SC}" font-family="Arial"`);
+  s+=tx(PL_X+PL_W+3,PL_Y1+40,'@\u00a02.5\u00a0m/s',`font-size="6" fill="${SC}" font-family="Arial"`);
+
+  // ── Conditioned space ────────────────────────────────────────────────────────
+  s+=rc(SP_X,SP_Y,SP_W,SP_H,`fill="${BLL}" fill-opacity="0.22" stroke="${CC}" stroke-width="1.5" rx="3"`);
+  s+=rc(SP_X,SP_Y,SP_W,20,`fill="${CC}" fill-opacity="0.85" rx="3"`);
+  s+=tx(SP_X+SP_W/2,SP_Y+13,'CONDITIONED SPACE',
+    `text-anchor="middle" font-size="8" font-weight="700" fill="white" font-family="Arial"`);
+  s+=tx(SP_X+SP_W/2,SP_Y+32,proj,`text-anchor="middle" font-size="8" font-weight="700" fill="${CC}" font-family="Arial"`);
+  s+=tx(SP_X+SP_W/2,SP_Y+45,`${area}\u00a0m\u00b2  |  H=${ht}\u00a0m  |  ${persons}\u00a0persons`,`text-anchor="middle" font-size="7" fill="${SC}" font-family="Arial"`);
+  s+=tx(SP_X+SP_W/2,SP_Y+57,`Function: ${fn}  |  Design: ${indoorT}\u00b0C`,`text-anchor="middle" font-size="7" fill="${SC}" font-family="Arial"`);
+  s+=tx(SP_X+SP_W/2,SP_Y+69,`Windows: ${orient}  |  Insulation: ${insul}`,`text-anchor="middle" font-size="7" fill="${SC}" font-family="Arial"`);
+  // Heat gain rows
+  const gains=[
+    [`Walls:\u00a0${fmt(c.q_walls||0)}\u00a0W`,           `Glass:\u00a0${fmt(c.q_glass||0)}\u00a0W`],
+    [`Roof:\u00a0${fmt(c.q_roof||0)}\u00a0W`,             `People:\u00a0${fmt((c.q_people||0)+(c.q_people_latent||0))}\u00a0W`],
+    [`Equipment:\u00a0${fmt(c.q_equipment||0)}\u00a0W`,   `Lighting:\u00a0${fmt(c.q_lighting||0)}\u00a0W`],
+    [`Infiltration:\u00a0${fmt(c.q_infiltration||0)}\u00a0W`, ''],
+  ];
+  gains.forEach(([l,rv],i)=>{
+    const gy=SP_Y+88+i*17;
+    s+=tx(SP_X+8,gy,l,`font-size="6.5" fill="${SC}" font-family="Arial"`);
+    if(rv) s+=tx(SP_X+SP_W-8,gy,rv,`text-anchor="end" font-size="6.5" fill="${SC}" font-family="Arial"`);
+  });
+  // Load summary box
+  const LB_Y=SP_Y+162;
+  s+=rc(SP_X+8,LB_Y,SP_W-16,50,`fill="white" fill-opacity="0.7" stroke="${AO}" stroke-width="1" rx="3"`);
+  s+=tx(SP_X+SP_W/2,LB_Y+12,'TOTAL COOLING LOAD',`text-anchor="middle" font-size="7" font-weight="700" fill="${CC}" font-family="Arial"`);
+  s+=tx(SP_X+SP_W/2,LB_Y+25,`Sensible: ${fmt(qSens)}\u00a0W  \u2502  Latent: ${fmt(qLat)}\u00a0W`,`text-anchor="middle" font-size="6.5" fill="${SC}" font-family="Arial"`);
+  s+=tx(SP_X+SP_W/2,LB_Y+38,`Design\u00a0(+10%): ${fmt(qDesign)}\u00a0W\u00a0=\u00a0${kW}\u00a0kW\u00a0/\u00a0${TR}\u00a0TR`,`text-anchor="middle" font-size="7" font-weight="700" fill="${BL}" font-family="Arial"`);
+
+  // ── Diffusers (left wall of space) + return grilles (right wall) ──────────────
+  DIFF_YS.forEach((dy,i)=>{
+    // Branch stub from plenum
+    s+=rc(SP_X-26,dy-5,26,10,`fill="${BLL}" stroke="${BL}" stroke-width="1"`);
+    // Diffuser triangle pointing into space
+    s+=`<polygon points="${SP_X},${dy-7} ${SP_X+13},${dy} ${SP_X},${dy+7}" fill="${BL}" stroke="${BL}" stroke-width="0.8"/>`;
+    s+=tx(SP_X+17,dy+4,`${Math.round(Q_sa_m3h/N_DIFF)}\u00a0m\u00b3/h`,`font-size="6" fill="${BL}" font-family="Arial"`);
+    if(i===0) s+=tx(SP_X-26,dy-11,'DIFFUSERS',`font-size="5.5" font-weight="700" fill="${BL}" font-family="Arial"`);
+    // Return grille on right wall
+    s+=rc(SP_X+SP_W-1,dy-7,10,14,`fill="${GNL}" stroke="${GN}" stroke-width="1"`);
+    for(let g=0;g<3;g++) s+=ln(SP_X+SP_W+1,dy-5+g*4,SP_X+SP_W+8,dy-5+g*4,`stroke="${GN}" stroke-width="0.8"`);
+    if(i===0) s+=tx(SP_X+SP_W+2,dy-12,'RETURN',`font-size="5.5" font-weight="700" fill="${GN}" font-family="Arial"`);
+  });
+
+  // ── Return air duct (horizontal, below AHU and space) ────────────────────────
+  s+=rc(AHU_R,RA_Y1,SP_X+SP_W-AHU_R,RA_Y2-RA_Y1,`fill="${GNL}" stroke="${GN}" stroke-width="1.5"`);
+  s+=arL(SP_X+SP_W-10,RA_MID,GN);
+  s+=tx((AHU_R+SP_X+SP_W)/2,RA_MID+4,`RA\u00a0=\u00a0${Q_ra_m3h}\u00a0m\u00b3/h`,
+    `text-anchor="middle" font-size="7" font-weight="700" fill="${GN}" font-family="Arial"`);
+  // Vertical: space right wall → return duct
+  s+=ln(SP_X+SP_W,DIFF_YS[N_DIFF-1]+8,SP_X+SP_W,RA_Y1,`stroke="${GN}" stroke-width="3"`);
+  // Vertical: AHU right → return duct → back to AHU left via RA inlet
+  s+=ln(AHU_R,RA_MID,AHU_R,RA_Y1,`stroke="${GN}" stroke-width="3"`);
+
+  // ── Exhaust ───────────────────────────────────────────────────────────────────
+  const EX_X=AHU_X+Math.round(AHU_W*0.72);
+  s+=rc(EX_X-10,50,20,AHU_Y-50,`fill="${OGL}" stroke="${OG}" stroke-width="1.2"`);
+  s+=arU(EX_X,58,OG);
+  s+=tx(EX_X+14,62,'EXHAUST',`font-size="6.5" font-weight="700" fill="${OG}" font-family="Arial"`);
+  s+=tx(EX_X+14,72,'(Relief)',`font-size="6" fill="${SC}" font-family="Arial"`);
+
+  // ── Condensing unit (ODU) ─────────────────────────────────────────────────────
+  s+=rc(ODU_X,ODU_Y,ODU_W,ODU_H,`fill="${LG}" stroke="${CC}" stroke-width="1.5" rx="3"`);
+  s+=rc(ODU_X,ODU_Y,ODU_W,18,`fill="${SC}" rx="3"`);
+  s+=tx(ODU_X+ODU_W/2,ODU_Y+12,'CDU-01  OUTDOOR (CONDENSING) UNIT',
+    `text-anchor="middle" font-size="7" font-weight="700" fill="white" font-family="Arial"`);
+  s+=tx(ODU_X+ODU_W/2,ODU_Y+30,`${recKW}\u00a0kW\u00a0/\u00a0${recTR}\u00a0TR`,
+    `text-anchor="middle" font-size="7.5" font-weight="700" fill="${CC}" font-family="Arial"`);
+  s+=tx(ODU_X+ODU_W/2,ODU_Y+43,`Refrigerant: R-410A  |  EER\u00a0${eer}`,
+    `text-anchor="middle" font-size="7" fill="${SC}" font-family="Arial"`);
+  s+=tx(ODU_X+ODU_W/2,ODU_Y+56,`Electrical Input: ${elecKW}\u00a0kW`,
+    `text-anchor="middle" font-size="7" fill="${SC}" font-family="Arial"`);
+  s+=tx(ODU_X+ODU_W/2,ODU_Y+70,'PSME Code Compliant',
+    `text-anchor="middle" font-size="6.5" fill="${SC}" font-family="Arial" font-style="italic"`);
+  s+=tx(ODU_X+ODU_W/2,ODU_Y+82,'TAB: AABC / NEBB certified contractor',
+    `text-anchor="middle" font-size="6" fill="${SC}" font-family="Arial"`);
+  // Refrigerant lines (vertical, from ODU up to AHU bottom)
+  const RF_Y1=ODU_Y, RF_Y2=AHU_Y+AHU_H;
+  s+=ln(ODU_X+40,RF_Y1,ODU_X+40,RF_Y2,`stroke="${RD}" stroke-width="3" stroke-dasharray="7,3"`);
+  s+=tx(ODU_X+44,(RF_Y1+RF_Y2)/2-5,'Suction',`font-size="5.5" font-weight="700" fill="${RD}" font-family="Arial"`);
+  s+=ln(ODU_X+62,RF_Y1,ODU_X+62,RF_Y2,`stroke="${RD}" stroke-width="1.5"`);
+  s+=tx(ODU_X+66,(RF_Y1+RF_Y2)/2+5,'Liquid',`font-size="5.5" fill="${RD}" font-family="Arial"`);
+
+  // ── Equipment schedule / ASHRAE parameters panel ──────────────────────────────
+  const SCHED=[
+    ['Equipment Tags',         'AHU-01 + CDU-01'],
+    ['System Type',            'Split DX System'],
+    ['Cooling Capacity',       `${recKW}\u00a0kW\u00a0/\u00a0${recTR}\u00a0TR`],
+    ['Required Load',          `${kW}\u00a0kW\u00a0/\u00a0${TR}\u00a0TR`],
+    ['Supply Airflow (SF-01)', `${Q_sa_m3h}\u00a0m\u00b3/h\u00a0(${Q_sa_cfm}\u00a0CFM)`],
+    ['Outdoor Air OA',         `${Q_oa_m3h}\u00a0m\u00b3/h\u00a0(${oaPct}%\u00a0of\u00a0SA)`],
+    ['OA Rate (ASHRAE 62.1)', `2.5\u00a0L/s/p\u00a0+\u00a00.3\u00a0L/s/m\u00b2`],
+    ['Return Airflow',         `${Q_ra_m3h}\u00a0m\u00b3/h`],
+    ['Supply Air Temp',        `${SA_TEMP}\u00b0C (coil leaving)`],
+    ['Supply Duct Size',       `${ductStr}\u00a0@\u00a02.5\u00a0m/s`],
+    ['Refrigerant',            'R-410A (GWP\u00a02088)'],
+    ['EER / COP',              `${eer}\u00a0(PSME\u00a0min\u00a03.0)`],
+    ['Electrical Input',       `${elecKW}\u00a0kW`],
+    ['Insulation',             insul],
+    ['Glass Type / SHGC',      `${glassT}\u00a0(${iu.shgc||'\u2014'})`],
+    ['U-Wall / U-Roof',        `${iu.u_wall||'\u2014'}\u00a0/\u00a0${iu.u_roof||'\u2014'}\u00a0W/m\u00b2K`],
+    ['Solar Irradiance',       `${iu.solar_irradiance||'\u2014'}\u00a0W/m\u00b2\u00a0(${orient})`],
+    ['Design \u0394T',          `${outdoorT}\u00b0C\u00a0\u2192\u00a0${indoorT}\u00b0C`],
+    ['Lighting Density',       `${iu.lighting_wpm2||'\u2014'}\u00a0W/m\u00b2`],
+    ['TAB Requirement',        'AABC\u00a0/\u00a0NEBB\u00a0certified'],
+  ];
+  const RH=13, SH=18+SCHED.length*RH+4;
+  s+=rc(ES_X,ES_Y,ES_W,SH,`fill="white" stroke="${CC}" stroke-width="1" rx="3"`);
+  s+=rc(ES_X,ES_Y,ES_W,18,`fill="${CC}" rx="3"`);
+  s+=tx(ES_X+ES_W/2,ES_Y+12,'EQUIPMENT SCHEDULE / ASHRAE PARAMETERS',
+    `text-anchor="middle" font-size="7.5" font-weight="700" fill="white" font-family="Arial"`);
+  SCHED.forEach(([l,v],i)=>{
+    const ry=ES_Y+18+i*RH;
+    if(i%2===0) s+=rc(ES_X+1,ry,ES_W-2,RH,`fill="${LG}"`);
+    s+=tx(ES_X+4,      ry+RH-3,l,`font-size="6.5" fill="${SC}" font-family="Arial"`);
+    s+=tx(ES_X+ES_W-4,ry+RH-3,v,`text-anchor="end" font-size="6.5" font-weight="600" fill="${CC}" font-family="Arial"`);
+  });
+
+  // ── Standards note ────────────────────────────────────────────────────────────
+  s+=tx(15,H-6,
+    `Standard: ASHRAE\u00a062.1\u00a0/\u00a0ASHRAE\u00a090.1\u00a0/\u00a0PSME\u00a0Code  |  U-Wall=${iu.u_wall||'\u2014'}\u00a0W/m\u00b2K, SHGC=${iu.shgc||'\u2014'}, Solar=${iu.solar_irradiance||'\u2014'}\u00a0W/m\u00b2  |  FOR DESIGN REFERENCE ONLY \u2014 NOT FOR CONSTRUCTION`,
+    `font-size="6.5" fill="${SC}" font-family="Arial"`);
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="100%">${s}</svg>`;
+}
+
+function buildHVACTitleBlockHtml(inputs, results) {
+  const r      = results || {};
+  const recKW  = Number(r.recommended_kW || 0);
+  const recTR  = Number(r.recommended_TR || 0);
+  const proj   = escHtml(String(inputs.project_name  || 'Untitled Project'));
+  const fn     = escHtml(String(inputs.room_function || 'Office'));
+  const area   = Number(inputs.floor_area            || 0);
+  const now    = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+  const ratingLine = `${fn} | ${area}\u00a0m\u00b2 | ${recKW}\u00a0kW\u00a0/\u00a0${recTR}\u00a0TR | ASHRAE\u00a062.1\u00a0/\u00a0PSME\u00a0Code`;
+
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
+  const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>` +
+    `<div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+  const TD  = (s='') => `<td style="padding:6px 8px;vertical-align:top;${s}">`;
+  const TDB = (s='') => `<td style="padding:6px 8px;vertical-align:bottom;${s}">`;
+  const BR  = 'border-right:1px solid #c8d0da;';
+
+  return `<table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}width:42%;`)}${LBL('Project / System Name')}${EF(proj)}</td>
+    ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('HVAC-COOL-001')}</td>
+    ${TD('width:35%;')}${LBL('System Capacity / Rating')}<div style="font-size:10px;font-weight:700;color:#1a2e4a;">${ratingLine}</div></td>
+  </tr>
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('HVAC System Schematic \u2014 Cooling Load')}</td>
+    ${TD(`${BR}`)}${LBL('Standard / Code')}<div style="font-size:10px;color:#1a2e4a;">ASHRAE 62.1 / ASHRAE 90.1 / PSME Code</div></td>
+    ${TD('')}${LBL('Date Prepared')}${EF(now)}</td>
+  </tr>
+  <tr>
+    ${TDB(`${BR}width:22%;`)}${LBL('Prepared By')}${SIG()}</td>
+    ${TDB(`${BR}width:22%;`)}${LBL('Checked By')}${SIG()}</td>
+    ${TDB(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
+    ${TD(`${BR}width:17%;`)}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
+    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}
+      <div style="font-size:8px;color:#888;margin-top:5px;">Sheet 1 of 1</div></td>
+  </tr>
+</table>`;
+}
+
+function renderHVACDiagramSVG(svgString, inputs, results) {
+  const panel      = document.getElementById('drawing-panel');
+  const titleBlock = buildHVACTitleBlockHtml(inputs, results);
+  panel.style.background = '#fff';
+  panel.style.padding    = '0';
+  panel.innerHTML = `<div style="width:100%;display:block;border:2px solid #1a2e4a;border-bottom:none;box-sizing:border-box;">${svgString}</div>${titleBlock}`;
+  const titleEl = document.getElementById('drawing-output-title');
+  if (titleEl) titleEl.textContent = 'HVAC System Schematic \u2014 Cooling Load';
+  document.getElementById('drawing-loading').classList.add('hidden');
+  document.getElementById('drawing-output').classList.remove('hidden');
+}
+
 function buildHVACMermaidCode(inputs, results) {
   const c   = results.components;
   const fmt = v => Number(v).toLocaleString();
@@ -17973,6 +18324,7 @@ function downloadDrawingPdf() {
                     : _calcType === 'Lightning Protection System (LPS)' ? 'LPS_Zone'
                     : _calcType === 'Pump Sizing (TDH)'                 ? 'PID_Schematic'
                     : _calcType === 'Fire Sprinkler Hydraulic'          ? 'Fire_Sprinkler_Schematic'
+                    : _calcType === 'HVAC Cooling Load'                 ? 'HVAC_Schematic'
                     : 'Schematic';
   const fileName    = (projectName + '_' + drawingType)
     .replace(/[^a-z0-9]/gi, '_').replace(/_+/g, '_') + '.pdf';
@@ -17986,6 +18338,8 @@ function downloadDrawingPdf() {
   } else if (_calcType === 'Pump Sizing (TDH)') {
     _downloadSLDPdf(panel, fileName);  // A3 landscape SVG export pattern
   } else if (_calcType === 'Fire Sprinkler Hydraulic') {
+    _downloadSLDPdf(panel, fileName);  // A3 landscape SVG export pattern
+  } else if (_calcType === 'HVAC Cooling Load') {
     _downloadSLDPdf(panel, fileName);  // A3 landscape SVG export pattern
   } else {
     _downloadHVACPdf(panel, fileName);
