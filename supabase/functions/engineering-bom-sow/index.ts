@@ -3366,7 +3366,7 @@ async function refrigPipeSizingBomSowAgent(
     `${l.name} (${l.line_type}): ${l.selected_od_mm}mm OD ACR copper, L=${l.equiv_length_m}m, v=${l.velocity_ms}m/s ${l.vel_check}`
   ).join("; ");
 
-  const totalSucLenM  = lineArr.filter(l => l.line_type.includes("Suction")).reduce((s, l) => s + l.equiv_length_m, 0);
+  const totalSucLenM  = lineArr.filter(l => l.line_type?.includes("Suction")).reduce((s, l) => s + l.equiv_length_m, 0);
   const totalDisLenM  = lineArr.filter(l => l.line_type === "Discharge").reduce((s, l) => s + l.equiv_length_m, 0);
   const totalLiqLenM  = lineArr.filter(l => l.line_type === "Liquid").reduce((s, l) => s + l.equiv_length_m, 0);
   const totalLenM     = lineArr.reduce((s, l) => s + l.equiv_length_m, 0);

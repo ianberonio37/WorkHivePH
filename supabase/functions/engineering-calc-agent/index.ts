@@ -68,8 +68,8 @@ function calcHVACCoolingLoad(inputs: Record<string, number | string>) {
   const ceilingHeight = Number(inputs.ceiling_height);
   const wallArea      = Number(inputs.wall_area) || (Math.sqrt(floorArea) * 4 * ceilingHeight);
   const glassArea     = Number(inputs.glass_area) || (wallArea * 0.20);
-  const persons       = Number(inputs.persons);
-  const equipKW       = Number(inputs.equipment_kw);
+  const persons       = Number(inputs.persons)      || 0;
+  const equipKW       = Number(inputs.equipment_kw) || 0;
   const outdoorTemp   = Number(inputs.outdoor_temp)  || 35;
   const indoorTemp    = Number(inputs.indoor_temp)   || 24;
   const insulation        = String(inputs.insulation         || "Standard");
@@ -369,7 +369,7 @@ function calcPumpSizingTDH(inputs: Record<string, number | string>) {
 
   // NPSH available estimate (simplified, assumes suction lift scenario)
   const suctionHead  = Number(inputs.suction_head) || 0; // m (positive = flooded, negative = lift)
-  const vaporPressure = 0.25; // m at 30°C water approximation
+  const vaporPressure = 0.43; // m at 30°C water — IAPWS-IF97: Pvap(30°C)=4.243 kPa = 0.432 m water head
   const atmHead = 10.33; // m water at sea level (Philippine coastal plants)
   const npshA = atmHead + suctionHead - vaporPressure - (hfBase * 0.3); // simplified
 
@@ -944,7 +944,9 @@ const FIXTURE_UNITS: Record<string, { wfu: number; pfr_lpm: number; label: strin
   "Washing Machine":             { wfu: 3,  pfr_lpm: 11.4, label: "Washing Machine",                type: "both" },
   "Drinking Fountain":           { wfu: 1,  pfr_lpm: 1.9,  label: "Drinking Fountain",             type: "cold" },
   "Hose Bibb (each)":            { wfu: 3,  pfr_lpm: 11.4, label: "Hose Bibb / Garden Tap",        type: "cold" },
-  "Floor Drain":                 { wfu: 1,  pfr_lpm: 3.8,  label: "Floor Drain (trap primer)",     type: "cold" },
+  // Note: Floor Drain is a drainage fixture — it has no water supply WFU per UPC/PPC.
+  // A trap primer supply connection is a small metered line, not sized by WFU method.
+  // Do not include Floor Drain in water supply pipe sizing calculations.
   "Mop Sink":                    { wfu: 3,  pfr_lpm: 11.4, label: "Mop Sink",                      type: "both" },
   "Custom":                      { wfu: 0,  pfr_lpm: 0,    label: "Custom Fixture",                 type: "both" },
 };
@@ -1673,7 +1675,7 @@ Respond in JSON format only:
       const gretKg  = rec.grease_ret_kg   ?? '';
       const days    = rec.clean_interval_days ?? '';
       const qgpm    = rec.q_design_gpm    ?? '';
-      recommendations = `Install a PDI-rated ${pdi} GPM hydro-mechanical grease interceptor (PDI BH-201). Design flow is ${qgpm} GPM. Liquid holding capacity: ${capL} L; grease retention: ${gretKg} kg. Clean every ${days} days (or when fill exceeds 25% of liquid capacity) using a DENR DAO 2016-08 accredited hauler. Locate the interceptor inside the kitchen, as close as possible to the grease-laden discharge fixtures, with accessible maintenance cover. Secure LGU Sanitary Permit before installation.`;
+      recommendations = `Install a PDI-rated ${pdi} GPM hydro-mechanical grease interceptor (PDI G-101). Design flow is ${qgpm} GPM. Liquid holding capacity: ${capL} L; grease retention: ${gretKg} kg. Clean every ${days} days (or when fill exceeds 25% of liquid capacity) using a DENR DAO 2016-08 accredited hauler. Locate the interceptor inside the kitchen, as close as possible to the grease-laden discharge fixtures, with accessible maintenance cover. Secure LGU Sanitary Permit before installation.`;
     } else if (calcType === "Boiler System") {
       const bhp   = rec.q_boiler_bhp ?? '';
       const qkw   = rec.q_boiler_kw ?? '';
@@ -1950,7 +1952,9 @@ function calcLightningProtection(inputs: Record<string, number | string>): Recor
   const Nt = parseFloat((1e-5 / cd).toFixed(8));
 
   const risk_ratio = round2(Nd / Nt);
-  const risk_check = risk_ratio >= 2 ? "LPS REQUIRED" : risk_ratio >= 0.5 ? "LPS RECOMMENDED" : "LPS NOT REQUIRED (recommended for high-value structures)";
+  // IEC 62305-2 §4.1: if Nd > Nt (ratio > 1), protection is required.
+  // "RECOMMENDED" zone: 0.5 < ratio ≤ 1 (approaching threshold — prudent to install).
+  const risk_check = risk_ratio > 1 ? "LPS REQUIRED" : risk_ratio > 0.5 ? "LPS RECOMMENDED" : "LPS NOT REQUIRED";
 
   // Down conductors
   const perimeter = 2 * (L + W);
@@ -2131,12 +2135,15 @@ function calcShortCircuit(inputs: Record<string, number | string>): Record<strin
   // Step 4: Total impedance — Z_xfmr in series with Z_cable
   const Z_total_ohm = round4(Z_xfmr_ohm + Z_cable_ohm);
 
-  // Step 5: 3-phase symmetrical fault current
-  const Isc_A = voltage_ll / (Math.sqrt(3) * Z_total_ohm);
+  // Step 5: 3-phase symmetrical fault current (IEC 60909 §4.2)
+  // c = 1.05 voltage factor for LV systems (Un ≤ 1 kV), max fault calculation — IEC 60909 Table 1
+  const c_factor = voltage_ll <= 1000 ? 1.05 : 1.10;
+  const Isc_A = (c_factor * voltage_ll) / (Math.sqrt(3) * Z_total_ohm);
   const Isc_kA = round2(Isc_A / 1000);
 
-  // Step 6: Asymmetrical peak (IEC 60909 factor 1.8)
-  const Ipeak_kA = round2(1.8 * Isc_kA);
+  // Step 6: Asymmetrical peak current — IEC 60909 §4.3: ip = κ × √2 × Isc
+  // κ = 1.8 for typical LV distribution (R/X governed); ip = 1.8 × √2 × Isc ≈ 2.55 × Isc
+  const Ipeak_kA = round2(1.8 * Math.sqrt(2) * Isc_kA);
 
   // Step 7: Breaker IC check
   const ic_check = breaker_ic >= Isc_kA ? 'PASS' : 'FAIL';
@@ -2177,11 +2184,13 @@ function calcBoltTorque(inputs: Record<string, number | string>): Record<string,
     'M30': [30, 561.0],
   };
 
-  // Proof strength (Sp) in MPa per grade — ISO 898-1
+  // Proof strength (Sp) in MPa per grade — ISO 898-1:2013
+  // Grade 8.8: 580 MPa for M10/M12 (Table 3, ≤16mm thread); 600 MPa for M16 and above (Table 4)
+  // Grade 4.8: 310 MPa (ISO 898-1 under investigation; commonly cited — verify against ISO 898-1:2013 Table 4)
   const SP_MAP: Record<string, number> = {
     '4.6':  225,
-    '4.8':  310,
-    '8.8':  600,
+    '4.8':  310,   // ⚠️ UNVERIFIED — confirm against ISO 898-1:2013 Table 4
+    '8.8':  600,   // size-dependent; overridden below for M10/M12
     '10.9': 830,
     '12.9': 970,
   };
@@ -2194,7 +2203,9 @@ function calcBoltTorque(inputs: Record<string, number | string>): Record<string,
   const n_bolts      = Math.max(1, Math.round(Number(inputs.n_bolts ?? 4)));
 
   const [d_mm, At_mm2] = BOLT_DATA[bolt_size] ?? [16, 157];
-  const Sp_MPa         = SP_MAP[bolt_grade]   ?? 600;
+  let Sp_MPa = SP_MAP[bolt_grade] ?? 600;
+  // ISO 898-1:2013: Grade 8.8 Sp = 580 MPa for M5–M14; 600 MPa for M16 and above
+  if (bolt_grade === '8.8' && d_mm <= 14) Sp_MPa = 580;
 
   // Proof load & preload
   const Fp_kN  = round2((At_mm2 * Sp_MPa) / 1000);
@@ -2269,18 +2280,28 @@ function calcShaftDesign(inputs: Record<string, number | string>): Record<string
   const round2 = (n: number) => Math.round(n * 100) / 100;
   const round1 = (n: number) => Math.round(n * 10)  / 10;
 
-  // Material ultimate tensile strength (MPa)
+  // Material tensile and yield strengths (MPa) — AISI annealed/normalized typical values
   const Sut_map: Record<string, number> = {
     'AISI 1020': 380,
     'AISI 1045': 570,
     'AISI 4140': 655,
     'AISI 4340': 1035,
   };
+  // Sy (yield strength) per material — ASME B106.1M requires min(0.30×Sy, 0.18×Sut)
+  const Sy_map: Record<string, number> = {
+    'AISI 1020': 210,
+    'AISI 1045': 310,
+    'AISI 4140': 415,
+    'AISI 4340': 470,
+  };
   const Sut_MPa = Sut_map[material] || 570;
+  const Sy_MPa  = Sy_map[material]  || 310;
 
-  // Allowable shear stress
-  const Ss_factor = keyway === 'Yes' ? 0.18 : 0.30;
-  const Ss_allow_MPa = round1(Ss_factor * Sut_MPa);
+  // ASME B106.1M allowable shear stress:
+  //   Ss_allow (no keyway) = min(0.30 × Sy, 0.18 × Sut)
+  //   Ss_allow (with keyway) = 0.75 × min(0.30 × Sy, 0.18 × Sut)
+  const Ss_no_keyway_MPa = Math.min(0.30 * Sy_MPa, 0.18 * Sut_MPa);
+  const Ss_allow_MPa = round1(keyway === 'Yes' ? 0.75 * Ss_no_keyway_MPa : Ss_no_keyway_MPa);
   const Ss_allow_Pa  = Ss_allow_MPa * 1e6;
 
   // Shock factors
@@ -2325,6 +2346,7 @@ function calcShaftDesign(inputs: Record<string, number | string>): Record<string
   return {
     power_kW: round2(power_kW),
     Sut_MPa,
+    Sy_MPa,
     Ss_allow_MPa,
     Ss_allow_Pa: round1(Ss_allow_Pa / 1e6) + ' MPa', // display only
     Kb,
@@ -2372,8 +2394,9 @@ function calcBearingLife(inputs: Record<string, number | string>): Record<string
       else if (Fa_Fr_ratio <= 2.28) { X = 0.56; Y = 1.17; }
       else { X = 0.56; Y = 1.00; }
     } else {
-      // Roller bearing: typically X=0.4, Y depends on contact angle (use 1.5 as conservative)
-      X = 0.67; Y = 0.67;
+      // Roller bearing — ISO 281: for combined radial + axial load:
+      // X=0.4, Y=0.4×cot(α); contact angle α=15° typical → cot(15°)≈3.73, Y≈1.5
+      X = 0.4; Y = 1.5; // conservative estimate (15° contact angle); use manufacturer data for exact Y
     }
   }
 
@@ -2716,12 +2739,16 @@ function calcFireSprinklerHydraulic(inputs: Record<string, number | string>): Re
   const pipe_length = Number(inputs.pipe_length)        || 30;  // m, riser to remote head
 
   // NFPA 13 design parameters by occupancy hazard classification
+  // NFPA 13 Table 19.3.3.1.2 hose stream allowances (combined):
+  //   Light Hazard = 100 gpm = 379 L/min
+  //   Ordinary Hazard = 250 gpm = 946 L/min
+  //   Extra Hazard = 500 gpm = 1893 L/min
   const hazardTable: Record<string, { density: number; area: number; coverage: number; hose: number; duration: number }> = {
-    'Light Hazard':       { density: 4.1,  area: 139, coverage: 18.6, hose: 250,  duration: 30  },
-    'Ordinary Group 1':   { density: 6.1,  area: 139, coverage: 12.1, hose: 500,  duration: 60  },
-    'Ordinary Group 2':   { density: 8.1,  area: 139, coverage: 12.1, hose: 500,  duration: 60  },
-    'Extra Hazard Grp 1': { density: 12.2, area: 232, coverage: 9.3,  hose: 950,  duration: 90  },
-    'Extra Hazard Grp 2': { density: 16.3, area: 279, coverage: 9.3,  hose: 950,  duration: 120 },
+    'Light Hazard':       { density: 4.1,  area: 139, coverage: 18.6, hose: 379,  duration: 30  },
+    'Ordinary Group 1':   { density: 6.1,  area: 139, coverage: 12.1, hose: 946,  duration: 60  },
+    'Ordinary Group 2':   { density: 8.1,  area: 139, coverage: 12.1, hose: 946,  duration: 60  },
+    'Extra Hazard Grp 1': { density: 12.2, area: 232, coverage: 9.3,  hose: 1893, duration: 90  },
+    'Extra Hazard Grp 2': { density: 16.3, area: 279, coverage: 9.3,  hose: 1893, duration: 120 },
   };
   const hd = hazardTable[hazard] || hazardTable['Ordinary Group 1'];
 
@@ -3246,10 +3273,12 @@ function calcCoolingTowerSizing(inputs: Record<string, number | string>) {
   const approach_min   = 2;  // °C per CTI Std-201
 
   // ── 9. ASHRAE 90.1 cooling tower efficiency check ────────────────────────
-  // Minimum: 38.2 L/s per kW heat rejection (0.1228 gpm/ton is the US benchmark)
-  // Equivalently: at least 0.95 kW fan power per 100 kW heat rejection
-  const fanKW_per_100kW_rej = (fanKW_total / qRejKW) * 100;
-  const ashrae_ct_check = fanKW_per_100kW_rej <= 4.0 ? "PASS" : "REVIEW (fan power ratio > 4 kW/100 kW — check tower fill or sizing)";
+  // ASHRAE 90.1-2019 metric: water flow rate (L/s) / fan power (kW) ≥ 3.23 L/s/kW
+  // (equivalent to 38.2 gpm/hp per ASHRAE 90.1 Table 6.8.1-7 for open cooling towers)
+  const ashrae_ct_efficiency = qW_lps / fanKW_total;          // L/s per kW of fan power
+  const ashrae_ct_check = ashrae_ct_efficiency >= 3.23
+    ? `PASS — ${ashrae_ct_efficiency.toFixed(2)} L/s/kW (≥ 3.23 L/s/kW per ASHRAE 90.1-2019)`
+    : `FAIL — ${ashrae_ct_efficiency.toFixed(2)} L/s/kW (< 3.23 L/s/kW per ASHRAE 90.1-2019 Table 6.8.1-7)`;
 
   // ── 10. Chiller tie-in data (if from chiller) ────────────────────────────
   const chillerTR_input  = loadSource === 'chiller' ? Number(inputs.chiller_cap_tr) : null;
@@ -3293,7 +3322,7 @@ function calcCoolingTowerSizing(inputs: Record<string, number | string>) {
     q_cell_kw:           parseFloat(qCell_kW.toFixed(2)),
     q_cell_tr:           parseFloat(qCell_TR.toFixed(2)),
     // Compliance
-    fan_kw_per_100kw:    parseFloat(fanKW_per_100kW_rej.toFixed(2)),
+    ashrae_ct_lps_per_kw: parseFloat(ashrae_ct_efficiency.toFixed(2)),
     ashrae_ct_check,
   };
 }
@@ -3367,12 +3396,29 @@ function calcAHUSizing(inputs: Record<string, number | string>) {
   const Q_oa_lps  = Q_oa_m3s * 1000;
   const Q_ra_CMH  = Q_sa_CMH - Q_oa_CMH;   // return/recirculation air
 
-  // ASHRAE 62.1 minimum OA: 10 L/s/person (office) — check
+  // ASHRAE 62.1-2019 Ventilation Rate Procedure (VRP) — Sec 6.2.2
+  // Vbz = Rp × P + Ra × A  (breathing zone outdoor airflow)
+  // Per Table 6-1: Office — Rp=2.5 L/s/person, Ra=0.30 L/s/m²
+  // Conference — Rp=2.5 L/s/person, Ra=0.30 L/s/m²
+  // Use spaceType to select Rp / Ra; default to office if unrecognised
+  const oa_vrp: Record<string, { Rp: number; Ra: number }> = {
+    'Office':      { Rp: 2.5, Ra: 0.30 },
+    'Conference':  { Rp: 2.5, Ra: 0.30 },
+    'Classroom':   { Rp: 3.8, Ra: 0.36 },
+    'Reception':   { Rp: 2.5, Ra: 0.30 },
+    'Retail':      { Rp: 1.7, Ra: 0.25 },
+    'Restaurant':  { Rp: 3.8, Ra: 0.90 },
+    'Gymnasium':   { Rp: 5.0, Ra: 0.30 },
+    'Hotel Room':  { Rp: 2.5, Ra: 0.30 },
+  };
+  const vrp = oa_vrp[spaceType] || oa_vrp['Office'];
+  const Vbz_lps = vrp.Rp * persons + vrp.Ra * floorArea;  // ASHRAE 62.1-2019 §6.2.2
   const oa_per_person_lps = persons > 0 ? Q_oa_lps / persons : null;
-  const ashrae_oa_min_lps_person = 10;  // L/s/person (office, ASHRAE 62.1 Table 6-1)
-  const oa_check = persons > 0
-    ? (oa_per_person_lps! >= ashrae_oa_min_lps_person ? 'PASS' : 'FAIL')
-    : 'N/A (no occupant count)';
+  const oa_check = persons > 0 || floorArea > 0
+    ? (Q_oa_lps >= Vbz_lps
+        ? `PASS — ${Q_oa_lps.toFixed(1)} L/s ≥ Vbz ${Vbz_lps.toFixed(1)} L/s (ASHRAE 62.1-2019 VRP)`
+        : `FAIL — ${Q_oa_lps.toFixed(1)} L/s < Vbz ${Vbz_lps.toFixed(1)} L/s (ASHRAE 62.1-2019 VRP — increase OA%)`)
+    : 'N/A (enter persons and/or floor area)';
 
   // 5. Mixed air temperature (mass balance, no latent correction)
   const T_outside = 35;  // design ambient dry-bulb for PH
@@ -3438,8 +3484,8 @@ function calcAHUSizing(inputs: Record<string, number | string>) {
     oa_pct_used:             Math.round(oa_pct * 100),
     // OA compliance
     oa_per_person_lps:       oa_per_person_lps !== null ? parseFloat(oa_per_person_lps.toFixed(2)) : null,
+    Vbz_lps:                 parseFloat(Vbz_lps.toFixed(2)),
     oa_check,
-    ashrae_oa_min_lps_person,
     // Cooling coil
     Q_coil_sensible_kW:      parseFloat(Q_coil_sensible_kW.toFixed(2)),
     Q_coil_latent_kW:        parseFloat(Q_coil_latent_kW.toFixed(2)),
@@ -3743,8 +3789,8 @@ function calcWaterTreatmentSystem(inputs: Record<string, number | string>): Reco
   const cl2DailyKg         = parseFloat((cl2DoseMgL * demandM3d / 1000).toFixed(3));
   // NaOCl (12% liquid hypochlorite): 1 kg Cl2 ≈ 8.3 L of 12% NaOCl
   const naoclDailyL        = parseFloat((cl2DailyKg * 8.3).toFixed(2));
-  // Contact tank sizing: CT ≥ 30 mg·min/L for 3-log Giardia at pH 7, 25°C (EPA/WHO)
-  const ctRequired         = 30; // mg·min/L  (conservative, for potable)
+  // Contact tank sizing: CT ≥ 36 mg·min/L for 3-log Giardia at pH 7, 25°C — EPA Guidance Manual Table 3-1
+  const ctRequired         = 36; // mg·min/L  (EPA 3-log Giardia, free chlorine, pH 7, 25°C)
   const contactTimeMin     = parseFloat((ctRequired / cl2DoseMgL).toFixed(1));
   const contactTankM3      = parseFloat((peakFlowM3hr / 60 * contactTimeMin).toFixed(2));
   // CT achieved check
@@ -3997,7 +4043,7 @@ function calcWastewaterSTP(inputs: Record<string, number | string>): Record<stri
   };
 }
 
-// ─── Grease Trap Sizing — PDI BH-201 Flow Rate Method ─────────────────────────
+// ─── Grease Trap Sizing — PDI G-101 Flow Rate Method ──────────────────────────
 
 const PDI_STANDARD_GPM = [4, 6, 7, 10, 15, 20, 25, 35, 50, 75, 100];
 

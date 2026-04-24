@@ -228,6 +228,7 @@
     #report-panel .result-highlight .res-value { font-size: 1.3rem; font-weight: 700; color: #D88A0E; }
     #report-panel .sig-block { margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
     @media (max-width: 640px) { #report-panel .sig-block { grid-template-columns: 1fr; gap: 0.5rem; } }
+    @media (max-width: 480px) { .toggle-btn { min-height: 44px; padding: 0.75rem 1rem; } }
     #report-panel .sig-line { border-top: 1px solid #999; padding-top: 0.25rem; font-size: 0.75rem; color: #666; margin-top: 2rem; }
     #report-panel .editable-field { border-bottom: 1.5px dashed #F7A21B; outline: none; min-width: 40px; display: inline-block; cursor: text; }
     #report-panel .editable-field:focus { background: #fffbf0; border-radius: 2px; }
@@ -235,6 +236,11 @@
     .doc-panel .editable-field[style*="display:block"] { display: block !important; border-bottom: none; border: 1px dashed #F7A21B; padding: 0.3rem 0.4rem; border-radius: 4px; }
     .doc-panel .editable-field:focus { background: #fffbf0; border-radius: 2px; }
     .doc-panel .editable-field[style*="display:block"]:focus { background: #fffbf0; }
+
+    /* Drawing panel — title block editable fields */
+    #drawing-panel .editable-field { border-bottom: 1.5px dashed #F7A21B; outline: none; min-width: 40px; cursor: text; display: block; }
+    #drawing-panel .editable-field:focus { background: #fffbf0; border-radius: 2px; }
+    @media print { #drawing-panel .editable-field { border-bottom: none; } }
 
     /* History card */
     .hist-card {
@@ -355,6 +361,9 @@
     .sow-checklist-item.unchecked { opacity: 0.42; }
     .sow-item-header { display: flex; align-items: flex-start; gap: 0.65rem; cursor: pointer; }
     .sow-item-body  { margin-top: 0.45rem; margin-left: 1.7rem; font-size: 0.76rem; color: rgba(255,255,255,0.45); line-height: 1.55; }
+
+    /* ── HVAC Drawing section ─────────────────────────────────── */
+    #drawing-panel svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
 
     /* BOM and SOW white contractor document panels */
     .doc-panel {
@@ -605,6 +614,42 @@
         </div>
         <!-- ═══════════════ END BOM + SOW ═══════════════ -->
 
+        <!-- ═══════════════ HVAC DRAWING SECTION ═══════════════ -->
+        <div id="drawing-section" class="hidden mt-6">
+
+          <!-- Trigger card -->
+          <div id="drawing-trigger">
+            <div class="card p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <div class="flex-1">
+                <div class="font-semibold text-sm" style="color:#F7A21B;">📐 Generate System Diagram</div>
+                <div class="text-xs mt-0.5" id="drawing-trigger-desc" style="color:rgba(255,255,255,0.4);">Generates a system diagram from your calculation results</div>
+              </div>
+              <button onclick="generateDrawing()" class="btn-primary text-sm py-2 px-5 whitespace-nowrap flex-shrink-0">Generate</button>
+            </div>
+          </div>
+
+          <!-- Loading state -->
+          <div id="drawing-loading" class="hidden card p-8 text-center mt-4">
+            <div class="spinner mx-auto mb-3" style="width:32px;height:32px;border-width:3px;border-color:rgba(247,162,27,0.2);border-top-color:#F7A21B;"></div>
+            <div class="font-semibold text-sm mb-1">Building diagram...</div>
+            <div class="text-xs" style="color:rgba(255,255,255,0.4);">Generating HVAC system schematic</div>
+          </div>
+
+          <!-- Drawing output -->
+          <div id="drawing-output" class="hidden card p-5 mt-4">
+            <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <div class="font-semibold text-sm" id="drawing-output-title" style="color:rgba(255,255,255,0.85);">System Diagram</div>
+              <div class="flex gap-2">
+                <button onclick="regenerateDrawing()" class="btn-ghost text-xs py-1.5 px-3">↺ Regenerate</button>
+                <button onclick="downloadDrawingPdf()" class="btn-ghost text-xs py-1.5 px-3">⬇ PDF</button>
+              </div>
+            </div>
+            <div id="drawing-panel" style="background:#fff;border-radius:0.5rem;padding:1.5rem;overflow-x:auto;"></div>
+          </div>
+
+        </div>
+        <!-- ═══════════════ END HVAC DRAWING ═══════════════ -->
+
       </div>
     </div>
   </div>
@@ -643,6 +688,15 @@
 
 <!-- html2pdf — clean PDF export without browser headers/footers -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<!-- Mermaid.js — system diagram rendering -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' });
+</script>
+
+<!-- Engineering symbol library — SVG primitives for SLD, P&ID, LPS drawings -->
+<script src="drawing-symbols.js"></script>
 
 <!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -9435,9 +9489,33 @@ function showReport() {
   document.getElementById('report-empty').style.display   = 'none';
   document.getElementById('report-loading').style.display = 'none';
   document.getElementById('report-output').classList.remove('hidden');
+  if (window.innerWidth < 768) {
+    setTimeout(() => document.getElementById('report-output').scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+  }
   // Show BOM+SOW trigger, reset to idle state
   document.getElementById('bom-sow-section').classList.remove('hidden');
   resetBomSow();
+  // Show drawing section for supported calc types
+  const DRAWING_SUPPORTED = ['HVAC Cooling Load', 'Load Estimation', 'Lightning Protection System (LPS)', 'Generator Sizing', 'Pump Sizing (TDH)', 'Fire Sprinkler Hydraulic'];
+  const drawingSection = document.getElementById('drawing-section');
+  if (DRAWING_SUPPORTED.includes(_calcType)) {
+    drawingSection.classList.remove('hidden');
+    const descEl = document.getElementById('drawing-trigger-desc');
+    if (_calcType === 'HVAC Cooling Load' && descEl) {
+      descEl.textContent = 'Generates an HVAC system schematic from your cooling load results';
+    } else if (_calcType === 'Load Estimation' && descEl) {
+      descEl.textContent = 'Generates an electrical single line diagram from your load estimation results';
+    } else if (_calcType === 'Generator Sizing' && descEl) {
+      descEl.textContent = 'Generates a generator connection diagram (ISO 8528-1 / NFPA 110 / PEC 2017) from your sizing results';
+    } else if (_calcType === 'Pump Sizing (TDH)' && descEl) {
+      descEl.textContent = 'Generates a pump system P&ID schematic (ISA-5.1 / ISO 10628 / ASME B31.3) from your pump sizing results';
+    } else if (_calcType === 'Fire Sprinkler Hydraulic' && descEl) {
+      descEl.textContent = 'Generates a fire sprinkler hydraulic schematic (NFPA 13:2022 / NFPA 14 / PEC) from your sprinkler design results';
+    }
+    resetDrawingSection();
+  } else {
+    drawingSection.classList.add('hidden');
+  }
 }
 
 // ─── Render report HTML ───────────────────────────────────────────────────────
@@ -11600,7 +11678,7 @@ function renderLPSReport(inputs, results, narrative) {
   const perim     = results.perimeter_m           ?? '';
   const riskRatio = results.risk_ratio            ?? '';
 
-  const passColor = String(riskCheck).includes('REQUIRED') ? '#c0392b' : '#219150';
+  const passColor = String(riskCheck) === 'LPS REQUIRED' ? '#c0392b' : '#219150';
   const passStyle = `font-weight:700;color:${passColor};`;
 
   const reportHTML = `
@@ -11649,7 +11727,7 @@ function renderLPSReport(inputs, results, narrative) {
           <tr><td>Rolling Sphere Radius (R)</td><td>${e(rR)} m</td><td>IEC 62305-3 Table 4</td></tr>
           <tr><td>Mesh Size</td><td>${e(meshSz)} m &times; ${e(meshSz)} m</td><td>IEC 62305-3 Table 4</td></tr>
           <tr><td>Max Protection Angle (&alpha;)</td><td>${e(alphaMax)}&deg;</td><td>IEC 62305-3 Table 4 (varies with H)</td></tr>
-          <tr><td>Minimum Peak Current</td><td>${e(Imin)} kA</td><td>IEC 62305-1 Table 5</td></tr>
+          <tr><td>Min. Intercepted Current (I<sub>min</sub>)</td><td>${e(Imin)} kA</td><td>IEC 62305-1 Table 1 (min. current LPS must intercept)</td></tr>
           <tr><td>Protection Efficiency</td><td>${e(eff)} %</td><td>IEC 62305-2 Eq. (6)</td></tr>
           <tr><td>Air Termination Method</td><td>${e(airMeth)}</td><td>IEC 62305-3 Annex D</td></tr>
         </tbody>
@@ -16132,6 +16210,13 @@ function printReport() {
   `;
   document.head.appendChild(styleTag);
 
+  // Inject disclaimer footer — appears in every PDF, removed after export
+  const disclaimer = document.createElement('div');
+  disclaimer.id = 'pdf-disclaimer';
+  disclaimer.style.cssText = 'margin-top:2rem;padding:0.75rem 1rem;border-top:1.5px solid #e0c97a;background:#fffdf0;font-size:10px;color:#555;line-height:1.6;font-family:Arial,sans-serif;';
+  disclaimer.innerHTML = `<strong style="color:#8a6f00;">DISCLAIMER:</strong> This report is generated for preliminary engineering reference only. Results must be verified by a licensed Professional Engineer (PRC-registered) against the governing standards before use in any design, specification, or construction document. WorkHive and its developers assume no liability for errors or omissions. For inquiries or feedback, contact WorkHive at <strong>ian.beronio37@gmail.com</strong>.`;
+  reportEl.appendChild(disclaimer);
+
   // Pin the panel to a fixed A4-compatible width before capture so html2canvas
   // always renders content at the correct width — prevents both left-edge cutoff
   // (from windowWidth resizing the whole page layout) and right-edge overflow.
@@ -16156,6 +16241,1862 @@ function printReport() {
     reportEl.style.width    = origWidth;
     reportEl.style.maxWidth = origMaxWidth;
     document.getElementById('pdf-pagebreak-rules')?.remove();
+    document.getElementById('pdf-disclaimer')?.remove();
+  });
+}
+
+// ─── HVAC System Diagram (Mermaid.js — deterministic, no AI) ─────────────────
+
+function resetDrawingSection() {
+  document.getElementById('drawing-trigger').classList.remove('hidden');
+  document.getElementById('drawing-loading').classList.add('hidden');
+  document.getElementById('drawing-output').classList.add('hidden');
+}
+
+// ─── Drawing router ───────────────────────────────────────────────────────────
+function generateDrawing() {
+  document.getElementById('drawing-trigger').classList.add('hidden');
+  document.getElementById('drawing-loading').classList.remove('hidden');
+  setTimeout(() => {
+    if (_calcType === 'HVAC Cooling Load') {
+      const code = buildHVACMermaidCode(_lastInputs, _lastResults);
+      renderHVACDiagram(code);
+    } else if (_calcType === 'Load Estimation') {
+      const svg = buildElectricalSLDSvg(_lastInputs, _lastResults);
+      renderElectricalSLD(svg, _lastInputs, _lastResults);
+    } else if (_calcType === 'Lightning Protection System (LPS)') {
+      const svg = buildLPSZoneSvg(_lastInputs, _lastResults);
+      renderLPSDiagram(svg, _lastInputs, _lastResults);
+    } else if (_calcType === 'Generator Sizing') {
+      const svg = buildGeneratorConnectionSvg(_lastInputs, _lastResults);
+      renderGeneratorConnectionDiagram(svg, _lastInputs, _lastResults);
+    } else if (_calcType === 'Pump Sizing (TDH)') {
+      const svg = buildPumpPIDSvg(_lastInputs, _lastResults);
+      renderPumpPID(svg, _lastInputs, _lastResults);
+    } else if (_calcType === 'Fire Sprinkler Hydraulic') {
+      const svg = buildFireSprinklerSvg(_lastInputs, _lastResults);
+      renderFireSprinklerDiagram(svg, _lastInputs, _lastResults);
+    }
+  }, 350);
+}
+
+function regenerateDrawing() {
+  document.getElementById('drawing-output').classList.add('hidden');
+  document.getElementById('drawing-loading').classList.remove('hidden');
+  setTimeout(() => {
+    if (_calcType === 'HVAC Cooling Load') {
+      const code = buildHVACMermaidCode(_lastInputs, _lastResults);
+      renderHVACDiagram(code);
+    } else if (_calcType === 'Load Estimation') {
+      const svg = buildElectricalSLDSvg(_lastInputs, _lastResults);
+      renderElectricalSLD(svg, _lastInputs, _lastResults);
+    } else if (_calcType === 'Lightning Protection System (LPS)') {
+      const svg = buildLPSZoneSvg(_lastInputs, _lastResults);
+      renderLPSDiagram(svg, _lastInputs, _lastResults);
+    } else if (_calcType === 'Generator Sizing') {
+      const svg = buildGeneratorConnectionSvg(_lastInputs, _lastResults);
+      renderGeneratorConnectionDiagram(svg, _lastInputs, _lastResults);
+    } else if (_calcType === 'Pump Sizing (TDH)') {
+      const svg = buildPumpPIDSvg(_lastInputs, _lastResults);
+      renderPumpPID(svg, _lastInputs, _lastResults);
+    } else if (_calcType === 'Fire Sprinkler Hydraulic') {
+      const svg = buildFireSprinklerSvg(_lastInputs, _lastResults);
+      renderFireSprinklerDiagram(svg, _lastInputs, _lastResults);
+    }
+  }, 250);
+}
+
+// ─── LPS Protection Zone Diagram builder ─────────────────────────────────────────────────
+function buildLPSZoneSvg(inputs, results) {
+  const r = results;
+
+  // ── Calc values ────────────────────────────────────────────────────────
+  const bldgL    = Number(inputs.building_length_m || 30);
+  const bldgW    = Number(inputs.building_width_m  || 20);
+  const bldgH    = Number(inputs.building_height_m || 12);
+  const lpl      = String(inputs.lpl || 'LPL II');
+  const method   = String(inputs.air_term_method || 'Rolling Sphere');
+  const dcMat    = String(inputs.dc_material || 'Copper');
+  const earthTyp = String(inputs.earth_type || 'Type A');
+  const ng       = Number(r.ng_fl_km2_yr || 10).toFixed(1);
+  const Nd       = Number(r.Nd_strikes_yr || 0).toFixed(4);
+  const Nt       = Number(r.Nt || 0);
+  const riskChk  = String(r.risk_check || 'REQUIRED');
+  const rSph     = Number(r.rolling_sphere_R_m || 45);
+  const meshSz   = Number(r.mesh_size_m || 10);
+  const alphaMax = Number(r.protection_angle_deg || 25);
+  const dcSpc    = Number(r.dc_spacing_m || 10);
+  const nDC      = Number(r.n_down_conductors || 4);
+  const spdClass = String(r.spd_class || 'Class I');
+  const Imin     = Number(r.I_min_kA || 200);
+  const riskRatio = Number(r.risk_ratio || 0);
+  // Exact match — "LPS NOT REQUIRED" also contains 'REQUIRED' so .includes() gives false positive
+  const isRequired = riskChk === 'LPS REQUIRED';
+
+  // ── Canvas ─────────────────────────────────────────────────────────────
+  const W = 1050;
+  const H = 580;  // H/W = 0.552 - fits A3 landscape single page
+
+  const CC = '#1a2e4a';  // dark navy (main lines)
+  const SC = '#5a6a7a';  // secondary / labels
+  const AO = '#F7A21B';  // amber accent
+  const GR = '#219150';  // green (pass)
+  const RD = '#c0392b';  // red (required/fail)
+  const LB = '#60a5fa';  // light blue (protection zone)
+
+  const esc = s => String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+  const T = (x, y, t, { a='middle', sz=10, c=CC, w='normal', dy=0, style='' } = {}) =>
+    `<text x="${x}" y="${y}" dy="${dy}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}" ${style}>${esc(t)}</text>`;
+
+  const VL = (x, y1, y2, sw=2, clr=CC, dash='') =>
+    `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${clr}" stroke-width="${sw}"${dash ? ' stroke-dasharray="'+dash+'"' : ''}/>` ;
+
+  const HL = (x1, y, x2, sw=2, clr=CC, dash='') =>
+    `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${clr}" stroke-width="${sw}"${dash ? ' stroke-dasharray="'+dash+'"' : ''}/>` ;
+
+  const DL = (x1, y1, x2, y2, sw=1, clr=CC, dash='') =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${clr}" stroke-width="${sw}"${dash ? ' stroke-dasharray="'+dash+'"' : ''}/>` ;
+
+  const Badge = (x, y, label, bg=AO) => {
+    const bw = Math.max(52, String(label).length * 6.8 + 14);
+    return `<rect x="${x - bw/2}" y="${y - 11}" width="${bw}" height="22" rx="11" fill="${bg}"/>` +
+      T(x, y + 5, label, { sz: 9, c: '#162032', w: '700' });
+  };
+
+  let p = [];
+
+  // ── White background + inner margin ─────────────────────────────────────
+  p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="0.75"/>`);
+
+  // ── Drawing title ────────────────────────────────────────────────────────
+  p.push(T(W/2, 27, 'LIGHTNING PROTECTION ZONE DIAGRAM', { sz: 12, c: CC, w: '700' }));
+  p.push(T(W/2, 41, `IEC 62305-2  |  ${lpl}  |  Method: ${esc(method)}`, { sz: 9, c: SC }));
+
+  // ── Panel divider + headers ──────────────────────────────────────────────
+  const DIV_X = 560;
+  p.push(VL(DIV_X, 50, 460, 0.75, CC));
+  // Both panel headers at y=55 — below subtitle, no badges in this zone
+  p.push(T(285, 55, 'FRONT ELEVATION', { sz: 7.5, c: CC, w: '700' }));
+  p.push(T(DIV_X + 2, 55, 'ROOF PLAN (AIR TERMINATION NETWORK)', { a: 'start', sz: 7.5, c: CC, w: '700' }));
+
+  // ════════════════════════════════════════════════════════════════
+  // LEFT PANEL — FRONT ELEVATION
+  // ════════════════════════════════════════════════════════════════
+
+  // Building geometry (elevation)
+  const BL = 95;   // building left X
+  const BR = 495;  // building right X
+  const BT = 102;  // building top Y — shifted down to clear panel header + arc label room
+  const BB = 360;  // building bottom Y
+  const BW = BR - BL;
+  const BH = BB - BT;
+  const BCX = Math.round((BL + BR) / 2);
+  const GL  = 378; // ground surface Y
+  p.push(`<rect x="${BL}" y="${GL}" width="${BW}" height="36" fill="#e8e4d8" opacity="0.6"/>`);
+  p.push(HL(BL - 20, GL, BR + 20, 1.5, '#8b7355'));
+
+  // Hatch (soil texture) — outside left and right of building only
+  for (let i = 0; i < 5; i++) {
+    const hx = BL - 18 + i * 10;
+    p.push(DL(hx, GL + 5, hx - 7, GL + 16, 1, '#b0a090'));
+  }
+  for (let i = 0; i < 5; i++) {
+    const hx = BR + 5 + i * 10;
+    p.push(DL(hx, GL + 5, hx - 7, GL + 16, 1, '#b0a090'));
+  }
+
+  // Building body
+  p.push(`<rect x="${BL}" y="${BT}" width="${BW}" height="${BB - BT}" fill="#f0f4f8" stroke="${CC}" stroke-width="1.5"/>`);
+
+  // Roof platform line (thicker)
+  p.push(HL(BL, BT, BR, 2.5));
+
+  // ── Air termination network (IEC 62305-3) ────────────────────────────────
+  // Perimeter conductor — amber line on roof edge
+  p.push(HL(BL, BT - 5, BR, 3.5, AO));
+
+  // Air termination rods at 4 positions (Franklin rods)
+  const rodPositions = [BL, Math.round(BL + BW/3), Math.round(BL + 2*BW/3), BR];
+  rodPositions.forEach(rx => {
+    p.push(`<g color="${CC}">${drawSymbol('air_terminal', rx, BT - 22)}</g>`);
+  });
+  // Rod annotation — right of last rod, in right-margin zone
+  const rodHLabel = lpl === 'LPL I' ? '≥ 1000 mm' : lpl === 'LPL II' ? '≥ 500 mm' : '≥ 300 mm';
+  p.push(T(BR + 12, BT - 22, 'Air Term. Rod', { a: 'start', sz: 7.5, c: AO }));
+  p.push(T(BR + 12, BT - 11, `h ${rodHLabel}`, { a: 'start', sz: 7, c: SC }));
+  p.push(T(BR + 12, BT,      'IEC 62305-3', { a: 'start', sz: 7, c: SC }));
+
+  // ── Rolling sphere arc ────────────────────────────────────────────────────
+  // Arc from BL to BR curving UPWARD (sweep=0 = counterclockwise).
+  // R must be >= BW/2 = 200. Use 320px for a gentle ~70px rise above roof.
+  const arcY0   = BT - 5;
+  const chordH  = BW / 2;          // half-chord = 200px
+  const R_arc   = Math.max(chordH + 120, 320);
+  const arcRise = Math.round(R_arc - Math.sqrt(R_arc * R_arc - chordH * chordH));
+  if (method !== 'Protection Angle') {
+    p.push(`<path d="M ${BL} ${arcY0} A ${R_arc} ${R_arc} 0 0 0 ${BR} ${arcY0}" fill="none" stroke="${LB}" stroke-width="1.5" stroke-dasharray="8 4" opacity="0.85"/>`);
+    p.push(T(BCX, arcY0 - arcRise - 8, `Rolling Sphere  R = ${rSph} m`, { sz: 8, c: LB, w: '600' }));
+  }
+
+  // Protection angle lines (only when method = Protection Angle)
+  if (method === 'Protection Angle') {
+    const protReach = Math.round((bldgH / bldgL) * BW * Math.tan(alphaMax * Math.PI / 180));
+    const clampedR  = Math.min(protReach, 55);
+    p.push(DL(BL, BT - 22, BL - clampedR, GL, 1.5, LB, '6 3'));
+    p.push(DL(BR, BT - 22, BR + clampedR, GL, 1.5, LB, '6 3'));
+    p.push(T(BL - 32, Math.round((BT + GL)/2), `${alphaMax}°`, { sz: 8.5, c: LB, w: '600' }));
+  }
+
+  // ── Down conductors (IEC 62305-3) ────────────────────────────────────────
+  // DCs on exterior walls — explicit thick lines with test-joint ticks
+  const dcPositions = [BL, BR];
+  if (nDC > 2) {
+    const step = Math.round(BW / (nDC - 1));
+    for (let i = 1; i < nDC - 1; i++) dcPositions.push(BL + i * step);
+  }
+  dcPositions.forEach(dx => {
+    p.push(VL(dx, BT, GL, 2.5, CC));   // DC line on wall exterior
+    // Test-joint ticks (IEC 62305-3 Sec 5.4) at 3 heights
+    [Math.round(BT + BH*0.25), Math.round(BT + BH*0.5), Math.round(BT + BH*0.75)]
+      .forEach(ty => p.push(HL(dx - 6, ty, dx + 6, ty, 1.5, AO)));
+  });
+  // DC annotation inside building (avoids left-margin overflow)
+  const dcLabelY = Math.round(BT + BH * 0.35);
+  // Separation distance per IEC 62305-3 §6.3: s = ki × kc / km × l
+  const ki   = (lpl === 'LPL I' || lpl === 'LPL II') ? 0.04 : 0.06;  // LPL I/II=0.04, III/IV=0.06
+  const sSep = (ki * bldgH).toFixed(1);  // conservative: kc=1, km=1, l=bldgH
+  p.push(DL(BL + 3, dcLabelY, BL + 52, dcLabelY, 0.75, SC, '3 2'));
+  p.push(T(BL + 56, dcLabelY + 3,  'Down Conductor (DC)',                          { a: 'start', sz: 7.5, c: CC, w: '600' }));
+  p.push(T(BL + 56, dcLabelY + 14, `${nDC} DCs @ ${dcSpc} m  (${esc(dcMat)})`,    { a: 'start', sz: 7, c: SC }));
+  p.push(T(BL + 56, dcLabelY + 25, `Sep. dist. s \u2265 ${sSep} m  (IEC 62305-3 \u00a76.3)`, { a: 'start', sz: 7, c: LB }));
+
+  // ── Earth termination — IEC 62305-3 Type A or Type B ────────────────────
+  const isTypeB = earthTyp.toUpperCase().includes('B');
+  if (isTypeB) {
+    // Type B: ring electrode around building perimeter (dashed rectangle at GL)
+    p.push(`<rect x="${BL - 18}" y="${GL + 6}" width="${BW + 36}" height="18" fill="none" stroke="${CC}" stroke-width="2" stroke-dasharray="6 3"/>`);
+    p.push(T(BR + 12, GL + 12, 'Type B — Ring Earth Electrode', { a: 'start', sz: 7.5, c: CC, w: '600' }));
+    p.push(T(BR + 12, GL + 23, 'Perimeter ring ≥ 3/4 of building', { a: 'start', sz: 7, c: SC }));
+  } else {
+    // Type A: vertical electrode spur at each DC base (IEC 62305-3 Annex B: ≥ 0.5 m rod)
+    dcPositions.forEach((dx, i) => {
+      const angle = (i === 0) ? -1 : (dcPositions.length === 2 && i === 1) ? 1 : 0;
+      p.push(DL(dx, GL, dx + angle * 8, GL + 20, 2.5, CC));  // electrode rod going into soil
+      p.push(HL(dx + angle * 8 - 6, GL + 20, dx + angle * 8 + 6, GL + 20, 2, CC));  // rod tip cap
+    });
+    p.push(T(BR + 12, GL + 12, 'Type A — Earth Electrode', { a: 'start', sz: 7.5, c: CC, w: '600' }));
+    p.push(T(BR + 12, GL + 23, 'Vert. rod ≥ 0.5 m at each DC', { a: 'start', sz: 7, c: SC }));
+  }
+
+  // ── SPD at service entry (inline symbol — no drawing-symbols.js entry) ────
+  const SPD_Y = Math.round(BT + BH * 0.55);
+  const SPD_X = BL + 40;
+  // SPD symbol: rectangle with diagonal arrowed varistor line (IEC 61643-11 style)
+  p.push(`<rect x="${SPD_X - 11}" y="${SPD_Y - 11}" width="22" height="22" fill="none" stroke="${CC}" stroke-width="1.5" rx="2"/>`);
+  p.push(DL(SPD_X - 7, SPD_Y + 7, SPD_X + 7, SPD_Y - 7, 1.5, CC));    // diagonal line
+  p.push(DL(SPD_X + 4, SPD_Y - 7, SPD_X + 7, SPD_Y - 7, 1.5, CC));    // arrowhead h
+  p.push(DL(SPD_X + 7, SPD_Y - 7, SPD_X + 7, SPD_Y - 4, 1.5, CC));    // arrowhead v
+  p.push(T(BL + 57, SPD_Y - 3,  `SPD ${esc(spdClass)}`, { a: 'start', sz: 8, c: CC, w: '600' }));
+  // I_min = minimum intercepted current per IEC 62305-1 Table 1 (NOT the SPD Iimp rating)
+  p.push(T(BL + 57, SPD_Y + 9,  `Imin = ${Imin} kA (min. intercept, IEC 62305-1)`, { a: 'start', sz: 7, c: SC }));
+
+  // ── Equipotential Bonding Bar (EPB) — IEC 62305-3 §6.2 ─────────────────
+  const EPB_Y = Math.round(BT + BH * 0.80);  // ~80% down the building
+  // EPB bar (thick horizontal bar)
+  p.push(HL(BL + 22, EPB_Y, BL + 175, EPB_Y, 4.5, CC));
+  // Bond stubs going up — represent water, power, structural bonds
+  [BL + 55, BL + 95, BL + 138].forEach(bx => {
+    p.push(VL(bx, EPB_Y - 16, EPB_Y, 1.5, SC, '4 2'));
+  });
+  // Small circles at stub tops (bonding point markers)
+  [BL + 55, BL + 95, BL + 138].forEach(bx => {
+    p.push(`<circle cx="${bx}" cy="${EPB_Y - 16}" r="3.5" fill="none" stroke="${SC}" stroke-width="1.2"/>`);
+  });
+  // EPB label to the right of the bar
+  p.push(T(BL + 182, EPB_Y - 1, 'Main Equipotential Bonding Bar (EPB)', { a: 'start', sz: 7.5, c: CC, w: '600' }));
+  p.push(T(BL + 182, EPB_Y + 11, 'IEC 62305-3 §6.2 — Bond all metallic services', { a: 'start', sz: 7, c: SC }));
+
+  // ── LPL + Risk badges (below ground line — clear of all elevation content) ──
+  const lplColor  = lpl === 'LPL I' ? '#1d4ed8' : lpl === 'LPL II' ? '#0f766e' : lpl === 'LPL III' ? '#7c3aed' : '#b45309';
+  const riskColor = isRequired ? RD : GR;
+  const riskLabel = isRequired ? 'LPS REQUIRED' : 'LPS NOT REQUIRED';
+  p.push(Badge(BL + 55,  GL + 48, lpl, lplColor));
+  p.push(Badge(BL + 215, GL + 48, riskLabel, riskColor));
+  p.push(T(BCX, GL + 66, `${bldgL} m \u00d7 ${bldgW} m \u00d7 ${bldgH} m H`, { sz: 8, c: SC }));
+
+  // ════════════════════════════════════════════════════════════════
+  // RIGHT PANEL — ROOF PLAN (top-down air termination mesh)
+  // ════════════════════════════════════════════════════════════════
+  const PL = 575;   // plan left
+  const PR = 1030;  // plan right
+  const PT = 70;    // plan top
+  const PB = 455;   // plan bottom
+  const PW = PR - PL;  // plan width
+  const PH = PB - PT;  // plan height
+
+  // Scale building footprint proportionally
+  const scaleX = PW / Math.max(bldgL, 1);
+  const scaleY = PH / Math.max(bldgW, 1);
+  const planScale = Math.min(scaleX, scaleY) * 0.85;
+  const planBW = Math.round(bldgL * planScale);
+  const planBH = Math.round(bldgW * planScale);
+  const planCX = Math.round(PL + PW / 2);
+  const planCY = Math.round(PT + PH / 2);
+  const planL  = planCX - Math.round(planBW / 2);
+  const planR  = planCX + Math.round(planBW / 2);
+  const planT  = planCY - Math.round(planBH / 2);
+  const planB  = planCY + Math.round(planBH / 2);
+
+  // Building footprint fill
+  p.push(`<rect x="${planL}" y="${planT}" width="${planBW}" height="${planBH}" fill="#eef2f7" stroke="${CC}" stroke-width="1.5"/>`);
+
+  // Perimeter air termination conductor (IEC 62305 — conductor along roof edge)
+  p.push(`<rect x="${planL}" y="${planT}" width="${planBW}" height="${planBH}" fill="none" stroke="${AO}" stroke-width="2.5"/>`);
+
+  // Mesh grid (IEC 62305 — mesh method)
+  if (method === 'Mesh' || method === 'Combined') {
+    const meshPx = meshSz * planScale;
+    // Horizontal mesh lines
+    for (let y = planT + meshPx; y < planB - 2; y += meshPx) {
+      p.push(HL(planL + 2, Math.round(y), planR - 2, 0.75, AO, '3 3'));
+    }
+    // Vertical mesh lines
+    for (let x = planL + meshPx; x < planR - 2; x += meshPx) {
+      p.push(VL(Math.round(x), planT + 2, planB - 2, 0.75, AO, '3 3'));
+    }
+  }
+
+  // Air rods at corners (plan view — shown as crosses)
+  [[planL, planT],[planR, planT],[planL, planB],[planR, planB]].forEach(([rx, ry]) => {
+    p.push(`<circle cx="${rx}" cy="${ry}" r="5" fill="${AO}" stroke="${CC}" stroke-width="1"/>`);
+    p.push(DL(rx - 8, ry, rx + 8, ry, 1, CC));
+    p.push(DL(rx, ry - 8, rx, ry + 8, 1, CC));
+  });
+
+  // Down conductor positions (squares at perimeter)
+  const dcStep = planBW / Math.max(nDC - 1, 1);
+  for (let i = 0; i < nDC && i < 8; i++) {
+    const dx = planL + Math.round(i * dcStep);
+    // Top edge
+    p.push(`<rect x="${dx - 4}" y="${planT - 4}" width="8" height="8" fill="${CC}"/>`);
+    // Bottom edge (mirror)
+    p.push(`<rect x="${dx - 4}" y="${planB - 4}" width="8" height="8" fill="${CC}"/>`);
+  }
+
+  // Plan labels
+  p.push(T(planCX, planT - 14, `${bldgL} m`, { sz: 8, c: SC }));
+  p.push(T(planR + 18, planCY, `${bldgW} m`, { a: 'start', sz: 8, c: SC }));
+  p.push(T(planCX, planCY, method === 'Rolling Sphere' ? 'Rolling Sphere Method' : `Mesh ${meshSz}m x ${meshSz}m`, { sz: 8.5, c: SC }));
+  // Mesh size badge
+  if (method !== 'Rolling Sphere') {
+    p.push(Badge(planCX, planCY + 18, `Mesh: ${meshSz} m x ${meshSz} m`));
+  } else {
+    p.push(Badge(planCX, planCY + 18, `R = ${rSph} m`));
+  }
+
+  // ── LEGEND + NOTES strip ────────────────────────────────────────────────
+  const STRIP_Y = 467;
+  p.push(HL(11, STRIP_Y, W - 11, 0.75));
+
+  const LEG_W2  = Math.round(W * 0.44);
+  const DIV_X2  = LEG_W2 + 12;
+  p.push(VL(DIV_X2, STRIP_Y, H - 11, 0.75));
+
+  // Legend of Symbols — all inline or using valid drawing-symbols.js keys
+  p.push(T(18, STRIP_Y + 13, 'LEGEND OF SYMBOLS', { a: 'start', sz: 7, c: CC, w: '700' }));
+  // Row 0 — Air Termination Rod (uses real symbol: air_terminal)
+  { const iy = STRIP_Y + 22;
+    p.push(`<g color="${CC}" transform="translate(28,${iy + 5}) scale(0.33)">${drawSymbol('air_terminal', 0, 0)}</g>`);
+    p.push(T(44, iy + 9, 'Air Termination Rod (Franklin Rod)  IEC 62305-3', { a: 'start', sz: 7.5, c: CC })); }
+  // Row 1 — Down Conductor: short vertical line with amber tick (inline)
+  { const iy = STRIP_Y + 38;
+    p.push(VL(28, iy - 2, iy + 10, 2, CC));
+    p.push(HL(22, iy + 4, 34, iy + 4, 1.5, AO));
+    p.push(T(44, iy + 9, 'Down Conductor + Test-Joint  IEC 62305-3 §5.4', { a: 'start', sz: 7.5, c: CC })); }
+  // Row 2 — SPD: small box with diagonal (inline)
+  { const iy = STRIP_Y + 54;
+    p.push(`<rect x="19" y="${iy - 1}" width="18" height="14" fill="none" stroke="${CC}" stroke-width="1.2" rx="1.5"/>`);
+    p.push(DL(21, iy + 11, 35, iy + 1, 1.2, CC));
+    p.push(T(44, iy + 9, `SPD — Surge Protective Device  IEC 61643-11`, { a: 'start', sz: 7.5, c: CC })); }
+  // Row 3 — EPB: thick bar (inline)
+  { const iy = STRIP_Y + 70;
+    p.push(HL(20, iy + 5, 38, iy + 5, 4, CC));
+    p.push(T(44, iy + 9, 'Main Equipotential Bonding Bar (EPB)  IEC 62305-3 §6.2', { a: 'start', sz: 7.5, c: CC })); }
+
+  // General Notes
+  const NX2 = DIV_X2 + 8;
+  p.push(T(NX2, STRIP_Y + 13, 'GENERAL NOTES', { a: 'start', sz: 7, c: CC, w: '700' }));
+  [
+    `1. Design per IEC 62305-1/2/3/4 (Protection of Structures Against Lightning).`,
+    `2. Flash density Ng = ${ng} fl/km2/yr. Annual strikes Nd = ${Nd}. Risk ratio = ${riskRatio.toFixed ? riskRatio.toFixed(2) : riskRatio}.`,
+    `3. ${lpl}: Rolling sphere R = ${rSph} m, Mesh = ${meshSz} m x ${meshSz} m, Protection angle = ${alphaMax} deg.`,
+    `4. Down conductor spacing = ${dcSpc} m (${nDC} DCs). Material: ${dcMat}.`,
+    `5. SPD ${spdClass} at service entrance per IEC 61643-11 (power, data, telecoms). Min. intercepted current Imin = ${Imin} kA (IEC 62305-1 Table 1).`,
+    `6. Main EPB at service entry level bonds all metallic services (IEC 62305-3 §6.2). Sep. distance s \u2265 ${(ki * bldgH).toFixed(1)} m (§6.3).`,
+  ].forEach((note, i) => {
+    p.push(T(NX2, STRIP_Y + 27 + i * 14, note, { a: 'start', sz: 7.5, c: SC }));
+  });
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` +
+    p.join('\n  ') + `\n</svg>`;
+}
+
+function buildLPSTitleBlockHtml(inputs, results) {
+  const r = results;
+  const lpl   = String(inputs.lpl || 'LPL II');
+  const method = String(inputs.air_term_method || 'Rolling Sphere');
+  const proj  = String(inputs.project_name || 'LPS Design Project').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const now   = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+  const rSph  = Number(r.rolling_sphere_R_m || 45);
+  const meshSz = Number(r.mesh_size_m || 10);
+
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
+  const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+
+  const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
+  const TDB = (style='') => `<td style="padding:6px 8px;vertical-align:bottom;${style}">`;
+  const BR  = 'border-right:1px solid #c8d0da;';
+
+  return `<table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}width:42%;`)}${LBL('Project / Structure Name')}${EF(proj)}</td>
+    ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('LPS-EL-001')}</td>
+    ${TD('width:35%;')}${LBL('LPL / Method')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${lpl} &mdash; ${method} (R=${rSph}m, Mesh=${meshSz}m)</div></td>
+  </tr>
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('Lightning Protection Zone Diagram')}</td>
+    ${TD(`${BR}`)}${LBL('Standard / Code')}<div style="font-size:10px;color:#1a2e4a;">IEC 62305-1/2/3/4 / PEC 2017</div></td>
+    ${TD('')}${LBL('Date Prepared')}${EF(now)}</td>
+  </tr>
+  <tr>
+    ${TDB(`${BR}width:22%;`)}${LBL('Prepared By (EE)')}${SIG()}</td>
+    ${TDB(`${BR}width:22%;`)}${LBL('Checked By')}${SIG()}</td>
+    ${TDB(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
+    ${TD(`${BR}width:17%;`)}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
+    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}
+      <div style="font-size:8px;color:#888;margin-top:5px;">Sheet 1 of 1</div></td>
+  </tr>
+</table>`;
+}
+
+function renderLPSDiagram(svgString, inputs, results) {
+  const panel = document.getElementById('drawing-panel');
+  const titleBlock = buildLPSTitleBlockHtml(inputs, results);
+  panel.style.background = '#fff';
+  panel.style.padding = '0';
+  panel.innerHTML = `<div style="width:100%;display:block;border:2px solid #1a2e4a;border-bottom:none;box-sizing:border-box;">${svgString}</div>${titleBlock}`;
+  const titleEl = document.getElementById('drawing-output-title');
+  if (titleEl) titleEl.textContent = 'LPS Protection Zone Diagram';
+  document.getElementById('drawing-loading').classList.add('hidden');
+  document.getElementById('drawing-output').classList.remove('hidden');
+}
+
+// ─── Electrical SLD builder ───────────────────────────────────────────────────
+function buildElectricalSLDSvg(inputs, results) {
+  const r = results;
+  const isThreePhase = String(r.phase_config || '').includes('3');
+  const voltageLabel = isThreePhase ? '400V / 3Ø / 50Hz' : '230V / 1Ø / 50Hz';
+  const mainBkr  = r.recommended_breaker_A || 100;
+  const demandKW = Number(r.total_demand_kw  || 0).toFixed(1);
+  const demandA  = Number(r.ampacity_with_spare || 0).toFixed(1);
+  const breakdown = Array.isArray(r.load_breakdown) ? r.load_breakdown : [];
+  const numBranches = Math.min(breakdown.length, 8);
+  const hiddenCount = breakdown.length - numBranches;
+  const branches    = breakdown.slice(0, numBranches);
+  // *** REDESIGNED: drawing frame + compact Y positions + editable HTML title block ***
+
+  const BSPC = 130;
+  // Min W = 1050 so SVG aspect ratio is always landscape — needed to fit A3 single page
+  const W = Math.max(1050, numBranches * BSPC + 280);
+  const H = 580;   // landscape-proportioned: H/W ≤ 0.55 so SVG + title block fits A3 landscape
+  const CX = Math.round(W / 2);
+
+  // Y positions — compressed for landscape A3 layout
+  const YU   = 87;   // utility supply (label at YU-28=59, clears subtitle at y=41)
+  const YM   = 150;  // kWh meter
+  const YB   = 225;  // main MCCB
+  const YP   = 295;  // MDB panel
+  const YBUS = 330;  // bus bar
+  const YBR  = 387;  // branch breakers
+  const YLD  = 422;  // load boxes
+
+  const CC = '#1a2e4a';
+  const SC = '#5a6a7a';
+  const AO = '#F7A21B';
+
+  const esc = s => String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+  const T = (x, y, t, { a='middle', sz=10, c=CC, w='normal', dy=0 } = {}) =>
+    `<text x="${x}" y="${y}" dy="${dy}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(t)}</text>`;
+
+  const VL = (x, y1, y2, sw=2) =>
+    `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${CC}" stroke-width="${sw}"/>`;
+  const HL = (x1, y, x2, sw=2) =>
+    `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${CC}" stroke-width="${sw}"/>`;
+
+  const Badge = (x, y, label) => {
+    const bw = Math.max(50, esc(label).length * 7.2 + 14);
+    return `<rect x="${x - bw/2}" y="${y - 11}" width="${bw}" height="22" rx="11" fill="${AO}"/>` +
+      T(x, y + 5, label, { sz: 9, c: '#162032', w: '700' });
+  };
+
+  const nextStd = a => {
+    const sizes = [15,20,30,40,50,60,70,80,90,100,125,150,175,200,225,250,300,350,400,500,600];
+    return sizes.find(s => s >= a) || 600;
+  };
+
+  // Branch X positions centred on CX
+  const branchXs = [];
+  if (numBranches > 0) {
+    const totalW = (numBranches - 1) * BSPC;
+    const startX = CX - totalW / 2;
+    for (let i = 0; i < numBranches; i++) branchXs.push(Math.round(startX + i * BSPC));
+  }
+  const busLeft  = numBranches > 0 ? branchXs[0] - 50               : CX - 100;
+  const busRight = numBranches > 0 ? branchXs[numBranches - 1] + 50 : CX + 100;
+
+  let p = [];
+
+  // White background
+  p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
+
+  // Inner margin line only — outer perimeter border comes from the CSS wrapper div + HTML table,
+  // which guarantees pixel-perfect alignment and avoids the SVG-rect / table-border offset gap.
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="0.75"/>`);
+
+  // Drawing title inside frame (top centre)
+  p.push(T(CX, 27, 'SINGLE LINE DIAGRAM', { sz: 12, c: CC, w: '700' }));
+  p.push(T(CX, 41, 'Electrical Load Distribution', { sz: 9, c: SC }));
+
+  // Utility labels to the RIGHT of the symbol — avoids overlapping the circle body
+  p.push(T(CX + 42, YU - 4, voltageLabel, { a: 'start', sz: 9, c: CC, w: '700' }));
+  p.push(T(CX + 42, YU + 10, isThreePhase ? '3-Phase Utility Supply' : 'Single-Phase Utility Supply', { a: 'start', sz: 8, c: SC }));
+
+  // ── Main spine conductors ──────────────────────────────────────
+  // 3-phase: three parallel thin lines as visual cue
+  if (isThreePhase) {
+    [-4, 0, 4].forEach(dx => p.push(VL(CX + dx, YU + 30, YM - 30, 1)));
+  } else {
+    p.push(VL(CX, YU + 30, YM - 30));
+  }
+  p.push(VL(CX, YM + 30, YB - 30));
+  p.push(VL(CX, YB + 30, YP - 30));
+  p.push(VL(CX, YP + 30, YBUS));
+
+  // ── Bus bar ───────────────────────────────────────────────────
+  p.push(HL(busLeft, YBUS, busRight, 6));
+  p.push(T(busRight + 8, YBUS + 4, 'Bus Bar', { a: 'start', sz: 8, c: SC }));
+
+  // ── Symbols ───────────────────────────────────────────────────
+  p.push(`<g color="${CC}">${drawSymbol('utility_3ph', CX, YU)}</g>`);
+
+  p.push(`<g color="${CC}">${drawSymbol('meter_kwh', CX, YM)}</g>`);
+  p.push(T(CX + 42, YM - 4, 'kWh Meter', { a: 'start', sz: 9, c: SC }));
+  p.push(T(CX + 42, YM + 10, `${demandKW} kW demand`, { a: 'start', sz: 8, c: SC }));
+
+  p.push(`<g color="${CC}">${drawSymbol('breaker', CX, YB)}</g>`);
+  p.push(Badge(CX + 52, YB, `${mainBkr}A MCCB`));
+  p.push(T(CX - 44, YB - 6, 'Main Circuit Breaker', { a: 'end', sz: 8, c: SC }));
+  p.push(T(CX - 44, YB + 8, `${demandA}A`, { a: 'end', sz: 9, c: CC, w: '600' }));
+
+  p.push(`<g color="${CC}">${drawSymbol('panel', CX, YP)}</g>`);
+  // MDB label to the LEFT — ground symbol is at CX+55 so right side is blocked
+  p.push(T(CX - 48, YP - 5, 'MDB', { a: 'end', sz: 10, c: CC, w: '700' }));
+  p.push(T(CX - 48, YP + 10, 'Main Distribution Board', { a: 'end', sz: 8, c: SC }));
+
+  // Ground on MDB
+  p.push(`<g color="${CC}">${drawSymbol('ground', CX + 55, YP)}</g>`);
+
+  // ── Branch circuits ───────────────────────────────────────────
+  for (let i = 0; i < numBranches; i++) {
+    const bx = branchXs[i];
+    const br = branches[i];
+    const demVA  = Number(br.demand_va || br.connected_va || 0);
+    const brkAmp = demVA > 0
+      ? nextStd(Math.ceil((demVA / (isThreePhase ? Math.sqrt(3) * 400 : 230)) * 1.25))
+      : 15;
+
+    p.push(VL(bx, YBUS, YBR - 22));
+    p.push(`<g color="${CC}" transform="translate(${bx},${YBR}) scale(0.7)">${drawSymbol('breaker', 0, 0)}</g>`);
+    p.push(Badge(bx, YBR - 38, `${brkAmp}A`));
+    p.push(VL(bx, YBR + 22, YLD - 16));
+
+    const bW = 108, bHt = 55;
+    p.push(`<rect x="${bx - bW/2}" y="${YLD - 14}" width="${bW}" height="${bHt}" rx="5" fill="#f0f4f8" stroke="${CC}" stroke-width="1" opacity="0.8"/>`);
+
+    const words = String(br.load_type || 'Load').split(/\s+/);
+    const line1 = words.slice(0, 2).join(' ');
+    const line2 = words.length > 2 ? words.slice(2).join(' ') : '';
+    const qty   = Number(br.qty || 1);
+    const wEach = Number(br.watts_each || 0);
+    const wTot  = (wEach * qty).toFixed(0);
+
+    p.push(T(bx, YLD + 1,  line1, { sz: 8, c: CC, w: '600' }));
+    if (line2) p.push(T(bx, YLD + 12, line2, { sz: 8, c: CC, w: '600' }));
+    const off = line2 ? 23 : 13;
+    p.push(T(bx, YLD + off,      `${qty} × ${wEach}W`, { sz: 8, c: SC }));
+    p.push(T(bx, YLD + off + 12, `${Number(wTot).toLocaleString()} W`, { sz: 9, c: AO, w: '700' }));
+  }
+
+  if (hiddenCount > 0) {
+    p.push(T(W / 2, YLD + 56, `+ ${hiddenCount} more circuit${hiddenCount > 1 ? 's' : ''} — see full load schedule`, { sz: 9, c: SC }));
+  }
+
+  // ── Legend + Notes strip (PEC 2017 Art. 1.3 requirement) ─────────────────
+  // load box bottom = YLD - 14 + bHt = 422 - 14 + 55 = 463; STRIP_Y adds 6px gap
+  const STRIP_Y = 470;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W - 11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.75"/>`);
+
+  // Vertical divider: legend (left) | notes (right)
+  const LEG_W   = Math.round(W * 0.48);
+  const DIV_X   = LEG_W + 12;
+  p.push(`<line x1="${DIV_X}" y1="${STRIP_Y}" x2="${DIV_X}" y2="${H - 11}" stroke="${CC}" stroke-width="0.75"/>`);
+
+  // ── LEGEND OF SYMBOLS (bottom-left) ──────────────────────────────────────
+  p.push(T(18, STRIP_Y + 13, 'LEGEND OF SYMBOLS', { a: 'start', sz: 7, c: CC, w: '700' }));
+
+  const LEGEND_SYMS = [
+    { key: 'utility_3ph', label: 'Utility Supply (3-Phase Source)' },
+    { key: 'meter_kwh',   label: 'Energy Meter (kWh Metering)' },
+    { key: 'breaker',     label: 'Circuit Breaker (MCCB / MCB)' },
+    { key: 'panel',       label: 'Distribution Board (MDB / SDB)' },
+    { key: 'ground',      label: 'Protective Earth / Ground Electrode' },
+  ];
+
+  LEGEND_SYMS.forEach((sym, i) => {
+    const iy = STRIP_Y + 22 + i * 16;   // 16px row — tight fit for landscape H=580
+    // Symbol rendered at 0.33 scale into a 22×22 cell
+    p.push(`<g color="${CC}" transform="translate(${28},${iy + 5}) scale(0.33)">${drawSymbol(sym.key, 0, 0)}</g>`);
+    p.push(`<line x1="44" y1="${iy + 13}" x2="${Math.min(LEG_W + 6, 44 + sym.label.length * 5.5)}" y2="${iy + 13}" stroke="${AO}" stroke-width="0.5" opacity="0.6"/>`);
+    p.push(T(44, iy + 11, sym.label, { a: 'start', sz: 7.5, c: CC }));
+  });
+  // Bus bar note is covered by general notes — removed to keep legend within inner frame
+
+  // ── GENERAL NOTES (bottom-right) ─────────────────────────────────────────
+  const NX2 = DIV_X + 8;
+  p.push(T(NX2, STRIP_Y + 13, 'GENERAL NOTES', { a: 'start', sz: 7, c: CC, w: '700' }));
+  [
+    '1. All circuit breakers shall be MCB/MCCB, rated per PEC 2017 Art. 2.10.',
+    '2. Service entrance shall not be less than 125% of demand ampacity (PEC Art. 2.20).',
+    '3. Motor branch circuits shall be sized at 125% of nameplate FLA (PEC Art. 4.30).',
+    '4. Standard supply voltages: 230V single-phase and 400V three-phase (PEC / MERALCO).',
+    '5. All demand factors applied per load type in accordance with PEC 2017 Article 2.20.',
+    '6. This diagram is schematic only. Refer to architectural/structural plans for routing.',
+  ].forEach((note, i) => {
+    p.push(T(NX2, STRIP_Y + 27 + i * 14, note, { a: 'start', sz: 7.5, c: SC }));
+  });
+
+  // width:100% + viewBox lets html2pdf scale to any container — no fixed px clipping
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` +
+    p.join('\n  ') + `\n</svg>`;
+}
+
+// ── Philippine as-built title block (HTML, fully editable) ────────────────────
+function buildSLDTitleBlockHtml(inputs, results) {
+  const r = results;
+  const isThreePhase = String(r.phase_config || '').includes('3');
+  const voltageLabel = isThreePhase ? '400V / 3Ø / 50Hz' : '230V / 1Ø / 50Hz';
+  const mainBkr  = r.recommended_breaker_A || 100;
+  const demandKW = Number(r.total_demand_kw  || 0).toFixed(1);
+  const proj = String(inputs.project_name || 'Untitled Panel').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const now  = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
+  const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+
+  const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
+  const TDB = (style='') => `<td style="padding:6px 8px;vertical-align:bottom;${style}">`;
+  const BR  = 'border-right:1px solid #c8d0da;';
+
+  return `<table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}width:42%;`)}${LBL('Project / Panel Name')}${EF(proj)}</td>
+    ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('SLD-EL-001')}</td>
+    ${TD('width:35%;')}${LBL('System / Total Demand')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${voltageLabel} &mdash; ${demandKW}&thinsp;kW / ${mainBkr}&thinsp;A Main CB</div></td>
+  </tr>
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('Electrical Single Line Diagram')}</td>
+    ${TD(`${BR}`)}${LBL('Standard / Code')}<div style="font-size:10px;color:#1a2e4a;">PEC 2017 / IEC 60617</div></td>
+    ${TD('')}${LBL('Date Prepared')}${EF(now)}</td>
+  </tr>
+  <tr>
+    ${TDB(`${BR}width:22%;`)}${LBL('Prepared By')}${SIG()}</td>
+    ${TDB(`${BR}width:22%;`)}${LBL('Checked By')}${SIG()}</td>
+    ${TDB(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
+    ${TD(`${BR}width:17%;`)}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
+    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}
+      <div style="font-size:8px;color:#888;margin-top:5px;">Sheet 1 of 1</div></td>
+  </tr>
+</table>`;
+}
+
+// ─── Generator Connection Diagram builder ─────────────────────────────────────
+function buildGeneratorConnectionSvg(inputs, results) {
+  const r  = results || {};
+  const W  = 1050, H = 580;
+  const STRIP_Y = H - 113; // 467
+
+  // ── Calc values ────────────────────────────────────────────────────────────
+  const selKva   = Number(r.selected_kva    || 0);
+  const selKw    = Number(r.selected_kw     || 0);
+  const runKva   = Number(r.running_kva     || 0);
+  const fuel100  = Number(r.fuel_100pct_lhr || 0).toFixed(1);
+  const tank8    = Number(r.tank_8hr_litres || 0).toFixed(0);
+  const startKva = Number(r.starting_kva    || 0).toFixed(0);
+  const rawLoad  = Number(r.loading_pct     || (selKva > 0 ? runKva / selKva * 100 : 0));
+  const loadPct  = rawLoad.toFixed(0);
+  const designKva= Number(r.design_kva      || selKva).toFixed(0);
+  const phaseConf= String(inputs.phase_config || r.phase_config || '3-Phase 4-Wire (400V)');
+  const is3Ph    = phaseConf.includes('3');
+  const voltage  = is3Ph ? '400 V / 3Ø / 50 Hz' : '230 V / 1Ø / 50 Hz';
+  const atsLabel = is3Ph ? '4-Pole ATS' : '2-Pole ATS';
+  const app      = String(inputs.application  || r.application  || 'Standby (ESP)');
+  const startM   = String(inputs.start_method || 'DOL');
+
+  // Load breakdown for priority groups
+  const loads    = Array.isArray(r.load_breakdown) ? r.load_breakdown
+                 : Array.isArray(inputs.loads)      ? inputs.loads : [];
+  const essMatcher  = /emergency|essential|fire|life.?safety|exit|medical|alarm/i;
+  const critMatcher = /server|hvac|compressor|chiller|ups|critical/i;
+  const p1List = loads.filter(l =>  essMatcher.test(l.load_type || ''));
+  const p2List = loads.filter(l => !essMatcher.test(l.load_type || '') &&  critMatcher.test(l.load_type || ''));
+  const p3List = loads.filter(l => !essMatcher.test(l.load_type || '') && !critMatcher.test(l.load_type || ''));
+  const p1Text = p1List.length ? p1List.slice(0,2).map(l=>l.load_type).join(', ') : 'Fire Alarm, Emergency Lights';
+  const p2Text = p2List.length ? p2List.slice(0,2).map(l=>l.load_type).join(', ') : 'HVAC, UPS, Server Room';
+  const p3Text = p3List.length ? p3List.slice(0,2).map(l=>l.load_type).join(', ') : 'General Lighting, Outlets';
+
+  // ── Colours ────────────────────────────────────────────────────────────────
+  const CU = '#1565c0'; // utility blue
+  const CG = '#2e7d32'; // generator green
+  const CA = '#e65100'; // ATS amber
+  const CM = '#1a2e4a'; // MDB navy
+  const CF = '#5d4037'; // fuel brown
+  const CP1= '#b71c1c'; // P1 red
+  const CP2= '#bf360c'; // P2 deep-orange
+  const CP3= '#4a148c'; // P3 purple
+
+  // ── Layout ─────────────────────────────────────────────────────────────────
+  // Utility box
+  const UBX=25, UBY=45, UBW=170, UBH=90;
+  const ucx=UBX+UBW/2, uy_bot=UBY+UBH;
+  // Generator box
+  const GBX=720, GBY=35, GBW=220, GBH=110;
+  const gcx=GBX+GBW/2, gy_bot=GBY+GBH;
+  // Fuel tank (cylinder, top-right, right of generator)
+  const FTX=985, FTY=60, FRX=20, FRY=7, FCH=42;
+  // Alarm panel (gap between ATS and generator)
+  const APX=640, APY=182, APW=72, APH=42;
+  // ATS box
+  const ABX=432, ABY=178, ABW=183, ABH=60;
+  const acx=ABX+ABW/2, ay_bot=ABY+ABH;
+  const ats_mid_y=ABY+ABH/2;
+  // MDB box
+  const MBX=402, MBY=268, MBW=246, MBH=52;
+  const mcx=MBX+MBW/2, my_bot=MBY+MBH;
+  // Distribution bus Y
+  const busY=my_bot+12; // 332
+  // Priority load boxes
+  const P1X=25,  P1Y=348, P1W=190, P1H=72;
+  const P2X=402, P2Y=348, P2W=246, P2H=72;
+  const P3X=717, P3Y=348, P3W=230, P3H=72;
+  const p1cx=P1X+P1W/2, p2cx=P2X+P2W/2, p3cx=P3X+P3W/2;
+
+  // Loading badge colour
+  const loadNum = Number(loadPct);
+  const badgeStroke = loadNum > 80 ? CP1 : CG;
+  const badgeFill   = loadNum > 80 ? '#ffebee' : '#e8f5e9';
+  const badgeLabel  = loadNum > 80 ? 'HIGH — NEAR LIMIT' : loadNum < 40 ? 'LOW — OVERSIZED' : 'OPTIMAL RANGE';
+
+  // ── SVG helpers ────────────────────────────────────────────────────────────
+  const bx  = (x,y,w,h,fill,stroke,sw=1.5,rx=3) =>
+    `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" rx="${rx}"/>`;
+  const hdr = (x,y,w,h,fill,rx=4) =>
+    `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" rx="${rx}"/><rect x="${x}" y="${y+h-4}" width="${w}" height="4" fill="${fill}"/>`;
+  const tx  = (x,y,s,sz=10,fill='#1a2e4a',anchor='middle',weight='normal') =>
+    `<text x="${x}" y="${y}" font-size="${sz}" fill="${fill}" text-anchor="${anchor}" font-family="'Segoe UI',Arial,sans-serif" font-weight="${weight}">${s}</text>`;
+  const ln  = (x1,y1,x2,y2,stroke,sw=2,dash='') =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${sw}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+  const dot = (x,y,r,fill) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>`;
+
+  // ── SVG build ──────────────────────────────────────────────────────────────
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="100%" style="display:block;background:#f8faff;">
+
+  <!-- inner margin border -->
+  <rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="#8899aa" stroke-width="0.8"/>
+
+  <!-- ─── TITLE STRIP ─────────────────────────────────────────── -->
+  <rect x="11" y="${STRIP_Y}" width="${W-22}" height="${H-11-STRIP_Y}" fill="${CM}" rx="0"/>
+  ${tx(W/2, STRIP_Y+17, 'GENERATOR CONNECTION DIAGRAM', 13, '#fff', 'middle', '700')}
+  ${tx(W/2, STRIP_Y+32, escHtml(`${app} | ${phaseConf} | ${selKva.toFixed(0)} kVA / ${selKw.toFixed(0)} kW | Start: ${startM}`), 9, '#cfe2ff', 'middle')}
+  ${tx(28, STRIP_Y+16, 'ISO 8528-1', 7.5, '#8bc4ff', 'start')}
+  ${tx(28, STRIP_Y+28, 'NFPA 110', 7.5, '#8bc4ff', 'start')}
+  ${tx(28, STRIP_Y+40, 'PEC 2017', 7.5, '#8bc4ff', 'start')}
+  <!-- legend row -->
+  ${ln(28,  STRIP_Y+54, 68,  STRIP_Y+54, CU, 3)}
+  ${tx(72,  STRIP_Y+58, 'Utility Circuit', 7.5, '#ddd', 'start')}
+  ${ln(170, STRIP_Y+54, 210, STRIP_Y+54, CG, 3)}
+  ${tx(214, STRIP_Y+58, 'Generator Circuit', 7.5, '#ddd', 'start')}
+  ${ln(325, STRIP_Y+54, 365, STRIP_Y+54, CA, 3)}
+  ${tx(369, STRIP_Y+58, 'ATS Transfer Bus', 7.5, '#ddd', 'start')}
+  ${ln(475, STRIP_Y+54, 515, STRIP_Y+54, CP3, 2, '5,3')}
+  ${tx(519, STRIP_Y+58, 'LSR — Load Shed Relay', 7.5, '#ddd', 'start')}
+  ${ln(648, STRIP_Y+54, 688, STRIP_Y+54, CF, 1.5, '4,3')}
+  ${tx(692, STRIP_Y+58, 'Fuel Supply', 7.5, '#ddd', 'start')}
+  <!-- notes row -->
+  ${tx(28, STRIP_Y+72, '1. Generator rated per ISO 8528-1; standby rating at PF 0.8, altitude ≤1000 m, ambient ≤40°C.', 7, '#bbb', 'start')}
+  ${tx(28, STRIP_Y+83, '2. ATS per NFPA 110 §6.2.3; transfer time ≤10 s; 4-pole ATS where neutral switching required (PEC 2017).', 7, '#bbb', 'start')}
+  ${tx(28, STRIP_Y+94, '3. Fuel tank sized for ≥8 hr at 100% load (NFPA 30 / NFPA 110 §8); day-tank fill alarm required.', 7, '#bbb', 'start')}
+  ${tx(28, STRIP_Y+105, '4. LSR load shed sequence: P1 Essential first, P2 Critical second, P3 Normal shed on overload. Annual load test ≥30% rated load (NFPA 110 §8.4.2).', 7, '#bbb', 'start')}
+
+  <!-- loading badge (top-right of strip) -->
+  ${bx(W-120, STRIP_Y+16, 100, 72, badgeFill, badgeStroke, 1.5, 4)}
+  ${tx(W-70, STRIP_Y+30, 'LOADING', 7.5, badgeStroke, 'middle', '700')}
+  ${tx(W-70, STRIP_Y+52, `${loadPct}%`, 20, badgeStroke, 'middle', '700')}
+  ${tx(W-70, STRIP_Y+67, badgeLabel, 6.5, badgeStroke, 'middle')}
+  ${tx(W-14, STRIP_Y+100, 'NTS', 7.5, '#666', 'end')}
+
+  <!-- ─── UTILITY SOURCE ──────────────────────────────────────── -->
+  ${bx(UBX, UBY, UBW, UBH, '#e3f0fb', CU, 2, 4)}
+  ${hdr(UBX, UBY, UBW, 20, CU)}
+  ${tx(ucx, UBY+14, 'UTILITY SUPPLY', 8.5, '#fff', 'middle', '700')}
+  ${tx(ucx, UBY+40, voltage, 13, CU, 'middle', '700')}
+  ${tx(ucx, UBY+56, 'TN-S System / 50 Hz', 8, '#444', 'middle')}
+  ${tx(ucx, UBY+70, 'Metered Service (GENCO/SPUG)', 7.5, '#666', 'middle')}
+  ${tx(ucx, UBY+84, '⚡', 8, CU, 'middle')}
+
+  <!-- ─── GENERATOR SET ───────────────────────────────────────── -->
+  ${bx(GBX, GBY, GBW, GBH, '#e8f5e9', CG, 2, 4)}
+  ${hdr(GBX, GBY, GBW, 20, CG)}
+  ${tx(gcx, GBY+14, 'GENERATOR SET', 8.5, '#fff', 'middle', '700')}
+  ${tx(gcx, GBY+35, `${selKva.toFixed(0)} kVA / ${selKw.toFixed(0)} kW`, 14, CG, 'middle', '700')}
+  ${tx(gcx, GBY+52, escHtml(`Standby | PF 0.8 | ${startM} Start`), 8, '#444', 'middle')}
+  ${tx(gcx, GBY+66, `Running: ${runKva.toFixed(0)} kVA | Starting: ${startKva} kVA`, 8, '#555', 'middle')}
+  ${tx(gcx, GBY+80, `Fuel: ${fuel100} L/hr @100% | Tank: ${tank8} L (8-hr)`, 8, '#555', 'middle')}
+  ${tx(gcx, GBY+95, escHtml(phaseConf), 7.5, '#777', 'middle')}
+
+  <!-- ─── FUEL TANK (right of generator) ─────────────────────── -->
+  <ellipse cx="${FTX}" cy="${FTY+FRY}" rx="${FRX}" ry="${FRY}" fill="#efebe9" stroke="${CF}" stroke-width="1.5"/>
+  <rect x="${FTX-FRX}" y="${FTY+FRY}" width="${FRX*2}" height="${FCH}" fill="#efebe9" stroke="${CF}" stroke-width="1.5" stroke-dasharray="0" style="stroke-dasharray:none"/>
+  <rect x="${FTX-FRX}" y="${FTY+FRY}" width="${FRX*2}" height="${FCH}" fill="none" stroke="${CF}" stroke-width="1.5"/>
+  <ellipse cx="${FTX}" cy="${FTY+FRY+FCH}" rx="${FRX}" ry="${FRY}" fill="#d7ccc8" stroke="${CF}" stroke-width="1.5"/>
+  ${tx(FTX, FTY+FRY+FCH/2-4, 'FUEL', 7.5, CF, 'middle', '700')}
+  ${tx(FTX, FTY+FRY+FCH/2+8, 'TANK', 7.5, CF, 'middle', '700')}
+  ${tx(FTX, FTY+FRY+FCH+18, `${tank8} L`, 8, CF, 'middle')}
+  ${tx(FTX, FTY+FRY+FCH+29, '8-hr cap.', 7, '#888', 'middle')}
+  <!-- Fuel line to generator right side -->
+  ${ln(FTX-FRX, FTY+FRY+FCH/2, GBX+GBW+4, FTY+FRY+FCH/2, CF, 1.5, '5,3')}
+  <polygon points="${GBX+GBW},${FTY+FRY+FCH/2-4} ${GBX+GBW+8},${FTY+FRY+FCH/2} ${GBX+GBW},${FTY+FRY+FCH/2+4}" fill="${CF}"/>
+
+  <!-- ─── ALARM / ANNUNCIATOR PANEL ──────────────────────────── -->
+  ${bx(APX, APY, APW, APH, '#fff9c4', '#f9a825', 1.5, 3)}
+  ${tx(APX+APW/2, APY+13, 'ALARM', 7.5, '#f57f17', 'middle', '700')}
+  ${tx(APX+APW/2, APY+24, 'PANEL', 7.5, '#f57f17', 'middle', '700')}
+  ${tx(APX+APW/2, APY+35, 'NFPA 110 §7.6', 6.5, '#777', 'middle')}
+  <!-- Dashed line from alarm to generator left -->
+  ${ln(APX+APW, APY+APH/2, GBX, GBY+GBH*0.75, '#f9a825', 1, '3,2')}
+
+  <!-- ─── ATS ─────────────────────────────────────────────────── -->
+  ${bx(ABX, ABY, ABW, ABH, '#fff3e0', CA, 2, 4)}
+  ${hdr(ABX, ABY, ABW, 20, CA)}
+  ${tx(acx, ABY+14, 'AUTOMATIC TRANSFER SWITCH', 8, '#fff', 'middle', '700')}
+  ${tx(acx, ABY+34, atsLabel, 13, CA, 'middle', '700')}
+  ${tx(acx, ABY+50, 'UTILITY vs. GENERATOR | Auto / Manual', 7.5, '#555', 'middle')}
+
+  <!-- ─── MDB ──────────────────────────────────────────────────── -->
+  ${bx(MBX, MBY, MBW, MBH, '#e8edf5', CM, 2, 4)}
+  ${hdr(MBX, MBY, MBW, 20, CM)}
+  ${tx(mcx, MBY+14, 'MAIN DISTRIBUTION BOARD (MDB)', 8.5, '#fff', 'middle', '700')}
+  ${tx(mcx, MBY+33, escHtml(`${is3Ph?'3Ø/400V':'1Ø/230V'} | MCCB Main Breaker | Design: ${designKva} kVA`), 8.5, CM, 'middle')}
+  ${tx(mcx, MBY+46, 'PEC 2017 / IEC 60364', 7.5, '#666', 'middle')}
+
+  <!-- ─── PRIORITY LOAD BOXES ─────────────────────────────────── -->
+  <!-- P1 Essential -->
+  ${bx(P1X, P1Y, P1W, P1H, '#fce4ec', CP1, 1.5, 4)}
+  ${hdr(P1X, P1Y, P1W, 18, CP1)}
+  ${tx(p1cx, P1Y+13, 'PRIORITY 1 — ESSENTIAL', 7.5, '#fff', 'middle', '700')}
+  ${tx(p1cx, P1Y+30, 'Life Safety / Emergency', 8.5, CP1, 'middle', '700')}
+  ${tx(p1cx, P1Y+44, escHtml(p1Text), 7, '#444', 'middle')}
+  ${tx(p1cx, P1Y+57, 'NFPA 110 Class 10, Level 1', 6.5, '#888', 'middle')}
+  ${tx(p1cx, P1Y+68, 'Never shed — always powered', 6.5, '#999', 'middle')}
+
+  <!-- P2 Critical -->
+  ${bx(P2X, P2Y, P2W, P2H, '#fff3e0', CP2, 1.5, 4)}
+  ${hdr(P2X, P2Y, P2W, 18, CP2)}
+  ${tx(p2cx, P2Y+13, 'PRIORITY 2 — CRITICAL', 7.5, '#fff', 'middle', '700')}
+  ${tx(p2cx, P2Y+30, 'Process-Critical Loads', 8.5, CP2, 'middle', '700')}
+  ${tx(p2cx, P2Y+44, escHtml(p2Text), 7, '#444', 'middle')}
+  ${tx(p2cx, P2Y+57, 'LSR Priority: High', 6.5, '#888', 'middle')}
+  ${tx(p2cx, P2Y+68, 'Shed last on overload', 6.5, '#999', 'middle')}
+
+  <!-- P3 Normal -->
+  ${bx(P3X, P3Y, P3W, P3H, '#f3e5f5', CP3, 1.5, 4)}
+  ${hdr(P3X, P3Y, P3W, 18, CP3)}
+  ${tx(p3cx, P3Y+13, 'PRIORITY 3 — NORMAL', 7.5, '#fff', 'middle', '700')}
+  ${tx(p3cx, P3Y+30, 'Non-Critical / Sheddable', 8.5, CP3, 'middle', '700')}
+  ${tx(p3cx, P3Y+44, escHtml(p3Text), 7, '#444', 'middle')}
+  ${tx(p3cx, P3Y+57, 'LSR: Shed first on overload', 6.5, '#888', 'middle')}
+  ${tx(p3cx, P3Y+68, 'Dashed tie = via LSR', 6.5, '#999', 'middle')}
+
+  <!-- ─── CONNECTION LINES ─────────────────────────────────────── -->
+  <!-- Utility → ATS left side (blue, solid) -->
+  ${ln(ucx, uy_bot, ucx, ats_mid_y, CU, 2.5)}
+  ${ln(ucx, ats_mid_y, ABX, ats_mid_y, CU, 2.5)}
+  ${dot(ABX, ats_mid_y, 5, CU)}
+
+  <!-- Generator → ATS right side (green, solid) -->
+  ${ln(gcx, gy_bot, gcx, ats_mid_y, CG, 2.5)}
+  ${ln(gcx, ats_mid_y, ABX+ABW, ats_mid_y, CG, 2.5)}
+  ${dot(ABX+ABW, ats_mid_y, 5, CG)}
+
+  <!-- ATS → MDB (amber, solid) -->
+  ${ln(acx, ay_bot, acx, MBY, CA, 2.5)}
+  ${dot(acx, MBY, 5, CA)}
+
+  <!-- MDB → distribution bus (navy) -->
+  ${ln(mcx, my_bot, mcx, busY, CM, 2)}
+
+  <!-- Distribution bus (horizontal) -->
+  ${ln(p1cx, busY, p3cx, busY, CM, 2)}
+  ${dot(p1cx, busY, 4, CM)}
+  ${dot(p2cx, busY, 4, CM)}
+  ${dot(p3cx, busY, 4, CM)}
+
+  <!-- Bus → P1 (red drop) -->
+  ${ln(p1cx, busY, p1cx, P1Y, CP1, 2)}
+  <!-- Bus → P2 (orange drop) -->
+  ${ln(p2cx, busY, p2cx, P2Y, CP2, 2)}
+  <!-- Bus → P3 (purple dashed = shed relay) -->
+  ${ln(p3cx, busY, p3cx, P3Y, CP3, 2, '6,3')}
+</svg>`;
+}
+
+function buildGeneratorTitleBlockHtml(inputs, results) {
+  const r       = results || {};
+  const selKva  = Number(r.selected_kva || 0).toFixed(0);
+  const selKw   = Number(r.selected_kw  || 0).toFixed(0);
+  const phaseConf = String(inputs.phase_config || r.phase_config || '3-Phase 4-Wire (400V)');
+  const is3Ph   = phaseConf.includes('3');
+  const app     = String(inputs.application || r.application || 'Standby (ESP)');
+  const proj    = String(inputs.project_name || 'Untitled Generator').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const now     = new Date().toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const ratingLine = `${selKva} kVA / ${selKw} kW | ${is3Ph ? '400V / 3Ø / 50Hz' : '230V / 1Ø / 50Hz'} | ${app}`;
+
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
+  const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+
+  const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
+  const TDB = (style='') => `<td style="padding:6px 8px;vertical-align:bottom;${style}">`;
+  const BR  = 'border-right:1px solid #c8d0da;';
+
+  return `<table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}width:42%;`)}${LBL('Project Name')}${EF(proj)}</td>
+    ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('GEN-PWR-001')}</td>
+    ${TD('width:35%;')}${LBL('Generator Rating')}<div style="font-size:10px;font-weight:700;color:#1a2e4a;">${ratingLine}</div></td>
+  </tr>
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('Generator Connection Diagram')}</td>
+    ${TD(`${BR}`)}${LBL('Standard / Code')}<div style="font-size:10px;color:#1a2e4a;">ISO 8528-1 / NFPA 110 / PEC 2017</div></td>
+    ${TD('')}${LBL('Date Prepared')}${EF(now)}</td>
+  </tr>
+  <tr>
+    ${TDB(`${BR}width:22%;`)}${LBL('Prepared By')}${SIG()}</td>
+    ${TDB(`${BR}width:22%;`)}${LBL('Checked By')}${SIG()}</td>
+    ${TDB(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
+    ${TD(`${BR}width:17%;`)}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
+    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}
+      <div style="font-size:8px;color:#888;margin-top:5px;">Sheet 1 of 1</div></td>
+  </tr>
+</table>`;
+}
+
+function renderGeneratorConnectionDiagram(svgString, inputs, results) {
+  const panel      = document.getElementById('drawing-panel');
+  const titleBlock = buildGeneratorTitleBlockHtml(inputs, results);
+  panel.style.background = '#fff';
+  panel.style.padding    = '0';
+  panel.innerHTML = `<div style="width:100%;display:block;border:2px solid #1a2e4a;border-bottom:none;box-sizing:border-box;">${svgString}</div>${titleBlock}`;
+  const titleEl = document.getElementById('drawing-output-title');
+  if (titleEl) titleEl.textContent = 'Generator Connection Diagram';
+  document.getElementById('drawing-loading').classList.add('hidden');
+  document.getElementById('drawing-output').classList.remove('hidden');
+}
+
+// ─── Pump System P&ID Schematic ──────────────────────────────────────────────
+function buildPumpPIDSvg(inputs, results) {
+  const r  = results || {};
+  const W  = 1050, H = 580;
+  const STRIP_Y = H - 113; // 467
+
+  // ── Calc values ────────────────────────────────────────────────────────────
+  const flowLpm  = Number(r.flow_lpm      || inputs.flow_rate    || 0);
+  const flowM3hr = Number(r.flow_m3hr     || 0).toFixed(2);
+  const tdh      = Number(r.TDH           || 0).toFixed(1);
+  const pipeDia  = Number(r.pipe_dia_mm   || inputs.pipe_diameter || 0);
+  const pipeMat  = String(r.inputs_used?.pipe_material || inputs.pipe_material || 'PVC');
+  const velocity = Number(r.pipe_velocity || 0).toFixed(2);
+  const velOk    = r.velocity_ok !== false;
+  const motorKw  = Number(r.recommended_kw   || 0).toFixed(1);
+  const motorHp  = Number(r.recommended_hp   || 0).toFixed(0);
+  const pumpEff  = Number(r.inputs_used?.pump_efficiency  || inputs.pump_efficiency  || 70);
+  const motorEff = Number(r.inputs_used?.motor_efficiency || inputs.motor_efficiency || 90);
+  const npshA    = Number(r.npsh_available || 0).toFixed(2);
+  const staticH  = Number(r.static_head   || inputs.static_head  || 0).toFixed(1);
+  const fricH    = Number(r.friction_head  || 0).toFixed(1);
+  const fluidType= String(inputs.fluid_type || 'Water');
+  const suctionH = Number(inputs.suction_head || 0);
+  const isLift   = suctionH < 0;
+
+  // ── Colours ────────────────────────────────────────────────────────────────
+  const CP = '#1a2e4a'; // process / navy
+  const CI = '#1565c0'; // instrument signal blue
+  const CG = '#2e7d32'; // motor / power green
+  const CF = '#e65100'; // flow highlight amber
+  const VV = velOk ? '#2e7d32' : '#b71c1c'; // velocity status
+
+  // ── Layout constants ──────────────────────────────────────────────────────
+  const PIPE_Y = 285, GND_Y = 415;
+
+  // Source sump
+  const SRC_L=35, SRC_R=145, SRC_CX=90, SRC_TY=100;
+  // Strainer / valves / instruments — suction
+  const STR_X=215, STR_R=14;
+  const IV1_X=290, IV1_HW=12;
+  const SPI_X=348, SPI_BY=220; // PI-102 bubble y
+  // Pump
+  const PMP_CX=420, PMP_R=30;
+  const MTR_CX=420, MTR_TY=190, MTR_W=40, MTR_H=32;
+  // Discharge side
+  const DPT_X=478, DPT_BY=355; // PIT-103 bubble y (below pipe)
+  const CHK_X=537, CHK_HW=12;
+  const IV2_X=612, IV2_HW=12;
+  const FIT_X=690, FIT_R=16;   // FIT-104 inline on pipe
+  // Destination vessel
+  const DST_L=865, DST_R=975, DST_CX=920, DST_TY=80;
+
+  // ── SVG helpers ────────────────────────────────────────────────────────────
+  const tx = (x,y,s,sz=9,fill=CP,anchor='middle',wt='normal') =>
+    `<text x="${x}" y="${y}" font-size="${sz}" fill="${fill}" text-anchor="${anchor}" font-family="'Segoe UI',Arial,sans-serif" font-weight="${wt}">${s}</text>`;
+  const ln = (x1,y1,x2,y2,stroke=CP,sw=2.5,dash='') =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${sw}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+
+  // Gate valve (bowtie, horizontal)
+  const gateV = (x,y) =>
+    `<polygon points="${x-11},${y-11} ${x},${y} ${x-11},${y+11}" fill="white" stroke="${CP}" stroke-width="1.8"/>` +
+    `<polygon points="${x+11},${y-11} ${x},${y} ${x+11},${y+11}" fill="white" stroke="${CP}" stroke-width="1.8"/>` +
+    `<line x1="${x}" y1="${y-11}" x2="${x}" y2="${y-20}" stroke="${CP}" stroke-width="1.5"/>` +
+    `<line x1="${x-5}" y1="${y-20}" x2="${x+5}" y2="${y-20}" stroke="${CP}" stroke-width="1.5"/>`;
+
+  // Check valve (filled triangle + blocking line, flow left-to-right)
+  const checkV = (x,y) =>
+    `<polygon points="${x-11},${y-11} ${x-11},${y+11} ${x+10},${y}" fill="${CP}" stroke="${CP}" stroke-width="1"/>` +
+    `<line x1="${x+10}" y1="${y-11}" x2="${x+10}" y2="${y+11}" stroke="${CP}" stroke-width="2"/>`;
+
+  // Y-Strainer (diamond)
+  const strainer = (x,y) =>
+    `<polygon points="${x},${y-14} ${x+14},${y} ${x},${y+14} ${x-14},${y}" fill="white" stroke="${CP}" stroke-width="1.8"/>` +
+    tx(x, y+4, 'Y', 9, CP, 'middle', '700');
+
+  // Instrument bubble — ISA-5.1 open circle; center line = remote/shared display
+  const bubble = (x,y,tag,loop,remote=true) =>
+    `<circle cx="${x}" cy="${y}" r="16" fill="white" stroke="${CI}" stroke-width="1.5"/>` +
+    (remote ? `<line x1="${x-14}" y1="${y}" x2="${x+14}" y2="${y}" stroke="${CI}" stroke-width="1"/>` : '') +
+    tx(x, y-4, tag, 7.5, CI, 'middle', '700') +
+    tx(x, y+8, loop, 7, '#444', 'middle');
+
+  // Dashed leader line to instrument tap
+  const leader = (x1,y1,x2,y2) => ln(x1,y1,x2,y2, CI, 1, '4,3');
+
+  // Centrifugal pump (circle + V-impeller)
+  const pumpSym = (cx,cy,r) =>
+    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#f0f8ff" stroke="${CP}" stroke-width="2.5"/>` +
+    `<polyline points="${cx-r*0.65},${cy-r*0.6} ${cx+r*0.5},${cy} ${cx-r*0.65},${cy+r*0.6}" fill="none" stroke="${CP}" stroke-width="2" stroke-linejoin="round"/>` +
+    `<circle cx="${cx}" cy="${cy}" r="3" fill="${CP}"/>`;
+
+  // Motor (M box)
+  const motorSym = (cx,ty,w,h) =>
+    `<rect x="${cx-w/2}" y="${ty}" width="${w}" height="${h}" fill="#e8f5e9" stroke="${CG}" stroke-width="1.8" rx="3"/>` +
+    tx(cx, ty+h/2+4, 'M', 13, CG, 'middle', '700');
+
+  // Dark tag badge
+  const tagBadge = (x,y,tag) =>
+    `<rect x="${x-30}" y="${y-10}" width="60" height="20" fill="${CP}" rx="2"/>` +
+    tx(x, y+5, tag, 7.5, '#fff', 'middle', '700');
+
+  // ── SVG body ──────────────────────────────────────────────────────────────
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="100%" style="display:block;background:#f8faff;">
+
+  <!-- Inner margin border -->
+  <rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="#8899aa" stroke-width="0.8"/>
+
+  <!-- ─── TITLE STRIP ─────────────────────────────────────────── -->
+  <rect x="11" y="${STRIP_Y}" width="${W-22}" height="${H-11-STRIP_Y}" fill="${CP}" rx="0"/>
+  ${tx(W/2, STRIP_Y+17, 'PUMP SYSTEM P&amp;ID SCHEMATIC', 13, '#fff', 'middle', '700')}
+  ${tx(W/2, STRIP_Y+32, escHtml(`${fluidType} | Flow: ${flowM3hr} m³/hr | TDH: ${tdh} m | Pipe: DN${pipeDia} ${pipeMat} | Motor: ${motorKw} kW (${motorHp} HP)`), 9, '#cfe2ff', 'middle')}
+  ${tx(28, STRIP_Y+16, 'ISA-5.1:2009', 7.5, '#8bc4ff', 'start')}
+  ${tx(28, STRIP_Y+28, 'ISO 10628', 7.5, '#8bc4ff', 'start')}
+  ${tx(28, STRIP_Y+40, 'ASME B31.3', 7.5, '#8bc4ff', 'start')}
+  <!-- Legend -->
+  ${ln(105, STRIP_Y+54, 145, STRIP_Y+54, CP, 3)}
+  ${tx(149, STRIP_Y+58, 'Process Line', 7.5, '#ddd', 'start')}
+  ${ln(242, STRIP_Y+54, 282, STRIP_Y+54, CI, 1, '4,3')}
+  ${tx(286, STRIP_Y+58, 'Instrument Signal', 7.5, '#ddd', 'start')}
+  <polygon points="380,${STRIP_Y+49} 387,${STRIP_Y+54} 380,${STRIP_Y+59}" fill="none" stroke="#ddd" stroke-width="1"/>
+  <polygon points="394,${STRIP_Y+49} 387,${STRIP_Y+54} 394,${STRIP_Y+59}" fill="none" stroke="#ddd" stroke-width="1"/>
+  ${tx(410, STRIP_Y+58, 'Gate Valve (N.O.)', 7.5, '#ddd', 'start')}
+  <polygon points="506,${STRIP_Y+49} 506,${STRIP_Y+59} 518,${STRIP_Y+54}" fill="#ddd"/>
+  <line x1="518" y1="${STRIP_Y+49}" x2="518" y2="${STRIP_Y+59}" stroke="#ddd" stroke-width="1.5"/>
+  ${tx(526, STRIP_Y+58, 'Check Valve', 7.5, '#ddd', 'start')}
+  <circle cx="615" cy="${STRIP_Y+54}" r="8" fill="none" stroke="#8bc4ff" stroke-width="1.2"/>
+  <line x1="607" y1="${STRIP_Y+54}" x2="623" y2="${STRIP_Y+54}" stroke="#8bc4ff" stroke-width="1"/>
+  ${tx(630, STRIP_Y+58, 'Field Instr. (Remote)', 7.5, '#ddd', 'start')}
+  <polygon points="745,${STRIP_Y+47} 753,${STRIP_Y+54} 745,${STRIP_Y+61} 737,${STRIP_Y+54}" fill="none" stroke="#ddd" stroke-width="1.2"/>
+  ${tx(760, STRIP_Y+58, 'Y-Strainer', 7.5, '#ddd', 'start')}
+  <!-- Notes -->
+  ${tx(28, STRIP_Y+72, '1. P&amp;ID per ISA-5.1:2009 and ISO 10628; tag format: type-loop# (e.g. FIT-104 = Flow Indicating Transmitter, loop 104).', 7, '#bbb', 'start')}
+  ${tx(28, STRIP_Y+83, '2. Pipe class per ASME B31.3; design pressure ≥ 1.1 × TDH head equivalent; pipe material and schedule as specified.', 7, '#bbb', 'start')}
+  ${tx(28, STRIP_Y+94, escHtml(`3. P-101A: ${flowM3hr} m³/hr @ ${tdh} m TDH; v = ${velocity} m/s in DN${pipeDia} (target 0.9–3.0 m/s); NPSH_A = ${npshA} m — verify NPSH_R at pump selection.`), 7, '#bbb', 'start')}
+  ${tx(28, STRIP_Y+105, escHtml(`4. Motor M-101: ${motorKw} kW / ${motorHp} HP; η_pump = ${pumpEff}%, η_motor = ${motorEff}%; provide PRV on discharge, flexible couplings and isolation per project spec.`), 7, '#bbb', 'start')}
+
+  <!-- ─── GROUND LINE ─────────────────────────────────────────── -->
+  ${ln(20, GND_Y, W-20, GND_Y, '#bbb', 1, '8,4')}
+  ${tx(32, GND_Y+11, 'GRADE / GROUND LEVEL', 7.5, '#999', 'start')}
+
+  <!-- ─── DESIGN DATA BOX ─────────────────────────────────────── -->
+  <rect x="215" y="22" width="545" height="58" fill="white" stroke="#c8d0da" stroke-width="1" rx="3"/>
+  ${tx(488, 37, 'DESIGN DATA', 8.5, CP, 'middle', '700')}
+  ${tx(228, 52, escHtml(`Flow: ${flowM3hr} m³/hr (${flowLpm} L/min) | Fluid: ${fluidType}`), 8, CP, 'start')}
+  ${tx(228, 64, escHtml(`Pipe: DN${pipeDia} ${pipeMat} | v = ${velocity} m/s`), 8, VV, 'start')}
+  ${tx(510, 52, escHtml(`TDH: ${tdh} m (Static ${staticH} m + Friction ${fricH} m)`), 8, CP, 'start')}
+  ${tx(510, 64, escHtml(`Motor: ${motorKw} kW / ${motorHp} HP | NPSH_A: ${npshA} m`), 8, CP, 'start')}
+
+  <!-- ─── SOURCE SUMP / TANK ─────────────────────────────────── -->
+  <rect x="${SRC_L}" y="${SRC_TY}" width="${SRC_R-SRC_L}" height="${PIPE_Y-SRC_TY}" fill="#e3f0fb" stroke="${CP}" stroke-width="2"/>
+  <rect x="${SRC_L+2}" y="${SRC_TY+(PIPE_Y-SRC_TY)*0.18}" width="${SRC_R-SRC_L-4}" height="${(PIPE_Y-SRC_TY)*0.77}" fill="#b3d1f0" opacity="0.55"/>
+  ${ln(SRC_L, SRC_TY, SRC_R, SRC_TY, CP, 1.5, '5,3')}
+  ${tx(SRC_CX, SRC_TY-9, 'S-101', 8, CP, 'middle', '700')}
+  ${tx(SRC_CX, SRC_TY+20, 'SOURCE', 8.5, CP, 'middle', '700')}
+  ${tx(SRC_CX, SRC_TY+33, isLift ? 'WET PIT (LIFT)' : 'SUMP TANK', 7.5, '#555', 'middle')}
+  ${tx(SRC_CX, PIPE_Y+14, 'N1 (OUT)', 7, '#777', 'middle')}
+  <!-- LIT-101 (Level Indicator Transmitter — remote) -->
+  ${leader(SRC_R, 200, 149, 200)}
+  ${bubble(165, 200, 'LIT', '101', true)}
+  ${tx(165, 223, 'LEVEL', 6.5, '#666', 'middle')}
+
+  <!-- ─── SUCTION PIPE LABEL ─────────────────────────────────── -->
+  ${tx(260, PIPE_Y-14, '— SUCTION LINE —', 8.5, '#666', 'middle')}
+
+  <!-- ─── PROCESS PIPE: SUCTION SIDE ───────────────────────── -->
+  ${ln(SRC_R, PIPE_Y, STR_X-STR_R, PIPE_Y, CP, 3)}
+  ${ln(STR_X+STR_R, PIPE_Y, IV1_X-IV1_HW, PIPE_Y, CP, 3)}
+  ${ln(IV1_X+IV1_HW, PIPE_Y, PMP_CX-PMP_R, PIPE_Y, CP, 3)}
+
+  <!-- ─── Y-STRAINER ST-101 ─────────────────────────────────── -->
+  ${strainer(STR_X, PIPE_Y)}
+  ${tx(STR_X, PIPE_Y+24, 'ST-101', 6.5, CP, 'middle')}
+
+  <!-- ─── SUCTION GATE VALVE HV-101 (N.O.) ─────────────────── -->
+  ${gateV(IV1_X, PIPE_Y)}
+  ${tx(IV1_X, PIPE_Y+24, 'HV-101', 6.5, CP, 'middle')}
+  ${tx(IV1_X, PIPE_Y+34, 'N.O.', 6.5, '#666', 'middle')}
+
+  <!-- ─── PI-102: SUCTION PRESSURE (local) ─────────────────── -->
+  <circle cx="${SPI_X}" cy="${PIPE_Y}" r="4" fill="${CI}"/>
+  ${leader(SPI_X, PIPE_Y-4, SPI_X, SPI_BY+16)}
+  ${bubble(SPI_X, SPI_BY, 'PI', '102', false)}
+  ${tx(SPI_X, SPI_BY-23, 'SUCTION P', 6.5, '#666', 'middle')}
+
+  <!-- ─── CENTRIFUGAL PUMP P-101A ───────────────────────────── -->
+  ${pumpSym(PMP_CX, PIPE_Y, PMP_R)}
+  ${tagBadge(PMP_CX, PIPE_Y+PMP_R+16, 'P-101A')}
+  ${tx(PMP_CX, PIPE_Y+PMP_R+30, escHtml(`${flowM3hr} m³/hr @ ${tdh} m TDH`), 7, '#555', 'middle')}
+  ${tx(PMP_CX, PIPE_Y+PMP_R+40, escHtml(`η = ${pumpEff}%`), 7, '#777', 'middle')}
+  ${tx(PMP_CX-PMP_R-12, PIPE_Y+9, 'SUC.', 6.5, '#555', 'end')}
+  ${tx(PMP_CX+PMP_R+10, PIPE_Y+9, 'DIS.', 6.5, '#555', 'start')}
+
+  <!-- ─── MOTOR M-101 ────────────────────────────────────────── -->
+  ${motorSym(MTR_CX, MTR_TY, MTR_W, MTR_H)}
+  ${ln(MTR_CX, MTR_TY+MTR_H, MTR_CX, PIPE_Y-PMP_R, CG, 1.5, '5,3')}
+  ${tx(MTR_CX+24, MTR_TY+MTR_H/2-2, 'M-101', 6.5, CG, 'start', '700')}
+  ${tx(MTR_CX+24, MTR_TY+MTR_H/2+9, escHtml(`${motorKw} kW / ${motorHp} HP`), 6.5, '#555', 'start')}
+  ${tx(MTR_CX+24, MTR_TY+MTR_H/2+20, escHtml(`η = ${motorEff}%`), 6.5, '#777', 'start')}
+  <!-- Electrical signal (dotted) to MCC -->
+  ${ln(MTR_CX+MTR_W/2, MTR_TY, MTR_CX+MTR_W/2, MTR_TY-22, '#f57f17', 1, '2,2')}
+  ${ln(MTR_CX+MTR_W/2, MTR_TY-22, MTR_CX+MTR_W/2+50, MTR_TY-22, '#f57f17', 1, '2,2')}
+  <rect x="${MTR_CX+MTR_W/2+50}" y="${MTR_TY-32}" width="44" height="18" fill="#fff3e0" stroke="#f57f17" stroke-width="1" rx="2"/>
+  ${tx(MTR_CX+MTR_W/2+72, MTR_TY-19, 'MCC', 7.5, '#e65100', 'middle', '700')}
+
+  <!-- ─── PUMP BASEPLATE & SUPPORT ─────────────────────────── -->
+  <rect x="${PMP_CX-44}" y="${GND_Y}" width="88" height="10" fill="#bbb" stroke="#999" stroke-width="1"/>
+  ${ln(PMP_CX-36, GND_Y, PMP_CX-36, PIPE_Y+PMP_R, '#bbb', 1)}
+  ${ln(PMP_CX+36, GND_Y, PMP_CX+36, PIPE_Y+PMP_R, '#bbb', 1)}
+
+  <!-- ─── PROCESS PIPE: DISCHARGE SIDE ─────────────────────── -->
+  ${ln(PMP_CX+PMP_R, PIPE_Y, DPT_X, PIPE_Y, CP, 3)}
+  ${ln(DPT_X, PIPE_Y, CHK_X-CHK_HW, PIPE_Y, CP, 3)}
+  ${ln(CHK_X+CHK_HW, PIPE_Y, IV2_X-IV2_HW, PIPE_Y, CP, 3)}
+  ${ln(IV2_X+IV2_HW, PIPE_Y, FIT_X-FIT_R, PIPE_Y, CP, 3)}
+  ${ln(FIT_X+FIT_R, PIPE_Y, DST_L, PIPE_Y, CP, 3)}
+
+  <!-- Discharge pipe label + size annotation -->
+  ${tx((PMP_CX+PMP_R+DST_L)/2+20, PIPE_Y-14, '— DISCHARGE LINE —', 8.5, '#666', 'middle')}
+  ${tx((PMP_CX+PMP_R+DST_L)/2+20, PIPE_Y+12, escHtml(`DN${pipeDia} ${pipeMat} | v = ${velocity} m/s`), 7.5, VV, 'middle', '600')}
+
+  <!-- ─── PIT-103: DISCHARGE PRESSURE (remote) ─────────────── -->
+  <circle cx="${DPT_X}" cy="${PIPE_Y}" r="4" fill="${CI}"/>
+  ${leader(DPT_X, PIPE_Y+4, DPT_X, DPT_BY-16)}
+  ${bubble(DPT_X, DPT_BY, 'PIT', '103', true)}
+  ${tx(DPT_X, DPT_BY+23, 'DISCHARGE P', 6.5, '#666', 'middle')}
+
+  <!-- ─── CHECK VALVE CK-101 ───────────────────────────────── -->
+  ${checkV(CHK_X, PIPE_Y)}
+  ${tx(CHK_X, PIPE_Y+24, 'CK-101', 6.5, CP, 'middle')}
+
+  <!-- ─── DISCHARGE GATE VALVE HV-102 (N.O.) ──────────────── -->
+  ${gateV(IV2_X, PIPE_Y)}
+  ${tx(IV2_X, PIPE_Y+24, 'HV-102', 6.5, CP, 'middle')}
+  ${tx(IV2_X, PIPE_Y+34, 'N.O.', 6.5, '#666', 'middle')}
+
+  <!-- ─── FIT-104: FLOW TRANSMITTER (inline, remote) ──────── -->
+  <circle cx="${FIT_X}" cy="${PIPE_Y}" r="${FIT_R}" fill="white" stroke="${CI}" stroke-width="2"/>
+  <line x1="${FIT_X-FIT_R+2}" y1="${PIPE_Y}" x2="${FIT_X+FIT_R-2}" y2="${PIPE_Y}" stroke="${CI}" stroke-width="1"/>
+  ${tx(FIT_X, PIPE_Y-5, 'FIT', 7.5, CI, 'middle', '700')}
+  ${tx(FIT_X, PIPE_Y+7, '104', 7, '#444', 'middle')}
+  ${tx(FIT_X, PIPE_Y-25, escHtml(`${flowM3hr} m³/hr`), 7.5, CF, 'middle', '600')}
+
+  <!-- ─── DESTINATION VESSEL V-101 ─────────────────────────── -->
+  <rect x="${DST_L}" y="${DST_TY}" width="${DST_R-DST_L}" height="${PIPE_Y-DST_TY}" fill="#e8f5e9" stroke="${CP}" stroke-width="2"/>
+  <rect x="${DST_L+2}" y="${DST_TY+(PIPE_Y-DST_TY)*0.22}" width="${DST_R-DST_L-4}" height="${(PIPE_Y-DST_TY)*0.72}" fill="#b2dfdb" opacity="0.55"/>
+  ${ln(DST_L, DST_TY, DST_R, DST_TY, CP, 1.5, '5,3')}
+  ${tx(DST_CX, DST_TY-9, 'V-101', 8, CP, 'middle', '700')}
+  ${tx(DST_CX, DST_TY+20, 'DESTINATION', 8.5, CP, 'middle', '700')}
+  ${tx(DST_CX, DST_TY+33, 'PROCESS VESSEL', 7.5, '#555', 'middle')}
+  ${tx(DST_CX, PIPE_Y+14, 'N1 (IN)', 7, '#777', 'middle')}
+
+</svg>`;
+}
+
+function buildPumpPIDTitleBlockHtml(inputs, results) {
+  const r      = results || {};
+  const tdh    = Number(r.TDH           || 0).toFixed(1);
+  const flowM3 = Number(r.flow_m3hr     || 0).toFixed(2);
+  const pipeDia= Number(r.pipe_dia_mm   || inputs.pipe_diameter || 0);
+  const pipeMat= String(r.inputs_used?.pipe_material || inputs.pipe_material || 'PVC');
+  const motorKw= Number(r.recommended_kw || 0).toFixed(1);
+  const motorHp= Number(r.recommended_hp || 0).toFixed(0);
+  const proj   = String(inputs.project_name || 'Untitled Pump System').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const now    = new Date().toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const ratingLine = `${flowM3} m³/hr @ ${tdh} m TDH | DN${pipeDia} ${pipeMat} | ${motorKw} kW / ${motorHp} HP`;
+
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
+  const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+  const TD  = (s='') => `<td style="padding:6px 8px;vertical-align:top;${s}">`;
+  const TDB = (s='') => `<td style="padding:6px 8px;vertical-align:bottom;${s}">`;
+  const BR  = 'border-right:1px solid #c8d0da;';
+
+  return `<table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}width:42%;`)}${LBL('Project / System Name')}${EF(proj)}</td>
+    ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('PMP-PID-001')}</td>
+    ${TD('width:35%;')}${LBL('Pump Rating')}<div style="font-size:10px;font-weight:700;color:#1a2e4a;">${ratingLine}</div></td>
+  </tr>
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('Pump System P&amp;ID Schematic')}</td>
+    ${TD(`${BR}`)}${LBL('Standard / Code')}<div style="font-size:10px;color:#1a2e4a;">ISA-5.1:2009 / ISO 10628 / ASME B31.3</div></td>
+    ${TD('')}${LBL('Date Prepared')}${EF(now)}</td>
+  </tr>
+  <tr>
+    ${TDB(`${BR}width:22%;`)}${LBL('Prepared By')}${SIG()}</td>
+    ${TDB(`${BR}width:22%;`)}${LBL('Checked By')}${SIG()}</td>
+    ${TDB(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
+    ${TD(`${BR}width:17%;`)}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
+    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}
+      <div style="font-size:8px;color:#888;margin-top:5px;">Sheet 1 of 1</div></td>
+  </tr>
+</table>`;
+}
+
+function renderPumpPID(svgString, inputs, results) {
+  const panel      = document.getElementById('drawing-panel');
+  const titleBlock = buildPumpPIDTitleBlockHtml(inputs, results);
+  panel.style.background = '#fff';
+  panel.style.padding    = '0';
+  panel.innerHTML = `<div style="width:100%;display:block;border:2px solid #1a2e4a;border-bottom:none;box-sizing:border-box;">${svgString}</div>${titleBlock}`;
+  const titleEl = document.getElementById('drawing-output-title');
+  if (titleEl) titleEl.textContent = 'Pump System P&ID Schematic';
+  document.getElementById('drawing-loading').classList.add('hidden');
+  document.getElementById('drawing-output').classList.remove('hidden');
+}
+
+// ─── Fire Sprinkler System — Hydraulic Schematic builder ─────────────────────
+function buildFireSprinklerSvg(inputs, results) {
+  const r = results || {};
+
+  const W       = 1050;
+  const STRIP_Y = 467;   // H(580) − title-block strip (113)
+
+  // ── Calc values ──────────────────────────────────────────────────────────────
+  const hazard   = escHtml(String(r.hazard             || inputs.occupancy_hazard || 'Ordinary Group 1'));
+  const nHeads   = Number (r.N_sprinklers              || 14);
+  const qHead    = Number (r.Q_per_head                || 80)  .toFixed(1);
+  const qSprink  = Number (r.Q_sprinklers_total        || 1120).toFixed(0);
+  const qHose    = Number (r.Q_hose                    || 946) .toFixed(0);
+  const qTotal   = Number (r.Q_total                   || 2066).toFixed(0);
+  const pDesign  = Number (r.P_design                  || 70)  .toFixed(1);
+  const pSource  = Number (r.P_source                  || 95)  .toFixed(1);
+  const pipeD    = Number (r.pipe_dia                  || 100);
+  const pipeMat  = escHtml(String(r.pipe_material      || inputs.pipe_material || 'Black Steel'));
+  const velocity = Number (r.velocity                  || 2.8) .toFixed(1);
+  const desnArea = Number (r.design_area               || 139) .toFixed(0);
+  const kFactor  = Number (inputs.k_factor             || 80)  .toFixed(0);
+  const density  = Number (r.density                   || 6.1) .toFixed(1);
+  const duration = Number (r.duration                  || 60);
+  const waterVol = Number (r.water_volume_m3           || 6.0) .toFixed(2);
+
+  // ── Color palette ────────────────────────────────────────────────────────────
+  const CC = '#1a2e4a';  // dark navy — main lines
+  const SC = '#5a6a7a';  // secondary / labels
+  const AO = '#F7A21B';  // amber accent
+  const RD = '#c0392b';  // fire red
+  const WB = '#2980b9';  // water blue
+  const GN = '#27ae60';  // green (open valve)
+  const LG = '#ecf0f1';  // light gray
+
+  // ── Geometry ─────────────────────────────────────────────────────────────────
+  const SUP_Y   = 308;  // supply pipe elevation (horizontal)
+  const RSR_X   = 310;  // riser centre x
+  const HDR_Y   = 68;   // distribution header elevation (top)
+  const FDC_Y   = 145;  // FDC tee elevation on riser
+  const ACV_Y   = 220;  // alarm check valve elevation on riser
+  const HEAD_Y  = 193;  // sprinkler head elevation (bottom of branch drop)
+  const B_START = 390;  // first branch x
+  const B_STEP  = 95;   // branch x spacing
+  const visHeads = Math.min(nHeads, 5);
+  const branchXs = Array.from({ length: visHeads }, (_, i) => B_START + i * B_STEP);
+  const HDR_END  = Math.max(B_START + (visHeads - 1) * B_STEP + 38, 760);
+  const ITV_X    = Math.max(HDR_END + 30, 800);
+
+  // ── SVG micro-helpers ────────────────────────────────────────────────────────
+  const tx = (x, y, txt, o = '') => `<text x="${x}" y="${y}" ${o}>${txt}</text>`;
+  const ln = (x1, y1, x2, y2, s = '') => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${s}/>`;
+  const rc = (x, y, w, h, s = '') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" ${s}/>`;
+
+  // Gate valve (OS&Y bowtie) — horizontal pipe
+  const gateV = (cx, cy, r = 11) => {
+    const p = `${cx-r},${cy-r} ${cx},${cy} ${cx-r},${cy+r} ${cx},${cy} ` +
+              `${cx+r},${cy-r} ${cx},${cy} ${cx+r},${cy+r} ${cx},${cy}`;
+    return `<polygon points="${p}" fill="${GN}" stroke="${CC}" stroke-width="1.5"/>` +
+           `<line x1="${cx}" y1="${cy-r-4}" x2="${cx}" y2="${cy+r+4}" stroke="${CC}" stroke-width="1.5"/>`;
+  };
+
+  // Pendant sprinkler head (hangs down from branch pipe)
+  const sprinkHead = (cx, pipeY) => {
+    const armY = pipeY + 5, stemEnd = pipeY + 22;
+    return `<line x1="${cx-12}" y1="${armY}" x2="${cx+12}" y2="${armY}" stroke="${RD}" stroke-width="2"/>` +
+           `<line x1="${cx}" y1="${armY}" x2="${cx}" y2="${stemEnd}" stroke="${RD}" stroke-width="1.5"/>` +
+           `<polygon points="${cx-9},${stemEnd} ${cx+9},${stemEnd} ${cx},${stemEnd+13}" fill="${RD}" stroke="${RD}" stroke-width="1"/>`;
+  };
+
+  // Instrument bubble (pressure / flow sensor)
+  const bubble = (cx, cy, label, r = 12) =>
+    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="white" stroke="${CC}" stroke-width="1.2"/>` +
+    `<text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="7.5" fill="${CC}" font-family="Arial">${label}</text>`;
+
+  // Tag badge
+  const tag = (cx, cy, txt) =>
+    `<rect x="${cx-20}" y="${cy-9}" width="40" height="16" rx="2" fill="${AO}" opacity="0.92"/>` +
+    `<text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="7" fill="#1a1a1a" font-family="Arial" font-weight="700">${txt}</text>`;
+
+  let s = '';
+
+  // ── Background + inner margin ─────────────────────────────────────────────────
+  s += rc(0, 0, W, STRIP_Y, `fill="#f8fafc"`);
+  s += rc(11, 11, W - 22, STRIP_Y - 22, `fill="none" stroke="${CC}" stroke-width="0.7" stroke-dasharray="4,3" opacity="0.4"`);
+
+  // ── Title banner ──────────────────────────────────────────────────────────────
+  s += rc(11, 11, W - 22, 26, `fill="${CC}" rx="0"`);
+  s += tx(W / 2, 28, 'FIRE SPRINKLER SYSTEM \u2014 HYDRAULIC SCHEMATIC (NFPA\u00a013:2022)',
+    `text-anchor="middle" font-size="10.5" font-weight="700" fill="white" font-family="Arial"`);
+
+  // ── City main supply pipe (horizontal at SUP_Y) ───────────────────────────────
+  s += ln(25, SUP_Y, RSR_X, SUP_Y, `stroke="${WB}" stroke-width="5" stroke-linecap="round"`);
+
+  // City main label box
+  s += rc(12, SUP_Y - 34, 68, 22, `fill="${WB}" fill-opacity="0.12" stroke="${WB}" stroke-width="0.8" rx="3"`);
+  s += tx(46, SUP_Y - 20, 'CITY MAIN', `text-anchor="middle" font-size="7.5" font-weight="700" fill="${WB}" font-family="Arial"`);
+  s += tx(46, SUP_Y - 10, '(UTILITY)', `text-anchor="middle" font-size="6.5" fill="${SC}" font-family="Arial"`);
+  // Flow arrow
+  s += `<polygon points="72,${SUP_Y-6} 83,${SUP_Y} 72,${SUP_Y+6}" fill="${WB}"/>`;
+
+  // Water meter (x=102)
+  const MTR_X = 102;
+  s += rc(MTR_X - 19, SUP_Y - 14, 38, 28, `fill="white" stroke="${CC}" stroke-width="1.5" rx="2"`);
+  s += tx(MTR_X, SUP_Y - 3, 'WM', `text-anchor="middle" font-size="8" font-weight="700" fill="${CC}" font-family="Arial"`);
+  s += tx(MTR_X, SUP_Y + 8, 'METER', `text-anchor="middle" font-size="6" fill="${SC}" font-family="Arial"`);
+  s += tag(MTR_X, SUP_Y + 24, 'WM-01');
+
+  // BFP / DCVA (x=192)
+  const BFP_X = 192;
+  s += rc(BFP_X - 30, SUP_Y - 16, 60, 32, `fill="white" stroke="${RD}" stroke-width="1.5" rx="2"`);
+  s += `<polygon points="${BFP_X-17},${SUP_Y-9} ${BFP_X-3},${SUP_Y} ${BFP_X-17},${SUP_Y+9}" fill="${RD}" stroke="${RD}" stroke-width="0.8"/>`;
+  s += `<polygon points="${BFP_X+3},${SUP_Y-9} ${BFP_X+17},${SUP_Y} ${BFP_X+3},${SUP_Y+9}" fill="${RD}" stroke="${RD}" stroke-width="0.8"/>`;
+  s += tx(BFP_X, SUP_Y - 23, 'BFP / DCVA', `text-anchor="middle" font-size="7" font-weight="700" fill="${RD}" font-family="Arial"`);
+  s += tag(BFP_X, SUP_Y + 26, 'BFP-01');
+
+  // OS&Y gate valve (main control, x=262)
+  const OSY_X = 262;
+  s += gateV(OSY_X, SUP_Y, 11);
+  s += tx(OSY_X, SUP_Y - 19, 'OS&amp;Y', `text-anchor="middle" font-size="7" font-weight="700" fill="${GN}" font-family="Arial"`);
+  s += tx(OSY_X, SUP_Y - 10, '(N/O)', `text-anchor="middle" font-size="6" fill="${GN}" font-family="Arial"`);
+  s += tag(OSY_X, SUP_Y + 26, 'MCV-01');
+
+  // Source node marker + hydraulics
+  s += `<circle cx="${RSR_X}" cy="${SUP_Y}" r="5" fill="${WB}" stroke="white" stroke-width="1.5"/>`;
+  s += tx(RSR_X + 8, SUP_Y - 42, 'SOURCE NODE', `font-size="6.5" font-weight="700" fill="${CC}" font-family="Arial"`);
+  s += tx(RSR_X + 8, SUP_Y - 30, `P = ${pSource} kPa`, `font-size="8" font-weight="700" fill="${WB}" font-family="Arial"`);
+  s += tx(RSR_X + 8, SUP_Y - 19, `Q = ${qTotal} L/min`, `font-size="7.5" fill="${WB}" font-family="Arial"`);
+
+  // ── Main riser (vertical at RSR_X) ───────────────────────────────────────────
+  s += ln(RSR_X, SUP_Y, RSR_X, HDR_Y, `stroke="${WB}" stroke-width="5" stroke-linecap="round"`);
+
+  // Riser pipe diameter label
+  s += rc(RSR_X + 8, 168, 74, 34, `fill="white" stroke="${SC}" stroke-width="0.8" rx="2" opacity="0.95"`);
+  s += tx(RSR_X + 45, 182, `DN${pipeD}`, `text-anchor="middle" font-size="8.5" font-weight="700" fill="${CC}" font-family="Arial"`);
+  s += tx(RSR_X + 45, 193, pipeMat, `text-anchor="middle" font-size="6.5" fill="${SC}" font-family="Arial"`);
+  s += tx(RSR_X + 45, 203, `v = ${velocity} m/s`, `text-anchor="middle" font-size="6.5" fill="${SC}" font-family="Arial"`);
+
+  // ── FDC (Fire Dept Connection) tee at FDC_Y ──────────────────────────────────
+  const FDC_SX = RSR_X - 90;
+  s += ln(RSR_X, FDC_Y, FDC_SX + 20, FDC_Y, `stroke="${RD}" stroke-width="3"`);
+  // Siamese symbol: box with two inlet circles
+  s += rc(FDC_SX - 30, FDC_Y - 19, 50, 40, `fill="white" stroke="${RD}" stroke-width="1.5" rx="3"`);
+  s += `<circle cx="${FDC_SX-8}" cy="${FDC_Y-6}" r="8" fill="none" stroke="${RD}" stroke-width="1.2"/>`;
+  s += `<circle cx="${FDC_SX-8}" cy="${FDC_Y+9}" r="8" fill="none" stroke="${RD}" stroke-width="1.2"/>`;
+  s += tx(FDC_SX + 6, FDC_Y + 4, 'FDC', `text-anchor="middle" font-size="7" font-weight="700" fill="${RD}" font-family="Arial"`);
+  s += tx(FDC_SX - 5, FDC_Y - 31, 'FIRE DEPT.', `text-anchor="middle" font-size="6.5" fill="${RD}" font-family="Arial"`);
+  s += tx(FDC_SX - 5, FDC_Y - 22, 'CONNECTION', `text-anchor="middle" font-size="6.5" fill="${RD}" font-family="Arial"`);
+
+  // ── Alarm check valve on riser at ACV_Y ──────────────────────────────────────
+  // Rotated square (diamond) + arrow symbol
+  const acvR = 13;
+  s += `<rect x="${RSR_X-acvR}" y="${ACV_Y-acvR}" width="${acvR*2}" height="${acvR*2}" fill="white" stroke="${RD}" stroke-width="1.5" rx="2" transform="rotate(45,${RSR_X},${ACV_Y})"/>`;
+  s += `<polygon points="${RSR_X},${ACV_Y-9} ${RSR_X-9},${ACV_Y+7} ${RSR_X+9},${ACV_Y+7}" fill="${RD}" stroke="${RD}" stroke-width="1"/>`;
+  s += tx(RSR_X - 54, ACV_Y - 18, 'ALARM', `text-anchor="middle" font-size="7" font-weight="700" fill="${RD}" font-family="Arial"`);
+  s += tx(RSR_X - 54, ACV_Y - 9, 'CHECK', `text-anchor="middle" font-size="7" font-weight="700" fill="${RD}" font-family="Arial"`);
+  s += tag(RSR_X - 54, ACV_Y + 12, 'ACV-01');
+
+  // Waterflow detector — placed LEFT of riser (below FDC, clear of branch area on right)
+  const GONG_X = RSR_X - 90;   // left side: same x as FDC symbol, safely below FDC
+  const GONG_Y = ACV_Y;
+  s += ln(RSR_X - 14, GONG_Y, GONG_X + 13, GONG_Y, `stroke="${RD}" stroke-width="1.5" stroke-dasharray="4,2"`);
+  s += bubble(GONG_X, GONG_Y, 'WFD', 13);
+  s += tx(GONG_X, GONG_Y + 22, 'Waterflow', `text-anchor="middle" font-size="6.5" fill="${SC}" font-family="Arial"`);
+  s += tx(GONG_X, GONG_Y + 31, 'Detector', `text-anchor="middle" font-size="6.5" fill="${SC}" font-family="Arial"`);
+
+  // ── Distribution header (top horizontal) ─────────────────────────────────────
+  s += ln(RSR_X, HDR_Y, ITV_X + 12, HDR_Y, `stroke="${WB}" stroke-width="4" stroke-linecap="round"`);
+  s += tag(RSR_X + 32, HDR_Y - 12, 'HDR');
+
+  // ── Design area dashed boundary ───────────────────────────────────────────────
+  const DA_X1 = B_START - 28;
+  const DA_X2 = B_START + (visHeads - 1) * B_STEP + 28;
+  const DA_Y1 = HDR_Y - 8;
+  const DA_Y2 = HEAD_Y + 43;
+  s += rc(DA_X1, DA_Y1, DA_X2 - DA_X1, DA_Y2 - DA_Y1,
+    `fill="${RD}" fill-opacity="0.04" stroke="${RD}" stroke-width="1.2" stroke-dasharray="6,3" rx="4"`);
+  s += tx((DA_X1 + DA_X2) / 2, DA_Y1 - 6,
+    `DESIGN AREA: ${desnArea} m\u00b2  |  Density: ${density} mm/min`,
+    `text-anchor="middle" font-size="7.5" font-weight="600" fill="${RD}" font-family="Arial"`);
+
+  // Extra heads annotation (if N > visHeads)
+  if (nHeads > visHeads) {
+    s += tx(DA_X2 + 8, HEAD_Y + 8,  `+${nHeads - visHeads}`, `font-size="8" font-weight="700" fill="${SC}" font-family="Arial"`);
+    s += tx(DA_X2 + 8, HEAD_Y + 19, 'more', `font-size="6.5" fill="${SC}" font-family="Arial"`);
+    s += tx(DA_X2 + 8, HEAD_Y + 29, 'heads', `font-size="6.5" fill="${SC}" font-family="Arial"`);
+  }
+
+  // ── Branch pipes + pendant sprinkler heads ────────────────────────────────────
+  branchXs.forEach((bx, i) => {
+    s += ln(bx, HDR_Y, bx, HEAD_Y, `stroke="${WB}" stroke-width="2.5"`);
+    s += sprinkHead(bx, HEAD_Y);
+    // Node dot at header + design pressure on first head
+    s += `<circle cx="${bx}" cy="${HDR_Y}" r="3.5" fill="${WB}" stroke="white" stroke-width="1"/>`;
+    if (i === 0) {
+      s += tx(bx, HDR_Y - 11, `P=${pDesign}kPa`, `text-anchor="middle" font-size="6" font-weight="600" fill="${WB}" font-family="Arial"`);
+      s += tx(bx, HEAD_Y + 38, `K=${kFactor}`, `text-anchor="middle" font-size="6.5" fill="${SC}" font-family="Arial"`);
+      s += tx(bx, HEAD_Y + 49, `${qHead}\u00a0L/min`, `text-anchor="middle" font-size="6.5" fill="${WB}" font-family="Arial"`);
+    }
+  });
+
+  // ── Inspector's Test Valve (ITV, globe valve = circle with X) ─────────────────
+  s += `<circle cx="${ITV_X}" cy="${HDR_Y}" r="11" fill="white" stroke="${GN}" stroke-width="1.5"/>`;
+  s += ln(ITV_X - 7, HDR_Y - 7, ITV_X + 7, HDR_Y + 7, `stroke="${GN}" stroke-width="1.5"`);
+  s += ln(ITV_X + 7, HDR_Y - 7, ITV_X - 7, HDR_Y + 7, `stroke="${GN}" stroke-width="1.5"`);
+  s += ln(ITV_X, HDR_Y + 11, ITV_X, HDR_Y + 48, `stroke="${SC}" stroke-width="1.5" stroke-dasharray="3,2"`);
+  s += tx(ITV_X, HDR_Y + 60, 'ITV', `text-anchor="middle" font-size="7" font-weight="700" fill="${GN}" font-family="Arial"`);
+  s += tx(ITV_X, HDR_Y + 70, 'INSP. TEST', `text-anchor="middle" font-size="6" fill="${SC}" font-family="Arial"`);
+  s += tx(ITV_X, HDR_Y + 79, 'VALVE', `text-anchor="middle" font-size="6" fill="${SC}" font-family="Arial"`);
+  s += tx(ITV_X, HDR_Y + 89, '\u2192 DRAIN', `text-anchor="middle" font-size="6" fill="${SC}" font-family="Arial"`);
+
+  // ── Main drain tee (bottom of riser) ─────────────────────────────────────────
+  const DRN_X = RSR_X + 62;
+  const DRN_Y = SUP_Y + 20;
+  s += ln(RSR_X, SUP_Y, DRN_X, SUP_Y, `stroke="${WB}" stroke-width="3"`);
+  s += ln(DRN_X, SUP_Y, DRN_X, DRN_Y + 6, `stroke="${SC}" stroke-width="2" stroke-dasharray="4,2"`);
+  s += `<polygon points="${DRN_X-9},${DRN_Y+6} ${DRN_X+9},${DRN_Y+6} ${DRN_X+5},${DRN_Y+18} ${DRN_X-5},${DRN_Y+18}" fill="${SC}" fill-opacity="0.3" stroke="${SC}" stroke-width="1"/>`;
+  s += tx(DRN_X, DRN_Y + 30, 'MAIN', `text-anchor="middle" font-size="6.5" fill="${SC}" font-family="Arial"`);
+  s += tx(DRN_X, DRN_Y + 39, 'DRAIN', `text-anchor="middle" font-size="6.5" fill="${SC}" font-family="Arial"`);
+
+  // ── Hose stream allowance annotation ─────────────────────────────────────────
+  const HS_X = BFP_X + 55;
+  const HS_Y = SUP_Y + 40;
+  s += rc(HS_X, HS_Y, 145, 44, `fill="${RD}" fill-opacity="0.07" stroke="${RD}" stroke-width="1" rx="4"`);
+  s += tx(HS_X + 72, HS_Y + 13, 'HOSE STREAM ALLOWANCE', `text-anchor="middle" font-size="7" font-weight="700" fill="${RD}" font-family="Arial"`);
+  s += tx(HS_X + 72, HS_Y + 26, `Q = ${qHose} L/min`, `text-anchor="middle" font-size="7.5" font-weight="600" fill="${CC}" font-family="Arial"`);
+  s += tx(HS_X + 72, HS_Y + 37, `Duration: ${duration} min`, `text-anchor="middle" font-size="7" fill="${SC}" font-family="Arial"`);
+
+  // ── System hydraulics summary panel (right side) ──────────────────────────────
+  const SUM_X = 852;
+  const SUM_Y = 50;
+  const SUM_W = 185;
+  const ROW_H = 14;
+  const HDR_BH = 20;
+  const ROWS = [
+    ['Hazard Class',         hazard],
+    ['Active Heads (N)',     `${nHeads} heads`],
+    ['Design Density',       `${density} mm/min`],
+    ['Design Area',          `${desnArea} m\u00b2`],
+    ['K-Factor (heads)',      `K = ${kFactor}`],
+    ['Q per Head',           `${qHead} L/min`],
+    ['Q Sprinklers',         `${qSprink} L/min`],
+    ['Q Hose Stream',        `${qHose} L/min`],
+    ['Q Total (System)',      `${qTotal} L/min`],
+    ['Design Pressure',      `${pDesign} kPa`],
+    ['Source Press. Req.',   `${pSource} kPa`],
+    ['Water Vol. / Duration', `${waterVol} m\u00b3 / ${duration} min`],
+  ];
+  const SUM_H = HDR_BH + ROWS.length * ROW_H + 4;
+  s += rc(SUM_X, SUM_Y, SUM_W, SUM_H, `fill="white" stroke="${CC}" stroke-width="1" rx="3"`);
+  s += rc(SUM_X, SUM_Y, SUM_W, HDR_BH, `fill="${CC}" rx="3"`);
+  s += tx(SUM_X + SUM_W / 2, SUM_Y + 13, 'SYSTEM HYDRAULICS',
+    `text-anchor="middle" font-size="8.5" font-weight="700" fill="white" font-family="Arial"`);
+  ROWS.forEach(([label, val], i) => {
+    const ry = SUM_Y + HDR_BH + i * ROW_H;
+    if (i % 2 === 0) s += rc(SUM_X + 1, ry, SUM_W - 2, ROW_H, `fill="${LG}"`);
+    s += tx(SUM_X + 5,           ry + ROW_H - 3, label, `font-size="7" fill="${SC}" font-family="Arial"`);
+    s += tx(SUM_X + SUM_W - 5,  ry + ROW_H - 3, val,   `text-anchor="end" font-size="7" font-weight="600" fill="${CC}" font-family="Arial"`);
+  });
+
+  // ── Bottom note ───────────────────────────────────────────────────────────────
+  s += tx(15, STRIP_Y - 6,
+    `Standard: NFPA\u00a013:2022 / NFPA\u00a014 / PEC / PFO  |  Riser: DN${pipeD} ${pipeMat} @ v=${velocity}\u00a0m/s  |  K=${kFactor}  |  FOR DESIGN REFERENCE ONLY \u2014 NOT FOR CONSTRUCTION`,
+    `font-size="6.5" fill="${SC}" font-family="Arial"`);
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${STRIP_Y}" width="100%">${s}</svg>`;
+}
+
+function buildFireSprinklerTitleBlockHtml(inputs, results) {
+  const r      = results || {};
+  const hazard = escHtml(String(r.hazard || inputs.occupancy_hazard || 'Ordinary Group 1'));
+  const nH     = Number(r.N_sprinklers || 0);
+  const qT     = Number(r.Q_total      || 0).toFixed(0);
+  const pS     = Number(r.P_source     || 0).toFixed(1);
+  const durMin = Number(r.duration     || 0);
+  const proj   = escHtml(String(inputs.project_name || 'Untitled Sprinkler System'));
+  const now    = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+  const ratingLine = `${hazard} | ${nH} heads | Q=${qT}\u00a0L/min | P\u209b=${pS}\u00a0kPa | ${durMin}\u00a0min`;
+
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const EF  = (v = '') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
+  const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>` +
+    `<div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+  const TD  = (s = '') => `<td style="padding:6px 8px;vertical-align:top;${s}">`;
+  const TDB = (s = '') => `<td style="padding:6px 8px;vertical-align:bottom;${s}">`;
+  const BR  = 'border-right:1px solid #c8d0da;';
+
+  return `<table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}width:42%;`)}${LBL('Project / System Name')}${EF(proj)}</td>
+    ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('FPS-HYDR-001')}</td>
+    ${TD('width:35%;')}${LBL('System Rating / Hazard')}<div style="font-size:10px;font-weight:700;color:#1a2e4a;">${ratingLine}</div></td>
+  </tr>
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('Fire Sprinkler System \u2014 Hydraulic Schematic')}</td>
+    ${TD(`${BR}`)}${LBL('Standard / Code')}<div style="font-size:10px;color:#1a2e4a;">NFPA 13:2022 / NFPA 14 / PEC / PFO</div></td>
+    ${TD('')}${LBL('Date Prepared')}${EF(now)}</td>
+  </tr>
+  <tr>
+    ${TDB(`${BR}width:22%;`)}${LBL('Prepared By')}${SIG()}</td>
+    ${TDB(`${BR}width:22%;`)}${LBL('Checked By')}${SIG()}</td>
+    ${TDB(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
+    ${TD(`${BR}width:17%;`)}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
+    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}
+      <div style="font-size:8px;color:#888;margin-top:5px;">Sheet 1 of 1</div></td>
+  </tr>
+</table>`;
+}
+
+function renderFireSprinklerDiagram(svgString, inputs, results) {
+  const panel      = document.getElementById('drawing-panel');
+  const titleBlock = buildFireSprinklerTitleBlockHtml(inputs, results);
+  panel.style.background = '#fff';
+  panel.style.padding    = '0';
+  panel.innerHTML = `<div style="width:100%;display:block;border:2px solid #1a2e4a;border-bottom:none;box-sizing:border-box;">${svgString}</div>${titleBlock}`;
+  const titleEl = document.getElementById('drawing-output-title');
+  if (titleEl) titleEl.textContent = 'Fire Sprinkler System \u2014 Hydraulic Schematic';
+  document.getElementById('drawing-loading').classList.add('hidden');
+  document.getElementById('drawing-output').classList.remove('hidden');
+}
+
+function renderElectricalSLD(svgString, inputs, results) {
+  const panel = document.getElementById('drawing-panel');
+  const titleBlock = buildSLDTitleBlockHtml(inputs, results);
+  panel.style.background = '#fff';
+  panel.style.padding = '0';
+  // Simple block wrapper — SVG is width:100% so it fills the panel naturally
+  // Outer border on the SVG wrapper + border-top:none on the table = one continuous perimeter.
+  // The SVG inner margin rect provides the engineering-drawing inner margin look.
+  panel.innerHTML = `<div style="width:100%;display:block;border:2px solid #1a2e4a;border-bottom:none;box-sizing:border-box;">${svgString}</div>${titleBlock}`;
+  const titleEl = document.getElementById('drawing-output-title');
+  if (titleEl) titleEl.textContent = 'Electrical Single Line Diagram';
+  document.getElementById('drawing-loading').classList.add('hidden');
+  document.getElementById('drawing-output').classList.remove('hidden');
+}
+
+function generateHVACDrawing() {
+  document.getElementById('drawing-trigger').classList.add('hidden');
+  document.getElementById('drawing-loading').classList.remove('hidden');
+  // Brief delay so loading state is visible before sync diagram build
+  setTimeout(() => {
+    const code = buildHVACMermaidCode(_lastInputs, _lastResults);
+    renderHVACDiagram(code);
+  }, 350);
+}
+
+function regenerateHVACDrawing() {
+  document.getElementById('drawing-output').classList.add('hidden');
+  document.getElementById('drawing-loading').classList.remove('hidden');
+  setTimeout(() => {
+    const code = buildHVACMermaidCode(_lastInputs, _lastResults);
+    renderHVACDiagram(code);
+  }, 250);
+}
+
+function buildHVACMermaidCode(inputs, results) {
+  const c   = results.components;
+  const fmt = v => Number(v).toLocaleString();
+  const project  = String(inputs.project_name || 'Project').replace(/"/g, "'");
+  const area     = inputs.floor_area;
+  const height   = inputs.ceiling_height;
+  const persons  = inputs.persons;
+  const fn       = String(inputs.room_function || 'Office');
+  const indoorT  = inputs.indoor_temp  || 24;
+  const outdoorT = inputs.outdoor_temp || 35;
+  const orient   = String(inputs.window_orientation || 'Mixed');
+  const equipKW  = inputs.equipment_kw;
+  const kW       = results.kW;
+  const TR       = results.TR;
+  const recKW    = results.recommended_kW;
+  const recTR    = results.recommended_TR;
+
+  return `%%{init:{'theme':'neutral','themeVariables':{'primaryColor':'#e8f4fd','primaryTextColor':'#1a1a2e','lineColor':'#2563eb','fontFamily':'sans-serif','fontSize':'13px'}}}%%
+flowchart TD
+    OA["<b>OUTDOOR CONDITIONS</b><br/>${outdoorT}°C Design Dry Bulb<br/>Window Orientation: ${orient}"]
+
+    WALLS["Wall Conduction<br/>${fmt(c.q_walls)} W"]
+    ROOF["Roof Conduction<br/>${fmt(c.q_roof)} W"]
+    GLASS["Glass / Solar Gain<br/>${fmt(c.q_glass)} W"]
+    PEOPLE["Occupant Heat<br/>${persons} persons<br/>${fmt(c.q_people + c.q_people_latent)} W"]
+    EQUIP["Equipment Heat<br/>${equipKW} kW input<br/>${fmt(c.q_equipment)} W"]
+    LIGHTS["Lighting Heat<br/>${fmt(c.q_lighting)} W"]
+    INFIL["Infiltration<br/>${fmt(c.q_infiltration)} W"]
+
+    SPACE["<b>CONDITIONED SPACE</b><br/>${project}<br/>${area} m2 | H = ${height} m<br/>Function: ${fn} | Target: ${indoorT}°C"]
+
+    LOAD["<b>TOTAL COOLING LOAD</b><br/>Sensible: ${fmt(results.q_sensible_total)} W<br/>Latent: ${fmt(results.q_latent)} W<br/>Design +10%: <b>${fmt(results.q_design)} W</b><br/><b>${kW} kW / ${TR} TR</b>"]
+
+    AC["<b>RECOMMENDED UNIT</b><br/>${recKW} kW / ${recTR} TR<br/>Per PSME Code"]
+
+    OA -->|"Conduction"| WALLS
+    OA -->|"Conduction + Solar"| ROOF
+    OA -->|"Solar + Transmission"| GLASS
+    OA -->|"Infiltration"| INFIL
+    WALLS --> SPACE
+    ROOF --> SPACE
+    GLASS --> SPACE
+    PEOPLE --> SPACE
+    EQUIP --> SPACE
+    LIGHTS --> SPACE
+    INFIL --> SPACE
+    SPACE --> LOAD
+    LOAD -->|"Sizing"| AC
+    AC -.->|"Supply Air"| SPACE
+
+    style OA   fill:#fff3cd,stroke:#f59e0b,color:#7a5a00
+    style SPACE fill:#dbeafe,stroke:#2563eb,color:#1e3a5f
+    style LOAD  fill:#dcfce7,stroke:#16a34a,color:#14532d
+    style AC    fill:#166534,stroke:#15803d,color:#ffffff`;
+}
+
+async function renderHVACDiagram(mermaidCode) {
+  const panel = document.getElementById('drawing-panel');
+  panel.innerHTML = '';
+  try {
+    const id = 'hvac-diag-' + Date.now();
+    const { svg } = await mermaid.render(id, mermaidCode);
+    panel.innerHTML = svg;
+  } catch (err) {
+    panel.innerHTML = `<div style="color:#dc2626;font-size:0.85rem;padding:1rem;">Diagram error: ${escHtml(String(err))}</div>`;
+    console.error('Mermaid render error:', err);
+  }
+  document.getElementById('drawing-loading').classList.add('hidden');
+  document.getElementById('drawing-output').classList.remove('hidden');
+}
+
+function downloadDrawingPdf() {
+  const panel       = document.getElementById('drawing-panel');
+  const projectName = _lastInputs?.project_name || 'Engineering Drawing';
+  const drawingType = _calcType === 'Load Estimation'                  ? 'SLD'
+                    : _calcType === 'Generator Sizing'                  ? 'Connection_Diagram'
+                    : _calcType === 'Lightning Protection System (LPS)' ? 'LPS_Zone'
+                    : _calcType === 'Pump Sizing (TDH)'                 ? 'PID_Schematic'
+                    : _calcType === 'Fire Sprinkler Hydraulic'          ? 'Fire_Sprinkler_Schematic'
+                    : 'Schematic';
+  const fileName    = (projectName + '_' + drawingType)
+    .replace(/[^a-z0-9]/gi, '_').replace(/_+/g, '_') + '.pdf';
+
+  if (_calcType === 'Load Estimation') {
+    _downloadSLDPdf(panel, fileName);
+  } else if (_calcType === 'Lightning Protection System (LPS)') {
+    _downloadSLDPdf(panel, fileName);
+  } else if (_calcType === 'Generator Sizing') {
+    _downloadSLDPdf(panel, fileName);
+  } else if (_calcType === 'Pump Sizing (TDH)') {
+    _downloadSLDPdf(panel, fileName);  // A3 landscape SVG export pattern
+  } else if (_calcType === 'Fire Sprinkler Hydraulic') {
+    _downloadSLDPdf(panel, fileName);  // A3 landscape SVG export pattern
+  } else {
+    _downloadHVACPdf(panel, fileName);
+  }
+}
+
+function _downloadSLDPdf(panel, fileName) {
+  // Render directly from the panel — ghost div approach breaks because html2canvas uses
+  // getBoundingClientRect() and off-screen/negative-z elements produce blank captures.
+  // Instead: temporarily unwrap all ancestor max-width/overflow constraints so the panel
+  // can expand to A3 width, then restore everything in .then().
+  // A3 landscape content = 400mm but leave ~8mm breathing room so borders don't clip at margin edge
+  // 392mm × (96/25.4) = 1482px → round to 1480
+  const PDF_W = 1480;
+
+  const svgEl = panel.querySelector('svg');
+  const tblEl = panel.querySelector('table');
+  if (!svgEl) return;
+
+  const vb   = (svgEl.getAttribute('viewBox') || '0 0 760 800').split(' ');
+  const vbW  = parseFloat(vb[2]) || 760;
+  const vbH  = parseFloat(vb[3]) || 800;
+  const svgH = Math.round(PDF_W * vbH / vbW);
+
+  // ── Save original styles ──────────────────────────────────────────────────
+  const origPanel = { width: panel.style.width, overflow: panel.style.overflow, padding: panel.style.padding };
+  const origSvgAttrW = svgEl.getAttribute('width');
+  const origSvgAttrH = svgEl.getAttribute('height');
+  const origSvgStyle = svgEl.style.cssText;
+  const origTblWidth = tblEl ? tblEl.style.width : '';
+
+  // Unwrap all ancestor containers (removes max-w-*, overflow:hidden, etc.)
+  const ancestors = [];
+  let ancestor = panel.parentElement;
+  while (ancestor && ancestor !== document.body) {
+    ancestors.push({
+      el:       ancestor,
+      maxWidth: ancestor.style.maxWidth,
+      overflow: ancestor.style.overflow,
+      width:    ancestor.style.width,
+    });
+    ancestor.style.maxWidth = 'none';
+    ancestor.style.overflow = 'visible';
+    ancestor = ancestor.parentElement;
+  }
+
+  // ── Pin panel + SVG to PDF width ─────────────────────────────────────────
+  panel.style.width   = PDF_W + 'px';
+  panel.style.overflow = 'visible';
+  panel.style.padding  = '0';
+
+  svgEl.setAttribute('width',  String(PDF_W));
+  svgEl.setAttribute('height', String(svgH));
+  svgEl.style.cssText = `display:block;width:${PDF_W}px;height:${svgH}px;`;
+
+  if (tblEl) tblEl.style.width = PDF_W + 'px';
+
+  // Designer skill: strip orange dashed underlines — must not appear in PDF
+  const editableEls = panel.querySelectorAll('.editable-field');
+  editableEls.forEach(el => { el.style.borderBottom = 'none'; el.style.cursor = 'default'; });
+
+  const opt = {
+    margin:      [8, 10, 8, 10],   // tighter margins → 281mm content height vs 273mm (was 12/14)
+    filename:    fileName,
+    image:       { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollX: 0, scrollY: 0 },
+    jsPDF:       { unit: 'mm', format: 'a3', orientation: 'landscape' },
+    pagebreak:   { mode: ['avoid-all', 'css', 'legacy'] },
+  };
+
+  html2pdf().set(opt).from(panel).save().then(() => {
+    // ── Restore panel ───────────────────────────────────────────────────────
+    panel.style.width   = origPanel.width;
+    panel.style.overflow = origPanel.overflow;
+    panel.style.padding  = origPanel.padding;
+
+    // Restore SVG
+    if (origSvgAttrW !== null) svgEl.setAttribute('width', origSvgAttrW);
+    else svgEl.removeAttribute('width');
+    if (origSvgAttrH !== null) svgEl.setAttribute('height', origSvgAttrH);
+    else svgEl.removeAttribute('height');
+    svgEl.style.cssText = origSvgStyle;
+
+    if (tblEl) tblEl.style.width = origTblWidth;
+
+    // Restore editable borders
+    editableEls.forEach(el => { el.style.borderBottom = '1.5px dashed #F7A21B'; el.style.cursor = 'text'; });
+
+    // Restore ancestor containers
+    ancestors.forEach(({ el, maxWidth, overflow, width }) => {
+      el.style.maxWidth = maxWidth;
+      el.style.overflow = overflow;
+      el.style.width    = width;
+    });
+  });
+}
+
+function _downloadHVACPdf(panel, fileName) {
+  const origWidth = panel.style.width;
+  panel.style.width = '672px';
+
+  const opt = {
+    margin:      [14, 16, 14, 16],
+    filename:    fileName,
+    image:       { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
+    jsPDF:       { unit: 'mm', format: 'a4', orientation: 'landscape' },
+  };
+
+  html2pdf().set(opt).from(panel).save().then(() => {
+    panel.style.width = origWidth;
   });
 }
 
@@ -18780,13 +20721,6 @@ function downloadSowPdf() {
     document.getElementById('sow-pdf-rules')?.remove();
     showToast('SOW PDF saved.');
   });
-}
-
-// ─── XSS safety ───────────────────────────────────────────────────────────────
-function escHtml(str) {
-  return String(str || '')
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
