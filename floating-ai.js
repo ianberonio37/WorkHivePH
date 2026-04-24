@@ -34,7 +34,6 @@
     const path = window.location.pathname.toLowerCase();
 
     if (path.includes('logbook'))       return { page: 'logbook',       label: 'Digital Logbook',       hint: 'Help me fill in maintenance records, suggest failure modes, or explain fields.' };
-    if (path.includes('parts-tracker')) return { page: 'parts-tracker', label: 'Parts Tracker',          hint: 'Help me find parts, check stock levels, or suggest reorder points.' };
     if (path.includes('assistant'))     return { page: 'assistant',     label: 'My Work Assistant',      hint: 'I can help you plan your shift, prioritise tasks, or answer technical questions.' };
     if (path.includes('dayplanner'))    return { page: 'dayplanner',    label: 'Day Planner',            hint: 'Help me schedule tasks, prioritise my day, or plan my maintenance shift.' };
     if (path.includes('pm-scheduler'))  return { page: 'pm-scheduler',  label: 'PM Scheduler',           hint: 'Help me set up PM scope, suggest frequencies, or explain maintenance tasks for this equipment.' };
@@ -52,9 +51,10 @@
       "For a good maintenance entry, make sure to include: the exact time it started, what you observed first, and any action taken. Want me to suggest a format?",
       "A **Root Cause** entry should answer *why* the failure happened, not just what broke. Example: 'Bearing failure due to insufficient lubrication' is better than just 'Bearing failed'.",
     ],
-    'parts-tracker': [
-      "A good reorder point = (Average Daily Usage × Lead Time in Days) + Safety Stock. Want me to help calculate it for a specific part?",
-      "For critical spares, consider keeping at least one unit on-hand regardless of usage frequency — downtime cost usually outweighs holding cost.",
+    dayplanner: [
+      "To plan your shift, try the DILO (Day in the Life Of) view — add tasks with estimated durations and drag to reorder by priority.",
+      "Use the WILO (Week in the Life Of) view for weekly planning. Flag tasks as Recurring so they auto-appear next week.",
+      "A good daily plan follows this order: safety checks first, critical/overdue PMs second, reactive work third, admin last.",
     ],
     'pm-scheduler': [
       "For **rotating equipment** (pumps, motors, fans), typical PM frequencies: lubrication monthly, mechanical inspection quarterly, overhaul yearly. Want help building a scope for a specific machine?",
@@ -75,6 +75,11 @@
       "To progress through skill levels, pass the exam for each discipline at each level. You need to pass Level 1 before unlocking Level 2.",
       "The **radar chart** shows your competency profile across all 5 disciplines at a glance. Aim for a balanced profile for a well-rounded maintenance role.",
       "**Level 3 (Competent)** is the standard target for most field technicians. Levels 4 and 5 (Proficient and Master) are for specialists and leads.",
+    ],
+    'engineering-design': [
+      "Select a discipline (Mechanical, Electrical, Plumbing, etc.) and a calc type to get started. The calculator follows Philippine standards (PEC 2017, PSME, ASHRAE, IEC, NFPA).",
+      "After running a calculation, click **Generate Drawing** to produce an engineering schematic — SLD, P&ID, LPS zone, fire sprinkler, HVAC, or lighting layout.",
+      "Use the **BOM + SOW** button after calculating to generate a Bill of Materials and Scope of Works document ready for procurement or contracting.",
     ],
     default: [
       "I'm your WorkHive AI Assistant. I can help with maintenance logs, PM scheduling, parts management, skill tracking, and shift planning. What do you need?",

@@ -384,7 +384,7 @@
 
     // ── Load records summary on setup screen ──────────────────────
     async function loadRecordsSummary() {
-      const name = localStorage.getItem(KEY_WORKER) || '';
+      const name = localStorage.getItem(KEY_WORKER) || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
       let logbookCount = 0;
       if (name) {
         const [l] = await Promise.all([
@@ -686,7 +686,7 @@ ${scheduleText}
         'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ' // anon/publishable key — safe to expose in frontend
       );
 
-      const savedName = localStorage.getItem(KEY_WORKER);
+      const savedName = localStorage.getItem(KEY_WORKER) || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName');
       if (savedName) {
         // Already signed in — skip setup and go straight to chat
         document.getElementById('worker-name').value = savedName;

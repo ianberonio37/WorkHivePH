@@ -1745,7 +1745,7 @@ RETURN JSON ONLY in this exact format:
     { "description": "...", "specification": "...", "qty": 1, "unit": "unit", "remarks": "..." }
   ],
   "sow_sections": [
-    { "title": "...", "content": "The Contractor shall..." }
+    { "section_no": "1.0", "title": "...", "content": "The Contractor shall..." }
   ]
 }
 
@@ -1866,7 +1866,7 @@ async function cableTrayBomSowAgent(
   const nemaClass     = results.nema_load_class    || "";
   const deratingFactor= results.derating_factor    ?? 1.0;
   const deratingApplies = Number(deratingFactor) < 1.0;
-  const cables        = (inputs.cables as Array<{ cable_type: string; od_mm: number; qty: number }>) || [];
+  const cables        = Array.isArray(inputs.cables) ? (inputs.cables as Array<{ cable_type: string; od_mm: number; qty: number }>) : [];
   const cableSummary  = cables.map(c => `${c.qty}× ${c.cable_type} (OD ${c.od_mm} mm)`).join(", ");
 
   const prompt = `You are a Philippine electrical engineering expert (NEMA VE 1, NEC Article 392, PEC 2017 Article 3.92). Generate a professional BOM and SOW for a CABLE TRAY SIZING and installation project.
@@ -2237,13 +2237,43 @@ DURATION: ${duration} minutes
 WATER STORAGE REQUIRED: ${waterVolL} L (${waterVolM3} m³)
 STANDARDS: NFPA 13 (Sprinkler Systems), NFPA 25 (Inspection/Testing), BFP Philippines Fire Code (RA 9514), Philippine Fire Code IRR, Local BFP Authority Having Jurisdiction (AHJ)
 
-Generate a JSON object with:
-1. "bom_items": array of 18 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: Upright/pendant sprinkler heads (${nSprinklers} heads minimum in design area — K=${kFactor}, rated temperature 68°C standard or 79°C intermediate, UL/FM listed), additional spare sprinkler heads (minimum 6 spare heads per NFPA 13 + wrench), sprinkler head escutcheon plates (for ceiling-recessed pendant type), main distribution pipe — riser (${pipeDiaMM} mm ${pipeMat} Schedule 40, ${pipeLength} m), branch line pipe (25–40 mm ${pipeMat} Schedule 40 — sized per NFPA 13 pipe schedule or hydraulic), cross main pipe (50–65 mm ${pipeMat} Schedule 40), pipe fittings and grooved couplings (tees, elbows, reducers — UL/FM listed, grooved or threaded), pipe hangers and supports (per NFPA 13 hanger spacing — max 3.7 m for branch lines), flow control valve / OS&Y gate valve (full-bore, UL/FM listed, with tamper switch), alarm check valve with waterflow alarm switch (UL listed, with retard chamber), alarm bell / water motor gong (outdoor audible alarm), alarm pressure gauge set (one above and one below alarm check valve), inspector's test and drain valve (2-piece ball valve, minimum 25 mm), fire department connection / siamese connection (65×65 mm twin inlet, chrome-plated, BFP-compliant), water storage tank (${waterVolL}L minimum — ${waterVolM3} m³ reinforced concrete or GRP/HDPE), pressure gauge at system riser (0–21 bar glycerin-filled), anti-freeze or dry-pipe valve (if required for exposed/outdoor areas — specify for Philippines climate — usually not required in tropical settings), pipe identification labels and directional arrows (per NFPA 13 color coding)
-2. "sow_sections": array of 8 sections (each: section_no, title, content)
-   Cover: Scope of Works, Design Basis (NFPA 13 Design Area Method, ${hazard} classification, density ${density} mm/min over ${designArea} m², K-factor ${kFactor}, total demand ${qTotal} L/min @ ${pSource} bar), Sprinkler Head Layout and Coverage (maximum spacing ${coverageHead} m² per head, minimum clearance requirements, obstruction rules per NFPA 13), Pipe Installation (pipe sizing per NFPA 13 hydraulic calculation, hanger spacing, flushing before connection), Valves Alarm Devices and FDC (OS&Y valve locations, alarm check valve, waterflow alarm switch, fire department connection per BFP), Water Supply and Storage Tank (${waterVolM3} m³ dedicated fire water storage, fill rate, isolation from domestic supply), Inspection Testing and Commissioning (hydrostatic test at 200 kPa above working pressure or 1,380 kPa minimum for 2 hours — NFPA 13 Section 29, flush test, alarm test, BFP acceptance inspection), Regulatory Compliance (RA 9514 Philippine Fire Code, BFP permit, Authority Having Jurisdiction sign-off, NFPA 13 / NFPA 25 maintenance schedule)
+Return ONLY valid JSON with exactly two keys: "bom_items" and "sow_sections".
 
-Respond ONLY in JSON with keys bom_items and sow_sections.`;
+"bom_items": array of exactly 18 objects, each: { "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
+
+Required BOM items:
+1. Upright/pendant sprinkler heads, K=${kFactor}, 68C, UL/FM listed — qty: ${nSprinklers}
+2. Spare sprinkler heads + head wrench, NFPA 13 minimum 6 spares — qty: 1 set
+3. Sprinkler head escutcheon plates, chrome-plated — qty: ${nSprinklers}
+4. Riser pipe, ${pipeDiaMM} mm ${pipeMat} SCH40 — qty: ${pipeLength} m
+5. Branch line pipe, 25-40 mm ${pipeMat} SCH40 — qty: 1 lot
+6. Cross main pipe, 50-65 mm ${pipeMat} SCH40 — qty: 1 lot
+7. Pipe fittings and grooved couplings, UL/FM listed — qty: 1 lot
+8. Pipe hangers and supports, NFPA 13, max 3.7 m spacing — qty: 1 lot
+9. OS&Y gate valve, full-bore, UL/FM listed, with tamper switch — qty: 1 unit
+10. Alarm check valve with waterflow alarm switch, UL listed — qty: 1 unit
+11. Alarm bell / water motor gong, outdoor audible — qty: 1 unit
+12. Alarm pressure gauge set, above and below check valve — qty: 2 pcs
+13. Inspector test and drain valve, 25 mm ball valve — qty: 1 unit
+14. Fire department siamese connection, 65x65 mm, BFP-compliant — qty: 1 unit
+15. Water storage tank, ${waterVolL} L minimum, RC or GRP/HDPE — qty: 1 unit
+16. Pressure gauge at system riser, 0-21 bar glycerin-filled — qty: 1 unit
+17. Pipe identification labels and directional arrows, NFPA 13 — qty: 1 lot
+18. Commissioning and testing, hydrostatic and alarm test, BFP — qty: 1 lot
+
+"sow_sections": array of exactly 8 objects, each: { "section_no": string, "title": string, "content": string }
+
+Required SOW sections:
+1.0 Scope of Works
+2.0 Design Basis (NFPA 13, ${hazard}, density ${density} mm/min, K=${kFactor}, demand ${qTotal} L/min at ${pSource} bar)
+3.0 Sprinkler Head Layout and Coverage
+4.0 Pipe Installation
+5.0 Valves, Alarm Devices, and Fire Department Connection
+6.0 Water Supply and Storage Tank
+7.0 Inspection, Testing, and Commissioning
+8.0 Regulatory Compliance (RA 9514, BFP, NFPA 13/25)
+
+Each content field must be a full professional paragraph starting with "The Contractor shall...".`;
 
   const raw = await callGroq(prompt);
   const parsed = JSON.parse(raw);
@@ -3307,7 +3337,7 @@ Project: ${project}
 Generate a JSON object with exactly two keys:
 
 "bom_items": array of 12 objects, each with:
-  { "description": string, "specification": string, "unit": string, "quantity": number, "remarks": string }
+  { "description": string, "specification": string, "unit": string, "qty": number, "remarks": string }
 
 BOM items must cover:
 1. Supply air rectangular or circular ductwork (gauge per SMACNA pressure class)
@@ -3324,17 +3354,17 @@ BOM items must cover:
 12. TAB (Testing, Adjusting, Balancing) service (lump sum)
 
 "sow_sections": array of 6 objects, each with:
-  { "section_no": string, "title": string, "items": string[] }
+  { "section_no": string, "title": string, "content": string }
 
 SOW sections:
 - "1.0" Scope of Works (duct fabrication, installation, insulation, commissioning for ${systemDesc})
 - "2.0" Design Standards and References (ASHRAE Ch.21 equal friction; SMACNA Duct Construction Standards — pressure class per operating static; ASHRAE 62.1 velocity limits; PSME Code; PEC 2017 Art.4.30)
 - "3.0" Materials and Equipment (galvanized steel gauge per SMACNA; duct insulation spec; diffuser and grille spec; VCD spec; fan and motor spec with VFD)
-- "4.0" Installation Requirements (support spacing per SMACNA; joint sealing; flex duct ≤1.5m; TAB by accredited TAB contractor)
-- "5.0" Testing and Commissioning (SMACNA duct leakage test; TAB report within ±10% of design airflow at all terminals; fan performance verification)
+- "4.0" Installation Requirements (support spacing per SMACNA; joint sealing; flex duct max 1.5m; TAB by accredited TAB contractor)
+- "5.0" Testing and Commissioning (SMACNA duct leakage test; TAB report within 10% of design airflow at all terminals; fan performance verification)
 - "6.0" Submittals and Documentation (shop drawings with SMACNA pressure class; fan performance curve; material certificates; TAB report; O&M manual; as-built drawings)
 
-Each section items array must contain 3–5 bullet strings in professional Philippine engineering contractor style. Reference specific standards and the system parameters.
+Each content field must be a full professional paragraph starting with "The Contractor shall...". Reference specific standards and the system parameters.
 
 Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
 
@@ -3385,7 +3415,7 @@ Total pipe length: ${totalLenM} m
 Generate a JSON object with exactly two keys:
 
 "bom_items": array of 12 objects, each with:
-  { "description": string, "specification": string, "unit": string, "quantity": number, "remarks": string }
+  { "description": string, "specification": string, "unit": string, "qty": number, "remarks": string }
 
 BOM items must cover:
 1. Suction line ACR copper tube (ASTM B280) — sized per design, dehydrated and capped — qty: ${Math.ceil(totalSucLenM * 1.10)} m (10% wastage)
@@ -3402,17 +3432,17 @@ BOM items must cover:
 12. Sight glass with moisture indicator — liquid line, rated for ${refrig} — qty: ${lineArr.filter(l=>l.line_type==="Liquid").length || 1} pc
 
 "sow_sections": array of 6 objects, each with:
-  { "section_no": string, "title": string, "items": string[] }
+  { "section_no": string, "title": string, "content": string }
 
 SOW sections:
 - "1.0" Scope of Works (supply, install, and commission ${refrig} refrigerant line sets for ${capKw}kW ${app} system per ASTM B280 and ASHRAE Refrigeration Handbook Ch.1)
 - "2.0" Design Standards and References (ASTM B280 ACR copper tube; ASHRAE 2022 Refrigeration Handbook Chapter 1 velocity method; ASHRAE 90.1 insulation; PEC 2017 Article 4 branch circuit protection; PSME Code)
 - "3.0" Materials and Equipment (ASTM B280 ACR copper must be dehydrated and capped; ${refrig} refrigerant must have safety data sheet; insulation spec ASTM C534; filter drier and sight glass specs)
 - "4.0" Installation Requirements (OFN nitrogen purge brazing for all joints; oil traps at suction riser bases; suction line pitch toward compressor; insulate suction lines before pressure test; no bare copper in wet/outdoor areas)
-- "5.0" Testing and Commissioning (pressure test at 1.1× MAWP with dry nitrogen — 24-hour hold minimum; evacuation to ≤500 microns with vacuum pump before charging; refrigerant charge by weight per manufacturer; record charge weight on equipment tag)
+- "5.0" Testing and Commissioning (pressure test at 1.1x MAWP with dry nitrogen — 24-hour hold minimum; evacuation to 500 microns or below with vacuum pump before charging; refrigerant charge by weight per manufacturer; record charge weight on equipment tag)
 - "6.0" Submittals and Documentation (ASTM B280 material certificate; refrigerant SDS; pressure test chart and evacuation log; refrigerant weight-in record; as-built drawings showing all joints, routing, and insulation; O&M manual)
 
-Each section items array must contain 3–5 bullet strings in professional Philippine engineering contractor style. Reference specific standards and the system parameters (${refrig}, ${capKw}kW, ASTM B280).
+Each content field must be a full professional paragraph starting with "The Contractor shall...". Reference specific standards and the system parameters (${refrig}, ${capKw}kW, ASTM B280).
 
 Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
 
@@ -3464,7 +3494,7 @@ Room schedule: ${roomSummary}
 Generate a JSON object with exactly two keys:
 
 "bom_items": array of 12 objects, each with:
-  { "description": string, "specification": string, "unit": string, "quantity": number, "remarks": string }
+  { "description": string, "specification": string, "unit": string, "qty": number, "remarks": string }
 
 BOM items must cover:
 1. Fan Coil Units — ${mountType} type, ${pipeSys} coil configuration, per FCU schedule above — qty: ${totalUnits} units
@@ -3481,17 +3511,17 @@ BOM items must cover:
 12. Air Vent and Drain Valves — automatic air vents at high points, manual drains at low points — qty: 1 lot
 
 "sow_sections": array of 6 objects, each with:
-  { "section_no": string, "title": string, "items": string[] }
+  { "section_no": string, "title": string, "content": string }
 
 SOW sections:
 - "1.0" Scope of Works (supply, install, and commission ${totalUnits} FCUs at ${totalDesKW}kW / ${totalDesTR}TR design load, ${pipeSys}, ${mountType} mounting)
-- "2.0" Design Standards and References (ASHRAE 2023 HVAC Systems and Equipment Handbook; ASHRAE 62.1 ventilation; ASHRAE 90.1 efficiency EER ≥ 3.5; PSME Code; ASTM A53 piping; ASTM C534 insulation)
+- "2.0" Design Standards and References (ASHRAE 2023 HVAC Systems and Equipment Handbook; ASHRAE 62.1 ventilation; ASHRAE 90.1 efficiency EER min 3.5; PSME Code; ASTM A53 piping; ASTM C534 insulation)
 - "3.0" Materials and Equipment (FCU specs: ${pipeSys} coil, ${mountType}, nominal capacities per schedule; Black Steel SCH40 ASTM A53 Grade B piping; closed-cell elastomeric insulation ASTM C534 19mm min; PICV balancing valves)
-- "4.0" Installation Requirements (pipe slope for condensate: 1:100 minimum; pipe insulation to extend to FCU coil connection; FCU mounting height per ASHRAE 62.1 effective air distribution; electrical connection per PEC 2017 Article 4; CHW velocity 0.6–2.5 m/s in branches)
-- "5.0" Testing and Commissioning (hydrostatic test at 1.5× working pressure for 1 hour minimum; flush CHW piping before FCU connection; balance CHW flow at each FCU via PICV per ASHRAE commissioning guidelines; verify FCU cooling capacity at design CHW flow; TAB report required)
-- "6.0" Submittals and Documentation (manufacturer FCU product data sheets; ASTM A53 material certificate for CHW piping; hydrostatic test record; TAB report within ±10% design airflows; as-built drawings; O&M manuals and spare parts list; PRC-licensed ME signature on final documents)
+- "4.0" Installation Requirements (pipe slope for condensate: 1:100 minimum; pipe insulation to extend to FCU coil connection; FCU mounting height per ASHRAE 62.1 effective air distribution; electrical connection per PEC 2017 Article 4; CHW velocity 0.6-2.5 m/s in branches)
+- "5.0" Testing and Commissioning (hydrostatic test at 1.5x working pressure for 1 hour minimum; flush CHW piping before FCU connection; balance CHW flow at each FCU via PICV per ASHRAE commissioning guidelines; verify FCU cooling capacity at design CHW flow; TAB report required)
+- "6.0" Submittals and Documentation (manufacturer FCU product data sheets; ASTM A53 material certificate for CHW piping; hydrostatic test record; TAB report within 10% of design airflows; as-built drawings; O&M manuals and spare parts list; PRC-licensed ME signature on final documents)
 
-Each section items array must contain 3–5 bullet strings in professional Philippine engineering contractor style. Reference specific standards and the project parameters (${totalDesKW}kW, ${totalUnits} FCUs, ${mainNps}mm NPS main, ${pipeSys}).
+Each content field must be a full professional paragraph starting with "The Contractor shall...". Reference specific standards and the project parameters (${totalDesKW}kW, ${totalUnits} FCUs, ${mainNps}mm NPS main, ${pipeSys}).
 
 Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
 
@@ -3537,31 +3567,31 @@ Required acceptance volume: ${reqL} L → Selected tank: ${tankL} L bladder/diap
 Generate a JSON object with exactly two keys:
 
 "bom_items": array of 10 objects, each with:
-  { "description": string, "specification": string, "unit": string, "quantity": number, "remarks": string }
+  { "description": string, "specification": string, "unit": string, "qty": number, "remarks": string }
 
 BOM items must cover:
 1. Bladder Expansion Tank — pre-pressurised, ASME VIII-listed, ${tankL}L, EPDM bladder, rated for ${pMax} kPa g MAWP — qty: 1 unit
 2. Tank Isolation Valve — full-bore ball valve, PN25, same pipe size as tank connection — qty: 1 pc
-3. Pressure Gauge — 0–${Math.round(Number(pMax) * 1.5)} kPa range, glycerin-filled, 100mm dial, ½" BSP connection — qty: 1 pc
+3. Pressure Gauge — 0-${Math.round(Number(pMax) * 1.5)} kPa range, glycerin-filled, 100mm dial, 1/2 inch BSP connection — qty: 1 pc
 4. Tank Connection Pipe — Black Steel SCH40, ASTM A53 Grade B, sized to match tank port — qty: 1 lot
 5. Pipe Insulation (tank connection) — closed-cell elastomeric foam 19mm, ASTM C534 — qty: 1 lot
-6. System Fill / Make-up Water Connection — ½" make-up water solenoid valve with backflow preventer — qty: 1 set
+6. System Fill / Make-up Water Connection — 1/2 inch make-up water solenoid valve with backflow preventer — qty: 1 set
 7. Pressure Relief Valve — set to ${pMax} kPa g, ASME-stamped, bronze body — qty: 1 pc
-8. Manual Drain Valve — ½" ball valve at tank drain port — qty: 1 pc
+8. Manual Drain Valve — 1/2 inch ball valve at tank drain port — qty: 1 pc
 9. Air Separator — magnetic, inline, to remove dissolved gases before they accumulate in tank — qty: 1 unit
 10. Pipe Hangers and Supports — per MSS SP-58, galvanised, for tank connection piping — qty: 1 lot
 
 "sow_sections": array of 5 objects, each with:
-  { "section_no": string, "title": string, "items": string[] }
+  { "section_no": string, "title": string, "content": string }
 
 SOW sections:
-- "1.0" Scope of Works (supply, install, and commission ${tankL}L pre-pressurised EPDM bladder expansion tank on the ${sysType} closed hydronic loop, system volume ${sysVol}L, α=${alpha})
+- "1.0" Scope of Works (supply, install, and commission ${tankL}L pre-pressurised EPDM bladder expansion tank on the ${sysType} closed hydronic loop, system volume ${sysVol}L, acceptance factor ${alpha})
 - "2.0" Design Standards and References (ASHRAE 2023 Handbook HVAC Systems and Equipment Ch.12; ASME BPVC Section VIII Division 1; ASHRAE 90.1; PSME Code; ASTM A53 Grade B piping; ASTM C534 insulation)
-- "3.0" Materials and Equipment (ASME VIII-listed bladder tank, EPDM bladder rated ≥${pMax} kPa MAWP; PN25 full-bore isolation valve; glycerin-filled pressure gauge; ASTM A53 Grade B SCH40 connection piping; closed-cell elastomeric insulation ASTM C534 19mm minimum)
+- "3.0" Materials and Equipment (ASME VIII-listed bladder tank, EPDM bladder rated min ${pMax} kPa MAWP; PN25 full-bore isolation valve; glycerin-filled pressure gauge; ASTM A53 Grade B SCH40 connection piping; closed-cell elastomeric insulation ASTM C534 19mm minimum)
 - "4.0" Installation Requirements (locate tank on suction side of primary pump at point of no pressure change; set factory pre-charge to ${precharge} kPa g with system depressurised; fill system to ${fillP} kPa g before start-up; install with tank neck up for top-mounted connections; provide access for periodic inspection per ASME VIII)
-- "5.0" Testing and Commissioning (verify pre-charge pressure matches factory setting ${precharge} kPa g; system pressure test at 1.25× MAWP = ${Math.round(Number(pMax)*1.25)} kPa for 1 hour; confirm α ≥ 0.25 after commissioning per ASHRAE; verify pressure relief valve opens at ${pMax} kPa g; submit commissioning report with pressure readings and acceptance factor calculation; PRC-licensed Mechanical Engineer to sign and seal)
+- "5.0" Testing and Commissioning (verify pre-charge pressure matches factory setting ${precharge} kPa g; system pressure test at 1.25x MAWP = ${Math.round(Number(pMax)*1.25)} kPa for 1 hour; confirm acceptance factor min 0.25 after commissioning per ASHRAE; verify pressure relief valve opens at ${pMax} kPa g; submit commissioning report with pressure readings and acceptance factor calculation; PRC-licensed Mechanical Engineer to sign and seal)
 
-Each section items array must contain 3–5 bullet strings in professional Philippine engineering contractor style. Reference specific standards and actual project parameters (${tankL}L tank, α=${alpha}, ${sysType}).
+Each content field must be a full professional paragraph starting with "The Contractor shall...". Reference specific standards and actual project parameters (${tankL}L tank, acceptance factor ${alpha}, ${sysType}).
 
 Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
 
