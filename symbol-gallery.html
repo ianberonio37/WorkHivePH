@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Symbol Gallery — Engineering Drawing Library</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #F7A21B;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 2rem;
+    }
+
+    /* ── Discipline sections ──────────────────────────────── */
+    .discipline-section {
+      margin-bottom: 2.5rem;
+    }
+
+    .discipline-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+    .discipline-title.electrical { background: #1e3a5f; color: #60a5fa; }
+    .discipline-title.mechanical { background: #1c3a1c; color: #4ade80; }
+    .discipline-title.pid        { background: #3a1c3a; color: #d8b4fe; }
+    .discipline-title.lps        { background: #3a2a0a; color: #fbbf24; }
+
+    /* ── Symbol grid ──────────────────────────────────────── */
+    .symbol-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 1rem;
+    }
+
+    .symbol-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 0.75rem;
+      padding: 1rem 0.75rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+      transition: border-color 0.2s, background 0.2s;
+      cursor: default;
+    }
+    .symbol-card:hover {
+      border-color: rgba(247,162,27,0.4);
+      background: rgba(247,162,27,0.04);
+    }
+
+    /* SVG viewport — white drawing, dark card */
+    .symbol-card svg {
+      width: 90px;
+      height: 90px;
+      display: block;
+      color: #e6edf3;   /* currentColor = near-white on dark cards */
+    }
+
+    .symbol-name {
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.55);
+      text-align: center;
+      line-height: 1.35;
+    }
+
+    .symbol-key {
+      font-size: 0.6rem;
+      color: rgba(255,255,255,0.22);
+      font-family: monospace;
+      text-align: center;
+    }
+
+    /* ── Print-mode preview (white bg, dark symbols) ─────── */
+    .preview-toggle {
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.5);
+    }
+    .toggle-track {
+      width: 38px; height: 20px; border-radius: 10px;
+      background: #555; cursor: pointer; position: relative;
+      transition: background 0.2s;
+    }
+    .toggle-thumb {
+      width: 16px; height: 16px; border-radius: 50%;
+      background: #fff; position: absolute;
+      top: 2px; left: 2px; transition: left 0.2s;
+    }
+    .toggle-track.on { background: #F7A21B; }
+    .toggle-track.on .toggle-thumb { left: 20px; }
+
+    /* When print-mode is on, cards go white */
+    body.print-mode .symbol-card {
+      background: #fff;
+      border-color: #ddd;
+    }
+    body.print-mode .symbol-card svg {
+      color: #1a1a2e;   /* currentColor = dark on white cards */
+    }
+    body.print-mode .symbol-name { color: #555; }
+    body.print-mode .symbol-key  { color: #aaa; }
+
+    /* ── Header bar ───────────────────────────────────────── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .symbol-count {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.3);
+      margin-top: 0.2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div>
+      <h1>Engineering Drawing — Symbol Gallery</h1>
+      <div class="subtitle">drawing-symbols.js — development preview only</div>
+      <div class="symbol-count" id="sym-count">Loading...</div>
+    </div>
+
+    <div class="preview-toggle">
+      <span>Dark mode</span>
+      <div class="toggle-track" id="mode-toggle" onclick="togglePrintMode()">
+        <div class="toggle-thumb"></div>
+      </div>
+      <span>Print mode (white bg)</span>
+    </div>
+  </div>
+
+  <div id="gallery"></div>
+
+  <script src="drawing-symbols.js"></script>
+  <script>
+    // ── Group symbols by discipline ──────────────────────────────────────────
+    const DISCIPLINE_ORDER  = ['electrical', 'mechanical', 'pid', 'lps'];
+    const DISCIPLINE_LABELS = {
+      electrical: 'Electrical  (IEC 60617)',
+      mechanical: 'Mechanical / HVAC  (ASHRAE)',
+      pid:        'P&ID Instruments  (ISA-5.1)',
+      lps:        'Lightning Protection  (IEC 62305)',
+    };
+
+    function buildGallery() {
+      const symbols = getSymbolList();
+      document.getElementById('sym-count').textContent =
+        symbols.length + ' symbols across ' + DISCIPLINE_ORDER.length + ' disciplines';
+
+      const grouped = {};
+      for (const sym of symbols) {
+        if (!grouped[sym.discipline]) grouped[sym.discipline] = [];
+        grouped[sym.discipline].push(sym);
+      }
+
+      const gallery = document.getElementById('gallery');
+      gallery.innerHTML = '';
+
+      for (const disc of DISCIPLINE_ORDER) {
+        if (!grouped[disc]) continue;
+
+        const section = document.createElement('div');
+        section.className = 'discipline-section';
+
+        section.innerHTML = `<div class="discipline-title ${disc}">${DISCIPLINE_LABELS[disc]}</div>`;
+
+        const grid = document.createElement('div');
+        grid.className = 'symbol-grid';
+
+        for (const sym of grouped[disc]) {
+          // Render the SVG using the symbol library
+          const innerSVG = drawSymbol(
+            sym.key, 45, 45,
+            sym.key === 'instrument' ? { tag: 'PIC', loop: '101' } : {}
+          );
+
+          const card = document.createElement('div');
+          card.className = 'symbol-card';
+          card.title = sym.key;
+          card.innerHTML = `
+            <svg viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
+              ${innerSVG}
+            </svg>
+            <div class="symbol-name">${sym.label}</div>
+            <div class="symbol-key">${sym.key}</div>
+          `;
+          grid.appendChild(card);
+        }
+
+        section.appendChild(grid);
+        gallery.appendChild(section);
+      }
+    }
+
+    // ── Print-mode toggle ────────────────────────────────────────────────────
+    let _printMode = false;
+    function togglePrintMode() {
+      _printMode = !_printMode;
+      document.body.classList.toggle('print-mode', _printMode);
+      document.getElementById('mode-toggle').classList.toggle('on', _printMode);
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+    buildGallery();
+  </script>
+</body>
+</html>

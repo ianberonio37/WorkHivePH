@@ -9496,7 +9496,7 @@ function showReport() {
   document.getElementById('bom-sow-section').classList.remove('hidden');
   resetBomSow();
   // Show drawing section for supported calc types
-  const DRAWING_SUPPORTED = ['HVAC Cooling Load', 'Load Estimation', 'Lightning Protection System (LPS)', 'Generator Sizing', 'Pump Sizing (TDH)', 'Fire Sprinkler Hydraulic'];
+  const DRAWING_SUPPORTED = ['HVAC Cooling Load', 'Load Estimation', 'Lightning Protection System (LPS)', 'Generator Sizing', 'Pump Sizing (TDH)', 'Fire Sprinkler Hydraulic', 'Lighting Design'];
   const drawingSection = document.getElementById('drawing-section');
   if (DRAWING_SUPPORTED.includes(_calcType)) {
     drawingSection.classList.remove('hidden');
@@ -9511,6 +9511,8 @@ function showReport() {
       descEl.textContent = 'Generates a pump system P&ID schematic (ISA-5.1 / ISO 10628 / ASME B31.3) from your pump sizing results';
     } else if (_calcType === 'Fire Sprinkler Hydraulic' && descEl) {
       descEl.textContent = 'Generates a fire sprinkler hydraulic schematic (NFPA 13:2022 / NFPA 14 / PEC) from your sprinkler design results';
+    } else if (_calcType === 'Lighting Design' && descEl) {
+      descEl.textContent = 'Generates a lighting layout (overhead plan + luminaire schedule + analysis) per IESNA RP-1:2020 / PEC 2017 / ASHRAE 90.1 from your lighting design results';
     }
     resetDrawingSection();
   } else {
@@ -16276,6 +16278,9 @@ function generateDrawing() {
     } else if (_calcType === 'Fire Sprinkler Hydraulic') {
       const svg = buildFireSprinklerSvg(_lastInputs, _lastResults);
       renderFireSprinklerDiagram(svg, _lastInputs, _lastResults);
+    } else if (_calcType === 'Lighting Design') {
+      const svg = buildLightingLayoutSvg(_lastInputs, _lastResults);
+      renderLightingLayout(svg, _lastInputs, _lastResults);
     }
   }, 350);
 }
@@ -16302,6 +16307,9 @@ function regenerateDrawing() {
     } else if (_calcType === 'Fire Sprinkler Hydraulic') {
       const svg = buildFireSprinklerSvg(_lastInputs, _lastResults);
       renderFireSprinklerDiagram(svg, _lastInputs, _lastResults);
+    } else if (_calcType === 'Lighting Design') {
+      const svg = buildLightingLayoutSvg(_lastInputs, _lastResults);
+      renderLightingLayout(svg, _lastInputs, _lastResults);
     }
   }, 250);
 }
@@ -18245,6 +18253,375 @@ function renderHVACDiagramSVG(svgString, inputs, results) {
   document.getElementById('drawing-output').classList.remove('hidden');
 }
 
+// ─── Lighting Layout SVG builder ─────────────────────────────────────────────
+function buildLightingLayoutSvg(inputs, results) {
+  const r = results || {};
+
+  const W = 1050, H = 467;   // drawing area (title block is separate HTML below)
+
+  // ── Calc values ──────────────────────────────────────────────────────────
+  const roomLen  = Number(inputs.room_len_m    || 10);
+  const roomWid  = Number(inputs.room_wid_m    || 8);
+  const tgtLux   = Number(inputs.target_lux    || 300);
+  const fixType  = escHtml(String(inputs.fixture_type  || 'LED Troffer'));
+  const lumens   = Number(inputs.lumens_per_fix || 3500);
+  const watts    = Number(inputs.watts_per_fix  || 36);
+  const llf      = Number(inputs.llf            || 0.80);
+  const spaceTyp = escHtml(String(inputs.space_type || 'Office'));
+
+  const nFix    = Number(r.N_fixtures   || 12);
+  const eActual = Number(r.E_actual_lux || 320);
+  const lpd     = Number(r.lpd_W_m2    || 5.4);
+  const area    = Number(r.floor_area_m2 || 80);
+  const cu      = Number(r.CU           || 0.65);
+  const totW    = Number(r.total_watts  || 432);
+  const totKW   = Number(r.total_kW     || 0.432);
+
+  // ── LPD limits (PEC 2017 / ASHRAE 90.1) ────────────────────────────────
+  const LPD_LIMITS = {
+    'Office': 10.8, 'Classroom': 10.8, 'Retail': 15.1,
+    'Hospital': 13.7, 'Warehouse': 6.5, 'Corridor': 5.0,
+    'Lobby': 9.0, 'Conference': 12.0
+  };
+  const lpdLimit  = LPD_LIMITS[inputs.space_type] || 12.0;
+  const lpdOk     = lpd <= lpdLimit;
+  const luxOk     = eActual >= tgtLux * 0.95;
+  const eMin      = eActual * 0.65;
+  const uniformity = (eMin / eActual).toFixed(2);
+  const uniformOk  = Number(uniformity) >= 0.60;
+
+  // ── Fixture grid ────────────────────────────────────────────────────────
+  const aspectRatio = roomLen / roomWid;
+  let nCols = Math.max(1, Math.round(Math.sqrt(nFix * aspectRatio)));
+  let nRows = Math.max(1, Math.ceil(nFix / nCols));
+  while (nCols * nRows < nFix) nCols++;
+
+  // ── Room plan geometry ──────────────────────────────────────────────────
+  const LP_X = 8, LP_Y = 28, LP_W = 626, LP_H = 432;
+  const HDR_H = 18; // panel header height
+  const RM_MARGIN = 44;
+  const scaleX = (LP_W - RM_MARGIN * 2) / roomLen;
+  const scaleY = (LP_H - HDR_H - RM_MARGIN * 2 - 24) / roomWid; // 24 for legend
+  const sc    = Math.min(scaleX, scaleY);
+  const RM_W  = roomLen * sc;
+  const RM_H  = roomWid * sc;
+  const RM_X  = LP_X + (LP_W - RM_W) / 2;
+  const RM_Y  = LP_Y + HDR_H + (LP_H - HDR_H - 24 - RM_H) / 2;
+
+  const colSpacing = RM_W / nCols;
+  const rowSpacing = RM_H / nRows;
+
+  // Fixture positions — uniform grid, first & last = emergency
+  const fixPositions = [];
+  let fi = 0;
+  for (let rr = 0; rr < nRows && fi < nFix; rr++) {
+    for (let cc = 0; cc < nCols && fi < nFix; cc++) {
+      fixPositions.push({
+        x: RM_X + colSpacing * (cc + 0.5),
+        y: RM_Y + rowSpacing * (rr + 0.5),
+        emergency: fi === 0 || fi === nFix - 1
+      });
+      fi++;
+    }
+  }
+
+  // Illuminance grid (3×3 nodes inside room)
+  const eGrid = [
+    [eActual*0.63, eActual*0.79, eActual*0.63],
+    [eActual*0.79, eActual,      eActual*0.79],
+    [eActual*0.63, eActual*0.79, eActual*0.63]
+  ];
+  const eGposX = [0.15, 0.50, 0.85];
+  const eGposY = [0.18, 0.50, 0.82];
+
+  // Fixture symbol size
+  const fw = Math.min(colSpacing * 0.58, 28);
+  const fh = Math.min(rowSpacing * 0.44, 12);
+
+  // ── Right panel ─────────────────────────────────────────────────────────
+  const RP_X = 638, RP_Y = 28, RP_W = 406, RP_H = 432;
+
+  // ── Colour palette ───────────────────────────────────────────────────────
+  const CC  = '#1a2e4a';
+  const GRN = '#1b7a3e';
+  const RED = '#c0392b';
+  const AMB = '#f7c948';
+  const ORG = '#e06000';
+
+  const f1 = v => Number(v).toFixed(1);
+  const f2 = v => Number(v).toFixed(2);
+
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" font-family="Arial,Helvetica,sans-serif" font-size="10">`;
+  s += `<defs>
+    <marker id="ltgArrowOrg" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="${ORG}"/></marker>
+    <marker id="ltgArrowDim" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M5,0 L0,2.5 L5,5 z" fill="${CC}"/></marker>
+  </defs>`;
+
+  // Canvas background
+  s += `<rect width="${W}" height="${H}" fill="#f7f9fc"/>`;
+
+  // ── Left panel ────────────────────────────────────────────────────────────
+  s += `<rect x="${LP_X}" y="${LP_Y}" width="${LP_W}" height="${LP_H}" fill="white" stroke="${CC}" stroke-width="1.2"/>`;
+  s += `<rect x="${LP_X}" y="${LP_Y}" width="${LP_W}" height="${HDR_H}" fill="${CC}"/>`;
+  s += `<text x="${LP_X + LP_W/2}" y="${LP_Y + 13}" text-anchor="middle" font-size="10" font-weight="bold" fill="white">LIGHTING LAYOUT \u2014 OVERHEAD PLAN (NTS)</text>`;
+
+  // ── Room boundary ────────────────────────────────────────────────────────
+  s += `<rect x="${RM_X}" y="${RM_Y}" width="${RM_W}" height="${RM_H}" fill="#eef3fa" stroke="${CC}" stroke-width="2"/>`;
+
+  // ── Grid lines (dashed) ──────────────────────────────────────────────────
+  for (let c = 1; c < nCols; c++) {
+    const gx = RM_X + colSpacing * c;
+    s += `<line x1="${gx}" y1="${RM_Y}" x2="${gx}" y2="${RM_Y+RM_H}" stroke="#b0c4de" stroke-width="0.5" stroke-dasharray="3,3"/>`;
+  }
+  for (let rr = 1; rr < nRows; rr++) {
+    const gy = RM_Y + rowSpacing * rr;
+    s += `<line x1="${RM_X}" y1="${gy}" x2="${RM_X+RM_W}" y2="${gy}" stroke="#b0c4de" stroke-width="0.5" stroke-dasharray="3,3"/>`;
+  }
+
+  // ── Illuminance grid nodes ────────────────────────────────────────────────
+  for (let rr = 0; rr < 3; rr++) {
+    for (let cc = 0; cc < 3; cc++) {
+      const nx = RM_X + eGposX[cc] * RM_W;
+      const ny = RM_Y + eGposY[rr] * RM_H;
+      const lux = eGrid[rr][cc];
+      s += `<circle cx="${nx}" cy="${ny}" r="3.5" fill="${AMB}" opacity="0.55"/>`;
+      s += `<text x="${nx}" y="${ny + 11}" text-anchor="middle" font-size="7" fill="#5a4a10">${Math.round(lux)}\u00a0lx</text>`;
+    }
+  }
+
+  // ── Fixtures ─────────────────────────────────────────────────────────────
+  fixPositions.forEach((fp, idx) => {
+    const tag = `L${String(idx+1).padStart(2,'0')}`;
+    const isEmerg = fp.emergency;
+    const fc = isEmerg ? GRN : CC;
+    const fl = isEmerg ? '#d4edda' : '#dce8f7';
+    s += `<g transform="translate(${fp.x.toFixed(1)},${fp.y.toFixed(1)})">`;
+    s += `<rect x="${(-fw/2).toFixed(1)}" y="${(-fh/2).toFixed(1)}" width="${fw.toFixed(1)}" height="${fh.toFixed(1)}" fill="${fl}" stroke="${fc}" stroke-width="1.2" rx="1"/>`;
+    s += `<line x1="${(-fw/2).toFixed(1)}" y1="${(-fh/2).toFixed(1)}" x2="${(fw/2).toFixed(1)}" y2="${(fh/2).toFixed(1)}" stroke="${fc}" stroke-width="0.8"/>`;
+    s += `<line x1="${(fw/2).toFixed(1)}" y1="${(-fh/2).toFixed(1)}" x2="${(-fw/2).toFixed(1)}" y2="${(fh/2).toFixed(1)}" stroke="${fc}" stroke-width="0.8"/>`;
+    s += `<text x="0" y="${(-fh/2 - 3).toFixed(1)}" text-anchor="middle" font-size="7" fill="${fc}">${tag}</text>`;
+    if (isEmerg) s += `<text x="0" y="${(fh/2 + 8).toFixed(1)}" text-anchor="middle" font-size="6.5" fill="${GRN}" font-weight="bold">EM</text>`;
+    s += `</g>`;
+  });
+
+  // ── Homerun arrow (circuit) from first fixture toward left wall ────────────
+  if (fixPositions.length > 0) {
+    const fp0 = fixPositions[0];
+    const arrowEndX = RM_X - 4;
+    s += `<line x1="${fp0.x.toFixed(1)}" y1="${fp0.y.toFixed(1)}" x2="${arrowEndX}" y2="${fp0.y.toFixed(1)}" stroke="${ORG}" stroke-width="1.2" stroke-dasharray="5,2" marker-end="url(#ltgArrowOrg)"/>`;
+    s += `<text x="${arrowEndX - 2}" y="${fp0.y - 4}" text-anchor="end" font-size="7.5" fill="${ORG}">CKT-1</text>`;
+  }
+
+  // ── Dimension annotations ─────────────────────────────────────────────────
+  const dimY1 = RM_Y + RM_H + 6, dimY2 = RM_Y + RM_H + 16;
+  s += `<line x1="${RM_X}" y1="${dimY1}" x2="${RM_X}" y2="${dimY2}" stroke="${CC}" stroke-width="0.8"/>`;
+  s += `<line x1="${RM_X+RM_W}" y1="${dimY1}" x2="${RM_X+RM_W}" y2="${dimY2}" stroke="${CC}" stroke-width="0.8"/>`;
+  s += `<line x1="${RM_X}" y1="${(dimY1+dimY2)/2}" x2="${RM_X+RM_W}" y2="${(dimY1+dimY2)/2}" stroke="${CC}" stroke-width="0.8" marker-start="url(#ltgArrowDim)" marker-end="url(#ltgArrowDim)"/>`;
+  s += `<text x="${RM_X + RM_W/2}" y="${dimY2 + 10}" text-anchor="middle" font-size="9" fill="${CC}">${f1(roomLen)} m</text>`;
+  const dimX1 = RM_X + RM_W + 6, dimX2 = RM_X + RM_W + 18;
+  s += `<line x1="${dimX1}" y1="${RM_Y}" x2="${dimX2}" y2="${RM_Y}" stroke="${CC}" stroke-width="0.8"/>`;
+  s += `<line x1="${dimX1}" y1="${RM_Y+RM_H}" x2="${dimX2}" y2="${RM_Y+RM_H}" stroke="${CC}" stroke-width="0.8"/>`;
+  s += `<line x1="${(dimX1+dimX2)/2}" y1="${RM_Y}" x2="${(dimX1+dimX2)/2}" y2="${RM_Y+RM_H}" stroke="${CC}" stroke-width="0.8"/>`;
+  s += `<text x="${dimX2 + 4}" y="${RM_Y + RM_H/2}" dominant-baseline="middle" font-size="9" fill="${CC}">${f1(roomWid)} m</text>`;
+
+  // ── North marker ──────────────────────────────────────────────────────────
+  const NX = Math.min(RM_X + RM_W - 22, LP_X + LP_W - 30), NY = LP_Y + HDR_H + 22;
+  s += `<circle cx="${NX}" cy="${NY}" r="14" fill="white" stroke="${CC}" stroke-width="1.2"/>`;
+  s += `<polygon points="${NX},${NY-12} ${NX-5},${NY+4} ${NX},${NY} ${NX+5},${NY+4}" fill="${CC}"/>`;
+  s += `<text x="${NX}" y="${NY + 22}" text-anchor="middle" font-size="9" font-weight="bold" fill="${CC}">N</text>`;
+
+  // ── Legend (bottom of left panel) ────────────────────────────────────────
+  const LEG_Y = LP_Y + LP_H - 16;
+  s += `<rect x="${LP_X+1}" y="${LEG_Y - 10}" width="${LP_W-2}" height="18" fill="#eef3fa" stroke="${CC}" stroke-width="0"/>`;
+  // Normal fixture
+  s += `<rect x="${LP_X+8}" y="${LEG_Y - 6}" width="14" height="7" fill="#dce8f7" stroke="${CC}" stroke-width="1"/>`;
+  s += `<line x1="${LP_X+8}" y1="${LEG_Y - 6}" x2="${LP_X+22}" y2="${LEG_Y + 1}" stroke="${CC}" stroke-width="0.7"/>`;
+  s += `<line x1="${LP_X+22}" y1="${LEG_Y - 6}" x2="${LP_X+8}" y2="${LEG_Y + 1}" stroke="${CC}" stroke-width="0.7"/>`;
+  s += `<text x="${LP_X+27}" y="${LEG_Y + 2}" font-size="8" fill="${CC}">Normal Fixture</text>`;
+  // Emergency
+  s += `<rect x="${LP_X+118}" y="${LEG_Y - 6}" width="14" height="7" fill="#d4edda" stroke="${GRN}" stroke-width="1"/>`;
+  s += `<text x="${LP_X+137}" y="${LEG_Y + 2}" font-size="8" fill="${GRN}">Emergency (90 min)</text>`;
+  // Lux node
+  s += `<circle cx="${LP_X+278}" cy="${LEG_Y - 2}" r="4" fill="${AMB}" opacity="0.65"/>`;
+  s += `<text x="${LP_X+287}" y="${LEG_Y + 2}" font-size="8" fill="#5a4a10">Illuminance node (lx)</text>`;
+  // Homerun
+  s += `<line x1="${LP_X+430}" y1="${LEG_Y - 2}" x2="${LP_X+450}" y2="${LEG_Y - 2}" stroke="${ORG}" stroke-width="1.2" stroke-dasharray="4,2"/>`;
+  s += `<text x="${LP_X+455}" y="${LEG_Y + 2}" font-size="8" fill="${ORG}">Circuit Homerun</text>`;
+
+  // ── Right panel ───────────────────────────────────────────────────────────
+  s += `<rect x="${RP_X}" y="${RP_Y}" width="${RP_W}" height="${RP_H}" fill="white" stroke="${CC}" stroke-width="1.2"/>`;
+
+  // ── Luminaire schedule header ─────────────────────────────────────────────
+  let cy = RP_Y;
+  s += `<rect x="${RP_X}" y="${cy}" width="${RP_W}" height="16" fill="${CC}"/>`;
+  s += `<text x="${RP_X + RP_W/2}" y="${cy + 11}" text-anchor="middle" font-size="9.5" font-weight="bold" fill="white">LUMINAIRE SCHEDULE</text>`;
+  cy += 16;
+
+  // Column headers
+  const schCols = [
+    {x: RP_X+4,   label: 'TAG',   w: 28},
+    {x: RP_X+33,  label: 'TYPE',  w: 96},
+    {x: RP_X+130, label: 'W',     w: 24},
+    {x: RP_X+155, label: 'lm',    w: 34},
+    {x: RP_X+190, label: 'QTY',   w: 26},
+    {x: RP_X+217, label: 'EM',    w: 24},
+    {x: RP_X+242, label: 'kW',    w: 34},
+    {x: RP_X+277, label: 'CKT',   w: 30},
+  ];
+  s += `<rect x="${RP_X}" y="${cy}" width="${RP_W}" height="13" fill="#d6e4f0"/>`;
+  schCols.forEach(col => {
+    s += `<text x="${col.x}" y="${cy + 9}" font-size="7.5" font-weight="bold" fill="${CC}">${col.label}</text>`;
+  });
+  const schDivX = [RP_X+29, RP_X+127, RP_X+151, RP_X+187, RP_X+214, RP_X+239, RP_X+274];
+  schDivX.forEach(dx => {
+    s += `<line x1="${dx}" y1="${cy}" x2="${dx}" y2="${cy+13}" stroke="#aaa" stroke-width="0.5"/>`;
+  });
+  cy += 13;
+
+  // Data row
+  const emQty = Math.min(2, nFix);
+  const typShort = fixType.length > 13 ? fixType.substring(0,13) + '\u2026' : fixType;
+  s += `<rect x="${RP_X}" y="${cy}" width="${RP_W}" height="12" fill="#f7f9fc"/>`;
+  s += `<text x="${RP_X+4}"   y="${cy+9}" font-size="8" fill="${CC}">L-1</text>`;
+  s += `<text x="${RP_X+33}"  y="${cy+9}" font-size="7.5" fill="${CC}">${typShort}</text>`;
+  s += `<text x="${RP_X+130}" y="${cy+9}" font-size="8" fill="${CC}">${watts}</text>`;
+  s += `<text x="${RP_X+155}" y="${cy+9}" font-size="8" fill="${CC}">${lumens}</text>`;
+  s += `<text x="${RP_X+190}" y="${cy+9}" font-size="8" fill="${CC}">${nFix}</text>`;
+  s += `<text x="${RP_X+217}" y="${cy+9}" font-size="8" fill="${GRN}" font-weight="bold">${emQty}</text>`;
+  s += `<text x="${RP_X+242}" y="${cy+9}" font-size="8" fill="${CC}">${f2(totKW)}</text>`;
+  s += `<text x="${RP_X+277}" y="${cy+9}" font-size="8" fill="${ORG}">CKT-1</text>`;
+  schDivX.forEach(dx => {
+    s += `<line x1="${dx}" y1="${cy}" x2="${dx}" y2="${cy+12}" stroke="#aaa" stroke-width="0.5"/>`;
+  });
+  s += `<line x1="${RP_X}" y1="${cy+12}" x2="${RP_X+RP_W}" y2="${cy+12}" stroke="#aaa" stroke-width="0.5"/>`;
+  cy += 12;
+
+  // Detail rows
+  const detailRows = [
+    ['CCT', '4000K (Neutral White)', 'IP Rating', 'IP20'],
+    ['CRI', '> 80 Ra',               'Mounting',  'Recessed'],
+    ['LLF', f2(llf),                 'CU',        f2(cu)],
+    ['Ceiling Ht.', `${f1(Number(inputs.ceiling_ht_m||3))} m`, 'Floor Area', `${f1(area)} m\u00b2`],
+  ];
+  detailRows.forEach((row, ri) => {
+    const bg = ri % 2 === 0 ? 'white' : '#f0f4f8';
+    s += `<rect x="${RP_X}" y="${cy}" width="${RP_W}" height="11" fill="${bg}"/>`;
+    s += `<text x="${RP_X+4}"   y="${cy+8}" font-size="7.5" fill="#555" font-weight="bold">${row[0]}</text>`;
+    s += `<text x="${RP_X+45}"  y="${cy+8}" font-size="7.5" fill="${CC}">${row[1]}</text>`;
+    s += `<text x="${RP_X+160}" y="${cy+8}" font-size="7.5" fill="#555" font-weight="bold">${row[2]}</text>`;
+    s += `<text x="${RP_X+214}" y="${cy+8}" font-size="7.5" fill="${CC}">${row[3]}</text>`;
+    cy += 11;
+  });
+
+  // Separator
+  cy += 3;
+  s += `<line x1="${RP_X}" y1="${cy}" x2="${RP_X+RP_W}" y2="${cy}" stroke="${CC}" stroke-width="1.2"/>`;
+  cy += 2;
+
+  // ── Lighting analysis header ───────────────────────────────────────────────
+  s += `<rect x="${RP_X}" y="${cy}" width="${RP_W}" height="16" fill="${CC}"/>`;
+  s += `<text x="${RP_X + RP_W/2}" y="${cy + 11}" text-anchor="middle" font-size="9.5" font-weight="bold" fill="white">LIGHTING ANALYSIS</text>`;
+  cy += 16;
+
+  // IESNA lux ranges per space
+  const luxRanges = {
+    'Office':'300\u2013500 lx','Classroom':'300\u2013500 lx','Retail':'500\u2013750 lx',
+    'Hospital':'300\u2013500 lx','Warehouse':'100\u2013200 lx','Corridor':'100\u2013150 lx',
+    'Conference':'300\u2013500 lx','Lobby':'150\u2013300 lx'
+  };
+  const luxRange = luxRanges[inputs.space_type] || '200\u2013500 lx';
+
+  const analysisRows = [
+    ['Target Illuminance (E_req)',  `${tgtLux} lx`,                                  luxOk],
+    ['Achieved (E_avg)',            `${Math.round(eActual)} lx`,                      luxOk],
+    ['IESNA RP-1 Range',           luxRange,                                          null],
+    ['E_min (est. 65% of E_avg)',  `${Math.round(eMin)} lx`,                         null],
+    ['Uniformity E_min/E_avg',     uniformity + (uniformOk ? ' \u2713' : ' \u26A0'), uniformOk],
+    ['LPD Calculated',             `${f2(lpd)} W/m\u00b2`,                           lpdOk],
+    [`LPD Limit (${spaceTyp})`,    `${lpdLimit} W/m\u00b2`,                          null],
+    ['LPD Compliance',             lpdOk ? 'COMPLIANT' : 'NON-COMPLIANT',             lpdOk],
+    ['Total Lighting Load',        `${Math.round(totW)} W  /  ${f2(totKW)} kW`,       null],
+    ['Fixture Grid',               `${nCols} col \u00d7 ${nRows} row = ${nFix} fix`, null],
+    ['Emergency Fixtures',         `${emQty} pc(s) \u2014 90 min battery backup`,    null],
+    ['Circuits',                   'CKT-1 (Normal)',                                  null],
+    ['Switching / Controls',       'Manual + Occupancy Sensor',                       null],
+    ['Standard',                   'IESNA RP-1:2020 / PEC 2017 / ASHRAE 90.1',       null],
+  ];
+
+  analysisRows.forEach((row, ri) => {
+    const rowH = 12;
+    const bg   = ri % 2 === 0 ? '#f7f9fc' : 'white';
+    s += `<rect x="${RP_X}" y="${cy}" width="${RP_W}" height="${rowH}" fill="${bg}"/>`;
+    const isBold = ri < 2 || ri === 7;
+    s += `<text x="${RP_X+4}" y="${cy+9}" font-size="7.5" fill="${CC}" font-weight="${isBold?'bold':'normal'}">${row[0]}</text>`;
+    if (row[2] !== null) {
+      const ok = row[2];
+      s += `<text x="${RP_X+RP_W-5}" y="${cy+9}" text-anchor="end" font-size="7.5" fill="${ok ? GRN : RED}" font-weight="bold">${row[1]}</text>`;
+    } else {
+      s += `<text x="${RP_X+RP_W-5}" y="${cy+9}" text-anchor="end" font-size="7.5" fill="${CC}">${row[1]}</text>`;
+    }
+    s += `<line x1="${RP_X}" y1="${cy+rowH}" x2="${RP_X+RP_W}" y2="${cy+rowH}" stroke="#e0e8ef" stroke-width="0.5"/>`;
+    cy += rowH;
+  });
+
+  s += `</svg>`;
+  return s;
+}
+
+function buildLightingTitleBlockHtml(inputs, results) {
+  const r       = results || {};
+  const nFix    = Number(r.N_fixtures   || 0);
+  const eActual = Number(r.E_actual_lux || 0);
+  const lpd     = Number(r.lpd_W_m2    || 0);
+  const totKW   = Number(r.total_kW    || 0);
+  const area    = Number(r.floor_area_m2 || 0);
+  const proj    = escHtml(String(inputs.project_name || 'Untitled Lighting Design'));
+  const spaceTyp = escHtml(String(inputs.space_type  || 'Office'));
+  const now     = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+  const rating  = `${spaceTyp} | ${nFix} fixtures | E\u2090\u1D65\u1D67=${Math.round(eActual)}\u00a0lx | LPD=${lpd.toFixed(2)}\u00a0W/m\u00b2 | ${totKW.toFixed(2)}\u00a0kW | ${area.toFixed(1)}\u00a0m\u00b2`;
+
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const EF  = (v = '') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
+  const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>` +
+    `<div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+  const TD  = (s = '') => `<td style="padding:6px 8px;vertical-align:top;${s}">`;
+  const TDB = (s = '') => `<td style="padding:6px 8px;vertical-align:bottom;${s}">`;
+  const BR  = 'border-right:1px solid #c8d0da;';
+
+  return `<table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}width:42%;`)}${LBL('Project / Space Name')}${EF(proj)}</td>
+    ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('LTG-LAYOUT-001')}</td>
+    ${TD('width:35%;')}${LBL('System Summary')}<div style="font-size:10px;font-weight:700;color:#1a2e4a;">${rating}</div></td>
+  </tr>
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('Lighting Layout \u2014 Room Plan (Overhead)')}</td>
+    ${TD(`${BR}`)}${LBL('Standard / Code')}<div style="font-size:10px;color:#1a2e4a;">IESNA RP-1:2020 / PEC 2017 Art. 3 / ASHRAE 90.1</div></td>
+    ${TD('')}${LBL('Date Prepared')}${EF(now)}</td>
+  </tr>
+  <tr>
+    ${TDB(`${BR}width:22%;`)}${LBL('Prepared By')}${SIG()}</td>
+    ${TDB(`${BR}width:22%;`)}${LBL('Checked By')}${SIG()}</td>
+    ${TDB(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
+    ${TD(`${BR}width:17%;`)}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
+    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}
+      <div style="font-size:8px;color:#888;margin-top:5px;">Sheet 1 of 1</div></td>
+  </tr>
+</table>`;
+}
+
+function renderLightingLayout(svgString, inputs, results) {
+  const panel      = document.getElementById('drawing-panel');
+  const titleBlock = buildLightingTitleBlockHtml(inputs, results);
+  panel.style.background = '#fff';
+  panel.style.padding    = '0';
+  panel.innerHTML = `<div style="width:100%;display:block;border:2px solid #1a2e4a;border-bottom:none;box-sizing:border-box;">${svgString}</div>${titleBlock}`;
+  const titleEl = document.getElementById('drawing-output-title');
+  if (titleEl) titleEl.textContent = 'Lighting Layout \u2014 Room Plan';
+  document.getElementById('drawing-loading').classList.add('hidden');
+  document.getElementById('drawing-output').classList.remove('hidden');
+}
+
 function buildHVACMermaidCode(inputs, results) {
   const c   = results.components;
   const fmt = v => Number(v).toLocaleString();
@@ -18325,6 +18702,7 @@ function downloadDrawingPdf() {
                     : _calcType === 'Pump Sizing (TDH)'                 ? 'PID_Schematic'
                     : _calcType === 'Fire Sprinkler Hydraulic'          ? 'Fire_Sprinkler_Schematic'
                     : _calcType === 'HVAC Cooling Load'                 ? 'HVAC_Schematic'
+                    : _calcType === 'Lighting Design'                   ? 'Lighting_Layout'
                     : 'Schematic';
   const fileName    = (projectName + '_' + drawingType)
     .replace(/[^a-z0-9]/gi, '_').replace(/_+/g, '_') + '.pdf';
@@ -18340,6 +18718,8 @@ function downloadDrawingPdf() {
   } else if (_calcType === 'Fire Sprinkler Hydraulic') {
     _downloadSLDPdf(panel, fileName);  // A3 landscape SVG export pattern
   } else if (_calcType === 'HVAC Cooling Load') {
+    _downloadSLDPdf(panel, fileName);  // A3 landscape SVG export pattern
+  } else if (_calcType === 'Lighting Design') {
     _downloadSLDPdf(panel, fileName);  // A3 landscape SVG export pattern
   } else {
     _downloadHVACPdf(panel, fileName);

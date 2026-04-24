@@ -892,6 +892,7 @@ let completions      = [];
 let registeredAssets = []; // from the shared 'assets' table (logbook)
 let currentAsset     = null;
 let currentScreen    = 'dashboard';
+let pmRealtimeChannel = null;
 let _pmDisplayCount  = 10;
 function loadMorePM() { _pmDisplayCount += 10; renderDashboard(); }
 
@@ -1045,10 +1046,11 @@ async function loadData() {
 
   // pm_scope_items has no worker_name — always filter by asset_id
   // pm_completions has worker_name but asset_id filter is safer and consistent
-  const [itemsRes, compRes] = await Promise.all([
-    db.from('pm_scope_items').select('*').in('asset_id', assetIds).order('created_at', { ascending: true }),
-    db.from('pm_completions').select('*').in('asset_id', assetIds).order('completed_at', { ascending: false }),
-  ]);
+  // In hive mode, add hive_id scope explicitly — sub-queries do not inherit parent hive scope
+  let scopeQ = db.from('pm_scope_items').select('*').in('asset_id', assetIds).order('created_at', { ascending: true });
+  let compsQ = db.from('pm_completions').select('*').in('asset_id', assetIds).order('completed_at', { ascending: false });
+  if (HIVE_ID) { scopeQ = scopeQ.eq('hive_id', HIVE_ID); compsQ = compsQ.eq('hive_id', HIVE_ID); }
+  const [itemsRes, compRes] = await Promise.all([scopeQ, compsQ]);
 
   scopeItems  = itemsRes.data || [];
   completions = compRes.data  || [];
@@ -1064,7 +1066,8 @@ async function loadData() {
 
 async function subscribeRealtime() {
   if (!HIVE_ID) return;
-  db.channel('pm-completions:' + HIVE_ID)
+  if (pmRealtimeChannel) db.removeChannel(pmRealtimeChannel);
+  pmRealtimeChannel = db.channel('pm-completions:' + HIVE_ID)
     .on('postgres_changes', {
       event: 'INSERT', schema: 'public', table: 'pm_completions',
       filter: 'hive_id=eq.' + HIVE_ID
@@ -1972,6 +1975,10 @@ function showToast(msg) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
 }
+
+window.addEventListener('beforeunload', () => {
+  if (pmRealtimeChannel) db.removeChannel(pmRealtimeChannel);
+});
 
 // ─────────────────────────────────────
 // BOOT

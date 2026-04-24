@@ -1104,8 +1104,10 @@ async function confirmDeleteItem(id) {
     if (error) { showToast('Could not remove part: ' + error.message); return; }
     _items = _items.filter(i => i.id !== id);
   } else {
-    saveInventory(loadInventory().filter(i => i.id !== id));
-    _items = loadInventory();
+    const { error } = await db.from('inventory_items').delete()
+      .eq('id', id).eq('worker_name', WORKER_NAME);
+    if (error) { showToast('Could not remove part: ' + error.message); return; }
+    _items = _items.filter(i => i.id !== id);
   }
 
   closeDetailModal();

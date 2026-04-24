@@ -34,7 +34,6 @@
     const path = window.location.pathname.toLowerCase();
 
     if (path.includes('logbook'))       return { page: 'logbook',       label: 'Digital Logbook',       hint: 'Help me fill in maintenance records, suggest failure modes, or explain fields.' };
-    if (path.includes('checklist'))     return { page: 'checklist',     label: 'Checklist',              hint: 'Guide me through inspection steps or explain checklist items.' };
     if (path.includes('parts-tracker')) return { page: 'parts-tracker', label: 'Parts Tracker',          hint: 'Help me find parts, check stock levels, or suggest reorder points.' };
     if (path.includes('assistant'))     return { page: 'assistant',     label: 'My Work Assistant',      hint: 'I can help you plan your shift, prioritise tasks, or answer technical questions.' };
     if (path.includes('dayplanner'))    return { page: 'dayplanner',    label: 'Day Planner',            hint: 'Help me schedule tasks, prioritise my day, or plan my maintenance shift.' };
@@ -52,10 +51,6 @@
       "For **Failure Mode**, common options include: Vibration, Overheating, Leakage, Electrical Fault, Mechanical Wear, or Corrosion. What equipment are you logging?",
       "For a good maintenance entry, make sure to include: the exact time it started, what you observed first, and any action taken. Want me to suggest a format?",
       "A **Root Cause** entry should answer *why* the failure happened, not just what broke. Example: 'Bearing failure due to insufficient lubrication' is better than just 'Bearing failed'.",
-    ],
-    checklist: [
-      "Before signing off a checklist, double-check the safety lockout/tagout steps are confirmed. That's the most commonly missed item.",
-      "If an item is 'N/A', always add a short reason — it helps during audits and shows the check was deliberately skipped, not forgotten.",
     ],
     'parts-tracker': [
       "A good reorder point = (Average Daily Usage × Lead Time in Days) + Safety Stock. Want me to help calculate it for a specific part?",
@@ -82,7 +77,7 @@
       "**Level 3 (Competent)** is the standard target for most field technicians. Levels 4 and 5 (Proficient and Master) are for specialists and leads.",
     ],
     default: [
-      "I'm your WorkHive AI Assistant. I can help with maintenance logs, PM scheduling, checklists, parts management, skill tracking, and shift planning. What do you need?",
+      "I'm your WorkHive AI Assistant. I can help with maintenance logs, PM scheduling, parts management, skill tracking, and shift planning. What do you need?",
       "Great question. While I'm in demo mode right now, once connected to the AI backend I can give you real-time answers based on your specific equipment and history.",
     ]
   };
@@ -458,9 +453,8 @@
 
 PLATFORM TOOLS (so you can answer "where do I find X?" questions):
 - Digital Logbook (logbook.html): Log daily maintenance jobs — machine, problem, root cause, action taken, downtime, parts used. When status = Closed, a Parts Used section appears. Supports asset linking and photo uploads.
-- Work Checklist (checklist.html): Standard pre/post task checklists per job type with pass/fail items.
 - Day Planner (dayplanner.html): DILO/WILO/MILO/YILO multi-resolution scheduler. Plan daily, weekly, monthly, and yearly work.
-- My Work Assistant (assistant.html): Full AI assistant with access to the worker's own logbook and checklist records for personalised insights.
+- My Work Assistant (assistant.html): Full AI assistant with access to the worker's own logbook records for personalised insights.
 - WorkHive Live Board (hive.html): Team collaboration hub. Live activity feed of logbook entries and PM completions. PM Health panel shows overdue/due-soon assets. Supervisors manage team membership and approve shared catalog submissions.
 - Inventory Manager (inventory.html): Parts and consumables stock ledger. Workers use and restock parts. Supervisors control the shared catalog.
 - PM Scheduler (pm-scheduler.html): Plant Maintenance scheduling. Register assets, assign PM scope checklists by category (Rotating Equipment, Electrical, HVAC, Utility Systems, etc.), set frequencies (Monthly, Quarterly, Semi-Annual, Yearly), and track due dates. Completing a PM task optionally creates a linked Logbook entry. When logging a Preventive Maintenance entry in the Logbook, pending PM tasks for that asset appear automatically.

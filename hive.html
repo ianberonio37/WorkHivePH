@@ -732,7 +732,6 @@ let memberNames         = [];
 let presenceChannel     = null;
 let feedChannel         = null;
 let partsChannel        = null;
-let checklistChannel    = null;
 let pmChannel           = null;
 let approvalChannel     = null;
 let workerApprovalCh    = null;
@@ -860,45 +859,6 @@ function buildPartsCard(record, isNew) {
         <p class="text-sm font-semibold text-white">${jobRef}</p>
         ${partSummary ? `<p class="text-xs text-white/50 mt-0.5">${partSummary}</p>` : ''}
         <p class="text-[11px] text-white/30 mt-0.5">${parts.length} part${parts.length !== 1 ? 's' : ''} used</p>
-      </div>
-    </div>
-  </div>`;
-}
-
-function buildChecklistCard(record, isNew) {
-  const workerName = escHtml(record.worker_name || '');
-  const machine    = escHtml(record.machine_name || '—');
-  const jobType    = escHtml(record.job_type    || '');
-  const category   = escHtml(record.category    || '');
-  const time       = record.end_time ? timeAgo(record.end_time) : '';
-  const items      = Array.isArray(record.items) ? record.items : [];
-  const done       = items.filter(i => i.checked).length;
-  const total      = items.length;
-  const pct        = total ? Math.round((done / total) * 100) : 0;
-  const allDone    = done === total;
-
-  return `<div class="feed-card${allDone ? ' feed-log-closed' : ' feed-parts'}${isNew ? ' new-entry' : ''}">
-    <div class="flex items-start gap-3">
-      <div class="activity-icon log" style="background:rgba(74,222,128,0.12);border-color:rgba(74,222,128,0.25);">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="${allDone ? '#4ade80' : '#94a3b8'}" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-        </svg>
-      </div>
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 flex-wrap mb-1">
-          <span class="text-xs font-bold text-white/80">${workerName}</span>
-          <span class="status-badge" style="background:rgba(74,222,128,0.12);color:#4ade80;">Checklist</span>
-          ${jobType   ? `<span class="cat-badge" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);">${jobType}</span>`   : ''}
-          ${category  ? `<span class="cat-badge" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);">${category}</span>`  : ''}
-          <span class="text-[11px] text-white/25 ml-auto">${time}</span>
-        </div>
-        <p class="text-sm font-semibold text-white">${machine}</p>
-        <div class="flex items-center gap-2 mt-1.5">
-          <div class="flex-1 rounded-full h-1" style="background:rgba(255,255,255,0.08);">
-            <div class="rounded-full h-1" style="width:${pct}%;background:${allDone ? '#4ade80' : '#F7A21B'};"></div>
-          </div>
-          <span class="text-[11px] text-white/40">${done}/${total}</span>
-        </div>
       </div>
     </div>
   </div>`;
@@ -1231,7 +1191,6 @@ async function performLeave() {
   if (presenceChannel)   db.removeChannel(presenceChannel);
   if (feedChannel)       db.removeChannel(feedChannel);
   if (partsChannel)      db.removeChannel(partsChannel);
-  if (checklistChannel)  db.removeChannel(checklistChannel);
 
   HIVE_ID = ''; HIVE_NAME = ''; HIVE_ROLE = '';
   memberNames = [];
@@ -1382,8 +1341,8 @@ async function loadFeed() {
   const feed    = document.getElementById('feed');
   const emptyEl = document.getElementById('feed-empty');
 
-  // Fetch logbook + checklist_records + pm_completions + open count in parallel
-  const [logRes, openRes, checkRes, pmRes] = await Promise.all([
+  // Fetch logbook + pm_completions + open count in parallel
+  const [logRes, openRes, pmRes] = await Promise.all([
     db.from('logbook')
       .select('id, worker_name, date, machine, category, problem, status, created_at')
       .eq('hive_id', HIVE_ID)
@@ -1393,11 +1352,6 @@ async function loadFeed() {
       .select('*', { count: 'exact', head: true })
       .eq('hive_id', HIVE_ID)
       .eq('status', 'Open'),
-    db.from('checklist_records')
-      .select('id, worker_name, machine_name, job_type, category, end_time, items, created_at')
-      .eq('hive_id', HIVE_ID)
-      .order('end_time', { ascending: false })
-      .limit(20),
     db.from('pm_completions')
       .select('id, worker_name, asset_id, scope_item_id, status, completed_at, pm_assets(asset_name), pm_scope_items(item_text, frequency)')
       .eq('hive_id', HIVE_ID)
@@ -1407,7 +1361,6 @@ async function loadFeed() {
   ]);
 
   const logEntries       = (logRes.data   || []).map(e => ({ ...e, _type: 'logbook' }));
-  const checklistEntries = (checkRes.data || []).map(e => ({ ...e, _type: 'checklist' }));
   const pmEntries        = (pmRes.data    || []).map(e => ({
     ...e,
     asset_name: e.pm_assets?.asset_name || '',
@@ -1419,7 +1372,7 @@ async function loadFeed() {
 
   // Merge and sort by created_at (fall back to date string)
   const sortKey = e => e.created_at || e.end_time || e.date || '';
-  const merged = [...logEntries, ...checklistEntries, ...pmEntries]
+  const merged = [...logEntries, ...pmEntries]
     .sort((a, b) => sortKey(b).localeCompare(sortKey(a)))
     .slice(0, 40);
 
@@ -1457,8 +1410,7 @@ function renderFeed() {
   const moreWrap = document.getElementById('feed-more');
   const visible = _feedEntries.slice(0, _feedDisplayCount);
   feed.innerHTML = visible.map(e =>
-    e._type === 'checklist' ? buildChecklistCard(e, false) :
-    e._type === 'pm'        ? buildPMCard(e, false) :
+    e._type === 'pm' ? buildPMCard(e, false) :
     buildFeedCard(e, false)
   ).join('');
   moreWrap.classList.toggle('hidden', _feedDisplayCount >= _feedEntries.length);
@@ -1533,7 +1485,6 @@ function renderPresence() {
 function startFeedRealtime() {
   if (feedChannel)      db.removeChannel(feedChannel);
   if (partsChannel)     db.removeChannel(partsChannel);
-  if (checklistChannel) db.removeChannel(checklistChannel);
   if (pmChannel)        db.removeChannel(pmChannel);
 
   feedChannel = db.channel('hive-feed:' + HIVE_ID)
@@ -1600,16 +1551,7 @@ function startFeedRealtime() {
     })
     .subscribe();
 
-  // parts_records table retired — feed uses logbook only
-
-  checklistChannel = db.channel('hive-checklist:' + HIVE_ID)
-    .on('postgres_changes', {
-      event: 'INSERT', schema: 'public', table: 'checklist_records',
-      filter: 'hive_id=eq.' + HIVE_ID
-    }, (payload) => {
-      prependFeed({ ...payload.new, _type: 'checklist' });
-    })
-    .subscribe();
+  // parts_records and checklist_records tables retired — feed uses logbook and pm_completions only
 
   pmChannel = db.channel('hive-pm:' + HIVE_ID)
     .on('postgres_changes', {
@@ -1661,8 +1603,7 @@ function prependFeed(entry) {
   _feedEntries.unshift(entry); // keep cache in sync so Load More doesn't lose realtime entries
   document.getElementById('feed-empty').classList.add('hidden');
   const div = document.createElement('div');
-  div.innerHTML = entry._type === 'checklist' ? buildChecklistCard(entry, true) :
-                  entry._type === 'pm'        ? buildPMCard(entry, true) :
+  div.innerHTML = entry._type === 'pm' ? buildPMCard(entry, true) :
                   buildFeedCard(entry, true);
   const feed = document.getElementById('feed');
   feed.insertBefore(div.firstElementChild, feed.firstChild);
@@ -2510,7 +2451,6 @@ async function switchToHive(id) {
   if (presenceChannel)  db.removeChannel(presenceChannel);
   if (feedChannel)      db.removeChannel(feedChannel);
   if (partsChannel)     db.removeChannel(partsChannel);
-  if (checklistChannel) db.removeChannel(checklistChannel);
   if (pmChannel)        db.removeChannel(pmChannel);
   if (approvalChannel)  db.removeChannel(approvalChannel);
   if (workerApprovalCh) db.removeChannel(workerApprovalCh);
@@ -2530,7 +2470,8 @@ window.addEventListener('beforeunload', () => {
   if (presenceChannel)   db.removeChannel(presenceChannel);
   if (feedChannel)       db.removeChannel(feedChannel);
   if (partsChannel)      db.removeChannel(partsChannel);
-  if (checklistChannel)  db.removeChannel(checklistChannel);
+  if (pmChannel)         db.removeChannel(pmChannel);
+  if (inventoryChannel)  db.removeChannel(inventoryChannel);
   if (approvalChannel)   db.removeChannel(approvalChannel);
   if (workerApprovalCh)  db.removeChannel(workerApprovalCh);
 });

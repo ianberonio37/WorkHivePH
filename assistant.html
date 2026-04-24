@@ -274,7 +274,7 @@
         <div id="records-summary" class="rounded-xl p-4" style="background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.15);">
           <p class="text-xs font-semibold text-blue-wh mb-2">Records available for context</p>
           <div id="records-list" class="space-y-1"></div>
-          <p id="empty-records-nudge" class="text-xs text-white/40 mt-2 hidden">No records yet. Add logbook entries, checklists, or parts to unlock personalised insights. You can still ask technical questions.</p>
+          <p id="empty-records-nudge" class="text-xs text-white/40 mt-2 hidden">No records yet. Add logbook entries or parts to unlock personalised insights. You can still ask technical questions.</p>
         </div>
 
       </div>
@@ -385,20 +385,17 @@
     // ── Load records summary on setup screen ──────────────────────
     async function loadRecordsSummary() {
       const name = localStorage.getItem(KEY_WORKER) || '';
-      let logbookCount = 0, checklistCount = 0;
+      let logbookCount = 0;
       if (name) {
-        const [l, c] = await Promise.all([
+        const [l] = await Promise.all([
           db.from('logbook').select('id', { count: 'exact', head: true }).eq('worker_name', name),
-          db.from('checklist_records').select('id', { count: 'exact', head: true }).eq('worker_name', name),
         ]);
         logbookCount = l.count || 0;
-        checklistCount = c.count || 0;
       }
 
       const list = document.getElementById('records-list');
       const items = [
-        { label: 'Logbook entries',   count: logbookCount,   color: '#F7A21B' },
-        { label: 'Checklist records', count: checklistCount, color: '#29B6D9' },
+        { label: 'Logbook entries', count: logbookCount, color: '#F7A21B' },
       ];
       const nudge = document.getElementById('empty-records-nudge');
       if (nudge) nudge.classList.toggle('hidden', items.some(i => i.count > 0));
@@ -415,14 +412,12 @@
     async function buildSystemPrompt(name, contextNote) {
       const pastDate   = new Date(Date.now() - 3  * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
       const futureDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-      const [lRes, cRes, sRes] = await Promise.all([
+      const [lRes, sRes] = await Promise.all([
         db.from('logbook').select('date,machine,maintenance_type,category,status,problem,root_cause,downtime_hours,action,parts_used').eq('worker_name', name).order('date', { ascending: false }).limit(10),
-        db.from('checklist_records').select('start_time,job_type,items').eq('worker_name', name).order('end_time', { ascending: false }).limit(10),
         db.from('schedule_items').select('date,start_time,end_time,title,category,item_status,notes').eq('worker_name', name).gte('date', pastDate).lte('date', futureDate).order('date', { ascending: true }).order('start_time', { ascending: true }),
       ]);
-      const logbook   = lRes.data || [];
-      const checklist = cRes.data || [];
-      const schedule  = sRes.data || [];
+      const logbook  = lRes.data || [];
+      const schedule = sRes.data || [];
 
       const fmtDate = iso => {
         try { return new Date(iso).toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' }); }
@@ -434,14 +429,6 @@
             `[${fmtDate(e.date)}] Machine: ${e.machine || 'N/A'} | Type: ${e.maintenance_type || 'N/A'} | Category: ${e.category || 'N/A'} | Status: ${e.status || 'N/A'}\n  Problem: ${e.problem || 'N/A'}\n  Root Cause: ${e.root_cause || 'N/A'} | Downtime: ${e.downtime_hours != null ? e.downtime_hours + 'h' : 'N/A'}\n  Action: ${e.action || 'N/A'}`
           ).join('\n')
         : 'No logbook entries yet.';
-
-      const checklistText = checklist.length
-        ? checklist.map(r => {
-            const done = (r.items || []).filter(i => i.checked).length;
-            const total = (r.items || []).length;
-            return `[${fmtDate(r.start_time)}] Job: ${r.job_type || 'N/A'} | Completed: ${done}/${total} items`;
-          }).join('\n')
-        : 'No checklist records yet.';
 
       // Parts used — sourced from logbook entries (parts_used JSONB column)
       const partsEntries = logbook.filter(e => (e.parts_used || []).length > 0);
@@ -473,7 +460,6 @@ Current tools available on the platform:
 
 STAGE 1 — Core Worker Tools:
 - Digital Logbook (logbook.html): Record daily maintenance jobs — machine, problem, root cause, action taken, downtime, parts used, photos. Supports open/close status and asset linking.
-- Work Checklist (checklist.html): Standard pre/post task checklists per job type with pass/fail items and timestamps.
 - Day Planner (dayplanner.html): DILO (Day in the Life Of) / WILO / MILO / YILO multi-resolution scheduler. Plan daily, weekly, monthly, and yearly work. Integrates with logbook history.
 - My Work Assistant (assistant.html): This page. Ask technical questions, get insights from your own job records, or just talk through a problem.
 
@@ -486,6 +472,7 @@ STAGE 2 — Team Tools:
 
 IMPORTANT PLATFORM NOTES:
 - The Parts Used Tracker (parts-tracker.html) has been retired. Parts used are now logged directly inside Logbook entries (when status = Closed, a "Parts Used" section appears).
+- The Work Checklist (checklist.html) has been retired. Shift-level checklists and task tracking are now managed directly inside Logbook entries.
 - Hive membership is enforced: a kicked worker cannot rejoin using the invite code. They must be re-added by a supervisor.
 - Supervisor roles are preserved across sign-out/sign-in cycles and device switches.
 - PM Scheduler and Logbook are bidirectionally linked: completing a PM task can create a logbook entry, and saving a logbook PM entry can update PM completion records simultaneously.
@@ -514,9 +501,6 @@ ${contextNote ? `\nToday's context: ${contextNote}` : ''}
 
 LOGBOOK:
 ${logbookText}
-
-CHECKLISTS:
-${checklistText}
 
 PARTS USED (from logbook entries):
 ${partsText}
@@ -551,19 +535,18 @@ ${scheduleText}
       addTypingIndicator();
 
       // Build system prompt and welcome message in background
-      const [systemPrompt, lc, cc] = await Promise.all([
+      const [systemPrompt, lc] = await Promise.all([
         buildSystemPrompt(workerName, contextNote),
         db.from('logbook').select('id', { count: 'exact', head: true }).eq('worker_name', workerName),
-        db.from('checklist_records').select('id', { count: 'exact', head: true }).eq('worker_name', workerName),
       ]);
 
       window._systemPrompt = systemPrompt;
       removeTypingIndicator();
 
-      const hasRecords = (lc.count || 0) + (cc.count || 0) > 0;
+      const hasRecords = (lc.count || 0) > 0;
       const recordsNote = hasRecords
         ? "I can see your job records and will reference them when relevant."
-        : "You don't have any records yet. Add logbook entries, checklists, or parts to unlock personalised insights. For now I can help with technical questions, procedures, or anything on your mind.";
+        : "You don't have any records yet. Add logbook entries or parts to unlock personalised insights. For now I can help with technical questions, procedures, or anything on your mind.";
       addAssistantBubble(`Hi ${workerName}! I'm your WorkHive Work Assistant. ${recordsNote}\n\nWhat do you need?`);
       document.getElementById('chat-input').focus();
     }

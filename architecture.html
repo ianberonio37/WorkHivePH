@@ -334,14 +334,6 @@
         <div class="node-file">logbook.html</div>
         <div class="node-desc">Work records, faults, PM logs.</div>
       </div>
-      <div class="node" id="n-checklist"
-           data-tip="<strong>checklist.html</strong>Shift checklists. Writes to checklist_records. Excluded from nav-hub by design.">
-        <div class="node-stage">S1</div>
-        <div class="node-icon">✅</div>
-        <div class="node-name">Checklist</div>
-        <div class="node-file">checklist.html</div>
-        <div class="node-desc">Shift checks. Writes checklist_records.</div>
-      </div>
       <div class="node" id="n-dayplanner"
            data-tip="<strong>dayplanner.html</strong>DILO / WILO / MILO / YILO planner. Worker-scoped. No cross-page data writes.">
         <div class="node-stage">S1</div>
@@ -363,12 +355,12 @@
     <!-- Row 2: Stage 2 tools -->
     <div class="row" id="row-s2" style="margin-top:56px;">
       <div class="node" id="n-hive"
-           data-tip="<strong>hive.html</strong>Team hub. Reads from logbook, pm_completions, and checklist_records for the activity feed. Owns hive_members. Gate: requires HIVE_ID.">
+           data-tip="<strong>hive.html</strong>Team hub. Reads from logbook and pm_completions for the activity feed. Owns hive_members. Gate: requires HIVE_ID.">
         <div class="node-stage">S2</div>
         <div class="node-icon">🐝</div>
         <div class="node-name">Hive Board</div>
         <div class="node-file">hive.html</div>
-        <div class="node-desc">Team feed. Reads 3 tables.</div>
+        <div class="node-desc">Team feed. Reads logbook + PM.</div>
       </div>
       <div class="node" id="n-inventory"
            data-tip="<strong>inventory.html</strong>Parts/tools catalog. Bidirectional link with logbook — parts used in a log entry create inventory transactions.">
@@ -437,16 +429,6 @@
           completed_at · findings<br>
           action_taken · <span class="db-col-risk">hive_id</span><br>
           <span class="db-col-risk">worker_name</span> · next_due
-        </div>
-      </div>
-
-      <div class="db-table">
-        <div class="db-table-name">checklist_records</div>
-        <div class="db-table-owner">Owner: checklist.html</div>
-        <div class="db-table-cols">
-          checklist_id · worker_name<br>
-          submitted_at · results<br>
-          <span class="db-col-risk">hive_id</span>
         </div>
       </div>
 
@@ -567,9 +549,9 @@
         </tr>
         <tr>
           <td><span class="flow-source">hive.html</span> ← reads</td>
-          <td><span class="flow-target">logbook + pm_completions + checklist_records</span></td>
+          <td><span class="flow-target">logbook + pm_completions</span></td>
           <td class="flow-trigger">Hive feed load on page open</td>
-          <td>All three tables must have <span class="risk-col">hive_id</span> populated · Old rows without hive_id fall to worker-name fallback</td>
+          <td>Both tables must have <span class="risk-col">hive_id</span> populated · Old rows without hive_id fall to worker-name fallback</td>
         </tr>
         <tr>
           <td><span class="flow-source">inventory.html</span> ↔</td>
@@ -596,7 +578,7 @@
           <tr><td>inventory.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">inventory</code></td></tr>
           <tr><td>pm-scheduler.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">pm-scheduler</code></td></tr>
           <tr><td>skillmatrix.html</td><td style="color:var(--green)">✓ PASS</td><td><code style="font-size:10px;color:var(--muted)">skillmatrix</code></td></tr>
-          <tr><td>checklist.html</td><td style="color:var(--muted)">— Excluded by design</td><td></td></tr>
+          <tr><td>checklist.html</td><td style="color:var(--red)">✗ Retired</td><td></td></tr>
           <tr><td>parts-tracker.html</td><td style="color:var(--red)">✗ Retired</td><td></td></tr>
         </tbody>
       </table>
@@ -706,7 +688,6 @@
 
     const nIndex    = document.getElementById('n-index');
     const nLogbook  = document.getElementById('n-logbook');
-    const nChecklist= document.getElementById('n-checklist');
     const nDayplan  = document.getElementById('n-dayplanner');
     const nAssistant= document.getElementById('n-assistant');
     const nHive     = document.getElementById('n-hive');
@@ -716,7 +697,7 @@
 
     // index → each stage1 (entry gate)
     const idx = mid(nIndex);
-    [nLogbook, nChecklist, nDayplan, nAssistant].forEach(n => {
+    [nLogbook, nDayplan, nAssistant].forEach(n => {
       const m = mid(n);
       arrow(svg, idx.x, idx.bottom, m.x, m.top, '#30363d', '', false);
     });
@@ -759,13 +740,6 @@
       pm.x, pm.bottom,
       hive.right - 20, hive.top,
       BLUE, 'reads pm feed', false);
-
-    // Hive READS checklist_records
-    const ck = mid(nChecklist);
-    arrow(svg,
-      ck.left + 16, ck.bottom,
-      hive.x, hive.top,
-      BLUE, 'reads checklist feed', false);
 
     // Inventory ↔ Logbook
     const inv = mid(nInventory);
