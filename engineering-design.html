@@ -10308,7 +10308,12 @@ function showReport() {
   document.getElementById('bom-sow-section').classList.remove('hidden');
   resetBomSow();
   // Show drawing section for supported calc types
-  const DRAWING_SUPPORTED = ['HVAC Cooling Load', 'Load Estimation', 'Lightning Protection System (LPS)', 'Generator Sizing', 'Pump Sizing (TDH)', 'Fire Sprinkler Hydraulic', 'Lighting Design'];
+  const DRAWING_SUPPORTED = [
+    'HVAC Cooling Load', 'Load Estimation', 'Lightning Protection System (LPS)',
+    'Generator Sizing', 'Pump Sizing (TDH)', 'Fire Sprinkler Hydraulic', 'Lighting Design',
+    // Phase 10a — Python matplotlib diagrams
+    'AHU Sizing', 'Duct Sizing (Equal Friction)',
+  ];
   const drawingSection = document.getElementById('drawing-section');
   if (DRAWING_SUPPORTED.includes(_calcType)) {
     drawingSection.classList.remove('hidden');
@@ -10320,11 +10325,15 @@ function showReport() {
     } else if (_calcType === 'Generator Sizing' && descEl) {
       descEl.textContent = 'Generates a generator connection diagram (ISO 8528-1 / NFPA 110 / PEC 2017) from your sizing results';
     } else if (_calcType === 'Pump Sizing (TDH)' && descEl) {
-      descEl.textContent = 'Generates a pump system P&ID schematic (ISA-5.1 / ISO 10628 / ASME B31.3) from your pump sizing results';
+      descEl.textContent = 'Generates a Q-H pump performance curve (Hydraulic Institute / PSME Code) from your pump sizing results';
     } else if (_calcType === 'Fire Sprinkler Hydraulic' && descEl) {
       descEl.textContent = 'Generates a fire sprinkler hydraulic schematic (NFPA 13:2022 / NFPA 14 / PEC) from your sprinkler design results';
     } else if (_calcType === 'Lighting Design' && descEl) {
       descEl.textContent = 'Generates a lighting layout (overhead plan + luminaire schedule + analysis) per IESNA RP-1:2020 / PEC 2017 / ASHRAE 90.1 from your lighting design results';
+    } else if (_calcType === 'AHU Sizing' && descEl) {
+      descEl.textContent = 'Generates a psychrometric chart with AHU process line (ASHRAE 2021 Ch.1 / PSME Code) from your AHU sizing results';
+    } else if (_calcType === 'Duct Sizing (Equal Friction)' && descEl) {
+      descEl.textContent = 'Generates an ASHRAE equal friction duct sizing chart with your selected duct highlighted (ASHRAE 2021 Ch.21 / SMACNA / PSME Code)';
     }
     resetDrawingSection();
   } else {
