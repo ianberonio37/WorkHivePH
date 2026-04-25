@@ -91,6 +91,9 @@ def _load_handlers() -> dict[str, Any]:
     handlers["Fire Pump Sizing"]         = fire_pump_calc
 
     # Phase 6 — Plumbing / Water
+    from calcs.domestic_water  import calculate as domestic_water_calc
+    handlers["Domestic Water System"] = domestic_water_calc
+
     # Phase 7 — Structural / Lighting / LPS
     # Phase 8 — Diagrams + PDF
     # Phase 9 — Machine Design + Remaining
