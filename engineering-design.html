@@ -265,6 +265,11 @@
     }
     #toast.show { opacity: 1; }
 
+    @keyframes dotPulse {
+      0%,80%,100% { opacity: 0.2; transform: scale(0.8); }
+      40%          { opacity: 1;   transform: scale(1.2); }
+    }
+
     /* Loading spinner */
     .spinner {
       width: 20px; height: 20px;
@@ -519,9 +524,20 @@
 
         <!-- Loading state -->
         <div id="report-loading" class="card p-10 text-center hidden" style="min-height:400px;display:none;flex-direction:column;align-items:center;justify-content:center;">
-          <div class="spinner mb-4" style="width:36px;height:36px;border-width:3px;border-color:rgba(247,162,27,0.2);border-top-color:#F7A21B;"></div>
-          <div class="font-semibold mb-1">Calculating...</div>
-          <div class="text-sm" style="color:rgba(255,255,255,0.4);">Running calculation and generating report</div>
+          <!-- Spinner -->
+          <div class="spinner mb-6" style="width:48px;height:48px;border-width:4px;border-color:rgba(247,162,27,0.15);border-top-color:#F7A21B;"></div>
+          <!-- Brand label -->
+          <div class="font-bold mb-3" style="color:#F7A21B;font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;">WorkHive Engineering AI</div>
+          <!-- Rotating status message -->
+          <div id="loading-status-msg" class="font-semibold mb-2" style="font-size:1rem;min-height:1.6rem;transition:opacity 0.4s;">Preparing your calculation...</div>
+          <!-- Sub-label -->
+          <div class="text-sm" style="color:rgba(255,255,255,0.35);">Standards-grade analysis in progress</div>
+          <!-- Dot progress indicator -->
+          <div class="flex gap-2 mt-5">
+            <div class="loading-dot" style="width:7px;height:7px;border-radius:50%;background:#F7A21B;animation:dotPulse 1.4s ease-in-out infinite;"></div>
+            <div class="loading-dot" style="width:7px;height:7px;border-radius:50%;background:#F7A21B;animation:dotPulse 1.4s ease-in-out 0.2s infinite;"></div>
+            <div class="loading-dot" style="width:7px;height:7px;border-radius:50%;background:#F7A21B;animation:dotPulse 1.4s ease-in-out 0.4s infinite;"></div>
+          </div>
         </div>
 
         <!-- Report output -->
@@ -9476,16 +9492,65 @@ async function runCalculation() {
 
 // ─── Report states ────────────────────────────────────────────────────────────
 function showEmpty() {
+  stopLoadingMessages();
   document.getElementById('report-empty').style.display   = 'flex';
   document.getElementById('report-loading').style.display = 'none';
   document.getElementById('report-output').classList.add('hidden');
 }
+// ─── Rotating loading messages per calc discipline ────────────────────────────
+const LOADING_MESSAGES = {
+  // Fluid / Mechanical
+  'Pump Sizing (TDH)':      ['Connecting to standards-grade calculation engine...','Running ISO 9906 hydraulic analysis...','Applying Colebrook-White friction factor...','Computing real water properties via steam tables...','Checking NPSH against ISO 9906...','Cross-referencing PSME Code requirements...','Generating pump system curve data...','Finalizing your pump sizing report...'],
+  'Pipe Sizing':            ['Connecting to calculation engine...','Applying Darcy-Weisbach pressure drop formula...','Looking up pipe roughness per ASHRAE Table 2...','Checking velocity limits per PSME Code...','Finalizing pipe sizing report...'],
+  'Compressed Air':         ['Connecting to calculation engine...','Computing isentropic compression...','Checking pipe pressure drop limits...','Finalizing compressed air report...'],
+  // HVAC
+  'HVAC Cooling Load':      ['Connecting to standards-grade calculation engine...','Running ASHRAE psychrometric analysis...','Applying CLTD/CLF method for Manila latitude 14.6°N...','Computing enthalpy and humidity ratio...','Checking ASHRAE 62.1 ventilation requirements...','Cross-referencing ASHRAE 90.1 EER limits...','Finalizing your HVAC cooling load report...'],
+  'Cooling Tower Sizing':   ['Connecting to calculation engine...','Running NTU-effectiveness method...','Computing wet-bulb approach temperature...','Finalizing cooling tower report...'],
+  'AHU Sizing':             ['Connecting to calculation engine...','Computing supply air conditions...','Checking coil entering/leaving conditions...','Finalizing AHU sizing report...'],
+  // Fire Protection
+  'Fire Sprinkler Hydraulic':['Connecting to calculation engine...','Running NFPA 13 hydraulic analysis...','Checking most-remote-area design method...','Verifying pipe velocity limits...','Finalizing fire sprinkler report...'],
+  'Fire Pump Sizing':       ['Connecting to calculation engine...','Applying NFPA 20 duty cycle analysis...','Checking rated, peak, and churn points...','Finalizing fire pump report...'],
+  // Electrical
+  'Generator Sizing':       ['Connecting to calculation engine...','Applying ISO 8528-1 power classification...','Computing motor starting kVA...','Checking loading zone per ISO 8528-1...','Finalizing generator sizing report...'],
+  'Load Estimation':        ['Connecting to calculation engine...','Tallying connected and demand loads...','Computing ampacity and breaker size...','Finalizing load estimation report...'],
+  'Wire Sizing':            ['Connecting to calculation engine...','Applying PEC 2017 Table 3.10.1 ampacity...','Checking temperature correction factors...','Finalizing wire sizing report...'],
+  // Lightning Protection
+  'Lightning Protection System (LPS)': ['Connecting to calculation engine...','Running IEC 62305-2 risk assessment...','Computing rolling sphere radius per LPL...','Checking mesh size and conductor spacing...','Finalizing LPS report...'],
+  // Default fallback
+  '__default__':            ['Connecting to WorkHive Engineering AI...','Running standards-grade analysis...','Applying relevant engineering codes...','Cross-referencing calculation results...','Generating your engineering report...','Almost there...'],
+};
+
+let _loadingInterval = null;
+
+function startLoadingMessages(calcType) {
+  const el = document.getElementById('loading-status-msg');
+  if (!el) return;
+  const msgs = LOADING_MESSAGES[calcType] || LOADING_MESSAGES['__default__'];
+  let idx = 0;
+  el.textContent = msgs[0];
+  el.style.opacity = '1';
+  _loadingInterval = setInterval(() => {
+    el.style.opacity = '0';
+    setTimeout(() => {
+      idx = (idx + 1) % msgs.length;
+      el.textContent = msgs[idx];
+      el.style.opacity = '1';
+    }, 400);
+  }, 2800);
+}
+
+function stopLoadingMessages() {
+  if (_loadingInterval) { clearInterval(_loadingInterval); _loadingInterval = null; }
+}
+
 function showLoading() {
   document.getElementById('report-empty').style.display   = 'none';
   document.getElementById('report-loading').style.display = 'flex';
   document.getElementById('report-output').classList.add('hidden');
+  startLoadingMessages(_calcType || '__default__');
 }
 function showReport() {
+  stopLoadingMessages();
   document.getElementById('report-empty').style.display   = 'none';
   document.getElementById('report-loading').style.display = 'none';
   document.getElementById('report-output').classList.remove('hidden');
