@@ -20,8 +20,8 @@ iapws==1.5.4
 psychrolib==2.5.0
 
 # Phase 3 — Refrigerant thermodynamic properties
-# Uses CoolProp as backend (~200 MB) — comment out if image size is a concern
-CoolProp==6.6.0
+# Uses CoolProp as backend (~200 MB) — uncomment when Phase 3 is active
+# CoolProp==6.6.0
 
 # Phase 4-9 — Numerical methods (iterative solvers, system curves, matrices)
 numpy==1.26.4
