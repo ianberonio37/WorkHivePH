@@ -124,15 +124,14 @@ def _load_handlers() -> dict[str, Any]:
     handlers["Boiler / Steam System"] = boiler_calc
 
     # ── Frontend name aliases ─────────────────────────────────────────────────
-    # The frontend sends these exact strings; map them to the Python handlers
-    # registered above so the edge function routes correctly.
+    # Only alias calc types where the frontend input field schema matches what
+    # the Python handler expects. Mismatched schemas (Load Estimation, Boiler
+    # System, Water Supply Pipe Sizing, Drainage Pipe Sizing) are intentionally
+    # NOT aliased — they fall through to the TypeScript handlers which already
+    # work correctly for those input shapes.
     handlers["Duct Sizing (Equal Friction)"]       = handlers["Duct Sizing"]
-    handlers["Water Supply Pipe Sizing"]            = handlers["Domestic Water System"]
-    handlers["Drainage Pipe Sizing"]               = handlers["Sewer / Drainage"]
     handlers["Lightning Protection System (LPS)"]  = handlers["Lightning Protection (LPS)"]
     handlers["V-Belt Drive Design"]                = handlers["Gear / Belt Drive"]
-    handlers["Boiler System"]                      = handlers["Boiler / Steam System"]
-    handlers["Load Estimation"]                    = handlers["Load Schedule"]
     handlers["Short Circuit Analysis"]             = handlers["Short Circuit"]
 
     return handlers
