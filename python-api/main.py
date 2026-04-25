@@ -32,6 +32,12 @@ class CalcRequest(BaseModel):
     inputs: dict[str, Any]
 
 
+class DiagramRequest(BaseModel):
+    diagram_type: str
+    inputs: dict[str, Any]
+    results: dict[str, Any] = {}
+
+
 # ─── Handler registry ─────────────────────────────────────────────────────────
 # Each phase adds entries here. Key = exact calc_type string used by the
 # frontend. Value = a callable that takes (inputs: dict) -> dict.
@@ -182,6 +188,34 @@ def calculate(req: CalcRequest):
         # Unexpected errors — log the trace, return 500
         print(f"ERROR in {req.calc_type}: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Calculation error: {str(e)}")
+
+
+@app.post("/diagram")
+def diagram(req: DiagramRequest):
+    """
+    Diagram generation endpoint.
+    Returns { svg: "..." } for supported diagram types,
+    or { not_implemented: true } so the frontend can hide the button.
+    """
+    from diagrams import pump_curve, psychrometric_chart, duct_chart
+
+    DIAGRAM_HANDLERS = {
+        "Pump Sizing (TDH)":          pump_curve.generate,
+        "AHU Sizing":                  psychrometric_chart.generate,
+        "Duct Sizing":                 duct_chart.generate,
+        "Duct Sizing (Equal Friction)": duct_chart.generate,
+    }
+
+    handler = DIAGRAM_HANDLERS.get(req.diagram_type)
+    if handler is None:
+        return {"not_implemented": True, "diagram_type": req.diagram_type}
+
+    try:
+        svg = handler(req.inputs, req.results)
+        return {"svg": svg, "diagram_type": req.diagram_type}
+    except Exception as e:
+        print(f"DIAGRAM ERROR {req.diagram_type}: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Diagram error: {str(e)}")
 
 
 @app.get("/calcs")

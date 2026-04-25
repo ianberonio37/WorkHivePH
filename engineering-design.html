@@ -657,6 +657,7 @@
               <div class="font-semibold text-sm" id="drawing-output-title" style="color:rgba(255,255,255,0.85);">System Diagram</div>
               <div class="flex gap-2">
                 <button onclick="regenerateDrawing()" class="btn-ghost text-xs py-1.5 px-3">↺ Regenerate</button>
+                <button id="diagram-dl-svg" onclick="downloadDiagramSVG()" class="btn-ghost text-xs py-1.5 px-3" style="display:none;">⬇ SVG</button>
                 <button onclick="downloadDrawingPdf()" class="btn-ghost text-xs py-1.5 px-3">⬇ PDF</button>
               </div>
             </div>
@@ -17062,63 +17063,117 @@ function resetDrawingSection() {
   document.getElementById('drawing-output').classList.add('hidden');
 }
 
+// ─── Python-powered diagram types (matplotlib SVG via Render API) ─────────────
+const PYTHON_DIAGRAM_TYPES = new Set([
+  'AHU Sizing',
+  'Duct Sizing (Equal Friction)',
+  'Pump Sizing (TDH)',   // Q-H curve (in addition to the JS P&ID)
+]);
+const PYTHON_DIAGRAM_API = 'https://engineering-calc-api.onrender.com/diagram';
+
+async function _callPythonDiagram(calcType, inputs, results) {
+  const res = await fetch(PYTHON_DIAGRAM_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ diagram_type: calcType, inputs, results }),
+  });
+  if (!res.ok) throw new Error(`Diagram API error ${res.status}`);
+  const data = await res.json();
+  if (data.not_implemented) throw new Error('not_implemented');
+  return data.svg;
+}
+
+function _renderPythonSVG(svgString, title) {
+  const panel = document.getElementById('drawing-panel');
+  const outputTitle = document.getElementById('drawing-output-title');
+  if (outputTitle) outputTitle.textContent = title;
+  panel.innerHTML = svgString;
+  // Make SVG responsive
+  const svgEl = panel.querySelector('svg');
+  if (svgEl) {
+    svgEl.style.width = '100%';
+    svgEl.style.height = 'auto';
+    svgEl.style.maxWidth = '100%';
+  }
+  document.getElementById('drawing-loading').classList.add('hidden');
+  document.getElementById('drawing-output').classList.remove('hidden');
+  // Show SVG download button
+  const dlBtn = document.getElementById('diagram-dl-svg');
+  if (dlBtn) { dlBtn.style.display = 'inline-block'; dlBtn._svg = svgString; }
+}
+
+function downloadDiagramSVG() {
+  const btn = document.getElementById('diagram-dl-svg');
+  if (!btn || !btn._svg) return;
+  const blob = new Blob([btn._svg], { type: 'image/svg+xml' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `${(_lastInputs?.project_name || _calcType).replace(/\s+/g,'-')}-diagram.svg`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 // ─── Drawing router ───────────────────────────────────────────────────────────
-function generateDrawing() {
-  document.getElementById('drawing-trigger').classList.add('hidden');
-  document.getElementById('drawing-loading').classList.remove('hidden');
+async function _runDrawing() {
+  const ct = _calcType;
+
+  // Python-powered diagrams (matplotlib Q-H curve, psychrometric, duct chart)
+  if (PYTHON_DIAGRAM_TYPES.has(ct)) {
+    try {
+      const titleMap = {
+        'Pump Sizing (TDH)':            'Q-H Pump Performance Curve',
+        'AHU Sizing':                   'Psychrometric Chart — AHU Process Line',
+        'Duct Sizing (Equal Friction)': 'ASHRAE Equal Friction Duct Chart',
+      };
+      const svg = await _callPythonDiagram(ct, _lastInputs, _lastResults);
+      _renderPythonSVG(svg, titleMap[ct] || ct);
+      return;
+    } catch (err) {
+      if (err.message !== 'not_implemented') {
+        console.warn('Python diagram failed, falling back to JS:', err.message);
+      }
+      // Fall through to JS builder if Python fails
+    }
+  }
+
+  // JS SVG builders (existing diagrams)
   setTimeout(() => {
-    if (_calcType === 'HVAC Cooling Load') {
+    if (ct === 'HVAC Cooling Load') {
       const svg = buildHVACSvg(_lastInputs, _lastResults);
       renderHVACDiagramSVG(svg, _lastInputs, _lastResults);
-    } else if (_calcType === 'Load Estimation') {
+    } else if (ct === 'Load Estimation') {
       const svg = buildElectricalSLDSvg(_lastInputs, _lastResults);
       renderElectricalSLD(svg, _lastInputs, _lastResults);
-    } else if (_calcType === 'Lightning Protection System (LPS)') {
+    } else if (ct === 'Lightning Protection System (LPS)') {
       const svg = buildLPSZoneSvg(_lastInputs, _lastResults);
       renderLPSDiagram(svg, _lastInputs, _lastResults);
-    } else if (_calcType === 'Generator Sizing') {
+    } else if (ct === 'Generator Sizing') {
       const svg = buildGeneratorConnectionSvg(_lastInputs, _lastResults);
       renderGeneratorConnectionDiagram(svg, _lastInputs, _lastResults);
-    } else if (_calcType === 'Pump Sizing (TDH)') {
+    } else if (ct === 'Pump Sizing (TDH)') {
       const svg = buildPumpPIDSvg(_lastInputs, _lastResults);
       renderPumpPID(svg, _lastInputs, _lastResults);
-    } else if (_calcType === 'Fire Sprinkler Hydraulic') {
+    } else if (ct === 'Fire Sprinkler Hydraulic') {
       const svg = buildFireSprinklerSvg(_lastInputs, _lastResults);
       renderFireSprinklerDiagram(svg, _lastInputs, _lastResults);
-    } else if (_calcType === 'Lighting Design') {
+    } else if (ct === 'Lighting Design') {
       const svg = buildLightingLayoutSvg(_lastInputs, _lastResults);
       renderLightingLayout(svg, _lastInputs, _lastResults);
     }
-  }, 350);
+  }, 100);
+}
+
+function generateDrawing() {
+  document.getElementById('drawing-trigger').classList.add('hidden');
+  document.getElementById('drawing-loading').classList.remove('hidden');
+  _runDrawing();
 }
 
 function regenerateDrawing() {
   document.getElementById('drawing-output').classList.add('hidden');
   document.getElementById('drawing-loading').classList.remove('hidden');
-  setTimeout(() => {
-    if (_calcType === 'HVAC Cooling Load') {
-      const svg = buildHVACSvg(_lastInputs, _lastResults);
-      renderHVACDiagramSVG(svg, _lastInputs, _lastResults);
-    } else if (_calcType === 'Load Estimation') {
-      const svg = buildElectricalSLDSvg(_lastInputs, _lastResults);
-      renderElectricalSLD(svg, _lastInputs, _lastResults);
-    } else if (_calcType === 'Lightning Protection System (LPS)') {
-      const svg = buildLPSZoneSvg(_lastInputs, _lastResults);
-      renderLPSDiagram(svg, _lastInputs, _lastResults);
-    } else if (_calcType === 'Generator Sizing') {
-      const svg = buildGeneratorConnectionSvg(_lastInputs, _lastResults);
-      renderGeneratorConnectionDiagram(svg, _lastInputs, _lastResults);
-    } else if (_calcType === 'Pump Sizing (TDH)') {
-      const svg = buildPumpPIDSvg(_lastInputs, _lastResults);
-      renderPumpPID(svg, _lastInputs, _lastResults);
-    } else if (_calcType === 'Fire Sprinkler Hydraulic') {
-      const svg = buildFireSprinklerSvg(_lastInputs, _lastResults);
-      renderFireSprinklerDiagram(svg, _lastInputs, _lastResults);
-    } else if (_calcType === 'Lighting Design') {
-      const svg = buildLightingLayoutSvg(_lastInputs, _lastResults);
-      renderLightingLayout(svg, _lastInputs, _lastResults);
-    }
-  }, 250);
+  _runDrawing();
 }
 
 // ─── LPS Protection Zone Diagram builder ─────────────────────────────────────────────────
