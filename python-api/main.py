@@ -78,8 +78,10 @@ def _load_handlers() -> dict[str, Any]:
     handlers["Short Circuit"]      = sc_calc
     handlers["Load Schedule"]      = load_sched_calc
     from calcs.generator_sizing    import calculate as gen_calc
+    from calcs.ups_sizing          import calculate as ups_calc
     # from calcs.solar_pv            import calculate as solar_calc
     handlers["Generator Sizing"]   = gen_calc
+    handlers["UPS Sizing"]         = ups_calc
     # handlers["Solar PV System"]    = solar_calc
 
     # Phase 5 — Fire Protection
