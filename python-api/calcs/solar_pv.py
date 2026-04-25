@@ -323,4 +323,21 @@ def calculate(inputs: dict) -> dict:
         },
         "calculation_source": "python/math",
         "standard": "IEC 62548:2016 | IEC 61215 | IEC 62109 | PEC 2017 Art.6.90 | PAGASA",
+
+        # ── Legacy renderer aliases (frontend renderSolarPVReport) ─────────────
+        "panel_qty":           total_panels,
+        "num_strings":         strings_parallel,
+        "actual_array_kwp":    round(array_kWp, 2),
+        "required_array_kwp":  round(system_kw, 2),
+        "annual_yield_kwh":    round(energy_yr_kwh, 0),
+        "inverter_kw":         round(rec_inv_kva * 0.90, 2),
+        "psh_hr":              psh,
+        "system_efficiency":   round(PERFORMANCE_RATIO, 3),
+        "t_min_c":             t_min_c,
+        "temp_coeff_voc":      tc_voc,
+        "total_roof_area_m2":  round(array_area_m2 * 1.15, 1),   # 15% extra for spacing
+        "voc_max":             round(voc_string_cold, 2),
+        "co2_reduction_kg":    round(co2_offset_kg_yr, 0),
+        "battery_ah":          batt_bank.get("capacity_ah") if batt_bank else None,
+        "battery_kwh":         batt_bank.get("energy_kwh") if batt_bank else None,
     }

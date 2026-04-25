@@ -358,4 +358,24 @@ def calculate(inputs: dict) -> dict:
         },
         "calculation_source": "python/math",
         "standard": "ASHRAE 2021 Ch.21 | SMACNA | ASHRAE 62.1",
+
+        # ── Legacy renderer aliases (frontend renderDuctSizingReport) ──────────
+        "fan_static_pa":     circ["dp_total_pa"],
+        "total_dp_pa":       circ["dp_total_pa"],
+        "total_length_m":    length_m,
+        "max_flow_lps":      round(flow_m3s * 1000, 2),
+        "fan_motor_kw":      None,      # Python doesn't size fan motor — renderer should check None
+        "fan_motor_hp_calc": None,
+        "fan_motor_hp_std":  None,
+        # Wrap single section into array so renderer can iterate
+        "segments": [{
+            "section_name": section_type,
+            "flow_m3hr":    round(flow_m3s * 3600, 1),
+            "flow_lps":     round(flow_m3s * 1000, 2),
+            "diameter_mm":  circ["D_std_mm"],
+            "velocity_ms":  circ["velocity_ms"],
+            "dp_pa_m":      circ["dp_pam"],
+            "dp_total_pa":  circ["dp_total_pa"],
+            "length_m":     length_m,
+        }],
     }

@@ -364,4 +364,15 @@ def calculate(inputs: dict) -> dict:
         },
         "calculation_source": "python/static-ASHRAE-tables",
         "standard": "ASHRAE 2022 Refrig. Hbk Ch.1 | ASTM B280 | ASHRAE 90.1 | PSME",
+
+        # ── Legacy renderer aliases (frontend renderRefrigPipeReport) ──────────
+        # Renderer reads r.lines as array — build it from the sub-objects
+        "lines": [
+            {"line_name": "Suction (Horizontal)", **suction_horiz} if suction_horiz else None,
+            {"line_name": "Suction (Riser)",      **suction_riser} if suction_riser else None,
+            {"line_name": "Discharge",             **discharge}     if discharge     else None,
+            {"line_name": "Liquid",                **liquid}        if liquid        else None,
+        ],
+        "evap_temp_c":  evap_key,
+        "cond_temp_c":  cond_key,
     }

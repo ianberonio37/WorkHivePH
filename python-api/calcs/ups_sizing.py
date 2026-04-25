@@ -273,4 +273,22 @@ def calculate(inputs: dict) -> dict:
         },
         "calculation_source": "python/math",
         "standard": "IEEE 1184:2006 | IEC 62040-3:2021 | IEEE 446 | BICSI 002",
+
+        # ── Legacy renderer aliases (frontend renderUPSSizingReport) ──────────
+        "actual_runtime_min":  round(actual_backup_min, 1),
+        "ah_required":         round(ah_required, 1),
+        "avg_pf":              power_factor,
+        "battery_config":      config_note,
+        "battery_voltage_v":   v_dc,
+        "cells_in_series":     n_cells,
+        "design_kw":           round(kw_design, 3),
+        "design_va":           round(kw_design * 1000 / power_factor, 0),
+        "input_breaker_a":     rec_breaker,
+        "input_current_a":     round(input_current_a, 1),
+        "input_va":            round(load_kva * 1000 / max(eta_ups, 0.01), 0),
+        "output_current_a":    round(output_current_a, 1),
+        "selected_ah":         rec_ah,
+        "selected_kva":        rec_ups_kva,
+        "total_connected_kw":  round(load_kw, 2),
+        "total_connected_va":  round(load_kva * 1000, 0),
     }
