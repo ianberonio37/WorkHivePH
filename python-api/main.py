@@ -97,6 +97,13 @@ def _load_handlers() -> dict[str, Any]:
     handlers["Sewer / Drainage"]      = sewer_drainage_calc
 
     # Phase 7 — Structural / Lighting / LPS
+    from calcs.beam_column          import calculate as beam_column_calc
+    from calcs.lighting_design      import calculate as lighting_calc
+    from calcs.lightning_protection import calculate as lps_calc
+    handlers["Beam / Column Design"]       = beam_column_calc
+    handlers["Lighting Design"]            = lighting_calc
+    handlers["Lightning Protection (LPS)"] = lps_calc
+
     # Phase 8 — Diagrams + PDF
     # Phase 9 — Machine Design + Remaining
 
