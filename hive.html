@@ -2258,6 +2258,20 @@ document.getElementById('btn-toggle-hive-inv').addEventListener('click', () => {
 // ── MTTR (MEAN TIME TO REPAIR) ──
 async function loadMttr() {
   if (!HIVE_ID) return;
+
+  // Cache-first: use pre-computed nightly cache if fresh (< 12h old)
+  const CACHE_TTL_MS = 12 * 60 * 60 * 1000;
+  const { data: cache } = await db.from('hive_analytics_cache')
+    .select('mttr_by_machine, computed_at')
+    .eq('hive_id', HIVE_ID)
+    .maybeSingle();
+
+  if (cache && cache.mttr_by_machine && (Date.now() - new Date(cache.computed_at).getTime()) < CACHE_TTL_MS) {
+    renderMttr(cache.mttr_by_machine);
+    return;
+  }
+
+  // Fallback: live query when cache is empty or stale
   const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
 
   const { data: closed } = await db.from('logbook')
@@ -2271,6 +2285,33 @@ async function loadMttr() {
     .limit(200);
 
   if (!closed || !closed.length) return;
+
+  const entries = closed.map(e => {
+    const repairMs = (e.downtime_hours != null && e.downtime_hours > 0)
+      ? e.downtime_hours * 3600000
+      : new Date(e.closed_at).getTime() - new Date(e.created_at).getTime();
+    return { ...e, repairMs };
+  }).filter(e => e.repairMs > 0);
+
+  if (!entries.length) return;
+
+  const byMachine = {};
+  entries.forEach(e => {
+    const m = e.machine || 'Unknown';
+    if (!byMachine[m]) byMachine[m] = { total: 0, count: 0 };
+    byMachine[m].total += e.repairMs;
+    byMachine[m].count++;
+  });
+
+  const ranked = Object.entries(byMachine)
+    .map(([machine, { total, count }]) => ({ machine, avgMs: total / count, count }))
+    .sort((a, b) => b.avgMs - a.avgMs);
+
+  renderMttr(ranked);
+}
+
+function renderMttr(ranked) {
+  if (!ranked || !ranked.length) return;
   document.getElementById('mttr-panel').classList.remove('hidden');
 
   const formatDuration = ms => {
@@ -2283,37 +2324,28 @@ async function loadMttr() {
     return `${mins}m`;
   };
 
-  // Compute per-entry repair times.
-  // Priority: user-entered downtime_hours (actual active repair time logged by technician).
-  // Fallback: closed_at - created_at (clock time, includes overnight and waiting).
-  const entries = closed.map(e => {
-    const repairMs = (e.downtime_hours != null && e.downtime_hours > 0)
-      ? e.downtime_hours * 3600000
-      : new Date(e.closed_at).getTime() - new Date(e.created_at).getTime();
-    return { ...e, repairMs };
-  }).filter(e => e.repairMs > 0);
+}
 
-  if (!entries.length) return;
+function renderMttr(ranked) {
+  if (!ranked || !ranked.length) return;
+  document.getElementById('mttr-panel').classList.remove('hidden');
 
-  // Hive average
-  const avgMs = entries.reduce((sum, e) => sum + e.repairMs, 0) / entries.length;
-  document.getElementById('mttr-avg').textContent = formatDuration(avgMs);
+  const formatDuration = ms => {
+    const totalMins = Math.floor(ms / 60000);
+    const days  = Math.floor(totalMins / 1440);
+    const hrs   = Math.floor((totalMins % 1440) / 60);
+    const mins  = totalMins % 60;
+    if (days > 0)  return `${days}d ${hrs}h`;
+    if (hrs > 0)   return `${hrs}h ${mins}m`;
+    return `${mins}m`;
+  };
 
-  // Group by machine, compute per-asset average
-  const byMachine = {};
-  entries.forEach(e => {
-    const m = e.machine || 'Unknown';
-    if (!byMachine[m]) byMachine[m] = { total: 0, count: 0 };
-    byMachine[m].total += e.repairMs;
-    byMachine[m].count++;
-  });
-
-  const ranked = Object.entries(byMachine)
-    .map(([machine, { total, count }]) => ({ machine, avgMs: total / count, count }))
-    .sort((a, b) => b.avgMs - a.avgMs); // slowest to fix at top
+  // Hive average across all machines
+  const totalMs  = ranked.reduce((sum, r) => sum + (r.avgMs * r.count), 0);
+  const totalCnt = ranked.reduce((sum, r) => sum + r.count, 0);
+  if (totalCnt > 0) document.getElementById('mttr-avg').textContent = formatDuration(totalMs / totalCnt);
 
   const maxMs = ranked[0]?.avgMs || 1;
-
   document.getElementById('mttr-list').innerHTML = ranked.map(item => {
     const pct   = Math.round((item.avgMs / maxMs) * 100);
     const ratio = item.avgMs / maxMs;
@@ -2335,6 +2367,20 @@ async function loadMttr() {
 // ── MTBF PER ASSET ──
 async function loadMtbf() {
   if (!HIVE_ID) return;
+
+  // Cache-first: use pre-computed nightly cache if fresh (< 12h old)
+  const CACHE_TTL_MS = 12 * 60 * 60 * 1000;
+  const { data: cache } = await db.from('hive_analytics_cache')
+    .select('mtbf_by_machine, computed_at')
+    .eq('hive_id', HIVE_ID)
+    .maybeSingle();
+
+  if (cache && cache.mtbf_by_machine && (Date.now() - new Date(cache.computed_at).getTime()) < CACHE_TTL_MS) {
+    renderMtbf(cache.mtbf_by_machine);
+    return;
+  }
+
+  // Fallback: live query when cache is empty or stale
   const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
 
   const { data: entries } = await db.from('logbook')
@@ -2349,7 +2395,6 @@ async function loadMtbf() {
 
   if (!entries || !entries.length) return;
 
-  // Group timestamps per machine
   const byMachine = {};
   entries.forEach(e => {
     if (!e.machine) return;
@@ -2357,36 +2402,34 @@ async function loadMtbf() {
     byMachine[e.machine].push(new Date(e.created_at).getTime());
   });
 
-  // Compute MTBF for machines with 2+ entries
   const results = [];
   for (const [machine, timestamps] of Object.entries(byMachine)) {
     if (timestamps.length < 2) continue;
     const gaps = [];
-    for (let i = 1; i < timestamps.length; i++) {
-      gaps.push(timestamps[i] - timestamps[i - 1]);
-    }
-    const avgMs   = gaps.reduce((a, b) => a + b, 0) / gaps.length;
-    const avgDays = avgMs / (24 * 60 * 60 * 1000);
+    for (let i = 1; i < timestamps.length; i++) gaps.push(timestamps[i] - timestamps[i - 1]);
+    const avgDays = (gaps.reduce((a, b) => a + b, 0) / gaps.length) / (24 * 60 * 60 * 1000);
     results.push({ machine, avgDays, count: timestamps.length });
   }
 
-  if (!results.length) return;
+  renderMtbf(results);
+}
+
+function renderMtbf(results) {
+  if (!results || !results.length) return;
   document.getElementById('mtbf-panel').classList.remove('hidden');
 
-  // Sort: shortest MTBF first (most failure-prone assets at top)
-  results.sort((a, b) => a.avgDays - b.avgDays);
-  const maxDays = results[results.length - 1].avgDays || 1;
+  const sorted  = [...results].sort((a, b) => a.avgDays - b.avgDays);
+  const maxDays = sorted[sorted.length - 1]?.avgDays || 1;
 
   const formatDays = d => {
-    if (d < 1)    return `${Math.round(d * 24)}h`;
-    if (d < 7)    return `${d.toFixed(1)}d`;
-    if (d < 30)   return `${(d / 7).toFixed(1)}w`;
+    if (d < 1)  return `${Math.round(d * 24)}h`;
+    if (d < 7)  return `${d.toFixed(1)}d`;
+    if (d < 30) return `${(d / 7).toFixed(1)}w`;
     return `${(d / 30).toFixed(1)}mo`;
   };
 
-  document.getElementById('mtbf-list').innerHTML = results.map(item => {
+  document.getElementById('mtbf-list').innerHTML = sorted.map(item => {
     const pct   = Math.round((item.avgDays / maxDays) * 100);
-    // Color: red = fails often (short MTBF), green = reliable (long MTBF)
     const ratio = item.avgDays / maxDays;
     const color = ratio < 0.3 ? '#f87171' : ratio < 0.6 ? '#F7A21B' : '#4ade80';
     return `<div class="rounded-xl px-3 py-2.5" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
