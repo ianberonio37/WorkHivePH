@@ -85,10 +85,10 @@ def _load_handlers() -> dict[str, Any]:
     handlers["Solar PV System"]    = solar_calc
 
     # Phase 5 — Fire Protection
-    # from calcs.fire_sprinkler  import calculate as sprinkler_calc
-    # from calcs.fire_pump       import calculate as fire_pump_calc
-    # handlers["Fire Sprinkler Hydraulic"] = sprinkler_calc
-    # handlers["Fire Pump Sizing"]         = fire_pump_calc
+    from calcs.fire_sprinkler  import calculate as sprinkler_calc
+    from calcs.fire_pump       import calculate as fire_pump_calc
+    handlers["Fire Sprinkler Hydraulic"] = sprinkler_calc
+    handlers["Fire Pump Sizing"]         = fire_pump_calc
 
     # Phase 6 — Plumbing / Water
     # Phase 7 — Structural / Lighting / LPS
