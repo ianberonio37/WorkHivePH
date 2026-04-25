@@ -104,8 +104,17 @@ def _load_handlers() -> dict[str, Any]:
     handlers["Lighting Design"]            = lighting_calc
     handlers["Lightning Protection (LPS)"] = lps_calc
 
-    # Phase 8 — Diagrams + PDF
-    # Phase 9 — Machine Design + Remaining
+    # Phase 8 — Machine Design
+    from calcs.shaft_design    import calculate as shaft_calc
+    from calcs.gear_belt_drive import calculate as gear_calc
+    from calcs.pressure_vessel import calculate as pv_calc
+    from calcs.heat_exchanger  import calculate as hx_calc
+    handlers["Shaft Design"]         = shaft_calc
+    handlers["Gear / Belt Drive"]    = gear_calc
+    handlers["Pressure Vessel"]      = pv_calc
+    handlers["Heat Exchanger"]       = hx_calc
+
+    # Phase 9 — Remaining
 
     return handlers
 
