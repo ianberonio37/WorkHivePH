@@ -114,7 +114,15 @@ def _load_handlers() -> dict[str, Any]:
     handlers["Pressure Vessel"]      = pv_calc
     handlers["Heat Exchanger"]       = hx_calc
 
-    # Phase 9 — Remaining
+    # Phase 9 — Remaining calcs
+    from calcs.vibration_analysis import calculate as vibration_calc
+    from calcs.fluid_power        import calculate as fluid_power_calc
+    from calcs.noise_acoustics    import calculate as noise_calc
+    from calcs.boiler_steam       import calculate as boiler_calc
+    handlers["Vibration Analysis"]    = vibration_calc
+    handlers["Fluid Power"]           = fluid_power_calc
+    handlers["Noise / Acoustics"]     = noise_calc
+    handlers["Boiler / Steam System"] = boiler_calc
 
     return handlers
 
