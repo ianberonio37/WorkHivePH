@@ -503,7 +503,7 @@ function saveInventory(arr) {
   arr.forEach(item => {
     const old = prev.find(o => o.id === item.id);
     if (!old || JSON.stringify(old) !== JSON.stringify(item)) {
-      db.from('inventory_items').upsert({ ...item, worker_name: WORKER_NAME })
+      db.from('inventory_items').upsert({ ...item, worker_name: item.worker_name || WORKER_NAME })
         .then(({ error }) => { if (error) { console.error('inv sync:', error.message); showToast('Inventory save failed: ' + error.message); } });
     }
   });
@@ -867,9 +867,15 @@ async function submitPart() {
     document.getElementById('f-part-number').focus(); return;
   }
 
-  const qty    = parseFloat(qtyRaw) || 0;
-  const minQty = parseFloat(document.getElementById('f-min-qty').value) || 0;
-  const now    = new Date().toISOString();
+  const qty         = parseFloat(qtyRaw) || 0;
+  const minQty      = parseFloat(document.getElementById('f-min-qty').value) || 0;
+  const now         = new Date().toISOString();
+  const existingItem = editingItemId ? items.find(i => i.id === editingItemId) : null;
+  // Re-editing a rejected OR approved item resubmits it for approval (sets back to pending)
+  const editStatus  = existingItem && HIVE_ID && HIVE_ROLE !== 'supervisor'
+    && (existingItem.status === 'rejected' || existingItem.status === 'approved')
+    ? 'pending' : undefined;
+
   const payload = {
     part_number:       partNumber,
     part_name:         partName,
@@ -882,7 +888,7 @@ async function submitPart() {
     notes:             document.getElementById('f-notes').value.trim(),
     photo:             currentPhotoData,
     updated_at:        now,
-    status:            editingItemId ? undefined : (HIVE_ID && HIVE_ROLE !== 'supervisor' ? 'pending' : 'approved'),
+    status:            editingItemId ? editStatus : (HIVE_ID && HIVE_ROLE !== 'supervisor' ? 'pending' : 'approved'),
     hive_id:           editingItemId ? undefined : (HIVE_ID || null),
     submitted_by:      editingItemId ? undefined : WORKER_NAME,
   };
@@ -895,7 +901,7 @@ async function submitPart() {
     saveInventory(items);
     const diff = qty - prev.qty_on_hand;
     if (diff !== 0) addTransaction(editingItemId, 'adjust', diff, qty, 'Edited via part form');
-    showToast('Part updated.');
+    showToast(items[idx].status === 'pending' ? `${partName} resubmitted for supervisor approval.` : `${partName} updated.`);
   } else {
     const item = { id: Date.now().toString(), ...payload, photo: currentPhotoData || null, created_at: now };
     items.push(item);
@@ -1019,7 +1025,6 @@ function addTransaction(itemId, type, qtyChange, qtyAfter, note) {
     qty_after:   qtyAfter,
     note:        note || '',
     worker_name: WORKER_NAME,
-    hive_id:     HIVE_ID || null,
     created_at:  new Date().toISOString(),
   });
   saveTransactions(txns);
@@ -1042,11 +1047,22 @@ function openDetailModal(id) {
           <span class="font-black text-xl text-white">${escHtml(item.part_number)}</span>
           ${catBadge(item.category)}
           ${statusBadge(st)}
+          ${approvalBadge(item)}
         </div>
         <p class="text-base text-white/70 font-medium mb-4">${escHtml(item.part_name)}</p>
       </div>
       ${item.photo && (item.photo.startsWith('data:image/') || item.photo.startsWith('https://')) ? `<img src="${item.photo}" class="photo-thumb flex-shrink-0" />` : ''}
     </div>
+    ${item.status === 'pending' && HIVE_ID ? `
+    <div class="rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5" style="background:rgba(247,162,27,0.07);border:1px solid rgba(247,162,27,0.22);">
+      <svg class="w-4 h-4 flex-shrink-0 mt-0.5" style="color:#F7A21B" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+      <p class="text-xs font-semibold" style="color:#F7A21B;">Awaiting supervisor approval — Use and Restock are locked until this part is approved.</p>
+    </div>` : ''}
+    ${item.status === 'rejected' && HIVE_ID ? `
+    <div class="rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5" style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.22);">
+      <svg class="w-4 h-4 flex-shrink-0 mt-0.5 text-red-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+      <p class="text-xs font-semibold text-red-400">Rejected by supervisor. Edit the part details and save to resubmit for approval.</p>
+    </div>` : ''}
 
     <div class="grid grid-cols-3 gap-3 mb-5">
       <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
@@ -1076,11 +1092,11 @@ function openDetailModal(id) {
     </div>` : ''}
 
     <div class="flex gap-2 mb-4">
-      <button onclick="closeDetailModal();openUseModal('${item.id}')" class="btn-danger flex-1 text-sm">Use Stock</button>
-      <button onclick="closeDetailModal();openRestockModal('${item.id}')" class="btn-green flex-1 text-sm">Restock</button>
-      ${(!HIVE_ID || HIVE_ROLE === 'supervisor') ? `<button onclick="closeDetailModal();openAddModal('${item.id}')" class="btn-secondary px-3 text-sm">Edit</button>` : ''}
+      <button onclick="closeDetailModal();openUseModal('${item.id}')" class="btn-danger flex-1 text-sm" ${HIVE_ID && (item.status === 'pending' || item.status === 'rejected') ? 'style="opacity:0.4;cursor:not-allowed;"' : ''}>Use Stock</button>
+      <button onclick="closeDetailModal();openRestockModal('${item.id}')" class="btn-green flex-1 text-sm" ${HIVE_ID && (item.status === 'pending' || item.status === 'rejected') ? 'style="opacity:0.4;cursor:not-allowed;"' : ''}>Restock</button>
+      ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || item.worker_name === WORKER_NAME) ? `<button onclick="closeDetailModal();openAddModal('${item.id}')" class="btn-secondary px-3 text-sm">Edit</button>` : ''}
     </div>
-    ${(!HIVE_ID || HIVE_ROLE === 'supervisor') ? `<button onclick="confirmDeleteItem('${item.id}')" class="w-full text-[11px] text-red-400/40 hover:text-red-400/70 transition-colors py-1">Remove from inventory</button>` : ''}
+    ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || (item.status === 'rejected' && item.worker_name === WORKER_NAME)) ? `<button onclick="confirmDeleteItem('${item.id}')" class="w-full text-[11px] text-red-400/40 hover:text-red-400/70 transition-colors py-1">Remove from inventory</button>` : ''}
 
     <div class="border-t border-white/[0.07] mt-5 pt-4">
       <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-3">Transaction History (last 20)</p>
@@ -1107,13 +1123,20 @@ function openDetailModal(id) {
 function closeDetailModal() { document.getElementById('detail-modal').style.display = 'none'; }
 
 async function confirmDeleteItem(id) {
-  if (HIVE_ID && HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
   const item = loadInventory().find(i => i.id === id);
   if (!item) return;
+  // Workers can only delete their own rejected items; approved/pending items are supervisor-only
+  if (HIVE_ID && HIVE_ROLE !== 'supervisor') {
+    if (item.status !== 'rejected') { showToast('Supervisors only.', 'warn'); return; }
+    if (item.worker_name !== WORKER_NAME) { showToast('You can only remove your own rejected parts.', 'warn'); return; }
+  }
   if (!confirm(`Remove "${item.part_name}" (${item.part_number}) from inventory? This cannot be undone.`)) return;
 
   if (HIVE_ID) {
-    const { error } = await db.from('inventory_items').delete().eq('id', id).eq('hive_id', HIVE_ID);
+    // Supervisor deletes by hive scope; worker deletes own rejected item by worker_name
+    let q = db.from('inventory_items').delete().eq('id', id).eq('hive_id', HIVE_ID);
+    if (HIVE_ROLE !== 'supervisor') q = q.eq('worker_name', WORKER_NAME);
+    const { error } = await q;
     if (error) { showToast('Could not remove part: ' + error.message); return; }
     _items = _items.filter(i => i.id !== id);
   } else {
@@ -1189,7 +1212,7 @@ async function initData() {
   if (HIVE_ID) {
     itemsFetches = Promise.all([
       db.from('inventory_items').select('*').eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at'),
-      db.from('inventory_items').select('*').eq('worker_name', WORKER_NAME).order('created_at')
+      db.from('inventory_items').select('*').eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).order('created_at')
     ]);
     assetsFetches = Promise.all([
       db.from('assets').select('*').eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at'),

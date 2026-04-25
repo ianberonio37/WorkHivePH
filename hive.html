@@ -2078,6 +2078,17 @@ function startApprovalRealtime() {
             `${payload.new.submitted_by || payload.new.worker_name} submitted ${payload.new.asset_id}.`, null);
         }
       })
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'assets', filter: 'hive_id=eq.' + HIVE_ID },
+      (payload) => {
+        if (payload.new.status === 'pending') {
+          // Worker resubmitted a previously rejected asset — replace or add to pending list
+          const idx = _pendingAssets.findIndex(a => a.id === payload.new.id);
+          if (idx !== -1) _pendingAssets[idx] = payload.new; else _pendingAssets.push(payload.new);
+          renderApprovalQueue();
+          pushNotif('approval-in', 'Asset Resubmitted',
+            `${payload.new.submitted_by || payload.new.worker_name} resubmitted ${payload.new.asset_id}.`, null);
+        }
+      })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'inventory_items', filter: 'hive_id=eq.' + HIVE_ID },
       (payload) => {
         if (payload.new.status === 'pending') {
@@ -2085,6 +2096,17 @@ function startApprovalRealtime() {
           renderApprovalQueue();
           pushNotif('approval-in', 'Part Pending Approval',
             `${payload.new.submitted_by || payload.new.worker_name} submitted ${payload.new.part_name}.`, null);
+        }
+      })
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'inventory_items', filter: 'hive_id=eq.' + HIVE_ID },
+      (payload) => {
+        if (payload.new.status === 'pending') {
+          // Worker resubmitted a previously rejected part — replace or add to pending list
+          const idx = _pendingParts.findIndex(p => p.id === payload.new.id);
+          if (idx !== -1) _pendingParts[idx] = payload.new; else _pendingParts.push(payload.new);
+          renderApprovalQueue();
+          pushNotif('approval-in', 'Part Resubmitted',
+            `${payload.new.submitted_by || payload.new.worker_name} resubmitted ${payload.new.part_name}.`, null);
         }
       })
     .subscribe();
