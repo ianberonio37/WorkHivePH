@@ -5684,6 +5684,39 @@ serve(async (req) => {
       );
     }
 
+    // ─── Python API proxy (Phase 0+) ─────────────────────────────────────────
+    // Try the Python microservice first. If it handles the calc_type it returns
+    // { results: {...} }. If not yet implemented it returns { not_implemented: true }
+    // and we fall through to the TypeScript handlers below. Network errors or
+    // timeouts also fall through silently — zero user-facing disruption.
+    const PYTHON_API_URL = Deno.env.get("PYTHON_API_URL");
+    if (PYTHON_API_URL) {
+      try {
+        const pyRes = await fetch(`${PYTHON_API_URL}/calculate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ calc_type, inputs }),
+          signal: AbortSignal.timeout(20000), // 20s — covers Railway cold-start
+        });
+        if (pyRes.ok) {
+          const pyData = await pyRes.json();
+          if (!pyData.not_implemented && pyData.results) {
+            // Python handled it — run Groq narrative (stays in Deno) and return
+            const narrative = await generateReportNarrative(calc_type, inputs, pyData.results);
+            return new Response(
+              JSON.stringify({ results: pyData.results, narrative, source: "python" }),
+              { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+          // not_implemented: true — fall through to TypeScript handlers below
+        }
+      } catch (_pyErr) {
+        // Network error, timeout, or cold-start — fall through silently
+        console.warn("Python API unavailable, falling back to TypeScript:", String(_pyErr));
+      }
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+
     let results: Record<string, unknown>;
 
     if (calc_type === "HVAC Cooling Load") {

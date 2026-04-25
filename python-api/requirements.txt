@@ -1,0 +1,36 @@
+# Engineering Calc Python API — dependencies
+# Pin versions for reproducible builds
+
+# Web framework
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+
+# Input validation (used natively by FastAPI)
+pydantic==2.7.1
+
+# ─── Engineering libraries (activated per phase) ─────────────────────────────
+
+# Phase 1 — Fluid mechanics (Pump, Pipe, Compressed Air)
+fluids==1.0.25
+
+# Phase 1 + 6 — Water/steam properties at temperature
+iapws==1.5.4
+
+# Phase 2 — HVAC psychrometrics
+psychrolib==2.5.0
+
+# Phase 3 — Refrigerant thermodynamic properties
+# Uses CoolProp as backend (~200 MB) — comment out if image size is a concern
+CoolProp==6.6.0
+
+# Phase 4-9 — Numerical methods (iterative solvers, system curves, matrices)
+numpy==1.26.4
+scipy==1.13.0
+
+# Unit conversion safety net (used in all phases)
+pint==0.24
+
+# Phase 8 — Server-side PDF generation (replaces html2pdf.js screenshot)
+# weasyprint==62.3
+# Caution: weasyprint requires system-level GTK/Pango libs in Docker image.
+# Uncomment when Phase 8 is active and update the Dockerfile accordingly.
