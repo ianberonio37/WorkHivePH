@@ -1,5 +1,5 @@
 """
-Generator Sizing — Phase 4d
+Generator Sizing - Phase 4d
 Standards: ISO 8528-1:2018 (Reciprocating IC engine driven AC generators),
            IEEE 446 (Emergency/Standby Power), PEC 2017, NFPA 110,
            BS 7671 (IEE Wiring Regulations), PSME Code
@@ -7,7 +7,7 @@ Libraries: math (all formulas closed-form)
 
 Calculates:
 - Steady-state kW and kVA from panel demand load
-- Motor starting kVA (largest motor LRA dominates — often the real sizing driver)
+- Motor starting kVA (largest motor LRA dominates - often the real sizing driver)
 - Transient voltage dip check per ISO 8528-1 (typically ≤ 15% for G3 class)
 - Step loading sequence (largest motor started first or last)
 - Generator set kVA → next standard size
@@ -19,10 +19,10 @@ Calculates:
 import math
 
 # ─── ISO 8528-1 generator classes ────────────────────────────────────────────
-# G1: ±10% V, ±5% Hz — non-critical (lighting, heating)
-# G2: ±2.5% V, ±2.5% Hz — general (lifts, pumps, motors)
-# G3: ±1% V, ±0.5% Hz — critical (UPS input, telecoms, hospitals)
-# G4: specialty — per equipment spec
+# G1: ±10% V, ±5% Hz - non-critical (lighting, heating)
+# G2: ±2.5% V, ±2.5% Hz - general (lifts, pumps, motors)
+# G3: ±1% V, ±0.5% Hz - critical (UPS input, telecoms, hospitals)
+# G4: specialty - per equipment spec
 
 GEN_CLASSES: dict[str, dict] = {
     "G1": {"vdip_pct": 25, "hz_dev_pct": 5,   "description": "Non-critical (lighting, heating)"},
@@ -48,7 +48,7 @@ STD_GEN_KVA = [
     500, 625, 750, 875, 1000, 1250, 1500, 1750, 2000, 2500, 3000,
 ]
 
-# ─── Diesel fuel consumption (L/hr per kVA) — manufacturer typical ────────────
+# ─── Diesel fuel consumption (L/hr per kVA) - manufacturer typical ────────────
 # Rule of thumb: 0.27–0.30 L/hr per kW at full load (ISO 3046 reference)
 FUEL_L_KW_HR = {
     "100%": 0.28,   # L/hr per kW at full load
@@ -78,7 +78,7 @@ def _starting_kva(
 ) -> tuple[float, float]:
     """
     Starting kVA of largest motor and resulting voltage dip.
-    start_kVA = (FLA × start_multiplier × √3 × V) — simplified as:
+    start_kVA = (FLA × start_multiplier × √3 × V) - simplified as:
       start_kVA = motor_kW / (motor_pf × run_eff) × start_mult / pf_start
 
     Voltage dip = start_kVA / (gen_kVA / (X''d/100))
@@ -91,7 +91,7 @@ def _starting_kva(
     run_eff    = 0.90   # motor running efficiency
 
     # FLA from motor kW
-    # FLA (A) = kW / (√3 × V × PF × eff) — but we work in kVA here
+    # FLA (A) = kW / (√3 × V × PF × eff) - but we work in kVA here
     motor_kva_run = motor_kw / (motor_pf * run_eff)
     start_kva     = motor_kva_run * mult / pf_start * pf_start   # simplifies
 
@@ -107,7 +107,7 @@ def _starting_kva(
 
 def calculate(inputs: dict) -> dict:
     """
-    Main entry point — compatible with TypeScript calcGeneratorSizing() keys.
+    Main entry point - compatible with TypeScript calcGeneratorSizing() keys.
     """
     # ── Steady-state load ─────────────────────────────────────────────────────
     demand_kw    = float(inputs.get("demand_kw",      0)
@@ -196,11 +196,11 @@ def calculate(inputs: dict) -> dict:
     loading_ok = steady_loading_pct <= 80.0
 
     # ── Total Harmonic Distortion flag ────────────────────────────────────────
-    # VFD loads generate harmonics — flag if > 30% of load is VFD/non-linear
+    # VFD loads generate harmonics - flag if > 30% of load is VFD/non-linear
     vfd_kw = float(inputs.get("vfd_kw", 0))
     thd_flag = (vfd_kw / max(demand_kw, 1)) > 0.30
     thd_note = (
-        "VFD / non-linear loads exceed 30% of total — specify low THD generator "
+        "VFD / non-linear loads exceed 30% of total - specify low THD generator "
         "with detuned harmonic filter or 12-pulse rectifier. "
         "IEEE 519 THD limit: ≤ 5% voltage at PCC."
     ) if thd_flag else "THD within acceptable range for standard generator."

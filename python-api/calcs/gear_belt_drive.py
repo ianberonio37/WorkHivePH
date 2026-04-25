@@ -1,5 +1,5 @@
 """
-Gear / Belt Drive — Phase 8b
+Gear / Belt Drive - Phase 8b
 Standards: AGMA 2001-D04 (Fundamental Rating Factors for Involute Spur/Helical Gears),
            AGMA 6006-A03 (Design of Worm Gearings),
            ISO 6336 (Gear load capacity),
@@ -34,9 +34,9 @@ Ko_FACTORS: dict[str, float] = {
 }
 
 # ─── AGMA dynamic factor Kv (Barth equation, module ≥ 1) ─────────────────────
-# Kv = B + (200/(200 + V))^B  — V in m/s, B = 0.25*(12-Qv)^(2/3) for AGMA quality Qv
+# Kv = B + (200/(200 + V))^B  - V in m/s, B = 0.25*(12-Qv)^(2/3) for AGMA quality Qv
 
-# ─── V-belt section data (RMA/MPTA standard — narrow belts) ──────────────────
+# ─── V-belt section data (RMA/MPTA standard - narrow belts) ──────────────────
 VBELT_SECTIONS: dict[str, dict] = {
     "3V (9N)":  {"width_mm": 9,   "depth_mm":  8,   "Pd_max_kW": 5.5,  "Pt_min_kW": 0.4},
     "5V (15N)": {"width_mm": 15,  "depth_mm": 13,   "Pd_max_kW": 22,   "Pt_min_kW": 1.5},
@@ -131,7 +131,7 @@ def _spur_gear(module_mm: float, N_pinion: int, N_gear: int,
     sac_p   = mat_pinion["sac_MPa"]
     sac_g   = mat_gear["sac_MPa"]
 
-    # Stress cycle factors (YN, ZN) — assumed 10^7 cycles (unity for moderate life)
+    # Stress cycle factors (YN, ZN) - assumed 10^7 cycles (unity for moderate life)
     YN, ZN = 1.0, 1.0
     KT, KR = 1.0, 1.0   # temperature, reliability (90%)
 
@@ -192,7 +192,7 @@ def _vbelt(power_kW: float, n_driver_rpm: float, n_driven_rpm: float,
         C_theta = 0.69 + (theta_s - 90)  / 30 * 0.13
 
     # Design power per belt from section rating (linear approximation)
-    # Pd_belt ≈ Pd_max × (n_driver / 3000)^0.5  — simplified for demonstration
+    # Pd_belt ≈ Pd_max × (n_driver / 3000)^0.5  - simplified for demonstration
     P_belt_kW = bd["Pd_max_kW"] * math.sqrt(n_driver_rpm / 3000) * C_theta
     P_belt_kW = max(P_belt_kW, 0.1)
 
@@ -274,7 +274,7 @@ def _chain_drive(power_kW: float, n_driver_rpm: float, n_driven_rpm: float,
 
 
 def calculate(inputs: dict) -> dict:
-    """Main entry point — compatible with TypeScript calcGearBeltDrive() keys."""
+    """Main entry point - compatible with TypeScript calcGearBeltDrive() keys."""
     drive_type    = str  (inputs.get("drive_type",    "Spur Gear"))   # Spur Gear / V-Belt / Chain
     power_kW      = float(inputs.get("power_kW",     10.0))
     n_driver_rpm  = float(inputs.get("n_driver_rpm", 1450))

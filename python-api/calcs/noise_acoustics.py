@@ -1,11 +1,11 @@
 """
-Noise / Acoustics — Phase 9c
-Standards: ISO 9613-2:1996 (Attenuation of sound — outdoor propagation),
+Noise / Acoustics - Phase 9c
+Standards: ISO 9613-2:1996 (Attenuation of sound - outdoor propagation),
            OSHA 29 CFR 1910.95 (Occupational noise exposure),
            DOLE D.O. 13 Series of 1998 (Philippines occupational noise limits),
            IEC 61672-1 (Sound level meters),
            ASHRAE 2019 Fundamentals Ch.8 (Noise and vibration),
-           NC (Noise Criteria) curves — ASHRAE RP-1126
+           NC (Noise Criteria) curves - ASHRAE RP-1126
 Libraries: math (all formulas closed-form)
 
 Methods:
@@ -16,7 +16,7 @@ Methods:
   Room acoustics: L_room = Lw + 10 log10(Q/(4πr²) + 4/R)
                   R = α S / (1 − α)  (room constant)
   NC curve: from octave band SPL → NC rating (ASHRAE)
-  Dose / TWA: OSHA / DOLE — action level 85 dBA, limit 90 dBA (8 hr TWA)
+  Dose / TWA: OSHA / DOLE - action level 85 dBA, limit 90 dBA (8 hr TWA)
 """
 
 import math
@@ -139,7 +139,7 @@ def _room_spl(Lw_dB: float, r_m: float, Q: float,
 def _barrier_il(d_s: float, d_r: float, d_sr: float,
                 h_b: float, freq_Hz: float = 1000) -> float:
     """
-    Barrier insertion loss — Maekawa formula.
+    Barrier insertion loss - Maekawa formula.
     IL = 10 log10(3 + 20 N)   N = 2δ/λ   δ = path diff
     δ = d_s + d_r - d_sr  (path length difference)
     λ = 340 / freq
@@ -186,16 +186,16 @@ def _twa(exposures: list) -> dict:
         "TWA_dBA":      round(TWA, 2),
         "action_level_exceeded": action_level_exceeded,
         "limit_exceeded": limit_exceeded,
-        "status": ("EXCEEDS LIMIT — engineering controls required"
+        "status": ("EXCEEDS LIMIT - engineering controls required"
                    if limit_exceeded else
-                   "EXCEEDS ACTION LEVEL — hearing conservation program required"
+                   "EXCEEDS ACTION LEVEL - hearing conservation program required"
                    if action_level_exceeded else
                    "Within limits"),
     }
 
 
 def calculate(inputs: dict) -> dict:
-    """Main entry point — compatible with TypeScript calcNoiseAcoustics() keys."""
+    """Main entry point - compatible with TypeScript calcNoiseAcoustics() keys."""
     calc_type    = str(inputs.get("calc_type", "Room"))   # Room / Barrier / Dose / NC / Source
 
     results: dict = {"calc_type": calc_type}
@@ -273,7 +273,7 @@ def calculate(inputs: dict) -> dict:
     code_notes = [
         f"Sound power level Lw = {round(Lw_dB,1)} dB → Lp = {round(Lp_dist,1)} dB at {r_m}m.",
         "DOLE D.O. 13: 90 dBA TWA (8 hr) maximum; action level 85 dBA.",
-        "OSHA 29 CFR 1910.95: exchange rate 5 dBA — dose doubles every 5 dBA increase.",
+        "OSHA 29 CFR 1910.95: exchange rate 5 dBA - dose doubles every 5 dBA increase.",
         "Engineering controls preferred over PPE (ISO 11690 hierarchy).",
         "A-weighted dBA used for hearing risk; octave bands used for NC rating.",
         "NC rating: conversational speech intelligibility requires NC ≤ 35 (ASHRAE).",

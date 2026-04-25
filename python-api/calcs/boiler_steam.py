@@ -1,9 +1,9 @@
 """
-Boiler / Steam System — Phase 9d
+Boiler / Steam System - Phase 9d
 Standards: ASME BPVC Section I (Power Boilers),
            ASME BPVC Section IV (Heating Boilers),
            ASME B31.1 (Power Piping),
-           PTC 4 (Performance Test Codes — Fired Steam Generators),
+           PTC 4 (Performance Test Codes - Fired Steam Generators),
            DOLE / BFP Philippines: boiler registration / certificate of inspection,
            Philippine Mechanical Engineering Act (RA 8407)
 Libraries: math (all formulas closed-form)
@@ -114,7 +114,7 @@ BOILER_SHELL_MATERIALS: dict[str, dict] = {
 
 
 def calculate(inputs: dict) -> dict:
-    """Main entry point — compatible with TypeScript calcBoilerSteam() keys."""
+    """Main entry point - compatible with TypeScript calcBoilerSteam() keys."""
     # ── Operating conditions ──────────────────────────────────────────────────
     P_bar          = float(inputs.get("steam_pressure_bar",     10.0))
     T_steam_C      = float(inputs.get("steam_temperature_C",     0.0))  # 0 = saturated
@@ -174,7 +174,7 @@ def calculate(inputs: dict) -> dict:
     dT_fw_eco     = Q_eco_kW / (m_steam_kgs * 4.186) if m_steam_kgs > 0 else 0
     eta_with_eco  = (Q_kW / ((m_fuel_kgs * HHV_MJkg * 1000) - Q_eco_kW)) if (m_fuel_kgs * HHV_MJkg * 1000) > Q_eco_kW else eta_boiler
 
-    # ── Steam piping — minimum wall thickness (ASME B31.1) ───────────────────
+    # ── Steam piping - minimum wall thickness (ASME B31.1) ───────────────────
     pipe_OD_mm    = float(inputs.get("steam_pipe_od_mm",   60.3))   # 2" nom
     mat_pipe_key  = str  (inputs.get("pipe_material",       "SA-192 (fire tube)"))
     mat_pipe      = BOILER_SHELL_MATERIALS.get(mat_pipe_key,
@@ -195,8 +195,8 @@ def calculate(inputs: dict) -> dict:
         f"Steam: {P_bar} bar {'(saturated, ' + str(round(T_sat,1)) + '°C)' if not is_superheated else '(superheated ' + str(round(superheat_C,1)) + '°C SH)'}.",
         f"Enthalpy: h_steam = {round(h_steam,1)} kJ/kg, h_feed = {round(h_feed,1)} kJ/kg.",
         f"Boiler duty: {round(Q_kW,1)} kW ({round(BHP,1)} BHP).",
-        f"Fuel: {fuel_type}, HHV = {HHV_MJkg} MJ/kg — consumption {round(m_fuel_kgh,2)} kg/hr at η={eta_boiler*100:.0f}%.",
-        f"Blowdown: {round(BD_pct,2)}% → {round(m_blowdown_kgs*3600,2)} kg/hr — heat loss {round(Q_blowdown_kW,2)} kW.",
+        f"Fuel: {fuel_type}, HHV = {HHV_MJkg} MJ/kg - consumption {round(m_fuel_kgh,2)} kg/hr at η={eta_boiler*100:.0f}%.",
+        f"Blowdown: {round(BD_pct,2)}% → {round(m_blowdown_kgs*3600,2)} kg/hr - heat loss {round(Q_blowdown_kW,2)} kW.",
         f"Flash steam recovery at {P_flash_bar} bar: x={round(x_flash,4)}, {round(m_flash_kgs*3600,2)} kg/hr ({round(Q_flash_kW,2)} kW).",
         f"Economiser: saves {round(Q_eco_kW,1)} kW (stack {T_flue_in_C}→{T_flue_out_C}°C).",
         f"Steam pipe wall: t_min = {round(t_pipe_mm,3)} mm + {CA_pipe} mm CA → {round(t_pipe_req,3)} mm (ASME B31.1).",

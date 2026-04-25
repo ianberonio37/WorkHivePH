@@ -1,16 +1,16 @@
 """
-Beam / Column Structural Design — Phase 7a
+Beam / Column Structural Design - Phase 7a
 Standards: NSCP 2015 Vol.1 (National Structural Code of the Philippines),
            AISC 360-22 (Steel), ACI 318-19 (Concrete),
            ASCE 7-22 (Loading), ASTM A36 / A992 (Steel), ASTM A615 (Rebar)
 Libraries: math (all formulas closed-form)
 
 Methods:
-  Steel beam:  AISC LRFD — plastic moment Mp = Fy × Zx; shear Vn = 0.6Fy × Aw
-  RC beam:     ACI 318 — Mn = As × fy × (d − a/2); a = As×fy/(0.85×f'c×b)
-  Steel column: AISC — Euler buckling, λc classification, φcPn
-  RC column:   ACI 318 — Pn = 0.85×f'c×(Ag − Ast) + fy×Ast
-  Deflection:  Elastic beam theory — δ = 5wL⁴/(384EI) (UDL), PL³/(48EI) (midpoint)
+  Steel beam:  AISC LRFD - plastic moment Mp = Fy × Zx; shear Vn = 0.6Fy × Aw
+  RC beam:     ACI 318 - Mn = As × fy × (d − a/2); a = As×fy/(0.85×f'c×b)
+  Steel column: AISC - Euler buckling, λc classification, φcPn
+  RC column:   ACI 318 - Pn = 0.85×f'c×(Ag − Ast) + fy×Ast
+  Deflection:  Elastic beam theory - δ = 5wL⁴/(384EI) (UDL), PL³/(48EI) (midpoint)
 """
 
 import math
@@ -40,7 +40,7 @@ REBAR_GRADES: dict[str, dict] = {
     "Grade 60 (ASTM A706)":  {"fy_MPa": 414},
 }
 
-# ─── W-section catalogue (partial — most common Philippine import sizes) ──────
+# ─── W-section catalogue (partial - most common Philippine import sizes) ──────
 # d=depth(mm), bf=flange width(mm), tf=flange thickness(mm), tw=web thickness(mm)
 # Ix=moment of inertia(cm⁴), Sx=elastic section modulus(cm³),
 # Zx=plastic section modulus(cm³), A=area(cm²)
@@ -93,7 +93,7 @@ def _steel_beam(sec: dict, Fy: float, E: float,
 
     phi_Mp = PHI_B * Mp_kNm
 
-    # Shear capacity (Eq. G2-1 — compact web, Cv1=1.0)
+    # Shear capacity (Eq. G2-1 - compact web, Cv1=1.0)
     tw_m   = sec["tw"] / 1000
     d_m    = sec["d"]  / 1000
     Aw     = sec["d"] * sec["tw"] * 1e-6   # m²
@@ -226,7 +226,7 @@ def _rc_column(b_mm: float, h_mm: float,
                bar_dia_mm: float, n_bars: int,
                fc_MPa: float, fy_MPa: float,
                Pu_kN: float) -> dict:
-    """ACI 318-19 §22.4.2 tied rectangular column (pure axial — conservative)."""
+    """ACI 318-19 §22.4.2 tied rectangular column (pure axial - conservative)."""
     Ag_mm2  = b_mm * h_mm
     Ast_mm2 = n_bars * math.pi * (bar_dia_mm / 2) ** 2
     rho_g   = Ast_mm2 / Ag_mm2
@@ -252,7 +252,7 @@ def _rc_column(b_mm: float, h_mm: float,
 
 
 def calculate(inputs: dict) -> dict:
-    """Main entry point — compatible with TypeScript calcBeamColumn() keys."""
+    """Main entry point - compatible with TypeScript calcBeamColumn() keys."""
     member_type   = str(inputs.get("member_type",   "Steel Beam"))   # Steel Beam / RC Beam / Steel Column / RC Column
     span_m        = float(inputs.get("span_m",      6.0))
     Mu_kNm        = float(inputs.get("Mu_kNm",      0.0))

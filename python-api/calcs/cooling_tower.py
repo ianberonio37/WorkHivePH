@@ -1,5 +1,5 @@
 """
-Cooling Tower Sizing — Phase 2c
+Cooling Tower Sizing - Phase 2c
 Standards: CTI STD-201 (Cooling Technology Institute), ASHRAE 2021 Fundamentals Ch.39,
            ASHRAE 90.1, PSME Code, ASME PTC 23
 Libraries: psychrolib (wet-bulb air state), math
@@ -21,8 +21,8 @@ import math
 
 psychrolib.SetUnitSystem(psychrolib.SI)
 
-# ─── Design wet-bulb temperature — Manila (°C) ────────────────────────────────
-# ASHRAE 2021 Fundamentals, Climate Data — Manila design WB = 28°C (99.6% summer)
+# ─── Design wet-bulb temperature - Manila (°C) ────────────────────────────────
+# ASHRAE 2021 Fundamentals, Climate Data - Manila design WB = 28°C (99.6% summer)
 MANILA_DESIGN_WB = 28.0   # °C
 
 # ─── Typical range and approach values for Philippine practice ─────────────────
@@ -102,7 +102,7 @@ PUMP_MOTOR_SIZES_KW  = [0.37, 0.55, 0.75, 1.1, 1.5, 2.2, 3.0, 4.0, 5.5, 7.5,
 
 def calculate(inputs: dict) -> dict:
     """
-    Main entry point — compatible with TypeScript calcCoolingTower() input keys.
+    Main entry point - compatible with TypeScript calcCoolingTower() input keys.
     """
     # ── Inputs ────────────────────────────────────────────────────────────────
     # Accept heat rejection load from multiple source keys
@@ -147,7 +147,7 @@ def calculate(inputs: dict) -> dict:
     pump_eff       = float(inputs.get("pump_efficiency_pct",      70)) / 100
 
     # ── Air inlet psychrometrics ──────────────────────────────────────────────
-    h_air_in = _air_enthalpy_at_wb(wb_design_c)   # J/kg — entering air at WB
+    h_air_in = _air_enthalpy_at_wb(wb_design_c)   # J/kg - entering air at WB
 
     # ── Condenser water flow rate ─────────────────────────────────────────────
     # Q = m_dot * Cp * Range   →   m_dot = Q / (Cp * Range)
@@ -170,13 +170,13 @@ def calculate(inputs: dict) -> dict:
 
     # ── Fan power ─────────────────────────────────────────────────────────────
     # Fan static pressure for cooling tower: typically 150-300 Pa (induced draft)
-    fan_static_pa  = 200   # Pa — typical induced draft tower
+    fan_static_pa  = 200   # Pa - typical induced draft tower
     fan_kw_calc    = (air_vol_m3s * fan_static_pa) / (fan_eff * 1000)
     rec_fan_kw     = next((s for s in TOWER_MOTOR_SIZES_KW if s >= fan_kw_calc),
                           TOWER_MOTOR_SIZES_KW[-1])
     fan_hp         = round(rec_fan_kw * 1.341, 1)
 
-    # ASHRAE 90.1 / CTI efficiency: gpm per fan hp — target ≥ 38 gpm/hp
+    # ASHRAE 90.1 / CTI efficiency: gpm per fan hp - target ≥ 38 gpm/hp
     gpm_per_hp     = flow_gpm / max(fan_hp, 0.01)
     tower_eff_ok   = gpm_per_hp >= 38.0
 
@@ -277,7 +277,7 @@ def calculate(inputs: dict) -> dict:
         "lwt":               t_cold_out_c,
         "wbt":               wb_design_c,
         "approach_c":        round(t_cold_out_c - wb_design_c, 2),
-        "approach_check":    "PASS" if (t_cold_out_c - wb_design_c) >= 3.0 else "WARN — approach < 3°C",
+        "approach_check":    "PASS" if (t_cold_out_c - wb_design_c) >= 3.0 else "WARN - approach < 3°C",
         "lg_ratio":          l_over_g,
         "coc":               cycles_of_conc,
         "n_cells":           1,

@@ -1,9 +1,9 @@
 """
-Pressure Vessel Design — Phase 8c
+Pressure Vessel Design - Phase 8c
 Standards: ASME Boiler and Pressure Vessel Code (BPVC) Section VIII Division 1,
            ASME Section II Part D (Material properties),
            ASME B31.3 (Process Piping, for nozzle connections),
-           PD 5500 (UK unfired pressure vessels — for reference),
+           PD 5500 (UK unfired pressure vessels - for reference),
            DOLE/BOI Philippines: pressure vessel registration required for MAWP > 15 psi
 Libraries: math (all formulas closed-form)
 
@@ -19,7 +19,7 @@ Methods:
 
 import math
 
-# ─── ASME BPVC Sec. II Part D — Allowable stress (MPa) at design temperature ─
+# ─── ASME BPVC Sec. II Part D - Allowable stress (MPa) at design temperature ─
 # S = allowable stress (MPa) at ≤ 300°F (149°C) unless noted
 MATERIALS: dict[str, dict] = {
     "SA-516 Gr.70 (Carbon Steel)":    {"S_MPa": 138, "UTS_MPa": 485, "rho": 7850},
@@ -66,23 +66,23 @@ def _next_std(t_mm: float) -> float:
 
 
 def _shell_thickness(P_MPa: float, R_mm: float, S_MPa: float, E: float) -> float:
-    """ASME VIII-1 UG-27(c)(1) — cylindrical shell minimum thickness (mm)."""
+    """ASME VIII-1 UG-27(c)(1) - cylindrical shell minimum thickness (mm)."""
     return P_MPa * R_mm / (S_MPa * E - 0.6 * P_MPa)
 
 
 def _sphere_thickness(P_MPa: float, R_mm: float, S_MPa: float, E: float) -> float:
-    """ASME VIII-1 UG-27(d) — spherical shell minimum thickness (mm)."""
+    """ASME VIII-1 UG-27(d) - spherical shell minimum thickness (mm)."""
     return P_MPa * R_mm / (2 * S_MPa * E - 0.2 * P_MPa)
 
 
 def _ellipsoidal_head(P_MPa: float, D_mm: float, S_MPa: float, E: float) -> float:
-    """ASME VIII-1 UG-32(d) — 2:1 ellipsoidal head thickness (mm)."""
+    """ASME VIII-1 UG-32(d) - 2:1 ellipsoidal head thickness (mm)."""
     return P_MPa * D_mm / (2 * S_MPa * E - 0.2 * P_MPa)
 
 
 def _torispherical_head(P_MPa: float, D_mm: float, S_MPa: float, E: float) -> float:
     """
-    ASME VIII-1 UG-32(e) — torispherical (ASME flanged and dished) head.
+    ASME VIII-1 UG-32(e) - torispherical (ASME flanged and dished) head.
     t = 0.885 P L / (S E - 0.1 P)   where L = crown radius = D (standard)
     """
     L_mm = D_mm  # crown radius = OD for standard F&D head
@@ -91,12 +91,12 @@ def _torispherical_head(P_MPa: float, D_mm: float, S_MPa: float, E: float) -> fl
 
 def _flat_head(P_MPa: float, d_mm: float, S_MPa: float, E: float,
                C: float = 0.33) -> float:
-    """ASME VIII-1 UG-34(c)(2) — flat head thickness (mm). C=0.33 bolted."""
+    """ASME VIII-1 UG-34(c)(2) - flat head thickness (mm). C=0.33 bolted."""
     return d_mm * C * math.sqrt(P_MPa / (S_MPa * E))
 
 
 def _mawp_cylinder(t_mm: float, R_mm: float, S_MPa: float, E: float) -> float:
-    """MAWP from actual thickness (no CA) — UG-27 rearranged."""
+    """MAWP from actual thickness (no CA) - UG-27 rearranged."""
     return S_MPa * E * t_mm / (R_mm + 0.6 * t_mm)
 
 
@@ -126,7 +126,7 @@ def _nozzle_reinforcement(t_shell_mm: float, d_nozzle_mm: float,
 
 
 def calculate(inputs: dict) -> dict:
-    """Main entry point — compatible with TypeScript calcPressureVessel() keys."""
+    """Main entry point - compatible with TypeScript calcPressureVessel() keys."""
     # ── Design conditions ─────────────────────────────────────────────────────
     P_bar          = float(inputs.get("design_pressure_bar",   10.0))
     P_MPa          = P_bar / 10.0
@@ -205,10 +205,10 @@ def calculate(inputs: dict) -> dict:
     p_psi = P_bar * 14.504
     code_notes = [
         f"Design pressure: {P_bar} bar ({round(p_psi,1)} psi) @ {T_C}°C.",
-        f"Material: {mat_key} — S = {S_MPa} MPa, joint E = {E}.",
+        f"Material: {mat_key} - S = {S_MPa} MPa, joint E = {E}.",
         f"Shell: t_min = {round(t_min_mm,3)} mm + CA {CA_mm} mm → "
         f"t_required = {round(t_required_mm,3)} mm → t_actual = {t_actual_mm} mm (std plate).",
-        f"MAWP at t_actual: {round(mawp_bar,2)} bar — {'PASS' if mawp_bar >= P_bar else 'FAIL'}.",
+        f"MAWP at t_actual: {round(mawp_bar,2)} bar - {'PASS' if mawp_bar >= P_bar else 'FAIL'}.",
         f"Hydrostatic test: {round(P_test_bar,2)} bar (1.3 × MAWP, UG-99b).",
         f"Nozzle {nozzle_dia_mm}mm: reinforcement pad "
         f"{'required' if nozzle_check['reinforcement_pad_required'] else 'NOT required'} (UG-37).",

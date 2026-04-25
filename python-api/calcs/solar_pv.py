@@ -1,5 +1,5 @@
 """
-Solar PV System — Phase 4f
+Solar PV System - Phase 4f
 Standards: IEC 62548:2016 (PV array design requirements),
            IEC 61215 (Module performance testing at STC),
            IEC 62109 (Inverter safety), PAGASA climatological normals,
@@ -27,7 +27,7 @@ Calculates:
 
 import math
 
-# ─── Philippine T_min (°C) — PAGASA climatological normals ───────────────────
+# ─── Philippine T_min (°C) - PAGASA climatological normals ───────────────────
 # IEC 62548: use coldest recorded ambient for Voc_max calculation
 T_MIN_PHILIPPINES: dict[str, float] = {
     "Baguio":        8.0,
@@ -43,7 +43,7 @@ T_MIN_PHILIPPINES: dict[str, float] = {
 }
 T_MIN_DEFAULT = 18.0   # Metro Manila conservative baseline
 
-# ─── Philippine Peak Sun Hours (PSH) by location — PVGIS / PAGASA ────────────
+# ─── Philippine Peak Sun Hours (PSH) by location - PVGIS / PAGASA ────────────
 # PSH = daily solar irradiance (kWh/m2/day) at optimal tilt angle
 PSH_PHILIPPINES: dict[str, float] = {
     "Baguio":        3.8,   # cloud cover reduces PSH
@@ -67,8 +67,8 @@ DEFAULT_MODULE: dict = {
     "Vmp_stc":       41.5,   # V maximum power at STC
     "Isc_stc":       10.2,   # A short-circuit at STC
     "Imp_stc":        9.6,   # A maximum power at STC
-    "tempCoeff_Voc": -0.29,  # %/°C (negative — Voc drops as T rises)
-    "tempCoeff_Pmax": -0.35, # %/°C (negative — power drops as T rises)
+    "tempCoeff_Voc": -0.29,  # %/°C (negative - Voc drops as T rises)
+    "tempCoeff_Pmax": -0.35, # %/°C (negative - power drops as T rises)
     "area_m2":        1.92,  # m² module area (typical 400Wp)
     "efficiency_pct": 20.8,  # % module efficiency
 }
@@ -87,7 +87,7 @@ PERFORMANCE_RATIO = 1 - sum(SYSTEM_LOSSES.values())   # ≈ 0.81
 # ─── NOCT cell temperature correction (IEC 61215) ────────────────────────────
 # T_cell = T_ambient + (NOCT - 20) / 800 × G_irradiance
 # At NOCT (45°C cell temp, 800 W/m2, 20°C ambient, 1 m/s wind)
-NOCT_C = 45.0   # °C — typical for standard modules
+NOCT_C = 45.0   # °C - typical for standard modules
 
 # ─── Off-grid battery sizing ──────────────────────────────────────────────────
 BATT_DOD       = 0.80   # VRLA design DOD
@@ -120,7 +120,7 @@ def _pmax_hot(pmax_w: float, temp_coeff_pct: float, t_cell_hot: float) -> float:
 
 def calculate(inputs: dict) -> dict:
     """
-    Main entry point — compatible with TypeScript calcSolarPV() input keys.
+    Main entry point - compatible with TypeScript calcSolarPV() input keys.
     """
     # ── System parameters ─────────────────────────────────────────────────────
     system_kw    = float(inputs.get("system_kw",     0)
@@ -187,7 +187,7 @@ def calculate(inputs: dict) -> dict:
     roof_area_m2  = array_area_m2 * 1.3
 
     # ── String voltages for safety check ─────────────────────────────────────
-    voc_string_cold = voc_cold * panels_per_string   # Voc at T_min — highest voltage
+    voc_string_cold = voc_cold * panels_per_string   # Voc at T_min - highest voltage
     vmp_string_stc  = vmp_stc  * panels_per_string   # Vmp at STC
 
     # ── Array current ─────────────────────────────────────────────────────────
@@ -202,7 +202,7 @@ def calculate(inputs: dict) -> dict:
     rec_fuse_a   = next((f for f in std_fuses if f >= fuse_min_a and f <= fuse_max_a),
                         std_fuses[-1])
 
-    # ── DC cable sizing (simplified — detailed in Wire Sizing calc) ───────────
+    # ── DC cable sizing (simplified - detailed in Wire Sizing calc) ───────────
     # Max DC current = 1.25 × Isc (IEC 62548 safety factor)
     dc_cable_a   = isc_stc * 1.25 * strings_parallel
 
@@ -211,10 +211,10 @@ def calculate(inputs: dict) -> dict:
     energy_yr_kwh   = energy_day_kwh * 365
     energy_yr_mwh   = energy_yr_kwh / 1000
 
-    # Specific yield (kWh/kWp/yr) — performance benchmark
+    # Specific yield (kWh/kWp/yr) - performance benchmark
     specific_yield  = energy_yr_kwh / max(array_kw_stc, 1)
 
-    # CO2 offset (kg/yr) — Philippine grid emission factor: 0.522 kg CO2/kWh (DOE 2022)
+    # CO2 offset (kg/yr) - Philippine grid emission factor: 0.522 kg CO2/kWh (DOE 2022)
     co2_offset_kg_yr = energy_yr_kwh * 0.522
 
     # ── Inverter sizing ───────────────────────────────────────────────────────

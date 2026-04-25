@@ -1,5 +1,5 @@
 """
-Sewer / Drainage System — Phase 6b
+Sewer / Drainage System - Phase 6b
 Standards: NSCP (National Structural Code of the Philippines) Vol.2 Plumbing,
            PSME Code (Philippine Society of Mechanical Engineers),
            ASPE Data Book Vol.2, IPC (International Plumbing Code) adopted by NSCP,
@@ -183,7 +183,7 @@ def _select_drain_pipe(Q_lps: float, n: float, S: float,
         if Q_full <= 0:
             continue
         # Actual d/D ratio at design flow using ratio Q/Q_full
-        # For Manning partial flow, Q_partial/Q_full ≈ f(d/D) — solve numerically
+        # For Manning partial flow, Q_partial/Q_full ≈ f(d/D) - solve numerically
         # Binary search for d/D
         lo, hi = 0.01, 1.0
         for _ in range(40):
@@ -237,7 +237,7 @@ def _stormwater_flow(roof_area_m2: float, C: float, i_mmhr: float) -> float:
     C = runoff coefficient (roof = 0.90 per NSCP)
     i = rainfall intensity (mm/hr) → L/s/m² = i/3600000
     A = catchment area (m²)
-    Q = C × (i/3600000) × 1000 × A  — simplified: Q_lps = C × i × A / 3600
+    Q = C × (i/3600000) × 1000 × A  - simplified: Q_lps = C × i × A / 3600
     """
     return C * i_mmhr * roof_area_m2 / 3600
 
@@ -245,7 +245,7 @@ def _stormwater_flow(roof_area_m2: float, C: float, i_mmhr: float) -> float:
 # ─── Main calculation ─────────────────────────────────────────────────────────
 
 def calculate(inputs: dict) -> dict:
-    """Main entry point — compatible with TypeScript calcSewerDrainage() keys."""
+    """Main entry point - compatible with TypeScript calcSewerDrainage() keys."""
     # ── Building / system parameters ─────────────────────────────────────────
     building_floors   = int  (inputs.get("building_floors",    5))
     floor_height_m    = float(inputs.get("floor_height_m",     3.5))
@@ -295,7 +295,7 @@ def calculate(inputs: dict) -> dict:
     design_flow_lpm  = design_flow_lps * 60
     design_flow_m3hr = design_flow_lps * 3.6
 
-    # ── Vertical stack sizing (NSCP — DFU method) ─────────────────────────────
+    # ── Vertical stack sizing (NSCP - DFU method) ─────────────────────────────
     # NSCP Table P-803.1: max DFU per stack by pipe size
     STACK_DFU_LIMITS = {
         75:  30, 100: 240, 125: 540, 150: 960, 200: 2200, 250: 3800,
@@ -372,7 +372,7 @@ def calculate(inputs: dict) -> dict:
         "Grease interceptor required (NSCP §P-1017): size per PDC Table G-1 "
         "based on kitchen fixture units and retention time ≥ 2 min."
         if has_grease_trap else
-        "No commercial kitchen fixtures detected — grease trap not required."
+        "No commercial kitchen fixtures detected - grease trap not required."
     )
 
     # ── NSCP compliance notes ─────────────────────────────────────────────────

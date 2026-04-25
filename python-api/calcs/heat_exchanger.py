@@ -1,5 +1,5 @@
 """
-Heat Exchanger Design — Phase 8d
+Heat Exchanger Design - Phase 8d
 Standards: TEMA (Tubular Exchanger Manufacturers Association) 10th Ed.,
            ASME Sec. VIII Div.1 (pressure parts),
            HEDH (Heat Exchanger Design Handbook),
@@ -9,7 +9,7 @@ Libraries: math (all formulas closed-form)
 
 Methods:
   LMTD method:    Q = U × A × F × LMTD
-  NTU-ε method:   ε = f(NTU, Cr) — shell-and-tube, counterflow, crossflow
+  NTU-ε method:   ε = f(NTU, Cr) - shell-and-tube, counterflow, crossflow
   TEMA fouling resistances Rd
   Tube-side and shell-side heat transfer coefficients (Dittus-Boelter / Kern)
   Tube bundle layout, shell diameter estimate
@@ -66,7 +66,7 @@ FLUID_PROPS: dict[str, dict] = {
     "R-134a liquid (10°C)":  {"rho": 1195, "Cp": 1.40, "mu": 2.0e-4,  "k": 0.092, "Pr": 3.1},
 }
 
-# ─── Standard heat exchanger areas (m²) — TEMA ────────────────────────────────
+# ─── Standard heat exchanger areas (m²) - TEMA ────────────────────────────────
 STD_AREAS_M2 = [5, 10, 15, 20, 30, 40, 50, 75, 100, 150, 200, 300, 500]
 
 
@@ -108,7 +108,7 @@ def _ntu_effectiveness(NTU: float, Cr: float, config: str = "Counterflow") -> fl
         exp = math.exp(-NTU * math.sqrt(1 + Cr**2))
         return 2 / (1 + Cr + math.sqrt(1 + Cr**2) * (1 + exp) / (1 - exp))
     else:
-        # Crossflow (both unmixed — approximate)
+        # Crossflow (both unmixed - approximate)
         return 1 - math.exp((NTU**0.22 / Cr) * (math.exp(-Cr * NTU**0.78) - 1))
 
 
@@ -167,7 +167,7 @@ def _overall_U(h_i: float, h_o: float,
 
 
 def calculate(inputs: dict) -> dict:
-    """Main entry point — compatible with TypeScript calcHeatExchanger() keys."""
+    """Main entry point - compatible with TypeScript calcHeatExchanger() keys."""
     # ── Process conditions ────────────────────────────────────────────────────
     Q_kW         = float(inputs.get("duty_kW",           500.0))   # heat duty
 
@@ -292,10 +292,10 @@ def calculate(inputs: dict) -> dict:
         f"A_required = {round(A_req_m2,2)} m² → recommended standard size {A_std_m2} m².",
         f"n_tubes ≈ {n_tubes} × {d_o_mm}mm OD × {tube_length_m}m (estimated).",
         f"Estimated shell ID ≈ {round(Ds_est_mm,0)} mm (triangular pitch {round(pitch_mm,1)}mm).",
-        f"Tube-side Re = {tube_h_data['Re']} ({'LAMINAR — use Sieder-Tate' if tube_h_data['laminar'] else 'turbulent — Dittus-Boelter'}).",
+        f"Tube-side Re = {tube_h_data['Re']} ({'LAMINAR - use Sieder-Tate' if tube_h_data['laminar'] else 'turbulent - Dittus-Boelter'}).",
         f"NTU = {round(NTU,3)}, ε = {round(epsilon,3)}, Cr = {round(Cr,3)}.",
-        "TEMA class R (severe service) or C (general) — specify on data sheet.",
-        "Heat balance check: " + ('PASS' if heat_balance_ok else 'WARN — hot/cold duties differ > 10%'),
+        "TEMA class R (severe service) or C (general) - specify on data sheet.",
+        "Heat balance check: " + ('PASS' if heat_balance_ok else 'WARN - hot/cold duties differ > 10%'),
     ]
 
     return {

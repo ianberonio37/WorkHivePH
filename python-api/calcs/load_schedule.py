@@ -1,5 +1,5 @@
 """
-Load Schedule — Phase 4c
+Load Schedule - Phase 4c
 Standards: PEC 2017 (Philippine Electrical Code), NEC 2020,
            IEEE 141 (Red Book), DOLE/OSHC, PEEP (Philippine Energy Efficiency)
 Libraries: math (all formulas closed-form)
@@ -20,19 +20,19 @@ Calculates:
 
 import math
 
-# ─── Demand factors by load type — NEC Article 220 / PEC 2017 ────────────────
+# ─── Demand factors by load type - NEC Article 220 / PEC 2017 ────────────────
 DEMAND_FACTORS: dict[str, float] = {
-    "Lighting":          1.00,   # NEC 220.12 — lighting at 100%
-    "Receptacle":        0.50,   # NEC 220.14(I) — general purpose receptacles
-    "HVAC":              1.00,   # NEC 220.60 — largest HVAC at 100% (cooling)
-    "Motor":             1.25,   # NEC 430.24 — largest motor × 125% (added to rest)
+    "Lighting":          1.00,   # NEC 220.12 - lighting at 100%
+    "Receptacle":        0.50,   # NEC 220.14(I) - general purpose receptacles
+    "HVAC":              1.00,   # NEC 220.60 - largest HVAC at 100% (cooling)
+    "Motor":             1.25,   # NEC 430.24 - largest motor × 125% (added to rest)
     "Motor (other)":     1.00,   # remaining motors at 100%
     "Equipment":         1.00,   # fixed equipment at 100%
     "Server / UPS":      1.00,   # IT loads at 100%
-    "Elevator":          1.00,   # PEC 620 — at nameplate current
-    "Welding":           0.40,   # NEC 630 — intermittent / diversity
-    "Kitchen":           0.65,   # NEC 220.56 — commercial kitchen
-    "Spare":             0.00,   # spare circuits — no load assumed
+    "Elevator":          1.00,   # PEC 620 - at nameplate current
+    "Welding":           0.40,   # NEC 630 - intermittent / diversity
+    "Kitchen":           0.65,   # NEC 220.56 - commercial kitchen
+    "Spare":             0.00,   # spare circuits - no load assumed
 }
 
 # ─── Typical power factors by load type ───────────────────────────────────────
@@ -56,7 +56,7 @@ BREAKER_SIZES = [15, 20, 25, 30, 40, 50, 60, 70, 80, 100, 125, 150,
                  700, 800, 1000, 1200, 1600, 2000, 2500, 3000]
 
 # ─── PEC 2017 panel loading limit ────────────────────────────────────────────
-PANEL_LOADING_LIMIT_PCT = 80   # % — demand load must not exceed 80% of panel rating
+PANEL_LOADING_LIMIT_PCT = 80   # % - demand load must not exceed 80% of panel rating
 
 
 def _next_breaker(amps: float) -> int:
@@ -72,13 +72,13 @@ def _phase_label(phase_idx: int, phases: int) -> str:
 
 def calculate(inputs: dict) -> dict:
     """
-    Main entry point — compatible with TypeScript calcLoadSchedule() input keys.
+    Main entry point - compatible with TypeScript calcLoadSchedule() input keys.
 
     inputs["loads"] = list of load items:
       {
         "name":          str,
         "qty":           int,
-        "watts_each":    float,   # real power per unit (W) — already watts, not kVA
+        "watts_each":    float,   # real power per unit (W) - already watts, not kVA
         "load_type":     str,     # key in DEMAND_FACTORS
         "power_factor":  float,   # optional; defaults to LOAD_PF[load_type]
         "demand_factor": float,   # optional; overrides DEMAND_FACTORS[load_type]
@@ -119,7 +119,7 @@ def calculate(inputs: dict) -> dict:
     phase_kW = [0.0, 0.0, 0.0]
     circuit_counter = 1
 
-    largest_motor_kW = 0.0   # NEC 430.24 — track for 125% rule
+    largest_motor_kW = 0.0   # NEC 430.24 - track for 125% rule
 
     for i, load in enumerate(raw_loads):
         name        = str  (load.get("name",        f"Load {i+1}"))
@@ -132,7 +132,7 @@ def calculate(inputs: dict) -> dict:
         ckt_phases  = int  (load.get("phases",            1))
         ckt_no      = str  (load.get("circuit_no",        str(circuit_counter)))
 
-        # SKILL RULE: watts_each is already real power — do not multiply by PF
+        # SKILL RULE: watts_each is already real power - do not multiply by PF
         connected_kW = qty * watts_each / 1000
 
         # Demand factor
@@ -157,7 +157,7 @@ def calculate(inputs: dict) -> dict:
         else:
             current_a = demand_kVA * 1000 / ckt_voltage
 
-        # Circuit breaker (NEC 240.4 — 125% for continuous loads)
+        # Circuit breaker (NEC 240.4 - 125% for continuous loads)
         breaker_a = _next_breaker(current_a * 1.25)
 
         # Phase assignment (auto-distribute for 3-ph panel)
@@ -191,7 +191,7 @@ def calculate(inputs: dict) -> dict:
         })
         circuit_counter += 1
 
-    # ── NEC 430.24 — add 25% of largest motor to demand ──────────────────────
+    # ── NEC 430.24 - add 25% of largest motor to demand ──────────────────────
     motor_adder_kW = largest_motor_kW * 0.25   # extra 25% of largest motor
     total_demand_kW += motor_adder_kW
     pf_panel = total_demand_kW / max(total_demand_kVA, 0.001)

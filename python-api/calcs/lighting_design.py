@@ -1,8 +1,8 @@
 """
-Lighting Design — Phase 7b
+Lighting Design - Phase 7b
 Standards: IESNA (Illuminating Engineering Society of North America) Handbook 10th Ed.,
            IES RP-1 (Offices), IES RP-7 (Industrial), IES RP-28 (Parking),
-           PEC 2017 (Philippine Electrical Code — Part 1, Article 220),
+           PEC 2017 (Philippine Electrical Code - Part 1, Article 220),
            ASHRAE 90.1-2019 (Lighting Power Density limits),
            DOLE D.O. 13 (PH illumination requirements for workplaces)
 Libraries: math (all formulas closed-form)
@@ -18,8 +18,8 @@ import math
 
 # ─── IES / DOLE illuminance targets (lux) ────────────────────────────────────
 ILLUMINANCE_TARGETS: dict[str, dict] = {
-    "Office — general":           {"lux": 500,  "UGR_max": 19, "Ra_min": 80},
-    "Office — computer task":     {"lux": 300,  "UGR_max": 19, "Ra_min": 80},
+    "Office - general":           {"lux": 500,  "UGR_max": 19, "Ra_min": 80},
+    "Office - computer task":     {"lux": 300,  "UGR_max": 19, "Ra_min": 80},
     "Conference room":            {"lux": 500,  "UGR_max": 19, "Ra_min": 80},
     "Corridor / Hallway":         {"lux": 100,  "UGR_max": 28, "Ra_min": 60},
     "Staircase":                  {"lux": 150,  "UGR_max": 28, "Ra_min": 60},
@@ -27,18 +27,18 @@ ILLUMINANCE_TARGETS: dict[str, dict] = {
     "Lobby / Reception":          {"lux": 300,  "UGR_max": 22, "Ra_min": 80},
     "Classroom":                  {"lux": 500,  "UGR_max": 19, "Ra_min": 80},
     "Library":                    {"lux": 500,  "UGR_max": 19, "Ra_min": 80},
-    "Hospital — ward":            {"lux": 200,  "UGR_max": 19, "Ra_min": 90},
-    "Hospital — examination":     {"lux": 1000, "UGR_max": 16, "Ra_min": 90},
-    "Hospital — operating":       {"lux": 10000,"UGR_max": 10, "Ra_min": 90},
-    "Retail — general":           {"lux": 500,  "UGR_max": 22, "Ra_min": 80},
-    "Retail — display":           {"lux": 1000, "UGR_max": 19, "Ra_min": 90},
-    "Warehouse — general":        {"lux": 100,  "UGR_max": 25, "Ra_min": 60},
-    "Warehouse — picking":        {"lux": 300,  "UGR_max": 25, "Ra_min": 60},
-    "Manufacturing — fine work":  {"lux": 1000, "UGR_max": 16, "Ra_min": 80},
-    "Manufacturing — rough work": {"lux": 200,  "UGR_max": 25, "Ra_min": 60},
-    "Parking — covered":          {"lux": 50,   "UGR_max": 28, "Ra_min": 60},
-    "Parking — open":             {"lux": 30,   "UGR_max": 28, "Ra_min": 60},
-    "Kitchen — commercial":       {"lux": 500,  "UGR_max": 25, "Ra_min": 80},
+    "Hospital - ward":            {"lux": 200,  "UGR_max": 19, "Ra_min": 90},
+    "Hospital - examination":     {"lux": 1000, "UGR_max": 16, "Ra_min": 90},
+    "Hospital - operating":       {"lux": 10000,"UGR_max": 10, "Ra_min": 90},
+    "Retail - general":           {"lux": 500,  "UGR_max": 22, "Ra_min": 80},
+    "Retail - display":           {"lux": 1000, "UGR_max": 19, "Ra_min": 90},
+    "Warehouse - general":        {"lux": 100,  "UGR_max": 25, "Ra_min": 60},
+    "Warehouse - picking":        {"lux": 300,  "UGR_max": 25, "Ra_min": 60},
+    "Manufacturing - fine work":  {"lux": 1000, "UGR_max": 16, "Ra_min": 80},
+    "Manufacturing - rough work": {"lux": 200,  "UGR_max": 25, "Ra_min": 60},
+    "Parking - covered":          {"lux": 50,   "UGR_max": 28, "Ra_min": 60},
+    "Parking - open":             {"lux": 30,   "UGR_max": 28, "Ra_min": 60},
+    "Kitchen - commercial":       {"lux": 500,  "UGR_max": 25, "Ra_min": 80},
     "Dining area":                {"lux": 200,  "UGR_max": 22, "Ra_min": 80},
     "Emergency egress":           {"lux": 10,   "UGR_max": 35, "Ra_min": 40},
 }
@@ -46,8 +46,8 @@ ILLUMINANCE_TARGETS: dict[str, dict] = {
 # ─── ASHRAE 90.1-2019 Lighting Power Density (W/m²) ──────────────────────────
 # Table 9.6.1 Space-by-space method
 ASHRAE_LPD: dict[str, float] = {
-    "Office — general":           11.0,
-    "Office — computer task":      8.5,
+    "Office - general":           11.0,
+    "Office - computer task":      8.5,
     "Conference room":            13.7,
     "Corridor / Hallway":          5.4,
     "Staircase":                   6.5,
@@ -55,18 +55,18 @@ ASHRAE_LPD: dict[str, float] = {
     "Lobby / Reception":           9.7,
     "Classroom":                  13.9,
     "Library":                    14.1,
-    "Hospital — ward":             9.4,
-    "Hospital — examination":     18.4,
-    "Hospital — operating":       23.7,
-    "Retail — general":           14.5,
-    "Retail — display":           18.0,
-    "Warehouse — general":         6.6,
-    "Warehouse — picking":         9.0,
-    "Manufacturing — fine work":  20.4,
-    "Manufacturing — rough work": 12.6,
-    "Parking — covered":           2.7,
-    "Parking — open":              1.5,
-    "Kitchen — commercial":       12.5,
+    "Hospital - ward":             9.4,
+    "Hospital - examination":     18.4,
+    "Hospital - operating":       23.7,
+    "Retail - general":           14.5,
+    "Retail - display":           18.0,
+    "Warehouse - general":         6.6,
+    "Warehouse - picking":         9.0,
+    "Manufacturing - fine work":  20.4,
+    "Manufacturing - rough work": 12.6,
+    "Parking - covered":           2.7,
+    "Parking - open":              1.5,
+    "Kitchen - commercial":       12.5,
     "Dining area":                11.0,
     "Emergency egress":            1.0,
 }
@@ -149,7 +149,7 @@ def _llf(
 
 
 def calculate(inputs: dict) -> dict:
-    """Main entry point — compatible with TypeScript calcLightingDesign() keys."""
+    """Main entry point - compatible with TypeScript calcLightingDesign() keys."""
     # ── Room parameters ───────────────────────────────────────────────────────
     room_length_m   = float(inputs.get("room_length_m",  10.0))
     room_width_m    = float(inputs.get("room_width_m",    8.0))
@@ -158,7 +158,9 @@ def calculate(inputs: dict) -> dict:
     luminaire_height_m = float(inputs.get("luminaire_height_m",
                                            room_height_m))         # mounting height
 
-    space_type      = str(inputs.get("space_type", "Office — general"))
+    space_type      = str(inputs.get("space_type", "Office - general"))
+    # Normalize: frontend may still send em dash versions — convert to hyphen for lookup
+    space_type = space_type.replace('—', '-').replace('–', '-')
     target_lux      = float(inputs.get("target_lux",
                               ILLUMINANCE_TARGETS.get(space_type, {}).get("lux", 500)))
 
@@ -229,18 +231,18 @@ def calculate(inputs: dict) -> dict:
     # ── Standards compliance notes ────────────────────────────────────────────
     ies_data = ILLUMINANCE_TARGETS.get(space_type, {})
     code_notes = [
-        f"Space type: {space_type} — target {target_lux} lux (IES RP / DOLE D.O. 13).",
+        f"Space type: {space_type} - target {target_lux} lux (IES RP / DOLE D.O. 13).",
         f"RCR = {round(RCR,2)} → CU = {round(CU,3)} (Ref factors: C={rho_ceiling}, "
         f"W={rho_wall}, F={rho_floor}).",
         f"LLF = {round(LLF,3)} (LLD={lld}, LDD=0.90, maintenance={maintenance}).",
         f"Illuminance achieved: {round(E_achieved,0)} lux ({'PASS' if illuminance_ok else 'FAIL'}).",
         f"Spacing-to-MH: x={round(smh_x,2)}, y={round(smh_y,2)} "
-        f"({'PASS' if spacing_ok else 'WARN: exceeds 1.5 S/MH — add fixtures'}).",
+        f"({'PASS' if spacing_ok else 'WARN: exceeds 1.5 S/MH - add fixtures'}).",
         f"LPD: {round(lpd_actual,2)} W/m² vs ASHRAE 90.1-2019 limit {lpd_limit} W/m² "
-        f"({'PASS' if lpd_ok else 'FAIL — exceeds energy code'}).",
-        f"UGR limit for space: {ies_data.get('UGR_max','—')} (verify with manufacturer photometry).",
-        f"Minimum CRI (Ra): {ies_data.get('Ra_min','—')} — specify on luminaire schedule.",
-        "Emergency lighting: NSCP §E-1 / IES RP-2 — egress paths require ≥ 10 lux.",
+        f"({'PASS' if lpd_ok else 'FAIL - exceeds energy code'}).",
+        f"UGR limit for space: {ies_data.get('UGR_max','-')} (verify with manufacturer photometry).",
+        f"Minimum CRI (Ra): {ies_data.get('Ra_min','-')} - specify on luminaire schedule.",
+        "Emergency lighting: NSCP §E-1 / IES RP-2 - egress paths require ≥ 10 lux.",
     ]
 
     return {

@@ -1,10 +1,10 @@
 """
-Vibration Analysis — Phase 9a
-Standards: ISO 10816-3 (Vibration severity — industrial machines),
+Vibration Analysis - Phase 9a
+Standards: ISO 10816-3 (Vibration severity - industrial machines),
            ISO 10816-1 (General guidelines),
            ISO 20816-1:2016 (supersedes 10816-1),
            ANSI S2.19 (Mechanical vibration),
-           Rao's Mechanical Vibrations (6th Ed.) — theory
+           Rao's Mechanical Vibrations (6th Ed.) - theory
 Libraries: math (all formulas closed-form)
 
 Methods:
@@ -27,10 +27,10 @@ import math
 # Class IV: large machines > 300 kW on soft/flexible foundation
 ISO10816_ZONES: dict[str, dict] = {
     "Class I (≤15 kW)": {
-        "A_mm_s": 0.71,   # New machines — good
+        "A_mm_s": 0.71,   # New machines - good
         "B_mm_s": 1.80,   # Acceptable for long-term operation
         "C_mm_s": 4.50,   # Acceptable short-term only
-        "D_mm_s": 99.0,   # Danger — immediate action
+        "D_mm_s": 99.0,   # Danger - immediate action
     },
     "Class II (15–300 kW, rigid foundation)": {
         "A_mm_s": 1.12,
@@ -55,10 +55,10 @@ ISO10816_ZONES: dict[str, dict] = {
 # ─── ISO 10816-3 evaluation zones ────────────────────────────────────────────
 def _iso_zone(v_rms_mm_s: float, machine_class: str) -> str:
     zones = ISO10816_ZONES.get(machine_class, ISO10816_ZONES["Class II (15–300 kW, rigid foundation)"])
-    if v_rms_mm_s <= zones["A_mm_s"]:  return "Zone A — New machine (acceptable)"
-    if v_rms_mm_s <= zones["B_mm_s"]:  return "Zone B — Long-term operation (acceptable)"
-    if v_rms_mm_s <= zones["C_mm_s"]:  return "Zone C — Short-term only (investigate)"
-    return "Zone D — DANGER — immediate shutdown"
+    if v_rms_mm_s <= zones["A_mm_s"]:  return "Zone A - New machine (acceptable)"
+    if v_rms_mm_s <= zones["B_mm_s"]:  return "Zone B - Long-term operation (acceptable)"
+    if v_rms_mm_s <= zones["C_mm_s"]:  return "Zone C - Short-term only (investigate)"
+    return "Zone D - DANGER - immediate shutdown"
 
 # ─── Common spring stiffness (N/m) for reference ─────────────────────────────
 VIBRATION_ISOLATORS: dict[str, dict] = {
@@ -132,7 +132,7 @@ def _rotating_imbalance(mass_kg: float, m_e_kg: float, e_mm: float,
 
 
 def calculate(inputs: dict) -> dict:
-    """Main entry point — compatible with TypeScript calcVibrationAnalysis() keys."""
+    """Main entry point - compatible with TypeScript calcVibrationAnalysis() keys."""
     # ── Machine parameters ────────────────────────────────────────────────────
     mass_kg         = float(inputs.get("mass_kg",          500.0))
     speed_rpm       = float(inputs.get("speed_rpm",        1450.0))
@@ -193,12 +193,12 @@ def calculate(inputs: dict) -> dict:
     # ── Balancing grade (ISO 21940-11 / ISO 1940) ────────────────────────────
     # G = e_mm × ω (mm/s = eccentricity × angular speed)
     G_grade = e_mm * omega_op / 1000   # m/s → mm/s for G number
-    if G_grade <= 0.4:    balance_grade = "G0.4 (precision balance — turbine rotors)"
-    elif G_grade <= 1.0:  balance_grade = "G1 (high precision — turbines, pumps)"
-    elif G_grade <= 2.5:  balance_grade = "G2.5 (normal — fans, compressors)"
-    elif G_grade <= 6.3:  balance_grade = "G6.3 (general industry — motors, pumps)"
-    elif G_grade <= 16:   balance_grade = "G16 (rough — farm machinery)"
-    else:                 balance_grade = "G40+ (very rough — crankshafts)"
+    if G_grade <= 0.4:    balance_grade = "G0.4 (precision balance - turbine rotors)"
+    elif G_grade <= 1.0:  balance_grade = "G1 (high precision - turbines, pumps)"
+    elif G_grade <= 2.5:  balance_grade = "G2.5 (normal - fans, compressors)"
+    elif G_grade <= 6.3:  balance_grade = "G6.3 (general industry - motors, pumps)"
+    elif G_grade <= 16:   balance_grade = "G16 (rough - farm machinery)"
+    else:                 balance_grade = "G40+ (very rough - crankshafts)"
 
     return {
         # SDOF

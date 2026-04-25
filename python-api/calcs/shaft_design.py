@@ -1,5 +1,5 @@
 """
-Shaft Design — Phase 8a
+Shaft Design - Phase 8a
 Standards: ASME B106.1M (Design of Transmission Shafting),
            ASME B17.1 (Keys and Keyseats),
            Shigley's Mechanical Engineering Design (10th Ed.),
@@ -38,7 +38,7 @@ SURFACE_FACTORS: dict[str, dict] = {
     "Forged":             {"a": 272.0, "b": -0.995},
 }
 
-# ─── Stress concentration factors (Kf) — typical values (Shigley's Fig 6-20) ─
+# ─── Stress concentration factors (Kf) - typical values (Shigley's Fig 6-20) ─
 # Kf for bending; Kfs = 0.577×Kf for torsion (distortion energy)
 STRESS_CONC: dict[str, dict] = {
     "Shoulder fillet (r/d=0.02)":  {"Kf": 2.7, "Kfs": 2.2},
@@ -65,7 +65,7 @@ RHO_STEEL = 7850.0
 def _endurance_limit(mat: dict, surface: str, d_mm: float,
                      reliability_pct: float = 90.0) -> float:
     """
-    Modified endurance limit Se (MPa) — Shigley's Eq. 6-18.
+    Modified endurance limit Se (MPa) - Shigley's Eq. 6-18.
     Se = ka × kb × kc × kd × ke × Se'
     Se' = 0.5 × Sut (for steel, Sut ≤ 1400 MPa)
     """
@@ -157,7 +157,7 @@ def _goodman(d_mm: float, Ma_Nm: float, Mm_Nm: float,
 
 
 def calculate(inputs: dict) -> dict:
-    """Main entry point — compatible with TypeScript calcShaftDesign() keys."""
+    """Main entry point - compatible with TypeScript calcShaftDesign() keys."""
     # ── Loads ─────────────────────────────────────────────────────────────────
     power_kW     = float(inputs.get("power_kW",     10.0))
     speed_rpm    = float(inputs.get("speed_rpm",    1450))
@@ -172,7 +172,7 @@ def calculate(inputs: dict) -> dict:
     # M_midspan = F × L / 4 (point load at midspan)
     M_Nm = radial_load_N * span_m / 4
 
-    # Mean + alternating components (fully reversed bending, steady torque — Shigley's)
+    # Mean + alternating components (fully reversed bending, steady torque - Shigley's)
     Ma_Nm = M_Nm     # fully reversed bending → Ma = M, Mm = 0
     Mm_Nm = 0.0
     Ta_Nm = 0.0      # steady torque → Tm = T, Ta = 0
@@ -201,7 +201,7 @@ def calculate(inputs: dict) -> dict:
     # ── Minimum diameter from DE-Goodman (Shigley's Eq. 6-42 rearranged) ─────
     # d³ = (16 n / π) × √[(Kf Ma/Se)² + ¾(Kfs Ta/Se)²]^0.5
     #       + [(Kf Mm/Sut)² + ¾(Kfs Tm/Sut)²]^0.5  ... rearranged
-    # Simplified: solve iteratively — d from combined amplitude
+    # Simplified: solve iteratively - d from combined amplitude
     Sut = mat["Sut_MPa"]
     Ma_f   = Kf  * abs(Ma_Nm)  * 1000   # N·mm
     Ta_f   = Kfs * abs(Ta_Nm)  * 1000
@@ -229,11 +229,11 @@ def calculate(inputs: dict) -> dict:
     E_Pa  = mat["E_GPa"] * 1e9
     r_m   = d_used / 2000
     I_m4  = math.pi * r_m**4 / 4
-    # δ_max = FL³/(48EI) — point load at midspan
+    # δ_max = FL³/(48EI) - point load at midspan
     delta_mm = (radial_load_N * span_m**3 / (48 * E_Pa * I_m4)) * 1000 if span_m > 0 else 0
     delta_limit_mm = span_m * 1000 / 3000   # L/3000 typical shaft limit
 
-    # ── Critical speed (Rayleigh-Ritz — simply supported) ─────────────────────
+    # ── Critical speed (Rayleigh-Ritz - simply supported) ─────────────────────
     A_m2  = math.pi * r_m**2
     rho   = RHO_STEEL
     # ωc = (π/L)² × √(EI / ρA)   rad/s

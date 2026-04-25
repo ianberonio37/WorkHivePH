@@ -1,5 +1,5 @@
 """
-FCU Selection — Phase 3b
+FCU Selection - Phase 3b
 Standards: ASHRAE 62.1, ASHRAE 90.1, ASHRAE 2021 Fundamentals Ch.1,
            PSME Code, ARI 440 (Fan Coil Units)
 Libraries: psychrolib (entering wet-bulb state point), math
@@ -38,7 +38,7 @@ FCU_CATALOGUE: list[dict] = [
     {"size": "FCU-4000", "total_kW": 28.0, "sensible_kW": 20.0, "airflow_m3hr": 4000},
 ]
 
-# Chilled water design delta-T — ARI 440 standard
+# Chilled water design delta-T - ARI 440 standard
 CW_DELTA_T = 6.0   # °C  (EWT 7°C → LWT 13°C)
 CW_EWT_C   = 7.0   # °C  entering water temperature (chiller supply)
 CW_LWT_C   = CW_EWT_C + CW_DELTA_T   # 13°C
@@ -48,7 +48,7 @@ RHO_WATER = 999.7   # kg/m³
 CP_WATER  = 4186.0  # J/(kg·K)
 
 # ASHRAE 90.1 FCU fan power density limit
-FAN_POWER_LIMIT_W_LPS = 0.30   # W/(L/s) — FCU integral fan, ASHRAE 90.1 Table 10.8
+FAN_POWER_LIMIT_W_LPS = 0.30   # W/(L/s) - FCU integral fan, ASHRAE 90.1 Table 10.8
 
 # ARI 440 coil face velocity range (m/s)
 FACE_VEL_MIN = 1.5
@@ -56,7 +56,7 @@ FACE_VEL_MAX = 2.8
 FACE_VEL_STD = 2.0   # standard ARI rating face velocity
 
 # ─── Fan efficiency for FCU (small centrifugal / cross-flow) ─────────────────
-FCU_FAN_EFF  = 0.45   # lower than AHU — compact scroll/cross-flow fan
+FCU_FAN_EFF  = 0.45   # lower than AHU - compact scroll/cross-flow fan
 FCU_MOTOR_EFF = 0.85
 
 
@@ -76,7 +76,7 @@ def _coil_ewb(room_db: float, room_rh: float) -> tuple[float, float, float]:
 
 def _leaving_air_state(supply_db: float) -> tuple[float, float, float]:
     """
-    Leaving air state — assume near-saturation off coil (RH ~95%).
+    Leaving air state - assume near-saturation off coil (RH ~95%).
     Returns (wb_c, w_kgkg, h_Jkg).
     """
     try:
@@ -90,7 +90,7 @@ def _leaving_air_state(supply_db: float) -> tuple[float, float, float]:
 
 def calculate(inputs: dict) -> dict:
     """
-    Main entry point — compatible with TypeScript calcFCUSelection() input keys.
+    Main entry point - compatible with TypeScript calcFCUSelection() input keys.
     Accepts pre-calculated load (q_sensible_w, q_latent_w) or raw room parameters.
     """
     # ── Room load inputs ──────────────────────────────────────────────────────
@@ -152,7 +152,7 @@ def calculate(inputs: dict) -> dict:
     room_vol = floor_area * ceiling_h
     ach      = flow_m3hr / max(room_vol, 1)
 
-    # ── FCU selection — smallest unit that covers total load with margin ───────
+    # ── FCU selection - smallest unit that covers total load with margin ───────
     q_design_kw = q_total_w * (1 + design_margin / 100) / 1000
     selected    = None
     for unit in FCU_CATALOGUE:
@@ -191,7 +191,7 @@ def calculate(inputs: dict) -> dict:
     face_vel_actual = unit_flow_m3s / max(coil_area_m2, 0.01)
 
     # ── Fan power ─────────────────────────────────────────────────────────────
-    # FCU fans — low static, ~50-80 Pa external
+    # FCU fans - low static, ~50-80 Pa external
     fcu_static_pa  = 60.0   # Pa typical FCU fan ESP
     fan_kw         = (unit_flow_m3s * fcu_static_pa) / (FCU_FAN_EFF * FCU_MOTOR_EFF * 1000)
     flow_lps       = unit_flow_m3s * 1000

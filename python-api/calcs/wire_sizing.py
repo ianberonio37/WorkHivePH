@@ -1,5 +1,5 @@
 """
-Wire Sizing — Phase 4a
+Wire Sizing - Phase 4a
 Standards: PEC 2017 (Philippine Electrical Code), NEC 2020, IEC 60364-5-52,
            IEC 60228 (conductor cross-sections), DOLE/OSHC
 Libraries: math (all formulas closed-form)
@@ -16,8 +16,8 @@ Calculates:
 
 import math
 
-# ─── PEC 2017 Table 310.15(B)(16) — Cu THHN/THWN at 75°C, ≤3 in conduit ─────
-# (ampacity, mm²)  — Philippine standard cable sizes
+# ─── PEC 2017 Table 310.15(B)(16) - Cu THHN/THWN at 75°C, ≤3 in conduit ─────
+# (ampacity, mm²)  - Philippine standard cable sizes
 AMPACITY_TABLE: list[dict] = [
     {"mm2":   2.0, "ampacity":  18},
     {"mm2":   3.5, "ampacity":  25},
@@ -40,7 +40,7 @@ AMPACITY_TABLE: list[dict] = [
     {"mm2": 500.0, "ampacity": 620},
 ]
 
-# ─── Temperature correction factors — PEC 2017 Table 310.15(B)(2)(a) ─────────
+# ─── Temperature correction factors - PEC 2017 Table 310.15(B)(2)(a) ─────────
 # For 75°C rated conductors (THHN/THWN-2)
 TEMP_CORRECTION: list[dict] = [
     {"max_c": 30, "factor": 1.00},
@@ -54,7 +54,7 @@ TEMP_CORRECTION: list[dict] = [
     {"max_c": 75, "factor": 0.00},   # conductor at limit
 ]
 
-# ─── Conduit fill correction — PEC 2017 Table 310.15(B)(3)(a) ─────────────────
+# ─── Conduit fill correction - PEC 2017 Table 310.15(B)(3)(a) ─────────────────
 FILL_CORRECTION: list[dict] = [
     {"max_cond": 3,  "factor": 1.00},
     {"max_cond": 6,  "factor": 0.80},
@@ -65,12 +65,12 @@ FILL_CORRECTION: list[dict] = [
     {"max_cond": 999,"factor": 0.35},
 ]
 
-# ─── Copper resistivity — temperature corrected ───────────────────────────────
+# ─── Copper resistivity - temperature corrected ───────────────────────────────
 # ρ_cu at 20°C = 1/58 Ω·mm²/m = 0.017241 Ω·mm²/m (IEC 60228)
 # At 75°C: ρ_75 = ρ_20 × (1 + α × (75-20))  α=0.00393 /°C
 RHO_CU_75C = (1 / 58) * (1 + 0.00393 * (75 - 20))   # ≈ 0.02097 Ω·mm²/m
 
-# ─── Cable reactance at 50 Hz (Ω/km) — PEC / IEC 60364 (from skill) ──────────
+# ─── Cable reactance at 50 Hz (Ω/km) - PEC / IEC 60364 (from skill) ──────────
 # Linear interpolation for sizes not in table
 REACTANCE_TABLE: list[dict] = [
     {"mm2":  14, "X_km": 0.085},
@@ -181,7 +181,7 @@ def _select_wire(
 
 def calculate(inputs: dict) -> dict:
     """
-    Main entry point — compatible with TypeScript calcWireSizing() input keys.
+    Main entry point - compatible with TypeScript calcWireSizing() input keys.
     """
     # ── Load inputs ───────────────────────────────────────────────────────────
     load_kw      = float(inputs.get("load_kw",         0))
@@ -259,8 +259,8 @@ def calculate(inputs: dict) -> dict:
     min_breaker = sizing_current
     breaker_a = next((b for b in BREAKER_SIZES if b >= min_breaker), BREAKER_SIZES[-1])
 
-    # ── Conduit size (rough guide — PEC Table C.1, 40% fill) ─────────────────
-    # Conduit ID needed = √(n × conductor_OD² / 0.40) — simplified with OD estimate
+    # ── Conduit size (rough guide - PEC Table C.1, 40% fill) ─────────────────
+    # Conduit ID needed = √(n × conductor_OD² / 0.40) - simplified with OD estimate
     # OD estimate for THHN in mm²: OD ≈ 1.4 × √(mm2) mm (rough rule of thumb)
     cond_od_mm = 1.4 * math.sqrt(governing_mm2)
     cond_area_req = num_cond * math.pi * (cond_od_mm / 2) ** 2 / 0.40   # mm² at 40% fill
@@ -348,5 +348,5 @@ def calculate(inputs: dict) -> dict:
         "ambient_temp":      ambient_c,
         "demand_multiplier": round(sizing_current / design_current, 3) if design_current > 0 else 1.0,
         "load_current":      round(design_current, 2),
-        "conduit_fill":      f"{num_cond} conductors — fill factor {fill_factor:.2f}",
+        "conduit_fill":      f"{num_cond} conductors - fill factor {fill_factor:.2f}",
     }

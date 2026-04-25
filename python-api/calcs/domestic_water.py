@@ -1,12 +1,12 @@
 """
-Domestic Water System — Phase 6a
+Domestic Water System - Phase 6a
 Standards: PSME Code (Philippine Society of Mechanical Engineers),
            ASHRAE 2021 Fundamentals Ch.50, ASPE Data Book Vol.2,
-           PNS 65 (Philippine National Standard — water supply),
+           PNS 65 (Philippine National Standard - water supply),
            NAMPAP (National Authority for Metropolitan Plumbing)
 Libraries: math (all formulas closed-form)
 
-Method: Hunter's Curve (fixture unit method) — ASPE / PSME Code
+Method: Hunter's Curve (fixture unit method) - ASPE / PSME Code
   WSFUs (Water Supply Fixture Units) → Peak probable flow (L/min)
   Booster pump: TDH = static head + friction losses + residual pressure
   Storage tank: daily demand × storage factor (1/3 day for overhead tank)
@@ -32,7 +32,7 @@ FIXTURE_UNITS: dict[str, dict] = {
     "Floor drain (with trap)":      {"wsfu": 0,  "private": 0,  "lpm_demand": 0},
 }
 
-# ─── Hunter's Curve — WSFU → peak flow (L/min) ────────────────────────────────
+# ─── Hunter's Curve - WSFU → peak flow (L/min) ────────────────────────────────
 # ASPE Data Book Vol.2 Table 1-4 (public system)
 # Approximated by piecewise power curve
 HUNTER_CURVE: list[dict] = [
@@ -53,7 +53,7 @@ def _hunter_flow(wsfu: float) -> float:
     last = HUNTER_CURVE[-1]
     return last["a"] * (wsfu ** last["b"]) * 10
 
-# ─── Pipe roughness — Hazen-Williams C factors ────────────────────────────────
+# ─── Pipe roughness - Hazen-Williams C factors ────────────────────────────────
 HW_C: dict[str, float] = {
     "uPVC":             150,
     "CPVC":             150,
@@ -81,7 +81,7 @@ PIPE_SIZES: list[dict] = [
 # ─── PSME velocity limits for domestic water (m/s) ────────────────────────────
 VELOCITY_LIMITS = {"min": 0.6, "max": 3.0, "ideal": 1.5}
 
-# ─── Per-capita daily demand (L/person/day) — PSME Code ──────────────────────
+# ─── Per-capita daily demand (L/person/day) - PSME Code ──────────────────────
 DAILY_DEMAND: dict[str, float] = {
     "Residential":    200,
     "Office":         50,
@@ -93,7 +93,7 @@ DAILY_DEMAND: dict[str, float] = {
     "Industrial":     80,
 }
 
-# ─── Storage factor (fraction of daily demand) — PSME Code ───────────────────
+# ─── Storage factor (fraction of daily demand) - PSME Code ───────────────────
 # Overhead gravity tank: store 1/3 day (8 hrs)
 # Underground cistern: store 1 full day
 STORAGE_FACTOR = {"overhead": 1/3, "cistern": 1.0}
@@ -130,7 +130,7 @@ def _select_pipe(Q_lpm: float, C: float, L_m: float) -> dict:
 
 
 def calculate(inputs: dict) -> dict:
-    """Main entry point — compatible with TypeScript calcDomesticWater() keys."""
+    """Main entry point - compatible with TypeScript calcDomesticWater() keys."""
     # ── Building parameters ───────────────────────────────────────────────────
     occupancy_type   = str  (inputs.get("occupancy_type",    "Office"))
     num_persons      = float(inputs.get("num_persons",        50))

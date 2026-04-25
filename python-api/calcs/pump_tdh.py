@@ -1,5 +1,5 @@
 """
-Pump Sizing (TDH) — Phase 1
+Pump Sizing (TDH) - Phase 1
 Standards: ISO 9906, PSME Code, ASHRAE 2021 Fundamentals Ch. 22
 Libraries: fluids (Darcy-Weisbach, Colebrook-White), iapws (water properties)
 
@@ -14,7 +14,7 @@ from fluids import friction_factor, Reynolds
 from iapws import IAPWS97
 import math
 
-# ─── Pipe roughness by material (mm) — ASHRAE 2021 Fundamentals Table 2 ───────
+# ─── Pipe roughness by material (mm) - ASHRAE 2021 Fundamentals Table 2 ───────
 PIPE_ROUGHNESS_MM: dict[str, float] = {
     "PVC":             0.0015,
     "Copper":          0.0015,
@@ -26,7 +26,7 @@ PIPE_ROUGHNESS_MM: dict[str, float] = {
     "GI":              0.15,
 }
 
-# ─── Standard pipe inside diameters by nominal size (mm) — PNS / ISO 4427 ────
+# ─── Standard pipe inside diameters by nominal size (mm) - PNS / ISO 4427 ────
 PIPE_ID_MM: dict[float, float] = {
     15:  15.8,   # 1/2"
     20:  20.9,   # 3/4"
@@ -98,7 +98,7 @@ def _friction_head(
 
 def calculate(inputs: dict) -> dict:
     """
-    Main entry point — matches the same input keys used by the TypeScript
+    Main entry point - matches the same input keys used by the TypeScript
     calcPumpSizingTDH() function so the frontend needs zero changes.
     """
     # ── Inputs ────────────────────────────────────────────────────────────────
@@ -131,7 +131,7 @@ def calculate(inputs: dict) -> dict:
     pipe_id_m   = _select_pipe_id(pipe_dia_mm) / 1000   # mm → m
     roughness_m = PIPE_ROUGHNESS_MM.get(pipe_mat, 0.046) / 1000  # mm → m
 
-    # ── Friction head — Darcy-Weisbach + Colebrook-White ─────────────────────
+    # ── Friction head - Darcy-Weisbach + Colebrook-White ─────────────────────
     hf, velocity_ms, Re, f = _friction_head(
         flow_m3s, pipe_id_m, pipe_length_m, roughness_m, rho, mu
     )
@@ -174,13 +174,13 @@ def calculate(inputs: dict) -> dict:
     # ── Velocity status ───────────────────────────────────────────────────────
     velocity_ok = 0.6 <= velocity_ms <= 3.0
     if velocity_ms < 0.6:
-        velocity_zone = "Too Slow — risk of sedimentation"
+        velocity_zone = "Too Slow - risk of sedimentation"
     elif velocity_ms <= 1.5:
-        velocity_zone = "Economical — optimal range"
+        velocity_zone = "Economical - optimal range"
     elif velocity_ms <= 3.0:
-        velocity_zone = "Standard — acceptable"
+        velocity_zone = "Standard - acceptable"
     else:
-        velocity_zone = "High — risk of erosion/noise"
+        velocity_zone = "High - risk of erosion/noise"
 
     # ── System curve data (Q vs TDH sweep 0–150% design flow) ────────────────
     system_curve = []

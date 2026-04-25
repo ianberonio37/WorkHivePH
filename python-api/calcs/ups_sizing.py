@@ -1,5 +1,5 @@
 """
-UPS Sizing — Phase 4e
+UPS Sizing - Phase 4e
 Standards: IEEE 1184:2006 (Guide for Batteries for Stationary Applications),
            IEC 62040-3:2021 (UPS performance and test requirements),
            IEEE 446 (Emergency/Standby Power), BICSI 002 (Data Center Design)
@@ -77,8 +77,8 @@ STD_UPS_KVA = [
 STD_BATT_AH = [7, 9, 12, 17, 24, 26, 38, 40, 55, 65, 75, 100,
                120, 150, 200, 250, 300]
 
-# ─── IEEE 446 — UPS loading limit ────────────────────────────────────────────
-UPS_LOAD_LIMIT_PCT = 80   # % rated kVA — thermal headroom + redundancy
+# ─── IEEE 446 - UPS loading limit ────────────────────────────────────────────
+UPS_LOAD_LIMIT_PCT = 80   # % rated kVA - thermal headroom + redundancy
 
 
 def _dc_bus(ups_kva: float) -> dict:
@@ -107,7 +107,7 @@ def _replacement_year(life_factor: float, rated_life_yr: float = 5.0) -> float:
 
 def calculate(inputs: dict) -> dict:
     """
-    Main entry point — compatible with TypeScript calcUPSSizing() input keys.
+    Main entry point - compatible with TypeScript calcUPSSizing() input keys.
     """
     # ── Load inputs ───────────────────────────────────────────────────────────
     load_kw      = float(inputs.get("load_kw",      0))

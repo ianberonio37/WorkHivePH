@@ -1,5 +1,5 @@
 """
-Fire Pump Sizing — Phase 5b
+Fire Pump Sizing - Phase 5b
 Standards: NFPA 20:2022 (Installation of Stationary Pumps for Fire Protection),
            NFPA 13:2022 (demand basis), PNS NFPA 20 (Philippine adoption),
            BFP IRR RA 9514
@@ -18,7 +18,7 @@ NFPA 20 key rules:
 
 import math
 
-# ─── Standard fire pump flow sizes (L/min) — NFPA 20 Table 4.26 ──────────────
+# ─── Standard fire pump flow sizes (L/min) - NFPA 20 Table 4.26 ──────────────
 STD_PUMP_LPM = [
     190, 380, 570, 760, 950, 1140, 1325, 1515, 1900, 2840,
     3785, 4730, 5680, 7570, 9460, 11355, 13250,
@@ -31,8 +31,8 @@ STD_PUMP_KW = [
 ]
 
 # ─── NFPA 20 pressure limits ──────────────────────────────────────────────────
-CHURN_LIMIT_ELECTRIC_PCT = 140   # % of rated — shutoff must not exceed 140%
-CHURN_LIMIT_DIESEL_PCT   = 121   # % of rated — diesel engine driver limit
+CHURN_LIMIT_ELECTRIC_PCT = 140   # % of rated - shutoff must not exceed 140%
+CHURN_LIMIT_DIESEL_PCT   = 121   # % of rated - diesel engine driver limit
 
 # ─── Jockey pump sizing (NFPA 20 §A.4.26.5) ───────────────────────────────────
 JOCKEY_FLOW_PCT   = 1.0    # % of main pump rated flow
@@ -80,7 +80,7 @@ def _pump_curve_points(rated_flow: float, rated_pressure: float) -> list[dict]:
 
 def calculate(inputs: dict) -> dict:
     """
-    Main entry point — compatible with TypeScript calcFirePump() keys.
+    Main entry point - compatible with TypeScript calcFirePump() keys.
     Accepts system demand from Fire Sprinkler calc or direct input.
     """
     # ── System demand ─────────────────────────────────────────────────────────
@@ -161,7 +161,7 @@ def calculate(inputs: dict) -> dict:
     if redundancy == "Duplex":
         config_note = (
             f"Duplex arrangement: 2 × {rec_flow_lpm} L/min pumps "
-            f"({rec_motor_kw} kW each) — one duty, one standby. "
+            f"({rec_motor_kw} kW each) - one duty, one standby. "
             "Lead/standby alternation per NFPA 20 §10.5."
         )
         n_main_pumps = 2
@@ -175,7 +175,7 @@ def calculate(inputs: dict) -> dict:
     # ── NFPA 25 test requirements ─────────────────────────────────────────────
     test_notes = [
         "Weekly: run pump at churn (no flow) for ≥ 10 minutes (NFPA 25 §8.3.1).",
-        "Annually: full flow test — measure flow, discharge pressure, and motor current.",
+        "Annually: full flow test - measure flow, discharge pressure, and motor current.",
         "Jockey pump: verify start/stop pressure settings every 3 months.",
         f"Churn pressure must not exceed {churn_limit}% of rated ({round(churn_bar,2)} bar / "
         f"{round(churn_bar*14.504,1)} psi) per NFPA 20.",

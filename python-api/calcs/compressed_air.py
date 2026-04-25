@@ -1,5 +1,5 @@
 """
-Compressed Air System — Phase 1c
+Compressed Air System - Phase 1c
 Standards: ISO 1217, PSME Code, ASME B31.3, CAGI (Compressed Air & Gas Institute)
 Libraries: fluids (Darcy-Weisbach, pipe sizing), numpy (iteration)
 
@@ -14,7 +14,7 @@ Replaces the hand-rolled TypeScript implementation with:
 from fluids import friction_factor, Reynolds
 import math
 
-# ─── Standard pipe inside diameters (mm) — for compressed air distribution ───
+# ─── Standard pipe inside diameters (mm) - for compressed air distribution ───
 PIPE_SIZES: list[dict] = [
     {"nominal": 15,  "id_mm": 15.8},
     {"nominal": 20,  "id_mm": 20.9},
@@ -30,14 +30,14 @@ PIPE_SIZES: list[dict] = [
     {"nominal": 200, "id_mm": 206.5},
 ]
 
-# Pipe roughness for steel air distribution (mm) — ASME B31.3
+# Pipe roughness for steel air distribution (mm) - ASME B31.3
 STEEL_ROUGHNESS_MM = 0.046
 
 # Standard compressor kW sizes
 STD_COMP_KW = [0.75, 1.5, 2.2, 3.7, 5.5, 7.5, 11, 15, 18.5, 22,
                30, 37, 45, 55, 75, 90, 110, 132, 160, 200, 250, 315]
 
-# Air tool consumption (L/min FAD) — CAGI reference
+# Air tool consumption (L/min FAD) - CAGI reference
 AIR_TOOL_FLOW: dict[str, float] = {
     "Impact Wrench 1/2\"":  170,
     "Impact Wrench 3/4\"":  340,
@@ -83,7 +83,7 @@ def _isentropic_power(
     n: float = 1.4,    # isentropic exponent for air
 ) -> float:
     """
-    Isentropic compression power (kW) — ISO 1217 Annex C.
+    Isentropic compression power (kW) - ISO 1217 Annex C.
     W_iso = (n/(n-1)) * P1 * Q1 * [(P2/P1)^((n-1)/n) - 1]
     """
     P1    = p_inlet_bar_a * 1e5   # Pa
@@ -160,7 +160,7 @@ def _select_pipe(
 
 def calculate(inputs: dict) -> dict:
     """
-    Main entry point — compatible with TypeScript calcCompressedAir() input keys.
+    Main entry point - compatible with TypeScript calcCompressedAir() input keys.
     """
     # ── Inputs ────────────────────────────────────────────────────────────────
     flow_fad_m3min  = float(inputs.get("flow_rate",          0)
@@ -188,7 +188,7 @@ def calculate(inputs: dict) -> dict:
     p_inlet_bar_a  = 1.01325                          # atmospheric
     p_outlet_bar_a = pressure_bar_g + 1.01325         # absolute discharge
 
-    # ── Isentropic compression power — ISO 1217 ───────────────────────────────
+    # ── Isentropic compression power - ISO 1217 ───────────────────────────────
     iso_kw     = _isentropic_power(flow_fad_m3min, p_inlet_bar_a, p_outlet_bar_a, temp_c)
     shaft_kw   = iso_kw / (comp_eff_pct / 100)        # actual shaft power
     motor_kw   = shaft_kw / 0.93                      # motor input (93% motor eff)
@@ -200,7 +200,7 @@ def calculate(inputs: dict) -> dict:
     recommended_kw = next((s for s in STD_COMP_KW if s >= installed_kw), STD_COMP_KW[-1])
     recommended_hp = round(recommended_kw * 1.341, 1)
 
-    # ── Receiver tank sizing — ISO 1217 ───────────────────────────────────────
+    # ── Receiver tank sizing - ISO 1217 ───────────────────────────────────────
     # V = (Q * t * P_atm) / (P_max - P_min)
     # t = 60s (1 min), P_max = working + 0.5 bar, P_min = working - 0.5 bar
     Q_m3s   = flow_fad_m3min / 60
@@ -223,7 +223,7 @@ def calculate(inputs: dict) -> dict:
     # Default: Class 1.4.2 suitable for general industrial use
     air_quality = "ISO 8573-1 Class 1.4.2 (General Industrial)"
 
-    # ── Specific power (kW per m3/min FAD) — efficiency metric ───────────────
+    # ── Specific power (kW per m3/min FAD) - efficiency metric ───────────────
     specific_power = round(motor_kw / flow_fad_m3min, 2) if flow_fad_m3min > 0 else 0
     # CAGI benchmark: good = <7.5 kW/(m3/min) at 7 bar
     specific_power_ok = specific_power <= 8.0

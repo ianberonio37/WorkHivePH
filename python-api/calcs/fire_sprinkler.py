@@ -1,5 +1,5 @@
 """
-Fire Sprinkler Hydraulic Calculation — Phase 5a
+Fire Sprinkler Hydraulic Calculation - Phase 5a
 Standards: NFPA 13:2022 (Installation of Sprinkler Systems),
            NFPA 13R:2022 (Residential), PNS NFPA 13 (Philippine adoption),
            BFP (Bureau of Fire Protection) IRR RA 9514
@@ -10,7 +10,7 @@ Hydraulic method: Hazen-Williams
   Q (L/min), d (mm internal diameter), C = roughness coefficient
 
 Design area method (NFPA 13 §19.3):
-  Most remote design area — density × area approach
+  Most remote design area - density × area approach
   Q_total = density (mm/min) × design_area (m²) × conversion
   Plus hose stream allowance per hazard class
 
@@ -45,7 +45,7 @@ OCCUPANCY_MAP: dict[str, str] = {
     "Paint Spray":      "Extra Hazard Group 2",
 }
 
-# ─── Sprinkler K-factors (L/min per bar^0.5) — NFPA 13 Table 6.2.3.1 ─────────
+# ─── Sprinkler K-factors (L/min per bar^0.5) - NFPA 13 Table 6.2.3.1 ─────────
 K_FACTORS: dict[str, float] = {
     "K50  (Standard Response 1/2\" orifice)":  50.0,
     "K80  (Large Orifice 17/32\" orifice)":    80.0,
@@ -55,7 +55,7 @@ K_FACTORS: dict[str, float] = {
     "K320 (ESFR)":                            320.0,
 }
 
-# ─── Hazen-Williams C factors by pipe material — NFPA 13 Table A.23.4.2.1 ────
+# ─── Hazen-Williams C factors by pipe material - NFPA 13 Table A.23.4.2.1 ────
 HW_C_FACTOR: dict[str, float] = {
     "Steel (black, unlined)":  120,
     "Steel (galvanized)":      120,
@@ -65,7 +65,7 @@ HW_C_FACTOR: dict[str, float] = {
     "Cast Iron":               100,
 }
 
-# ─── Standard steel pipe (Schedule 40) inside diameters — NFPA 13 ─────────────
+# ─── Standard steel pipe (Schedule 40) inside diameters - NFPA 13 ─────────────
 PIPE_SIZES: list[dict] = [
     {"nominal_mm":  25, "id_mm":  26.6, "nominal_in": "1\""},
     {"nominal_mm":  32, "id_mm":  35.1, "nominal_in": "1-1/4\""},
@@ -142,7 +142,7 @@ def _select_pipe(Q_lpm: float, C: float, L_m: float,
 
 def calculate(inputs: dict) -> dict:
     """
-    Main entry point — compatible with TypeScript calcFireSprinkler() keys.
+    Main entry point - compatible with TypeScript calcFireSprinkler() keys.
     """
     # ── Occupancy / hazard ────────────────────────────────────────────────────
     occupancy    = str  (inputs.get("occupancy",      "Office"))
@@ -193,7 +193,7 @@ def calculate(inputs: dict) -> dict:
     q_total_lps      = q_total_lpm / 60
 
     # ── Pipe sizing and pressure drop ─────────────────────────────────────────
-    # Branch line (carries flow of n_sprinklers/n_branches — assume 4 per branch)
+    # Branch line (carries flow of n_sprinklers/n_branches - assume 4 per branch)
     n_per_branch = min(n_sprinklers, 4)
     q_branch_lpm = q_per_sprinkler_lpm * n_per_branch
     branch_pipe  = _select_pipe(q_branch_lpm, C, branch_len)
@@ -211,7 +211,7 @@ def calculate(inputs: dict) -> dict:
     dp_cross   = cross_pipe["dp_bar"]
     dp_feed    = feed_pipe["dp_bar"]
 
-    # Fittings allowance (30% of pipe friction — NFPA 13 equivalent pipe length method)
+    # Fittings allowance (30% of pipe friction - NFPA 13 equivalent pipe length method)
     fittings_factor = 1.30
     dp_total_friction = (dp_branch + dp_cross + dp_feed) * fittings_factor
 
@@ -229,10 +229,10 @@ def calculate(inputs: dict) -> dict:
 
     # ── BFP / NFPA 13 field notes ────────────────────────────────────────────
     field_notes = [
-        f"Hazard class: {hazard_key} — density {density} mm/min over {design_area} m² design area.",
+        f"Hazard class: {hazard_key} - density {density} mm/min over {design_area} m² design area.",
         f"Hose stream allowance: {hose_lpm} L/min per NFPA 13.",
         f"Minimum residual pressure at most remote sprinkler: "
-        f"{MIN_RESIDUAL_BAR} bar (7.5 psi) — {'PASS' if min_pressure_ok else 'FAIL: increase pump pressure'}.",
+        f"{MIN_RESIDUAL_BAR} bar (7.5 psi) - {'PASS' if min_pressure_ok else 'FAIL: increase pump pressure'}.",
         "Hydraulic remote area must be the most hydraulically demanding area (highest elevation, longest run).",
         "BFP PD 1185 / RA 9514: sprinkler system requires 3rd-party inspection and BFP acceptance.",
         f"Pipe material: {pipe_mat} (C={C}). Use listed fittings per NFPA 13 §7.",
@@ -311,6 +311,6 @@ def calculate(inputs: dict) -> dict:
         "density":             density,
         "design_area":         design_area,
         "hazard":              hazard_key,
-        "pipe_dia":            str(branch_pipe.get("nominal_mm", "—")) + " mm",
+        "pipe_dia":            str(branch_pipe.get("nominal_mm", "-")) + " mm",
         "duration":            60,   # NFPA 13 minimum 60-min water supply
     }

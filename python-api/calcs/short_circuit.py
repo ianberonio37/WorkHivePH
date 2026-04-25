@@ -1,12 +1,12 @@
 """
-Short Circuit Analysis — Phase 4b
+Short Circuit Analysis - Phase 4b
 Standards: IEC 60909-0:2016 (Short-circuit currents in AC systems),
            PEC 2017 Article 2.40, IEEE 141 (Red Book), IEEE 242 (Buff Book)
 Libraries: math (all formulas closed-form)
 
 Calculates:
 - Transformer impedance (Z_trafo) from nameplate %Z rating
-- Cable impedance (Z_cable = √(R² + X²)) — skill rule: never use R alone
+- Cable impedance (Z_cable = √(R² + X²)) - skill rule: never use R alone
 - Total fault impedance at each bus (Z_total = Z_trafo + Z_cable + Z_source)
 - Symmetrical three-phase fault current (Isc_3ph = Vc / (√3 × Z_total))
 - Single-phase-to-ground fault (Isc_1ph = V_phase / Z_total)
@@ -19,7 +19,7 @@ Calculates:
 import math
 
 # ─── IEC 60909 voltage factor c ───────────────────────────────────────────────
-# c_max for fault current calculation (conservative — use for equipment rating)
+# c_max for fault current calculation (conservative - use for equipment rating)
 C_MAX_LV = 1.05   # ≤ 1 kV systems
 C_MAX_HV = 1.10   # > 1 kV systems
 
@@ -27,8 +27,8 @@ C_MAX_HV = 1.10   # > 1 kV systems
 RHO_CU_20C = 1 / 58   # Ω·mm²/m
 ALPHA_CU   = 0.00393  # /°C temperature coefficient
 
-# ─── Cable reactance at 50 Hz (Ω/km) — PEC / IEC 60364 ──────────────────────
-# (same table as wire_sizing.py — skill reference)
+# ─── Cable reactance at 50 Hz (Ω/km) - PEC / IEC 60364 ──────────────────────
+# (same table as wire_sizing.py - skill reference)
 REACTANCE_TABLE: list[dict] = [
     {"mm2":  14, "X_km": 0.085},
     {"mm2":  22, "X_km": 0.083},
@@ -82,7 +82,7 @@ def _cable_impedance(
     """
     Cable impedance at operating temperature.
     Returns (R_ohm, X_ohm, Z_ohm).
-    Uses Z = √(R² + X²) — skill rule: never use R alone.
+    Uses Z = √(R² + X²) - skill rule: never use R alone.
     parallel: number of parallel cable runs (reduces impedance proportionally).
     """
     rho_t = RHO_CU_20C * (1 + ALPHA_CU * (temp_c - 20))
@@ -136,7 +136,7 @@ def _source_impedance(
 
 def calculate(inputs: dict) -> dict:
     """
-    Main entry point — compatible with TypeScript calcShortCircuit() keys.
+    Main entry point - compatible with TypeScript calcShortCircuit() keys.
     """
     # ── System inputs ─────────────────────────────────────────────────────────
     voltage_lv     = float(inputs.get("voltage",          400))   # V LV bus
@@ -153,7 +153,7 @@ def calculate(inputs: dict) -> dict:
     cable_parallel = int  (inputs.get("cable_parallel",     1))
     cable_temp_c   = float(inputs.get("cable_temp_c",      75))   # at max load (75°C THHN)
 
-    # Additional cable segment (optional — for bus to panel run)
+    # Additional cable segment (optional - for bus to panel run)
     cable2_mm2     = float(inputs.get("cable2_mm2",         0))
     cable2_length  = float(inputs.get("cable2_length_m",    0))
     cable2_parallel = int (inputs.get("cable2_parallel",    1))
@@ -197,7 +197,7 @@ def calculate(inputs: dict) -> dict:
     # ── Symmetrical fault currents (IEC 60909) ────────────────────────────────
     # Initial symmetrical short-circuit current I"k
     Isc_3ph  = c_factor * voltage_lv / (math.sqrt(3) * Z_total)   # A rms
-    Isc_1ph  = c_factor * voltage_lv / (math.sqrt(3) * Z_total)   # approx — same Z for zero-seq ≈ pos-seq in TN system
+    Isc_1ph  = c_factor * voltage_lv / (math.sqrt(3) * Z_total)   # approx - same Z for zero-seq ≈ pos-seq in TN system
     Isc_LL   = (math.sqrt(3) / 2) * Isc_3ph   # line-to-line (2-ph) fault
 
     # ── Peak fault current (IEC 60909 §4.3.1) ────────────────────────────────
@@ -206,7 +206,7 @@ def calculate(inputs: dict) -> dict:
 
     # ── DC component at 50 ms (typical CB operating time) ────────────────────
     # i_dc = √2 × Isc × e^(−t × ω × R/X)   at t = 0.05 s, ω = 314 rad/s
-    t_cb     = 0.05   # s — typical CB clearing time
+    t_cb     = 0.05   # s - typical CB clearing time
     omega    = 2 * math.pi * 50
     i_dc_50ms = math.sqrt(2) * Isc_3ph * math.exp(-t_cb * omega * R_total / max(X_total, 1e-9))
 

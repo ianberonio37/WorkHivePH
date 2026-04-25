@@ -1,5 +1,5 @@
 """
-HVAC Cooling Load — Phase 2a
+HVAC Cooling Load - Phase 2a
 Standards: ASHRAE 62.1, ASHRAE 90.1, ASHRAE 55, ASHRAE Fundamentals 2021 Ch.18
 Libraries: psychrolib (psychrometrics), numpy
 
@@ -18,7 +18,7 @@ import math
 # Set SI units globally for this module
 psychrolib.SetUnitSystem(psychrolib.SI)
 
-# ─── ASHRAE 2021 Fundamentals — CLTD values for Manila (lat 14.6N, July) ─────
+# ─── ASHRAE 2021 Fundamentals - CLTD values for Manila (lat 14.6N, July) ─────
 # Cooling Load Temperature Difference (K) by wall/roof type and orientation
 # Source: ASHRAE 2021 Fundamentals Table 18-2 (Group D wall, flat roof)
 CLTD_WALL: dict[str, float] = {
@@ -30,9 +30,9 @@ CLTD_WALL: dict[str, float] = {
     "Mixed":      9.0,  # average
 }
 
-CLTD_ROOF = 30.0   # K — flat concrete roof, ASHRAE Table 18-3, July, lat 14.6N
+CLTD_ROOF = 30.0   # K - flat concrete roof, ASHRAE Table 18-3, July, lat 14.6N
 
-# ─── U-values (W/m2·K) — ASHRAE 2021 / PSME Code ─────────────────────────────
+# ─── U-values (W/m2·K) - ASHRAE 2021 / PSME Code ─────────────────────────────
 U_WALL: dict[str, float] = {
     "Standard":  0.45,
     "Good":      0.35,
@@ -44,7 +44,7 @@ U_ROOF: dict[str, float] = {
     "Excellent": 0.28,
 }
 
-# ─── Solar Heat Gain Coefficient by glass type — ASHRAE 2021 ─────────────────
+# ─── Solar Heat Gain Coefficient by glass type - ASHRAE 2021 ─────────────────
 SHGC: dict[str, float] = {
     "Standard": 0.87,
     "Tinted":   0.55,
@@ -53,7 +53,7 @@ SHGC: dict[str, float] = {
 }
 
 # ─── Solar irradiance by orientation at Manila lat 14.6N (W/m2) ──────────────
-# Peak design values — ASHRAE 2021 Fundamentals Ch.14
+# Peak design values - ASHRAE 2021 Fundamentals Ch.14
 SOLAR_W: dict[str, float] = {
     "North":      90,
     "South":      130,
@@ -63,7 +63,7 @@ SOLAR_W: dict[str, float] = {
     "Mixed":      350,
 }
 
-# ─── Internal heat gains by room function — ASHRAE 55 / PSME ─────────────────
+# ─── Internal heat gains by room function - ASHRAE 55 / PSME ─────────────────
 OCCUPANT_HEAT: dict[str, dict] = {
     "Office":           {"sensible": 75,  "latent": 55},
     "Conference":       {"sensible": 75,  "latent": 55},
@@ -104,7 +104,7 @@ def _min_eer(kw: float) -> float:
 
 def calculate(inputs: dict) -> dict:
     """
-    Main entry point — compatible with TypeScript calcHVACCoolingLoad() keys.
+    Main entry point - compatible with TypeScript calcHVACCoolingLoad() keys.
     """
     # ── Inputs ────────────────────────────────────────────────────────────────
     floor_area    = float(inputs.get("floor_area",         50))
@@ -145,7 +145,7 @@ def calculate(inputs: dict) -> dict:
     # Moisture difference (g/kg)
     delta_w_gkg  = (outdoor_w - indoor_w) * 1000
 
-    # ── Sensible heat gains — CLTD method (ASHRAE 2021 Ch.18) ────────────────
+    # ── Sensible heat gains - CLTD method (ASHRAE 2021 Ch.18) ────────────────
     u_wall    = U_WALL.get(insulation, 0.45)
     u_roof    = U_ROOF.get(insulation, 0.50)
     cltd_wall = CLTD_WALL.get(orientation, 9.0)
@@ -163,7 +163,7 @@ def calculate(inputs: dict) -> dict:
     q_lighting= LIGHTING_WPM2.get(room_fn, 12) * floor_area   # W
     q_equip   = equip_kw * 1000                    # W
 
-    # Infiltration — 0.5 ACH typical Philippine construction
+    # Infiltration - 0.5 ACH typical Philippine construction
     volume     = floor_area * ceiling_h
     ach_inf    = 0.5
     rho_air    = 1.2   # kg/m3
@@ -177,7 +177,7 @@ def calculate(inputs: dict) -> dict:
     q_total          = q_sensible_total + q_latent
     q_design         = q_total * (1 + design_margin / 100)
 
-    # SHR — Sensible Heat Ratio
+    # SHR - Sensible Heat Ratio
     shr = q_sensible_total / max(q_total, 1)
 
     # ── Convert to kW and TR ──────────────────────────────────────────────────
@@ -207,7 +207,7 @@ def calculate(inputs: dict) -> dict:
     assumed_eer = 3.5
     eer_ok      = assumed_eer >= min_eer
 
-    # Cooling density (TR/m2) — ASHRAE guideline 0.04-0.09
+    # Cooling density (TR/m2) - ASHRAE guideline 0.04-0.09
     cooling_density     = round(TR_design / max(floor_area, 1), 4)
     density_ok          = 0.03 <= cooling_density <= 0.12
 

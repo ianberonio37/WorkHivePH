@@ -1,19 +1,19 @@
 """
-Fluid Power / Hydraulics — Phase 9b
-Standards: ISO 4413:2010 (Hydraulic fluid power — safety requirements),
-           NFPA T2.12.10 (Hydraulic systems — design),
+Fluid Power / Hydraulics - Phase 9b
+Standards: ISO 4413:2010 (Hydraulic fluid power - safety requirements),
+           NFPA T2.12.10 (Hydraulic systems - design),
            Bosch Rexroth Hydraulic Trainer Vol.1,
            Parker Hannifin Hydraulics Training Manual,
            JIS B 8356 (Philippine adoption via DTI/BPS)
 Libraries: math (all formulas closed-form)
 
 Methods:
-  Cylinder: F = P × A — A = π(D²−d²)/4 (annulus side)
+  Cylinder: F = P × A - A = π(D²−d²)/4 (annulus side)
   Pump flow: Q = Vg × n × η_vol
   Power:     P = Q × ΔP / (η_pump × η_motor)
   Hydraulic motor: T = Vg × ΔP × η_mech / (2π)
   Accumulator: V_gas = V_fluid × P2 / (P2−P1) (Boyle's law, isothermal)
-  Pipe sizing: velocity method — v ≤ 4 m/s pressure, ≤ 2 m/s return, ≤ 1 m/s suction
+  Pipe sizing: velocity method - v ≤ 4 m/s pressure, ≤ 2 m/s return, ≤ 1 m/s suction
   Pressure drop: Hagen-Poiseuille (laminar) or Darcy-Weisbach (turbulent)
 """
 
@@ -63,8 +63,8 @@ def _cylinder(bore_mm: float, rod_mm: float, P_bar: float,
     A_rod  = math.pi * (D**2 - d**2) / 4    # rod-end area (m²)
     P_Pa   = P_bar * 1e5
 
-    F_extend  = P_Pa * A_cap    # N — extension
-    F_retract = P_Pa * A_rod    # N — retraction
+    F_extend  = P_Pa * A_cap    # N - extension
+    F_retract = P_Pa * A_rod    # N - retraction
 
     # Speed if flow known
     Q_m3s = flow_lpm / 60000 if flow_lpm > 0 else 0
@@ -76,7 +76,7 @@ def _cylinder(bore_mm: float, rod_mm: float, P_bar: float,
     t_retract = stroke_mm / 1000 / v_retract if v_retract > 0 else 0
 
     # Flow required for given speed (if speed given instead)
-    v_target = float(0)   # not used here — computed from flow
+    v_target = float(0)   # not used here - computed from flow
 
     return {
         "bore_mm":       bore_mm,
@@ -204,7 +204,7 @@ def _select_pipe(Q_lpm: float, line_type: str, fluid: dict, P_bar: float) -> dic
 
 
 def calculate(inputs: dict) -> dict:
-    """Main entry point — compatible with TypeScript calcFluidPower() keys."""
+    """Main entry point - compatible with TypeScript calcFluidPower() keys."""
     calc_type  = str(inputs.get("calc_type", "Cylinder"))   # Cylinder / Pump / Motor / Accumulator / System
 
     fluid_key  = str  (inputs.get("fluid",           "ISO VG 46 (40°C)"))

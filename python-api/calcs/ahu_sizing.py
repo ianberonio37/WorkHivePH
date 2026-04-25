@@ -1,5 +1,5 @@
 """
-AHU Sizing — Phase 2b
+AHU Sizing - Phase 2b
 Standards: ASHRAE 62.1, ASHRAE 90.1, ASHRAE 2021 Fundamentals Ch.1 (Psychrometrics),
            SMACNA HVAC Systems Duct Design, PNS/PSME
 Libraries: psychrolib (psychrometrics), math
@@ -27,21 +27,21 @@ COIL_FACE_VELOCITY = {
     "High":     2.8,   # industrial / compact unit
 }
 
-# ─── Typical duct static pressure budgets (Pa) — SMACNA / PSME ───────────────
+# ─── Typical duct static pressure budgets (Pa) - SMACNA / PSME ───────────────
 # Total external static pressure the fan must overcome
 FAN_STATIC_BUDGET: dict[str, float] = {
-    "Small (<5 kW)":    300,   # Pa — short duct runs
+    "Small (<5 kW)":    300,   # Pa - short duct runs
     "Medium (5-25 kW)": 500,
     "Large (>25 kW)":   750,
 }
 
 # ─── Filter + coil pressure drops (Pa) ───────────────────────────────────────
-FILTER_DP   = 100   # Pa — standard 2-inch throwaway, mid-life
-COIL_DP_PA  = 150   # Pa — typical DX or chilled water coil at 2.3 m/s
-DAMPER_DP   = 50    # Pa — OA/RA dampers
+FILTER_DP   = 100   # Pa - standard 2-inch throwaway, mid-life
+COIL_DP_PA  = 150   # Pa - typical DX or chilled water coil at 2.3 m/s
+DAMPER_DP   = 50    # Pa - OA/RA dampers
 
 # ─── ASHRAE 90.1 fan power limit (W per L/s of supply air) ───────────────────
-# Table 10.8 — simple systems ≤ 1.2 W/(L/s), VAV systems ≤ 1.6
+# Table 10.8 - simple systems ≤ 1.2 W/(L/s), VAV systems ≤ 1.6
 FAN_POWER_LIMIT_W_LPS = 1.2
 
 # ─── Standard coil bypass factors (CBF) by coil rows ─────────────────────────
@@ -102,7 +102,7 @@ MOTOR_SIZES_KW = [0.37, 0.55, 0.75, 1.1, 1.5, 2.2, 3.0, 4.0, 5.5, 7.5,
 
 def calculate(inputs: dict) -> dict:
     """
-    Main entry point — compatible with TypeScript calcAHUSizing() input keys.
+    Main entry point - compatible with TypeScript calcAHUSizing() input keys.
     """
     # ── Inputs ────────────────────────────────────────────────────────────────
     q_sensible_w  = float(inputs.get("q_sensible",       0)
@@ -143,7 +143,7 @@ def calculate(inputs: dict) -> dict:
     oa_w, oa_h, oa_wb, oa_dp = _sat_state(outdoor_db, outdoor_rh_pct / 100)
 
     # ── Supply air conditions ─────────────────────────────────────────────────
-    # Humidity ratio at supply temp — assume RH ~95% (near saturation off coil)
+    # Humidity ratio at supply temp - assume RH ~95% (near saturation off coil)
     sa_w, sa_h, sa_wb, sa_dp = _sat_state(supply_temp_c, 0.95)
 
     # ── Supply airflow from sensible heat equation ────────────────────────────
@@ -189,7 +189,7 @@ def calculate(inputs: dict) -> dict:
     # ── Coil bypass factor ────────────────────────────────────────────────────
     cbf = CBF_BY_ROWS.get(coil_rows, 0.05)
 
-    # ── Apparatus Dew Point (ADP) — psychrometric coil performance ────────────
+    # ── Apparatus Dew Point (ADP) - psychrometric coil performance ────────────
     # ADP is where the coil saturation line intersects the condition line
     # Simplified: ADP = supply_db - CBF * (mixed_db - supply_db)
     adp_c = supply_temp_c - cbf * (ma_db - supply_temp_c)

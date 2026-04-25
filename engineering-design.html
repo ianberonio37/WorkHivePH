@@ -5432,8 +5432,8 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Earth Termination Type</div>
           <div class="toggle-group" id="tg-lps-earth" style="flex-wrap:wrap;">
-            <button class="toggle-btn active" data-val="Type A — Radial / Vertical Electrodes" onclick="toggle('tg-lps-earth','Type A — Radial / Vertical Electrodes')">Type A (Radial)</button>
-            <button class="toggle-btn" data-val="Type B — Ring / Foundation Electrode" onclick="toggle('tg-lps-earth','Type B — Ring / Foundation Electrode')">Type B (Ring)</button>
+            <button class="toggle-btn active" data-val="Type A - Radial / Vertical Electrodes" onclick="toggle('tg-lps-earth','Type A - Radial / Vertical Electrodes')">Type A (Radial)</button>
+            <button class="toggle-btn" data-val="Type B - Ring / Foundation Electrode" onclick="toggle('tg-lps-earth','Type B - Ring / Foundation Electrode')">Type B (Ring)</button>
           </div>
         </div>
       </div>
@@ -8970,7 +8970,7 @@ function collectInputs() {
       lpl:                 getToggle('tg-lps-lpl')     || 'LPL II',
       air_term_method:     getToggle('tg-lps-method')  || 'Rolling Sphere',
       dc_material:         getToggle('tg-lps-dc')      || 'Copper',
-      earth_type:          getToggle('tg-lps-earth')   || 'Type A — Radial / Vertical Electrodes',
+      earth_type:          getToggle('tg-lps-earth')   || 'Type A - Radial / Vertical Electrodes',
     };
   }
 
@@ -17578,7 +17578,7 @@ function buildLPSZoneSvg(inputs, results) {
   if (isTypeB) {
     // Type B: ring electrode around building perimeter (dashed rectangle at GL)
     p.push(`<rect x="${BL - 18}" y="${GL + 6}" width="${BW + 36}" height="18" fill="none" stroke="${CC}" stroke-width="2" stroke-dasharray="6 3"/>`);
-    p.push(T(BR + 12, GL + 12, 'Type B — Ring Earth Electrode', { a: 'start', sz: 7.5, c: CC, w: '600' }));
+    p.push(T(BR + 12, GL + 12, 'Type B - Ring Earth Electrode', { a: 'start', sz: 7.5, c: CC, w: '600' }));
     p.push(T(BR + 12, GL + 23, 'Perimeter ring ≥ 3/4 of building', { a: 'start', sz: 7, c: SC }));
   } else {
     // Type A: vertical electrode spur at each DC base (IEC 62305-3 Annex B: ≥ 0.5 m rod)

@@ -1,5 +1,5 @@
 """
-Chiller System — Phase 3c (Water-Cooled and Air-Cooled)
+Chiller System - Phase 3c (Water-Cooled and Air-Cooled)
 Standards: ASHRAE 90.1-2019 Table 6.8.1 (minimum efficiency), AHRI 550/590
            (performance rating), ASHRAE 2021 Fundamentals Ch.2, PSME Code
 Libraries: math (all formulas closed-form from thermodynamic first principles)
@@ -7,7 +7,7 @@ Libraries: math (all formulas closed-form from thermodynamic first principles)
 Calculates:
 - Cooling capacity (kW, TR) and compressor input power
 - COP (Coefficient of Performance) and EER (Energy Efficiency Ratio)
-- IPLV (Integrated Part-Load Value) — ASHRAE 90.1 weighted at 100/75/50/25%
+- IPLV (Integrated Part-Load Value) - ASHRAE 90.1 weighted at 100/75/50/25%
 - Evaporator chilled water flow rate (L/s) and delta-T
 - Condenser heat rejection and flow rate (water-cooled) or airflow (air-cooled)
 - Approach temperatures (evaporator and condenser)
@@ -17,7 +17,7 @@ Calculates:
 
 import math
 
-# ─── ASHRAE 90.1-2019 Table 6.8.1 — Chiller minimum efficiency ───────────────
+# ─── ASHRAE 90.1-2019 Table 6.8.1 - Chiller minimum efficiency ───────────────
 # Format: (capacity_limit_kW, min_COP_full_load, min_IPLV)
 # Water-Cooled (centrifugal / screw)
 ASHRAE_90_1_WATER: list[dict] = [
@@ -32,7 +32,7 @@ ASHRAE_90_1_AIR: list[dict] = [
     {"max_kW": 9999, "min_COP": 3.00, "min_IPLV": 3.35,  "type": ">= 63 TR air-cooled"},
 ]
 
-# ─── IPLV weighting factors — AHRI 550/590 ────────────────────────────────────
+# ─── IPLV weighting factors - AHRI 550/590 ────────────────────────────────────
 # IPLV = 0.01·A + 0.42·B + 0.45·C + 0.12·D
 # A=100%, B=75%, C=50%, D=25% load
 IPLV_WEIGHTS = {"A": 0.01, "B": 0.42, "C": 0.45, "D": 0.12}
@@ -47,9 +47,9 @@ MOTOR_EFF           = 0.95   # compressor motor
 
 # ─── Heat transfer approach temperatures (LMTD approximations) ───────────────
 # These represent typical design values for chiller heat exchangers
-EVAP_APPROACH_STD   = 2.0    # K — chilled water approach to evap refrigerant temp
-COND_APPROACH_WATER = 2.0    # K — condenser water approach to cond refrigerant temp
-COND_APPROACH_AIR   = 8.0    # K — air-cooled condenser is less effective
+EVAP_APPROACH_STD   = 2.0    # K - chilled water approach to evap refrigerant temp
+COND_APPROACH_WATER = 2.0    # K - condenser water approach to cond refrigerant temp
+COND_APPROACH_AIR   = 8.0    # K - air-cooled condenser is less effective
 
 # ─── Standard chiller capacities (kW) ────────────────────────────────────────
 STD_CHILLER_KW = [
@@ -88,13 +88,13 @@ def _part_load_cop(cop_full: float, load_frac: float, chiller_type: str) -> floa
     PLF ≈ 1 + 0.2×(1-load) for centrifugal (peaks ~50%); linear for screw/scroll.
     """
     if "Water" in chiller_type:
-        # Centrifugal — peaks at ~50% load
+        # Centrifugal - peaks at ~50% load
         if load_frac >= 0.50:
             plf = 1.0 + 0.12 * (1.0 - load_frac)
         else:
             plf = 1.12 - 0.24 * (0.50 - load_frac)
     else:
-        # Air-cooled scroll/screw — more linear, slight improvement at part load
+        # Air-cooled scroll/screw - more linear, slight improvement at part load
         plf = 1.0 + 0.08 * (1.0 - load_frac)
     return cop_full * max(plf, 0.5)
 
@@ -123,8 +123,8 @@ def _ashrae_limits(capacity_kw: float, chiller_type: str) -> dict:
 
 def calculate(inputs: dict) -> dict:
     """
-    Main entry point — compatible with TypeScript calcChillerSystem() keys.
-    Handles both 'Chiller System — Water Cooled' and 'Chiller System — Air Cooled'.
+    Main entry point - compatible with TypeScript calcChillerSystem() keys.
+    Handles both 'Chiller System - Water Cooled' and 'Chiller System - Air Cooled'.
     """
     # ── Inputs ────────────────────────────────────────────────────────────────
     cooling_kw    = float(inputs.get("cooling_kw",         0)
@@ -143,7 +143,7 @@ def calculate(inputs: dict) -> dict:
     chiller_type  = str(inputs.get("chiller_type",   "Water Cooled"))
     is_water      = "Water" in chiller_type or "water" in chiller_type
 
-    # Chilled water (evaporator) — standard 6°C CHW delta-T
+    # Chilled water (evaporator) - standard 6°C CHW delta-T
     chw_supply_c  = float(inputs.get("chw_supply_c",    7.0))
     chw_return_c  = float(inputs.get("chw_return_c",   13.0))
     chw_delta_t   = chw_return_c - chw_supply_c
@@ -212,7 +212,7 @@ def calculate(inputs: dict) -> dict:
         cw_flow_m3hr = cw_flow_lps * 3.6
         cw_flow_gpm  = cw_flow_lps * 15.8508
     else:
-        # Air-cooled: airflow estimate — ~450 m³/h per kW rejection (typical)
+        # Air-cooled: airflow estimate - ~450 m³/h per kW rejection (typical)
         cw_flow_lps  = 0.0
         cw_flow_m3hr = q_rejection_kw * 450
         cw_flow_gpm  = 0.0

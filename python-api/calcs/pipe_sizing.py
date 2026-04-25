@@ -1,5 +1,5 @@
 """
-Pipe Sizing — Phase 1b
+Pipe Sizing - Phase 1b
 Standards: ASHRAE 2021 Fundamentals Ch. 22, PSME Code, PNS/ISO 4427
 Libraries: fluids (Darcy-Weisbach, Colebrook-White), iapws (water properties)
 
@@ -14,7 +14,7 @@ from fluids import friction_factor, Reynolds
 from iapws import IAPWS97
 import math
 
-# ─── Pipe roughness by material (mm) — ASHRAE 2021 Fundamentals Table 2 ───────
+# ─── Pipe roughness by material (mm) - ASHRAE 2021 Fundamentals Table 2 ───────
 PIPE_ROUGHNESS_MM: dict[str, float] = {
     "PVC":              0.0015,
     "Copper":           0.0015,
@@ -28,7 +28,7 @@ PIPE_ROUGHNESS_MM: dict[str, float] = {
     "uPVC":             0.0015,
 }
 
-# ─── Standard pipe inside diameters by nominal size (mm) — PNS/ISO 4427 ──────
+# ─── Standard pipe inside diameters by nominal size (mm) - PNS/ISO 4427 ──────
 PIPE_SIZES: list[dict] = [
     {"nominal": 15,  "id_mm": 15.8},
     {"nominal": 20,  "id_mm": 20.9},
@@ -46,7 +46,7 @@ PIPE_SIZES: list[dict] = [
     {"nominal": 300, "id_mm": 309.6},
 ]
 
-# ─── K-values for common fittings — Crane TP-410 ─────────────────────────────
+# ─── K-values for common fittings - Crane TP-410 ─────────────────────────────
 FITTING_K: dict[str, float] = {
     "gate_valve_open":      0.1,
     "globe_valve_open":     10.0,
@@ -62,7 +62,7 @@ FITTING_K: dict[str, float] = {
     "exit":                 1.0,
 }
 
-# Velocity targets per service type (m/s) — PSME Code / ASHRAE
+# Velocity targets per service type (m/s) - PSME Code / ASHRAE
 VELOCITY_TARGETS: dict[str, dict] = {
     "Chilled Water":     {"min": 0.6, "max": 3.0, "ideal": 1.5},
     "Hot Water":         {"min": 0.6, "max": 3.0, "ideal": 1.2},
@@ -163,7 +163,7 @@ def _select_pipe(flow_m3s: float, roughness_m: float, rho: float, mu: float,
 
 def calculate(inputs: dict) -> dict:
     """
-    Main entry point — compatible with TypeScript calcPipeSizing() input keys.
+    Main entry point - compatible with TypeScript calcPipeSizing() input keys.
     """
     # ── Inputs ────────────────────────────────────────────────────────────────
     flow_lpm    = float(inputs.get("flow_rate",       0) or inputs.get("flow_lpm", 0))
@@ -190,7 +190,7 @@ def calculate(inputs: dict) -> dict:
 
     # ── Detailed calc for the recommended (or user-specified) pipe ────────────
     if pipe_dia_mm > 0:
-        # User specified a size — find closest nominal
+        # User specified a size - find closest nominal
         chosen = min(PIPE_SIZES, key=lambda p: abs(p["nominal"] - pipe_dia_mm))
     else:
         chosen = next(
@@ -212,11 +212,11 @@ def calculate(inputs: dict) -> dict:
     # Velocity zone
     targets = VELOCITY_TARGETS.get(service, VELOCITY_TARGETS["General"])
     if velocity < targets["min"]:
-        velocity_zone = "Too Slow — risk of sedimentation"
+        velocity_zone = "Too Slow - risk of sedimentation"
     elif velocity <= targets["max"]:
-        velocity_zone = "Acceptable — within design range"
+        velocity_zone = "Acceptable - within design range"
     else:
-        velocity_zone = "High — risk of erosion and noise"
+        velocity_zone = "High - risk of erosion and noise"
 
     velocity_ok = targets["min"] <= velocity <= targets["max"]
 

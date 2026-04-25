@@ -1,13 +1,13 @@
 """
-Duct Sizing — Phase 2d (Equal Friction Method)
+Duct Sizing - Phase 2d (Equal Friction Method)
 Standards: ASHRAE 2021 Fundamentals Ch.21 (Duct Design), SMACNA HVAC Systems
            Duct Design 4th Ed., ASHRAE 62.1, PNS/PSME
-Libraries: math (no external dep — all formulas are closed-form)
+Libraries: math (no external dep - all formulas are closed-form)
 
 Key distinction (ASHRAE 2021 Ch.21):
-  De — Hydraulic Equivalent Diameter: use for SIZING the duct
+  De - Hydraulic Equivalent Diameter: use for SIZING the duct
        De = 1.30 × (a×b)^0.625 / (a+b)^0.25
-  D_h — Hydraulic Diameter: use for PRESSURE DROP after sizing
+  D_h - Hydraulic Diameter: use for PRESSURE DROP after sizing
        D_h = 2ab / (a+b)
 
 Equal Friction Method formula (Darcy-Weisbach + Blasius/Swamee-Jain):
@@ -36,10 +36,10 @@ K_TROPICAL = (8 * 0.3164 * RHO_AIR * (math.pi * NU_AIR) ** 0.25
               / (math.pi ** 2 * 4 ** 0.25))
 # ≈ 0.01740
 
-# Galvanized steel duct roughness — ASHRAE 2021 Table 1 Ch.21
+# Galvanized steel duct roughness - ASHRAE 2021 Table 1 Ch.21
 ROUGHNESS_M = 0.00009   # 0.09 mm
 
-# ─── Design friction rates (Pa/m) by application — Philippine practice ────────
+# ─── Design friction rates (Pa/m) by application - Philippine practice ────────
 DESIGN_FRICTION_RATES: dict[str, float] = {
     "Library / Theatre":    0.8,
     "Office / Hospital":    1.0,
@@ -49,7 +49,7 @@ DESIGN_FRICTION_RATES: dict[str, float] = {
     "Warehouse":            1.5,
 }
 
-# ─── Velocity limits (m/s) by duct section — SMACNA ─────────────────────────
+# ─── Velocity limits (m/s) by duct section - SMACNA ─────────────────────────
 VELOCITY_LIMITS: dict[str, dict] = {
     "Supply Main":    {"max": 8.0, "office_max": 5.0, "min": 2.0},
     "Supply Branch":  {"max": 5.0, "office_max": 3.0, "min": 1.5},
@@ -59,14 +59,14 @@ VELOCITY_LIMITS: dict[str, dict] = {
     "Outdoor Air":    {"max": 4.0, "office_max": 3.0, "min": 1.5},
 }
 
-# ─── Standard duct round sizes (mm nominal) — SMACNA ─────────────────────────
+# ─── Standard duct round sizes (mm nominal) - SMACNA ─────────────────────────
 ROUND_SIZES_MM = [
     100, 125, 150, 175, 200, 225, 250, 280, 300, 315,
     355, 400, 450, 500, 560, 630, 710, 800, 900, 1000,
     1120, 1250,
 ]
 
-# ─── Standard rectangular duct dimension increments (mm) — SMACNA ─────────────
+# ─── Standard rectangular duct dimension increments (mm) - SMACNA ─────────────
 RECT_INCREMENT_MM = 50   # round up to nearest 50 mm
 
 
@@ -104,7 +104,7 @@ def _dp_per_m(D: float, Q_m3s: float) -> tuple[float, float, float, float]:
 
 def _size_circular(Q_m3s: float, fr_pam: float) -> tuple[float, float]:
     """
-    Equal Friction Method — circular duct.
+    Equal Friction Method - circular duct.
     Returns (D_m calculated, D_m standard).
     D = [K × Q^1.75 / fr]^(1/4.75)
     """
@@ -212,11 +212,11 @@ def _size_section(
     v_ok     = vel_lims["min"] <= v_circ <= v_max
 
     if v_circ > v_max:
-        vel_note = f"High — exceeds {v_max} m/s limit for {vel_key}"
+        vel_note = f"High - exceeds {v_max} m/s limit for {vel_key}"
     elif v_circ < vel_lims["min"]:
-        vel_note = f"Low — below {vel_lims['min']} m/s minimum"
+        vel_note = f"Low - below {vel_lims['min']} m/s minimum"
     else:
-        vel_note = "OK — within SMACNA limits"
+        vel_note = "OK - within SMACNA limits"
 
     return {
         "label":         label,
@@ -248,7 +248,7 @@ def _size_section(
 
 def calculate(inputs: dict) -> dict:
     """
-    Main entry point — compatible with TypeScript calcDuctSizing() input keys.
+    Main entry point - compatible with TypeScript calcDuctSizing() input keys.
     Supports single-section mode (one duct run) and multi-section mode (sections[]).
     """
     # ── Application and friction rate ─────────────────────────────────────────
@@ -262,7 +262,7 @@ def calculate(inputs: dict) -> dict:
     raw_sections = inputs.get("sections", [])
 
     if raw_sections:
-        # Multi-section mode — size each independently
+        # Multi-section mode - size each independently
         sized = []
         total_dp = 0.0
         for sec in raw_sections:
@@ -364,7 +364,7 @@ def calculate(inputs: dict) -> dict:
         "total_dp_pa":       circ["dp_total_pa"],
         "total_length_m":    length_m,
         "max_flow_lps":      round(flow_m3s * 1000, 2),
-        "fan_motor_kw":      None,      # Python doesn't size fan motor — renderer should check None
+        "fan_motor_kw":      None,      # Python doesn't size fan motor - renderer should check None
         "fan_motor_hp_calc": None,
         "fan_motor_hp_std":  None,
         # Wrap single section into array so renderer can iterate

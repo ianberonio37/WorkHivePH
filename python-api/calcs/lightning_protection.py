@@ -1,10 +1,10 @@
 """
-Lightning Protection System (LPS) Design — Phase 7c
+Lightning Protection System (LPS) Design - Phase 7c
 Standards: IEC 62305-1:2010 (General principles),
            IEC 62305-2:2010 (Risk management),
-           IEC 62305-3:2010 (Physical damage — air-termination, down conductors, earth),
-           IEC 62305-4:2010 (Electrical / electronic systems — LPZ, SPD),
-           NSCP 2015 Vol.3 (Electrical — lightning protection),
+           IEC 62305-3:2010 (Physical damage - air-termination, down conductors, earth),
+           IEC 62305-4:2010 (Electrical / electronic systems - LPZ, SPD),
+           NSCP 2015 Vol.3 (Electrical - lightning protection),
            PEC 2017 Part 1 Article 280 (Lightning protection)
 Libraries: math (all formulas closed-form)
 
@@ -31,8 +31,8 @@ LPL_PARAMS: dict[str, dict] = {
 # ─── IEC 62305-2 Risk thresholds ─────────────────────────────────────────────
 RISK_THRESHOLD_RT = 1e-5    # tolerable risk for loss of human life (per year)
 
-# ─── IEC 62305-3 Table NA.1 — Ground Flash Density (Ng) for Philippines ──────
-# Ng (flashes/km²/yr) — use PAGASA data; typical Philippine values:
+# ─── IEC 62305-3 Table NA.1 - Ground Flash Density (Ng) for Philippines ──────
+# Ng (flashes/km²/yr) - use PAGASA data; typical Philippine values:
 NG_PHILIPPINES: dict[str, float] = {
     "Metro Manila":    10,
     "Cebu":            8,
@@ -52,7 +52,7 @@ CONDUCTOR_SPECS: dict[str, dict] = {
 }
 
 # ─── IEC 62305-3 Earth termination: resistance targets ───────────────────────
-EARTH_R_TARGET = 10.0   # Ω — IEC 62305-3 §5.4.2 (less than 10 Ω recommended)
+EARTH_R_TARGET = 10.0   # Ω - IEC 62305-3 §5.4.2 (less than 10 Ω recommended)
 
 # ─── SPD (Surge Protection Device) class per LPZ boundary ────────────────────
 SPD_CLASS: dict[str, dict] = {
@@ -64,7 +64,7 @@ SPD_CLASS: dict[str, dict] = {
 
 def _collection_area(L_m: float, W_m: float, H_m: float, R_m: float) -> float:
     """
-    IEC 62305-2 §A.1 — Equivalent collection area Ad (m²) of an isolated structure.
+    IEC 62305-2 §A.1 - Equivalent collection area Ad (m²) of an isolated structure.
     Ad = L×W + 2×(L+W)×H + π×H²   (simplified for rectangular building, H ≤ R)
     For H > R: uses rolling sphere geometry.
     """
@@ -78,7 +78,7 @@ def _collection_area(L_m: float, W_m: float, H_m: float, R_m: float) -> float:
 
 def _flash_frequency(Ad_m2: float, Ng: float, Cd: float = 1.0) -> float:
     """
-    IEC 62305-2 §A.1 — Annual number of dangerous events to the structure.
+    IEC 62305-2 §A.1 - Annual number of dangerous events to the structure.
     Nd = Ng × Ad × Cd × 10^-6
     Cd = location factor (1.0 isolated, 0.5 surrounded, 2.0 on hilltop)
     """
@@ -89,7 +89,7 @@ def _rolling_sphere_height(R_m: float, x_m: float) -> float:
     """
     Height of the rolling sphere arc above a horizontal surface at horizontal
     distance x from the attachment point.
-    z = R − √(R² − x²) — depth of sphere below attachment point at distance x.
+    z = R − √(R² − x²) - depth of sphere below attachment point at distance x.
     Protection zone: points below the arc are protected.
     """
     if x_m > R_m:
@@ -109,13 +109,13 @@ def _down_conductor_count(L_m: float, W_m: float, spacing_m: float) -> int:
 
 def _separation_distance(lpl: str, l_m: float, ki: float = 0.04) -> float:
     """
-    IEC 62305-3 §6.3 — minimum separation distance s (m) to avoid dangerous sparking.
+    IEC 62305-3 §6.3 - minimum separation distance s (m) to avoid dangerous sparking.
     s = ki × (kc / km) × l
     ki = 0.08 (LPL I), 0.06 (II), 0.04 (III/IV)
     kc = current share factor (1 for single down conductor path)
     km = material factor (1 for air)
     l  = length of down conductor from strike point to bonding point (m)
-    Default: ki=0.04 (LPL III/IV), kc=1, km=1 (air) — conservative.
+    Default: ki=0.04 (LPL III/IV), kc=1, km=1 (air) - conservative.
     """
     ki_lpl = {"LPL I": 0.08, "LPL II": 0.06, "LPL III": 0.04, "LPL IV": 0.04}
     k = ki_lpl.get(lpl, ki)
@@ -140,7 +140,7 @@ def _earth_rod_count(rho_soil: float, rod_len_m: float, R_target: float) -> int:
 
 
 def calculate(inputs: dict) -> dict:
-    """Main entry point — compatible with TypeScript calcLightningProtection() keys."""
+    """Main entry point - compatible with TypeScript calcLightningProtection() keys."""
     # ── Structure parameters ──────────────────────────────────────────────────
     building_length_m  = float(inputs.get("building_length_m",  30.0))
     building_width_m   = float(inputs.get("building_width_m",   20.0))
@@ -184,7 +184,7 @@ def calculate(inputs: dict) -> dict:
     air_conductor_total_m = ring_conductor_m + grid_conductor_m
 
     # Rolling sphere: check if any point on the building roof needs a finial
-    # At edges/corners the sphere can only roll to R from the edge — typically
+    # At edges/corners the sphere can only roll to R from the edge - typically
     # the ridge and corners need finials at LPL I/II
     finials_needed = 4   # minimum 4 corners + any roof ridges or projections
     if building_height_m > R_sphere:
@@ -206,10 +206,10 @@ def calculate(inputs: dict) -> dict:
 
     # ── LPZ zoning ───────────────────────────────────────────────────────────
     lpz_zones = [
-        {"zone": "LPZ 0A", "description": "Exposed to direct strike — outside, unprotected"},
-        {"zone": "LPZ 0B", "description": "Protected by air-termination — shielded from direct strike"},
-        {"zone": "LPZ 1",  "description": "Inside structure — surge current limited at boundary"},
-        {"zone": "LPZ 2",  "description": "Protected room — further reduction of surge energy"},
+        {"zone": "LPZ 0A", "description": "Exposed to direct strike - outside, unprotected"},
+        {"zone": "LPZ 0B", "description": "Protected by air-termination - shielded from direct strike"},
+        {"zone": "LPZ 1",  "description": "Inside structure - surge current limited at boundary"},
+        {"zone": "LPZ 2",  "description": "Protected room - further reduction of surge energy"},
     ]
     spd_schedule = [
         {"boundary": "LPZ 0A → LPZ 1",
@@ -250,12 +250,12 @@ def calculate(inputs: dict) -> dict:
 
     # ── Compliance notes ──────────────────────────────────────────────────────
     code_notes = [
-        f"LPL selected: {lpl} — rolling sphere R={R_sphere}m, mesh {mesh_size}×{mesh_size}m, "
+        f"LPL selected: {lpl} - rolling sphere R={R_sphere}m, mesh {mesh_size}×{mesh_size}m, "
         f"down conductor spacing ≤{down_spacing}m.",
-        f"Ground flash density Ng={Ng} fl/km²/yr ({location}) — annual strikes Nd={round(Nd,4)}/yr.",
-        f"Risk assessment (IEC 62305-2): risk {'acceptable' if risk_ok else 'EXCEEDS threshold — upgrade LPL'}.",
+        f"Ground flash density Ng={Ng} fl/km²/yr ({location}) - annual strikes Nd={round(Nd,4)}/yr.",
+        f"Risk assessment (IEC 62305-2): risk {'acceptable' if risk_ok else 'EXCEEDS threshold - upgrade LPL'}.",
         f"Separation distance to internal wiring/equipment: s ≥ {round(s_sep_m,2)} m (IEC 62305-3 §6.3).",
-        f"Earth resistance target: ≤ {EARTH_R_TARGET} Ω — soil ρ={rho_soil} Ω·m → {n_rods} rod(s) required.",
+        f"Earth resistance target: ≤ {EARTH_R_TARGET} Ω - soil ρ={rho_soil} Ω·m → {n_rods} rod(s) required.",
         f"{'Ring earth electrode required.' if ring_earth_required else 'Ring earth electrode optional for this LPL/size.'}",
         "All LPS conductors must be bonded to structural steel, reinforcement, and metallic services (IEC 62305-3 §6.2).",
         f"SPD coordination: Type 1 at MDB, Type 2 at SDB, Type 3 at equipment (IEC 62305-4).",
