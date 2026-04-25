@@ -10,7 +10,7 @@ Replaces the hand-rolled Hazen-Williams TypeScript implementation with:
 - System curve data (Q vs TDH sweep) for pump curve overlay
 """
 
-from fluids import friction_factor, Reynolds_number
+from fluids import friction_factor, Reynolds
 from fluids.fittings import Hooper2K, entrance_sharp, exit_normal
 from iapws import IAPWS97
 import math
@@ -89,7 +89,7 @@ def _friction_head(
     """
     A    = math.pi * (pipe_id_m / 2) ** 2   # pipe cross-section m2
     v    = flow_m3s / A                       # velocity m/s
-    Re   = Reynolds_number(V=v, D=pipe_id_m, rho=rho, mu=mu)
+    Re   = Reynolds(V=v, D=pipe_id_m, rho=rho, mu=mu)
     eD   = roughness_m / pipe_id_m           # relative roughness
 
     if Re < 1:
