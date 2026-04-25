@@ -5696,7 +5696,7 @@ serve(async (req) => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ calc_type, inputs }),
-          signal: AbortSignal.timeout(20000), // 20s — covers Railway cold-start
+          signal: AbortSignal.timeout(60000), // 60s — covers Render free-tier cold-start (~50s)
         });
         if (pyRes.ok) {
           const pyData = await pyRes.json();
