@@ -289,4 +289,10 @@ def calculate(inputs: dict) -> dict:
         "fuel_100pct_lhr":  round(fuel_lhr_100, 1),
         "fuel_75pct_lhr":   round(fuel_lhr_75, 1),
         "load_breakdown":   [{"load": "Total demand", "kW": round(demand_kw, 2), "kVA": round(demand_kva, 2)}],
+        # Additional aliases
+        "starting_kva":      start_kva,
+        "start_multiplier":  MOTOR_START.get(start_method, MOTOR_START["DOL (Direct-on-Line)"])["multiplier"],
+        "tank_8hr_litres":   round(tank_litres, 0),
+        "total_demand_va":   round(demand_kva * 1000, 0),
+        "total_demand_kva":  round(demand_kva, 2),
     }

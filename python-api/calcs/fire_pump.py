@@ -251,7 +251,7 @@ def calculate(inputs: dict) -> dict:
         "P_motor_HP":      round(motor_kw_design / 0.746, 1),
         "P_nfpa_HP":       round(rec_motor_kw / 0.746, 1),
         "P_shaft_HP":      round(motor_kw_calc / 0.746, 1),
-        "P_jockey_bar":    round(jockey_pressure_bar, 3),
+        "P_jockey_bar":    round(jockey_press_bar, 3),
         "P_overload":      round(overload_bar, 3),
         "Q_overload":      round(rec_flow_lpm * 1.5, 0),
         "H_friction_m":    round(rated_press_bar / 0.0981 * 0.3, 1),  # approx friction = 30% TDH

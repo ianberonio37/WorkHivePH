@@ -312,5 +312,8 @@ def calculate(inputs: dict) -> dict:
         "design_area":         design_area,
         "hazard":              hazard_key,
         "pipe_dia":            str(branch_pipe.get("nominal_mm", "-")) + " mm",
+        "velocity":            branch_pipe.get("velocity_ms", 0),
+        "water_volume_L":      round(q_total_lpm * 60, 0),
+        "water_volume_m3":     round(q_total_lpm * 60 / 1000, 2),
         "duration":            60,   # NFPA 13 minimum 60-min water supply
     }

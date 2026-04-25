@@ -327,7 +327,7 @@ def calculate(inputs: dict) -> dict:
         # ── Legacy renderer aliases (frontend renderSolarPVReport) ─────────────
         "panel_qty":           total_panels,
         "num_strings":         strings_parallel,
-        "actual_array_kwp":    round(array_kWp, 2),
+        "actual_array_kwp":    round(array_kw_stc, 2),
         "required_array_kwp":  round(system_kw, 2),
         "annual_yield_kwh":    round(energy_yr_kwh, 0),
         "inverter_kw":         round(rec_inv_kva * 0.90, 2),
