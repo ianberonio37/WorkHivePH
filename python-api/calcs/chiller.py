@@ -338,4 +338,5 @@ def calculate(inputs: dict) -> dict:
         "Q_flow_m3h":       round(chw_flow_kgs * 3.6, 2),
         "Q_flow_GPM":       round(chw_flow_kgs * 15.8503, 1),
         "ambient_note":     f"Design ambient: {outdoor_db_c}°C DB",
+        "dT_cond_C":        cond_approach,
     }

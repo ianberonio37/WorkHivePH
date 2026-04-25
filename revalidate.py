@@ -120,10 +120,16 @@ SAFE_MISSING = {
     'E_actual_lux','N_fixtures','floor_area_m2','h_rc_m','lpd_W_m2','total_kW',
     'T_Nm','M_Nm','d_std_mm','Ss_allow_MPa','Ss_allow_Pa','Kb','Kt',
     'combined_Nm','d_cubed_m3','Ss_allow_Pa','J_m4','twist_deg','twist_deg_per_m','twist_rad',
-    # Gear/Belt — new renderer uses Python fields directly
+    # Gear/Belt — new renderer uses conditional blocks per drive_type
+    # Gear fields only shown when isGear=true, Chain fields when isChain=true
     'K_L','K_theta','actual_driven_rpm','arc_deg','belt_designation',
     'belt_speed_ms','capacity_margin_pct','corrected_power_kW','design_power_kW',
     'driven_dia_mm','n_belts_calc','power_per_belt_kW','rated_power_kW','total_power_capacity_kW',
+    'Kv','Km','Wt_N','bending_stress_pinion_MPa','bending_stress_gear_MPa',
+    'contact_stress_MPa','Sf_gear','Sf_pinion','Sh_gear','Sh_pinion',
+    'bending_ok','contact_ok','d_pinion_mm','d_gear_mm','pitch_velocity_ms',
+    'N_driver_teeth','N_driven_teeth','Pr_kN','d_driver_mm','d_driven_mm',
+    'centre_distance_mm','chain_length_pitches','chain_length_mm','chain_number','pitch_mm',
     # Noise — conditionally rendered (only show for barrier/dose modes)
     'Lp_no_barrier_dB','Lp_with_barrier_dB','NC_measured','NC_ok','barrier_IL_dB',
     # Beam/Column — type-conditional (RC fields only for RC members)
