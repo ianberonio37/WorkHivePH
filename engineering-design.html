@@ -10199,6 +10199,8 @@ async function runCalculation() {
       renderBearingLifeReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'V-Belt Drive Design') {
       renderVBeltReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Gear / Belt Drive') {
+      renderGearBeltDriveReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Hoist Capacity') {
       renderHoistCapacityReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Short Circuit') {
@@ -10233,6 +10235,8 @@ async function runCalculation() {
       renderFluidPowerReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Noise / Acoustics') {
       renderNoiseAcousticsReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Boiler / Steam System') {
+      renderBoilerSteamReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -14926,8 +14930,31 @@ function renderFirePumpReport(inputs, results, narrative) {
 // ─── Electrical: Lighting Design Report ──────────────────────────────────────
 function renderLightingDesignReport(inputs, results, narrative) {
   const now = new Date();
-  const r   = results;
   const e   = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+
+  // ── Compatibility: map Python API keys → renderer field names ──────────────
+  // Python uses snake_case; this renderer was written for camelCase TypeScript keys.
+  const r = Object.assign({}, results, {
+    floor_area_m2:  results.room_area_m2    ?? results.floor_area_m2,
+    h_rc_m:         results.h_rc_m          ?? ((Number(inputs.room_height_m || inputs.ceiling_ht_m || 3) - 0.75)).toFixed(2),
+    N_fixtures:     results.n_actual        ?? results.N_fixtures     ?? results.N_required,
+    N_exact:        results.N_exact         ?? results.n_exact,
+    E_actual_lux:   results.E_achieved_lux  ?? results.E_actual_lux,
+    total_kW:       results.total_kW        ?? ((results.total_watts || 0) / 1000).toFixed(3),
+    total_watts:    results.total_watts     ?? 0,
+    lpd_W_m2:       results.lpd_actual_W_m2 ?? results.lpd_W_m2,
+  });
+  // Remap input field names (Python collectInputs uses long names)
+  inputs = Object.assign({}, inputs, {
+    room_len_m:      inputs.room_len_m      ?? inputs.room_length_m,
+    room_wid_m:      inputs.room_wid_m      ?? inputs.room_width_m,
+    ceiling_ht_m:    inputs.ceiling_ht_m    ?? inputs.room_height_m,
+    fixture_type:    inputs.fixture_type    ?? inputs.luminaire_type,
+    lumens_per_fix:  inputs.lumens_per_fix  ?? results.lamp_lumens ?? inputs.lamp_lumens,
+    watts_per_fix:   inputs.watts_per_fix   ?? results.watts_per_fixture ?? inputs.watts_per_fixture,
+    llf:             inputs.llf             ?? results.LLF,
+    target_lux:      inputs.target_lux      ?? results.target_lux,
+  });
 
   const html = `
     <div style="max-width:800px;margin:0 auto;font-family:'Poppins',sans-serif;color:#162032;background:#fff;padding:2.5rem;border-radius:1rem;">
@@ -15653,9 +15680,53 @@ function renderShaftDesignReport(inputs, results, narrative) {
   const now     = new Date();
   const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
-  const r       = results;
 
-  const twistOk    = r.twist_deg_per_m <= 1.0;
+  // ── Compatibility: Python DE-Goodman keys → ASME B106.1M renderer fields ──
+  const keyway     = inputs.keyway || 'Yes';
+  const shockMap   = { Steady: {Kb:1.0,Kt:1.0}, Minor: {Kb:1.5,Kt:1.0}, Moderate: {Kb:2.0,Kt:1.5}, Heavy: {Kb:3.0,Kt:2.0} };
+  const shk        = shockMap[inputs.shock_type] || shockMap['Minor'];
+  const Sut        = Number(results.Sut_MPa || 0);
+  const Ss_allow   = Sut * (keyway === 'Yes' ? 0.18 : 0.30);
+  const T_Nm       = Number(results.torque_Nm         || results.T_Nm           || 0);
+  const M_Nm       = Number(results.bending_moment_Nm || results.M_Nm           || 0);
+  const d_std      = Number(results.d_standard_mm     || results.d_std_mm       || results.d_used_mm || 0);
+  const d_min      = Number(results.d_min_mm          || 0);
+  const spanM      = Number(inputs.span_mm || inputs.span_m && inputs.span_m * 1000 || 300) / 1000;
+  const comb       = Math.sqrt(Math.pow(shk.Kb * M_Nm, 2) + Math.pow(shk.Kt * T_Nm, 2));
+  const J_m4       = Math.PI * Math.pow(d_std / 1000, 4) / 32;
+  const G          = 80e9;
+  const tw_rad     = J_m4 > 0 ? T_Nm * spanM / (G * J_m4) : 0;
+  const tw_deg     = tw_rad * 180 / Math.PI;
+  const tw_deg_m   = spanM > 0 ? tw_deg / spanM : 0;
+
+  const r = Object.assign({}, results, {
+    T_Nm:            T_Nm.toFixed(1),
+    M_Nm:            M_Nm.toFixed(1),
+    d_std_mm:        d_std,
+    d_min_mm:        d_min.toFixed(1),
+    Sut_MPa:         Sut,
+    Ss_allow_MPa:    Ss_allow.toFixed(1),
+    Ss_allow_Pa:     (Ss_allow * 1e6).toFixed(0),
+    Kb:              shk.Kb,
+    Kt:              shk.Kt,
+    combined_Nm:     comb.toFixed(1),
+    d_cubed_m3:      Ss_allow > 0 ? ((16 / Math.PI) * comb / (Ss_allow * 1e6)).toExponential(3) : '—',
+    J_m4:            J_m4.toExponential(3),
+    twist_rad:       tw_rad.toFixed(6),
+    twist_deg:       tw_deg.toFixed(3),
+    twist_deg_per_m: tw_deg_m.toFixed(3),
+    power_kW:        results.power_kW,
+  });
+  // Remap inputs so narrative template strings resolve correctly
+  inputs = Object.assign({}, inputs, {
+    power_input: inputs.power_input ?? inputs.power_kW,
+    power_unit:  inputs.power_unit  ?? 'kW',
+    shaft_rpm:   inputs.shaft_rpm   ?? inputs.speed_rpm,
+    span_mm:     inputs.span_mm     ?? (inputs.span_m && inputs.span_m * 1000),
+    shock_type:  inputs.shock_type  ?? 'Minor',
+  });
+
+  const twistOk    = Number(r.twist_deg_per_m) <= 1.0;
   const twistColor = twistOk ? '#2e7d32' : '#e65100';
 
   const html = `
@@ -16065,6 +16136,165 @@ function renderVBeltReport(inputs, results, narrative) {
   `;
 
   document.getElementById('report-panel').innerHTML = html;
+  showReport();
+}
+
+// ─── Gear / Belt / Chain Drive Report (Python API) ───────────────────────────
+function renderGearBeltDriveReport(inputs, results, narrative) {
+  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const r = results;
+  const driveType  = r.drive_type || inputs.drive_type || 'Drive';
+  const ratio      = Number(r.overall_ratio || r.speed_ratio || 0).toFixed(3);
+  const powerKW    = Number(r.power_kW || inputs.power_kW || 0).toFixed(1);
+  const nDriver    = r.n_driver_rpm || inputs.n_driver_rpm || 0;
+  const nDriven    = r.n_driven_rpm || inputs.n_driven_rpm || 0;
+  const isGear     = driveType.includes('Gear');
+  const isChain    = driveType.includes('Chain');
+  const isBelt     = driveType.includes('Belt');
+
+  const ok = (c,t,f) => `<span style="font-weight:700;color:${c?'#2e7d32':'#c62828'};">${c?t:f}</span>`;
+
+  document.getElementById('report-panel').innerHTML = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div><h1>DESIGN CALCULATION</h1><div style="font-size:0.8rem;color:#555;">${escHtml(driveType)} — AGMA 2001-D04 / RMA IP-20 / ANSI B29.1</div></div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
+    </div>
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">Drive Tag</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Drive Type</th><td>${escHtml(driveType)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Standard</th><td>${isGear?'AGMA 2001-D04':isBelt?'RMA IP-20':'ANSI B29.1'}</td><th>Checked by</th><td>${e('')}</td></tr>
+    </table>
+    <h2>1. Design Parameters</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Power Transmitted</td><td class="num"><strong>${powerKW} kW</strong></td></tr>
+      <tr><td>Driver Speed</td><td class="num">${escHtml(String(nDriver))} RPM</td></tr>
+      <tr><td>Driven Speed</td><td class="num">${escHtml(String(nDriven))} RPM</td></tr>
+      <tr><td>Speed Ratio</td><td class="num"><strong>${ratio} : 1</strong></td></tr>
+    </table>
+
+    ${isGear ? `
+    <h2>2. Spur Gear Results (AGMA 2001-D04)</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Module</td><td class="num">${r.module_mm} mm</td></tr>
+      <tr><td>Pinion pitch diameter</td><td class="num">${r.d_pinion_mm} mm</td></tr>
+      <tr><td>Gear pitch diameter</td><td class="num">${r.d_gear_mm} mm</td></tr>
+      <tr><td>Pitch line velocity</td><td class="num">${r.pitch_velocity_ms} m/s</td></tr>
+      <tr><td>Tangential force Wt</td><td class="num">${r.Wt_N} N</td></tr>
+      <tr><td>Dynamic factor Kv</td><td class="num">${r.Kv}</td></tr>
+      <tr><td>Bending stress — Pinion</td><td class="num">${r.bending_stress_pinion_MPa} MPa &nbsp; Sf=${r.Sf_pinion} ${ok(r.bending_ok,'PASS','FAIL')}</td></tr>
+      <tr><td>Bending stress — Gear</td><td class="num">${r.bending_stress_gear_MPa} MPa &nbsp; Sf=${r.Sf_gear}</td></tr>
+      <tr><td>Contact stress</td><td class="num">${r.contact_stress_MPa} MPa &nbsp; Sh=${r.Sh_pinion} ${ok(r.contact_ok,'PASS','FAIL')}</td></tr>
+    </table>
+    <div class="result-highlight" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;">
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;"><div style="font-size:0.78rem;color:#777;">Bending Safety Factor (pinion)</div><div style="font-size:1.6rem;font-weight:800;color:${r.bending_ok?'#2e7d32':'#c62828'};">${r.Sf_pinion}</div><div style="font-size:0.75rem;color:#555;">Min. required: 1.2</div></div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;"><div style="font-size:0.78rem;color:#777;">Contact Safety Factor</div><div style="font-size:1.6rem;font-weight:800;color:${r.contact_ok?'#2e7d32':'#c62828'};">${r.Sh_pinion}</div><div style="font-size:0.75rem;color:#555;">Min. required: 1.2</div></div>
+    </div>` : ''}
+
+    ${isBelt ? `
+    <h2>2. V-Belt Results (RMA IP-20)</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Belt section</td><td class="num"><strong>${r.section}</strong></td></tr>
+      <tr><td>Driver sheave (small) dia.</td><td class="num">${r.d_small_mm} mm</td></tr>
+      <tr><td>Driven sheave (large) dia.</td><td class="num">${r.d_large_mm} mm</td></tr>
+      <tr><td>Belt pitch length</td><td class="num">${r.belt_length_mm} mm</td></tr>
+      <tr><td>Wrap angle (small sheave)</td><td class="num">${r.wrap_angle_deg}°</td></tr>
+      <tr><td>Wrap factor Cθ</td><td class="num">${r.Ctheta}</td></tr>
+      <tr><td>Power per belt</td><td class="num">${r.P_per_belt_kW} kW</td></tr>
+      <tr><td>Design power</td><td class="num">${r.P_design_kW} kW</td></tr>
+      <tr><td>Number of belts</td><td class="num"><strong>${r.n_belts}</strong></td></tr>
+      <tr><td>Net belt pull</td><td class="num">${r.net_belt_pull_N} N</td></tr>
+    </table>
+    <div class="result-highlight" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;">
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;"><div style="font-size:0.78rem;color:#777;">Section ${escHtml(r.section||'')} Belts Required</div><div style="font-size:2rem;font-weight:800;color:#162032;">${r.n_belts}</div><div style="font-size:0.75rem;color:#555;">matched/banded set</div></div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;"><div style="font-size:0.78rem;color:#777;">Belt Length</div><div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.belt_length_mm} mm</div><div style="font-size:0.75rem;color:#555;">Section ${escHtml(r.section||'')}</div></div>
+    </div>` : ''}
+
+    ${isChain ? `
+    <h2>2. Roller Chain Results (ANSI B29.1)</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Chain number</td><td class="num"><strong>ANSI No. ${r.chain_number}</strong></td></tr>
+      <tr><td>Pitch</td><td class="num">${r.pitch_mm} mm</td></tr>
+      <tr><td>Allowable pull Pr</td><td class="num">${r.Pr_kN} kN</td></tr>
+      <tr><td>Driver sprocket teeth</td><td class="num">${r.N_driver_teeth}</td></tr>
+      <tr><td>Driven sprocket teeth</td><td class="num">${r.N_driven_teeth}</td></tr>
+      <tr><td>Driver sprocket dia.</td><td class="num">${r.d_driver_mm} mm</td></tr>
+      <tr><td>Driven sprocket dia.</td><td class="num">${r.d_driven_mm} mm</td></tr>
+      <tr><td>Centre distance</td><td class="num">${r.centre_distance_mm} mm</td></tr>
+      <tr><td>Chain length</td><td class="num">${r.chain_length_pitches} pitches (${r.chain_length_mm} mm)</td></tr>
+    </table>
+    <div class="result-highlight" style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;margin:1rem 0;max-width:300px;">
+      <div style="font-size:0.78rem;color:#777;">Selected Chain</div>
+      <div style="font-size:2rem;font-weight:800;color:#162032;">ANSI No. ${r.chain_number}</div>
+      <div style="font-size:0.75rem;color:#555;">${r.chain_length_pitches} pitches — ${r.pitch_mm}mm pitch</div>
+    </div>` : ''}
+
+    <h2>3. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `A PRC-licensed Mechanical Engineer must sign and seal this calculation. ${isBelt?`Order ${r.n_belts} matched/banded Section ${r.section} belt(s). Retension after first 4–8 hours of operation per RMA IP-20.`:''}${isChain?`Lubricate chain per ANSI B29.1 lubrication type for the operating speed. Install chain guard per ISO 4413.`:''}${isGear?`Verify gear backlash and tooth contact pattern after assembly. Lubricate per AGMA 9005-F16.`:''} Speed ratio achieved: ${ratio}:1.`)}</p>
+  `;
+  showReport();
+}
+
+// ─── Boiler / Steam System Report (Python API) ───────────────────────────────
+function renderBoilerSteamReport(inputs, r, narrative) {
+  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  document.getElementById('report-panel').innerHTML = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div><h1>BOILER / STEAM SYSTEM CALCULATION</h1><div style="font-size:0.8rem;color:#555;">ASME BPVC Sec. I/IV | ASME B31.1 | IAPWS-IF97 | RA 8407 (PH)</div></div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
+    </div>
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">System Tag</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Fuel Type</th><td>${escHtml(r.fuel_type||inputs.fuel_type||'')}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Standard</th><td>ASME BPVC Sec.I/IV | ASME B31.1 | RA 8407</td><th>Checked by</th><td>${e('')}</td></tr>
+    </table>
+    <h2>1. Steam Conditions</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Steam pressure</td><td class="num">${r.steam_pressure_bar} bar</td></tr>
+      <tr><td>Saturation temperature</td><td class="num">${r.T_sat_C} °C</td></tr>
+      <tr><td>Superheat</td><td class="num">${r.superheat_C > 0 ? r.superheat_C + ' °C' : 'Saturated (none)'}</td></tr>
+      <tr><td>Steam enthalpy hg</td><td class="num">${r.h_steam_kJ_kg} kJ/kg</td></tr>
+      <tr><td>Feed water enthalpy hf</td><td class="num">${r.h_feed_kJ_kg} kJ/kg</td></tr>
+      <tr><td>Latent heat hfg</td><td class="num">${r.h_fg_kJ_kg} kJ/kg</td></tr>
+      <tr><td>Specific volume vg</td><td class="num">${r.v_g_m3_kg} m³/kg</td></tr>
+    </table>
+    <h2>2. Boiler Output</h2>
+    <div class="result-highlight" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin:1rem 0;">
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;"><div style="font-size:0.78rem;color:#777;">Heat Duty</div><div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.duty_kW} kW</div><div style="font-size:0.75rem;color:#555;">${r.BHP} BHP</div></div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;"><div style="font-size:0.78rem;color:#777;">Steam Output</div><div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.m_steam_kgh} kg/hr</div><div style="font-size:0.75rem;color:#555;">${r.m_steam_kgs} kg/s</div></div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;"><div style="font-size:0.78rem;color:#777;">Fuel Consumption</div><div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.m_fuel_kgh} kg/hr</div><div style="font-size:0.75rem;color:#555;">η = ${(r.boiler_efficiency*100).toFixed(0)}%</div></div>
+    </div>
+    <h2>3. Boiler Performance</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Fuel HHV</td><td class="num">${r.HHV_MJ_kg} MJ/kg</td></tr>
+      <tr><td>Boiler efficiency</td><td class="num">${(r.boiler_efficiency*100).toFixed(0)}%</td></tr>
+      <tr><td>Blowdown rate</td><td class="num">${r.BD_pct}% → ${r.m_blowdown_kgh} kg/hr heat loss ${r.blowdown_heat_loss_kW} kW</td></tr>
+      <tr><td>Flash steam recovery</td><td class="num">${r.m_flash_kgh} kg/hr @ ${r.flash_pressure_bar} bar (x = ${r.flash_fraction})</td></tr>
+      <tr><td>Economiser heat savings</td><td class="num">${r.Q_economiser_kW} kW (η with eco = ${(r.eta_with_economiser*100).toFixed(1)}%)</td></tr>
+    </table>
+    <h2>4. Steam Piping (ASME B31.1)</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Pipe OD</td><td class="num">${r.steam_pipe_od_mm} mm</td></tr>
+      <tr><td>Min. wall thickness t</td><td class="num">${r.t_pipe_min_mm} mm</td></tr>
+      <tr><td>Required (incl. CA)</td><td class="num">${r.t_pipe_required_mm} mm</td></tr>
+    </table>
+    <h2>5. Code Notes</h2>
+    ${(r.code_notes||[]).map(n=>`<p style="font-size:0.83rem;color:#333;margin:0.2rem 0;">• ${escHtml(n)}</p>`).join('')}
+    <h2>6. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations||`DOLE Boiler Certificate of Inspection required before operation (RA 8407). ASME I/IV stamp required. All safety valves to be set ≤ MAWP. A PRC-licensed Mechanical Engineer must sign and seal this calculation.`)}</p>
+  `;
   showReport();
 }
 
