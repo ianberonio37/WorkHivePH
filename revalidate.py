@@ -107,11 +107,12 @@ RENDER_MAP = {
     'Fluid Power':                              'renderFluidPowerReport',
     'Noise / Acoustics':                        'renderNoiseAcousticsReport',
     'Boiler / Steam System':                    'renderBoilerSteamReport',
-    'Load Schedule':                            'renderLoadScheduleReport',
+    'Load Schedule':                            'renderLoadReport',
     'Lightning Protection (LPS)':               'renderLPSDiagram',
     'Domestic Water System':                    'renderReport',
     'Sewer / Drainage':                         'renderReport',
-    'FCU Selection':                            'renderFCUReport',
+    'FCU Selection':                            'renderFCUSelectionReport',
+    'HVAC Cooling Load':                        'renderReport',   # generic renderer
 }
 
 # Fields that are safe to be "missing" — accessed conditionally or via compat layers
@@ -130,6 +131,7 @@ SAFE_MISSING = {
     'bending_ok','contact_ok','d_pinion_mm','d_gear_mm','pitch_velocity_ms',
     'N_driver_teeth','N_driven_teeth','Pr_kN','d_driver_mm','d_driven_mm',
     'centre_distance_mm','chain_length_pitches','chain_length_mm','chain_number','pitch_mm',
+    'module_mm',  # gear-only, inside ${isGear ? ...} conditional block
     # Noise — conditionally rendered (only show for barrier/dose modes)
     'Lp_no_barrier_dB','Lp_with_barrier_dB','NC_measured','NC_ok','barrier_IL_dB',
     # Beam/Column — type-conditional (RC fields only for RC members)

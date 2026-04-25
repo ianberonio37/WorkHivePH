@@ -275,4 +275,22 @@ def calculate(inputs: dict) -> dict:
         },
         "calculation_source": "python/psychrolib",
         "standard": "ARI 440 | ASHRAE 62.1 | ASHRAE 90.1 | PSME",
+
+        # ── Legacy renderer aliases (frontend renderFCUSelectionReport) ────────
+        "cooling_load_kw":    round(q_design_kw, 2),
+        "selected_kw":        selected["total_kW"],
+        "airflow_cmh":        selected["airflow_m3hr"],
+        "chw_flow_lps_total": round(cw_flow_kgs, 3),   # kg/s ≈ L/s for water
+        "room_name":          str(inputs.get("room_name", inputs.get("project_name", "Zone 1"))),
+        "qty":                int(inputs.get("quantity", inputs.get("n_units", 1))),
+        # Wrap single result as rooms array for multi-room renderer
+        "rooms": [{
+            "room_name":            str(inputs.get("room_name", "Zone 1")),
+            "qty":                  int(inputs.get("quantity", 1)),
+            "selected_model":       selected["size"],
+            "selected_kw":          selected["total_kW"],
+            "selected_tr":          round(selected["total_kW"] / 3.517, 2),
+            "airflow_cmh":          selected["airflow_m3hr"],
+            "chw_flow_lps_total":   round(cw_flow_kgs, 3),
+        }],
     }
