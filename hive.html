@@ -644,6 +644,20 @@
         </div>
       </div>
 
+      <!-- Audit Log (supervisor only) -->
+      <div id="audit-log-section" class="hidden mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Supervisor Action Log</p>
+          <button id="btn-toggle-audit" style="color:#29B6D9;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;padding:0.5rem 0;">Hide</button>
+        </div>
+        <div id="audit-log-body">
+          <div id="audit-log-list" class="flex flex-col gap-2"></div>
+          <div id="audit-log-empty" class="hidden rounded-xl p-4 text-center" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+            <p class="text-xs text-white/30">No supervisor actions recorded yet.</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Activity feed -->
       <div class="flex items-center justify-between mb-3">
         <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Hive Activity</p>
@@ -1257,7 +1271,7 @@ async function initBoard() {
 
   updateSwitchButton();
   // allSettled — never rejects, so startPresence() is always reached even if one data load fails
-  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), loadAnalytics(), buildNotifications(), loadApprovalQueue(), loadHiveInventory(), loadDowntime(), loadMtbf(), loadMttr(), loadPMHealth()]);
+  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), loadAnalytics(), buildNotifications(), loadApprovalQueue(), loadHiveInventory(), loadDowntime(), loadMtbf(), loadMttr(), loadPMHealth(), loadAuditLog()]);
   _boardResults.forEach((r, i) => { if (r.status === 'rejected') console.error('initBoard step', i, 'failed:', r.reason); });
   // Team stock alert needs memberNames populated by loadMembers first
   checkTeamStockAlert();
@@ -1324,6 +1338,7 @@ async function kickMember(workerName) {
   const { error } = await db.from('hive_members')
     .update({ status: 'kicked' }).eq('hive_id', HIVE_ID).eq('worker_name', workerName);
   if (error) { showToast('Could not remove member: ' + error.message); return; }
+  writeAuditLog('kick_member', 'hive_members', null, workerName, {});
   await loadMembers();
   await loadFeed();
 }
@@ -2037,6 +2052,21 @@ function renderApprovalQueue() {
   list.innerHTML = assetCards + partCards;
 }
 
+// ── AUDIT LOG ──
+// Fire-and-forget — never awaited so a log failure never blocks the supervisor action
+function writeAuditLog(action, targetType, targetId, targetName, meta = {}) {
+  if (!HIVE_ID) return;
+  db.from('hive_audit_log').insert({
+    hive_id:     HIVE_ID,
+    actor:       WORKER_NAME,
+    action,
+    target_type: targetType,
+    target_id:   targetId,
+    target_name: targetName,
+    meta,
+  }).then(({ error }) => { if (error) console.warn('audit log:', error.message); });
+}
+
 async function approveItem(table, id, submittedBy, label) {
   if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
   const { error } = await db.from(table).update({
@@ -2052,6 +2082,7 @@ async function approveItem(table, id, submittedBy, label) {
   if (table === 'inventory_items') loadHiveInventory();
   showToast(escHtml(label) + ' approved and published to hive.');
   pushNotif('approval', 'Item Approved', `${label} submitted by ${submittedBy} was approved.`, null);
+  writeAuditLog('approve_item', table, id, label, { submitted_by: submittedBy });
 }
 
 async function rejectItem(table, id, submittedBy, label) {
@@ -2063,6 +2094,7 @@ async function rejectItem(table, id, submittedBy, label) {
   else if (table === 'inventory_items') _pendingParts  = _pendingParts.filter(p => p.id !== id);
   renderApprovalQueue();
   showToast(escHtml(label) + ' rejected.');
+  writeAuditLog('reject_item', table, id, label, { submitted_by: submittedBy });
 }
 
 function startApprovalRealtime() {
@@ -2132,6 +2164,60 @@ function startWorkerApprovalListener() {
 document.getElementById('btn-toggle-approval').addEventListener('click', () => {
   const body = document.getElementById('approval-body');
   const btn  = document.getElementById('btn-toggle-approval');
+  const isHidden = body.style.display === 'none';
+  body.style.display = isHidden ? '' : 'none';
+  btn.textContent = isHidden ? 'Hide' : 'Show';
+});
+
+// ── AUDIT LOG (supervisor only) ──
+async function loadAuditLog() {
+  if (HIVE_ROLE !== 'supervisor') return;
+  const section = document.getElementById('audit-log-section');
+  section.classList.remove('hidden');
+
+  const { data, error } = await db.from('hive_audit_log')
+    .select('*')
+    .eq('hive_id', HIVE_ID)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  const list    = document.getElementById('audit-log-list');
+  const emptyEl = document.getElementById('audit-log-empty');
+
+  if (error) { console.error('audit log:', error.message); return; }
+  if (!data || data.length === 0) {
+    list.innerHTML = '';
+    emptyEl.classList.remove('hidden');
+    return;
+  }
+  emptyEl.classList.add('hidden');
+
+  const ACTION_ICON = {
+    approve_item: { icon: '✓', color: '#4ade80', label: 'Approved' },
+    reject_item:  { icon: '✗', color: '#f87171', label: 'Rejected' },
+    kick_member:  { icon: '⊘', color: '#f87171', label: 'Removed member' },
+    member_joined:{ icon: '+', color: '#29B6D9', label: 'Joined' },
+  };
+
+  list.innerHTML = data.map(row => {
+    const cfg = ACTION_ICON[row.action] || { icon: '·', color: '#94a3b8', label: row.action };
+    const meta = row.meta || {};
+    const sub  = meta.submitted_by ? ` · submitted by ${escHtml(meta.submitted_by)}` : '';
+    const when = row.created_at ? formatDate(row.created_at) : '';
+    return `
+    <div class="flex items-start gap-3 px-3 py-2.5 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+      <span class="text-sm font-black flex-shrink-0 mt-0.5" style="color:${cfg.color};width:16px;text-align:center;">${cfg.icon}</span>
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-semibold text-white/80">${escHtml(cfg.label)} <span class="font-black text-white">${escHtml(row.target_name || '')}</span>${sub}</p>
+        <p class="text-[10px] text-white/30 mt-0.5">${escHtml(row.actor)} · ${when}</p>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('btn-toggle-audit').addEventListener('click', () => {
+  const body = document.getElementById('audit-log-body');
+  const btn  = document.getElementById('btn-toggle-audit');
   const isHidden = body.style.display === 'none';
   body.style.display = isHidden ? '' : 'none';
   btn.textContent = isHidden ? 'Hide' : 'Show';
