@@ -11,7 +11,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Any
 import traceback
-import importlib
 
 app = FastAPI(
     title="Engineering Calc Python API",
@@ -123,6 +122,18 @@ def _load_handlers() -> dict[str, Any]:
     handlers["Fluid Power"]           = fluid_power_calc
     handlers["Noise / Acoustics"]     = noise_calc
     handlers["Boiler / Steam System"] = boiler_calc
+
+    # ── Frontend name aliases ─────────────────────────────────────────────────
+    # The frontend sends these exact strings; map them to the Python handlers
+    # registered above so the edge function routes correctly.
+    handlers["Duct Sizing (Equal Friction)"]       = handlers["Duct Sizing"]
+    handlers["Water Supply Pipe Sizing"]            = handlers["Domestic Water System"]
+    handlers["Drainage Pipe Sizing"]               = handlers["Sewer / Drainage"]
+    handlers["Lightning Protection System (LPS)"]  = handlers["Lightning Protection (LPS)"]
+    handlers["V-Belt Drive Design"]                = handlers["Gear / Belt Drive"]
+    handlers["Boiler System"]                      = handlers["Boiler / Steam System"]
+    handlers["Load Estimation"]                    = handlers["Load Schedule"]
+    handlers["Short Circuit Analysis"]             = handlers["Short Circuit"]
 
     return handlers
 
