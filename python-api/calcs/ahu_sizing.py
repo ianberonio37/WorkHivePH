@@ -347,9 +347,10 @@ def calculate(inputs: dict) -> dict:
         "nominal_AHU_CMH_total": round(vol_flow_m3hr, 1),
         "nominal_AHU_CMH_each":  round(vol_flow_m3hr, 1),
         "ach_actual":        round(ach, 1),
-        "ceiling_height":    float(inputs.get("ceiling_height_m", 3.0)),
-        "floor_area":        float(inputs.get("floor_area_m2", 0)),
-        "persons":           float(inputs.get("persons", 0)),
+        "ceiling_height":    ceiling_h,
+        "floor_area":        floor_area_m2,   # use internally computed value (defaults to 50 m²)
+        "zone_volume":       round(room_vol, 1),
+        "persons":           persons,
         "safety_factor":     float(inputs.get("design_margin_pct", 10)) / 100 + 1,
         "oa_pct_used":       oa_pct,
         "oa_per_person_lps": float(inputs.get("oa_per_person_lps", 10.0)),
@@ -362,7 +363,6 @@ def calculate(inputs: dict) -> dict:
         "oa_check":          "PASS" if oa_adequate else "FAIL",
         "T_mixed":           round(ma_db, 1),
         "eta_fan":           0.65,
-        "zone_volume":       float(inputs.get("room_volume_m3", 0)),
         "dT_sa":             round(indoor_db - supply_temp_c, 1),
         "fan_static_Pa":     fan_total_static_pa,
     }

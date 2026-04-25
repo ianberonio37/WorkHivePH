@@ -17154,10 +17154,10 @@ function renderAHUSizingReport(inputs, results, narrative) {
 
     <h2>Step 7 — Air Changes Per Hour (ACH) Check</h2>
     <table>
-      ${r.floor_area > 0 ? `
-      <tr><th>Zone Volume</th><td>${r.zone_volume} m³ (${r.floor_area} m² × ${r.ceiling_height} m H)</td></tr>
-      <tr><th style="background:#fffde7;">Actual ACH</th><td><strong>${r.ach_actual} ACH</strong> (${r.Q_sa_CMH} m³/h ÷ ${r.zone_volume} m³)</td></tr>
-      ` : `<tr><th>ACH Check</th><td style="color:#888;">Floor area not entered — enter floor area and ceiling height for ACH calculation.</td></tr>`}
+      ${(r.ach_actual > 0 || r.floor_area > 0) ? `
+      <tr><th>Zone Volume</th><td>${r.zone_volume || '—'} m³ (${r.floor_area || '—'} m² × ${r.ceiling_height || '—'} m H)</td></tr>
+      <tr><th style="background:#fffde7;">Actual ACH</th><td><strong>${r.ach_actual} ACH</strong> (${r.Q_sa_CMH} m³/h supply)</td></tr>
+      ` : `<tr><th>ACH Check</th><td style="color:#888;">Floor area not entered - enter floor area and ceiling height for ACH calculation.</td></tr>`}
     </table>
 
     <h2>Step 8 — Summary of Results</h2>
