@@ -53,9 +53,11 @@ def _load_handlers() -> dict[str, Any]:
     from calcs.hvac_cooling_load  import calculate as hvac_calc
     from calcs.ahu_sizing         import calculate as ahu_calc
     from calcs.cooling_tower      import calculate as cooling_tower_calc
+    from calcs.duct_sizing        import calculate as duct_calc
     handlers["HVAC Cooling Load"]      = hvac_calc
     handlers["AHU Sizing"]             = ahu_calc
     handlers["Cooling Tower Sizing"]   = cooling_tower_calc
+    handlers["Duct Sizing"]            = duct_calc
 
     # Phase 3 — Refrigeration
     # from calcs.refrigerant_pipe  import calculate as refrig_pipe_calc
