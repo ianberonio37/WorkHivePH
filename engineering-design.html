@@ -785,10 +785,16 @@ const CALC_TYPES = {
     { id: 'Hoist Capacity',            icon: '🏗️', desc: 'SWL, wire rope safety factor, hoist motor sizing',      available: true  },
   ],
   'Machine Design': [
-    { id: 'V-Belt Drive Design',  icon: '🔄', desc: 'Sheave sizing, belt length, no. of belts — RMA / ASME', available: true  },
-    { id: 'Bearing Life (L10)',   icon: '⚙️', desc: 'Dynamic load rating, L10 hours — ISO 281',              available: true  },
-    { id: 'Shaft Design',         icon: '🔩', desc: 'Torsion + bending, ASME shaft sizing',                  available: true  },
-    { id: 'Bolt Torque & Preload',icon: '🔧', desc: 'Fastener tightening torque, preload — ISO 898',         available: true  },
+    { id: 'V-Belt Drive Design',   icon: '🔄', desc: 'Sheave sizing, belt length, no. of belts — RMA / ASME',                     available: true  },
+    { id: 'Bearing Life (L10)',    icon: '⚙️', desc: 'Dynamic load rating, L10 hours — ISO 281',                                  available: true  },
+    { id: 'Shaft Design',          icon: '🔩', desc: 'Torsion + bending, DE-Goodman fatigue, critical speed — ASME B106.1M',      available: true  },
+    { id: 'Bolt Torque & Preload', icon: '🔧', desc: 'Fastener tightening torque, preload — ISO 898',                             available: true  },
+    { id: 'Beam / Column Design',  icon: '🏗️', desc: 'Steel beam/column LRFD (AISC 360) + RC beam/column (ACI 318) — NSCP 2015', available: true  },
+    { id: 'Pressure Vessel',       icon: '🫙', desc: 'ASME VIII-1 shell thickness, MAWP, heads, nozzle reinforcement, hydro test', available: true  },
+    { id: 'Heat Exchanger',        icon: '🌡️', desc: 'LMTD/NTU-ε, overall U, tube count, shell ID — TEMA / ASME Sec. VIII',      available: true  },
+    { id: 'Vibration Analysis',    icon: '📳', desc: 'SDOF natural freq, transmissibility, ISO 10816-3 severity zones',           available: true  },
+    { id: 'Fluid Power',           icon: '🔴', desc: 'Hydraulic cylinder force/speed, pump sizing, accumulator — ISO 4413',       available: true  },
+    { id: 'Noise / Acoustics',     icon: '🔊', desc: 'Room SPL, barrier IL, OSHA TWA dose, NC rating — ISO 9613 / DOLE D.O. 13', available: true  },
   ],
   'HVAC Systems': [
     { id: 'Chiller System — Air Cooled',   icon: '🧊', desc: 'Chiller tonnage, COP, compressor kW, condenser airflow — ASHRAE', available: true },
@@ -799,6 +805,7 @@ const CALC_TYPES = {
     { id: 'Refrigerant Pipe Sizing',       icon: '🧊', desc: 'ACR copper tube sizing for suction, discharge, and liquid lines — velocity check, pressure drop, ΔT equivalent — R-410A/R-32/R-22/R-407C/R-134a — ASHRAE Refrigeration / ASTM B280 / PSME', available: true },
     { id: 'FCU Selection',                 icon: '🌡️', desc: 'Fan coil unit selection per room — CHW flow rate, main pipe sizing, diversity factor — ASHRAE HVAC Systems / PSME', available: true },
     { id: 'Expansion Tank Sizing',         icon: '🫙', desc: 'Bladder/diaphragm expansion tank for closed hydronic loops — CHW, HHW, CW — ASHRAE acceptance ratio method / ASME VIII / PSME', available: true },
+    { id: 'Heat Exchanger',                icon: '🌡️', desc: 'Shell-and-tube HX: LMTD, NTU-ε, overall U, required area, tube count — TEMA 10th Ed. / ASME Sec. VIII', available: true },
   ],
 };
 
@@ -8104,6 +8111,388 @@ function applyRoomDefaults(roomFunc) {
   if (eEl) eEl.value = d.equip;
 }
 
+  if (calcType === 'Beam / Column Design') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Member Tag</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. 2nd Floor Beam B-201" />
+      </div>
+      <div class="mb-4">
+        <div class="field-label">Member Type</div>
+        <div class="toggle-group" id="tg-member-type">
+          <button class="toggle-btn active" data-val="Steel Beam"   onclick="toggle('tg-member-type','Steel Beam')">Steel Beam</button>
+          <button class="toggle-btn"        data-val="Steel Column" onclick="toggle('tg-member-type','Steel Column')">Steel Column</button>
+          <button class="toggle-btn"        data-val="RC Beam"      onclick="toggle('tg-member-type','RC Beam')">RC Beam</button>
+          <button class="toggle-btn"        data-val="RC Column"    onclick="toggle('tg-member-type','RC Column')">RC Column</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Span / Length (m)</div>
+          <div class="input-group"><input id="f-span-m" class="wh-input" type="number" value="6" min="0.5" step="0.1"/><span class="input-unit">m</span></div>
+        </div>
+        <div>
+          <div class="field-label">UDL w (kN/m) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">for deflection</span></div>
+          <div class="input-group"><input id="f-w-udl" class="wh-input" type="number" value="30" min="0"/><span class="input-unit">kN/m</span></div>
+        </div>
+      </div>
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div><div class="field-label">M<sub>u</sub> (kN·m)</div><div class="input-group"><input id="f-Mu" class="wh-input" type="number" value="180" min="0"/><span class="input-unit">kN·m</span></div></div>
+        <div><div class="field-label">V<sub>u</sub> (kN)</div><div class="input-group"><input id="f-Vu" class="wh-input" type="number" value="90" min="0"/><span class="input-unit">kN</span></div></div>
+        <div><div class="field-label">P<sub>u</sub> (kN) <span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">columns</span></div><div class="input-group"><input id="f-Pu" class="wh-input" type="number" value="500" min="0"/><span class="input-unit">kN</span></div></div>
+      </div>
+      <div class="mb-4">
+        <div class="field-label">Steel Grade</div>
+        <div class="toggle-group" id="tg-steel-grade">
+          <button class="toggle-btn active" data-val="A36"        onclick="toggle('tg-steel-grade','A36')">A36 (Fy 250 MPa)</button>
+          <button class="toggle-btn"        data-val="A992"       onclick="toggle('tg-steel-grade','A992')">A992 (Fy 345 MPa)</button>
+          <button class="toggle-btn"        data-val="A572 Gr.50" onclick="toggle('tg-steel-grade','A572 Gr.50')">A572 Gr.50</button>
+        </div>
+      </div>
+      <div class="mb-4">
+        <div class="field-label">W-Section (Steel members)</div>
+        <select id="f-section" class="wh-input">
+          <option>W200x27</option><option>W200x36</option><option>W250x33</option><option selected>W310x45</option>
+          <option>W310x60</option><option>W360x51</option><option>W360x79</option><option>W410x54</option>
+          <option>W460x74</option><option>W530x66</option><option>W610x82</option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <div class="field-label">Concrete Grade (RC members)</div>
+        <div class="toggle-group" id="tg-conc-grade">
+          <button class="toggle-btn" data-val="f'c 21 MPa (3000 psi)" onclick="toggle('tg-conc-grade',&quot;f'c 21 MPa (3000 psi)&quot;)">f'c 21 MPa</button>
+          <button class="toggle-btn active" data-val="f'c 28 MPa (4000 psi)" onclick="toggle('tg-conc-grade',&quot;f'c 28 MPa (4000 psi)&quot;)">f'c 28 MPa</button>
+          <button class="toggle-btn" data-val="f'c 35 MPa (5000 psi)" onclick="toggle('tg-conc-grade',&quot;f'c 35 MPa (5000 psi)&quot;)">f'c 35 MPa</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Rebar Grade</div>
+          <div class="toggle-group" id="tg-rebar-grade">
+            <button class="toggle-btn" data-val="Grade 40 (ASTM A615)" onclick="toggle('tg-rebar-grade','Grade 40 (ASTM A615)')">Grade 40</button>
+            <button class="toggle-btn active" data-val="Grade 60 (ASTM A615)" onclick="toggle('tg-rebar-grade','Grade 60 (ASTM A615)')">Grade 60</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Bar Dia (RC members)</div>
+          <div class="toggle-group" id="tg-bar-dia">
+            <button class="toggle-btn" data-val="16" onclick="toggle('tg-bar-dia','16')">16mm</button>
+            <button class="toggle-btn active" data-val="20" onclick="toggle('tg-bar-dia','20')">20mm</button>
+            <button class="toggle-btn" data-val="25" onclick="toggle('tg-bar-dia','25')">25mm</button>
+            <button class="toggle-btn" data-val="32" onclick="toggle('tg-bar-dia','32')">32mm</button>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div><div class="field-label">b (mm) RC</div><input id="f-b-mm" class="wh-input" type="number" value="300" min="100"/></div>
+        <div><div class="field-label">h (mm) RC</div><input id="f-h-mm" class="wh-input" type="number" value="500" min="150"/></div>
+        <div><div class="field-label">No. of Bars</div><input id="f-n-bars" class="wh-input" type="number" value="4" min="2"/></div>
+      </div>
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
+        Standards: NSCP 2015 Vol.1 | AISC 360-22 LRFD (steel) | ACI 318-19 (concrete) | ASCE 7-22
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
+  if (calcType === 'Pressure Vessel') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Vessel Tag</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. V-101 — Compressed Air Receiver" />
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Design Pressure</div>
+          <div class="input-group"><input id="f-design-pressure" class="wh-input" type="number" value="10" min="0.1" step="0.1"/><span class="input-unit">bar</span></div>
+        </div>
+        <div>
+          <div class="field-label">Design Temperature</div>
+          <div class="input-group"><input id="f-design-temp" class="wh-input" type="number" value="150" min="-50"/><span class="input-unit">°C</span></div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Inner Diameter (ID)</div>
+          <div class="input-group"><input id="f-inner-dia" class="wh-input" type="number" value="800" min="100"/><span class="input-unit">mm</span></div>
+        </div>
+        <div>
+          <div class="field-label">Shell Length</div>
+          <div class="input-group"><input id="f-shell-length" class="wh-input" type="number" value="2000" min="100"/><span class="input-unit">mm</span></div>
+        </div>
+      </div>
+      <div class="mb-4">
+        <div class="field-label">Shell Material</div>
+        <div class="toggle-group" id="tg-pv-material">
+          <button class="toggle-btn active" data-val="SA-516 Gr.70 (Carbon Steel)" onclick="toggle('tg-pv-material','SA-516 Gr.70 (Carbon Steel)')">SA-516 Gr.70</button>
+          <button class="toggle-btn"        data-val="SA-240 Type 304 SS"          onclick="toggle('tg-pv-material','SA-240 Type 304 SS')">SA-240 304 SS</button>
+          <button class="toggle-btn"        data-val="SA-240 Type 316 SS"          onclick="toggle('tg-pv-material','SA-240 Type 316 SS')">SA-240 316 SS</button>
+        </div>
+      </div>
+      <div class="mb-4">
+        <div class="field-label">Head Type</div>
+        <div class="toggle-group" id="tg-head-type">
+          <button class="toggle-btn active" data-val="Ellipsoidal (2:1)"     onclick="toggle('tg-head-type','Ellipsoidal (2:1)')">2:1 Ellipsoidal</button>
+          <button class="toggle-btn"        data-val="Hemispherical"         onclick="toggle('tg-head-type','Hemispherical')">Hemispherical</button>
+          <button class="toggle-btn"        data-val="Torispherical (ASME)"  onclick="toggle('tg-head-type','Torispherical (ASME)')">Torispherical</button>
+          <button class="toggle-btn"        data-val="Flat (bolted)"         onclick="toggle('tg-head-type','Flat (bolted)')">Flat</button>
+        </div>
+      </div>
+      <div class="mb-4">
+        <div class="field-label">Weld Joint Efficiency</div>
+        <div class="toggle-group" id="tg-joint-eff">
+          <button class="toggle-btn active" data-val="Full radiography (Type 1)" onclick="toggle('tg-joint-eff','Full radiography (Type 1)')">E=1.00 (Full RT)</button>
+          <button class="toggle-btn"        data-val="Spot radiography (Type 1)" onclick="toggle('tg-joint-eff','Spot radiography (Type 1)')">E=0.85 (Spot RT)</button>
+          <button class="toggle-btn"        data-val="No radiography (Type 1)"   onclick="toggle('tg-joint-eff','No radiography (Type 1)')">E=0.70 (No RT)</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div><div class="field-label">Corrosion Allowance</div><div class="input-group"><input id="f-corrosion-mm" class="wh-input" type="number" value="1.6" min="0" step="0.1"/><span class="input-unit">mm</span></div></div>
+        <div><div class="field-label">Nozzle Dia.</div><div class="input-group"><input id="f-nozzle-dia" class="wh-input" type="number" value="100" min="25"/><span class="input-unit">mm</span></div></div>
+        <div><div class="field-label">No. Nozzles</div><input id="f-n-nozzles" class="wh-input" type="number" value="2" min="0"/></div>
+      </div>
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
+        Standards: ASME BPVC Section VIII Div.1 (UG-27/32/34/37/99) | DOLE OSHS PD 856 (PH registration)
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
+  if (calcType === 'Heat Exchanger') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / HX Tag</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. HX-101 — Chilled Water Cooler" />
+      </div>
+      <div class="mb-4">
+        <div class="field-label">Heat Duty</div>
+        <div class="input-group"><input id="f-hx-duty" class="wh-input" type="number" value="500" min="1"/><span class="input-unit">kW</span></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Hot Side — Inlet / Outlet</div>
+          <div style="display:flex;gap:0.5rem;">
+            <div class="input-group" style="flex:1;"><input id="f-hot-in" class="wh-input" type="number" value="90"/><span class="input-unit">°C in</span></div>
+            <div class="input-group" style="flex:1;"><input id="f-hot-out" class="wh-input" type="number" value="60"/><span class="input-unit">°C out</span></div>
+          </div>
+          <div class="input-group" style="margin-top:0.4rem;"><input id="f-hot-flow" class="wh-input" type="number" value="10" step="0.1"/><span class="input-unit">kg/s</span></div>
+        </div>
+        <div>
+          <div class="field-label">Cold Side — Inlet / Outlet</div>
+          <div style="display:flex;gap:0.5rem;">
+            <div class="input-group" style="flex:1;"><input id="f-cold-in" class="wh-input" type="number" value="25"/><span class="input-unit">°C in</span></div>
+            <div class="input-group" style="flex:1;"><input id="f-cold-out" class="wh-input" type="number" value="55"/><span class="input-unit">°C out</span></div>
+          </div>
+          <div class="input-group" style="margin-top:0.4rem;"><input id="f-cold-flow" class="wh-input" type="number" value="8" step="0.1"/><span class="input-unit">kg/s</span></div>
+        </div>
+      </div>
+      <div class="mb-4">
+        <div class="field-label">Flow Configuration</div>
+        <div class="toggle-group" id="tg-hx-config">
+          <button class="toggle-btn active" data-val="Counterflow"            onclick="toggle('tg-hx-config','Counterflow')">Counterflow</button>
+          <button class="toggle-btn"        data-val="Parallel"               onclick="toggle('tg-hx-config','Parallel')">Parallel</button>
+          <button class="toggle-btn"        data-val="Shell-and-tube (1-2)"   onclick="toggle('tg-hx-config','Shell-and-tube (1-2)')">S&T 1-2</button>
+        </div>
+      </div>
+      <div class="mb-4">
+        <div class="field-label">TEMA Shell Type</div>
+        <div class="toggle-group" id="tg-shell-type">
+          <button class="toggle-btn active" data-val="E (single pass)" onclick="toggle('tg-shell-type','E (single pass)')">E (F=0.95)</button>
+          <button class="toggle-btn"        data-val="F (two pass)"    onclick="toggle('tg-shell-type','F (two pass)')">F (F=1.00)</button>
+          <button class="toggle-btn"        data-val="J (divided flow)"onclick="toggle('tg-shell-type','J (divided flow)')">J (F=0.88)</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Tube OD</div>
+          <div class="toggle-group" id="tg-tube-od">
+            <button class="toggle-btn" data-val="12.7" onclick="toggle('tg-tube-od','12.7')">½″ (12.7)</button>
+            <button class="toggle-btn active" data-val="19.05" onclick="toggle('tg-tube-od','19.05')">¾″ (19.05)</button>
+            <button class="toggle-btn" data-val="25.4" onclick="toggle('tg-tube-od','25.4')">1″ (25.4)</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Wall Thickness</div>
+          <div class="toggle-group" id="tg-tube-wall">
+            <button class="toggle-btn" data-val="1.65" onclick="toggle('tg-tube-wall','1.65')">BWG16 (1.65)</button>
+            <button class="toggle-btn active" data-val="2.11" onclick="toggle('tg-tube-wall','2.11')">BWG14 (2.11)</button>
+            <button class="toggle-btn" data-val="2.77" onclick="toggle('tg-tube-wall','2.77')">BWG12 (2.77)</button>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div><div class="field-label">Tube Length (m)</div><div class="input-group"><input id="f-tube-length" class="wh-input" type="number" value="3" min="0.5" step="0.5"/><span class="input-unit">m</span></div></div>
+        <div>
+          <div class="field-label">Tube Material</div>
+          <div class="toggle-group" id="tg-tube-mat">
+            <button class="toggle-btn" data-val="Carbon Steel" onclick="toggle('tg-tube-mat','Carbon Steel')">CS</button>
+            <button class="toggle-btn active" data-val="Stainless Steel 316" onclick="toggle('tg-tube-mat','Stainless Steel 316')">SS316</button>
+            <button class="toggle-btn" data-val="Copper" onclick="toggle('tg-tube-mat','Copper')">Cu</button>
+            <button class="toggle-btn" data-val="Titanium" onclick="toggle('tg-tube-mat','Titanium')">Ti</button>
+          </div>
+        </div>
+      </div>
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
+        Standards: TEMA 10th Ed. | ASME Sec. VIII Div.1 | Kern Process Heat Transfer | VDI Heat Atlas
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
+  if (calcType === 'Vibration Analysis') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Machine Tag</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. P-101 — 15 kW Centrifugal Pump" />
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div><div class="field-label">Machine Mass</div><div class="input-group"><input id="f-vib-mass" class="wh-input" type="number" value="500" min="1"/><span class="input-unit">kg</span></div></div>
+        <div><div class="field-label">Operating Speed</div><div class="input-group"><input id="f-vib-speed" class="wh-input" type="number" value="1450" min="100"/><span class="input-unit">RPM</span></div></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div><div class="field-label">Power Rating</div><div class="input-group"><input id="f-vib-power" class="wh-input" type="number" value="15" min="0.1" step="0.1"/><span class="input-unit">kW</span></div></div>
+        <div><div class="field-label">Measured Velocity (0 = compute)</div><div class="input-group"><input id="f-vib-measured" class="wh-input" type="number" value="0" min="0" step="0.1"/><span class="input-unit">mm/s RMS</span></div></div>
+      </div>
+      <div class="mb-4">
+        <div class="field-label">ISO 10816-3 Machine Class</div>
+        <div class="toggle-group" id="tg-machine-class">
+          <button class="toggle-btn" data-val="Class I (≤15 kW)" onclick="toggle('tg-machine-class','Class I (≤15 kW)')">Class I ≤15 kW</button>
+          <button class="toggle-btn active" data-val="Class II (15–300 kW, rigid foundation)" onclick="toggle('tg-machine-class','Class II (15–300 kW, rigid foundation)')">Class II 15–300 kW</button>
+          <button class="toggle-btn" data-val="Class III (>300 kW, rigid foundation)" onclick="toggle('tg-machine-class','Class III (>300 kW, rigid foundation)')">Class III >300 kW rigid</button>
+          <button class="toggle-btn" data-val="Class IV (>300 kW, flexible foundation)" onclick="toggle('tg-machine-class','Class IV (>300 kW, flexible foundation)')">Class IV flexible</button>
+        </div>
+      </div>
+      <div class="mb-4">
+        <div class="field-label">Vibration Isolator</div>
+        <div class="toggle-group" id="tg-isolator">
+          <button class="toggle-btn" data-val="Rubber mount (soft)"   onclick="toggle('tg-isolator','Rubber mount (soft)')">Rubber (soft)</button>
+          <button class="toggle-btn active" data-val="Rubber mount (medium)" onclick="toggle('tg-isolator','Rubber mount (medium)')">Rubber (medium)</button>
+          <button class="toggle-btn" data-val="Steel spring (medium)" onclick="toggle('tg-isolator','Steel spring (medium)')">Steel spring</button>
+          <button class="toggle-btn" data-val="Air spring"            onclick="toggle('tg-isolator','Air spring')">Air spring</button>
+          <button class="toggle-btn" data-val="Rigid mount (no isolation)" onclick="toggle('tg-isolator','Rigid mount (no isolation)')">Rigid (no isolation)</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div><div class="field-label">Unbalance Mass</div><div class="input-group"><input id="f-imbalance-mass" class="wh-input" type="number" value="0.1" min="0" step="0.01"/><span class="input-unit">kg</span></div></div>
+        <div><div class="field-label">Eccentricity</div><div class="input-group"><input id="f-eccentricity" class="wh-input" type="number" value="5" min="0" step="0.1"/><span class="input-unit">mm</span></div></div>
+      </div>
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
+        Standards: ISO 10816-3 | ISO 20816-1 | ISO 21940-11 (balancing) | ANSI S2.19
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
+  if (calcType === 'Fluid Power') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Tag</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Hydraulic Press HYD-201" />
+      </div>
+      <div class="mb-4">
+        <div class="field-label">Calculation Mode</div>
+        <div class="toggle-group" id="tg-fp-type">
+          <button class="toggle-btn active" data-val="System"      onclick="toggle('tg-fp-type','System')">Full System</button>
+          <button class="toggle-btn"        data-val="Cylinder"    onclick="toggle('tg-fp-type','Cylinder')">Cylinder Only</button>
+          <button class="toggle-btn"        data-val="Pump"        onclick="toggle('tg-fp-type','Pump')">Pump Only</button>
+          <button class="toggle-btn"        data-val="Accumulator" onclick="toggle('tg-fp-type','Accumulator')">Accumulator</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div><div class="field-label">System Pressure</div><div class="input-group"><input id="f-sys-pressure" class="wh-input" type="number" value="200" min="1"/><span class="input-unit">bar</span></div></div>
+        <div><div class="field-label">System Flow</div><div class="input-group"><input id="f-sys-flow" class="wh-input" type="number" value="40" min="0.1" step="0.1"/><span class="input-unit">L/min</span></div></div>
+      </div>
+      <div class="mb-4">
+        <div class="field-label">Hydraulic Fluid</div>
+        <div class="toggle-group" id="tg-hyd-fluid">
+          <button class="toggle-btn" data-val="ISO VG 32 (40°C)"  onclick="toggle('tg-hyd-fluid','ISO VG 32 (40°C)')">VG 32</button>
+          <button class="toggle-btn active" data-val="ISO VG 46 (40°C)" onclick="toggle('tg-hyd-fluid','ISO VG 46 (40°C)')">VG 46</button>
+          <button class="toggle-btn" data-val="ISO VG 68 (40°C)"  onclick="toggle('tg-hyd-fluid','ISO VG 68 (40°C)')">VG 68</button>
+          <button class="toggle-btn" data-val="Water-glycol 50%"  onclick="toggle('tg-hyd-fluid','Water-glycol 50%')">Water-glycol</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div><div class="field-label">Cylinder Force Required</div><div class="input-group"><input id="f-cyl-force" class="wh-input" type="number" value="50" min="0.1" step="0.1"/><span class="input-unit">kN</span></div></div>
+        <div><div class="field-label">Cylinder Stroke</div><div class="input-group"><input id="f-stroke-mm" class="wh-input" type="number" value="200" min="10"/><span class="input-unit">mm</span></div></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div><div class="field-label">Bore (0 = auto-select)</div><div class="input-group"><input id="f-bore-mm" class="wh-input" type="number" value="0" min="0"/><span class="input-unit">mm</span></div></div>
+        <div><div class="field-label">Pump Speed</div><div class="input-group"><input id="f-pump-rpm" class="wh-input" type="number" value="1450" min="300"/><span class="input-unit">RPM</span></div></div>
+      </div>
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div><div class="field-label">Acc. P-min</div><div class="input-group"><input id="f-acc-pmin" class="wh-input" type="number" value="150" min="1"/><span class="input-unit">bar</span></div></div>
+        <div><div class="field-label">Acc. P-max (0=sys)</div><div class="input-group"><input id="f-acc-pmax" class="wh-input" type="number" value="0" min="0"/><span class="input-unit">bar</span></div></div>
+        <div><div class="field-label">Fluid Vol. (acc.)</div><div class="input-group"><input id="f-acc-vol" class="wh-input" type="number" value="5" min="0.1" step="0.1"/><span class="input-unit">L</span></div></div>
+      </div>
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
+        Standards: ISO 4413:2010 | NFPA T2.12.10 | Bosch Rexroth Hydraulic Trainer
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
+  if (calcType === 'Noise / Acoustics') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Assessment Tag</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Pump Room PR-01 — Noise Assessment" />
+      </div>
+      <div class="mb-4">
+        <div class="field-label">Calculation Mode</div>
+        <div class="toggle-group" id="tg-noise-type">
+          <button class="toggle-btn active" data-val="Room"    onclick="toggle('tg-noise-type','Room')">Room SPL + NC</button>
+          <button class="toggle-btn"        data-val="Barrier" onclick="toggle('tg-noise-type','Barrier')">Barrier IL</button>
+          <button class="toggle-btn"        data-val="Dose"    onclick="toggle('tg-noise-type','Dose')">Noise Dose (TWA)</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div><div class="field-label">Sound Power Level Lw</div><div class="input-group"><input id="f-lw" class="wh-input" type="number" value="90" min="0"/><span class="input-unit">dB</span></div></div>
+        <div><div class="field-label">Distance to Receiver</div><div class="input-group"><input id="f-noise-dist" class="wh-input" type="number" value="5" min="0.1" step="0.5"/><span class="input-unit">m</span></div></div>
+      </div>
+      <div class="mb-4">
+        <div class="field-label">Directivity Factor Q</div>
+        <div class="toggle-group" id="tg-directivity">
+          <button class="toggle-btn" data-val="1" onclick="toggle('tg-directivity','1')">Q=1 (free field)</button>
+          <button class="toggle-btn active" data-val="2" onclick="toggle('tg-directivity','2')">Q=2 (on floor)</button>
+          <button class="toggle-btn" data-val="4" onclick="toggle('tg-directivity','4')">Q=4 (floor+wall)</button>
+        </div>
+      </div>
+      <div class="mb-4">
+        <div class="field-label">Space Type (NC limit)</div>
+        <div class="toggle-group" id="tg-noise-space">
+          <button class="toggle-btn" data-val="Bedroom / sleeping"  onclick="toggle('tg-noise-space','Bedroom / sleeping')">Bedroom NC25</button>
+          <button class="toggle-btn" data-val="Private office"      onclick="toggle('tg-noise-space','Private office')">Private office NC35</button>
+          <button class="toggle-btn active" data-val="Open-plan office" onclick="toggle('tg-noise-space','Open-plan office')">Open office NC40</button>
+          <button class="toggle-btn" data-val="Conference room"     onclick="toggle('tg-noise-space','Conference room')">Conference NC30</button>
+          <button class="toggle-btn" data-val="Manufacturing (general)" onclick="toggle('tg-noise-space','Manufacturing (general)')">Manufacturing NC65</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div><div class="field-label">Avg. Absorption Coeff α</div><div class="input-group"><input id="f-alpha" class="wh-input" type="number" value="0.15" min="0.01" max="0.99" step="0.01"/><span class="input-unit">—</span></div></div>
+        <div><div class="field-label">Total Room Surface Area</div><div class="input-group"><input id="f-room-surface" class="wh-input" type="number" value="200" min="10"/><span class="input-unit">m²</span></div></div>
+      </div>
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div><div class="field-label">Source→Barrier (m)</div><input id="f-d-source" class="wh-input" type="number" value="10" min="0.5"/></div>
+        <div><div class="field-label">Barrier→Recv (m)</div><input id="f-d-recv" class="wh-input" type="number" value="10" min="0.5"/></div>
+        <div><div class="field-label">Barrier Height (m)</div><input id="f-barrier-h" class="wh-input" type="number" value="3" min="0.5" step="0.5"/></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div><div class="field-label">Noise Level (Dose mode)</div><div class="input-group"><input id="f-dose-level" class="wh-input" type="number" value="90" min="70" max="140"/><span class="input-unit">dBA</span></div></div>
+        <div><div class="field-label">Exposure Duration</div><div class="input-group"><input id="f-dose-hours" class="wh-input" type="number" value="8" min="0.1" max="24" step="0.5"/><span class="input-unit">hr</span></div></div>
+      </div>
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
+        Standards: ISO 9613-2 | OSHA 29 CFR 1910.95 | DOLE D.O. 13 | ASHRAE 2019 Ch.8 | IEC 61672
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
 // ─── Collect inputs from form ─────────────────────────────────────────────────
 function collectInputs() {
   const v = id => document.getElementById(id)?.value || '';
@@ -8924,6 +9313,119 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Beam / Column Design') {
+    return {
+      project_name:    v('f-project')                               || 'Untitled Structural Member',
+      member_type:     getToggle('tg-member-type')                  || 'Steel Beam',
+      span_m:          parseFloat(v('f-span-m'))                    || 6,
+      Mu_kNm:          parseFloat(v('f-Mu'))                        || 0,
+      Vu_kN:           parseFloat(v('f-Vu'))                        || 0,
+      Pu_kN:           parseFloat(v('f-Pu'))                        || 0,
+      w_kNm:           parseFloat(v('f-w-udl'))                     || 0,
+      steel_grade:     getToggle('tg-steel-grade')                  || 'A36',
+      section:         v('f-section')                               || 'W310x45',
+      concrete_grade:  getToggle('tg-conc-grade')                   || "f'c 28 MPa (4000 psi)",
+      rebar_grade:     getToggle('tg-rebar-grade')                  || 'Grade 60 (ASTM A615)',
+      b_mm:            parseFloat(v('f-b-mm'))                      || 300,
+      h_mm:            parseFloat(v('f-h-mm'))                      || 500,
+      cover_mm:        parseFloat(v('f-cover-mm'))                  || 40,
+      bar_dia_mm:      parseFloat(getToggle('tg-bar-dia'))          || 20,
+      n_bars:          parseFloat(v('f-n-bars'))                    || 4,
+      K_factor:        parseFloat(getToggle('tg-k-factor'))         || 1.0,
+    };
+  }
+
+  if (_calcType === 'Pressure Vessel') {
+    return {
+      project_name:        v('f-project')                           || 'Untitled Pressure Vessel',
+      vessel_type:         getToggle('tg-vessel-type')              || 'Cylindrical',
+      design_pressure_bar: parseFloat(v('f-design-pressure'))       || 10,
+      design_temperature_C: parseFloat(v('f-design-temp'))          || 150,
+      inner_diameter_mm:   parseFloat(v('f-inner-dia'))             || 800,
+      shell_length_mm:     parseFloat(v('f-shell-length'))          || 2000,
+      head_type:           getToggle('tg-head-type')                || 'Ellipsoidal (2:1)',
+      material:            getToggle('tg-pv-material')              || 'SA-516 Gr.70 (Carbon Steel)',
+      joint_efficiency:    getToggle('tg-joint-eff')                || 'Full radiography (Type 1)',
+      corrosion_mm:        parseFloat(v('f-corrosion-mm'))          || 1.6,
+      nozzle_diameter_mm:  parseFloat(v('f-nozzle-dia'))            || 100,
+      n_nozzles:           parseFloat(v('f-n-nozzles'))             || 2,
+    };
+  }
+
+  if (_calcType === 'Heat Exchanger') {
+    return {
+      project_name:       v('f-project')                            || 'Untitled Heat Exchanger',
+      duty_kW:            parseFloat(v('f-hx-duty'))                || 500,
+      hot_inlet_C:        parseFloat(v('f-hot-in'))                 || 90,
+      hot_outlet_C:       parseFloat(v('f-hot-out'))                || 60,
+      cold_inlet_C:       parseFloat(v('f-cold-in'))                || 25,
+      cold_outlet_C:      parseFloat(v('f-cold-out'))               || 55,
+      hot_flowrate_kgs:   parseFloat(v('f-hot-flow'))               || 10,
+      cold_flowrate_kgs:  parseFloat(v('f-cold-flow'))              || 8,
+      flow_config:        getToggle('tg-hx-config')                 || 'Counterflow',
+      shell_type:         getToggle('tg-shell-type')                || 'E (single pass)',
+      tube_od_mm:         parseFloat(getToggle('tg-tube-od'))       || 19.05,
+      wall_thickness_mm:  parseFloat(getToggle('tg-tube-wall'))     || 2.11,
+      tube_length_m:      parseFloat(v('f-tube-length'))            || 3,
+      tube_material:      getToggle('tg-tube-mat')                  || 'Stainless Steel 316',
+      fouling_hot:        getToggle('tg-fouling-hot')               || 'Cooling tower water (treated)',
+      fouling_cold:       getToggle('tg-fouling-cold')              || 'Cooling tower water (treated)',
+    };
+  }
+
+  if (_calcType === 'Vibration Analysis') {
+    return {
+      project_name:          v('f-project')                         || 'Untitled Vibration Analysis',
+      mass_kg:               parseFloat(v('f-vib-mass'))            || 500,
+      speed_rpm:             parseFloat(v('f-vib-speed'))           || 1450,
+      power_kW:              parseFloat(v('f-vib-power'))           || 15,
+      machine_class:         getToggle('tg-machine-class')          || 'Class II (15–300 kW, rigid foundation)',
+      stiffness_N_m:         parseFloat(v('f-stiffness'))           || 200000,
+      damping_ratio:         parseFloat(v('f-damping'))             || 0.08,
+      imbalance_mass_kg:     parseFloat(v('f-imbalance-mass'))      || 0.1,
+      eccentricity_mm:       parseFloat(v('f-eccentricity'))        || 5,
+      measured_velocity_mm_s: parseFloat(v('f-vib-measured'))       || 0,
+      isolator_type:         getToggle('tg-isolator')               || 'Rubber mount (medium)',
+    };
+  }
+
+  if (_calcType === 'Fluid Power') {
+    return {
+      project_name:           v('f-project')                        || 'Untitled Hydraulic System',
+      calc_type:              getToggle('tg-fp-type')               || 'System',
+      system_pressure_bar:    parseFloat(v('f-sys-pressure'))       || 200,
+      flow_lpm:               parseFloat(v('f-sys-flow'))           || 40,
+      fluid:                  getToggle('tg-hyd-fluid')             || 'ISO VG 46 (40°C)',
+      cylinder_force_kN:      parseFloat(v('f-cyl-force'))          || 50,
+      bore_mm:                parseFloat(v('f-bore-mm'))            || 0,
+      stroke_mm:              parseFloat(v('f-stroke-mm'))          || 200,
+      pump_speed_rpm:         parseFloat(v('f-pump-rpm'))           || 1450,
+      P_min_bar:              parseFloat(v('f-acc-pmin'))           || 150,
+      P_max_bar:              parseFloat(v('f-acc-pmax'))           || 0,
+      V_fluid_L:              parseFloat(v('f-acc-vol'))            || 5,
+    };
+  }
+
+  if (_calcType === 'Noise / Acoustics') {
+    return {
+      project_name:   v('f-project')                                || 'Untitled Noise Assessment',
+      calc_type:      getToggle('tg-noise-type')                    || 'Room',
+      source_Lw_dB:   parseFloat(v('f-lw'))                        || 90,
+      distance_m:     parseFloat(v('f-noise-dist'))                 || 5,
+      directivity_Q:  parseFloat(getToggle('tg-directivity'))       || 2,
+      space_type:     getToggle('tg-noise-space')                   || 'Open-plan office',
+      avg_absorption_coeff: parseFloat(v('f-alpha'))                || 0.15,
+      room_surface_m2:      parseFloat(v('f-room-surface'))         || 200,
+      source_to_barrier_m:  parseFloat(v('f-d-source'))             || 10,
+      barrier_to_receiver_m: parseFloat(v('f-d-recv'))              || 10,
+      barrier_height_m:     parseFloat(v('f-barrier-h'))            || 3,
+      exposures: [{
+        level_dBA:    parseFloat(v('f-dose-level'))                 || 90,
+        duration_hr:  parseFloat(v('f-dose-hours'))                 || 8,
+      }],
+    };
+  }
+
   return base;
 }
 
@@ -9478,6 +9980,18 @@ async function runCalculation() {
       renderSTPReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Storm Drain / Stormwater') {
       renderStormDrainReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Beam / Column Design') {
+      renderBeamColumnReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Pressure Vessel') {
+      renderPressureVesselReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Heat Exchanger') {
+      renderHeatExchangerReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Vibration Analysis') {
+      renderVibrationReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Fluid Power') {
+      renderFluidPowerReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Noise / Acoustics') {
+      renderNoiseAcousticsReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -21792,6 +22306,397 @@ function downloadSowPdf() {
     document.getElementById('sow-pdf-rules')?.remove();
     showToast('SOW PDF saved.');
   });
+}
+
+// ─── Beam / Column Design Report ─────────────────────────────────────────────
+function renderBeamColumnReport(inputs, r, narrative) {
+  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const isSteel = (inputs.member_type || '').includes('Steel');
+  const isBeam  = (inputs.member_type || '').includes('Beam');
+  const mOk  = c => c ? '#2e7d32' : '#c62828';
+  const mTxt = c => c ? 'PASS' : 'FAIL';
+  document.getElementById('report-panel').innerHTML = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div><h1>DESIGN CALCULATION</h1><div style="font-size:0.8rem;color:#555;">${escHtml(inputs.member_type)} — NSCP 2015 / ${isSteel ? 'AISC 360-22' : 'ACI 318-19'}</div></div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
+    </div>
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">Member Tag</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Member Type</th><td>${escHtml(inputs.member_type)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Standard</th><td>${isSteel ? 'AISC 360-22 LRFD' : 'ACI 318-19'} | NSCP 2015 Vol.1</td><th>Checked by</th><td>${e('')}</td></tr>
+    </table>
+    <h2>1. Objective</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || `To verify the adequacy of the ${inputs.member_type} for the applied factored loads in accordance with ${isSteel ? 'AISC 360-22 LRFD' : 'ACI 318-19'} and NSCP 2015 Volume 1.`)}</p>
+    <h2>2. Design Parameters</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Span / Length</td><td class="num">${escHtml(String(inputs.span_m))} m</td></tr>
+      ${isBeam ? `<tr><td>Factored Bending Moment M<sub>u</sub></td><td class="num">${escHtml(String(inputs.Mu_kNm))} kN·m</td></tr>
+      <tr><td>Factored Shear V<sub>u</sub></td><td class="num">${escHtml(String(inputs.Vu_kN))} kN</td></tr>
+      <tr><td>UDL for Deflection (w)</td><td class="num">${escHtml(String(inputs.w_kNm))} kN/m</td></tr>` :
+      `<tr><td>Factored Axial Load P<sub>u</sub></td><td class="num">${escHtml(String(inputs.Pu_kN))} kN</td></tr>`}
+      ${isSteel ? `<tr><td>Section</td><td class="num"><strong>${escHtml(inputs.section)}</strong></td></tr>
+      <tr><td>Steel Grade</td><td class="num">${escHtml(inputs.steel_grade)} — Fy = ${r.Fy_MPa} MPa</td></tr>` :
+      `<tr><td>Section b × h</td><td class="num">${r.b_mm} × ${r.h_mm} mm</td></tr>
+      <tr><td>Reinforcement</td><td class="num">${r.n_bars || inputs.n_bars} — ${inputs.bar_dia_mm}mm⌀ (As = ${r.As_mm2} mm²)</td></tr>
+      <tr><td>ρ (steel ratio)</td><td class="num">${r.rho} &nbsp; [${r.rho_min}–${r.rho_max}] — <span style="color:${mOk(r.rho_ok)};font-weight:700;">${mTxt(r.rho_ok)}</span></td></tr>`}
+    </table>
+    <h2>3. Results</h2>
+    <div class="result-highlight" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+      ${isBeam && isSteel ? `
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">φMp (Bending Capacity)</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.phi_Mp_kNm} kN·m</div>
+        <div style="font-size:0.75rem;color:${mOk(r.moment_ok)};font-weight:700;">DCR = ${r.DCR_moment} — ${mTxt(r.moment_ok)}</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">φVn (Shear Capacity)</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.phi_Vn_kN} kN</div>
+        <div style="font-size:0.75rem;color:${mOk(r.shear_ok)};font-weight:700;">DCR = ${r.DCR_shear} — ${mTxt(r.shear_ok)}</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">Deflection</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.deflection_mm} mm</div>
+        <div style="font-size:0.75rem;color:${mOk(r.deflection_ok)};font-weight:700;">Limit L/360 = ${r.deflection_limit_mm} mm — ${mTxt(r.deflection_ok)}</div>
+      </div>` : ''}
+      ${!isBeam && isSteel ? `
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">φcPn (Axial Capacity)</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.phi_Pn_kN} kN</div>
+        <div style="font-size:0.75rem;color:${mOk(r.axial_ok)};font-weight:700;">DCR = ${r.DCR_axial} — ${mTxt(r.axial_ok)}</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">KL/r (Slenderness)</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.KL_r}</div>
+        <div style="font-size:0.75rem;color:${mOk(r.slender_ok)};font-weight:700;">Limit 200 — ${mTxt(r.slender_ok)}</div>
+      </div>` : ''}
+      ${isBeam && !isSteel ? `
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">φMn (Bending Capacity)</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.phi_Mn_kNm} kN·m</div>
+        <div style="font-size:0.75rem;color:${mOk(r.moment_ok)};font-weight:700;">DCR = ${r.DCR_moment} — ${mTxt(r.moment_ok)}</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">φVn (Shear Capacity)</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.phi_Vn_kN} kN</div>
+        <div style="font-size:0.75rem;color:${mOk(r.shear_ok)};font-weight:700;">DCR = ${r.DCR_shear} — ${mTxt(r.shear_ok)}</div>
+      </div>` : ''}
+      ${!isBeam && !isSteel ? `
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">φPn (Axial Capacity)</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.phi_Pn_kN} kN</div>
+        <div style="font-size:0.75rem;color:${mOk(r.axial_ok)};font-weight:700;">DCR = ${r.DCR_axial} — ${mTxt(r.axial_ok)}</div>
+      </div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
+        <div style="font-size:0.78rem;color:#777;">ρg (Steel Ratio)</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.rho_g}</div>
+        <div style="font-size:0.75rem;color:${mOk(r.rho_ok)};font-weight:700;">Limits 1–8% — ${mTxt(r.rho_ok)}</div>
+      </div>` : ''}
+    </div>
+    <h2>4. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `Member is ${(r.moment_ok !== false && r.shear_ok !== false && r.axial_ok !== false) ? 'ADEQUATE' : 'INADEQUATE'} for the stated factored loads. A PRC-licensed Civil/Structural Engineer must sign and seal this calculation before use as a design basis per NSCP 2015.`)}</p>
+  `;
+  showReport();
+}
+
+// ─── Pressure Vessel Report ───────────────────────────────────────────────────
+function renderPressureVesselReport(inputs, r, narrative) {
+  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const ok = c => `<span style="font-weight:700;color:${c ? '#2e7d32' : '#c62828'};">${c ? 'PASS' : 'FAIL'}</span>`;
+  document.getElementById('report-panel').innerHTML = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div><h1>DESIGN CALCULATION</h1><div style="font-size:0.8rem;color:#555;">Pressure Vessel — ASME BPVC Section VIII Division 1</div></div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
+    </div>
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">Vessel Tag</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Standard</th><td>ASME BPVC Sec. VIII Div.1</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Material</th><td>${escHtml(r.material)}</td><th>Checked by</th><td>${e('')}</td></tr>
+    </table>
+    <h2>1. Design Conditions</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Design Pressure</td><td class="num">${r.design_pressure_bar} bar (${r.design_pressure_MPa} MPa)</td></tr>
+      <tr><td>Design Temperature</td><td class="num">${r.design_temperature_C} °C</td></tr>
+      <tr><td>Inner Diameter (ID)</td><td class="num">${r.inner_diameter_mm} mm</td></tr>
+      <tr><td>Shell Length</td><td class="num">${escHtml(String(inputs.shell_length_mm))} mm</td></tr>
+      <tr><td>Head Type</td><td class="num">${escHtml(r.head_type)}</td></tr>
+      <tr><td>Allowable Stress S</td><td class="num">${r.allowable_stress_MPa} MPa</td></tr>
+      <tr><td>Joint Efficiency E</td><td class="num">${r.joint_efficiency}</td></tr>
+      <tr><td>Corrosion Allowance</td><td class="num">${r.corrosion_allowance_mm} mm</td></tr>
+    </table>
+    <h2>2. Shell Thickness (UG-27)</h2>
+    <p style="font-size:0.83rem;color:#333;">t = P×R / (S×E − 0.6P) = ${r.design_pressure_MPa} × ${r.inner_diameter_mm/2} / (${r.allowable_stress_MPa} × ${r.joint_efficiency} − 0.6 × ${r.design_pressure_MPa})<br>
+    t_min = <strong>${r.t_shell_min_mm} mm</strong> + CA ${r.corrosion_allowance_mm} mm = ${r.t_shell_required_mm} mm → <strong>t_actual = ${r.t_shell_actual_mm} mm</strong> (std plate)</p>
+    <h2>3. MAWP at Actual Thickness</h2>
+    <p style="font-size:0.83rem;color:#333;">MAWP = S×E×t_net / (R + 0.6×t_net) = <strong>${r.mawp_bar} bar</strong> &nbsp; ${ok(r.mawp_ok)}</p>
+    <h2>4. Head Thickness</h2>
+    <p style="font-size:0.83rem;color:#333;">t_head_min = ${r.t_head_min_mm} mm → t_head_actual = <strong>${r.t_head_actual_mm} mm</strong></p>
+    <h2>5. Hydrostatic Test Pressure (UG-99b)</h2>
+    <p style="font-size:0.83rem;color:#333;">P_test = 1.3 × MAWP = 1.3 × ${r.mawp_bar} = <strong>${r.hydro_test_bar} bar</strong></p>
+    <h2>6. Nozzle Reinforcement (UG-37)</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Nozzle Diameter</td><td class="num">${r.nozzle_diameter_mm} mm (${r.n_nozzles} nozzles)</td></tr>
+      <tr><td>A_required</td><td class="num">${r.nozzle_A_required_mm2} mm²</td></tr>
+      <tr><td>A_available (excess shell)</td><td class="num">${r.nozzle_A_available_mm2} mm²</td></tr>
+      <tr><td>Reinforcement Pad</td><td class="num">${r.nozzle_reinforcement_pad_required ? `REQUIRED — A_pad ≥ ${r.nozzle_A_pad_required_mm2} mm²` : 'Not required'}</td></tr>
+    </table>
+    <h2>7. Weight Summary</h2>
+    <table>
+      <tr><th style="width:50%;">Item</th><th>Value</th></tr>
+      <tr><td>OD (shell + 2t)</td><td class="num">${r.outer_diameter_mm} mm</td></tr>
+      <tr><td>Empty Weight</td><td class="num">${r.weight_empty_kg} kg</td></tr>
+      <tr><td>Hydro Test Weight (water-filled)</td><td class="num">${r.weight_hydro_kg} kg</td></tr>
+    </table>
+    <h2>8. Code Compliance</h2>
+    ${(r.code_notes || []).map(n => `<p style="font-size:0.83rem;color:#333;margin:0.2rem 0;">• ${escHtml(n)}</p>`).join('')}
+    <h2>9. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `ASME U-stamp and Authorized Inspector (AI) oversight required. DOLE pressure vessel registration required before operation (PD 856). All pressure welds per UW-11.`)}</p>
+  `;
+  showReport();
+}
+
+// ─── Heat Exchanger Report ────────────────────────────────────────────────────
+function renderHeatExchangerReport(inputs, r, narrative) {
+  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  document.getElementById('report-panel').innerHTML = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div><h1>DESIGN CALCULATION</h1><div style="font-size:0.8rem;color:#555;">Shell-and-Tube Heat Exchanger — TEMA 10th Ed.</div></div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
+    </div>
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">HX Tag</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Flow Config</th><td>${escHtml(inputs.flow_config)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Shell Type</th><td>${escHtml(inputs.shell_type)}</td><th>Checked by</th><td>${e('')}</td></tr>
+    </table>
+    <h2>1. Process Conditions</h2>
+    <table>
+      <tr><th style="width:40%;">Stream</th><th>Inlet (°C)</th><th>Outlet (°C)</th><th>Flow (kg/s)</th></tr>
+      <tr><td>Hot side</td><td class="num">${r.inputs_used?.hot_inlet_C}</td><td class="num">${r.inputs_used?.hot_outlet_C}</td><td class="num">${escHtml(String(inputs.hot_flowrate_kgs))}</td></tr>
+      <tr><td>Cold side</td><td class="num">${r.inputs_used?.cold_inlet_C}</td><td class="num">${r.inputs_used?.cold_outlet_C}</td><td class="num">${escHtml(String(inputs.cold_flowrate_kgs))}</td></tr>
+    </table>
+    <p style="font-size:0.83rem;color:#333;">Heat balance: Q_hot = ${r.Q_hot_kW} kW / Q_cold = ${r.Q_cold_kW} kW — <span style="font-weight:700;color:${r.heat_balance_ok ? '#2e7d32' : '#c62828'};">${r.heat_balance_ok ? 'BALANCED (within 10%)' : 'CHECK — imbalance > 10%'}</span></p>
+    <h2>2. LMTD &amp; NTU-ε</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>LMTD (true counterflow)</td><td class="num">${r.lmtd_K} K</td></tr>
+      <tr><td>F-correction factor (${escHtml(inputs.shell_type)})</td><td class="num">${r.F_correction}</td></tr>
+      <tr><td>LMTD corrected</td><td class="num"><strong>${r.lmtd_corrected_K} K</strong></td></tr>
+      <tr><td>NTU</td><td class="num">${r.NTU}</td></tr>
+      <tr><td>Effectiveness ε</td><td class="num">${(r.effectiveness * 100).toFixed(1)}%</td></tr>
+      <tr><td>Capacity ratio Cr</td><td class="num">${r.Cr}</td></tr>
+    </table>
+    <h2>3. Heat Transfer Coefficients</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Tube-side h (cold, Dittus-Boelter)</td><td class="num">${r.h_tube_side_W_m2K} W/m²·K &nbsp; Re=${r.Re_tube} (${escHtml(r.tube_flow_regime)})</td></tr>
+      <tr><td>Shell-side h (hot, Kern method)</td><td class="num">${r.h_shell_side_W_m2K} W/m²·K</td></tr>
+      <tr><td>U clean (no fouling)</td><td class="num">${r.U_clean_W_m2K} W/m²·K</td></tr>
+      <tr><td>U design (with fouling)</td><td class="num"><strong>${r.U_design_W_m2K} W/m²·K</strong></td></tr>
+      <tr><td>Fouling Rd (tube / shell)</td><td class="num">${r.Rd_tube_m2KW} / ${r.Rd_shell_m2KW} m²·K/W</td></tr>
+    </table>
+    <h2>4. Sizing</h2>
+    <div class="result-highlight" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;"><div style="font-size:0.78rem;color:#777;">Required Area</div><div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.A_required_m2} m²</div><div style="font-size:0.75rem;color:#555;">Standard: ${r.A_standard_m2} m²</div></div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;"><div style="font-size:0.78rem;color:#777;">No. of Tubes</div><div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.n_tubes}</div><div style="font-size:0.75rem;color:#555;">${r.tube_od_mm} mm OD × ${r.tube_length_m} m</div></div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;"><div style="font-size:0.78rem;color:#777;">Shell ID (est.)</div><div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.shell_id_estimate_mm} mm</div><div style="font-size:0.75rem;color:#555;">Pitch ${r.pitch_mm} mm triangular</div></div>
+      <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;"><div style="font-size:0.78rem;color:#777;">Heat Duty</div><div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.duty_kW} kW</div></div>
+    </div>
+    <h2>5. Notes</h2>
+    ${(r.code_notes || []).map(n => `<p style="font-size:0.83rem;color:#333;margin:0.2rem 0;">• ${escHtml(n)}</p>`).join('')}
+    <h2>6. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `Specify TEMA class (R or C) and material on data sheet. Verify tube-side and shell-side fouling assumptions with process engineer. Thermal performance to be guaranteed by HX vendor at specified fouling factors.`)}</p>
+  `;
+  showReport();
+}
+
+// ─── Vibration Analysis Report ────────────────────────────────────────────────
+function renderVibrationReport(inputs, r, narrative) {
+  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const zoneColor = r.iso_zone?.includes('Zone A') || r.iso_zone?.includes('Zone B') ? '#2e7d32' : r.iso_zone?.includes('Zone C') ? '#f57c00' : '#c62828';
+  document.getElementById('report-panel').innerHTML = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div><h1>VIBRATION ANALYSIS</h1><div style="font-size:0.8rem;color:#555;">ISO 10816-3 / ISO 20816-1 Severity Assessment</div></div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
+    </div>
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">Machine Tag</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Machine Class</th><td>${escHtml(r.machine_class)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+    </table>
+    <h2>1. SDOF System Parameters</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Natural frequency fn</td><td class="num"><strong>${r.fn_Hz} Hz (${r.fn_rpm} RPM)</strong></td></tr>
+      <tr><td>Damped natural frequency fd</td><td class="num">${r.fd_Hz} Hz</td></tr>
+      <tr><td>Damping ratio ζ</td><td class="num">${r.zeta} &nbsp; (Critical damping cc = ${r.cc_Ns_m} N·s/m)</td></tr>
+      <tr><td>Operating frequency</td><td class="num">${r.f_op_Hz} Hz (${escHtml(String(inputs.speed_rpm))} RPM)</td></tr>
+      <tr><td>Frequency ratio r = f_op / fn</td><td class="num"><strong>${r.frequency_ratio_r}</strong></td></tr>
+    </table>
+    <h2>2. Dynamic Response</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Magnification Factor (MF)</td><td class="num">${r.magnification_factor}</td></tr>
+      <tr><td>Transmissibility (TR)</td><td class="num">${r.transmissibility}</td></tr>
+      <tr><td>Isolation Efficiency</td><td class="num"><strong>${r.isolation_efficiency_pct}%</strong> — <span style="color:${r.isolation_ok ? '#2e7d32' : '#c62828'};font-weight:700;">${r.isolation_ok ? 'Isolator working (r > √2)' : 'WARN — amplifying (r < √2)'}</span></td></tr>
+      <tr><td>Resonance margin</td><td class="num"><span style="color:${r.resonance_risk ? '#c62828' : '#2e7d32'};font-weight:700;">${r.resonance_margin_pct}% from fn — ${r.resonance_risk ? 'RISK' : 'OK'}</span></td></tr>
+    </table>
+    <h2>3. Rotating Imbalance Response</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Peak displacement X</td><td class="num">${r.X_mm} mm</td></tr>
+      <tr><td>Peak velocity V_peak</td><td class="num">${r.V_peak_mm_s} mm/s</td></tr>
+      <tr><td>RMS velocity V_rms</td><td class="num"><strong>${r.V_rms_mm_s} mm/s</strong></td></tr>
+      <tr><td>Transmitted force Ft</td><td class="num">${r.Ft_N} N</td></tr>
+    </table>
+    <h2>4. ISO 10816-3 Severity Assessment</h2>
+    <div style="text-align:center;padding:1.5rem;border:2px solid ${zoneColor};border-radius:0.75rem;margin:1rem 0;">
+      <div style="font-size:0.9rem;color:#555;">Assessed Velocity (RMS)</div>
+      <div style="font-size:2rem;font-weight:800;color:#162032;">${r.v_assessed_mm_s} mm/s RMS</div>
+      <div style="font-size:1rem;font-weight:700;color:${zoneColor};">${escHtml(r.iso_zone)}</div>
+    </div>
+    <h2>5. Balancing Grade</h2>
+    <p style="font-size:0.83rem;color:#333;">G = e × ω = ${r.G_grade_mm_s} mm/s → <strong>${escHtml(r.balance_grade)}</strong></p>
+    <h2>6. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `${r.zone_ok ? 'Machine vibration is within acceptable limits.' : 'Vibration exceeds acceptable limits — investigate and correct.'} ${r.resonance_risk ? 'CRITICAL: operating speed is within ±10% of natural frequency — change speed or stiffness to avoid resonance.' : ''} ${!r.isolation_ok ? 'Isolation system is amplifying — verify isolator selection (r must exceed √2 ≈ 1.414).' : ''}`)}</p>
+  `;
+  showReport();
+}
+
+// ─── Fluid Power Report ───────────────────────────────────────────────────────
+function renderFluidPowerReport(inputs, r, narrative) {
+  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const cyl = r.cylinder || {};
+  const pump = r.pump || {};
+  const acc  = r.accumulator || {};
+  const pline = r.pressure_line || {};
+  const rline = r.return_line || {};
+  document.getElementById('report-panel').innerHTML = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div><h1>HYDRAULIC SYSTEM CALCULATION</h1><div style="font-size:0.8rem;color:#555;">ISO 4413 / NFPA T2.12.10</div></div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
+    </div>
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">System Tag</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>System Pressure</th><td>${escHtml(String(r.inputs_used?.P_bar))} bar</td><th>Fluid</th><td>${escHtml(r.inputs_used?.fluid)}</td></tr>
+    </table>
+    ${Object.keys(cyl).length ? `
+    <h2>1. Cylinder Sizing</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Bore selected</td><td class="num"><strong>${r.bore_selected_mm} mm</strong></td></tr>
+      <tr><td>Rod diameter</td><td class="num">${r.rod_selected_mm} mm</td></tr>
+      <tr><td>Extend force</td><td class="num"><strong>${cyl.F_extend_kN} kN</strong></td></tr>
+      <tr><td>Retract force</td><td class="num">${cyl.F_retract_kN} kN</td></tr>
+      <tr><td>Extend speed (at ${escHtml(String(r.inputs_used?.Q_lpm))} L/min)</td><td class="num">${cyl.v_extend_m_s} m/s</td></tr>
+      <tr><td>Stroke time (extend / retract)</td><td class="num">${cyl.t_extend_s} s / ${cyl.t_retract_s} s</td></tr>
+    </table>` : ''}
+    ${Object.keys(pump).length ? `
+    <h2>2. Pump Sizing</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Displacement Vg</td><td class="num"><strong>${r.pump_displacement_cm3} cm³/rev</strong></td></tr>
+      <tr><td>Flow delivered</td><td class="num">${pump.Q_lpm} L/min</td></tr>
+      <tr><td>Hydraulic power</td><td class="num">${pump.P_hydraulic_kW} kW</td></tr>
+      <tr><td>Shaft power</td><td class="num">${pump.P_shaft_kW} kW</td></tr>
+      <tr><td>Motor input power</td><td class="num"><strong>${pump.P_motor_kW} kW</strong></td></tr>
+      <tr><td>Pump torque</td><td class="num">${pump.torque_Nm} N·m</td></tr>
+    </table>` : ''}
+    ${Object.keys(acc).length && !acc.error ? `
+    <h2>3. Accumulator Sizing</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Pre-charge pressure (N₂)</td><td class="num">${acc.pre_charge_bar} bar</td></tr>
+      <tr><td>Usable fluid volume</td><td class="num">${acc.V_fluid_usable_L} L</td></tr>
+      <tr><td>Required gas volume V₀</td><td class="num">${acc.V_required_L} L</td></tr>
+      <tr><td>Recommended accumulator size</td><td class="num"><strong>${acc.V_recommended_L} L</strong></td></tr>
+    </table>` : ''}
+    <h2>4. Pipe Sizing (ISO 4413 Velocity Limits)</h2>
+    <table>
+      <tr><th style="width:40%;">Line</th><th>OD × ID (mm)</th><th>Velocity (m/s)</th><th>Re</th></tr>
+      <tr><td>Pressure line (≤4 m/s)</td><td class="num">${pline.od_mm} × ${pline.id_mm}</td><td class="num">${pline.velocity_m_s}</td><td class="num">${pline.Re || '—'}</td></tr>
+      <tr><td>Return line (≤2 m/s)</td><td class="num">${rline.od_mm} × ${rline.id_mm}</td><td class="num">${rline.velocity_m_s}</td><td class="num">${(r.return_line || {}).Re || '—'}</td></tr>
+      <tr><td>Suction line (≤1 m/s)</td><td class="num">${(r.suction_line || {}).od_mm} × ${(r.suction_line || {}).id_mm}</td><td class="num">${(r.suction_line || {}).velocity_m_s}</td><td class="num">—</td></tr>
+    </table>
+    <h2>5. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `Install a pressure relief valve set at 110% of system pressure (${Math.round(r.inputs_used?.P_bar * 1.1)} bar). Filter hydraulic fluid to ISO 4406 Class 17/15/12 or better. Use ISO 4413 safety features: unloading circuit, pressure gauges, and lockout/tagout provisions. A PRC-licensed Mechanical Engineer must sign and seal this calculation.`)}</p>
+  `;
+  showReport();
+}
+
+// ─── Noise / Acoustics Report ─────────────────────────────────────────────────
+function renderNoiseAcousticsReport(inputs, r, narrative) {
+  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
+  const dose = r.dose || {};
+  const room = r.room || {};
+  const doseColor = dose.limit_exceeded ? '#c62828' : dose.action_level_exceeded ? '#f57c00' : '#2e7d32';
+  document.getElementById('report-panel').innerHTML = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div><h1>NOISE AND ACOUSTICS ASSESSMENT</h1><div style="font-size:0.8rem;color:#555;">ISO 9613-2 / OSHA 1910.95 / DOLE D.O. 13</div></div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
+    </div>
+    <h2>Project Information</h2>
+    <table>
+      <tr><th style="width:30%;">Assessment Tag</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
+      <tr><th>Mode</th><td>${escHtml(inputs.calc_type)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+    </table>
+    <h2>1. Source and Distance Attenuation</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Sound Power Level Lw</td><td class="num">${r.source_Lw_dB} dB</td></tr>
+      <tr><td>Directivity factor Q</td><td class="num">${escHtml(String(inputs.directivity_Q))}</td></tr>
+      <tr><td>Distance to receiver</td><td class="num">${r.distance_m} m</td></tr>
+      <tr><td>Lp at distance (point source)</td><td class="num"><strong>${r.Lp_at_distance_dB} dB</strong></td></tr>
+    </table>
+    ${Object.keys(room).length ? `
+    <h2>2. Room Acoustics</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Average absorption α</td><td class="num">${escHtml(String(inputs.avg_absorption_coeff))}</td></tr>
+      <tr><td>Room constant R</td><td class="num">${room.R_m2} m²</td></tr>
+      <tr><td>Critical distance rc</td><td class="num">${room.rc_m} m</td></tr>
+      <tr><td>Lp (room equation)</td><td class="num"><strong>${room.Lp_dB} dB</strong></td></tr>
+      ${r.NC_measured !== undefined ? `<tr><td>NC Rating (measured)</td><td class="num" style="font-weight:700;color:${r.NC_ok ? '#2e7d32' : '#c62828'};">NC ${r.NC_measured} — Limit NC ${r.NC_limit} (${r.NC_ok ? 'PASS' : 'FAIL'})</td></tr>` : `<tr><td>NC Limit (${escHtml(inputs.space_type)})</td><td class="num">NC ${r.NC_limit}</td></tr>`}
+    </table>` : ''}
+    ${r.barrier_IL_dB !== undefined ? `
+    <h2>2. Barrier Insertion Loss (Maekawa)</h2>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Barrier insertion loss IL</td><td class="num"><strong>${r.barrier_IL_dB} dB</strong></td></tr>
+      <tr><td>Lp without barrier</td><td class="num">${r.Lp_no_barrier_dB} dB</td></tr>
+      <tr><td>Lp with barrier</td><td class="num"><strong>${r.Lp_with_barrier_dB} dB</strong></td></tr>
+    </table>` : ''}
+    ${Object.keys(dose).length ? `
+    <h2>2. Occupational Noise Dose (OSHA / DOLE D.O. 13)</h2>
+    <div style="text-align:center;padding:1.5rem;border:2px solid ${doseColor};border-radius:0.75rem;margin:1rem 0;">
+      <div style="font-size:0.9rem;color:#555;">8-Hour TWA</div>
+      <div style="font-size:2rem;font-weight:800;color:#162032;">${dose.TWA_dBA} dBA</div>
+      <div style="font-size:0.85rem;color:#555;">Dose: ${dose.dose_pct}%</div>
+      <div style="font-size:1rem;font-weight:700;color:${doseColor};">${escHtml(dose.status)}</div>
+    </div>` : ''}
+    <h2>3. Code Notes</h2>
+    ${(r.code_notes || []).map(n => `<p style="font-size:0.83rem;color:#333;margin:0.2rem 0;">• ${escHtml(n)}</p>`).join('')}
+    <h2>4. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `${dose.limit_exceeded ? 'Noise exposure EXCEEDS DOLE/OSHA limit — engineering controls (enclosures, damping, isolation) are mandatory. PPE (hearing protection) is secondary, not a substitute.' : dose.action_level_exceeded ? 'Noise exceeds action level — implement hearing conservation program per DOLE D.O. 13.' : 'Noise levels are within regulatory limits.'} ${r.NC_measured > r.NC_limit ? `NC ${r.NC_measured} exceeds recommended NC ${r.NC_limit} for ${inputs.space_type} — increase room absorption or reduce source level.` : ''}`)}</p>
+  `;
+  showReport();
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
