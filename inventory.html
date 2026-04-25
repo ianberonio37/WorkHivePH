@@ -570,6 +570,13 @@ function catBadge(cat) {
   return `<span class="badge" style="background:${c.bg};color:${c.text};border:1px solid ${c.border};">${escHtml(cat)}</span>`;
 }
 
+function approvalBadge(item) {
+  if (!HIVE_ID) return ''; // solo — no approval flow
+  if (item.status === 'pending')  return `<span class="badge" style="background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.35);">Pending Approval</span>`;
+  if (item.status === 'rejected') return `<span class="badge" style="background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.28);">Rejected</span>`;
+  return '';
+}
+
 function assetBadge(id) {
   return `<span class="badge" style="background:rgba(41,182,217,0.1);color:rgba(41,182,217,0.75);border:1px solid rgba(41,182,217,0.18);">${escHtml(id)}</span>`;
 }
@@ -664,6 +671,7 @@ function renderParts() {
     const moreAss = Math.max(0, (item.linked_asset_ids || []).length - 3);
     const pn      = highlight(item.part_number, q);
     const nm      = highlight(item.part_name, q);
+    const locked  = HIVE_ID && (item.status === 'pending' || item.status === 'rejected');
 
     return `
     <div class="part-card stock-${st} p-5 mb-3">
@@ -675,6 +683,7 @@ function renderParts() {
               <span class="font-black text-sm tracking-wide text-white">${pn}</span>
               ${catBadge(item.category)}
               ${statusBadge(st)}
+              ${approvalBadge(item)}
             </div>
             <button onclick="openDetailModal('${item.id}')" class="text-white/20 hover:text-white/60 transition-colors flex-shrink-0 p-1" style="min-height:unset;">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
@@ -696,11 +705,11 @@ function renderParts() {
               ${item.min_qty > 0 ? `<span class="text-[11px] text-white/25">Min: ${item.min_qty}</span>` : ''}
             </div>
             <div class="flex gap-2">
-              <button onclick="openUseModal('${item.id}')" class="btn-danger text-xs px-3 flex items-center gap-1.5">
+              <button onclick="openUseModal('${item.id}')" class="btn-danger text-xs px-3 flex items-center gap-1.5" ${locked ? 'style="opacity:0.4;cursor:not-allowed;"' : ''}>
                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>
                 Use
               </button>
-              <button onclick="openRestockModal('${item.id}')" class="btn-green text-xs px-3 flex items-center gap-1.5">
+              <button onclick="openRestockModal('${item.id}')" class="btn-green text-xs px-3 flex items-center gap-1.5" ${locked ? 'style="opacity:0.4;cursor:not-allowed;"' : ''}>
                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
                 Restock
               </button>
@@ -915,6 +924,8 @@ function openUseModal(id) {
   activeItemId = id;
   const item = loadInventory().find(i => i.id === id);
   if (!item) return;
+  if (HIVE_ID && item.status === 'pending')  { showToast('Part is pending supervisor approval.', 'warn'); return; }
+  if (HIVE_ID && item.status === 'rejected') { showToast('Part was rejected — edit and resubmit first.', 'warn'); return; }
   document.getElementById('use-modal-part-name').textContent = `${item.part_number} — ${item.part_name}`;
   document.getElementById('use-qty').value = '1';
   document.getElementById('use-job-ref').value = '';
@@ -966,6 +977,8 @@ function openRestockModal(id) {
   activeItemId = id;
   const item = loadInventory().find(i => i.id === id);
   if (!item) return;
+  if (HIVE_ID && item.status === 'pending')  { showToast('Part is pending supervisor approval.', 'warn'); return; }
+  if (HIVE_ID && item.status === 'rejected') { showToast('Part was rejected — edit and resubmit first.', 'warn'); return; }
   document.getElementById('restock-modal-part-name').textContent = `${item.part_number} — ${item.part_name}`;
   document.getElementById('restock-qty').value  = '1';
   document.getElementById('restock-note').value = '';

@@ -16694,6 +16694,7 @@ function buildLPSTitleBlockHtml(inputs, results) {
 
 function renderLPSDiagram(svgString, inputs, results) {
   svgString = injectComplianceBadges(svgString, 'Lightning Protection System (LPS)', inputs, results);
+  svgString = injectLayoutNotes(svgString, 'Lightning Protection System (LPS)', inputs, results);
   const panel = document.getElementById('drawing-panel');
   const titleBlock = buildLPSTitleBlockHtml(inputs, results);
   panel.style.background = '#fff';
@@ -17231,6 +17232,7 @@ function buildGeneratorTitleBlockHtml(inputs, results) {
 
 function renderGeneratorConnectionDiagram(svgString, inputs, results) {
   svgString = injectComplianceBadges(svgString, 'Generator Sizing', inputs, results);
+  svgString = injectLayoutNotes(svgString, 'Generator Sizing', inputs, results);
   const panel      = document.getElementById('drawing-panel');
   const titleBlock = buildGeneratorTitleBlockHtml(inputs, results);
   panel.style.background = '#fff';
@@ -17540,6 +17542,7 @@ function buildPumpPIDTitleBlockHtml(inputs, results) {
 
 function renderPumpPID(svgString, inputs, results) {
   svgString = injectComplianceBadges(svgString, 'Pump Sizing (TDH)', inputs, results);
+  svgString = injectLayoutNotes(svgString, 'Pump Sizing (TDH)', inputs, results);
   const panel      = document.getElementById('drawing-panel');
   const titleBlock = buildPumpPIDTitleBlockHtml(inputs, results);
   panel.style.background = '#fff';
@@ -17861,6 +17864,7 @@ function buildFireSprinklerTitleBlockHtml(inputs, results) {
 
 function renderFireSprinklerDiagram(svgString, inputs, results) {
   svgString = injectComplianceBadges(svgString, 'Fire Sprinkler Hydraulic', inputs, results);
+  svgString = injectLayoutNotes(svgString, 'Fire Sprinkler Hydraulic', inputs, results);
   const panel      = document.getElementById('drawing-panel');
   const titleBlock = buildFireSprinklerTitleBlockHtml(inputs, results);
   panel.style.background = '#fff';
@@ -18248,6 +18252,7 @@ function buildHVACTitleBlockHtml(inputs, results) {
 
 function renderHVACDiagramSVG(svgString, inputs, results) {
   svgString = injectComplianceBadges(svgString, 'HVAC Cooling Load', inputs, results);
+  svgString = injectLayoutNotes(svgString, 'HVAC Cooling Load', inputs, results);
   const panel      = document.getElementById('drawing-panel');
   const titleBlock = buildHVACTitleBlockHtml(inputs, results);
   panel.style.background = '#fff';
@@ -18751,6 +18756,152 @@ function injectComplianceBadges(svgString, calcType, inputs, results) {
   const badges = buildComplianceBadges(calcType, inputs, results, svgW);
   if (!badges) return svgString;
   return svgString.replace('</svg>', badges + '\n</svg>');
+}
+
+// ─── Phase 4.4 — Layout Optimization Agent ───────────────────────────────────
+
+function buildLayoutNotes(calcType, inputs, results, svgWidth, svgHeight) {
+  const r  = results || {};
+  const W  = svgWidth  || 1050;
+  const H  = svgHeight || 580;
+
+  let notes = [];
+
+  if (calcType === 'Lightning Protection System (LPS)') {
+    const lpl    = String(inputs.lpl || 'LPL II');
+    const dcSpc  = Number(r.dc_spacing_m        || 10);
+    const meshSz = Number(r.mesh_size_m         || 10);
+    const rSph   = Number(r.rolling_sphere_R_m  || 45);
+    const nDC    = Number(r.n_down_conductors    || 4);
+    // IEC 62305-3 limits per LPL
+    const MESH_MAX = { 'LPL I': 5, 'LPL II': 10, 'LPL III': 15, 'LPL IV': 20 };
+    const DC_MAX   = { 'LPL I': 10, 'LPL II': 15, 'LPL III': 20, 'LPL IV': 25 };
+    const maxMesh  = MESH_MAX[lpl] || 10;
+    const maxDC    = DC_MAX[lpl]   || 15;
+    notes.push({ label: `MESH ${meshSz}m (max ${maxMesh}m ${lpl})`, status: meshSz <= maxMesh ? 'PASS' : 'FAIL' });
+    notes.push({ label: `DC SPCG ${dcSpc}m (max ${maxDC}m)`,        status: dcSpc  <= maxDC   ? 'PASS' : 'FAIL' });
+    notes.push({ label: `ROLL SPHERE R=${rSph}m`,                    status: 'INFO' });
+    notes.push({ label: `${nDC} DOWN CONDUCTORS`,                    status: 'INFO' });
+
+  } else if (calcType === 'Generator Sizing') {
+    const loadPct  = Number(r.loading_pct        || 0);
+    const tank8    = Number(r.tank_8hr_litres     || 0);
+    const startKva = Number(r.starting_kva        || 0);
+    const selKva   = Number(r.selected_kva        || 0);
+    const fuel100  = Number(r.fuel_100pct_lhr     || 0);
+    let loadZone, loadStatus;
+    if      (loadPct < 50)  { loadZone = 'UNDERLOADED'; loadStatus = 'WARN'; }
+    else if (loadPct < 70)  { loadZone = 'OPTIMAL';     loadStatus = 'PASS'; }
+    else if (loadPct < 80)  { loadZone = 'ACCEPTABLE';  loadStatus = 'PASS'; }
+    else if (loadPct < 90)  { loadZone = 'CAUTION';     loadStatus = 'WARN'; }
+    else                    { loadZone = 'OVERLOADED';  loadStatus = 'FAIL'; }
+    const startRatio  = selKva > 0 ? startKva / selKva * 100 : 0;
+    notes.push({ label: `${loadPct.toFixed(0)}% LOAD (${loadZone})`,        status: loadStatus                        });
+    notes.push({ label: `8HR TANK ${tank8.toFixed(0)} L`,                   status: 'INFO'                            });
+    notes.push({ label: `START ${startKva.toFixed(0)} kVA`,                 status: startRatio <= 110 ? 'PASS' : 'WARN' });
+    notes.push({ label: `${fuel100.toFixed(1)} L/HR @ 100%`,                status: 'INFO'                            });
+
+  } else if (calcType === 'Pump Sizing (TDH)') {
+    const velocity = Number(r.pipe_velocity || 0);
+    const pumpEff  = Number((r.inputs_used && r.inputs_used.pump_efficiency)  || inputs.pump_efficiency  || 70);
+    const tdh      = Number(r.TDH           || 0);
+    const npshA    = Number(r.npsh_available || 0);
+    let velZone, velStatus;
+    if      (velocity < 0.6)  { velZone = 'TOO SLOW';    velStatus = 'WARN'; }
+    else if (velocity < 1.5)  { velZone = 'ECONOMICAL';  velStatus = 'PASS'; }
+    else if (velocity < 3.0)  { velZone = 'STANDARD';    velStatus = 'PASS'; }
+    else                      { velZone = 'HIGH';         velStatus = 'WARN'; }
+    let effClass, effStatus;
+    if      (pumpEff < 50) { effClass = 'POOR';        effStatus = 'FAIL'; }
+    else if (pumpEff < 65) { effClass = 'ACCEPTABLE';  effStatus = 'WARN'; }
+    else if (pumpEff < 80) { effClass = 'GOOD';        effStatus = 'PASS'; }
+    else                   { effClass = 'EXCELLENT';   effStatus = 'PASS'; }
+    notes.push({ label: `VEL ${velocity.toFixed(2)} m/s (${velZone})`,      status: velStatus  });
+    notes.push({ label: `PUMP EFF ${pumpEff.toFixed(0)}% (${effClass})`,    status: effStatus  });
+    notes.push({ label: `TDH ${tdh.toFixed(1)} m`,                          status: 'INFO'     });
+    if (npshA > 0) notes.push({ label: `NPSHa ${npshA.toFixed(2)} m`,       status: npshA >= 2.0 ? 'PASS' : 'WARN' });
+
+  } else if (calcType === 'Fire Sprinkler Hydraulic') {
+    const nHeads   = Number(r.N_sprinklers    || 14);
+    const desnArea = Number(r.design_area     || 139);
+    const velocity = Number(r.velocity        || 2.8);
+    const hazard   = String(r.hazard          || inputs.occupancy_hazard || 'Ordinary Group 1');
+    const waterVol = Number(r.water_volume_m3 || 6.0);
+    const duration = Number(r.duration        || 60);
+    // Head spacing: sqrt(design_area / n_heads) — compare to NFPA 13
+    const headSpacing = nHeads > 0 ? Math.sqrt(desnArea / nHeads) : 0;
+    const isExtra     = /extra|high/i.test(hazard);
+    const maxSpacing  = isExtra ? 3.7 : 4.6;  // NFPA 13: LH/OH1 = 4.6m, OH2/EH = 3.7m
+    notes.push({ label: `HEAD ~${headSpacing.toFixed(1)}m (max ${maxSpacing}m NFPA 13)`, status: headSpacing <= maxSpacing ? 'PASS' : 'WARN' });
+    notes.push({ label: `VEL ${velocity.toFixed(1)} m/s (max 3.5 m/s)`,                  status: velocity <= 3.5 ? 'PASS' : 'WARN'          });
+    notes.push({ label: `${waterVol.toFixed(1)} m3 / ${duration}min STORAGE`,             status: 'INFO'                                      });
+    notes.push({ label: `${nHeads} HEADS | ${desnArea.toFixed(0)} m2 AREA`,               status: 'INFO'                                      });
+
+  } else if (calcType === 'HVAC Cooling Load') {
+    const area    = Number(inputs.floor_area   || 50);
+    const TR      = Number(r.TR                || 0);
+    const recTR   = Number(r.recommended_TR    || 0);
+    const persons = Number(inputs.persons      || 5);
+    // ASHRAE cooling density target: 0.04-0.09 TR/m2
+    const density    = area > 0 ? recTR / area : 0;
+    const densStatus = (density >= 0.03 && density <= 0.10) ? 'PASS' : 'WARN';
+    // ASHRAE 62.1 fresh air estimate
+    const Q_oa_lps  = persons * 2.5 + area * 0.3;
+    const qDesign   = Number(r.q_design || 0);
+    const Q_sa_m3s  = qDesign > 0 ? qDesign / (1.2 * 1006 * 11) : 0;
+    const oaPct     = Q_sa_m3s > 0 ? Math.round(Q_oa_lps / 1000 / Q_sa_m3s * 100) : 20;
+    const pDensity  = area > 0 ? persons / area : 0;
+    notes.push({ label: `${density.toFixed(3)} TR/m2 (ASHRAE 0.04-0.09)`,         status: densStatus                         });
+    notes.push({ label: `OA ~${oaPct}% (min 15% ASHRAE 62.1)`,                    status: oaPct >= 15 ? 'PASS' : 'WARN'      });
+    notes.push({ label: `${persons} PERSONS / ${area} m2`,                        status: pDensity > 0.15 ? 'WARN' : 'INFO'  });
+    notes.push({ label: `CALC ${TR.toFixed(2)} TR -> SEL ${recTR.toFixed(1)} TR`, status: 'INFO'                             });
+  }
+
+  if (!notes.length) return '';
+
+  // ── Panel geometry ────────────────────────────────────────────────────────────
+  const PW      = 222;
+  const PX      = 8;
+  const HDR_H   = 20;
+  const ROW_H   = 17;
+  const PAD     = 3;
+  const PANEL_H = HDR_H + PAD + notes.length * ROW_H + PAD;
+  const PY      = H - PANEL_H - 8;
+
+  const SC_DOT  = { PASS: '#16a34a', WARN: '#d97706', FAIL: '#dc2626', INFO: '#1d4ed8' };
+  const esc     = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  let g = `<g id="layout-optimization-overlay">`;
+  // White panel background
+  g += `<rect x="${PX}" y="${PY}" width="${PW}" height="${PANEL_H}" rx="4" fill="white" stroke="#0e7490" stroke-width="1.5" opacity="0.96"/>`;
+  // Teal header fill (two rects: full rx then flat-bottom cover)
+  g += `<rect x="${PX}" y="${PY}" width="${PW}" height="${HDR_H}" rx="4" fill="#0e7490"/>`;
+  g += `<rect x="${PX}" y="${PY + HDR_H - 4}" width="${PW}" height="4" fill="#0e7490"/>`;
+  g += `<text x="${PX + PW/2}" y="${PY + 13}" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="8" fill="white" font-weight="700">LAYOUT OPTIMIZATION</text>`;
+
+  notes.forEach((n, i) => {
+    const ry   = PY + HDR_H + PAD + i * ROW_H;
+    const dotR = 3.5;
+    const dotX = PX + PAD + dotR + 3;
+    const dotY = ry + ROW_H / 2;
+    const dotC = SC_DOT[n.status] || '#1d4ed8';
+    const maxC = 34;
+    const lbl  = String(n.label).length > maxC ? String(n.label).slice(0, maxC - 1) + '\u2026' : String(n.label);
+    g += `<circle cx="${dotX}" cy="${dotY}" r="${dotR}" fill="${dotC}"/>`;
+    g += `<text x="${dotX + dotR + 4}" y="${dotY + 3.5}" font-family="'Segoe UI',Arial,sans-serif" font-size="7.5" fill="#1a2e4a" text-anchor="start">${esc(lbl)}</text>`;
+  });
+
+  g += `</g>`;
+  return g;
+}
+
+function injectLayoutNotes(svgString, calcType, inputs, results) {
+  const wMatch = svgString.match(/viewBox="0 0 (\d+) (\d+)/);
+  const svgW   = wMatch ? parseInt(wMatch[1]) : 1050;
+  const svgH   = wMatch ? parseInt(wMatch[2]) : 580;
+  const notes  = buildLayoutNotes(calcType, inputs, results, svgW, svgH);
+  if (!notes) return svgString;
+  return svgString.replace('</svg>', notes + '\n</svg>');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
