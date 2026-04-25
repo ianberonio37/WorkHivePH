@@ -67,16 +67,13 @@ def _load_handlers() -> dict[str, Any]:
     handlers["FCU Selection"]                        = fcu_calc
     handlers["Chiller System — Water Cooled"]        = chiller_calc
     handlers["Chiller System — Air Cooled"]          = chiller_calc
-    # handlers["FCU Selection"]                   = fcu_calc
-    # handlers["Chiller System — Water Cooled"]   = chiller_calc
-    # handlers["Chiller System — Air Cooled"]     = chiller_calc
 
     # Phase 4 — Electrical
-    # from calcs.wire_sizing         import calculate as wire_calc
+    from calcs.wire_sizing         import calculate as wire_calc
     # from calcs.short_circuit       import calculate as sc_calc
     # from calcs.generator_sizing    import calculate as gen_calc
     # from calcs.solar_pv            import calculate as solar_calc
-    # handlers["Wire Sizing"]        = wire_calc
+    handlers["Wire Sizing"]        = wire_calc
     # handlers["Short Circuit"]      = sc_calc
     # handlers["Generator Sizing"]   = gen_calc
     # handlers["Solar PV System"]    = solar_calc
