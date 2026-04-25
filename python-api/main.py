@@ -61,9 +61,10 @@ def _load_handlers() -> dict[str, Any]:
 
     # Phase 3 — Refrigeration
     from calcs.refrigerant_pipe  import calculate as refrig_pipe_calc
-    # from calcs.fcu_selection     import calculate as fcu_calc
+    from calcs.fcu_selection     import calculate as fcu_calc
     # from calcs.chiller           import calculate as chiller_calc
     handlers["Refrigerant Pipe Sizing"]         = refrig_pipe_calc
+    handlers["FCU Selection"]                   = fcu_calc
     # handlers["FCU Selection"]                   = fcu_calc
     # handlers["Chiller System — Water Cooled"]   = chiller_calc
     # handlers["Chiller System — Air Cooled"]     = chiller_calc
