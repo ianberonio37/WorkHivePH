@@ -15,6 +15,11 @@ web context/
 # Test/scratch files
 index-v3-test.html
 
+# Internal developer reference tools — not user-facing, no nav/auth
+# symbol-gallery.html — SVG symbol reference for diagram builders
+# architecture.html — platform architecture diagram (internal only)
+# These are kept in repo for dev reference but excluded from nav-hub
+
 # Backup files (already disallowed in robots.txt but keep out of repo)
 *.backup.html
 *.backup2.html

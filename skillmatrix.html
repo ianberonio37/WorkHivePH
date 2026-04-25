@@ -449,6 +449,7 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // ─── Identity ─────────────────────────────────────────────────────────────────
 const WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
 if (!WORKER_NAME) { window.location.href = 'index.html'; }
+const HIVE_ID = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
 
 // ─── State ────────────────────────────────────────────────────────────────────
 let _profile   = null;   // { primary_skill, targets }
