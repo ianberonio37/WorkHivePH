@@ -615,6 +615,54 @@
         </div>
       </div>
 
+      <!-- Risk Intelligence Panel (AI cross-reference insights) -->
+      <div id="risk-intel-panel" class="hidden mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Risk Intelligence</p>
+          <button id="btn-toggle-risk-intel" style="color:#f87171;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;padding:0.5rem 0;">Show</button>
+        </div>
+        <div id="risk-intel-body" style="display:none;">
+          <p class="text-[10px] text-white/25 mb-2">AI cross-references logbook, skill matrix, PM health, and inventory to surface insights your team would otherwise miss.</p>
+
+          <!-- PM Overdue -->
+          <div class="mb-3">
+            <p class="text-[10px] text-white/25 uppercase tracking-widest font-semibold mb-1.5">PM Health</p>
+            <div id="ri-pm" class="rounded-xl px-3 py-3" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+              <p class="text-xs text-white/30">Loading...</p>
+            </div>
+          </div>
+
+          <!-- Failure Digest -->
+          <div class="mb-3">
+            <p class="text-[10px] text-white/25 uppercase tracking-widest font-semibold mb-1.5">Failure Digest</p>
+            <div id="ri-failure" class="rounded-xl px-3 py-3" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+              <p class="text-xs text-white/30">Loading...</p>
+            </div>
+          </div>
+
+          <!-- Shift Handover -->
+          <div class="mb-3">
+            <p class="text-[10px] text-white/25 uppercase tracking-widest font-semibold mb-1.5">Last Shift Handover</p>
+            <div id="ri-handover" class="rounded-xl px-3 py-3" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+              <p class="text-xs text-white/30">Loading...</p>
+            </div>
+          </div>
+
+          <!-- Predictive -->
+          <div class="mb-3">
+            <p class="text-[10px] text-white/25 uppercase tracking-widest font-semibold mb-1.5">Predictive Risk</p>
+            <div id="ri-predictive" class="rounded-xl px-3 py-3" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+              <p class="text-xs text-white/30">Loading...</p>
+            </div>
+          </div>
+
+          <!-- Run Now button -->
+          <button id="ri-run-btn" onclick="runRiskIntelNow()" class="w-full rounded-xl py-2.5 text-xs font-bold mt-1" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.25);color:#f87171;">
+            Run Analysis Now
+          </button>
+        </div>
+      </div>
+
       <!-- Hive Inventory (all members) -->
       <div id="hive-inventory-panel" class="hidden mb-5">
         <div class="flex items-center justify-between mb-2">
@@ -2247,6 +2295,115 @@ document.getElementById('btn-toggle-downtime').addEventListener('click', () => {
   btn.textContent = isHidden ? 'Hide' : 'Show';
 });
 
+// ── Risk Intelligence Panel ───────────────────────────────────────────────────
+
+document.getElementById('btn-toggle-risk-intel').addEventListener('click', () => {
+  const body = document.getElementById('risk-intel-body');
+  const btn  = document.getElementById('btn-toggle-risk-intel');
+  const isHidden = body.style.display === 'none';
+  body.style.display = isHidden ? '' : 'none';
+  btn.textContent = isHidden ? 'Hide' : 'Show';
+  if (isHidden) loadRiskIntel();
+});
+
+async function loadRiskIntel() {
+  if (!HIVE_ID) return;
+
+  const types = ['pm_overdue', 'failure_digest', 'shift_handover', 'predictive'];
+  const elMap = {
+    pm_overdue:     'ri-pm',
+    failure_digest: 'ri-failure',
+    shift_handover: 'ri-handover',
+    predictive:     'ri-predictive',
+  };
+
+  await Promise.allSettled(types.map(async (type) => {
+    const el = document.getElementById(elMap[type]);
+    if (!el) return;
+
+    const { data } = await db.from('ai_reports')
+      .select('summary, report_json, generated_at')
+      .eq('hive_id', HIVE_ID)
+      .eq('report_type', type)
+      .order('generated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!data) {
+      el.innerHTML = '<p class="text-xs text-white/30">No report yet — will generate automatically on schedule.</p>';
+      return;
+    }
+
+    const age  = Math.floor((Date.now() - new Date(data.generated_at).getTime()) / 3600000);
+    const ageText = age < 1 ? 'just now' : age < 24 ? `${age}h ago` : `${Math.floor(age/24)}d ago`;
+    const r    = data.report_json || {};
+
+    let html = `<p class="text-xs text-white/70 mb-2">${data.summary || 'No summary.'}</p>`;
+
+    // PM overdue details
+    if (type === 'pm_overdue' && r.overdue_assets?.length) {
+      html += r.overdue_assets.slice(0, 3).map(a =>
+        `<div class="flex justify-between items-center py-1 border-t border-white/5">
+          <span class="text-[11px] text-white/60">${a.asset_name}</span>
+          <span class="text-[11px] font-bold" style="color:${a.risk === 'CRITICAL' ? '#f87171' : '#F7A21B'}">${a.risk} — ${a.days_since_pm}</span>
+        </div>`
+      ).join('');
+    }
+
+    // Failure digest details
+    if (type === 'failure_digest' && r.top_risk_machines?.length) {
+      html += r.top_risk_machines.slice(0, 3).map(m =>
+        `<div class="flex justify-between items-center py-1 border-t border-white/5">
+          <span class="text-[11px] text-white/60">${m.machine}</span>
+          <span class="text-[11px] font-bold text-white/50">${m.failure_count} failures — ${m.total_downtime_h}h down</span>
+        </div>`
+      ).join('');
+    }
+
+    // Shift handover open jobs
+    if (type === 'shift_handover' && r.open_jobs?.length) {
+      html += r.open_jobs.slice(0, 3).map(j =>
+        `<div class="flex justify-between items-center py-1 border-t border-white/5">
+          <span class="text-[11px] text-white/60">${j.machine}</span>
+          <span class="text-[11px] font-bold" style="color:${j.priority === 'HIGH' ? '#f87171' : j.priority === 'MEDIUM' ? '#F7A21B' : '#34d399'}">${j.priority}</span>
+        </div>`
+      ).join('');
+    }
+
+    // Predictive
+    if (type === 'predictive' && r.predictions?.length) {
+      html += r.predictions.filter(p => p.risk === 'HIGH' || p.risk === 'MEDIUM').slice(0, 3).map(p =>
+        `<div class="flex justify-between items-center py-1 border-t border-white/5">
+          <span class="text-[11px] text-white/60">${p.machine}</span>
+          <span class="text-[11px] font-bold" style="color:${p.risk === 'HIGH' ? '#f87171' : '#F7A21B'}">Next: ${p.predicted_next}</span>
+        </div>`
+      ).join('');
+    }
+
+    html += `<p class="text-[10px] text-white/20 mt-2">Updated ${ageText}</p>`;
+    el.innerHTML = html;
+  }));
+}
+
+async function runRiskIntelNow() {
+  const btn = document.getElementById('ri-run-btn');
+  btn.disabled = true;
+  btn.textContent = 'Running...';
+
+  const types = ['pm_overdue', 'failure_digest', 'shift_handover', 'predictive'];
+  await Promise.allSettled(types.map(type =>
+    fetch(`${SUPABASE_URL}/functions/v1/scheduled-agents`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ report_type: type })
+    })
+  ));
+
+  await loadRiskIntel();
+  btn.disabled = false;
+  btn.textContent = 'Run Analysis Now';
+}
+
 document.getElementById('btn-toggle-hive-inv').addEventListener('click', () => {
   const body = document.getElementById('hive-inventory-body');
   const btn  = document.getElementById('btn-toggle-hive-inv');
@@ -2413,6 +2570,15 @@ async function loadMtbf() {
 
   renderMtbf(results);
 }
+
+// Show Risk Intelligence panel for hive members (hive_id required)
+function showRiskIntelPanel() {
+  if (!HIVE_ID) return;
+  document.getElementById('risk-intel-panel').classList.remove('hidden');
+}
+
+// Call on hive load
+showRiskIntelPanel();
 
 function renderMtbf(results) {
   if (!results || !results.length) return;

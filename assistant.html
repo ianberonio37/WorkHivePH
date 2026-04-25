@@ -339,7 +339,8 @@
 
   <script>
     // ── Config ────────────────────────────────────────────────────
-    const WORKER_URL = 'https://workhive-assistant.ian-beronio37.workers.dev';
+    const WORKER_URL    = 'https://workhive-assistant.ian-beronio37.workers.dev';
+    const SUPABASE_URL  = 'https://hzyvnjtisfgbksicrouu.supabase.co';
 
     // ── Storage keys ──────────────────────────────────────────────
     const KEY_WORKER = 'wh_last_worker';
@@ -600,6 +601,23 @@ ${scheduleText}
     }
 
     // ── Send message ──────────────────────────────────────────────
+    // ── Fetch semantic context before AI call ─────────────────────
+    async function getSemanticContext(query) {
+      try {
+        const hiveId = localStorage.getItem('wh_hive_id') || null;
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/semantic-search`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, hive_id: hiveId, match_count: 3 }),
+        });
+        if (!res.ok) return '';
+        const { context } = await res.json();
+        return context || '';
+      } catch {
+        return '';
+      }
+    }
+
     async function sendMessage() {
       if (isLoading) return;
       const input = document.getElementById('chat-input');
@@ -616,26 +634,54 @@ ${scheduleText}
       addTypingIndicator();
 
       try {
-        const response = await fetch(WORKER_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-            max_tokens: 1024,
-            messages: [
-              { role: 'system', content: window._systemPrompt },
-              ...sessionMessages,
-            ],
-          }),
-        });
+        const hiveId = localStorage.getItem('wh_hive_id') || null;
+        let reply = null;
 
-        if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          throw new Error(err?.error?.message || `API error ${response.status}`);
+        // ── Step 1: Try orchestrator (team intelligence, Groq free tier) ──
+        try {
+          const orchRes = await fetch(`${SUPABASE_URL}/functions/v1/ai-orchestrator`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              question:    text,
+              hive_id:     hiveId,
+              worker_name: workerName,
+            }),
+          });
+          if (orchRes.ok) {
+            const orchData = await orchRes.json();
+            if (orchData.answer && !orchData.error) reply = orchData.answer;
+          }
+        } catch { /* fall through */ }
+
+        // ── Step 2: Fall back to personal assistant if orchestrator has no answer ──
+        if (!reply) {
+          const semanticContext = await getSemanticContext(text);
+          const enrichedPrompt = semanticContext
+            ? `${window._systemPrompt}\n\n--- KNOWLEDGE BASE CONTEXT (from your team's history) ---\n${semanticContext}\n--- END CONTEXT ---`
+            : window._systemPrompt;
+
+          const response = await fetch(WORKER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+              max_tokens: 1024,
+              messages: [
+                { role: 'system', content: enrichedPrompt },
+                ...sessionMessages,
+              ],
+            }),
+          });
+
+          if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err?.error?.message || `API error ${response.status}`);
+          }
+
+          const data = await response.json();
+          reply = data.choices?.[0]?.message?.content || 'Sorry, I got an empty response.';
         }
-
-        const data = await response.json();
-        const reply = data.choices?.[0]?.message?.content || 'Sorry, I got an empty response.';
 
         removeTypingIndicator();
         sessionMessages.push({ role: 'assistant', content: reply });

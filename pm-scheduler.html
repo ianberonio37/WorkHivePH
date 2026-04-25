@@ -1440,11 +1440,42 @@ async function submitCompletion() {
     showToast('PM task marked as done.');
   }
 
+  // Embed PM health snapshot in background
+  embedPMEntry({
+    asset_id:      currentAsset.id,
+    asset_name:    currentAsset.asset_name,
+    category:      currentAsset.category,
+    last_completed: now,
+    overdue_count:  0, // just completed — recalculated on next dashboard load
+  });
+
   closeSheet();
   renderDetail(currentAsset);
   renderDashboard();
   saveBtn.disabled = false;
   saveLabel.textContent = logAlso ? 'Save + Log in Logbook' : 'Save Completion';
+}
+
+async function embedPMEntry(entry) {
+  try {
+    await fetch(`${SUPABASE_URL}/functions/v1/embed-entry`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'pm',
+        hive_id: HIVE_ID || null,
+        entry: {
+          asset_id:      entry.asset_id,
+          asset_name:    entry.asset_name,
+          category:      entry.category,
+          last_completed: entry.last_completed,
+          overdue_count:  entry.overdue_count,
+        }
+      })
+    });
+  } catch (e) {
+    console.warn('embed-entry (pm) skipped:', e.message);
+  }
 }
 
 // ─────────────────────────────────────

@@ -755,6 +755,52 @@
   </div>
 </div>
 
+<!-- Asset Edit Modal -->
+<div id="asset-edit-modal" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
+  <div class="card w-full max-w-md p-6 relative">
+    <button onclick="closeEditAsset()" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+    <h3 class="font-bold text-base text-white mb-4 pr-8">Edit Asset</h3>
+
+    <input type="hidden" id="edit-asset-id">
+
+    <div class="mb-3">
+      <label class="block text-xs text-white/40 mb-1">Asset ID / Tag</label>
+      <input id="edit-asset-asset-id" type="text" class="wh-input w-full" placeholder="e.g. PUMP-001">
+    </div>
+    <div class="mb-3">
+      <label class="block text-xs text-white/40 mb-1">Asset Name</label>
+      <input id="edit-asset-name" type="text" class="wh-input w-full" placeholder="e.g. Cooling Water Pump">
+    </div>
+    <div class="mb-3">
+      <label class="block text-xs text-white/40 mb-1">Type</label>
+      <input id="edit-asset-type" type="text" class="wh-input w-full" placeholder="e.g. Centrifugal Pump">
+    </div>
+    <div class="mb-3">
+      <label class="block text-xs text-white/40 mb-1">Location</label>
+      <input id="edit-asset-location" type="text" class="wh-input w-full" placeholder="e.g. Building A, Level 2">
+    </div>
+    <div class="mb-4">
+      <label class="block text-xs text-white/40 mb-1">Criticality</label>
+      <select id="edit-asset-criticality" class="wh-input w-full">
+        <option value="">-- Select --</option>
+        <option value="Critical">Critical</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+    </div>
+
+    <p id="edit-asset-error" class="text-xs text-red-400 mb-3 hidden"></p>
+
+    <div class="flex gap-2">
+      <button onclick="saveEditAsset()" id="edit-asset-save-btn" class="btn-primary flex-1">Save Changes</button>
+      <button onclick="closeEditAsset()" class="btn-secondary px-4">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- Asset Detail Modal -->
 <div id="asset-detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="display:none; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
   <div class="card w-full max-w-md max-h-[88vh] overflow-y-auto p-6 relative">
@@ -995,6 +1041,34 @@ async function addEntry(entry) {
   });
   if (error) { showToast('Could not save entry: ' + error.message); return; }
   document.getElementById('sync-badge').classList.remove('hidden');
+
+  // Embed in background — does not block the user
+  embedFaultEntry(entry);
+}
+
+async function embedFaultEntry(entry) {
+  try {
+    await fetch(`${SUPABASE_URL}/functions/v1/embed-entry`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'fault',
+        hive_id: HIVE_ID || null,
+        entry: {
+          id:          entry.id,
+          machine:     entry.machine,
+          category:    entry.category,
+          problem:     entry.problem,
+          root_cause:  entry.root_cause,
+          action:      entry.action,
+          knowledge:   entry.knowledge,
+          worker_name: WORKER_NAME,
+        }
+      })
+    });
+  } catch (e) {
+    console.warn('embed-entry skipped:', e.message);
+  }
 }
 
 async function deleteEntry(id) {
@@ -1206,6 +1280,76 @@ function deleteAsset(id) {
   showToast('Asset removed.');
 }
 
+function openEditAsset(id) {
+  const asset = loadAssets().find(a => a.id === id);
+  if (!asset) return;
+  document.getElementById('edit-asset-id').value          = asset.id;
+  document.getElementById('edit-asset-asset-id').value    = asset.asset_id || '';
+  document.getElementById('edit-asset-name').value        = asset.name || '';
+  document.getElementById('edit-asset-type').value        = asset.type || '';
+  document.getElementById('edit-asset-location').value    = asset.location || '';
+  document.getElementById('edit-asset-criticality').value = asset.criticality || '';
+  document.getElementById('edit-asset-error').classList.add('hidden');
+  document.getElementById('asset-edit-modal').style.display = 'flex';
+}
+
+function closeEditAsset() {
+  document.getElementById('asset-edit-modal').style.display = 'none';
+}
+
+async function saveEditAsset() {
+  const id          = document.getElementById('edit-asset-id').value;
+  const asset_id    = document.getElementById('edit-asset-asset-id').value.trim();
+  const name        = document.getElementById('edit-asset-name').value.trim();
+  const type        = document.getElementById('edit-asset-type').value.trim();
+  const location    = document.getElementById('edit-asset-location').value.trim();
+  const criticality = document.getElementById('edit-asset-criticality').value;
+  const errEl       = document.getElementById('edit-asset-error');
+  const saveBtn     = document.getElementById('edit-asset-save-btn');
+
+  if (!asset_id) {
+    errEl.textContent = 'Asset ID is required.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving...';
+  errEl.classList.add('hidden');
+
+  // Workers editing approved assets must re-enter approval queue
+  const asset = loadAssets().find(a => a.id === id);
+  const needsReapproval = HIVE_ID && HIVE_ROLE !== 'supervisor' && asset?.status === 'approved';
+  const updates = {
+    asset_id, name, type, location, criticality,
+    ...(needsReapproval ? { status: 'pending' } : {})
+  };
+
+  // Scope update to owner — prevents overwriting another member's asset
+  let q = db.from('assets').update(updates).eq('id', id);
+  if (HIVE_ID && HIVE_ROLE !== 'supervisor') q = q.eq('worker_name', WORKER_NAME);
+
+  const { error } = await q;
+  if (error) {
+    errEl.textContent = 'Could not save: ' + error.message;
+    errEl.classList.remove('hidden');
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save Changes';
+    return;
+  }
+
+  // Update local cache
+  _assets = _assets.map(a => a.id === id ? { ...a, ...updates } : a);
+  if (needsReapproval) showToast('Asset updated and sent for supervisor approval.');
+  updateAssetDatalist();
+  renderAssetList();
+  closeEditAsset();
+  showToast('Asset updated.');
+
+  saveBtn.disabled = false;
+  saveBtn.textContent = 'Save Changes';
+}
+
 function criticalityBadge(c) {
   if (!c) return '';
   const map = {
@@ -1246,6 +1390,7 @@ function renderAssetList() {
         </div>
         <div class="flex gap-2 flex-shrink-0">
           <button onclick="openAssetDetail('${a.id}')" class="btn-secondary text-[11px] py-1 px-2.5">View</button>
+          ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || a.worker_name === WORKER_NAME) ? `<button onclick="openEditAsset('${a.id}')" class="btn-secondary text-[11px] py-1 px-2.5" style="color:#29B6D9;border-color:rgba(41,182,217,0.3);">Edit</button>` : ''}
           <button onclick="deleteAsset('${a.id}')" class="btn-danger text-[11px] py-1 px-2.5">Remove</button>
         </div>
       </div>

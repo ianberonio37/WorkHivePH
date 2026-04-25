@@ -18,3 +18,11 @@ index-v3-test.html
 # Backup files (already disallowed in robots.txt but keep out of repo)
 *.backup.html
 *.backup2.html
+
+# Supabase CLI temp files
+supabase/.temp/
+
+# Leftover temp/scratch files
+lps_tmp.json
+*.tmp.json
+CLAUDE (1).md

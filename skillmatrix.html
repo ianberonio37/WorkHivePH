@@ -464,6 +464,27 @@ let _currentQuestion   = 0;
 let _examQuestions     = [];
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
+async function embedSkillEntry(entry) {
+  try {
+    await fetch(`${SUPABASE_URL}/functions/v1/embed-entry`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'skill',
+        hive_id: HIVE_ID || null,
+        entry: {
+          worker_name:   entry.worker_name,
+          discipline:    entry.discipline,
+          level:         entry.level,
+          primary_skill: entry.primary_skill,
+        }
+      })
+    });
+  } catch (e) {
+    console.warn('embed-entry (skill) skipped:', e.message);
+  }
+}
+
 function showToast(msg, icon = '✓') {
   const t = document.getElementById('toast');
   document.getElementById('toast-text').textContent = msg;
@@ -616,6 +637,15 @@ document.getElementById('target-save-btn').addEventListener('click', async () =>
     showToast('Could not save targets. Please try again.', '✗');
   } else {
     showToast('Targets saved!', '✓');
+    // Embed each discipline skill level in background
+    Object.entries(_profile.targets).forEach(([discipline, level]) => {
+      embedSkillEntry({
+        worker_name:   WORKER_NAME,
+        discipline,
+        level:         getActualLevel(discipline),
+        primary_skill: _profile.primary_skill,
+      });
+    });
   }
   btn.disabled = false; btn.textContent = 'Save Targets';
 });
@@ -988,6 +1018,13 @@ async function submitExam() {
     } else {
       // Update local badge state
       if (!_badges[disc].includes(level)) _badges[disc].push(level);
+      // Embed new skill level in background
+      embedSkillEntry({
+        worker_name:   WORKER_NAME,
+        discipline:    disc,
+        level,
+        primary_skill: _profile.primary_skill,
+      });
     }
   }
 
