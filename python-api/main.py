@@ -92,7 +92,9 @@ def _load_handlers() -> dict[str, Any]:
 
     # Phase 6 — Plumbing / Water
     from calcs.domestic_water  import calculate as domestic_water_calc
+    from calcs.sewer_drainage  import calculate as sewer_drainage_calc
     handlers["Domestic Water System"] = domestic_water_calc
+    handlers["Sewer / Drainage"]      = sewer_drainage_calc
 
     # Phase 7 — Structural / Lighting / LPS
     # Phase 8 — Diagrams + PDF
