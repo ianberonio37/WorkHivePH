@@ -128,9 +128,11 @@ def calculate(inputs: dict) -> dict:
     """
     # ── Inputs ────────────────────────────────────────────────────────────────
     cooling_kw    = float(inputs.get("cooling_kw",         0)
+                      or  inputs.get("cooling_load_kW",     0)   # frontend key
                       or  inputs.get("capacity_kw",         0)
                       or  inputs.get("kW",                  0))
     cooling_tr    = float(inputs.get("cooling_tr",          0)
+                      or  inputs.get("cooling_load_TR",     0)
                       or  inputs.get("TR",                  0))
 
     if cooling_kw <= 0 and cooling_tr > 0:
@@ -141,11 +143,14 @@ def calculate(inputs: dict) -> dict:
     cooling_tr = cooling_kw / 3.517
 
     chiller_type  = str(inputs.get("chiller_type",   "Water Cooled"))
-    is_water      = "Water" in chiller_type or "water" in chiller_type
+    # Detect water-cooled: explicit flag, "Water" in name, or CW inputs present
+    is_water      = ("Water" in chiller_type or "water" in chiller_type
+                     or bool(inputs.get("cw_supply_C") or inputs.get("cw_supply_c"))
+                     or inputs.get("is_water_cooled", False))
 
-    # Chilled water (evaporator) - standard 6°C CHW delta-T
-    chw_supply_c  = float(inputs.get("chw_supply_c",    7.0))
-    chw_return_c  = float(inputs.get("chw_return_c",   13.0))
+    # Chilled water (evaporator) - accept both lower and upper case C suffix
+    chw_supply_c  = float(inputs.get("chw_supply_c") or inputs.get("chw_supply_C") or 7.0)
+    chw_return_c  = float(inputs.get("chw_return_c") or inputs.get("chw_return_C") or 13.0)
     chw_delta_t   = chw_return_c - chw_supply_c
 
     # Condenser side
@@ -304,12 +309,12 @@ def calculate(inputs: dict) -> dict:
         "P_total_kW":       round(comp_kw, 2),
         "Q_rejection_kW":   round(q_rejection_kw, 2),
         "Q_rejection_TR":   round(q_rejection_tr, 2),
-        "Q_chw_lps":        round(chw_flow_lps, 3),
-        "Q_chw_m3h":        round(chw_flow_m3hr, 2),
-        "Q_chw_GPM":        round(chw_flow_lps * 15.8503, 1),
-        "Q_cw_lps":         round(cw_flow_lps, 3),
-        "Q_cw_m3h":         round(cw_flow_m3hr, 1),
-        "Q_cw_GPM":         round(cw_flow_gpm, 1),
+        "Q_chw_lps":        round(chw_flow_kgs, 3),           # kg/s ≈ L/s for water
+        "Q_chw_m3h":        round(chw_flow_kgs * 3.6, 2),    # L/s → m³/hr
+        "Q_chw_GPM":        round(chw_flow_kgs * 15.8503, 1),
+        "Q_cw_lps":         round(cw_flow_kgs if is_water else 0, 3),
+        "Q_cw_m3h":         round(cw_flow_kgs * 3.6 if is_water else 0, 1),
+        "Q_cw_GPM":         round(cw_flow_kgs * 15.8508 if is_water else 0, 1),
         "dT_chw_C":         chw_delta_t,
         "dT_cw_C":          cw_delta_t,
         "iplv":             round(iplv, 3),
@@ -322,15 +327,15 @@ def calculate(inputs: dict) -> dict:
         "nominal_TR_each":  rec_tr,
         "nominal_kW_each":  rec_kw,
         "nominal_total_TR": round(rec_tr * 1, 1),
-        "refrigerant":      refrigerant,
+        "refrigerant":      "R-134a" if is_water else "R-410A",
         "total_A_at_400V":  round(comp_kw * 1000 / (400 * 1.732 * 0.9), 1),
         "total_kVA":        round(comp_kw / 0.9, 1),
         # Air-cooled specific
         "Q_airflow_CMH":    round(q_rejection_kw / (1.2 * 1.005 * 10) * 3600, 0),
         "Q_airflow_CMH_per_unit": round(q_rejection_kw / (1.2 * 1.005 * 10) * 3600 / 1, 0),
         "Q_airflow_CFM":    round(q_rejection_kw / (1.2 * 1.005 * 10) * 3600 / 1.699, 0),
-        "Q_flow_lps":       round(chw_flow_lps, 3),
-        "Q_flow_m3h":       round(chw_flow_m3hr, 2),
-        "Q_flow_GPM":       round(chw_flow_lps * 15.8503, 1),
+        "Q_flow_lps":       round(chw_flow_kgs, 3),
+        "Q_flow_m3h":       round(chw_flow_kgs * 3.6, 2),
+        "Q_flow_GPM":       round(chw_flow_kgs * 15.8503, 1),
         "ambient_note":     f"Design ambient: {outdoor_db_c}°C DB",
     }
