@@ -296,4 +296,21 @@ def calculate(inputs: dict) -> dict:
         },
         "calculation_source": "python/math",
         "standard": "NFPA 13:2022 | PNS NFPA 13 | BFP IRR RA 9514",
+
+        # ── Legacy renderer aliases (frontend renderFireSprinklerReport) ───────
+        "N_sprinklers":        n_sprinklers,
+        "Q_sprinklers_total":  round(q_sprinklers_lpm, 1),
+        "Q_total":             round(q_total_lpm, 1),
+        "Q_hose":              round(hose_lpm, 1),
+        "Q_per_head":          round(q_per_sprinkler_lpm, 1),
+        "P_design":            round(p_remote_bar, 3),
+        "P_source":            round(p_system_bar, 3),
+        "P_source_kPa":        round(p_system_bar * 100, 1),
+        "H_friction":          round(dp_total_friction * 10.2, 2),
+        "coverage_per_head":   round(coverage_m2, 1),
+        "density":             density,
+        "design_area":         design_area,
+        "hazard":              hazard_key,
+        "pipe_dia":            str(branch_pipe.get("nominal_mm", "—")) + " mm",
+        "duration":            60,   # NFPA 13 minimum 60-min water supply
     }

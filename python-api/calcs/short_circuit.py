@@ -286,4 +286,17 @@ def calculate(inputs: dict) -> dict:
         },
         "calculation_source": "python/math",
         "standard": "IEC 60909-0:2016 | PEC 2017 Art.2.40 | IEEE 141 | IEEE 242",
+
+        # ── Legacy renderer aliases (frontend renderShortCircuitReport) ─────────
+        "Isc_kA":       round(Isc_3ph_kA, 3),
+        "Ipeak_kA":     round(Ip_peak / 1000, 3),
+        "Z_total_ohm":  round(Z_total, 6),
+        "R_cable_ohm":  round(R_c1 + R_c2, 6),
+        "X_cable_ohm":  round(X_c1, 6),
+        "Z_cable_ohm":  round(Z_c1 + Z_c2, 6),
+        "Z_xfmr_ohm":   round(Z_trafo, 6),
+        "Z_base_ohm":   round(voltage_lv**2 / (trafo_kva * 1000), 6),
+        "ic_check":     "PASS" if ocpd_adequate else "FAIL",
+        "ic_min_recommended": rec_ocpd,
+        "ic_margin":    round(ocpd_ka - Isc_3ph_kA, 3),
     }

@@ -336,4 +336,17 @@ def calculate(inputs: dict) -> dict:
         },
         "calculation_source": "python/math",
         "standard": "PEC 2017 | NEC 2020 | IEC 60364-5-52 | IEC 60228",
+
+        # ── Legacy renderer aliases (frontend renderWireSizingReport) ──────────
+        "size_mm2":          governing_wire["mm2"],
+        "corrected_ampacity": governing_wire["ampacity"],
+        "temp_factor":       temp_factor,
+        "adequate":          True,   # if we reach here, sizing is adequate
+        "recommended":       f"{governing_wire['mm2']} mm² Cu THHN",
+        "ampacity_table":    f"PEC 2017 Table 310.15(B)(16), {ambient_c}°C ambient",
+        "design_current":    round(design_current, 2),
+        "ambient_temp":      ambient_c,
+        "demand_multiplier": round(sizing_current / design_current, 3) if design_current > 0 else 1.0,
+        "load_current":      round(design_current, 2),
+        "conduit_fill":      f"{num_cond} conductors — fill factor {fill_factor:.2f}",
     }

@@ -273,4 +273,20 @@ def calculate(inputs: dict) -> dict:
         },
         "calculation_source": "python/math",
         "standard": "ISO 8528-1:2018 | ISO 3046-1 | IEEE 446 | PEC 2017 | NFPA 110",
+
+        # ── Legacy renderer aliases (frontend renderGeneratorReport) ───────────
+        "design_kva":       round(required_kva_governing, 2),
+        "controlling_kva":  round(kva_during_start, 2),
+        "selected_kva":     rec_kva,
+        "selected_kw":      rec_kw_08,
+        "running_kw":       round(demand_kw, 2),
+        "running_kva":      round(demand_kva, 2),
+        "loading_pct":      round(steady_loading_pct, 1),
+        "overall_pf":       power_factor,
+        "safety_factor":    round(rec_kva / max(required_kva_governing, 1), 3),
+        "motor_kw":         largest_motor_kw,
+        "motor_hp":         round(largest_motor_kw / 0.746, 1),
+        "fuel_100pct_lhr":  round(fuel_lhr_100, 1),
+        "fuel_75pct_lhr":   round(fuel_lhr_75, 1),
+        "load_breakdown":   [{"load": "Total demand", "kW": round(demand_kw, 2), "kVA": round(demand_kva, 2)}],
     }
