@@ -11,12 +11,8 @@ Replaces the hand-rolled Hazen-Williams TypeScript implementation with:
 """
 
 from fluids import friction_factor, Reynolds
-from fluids.fittings import Hooper2K, entrance_sharp, exit_normal
 from iapws import IAPWS97
 import math
-from pint import UnitRegistry
-
-ureg = UnitRegistry()
 
 # ─── Pipe roughness by material (mm) — ASHRAE 2021 Fundamentals Table 2 ───────
 PIPE_ROUGHNESS_MM: dict[str, float] = {
