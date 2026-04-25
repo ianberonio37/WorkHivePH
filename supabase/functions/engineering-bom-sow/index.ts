@@ -3603,6 +3603,416 @@ Return ONLY the JSON object. No markdown. No explanation. No code fences.`;
   };
 }
 
+// ─── Machine Design: Shaft Design BOM + SOW Agent ────────────────────────────
+
+async function shaftDesignBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+  const project   = inputs.project_name  || "Shaft Design Project";
+  const powerKW   = Number(inputs.power_kW    || 0).toFixed(1);
+  const speedRPM  = Number(inputs.speed_rpm   || 0);
+  const material  = String(inputs.material    || "AISI 1045");
+  const dMin      = Number(results.d_min_mm   || 0).toFixed(1);
+  const dStd      = Number(results.d_standard_mm || 0);
+  const dUsed     = Number(results.d_used_mm  || dStd);
+  const nfGood    = Number(results.nf_goodman || 0).toFixed(2);
+  const critRPM   = Number(results.critical_speed_rpm || 0).toFixed(0);
+  const keyW      = Number(results.key_width_mm  || 0);
+  const keyH      = Number(results.key_height_mm || 0);
+  const torque    = Number(results.torque_Nm || 0).toFixed(1);
+
+  const prompt = `You are a senior Mechanical Engineer in the Philippines preparing a Bill of Materials (BOM) and Scope of Works (SOW) for a power transmission shaft per ASME B106.1M and Shigley's Mechanical Engineering Design.
+
+Project: ${project}
+Power transmitted: ${powerKW} kW at ${speedRPM} RPM
+Torque: ${torque} N·m
+Material: ${material}
+Minimum diameter (DE-Goodman): ${dMin} mm → Selected standard: ${dUsed} mm
+Goodman safety factor nf: ${nfGood}
+Critical speed: ${critRPM} RPM (operating below 80%)
+Key (ASME B17.1): ${keyW} × ${keyH} mm
+
+Generate a JSON object with exactly two keys:
+
+"bom_items": array of 10 objects with { "description", "specification", "unit", "qty", "remarks" }
+Cover: (1) Shaft stock ${material} ${dUsed}mm dia, (2) Key stock, (3) Shaft couplings/flanges, (4) Bearings (deep groove ball, sized for shaft dia), (5) Bearing housings, (6) Shaft seals (lip seal or labyrinth), (7) Locking devices (locknut + lockwasher), (8) Keyway milling cutter set, (9) Surface treatment (black oxide or phosphate), (10) Shaft alignment tools (dial indicator + magnetic base).
+
+"sow_sections": array of 5 objects with { "section_no", "title", "content" }
+Sections: 1.0 Scope, 2.0 Standards (ASME B106.1M, ASME B17.1, Shigley's 10th Ed, PSME Code), 3.0 Materials and Machining (tolerance h6 on bearing seats, k6 on coupling fits, keyway tolerance JS9), 4.0 Installation (alignment within 0.05mm TIR, interference fit for coupling, key torque capacity check), 5.0 Testing (vibration check per ISO 10816 after installation, run-in at 50%/75%/100% load).
+
+Content fields must start "The Contractor shall..." and reference actual values (${dUsed}mm, ${material}, ${torque}N·m). Return ONLY the JSON. No markdown.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return { bom_items: parsed.bom_items || [], sow_sections: parsed.sow_sections || [] };
+}
+
+// ─── Machine Design: Gear / Belt Drive BOM + SOW Agent ───────────────────────
+
+async function gearBeltDriveBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+  const project    = inputs.project_name  || "Drive Design Project";
+  const driveType  = String(inputs.drive_type || results.drive_type || "Gear Drive");
+  const powerKW    = Number(inputs.power_kW    || 0).toFixed(1);
+  const nDriver    = Number(inputs.n_driver_rpm || 0);
+  const nDriven    = Number(inputs.n_driven_rpm || 0);
+  const ratio      = Number(results.overall_ratio || results.speed_ratio || 0).toFixed(3);
+  const nBelts     = Number(results.n_belts || 0);
+  const section    = String(results.section || inputs.belt_section || "—");
+  const module     = Number(results.module_mm || inputs.module_mm || 0);
+  const chainNo    = String(results.chain_number || "—");
+
+  const prompt = `You are a senior Mechanical Engineer in the Philippines preparing a BOM and SOW for a ${driveType} per AGMA 2001-D04 / RMA IP-20 / ANSI B29.1 and PSME Code.
+
+Project: ${project}
+Drive type: ${driveType}
+Power: ${powerKW} kW
+Driver: ${nDriver} RPM → Driven: ${nDriven} RPM (ratio ${ratio}:1)
+${driveType.includes('Belt') ? `Belt section: ${section}, No. of belts: ${nBelts}` : ''}
+${driveType.includes('Gear') ? `Module: ${module}mm` : ''}
+${driveType.includes('Chain') ? `Chain No.: ${chainNo}` : ''}
+
+Generate a JSON object with exactly two keys:
+
+"bom_items": array of 10 objects with { "description", "specification", "unit", "qty", "remarks" }
+Cover drive-specific items: For V-Belt — matched belt set (${section} × ${nBelts} belts), driver/driven sheaves, bushing, tension idler, belt guard. For Gear — pinion, gear, gearbox housing, coupling, oil seal, lubrication. For Chain — roller chain (No.${chainNo}), driver/driven sprockets, chain tensioner, chain guard, lubricator.
+Plus: mounting hardware, alignment tools, shaft couplings.
+
+"sow_sections": array of 5 objects with { "section_no", "title", "content" }
+Sections: 1.0 Scope, 2.0 Standards (AGMA 2001-D04 / RMA IP-20 / ANSI B29.1), 3.0 Materials, 4.0 Installation (sheave/sprocket alignment, belt tension per manufacturer, gear backlash, lubrication), 5.0 Testing and Commissioning (run-in procedure, vibration check, temperature monitoring).
+
+Content fields must start "The Contractor shall..." and reference the specific ${driveType} parameters. Return ONLY the JSON. No markdown.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return { bom_items: parsed.bom_items || [], sow_sections: parsed.sow_sections || [] };
+}
+
+// ─── Machine Design: Bearing Life BOM + SOW Agent ────────────────────────────
+
+async function bearingLifeBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+  const project    = inputs.project_name   || "Bearing Selection Project";
+  const bearingType = String(inputs.bearing_type || "Ball");
+  const bearingNo  = String(inputs.bearing_no   || "—");
+  const speedRPM   = Number(inputs.speed_rpm    || 0);
+  const L10h       = Number(results.L10_hours   || 0).toFixed(0);
+  const L10m       = Number(results.L10_million_revs || 0).toFixed(2);
+  const cRating    = Number(inputs.C_kN         || 0).toFixed(1);
+  const adequate   = results.bearing_adequate   ?? true;
+
+  const prompt = `You are a senior Mechanical Engineer in the Philippines preparing a BOM and SOW for bearing selection and installation per ISO 281 and SKF/FAG application guidelines.
+
+Project: ${project}
+Bearing type: ${bearingType} bearing, No. ${bearingNo}
+Dynamic load rating C: ${cRating} kN
+Speed: ${speedRPM} RPM
+L10 life: ${L10h} hours (${L10m} million revolutions) — ${adequate ? 'ADEQUATE' : 'INADEQUATE — upgrade required'}
+
+Generate a JSON object with exactly two keys:
+
+"bom_items": array of 10 objects with { "description", "specification", "unit", "qty", "remarks" }
+Cover: (1) Bearing (ISO 281, type ${bearingType}, No.${bearingNo}), (2) Bearing housing (split or solid, per shaft dia), (3) Shaft seal (lip seal or V-ring), (4) Locking device (locknut + tab washer), (5) Grease (NLGI Grade 2, lithium complex), (6) Grease nipple (standard DIN 71412), (7) Bearing puller set, (8) Induction heater for mounting, (9) Alignment tools, (10) Temperature monitoring (infrared thermometer or PT100 probe).
+
+"sow_sections": array of 5 objects with { "section_no", "title", "content" }
+Sections: 1.0 Scope, 2.0 Standards (ISO 281, ISO 5593, SKF bearing installation manual, PSME Code), 3.0 Materials (bearing specification, grease selection per operating temperature), 4.0 Installation (mount bearing with induction heater to 80-100°C, check clearance, seal installation), 5.0 Monitoring (initial grease quantity, re-lubrication interval per ISO 5593, vibration baseline measurement).
+
+Content fields must start "The Contractor shall..." and reference L10h=${L10h} hours. Return ONLY the JSON. No markdown.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return { bom_items: parsed.bom_items || [], sow_sections: parsed.sow_sections || [] };
+}
+
+// ─── Machine Design: Bolt Torque BOM + SOW Agent ─────────────────────────────
+
+async function boltTorqueBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+  const project   = inputs.project_name  || "Bolted Joint Project";
+  const boltSize  = String(inputs.bolt_size  || "M16");
+  const grade     = String(inputs.bolt_grade || "8.8");
+  const nBolts    = Number(inputs.n_bolts    || 8);
+  const torqueNm  = Number(results.torque_Nm || 0).toFixed(1);
+  const preloadkN = Number(results.preload_kN || 0).toFixed(1);
+
+  const prompt = `You are a senior Mechanical Engineer in the Philippines preparing a BOM and SOW for a bolted joint assembly per ISO 898-1 and VDI 2230.
+
+Project: ${project}
+Bolt: ${boltSize} Grade ${grade} — ${nBolts} bolts per joint
+Tightening torque: ${torqueNm} N·m
+Preload: ${preloadkN} kN per bolt
+
+Generate a JSON object with exactly two keys:
+
+"bom_items": array of 8 objects with { "description", "specification", "unit", "qty", "remarks" }
+Cover: (1) Hex bolt ${boltSize} Grade ${grade} ISO 898-1, (2) Hex nut Grade 8 ISO 898-2, (3) Hardened flat washer ISO 7091, (4) Spring lock washer DIN 127B, (5) Anti-seize compound (copper-based or nickel-based), (6) Thread locker (Loctite 243 or equiv for vibrating joints), (7) Calibrated torque wrench (0–${Math.ceil(Number(torqueNm)*1.2)} N·m range), (8) Torque audit sticker + marker.
+
+"sow_sections": array of 4 objects with { "section_no", "title", "content" }
+Sections: 1.0 Scope, 2.0 Standards (ISO 898-1, VDI 2230, PSME Code, PEC for electrical enclosure bolting), 3.0 Tightening Procedure (star pattern, ${torqueNm} N·m in 3 passes: 30%→70%→100%, anti-seize on threads, document with torque wrench certificate), 4.0 Inspection and Re-check (retorque after 24hr thermal cycling, mark bolt heads for rotation check, photograph final assembly).
+
+Return ONLY the JSON. No markdown.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return { bom_items: parsed.bom_items || [], sow_sections: parsed.sow_sections || [] };
+}
+
+// ─── Machine Design: Beam / Column Design BOM + SOW Agent ────────────────────
+
+async function beamColumnBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+  const project    = inputs.project_name   || "Structural Member Project";
+  const memberType = String(inputs.member_type || results.member_type || "Steel Beam");
+  const isSteel    = memberType.includes("Steel");
+  const span       = Number(inputs.span_m  || 0).toFixed(1);
+  const section    = String(results.section || inputs.section || "—");
+  const grade      = String(results.steel_grade || inputs.steel_grade || isSteel ? "A36" : "f'c 28 MPa");
+  const dcrM       = Number(results.DCR_moment  || 0).toFixed(3);
+  const dcrV       = Number(results.DCR_shear   || 0).toFixed(3);
+  const momentOk   = results.moment_ok !== false;
+  const shearOk    = results.shear_ok  !== false;
+
+  const prompt = `You are a senior Structural/Civil Engineer in the Philippines preparing a BOM and SOW for a ${memberType} per NSCP 2015 Vol.1 and ${isSteel ? 'AISC 360-22' : 'ACI 318-19'}.
+
+Project: ${project}
+Member: ${memberType} | Span: ${span} m
+${isSteel ? `Section: ${section} | Grade: ${grade}` : `Dimensions: ${results.b_mm}×${results.h_mm}mm | f'c: ${results.fc_MPa}MPa | fy: ${results.fy_MPa}MPa | As: ${results.As_mm2}mm²`}
+DCR Moment: ${dcrM} (${momentOk ? 'PASS' : 'FAIL'}) | DCR Shear: ${dcrV} (${shearOk ? 'PASS' : 'FAIL'})
+
+Generate a JSON object with exactly two keys:
+
+"bom_items": array of 10 objects with { "description", "specification", "unit", "qty", "remarks" }
+${isSteel ? `Cover: (1) Structural steel section ${section} ASTM ${grade}, (2) Connection plates/end plates A36, (3) Bolts ASTM A325/A490 for connections, (4) Welding electrodes E7018 (AWS D1.1), (5) Base plates (for columns), (6) Anchor bolts (for columns), (7) Fireproofing — intumescent paint or spray-on, (8) Primer — zinc-rich epoxy primer, (9) Topcoat paint — alkyd enamel 2 coats, (10) Grout (for base plates — non-shrink grout).` :
+`Cover: (1) Ready-mix concrete f'c ${results.fc_MPa}MPa (Class AA or as specified), (2) Deformed reinforcing bars ${inputs.bar_dia_mm}mm dia fy=${results.fy_MPa}MPa ASTM A615, (3) Stirrups/ties — ${results.stirrup_dia_mm || 10}mm dia, (4) Form lumber (for beam/column formwork), (5) Formwork plywood 19mm marine grade, (6) Form release agent, (7) Concrete cover spacers (${results.cover_mm || 40}mm plastic), (8) Concrete vibrator (mechanical, rental), (9) Curing compound (membrane type ASTM C309), (10) Concrete cylinder mold set for QC testing.`}
+
+"sow_sections": array of 5 objects with { "section_no", "title", "content" }
+Sections: 1.0 Scope, 2.0 Standards (NSCP 2015 Vol.1, ${isSteel ? 'AISC 360-22, AWS D1.1, ASTM A36/A992' : 'ACI 318-19, ASTM A615, ACI 305R for hot weather concreting in Philippines'}), 3.0 Materials, 4.0 Construction (${isSteel ? 'shop fabrication, field bolting per AISC, weld inspection per AWS D1.1' : 'rebar placement, cover verification, concrete placement in lifts ≤1.5m, vibration, curing 7 days minimum'}), 5.0 Inspection and Testing (${isSteel ? 'visual weld inspection, high-strength bolt torque verification, plumb check ≤L/500' : 'concrete cylinder testing at 7 and 28 days, rebar placement inspection before pour, as-built rebar survey'}).
+
+Content fields must start "The Contractor shall..." and reference NSCP 2015. Return ONLY the JSON. No markdown.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return { bom_items: parsed.bom_items || [], sow_sections: parsed.sow_sections || [] };
+}
+
+// ─── Machine Design: Pressure Vessel BOM + SOW Agent ─────────────────────────
+
+async function pressureVesselBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+  const project   = inputs.project_name       || "Pressure Vessel Project";
+  const pDesign   = Number(results.design_pressure_bar || 0).toFixed(1);
+  const pTest     = Number(results.hydro_test_bar      || 0).toFixed(1);
+  const mawp      = Number(results.mawp_bar            || 0).toFixed(2);
+  const material  = String(results.material            || "SA-516 Gr.70");
+  const tShell    = Number(results.t_shell_actual_mm   || 0);
+  const tHead     = Number(results.t_head_actual_mm    || 0);
+  const ID        = Number(results.inner_diameter_mm   || 0);
+  const OD        = Number(results.outer_diameter_mm   || 0).toFixed(0);
+  const weightKg  = Number(results.weight_empty_kg     || 0).toFixed(0);
+  const nozzles   = Number(results.n_nozzles           || 2);
+  const nozzDia   = Number(results.nozzle_diameter_mm  || 100);
+
+  const prompt = `You are a senior Mechanical/Pressure Vessel Engineer in the Philippines preparing a BOM and SOW for a pressure vessel per ASME BPVC Section VIII Division 1 and DOLE OSHS.
+
+Project: ${project}
+Material: ${material} — Shell t = ${tShell}mm, Head t = ${tHead}mm
+ID = ${ID}mm, OD = ${OD}mm
+Design pressure: ${pDesign} bar | MAWP: ${mawp} bar | Hydro test: ${pTest} bar
+Nozzles: ${nozzles} × ${nozzDia}mm dia
+Empty weight: ${weightKg} kg
+
+Generate a JSON object with exactly two keys:
+
+"bom_items": array of 12 objects with { "description", "specification", "unit", "qty", "remarks" }
+Cover: (1) Shell plate ${material} ${tShell}mm thk (ASME SA-516), (2) Head plates ${material} ${tHead}mm (2:1 ellipsoidal or as specified), (3) Nozzle pipe ${nozzDia}mm × ${nozzles}pcs (SA-106 Gr.B), (4) Nozzle flanges ANSI Class 150 ${nozzDia}mm RF (ASTM A105), (5) Manhole assembly 450mm NB (if vessel volume >1m³), (6) Safety/Relief valve (set at MAWP = ${mawp} bar, ASME certified), (7) Pressure gauge 0–${Math.ceil(Number(mawp)*1.5*10)/10}bar 100mm glycerin-filled, (8) Drain valve 1" ball valve full-bore, (9) Nameplate (ASME U-stamp, stainless steel), (10) Saddle supports (2 sets, carbon steel, per Zick analysis), (11) Insulation (rock wool 75mm + cladding, if hot service), (12) Gaskets (spiral wound stainless/graphite for all flanged nozzles).
+
+"sow_sections": array of 6 objects with { "section_no", "title", "content" }
+Sections: 1.0 Scope (fabricate, test, and deliver pressure vessel per ASME VIII-1), 2.0 Standards (ASME BPVC Sec.VIII Div.1, ASME Sec.II Part D, ASME B16.5, DOLE OSHS PD 856, Philippine Boiler and Pressure Vessel Code), 3.0 Materials and Fabrication (mill certifications per ASME SA-516, weld procedure qualification per ASME IX, post-weld heat treatment per UCS-56 if required), 4.0 NDE and Inspection (radiographic testing per UW-11, AI witness of all pressure tests, ASME U-stamp inspection), 5.0 Hydrostatic Test (test at ${pTest} bar for 30 minutes minimum, ASME AI witness required, document hydro test report), 6.0 Regulatory Compliance (DOLE pressure vessel registration before first use — submit ASME U-1 data report, hydro test record, AI final inspection certificate to DOLE Regional Office).
+
+Content fields must start "The Contractor shall..." and reference ASME BPVC. Return ONLY the JSON. No markdown.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return { bom_items: parsed.bom_items || [], sow_sections: parsed.sow_sections || [] };
+}
+
+// ─── Machine Design / HVAC: Heat Exchanger BOM + SOW Agent ───────────────────
+
+async function heatExchangerBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+  const project   = inputs.project_name     || "Heat Exchanger Project";
+  const dutyKW    = Number(results.duty_kW  || 0).toFixed(1);
+  const aReq      = Number(results.A_required_m2 || 0).toFixed(2);
+  const aStd      = Number(results.A_standard_m2 || 0);
+  const nTubes    = Number(results.n_tubes  || 0);
+  const shellID   = Number(results.shell_id_estimate_mm || 0).toFixed(0);
+  const tubeOD    = Number(results.tube_od_mm || 19.05).toFixed(2);
+  const tubeLen   = Number(results.tube_length_m || 3).toFixed(1);
+  const tubeMat   = String(inputs.tube_material || "Stainless Steel 316");
+  const shellType = String(inputs.shell_type || "E (single pass)");
+  const uDesign   = Number(results.U_design_W_m2K || 0).toFixed(1);
+  const temaClass = "R";
+
+  const prompt = `You are a senior Process/Mechanical Engineer in the Philippines preparing a BOM and SOW for a shell-and-tube heat exchanger per TEMA ${temaClass} Class and ASME BPVC Section VIII Division 1.
+
+Project: ${project}
+Heat duty: ${dutyKW} kW
+Required area: ${aReq} m² → Standard: ${aStd} m²
+Shell type: ${shellType} | Shell ID: ~${shellID}mm
+Tubes: ${nTubes} × ${tubeOD}mm OD × ${tubeLen}m long (${tubeMat})
+Overall U (design): ${uDesign} W/m²·K
+
+Generate a JSON object with exactly two keys:
+
+"bom_items": array of 12 objects with { "description", "specification", "unit", "qty", "remarks" }
+Cover: (1) Shell (carbon steel SA-516 Gr.70, ID ${shellID}mm), (2) Tube bundle (${nTubes} tubes × ${tubeOD}mm OD ${tubeMat} ASTM A312/B111), (3) Tubesheets (${tubeMat} or CS clad, ASME Code), (4) Baffles (25% cut, 304SS), (5) Channel and channel cover (CS), (6) Pass partition plates, (7) Tie rods and spacers, (8) ANSI flanges (inlet/outlet nozzles both sides), (9) Gaskets (spiral wound 316SS/graphite), (10) Support saddles (2 sets, CS), (11) Thermometer wells (inlet/outlet each stream), (12) Pressure gauges (0–${Math.ceil(Number(inputs.design_pressure_bar || 10)*2)}bar, 4 total — inlet/outlet each stream).
+
+"sow_sections": array of 6 objects with { "section_no", "title", "content" }
+Sections: 1.0 Scope (supply, install, and commission ${dutyKW}kW shell-and-tube HX per TEMA Class ${temaClass}), 2.0 Standards (TEMA 10th Ed., ASME BPVC Sec.VIII Div.1, ASME B31.3 for piping, ASME Sec.IX for welding), 3.0 Design and Fabrication (TEMA Class ${temaClass} tolerances, tube-to-tubesheet joint per TEMA §RCB-7, hydro test per UG-99), 4.0 Installation (pipe supports within 300mm of nozzles, flow direction per nameplate, expansion loop on hot side piping, insulation of hot surfaces), 5.0 Hydrostatic Testing (shell-side and tube-side tested separately at 1.3×MAWP per UG-99, AI witness required for ASME stamp), 6.0 Commissioning (flush piping before HX connection, verify flow rates per design, monitor fouling factor — clean when U drops 20% below design U=${uDesign}W/m²·K).
+
+Content fields must start "The Contractor shall..." Return ONLY the JSON. No markdown.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return { bom_items: parsed.bom_items || [], sow_sections: parsed.sow_sections || [] };
+}
+
+// ─── Machine Design: Vibration Analysis BOM + SOW Agent ──────────────────────
+
+async function vibrationAnalysisBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+  const project     = inputs.project_name    || "Vibration Assessment Project";
+  const machClass   = String(results.machine_class || "Class II");
+  const isoZone     = String(results.iso_zone || "Zone B");
+  const vRms        = Number(results.v_assessed_mm_s || 0).toFixed(2);
+  const fnHz        = Number(results.fn_Hz   || 0).toFixed(2);
+  const isolType    = String(results.isolator_type || inputs.isolator_type || "Rubber mount (medium)");
+  const isolOk      = results.isolation_ok   ?? true;
+  const resRisk     = results.resonance_risk ?? false;
+  const TR          = Number(results.transmissibility || 0).toFixed(3);
+  const gGrade      = String(results.balance_grade || "G6.3");
+
+  const prompt = `You are a senior Rotating Equipment / Mechanical Engineer in the Philippines preparing a BOM and SOW for vibration isolation and condition monitoring per ISO 10816-3, ISO 20816-1, and ISO 21940-11.
+
+Project: ${project}
+Machine class: ${machClass}
+Assessed vibration: ${vRms} mm/s RMS — ${isoZone}
+Natural frequency fn: ${fnHz} Hz
+Isolator: ${isolType} | Transmissibility TR: ${TR} (${isolOk ? 'Isolation effective' : 'WARN — amplifying'})
+Resonance risk: ${resRisk ? 'YES — within ±10% of fn' : 'No'}
+Balancing grade: ${gGrade}
+
+Generate a JSON object with exactly two keys:
+
+"bom_items": array of 10 objects with { "description", "specification", "unit", "qty", "remarks" }
+Cover: (1) Vibration isolators (${isolType}, rated load ≥ machine mass/4, per ISO 10816), (2) Inertia base frame (concrete-filled steel frame, mass ≥ 3× machine mass), (3) Vibration transducers (accelerometer, 100mV/g, 4–20mA output), (4) Vibration monitoring transmitter (continuous 4–20mA to DCS/SCADA), (5) Dynamic balancing (field balancing kit — trial weights, phase reference, software), (6) Anti-vibration pads (neoprene cork sandwich, 50mm thk), (7) Flexible pipe connectors (EPDM bellows, rated for operating pressure), (8) Flexible electrical conduit (for instrumentation cables), (9) Anchor bolts with vibration-resistant washers, (10) Vibration data collector and analyzer (portable, ISO 10816-3 assessment built-in).
+
+"sow_sections": array of 5 objects with { "section_no", "title", "content" }
+Sections: 1.0 Scope (install vibration isolation and monitoring for ${machClass} machine achieving ${isoZone} per ISO 10816-3), 2.0 Standards (ISO 10816-3, ISO 20816-1, ISO 21940-11 balancing, ISO 5348 transducer mounting), 3.0 Isolation System Installation (inertia base sizing, isolator selection and placement, torque isolator mounting bolts to manufacturer specification), 4.0 Balancing and Alignment (field dynamic balance to ${gGrade} per ISO 21940-11, shaft alignment ≤0.05mm TIR angular and parallel, baseline vibration measurement after commissioning), 5.0 Monitoring and Acceptance (continuous monitoring wired to plant DCS, alert at Zone B/C boundary, shutdown at Zone D, documented baseline per ISO 10816-3).
+
+Content fields must start "The Contractor shall..." Reference v_rms=${vRms}mm/s. Return ONLY the JSON. No markdown.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return { bom_items: parsed.bom_items || [], sow_sections: parsed.sow_sections || [] };
+}
+
+// ─── Machine Design: Fluid Power BOM + SOW Agent ─────────────────────────────
+
+async function fluidPowerBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+  const project   = inputs.project_name       || "Hydraulic System Project";
+  const pBar      = Number(results.inputs_used?.P_bar || inputs.system_pressure_bar || 200).toFixed(0);
+  const qLpm      = Number(results.inputs_used?.Q_lpm || inputs.flow_lpm || 40).toFixed(1);
+  const fluid     = String(results.inputs_used?.fluid || "ISO VG 46");
+  const boreMM    = Number(results.bore_selected_mm   || 0);
+  const pumpDispl = Number(results.pump_displacement_cm3 || 0).toFixed(1);
+  const motorKW   = Number(results.pump?.P_motor_kW   || 0).toFixed(1);
+  const accVol    = Number(results.accumulator?.V_recommended_L || 0).toFixed(1);
+  const pLineOD   = Number(results.pressure_line?.od_mm || 0);
+
+  const prompt = `You are a senior Hydraulic Systems Engineer in the Philippines preparing a BOM and SOW for a hydraulic power unit and cylinder system per ISO 4413:2010 and NFPA T2.12.10.
+
+Project: ${project}
+System pressure: ${pBar} bar | Flow: ${qLpm} L/min | Fluid: ${fluid}
+Cylinder bore: ${boreMM}mm
+Pump displacement: ${pumpDispl} cm³/rev | Motor power: ${motorKW} kW
+Accumulator: ${accVol} L bladder type
+Pressure line pipe: ${pLineOD}mm OD
+
+Generate a JSON object with exactly two keys:
+
+"bom_items": array of 14 objects with { "description", "specification", "unit", "qty", "remarks" }
+Cover: (1) Hydraulic power unit (HPU) — axial piston pump ${pumpDispl}cm³/rev mounted on reservoir, (2) Electric motor ${motorKW}kW IP55 TEFC, (3) Hydraulic reservoir (steel, capacity ≥ 3× Q_lpm = ${Math.ceil(Number(qLpm)*3)}L, with breather filter and sight glass), (4) Hydraulic cylinder — bore ${boreMM}mm double-acting, (5) Directional control valve (solenoid-operated 4/3 spring-centered, 24VDC, ${pBar}bar rated), (6) Pressure relief valve (set at ${pBar}bar, cartridge type), (7) Pressure reducing valve (for lower-pressure circuits), (8) Bladder accumulator ${accVol}L ${pBar}bar rated — ISO 4413, (9) Return line filter (10-micron absolute, visual indicator), (10) Suction strainer (150-micron, full-flow), (11) High-pressure hose assemblies ${pLineOD}mm OD, (12) Hydraulic fittings — parker or equivalent, JIC 37°, (13) Hydraulic oil ${fluid} — initial fill (capacity: ${Math.ceil(Number(qLpm)*3)} L), (14) Pressure gauges (0–${Math.ceil(Number(pBar)*1.25/10)*10}bar, glycerin-filled, 100mm) — 3 pcs.
+
+"sow_sections": array of 5 objects with { "section_no", "title", "content" }
+Sections: 1.0 Scope, 2.0 Standards (ISO 4413:2010, NFPA T2.12.10, ISO 10767-1 noise, ISO 4406 contamination cleanliness, PSME Code), 3.0 Design and Procurement (all components rated ≥${pBar}bar, hydraulic hoses per SAE J517, cylinder cushioning at both ends for ${boreMM}mm bore), 4.0 Installation (reservoir on anti-vibration mounts, all piping flushed to ISO 4406 class 17/15/12 before cylinder connection, pressure-test at 1.5×${pBar}bar for 30min), 5.0 Testing and Commissioning (full-stroke test 10 cycles, pressure-hold test, measure cycle time, oil temperature steady-state <60°C, noise check per ISO 4413 §7.3).
+
+Content fields must start "The Contractor shall..." Return ONLY the JSON. No markdown.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return { bom_items: parsed.bom_items || [], sow_sections: parsed.sow_sections || [] };
+}
+
+// ─── Machine Design: Noise / Acoustics BOM + SOW Agent ───────────────────────
+
+async function noiseAcousticsBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+  const project   = inputs.project_name    || "Noise Control Project";
+  const calcMode  = String(inputs.calc_type || "Room");
+  const lwDb      = Number(results.source_Lw_dB || 0).toFixed(1);
+  const lpDb      = Number(results.Lp_at_distance_dB || 0).toFixed(1);
+  const dose      = results.dose as Record<string, unknown> || {};
+  const twa       = Number(dose?.TWA_dBA || 0).toFixed(1);
+  const limitExc  = dose?.limit_exceeded ?? false;
+  const spaceType = String(inputs.space_type || "Industrial");
+  const ncLimit   = Number(results.NC_limit || 40);
+  const barrierIL = Number(results.barrier_IL_dB || 0).toFixed(1);
+
+  const prompt = `You are a senior Acoustic/Environmental Engineer in the Philippines preparing a BOM and SOW for a noise control and assessment project per ISO 9613-2, OSHA 29 CFR 1910.95, and DOLE D.O. 13.
+
+Project: ${project}
+Assessment mode: ${calcMode}
+Source Lw: ${lwDb} dB | Lp at receiver: ${lpDb} dB
+Space type: ${spaceType} | NC limit: NC ${ncLimit}
+${calcMode === 'Dose' ? `TWA: ${twa} dBA — ${limitExc ? 'EXCEEDS LIMIT' : 'Within limit'}` : ''}
+${calcMode === 'Barrier' ? `Barrier insertion loss: ${barrierIL} dB` : ''}
+
+Generate a JSON object with exactly two keys:
+
+"bom_items": array of 10 objects with { "description", "specification", "unit", "qty", "remarks" }
+Cover: (1) Sound level meter (IEC 61672-1 Class 1, A/C weighting, octave band), (2) Real-time octave band analyzer (ISO 266 centre frequencies), (3) Noise dosimeter (personal, OSHA/DOLE compliant, 5dB exchange rate), (4) Acoustic enclosure panels (50mm mineral wool + perforated steel facing, NRC≥0.90), (5) Acoustic barrier (concrete block or mass-loaded vinyl, STC≥35), (6) Anti-vibration mounts for noise source isolation, (7) Duct silencers / sound attenuators (for HVAC breakout noise), (8) Acoustic door seals and thresholds (for treatment rooms), (9) Hearing protection — earmuffs (NRR≥25dB) + foam earplugs (NRR≥33dB), (10) Acoustic absorption panels — ceiling and wall treatment (50mm fibreglass, 600×600mm).
+
+"sow_sections": array of 5 objects with { "section_no", "title", "content" }
+Sections: 1.0 Scope (baseline noise survey, identify control measures, achieve NC ${ncLimit} in ${spaceType} per DOLE D.O. 13), 2.0 Standards (ISO 9613-2, ISO 3745, IEC 61672-1, OSHA 29 CFR 1910.95, DOLE D.O. 13 Series 1998, ASHRAE 2019 Ch.8), 3.0 Baseline Survey (measure Lp at all occupied positions, record octave bands, determine NC rating per ASHRAE, document exceeded limits), 4.0 Noise Control Measures (engineering controls first — enclosures, barriers, vibration isolation; administrative controls — work rotation; PPE as last resort per DOLE D.O. 13 §7), 5.0 Verification and Monitoring (re-measure after control implementation, confirm NC ${ncLimit} achieved, repeat noise dosimetry annually per DOLE D.O. 13 §14, maintain audiometric testing records for all exposed workers).
+
+Content fields must start "The Contractor shall..." Reference DOLE D.O. 13. Return ONLY the JSON. No markdown.`;
+
+  const raw = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return { bom_items: parsed.bom_items || [], sow_sections: parsed.sow_sections || [] };
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -3717,6 +4127,28 @@ serve(async (req) => {
       result = await fcuSelectionBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "HVAC Systems" && calc_type === "Expansion Tank Sizing") {
       result = await expansionTankBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "HVAC Systems" && calc_type === "Heat Exchanger") {
+      result = await heatExchangerBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Machine Design" && calc_type === "Shaft Design") {
+      result = await shaftDesignBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Machine Design" && (calc_type === "Gear / Belt Drive" || calc_type === "V-Belt Drive Design")) {
+      result = await gearBeltDriveBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Machine Design" && calc_type === "Bearing Life (L10)") {
+      result = await bearingLifeBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Machine Design" && calc_type === "Bolt Torque & Preload") {
+      result = await boltTorqueBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Machine Design" && calc_type === "Beam / Column Design") {
+      result = await beamColumnBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Machine Design" && calc_type === "Pressure Vessel") {
+      result = await pressureVesselBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Machine Design" && calc_type === "Heat Exchanger") {
+      result = await heatExchangerBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Machine Design" && calc_type === "Vibration Analysis") {
+      result = await vibrationAnalysisBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Machine Design" && calc_type === "Fluid Power") {
+      result = await fluidPowerBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Machine Design" && calc_type === "Noise / Acoustics") {
+      result = await noiseAcousticsBomSowAgent(calc_inputs || {}, calc_results);
     } else {
       return new Response(
         JSON.stringify({ error: `BOM+SOW not yet available for ${discipline} / ${calc_type}` }),

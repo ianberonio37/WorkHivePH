@@ -19909,7 +19909,8 @@ async function generateBomSowChecklist() {
     'Plumbing':        ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)', 'Storm Drain / Stormwater', 'Grease Trap Sizing', 'Roof Drain Sizing'],
     'Fire Protection':         ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],
     'Vertical Transportation': ['Elevator Traffic Analysis', 'Hoist Capacity'],
-    'HVAC Systems':            ['Chiller System — Air Cooled', 'Chiller System — Water Cooled', 'AHU Sizing', 'Cooling Tower Sizing', 'Duct Sizing (Equal Friction)', 'Refrigerant Pipe Sizing', 'FCU Selection', 'Expansion Tank Sizing'],
+    'HVAC Systems':            ['Chiller System — Air Cooled', 'Chiller System — Water Cooled', 'AHU Sizing', 'Cooling Tower Sizing', 'Duct Sizing (Equal Friction)', 'Refrigerant Pipe Sizing', 'FCU Selection', 'Expansion Tank Sizing', 'Heat Exchanger'],
+    'Machine Design':          ['Shaft Design', 'V-Belt Drive Design', 'Gear / Belt Drive', 'Bearing Life (L10)', 'Bolt Torque & Preload', 'Beam / Column Design', 'Pressure Vessel', 'Heat Exchanger', 'Vibration Analysis', 'Fluid Power', 'Noise / Acoustics'],
   };
   const supportedForDiscipline = BOM_SOW_SUPPORTED[_discipline] || [];
   if (!supportedForDiscipline.includes(_calcType)) {
