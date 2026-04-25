@@ -16693,6 +16693,7 @@ function buildLPSTitleBlockHtml(inputs, results) {
 }
 
 function renderLPSDiagram(svgString, inputs, results) {
+  svgString = injectComplianceBadges(svgString, 'Lightning Protection System (LPS)', inputs, results);
   const panel = document.getElementById('drawing-panel');
   const titleBlock = buildLPSTitleBlockHtml(inputs, results);
   panel.style.background = '#fff';
@@ -17229,6 +17230,7 @@ function buildGeneratorTitleBlockHtml(inputs, results) {
 }
 
 function renderGeneratorConnectionDiagram(svgString, inputs, results) {
+  svgString = injectComplianceBadges(svgString, 'Generator Sizing', inputs, results);
   const panel      = document.getElementById('drawing-panel');
   const titleBlock = buildGeneratorTitleBlockHtml(inputs, results);
   panel.style.background = '#fff';
@@ -17537,6 +17539,7 @@ function buildPumpPIDTitleBlockHtml(inputs, results) {
 }
 
 function renderPumpPID(svgString, inputs, results) {
+  svgString = injectComplianceBadges(svgString, 'Pump Sizing (TDH)', inputs, results);
   const panel      = document.getElementById('drawing-panel');
   const titleBlock = buildPumpPIDTitleBlockHtml(inputs, results);
   panel.style.background = '#fff';
@@ -17857,6 +17860,7 @@ function buildFireSprinklerTitleBlockHtml(inputs, results) {
 }
 
 function renderFireSprinklerDiagram(svgString, inputs, results) {
+  svgString = injectComplianceBadges(svgString, 'Fire Sprinkler Hydraulic', inputs, results);
   const panel      = document.getElementById('drawing-panel');
   const titleBlock = buildFireSprinklerTitleBlockHtml(inputs, results);
   panel.style.background = '#fff';
@@ -17869,6 +17873,7 @@ function renderFireSprinklerDiagram(svgString, inputs, results) {
 }
 
 function renderElectricalSLD(svgString, inputs, results) {
+  svgString = injectComplianceBadges(svgString, 'Load Estimation', inputs, results);
   const panel = document.getElementById('drawing-panel');
   const titleBlock = buildSLDTitleBlockHtml(inputs, results);
   panel.style.background = '#fff';
@@ -18242,6 +18247,7 @@ function buildHVACTitleBlockHtml(inputs, results) {
 }
 
 function renderHVACDiagramSVG(svgString, inputs, results) {
+  svgString = injectComplianceBadges(svgString, 'HVAC Cooling Load', inputs, results);
   const panel      = document.getElementById('drawing-panel');
   const titleBlock = buildHVACTitleBlockHtml(inputs, results);
   panel.style.background = '#fff';
@@ -18621,6 +18627,133 @@ function renderLightingLayout(svgString, inputs, results) {
   document.getElementById('drawing-loading').classList.add('hidden');
   document.getElementById('drawing-output').classList.remove('hidden');
 }
+
+// ─── Phase 4.3: Drawing Annotation — Compliance Badge Overlay ────────────────
+// Pure JS — no AI needed. Compliance data is already deterministic in results.
+// Injects a <g id="compliance-overlay"> panel into each SVG drawing.
+
+function buildComplianceBadges(calcType, inputs, results, svgWidth) {
+  const r   = results || {};
+  const W   = svgWidth || 1050;
+  // Status color map
+  const SC  = { PASS: ['#16a34a','#fff'], WARN: ['#d97706','#fff'], FAIL: ['#dc2626','#fff'], INFO: ['#1d4ed8','#fff'] };
+
+  let checks = [];  // [{label, value, status, note}]
+
+  if (calcType === 'Load Estimation') {
+    const kva  = Number(r.total_demand_kva  || 0);
+    const bkr  = Number(r.recommended_breaker_A || 0);
+    const ph   = String(r.phase_config || '3-Phase');
+    checks = [
+      { label: 'DEMAND',  value: kva  > 0 ? kva.toFixed(1)+' kVA' : 'N/A',   status: kva > 0 ? 'INFO' : 'WARN', note: 'Design demand load' },
+      { label: 'BREAKER', value: bkr  > 0 ? bkr+'A MCCB'        : 'N/A',   status: bkr > 0 ? 'INFO' : 'WARN', note: 'PEC Art.2.30' },
+      { label: 'SYSTEM',  value: ph.includes('3') ? '3Ø 400V'  : '1Ø 230V', status: 'INFO',                   note: 'PEC 2017' },
+    ];
+  } else if (calcType === 'Lightning Protection System (LPS)') {
+    const reqd  = String(r.risk_check || '').includes('REQUIRED') && !String(r.risk_check || '').includes('NOT');
+    const eff   = Number(r.efficiency_pct || 0);
+    const lpl   = String(r.lpl || r.protection_level || 'LPL II');
+    const rval  = String(r.risk_check || 'N/A');
+    checks = [
+      { label: 'RISK ASSESS',  value: rval,            status: reqd ? 'FAIL'  : 'PASS',                           note: 'IEC 62305-2' },
+      { label: 'PROT. LEVEL',  value: lpl,             status: 'INFO',                                            note: 'IEC 62305-1' },
+      { label: 'EFFICIENCY',   value: eff > 0 ? eff+'%' : 'N/A', status: eff >= 95 ? 'PASS' : eff >= 80 ? 'WARN' : eff > 0 ? 'FAIL' : 'WARN', note: 'Interception efficiency' },
+    ];
+  } else if (calcType === 'Generator Sizing') {
+    const load  = Number(r.loading_pct || 0);
+    const sel   = Number(r.selected_kva  || 0);
+    const des   = Number(r.design_kva    || 0);
+    const pf    = Number(r.overall_pf    || inputs.power_factor || 0);
+    checks = [
+      { label: 'GEN LOADING', value: load > 0 ? load.toFixed(0)+'%' : 'N/A', status: load <= 0 ? 'WARN' : load <= 80 ? 'PASS' : load <= 90 ? 'WARN' : 'FAIL', note: 'ISO 8528-1: <=80%' },
+      { label: 'CAPACITY',    value: sel  > 0 ? sel.toFixed(0)+' kVA' : 'N/A', status: sel > 0 && sel >= des ? 'PASS' : 'WARN', note: 'Rated generator output' },
+      { label: 'POWER FACTOR', value: pf  > 0 ? pf.toFixed(2) : 'N/A', status: pf >= 0.8 ? 'PASS' : pf > 0 ? 'WARN' : 'INFO', note: 'PEC Art.4.20' },
+    ];
+  } else if (calcType === 'Pump Sizing (TDH)') {
+    const vel   = Number(r.pipe_velocity || 0);
+    const velOk = r.velocity_ok !== false;
+    const eff   = Number(r.inputs_used?.pump_efficiency || inputs.pump_efficiency || 70);
+    const tdh   = Number(r.TDH || 0);
+    checks = [
+      { label: 'PIPE VELOCITY', value: vel > 0 ? vel.toFixed(2)+' m/s' : 'N/A', status: vel <= 0 ? 'WARN' : velOk ? 'PASS' : 'FAIL', note: 'Acceptable: 0.6-3.0 m/s' },
+      { label: 'PUMP EFF.',     value: eff+'%',                                   status: eff >= 65 ? 'PASS' : 'WARN',                 note: 'Min 65% recommended' },
+      { label: 'TDH',           value: tdh > 0 ? tdh.toFixed(1)+' m' : 'N/A',   status: tdh > 0 ? 'INFO' : 'WARN',                   note: 'Total dynamic head' },
+    ];
+  } else if (calcType === 'Fire Sprinkler Hydraulic') {
+    const pSrc  = Number(r.P_source  || 0);
+    const pDes  = Number(r.P_design  || 0);
+    const vel   = Number(r.velocity  || 0);
+    const pOk   = pSrc > 0 && pSrc >= pDes;
+    const vOk   = vel  > 0 && vel  <= 3.5;
+    const den   = Number(r.density   || 0);
+    const desA  = Number(r.design_area || 0);
+    checks = [
+      { label: 'PRESSURE',  value: pSrc > 0 ? pSrc.toFixed(2)+' bar' : 'N/A', status: pSrc <= 0 ? 'WARN' : pOk ? 'PASS' : 'FAIL', note: 'Source >= design (NFPA 13)' },
+      { label: 'VELOCITY',  value: vel  > 0 ? vel.toFixed(2)+' m/s'  : 'N/A', status: vel  <= 0 ? 'WARN' : vOk  ? 'PASS' : 'FAIL', note: 'Pipe velocity <=3.5 m/s' },
+      { label: 'DENSITY',   value: den  > 0 ? den.toFixed(1)+' mm/min' : 'N/A', status: den > 0 ? 'INFO' : 'WARN',                 note: 'Design area: '+(desA > 0 ? desA.toFixed(0)+' m²' : 'N/A') },
+    ];
+  } else if (calcType === 'HVAC Cooling Load') {
+    const tr    = Number(r.recommended_TR || r.TR || 0);
+    const kw    = Number(r.recommended_kW || r.kW || 0);
+    const eer   = Number(r.eer || r.EER   || 0);
+    checks = [
+      { label: 'CAPACITY', value: tr > 0 ? tr.toFixed(1)+' TR'  : 'N/A', status: tr > 0 ? 'INFO' : 'WARN', note: 'Design load + 10% safety' },
+      { label: 'POWER',    value: kw > 0 ? kw.toFixed(1)+' kW' : 'N/A', status: kw > 0 ? 'INFO' : 'WARN', note: 'Total input at full load' },
+      { label: 'EER',      value: eer > 0 ? eer.toFixed(2)      : 'N/A', status: eer >= 3.52 ? 'PASS' : eer > 0 ? 'WARN' : 'INFO', note: 'ASHRAE 90.1 min 3.52' },
+    ];
+  }
+  // Lighting Design: right panel already has built-in compliance indicators — skip overlay
+
+  if (!checks.length) return '';
+
+  const PW    = 198;
+  const PX    = W - PW - 8;           // flush to right, 8px margin
+  const PY    = 8;
+  const HDR_H = 18;
+  const ROW_H = 20;
+  const PAD   = 6;
+  const TOTAL_H = HDR_H + checks.length * ROW_H + PAD + 2;
+
+  const T = (x, y, txt, sz, fill, anchor, weight) =>
+    `<text x="${x}" y="${y}" text-anchor="${anchor||'start'}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${fill}" font-weight="${weight||'normal'}">${txt}</text>`;
+
+  let g = `<g id="compliance-overlay">`;
+  // Panel background
+  g += `<rect x="${PX}" y="${PY}" width="${PW}" height="${TOTAL_H}" rx="4" fill="white" stroke="#c8d0da" stroke-width="0.8" opacity="0.96"/>`;
+  // Header bar
+  g += `<rect x="${PX}" y="${PY}" width="${PW}" height="${HDR_H}" rx="4" fill="#1a2e4a"/>`;
+  g += `<rect x="${PX}" y="${PY + HDR_H - 4}" width="${PW}" height="4" fill="#1a2e4a"/>`;
+  g += T(PX + PW/2, PY + 12.5, 'COMPLIANCE CHECK', 7, 'white', 'middle', '700');
+
+  // Rows
+  checks.forEach((c, i) => {
+    const ry      = PY + HDR_H + PAD/2 + i * ROW_H;
+    const [bg, fg] = SC[c.status] || SC['INFO'];
+    const pillW   = Math.max(44, String(c.value).length * 6 + 12);
+    const pillX   = PX + PW - 6 - pillW;
+    // Alternate row tint
+    if (i % 2 === 0) g += `<rect x="${PX + 1}" y="${ry}" width="${PW - 2}" height="${ROW_H}" fill="#f3f6fa" opacity="0.6"/>`;
+    // Label
+    g += T(PX + 6, ry + 12.5, c.label, 7, '#374151', 'start', '600');
+    // Status pill
+    g += `<rect x="${pillX}" y="${ry + 2}" width="${pillW}" height="16" rx="8" fill="${bg}"/>`;
+    g += T(pillX + pillW/2, ry + 13, String(c.value), 7, fg, 'middle', '700');
+  });
+
+  g += `</g>`;
+  return g;
+}
+
+function injectComplianceBadges(svgString, calcType, inputs, results) {
+  // Parse SVG width from opening tag (handles variable-width SLD)
+  const wMatch = svgString.match(/viewBox="0 0 (\d+)/);
+  const svgW   = wMatch ? parseInt(wMatch[1]) : 1050;
+  const badges = buildComplianceBadges(calcType, inputs, results, svgW);
+  if (!badges) return svgString;
+  return svgString.replace('</svg>', badges + '\n</svg>');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 function buildHVACMermaidCode(inputs, results) {
   const c   = results.components;
