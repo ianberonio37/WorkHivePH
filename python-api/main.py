@@ -50,10 +50,10 @@ def _load_handlers() -> dict[str, Any]:
     handlers["Compressed Air"]    = compressed_air_calc
 
     # Phase 2 — HVAC / Psychrometrics
-    # from calcs.hvac_cooling_load  import calculate as hvac_calc
+    from calcs.hvac_cooling_load  import calculate as hvac_calc
     # from calcs.ahu_sizing         import calculate as ahu_calc
     # from calcs.cooling_tower      import calculate as cooling_tower_calc
-    # handlers["HVAC Cooling Load"]      = hvac_calc
+    handlers["HVAC Cooling Load"]      = hvac_calc
     # handlers["AHU Sizing"]             = ahu_calc
     # handlers["Cooling Tower Sizing"]   = cooling_tower_calc
 
