@@ -42,10 +42,12 @@ def _load_handlers() -> dict[str, Any]:
     handlers: dict[str, Any] = {}
 
     # Phase 1 — Fluid Mechanics (Pump + Pipe + Compressed Air)
-    from calcs.pump_tdh   import calculate as pump_tdh_calc
-    from calcs.pipe_sizing import calculate as pipe_sizing_calc
+    from calcs.pump_tdh      import calculate as pump_tdh_calc
+    from calcs.pipe_sizing   import calculate as pipe_sizing_calc
+    from calcs.compressed_air import calculate as compressed_air_calc
     handlers["Pump Sizing (TDH)"] = pump_tdh_calc
     handlers["Pipe Sizing"]       = pipe_sizing_calc
+    handlers["Compressed Air"]    = compressed_air_calc
 
     # Phase 2 — HVAC / Psychrometrics
     # from calcs.hvac_cooling_load  import calculate as hvac_calc
