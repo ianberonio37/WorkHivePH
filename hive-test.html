@@ -409,6 +409,26 @@
       font-size: 0.7rem; font-weight: 700;
       color: #22c55e; letter-spacing: 0.05em;
     }
+
+    /* ── Print: show only handover content, clean layout ── */
+    @media print {
+      /* Hide everything, then selectively show the sheet */
+      body > *          { display: none !important; }
+      #handover-sheet   { display: block !important; position: static !important;
+                          background: none !important; backdrop-filter: none !important; }
+      .sheet-inner      { display: block !important; background: #fff !important;
+                          border-radius: 0 !important; max-height: none !important;
+                          overflow: visible !important; border: none !important;
+                          max-width: 100% !important; box-shadow: none !important; }
+      /* Hide close button and Copy/Print footer row */
+      #handover-sheet button.w-8  { display: none !important; }
+      #handover-sheet .p-4.flex   { display: none !important; }
+      /* Readable colors for light print */
+      .sheet-inner *  { color: #111 !important; }
+      .ho-label       { color: #444 !important; }
+      .ho-item        { color: #333 !important; }
+      .ho-section     { border-color: #ddd !important; }
+    }
   </style>
 </head>
 <body class="text-white">
