@@ -4,15 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="google-site-verification" content="0R0cbzF4Ks6d28b_uWAH3kDotNTYQ64uQfdcuMNhb_c" />
-  <title>WorkHive | Free Industrial Tools for Every Filipino Worker</title>
-  <meta name="description" content="Free industrial tools for Filipino workers at every level. Digital logbook, PM scheduler, inventory, skill matrix, and AI assistant. Built for the plant floor." />
-  <meta name="keywords" content="industrial tools Philippines, maintenance logbook, PM scheduler, inventory management, plant supervisor, maintenance engineer, plant manager, free industrial tools, predictive maintenance Philippines" />
+  <title>WorkHive | Free Industrial Tools for Every Worker</title>
+  <meta name="description" content="Free industrial intelligence tools for every worker, from field to management. Digital logbook, PM checklist, inventory management, and AI assistant built for the plant floor." />
+  <meta name="keywords" content="industrial maintenance, maintenance logbook, PM checklist, inventory management, maintenance technician, predictive maintenance Philippines" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://workhiveph.com/" />
   <link rel="manifest" href="/manifest.json" />
   <!-- Open Graph -->
   <meta property="og:title" content="WorkHive | Free Industrial Tools for Every Worker" />
-  <meta property="og:description" content="Free industrial tools for Filipino workers at every level. Digital logbook, PM scheduler, inventory, skill matrix, and AI assistant. Built for the plant floor." />
+  <meta property="og:description" content="Free industrial intelligence tools for every worker, from field to management. Logbook, PM checklist, inventory management, and AI assistant built for the plant floor." />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/workhive-logo-transparent.png" />
   <meta property="og:url" content="https://workhiveph.com/" />
   <meta property="og:type" content="website" />
@@ -20,7 +20,7 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="WorkHive | Free Industrial Tools for Every Worker" />
-  <meta name="twitter:description" content="Free industrial tools for Filipino workers at every level. Digital logbook, PM scheduler, inventory, skill matrix, and AI assistant. Built for the plant floor." />
+  <meta name="twitter:description" content="Free industrial intelligence tools for every worker, from field to management. Logbook, PM checklist, inventory management, and AI assistant." />
   <meta name="twitter:image" content="https://workhiveph.com/brand_assets/workhive-logo-transparent.png" />
   <!-- Structured Data -->
   <script type="application/ld+json">
@@ -369,288 +369,9 @@
       from { opacity: 0.5; filter: blur(14px); }
       to   { opacity: 0.8; filter: blur(8px);  }
     }
-
-    /* ════════════════════════════════
-       NATIVE-UI ENHANCEMENTS
-    ════════════════════════════════ */
-
-    /* ── Scroll progress bar ── */
-    #scroll-progress {
-      position: fixed; top: 0; left: 0; right: 0; height: 3px;
-      z-index: 9999; pointer-events: none;
-      transform-origin: 0 0; transform: scaleX(0); will-change: transform;
-      background: linear-gradient(90deg, #F7A21B, #FDB94A 35%, #29B6D9 70%, #5FCCE8);
-      background-size: 200% 100%;
-      animation: pgbar-shine 2.5s linear infinite;
-    }
-    @keyframes pgbar-shine { 0%{background-position:0%} 100%{background-position:200%} }
-
-    /* ── Cursor ambient glow (desktop) ── */
-    #cursor-glow {
-      position: fixed; top: 0; left: 0; width: 440px; height: 440px; border-radius: 50%;
-      pointer-events: none; z-index: 0;
-      background: radial-gradient(circle, rgba(247,162,27,.05) 0%, rgba(41,182,217,.025) 45%, transparent 70%);
-      mix-blend-mode: screen; will-change: transform; transition: opacity .4s ease;
-    }
-
-    /* ── Logo float (layered on existing shimmer) ── */
-    @keyframes logo-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-11px)} }
-    .logo-glow-img {
-      animation: logo-shimmer 3s ease-in-out infinite, logo-float 7s ease-in-out infinite;
-      will-change: filter, transform;
-    }
-
-    /* ── Button ripple ── */
-    .btn-primary, .btn-secondary, .btn-ghost { position: relative; overflow: clip; }
-    .rpl {
-      position: absolute; border-radius: 50%; pointer-events: none;
-      background: rgba(255,255,255,.25); transform: scale(0);
-      animation: rpl-expand .6s ease-out forwards;
-    }
-    @keyframes rpl-expand { to { transform: scale(5); opacity: 0; } }
-
-    /* ── Card tilt ── */
-    .tiltable { will-change: transform; }
-
-    /* ── Staggered grid reveal ── */
-    .stagger-wrap > * {
-      opacity: 0; transform: translateY(22px);
-      transition: opacity .5s ease, transform .6s cubic-bezier(.34,1.56,.64,1);
-    }
-    .stagger-wrap.fired > *:nth-child(1) { transition-delay:   0ms }
-    .stagger-wrap.fired > *:nth-child(2) { transition-delay:  85ms }
-    .stagger-wrap.fired > *:nth-child(3) { transition-delay: 170ms }
-    .stagger-wrap.fired > *:nth-child(4) { transition-delay: 255ms }
-    .stagger-wrap.fired > *:nth-child(5) { transition-delay: 340ms }
-    .stagger-wrap.fired > *:nth-child(6) { transition-delay: 425ms }
-    .stagger-wrap.fired > * { opacity: 1; transform: translateY(0); }
-
-    /* ── Hero CTA pulse ring ── */
-    @keyframes cta-pulse-ring {
-      0%   { box-shadow: 0 0 0 0   rgba(247,162,27,.55), 0 4px 18px -2px rgba(247,162,27,.45); }
-      70%  { box-shadow: 0 0 0 10px rgba(247,162,27,.0),  0 4px 18px -2px rgba(247,162,27,.45); }
-      100% { box-shadow: 0 0 0 0   rgba(247,162,27,.0),  0 4px 18px -2px rgba(247,162,27,.45); }
-    }
-    .cta-pulse { animation: cta-pulse-ring 2.4s ease-out infinite; }
-
-    /* ── Sticky mobile CTA bar ── */
-    #sticky-mobile-cta {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
-      background: rgba(13,24,36,0.96); backdrop-filter: blur(14px);
-      border-top: 1px solid rgba(255,255,255,0.08);
-      padding: 12px 84px 12px 20px;
-      padding-bottom: max(12px, env(safe-area-inset-bottom));
-      /* 84px right clears nav-hub FAB (56px wide + 24px margin + 4px gap) */
-      transform: translateY(100%);
-      transition: transform .35s cubic-bezier(.34,1.56,.64,1);
-    }
-
-    /* ── Demoted secondary CTA text link ── */
-    .cta-text-link {
-      display: inline-flex; align-items: center; gap: 6px;
-      color: rgba(41,182,217,0.7); font-weight: 600; font-size: 1rem;
-      transition: color .2s ease, gap .2s ease;
-    }
-    .cta-text-link:hover { color: #29B6D9; gap: 10px; }
-
-    /* ── Before/after rows slide-in ── */
-    .before-after-row {
-      opacity: 0; transform: translateX(-10px);
-      transition: opacity .4s ease, transform .4s ease;
-    }
-    .before-after-row.in { opacity: 1; transform: none; }
-
-    /* ── PWA install button ── */
-    #pwa-install-btn {
-      display: none;
-      align-items: center;
-      gap: 6px;
-      background: rgba(247,162,27,0.1);
-      border: 1px solid rgba(247,162,27,0.35);
-      color: #F7A21B;
-      font-size: 0.8rem;
-      font-weight: 700;
-      padding: 6px 14px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background .2s ease, border-color .2s ease, transform .2s cubic-bezier(.34,1.56,.64,1);
-      letter-spacing: 0.01em;
-    }
-    #pwa-install-btn:hover {
-      background: rgba(247,162,27,0.18);
-      border-color: rgba(247,162,27,0.6);
-      transform: translateY(-1px);
-    }
-    #pwa-install-btn:active { transform: scale(0.96); }
-
-    /* ── Nav active link ── */
-    .nav-link.active { color: #F7A21B !important; }
-    .nav-link.active::after { width: 100% !important; background: #F7A21B; }
-
-    /* ── Hero badge pulse ── */
-    @keyframes badge-pulse { 0%,100%{opacity:.8} 50%{opacity:1;box-shadow:0 0 0 4px rgba(247,162,27,.15)} }
-    .badge { animation: badge-pulse 3s ease-in-out infinite; }
-
-    /* ── Page load fade ── */
-    @keyframes page-enter { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
-    body { animation: page-enter .65s ease forwards; }
-
-    /* ════════════════════════════════════════
-       SPRING PHYSICS TIMING
-       Viscous  — high damping, liquid feel (cards, reveals, sticky bar)
-       Bouncy   — medium damping, energetic (CTAs, install button)
-    ════════════════════════════════════════ */
-
-    /* Shorthand variables — paste these values wherever spring is needed */
-    /* --viscous: linear(0,.013,.052,.113,.195,.288,.384,.478,.565,.643,.711,.769,.818,.859,.892,.919,.941,.957,.971,.981,.988,.993,.997,1.001,1.003,1.002,1) */
-    /* --bouncy:  linear(0,.006,.025,.101,.25,.553,.844,1.015,1.085,1.106,1.08,1.04,1.005,.985,.993,1.002,1.004,1) */
-
-    /* ── VISCOUS spring — high damping, slow start, liquid settle ── */
-    /* Applied to: cards, reveals, sticky bar                         */
-    .card-glow, .card-orange {
-      transition:
-        box-shadow 0.8s  linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.834,.843,.851,.858,.865,.871,.876,.881,.886,.890,.894,.898,.901,.904,.907,.909,.912,.914,.916,.918,.920,.922,.924,.926,.927,.929,.930,.932,.933,.934,.936,.937,.938,.939,.940,.941,.942,.943,.944,.945,.946,.947,.948,.949,.950,.952,.953,.955,.956,.958,.960,.962,.964,.967,.969,.972,.975,.978,.981,.984,.987,.990,.992,.994,.996,.998,.999,1),
-        transform  0.8s  linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.834,.843,.851,.858,.865,.871,.876,.881,.886,.890,.894,.898,.901,.904,.907,.909,.912,.914,.916,.918,.920,.922,.924,.926,.927,.929,.930,.932,.933,.934,.936,.937,.938,.939,.940,.941,.942,.943,.944,.945,.946,.947,.948,.949,.950,.952,.953,.955,.956,.958,.960,.962,.964,.967,.969,.972,.975,.978,.981,.984,.987,.990,.992,.994,.996,.998,.999,1);
-    }
-    /* Bigger lift so the spring has range to show itself */
-    .card-glow:hover  { transform: translateY(-12px) !important; }
-    .card-orange:hover { transform: translateY(-12px) !important; }
-
-    /* ── BOUNCY spring — medium damping, clear overshoot ── */
-    /* Applied to: buttons, PWA install                      */
-    .btn-primary {
-      transition:
-        transform   0.55s linear(0,.006,.025,.101,.25,.553,.844,1.035,1.115,1.146,1.14,1.107,1.062,1.018,.99,.979,.988,1.004,1.01,1.006,1.001,.999,1),
-        box-shadow  0.3s  ease,
-        opacity     0.2s  ease;
-    }
-    .btn-primary:hover {
-      transform: translateY(-5px) scale(1.04) !important;
-      box-shadow: 0 14px 36px -4px rgba(247,162,27,0.65);
-    }
-
-    .btn-secondary {
-      transition:
-        transform   0.55s linear(0,.006,.025,.101,.25,.553,.844,1.035,1.115,1.146,1.14,1.107,1.062,1.018,.99,.979,.988,1.004,1.01,1.006,1.001,.999,1),
-        background  0.2s ease,
-        color       0.2s ease;
-    }
-    .btn-secondary:hover { transform: translateY(-5px) scale(1.04) !important; }
-
-    .btn-ghost {
-      transition:
-        background  0.2s ease,
-        transform   0.55s linear(0,.006,.025,.101,.25,.553,.844,1.035,1.115,1.146,1.14,1.107,1.062,1.018,.99,.979,.988,1.004,1.01,1.006,1.001,.999,1);
-    }
-
-    /* Reveals — viscous */
-    .reveal {
-      transition:
-        opacity   0.6s ease,
-        transform 0.85s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.834,.843,.858,.876,.894,.907,.916,.924,.932,.940,.947,.953,.958,.962,.967,.972,.978,.984,.990,.994,.998,1);
-    }
-
-    /* Stagger — viscous, feels like emerging from liquid */
-    .stagger-wrap > * {
-      transition:
-        opacity   0.5s ease,
-        transform 0.9s  linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.834,.843,.858,.876,.894,.907,.916,.924,.932,.940,.947,.953,.958,.962,.967,.972,.978,.984,.990,.994,.998,1);
-    }
-
-    /* Sticky bar — viscous */
-    #sticky-mobile-cta {
-      transition: transform 0.7s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.834,.843,.858,.876,.894,.907,.916,.924,.932,.940,.947,.953,.958,.962,.967,.972,.978,.984,.990,.994,.998,1);
-    }
-
-    /* Before/after rows — viscous */
-    .before-after-row {
-      transition:
-        opacity   0.4s ease,
-        transform 0.65s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.843,.876,.907,.932,.953,.967,.978,.990,.998,1);
-    }
-
-    /* PWA install — bouncy */
-    #pwa-install-btn {
-      transition:
-        background   0.2s ease,
-        border-color 0.2s ease,
-        transform    0.55s linear(0,.006,.025,.101,.25,.553,.844,1.035,1.115,1.146,1.14,1.107,1.062,1.018,.99,.979,.988,1.004,1.01,1.006,1.001,.999,1);
-    }
-
-    /* ════════════════════════════════════════
-       CSS SCROLL-DRIVEN REVEALS
-       Chrome/Edge/Firefox: runs off main thread
-       Safari: falls back to JS IntersectionObserver below
-    ════════════════════════════════════════ */
-    @supports (animation-timeline: scroll()) {
-
-      @keyframes css-reveal {
-        from { opacity: 0; transform: translateY(20px); }
-        to   { opacity: 1; transform: none; }
-      }
-
-      /* ── Section-level reveals ── */
-      .reveal {
-        animation: css-reveal linear both;
-        animation-timeline: view();
-        animation-range: entry 0% entry 28%;
-        transition: none; /* disable JS transition fallback */
-      }
-      /* JS still adds .visible — harmless with animation-timeline active */
-      .reveal.visible { opacity: 1; transform: none; }
-
-      /* ── Staggered grid children ── */
-      .stagger-wrap > * {
-        animation: css-reveal linear both;
-        animation-timeline: view();
-        transition: none;
-      }
-      /* Each child starts slightly later in the scroll entry */
-      .stagger-wrap > *:nth-child(1) { animation-range: entry  0% entry 30%; }
-      .stagger-wrap > *:nth-child(2) { animation-range: entry  6% entry 36%; }
-      .stagger-wrap > *:nth-child(3) { animation-range: entry 12% entry 42%; }
-      .stagger-wrap > *:nth-child(4) { animation-range: entry 18% entry 48%; }
-      .stagger-wrap > *:nth-child(5) { animation-range: entry 24% entry 54%; }
-      .stagger-wrap > *:nth-child(6) { animation-range: entry 30% entry 60%; }
-      /* JS still adds .fired — harmless */
-      .stagger-wrap.fired > * { opacity: 1; transform: none; }
-
-      /* ── Before/after rows ── */
-      .before-after-row {
-        animation: css-reveal linear both;
-        animation-timeline: view();
-        animation-range: entry 0% entry 30%;
-        transition: none;
-      }
-      .before-after-row.in { opacity: 1; transform: none; }
-
-      /* ── Reduced motion: kill all animations inside supports block ── */
-      @media (prefers-reduced-motion: reduce) {
-        .reveal,
-        .stagger-wrap > *,
-        .before-after-row { animation: none; opacity: 1; transform: none; }
-      }
-    }
-
-    /* ── Respect prefers-reduced-motion (JS fallback path — Safari) ── */
-    @media (prefers-reduced-motion: reduce) {
-      body                  { animation: none; }
-      .logo-glow-img        { animation: logo-shimmer 3s ease-in-out infinite; }
-      .badge                { animation: none; }
-      #scroll-progress      { animation: none; }
-      .cta-pulse            { animation: none; }
-      .stagger-wrap > *     { opacity: 1; transform: none; transition: none; }
-      .stagger-wrap.fired > * { opacity: 1; transform: none; }
-      .before-after-row     { opacity: 1; transform: none; transition: none; }
-      .before-after-row.in  { opacity: 1; transform: none; }
-      .rpl                  { display: none !important; }
-    }
   </style>
 </head>
 <body class="bg-navy-wh text-white antialiased overflow-x-hidden">
-
-<div id="scroll-progress" role="presentation" aria-hidden="true"></div>
-<div id="cursor-glow" role="presentation" aria-hidden="true"></div>
 
 <!-- ═══════════════════════════════════════════════
      GLOBAL AURORA BACKGROUND (fixed, full-page)
@@ -672,23 +393,13 @@
 
     <!-- Desktop nav -->
     <div class="hidden md:flex items-center gap-8">
-      <a href="#platform"  class="nav-link">The Hive</a>
+      <a href="#platform"  class="nav-link">Platform</a>
+      <a href="#features"  class="nav-link">Features</a>
       <a href="#impact"    class="nav-link">Impact</a>
       <a href="#community" class="nav-link">Community</a>
     </div>
 
     <div class="hidden md:flex items-center gap-3">
-      <!-- PWA install button — shown only when browser fires beforeinstallprompt -->
-      <button id="pwa-install-btn" onclick="triggerInstall()"
-              aria-label="Install WorkHive">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <!-- Hex outline -->
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 2 L20.5 7 L20.5 17 L12 22 L3.5 17 L3.5 7 Z"/>
-          <!-- Down arrow inside hex -->
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8 L12 14 M9.5 12 L12 14.5 L14.5 12"/>
-        </svg>
-        Install WorkHive
-      </button>
       <div class="relative user-menu-wrapper">
         <a href="#" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-2 px-5">Sign In</a>
         <div id="user-menu" class="hidden absolute right-0 top-10 rounded-xl py-2 w-44 z-50" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
@@ -725,20 +436,11 @@
 
   <!-- Mobile menu -->
   <div id="mobile-menu" class="md:hidden flex-col px-5 pb-5 gap-1 border-t border-white/[0.06]">
-    <a href="#platform"  class="block py-3 text-white/80 font-medium hover:text-white transition-colors">The Hive</a>
+    <a href="#platform"  class="block py-3 text-white/80 font-medium hover:text-white transition-colors">Platform</a>
+    <a href="#features"  class="block py-3 text-white/80 font-medium hover:text-white transition-colors">Features</a>
     <a href="#impact"    class="block py-3 text-white/80 font-medium hover:text-white transition-colors">Impact</a>
     <a href="#community" class="block py-3 text-white/80 font-medium hover:text-white transition-colors">Community</a>
     <div class="pt-4 flex flex-col gap-3">
-      <button id="pwa-install-btn-mobile" onclick="triggerInstall()"
-              class="hidden items-center justify-center gap-2 text-sm text-center font-bold"
-              style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.35);color:#F7A21B;padding:10px 16px;border-radius:10px;width:100%;"
-              aria-label="Install WorkHive">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 2 L20.5 7 L20.5 17 L12 22 L3.5 17 L3.5 7 Z"/>
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8 L12 14 M9.5 12 L12 14.5 L14.5 12"/>
-        </svg>
-        Install WorkHive
-      </button>
       <a href="#" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm text-center">Sign In</a>
       <a href="#join" class="btn-primary text-sm text-center">Join WorkHive</a>
     </div>
@@ -774,7 +476,7 @@
       <div class="order-2">
         <div class="badge mb-6">
           <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg>
-          The Hive is Open · Philippines
+          Now Live · Philippines
         </div>
 
         <h1 class="text-4xl sm:text-6xl lg:text-[4.2rem] font-black leading-[1.05] tracking-[-0.03em] mb-6">
@@ -783,26 +485,12 @@
         </h1>
 
         <p class="text-lg text-white/65 leading-[1.75] max-w-lg mb-10 font-light">
-          The beehive has shown us how for 80 million years: every worker valued, every lesson kept. WorkHive brings that to Philippine industry.
+          WorkHive logs every fix, every root cause, every lesson your team learns on the floor. Search it instantly. Never lose knowledge again.
         </p>
 
-        <div class="flex flex-wrap items-center gap-4 mb-4">
-          <a href="#join" class="btn-primary text-base cta-pulse">Join the Hive</a>
-          <a href="#platform" class="cta-text-link">
-            See How It Works
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-          </a>
-        </div>
-
-        <!-- social proof under CTA -->
-        <div style="display:flex;align-items:center;gap:10px;margin-top:14px;margin-bottom:40px;">
-          <div class="flex -space-x-2 flex-shrink-0">
-            <div class="w-7 h-7 rounded-full border-2 border-navy-wh flex items-center justify-center text-[9px] font-bold text-navy-wh" style="background:linear-gradient(135deg,#F7A21B,#FDB94A);">JR</div>
-            <div class="w-7 h-7 rounded-full border-2 border-navy-wh flex items-center justify-center text-[9px] font-bold text-navy-wh" style="background:linear-gradient(135deg,#29B6D9,#5FCCE8);">MA</div>
-            <div class="w-7 h-7 rounded-full border-2 border-navy-wh flex items-center justify-center text-[9px] font-bold text-navy-wh" style="background:linear-gradient(135deg,#F7A21B,#FDB94A);">RL</div>
-            <div class="w-7 h-7 rounded-full border-2 border-navy-wh flex items-center justify-center text-[9px] font-bold text-white/50" style="background:rgba(42,61,88,.9);">+2K</div>
-          </div>
-          <p class="text-xs text-white/45 leading-snug">2,500 workers already in the hive<br/><span class="text-white/25">Philippines-first · Free to join</span></p>
+        <div class="flex flex-wrap gap-4 mb-14">
+          <a href="#join"     class="btn-primary text-base">Get Early Access</a>
+          <a href="#platform" class="btn-secondary text-base">See the Platform</a>
         </div>
 
         <!-- micro stats -->
@@ -814,7 +502,7 @@
           <div class="w-px bg-white/10"></div>
           <div>
             <p class="text-3xl font-black stat-blue leading-none">4 Gaps</p>
-            <p class="text-xs text-white/45 font-medium mt-1 tracking-wide">Closed by One Hive</p>
+            <p class="text-xs text-white/45 font-medium mt-1 tracking-wide">Closed by One Platform</p>
           </div>
         </div>
       </div>
@@ -836,7 +524,7 @@
                 <p class="text-[10px] text-orange-wh font-bold uppercase tracking-[0.15em]">Free to Use. Start Today.</p>
                 <span class="text-[10px] text-orange-wh font-semibold uppercase tracking-wider px-2 py-1 rounded-lg border border-white/10" style="background: linear-gradient(135deg, rgba(247,162,27,0.2) 0%, rgba(31,46,69,0.95) 100%);">4 Stages</span>
               </div>
-              <h3 class="font-black text-white text-lg leading-snug">Choose your <span style="background: linear-gradient(135deg,#F7A21B,#FDB94A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">stage in the hive</span></h3>
+              <h3 class="font-black text-white text-lg leading-snug">Tools built for <span style="background: linear-gradient(135deg,#F7A21B,#FDB94A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">your job</span></h3>
             </div>
 
             <!-- Stage Cards Grid -->
@@ -844,70 +532,42 @@
               <style>
                 @keyframes hc3-pulse { 0%,100%{opacity:.8; box-shadow:0 0 16px rgba(247,162,27,0.12)} 50%{opacity:1; box-shadow:0 0 28px rgba(247,162,27,0.22)} }
                 .hc3-elite { animation: hc3-pulse 2.8s ease-in-out infinite; }
-                .stage-card { cursor:pointer; transition: transform .18s, box-shadow .18s; position: relative; overflow: clip; }
+                .stage-card { cursor:pointer; transition: transform .18s, box-shadow .18s; }
                 .stage-card:hover  { transform: translateY(-2px); }
                 .stage-card:active { transform: scale(0.97); opacity: 0.85; }
-                .stage-hex-num {
-                  width: 26px; height: 30px; flex-shrink: 0;
-                  clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
-                  display: flex; align-items: center; justify-content: center;
-                  font-size: 9px; font-weight: 900; color: #fff; margin-bottom: 8px;
-                }
-                .stage-hex-watermark {
-                  position: absolute; bottom: -18px; right: -18px;
-                  width: 90px; height: 104px; pointer-events: none;
-                  clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
-                  opacity: 0.07;
-                }
-                .stage-connector-h {
-                  position: absolute; top: 50%; right: -6px;
-                  width: 12px; height: 1px;
-                  border-top: 1px dashed rgba(255,255,255,0.2);
-                  z-index: 2; pointer-events: none;
-                }
               </style>
-
-              <!-- Label above grid -->
-              <p style="font-size:9.5px;color:rgba(255,255,255,0.3);text-align:center;letter-spacing:0.1em;margin-bottom:12px;font-weight:600;">Every bee has a role · Every role has tools</p>
-
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
 
                 <!-- Card 1: Basic Worker -->
-                <div class="stage-card" onclick="openStagePopup(1)" style="border-radius:14px; border:1px solid rgba(74,159,212,0.25); border-top:3px solid #4A9FD4; background:linear-gradient(150deg,rgba(74,159,212,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
-                  <div class="stage-hex-num" style="background:#4A9FD4;">01</div>
+                <div class="stage-card" onclick="openStagePopup(1)" style="border-radius:14px; border:1px solid rgba(74,159,212,0.2); border-top:3px solid #4A9FD4; background:linear-gradient(150deg,rgba(74,159,212,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
+                  <p style="font-size:9px;font-weight:900;color:#5BB8F5;letter-spacing:0.14em;margin:0 0 7px;">01</p>
                   <p style="font-size:14px;font-weight:800;color:#E8F4FF;line-height:1.2;margin:0 0 6px;">Basic<br>Worker</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.38);line-height:1.45;margin:0 0 10px;">Log jobs. Build your foundation.</p>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.38);line-height:1.45;margin:0 0 10px;">Log jobs &amp; track downtime</p>
                   <span style="font-size:9px;font-weight:800;color:#7DCFFF;background:rgba(74,159,212,0.18);border-radius:20px;padding:3px 9px;">Free</span>
-                  <div class="stage-hex-watermark" style="background:#4A9FD4;"></div>
-                  <div class="stage-connector-h"></div>
                 </div>
 
                 <!-- Card 2: Advanced Worker -->
-                <div class="stage-card" onclick="openStagePopup(2)" style="border-radius:14px; border:1px solid rgba(0,196,180,0.25); border-top:3px solid #00C4B4; background:linear-gradient(150deg,rgba(0,196,180,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
-                  <div class="stage-hex-num" style="background:#00C4B4;">02</div>
+                <div class="stage-card" onclick="openStagePopup(2)" style="border-radius:14px; border:1px solid rgba(0,196,180,0.2); border-top:3px solid #00C4B4; background:linear-gradient(150deg,rgba(0,196,180,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
+                  <p style="font-size:9px;font-weight:900;color:#4DEDE0;letter-spacing:0.14em;margin:0 0 7px;">02</p>
                   <p style="font-size:14px;font-weight:800;color:#E0FFFC;line-height:1.2;margin:0 0 6px;">Advanced<br>Worker</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.38);line-height:1.45;margin:0 0 10px;">See the hive. Prevent failures.</p>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.38);line-height:1.45;margin:0 0 10px;">Analytics &amp; asset history</p>
                   <span style="font-size:9px;font-weight:800;color:#4DEDE0;background:rgba(0,196,180,0.16);border-radius:20px;padding:3px 9px;">Free</span>
-                  <div class="stage-hex-watermark" style="background:#00C4B4;"></div>
                 </div>
 
                 <!-- Card 3: Cyborg Worker -->
-                <div class="stage-card" onclick="openStagePopup(3)" style="border-radius:14px; border:1px solid rgba(155,89,232,0.25); border-top:3px solid #9B59E8; background:linear-gradient(150deg,rgba(155,89,232,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
-                  <div class="stage-hex-num" style="background:#9B59E8;">03</div>
+                <div class="stage-card" onclick="openStagePopup(3)" style="border-radius:14px; border:1px solid rgba(155,89,232,0.2); border-top:3px solid #9B59E8; background:linear-gradient(150deg,rgba(155,89,232,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
+                  <p style="font-size:9px;font-weight:900;color:#C4A0FF;letter-spacing:0.14em;margin:0 0 7px;">03</p>
                   <p style="font-size:14px;font-weight:800;color:#EEE5FF;line-height:1.2;margin:0 0 6px;">Cyborg<br>Worker</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.38);line-height:1.45;margin:0 0 10px;">AI and you, working as one.</p>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.38);line-height:1.45;margin:0 0 10px;">AI diagnosis &amp; guidance</p>
                   <span style="font-size:9px;font-weight:800;color:#C4A0FF;background:rgba(155,89,232,0.18);border-radius:20px;padding:3px 9px;">⚡ AI</span>
-                  <div class="stage-hex-watermark" style="background:#9B59E8;"></div>
-                  <div class="stage-connector-h"></div>
                 </div>
 
                 <!-- Card 4: Superhuman -->
-                <div class="stage-card hc3-elite" onclick="openStagePopup(4)" style="border-radius:14px; border:1px solid rgba(255,184,0,0.35); border-top:3px solid #FFB800; background:linear-gradient(150deg,rgba(247,162,27,0.16) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
-                  <div class="stage-hex-num" style="background:#FFB800;">04</div>
+                <div class="stage-card hc3-elite" onclick="openStagePopup(4)" style="border-radius:14px; border:1px solid rgba(255,184,0,0.3); border-top:3px solid #FFB800; background:linear-gradient(150deg,rgba(247,162,27,0.16) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
+                  <p style="font-size:9px;font-weight:900;color:#FFD166;letter-spacing:0.14em;margin:0 0 7px;">04</p>
                   <p style="font-size:14px;font-weight:800;color:#FFF0C0;line-height:1.2;margin:0 0 6px;">Super-<br>human</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.38);line-height:1.45;margin:0 0 10px;">Lead the hive. Shape the future.</p>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.38);line-height:1.45;margin:0 0 10px;">Predictive intel &amp; leadership</p>
                   <span style="font-size:9px;font-weight:800;color:#FFD166;background:rgba(247,162,27,0.2);border-radius:20px;padding:3px 9px;border:1px solid rgba(255,184,0,0.35);">Elite</span>
-                  <div class="stage-hex-watermark" style="background:#FFB800;"></div>
                 </div>
 
               </div>
@@ -978,17 +638,19 @@
   <div class="max-w-7xl mx-auto px-5 sm:px-8">
     <div class="text-center max-w-2xl mx-auto mb-20">
       <div class="hex-divider justify-center"><span></span><span style="background:#29B6D9; width:6px; height:6px;"></span><span></span></div>
-      <p class="text-xs text-blue-wh font-semibold uppercase tracking-[0.15em] mb-4">Why the hive is broken</p>
+      <p class="text-xs text-blue-wh font-semibold uppercase tracking-[0.15em] mb-4">The Industrial Reality</p>
       <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6">
         Filipino workers are skilled.<br/>
         <span style="background: linear-gradient(135deg, #29B6D9, #5FCCE8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">The system is failing them.</span>
       </h2>
       <p class="text-white/55 leading-[1.75] font-light">
-        Four systemic failures hold Filipino industry back. Not because of the workers. Because of the system.
+        Six systemic failures compound into national economic loss. A technician who prevents
+        ten failures receives less credit than one who fixes a single breakdown. The problems
+        aren't caused by individual incompetence. They're caused by broken systems.
       </p>
     </div>
 
-    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 stagger-wrap">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
       <!-- Problem 1 -->
       <div class="rounded-2xl p-6 border border-white/[0.07] card-glow" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);">
         <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style="background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2);">
@@ -997,7 +659,7 @@
           </svg>
         </div>
         <h3 class="font-bold text-white text-base mb-2">Fragmentation</h3>
-        <p class="text-sm text-white/50 leading-relaxed">Every department runs in isolation. Every boundary requires a human to carry information, manually, imperfectly.</p>
+        <p class="text-sm text-white/50 leading-relaxed">The maintenance system doesn't connect to inventory. Inventory doesn't connect to purchasing. Every boundary requires a human to carry information, manually, imperfectly.</p>
       </div>
 
       <!-- Problem 2 -->
@@ -1030,7 +692,7 @@
           </svg>
         </div>
         <h3 class="font-bold text-white text-base mb-2">Skills Invisibility</h3>
-        <p class="text-sm text-white/50 leading-relaxed">Organizations can't deploy their best people because they don't know what their people can actually do. Jobs are assigned by availability, not competence.</p>
+        <p class="text-sm text-white/50 leading-relaxed">Organizations can't deploy their best people to their most critical problems because they don't know what their people can actually do. Jobs are assigned by availability, not competence.</p>
       </div>
     </div>
   </div>
@@ -1046,14 +708,14 @@
   <div class="relative max-w-7xl mx-auto px-5 sm:px-8">
     <div class="text-center max-w-2xl mx-auto mb-20 reveal">
       <div class="hex-divider justify-center"><span></span><span style="background:#F7A21B; width:6px; height:6px;"></span><span></span></div>
-      <p class="text-xs text-orange-wh font-semibold uppercase tracking-[0.15em] mb-4">How the hive works</p>
+      <p class="text-xs text-orange-wh font-semibold uppercase tracking-[0.15em] mb-4">The Platform</p>
       <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6">
         Four gaps.<br/>
-        <span style="background: linear-gradient(135deg, #F7A21B, #FDB94A); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">One hive.</span>
+        <span style="background: linear-gradient(135deg, #F7A21B, #FDB94A); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">One platform.</span>
       </h2>
       <p class="text-white/55 leading-[1.75] font-light">
         Philippine industrial work is held back by four compounding gaps. WorkHive is the first
-        hive designed to close all of them, simultaneously, from a single system.
+        platform designed to close all of them, simultaneously, from a single system.
       </p>
     </div>
 
@@ -1064,12 +726,13 @@
         <div class="flex items-start gap-4 mb-6">
           <div class="step-dot text-navy-wh" style="background: linear-gradient(135deg, #F7A21B, #FDB94A);">01</div>
           <div>
-            <span class="tag-blue mb-2 inline-block">Fix It Fast</span>
+            <span class="tag-blue mb-2 inline-block">Execution System</span>
             <h3 class="text-xl font-bold text-white">From Chaos to Coordination</h3>
           </div>
         </div>
         <p class="text-white/55 text-sm leading-relaxed mb-6">
-          Every job pre-loaded with the right parts, procedures, and the right person. Planned replaces reactive.
+          Signal detection → Intelligent triage → Automated work order generation → Mobile execution → Real-time learning.
+          Every job pre-loaded with the right parts, procedures, and people. Planned replaces reactive.
         </p>
         <div class="grid grid-cols-2 gap-3">
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
@@ -1088,11 +751,12 @@
         <div class="flex items-start gap-4 mb-6">
           <div class="step-dot text-navy-wh" style="background: linear-gradient(135deg, #29B6D9, #5FCCE8);">02</div>
           <div>
-            <span class="tag-blue mb-2 inline-block">Right Person, Right Job</span>
+            <span class="tag-blue mb-2 inline-block">Skills Engine</span>
             <h3 class="text-xl font-bold text-white">From Guesswork to Precision</h3>
           </div>
         </div>
         <p class="text-white/55 text-sm leading-relaxed mb-6">
+          Verified skill profiles → Organizational skills maps → AI-powered job matching → Structured capability building tracks.
           Right person, right job, every time. Competence replaces availability.
         </p>
         <div class="grid grid-cols-2 gap-3">
@@ -1112,12 +776,13 @@
         <div class="flex items-start gap-4 mb-6">
           <div class="step-dot text-navy-wh" style="background: linear-gradient(135deg, #29B6D9, #5FCCE8);">03</div>
           <div>
-            <span class="tag-blue mb-2 inline-block">The Hive Remembers</span>
+            <span class="tag-blue mb-2 inline-block">Organizational Intelligence</span>
             <h3 class="text-xl font-bold text-white">From Amnesia to Memory</h3>
           </div>
         </div>
         <p class="text-white/55 text-sm leading-relaxed mb-6">
-          When an expert retires, the knowledge stays. Every repair makes the hive smarter.
+          Continuous data collection → Pattern recognition → Insight generation → Organizational memory that compounds.
+          When an expert retires, the knowledge stays. Every repair makes the system smarter.
         </p>
         <div class="grid grid-cols-2 gap-3">
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
@@ -1136,11 +801,12 @@
         <div class="flex items-start gap-4 mb-6">
           <div class="step-dot text-navy-wh" style="background: linear-gradient(135deg, #F7A21B, #FDB94A);">04</div>
           <div>
-            <span class="tag-blue mb-2 inline-block">Find a Specialist</span>
+            <span class="tag-blue mb-2 inline-block">Marketplace</span>
             <h3 class="text-xl font-bold text-white">From Luck to Design</h3>
           </div>
         </div>
         <p class="text-white/55 text-sm leading-relaxed mb-6">
+          Verified service providers → Discoverable expertise → Transparent reputation → Collective learning.
           The right specialist found in hours, not weeks. Luck replaced by design.
         </p>
         <div class="grid grid-cols-2 gap-3">
@@ -1159,6 +825,91 @@
   </div>
 </section>
 
+<!-- ═══════════════════════════════════════════════
+     FEATURES: HOW IT WORKS
+═══════════════════════════════════════════════ -->
+<section id="features" class="py-24 lg:py-32" style="background: rgba(22,32,50,0.75); position: relative; z-index: 1;">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8">
+    <div class="text-center max-w-2xl mx-auto mb-20 reveal">
+      <div class="hex-divider justify-center"><span></span><span style="background:#29B6D9; width:6px; height:6px;"></span><span></span></div>
+      <p class="text-xs text-blue-wh font-semibold uppercase tracking-[0.15em] mb-4">How It Works</p>
+      <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6">
+        Powerful AI,<br/>
+        <span style="background: linear-gradient(135deg, #29B6D9, #5FCCE8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">simple enough for everyone.</span>
+      </h2>
+      <p class="text-white/55 leading-[1.75] font-light">
+        WorkHive does the hard thinking in the background. You get clear alerts, simple answers, and
+        the right action, before the machine breaks down.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5 reveal">
+
+      <div class="rounded-2xl p-6 border border-white/[0.07] card-glow" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center mb-5"
+             style="background: linear-gradient(135deg, rgba(247,162,27,0.2) 0%, rgba(247,162,27,0.05) 100%); border: 1px solid rgba(247,162,27,0.2);">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#F7A21B" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+        </div>
+        <p class="text-[10px] text-orange-wh font-bold uppercase tracking-widest mb-2">Early Warning</p>
+        <h4 class="font-bold text-white text-base mb-3">Spots Trouble Before It Happens</h4>
+        <p class="text-xs text-white/45 leading-relaxed">Learns from your past breakdowns and flags equipment at risk 24–72 hours before failure, giving your team time to act, not react.</p>
+      </div>
+
+      <div class="rounded-2xl p-6 border border-white/[0.07] card-glow" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center mb-5"
+             style="background: linear-gradient(135deg, rgba(41,182,217,0.2) 0%, rgba(41,182,217,0.05) 100%); border: 1px solid rgba(41,182,217,0.2);">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#29B6D9" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </div>
+        <p class="text-[10px] text-blue-wh font-bold uppercase tracking-widest mb-2">Always Watching</p>
+        <h4 class="font-bold text-white text-base mb-3">Catches What You'd Miss</h4>
+        <p class="text-xs text-white/45 leading-relaxed">Monitors your equipment sensors around the clock and raises an alert the moment something looks off, even if it's never happened before.</p>
+      </div>
+
+      <div class="rounded-2xl p-6 border border-white/[0.07] card-glow" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center mb-5"
+             style="background: linear-gradient(135deg, rgba(247,162,27,0.2) 0%, rgba(247,162,27,0.05) 100%); border: 1px solid rgba(247,162,27,0.2);">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#F7A21B" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <p class="text-[10px] text-orange-wh font-bold uppercase tracking-widest mb-2">Smarter Scheduling</p>
+        <h4 class="font-bold text-white text-base mb-3">Fix It When It Actually Needs It</h4>
+        <p class="text-xs text-white/45 leading-relaxed">Estimates how much life is left in your critical machines so you schedule maintenance at the right time: not too early, not too late.</p>
+      </div>
+
+      <div class="rounded-2xl p-6 border border-white/[0.07] card-glow" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center mb-5"
+             style="background: linear-gradient(135deg, rgba(41,182,217,0.2) 0%, rgba(41,182,217,0.05) 100%); border: 1px solid rgba(41,182,217,0.2);">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#29B6D9" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+          </svg>
+        </div>
+        <p class="text-[10px] text-blue-wh font-bold uppercase tracking-widest mb-2">Ask Anything</p>
+        <h4 class="font-bold text-white text-base mb-3">Your AI Maintenance Assistant</h4>
+        <p class="text-xs text-white/45 leading-relaxed">Ask it a question about your equipment and it pulls the answer from your plant's own manuals, history, and past repairs, in plain language, every time.</p>
+      </div>
+
+    </div>
+
+    <!-- governance note -->
+    <div class="mt-10 rounded-2xl px-6 py-5 border border-white/[0.07] flex flex-col sm:flex-row items-start sm:items-center gap-4 reveal"
+         style="background: linear-gradient(135deg, rgba(41,182,217,0.07) 0%, rgba(31,46,69,0.6) 100%);">
+      <div class="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center" style="background: rgba(41,182,217,0.15);">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#29B6D9" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-white">You're always in control.</p>
+        <p class="text-xs text-white/45 mt-0.5 leading-relaxed">WorkHive recommends. You decide. Every alert tells you why it was raised, every action is logged, and the system keeps learning from your plant's real outcomes.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ═══════════════════════════════════════════════
      IMPACT / STATS
@@ -1172,7 +923,7 @@
 
       <div class="reveal">
         <div class="hex-divider"><span></span><span style="background:#F7A21B; width:6px; height:6px;"></span><span></span></div>
-        <p class="text-xs text-orange-wh font-semibold uppercase tracking-[0.15em] mb-4">The hive in action</p>
+        <p class="text-xs text-orange-wh font-semibold uppercase tracking-[0.15em] mb-4">The Impact</p>
         <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6">
           The day after<br/>
           <span style="background: linear-gradient(135deg, #F7A21B, #FDB94A); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">WorkHive.</span>
@@ -1185,29 +936,29 @@
 
         <!-- before/after -->
         <div class="space-y-4">
-          <div class="flex items-center gap-4 before-after-row">
+          <div class="flex items-center gap-4">
             <div class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
             <p class="text-white/45 text-sm line-through">Equipment fails without warning. 24h downtime. Millions lost.</p>
           </div>
-          <div class="flex items-center gap-4 before-after-row">
+          <div class="flex items-center gap-4">
             <div class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></div>
             <p class="text-white/80 text-sm">Anomaly detected 72h early. Right tech dispatched. 20-minute fix.</p>
           </div>
           <div class="w-px h-5 bg-white/10 ml-1"></div>
-          <div class="flex items-center gap-4 before-after-row">
+          <div class="flex items-center gap-4">
             <div class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
             <p class="text-white/45 text-sm line-through">Skills guessed at. Wrong person assigned. Job takes 2x longer.</p>
           </div>
-          <div class="flex items-center gap-4 before-after-row">
+          <div class="flex items-center gap-4">
             <div class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></div>
             <p class="text-white/80 text-sm">AI matches the best available worker. 98% precision. Done right, first time.</p>
           </div>
           <div class="w-px h-5 bg-white/10 ml-1"></div>
-          <div class="flex items-center gap-4 before-after-row">
+          <div class="flex items-center gap-4">
             <div class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
             <p class="text-white/45 text-sm line-through">Expert retires. ₱800K–₱2.4M in knowledge walks out the door. Start from scratch.</p>
           </div>
-          <div class="flex items-center gap-4 before-after-row">
+          <div class="flex items-center gap-4">
             <div class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></div>
             <p class="text-white/80 text-sm">Every insight captured before they leave. Organizational memory compounds, forever.</p>
           </div>
@@ -1215,7 +966,7 @@
       </div>
 
       <!-- Stat grid -->
-      <div class="grid grid-cols-2 gap-5 reveal stagger-wrap">
+      <div class="grid grid-cols-2 gap-5 reveal">
         <div class="rounded-3xl p-7 border border-white/[0.08] card-orange" style="background: linear-gradient(145deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.8) 100%);">
           <p class="text-5xl font-black stat-orange mb-2">40-60%</p>
           <p class="text-sm font-semibold text-white mb-1">Less Downtime</p>
@@ -1249,17 +1000,18 @@
   <div class="max-w-7xl mx-auto px-5 sm:px-8">
     <div class="text-center max-w-2xl mx-auto mb-20 reveal">
       <div class="hex-divider justify-center"><span></span><span style="background:#29B6D9; width:6px; height:6px;"></span><span></span></div>
-      <p class="text-xs text-blue-wh font-semibold uppercase tracking-[0.15em] mb-4">Find your role</p>
+      <p class="text-xs text-blue-wh font-semibold uppercase tracking-[0.15em] mb-4">Community</p>
       <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6">
-        Every worker<br/>
-        <span style="background: linear-gradient(135deg, #29B6D9, #5FCCE8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">has a role in the hive.</span>
+        Every professional<br/>
+        <span style="background: linear-gradient(135deg, #29B6D9, #5FCCE8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">finds their place here.</span>
       </h2>
       <p class="text-white/55 leading-[1.75] font-light">
-        Whether you're on the floor or running the floor, the hive works for you.
+        WorkHive starts with the individual contributor and scales to the whole organization.
+        Every role in Philippine industrial work has a place in the hive.
       </p>
     </div>
 
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 reveal stagger-wrap">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 reveal">
 
       <div class="rounded-2xl p-7 border border-white/[0.07] card-glow" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.8) 100%);">
         <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5" style="background: linear-gradient(135deg, #F7A21B, #FDB94A);">
@@ -1269,7 +1021,21 @@
           </svg>
         </div>
         <h3 class="font-bold text-white text-lg mb-2">Technicians &amp; Operators</h3>
-        <p class="text-sm text-white/50 leading-relaxed">You prevented ten failures this year and received less credit than the person who fixed one breakdown. WorkHive changes that. Your skills become visible, searchable, and fairly rewarded.</p>
+        <p class="text-sm text-white/50 leading-relaxed mb-5">You prevented ten failures this year and received less credit than the person who fixed one breakdown. WorkHive changes that. Your skills become visible, searchable, and fairly rewarded.</p>
+        <ul class="space-y-2">
+          <li class="flex items-center gap-2 text-xs text-white/55">
+            <svg class="w-3.5 h-3.5 text-orange-wh flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Verified skill profile
+          </li>
+          <li class="flex items-center gap-2 text-xs text-white/55">
+            <svg class="w-3.5 h-3.5 text-orange-wh flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            AI-matched career opportunities
+          </li>
+          <li class="flex items-center gap-2 text-xs text-white/55">
+            <svg class="w-3.5 h-3.5 text-orange-wh flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Structured capability tracks
+          </li>
+        </ul>
       </div>
 
       <div class="rounded-2xl p-7 border border-white/[0.07] card-glow" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.8) 100%);">
@@ -1279,7 +1045,21 @@
           </svg>
         </div>
         <h3 class="font-bold text-white text-lg mb-2">Managers &amp; Supervisors</h3>
-        <p class="text-sm text-white/50 leading-relaxed">You can't deploy your best people to your most critical problems if you don't know what your people can actually do. WorkHive gives you the full picture, and the tools to act on it.</p>
+        <p class="text-sm text-white/50 leading-relaxed mb-5">You can't deploy your best people to your most critical problems if you don't know what your people can actually do. WorkHive gives you the full picture, and the tools to act on it.</p>
+        <ul class="space-y-2">
+          <li class="flex items-center gap-2 text-xs text-white/55">
+            <svg class="w-3.5 h-3.5 text-blue-wh flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Organizational skills map
+          </li>
+          <li class="flex items-center gap-2 text-xs text-white/55">
+            <svg class="w-3.5 h-3.5 text-blue-wh flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Predictive maintenance dashboard
+          </li>
+          <li class="flex items-center gap-2 text-xs text-white/55">
+            <svg class="w-3.5 h-3.5 text-blue-wh flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Real-time work order tracking
+          </li>
+        </ul>
       </div>
 
       <div class="rounded-2xl p-7 border border-white/[0.07] card-orange sm:col-span-2 lg:col-span-1" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.8) 100%);">
@@ -1289,7 +1069,21 @@
           </svg>
         </div>
         <h3 class="font-bold text-white text-lg mb-2">Entrepreneurs &amp; Builders</h3>
-        <p class="text-sm text-white/50 leading-relaxed">Build a verified reputation in the hive. Get found by plants that need exactly what you do.</p>
+        <p class="text-sm text-white/50 leading-relaxed mb-5">The marketplace connects specialized service providers directly to plants that need them. Build a verified reputation that compounds over every completed job. Your expertise, finally discoverable.</p>
+        <ul class="space-y-2">
+          <li class="flex items-center gap-2 text-xs text-white/55">
+            <svg class="w-3.5 h-3.5 text-orange-wh flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Verified service provider listing
+          </li>
+          <li class="flex items-center gap-2 text-xs text-white/55">
+            <svg class="w-3.5 h-3.5 text-orange-wh flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Transparent reputation system
+          </li>
+          <li class="flex items-center gap-2 text-xs text-white/55">
+            <svg class="w-3.5 h-3.5 text-orange-wh flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Parts, training &amp; jobs marketplace
+          </li>
+        </ul>
       </div>
 
     </div>
@@ -1330,7 +1124,7 @@
         class="flex-1 px-5 py-3.5 rounded-xl text-white placeholder-white/30 text-sm font-medium border border-white/[0.12] focus:outline-none focus:border-orange-wh/60 focus:ring-2 focus:ring-orange-wh/20 transition-colors"
         style="background: rgba(42,61,88,0.7);"
       />
-      <button type="submit" class="btn-primary text-sm whitespace-nowrap">Join the Hive</button>
+      <button type="submit" class="btn-primary text-sm whitespace-nowrap">Get Early Access</button>
     </form>
 
     <p class="text-xs text-white/30 mb-12">Free to join · Philippines-first · No spam, ever</p>
@@ -1341,13 +1135,13 @@
           <div class="w-8 h-8 rounded-full border-2 border-navy-wh flex items-center justify-center text-xs font-bold text-navy-wh" style="background: linear-gradient(135deg, #F7A21B, #FDB94A);">JR</div>
           <div class="w-8 h-8 rounded-full border-2 border-navy-wh flex items-center justify-center text-xs font-bold text-navy-wh" style="background: linear-gradient(135deg, #29B6D9, #5FCCE8);">MA</div>
           <div class="w-8 h-8 rounded-full border-2 border-navy-wh flex items-center justify-center text-xs font-bold text-navy-wh" style="background: linear-gradient(135deg, #F7A21B, #FDB94A);">RL</div>
-          <div class="w-8 h-8 rounded-full border-2 border-navy-wh flex items-center justify-center text-[10px] font-bold text-white/60" style="background: rgba(42,61,88,0.9);">+2K</div>
+          <div class="w-8 h-8 rounded-full border-2 border-navy-wh flex items-center justify-center text-[10px] font-bold text-white/60" style="background: rgba(42,61,88,0.9);">+50K</div>
         </div>
-        <p class="text-sm text-white/45">2,500 workers already in the hive</p>
+        <p class="text-sm text-white/45">Professionals already waiting</p>
       </div>
       <div class="flex items-center gap-2 text-white/45">
         <svg class="w-4 h-4 text-orange-wh" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-        <span class="text-sm">Philippines-first hive</span>
+        <span class="text-sm">Philippines-first platform</span>
       </div>
     </div>
   </div>
@@ -1362,18 +1156,18 @@
       <div class="lg:col-span-2">
         <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-10 w-auto mb-4" />
         <p class="text-sm text-white/40 leading-relaxed max-w-xs">
-          The industrial intelligence hive for the Philippines. Closing the Execution, Skills,
+          The industrial intelligence platform for the Philippines. Closing the Execution, Skills,
           Intelligence, and Marketplace gaps that hold Filipino workers back.
         </p>
         <p class="text-xs text-white/25 mt-4 font-medium">workhiveph.com · 2026</p>
       </div>
       <div>
-        <p class="text-xs font-semibold text-white/60 uppercase tracking-[0.12em] mb-4">The Hive</p>
+        <p class="text-xs font-semibold text-white/60 uppercase tracking-[0.12em] mb-4">Platform</p>
         <ul class="space-y-3">
-          <li><a href="#platform"  class="text-sm text-white/40 hover:text-white/70 transition-colors">Fix It Fast</a></li>
-          <li><a href="#platform"  class="text-sm text-white/40 hover:text-white/70 transition-colors">Right Person, Right Job</a></li>
-          <li><a href="#platform"  class="text-sm text-white/40 hover:text-white/70 transition-colors">The Hive Remembers</a></li>
-          <li><a href="#community" class="text-sm text-white/40 hover:text-white/70 transition-colors">Find a Specialist</a></li>
+          <li><a href="#platform"  class="text-sm text-white/40 hover:text-white/70 transition-colors">Execution System</a></li>
+          <li><a href="#platform"  class="text-sm text-white/40 hover:text-white/70 transition-colors">Skills Engine</a></li>
+          <li><a href="#features"  class="text-sm text-white/40 hover:text-white/70 transition-colors">AI Intelligence</a></li>
+          <li><a href="#community" class="text-sm text-white/40 hover:text-white/70 transition-colors">Marketplace</a></li>
         </ul>
       </div>
       <div>
@@ -1428,23 +1222,17 @@
     });
   });
 
-  // ---- Scroll reveal (Safari fallback only — CSS animation-timeline handles modern browsers) ----
-  if (!CSS.supports('animation-timeline', 'scroll()')) {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  // ---- Scroll reveal ----
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-  } else {
-    /* CSS animation-timeline is active — mark all reveals as visible immediately
-       so any JS that checks .visible class still works correctly */
-    document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
-  }
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
   // ---- Smooth scroll ----
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -1701,11 +1489,6 @@
   <script src="utils.js"></script>
   <script src="nav-hub.js"></script>
 
-<!-- ── Sticky mobile CTA bar ── -->
-<div id="sticky-mobile-cta" class="md:hidden" aria-hidden="true">
-  <a href="#join" class="btn-primary text-sm w-full text-center block">Get Early Access — It's Free</a>
-</div>
-
 <!-- ── SIGN IN MODAL ── -->
 <div id="signin-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" style="background:rgba(0,0,0,0.75); backdrop-filter:blur(10px);">
   <div class="relative rounded-2xl p-8 w-full max-w-sm mx-4" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 24px 80px rgba(0,0,0,0.5);">
@@ -1806,175 +1589,6 @@
       openSignIn(null);
     }
   });
-</script>
-
-<script>
-(function() {
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  /* ── Scroll progress bar ── */
-  const bar = document.getElementById('scroll-progress');
-  if (bar) {
-    window.addEventListener('scroll', function() {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      bar.style.transform = 'scaleX(' + (max > 0 ? window.scrollY / max : 0) + ')';
-    }, { passive: true });
-  }
-
-  /* ── Cursor ambient glow ── */
-  if (!reducedMotion && window.matchMedia('(pointer: fine)').matches) {
-    const glow = document.getElementById('cursor-glow');
-    if (glow) {
-      document.addEventListener('mousemove', function(e) {
-        glow.style.transform = 'translate(' + (e.clientX - 220) + 'px, ' + (e.clientY - 220) + 'px)';
-      }, { passive: true });
-    }
-  }
-
-  /* ── Button ripple ── */
-  if (!reducedMotion) {
-    document.querySelectorAll('.btn-primary, .btn-secondary, .btn-ghost').forEach(function(btn) {
-      btn.addEventListener('pointerdown', function(e) {
-        const r = this.getBoundingClientRect(), sz = Math.max(r.width, r.height) * 2.2;
-        const d = document.createElement('span');
-        d.className = 'rpl';
-        d.style.cssText = 'width:' + sz + 'px;height:' + sz + 'px;left:' + (e.clientX - r.left - sz/2) + 'px;top:' + (e.clientY - r.top - sz/2) + 'px';
-        this.appendChild(d);
-        d.addEventListener('animationend', function() { d.remove(); });
-      });
-    });
-  }
-
-  /* ── Card 3D tilt (desktop fine-pointer only) ── */
-  /* Tracking uses a sluggish ease — card chases cursor like it's heavy.
-     Return uses the full viscous spring so it settles like liquid. */
-  if (!reducedMotion && window.matchMedia('(pointer: fine)').matches) {
-    document.querySelectorAll('.card-glow, .card-orange, .stage-card').forEach(function(card) {
-      card.addEventListener('mouseenter', function() {
-        /* Slow tracking — card lags behind cursor, feels heavy */
-        this.style.transition = 'transform 0.28s ease-out';
-      });
-      card.addEventListener('mousemove', function(e) {
-        const r = this.getBoundingClientRect();
-        const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
-        this.style.transform = 'perspective(700px) rotateX(' + (-y*7) + 'deg) rotateY(' + (x*7) + 'deg) translateY(-12px)';
-      });
-      card.addEventListener('mouseleave', function() {
-        /* Full viscous spring on return — card settles slowly like liquid */
-        this.style.transition = 'transform 0.8s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.834,.843,.858,.876,.894,.907,.916,.924,.932,.940,.947,.953,.958,.962,.967,.972,.978,.984,.990,.994,.998,1)';
-        this.style.transform = '';
-      });
-    });
-  }
-
-  /* ── Stagger-wrap reveal ── */
-  /* CSS animation-timeline handles this on Chrome/Edge/Firefox.
-     JS IntersectionObserver is the fallback for Safari only. */
-  var cssScrollSupported = CSS.supports('animation-timeline', 'scroll()');
-
-  if (reducedMotion) {
-    document.querySelectorAll('.stagger-wrap').forEach(function(el) { el.classList.add('fired'); });
-  } else if (!cssScrollSupported) {
-    var staggerObs = new IntersectionObserver(function(entries) {
-      entries.forEach(function(entry) {
-        if (entry.isIntersecting) { entry.target.classList.add('fired'); staggerObs.unobserve(entry.target); }
-      });
-    }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
-    document.querySelectorAll('.stagger-wrap').forEach(function(el) { staggerObs.observe(el); });
-  }
-
-  /* ── Before/after row stagger ── */
-  /* Same: CSS handles it on modern browsers, JS handles Safari. */
-  var baSection = document.querySelector('.space-y-4');
-  if (baSection && !cssScrollSupported) {
-    var baObs = new IntersectionObserver(function(entries) {
-      if (!entries[0].isIntersecting) return;
-      baSection.querySelectorAll('.before-after-row').forEach(function(row, i) {
-        setTimeout(function() { row.classList.add('in'); }, reducedMotion ? 0 : i * 110);
-      });
-      baObs.unobserve(baSection);
-    }, { threshold: 0.15 });
-    baObs.observe(baSection);
-  }
-
-  /* ── Sticky mobile CTA bar ── */
-  (function() {
-    const cta = document.getElementById('sticky-mobile-cta');
-    if (!cta) return;
-    const hero = document.querySelector('section');
-    if (!hero) return;
-    new IntersectionObserver(function(entries) {
-      cta.style.transform = entries[0].isIntersecting ? 'translateY(100%)' : 'translateY(0)';
-      cta.setAttribute('aria-hidden', entries[0].isIntersecting ? 'true' : 'false');
-    }, { threshold: 0.15 }).observe(hero);
-  })();
-
-  /* ── Stage card micro-bounce ── */
-  if (!reducedMotion) {
-    document.querySelectorAll('.stage-card').forEach(function(card) {
-      card.addEventListener('pointerdown', function() {
-        this.style.transition = 'transform .12s ease';
-        this.style.transform = 'scale(0.94)';
-      });
-      ['pointerup', 'pointerleave'].forEach(function(evt) {
-        card.addEventListener(evt, function() {
-          this.style.transition = 'transform .4s linear(0,.006,.025,.101,.25,.553,.844,1.015,1.085,1.106,1.08,1.04,1.005,.985,.993,1.002,1.004,1)';
-          this.style.transform = '';
-        });
-      });
-    });
-  }
-
-  /* ── Nav active section highlight ── */
-  const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
-  document.querySelectorAll('section[id]').forEach(function(s) {
-    new IntersectionObserver(function(entries) {
-      if (entries[0].isIntersecting) {
-        navLinks.forEach(function(l) { l.classList.remove('active'); });
-        const a = document.querySelector('.nav-link[href="#' + s.id + '"]');
-        if (a) a.classList.add('active');
-      }
-    }, { threshold: 0.4 }).observe(s);
-  });
-
-})();
-</script>
-
-<script>
-/* ── PWA Install Button ── */
-(function() {
-  var _prompt = null;
-  var IDS = ['pwa-install-btn', 'pwa-install-btn-mobile'];
-
-  function showBtns() {
-    IDS.forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el) { el.style.display = 'flex'; el.classList.remove('hidden'); }
-    });
-  }
-  function hideBtns() {
-    IDS.forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el) { el.style.display = 'none'; el.classList.add('hidden'); }
-    });
-  }
-
-  window.addEventListener('beforeinstallprompt', function(e) {
-    e.preventDefault();
-    _prompt = e;
-    showBtns();
-  });
-
-  window.triggerInstall = async function() {
-    if (!_prompt) return;
-    _prompt.prompt();
-    var result = await _prompt.userChoice;
-    if (result.outcome === 'accepted') hideBtns();
-    _prompt = null;
-  };
-
-  window.addEventListener('appinstalled', hideBtns);
-})();
 </script>
 </body>
 </html>
