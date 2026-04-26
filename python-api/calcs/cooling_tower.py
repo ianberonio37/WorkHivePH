@@ -125,9 +125,18 @@ def calculate(inputs: dict) -> dict:
 
     heat_rejection_tr = heat_rejection_kw / 3.517
 
-    t_hot_in_c   = float(inputs.get("condenser_water_in_c",  35.0))  # hot water entering tower
-    t_cold_out_c = float(inputs.get("condenser_water_out_c", 29.5))  # cooled water leaving tower
-    wb_design_c  = float(inputs.get("design_wb_c",   MANILA_DESIGN_WB))
+    t_hot_in_c   = float(inputs.get("condenser_water_in_c")
+                     or  inputs.get("inlet_temp_C")        # frontend key
+                     or  inputs.get("ewt_c")               # alternative
+                     or  35.0)
+    t_cold_out_c = float(inputs.get("condenser_water_out_c")
+                     or  inputs.get("outlet_temp_C")       # frontend key
+                     or  inputs.get("lwt_c")               # alternative
+                     or  29.5)
+    wb_design_c  = float(inputs.get("design_wb_c")
+                     or  inputs.get("wb_C")                # frontend key
+                     or  inputs.get("wbt_c")               # alternative
+                     or  MANILA_DESIGN_WB)
     range_c      = t_hot_in_c - t_cold_out_c
     approach_c   = t_cold_out_c - wb_design_c
 
@@ -154,7 +163,7 @@ def calculate(inputs: dict) -> dict:
     cp_water       = 4186.0   # J/(kg·K)
     rho_water      = 995.7    # kg/m3 at ~30°C
     mass_flow_kgs  = heat_rejection_kw * 1000 / (cp_water * range_c)
-    flow_lps       = mass_flow_kgs / rho_water
+    flow_lps       = mass_flow_kgs * 1000 / rho_water   # L/s (kg/s ÷ kg/L)
     flow_lmin      = flow_lps * 60
     flow_m3hr      = flow_lps * 3.6
     flow_gpm       = flow_lps * 15.8508   # US GPM
