@@ -34,6 +34,28 @@
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>` },
   ];
 
+  // ─── Click Tracking (recents) ────────────────────────────────────────────────
+  var CLICK_KEY = 'wh-tool-clicks';
+
+  function trackToolClick(href) {
+    try {
+      var c = JSON.parse(localStorage.getItem(CLICK_KEY) || '{}');
+      c[href] = (c[href] || 0) + 1;
+      localStorage.setItem(CLICK_KEY, JSON.stringify(c));
+    } catch (_) {}
+  }
+
+  function getQuickTools(n) {
+    try {
+      var c = JSON.parse(localStorage.getItem(CLICK_KEY) || '{}');
+      return TOOLS.slice()
+        .sort(function(a, b) { return (c[b.href] || 0) - (c[a.href] || 0); })
+        .slice(0, n);
+    } catch (_) {
+      return TOOLS.slice(0, n);
+    }
+  }
+
   // ─── Current Page Detection ───────────────────────────────────────────────────
   function getCurrentTool() {
     const path = window.location.pathname.toLowerCase();
@@ -54,6 +76,7 @@
     const wrapper = document.createElement('div');
     wrapper.id = 'wh-hub';
 
+    /* All-tools grid (collapsed by default) */
     const tilesHTML = TOOLS.map(t => {
       const isCurrent = t === current;
       return `
@@ -62,6 +85,17 @@
           <span class="wh-hub-tile-label">${t.label}</span>
           ${isCurrent ? '<span class="wh-hub-tile-dot"></span>' : ''}
         </a>`;
+    }).join('');
+
+    /* Quick access row — top 4 by recent usage */
+    const quickTools = getQuickTools(4);
+    const quickHTML = quickTools.map(t => {
+      const isCurrent = t === current;
+      const shortLabel = t.label.length > 8 ? t.label.split(' ')[0] : t.label;
+      return `<a href="${t.href}" class="wh-hub-quick-tile${isCurrent ? ' active' : ''}" ${isCurrent ? 'aria-current="page"' : ''} title="${t.label}">
+        <span class="wh-hub-quick-icon">${t.icon}</span>
+        <span class="wh-hub-quick-label">${shortLabel}</span>
+      </a>`;
     }).join('');
 
     wrapper.innerHTML = `
@@ -171,12 +205,72 @@
           letter-spacing: 0.04em;
         }
 
-        /* ── Tile grid ── */
-        #wh-hub-tiles {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 8px;
+        /* ── Section labels ── */
+        .wh-hub-section-label {
+          font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+          text-transform: uppercase; color: rgba(255,255,255,0.25);
+          margin: 0 0 8px;
         }
+
+        /* ── Quick access row (4 icon + short label tiles) ── */
+        #wh-hub-quick { margin-bottom: 4px; }
+        #wh-hub-quick-row {
+          display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+        }
+        .wh-hub-quick-tile {
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          gap: 5px; padding: 10px 4px; border-radius: 12px;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.08);
+          text-decoration: none; cursor: pointer; min-height: 54px;
+          transition:
+            background 0.15s ease, border-color 0.15s ease,
+            transform 0.45s linear(0,.006,.025,.101,.25,.553,.844,1.035,1.115,1.146,1.14,1.107,1.062,1.018,.99,.979,.988,1.004,1.01,1.006,1.001,.999,1);
+        }
+        .wh-hub-quick-tile:hover {
+          background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.18);
+          transform: translateY(-5px) scale(1.06);
+        }
+        .wh-hub-quick-tile:active { transform: scale(0.9); transition: transform 0.08s ease; }
+        .wh-hub-quick-tile.active {
+          background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.35);
+        }
+        .wh-hub-quick-tile.active .wh-hub-quick-icon { color: #F7A21B; }
+        .wh-hub-quick-icon { color: rgba(255,255,255,0.7); display:flex; }
+        .wh-hub-quick-label {
+          font-size: 9px; color: rgba(255,255,255,0.45); font-weight: 500;
+          text-align: center; line-height: 1.2; font-family: 'Poppins', sans-serif;
+        }
+        .wh-hub-quick-tile.active .wh-hub-quick-label { color: #F7A21B; }
+
+        /* ── Divider ── */
+        .wh-hub-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 10px 0 6px; }
+
+        /* ── All Tools toggle ── */
+        #wh-hub-all-toggle {
+          width: 100%; display: flex; align-items: center; justify-content: space-between;
+          padding: 6px 2px; background: none; border: none; cursor: pointer;
+          color: rgba(255,255,255,0.35); font-size: 10px; font-weight: 600;
+          text-transform: uppercase; letter-spacing: 0.1em;
+          font-family: 'Poppins', sans-serif; margin-bottom: 2px;
+          transition: color 0.2s ease;
+        }
+        #wh-hub-all-toggle:hover { color: rgba(255,255,255,0.65); }
+        #wh-hub-all-toggle svg {
+          transition: transform 0.45s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.843,.876,.907,.932,.953,.967,.978,.990,.998,1);
+        }
+        #wh-hub-all-toggle.open svg { transform: rotate(180deg); }
+
+        /* ── All Tools grid (collapsible) ── */
+        #wh-hub-tiles {
+          display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+          overflow: hidden; max-height: 0; opacity: 0; margin-top: 0;
+          transition:
+            max-height 0.5s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.843,.876,.907,.932,.953,.967,.978,.990,.998,1),
+            opacity 0.3s ease, margin-top 0.3s ease;
+        }
+        #wh-hub-tiles.open { max-height: 600px; opacity: 1; margin-top: 6px; }
 
         /* ── Tile ── */
         .wh-hub-tile {
@@ -275,7 +369,23 @@
           <span>Tools</span>
           <strong>${current.label}</strong>
         </div>
-        <div id="wh-hub-tiles">${tilesHTML}</div>
+
+        <!-- Quick Access Row -->
+        <div id="wh-hub-quick">
+          <p class="wh-hub-section-label">Quick Access</p>
+          <div id="wh-hub-quick-row">${quickHTML}</div>
+        </div>
+
+        <div class="wh-hub-divider"></div>
+
+        <!-- All Tools (collapsible) -->
+        <button id="wh-hub-all-toggle" aria-expanded="false" aria-controls="wh-hub-tiles">
+          All Tools
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <div id="wh-hub-tiles" role="region">${tilesHTML}</div>
       </div>
     `;
 
@@ -410,6 +520,27 @@
       const hub = document.getElementById('wh-hub');
       if (isOpen && hub && !hub.contains(e.target)) closeHub();
     });
+
+    /* All Tools expand/collapse */
+    const allToggle = document.getElementById('wh-hub-all-toggle');
+    const allGrid   = document.getElementById('wh-hub-tiles');
+    if (allToggle && allGrid) {
+      allToggle.addEventListener('click', function() {
+        const opening = !allGrid.classList.contains('open');
+        allGrid.classList.toggle('open');
+        allToggle.classList.toggle('open');
+        allToggle.setAttribute('aria-expanded', opening);
+      });
+    }
+
+    /* Track clicks on any tile (quick or all-tools) to update recents */
+    const panel = document.getElementById('wh-hub-panel');
+    if (panel) {
+      panel.addEventListener('click', function(e) {
+        const tile = e.target.closest('a[href]');
+        if (tile) trackToolClick(tile.getAttribute('href'));
+      });
+    }
   }
 
   // ─── Init ─────────────────────────────────────────────────────────────────────
