@@ -32,15 +32,26 @@ LPL_PARAMS: dict[str, dict] = {
 RISK_THRESHOLD_RT = 1e-5    # tolerable risk for loss of human life (per year)
 
 # ─── IEC 62305-3 Table NA.1 - Ground Flash Density (Ng) for Philippines ──────
-# Ng (flashes/km²/yr) - use PAGASA data; typical Philippine values:
+# Ng (flashes/km²/yr) - keys match frontend dropdown values exactly
 NG_PHILIPPINES: dict[str, float] = {
-    "Metro Manila":    10,
-    "Cebu":            8,
-    "Davao":           12,
-    "Visayas":         10,
-    "Mindanao":        15,
-    "Luzon (highland)": 12,
-    "General":         10,   # conservative default
+    "Metro Manila / NCR":      10,
+    "Baguio / Cordillera":     12,
+    "Ilocos Region":            8,
+    "Cagayan Valley":          12,
+    "Central Luzon":           10,
+    "CALABARZON":              10,
+    "Bicol Region":            14,
+    "Western Visayas":         10,
+    "Central Visayas (Cebu)":  10,
+    "Eastern Visayas":         12,
+    "Zamboanga Peninsula":     12,
+    "Northern Mindanao":       14,
+    "Davao Region":            14,
+    "SOCCSKSARGEN":            16,
+    "CARAGA":                  14,
+    "ARMM / BARMM":            14,
+    "Custom":                  10,
+    "General":                 10,   # fallback
 }
 
 # ─── IEC 62305-3 Air-termination material specs ───────────────────────────────
@@ -64,16 +75,14 @@ SPD_CLASS: dict[str, dict] = {
 
 def _collection_area(L_m: float, W_m: float, H_m: float, R_m: float) -> float:
     """
-    IEC 62305-2 §A.1 - Equivalent collection area Ad (m²) of an isolated structure.
-    Ad = L×W + 2×(L+W)×H + π×H²   (simplified for rectangular building, H ≤ R)
-    For H > R: uses rolling sphere geometry.
+    IEC 62305-2 Annex A Eq. A.1 — Equivalent collection area Ad (m²) of an isolated
+    rectangular structure: Ad = L×W + 6H×(L+W) + 9π×H²  (catchment shadow = 3H).
+    For H > R use rolling-sphere shadow: Ad = LW + 2R(L+W) + πR².
     """
     if H_m <= R_m:
-        return L_m * W_m + 2 * (L_m + W_m) * H_m + math.pi * H_m ** 2
+        return L_m * W_m + 6 * H_m * (L_m + W_m) + 9 * math.pi * H_m ** 2
     else:
-        # IEC simplified for tall structure (H > R): rolling sphere
-        r_top = math.sqrt(R_m ** 2 - (R_m - H_m + R_m) ** 2) if R_m > 0 else 0
-        return L_m * W_m + 2 * (L_m + W_m) * R_m + math.pi * R_m ** 2
+        return L_m * W_m + 2 * R_m * (L_m + W_m) + math.pi * R_m ** 2
 
 
 def _flash_frequency(Ad_m2: float, Ng: float, Cd: float = 1.0) -> float:
@@ -146,13 +155,22 @@ def calculate(inputs: dict) -> dict:
     building_width_m   = float(inputs.get("building_width_m",   20.0))
     building_height_m  = float(inputs.get("building_height_m",  15.0))
     lpl                = str  (inputs.get("lpl",                 "LPL II"))
-    location           = str  (inputs.get("location",            "General"))
-    Ng                 = float(inputs.get("ground_flash_density",
-                                          NG_PHILIPPINES.get(location, 10.0)))
-    Cd                 = float(inputs.get("location_factor",     1.0))
-    conductor_material = str  (inputs.get("conductor_material",  "Copper"))
+    # frontend sends ng_location; accept both
+    location           = str  (inputs.get("ng_location") or inputs.get("location", "Metro Manila / NCR"))
+    ng_custom          = float(inputs.get("ng_custom",    10.0))
+    Ng                 = ng_custom if location == "Custom" else NG_PHILIPPINES.get(location, 10.0)
+    struct_type        = str  (inputs.get("structure_type", "Residential"))
+    conductor_material = str  (inputs.get("conductor_material") or inputs.get("dc_material", "Copper"))
+    air_method         = str  (inputs.get("air_term_method",  "Rolling Sphere"))
     rho_soil           = float(inputs.get("soil_resistivity_ohm_m", 100.0))
     rod_length_m       = float(inputs.get("earth_rod_length_m",   3.0))
+
+    # Location / structure factor (Cd) — IEC 62305-2 Table B.2
+    CD_TABLE: dict[str, float] = {
+        "Residential": 1, "Commercial": 1, "Industrial": 2,
+        "Healthcare": 2,  "Critical Infrastructure": 2, "Explosive / Flammable": 5,
+    }
+    Cd = CD_TABLE.get(struct_type, 1.0)
 
     # ── LPL parameters ────────────────────────────────────────────────────────
     lpl_data = LPL_PARAMS.get(lpl, LPL_PARAMS["LPL II"])
@@ -162,9 +180,20 @@ def calculate(inputs: dict) -> dict:
     Iimp_kA   = lpl_data["Iimp_kA"]
     protection_pct = lpl_data["protection_pct"]
 
+    # Min intercepted current (IEC 62305-3 Table 1) — different from Iimp
+    I_MIN_TABLE = {"LPL I": 3, "LPL II": 5, "LPL III": 10, "LPL IV": 16}
+    I_min_kA = I_MIN_TABLE.get(lpl, 5)
+
     # ── Collection area and strike frequency ─────────────────────────────────
     Ad_m2 = _collection_area(building_length_m, building_width_m, building_height_m, R_sphere)
     Nd    = _flash_frequency(Ad_m2, Ng, Cd)
+
+    # IEC 62305-2: Tolerable strike frequency and risk ratio
+    Nt = 1e-5 / Cd if Cd > 0 else 1e-5
+    risk_ratio = round(Nd / Nt, 2) if Nt > 0 else 0
+    risk_check = ("LPS REQUIRED" if risk_ratio >= 1
+                  else "LPS RECOMMENDED" if risk_ratio > 0.5
+                  else "LPS NOT REQUIRED")
 
     # Simple risk check: risk acceptable if LPS protection efficiency is sufficient
     # P = 1 − Nd×(1−E) < RT → E = 1 − RT/Nd  (simplified IEC 62305-2)
@@ -172,37 +201,45 @@ def calculate(inputs: dict) -> dict:
     E_provided = protection_pct / 100
     risk_ok    = E_provided >= E_required or Nd <= RISK_THRESHOLD_RT
 
+    # ── Protection angle (IEC 62305-3 Table 2, simplified) ───────────────────
+    ANGLE_BASE = {"LPL I": 25, "LPL II": 35, "LPL III": 45, "LPL IV": 55}
+    alpha_base = ANGLE_BASE.get(lpl, 35)
+    prot_angle = max(0, round(alpha_base * (1 - min(building_height_m, R_sphere) / (R_sphere * 2))))
+
     # ── Air-termination ───────────────────────────────────────────────────────
-    # Mesh method: cells on roof (m² roof / mesh cell area)
     roof_area_m2 = building_length_m * building_width_m
     mesh_cells_L = math.ceil(building_length_m / mesh_size)
     mesh_cells_W = math.ceil(building_width_m  / mesh_size)
     n_mesh_cells = mesh_cells_L * mesh_cells_W
-    # Total air-termination conductor length (ring + grid)
     ring_conductor_m = 2 * (building_length_m + building_width_m)
     grid_conductor_m = (mesh_cells_L + 1) * building_width_m + (mesh_cells_W + 1) * building_length_m
     air_conductor_total_m = ring_conductor_m + grid_conductor_m
 
-    # Rolling sphere: check if any point on the building roof needs a finial
-    # At edges/corners the sphere can only roll to R from the edge - typically
-    # the ridge and corners need finials at LPL I/II
-    finials_needed = 4   # minimum 4 corners + any roof ridges or projections
+    finials_needed = 4
     if building_height_m > R_sphere:
-        finials_needed += 2   # additional finials at top edges of tall structures
+        finials_needed += 2
+
+    # Estimated air terminals / masts for renderer
+    if air_method == "Mesh":
+        n_at = (mesh_cells_L + 1) + (mesh_cells_W + 1)
+    else:
+        n_at = max(4, 4 + 2 * math.floor(building_length_m / down_spacing)
+                        + 2 * math.floor(building_width_m  / down_spacing))
 
     # ── Down conductors ───────────────────────────────────────────────────────
+    perimeter_m = round(ring_conductor_m)
     n_down = _down_conductor_count(building_length_m, building_width_m, down_spacing)
-    down_conductor_length_m = building_height_m + 1.0    # +1m for earth connection
+    down_conductor_length_m = building_height_m + 1.0
     total_down_m = n_down * down_conductor_length_m
 
     # ── Separation distance ───────────────────────────────────────────────────
     s_sep_m = _separation_distance(lpl, building_height_m)
 
     # ── Earth termination ─────────────────────────────────────────────────────
+    min_electrode_length_m = round(max(5.0, 0.5 * building_height_m), 1)
     n_rods   = _earth_rod_count(rho_soil, rod_length_m, EARTH_R_TARGET)
-    # Ring earth electrode: required for buildings ≥ 20m or LPL I/II
     ring_earth_required = (lpl in ["LPL I", "LPL II"]) or (building_length_m >= 20)
-    ring_earth_m = ring_conductor_m   # same perimeter
+    ring_earth_m = ring_conductor_m
 
     # ── LPZ zoning ───────────────────────────────────────────────────────────
     lpz_zones = [
@@ -222,6 +259,7 @@ def calculate(inputs: dict) -> dict:
          "location": "Equipment panels, sensitive electronics",
          **SPD_CLASS["LPZ 2  → LPZ 3"]},
     ]
+    spd_class_text = "Class I + II combination" if lpl in ["LPL I", "LPL II"] else "Class II"
 
     # ── Conductor cross-section ───────────────────────────────────────────────
     mat_spec = CONDUCTOR_SPECS.get(conductor_material, CONDUCTOR_SPECS["Copper"])
@@ -252,8 +290,8 @@ def calculate(inputs: dict) -> dict:
     code_notes = [
         f"LPL selected: {lpl} - rolling sphere R={R_sphere}m, mesh {mesh_size}×{mesh_size}m, "
         f"down conductor spacing ≤{down_spacing}m.",
-        f"Ground flash density Ng={Ng} fl/km²/yr ({location}) - annual strikes Nd={round(Nd,4)}/yr.",
-        f"Risk assessment (IEC 62305-2): risk {'acceptable' if risk_ok else 'EXCEEDS threshold - upgrade LPL'}.",
+        f"Ground flash density Ng={Ng} fl/km²/yr ({location}) - annual strikes Nd={round(Nd,5)}/yr.",
+        f"Risk assessment (IEC 62305-2): {risk_check} (ratio={risk_ratio}).",
         f"Separation distance to internal wiring/equipment: s ≥ {round(s_sep_m,2)} m (IEC 62305-3 §6.3).",
         f"Earth resistance target: ≤ {EARTH_R_TARGET} Ω - soil ρ={rho_soil} Ω·m → {n_rods} rod(s) required.",
         f"{'Ring earth electrode required.' if ring_earth_required else 'Ring earth electrode optional for this LPL/size.'}",
@@ -269,27 +307,41 @@ def calculate(inputs: dict) -> dict:
         "building_height_m":       building_height_m,
         "roof_area_m2":            round(roof_area_m2, 1),
 
-        # LPL
+        # LPL — renderer-compatible field names
         "lpl":                     lpl,
-        "rolling_sphere_radius_m": R_sphere,
+        "lpl_label":               lpl,
+        "rolling_sphere_R_m":      R_sphere,       # renderer key
+        "rolling_sphere_radius_m": R_sphere,       # legacy
         "mesh_size_m":             mesh_size,
         "Iimp_kA":                 Iimp_kA,
+        "I_min_kA":                I_min_kA,       # renderer key
+        "efficiency_pct":          protection_pct, # renderer key
         "protection_efficiency_pct": protection_pct,
+        "protection_angle_deg":    prot_angle,     # renderer key
 
-        # Risk
-        "Ng_fl_km2_yr":            Ng,
+        # Risk — renderer-compatible field names
+        "ng_fl_km2_yr":            Ng,             # renderer key
+        "Ng_fl_km2_yr":            Ng,             # legacy
         "Ad_m2":                   round(Ad_m2, 1),
-        "Nd_per_year":             round(Nd, 5),
+        "Nd_strikes_yr":           round(Nd, 5),   # renderer key
+        "Nd_per_year":             round(Nd, 5),   # legacy
+        "Cd":                      Cd,             # renderer key (numeric)
+        "Nt":                      round(Nt, 8),   # renderer key
+        "risk_ratio":              risk_ratio,     # renderer key
+        "risk_check":              risk_check,     # renderer key
         "E_required":              round(E_required, 4),
         "E_provided":              E_provided,
         "risk_ok":                 risk_ok,
 
-        # Air-termination
+        # Air-termination — renderer-compatible
+        "n_air_terminals_est":     n_at,           # renderer key
         "n_mesh_cells":            n_mesh_cells,
         "air_conductor_total_m":   round(air_conductor_total_m, 1),
         "finials_needed":          finials_needed,
 
-        # Down conductors
+        # Down conductors — renderer-compatible
+        "perimeter_m":             perimeter_m,    # renderer key
+        "dc_spacing_m":            down_spacing,   # renderer key
         "n_down_conductors":       n_down,
         "down_conductor_length_m": round(down_conductor_length_m, 1),
         "total_down_conductor_m":  round(total_down_m, 1),
@@ -297,13 +349,16 @@ def calculate(inputs: dict) -> dict:
         # Separation distance
         "separation_distance_m":   round(s_sep_m, 2),
 
-        # Earth
+        # Earth — renderer-compatible
+        "min_electrode_length_m":  min_electrode_length_m, # renderer key
+        "n_electrodes":            n_down,                 # renderer key (one per DC)
         "rho_soil_ohm_m":          rho_soil,
         "n_earth_rods":            n_rods,
         "ring_earth_required":     ring_earth_required,
         "ring_earth_m":            round(ring_earth_m, 1) if ring_earth_required else 0,
 
-        # LPZ and SPD
+        # SPD — renderer-compatible
+        "spd_class":               spd_class_text, # renderer key
         "lpz_zones":               lpz_zones,
         "spd_schedule":            spd_schedule,
 
