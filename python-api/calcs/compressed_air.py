@@ -268,4 +268,19 @@ def calculate(inputs: dict) -> dict:
         },
         "calculation_source": "python/fluids",
         "standard": "ISO 1217 | ISO 8573-1 | ASME B31.3 | CAGI",
+
+        # ── Legacy renderer aliases (frontend renderAirReport) ─────────────────
+        # Python computes total FAD directly; renderer expects breakdown steps
+        "total_cfm":           round(flow_fad_m3min * 35.3147 / safety_factor, 2),  # before safety factor
+        "connected_cfm":       round(flow_fad_m3min * 35.3147 / safety_factor / (1 + inputs.get("leakage_pct", 10) / 100) / float(inputs.get("diversity_factor", 0.7)), 2),
+        "demand_cfm":          round(flow_fad_m3min * 35.3147 / safety_factor, 2),
+        "diversity_cfm":       round(flow_fad_m3min * 35.3147 / safety_factor / (1 + inputs.get("leakage_pct", 10) / 100), 2),
+        "leakage_cfm":         round(flow_fad_m3min * 35.3147 / safety_factor - flow_fad_m3min * 35.3147 / safety_factor / (1 + inputs.get("leakage_pct", 10) / 100), 2),
+        "design_cfm":          round(flow_fad_m3min * 35.3147, 2),
+        "design_lps":          round(flow_fad_m3min / 60 * 1000, 2),
+        "design_m3min":        round(flow_fad_m3min, 3),
+        "recommended_cfm":     round(flow_fad_m3min * 35.3147, 2),
+        "receiver_litres":     round(V_tank * 1000, 1),
+        "recommended_receiver_L": rec_tank,
+        "tool_breakdown":      [],   # tool-level breakdown not computed by this handler
     }
