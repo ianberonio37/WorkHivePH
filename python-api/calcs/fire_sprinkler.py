@@ -144,33 +144,45 @@ def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcFireSprinkler() keys.
     """
-    # ── Occupancy / hazard ────────────────────────────────────────────────────
-    occupancy    = str  (inputs.get("occupancy",      "Office"))
-    hazard_key   = str  (inputs.get("hazard_class",
-                          OCCUPANCY_MAP.get(occupancy, "Light Hazard")))
+    # ── Occupancy / hazard — accept frontend key 'occupancy_hazard' ──────────
+    occupancy    = str  (inputs.get("occupancy", "Office"))
+    # 'occupancy_hazard' from frontend IS the hazard class name directly
+    hazard_key   = str  (inputs.get("occupancy_hazard")
+                     or  inputs.get("hazard_class")
+                     or  OCCUPANCY_MAP.get(occupancy, "Light Hazard"))
     hazard       = HAZARD_CLASS.get(hazard_key, HAZARD_CLASS["Light Hazard"])
 
-    density      = float(inputs.get("density_mm_min",  hazard["density_mm_min"]))
-    design_area  = float(inputs.get("design_area_m2",  hazard["area_m2"]))
-    hose_lpm     = float(inputs.get("hose_stream_lpm", hazard["hose_lpm"]))
+    density      = float(inputs.get("density_mm_min")  or inputs.get("density")   or hazard["density_mm_min"])
+    design_area  = float(inputs.get("design_area_m2")  or inputs.get("design_area") or hazard["area_m2"])
+    hose_lpm     = float(inputs.get("hose_stream_lpm") or inputs.get("hose_stream") or hazard["hose_lpm"])
 
     # ── Sprinkler parameters ──────────────────────────────────────────────────
     k_label      = str  (inputs.get("k_factor_label",  "K80  (Large Orifice 17/32\" orifice)"))
-    k_factor     = float(inputs.get("k_factor",
-                          K_FACTORS.get(k_label, 80.0)))
-    spacing_m    = float(inputs.get("sprinkler_spacing_m", 3.6))   # m between sprinklers
-    coverage_m2  = spacing_m ** 2   # m² per sprinkler (square pattern)
+    k_factor     = float(inputs.get("k_factor", K_FACTORS.get(k_label, 80.0)))
+    # Coverage: use direct input if provided (frontend sends coverage_per_head),
+    # otherwise derive from sprinkler spacing (square pattern)
+    coverage_m2_input = float(inputs.get("coverage_per_head") or inputs.get("coverage_m2") or 0)
+    if coverage_m2_input > 0:
+        coverage_m2 = coverage_m2_input
+        spacing_m   = coverage_m2 ** 0.5
+    else:
+        spacing_m   = float(inputs.get("sprinkler_spacing_m", 3.6))
+        coverage_m2 = spacing_m ** 2
 
     # ── Pipe parameters ───────────────────────────────────────────────────────
-    pipe_mat     = str  (inputs.get("pipe_material",    "Steel (black, unlined)"))
-    C            = float(inputs.get("hw_c_factor",
-                          HW_C_FACTOR.get(pipe_mat, 120)))
+    pipe_mat_raw = str(inputs.get("pipe_material", "Steel (black, unlined)"))
+    # Map short frontend labels to full table keys
+    _mat_map = {"Black Steel": "Steel (black, unlined)", "CPVC": "CPVC (schedule 40/80)",
+                "Copper": "Copper (Type K/L)"}
+    pipe_mat = _mat_map.get(pipe_mat_raw, pipe_mat_raw)
+    C        = float(inputs.get("hw_c_factor", HW_C_FACTOR.get(pipe_mat, 120)))
 
-    # Pipe lengths (m)
-    branch_len   = float(inputs.get("branch_length_m",   20))
-    cross_main_len = float(inputs.get("cross_main_length_m", 30))
-    feed_main_len  = float(inputs.get("feed_main_length_m",  40))
-    elevation_m    = float(inputs.get("elevation_m",         0))   # static head
+    # Pipe lengths — if form provides single 'pipe_length', distribute it
+    pipe_length    = float(inputs.get("pipe_length", 0))
+    branch_len     = float(inputs.get("branch_length_m",     pipe_length or 20))
+    cross_main_len = float(inputs.get("cross_main_length_m", pipe_length or 30))
+    feed_main_len  = float(inputs.get("feed_main_length_m",  pipe_length or 40))
+    elevation_m    = float(inputs.get("elevation_m", 0))
 
     # ── Design area sprinkler count ───────────────────────────────────────────
     n_sprinklers = math.ceil(design_area / coverage_m2)
@@ -291,6 +303,8 @@ def calculate(inputs: dict) -> dict:
         "inputs_used": {
             "hazard_class":        hazard_key,
             "k_factor":            k_factor,
+            "K":                   k_factor,   # renderer alias
+            "C":                   C,           # renderer alias
             "pipe_material":       pipe_mat,
             "sprinkler_spacing_m": spacing_m,
         },
@@ -306,12 +320,12 @@ def calculate(inputs: dict) -> dict:
         "P_design":            round(p_remote_bar, 3),
         "P_source":            round(p_system_bar, 3),
         "P_source_kPa":        round(p_system_bar * 100, 1),
-        "H_friction":          round(dp_total_friction * 10.2, 2),
+        "H_friction":          round(dp_total_friction, 4),   # bar (matches P_source calc)
         "coverage_per_head":   round(coverage_m2, 1),
         "density":             density,
         "design_area":         design_area,
         "hazard":              hazard_key,
-        "pipe_dia":            str(branch_pipe.get("nominal_mm", "-")) + " mm",
+        "pipe_dia":            feed_pipe.get("nominal_mm", branch_pipe.get("nominal_mm", "-")),
         "velocity":            branch_pipe.get("velocity_ms", 0),
         "water_volume_L":      round(q_total_lpm * 60, 0),
         "water_volume_m3":     round(q_total_lpm * 60 / 1000, 2),
