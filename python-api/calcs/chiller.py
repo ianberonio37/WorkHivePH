@@ -79,7 +79,7 @@ def _cop_real(cop_carnot: float) -> float:
     return cop_carnot * COMP_ISENTROPIC_EFF * MECHANICAL_LOSSES * MOTOR_EFF
 
 
-def _part_load_cop(cop_full: float, load_frac: float, chiller_type: str) -> float:
+def _part_load_cop(cop_full: float, load_frac: float, is_water: bool) -> float:
     """
     Part-load COP using ARI 550/590 degradation curve.
     At 50% load, centrifugal chillers typically reach peak efficiency (~10% better).
@@ -87,7 +87,7 @@ def _part_load_cop(cop_full: float, load_frac: float, chiller_type: str) -> floa
     PLV curve: COP_pl = COP_full × PLF
     PLF ≈ 1 + 0.2×(1-load) for centrifugal (peaks ~50%); linear for screw/scroll.
     """
-    if "Water" in chiller_type:
+    if is_water:
         # Centrifugal - peaks at ~50% load
         if load_frac >= 0.50:
             plf = 1.0 + 0.12 * (1.0 - load_frac)
@@ -99,22 +99,22 @@ def _part_load_cop(cop_full: float, load_frac: float, chiller_type: str) -> floa
     return cop_full * max(plf, 0.5)
 
 
-def _iplv(cop_full: float, chiller_type: str) -> float:
+def _iplv(cop_full: float, is_water: bool) -> float:
     """
     IPLV = 1 / (0.01/COP_A + 0.42/COP_B + 0.45/COP_C + 0.12/COP_D)
     AHRI 550/590 harmonic mean of part-load COPs.
     """
     cop_pts = {}
     for key, frac in IPLV_LOADS.items():
-        cop_pts[key] = _part_load_cop(cop_full, frac, chiller_type)
+        cop_pts[key] = _part_load_cop(cop_full, frac, is_water)
 
     denom = sum(IPLV_WEIGHTS[k] / max(cop_pts[k], 0.01) for k in IPLV_WEIGHTS)
     return 1.0 / denom if denom > 0 else 0.0
 
 
-def _ashrae_limits(capacity_kw: float, chiller_type: str) -> dict:
+def _ashrae_limits(capacity_kw: float, is_water: bool) -> dict:
     """Return ASHRAE 90.1 minimum COP and IPLV for this capacity tier."""
-    table = ASHRAE_90_1_WATER if "Water" in chiller_type else ASHRAE_90_1_AIR
+    table = ASHRAE_90_1_WATER if is_water else ASHRAE_90_1_AIR
     for row in table:
         if capacity_kw <= row["max_kW"]:
             return row
@@ -142,11 +142,11 @@ def calculate(inputs: dict) -> dict:
 
     cooling_tr = cooling_kw / 3.517
 
-    chiller_type  = str(inputs.get("chiller_type",   "Water Cooled"))
-    # Detect water-cooled: explicit flag, "Water" in name, or CW inputs present
-    is_water      = ("Water" in chiller_type or "water" in chiller_type
-                     or bool(inputs.get("cw_supply_C") or inputs.get("cw_supply_c"))
-                     or inputs.get("is_water_cooled", False))
+    chiller_type  = str(inputs.get("chiller_type", ""))
+    # Water-cooled: CW temperature inputs present, explicit flag, or "Water" in type name
+    is_water      = (bool(inputs.get("cw_supply_C") or inputs.get("cw_supply_c"))
+                     or inputs.get("is_water_cooled", False)
+                     or "Water" in chiller_type or "water" in chiller_type)
 
     # Chilled water (evaporator) - accept both lower and upper case C suffix
     chw_supply_c  = float(inputs.get("chw_supply_c") or inputs.get("chw_supply_C") or 7.0)
@@ -180,40 +180,43 @@ def calculate(inputs: dict) -> dict:
     cond_approach = COND_APPROACH_WATER if is_water else COND_APPROACH_AIR
     t_cond_ref    = (cw_supply_c if is_water else outdoor_db_c) + cond_approach
 
-    # ── COP calculation ───────────────────────────────────────────────────────
-    cop_carnot = _cop_carnot(t_evap_ref, t_cond_ref)
-    cop_full   = _cop_real(cop_carnot)
-
-    # Compressor power
-    comp_kw     = cooling_kw / cop_full
-    eer         = cop_full * 3.412   # COP → EER (BTU/h per W)
-    kw_per_tr   = comp_kw / cooling_tr   # efficiency metric used in Philippines
-
-    # Design with margin
+    # ── Design load (safety margin applied first) ────────────────────────────
     cooling_kw_design = cooling_kw * (1 + design_margin / 100)
     cooling_tr_design = cooling_kw_design / 3.517
 
-    # ── IPLV ─────────────────────────────────────────────────────────────────
-    iplv = _iplv(cop_full, chiller_type)
+    # ── COP calculation ───────────────────────────────────────────────────────
+    cop_carnot = _cop_carnot(t_evap_ref, t_cond_ref)
+    cop_full   = _cop_real(cop_carnot)   # thermodynamic reference only
 
-    # ── ASHRAE 90.1 compliance ────────────────────────────────────────────────
-    limits      = _ashrae_limits(cooling_kw, chiller_type)
-    cop_ok      = cop_full >= limits["min_COP"]
-    iplv_ok     = iplv    >= limits["min_IPLV"]
-    compliant   = cop_ok and iplv_ok
+    # Use engineer-specified COP if provided; fall back to thermodynamic COP
+    cop_spec = float(inputs.get("cop", 0) or cop_full)
+
+    # Compressor power uses design load — matches renderer "P = Q_design / COP"
+    comp_kw   = cooling_kw_design / cop_spec
+    eer       = cop_spec * 3.412   # COP → EER (BTU/h per W)
+    kw_per_tr = comp_kw / cooling_tr_design
+
+    # ── IPLV ─────────────────────────────────────────────────────────────────
+    iplv = _iplv(cop_spec, is_water)
+
+    # ── ASHRAE 90.1 compliance — checked against spec COP (equipment selection) ──
+    limits    = _ashrae_limits(cooling_kw, is_water)
+    cop_ok    = cop_spec >= limits["min_COP"]
+    iplv_ok   = iplv     >= limits["min_IPLV"]
+    compliant = cop_ok and iplv_ok
 
     # ── Standard chiller size selection ───────────────────────────────────────
     rec_kw = next((s for s in STD_CHILLER_KW if s >= cooling_kw_design),
                   STD_CHILLER_KW[-1])
     rec_tr = round(rec_kw / 3.517, 1)
 
-    # ── Chilled water (evaporator) flow ───────────────────────────────────────
-    chw_flow_kgs  = cooling_kw * 1000 / (CP_WATER * max(chw_delta_t, 1))
+    # ── Chilled water (evaporator) flow — sized for design load ─────────────
+    chw_flow_kgs  = cooling_kw_design * 1000 / (CP_WATER * max(chw_delta_t, 1))
     chw_flow_lps  = chw_flow_kgs * 1000 / RHO_WATER   # kg/s → L/s (÷ 0.999 kg/L)
     chw_flow_m3hr = chw_flow_lps * 3.6                # L/s → m³/h
 
     # ── Condenser heat rejection ──────────────────────────────────────────────
-    q_rejection_kw   = cooling_kw + comp_kw   # heat balance
+    q_rejection_kw   = cooling_kw_design + comp_kw   # Q_design + W_compressor
     q_rejection_tr   = q_rejection_kw / 3.517
 
     if is_water:
@@ -230,8 +233,8 @@ def calculate(inputs: dict) -> dict:
     # ── Part-load performance table ───────────────────────────────────────────
     part_load_table = []
     for key, frac in IPLV_LOADS.items():
-        cop_pl = _part_load_cop(cop_full, frac, chiller_type)
-        kw_pl  = (cooling_kw * frac) / cop_pl
+        cop_pl = _part_load_cop(cop_spec, frac, is_water)
+        kw_pl  = (cooling_kw_design * frac) / cop_pl
         part_load_table.append({
             "load_pct":   int(frac * 100),
             "cooling_kW": round(cooling_kw * frac, 1),
@@ -250,7 +253,8 @@ def calculate(inputs: dict) -> dict:
         "recommended_TR":       rec_tr,
 
         # Efficiency
-        "COP_full_load":        round(cop_full, 3),
+        "COP_full_load":        round(cop_spec, 3),   # spec COP used for calculations
+        "COP_thermodynamic":    round(cop_full, 3),   # Carnot-based reference
         "COP_carnot":           round(cop_carnot, 3),
         "EER":                  round(eer, 2),
         "kW_per_TR":            round(kw_per_tr, 3),
@@ -327,7 +331,7 @@ def calculate(inputs: dict) -> dict:
         "iplv":             round(iplv, 3),
         "cop_check":        "PASS" if cop_ok else "FAIL",
         "iplv_check":       "PASS" if iplv_ok else "FAIL",
-        "cop_margin":       round(cop_full - limits["min_COP"], 3),
+        "cop_margin":       round(cop_spec - limits["min_COP"], 3),
         "iplv_margin":      round(iplv - limits["min_IPLV"], 3),
         "ashrae_min_cop":   limits["min_COP"],
         "ashrae_min_iplv":  limits["min_IPLV"],
