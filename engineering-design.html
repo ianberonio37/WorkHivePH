@@ -13923,7 +13923,7 @@ function renderGreaseTrapReport(inputs, results, narrative) {
   <!-- Section 2: Objective -->
   <div style="margin-bottom:20px;">
     <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;color:#0f766e;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:8px;">Objective</h2>
-    <p style="font-size:13px;margin:0;">${narrative ? escHtml(narrative) : 'Size a grease trap / interceptor for the facility using the PDI BH-201 fixture flow rate method to comply with the Philippine Plumbing Code (PPC) and DENR DAO 2016-08 FOG discharge limit of 5 mg/L.'}</p>
+    <p style="font-size:13px;margin:0;">${narrative && narrative.objective ? escHtml(narrative.objective) : 'Size a grease trap / interceptor for the facility using the PDI BH-201 fixture flow rate method to comply with the Philippine Plumbing Code (PPC) and DENR DAO 2016-08 FOG discharge limit of 5 mg/L.'}</p>
   </div>
 
   <!-- Section 3: References -->
@@ -14218,6 +14218,7 @@ function renderDrainageReport(inputs, results, narrative) {
       Slope: ${slopeLabel} &nbsp;|&nbsp;
       Material: ${escHtml(results.pipe_material || inputs.pipe_material)} (n = ${results.manning_n})
     </p>
+    ${results.wc_override ? `<p style="font-size:0.82rem;background:#fff3e0;border:1px solid #ff9800;border-radius:0.4rem;padding:0.4rem 0.6rem;margin-bottom:0.5rem;color:#7a4a00;"><strong>Code Override:</strong> DFU table selected 75 mm; upsized to <strong>100 mm</strong> per UPC/PPC hard rule — 75 mm horizontal branches may not serve water closets.</p>` : ''}
     <table>
       <tr>
         <th>Pipe Diameter</th>
