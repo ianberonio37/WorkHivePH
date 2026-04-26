@@ -270,7 +270,24 @@ def calculate(inputs: dict) -> dict:
             "glass_type":         glass_type,
             "window_orientation": orientation,
             "design_margin_pct":  design_margin,
+            # ── Extra fields needed by renderReport renderer ───────────────────
+            "delta_t":            round(outdoor_db - indoor_db, 1),
+            "glass_area":         round(glass_area, 1),
+            "wall_area":          round(wall_area, 1),
+            "roof_area":          round(floor_area, 1),
+            "u_wall":             u_wall,
+            "u_roof":             u_roof,
+            "shgc":               SHGC.get(glass_type, 0.87),
+            "solar_irradiance":   SOLAR_W.get(orientation, 350),
+            "lighting_wpm2":      LIGHTING_WPM2.get(room_fn, 12),
+            "heat_per_person": {
+                "sensible": occ["sensible"],
+                "latent":   occ["latent"],
+            },
         },
+
+        # ── Legacy renderer aliases (frontend renderReport/HVAC) ──────────────
+        "q_total":         round(q_total, 1),     # renderer reads q_total (not q_design)
         "calculation_source": "python/psychrolib",
         "standard": "ASHRAE 62.1 | ASHRAE 90.1 | ASHRAE 55 | ASHRAE 2021 Ch.18",
     }
