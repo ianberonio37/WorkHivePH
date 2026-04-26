@@ -10112,6 +10112,10 @@ async function runCalculation() {
       showToast('Please enter a valid building height.');
       return;
     }
+  } else if (_calcType === 'Noise / Acoustics' ||
+             _calcType === 'Vibration Analysis' ||
+             _calcType === 'Fluid Power') {
+    // all fields have defaults — no blocking validation needed
   } else if (!inputs.floor_area || inputs.floor_area <= 0) {
     showToast('Please enter the floor area.');
     return;
