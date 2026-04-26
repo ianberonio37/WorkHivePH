@@ -1397,7 +1397,12 @@ function calcDrainagePipeSizing(inputs: Record<string, number | string>): Record
   const sortedSizes = Object.keys(tableRaw).map(Number).sort((a, b) => a - b);
 
   // Smallest diameter where capacity >= totalDFU
-  const recommended = sortedSizes.find(d => tableRaw[d] >= totalDFU) || sortedSizes[sortedSizes.length - 1];
+  let recommended = sortedSizes.find(d => tableRaw[d] >= totalDFU) || sortedSizes[sortedSizes.length - 1];
+
+  // UPC/PPC hard rule: 75mm horizontal branch cannot serve water closets
+  const hasWC      = fixtures.some(f => f.fixture_type === "Water Closet");
+  const wcOverride = !isStack && hasWC && recommended < 100;
+  if (wcOverride) recommended = 100;
 
   // Manning's flow capacity for each pipe size (half-full for horizontal, full for stacks)
   const halfFull = !isStack;
@@ -1435,6 +1440,7 @@ function calcDrainagePipeSizing(inputs: Record<string, number | string>): Record
     velocity_ok:         (recData?.velocity || 0) >= 0.6,
     pipe_material:       pipeMaterial,
     manning_n:           n,
+    wc_override:         wcOverride,
     fixture_breakdown:   fixtureBreakdown,
     size_comparison:     comparison,
   };
@@ -3970,7 +3976,7 @@ function calcWastewaterSTP(inputs: Record<string, number | string>): Record<stri
   const mlvssMgL   = mlssMgL * mlvssRatio;
 
   // Aeration tank volume — SRT method: V = Q × Y × SRT × (S0-Se) / (X × (1 + kd×SRT))
-  const aerVolM3Raw = (flowM3Day * Y * srtDays * (bodIn - bodOut)) / (mlvssMgL * (1 + kd * srtDays) / 1000);
+  const aerVolM3Raw = (flowM3Day * Y * srtDays * (bodIn - bodOut)) / (mlvssMgL * (1 + kd * srtDays));
   const aerVolM3    = Math.ceil(aerVolM3Raw * 10) / 10;
   const aerHrtHr    = Math.round(aerVolM3 / flowM3Hr * 10) / 10;
 
