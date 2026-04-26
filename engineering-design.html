@@ -415,6 +415,89 @@
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+    /* ════════════════════════════════
+       UX ENHANCEMENTS — TEST BUILD
+    ════════════════════════════════ */
+
+    /* Truncate calc card descriptions to 1 line */
+    .calc-desc {
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      white-space: normal;
+    }
+    .calc-card:hover .calc-desc { -webkit-line-clamp: unset; } /* expand on hover */
+
+    /* Discipline count badge */
+    .pill-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.12); border-radius: 999px;
+      font-size: 0.68rem; font-weight: 700; padding: 1px 6px; margin-left: 4px;
+      color: rgba(255,255,255,0.6);
+    }
+    .discipline-pill.active .pill-count {
+      background: rgba(247,162,27,0.2); color: #F7A21B;
+    }
+
+    /* Search box */
+    #calc-search {
+      background: rgba(22,32,50,0.7);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.75rem;
+      color: white; width: 100%;
+      padding: 0.65rem 1rem 0.65rem 2.5rem;
+      font-size: 0.875rem; outline: none;
+      transition: border-color 0.2s;
+    }
+    #calc-search:focus { border-color: rgba(247,162,27,0.5); }
+    #calc-search::placeholder { color: rgba(255,255,255,0.3); }
+    .search-wrap { position: relative; margin-bottom: 1rem; }
+    .search-icon {
+      position: absolute; left: 0.75rem; top: 50%;
+      transform: translateY(-50%); pointer-events: none;
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* Recent calc chips */
+    #recent-calcs-row { margin-bottom: 1rem; }
+    .recent-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(42,61,88,0.7);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 999px; padding: 5px 12px;
+      font-size: 0.75rem; color: rgba(255,255,255,0.7);
+      cursor: pointer; white-space: nowrap;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .recent-chip:hover {
+      border-color: rgba(247,162,27,0.4);
+      background: rgba(247,162,27,0.08);
+      color: white;
+    }
+
+    /* Subcategory headers in calc grid */
+    .calc-subcat-header {
+      grid-column: 1 / -1;
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.25);
+      padding: 0.5rem 0 0.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-top: 0.25rem;
+    }
+    .calc-subcat-header:first-child { margin-top: 0; }
+
+    /* Search result discipline tag */
+    .calc-disc-tag {
+      font-size: 0.65rem; font-weight: 600;
+      color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.06);
+      border-radius: 4px; padding: 1px 5px;
+      margin-left: auto; flex-shrink: 0;
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body class="text-white">
@@ -477,16 +560,28 @@
       <div class="lg:w-2/5 flex flex-col gap-4">
 
         <!-- Step 1: Discipline -->
+        <!-- Search box -->
+        <div class="card p-4 mb-4">
+          <div class="search-wrap mb-0">
+            <svg class="search-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <input id="calc-search" type="search" placeholder="Search all 53 calculations…" oninput="searchCalcs(this.value)" />
+          </div>
+        </div>
+
+        <!-- Recent calcs row (hidden until used) -->
+        <div id="recent-calcs-row" style="display:none;" class="mb-2"></div>
+
         <div class="card p-5" id="step1-card">
           <div class="text-xs font-600 mb-3" style="color:#F7A21B;text-transform:uppercase;letter-spacing:0.08em;">Step 1 — Discipline</div>
           <div class="flex gap-3" style="flex-wrap:wrap;">
-            <button class="discipline-pill active" data-disc="Mechanical" onclick="selectDiscipline('Mechanical')">⚙️ Mechanical</button>
-            <button class="discipline-pill" data-disc="Plumbing" onclick="selectDiscipline('Plumbing')">🔧 Plumbing</button>
-            <button class="discipline-pill" data-disc="Electrical" onclick="selectDiscipline('Electrical')">⚡ Electrical</button>
-            <button class="discipline-pill" data-disc="Fire Protection" onclick="selectDiscipline('Fire Protection')">🔥 Fire Protection</button>
-            <button class="discipline-pill" data-disc="Vertical Transportation" onclick="selectDiscipline('Vertical Transportation')">🛗 Vertical Transportation</button>
-            <button class="discipline-pill" data-disc="Machine Design" onclick="selectDiscipline('Machine Design')">⚙️ Machine Design</button>
-            <button class="discipline-pill" data-disc="HVAC Systems" onclick="selectDiscipline('HVAC Systems')">🧊 HVAC Systems</button>
+            <button class="discipline-pill active" data-disc="HVAC & Cooling" onclick="selectDiscipline('HVAC & Cooling')">❄️ HVAC & Cooling <span class="pill-count">11</span></button>
+            <button class="discipline-pill" data-disc="Mechanical" onclick="selectDiscipline('Mechanical')">🔧 Mechanical <span class="pill-count">4</span></button>
+            <button class="discipline-pill" data-disc="Electrical" onclick="selectDiscipline('Electrical')">⚡ Electrical <span class="pill-count">12</span></button>
+            <button class="discipline-pill" data-disc="Plumbing" onclick="selectDiscipline('Plumbing')">🚰 Plumbing <span class="pill-count">10</span></button>
+            <button class="discipline-pill" data-disc="Fire Protection" onclick="selectDiscipline('Fire Protection')">🔥 Fire Protection <span class="pill-count">4</span></button>
+            <button class="discipline-pill" data-disc="Machine Design" onclick="selectDiscipline('Machine Design')">⚙️ Machine Design <span class="pill-count">12</span></button>
           </div>
         </div>
 
@@ -732,15 +827,95 @@ let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
 if (!WORKER_NAME) { window.location.href = 'index.html'; }
 
 // ─── State ────────────────────────────────────────────────────────────────────
-let _discipline  = 'Mechanical';
+let _discipline  = 'HVAC & Cooling';
 let _calcType    = null;
 let _lastResults = null;
 let _lastNarrative = null;
 let _lastInputs  = null;
 let _currentStep = 1;
 
-// ─── Calc type definitions ────────────────────────────────────────────────────
+// ─── Recent calcs tracking ────────────────────────────────────────────────────
+const RECENT_KEY = 'wh-recent-calcs';
+
+function trackRecentCalc(id) {
+  try {
+    let r = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+    r = [id, ...r.filter(x => x !== id)].slice(0, 4);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(r));
+    renderRecentCalcs();
+  } catch (_) {}
+}
+
+function renderRecentCalcs() {
+  const row = document.getElementById('recent-calcs-row');
+  if (!row) return;
+  try {
+    const r = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+    if (!r.length) { row.style.display = 'none'; return; }
+    const allCalcs = Object.values(CALC_TYPES_UI).flat();
+    const recents  = r.map(id => allCalcs.find(ct => ct.id === id)).filter(Boolean);
+    if (!recents.length) { row.style.display = 'none'; return; }
+    row.style.display = 'block';
+    row.innerHTML = `
+      <div class="text-xs font-semibold mb-2" style="color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.08em;">Recent</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        ${recents.map(ct => `<button class="recent-chip" onclick="quickSelectCalc('${ct.id.replace(/'/g,"\\'")}')">
+          ${ct.icon} ${ct.id}
+        </button>`).join('')}
+      </div>`;
+  } catch (_) { row.style.display = 'none'; }
+}
+
+function quickSelectCalc(id) {
+  for (const [disc, calcs] of Object.entries(CALC_TYPES_UI)) {
+    if (calcs.find(ct => ct.id === id)) {
+      selectDiscipline(disc);
+      setTimeout(() => selectCalcType(id), 50);
+      return;
+    }
+  }
+}
+
+// ─── Search across all calc types ────────────────────────────────────────────
+let _searchActive = false;
+
+function searchCalcs(query) {
+  const q = query.trim().toLowerCase();
+  const step1 = document.getElementById('step1-card');
+
+  if (!q) {
+    _searchActive = false;
+    step1.style.display = '';
+    renderCalcTypes();
+    return;
+  }
+
+  _searchActive = true;
+  step1.style.display = 'none';
+  setStep(2);
+
+  // Search across ALL disciplines
+  const matches = [];
+  Object.entries(CALC_TYPES_UI).forEach(([disc, calcs]) => {
+    calcs.forEach(ct => {
+      if (ct.id.toLowerCase().includes(q) || ct.desc.toLowerCase().includes(q) || (ct.subcat || '').toLowerCase().includes(q)) {
+        matches.push({ ...ct, _disc: disc });
+      }
+    });
+  });
+
+  const grid = document.getElementById('calc-type-grid');
+  grid.innerHTML = '';
+  if (!matches.length) {
+    grid.innerHTML = '<div class="text-sm col-span-2" style="color:rgba(255,255,255,0.35);">No calculations match your search.</div>';
+  } else {
+    matches.forEach(ct => grid.appendChild(makeCalcCard(ct, true)));
+  }
+}
+
+// ─── Calc type definitions (restructured: HVAC merged, VT → Machine Design) ───
 const CALC_TYPES = {
+  /* ── LEGACY KEYS kept so renderInputForm() still works ── */
   Mechanical: [
     { id: 'HVAC Cooling Load',    icon: '❄️',  desc: 'Room heat gain, AC capacity in kW / TR', available: true  },
     { id: 'Ventilation / ACH',    icon: '💨',  desc: 'Air changes per hour, fan CMH / CFM',     available: true  },
@@ -809,6 +984,93 @@ const CALC_TYPES = {
     { id: 'Heat Exchanger',                icon: '🌡️', desc: 'Shell-and-tube HX: LMTD, NTU-ε, overall U, required area, tube count — TEMA 10th Ed. / ASME Sec. VIII', available: true },
   ],
 };
+
+// ─── Restructured discipline view (new UI groupings) ─────────────────────────
+// Calc IDs are unchanged — renderInputForm() still works perfectly
+const CALC_TYPES_UI = {
+  'HVAC & Cooling': [
+    // Load Calculations
+    { id: 'HVAC Cooling Load',             icon: '❄️',  desc: 'Room heat gain, AC capacity in kW / TR', available: true, subcat: 'Load Calculations' },
+    { id: 'Ventilation / ACH',             icon: '💨',  desc: 'Air changes per hour, fan CMH / CFM', available: true, subcat: 'Load Calculations' },
+    // Equipment Selection
+    { id: 'Chiller System — Air Cooled',   icon: '🧊',  desc: 'Chiller tonnage, COP, compressor kW, condenser airflow — ASHRAE', available: true, subcat: 'Equipment Selection' },
+    { id: 'Chiller System — Water Cooled', icon: '💧',  desc: 'COP, CW loop, cooling tower heat rejection — ASHRAE 90.1', available: true, subcat: 'Equipment Selection' },
+    { id: 'Cooling Tower Sizing',          icon: '🌊',  desc: 'Heat rejection, circ water flow, evaporation/makeup water, fan motor — CTI / ASHRAE', available: true, subcat: 'Equipment Selection' },
+    { id: 'AHU Sizing',                    icon: '🌬️', desc: 'Supply airflow, cooling coil, CHW flow, fan HP — ASHRAE 62.1 / 90.1', available: true, subcat: 'Equipment Selection' },
+    { id: 'FCU Selection',                 icon: '🌡️', desc: 'Fan coil unit selection per room — CHW flow, diversity factor — ASHRAE / PSME', available: true, subcat: 'Equipment Selection' },
+    // Distribution
+    { id: 'Duct Sizing (Equal Friction)',  icon: '🌀',  desc: 'Circular/rectangular duct sizing, pressure drop, fan motor — ASHRAE / SMACNA / PSME', available: true, subcat: 'Distribution' },
+    { id: 'Refrigerant Pipe Sizing',       icon: '🧊',  desc: 'ACR copper tube sizing for suction, discharge, liquid lines — ASHRAE Refrig. / ASTM B280', available: true, subcat: 'Distribution' },
+    { id: 'Expansion Tank Sizing',         icon: '🫙',  desc: 'Bladder/diaphragm expansion tank for closed hydronic loops — ASHRAE / ASME VIII', available: true, subcat: 'Distribution' },
+    { id: 'Heat Exchanger',                icon: '🌡️', desc: 'Shell-and-tube HX: LMTD, NTU-ε, overall U, tube count — TEMA / ASME Sec. VIII', available: true, subcat: 'Distribution' },
+  ],
+  'Mechanical': [
+    // Piping & Fluid
+    { id: 'Pump Sizing (TDH)',   icon: '💧', desc: 'Total Dynamic Head, pump HP selection', available: true, subcat: 'Piping & Fluid' },
+    { id: 'Pipe Sizing',         icon: '🔩', desc: 'Flow velocity, pipe diameter selection', available: true, subcat: 'Piping & Fluid' },
+    { id: 'Compressed Air',      icon: '🌬️',desc: 'Compressor CFM demand, receiver, pipe', available: true, subcat: 'Piping & Fluid' },
+    // Steam & Heat
+    { id: 'Boiler System',       icon: '🔥', desc: 'Steam/hot water boiler capacity, fuel consumption, safety valve — ASME BPVC / PSME', available: true, subcat: 'Steam & Heat' },
+  ],
+  'Electrical': [
+    // Supply & Distribution
+    { id: 'Load Estimation',               icon: '📋', desc: 'Panel schedule, demand factor, service size', available: true, subcat: 'Supply & Distribution' },
+    { id: 'Wire Sizing',                   icon: '🔌', desc: 'Ampacity, conductor size per PEC Table 3.10', available: true, subcat: 'Supply & Distribution' },
+    { id: 'Cable Tray Sizing',             icon: '📐', desc: 'Fill area, tray width, NEMA VE 1 — NEC 392 / PEC 2017', available: true, subcat: 'Supply & Distribution' },
+    { id: 'Voltage Drop',                  icon: '📉', desc: 'VD % check, conductor length limits', available: true, subcat: 'Supply & Distribution' },
+    // Protection & Backup
+    { id: 'Short Circuit',                 icon: '⚡', desc: 'Fault current, breaker interrupting capacity', available: true, subcat: 'Protection & Backup' },
+    { id: 'Generator Sizing',              icon: '🔋', desc: 'Running kVA, starting kVA, genset size, fuel consumption — ISO 8528-1 / NFPA 110', available: true, subcat: 'Protection & Backup' },
+    { id: 'UPS Sizing',                    icon: '🔌', desc: 'UPS kVA, battery Ah, autonomy — IEC 62040-3 / IEEE 446', available: true, subcat: 'Protection & Backup' },
+    // Power Quality
+    { id: 'Power Factor Correction',       icon: '🔋', desc: 'Capacitor bank kVAR, PF improvement, Meralco PF surcharge — IEEE 18 / PEC 2017', available: true, subcat: 'Power Quality' },
+    // Renewable & Special Systems
+    { id: 'Solar PV System',               icon: '☀️', desc: 'Array kWp, panel count, string sizing, inverter, battery bank — IEC 62548 / PEC Art. 6', available: true, subcat: 'Renewable & Special' },
+    { id: 'Lightning Protection System (LPS)', icon: '🌩️', desc: 'Collection area, LPL selection, rolling sphere, down conductors — IEC 62305 / NFPA 780', available: true, subcat: 'Renewable & Special' },
+    { id: 'Earthing / Grounding System',   icon: '⚡', desc: 'Ground electrode resistance, GEC conductor sizing — PEC 2017 / IEEE 80', available: true, subcat: 'Renewable & Special' },
+    // Lighting
+    { id: 'Lighting Design',               icon: '💡', desc: 'Lumen method, number of fixtures per room', available: true, subcat: 'Lighting' },
+  ],
+  'Plumbing': [
+    // Water Supply
+    { id: 'Water Supply Pipe Sizing',  icon: '🚰', desc: "Hunter's Fixture Unit Method", available: true, subcat: 'Water Supply' },
+    { id: 'Hot Water Demand',          icon: '🌡️',desc: 'Daily hot water demand, heater sizing', available: true, subcat: 'Water Supply' },
+    { id: 'Water Softener Sizing',     icon: '💧', desc: 'Ion exchange resin sizing, salt & brine — NSF/ANSI 44 / WQA', available: true, subcat: 'Water Supply' },
+    { id: 'Water Treatment System',    icon: '🏭', desc: 'Treatment train, filter sizing, chlorination — PNS 1998 / DOH / WHO', available: true, subcat: 'Water Supply' },
+    // Drainage & Waste
+    { id: 'Drainage Pipe Sizing',      icon: '🏗️',desc: 'Drainage fixture units, pipe diameter', available: true, subcat: 'Drainage & Waste' },
+    { id: 'Septic Tank Sizing',        icon: '🏭', desc: 'Tank capacity per occupancy', available: true, subcat: 'Drainage & Waste' },
+    { id: 'Storm Drain / Stormwater',  icon: '🌧️',desc: "Rational Method catchment flow, Manning's — DPWH / PAGASA", available: true, subcat: 'Drainage & Waste' },
+    { id: 'Grease Trap Sizing',        icon: '🪣', desc: 'PDI BH-201 flow rate method, retention, cleaning interval', available: true, subcat: 'Drainage & Waste' },
+    { id: 'Roof Drain Sizing',         icon: '🏠', desc: 'Drain body, vertical leader, horizontal leader — IPC §1106 / Philippine Plumbing Code', available: true, subcat: 'Drainage & Waste' },
+    { id: 'Wastewater Treatment (STP)', icon: '♻️', desc: 'STP sizing — activated sludge, aeration, sludge — DENR DAO 2016-08', available: true, subcat: 'Drainage & Waste' },
+  ],
+  'Fire Protection': [
+    { id: 'Fire Sprinkler Hydraulic', icon: '🚿', desc: 'NFPA 13 design area method, flow and pressure', available: true, subcat: 'Suppression' },
+    { id: 'Fire Pump Sizing',         icon: '🔥', desc: 'Required flow and pressure, motor HP — NFPA 20', available: true, subcat: 'Suppression' },
+    { id: 'Stairwell Pressurization', icon: '🪜', desc: 'Airflow to maintain pressure differential — NFPA 92', available: true, subcat: 'Life Safety' },
+    { id: 'Fire Alarm Battery',       icon: '🔋', desc: '24h standby + 5-min alarm, battery Ah — NFPA 72', available: true, subcat: 'Life Safety' },
+  ],
+  'Machine Design': [
+    // Power Transmission
+    { id: 'V-Belt Drive Design',   icon: '🔄', desc: 'Sheave sizing, belt length, no. of belts — RMA / ASME', available: true, subcat: 'Power Transmission' },
+    { id: 'Shaft Design',          icon: '🔩', desc: 'Torsion + bending, DE-Goodman fatigue, critical speed — ASME B106.1M', available: true, subcat: 'Power Transmission' },
+    { id: 'Bolt Torque & Preload', icon: '🔧', desc: 'Fastener tightening torque, preload — ISO 898', available: true, subcat: 'Power Transmission' },
+    { id: 'Fluid Power',           icon: '🔴', desc: 'Hydraulic cylinder force/speed, pump sizing, accumulator — ISO 4413', available: true, subcat: 'Power Transmission' },
+    // Component Analysis
+    { id: 'Bearing Life (L10)',    icon: '⚙️', desc: 'Dynamic load rating, L10 hours — ISO 281', available: true, subcat: 'Component Analysis' },
+    { id: 'Pressure Vessel',       icon: '🫙', desc: 'ASME VIII-1 shell thickness, MAWP, heads, nozzle reinforcement, hydro test', available: true, subcat: 'Component Analysis' },
+    { id: 'Heat Exchanger',        icon: '🌡️',desc: 'LMTD/NTU-ε, overall U, tube count, shell ID — TEMA / ASME Sec. VIII', available: true, subcat: 'Component Analysis' },
+    // Structural & Environmental
+    { id: 'Beam / Column Design',  icon: '🏗️',desc: 'Steel LRFD (AISC 360) + RC beam/column (ACI 318) — NSCP 2015', available: true, subcat: 'Structural & Environmental' },
+    { id: 'Vibration Analysis',    icon: '📳', desc: 'SDOF natural freq, transmissibility, ISO 10816-3 severity zones', available: true, subcat: 'Structural & Environmental' },
+    { id: 'Noise / Acoustics',     icon: '🔊', desc: 'Room SPL, barrier IL, OSHA TWA dose, NC rating — ISO 9613 / DOLE', available: true, subcat: 'Structural & Environmental' },
+    // Vertical Transportation
+    { id: 'Elevator Traffic Analysis', icon: '🛗', desc: 'RTT, interval, handling capacity — ASME A17.1 / EN 81', available: true, subcat: 'Vertical Transportation' },
+    { id: 'Hoist Capacity',            icon: '🏗️',desc: 'SWL, wire rope safety factor, hoist motor sizing', available: true, subcat: 'Vertical Transportation' },
+  ],
+};
+
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
 function showToast(msg, duration = 3000) {
@@ -3198,30 +3460,56 @@ function selectDiscipline(disc) {
   showEmpty();
 }
 
+// ─── Calc card builder ────────────────────────────────────────────────────────
+function makeCalcCard(ct, showDisc) {
+  const div = document.createElement('div');
+  div.className = 'calc-card' + (ct.available ? '' : ' disabled');
+  div.dataset.id = ct.id;
+  div.innerHTML = `
+    <div class="flex items-center gap-2">
+      <span style="font-size:1.2rem;flex-shrink:0;">${ct.icon}</span>
+      <div class="min-w-0 flex-1">
+        <div class="font-semibold text-sm">${ct.id}</div>
+        <div class="calc-desc text-xs" style="color:rgba(255,255,255,0.4);">${ct.desc}</div>
+      </div>
+      ${showDisc ? `<span class="calc-disc-tag">${ct._disc || ''}</span>` : ''}
+      ${!ct.available ? '<span class="ml-auto text-xs px-2 py-0.5 rounded-full flex-shrink-0" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.3);">Soon</span>' : ''}
+    </div>`;
+  if (ct.available) div.onclick = () => selectCalcType(ct.id);
+  return div;
+}
+
 // ─── Calc type grid ───────────────────────────────────────────────────────────
-function renderCalcTypes() {
+function renderCalcTypes(calcs, showDisc) {
   const grid = document.getElementById('calc-type-grid');
   grid.innerHTML = '';
-  (CALC_TYPES[_discipline] || []).forEach(ct => {
-    const div = document.createElement('div');
-    div.className = 'calc-card' + (ct.available ? '' : ' disabled');
-    div.dataset.id = ct.id;
-    div.innerHTML = `
-      <div class="flex items-center gap-2">
-        <span style="font-size:1.2rem;">${ct.icon}</span>
-        <div>
-          <div class="font-semibold text-sm">${ct.id}</div>
-          <div class="text-xs" style="color:rgba(255,255,255,0.4);">${ct.desc}</div>
-        </div>
-        ${!ct.available ? '<span class="ml-auto text-xs px-2 py-0.5 rounded-full" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.3);">Soon</span>' : ''}
-      </div>`;
-    if (ct.available) div.onclick = () => selectCalcType(ct.id);
-    grid.appendChild(div);
-  });
+  const items = calcs || (CALC_TYPES_UI[_discipline] || []);
+
+  // Group by subcat if present
+  const hasSubcats = items.some(ct => ct.subcat);
+  if (hasSubcats) {
+    const groups = {};
+    const order  = [];
+    items.forEach(ct => {
+      const key = ct.subcat || 'Other';
+      if (!groups[key]) { groups[key] = []; order.push(key); }
+      groups[key].push(ct);
+    });
+    order.forEach(subcat => {
+      const hdr = document.createElement('div');
+      hdr.className = 'calc-subcat-header';
+      hdr.textContent = subcat;
+      grid.appendChild(hdr);
+      groups[subcat].forEach(ct => grid.appendChild(makeCalcCard(ct, showDisc)));
+    });
+  } else {
+    items.forEach(ct => grid.appendChild(makeCalcCard(ct, showDisc)));
+  }
 }
 
 function selectCalcType(id) {
   _calcType = id;
+  trackRecentCalc(id);
   document.querySelectorAll('.calc-card').forEach(c => {
     c.classList.toggle('selected', c.dataset.id === id);
   });
@@ -9441,7 +9729,6 @@ function collectInputs() {
     const power_kW  = powerUnit === 'HP' ? rawPower * 0.746 : rawPower;
     return {
       project_name:    v('f-project')                         || 'Untitled Belt Drive',
-      drive_type:      'V-Belt',
       power_kW,
       power_unit:      powerUnit,
       power_input:     rawPower,
@@ -23246,9 +23533,8 @@ function renderNoiseAcousticsReport(inputs, r, narrative) {
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 async function init() {
-  // Engineering calculator works in solo and hive mode — no hard hive gate
-  // Init wizard immediately
-  selectDiscipline('Mechanical');
+  renderRecentCalcs();
+  selectDiscipline('HVAC & Cooling');
 }
 
 init();
