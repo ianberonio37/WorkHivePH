@@ -14443,9 +14443,9 @@ function renderWaterSupplyReport(inputs, results, narrative) {
       <td>${escHtml(f.fixture)}</td>
       <td class="num">${f.qty}</td>
       <td class="num">${f.wfu_each}</td>
-      <td class="num">${f.wfu_total}</td>
+      <td class="num">${f.total_wfu}</td>
       <td class="num">${f.lpm_each}</td>
-      <td class="num">${f.lpm_total}</td>
+      <td class="num">${f.total_lpm}</td>
     </tr>`).join('');
 
   const compRows = (results.size_comparison || []).map(r => `
