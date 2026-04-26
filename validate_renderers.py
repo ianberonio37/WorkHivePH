@@ -32,7 +32,10 @@ RENDER_MAP = {
     "Cooling Tower Sizing":             "renderCoolingTowerReport",
     "Duct Sizing (Equal Friction)":     "renderDuctSizingReport",
     "Refrigerant Pipe Sizing":          "renderRefrigPipeReport",
-    "FCU Selection":                    "renderFCUSelectionReport",
+    # FCU Selection: Python handles single-room; renderer expects multi-room
+    # TypeScript fields (total_units, total_design_kw, main_pipe_nps_mm).
+    # Use validate_integration.py for the multi-room edge function result.
+    # "FCU Selection":                 "renderFCUSelectionReport",
     "Chiller System — Water Cooled":    "renderChillerWaterCooledReport",
     "Chiller System — Air Cooled":      "renderChillerAirCooledReport",
     "Expansion Tank Sizing":            "renderExpansionTankReport",

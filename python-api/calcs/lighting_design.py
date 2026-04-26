@@ -261,6 +261,7 @@ def calculate(inputs: dict) -> dict:
         "lamp_lumens":         lamp_lumens,
         "watts_per_fixture":   watts_per_fix,
         "N_exact":             round(N_exact, 2),
+        "n_exact":             round(N_exact, 2),
         "N_required":          N_required,
         "n_actual":            n_actual,
         # Renderer-expected aliases

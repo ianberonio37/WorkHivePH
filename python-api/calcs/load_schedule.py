@@ -286,4 +286,18 @@ def calculate(inputs: dict) -> dict:
         },
         "calculation_source": "python/math",
         "standard": "PEC 2017 | NEC 2020 Art.220 + 430 | IEEE 141",
+        # Renderer aliases (lowercase versions and missing fields)
+        "total_connected_kw":    round(total_connected_kW, 3),
+        "total_demand_kw":       round(total_demand_kW, 3),
+        "total_demand_kva":      round(total_demand_kVA, 3),
+        "total_connected_va":    round(total_connected_kW * 1000, 1),
+        "total_demand_va":       round(total_demand_kVA * 1000, 1),
+        "voltage":               panel_voltage,
+        "panel_voltage_V":       panel_voltage,
+        "feeder_length_m":       feeder_length_m,
+        "phase_config":          f"{panel_phases}-Phase",
+        "recommended_breaker_A": feeder_breaker_a,
+        "computed_ampacity":     round(feeder_current_a, 1),
+        "ampacity_with_spare":   feeder_breaker_a,
+        "load_breakdown":        schedule_rows,
     }
