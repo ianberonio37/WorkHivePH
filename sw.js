@@ -1,4 +1,4 @@
-/* Cleanup service worker — clears all caches and unregisters itself */
+/* Cleanup service worker — clears caches and unregisters. No reload. */
 self.addEventListener('install', function() { self.skipWaiting(); });
 
 self.addEventListener('activate', function(e) {
@@ -8,11 +8,5 @@ self.addEventListener('activate', function(e) {
         return Promise.all(keys.map(function(k) { return caches.delete(k); }));
       })
       .then(function() { return self.registration.unregister(); })
-      .then(function() {
-        return self.clients.matchAll();
-      })
-      .then(function(clients) {
-        clients.forEach(function(c) { c.navigate(c.url); });
-      })
   );
 });
