@@ -201,15 +201,15 @@ def calculate(inputs: dict) -> dict:
         N_exact = 0
     N_required = math.ceil(N_exact)
 
-    # ── Achieved illuminance ──────────────────────────────────────────────────
-    E_achieved = (n_actual * lamp_lumens * CU * LLF) / A if A > 0 else 0
-    illuminance_ok = E_achieved >= target_lux
-
     # ── Layout recommendation ─────────────────────────────────────────────────
     # Distribute as evenly as possible in rows × columns
     cols = max(1, round(math.sqrt(N_required * room_length_m / room_width_m)))
     rows = max(1, math.ceil(N_required / cols))
     n_actual = rows * cols
+
+    # ── Achieved illuminance (uses n_actual — must be after layout calc) ──────
+    E_achieved = (n_actual * lamp_lumens * CU * LLF) / A if A > 0 else 0
+    illuminance_ok = E_achieved >= target_lux
     spacing_x = room_length_m / cols    # m between fixtures (centre to centre)
     spacing_y = room_width_m  / rows
     # IES spacing criterion: S ≤ max spacing-to-mounting-height ratio (S/MH ≤ 1.5 typical)
