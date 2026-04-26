@@ -2260,7 +2260,7 @@ async function saveEdit(id) {
     if (deductErr) { showToast('Stock update failed for ' + p.partName + ': ' + deductErr.message); continue; }
     const { error: txnErr } = await db.from('inventory_transactions').insert({
       item_id: p.partId, worker_name: WORKER_NAME,
-      qty_change: -p.qty, type: 'use',
+      qty_change: -p.qty, qty_after: newQty, type: 'use',
       note: 'Used in job: ' + updates.machine, job_ref: updates.machine
     });
     if (txnErr) console.error('edit txn insert:', txnErr.message);
@@ -2536,7 +2536,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     if (deductErr) { showToast('Stock update failed for ' + p.partName + ': ' + deductErr.message); continue; }
     const { error: txnErr } = await db.from('inventory_transactions').insert({
       item_id: p.partId, worker_name: WORKER_NAME,
-      qty_change: -p.qty, type: 'use',
+      qty_change: -p.qty, qty_after: newQty, type: 'use',
       note: 'Used in job: ' + machine, job_ref: machine
     });
     if (txnErr) console.error('txn insert:', txnErr.message);
