@@ -1663,7 +1663,7 @@ async function initBoard() {
 
   updateSwitchButton();
   // allSettled — never rejects, so startPresence() is always reached even if one data load fails
-  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), loadAnalytics(), buildNotifications(), loadApprovalQueue(), loadHiveInventory(), loadDowntime(), loadMtbf(), loadMttr(), loadPMHealth(), loadAuditLog()]);
+  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), loadAnalytics(), loadShiftAnalytics(), buildNotifications(), loadApprovalQueue(), loadHiveInventory(), loadDowntime(), loadMtbf(), loadMttr(), loadPMHealth(), loadAuditLog()]);
   _boardResults.forEach((r, i) => { if (r.status === 'rejected') console.error('initBoard step', i, 'failed:', r.reason); });
   // Team stock alert needs memberNames populated by loadMembers first
   checkTeamStockAlert();
@@ -1922,11 +1922,11 @@ function setAnalyticsRange(range, btn) {
   _analyticsRange = range;
   document.querySelectorAll('.analytics-tab').forEach(t => t.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  loadAnalytics();
+  loadShiftAnalytics();
 }
 
 /* ── Fetch analytics data ── */
-async function loadAnalytics() {
+async function loadShiftAnalytics() {
   const card = document.getElementById('shift-analytics');
   const loading = document.getElementById('an-loading');
   const content = document.getElementById('an-content');
@@ -2571,7 +2571,7 @@ async function loadPMHealth() {
   }
 }
 
-// ── ANALYTICS ──
+// ── ANALYTICS (original hive panel data) ──
 async function loadAnalytics() {
   const weekAgo      = new Date(Date.now() -  7 * 24 * 60 * 60 * 1000).toISOString();
   const twoWeeksAgo  = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
