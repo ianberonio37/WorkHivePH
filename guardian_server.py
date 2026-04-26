@@ -211,59 +211,55 @@ class GuardianHandler(BaseHTTPRequestHandler):
             pass
 
     # ── Sync run (for polling clients) ────────────────────────────────────────
-    # ── Git commit + push via SSE ─────────────────────────────────────────────
+    # ── Git commit + push (synchronous JSON response) ────────────────────────
     def _git_stream(self, message):
-        self.send_response(200)
-        self.send_header("Content-Type", "text/event-stream")
-        self.send_header("Cache-Control", "no-cache")
-        self.send_header("X-Accel-Buffering", "no")
-        self._cors()
-        self.end_headers()
-
         import re as _re
+        lines  = []
+        errors = []
 
-        def git_run(args, label):
-            self._sse_write(f"$ git {' '.join(args)}")
-            result = subprocess.run(
+        def git_run(args):
+            lines.append(f"$ git {' '.join(args)}")
+            r = subprocess.run(
                 ["git"] + args, cwd=BASE,
                 capture_output=True, text=True,
-                encoding="utf-8", errors="replace"
+                encoding="utf-8", errors="replace",
+                timeout=60
             )
-            out = _re.sub(r'\x1b\[[0-9;]*m', '', result.stdout + result.stderr).strip()
-            for line in out.splitlines():
-                if line.strip():
-                    self._sse_write(line)
-            return result.returncode
+            out = _re.sub(r'\x1b\[[0-9;]*m', '',
+                          (r.stdout or '') + (r.stderr or '')).strip()
+            for ln in out.splitlines():
+                if ln.strip():
+                    lines.append(ln)
+            return r.returncode
 
-        self._sse_write("[START] Commit & Push")
-        self._sse_write("─" * 50)
+        try:
+            git_run(["status", "--short"])
+            rc = git_run(["add", "-A"])
+            if rc != 0:
+                errors.append("git add failed")
+                self._json({"ok": False, "lines": lines, "errors": errors})
+                return
 
-        # 1. Check status
-        rc = git_run(["status", "--short"], "status")
+            rc = git_run(["commit", "-m", message])
+            if rc != 0:
+                # Nothing to commit is OK
+                lines.append("Nothing new to commit — working tree clean.")
+                self._json({"ok": True, "lines": lines, "errors": []})
+                return
 
-        # 2. Stage all
-        rc = git_run(["add", "-A"], "add")
-        if rc != 0:
-            self._sse_write("ERROR: git add failed")
-            self._sse_write("[DONE:1]")
-            return
+            rc = git_run(["push", "origin", "master"])
+            ok = (rc == 0)
+            if ok:
+                lines.append("Committed and pushed to GitHub successfully.")
+            else:
+                errors.append("Push failed — check your internet/credentials.")
+            self._json({"ok": ok, "lines": lines, "errors": errors})
 
-        # 3. Commit
-        rc = git_run(["commit", "-m", message], "commit")
-        if rc != 0:
-            self._sse_write("Nothing to commit — working tree already clean.")
-            self._sse_write("[DONE:0]")
-            return
-
-        # 4. Push
-        rc = git_run(["push", "origin", "master"], "push")
-
-        self._sse_write("─" * 50)
-        if rc == 0:
-            self._sse_write("✓ Committed and pushed to GitHub")
-        else:
-            self._sse_write("✗ Push failed — check your internet connection")
-        self._sse_write(f"[DONE:{rc}]")
+        except subprocess.TimeoutExpired:
+            errors.append("Git command timed out after 60 seconds.")
+            self._json({"ok": False, "lines": lines, "errors": errors})
+        except Exception as ex:
+            self._json({"ok": False, "lines": lines, "errors": [str(ex)]})
 
     def _run_sync(self, cmd_key):
         cmd_entry = COMMANDS.get(cmd_key)

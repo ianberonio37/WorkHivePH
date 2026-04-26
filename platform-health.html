@@ -656,56 +656,40 @@ function commitAndPush() {
   const defaultMsg = 'Platform update ' + new Date().toLocaleDateString('en-PH',
     {year:'numeric', month:'short', day:'numeric'});
   const msg = prompt('Commit message:', defaultMsg);
-  if (msg === null) return;  // cancelled
+  if (msg === null) return;
 
   if (_evtSource) { _evtSource.close(); _evtSource = null; }
   openTerm('Commit & Push');
   setRunning(true, 'git');
+  termLine('Running git add, commit, push...', 'info');
+  termLine('(This may take 10-20 seconds)', 'dim');
 
   fetch('/api/git', {
     method:  'POST',
     headers: {'Content-Type': 'application/json'},
     body:    JSON.stringify({message: msg || defaultMsg}),
-  }).then(async res => {
-    const reader = res.body.getReader();
-    const dec    = new TextDecoder();
-    let   buf    = '';
-    while (true) {
-      const {done, value} = await reader.read();
-      if (done) break;
-      buf += dec.decode(value, {stream: true});
-      const parts = buf.split('\n\n');
-      buf = parts.pop();
-      for (const part of parts) {
-        const line = part.replace(/^data: /, '').trim();
-        if (!line) continue;
-        if (line.startsWith('[DONE:')) {
-          const rc = parseInt(line.match(/\d+/)[0]);
-          termLine(rc === 0 ? '\n✓ Done — committed and pushed' : '\n✗ Done — check errors above',
-                   rc === 0 ? 'pass' : 'fail');
-          document.getElementById('term-status').textContent = rc === 0 ? '✓ Pushed' : '✗ Failed';
-          document.getElementById('term-status').style.color  = rc === 0 ? 'var(--green)' : 'var(--red)';
-          setRunning(false);
-          setTimeout(loadHealth, 800);
-        } else if (line.startsWith('[START]')) {
-          termLine(line.replace('[START] ', ''), 'info');
-        } else if (line.startsWith('$')) {
-          termLine(line, 'cmd');
-        } else if (/nothing to commit|already clean/i.test(line)) {
-          termLine(line, 'warn');
-        } else if (/pushed|committed|master/i.test(line)) {
-          termLine(line, 'pass');
-        } else if (/error|fail/i.test(line)) {
-          termLine(line, 'fail');
-        } else if (/─{3,}/.test(line)) {
-          termLine(line, 'dim');
-        } else {
-          termLine(line, '');
-        }
-      }
-    }
-  }).catch(err => {
-    termLine('Connection error — is the server running? ' + err.message, 'fail');
+  })
+  .then(r => r.json())
+  .then(data => {
+    // Show all output lines
+    (data.lines || []).forEach(line => {
+      if (line.startsWith('$'))             termLine(line, 'cmd');
+      else if (/pushed|success/i.test(line)) termLine(line, 'pass');
+      else if (/nothing|clean/i.test(line))  termLine(line, 'warn');
+      else if (/error|fail/i.test(line))     termLine(line, 'fail');
+      else                                   termLine(line, '');
+    });
+    (data.errors || []).forEach(e => termLine('ERROR: ' + e, 'fail'));
+
+    const ok = data.ok !== false;
+    termLine(ok ? '\n✓ Done' : '\n✗ Failed', ok ? 'pass' : 'fail');
+    document.getElementById('term-status').textContent = ok ? '✓ Pushed' : '✗ Failed';
+    document.getElementById('term-status').style.color  = ok ? 'var(--green)' : 'var(--red)';
+    setRunning(false);
+    setTimeout(loadHealth, 800);
+  })
+  .catch(err => {
+    termLine('Error: ' + err.message + ' — is the server running?', 'fail');
     setRunning(false);
   });
 }
