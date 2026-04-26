@@ -2171,9 +2171,8 @@ function printHandover() {
 <title>Shift Handover Report</title>
 <style>
   @page{margin:1.2cm 1.5cm;}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:2rem;color:#111;max-width:640px;margin:0 auto;}
-  h2{margin:0 0 0.15rem;font-size:1.2rem;font-weight:800;}
-  .meta{font-size:0.78rem;color:#666;margin:0 0 1.25rem;border-bottom:2px solid #111;padding-bottom:0.75rem;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:1.5rem 2rem;color:#111;max-width:640px;margin:0 auto;}
+  .meta{font-size:0.78rem;color:#555;margin:0 0 1.25rem;border-bottom:2px solid #111;padding-bottom:0.6rem;}
   .ho-section{border-bottom:1px solid #e5e7eb;padding:0.6rem 0;}
   .ho-section:last-child{border-bottom:none;}
   .ho-label{font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#444;margin:0 0 0.35rem;}
@@ -2181,7 +2180,6 @@ function printHandover() {
   strong{color:#111 !important;}
   @media print{body{padding:0;}}
 </style></head><body>
-<h2>Shift Handover Report</h2>
 <p class="meta">${meta}</p>
 ${body}
 <script>window.onload=function(){window.print();setTimeout(()=>window.close(),500);}<\/script>
