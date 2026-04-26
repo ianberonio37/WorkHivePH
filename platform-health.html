@@ -194,6 +194,72 @@
     .bl-row:last-child { border-bottom:none; }
     .bl-label { flex:1; font-size:.8rem; color:var(--muted); }
 
+    /* ── Guide overlay ── */
+    .guide-overlay {
+      position:fixed; inset:0; z-index:200;
+      background:rgba(0,0,0,0.75); backdrop-filter:blur(4px);
+      display:none; align-items:flex-start; justify-content:center;
+      padding:2rem 1rem; overflow-y:auto;
+    }
+    .guide-overlay.open { display:flex; }
+    .guide-panel {
+      background:#162032; border:1px solid rgba(255,255,255,0.1);
+      border-radius:1rem; width:100%; max-width:680px;
+      padding:2rem; position:relative;
+    }
+    .guide-close {
+      position:absolute; top:1rem; right:1rem;
+      background:none; border:none; color:rgba(255,255,255,0.4);
+      font-size:1.4rem; cursor:pointer; transition:color .15s;
+    }
+    .guide-close:hover { color:#fff; }
+    .guide-h1 { font-size:1.1rem; font-weight:700; color:var(--gold); margin-bottom:1.5rem; }
+    .guide-section { margin-bottom:1.5rem; }
+    .guide-stitle {
+      font-size:.68rem; font-weight:700; color:var(--muted);
+      text-transform:uppercase; letter-spacing:.1em;
+      margin-bottom:.6rem; padding-bottom:.35rem;
+      border-bottom:1px solid rgba(255,255,255,0.07);
+    }
+    .guide-row {
+      display:flex; gap:.75rem; align-items:flex-start;
+      padding:.4rem 0; border-bottom:1px solid rgba(255,255,255,0.04);
+      font-size:.78rem;
+    }
+    .guide-row:last-child { border-bottom:none; }
+    .guide-label { font-weight:600; min-width:145px; flex-shrink:0; }
+    .guide-desc  { color:rgba(255,255,255,0.6); line-height:1.5; }
+    .gtag {
+      display:inline-block; font-size:.62rem; font-weight:700;
+      padding:.12rem .4rem; border-radius:.3rem; margin-right:.3rem; vertical-align:middle;
+    }
+    .gtag.gold   { background:rgba(247,162,27,.15);  color:var(--gold); }
+    .gtag.red    { background:rgba(248,113,113,.15); color:var(--red); }
+    .gtag.green  { background:rgba(74,222,128,.15);  color:var(--green); }
+    .gtag.blue   { background:rgba(41,182,217,.15);  color:var(--blue); }
+    .gtag.purple { background:rgba(167,139,250,.15); color:var(--purple); }
+    .guide-step {
+      display:flex; gap:.75rem; align-items:flex-start;
+      padding:.35rem 0; font-size:.78rem;
+    }
+    .gnum {
+      width:22px; height:22px; border-radius:50%; flex-shrink:0;
+      background:rgba(247,162,27,.15); color:var(--gold);
+      font-size:.7rem; font-weight:800;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .guide-tip {
+      background:rgba(248,113,113,.07); border:1px solid rgba(248,113,113,.2);
+      border-radius:.5rem; padding:.6rem .85rem; margin-top:.5rem;
+      font-size:.78rem; color:rgba(255,255,255,.7); line-height:1.5;
+    }
+    .guide-tip strong { color:var(--red); }
+    .guide-note {
+      background:rgba(247,162,27,.06); border:1px solid rgba(247,162,27,.18);
+      border-radius:.5rem; padding:.6rem .85rem; margin-top:.5rem;
+      font-size:.75rem; color:rgba(255,255,255,.55); line-height:1.5;
+    }
+
     /* ── Terminal ── */
     #terminal-wrap {
       position: fixed; bottom: 0; left: 0; right: 0;
@@ -257,6 +323,7 @@
     </div>
   </div>
   <span class="refresh-chip" onclick="loadHealth()">↻ Refresh</span>
+  <span class="refresh-chip" onclick="openGuide()" style="color:var(--gold);border-color:rgba(247,162,27,0.3);">? Guide</span>
 </div>
 
 <!-- ── Action Buttons ── -->
@@ -301,6 +368,122 @@
 <!-- ── Main content ── -->
 <div class="main" id="main">
   <div class="empty" id="loading">Loading dashboard…</div>
+</div>
+
+<!-- ── Guide overlay ── -->
+<div class="guide-overlay" id="guide-overlay" onclick="closeGuide(event)">
+  <div class="guide-panel" onclick="event.stopPropagation()">
+    <button class="guide-close" onclick="closeGuide()">✕</button>
+    <div class="guide-h1">📖 WorkHive Platform Guardian — How to Use</div>
+
+    <!-- Buttons -->
+    <div class="guide-section">
+      <div class="guide-stitle">What Each Button Does</div>
+      <div class="guide-row">
+        <span class="guide-label"><span class="gtag gold">▶ Validate Fast</span></span>
+        <span class="guide-desc">Runs all 8 checks in ~13 seconds. Use this after every code change. If green, you're safe to continue.</span>
+      </div>
+      <div class="guide-row">
+        <span class="guide-label"><span class="gtag red">⚡ Auto-Fix</span></span>
+        <span class="guide-desc">When you see a red FAIL, click this. It tries to fix the problem automatically. Then run Validate Fast again to confirm.</span>
+      </div>
+      <div class="guide-row">
+        <span class="guide-label"><span class="gtag green">🚀 Full Deploy Check</span></span>
+        <span class="guide-desc">Use only before pushing live. Checks if your real servers are responding. Takes ~60 seconds.</span>
+      </div>
+      <div class="guide-row">
+        <span class="guide-label"><span class="gtag blue">🧠 Self-Learn</span></span>
+        <span class="guide-desc">After fixing a bug, click this. It captures the lesson so the system gets smarter and won't miss it next time.</span>
+      </div>
+      <div class="guide-row">
+        <span class="guide-label"><span class="gtag purple">🔍 Improve</span></span>
+        <span class="guide-desc">Once a month. Searches the web for updates to engineering standards (NFPA, ISO, ASHRAE) that affect your calculators.</span>
+      </div>
+      <div class="guide-row">
+        <span class="guide-label">🔒 Gate Only</span>
+        <span class="guide-desc">Quick 3-second check: Is git clean? Are live servers up? Use before deploying if you already know the code is good.</span>
+      </div>
+      <div class="guide-row">
+        <span class="guide-label">📤 Commit &amp; Push</span>
+        <span class="guide-desc">When Git shows WARN (uncommitted files), click this. Type your commit message, click OK. Done — no terminal needed.</span>
+      </div>
+    </div>
+
+    <!-- Status colors -->
+    <div class="guide-section">
+      <div class="guide-stitle">What the Colors Mean</div>
+      <div class="guide-row">
+        <span class="guide-label"><span class="gtag green">PASS — Green</span></span>
+        <span class="guide-desc">This check is working correctly. No action needed.</span>
+      </div>
+      <div class="guide-row">
+        <span class="guide-label"><span class="gtag red">FAIL — Red</span></span>
+        <span class="guide-desc">Something broke. Fix it before deploying. Click Auto-Fix first, then Validate Fast again.</span>
+      </div>
+      <div class="guide-row">
+        <span class="guide-label"><span class="gtag gold">WARN — Yellow</span></span>
+        <span class="guide-desc">A known gap that is acceptable for now (e.g., Git has uncommitted files). Review but not always urgent.</span>
+      </div>
+      <div class="guide-row">
+        <span class="guide-label"><span class="gtag blue">SKIP — Blue</span></span>
+        <span class="guide-desc">This check was skipped because you're in fast mode. Normal. Run Full Deploy Check to include it.</span>
+      </div>
+    </div>
+
+    <!-- Daily routine -->
+    <div class="guide-section">
+      <div class="guide-stitle">Your Daily Routine</div>
+      <div class="guide-step"><span class="gnum">1</span><span>Open dashboard → click <strong style="color:var(--gold)">Validate Fast</strong> → green = start coding safely.</span></div>
+      <div class="guide-step"><span class="gnum">2</span><span>Made a code change → click <strong style="color:var(--gold)">Validate Fast</strong> again → still green? Continue.</span></div>
+      <div class="guide-step"><span class="gnum">3</span><span>Ready to push live → click <strong style="color:var(--green)">Full Deploy Check</strong> → green = safe to push.</span></div>
+      <div class="guide-step"><span class="gnum">4</span><span>After fixing a bug → click <strong style="color:var(--blue)">Self-Learn</strong> → lesson captured for next time.</span></div>
+      <div class="guide-step"><span class="gnum">5</span><span>Git shows WARN → click <strong>📤 Commit &amp; Push</strong> → type a message → done.</span></div>
+    </div>
+
+    <!-- When something is red -->
+    <div class="guide-section">
+      <div class="guide-stitle">When Something Is Red — What to Do</div>
+      <div class="guide-tip">
+        <strong>Step 1:</strong> Read the terminal output — it tells you exactly which file has the problem.<br>
+        <strong>Step 2:</strong> Click <strong>⚡ Auto-Fix</strong> — it fixes known patterns automatically.<br>
+        <strong>Step 3:</strong> Click <strong>▶ Validate Fast</strong> — verify it turned green.<br>
+        <strong>Step 4:</strong> Click <strong>🧠 Self-Learn</strong> — capture the lesson.<br><br>
+        If Auto-Fix doesn't help, the problem needs manual code review. Tell your developer which validator failed and what the terminal showed.
+      </div>
+    </div>
+
+    <!-- Reading the terminal -->
+    <div class="guide-section">
+      <div class="guide-stitle">How to Read the Terminal Output</div>
+      <div class="guide-row">
+        <span class="guide-label" style="color:var(--gold)">$ command</span>
+        <span class="guide-desc">A command that is running. Normal to see these.</span>
+      </div>
+      <div class="guide-row">
+        <span class="guide-label" style="color:var(--green)">PASS lines</span>
+        <span class="guide-desc">That check passed. All good.</span>
+      </div>
+      <div class="guide-row">
+        <span class="guide-label" style="color:var(--red)">FAIL lines</span>
+        <span class="guide-desc">That check found a problem. The line after it usually says which file and what's wrong.</span>
+      </div>
+      <div class="guide-row">
+        <span class="guide-label" style="color:var(--green)">✓ DONE</span>
+        <span class="guide-desc">Everything finished and passed. Safe to continue.</span>
+      </div>
+      <div class="guide-row">
+        <span class="guide-label" style="color:var(--red)">✗ DONE</span>
+        <span class="guide-desc">Something failed. Scroll up in the terminal to find the red FAIL line and read what it says.</span>
+      </div>
+      <div class="guide-note">
+        💡 Tip: The terminal closes automatically when you click ✕ in its top-right corner. It stays open so you can read it — that's intentional.
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:1rem;">
+      <button onclick="closeGuide()" style="padding:.5rem 2rem;background:rgba(247,162,27,.12);border:1px solid rgba(247,162,27,.3);color:var(--gold);border-radius:.5rem;cursor:pointer;font-size:.82rem;font-weight:600;">Got it — close guide</button>
+    </div>
+  </div>
 </div>
 
 <!-- ── Terminal panel ── -->
@@ -616,6 +799,15 @@ function termLine(text, cls) {
   term.appendChild(p);
   term.scrollTop = term.scrollHeight;
 }
+
+// ── Guide ──────────────────────────────────────────────────────────────────
+function openGuide()  { document.getElementById('guide-overlay').classList.add('open'); }
+function closeGuide(e) {
+  if (e && e.target !== document.getElementById('guide-overlay')) return;
+  document.getElementById('guide-overlay').classList.remove('open');
+}
+// Close guide with Escape key
+document.addEventListener('keydown', e => { if (e.key==='Escape') document.getElementById('guide-overlay').classList.remove('open'); });
 
 // ── Auto-refresh ───────────────────────────────────────────────────────────
 loadHealth();
