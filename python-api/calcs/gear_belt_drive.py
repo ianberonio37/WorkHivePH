@@ -326,8 +326,10 @@ def calculate(inputs: dict) -> dict:
         datum_mm   = belt_res["belt_length_mm"] - DATUM_CORR.get(section, 33)
         belt_prefix = section.split()[0]
         belt_desig  = f"{belt_prefix}{round(datum_mm / 25.4)}"
-        # Corrected power and belt count
-        corr_pwr  = round(belt_res["P_per_belt_kW"] * belt_res["Ctheta"] * K_L, 3)
+        # P_per_belt from _vbelt already includes Ctheta; expose raw for formula display
+        Cth = belt_res["Ctheta"] if belt_res["Ctheta"] > 0 else 1
+        P_raw     = round(belt_res["P_per_belt_kW"] / Cth, 3)   # raw (no Ctheta)
+        corr_pwr  = round(P_raw * Cth * K_L, 3)                 # = P_per_belt × K_L
         corr_pwr  = max(corr_pwr, 0.01)
         n_b_calc  = round(belt_res["P_design_kW"] / corr_pwr, 2)
         n_b_final = math.ceil(n_b_calc)
@@ -341,9 +343,9 @@ def calculate(inputs: dict) -> dict:
             "belt_speed_ms":           V_ms,
             "belt_designation":        belt_desig,
             "arc_deg":                 belt_res["wrap_angle_deg"],
-            "K_theta":                 belt_res["Ctheta"],
+            "K_theta":                 Cth,
             "K_L":                     K_L,
-            "power_per_belt_kW":       belt_res["P_per_belt_kW"],
+            "power_per_belt_kW":       P_raw,
             "corrected_power_kW":      corr_pwr,
             "n_belts_calc":            n_b_calc,
             "n_belts":                 n_b_final,
