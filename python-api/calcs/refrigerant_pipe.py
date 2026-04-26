@@ -367,12 +367,12 @@ def calculate(inputs: dict) -> dict:
 
         # ── Legacy renderer aliases (frontend renderRefrigPipeReport) ──────────
         # Renderer reads r.lines as array - build it from the sub-objects
-        "lines": [
+        "lines": [x for x in [
             {"line_name": "Suction (Horizontal)", **suction_horiz} if suction_horiz else None,
             {"line_name": "Suction (Riser)",      **suction_riser} if suction_riser else None,
             {"line_name": "Discharge",             **discharge}     if discharge     else None,
             {"line_name": "Liquid",                **liquid}        if liquid        else None,
-        ],
+        ] if x is not None],
         "evap_temp_c":  evap_key,
         "cond_temp_c":  cond_key,
     }
