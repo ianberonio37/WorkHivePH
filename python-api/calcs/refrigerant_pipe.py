@@ -226,6 +226,25 @@ def _select_tube(
     }
 
 
+def _make_line(name: str, line_type: str, equiv_length_m: float, sub: dict | None) -> dict | None:
+    """Build a line dict with renderer-compatible field names."""
+    if not sub:
+        return None
+    return {
+        "name":            name,
+        "line_name":       name,
+        "line_type":       line_type,
+        "equiv_length_m":  equiv_length_m,
+        "selected_od_mm":  sub.get("od_mm"),
+        "selected_id_mm":  sub.get("id_mm"),
+        "velocity_ms":     sub.get("velocity_ms"),
+        "vel_check":       "OK" if sub.get("velocity_ok") else "WARN",
+        "dp_total_pa":     sub.get("dp_Pa_total"),
+        "delta_t_k":       sub.get("delta_T_eq_K"),
+        **sub,
+    }
+
+
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcRefrigPipeSizing() keys.
@@ -368,10 +387,10 @@ def calculate(inputs: dict) -> dict:
         # ── Legacy renderer aliases (frontend renderRefrigPipeReport) ──────────
         # Renderer reads r.lines as array - build it from the sub-objects
         "lines": [x for x in [
-            {"line_name": "Suction (Horizontal)", **suction_horiz} if suction_horiz else None,
-            {"line_name": "Suction (Riser)",      **suction_riser} if suction_riser else None,
-            {"line_name": "Discharge",             **discharge}     if discharge     else None,
-            {"line_name": "Liquid",                **liquid}        if liquid        else None,
+            _make_line("Suction Line",    "Suction - Horizontal", suction_len_m,   suction_horiz),
+            _make_line("Suction Riser",   "Suction - Riser",      suction_len_m,   suction_riser),
+            _make_line("Discharge Line",  "Discharge",            discharge_len_m, discharge),
+            _make_line("Liquid Line",     "Liquid",               liquid_len_m,    liquid),
         ] if x is not None],
         "evap_temp_c":  evap_key,
         "cond_temp_c":  cond_key,
