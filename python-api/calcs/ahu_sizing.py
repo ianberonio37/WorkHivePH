@@ -105,7 +105,9 @@ def calculate(inputs: dict) -> dict:
     Main entry point - compatible with TypeScript calcAHUSizing() input keys.
     """
     # ── Inputs ────────────────────────────────────────────────────────────────
-    q_sensible_w  = float(inputs.get("q_sensible",       0)
+    # Accept kW input from frontend (cooling_load_kW key → convert to W)
+    _kw_in = float(inputs.get("cooling_load_kW", 0))
+    q_sensible_w  = float(inputs.get("q_sensible",       0) or (_kw_in * 1000)
                       or  inputs.get("q_sensible_total", 0)
                       or  inputs.get("cooling_load_w",   0))
     q_latent_w    = float(inputs.get("q_latent",         0))
@@ -325,7 +327,7 @@ def calculate(inputs: dict) -> dict:
         "Q_design_TR":       coil_tr,
         "Q_sensible_kW":     round(coil_sensible_w / 1000, 2),
         "Q_latent_kW":       round(coil_latent_w / 1000, 2),
-        "Q_input_kW":        round(fan_motor_kw_calc, 3),
+        "Q_input_kW":        round(q_sensible_w / 1000, 3),  # sensible cooling load in kW
         "Q_sa_m3s":          round(vol_flow_m3s, 4),
         "Q_sa_CMH":          round(vol_flow_m3hr, 1),
         "Q_sa_CMH_each":     round(vol_flow_m3hr, 1),
