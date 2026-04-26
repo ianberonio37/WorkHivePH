@@ -263,6 +263,10 @@ def calculate(inputs: dict) -> dict:
         "N_exact":             round(N_exact, 2),
         "N_required":          N_required,
         "n_actual":            n_actual,
+        # Renderer-expected aliases
+        "N_fixtures":          n_actual,
+        "h_rc_m":              round(h_rc, 3),
+        "floor_area_m2":       round(A, 2),
         "layout_rows":         rows,
         "layout_cols":         cols,
         "spacing_x_m":         round(spacing_x, 2),
@@ -274,13 +278,16 @@ def calculate(inputs: dict) -> dict:
         # Illuminance
         "target_lux":          target_lux,
         "E_achieved_lux":      round(E_achieved, 1),
+        "E_actual_lux":        round(E_achieved, 1),
         "illuminance_ok":      illuminance_ok,
         "UGR_max":             ies_data.get("UGR_max"),
         "Ra_min":              ies_data.get("Ra_min"),
 
         # Power
         "total_watts":         total_watts,
+        "total_kW":            round(total_watts / 1000, 3),
         "lpd_actual_W_m2":     round(lpd_actual, 2),
+        "lpd_W_m2":            round(lpd_actual, 2),
         "lpd_limit_W_m2":      lpd_limit,
         "lpd_ok":              lpd_ok,
 
