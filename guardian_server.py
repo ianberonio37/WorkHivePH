@@ -32,6 +32,9 @@ COMMANDS = {
     "autofix_only": ([PYTHON, "autofix.py"],                             "Auto-Fix Only"),
 }
 
+# ── Git operations (not subprocess via COMMANDS — handled separately) ─────────
+GIT_BASE = BASE
+
 # ── Track running command (one at a time) ─────────────────────────────────────
 _running_lock  = threading.Lock()
 _running_cmd   = None   # currently running command key
@@ -63,6 +66,11 @@ class GuardianHandler(BaseHTTPRequestHandler):
         else:
             self._serve_file(os.path.basename(path))
 
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self._cors()
+        self.end_headers()
+
     def do_POST(self):
         p = urlparse(self.path)
         if p.path == "/api/run":
@@ -70,13 +78,13 @@ class GuardianHandler(BaseHTTPRequestHandler):
             body   = json.loads(self.rfile.read(length) or b"{}")
             cmd    = body.get("cmd", "fast")
             self._run_sync(cmd)
+        elif p.path == "/api/git":
+            length = int(self.headers.get("Content-Length", 0))
+            body   = json.loads(self.rfile.read(length) or b"{}")
+            msg    = body.get("message", "Quick commit from Guardian")
+            self._git_stream(msg)
         else:
             self._json({"error": "unknown endpoint"}, 404)
-
-    def do_OPTIONS(self):
-        self.send_response(204)
-        self._cors()
-        self.end_headers()
 
     # ── File serving ──────────────────────────────────────────────────────────
     def _serve_file(self, filename, content_type=None):
@@ -203,6 +211,60 @@ class GuardianHandler(BaseHTTPRequestHandler):
             pass
 
     # ── Sync run (for polling clients) ────────────────────────────────────────
+    # ── Git commit + push via SSE ─────────────────────────────────────────────
+    def _git_stream(self, message):
+        self.send_response(200)
+        self.send_header("Content-Type", "text/event-stream")
+        self.send_header("Cache-Control", "no-cache")
+        self.send_header("X-Accel-Buffering", "no")
+        self._cors()
+        self.end_headers()
+
+        import re as _re
+
+        def git_run(args, label):
+            self._sse_write(f"$ git {' '.join(args)}")
+            result = subprocess.run(
+                ["git"] + args, cwd=BASE,
+                capture_output=True, text=True,
+                encoding="utf-8", errors="replace"
+            )
+            out = _re.sub(r'\x1b\[[0-9;]*m', '', result.stdout + result.stderr).strip()
+            for line in out.splitlines():
+                if line.strip():
+                    self._sse_write(line)
+            return result.returncode
+
+        self._sse_write("[START] Commit & Push")
+        self._sse_write("─" * 50)
+
+        # 1. Check status
+        rc = git_run(["status", "--short"], "status")
+
+        # 2. Stage all
+        rc = git_run(["add", "-A"], "add")
+        if rc != 0:
+            self._sse_write("ERROR: git add failed")
+            self._sse_write("[DONE:1]")
+            return
+
+        # 3. Commit
+        rc = git_run(["commit", "-m", message], "commit")
+        if rc != 0:
+            self._sse_write("Nothing to commit — working tree already clean.")
+            self._sse_write("[DONE:0]")
+            return
+
+        # 4. Push
+        rc = git_run(["push", "origin", "master"], "push")
+
+        self._sse_write("─" * 50)
+        if rc == 0:
+            self._sse_write("✓ Committed and pushed to GitHub")
+        else:
+            self._sse_write("✗ Push failed — check your internet connection")
+        self._sse_write(f"[DONE:{rc}]")
+
     def _run_sync(self, cmd_key):
         cmd_entry = COMMANDS.get(cmd_key)
         if not cmd_entry:
