@@ -98,5 +98,12 @@
       "detail": "--fast mode"
     }
   },
-  "baseline_ref": "2026-04-26T21:44:25.629475"
+  "baseline_ref": "2026-04-26T21:44:25.629475",
+  "improvement_backlog": {
+    "total": 5,
+    "high": 2,
+    "medium": 1,
+    "low": 0,
+    "last_updated": "2026-04-26T21:58:40.898825+00:00"
+  }
 }

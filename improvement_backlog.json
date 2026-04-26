@@ -1,0 +1,85 @@
+[
+  {
+    "id": "nfpa72-update",
+    "group": "Standards",
+    "label": "NFPA 72 Fire Alarm Code \u2014 latest edition",
+    "priority": "HIGH",
+    "score": 100,
+    "signals": [
+      "2022",
+      "2025",
+      "edition",
+      "update"
+    ],
+    "assessment": "Strong signal \u2014 review immediately",
+    "affects": "Fire Alarm Battery calc (validate_logbook.py, engineering-design.html)",
+    "snippet": "What you need to know about the 2025 edition of NFPA 72 | NFPA 72-2025 - National Fire Alarm and Signaling Code | NFPA 72, National Fire Alarm and Signaling Code | Learn the key changes between the 2022 and  2025   editions  of  NFPA   72 : National  Fire   Alarm  and  Signaling   Code . Gain an und",
+    "url": "",
+    "query": "NFPA 72 fire alarm signaling code latest edition 2025 amendment",
+    "checked_at": "2026-04-27 09:58"
+  },
+  {
+    "id": "nfpa92-update",
+    "group": "Standards",
+    "label": "NFPA 92 Smoke Control \u2014 latest edition",
+    "priority": "HIGH",
+    "score": 40,
+    "signals": [
+      "2024"
+    ],
+    "assessment": "Moderate signal \u2014 check when relevant",
+    "affects": "Stairwell Pressurization calc",
+    "snippet": "NFPA 92:2024 Standard for Smoke Control Systems | NFPA 92-2024 - NFPA 92, Standard for Smoke Control Systems - ANSI Webstore | NFPA 92 Standard Development | Chapter 7  Smoke   Control  System Documentation 7.1 Documentation Required. 7.2 Detailed Design Report. 7.3 Operations and Maintenance Manual",
+    "url": "",
+    "query": "NFPA 92 smoke control stairwell pressurization standard 2024 2025",
+    "checked_at": "2026-04-27 09:58"
+  },
+  {
+    "id": "iso281-update",
+    "group": "Standards",
+    "label": "ISO 281 Bearing Life \u2014 latest edition",
+    "priority": "HIGH",
+    "score": 0,
+    "signals": [],
+    "assessment": "Weak signal \u2014 file for reference",
+    "affects": "Bearing Life (L10) calc",
+    "snippet": "ISO 281 - Bearing Dynamic Load Ratings and Life | MLC UK | Load carrying capacity and life | Schaeffler medias | PDF  Rolling bearings \u2014 Dynamic load ratings and rating li | Engineers use  ISO   281  to calculate the expected  life  of a  bearing  under given operating conditions by determining its ",
+    "url": "",
+    "query": "ISO 281 rolling bearing dynamic load ratings life calculation 2024",
+    "checked_at": "2026-04-27 09:58"
+  },
+  {
+    "id": "supabase-realtime",
+    "group": "Technology",
+    "label": "Supabase Realtime \u2014 2025 best practices",
+    "priority": "MEDIUM",
+    "score": 60,
+    "signals": [
+      "presence",
+      "performance",
+      "broadcast"
+    ],
+    "assessment": "Strong signal \u2014 review immediately",
+    "affects": "hive.html realtime channels (validate_hive.py)",
+    "snippet": "Postgres Changes - Supabase Docs | GitHub - supabase/realtime: Broadcast, Presence, and Postgres Changes ... | Building Real-Time Apps with Supabase: A Step-by-Step Guide | We are making many improvements to  Realtime&#x27;s   Postgres   Changes . If you are uncertain about the  performance  of your",
+    "url": "",
+    "query": "Supabase Realtime postgres changes best practices 2025 performance",
+    "checked_at": "2026-04-27 09:58"
+  },
+  {
+    "id": "pec-update",
+    "group": "Standards",
+    "label": "Philippine Electrical Code \u2014 latest edition",
+    "priority": "HIGH",
+    "score": 20,
+    "signals": [
+      "update"
+    ],
+    "assessment": "Weak signal \u2014 file for reference",
+    "affects": "All electrical calcs (Wire Sizing, Short Circuit, Load Schedule, etc.)",
+    "snippet": "Philippine Electrical Code (PEC) - Philippine Energy Law Terms | Department of Energy Philippines | Time for an Update: Why the Philippine Electrical Code Needs to Align ... | Note: Under the Anti-Obstruction of Power Lines Act of 2019, the term is written as &quot; Philippine   Electrical   Code &q",
+    "url": "",
+    "query": "Philippine Electrical Code PEC 2024 2025 latest edition DOE",
+    "checked_at": "2026-04-27 09:58"
+  }
+]

@@ -273,6 +273,7 @@ function render(report) {
   const validators = report.validators || [];
   const gate       = report.readiness || {};
   const regs       = report.regressions || [];
+  const backlog    = report.improvement_backlog || null;
   const ts         = report.timestamp ? new Date(report.timestamp).toLocaleString() : '—';
   const mode       = report.mode === 'fast' ? 'FAST mode' : 'Full mode';
   const dur        = report.duration_s ? `${report.duration_s}s` : '—';
@@ -364,13 +365,45 @@ function render(report) {
   gsec.appendChild(ggrid);
   main.appendChild(gsec);
 
+  // ── Improvement Backlog ──
+  if (backlog && (backlog.high > 0 || backlog.medium > 0 || backlog.low > 0)) {
+    const bsec = document.createElement('div');
+    bsec.className = 'section';
+    bsec.innerHTML = '<div class="section-title">Improvement Backlog</div>';
+    const bcard = document.createElement('div');
+    bcard.className = 'validator-table';
+    const bUpdated = backlog.last_updated
+      ? new Date(backlog.last_updated).toLocaleDateString() : '—';
+    bcard.innerHTML = `
+      <div class="vrow">
+        <span class="badge fail">${backlog.high || 0} HIGH</span>
+        <span class="vlabel">Standards updates with strong signals — review before next major build</span>
+      </div>
+      <div class="vrow">
+        <span class="badge warn">${backlog.medium || 0} MED</span>
+        <span class="vlabel">Best practice gaps — check when relevant</span>
+      </div>
+      <div class="vrow">
+        <span class="badge skip">${backlog.low || 0} LOW</span>
+        <span class="vlabel">Enhancement ideas — roadmap candidates</span>
+      </div>
+      <div class="vrow" style="border-top:1px solid var(--border);margin-top:0.25rem;">
+        <span style="font-size:0.7rem;color:var(--muted);flex:1;">Last scanned: ${bUpdated}</span>
+        <code class="cmd-code" style="font-size:0.72rem;" onclick="copyCmd(this)">python improve.py --fast</code>
+      </div>`;
+    bsec.appendChild(bcard);
+    main.appendChild(bsec);
+  }
+
   // ── Commands ──
   const csec = document.createElement('div');
   csec.className = 'section';
   csec.innerHTML = '<div class="section-title">How to Run</div>';
   const cmds = [
-    { p: 'Dev (fast)',  c: 'python run_platform_checks.py --fast' },
+    { p: 'Dev (fast)',   c: 'python run_platform_checks.py --fast' },
     { p: 'Pre-deploy',  c: 'python run_platform_checks.py' },
+    { p: 'Self-learn',  c: 'python learn.py' },
+    { p: 'Improve',     c: 'python improve.py --fast' },
     { p: 'Gate only',   c: 'python run_platform_checks.py --gate-only' },
     { p: 'Serve this',  c: 'python -m http.server 8080' },
   ];
