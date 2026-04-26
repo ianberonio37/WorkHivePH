@@ -312,6 +312,45 @@ def calculate(inputs: dict) -> dict:
                           centre_mm, section, service_factor, d_driver_mm)
         results.update(belt_res)
 
+        # Add renderer-expected field names (match TypeScript calcGearBeltDrive keys)
+        d_sm  = belt_res["d_small_mm"]
+        d_lg  = belt_res["d_large_mm"]
+        V_ms  = round(math.pi * d_sm / 1000 * n_driver_rpm / 60, 2)
+        act_n = round(n_driver_rpm * d_sm / d_lg) if d_lg > 0 else 0
+        # Belt length correction factor K_L (Shigley's 10th ed, exponent 0.09)
+        L_REF = {'A (13)': 1100, 'B (17)': 1524, 'C (22)': 1905, 'D (32)': 2527}
+        L_ref = L_REF.get(section, 1524)
+        K_L   = round((belt_res["belt_length_mm"] / L_ref) ** 0.09, 3)
+        # Belt designation: section prefix + datum length in inches
+        DATUM_CORR = {'A (13)': 33, 'B (17)': 33, 'C (22)': 48, 'D (32)': 74}
+        datum_mm   = belt_res["belt_length_mm"] - DATUM_CORR.get(section, 33)
+        belt_prefix = section.split()[0]
+        belt_desig  = f"{belt_prefix}{round(datum_mm / 25.4)}"
+        # Corrected power and belt count
+        corr_pwr  = round(belt_res["P_per_belt_kW"] * belt_res["Ctheta"] * K_L, 3)
+        corr_pwr  = max(corr_pwr, 0.01)
+        n_b_calc  = round(belt_res["P_design_kW"] / corr_pwr, 2)
+        n_b_final = math.ceil(n_b_calc)
+        total_cap = round(n_b_final * corr_pwr, 3)
+        cap_mgn   = round((total_cap / belt_res["P_design_kW"] - 1) * 100) if belt_res["P_design_kW"] > 0 else 0
+        results.update({
+            "rated_power_kW":          round(power_kW, 2),
+            "design_power_kW":         belt_res["P_design_kW"],
+            "driven_dia_mm":           d_lg,
+            "actual_driven_rpm":       act_n,
+            "belt_speed_ms":           V_ms,
+            "belt_designation":        belt_desig,
+            "arc_deg":                 belt_res["wrap_angle_deg"],
+            "K_theta":                 belt_res["Ctheta"],
+            "K_L":                     K_L,
+            "power_per_belt_kW":       belt_res["P_per_belt_kW"],
+            "corrected_power_kW":      corr_pwr,
+            "n_belts_calc":            n_b_calc,
+            "n_belts":                 n_b_final,
+            "total_power_capacity_kW": total_cap,
+            "capacity_margin_pct":     cap_mgn,
+        })
+
     else:  # Chain
         N_drv = int(inputs.get("driver_teeth", 19))
         chain_res = _chain_drive(power_kW, n_driver_rpm, n_driven_rpm,
