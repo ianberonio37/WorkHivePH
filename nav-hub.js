@@ -86,14 +86,18 @@
           align-items: center;
           justify-content: center;
           box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 0 rgba(247,162,27,0.2);
-          transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+          transition: transform 0.45s linear(0,.006,.025,.101,.25,.553,.844,1.035,1.115,1.146,1.14,1.107,1.062,1.018,.99,.979,.988,1.004,1.01,1.006,1.001,.999,1), box-shadow 0.25s ease, border-color 0.2s ease;
           position: relative;
           user-select: none;
         }
         #wh-hub-fab:hover {
-          transform: scale(1.06);
+          transform: scale(1.1);
           border-color: rgba(247,162,27,0.6);
           box-shadow: 0 6px 28px rgba(0,0,0,0.45), 0 0 0 4px rgba(247,162,27,0.08);
+        }
+        #wh-hub-fab:active {
+          transform: scale(0.93);
+          transition: transform 0.1s ease;
         }
         #wh-hub-fab.open {
           border-color: #F7A21B;
@@ -136,7 +140,7 @@
           opacity: 0;
           transform: translateY(10px) scale(0.96);
           pointer-events: none;
-          transition: opacity 0.2s ease, transform 0.2s ease;
+          transition: opacity 0.3s ease, transform 0.5s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.834,.843,.858,.876,.894,.907,.916,.924,.932,.940,.947,.953,.958,.962,.967,.972,.978,.984,.990,.994,.998,1);
         }
         #wh-hub-panel.open {
           opacity: 1;
@@ -186,15 +190,19 @@
           border: 1px solid rgba(255,255,255,0.06);
           text-decoration: none;
           cursor: pointer;
-          transition: background 0.15s, border-color 0.15s, transform 0.12s;
+          transition: background 0.15s ease, border-color 0.15s ease,
+                      transform 0.45s linear(0,.006,.025,.101,.25,.553,.844,1.035,1.115,1.146,1.14,1.107,1.062,1.018,.99,.979,.988,1.004,1.01,1.006,1.001,.999,1);
           position: relative;
         }
         .wh-hub-tile:hover {
-          background: rgba(255,255,255,0.08);
-          border-color: rgba(255,255,255,0.12);
-          transform: translateY(-1px);
+          background: rgba(255,255,255,0.09);
+          border-color: rgba(255,255,255,0.16);
+          transform: translateY(-5px) scale(1.03);
         }
-        .wh-hub-tile:active { transform: scale(0.97); }
+        .wh-hub-tile:active {
+          transform: scale(0.93);
+          transition: transform 0.08s ease;
+        }
 
         /* Active / current page tile */
         .wh-hub-tile.active {
