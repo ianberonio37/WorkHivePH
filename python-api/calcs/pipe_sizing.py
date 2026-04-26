@@ -259,4 +259,24 @@ def calculate(inputs: dict) -> dict:
         },
         "calculation_source": "python/fluids+iapws",
         "standard": "ASHRAE 2021 Ch.22 | PSME Code | PNS ISO 4427",
+
+        # ── Legacy renderer aliases (frontend renderPipeReport) ───────────────
+        "flow_lps":            round(flow_m3s * 1000, 2),
+        "dia_mm":              recommended["nominal_mm"],
+        "velocity":            round(velocity, 3),
+        "recommended_dia_mm":  recommended["nominal_mm"],
+        "recommended_velocity": round(velocity, 3),
+        "recommended":         f"{recommended['nominal_mm']}mm nominal ({recommended['id_mm']}mm ID)",
+        "reynolds_number":     round(Re, 0),           # lowercase alias
+        "flow_regime":         ("Turbulent" if Re > 4000 else "Laminar" if Re < 2300 else "Transitional"),
+        "hf_total":            round(h_total, 3),
+        "hf_per_m":            round(h_f / max(length_m, 1), 5),
+        "press_drop_total":    round(dp_kpa, 3),
+        "press_drop_per_m":    round(dp_kpa / max(length_m, 1), 4),
+        "press_kpa_m":         round(dp_kpa / max(length_m, 1), 4),
+        "velocity_head":       round(velocity**2 / (2 * 9.81), 4),
+        "velocity_min":        targets["min"],
+        "velocity_max":        targets["max"],
+        "equiv_length":        round(length_m * (1 + fittings_k), 1),
+        "size_comparison":     size_table,   # renderer alias for size_table
     }
