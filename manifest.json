@@ -1,7 +1,7 @@
 {
   "name": "WorkHive — Industrial Maintenance Platform",
   "short_name": "WorkHive",
-  "description": "Free industrial tools for every Filipino worker. Logbook, PM scheduler, inventory, skill matrix, and AI assistant built for the plant floor.",
+  "description": "Digital tools for industrial maintenance technicians — logbook, PM checklist, parts tracker, and AI assistant.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f1e30",
