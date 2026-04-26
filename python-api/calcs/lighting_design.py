@@ -150,13 +150,12 @@ def _llf(
 
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcLightingDesign() keys."""
-    # ── Room parameters ───────────────────────────────────────────────────────
-    room_length_m   = float(inputs.get("room_length_m",  10.0))
-    room_width_m    = float(inputs.get("room_width_m",    8.0))
-    room_height_m   = float(inputs.get("room_height_m",   3.0))
-    work_plane_m    = float(inputs.get("work_plane_m",    0.75))   # desk height
-    luminaire_height_m = float(inputs.get("luminaire_height_m",
-                                           room_height_m))         # mounting height
+    # ── Room parameters (accept both Python-style and frontend field names) ───
+    room_length_m   = float(inputs.get("room_length_m", inputs.get("room_len_m",   10.0)))
+    room_width_m    = float(inputs.get("room_width_m",  inputs.get("room_wid_m",    8.0)))
+    room_height_m   = float(inputs.get("room_height_m", inputs.get("ceiling_ht_m",  3.0)))
+    work_plane_m    = float(inputs.get("work_plane_m",    0.85))   # desk height (matches renderer)
+    luminaire_height_m = float(inputs.get("luminaire_height_m") or room_height_m)
 
     space_type      = str(inputs.get("space_type", "Office - general"))
     # Normalize: frontend may still send em dash versions — convert to hyphen for lookup
@@ -169,30 +168,30 @@ def calculate(inputs: dict) -> dict:
     rho_wall        = float(inputs.get("rho_wall",    0.50))
     rho_floor       = float(inputs.get("rho_floor",   0.20))
 
-    # ── Luminaire ─────────────────────────────────────────────────────────────
-    lum_key         = str  (inputs.get("luminaire_type", "LED Panel 600×600 (40W)"))
+    # ── Luminaire (accept both Python-style and frontend field names) ─────────
+    lum_key         = str(inputs.get("luminaire_type", inputs.get("fixture_type", "LED Panel 600×600 (40W)")))
     lum_data        = LUMINAIRE_TYPES.get(lum_key, {"watts": 40, "lumens": 4000, "n_lamps": 1})
-    lamp_lumens     = float(inputs.get("lamp_lumens",  lum_data["lumens"]))  # per fixture total
-    watts_per_fix   = float(inputs.get("watts_per_fixture", lum_data["watts"]))
+    lamp_lumens     = float(inputs.get("lamp_lumens",      inputs.get("lumens_per_fix",  lum_data["lumens"])))
+    watts_per_fix   = float(inputs.get("watts_per_fixture", inputs.get("watts_per_fix",  lum_data["watts"])))
 
     maintenance     = str(inputs.get("maintenance_category", "Good"))
     lld             = float(inputs.get("lamp_lumen_depreciation", 0.90))
 
-    # ── Room Cavity Ratio ─────────────────────────────────────────────────────
+    # ── Room Cavity Ratio (IES: RCR = 5 × h_rc × (L+W) / (L×W)) ─────────────
     h_rc = luminaire_height_m - work_plane_m          # room cavity height
     h_cc = room_height_m - luminaire_height_m          # ceiling cavity height
     A    = room_length_m * room_width_m
-    perimeter = 2 * (room_length_m + room_width_m)
 
-    RCR = 5 * h_rc * perimeter / A if A > 0 else 0.0
+    RCR = 5 * h_rc * (room_length_m + room_width_m) / A if A > 0 else 0.0
 
     # ── Coefficient of Utilization ────────────────────────────────────────────
     CU_base = _interpolate_cu(RCR)
     rf      = _reflectance_factor(rho_ceiling, rho_wall, rho_floor)
     CU      = min(CU_base * rf, 0.90)   # cap at physical limit
 
-    # ── Light Loss Factor ─────────────────────────────────────────────────────
-    LLF = _llf(lld, 0.90, maintenance)
+    # ── Light Loss Factor (use frontend-supplied llf directly if provided) ────
+    llf_override = inputs.get("llf")
+    LLF = float(llf_override) if llf_override is not None else _llf(lld, 0.90, maintenance)
 
     # ── Number of luminaires ──────────────────────────────────────────────────
     # N = (E × A) / (Φ × CU × LLF)
