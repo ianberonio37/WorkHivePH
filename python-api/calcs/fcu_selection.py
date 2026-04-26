@@ -280,13 +280,15 @@ def calculate(inputs: dict) -> dict:
         "cooling_load_kw":    round(q_design_kw, 2),
         "selected_kw":        selected["total_kW"],
         "airflow_cmh":        selected["airflow_m3hr"],
-        "chw_flow_lps_total": round(cw_flow_kgs, 3),   # kg/s ≈ L/s for water
+        "chw_flow_lps_total": round(cw_flow_kgs, 3),
         "room_name":          str(inputs.get("room_name", inputs.get("project_name", "Zone 1"))),
-        "qty":                int(inputs.get("quantity", inputs.get("n_units", 1))),
+        "qty":                1,   # single-zone calc always = 1
         # Wrap single result as rooms array for multi-room renderer
         "rooms": [{
             "room_name":            str(inputs.get("room_name", "Zone 1")),
-            "qty":                  int(inputs.get("quantity", 1)),
+            "area_m2":              floor_area,
+            "load_kw":              round(q_design_kw, 2),   # room cooling load (renderer reads this)
+            "qty":                  1,                        # always 1 for single-zone
             "selected_model":       selected["size"],
             "selected_kw":          selected["total_kW"],
             "selected_tr":          round(selected["total_kW"] / 3.517, 2),
