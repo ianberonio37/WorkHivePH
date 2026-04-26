@@ -246,4 +246,11 @@ def calculate(inputs: dict) -> dict:
         # Source tag
         "calculation_source":   "python/fluids+iapws",
         "standard":             "ISO 9906 | PSME Code | ASHRAE 2021 Ch.22",
+
+        # ── Legacy renderer aliases (frontend renderPumpReport) ───────────────
+        "velocity_head":  round(h_velocity, 3),     # renderer uses no _m suffix
+        "pressure_head":  0.0,                       # back-pressure (user input, defaults 0)
+        "brake_kw":       round(shaft_kw, 3),        # brake/shaft power
+        "motor_kw":       round(motor_kw, 3),        # motor input power
+        "motor_hp":       round(motor_kw * 1.341, 1),# HP equivalent
     }
