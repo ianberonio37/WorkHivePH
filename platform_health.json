@@ -1,0 +1,102 @@
+{
+  "timestamp": "2026-04-26T21:45:00.050702+00:00",
+  "mode": "fast",
+  "overall": "PASS",
+  "summary": {
+    "pass": 8,
+    "fail": 0,
+    "warn": 0,
+    "skip": 1
+  },
+  "duration_s": 12.9,
+  "validators": [
+    {
+      "id": "calc-suite",
+      "label": "Engineering Calc Suite (L1+L2a+L2b)",
+      "group": "Engineering Calculator",
+      "status": "PASS",
+      "elapsed": 12.4,
+      "report": null
+    },
+    {
+      "id": "cross-page",
+      "label": "Cross-Page Flow Validator",
+      "group": "Platform",
+      "status": "PASS",
+      "elapsed": 0.1,
+      "report": "cross_page_report.json"
+    },
+    {
+      "id": "hive",
+      "label": "Hive Validator",
+      "group": "Platform",
+      "status": "PASS",
+      "elapsed": 0.1,
+      "report": "hive_report.json"
+    },
+    {
+      "id": "logbook",
+      "label": "Logbook Validator",
+      "group": "Platform",
+      "status": "PASS",
+      "elapsed": 0.1,
+      "report": "logbook_report.json"
+    },
+    {
+      "id": "inventory",
+      "label": "Inventory Validator",
+      "group": "Platform",
+      "status": "PASS",
+      "elapsed": 0.1,
+      "report": "inventory_report.json"
+    },
+    {
+      "id": "pm",
+      "label": "PM Scheduler Validator",
+      "group": "Platform",
+      "status": "PASS",
+      "elapsed": 0.0,
+      "report": "pm_report.json"
+    },
+    {
+      "id": "skillmatrix",
+      "label": "Skill Matrix Validator",
+      "group": "Platform",
+      "status": "PASS",
+      "elapsed": 0.1,
+      "report": "skillmatrix_report.json"
+    },
+    {
+      "id": "assistant",
+      "label": "Assistant Validator",
+      "group": "Platform",
+      "status": "PASS",
+      "elapsed": 0.1,
+      "report": "assistant_report.json"
+    },
+    {
+      "id": "calc-integration",
+      "label": "Calc Integration Test (L3 \u2014 live edge function)",
+      "group": "Engineering Calculator",
+      "status": "SKIP",
+      "elapsed": 0,
+      "report": null
+    }
+  ],
+  "regressions": [],
+  "readiness": {
+    "git": {
+      "status": "PASS",
+      "detail": "working tree clean"
+    },
+    "python_api": {
+      "status": "SKIP",
+      "detail": "--fast mode"
+    },
+    "supabase": {
+      "status": "SKIP",
+      "detail": "--fast mode"
+    }
+  },
+  "baseline_ref": "2026-04-26T21:44:25.629475"
+}
