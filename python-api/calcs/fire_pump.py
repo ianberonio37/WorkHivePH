@@ -83,11 +83,13 @@ def calculate(inputs: dict) -> dict:
     Main entry point - compatible with TypeScript calcFirePump() keys.
     Accepts system demand from Fire Sprinkler calc or direct input.
     """
-    # ── System demand ─────────────────────────────────────────────────────────
-    system_flow_lpm  = float(inputs.get("system_flow_lpm",   0)
-                         or  inputs.get("q_total_lpm",        0))
-    system_press_bar = float(inputs.get("system_pressure_bar", 0)
-                         or  inputs.get("p_system_required_bar", 0))
+    # ── System demand — accept frontend keys ─────────────────────────────────
+    system_flow_lpm  = float(inputs.get("system_flow_lpm")   or
+                             inputs.get("required_flow")      or
+                             inputs.get("q_total_lpm")        or 0)
+    system_press_bar = float(inputs.get("system_pressure_bar")    or
+                             inputs.get("required_pressure")       or
+                             inputs.get("p_system_required_bar")   or 0)
 
     # Also accept gpm / psi
     if system_flow_lpm <= 0:
@@ -105,10 +107,22 @@ def calculate(inputs: dict) -> dict:
     if system_press_bar <= 0:
         system_press_bar = 6.9      # default 100 psi
 
-    driver_type   = str  (inputs.get("driver_type",     "Electric"))   # Electric / Diesel
-    redundancy    = str  (inputs.get("redundancy",       "Duplex"))     # Simplex / Duplex
-    elevation_m   = float(inputs.get("suction_lift_m",   0.0))         # negative = below pump
-    suction_bar   = float(inputs.get("suction_pressure_bar", 0.0))     # positive = pressurised
+    # Accept frontend drive_type strings
+    _dt_raw    = str(inputs.get("drive_type") or inputs.get("driver_type") or "Electric Motor")
+    driver_type = "Diesel" if "Diesel" in _dt_raw else "Electric"
+
+    redundancy    = str  (inputs.get("redundancy",       "Duplex"))
+    elevation_m   = float(inputs.get("elevation")        or inputs.get("suction_lift_m")          or 0.0)
+    suction_head_m = float(inputs.get("suction_head")    or inputs.get("suction_head_m_input")     or 1.5)
+    suction_bar   = float(inputs.get("suction_pressure_bar", 0.0))
+
+    # Pipe parameters
+    pipe_length   = float(inputs.get("pipe_length", 20))
+    _pm_map       = {"Steel": "Carbon Steel (ASTM A53)", "Cast Iron": "Cast Iron",
+                     "Stainless Steel": "Stainless Steel (ASTM A312)"}
+    pipe_mat_raw  = str(inputs.get("pipe_material") or inputs.get("pipe_mat") or "Steel")
+    pipe_mat_disp = _pm_map.get(pipe_mat_raw, pipe_mat_raw)
+    C_hw          = {"Steel": 120, "Cast Iron": 100, "Stainless Steel": 140}.get(pipe_mat_raw, 120)
 
     design_margin_pct = float(inputs.get("design_margin_pct", 10.0))
 
@@ -261,11 +275,15 @@ def calculate(inputs: dict) -> dict:
         "selected_jockey_HP": round(rec_jockey_kw / 0.746, 1),
         "pump_eff_pct":    round(PUMP_EFF * 100, 0),
         "motor_eff_pct":   round(MOTOR_EFF * 100, 0),
-        "suction_type":    "Flooded" if elevation_m <= 0 else "Suction lift",
-        "suction_head_m":  round(-elevation_m, 2),
+        "suction_type":    "Flooded Suction" if suction_head_m >= 0 and elevation_m <= 0 else "Suction Lift",
+        "suction_head_m":  round(suction_head_m, 2),
         "elev_m":          elevation_m,
-        "pipe_material":   "Carbon Steel (ASTM A53)",
+        "pipe_material":   pipe_mat_disp,
         "velocity":        round(rec_flow_lpm / 60000 / (math.pi * (0.1)**2 / 4), 1),
         "nfpa_factor":     round(churn_bar / rated_press_bar * 100, 0),
-        "pipe_dia":        "100 mm",
+        "pipe_dia":        100,   # nominal mm, bare number (renderer appends " mm")
+        "inputs_used": {
+            "C":           C_hw,
+            "pipe_length": pipe_length,
+        },
     }
