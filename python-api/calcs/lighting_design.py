@@ -202,7 +202,7 @@ def calculate(inputs: dict) -> dict:
     N_required = math.ceil(N_exact)
 
     # ── Achieved illuminance ──────────────────────────────────────────────────
-    E_achieved = (N_required * lamp_lumens * CU * LLF) / A if A > 0 else 0
+    E_achieved = (n_actual * lamp_lumens * CU * LLF) / A if A > 0 else 0
     illuminance_ok = E_achieved >= target_lux
 
     # ── Layout recommendation ─────────────────────────────────────────────────
