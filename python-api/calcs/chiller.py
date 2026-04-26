@@ -153,19 +153,24 @@ def calculate(inputs: dict) -> dict:
     chw_return_c  = float(inputs.get("chw_return_c") or inputs.get("chw_return_C") or 13.0)
     chw_delta_t   = chw_return_c - chw_supply_c
 
-    # Condenser side
+    # Condenser side — accept both lowercase and uppercase C suffix
     if is_water:
-        cw_supply_c  = float(inputs.get("cw_supply_c",  29.5))  # tower supply
-        cw_return_c  = float(inputs.get("cw_return_c",  35.0))  # to tower
+        cw_supply_c  = float(inputs.get("cw_supply_c") or inputs.get("cw_supply_C") or 29.5)
+        cw_return_c  = float(inputs.get("cw_return_c") or inputs.get("cw_return_C") or 35.0)
         cw_delta_t   = cw_return_c - cw_supply_c
-        outdoor_db_c = float(inputs.get("outdoor_temp",  35.0))
+        outdoor_db_c = float(inputs.get("outdoor_temp") or inputs.get("ambient_temp_C") or 35.0)
     else:
-        outdoor_db_c = float(inputs.get("outdoor_temp",  35.0))
+        outdoor_db_c = float(inputs.get("outdoor_temp") or inputs.get("ambient_temp_C") or 35.0)
         cw_supply_c  = outdoor_db_c   # air-cooled: ambient dry-bulb
         cw_return_c  = outdoor_db_c + 10.0   # rough hot-air leaving temp
         cw_delta_t   = 10.0
 
-    design_margin = float(inputs.get("design_margin_pct", 10.0))
+    # safety_factor from frontend (e.g., 1.10) → convert to design_margin_pct (10.0)
+    safety_factor_raw = float(inputs.get("safety_factor", 1.10) or 1.10)
+    design_margin_default = (safety_factor_raw - 1.0) * 100.0
+    design_margin = float(inputs.get("design_margin_pct", design_margin_default))
+
+    n_units = max(1, int(inputs.get("n_units", 1) or 1))
 
     # ── Refrigerant operating temperatures (from approach temps) ──────────────
     # Evap refrigerant temp = CHW supply - approach
@@ -203,9 +208,9 @@ def calculate(inputs: dict) -> dict:
     rec_tr = round(rec_kw / 3.517, 1)
 
     # ── Chilled water (evaporator) flow ───────────────────────────────────────
-    chw_flow_kgs = cooling_kw * 1000 / (CP_WATER * max(chw_delta_t, 1))
-    chw_flow_lps = chw_flow_kgs / RHO_WATER
-    chw_flow_m3hr = chw_flow_lps * 3.6
+    chw_flow_kgs  = cooling_kw * 1000 / (CP_WATER * max(chw_delta_t, 1))
+    chw_flow_lps  = chw_flow_kgs * 1000 / RHO_WATER   # kg/s → L/s (÷ 0.999 kg/L)
+    chw_flow_m3hr = chw_flow_lps * 3.6                # L/s → m³/h
 
     # ── Condenser heat rejection ──────────────────────────────────────────────
     q_rejection_kw   = cooling_kw + comp_kw   # heat balance
@@ -213,8 +218,8 @@ def calculate(inputs: dict) -> dict:
 
     if is_water:
         cw_flow_kgs  = q_rejection_kw * 1000 / (CP_WATER * max(cw_delta_t, 1))
-        cw_flow_lps  = cw_flow_kgs / RHO_WATER
-        cw_flow_m3hr = cw_flow_lps * 3.6
+        cw_flow_lps  = cw_flow_kgs * 1000 / RHO_WATER   # kg/s → L/s
+        cw_flow_m3hr = cw_flow_lps * 3.6                # L/s → m³/h
         cw_flow_gpm  = cw_flow_lps * 15.8508
     else:
         # Air-cooled: airflow estimate - ~450 m³/h per kW rejection (typical)
@@ -295,6 +300,8 @@ def calculate(inputs: dict) -> dict:
             "chw_delta_T_c":     chw_delta_t,
             "outdoor_db_c":      outdoor_db_c,
             "design_margin_pct": design_margin,
+            "safety_factor":     safety_factor_raw,
+            "n_units":           n_units,
         },
         "calculation_source": "python/math",
         "standard": "ASHRAE 90.1-2019 Table 6.8.1 | AHRI 550/590 | ASHRAE 2021 Ch.2",
@@ -302,19 +309,19 @@ def calculate(inputs: dict) -> dict:
         # ── Legacy renderer aliases (frontend renderChiller*Report) ────────────
         "Q_design_kW":      round(cooling_kw_design, 2),
         "Q_design_TR":      round(cooling_tr_design, 2),
-        "Q_input_kW":       round(comp_kw, 2),
-        "Q_per_unit_kW":    round(cooling_kw_design / 1, 2),
-        "Q_per_unit_TR":    round(cooling_tr_design / 1, 2),
-        "P_per_unit_kW":    round(comp_kw / 1, 2),
+        "Q_input_kW":       round(cooling_kw, 2),             # raw input cooling load
+        "Q_per_unit_kW":    round(cooling_kw_design / n_units, 2),
+        "Q_per_unit_TR":    round(cooling_tr_design / n_units, 2),
+        "P_per_unit_kW":    round(comp_kw / n_units, 2),
         "P_total_kW":       round(comp_kw, 2),
         "Q_rejection_kW":   round(q_rejection_kw, 2),
         "Q_rejection_TR":   round(q_rejection_tr, 2),
-        "Q_chw_lps":        round(chw_flow_kgs, 3),           # kg/s ≈ L/s for water
-        "Q_chw_m3h":        round(chw_flow_kgs * 3.6, 2),    # L/s → m³/hr
-        "Q_chw_GPM":        round(chw_flow_kgs * 15.8503, 1),
-        "Q_cw_lps":         round(cw_flow_kgs if is_water else 0, 3),
-        "Q_cw_m3h":         round(cw_flow_kgs * 3.6 if is_water else 0, 1),
-        "Q_cw_GPM":         round(cw_flow_kgs * 15.8508 if is_water else 0, 1),
+        "Q_chw_lps":        round(chw_flow_lps, 3),
+        "Q_chw_m3h":        round(chw_flow_m3hr, 2),
+        "Q_chw_GPM":        round(chw_flow_lps * 15.8503, 1),
+        "Q_cw_lps":         round(cw_flow_lps if is_water else 0, 3),
+        "Q_cw_m3h":         round(cw_flow_m3hr if is_water else 0, 1),
+        "Q_cw_GPM":         round(cw_flow_lps * 15.8508 if is_water else 0, 1),
         "dT_chw_C":         chw_delta_t,
         "dT_cw_C":          cw_delta_t,
         "iplv":             round(iplv, 3),
@@ -326,17 +333,17 @@ def calculate(inputs: dict) -> dict:
         "ashrae_min_iplv":  limits["min_IPLV"],
         "nominal_TR_each":  rec_tr,
         "nominal_kW_each":  rec_kw,
-        "nominal_total_TR": round(rec_tr * 1, 1),
+        "nominal_total_TR": round(rec_tr * n_units, 1),
         "refrigerant":      "R-134a" if is_water else "R-410A",
         "total_A_at_400V":  round(comp_kw * 1000 / (400 * 1.732 * 0.9), 1),
         "total_kVA":        round(comp_kw / 0.9, 1),
         # Air-cooled specific
         "Q_airflow_CMH":    round(q_rejection_kw / (1.2 * 1.005 * 10) * 3600, 0),
-        "Q_airflow_CMH_per_unit": round(q_rejection_kw / (1.2 * 1.005 * 10) * 3600 / 1, 0),
+        "Q_airflow_CMH_per_unit": round(q_rejection_kw / (1.2 * 1.005 * 10) * 3600 / n_units, 0),
         "Q_airflow_CFM":    round(q_rejection_kw / (1.2 * 1.005 * 10) * 3600 / 1.699, 0),
-        "Q_flow_lps":       round(chw_flow_kgs, 3),
-        "Q_flow_m3h":       round(chw_flow_kgs * 3.6, 2),
-        "Q_flow_GPM":       round(chw_flow_kgs * 15.8503, 1),
+        "Q_flow_lps":       round(chw_flow_lps, 3),
+        "Q_flow_m3h":       round(chw_flow_m3hr, 2),
+        "Q_flow_GPM":       round(chw_flow_lps * 15.8503, 1),
         "ambient_note":     f"Design ambient: {outdoor_db_c}°C DB",
         "dT_cond_C":        cond_approach,
     }
