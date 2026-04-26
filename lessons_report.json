@@ -1,0 +1,104 @@
+{
+  "timestamp": "2026-04-27 09:53",
+  "dry_run": false,
+  "total_lessons": 11,
+  "written": 18,
+  "skipped": 0,
+  "actions": [
+    {
+      "lesson": "floating-ai.js: add engineering-design.html to PLATFORM TOOLS (was missing), fix Skill Matrix disciplines (HVAC/Civil wr",
+      "source": "git:539d613",
+      "skills": [
+        "assistant-validator",
+        "qa-tester"
+      ],
+      "written": true
+    },
+    {
+      "lesson": "PM_CAT_TO_LOG_CAT: HVAC/Utilities/Civil map to unrecognized logbook categories (invisible in filters); remap to Mechanic",
+      "source": "git:a36d7d2",
+      "skills": [
+        "logbook-validator",
+        "pm-validator"
+      ],
+      "written": true
+    },
+    {
+      "lesson": "logbook->inventory_transactions: add qty_after to both parts deduction inserts (inventory balance history was breaking);",
+      "source": "git:5a90cc4",
+      "skills": [
+        "logbook-validator",
+        "cross-page-flow-validator"
+      ],
+      "written": true
+    },
+    {
+      "lesson": "Load Schedule: add total_connected_kva alias for renderer",
+      "source": "git:e7d9ac6",
+      "skills": [
+        "engineering-calc-validator",
+        "devops"
+      ],
+      "written": true
+    },
+    {
+      "lesson": "analytics: use calendar period dates (not rolling windows)",
+      "source": "git:a1a222e",
+      "skills": [
+        "platform-guardian"
+      ],
+      "written": true
+    },
+    {
+      "lesson": "Wire Sizing, Load Schedule, Lighting Design: add renderer-expected field aliases; skip FCU/Gear-Belt/conditional rendere",
+      "source": "git:c372e47",
+      "skills": [
+        "engineering-calc-validator",
+        "devops"
+      ],
+      "written": true
+    },
+    {
+      "lesson": "Shift Handover print: suppress browser headers/footers, add category breakdown",
+      "source": "git:fe54be1",
+      "skills": [
+        "platform-guardian"
+      ],
+      "written": true
+    },
+    {
+      "lesson": "Lighting Design Python: add renderer aliases (N_fixtures, E_actual_lux, h_rc_m, floor_area_m2, total_kW, lpd_W_m2); upda",
+      "source": "git:995d4db",
+      "skills": [
+        "engineering-calc-validator",
+        "devops"
+      ],
+      "written": true
+    },
+    {
+      "lesson": "Lighting Design: n_actual used before assignment (moved layout calc before E_achieved); build complete 4-layer validatio",
+      "source": "git:8f2a6f0",
+      "skills": [
+        "engineering-calc-validator",
+        "devops"
+      ],
+      "written": true
+    },
+    {
+      "lesson": "handover print: open clean popup window instead of printing full page",
+      "source": "git:8db1d9f",
+      "skills": [
+        "platform-guardian"
+      ],
+      "written": true
+    },
+    {
+      "lesson": "handover report print: scope to sheet content only, hide backdrop and footer buttons",
+      "source": "git:d30d958",
+      "skills": [
+        "platform-guardian"
+      ],
+      "written": true
+    }
+  ]
+}
