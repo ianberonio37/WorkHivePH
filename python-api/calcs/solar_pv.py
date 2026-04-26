@@ -130,19 +130,27 @@ def calculate(inputs: dict) -> dict:
 
     t_min_c      = float(inputs.get("t_min_c",
                          T_MIN_PHILIPPINES.get(location, T_MIN_DEFAULT)))
-    psh          = float(inputs.get("peak_sun_hours",
-                         PSH_PHILIPPINES.get(location, PSH_DEFAULT)))
-    t_ambient_max = float(inputs.get("ambient_temp_max_c", 35.0))   # Manila peak ambient
+    psh          = float(inputs.get("peak_sun_hours")
+                     or  inputs.get("psh_hr")
+                     or  PSH_PHILIPPINES.get(location, PSH_DEFAULT))
+    t_ambient_max = float(inputs.get("ambient_temp_max_c", 35.0))
 
-    # ── Module parameters ─────────────────────────────────────────────────────
-    voc_stc      = float(inputs.get("voc_stc",        DEFAULT_MODULE["Voc_stc"]))
+    # User-specified derating and inverter efficiency → performance ratio
+    derating_pct     = float(inputs.get("derating_pct",     80.0))
+    inverter_eff_pct = float(inputs.get("inverter_eff_pct", 96.0))
+    perf_ratio = (derating_pct / 100.0) * (inverter_eff_pct / 100.0)
+    if perf_ratio <= 0:
+        perf_ratio = PERFORMANCE_RATIO   # fallback to hardcoded
+
+    # ── Module parameters — accept frontend field names ───────────────────────
+    voc_stc      = float(inputs.get("voc_stc")     or inputs.get("panel_voc")        or DEFAULT_MODULE["Voc_stc"])
     vmp_stc      = float(inputs.get("vmp_stc",        DEFAULT_MODULE["Vmp_stc"]))
     isc_stc      = float(inputs.get("isc_stc",        DEFAULT_MODULE["Isc_stc"]))
     imp_stc      = float(inputs.get("imp_stc",        DEFAULT_MODULE["Imp_stc"]))
-    pmax_w       = float(inputs.get("module_wp",      DEFAULT_MODULE["Pmax_w"]))
-    tc_voc       = float(inputs.get("tempCoeff_voc",  DEFAULT_MODULE["tempCoeff_Voc"]))
-    tc_pmax      = float(inputs.get("tempCoeff_pmax", DEFAULT_MODULE["tempCoeff_Pmax"]))
-    module_area  = float(inputs.get("module_area_m2", DEFAULT_MODULE["area_m2"]))
+    pmax_w       = float(inputs.get("module_wp")   or inputs.get("panel_wp")         or DEFAULT_MODULE["Pmax_w"])
+    tc_voc       = float(inputs.get("tempCoeff_voc")or inputs.get("temp_coeff_voc")  or DEFAULT_MODULE["tempCoeff_Voc"])
+    tc_pmax      = float(inputs.get("tempCoeff_pmax",  DEFAULT_MODULE["tempCoeff_Pmax"]))
+    module_area  = float(inputs.get("module_area_m2")or inputs.get("panel_area_m2")  or DEFAULT_MODULE["area_m2"])
 
     # ── Inverter parameters ───────────────────────────────────────────────────
     inv_vdc_max  = float(inputs.get("inverter_vdc_max",  1000))  # V max DC input
@@ -150,9 +158,9 @@ def calculate(inputs: dict) -> dict:
     inv_idc_max  = float(inputs.get("inverter_idc_max",    30))  # A max DC input per MPPT
 
     # ── Default system kW from PSH if not given ───────────────────────────────
-    daily_load_kwh = float(inputs.get("daily_load_kwh", 0))
+    daily_load_kwh = float(inputs.get("daily_load_kwh") or inputs.get("daily_energy_kwh") or 0)
     if system_kw <= 0 and daily_load_kwh > 0:
-        system_kw = daily_load_kwh / (psh * PERFORMANCE_RATIO)
+        system_kw = daily_load_kwh / (psh * perf_ratio)
     if system_kw <= 0:
         system_kw = 5.0
 
@@ -207,7 +215,7 @@ def calculate(inputs: dict) -> dict:
     dc_cable_a   = isc_stc * 1.25 * strings_parallel
 
     # ── Energy yield ──────────────────────────────────────────────────────────
-    energy_day_kwh  = array_kw_stc * psh * PERFORMANCE_RATIO
+    energy_day_kwh  = array_kw_stc * psh * perf_ratio
     energy_yr_kwh   = energy_day_kwh * 365
     energy_yr_mwh   = energy_yr_kwh / 1000
 
@@ -294,7 +302,7 @@ def calculate(inputs: dict) -> dict:
         # Energy yield
         "location":               location,
         "peak_sun_hours":         psh,
-        "performance_ratio":      round(PERFORMANCE_RATIO, 3),
+        "performance_ratio":      round(perf_ratio, 3),
         "energy_day_kWh":         round(energy_day_kwh, 2),
         "energy_yr_kWh":          round(energy_yr_kwh, 0),
         "energy_yr_MWh":          round(energy_yr_mwh, 2),
@@ -332,7 +340,7 @@ def calculate(inputs: dict) -> dict:
         "annual_yield_kwh":    round(energy_yr_kwh, 0),
         "inverter_kw":         round(rec_inv_kva * 0.90, 2),
         "psh_hr":              psh,
-        "system_efficiency":   round(PERFORMANCE_RATIO, 3),
+        "system_efficiency":   round(perf_ratio, 3),
         "t_min_c":             t_min_c,
         "temp_coeff_voc":      tc_voc,
         "total_roof_area_m2":  round(array_area_m2 * 1.15, 1),   # 15% extra for spacing
