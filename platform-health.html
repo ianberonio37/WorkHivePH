@@ -6,509 +6,555 @@
   <title>WorkHive Platform Guardian</title>
   <style>
     :root {
-      --bg:       #0f1923;
-      --surface:  #162032;
-      --card:     #1d2e44;
-      --border:   rgba(255,255,255,0.07);
-      --gold:     #F7A21B;
-      --blue:     #29B6D9;
-      --green:    #4ade80;
-      --red:      #f87171;
-      --yellow:   #fbbf24;
-      --muted:    rgba(255,255,255,0.35);
-      --text:     #F4F6FA;
+      --bg:      #0f1923;
+      --surface: #162032;
+      --card:    #1d2e44;
+      --border:  rgba(255,255,255,0.07);
+      --gold:    #F7A21B;
+      --blue:    #29B6D9;
+      --green:   #4ade80;
+      --red:     #f87171;
+      --yellow:  #fbbf24;
+      --purple:  #a78bfa;
+      --muted:   rgba(255,255,255,0.35);
+      --text:    #F4F6FA;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background: var(--bg); color: var(--text);
       font-family: 'Segoe UI', system-ui, sans-serif;
-      font-size: 0.88rem; line-height: 1.5;
-      min-height: 100vh;
+      font-size: 0.875rem; line-height: 1.5; min-height: 100vh;
     }
 
     /* ── Header ── */
-    .header {
-      background: linear-gradient(135deg, #0f1923 0%, #162032 100%);
+    .hdr {
+      background: linear-gradient(135deg,#0f1923,#162032);
       border-bottom: 1px solid var(--border);
-      padding: 1.25rem 1.5rem;
+      padding: 1rem 1.5rem;
       display: flex; align-items: center; justify-content: space-between;
       flex-wrap: wrap; gap: 0.75rem;
     }
-    .header-left { display: flex; align-items: center; gap: 0.75rem; }
-    .logo-dot {
+    .hdr-left { display: flex; align-items: center; gap: 0.75rem; }
+    .pulse {
       width: 10px; height: 10px; border-radius: 50%;
-      background: var(--gold); box-shadow: 0 0 8px var(--gold);
-      animation: pulse 2s infinite;
+      background: var(--green); box-shadow: 0 0 8px var(--green);
+      animation: blink 2s infinite;
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
-    }
-    .logo-dot.fail { background: var(--red); box-shadow: 0 0 8px var(--red); }
-    .logo-dot.warn { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
-    .logo-dot.pass { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .pulse.fail   { background: var(--red);    box-shadow: 0 0 8px var(--red); }
+    .pulse.warn   { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+    .pulse.busy   { background: var(--blue);   box-shadow: 0 0 8px var(--blue); animation: spin-pulse 0.8s infinite; }
+    @keyframes blink     { 0%,100%{opacity:1} 50%{opacity:.35} }
+    @keyframes spin-pulse{ 0%{opacity:1} 50%{opacity:.4} 100%{opacity:1} }
     h1 { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
-    .header-meta { font-size: 0.75rem; color: var(--muted); }
-    .header-right { display: flex; gap: 0.5rem; }
-    .btn {
-      background: rgba(247,162,27,0.1); border: 1px solid rgba(247,162,27,0.3);
-      color: var(--gold); padding: 0.4rem 0.9rem; border-radius: 0.5rem;
-      cursor: pointer; font-size: 0.78rem; font-weight: 600;
+    .hdr-meta { font-size: 0.72rem; color: var(--muted); }
+    .refresh-chip {
+      font-size: 0.7rem; padding: 0.2rem 0.6rem;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      border-radius: 999px; color: var(--muted); cursor: pointer;
       transition: background 0.15s;
     }
-    .btn:hover { background: rgba(247,162,27,0.2); }
-    .btn.secondary {
-      background: rgba(255,255,255,0.04); border-color: var(--border);
-      color: var(--muted);
+    .refresh-chip:hover { background: rgba(255,255,255,0.1); }
+
+    /* ── Action buttons ── */
+    .actions {
+      padding: 1rem 1.5rem 0;
+      display: flex; gap: 0.6rem; flex-wrap: wrap;
     }
+    .action-btn {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.55rem 1rem; border-radius: 0.6rem;
+      border: 1px solid; cursor: pointer; font-size: 0.78rem;
+      font-weight: 600; transition: all 0.15s; user-select: none;
+      background: transparent;
+    }
+    .action-btn:active { transform: scale(0.97); }
+    .action-btn.primary {
+      background: rgba(247,162,27,0.12);
+      border-color: rgba(247,162,27,0.4); color: var(--gold);
+    }
+    .action-btn.primary:hover { background: rgba(247,162,27,0.22); }
+    .action-btn.fix {
+      background: rgba(248,113,113,0.1);
+      border-color: rgba(248,113,113,0.35); color: var(--red);
+    }
+    .action-btn.fix:hover { background: rgba(248,113,113,0.2); }
+    .action-btn.deploy {
+      background: rgba(74,222,128,0.1);
+      border-color: rgba(74,222,128,0.35); color: var(--green);
+    }
+    .action-btn.deploy:hover { background: rgba(74,222,128,0.2); }
+    .action-btn.learn {
+      background: rgba(41,182,217,0.1);
+      border-color: rgba(41,182,217,0.35); color: var(--blue);
+    }
+    .action-btn.learn:hover { background: rgba(41,182,217,0.2); }
+    .action-btn.improve {
+      background: rgba(167,139,250,0.1);
+      border-color: rgba(167,139,250,0.35); color: var(--purple);
+    }
+    .action-btn.improve:hover { background: rgba(167,139,250,0.2); }
+    .action-btn.muted {
+      background: rgba(255,255,255,0.03);
+      border-color: var(--border); color: var(--muted);
+    }
+    .action-btn.muted:hover { background: rgba(255,255,255,0.07); }
+    .action-btn:disabled, .action-btn.running {
+      opacity: 0.5; cursor: not-allowed; pointer-events: none;
+    }
+    .btn-icon { font-size: 0.9rem; }
+    .spinner {
+      width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: currentColor; border-radius: 50%;
+      animation: spin 0.7s linear infinite; display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .action-btn.running .spinner { display: inline-block; }
+    .action-btn.running .btn-icon { display: none; }
 
     /* ── Layout ── */
-    .main { max-width: 920px; margin: 0 auto; padding: 1.5rem; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
-    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1.25rem; }
-    @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } .grid-4 { grid-template-columns: repeat(2,1fr); } }
+    .main { max-width: 960px; margin: 0 auto; padding: 1.25rem 1.5rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 0.75rem; margin-bottom: 1rem; }
+    @media(max-width:600px){ .grid-4{grid-template-columns:repeat(2,1fr);} }
 
     /* ── Summary cards ── */
-    .summary-card {
+    .scard {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 0.75rem; padding: 1rem; text-align: center;
+      border-radius: 0.75rem; padding: 0.9rem; text-align: center;
     }
-    .summary-card .num { font-size: 2rem; font-weight: 800; }
-    .summary-card .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.2rem; }
-    .summary-card.pass .num { color: var(--green); }
-    .summary-card.fail .num { color: var(--red); }
-    .summary-card.warn .num { color: var(--yellow); }
-    .summary-card.skip .num { color: var(--blue); }
+    .scard .num { font-size: 1.9rem; font-weight: 800; }
+    .scard .lbl { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .scard.pass .num { color: var(--green); }
+    .scard.fail .num { color: var(--red); }
+    .scard.warn .num { color: var(--yellow); }
+    .scard.skip .num { color: var(--blue); }
 
-    /* ── Status banner ── */
+    /* ── Banner ── */
     .banner {
-      border-radius: 0.75rem; padding: 0.9rem 1.25rem;
+      border-radius: 0.75rem; padding: 0.85rem 1.1rem;
       display: flex; align-items: center; gap: 0.75rem;
-      margin-bottom: 1.25rem; font-weight: 700; font-size: 0.95rem;
+      margin-bottom: 1rem; font-weight: 700; font-size: 0.9rem;
     }
-    .banner.pass { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); color: var(--green); }
-    .banner.fail { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
-    .banner.warn { background: rgba(251,191,36,0.1);  border: 1px solid rgba(251,191,36,0.3);  color: var(--yellow); }
-    .banner .banner-sub { font-size: 0.75rem; font-weight: 400; margin-left: auto; color: var(--muted); }
+    .banner.pass { background: rgba(74,222,128,0.08);   border:1px solid rgba(74,222,128,0.25);   color:var(--green); }
+    .banner.fail { background: rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.25); color:var(--red); }
+    .banner.warn { background: rgba(251,191,36,0.08);   border:1px solid rgba(251,191,36,0.25);   color:var(--yellow); }
+    .banner .b-sub { font-size:0.72rem; font-weight:400; margin-left:auto; color:var(--muted); }
 
     /* ── Section ── */
-    .section { margin-bottom: 1.25rem; }
-    .section-title {
-      font-size: 0.7rem; font-weight: 700; color: var(--muted);
-      text-transform: uppercase; letter-spacing: 0.1em;
-      margin-bottom: 0.5rem; padding-left: 0.25rem;
-    }
+    .sec { margin-bottom: 1rem; }
+    .sec-title { font-size:0.68rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin-bottom:.4rem; padding-left:.2rem; }
 
     /* ── Validator rows ── */
-    .validator-table {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 0.75rem; overflow: hidden;
-    }
+    .vtable { background:var(--card); border:1px solid var(--border); border-radius:.75rem; overflow:hidden; }
     .vrow {
+      display:flex; align-items:center; gap:.6rem;
+      padding:.6rem 1rem; border-bottom:1px solid var(--border);
+      transition:background .1s;
+    }
+    .vrow:last-child { border-bottom:none; }
+    .vrow:hover { background:rgba(255,255,255,0.025); }
+    .badge {
+      font-size:.62rem; font-weight:800; padding:.18rem .45rem;
+      border-radius:.3rem; min-width:3rem; text-align:center; letter-spacing:.04em;
+    }
+    .badge.pass { background:rgba(74,222,128,.15); color:var(--green); }
+    .badge.fail { background:rgba(248,113,113,.15); color:var(--red); }
+    .badge.warn { background:rgba(251,191,36,.15);  color:var(--yellow); }
+    .badge.skip { background:rgba(41,182,217,.15);  color:var(--blue); }
+    .vrow .vlabel { flex:1; font-size:.82rem; }
+    .vrow .vtime  { font-size:.7rem; color:var(--muted); min-width:3rem; text-align:right; }
+
+    /* ── Gate cards ── */
+    .gate-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.75rem; }
+    @media(max-width:600px){ .gate-grid{grid-template-columns:1fr;} }
+    .gcard {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:.75rem; padding:.8rem 1rem;
+    }
+    .gcard.pass { border-left:3px solid var(--green); }
+    .gcard.fail { border-left:3px solid var(--red); }
+    .gcard.warn { border-left:3px solid var(--yellow); }
+    .gcard.skip { border-left:3px solid var(--blue); }
+    .gname  { font-size:.7rem; color:var(--muted); margin-bottom:.2rem; }
+    .gstat  { font-size:.85rem; font-weight:700; }
+    .gdetail{ font-size:.7rem; color:var(--muted); margin-top:.15rem; }
+
+    /* ── Regression ── */
+    .reg-alert {
+      background:rgba(248,113,113,.07); border:1px solid rgba(248,113,113,.3);
+      border-radius:.75rem; padding:.85rem 1rem; margin-bottom:1rem;
+    }
+    .reg-title { color:var(--red); font-weight:700; margin-bottom:.35rem; }
+    .reg-item  { font-size:.78rem; color:var(--muted); padding:.15rem 0; }
+
+    /* ── Backlog ── */
+    .bl-row {
+      display:flex; align-items:center; gap:.75rem;
+      padding:.6rem 1rem; border-bottom:1px solid var(--border);
+    }
+    .bl-row:last-child { border-bottom:none; }
+    .bl-label { flex:1; font-size:.8rem; color:var(--muted); }
+
+    /* ── Terminal ── */
+    #terminal-wrap {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #0a1118; border-top: 2px solid var(--gold);
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
+      z-index: 100; max-height: 55vh; display: flex; flex-direction: column;
+    }
+    #terminal-wrap.open { transform: translateY(0); }
+    .term-header {
       display: flex; align-items: center; gap: 0.75rem;
-      padding: 0.65rem 1rem; border-bottom: 1px solid var(--border);
-      transition: background 0.1s;
+      padding: 0.6rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.3); flex-shrink: 0;
     }
-    .vrow:last-child { border-bottom: none; }
-    .vrow:hover { background: rgba(255,255,255,0.03); }
-    .vrow .badge {
-      font-size: 0.65rem; font-weight: 800; padding: 0.2rem 0.5rem;
-      border-radius: 0.35rem; min-width: 3.2rem; text-align: center; letter-spacing: 0.05em;
+    .term-title { font-size: 0.78rem; font-weight: 700; color: var(--gold); flex: 1; }
+    .term-status { font-size: 0.7rem; color: var(--muted); }
+    .term-close {
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 1rem; padding: 0.2rem 0.5rem;
+      transition: color 0.1s;
     }
-    .badge.pass { background: rgba(74,222,128,0.15);  color: var(--green); }
-    .badge.fail { background: rgba(248,113,113,0.15); color: var(--red); }
-    .badge.warn { background: rgba(251,191,36,0.15);  color: var(--yellow); }
-    .badge.skip { background: rgba(41,182,217,0.15);  color: var(--blue); }
-    .badge.err  { background: rgba(248,113,113,0.2);  color: var(--red); }
-    .vrow .vlabel { flex: 1; font-size: 0.83rem; }
-    .vrow .vtime  { font-size: 0.72rem; color: var(--muted); min-width: 3rem; text-align: right; }
-    .vrow .vgroup { font-size: 0.65rem; color: var(--muted); padding: 0.1rem 0.4rem; background: rgba(255,255,255,0.05); border-radius: 0.25rem; }
+    .term-close:hover { color: var(--text); }
+    #terminal {
+      flex: 1; overflow-y: auto; padding: 0.75rem 1rem;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.78rem; line-height: 1.6;
+    }
+    .term-line { white-space: pre-wrap; word-break: break-all; margin: 0; }
+    .term-line.cmd  { color: var(--gold); font-weight: 700; }
+    .term-line.pass { color: var(--green); }
+    .term-line.fail { color: var(--red); }
+    .term-line.warn { color: var(--yellow); }
+    .term-line.info { color: var(--blue); }
+    .term-line.dim  { color: var(--muted); }
+    .term-cursor { display: inline-block; width: 8px; height: 14px; background: var(--gold); vertical-align: middle; animation: blink 1s infinite; }
 
-    /* ── Readiness gate ── */
-    .gate-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
-    @media (max-width: 600px) { .gate-grid { grid-template-columns: 1fr; } }
-    .gate-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 0.75rem; padding: 0.9rem 1rem;
-    }
-    .gate-card.pass { border-left: 3px solid var(--green); }
-    .gate-card.fail { border-left: 3px solid var(--red); }
-    .gate-card.warn { border-left: 3px solid var(--yellow); }
-    .gate-card.skip { border-left: 3px solid var(--blue); }
-    .gate-name { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.25rem; }
-    .gate-status { font-size: 0.85rem; font-weight: 700; }
-    .gate-detail { font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
-
-    /* ── Regressions ── */
-    .regression-alert {
-      background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.3);
-      border-radius: 0.75rem; padding: 0.9rem 1rem; margin-bottom: 1.25rem;
-    }
-    .regression-title { color: var(--red); font-weight: 700; margin-bottom: 0.4rem; }
-    .regression-item { font-size: 0.8rem; color: var(--muted); padding: 0.2rem 0; }
-
-    /* ── Commands ── */
-    .cmd-box {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 0.75rem; overflow: hidden;
-    }
-    .cmd-row {
-      display: flex; align-items: center; gap: 0.75rem;
-      padding: 0.7rem 1rem; border-bottom: 1px solid var(--border);
-    }
-    .cmd-row:last-child { border-bottom: none; }
-    .cmd-purpose { font-size: 0.72rem; color: var(--muted); min-width: 5.5rem; }
-    .cmd-code {
-      font-family: 'Consolas', monospace; font-size: 0.78rem;
-      color: var(--gold); background: rgba(247,162,27,0.06);
-      padding: 0.2rem 0.5rem; border-radius: 0.3rem; flex: 1;
-      cursor: pointer; transition: background 0.15s;
-    }
-    .cmd-code:hover { background: rgba(247,162,27,0.12); }
-    .cmd-copy { font-size: 0.65rem; color: var(--muted); cursor: pointer; }
+    /* ── Padding for terminal ── */
+    body.terminal-open .main { padding-bottom: 58vh; }
 
     /* ── History ── */
-    .history-row {
-      display: flex; align-items: center; gap: 0.75rem;
-      padding: 0.45rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.78rem;
+    .hist-row {
+      display:flex; align-items:center; gap:.6rem;
+      padding:.45rem 1rem; border-bottom:1px solid var(--border); font-size:.76rem;
     }
-    .history-row:last-child { border-bottom: none; }
-    .h-time { color: var(--muted); min-width: 10rem; }
-    .h-dur  { color: var(--muted); min-width: 4rem; text-align: right; }
+    .hist-row:last-child { border-bottom:none; }
+    .ht { color:var(--muted); min-width:9.5rem; }
+    .hd { color:var(--muted); min-width:3.5rem; text-align:right; }
 
-    /* ── Load fallback ── */
-    .load-fallback {
-      text-align: center; padding: 3rem 1rem;
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 0.75rem;
-    }
-    .load-fallback .icon { font-size: 2.5rem; margin-bottom: 1rem; }
-    .load-fallback p { color: var(--muted); margin-bottom: 0.5rem; }
-    .load-fallback code { color: var(--gold); font-family: monospace; font-size: 0.85rem; }
-    #file-input { display: none; }
-    .file-label {
-      display: inline-block; margin-top: 1rem;
-      padding: 0.5rem 1.25rem; background: rgba(247,162,27,0.1);
-      border: 1px solid rgba(247,162,27,0.3); border-radius: 0.5rem;
-      color: var(--gold); cursor: pointer; font-size: 0.82rem; font-weight: 600;
-    }
-
-    /* ── Refresh indicator ── */
-    .refresh-bar {
-      font-size: 0.7rem; color: var(--muted); text-align: center;
-      padding: 0.4rem; border-top: 1px solid var(--border);
-      margin-top: 2rem;
-    }
-
-    .empty { text-align: center; color: var(--muted); padding: 1.5rem; font-size: 0.82rem; }
+    .empty { text-align:center; color:var(--muted); padding:1.5rem; font-size:.8rem; }
   </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-left">
-    <div class="logo-dot" id="status-dot"></div>
+<!-- ── Header ── -->
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="pulse" id="pulse"></div>
     <div>
       <h1>WorkHive Platform Guardian</h1>
-      <div class="header-meta" id="header-meta">Loading...</div>
+      <div class="hdr-meta" id="hdr-meta">Loading…</div>
     </div>
   </div>
-  <div class="header-right">
-    <button class="btn secondary" onclick="loadReport()">Refresh</button>
-    <label class="btn secondary" for="file-input">Load JSON</label>
-    <input type="file" id="file-input" accept=".json" onchange="loadFromFile(event)"/>
-  </div>
+  <span class="refresh-chip" onclick="loadHealth()">↻ Refresh</span>
 </div>
 
+<!-- ── Action Buttons ── -->
+<div class="actions" id="action-bar">
+  <button class="action-btn primary" onclick="run('fast')" id="btn-fast">
+    <span class="btn-icon">▶</span>
+    <div class="spinner"></div>
+    Validate Fast
+  </button>
+  <button class="action-btn fix" onclick="run('autofix')" id="btn-autofix">
+    <span class="btn-icon">⚡</span>
+    <div class="spinner"></div>
+    Auto-Fix
+  </button>
+  <button class="action-btn deploy" onclick="run('deploy')" id="btn-deploy">
+    <span class="btn-icon">🚀</span>
+    <div class="spinner"></div>
+    Full Deploy Check
+  </button>
+  <button class="action-btn learn" onclick="run('learn')" id="btn-learn">
+    <span class="btn-icon">🧠</span>
+    <div class="spinner"></div>
+    Self-Learn
+  </button>
+  <button class="action-btn improve" onclick="run('improve')" id="btn-improve">
+    <span class="btn-icon">🔍</span>
+    <div class="spinner"></div>
+    Improve
+  </button>
+  <button class="action-btn muted" onclick="run('gate')" id="btn-gate">
+    <span class="btn-icon">🔒</span>
+    <div class="spinner"></div>
+    Gate Only
+  </button>
+</div>
+
+<!-- ── Main content ── -->
 <div class="main" id="main">
-  <div class="load-fallback" id="fallback">
-    <div class="icon">🛡️</div>
-    <p>Run the Platform Guardian first:</p>
-    <p><code>python run_platform_checks.py --fast</code></p>
-    <p style="margin-top:0.75rem; font-size:0.75rem;">Then serve this file locally so it can read the JSON:</p>
-    <p><code>python -m http.server 8080</code></p>
-    <p style="margin-top:0.5rem; font-size:0.75rem;">Open: <code>http://localhost:8080/platform-health.html</code></p>
-    <p style="margin-top:0.75rem; color:rgba(255,255,255,0.25); font-size:0.75rem;">
-      — or — drag &amp; drop <code>platform_health.json</code> onto this page
-    </p>
-    <label class="file-label" for="file-input">Browse for platform_health.json</label>
-  </div>
+  <div class="empty" id="loading">Loading dashboard…</div>
 </div>
 
-<div class="refresh-bar" id="refresh-bar" style="display:none;">
-  Auto-refreshing every 30 seconds &nbsp;|&nbsp; <span id="last-refresh">—</span>
+<!-- ── Terminal panel ── -->
+<div id="terminal-wrap">
+  <div class="term-header">
+    <span class="term-title" id="term-title">Terminal</span>
+    <span class="term-status" id="term-status"></span>
+    <button class="term-close" onclick="closeTerm()">✕</button>
+  </div>
+  <div id="terminal"></div>
 </div>
 
 <script>
-// ── History ───────────────────────────────────────────────────────────────────
-const HISTORY_KEY = 'wh_guardian_history';
-function getHistory() {
-  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; }
-}
-function addToHistory(report) {
-  const hist = getHistory();
-  const entry = {
-    timestamp: report.timestamp,
-    overall:   report.overall,
-    summary:   report.summary,
-    duration:  report.duration_s,
-    mode:      report.mode,
-    regressions: (report.regressions || []).length,
-  };
-  // Avoid duplicates by timestamp
+// ── State ──────────────────────────────────────────────────────────────────
+let _running    = false;
+let _evtSource  = null;
+const HIST_KEY  = 'wh_guard_hist';
+
+// ── History ────────────────────────────────────────────────────────────────
+function getHist()       { try { return JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); } catch { return []; } }
+function addHist(report) {
+  const hist  = getHist();
+  const entry = { timestamp: report.timestamp, overall: report.overall,
+                  summary: report.summary, duration: report.duration_s, mode: report.mode,
+                  regressions: (report.regressions||[]).length };
   if (hist.length && hist[0].timestamp === entry.timestamp) return;
   hist.unshift(entry);
   if (hist.length > 20) hist.pop();
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(hist));
+  localStorage.setItem(HIST_KEY, JSON.stringify(hist));
 }
 
-// ── Render ────────────────────────────────────────────────────────────────────
+// ── Render dashboard ───────────────────────────────────────────────────────
 function render(report) {
-  addToHistory(report);
-  document.getElementById('fallback')?.remove();
-  document.getElementById('refresh-bar').style.display = '';
-  document.getElementById('last-refresh').textContent = new Date().toLocaleTimeString();
+  addHist(report);
+  const overall  = report.overall || 'PASS';
+  const summary  = report.summary || {};
+  const vals     = report.validators || [];
+  const gate     = report.readiness  || {};
+  const regs     = report.regressions || [];
+  const backlog  = report.improvement_backlog || null;
+  const ts       = report.timestamp ? new Date(report.timestamp).toLocaleString() : '—';
+  const mode     = report.mode === 'fast' ? 'FAST' : 'FULL';
+  const dur      = report.duration_s ? `${report.duration_s}s` : '—';
 
-  const overall    = report.overall || 'PASS';
-  const summary    = report.summary || {};
-  const validators = report.validators || [];
-  const gate       = report.readiness || {};
-  const regs       = report.regressions || [];
-  const backlog    = report.improvement_backlog || null;
-  const ts         = report.timestamp ? new Date(report.timestamp).toLocaleString() : '—';
-  const mode       = report.mode === 'fast' ? 'FAST mode' : 'Full mode';
-  const dur        = report.duration_s ? `${report.duration_s}s` : '—';
-
-  // Header
-  const dot = document.getElementById('status-dot');
-  dot.className = `logo-dot ${overall.toLowerCase()}`;
-  document.getElementById('header-meta').textContent =
-    `Last run: ${ts}  |  ${mode}  |  ${dur}`;
+  // Pulse dot
+  const dot = document.getElementById('pulse');
+  dot.className = _running ? 'pulse busy' : `pulse ${overall.toLowerCase()}`;
+  document.getElementById('hdr-meta').textContent =
+    `Last run: ${ts}  ·  ${mode} mode  ·  ${dur}`;
 
   const main = document.getElementById('main');
   main.innerHTML = '';
 
-  // ── Regression alert ──
+  // Regression alert
   if (regs.length) {
-    const ra = document.createElement('div');
-    ra.className = 'regression-alert';
-    ra.innerHTML = `<div class="regression-title">⚠ ${regs.length} Regression${regs.length>1?'s':''} Detected</div>` +
-      regs.map(r => `<div class="regression-item">• ${r.label}: was ${r.was} → now ${r.now}</div>`).join('');
+    const ra = ce('div', 'reg-alert');
+    ra.innerHTML = `<div class="reg-title">⚠ ${regs.length} Regression${regs.length>1?'s':''} Detected</div>` +
+      regs.map(r=>`<div class="reg-item">• ${r.label}: was ${r.was} → now ${r.now}</div>`).join('');
     main.appendChild(ra);
   }
 
-  // ── Banner ──
-  const bannerText = {
-    PASS: '✓ All checks pass — READY to deploy',
-    FAIL: '✗ Failures found — fix before deploying',
-    WARN: '⚠ Warnings present — review before deploying',
-  };
-  const banner = document.createElement('div');
-  banner.className = `banner ${overall.toLowerCase()}`;
-  banner.innerHTML = `<span>${bannerText[overall] || overall}</span>
-    <span class="banner-sub">${regs.length ? `${regs.length} regression(s) detected` : 'Baseline: ' + (report.baseline_ref ? new Date(report.baseline_ref).toLocaleDateString() : 'none')}</span>`;
+  // Banner
+  const msgs = { PASS:'✓  All checks pass — READY to deploy', FAIL:'✗  Failures found — fix before deploying', WARN:'⚠  Warnings present — review before deploying' };
+  const banner = ce('div', `banner ${overall.toLowerCase()}`);
+  banner.innerHTML = `<span>${msgs[overall]||overall}</span><span class="b-sub">${regs.length?`${regs.length} regression(s)`: 'Baseline: '+(report.baseline_ref?new Date(report.baseline_ref).toLocaleDateString():'none')}</span>`;
   main.appendChild(banner);
 
-  // ── Summary cards ──
-  const g4 = document.createElement('div');
-  g4.className = 'grid-4';
-  const cards = [
-    { cls: 'pass', num: summary.pass || 0, lbl: 'Pass' },
-    { cls: 'fail', num: summary.fail || 0, lbl: 'Fail' },
-    { cls: 'warn', num: summary.warn || 0, lbl: 'Warn' },
-    { cls: 'skip', num: summary.skip || 0, lbl: 'Skip' },
-  ];
-  g4.innerHTML = cards.map(c =>
-    `<div class="summary-card ${c.cls}"><div class="num">${c.num}</div><div class="lbl">${c.lbl}</div></div>`
-  ).join('');
+  // Summary cards
+  const g4 = ce('div','grid-4');
+  [{cls:'pass',n:summary.pass||0,l:'Pass'},{cls:'fail',n:summary.fail||0,l:'Fail'},{cls:'warn',n:summary.warn||0,l:'Warn'},{cls:'skip',n:summary.skip||0,l:'Skip'}]
+    .forEach(c=>{ g4.innerHTML+=`<div class="scard ${c.cls}"><div class="num">${c.n}</div><div class="lbl">${c.l}</div></div>`; });
   main.appendChild(g4);
 
-  // ── Validators by group ──
+  // Validators by group
   const groups = {};
-  validators.forEach(v => {
-    if (!groups[v.group]) groups[v.group] = [];
-    groups[v.group].push(v);
-  });
-  Object.entries(groups).forEach(([grp, items]) => {
-    const sec = document.createElement('div');
-    sec.className = 'section';
-    sec.innerHTML = `<div class="section-title">${grp}</div>`;
-    const tbl = document.createElement('div');
-    tbl.className = 'validator-table';
-    tbl.innerHTML = items.map(v => {
-      const s = (v.status || 'SKIP').toLowerCase();
-      const time = v.elapsed ? `${v.elapsed}s` : '—';
-      return `<div class="vrow">
-        <span class="badge ${s}">${v.status || 'SKIP'}</span>
-        <span class="vlabel">${v.label}</span>
-        <span class="vtime">${time}</span>
-      </div>`;
+  vals.forEach(v=>{ if(!groups[v.group]) groups[v.group]=[]; groups[v.group].push(v); });
+  Object.entries(groups).forEach(([grp,items])=>{
+    const sec = ce('div','sec');
+    sec.innerHTML = `<div class="sec-title">${grp}</div>`;
+    const tbl = ce('div','vtable');
+    tbl.innerHTML = items.map(v=>{
+      const s=(v.status||'SKIP').toLowerCase();
+      return `<div class="vrow"><span class="badge ${s}">${v.status}</span><span class="vlabel">${v.label}</span><span class="vtime">${v.elapsed?v.elapsed+'s':'—'}</span></div>`;
     }).join('');
     sec.appendChild(tbl);
     main.appendChild(sec);
   });
 
-  // ── Readiness gate ──
-  const gsec = document.createElement('div');
-  gsec.className = 'section';
-  gsec.innerHTML = '<div class="section-title">Readiness Gate</div>';
-  const ggrid = document.createElement('div');
-  ggrid.className = 'gate-grid';
-  const gateLabels = { git: 'Git', python_api: 'Python API', supabase: 'Supabase' };
-  Object.entries(gate).forEach(([key, val]) => {
-    const s = (val.status || 'SKIP').toLowerCase();
-    ggrid.innerHTML += `<div class="gate-card ${s}">
-      <div class="gate-name">${gateLabels[key] || key}</div>
-      <div class="gate-status" style="color:var(--${s==='pass'?'green':s==='fail'?'red':s==='warn'?'yellow':'blue'})">${val.status}</div>
-      <div class="gate-detail">${val.detail || ''}</div>
-    </div>`;
+  // Readiness gate
+  const gsec = ce('div','sec');
+  gsec.innerHTML = '<div class="sec-title">Readiness Gate</div>';
+  const gg = ce('div','gate-grid');
+  const glabels = {git:'Git',python_api:'Python API',supabase:'Supabase'};
+  Object.entries(gate).forEach(([k,v])=>{
+    const s=(v.status||'SKIP').toLowerCase();
+    const col = s==='pass'?'var(--green)':s==='fail'?'var(--red)':s==='warn'?'var(--yellow)':'var(--blue)';
+    gg.innerHTML+=`<div class="gcard ${s}"><div class="gname">${glabels[k]||k}</div><div class="gstat" style="color:${col}">${v.status}</div><div class="gdetail">${v.detail||''}</div></div>`;
   });
-  gsec.appendChild(ggrid);
+  gsec.appendChild(gg);
   main.appendChild(gsec);
 
-  // ── Improvement Backlog ──
-  if (backlog && (backlog.high > 0 || backlog.medium > 0 || backlog.low > 0)) {
-    const bsec = document.createElement('div');
-    bsec.className = 'section';
-    bsec.innerHTML = '<div class="section-title">Improvement Backlog</div>';
-    const bcard = document.createElement('div');
-    bcard.className = 'validator-table';
-    const bUpdated = backlog.last_updated
-      ? new Date(backlog.last_updated).toLocaleDateString() : '—';
-    bcard.innerHTML = `
-      <div class="vrow">
-        <span class="badge fail">${backlog.high || 0} HIGH</span>
-        <span class="vlabel">Standards updates with strong signals — review before next major build</span>
-      </div>
-      <div class="vrow">
-        <span class="badge warn">${backlog.medium || 0} MED</span>
-        <span class="vlabel">Best practice gaps — check when relevant</span>
-      </div>
-      <div class="vrow">
-        <span class="badge skip">${backlog.low || 0} LOW</span>
-        <span class="vlabel">Enhancement ideas — roadmap candidates</span>
-      </div>
-      <div class="vrow" style="border-top:1px solid var(--border);margin-top:0.25rem;">
-        <span style="font-size:0.7rem;color:var(--muted);flex:1;">Last scanned: ${bUpdated}</span>
-        <code class="cmd-code" style="font-size:0.72rem;" onclick="copyCmd(this)">python improve.py --fast</code>
+  // Improvement backlog
+  if (backlog && (backlog.high||backlog.medium||backlog.low)) {
+    const bsec = ce('div','sec');
+    bsec.innerHTML='<div class="sec-title">Improvement Backlog</div>';
+    const btbl = ce('div','vtable');
+    const upd  = backlog.last_updated ? new Date(backlog.last_updated).toLocaleDateString() : '—';
+    btbl.innerHTML=`
+      <div class="bl-row"><span class="badge fail">${backlog.high||0} HIGH</span><span class="bl-label">Standards with strong update signals — review before next major build</span></div>
+      <div class="bl-row"><span class="badge warn">${backlog.medium||0} MED</span><span class="bl-label">Best practice gaps — check when relevant</span></div>
+      <div class="bl-row"><span class="badge skip">${backlog.low||0} LOW</span><span class="bl-label">Enhancement ideas — roadmap candidates</span></div>
+      <div class="bl-row" style="border-top:1px solid var(--border)">
+        <span style="font-size:.7rem;color:var(--muted);flex:1">Last scanned: ${upd}</span>
+        <button class="action-btn improve" style="font-size:.7rem;padding:.25rem .7rem;" onclick="run('improve')">🔍 Run Improve</button>
       </div>`;
-    bsec.appendChild(bcard);
+    bsec.appendChild(btbl);
     main.appendChild(bsec);
   }
 
-  // ── Commands ──
-  const csec = document.createElement('div');
-  csec.className = 'section';
-  csec.innerHTML = '<div class="section-title">How to Run</div>';
-  const cmds = [
-    { p: 'Dev (fast)',    c: 'python run_platform_checks.py --fast' },
-    { p: 'Auto-fix',     c: 'python run_platform_checks.py --fast --autofix' },
-    { p: 'Pre-deploy',   c: 'python run_platform_checks.py' },
-    { p: 'Self-learn',   c: 'python learn.py' },
-    { p: 'Improve',      c: 'python improve.py --fast' },
-    { p: 'Schedule 6h',  c: 'python schedule_guardian.py' },
-    { p: 'Once & exit',  c: 'python schedule_guardian.py --once' },
-    { p: 'Gate only',    c: 'python run_platform_checks.py --gate-only' },
-    { p: 'Serve this',   c: 'python -m http.server 8080' },
-  ];
-  const cbox = document.createElement('div');
-  cbox.className = 'cmd-box';
-  cbox.innerHTML = cmds.map(cmd =>
-    `<div class="cmd-row">
-      <span class="cmd-purpose">${cmd.p}</span>
-      <code class="cmd-code" onclick="copyCmd(this)">${cmd.c}</code>
-      <span class="cmd-copy" onclick="copyCmd(this.previousElementSibling)">copy</span>
-    </div>`
-  ).join('');
-  csec.appendChild(cbox);
-  main.appendChild(csec);
-
-  // ── History ──
-  const hist = getHistory();
+  // History
+  const hist = getHist();
   if (hist.length > 1) {
-    const hsec = document.createElement('div');
-    hsec.className = 'section';
-    hsec.innerHTML = '<div class="section-title">Run History (last 20)</div>';
-    const htbl = document.createElement('div');
-    htbl.className = 'validator-table';
-    htbl.innerHTML = hist.map(h => {
-      const s = (h.overall || 'PASS').toLowerCase();
-      const t = new Date(h.timestamp).toLocaleString();
-      const rLabel = h.regressions ? `<span style="color:var(--red);font-size:0.7rem;"> ${h.regressions} regr.</span>` : '';
-      return `<div class="history-row">
-        <span class="h-time">${t}</span>
-        <span class="badge ${s}" style="font-size:0.6rem;">${h.overall}</span>
-        <span style="flex:1;font-size:0.75rem;color:var(--muted);">${h.mode || ''} ${h.summary?.pass||0}P ${h.summary?.fail||0}F${rLabel}</span>
-        <span class="h-dur">${h.duration}s</span>
-      </div>`;
+    const hsec = ce('div','sec');
+    hsec.innerHTML = '<div class="sec-title">Run History</div>';
+    const htbl = ce('div','vtable');
+    htbl.innerHTML = hist.map(h=>{
+      const s=(h.overall||'PASS').toLowerCase();
+      const t=new Date(h.timestamp).toLocaleString();
+      const rg=h.regressions?`<span style="color:var(--red);font-size:.68rem"> ⚠${h.regressions}</span>`:'';
+      return `<div class="hist-row"><span class="ht">${t}</span><span class="badge ${s}" style="font-size:.6rem">${h.overall}</span><span style="flex:1;font-size:.73rem;color:var(--muted)">${h.mode||''} ${h.summary?.pass||0}P ${h.summary?.fail||0}F${rg}</span><span class="hd">${h.duration}s</span></div>`;
     }).join('');
     hsec.appendChild(htbl);
     main.appendChild(hsec);
   }
 }
 
-// ── Load & auto-refresh ───────────────────────────────────────────────────────
-let _lastTs = null;
+function ce(tag, cls) {
+  const el = document.createElement(tag);
+  if (cls) el.className = cls;
+  return el;
+}
 
-async function loadReport() {
+// ── Load health JSON ───────────────────────────────────────────────────────
+let _lastTs = null;
+async function loadHealth() {
   try {
-    const r = await fetch('./platform_health.json?t=' + Date.now());
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const r = await fetch('./platform_health.json?t='+Date.now());
+    if (!r.ok) throw new Error('HTTP '+r.status);
     const data = await r.json();
     if (data.timestamp !== _lastTs) {
       _lastTs = data.timestamp;
       render(data);
     }
-    document.getElementById('last-refresh').textContent = new Date().toLocaleTimeString();
-  } catch (err) {
-    // Show fallback if not loaded yet
-    if (!document.getElementById('fallback')) {
-      const main = document.getElementById('main');
-      if (!main.querySelector('.banner')) {
-        main.innerHTML = `<div class="load-fallback" id="fallback">
-          <div class="icon">🛡️</div>
-          <p>Could not load <code>platform_health.json</code></p>
-          <p style="margin-top:0.5rem;font-size:0.75rem;">Serve locally: <code>python -m http.server 8080</code></p>
-          <p style="margin-top:0.25rem;font-size:0.75rem;">Or: <code>python run_platform_checks.py --fast</code></p>
-          <label class="file-label" for="file-input">Browse for platform_health.json</label>
-        </div>`;
-      }
+    document.getElementById('loading')?.remove();
+  } catch(e) {
+    const main = document.getElementById('main');
+    if (!main.querySelector('.banner')) {
+      main.innerHTML = `<div class="empty">
+        ⚠ Could not load platform_health.json<br><br>
+        <span style="font-size:.8rem">Start the server: <code style="color:var(--gold)">python guardian_server.py</code></span><br>
+        <span style="font-size:.75rem;color:var(--muted);margin-top:.5rem;display:block">Then open: <code>http://localhost:8080</code></span>
+      </div>`;
     }
   }
 }
 
-function loadFromFile(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try { render(JSON.parse(e.target.result)); }
-    catch { alert('Invalid JSON file.'); }
+// ── Run a command ──────────────────────────────────────────────────────────
+const BTN_IDS = ['btn-fast','btn-autofix','btn-deploy','btn-learn','btn-improve','btn-gate'];
+
+function setRunning(running, label) {
+  _running = running;
+  BTN_IDS.forEach(id=>{
+    const btn = document.getElementById(id);
+    if (running) btn.classList.add('running');
+    else btn.classList.remove('running');
+  });
+  // Update pulse
+  const dot = document.getElementById('pulse');
+  if (running) dot.className = 'pulse busy';
+}
+
+function run(cmd) {
+  if (_running) return;
+  if (_evtSource) { _evtSource.close(); _evtSource = null; }
+
+  const labels = { fast:'Validate Fast', autofix:'Auto-Fix', deploy:'Full Deploy Check',
+                   learn:'Self-Learn', improve:'Improve', gate:'Gate Only', once:'Schedule Once' };
+
+  openTerm(labels[cmd] || cmd);
+  setRunning(true, cmd);
+
+  const evtSrc = new EventSource(`/api/stream?cmd=${cmd}`);
+  _evtSource = evtSrc;
+
+  evtSrc.onmessage = (e) => {
+    const msg = e.data;
+    if (msg.startsWith('[DONE:')) {
+      const rc = parseInt(msg.match(/\d+/)[0]);
+      termLine(`\n${rc===0?'✓ DONE — All clear':'✗ DONE — Issues found'}`, rc===0?'pass':'fail');
+      document.getElementById('term-status').textContent = rc===0?'✓ PASS':'✗ FAIL';
+      document.getElementById('term-status').style.color = rc===0?'var(--green)':'var(--red)';
+      setRunning(false);
+      evtSrc.close();
+      // Reload health after a short delay
+      setTimeout(loadHealth, 800);
+    } else if (msg.startsWith('[START]')) {
+      termLine(msg.replace('[START] ',''), 'info');
+    } else if (msg.startsWith('$')) {
+      termLine(msg, 'cmd');
+    } else if (msg.startsWith('ERROR')) {
+      termLine(msg, 'fail');
+    } else if (/PASS|✓|pass/i.test(msg)) {
+      termLine(msg, 'pass');
+    } else if (/FAIL|✗|fail|error/i.test(msg)) {
+      termLine(msg, 'fail');
+    } else if (/WARN|warn/i.test(msg)) {
+      termLine(msg, 'warn');
+    } else if (/─{3,}/.test(msg)) {
+      termLine(msg, 'dim');
+    } else {
+      termLine(msg, '');
+    }
   };
-  reader.readAsText(file);
+
+  evtSrc.onerror = () => {
+    termLine('Connection lost. Is the server running? (python guardian_server.py)', 'fail');
+    setRunning(false);
+    evtSrc.close();
+    loadHealth();
+  };
 }
 
-function copyCmd(el) {
-  navigator.clipboard.writeText(el.textContent).catch(() => {});
-  const orig = el.textContent;
-  el.textContent = 'copied!';
-  setTimeout(() => el.textContent = orig, 1200);
+// ── Terminal ───────────────────────────────────────────────────────────────
+function openTerm(label) {
+  document.getElementById('terminal').innerHTML = '';
+  document.getElementById('term-title').textContent = label;
+  document.getElementById('term-status').textContent = '';
+  document.getElementById('terminal-wrap').classList.add('open');
+  document.body.classList.add('terminal-open');
 }
 
-// Drag & drop
-document.addEventListener('dragover', e => e.preventDefault());
-document.addEventListener('drop', e => {
-  e.preventDefault();
-  const file = e.dataTransfer.files[0];
-  if (file && file.name.endsWith('.json')) {
-    const reader = new FileReader();
-    reader.onload = ev => { try { render(JSON.parse(ev.target.result)); } catch {} };
-    reader.readAsText(file);
-  }
-});
+function closeTerm() {
+  document.getElementById('terminal-wrap').classList.remove('open');
+  document.body.classList.remove('terminal-open');
+  if (_evtSource) { _evtSource.close(); _evtSource = null; }
+}
 
-// Init + auto-refresh every 30s
-loadReport();
-setInterval(loadReport, 30000);
+function termLine(text, cls) {
+  const term = document.getElementById('terminal');
+  const p = document.createElement('p');
+  p.className = 'term-line' + (cls ? ' ' + cls : '');
+  p.textContent = text;
+  term.appendChild(p);
+  term.scrollTop = term.scrollHeight;
+}
+
+// ── Auto-refresh ───────────────────────────────────────────────────────────
+loadHealth();
+setInterval(() => { if (!_running) loadHealth(); }, 15000);
 </script>
 </body>
 </html>
