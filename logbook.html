@@ -1270,10 +1270,24 @@ async function submitAsset() {
   switchAssetTab('manage');
 }
 
-function deleteAsset(id) {
+async function deleteAsset(id) {
+  const asset = loadAssets().find(a => a.id === id);
+  if (!asset) return;
+
+  // In hive mode: supervisor can delete any; worker can only delete their own pending assets
+  if (HIVE_ID) {
+    if (HIVE_ROLE !== 'supervisor') {
+      if (asset.worker_name !== WORKER_NAME) { showToast('Supervisors only.'); return; }
+      if (asset.status === 'approved') { showToast('Cannot remove an approved asset. Ask your supervisor.'); return; }
+    }
+  }
+
   if (!confirm('Remove this asset from the registry?')) return;
-  const assets = loadAssets().filter(a => a.id !== id);
-  saveAssets(assets);
+
+  const { error } = await db.from('assets').delete().eq('id', id);
+  if (error) { showToast('Could not remove asset: ' + error.message); return; }
+
+  _assets = _assets.filter(a => a.id !== id);
   updateAssetDatalist();
   renderAssetList();
   refreshAssetCountBadge();
@@ -1283,6 +1297,10 @@ function deleteAsset(id) {
 function openEditAsset(id) {
   const asset = loadAssets().find(a => a.id === id);
   if (!asset) return;
+  if (HIVE_ID && HIVE_ROLE !== 'supervisor' && asset.worker_name !== WORKER_NAME) {
+    showToast('You can only edit your own assets.');
+    return;
+  }
   document.getElementById('edit-asset-id').value          = asset.id;
   document.getElementById('edit-asset-asset-id').value    = asset.asset_id || '';
   document.getElementById('edit-asset-name').value        = asset.name || '';
@@ -1340,14 +1358,36 @@ async function saveEditAsset() {
 
   // Update local cache
   _assets = _assets.map(a => a.id === id ? { ...a, ...updates } : a);
-  if (needsReapproval) showToast('Asset updated and sent for supervisor approval.');
   updateAssetDatalist();
   renderAssetList();
   closeEditAsset();
-  showToast('Asset updated.');
 
+  // Sync asset_name and tag_id to pm_assets — they copy at creation and go stale
+  // Match by old asset_id (tag) since pm_assets has no FK to assets table
+  const oldAsset = loadAssets().find(a => a.id === id);
+  const oldAssetId = oldAsset?.asset_id || asset?.asset_id;
+  if (oldAssetId && (asset_id !== oldAssetId || name !== (oldAsset?.name || ''))) {
+    syncToPMAssets(oldAssetId, asset_id, name);
+  }
+
+  showToast(needsReapproval ? 'Asset updated and sent for supervisor approval.' : 'Asset updated.');
   saveBtn.disabled = false;
   saveBtn.textContent = 'Save Changes';
+}
+
+async function syncToPMAssets(oldTagId, newTagId, newName) {
+  // pm_assets uses tag_id to identify assets — sync name and tag_id on match
+  const syncUpdates = {};
+  if (newName)  syncUpdates.asset_name = newName;
+  if (newTagId) syncUpdates.tag_id     = newTagId;
+
+  if (!Object.keys(syncUpdates).length) return;
+
+  const { error } = await db.from('pm_assets')
+    .update(syncUpdates)
+    .eq('tag_id', oldTagId);
+
+  if (error) console.warn('pm_assets sync skipped:', error.message);
 }
 
 function criticalityBadge(c) {

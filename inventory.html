@@ -871,10 +871,11 @@ async function submitPart() {
   const minQty      = parseFloat(document.getElementById('f-min-qty').value) || 0;
   const now         = new Date().toISOString();
   const existingItem = editingItemId ? items.find(i => i.id === editingItemId) : null;
-  // Re-editing a rejected OR approved item resubmits it for approval (sets back to pending)
-  const editStatus  = existingItem && HIVE_ID && HIVE_ROLE !== 'supervisor'
-    && (existingItem.status === 'rejected' || existingItem.status === 'approved')
-    ? 'pending' : undefined;
+
+  // Workers editing any hive item (pending, rejected, or approved) must go back to pending
+  const editStatus = existingItem && HIVE_ID && HIVE_ROLE !== 'supervisor'
+    ? 'pending'
+    : existingItem?.status;  // supervisors keep current status; solo keeps current status
 
   const payload = {
     part_number:       partNumber,
@@ -889,19 +890,33 @@ async function submitPart() {
     photo:             currentPhotoData,
     updated_at:        now,
     status:            editingItemId ? editStatus : (HIVE_ID && HIVE_ROLE !== 'supervisor' ? 'pending' : 'approved'),
-    hive_id:           editingItemId ? undefined : (HIVE_ID || null),
-    submitted_by:      editingItemId ? undefined : WORKER_NAME,
+    hive_id:           HIVE_ID || null,   // always include hive_id so supervisor can see it
+    submitted_by:      editingItemId ? (existingItem?.submitted_by || WORKER_NAME) : WORKER_NAME,
   };
 
   if (editingItemId) {
     const idx  = items.findIndex(i => i.id === editingItemId);
     if (idx === -1) return;
     const prev = items[idx];
-    items[idx] = { ...prev, ...payload, photo: currentPhotoData || prev.photo || null };
-    saveInventory(items);
+    const updated = { ...prev, ...payload, photo: currentPhotoData || prev.photo || null };
+    items[idx] = updated;
+
+    // Await the DB write — fire-and-forget causes silent revert on reload
+    const { error: editErr } = await db.from('inventory_items')
+      .update({ ...payload, photo: updated.photo })
+      .eq('id', editingItemId)
+      .eq('worker_name', HIVE_ID && HIVE_ROLE !== 'supervisor' ? WORKER_NAME : prev.worker_name || WORKER_NAME);
+
+    if (editErr) {
+      showFormError(errEl, 'Could not save edit: ' + editErr.message);
+      items[idx] = prev; // revert local cache on failure
+      return;
+    }
+
+    _items = items;
     const diff = qty - prev.qty_on_hand;
     if (diff !== 0) addTransaction(editingItemId, 'adjust', diff, qty, 'Edited via part form');
-    showToast(items[idx].status === 'pending' ? `${partName} resubmitted for supervisor approval.` : `${partName} updated.`);
+    showToast(editStatus === 'pending' ? `${partName} resubmitted for supervisor approval.` : `${partName} updated.`);
   } else {
     const item = { id: Date.now().toString(), ...payload, photo: currentPhotoData || null, created_at: now };
     items.push(item);
