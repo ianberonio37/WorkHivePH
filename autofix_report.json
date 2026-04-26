@@ -1,16 +1,17 @@
 {
-  "timestamp": "2026-04-27 10:07",
-  "dry_run": true,
-  "fixed": 0,
-  "skipped": 5,
+  "timestamp": "2026-04-27 10:36",
+  "dry_run": false,
+  "fixed": 1,
+  "skipped": 4,
   "errors": 0,
   "results": [
     {
       "recipe": "calc-count-assistant",
       "label": "Stale calc count in assistant.html",
       "file": "assistant.html",
-      "status": "SKIP",
-      "reason": "Pattern not found \u2014 already fixed or not applicable. Count is already 46"
+      "status": "FIXED",
+      "change": "Changed calc count from 36 to 46",
+      "detail": "Count is 36, should be 46"
     },
     {
       "recipe": "skill-matrix-disciplines",

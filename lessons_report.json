@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-04-27 09:53",
+  "timestamp": "2026-04-27 10:39",
   "dry_run": false,
-  "total_lessons": 11,
-  "written": 18,
-  "skipped": 0,
+  "total_lessons": 8,
+  "written": 0,
+  "skipped": 14,
   "actions": [
     {
       "lesson": "floating-ai.js: add engineering-design.html to PLATFORM TOOLS (was missing), fix Skill Matrix disciplines (HVAC/Civil wr",
@@ -72,31 +72,6 @@
       "skills": [
         "engineering-calc-validator",
         "devops"
-      ],
-      "written": true
-    },
-    {
-      "lesson": "Lighting Design: n_actual used before assignment (moved layout calc before E_achieved); build complete 4-layer validatio",
-      "source": "git:8f2a6f0",
-      "skills": [
-        "engineering-calc-validator",
-        "devops"
-      ],
-      "written": true
-    },
-    {
-      "lesson": "handover print: open clean popup window instead of printing full page",
-      "source": "git:8db1d9f",
-      "skills": [
-        "platform-guardian"
-      ],
-      "written": true
-    },
-    {
-      "lesson": "handover report print: scope to sheet content only, hide backdrop and footer buttons",
-      "source": "git:d30d958",
-      "skills": [
-        "platform-guardian"
       ],
       "written": true
     }

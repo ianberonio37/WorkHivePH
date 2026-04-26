@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-26T21:45:00.050702+00:00",
+  "timestamp": "2026-04-26T23:03:22.717613+00:00",
   "mode": "fast",
   "overall": "PASS",
   "summary": {
@@ -8,14 +8,14 @@
     "warn": 0,
     "skip": 1
   },
-  "duration_s": 12.9,
+  "duration_s": 13.9,
   "validators": [
     {
       "id": "calc-suite",
       "label": "Engineering Calc Suite (L1+L2a+L2b)",
       "group": "Engineering Calculator",
       "status": "PASS",
-      "elapsed": 12.4,
+      "elapsed": 13.3,
       "report": null
     },
     {
@@ -55,7 +55,7 @@
       "label": "PM Scheduler Validator",
       "group": "Platform",
       "status": "PASS",
-      "elapsed": 0.0,
+      "elapsed": 0.1,
       "report": "pm_report.json"
     },
     {
@@ -86,8 +86,14 @@
   "regressions": [],
   "readiness": {
     "git": {
-      "status": "PASS",
-      "detail": "working tree clean"
+      "status": "WARN",
+      "detail": "4 uncommitted file(s)",
+      "files": [
+        "M autofix_report.json",
+        " M lessons_report.json",
+        " M platform_baseline.json",
+        " M platform_health.json"
+      ]
     },
     "python_api": {
       "status": "SKIP",
@@ -98,12 +104,5 @@
       "detail": "--fast mode"
     }
   },
-  "baseline_ref": "2026-04-26T21:44:25.629475",
-  "improvement_backlog": {
-    "total": 5,
-    "high": 2,
-    "medium": 1,
-    "low": 0,
-    "last_updated": "2026-04-26T21:58:40.898825+00:00"
-  }
+  "baseline_ref": "2026-04-26T22:38:15.582345+00:00"
 }

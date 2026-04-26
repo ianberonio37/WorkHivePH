@@ -1,0 +1,86 @@
+{
+  "flows": [
+    {
+      "flow": "pm-scheduler->logbook",
+      "table": "logbook",
+      "status": "WARN",
+      "fields_found": [
+        "action",
+        "asset_ref_id",
+        "category",
+        "closed_at",
+        "date",
+        "hive_id",
+        "knowledge",
+        "machine",
+        "maintenance_type",
+        "pm_completion_id",
+        "problem",
+        "status",
+        "worker_name"
+      ],
+      "missing_critical": [],
+      "missing_optional": [
+        "root_cause",
+        "downtime_hours",
+        "photo",
+        "parts_used",
+        "tasklist_acknowledged",
+        "tasklist_note",
+        "id"
+      ],
+      "extra_fields": []
+    },
+    {
+      "flow": "logbook->pm_completions",
+      "table": "pm_completions",
+      "status": "WARN",
+      "fields_found": [
+        "Logbook",
+        "asset_id",
+        "completed_at",
+        "hive_id",
+        "notes",
+        "scope_item_id",
+        "status",
+        "worker_name"
+      ],
+      "missing_critical": [],
+      "missing_optional": [
+        "id"
+      ],
+      "extra_fields": [
+        "Logbook"
+      ]
+    },
+    {
+      "flow": "logbook->inventory_transactions",
+      "table": "inventory_transactions",
+      "status": "WARN",
+      "fields_found": [
+        "item_id",
+        "job",
+        "job_ref",
+        "note",
+        "qty_after",
+        "qty_change",
+        "type",
+        "worker_name"
+      ],
+      "missing_critical": [],
+      "missing_optional": [
+        "created_at",
+        "id"
+      ],
+      "extra_fields": [
+        "job"
+      ]
+    }
+  ],
+  "closed_at_issues": [],
+  "summary": {
+    "fail": 0,
+    "warn": 3,
+    "pass": 0
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "[1] FREQ_DAYS alignment with frequency options": [],
+  "[2] PM_TEMPLATES coverage in PM_CAT_TO_LOG_CAT": [],
+  "[3] PM_CAT_TO_LOG_CAT values are valid logbook cats": [],
+  "[4] compPayload required fields": [],
+  "[5] scopePayload required fields": [],
+  "[6] Due date midnight normalisation": []
+}

@@ -1,0 +1,33 @@
+{
+  "realtime": {
+    "issues": [],
+    "warnings": [
+      {
+        "channel": "hive-inventory",
+        "table": "inventory_items",
+        "missing_expected": [
+          "INSERT"
+        ],
+        "found_events": [
+          "UPDATE"
+        ],
+        "reason": "INSERT miss means newly approved parts do not auto-refresh panel"
+      }
+    ],
+    "passed": [
+      "hive-feed -> logbook",
+      "hive-pm -> pm_completions",
+      "hive-approval -> assets",
+      "hive-approval -> inventory_items",
+      "worker-appr -> assets",
+      "worker-appr -> inventory_items"
+    ]
+  },
+  "scoping_issues": [],
+  "approval_issues": [],
+  "uncleaned_channels": [],
+  "summary": {
+    "fail": 0,
+    "warn": 1
+  }
+}
