@@ -291,6 +291,7 @@ def calculate(inputs: dict) -> dict:
         "total_demand_kw":       round(total_demand_kW, 3),
         "total_demand_kva":      round(total_demand_kVA, 3),
         "total_connected_va":    round(total_connected_kW * 1000, 1),
+        "total_connected_kva":   round(total_demand_kVA, 3),
         "total_demand_va":       round(total_demand_kVA * 1000, 1),
         "voltage":               panel_voltage,
         "panel_voltage_V":       panel_voltage,
