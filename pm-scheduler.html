@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>PM Scheduler — WorkHive</title>
+  <title>PM Scheduler: WorkHive</title>
   <meta name="description" content="Plant Maintenance Scheduler. Add assets, assign PM scope by category, set frequencies, and track due dates. Syncs with your WorkHive hive board." />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://workhiveph.com/pm-scheduler.html" />
@@ -474,7 +474,7 @@
       <div class="wh-card p-5 mb-4">
         <label class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Last PM Date</label>
         <input id="w-anchor" type="date" class="wh-input" />
-        <p class="text-xs text-white/30 mt-2">If never serviced before, leave blank — all tasks will show as overdue immediately to prompt action.</p>
+        <p class="text-xs text-white/30 mt-2">If never serviced before, leave blank: all tasks will show as overdue immediately to prompt action.</p>
       </div>
 
       <!-- Frequency info guide -->
@@ -483,19 +483,19 @@
         <div class="space-y-2">
           <div class="flex items-center gap-2.5">
             <span class="freq-badge freq-M">M</span>
-            <span class="text-sm text-white/60">Monthly — every 30 days</span>
+            <span class="text-sm text-white/60">Monthly: every 30 days</span>
           </div>
           <div class="flex items-center gap-2.5">
             <span class="freq-badge freq-Q">Q</span>
-            <span class="text-sm text-white/60">Quarterly — every 90 days</span>
+            <span class="text-sm text-white/60">Quarterly: every 90 days</span>
           </div>
           <div class="flex items-center gap-2.5">
             <span class="freq-badge freq-SA">SA</span>
-            <span class="text-sm text-white/60">Semi-Annual — every 180 days</span>
+            <span class="text-sm text-white/60">Semi-Annual: every 180 days</span>
           </div>
           <div class="flex items-center gap-2.5">
             <span class="freq-badge freq-Y">Y</span>
-            <span class="text-sm text-white/60">Yearly — every 365 days</span>
+            <span class="text-sm text-white/60">Yearly: every 365 days</span>
           </div>
         </div>
       </div>
@@ -1008,7 +1008,7 @@ function critBadge(crit) {
 // HIVE MEMBERSHIP RE-VALIDATION
 // ─────────────────────────────────────
 async function validateHiveMembership() {
-  if (!HIVE_ID || !WORKER_NAME) return; // solo worker — no gate needed
+  if (!HIVE_ID || !WORKER_NAME) return; // solo worker: no gate needed
   const { data: membership, error } = await db
     .from('hive_members')
     .select('role, status')
@@ -1017,7 +1017,7 @@ async function validateHiveMembership() {
     .maybeSingle();
   if (error) {
     console.warn('PM Scheduler: membership check failed (DB error), using cached role:', error.message);
-    return; // fail open — DB unreachable, trust cached role
+    return; // fail open: DB unreachable, trust cached role
   }
   if (!membership || membership.status === 'kicked') {
     console.warn('PM Scheduler: worker is no longer an active hive member. Clearing hive state.');
@@ -1073,7 +1073,7 @@ async function init() {
 async function loadData() {
   if (!HIVE_ID && !WORKER_NAME) return;
 
-  // Load assets first — pm_scope_items has no worker_name, must join via asset_id
+  // Load assets first: pm_scope_items has no worker_name, must join via asset_id
   const assetsRes = await (HIVE_ID
     ? db.from('pm_assets').select('*').eq('hive_id', HIVE_ID)
     : db.from('pm_assets').select('*').eq('worker_name', WORKER_NAME)
@@ -1086,9 +1086,9 @@ async function loadData() {
 
   const assetIds = assets.map(a => a.id);
 
-  // pm_scope_items has no worker_name — always filter by asset_id
+  // pm_scope_items has no worker_name: always filter by asset_id
   // pm_completions has worker_name but asset_id filter is safer and consistent
-  // In hive mode, add hive_id scope explicitly — sub-queries do not inherit parent hive scope
+  // In hive mode, add hive_id scope explicitly: sub-queries do not inherit parent hive scope
   let scopeQ = db.from('pm_scope_items').select('*').in('asset_id', assetIds).order('created_at', { ascending: true });
   let compsQ = db.from('pm_completions').select('*').in('asset_id', assetIds).order('completed_at', { ascending: false });
   if (HIVE_ID) { scopeQ = scopeQ.eq('hive_id', HIVE_ID); compsQ = compsQ.eq('hive_id', HIVE_ID); }
@@ -1114,7 +1114,7 @@ async function subscribeRealtime() {
       event: 'INSERT', schema: 'public', table: 'pm_completions',
       filter: 'hive_id=eq.' + HIVE_ID
     }, async payload => {
-      // Another team member logged a completion — refresh data
+      // Another team member logged a completion: refresh data
       await loadData();
       renderDashboard();
       if (currentScreen === 'detail' && currentAsset && currentAsset.id === payload.new.asset_id) {
@@ -1256,7 +1256,7 @@ function renderDetail(asset) {
   document.getElementById('det-anchor').textContent =
     asset.last_anchor_date ? `Last anchor: ${formatDate(asset.last_anchor_date)}` : 'No anchor date';
 
-  // Supervisor-only edit/delete in hive mode — solo workers can manage their own
+  // Supervisor-only edit/delete in hive mode: solo workers can manage their own
   const canEdit   = !HIVE_ID || HIVE_ROLE === 'supervisor';
   const canDelete = !HIVE_ID || HIVE_ROLE === 'supervisor' || asset.worker_name === WORKER_NAME;
   const editBtn = document.getElementById('btn-edit-asset');
@@ -1540,7 +1540,7 @@ async function submitCompletion() {
     const { error: logErr } = await db.from('logbook').insert(logPayload);
     if (logErr) {
       console.warn('logbook insert failed (PM still saved):', logErr.message);
-      showToast('PM saved. Logbook entry failed — check connection.');
+      showToast('PM saved. Logbook entry failed: check connection.');
     } else {
       showToast('PM saved and logged in Logbook.');
     }
@@ -1554,7 +1554,7 @@ async function submitCompletion() {
     asset_name:    currentAsset.asset_name,
     category:      currentAsset.category,
     last_completed: now,
-    overdue_count:  0, // just completed — recalculated on next dashboard load
+    overdue_count:  0, // just completed: recalculated on next dashboard load
   });
 
   closeSheet();
@@ -1830,7 +1830,7 @@ function goStep(n) {
     if (!name) { showToast('Please enter an asset name.'); return; }
     if (!cat)  { showToast('Please select a category.'); return; }
 
-    // Duplicate check — same machine should not be registered twice
+    // Duplicate check: same machine should not be registered twice
     const nameLower = name.toLowerCase();
     const existing = assets.find(a =>
       (a.asset_name || '').toLowerCase() === nameLower ||
@@ -2107,7 +2107,7 @@ function goBack() {
 }
 
 // ─────────────────────────────────────
-// UTILS — escHtml sourced from utils.js
+// UTILS: escHtml sourced from utils.js
 // ─────────────────────────────────────
 
 let toastTimer = null;
@@ -2208,7 +2208,7 @@ init();
 
     <!-- Task chips -->
     <div class="mb-3">
-      <label class="block text-xs font-semibold mb-2" style="color:rgba(255,255,255,0.4);">STANDARD TASKS — tap one to fill below</label>
+      <label class="block text-xs font-semibold mb-2" style="color:rgba(255,255,255,0.4);">STANDARD TASKS: tap one to fill below</label>
       <div id="tmpl-chips" class="flex flex-col gap-1.5 max-h-44 overflow-y-auto pr-1"></div>
     </div>
 

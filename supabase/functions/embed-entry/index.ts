@@ -42,20 +42,66 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { type, hive_id, entry } = body;
-
-    // type must be one of: "fault" | "skill" | "pm"
-    if (!type || !entry) {
-      return new Response(
-        JSON.stringify({ error: "Missing required fields: type, entry" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
 
     const db = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
+
+    let type: string;
+    let hive_id: string | null;
+    let entry: Record<string, unknown>;
+
+    // ── Auto-detect: Supabase DB webhook vs manual call ──────────────────────
+    if (body.type === "INSERT" && body.record) {
+      const record = body.record;
+
+      if (body.table === "logbook") {
+        type = "fault";
+        hive_id = record.hive_id || null;
+        entry = record;
+
+      } else if (body.table === "skill_badges") {
+        type = "skill";
+        hive_id = record.hive_id || null;
+        entry = record;
+
+      } else if (body.table === "pm_completions") {
+        type = "pm";
+        const { data: asset } = await db.from("pm_assets")
+          .select("asset_name, category, hive_id")
+          .eq("id", record.asset_id)
+          .single();
+        hive_id = asset?.hive_id || null;
+        entry = {
+          asset_id:       record.asset_id,
+          asset_name:     asset?.asset_name || "Unknown",
+          category:       asset?.category   || "Unknown",
+          overdue_count:  0,
+          last_completed: record.completed_at,
+        };
+
+      } else {
+        // Table not handled: skip silently (don't error)
+        return new Response(
+          JSON.stringify({ skipped: true, reason: `Table ${body.table} not handled` }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+    } else {
+      // ── Manual call format (existing API contract unchanged) ──────────────
+      type    = body.type;
+      hive_id = body.hive_id;
+      entry   = body.entry;
+
+      if (!type || !entry) {
+        return new Response(
+          JSON.stringify({ error: "Missing required fields: type, entry" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
 
     let embedding: number[];
     let table: string;

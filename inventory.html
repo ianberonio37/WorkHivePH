@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Inventory Monitor — WorkHive</title>
+  <title>Inventory Monitor: WorkHive</title>
   <meta name="description" content="Track spare parts stock levels, link parts to assets, and get alerted before critical spares run out. WorkHive Inventory Monitor." />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://workhiveph.com/inventory.html" />
@@ -412,7 +412,7 @@
           <p id="use-qty-available" class="text-[11px] text-white/30 mt-1.5 text-center"></p>
         </div>
         <div>
-          <label class="wh-label">Job Reference <span class="text-white/25 font-normal normal-case">(optional — for audit trail)</span></label>
+          <label class="wh-label">Job Reference <span class="text-white/25 font-normal normal-case">(optional: for audit trail)</span></label>
           <input id="use-job-ref" type="text" class="wh-input" placeholder="e.g. WO-2042, PM April Batch" autocomplete="off" />
         </div>
         <div id="use-modal-error" class="hidden text-xs text-red-400 rounded-lg px-3 py-2"
@@ -478,7 +478,7 @@ if (!WORKER_NAME) window.location.href = 'index.html?signin=1';
 let HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
 let HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
 
-// localStorage keys — migration source only, removed after first run
+// localStorage keys: migration source only, removed after first run
 const INV_KEY    = 'wh_inventory_'  + WORKER_NAME;
 const TXN_KEY    = 'wh_inv_txns_'   + WORKER_NAME;
 const ASSETS_KEY = 'wh_assets_'     + WORKER_NAME;
@@ -571,7 +571,7 @@ function catBadge(cat) {
 }
 
 function approvalBadge(item) {
-  if (!HIVE_ID) return ''; // solo — no approval flow
+  if (!HIVE_ID) return ''; // solo: no approval flow
   if (item.status === 'pending')  return `<span class="badge" style="background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.35);">Pending Approval</span>`;
   if (item.status === 'rejected') return `<span class="badge" style="background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.28);">Rejected</span>`;
   return '';
@@ -611,7 +611,7 @@ function renderParts() {
     const parts = [];
     if (outCount > 0) parts.push(`${outCount} part${outCount > 1 ? 's' : ''} out of stock`);
     if (lowCount > 0) parts.push(`${lowCount} part${lowCount > 1 ? 's' : ''} running low`);
-    document.getElementById('low-stock-banner-text').textContent = parts.join(' · ') + ' — restock before the next job.';
+    document.getElementById('low-stock-banner-text').textContent = parts.join(' · ') + ': restock before the next job.';
     banner.classList.remove('hidden');
   } else {
     banner.classList.add('hidden');
@@ -738,7 +738,7 @@ function renderAssetLinker() {
   }
   emptyEl.classList.add('hidden');
   linker.innerHTML = assets.map(a => {
-    const label = a.name ? `${a.asset_id} — ${a.name}` : a.asset_id;
+    const label = a.name ? `${a.asset_id}: ${a.name}` : a.asset_id;
     const sel   = selectedAssetIds.has(a.asset_id);
     return `<button type="button" class="asset-tag${sel ? ' selected' : ''}" data-asset-id="${escHtml(a.asset_id)}">${escHtml(label)}</button>`;
   }).join('');
@@ -901,7 +901,7 @@ async function submitPart() {
     const updated = { ...prev, ...payload, photo: currentPhotoData || prev.photo || null };
     items[idx] = updated;
 
-    // Await the DB write — fire-and-forget causes silent revert on reload
+    // Await the DB write: fire-and-forget causes silent revert on reload
     const { error: editErr } = await db.from('inventory_items')
       .update({ ...payload, photo: updated.photo })
       .eq('id', editingItemId)
@@ -922,7 +922,7 @@ async function submitPart() {
     items.push(item);
     _items = items; // update local cache immediately
 
-    // Await DB insert before adding transaction — FK constraint requires item to exist first
+    // Await DB insert before adding transaction: FK constraint requires item to exist first
     const { error: insertErr } = await db.from('inventory_items').upsert({ ...item, worker_name: WORKER_NAME });
     if (insertErr) { showFormError(errEl, 'Could not save part: ' + insertErr.message); return; }
 
@@ -946,8 +946,8 @@ function openUseModal(id) {
   const item = loadInventory().find(i => i.id === id);
   if (!item) return;
   if (HIVE_ID && item.status === 'pending')  { showToast('Part is pending supervisor approval.', 'warn'); return; }
-  if (HIVE_ID && item.status === 'rejected') { showToast('Part was rejected — edit and resubmit first.', 'warn'); return; }
-  document.getElementById('use-modal-part-name').textContent = `${item.part_number} — ${item.part_name}`;
+  if (HIVE_ID && item.status === 'rejected') { showToast('Part was rejected: edit and resubmit first.', 'warn'); return; }
+  document.getElementById('use-modal-part-name').textContent = `${item.part_number}: ${item.part_name}`;
   document.getElementById('use-qty').value = '1';
   document.getElementById('use-job-ref').value = '';
   document.getElementById('use-qty-available').textContent = `Available: ${item.qty_on_hand} ${item.unit || 'pcs'}`;
@@ -986,7 +986,7 @@ function submitUse() {
   if (st === 'out')
     showToast(`${items[idx].part_number} is now OUT OF STOCK.`, 'warn');
   else if (st === 'low')
-    showToast(`${items[idx].part_number} is LOW — ${items[idx].qty_on_hand} ${items[idx].unit || 'pcs'} remaining.`, 'warn');
+    showToast(`${items[idx].part_number} is LOW: ${items[idx].qty_on_hand} ${items[idx].unit || 'pcs'} remaining.`, 'warn');
   else
     showToast(`Used ${qty} ${items[idx].unit || 'pcs'} of ${items[idx].part_number}.`);
 }
@@ -999,8 +999,8 @@ function openRestockModal(id) {
   const item = loadInventory().find(i => i.id === id);
   if (!item) return;
   if (HIVE_ID && item.status === 'pending')  { showToast('Part is pending supervisor approval.', 'warn'); return; }
-  if (HIVE_ID && item.status === 'rejected') { showToast('Part was rejected — edit and resubmit first.', 'warn'); return; }
-  document.getElementById('restock-modal-part-name').textContent = `${item.part_number} — ${item.part_name}`;
+  if (HIVE_ID && item.status === 'rejected') { showToast('Part was rejected: edit and resubmit first.', 'warn'); return; }
+  document.getElementById('restock-modal-part-name').textContent = `${item.part_number}: ${item.part_name}`;
   document.getElementById('restock-qty').value  = '1';
   document.getElementById('restock-note').value = '';
   document.getElementById('restock-modal').style.display = 'flex';
@@ -1071,7 +1071,7 @@ function openDetailModal(id) {
     ${item.status === 'pending' && HIVE_ID ? `
     <div class="rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5" style="background:rgba(247,162,27,0.07);border:1px solid rgba(247,162,27,0.22);">
       <svg class="w-4 h-4 flex-shrink-0 mt-0.5" style="color:#F7A21B" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
-      <p class="text-xs font-semibold" style="color:#F7A21B;">Awaiting supervisor approval — Use and Restock are locked until this part is approved.</p>
+      <p class="text-xs font-semibold" style="color:#F7A21B;">Awaiting supervisor approval: Use and Restock are locked until this part is approved.</p>
     </div>` : ''}
     ${item.status === 'rejected' && HIVE_ID ? `
     <div class="rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5" style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.22);">
@@ -1215,7 +1215,7 @@ document.getElementById('filter-category').addEventListener('change', () => { _i
 document.getElementById('filter-status').addEventListener('change',   () => { _invDisplayCount = 30; renderParts(); });
 
 // ────────────────────────────────────────────
-// DATA INIT — migrate from localStorage then load from Supabase
+// DATA INIT: migrate from localStorage then load from Supabase
 // ────────────────────────────────────────────
 async function initData() {
   const lsItems  = JSON.parse(localStorage.getItem(INV_KEY)    || '[]');
@@ -1299,7 +1299,7 @@ async function initData() {
 // HIVE MEMBERSHIP RE-VALIDATION
 // ────────────────────────────────────────────
 async function validateHiveMembership() {
-  if (!HIVE_ID || !WORKER_NAME) return true; // solo worker — no gate needed
+  if (!HIVE_ID || !WORKER_NAME) return true; // solo worker: no gate needed
   const { data: membership, error } = await db
     .from('hive_members')
     .select('role, status')
@@ -1308,14 +1308,14 @@ async function validateHiveMembership() {
     .maybeSingle();
   if (error) {
     console.warn('Membership validation failed (DB error), using cached role:', error.message);
-    return true; // fail open — DB unreachable, trust cached role
+    return true; // fail open: DB unreachable, trust cached role
   }
   if (!membership || membership.status === 'kicked') {
     console.warn('Worker is no longer an active hive member. Clearing hive state.');
     ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name'].forEach(k => localStorage.removeItem(k));
     HIVE_ID = null;
     HIVE_ROLE = '';
-    return true; // solo mode — inventory still usable for own items
+    return true; // solo mode: inventory still usable for own items
   }
   if (membership.role !== HIVE_ROLE) {
     localStorage.setItem('wh_hive_role', membership.role);

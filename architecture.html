@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WorkHive — Platform Architecture</title>
+  <title>WorkHive: Platform Architecture</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -278,7 +278,7 @@
 <body>
 
 <header>
-  <h1><span>WorkHive</span> — Platform Architecture</h1>
+  <h1><span>WorkHive</span>: Platform Architecture</h1>
   <div class="header-meta">
     <div class="audited-badge">Last audited: <strong>2026-04-18</strong> · All checks PASS</div>
     <a href="index.html" style="font-size:12px;color:var(--muted);text-decoration:none;">← Back to platform</a>
@@ -309,7 +309,7 @@
 <div class="diagram-wrap">
   <div class="diagram" id="diagram">
 
-    <!-- SVG arrows — drawn by JS after layout -->
+    <!-- SVG arrows: drawn by JS after layout -->
     <svg id="arrows" aria-hidden="true"></svg>
 
     <!-- Row 0: Entry -->
@@ -363,7 +363,7 @@
         <div class="node-desc">Team feed. Reads logbook + PM.</div>
       </div>
       <div class="node" id="n-inventory"
-           data-tip="<strong>inventory.html</strong>Parts/tools catalog. Bidirectional link with logbook — parts used in a log entry create inventory transactions.">
+           data-tip="<strong>inventory.html</strong>Parts/tools catalog. Bidirectional link with logbook: parts used in a log entry create inventory transactions.">
         <div class="node-stage">S2</div>
         <div class="node-icon">📦</div>
         <div class="node-name">Inventory</div>
@@ -391,7 +391,7 @@
     <!-- Retired row -->
     <div class="row" id="row-retired" style="margin-top:56px;">
       <div class="node retired" id="n-parts"
-           data-tip="<strong>parts-tracker.html — RETIRED</strong>Parts were folded into logbook.html. This page is kept for reference only. No nav-hub entry. No live links.">
+           data-tip="<strong>parts-tracker.html: RETIRED</strong>Parts were folded into logbook.html. This page is kept for reference only. No nav-hub entry. No live links.">
         <div class="node-stage">RETIRED</div>
         <div class="node-icon">🗄️</div>
         <div class="node-name">Parts Tracker</div>
@@ -406,7 +406,7 @@
 <!-- ═══════════════════════ DB TABLES ═══════════════════════ -->
 <div style="padding:0 32px;">
   <div class="db-layer">
-    <div class="section-label">Supabase Tables — Ownership + Risk Columns</div>
+    <div class="section-label">Supabase Tables: Ownership + Risk Columns</div>
     <div class="db-grid">
 
       <div class="db-table">
@@ -477,7 +477,7 @@
 
   <!-- ═══════════════════════ LOCALSTORAGE ═══ -->
   <div class="ls-layer">
-    <div class="section-label">LocalStorage Key Chains (identity gate — all pages must read all aliases)</div>
+    <div class="section-label">LocalStorage Key Chains (identity gate: all pages must read all aliases)</div>
     <div class="ls-grid">
       <div class="ls-chain">
         <div class="ls-chain-label">Worker Identity</div>
@@ -518,7 +518,7 @@
 
   <!-- ═══════════════════════ DATA FLOW TABLE ═══ -->
   <div class="flow-panel">
-    <div class="flow-panel-header">Cross-Page Data Flows — Living Registry</div>
+    <div class="flow-panel-header">Cross-Page Data Flows: Living Registry</div>
     <table class="flow-table">
       <thead>
         <tr>
@@ -585,7 +585,7 @@
     </div>
 
     <div class="flow-panel" style="flex:1;min-width:280px;">
-      <div class="flow-panel-header">Integrity Audit — Last Run 2026-04-18</div>
+      <div class="flow-panel-header">Integrity Audit: Last Run 2026-04-18</div>
       <table class="flow-table">
         <thead><tr><th>Check</th><th>Result</th></tr></thead>
         <tbody>

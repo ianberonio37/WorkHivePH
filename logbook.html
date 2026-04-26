@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Digital Maintenance Logbook — WorkHive</title>
-  <meta name="description" content="Log every repair, breakdown, and PM activity digitally. Track failure modes, root causes, and actions taken — all in one place with WorkHive." />
+  <title>Digital Maintenance Logbook: WorkHive</title>
+  <meta name="description" content="Log every repair, breakdown, and PM activity digitally. Track failure modes, root causes, and actions taken: all in one place with WorkHive." />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://workhiveph.com/logbook.html" />
   <link rel="manifest" href="/manifest.json" />
@@ -401,7 +401,7 @@
             <div>
               <label class="wh-label">Symptom / What was wrong?</label>
               <div class="relative">
-                <textarea id="f-problem" class="wh-input pr-10" placeholder="Describe what you observed — noise, leak, trip, error code..."></textarea>
+                <textarea id="f-problem" class="wh-input pr-10" placeholder="Describe what you observed: noise, leak, trip, error code..."></textarea>
                 <button type="button" id="voice-problem" title="Voice input"
                   class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
                   style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
@@ -507,7 +507,7 @@
             <!-- Downtime Hours -->
             <div>
               <label class="wh-label">Downtime Hours <span class="text-white/30 font-normal normal-case">(optional)</span></label>
-              <input id="f-downtime" type="number" min="0" step="0.5" class="wh-input" placeholder="e.g. 2.5 — how long was the asset offline?" />
+              <input id="f-downtime" type="number" min="0" step="0.5" class="wh-input" placeholder="e.g. 2.5: how long was the asset offline?" />
             </div>
 
             <!-- Status -->
@@ -839,7 +839,7 @@
     <div class="p-3 border-t" style="border-color:rgba(255,255,255,0.07);">
       <button id="asset-picker-register-btn" type="button" class="btn-secondary w-full text-xs py-2.5 flex items-center justify-center gap-1.5" style="min-height:44px;">
         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-        Asset not found — Register it
+        Asset not found: Register it
       </button>
     </div>
   </div>
@@ -864,7 +864,7 @@
     <div class="p-4 border-t flex-shrink-0" style="border-color:rgba(255,255,255,0.07);">
       <label class="block text-[11px] font-semibold text-white/40 uppercase tracking-widest mb-2">Add Note <span class="normal-case font-normal">(optional)</span></label>
       <textarea id="tasklist-modal-note" class="wh-input mb-3" rows="2" placeholder="Additional steps, observations, or deviations from procedure..."></textarea>
-      <button id="tasklist-modal-done" class="btn-primary w-full">Done — Back to Logbook</button>
+      <button id="tasklist-modal-done" class="btn-primary w-full">Done: Back to Logbook</button>
     </div>
   </div>
 </div>
@@ -884,7 +884,7 @@
     <div class="p-3 border-t" style="border-color:rgba(255,255,255,0.07);">
       <button id="parts-picker-register-btn" type="button" class="btn-secondary w-full text-xs py-2.5 flex items-center justify-center gap-1.5" style="min-height:44px;">
         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-        Part not in inventory — Register it
+        Part not in inventory: Register it
       </button>
     </div>
   </div>
@@ -897,7 +897,7 @@
 // SUPABASE SETUP
 // ────────────────────────────────────────────
 const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'; // anon/publishable key — safe to expose in frontend
+const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'; // anon/publishable key: safe to expose in frontend
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ────────────────────────────────────────────
@@ -917,7 +917,7 @@ if (!WORKER_NAME) {
 // Gate the entire page until validation resolves.
 async function validateHiveMembership() {
   if (!HIVE_ID || !WORKER_NAME) {
-    // No hive in localStorage — show gate immediately, nothing to validate
+    // No hive in localStorage: show gate immediately, nothing to validate
     document.getElementById('hive-gate').style.display = 'flex';
     return false;
   }
@@ -931,13 +931,13 @@ async function validateHiveMembership() {
     .maybeSingle();
 
   if (error) {
-    // DB unreachable — fail safe: allow access with cached role, log the issue
+    // DB unreachable: fail safe: allow access with cached role, log the issue
     console.warn('Membership validation failed (DB error), using cached role:', error.message);
     return true;
   }
 
   if (!membership || membership.status === 'kicked') {
-    // Worker is no longer a member or was kicked — clear hive state
+    // Worker is no longer a member or was kicked: clear hive state
     console.warn('Worker is no longer a hive member. Clearing hive state.');
     localStorage.removeItem('wh_active_hive_id');
     localStorage.removeItem('wh_hive_id');
@@ -949,7 +949,7 @@ async function validateHiveMembership() {
     return false;
   }
 
-  // Membership confirmed — sync role from DB (prevents stale supervisor role)
+  // Membership confirmed: sync role from DB (prevents stale supervisor role)
   if (membership.role !== HIVE_ROLE) {
     console.log(`Role updated from localStorage (${HIVE_ROLE}) to DB (${membership.role})`);
     localStorage.setItem('wh_hive_role', membership.role);
@@ -969,7 +969,7 @@ function applyRoleUI() {
 }
 
 // ────────────────────────────────────────────
-// DATA LAYER — Supabase
+// DATA LAYER: Supabase
 // ────────────────────────────────────────────
 // 'mine' | 'team'
 let _viewMode = 'mine';
@@ -1042,7 +1042,7 @@ async function addEntry(entry) {
   if (error) { showToast('Could not save entry: ' + error.message); return; }
   document.getElementById('sync-badge').classList.remove('hidden');
 
-  // Embed in background — does not block the user
+  // Embed in background: does not block the user
   embedFaultEntry(entry);
 }
 
@@ -1255,7 +1255,7 @@ async function submitAsset() {
     hive_id: HIVE_ID || null,
     submitted_by: WORKER_NAME
   };
-  // Save to Supabase first — only update memory on confirmed success
+  // Save to Supabase first: only update memory on confirmed success
   const { error } = await db.from('assets').upsert({ ...asset, worker_name: WORKER_NAME });
   if (error) {
     console.error('asset save:', error.message);
@@ -1343,7 +1343,7 @@ async function saveEditAsset() {
     ...(needsReapproval ? { status: 'pending' } : {})
   };
 
-  // Scope update to owner — prevents overwriting another member's asset
+  // Scope update to owner: prevents overwriting another member's asset
   let q = db.from('assets').update(updates).eq('id', id);
   if (HIVE_ID && HIVE_ROLE !== 'supervisor') q = q.eq('worker_name', WORKER_NAME);
 
@@ -1362,7 +1362,7 @@ async function saveEditAsset() {
   renderAssetList();
   closeEditAsset();
 
-  // Sync asset_name and tag_id to pm_assets — they copy at creation and go stale
+  // Sync asset_name and tag_id to pm_assets: they copy at creation and go stale
   // Match by old asset_id (tag) since pm_assets has no FK to assets table
   const oldAsset = loadAssets().find(a => a.id === id);
   const oldAssetId = oldAsset?.asset_id || asset?.asset_id;
@@ -1376,7 +1376,7 @@ async function saveEditAsset() {
 }
 
 async function syncToPMAssets(oldTagId, newTagId, newName) {
-  // pm_assets uses tag_id to identify assets — sync name and tag_id on match
+  // pm_assets uses tag_id to identify assets: sync name and tag_id on match
   const syncUpdates = {};
   if (newName)  syncUpdates.asset_name = newName;
   if (newTagId) syncUpdates.tag_id     = newTagId;
@@ -1489,7 +1489,7 @@ async function loadAssetDetail(asset) {
     ...invQueries
   ]);
 
-  // Deduplicate by id — own items take precedence (preserve pending status)
+  // Deduplicate by id: own items take precedence (preserve pending status)
   const seen = new Set();
   _detailLinkedItems = [];
   for (const res of invResults) {
@@ -1523,7 +1523,7 @@ function renderDetailStocked(items) {
   if (!items.length) {
     list.innerHTML = `<div class="text-center py-10">
       <p class="text-sm text-white/30">No parts linked to this asset.</p>
-      <p class="text-xs text-white/20 mt-1">Link parts in Inventory — edit an item and link it to this asset.</p>
+      <p class="text-xs text-white/20 mt-1">Link parts in Inventory: edit an item and link it to this asset.</p>
     </div>`;
     document.getElementById('detail-stocked-view').classList.remove('hidden');
     return;
@@ -1653,7 +1653,7 @@ function updateAssetDatalist() {
   // Only show approved assets in the autocomplete (pending ones are not yet validated)
   const assets = loadAssets().filter(a => !a.status || a.status === 'approved');
   datalist.innerHTML = assets.map(a => {
-    const label = a.name ? `${a.asset_id} — ${a.name}` : a.asset_id;
+    const label = a.name ? `${a.asset_id}: ${a.name}` : a.asset_id;
     return `<option value="${escHtml(a.asset_id)}" label="${escHtml(label)}">`;
   }).join('');
 }
@@ -1715,7 +1715,7 @@ function renderAssetPickerList(query) {
 function selectAsset(assetId, assetName, assetRefId) {
   document.getElementById('f-machine').value = assetId;
   const labelEl = document.getElementById('asset-picker-label');
-  labelEl.textContent = assetId + (assetName && assetName !== assetId ? ' — ' + assetName : '');
+  labelEl.textContent = assetId + (assetName && assetName !== assetId ? ': ' + assetName : '');
   labelEl.style.color = 'white';
   _pendingAssetRefId = assetRefId || null;
   closeAssetPicker();
@@ -1889,7 +1889,7 @@ async function renderEntries(reload = true) {
 }
 
 // ────────────────────────────────────────────
-// MODAL — VIEW
+// MODAL: VIEW
 // ────────────────────────────────────────────
 async function openModal(id) {
   const entries = await loadEntries();
@@ -1976,10 +1976,10 @@ async function openModal(id) {
 }
 
 // ────────────────────────────────────────────
-// MODAL — EDIT
+// MODAL: EDIT
 // ────────────────────────────────────────────
 let _editPartsUsed = []; // tracks parts added during edit session
-let _editingEntry  = null; // cached entry being edited — avoids extra loadEntries() call in saveEdit
+let _editingEntry  = null; // cached entry being edited: avoids extra loadEntries() call in saveEdit
 let _editPhotoData = null; // current photo for the edit modal (null = remove, string = keep/replace)
 
 function renderEditParts() {
@@ -2006,7 +2006,7 @@ async function openEditModal(id) {
   const entries = await loadEntries();
   const entry = entries.find(e => e.id === id);
   if (!entry) return;
-  _editingEntry  = entry; // cache for saveEdit — avoids extra DB call
+  _editingEntry  = entry; // cache for saveEdit: avoids extra DB call
   const status = entry.status || 'Open';
   _editPartsUsed = (entry.parts_used || []).map(p => ({ ...p, _existing: true }));
 
@@ -2158,7 +2158,7 @@ async function openEditModal(id) {
       const tasks     = getTasklist(maintType, category);
       if (!tasks) return;
       const key = TASKLIST_TYPE_MAP[maintType];
-      document.getElementById('tasklist-modal-subtitle').textContent = `${key} — ${category}`;
+      document.getElementById('tasklist-modal-subtitle').textContent = `${key}: ${category}`;
       document.getElementById('tasklist-modal-items').innerHTML = tasks.map((t, i) =>
         `<div class="flex items-start gap-3 rounded-xl px-3 py-2.5" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
           <span class="text-[11px] font-black flex-shrink-0 mt-0.5" style="color:rgba(255,255,255,0.25);">${String(i + 1).padStart(2, '0')}</span>
@@ -2221,13 +2221,13 @@ async function saveEdit(id) {
   const assetMatch  = loadAssets().find(a => a.asset_id.toUpperCase() === machine.toUpperCase());
   const newStatus   = document.querySelector('input[name="e-status"]:checked').value;
 
-  // Use cached entry from openEditModal — avoids an extra DB round-trip
+  // Use cached entry from openEditModal: avoids an extra DB round-trip
   const existing  = _editingEntry?.id === id ? _editingEntry : null;
   let closedAt;
   if (newStatus === 'Closed') {
     closedAt = existing?.closed_at || new Date().toISOString(); // preserve original close time if re-saving
   } else {
-    closedAt = null; // reopened — reset the clock
+    closedAt = null; // reopened: reset the clock
   }
 
   const updates = {
@@ -2453,7 +2453,7 @@ function togglePMOnTrack() {
   _pmOnTrackExpanded = !_pmOnTrackExpanded;
   renderPMTasksPanel();
 }
-let _tasklistNote = ''; // note from tasklist modal — module-level to survive re-renders
+let _tasklistNote = ''; // note from tasklist modal: module-level to survive re-renders
 
 document.getElementById('log-form').addEventListener('submit', async function(e) {
   e.preventDefault();
@@ -2517,13 +2517,13 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
       hive_id:       HIVE_ID || null,
       worker_name:   WORKER_NAME,
       status:        'done',
-      notes:         `Logged via Logbook — ${machine}`,
+      notes:         `Logged via Logbook: ${machine}`,
       completed_at:  entry.date,
     }));
     const { error: pmErr } = await db.from('pm_completions').insert(pmPayloads);
     if (pmErr) {
       console.warn('PM completions save failed:', pmErr.message);
-      showToast('Entry saved. PM tasks failed to record — check your connection and retry.');
+      showToast('Entry saved. PM tasks failed to record: check your connection and retry.');
     }
   }
 
@@ -2796,7 +2796,7 @@ const TASKLIST_TEMPLATES = {
     'Instrumentation': ['Review instrument data sheet and loop drawing','Obtain permits and approvals','Install instrument at correct location and orientation','Run signal cable and terminate per drawing','Perform loop calibration and functional test','Configure transmitter or controller setpoints','Verify signal at DCS/PLC and configure tag if needed','Hand over with calibration certificate','Update logbook with project summary'],
     'Hydraulic':       ['Review project scope, hydraulic schematic, and specification','Obtain permits and safety clearances','Conduct pre-task safety briefing with team','Depressurize existing hydraulic system before any connection work','Install or modify hydraulic lines, fittings, cylinders, or valves per drawing','Ensure correct hose ratings and fittings for system pressure','Fill system with correct hydraulic fluid type to specified level','Remove LOTO and restore power to hydraulic power unit','Bleed air from system and check for leaks at all connections','Test system at operating pressure and verify function','Hand over to operations with sign-off','Update logbook with project summary'],
     'Pneumatic':       ['Review project scope and pneumatic circuit drawing','Obtain permits and approvals','Conduct pre-task safety briefing with team','Isolate and depressurize existing air lines before connection work','Install or modify pneumatic lines, fittings, valves, or actuators per drawing','Ensure correct tubing and fitting ratings for system pressure','Restore air supply and check for leaks at all connections','Verify pressure settings at regulators and relief valves','Test pneumatic function in manual then automatic mode','Hand over to operations with sign-off','Update logbook with project summary'],
-    'Lubrication':     ['Review lubrication project scope — system upgrade, centralised lube, or new points','Obtain permits and approvals','Identify all lubrication points to be included in scope','Install grease lines, fittings, manifolds, or automatic lubrication components per drawing','Verify correct lubricant type for each application','Prime lines and verify lubricant reaches all end points','Label all lube points with lubricant type and service interval','Update equipment lubrication schedule to include new points','Hand over to maintenance team with updated schedule','Update logbook with project summary'],
+    'Lubrication':     ['Review lubrication project scope: system upgrade, centralised lube, or new points','Obtain permits and approvals','Identify all lubrication points to be included in scope','Install grease lines, fittings, manifolds, or automatic lubrication components per drawing','Verify correct lubricant type for each application','Prime lines and verify lubricant reaches all end points','Label all lube points with lubricant type and service interval','Update equipment lubrication schedule to include new points','Hand over to maintenance team with updated schedule','Update logbook with project summary'],
     'Other':           ['Review project scope, objective, and available documentation','Obtain required permits (work permit, hot work, confined space, heights, etc.)','Conduct pre-task safety briefing with team','Identify hazards and apply appropriate isolation and LOTO','Gather all required tools, materials, and equipment','Execute work per agreed scope and specification','Inspect quality of work at completion','Remove all isolation and LOTO','Test and verify function meets required outcome','Clean up work area and dispose of waste correctly','Hand over to operations or maintenance team with sign-off','Update logbook with project summary'],
   },
 };
@@ -2849,7 +2849,7 @@ document.getElementById('btn-view-tasklist').addEventListener('click', () => {
   if (!tasks) return;
 
   const key = TASKLIST_TYPE_MAP[maintType];
-  document.getElementById('tasklist-modal-subtitle').textContent = `${key} — ${category}`;
+  document.getElementById('tasklist-modal-subtitle').textContent = `${key}: ${category}`;
   document.getElementById('tasklist-modal-items').innerHTML = tasks.map((t, i) =>
     `<div class="flex items-start gap-3 rounded-xl px-3 py-2.5" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
       <span class="text-[11px] font-black flex-shrink-0 mt-0.5" style="color:rgba(255,255,255,0.25);">${String(i + 1).padStart(2, '0')}</span>
@@ -2862,7 +2862,7 @@ document.getElementById('btn-view-tasklist').addEventListener('click', () => {
   document.getElementById('tasklist-modal').style.display = 'flex';
 });
 
-// Done button — auto-tick and save note (works for both add form and edit modal)
+// Done button: auto-tick and save note (works for both add form and edit modal)
 let _tasklistDoneTarget = 'add'; // 'add' | 'edit'
 document.getElementById('tasklist-modal-done').addEventListener('click', () => {
   _tasklistNote = document.getElementById('tasklist-modal-note').value.trim();
@@ -3121,7 +3121,7 @@ function renderOpenJobs(entries) {
     </div>`).join('');
 
   if (openEntries.length > 3) {
-    list.innerHTML += `<p class="text-[11px] text-center mt-1" style="color:rgba(255,255,255,0.3);">+${openEntries.length - 3} more — use the "Open" filter below</p>`;
+    list.innerHTML += `<p class="text-[11px] text-center mt-1" style="color:rgba(255,255,255,0.3);">+${openEntries.length - 3} more: use the "Open" filter below</p>`;
   }
 }
 
@@ -3190,7 +3190,7 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
 // ────────────────────────────────────────────
 (async () => {
   const isMember = await validateHiveMembership();
-  if (!isMember) return; // gate is showing — stop all data loads
+  if (!isMember) return; // gate is showing: stop all data loads
 
   applyRoleUI();
 

@@ -52,7 +52,7 @@ async function callGroq(prompt: string, systemPrompt: string): Promise<string> {
 }
 
 // ── AGENT 1: Failure Analysis ─────────────────────────────────────────────────
-// Reads logbook — surfaces top risk machines, repeat failures, MTBF alerts
+// Reads logbook: surfaces top risk machines, repeat failures, MTBF alerts
 
 const FAILURE_SYSTEM = `You are a maintenance failure analyst. Analyze logbook records and identify:
 1. Top 3 highest-risk machines (most failures or longest downtime)
@@ -82,7 +82,7 @@ async function failureAnalysisAgent(db: SupabaseClient, hiveId: string | null, w
 }
 
 // ── AGENT 2: PM Status ────────────────────────────────────────────────────────
-// Reads pm_assets + pm_completions — overdue tasks, health per asset
+// Reads pm_assets + pm_completions: overdue tasks, health per asset
 
 const PM_SYSTEM = `You are a preventive maintenance analyst. Given a list of assets and their PM completion history, identify:
 1. Assets with overdue PM tasks (no completion in over 30 days)
@@ -122,7 +122,7 @@ async function pmStatusAgent(db: SupabaseClient, hiveId: string | null, workerNa
 }
 
 // ── AGENT 3: Inventory Risk ───────────────────────────────────────────────────
-// Reads inventory_items — parts below reorder point
+// Reads inventory_items: parts below reorder point
 
 const INVENTORY_SYSTEM = `You are an inventory risk analyst. Given parts stock levels, identify:
 1. Parts that are out of stock (qty = 0)
@@ -150,7 +150,7 @@ async function inventoryRiskAgent(db: SupabaseClient, hiveId: string | null, wor
 }
 
 // ── AGENT 4: Knowledge Extraction ────────────────────────────────────────────
-// Reads logbook.knowledge — clusters tips into SOP drafts
+// Reads logbook.knowledge: clusters tips into SOP drafts
 
 const KNOWLEDGE_SYSTEM = `You are a knowledge management specialist. Given maintenance knowledge notes from technicians, identify:
 1. Recurring tips about the same machine or failure type (cluster them)
@@ -180,7 +180,7 @@ async function knowledgeExtractionAgent(db: SupabaseClient, hiveId: string | nul
 }
 
 // ── AGENT 5: Workforce Match ──────────────────────────────────────────────────
-// Reads skill_profiles + skill_badges — best tech for the job
+// Reads skill_profiles + skill_badges: best tech for the job
 
 const WORKFORCE_SYSTEM = `You are a workforce scheduler. Given technician skill profiles and a maintenance question, identify:
 1. Best-matched technician(s) for the task (by discipline and level)
@@ -209,7 +209,7 @@ async function workforceMatchAgent(db: SupabaseClient, hiveId: string | null, wo
 }
 
 // ── AGENT 6: Shift Handover ───────────────────────────────────────────────────
-// Reads logbook last 24h — open jobs + completed work summary
+// Reads logbook last 24h: open jobs + completed work summary
 
 const HANDOVER_SYSTEM = `You are a shift handover report generator. Given recent maintenance records, produce:
 1. Open jobs that the next shift must follow up on
@@ -241,7 +241,7 @@ async function shiftHandoverAgent(db: SupabaseClient, hiveId: string | null, wor
 }
 
 // ── AGENT 7: Predictive ───────────────────────────────────────────────────────
-// Reads logbook failure dates — projects next failure per machine
+// Reads logbook failure dates: projects next failure per machine
 
 const PREDICTIVE_SYSTEM = `You are a predictive maintenance analyst. Given machine failure history with dates, calculate:
 1. Average days between failures (MTBF) per machine
@@ -273,19 +273,19 @@ async function predictiveAgent(db: SupabaseClient, hiveId: string | null, worker
   return { agent: "predictive", result: JSON.parse(raw) };
 }
 
-// ── ORCHESTRATOR — decides which agents to run, synthesizes answer ─────────────
+// ── ORCHESTRATOR: decides which agents to run, synthesizes answer ─────────────
 
 const ROUTE_SYSTEM = `You are a maintenance intelligence router. Given a user question, decide which agents to run.
 Respond only in JSON: { "agents": ["failure_analysis","pm_status","inventory_risk","knowledge_extraction","workforce_match","shift_handover","predictive"] }
 Include only the agents relevant to the question. Use at least 1 and at most 4 agents.`;
 
 const SYNTH_SYSTEM = `You are a senior maintenance manager AI. Given agent results, write a clear, practical answer to the user's question.
-Be specific — name actual machines, workers, parts. Use bullet points for lists. Keep it under 200 words.
+Be specific: name actual machines, workers, parts. Use bullet points for lists. Keep it under 200 words.
 Respond only in JSON: { "answer": "your response here" }`;
 
 async function orchestrate(question: string, hiveId: string | null, workerName: string | null, db: SupabaseClient) {
 
-  // Step 1: Route — decide which agents to call
+  // Step 1: Route: decide which agents to call
   const routeRaw = await callGroq(`Question: "${question}"`, ROUTE_SYSTEM);
   let agentsToRun: string[] = [];
   try {
@@ -317,15 +317,36 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
     return { answer: "I couldn't find enough data to answer that yet. Add more logbook entries, PM completions, or skill badges to build up your knowledge base.", agents_used: agentsToRun };
   }
 
-  // Step 3: Synthesize — one final AI call to write the answer
+  // Step 3: Fetch semantic context from knowledge base (RAG)
+  let semanticContext = "";
+  try {
+    const searchRes = await fetch(
+      `${Deno.env.get("SUPABASE_URL")}/functions/v1/semantic-search`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+        },
+        body: JSON.stringify({ query: question, hive_id: hiveId, match_count: 3 }),
+      }
+    );
+    if (searchRes.ok) {
+      const searchData = await searchRes.json();
+      semanticContext = searchData.context || "";
+    }
+  } catch { /* non-blocking: synthesis continues even if search fails */ }
+
+  // Step 4: Synthesize: one final AI call to write the answer
   const resultsText = successfulResults.map(r =>
     `[${r.agent}]: ${JSON.stringify(r.result)}`
   ).join("\n\n");
 
-  const synthRaw = await callGroq(
-    `User question: "${question}"\n\nAgent results:\n${resultsText}`,
-    SYNTH_SYSTEM
-  );
+  const synthPrompt = semanticContext
+    ? `User question: "${question}"\n\nRelevant history from knowledge base:\n${semanticContext}\n\nAgent results:\n${resultsText}`
+    : `User question: "${question}"\n\nAgent results:\n${resultsText}`;
+
+  const synthRaw = await callGroq(synthPrompt, SYNTH_SYSTEM);
 
   let answer = "I analyzed your data but had trouble formatting the response. Please try again.";
   try {

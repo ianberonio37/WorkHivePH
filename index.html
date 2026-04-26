@@ -491,21 +491,21 @@
     @keyframes badge-pulse { 0%,100%{opacity:.8} 50%{opacity:1;box-shadow:0 0 0 4px rgba(247,162,27,.15)} }
     .badge { animation: badge-pulse 3s ease-in-out infinite; }
 
-    /* ── Page load fade (opacity only — transform on body breaks position:fixed) ── */
+    /* ── Page load fade (opacity only: transform on body breaks position:fixed) ── */
     @keyframes page-enter { from{opacity:0} to{opacity:1} }
     body { animation: page-enter .65s ease forwards; }
 
     /* ════════════════════════════════════════
        SPRING PHYSICS TIMING
-       Viscous  — high damping, liquid feel (cards, reveals, sticky bar)
-       Bouncy   — medium damping, energetic (CTAs, install button)
+       Viscous : high damping, liquid feel (cards, reveals, sticky bar)
+       Bouncy  : medium damping, energetic (CTAs, install button)
     ════════════════════════════════════════ */
 
-    /* Shorthand variables — paste these values wherever spring is needed */
+    /* Shorthand variables: paste these values wherever spring is needed */
     /* --viscous: linear(0,.013,.052,.113,.195,.288,.384,.478,.565,.643,.711,.769,.818,.859,.892,.919,.941,.957,.971,.981,.988,.993,.997,1.001,1.003,1.002,1) */
     /* --bouncy:  linear(0,.006,.025,.101,.25,.553,.844,1.015,1.085,1.106,1.08,1.04,1.005,.985,.993,1.002,1.004,1) */
 
-    /* ── VISCOUS spring — high damping, slow start, liquid settle ── */
+    /* ── VISCOUS spring: high damping, slow start, liquid settle ── */
     /* Applied to: cards, reveals, sticky bar                         */
     .card-glow, .card-orange {
       transition:
@@ -516,7 +516,7 @@
     .card-glow:hover  { transform: translateY(-12px) !important; }
     .card-orange:hover { transform: translateY(-12px) !important; }
 
-    /* ── BOUNCY spring — medium damping, clear overshoot ── */
+    /* ── BOUNCY spring: medium damping, clear overshoot ── */
     /* Applied to: buttons, PWA install                      */
     .btn-primary {
       transition:
@@ -543,33 +543,33 @@
         transform   0.55s linear(0,.006,.025,.101,.25,.553,.844,1.035,1.115,1.146,1.14,1.107,1.062,1.018,.99,.979,.988,1.004,1.01,1.006,1.001,.999,1);
     }
 
-    /* Reveals — viscous */
+    /* Reveals: viscous */
     .reveal {
       transition:
         opacity   0.6s ease,
         transform 0.85s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.834,.843,.858,.876,.894,.907,.916,.924,.932,.940,.947,.953,.958,.962,.967,.972,.978,.984,.990,.994,.998,1);
     }
 
-    /* Stagger — viscous, feels like emerging from liquid */
+    /* Stagger: viscous, feels like emerging from liquid */
     .stagger-wrap > * {
       transition:
         opacity   0.5s ease,
         transform 0.9s  linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.834,.843,.858,.876,.894,.907,.916,.924,.932,.940,.947,.953,.958,.962,.967,.972,.978,.984,.990,.994,.998,1);
     }
 
-    /* Sticky bar — viscous */
+    /* Sticky bar: viscous */
     #sticky-mobile-cta {
       transition: transform 0.7s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.834,.843,.858,.876,.894,.907,.916,.924,.932,.940,.947,.953,.958,.962,.967,.972,.978,.984,.990,.994,.998,1);
     }
 
-    /* Before/after rows — viscous */
+    /* Before/after rows: viscous */
     .before-after-row {
       transition:
         opacity   0.4s ease,
         transform 0.65s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.843,.876,.907,.932,.953,.967,.978,.990,.998,1);
     }
 
-    /* PWA install — bouncy */
+    /* PWA install: bouncy */
     #pwa-install-btn {
       transition:
         background   0.2s ease,
@@ -577,7 +577,7 @@
         transform    0.55s linear(0,.006,.025,.101,.25,.553,.844,1.035,1.115,1.146,1.14,1.107,1.062,1.018,.99,.979,.988,1.004,1.01,1.006,1.001,.999,1);
     }
 
-    /* Scroll reveals handled by JS IntersectionObserver — see scripts below */
+    /* Scroll reveals handled by JS IntersectionObserver: see scripts below */
 
     /* ── Popup tool tile spring hover ── */
     #popup-tools a {
@@ -596,7 +596,7 @@
       transition: transform 0.08s ease;
     }
 
-    /* ── Respect prefers-reduced-motion (JS fallback path — Safari) ── */
+    /* ── Respect prefers-reduced-motion (JS fallback path: Safari) ── */
     @media (prefers-reduced-motion: reduce) {
       body                  { animation: none; }
       .logo-glow-img        { animation: logo-shimmer 3s ease-in-out infinite; }
@@ -642,7 +642,7 @@
     </div>
 
     <div class="hidden md:flex items-center gap-3">
-      <!-- PWA install button — shown only when browser fires beforeinstallprompt -->
+      <!-- PWA install button: shown only when browser fires beforeinstallprompt -->
       <button id="pwa-install-btn" onclick="triggerInstall()"
               aria-label="Install WorkHive">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -1392,7 +1392,7 @@
     });
   });
 
-  // ---- Scroll reveal — JS IntersectionObserver, all browsers ----
+  // ---- Scroll reveal: JS IntersectionObserver, all browsers ----
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -1565,7 +1565,7 @@
       tabClass: 'active-blue',
       tools: [
         { name: 'Hive Live Board', desc: 'Join or create a team. See who is on shift, live activity feed, and open work count.', link: 'hive.html', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' },
-        { name: 'Engineering Design Calculator', desc: 'Multi-discipline design calc tool — HVAC, pump, pipe, electrical, fire protection, and more. Generates print-ready reports.', link: 'engineering-design.html', icon: 'M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18' },
+        { name: 'Engineering Design Calculator', desc: 'Multi-discipline design calc tool: HVAC, pump, pipe, electrical, fire protection, and more. Generates print-ready reports.', link: 'engineering-design.html', icon: 'M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18' },
         { name: 'PM Scheduler', desc: 'Add assets, build PM scope by category, set Monthly/Quarterly/Semi-Annual/Yearly frequencies, and track all due dates. Syncs to your Hive board.', link: 'pm-scheduler.html', icon: 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4' },
         { name: 'Inventory Monitoring', desc: 'Stock ledger with reorder alerts and audit trail per job.', link: 'inventory.html', icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
         { name: 'Skills Badge Tracker', desc: 'Record completed training and certifications.', link: null, icon: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z' },
@@ -1700,7 +1700,7 @@
 
 <!-- ── Sticky mobile CTA bar ── -->
 <div id="sticky-mobile-cta" class="md:hidden" aria-hidden="true">
-  <a href="#join" class="btn-primary text-sm w-full text-center block">Get Early Access — It's Free</a>
+  <a href="#join" class="btn-primary text-sm w-full text-center block">Get Early Access: It's Free</a>
 </div>
 
 <!-- ── SIGN IN MODAL ── -->
@@ -1843,12 +1843,12 @@
   }
 
   /* ── Card 3D tilt (desktop fine-pointer only) ── */
-  /* Tracking uses a sluggish ease — card chases cursor like it's heavy.
+  /* Tracking uses a sluggish ease: card chases cursor like it's heavy.
      Return uses the full viscous spring so it settles like liquid. */
   if (!reducedMotion && window.matchMedia('(pointer: fine)').matches) {
     document.querySelectorAll('.card-glow, .card-orange, .stage-card').forEach(function(card) {
       card.addEventListener('mouseenter', function() {
-        /* Slow tracking — card lags behind cursor, feels heavy */
+        /* Slow tracking: card lags behind cursor, feels heavy */
         this.style.transition = 'transform 0.28s ease-out';
       });
       card.addEventListener('mousemove', function(e) {
@@ -1857,7 +1857,7 @@
         this.style.transform = 'perspective(700px) rotateX(' + (-y*7) + 'deg) rotateY(' + (x*7) + 'deg) translateY(-12px)';
       });
       card.addEventListener('mouseleave', function() {
-        /* Full viscous spring on return — card settles slowly like liquid */
+        /* Full viscous spring on return: card settles slowly like liquid */
         this.style.transition = 'transform 0.8s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.834,.843,.858,.876,.894,.907,.916,.924,.932,.940,.947,.953,.958,.962,.967,.972,.978,.984,.990,.994,.998,1)';
         this.style.transform = '';
       });

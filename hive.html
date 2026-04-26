@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Hive Live Board — WorkHive</title>
+  <title>Hive Live Board: WorkHive</title>
   <meta name="robots" content="noindex, follow" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -427,7 +427,7 @@
       <!-- Resolution bar (this week) -->
       <div id="resolution-bar-wrap" class="hidden mb-5 wh-card p-4">
         <div class="flex justify-between mb-1.5">
-          <span class="text-[11px] font-semibold text-white/40 uppercase tracking-widest">This Week — Resolution</span>
+          <span class="text-[11px] font-semibold text-white/40 uppercase tracking-widest">This Week: Resolution</span>
           <span id="resolution-label" class="text-[11px] font-semibold text-white/50"></span>
         </div>
         <div class="rounded-full overflow-hidden h-2 flex" style="background:rgba(255,255,255,0.06);">
@@ -588,7 +588,7 @@
       <!-- MTBF per Asset (last 90 days) -->
       <div id="mtbf-panel" class="hidden mb-5">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">MTBF — Mean Time Between Failures</p>
+          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">MTBF: Mean Time Between Failures</p>
           <button id="btn-toggle-mtbf" style="color:#a78bfa;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;padding:0.5rem 0;">Show</button>
         </div>
         <div id="mtbf-body" style="display:none;">
@@ -600,11 +600,11 @@
       <!-- MTTR (Mean Time to Repair) -->
       <div id="mttr-panel" class="hidden mb-5">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">MTTR — Mean Time to Repair</p>
+          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">MTTR: Mean Time to Repair</p>
           <button id="btn-toggle-mttr" style="color:#34d399;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;padding:0.5rem 0;">Show</button>
         </div>
         <div id="mttr-body" style="display:none;">
-          <p class="text-[10px] text-white/25 mb-2">Elapsed time from entry created to marked Closed. Clock time — includes non-working hours.</p>
+          <p class="text-[10px] text-white/25 mb-2">Elapsed time from entry created to marked Closed. Clock time: includes non-working hours.</p>
           <div id="mttr-summary" class="rounded-xl px-3 py-3 mb-2" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
             <div class="flex justify-between items-center">
               <span class="text-[11px] text-white/40">Hive Average MTTR</span>
@@ -687,7 +687,7 @@
         <div id="approval-body">
           <div id="approval-list" class="flex flex-col gap-2"></div>
           <div id="approval-empty" class="hidden rounded-xl p-4 text-center" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-            <p class="text-xs text-white/30">All caught up — no pending items.</p>
+            <p class="text-xs text-white/30">All caught up: no pending items.</p>
           </div>
         </div>
       </div>
@@ -760,7 +760,7 @@
 <script>
 // ── SUPABASE SETUP ──
 const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'; // anon key — safe in frontend
+const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'; // anon key: safe in frontend
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ── IDENTITY ──
@@ -968,7 +968,7 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
 
 (async function initHive() {
   if (HIVE_ID) {
-    // Re-validate against DB — HIVE_ID in localStorage is not trusted alone
+    // Re-validate against DB: HIVE_ID in localStorage is not trusted alone
     const { data: membership, error: valErr } = await db
       .from('hive_members')
       .select('role, status')
@@ -977,7 +977,7 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
       .maybeSingle();
 
     if (!valErr && (!membership || membership.status === 'kicked')) {
-      // Kicked or removed — clear all hive state and show onboard
+      // Kicked or removed: clear all hive state and show onboard
       ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name','wh_hive_code'].forEach(k => localStorage.removeItem(k));
       HIVE_ID = ''; HIVE_NAME = ''; HIVE_ROLE = '';
       showView('onboard');
@@ -993,7 +993,7 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
     return;
   }
 
-  // No local hive — check if user already has membership in Supabase (e.g. after sign-out, device switch)
+  // No local hive: check if user already has membership in Supabase (e.g. after sign-out, device switch)
   (async function recoverHiveMembership() {
     const { data: memberships, error: recErr } = await db
       .from('hive_members')
@@ -1002,7 +1002,7 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
       .neq('status', 'kicked');
 
     if (recErr) {
-      // Query failed (network/server issue) — show onboard with a helpful hint
+      // Query failed (network/server issue): show onboard with a helpful hint
       showView('onboard');
       const sub = document.querySelector('#view-onboard p');
       if (sub) sub.textContent = 'Could not reach your hive. Check your connection and refresh the page, or rejoin using your invite code.';
@@ -1026,7 +1026,7 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
       return;
     }
 
-    // Restore to localStorage — trust the role stored in hive_members (supervisor can re-assign via hive page)
+    // Restore to localStorage: trust the role stored in hive_members (supervisor can re-assign via hive page)
     const restored = hives.map(h => {
       const m = memberships.find(x => x.hive_id === h.id);
       const role = m ? m.role : 'worker';
@@ -1165,7 +1165,7 @@ async function submitJoin() {
   const joinRole = existingRow ? existingRow.role : 'worker';
 
   if (!existingRow) {
-    // New member — insert as worker
+    // New member: insert as worker
     const { error: joinErr } = await db.from('hive_members').insert({
       hive_id: hive.id, worker_name: WORKER_NAME, role: 'worker', status: 'active'
     });
@@ -1175,7 +1175,7 @@ async function submitJoin() {
       errEl.classList.remove('hidden'); return;
     }
   }
-  // Existing active member — just restore localStorage, no upsert needed
+  // Existing active member: just restore localStorage, no upsert needed
 
   localStorage.setItem('wh_hive_id',        hive.id);
   localStorage.setItem('wh_hive_name',      hive.name);
@@ -1268,7 +1268,7 @@ async function performLeave() {
 async function renderHiveSwitcher() {
   const list = getHiveList();
   if (!list.length) { showView('onboard'); return; }
-  // Auto-switch to the first remaining hive — validate membership from DB before loading
+  // Auto-switch to the first remaining hive: validate membership from DB before loading
   const next = list[0];
   const { data: membership, error: memErr } = await db.from('hive_members')
     .select('role, status')
@@ -1276,7 +1276,7 @@ async function renderHiveSwitcher() {
     .eq('worker_name', WORKER_NAME)
     .maybeSingle();
   if (memErr) {
-    // DB unreachable — fail open: trust the cached role so the worker stays in
+    // DB unreachable: fail open: trust the cached role so the worker stays in
     console.warn('renderHiveSwitcher membership check failed (offline?):', memErr.message);
     localStorage.setItem('wh_active_hive_id', next.id);
     localStorage.setItem('wh_hive_id',         next.id);
@@ -1287,7 +1287,7 @@ async function renderHiveSwitcher() {
     return;
   }
   if (!membership || membership.status === 'kicked') {
-    // Confirmed not a member (or kicked) — remove and try next hive
+    // Confirmed not a member (or kicked): remove and try next hive
     saveHiveList(list.filter(h => h.id !== next.id));
     await renderHiveSwitcher();
     return;
@@ -1318,7 +1318,7 @@ async function initBoard() {
   }
 
   updateSwitchButton();
-  // allSettled — never rejects, so startPresence() is always reached even if one data load fails
+  // allSettled: never rejects, so startPresence() is always reached even if one data load fails
   const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), loadAnalytics(), buildNotifications(), loadApprovalQueue(), loadHiveInventory(), loadDowntime(), loadMtbf(), loadMttr(), loadPMHealth(), loadAuditLog()]);
   _boardResults.forEach((r, i) => { if (r.status === 'rejected') console.error('initBoard step', i, 'failed:', r.reason); });
   // Team stock alert needs memberNames populated by loadMembers first
@@ -1582,7 +1582,7 @@ function startFeedRealtime() {
         }
         _feedEntries[idx] = { ...updated, _type: 'logbook' };
       } else {
-        // Entry predates this session's feed window — add to front so it becomes visible
+        // Entry predates this session's feed window: add to front so it becomes visible
         _feedEntries.unshift({ ...updated, _type: 'logbook' });
       }
       renderFeed();
@@ -1614,7 +1614,7 @@ function startFeedRealtime() {
     })
     .subscribe();
 
-  // parts_records and checklist_records tables retired — feed uses logbook and pm_completions only
+  // parts_records and checklist_records tables retired: feed uses logbook and pm_completions only
 
   pmChannel = db.channel('hive-pm:' + HIVE_ID)
     .on('postgres_changes', {
@@ -1695,7 +1695,7 @@ async function checkStockAlert() {
   const parts = [];
   if (out.length) parts.push(out.length + (out.length === 1 ? ' item out of stock' : ' items out of stock'));
   if (low.length) parts.push(low.length + (low.length === 1 ? ' item running low' : ' items running low'));
-  document.getElementById('stock-alert-text').textContent = escHtml(parts.join(', ') + ' — check before your next job.');
+  document.getElementById('stock-alert-text').textContent = escHtml(parts.join(', ') + ': check before your next job.');
   document.getElementById('stock-alert').classList.remove('hidden');
 }
 
@@ -1864,12 +1864,12 @@ async function loadPMHealth() {
     }
   }
 
-  // Notification bell — PM overdue
+  // Notification bell: PM overdue
   // Remove stale PM notifications before re-pushing fresh counts (prevents duplicates on each refresh)
   _notifs = _notifs.filter(n => n.type !== 'pm-overdue' && n.type !== 'pm-duesoon');
   if (overdue > 0) {
     pushNotif('pm-overdue', 'PM Tasks Overdue',
-      `${overdue} PM task${overdue > 1 ? 's' : ''} overdue — check PM Scheduler.`,
+      `${overdue} PM task${overdue > 1 ? 's' : ''} overdue: check PM Scheduler.`,
       'pm-scheduler.html');
   }
   if (dueSoon > 0) {
@@ -2072,7 +2072,7 @@ function renderApprovalQueue() {
       <div class="flex items-start gap-2 mb-2">
         <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 mt-0.5" style="background:rgba(41,182,217,0.12);color:#29B6D9;border:1px solid rgba(41,182,217,0.2);">ASSET</span>
         <div class="flex-1 min-w-0">
-          <p class="text-xs font-bold text-white">${escHtml(a.asset_id)}${a.name ? ' — ' + escHtml(a.name) : ''}</p>
+          <p class="text-xs font-bold text-white">${escHtml(a.asset_id)}${a.name ? ': ' + escHtml(a.name) : ''}</p>
           <p class="text-[11px] text-white/40">by ${escHtml(a.submitted_by || a.worker_name)} · ${a.criticality ? escHtml(a.criticality) : 'No criticality set'}${a.location ? ' · ' + escHtml(a.location) : ''}</p>
         </div>
       </div>
@@ -2087,7 +2087,7 @@ function renderApprovalQueue() {
       <div class="flex items-start gap-2 mb-2">
         <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 mt-0.5" style="background:rgba(139,92,246,0.12);color:#a78bfa;border:1px solid rgba(139,92,246,0.2);">PART</span>
         <div class="flex-1 min-w-0">
-          <p class="text-xs font-bold text-white">${escHtml(p.part_number)} — ${escHtml(p.part_name)}</p>
+          <p class="text-xs font-bold text-white">${escHtml(p.part_number)}: ${escHtml(p.part_name)}</p>
           <p class="text-[11px] text-white/40">by ${escHtml(p.submitted_by || p.worker_name)} · Qty: ${p.qty_on_hand}${p.category ? ' · ' + escHtml(p.category) : ''}</p>
         </div>
       </div>
@@ -2101,7 +2101,7 @@ function renderApprovalQueue() {
 }
 
 // ── AUDIT LOG ──
-// Fire-and-forget — never awaited so a log failure never blocks the supervisor action
+// Fire-and-forget: never awaited so a log failure never blocks the supervisor action
 function writeAuditLog(action, targetType, targetId, targetName, meta = {}) {
   if (!HIVE_ID) return;
   db.from('hive_audit_log').insert({
@@ -2161,7 +2161,7 @@ function startApprovalRealtime() {
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'assets', filter: 'hive_id=eq.' + HIVE_ID },
       (payload) => {
         if (payload.new.status === 'pending') {
-          // Worker resubmitted a previously rejected asset — replace or add to pending list
+          // Worker resubmitted a previously rejected asset: replace or add to pending list
           const idx = _pendingAssets.findIndex(a => a.id === payload.new.id);
           if (idx !== -1) _pendingAssets[idx] = payload.new; else _pendingAssets.push(payload.new);
           renderApprovalQueue();
@@ -2181,7 +2181,7 @@ function startApprovalRealtime() {
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'inventory_items', filter: 'hive_id=eq.' + HIVE_ID },
       (payload) => {
         if (payload.new.status === 'pending') {
-          // Worker resubmitted a previously rejected part — replace or add to pending list
+          // Worker resubmitted a previously rejected part: replace or add to pending list
           const idx = _pendingParts.findIndex(p => p.id === payload.new.id);
           if (idx !== -1) _pendingParts[idx] = payload.new; else _pendingParts.push(payload.new);
           renderApprovalQueue();
@@ -2330,7 +2330,7 @@ async function loadRiskIntel() {
       .maybeSingle();
 
     if (!data) {
-      el.innerHTML = '<p class="text-xs text-white/30">No report yet — will generate automatically on schedule.</p>';
+      el.innerHTML = '<p class="text-xs text-white/30">No report yet: will generate automatically on schedule.</p>';
       return;
     }
 
@@ -2345,7 +2345,7 @@ async function loadRiskIntel() {
       html += r.overdue_assets.slice(0, 3).map(a =>
         `<div class="flex justify-between items-center py-1 border-t border-white/5">
           <span class="text-[11px] text-white/60">${a.asset_name}</span>
-          <span class="text-[11px] font-bold" style="color:${a.risk === 'CRITICAL' ? '#f87171' : '#F7A21B'}">${a.risk} — ${a.days_since_pm}</span>
+          <span class="text-[11px] font-bold" style="color:${a.risk === 'CRITICAL' ? '#f87171' : '#F7A21B'}">${a.risk}: ${a.days_since_pm}</span>
         </div>`
       ).join('');
     }
@@ -2355,7 +2355,7 @@ async function loadRiskIntel() {
       html += r.top_risk_machines.slice(0, 3).map(m =>
         `<div class="flex justify-between items-center py-1 border-t border-white/5">
           <span class="text-[11px] text-white/60">${m.machine}</span>
-          <span class="text-[11px] font-bold text-white/50">${m.failure_count} failures — ${m.total_downtime_h}h down</span>
+          <span class="text-[11px] font-bold text-white/50">${m.failure_count} failures: ${m.total_downtime_h}h down</span>
         </div>`
       ).join('');
     }
@@ -2693,7 +2693,7 @@ async function loadHiveInventory() {
     const isOut  = qty <= 0;
     const isLow  = !isOut && minQty > 0 && qty <= minQty;
     const dotColor = isOut ? '#f87171' : isLow ? '#F7A21B' : '#4ade80';
-    const qtyLabel = isOut ? 'Out of stock' : isLow ? `${qty} ${item.unit || ''} — Low`.trim() : `${qty} ${item.unit || ''}`.trim();
+    const qtyLabel = isOut ? 'Out of stock' : isLow ? `${qty} ${item.unit || ''}: Low`.trim() : `${qty} ${item.unit || ''}`.trim();
 
     return `<div class="flex items-center gap-3 rounded-xl px-3 py-2.5" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
       <div class="w-2 h-2 rounded-full flex-shrink-0" style="background:${dotColor};"></div>
@@ -2720,7 +2720,7 @@ async function runHiveIdBackfill() {
     .in('worker_name', memberNames)
     .is('hive_id', null);
 
-  // parts_records table retired — no backfill needed
+  // parts_records table retired: no backfill needed
 }
 
 // ── CLEANUP ──

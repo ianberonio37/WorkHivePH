@@ -502,7 +502,7 @@ async function init() {
     db.from('skill_badges').select('discipline, level').eq('worker_name', WORKER_NAME),
   ]);
 
-  // Handle DB errors gracefully — use cached data if available
+  // Handle DB errors gracefully: use cached data if available
   if (profileRes.error && profileRes.error.code !== 'PGRST116') {
     console.warn('skill_profiles fetch error:', profileRes.error.message);
   }
@@ -760,7 +760,7 @@ function renderRadarChart() {
     });
     document.getElementById('chart-fallback').style.display = 'none';
   } catch(e) {
-    // Chart.js CDN failed — show fallback table
+    // Chart.js CDN failed: show fallback table
     console.warn('Chart.js unavailable:', e);
     document.getElementById('radar-canvas').style.display = 'none';
     document.getElementById('chart-fallback').style.display = 'block';
@@ -815,7 +815,7 @@ function openLesson(disc, level) {
   const content = SKILL_CONTENT[disc]?.[level];
   if (!content) { showToast('Content not available.', '✗'); return; }
 
-  document.getElementById('lesson-title').textContent = `${disc} — Level ${level}`;
+  document.getElementById('lesson-title').textContent = `${disc}: Level ${level}`;
   document.getElementById('lesson-subtitle').textContent = content.title;
   document.getElementById('lesson-content').innerHTML = content.module;
 
@@ -842,7 +842,7 @@ function openLesson(disc, level) {
 
   // Restore draft notification
   if (draft) {
-    showToast('Exam in progress — continue where you left off?', '📝');
+    showToast('Exam in progress: continue where you left off?', '📝');
   }
 
   openModal('lesson-modal');
@@ -882,7 +882,7 @@ function openExam() {
     _currentQuestion = 0;
   }
 
-  document.getElementById('exam-title').textContent = `${_activeDiscipline} — Level ${_activeLevel} Exam`;
+  document.getElementById('exam-title').textContent = `${_activeDiscipline}: Level ${_activeLevel} Exam`;
   document.getElementById('exam-subtitle').textContent = content.title;
 
   renderExamQuestion();
@@ -1044,7 +1044,7 @@ function openResult(disc, level, score, passed) {
   hexEl.textContent = passed ? level : '✗';
 
   document.getElementById('result-title').textContent = passed
-    ? `Level ${level} Unlocked!` : `Not Yet — Try Again`;
+    ? `Level ${level} Unlocked!` : `Not Yet: Try Again`;
   document.getElementById('result-score').textContent = `Score: ${score} / 10`;
   document.getElementById('result-title').className = `result-title ${passed ? 'text-green' : 'text-amber'}`;
 

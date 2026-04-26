@@ -43,7 +43,7 @@ const LIGHTING_WPM2: Record<string, number> = {
   "Retail":           20,
 };
 
-// ASHRAE design solar irradiance by orientation — Manila latitude ~14.6°N
+// ASHRAE design solar irradiance by orientation: Manila latitude ~14.6°N
 // Source: ASHRAE 2021 Fundamentals Ch. 18, peak design values for tropical latitudes.
 // "Mixed" preserves the original 200 W/m² default for unknown or multi-orientation facades.
 const SOLAR_IRRADIANCE_BY_ORIENTATION: Record<string, number> = {
@@ -91,8 +91,8 @@ function calcHVACCoolingLoad(inputs: Record<string, number | string>) {
   const qGlass          = (0.57 * glassArea * deltaT) + (glassArea * shgc * solarIrradiance);
 
   const heatPP          = HEAT_PER_PERSON[roomFunction] || { sensible: 75, latent: 55 };
-  const qPeopleSensible = persons * heatPP.sensible;  // sensible portion only — goes into sensible sub-total
-  const qPeopleLatent   = persons * heatPP.latent;    // latent portion — tracked separately
+  const qPeopleSensible = persons * heatPP.sensible;  // sensible portion only: goes into sensible sub-total
+  const qPeopleLatent   = persons * heatPP.latent;    // latent portion: tracked separately
 
   const qEquipment = equipKW * 1000 * 0.85;
 
@@ -103,7 +103,7 @@ function calcHVACCoolingLoad(inputs: Record<string, number | string>) {
   const qInfiltration = 0.5 * volume * 0.35 * deltaT;
 
   // ASHRAE Cooling Load: sensible sub-total uses occupant SENSIBLE heat only.
-  // Latent heat (occupant moisture) is added separately — not as a % of combined people heat.
+  // Latent heat (occupant moisture) is added separately: not as a % of combined people heat.
   const qSensibleTotal = qWalls + qRoof + qGlass + qPeopleSensible + qEquipment + qLighting + qInfiltration;
   const qLatent        = qPeopleLatent;
   const qTotal         = qSensibleTotal + qLatent;
@@ -244,7 +244,7 @@ function calcVentilationACH(inputs: Record<string, number | string>) {
 }
 
 // ─── Water Kinematic Viscosity (temperature-dependent) ────────────────────────
-// ASHRAE 2021 Fundamentals Table 2 — Water Properties
+// ASHRAE 2021 Fundamentals Table 2: Water Properties
 function kinematicViscosityWater(T_C: number): number {
   const table: [number, number][] = [
     [0,  1.787e-6], [5,  1.519e-6], [10, 1.307e-6], [15, 1.139e-6],
@@ -369,7 +369,7 @@ function calcPumpSizingTDH(inputs: Record<string, number | string>) {
 
   // NPSH available estimate (simplified, assumes suction lift scenario)
   const suctionHead  = Number(inputs.suction_head) || 0; // m (positive = flooded, negative = lift)
-  const vaporPressure = 0.43; // m at 30°C water — IAPWS-IF97: Pvap(30°C)=4.243 kPa = 0.432 m water head
+  const vaporPressure = 0.43; // m at 30°C water: IAPWS-IF97: Pvap(30°C)=4.243 kPa = 0.432 m water head
   const atmHead = 10.33; // m water at sea level (Philippine coastal plants)
   const npshA = atmHead + suctionHead - vaporPressure - (hfBase * 0.3); // simplified
 
@@ -477,7 +477,7 @@ function calcPipeSizing(inputs: Record<string, number | string>) {
   // Velocity head
   const velocityHead = Math.pow(recommended.v, 2) / (2 * g); // m
 
-  // Reynolds number — temperature-dependent kinematic viscosity (ASHRAE 2021 Table 2)
+  // Reynolds number: temperature-dependent kinematic viscosity (ASHRAE 2021 Table 2)
   const nu = kinematicViscosityWater(fluidTempC);
   const Re = (recommended.v * (recommended.dMM / 1000)) / nu;
   const flowRegime = Re < 2300 ? "Laminar" : Re < 4000 ? "Transitional" : "Turbulent";
@@ -609,7 +609,7 @@ function calcChillerWaterCooled(inputs: Record<string, number | string>) {
   // 10. Refrigerant (water-cooled: R-134a large centrifugal, R-1234ze new, R-32 screw/scroll)
   const refrigerant = type.includes('centrifugal')
     ? 'R-134a or R-1234ze(E) (low-GWP, preferred for new centrifugal installations)'
-    : 'R-32 or R-410A (screw/scroll — verify per manufacturer specification)';
+    : 'R-32 or R-410A (screw/scroll: verify per manufacturer specification)';
 
   return {
     inputs_used: { cooling_load_kW: Q_input_kW, chiller_type: chillerType, chw_supply_C: chwSupply, chw_return_C: chwReturn, cw_supply_C: cwSupply, cw_return_C: cwReturn, cop, safety_factor: safetyFactor, n_units: nUnits },
@@ -651,7 +651,7 @@ function calcChillerWaterCooled(inputs: Record<string, number | string>) {
 }
 
 // ─── Chiller System — Air Cooled Calculation ─────────────────────────────────
-// Method: Heat balance — Q_design = load × safety, P = Q/COP, Q_rejection = Q + P
+// Method: Heat balance: Q_design = load × safety, P = Q/COP, Q_rejection = Q + P
 // Standards: ASHRAE 90.1 (min COP), ASHRAE 15 (safety), PSME Code
 function calcChillerAirCooled(inputs: Record<string, number | string>) {
   const Q_input_kW   = Number(inputs.cooling_load_kW)  || 0;   // building cooling load
@@ -677,13 +677,13 @@ function calcChillerAirCooled(inputs: Record<string, number | string>) {
   const Q_per_unit_TR  = Q_per_unit_kW / 3.517;
   const P_per_unit_kW  = P_total_kW   / nUnits;
 
-  // 5. Nominal chiller size — round up to nearest standard tonnage
+  // 5. Nominal chiller size: round up to nearest standard tonnage
   const STD_SIZES_TR = [5,7.5,10,15,20,25,30,40,50,60,75,100,125,150,200,250,300,350,400,450,500];
   const nominal_TR_each = STD_SIZES_TR.find(s => s >= Q_per_unit_TR) || Math.ceil(Q_per_unit_TR / 25) * 25;
   const nominal_kW_each = nominal_TR_each * 3.517;
   const nominal_total_TR = nominal_TR_each * nUnits;
 
-  // 6. Condenser airflow — air-cooled rejection
+  // 6. Condenser airflow: air-cooled rejection
   // Q_airflow (m³/s) = Q_rejection / (rho × cp × delta_T_cond)
   // rho=1.2 kg/m³, cp=1.005 kJ/(kg·K), delta_T_cond=15°C (typ. for air-cooled)
   const rho = 1.2; const cp = 1.005; const dT_cond = 15;
@@ -777,7 +777,7 @@ function calcChillerAirCooled(inputs: Record<string, number | string>) {
     refrigerant,
     // Ambient correction note
     ambient_note: ambientTemp >= 35
-      ? 'High ambient (≥35°C). Verify chiller performance data is rated at 35°C ambient — not default 30°C/32°C catalog conditions.'
+      ? 'High ambient (≥35°C). Verify chiller performance data is rated at 35°C ambient: not default 30°C/32°C catalog conditions.'
       : 'Ambient below 35°C. Standard catalog data typically applicable.',
   };
 }
@@ -944,14 +944,14 @@ const FIXTURE_UNITS: Record<string, { wfu: number; pfr_lpm: number; label: strin
   "Washing Machine":             { wfu: 3,  pfr_lpm: 11.4, label: "Washing Machine",                type: "both" },
   "Drinking Fountain":           { wfu: 1,  pfr_lpm: 1.9,  label: "Drinking Fountain",             type: "cold" },
   "Hose Bibb (each)":            { wfu: 3,  pfr_lpm: 11.4, label: "Hose Bibb / Garden Tap",        type: "cold" },
-  // Note: Floor Drain is a drainage fixture — it has no water supply WFU per UPC/PPC.
+  // Note: Floor Drain is a drainage fixture: it has no water supply WFU per UPC/PPC.
   // A trap primer supply connection is a small metered line, not sized by WFU method.
   // Do not include Floor Drain in water supply pipe sizing calculations.
   "Mop Sink":                    { wfu: 3,  pfr_lpm: 11.4, label: "Mop Sink",                      type: "both" },
   "Custom":                      { wfu: 0,  pfr_lpm: 0,    label: "Custom Fixture",                 type: "both" },
 };
 
-// Hunter's curve: WFU → peak flow (L/s) — piecewise interpolation
+// Hunter's curve: WFU → peak flow (L/s): piecewise interpolation
 // Based on Table A-3 of Philippine Plumbing Code
 const HUNTERS_CURVE: Array<{ wfu: number; lps: number }> = [
   { wfu: 1,    lps: 0.10 }, { wfu: 2,    lps: 0.13 }, { wfu: 3,    lps: 0.16 },
@@ -1064,7 +1064,7 @@ function calcWaterSupplyPipeSizing(inputs: Record<string, number | string>) {
   };
 }
 
-// ─── Electrical: Load Estimation — PEC Article 2.10 / 2.20 ──────────────────
+// ─── Electrical: Load Estimation: PEC Article 2.10 / 2.20 ──────────────────
 const LOAD_DEMAND_FACTOR: Record<string, number> = {
   "Lighting (General)": 1.0, "Lighting (Emergency)": 1.0,
   "Convenience Receptacles": 1.0, "Air Conditioning (Unit)": 1.0,
@@ -1120,7 +1120,7 @@ function calcLoadEstimation(inputs: Record<string, number | string>): Record<str
   };
 }
 
-// ─── Electrical: Voltage Drop — PEC Article 2.10.19 / 2.20 ──────────────────
+// ─── Electrical: Voltage Drop: PEC Article 2.10.19 / 2.20 ──────────────────
 const WIRE_SIZES_MM2 = [2.0, 3.5, 5.5, 8.0, 14, 22, 30, 38, 50, 60, 80, 100, 125, 150, 200, 250];
 const RESISTIVITY_CU = 0.0220; // Ω·mm²/m at 75°C for copper (THHN/THWN)
 const RESISTIVITY_AL = 0.0354; // Ω·mm²/m at 75°C for aluminium
@@ -1167,8 +1167,8 @@ function calcVoltageDrop(inputs: Record<string, number | string>): Record<string
   };
 }
 
-// ─── Electrical: Wire Sizing — PEC Table 3.10.1 ──────────────────────────────
-// Copper THHN/THWN-2 at 75°C — table ampacities
+// ─── Electrical: Wire Sizing: PEC Table 3.10.1 ──────────────────────────────
+// Copper THHN/THWN-2 at 75°C: table ampacities
 const PEC_AMPACITY_75C: Record<number, number> = {
   2.0: 20, 3.5: 25, 5.5: 35, 8.0: 50, 14: 65, 22: 85, 30: 100,
   38: 115, 50: 135, 60: 150, 80: 175, 100: 200, 125: 230, 150: 260, 200: 300, 250: 340,
@@ -1243,7 +1243,7 @@ function calcWireSizing(inputs: Record<string, number | string>): Record<string,
   };
 }
 
-// ─── Septic Tank Sizing — Occupancy-Based Method (PPC / DOH) ─────────────────
+// ─── Septic Tank Sizing: Occupancy-Based Method (PPC / DOH) ─────────────────
 // Standards: Philippine Plumbing Code, DOH Sanitation Code (P.D. 856),
 // DENR DAO 2016-08 Effluent Standards, DPWH Blue Book
 
@@ -1328,7 +1328,7 @@ function calcSepticTankSizing(inputs: Record<string, number | string>): Record<s
   };
 }
 
-// ─── Drainage Pipe Sizing — DFU Method (Philippine Plumbing Code / UPC) ─────
+// ─── Drainage Pipe Sizing: DFU Method (Philippine Plumbing Code / UPC) ─────
 // Standards: PPC Table 7-3 (DFU values), UPC Table 7-5 (pipe sizing),
 // Manning's formula for self-cleansing velocity verification
 
@@ -1351,14 +1351,14 @@ const DRAIN_DFU: Record<string, { dfu: number; label: string }> = {
   "Custom":                     { dfu: 0, label: "Custom" },
 };
 
-// UPC Table 7-5 — Horizontal branches at 1%, 2%, 4% slope (mm → max DFU)
+// UPC Table 7-5: Horizontal branches at 1%, 2%, 4% slope (mm → max DFU)
 const HORIZ_DRAIN_TABLE: Record<string, Record<number, number>> = {
   "1%": { 75: 21, 100: 96,  125: 216, 150: 384,  200: 864,  250: 1584, 300: 2520 },
   "2%": { 50: 21, 75: 42,  100: 180, 125: 390,  150: 700,  200: 1600, 250: 2900, 300: 4600 },
   "4%": { 40: 3,  50: 21,  75: 42,  100: 180,  125: 390,  150: 700,  200: 1600 },
 };
 
-// UPC Table 7-5 — Stacks (total DFU on stack)
+// UPC Table 7-5: Stacks (total DFU on stack)
 const STACK_TABLE: Record<number, number> = {
   50: 10, 75: 48, 100: 240, 125: 540, 150: 960, 200: 2200, 250: 3800, 300: 6000,
 };
@@ -1446,7 +1446,7 @@ function calcDrainagePipeSizing(inputs: Record<string, number | string>): Record
   };
 }
 
-// ─── Hot Water Demand — ASHRAE Use Rate Method ───────────────────────────────
+// ─── Hot Water Demand: ASHRAE Use Rate Method ───────────────────────────────
 // Standards: ASHRAE HVAC Applications Handbook Ch.50, Philippine Plumbing Code
 // Method: Sum daily demand per use type → heat energy → heater power → storage
 
@@ -1546,7 +1546,7 @@ function calcHotWaterDemand(inputs: Record<string, number | string>): Record<str
   };
 }
 
-// ─── Report Narrative — Groq 5-model fallback chain ─────────────────────────
+// ─── Report Narrative: Groq 5-model fallback chain ─────────────────────────
 // On 429 (rate limit) or 413 (prompt too large): skip to next model silently.
 // On auth/server error: bail fast. Only reaches hardcoded fallback when all models fail.
 const GROQ_NARRATIVE_CHAIN = [
@@ -1609,13 +1609,13 @@ Respond in JSON format only:
         }
       );
 
-      // Rate-limited or prompt too large — try next model silently
+      // Rate-limited or prompt too large: try next model silently
       if (res.status === 429 || res.status === 413) {
         const errText = await res.text();
         console.warn(`Narrative model ${model} skipped (${res.status}): ${errText.slice(0, 80)}`);
         continue;
       }
-      if (!res.ok) break; // Auth/server error — bail to hardcoded fallback
+      if (!res.ok) break; // Auth/server error: bail to hardcoded fallback
 
       const json = await res.json();
       const text = json?.choices?.[0]?.message?.content || "";
@@ -1626,11 +1626,11 @@ Respond in JSON format only:
         return parsed;
       }
     } catch {
-      continue; // JSON parse error — try next model
+      continue; // JSON parse error: try next model
     }
   }
 
-  // All models exhausted or auth/server error — build hardcoded fallback from results directly
+  // All models exhausted or auth/server error: build hardcoded fallback from results directly
   {
     const rec = results as Record<string, unknown>;
     const kw  = rec.recommended_kW  ?? rec.design_kW  ?? '';
@@ -1675,7 +1675,7 @@ Respond in JSON format only:
       const bod    = rec.effluent_bod   ?? '';
       const sludge = rec.sludge_kg_day  ?? '';
       const denr   = rec.denr_status    ?? 'REVIEW';
-      recommendations = `The activated sludge STP is sized for ${flow} m³/day average daily flow with an aeration tank volume of ${aVol} m³. Projected effluent BOD is ${bod} mg/L — DENR DAO 2016-08 status: ${denr}. Sludge production is ${sludge} kg dry solids/day — engage a DOH/DENR-licensed septage hauler for removal. Secure DENR Environmental Compliance Certificate (ECC) and DOH Sanitation Permit before construction. Provide minimum 2× duty+standby blowers with VFD. Verify actual wastewater BOD and flow by site measurement before finalizing detailed design.`;
+      recommendations = `The activated sludge STP is sized for ${flow} m³/day average daily flow with an aeration tank volume of ${aVol} m³. Projected effluent BOD is ${bod} mg/L: DENR DAO 2016-08 status: ${denr}. Sludge production is ${sludge} kg dry solids/day: engage a DOH/DENR-licensed septage hauler for removal. Secure DENR Environmental Compliance Certificate (ECC) and DOH Sanitation Permit before construction. Provide minimum 2× duty+standby blowers with VFD. Verify actual wastewater BOD and flow by site measurement before finalizing detailed design.`;
     } else if (calcType === "Water Treatment System") {
       const filterDia  = rec.selected_filter_dia_mm ?? '';
       const trainSteps = Array.isArray(rec.train_steps) ? (rec.train_steps as string[]).join(' → ') : '';
@@ -1699,7 +1699,7 @@ Respond in JSON format only:
       const chk  = rec.velocity_check ?? '';
       const rp   = rec.return_period_yr ?? '';
       const mat  = rec.pipe_material ?? '';
-      recommendations = `Provide ${D} mm ${mat} storm drain pipe for the design catchment. Design flow is ${Q} L/s (${rp}-year return period, Rational Method). Full-pipe velocity is ${V} m/s — velocity check: ${chk}. Maintain minimum 0.6 m/s self-cleaning velocity and maximum slope per DPWH Drainage Design Guidelines. Install cleanouts at every junction and at 50 m maximum intervals. Verify catchment area and runoff coefficient with as-built site grading plans before finalising.`;
+      recommendations = `Provide ${D} mm ${mat} storm drain pipe for the design catchment. Design flow is ${Q} L/s (${rp}-year return period, Rational Method). Full-pipe velocity is ${V} m/s: velocity check: ${chk}. Maintain minimum 0.6 m/s self-cleaning velocity and maximum slope per DPWH Drainage Design Guidelines. Install cleanouts at every junction and at 50 m maximum intervals. Verify catchment area and runoff coefficient with as-built site grading plans before finalising.`;
     } else if (calcType === "Grease Trap Sizing") {
       const pdi     = rec.pdi_gpm         ?? '';
       const capL    = rec.liquid_cap_l    ?? '';
@@ -1760,12 +1760,12 @@ Respond in JSON format only:
       const d = rec.d_std_mm ?? rec.d_min_mm ?? '';
       const mat = (inputs.material as string) || '';
       const twist = rec.twist_deg_per_m ?? '';
-      recommendations = `Specify ${d} mm diameter ${mat} solid shaft. Calculated minimum: ${rec.d_min_mm ?? ''} mm. Angle of twist: ${twist}°/m (ASME limit: 1.0°/m). Verify critical speed — operating speed must be below 50% of first critical speed. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
+      recommendations = `Specify ${d} mm diameter ${mat} solid shaft. Calculated minimum: ${rec.d_min_mm ?? ''} mm. Angle of twist: ${twist}°/m (ASME limit: 1.0°/m). Verify critical speed: operating speed must be below 50% of first critical speed. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
     } else if (calcType === "Bearing Life (L10)") {
       const life = rec.L10h_adj ?? rec.L10h ?? '';
       const pass = rec.life_check ?? '';
       const creq = rec.C_required_kN ?? '';
-      recommendations = `Adjusted bearing life (Lna): ${life} hours — ${pass}. ${pass === 'FAIL' ? 'Select a bearing with C ≥ ' + creq + ' kN.' : 'Bearing is adequate for the application.'} Verify static rating C0 against peak shock loads. Specify sealed bearing (2RS) for humid/dusty Philippine plant environments. Establish lubrication intervals per manufacturer. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
+      recommendations = `Adjusted bearing life (Lna): ${life} hours: ${pass}. ${pass === 'FAIL' ? 'Select a bearing with C ≥ ' + creq + ' kN.' : 'Bearing is adequate for the application.'} Verify static rating C0 against peak shock loads. Specify sealed bearing (2RS) for humid/dusty Philippine plant environments. Establish lubrication intervals per manufacturer. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
     } else if (calcType === "V-Belt Drive Design") {
       const nb   = rec.n_belts ?? '';
       const belt = rec.belt_designation ?? '';
@@ -1781,13 +1781,13 @@ Respond in JSON format only:
       const lux = rec.E_actual_lux ?? '';
       const lpd = rec.lpd_W_m2 ?? '';
       const fix = (inputs.fixture_type as string) || '';
-      recommendations = `Provide ${n} units of ${fix} luminaires to achieve ${lux} lux maintained average illuminance. Arrange fixtures in a uniform grid for even distribution — calculate spacing-to-height ratio (SHR) and verify it does not exceed the fixture's maximum SHR per photometric data. Add 10-15% spare fixtures to the bill of materials to account for layout adjustments. Lighting power density: ${lpd} W/m² — verify against ASHRAE 90.1 or PEC limits for the space type. Provide dimming or occupancy sensors for energy compliance where required. A PRC-licensed Electrical Engineer must sign and seal this document.`;
+      recommendations = `Provide ${n} units of ${fix} luminaires to achieve ${lux} lux maintained average illuminance. Arrange fixtures in a uniform grid for even distribution: calculate spacing-to-height ratio (SHR) and verify it does not exceed the fixture's maximum SHR per photometric data. Add 10-15% spare fixtures to the bill of materials to account for layout adjustments. Lighting power density: ${lpd} W/m²: verify against ASHRAE 90.1 or PEC limits for the space type. Provide dimming or occupancy sensors for energy compliance where required. A PRC-licensed Electrical Engineer must sign and seal this document.`;
     } else if (calcType === "Short Circuit") {
       const isc  = rec.Isc_kA ?? '';
       const chk  = rec.ic_check ?? '';
       const ic   = (inputs.breaker_ic_kA as number) ?? '';
       const recIC = rec.ic_min_recommended ?? '';
-      recommendations = `Available fault current at panel: ${isc} kA (3-phase symmetrical). Breaker IC check: ${chk}. ${chk === 'FAIL' ? `Installed IC of ${ic} kA is insufficient — replace with minimum ${recIC} kA interrupting capacity breaker immediately. This is a critical safety deficiency.` : `Installed IC of ${ic} kA is adequate for ${isc} kA available fault.`} Verify IC rating of every branch breaker in this panel — fault current is the same at all points in the same panel. Request utility confirmation of available fault current at the point of delivery for final documentation. A PRC-licensed Electrical Engineer must sign and seal this document.`;
+      recommendations = `Available fault current at panel: ${isc} kA (3-phase symmetrical). Breaker IC check: ${chk}. ${chk === 'FAIL' ? `Installed IC of ${ic} kA is insufficient: replace with minimum ${recIC} kA interrupting capacity breaker immediately. This is a critical safety deficiency.` : `Installed IC of ${ic} kA is adequate for ${isc} kA available fault.`} Verify IC rating of every branch breaker in this panel: fault current is the same at all points in the same panel. Request utility confirmation of available fault current at the point of delivery for final documentation. A PRC-licensed Electrical Engineer must sign and seal this document.`;
     } else if (calcType === "Generator Sizing") {
       const sel  = rec.selected_kva ?? '';
       const selKW = rec.selected_kw ?? '';
@@ -1798,8 +1798,8 @@ Respond in JSON format only:
       const start = rec.start_method ?? '';
       const startKVA = rec.starting_kva ?? 0;
       const runKVA   = rec.running_kva ?? 0;
-      const ctrl = Number(startKVA) > Number(runKVA) ? `Motor starting surge (${startKVA} kVA, ${start}) is the controlling factor — not running load.` : `Running demand (${runKVA} kVA) is the controlling factor.`;
-      recommendations = `Provide a ${sel} kVA (${selKW} kW) diesel generator set rated for ${app} duty per ISO 8528-1. ${ctrl} Operating loading at running demand: ${load}% — within the 75-80% recommended loading range for diesel generators. Design fuel tank for minimum 8-hour full-load operation: ${tank} liters. Connect to an Automatic Transfer Switch (ATS) per PEC Article 7 — transfer time must not exceed 10 seconds for emergency loads. Submit generator installation plans to LGU / DPWH for building permit endorsement. A PRC-licensed Electrical Engineer must sign and seal this document.`;
+      const ctrl = Number(startKVA) > Number(runKVA) ? `Motor starting surge (${startKVA} kVA, ${start}) is the controlling factor: not running load.` : `Running demand (${runKVA} kVA) is the controlling factor.`;
+      recommendations = `Provide a ${sel} kVA (${selKW} kW) diesel generator set rated for ${app} duty per ISO 8528-1. ${ctrl} Operating loading at running demand: ${load}%: within the 75-80% recommended loading range for diesel generators. Design fuel tank for minimum 8-hour full-load operation: ${tank} liters. Connect to an Automatic Transfer Switch (ATS) per PEC Article 7: transfer time must not exceed 10 seconds for emergency loads. Submit generator installation plans to LGU / DPWH for building permit endorsement. A PRC-licensed Electrical Engineer must sign and seal this document.`;
     } else if (calcType === "Power Factor Correction") {
       const kvar    = rec.selected_kvar        ?? '';
       const pfT     = rec.pf_target            ?? '';
@@ -1807,7 +1807,7 @@ Respond in JSON format only:
       const curPct  = rec.current_reduction_pct ?? '';
       const kvaRed  = rec.kva_reduction        ?? '';
       const surcharge = rec.meralco_penalty
-        ? ` Installation eliminates the Meralco PF surcharge currently incurred — correction to PF ${pfT} brings the system above the 0.85 threshold.`
+        ? ` Installation eliminates the Meralco PF surcharge currently incurred: correction to PF ${pfT} brings the system above the 0.85 threshold.`
         : '';
       recommendations = `Install a ${kvar} kVAR capacitor bank (IEEE 18 / IEC 60831-1) at the main distribution board. This reduces feeder current by ${curRed} A (${curPct}%) and kVA demand by ${kvaRed} kVA.${surcharge} Protect with a dedicated MCCB sized at 135% of capacitor rated current per PEC 2017 Article 4.60.14. Include factory-installed discharge resistors (terminal voltage < 50V within 5 minutes per IEEE 18). If VFDs or other harmonic loads are present, specify a 7% series detuning reactor. Verify achieved PF with a power analyzer under full load before project closeout. A PRC-licensed Electrical Engineer must sign and seal this document.`;
     } else if (calcType === "Cable Tray Sizing") {
@@ -1820,7 +1820,7 @@ Respond in JSON format only:
       const span    = (inputs.span_m as number) || 1.5;
       const df      = rec.derating_factor    ?? 1.0;
       const derate  = Number(df) < 1.0;
-      recommendations = `Provide a ${selW} mm wide × ${depth} mm deep ${tType} cable tray (NEMA VE 1 Load Class ${nema}, hot-dip galvanized steel for industrial use). Support at ${span} m centres. Actual cable fill: ${fill}% — Fill Check: ${fillChk} per NEC 392.22. ${derate ? `Fill exceeds 30% derating threshold — apply 80% derating factor to all power conductor ampacities per NEC 392.80 (NEC 310.15). Verify each conductor's derated ampacity equals or exceeds its design current.` : `Actual fill does not exceed 30% — no ampacity derating required for ${tType} tray.`} Separate power cables from control and instrumentation cables using a tray divider or a separate adjacent tray per NEMA VE 2 to minimize electromagnetic interference. Provide covers for outdoor sections or where physical protection is needed. A PRC-licensed Electrical Engineer must sign and seal this calculation for building permit submission.`;
+      recommendations = `Provide a ${selW} mm wide × ${depth} mm deep ${tType} cable tray (NEMA VE 1 Load Class ${nema}, hot-dip galvanized steel for industrial use). Support at ${span} m centres. Actual cable fill: ${fill}%: Fill Check: ${fillChk} per NEC 392.22. ${derate ? `Fill exceeds 30% derating threshold: apply 80% derating factor to all power conductor ampacities per NEC 392.80 (NEC 310.15). Verify each conductor's derated ampacity equals or exceeds its design current.` : `Actual fill does not exceed 30%: no ampacity derating required for ${tType} tray.`} Separate power cables from control and instrumentation cables using a tray divider or a separate adjacent tray per NEMA VE 2 to minimize electromagnetic interference. Provide covers for outdoor sections or where physical protection is needed. A PRC-licensed Electrical Engineer must sign and seal this calculation for building permit submission.`;
     } else if (calcType === "UPS Sizing") {
       const selKVA   = rec.selected_kva        ?? '';
       const loadPct  = rec.loading_pct         ?? '';
@@ -1830,7 +1830,7 @@ Respond in JSON format only:
       const topo     = (inputs.topology as string) || 'Online (Double-Conversion)';
       const backup   = (inputs.backup_min as number) || 30;
       const iecClass = topo === 'Online (Double-Conversion)' ? 'VFI-SS-111' : topo === 'Line Interactive' ? 'VI-SS-111' : 'VFD-SS-111';
-      recommendations = `Install a ${selKVA} kVA ${topo} UPS (IEC 62040-3 ${iecClass}) at the proposed location. System loading is ${loadPct}% — within the IEEE 446 recommended ≤ 80% limit for thermal headroom and future load additions. Battery bank: ${bCfg}, rated backup ${bMin} minutes at design load (required: ${backup} min). Provide a static bypass module to allow UPS maintenance without interrupting supply to critical loads. Input supply shall be from a dedicated ${brkA}A MCCB circuit — do not share with non-critical loads. Commission with a full-load battery discharge test per IEC 62040-3 and verify actual runtime ≥ ${backup} minutes before handover. Plan VRLA battery replacement at Year 3 for unconditioned rooms or Year 5 for air-conditioned spaces per IEEE 1184. A PRC-licensed Electrical Engineer must sign and seal this calculation for building permit submission.`;
+      recommendations = `Install a ${selKVA} kVA ${topo} UPS (IEC 62040-3 ${iecClass}) at the proposed location. System loading is ${loadPct}%: within the IEEE 446 recommended ≤ 80% limit for thermal headroom and future load additions. Battery bank: ${bCfg}, rated backup ${bMin} minutes at design load (required: ${backup} min). Provide a static bypass module to allow UPS maintenance without interrupting supply to critical loads. Input supply shall be from a dedicated ${brkA}A MCCB circuit: do not share with non-critical loads. Commission with a full-load battery discharge test per IEC 62040-3 and verify actual runtime ≥ ${backup} minutes before handover. Plan VRLA battery replacement at Year 3 for unconditioned rooms or Year 5 for air-conditioned spaces per IEEE 1184. A PRC-licensed Electrical Engineer must sign and seal this calculation for building permit submission.`;
     } else if (calcType === "Earthing / Grounding System") {
       const rEff     = rec.r_parallel_ohm ?? rec.r_single_ohm ?? '';
       const rLim     = rec.r_limit_ohm    ?? '';
@@ -1844,7 +1844,7 @@ Respond in JSON format only:
         : sSys === 'Industrial'
         ? 'IEEE 142-2007'
         : 'PEC 2017 Art. 2.50';
-      recommendations = `The earthing system uses ${nElec} ${eType.toLowerCase()} electrode${nElec > 1 ? 's' : ''} in ${sSys} configuration. Measured/calculated resistance: ${rEff} Ohm — ${passLbl} against the ${rLim} Ohm limit per ${limitBasis}. ${rec.pass ? 'The installation is compliant. Proceed with construction and conduct site acceptance testing using a four-pole Wenner or fall-of-potential method.' : `Ground resistance exceeds the ${rLim} Ohm limit. Increase electrodes, apply soil treatment (bentonite or GEM compound), or use deeper/longer electrodes before proceeding.`} GEC minimum size per PEC 2017 Table 2.50.66: ${gecSz} mm2 copper. All earthing conductors must be protected from mechanical damage per PEC 2017 Section 2.50.16. Bonding jumpers must achieve full electrical continuity per IEEE 80 bonding requirements. A PRC-licensed Electrical Engineer must sign and seal this calculation for building permit submission.`;
+      recommendations = `The earthing system uses ${nElec} ${eType.toLowerCase()} electrode${nElec > 1 ? 's' : ''} in ${sSys} configuration. Measured/calculated resistance: ${rEff} Ohm: ${passLbl} against the ${rLim} Ohm limit per ${limitBasis}. ${rec.pass ? 'The installation is compliant. Proceed with construction and conduct site acceptance testing using a four-pole Wenner or fall-of-potential method.' : `Ground resistance exceeds the ${rLim} Ohm limit. Increase electrodes, apply soil treatment (bentonite or GEM compound), or use deeper/longer electrodes before proceeding.`} GEC minimum size per PEC 2017 Table 2.50.66: ${gecSz} mm2 copper. All earthing conductors must be protected from mechanical damage per PEC 2017 Section 2.50.16. Bonding jumpers must achieve full electrical continuity per IEEE 80 bonding requirements. A PRC-licensed Electrical Engineer must sign and seal this calculation for building permit submission.`;
     } else if (calcType === "Duct Sizing (Equal Friction)") {
       const hp     = rec.fan_motor_hp_std  ?? '';
       const kw     = rec.fan_motor_kw      ?? '';
@@ -1856,7 +1856,7 @@ Respond in JSON format only:
       const fr     = inputs.friction_rate ?? 1.0;
       const segs   = Array.isArray(rec.segments) ? rec.segments as Array<{vel_check: string}> : [];
       const velWarn = segs.some(s => s.vel_check !== 'OK');
-      recommendations = `Provide ${shape} ${mat} ductwork sized at ${fr} Pa/m friction rate per ASHRAE 2021 Fundamentals Chapter 21 Equal Friction Method. Total straight-run ΔP: ${dpPa} Pa; required fan static pressure including 50% SMACNA fittings allowance: ${fanPa} Pa. Size supply fan at maximum segment flow ${flow} L/s; specify a ${hp} HP (${kw} kW) centrifugal fan motor per the standard size schedule. ${velWarn ? 'WARNING: one or more duct segments exceed the ASHRAE 62.1 / SMACNA velocity limit — review those segments and increase duct size or reduce airflow before finalising.' : 'All segments are within ASHRAE 62.1 / SMACNA velocity limits.'} Add AHU internal resistance (cooling coil, filters: typically 200–500 Pa) and terminal device resistance (50–150 Pa each) to the fan static pressure when specifying the fan. A Testing, Adjusting, and Balancing (TAB) report confirming design airflows at all diffusers within ±10% is mandatory before building acceptance. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
+      recommendations = `Provide ${shape} ${mat} ductwork sized at ${fr} Pa/m friction rate per ASHRAE 2021 Fundamentals Chapter 21 Equal Friction Method. Total straight-run ΔP: ${dpPa} Pa; required fan static pressure including 50% SMACNA fittings allowance: ${fanPa} Pa. Size supply fan at maximum segment flow ${flow} L/s; specify a ${hp} HP (${kw} kW) centrifugal fan motor per the standard size schedule. ${velWarn ? 'WARNING: one or more duct segments exceed the ASHRAE 62.1 / SMACNA velocity limit: review those segments and increase duct size or reduce airflow before finalising.' : 'All segments are within ASHRAE 62.1 / SMACNA velocity limits.'} Add AHU internal resistance (cooling coil, filters: typically 200–500 Pa) and terminal device resistance (50–150 Pa each) to the fan static pressure when specifying the fan. A Testing, Adjusting, and Balancing (TAB) report confirming design airflows at all diffusers within ±10% is mandatory before building acceptance. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
     } else if (calcType === "Refrigerant Pipe Sizing") {
       const refrig   = (inputs.refrigerant as string) || 'R-410A';
       const capKw    = rec.capacity_kw  ?? (inputs.capacity_kw ?? '');
@@ -1866,7 +1866,7 @@ Respond in JSON format only:
       const lineArr  = Array.isArray(rec.lines) ? rec.lines as Array<{name:string;line_type:string;selected_od_mm:number;velocity_ms:number;vel_check:string;delta_t_k:number}> : [];
       const anyWarn  = lineArr.some(l => l.vel_check !== 'OK');
       const lineSummary = lineArr.map(l => `${l.name} (${l.line_type}): ${l.selected_od_mm}mm OD, v=${l.velocity_ms}m/s ${l.vel_check}, ΔT=${l.delta_t_k}K`).join('; ');
-      recommendations = `Procure ASTM B280 ACR copper tubing for all ${refrig} refrigerant line sets — capacity ${capKw}kW, ${app} service, evaporating ${evapT}°C / condensing ${condT}°C. Line schedule: ${lineSummary}. ${anyWarn ? 'WARNING: one or more lines have velocity outside the ASHRAE recommended range — re-size before procurement.' : 'All lines are within ASHRAE velocity limits.'} Insulate all suction lines with minimum 19mm closed-cell elastomeric foam (ASTM C534) before pressure testing. Install oil traps at all suction vertical riser bases. All brazed joints shall use OFN (nitrogen purge brazing). Pressure test at 1.1× MAWP with dry nitrogen; evacuate to ≤500 microns before refrigerant charge. Refrigerant charge by weight per manufacturer specification adjusted for actual line length. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
+      recommendations = `Procure ASTM B280 ACR copper tubing for all ${refrig} refrigerant line sets: capacity ${capKw}kW, ${app} service, evaporating ${evapT}°C / condensing ${condT}°C. Line schedule: ${lineSummary}. ${anyWarn ? 'WARNING: one or more lines have velocity outside the ASHRAE recommended range: re-size before procurement.' : 'All lines are within ASHRAE velocity limits.'} Insulate all suction lines with minimum 19mm closed-cell elastomeric foam (ASTM C534) before pressure testing. Install oil traps at all suction vertical riser bases. All brazed joints shall use OFN (nitrogen purge brazing). Pressure test at 1.1× MAWP with dry nitrogen; evacuate to ≤500 microns before refrigerant charge. Refrigerant charge by weight per manufacturer specification adjusted for actual line length. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
     } else if (calcType === "Expansion Tank Sizing") {
       const sysType   = (inputs.system_type as string) || 'Chilled Water';
       const tankL     = rec.selected_tank_L   ?? '';
@@ -1879,7 +1879,7 @@ Respond in JSON format only:
       const Vexp      = rec.V_expansion_L      ?? '';
       const sysVol    = rec.system_volume_L    ?? '';
       const passAlpha = Number(alpha) >= 0.25;
-      recommendations = `Install a ${tankL}L pre-pressurised bladder/diaphragm expansion tank (ASME VIII-listed) on the ${sysType} closed-loop system. Required acceptance volume: ${reqL}L; acceptance factor α = ${alpha} (ASHRAE min 0.25 — ${passAlpha ? 'PASS' : 'FAIL: increase system maximum pressure or reduce fill pressure'}). Set factory pre-charge to ${pPrech} kPa g; confirm system fill pressure at ${pFill} kPa g before commissioning. System expansion volume: ${Vexp}L (E_w = ${Ew} for system volume ${sysVol}L). System maximum allowable working pressure: ${pMax} kPa g. ${!passAlpha ? `WARNING: Acceptance factor ${alpha} is below ASHRAE minimum of 0.25 — specify a larger tank or increase maximum pressure setting. ` : ''}Use EPDM bladder for CHW/HHW service. Install isolation valve, pressure gauge, and manual drain between the tank connection and the main pipe. Locate tank on the suction side of the primary pump at the point of no pressure change. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
+      recommendations = `Install a ${tankL}L pre-pressurised bladder/diaphragm expansion tank (ASME VIII-listed) on the ${sysType} closed-loop system. Required acceptance volume: ${reqL}L; acceptance factor α = ${alpha} (ASHRAE min 0.25: ${passAlpha ? 'PASS' : 'FAIL: increase system maximum pressure or reduce fill pressure'}). Set factory pre-charge to ${pPrech} kPa g; confirm system fill pressure at ${pFill} kPa g before commissioning. System expansion volume: ${Vexp}L (E_w = ${Ew} for system volume ${sysVol}L). System maximum allowable working pressure: ${pMax} kPa g. ${!passAlpha ? `WARNING: Acceptance factor ${alpha} is below ASHRAE minimum of 0.25: specify a larger tank or increase maximum pressure setting. ` : ''}Use EPDM bladder for CHW/HHW service. Install isolation valve, pressure gauge, and manual drain between the tank connection and the main pipe. Locate tank on the suction side of the primary pump at the point of no pressure change. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
     } else if (calcType === "FCU Selection") {
       const rooms      = Array.isArray(rec.rooms) ? rec.rooms as Array<{room_name:string; selected_model:string; qty:number; selected_kw:number}> : [];
       const totalDesKW = rec.total_design_kw  ?? '';
@@ -1892,14 +1892,14 @@ Respond in JSON format only:
       const pipeSys    = (inputs.pipe_system  as string) || '2-Pipe (Cooling Only)';
       const mount      = (inputs.mounting_type as string) || 'Ceiling Cassette';
       const roomSummary = rooms.slice(0, 5).map(r => `${r.room_name}: ${r.qty}× ${r.selected_model} (${r.selected_kw}kW)`).join('; ');
-      recommendations = `Install ${totalUnits} fan coil units (${mount}) on a ${pipeSys} chilled water system. Design load: ${totalDesKW} kW / ${totalDesTR} TR after applying diversity factor ${divF}. Total CHW flow: ${totalChw} L/s — size main at ${mainNps} mm NPS Black Steel SCH40 (velocity ${velCheck}). FCU summary: ${roomSummary}${rooms.length > 5 ? ` and ${rooms.length - 5} more rooms` : ''}. Verify CHW branch pipe sizes per ASHRAE at 0.6–2.5 m/s. Balance each FCU with a circuit balancing valve (PICV) for equal CHW distribution. Specify EER ≥ 3.5 per ASHRAE 90.1. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
+      recommendations = `Install ${totalUnits} fan coil units (${mount}) on a ${pipeSys} chilled water system. Design load: ${totalDesKW} kW / ${totalDesTR} TR after applying diversity factor ${divF}. Total CHW flow: ${totalChw} L/s: size main at ${mainNps} mm NPS Black Steel SCH40 (velocity ${velCheck}). FCU summary: ${roomSummary}${rooms.length > 5 ? ` and ${rooms.length - 5} more rooms` : ''}. Verify CHW branch pipe sizes per ASHRAE at 0.6–2.5 m/s. Balance each FCU with a circuit balancing valve (PICV) for equal CHW distribution. Specify EER ≥ 3.5 per ASHRAE 90.1. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
     } else if (calcType === "Bolt Torque & Preload") {
       const torque = rec.torque_Nm ?? '';
       const size   = (inputs.bolt_size as string) || '';
       const grade  = (inputs.bolt_grade as string) || '';
       const sf     = rec.separation_sf ?? '';
       const jchk   = rec.joint_check ?? '';
-      recommendations = `Tighten ${size} Grade ${grade} bolts to ${torque} N·m using a calibrated torque wrench. Use the 3-pass cross-torquing method: 30% → 70% → 100% of target torque. Joint separation SF = ${sf} (${jchk}). Never reuse torque-to-yield bolts (Grade 10.9 / 12.9 one-time use). Apply thread lubricant (K=${(inputs.nut_factor as number) ?? ''}) consistently — dry/lubricated torque differs by up to 30%. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
+      recommendations = `Tighten ${size} Grade ${grade} bolts to ${torque} N·m using a calibrated torque wrench. Use the 3-pass cross-torquing method: 30% → 70% → 100% of target torque. Joint separation SF = ${sf} (${jchk}). Never reuse torque-to-yield bolts (Grade 10.9 / 12.9 one-time use). Apply thread lubricant (K=${(inputs.nut_factor as number) ?? ''}) consistently: dry/lubricated torque differs by up to 30%. A PRC-licensed Mechanical Engineer must sign and seal this document.`;
     } else if (calcType === "Lightning Protection System (LPS)") {
       const lpl   = (inputs.lpl as string) || 'LPL II';
       const rchk  = rec.risk_check ?? '';
@@ -1910,7 +1910,7 @@ Respond in JSON format only:
       const R     = rec.rolling_sphere_R_m ?? '';
       const mesh  = rec.mesh_size_m ?? '';
       const eff   = rec.efficiency_pct ?? '';
-      recommendations = `Install an external LPS complying with IEC 62305-3 for ${lpl} (rolling sphere radius ${R} m, mesh ${mesh} m, efficiency ${eff}%). Risk assessment: ${rchk}. Air termination: ${nat} air terminals (Franklin rods or horizontal conductors) arranged per the rolling sphere / mesh method — all roof edges, corners, and ridges within protection radius. Down conductors: ${ndc} runs of ${(inputs.dc_material as string) || 'copper'} conductors at ${rec.dc_spacing_m ?? ''} m spacing along the building perimeter — route straight and vertical, minimum 0.2 m from doors and windows. Earth termination: ${nel} electrodes (minimum ${elLen} m each), Type ${(inputs.earth_type as string) || 'A'} per IEC 62305-3 — measure and verify earth resistance ≤ 10 Ω before commissioning. Bond all metal building elements (roof structure, pipes, conduits, HVAC) to the down conductor network per IEC 62305-3 Section 6. Provide SPDs at main panel per IEC 62305-4. A PRC-licensed Electrical Engineer must sign and seal this document. Submit LPS design drawings and earthing test results to the Building Official / BFP for permit clearance.`;
+      recommendations = `Install an external LPS complying with IEC 62305-3 for ${lpl} (rolling sphere radius ${R} m, mesh ${mesh} m, efficiency ${eff}%). Risk assessment: ${rchk}. Air termination: ${nat} air terminals (Franklin rods or horizontal conductors) arranged per the rolling sphere / mesh method: all roof edges, corners, and ridges within protection radius. Down conductors: ${ndc} runs of ${(inputs.dc_material as string) || 'copper'} conductors at ${rec.dc_spacing_m ?? ''} m spacing along the building perimeter: route straight and vertical, minimum 0.2 m from doors and windows. Earth termination: ${nel} electrodes (minimum ${elLen} m each), Type ${(inputs.earth_type as string) || 'A'} per IEC 62305-3: measure and verify earth resistance ≤ 10 Ω before commissioning. Bond all metal building elements (roof structure, pipes, conduits, HVAC) to the down conductor network per IEC 62305-3 Section 6. Provide SPDs at main panel per IEC 62305-4. A PRC-licensed Electrical Engineer must sign and seal this document. Submit LPS design drawings and earthing test results to the Building Official / BFP for permit clearance.`;
     }
     return {
       objective: `To determine the required ${calcType} design parameters for the subject project in accordance with applicable Philippine and international engineering standards.`,
@@ -1920,7 +1920,7 @@ Respond in JSON format only:
   }
 }
 
-// ─── Electrical: Lightning Protection System (LPS) — IEC 62305 / NFPA 780 ────
+// ─── Electrical: Lightning Protection System (LPS): IEC 62305 / NFPA 780 ────
 
 function calcLightningProtection(inputs: Record<string, number | string>): Record<string, unknown> {
   const round2 = (v: number) => Math.round(v * 100) / 100;
@@ -1933,7 +1933,7 @@ function calcLightningProtection(inputs: Record<string, number | string>): Recor
   const ng_loc = (inputs.ng_location as string) || 'Metro Manila';
   const ng_custom = Number(inputs.ng_custom ?? 10);
   const dc_material = (inputs.dc_material as string) || 'Copper';
-  const earth_type  = (inputs.earth_type  as string) || 'Type A — Radial / Vertical Electrodes';
+  const earth_type  = (inputs.earth_type  as string) || 'Type A: Radial / Vertical Electrodes';
   const struct_type = (inputs.structure_type as string) || 'Residential';
   const air_method  = (inputs.air_term_method as string) || 'Rolling Sphere';
 
@@ -1959,7 +1959,7 @@ function calcLightningProtection(inputs: Record<string, number | string>): Recor
   };
   const Ng = NG_TABLE[ng_loc] ?? ng_custom;
 
-  // IEC 62305-3 Table 1 — LPL parameters
+  // IEC 62305-3 Table 1: LPL parameters
   const LPL_TABLE: Record<string, { R: number; mesh: number; angle_base: number; dc_spacing: number; I_min: number; eff: number }> = {
     "LPL I":   { R: 20, mesh: 5,  angle_base: 25, dc_spacing: 10, I_min: 3,  eff: 99 },
     "LPL II":  { R: 30, mesh: 10, angle_base: 35, dc_spacing: 10, I_min: 5,  eff: 97 },
@@ -1968,7 +1968,7 @@ function calcLightningProtection(inputs: Record<string, number | string>): Recor
   };
   const lplP = LPL_TABLE[lpl] ?? LPL_TABLE["LPL II"];
 
-  // Collection area — IEC 62305-2 Annex A Eq. A.1
+  // Collection area: IEC 62305-2 Annex A Eq. A.1
   const Ad = L * W + 6 * H * (L + W) + 9 * Math.PI * H * H;
 
   // Annual strike frequency
@@ -1984,14 +1984,14 @@ function calcLightningProtection(inputs: Record<string, number | string>): Recor
 
   const risk_ratio = round2(Nd / Nt);
   // IEC 62305-2 §4.1: if Nd > Nt (ratio > 1), protection is required.
-  // "RECOMMENDED" zone: 0.5 < ratio ≤ 1 (approaching threshold — prudent to install).
+  // "RECOMMENDED" zone: 0.5 < ratio ≤ 1 (approaching threshold: prudent to install).
   const risk_check = risk_ratio > 1 ? "LPS REQUIRED" : risk_ratio > 0.5 ? "LPS RECOMMENDED" : "LPS NOT REQUIRED";
 
   // Down conductors
   const perimeter = 2 * (L + W);
   const n_dc = Math.max(2, Math.ceil(perimeter / lplP.dc_spacing));
 
-  // Protection angle (IEC 62305-3 Table 2, simplified — angle reduces linearly to 0° at H=60m for LPL I)
+  // Protection angle (IEC 62305-3 Table 2, simplified: angle reduces linearly to 0° at H=60m for LPL I)
   const alpha_base = lplP.angle_base;
   const h_ref = lplP.R; // height at which angle reaches 0
   const prot_angle = Math.max(0, Math.round(alpha_base * (1 - Math.min(H, h_ref) / (h_ref * 2))));
@@ -2008,7 +2008,7 @@ function calcLightningProtection(inputs: Record<string, number | string>): Recor
     n_at = Math.max(4, n_at);
   }
 
-  // Earth termination (IEC 62305-3 Table 7 — Type A minimum electrode length)
+  // Earth termination (IEC 62305-3 Table 7: Type A minimum electrode length)
   const min_el = Math.max(5, round2(0.5 * H));
 
   // Cable lengths (indicative)
@@ -2059,7 +2059,7 @@ function calcLightningProtection(inputs: Record<string, number | string>): Recor
   };
 }
 
-// ─── Electrical: Lighting Design — Lumen Method (IES / PEC 2017) ─────────────
+// ─── Electrical: Lighting Design: Lumen Method (IES / PEC 2017) ─────────────
 
 function calcLightingDesign(inputs: Record<string, number | string>): Record<string, unknown> {
   const round2 = (v: number) => Math.round(v * 100) / 100;
@@ -2122,7 +2122,7 @@ function calcLightingDesign(inputs: Record<string, number | string>): Record<str
 
 // ─── Electrical: Short Circuit Analysis (PEC 2017 / IEC 60909 / IEEE 141) ────
 
-// Cable reactance at 50 Hz (Ω/km) — typical 4-core XLPE/PVC LV cable
+// Cable reactance at 50 Hz (Ω/km): typical 4-core XLPE/PVC LV cable
 const CABLE_REACTANCE_OHM_KM: Array<[number, number]> = [
   [14, 0.085], [22, 0.083], [30, 0.082], [38, 0.080],
   [60, 0.079], [100, 0.077], [150, 0.076], [250, 0.074],
@@ -2163,16 +2163,16 @@ function calcShortCircuit(inputs: Record<string, number | string>): Record<strin
   // Step 3c: Cable impedance magnitude Z_cable = √(R² + X²)
   const Z_cable_ohm = round4(Math.sqrt(R_cable_ohm ** 2 + X_cable_ohm ** 2));
 
-  // Step 4: Total impedance — Z_xfmr in series with Z_cable
+  // Step 4: Total impedance: Z_xfmr in series with Z_cable
   const Z_total_ohm = round4(Z_xfmr_ohm + Z_cable_ohm);
 
   // Step 5: 3-phase symmetrical fault current (IEC 60909 §4.2)
-  // c = 1.05 voltage factor for LV systems (Un ≤ 1 kV), max fault calculation — IEC 60909 Table 1
+  // c = 1.05 voltage factor for LV systems (Un ≤ 1 kV), max fault calculation: IEC 60909 Table 1
   const c_factor = voltage_ll <= 1000 ? 1.05 : 1.10;
   const Isc_A = (c_factor * voltage_ll) / (Math.sqrt(3) * Z_total_ohm);
   const Isc_kA = round2(Isc_A / 1000);
 
-  // Step 6: Asymmetrical peak current — IEC 60909 §4.3: ip = κ × √2 × Isc
+  // Step 6: Asymmetrical peak current: IEC 60909 §4.3: ip = κ × √2 × Isc
   // κ = 1.8 for typical LV distribution (R/X governed); ip = 1.8 × √2 × Isc ≈ 2.55 × Isc
   const Ipeak_kA = round2(1.8 * Math.sqrt(2) * Isc_kA);
 
@@ -2215,12 +2215,12 @@ function calcBoltTorque(inputs: Record<string, number | string>): Record<string,
     'M30': [30, 561.0],
   };
 
-  // Proof strength (Sp) in MPa per grade — ISO 898-1:2013
+  // Proof strength (Sp) in MPa per grade: ISO 898-1:2013
   // Grade 8.8: 580 MPa for M10/M12 (Table 3, ≤16mm thread); 600 MPa for M16 and above (Table 4)
-  // Grade 4.8: 310 MPa (ISO 898-1 under investigation; commonly cited — verify against ISO 898-1:2013 Table 4)
+  // Grade 4.8: 310 MPa (ISO 898-1 under investigation; commonly cited: verify against ISO 898-1:2013 Table 4)
   const SP_MAP: Record<string, number> = {
     '4.6':  225,
-    '4.8':  310,   // ⚠️ UNVERIFIED — confirm against ISO 898-1:2013 Table 4
+    '4.8':  310,   // ⚠️ UNVERIFIED: confirm against ISO 898-1:2013 Table 4
     '8.8':  600,   // size-dependent; overridden below for M10/M12
     '10.9': 830,
     '12.9': 970,
@@ -2311,14 +2311,14 @@ function calcShaftDesign(inputs: Record<string, number | string>): Record<string
   const round2 = (n: number) => Math.round(n * 100) / 100;
   const round1 = (n: number) => Math.round(n * 10)  / 10;
 
-  // Material tensile and yield strengths (MPa) — AISI annealed/normalized typical values
+  // Material tensile and yield strengths (MPa): AISI annealed/normalized typical values
   const Sut_map: Record<string, number> = {
     'AISI 1020': 380,
     'AISI 1045': 570,
     'AISI 4140': 655,
     'AISI 4340': 1035,
   };
-  // Sy (yield strength) per material — ASME B106.1M requires min(0.30×Sy, 0.18×Sut)
+  // Sy (yield strength) per material: ASME B106.1M requires min(0.30×Sy, 0.18×Sut)
   const Sy_map: Record<string, number> = {
     'AISI 1020': 210,
     'AISI 1045': 310,
@@ -2347,7 +2347,7 @@ function calcShaftDesign(inputs: Record<string, number | string>): Record<string
   // Torque (N·m)
   const T_Nm = round1(power_kW * 9549.3 / shaft_rpm);
 
-  // Bending moment — simply supported, point load at midspan
+  // Bending moment: simply supported, point load at midspan
   const M_Nm = round1(transverse_load_N * (span_mm / 1000) / 4);
 
   // Combined load term (ASME elliptic)
@@ -2358,7 +2358,7 @@ function calcShaftDesign(inputs: Record<string, number | string>): Record<string
   const d_min_m    = Math.pow(d_cubed_m3, 1/3);
   const d_min_mm   = round1(d_min_m * 1000);
 
-  // Standard shaft diameters (mm) — PH market
+  // Standard shaft diameters (mm): PH market
   const std_diams = [15,16,17,18,19,20,22,24,25,28,30,32,35,38,40,42,45,48,50,52,55,58,60,63,65,70,75,80,85,90,95,100,105,110,115,120];
   let d_std_mm = std_diams[std_diams.length - 1];
   for (const d of std_diams) {
@@ -2425,7 +2425,7 @@ function calcBearingLife(inputs: Record<string, number | string>): Record<string
       else if (Fa_Fr_ratio <= 2.28) { X = 0.56; Y = 1.17; }
       else { X = 0.56; Y = 1.00; }
     } else {
-      // Roller bearing — ISO 281: for combined radial + axial load:
+      // Roller bearing: ISO 281: for combined radial + axial load:
       // X=0.4, Y=0.4×cot(α); contact angle α=15° typical → cot(15°)≈3.73, Y≈1.5
       X = 0.4; Y = 1.5; // conservative estimate (15° contact angle); use manufacturer data for exact Y
     }
@@ -2503,7 +2503,7 @@ function calcVBeltDrive(inputs: Record<string, number | string>): Record<string,
   const L_calc = 2 * C + (Math.PI / 2) * (D + d) + Math.pow(D - d, 2) / (4 * C);
   const belt_length_mm = Math.round(L_calc);
 
-  // Belt designation — RMA standard lengths per section (datum length in inches, label in mm)
+  // Belt designation: RMA standard lengths per section (datum length in inches, label in mm)
   // Approximate standard lengths (mm) for each section
   const std_lengths: Record<string, number[]> = {
     A: [500,530,560,580,610,640,660,690,710,740,760,790,810,840,860,890,910,940,965,990,1015,1040,1065,1090,1120,1145,1170,1220,1270,1320,1370,1420,1470,1525,1575,1625,1680,1730,1780,1830,1880,1930,1980,2030,2080,2130,2180,2230,2290,2340,2390],
@@ -2704,13 +2704,13 @@ function calcElevatorTraffic(inputs: Record<string, number | string>): Record<st
   const loading_efficiency = 0.80; // CIBSE Guide D: 80% car loading
   const effective_pax = Math.round(capacity * loading_efficiency);
 
-  // Total rise (m) — ground floor to highest floor
+  // Total rise (m): ground floor to highest floor
   const H_m = Math.round((n_floors - 1) * floor_height * 10) / 10;
 
   // Flight time (round trip, no acceleration correction for standard speeds)
   const t_flight_s = Math.round((2 * H_m / speed) * 10) / 10;
 
-  // Average number of stops (S) — CIBSE Guide D formula:
+  // Average number of stops (S): CIBSE Guide D formula:
   // S = n * [1 - (1 - 1/n)^P]  where n = floors-1 (excluding ground), P = effective_pax
   const n = n_floors - 1;
   const S_raw = n * (1 - Math.pow(1 - 1 / n, effective_pax));
@@ -2720,7 +2720,7 @@ function calcElevatorTraffic(inputs: Record<string, number | string>): Record<st
   const t_per_stop = t_dwell + t_door_open + t_door_close;
   const t_stops_s  = Math.round(t_per_stop * avg_stops * 10) / 10;
 
-  // Loading/unloading time — estimated as 0.8 s per passenger (CIBSE typical)
+  // Loading/unloading time: estimated as 0.8 s per passenger (CIBSE typical)
   const t_load_s = Math.round(effective_pax * 0.8 * 10) / 10;
 
   // Round Trip Time (s)
@@ -2998,7 +2998,7 @@ function calcStairwellPressurization(inputs: Record<string, number | string>): R
   const fan_eff_pct     = Number(inputs.fan_efficiency)      || 60;    // %
   const safety_factor   = 1.20;
 
-  // NFPA 92 Table B.1 — leakage area per door (m²)
+  // NFPA 92 Table B.1: leakage area per door (m²)
   const door_leakage_map: Record<string, number> = {
     'Tight':   0.019,
     'Average': 0.039,
@@ -3006,7 +3006,7 @@ function calcStairwellPressurization(inputs: Record<string, number | string>): R
   };
   const A_door_m2 = door_leakage_map[door_fit] || 0.039;
 
-  // Wall leakage per floor — NFPA 92 typical stairwell wall: 0.0009 m² per m² of wall
+  // Wall leakage per floor: NFPA 92 typical stairwell wall: 0.0009 m² per m² of wall
   // Assume stairwell perimeter ~12 m, floor-to-floor 3 m → wall area = 36 m² per floor
   const A_wall_per_floor = 36 * 0.0009; // ~0.032 m²
 
@@ -3027,7 +3027,7 @@ function calcStairwellPressurization(inputs: Record<string, number | string>): R
   const Q_total_m3s           = Q_m3s * N_stairwells;
   const Q_design_m3s          = Q_total_m3s * safety_factor;
 
-  // Convert to m³/h (CMH) — standard Philippine fan rating unit
+  // Convert to m³/h (CMH): standard Philippine fan rating unit
   const Q_design_CMH = Q_design_m3s * 3600;
   const Q_per_CMH    = Q_per_stairwell_m3s * 3600;
 
@@ -3036,7 +3036,7 @@ function calcStairwellPressurization(inputs: Record<string, number | string>): R
   // Pressure acts at door centroid (W/2 from hinge); force applied at handle (W - d from hinge).
   // d = handle setback from latch edge = 0.076 m (3 in), per NFPA 92.
   const A_door_panel     = door_W * door_H; // m²
-  const d                = 0.076; // m — handle setback from latch edge (NFPA 92, 3 in)
+  const d                = 0.076; // m: handle setback from latch edge (NFPA 92, 3 in)
   const lever_arm_factor = door_W / (2 * (door_W - d)); // moment arm correction
   const F_pressure_N     = delta_P_Pa * A_door_panel * lever_arm_factor;
   const F_closer_N       = 45; // typical door closer force (N)
@@ -3056,7 +3056,7 @@ function calcStairwellPressurization(inputs: Record<string, number | string>): R
 
   // NFPA 92 design pressure limits
   const delta_P_min = building_type === 'Sprinklered' ? 12.5 : 25; // Pa
-  const delta_P_max = 87; // Pa — NFPA 92 §6.4.1.4 code maximum (independent of door force check)
+  const delta_P_max = 87; // Pa: NFPA 92 §6.4.1.4 code maximum (independent of door force check)
 
   const round3 = (n: number) => Math.round(n * 1000) / 1000;
   const round2 = (n: number) => Math.round(n * 100) / 100;
@@ -3168,7 +3168,7 @@ function calcFireAlarmBattery(inputs: Record<string, number | string>): Record<s
   const Ah_calc    = Ah_standby + Ah_alarm;
   const Ah_required = Ah_calc * safety_factor;
 
-  // Standard battery sizes (Ah) — common Philippine/ASEAN market
+  // Standard battery sizes (Ah): common Philippine/ASEAN market
   const std_Ah = [1.2, 2.6, 4.5, 7, 12, 17, 18, 26, 33, 40, 55, 65, 75, 100, 120, 150, 200];
   let selected_Ah = std_Ah[std_Ah.length - 1];
   for (const ah of std_Ah) {
@@ -3179,7 +3179,7 @@ function calcFireAlarmBattery(inputs: Record<string, number | string>): Record<s
   const n_batteries   = system_voltage === 24 ? 2 : 1;
   const battery_volts = system_voltage === 24 ? 12 : 12;
 
-  // Charger current check — NFPA 72: must recharge within 48 hours
+  // Charger current check: NFPA 72: must recharge within 48 hours
   const I_charger_min_A  = selected_Ah / 48;   // minimum charger current (A)
   const I_charger_rec_A  = selected_Ah / 10;   // recommended C/10 rate (A)
 
@@ -3277,7 +3277,7 @@ function calcCoolingTowerSizing(inputs: Record<string, number | string>) {
   const evap_lhr      = 0.00085 * range * qW_m3hr * 1000;   // L/hr
   // Drift: 0.02% of circ flow (modern film fill with drift eliminators)
   const drift_lhr     = 0.0002 * qW_m3hr * 1000;            // L/hr
-  // Blowdown: E / (CoC - 1) — maintains cycles of concentration
+  // Blowdown: E / (CoC - 1): maintains cycles of concentration
   const blowdown_lhr  = evap_lhr / (coc - 1);               // L/hr
   // Makeup = evaporation + drift + blowdown
   const makeup_lhr    = evap_lhr + drift_lhr + blowdown_lhr;
@@ -3304,7 +3304,7 @@ function calcCoolingTowerSizing(inputs: Record<string, number | string>) {
   const qCell_TR = qRejTR / nCells;
 
   // ── 8. Approach check (CTI Std-201 minimum 2°C) ──────────────────────────
-  const approach_check = approach >= 3 ? "PASS" : approach >= 2 ? "MARGINAL (2–3°C — verify with tower manufacturer)" : "FAIL";
+  const approach_check = approach >= 3 ? "PASS" : approach >= 2 ? "MARGINAL (2–3°C: verify with tower manufacturer)" : "FAIL";
   const approach_min   = 2;  // °C per CTI Std-201
 
   // ── 9. ASHRAE 90.1 cooling tower efficiency check ────────────────────────
@@ -3312,8 +3312,8 @@ function calcCoolingTowerSizing(inputs: Record<string, number | string>) {
   // (equivalent to 38.2 gpm/hp per ASHRAE 90.1 Table 6.8.1-7 for open cooling towers)
   const ashrae_ct_efficiency = qW_lps / fanKW_total;          // L/s per kW of fan power
   const ashrae_ct_check = ashrae_ct_efficiency >= 3.23
-    ? `PASS — ${ashrae_ct_efficiency.toFixed(2)} L/s/kW (≥ 3.23 L/s/kW per ASHRAE 90.1-2019)`
-    : `FAIL — ${ashrae_ct_efficiency.toFixed(2)} L/s/kW (< 3.23 L/s/kW per ASHRAE 90.1-2019 Table 6.8.1-7)`;
+    ? `PASS: ${ashrae_ct_efficiency.toFixed(2)} L/s/kW (≥ 3.23 L/s/kW per ASHRAE 90.1-2019)`
+    : `FAIL: ${ashrae_ct_efficiency.toFixed(2)} L/s/kW (< 3.23 L/s/kW per ASHRAE 90.1-2019 Table 6.8.1-7)`;
 
   // ── 10. Chiller tie-in data (if from chiller) ────────────────────────────
   const chillerTR_input  = loadSource === 'chiller' ? Number(inputs.chiller_cap_tr) : null;
@@ -3370,7 +3370,7 @@ function calcCoolingTowerSizing(inputs: Record<string, number | string>) {
 // Outputs: supply airflow (CMH/CFM), cooling coil capacity (kW/TR),
 //          CHW flow (L/s), fan power (kW/HP), ACH, OA compliance.
 
-// Standard nominal AHU sizes (CMH) — common Philippine market offerings
+// Standard nominal AHU sizes (CMH): common Philippine market offerings
 const AHU_STD_SIZES_CMH = [
   1000, 1500, 2000, 3000, 4000, 5000, 6000, 8000, 10000,
   12000, 15000, 20000, 25000, 30000, 40000, 50000, 60000,
@@ -3431,10 +3431,10 @@ function calcAHUSizing(inputs: Record<string, number | string>) {
   const Q_oa_lps  = Q_oa_m3s * 1000;
   const Q_ra_CMH  = Q_sa_CMH - Q_oa_CMH;   // return/recirculation air
 
-  // ASHRAE 62.1-2019 Ventilation Rate Procedure (VRP) — Sec 6.2.2
+  // ASHRAE 62.1-2019 Ventilation Rate Procedure (VRP): Sec 6.2.2
   // Vbz = Rp × P + Ra × A  (breathing zone outdoor airflow)
-  // Per Table 6-1: Office — Rp=2.5 L/s/person, Ra=0.30 L/s/m²
-  // Conference — Rp=2.5 L/s/person, Ra=0.30 L/s/m²
+  // Per Table 6-1: Office: Rp=2.5 L/s/person, Ra=0.30 L/s/m²
+  // Conference: Rp=2.5 L/s/person, Ra=0.30 L/s/m²
   // Use spaceType to select Rp / Ra; default to office if unrecognised
   const oa_vrp: Record<string, { Rp: number; Ra: number }> = {
     'Office':      { Rp: 2.5, Ra: 0.30 },
@@ -3451,8 +3451,8 @@ function calcAHUSizing(inputs: Record<string, number | string>) {
   const oa_per_person_lps = persons > 0 ? Q_oa_lps / persons : null;
   const oa_check = persons > 0 || floorArea > 0
     ? (Q_oa_lps >= Vbz_lps
-        ? `PASS — ${Q_oa_lps.toFixed(1)} L/s ≥ Vbz ${Vbz_lps.toFixed(1)} L/s (ASHRAE 62.1-2019 VRP)`
-        : `FAIL — ${Q_oa_lps.toFixed(1)} L/s < Vbz ${Vbz_lps.toFixed(1)} L/s (ASHRAE 62.1-2019 VRP — increase OA%)`)
+        ? `PASS: ${Q_oa_lps.toFixed(1)} L/s ≥ Vbz ${Vbz_lps.toFixed(1)} L/s (ASHRAE 62.1-2019 VRP)`
+        : `FAIL: ${Q_oa_lps.toFixed(1)} L/s < Vbz ${Vbz_lps.toFixed(1)} L/s (ASHRAE 62.1-2019 VRP: increase OA%)`)
     : 'N/A (enter persons and/or floor area)';
 
   // 5. Mixed air temperature (mass balance, no latent correction)
@@ -3482,7 +3482,7 @@ function calcAHUSizing(inputs: Record<string, number | string>) {
   // ASHRAE 90.1 fan power limitation: max 0.82 W/(L/s) at design airflow
   const fan_power_W_lps    = (P_fan_kW * 1000) / (Q_sa_m3s * 1000);   // W/(L/s)
   const ashrae_fan_max     = 0.82;
-  const fan_power_check    = fan_power_W_lps <= ashrae_fan_max ? 'PASS' : 'FAIL (exceed 0.82 W/L·s limit — reduce static or increase fan efficiency)';
+  const fan_power_check    = fan_power_W_lps <= ashrae_fan_max ? 'PASS' : 'FAIL (exceed 0.82 W/L·s limit: reduce static or increase fan efficiency)';
 
   // 9. ACH check
   const zone_volume       = floorArea * ceilingHeight;  // m³
@@ -3492,7 +3492,7 @@ function calcAHUSizing(inputs: Record<string, number | string>) {
   const nominal_AHU_CMH_each = roundUpToAHUSize(Q_sa_CMH_each);
   const nominal_AHU_CMH_total = nominal_AHU_CMH_each * nUnits;
 
-  // 11. Electrical supply estimate (fan only — coil is hydronic)
+  // 11. Electrical supply estimate (fan only: coil is hydronic)
   const total_fan_kVA     = P_fan_kW / 0.85;  // kVA (PF=0.85)
   const total_fan_A_400V  = (total_fan_kVA * 1000) / (Math.sqrt(3) * 400);
 
@@ -3625,8 +3625,8 @@ function calcWaterSoftenerSizing(inputs: Record<string, number | string>): Recor
 
   // PNS 1998 / WHO check
   const pnsCheck = inletHardness <= 300
-    ? `WITHIN PNS 1998 limit (≤300 mg/L) — softening recommended for equipment protection`
-    : `EXCEEDS PNS 1998 limit (300 mg/L) — softening mandatory`;
+    ? `WITHIN PNS 1998 limit (≤300 mg/L): softening recommended for equipment protection`
+    : `EXCEEDS PNS 1998 limit (300 mg/L): softening mandatory`;
 
   // Step 1: Daily hardness load
   const removalMgL  = inletHardness - targetHardness;
@@ -3657,10 +3657,10 @@ function calcWaterSoftenerSizing(inputs: Record<string, number | string>): Recor
   const maxFlowLpm    = parseFloat((selectedResinL * 25 / 60).toFixed(1)); // 25 BV/hr
   const designFlowLpm = parseFloat((demandLpd / (8 * 60)).toFixed(1));     // 8 hr/day peak operation basis
   const flowCheck     = designFlowLpm >= minFlowLpm && designFlowLpm <= maxFlowLpm
-    ? `PASS — Design flow ${designFlowLpm} L/min is within ${minFlowLpm}–${maxFlowLpm} L/min`
+    ? `PASS: Design flow ${designFlowLpm} L/min is within ${minFlowLpm}–${maxFlowLpm} L/min`
     : designFlowLpm < minFlowLpm
-      ? `LOW — Design flow ${designFlowLpm} L/min is below minimum ${minFlowLpm} L/min; consider smaller tank or shorter regen interval`
-      : `HIGH — Design flow ${designFlowLpm} L/min exceeds maximum ${maxFlowLpm} L/min; add units or increase tank size`;
+      ? `LOW: Design flow ${designFlowLpm} L/min is below minimum ${minFlowLpm} L/min; consider smaller tank or shorter regen interval`
+      : `HIGH: Design flow ${designFlowLpm} L/min exceeds maximum ${maxFlowLpm} L/min; add units or increase tank size`;
 
   // Step 7: Backwash flow rate (5 GPM/ft² of tank cross-section = ~204 L/min/m²)
   const tankDiaM     = tank.dia_in * 0.0254;
@@ -3777,13 +3777,13 @@ function calcWaterTreatmentSystem(inputs: Record<string, number | string>): Reco
   trainSteps.push(needsIronRemoval ? 'Iron Removal Filter (Greensand + Aeration)' : 'Multimedia Filter (Quartz sand + Anthracite)');
   if (turbidityNTU > 5)  trainSteps.push('Activated Carbon Filter (Taste / Odor / Chlorine)');
   if (needsDisinfection) trainSteps.push(disinfMethod === 'UV + Chlorination' ? 'UV Disinfection + Chlorination' : 'Chlorination (Sodium Hypochlorite dosing)');
-  if (needsSoftener)     trainSteps.push('Water Softener (Ion exchange — refer to Water Softener Sizing calc)');
-  if (needsRO)           trainSteps.push('Reverse Osmosis (RO — for high-pressure boiler makeup)');
+  if (needsSoftener)     trainSteps.push('Water Softener (Ion exchange: refer to Water Softener Sizing calc)');
+  if (needsRO)           trainSteps.push('Reverse Osmosis (RO: for high-pressure boiler makeup)');
   trainSteps.push('Treated Water Storage Tank');
 
   // ── PNS 1998 source quality check ────────────────────────────────────────────
   const turbidityCheck  = turbidityNTU <= 5   ? 'WITHIN PNS 1998 limit (≤5 NTU) post-filtration achievable' : turbidityNTU <= 25  ? 'Filtration required to achieve PNS 1998 ≤5 NTU' : 'Coagulation + Filtration required for PNS 1998 compliance';
-  const ironCheck       = ironMgL <= 0.3 ? 'Within PNS 1998 limit (≤0.3 mg/L)' : ironMgL <= 1.0 ? 'EXCEEDS PNS 1998 limit — iron removal required' : 'Severely elevated — aeration + greensand filtration required';
+  const ironCheck       = ironMgL <= 0.3 ? 'Within PNS 1998 limit (≤0.3 mg/L)' : ironMgL <= 1.0 ? 'EXCEEDS PNS 1998 limit: iron removal required' : 'Severely elevated: aeration + greensand filtration required';
 
   // ── Turbidity classification ─────────────────────────────────────────────────
   const turbidClass = turbidityNTU < 5   ? 'Clear'    : turbidityNTU < 25  ? 'Slightly Turbid'  : turbidityNTU < 100 ? 'Moderately Turbid' : 'Highly Turbid';
@@ -3832,13 +3832,13 @@ function calcWaterTreatmentSystem(inputs: Record<string, number | string>): Reco
   const cl2DailyKg         = parseFloat((cl2DoseMgL * demandM3d / 1000).toFixed(3));
   // NaOCl (12% liquid hypochlorite): 1 kg Cl2 ≈ 8.3 L of 12% NaOCl
   const naoclDailyL        = parseFloat((cl2DailyKg * 8.3).toFixed(2));
-  // Contact tank sizing: CT ≥ 36 mg·min/L for 3-log Giardia at pH 7, 25°C — EPA Guidance Manual Table 3-1
+  // Contact tank sizing: CT ≥ 36 mg·min/L for 3-log Giardia at pH 7, 25°C: EPA Guidance Manual Table 3-1
   const ctRequired         = 36; // mg·min/L  (EPA 3-log Giardia, free chlorine, pH 7, 25°C)
   const contactTimeMin     = parseFloat((ctRequired / cl2DoseMgL).toFixed(1));
   const contactTankM3      = parseFloat((peakFlowM3hr / 60 * contactTimeMin).toFixed(2));
   // CT achieved check
   const ctAchieved         = parseFloat((cl2DoseMgL * contactTimeMin).toFixed(1));
-  const ctCheck            = ctAchieved >= ctRequired ? `PASS — CT ${ctAchieved} mg·min/L ≥ required ${ctRequired} mg·min/L` : `FAIL — CT ${ctAchieved} mg·min/L < required ${ctRequired} mg·min/L`;
+  const ctCheck            = ctAchieved >= ctRequired ? `PASS: CT ${ctAchieved} mg·min/L ≥ required ${ctRequired} mg·min/L` : `FAIL: CT ${ctAchieved} mg·min/L < required ${ctRequired} mg·min/L`;
 
   // ── 5. UV (if applicable) ────────────────────────────────────────────────────
   // UV dose for 3-log reduction: 40 mJ/cm² (EPA UV Guidance)
@@ -3862,7 +3862,7 @@ function calcWaterTreatmentSystem(inputs: Record<string, number | string>): Reco
   const projIronMgL        = needsIronRemoval ? parseFloat((ironMgL * 0.05).toFixed(3)) : ironMgL;
   const projClResidualMgL  = needsDisinfection ? parseFloat((cl2DoseMgL * 0.3).toFixed(2)) : 0; // residual after contact
   const meetsPN1998        = projTurbidityNTU <= 5 && projIronMgL <= 0.3 && (!bacteriaConcern || projClResidualMgL >= 0.2);
-  const pns1998Status      = meetsPN1998 ? 'MEETS PNS 1998 / PNSDW' : 'REVIEW required — check residual disinfectant or turbidity';
+  const pns1998Status      = meetsPN1998 ? 'MEETS PNS 1998 / PNSDW' : 'REVIEW required: check residual disinfectant or turbidity';
 
   return {
     // Input summary
@@ -3944,7 +3944,7 @@ function calcWaterTreatmentSystem(inputs: Record<string, number | string>): Reco
   };
 }
 
-// ─── Wastewater Treatment (STP) — Activated Sludge Method ───────────────────
+// ─── Wastewater Treatment (STP): Activated Sludge Method ───────────────────
 
 function calcWastewaterSTP(inputs: Record<string, number | string>): Record<string, unknown> {
   const flowSource   = String(inputs.flow_source    || 'population');
@@ -3975,7 +3975,7 @@ function calcWastewaterSTP(inputs: Record<string, number | string>): Record<stri
   const mlvssRatio = 0.80; // VSS/TSS
   const mlvssMgL   = mlssMgL * mlvssRatio;
 
-  // Aeration tank volume — SRT method: V = Q × Y × SRT × (S0-Se) / (X × (1 + kd×SRT))
+  // Aeration tank volume: SRT method: V = Q × Y × SRT × (S0-Se) / (X × (1 + kd×SRT))
   const aerVolM3Raw = (flowM3Day * Y * srtDays * (bodIn - bodOut)) / (mlvssMgL * (1 + kd * srtDays));
   const aerVolM3    = Math.ceil(aerVolM3Raw * 10) / 10;
   const aerHrtHr    = Math.round(aerVolM3 / flowM3Hr * 10) / 10;
@@ -4086,7 +4086,7 @@ function calcWastewaterSTP(inputs: Record<string, number | string>): Record<stri
   };
 }
 
-// ─── Grease Trap Sizing — PDI G-101 Flow Rate Method ──────────────────────────
+// ─── Grease Trap Sizing: PDI G-101 Flow Rate Method ──────────────────────────
 
 const PDI_STANDARD_GPM = [4, 6, 7, 10, 15, 20, 25, 35, 50, 75, 100];
 
@@ -4136,14 +4136,14 @@ function calcGreaseTrapSizing(inputs: Record<string, unknown>): Record<string, u
   };
 }
 
-// ─── Roof Drain Sizing — IPC §1106 / Philippine Plumbing Code ────────────────
+// ─── Roof Drain Sizing: IPC §1106 / Philippine Plumbing Code ────────────────
 
-// Roof drain body capacities (L/s) — IPC 2018 Table 1106.2 / ASPE Vol. 2
+// Roof drain body capacities (L/s): IPC 2018 Table 1106.2 / ASPE Vol. 2
 // At 100 mm head above drain invert, C = 1.0 (impervious roof)
 const RD_DRAIN_SIZES_MM    = [75,   100,  125,  150,  200 ];
 const RD_DRAIN_CAP_LS      = [0.76, 1.51, 2.65, 4.16, 8.83];
 
-// Horizontal leader capacity at 1% slope (L/s) — Manning n = 0.011, half-full flow
+// Horizontal leader capacity at 1% slope (L/s): Manning n = 0.011, half-full flow
 // Scales to other slopes: Cap_s = Cap_1% × √(slope_pct / 1.0)
 const RD_LEADER_SIZES_MM   = [75,   100,  125,  150,  200  ];
 const RD_LEADER_CAP_1PCT   = [0.95, 1.89, 3.31, 5.20, 11.04];
@@ -4159,12 +4159,12 @@ function calcRoofDrainSizing(inputs: Record<string, number | string>): Record<st
   // Manning n by material
   const manningN = (pipeMaterial === "Cast Iron" || pipeMaterial === "Galv. Steel") ? 0.013 : 0.011;
 
-  // Design flow — Rational Method, C = 1.0 for impervious roof (IPC §1101)
+  // Design flow: Rational Method, C = 1.0 for impervious roof (IPC §1101)
   // Q (L/s) = I (mm/hr) × A (m²) / 3600
   const Q_total_ls = (intensityMmhr * roofArea) / 3600;
   const Q_each_ls  = nDrains > 0 ? Q_total_ls / nDrains : Q_total_ls;
 
-  // Primary roof drain body — first size whose capacity ≥ Q_each
+  // Primary roof drain body: first size whose capacity ≥ Q_each
   let drainSizeMm = RD_DRAIN_SIZES_MM[RD_DRAIN_SIZES_MM.length - 1];
   let drainCapLs  = RD_DRAIN_CAP_LS[RD_DRAIN_CAP_LS.length - 1];
   for (let i = 0; i < RD_DRAIN_SIZES_MM.length; i++) {
@@ -4175,10 +4175,10 @@ function calcRoofDrainSizing(inputs: Record<string, number | string>): Record<st
     }
   }
 
-  // Vertical leader (conductor) — same diameter as drain body per IPC §1106.3
+  // Vertical leader (conductor): same diameter as drain body per IPC §1106.3
   const leaderSizeMm = drainSizeMm;
 
-  // Horizontal leader — capacity scales with √(slope_pct / 1.0)
+  // Horizontal leader: capacity scales with √(slope_pct / 1.0)
   const slopeFactor = Math.sqrt(Math.max(slopePct, 0.1) / 1.0);
   let horizLeaderSizeMm = RD_LEADER_SIZES_MM[RD_LEADER_SIZES_MM.length - 1];
   let horizLeaderCapLs  = parseFloat((RD_LEADER_CAP_1PCT[RD_LEADER_SIZES_MM.length - 1] * slopeFactor).toFixed(2));
@@ -4191,19 +4191,19 @@ function calcRoofDrainSizing(inputs: Record<string, number | string>): Record<st
     }
   }
 
-  // Overflow drain — required when parapet walls present (IPC §1101.7)
+  // Overflow drain: required when parapet walls present (IPC §1101.7)
   // Same size as primary drain, invert +50 mm above primary invert
   const overflowDrainMm: number | null = hasParapet ? drainSizeMm : null;
 
   // Compliance
   const drainCapOk     = drainCapLs >= Q_each_ls;
-  const minDrainsCheck = nDrains >= 2 ? "PASS" : "FAIL — minimum 2 primary roof drains required per IPC §1106.3";
+  const minDrainsCheck = nDrains >= 2 ? "PASS" : "FAIL: minimum 2 primary roof drains required per IPC §1106.3";
   const drainCapCheck  = drainCapOk
     ? "PASS"
-    : `FAIL — Q_each (${Q_each_ls.toFixed(2)} L/s) exceeds maximum 200 mm drain capacity (8.83 L/s). Add more drains or split into zones.`;
+    : `FAIL: Q_each (${Q_each_ls.toFixed(2)} L/s) exceeds maximum 200 mm drain capacity (8.83 L/s). Add more drains or split into zones.`;
   const overflowCheck  = hasParapet
-    ? "Required — overflow drains specified at +50 mm above primary invert (IPC §1101.7)"
-    : "Not required — no parapet walls";
+    ? "Required: overflow drains specified at +50 mm above primary invert (IPC §1101.7)"
+    : "Not required: no parapet walls";
   const overallStatus  = (nDrains >= 2 && drainCapOk) ? "PASS" : "FAIL";
 
   return {
@@ -4229,7 +4229,7 @@ function calcRoofDrainSizing(inputs: Record<string, number | string>): Record<st
   };
 }
 
-// ─── Storm Drain / Stormwater — Rational Method + Manning's Pipe Sizing ───────
+// ─── Storm Drain / Stormwater: Rational Method + Manning's Pipe Sizing ───────
 
 const SD_STANDARD_DIAMETERS_MM = [300, 375, 450, 525, 600, 675, 750, 900, 1050, 1200, 1350, 1500];
 
@@ -4297,9 +4297,9 @@ function calcStormDrain(inputs: Record<string, number | string>): Record<string,
   const maxVel = (pipeMaterial === 'uPVC' || pipeMaterial === 'HDPE') ? 5.0 : 3.0;
   const velocityCheck = V_m_s >= 0.6 && V_m_s <= maxVel ? 'PASS' : 'FAIL';
   const velocityNote  = V_m_s < 0.6
-    ? `Low velocity (${Math.round(V_m_s * 100) / 100} m/s < 0.6 m/s minimum) — increase slope or verify flow.`
+    ? `Low velocity (${Math.round(V_m_s * 100) / 100} m/s < 0.6 m/s minimum): increase slope or verify flow.`
     : V_m_s > maxVel
-    ? `High velocity (${Math.round(V_m_s * 100) / 100} m/s > ${maxVel} m/s max for ${pipeMaterial}) — increase pipe diameter or reduce slope.`
+    ? `High velocity (${Math.round(V_m_s * 100) / 100} m/s > ${maxVel} m/s max for ${pipeMaterial}): increase pipe diameter or reduce slope.`
     : `Velocity ${Math.round(V_m_s * 100) / 100} m/s is within acceptable range (0.6–${maxVel} m/s).`;
 
   const flowRatioPct = Math.round((Q_m3s / Q_cap_m3s) * 1000) / 10; // %
@@ -4426,7 +4426,7 @@ function calcBoiler(inputs: Record<string, number | string>): Record<string, unk
 
     const deltaT        = supplyTempC - returnTempC;  // °C (= K for ΔT)
     const avgTempC      = (supplyTempC + returnTempC) / 2;
-    // Water density at average temp — least-squares fit of IAPWS data (40–95°C)
+    // Water density at average temp: least-squares fit of IAPWS data (40–95°C)
     // ρ ≈ 1.0184 − 0.000619 × T  (kg/L), error ±0.3% vs IAPWS in range
     const waterDensity  = Math.round((1.0184 - 0.000619 * avgTempC) * 10000) / 10000;  // kg/L, 4dp
     // Compute Q directly from L/hr to avoid rounding cascade through flowRateKgS
@@ -4565,7 +4565,7 @@ function calcBoiler(inputs: Record<string, number | string>): Record<string, unk
   };
 }
 
-// ─── Electrical: Generator Sizing — ISO 8528-1 / PEC Art. 7 / NFPA 110 ───────
+// ─── Electrical: Generator Sizing: ISO 8528-1 / PEC Art. 7 / NFPA 110 ───────
 const STD_GEN_KVA = [10,15,20,25,30,40,50,62.5,75,87.5,100,125,150,175,200,250,300,350,400,450,500,600,750,875,1000,1250,1500,2000];
 
 function calcGeneratorSizing(inputs: Record<string, unknown>): Record<string, unknown> {
@@ -4644,13 +4644,13 @@ function calcGeneratorSizing(inputs: Record<string, unknown>): Record<string, un
   };
 }
 
-// ─── Electrical: Solar PV System — IEC 62548 / PEC Art. 6 / DOE Net Metering ─
+// ─── Electrical: Solar PV System: IEC 62548 / PEC Art. 6 / DOE Net Metering ─
 const PH_PSH: Record<string, number> = {
   "Metro Manila": 4.5, "Cebu": 4.8, "Davao": 4.9, "Iloilo": 4.7,
   "Baguio": 4.2, "CDO": 4.6, "Zamboanga": 4.9, "Batangas": 4.6,
   "Legazpi": 4.4, "Tacloban": 4.5,
 };
-// Minimum recorded ambient temperature per Philippine location (°C) — PAGASA data
+// Minimum recorded ambient temperature per Philippine location (°C): PAGASA data
 // Used for IEC 62548 worst-case string Voc check (Voc increases at low temperature)
 const T_MIN_BY_LOCATION: Record<string, number> = {
   "Metro Manila": 18, "Cebu": 20, "Davao": 20, "Iloilo": 20,
@@ -4672,7 +4672,7 @@ function calcSolarPV(inputs: Record<string, unknown>): Record<string, unknown> {
   const autonomyDays  = Number(inputs.autonomy_days)     || 1;
   const dodPct        = Number(inputs.dod_pct)           || 80;
   const battVoltage   = Number(inputs.battery_voltage)   || 48;
-  // IEC 62548 Voc temperature derating — Voc increases at low ambient temp
+  // IEC 62548 Voc temperature derating: Voc increases at low ambient temp
   const tempCoeffVoc  = Number(inputs.temp_coeff_voc     ?? -0.29); // %/°C (negative for monocrystalline)
   const tMinC         = Number(inputs.t_min_c            ?? T_MIN_BY_LOCATION[location] ?? 18);
 
@@ -4693,7 +4693,7 @@ function calcSolarPV(inputs: Record<string, unknown>): Record<string, unknown> {
   // Step 5: Actual array kWp
   const actualArrayKWp = round2(panelQty * panelWp / 1000);
 
-  // Step 6: String sizing — IEC 62548, 1000 V DC max
+  // Step 6: String sizing: IEC 62548, 1000 V DC max
   // Voc increases at low ambient temperature; use worst-case cold-temp Voc for safe string limit
   const Voc_max         = round2(panelVoc * (1 + (tempCoeffVoc / 100) * (tMinC - 25)));
   const panelsPerString = Math.floor(1000 / Voc_max);
@@ -4744,7 +4744,7 @@ function calcSolarPV(inputs: Record<string, unknown>): Record<string, unknown> {
   };
 }
 
-// ─── Electrical: Power Factor Correction — IEEE 18 / IEEE 1036 / PEC Art. 4.60 ─
+// ─── Electrical: Power Factor Correction: IEEE 18 / IEEE 1036 / PEC Art. 4.60 ─
 
 function calcPFC(inputs: Record<string, unknown>): Record<string, unknown> {
   const round2 = (v: number) => Math.round(v * 100) / 100;
@@ -4822,7 +4822,7 @@ function calcPFC(inputs: Record<string, unknown>): Record<string, unknown> {
   };
 }
 
-// ─── Electrical: Cable Tray Sizing — NEMA VE 1 / NEC 392 / PEC 2017 Art. 3.92 ─
+// ─── Electrical: Cable Tray Sizing: NEMA VE 1 / NEC 392 / PEC 2017 Art. 3.92 ─
 
 function calcCableTray(inputs: Record<string, unknown>): Record<string, unknown> {
   const round2 = (v: number) => Math.round(v * 100) / 100;
@@ -4909,7 +4909,7 @@ function calcCableTray(inputs: Record<string, unknown>): Record<string, unknown>
   };
 }
 
-// ─── Electrical: UPS Sizing — IEC 62040-3 / IEEE 446 / IEEE 1184 / PEC Art. 7 ─
+// ─── Electrical: UPS Sizing: IEC 62040-3 / IEEE 446 / IEEE 1184 / PEC Art. 7 ─
 
 function calcUPS(inputs: Record<string, unknown>): Record<string, unknown> {
   const round2 = (v: number) => Math.round(v * 100) / 100;
@@ -5043,7 +5043,7 @@ function calcEarthing(inputs: Record<string, unknown>): Record<string, unknown> 
     platRadius = Math.sqrt(platArea / Math.PI);
     rSingle    = soilRho / (4 * platRadius);
   } else {
-    // Ring/Loop — Sunde (1968): R = (rho / 2*pi^2*D) * [ln(8D/d) - 2]
+    // Ring/Loop: Sunde (1968): R = (rho / 2*pi^2*D) * [ln(8D/d) - 2]
     const D = Number(inputs.ring_dia_m       || 10);
     const d = Number(inputs.ring_cond_dia_mm || 10) / 1000;  // mm to m
     rSingle = (soilRho / (2 * Math.PI * Math.PI * D)) * (Math.log(8 * D / d) - 2);
@@ -5080,7 +5080,7 @@ function calcEarthing(inputs: Record<string, unknown>): Record<string, unknown> 
   };
 }
 
-// ─── HVAC: Duct Sizing — Equal Friction Method (ASHRAE Ch.21 / SMACNA) ────────
+// ─── HVAC: Duct Sizing: Equal Friction Method (ASHRAE Ch.21 / SMACNA) ────────
 
 function calcDuctSizing(inputs: Record<string, unknown>): Record<string, unknown> {
   const round2 = (v: number) => Math.round(v * 100) / 100;
@@ -5223,7 +5223,7 @@ function calcDuctSizing(inputs: Record<string, unknown>): Record<string, unknown
   };
 }
 
-// ─── Expansion Tank Sizing — ASHRAE Acceptance Ratio Method / ASME VIII ──────
+// ─── Expansion Tank Sizing: ASHRAE Acceptance Ratio Method / ASME VIII ──────
 
 // Water specific volume table (ASHRAE/IAPWS, L/kg) at key temperatures (°C)
 const WATER_SPEC_VOL: Array<[number, number]> = [
@@ -5302,9 +5302,9 @@ function calcExpansionTank(inputs: Record<string, unknown>): Record<string, unkn
 
   // Acceptance factor α (ASHRAE minimum = 0.25)
   const alpha = 1 - P_fill_abs / P_max_abs;
-  const alphaCheck = alpha >= 0.25 ? 'PASS' : 'FAIL — increase Pmax or reduce fill pressure';
+  const alphaCheck = alpha >= 0.25 ? 'PASS' : 'FAIL: increase Pmax or reduce fill pressure';
 
-  // Required tank volume (L) — ASME VIII acceptance ratio method
+  // Required tank volume (L): ASME VIII acceptance ratio method
   // V_tank = V_expansion / α
   const requiredVolumeL = alpha > 0 ? V_expansion / alpha : 9999;
 
@@ -5312,7 +5312,7 @@ function calcExpansionTank(inputs: Record<string, unknown>): Record<string, unkn
   const selectedTankL = EXP_TANK_SIZES.find(s => s >= requiredVolumeL) ?? EXP_TANK_SIZES[EXP_TANK_SIZES.length - 1];
 
   // Pressure check: fill pressure must be < max pressure
-  const pressureCheck = fillPressureKpaG < maxPressKpaG ? 'PASS' : 'FAIL — fill pressure exceeds max system pressure';
+  const pressureCheck = fillPressureKpaG < maxPressKpaG ? 'PASS' : 'FAIL: fill pressure exceeds max system pressure';
 
   return {
     system_type:           systemType,
@@ -5336,7 +5336,7 @@ function calcExpansionTank(inputs: Record<string, unknown>): Record<string, unkn
   };
 }
 
-// ─── FCU Selection — ASHRAE HVAC Systems and Equipment Handbook ───────────────
+// ─── FCU Selection: ASHRAE HVAC Systems and Equipment Handbook ───────────────
 
 // Standard FCU capacity tiers (manufacturer-agnostic, kW nominal at 7°C CHW / 27°C DB room)
 const FCU_CATALOG = [
@@ -5352,7 +5352,7 @@ const FCU_CATALOG = [
   { model: 'FCU-60', kw: 17.58, tr: 5.00, cmh: 3400 },
 ];
 
-// CHW pipe — Black Steel Schedule 40 nominal pipe sizes (NPS mm, ID mm)
+// CHW pipe: Black Steel Schedule 40 nominal pipe sizes (NPS mm, ID mm)
 const CHW_PIPES = [
   { nps_mm:  15, id_mm:  15.80 },
   { nps_mm:  20, id_mm:  21.34 },
@@ -5443,12 +5443,12 @@ function calcFCUSelection(inputs: Record<string, unknown>): Record<string, unkno
     main_pipe_nps_mm:   selectedPipe.nps_mm,
     main_pipe_id_mm:    selectedPipe.id_mm,
     main_pipe_vel_ms:   Number(actualVelMs.toFixed(2)),
-    vel_check:          actualVelMs >= 1.0 && actualVelMs <= 2.0 ? 'OK' : actualVelMs < 1.0 ? 'Low — check stratification' : 'High — upsize pipe',
+    vel_check:          actualVelMs >= 1.0 && actualVelMs <= 2.0 ? 'OK' : actualVelMs < 1.0 ? 'Low: check stratification' : 'High: upsize pipe',
     diversity_factor:   divFactor,
   };
 }
 
-// ─── Refrigerant Pipe Sizing — ASHRAE Velocity Method / ASTM B280 ────────────
+// ─── Refrigerant Pipe Sizing: ASHRAE Velocity Method / ASTM B280 ────────────
 
 // ASTM B280 ACR copper tube standard sizes: OD mm, wall mm, ID mm
 const ACR_TUBES = [
@@ -5466,7 +5466,7 @@ const ACR_TUBES = [
   { od_mm: 79.38, wall_mm: 1.524, id_mm: 76.332 },
 ];
 
-// Refrigerant properties — pre-computed from ASHRAE/NIST at Philippine operating conditions
+// Refrigerant properties: pre-computed from ASHRAE/NIST at Philippine operating conditions
 // Key: [refrigerant][evap_temp_c] → suction props | [refrigerant][cond_temp_c] → cond props
 type EvapProps = { h_fg: number; rho_suc: number; mu_suc: number; dpdt_suc: number; };
 type CondProps = { rho_dis: number; rho_liq: number; mu_dis: number; dpdt_dis: number; };
@@ -5537,8 +5537,8 @@ const APP_EVAP_TEMP: Record<string, number> = {
 
 // Velocity limits [min, max] m/s by line type
 const VEL_LIMITS: Record<string, { min: number; max: number }> = {
-  "Suction — Horizontal":      { min: 4,   max: 10  },
-  "Suction — Vertical Riser":  { min: 6,   max: 12  },
+  "Suction: Horizontal":      { min: 4,   max: 10  },
+  "Suction: Vertical Riser":  { min: 6,   max: 12  },
   "Discharge":                 { min: 5,   max: 15  },
   "Liquid":                    { min: 0.5, max: 1.5  },
 };
@@ -5570,10 +5570,10 @@ function calcRefrigPipeSizing(inputs: Record<string, unknown>): Record<string, u
 
   const h_fg     = evapProps.h_fg;       // kJ/kg
   const mass_flow = capacity_kw / h_fg;  // kg/s  (ṁ = Q_kW / h_fg)
-  const eps_m    = 1.5e-9;               // copper roughness (m) — essentially smooth
+  const eps_m    = 1.5e-9;               // copper roughness (m): essentially smooth
 
   const lineResults = lines.map(line => {
-    const lineType   = line.line_type || "Suction — Horizontal";
+    const lineType   = line.line_type || "Suction: Horizontal";
     const lengthM    = Number(line.equiv_length_m) || 1;
 
     // Select density, viscosity, and dpdt based on line type
@@ -5622,7 +5622,7 @@ function calcRefrigPipeSizing(inputs: Record<string, unknown>): Record<string, u
     } else if (re < 100000) {
       f = 0.3164 / Math.pow(re, 0.25); // Blasius
     } else {
-      // Swamee-Jain (copper — near smooth, eps/D ≈ 0)
+      // Swamee-Jain (copper: near smooth, eps/D ≈ 0)
       const log_arg = eps_m / (3.7 * id_m) + 5.74 / Math.pow(re, 0.9);
       f = 0.25 / Math.pow(Math.log10(log_arg), 2);
     }
@@ -5694,7 +5694,7 @@ serve(async (req) => {
     // Try the Python microservice first. If it handles the calc_type it returns
     // { results: {...} }. If not yet implemented it returns { not_implemented: true }
     // and we fall through to the TypeScript handlers below. Network errors or
-    // timeouts also fall through silently — zero user-facing disruption.
+    // timeouts also fall through silently: zero user-facing disruption.
     const PYTHON_API_URL = Deno.env.get("PYTHON_API_URL");
     if (PYTHON_API_URL) {
       try {
@@ -5702,22 +5702,22 @@ serve(async (req) => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ calc_type, inputs }),
-          signal: AbortSignal.timeout(60000), // 60s — covers Render free-tier cold-start (~50s)
+          signal: AbortSignal.timeout(60000), // 60s: covers Render free-tier cold-start (~50s)
         });
         if (pyRes.ok) {
           const pyData = await pyRes.json();
           if (!pyData.not_implemented && pyData.results) {
-            // Python handled it — run Groq narrative (stays in Deno) and return
+            // Python handled it: run Groq narrative (stays in Deno) and return
             const narrative = await generateReportNarrative(calc_type, inputs, pyData.results);
             return new Response(
               JSON.stringify({ results: pyData.results, narrative, source: "python" }),
               { headers: { ...corsHeaders, "Content-Type": "application/json" } }
             );
           }
-          // not_implemented: true — fall through to TypeScript handlers below
+          // not_implemented: true: fall through to TypeScript handlers below
         }
       } catch (_pyErr) {
-        // Network error, timeout, or cold-start — fall through silently
+        // Network error, timeout, or cold-start: fall through silently
         console.warn("Python API unavailable, falling back to TypeScript:", String(_pyErr));
       }
     }

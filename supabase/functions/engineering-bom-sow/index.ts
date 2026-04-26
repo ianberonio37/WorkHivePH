@@ -22,11 +22,11 @@ function sanitizeBomItems(items: unknown[]): unknown[] {
   });
 }
 
-// ─── Groq LLM helper — 6-model fallback chain ────────────────────────────────
+// ─── Groq LLM helper: 6-model fallback chain ────────────────────────────────
 //
 // Order: best prose quality first, highest capacity last.
 // On 429 (rate limit): silently try next model.
-// On any other error: fail fast — don't waste remaining models on a code bug.
+// On any other error: fail fast: don't waste remaining models on a code bug.
 //
 const GROQ_FALLBACK_CHAIN = [
   "llama-3.3-70b-versatile",                    // 1st: best quality,   100K TPD, 6K TPM
@@ -34,7 +34,7 @@ const GROQ_FALLBACK_CHAIN = [
   "qwen/qwen3-32b",                              // 3rd: 500K TPD, 60 RPM
   "llama-3.1-8b-instant",                        // 4th: 500K TPD, high TPM
   "openai/gpt-oss-20b",                          // 5th: 200K TPD, strict JSON schema, 8K TPM
-  "openai/gpt-oss-120b",                         // 6th: largest model but 8K TPM cap — last resort
+  "openai/gpt-oss-120b",                         // 6th: largest model but 8K TPM cap: last resort
 ];
 
 async function callGroq(prompt: string): Promise<string> {
@@ -59,7 +59,7 @@ async function callGroq(prompt: string): Promise<string> {
       }),
     });
 
-    // Rate limit or prompt too large for this model — try next model silently
+    // Rate limit or prompt too large for this model: try next model silently
     if (res.status === 429 || res.status === 413) {
       const errText = await res.text();
       console.warn(`Model ${model} skipped (${res.status}), trying next. Detail: ${errText.slice(0, 120)}`);
@@ -67,7 +67,7 @@ async function callGroq(prompt: string): Promise<string> {
       continue;
     }
 
-    // Real error (bad model ID, auth failure, server error) — fail fast, don't waste chain
+    // Real error (bad model ID, auth failure, server error): fail fast, don't waste chain
     if (!res.ok) {
       const err = await res.text();
       throw new Error(`Groq API error ${res.status} on model ${model}: ${err}`);
@@ -112,43 +112,43 @@ Estimated wiring run: ${wiringM} m total (≈7 m per unit)
 
 TASK: Generate a JSON object with exactly two arrays.
 
-ARRAY 1 — "bom_items": Standard Philippine HVAC contractor Bill of Materials.
+ARRAY 1: "bom_items": Standard Philippine HVAC contractor Bill of Materials.
 Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
 
 Required items (use calculated quantities above):
-1. Split-type Air Conditioning Unit, Indoor (wall-mounted) — qty: ${nUnits}
-2. Outdoor Condensing Unit — qty: ${nUnits}
-3. Refrigerant Piping Set (liquid + suction line, pre-insulated) — qty: ${pipingM} m
-4. Pipe Insulation, closed-cell foam 13mm — qty: ${pipingM} m
-5. Condensate Drain Line, PVC 3/4" — qty: ${pipingM} m
-6. MCCB Circuit Breaker, 2-pole — qty: ${nUnits}
-7. Electrical Wiring, THHN 3.5mm² Cu — qty: ${wiringM} m
-8. Thermostat / Wired Remote Controller — qty: ${nUnits}
-9. Outdoor Unit Mounting Bracket, heavy-duty galvanized — qty: ${nUnits} — checked: false (optional)
-10. Refrigerant Charge, R-410A — qty: ${Number(nUnits) * 0.9} kg
-11. Miscellaneous (anchors, cable ties, sealant, putty) — qty: 1 lot
+1. Split-type Air Conditioning Unit, Indoor (wall-mounted): qty: ${nUnits}
+2. Outdoor Condensing Unit: qty: ${nUnits}
+3. Refrigerant Piping Set (liquid + suction line, pre-insulated): qty: ${pipingM} m
+4. Pipe Insulation, closed-cell foam 13mm: qty: ${pipingM} m
+5. Condensate Drain Line, PVC 3/4": qty: ${pipingM} m
+6. MCCB Circuit Breaker, 2-pole: qty: ${nUnits}
+7. Electrical Wiring, THHN 3.5mm² Cu: qty: ${wiringM} m
+8. Thermostat / Wired Remote Controller: qty: ${nUnits}
+9. Outdoor Unit Mounting Bracket, heavy-duty galvanized: qty: ${nUnits}: checked: false (optional)
+10. Refrigerant Charge, R-410A: qty: ${Number(nUnits) * 0.9} kg
+11. Miscellaneous (anchors, cable ties, sealant, putty): qty: 1 lot
 
 Specifications must be specific: include kW capacity, voltage, refrigerant type, material grade, standard size. Match ${unitKW} kW per unit.
 
-ARRAY 2 — "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
+ARRAY 2: "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
 Each object: { "section_no": string, "title": string, "content": string, "checked": boolean }
 
 Required sections:
-- "1.0" General Scope — checked: true
-- "2.0" Applicable Standards and Codes — checked: true (list: PSME, ASHRAE, PEC 2017, DOLE OSH, manufacturer guidelines)
-- "3.0" Materials — checked: true (reference BOM, state Philippine standards compliance)
-- "4.1" Equipment Supply and Delivery — checked: true
-- "4.2" Indoor Unit Installation — checked: true
-- "4.3" Outdoor Unit Installation — checked: true
-- "4.4" Refrigerant Piping Works — checked: true (include pressure test at 300 psi N2, 24-hour hold, evacuation, R-410A charge)
-- "4.5" Electrical Connections — checked: true (reference PEC 2017, dedicated circuit per unit)
-- "4.6" Condensate Drainage — checked: true
-- "4.7" Thermal Insulation — checked: true
-- "4.8" Testing and Commissioning — checked: true (verify ±10% of design capacity, measure supply air temp, submit commissioning report)
-- "4.9" As-Built Documentation — checked: true
-- "5.0" Inclusions — checked: false
-- "6.0" Exclusions — checked: false (civil works, panel upgrade if required, duct fabrication)
-- "7.0" Warranty — checked: false (1 year equipment per manufacturer, 1 year workmanship from acceptance)
+- "1.0" General Scope: checked: true
+- "2.0" Applicable Standards and Codes: checked: true (list: PSME, ASHRAE, PEC 2017, DOLE OSH, manufacturer guidelines)
+- "3.0" Materials: checked: true (reference BOM, state Philippine standards compliance)
+- "4.1" Equipment Supply and Delivery: checked: true
+- "4.2" Indoor Unit Installation: checked: true
+- "4.3" Outdoor Unit Installation: checked: true
+- "4.4" Refrigerant Piping Works: checked: true (include pressure test at 300 psi N2, 24-hour hold, evacuation, R-410A charge)
+- "4.5" Electrical Connections: checked: true (reference PEC 2017, dedicated circuit per unit)
+- "4.6" Condensate Drainage: checked: true
+- "4.7" Thermal Insulation: checked: true
+- "4.8" Testing and Commissioning: checked: true (verify ±10% of design capacity, measure supply air temp, submit commissioning report)
+- "4.9" As-Built Documentation: checked: true
+- "5.0" Inclusions: checked: false
+- "6.0" Exclusions: checked: false (civil works, panel upgrade if required, duct fabrication)
+- "7.0" Warranty: checked: false (1 year equipment per manufacturer, 1 year workmanship from acceptance)
 
 Each content must be 3-5 sentences in professional Philippine engineering contractor style. Reference the specific equipment: ${nUnits} unit(s) of ${unitKW} kW split-type AC, R-410A refrigerant, for ${project}.
 
@@ -207,43 +207,43 @@ Number of fans: ${nFans} (${isBoth ? 'supply fan + exhaust fan' : isExhaust ? 'e
 
 TASK: Generate a JSON object with exactly two arrays.
 
-ARRAY 1 — "bom_items": Standard Philippine mechanical contractor Bill of Materials for ventilation.
+ARRAY 1: "bom_items": Standard Philippine mechanical contractor Bill of Materials for ventilation.
 Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
 
 Required items (use calculated quantities above):
-1. Inline/Centrifugal Fan (${isExhaust || isBoth ? 'Exhaust' : 'Supply'}) — qty: 1 unit — specify ${fanCMH} m³/hr, static pressure, voltage
-2. ${isBoth ? 'Supply Fan — qty: 1 unit — specify capacity and motor spec' : 'Flexible Duct Connector — qty: 2 pcs — specify size to match fan outlet'}
-3. Galvanized Steel Ductwork (Supply or Exhaust, as applicable) — qty: ${ductM} m — specify gauge, 1.0mm G.I. standard
-4. Duct Insulation, pre-formed glass wool 25mm — qty: ${ductM} m — for supply air ducts only; skip if exhaust only
-5. Supply Air Diffuser / Exhaust Grille — qty: ${grilles} pcs — specify size (e.g. 300×150mm or 600×600mm), aluminum
-6. Volume Control Damper (manual) — qty: ${dampers} pcs — specify size, galvanized steel, opposed blade
-7. Fire Damper (fusible link, 72°C) — qty: ${dampers} pcs — specify UL-listed, matching duct size — checked: false (optional per fire code)
-8. Motorized Fresh Air Damper — qty: 1 pc — specify 24VAC actuator, normally closed — checked: ${isBoth ? 'true' : 'false'}
-9. Electrical Wiring, THHN 2.0mm² Cu, 3-wire — qty: ${nFans * 10} m — specify color code per PEC 2017
-10. On/Off Switch with pilot light — qty: ${nFans} pc — specify 15A, surface-mounted
-11. Flexible Metal Duct, 150mm dia — qty: 4 m — for terminal connections
-12. Miscellaneous (duct sealant, hangers, fasteners, damper clips) — qty: 1 lot
+1. Inline/Centrifugal Fan (${isExhaust || isBoth ? 'Exhaust' : 'Supply'}): qty: 1 unit: specify ${fanCMH} m³/hr, static pressure, voltage
+2. ${isBoth ? 'Supply Fan: qty: 1 unit: specify capacity and motor spec' : 'Flexible Duct Connector: qty: 2 pcs: specify size to match fan outlet'}
+3. Galvanized Steel Ductwork (Supply or Exhaust, as applicable): qty: ${ductM} m: specify gauge, 1.0mm G.I. standard
+4. Duct Insulation, pre-formed glass wool 25mm: qty: ${ductM} m: for supply air ducts only; skip if exhaust only
+5. Supply Air Diffuser / Exhaust Grille: qty: ${grilles} pcs: specify size (e.g. 300×150mm or 600×600mm), aluminum
+6. Volume Control Damper (manual): qty: ${dampers} pcs: specify size, galvanized steel, opposed blade
+7. Fire Damper (fusible link, 72°C): qty: ${dampers} pcs: specify UL-listed, matching duct size: checked: false (optional per fire code)
+8. Motorized Fresh Air Damper: qty: 1 pc: specify 24VAC actuator, normally closed: checked: ${isBoth ? 'true' : 'false'}
+9. Electrical Wiring, THHN 2.0mm² Cu, 3-wire: qty: ${nFans * 10} m: specify color code per PEC 2017
+10. On/Off Switch with pilot light: qty: ${nFans} pc: specify 15A, surface-mounted
+11. Flexible Metal Duct, 150mm dia: qty: 4 m: for terminal connections
+12. Miscellaneous (duct sealant, hangers, fasteners, damper clips): qty: 1 lot
 
 Specifications must be specific: include airflow in m³/hr, voltage (230V/1Ph or 460V/3Ph), material grade, duct gauge, grille size. Match ${fanCMH} m³/hr capacity.
 
-ARRAY 2 — "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
+ARRAY 2: "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
 Each object: { "section_no": string, "title": string, "content": string, "checked": boolean }
 
 Required sections:
-- "1.0" General Scope — checked: true
-- "2.0" Applicable Standards and Codes — checked: true (list: ASHRAE 62.1, PSME Code, PEC 2017, DOLE OSH Standards for workplace ventilation, National Building Code PD 1096, NFPA 90A for duct construction)
-- "3.0" Materials — checked: true (reference BOM, state Philippine standards compliance, G.I. duct SMACNA standards)
-- "4.1" Equipment Supply and Delivery — checked: true
-- "4.2" Fan and Motor Installation — checked: true (specify vibration isolation mounts, flexible connectors, direction of rotation test)
-- "4.3" Ductwork Fabrication and Installation — checked: true (specify SMACNA standards, gauge, sealing with UL-listed sealant, 25 Pa pressure test)
-- "4.4" Grilles, Diffusers, and Dampers — checked: true (specify balancing procedure, airflow measurement at each terminal)
-- "4.5" Electrical Connections — checked: true (reference PEC 2017, motor starter or direct-on-line starter, overload protection)
-- "4.6" Fire Damper Installation — checked: false (where penetrating fire-rated partitions per BFP IRR)
-- "4.7" Testing, Balancing, and Commissioning — checked: true (measure actual ACH, compare to design ${reqACH} ACH, submit TAB report, ASHRAE 111 method)
-- "4.8" As-Built Documentation — checked: true
-- "5.0" Inclusions — checked: false
-- "6.0" Exclusions — checked: false (civil/building works, mechanical rooms, structural supports beyond scope)
-- "7.0" Warranty — checked: false (1 year equipment per manufacturer, 1 year workmanship from acceptance)
+- "1.0" General Scope: checked: true
+- "2.0" Applicable Standards and Codes: checked: true (list: ASHRAE 62.1, PSME Code, PEC 2017, DOLE OSH Standards for workplace ventilation, National Building Code PD 1096, NFPA 90A for duct construction)
+- "3.0" Materials: checked: true (reference BOM, state Philippine standards compliance, G.I. duct SMACNA standards)
+- "4.1" Equipment Supply and Delivery: checked: true
+- "4.2" Fan and Motor Installation: checked: true (specify vibration isolation mounts, flexible connectors, direction of rotation test)
+- "4.3" Ductwork Fabrication and Installation: checked: true (specify SMACNA standards, gauge, sealing with UL-listed sealant, 25 Pa pressure test)
+- "4.4" Grilles, Diffusers, and Dampers: checked: true (specify balancing procedure, airflow measurement at each terminal)
+- "4.5" Electrical Connections: checked: true (reference PEC 2017, motor starter or direct-on-line starter, overload protection)
+- "4.6" Fire Damper Installation: checked: false (where penetrating fire-rated partitions per BFP IRR)
+- "4.7" Testing, Balancing, and Commissioning: checked: true (measure actual ACH, compare to design ${reqACH} ACH, submit TAB report, ASHRAE 111 method)
+- "4.8" As-Built Documentation: checked: true
+- "5.0" Inclusions: checked: false
+- "6.0" Exclusions: checked: false (civil/building works, mechanical rooms, structural supports beyond scope)
+- "7.0" Warranty: checked: false (1 year equipment per manufacturer, 1 year workmanship from acceptance)
 
 Each content must be 3-5 sentences in professional Philippine engineering contractor style. Reference the specific system: ${ventType} ventilation for ${spaceType}, ${fanCMH} m³/hr design airflow, serving ${project}.
 
@@ -298,45 +298,45 @@ Recommended Motor: ${recHP} hp (${recKW} kW)
 
 TASK: Generate a JSON object with exactly two arrays.
 
-ARRAY 1 — "bom_items": Standard Philippine mechanical contractor Bill of Materials for pump system.
+ARRAY 1: "bom_items": Standard Philippine mechanical contractor Bill of Materials for pump system.
 Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
 
 Required items:
-1. Centrifugal Pump — qty: 1 unit — specify ${recHP} hp, TDH ${tdh} m, ${flowM3hr} m³/hr, ${fluidType}, back-pull-out type, close-coupled or base-mounted
-2. Electric Motor — qty: 1 unit — specify ${recHP} hp (${recKW} kW), TEFC, IE2/IE3 efficiency, 460V/3Ph/60Hz (or 230V if <1.5 kW)
-3. Base Plate / Pump Base — qty: 1 set — specify epoxy-grouted, fabricated steel, drip rim
-4. Gate Valve, flanged — qty: 2 pcs — specify PN16, ${pipeDiaMM} mm, cast iron or bronze, suction and discharge isolation
-5. Check Valve (swing type), flanged — qty: 1 pc — specify PN16, ${pipeDiaMM} mm, cast iron, discharge side
-6. Flexible Coupling / Vibration Isolator — qty: 2 pcs — specify flanged rubber expansion joint, ${pipeDiaMM} mm, rated PN16
-7. Pressure Gauge with siphon — qty: 2 pcs — specify 0–${Math.ceil(Number(tdh) / 10) * 10 + 30} m (0–${Math.round((Number(tdh) + 30) * 0.0981)} bar), 100mm dial, glycerin-filled, suction and discharge
-8. Pipe, ${pipeMat} — qty: ${pipeLen} m — specify ${pipeDiaMM} mm nominal dia, PN10 or PN16, including fittings
-9. Pipe Fittings (elbows, tees, reducers) — qty: 1 lot — specify ${pipeDiaMM} mm, ${pipeMat}, match pipe class
-10. Pipe Supports and Hangers — qty: 1 lot — specify adjustable clevis hanger, galvanized, spacing per PSME
-11. Motor Control Center (MCC) / DOL Starter — qty: 1 unit — specify direct-on-line starter (DOL) if ≤7.5 hp or star-delta if >7.5 hp, MCCB, overload relay, ${recHP} hp rated
-12. Electrical Wiring, THHN Cu — qty: ${Math.round(Number(pipeLen) * 1.2 + 10)} m — specify size per PEC 2017 motor branch circuit, THHN insulation
-13. Pipe Insulation (for chilled water or hot water) — qty: ${pipeLen} m — specify closed-cell foam or pre-formed, 25mm thickness — checked: false (apply if chilled or hot water)
-14. Miscellaneous (bolts, gaskets, pipe sealant, grout) — qty: 1 lot
+1. Centrifugal Pump: qty: 1 unit: specify ${recHP} hp, TDH ${tdh} m, ${flowM3hr} m³/hr, ${fluidType}, back-pull-out type, close-coupled or base-mounted
+2. Electric Motor: qty: 1 unit: specify ${recHP} hp (${recKW} kW), TEFC, IE2/IE3 efficiency, 460V/3Ph/60Hz (or 230V if <1.5 kW)
+3. Base Plate / Pump Base: qty: 1 set: specify epoxy-grouted, fabricated steel, drip rim
+4. Gate Valve, flanged: qty: 2 pcs: specify PN16, ${pipeDiaMM} mm, cast iron or bronze, suction and discharge isolation
+5. Check Valve (swing type), flanged: qty: 1 pc: specify PN16, ${pipeDiaMM} mm, cast iron, discharge side
+6. Flexible Coupling / Vibration Isolator: qty: 2 pcs: specify flanged rubber expansion joint, ${pipeDiaMM} mm, rated PN16
+7. Pressure Gauge with siphon: qty: 2 pcs: specify 0–${Math.ceil(Number(tdh) / 10) * 10 + 30} m (0–${Math.round((Number(tdh) + 30) * 0.0981)} bar), 100mm dial, glycerin-filled, suction and discharge
+8. Pipe, ${pipeMat}: qty: ${pipeLen} m: specify ${pipeDiaMM} mm nominal dia, PN10 or PN16, including fittings
+9. Pipe Fittings (elbows, tees, reducers): qty: 1 lot: specify ${pipeDiaMM} mm, ${pipeMat}, match pipe class
+10. Pipe Supports and Hangers: qty: 1 lot: specify adjustable clevis hanger, galvanized, spacing per PSME
+11. Motor Control Center (MCC) / DOL Starter: qty: 1 unit: specify direct-on-line starter (DOL) if ≤7.5 hp or star-delta if >7.5 hp, MCCB, overload relay, ${recHP} hp rated
+12. Electrical Wiring, THHN Cu: qty: ${Math.round(Number(pipeLen) * 1.2 + 10)} m: specify size per PEC 2017 motor branch circuit, THHN insulation
+13. Pipe Insulation (for chilled water or hot water): qty: ${pipeLen} m: specify closed-cell foam or pre-formed, 25mm thickness: checked: false (apply if chilled or hot water)
+14. Miscellaneous (bolts, gaskets, pipe sealant, grout): qty: 1 lot
 
 Specifications must be specific: include HP, kW, flow, TDH, pipe size and class, valve PN rating. Match ${recHP} hp and ${pipeDiaMM} mm throughout.
 
-ARRAY 2 — "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
+ARRAY 2: "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
 Each object: { "section_no": string, "title": string, "content": string, "checked": boolean }
 
 Required sections:
-- "1.0" General Scope — checked: true
-- "2.0" Applicable Standards and Codes — checked: true (list: PSME Code, Hydraulic Institute Standards ANSI/HI, PEC 2017, Philippine Plumbing Code, DOLE OSH, manufacturer installation guidelines)
-- "3.0" Materials — checked: true (reference BOM, all materials PN16 rated, PSME-compliant)
-- "4.1" Equipment Supply and Delivery — checked: true (factory test certificates, performance curves to be submitted)
-- "4.2" Pump and Motor Installation — checked: true (specify epoxy grouting, shaft alignment within 0.05mm TIR, vibration isolation mounts, direction of rotation check before coupling)
-- "4.3" Piping Works — checked: true (specify ${pipeMat} pipe at ${pipeDiaMM} mm, support spacing, isolation valve locations, drain/vent points)
-- "4.4" Valves and Instrumentation — checked: true (gate valves suction and discharge, swing check valve, pressure gauges both sides)
-- "4.5" Electrical and Motor Starter — checked: true (reference PEC 2017, DOL or star-delta starter, overload relay set to motor FLA, dedicated circuit and MCCB)
-- "4.6" Hydrostatic Pressure Test — checked: true (test piping at 1.5× working pressure for minimum 30 minutes, no leaks, document results)
-- "4.7" Testing and Commissioning — checked: true (verify flow ${flowM3hr} m³/hr and TDH ${tdh} m at design point, measure motor current against nameplate, submit commissioning report)
-- "4.8" As-Built Documentation — checked: true
-- "5.0" Inclusions — checked: false
-- "6.0" Exclusions — checked: false (civil / structural works, foundation design, building permits, electrical panel upgrade if required)
-- "7.0" Warranty — checked: false (1 year equipment per manufacturer, 1 year workmanship from acceptance)
+- "1.0" General Scope: checked: true
+- "2.0" Applicable Standards and Codes: checked: true (list: PSME Code, Hydraulic Institute Standards ANSI/HI, PEC 2017, Philippine Plumbing Code, DOLE OSH, manufacturer installation guidelines)
+- "3.0" Materials: checked: true (reference BOM, all materials PN16 rated, PSME-compliant)
+- "4.1" Equipment Supply and Delivery: checked: true (factory test certificates, performance curves to be submitted)
+- "4.2" Pump and Motor Installation: checked: true (specify epoxy grouting, shaft alignment within 0.05mm TIR, vibration isolation mounts, direction of rotation check before coupling)
+- "4.3" Piping Works: checked: true (specify ${pipeMat} pipe at ${pipeDiaMM} mm, support spacing, isolation valve locations, drain/vent points)
+- "4.4" Valves and Instrumentation: checked: true (gate valves suction and discharge, swing check valve, pressure gauges both sides)
+- "4.5" Electrical and Motor Starter: checked: true (reference PEC 2017, DOL or star-delta starter, overload relay set to motor FLA, dedicated circuit and MCCB)
+- "4.6" Hydrostatic Pressure Test: checked: true (test piping at 1.5× working pressure for minimum 30 minutes, no leaks, document results)
+- "4.7" Testing and Commissioning: checked: true (verify flow ${flowM3hr} m³/hr and TDH ${tdh} m at design point, measure motor current against nameplate, submit commissioning report)
+- "4.8" As-Built Documentation: checked: true
+- "5.0" Inclusions: checked: false
+- "6.0" Exclusions: checked: false (civil / structural works, foundation design, building permits, electrical panel upgrade if required)
+- "7.0" Warranty: checked: false (1 year equipment per manufacturer, 1 year workmanship from acceptance)
 
 Each content must be 3-5 sentences in professional Philippine engineering contractor style. Reference the specific system: ${recHP} hp centrifugal pump, ${flowM3hr} m³/hr at TDH ${tdh} m, ${fluidType}, for ${project}.
 
@@ -396,45 +396,45 @@ Flow Regime: ${flowRegime}
 
 TASK: Generate a JSON object with exactly two arrays.
 
-ARRAY 1 — "bom_items": Standard Philippine mechanical contractor Bill of Materials for piping works.
+ARRAY 1: "bom_items": Standard Philippine mechanical contractor Bill of Materials for piping works.
 Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
 
 Required items:
-1. Pipe, ${pipeMat} — qty: ${pLen} m — specify ${pipeDiaMM} mm nominal dia, include applicable pressure class (PN10/PN16/Schedule 40 depending on material), in 6-m lengths
-2. Pipe Fittings — Elbows 90° — qty: ${nElbows} pcs — specify ${pipeDiaMM} mm, ${pipeMat}, same pressure class as pipe
-3. Pipe Fittings — Tees (equal) — qty: ${Math.max(2, Math.round(nElbows / 3))} pcs — specify ${pipeDiaMM} mm, ${pipeMat}
-4. Pipe Fittings — Reducers / Couplings — qty: ${Math.max(2, Math.round(nElbows / 4))} pcs — specify ${pipeDiaMM} mm, ${pipeMat}
-5. Isolation Valve (gate or ball type) — qty: ${nIsolation} pcs — specify ${pipeDiaMM} mm, PN16, bronze or cast iron, sectional isolation
-6. Check Valve (swing type) — qty: ${nDrain} pc — specify ${pipeDiaMM} mm, PN16, at pump discharge or riser base — checked: false (if no pump in scope)
-7. Drain Valve / Blow-off Valve — qty: ${nDrain} pcs — specify 20 mm, bronze ball valve with hose bib
-8. Pressure Gauge with siphon — qty: ${nPressGauge} pcs — specify 0–${Math.ceil((Number(hfTotal) + 30) * 0.1) * 100} kPa, 100mm dial, glycerin-filled
-9. Pipe Supports and Hangers — qty: ${nSupports} sets — specify adjustable clevis hanger, galvanized, PSME-compliant spacing for ${pipeMat} at ${pipeDiaMM} mm
-10. Pipe Insulation (if chilled water or hot water service) — qty: ${pLen} m — specify pre-formed glass wool or closed-cell foam 25mm, with aluminum jacket — checked: false (apply if chilled or hot water)
-11. Flanges and Gaskets — qty: 1 lot — specify ${pipeDiaMM} mm, PN16, flat face or raised face, with spiral wound or rubber gaskets, for equipment connections
-12. Welding Consumables / Jointing Materials — qty: 1 lot — specify per pipe material: solvent cement for PVC, Teflon tape + pipe compound for threaded, argon + filler rod for SS/Cu
-13. Miscellaneous (anchors, pipe labels, supports, testing plugs) — qty: 1 lot
+1. Pipe, ${pipeMat}: qty: ${pLen} m: specify ${pipeDiaMM} mm nominal dia, include applicable pressure class (PN10/PN16/Schedule 40 depending on material), in 6-m lengths
+2. Pipe Fittings: Elbows 90°: qty: ${nElbows} pcs: specify ${pipeDiaMM} mm, ${pipeMat}, same pressure class as pipe
+3. Pipe Fittings: Tees (equal): qty: ${Math.max(2, Math.round(nElbows / 3))} pcs: specify ${pipeDiaMM} mm, ${pipeMat}
+4. Pipe Fittings: Reducers / Couplings: qty: ${Math.max(2, Math.round(nElbows / 4))} pcs: specify ${pipeDiaMM} mm, ${pipeMat}
+5. Isolation Valve (gate or ball type): qty: ${nIsolation} pcs: specify ${pipeDiaMM} mm, PN16, bronze or cast iron, sectional isolation
+6. Check Valve (swing type): qty: ${nDrain} pc: specify ${pipeDiaMM} mm, PN16, at pump discharge or riser base: checked: false (if no pump in scope)
+7. Drain Valve / Blow-off Valve: qty: ${nDrain} pcs: specify 20 mm, bronze ball valve with hose bib
+8. Pressure Gauge with siphon: qty: ${nPressGauge} pcs: specify 0–${Math.ceil((Number(hfTotal) + 30) * 0.1) * 100} kPa, 100mm dial, glycerin-filled
+9. Pipe Supports and Hangers: qty: ${nSupports} sets: specify adjustable clevis hanger, galvanized, PSME-compliant spacing for ${pipeMat} at ${pipeDiaMM} mm
+10. Pipe Insulation (if chilled water or hot water service): qty: ${pLen} m: specify pre-formed glass wool or closed-cell foam 25mm, with aluminum jacket: checked: false (apply if chilled or hot water)
+11. Flanges and Gaskets: qty: 1 lot: specify ${pipeDiaMM} mm, PN16, flat face or raised face, with spiral wound or rubber gaskets, for equipment connections
+12. Welding Consumables / Jointing Materials: qty: 1 lot: specify per pipe material: solvent cement for PVC, Teflon tape + pipe compound for threaded, argon + filler rod for SS/Cu
+13. Miscellaneous (anchors, pipe labels, supports, testing plugs): qty: 1 lot
 
 Specifications must be specific: include pipe diameter, pressure class, material grade, and Philippine standards compliance (PSME, PNS). All sizes must match ${pipeDiaMM} mm throughout.
 
-ARRAY 2 — "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
+ARRAY 2: "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
 Each object: { "section_no": string, "title": string, "content": string, "checked": boolean }
 
 Required sections:
-- "1.0" General Scope — checked: true
-- "2.0" Applicable Standards and Codes — checked: true (list: PSME Code, Philippine Plumbing Code (based on UPC/IPC), ASTM material standards for ${pipeMat}, Hydraulic Institute Standards, PEC 2017 for any electrical components, DOLE OSH)
-- "3.0" Materials — checked: true (reference BOM, state ${pipeMat} pipe at ${pipeDiaMM} mm nominal, specify ASTM or PNS standard, all valves PN16 minimum)
-- "4.1" Equipment and Material Delivery — checked: true (include inspection on delivery, material test certificates for ${pipeMat} pipe and fittings)
-- "4.2" Pipe Fabrication and Installation — checked: true (specify cutting, jointing method for ${pipeMat}, support spacing per PSME, slope requirements for drainage if applicable, alignment and grading)
-- "4.3" Valve and Instrument Installation — checked: true (specify orientation, isolation valve placement, pressure gauge siphon requirement, access provision for maintenance)
-- "4.4" Pipe Supports and Anchors — checked: true (specify hanger type, PSME maximum spacing for ${pipeDiaMM} mm ${pipeMat} pipe, seismic provision if applicable)
-- "4.5" Insulation Works — checked: false (if chilled water or hot water: closed-cell foam or glass wool 25mm, aluminum jacket, all joints sealed with vapor barrier tape)
-- "4.6" Pressure Testing — checked: true (hydrostatic test at 1.5× working pressure, minimum 30 minutes, zero pressure drop, document and submit test records)
-- "4.7" Flushing and Cleaning — checked: true (flush at minimum 1.5× design velocity before commissioning, water quality test for potable or process systems, chemical cleaning for chilled water per ASHRAE guideline)
-- "4.8" Commissioning and Handover — checked: true (verify flow ${flowM3hr} m³/hr and velocity ${velocity} m/s at design point, submit as-built drawings and commissioning report)
-- "4.9" As-Built Documentation — checked: true
-- "5.0" Inclusions — checked: false
-- "6.0" Exclusions — checked: false (civil / structural works, equipment foundations, electrical connections unless specified, building permits)
-- "7.0" Warranty — checked: false (1 year workmanship from acceptance; material warranty per manufacturer)
+- "1.0" General Scope: checked: true
+- "2.0" Applicable Standards and Codes: checked: true (list: PSME Code, Philippine Plumbing Code (based on UPC/IPC), ASTM material standards for ${pipeMat}, Hydraulic Institute Standards, PEC 2017 for any electrical components, DOLE OSH)
+- "3.0" Materials: checked: true (reference BOM, state ${pipeMat} pipe at ${pipeDiaMM} mm nominal, specify ASTM or PNS standard, all valves PN16 minimum)
+- "4.1" Equipment and Material Delivery: checked: true (include inspection on delivery, material test certificates for ${pipeMat} pipe and fittings)
+- "4.2" Pipe Fabrication and Installation: checked: true (specify cutting, jointing method for ${pipeMat}, support spacing per PSME, slope requirements for drainage if applicable, alignment and grading)
+- "4.3" Valve and Instrument Installation: checked: true (specify orientation, isolation valve placement, pressure gauge siphon requirement, access provision for maintenance)
+- "4.4" Pipe Supports and Anchors: checked: true (specify hanger type, PSME maximum spacing for ${pipeDiaMM} mm ${pipeMat} pipe, seismic provision if applicable)
+- "4.5" Insulation Works: checked: false (if chilled water or hot water: closed-cell foam or glass wool 25mm, aluminum jacket, all joints sealed with vapor barrier tape)
+- "4.6" Pressure Testing: checked: true (hydrostatic test at 1.5× working pressure, minimum 30 minutes, zero pressure drop, document and submit test records)
+- "4.7" Flushing and Cleaning: checked: true (flush at minimum 1.5× design velocity before commissioning, water quality test for potable or process systems, chemical cleaning for chilled water per ASHRAE guideline)
+- "4.8" Commissioning and Handover: checked: true (verify flow ${flowM3hr} m³/hr and velocity ${velocity} m/s at design point, submit as-built drawings and commissioning report)
+- "4.9" As-Built Documentation: checked: true
+- "5.0" Inclusions: checked: false
+- "6.0" Exclusions: checked: false (civil / structural works, equipment foundations, electrical connections unless specified, building permits)
+- "7.0" Warranty: checked: false (1 year workmanship from acceptance; material warranty per manufacturer)
 
 Each content must be 3-5 sentences in professional Philippine engineering contractor style. Reference the specific system: ${pipeDiaMM} mm ${pipeMat} pipe, ${serviceType}, ${flowM3hr} m³/hr design flow, for ${project}.
 
@@ -489,47 +489,47 @@ Leakage Allowance: ${leakagePct}%
 
 TASK: Generate a JSON object with exactly two arrays.
 
-ARRAY 1 — "bom_items": Standard Philippine mechanical contractor Bill of Materials for compressed air system.
+ARRAY 1: "bom_items": Standard Philippine mechanical contractor Bill of Materials for compressed air system.
 Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
 
 Required items:
-1. Air Compressor, Rotary Screw — qty: 1 unit — specify ${recHP} hp, ${recCFM} CFM FAD, ${workingBar} bar working pressure, air-cooled, direct drive, CAGI-certified
-2. Air Receiver Tank — qty: 1 unit — specify ${recReceiverL} litres, working pressure ${workingBar} bar(g), ASME-coded or PNS pressure vessel, complete with safety relief valve, drain valve, pressure gauge, and sight glass
-3. Air Dryer (Refrigerated Type) — qty: 1 unit — specify ${recCFM} CFM capacity, pressure dew point -3°C to +3°C, ISO 8573-1 Class 4 moisture, matched to compressor FAD
-4. Pre-filter (Coalescing), 1 micron — qty: 1 unit — specify ${recCFM} CFM, ISO 8573-1 Class 3 oil, at compressor outlet
-5. After-filter (Particulate), 0.01 micron — qty: 1 unit — specify ${recCFM} CFM, ISO 8573-1 Class 1, downstream of dryer
-6. Distribution Pipe, Black Steel Schedule 40 — qty: ${pLen} m — specify ${recPipeMM} mm nominal bore, threaded or flanged connections, in 6-m lengths
-7. Pipe Fittings (elbows, tees, unions) — qty: 1 lot — specify ${recPipeMM} mm, black steel, Class 150, PSME-compliant
-8. Drop Leg Assembly with Auto Drain — qty: ${nDropLegs} sets — specify ${recPipeMM} mm tee, 25 mm drop leg, ball valve, automatic condensate drain
-9. Ball Valve, full bore — qty: ${nIsolation} pcs — specify ${recPipeMM} mm, PN16, chrome-plated brass or cast iron, for sectional isolation
-10. Safety Relief Valve (distribution header) — qty: 1 pc — specify set pressure ${Math.ceil(Number(workingBar) * 1.1 * 10) / 10} bar(g), ASME-certified, at header inlet
-11. Pressure Gauge (distribution) — qty: ${Math.max(2, nDropLegs)} pcs — specify 0–${Math.ceil(Number(workingBar) * 2)} bar, 100mm dial, glycerin-filled, at key points
-12. Filter-Regulator-Lubricator (FRL) Unit — qty: ${nFil} set — specify ${recPipeMM} mm port, 0–${workingBar} bar range, at point-of-use headers — checked: false (supply if process requires lubrication)
-13. Pipe Supports and Hangers — qty: ${nSupports} sets — specify galvanized clevis hanger, PSME spacing, slope 1:200 toward drop legs
-14. Condensate Drain System — qty: 1 lot — specify automatic electronic timer drain at compressor, receiver, dryer, and each filter; PVC condensate collection line to drain
-15. Miscellaneous (Teflon tape, pipe compound, hose connectors, labels) — qty: 1 lot
+1. Air Compressor, Rotary Screw: qty: 1 unit: specify ${recHP} hp, ${recCFM} CFM FAD, ${workingBar} bar working pressure, air-cooled, direct drive, CAGI-certified
+2. Air Receiver Tank: qty: 1 unit: specify ${recReceiverL} litres, working pressure ${workingBar} bar(g), ASME-coded or PNS pressure vessel, complete with safety relief valve, drain valve, pressure gauge, and sight glass
+3. Air Dryer (Refrigerated Type): qty: 1 unit: specify ${recCFM} CFM capacity, pressure dew point -3°C to +3°C, ISO 8573-1 Class 4 moisture, matched to compressor FAD
+4. Pre-filter (Coalescing), 1 micron: qty: 1 unit: specify ${recCFM} CFM, ISO 8573-1 Class 3 oil, at compressor outlet
+5. After-filter (Particulate), 0.01 micron: qty: 1 unit: specify ${recCFM} CFM, ISO 8573-1 Class 1, downstream of dryer
+6. Distribution Pipe, Black Steel Schedule 40: qty: ${pLen} m: specify ${recPipeMM} mm nominal bore, threaded or flanged connections, in 6-m lengths
+7. Pipe Fittings (elbows, tees, unions): qty: 1 lot: specify ${recPipeMM} mm, black steel, Class 150, PSME-compliant
+8. Drop Leg Assembly with Auto Drain: qty: ${nDropLegs} sets: specify ${recPipeMM} mm tee, 25 mm drop leg, ball valve, automatic condensate drain
+9. Ball Valve, full bore: qty: ${nIsolation} pcs: specify ${recPipeMM} mm, PN16, chrome-plated brass or cast iron, for sectional isolation
+10. Safety Relief Valve (distribution header): qty: 1 pc: specify set pressure ${Math.ceil(Number(workingBar) * 1.1 * 10) / 10} bar(g), ASME-certified, at header inlet
+11. Pressure Gauge (distribution): qty: ${Math.max(2, nDropLegs)} pcs: specify 0–${Math.ceil(Number(workingBar) * 2)} bar, 100mm dial, glycerin-filled, at key points
+12. Filter-Regulator-Lubricator (FRL) Unit: qty: ${nFil} set: specify ${recPipeMM} mm port, 0–${workingBar} bar range, at point-of-use headers: checked: false (supply if process requires lubrication)
+13. Pipe Supports and Hangers: qty: ${nSupports} sets: specify galvanized clevis hanger, PSME spacing, slope 1:200 toward drop legs
+14. Condensate Drain System: qty: 1 lot: specify automatic electronic timer drain at compressor, receiver, dryer, and each filter; PVC condensate collection line to drain
+15. Miscellaneous (Teflon tape, pipe compound, hose connectors, labels): qty: 1 lot
 
 Specifications must be specific: include HP, CFM, bar pressure, pipe size and schedule, filter micron rating, ISO 8573-1 class. All rated for ${workingBar} bar(g) minimum.
 
-ARRAY 2 — "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
+ARRAY 2: "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
 Each object: { "section_no": string, "title": string, "content": string, "checked": boolean }
 
 Required sections:
-- "1.0" General Scope — checked: true
-- "2.0" Applicable Standards and Codes — checked: true (list: PSME Code, ISO 8573-1 Compressed Air Purity, ISO 1217 Compressor Performance, CAGI Standards, ASME Section VIII pressure vessels, PEC 2017, DOLE OSH Compressed Gas Safety)
-- "3.0" Materials — checked: true (reference BOM, black steel Schedule 40 for distribution, all equipment rated ${workingBar} bar(g) minimum, ASME pressure vessel code for receiver)
-- "4.1" Equipment Supply and Delivery — checked: true (CAGI performance data sheets, pressure vessel certificates, factory test reports to be submitted prior to delivery)
-- "4.2" Compressor and Receiver Installation — checked: true (specify concrete pad, vibration isolation mounts, levelling, minimum 1-metre clearance for maintenance access, compressor room ventilation)
-- "4.3" Air Treatment Equipment — checked: true (dryer inlet/outlet isolation valves, bypass line for dryer maintenance, filter differential pressure gauges, auto-drain connections)
-- "4.4" Distribution Piping Works — checked: true (black steel Schedule 40 at ${recPipeMM} mm, slope 1:200 toward drop legs for condensate drainage, all joints threaded or flanged with PTFE, pressure test before insulation)
-- "4.5" Drop Legs and Point-of-Use Connections — checked: true (drop legs at low points and at each use point, automatic condensate drains at all low points, FRL sets at process connections if required)
-- "4.6" Electrical Connections and Control — checked: true (dedicated circuit per PEC 2017, motor starter or VFD for compressor, pressure switch for automatic start/stop, overload protection)
-- "4.7" Pressure Testing — checked: true (pneumatic leak test at 1.1× working pressure with soapy water, all joints checked, zero leakage acceptable, document and submit records)
-- "4.8" System Commissioning — checked: true (verify compressor FAD ${recCFM} CFM at ${workingBar} bar, check dryer dew point, verify auto-start/stop, measure system leakage — must be < ${leakagePct}% of FAD, submit commissioning report)
-- "4.9" As-Built Documentation — checked: true
-- "5.0" Inclusions — checked: false
-- "6.0" Exclusions — checked: false (civil works, compressor room construction, utility connections unless specified, piping beyond drop leg outlets)
-- "7.0" Warranty — checked: false (1 year equipment per manufacturer, 1 year workmanship from acceptance; compressor extended warranty if available)
+- "1.0" General Scope: checked: true
+- "2.0" Applicable Standards and Codes: checked: true (list: PSME Code, ISO 8573-1 Compressed Air Purity, ISO 1217 Compressor Performance, CAGI Standards, ASME Section VIII pressure vessels, PEC 2017, DOLE OSH Compressed Gas Safety)
+- "3.0" Materials: checked: true (reference BOM, black steel Schedule 40 for distribution, all equipment rated ${workingBar} bar(g) minimum, ASME pressure vessel code for receiver)
+- "4.1" Equipment Supply and Delivery: checked: true (CAGI performance data sheets, pressure vessel certificates, factory test reports to be submitted prior to delivery)
+- "4.2" Compressor and Receiver Installation: checked: true (specify concrete pad, vibration isolation mounts, levelling, minimum 1-metre clearance for maintenance access, compressor room ventilation)
+- "4.3" Air Treatment Equipment: checked: true (dryer inlet/outlet isolation valves, bypass line for dryer maintenance, filter differential pressure gauges, auto-drain connections)
+- "4.4" Distribution Piping Works: checked: true (black steel Schedule 40 at ${recPipeMM} mm, slope 1:200 toward drop legs for condensate drainage, all joints threaded or flanged with PTFE, pressure test before insulation)
+- "4.5" Drop Legs and Point-of-Use Connections: checked: true (drop legs at low points and at each use point, automatic condensate drains at all low points, FRL sets at process connections if required)
+- "4.6" Electrical Connections and Control: checked: true (dedicated circuit per PEC 2017, motor starter or VFD for compressor, pressure switch for automatic start/stop, overload protection)
+- "4.7" Pressure Testing: checked: true (pneumatic leak test at 1.1× working pressure with soapy water, all joints checked, zero leakage acceptable, document and submit records)
+- "4.8" System Commissioning: checked: true (verify compressor FAD ${recCFM} CFM at ${workingBar} bar, check dryer dew point, verify auto-start/stop, measure system leakage: must be < ${leakagePct}% of FAD, submit commissioning report)
+- "4.9" As-Built Documentation: checked: true
+- "5.0" Inclusions: checked: false
+- "6.0" Exclusions: checked: false (civil works, compressor room construction, utility connections unless specified, piping beyond drop leg outlets)
+- "7.0" Warranty: checked: false (1 year equipment per manufacturer, 1 year workmanship from acceptance; compressor extended warranty if available)
 
 Each content must be 3-5 sentences in professional Philippine engineering contractor style. Reference the specific system: ${recHP} hp rotary screw compressor, ${recCFM} CFM at ${workingBar} bar, ${recReceiverL}L receiver, for ${project}.
 
@@ -594,47 +594,47 @@ Residual Pressure at Furthest Fixture: ${pressAvail} kPa
 
 TASK: Generate a JSON object with exactly two arrays.
 
-ARRAY 1 — "bom_items": Standard Philippine sanitary/plumbing contractor Bill of Materials for domestic water supply system.
+ARRAY 1: "bom_items": Standard Philippine sanitary/plumbing contractor Bill of Materials for domestic water supply system.
 Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
 
 Required items:
-1. Water Supply Pipe, ${pipeMat} — qty: ${pLen} m — specify ${pipeDiaMM} mm nominal dia, PN10 pressure class (or Schedule 40 if CPVC), NSF/PNS 65 potable water rated, in 6-m lengths
-2. Pipe Fittings — Elbows 90° — qty: ${Math.max(4, Math.round(pLen / 5))} pcs — specify ${pipeDiaMM} mm, ${pipeMat}, same pressure class, potable water grade
-3. Pipe Fittings — Tees (equal and reducing) — qty: ${Math.max(2, Math.round(pLen / 8))} pcs — specify ${pipeDiaMM} mm, ${pipeMat}, per Philippine Plumbing Code
-4. Pipe Fittings — Reducers / Couplings — qty: ${Math.max(2, Math.round(pLen / 10))} pcs — specify ${pipeDiaMM} mm, ${pipeMat}
-5. Gate Valve / Ball Valve (isolation), full bore — qty: ${nIsolation} pcs — specify ${pipeDiaMM} mm, PN16, bronze, for sectional isolation and at each riser base
-6. Angle Valve (fixture stop valve) — qty: ${nAngle} pcs — specify 15 mm (1/2 in), chrome-plated brass, 1 per fixture connection
-7. Pressure Reducing Valve (PRV) — qty: 1 pc — specify inlet: ${supplyPress} kPa, outlet: ${Math.min(Number(supplyPress) - 50, 250)} kPa, bronze body, spring-loaded, per Philippine Plumbing Code — checked: ${Number(supplyPress) > 300 ? 'true' : 'false'} (required if supply pressure > 300 kPa)
-8. Water Meter — qty: 1 pc — specify ${pipeDiaMM} mm, multi-jet type, MWSS/LWUA approved, flanged or threaded connections
-9. Backflow Preventer / Check Valve — qty: 1 pc — specify ${pipeDiaMM} mm, double-check assembly type, PN16, at meter outlet per Philippine Plumbing Code
-10. ${hasHot ? 'Hot Water Supply Pipe, CPVC or Cu' : 'Cold Water Branch Pipe, PVC'} — qty: ${Math.round(pLen * 0.5)} m — specify 20 mm or 15 mm as required for branch lines to fixtures
-11. Pipe Insulation (for hot water lines) — qty: ${hasHot ? Math.round(pLen * 0.5) : 0} m — specify closed-cell foam 13mm, aluminum foil jacket, for all hot water pipes — checked: ${hasHot ? 'true' : 'false'}
-12. Pipe Supports and Hangers — qty: ${nSupports} sets — specify galvanized pipe clamp or clevis hanger, spacing per Philippine Plumbing Code (${pipeMat} at ${pipeDiaMM} mm)
-13. Pressure Gauge (at PRV outlet and riser base) — qty: 2 pcs — specify 0–700 kPa, 100mm dial, glycerin-filled
-14. Pipe Labelling and Colour Banding — qty: 1 lot — specify per Philippine Plumbing Code: cold water = blue, hot water = red/orange
-15. Miscellaneous (Teflon tape, pipe cement for PVC, hangers, anchors, cleanouts) — qty: 1 lot
+1. Water Supply Pipe, ${pipeMat}: qty: ${pLen} m: specify ${pipeDiaMM} mm nominal dia, PN10 pressure class (or Schedule 40 if CPVC), NSF/PNS 65 potable water rated, in 6-m lengths
+2. Pipe Fittings: Elbows 90°: qty: ${Math.max(4, Math.round(pLen / 5))} pcs: specify ${pipeDiaMM} mm, ${pipeMat}, same pressure class, potable water grade
+3. Pipe Fittings: Tees (equal and reducing): qty: ${Math.max(2, Math.round(pLen / 8))} pcs: specify ${pipeDiaMM} mm, ${pipeMat}, per Philippine Plumbing Code
+4. Pipe Fittings: Reducers / Couplings: qty: ${Math.max(2, Math.round(pLen / 10))} pcs: specify ${pipeDiaMM} mm, ${pipeMat}
+5. Gate Valve / Ball Valve (isolation), full bore: qty: ${nIsolation} pcs: specify ${pipeDiaMM} mm, PN16, bronze, for sectional isolation and at each riser base
+6. Angle Valve (fixture stop valve): qty: ${nAngle} pcs: specify 15 mm (1/2 in), chrome-plated brass, 1 per fixture connection
+7. Pressure Reducing Valve (PRV): qty: 1 pc: specify inlet: ${supplyPress} kPa, outlet: ${Math.min(Number(supplyPress) - 50, 250)} kPa, bronze body, spring-loaded, per Philippine Plumbing Code: checked: ${Number(supplyPress) > 300 ? 'true' : 'false'} (required if supply pressure > 300 kPa)
+8. Water Meter: qty: 1 pc: specify ${pipeDiaMM} mm, multi-jet type, MWSS/LWUA approved, flanged or threaded connections
+9. Backflow Preventer / Check Valve: qty: 1 pc: specify ${pipeDiaMM} mm, double-check assembly type, PN16, at meter outlet per Philippine Plumbing Code
+10. ${hasHot ? 'Hot Water Supply Pipe, CPVC or Cu' : 'Cold Water Branch Pipe, PVC'}: qty: ${Math.round(pLen * 0.5)} m: specify 20 mm or 15 mm as required for branch lines to fixtures
+11. Pipe Insulation (for hot water lines): qty: ${hasHot ? Math.round(pLen * 0.5) : 0} m: specify closed-cell foam 13mm, aluminum foil jacket, for all hot water pipes: checked: ${hasHot ? 'true' : 'false'}
+12. Pipe Supports and Hangers: qty: ${nSupports} sets: specify galvanized pipe clamp or clevis hanger, spacing per Philippine Plumbing Code (${pipeMat} at ${pipeDiaMM} mm)
+13. Pressure Gauge (at PRV outlet and riser base): qty: 2 pcs: specify 0–700 kPa, 100mm dial, glycerin-filled
+14. Pipe Labelling and Colour Banding: qty: 1 lot: specify per Philippine Plumbing Code: cold water = blue, hot water = red/orange
+15. Miscellaneous (Teflon tape, pipe cement for PVC, hangers, anchors, cleanouts): qty: 1 lot
 
 Specifications must reference PNS/NSF potable water standards, ${pipeDiaMM} mm throughout main line. All valves and fittings rated for potable water contact.
 
-ARRAY 2 — "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
+ARRAY 2: "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
 Each object: { "section_no": string, "title": string, "content": string, "checked": boolean }
 
 Required sections:
-- "1.0" General Scope — checked: true
-- "2.0" Applicable Standards and Codes — checked: true (list: Philippine Plumbing Code (PPC) — based on UPC/IPC, NSF/PNS 65 potable water piping, PSME Code, LWUA/MWSS connection standards, PEC 2017 for any electrical components, DOLE OSH)
-- "3.0" Materials — checked: true (reference BOM, all pipes and fittings potable water rated NSF/PNS 65, ${pipeMat} at ${pipeDiaMM} mm nominal, all valves bronze or NSF-approved material)
-- "4.1" Equipment and Material Delivery — checked: true (material test certificates and NSF/PNS compliance certificates to be submitted; all materials inspected on delivery before installation)
-- "4.2" Pipe Installation — checked: true (specify jointing method for ${pipeMat}, support spacing per Philippine Plumbing Code, 25mm clearance from structural elements, grading toward drain points, sleeve through walls)
-- "4.3" Valve and Meter Installation — checked: true (isolation valves at each riser base and branch takeoff, water meter accessible for reading, PRV accessible for adjustment)
-- "4.4" Pipe Supports and Sleeves — checked: true (hanger spacing per PPC, all pipe penetrations through slabs/walls with galvanized sleeves sealed with fire-rated sealant at fire-rated assemblies)
-- "4.5" Hot Water Piping Works — checked: ${hasHot ? 'true' : 'false'} (CPVC or copper for hot water lines, all hot water pipes insulated with closed-cell foam 13mm, slope toward drain for system draining)
-- "4.6" Pressure Testing — checked: true (hydrostatic test at 2× working pressure (${Math.round(Number(supplyPress) * 2)} kPa) or minimum 1,000 kPa for 30 minutes, all joints and valves checked for leaks, document and submit test records)
-- "4.7" Disinfection and Flushing — checked: true (flush system at 1.5× design velocity, disinfect with chlorine solution 50 ppm for 24 hours per Philippine Plumbing Code, flush until residual chlorine < 0.5 ppm before connection to fixtures)
-- "4.8" Commissioning and Handover — checked: true (verify flow at furthest fixture, measure residual pressure (must be ≥ ${minPress} kPa), check all fixture stop valves, submit commissioning report and water quality test results)
-- "4.9" As-Built Documentation — checked: true
-- "5.0" Inclusions — checked: false
-- "6.0" Exclusions — checked: false (civil / structural works, plumbing fixtures and fittings beyond stop valves, MWSS/LWUA service connection fees, water treatment equipment)
-- "7.0" Warranty — checked: false (1 year workmanship from acceptance; material warranty per manufacturer; leaks discovered within warranty period repaired at Contractor's cost)
+- "1.0" General Scope: checked: true
+- "2.0" Applicable Standards and Codes: checked: true (list: Philippine Plumbing Code (PPC): based on UPC/IPC, NSF/PNS 65 potable water piping, PSME Code, LWUA/MWSS connection standards, PEC 2017 for any electrical components, DOLE OSH)
+- "3.0" Materials: checked: true (reference BOM, all pipes and fittings potable water rated NSF/PNS 65, ${pipeMat} at ${pipeDiaMM} mm nominal, all valves bronze or NSF-approved material)
+- "4.1" Equipment and Material Delivery: checked: true (material test certificates and NSF/PNS compliance certificates to be submitted; all materials inspected on delivery before installation)
+- "4.2" Pipe Installation: checked: true (specify jointing method for ${pipeMat}, support spacing per Philippine Plumbing Code, 25mm clearance from structural elements, grading toward drain points, sleeve through walls)
+- "4.3" Valve and Meter Installation: checked: true (isolation valves at each riser base and branch takeoff, water meter accessible for reading, PRV accessible for adjustment)
+- "4.4" Pipe Supports and Sleeves: checked: true (hanger spacing per PPC, all pipe penetrations through slabs/walls with galvanized sleeves sealed with fire-rated sealant at fire-rated assemblies)
+- "4.5" Hot Water Piping Works: checked: ${hasHot ? 'true' : 'false'} (CPVC or copper for hot water lines, all hot water pipes insulated with closed-cell foam 13mm, slope toward drain for system draining)
+- "4.6" Pressure Testing: checked: true (hydrostatic test at 2× working pressure (${Math.round(Number(supplyPress) * 2)} kPa) or minimum 1,000 kPa for 30 minutes, all joints and valves checked for leaks, document and submit test records)
+- "4.7" Disinfection and Flushing: checked: true (flush system at 1.5× design velocity, disinfect with chlorine solution 50 ppm for 24 hours per Philippine Plumbing Code, flush until residual chlorine < 0.5 ppm before connection to fixtures)
+- "4.8" Commissioning and Handover: checked: true (verify flow at furthest fixture, measure residual pressure (must be ≥ ${minPress} kPa), check all fixture stop valves, submit commissioning report and water quality test results)
+- "4.9" As-Built Documentation: checked: true
+- "5.0" Inclusions: checked: false
+- "6.0" Exclusions: checked: false (civil / structural works, plumbing fixtures and fittings beyond stop valves, MWSS/LWUA service connection fees, water treatment equipment)
+- "7.0" Warranty: checked: false (1 year workmanship from acceptance; material warranty per manufacturer; leaks discovered within warranty period repaired at Contractor's cost)
 
 Each content must be 3-5 sentences in professional Philippine engineering contractor style. Reference: ${pipeDiaMM} mm ${pipeMat} pipe, ${supplyType} supply, ${peakLPS} L/s peak flow (${totalWFU} WFU), for ${project}.
 
@@ -699,44 +699,44 @@ Estimated Hot Water Pipe Run: ${pipeLen} m
 
 TASK: Generate a JSON object with exactly two arrays.
 
-ARRAY 1 — "bom_items": Standard Philippine plumbing contractor Bill of Materials for hot water system.
+ARRAY 1: "bom_items": Standard Philippine plumbing contractor Bill of Materials for hot water system.
 Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
 
 Required items:
-1. Hot Water Storage Tank — qty: 1 unit — specify ${recStorageL} litres, ${tHot}°C rated, glass-lined or stainless steel inner tank, polyurethane foam insulation, working pressure 600 kPa, complete with anode rod, temperature-pressure relief valve, drain valve, and inspection port
-2. Water Heater / Heating Element — qty: 1 unit — specify ${recHeaterKW} kW${isElectric ? `, ${heaterVoltage}, immersion-type electric heating element, thermostat-controlled, CHED/BPS approved` : `, gas-fired or heat pump type, rated at ${recHeaterKW} kW input, thermostat with high-limit safety cutout`}, recovery rate ${recoveryLPH} L/hr at ΔT ${deltaT}°C
-3. Temperature-Pressure Relief Valve (T&P Valve) — qty: 1 pc — specify set at 700 kPa / 99°C, ANSI/ASME rated, 3/4 in discharge, with full-size drain to floor drain — checked: true (mandatory per Philippine Plumbing Code)
-4. Expansion Tank (thermal expansion) — qty: 1 unit — specify pre-charged diaphragm type, sized for ${recStorageL}L system, 350–700 kPa operating range, ASME-rated — checked: true (required in closed systems)
-5. Mixing Valve / Thermostatic Mixing Valve (TMV) — qty: 1 unit — specify ASSE 1017 listed, set at ${Math.min(Number(tHot) - 5, 55)}°C delivery temperature, to prevent scalding at fixtures, ${Math.max(nFixtures * 2, 15)} L/min capacity
-6. Hot Water Supply Pipe, CPVC — qty: ${pipeLen} m — specify 20 mm or 25 mm nominal, ASTM D2846, rated 82°C / 600 kPa, in 6-m lengths
-7. Cold Water Feed Pipe, PVC PN10 — qty: ${Math.round(pipeLen * 0.4)} m — specify 20 mm or 25 mm nominal, potable water rated NSF/PNS 65, for heater inlet
-8. Pipe Insulation, pre-formed closed-cell foam — qty: ${pipeLen} m — specify 19mm wall thickness, aluminum foil jacket, for all hot water supply pipes to minimise heat loss
-9. Isolation Ball Valve (hot water rated) — qty: ${nIsolation + 2} pcs — specify 20–25 mm, full bore, PTFE-seated, rated 120°C / PN16, at heater inlet/outlet and branch takeoffs
-10. Check Valve (anti-siphon) — qty: 1 pc — specify 20–25 mm, spring-loaded, PN16, at cold water inlet to heater
-11. Angle Valve (fixture stop valve, chrome) — qty: ${nFixtures} pcs — specify 15 mm (1/2 in), chrome-plated brass, 1 per hot water fixture connection
-12. Pipe Supports and Hangers — qty: ${nSupports} sets — specify galvanized pipe clamp, CPVC-compatible cushion liner, spacing per Philippine Plumbing Code (max 1.2 m for CPVC)
-13. ${isElectric ? 'Electrical Wiring, THHN Cu' : 'Gas Supply Piping, Schedule 40 Black Steel'} — qty: ${isElectric ? Math.round(pipeLen * 1.5) : Math.round(pipeLen * 0.5)} m — specify ${isElectric ? `size per PEC 2017 for ${recHeaterKW} kW load at ${heaterVoltage}, dedicated circuit, GFCI-protected` : `25 mm nominal, threaded fittings, leak tested at 1.5x working pressure, per PSME gas code`}
-14. Floor Drain (near heater and T&P relief discharge) — qty: 1 pc — specify 100 mm dia, chrome strainer, for T&P valve discharge line termination
-15. Miscellaneous (Teflon tape, pipe cement, hangers, labels, access panel) — qty: 1 lot — specify hot water pipe labels in red/orange per Philippine Plumbing Code
+1. Hot Water Storage Tank: qty: 1 unit: specify ${recStorageL} litres, ${tHot}°C rated, glass-lined or stainless steel inner tank, polyurethane foam insulation, working pressure 600 kPa, complete with anode rod, temperature-pressure relief valve, drain valve, and inspection port
+2. Water Heater / Heating Element: qty: 1 unit: specify ${recHeaterKW} kW${isElectric ? `, ${heaterVoltage}, immersion-type electric heating element, thermostat-controlled, CHED/BPS approved` : `, gas-fired or heat pump type, rated at ${recHeaterKW} kW input, thermostat with high-limit safety cutout`}, recovery rate ${recoveryLPH} L/hr at ΔT ${deltaT}°C
+3. Temperature-Pressure Relief Valve (T&P Valve): qty: 1 pc: specify set at 700 kPa / 99°C, ANSI/ASME rated, 3/4 in discharge, with full-size drain to floor drain: checked: true (mandatory per Philippine Plumbing Code)
+4. Expansion Tank (thermal expansion): qty: 1 unit: specify pre-charged diaphragm type, sized for ${recStorageL}L system, 350–700 kPa operating range, ASME-rated: checked: true (required in closed systems)
+5. Mixing Valve / Thermostatic Mixing Valve (TMV): qty: 1 unit: specify ASSE 1017 listed, set at ${Math.min(Number(tHot) - 5, 55)}°C delivery temperature, to prevent scalding at fixtures, ${Math.max(nFixtures * 2, 15)} L/min capacity
+6. Hot Water Supply Pipe, CPVC: qty: ${pipeLen} m: specify 20 mm or 25 mm nominal, ASTM D2846, rated 82°C / 600 kPa, in 6-m lengths
+7. Cold Water Feed Pipe, PVC PN10: qty: ${Math.round(pipeLen * 0.4)} m: specify 20 mm or 25 mm nominal, potable water rated NSF/PNS 65, for heater inlet
+8. Pipe Insulation, pre-formed closed-cell foam: qty: ${pipeLen} m: specify 19mm wall thickness, aluminum foil jacket, for all hot water supply pipes to minimise heat loss
+9. Isolation Ball Valve (hot water rated): qty: ${nIsolation + 2} pcs: specify 20–25 mm, full bore, PTFE-seated, rated 120°C / PN16, at heater inlet/outlet and branch takeoffs
+10. Check Valve (anti-siphon): qty: 1 pc: specify 20–25 mm, spring-loaded, PN16, at cold water inlet to heater
+11. Angle Valve (fixture stop valve, chrome): qty: ${nFixtures} pcs: specify 15 mm (1/2 in), chrome-plated brass, 1 per hot water fixture connection
+12. Pipe Supports and Hangers: qty: ${nSupports} sets: specify galvanized pipe clamp, CPVC-compatible cushion liner, spacing per Philippine Plumbing Code (max 1.2 m for CPVC)
+13. ${isElectric ? 'Electrical Wiring, THHN Cu' : 'Gas Supply Piping, Schedule 40 Black Steel'}: qty: ${isElectric ? Math.round(pipeLen * 1.5) : Math.round(pipeLen * 0.5)} m: specify ${isElectric ? `size per PEC 2017 for ${recHeaterKW} kW load at ${heaterVoltage}, dedicated circuit, GFCI-protected` : `25 mm nominal, threaded fittings, leak tested at 1.5x working pressure, per PSME gas code`}
+14. Floor Drain (near heater and T&P relief discharge): qty: 1 pc: specify 100 mm dia, chrome strainer, for T&P valve discharge line termination
+15. Miscellaneous (Teflon tape, pipe cement, hangers, labels, access panel): qty: 1 lot: specify hot water pipe labels in red/orange per Philippine Plumbing Code
 
-ARRAY 2 — "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
+ARRAY 2: "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
 Each object: { "section_no": string, "title": string, "content": string, "checked": boolean }
 
 Required sections:
-- "1.0" General Scope — checked: true
-- "2.0" Applicable Standards and Codes — checked: true (list: Philippine Plumbing Code (PPC), ASHRAE HVAC Applications Handbook Chapter 50 (Service Water Heating), NSF/PNS 65 potable water materials, ANSI/ASME for relief valves, ASSE 1017 thermostatic mixing valve, PEC 2017 for electrical connections, DOLE OSH, BPS/CHED equipment approval)
-- "3.0" Materials — checked: true (glass-lined or SS storage tank rated ${tHot}°C, CPVC hot water pipe ASTM D2846, all valves PN16 and 120°C rated, insulation 19mm closed-cell foam with foil jacket)
-- "4.1" Equipment Supply and Delivery — checked: true (submit heater performance data sheet, BPS/CHED approval certificate, tank warranty card, T&P valve certification before delivery)
-- "4.2" Heater and Tank Installation — checked: true (specify floor-mounted or wall-mounted per equipment type, vibration isolation pad, minimum 600 mm clearance on service side, drip pan under tank connected to floor drain)
-- "4.3" Hot Water Piping Works — checked: true (CPVC pipe at 20–25 mm nominal, all joints solvent-cemented per ASTM D2846, slope toward drain point, all pipes insulated 19mm closed-cell foam, pipe labelled red/orange per PPC)
-- "4.4" Safety Devices — checked: true (T&P relief valve mandatory at heater, full-size 3/4 in discharge pipe to floor drain, no valves on discharge line, thermostatic mixing valve at distribution header set at ${Math.min(Number(tHot) - 5, 55)}°C, expansion tank on cold water feed in closed system)
-- "4.5" Electrical Connections — checked: ${isElectric ? 'true' : 'false'} (dedicated circuit per PEC 2017, GFCI protection, disconnect within sight of heater, wire sized for ${recHeaterKW} kW at ${heaterVoltage})
-- "4.6" Pressure Testing — checked: true (hydrostatic test at 2× working pressure (1,200 kPa) for 30 minutes, all joints and connections leak-free, document and submit test records before insulation)
-- "4.7" Disinfection and Commissioning — checked: true (flush system, set thermostat to ${tHot}°C, verify recovery rate ${recoveryLPH} L/hr within ${recoveryHrs} hours, check T&P valve operation, verify TMV outlet temperature, submit commissioning report)
-- "4.8" As-Built Documentation — checked: true
-- "5.0" Inclusions — checked: false
-- "6.0" Exclusions — checked: false (civil / structural works, plumbing fixtures beyond stop valves, electrical panel upgrade if required, gas meter or utility connection fees)
-- "7.0" Warranty — checked: false (tank: 5-year manufacturer warranty on inner tank, 1-year on components; 1 year workmanship from acceptance)
+- "1.0" General Scope: checked: true
+- "2.0" Applicable Standards and Codes: checked: true (list: Philippine Plumbing Code (PPC), ASHRAE HVAC Applications Handbook Chapter 50 (Service Water Heating), NSF/PNS 65 potable water materials, ANSI/ASME for relief valves, ASSE 1017 thermostatic mixing valve, PEC 2017 for electrical connections, DOLE OSH, BPS/CHED equipment approval)
+- "3.0" Materials: checked: true (glass-lined or SS storage tank rated ${tHot}°C, CPVC hot water pipe ASTM D2846, all valves PN16 and 120°C rated, insulation 19mm closed-cell foam with foil jacket)
+- "4.1" Equipment Supply and Delivery: checked: true (submit heater performance data sheet, BPS/CHED approval certificate, tank warranty card, T&P valve certification before delivery)
+- "4.2" Heater and Tank Installation: checked: true (specify floor-mounted or wall-mounted per equipment type, vibration isolation pad, minimum 600 mm clearance on service side, drip pan under tank connected to floor drain)
+- "4.3" Hot Water Piping Works: checked: true (CPVC pipe at 20–25 mm nominal, all joints solvent-cemented per ASTM D2846, slope toward drain point, all pipes insulated 19mm closed-cell foam, pipe labelled red/orange per PPC)
+- "4.4" Safety Devices: checked: true (T&P relief valve mandatory at heater, full-size 3/4 in discharge pipe to floor drain, no valves on discharge line, thermostatic mixing valve at distribution header set at ${Math.min(Number(tHot) - 5, 55)}°C, expansion tank on cold water feed in closed system)
+- "4.5" Electrical Connections: checked: ${isElectric ? 'true' : 'false'} (dedicated circuit per PEC 2017, GFCI protection, disconnect within sight of heater, wire sized for ${recHeaterKW} kW at ${heaterVoltage})
+- "4.6" Pressure Testing: checked: true (hydrostatic test at 2× working pressure (1,200 kPa) for 30 minutes, all joints and connections leak-free, document and submit test records before insulation)
+- "4.7" Disinfection and Commissioning: checked: true (flush system, set thermostat to ${tHot}°C, verify recovery rate ${recoveryLPH} L/hr within ${recoveryHrs} hours, check T&P valve operation, verify TMV outlet temperature, submit commissioning report)
+- "4.8" As-Built Documentation: checked: true
+- "5.0" Inclusions: checked: false
+- "6.0" Exclusions: checked: false (civil / structural works, plumbing fixtures beyond stop valves, electrical panel upgrade if required, gas meter or utility connection fees)
+- "7.0" Warranty: checked: false (tank: 5-year manufacturer warranty on inner tank, 1-year on components; 1 year workmanship from acceptance)
 
 Each content must be 3-5 sentences in professional Philippine engineering contractor style. Reference: ${recHeaterKW} kW heater, ${recStorageL}L storage, ${tHot}°C supply at ${recoveryLPH} L/hr recovery, for ${project}.
 
@@ -787,51 +787,51 @@ System Type: ${systemType}
 Pipe Material: ${pipeMat}
 Recommended Pipe Diameter: ${pipeDiaMM} mm (nominal)
 Total Drainage Fixture Units (DFU): ${totalDFU} DFU (Philippine Plumbing Code Table)
-${isStack ? 'Drain Stack — vertical riser' : `Pipe Slope: ${slopePct}% (${slopeMmPerM} mm/m fall)`}
+${isStack ? 'Drain Stack: vertical riser' : `Pipe Slope: ${slopePct}% (${slopeMmPerM} mm/m fall)`}
 Design Flow Capacity: ${capacityLS} L/s (Manning's equation, ${isStack ? 'full-bore' : 'half-full'})
 Design Velocity: ${velocity} m/s (minimum 0.6 m/s for self-cleansing)
 
 TASK: Generate a JSON object with exactly two arrays.
 
-ARRAY 1 — "bom_items": Standard Philippine sanitary contractor Bill of Materials for drainage and sanitary piping system.
+ARRAY 1: "bom_items": Standard Philippine sanitary contractor Bill of Materials for drainage and sanitary piping system.
 Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
 
 Required items:
-1. Drainage Pipe, ${pipeMat} — qty: ${pipeLen} m — specify ${pipeDiaMM} mm nominal dia, ASTM D3034 (PVC sewer) or PNS equivalent, in 3-m or 6-m lengths, for ${systemType}
-2. Drainage Fittings — 45° Wye / Long-sweep 90° Elbows — qty: ${Math.max(4, Math.round(pipeLen / 5))} pcs — specify ${pipeDiaMM} mm, ${pipeMat}, sanitary drainage type (no T-fittings on horizontal drains), per Philippine Plumbing Code
-3. Drainage Fittings — Sanitary Tee / Combination Wye — qty: ${nBranches} pcs — specify ${pipeDiaMM} mm, ${pipeMat}, for branch connections
-4. Pipe Reducers / Couplings — qty: ${Math.max(2, Math.round(pipeLen / 10))} pcs — specify ${pipeDiaMM} mm, ${pipeMat}
-5. Cleanout Plugs with Access Frame — qty: ${nCleanouts} sets — specify ${pipeDiaMM} mm, ${pipeMat}, at every change of direction, at base of each stack, and every 15 m of horizontal run per Philippine Plumbing Code
-6. Floor Drain with P-Trap — qty: ${Math.max(2, Math.round(nFixtures / 4))} pcs — specify 100 mm or 150 mm dia, chrome ABS or cast iron strainer, integral P-trap, deep-seal 76 mm minimum water seal
-7. P-Trap for Fixtures — qty: ${nFixtures} pcs — specify 32–50 mm dia as required per fixture, PVC, 76 mm minimum water seal, one per fixture without integral trap
-8. Vent Pipe, ${pipeMat} — qty: ${Math.round(pipeLen * 0.6)} m — specify 50 mm or 75 mm nominal, ${pipeMat}, individual vents to each fixture or loop vent per Philippine Plumbing Code
-9. Vent Fittings — 45° Elbows, Tees — qty: ${nVents * 2} pcs — specify 50–75 mm, ${pipeMat}, for vent stack connections
-10. Stack Base Fitting (sanitary tee with 45° inlet) — qty: ${isStack ? Math.max(1, Math.round(nFixtures / 10)) : 0} pc — specify ${pipeDiaMM} mm, for drain stack base to building drain — checked: ${isStack ? 'true' : 'false'}
-11. Pipe Hangers and Supports — qty: ${nSupports} sets — specify perforated metal strap or clevis hanger, galvanized, spacing per Philippine Plumbing Code (max 1.2 m for PVC, 3 m for cast iron)
-12. Pipe Sleeves through Slabs/Walls — qty: ${Math.max(4, nFixtures)} pcs — specify 25 mm oversize galvanized steel sleeve with fire-rated annular sealant at fire-rated assemblies
-13. Roof Vent Flashing / Vent Terminal — qty: ${Math.max(1, Math.round(nVents / 2))} pc — specify lead or PVC flashing, for vent stack termination 150 mm minimum above roof, with bird screen
-14. Grease Trap (if kitchen/canteen drainage) — qty: 1 unit — specify flow-rated to match kitchen fixture DFU, pre-cast concrete or prefab HDPE, with access covers and basket strainer — checked: false (include if scope covers kitchen/canteen drainage)
-15. Miscellaneous (solvent cement, pipe primer, anchors, pipe labels) — qty: 1 lot — specify per ${pipeMat} jointing requirements; drainage pipes labelled per Philippine Plumbing Code
+1. Drainage Pipe, ${pipeMat}: qty: ${pipeLen} m: specify ${pipeDiaMM} mm nominal dia, ASTM D3034 (PVC sewer) or PNS equivalent, in 3-m or 6-m lengths, for ${systemType}
+2. Drainage Fittings: 45° Wye / Long-sweep 90° Elbows: qty: ${Math.max(4, Math.round(pipeLen / 5))} pcs: specify ${pipeDiaMM} mm, ${pipeMat}, sanitary drainage type (no T-fittings on horizontal drains), per Philippine Plumbing Code
+3. Drainage Fittings: Sanitary Tee / Combination Wye: qty: ${nBranches} pcs: specify ${pipeDiaMM} mm, ${pipeMat}, for branch connections
+4. Pipe Reducers / Couplings: qty: ${Math.max(2, Math.round(pipeLen / 10))} pcs: specify ${pipeDiaMM} mm, ${pipeMat}
+5. Cleanout Plugs with Access Frame: qty: ${nCleanouts} sets: specify ${pipeDiaMM} mm, ${pipeMat}, at every change of direction, at base of each stack, and every 15 m of horizontal run per Philippine Plumbing Code
+6. Floor Drain with P-Trap: qty: ${Math.max(2, Math.round(nFixtures / 4))} pcs: specify 100 mm or 150 mm dia, chrome ABS or cast iron strainer, integral P-trap, deep-seal 76 mm minimum water seal
+7. P-Trap for Fixtures: qty: ${nFixtures} pcs: specify 32–50 mm dia as required per fixture, PVC, 76 mm minimum water seal, one per fixture without integral trap
+8. Vent Pipe, ${pipeMat}: qty: ${Math.round(pipeLen * 0.6)} m: specify 50 mm or 75 mm nominal, ${pipeMat}, individual vents to each fixture or loop vent per Philippine Plumbing Code
+9. Vent Fittings: 45° Elbows, Tees: qty: ${nVents * 2} pcs: specify 50–75 mm, ${pipeMat}, for vent stack connections
+10. Stack Base Fitting (sanitary tee with 45° inlet): qty: ${isStack ? Math.max(1, Math.round(nFixtures / 10)) : 0} pc: specify ${pipeDiaMM} mm, for drain stack base to building drain: checked: ${isStack ? 'true' : 'false'}
+11. Pipe Hangers and Supports: qty: ${nSupports} sets: specify perforated metal strap or clevis hanger, galvanized, spacing per Philippine Plumbing Code (max 1.2 m for PVC, 3 m for cast iron)
+12. Pipe Sleeves through Slabs/Walls: qty: ${Math.max(4, nFixtures)} pcs: specify 25 mm oversize galvanized steel sleeve with fire-rated annular sealant at fire-rated assemblies
+13. Roof Vent Flashing / Vent Terminal: qty: ${Math.max(1, Math.round(nVents / 2))} pc: specify lead or PVC flashing, for vent stack termination 150 mm minimum above roof, with bird screen
+14. Grease Trap (if kitchen/canteen drainage): qty: 1 unit: specify flow-rated to match kitchen fixture DFU, pre-cast concrete or prefab HDPE, with access covers and basket strainer: checked: false (include if scope covers kitchen/canteen drainage)
+15. Miscellaneous (solvent cement, pipe primer, anchors, pipe labels): qty: 1 lot: specify per ${pipeMat} jointing requirements; drainage pipes labelled per Philippine Plumbing Code
 
-ARRAY 2 — "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
+ARRAY 2: "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
 Each object: { "section_no": string, "title": string, "content": string, "checked": boolean }
 
 Required sections:
-- "1.0" General Scope — checked: true
-- "2.0" Applicable Standards and Codes — checked: true (list: Philippine Plumbing Code (PPC) — based on UPC/IPC, ASTM D3034 for PVC sewer pipe, PSME Code, National Building Code of the Philippines PD 1096, DOLE OSH Standards, DOH requirements for sanitary works)
-- "3.0" Materials — checked: true (${pipeMat} pipe ASTM D3034 or PNS equivalent at ${pipeDiaMM} mm, all fittings sanitary drainage type — no sharp-turn tees on horizontal runs, all traps minimum 76 mm water seal)
-- "4.1" Material Delivery and Inspection — checked: true (pipe and fittings inspected on delivery, ASTM/PNS compliance markings verified, damaged pipe rejected and replaced)
-- "4.2" Pipe Installation — checked: true (specify jointing method for ${pipeMat} — solvent cement per ASTM D2564, pipe slope at ${slopePct}% (${slopeMmPerM} mm/m), all horizontal runs sloped continuously toward outlet, no back-grading, support at max 1.2 m spacing)
-- "4.3" Trap and Cleanout Installation — checked: true (one trap per fixture, 76 mm minimum water seal, cleanouts at every direction change and stack base, accessible and within 600 mm of finished floor or wall per PPC, accessible cleanout cover flush with finished surface)
-- "4.4" Vent System Installation — checked: true (individual or loop vents per PPC, vent stack terminated 150 mm minimum above roof and 300 mm from any window or opening, no vent connection within 300 mm below flood level rim of fixture)
-- "4.5" Drain Stack and Building Drain" — checked: ${isStack ? 'true' : 'false'} (drain stack plumb within 1:100, supported at each floor with riser clamp, base fitting at stack foot, stack extends as vent above highest branch)
-- "4.6" Pipe Supports and Sleeves — checked: true (PVC hangers every 1.2 m, sleeves at all slab and wall penetrations, fire-rated annular sealant at fire-rated assemblies, no pipe resting on structural elements without proper saddle support)
-- "4.7" Water Test (Air or Water Tightness Test) — checked: true (water test: fill system to flood-level rim of highest fixture and hold 15 minutes, zero leaks, OR air test at 35 kPa for 15 minutes, document and submit test records)
-- "4.8" Commissioning and Handover — checked: true (flush all lines, verify trap water seals, verify cleanout accessibility, check slope with spirit level at representative locations, submit as-built drawings)
-- "4.9" As-Built Documentation — checked: true
-- "5.0" Inclusions — checked: false
-- "6.0" Exclusions — checked: false (civil / structural works including trenching for underground drainage, sewage treatment plant, septic tank unless specified, building permits and sanitary engineer PRC fees)
-- "7.0" Warranty — checked: false (1 year workmanship from acceptance; leaks or blockages within warranty period remedied at Contractor's cost)
+- "1.0" General Scope: checked: true
+- "2.0" Applicable Standards and Codes: checked: true (list: Philippine Plumbing Code (PPC): based on UPC/IPC, ASTM D3034 for PVC sewer pipe, PSME Code, National Building Code of the Philippines PD 1096, DOLE OSH Standards, DOH requirements for sanitary works)
+- "3.0" Materials: checked: true (${pipeMat} pipe ASTM D3034 or PNS equivalent at ${pipeDiaMM} mm, all fittings sanitary drainage type: no sharp-turn tees on horizontal runs, all traps minimum 76 mm water seal)
+- "4.1" Material Delivery and Inspection: checked: true (pipe and fittings inspected on delivery, ASTM/PNS compliance markings verified, damaged pipe rejected and replaced)
+- "4.2" Pipe Installation: checked: true (specify jointing method for ${pipeMat}: solvent cement per ASTM D2564, pipe slope at ${slopePct}% (${slopeMmPerM} mm/m), all horizontal runs sloped continuously toward outlet, no back-grading, support at max 1.2 m spacing)
+- "4.3" Trap and Cleanout Installation: checked: true (one trap per fixture, 76 mm minimum water seal, cleanouts at every direction change and stack base, accessible and within 600 mm of finished floor or wall per PPC, accessible cleanout cover flush with finished surface)
+- "4.4" Vent System Installation: checked: true (individual or loop vents per PPC, vent stack terminated 150 mm minimum above roof and 300 mm from any window or opening, no vent connection within 300 mm below flood level rim of fixture)
+- "4.5" Drain Stack and Building Drain": checked: ${isStack ? 'true' : 'false'} (drain stack plumb within 1:100, supported at each floor with riser clamp, base fitting at stack foot, stack extends as vent above highest branch)
+- "4.6" Pipe Supports and Sleeves: checked: true (PVC hangers every 1.2 m, sleeves at all slab and wall penetrations, fire-rated annular sealant at fire-rated assemblies, no pipe resting on structural elements without proper saddle support)
+- "4.7" Water Test (Air or Water Tightness Test): checked: true (water test: fill system to flood-level rim of highest fixture and hold 15 minutes, zero leaks, OR air test at 35 kPa for 15 minutes, document and submit test records)
+- "4.8" Commissioning and Handover: checked: true (flush all lines, verify trap water seals, verify cleanout accessibility, check slope with spirit level at representative locations, submit as-built drawings)
+- "4.9" As-Built Documentation: checked: true
+- "5.0" Inclusions: checked: false
+- "6.0" Exclusions: checked: false (civil / structural works including trenching for underground drainage, sewage treatment plant, septic tank unless specified, building permits and sanitary engineer PRC fees)
+- "7.0" Warranty: checked: false (1 year workmanship from acceptance; leaks or blockages within warranty period remedied at Contractor's cost)
 
 Each content must be 3-5 sentences in professional Philippine engineering contractor style. Reference: ${pipeDiaMM} mm ${pipeMat} ${systemType} drainage, ${totalDFU} DFU, ${isStack ? 'vertical stack' : `slope ${slopePct}%`}, for ${project}.
 
@@ -885,7 +885,7 @@ Generate a JSON object with:
 1. "bom_items": array of 16 items (each: description, specification, qty, unit, remarks, checked: true)
    Include: Reinforced concrete works (formwork, rebars 10mm dia, concrete CHB 150mm hollow blocks alternative), Tank excavation (add 0.5m working space each side), waterproofing membrane (crystalline or epoxy), inlet tee (100mm uPVC sanitary tee with 150mm submerged drop), outlet tee (100mm uPVC sanitary tee with 150mm submerged drop), baffles/dividing wall with transfer port, inspection covers (precast RC or HDPE 600mm dia), vent pipe (75mm uPVC, min 2m above grade), inlet pipe from building (100mm uPVC), distribution box or leachfield inspection box (if leachfield required), gravel/crushed rock (leachfield bed), perforated drain pipe 100mm for leachfield, backfill and compaction, bioactivator/seeding compound (for startup), desludging access port/sump, warning sign/marker post
 2. "sow_sections": array of 8 sections (each: section_no, title, content)
-   Cover: Scope of Works, Design Basis (PPC occupancy method, P.D. 856), Tank Construction (RC or CHB, watertight), Inlet/Outlet/Baffle/Vent Configuration (PPC-compliant), Leachfield or Soakpit (DENR DAO 2016-08 effluent disposal), Testing and Commissioning (water tightness test — fill to overflow and hold 24 hours, zero visible leakage), Desludging and Maintenance Schedule (every ${desludgeYrs} years by licensed operator), Regulatory Compliance (DENR, LGU sanitary permit, DOH)
+   Cover: Scope of Works, Design Basis (PPC occupancy method, P.D. 856), Tank Construction (RC or CHB, watertight), Inlet/Outlet/Baffle/Vent Configuration (PPC-compliant), Leachfield or Soakpit (DENR DAO 2016-08 effluent disposal), Testing and Commissioning (water tightness test: fill to overflow and hold 24 hours, zero visible leakage), Desludging and Maintenance Schedule (every ${desludgeYrs} years by licensed operator), Regulatory Compliance (DENR, LGU sanitary permit, DOH)
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -933,37 +933,37 @@ BRINE TANK CAPACITY: ${brineTankL} L
 SALT CONSUMPTION: ${saltKgRegen} kg ${saltType} per regeneration
 REGENERATION FREQUENCY: every ${regenFreqDays} days
 REGENERATION SYSTEM: ${regenSystem}
-DESIGN FLOW: ${designFlowLpm} L/min — Flow Check: ${flowCheckLabel} (min service flow: ${minFlowLpm} L/min)
-STANDARDS: NSF/ANSI 44 (Residential/Commercial Cation Exchange Softeners), WQA (Water Quality Association) Commercial Sizing Guidelines, PNS 1998 (Philippine National Standard for Drinking Water — hardness limit), Philippine Plumbing Code (PPC), DOH Drinking Water Regulations
+DESIGN FLOW: ${designFlowLpm} L/min: Flow Check: ${flowCheckLabel} (min service flow: ${minFlowLpm} L/min)
+STANDARDS: NSF/ANSI 44 (Residential/Commercial Cation Exchange Softeners), WQA (Water Quality Association) Commercial Sizing Guidelines, PNS 1998 (Philippine National Standard for Drinking Water: hardness limit), Philippine Plumbing Code (PPC), DOH Drinking Water Regulations
 
 Generate a JSON object with:
 1. "bom_items": array of 15 items (each: description, specification, qty, unit, remarks, checked: true)
    Include:
-   1. Water Softener Unit (mineral tank + resin + distributor assembly) — qty: 1 unit — specify ${mineralTank} fiberglass mineral tank, ${resinVolumeL}L of NSF/ANSI 61 certified ${resinType} resin, internal distributor basket, top and bottom screen assemblies, NSF/ANSI 44 certified, rated for ${designFlowLpm} L/min service flow
-   2. Automatic Control Valve (timer or meter-initiated) — qty: 1 unit — specify ${regenSystem} regeneration controller, NSF/ANSI 61 certified, digital timer/meter-head, selectable regen cycles, compatible with mineral tank outlet
-   3. Brine Tank with Salt Grid — qty: 1 unit — specify ${brineTankL}L polyethylene brine tank, safety float valve, brine line with flow control, salt storage platform/grid to prevent salt bridging, overflow connection, NSF/ANSI 61 rated
-   4. Ion Exchange Resin (spare stock — 1st fill included in unit) — qty: 25 kg — specify NSF/ANSI 61 certified ${resinType} resin, grain capacity per manufacturer spec, for first-year replenishment stock
-   5. Salt (${saltType}, water softener grade) — qty: ${Math.max(20, Math.round(Number(saltKgRegen) * 4))} kg — specify water softener grade (not road salt or rock salt), 99.5% purity minimum, in 10 or 25 kg bags
-   6. Bypass Valve Assembly (3-valve bypass) — qty: 1 set — specify inlet ball valve, outlet ball valve, bypass ball valve — 25mm or 32mm full-bore, PN16, food-grade safe, allows service without interrupting water supply
-   7. Inlet/Outlet Pipe Connection Kit — qty: 1 lot — specify 25mm or 32mm PVC PN10, NSF/PNS 65 potable water rated, fittings for connection to existing supply line and distribution header
-   8. Brine Line Tubing — qty: 3 m — specify 9.5mm (3/8") polyethylene tubing, food-grade, UV-stabilized, with compression fittings from brine tank to control valve
-   9. Drain Line Tubing — qty: 5 m — specify 12mm or 16mm polyethylene or PVC drain tubing, from control valve to nearest floor drain, slope to drain per Philippine Plumbing Code
-   10. Pressure Gauge (inlet and outlet) — qty: 2 pcs — specify 0–700 kPa, 63mm dial, glycerin-filled, with 1/4" BSP connection — for monitoring pressure drop across resin bed
-   11. Sediment Pre-Filter (5 micron) — qty: 1 unit — specify 10" clear housing, 5-micron polypropylene sediment cartridge, 25mm inlet/outlet, wrench included, NSF/ANSI 42 rated — install upstream of softener to protect resin from particulate fouling
-   12. Backwash Filter (if sediment > 5 NTU) — qty: 1 unit — specify automatic backwash sediment filter, sized for system flow, multimedia or sand media — checked: ${Number(inletHardness) > 300 ? 'true' : 'false'} (include if inlet total suspended solids is high)
-   13. Water Quality Test Kit (hardness, TDS) — qty: 1 set — specify digital TDS meter + titration hardness test kit (as CaCO3), for pre-commissioning and periodic post-regeneration hardness verification
-   14. Pipe Supports, Hangers, Anchors — qty: 1 lot — specify galvanized pipe clamps, wall anchors for inlet/outlet piping and bypass assembly
-   15. Miscellaneous (Teflon tape, pipe cement PVC, labels "SOFTENED WATER / HARD WATER BYPASS", warning signs) — qty: 1 lot
+   1. Water Softener Unit (mineral tank + resin + distributor assembly): qty: 1 unit: specify ${mineralTank} fiberglass mineral tank, ${resinVolumeL}L of NSF/ANSI 61 certified ${resinType} resin, internal distributor basket, top and bottom screen assemblies, NSF/ANSI 44 certified, rated for ${designFlowLpm} L/min service flow
+   2. Automatic Control Valve (timer or meter-initiated): qty: 1 unit: specify ${regenSystem} regeneration controller, NSF/ANSI 61 certified, digital timer/meter-head, selectable regen cycles, compatible with mineral tank outlet
+   3. Brine Tank with Salt Grid: qty: 1 unit: specify ${brineTankL}L polyethylene brine tank, safety float valve, brine line with flow control, salt storage platform/grid to prevent salt bridging, overflow connection, NSF/ANSI 61 rated
+   4. Ion Exchange Resin (spare stock: 1st fill included in unit): qty: 25 kg: specify NSF/ANSI 61 certified ${resinType} resin, grain capacity per manufacturer spec, for first-year replenishment stock
+   5. Salt (${saltType}, water softener grade): qty: ${Math.max(20, Math.round(Number(saltKgRegen) * 4))} kg: specify water softener grade (not road salt or rock salt), 99.5% purity minimum, in 10 or 25 kg bags
+   6. Bypass Valve Assembly (3-valve bypass): qty: 1 set: specify inlet ball valve, outlet ball valve, bypass ball valve: 25mm or 32mm full-bore, PN16, food-grade safe, allows service without interrupting water supply
+   7. Inlet/Outlet Pipe Connection Kit: qty: 1 lot: specify 25mm or 32mm PVC PN10, NSF/PNS 65 potable water rated, fittings for connection to existing supply line and distribution header
+   8. Brine Line Tubing: qty: 3 m: specify 9.5mm (3/8") polyethylene tubing, food-grade, UV-stabilized, with compression fittings from brine tank to control valve
+   9. Drain Line Tubing: qty: 5 m: specify 12mm or 16mm polyethylene or PVC drain tubing, from control valve to nearest floor drain, slope to drain per Philippine Plumbing Code
+   10. Pressure Gauge (inlet and outlet): qty: 2 pcs: specify 0–700 kPa, 63mm dial, glycerin-filled, with 1/4" BSP connection: for monitoring pressure drop across resin bed
+   11. Sediment Pre-Filter (5 micron): qty: 1 unit: specify 10" clear housing, 5-micron polypropylene sediment cartridge, 25mm inlet/outlet, wrench included, NSF/ANSI 42 rated: install upstream of softener to protect resin from particulate fouling
+   12. Backwash Filter (if sediment > 5 NTU): qty: 1 unit: specify automatic backwash sediment filter, sized for system flow, multimedia or sand media: checked: ${Number(inletHardness) > 300 ? 'true' : 'false'} (include if inlet total suspended solids is high)
+   13. Water Quality Test Kit (hardness, TDS): qty: 1 set: specify digital TDS meter + titration hardness test kit (as CaCO3), for pre-commissioning and periodic post-regeneration hardness verification
+   14. Pipe Supports, Hangers, Anchors: qty: 1 lot: specify galvanized pipe clamps, wall anchors for inlet/outlet piping and bypass assembly
+   15. Miscellaneous (Teflon tape, pipe cement PVC, labels "SOFTENED WATER / HARD WATER BYPASS", warning signs): qty: 1 lot
 
 2. "sow_sections": array of 8 sections (each: section_no, title, content)
    Cover:
    - "1.0" General Scope (supply, install, commission water softener system for ${demandLpd} L/day demand at ${inletHardness} mg/L inlet hardness, outlet ≤ ${targetHardness} mg/L as CaCO3)
    - "2.0" Applicable Standards and Codes (NSF/ANSI 44, NSF/ANSI 61, WQA, PNS 1998 hardness limit, Philippine Plumbing Code, DOH drinking water regulations, DOLE OSH)
    - "3.0" Equipment Supply and Delivery (NSF/ANSI 44 certified unit, factory-tested, manufacturer data sheets and resin specification to be submitted for Engineer's approval before procurement)
-   - "4.1" Softener Unit Installation (positioning on level concrete pad, inlet/outlet orientation, minimum clearances for salt loading and service access — 600mm minimum side clearance, bracing for earthquake zone)
+   - "4.1" Softener Unit Installation (positioning on level concrete pad, inlet/outlet orientation, minimum clearances for salt loading and service access: 600mm minimum side clearance, bracing for earthquake zone)
    - "4.2" Bypass Valve and Plumbing Connections (3-valve bypass loop installation, pre-filter installation upstream, drain line routing to floor drain with air gap, brine line connection)
-   - "4.3" Control Valve Programming (timer/meter setting for ${regenFreqDays}-day regen cycle, brine draw time, backwash time, salt dose at ${saltKgRegen} kg per regen, delayed regen during off-peak hours — typically 2:00-4:00 AM)
-   - "5.0" Testing and Commissioning (pre-commissioning hardness test of inlet water, resin bed conditioning procedure — first 3 regen cycles to fully exchange resin, post-commissioning hardness test of outlet water — must read ≤ ${targetHardness} mg/L, pressure drop measurement across resin bed, water quality report to be submitted)
+   - "4.3" Control Valve Programming (timer/meter setting for ${regenFreqDays}-day regen cycle, brine draw time, backwash time, salt dose at ${saltKgRegen} kg per regen, delayed regen during off-peak hours: typically 2:00-4:00 AM)
+   - "5.0" Testing and Commissioning (pre-commissioning hardness test of inlet water, resin bed conditioning procedure: first 3 regen cycles to fully exchange resin, post-commissioning hardness test of outlet water: must read ≤ ${targetHardness} mg/L, pressure drop measurement across resin bed, water quality report to be submitted)
    - "6.0" Maintenance and Handover (salt replenishment schedule every ${regenFreqDays} days × number of regen cycles per refill period, annual resin inspection, quarterly pre-filter cartridge change, 1-year warranty documentation, O&M manual handover, operator training for salt loading and bypass procedure)
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
@@ -1034,35 +1034,35 @@ STANDARDS: PNS 1998 (Philippine National Standard for Drinking Water), DOH Drink
 Generate a JSON object with:
 1. "bom_items": array of 18 items (each: description, specification, qty, unit, remarks, checked: true)
    Include these items in order:
-   1. Raw Water Pump (if source is borehole/deep well) — centrifugal submersible pump, capacity ${peakFlowLpm} L/min, head per site survey, SS 304 impeller, NSF/ANSI 61 wetted parts — qty: 1 unit (mark as conditional if source is municipal/surface)
-   2. Raw Water Storage/Break Tank — ${Math.round(Number(storageTankL) * 0.5 || 500)}L polyethylene or RC tank, NSF/ANSI 61 rated, inlet float valve, overflow and drain outlets — qty: 1 unit
-   3. ${filterType} Filter Vessel — ${filterDiaMm}mm FRP pressure vessel, rated 6 bar, top distributor, bottom collector lateral assembly, ${filterType === 'Greensand' ? 'greensand media 900mm bed depth, silica underbedding 300mm' : 'multimedia (anthracite, sand, gravel) 750mm bed depth'}, automatic backwash valve — qty: 1 unit
-   4. ${needsIron ? 'Greensand Iron Removal Filter — ' + filterDiaMm + 'mm FRP vessel, greensand media, KMnO4 regenerant feed system, 900mm bed depth — qty: 1 unit' : 'Sediment Pre-Filter (5 micron cartridge) — 20" housing, polypropylene sediment cartridge, NSF/ANSI 42, 25–50mm inlet/outlet — qty: 1 unit'}
-   5. ${needsCoag ? 'Coagulation/Flocculation Tank — GRP or HDPE tank, alum dosing point at inlet, mechanical stirrer/paddle flocculator, sized for 20-minute retention time at peak flow — qty: 1 unit' : 'Backwash Controller and Automatic Valve Assembly — timer-controlled automatic backwash valve, digital controller, compatible with filter vessel — qty: 1 set'}
-   6. ${needsDisinf ? (disinfMethod.includes('UV') ? 'UV Disinfection Unit — 40 mJ/cm² minimum dose, SS 316L chamber, quartz sleeve, electronic ballast, flow-proportional control, NSF/ANSI 55 Class A certified — qty: 1 unit' : 'Chemical Dosing Pump (Chlorine) — diaphragm-type metering pump, output ' + peakFlowLpm + ' L/min at rated pressure, PVDF wetted parts, NSF/ANSI 61 rated, adjustable stroke — qty: 1 unit') : 'Flow Meter — electromagnetic or paddle-wheel type, 25–50mm, pulse output for dosing control — qty: 1 unit'}
-   7. Chemical Dosing Tank (NaOCl) — ${Math.max(50, Math.round(Number(naoclLpd) * 7 || 100))}L HDPE chemical-grade tank, vent cap, level indicator, lockable lid, for 7-day NaOCl storage at ${naoclLpd} L/day — qty: 1 unit
-   8. ${needsCoag ? 'Alum (Aluminum Sulfate) Solution Tank — HDPE 100L tank, mechanical agitator, dosing pump connection, spill containment tray — qty: 1 unit' : 'Chemical Injection Quill and Static Mixer — SS 316L injection quill, pipe mixer for rapid chlorine dispersion — qty: 1 set'}
-   9. Activated Carbon Filter (post-treatment) — ${filterDiaMm}mm FRP vessel, granular activated carbon (GAC) 600mm bed depth, EBCT 10 min, NSF/ANSI 61, automatic backwash — qty: ${Number(turbidityNtu || 0) > 5 ? '1 unit (turbidity > 5 NTU — required)' : '1 unit (optional — recommended for taste/odor control)'}
-   10. Treated Water Storage Tank — ${storageTankL}L capacity (1-day demand), polyethylene or RC construction, covered, NSF/ANSI 61 rated, inlet float valve, overflow, drain, man-way for cleaning — qty: 1 unit
-   11. Transfer/Booster Pump (treated water to distribution) — centrifugal pump, capacity ${peakFlowLpm} L/min at distribution pressure, SS 304 impeller, NSF/ANSI 61, with pressure tank 24L minimum — qty: 1 set
-   12. Pressure Gauges (inlet, interstage, outlet) — 0–700 kPa, 63mm glycerin-filled, 1/4" BSP — qty: 4 pcs
-   13. Water Quality Test Kit — digital turbidity meter (NTU), colorimetric iron test kit, free chlorine DPD test kit (0–5 mg/L), pH meter — qty: 1 set (for commissioning and routine monitoring)
-   14. Interconnecting Pipework — 32–50mm uPVC PN10 or SS 304 piping between treatment stages, NSF/PNS 65 rated, ball valves at each unit inlet/outlet for isolation, union fittings for easy service — qty: 1 lot
-   15. Chemical Room Equipment — spill containment bund (GRP or HDPE), eyewash station, PPE hooks, chemical warning labels, ventilation louver — qty: 1 lot (DOLE OSH compliance)
-   16. Electrical and Control Panel — IP55 enclosure, ON/OFF controls for all pumps, alarm for high/low level, hour meters, properly rated MCBs per PEC 2017 — qty: 1 lot
-   17. Pipe Supports, Anchors, and Fittings — galvanized pipe clamps, wall anchors, reducers, couplings for complete installation — qty: 1 lot
-   18. Miscellaneous (Teflon tape, PVC cement, pipe labels per PNS 65 color code, safety signs, cable ties) — qty: 1 lot
+   1. Raw Water Pump (if source is borehole/deep well): centrifugal submersible pump, capacity ${peakFlowLpm} L/min, head per site survey, SS 304 impeller, NSF/ANSI 61 wetted parts: qty: 1 unit (mark as conditional if source is municipal/surface)
+   2. Raw Water Storage/Break Tank: ${Math.round(Number(storageTankL) * 0.5 || 500)}L polyethylene or RC tank, NSF/ANSI 61 rated, inlet float valve, overflow and drain outlets: qty: 1 unit
+   3. ${filterType} Filter Vessel: ${filterDiaMm}mm FRP pressure vessel, rated 6 bar, top distributor, bottom collector lateral assembly, ${filterType === 'Greensand' ? 'greensand media 900mm bed depth, silica underbedding 300mm' : 'multimedia (anthracite, sand, gravel) 750mm bed depth'}, automatic backwash valve: qty: 1 unit
+   4. ${needsIron ? 'Greensand Iron Removal Filter: ' + filterDiaMm + 'mm FRP vessel, greensand media, KMnO4 regenerant feed system, 900mm bed depth: qty: 1 unit' : 'Sediment Pre-Filter (5 micron cartridge): 20" housing, polypropylene sediment cartridge, NSF/ANSI 42, 25–50mm inlet/outlet: qty: 1 unit'}
+   5. ${needsCoag ? 'Coagulation/Flocculation Tank: GRP or HDPE tank, alum dosing point at inlet, mechanical stirrer/paddle flocculator, sized for 20-minute retention time at peak flow: qty: 1 unit' : 'Backwash Controller and Automatic Valve Assembly: timer-controlled automatic backwash valve, digital controller, compatible with filter vessel: qty: 1 set'}
+   6. ${needsDisinf ? (disinfMethod.includes('UV') ? 'UV Disinfection Unit: 40 mJ/cm² minimum dose, SS 316L chamber, quartz sleeve, electronic ballast, flow-proportional control, NSF/ANSI 55 Class A certified: qty: 1 unit' : 'Chemical Dosing Pump (Chlorine): diaphragm-type metering pump, output ' + peakFlowLpm + ' L/min at rated pressure, PVDF wetted parts, NSF/ANSI 61 rated, adjustable stroke: qty: 1 unit') : 'Flow Meter: electromagnetic or paddle-wheel type, 25–50mm, pulse output for dosing control: qty: 1 unit'}
+   7. Chemical Dosing Tank (NaOCl): ${Math.max(50, Math.round(Number(naoclLpd) * 7 || 100))}L HDPE chemical-grade tank, vent cap, level indicator, lockable lid, for 7-day NaOCl storage at ${naoclLpd} L/day: qty: 1 unit
+   8. ${needsCoag ? 'Alum (Aluminum Sulfate) Solution Tank: HDPE 100L tank, mechanical agitator, dosing pump connection, spill containment tray: qty: 1 unit' : 'Chemical Injection Quill and Static Mixer: SS 316L injection quill, pipe mixer for rapid chlorine dispersion: qty: 1 set'}
+   9. Activated Carbon Filter (post-treatment): ${filterDiaMm}mm FRP vessel, granular activated carbon (GAC) 600mm bed depth, EBCT 10 min, NSF/ANSI 61, automatic backwash: qty: ${Number(turbidityNtu || 0) > 5 ? '1 unit (turbidity > 5 NTU: required)' : '1 unit (optional: recommended for taste/odor control)'}
+   10. Treated Water Storage Tank: ${storageTankL}L capacity (1-day demand), polyethylene or RC construction, covered, NSF/ANSI 61 rated, inlet float valve, overflow, drain, man-way for cleaning: qty: 1 unit
+   11. Transfer/Booster Pump (treated water to distribution): centrifugal pump, capacity ${peakFlowLpm} L/min at distribution pressure, SS 304 impeller, NSF/ANSI 61, with pressure tank 24L minimum: qty: 1 set
+   12. Pressure Gauges (inlet, interstage, outlet): 0–700 kPa, 63mm glycerin-filled, 1/4" BSP: qty: 4 pcs
+   13. Water Quality Test Kit: digital turbidity meter (NTU), colorimetric iron test kit, free chlorine DPD test kit (0–5 mg/L), pH meter: qty: 1 set (for commissioning and routine monitoring)
+   14. Interconnecting Pipework: 32–50mm uPVC PN10 or SS 304 piping between treatment stages, NSF/PNS 65 rated, ball valves at each unit inlet/outlet for isolation, union fittings for easy service: qty: 1 lot
+   15. Chemical Room Equipment: spill containment bund (GRP or HDPE), eyewash station, PPE hooks, chemical warning labels, ventilation louver: qty: 1 lot (DOLE OSH compliance)
+   16. Electrical and Control Panel: IP55 enclosure, ON/OFF controls for all pumps, alarm for high/low level, hour meters, properly rated MCBs per PEC 2017: qty: 1 lot
+   17. Pipe Supports, Anchors, and Fittings: galvanized pipe clamps, wall anchors, reducers, couplings for complete installation: qty: 1 lot
+   18. Miscellaneous (Teflon tape, PVC cement, pipe labels per PNS 65 color code, safety signs, cable ties): qty: 1 lot
 
 2. "sow_sections": array of 9 sections (each: section_no, title, content)
    Cover:
-   - "1.0" General Scope (design, supply, install, test, and commission complete Water Treatment System for ${demandLpd} L/day from ${rawSource} source, producing outlet water compliant with PNS 1998 / DOH standards — turbidity ≤ 1 NTU potable, iron ≤ 0.3 mg/L, free chlorine 0.2–0.5 mg/L at point of use)
+   - "1.0" General Scope (design, supply, install, test, and commission complete Water Treatment System for ${demandLpd} L/day from ${rawSource} source, producing outlet water compliant with PNS 1998 / DOH standards: turbidity ≤ 1 NTU potable, iron ≤ 0.3 mg/L, free chlorine 0.2–0.5 mg/L at point of use)
    - "2.0" Applicable Standards (PNS 1998, DOH Administrative Order on Water Quality, WHO 4th Edition Guidelines, AWWA design standards, NSF/ANSI 61, Philippine Plumbing Code, DOLE OSH chemical safety, PEC 2017 for electrical)
    - "3.0" Equipment Supply and Submittal Requirements (all wetted equipment NSF/ANSI 61 certified; submit manufacturer data sheets, pressure vessel certificates, media gradation analysis, and NSF certificates for Engineer's approval before procurement; raw water quality analysis report from DOH-accredited laboratory required before design finalization)
-   - "4.1" Civil and Structural Works (concrete pad for filter vessels and tanks — minimum 150mm thick RC slab; chemical room with 300mm bunded floor, drain to sump, forced ventilation minimum 10 ACH; all anchor bolts per NSCP seismic zone)
+   - "4.1" Civil and Structural Works (concrete pad for filter vessels and tanks: minimum 150mm thick RC slab; chemical room with 300mm bunded floor, drain to sump, forced ventilation minimum 10 ACH; all anchor bolts per NSCP seismic zone)
    - "4.2" Treatment Equipment Installation (filter vessel installation on level pad, minimum 1.0m service clearance on all sides; backwash drain to be piped to waste/drainage; chemical dosing lines labeled; injection points upstream of static mixer; storage tanks to be covered and vented through insect screen)
-   - "4.3" Disinfection and Chemical Dosing System (${needsDisinf ? `chlorine dosing set at ${cl2DoseMg} mg/L to achieve CT ≥ 30 mg·min/L; free chlorine residual target 0.5 mg/L post-contact tank; NaOCl stored in locked chemical room; dose to be verified by daily grab sample using DPD test kit` : 'disinfection not required — install sampling tap at treated water outlet for periodic water quality verification'})
+   - "4.3" Disinfection and Chemical Dosing System (${needsDisinf ? `chlorine dosing set at ${cl2DoseMg} mg/L to achieve CT ≥ 30 mg·min/L; free chlorine residual target 0.5 mg/L post-contact tank; NaOCl stored in locked chemical room; dose to be verified by daily grab sample using DPD test kit` : 'disinfection not required: install sampling tap at treated water outlet for periodic water quality verification'})
    - "5.0" Testing and Commissioning (pre-commissioning raw water quality test by DOH-accredited laboratory; 72-hour continuous operation test; daily grab samples for turbidity, iron, pH, free chlorine during commissioning; final treated water quality report to be submitted confirming PNS 1998 compliance before handover)
-   - "6.0" Safety and Environmental Compliance (DOLE OSH requirements for chemical handling — chlorine/alum/KMnO4 SDS to be posted in chemical room; spill containment capacity ≥ 110% of largest chemical container; backwash wastewater to be discharged to DENR-compliant disposal point — not directly to drainage without settlement; operator must hold TESDA or DOH water treatment certificate)
+   - "6.0" Safety and Environmental Compliance (DOLE OSH requirements for chemical handling: chlorine/alum/KMnO4 SDS to be posted in chemical room; spill containment capacity ≥ 110% of largest chemical container; backwash wastewater to be discharged to DENR-compliant disposal point: not directly to drainage without settlement; operator must hold TESDA or DOH water treatment certificate)
    - "7.0" Maintenance, Training, and Handover (media replacement schedule per manufacturer spec; monthly backwash frequency check; weekly water quality monitoring log; quarterly chemical stock inspection; annual pressure vessel inspection; 1-year warranty on all equipment; O&M manual; operator training minimum 8 hours covering backwash procedure, chemical dosing, daily water quality testing, and emergency shutdown)
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
@@ -1125,46 +1125,46 @@ TOTAL O₂ DEMAND: ${o2TotalKgDay} kg O₂/day
 BLOWER: ${blowerM3Min} m³/min @ ${blowerKw} kW (with 20% safety factor)
 SECONDARY CLARIFIER: ${secDiaM} m diameter, ${secAreaM2} m² surface area
 SLUDGE PRODUCTION: ${sludgeKgDay} kg dry solids/day (${sludgeM3Day} m³/day at 1% DS)
-DISINFECTION: ${disinfection}${disinfection === 'Chlorination' ? ` — Cl₂ dose ${cl2DoseMgL} mg/L, NaOCl (10%) ${naoclLpd} L/day, contact tank ${contactTankM3} m³` : ' — UV 40 mJ/cm²'}
+DISINFECTION: ${disinfection}${disinfection === 'Chlorination' ? `: Cl₂ dose ${cl2DoseMgL} mg/L, NaOCl (10%) ${naoclLpd} L/day, contact tank ${contactTankM3} m³` : ': UV 40 mJ/cm²'}
 DENR DAO 2016-08 STATUS: ${denrStatus}
 STANDARDS: DENR DAO 2016-08 (BOD ≤ 30 mg/L, TSS ≤ 50 mg/L, pH 6–9), DOH PD 856, Metcalf & Eddy (5th Ed.), PSME Code, DOLE OSH
 
 Generate a JSON object with:
 1. "bom_items": array of 20 items (each: description, specification, qty, unit, remarks, checked: true)
    Include these items in order:
-   1. Influent Pump/Lift Station — submersible sewage pump, capacity ${peakFlowLps} L/s, 15mm solids handling, SS 316 impeller, duplex (duty+standby), IP68, with level float controls and auto-alternating panel — qty: 2 units (duty+standby)
-   2. Bar Screen / Fine Screen — manual or mechanical bar screen, 25mm spacing, SS 316, with scum/screenings basket, removable for cleaning — qty: 1 unit
-   3. Grit Chamber / Grit Trap — horizontal flow grit chamber, sized for peak flow ${peakFlowLps} L/s, SS 316L weir plate, manual cleanout — qty: 1 unit
-   4. Primary Clarifier Tank (RC) — ${primDiaM} m diameter circular RC settling tank, ${primAreaM2} m² surface area, 3.5 m SWD, hopper bottom, scum baffle, effluent weir, sludge drain valve — qty: 1 unit
-   5. Aeration Tank (RC) — ${aerDims} RC aeration basin, volume ${aerVolM3} m³, internal baffles for plug flow, concrete lined with epoxy, overflow weir to secondary clarifier — qty: 1 unit
-   6. Fine Bubble Diffuser System — EPDM membrane disc diffusers, OTE ≥ 8% (standard conditions), grid layout at tank floor, SS 316 air distribution headers, HDPE drop pipes — qty: 1 lot (sized for ${aerVolM3} m³ tank)
-   7. Blower Unit (Duty+Standby) — rotary lobe or screw blower, capacity ${blowerM3Min} m³/min each at 50 kPa discharge pressure, ${blowerKw} kW motor with VFD, IP55, silencer, check valve, pressure gauge — qty: 2 units (duty+standby)
-   8. Blower Control Panel — IP55 enclosure, auto-alternating duty/standby, DO sensor input for blower modulation, hour meters, fault alarm — qty: 1 lot
-   9. Secondary Clarifier Tank (RC) — ${secDiaM} m diameter circular RC clarifier, ${secAreaM2} m² surface area, 4.0 m SWD, peripheral weir, sludge hopper, RAS sump — qty: 1 unit
-   10. Return Activated Sludge (RAS) Pump — submersible or dry-pit centrifugal, capacity 50–100% of ADF (${Math.round(Number(flowM3Day) * 0.75 / 24 * 1000 / 60 || 5)} L/min nominal), SS 316 wetted parts, duplex — qty: 2 units (duty+standby)
-   11. Waste Activated Sludge (WAS) Pump — progressive cavity or peristaltic pump, capacity ${sludgeM3Day} m³/day (${Math.round(Number(sludgeM3Day) / 24 * 1000 / 60 || 2)} L/min), SS 316 — qty: 1 unit
-   12. Sludge Holding Tank (RC) — min 20 m³ capacity RC tank, covered, dewatering drain, overflow, level indicator — qty: 1 unit
-   13. ${disinfection === 'Chlorination' ? `Chlorination Contact Tank (RC) — ${contactTankM3} m³ RC baffled contact tank (30-min HRT at peak flow), SS 316 baffles — qty: 1 unit` : 'UV Disinfection Channel — stainless steel UV channel, 40 mJ/cm² dose at peak flow, NSF/ANSI 55 Class A, electronic ballast, quartz sleeves, flow-proportional control — qty: 1 unit'}
-   14. ${disinfection === 'Chlorination' ? `Chemical Dosing System (NaOCl) — peristaltic metering pump ${naoclLpd} L/day capacity, HDPE dosing tank ${Math.max(50, Math.round(Number(naoclLpd) * 7 || 100))}L (7-day storage), injection quill, flow meter — qty: 1 set` : 'Post-Chlorination Residual Dosing (backup) — small NaOCl dosing pump for residual maintenance, 20L HDPE tank — qty: 1 set'}
-   15. Effluent Flow Meter — electromagnetic flow meter, flanged, sized for peak flow, 4–20mA output for SCADA, SS 316 electrodes — qty: 1 unit
-   16. Interconnecting Pipework — uPVC or DI pipe PN10, all process lines between tanks, sewage-grade fittings, isolation gate/ball valves at each unit inlet/outlet, air release valves on force mains — qty: 1 lot
-   17. Electrical and SCADA Panel — MCC panel IP55, auto/manual controls for all pumps and blowers, alarm annunciator (high level, pump fault, blower fault, DO alarm), hour meters, energy meter — qty: 1 lot (PEC 2017 compliant)
-   18. Civil and Structural Works — all RC tank construction per structural drawings, epoxy lining of all wet surfaces, access ladders, grating covers, pipe supports, earthworks, site drainage, perimeter fencing — qty: 1 lot
-   19. Online Water Quality Monitor — DO meter (in aeration tank), pH/ORP meter (in effluent), with continuous display and alarm outputs — qty: 1 set
-   20. Miscellaneous — pipe labels, valve tags, safety signs (confined space, chemical hazard), PPE hooks, eyewash station, O&M tool kit — qty: 1 lot
+   1. Influent Pump/Lift Station: submersible sewage pump, capacity ${peakFlowLps} L/s, 15mm solids handling, SS 316 impeller, duplex (duty+standby), IP68, with level float controls and auto-alternating panel: qty: 2 units (duty+standby)
+   2. Bar Screen / Fine Screen: manual or mechanical bar screen, 25mm spacing, SS 316, with scum/screenings basket, removable for cleaning: qty: 1 unit
+   3. Grit Chamber / Grit Trap: horizontal flow grit chamber, sized for peak flow ${peakFlowLps} L/s, SS 316L weir plate, manual cleanout: qty: 1 unit
+   4. Primary Clarifier Tank (RC): ${primDiaM} m diameter circular RC settling tank, ${primAreaM2} m² surface area, 3.5 m SWD, hopper bottom, scum baffle, effluent weir, sludge drain valve: qty: 1 unit
+   5. Aeration Tank (RC): ${aerDims} RC aeration basin, volume ${aerVolM3} m³, internal baffles for plug flow, concrete lined with epoxy, overflow weir to secondary clarifier: qty: 1 unit
+   6. Fine Bubble Diffuser System: EPDM membrane disc diffusers, OTE ≥ 8% (standard conditions), grid layout at tank floor, SS 316 air distribution headers, HDPE drop pipes: qty: 1 lot (sized for ${aerVolM3} m³ tank)
+   7. Blower Unit (Duty+Standby): rotary lobe or screw blower, capacity ${blowerM3Min} m³/min each at 50 kPa discharge pressure, ${blowerKw} kW motor with VFD, IP55, silencer, check valve, pressure gauge: qty: 2 units (duty+standby)
+   8. Blower Control Panel: IP55 enclosure, auto-alternating duty/standby, DO sensor input for blower modulation, hour meters, fault alarm: qty: 1 lot
+   9. Secondary Clarifier Tank (RC): ${secDiaM} m diameter circular RC clarifier, ${secAreaM2} m² surface area, 4.0 m SWD, peripheral weir, sludge hopper, RAS sump: qty: 1 unit
+   10. Return Activated Sludge (RAS) Pump: submersible or dry-pit centrifugal, capacity 50–100% of ADF (${Math.round(Number(flowM3Day) * 0.75 / 24 * 1000 / 60 || 5)} L/min nominal), SS 316 wetted parts, duplex: qty: 2 units (duty+standby)
+   11. Waste Activated Sludge (WAS) Pump: progressive cavity or peristaltic pump, capacity ${sludgeM3Day} m³/day (${Math.round(Number(sludgeM3Day) / 24 * 1000 / 60 || 2)} L/min), SS 316: qty: 1 unit
+   12. Sludge Holding Tank (RC): min 20 m³ capacity RC tank, covered, dewatering drain, overflow, level indicator: qty: 1 unit
+   13. ${disinfection === 'Chlorination' ? `Chlorination Contact Tank (RC): ${contactTankM3} m³ RC baffled contact tank (30-min HRT at peak flow), SS 316 baffles: qty: 1 unit` : 'UV Disinfection Channel: stainless steel UV channel, 40 mJ/cm² dose at peak flow, NSF/ANSI 55 Class A, electronic ballast, quartz sleeves, flow-proportional control: qty: 1 unit'}
+   14. ${disinfection === 'Chlorination' ? `Chemical Dosing System (NaOCl): peristaltic metering pump ${naoclLpd} L/day capacity, HDPE dosing tank ${Math.max(50, Math.round(Number(naoclLpd) * 7 || 100))}L (7-day storage), injection quill, flow meter: qty: 1 set` : 'Post-Chlorination Residual Dosing (backup): small NaOCl dosing pump for residual maintenance, 20L HDPE tank: qty: 1 set'}
+   15. Effluent Flow Meter: electromagnetic flow meter, flanged, sized for peak flow, 4–20mA output for SCADA, SS 316 electrodes: qty: 1 unit
+   16. Interconnecting Pipework: uPVC or DI pipe PN10, all process lines between tanks, sewage-grade fittings, isolation gate/ball valves at each unit inlet/outlet, air release valves on force mains: qty: 1 lot
+   17. Electrical and SCADA Panel: MCC panel IP55, auto/manual controls for all pumps and blowers, alarm annunciator (high level, pump fault, blower fault, DO alarm), hour meters, energy meter: qty: 1 lot (PEC 2017 compliant)
+   18. Civil and Structural Works: all RC tank construction per structural drawings, epoxy lining of all wet surfaces, access ladders, grating covers, pipe supports, earthworks, site drainage, perimeter fencing: qty: 1 lot
+   19. Online Water Quality Monitor: DO meter (in aeration tank), pH/ORP meter (in effluent), with continuous display and alarm outputs: qty: 1 set
+   20. Miscellaneous: pipe labels, valve tags, safety signs (confined space, chemical hazard), PPE hooks, eyewash station, O&M tool kit: qty: 1 lot
 
 2. "sow_sections": array of 10 sections (each: section_no, title, content)
    Cover:
-   - "1.0" General Scope (design, supply, construct, install, test, and commission complete Wastewater Treatment Plant for ${flowM3Day} m³/day ADF — achieving DENR DAO 2016-08 Class D effluent: BOD ≤ ${bodOut} mg/L, TSS ≤ 50 mg/L, pH 6–9)
-   - "2.0" Applicable Standards and Permits (DENR DAO 2016-08 — ECC and Sewage Discharge Permit required before commissioning; DOH PD 856 — Sanitary Permit from LGU; PSME Code for mechanical equipment; DOLE OSH for confined space and chemical safety; DENR-accredited laboratory for effluent testing)
-   - "3.0" Civil and Structural Works (all RC tanks watertight — water-fill test required; epoxy lining of all wet surfaces; minimum 150 mm RC slab for all equipment pads; confined space access provisions — hatches, ventilation, safety ladders; seismic zone design per NSCP; perimeter fencing)
+   - "1.0" General Scope (design, supply, construct, install, test, and commission complete Wastewater Treatment Plant for ${flowM3Day} m³/day ADF: achieving DENR DAO 2016-08 Class D effluent: BOD ≤ ${bodOut} mg/L, TSS ≤ 50 mg/L, pH 6–9)
+   - "2.0" Applicable Standards and Permits (DENR DAO 2016-08: ECC and Sewage Discharge Permit required before commissioning; DOH PD 856: Sanitary Permit from LGU; PSME Code for mechanical equipment; DOLE OSH for confined space and chemical safety; DENR-accredited laboratory for effluent testing)
+   - "3.0" Civil and Structural Works (all RC tanks watertight: water-fill test required; epoxy lining of all wet surfaces; minimum 150 mm RC slab for all equipment pads; confined space access provisions: hatches, ventilation, safety ladders; seismic zone design per NSCP; perimeter fencing)
    - "4.1" Preliminary Treatment Installation (bar screen, grit chamber, and lift station installation; screenings collection and disposal; grit washout drainage)
-   - "4.2" Primary Treatment — Clarifier (primary clarifier construction and installation; sludge draw-off piping to sludge holding tank; scum removal connection; effluent weir leveling — must be within ±3mm horizontal)
-   - "4.3" Biological Treatment — Aeration Tank and Blowers (aeration tank construction; diffuser grid installation — all EPDM membrane discs at uniform spacing; blower installation on vibration-isolated base; blower discharge piping sized for ${blowerM3Min} m³/min; VFD commissioning and DO setpoint configuration at 2.0 mg/L)
-   - "4.4" Secondary Clarifier and Sludge Return (secondary clarifier construction; RAS pump installation and commissioning — initial RAS/Q ratio 0.5; WAS pump connection to sludge holding tank; sludge wasting schedule per ${srtDays}-day SRT)
-   - "4.5" Disinfection and Effluent Discharge (${disinfection === 'Chlorination' ? `contact tank construction; NaOCl dosing pump commissioning at ${cl2DoseMgL} mg/L dose; target effluent residual 0.2–0.5 mg/L free chlorine; chlorine contact time minimum 30 min` : `UV unit installation; minimum 40 mJ/cm² dose verification at peak flow; quartz sleeve cleaning schedule — monthly`}; effluent flow meter calibration; effluent discharge to approved receiving water body with DENR Sewage Discharge Permit)
-   - "5.0" Testing and Commissioning (civil watertightness test before backfill — all RC tanks; mechanical run test for all pumps and blowers — 4-hour continuous; biological start-up — seed sludge from existing STP or commercial MLSS activator; 72-hour continuous STP operation test with daily effluent sampling; DENR-accredited lab analysis for BOD, TSS, pH, DO — results to be submitted as commissioning report; blower DO control calibration)
-   - "6.0" Regulatory Compliance, Training, and Handover (DENR ECC compliance documentation; DOH Sanitation Permit renewal support; operator training minimum 16 hours — covering daily operations, DO control, sludge wasting, chemical handling, confined space entry, DENR sampling procedures; O&M manual including maintenance schedules for diffusers, RAS pumps, blowers, and UV/chlorination system; sludge disposal agreement with DOH/DENR-licensed hauler; 1-year warranty on all mechanical equipment; monthly effluent water quality monitoring log for DENR compliance)
+   - "4.2" Primary Treatment: Clarifier (primary clarifier construction and installation; sludge draw-off piping to sludge holding tank; scum removal connection; effluent weir leveling: must be within ±3mm horizontal)
+   - "4.3" Biological Treatment: Aeration Tank and Blowers (aeration tank construction; diffuser grid installation: all EPDM membrane discs at uniform spacing; blower installation on vibration-isolated base; blower discharge piping sized for ${blowerM3Min} m³/min; VFD commissioning and DO setpoint configuration at 2.0 mg/L)
+   - "4.4" Secondary Clarifier and Sludge Return (secondary clarifier construction; RAS pump installation and commissioning: initial RAS/Q ratio 0.5; WAS pump connection to sludge holding tank; sludge wasting schedule per ${srtDays}-day SRT)
+   - "4.5" Disinfection and Effluent Discharge (${disinfection === 'Chlorination' ? `contact tank construction; NaOCl dosing pump commissioning at ${cl2DoseMgL} mg/L dose; target effluent residual 0.2–0.5 mg/L free chlorine; chlorine contact time minimum 30 min` : `UV unit installation; minimum 40 mJ/cm² dose verification at peak flow; quartz sleeve cleaning schedule: monthly`}; effluent flow meter calibration; effluent discharge to approved receiving water body with DENR Sewage Discharge Permit)
+   - "5.0" Testing and Commissioning (civil watertightness test before backfill: all RC tanks; mechanical run test for all pumps and blowers: 4-hour continuous; biological start-up: seed sludge from existing STP or commercial MLSS activator; 72-hour continuous STP operation test with daily effluent sampling; DENR-accredited lab analysis for BOD, TSS, pH, DO: results to be submitted as commissioning report; blower DO control calibration)
+   - "6.0" Regulatory Compliance, Training, and Handover (DENR ECC compliance documentation; DOH Sanitation Permit renewal support; operator training minimum 16 hours: covering daily operations, DO control, sludge wasting, chemical handling, confined space entry, DENR sampling procedures; O&M manual including maintenance schedules for diffusers, RAS pumps, blowers, and UV/chlorination system; sludge disposal agreement with DOH/DENR-licensed hauler; 1-year warranty on all mechanical equipment; monthly effluent water quality monitoring log for DENR compliance)
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -1211,48 +1211,48 @@ CATCHMENT AREA: ${totalAreaHa} ha (${areaMode === 'composite' ? 'composite multi
 COMPOSITE RUNOFF COEFFICIENT (C): ${compositeC}
 RETURN PERIOD: ${returnPeriod}-year storm event
 RAINFALL INTENSITY: ${intensityMmhr} mm/hr at tc = ${tcMin} min (PAGASA IDF)
-METHOD: Rational Method — Q = C×i×A/360
+METHOD: Rational Method: Q = C×i×A/360
 DESIGN FLOW: ${designFlowM3s} m³/s (${designFlowLps} L/s)
 REQUIRED PIPE DIAMETER: ${dRequiredMm} mm (calculated)
 SELECTED PIPE DIAMETER: ${dSelectedMm} mm (DPWH standard, minimum 300 mm)
 PIPE MATERIAL: ${pipeMaterial} (Manning's n = ${manningN})
 PIPE SLOPE: ${slopePct}%
 PIPE CAPACITY (full-flow): ${qCapLps} L/s
-FLOW VELOCITY: ${fullPipeVel} m/s (DPWH limit: 0.6–${maxVel} m/s) — ${velCheck}
+FLOW VELOCITY: ${fullPipeVel} m/s (DPWH limit: 0.6–${maxVel} m/s): ${velCheck}
 FLOW RATIO: ${flowRatioPct}% of full capacity
 STANDARDS: DPWH Flood Control Design Manual, PAGASA IDF, DPWH Blue Book, NSCP, PNS/ISO pipe standards
 
 Generate a JSON object with:
 1. "bom_items": array of 16 items (each: description, specification, qty, unit, remarks, checked: true)
    Include these items in order:
-   1. Storm Drain Pipe — ${dSelectedMm} mm nominal diameter ${pipeMaterial} pipe, PN6 or PN10 (pressure rating per site conditions), DPWH-approved, socket and spigot jointing with rubber ring — qty: per linear meter of drain run (Contractor to quantify from layout drawing)
-   2. Catch Basin / Storm Inlet — precast RC catch basin, 600×600 mm (minimum), 150 mm RC walls, haunched base, mortar-bedded to pipe invert, kerb inlet or grated top — qty: as per layout (typically 1 per 20–30 m spacing in paved areas)
-   3. Grated Cover / CI Grating — cast iron heavy-duty grating, 600×600 mm, HS20 traffic-rated where in vehicular areas, anti-theft bolted frame — qty: matching catch basin count
-   4. Manhole (RC Type) — 1200 mm diameter RC manhole, 150 mm wall, benched invert, step irons, min 1.2 m depth, precast or in-situ RC construction per DPWH Standard Drawing — qty: at all junctions and max 50 m spacing along drain run
-   5. Manhole Frame and Cover (CI/DI) — cast iron or ductile iron frame and lid, 600 mm clear opening, HS20-rated where in road, anti-theft bolt — qty: matching manhole count
-   6. Concrete Pipe Bedding and Surround — Class B granular bedding (25mm crushed gravel), 150 mm bed below pipe, 300 mm surround to pipe springline, compacted in 150 mm layers — qty: per linear meter
-   7. Pipe Jointing Material — rubber ring push-fit gaskets (factory-supplied with pipe), joint lubricant, HDPE or uPVC coupler fittings at bends and branches — qty: 1 lot
-   8. Concrete Headwall / Outfall Structure — RC headwall at pipe outfall, 200 mm RC, weep holes, toe slab, riprap energy dissipation pad (0.5 m × pipe dia.) at downstream end — qty: 1 unit per outfall
-   9. Riprap / Erosion Protection — 150–300 mm hand-placed riprap at outfall and along open channel transitions, geotextile filter fabric underlayer — qty: as required at outfall
-   10. Excavation and Trenching — machine excavation in suitable ground, trench width = pipe OD + 600 mm, shoring if > 1.5 m deep, stockpile and haul spoil — qty: per linear meter (volume per trench dimensions)
-   11. Dewatering — submersible pump, wellpoint or sump dewatering during pipe laying in wet ground, continuous monitoring — qty: 1 lot (provisional — per actual site conditions)
-   12. Trench Backfill and Compaction — selected fill (CBR ≥ 15%), compacted in 200 mm layers at 95% Standard Proctor Density, proctor tests at 50 m intervals — qty: per linear meter
-   13. Road / Pavement Reinstatement — reinstatement of existing road pavement (asphalt or concrete) over trench zone per DPWH standard repair detail, matching existing pavement thickness — qty: per linear meter in paved areas
-   14. Inlet Protection / Trash Guard — 50 mm SS 304 bar grating trash guard at pipe inlet, bolted to headwall or catch basin to prevent debris blockage — qty: 1 unit per inlet structure
-   15. CCTV Pipe Inspection (post-construction) — CCTV survey of completed drain run after backfill to verify line, level, and joint integrity before final acceptance — qty: per linear meter of drain installed
-   16. Miscellaneous — pipe markers (every 20 m), manhole numbering plaques, as-built survey, temporary diversion drain during construction, site safety signage, spoil disposal — qty: 1 lot
+   1. Storm Drain Pipe: ${dSelectedMm} mm nominal diameter ${pipeMaterial} pipe, PN6 or PN10 (pressure rating per site conditions), DPWH-approved, socket and spigot jointing with rubber ring: qty: per linear meter of drain run (Contractor to quantify from layout drawing)
+   2. Catch Basin / Storm Inlet: precast RC catch basin, 600×600 mm (minimum), 150 mm RC walls, haunched base, mortar-bedded to pipe invert, kerb inlet or grated top: qty: as per layout (typically 1 per 20–30 m spacing in paved areas)
+   3. Grated Cover / CI Grating: cast iron heavy-duty grating, 600×600 mm, HS20 traffic-rated where in vehicular areas, anti-theft bolted frame: qty: matching catch basin count
+   4. Manhole (RC Type): 1200 mm diameter RC manhole, 150 mm wall, benched invert, step irons, min 1.2 m depth, precast or in-situ RC construction per DPWH Standard Drawing: qty: at all junctions and max 50 m spacing along drain run
+   5. Manhole Frame and Cover (CI/DI): cast iron or ductile iron frame and lid, 600 mm clear opening, HS20-rated where in road, anti-theft bolt: qty: matching manhole count
+   6. Concrete Pipe Bedding and Surround: Class B granular bedding (25mm crushed gravel), 150 mm bed below pipe, 300 mm surround to pipe springline, compacted in 150 mm layers: qty: per linear meter
+   7. Pipe Jointing Material: rubber ring push-fit gaskets (factory-supplied with pipe), joint lubricant, HDPE or uPVC coupler fittings at bends and branches: qty: 1 lot
+   8. Concrete Headwall / Outfall Structure: RC headwall at pipe outfall, 200 mm RC, weep holes, toe slab, riprap energy dissipation pad (0.5 m × pipe dia.) at downstream end: qty: 1 unit per outfall
+   9. Riprap / Erosion Protection: 150–300 mm hand-placed riprap at outfall and along open channel transitions, geotextile filter fabric underlayer: qty: as required at outfall
+   10. Excavation and Trenching: machine excavation in suitable ground, trench width = pipe OD + 600 mm, shoring if > 1.5 m deep, stockpile and haul spoil: qty: per linear meter (volume per trench dimensions)
+   11. Dewatering: submersible pump, wellpoint or sump dewatering during pipe laying in wet ground, continuous monitoring: qty: 1 lot (provisional: per actual site conditions)
+   12. Trench Backfill and Compaction: selected fill (CBR ≥ 15%), compacted in 200 mm layers at 95% Standard Proctor Density, proctor tests at 50 m intervals: qty: per linear meter
+   13. Road / Pavement Reinstatement: reinstatement of existing road pavement (asphalt or concrete) over trench zone per DPWH standard repair detail, matching existing pavement thickness: qty: per linear meter in paved areas
+   14. Inlet Protection / Trash Guard: 50 mm SS 304 bar grating trash guard at pipe inlet, bolted to headwall or catch basin to prevent debris blockage: qty: 1 unit per inlet structure
+   15. CCTV Pipe Inspection (post-construction): CCTV survey of completed drain run after backfill to verify line, level, and joint integrity before final acceptance: qty: per linear meter of drain installed
+   16. Miscellaneous: pipe markers (every 20 m), manhole numbering plaques, as-built survey, temporary diversion drain during construction, site safety signage, spoil disposal: qty: 1 lot
 
 2. "sow_sections": array of 9 sections (each: section_no, title, content)
    Cover:
-   - "1.0" General Scope (design, supply, and construct a complete storm drain system to convey the ${returnPeriod}-year design storm runoff of ${designFlowLps} L/s from a ${totalAreaHa} ha catchment; all work in accordance with DPWH Flood Control Design Manual and DPWH Blue Book Standard Specifications; contractor shall verify all quantities from final layout drawings — BOM is for planning purposes only)
+   - "1.0" General Scope (design, supply, and construct a complete storm drain system to convey the ${returnPeriod}-year design storm runoff of ${designFlowLps} L/s from a ${totalAreaHa} ha catchment; all work in accordance with DPWH Flood Control Design Manual and DPWH Blue Book Standard Specifications; contractor shall verify all quantities from final layout drawings: BOM is for planning purposes only)
    - "2.0" Applicable Standards and Permits (DPWH Drainage Design Manual; DPWH Blue Book Standard Specifications for Highways, Bridges and Airports; PAGASA IDF data; NSCP; PNS/ISO 4435 for uPVC sewer pipes; LGU Building Permit and DPWH permit where crossing national road; environmental compliance for discharge to receiving water body per RA 9275 Clean Water Act)
-   - "3.0" Site Investigation and Setting Out (topographic survey and as-built check; hydraulic grade line confirmation — invert levels to be set to achieve minimum ${slopePct}% slope throughout; confirm soil classification and groundwater level before finalsing trench and shoring design; all manholes to be surveyed and referenced to benchmark)
-   - "4.1" Pipe Laying and Jointing (trench excavation to designed invert levels; Class B granular bedding compacted to 95% SPD before pipe laying; ${dSelectedMm} mm ${pipeMaterial} pipe laid true to line and grade — maximum 5 mm horizontal deviation per 3 m rod; rubber ring joints lubricated per manufacturer instructions; no open-cut joints permitted; post-laying alignment check by laser or string line before backfill)
+   - "3.0" Site Investigation and Setting Out (topographic survey and as-built check; hydraulic grade line confirmation: invert levels to be set to achieve minimum ${slopePct}% slope throughout; confirm soil classification and groundwater level before finalsing trench and shoring design; all manholes to be surveyed and referenced to benchmark)
+   - "4.1" Pipe Laying and Jointing (trench excavation to designed invert levels; Class B granular bedding compacted to 95% SPD before pipe laying; ${dSelectedMm} mm ${pipeMaterial} pipe laid true to line and grade: maximum 5 mm horizontal deviation per 3 m rod; rubber ring joints lubricated per manufacturer instructions; no open-cut joints permitted; post-laying alignment check by laser or string line before backfill)
    - "4.2" Catch Basins and Manholes (precast or in-situ RC catch basins and manholes constructed per DPWH standard drawings; invert benching mortar-finished to direct flow; all lid frames grouted level; CI grating and manhole covers to be HS20-rated in vehicular areas; step irons in all manholes at 300 mm vertical spacing; joint between precast sections to be bituminous-sealed watertight)
    - "4.3" Outfall and Erosion Protection (RC headwall constructed at all outfall locations; riprap energy dissipation pad min 1.5× pipe diameter length on receiving channel bed; geotextile filter fabric under all riprap; outfall invert to be at or above ordinary high-water level of receiving watercourse; if below HWL, provide flap gate to prevent backflow)
-   - "4.4" Backfill, Compaction, and Pavement Reinstatement (selected fill backfill in 200 mm compacted layers; 95% SPD throughout; field density test every 50 m minimum; road pavement reinstatement to match existing layer-by-layer — subbase, base course, and wearing course; asphalt to be hot-mix ACI, concrete to be minimum 3000 psi; line-marking reinstated where applicable)
-   - "5.0" Testing and Inspection (CCTV survey of all completed drain runs after backfill — contractor to provide CCTV report with video and defect log; any misaligned joints, displaced pipes, or infiltration to be repaired before acceptance; water-test all manhole benching and catch basin bases — no visible seepage after 30 min; as-built survey of all inverts and manhole rim levels to be submitted within 5 days of final section completion)
-   - "6.0" Regulatory Compliance, Safety, and Handover (trench safety per DOLE OSH Standards — shoring mandatory for depths > 1.2 m; traffic management plan for works on or near roads — DPWH and LGU traffic permit required; confined space entry permit for manhole works; CCTV inspection report and as-built drawings submitted with handover package; O&M guide covering manhole cleaning schedule (annual), catch basin desludging (semi-annual), outfall inspection after each major storm event; 1-year defects liability period — contractor responsible for any settlement or drainage failure)
+   - "4.4" Backfill, Compaction, and Pavement Reinstatement (selected fill backfill in 200 mm compacted layers; 95% SPD throughout; field density test every 50 m minimum; road pavement reinstatement to match existing layer-by-layer: subbase, base course, and wearing course; asphalt to be hot-mix ACI, concrete to be minimum 3000 psi; line-marking reinstated where applicable)
+   - "5.0" Testing and Inspection (CCTV survey of all completed drain runs after backfill: contractor to provide CCTV report with video and defect log; any misaligned joints, displaced pipes, or infiltration to be repaired before acceptance; water-test all manhole benching and catch basin bases: no visible seepage after 30 min; as-built survey of all inverts and manhole rim levels to be submitted within 5 days of final section completion)
+   - "6.0" Regulatory Compliance, Safety, and Handover (trench safety per DOLE OSH Standards: shoring mandatory for depths > 1.2 m; traffic management plan for works on or near roads: DPWH and LGU traffic permit required; confined space entry permit for manhole works; CCTV inspection report and as-built drawings submitted with handover package; O&M guide covering manhole cleaning schedule (annual), catch basin desludging (semi-annual), outfall inspection after each major storm event; 1-year defects liability period: contractor responsible for any settlement or drainage failure)
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -1301,33 +1301,33 @@ STANDARDS: PDI BH-201 (Flow Rate Method), Philippine Plumbing Code (PPC), DENR D
 Generate a JSON object with:
 1. "bom_items": array of 15 items (each: description, specification, qty, unit, remarks, checked: true)
    Include these items in order:
-   1. Grease Interceptor Unit (PDI-rated) — PDI BH-201 certified grease interceptor, ${pdiGpm} GPM rated capacity, ${liquidCapL} L liquid holding, ${greaseRetKg} kg grease retention; cast iron, steel, or HDPE body; inlet baffle and outlet T-pipe; gastight bolted cover; PPC and DENR DAO 2016-08 compliant — qty: 1 unit
-   2. Inlet Pipe Connection — 100 mm (4-inch) PVC Schedule 40 inlet pipe from kitchen fixture drain header to grease interceptor inlet; includes 45° elbow, short nipple, and union for maintenance access — qty: 1 lot (per site layout)
-   3. Outlet Pipe Connection — 100 mm (4-inch) PVC Schedule 40 outlet pipe from grease interceptor outlet to building drain or septic tank connection; P-trap on outlet side; cleanout plug at low point — qty: 1 lot (per site layout)
-   4. Vent Pipe Assembly — 50 mm (2-inch) PVC Schedule 40 vent pipe from grease interceptor body to open air above roof line; anti-siphon vent valve if direct roof vent is not possible; all joints solvent-welded per PPC — qty: 1 lot
-   5. Grease Trap Cover / Access Lid — factory-supplied gastight bolted lid (matching interceptor unit); if installed in floor slab: 600 mm × 600 mm cast iron traffic-rated access cover, HS20-rated where in vehicular area, frame set in concrete haunch — qty: 1 set
-   6. Inlet and Outlet Fittings — 100 mm tee (for inlet drop pipe baffle), 100 mm 90° elbows (min 2), cleanout plugs (min 2), reducing bushings (if fixture piping is 75 mm), PVC solvent cement and primer — qty: 1 lot
-   7. Inlet Strainer / Basket — stainless steel SS 304 perforated basket strainer at interceptor inlet to capture food solids before grease chamber; removable for cleaning; mesh opening 5–10 mm — qty: 1 unit
-   8. Grease Waste Drum / Collection Container — 200 L HDPE closed-head drum with tight-lid, labelled "GREASE WASTE — HAZARDOUS" per DENR DAO 2013-22; used for collected grease during pump-out service; quantity per cleaning cycle — qty: 2 units (initial supply)
-   9. Interceptor Mounting / Concrete Pad — 150 mm thick reinforced concrete pad under interceptor; 3000 psi (20 MPa) concrete; 12 mm RSB mesh reinforcement; anti-vibration neoprene pads if interceptor is above ground — qty: 1 unit (dimensions per interceptor footprint + 150 mm edge clearance)
-   10. Trench / Slab Opening Works — breaking of existing floor tile and concrete slab (if unit is below-grade); excavation to design invert level; formwork and backfill; floor tile reinstatement in matching material and grout — qty: 1 lot (provisional per actual site condition)
-   11. Drain Piping — Branch lines to fixtures — 75 mm PVC Schedule 40 kitchen drain branch piping from individual fixtures (sinks, dishwasher, floor drains) to the common drain header feeding the interceptor; all slopes minimum 1:50 per PPC; cleanout plugs at each change of direction — qty: per linear meter (contractor to quantify from kitchen layout drawing)
-   12. Pressure Test Fittings and Test Plugs — rubber test plugs (100 mm and 50 mm); hand pump for air pressure test; all drain and vent lines tested at 0.3 bar (5 PSI) air pressure for 15 minutes with no pressure drop before covering — qty: 1 lot
-   13. Support Brackets and Pipe Hangers — galvanized steel pipe hangers at max 1.2 m spacing for horizontal runs; wall clamps for vertical stacks; all supports sized for pipe OD and weight when full — qty: 1 lot (per layout)
-   14. Inspection and Sampling Port — 100 mm PVC inspection tee with cleanout cap at outlet side of interceptor; provides access for sampling effluent per DENR DAO 2016-08 discharge monitoring requirements — qty: 1 unit
-   15. Miscellaneous — pipe labels ("GREASE WASTE DRAIN"), as-built drawing, cleaning log book, Contractor's Grease Management Plan per DENR DAO 2016-08, DENR discharge permit assistance, temporary plumbing covers during construction — qty: 1 lot
+   1. Grease Interceptor Unit (PDI-rated): PDI BH-201 certified grease interceptor, ${pdiGpm} GPM rated capacity, ${liquidCapL} L liquid holding, ${greaseRetKg} kg grease retention; cast iron, steel, or HDPE body; inlet baffle and outlet T-pipe; gastight bolted cover; PPC and DENR DAO 2016-08 compliant: qty: 1 unit
+   2. Inlet Pipe Connection: 100 mm (4-inch) PVC Schedule 40 inlet pipe from kitchen fixture drain header to grease interceptor inlet; includes 45° elbow, short nipple, and union for maintenance access: qty: 1 lot (per site layout)
+   3. Outlet Pipe Connection: 100 mm (4-inch) PVC Schedule 40 outlet pipe from grease interceptor outlet to building drain or septic tank connection; P-trap on outlet side; cleanout plug at low point: qty: 1 lot (per site layout)
+   4. Vent Pipe Assembly: 50 mm (2-inch) PVC Schedule 40 vent pipe from grease interceptor body to open air above roof line; anti-siphon vent valve if direct roof vent is not possible; all joints solvent-welded per PPC: qty: 1 lot
+   5. Grease Trap Cover / Access Lid: factory-supplied gastight bolted lid (matching interceptor unit); if installed in floor slab: 600 mm × 600 mm cast iron traffic-rated access cover, HS20-rated where in vehicular area, frame set in concrete haunch: qty: 1 set
+   6. Inlet and Outlet Fittings: 100 mm tee (for inlet drop pipe baffle), 100 mm 90° elbows (min 2), cleanout plugs (min 2), reducing bushings (if fixture piping is 75 mm), PVC solvent cement and primer: qty: 1 lot
+   7. Inlet Strainer / Basket: stainless steel SS 304 perforated basket strainer at interceptor inlet to capture food solids before grease chamber; removable for cleaning; mesh opening 5–10 mm: qty: 1 unit
+   8. Grease Waste Drum / Collection Container: 200 L HDPE closed-head drum with tight-lid, labelled "GREASE WASTE: HAZARDOUS" per DENR DAO 2013-22; used for collected grease during pump-out service; quantity per cleaning cycle: qty: 2 units (initial supply)
+   9. Interceptor Mounting / Concrete Pad: 150 mm thick reinforced concrete pad under interceptor; 3000 psi (20 MPa) concrete; 12 mm RSB mesh reinforcement; anti-vibration neoprene pads if interceptor is above ground: qty: 1 unit (dimensions per interceptor footprint + 150 mm edge clearance)
+   10. Trench / Slab Opening Works: breaking of existing floor tile and concrete slab (if unit is below-grade); excavation to design invert level; formwork and backfill; floor tile reinstatement in matching material and grout: qty: 1 lot (provisional per actual site condition)
+   11. Drain Piping: Branch lines to fixtures: 75 mm PVC Schedule 40 kitchen drain branch piping from individual fixtures (sinks, dishwasher, floor drains) to the common drain header feeding the interceptor; all slopes minimum 1:50 per PPC; cleanout plugs at each change of direction: qty: per linear meter (contractor to quantify from kitchen layout drawing)
+   12. Pressure Test Fittings and Test Plugs: rubber test plugs (100 mm and 50 mm); hand pump for air pressure test; all drain and vent lines tested at 0.3 bar (5 PSI) air pressure for 15 minutes with no pressure drop before covering: qty: 1 lot
+   13. Support Brackets and Pipe Hangers: galvanized steel pipe hangers at max 1.2 m spacing for horizontal runs; wall clamps for vertical stacks; all supports sized for pipe OD and weight when full: qty: 1 lot (per layout)
+   14. Inspection and Sampling Port: 100 mm PVC inspection tee with cleanout cap at outlet side of interceptor; provides access for sampling effluent per DENR DAO 2016-08 discharge monitoring requirements: qty: 1 unit
+   15. Miscellaneous: pipe labels ("GREASE WASTE DRAIN"), as-built drawing, cleaning log book, Contractor's Grease Management Plan per DENR DAO 2016-08, DENR discharge permit assistance, temporary plumbing covers during construction: qty: 1 lot
 
 2. "sow_sections": array of 8 sections (each: section_no, title, content)
    Cover:
-   - "1.0" General Scope (supply, install, and commission a PDI BH-201-rated grease interceptor system for the ${facilityType}; design flow ${qDesignGpm} GPM — PDI selected unit: ${pdiGpm} GPM; liquid holding capacity ${liquidCapL} L; grease retention ${greaseRetKg} kg; all work in accordance with PDI BH-201, Philippine Plumbing Code (PPC), and DENR DAO 2016-08; BOM quantities are for planning purposes only — contractor shall verify all quantities against approved kitchen layout and as-built plans)
-   - "2.0" Applicable Standards and Permits (PDI BH-201 — Grease Interceptors (Flow Rate Method); Philippine Plumbing Code (PPC) — drain, waste, and vent requirements; DENR DAO 2016-08 — Revised Effluent Standards for Wastewater Discharge; DENR DAO 2013-22 — Grease Waste as Scheduled Waste; PNS/ICS 15:2003 — sanitary drainage; DOLE OSH Standards for confined space work; LGU Building Permit with plumbing permit; obtain DENR Discharge Permit if interceptor outlet discharges to public drain or water body)
+   - "1.0" General Scope (supply, install, and commission a PDI BH-201-rated grease interceptor system for the ${facilityType}; design flow ${qDesignGpm} GPM: PDI selected unit: ${pdiGpm} GPM; liquid holding capacity ${liquidCapL} L; grease retention ${greaseRetKg} kg; all work in accordance with PDI BH-201, Philippine Plumbing Code (PPC), and DENR DAO 2016-08; BOM quantities are for planning purposes only: contractor shall verify all quantities against approved kitchen layout and as-built plans)
+   - "2.0" Applicable Standards and Permits (PDI BH-201: Grease Interceptors (Flow Rate Method); Philippine Plumbing Code (PPC): drain, waste, and vent requirements; DENR DAO 2016-08: Revised Effluent Standards for Wastewater Discharge; DENR DAO 2013-22: Grease Waste as Scheduled Waste; PNS/ICS 15:2003: sanitary drainage; DOLE OSH Standards for confined space work; LGU Building Permit with plumbing permit; obtain DENR Discharge Permit if interceptor outlet discharges to public drain or water body)
    - "3.0" Site Preparation and Slab Works (mark out interceptor location in coordination with kitchen layout and existing drain invert levels; confirm sufficient fall from kitchen fixtures to interceptor inlet (min 1:50 slope) and from interceptor outlet to building drain connection; core drill or break slab only where necessary for below-grade installation; all temporary openings to be barricaded and covered at end of each shift; reinstate slab and floor tiles in matching material after interceptor installation is complete and inspected)
    - "4.0" Grease Interceptor Installation (install PDI-rated interceptor unit on 150 mm reinforced concrete pad at design invert; connect inlet and outlet piping using PVC Schedule 40 solvent-welded joints; install inlet drop baffle tee and outlet T-pipe per PDI BH-201 requirements; install vent pipe to open air above roof; ensure gastight lid is correctly seated and bolted; provide minimum 600 mm clear maintenance access around unit; install SS304 basket strainer at inlet; install DENR-compliant sampling port at outlet)
-   - "4.1" Drain and Vent Piping (route kitchen drain branch lines at minimum 1:50 fall to common header; common header to interceptor inlet at 1:50 minimum slope; all changes of direction via 45° bends — no 90° sweep below floor slab; cleanout plugs at each change of direction and at foot of each stack; vent piping to be independent of soil vent stack if discharging >0.6 m³/day; all solvent-welded joints cured 24 hours before pressure test)
-   - "5.0" Testing and Inspection (air pressure test all drain and vent lines at 0.3 bar for 15 minutes with no pressure drop before concealing; flow test: pour 10 L of water into each connected fixture and observe free drainage with no gurgling at fixtures — confirms correct venting; after commissioning, sample interceptor effluent and test for Oil and Grease (O&G) — must meet DENR DAO 2016-08 limit of 5 mg/L for Class SB/SC receiving waters; submit test results to building owner and LGU sanitary inspector; DENR inspection required before final occupancy clearance if facility serves >50 meals/day)
-   - "6.0" Maintenance and Cleanout Schedule (establish Grease Management Plan (GMP): interceptor to be cleaned every ${cleanIntervalDays} days based on ${mealsPerDay} meals/day and ${greaseRetKg} kg retention capacity; cleaning procedure — remove lid, pump out grease and liquid waste into sealed 200 L drums labelled per DENR DAO 2013-22, scrape baffle walls, rinse with hot water (not caustic chemicals), replace basket strainer, re-seat lid; engaged licensed environmental services contractor (LLDA/EMB-accredited) for grease waste hauling and disposal; maintain cleaning log book on-site for DENR inspection; if O&G in effluent exceeds 5 mg/L on any sampling event, reduce cleanout interval immediately)
-   - "7.0" Regulatory Compliance and Handover (submit as-built plumbing drawings showing grease interceptor location, pipe sizes, invert levels, and connection to building drain; provide manufacturer's data sheet and PDI certification for interceptor unit; submit Grease Management Plan (GMP) to LGU and DENR as required; provide owner training on daily pre-cleaning of basket strainer, visual grease level check, and emergency spill procedure; 1-year defects liability — contractor responsible for any joint failure, blockage attributable to incorrect installation, or interceptor unit defect within warranty period)
-   - "8.0" Health, Safety, and Environment (all confined space entry (below-grade interceptor pit) under confined space entry permit per DOLE OSH Rule 1977; PPE: chemical-resistant gloves, safety goggles, chemical apron, and respiratory protection during cleanout; no smoking or open flame near interceptor — methane/H2S gas hazard; grease waste is scheduled waste per DENR DAO 2013-22 — manifest required for every haul; do not discharge grease waste to floor drain, sewer, or storm drain — fine and penalty under RA 9275 Clean Water Act)
+   - "4.1" Drain and Vent Piping (route kitchen drain branch lines at minimum 1:50 fall to common header; common header to interceptor inlet at 1:50 minimum slope; all changes of direction via 45° bends: no 90° sweep below floor slab; cleanout plugs at each change of direction and at foot of each stack; vent piping to be independent of soil vent stack if discharging >0.6 m³/day; all solvent-welded joints cured 24 hours before pressure test)
+   - "5.0" Testing and Inspection (air pressure test all drain and vent lines at 0.3 bar for 15 minutes with no pressure drop before concealing; flow test: pour 10 L of water into each connected fixture and observe free drainage with no gurgling at fixtures: confirms correct venting; after commissioning, sample interceptor effluent and test for Oil and Grease (O&G): must meet DENR DAO 2016-08 limit of 5 mg/L for Class SB/SC receiving waters; submit test results to building owner and LGU sanitary inspector; DENR inspection required before final occupancy clearance if facility serves >50 meals/day)
+   - "6.0" Maintenance and Cleanout Schedule (establish Grease Management Plan (GMP): interceptor to be cleaned every ${cleanIntervalDays} days based on ${mealsPerDay} meals/day and ${greaseRetKg} kg retention capacity; cleaning procedure: remove lid, pump out grease and liquid waste into sealed 200 L drums labelled per DENR DAO 2013-22, scrape baffle walls, rinse with hot water (not caustic chemicals), replace basket strainer, re-seat lid; engaged licensed environmental services contractor (LLDA/EMB-accredited) for grease waste hauling and disposal; maintain cleaning log book on-site for DENR inspection; if O&G in effluent exceeds 5 mg/L on any sampling event, reduce cleanout interval immediately)
+   - "7.0" Regulatory Compliance and Handover (submit as-built plumbing drawings showing grease interceptor location, pipe sizes, invert levels, and connection to building drain; provide manufacturer's data sheet and PDI certification for interceptor unit; submit Grease Management Plan (GMP) to LGU and DENR as required; provide owner training on daily pre-cleaning of basket strainer, visual grease level check, and emergency spill procedure; 1-year defects liability: contractor responsible for any joint failure, blockage attributable to incorrect installation, or interceptor unit defect within warranty period)
+   - "8.0" Health, Safety, and Environment (all confined space entry (below-grade interceptor pit) under confined space entry permit per DOLE OSH Rule 1977; PPE: chemical-resistant gloves, safety goggles, chemical apron, and respiratory protection during cleanout; no smoking or open flame near interceptor: methane/H2S gas hazard; grease waste is scheduled waste per DENR DAO 2013-22: manifest required for every haul; do not discharge grease waste to floor drain, sewer, or storm drain: fine and penalty under RA 9275 Clean Water Act)
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -1366,14 +1366,14 @@ async function roofDrainBomSowAgent(
   const astmPipe  = pipeMaterial === "uPVC" ? "ASTM D2665 (uPVC DWV)" : "ASTM A74 (cast iron)";
   const overflowLine = overflowMm
     ? `OVERFLOW DRAINS: ${nDrains} × ${overflowMm} mm overflow drain bodies, invert set at +50 mm above primary drain invert per IPC §1101.7`
-    : "OVERFLOW DRAINS: Not required — no parapet walls present";
+    : "OVERFLOW DRAINS: Not required: no parapet walls present";
 
   const prompt = `You are a Philippine licensed sanitary / plumbing engineer. Generate a professional BOM and SOW for a ROOF DRAIN SYSTEM construction project.
 
 PROJECT: ${project}
 ROOF DRAINAGE AREA: ${roofAreaM2} m²
 DESIGN RAINFALL INTENSITY: ${intensityMmhr} mm/hr (PAGASA 10-yr, 60-min IDF)
-DESIGN METHOD: Rational Method — Q = I × A / 3600 (C = 1.0, impervious roof)
+DESIGN METHOD: Rational Method: Q = I × A / 3600 (C = 1.0, impervious roof)
 TOTAL DESIGN FLOW: ${qTotalLs} L/s
 FLOW PER DRAIN: ${qEachLs} L/s
 NUMBER OF PRIMARY DRAINS: ${nDrains} (IPC §1106.3 minimum 2 drains)
@@ -1388,30 +1388,30 @@ STANDARDS: IPC 2018 Chapter 11 (§1106 Roof Drain Sizing, §1101.7 Overflow Drai
 Generate a JSON object with:
 1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
    Include these items in order:
-   1. Primary Roof Drain Body — ${drainSizeMm} mm nominal cast iron or ABS roof drain body per ASME A112.21.2M, flat or low-profile strainer dome, integral membrane clamp and gravel stop, sediment bucket — qty: ${nDrains} units
-   2. Strainer Dome — heavy-duty cast iron or ABS strainer dome for ${drainSizeMm} mm drain body, domed profile to prevent debris bridging, removable for cleaning — qty: ${nDrains} units (included with drain body as standard accessory)
-   3. Vertical Roof Leader (Conductor) Pipe — ${leaderSizeMm} mm nominal ${pipeMaterial} pipe (${astmPipe}), Schedule 40 minimum wall, plain end with couplings — qty: per vertical height (m) of each leader — Contractor to quantify from drawings
-   4. Horizontal Leader Pipe — ${horizLeaderMm} mm nominal ${pipeMaterial} pipe (${astmPipe}), minimum ${slopePct}% slope, plain end with solvent-weld or mechanical couplings — qty: per linear meter of horizontal run — Contractor to quantify from drainage layout drawing
-   5. 90° Long-Radius Elbow — ${leaderSizeMm} mm ${pipeMaterial} long-radius elbow at base of each vertical leader to transition to horizontal run, sweep radius minimum 1.5× pipe diameter to minimise turbulence — qty: ${nDrains} units (minimum)
-   6. ${overflowMm ? `Overflow Roof Drain Body — ${overflowMm} mm nominal overflow drain body per ASME A112.21.2M, set at invert +50 mm above primary drain per IPC §1101.7; must discharge independently or through a separate leader — qty: ${nDrains} units` : `Pipe Coupling / Jointing Materials — solvent-weld couplings, primer and cement (ASTM D2564 for uPVC) or lead and oakum for cast iron; joint compound, Teflon tape for threaded fittings — qty: 1 lot`}
-   7. Cleanout Fitting — ${horizLeaderMm} mm cleanout plug with access cover at all changes of direction on horizontal leader and at maximum 10 m spacing per IPC §708; flush-mounted cover plate at finished ceiling — qty: as required from layout
-   8. Pipe Hanger / Support — heavy-duty clevis hanger for vertical leader at each floor penetration and at maximum 1.5 m spacing; adjustable iron ring hanger for horizontal leader at maximum 1.2 m spacing — qty: as required per layout (Contractor to quantify)
-   9. Roof Membrane Flashing — pre-formed ${drainSizeMm} mm lead or stainless steel clamping ring flashing, lapped minimum 150 mm over waterproof membrane, sealed with polyurethane sealant — qty: ${nDrains} units (plus ${overflowMm ? nDrains : 0} overflow units)
-   10. Roof Penetration Sleeve — galvanised steel or HDPE pipe sleeve through roof slab at each drain location, minimum 50 mm annular clearance, non-shrink grout seal, fire-rated where required by code — qty: ${nDrains} units (plus overflow units if any)
-   11. Test Plugs (Inflatable or Mechanical) — inflatable test plugs for flood test per IPC §1109; capable of holding 150 mm head of water for minimum 15 minutes without seepage — qty: ${nDrains} units
-   12. Waterproofing Sealant — polyurethane or silicone-based waterproofing sealant at all drain-to-membrane interfaces, UV-stable, compatible with roofing membrane material — qty: 1 lot
-   13. Pipe Insulation (Cold Lines) — 25 mm elastomeric foam insulation on horizontal leaders in conditioned spaces to prevent condensation; vapour barrier jacket where exposed — qty: per linear meter in conditioned areas
-   14. Miscellaneous — pipe markers at 3 m spacing, drain body identification tags, as-built drainage layout drawing, temporary covers during construction, site safety signage, commissioning test report — qty: 1 lot
+   1. Primary Roof Drain Body: ${drainSizeMm} mm nominal cast iron or ABS roof drain body per ASME A112.21.2M, flat or low-profile strainer dome, integral membrane clamp and gravel stop, sediment bucket: qty: ${nDrains} units
+   2. Strainer Dome: heavy-duty cast iron or ABS strainer dome for ${drainSizeMm} mm drain body, domed profile to prevent debris bridging, removable for cleaning: qty: ${nDrains} units (included with drain body as standard accessory)
+   3. Vertical Roof Leader (Conductor) Pipe: ${leaderSizeMm} mm nominal ${pipeMaterial} pipe (${astmPipe}), Schedule 40 minimum wall, plain end with couplings: qty: per vertical height (m) of each leader: Contractor to quantify from drawings
+   4. Horizontal Leader Pipe: ${horizLeaderMm} mm nominal ${pipeMaterial} pipe (${astmPipe}), minimum ${slopePct}% slope, plain end with solvent-weld or mechanical couplings: qty: per linear meter of horizontal run: Contractor to quantify from drainage layout drawing
+   5. 90° Long-Radius Elbow: ${leaderSizeMm} mm ${pipeMaterial} long-radius elbow at base of each vertical leader to transition to horizontal run, sweep radius minimum 1.5× pipe diameter to minimise turbulence: qty: ${nDrains} units (minimum)
+   6. ${overflowMm ? `Overflow Roof Drain Body: ${overflowMm} mm nominal overflow drain body per ASME A112.21.2M, set at invert +50 mm above primary drain per IPC §1101.7; must discharge independently or through a separate leader: qty: ${nDrains} units` : `Pipe Coupling / Jointing Materials: solvent-weld couplings, primer and cement (ASTM D2564 for uPVC) or lead and oakum for cast iron; joint compound, Teflon tape for threaded fittings: qty: 1 lot`}
+   7. Cleanout Fitting: ${horizLeaderMm} mm cleanout plug with access cover at all changes of direction on horizontal leader and at maximum 10 m spacing per IPC §708; flush-mounted cover plate at finished ceiling: qty: as required from layout
+   8. Pipe Hanger / Support: heavy-duty clevis hanger for vertical leader at each floor penetration and at maximum 1.5 m spacing; adjustable iron ring hanger for horizontal leader at maximum 1.2 m spacing: qty: as required per layout (Contractor to quantify)
+   9. Roof Membrane Flashing: pre-formed ${drainSizeMm} mm lead or stainless steel clamping ring flashing, lapped minimum 150 mm over waterproof membrane, sealed with polyurethane sealant: qty: ${nDrains} units (plus ${overflowMm ? nDrains : 0} overflow units)
+   10. Roof Penetration Sleeve: galvanised steel or HDPE pipe sleeve through roof slab at each drain location, minimum 50 mm annular clearance, non-shrink grout seal, fire-rated where required by code: qty: ${nDrains} units (plus overflow units if any)
+   11. Test Plugs (Inflatable or Mechanical): inflatable test plugs for flood test per IPC §1109; capable of holding 150 mm head of water for minimum 15 minutes without seepage: qty: ${nDrains} units
+   12. Waterproofing Sealant: polyurethane or silicone-based waterproofing sealant at all drain-to-membrane interfaces, UV-stable, compatible with roofing membrane material: qty: 1 lot
+   13. Pipe Insulation (Cold Lines): 25 mm elastomeric foam insulation on horizontal leaders in conditioned spaces to prevent condensation; vapour barrier jacket where exposed: qty: per linear meter in conditioned areas
+   14. Miscellaneous: pipe markers at 3 m spacing, drain body identification tags, as-built drainage layout drawing, temporary covers during construction, site safety signage, commissioning test report: qty: 1 lot
 
-2. "sow_sections": array of 7 sections (each: section_no, title, content — full "The Contractor shall..." paragraphs, not bullets)
+2. "sow_sections": array of 7 sections (each: section_no, title, content: full "The Contractor shall..." paragraphs, not bullets)
    Cover:
-   - "1.0" General Scope: The Contractor shall design, supply, install, test, and commission a complete roof drainage system for a ${roofAreaM2} m² roof area, designed to convey the 10-year design storm runoff of ${qTotalLs} L/s at ${intensityMmhr} mm/hr rainfall intensity (PAGASA IDF data) to the building storm drainage system or approved point of discharge. The system shall comprise ${nDrains} primary roof drain bodies (${drainSizeMm} mm nominal), ${leaderSizeMm} mm vertical leaders, and ${horizLeaderMm} mm horizontal leaders at ${slopePct}% minimum slope${overflowMm ? `, plus ${nDrains} overflow drain bodies (${overflowMm} mm nominal) set at invert +50 mm above primary drain invert per IPC §1101.7` : ""}. All work shall comply with the Philippine Plumbing Code (PPC), IPC 2018 Chapter 11, ASPE Plumbing Engineering Design Handbook Vol. 2, and all applicable local government requirements. The Contractor shall verify all quantities from final architectural and structural drawings — the BOM is for planning purposes only.
-   - "2.0" Applicable Standards and Permits: The Contractor shall comply with all of the following: IPC 2018 Chapter 11 (Storm Drainage — §1106 Roof Drain Sizing, §1101.7 Overflow Drains, §1109 Roof Drain Testing); Philippine Plumbing Code (PPC) — adopts IPC with local amendments; ASPE Plumbing Engineering Design Handbook, Volume 2 — Plumbing Systems; ASME A112.21.2M — Roof Drain Standard; ASTM D2665 (uPVC DWV pipe) or ASTM A74 (cast iron pipe) as applicable; PAGASA IDF Curves for design rainfall intensity; DOLE OSH Standards for construction safety. The Contractor shall secure all required building permits, plumbing permits, and inspections from the Local Government Unit (LGU) before commencing installation.
-   - "3.0" Roof Drain Body Installation: The Contractor shall install ${nDrains} primary roof drain bodies (${drainSizeMm} mm nominal, ASME A112.21.2M) at locations shown on the drainage layout drawing, coordinating with the structural and waterproofing works. Each drain body shall be set flush with the finished roof surface with positive drainage fall towards the drain of minimum 1:100 on the roof deck. The membrane clamping ring shall be installed prior to application of the waterproofing membrane, and the upper clamping ring applied over the completed membrane with polyurethane sealant at all interfaces. Pre-formed lead or stainless steel flashing shall be lapped minimum 150 mm over the membrane and sealed continuously. The Contractor shall install strainer domes on all drain bodies and verify free rotation and positive seating before handover.${hasParapet ? ` Overflow drain bodies (${overflowMm} mm nominal) shall be installed at each primary drain location with the invert set at +50 mm above the primary drain invert per IPC §1101.7; overflow drains shall discharge independently through separate leaders or through a dedicated connection to the storm drain system — they shall NOT share a common trap or p-trap with primary drains.` : ""}
-   - "4.0" Vertical Leaders and Horizontal Piping: The Contractor shall install ${leaderSizeMm} mm nominal ${pipeMaterial} vertical leaders (conductors) from each roof drain body to the horizontal collector, supported with riser clamps at each floor penetration and at maximum 1.5 m vertical spacing. All penetrations through roof slabs and beams shall be sleeved with a galvanised steel pipe sleeve with 50 mm annular clearance, grouted solid with non-shrink mortar and fire-stopped where required. Horizontal leaders shall be installed at ${horizLeaderMm} mm nominal ${pipeMaterial}, pitched at minimum ${slopePct}% (${slopePct === 1 ? "1/8 in/ft" : slopePct + "%"}) throughout — no reverse-fall, no flat sections. All changes of direction shall use long-radius (sweep) fittings; no short-radius elbows on horizontal runs. Pipe hangers shall be installed at maximum 1.2 m spacing on horizontal runs. Cleanouts with flush access covers shall be provided at all changes of direction and at maximum 10 m spacing per IPC §708.
-   - "5.0" Testing — Roof Flood Test (IPC §1109): The Contractor shall conduct a roof flood test on the completed drainage system prior to installation of any finish materials and before final acceptance. The test shall be conducted as follows: (1) plug all drain bodies at the roof level using inflatable or mechanical test plugs rated for the test head; (2) flood the roof to a minimum 150 mm head of water (measured at the drain body); (3) maintain the test head for a minimum of 15 minutes without any visible seepage through the roof membrane, flashings, or deck penetrations; (4) record the test date, water level, and result in the commissioning test report; (5) any seepage or weeping at drain body flanges, sleeves, or membrane laps shall be repaired and the flood test repeated before acceptance. The Contractor shall submit the flood test report, signed by the responsible licensed plumber, to the Engineer within 3 days of the test.
+   - "1.0" General Scope: The Contractor shall design, supply, install, test, and commission a complete roof drainage system for a ${roofAreaM2} m² roof area, designed to convey the 10-year design storm runoff of ${qTotalLs} L/s at ${intensityMmhr} mm/hr rainfall intensity (PAGASA IDF data) to the building storm drainage system or approved point of discharge. The system shall comprise ${nDrains} primary roof drain bodies (${drainSizeMm} mm nominal), ${leaderSizeMm} mm vertical leaders, and ${horizLeaderMm} mm horizontal leaders at ${slopePct}% minimum slope${overflowMm ? `, plus ${nDrains} overflow drain bodies (${overflowMm} mm nominal) set at invert +50 mm above primary drain invert per IPC §1101.7` : ""}. All work shall comply with the Philippine Plumbing Code (PPC), IPC 2018 Chapter 11, ASPE Plumbing Engineering Design Handbook Vol. 2, and all applicable local government requirements. The Contractor shall verify all quantities from final architectural and structural drawings: the BOM is for planning purposes only.
+   - "2.0" Applicable Standards and Permits: The Contractor shall comply with all of the following: IPC 2018 Chapter 11 (Storm Drainage: §1106 Roof Drain Sizing, §1101.7 Overflow Drains, §1109 Roof Drain Testing); Philippine Plumbing Code (PPC): adopts IPC with local amendments; ASPE Plumbing Engineering Design Handbook, Volume 2: Plumbing Systems; ASME A112.21.2M: Roof Drain Standard; ASTM D2665 (uPVC DWV pipe) or ASTM A74 (cast iron pipe) as applicable; PAGASA IDF Curves for design rainfall intensity; DOLE OSH Standards for construction safety. The Contractor shall secure all required building permits, plumbing permits, and inspections from the Local Government Unit (LGU) before commencing installation.
+   - "3.0" Roof Drain Body Installation: The Contractor shall install ${nDrains} primary roof drain bodies (${drainSizeMm} mm nominal, ASME A112.21.2M) at locations shown on the drainage layout drawing, coordinating with the structural and waterproofing works. Each drain body shall be set flush with the finished roof surface with positive drainage fall towards the drain of minimum 1:100 on the roof deck. The membrane clamping ring shall be installed prior to application of the waterproofing membrane, and the upper clamping ring applied over the completed membrane with polyurethane sealant at all interfaces. Pre-formed lead or stainless steel flashing shall be lapped minimum 150 mm over the membrane and sealed continuously. The Contractor shall install strainer domes on all drain bodies and verify free rotation and positive seating before handover.${hasParapet ? ` Overflow drain bodies (${overflowMm} mm nominal) shall be installed at each primary drain location with the invert set at +50 mm above the primary drain invert per IPC §1101.7; overflow drains shall discharge independently through separate leaders or through a dedicated connection to the storm drain system: they shall NOT share a common trap or p-trap with primary drains.` : ""}
+   - "4.0" Vertical Leaders and Horizontal Piping: The Contractor shall install ${leaderSizeMm} mm nominal ${pipeMaterial} vertical leaders (conductors) from each roof drain body to the horizontal collector, supported with riser clamps at each floor penetration and at maximum 1.5 m vertical spacing. All penetrations through roof slabs and beams shall be sleeved with a galvanised steel pipe sleeve with 50 mm annular clearance, grouted solid with non-shrink mortar and fire-stopped where required. Horizontal leaders shall be installed at ${horizLeaderMm} mm nominal ${pipeMaterial}, pitched at minimum ${slopePct}% (${slopePct === 1 ? "1/8 in/ft" : slopePct + "%"}) throughout: no reverse-fall, no flat sections. All changes of direction shall use long-radius (sweep) fittings; no short-radius elbows on horizontal runs. Pipe hangers shall be installed at maximum 1.2 m spacing on horizontal runs. Cleanouts with flush access covers shall be provided at all changes of direction and at maximum 10 m spacing per IPC §708.
+   - "5.0" Testing: Roof Flood Test (IPC §1109): The Contractor shall conduct a roof flood test on the completed drainage system prior to installation of any finish materials and before final acceptance. The test shall be conducted as follows: (1) plug all drain bodies at the roof level using inflatable or mechanical test plugs rated for the test head; (2) flood the roof to a minimum 150 mm head of water (measured at the drain body); (3) maintain the test head for a minimum of 15 minutes without any visible seepage through the roof membrane, flashings, or deck penetrations; (4) record the test date, water level, and result in the commissioning test report; (5) any seepage or weeping at drain body flanges, sleeves, or membrane laps shall be repaired and the flood test repeated before acceptance. The Contractor shall submit the flood test report, signed by the responsible licensed plumber, to the Engineer within 3 days of the test.
    - "6.0" Regulatory Compliance and Safety: The Contractor shall comply with all DOLE OSH Standards for construction safety, including proper scaffolding and fall protection for all roof-level works. A confined space entry permit shall be required for any work inside enclosed chases or ceiling spaces containing drain leaders. The Contractor shall maintain a clean and dry work area at all roofing penetrations to prevent water infiltration into the building during construction. All hot-works (welding, cutting) near waterproofing membrane shall require a hot-work permit from the fire safety officer. The Contractor shall not backfill or conceal any piping until it has been inspected and approved by the licensed plumber-in-charge and, where required, by the LGU plumbing inspector.
-   - "7.0" Handover and As-Built Documentation: Upon completion of all works and successful flood test, the Contractor shall submit the following to the Engineer and Owner: (1) as-built roof drainage layout drawing showing drain body locations, leader routes, invert levels, and cleanout positions; (2) flood test report per IPC §1109 signed by the licensed plumber; (3) manufacturer's data sheets for all drain bodies, pipe, and fittings installed; (4) material test reports or mill certificates for structural components; (5) O&M guide covering: drain body strainer dome cleaning (monthly), cleanout rodding (annual), flood-test repeat (every 5 years or after any roof membrane repair); (6) recommended spare strainer domes (minimum 2 units) handed over to the Owner. A 1-year defects liability period applies from the date of handover acceptance — the Contractor shall rectify any drainage failure, leak, or blockage attributable to defective materials or workmanship at no additional cost.
+   - "7.0" Handover and As-Built Documentation: Upon completion of all works and successful flood test, the Contractor shall submit the following to the Engineer and Owner: (1) as-built roof drainage layout drawing showing drain body locations, leader routes, invert levels, and cleanout positions; (2) flood test report per IPC §1109 signed by the licensed plumber; (3) manufacturer's data sheets for all drain bodies, pipe, and fittings installed; (4) material test reports or mill certificates for structural components; (5) O&M guide covering: drain body strainer dome cleaning (monthly), cleanout rodding (annual), flood-test repeat (every 5 years or after any roof membrane repair); (6) recommended spare strainer domes (minimum 2 units) handed over to the Owner. A 1-year defects liability period applies from the date of handover acceptance: the Contractor shall rectify any drainage failure, leak, or blockage attributable to defective materials or workmanship at no additional cost.
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -1448,7 +1448,7 @@ async function loadEstBomSowAgent(
   const prompt = `You are a Philippine electrical engineering expert (PEC 2017). Generate a professional BOM and SOW for an ELECTRICAL LOAD ESTIMATION and distribution board installation project.
 
 PROJECT: ${project}
-PHASE CONFIGURATION: ${phaseConfig} — ${voltage}V
+PHASE CONFIGURATION: ${phaseConfig}: ${voltage}V
 TOTAL CONNECTED LOAD: ${connKVA} kVA
 TOTAL DEMAND LOAD: ${demandKVA} kVA (${demandKW} kW)
 COMPUTED AMPACITY: ${computedA} A
@@ -1459,7 +1459,7 @@ STANDARDS: PEC 2017 (Philippine Electrical Code), PEC Article 2.10 / 2.20, DOE/E
 
 Generate a JSON object with:
 1. "bom_items": array of 16 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: Main distribution board/panelboard (NEMA 1 surface/flush-mount, number of poles sized to load count), main MCCB/ACB circuit breaker (${breakerA}A, interrupt capacity ≥ 10 kA), phase bus bars (copper, properly rated), neutral/ground bus bars, equipment grounding conductor (EGC), individual branch circuit breakers (MCB, sized per load group — qty derived from load breakdown), THHN/THWN copper conductors (main feeder, sized for ${spareA}A), conduit (EMT or RSC, properly sized), load schedule nameplate (laminated or engraved), energy meter (kWh, class 1.0, utility-grade), surge protective device (SPD, Type 2, properly rated), cable lugs and terminal connectors, conduit fittings and accessories, panel enclosure padlock, warning labels (PEC-compliant arc flash / voltage warning), wire markers and cable ties
+   Include: Main distribution board/panelboard (NEMA 1 surface/flush-mount, number of poles sized to load count), main MCCB/ACB circuit breaker (${breakerA}A, interrupt capacity ≥ 10 kA), phase bus bars (copper, properly rated), neutral/ground bus bars, equipment grounding conductor (EGC), individual branch circuit breakers (MCB, sized per load group: qty derived from load breakdown), THHN/THWN copper conductors (main feeder, sized for ${spareA}A), conduit (EMT or RSC, properly sized), load schedule nameplate (laminated or engraved), energy meter (kWh, class 1.0, utility-grade), surge protective device (SPD, Type 2, properly rated), cable lugs and terminal connectors, conduit fittings and accessories, panel enclosure padlock, warning labels (PEC-compliant arc flash / voltage warning), wire markers and cable ties
 2. "sow_sections": array of 8 sections (each: section_no, title, content)
    Cover: Scope of Works, Design Basis (PEC 2017 Art. 2.10/2.20, demand factor method, 25% spare), Distribution Board Installation (mounting, clearances, labeling), Main and Branch Circuit Breaker Installation (sizing, discrimination/coordination, interrupt rating), Wiring and Conduit Works (conductor sizing, conduit fill, color coding per PEC), Grounding and Bonding System (EGC, ground rod, bonding), Testing and Commissioning (insulation resistance test ≥ 1 MΩ at 500V DC, continuity test, load test at 80% capacity, thermal scanning), Regulatory Compliance and Handover (PEC 2017, ERC/DOE, DOLE OSH, as-built load schedule submission)
 
@@ -1494,7 +1494,7 @@ async function voltageDropBomSowAgent(
   const vdLimit       = results.vd_limit         ?? 3;
   const pass          = results.pass             ?? false;
   const maxLengthM    = results.max_length_m     ?? "N/A";
-  const passStr       = pass ? "PASS" : "FAIL — conductor size increase required";
+  const passStr       = pass ? "PASS" : "FAIL: conductor size increase required";
 
   // Find next larger passing conductor from size_comparison if failing
   const comparison = results.size_comparison as Array<{ size_mm2: number; vd_pct: number; pass: boolean }> || [];
@@ -1505,11 +1505,11 @@ async function voltageDropBomSowAgent(
 
 PROJECT: ${project}
 CIRCUIT TYPE: ${circuitType}
-PHASE: ${phase} — ${voltage}V
+PHASE: ${phase}: ${voltage}V
 DESIGN CURRENT: ${current} A
 CIRCUIT LENGTH: ${wireLength} m (one-way)
 SELECTED CONDUCTOR: ${conductorMM2} mm² ${conductorMat} THHN/THWN
-VOLTAGE DROP RESULT: ${vdVolts}V (${vdPct}%) — ${passStr}
+VOLTAGE DROP RESULT: ${vdVolts}V (${vdPct}%): ${passStr}
 VOLTAGE DROP LIMIT: ${vdLimit}%
 MAXIMUM ALLOWABLE LENGTH @ selected size: ${maxLengthM} m
 RECOMMENDED CONDUCTOR SIZE (PEC-compliant): ${recommendedMM2} mm² ${conductorMat}
@@ -1519,7 +1519,7 @@ Generate a JSON object with:
 1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
    Include: Phase conductor (${recommendedMM2} mm² ${conductorMat} THHN/THWN, rated for ${voltage}V, length ${wireLength}m + 10% allowance for terminations), neutral conductor (same size as phase for single-phase; 50% of phase for three-phase balanced), equipment grounding conductor (EGC, green/green-yellow, sized per PEC Table 2.50.95), conduit (EMT for indoors, RSC for exposed/outdoor, sized per PEC conduit fill), conduit fittings and couplings, pull boxes (if circuit exceeds 30m or has more than 4 bends), circuit breaker (sized for design current with 125% for continuous loads), cable tray or cable support clips (if surface-mounted), wire markers/circuit labels (origin panel, circuit number, load description), terminal lugs (for terminations at both ends), junction box with cover (rated for conductor count), conduit strap/saddle anchors (every 1.5m on exposed conduit), wire pulling lubricant (for conduit runs over 15m), cable ties
 2. "sow_sections": array of 7 sections (each: section_no, title, content)
-   Cover: Scope of Works, Design Basis (PEC 2017 Art. 2.10.19, voltage drop ≤ ${vdLimit}% = ${Number(vdLimit)/100 * Number(voltage)} V max, conductor selection criteria), Conductor and Conduit Installation (pulling, bending radius, fill ratio per PEC, no sharp bends), Termination and Splicing (compression lugs, no taped splices in conduit — junction box only), Grounding and Continuity (EGC continuity, bonding at all metal conduit terminations), Testing and Verification (insulation resistance test ≥ 1 MΩ at 500V DC, continuity test, voltage drop field measurement under load — confirm ≤ ${vdLimit}%), Regulatory Compliance (PEC 2017, Electrical Permit, DOLE OSH, qualified licensed master electrician)
+   Cover: Scope of Works, Design Basis (PEC 2017 Art. 2.10.19, voltage drop ≤ ${vdLimit}% = ${Number(vdLimit)/100 * Number(voltage)} V max, conductor selection criteria), Conductor and Conduit Installation (pulling, bending radius, fill ratio per PEC, no sharp bends), Termination and Splicing (compression lugs, no taped splices in conduit: junction box only), Grounding and Continuity (EGC continuity, bonding at all metal conduit terminations), Testing and Verification (insulation resistance test ≥ 1 MΩ at 500V DC, continuity test, voltage drop field measurement under load: confirm ≤ ${vdLimit}%), Regulatory Compliance (PEC 2017, Electrical Permit, DOLE OSH, qualified licensed master electrician)
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -1561,10 +1561,10 @@ async function wireSizingBomSowAgent(
 
 PROJECT: ${project}
 LOAD TYPE: ${loadType}
-PHASE: ${phase} — ${voltage}V
+PHASE: ${phase}: ${voltage}V
 LOAD POWER: ${powerW} W @ PF ${pf}
 LOAD CURRENT: ${loadCurrentA} A
-DEMAND MULTIPLIER: ${demandMult}x (${isMotor ? "motor/continuous load — PEC 125% rule" : "standard load"})
+DEMAND MULTIPLIER: ${demandMult}x (${isMotor ? "motor/continuous load: PEC 125% rule" : "standard load"})
 DESIGN CURRENT: ${designCurrentA} A
 AMBIENT TEMPERATURE: ${ambientTemp}°C (correction factor: ${tempFactor})
 CONDUIT FILL: ${conduitFill} conductors (fill factor: ${fillFactor})
@@ -1575,9 +1575,9 @@ STANDARDS: PEC 2017 Table 3.10.1, PEC Article 2.10 / 2.30, DOLE OSH Electrical S
 
 Generate a JSON object with:
 1. "bom_items": array of 15 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: Phase conductor (${recSizeMM2} mm² Copper THHN/THWN 75°C, ${voltage}V rated), neutral conductor (same size as phase for single-phase; may be reduced for balanced 3-phase), equipment grounding conductor (EGC, green/green-yellow, sized per PEC Table 2.50.95 based on breaker ${recBreakerA}A), circuit breaker (${recBreakerA}A, interrupt capacity ≥ available fault current${isMotor ? ', thermal-magnetic or motor circuit protector' : ''}), conduit (EMT for concealed/indoor, RSC for exposed/outdoor — sized per PEC conduit fill table for ${recSizeMM2} mm² conductors), conduit fittings, locknuts, and bushings, pull boxes or junction boxes (at every 30m or 4 bends), wire markers and circuit labels (origin panel, circuit no., load description), terminal compression lugs (for all terminations — no bare wire twist connections), cable ties and conduit saddle/strap anchors (every 1.5m on exposed runs), panel knockout seal/reducer (if conduit enters existing panelboard), wire pulling lubricant, flexible conduit and connector (last 600mm to motor — if motor load), warning labels (voltage level, circuit identification), spare conduit cap/plugs (for unused knockouts)
+   Include: Phase conductor (${recSizeMM2} mm² Copper THHN/THWN 75°C, ${voltage}V rated), neutral conductor (same size as phase for single-phase; may be reduced for balanced 3-phase), equipment grounding conductor (EGC, green/green-yellow, sized per PEC Table 2.50.95 based on breaker ${recBreakerA}A), circuit breaker (${recBreakerA}A, interrupt capacity ≥ available fault current${isMotor ? ', thermal-magnetic or motor circuit protector' : ''}), conduit (EMT for concealed/indoor, RSC for exposed/outdoor: sized per PEC conduit fill table for ${recSizeMM2} mm² conductors), conduit fittings, locknuts, and bushings, pull boxes or junction boxes (at every 30m or 4 bends), wire markers and circuit labels (origin panel, circuit no., load description), terminal compression lugs (for all terminations: no bare wire twist connections), cable ties and conduit saddle/strap anchors (every 1.5m on exposed runs), panel knockout seal/reducer (if conduit enters existing panelboard), wire pulling lubricant, flexible conduit and connector (last 600mm to motor: if motor load), warning labels (voltage level, circuit identification), spare conduit cap/plugs (for unused knockouts)
 2. "sow_sections": array of 7 sections (each: section_no, title, content)
-   Cover: Scope of Works, Design Basis (PEC 2017 Table 3.10.1 ampacity with ${tempFactor} temperature correction and ${fillFactor} conduit fill correction, ${demandMult}x demand multiplier per PEC${isMotor ? ' Art. 2.30 motor branch circuit rules' : ' Art. 2.10 branch circuit rules'}), Conductor and Conduit Installation (no conductor smaller than minimum branch circuit size, bending radius ≥ 6× OD, maximum conduit fill per PEC, support intervals), Termination Works (compression lugs at all terminations, no splices inside conduit — use junction box, tighten to manufacturer torque spec), ${isMotor ? 'Motor Branch Circuit Requirements (locked-rotor current withstand, overload protection sizing, flexible conduit to motor terminal box),' : 'Circuit Protection (breaker sizing, coordination with upstream protective device,)'} Testing and Commissioning (insulation resistance ≥ 1 MΩ at 500V DC megger, continuity check on EGC, polarity verification, breaker trip test), Regulatory Compliance (PEC 2017, Electrical Permit, DOLE OSH, licensed master electrician, as-built drawings)
+   Cover: Scope of Works, Design Basis (PEC 2017 Table 3.10.1 ampacity with ${tempFactor} temperature correction and ${fillFactor} conduit fill correction, ${demandMult}x demand multiplier per PEC${isMotor ? ' Art. 2.30 motor branch circuit rules' : ' Art. 2.10 branch circuit rules'}), Conductor and Conduit Installation (no conductor smaller than minimum branch circuit size, bending radius ≥ 6× OD, maximum conduit fill per PEC, support intervals), Termination Works (compression lugs at all terminations, no splices inside conduit: use junction box, tighten to manufacturer torque spec), ${isMotor ? 'Motor Branch Circuit Requirements (locked-rotor current withstand, overload protection sizing, flexible conduit to motor terminal box),' : 'Circuit Protection (breaker sizing, coordination with upstream protective device,)'} Testing and Commissioning (insulation resistance ≥ 1 MΩ at 500V DC megger, continuity check on EGC, polarity verification, breaker trip test), Regulatory Compliance (PEC 2017, Electrical Permit, DOLE OSH, licensed master electrician, as-built drawings)
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -1620,15 +1620,15 @@ CABLE TO PANEL: ${cableMM2} mm² × ${cableLenM} m
 TOTAL IMPEDANCE: ${ZtotalOhm} Ω
 3-PHASE FAULT CURRENT (Isc): ${IscKA} kA symmetrical
 ASYMMETRICAL PEAK (Ipeak): ${IpeakKA} kA
-INSTALLED BREAKER IC: ${breakerIC} kA — ${icCheck}${icFail ? ` (INSUFFICIENT — must be upgraded to minimum ${icMinRec} kA)` : ` (margin: +${icMargin} kA)`}
+INSTALLED BREAKER IC: ${breakerIC} kA: ${icCheck}${icFail ? ` (INSUFFICIENT: must be upgraded to minimum ${icMinRec} kA)` : ` (margin: +${icMargin} kA)`}
 MINIMUM RECOMMENDED IC: ${icMinRec} kA
 STANDARDS: PEC 2017 Article 1.30, PEC Article 2.40, IEEE Std 141 (Red Book), IEC 60909
 
 Generate a JSON object with:
 1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: Main circuit breaker (MCCB or ACB — minimum IC ${icMinRec} kA at ${voltageLLV}V${icFail ? `, REPLACEMENT REQUIRED — installed unit undersized` : ``}), branch circuit breakers (MCCBs — IC ≥ ${icMinRec} kA, sized per branch loads), current transformer (CT) for metering (if panel > 100A), arc flash warning labels (NFPA 70E / PEC-compliant, incident energy and PPE level), arc flash boundary markers, short circuit study report holder/binder (for panel schedule record), bus bar shorting link (for fault current test, 1 set per panel), personal protective equipment (PPE) — arc-rated FR clothing and face shield (for commissioning work near energized bus), insulated tools (1000V rated), ground fault indicator light or relay (per PEC 2017), panel enclosure padlock set, cable bus duct or switchgear cubicle (if fault level requires metal-enclosed gear), thermal imaging window port (installed on panel door for ongoing maintenance), insulating mat (IEC 61111 Class 1 minimum, for work area protection)
+   Include: Main circuit breaker (MCCB or ACB: minimum IC ${icMinRec} kA at ${voltageLLV}V${icFail ? `, REPLACEMENT REQUIRED: installed unit undersized` : ``}), branch circuit breakers (MCCBs: IC ≥ ${icMinRec} kA, sized per branch loads), current transformer (CT) for metering (if panel > 100A), arc flash warning labels (NFPA 70E / PEC-compliant, incident energy and PPE level), arc flash boundary markers, short circuit study report holder/binder (for panel schedule record), bus bar shorting link (for fault current test, 1 set per panel), personal protective equipment (PPE): arc-rated FR clothing and face shield (for commissioning work near energized bus), insulated tools (1000V rated), ground fault indicator light or relay (per PEC 2017), panel enclosure padlock set, cable bus duct or switchgear cubicle (if fault level requires metal-enclosed gear), thermal imaging window port (installed on panel door for ongoing maintenance), insulating mat (IEC 61111 Class 1 minimum, for work area protection)
 2. "sow_sections": array of 7 sections (each: section_no, title, content)
-   Cover: Scope of Works, Design Basis (PEC 2017 Art. 1.30, IEC 60909 transformer impedance method, 3-phase symmetrical fault ${IscKA} kA, asymmetrical peak ${IpeakKA} kA), ${icFail ? `Breaker Upgrade Requirement (installed ${breakerIC} kA IC is INSUFFICIENT for ${IscKA} kA fault level — replace with minimum ${icMinRec} kA IC-rated breaker before energization — PEC Art. 1.30 non-negotiable)` : `Breaker IC Verification (installed ${breakerIC} kA IC confirmed adequate for ${IscKA} kA fault level with ${icMargin} kA safety margin)`}, Arc Flash Hazard Assessment and Labeling (incident energy analysis, PPE levels, arc flash boundary marking per NFPA 70E / PEC), Panel Schedule and Single-Line Diagram Update (as-built SLD showing transformer, feeder cable, fault current level at each panel), Testing and Commissioning (insulation resistance test, breaker contact resistance test, trip test, IR thermal scan of bus connections under load), Regulatory Compliance (PEC 2017 Art. 1.30 and 2.40, Electrical Permit, DOLE OSH, short circuit study report filed with as-built documents)
+   Cover: Scope of Works, Design Basis (PEC 2017 Art. 1.30, IEC 60909 transformer impedance method, 3-phase symmetrical fault ${IscKA} kA, asymmetrical peak ${IpeakKA} kA), ${icFail ? `Breaker Upgrade Requirement (installed ${breakerIC} kA IC is INSUFFICIENT for ${IscKA} kA fault level: replace with minimum ${icMinRec} kA IC-rated breaker before energization: PEC Art. 1.30 non-negotiable)` : `Breaker IC Verification (installed ${breakerIC} kA IC confirmed adequate for ${IscKA} kA fault level with ${icMargin} kA safety margin)`}, Arc Flash Hazard Assessment and Labeling (incident energy analysis, PPE levels, arc flash boundary marking per NFPA 70E / PEC), Panel Schedule and Single-Line Diagram Update (as-built SLD showing transformer, feeder cable, fault current level at each panel), Testing and Commissioning (insulation resistance test, breaker contact resistance test, trip test, IR thermal scan of bus connections under load), Regulatory Compliance (PEC 2017 Art. 1.30 and 2.40, Electrical Permit, DOLE OSH, short circuit study report filed with as-built documents)
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -1685,9 +1685,9 @@ STANDARDS: PEC 2017, IES Lighting Handbook (Lumen Method), ASHRAE 90.1 LPD limit
 
 Generate a JSON object with:
 1. "bom_items": array of 15 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: LED luminaire fixtures (${nFixtures} units — ${lumensPerFix} lm, ${wattsPerFix}W, CRI ≥ 80, color temperature per space type: office/corridor 4000K neutral white, warehouse/industrial 5000K daylight, restaurant/hotel 3000K warm white), emergency luminaire with battery backup (minimum 1 per room exit route, 90-min backup, 10 lux minimum on exit path), lighting circuit wiring (THHN/THWN copper, sized per ${totalWatts}W load + 25% continuous load factor), lighting circuit breaker (MCB, sized for circuit), lighting conduit (EMT, properly sized), conduit fittings and accessories, junction boxes (one per fixture cluster), lighting switches (per circuit zone, flush-mounted, rated 10A minimum), occupancy sensor or daylight sensor (if applicable to space type — offices, corridors), lighting panel/sub-panel (if dedicated lighting load), wire markers and circuit labels, ceiling grid or mounting hardware (for recessed or surface mount per ceiling type), fixture hangers and safety cables (per fixture weight), dimmer module or lighting control relay (if dimming specified), laminated lighting layout drawing (as-installed record)
+   Include: LED luminaire fixtures (${nFixtures} units: ${lumensPerFix} lm, ${wattsPerFix}W, CRI ≥ 80, color temperature per space type: office/corridor 4000K neutral white, warehouse/industrial 5000K daylight, restaurant/hotel 3000K warm white), emergency luminaire with battery backup (minimum 1 per room exit route, 90-min backup, 10 lux minimum on exit path), lighting circuit wiring (THHN/THWN copper, sized per ${totalWatts}W load + 25% continuous load factor), lighting circuit breaker (MCB, sized for circuit), lighting conduit (EMT, properly sized), conduit fittings and accessories, junction boxes (one per fixture cluster), lighting switches (per circuit zone, flush-mounted, rated 10A minimum), occupancy sensor or daylight sensor (if applicable to space type: offices, corridors), lighting panel/sub-panel (if dedicated lighting load), wire markers and circuit labels, ceiling grid or mounting hardware (for recessed or surface mount per ceiling type), fixture hangers and safety cables (per fixture weight), dimmer module or lighting control relay (if dimming specified), laminated lighting layout drawing (as-installed record)
 2. "sow_sections": array of 7 sections (each: section_no, title, content)
-   Cover: Scope of Works, Design Basis (IES Lumen Method, RCR ${rcr}, CU ${cu}, LLF ${llf}, target ${targetLux} lux, achieved ${eActualLux} lux, LPD ${lpdWm2} W/m² vs ASHRAE 90.1 limit for ${spaceType}), Fixture Installation (mounting height, aiming, spacing, uniformity ratio ≥ 0.7), Circuit Wiring and Conduit Works (conductor sizing for continuous lighting load × 125%, conduit fill, color coding per PEC), Emergency Lighting and Exit Signs (PEC Art. 2.10, minimum 10 lux on exit path, 90-min backup, monthly test procedure), Testing and Commissioning (illuminance measurement grid test with calibrated lux meter at work plane height — verify ≥ ${targetLux} lux at all measurement points, uniformity check, circuit continuity and insulation resistance test), Regulatory Compliance (PEC 2017, DOLE OSH lighting requirements for ${spaceType}, Electrical Permit, as-built lighting layout drawing submission)
+   Cover: Scope of Works, Design Basis (IES Lumen Method, RCR ${rcr}, CU ${cu}, LLF ${llf}, target ${targetLux} lux, achieved ${eActualLux} lux, LPD ${lpdWm2} W/m² vs ASHRAE 90.1 limit for ${spaceType}), Fixture Installation (mounting height, aiming, spacing, uniformity ratio ≥ 0.7), Circuit Wiring and Conduit Works (conductor sizing for continuous lighting load × 125%, conduit fill, color coding per PEC), Emergency Lighting and Exit Signs (PEC Art. 2.10, minimum 10 lux on exit path, 90-min backup, monthly test procedure), Testing and Commissioning (illuminance measurement grid test with calibrated lux meter at work plane height: verify ≥ ${targetLux} lux at all measurement points, uniformity check, circuit continuity and insulation resistance test), Regulatory Compliance (PEC 2017, DOLE OSH lighting requirements for ${spaceType}, Electrical Permit, as-built lighting layout drawing submission)
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -1730,12 +1730,12 @@ async function solarPVBomSowAgent(
 PROJECT: ${project}
 SYSTEM TYPE: ${systemType}
 LOCATION: ${location} (PSH: ${pshHr} h/day)
-ARRAY: ${actualKWp} kWp — ${panelQty} panels × ${panelWp} Wp each
+ARRAY: ${actualKWp} kWp: ${panelQty} panels × ${panelWp} Wp each
 STRING CONFIG: ${panelsPerStr} panels/string × ${numStrings} strings (1000V DC IEC 62548)
 INVERTER: ${inverterKW} kW (grid-tie / hybrid inverter)
 ROOF AREA: ${roofAreaM2} m²
 ANNUAL YIELD: ${annualYield} kWh/yr | CO₂ REDUCTION: ${co2Kg} kg/yr
-${isOffGrid ? `BATTERY BANK: ${battKWh} kWh / ${battAh} Ah @ ${battV}V DC (Off-Grid/Hybrid)` : "NET METERING: Grid-Tied — DOE DC2015-07-0012 net metering application required"}
+${isOffGrid ? `BATTERY BANK: ${battKWh} kWh / ${battAh} Ah @ ${battV}V DC (Off-Grid/Hybrid)` : "NET METERING: Grid-Tied: DOE DC2015-07-0012 net metering application required"}
 
 Generate a professional BOM and SOW for this project.
 
@@ -1750,27 +1750,27 @@ RETURN JSON ONLY in this exact format:
 }
 
 BOM REQUIREMENTS (minimum 18 items):
-1. Solar PV Modules — ${panelWp} Wp monocrystalline PERC/TOPCon, IEC 61215 / IEC 61730 certified; Qty: ${panelQty} pcs
-2. Solar Mounting Structure — Aluminum anodized roof-mount rail system; Qty: for ${panelQty} panels set
-3. String Inverter — ${inverterKW} kW grid-tie inverter, IEC 61727, DOE-approved, anti-islanding protection; Qty: 1 unit
-4. DC Combiner Box — ${numStrings}-string, with fuses, surge arrester, disconnect; Qty: 1 unit
-5. DC Solar Cable — 6mm² UV-resistant double-insulated (IEC 62930), for string wiring; Qty: estimate meters run
-6. AC Output Cable — 3.5mm²–5.5mm² THHN Cu for inverter AC output to panel; Qty: estimate run
-7. DC Circuit Breaker — string-rated 600/1000V DC MCB; Qty: ${numStrings} pcs
-8. AC Circuit Breaker — 2P/4P, rated for inverter output current; Qty: 1 unit
-9. Surge Protection Device (DC) — 1000V DC, 40kA; Qty: 2 unit
-10. Surge Protection Device (AC) — Type 2, 40kA; Qty: 1 unit
-11. Solar Disconnect Switch (DC) — load-break rated 1000V DC; Qty: 1 unit
-12. Energy Meter (Bidirectional) — for net metering, Meralco-approved; Qty: 1 unit
-13. Grounding/Bonding Cable — 6mm² bare/green Cu for module frames, racking; Qty: estimate run
-14. Ground Rod and Clamps — copper-coated 16mm × 1.5m; Qty: 2 set
-15. Conduit and Fittings — EMT/PVC for cable protection; Qty: estimate lot
-16. Cable Trays / Cleats — aluminum or powder-coated steel; Qty: lot
-${isOffGrid ? `17. Battery Bank — LiFePO4 or VRLA, ${battV}V ${battAh}Ah system; Qty: 1 set
-18. Battery Enclosure / Cabinet — IP44, ventilated, with smoke detector; Qty: 1 unit
+1. Solar PV Modules: ${panelWp} Wp monocrystalline PERC/TOPCon, IEC 61215 / IEC 61730 certified; Qty: ${panelQty} pcs
+2. Solar Mounting Structure: Aluminum anodized roof-mount rail system; Qty: for ${panelQty} panels set
+3. String Inverter: ${inverterKW} kW grid-tie inverter, IEC 61727, DOE-approved, anti-islanding protection; Qty: 1 unit
+4. DC Combiner Box: ${numStrings}-string, with fuses, surge arrester, disconnect; Qty: 1 unit
+5. DC Solar Cable: 6mm² UV-resistant double-insulated (IEC 62930), for string wiring; Qty: estimate meters run
+6. AC Output Cable: 3.5mm²–5.5mm² THHN Cu for inverter AC output to panel; Qty: estimate run
+7. DC Circuit Breaker: string-rated 600/1000V DC MCB; Qty: ${numStrings} pcs
+8. AC Circuit Breaker: 2P/4P, rated for inverter output current; Qty: 1 unit
+9. Surge Protection Device (DC): 1000V DC, 40kA; Qty: 2 unit
+10. Surge Protection Device (AC): Type 2, 40kA; Qty: 1 unit
+11. Solar Disconnect Switch (DC): load-break rated 1000V DC; Qty: 1 unit
+12. Energy Meter (Bidirectional): for net metering, Meralco-approved; Qty: 1 unit
+13. Grounding/Bonding Cable: 6mm² bare/green Cu for module frames, racking; Qty: estimate run
+14. Ground Rod and Clamps: copper-coated 16mm × 1.5m; Qty: 2 set
+15. Conduit and Fittings: EMT/PVC for cable protection; Qty: estimate lot
+16. Cable Trays / Cleats: aluminum or powder-coated steel; Qty: lot
+${isOffGrid ? `17. Battery Bank: LiFePO4 or VRLA, ${battV}V ${battAh}Ah system; Qty: 1 set
+18. Battery Enclosure / Cabinet: IP44, ventilated, with smoke detector; Qty: 1 unit
 19. Charge Controller / Battery Management System (BMS); Qty: 1 unit
-20. Isolation Transformer (if required by local utility); Qty: 1 unit` : `17. Net Metering Application Package — DOE DC2015-07-0012, Meralco technical requirements; Qty: 1 lot
-18. Commissioning and Testing — IV curve tracing, insulation resistance test, anti-islanding test; Qty: 1 lot`}
+20. Isolation Transformer (if required by local utility); Qty: 1 unit` : `17. Net Metering Application Package: DOE DC2015-07-0012, Meralco technical requirements; Qty: 1 lot
+18. Commissioning and Testing: IV curve tracing, insulation resistance test, anti-islanding test; Qty: 1 lot`}
 
 SOW REQUIREMENTS (8 sections):
 1. Scope of Works and Design Basis
@@ -1782,8 +1782,8 @@ SOW REQUIREMENTS (8 sections):
 7. Earthing, Bonding, and Lightning Protection (PEC Art. 6, IEC 62561)
 8. Testing, Commissioning, and Regulatory Compliance (DOE permit, PEC Electrical Permit, Meralco net metering, IEC 61727 anti-islanding verification)
 
-Write each SOW section as full professional paragraphs starting with "The Contractor shall..." — NOT bullet points.
-Use short unit codes only (unit, set, pcs, m, lot, run) — never descriptive phrases in the unit field.`;
+Write each SOW section as full professional paragraphs starting with "The Contractor shall...": NOT bullet points.
+Use short unit codes only (unit, set, pcs, m, lot, run): never descriptive phrases in the unit field.`;
 
   const raw = await callGroq(prompt);
   const parsed = JSON.parse(raw);
@@ -1819,23 +1819,23 @@ SYSTEM: ${voltageV}V, ${phases}-phase
 LOAD: ${kw} kW at existing PF = ${pfExisting} → target PF = ${pfTarget}
 REQUIRED: ${kvarRequired} kVAR → SELECTED CAPACITOR BANK: ${selectedKvar} kVAR
 kVA REDUCTION: ${kvaReduction} kVA | Feeder current reduction: ${currentRedPct}%
-MERALCO PF SURCHARGE: ${meralcoPenalty ? `YES — existing PF ${pfExisting} is below 0.85 threshold; surcharge eliminated after correction to PF ${pfTarget}` : `NO — existing PF ${pfExisting} is above Meralco 0.85 threshold`}
+MERALCO PF SURCHARGE: ${meralcoPenalty ? `YES: existing PF ${pfExisting} is below 0.85 threshold; surcharge eliminated after correction to PF ${pfTarget}` : `NO: existing PF ${pfExisting} is above Meralco 0.85 threshold`}
 STANDARDS: IEEE 18, IEEE 1036, PEC 2017 Article 4.60, IEC 60831-1
 
 Generate a JSON object with:
 1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: Power Factor Correction Capacitor Bank (${selectedKvar} kVAR, ${voltageV}V, ${phases}-phase, IEC 60831-1 certified self-healing type, factory-installed discharge resistors per IEEE 18 — terminal voltage < 50V within 5 minutes after disconnection, IP31 minimum indoor rating), Automatic Power Factor Controller / APFC (12-step microprocessor-based controller, RS-485/Modbus communication port, anti-hunting timer to prevent excessive switching cycles, LCD display showing PF, kVAR, step status), Series Detuning Reactor 7% (tuned to 189 Hz to prevent harmonic resonance with VFDs and non-linear loads — rated for 1.3× capacitor rated current, Class H insulation), Dedicated MCCB for Capacitor Feeder (molded-case circuit breaker rated at ≥ 135% of capacitor rated current per PEC Art. 4.60.14 and IEEE 1036 — provide time-delay characteristic to allow capacitor inrush), Capacitor Panel Enclosure (sheet metal IP31 indoor panel with busbar, din-rail, door interlock and padlock provision, nameplate, anti-condensation heater for humid environments), Copper Busbars (tinned copper, current-rated to 125% of capacitor bank rated current, insulated phase segregation, per PEC Art. 4.60), Copper Conductors — Capacitor Feeder (THHN/THWN-2 75°C copper, sized at 135% of capacitor rated current per PEC Art. 4.60.14 and IEEE 1036), Conduit System (IMC rigid metallic conduit or PVC Schedule 40 for LV, sized per PEC Table 3.10.1, with liquid-tight fittings at panel knockouts), Power Analyzer / Energy Meter (true-RMS multifunction meter with power factor, kW, kVAR, kVAh, harmonic THD display — DIN rail or panel mount), Control Transformer (240V/24V AC for APFC controller and auxiliary relay supply, VA rated to controller load + 20% margin), Earthing and Grounding Materials (copper earth bus, 16 mm² green/yellow earth wire, compression lugs, earth bar, bonded to capacitor bank frame and panel enclosure per PEC Art. 2.50), Cable Tray / Cable Duct (perforated cable tray or PVC duct for routing power and control cables, sized for cable fill ≤ 40%), Warning Labels and Safety Signs (DANGER — CAPACITOR BANK, DISCHARGE TIME, PPE requirement labels per DOLE OSH and PEC Art. 4.60), Installation Accessories (mounting bolts, anti-vibration pads, terminal lugs, heat shrink tubing, ferrules, cable ties — complete set)
+   Include: Power Factor Correction Capacitor Bank (${selectedKvar} kVAR, ${voltageV}V, ${phases}-phase, IEC 60831-1 certified self-healing type, factory-installed discharge resistors per IEEE 18: terminal voltage < 50V within 5 minutes after disconnection, IP31 minimum indoor rating), Automatic Power Factor Controller / APFC (12-step microprocessor-based controller, RS-485/Modbus communication port, anti-hunting timer to prevent excessive switching cycles, LCD display showing PF, kVAR, step status), Series Detuning Reactor 7% (tuned to 189 Hz to prevent harmonic resonance with VFDs and non-linear loads: rated for 1.3× capacitor rated current, Class H insulation), Dedicated MCCB for Capacitor Feeder (molded-case circuit breaker rated at ≥ 135% of capacitor rated current per PEC Art. 4.60.14 and IEEE 1036: provide time-delay characteristic to allow capacitor inrush), Capacitor Panel Enclosure (sheet metal IP31 indoor panel with busbar, din-rail, door interlock and padlock provision, nameplate, anti-condensation heater for humid environments), Copper Busbars (tinned copper, current-rated to 125% of capacitor bank rated current, insulated phase segregation, per PEC Art. 4.60), Copper Conductors: Capacitor Feeder (THHN/THWN-2 75°C copper, sized at 135% of capacitor rated current per PEC Art. 4.60.14 and IEEE 1036), Conduit System (IMC rigid metallic conduit or PVC Schedule 40 for LV, sized per PEC Table 3.10.1, with liquid-tight fittings at panel knockouts), Power Analyzer / Energy Meter (true-RMS multifunction meter with power factor, kW, kVAR, kVAh, harmonic THD display: DIN rail or panel mount), Control Transformer (240V/24V AC for APFC controller and auxiliary relay supply, VA rated to controller load + 20% margin), Earthing and Grounding Materials (copper earth bus, 16 mm² green/yellow earth wire, compression lugs, earth bar, bonded to capacitor bank frame and panel enclosure per PEC Art. 2.50), Cable Tray / Cable Duct (perforated cable tray or PVC duct for routing power and control cables, sized for cable fill ≤ 40%), Warning Labels and Safety Signs (DANGER: CAPACITOR BANK, DISCHARGE TIME, PPE requirement labels per DOLE OSH and PEC Art. 4.60), Installation Accessories (mounting bolts, anti-vibration pads, terminal lugs, heat shrink tubing, ferrules, cable ties: complete set)
 
 2. "sow_sections": array of 7 sections (each: section_no, title, content)
-   Write each content as a full professional paragraph starting with "The Contractor shall..." — do NOT use bullet points or keyword lists. Each section must be 3–6 sentences of contractor-facing specification language.
+   Write each content as a full professional paragraph starting with "The Contractor shall...": do NOT use bullet points or keyword lists. Each section must be 3–6 sentences of contractor-facing specification language.
    Cover:
-   Section 1 — Scope of Works and Design Basis: state that this SOW covers supply, installation, testing, and commissioning of a ${selectedKvar} kVAR power factor correction capacitor bank at ${voltageV}V ${phases}-phase for project ${project}; reference calculation basis (IEEE 18, IEEE 1036, PEC 2017 Article 4.60, IEC 60831-1); state existing PF ${pfExisting} → target PF ${pfTarget}; state kVA reduction ${kvaReduction} kVA and feeder current reduction ${currentRedPct}%; ${meralcoPenalty ? `state that the existing PF of ${pfExisting} is below the Meralco DSM 0.85 threshold and that installation of the specified capacitor bank will eliminate the PF surcharge after correction to PF ${pfTarget}` : `state that correction improves kVA demand and reduces feeder I²R losses`}
-   Section 2 — Capacitor Bank and APFC Panel Supply: cover supply of IEC 60831-1 certified self-healing capacitor bank at ${selectedKvar} kVAR; factory-installed discharge resistors per IEEE 18; APFC controller with anti-hunting timer; 7% detuning reactor for harmonic protection; factory test certificate requirements; submittal of equipment data sheets and IEC certificates for Engineer's approval before procurement
-   Section 3 — Capacitor Bank Installation: cover installation at the main distribution board or nearest distribution panel to the load; panel mounting and anchoring; busbar connection torque per manufacturer specification; minimum clearances per PEC; anti-condensation provisions; labeling per PEC Art. 4.60 and DOLE OSH
-   Section 4 — Protection and Wiring: cover dedicated MCCB rated at 135% of capacitor rated current per PEC Art. 4.60.14; conductor sizing at 135% per IEEE 1036; conduit fill per PEC Table 3.10.1; conductor insulation resistance test ≥ 1 MΩ at 500V DC before energization; earthing and bonding per PEC Art. 2.50
-   Section 5 — APFC Controller, Metering, and Commissioning: cover APFC controller programming for step count matching the capacitor bank; anti-hunting timer setting (minimum 30 seconds between switching cycles); power analyzer setup for PF, kVAR, kWh, and THD monitoring; pre-energization insulation resistance test; power factor measurement with calibrated power analyzer before and after installation under full load to verify PF ≥ ${pfTarget}; harmonic THD measurement if VFDs or non-linear loads are present
-   Section 6 — Testing and Commissioning: cover insulation resistance test of all conductors (≥ 1 MΩ at 500V DC megger); step-by-step energization of capacitor bank; APFC automatic switching cycle test (verify each step switches in/out correctly); PF measurement at MDB before correction and after full bank energization — results recorded in test report; ATS or disconnect switching test; 4-hour continuous operation monitoring after full energization; all test results witnessed by the Engineer
-   Section 7 — Documentation, Permits, and Warranty: cover Electrical Permit from LGU before commencement; all electrical works by a licensed master electrician under the supervision of a PRC-licensed Electrical Engineer; as-built single-line diagram showing capacitor bank, APFC, protection, and metering; certified PF measurement test report (before and after) submitted to Owner and Meralco as required for DSM compliance; O&M manual and manufacturer's warranty documentation submitted at project completion; warranty minimum 12 months on capacitor bank and APFC controller
+   Section 1: Scope of Works and Design Basis: state that this SOW covers supply, installation, testing, and commissioning of a ${selectedKvar} kVAR power factor correction capacitor bank at ${voltageV}V ${phases}-phase for project ${project}; reference calculation basis (IEEE 18, IEEE 1036, PEC 2017 Article 4.60, IEC 60831-1); state existing PF ${pfExisting} → target PF ${pfTarget}; state kVA reduction ${kvaReduction} kVA and feeder current reduction ${currentRedPct}%; ${meralcoPenalty ? `state that the existing PF of ${pfExisting} is below the Meralco DSM 0.85 threshold and that installation of the specified capacitor bank will eliminate the PF surcharge after correction to PF ${pfTarget}` : `state that correction improves kVA demand and reduces feeder I²R losses`}
+   Section 2: Capacitor Bank and APFC Panel Supply: cover supply of IEC 60831-1 certified self-healing capacitor bank at ${selectedKvar} kVAR; factory-installed discharge resistors per IEEE 18; APFC controller with anti-hunting timer; 7% detuning reactor for harmonic protection; factory test certificate requirements; submittal of equipment data sheets and IEC certificates for Engineer's approval before procurement
+   Section 3: Capacitor Bank Installation: cover installation at the main distribution board or nearest distribution panel to the load; panel mounting and anchoring; busbar connection torque per manufacturer specification; minimum clearances per PEC; anti-condensation provisions; labeling per PEC Art. 4.60 and DOLE OSH
+   Section 4: Protection and Wiring: cover dedicated MCCB rated at 135% of capacitor rated current per PEC Art. 4.60.14; conductor sizing at 135% per IEEE 1036; conduit fill per PEC Table 3.10.1; conductor insulation resistance test ≥ 1 MΩ at 500V DC before energization; earthing and bonding per PEC Art. 2.50
+   Section 5: APFC Controller, Metering, and Commissioning: cover APFC controller programming for step count matching the capacitor bank; anti-hunting timer setting (minimum 30 seconds between switching cycles); power analyzer setup for PF, kVAR, kWh, and THD monitoring; pre-energization insulation resistance test; power factor measurement with calibrated power analyzer before and after installation under full load to verify PF ≥ ${pfTarget}; harmonic THD measurement if VFDs or non-linear loads are present
+   Section 6: Testing and Commissioning: cover insulation resistance test of all conductors (≥ 1 MΩ at 500V DC megger); step-by-step energization of capacitor bank; APFC automatic switching cycle test (verify each step switches in/out correctly); PF measurement at MDB before correction and after full bank energization: results recorded in test report; ATS or disconnect switching test; 4-hour continuous operation monitoring after full energization; all test results witnessed by the Engineer
+   Section 7: Documentation, Permits, and Warranty: cover Electrical Permit from LGU before commencement; all electrical works by a licensed master electrician under the supervision of a PRC-licensed Electrical Engineer; as-built single-line diagram showing capacitor bank, APFC, protection, and metering; certified PF measurement test report (before and after) submitted to Owner and Meralco as required for DSM compliance; O&M manual and manufacturer's warranty documentation submitted at project completion; warranty minimum 12 months on capacitor bank and APFC controller
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -1875,27 +1875,27 @@ PROJECT: ${project}
 TRAY TYPE: ${trayType}
 SELECTED TRAY: ${selWidthMm} mm wide × ${depthMm} mm deep ${trayType} cable tray
 NEMA VE 1 LOAD CLASS: ${nemaClass}
-FILL: ${fillActualPct}% (limit ${fillLimitPct}%) — ${fillCheck}
+FILL: ${fillActualPct}% (limit ${fillLimitPct}%): ${fillCheck}
 SUPPORT SPAN: ${spanM} m
 CABLE TRAY RUN LENGTH: ${runLengthM} m
 CABLES: ${cableSummary}
-AMPACITY DERATING: ${deratingApplies ? `APPLIES — fill exceeds 30%, derate conductors to 80% per NEC 392.80` : `NOT REQUIRED — fill ≤ 30%`}
+AMPACITY DERATING: ${deratingApplies ? `APPLIES: fill exceeds 30%, derate conductors to 80% per NEC 392.80` : `NOT REQUIRED: fill ≤ 30%`}
 STANDARDS: NEMA VE 1, NEMA VE 2, NEC Article 392, NEC 310.15, PEC 2017 Article 3.92
 
 Generate a JSON object with:
 1. "bom_items": array of 12 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: Cable Tray — ${trayType} Type (${selWidthMm} mm W × ${depthMm} mm D, hot-dip galvanized steel per NEMA VE 1 Load Class ${nemaClass}, 12-gauge steel minimum, factory-punched rungs at 150/300 mm spacing for Ladder type — supply ${runLengthM} m plus 10% cutting allowance), Cable Tray Covers (solid galvanized steel cover, same width as tray — for outdoor, dusty, or mechanical damage risk areas; quantity per drawing), Cable Tray Splice Plates (NEMA VE 1 matching galvanized splice bars, fitted with self-aligning feature, minimum 2 bolts per side — 2 sets per 3 m tray section), Horizontal Elbows 90° (${selWidthMm} mm matching tray, hot-dip galvanized, bend radius per NEMA VE 1 — quantity per routing plan), Horizontal Tees and Crosses (matching tray width and depth, galvanized — quantity per routing plan), Vertical Elbows — Rise/Drop (matching width, galvanized, for elevation changes — quantity per routing plan), End Closures / Cable Entry Plates (galvanized steel end plates per tray opening, prevent animal ingress — 2 per each tray end), Cable Tray Wall Brackets / Trapeze Hangers (galvanized steel wall-mounted brackets or trapeze hanger assemblies, load-rated for NEMA Class ${nemaClass} at ${spanM} m span — quantity = ${Math.ceil(Number(runLengthM) / Number(spanM)) + 2} sets minimum), Threaded Rod and Beam Clamps (M10 or M12 galvanized threaded rod with beam clamps and nuts for trapeze hangers — complete set), Cable Tray Divider Strip (longitudinal divider rail for segregating power cables from control/instrumentation cables per NEMA VE 2 — quantity per run length), Bonding Jumpers and Earth Continuity Clamps (copper bonding jumper per splice, earthing lug at each bracket point, 6 mm² green/yellow bonding cable — complete set per NEMA VE 2 Section 4 for electrical continuity of the entire tray run), Installation Hardware — Complete Set (stainless steel M8/M10 bolts, spring nuts, washers, hex nuts, nylon cable ties, warning labels, PEC Art. 3.92 labeling — complete lot)
+   Include: Cable Tray: ${trayType} Type (${selWidthMm} mm W × ${depthMm} mm D, hot-dip galvanized steel per NEMA VE 1 Load Class ${nemaClass}, 12-gauge steel minimum, factory-punched rungs at 150/300 mm spacing for Ladder type: supply ${runLengthM} m plus 10% cutting allowance), Cable Tray Covers (solid galvanized steel cover, same width as tray: for outdoor, dusty, or mechanical damage risk areas; quantity per drawing), Cable Tray Splice Plates (NEMA VE 1 matching galvanized splice bars, fitted with self-aligning feature, minimum 2 bolts per side: 2 sets per 3 m tray section), Horizontal Elbows 90° (${selWidthMm} mm matching tray, hot-dip galvanized, bend radius per NEMA VE 1: quantity per routing plan), Horizontal Tees and Crosses (matching tray width and depth, galvanized: quantity per routing plan), Vertical Elbows: Rise/Drop (matching width, galvanized, for elevation changes: quantity per routing plan), End Closures / Cable Entry Plates (galvanized steel end plates per tray opening, prevent animal ingress: 2 per each tray end), Cable Tray Wall Brackets / Trapeze Hangers (galvanized steel wall-mounted brackets or trapeze hanger assemblies, load-rated for NEMA Class ${nemaClass} at ${spanM} m span: quantity = ${Math.ceil(Number(runLengthM) / Number(spanM)) + 2} sets minimum), Threaded Rod and Beam Clamps (M10 or M12 galvanized threaded rod with beam clamps and nuts for trapeze hangers: complete set), Cable Tray Divider Strip (longitudinal divider rail for segregating power cables from control/instrumentation cables per NEMA VE 2: quantity per run length), Bonding Jumpers and Earth Continuity Clamps (copper bonding jumper per splice, earthing lug at each bracket point, 6 mm² green/yellow bonding cable: complete set per NEMA VE 2 Section 4 for electrical continuity of the entire tray run), Installation Hardware: Complete Set (stainless steel M8/M10 bolts, spring nuts, washers, hex nuts, nylon cable ties, warning labels, PEC Art. 3.92 labeling: complete lot)
 
 2. "sow_sections": array of 7 sections (each: section_no, title, content)
-   Write each content as a full professional paragraph starting with "The Contractor shall..." — do NOT use bullet points or keyword lists. Each section must be 3–6 sentences of contractor-facing specification language.
+   Write each content as a full professional paragraph starting with "The Contractor shall...": do NOT use bullet points or keyword lists. Each section must be 3–6 sentences of contractor-facing specification language.
    Cover:
-   Section 1 — Scope of Works and Design Basis: state that this SOW covers supply, fabrication, installation, earthing, and testing of a ${selWidthMm} mm × ${depthMm} mm ${trayType} cable tray system for project ${project} along the route as shown in the Electrical Layout Drawings; reference calculation basis (NEMA VE 1 Load Class ${nemaClass}, NEC Article 392, PEC 2017 Article 3.92); state the total cable fill is ${fillActualPct}% (${fillCheck} — limit ${fillLimitPct}%); state that ${deratingApplies ? `conductor ampacity derating at 80% is required because fill exceeds 30% per NEC 392.80 — all power cable ampacities shall be derated accordingly` : `no conductor ampacity derating is required as fill does not exceed 30% per NEC 392.80`}; state route total length ${runLengthM} m with ${spanM} m support spacing
-   Section 2 — Material Supply and Approval: cover supply of NEMA VE 1 Load Class ${nemaClass} hot-dip galvanized steel ${trayType} cable tray, ${selWidthMm} mm wide × ${depthMm} mm deep; require submittal of NEMA VE 1 compliance certificate, load class certification, and hot-dip galvanizing certificate (ASTM A123) to the Engineer for approval before procurement; specify matching fittings (elbows, tees, reducers, splice plates) from the same manufacturer for dimensional compatibility; specify cable tray divider for separation of power cables from control and signal cables
-   Section 3 — Installation and Support: cover installation of cable tray on galvanized steel wall brackets or trapeze hangers at ${spanM} m centres maximum, anchored to building structure using wedge anchors or beam clamps per NEMA VE 2; state required clearances — minimum 300 mm above tray for cable installation access, 150 mm minimum side clearance per NEC 392.6; specify level installation (±5 mm/m tolerance) with all fittings properly aligned; cover installation of cable tray covers at all outdoor, exposed, or fire-rated sections
-   Section 4 — Cable Routing and Tray Fill: cover cable installation within the cable tray shall not exceed the calculated fill of ${fillActualPct}% (limit ${fillLimitPct}% per NEC 392.22); cables shall be arranged in a single or multiple layers as required by the fill calculation, with power cables segregated from control and instrumentation cables by a tray divider; all cables to be secured at tray entry/exit points and at each support with approved nylon cable ties or cleats; cables shall have sufficient slack at equipment connections for thermal expansion and maintenance access
-   Section 5 — Earthing and Bonding: cover installation of copper bonding jumpers across every splice plate and fitting joint to ensure electrical continuity of the complete cable tray system per NEMA VE 2 Section 4 and PEC 2017 Article 2.50; earthing lugs to be installed at every support bracket and connected to the building main earth using 6 mm² green/yellow copper conductors; measured earth continuity resistance of the complete tray run shall not exceed 1 Ω end-to-end; submit measured results to the Engineer as part of the commissioning test report
-   Section 6 — Testing and Inspection: cover pre-installation inspection of all cable tray sections for galvanizing defects, dimensional compliance with NEMA VE 1, and damaged rungs or rails; post-installation inspection to verify span compliance, levelness, secure anchoring, and correct fitting alignment; earth continuity test of the complete tray run (end-to-end resistance ≤ 1 Ω); visual inspection of fill ratio compliance (actual fill ≤ ${fillLimitPct}%); all test and inspection results to be recorded in a commissioning test report and submitted to the Engineer for approval
-   Section 7 — Documentation and Regulatory Compliance: cover submission of Electrical Permit from the LGU before commencement of installation; all electrical works to be performed by a licensed master electrician under the supervision of a PRC-licensed Electrical Engineer; submission of as-built cable tray layout drawings showing all tray routes, fittings, support locations, cable groupings, and earthing connections; submission of NEMA VE 1 compliance certificates, galvanizing certificates, and load class certification for all materials; final commissioning test report including earth continuity results and fill ratio inspection; minimum 12-month warranty on all supplied materials against manufacturing defects and corrosion failure
+   Section 1: Scope of Works and Design Basis: state that this SOW covers supply, fabrication, installation, earthing, and testing of a ${selWidthMm} mm × ${depthMm} mm ${trayType} cable tray system for project ${project} along the route as shown in the Electrical Layout Drawings; reference calculation basis (NEMA VE 1 Load Class ${nemaClass}, NEC Article 392, PEC 2017 Article 3.92); state the total cable fill is ${fillActualPct}% (${fillCheck}: limit ${fillLimitPct}%); state that ${deratingApplies ? `conductor ampacity derating at 80% is required because fill exceeds 30% per NEC 392.80: all power cable ampacities shall be derated accordingly` : `no conductor ampacity derating is required as fill does not exceed 30% per NEC 392.80`}; state route total length ${runLengthM} m with ${spanM} m support spacing
+   Section 2: Material Supply and Approval: cover supply of NEMA VE 1 Load Class ${nemaClass} hot-dip galvanized steel ${trayType} cable tray, ${selWidthMm} mm wide × ${depthMm} mm deep; require submittal of NEMA VE 1 compliance certificate, load class certification, and hot-dip galvanizing certificate (ASTM A123) to the Engineer for approval before procurement; specify matching fittings (elbows, tees, reducers, splice plates) from the same manufacturer for dimensional compatibility; specify cable tray divider for separation of power cables from control and signal cables
+   Section 3: Installation and Support: cover installation of cable tray on galvanized steel wall brackets or trapeze hangers at ${spanM} m centres maximum, anchored to building structure using wedge anchors or beam clamps per NEMA VE 2; state required clearances: minimum 300 mm above tray for cable installation access, 150 mm minimum side clearance per NEC 392.6; specify level installation (±5 mm/m tolerance) with all fittings properly aligned; cover installation of cable tray covers at all outdoor, exposed, or fire-rated sections
+   Section 4: Cable Routing and Tray Fill: cover cable installation within the cable tray shall not exceed the calculated fill of ${fillActualPct}% (limit ${fillLimitPct}% per NEC 392.22); cables shall be arranged in a single or multiple layers as required by the fill calculation, with power cables segregated from control and instrumentation cables by a tray divider; all cables to be secured at tray entry/exit points and at each support with approved nylon cable ties or cleats; cables shall have sufficient slack at equipment connections for thermal expansion and maintenance access
+   Section 5: Earthing and Bonding: cover installation of copper bonding jumpers across every splice plate and fitting joint to ensure electrical continuity of the complete cable tray system per NEMA VE 2 Section 4 and PEC 2017 Article 2.50; earthing lugs to be installed at every support bracket and connected to the building main earth using 6 mm² green/yellow copper conductors; measured earth continuity resistance of the complete tray run shall not exceed 1 Ω end-to-end; submit measured results to the Engineer as part of the commissioning test report
+   Section 6: Testing and Inspection: cover pre-installation inspection of all cable tray sections for galvanizing defects, dimensional compliance with NEMA VE 1, and damaged rungs or rails; post-installation inspection to verify span compliance, levelness, secure anchoring, and correct fitting alignment; earth continuity test of the complete tray run (end-to-end resistance ≤ 1 Ω); visual inspection of fill ratio compliance (actual fill ≤ ${fillLimitPct}%); all test and inspection results to be recorded in a commissioning test report and submitted to the Engineer for approval
+   Section 7: Documentation and Regulatory Compliance: cover submission of Electrical Permit from the LGU before commencement of installation; all electrical works to be performed by a licensed master electrician under the supervision of a PRC-licensed Electrical Engineer; submission of as-built cable tray layout drawings showing all tray routes, fittings, support locations, cable groupings, and earthing connections; submission of NEMA VE 1 compliance certificates, galvanizing certificates, and load class certification for all materials; final commissioning test report including earth continuity results and fill ratio inspection; minimum 12-month warranty on all supplied materials against manufacturing defects and corrosion failure
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -1947,18 +1947,18 @@ STANDARDS: IEC 62040-1, IEC 62040-3 (${iecClass}), IEEE 446, IEEE 1184, PEC 2017
 
 Generate a JSON object with:
 1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: UPS Main Unit (${selectedKVA} kVA ${topology} UPS, IEC 62040-3 ${iecClass} certified, ${phase}, input voltage ${phase === "3-Phase" ? "415V ±15% 3-phase 4-wire 60Hz" : "230V ±15% single-phase 60Hz"}, output voltage ${phase === "3-Phase" ? "415V/240V" : "230V"} ±2% regulated, THDv < 2% at linear load, efficiency ≥ ${Math.round(Number(upsEff) * 100)}%, static bypass included, RS-232/SNMP monitoring port, hot-swappable batteries if applicable), Static Bypass Panel (motorized static bypass with open/neutral/UPS positions — for maintenance without loss of supply to critical loads — rated for ${selectedKVA} kVA), Maintenance Bypass Breaker (manual maintenance bypass MCCB, ${Math.ceil(Number(inputCurrentA) * 1.25)} A, interlocked with UPS output breaker to prevent paralleling), VRLA Battery Cabinets (${battConfig} — factory-assembled battery string in ventilated steel cabinet with battery management system, temperature sensor, and individual cell fusing — IEC 62040-1 rated), Battery Disconnect Switch (lockable DC isolator switch rated for ${battV}V DC, ${Math.ceil(Number(selectedAh) * 1.2)} A — one per battery string, for maintenance isolation), Battery Cable Set (flexible copper battery cables, cross-linked PE insulation rated for ${battV}V DC, colour-coded red/black, pre-terminated with compression lugs — complete set per string), UPS Input Isolator / Incomer MCCB (${inputBreakerA}A MCCB, 3-pole, interrupt capacity ≥ 25 kA at 415V — for dedicated UPS input feeder from main distribution panel), UPS Output Distribution Panel (busbar rated for ${selectedKVA} kVA, with individual outgoing MCBs or MCCBs for each critical load circuit — labelled, lockable, with surge protection device on outgoing bus), Network UPS / SNMP Card (SNMP v1/v2/v3 card for remote monitoring of UPS status, battery level, load %, alarms, runtime remaining — integration with building management system or DCIM if applicable), UPS Monitoring Software (vendor-supplied UPS software licence for graceful shutdown of servers on battery — compatible with major hypervisors; include 1-year support subscription), Equipment Base Frame / Seismic Anchor Set (galvanized steel housekeeping pad or anti-vibration isolation frame, seismic anchor bolts for floor fixing of UPS and battery cabinets per ASCE 7 seismic zone requirements), Power Cable — UPS Input (THHN/THWN copper, sized for ${inputBreakerA}A feeder, in EMT or RSC conduit from MDB to UPS input incomer — length per drawing), Power Cable — UPS Output (THHN/THWN copper, sized per output panel schedule, in EMT conduit from UPS to output distribution panel — length per drawing), Earthing and Bonding Set (copper earthing conductor 16–25 mm² from UPS frame, battery cabinet frame, and bypass panel to building earth bus — complete with compression lugs and earth label tags per PEC Article 2.50)
+   Include: UPS Main Unit (${selectedKVA} kVA ${topology} UPS, IEC 62040-3 ${iecClass} certified, ${phase}, input voltage ${phase === "3-Phase" ? "415V ±15% 3-phase 4-wire 60Hz" : "230V ±15% single-phase 60Hz"}, output voltage ${phase === "3-Phase" ? "415V/240V" : "230V"} ±2% regulated, THDv < 2% at linear load, efficiency ≥ ${Math.round(Number(upsEff) * 100)}%, static bypass included, RS-232/SNMP monitoring port, hot-swappable batteries if applicable), Static Bypass Panel (motorized static bypass with open/neutral/UPS positions: for maintenance without loss of supply to critical loads: rated for ${selectedKVA} kVA), Maintenance Bypass Breaker (manual maintenance bypass MCCB, ${Math.ceil(Number(inputCurrentA) * 1.25)} A, interlocked with UPS output breaker to prevent paralleling), VRLA Battery Cabinets (${battConfig}: factory-assembled battery string in ventilated steel cabinet with battery management system, temperature sensor, and individual cell fusing: IEC 62040-1 rated), Battery Disconnect Switch (lockable DC isolator switch rated for ${battV}V DC, ${Math.ceil(Number(selectedAh) * 1.2)} A: one per battery string, for maintenance isolation), Battery Cable Set (flexible copper battery cables, cross-linked PE insulation rated for ${battV}V DC, colour-coded red/black, pre-terminated with compression lugs: complete set per string), UPS Input Isolator / Incomer MCCB (${inputBreakerA}A MCCB, 3-pole, interrupt capacity ≥ 25 kA at 415V: for dedicated UPS input feeder from main distribution panel), UPS Output Distribution Panel (busbar rated for ${selectedKVA} kVA, with individual outgoing MCBs or MCCBs for each critical load circuit: labelled, lockable, with surge protection device on outgoing bus), Network UPS / SNMP Card (SNMP v1/v2/v3 card for remote monitoring of UPS status, battery level, load %, alarms, runtime remaining: integration with building management system or DCIM if applicable), UPS Monitoring Software (vendor-supplied UPS software licence for graceful shutdown of servers on battery: compatible with major hypervisors; include 1-year support subscription), Equipment Base Frame / Seismic Anchor Set (galvanized steel housekeeping pad or anti-vibration isolation frame, seismic anchor bolts for floor fixing of UPS and battery cabinets per ASCE 7 seismic zone requirements), Power Cable: UPS Input (THHN/THWN copper, sized for ${inputBreakerA}A feeder, in EMT or RSC conduit from MDB to UPS input incomer: length per drawing), Power Cable: UPS Output (THHN/THWN copper, sized per output panel schedule, in EMT conduit from UPS to output distribution panel: length per drawing), Earthing and Bonding Set (copper earthing conductor 16–25 mm² from UPS frame, battery cabinet frame, and bypass panel to building earth bus: complete with compression lugs and earth label tags per PEC Article 2.50)
 
 2. "sow_sections": array of 7 sections (each: section_no, title, content)
-   Write each content as a full professional paragraph starting with "The Contractor shall..." — do NOT use bullet points. Each section must be 3–6 sentences of contractor-facing specification language.
+   Write each content as a full professional paragraph starting with "The Contractor shall...": do NOT use bullet points. Each section must be 3–6 sentences of contractor-facing specification language.
    Cover:
-   Section 1 — Scope of Works and Design Basis: state this SOW covers supply, installation, commissioning, and testing of a ${selectedKVA} kVA ${topology} UPS system (IEC 62040-3 ${iecClass}) for project ${project}; reference calculation basis (IEEE 446 loading ${loadingPct}% ≤ 80%, backup autonomy ${runtimeMin} min ≥ ${backupMin} min required, growth factor ${growthFactor}×); state battery bank is ${battConfig} at ${battV}V DC bus; state input incomer is ${inputBreakerA}A dedicated MCCB and static bypass is included for maintenance
-   Section 2 — Material Supply and Factory Certification: cover supply of a ${selectedKVA} kVA ${topology} UPS carrying valid IEC 62040-1 and IEC 62040-3 ${iecClass} certificates from an accredited test laboratory; require submission of UPS datasheet, factory test report (load bank discharge test at 100% load confirming ≥ ${runtimeMin} min runtime), battery datasheet (IEC 62040-1 rated VRLA, ${selectedAh}Ah per cell), and SNMP card specifications for Engineer's approval before procurement; specify that the UPS manufacturer shall provide a minimum 2-year warranty on the UPS unit and batteries
-   Section 3 — Installation Requirements: cover installation of UPS and battery cabinets on a galvanized steel housekeeping pad anchored to the structural floor slab; state minimum clearances — 1 m front access, 0.6 m rear and side clearance per IEC 62040-1 installation requirements; specify input and output cabling in EMT or RSC conduit, sized per the approved panel schedule; state battery room or UPS room shall be air-conditioned to 20–25°C ambient per IEEE 1184 to achieve design battery life; cover installation of seismic anchor brackets where applicable
-   Section 4 — Electrical Connections and Earthing: cover connection of the ${inputBreakerA}A MCCB input incomer from the main distribution board on a dedicated feeder — the UPS input shall not share a circuit with other loads; static bypass shall be wired to a separate bypass source feeder (same bus as input, independently fused) to allow complete UPS isolation for maintenance; output distribution panel shall be wired to all critical loads as shown on the approved single-line diagram; UPS frame, battery cabinet, and bypass panel shall be bonded to the building main earth using 16–25 mm² copper conductors per PEC Article 2.50; measured earth resistance shall not exceed 5 Ω
-   Section 5 — Battery Installation and Management: cover installation of battery cabinets adjacent to the UPS within the allowable DC cable length (typically ≤ 5 m for VRLA strings) to minimise voltage drop and inductance; battery strings to be connected in the polarity sequence specified by the UPS manufacturer — reverse polarity will damage the UPS rectifier/inverter and void warranty; install individual string isolation switches (DC rated for ${battV}V) for safe battery replacement under load (hot-swap procedure per manufacturer documentation); battery management system shall monitor individual cell voltage, temperature, and state of charge — alarms to be wired to the SNMP card and building BMS
-   Section 6 — Testing and Commissioning: cover pre-commissioning checks including insulation resistance test (>1 MΩ at 500V DC on all AC wiring), DC polarity and voltage verification of each battery string, and earthing continuity test; functional tests to include UPS self-test, mains simulation failure (transfer to battery and back), bypass transfer, and alarm verification; full-load battery discharge test per IEC 62040-3 — connect design load (${selectedKVA} kVA × ${loadingPct}% = design VA), record battery voltage, load and runtime every 5 minutes until battery low-voltage cutout, confirm measured runtime ≥ ${backupMin} min; all test results to be recorded in a commissioning test report signed by the Contractor and witnessed by the Engineer
-   Section 7 — Documentation and Regulatory Compliance: cover submission of Electrical Permit from the LGU before commencement; all electrical works to be performed by a licensed master electrician under supervision of a PRC-licensed Electrical Engineer; submission of as-built single-line diagram showing UPS, bypass, battery bank, input/output breakers, and all distribution circuits; submission of IEC 62040-1 and IEC 62040-3 certificates, factory test report, battery datasheets, and SNMP card configuration guide; commissioning test report including discharge test results; UPS and battery warranty registration documents; O&M manual covering routine maintenance schedule, battery replacement procedure, and emergency bypass procedure
+   Section 1: Scope of Works and Design Basis: state this SOW covers supply, installation, commissioning, and testing of a ${selectedKVA} kVA ${topology} UPS system (IEC 62040-3 ${iecClass}) for project ${project}; reference calculation basis (IEEE 446 loading ${loadingPct}% ≤ 80%, backup autonomy ${runtimeMin} min ≥ ${backupMin} min required, growth factor ${growthFactor}×); state battery bank is ${battConfig} at ${battV}V DC bus; state input incomer is ${inputBreakerA}A dedicated MCCB and static bypass is included for maintenance
+   Section 2: Material Supply and Factory Certification: cover supply of a ${selectedKVA} kVA ${topology} UPS carrying valid IEC 62040-1 and IEC 62040-3 ${iecClass} certificates from an accredited test laboratory; require submission of UPS datasheet, factory test report (load bank discharge test at 100% load confirming ≥ ${runtimeMin} min runtime), battery datasheet (IEC 62040-1 rated VRLA, ${selectedAh}Ah per cell), and SNMP card specifications for Engineer's approval before procurement; specify that the UPS manufacturer shall provide a minimum 2-year warranty on the UPS unit and batteries
+   Section 3: Installation Requirements: cover installation of UPS and battery cabinets on a galvanized steel housekeeping pad anchored to the structural floor slab; state minimum clearances: 1 m front access, 0.6 m rear and side clearance per IEC 62040-1 installation requirements; specify input and output cabling in EMT or RSC conduit, sized per the approved panel schedule; state battery room or UPS room shall be air-conditioned to 20–25°C ambient per IEEE 1184 to achieve design battery life; cover installation of seismic anchor brackets where applicable
+   Section 4: Electrical Connections and Earthing: cover connection of the ${inputBreakerA}A MCCB input incomer from the main distribution board on a dedicated feeder: the UPS input shall not share a circuit with other loads; static bypass shall be wired to a separate bypass source feeder (same bus as input, independently fused) to allow complete UPS isolation for maintenance; output distribution panel shall be wired to all critical loads as shown on the approved single-line diagram; UPS frame, battery cabinet, and bypass panel shall be bonded to the building main earth using 16–25 mm² copper conductors per PEC Article 2.50; measured earth resistance shall not exceed 5 Ω
+   Section 5: Battery Installation and Management: cover installation of battery cabinets adjacent to the UPS within the allowable DC cable length (typically ≤ 5 m for VRLA strings) to minimise voltage drop and inductance; battery strings to be connected in the polarity sequence specified by the UPS manufacturer: reverse polarity will damage the UPS rectifier/inverter and void warranty; install individual string isolation switches (DC rated for ${battV}V) for safe battery replacement under load (hot-swap procedure per manufacturer documentation); battery management system shall monitor individual cell voltage, temperature, and state of charge: alarms to be wired to the SNMP card and building BMS
+   Section 6: Testing and Commissioning: cover pre-commissioning checks including insulation resistance test (>1 MΩ at 500V DC on all AC wiring), DC polarity and voltage verification of each battery string, and earthing continuity test; functional tests to include UPS self-test, mains simulation failure (transfer to battery and back), bypass transfer, and alarm verification; full-load battery discharge test per IEC 62040-3: connect design load (${selectedKVA} kVA × ${loadingPct}% = design VA), record battery voltage, load and runtime every 5 minutes until battery low-voltage cutout, confirm measured runtime ≥ ${backupMin} min; all test results to be recorded in a commissioning test report signed by the Contractor and witnessed by the Engineer
+   Section 7: Documentation and Regulatory Compliance: cover submission of Electrical Permit from the LGU before commencement; all electrical works to be performed by a licensed master electrician under supervision of a PRC-licensed Electrical Engineer; submission of as-built single-line diagram showing UPS, bypass, battery bank, input/output breakers, and all distribution circuits; submission of IEC 62040-1 and IEC 62040-3 certificates, factory test report, battery datasheets, and SNMP card configuration guide; commissioning test report including discharge test results; UPS and battery warranty registration documents; O&M manual covering routine maintenance schedule, battery replacement procedure, and emergency bypass procedure
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -2025,18 +2025,18 @@ SERVICE CONDUCTOR: ${svcCond} mm2
 
 Generate a JSON object with:
 1. "bom_items": array of 12 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: Ground Electrode (${elecDesc}, copper-bonded per UL 467 or equivalent — qty ${numElec}), Ground Electrode Clamp/Connector (exothermic weld or compression-type copper alloy connector, rated for direct burial — qty ${numElec}, one per electrode), Grounding Electrode Conductor / GEC (${gecMm2} mm2 bare or green-insulated stranded copper conductor per PEC Table 2.50.66, qty in metres from service entrance to electrode), GEC Conduit Protection (rigid metallic conduit — 25mm min dia — for GEC where subject to physical damage above grade, qty in metres), Ground Rod Driving Sleeve (for rod installation — one per rod electrode, qty ${numElec}), Earthing Inspection Pit / Test Point (precast concrete or polymer inspection pit with removable cover — for post-installation resistance testing access, qty per electrode cluster), Bonding Jumper — Main (main bonding jumper connecting neutral bus to ground bus in main distribution panel — bare copper, minimum ${gecMm2} mm2, qty 1), Bonding Conductor — Equipment (bare copper or green-insulated stranded conductor for bonding of all metallic equipment enclosures, conduits, and cable trays to the earthing system — qty in metres as per drawing), Soil Treatment Compound (bentonite or equivalent ground enhancement material — GEM or MarconiteR compound for zones with high soil resistivity > 200 Ohm-m — qty in kg depending on site conditions), Copper Ground Bus Bar (tinned copper bus bar 6mm x 50mm, drilled with holes for GEC and bonding conductor terminations — wall-mounted in MDB room, qty 1), Earthing Label / Identification Tape (yellow-green bicolour PVC label tape or embossed stainless ID marker for all earthing conductors per PEC 2017 Art. 2.50 colour identification requirements, qty 1 set), Earth Resistance Test Kit / Wenner Meter (four-pole earth resistance tester, Wenner method per IEEE 81 — for soil resistivity measurement and post-installation electrode resistance acceptance test, qty 1 — Contractor to provide)
+   Include: Ground Electrode (${elecDesc}, copper-bonded per UL 467 or equivalent: qty ${numElec}), Ground Electrode Clamp/Connector (exothermic weld or compression-type copper alloy connector, rated for direct burial: qty ${numElec}, one per electrode), Grounding Electrode Conductor / GEC (${gecMm2} mm2 bare or green-insulated stranded copper conductor per PEC Table 2.50.66, qty in metres from service entrance to electrode), GEC Conduit Protection (rigid metallic conduit: 25mm min dia: for GEC where subject to physical damage above grade, qty in metres), Ground Rod Driving Sleeve (for rod installation: one per rod electrode, qty ${numElec}), Earthing Inspection Pit / Test Point (precast concrete or polymer inspection pit with removable cover: for post-installation resistance testing access, qty per electrode cluster), Bonding Jumper: Main (main bonding jumper connecting neutral bus to ground bus in main distribution panel: bare copper, minimum ${gecMm2} mm2, qty 1), Bonding Conductor: Equipment (bare copper or green-insulated stranded conductor for bonding of all metallic equipment enclosures, conduits, and cable trays to the earthing system: qty in metres as per drawing), Soil Treatment Compound (bentonite or equivalent ground enhancement material: GEM or MarconiteR compound for zones with high soil resistivity > 200 Ohm-m: qty in kg depending on site conditions), Copper Ground Bus Bar (tinned copper bus bar 6mm x 50mm, drilled with holes for GEC and bonding conductor terminations: wall-mounted in MDB room, qty 1), Earthing Label / Identification Tape (yellow-green bicolour PVC label tape or embossed stainless ID marker for all earthing conductors per PEC 2017 Art. 2.50 colour identification requirements, qty 1 set), Earth Resistance Test Kit / Wenner Meter (four-pole earth resistance tester, Wenner method per IEEE 81: for soil resistivity measurement and post-installation electrode resistance acceptance test, qty 1: Contractor to provide)
 
 2. "sow_sections": array of 7 sections (each: section_no, title, content)
-   Write each content as a full professional paragraph starting with "The Contractor shall..." — do NOT use bullet points. Each section must be 3–6 sentences of contractor-facing specification language.
+   Write each content as a full professional paragraph starting with "The Contractor shall...": do NOT use bullet points. Each section must be 3–6 sentences of contractor-facing specification language.
    Cover:
-   Section 1 — Scope of Works and Design Basis: state this SOW covers supply, installation, testing, and commissioning of the complete earthing and grounding system for ${project}; state the system type is ${sysType} with a calculated combined electrode resistance of ${rParallel} Ohm (${passLabel} vs. ${rLimit} Ohm limit per ${limitBasis}); state electrode type is ${elecType} (${elecDesc}), soil resistivity ${soilRho} Ohm-m; state GEC is ${gecMm2} mm2 copper per PEC 2017 Table 2.50.66; reference applicable standards: PEC 2017 Article 2.50, IEEE 80-2013, IEEE 142-2007, IEC 62305-3, and NEC Article 250
-   Section 2 — Material Supply and Compliance: cover supply of ${numElec}x ${elecType.toLowerCase()} electrode(s) complying with UL 467 (copper-bonded steel with minimum 0.25 mm copper cladding) or equivalent approved standard; all copper conductors shall be Class B stranded per ASTM B8; require submission of material test certificates, product datasheets, and UL 467 compliance documentation for Engineer review and approval before procurement; bentonite or ground enhancement compound shall be submitted with manufacturer's published resistivity reduction data if soil treatment is specified
-   Section 3 — Excavation and Electrode Installation: cover excavation for horizontal conductors or inspection pits to the depths shown on the approved earthing layout drawing; vertical rod electrodes shall be driven to the full design depth of ${elecType === "Rod" ? rodLen : 3}m using a mechanical driver or slide hammer — driving shall stop if the rod buckles; plate electrodes shall be buried vertically with the top edge at minimum 600 mm below finished grade and oriented parallel to the building perimeter; ring/loop conductors shall be laid at minimum 500 mm below finished grade in a trench backfilled with compacted soil free of rocks or debris; all earthing conductors in direct contact with soil shall be bare copper or copper with heat-shrink insulation — no aluminium conductors are permitted in direct burial
-   Section 4 — Conductor Connections and Bonding: cover all conductor-to-electrode and conductor-to-conductor connections in soil using exothermic welding (Cadweld or approved equivalent) — mechanical clamps or crimp connectors shall be used only above grade where accessible for inspection; GEC shall run in rigid metallic conduit from the service entrance equipment to the first electrode where the conductor is subject to physical damage; the main bonding jumper connecting the neutral bus to the ground bus shall be installed in the service entrance equipment as a single unspliced conductor of minimum ${gecMm2} mm2; all metallic equipment enclosures, cable trays, conduits, and structural steel within the electrical room shall be bonded to the earthing system with minimum 6 mm2 copper bonding conductors per PEC 2017 Article 2.50
-   Section 5 — Soil Treatment (If Required): cover the application of bentonite or ground enhancement material (GEM) around each electrode if the initial pre-installation soil resistivity measurement exceeds ${Number(soilRho) > 200 ? "200" : "500"} Ohm-m — the Contractor shall submit the GEM product datasheet and manufacturer's installation procedure for Engineer approval before application; GEM shall be mixed to manufacturer-specified consistency and applied in a collar around each rod or beneath each plate electrode before backfilling; the Contractor shall allow a minimum 48-hour curing period before conducting the post-installation resistance test; if soil treatment does not achieve the required resistance limit, the Contractor shall propose additional electrodes or alternative electrode configurations for Engineer approval at no additional cost
-   Section 6 — Testing and Acceptance: cover pre-installation soil resistivity measurement by the Wenner four-pin method per IEEE 81 at the proposed electrode locations — results shall be submitted to the Engineer before driving any electrodes; post-installation acceptance test of each electrode using a calibrated fall-of-potential method or clamp-on earth resistance tester per IEEE 81 — the measured resistance of the combined electrode system shall not exceed ${rLimit} Ohm as required by ${limitBasis}; bonding continuity test — measure resistance from each bonded equipment frame to the main earth bus using a low-resistance ohmmeter, maximum 0.1 Ohm; all test results including soil resistivity, individual electrode resistance, combined resistance, and bonding continuity shall be recorded in the earthing test register and submitted to the Engineer within 5 working days of test completion; no concrete pouring or permanent backfill over electrodes shall occur until written acceptance of test results by the Engineer
-   Section 7 — Documentation and Regulatory Compliance: cover submission of Electrical Permit from the LGU before commencement of earthing works; all earthing installation works shall be performed under the direct supervision of a PRC-licensed Electrical Engineer; as-built earthing layout drawings showing electrode locations, depth, conductor routing, inspection pit locations, and all bonding connections shall be submitted within 30 days of project completion; documentation package shall include: soil resistivity test report, post-installation earth resistance test report, bonding continuity test report, material certificates, and earthing test register signed and sealed by the Engineer of Record; the earthing system shall be inspected and retested at minimum every 5 years in accordance with PEC 2017 and IEEE 142 recommendations — include this requirement in the O&M manual
+   Section 1: Scope of Works and Design Basis: state this SOW covers supply, installation, testing, and commissioning of the complete earthing and grounding system for ${project}; state the system type is ${sysType} with a calculated combined electrode resistance of ${rParallel} Ohm (${passLabel} vs. ${rLimit} Ohm limit per ${limitBasis}); state electrode type is ${elecType} (${elecDesc}), soil resistivity ${soilRho} Ohm-m; state GEC is ${gecMm2} mm2 copper per PEC 2017 Table 2.50.66; reference applicable standards: PEC 2017 Article 2.50, IEEE 80-2013, IEEE 142-2007, IEC 62305-3, and NEC Article 250
+   Section 2: Material Supply and Compliance: cover supply of ${numElec}x ${elecType.toLowerCase()} electrode(s) complying with UL 467 (copper-bonded steel with minimum 0.25 mm copper cladding) or equivalent approved standard; all copper conductors shall be Class B stranded per ASTM B8; require submission of material test certificates, product datasheets, and UL 467 compliance documentation for Engineer review and approval before procurement; bentonite or ground enhancement compound shall be submitted with manufacturer's published resistivity reduction data if soil treatment is specified
+   Section 3: Excavation and Electrode Installation: cover excavation for horizontal conductors or inspection pits to the depths shown on the approved earthing layout drawing; vertical rod electrodes shall be driven to the full design depth of ${elecType === "Rod" ? rodLen : 3}m using a mechanical driver or slide hammer: driving shall stop if the rod buckles; plate electrodes shall be buried vertically with the top edge at minimum 600 mm below finished grade and oriented parallel to the building perimeter; ring/loop conductors shall be laid at minimum 500 mm below finished grade in a trench backfilled with compacted soil free of rocks or debris; all earthing conductors in direct contact with soil shall be bare copper or copper with heat-shrink insulation: no aluminium conductors are permitted in direct burial
+   Section 4: Conductor Connections and Bonding: cover all conductor-to-electrode and conductor-to-conductor connections in soil using exothermic welding (Cadweld or approved equivalent): mechanical clamps or crimp connectors shall be used only above grade where accessible for inspection; GEC shall run in rigid metallic conduit from the service entrance equipment to the first electrode where the conductor is subject to physical damage; the main bonding jumper connecting the neutral bus to the ground bus shall be installed in the service entrance equipment as a single unspliced conductor of minimum ${gecMm2} mm2; all metallic equipment enclosures, cable trays, conduits, and structural steel within the electrical room shall be bonded to the earthing system with minimum 6 mm2 copper bonding conductors per PEC 2017 Article 2.50
+   Section 5: Soil Treatment (If Required): cover the application of bentonite or ground enhancement material (GEM) around each electrode if the initial pre-installation soil resistivity measurement exceeds ${Number(soilRho) > 200 ? "200" : "500"} Ohm-m: the Contractor shall submit the GEM product datasheet and manufacturer's installation procedure for Engineer approval before application; GEM shall be mixed to manufacturer-specified consistency and applied in a collar around each rod or beneath each plate electrode before backfilling; the Contractor shall allow a minimum 48-hour curing period before conducting the post-installation resistance test; if soil treatment does not achieve the required resistance limit, the Contractor shall propose additional electrodes or alternative electrode configurations for Engineer approval at no additional cost
+   Section 6: Testing and Acceptance: cover pre-installation soil resistivity measurement by the Wenner four-pin method per IEEE 81 at the proposed electrode locations: results shall be submitted to the Engineer before driving any electrodes; post-installation acceptance test of each electrode using a calibrated fall-of-potential method or clamp-on earth resistance tester per IEEE 81: the measured resistance of the combined electrode system shall not exceed ${rLimit} Ohm as required by ${limitBasis}; bonding continuity test: measure resistance from each bonded equipment frame to the main earth bus using a low-resistance ohmmeter, maximum 0.1 Ohm; all test results including soil resistivity, individual electrode resistance, combined resistance, and bonding continuity shall be recorded in the earthing test register and submitted to the Engineer within 5 working days of test completion; no concrete pouring or permanent backfill over electrodes shall occur until written acceptance of test results by the Engineer
+   Section 7: Documentation and Regulatory Compliance: cover submission of Electrical Permit from the LGU before commencement of earthing works; all earthing installation works shall be performed under the direct supervision of a PRC-licensed Electrical Engineer; as-built earthing layout drawings showing electrode locations, depth, conductor routing, inspection pit locations, and all bonding connections shall be submitted within 30 days of project completion; documentation package shall include: soil resistivity test report, post-installation earth resistance test report, bonding continuity test report, material certificates, and earthing test register signed and sealed by the Engineer of Record; the earthing system shall be inspected and retested at minimum every 5 years in accordance with PEC 2017 and IEEE 142 recommendations: include this requirement in the O&M manual
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -2165,7 +2165,7 @@ APPLICATION: ${application}
 PHASE CONFIGURATION: ${phaseConfig}
 OVERALL POWER FACTOR: ${overallPF}
 RUNNING DEMAND: ${runningKW} kW / ${runningKVA} kVA
-LARGEST MOTOR: ${motorHP} HP — Start Method: ${startMethod} — Starting kVA surge: ${startingKVA} kVA
+LARGEST MOTOR: ${motorHP} HP: Start Method: ${startMethod}: Starting kVA surge: ${startingKVA} kVA
 DESIGN kVA (with ${safetyFactor}× safety factor): ${designKVA} kVA
 SELECTED GENSET: ${selectedKVA} kVA / ${selectedKW} kW (at 0.8 PF)
 SYSTEM LOADING: ${loadingPct}% of rated capacity
@@ -2175,9 +2175,9 @@ STANDARDS: ISO 8528-1 (genset ratings), PEC 2017 Article 7 (standby systems), NF
 
 Generate a JSON object with:
 1. "bom_items": array of 18 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: Diesel generator set (${selectedKVA} kVA / ${selectedKW} kW at 0.8 PF — ${phaseConfig}, 415V/240V, 60 Hz, ISO 8528-1 rated for ${application} service, DENR AO 2016-07 / Euro-3 emission-compliant diesel engine, synchronous alternator with integrated AVR ±1% voltage regulation, IP23 weather-protected enclosure), automatic transfer switch / ATS panel (4-pole motorized, current-rated at ${Math.ceil(Number(selectedKVA) * 1000 / 415 / 1.732)} A minimum for ${phaseConfig} 415V system — with open/closed/neutral positions, auto/manual/test mode, transfer time ≤ 10 s, retransfer delay timer, PEC Art. 7 compliant), main circuit breaker for genset output (MCCB, rated ≥ 125% of ${selectedKW} kW FLA, interrupt capacity ≥ 25 kA), genset control panel / annunciator (digital controller — auto start/stop, fault alarm outputs: low oil pressure, high coolant temp, overcrank, overspeed, battery failure), battery set for engine starting (maintenance-free lead-acid or VRLA, 12V/24V per manufacturer spec, sized for ≥ 10 cold cranking starts), battery charger (trickle/float type, 10A minimum, with charge status indicator), diesel day tank / base tank (${tank8hrL}L minimum capacity — 8-hr runtime per NFPA 110, UL-listed steel tank with level gauge, vent, drain valve), fuel supply piping (black steel Schedule 40, 25–50 mm diameter from bulk tank to day tank to genset, with isolation valves and flexible connector), flexible exhaust connection and muffler (residential-grade or critical-grade muffler per ambient noise requirements, stainless steel flex bellows, weather-protected exhaust termination ≥ 3 m above grade), exhaust pipe and stack (75–150 mm black steel Schedule 40, insulated where passing through occupied spaces), anti-vibration mounts / base isolation pads (4-point neoprene isolators rated for genset weight, ≤ 5 mm deflection), generator room ventilation louvers (supply and exhaust, motorized dampers, sized for 100% combustion air plus cooling air), earthing / grounding conductor (copper, 16–25 mm² to earth electrode, bonded to genset frame and ATS enclosure, PEC Art. 1.50), output power cable (THHN/THWN copper, sized for ${selectedKW} kW load at 415V — 125% continuous load factor, in EMT conduit), cable tray or conduit system (EMT/IMC, properly sized, from genset to ATS to main distribution panel), remote annunciator panel (if genset room is unmanned — fault alarms, run hours, battery status — mounted at building entrance or security desk), genset commissioning and load bank test report (factory test certificate, site acceptance test at 100% load for minimum 2 hours)
+   Include: Diesel generator set (${selectedKVA} kVA / ${selectedKW} kW at 0.8 PF: ${phaseConfig}, 415V/240V, 60 Hz, ISO 8528-1 rated for ${application} service, DENR AO 2016-07 / Euro-3 emission-compliant diesel engine, synchronous alternator with integrated AVR ±1% voltage regulation, IP23 weather-protected enclosure), automatic transfer switch / ATS panel (4-pole motorized, current-rated at ${Math.ceil(Number(selectedKVA) * 1000 / 415 / 1.732)} A minimum for ${phaseConfig} 415V system: with open/closed/neutral positions, auto/manual/test mode, transfer time ≤ 10 s, retransfer delay timer, PEC Art. 7 compliant), main circuit breaker for genset output (MCCB, rated ≥ 125% of ${selectedKW} kW FLA, interrupt capacity ≥ 25 kA), genset control panel / annunciator (digital controller: auto start/stop, fault alarm outputs: low oil pressure, high coolant temp, overcrank, overspeed, battery failure), battery set for engine starting (maintenance-free lead-acid or VRLA, 12V/24V per manufacturer spec, sized for ≥ 10 cold cranking starts), battery charger (trickle/float type, 10A minimum, with charge status indicator), diesel day tank / base tank (${tank8hrL}L minimum capacity: 8-hr runtime per NFPA 110, UL-listed steel tank with level gauge, vent, drain valve), fuel supply piping (black steel Schedule 40, 25–50 mm diameter from bulk tank to day tank to genset, with isolation valves and flexible connector), flexible exhaust connection and muffler (residential-grade or critical-grade muffler per ambient noise requirements, stainless steel flex bellows, weather-protected exhaust termination ≥ 3 m above grade), exhaust pipe and stack (75–150 mm black steel Schedule 40, insulated where passing through occupied spaces), anti-vibration mounts / base isolation pads (4-point neoprene isolators rated for genset weight, ≤ 5 mm deflection), generator room ventilation louvers (supply and exhaust, motorized dampers, sized for 100% combustion air plus cooling air), earthing / grounding conductor (copper, 16–25 mm² to earth electrode, bonded to genset frame and ATS enclosure, PEC Art. 1.50), output power cable (THHN/THWN copper, sized for ${selectedKW} kW load at 415V: 125% continuous load factor, in EMT conduit), cable tray or conduit system (EMT/IMC, properly sized, from genset to ATS to main distribution panel), remote annunciator panel (if genset room is unmanned: fault alarms, run hours, battery status: mounted at building entrance or security desk), genset commissioning and load bank test report (factory test certificate, site acceptance test at 100% load for minimum 2 hours)
 2. "sow_sections": array of 8 sections (each: section_no, title, content)
-   Cover: Scope of Works, Design Basis (ISO 8528-1 ${application} rating, ${phaseConfig} 415V/240V 60 Hz, running demand ${runningKW} kW / ${runningKVA} kVA, design kVA ${designKVA} kVA with ${safetyFactor}× safety factor, selected ${selectedKVA} kVA genset, system loading ${loadingPct}%, starting surge ${startingKVA} kVA via ${startMethod}), Generator Set Installation (concrete inertia base or structural steel skid, anti-vibration mounts, clearances per manufacturer — minimum 1 m all sides, exhaust routing, weatherproofing for outdoor-rated enclosure), Automatic Transfer Switch (ATS) Installation (4-pole ATS wiring to utility and genset bus, normal-to-emergency transfer time ≤ 10 sec per NFPA 110 for Level 1 systems, retransfer delay, test mode, bypass provision), Fuel System (day tank installation at ${tank8hrL}L minimum, bulk fuel storage if provided, fill point, vent routing, overflow containment bund — DENR DAO 2013-22 spill containment requirements, fuel piping isolation valves, fuel level low alarm), Ventilation and Exhaust System (supply air louvers for combustion + cooling — minimum 0.1 m²/100 kW genset rating, critical-grade muffler installation, exhaust stack height and clearance from openings per DOLE OSH, noise assessment if within 30 m of occupied building), Earthing and Bonding (genset frame, ATS enclosure, neutral bonding per PEC Art. 7 — single neutral bonding point, resistance ≤ 5 Ω to earth electrode, testing per PEC), Testing and Commissioning (factory test certificate review, no-load run 30 min, block load test at 25%/50%/75%/100% rated load — each step 15 min, ATS transfer and retransfer functional test, battery discharge and recharge test, fuel consumption verification, all fault alarm simulations, vibration and noise level measurement, test report sign-off by licensed PEE), Regulatory Compliance (PEC 2017 Article 7, NFPA 110 Level 1/Level 2 compliance, DOLE OSH mechanical and electrical installation permit, LGU/DENR permit for fuel storage if >200 L, as-built drawings, O&M manual, warranty registration)
+   Cover: Scope of Works, Design Basis (ISO 8528-1 ${application} rating, ${phaseConfig} 415V/240V 60 Hz, running demand ${runningKW} kW / ${runningKVA} kVA, design kVA ${designKVA} kVA with ${safetyFactor}× safety factor, selected ${selectedKVA} kVA genset, system loading ${loadingPct}%, starting surge ${startingKVA} kVA via ${startMethod}), Generator Set Installation (concrete inertia base or structural steel skid, anti-vibration mounts, clearances per manufacturer: minimum 1 m all sides, exhaust routing, weatherproofing for outdoor-rated enclosure), Automatic Transfer Switch (ATS) Installation (4-pole ATS wiring to utility and genset bus, normal-to-emergency transfer time ≤ 10 sec per NFPA 110 for Level 1 systems, retransfer delay, test mode, bypass provision), Fuel System (day tank installation at ${tank8hrL}L minimum, bulk fuel storage if provided, fill point, vent routing, overflow containment bund: DENR DAO 2013-22 spill containment requirements, fuel piping isolation valves, fuel level low alarm), Ventilation and Exhaust System (supply air louvers for combustion + cooling: minimum 0.1 m²/100 kW genset rating, critical-grade muffler installation, exhaust stack height and clearance from openings per DOLE OSH, noise assessment if within 30 m of occupied building), Earthing and Bonding (genset frame, ATS enclosure, neutral bonding per PEC Art. 7: single neutral bonding point, resistance ≤ 5 Ω to earth electrode, testing per PEC), Testing and Commissioning (factory test certificate review, no-load run 30 min, block load test at 25%/50%/75%/100% rated load: each step 15 min, ATS transfer and retransfer functional test, battery discharge and recharge test, fuel consumption verification, all fault alarm simulations, vibration and noise level measurement, test report sign-off by licensed PEE), Regulatory Compliance (PEC 2017 Article 7, NFPA 110 Level 1/Level 2 compliance, DOLE OSH mechanical and electrical installation permit, LGU/DENR permit for fuel storage if >200 L, as-built drawings, O&M manual, warranty registration)
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -2242,24 +2242,24 @@ Return ONLY valid JSON with exactly two keys: "bom_items" and "sow_sections".
 "bom_items": array of exactly 18 objects, each: { "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
 
 Required BOM items:
-1. Upright/pendant sprinkler heads, K=${kFactor}, 68C, UL/FM listed — qty: ${nSprinklers}
-2. Spare sprinkler heads + head wrench, NFPA 13 minimum 6 spares — qty: 1 set
-3. Sprinkler head escutcheon plates, chrome-plated — qty: ${nSprinklers}
-4. Riser pipe, ${pipeDiaMM} mm ${pipeMat} SCH40 — qty: ${pipeLength} m
-5. Branch line pipe, 25-40 mm ${pipeMat} SCH40 — qty: 1 lot
-6. Cross main pipe, 50-65 mm ${pipeMat} SCH40 — qty: 1 lot
-7. Pipe fittings and grooved couplings, UL/FM listed — qty: 1 lot
-8. Pipe hangers and supports, NFPA 13, max 3.7 m spacing — qty: 1 lot
-9. OS&Y gate valve, full-bore, UL/FM listed, with tamper switch — qty: 1 unit
-10. Alarm check valve with waterflow alarm switch, UL listed — qty: 1 unit
-11. Alarm bell / water motor gong, outdoor audible — qty: 1 unit
-12. Alarm pressure gauge set, above and below check valve — qty: 2 pcs
-13. Inspector test and drain valve, 25 mm ball valve — qty: 1 unit
-14. Fire department siamese connection, 65x65 mm, BFP-compliant — qty: 1 unit
-15. Water storage tank, ${waterVolL} L minimum, RC or GRP/HDPE — qty: 1 unit
-16. Pressure gauge at system riser, 0-21 bar glycerin-filled — qty: 1 unit
-17. Pipe identification labels and directional arrows, NFPA 13 — qty: 1 lot
-18. Commissioning and testing, hydrostatic and alarm test, BFP — qty: 1 lot
+1. Upright/pendant sprinkler heads, K=${kFactor}, 68C, UL/FM listed: qty: ${nSprinklers}
+2. Spare sprinkler heads + head wrench, NFPA 13 minimum 6 spares: qty: 1 set
+3. Sprinkler head escutcheon plates, chrome-plated: qty: ${nSprinklers}
+4. Riser pipe, ${pipeDiaMM} mm ${pipeMat} SCH40: qty: ${pipeLength} m
+5. Branch line pipe, 25-40 mm ${pipeMat} SCH40: qty: 1 lot
+6. Cross main pipe, 50-65 mm ${pipeMat} SCH40: qty: 1 lot
+7. Pipe fittings and grooved couplings, UL/FM listed: qty: 1 lot
+8. Pipe hangers and supports, NFPA 13, max 3.7 m spacing: qty: 1 lot
+9. OS&Y gate valve, full-bore, UL/FM listed, with tamper switch: qty: 1 unit
+10. Alarm check valve with waterflow alarm switch, UL listed: qty: 1 unit
+11. Alarm bell / water motor gong, outdoor audible: qty: 1 unit
+12. Alarm pressure gauge set, above and below check valve: qty: 2 pcs
+13. Inspector test and drain valve, 25 mm ball valve: qty: 1 unit
+14. Fire department siamese connection, 65x65 mm, BFP-compliant: qty: 1 unit
+15. Water storage tank, ${waterVolL} L minimum, RC or GRP/HDPE: qty: 1 unit
+16. Pressure gauge at system riser, 0-21 bar glycerin-filled: qty: 1 unit
+17. Pipe identification labels and directional arrows, NFPA 13: qty: 1 lot
+18. Commissioning and testing, hydrostatic and alarm test, BFP: qty: 1 lot
 
 "sow_sections": array of exactly 8 objects, each: { "section_no": string, "title": string, "content": string }
 
@@ -2321,8 +2321,8 @@ async function firePumpBomSowAgent(
   const isDiesel       = String(driveType).toLowerCase().includes("diesel");
   const nfpa20Pct      = isDiesel ? 120 : 115;
   const nfpa20Note     = isDiesel
-    ? `Diesel drive selected — NFPA 20 requires motor rated at minimum 120% of pump BHP. Diesel backup is MANDATORY per BFP IRR for high-rise buildings and critical occupancies.`
-    : `Electric motor drive — NFPA 20 requires motor rated at minimum 115% of pump BHP. A diesel backup pump is required in high-rise or critical occupancies per BFP IRR.`;
+    ? `Diesel drive selected: NFPA 20 requires motor rated at minimum 120% of pump BHP. Diesel backup is MANDATORY per BFP IRR for high-rise buildings and critical occupancies.`
+    : `Electric motor drive: NFPA 20 requires motor rated at minimum 115% of pump BHP. A diesel backup pump is required in high-rise or critical occupancies per BFP IRR.`;
 
   const prompt = `You are a Philippine fire protection engineering expert (NFPA 20, BFP Philippines). Generate a professional BOM and SOW for a FIRE PUMP SYSTEM installation project.
 
@@ -2344,13 +2344,13 @@ RECOMMENDED MOTOR RATING (NFPA 20 at ${nfpa20Pct}%): ${recommendedHp} HP (${reco
 DRIVE TYPE: ${driveType}
 NPSHa (available): ${npshAvail} m
 NFPA 20 NOTE: ${nfpa20Note}
-STANDARDS: NFPA 20 (Stationary Fire Pumps), NFPA 13 (Sprinkler Systems — source of flow/pressure), BFP Philippines Fire Code (RA 9514), Philippine Fire Code IRR, National Building Code PD 1096
+STANDARDS: NFPA 20 (Stationary Fire Pumps), NFPA 13 (Sprinkler Systems: source of flow/pressure), BFP Philippines Fire Code (RA 9514), Philippine Fire Code IRR, National Building Code PD 1096
 
 Generate a JSON object with:
 1. "bom_items": array of 16 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: Fire pump unit — end suction centrifugal (${flowLpm} L/min @ ${TDH} m TDH, ${recommendedHp} HP ${driveType}, UL/FM listed — NFPA 20 Section 4), pump baseplate and coupling guard (common baseplate, flexible coupling, stainless guard), electric motor — TEFC (${recommendedHp} HP, ${nfpa20Pct}% of BHP per NFPA 20, IP55 enclosure, IE3 efficiency class), diesel engine driver (if applicable — ${isDiesel ? `backup required per BFP IRR, engine HP = ${nfpa20Pct}% x BHP` : "not required for this installation — electric primary selected"}), jockey (pressure maintenance) pump (small centrifugal, approx. 10% of main pump flow, maintains system pressure to prevent false alarms), jockey pump motor (fractional HP, DOL starter), main pump suction pipe — ${pipeDia}mm ${pipeMat} Sch.40 with eccentric reducer and isolation valve (flooded suction configuration per NFPA 20), main pump discharge pipe — ${pipeDia}mm ${pipeMat} Sch.40 with concentric reducer to system main, pump discharge check valve (swing type, UL/FM listed — prevents backflow on pump shutdown), pump discharge gate valve / butterfly valve (OS&Y or LI type with tamper switch, UL/FM listed), pressure relief valve (set at 10% above churn pressure — NFPA 20 requirement), pressure gauges — suction and discharge (glycerin-filled, 0–21 bar, per NFPA 20), flow meter / test header with sight glass or ultrasonic flow meter (for periodic flow testing per NFPA 25), fire pump controller — automatic pressure-sensing type (UL listed per NFPA 20, auto-start on pressure drop, manual stop only, alarm panel with remote signal), automatic transfer switch / ATS (if diesel backup is provided — transfers power on utility failure), vibration isolation pads and anchor bolts (per pump manufacturer specification, seismic restraint if required)
+   Include: Fire pump unit: end suction centrifugal (${flowLpm} L/min @ ${TDH} m TDH, ${recommendedHp} HP ${driveType}, UL/FM listed: NFPA 20 Section 4), pump baseplate and coupling guard (common baseplate, flexible coupling, stainless guard), electric motor: TEFC (${recommendedHp} HP, ${nfpa20Pct}% of BHP per NFPA 20, IP55 enclosure, IE3 efficiency class), diesel engine driver (if applicable: ${isDiesel ? `backup required per BFP IRR, engine HP = ${nfpa20Pct}% x BHP` : "not required for this installation: electric primary selected"}), jockey (pressure maintenance) pump (small centrifugal, approx. 10% of main pump flow, maintains system pressure to prevent false alarms), jockey pump motor (fractional HP, DOL starter), main pump suction pipe: ${pipeDia}mm ${pipeMat} Sch.40 with eccentric reducer and isolation valve (flooded suction configuration per NFPA 20), main pump discharge pipe: ${pipeDia}mm ${pipeMat} Sch.40 with concentric reducer to system main, pump discharge check valve (swing type, UL/FM listed: prevents backflow on pump shutdown), pump discharge gate valve / butterfly valve (OS&Y or LI type with tamper switch, UL/FM listed), pressure relief valve (set at 10% above churn pressure: NFPA 20 requirement), pressure gauges: suction and discharge (glycerin-filled, 0–21 bar, per NFPA 20), flow meter / test header with sight glass or ultrasonic flow meter (for periodic flow testing per NFPA 25), fire pump controller: automatic pressure-sensing type (UL listed per NFPA 20, auto-start on pressure drop, manual stop only, alarm panel with remote signal), automatic transfer switch / ATS (if diesel backup is provided: transfers power on utility failure), vibration isolation pads and anchor bolts (per pump manufacturer specification, seismic restraint if required)
 2. "sow_sections": array of 8 sections (each: section_no, title, content)
-   Cover: Scope of Works, Design Basis (NFPA 20 design criteria, ${flowLpm} L/min @ ${requiredPressBar} bar, TDH=${TDH}m, ${driveType} drive, ${nfpa20Note}), Pump and Driver Installation (alignment, baseplate grouting, coupling guard, vibration isolation, NFPA 20 Section 4 clearance requirements), Piping Connections (suction eccentric reducer, discharge concentric reducer, pipe sizing per NFPA 20 velocity limits, hanger spacing, flanged connections to pump nozzles), Valves Instrumentation and Controller (OS&Y isolation valves with tamper switches, check valve, pressure gauges on suction and discharge, automatic fire pump controller per UL 218 / NFPA 20 — auto-start, manual-stop-only, alarm outputs), Jockey Pump (sizing and installation, pressure setting to maintain system at ${(requiredPressBar * 100).toFixed(0)} kPa ± 35 kPa, prevent nuisance starts), Inspection Testing and Commissioning (churn/no-flow test, 100% flow test, 150% flow test at 65% pressure per NFPA 20 Section 12, pressure relief valve test, controller and ATS test, BFP acceptance inspection), Regulatory Compliance (RA 9514 Philippine Fire Code, NFPA 20 acceptance test witnessed by BFP AHJ, PRC-licensed Mechanical Engineer sign-off, O&M manual submission)
+   Cover: Scope of Works, Design Basis (NFPA 20 design criteria, ${flowLpm} L/min @ ${requiredPressBar} bar, TDH=${TDH}m, ${driveType} drive, ${nfpa20Note}), Pump and Driver Installation (alignment, baseplate grouting, coupling guard, vibration isolation, NFPA 20 Section 4 clearance requirements), Piping Connections (suction eccentric reducer, discharge concentric reducer, pipe sizing per NFPA 20 velocity limits, hanger spacing, flanged connections to pump nozzles), Valves Instrumentation and Controller (OS&Y isolation valves with tamper switches, check valve, pressure gauges on suction and discharge, automatic fire pump controller per UL 218 / NFPA 20: auto-start, manual-stop-only, alarm outputs), Jockey Pump (sizing and installation, pressure setting to maintain system at ${(requiredPressBar * 100).toFixed(0)} kPa ± 35 kPa, prevent nuisance starts), Inspection Testing and Commissioning (churn/no-flow test, 100% flow test, 150% flow test at 65% pressure per NFPA 20 Section 12, pressure relief valve test, controller and ATS test, BFP acceptance inspection), Regulatory Compliance (RA 9514 Philippine Fire Code, NFPA 20 acceptance test witnessed by BFP AHJ, PRC-licensed Mechanical Engineer sign-off, O&M manual submission)
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -2397,7 +2397,7 @@ async function stairwellPressBomSowAgent(
   const forceWarn = !door_force_ok;
   const forceNote = forceWarn
     ? `WARNING: Door opening force of ${F_total_N} N EXCEEDS NFPA 92 limit of 133 N. SOW must include a clause to reduce design pressure or specify lighter door closers before BFP approval.`
-    : `Door opening force of ${F_total_N} N is within NFPA 92 limit of 133 N — acceptable.`;
+    : `Door opening force of ${F_total_N} N is within NFPA 92 limit of 133 N: acceptable.`;
   const pressNote = !delta_P_ok
     ? `WARNING: Design pressure differential of ${deltaP} Pa is OUTSIDE NFPA 92 limits (${delta_P_min}–${delta_P_max} Pa). SOW must flag this for design review.`
     : `Design pressure differential of ${deltaP} Pa is within NFPA 92 limits (${delta_P_min}–${delta_P_max} Pa).`;
@@ -2408,22 +2408,22 @@ PROJECT: ${project}
 BUILDING TYPE: ${buildingType}
 NUMBER OF STAIRWELLS: ${nStairwells} (one pressurization fan per stairwell)
 FLOORS SERVED: ${nFloors} floors
-TOTAL STAIRWELL DOORS: ${N_doors_total} doors (${doorFit} fit — NFPA 92 Table B.1)
+TOTAL STAIRWELL DOORS: ${N_doors_total} doors (${doorFit} fit: NFPA 92 Table B.1)
 TOTAL LEAKAGE AREA PER STAIRWELL: ${A_total_m2} m²
-DESIGN PRESSURE DIFFERENTIAL: ${deltaP} Pa — ${pressNote}
+DESIGN PRESSURE DIFFERENTIAL: ${deltaP} Pa: ${pressNote}
 FAN STATIC PRESSURE: ${fanStaticPa} Pa
 FAN EFFICIENCY: ${fanEffPct}%
 AIRFLOW PER STAIRWELL: ${Q_per_CMH} m³/h
 TOTAL DESIGN AIRFLOW (all stairwells, with 20% safety factor): ${Q_design_CMH} m³/h (${Q_design_m3s} m³/s)
 FAN MOTOR POWER: ${P_fan_kW} kW (${P_fan_HP} HP) → Selected: ${selected_HP} HP
-DOOR OPENING FORCE: ${F_total_N} N — ${forceNote}
+DOOR OPENING FORCE: ${F_total_N} N: ${forceNote}
 STANDARDS: NFPA 92 (Smoke Control Systems), BFP IRR (Bureau of Fire Protection), National Building Code PD 1096, ASHRAE Handbook HVAC Applications Chapter 53
 
 Generate a JSON object with:
 1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: Pressurization fan unit — centrifugal or axial, direct-drive, high-temperature rated 250°C/2hr (${nStairwells} units, each ${Q_per_CMH} m³/h at ${fanStaticPa} Pa static, ${selected_HP} HP motor, AMCA certified, smoke-rated per UL 705 or equivalent), pressurization fan motor — TEFC, ${selected_HP} HP, IE3 efficiency, IP55, suitable for emergency power operation (${nStairwells} units), variable frequency drive / VFD with bypass (optional — for modulating airflow to maintain target pressure differential; include if building has automated smoke control per NFPA 92 Section 7), fan inlet and discharge ductwork — galvanized steel, minimum 1.2 mm thick (total duct length per stairwell, including vertical riser to roof or mechanical room), supply air grilles / diffusers in stairwell — sized for ${Q_per_CMH} m³/h, ceiling or high-wall mounted (one per floor level, ${nFloors} units per stairwell, ${nStairwells} stairwells total = ${nFloors * nStairwells} units), duct access panels and balancing dampers (for commissioning and balancing per NFPA 92), backdraft damper at fan discharge (prevents reverse flow when fan is off — ${nStairwells} units), pressure differential sensor / controller (differential pressure transducer, 0-100 Pa range, paired with VFD if modulating control; audible and visual alarm on loss of pressure — ${nStairwells} units), emergency power transfer — automatic transfer switch (ATS) for fan power circuit; pressurization fans operate on emergency power per BFP IRR; generator connection or UPS interface), stairwell door weatherstripping and seals (upgrade to ${doorFit}-fit seals per NFPA 92 Table B.1 if required; perimeter brush or compression seal for all ${N_doors_total} stairwell doors), door closer hardware — rated for fire exit doors (all ${N_doors_total} stairwell doors; ensure opening force does not exceed 133 N per NFPA 92${forceWarn ? `; REDUCE door closer force or increase seal quality to bring door opening force below 133 N — current calc shows ${F_total_N} N` : ""}), duct insulation (50 mm mineral wool or equivalent for any ductwork passing through non-rated spaces), vibration isolation and fan mounting springs (per fan manufacturer specification, inertia base if required), commissioning instruments — handheld differential pressure meter, anemometer, tachometer (for BFP acceptance test and NFPA 92 commissioning verification)
+   Include: Pressurization fan unit: centrifugal or axial, direct-drive, high-temperature rated 250°C/2hr (${nStairwells} units, each ${Q_per_CMH} m³/h at ${fanStaticPa} Pa static, ${selected_HP} HP motor, AMCA certified, smoke-rated per UL 705 or equivalent), pressurization fan motor: TEFC, ${selected_HP} HP, IE3 efficiency, IP55, suitable for emergency power operation (${nStairwells} units), variable frequency drive / VFD with bypass (optional: for modulating airflow to maintain target pressure differential; include if building has automated smoke control per NFPA 92 Section 7), fan inlet and discharge ductwork: galvanized steel, minimum 1.2 mm thick (total duct length per stairwell, including vertical riser to roof or mechanical room), supply air grilles / diffusers in stairwell: sized for ${Q_per_CMH} m³/h, ceiling or high-wall mounted (one per floor level, ${nFloors} units per stairwell, ${nStairwells} stairwells total = ${nFloors * nStairwells} units), duct access panels and balancing dampers (for commissioning and balancing per NFPA 92), backdraft damper at fan discharge (prevents reverse flow when fan is off: ${nStairwells} units), pressure differential sensor / controller (differential pressure transducer, 0-100 Pa range, paired with VFD if modulating control; audible and visual alarm on loss of pressure: ${nStairwells} units), emergency power transfer: automatic transfer switch (ATS) for fan power circuit; pressurization fans operate on emergency power per BFP IRR; generator connection or UPS interface), stairwell door weatherstripping and seals (upgrade to ${doorFit}-fit seals per NFPA 92 Table B.1 if required; perimeter brush or compression seal for all ${N_doors_total} stairwell doors), door closer hardware: rated for fire exit doors (all ${N_doors_total} stairwell doors; ensure opening force does not exceed 133 N per NFPA 92${forceWarn ? `; REDUCE door closer force or increase seal quality to bring door opening force below 133 N: current calc shows ${F_total_N} N` : ""}), duct insulation (50 mm mineral wool or equivalent for any ductwork passing through non-rated spaces), vibration isolation and fan mounting springs (per fan manufacturer specification, inertia base if required), commissioning instruments: handheld differential pressure meter, anemometer, tachometer (for BFP acceptance test and NFPA 92 commissioning verification)
 2. "sow_sections": array of 8 sections (each: section_no, title, content)
-   Cover: Scope of Works, Design Basis (NFPA 92 pressurization method, ${buildingType} building, ${deltaP} Pa design differential, ${Q_design_CMH} m³/h total, ${nStairwells} fans at ${selected_HP} HP each), Fan Installation (mounting, alignment, vibration isolation, motor connection, emergency power circuit), Ductwork and Air Distribution (duct sizing, routing from fan to stairwell supply grilles, duct penetrations through fire-rated walls sealed with fire dampers or intumescent sealant), Pressure Control and Instrumentation (pressure differential sensor installation, VFD setup if applicable, alarm setpoints, BAS interface), Door Seals and Hardware (installation of weatherstripping on all ${N_doors_total} stairwell doors, door closer adjustment to maintain opening force below 133 N per NFPA 92${forceWarn ? ` — current design shows ${F_total_N} N which EXCEEDS the limit — MANDATORY redesign required before BFP approval` : ""}), Inspection Testing and Commissioning (pressurization test with all stairwell doors closed, differential pressure verification at each floor, door opening force measurement, emergency power transfer test, NFPA 92 Chapter 8 acceptance test witnessed by BFP AHJ), Regulatory Compliance (RA 9514 Philippine Fire Code, BFP high-rise provisions, PRC-licensed Mechanical Engineer sign-off, O&M manual and maintenance schedule submission per NFPA 92 Chapter 9)
+   Cover: Scope of Works, Design Basis (NFPA 92 pressurization method, ${buildingType} building, ${deltaP} Pa design differential, ${Q_design_CMH} m³/h total, ${nStairwells} fans at ${selected_HP} HP each), Fan Installation (mounting, alignment, vibration isolation, motor connection, emergency power circuit), Ductwork and Air Distribution (duct sizing, routing from fan to stairwell supply grilles, duct penetrations through fire-rated walls sealed with fire dampers or intumescent sealant), Pressure Control and Instrumentation (pressure differential sensor installation, VFD setup if applicable, alarm setpoints, BAS interface), Door Seals and Hardware (installation of weatherstripping on all ${N_doors_total} stairwell doors, door closer adjustment to maintain opening force below 133 N per NFPA 92${forceWarn ? `: current design shows ${F_total_N} N which EXCEEDS the limit: MANDATORY redesign required before BFP approval` : ""}), Inspection Testing and Commissioning (pressurization test with all stairwell doors closed, differential pressure verification at each floor, door opening force measurement, emergency power transfer test, NFPA 92 Chapter 8 acceptance test witnessed by BFP AHJ), Regulatory Compliance (RA 9514 Philippine Fire Code, BFP high-rise provisions, PRC-licensed Mechanical Engineer sign-off, O&M manual and maintenance schedule submission per NFPA 92 Chapter 9)
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -2503,9 +2503,9 @@ STANDARDS: NFPA 72 (National Fire Alarm and Signaling Code) Section 10.6, BFP IR
 
 Generate a JSON object with:
 1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: Fire alarm control panel / FACP (addressable or conventional per device schedule, ${sysVoltage}V DC, UL listed, with integral battery charger rated for ${battery_config}, BFP-listed), sealed lead-acid / VRLA standby batteries — the computed bank (${battery_config} minimum, ${sysVoltage}V system — confirm exact configuration: e.g. two 12V batteries in series for 24V system; capacity per NFPA 72 §10.6.7), battery cabinet / rack inside or adjacent to FACP (ventilated, lockable, UL listed for battery storage), addressable smoke detectors — photo-electric type, 2-wire addressable protocol, ${nAddrSmoke} units (UL 268 / EN 54-7, BFP-listed — qty from calc, if 0 omit), conventional smoke detectors — 4-wire, ${nConvSmoke} units (UL 268, BFP-listed — qty from calc, if 0 omit), heat detectors — fixed-temperature or rate-of-rise, ${nHeat} units (UL 521 / EN 54-5, BFP-listed), manual pull stations / break-glass call points — ${nPull} units (UL 38 / BS 5839, surface-mount, red), combination horn/strobe notification appliances — ${nHornStrobe} units (UL 1638 / UL 1971, 15/75 cd minimum, NFPA 72 §18.5), strobe-only appliances — ${nStrobe} units (UL 1971, for hearing-impaired areas), alarm bells — ${nBell} units (6-inch or 10-inch, ${sysVoltage}V DC, weatherproof for outdoor), fire alarm wiring — fire-rated (FPL, FPLR or FPLP) 2-wire twisted pair for initiating circuits and 2-wire for notification circuits (total linear metres estimated from device count and building layout), conduit — EMT or rigid metallic for fire alarm wiring, minimum 19 mm (3/4 inch) (total linear metres), end-of-line resistors (one per initiating circuit and notification circuit — per FACP manufacturer specification), annunciator panel / remote display (lobby-mounted, LED zone display, ${sysVoltage}V DC, for high-rise buildings required by BFP IRR), commissioning and spare parts kit (smoke detector cleaning tool, 5% spare devices per device type, replacement FACP fuses)
+   Include: Fire alarm control panel / FACP (addressable or conventional per device schedule, ${sysVoltage}V DC, UL listed, with integral battery charger rated for ${battery_config}, BFP-listed), sealed lead-acid / VRLA standby batteries: the computed bank (${battery_config} minimum, ${sysVoltage}V system: confirm exact configuration: e.g. two 12V batteries in series for 24V system; capacity per NFPA 72 §10.6.7), battery cabinet / rack inside or adjacent to FACP (ventilated, lockable, UL listed for battery storage), addressable smoke detectors: photo-electric type, 2-wire addressable protocol, ${nAddrSmoke} units (UL 268 / EN 54-7, BFP-listed: qty from calc, if 0 omit), conventional smoke detectors: 4-wire, ${nConvSmoke} units (UL 268, BFP-listed: qty from calc, if 0 omit), heat detectors: fixed-temperature or rate-of-rise, ${nHeat} units (UL 521 / EN 54-5, BFP-listed), manual pull stations / break-glass call points: ${nPull} units (UL 38 / BS 5839, surface-mount, red), combination horn/strobe notification appliances: ${nHornStrobe} units (UL 1638 / UL 1971, 15/75 cd minimum, NFPA 72 §18.5), strobe-only appliances: ${nStrobe} units (UL 1971, for hearing-impaired areas), alarm bells: ${nBell} units (6-inch or 10-inch, ${sysVoltage}V DC, weatherproof for outdoor), fire alarm wiring: fire-rated (FPL, FPLR or FPLP) 2-wire twisted pair for initiating circuits and 2-wire for notification circuits (total linear metres estimated from device count and building layout), conduit: EMT or rigid metallic for fire alarm wiring, minimum 19 mm (3/4 inch) (total linear metres), end-of-line resistors (one per initiating circuit and notification circuit: per FACP manufacturer specification), annunciator panel / remote display (lobby-mounted, LED zone display, ${sysVoltage}V DC, for high-rise buildings required by BFP IRR), commissioning and spare parts kit (smoke detector cleaning tool, 5% spare devices per device type, replacement FACP fuses)
 2. "sow_sections": array of 8 sections (each: section_no, title, content)
-   Cover: Scope of Works, Design Basis (NFPA 72 §10.6 battery sizing method, ${sysVoltage}V DC system, ${standbyHours}h standby + ${alarmMinutes}min alarm, ${Ah_required} Ah required, ${battery_config} selected), FACP and Battery Installation (panel location, battery cabinet mounting, charger wiring, ventilation, temperature range per NFPA 72 §10.6.9), Initiating Devices — Detectors and Pull Stations (mounting heights per NFPA 72 Chapter 17, spacing rules, end-of-line resistors, Class A or Class B wiring per NFPA 72 §12.3), Notification Appliances — Horns Strobes and Bells (placement per NFPA 72 Chapter 18, sound pressure levels, strobe candela requirements for hearing-impaired compliance, notification circuit wiring), Fire Alarm Wiring and Conduit (FPL/FPLR/FPLP rated cable, all wiring in metallic conduit per PEC, separation from power wiring, conduit fill per PEC), Inspection Testing and Commissioning (100% point-to-point test, battery load test — disconnect AC and verify ${standbyHours}h standby + ${alarmMinutes}min alarm operation per NFPA 72 §14.4, alarm sound test, BFP acceptance inspection, as-built drawings), Regulatory Compliance (RA 9514 Philippine Fire Code, NFPA 72 acceptance test witnessed by BFP AHJ, PRC-licensed Electrical or Electronics Engineer sign-off, battery replacement schedule every 3-5 years per NFPA 72 §10.6.11, O&M manual submission)
+   Cover: Scope of Works, Design Basis (NFPA 72 §10.6 battery sizing method, ${sysVoltage}V DC system, ${standbyHours}h standby + ${alarmMinutes}min alarm, ${Ah_required} Ah required, ${battery_config} selected), FACP and Battery Installation (panel location, battery cabinet mounting, charger wiring, ventilation, temperature range per NFPA 72 §10.6.9), Initiating Devices: Detectors and Pull Stations (mounting heights per NFPA 72 Chapter 17, spacing rules, end-of-line resistors, Class A or Class B wiring per NFPA 72 §12.3), Notification Appliances: Horns Strobes and Bells (placement per NFPA 72 Chapter 18, sound pressure levels, strobe candela requirements for hearing-impaired compliance, notification circuit wiring), Fire Alarm Wiring and Conduit (FPL/FPLR/FPLP rated cable, all wiring in metallic conduit per PEC, separation from power wiring, conduit fill per PEC), Inspection Testing and Commissioning (100% point-to-point test, battery load test: disconnect AC and verify ${standbyHours}h standby + ${alarmMinutes}min alarm operation per NFPA 72 §14.4, alarm sound test, BFP acceptance inspection, as-built drawings), Regulatory Compliance (RA 9514 Philippine Fire Code, NFPA 72 acceptance test witnessed by BFP AHJ, PRC-licensed Electrical or Electronics Engineer sign-off, battery replacement schedule every 3-5 years per NFPA 72 §10.6.11, O&M manual submission)
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -2547,15 +2547,15 @@ async function elevatorTrafficBomSowAgent(
   const target_interval = results.target_interval_s ?? (occupancyType === "Office" ? 30 : 40);
   const target_HC      = results.target_HC_pct  ?? (occupancyType === "Office" ? 12 : 11);
 
-  // Grade assessment flags — drive document tone
+  // Grade assessment flags: drive document tone
   const intervalNum    = Number(interval_s);
   const hcNum          = Number(HC_pct);
   const intervalGrade  = intervalNum <= 30 ? "Excellent" : intervalNum <= 40 ? "Good" : intervalNum <= 60 ? "Adequate" : "Poor";
   const hcGrade        = hcNum >= 12 ? "Excellent" : hcNum >= 11 ? "Good" : hcNum >= 9 ? "Adequate" : "Poor";
   const isPoor         = intervalGrade === "Poor" || hcGrade === "Poor";
   const gradeNote      = isPoor
-    ? `WARNING: Grade of service is POOR (Interval=${interval_s}s, HC=${HC_pct}%). SOW must include a remediation clause — consider increasing speed, adding an elevator to the group, or adjusting group supervisory control before building permit submission.`
-    : `Grade of service is ${intervalGrade} / ${hcGrade} (Interval=${interval_s}s vs target ${target_interval}s, HC=${HC_pct}% vs target ${target_HC}%) — acceptable for a ${occupancyType} building.`;
+    ? `WARNING: Grade of service is POOR (Interval=${interval_s}s, HC=${HC_pct}%). SOW must include a remediation clause: consider increasing speed, adding an elevator to the group, or adjusting group supervisory control before building permit submission.`
+    : `Grade of service is ${intervalGrade} / ${hcGrade} (Interval=${interval_s}s vs target ${target_interval}s, HC=${HC_pct}% vs target ${target_HC}%): acceptable for a ${occupancyType} building.`;
 
   // Speed tier drives machine room and drive type recommendations
   const isHighSpeed    = speed >= 2.5;
@@ -2569,7 +2569,7 @@ OCCUPANCY TYPE: ${occupancyType}
 BUILDING: ${nFloors} floors, ${floorHeight} m floor-to-floor, total rise ${H_m} m
 POPULATION SERVED: ${population} persons (up-peak scenario)
 ELEVATOR GROUP: ${nElevators} elevator(s), ${capacity}-person capacity each
-RATED SPEED: ${speed} m/s — Machine type: ${machineType}
+RATED SPEED: ${speed} m/s: Machine type: ${machineType}
 DOOR TIMING: Open ${tDoorOpen}s / Close ${tDoorClose}s / Dwell ${tDwell}s
 AVERAGE STOPS PER TRIP: ${avg_stops}
 EFFECTIVE PASSENGERS PER TRIP (80% loading): ${effective_pax}
@@ -2582,13 +2582,13 @@ TRAFFIC ANALYSIS RESULTS:
 - Interval Grade: ${intervalGrade} | HC Grade: ${hcGrade}
 - ${gradeNote}
 
-STANDARDS: ASME A17.1 (Safety Code for Elevators), EN 81-1/EN 81-2 (Safety Rules for Lifts), CIBSE Guide D (Transportation Systems), National Building Code PD 1096, BP 344 / RA 10754 (Accessibility Law — PWD requirements), Philippine Electrical Code (PEC) for elevator motor circuits
+STANDARDS: ASME A17.1 (Safety Code for Elevators), EN 81-1/EN 81-2 (Safety Rules for Lifts), CIBSE Guide D (Transportation Systems), National Building Code PD 1096, BP 344 / RA 10754 (Accessibility Law: PWD requirements), Philippine Electrical Code (PEC) for elevator motor circuits
 
 Generate a JSON object with:
 1. "bom_items": array of 16 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: Traction elevator machine — ${machineType}, ${capacity}-person (${capacity * 75}kg) rated load, ${speed} m/s, ${nElevators} units (ASME A17.1 compliant, factory-tested); elevator car and sling — ${capacity}-person rated, GI sheet cab with stainless steel interior finish, LED lighting, ventilation fan, emergency light, intercom (${nElevators} units); counterweight assembly — cast iron blocks, guided by T-section guide rails (${nElevators} sets); guide rails — T-section steel, cold-drawn, for car and counterweight (${nElevators} sets, rail length = ${H_m} m per set × 2); suspension ropes / steel wire ropes — 6×19 construction or 8×19, factor of safety ≥12 per ASME A17.1 (${nElevators} sets); VVVF drive / variable voltage variable frequency controller — regenerative type preferred, rated for ${speed} m/s, ${capacity * 75}kg (${nElevators} units); automatic rescue device / ARD — brings car to nearest floor on power failure, required for ${nFloors}-floor building (${nElevators} units); landing doors and frames — stainless steel, 2-panel center-opening, ${nFloors} floors × ${nElevators} elevators = ${nFloors * nElevators} sets (ASME A17.1 door interlock required); car door operator and safety edge / light curtain — full-height infrared light curtain, re-opening on obstruction, per ASME A17.1 Section 2.11 (${nElevators} units); group supervisory controller / group dispatch panel — microprocessor-based, up/down collective with destination dispatch option, for ${nElevators}-elevator group (1 unit); machine room or machine room-less MRL panel — control cabinet with main breaker, door interlock monitoring, overload protection (${nElevators} units); pit equipment — buffers (spring or oil type per speed ${speed} m/s), pit stop switch, pit lighting, sump pump if required (${nElevators} pits); PWD-compliant car — one car in group must have: minimum 1100 mm × 1400 mm interior, Braille + tactile controls, audible floor announcements, handrail, mirror per BP 344 / RA 10754 (1 unit designated); intercom and emergency phone — two-way communication to building security or monitoring station, per ASME A17.1 Section 2.27 (${nElevators} units); elevator shaft construction — reinforced concrete hoistway, minimum ${nElevators} shaft(s), internal dimensions per car size + clearances per ASME A17.1 (civil works — contractor to confirm dimensions); annual maintenance and inspection kit — lubrication, brake adjustment, safety gear test, governor test, load test tools per ASME A17.1 Section 8.6 (1 set per elevator group)
+   Include: Traction elevator machine: ${machineType}, ${capacity}-person (${capacity * 75}kg) rated load, ${speed} m/s, ${nElevators} units (ASME A17.1 compliant, factory-tested); elevator car and sling: ${capacity}-person rated, GI sheet cab with stainless steel interior finish, LED lighting, ventilation fan, emergency light, intercom (${nElevators} units); counterweight assembly: cast iron blocks, guided by T-section guide rails (${nElevators} sets); guide rails: T-section steel, cold-drawn, for car and counterweight (${nElevators} sets, rail length = ${H_m} m per set × 2); suspension ropes / steel wire ropes: 6×19 construction or 8×19, factor of safety ≥12 per ASME A17.1 (${nElevators} sets); VVVF drive / variable voltage variable frequency controller: regenerative type preferred, rated for ${speed} m/s, ${capacity * 75}kg (${nElevators} units); automatic rescue device / ARD: brings car to nearest floor on power failure, required for ${nFloors}-floor building (${nElevators} units); landing doors and frames: stainless steel, 2-panel center-opening, ${nFloors} floors × ${nElevators} elevators = ${nFloors * nElevators} sets (ASME A17.1 door interlock required); car door operator and safety edge / light curtain: full-height infrared light curtain, re-opening on obstruction, per ASME A17.1 Section 2.11 (${nElevators} units); group supervisory controller / group dispatch panel: microprocessor-based, up/down collective with destination dispatch option, for ${nElevators}-elevator group (1 unit); machine room or machine room-less MRL panel: control cabinet with main breaker, door interlock monitoring, overload protection (${nElevators} units); pit equipment: buffers (spring or oil type per speed ${speed} m/s), pit stop switch, pit lighting, sump pump if required (${nElevators} pits); PWD-compliant car: one car in group must have: minimum 1100 mm × 1400 mm interior, Braille + tactile controls, audible floor announcements, handrail, mirror per BP 344 / RA 10754 (1 unit designated); intercom and emergency phone: two-way communication to building security or monitoring station, per ASME A17.1 Section 2.27 (${nElevators} units); elevator shaft construction: reinforced concrete hoistway, minimum ${nElevators} shaft(s), internal dimensions per car size + clearances per ASME A17.1 (civil works: contractor to confirm dimensions); annual maintenance and inspection kit: lubrication, brake adjustment, safety gear test, governor test, load test tools per ASME A17.1 Section 8.6 (1 set per elevator group)
 2. "sow_sections": array of 8 sections (each: section_no, title, content)
-   Cover: Scope of Works, Traffic Analysis Basis (CIBSE Guide D up-peak method, ${nElevators} elevators × ${capacity}-person @ ${speed} m/s, RTT=${RTT_s}s, Interval=${interval_s}s [${intervalGrade}], HC=${HC_pct}% [${hcGrade}]${isPoor ? " — REMEDIATION REQUIRED before permit submission" : " — acceptable for " + occupancyType}), Elevator Equipment Supply and Installation (traction machine, ropes, guide rails, counterweight, VVVF drive installation per ASME A17.1 Section 2), Hoistway and Machine Room Works (hoistway dimensional requirements per ASME A17.1, machine room ventilation, emergency lighting, fire rating of hoistway walls per NBC), Electrical Works (motor circuit sizing per PEC Art. 6.20 for elevator motors, machine room panel, emergency power connection, lighting circuit), Accessibility Compliance — BP 344 / RA 10754 (one designated PWD-accessible car with Braille controls, 1100×1400mm minimum car size, audible announcements, handrail, mirror, tactile floor indicators at landings), Inspection Testing and Commissioning (no-load and full-load test, governor and safety gear drop test, door interlock test, ARD test, buffer compression test, speed test per ASME A17.1 Section 8 — witnessed by DPWH / LGU building official and OSHC-accredited elevator inspector), Regulatory Compliance (National Building Code PD 1096, ASME A17.1 acceptance inspection, LGU elevator permit, BP 344 / RA 10754 PWD compliance, annual mandatory inspection per DOLE-OSHC, O&M manual and log book submission)
+   Cover: Scope of Works, Traffic Analysis Basis (CIBSE Guide D up-peak method, ${nElevators} elevators × ${capacity}-person @ ${speed} m/s, RTT=${RTT_s}s, Interval=${interval_s}s [${intervalGrade}], HC=${HC_pct}% [${hcGrade}]${isPoor ? ": REMEDIATION REQUIRED before permit submission" : ": acceptable for " + occupancyType}), Elevator Equipment Supply and Installation (traction machine, ropes, guide rails, counterweight, VVVF drive installation per ASME A17.1 Section 2), Hoistway and Machine Room Works (hoistway dimensional requirements per ASME A17.1, machine room ventilation, emergency lighting, fire rating of hoistway walls per NBC), Electrical Works (motor circuit sizing per PEC Art. 6.20 for elevator motors, machine room panel, emergency power connection, lighting circuit), Accessibility Compliance: BP 344 / RA 10754 (one designated PWD-accessible car with Braille controls, 1100×1400mm minimum car size, audible announcements, handrail, mirror, tactile floor indicators at landings), Inspection Testing and Commissioning (no-load and full-load test, governor and safety gear drop test, door interlock test, ARD test, buffer compression test, speed test per ASME A17.1 Section 8: witnessed by DPWH / LGU building official and OSHC-accredited elevator inspector), Regulatory Compliance (National Building Code PD 1096, ASME A17.1 acceptance inspection, LGU elevator permit, BP 344 / RA 10754 PWD compliance, annual mandatory inspection per DOLE-OSHC, O&M manual and log book submission)
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -2630,13 +2630,13 @@ async function hoistCapacityBomSowAgent(
   const sfCheck        = String(results.safety_factor_check ?? "PASS");
   const ropePullKg     = results.rope_pull_kg         ?? "N/A";
 
-  // PASS/FAIL flag — safety factor below ASME B30.2 minimum of 5:1
+  // PASS/FAIL flag: safety factor below ASME B30.2 minimum of 5:1
   const isSFail        = sfCheck === "FAIL";
   const sfNote         = isSFail
     ? `CRITICAL: Safety factor of ${safetyFactor}:1 is BELOW the ASME B30.2 minimum of 5:1. The hoist MUST NOT be commissioned until the wire rope is upgraded to meet the minimum breaking force. SOW must include a HOLD POINT at rope installation pending third-party inspection.`
-    : `Safety factor of ${safetyFactor}:1 meets ASME B30.2 minimum of 5:1 — acceptable.`;
+    : `Safety factor of ${safetyFactor}:1 meets ASME B30.2 minimum of 5:1: acceptable.`;
 
-  // Hoist type flags — chain hoist vs wire rope electric vs manual
+  // Hoist type flags: chain hoist vs wire rope electric vs manual
   const isChain        = hoistType.toLowerCase().includes("chain");
   const isManual       = hoistType.toLowerCase().includes("manual");
   const ropeOrChain    = isChain ? "load chain" : "wire rope";
@@ -2655,9 +2655,9 @@ GROSS LOAD (GL): ${grossLoadKg} kg (${grossLoadKN} kN)
 LIFT HEIGHT: ${liftHeightM} m
 LIFTING SPEED: ${liftSpeedMpm} m/min
 PARTS OF LINE (rope falls): ${nParts}
-SAFETY FACTOR: ${safetyFactor}:1 — ${sfNote}
+SAFETY FACTOR: ${safetyFactor}:1: ${sfNote}
 MECHANICAL EFFICIENCY: ${mechEffPct}%
-WIRE ROPE / CHAIN: MBF required = ${MBF_kN} kN (${MBF_kg} kg) — Recommended: ${ropeRec}
+WIRE ROPE / CHAIN: MBF required = ${MBF_kN} kN (${MBF_kg} kg): Recommended: ${ropeRec}
 ROPE / CHAIN LENGTH: ${ropeLengthM} m minimum
 ROPE PULL PER PART: ${ropePullKg} kg
 HOIST MOTOR: ${motorHpStd} HP (${motorKW} kW)
@@ -2666,9 +2666,9 @@ STANDARDS: ASME B30.2 (Overhead & Gantry Cranes), ASME B30.16 (Overhead Hoists),
 
 Generate a JSON object with:
 1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: ${isChain ? `Electric chain hoist — ${ratedLoadKg} kg SWL, ${liftSpeedMpm} m/min, ASME B30.16 compliant, pendant-operated (1 unit)` : `Wire rope electric hoist — ${ratedLoadKg} kg SWL, ${liftSpeedMpm} m/min, ${motorHpStd} HP motor, ASME B30.2 compliant (1 unit)`}; hoist motor — ${motorHpStd} HP (${motorKW} kW), TEFC, Class F insulation, designed for S3/S4 duty cycle, IP55 (${isManual ? "not required — manual hoist" : "1 unit"}); ${ropeOrChain} — ${isChain ? `grade 80 alloy steel load chain, ${ropeLengthM} m, SWL ${ratedLoadKg} kg, ASME B30.9` : `${ropeRec}, ${ropeLengthM} m minimum, MBF ≥ ${MBF_kN} kN, ASME B30.2 SF = ${safetyFactor}:1`} (1 set); hook block assembly — swivel hook with safety latch, rated ${ratedLoadKg} kg SWL, forged alloy steel, ASME B30.10 (1 unit); upper suspension / trolley — plain trolley or motorized trolley for I-beam runway, rated ≥ ${Number(grossLoadKg) * 1.25} kg, adjustable flange (1 unit); runway beam / monorail — wide-flange I-beam, structural steel (verify size with structural engineer for ${grossLoadKg} kg gross load with 1.25 dynamic impact factor), length per field layout (1 set); end stops / bumpers — welded steel stops at both ends of runway beam, rated for full loaded trolley impact (2 units per runway); runway beam support brackets and connections — welded or bolted to building structure (structural engineer to verify adequacy for ${grossLoadKg} kg + 25% impact); wire rope drum and sheave set (if multi-part reeving, ${nParts} parts of line) — grooved drum, flanged sheaves, minimum D/d ratio = 18 per ASME B30.2 (1 set); hoist limit switches — upper and lower travel limit switches, automatic cut-off, per ASME B30.16 (1 set); pendant control station — push-button pendant, UP/DOWN/STOP, cord-suspended at operator reach height, IP65 (${isManual ? "not applicable — manual hoist" : "1 unit"}); sling set — wire rope slings or chain slings, rated ${ratedLoadKg} kg SWL, ASME B30.9, with identification tags (1 set); safety signage — SWL rating plate permanently attached to hoist, rigging safety signs at lift area, per DOLE D.O. 13 (1 set); load test weights and third-party inspection service — static test at 125% SWL = ${Math.round(ratedLoadKg * 1.25)} kg, dynamic test per ASME B30.2 Section 2-2.2, DOLE-accredited third-party inspector${isSFail ? " — MANDATORY HOLD POINT before commissioning due to safety factor FAIL" : ""}
+   Include: ${isChain ? `Electric chain hoist: ${ratedLoadKg} kg SWL, ${liftSpeedMpm} m/min, ASME B30.16 compliant, pendant-operated (1 unit)` : `Wire rope electric hoist: ${ratedLoadKg} kg SWL, ${liftSpeedMpm} m/min, ${motorHpStd} HP motor, ASME B30.2 compliant (1 unit)`}; hoist motor: ${motorHpStd} HP (${motorKW} kW), TEFC, Class F insulation, designed for S3/S4 duty cycle, IP55 (${isManual ? "not required: manual hoist" : "1 unit"}); ${ropeOrChain}: ${isChain ? `grade 80 alloy steel load chain, ${ropeLengthM} m, SWL ${ratedLoadKg} kg, ASME B30.9` : `${ropeRec}, ${ropeLengthM} m minimum, MBF ≥ ${MBF_kN} kN, ASME B30.2 SF = ${safetyFactor}:1`} (1 set); hook block assembly: swivel hook with safety latch, rated ${ratedLoadKg} kg SWL, forged alloy steel, ASME B30.10 (1 unit); upper suspension / trolley: plain trolley or motorized trolley for I-beam runway, rated ≥ ${Number(grossLoadKg) * 1.25} kg, adjustable flange (1 unit); runway beam / monorail: wide-flange I-beam, structural steel (verify size with structural engineer for ${grossLoadKg} kg gross load with 1.25 dynamic impact factor), length per field layout (1 set); end stops / bumpers: welded steel stops at both ends of runway beam, rated for full loaded trolley impact (2 units per runway); runway beam support brackets and connections: welded or bolted to building structure (structural engineer to verify adequacy for ${grossLoadKg} kg + 25% impact); wire rope drum and sheave set (if multi-part reeving, ${nParts} parts of line): grooved drum, flanged sheaves, minimum D/d ratio = 18 per ASME B30.2 (1 set); hoist limit switches: upper and lower travel limit switches, automatic cut-off, per ASME B30.16 (1 set); pendant control station: push-button pendant, UP/DOWN/STOP, cord-suspended at operator reach height, IP65 (${isManual ? "not applicable: manual hoist" : "1 unit"}); sling set: wire rope slings or chain slings, rated ${ratedLoadKg} kg SWL, ASME B30.9, with identification tags (1 set); safety signage: SWL rating plate permanently attached to hoist, rigging safety signs at lift area, per DOLE D.O. 13 (1 set); load test weights and third-party inspection service: static test at 125% SWL = ${Math.round(ratedLoadKg * 1.25)} kg, dynamic test per ASME B30.2 Section 2-2.2, DOLE-accredited third-party inspector${isSFail ? ": MANDATORY HOLD POINT before commissioning due to safety factor FAIL" : ""}
 2. "sow_sections": array of 8 sections (each: section_no, title, content)
-   Cover: Scope of Works, Design Basis (ASME B30.2 SWL method, ${ratedLoadKg} kg SWL, GL=${grossLoadKg} kg, MBF=${MBF_kN} kN required, SF=${safetyFactor}:1 — ${sfCheck}${isSFail ? " — WIRE ROPE UPGRADE MANDATORY before commissioning" : ""}), Structural Verification (runway beam and support structure must be verified by PRC-licensed Civil/Structural Engineer for ${grossLoadKg} kg gross load with 1.25 dynamic impact factor before hoist installation), Hoist and Trolley Installation (alignment, end stop installation, limit switch setting, lubrication, per ASME B30.16 manufacturer instructions), Wire Rope / Chain Installation and Reeving (${ropeOrChain} installation, reeving diagram for ${nParts} parts of line, minimum 3 dead wraps on drum, end termination per ASME B30.2, mandatory pre-use inspection before first lift), Rigging and Sling Requirements (ASME B30.9 sling inspection, angle factor, tag verification, DOLE D.O. 13 rigger competency — ${doleNote}), Load Testing and Third-Party Inspection (static proof load test at 125% SWL = ${Math.round(ratedLoadKg * 1.25)} kg, dynamic load test at 100% SWL through full travel per ASME B30.2 Section 2-2.2, DOLE-accredited inspector, certificate of compliance before first operational use${isSFail ? " — THIS STEP IS A MANDATORY HOLD POINT: do not commission until safety factor deficiency is resolved and re-inspected" : ""}), Regulatory Compliance and Maintenance (DOLE D.O. 13, PCAB rigging standards, daily visual inspection log, monthly detailed inspection, annual third-party re-inspection, wire rope replacement criteria per ASME B30.2, PRC-licensed Mechanical Engineer sign-off on this calculation)
+   Cover: Scope of Works, Design Basis (ASME B30.2 SWL method, ${ratedLoadKg} kg SWL, GL=${grossLoadKg} kg, MBF=${MBF_kN} kN required, SF=${safetyFactor}:1: ${sfCheck}${isSFail ? ": WIRE ROPE UPGRADE MANDATORY before commissioning" : ""}), Structural Verification (runway beam and support structure must be verified by PRC-licensed Civil/Structural Engineer for ${grossLoadKg} kg gross load with 1.25 dynamic impact factor before hoist installation), Hoist and Trolley Installation (alignment, end stop installation, limit switch setting, lubrication, per ASME B30.16 manufacturer instructions), Wire Rope / Chain Installation and Reeving (${ropeOrChain} installation, reeving diagram for ${nParts} parts of line, minimum 3 dead wraps on drum, end termination per ASME B30.2, mandatory pre-use inspection before first lift), Rigging and Sling Requirements (ASME B30.9 sling inspection, angle factor, tag verification, DOLE D.O. 13 rigger competency: ${doleNote}), Load Testing and Third-Party Inspection (static proof load test at 125% SWL = ${Math.round(ratedLoadKg * 1.25)} kg, dynamic load test at 100% SWL through full travel per ASME B30.2 Section 2-2.2, DOLE-accredited inspector, certificate of compliance before first operational use${isSFail ? ": THIS STEP IS A MANDATORY HOLD POINT: do not commission until safety factor deficiency is resolved and re-inspected" : ""}), Regulatory Compliance and Maintenance (DOLE D.O. 13, PCAB rigging standards, daily visual inspection log, monthly detailed inspection, annual third-party re-inspection, wire rope replacement criteria per ASME B30.2, PRC-licensed Mechanical Engineer sign-off on this calculation)
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -2712,17 +2712,17 @@ async function chillerAirCooledBomSowAgent(
   const refrigerant     = String(results.refrigerant ?? "R-32 or R-410A");
   const safetyFactor    = Number(inputs.safety_factor ?? 1.15);
 
-  // COP FAIL flag — drives mandatory upgrade language in SOW
+  // COP FAIL flag: drives mandatory upgrade language in SOW
   const isCopFail = copCheck === "FAIL";
   const copNote   = isCopFail
-    ? `FAIL — specified COP ${cop} is below ASHRAE 90.1 minimum of ${ashraMinCop}. Equipment must be re-selected with COP ≥ ${ashraMinCop} before procurement. Proceed with BOM procurement only after COP-compliant equipment is confirmed from manufacturer.`
-    : `PASS — COP ${cop} meets ASHRAE 90.1 minimum of ${ashraMinCop}.`;
+    ? `FAIL: specified COP ${cop} is below ASHRAE 90.1 minimum of ${ashraMinCop}. Equipment must be re-selected with COP ≥ ${ashraMinCop} before procurement. Proceed with BOM procurement only after COP-compliant equipment is confirmed from manufacturer.`
+    : `PASS: COP ${cop} meets ASHRAE 90.1 minimum of ${ashraMinCop}.`;
 
-  // Multi-unit flag — N+1 language for 2+ chillers
+  // Multi-unit flag: N+1 language for 2+ chillers
   const isMultiUnit = nUnits >= 2;
   const redundancyNote = isMultiUnit
     ? `N+1 redundancy configuration: ${nUnits} units at ${nominalTR} TR each. Lead-lag sequencing required. Each unit must be capable of carrying the design load independently during standby operation.`
-    : `Single chiller configuration — no built-in redundancy. Consider portable rental chiller contingency plan for critical facilities.`;
+    : `Single chiller configuration: no built-in redundancy. Consider portable rental chiller contingency plan for critical facilities.`;
 
   // CHW pipe sizing estimate (velocity 1.5 m/s)
   const chwPipeEst_mm = Math.ceil(Math.sqrt((chwFlowLps / (Math.PI / 4 * 1.5)) * 1e6) / 25) * 25;
@@ -2730,7 +2730,7 @@ async function chillerAirCooledBomSowAgent(
   const prompt = `You are a licensed Mechanical Engineer in the Philippines preparing official procurement and contracting documents for an AIR-COOLED CHILLER PLANT installation.
 
 PROJECT: ${project}
-DISCIPLINE: HVAC Systems — Air-Cooled Chiller Plant
+DISCIPLINE: HVAC Systems: Air-Cooled Chiller Plant
 STANDARDS: ASHRAE 90.1 (energy efficiency), ASHRAE 15 (refrigerant safety), PSME Code, PEC 2017 (electrical), PGBC/BERDE (green building)
 
 CALCULATION RESULTS:
@@ -2743,7 +2743,7 @@ CALCULATION RESULTS:
 - Total Compressor Power: ${compPowerKW} kW
 - Apparent Power: ${totalKVA} kVA
 - Full Load Current (3-phase 400V): ${totalAmp} A
-- COP: ${cop} — ASHRAE 90.1 Check: ${copNote}
+- COP: ${cop}: ASHRAE 90.1 Check: ${copNote}
 - CHW Supply / Return: ${chwSupply}°C / ${chwReturn}°C (ΔT = ${dTchw}°C)
 - CHW Flow Rate: ${chwFlowLps} L/s (${chwFlowM3h} m³/h)
 - Condenser Airflow: ${airflowCMH} CMH total (${airflowPerUnit} CMH per unit)
@@ -2753,36 +2753,36 @@ CALCULATION RESULTS:
 
 Generate a JSON object with exactly two arrays:
 
-ARRAY 1 — "bom_items": 15 items for a complete air-cooled chiller plant BOM.
+ARRAY 1: "bom_items": 15 items for a complete air-cooled chiller plant BOM.
 Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
 
 Required items (use the calculated quantities above):
-1. Air-Cooled Chiller Unit — ${nominalTR} TR (${nominalKW} kW) each, ${refrigerant}, COP ≥ ${cop} at ${ambientTemp}°C ambient, ASHRAE 90.1 compliant, factory-tested — qty: ${nUnits}
-2. Chiller Controller / BMS Interface — DDC controller with Modbus/BACnet, CHW setpoint reset, lead-lag sequencing (${isMultiUnit ? 'mandatory for ' + nUnits + ' units' : 'optional for single unit'}) — qty: 1 set
-3. Chilled Water Pump, Base-Mounted — end-suction centrifugal pump, ${Math.round(chwFlowM3h)} m³/h, rated head TBD by hydraulic design, TEFC motor — qty: ${isMultiUnit ? nUnits + 1 : 2} (${isMultiUnit ? 'N+1 duty-standby per chiller' : 'duty + standby'})
-4. Chilled Water Pipe, Insulated Carbon Steel Schedule 40 — estimated ~${chwPipeEst_mm}mm nominal dia, pre-insulated with 50mm closed-cell foam, all joints flanged or groove-coupled — qty: 1 lot
-5. Chilled Water Valves and Fittings — butterfly valves (isolation), globe valves (balancing), strainer, flexible connectors at each chiller/pump — qty: 1 lot
-6. Expansion Tank, Closed-Type — ASME rated, pre-charged, sized for ${Math.round(chwFlowM3h * 0.05)} L minimum — qty: 1 unit
-7. Chemical Dosing System — inhibitor dosing pot, glycol feeder (if required), water quality test kit, initial chemical charge — qty: 1 set
-8. Main Circuit Breaker / Disconnect, 3-phase — MCCB rated ≥ ${Math.ceil(totalAmp * 1.25 / 10) * 10} A, 400V 3-phase, one per chiller — qty: ${nUnits}
-9. Power Wiring, 3-phase, Cu XLPE — from MCC/switchboard to each chiller, estimated 30m run per unit, size per PEC 2017 at ${Math.ceil(compPerUnitKW / 0.85 / (Math.sqrt(3) * 0.4) * 1.25)} A — qty: ${nUnits * 30} m
-10. Control Wiring, Shielded — from BMS/DDC to each chiller for monitoring and control — qty: 1 lot
-11. Equipment Mounting Frames and Anti-Vibration Pads — structural steel mounting frame, neoprene anti-vibration pads rated for chiller weight, each unit — qty: ${nUnits} sets
-12. Refrigerant Leak Detection System — electrochemical sensor per machine room, alarm panel, per ASHRAE 15 — qty: 1 set
-13. Safety Signage and Labels — refrigerant type, pressure ratings, SWL, emergency shutdown location, ASHRAE 15 and PSME required — qty: 1 lot
-14. Insulation and Vapor Barrier, CHW Pipes — 50mm closed-cell elastomeric foam, vapor-sealed all joints, for all chilled water pipes and fittings in conditioned space — qty: 1 lot
-15. Commissioning, Testing and Balancing — factory witness test report, site commissioning by manufacturer-authorized engineer, hydronic balancing, COP verification at design conditions, O&M manual — qty: 1 lot${isCopFail ? ' — HOLD: do not commission until COP-compliant equipment is confirmed' : ''}
+1. Air-Cooled Chiller Unit: ${nominalTR} TR (${nominalKW} kW) each, ${refrigerant}, COP ≥ ${cop} at ${ambientTemp}°C ambient, ASHRAE 90.1 compliant, factory-tested: qty: ${nUnits}
+2. Chiller Controller / BMS Interface: DDC controller with Modbus/BACnet, CHW setpoint reset, lead-lag sequencing (${isMultiUnit ? 'mandatory for ' + nUnits + ' units' : 'optional for single unit'}): qty: 1 set
+3. Chilled Water Pump, Base-Mounted: end-suction centrifugal pump, ${Math.round(chwFlowM3h)} m³/h, rated head TBD by hydraulic design, TEFC motor: qty: ${isMultiUnit ? nUnits + 1 : 2} (${isMultiUnit ? 'N+1 duty-standby per chiller' : 'duty + standby'})
+4. Chilled Water Pipe, Insulated Carbon Steel Schedule 40: estimated ~${chwPipeEst_mm}mm nominal dia, pre-insulated with 50mm closed-cell foam, all joints flanged or groove-coupled: qty: 1 lot
+5. Chilled Water Valves and Fittings: butterfly valves (isolation), globe valves (balancing), strainer, flexible connectors at each chiller/pump: qty: 1 lot
+6. Expansion Tank, Closed-Type: ASME rated, pre-charged, sized for ${Math.round(chwFlowM3h * 0.05)} L minimum: qty: 1 unit
+7. Chemical Dosing System: inhibitor dosing pot, glycol feeder (if required), water quality test kit, initial chemical charge: qty: 1 set
+8. Main Circuit Breaker / Disconnect, 3-phase: MCCB rated ≥ ${Math.ceil(totalAmp * 1.25 / 10) * 10} A, 400V 3-phase, one per chiller: qty: ${nUnits}
+9. Power Wiring, 3-phase, Cu XLPE: from MCC/switchboard to each chiller, estimated 30m run per unit, size per PEC 2017 at ${Math.ceil(compPerUnitKW / 0.85 / (Math.sqrt(3) * 0.4) * 1.25)} A: qty: ${nUnits * 30} m
+10. Control Wiring, Shielded: from BMS/DDC to each chiller for monitoring and control: qty: 1 lot
+11. Equipment Mounting Frames and Anti-Vibration Pads: structural steel mounting frame, neoprene anti-vibration pads rated for chiller weight, each unit: qty: ${nUnits} sets
+12. Refrigerant Leak Detection System: electrochemical sensor per machine room, alarm panel, per ASHRAE 15: qty: 1 set
+13. Safety Signage and Labels: refrigerant type, pressure ratings, SWL, emergency shutdown location, ASHRAE 15 and PSME required: qty: 1 lot
+14. Insulation and Vapor Barrier, CHW Pipes: 50mm closed-cell elastomeric foam, vapor-sealed all joints, for all chilled water pipes and fittings in conditioned space: qty: 1 lot
+15. Commissioning, Testing and Balancing: factory witness test report, site commissioning by manufacturer-authorized engineer, hydronic balancing, COP verification at design conditions, O&M manual: qty: 1 lot${isCopFail ? ': HOLD: do not commission until COP-compliant equipment is confirmed' : ''}
 
-ARRAY 2 — "sow_sections": 8 sections (each: section_no, title, content).
+ARRAY 2: "sow_sections": 8 sections (each: section_no, title, content).
 Cover:
-1. Scope of Works — install ${nUnits} × ${nominalTR} TR air-cooled chiller(s), CHW distribution, pumps, controls, electrical, commissioning for ${project}
-2. Design Basis — ASHRAE 90.1, cooling load ${designKW} kW (${(designKW/3.517).toFixed(1)} TR) with ${safetyFactor}× safety, CHW ${chwSupply}/${chwReturn}°C, ambient ${ambientTemp}°C, COP ${cop} — ${copCheck}${isCopFail ? ` — FAIL: re-select equipment before procurement` : ''}
-3. Equipment Supply and Installation — chiller placement with minimum 1.2m clearance all sides for condenser airflow, no condenser air recirculation, alignment per manufacturer, ${isMultiUnit ? 'lead-lag sequencing controller wired and commissioned' : 'BMS connection'}, anti-vibration mounts required
-4. Chilled Water System — CHW piping at ${chwFlowLps} L/s (${chwFlowM3h} m³/h), insulate all CHW pipes with 50mm closed-cell foam vapor-sealed, hydronic balancing by certified TAB contractor after commissioning, system flushing before connection to chiller evaporator
-5. Refrigerant Safety (ASHRAE 15) — ${refrigerant} refrigerant, leak detection required in equipment room, ventilation minimum 6 ACH per ASHRAE 15, refrigerant charge log to be maintained, only PSME/EPA-certified technicians to handle refrigerant
-6. Electrical Works — ${totalKVA} kVA total, 3-phase 400V supply, ${totalAmp} A FLA, MCCB per unit rated ≥ ${Math.ceil(totalAmp * 1.25 / 10) * 10} A, all electrical works by PEC-licensed master electrician, electrical permit from LGU before commencement
-7. Testing and Commissioning — system pressure test at 1.5× working pressure, CHW flow balancing, COP verification at design conditions (${ambientTemp}°C ambient, ${chwSupply}°C supply, ${chwReturn}°C return), factory witness test report required, O&M manual and as-built drawings to Owner${isCopFail ? ` — MANDATORY HOLD POINT: do not energize or commission until COP-compliant replacement equipment is confirmed` : ''}
-8. Regulatory Compliance — PSME Code, ASHRAE 90.1/15, PEC 2017, PGBC/BERDE energy performance requirements, DOLE OSH for refrigerant handling, LGU building permit and mechanical permit, PRC-licensed Mechanical Engineer to sign and seal this design calculation
+1. Scope of Works: install ${nUnits} × ${nominalTR} TR air-cooled chiller(s), CHW distribution, pumps, controls, electrical, commissioning for ${project}
+2. Design Basis: ASHRAE 90.1, cooling load ${designKW} kW (${(designKW/3.517).toFixed(1)} TR) with ${safetyFactor}× safety, CHW ${chwSupply}/${chwReturn}°C, ambient ${ambientTemp}°C, COP ${cop}: ${copCheck}${isCopFail ? `: FAIL: re-select equipment before procurement` : ''}
+3. Equipment Supply and Installation: chiller placement with minimum 1.2m clearance all sides for condenser airflow, no condenser air recirculation, alignment per manufacturer, ${isMultiUnit ? 'lead-lag sequencing controller wired and commissioned' : 'BMS connection'}, anti-vibration mounts required
+4. Chilled Water System: CHW piping at ${chwFlowLps} L/s (${chwFlowM3h} m³/h), insulate all CHW pipes with 50mm closed-cell foam vapor-sealed, hydronic balancing by certified TAB contractor after commissioning, system flushing before connection to chiller evaporator
+5. Refrigerant Safety (ASHRAE 15): ${refrigerant} refrigerant, leak detection required in equipment room, ventilation minimum 6 ACH per ASHRAE 15, refrigerant charge log to be maintained, only PSME/EPA-certified technicians to handle refrigerant
+6. Electrical Works: ${totalKVA} kVA total, 3-phase 400V supply, ${totalAmp} A FLA, MCCB per unit rated ≥ ${Math.ceil(totalAmp * 1.25 / 10) * 10} A, all electrical works by PEC-licensed master electrician, electrical permit from LGU before commencement
+7. Testing and Commissioning: system pressure test at 1.5× working pressure, CHW flow balancing, COP verification at design conditions (${ambientTemp}°C ambient, ${chwSupply}°C supply, ${chwReturn}°C return), factory witness test report required, O&M manual and as-built drawings to Owner${isCopFail ? `: MANDATORY HOLD POINT: do not energize or commission until COP-compliant replacement equipment is confirmed` : ''}
+8. Regulatory Compliance: PSME Code, ASHRAE 90.1/15, PEC 2017, PGBC/BERDE energy performance requirements, DOLE OSH for refrigerant handling, LGU building permit and mechanical permit, PRC-licensed Mechanical Engineer to sign and seal this design calculation
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -2833,42 +2833,42 @@ CALCULATION RESULTS:
 Project: ${project}
 Space Type: ${spaceType}
 AHU Units: ${nUnits}× AHU, each rated at ${ahuCMH} m³/h (${ahuCMHtotal} m³/h total)
-Cooling Coil: ${coilKW} kW (${coilTR} TR) total — CHW ${chwSupply}°C / ${chwReturn}°C supply/return
-CHW Flow: ${chwLps} L/s total — estimated pipe size: ${chwPipeMm}mm
+Cooling Coil: ${coilKW} kW (${coilTR} TR) total: CHW ${chwSupply}°C / ${chwReturn}°C supply/return
+CHW Flow: ${chwLps} L/s total: estimated pipe size: ${chwPipeMm}mm
 Fan Motor: ${fanHP} HP each (${fanHP_total} HP total) at ${fanStatic} Pa static pressure
-Fan Power Index: ${fanPowerWlps} W/(L/s) — ASHRAE 90.1 limit 0.82 — ${isFanFail ? 'FAIL — VFD and higher-efficiency fan required; spec fan to achieve ≤0.82 W/(L/s)' : 'PASS'}
-Outside Air: ${oaPct}% — ${qoaCMH} m³/h total (${oaDuctCMH_each.toFixed(0)} m³/h per unit)
+Fan Power Index: ${fanPowerWlps} W/(L/s): ASHRAE 90.1 limit 0.82: ${isFanFail ? 'FAIL: VFD and higher-efficiency fan required; spec fan to achieve ≤0.82 W/(L/s)' : 'PASS'}
+Outside Air: ${oaPct}%: ${qoaCMH} m³/h total (${oaDuctCMH_each.toFixed(0)} m³/h per unit)
 Electrical: ${totalFanKVA} kVA / ${totalFanA} A FLA (fan motors, 3-phase 400V)
 
 TASK: Generate a JSON object with exactly two arrays.
 
-ARRAY 1 — "bom_items": Standard Philippine AHU contractor Bill of Materials.
+ARRAY 1: "bom_items": Standard Philippine AHU contractor Bill of Materials.
 Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
 
 Required items:
-1. Air Handling Unit, draw-through type — qty: ${nUnits} — spec: ${ahuCMH} m³/h each, ${coilKW/nUnits} kW cooling coil, ${fanHP} HP supply fan, G4+F7 filter section, CHW ${chwSupply}/${chwReturn}°C
-2. Supply Fan Motor, IE3 premium efficiency — qty: ${nUnits} — spec: ${fanHP} HP (${(fanHP*0.7457).toFixed(1)} kW), 3-phase 400V/60Hz, TEFC
-3. Variable Frequency Drive (VFD) — qty: ${nUnits} — spec: ${(fanHP*0.7457).toFixed(1)} kW, IP54, bypass mode
-4. Pre-Filter, G4 panel type — qty: ${nUnits * 4} pcs — spec: 595×595×48mm or as required by AHU manufacturer
-5. Bag Filter, F7 medium-efficiency — qty: ${nUnits * 4} pcs — spec: 592×592×600mm, 6-pocket
-6. Outside Air Motorized Damper with Actuator — qty: ${nUnits} — spec: low-leakage, AMCA-rated, 24V actuator, fail-closed
-7. Chilled Water Supply Valve, 2-way modulating — qty: ${nUnits} — spec: PN16, DN based on ${chwPipeMm}mm pipe, CV per coil manufacturer
-8. Chilled Water Return Valve, balancing — qty: ${nUnits} — spec: PN16, manual balancing, DN${chwPipeMm}
-9. CHW Flexible Connection, braided stainless — qty: ${nUnits * 2} — spec: DN${chwPipeMm}, 300mm length, PN16
-10. CHW Piping, copper/black steel — qty: 1 lot — spec: DN${chwPipeMm}mm supply and return, insulated with 25mm Armaflex
-11. Pipe Insulation, closed-cell elastomeric — qty: 1 lot — spec: 25mm thick, for CHW supply and return pipes
-12. Supply Air Ductwork, GI sheet metal — qty: 1 lot — spec: SMACNA Class 1 (≤500 Pa), gauge per SMACNA Table 5-1, with insulation
-13. Return / Exhaust Air Ductwork — qty: 1 lot — spec: SMACNA Class 1, uninsulated (return air duct)
-14. Outside Air Intake Ductwork with Louver — qty: 1 lot — spec: ${oaDuctCMH_each.toFixed(0)} m³/h per unit, bird/insect screen, rain louver
-15. Vibration Isolators, spring type — qty: ${nUnits * 4} — spec: 25mm deflection, load-rated for AHU weight
-16. Condensate Drain Pan and Trap — qty: ${nUnits} — spec: stainless steel, 50mm trap seal, min 20mm PVC drain line
-17. MCCB Circuit Breaker, 3-pole — qty: ${nUnits} — spec: ${Math.ceil(totalFanA * 1.25 / nUnits)}A, 400V, 18kA AIC
-18. Wiring, THHN 5.5mm² (3C) — qty: 1 lot — spec: from MCCB to VFD to AHU motor per PEC 2017
-19. Anti-vibration Mounting Pads (supplemental) — qty: ${nUnits * 4} — spec: neoprene, 50 Shore A, for AHU base frame
-20. Commissioning and TAB (Testing, Adjusting, Balancing) — qty: 1 lot — spec: ASHRAE 111 balancing procedure, airflow and CHW ΔT verification report
-21. Miscellaneous (hangers, supports, sealing, access doors) — qty: 1 lot — spec: per SMACNA
+1. Air Handling Unit, draw-through type: qty: ${nUnits}: spec: ${ahuCMH} m³/h each, ${coilKW/nUnits} kW cooling coil, ${fanHP} HP supply fan, G4+F7 filter section, CHW ${chwSupply}/${chwReturn}°C
+2. Supply Fan Motor, IE3 premium efficiency: qty: ${nUnits}: spec: ${fanHP} HP (${(fanHP*0.7457).toFixed(1)} kW), 3-phase 400V/60Hz, TEFC
+3. Variable Frequency Drive (VFD): qty: ${nUnits}: spec: ${(fanHP*0.7457).toFixed(1)} kW, IP54, bypass mode
+4. Pre-Filter, G4 panel type: qty: ${nUnits * 4} pcs: spec: 595×595×48mm or as required by AHU manufacturer
+5. Bag Filter, F7 medium-efficiency: qty: ${nUnits * 4} pcs: spec: 592×592×600mm, 6-pocket
+6. Outside Air Motorized Damper with Actuator: qty: ${nUnits}: spec: low-leakage, AMCA-rated, 24V actuator, fail-closed
+7. Chilled Water Supply Valve, 2-way modulating: qty: ${nUnits}: spec: PN16, DN based on ${chwPipeMm}mm pipe, CV per coil manufacturer
+8. Chilled Water Return Valve, balancing: qty: ${nUnits}: spec: PN16, manual balancing, DN${chwPipeMm}
+9. CHW Flexible Connection, braided stainless: qty: ${nUnits * 2}: spec: DN${chwPipeMm}, 300mm length, PN16
+10. CHW Piping, copper/black steel: qty: 1 lot: spec: DN${chwPipeMm}mm supply and return, insulated with 25mm Armaflex
+11. Pipe Insulation, closed-cell elastomeric: qty: 1 lot: spec: 25mm thick, for CHW supply and return pipes
+12. Supply Air Ductwork, GI sheet metal: qty: 1 lot: spec: SMACNA Class 1 (≤500 Pa), gauge per SMACNA Table 5-1, with insulation
+13. Return / Exhaust Air Ductwork: qty: 1 lot: spec: SMACNA Class 1, uninsulated (return air duct)
+14. Outside Air Intake Ductwork with Louver: qty: 1 lot: spec: ${oaDuctCMH_each.toFixed(0)} m³/h per unit, bird/insect screen, rain louver
+15. Vibration Isolators, spring type: qty: ${nUnits * 4}: spec: 25mm deflection, load-rated for AHU weight
+16. Condensate Drain Pan and Trap: qty: ${nUnits}: spec: stainless steel, 50mm trap seal, min 20mm PVC drain line
+17. MCCB Circuit Breaker, 3-pole: qty: ${nUnits}: spec: ${Math.ceil(totalFanA * 1.25 / nUnits)}A, 400V, 18kA AIC
+18. Wiring, THHN 5.5mm² (3C): qty: 1 lot: spec: from MCCB to VFD to AHU motor per PEC 2017
+19. Anti-vibration Mounting Pads (supplemental): qty: ${nUnits * 4}: spec: neoprene, 50 Shore A, for AHU base frame
+20. Commissioning and TAB (Testing, Adjusting, Balancing): qty: 1 lot: spec: ASHRAE 111 balancing procedure, airflow and CHW ΔT verification report
+21. Miscellaneous (hangers, supports, sealing, access doors): qty: 1 lot: spec: per SMACNA
 
-ARRAY 2 — "sow_sections": 8 sections of Scope of Works in Philippine engineering document style.
+ARRAY 2: "sow_sections": 8 sections of Scope of Works in Philippine engineering document style.
 Each object: { "section_no": number, "title": string, "content": string, "checked": true }
 
 IMPORTANT: Each "content" must be a full professional specification paragraph of at least 4–6 complete sentences. Write as a licensed engineer giving binding contractual requirements. Use "The Contractor shall..." sentence structure. Include specific dimensions, standards, test pressures, tolerances, and acceptance criteria. Do NOT use one-word bullets or vague phrases.
@@ -2889,17 +2889,17 @@ content: The Contractor shall install chilled water supply and return piping in 
 
 5. Electrical and Controls
 content: ${isFanFail
-  ? `MANDATORY HOLD POINT — Fan power index of ${fanPowerWlps} W/(L/s) EXCEEDS ASHRAE 90.1 limit of 0.82 W/(L/s). The Contractor shall NOT energize the fan motors until a Variable Frequency Drive (VFD) is installed AND the fan assembly is replaced or re-selected to achieve ≤0.82 W/(L/s) at design airflow. VFD shall be IP54 minimum, with manual bypass mode, 3-phase 400V/60Hz, rated at ${(fanHP*0.7457).toFixed(1)} kW per unit. Wiring from MCCB to VFD to AHU motor terminal box shall be in accordance with PEC 2017. Outside air motorized damper actuator shall be wired to fail-closed on power loss. Provide one (1) BAS (Building Automation System) digital output point per AHU for remote start/stop and status monitoring.`
-  : `The Contractor shall install a Variable Frequency Drive (VFD) for each AHU fan motor (${(fanHP*0.7457).toFixed(1)} kW, IP54, bypass mode, 3-phase 400V/60Hz). Fan power index is ${fanPowerWlps} W/(L/s) — ASHRAE 90.1 limit 0.82 W/(L/s) — PASS. MCCB (${Math.ceil(totalFanA * 1.25 / nUnits)}A, 3-pole, 400V, 18kA AIC) shall be installed for each AHU circuit. All wiring shall comply with PEC 2017, conductors minimum THHN 5.5mm² (3C). Outside air motorized damper actuator shall be 24V, fail-closed on power loss, interlocked with AHU fan. Provide one (1) BAS digital output point per AHU for remote start/stop, speed signal, and fault status.`}
+  ? `MANDATORY HOLD POINT: Fan power index of ${fanPowerWlps} W/(L/s) EXCEEDS ASHRAE 90.1 limit of 0.82 W/(L/s). The Contractor shall NOT energize the fan motors until a Variable Frequency Drive (VFD) is installed AND the fan assembly is replaced or re-selected to achieve ≤0.82 W/(L/s) at design airflow. VFD shall be IP54 minimum, with manual bypass mode, 3-phase 400V/60Hz, rated at ${(fanHP*0.7457).toFixed(1)} kW per unit. Wiring from MCCB to VFD to AHU motor terminal box shall be in accordance with PEC 2017. Outside air motorized damper actuator shall be wired to fail-closed on power loss. Provide one (1) BAS (Building Automation System) digital output point per AHU for remote start/stop and status monitoring.`
+  : `The Contractor shall install a Variable Frequency Drive (VFD) for each AHU fan motor (${(fanHP*0.7457).toFixed(1)} kW, IP54, bypass mode, 3-phase 400V/60Hz). Fan power index is ${fanPowerWlps} W/(L/s): ASHRAE 90.1 limit 0.82 W/(L/s): PASS. MCCB (${Math.ceil(totalFanA * 1.25 / nUnits)}A, 3-pole, 400V, 18kA AIC) shall be installed for each AHU circuit. All wiring shall comply with PEC 2017, conductors minimum THHN 5.5mm² (3C). Outside air motorized damper actuator shall be 24V, fail-closed on power loss, interlocked with AHU fan. Provide one (1) BAS digital output point per AHU for remote start/stop, speed signal, and fault status.`}
 
 6. Filtration
 content: The Contractor shall install a two-stage filtration system in each AHU: G4 panel pre-filter (595×595×48mm or as dimensioned by AHU manufacturer, MERV 7) upstream, followed by F7 medium-efficiency bag filter (592×592×600mm, 6-pocket, MERV 13) as the final filter. A Magnehelic differential pressure gauge (range 0–250 Pa, accuracy ±2%) shall be installed across each filter bank to indicate loading condition. Replace filters when DP reaches 150 Pa for G4 or 200 Pa for F7. Contractor shall include one (1) complete set of replacement filters (G4 and F7) in the supply contract for handover to the Owner. Contractor shall submit filter manufacturer's efficiency data per ASHRAE 52.2 or EN779 before procurement.
 
 7. Testing and Commissioning
-content: The Contractor shall conduct a full Testing, Adjusting, and Balancing (TAB) exercise per ASHRAE Guideline 111 before system handover. TAB shall include: (a) airflow measurement and balancing for each supply air outlet and return air grille — all outlets shall be within ±10% of design CMH; (b) CHW ΔT verification — measured ΔT shall be within ±1°C of design ${(chwReturn - chwSupply).toFixed(0)}°C ΔT; (c) fan motor current measurement at design airflow — shall not exceed nameplate FLA; (d) VFD frequency at design airflow shall be recorded; (e) noise level measurement in the served space (≤NC-45 for office/general space); (f) fail-safe test — verify OA damper closes on power interruption; (g) factory performance data (certified fan curve, coil selection data at design CHW conditions) shall be reviewed against field measurements before final acceptance. TAB report shall be submitted in ASHRAE 111 format and signed by a certified TAB engineer.
+content: The Contractor shall conduct a full Testing, Adjusting, and Balancing (TAB) exercise per ASHRAE Guideline 111 before system handover. TAB shall include: (a) airflow measurement and balancing for each supply air outlet and return air grille: all outlets shall be within ±10% of design CMH; (b) CHW ΔT verification: measured ΔT shall be within ±1°C of design ${(chwReturn - chwSupply).toFixed(0)}°C ΔT; (c) fan motor current measurement at design airflow: shall not exceed nameplate FLA; (d) VFD frequency at design airflow shall be recorded; (e) noise level measurement in the served space (≤NC-45 for office/general space); (f) fail-safe test: verify OA damper closes on power interruption; (g) factory performance data (certified fan curve, coil selection data at design CHW conditions) shall be reviewed against field measurements before final acceptance. TAB report shall be submitted in ASHRAE 111 format and signed by a certified TAB engineer.
 
 8. Regulatory Compliance
-content: The Contractor shall be fully responsible for compliance with all applicable Philippine codes and standards including: ASHRAE 62.1 — outside air rate shall be field-verified at ${oaPct}% = ${qoaCMH.toFixed(0)} m³/h total (${(qoaCMH/nUnits).toFixed(0)} m³/h per unit), as-measured within ±10%; ASHRAE 90.1 — fan power index ≤ 0.82 W/(L/s) shall be field-certified in the TAB report; PSME Code — AHU and ductwork installation, mechanical permit from the LGU Building Official shall be obtained before any mechanical works begin; PEC 2017 — all electrical installations; SMACNA — duct construction and sealing; PGBC/BERDE — indoor air quality performance requirements where applicable. A PRC-licensed Mechanical Engineer shall sign and seal all as-built mechanical drawings. System shall not be energized and turned over to the Owner until all permits are obtained and the commissioning report is accepted by the Engineer of Record.
+content: The Contractor shall be fully responsible for compliance with all applicable Philippine codes and standards including: ASHRAE 62.1: outside air rate shall be field-verified at ${oaPct}% = ${qoaCMH.toFixed(0)} m³/h total (${(qoaCMH/nUnits).toFixed(0)} m³/h per unit), as-measured within ±10%; ASHRAE 90.1: fan power index ≤ 0.82 W/(L/s) shall be field-certified in the TAB report; PSME Code: AHU and ductwork installation, mechanical permit from the LGU Building Official shall be obtained before any mechanical works begin; PEC 2017: all electrical installations; SMACNA: duct construction and sealing; PGBC/BERDE: indoor air quality performance requirements where applicable. A PRC-licensed Mechanical Engineer shall sign and seal all as-built mechanical drawings. System shall not be energized and turned over to the Owner until all permits are obtained and the commissioning report is accepted by the Engineer of Record.
 
 Respond with ONLY the JSON object. No explanation outside the JSON.`;
 
@@ -2947,23 +2947,23 @@ async function chillerWaterCooledBomSowAgent(
   const refrigerant    = String(results.refrigerant ?? "R-134a or R-1234ze(E)");
   const safetyFactor   = Number(inputs.safety_factor ?? 1.10);
 
-  // COP FAIL flag — mandatory upgrade language
+  // COP FAIL flag: mandatory upgrade language
   const isCopFail = copCheck === "FAIL";
   const copNote   = isCopFail
-    ? `FAIL — COP ${cop} is below ASHRAE 90.1 minimum of ${ashraeMinCop} for ${chillerType}. Equipment must be re-selected before procurement. HOLD: do not procure until COP-compliant chiller is confirmed by manufacturer data sheet.`
-    : `PASS — COP ${cop} meets ASHRAE 90.1 minimum of ${ashraeMinCop} for ${chillerType}.`;
+    ? `FAIL: COP ${cop} is below ASHRAE 90.1 minimum of ${ashraeMinCop} for ${chillerType}. Equipment must be re-selected before procurement. HOLD: do not procure until COP-compliant chiller is confirmed by manufacturer data sheet.`
+    : `PASS: COP ${cop} meets ASHRAE 90.1 minimum of ${ashraeMinCop} for ${chillerType}.`;
 
   // Multi-unit / redundancy flag
   const isMultiUnit    = nUnits >= 2;
   const redundancyNote = isMultiUnit
     ? `${nUnits}-unit configuration with lead-lag sequencing. Each unit capable of carrying full design load during standby.`
-    : `Single-unit configuration — no built-in redundancy. Provide portable chiller contingency for critical facilities.`;
+    : `Single-unit configuration: no built-in redundancy. Provide portable chiller contingency for critical facilities.`;
 
-  // Chiller type flag — centrifugal needs magnetic bearings note; screw/scroll different
+  // Chiller type flag: centrifugal needs magnetic bearings note; screw/scroll different
   const isCentrifugal = chillerType.toLowerCase().includes("centrifugal");
 
-  // Cooling tower note — must be sized for Q_rejection, not Q_evap
-  const ctNote = `Cooling tower MUST be sized for heat REJECTION load of ${qRejectionTR} TR (${qRejectionKW} kW) — NOT the chiller nominal TR of ${nominalTR * nUnits} TR. Q_rejection = Q_evap + W_compressor. This is a common sizing error that results in an undersized cooling tower and high condenser water temperatures that degrade chiller COP.`;
+  // Cooling tower note: must be sized for Q_rejection, not Q_evap
+  const ctNote = `Cooling tower MUST be sized for heat REJECTION load of ${qRejectionTR} TR (${qRejectionKW} kW): NOT the chiller nominal TR of ${nominalTR * nUnits} TR. Q_rejection = Q_evap + W_compressor. This is a common sizing error that results in an undersized cooling tower and high condenser water temperatures that degrade chiller COP.`;
 
   // CHW pipe diameter estimate (velocity ~1.5 m/s)
   const chwPipeMm = Math.ceil(Math.sqrt((chwFlowLps / (Math.PI / 4 * 1.5)) * 1e6) / 25) * 25;
@@ -2983,50 +2983,50 @@ CALCULATION RESULTS:
 - Total Installed Capacity: ${totalTR} TR
 - Compressor Power per Unit: ${compPerUnitKW} kW
 - Total Compressor Power: ${compPowerKW} kW | ${totalKVA} kVA | ${totalAmp} A FLA (3-phase 400V)
-- COP: ${cop} — ASHRAE 90.1 Check: ${copNote}
+- COP: ${cop}: ASHRAE 90.1 Check: ${copNote}
 - CHW Supply/Return: ${chwSupply}°C / ${chwReturn}°C (ΔT = ${dTchw}°C)
-- CHW Flow Rate: ${chwFlowLps} L/s (${chwFlowM3h} m³/h) — estimated pipe ~${chwPipeMm}mm
+- CHW Flow Rate: ${chwFlowLps} L/s (${chwFlowM3h} m³/h): estimated pipe ~${chwPipeMm}mm
 - Condenser Heat Rejection: ${qRejectionKW} kW = ${qRejectionTR} TR
 - ${ctNote}
 - CW Supply/Return: ${cwSupply}°C / ${cwReturn}°C (ΔT = ${dTcw}°C)
-- CW Flow Rate: ${cwFlowLps} L/s (${cwFlowM3h} m³/h) — estimated pipe ~${cwPipeMm}mm
+- CW Flow Rate: ${cwFlowLps} L/s (${cwFlowM3h} m³/h): estimated pipe ~${cwPipeMm}mm
 - Refrigerant: ${refrigerant}
 - Redundancy: ${redundancyNote}
 
 Generate a JSON object with exactly two arrays:
 
-ARRAY 1 — "bom_items": 17 items for a complete water-cooled chiller plant.
+ARRAY 1: "bom_items": 17 items for a complete water-cooled chiller plant.
 Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
 
 Required items:
-1. Water-Cooled ${chillerType} Chiller — ${nominalTR} TR (${nominalKW} kW) each, ${refrigerant}, COP ≥ ${cop} at ${cwSupply}°C entering condenser water, ASHRAE 90.1 compliant, factory-tested with certified performance data sheet — qty: ${nUnits}${isCopFail ? ' — HOLD: re-select with COP ≥ ' + ashraeMinCop + ' before procurement' : ''}
-2. Cooling Tower, Induced-Draft Counterflow — sized for ${qRejectionTR} TR heat rejection (${qRejectionKW} kW), NOT chiller TR — CW range ${dTcw}°C, entering ${cwReturn}°C / leaving ${cwSupply}°C, CTI certified, FRP construction, drift eliminator ≤0.001% — qty: ${nUnits} cells
-3. Chilled Water Pump (CHW), Base-Mounted — end-suction centrifugal, ${Math.round(chwFlowM3h)} m³/h, head TBD hydraulic design, TEFC motor, back pull-out design — qty: ${isMultiUnit ? nUnits + 1 : 2} (duty-standby)
-4. Condenser Water Pump (CW), Base-Mounted — end-suction centrifugal, ${Math.round(cwFlowM3h)} m³/h, head TBD hydraulic design, TEFC motor — qty: ${isMultiUnit ? nUnits + 1 : 2} (duty-standby)
-5. Chilled Water Pipe, Carbon Steel Schedule 40 — ~${chwPipeMm}mm nominal dia, flanged or grooved joints, hydrostatically tested 1.5× working pressure — qty: 1 lot
-6. Condenser Water Pipe, Carbon Steel Schedule 40 — ~${cwPipeMm}mm nominal dia, galvanized interior or epoxy-lined for CW service, flanged or grooved — qty: 1 lot
-7. CHW Pipe Insulation — 50mm closed-cell elastomeric foam, vapor-sealed all joints and fittings, for all CHW pipes in conditioned space — qty: 1 lot
-8. Chilled and Condenser Water Valves — butterfly valves (isolation), globe valves (balancing), Y-strainers (before each pump and chiller), flexible connectors at all rotating equipment — qty: 1 lot
-9. Expansion Tank, Closed Bladder-Type, CHW Loop — ASME rated, pre-charged nitrogen, sized for ${Math.round(chwFlowM3h * 0.05)} L minimum — qty: 1 unit
-10. Chemical Dosing System — corrosion inhibitor, scale inhibitor, biocide (Legionella control per ASHRAE Guideline 12), automatic dosing pump, chemical day tank, water quality test kit — qty: 1 set
-11. Cooling Tower Basin Treatment — side-stream filtration unit (10–25 micron), bleed-off valve with conductivity controller, sand or multimedia filter — qty: 1 set
-12. Chiller Controller / BMS Interface — DDC controller, Modbus/BACnet gateway, ${isMultiUnit ? 'lead-lag sequencing (mandatory for ' + nUnits + ' chillers)' : 'BMS integration'}, CHW setpoint reset, cooling tower fan staging, alarm monitoring — qty: 1 set
-13. Refrigerant Leak Detection — electrochemical sensor per machine room, rated for ${refrigerant}, audible/visual alarm, per ASHRAE 15 — qty: 1 set
-14. Machine Room Ventilation — minimum 6 ACH mechanical exhaust per ASHRAE 15, ${chillerType === 'Centrifugal' ? 'interlocked with refrigerant leak detector' : 'interlocked with leak detector'}, explosion-proof fan if required by refrigerant class — qty: 1 set
-15. Electrical MCC / Disconnect — MCCB rated ≥ ${Math.ceil(totalAmp * 1.25 / 10) * 10} A total, 3-phase 400V, individual disconnect per chiller and per pump, with overload protection — qty: 1 set
-16. Equipment Inertia Bases and Anti-Vibration Isolators — spring/neoprene isolators for all chillers and pumps, inertia bases for pumps to reduce vibration transmission to structure — qty: ${nUnits + (isMultiUnit ? nUnits + 2 : 4)} sets
-17. Commissioning, TAB, and Water Treatment Start-Up — hydronic balancing by certified TAB contractor, COP field verification at design conditions (${cwSupply}°C entering condenser water, ${chwSupply}°C CHW supply), factory witness test report, Legionella risk assessment, O&M manual and as-built drawings — qty: 1 lot${isCopFail ? ' — MANDATORY HOLD POINT: do not commission until COP-compliant equipment is installed and verified' : ''}
+1. Water-Cooled ${chillerType} Chiller: ${nominalTR} TR (${nominalKW} kW) each, ${refrigerant}, COP ≥ ${cop} at ${cwSupply}°C entering condenser water, ASHRAE 90.1 compliant, factory-tested with certified performance data sheet: qty: ${nUnits}${isCopFail ? ': HOLD: re-select with COP ≥ ' + ashraeMinCop + ' before procurement' : ''}
+2. Cooling Tower, Induced-Draft Counterflow: sized for ${qRejectionTR} TR heat rejection (${qRejectionKW} kW), NOT chiller TR: CW range ${dTcw}°C, entering ${cwReturn}°C / leaving ${cwSupply}°C, CTI certified, FRP construction, drift eliminator ≤0.001%: qty: ${nUnits} cells
+3. Chilled Water Pump (CHW), Base-Mounted: end-suction centrifugal, ${Math.round(chwFlowM3h)} m³/h, head TBD hydraulic design, TEFC motor, back pull-out design: qty: ${isMultiUnit ? nUnits + 1 : 2} (duty-standby)
+4. Condenser Water Pump (CW), Base-Mounted: end-suction centrifugal, ${Math.round(cwFlowM3h)} m³/h, head TBD hydraulic design, TEFC motor: qty: ${isMultiUnit ? nUnits + 1 : 2} (duty-standby)
+5. Chilled Water Pipe, Carbon Steel Schedule 40: ~${chwPipeMm}mm nominal dia, flanged or grooved joints, hydrostatically tested 1.5× working pressure: qty: 1 lot
+6. Condenser Water Pipe, Carbon Steel Schedule 40: ~${cwPipeMm}mm nominal dia, galvanized interior or epoxy-lined for CW service, flanged or grooved: qty: 1 lot
+7. CHW Pipe Insulation: 50mm closed-cell elastomeric foam, vapor-sealed all joints and fittings, for all CHW pipes in conditioned space: qty: 1 lot
+8. Chilled and Condenser Water Valves: butterfly valves (isolation), globe valves (balancing), Y-strainers (before each pump and chiller), flexible connectors at all rotating equipment: qty: 1 lot
+9. Expansion Tank, Closed Bladder-Type, CHW Loop: ASME rated, pre-charged nitrogen, sized for ${Math.round(chwFlowM3h * 0.05)} L minimum: qty: 1 unit
+10. Chemical Dosing System: corrosion inhibitor, scale inhibitor, biocide (Legionella control per ASHRAE Guideline 12), automatic dosing pump, chemical day tank, water quality test kit: qty: 1 set
+11. Cooling Tower Basin Treatment: side-stream filtration unit (10–25 micron), bleed-off valve with conductivity controller, sand or multimedia filter: qty: 1 set
+12. Chiller Controller / BMS Interface: DDC controller, Modbus/BACnet gateway, ${isMultiUnit ? 'lead-lag sequencing (mandatory for ' + nUnits + ' chillers)' : 'BMS integration'}, CHW setpoint reset, cooling tower fan staging, alarm monitoring: qty: 1 set
+13. Refrigerant Leak Detection: electrochemical sensor per machine room, rated for ${refrigerant}, audible/visual alarm, per ASHRAE 15: qty: 1 set
+14. Machine Room Ventilation: minimum 6 ACH mechanical exhaust per ASHRAE 15, ${chillerType === 'Centrifugal' ? 'interlocked with refrigerant leak detector' : 'interlocked with leak detector'}, explosion-proof fan if required by refrigerant class: qty: 1 set
+15. Electrical MCC / Disconnect: MCCB rated ≥ ${Math.ceil(totalAmp * 1.25 / 10) * 10} A total, 3-phase 400V, individual disconnect per chiller and per pump, with overload protection: qty: 1 set
+16. Equipment Inertia Bases and Anti-Vibration Isolators: spring/neoprene isolators for all chillers and pumps, inertia bases for pumps to reduce vibration transmission to structure: qty: ${nUnits + (isMultiUnit ? nUnits + 2 : 4)} sets
+17. Commissioning, TAB, and Water Treatment Start-Up: hydronic balancing by certified TAB contractor, COP field verification at design conditions (${cwSupply}°C entering condenser water, ${chwSupply}°C CHW supply), factory witness test report, Legionella risk assessment, O&M manual and as-built drawings: qty: 1 lot${isCopFail ? ': MANDATORY HOLD POINT: do not commission until COP-compliant equipment is installed and verified' : ''}
 
-ARRAY 2 — "sow_sections": 8 sections (each: section_no, title, content).
+ARRAY 2: "sow_sections": 8 sections (each: section_no, title, content).
 Cover:
-1. Scope of Works — supply and install ${nUnits} × ${nominalTR} TR water-cooled ${chillerType} chiller(s), ${nUnits}-cell cooling tower (${qRejectionTR} TR rejection), CHW/CW pump systems, BMS controls, chemical treatment, and commissioning
-2. Design Basis — ASHRAE 90.1, ${designKW} kW design load (${(designKW/3.517).toFixed(1)} TR) with ${safetyFactor}× safety, CHW ${chwSupply}/${chwReturn}°C, CW ${cwSupply}/${cwReturn}°C, COP ${cop} — ${copCheck}${isCopFail ? ': FAIL — RE-SELECT EQUIPMENT BEFORE PROCUREMENT' : ''}. Cooling tower rated for ${qRejectionTR} TR (NOT chiller TR)
-3. Equipment Supply and Installation — chiller placement per ASHRAE 15 machine room requirements, minimum aisle clearance, seismic restraint per PSME, anti-vibration isolation required for all rotating equipment, cooling tower on structural steel support frame (structural engineer to confirm adequacy for tower weight)
-4. Chilled Water and Condenser Water Systems — CHW: ${chwFlowLps} L/s (${chwFlowM3h} m³/h), pipe ~${chwPipeMm}mm CS Sch.40, insulate CHW pipes 50mm closed-cell foam vapor-sealed. CW: ${cwFlowLps} L/s (${cwFlowM3h} m³/h), pipe ~${cwPipeMm}mm CS Sch.40 galvanized/epoxy lined. Hydronic balancing mandatory after commissioning
-5. Cooling Tower and Water Treatment (Legionella Compliance) — cooling tower sized for ${qRejectionTR} TR heat rejection. Water treatment per ASHRAE Guideline 12: corrosion inhibitor, scale inhibitor, biocide dosing, side-stream filtration, conductivity bleed-off control. Legionella risk assessment by qualified water treatment specialist before system start-up. Monthly water quality log mandatory for regulatory compliance
-6. Refrigerant Safety (ASHRAE 15) — ${refrigerant} refrigerant, machine room ventilation minimum 6 ACH, electrochemical leak detector mandatory, alarm to BMS, refrigerant charge log maintained, only PSME/EPA-certified technicians to handle refrigerant
-7. Electrical Works — ${totalKVA} kVA total, 3-phase 400V supply, ${totalAmp} A FLA, MCCB rating ≥ ${Math.ceil(totalAmp * 1.25 / 10) * 10} A, all electrical works by PEC-licensed master electrician, Electrical Permit from LGU before commencement${isCopFail ? '. NOTE: Do not energize equipment until COP-compliant replacement is installed' : ''}
-8. Testing, Commissioning, and Regulatory Compliance — hydronic TAB by certified contractor, COP field verification at ${cwSupply}°C entering CW / ${chwSupply}°C CHW supply, factory witness test report, Legionella risk assessment report, PSME Code, ASHRAE 90.1/15, CTI STD-201, PEC 2017, PGBC/BERDE energy compliance, DOLE OSH, LGU Mechanical Permit, PRC-licensed Mechanical Engineer sign-off${isCopFail ? '. MANDATORY HOLD POINT: system must not be commissioned until COP-compliant chiller is confirmed installed and tested' : ''}
+1. Scope of Works: supply and install ${nUnits} × ${nominalTR} TR water-cooled ${chillerType} chiller(s), ${nUnits}-cell cooling tower (${qRejectionTR} TR rejection), CHW/CW pump systems, BMS controls, chemical treatment, and commissioning
+2. Design Basis: ASHRAE 90.1, ${designKW} kW design load (${(designKW/3.517).toFixed(1)} TR) with ${safetyFactor}× safety, CHW ${chwSupply}/${chwReturn}°C, CW ${cwSupply}/${cwReturn}°C, COP ${cop}: ${copCheck}${isCopFail ? ': FAIL: RE-SELECT EQUIPMENT BEFORE PROCUREMENT' : ''}. Cooling tower rated for ${qRejectionTR} TR (NOT chiller TR)
+3. Equipment Supply and Installation: chiller placement per ASHRAE 15 machine room requirements, minimum aisle clearance, seismic restraint per PSME, anti-vibration isolation required for all rotating equipment, cooling tower on structural steel support frame (structural engineer to confirm adequacy for tower weight)
+4. Chilled Water and Condenser Water Systems: CHW: ${chwFlowLps} L/s (${chwFlowM3h} m³/h), pipe ~${chwPipeMm}mm CS Sch.40, insulate CHW pipes 50mm closed-cell foam vapor-sealed. CW: ${cwFlowLps} L/s (${cwFlowM3h} m³/h), pipe ~${cwPipeMm}mm CS Sch.40 galvanized/epoxy lined. Hydronic balancing mandatory after commissioning
+5. Cooling Tower and Water Treatment (Legionella Compliance): cooling tower sized for ${qRejectionTR} TR heat rejection. Water treatment per ASHRAE Guideline 12: corrosion inhibitor, scale inhibitor, biocide dosing, side-stream filtration, conductivity bleed-off control. Legionella risk assessment by qualified water treatment specialist before system start-up. Monthly water quality log mandatory for regulatory compliance
+6. Refrigerant Safety (ASHRAE 15): ${refrigerant} refrigerant, machine room ventilation minimum 6 ACH, electrochemical leak detector mandatory, alarm to BMS, refrigerant charge log maintained, only PSME/EPA-certified technicians to handle refrigerant
+7. Electrical Works: ${totalKVA} kVA total, 3-phase 400V supply, ${totalAmp} A FLA, MCCB rating ≥ ${Math.ceil(totalAmp * 1.25 / 10) * 10} A, all electrical works by PEC-licensed master electrician, Electrical Permit from LGU before commencement${isCopFail ? '. NOTE: Do not energize equipment until COP-compliant replacement is installed' : ''}
+8. Testing, Commissioning, and Regulatory Compliance: hydronic TAB by certified contractor, COP field verification at ${cwSupply}°C entering CW / ${chwSupply}°C CHW supply, factory witness test report, Legionella risk assessment report, PSME Code, ASHRAE 90.1/15, CTI STD-201, PEC 2017, PGBC/BERDE energy compliance, DOLE OSH, LGU Mechanical Permit, PRC-licensed Mechanical Engineer sign-off${isCopFail ? '. MANDATORY HOLD POINT: system must not be commissioned until COP-compliant chiller is confirmed installed and tested' : ''}
 
 Respond ONLY in JSON with keys bom_items and sow_sections.`;
 
@@ -3079,7 +3079,7 @@ async function coolingTowerBomSowAgent(
     : 100;
 
   const chillerNote = loadSource === "chiller"
-    ? `Heat source: chiller plant. Cooling tower sized for CONDENSER REJECTION load — NOT chiller nominal TR. Q_rejection = Q_evap + W_compressor.`
+    ? `Heat source: chiller plant. Cooling tower sized for CONDENSER REJECTION load: NOT chiller nominal TR. Q_rejection = Q_evap + W_compressor.`
     : `Heat source: direct process heat rejection of ${qRejKW} kW.`;
 
   const prompt = `You are a licensed Mechanical Engineer in the Philippines preparing official procurement and contracting documents for a COOLING TOWER installation.
@@ -3097,38 +3097,38 @@ CALCULATION RESULTS:
 - Range: ${range}°C | Approach: ${approach}°C (CTI STD-201 minimum 2°C)
 - Cycles of Concentration: ${coc}
 - L/G Ratio: ${lgRatio}
-- Circulation Flow: ${qWlps} L/s (${qWm3hr} m³/h) — estimated CW pipe ~${cwPipeMm}mm
+- Circulation Flow: ${qWlps} L/s (${qWm3hr} m³/h): estimated CW pipe ~${cwPipeMm}mm
 - Fan Airflow: ${fanFlowCMH} m³/h total
 - Fan Motor: ${fanKWstd} kW per cell (${fanKWtotal} kW total)
-- Fan Power Index: ${fanKW100kw} kW/100 kW — ASHRAE 90.1 limit 4.0 kW/100 kW — ${isAshraePass ? "PASS" : "FAIL — select high-efficiency fan or add cells"}
-- Makeup Water: ${makeupLhr} L/hr (${makeupM3day} m³/day) — Evap: ${evapLhr} L/hr, Blowdown: ${blowdownLhr} L/hr
+- Fan Power Index: ${fanKW100kw} kW/100 kW: ASHRAE 90.1 limit 4.0 kW/100 kW: ${isAshraePass ? "PASS" : "FAIL: select high-efficiency fan or add cells"}
+- Makeup Water: ${makeupLhr} L/hr (${makeupM3day} m³/day): Evap: ${evapLhr} L/hr, Blowdown: ${blowdownLhr} L/hr
 
 TASK: Generate a JSON object with exactly two arrays.
 
-ARRAY 1 — "bom_items": 18 items for a complete cooling tower installation.
+ARRAY 1: "bom_items": 18 items for a complete cooling tower installation.
 Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
 
 Required items:
-1. Cooling Tower, Induced-Draft Counterflow, FRP — qty: ${nCells} — spec: ${qCellKW} kW (${qCellTR} TR) heat rejection per cell, EWT ${ewt}°C / LWT ${lwt}°C / WBT ${wbt}°C, CTI STD-201 certified, drift eliminators ≤0.001%, PVC fill media, hot-dip galvanized or FRP basin
-2. Fan Motor, TEFC IE3 premium efficiency — qty: ${nCells} — spec: ${fanKWstd} kW per cell, 3-phase 400V/60Hz, IP55, direct-drive or V-belt as per tower manufacturer${!isAshraePass ? " — HOLD: fan power index exceeds ASHRAE 90.1 limit; re-select before procurement" : ""}
-3. Fan Motor VFD (Variable Frequency Drive) — qty: ${nCells} — spec: ${fanKWstd} kW, IP54, bypass mode, 3-phase 400V/60Hz — checked: false
-4. Condenser Water Pump, Base-Mounted Centrifugal — qty: ${Math.max(2, nCells + 1)} — spec: ${Math.round(qWm3hr / nCells)} m³/h per pump, head TBD from hydraulic design, TEFC motor, duty-standby configuration
-5. Condenser Water Piping, CS Schedule 40 Galvanized — qty: 1 lot — spec: ~${cwPipeMm}mm nominal dia, hot-dip galvanized interior or epoxy-lined for CW service, grooved or flanged joints
-6. Y-Strainer, Flanged — qty: ${nCells + 2} — spec: DN${cwPipeMm}mm, 40-mesh stainless screen, PN16, before each pump and CT cell inlet
-7. Butterfly Valve, Isolation — qty: 1 lot — spec: DN${cwPipeMm}mm, PN16, EPDM seat, cast iron body, locking handle — isolation at each pump suction/discharge and CT cell supply/return
-8. Manual Balancing Valve — qty: ${nCells} — spec: DN${cwPipeMm}mm, PN16, graduated scale with memory stop — one per CT cell return
-9. Flexible Pipe Connectors, Braided Rubber — qty: ${nCells * 2 + 4} — spec: DN${cwPipeMm}mm × 300mm, PN16, stainless braid, at all pump suction/discharge and CT cell connections
-10. Automatic Water Level Control Valve (Makeup) — qty: ${nCells} — spec: float-operated or solenoid-operated makeup water valve, PN10, 25mm inlet, for CT basin level control
-11. Makeup Water Piping — qty: 1 lot — spec: ${makeupM3day} m³/day demand (${makeupLhr} L/hr), 25mm domestic water feed to each basin, with ball valve isolation and backflow preventer
-12. Chemical Dosing System — qty: 1 set — spec: automatic dosing pump for corrosion inhibitor, scale inhibitor, and biocide (Legionella control per ASHRAE Guideline 12); chemical day tank; water quality test kit; side-stream filtration unit (10–25 micron) with multimedia filter
-13. Conductivity Controller with Blowdown Solenoid — qty: ${nCells} — spec: automatic blowdown control to maintain CoC = ${coc}, conductivity setpoint adjustable, 24V solenoid bleed-off valve
-14. Structural Steel Support Frame and Basin Curb — qty: 1 lot — spec: hot-dip galvanized, designed for CT operating weight including water, per structural engineer's certification; anchor bolts per seismic zone (NSCP)
-15. Drift Eliminator Replacement Set — qty: ${nCells} — spec: PVC, ≤0.001% drift loss per CTI STD-201; included for handover to Owner as first replacement set — checked: false
-16. Electrical Works — qty: 1 lot — spec: MCCB per cell (${Math.ceil(fanKWstd * 1.25 / 0.85 / (Math.sqrt(3) * 0.4) * 1.25)} A, 3-pole, 400V, 18kA AIC), wiring THHN 3.5mm² (3C) per PEC 2017, conduit in CT area to be rigid galvanized or PVC Schedule 40 (corrosive environment)
-17. Legionella Water Management Plan — qty: 1 lot — spec: risk assessment by qualified water treatment specialist, written water safety plan per ASHRAE Guideline 12, monthly water quality logs for COC, pH, biocide residual
-18. Testing, Balancing, and Commissioning — qty: 1 lot — spec: CTI STD-201 performance test at design conditions (EWT ${ewt}°C, WBT ${wbt}°C), measured LWT ≤ ${lwt + 0.5}°C; CW flow balance within ±10% of ${qWm3hr} m³/h; fan motor current ≤ nameplate FLA; ASHRAE 90.1 fan power ≤ 4 kW/100 kW verified; commissioning report signed by PRC-licensed Mechanical Engineer
+1. Cooling Tower, Induced-Draft Counterflow, FRP: qty: ${nCells}: spec: ${qCellKW} kW (${qCellTR} TR) heat rejection per cell, EWT ${ewt}°C / LWT ${lwt}°C / WBT ${wbt}°C, CTI STD-201 certified, drift eliminators ≤0.001%, PVC fill media, hot-dip galvanized or FRP basin
+2. Fan Motor, TEFC IE3 premium efficiency: qty: ${nCells}: spec: ${fanKWstd} kW per cell, 3-phase 400V/60Hz, IP55, direct-drive or V-belt as per tower manufacturer${!isAshraePass ? ": HOLD: fan power index exceeds ASHRAE 90.1 limit; re-select before procurement" : ""}
+3. Fan Motor VFD (Variable Frequency Drive): qty: ${nCells}: spec: ${fanKWstd} kW, IP54, bypass mode, 3-phase 400V/60Hz: checked: false
+4. Condenser Water Pump, Base-Mounted Centrifugal: qty: ${Math.max(2, nCells + 1)}: spec: ${Math.round(qWm3hr / nCells)} m³/h per pump, head TBD from hydraulic design, TEFC motor, duty-standby configuration
+5. Condenser Water Piping, CS Schedule 40 Galvanized: qty: 1 lot: spec: ~${cwPipeMm}mm nominal dia, hot-dip galvanized interior or epoxy-lined for CW service, grooved or flanged joints
+6. Y-Strainer, Flanged: qty: ${nCells + 2}: spec: DN${cwPipeMm}mm, 40-mesh stainless screen, PN16, before each pump and CT cell inlet
+7. Butterfly Valve, Isolation: qty: 1 lot: spec: DN${cwPipeMm}mm, PN16, EPDM seat, cast iron body, locking handle: isolation at each pump suction/discharge and CT cell supply/return
+8. Manual Balancing Valve: qty: ${nCells}: spec: DN${cwPipeMm}mm, PN16, graduated scale with memory stop: one per CT cell return
+9. Flexible Pipe Connectors, Braided Rubber: qty: ${nCells * 2 + 4}: spec: DN${cwPipeMm}mm × 300mm, PN16, stainless braid, at all pump suction/discharge and CT cell connections
+10. Automatic Water Level Control Valve (Makeup): qty: ${nCells}: spec: float-operated or solenoid-operated makeup water valve, PN10, 25mm inlet, for CT basin level control
+11. Makeup Water Piping: qty: 1 lot: spec: ${makeupM3day} m³/day demand (${makeupLhr} L/hr), 25mm domestic water feed to each basin, with ball valve isolation and backflow preventer
+12. Chemical Dosing System: qty: 1 set: spec: automatic dosing pump for corrosion inhibitor, scale inhibitor, and biocide (Legionella control per ASHRAE Guideline 12); chemical day tank; water quality test kit; side-stream filtration unit (10–25 micron) with multimedia filter
+13. Conductivity Controller with Blowdown Solenoid: qty: ${nCells}: spec: automatic blowdown control to maintain CoC = ${coc}, conductivity setpoint adjustable, 24V solenoid bleed-off valve
+14. Structural Steel Support Frame and Basin Curb: qty: 1 lot: spec: hot-dip galvanized, designed for CT operating weight including water, per structural engineer's certification; anchor bolts per seismic zone (NSCP)
+15. Drift Eliminator Replacement Set: qty: ${nCells}: spec: PVC, ≤0.001% drift loss per CTI STD-201; included for handover to Owner as first replacement set: checked: false
+16. Electrical Works: qty: 1 lot: spec: MCCB per cell (${Math.ceil(fanKWstd * 1.25 / 0.85 / (Math.sqrt(3) * 0.4) * 1.25)} A, 3-pole, 400V, 18kA AIC), wiring THHN 3.5mm² (3C) per PEC 2017, conduit in CT area to be rigid galvanized or PVC Schedule 40 (corrosive environment)
+17. Legionella Water Management Plan: qty: 1 lot: spec: risk assessment by qualified water treatment specialist, written water safety plan per ASHRAE Guideline 12, monthly water quality logs for COC, pH, biocide residual
+18. Testing, Balancing, and Commissioning: qty: 1 lot: spec: CTI STD-201 performance test at design conditions (EWT ${ewt}°C, WBT ${wbt}°C), measured LWT ≤ ${lwt + 0.5}°C; CW flow balance within ±10% of ${qWm3hr} m³/h; fan motor current ≤ nameplate FLA; ASHRAE 90.1 fan power ≤ 4 kW/100 kW verified; commissioning report signed by PRC-licensed Mechanical Engineer
 
-ARRAY 2 — "sow_sections": 8 sections of Scope of Works in Philippine engineering document style.
+ARRAY 2: "sow_sections": 8 sections of Scope of Works in Philippine engineering document style.
 Each object: { "section_no": number, "title": string, "content": string, "checked": true }
 
 IMPORTANT: Each "content" must be a full professional specification paragraph of at least 4–6 complete sentences. Write as a licensed engineer giving binding contractual requirements. Use "The Contractor shall..." sentence structure. Include specific dimensions, standards, test pressures, tolerances, and acceptance criteria. Do NOT use one-word bullets or vague phrases.
@@ -3139,25 +3139,25 @@ Required sections:
 content: State that the Contractor shall furnish, deliver, install, test, commission, and hand over a complete and operational cooling tower system for ${project}. Include: ${nCells} cell(s) × ${qCellTR} TR per cell (${qRejTR} TR total heat rejection at EWT ${ewt}°C / LWT ${lwt}°C / WBT ${wbt}°C, CTI STD-201 certified), condenser water pumps (duty-standby, ${qWm3hr} m³/h total flow), makeup water system (${makeupM3day} m³/day), chemical treatment and Legionella control per ASHRAE Guideline 12, fan motors ${fanKWstd} kW per cell, structural support frame, electrical supply per PEC 2017, and full commissioning per CTI STD-201.
 
 2. Cooling Tower Equipment Installation
-content: Describe installation requirements for CTI STD-201 compliance: level mounting on structural steel frame (certified for operating weight including water), anchor bolts per NSCP seismic zone, minimum 2× tower diameter clearance on air inlet faces, no recirculation of exhaust air into air inlet, drift eliminator inspection access from grade or permanent access platform. Tower basin to be cleaned and flushed before chemical treatment start-up. CT orientation shall place prevailing wind on the air inlet face — Contractor to confirm with Architect/Structural Engineer before final placement.
+content: Describe installation requirements for CTI STD-201 compliance: level mounting on structural steel frame (certified for operating weight including water), anchor bolts per NSCP seismic zone, minimum 2× tower diameter clearance on air inlet faces, no recirculation of exhaust air into air inlet, drift eliminator inspection access from grade or permanent access platform. Tower basin to be cleaned and flushed before chemical treatment start-up. CT orientation shall place prevailing wind on the air inlet face: Contractor to confirm with Architect/Structural Engineer before final placement.
 
 3. Condenser Water Piping System
 content: Detail CW piping installation: ${cwPipeMm}mm CS Sch.40 galvanized (interior hot-dip or epoxy-lined) for condenser water service, flanged or grooved mechanical joints, Y-strainers before each pump and cell inlet (40-mesh SS screen, PN16), isolation butterfly valves at all main connections, manual balancing valve per CT cell return (PN16, graduated scale), braided rubber flexible connectors at all pump and CT connections (DN${cwPipeMm}mm × 300mm, PN16). System shall be hydrostatically tested at 1.5× working pressure (minimum 600 kPa) for 4 hours with zero visible leakage. CW flow shall be balanced to within ±10% of design flow (${qWm3hr} m³/h total, ${(qWm3hr/nCells).toFixed(1)} m³/h per cell).
 
 4. Makeup Water and Blowdown Control
-content: Makeup water piping shall be sized for ${makeupM3day} m³/day demand (${makeupLhr} L/hr), fed from the domestic water supply to each CT basin via float-operated or solenoid makeup valve, with ball valve isolation and a backflow preventer (RP-type, ASSE 1013) to prevent contamination of potable water supply. A conductivity controller with automatic bleed-off solenoid valve shall be installed per cell, factory-set to maintain cycles of concentration = ${coc} (adjustable range 2–8). Blowdown rate per cell = ${blowdownLhr} L/hr at CoC ${coc}. A flow meter on the makeup line is recommended for water consumption monitoring. Total water consumption = ${makeupM3day} m³/day — Contractor to verify adequacy of incoming water supply pressure (minimum 200 kPa at valve) before proceeding.
+content: Makeup water piping shall be sized for ${makeupM3day} m³/day demand (${makeupLhr} L/hr), fed from the domestic water supply to each CT basin via float-operated or solenoid makeup valve, with ball valve isolation and a backflow preventer (RP-type, ASSE 1013) to prevent contamination of potable water supply. A conductivity controller with automatic bleed-off solenoid valve shall be installed per cell, factory-set to maintain cycles of concentration = ${coc} (adjustable range 2–8). Blowdown rate per cell = ${blowdownLhr} L/hr at CoC ${coc}. A flow meter on the makeup line is recommended for water consumption monitoring. Total water consumption = ${makeupM3day} m³/day: Contractor to verify adequacy of incoming water supply pressure (minimum 200 kPa at valve) before proceeding.
 
 5. Fan and Electrical Works
-content: Fan motors (${fanKWstd} kW per cell, TEFC IE3, IP55, 3-phase 400V/60Hz) shall be installed per cooling tower manufacturer's instructions with proper belt tension or direct-drive coupling as applicable. Fan power index = ${fanKW100kw} kW per 100 kW heat rejection — ASHRAE 90.1 limit 4.0 kW/100 kW — ${isAshraePass ? "PASS. This shall be field-verified during commissioning at design conditions." : "FAIL — Contractor shall NOT energize fan motors until a high-efficiency fan assembly achieving ≤4.0 kW/100 kW is installed and confirmed by engineer."}  MCCB (3-pole, 400V, 18kA AIC) shall be installed per cell. All wiring shall be THHN 3.5mm² (3C) minimum per PEC 2017, in rigid galvanized conduit or PVC Schedule 40 in the cooling tower area (corrosive/wet environment). Electrical permit from LGU Building Official shall be obtained before any electrical works commence.
+content: Fan motors (${fanKWstd} kW per cell, TEFC IE3, IP55, 3-phase 400V/60Hz) shall be installed per cooling tower manufacturer's instructions with proper belt tension or direct-drive coupling as applicable. Fan power index = ${fanKW100kw} kW per 100 kW heat rejection: ASHRAE 90.1 limit 4.0 kW/100 kW: ${isAshraePass ? "PASS. This shall be field-verified during commissioning at design conditions." : "FAIL: Contractor shall NOT energize fan motors until a high-efficiency fan assembly achieving ≤4.0 kW/100 kW is installed and confirmed by engineer."}  MCCB (3-pole, 400V, 18kA AIC) shall be installed per cell. All wiring shall be THHN 3.5mm² (3C) minimum per PEC 2017, in rigid galvanized conduit or PVC Schedule 40 in the cooling tower area (corrosive/wet environment). Electrical permit from LGU Building Official shall be obtained before any electrical works commence.
 
 6. Chemical Water Treatment and Legionella Control
 content: The Contractor shall install a complete automatic chemical dosing system per ASHRAE Guideline 12 for Legionella risk management: corrosion inhibitor, scale inhibitor, and biocide dosing pumps with chemical day tanks, wired to an automatic timer or water meter pulse; a side-stream filtration unit (10–25 micron multimedia filter, minimum 10% of system flow) to remove suspended solids that harbor Legionella biofilm; a written water safety plan (Legionella Water Management Plan) prepared by a qualified water treatment specialist before system start-up; and monthly water quality monitoring with log (pH: 7.0–8.5, conductivity at target CoC ${coc}, biocide residual per product spec, Legionella colony count < 100 CFU/L). System shall be disinfected with hyperchlorination (50 ppm free chlorine, 24-hr contact) before first commissioning and after any shutdown exceeding 7 days.
 
 7. Testing, Commissioning, and Performance Verification
-content: The Contractor shall conduct a CTI STD-201 thermal performance test after system stabilization (minimum 4 hours of steady-state operation at ≥75% design load). Test measurements shall include: (a) EWT — measured within ±0.5°C of ${ewt}°C; (b) LWT — measured ≤ ${(lwt + 0.5).toFixed(1)}°C; (c) WBT — measured on-site with sling psychrometer or calibrated sensor; (d) CW flow — within ±10% of ${qWm3hr} m³/h verified by clamp-on ultrasonic meter; (e) fan motor current — shall not exceed nameplate FLA of each motor; (f) fan power index — shall be ≤ 4.0 kW/100 kW per ASHRAE 90.1; (g) drift — visual check and manufacturer's drift eliminator certification ≤0.001%. TAB report and commissioning report shall be signed by a PRC-licensed Mechanical Engineer and submitted to the Owner and Engineer of Record.
+content: The Contractor shall conduct a CTI STD-201 thermal performance test after system stabilization (minimum 4 hours of steady-state operation at ≥75% design load). Test measurements shall include: (a) EWT: measured within ±0.5°C of ${ewt}°C; (b) LWT: measured ≤ ${(lwt + 0.5).toFixed(1)}°C; (c) WBT: measured on-site with sling psychrometer or calibrated sensor; (d) CW flow: within ±10% of ${qWm3hr} m³/h verified by clamp-on ultrasonic meter; (e) fan motor current: shall not exceed nameplate FLA of each motor; (f) fan power index: shall be ≤ 4.0 kW/100 kW per ASHRAE 90.1; (g) drift: visual check and manufacturer's drift eliminator certification ≤0.001%. TAB report and commissioning report shall be signed by a PRC-licensed Mechanical Engineer and submitted to the Owner and Engineer of Record.
 
 8. Regulatory Compliance and Handover
-content: The Contractor shall be fully responsible for compliance with all applicable Philippine codes and standards: CTI STD-201 — cooling tower performance certification; ASHRAE GRP-214 — water loss and makeup water calculation basis; ASHRAE 90.1 — fan power ≤ 4.0 kW/100 kW heat rejection; ASHRAE Guideline 12 — Legionella Water Management Plan (mandatory before start-up); PSME Code — mechanical installation and LGU Mechanical Permit required before works begin; PEC 2017 — all electrical installations; NSCP — structural support frame design and seismic anchorage; DOLE OSH — safety requirements for rotating equipment, chemical handling, and hot water systems; PGBC/BERDE — water efficiency documentation (makeup water consumption = ${makeupM3day} m³/day). At project completion, the Contractor shall hand over: O&M manuals, as-built drawings, CTI certified performance data sheets, chemical dosing log, commissioning report, Legionella risk assessment, and one complete set of spare fill media and drift eliminator panels per cell. A PRC-licensed Mechanical Engineer shall sign and seal all as-built mechanical drawings.
+content: The Contractor shall be fully responsible for compliance with all applicable Philippine codes and standards: CTI STD-201: cooling tower performance certification; ASHRAE GRP-214: water loss and makeup water calculation basis; ASHRAE 90.1: fan power ≤ 4.0 kW/100 kW heat rejection; ASHRAE Guideline 12: Legionella Water Management Plan (mandatory before start-up); PSME Code: mechanical installation and LGU Mechanical Permit required before works begin; PEC 2017: all electrical installations; NSCP: structural support frame design and seismic anchorage; DOLE OSH: safety requirements for rotating equipment, chemical handling, and hot water systems; PGBC/BERDE: water efficiency documentation (makeup water consumption = ${makeupM3day} m³/day). At project completion, the Contractor shall hand over: O&M manuals, as-built drawings, CTI certified performance data sheets, chemical dosing log, commissioning report, Legionella risk assessment, and one complete set of spare fill media and drift eliminator panels per cell. A PRC-licensed Mechanical Engineer shall sign and seal all as-built mechanical drawings.
 
 Respond with ONLY the JSON object. No explanation outside the JSON.`;
 
@@ -3248,51 +3248,51 @@ Estimated Fuel Storage Tank: ${tankLitres} L (8-hr reserve at full load, ×1.20 
 
 TASK: Generate a JSON object with exactly two arrays.
 
-ARRAY 1 — "bom_items": Standard Philippine mechanical contractor Bill of Materials for a ${boilerType.toLowerCase()} boiler room installation.
+ARRAY 1: "bom_items": Standard Philippine mechanical contractor Bill of Materials for a ${boilerType.toLowerCase()} boiler room installation.
 Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
 
 Required items (adapt to ${boilerType} type):
-1. ${boilerType} Boiler — qty: ${numBoilers} unit — specify ${fuelType}-fired, ${qBoilerBhp} BHP (${qBoilerKw} kW) per unit, ${isSteam ? `design pressure ${designPressure} barg, ASME Sec I stamped` : `working pressure ${hwPressure} barg, ASME Sec IV stamped`}, PD 8 compliant, CE/UL listed burner
-2. Burner Assembly — qty: ${numBoilers} unit — specify forced-draft, modulating type, rated for ${fuelType}${fuelType === "Diesel" ? " (HSD, Bunker C capable)" : ""}, CE marked, integrated air-fuel ratio controller
-3. ${isSteam ? "Steam Safety Valve" : "Pressure Relief Valve (PRV)"} — qty: ${numBoilers * 2} pcs — specify ${isSteam ? `ASME Sec I stamped, set pressure ≤ ${(Number(designPressure) * 1.05 + 0.1).toFixed(1)} barg, ${safetyValve} kg/hr` : `ASME Sec IV / PD 8, set pressure ≤ ${(Number(hwPressure) + 0.5).toFixed(1)} barg, ${safetyValve} kW rated`}, spring-loaded, full-lift type
-4. ${isSteam ? "Feedwater Pump / Boiler Feed Unit" : "Circulation Pump"} — qty: ${numBoilers} set — specify ${isSteam ? `minimum 110% of maximum boiler steam output capacity, duplex pump set with standby, 316 SS impeller, variable speed drive` : `design flow ${flowLhr} L/hr, variable speed drive (VSD), TEFC motor, IE3 efficiency`}
-5. ${isSteam ? "Deaerator / Feed Tank" : "Expansion Tank"} — qty: 1 unit — specify ${isSteam ? `spray-tray type, 30-minute hold capacity, rated for ${designPressure} barg, 316 SS internals, thermostatic vent, O₂ removal ≥ 0.005 cc/L` : `closed expansion tank, ASME stamped, pre-charge pressure per system, rated at ${hwPressure} barg`}
-6. ${isSteam ? "Steam Header / Distribution Manifold" : "Hot Water Buffer / Header Manifold"} — qty: 1 set — specify ${isSteam ? `Schedule 40 carbon steel, ${steamPipeDia} nominal, PN40 rated, flanged connections with isolation per boiler` : `Schedule 40 carbon steel, ${hwPipeDia} nominal, PN16 rated, flanged connections`}
-7. ${isSteam ? "Steam Piping" : "HW Distribution Piping"} — qty: 1 lot — specify ${isSteam ? `Schedule 40 CS pipe ${steamPipeDia} nominal, 150# class flanges, 25mm mineral wool insulation with aluminum jacket` : `Schedule 40 CS or pre-insulated pipe ${hwPipeDia} nominal, 50mm PU foam insulation, aluminum jacket`}, within boiler room
-8. ${isSteam ? "Condensate Return System" : "Return Piping"} — qty: 1 set — specify ${isSteam ? `${condensatePipe} Schedule 40 CS or CPVC, condensate pump if below grade, float-type steam trap at each end point, 25mm insulation` : `${hwPipeDia} Schedule 40 CS, 50mm PU foam insulation, aluminum jacket`}
-9. ${isSteam ? "Blowdown Separator and Blowdown Tank" : "Air Separator / Dirt Strainer"} — qty: 1 set — specify ${isSteam ? `continuous blowdown (CBD) with heat exchanger for energy recovery, intermittent blowdown (IBD) tank ≥ 1,000L capacity, TDS controller at ${tdsMax} ppm setpoint` : `combination air/dirt separator, magnetic, rated ${hwPressure} barg, auto-vent, ${hwPipeDia} connections`}
-10. ${isSteam ? "Water Treatment System (Boiler Water)" : "Water Treatment System (HW Circuit)"} — qty: 1 set — specify ${isSteam ? `twin-bed softener (to ≤ 5 ppm hardness), chemical dosing pump × 3 (oxygen scavenger, scale inhibitor, corrosion inhibitor), TDS meter and blowdown controller` : `inhibitor dosing unit, pH controller 8.2–9.0, inline dosing pot with isolation valves`}
-11. ${fuelType === "Natural Gas" ? "Gas Pressure Regulator Set and Gas Train" : `${fuelType} Day Tank / Fuel Storage Tank`} — qty: 1 set — specify ${fuelType === "Natural Gas" ? "dual-stage pressure regulator, slam-shut valve, MAOP rating, PNOC/DOE compliant, gas leak detection with automatic shut-off" : `double-walled, ${tankLitres} L capacity, UL listed, 3-hr fire-rated, level gauge, overfill protection, fuel transfer pump`}
-12. Combustion Flue / Exhaust Stack — qty: 1 lot — specify insulated single-wall or twin-wall flue stack, appropriate draft calculation diameter, height ≥ 2 m above roof line, DENR-compliant, with CO/CO₂ sampling port
-13. Instrumentation and Controls — qty: 1 lot — specify boiler management system (BMS), flame detector, high-pressure cut-off, low-water level cut-off, temperature and pressure transmitters, ${isSteam ? "steam flow meter" : "energy meter (BTU meter)"}, interconnected to BAS terminal
-14. Boiler Room Ventilation — qty: 1 set — specify forced-draft inlet louver (≥10 air changes/hr), exhaust fan, explosion-proof rated for boiler room hazardous area classification
-15. Electrical Works — qty: 1 lot — specify MCC panel with MCCB, burner interlock circuit, emergency stop, PEC 2017 compliant, explosion-proof wiring in boiler room, earthing system
-16. Insulation Works (Boiler Shell and Piping) — qty: 1 lot — specify 75mm mineral wool or ceramic fiber blanket on boiler shell (hot surfaces), 25–50mm mineral wool on steam/HW piping, all with aluminum jacket
-17. Miscellaneous (bolts, gaskets, flanges, supports, commissioning chemicals, spares) — qty: 1 lot
+1. ${boilerType} Boiler: qty: ${numBoilers} unit: specify ${fuelType}-fired, ${qBoilerBhp} BHP (${qBoilerKw} kW) per unit, ${isSteam ? `design pressure ${designPressure} barg, ASME Sec I stamped` : `working pressure ${hwPressure} barg, ASME Sec IV stamped`}, PD 8 compliant, CE/UL listed burner
+2. Burner Assembly: qty: ${numBoilers} unit: specify forced-draft, modulating type, rated for ${fuelType}${fuelType === "Diesel" ? " (HSD, Bunker C capable)" : ""}, CE marked, integrated air-fuel ratio controller
+3. ${isSteam ? "Steam Safety Valve" : "Pressure Relief Valve (PRV)"}: qty: ${numBoilers * 2} pcs: specify ${isSteam ? `ASME Sec I stamped, set pressure ≤ ${(Number(designPressure) * 1.05 + 0.1).toFixed(1)} barg, ${safetyValve} kg/hr` : `ASME Sec IV / PD 8, set pressure ≤ ${(Number(hwPressure) + 0.5).toFixed(1)} barg, ${safetyValve} kW rated`}, spring-loaded, full-lift type
+4. ${isSteam ? "Feedwater Pump / Boiler Feed Unit" : "Circulation Pump"}: qty: ${numBoilers} set: specify ${isSteam ? `minimum 110% of maximum boiler steam output capacity, duplex pump set with standby, 316 SS impeller, variable speed drive` : `design flow ${flowLhr} L/hr, variable speed drive (VSD), TEFC motor, IE3 efficiency`}
+5. ${isSteam ? "Deaerator / Feed Tank" : "Expansion Tank"}: qty: 1 unit: specify ${isSteam ? `spray-tray type, 30-minute hold capacity, rated for ${designPressure} barg, 316 SS internals, thermostatic vent, O₂ removal ≥ 0.005 cc/L` : `closed expansion tank, ASME stamped, pre-charge pressure per system, rated at ${hwPressure} barg`}
+6. ${isSteam ? "Steam Header / Distribution Manifold" : "Hot Water Buffer / Header Manifold"}: qty: 1 set: specify ${isSteam ? `Schedule 40 carbon steel, ${steamPipeDia} nominal, PN40 rated, flanged connections with isolation per boiler` : `Schedule 40 carbon steel, ${hwPipeDia} nominal, PN16 rated, flanged connections`}
+7. ${isSteam ? "Steam Piping" : "HW Distribution Piping"}: qty: 1 lot: specify ${isSteam ? `Schedule 40 CS pipe ${steamPipeDia} nominal, 150# class flanges, 25mm mineral wool insulation with aluminum jacket` : `Schedule 40 CS or pre-insulated pipe ${hwPipeDia} nominal, 50mm PU foam insulation, aluminum jacket`}, within boiler room
+8. ${isSteam ? "Condensate Return System" : "Return Piping"}: qty: 1 set: specify ${isSteam ? `${condensatePipe} Schedule 40 CS or CPVC, condensate pump if below grade, float-type steam trap at each end point, 25mm insulation` : `${hwPipeDia} Schedule 40 CS, 50mm PU foam insulation, aluminum jacket`}
+9. ${isSteam ? "Blowdown Separator and Blowdown Tank" : "Air Separator / Dirt Strainer"}: qty: 1 set: specify ${isSteam ? `continuous blowdown (CBD) with heat exchanger for energy recovery, intermittent blowdown (IBD) tank ≥ 1,000L capacity, TDS controller at ${tdsMax} ppm setpoint` : `combination air/dirt separator, magnetic, rated ${hwPressure} barg, auto-vent, ${hwPipeDia} connections`}
+10. ${isSteam ? "Water Treatment System (Boiler Water)" : "Water Treatment System (HW Circuit)"}: qty: 1 set: specify ${isSteam ? `twin-bed softener (to ≤ 5 ppm hardness), chemical dosing pump × 3 (oxygen scavenger, scale inhibitor, corrosion inhibitor), TDS meter and blowdown controller` : `inhibitor dosing unit, pH controller 8.2–9.0, inline dosing pot with isolation valves`}
+11. ${fuelType === "Natural Gas" ? "Gas Pressure Regulator Set and Gas Train" : `${fuelType} Day Tank / Fuel Storage Tank`}: qty: 1 set: specify ${fuelType === "Natural Gas" ? "dual-stage pressure regulator, slam-shut valve, MAOP rating, PNOC/DOE compliant, gas leak detection with automatic shut-off" : `double-walled, ${tankLitres} L capacity, UL listed, 3-hr fire-rated, level gauge, overfill protection, fuel transfer pump`}
+12. Combustion Flue / Exhaust Stack: qty: 1 lot: specify insulated single-wall or twin-wall flue stack, appropriate draft calculation diameter, height ≥ 2 m above roof line, DENR-compliant, with CO/CO₂ sampling port
+13. Instrumentation and Controls: qty: 1 lot: specify boiler management system (BMS), flame detector, high-pressure cut-off, low-water level cut-off, temperature and pressure transmitters, ${isSteam ? "steam flow meter" : "energy meter (BTU meter)"}, interconnected to BAS terminal
+14. Boiler Room Ventilation: qty: 1 set: specify forced-draft inlet louver (≥10 air changes/hr), exhaust fan, explosion-proof rated for boiler room hazardous area classification
+15. Electrical Works: qty: 1 lot: specify MCC panel with MCCB, burner interlock circuit, emergency stop, PEC 2017 compliant, explosion-proof wiring in boiler room, earthing system
+16. Insulation Works (Boiler Shell and Piping): qty: 1 lot: specify 75mm mineral wool or ceramic fiber blanket on boiler shell (hot surfaces), 25–50mm mineral wool on steam/HW piping, all with aluminum jacket
+17. Miscellaneous (bolts, gaskets, flanges, supports, commissioning chemicals, spares): qty: 1 lot
 
 Specifications must be specific: include boiler rating (BHP and kW), operating pressure, fuel type, ASME/PD 8 stamp requirements, and Philippine code compliance throughout.
 
-ARRAY 2 — "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
+ARRAY 2: "sow_sections": Full contractor Scope of Works in Philippine engineering document style.
 Each object: { "section_no": string, "title": string, "content": string, "checked": boolean }
 
 Required sections:
-- "1.0" General Scope — checked: true (describe the complete boiler room installation: ${systemDesc}, including all mechanical, piping, instrumentation, electrical, and commissioning works)
-- "2.0" Applicable Standards and Codes — checked: true (list: ${standards})
-- "3.0" Materials and Equipment — checked: true (all boilers shall be ASME stamped and PD 8 registered; burners CE marked; all pressure vessels inspected and registered with DOLE Boiler Inspection Branch before operation)
-- "4.1" Boiler and Burner Installation — checked: true (specify foundation grouting, minimum clearances per ASME/PD 8 and manufacturer (minimum 1.0 m sides, 1.5 m front/rear), burner alignment, combustion air supply, flue connection, refractory inspection and curing procedure before first firing)
-- "4.2" Pressure Vessel and Safety Device Installation — checked: true (safety valves to be set and sealed by DOLE-accredited boiler inspector; pressure gauges calibrated per PD 8; low-water cut-off tested per ASME Sec ${isSteam ? "I" : "IV"} CSD-1)
-- "4.3" ${isSteam ? "Steam and Condensate Piping" : "Hot Water Piping"} — checked: true (specify material: Schedule 40 CS, slope: ${isSteam ? "minimum 1:100 toward condensate trap" : "minimum 1:200 for air venting"}, support spacing per PSME, thermal expansion loops or expansion joints at headers, all welds 100% VT and 10% RT per ANSI B31.1)
-- "4.4" ${isSteam ? "Feedwater and Blowdown System" : "Expansion and Make-Up Water System"} — checked: true (${isSteam ? `deaerator commissioning procedure (check dissolved O₂ ≤ 0.005 cc/L), blowdown tank temperature ≤ 60°C before drain, TDS controller calibration at ${tdsMax} ppm setpoint, continuous and intermittent blowdown valves tested` : `expansion tank pre-charge verification, make-up water float valve setting, inhibitor dosing commissioning, system fill and venting procedure`})
-- "4.5" Fuel System — checked: true (${fuelType === "Natural Gas" ? "gas train leak test at 1.5× MAOP, PNOC clearance, DOE gas permit required before connection, gas leak detection system calibration" : `fuel tank pressure test, leak test for all fuel lines at 1.5× design pressure, fire protection provisions per BFP, fuel transfer pump commissioning, 8-hr fuel reserve to be confirmed before first firing`})
-- "4.6" Water Treatment and Chemical Dosing — checked: true (${isSteam ? `softener commissioning (verify hardness ≤ 5 ppm post-softener), initial boiler water conditioning per manufacturer, chemical dosing calibration, blowdown controller set at ${tdsMax} ppm, pre-operational boilout with alkaline solution to remove mill scale and oil` : `system fill with pre-treated water, inhibitor dosing commissioning, pH setpoint 8.2–9.0, initial system purge and vent to remove dissolved oxygen before first heat-up`})
-- "4.7" Instrumentation and Controls — checked: true (boiler management system (BMS) programming and loop testing; burner flame scanner calibration; low-water level alarm and cut-off function test; high-pressure cut-off test; ${isSteam ? "steam flow meter calibration" : "BTU energy meter calibration"}; all interlocks verified before live firing)
-- "4.8" Boiler Room Safety and Ventilation — checked: true (boiler room air changes minimum 10 per hour verified by air flow measurement; explosion-proof wiring inspection; emergency stop button test; CO₂/CO alarm sensor calibration; fire suppression system pre-commissioning if provided; DOLE boiler inspection clearance to be obtained before first firing)
-- "4.9" Hydraulic/Hydrostatic Pressure Test — checked: true (all piping systems pressure tested at 1.5× maximum working pressure, minimum 30 minutes, zero drop, witnessed by DOLE boiler inspector; boiler shell tested per ASME Sec ${isSteam ? "I" : "IV"} before insulation is applied)
-- "4.10" First Firing and Performance Test — checked: true (dry-out firing sequence per manufacturer (low fire → full fire over 48–72 hours for ${isSteam ? "steam" : "hot water"} boilers to cure refractory and prevent thermal shock); combustion analysis: CO₂ target 13–14% for ${fuelType === "Natural Gas" ? "gas" : "oil/diesel"}, O₂ 2–3%, CO < 100 ppm; verify design output of ${qBoilerKw} kW at design pressure; thermal efficiency measurement and submission)
-- "4.11" Testing, Commissioning, and Handover — checked: true (submit commissioning report signed by PRC-licensed ME; submit DOLE Certificate of Boiler Inspection and Registration; submit as-built drawings, O&M manuals, manufacturer warranties; train Owner's operators for minimum 4 hours on safe operation, emergency shutdown, blowdown, and routine maintenance)
-- "5.0" Inclusions — checked: false (list what is included: boiler, burner, all piping within boiler room, controls, insulation, commissioning, DOLE inspection coordination, operator training)
-- "6.0" Exclusions — checked: false (civil and structural works, boiler room building shell, chimney foundation, electrical service entrance, fuel supply main line, water source connection, building permits, DENR air emission permit)
-- "7.0" Warranty — checked: false (1 year workmanship from DOLE acceptance; 1 year parts and labor per boiler manufacturer; pressure vessel warranty per ASME and PD 8 registration; burner warranty per manufacturer)
+- "1.0" General Scope: checked: true (describe the complete boiler room installation: ${systemDesc}, including all mechanical, piping, instrumentation, electrical, and commissioning works)
+- "2.0" Applicable Standards and Codes: checked: true (list: ${standards})
+- "3.0" Materials and Equipment: checked: true (all boilers shall be ASME stamped and PD 8 registered; burners CE marked; all pressure vessels inspected and registered with DOLE Boiler Inspection Branch before operation)
+- "4.1" Boiler and Burner Installation: checked: true (specify foundation grouting, minimum clearances per ASME/PD 8 and manufacturer (minimum 1.0 m sides, 1.5 m front/rear), burner alignment, combustion air supply, flue connection, refractory inspection and curing procedure before first firing)
+- "4.2" Pressure Vessel and Safety Device Installation: checked: true (safety valves to be set and sealed by DOLE-accredited boiler inspector; pressure gauges calibrated per PD 8; low-water cut-off tested per ASME Sec ${isSteam ? "I" : "IV"} CSD-1)
+- "4.3" ${isSteam ? "Steam and Condensate Piping" : "Hot Water Piping"}: checked: true (specify material: Schedule 40 CS, slope: ${isSteam ? "minimum 1:100 toward condensate trap" : "minimum 1:200 for air venting"}, support spacing per PSME, thermal expansion loops or expansion joints at headers, all welds 100% VT and 10% RT per ANSI B31.1)
+- "4.4" ${isSteam ? "Feedwater and Blowdown System" : "Expansion and Make-Up Water System"}: checked: true (${isSteam ? `deaerator commissioning procedure (check dissolved O₂ ≤ 0.005 cc/L), blowdown tank temperature ≤ 60°C before drain, TDS controller calibration at ${tdsMax} ppm setpoint, continuous and intermittent blowdown valves tested` : `expansion tank pre-charge verification, make-up water float valve setting, inhibitor dosing commissioning, system fill and venting procedure`})
+- "4.5" Fuel System: checked: true (${fuelType === "Natural Gas" ? "gas train leak test at 1.5× MAOP, PNOC clearance, DOE gas permit required before connection, gas leak detection system calibration" : `fuel tank pressure test, leak test for all fuel lines at 1.5× design pressure, fire protection provisions per BFP, fuel transfer pump commissioning, 8-hr fuel reserve to be confirmed before first firing`})
+- "4.6" Water Treatment and Chemical Dosing: checked: true (${isSteam ? `softener commissioning (verify hardness ≤ 5 ppm post-softener), initial boiler water conditioning per manufacturer, chemical dosing calibration, blowdown controller set at ${tdsMax} ppm, pre-operational boilout with alkaline solution to remove mill scale and oil` : `system fill with pre-treated water, inhibitor dosing commissioning, pH setpoint 8.2–9.0, initial system purge and vent to remove dissolved oxygen before first heat-up`})
+- "4.7" Instrumentation and Controls: checked: true (boiler management system (BMS) programming and loop testing; burner flame scanner calibration; low-water level alarm and cut-off function test; high-pressure cut-off test; ${isSteam ? "steam flow meter calibration" : "BTU energy meter calibration"}; all interlocks verified before live firing)
+- "4.8" Boiler Room Safety and Ventilation: checked: true (boiler room air changes minimum 10 per hour verified by air flow measurement; explosion-proof wiring inspection; emergency stop button test; CO₂/CO alarm sensor calibration; fire suppression system pre-commissioning if provided; DOLE boiler inspection clearance to be obtained before first firing)
+- "4.9" Hydraulic/Hydrostatic Pressure Test: checked: true (all piping systems pressure tested at 1.5× maximum working pressure, minimum 30 minutes, zero drop, witnessed by DOLE boiler inspector; boiler shell tested per ASME Sec ${isSteam ? "I" : "IV"} before insulation is applied)
+- "4.10" First Firing and Performance Test: checked: true (dry-out firing sequence per manufacturer (low fire → full fire over 48–72 hours for ${isSteam ? "steam" : "hot water"} boilers to cure refractory and prevent thermal shock); combustion analysis: CO₂ target 13–14% for ${fuelType === "Natural Gas" ? "gas" : "oil/diesel"}, O₂ 2–3%, CO < 100 ppm; verify design output of ${qBoilerKw} kW at design pressure; thermal efficiency measurement and submission)
+- "4.11" Testing, Commissioning, and Handover: checked: true (submit commissioning report signed by PRC-licensed ME; submit DOLE Certificate of Boiler Inspection and Registration; submit as-built drawings, O&M manuals, manufacturer warranties; train Owner's operators for minimum 4 hours on safe operation, emergency shutdown, blowdown, and routine maintenance)
+- "5.0" Inclusions: checked: false (list what is included: boiler, burner, all piping within boiler room, controls, insulation, commissioning, DOLE inspection coordination, operator training)
+- "6.0" Exclusions: checked: false (civil and structural works, boiler room building shell, chimney foundation, electrical service entrance, fuel supply main line, water source connection, building permits, DENR air emission permit)
+- "7.0" Warranty: checked: false (1 year workmanship from DOLE acceptance; 1 year parts and labor per boiler manufacturer; pressure vessel warranty per ASME and PD 8 registration; burner warranty per manufacturer)
 
 Each section content must be 3–5 sentences in professional Philippine engineering contractor style. Reference the specific system: ${systemDesc}, for project ${project}. All safety and compliance requirements must cite the specific Philippine code or ASME section.
 
@@ -3343,10 +3343,10 @@ BOM items must cover:
 1. Supply air rectangular or circular ductwork (gauge per SMACNA pressure class)
 2. Return air ductwork
 3. Duct insulation (25mm acoustic/thermal lining for supply mains)
-4. Duct fittings allowance (elbows, tees, reducers — 30% extra of straight run by weight)
+4. Duct fittings allowance (elbows, tees, reducers: 30% extra of straight run by weight)
 5. Supply air diffusers / grilles
 6. Return air grilles
-7. Volume control dampers (VCD) — manual balancing
+7. Volume control dampers (VCD): manual balancing
 8. Fan unit (centrifugal inline or AHU fan section, ${fanMotorHp}HP / ${fanMotorKw}kW)
 9. Fan motor VFD (variable frequency drive)
 10. Flexible duct connections to fan (anti-vibration, max 300mm)
@@ -3358,7 +3358,7 @@ BOM items must cover:
 
 SOW sections:
 - "1.0" Scope of Works (duct fabrication, installation, insulation, commissioning for ${systemDesc})
-- "2.0" Design Standards and References (ASHRAE Ch.21 equal friction; SMACNA Duct Construction Standards — pressure class per operating static; ASHRAE 62.1 velocity limits; PSME Code; PEC 2017 Art.4.30)
+- "2.0" Design Standards and References (ASHRAE Ch.21 equal friction; SMACNA Duct Construction Standards: pressure class per operating static; ASHRAE 62.1 velocity limits; PSME Code; PEC 2017 Art.4.30)
 - "3.0" Materials and Equipment (galvanized steel gauge per SMACNA; duct insulation spec; diffuser and grille spec; VCD spec; fan and motor spec with VFD)
 - "4.0" Installation Requirements (support spacing per SMACNA; joint sealing; flex duct max 1.5m; TAB by accredited TAB contractor)
 - "5.0" Testing and Commissioning (SMACNA duct leakage test; TAB report within 10% of design airflow at all terminals; fan performance verification)
@@ -3418,18 +3418,18 @@ Generate a JSON object with exactly two keys:
   { "description": string, "specification": string, "unit": string, "qty": number, "remarks": string }
 
 BOM items must cover:
-1. Suction line ACR copper tube (ASTM B280) — sized per design, dehydrated and capped — qty: ${Math.ceil(totalSucLenM * 1.10)} m (10% wastage)
-2. Discharge line ACR copper tube (ASTM B280) — sized per design — qty: ${Math.ceil(totalDisLenM * 1.10)} m
-3. Liquid line ACR copper tube (ASTM B280) — sized per design — qty: ${Math.ceil(totalLiqLenM * 1.10)} m
-4. Suction line insulation — closed-cell elastomeric foam, 19mm thick, ASTM C534, pre-slit with self-adhesive seam — qty: ${Math.ceil(totalSucLenM * 1.10)} m
-5. Discharge and liquid line insulation — closed-cell elastomeric foam, 9mm thick — qty: ${Math.ceil((totalDisLenM + totalLiqLenM) * 1.10)} m
-6. Copper fittings and elbows allowance (solder/braze type, ACR grade) — 20% extra of straight run — qty: 1 lot
-7. Nitrogen (OFN) for purge brazing and pressure testing — 99.999% dry nitrogen — qty: 3 cylinders
-8. Silver brazing alloy (15% Ag) and flux — for all brazed joints — qty: 1 lot
-9. Pipe hangers and supports (insulated pipe saddles, galvanized steel brackets, threaded rod) — 1.5m spacing — qty: ${Math.ceil(totalLenM / 1.5)} sets
-10. Refrigerant charge, ${refrig} — per manufacturer specification adjusted for actual line set length (${capKw}kW system) — qty: 1 lot
-11. Filter drier (replaceable core, bidirectional) — liquid line, rated for ${refrig} — qty: ${lineArr.filter(l=>l.line_type==="Liquid").length || 1} pc
-12. Sight glass with moisture indicator — liquid line, rated for ${refrig} — qty: ${lineArr.filter(l=>l.line_type==="Liquid").length || 1} pc
+1. Suction line ACR copper tube (ASTM B280): sized per design, dehydrated and capped: qty: ${Math.ceil(totalSucLenM * 1.10)} m (10% wastage)
+2. Discharge line ACR copper tube (ASTM B280): sized per design: qty: ${Math.ceil(totalDisLenM * 1.10)} m
+3. Liquid line ACR copper tube (ASTM B280): sized per design: qty: ${Math.ceil(totalLiqLenM * 1.10)} m
+4. Suction line insulation: closed-cell elastomeric foam, 19mm thick, ASTM C534, pre-slit with self-adhesive seam: qty: ${Math.ceil(totalSucLenM * 1.10)} m
+5. Discharge and liquid line insulation: closed-cell elastomeric foam, 9mm thick: qty: ${Math.ceil((totalDisLenM + totalLiqLenM) * 1.10)} m
+6. Copper fittings and elbows allowance (solder/braze type, ACR grade): 20% extra of straight run: qty: 1 lot
+7. Nitrogen (OFN) for purge brazing and pressure testing: 99.999% dry nitrogen: qty: 3 cylinders
+8. Silver brazing alloy (15% Ag) and flux: for all brazed joints: qty: 1 lot
+9. Pipe hangers and supports (insulated pipe saddles, galvanized steel brackets, threaded rod): 1.5m spacing: qty: ${Math.ceil(totalLenM / 1.5)} sets
+10. Refrigerant charge, ${refrig}: per manufacturer specification adjusted for actual line set length (${capKw}kW system): qty: 1 lot
+11. Filter drier (replaceable core, bidirectional): liquid line, rated for ${refrig}: qty: ${lineArr.filter(l=>l.line_type==="Liquid").length || 1} pc
+12. Sight glass with moisture indicator: liquid line, rated for ${refrig}: qty: ${lineArr.filter(l=>l.line_type==="Liquid").length || 1} pc
 
 "sow_sections": array of 6 objects, each with:
   { "section_no": string, "title": string, "content": string }
@@ -3439,7 +3439,7 @@ SOW sections:
 - "2.0" Design Standards and References (ASTM B280 ACR copper tube; ASHRAE 2022 Refrigeration Handbook Chapter 1 velocity method; ASHRAE 90.1 insulation; PEC 2017 Article 4 branch circuit protection; PSME Code)
 - "3.0" Materials and Equipment (ASTM B280 ACR copper must be dehydrated and capped; ${refrig} refrigerant must have safety data sheet; insulation spec ASTM C534; filter drier and sight glass specs)
 - "4.0" Installation Requirements (OFN nitrogen purge brazing for all joints; oil traps at suction riser bases; suction line pitch toward compressor; insulate suction lines before pressure test; no bare copper in wet/outdoor areas)
-- "5.0" Testing and Commissioning (pressure test at 1.1x MAWP with dry nitrogen — 24-hour hold minimum; evacuation to 500 microns or below with vacuum pump before charging; refrigerant charge by weight per manufacturer; record charge weight on equipment tag)
+- "5.0" Testing and Commissioning (pressure test at 1.1x MAWP with dry nitrogen: 24-hour hold minimum; evacuation to 500 microns or below with vacuum pump before charging; refrigerant charge by weight per manufacturer; record charge weight on equipment tag)
 - "6.0" Submittals and Documentation (ASTM B280 material certificate; refrigerant SDS; pressure test chart and evacuation log; refrigerant weight-in record; as-built drawings showing all joints, routing, and insulation; O&M manual)
 
 Each content field must be a full professional paragraph starting with "The Contractor shall...". Reference specific standards and the system parameters (${refrig}, ${capKw}kW, ASTM B280).
@@ -3497,18 +3497,18 @@ Generate a JSON object with exactly two keys:
   { "description": string, "specification": string, "unit": string, "qty": number, "remarks": string }
 
 BOM items must cover:
-1. Fan Coil Units — ${mountType} type, ${pipeSys} coil configuration, per FCU schedule above — qty: ${totalUnits} units
-2. CHW Supply Piping — Black Steel SCH40, ${mainNps}mm NPS main, per ASTM A53 Grade B — qty: 1 lot
-3. CHW Return Piping — Black Steel SCH40, same sizing as supply — qty: 1 lot
-4. Chilled Water Valves — ball valves for isolation (supply + return per FCU) — qty: ${totalUnits * 2} pcs
-5. Pressure Independent Control Valves (PICV) — for CHW balancing, one per FCU — qty: ${totalUnits} pcs
-6. CHW Branch Piping — copper or Black Steel, sized per individual FCU flow — qty: 1 lot
-7. Pipe Insulation — closed-cell elastomeric foam 19mm thick, for all CHW piping (ASTM C534) — qty: 1 lot
-8. FCU Condensate Drain Piping — UPVC Schedule 40, 20mm minimum, sloped 1:100 to nearest drain — qty: 1 lot
-9. Pipe Hangers and Supports — clevis hangers with insulation shields, galvanized, per MSS SP-58 — qty: 1 lot
-10. FCU Controls — digital room thermostat with 2-position CHW valve actuator per FCU — qty: ${totalUnits} sets
-11. Flexible Connections — braided stainless steel, supply and return connection per FCU — qty: ${totalUnits * 2} pcs
-12. Air Vent and Drain Valves — automatic air vents at high points, manual drains at low points — qty: 1 lot
+1. Fan Coil Units: ${mountType} type, ${pipeSys} coil configuration, per FCU schedule above: qty: ${totalUnits} units
+2. CHW Supply Piping: Black Steel SCH40, ${mainNps}mm NPS main, per ASTM A53 Grade B: qty: 1 lot
+3. CHW Return Piping: Black Steel SCH40, same sizing as supply: qty: 1 lot
+4. Chilled Water Valves: ball valves for isolation (supply + return per FCU): qty: ${totalUnits * 2} pcs
+5. Pressure Independent Control Valves (PICV): for CHW balancing, one per FCU: qty: ${totalUnits} pcs
+6. CHW Branch Piping: copper or Black Steel, sized per individual FCU flow: qty: 1 lot
+7. Pipe Insulation: closed-cell elastomeric foam 19mm thick, for all CHW piping (ASTM C534): qty: 1 lot
+8. FCU Condensate Drain Piping: UPVC Schedule 40, 20mm minimum, sloped 1:100 to nearest drain: qty: 1 lot
+9. Pipe Hangers and Supports: clevis hangers with insulation shields, galvanized, per MSS SP-58: qty: 1 lot
+10. FCU Controls: digital room thermostat with 2-position CHW valve actuator per FCU: qty: ${totalUnits} sets
+11. Flexible Connections: braided stainless steel, supply and return connection per FCU: qty: ${totalUnits * 2} pcs
+12. Air Vent and Drain Valves: automatic air vents at high points, manual drains at low points: qty: 1 lot
 
 "sow_sections": array of 6 objects, each with:
   { "section_no": string, "title": string, "content": string }
@@ -3570,16 +3570,16 @@ Generate a JSON object with exactly two keys:
   { "description": string, "specification": string, "unit": string, "qty": number, "remarks": string }
 
 BOM items must cover:
-1. Bladder Expansion Tank — pre-pressurised, ASME VIII-listed, ${tankL}L, EPDM bladder, rated for ${pMax} kPa g MAWP — qty: 1 unit
-2. Tank Isolation Valve — full-bore ball valve, PN25, same pipe size as tank connection — qty: 1 pc
-3. Pressure Gauge — 0-${Math.round(Number(pMax) * 1.5)} kPa range, glycerin-filled, 100mm dial, 1/2 inch BSP connection — qty: 1 pc
-4. Tank Connection Pipe — Black Steel SCH40, ASTM A53 Grade B, sized to match tank port — qty: 1 lot
-5. Pipe Insulation (tank connection) — closed-cell elastomeric foam 19mm, ASTM C534 — qty: 1 lot
-6. System Fill / Make-up Water Connection — 1/2 inch make-up water solenoid valve with backflow preventer — qty: 1 set
-7. Pressure Relief Valve — set to ${pMax} kPa g, ASME-stamped, bronze body — qty: 1 pc
-8. Manual Drain Valve — 1/2 inch ball valve at tank drain port — qty: 1 pc
-9. Air Separator — magnetic, inline, to remove dissolved gases before they accumulate in tank — qty: 1 unit
-10. Pipe Hangers and Supports — per MSS SP-58, galvanised, for tank connection piping — qty: 1 lot
+1. Bladder Expansion Tank: pre-pressurised, ASME VIII-listed, ${tankL}L, EPDM bladder, rated for ${pMax} kPa g MAWP: qty: 1 unit
+2. Tank Isolation Valve: full-bore ball valve, PN25, same pipe size as tank connection: qty: 1 pc
+3. Pressure Gauge: 0-${Math.round(Number(pMax) * 1.5)} kPa range, glycerin-filled, 100mm dial, 1/2 inch BSP connection: qty: 1 pc
+4. Tank Connection Pipe: Black Steel SCH40, ASTM A53 Grade B, sized to match tank port: qty: 1 lot
+5. Pipe Insulation (tank connection): closed-cell elastomeric foam 19mm, ASTM C534: qty: 1 lot
+6. System Fill / Make-up Water Connection: 1/2 inch make-up water solenoid valve with backflow preventer: qty: 1 set
+7. Pressure Relief Valve: set to ${pMax} kPa g, ASME-stamped, bronze body: qty: 1 pc
+8. Manual Drain Valve: 1/2 inch ball valve at tank drain port: qty: 1 pc
+9. Air Separator: magnetic, inline, to remove dissolved gases before they accumulate in tank: qty: 1 unit
+10. Pipe Hangers and Supports: per MSS SP-58, galvanised, for tank connection piping: qty: 1 lot
 
 "sow_sections": array of 5 objects, each with:
   { "section_no": string, "title": string, "content": string }
@@ -3678,7 +3678,7 @@ ${driveType.includes('Chain') ? `Chain No.: ${chainNo}` : ''}
 Generate a JSON object with exactly two keys:
 
 "bom_items": array of 10 objects with { "description", "specification", "unit", "qty", "remarks" }
-Cover drive-specific items: For V-Belt — matched belt set (${section} × ${nBelts} belts), driver/driven sheaves, bushing, tension idler, belt guard. For Gear — pinion, gear, gearbox housing, coupling, oil seal, lubrication. For Chain — roller chain (No.${chainNo}), driver/driven sprockets, chain tensioner, chain guard, lubricator.
+Cover drive-specific items: For V-Belt: matched belt set (${section} × ${nBelts} belts), driver/driven sheaves, bushing, tension idler, belt guard. For Gear: pinion, gear, gearbox housing, coupling, oil seal, lubrication. For Chain: roller chain (No.${chainNo}), driver/driven sprockets, chain tensioner, chain guard, lubricator.
 Plus: mounting hardware, alignment tools, shaft couplings.
 
 "sow_sections": array of 5 objects with { "section_no", "title", "content" }
@@ -3712,7 +3712,7 @@ Project: ${project}
 Bearing type: ${bearingType} bearing, No. ${bearingNo}
 Dynamic load rating C: ${cRating} kN
 Speed: ${speedRPM} RPM
-L10 life: ${L10h} hours (${L10m} million revolutions) — ${adequate ? 'ADEQUATE' : 'INADEQUATE — upgrade required'}
+L10 life: ${L10h} hours (${L10m} million revolutions): ${adequate ? 'ADEQUATE' : 'INADEQUATE: upgrade required'}
 
 Generate a JSON object with exactly two keys:
 
@@ -3745,7 +3745,7 @@ async function boltTorqueBomSowAgent(
   const prompt = `You are a senior Mechanical Engineer in the Philippines preparing a BOM and SOW for a bolted joint assembly per ISO 898-1 and VDI 2230.
 
 Project: ${project}
-Bolt: ${boltSize} Grade ${grade} — ${nBolts} bolts per joint
+Bolt: ${boltSize} Grade ${grade}: ${nBolts} bolts per joint
 Tightening torque: ${torqueNm} N·m
 Preload: ${preloadkN} kN per bolt
 
@@ -3791,8 +3791,8 @@ DCR Moment: ${dcrM} (${momentOk ? 'PASS' : 'FAIL'}) | DCR Shear: ${dcrV} (${shea
 Generate a JSON object with exactly two keys:
 
 "bom_items": array of 10 objects with { "description", "specification", "unit", "qty", "remarks" }
-${isSteel ? `Cover: (1) Structural steel section ${section} ASTM ${grade}, (2) Connection plates/end plates A36, (3) Bolts ASTM A325/A490 for connections, (4) Welding electrodes E7018 (AWS D1.1), (5) Base plates (for columns), (6) Anchor bolts (for columns), (7) Fireproofing — intumescent paint or spray-on, (8) Primer — zinc-rich epoxy primer, (9) Topcoat paint — alkyd enamel 2 coats, (10) Grout (for base plates — non-shrink grout).` :
-`Cover: (1) Ready-mix concrete f'c ${results.fc_MPa}MPa (Class AA or as specified), (2) Deformed reinforcing bars ${inputs.bar_dia_mm}mm dia fy=${results.fy_MPa}MPa ASTM A615, (3) Stirrups/ties — ${results.stirrup_dia_mm || 10}mm dia, (4) Form lumber (for beam/column formwork), (5) Formwork plywood 19mm marine grade, (6) Form release agent, (7) Concrete cover spacers (${results.cover_mm || 40}mm plastic), (8) Concrete vibrator (mechanical, rental), (9) Curing compound (membrane type ASTM C309), (10) Concrete cylinder mold set for QC testing.`}
+${isSteel ? `Cover: (1) Structural steel section ${section} ASTM ${grade}, (2) Connection plates/end plates A36, (3) Bolts ASTM A325/A490 for connections, (4) Welding electrodes E7018 (AWS D1.1), (5) Base plates (for columns), (6) Anchor bolts (for columns), (7) Fireproofing: intumescent paint or spray-on, (8) Primer: zinc-rich epoxy primer, (9) Topcoat paint: alkyd enamel 2 coats, (10) Grout (for base plates: non-shrink grout).` :
+`Cover: (1) Ready-mix concrete f'c ${results.fc_MPa}MPa (Class AA or as specified), (2) Deformed reinforcing bars ${inputs.bar_dia_mm}mm dia fy=${results.fy_MPa}MPa ASTM A615, (3) Stirrups/ties: ${results.stirrup_dia_mm || 10}mm dia, (4) Form lumber (for beam/column formwork), (5) Formwork plywood 19mm marine grade, (6) Form release agent, (7) Concrete cover spacers (${results.cover_mm || 40}mm plastic), (8) Concrete vibrator (mechanical, rental), (9) Curing compound (membrane type ASTM C309), (10) Concrete cylinder mold set for QC testing.`}
 
 "sow_sections": array of 5 objects with { "section_no", "title", "content" }
 Sections: 1.0 Scope, 2.0 Standards (NSCP 2015 Vol.1, ${isSteel ? 'AISC 360-22, AWS D1.1, ASTM A36/A992' : 'ACI 318-19, ASTM A615, ACI 305R for hot weather concreting in Philippines'}), 3.0 Materials, 4.0 Construction (${isSteel ? 'shop fabrication, field bolting per AISC, weld inspection per AWS D1.1' : 'rebar placement, cover verification, concrete placement in lifts ≤1.5m, vibration, curing 7 days minimum'}), 5.0 Inspection and Testing (${isSteel ? 'visual weld inspection, high-strength bolt torque verification, plumb check ≤L/500' : 'concrete cylinder testing at 7 and 28 days, rebar placement inspection before pour, as-built rebar survey'}).
@@ -3826,7 +3826,7 @@ async function pressureVesselBomSowAgent(
   const prompt = `You are a senior Mechanical/Pressure Vessel Engineer in the Philippines preparing a BOM and SOW for a pressure vessel per ASME BPVC Section VIII Division 1 and DOLE OSHS.
 
 Project: ${project}
-Material: ${material} — Shell t = ${tShell}mm, Head t = ${tHead}mm
+Material: ${material}: Shell t = ${tShell}mm, Head t = ${tHead}mm
 ID = ${ID}mm, OD = ${OD}mm
 Design pressure: ${pDesign} bar | MAWP: ${mawp} bar | Hydro test: ${pTest} bar
 Nozzles: ${nozzles} × ${nozzDia}mm dia
@@ -3838,7 +3838,7 @@ Generate a JSON object with exactly two keys:
 Cover: (1) Shell plate ${material} ${tShell}mm thk (ASME SA-516), (2) Head plates ${material} ${tHead}mm (2:1 ellipsoidal or as specified), (3) Nozzle pipe ${nozzDia}mm × ${nozzles}pcs (SA-106 Gr.B), (4) Nozzle flanges ANSI Class 150 ${nozzDia}mm RF (ASTM A105), (5) Manhole assembly 450mm NB (if vessel volume >1m³), (6) Safety/Relief valve (set at MAWP = ${mawp} bar, ASME certified), (7) Pressure gauge 0–${Math.ceil(Number(mawp)*1.5*10)/10}bar 100mm glycerin-filled, (8) Drain valve 1" ball valve full-bore, (9) Nameplate (ASME U-stamp, stainless steel), (10) Saddle supports (2 sets, carbon steel, per Zick analysis), (11) Insulation (rock wool 75mm + cladding, if hot service), (12) Gaskets (spiral wound stainless/graphite for all flanged nozzles).
 
 "sow_sections": array of 6 objects with { "section_no", "title", "content" }
-Sections: 1.0 Scope (fabricate, test, and deliver pressure vessel per ASME VIII-1), 2.0 Standards (ASME BPVC Sec.VIII Div.1, ASME Sec.II Part D, ASME B16.5, DOLE OSHS PD 856, Philippine Boiler and Pressure Vessel Code), 3.0 Materials and Fabrication (mill certifications per ASME SA-516, weld procedure qualification per ASME IX, post-weld heat treatment per UCS-56 if required), 4.0 NDE and Inspection (radiographic testing per UW-11, AI witness of all pressure tests, ASME U-stamp inspection), 5.0 Hydrostatic Test (test at ${pTest} bar for 30 minutes minimum, ASME AI witness required, document hydro test report), 6.0 Regulatory Compliance (DOLE pressure vessel registration before first use — submit ASME U-1 data report, hydro test record, AI final inspection certificate to DOLE Regional Office).
+Sections: 1.0 Scope (fabricate, test, and deliver pressure vessel per ASME VIII-1), 2.0 Standards (ASME BPVC Sec.VIII Div.1, ASME Sec.II Part D, ASME B16.5, DOLE OSHS PD 856, Philippine Boiler and Pressure Vessel Code), 3.0 Materials and Fabrication (mill certifications per ASME SA-516, weld procedure qualification per ASME IX, post-weld heat treatment per UCS-56 if required), 4.0 NDE and Inspection (radiographic testing per UW-11, AI witness of all pressure tests, ASME U-stamp inspection), 5.0 Hydrostatic Test (test at ${pTest} bar for 30 minutes minimum, ASME AI witness required, document hydro test report), 6.0 Regulatory Compliance (DOLE pressure vessel registration before first use: submit ASME U-1 data report, hydro test record, AI final inspection certificate to DOLE Regional Office).
 
 Content fields must start "The Contractor shall..." and reference ASME BPVC. Return ONLY the JSON. No markdown.`;
 
@@ -3878,10 +3878,10 @@ Overall U (design): ${uDesign} W/m²·K
 Generate a JSON object with exactly two keys:
 
 "bom_items": array of 12 objects with { "description", "specification", "unit", "qty", "remarks" }
-Cover: (1) Shell (carbon steel SA-516 Gr.70, ID ${shellID}mm), (2) Tube bundle (${nTubes} tubes × ${tubeOD}mm OD ${tubeMat} ASTM A312/B111), (3) Tubesheets (${tubeMat} or CS clad, ASME Code), (4) Baffles (25% cut, 304SS), (5) Channel and channel cover (CS), (6) Pass partition plates, (7) Tie rods and spacers, (8) ANSI flanges (inlet/outlet nozzles both sides), (9) Gaskets (spiral wound 316SS/graphite), (10) Support saddles (2 sets, CS), (11) Thermometer wells (inlet/outlet each stream), (12) Pressure gauges (0–${Math.ceil(Number(inputs.design_pressure_bar || 10)*2)}bar, 4 total — inlet/outlet each stream).
+Cover: (1) Shell (carbon steel SA-516 Gr.70, ID ${shellID}mm), (2) Tube bundle (${nTubes} tubes × ${tubeOD}mm OD ${tubeMat} ASTM A312/B111), (3) Tubesheets (${tubeMat} or CS clad, ASME Code), (4) Baffles (25% cut, 304SS), (5) Channel and channel cover (CS), (6) Pass partition plates, (7) Tie rods and spacers, (8) ANSI flanges (inlet/outlet nozzles both sides), (9) Gaskets (spiral wound 316SS/graphite), (10) Support saddles (2 sets, CS), (11) Thermometer wells (inlet/outlet each stream), (12) Pressure gauges (0–${Math.ceil(Number(inputs.design_pressure_bar || 10)*2)}bar, 4 total: inlet/outlet each stream).
 
 "sow_sections": array of 6 objects with { "section_no", "title", "content" }
-Sections: 1.0 Scope (supply, install, and commission ${dutyKW}kW shell-and-tube HX per TEMA Class ${temaClass}), 2.0 Standards (TEMA 10th Ed., ASME BPVC Sec.VIII Div.1, ASME B31.3 for piping, ASME Sec.IX for welding), 3.0 Design and Fabrication (TEMA Class ${temaClass} tolerances, tube-to-tubesheet joint per TEMA §RCB-7, hydro test per UG-99), 4.0 Installation (pipe supports within 300mm of nozzles, flow direction per nameplate, expansion loop on hot side piping, insulation of hot surfaces), 5.0 Hydrostatic Testing (shell-side and tube-side tested separately at 1.3×MAWP per UG-99, AI witness required for ASME stamp), 6.0 Commissioning (flush piping before HX connection, verify flow rates per design, monitor fouling factor — clean when U drops 20% below design U=${uDesign}W/m²·K).
+Sections: 1.0 Scope (supply, install, and commission ${dutyKW}kW shell-and-tube HX per TEMA Class ${temaClass}), 2.0 Standards (TEMA 10th Ed., ASME BPVC Sec.VIII Div.1, ASME B31.3 for piping, ASME Sec.IX for welding), 3.0 Design and Fabrication (TEMA Class ${temaClass} tolerances, tube-to-tubesheet joint per TEMA §RCB-7, hydro test per UG-99), 4.0 Installation (pipe supports within 300mm of nozzles, flow direction per nameplate, expansion loop on hot side piping, insulation of hot surfaces), 5.0 Hydrostatic Testing (shell-side and tube-side tested separately at 1.3×MAWP per UG-99, AI witness required for ASME stamp), 6.0 Commissioning (flush piping before HX connection, verify flow rates per design, monitor fouling factor: clean when U drops 20% below design U=${uDesign}W/m²·K).
 
 Content fields must start "The Contractor shall..." Return ONLY the JSON. No markdown.`;
 
@@ -3911,16 +3911,16 @@ async function vibrationAnalysisBomSowAgent(
 
 Project: ${project}
 Machine class: ${machClass}
-Assessed vibration: ${vRms} mm/s RMS — ${isoZone}
+Assessed vibration: ${vRms} mm/s RMS: ${isoZone}
 Natural frequency fn: ${fnHz} Hz
-Isolator: ${isolType} | Transmissibility TR: ${TR} (${isolOk ? 'Isolation effective' : 'WARN — amplifying'})
-Resonance risk: ${resRisk ? 'YES — within ±10% of fn' : 'No'}
+Isolator: ${isolType} | Transmissibility TR: ${TR} (${isolOk ? 'Isolation effective' : 'WARN: amplifying'})
+Resonance risk: ${resRisk ? 'YES: within ±10% of fn' : 'No'}
 Balancing grade: ${gGrade}
 
 Generate a JSON object with exactly two keys:
 
 "bom_items": array of 10 objects with { "description", "specification", "unit", "qty", "remarks" }
-Cover: (1) Vibration isolators (${isolType}, rated load ≥ machine mass/4, per ISO 10816), (2) Inertia base frame (concrete-filled steel frame, mass ≥ 3× machine mass), (3) Vibration transducers (accelerometer, 100mV/g, 4–20mA output), (4) Vibration monitoring transmitter (continuous 4–20mA to DCS/SCADA), (5) Dynamic balancing (field balancing kit — trial weights, phase reference, software), (6) Anti-vibration pads (neoprene cork sandwich, 50mm thk), (7) Flexible pipe connectors (EPDM bellows, rated for operating pressure), (8) Flexible electrical conduit (for instrumentation cables), (9) Anchor bolts with vibration-resistant washers, (10) Vibration data collector and analyzer (portable, ISO 10816-3 assessment built-in).
+Cover: (1) Vibration isolators (${isolType}, rated load ≥ machine mass/4, per ISO 10816), (2) Inertia base frame (concrete-filled steel frame, mass ≥ 3× machine mass), (3) Vibration transducers (accelerometer, 100mV/g, 4–20mA output), (4) Vibration monitoring transmitter (continuous 4–20mA to DCS/SCADA), (5) Dynamic balancing (field balancing kit: trial weights, phase reference, software), (6) Anti-vibration pads (neoprene cork sandwich, 50mm thk), (7) Flexible pipe connectors (EPDM bellows, rated for operating pressure), (8) Flexible electrical conduit (for instrumentation cables), (9) Anchor bolts with vibration-resistant washers, (10) Vibration data collector and analyzer (portable, ISO 10816-3 assessment built-in).
 
 "sow_sections": array of 5 objects with { "section_no", "title", "content" }
 Sections: 1.0 Scope (install vibration isolation and monitoring for ${machClass} machine achieving ${isoZone} per ISO 10816-3), 2.0 Standards (ISO 10816-3, ISO 20816-1, ISO 21940-11 balancing, ISO 5348 transducer mounting), 3.0 Isolation System Installation (inertia base sizing, isolator selection and placement, torque isolator mounting bolts to manufacturer specification), 4.0 Balancing and Alignment (field dynamic balance to ${gGrade} per ISO 21940-11, shaft alignment ≤0.05mm TIR angular and parallel, baseline vibration measurement after commissioning), 5.0 Monitoring and Acceptance (continuous monitoring wired to plant DCS, alert at Zone B/C boundary, shutdown at Zone D, documented baseline per ISO 10816-3).
@@ -3960,7 +3960,7 @@ Pressure line pipe: ${pLineOD}mm OD
 Generate a JSON object with exactly two keys:
 
 "bom_items": array of 14 objects with { "description", "specification", "unit", "qty", "remarks" }
-Cover: (1) Hydraulic power unit (HPU) — axial piston pump ${pumpDispl}cm³/rev mounted on reservoir, (2) Electric motor ${motorKW}kW IP55 TEFC, (3) Hydraulic reservoir (steel, capacity ≥ 3× Q_lpm = ${Math.ceil(Number(qLpm)*3)}L, with breather filter and sight glass), (4) Hydraulic cylinder — bore ${boreMM}mm double-acting, (5) Directional control valve (solenoid-operated 4/3 spring-centered, 24VDC, ${pBar}bar rated), (6) Pressure relief valve (set at ${pBar}bar, cartridge type), (7) Pressure reducing valve (for lower-pressure circuits), (8) Bladder accumulator ${accVol}L ${pBar}bar rated — ISO 4413, (9) Return line filter (10-micron absolute, visual indicator), (10) Suction strainer (150-micron, full-flow), (11) High-pressure hose assemblies ${pLineOD}mm OD, (12) Hydraulic fittings — parker or equivalent, JIC 37°, (13) Hydraulic oil ${fluid} — initial fill (capacity: ${Math.ceil(Number(qLpm)*3)} L), (14) Pressure gauges (0–${Math.ceil(Number(pBar)*1.25/10)*10}bar, glycerin-filled, 100mm) — 3 pcs.
+Cover: (1) Hydraulic power unit (HPU): axial piston pump ${pumpDispl}cm³/rev mounted on reservoir, (2) Electric motor ${motorKW}kW IP55 TEFC, (3) Hydraulic reservoir (steel, capacity ≥ 3× Q_lpm = ${Math.ceil(Number(qLpm)*3)}L, with breather filter and sight glass), (4) Hydraulic cylinder: bore ${boreMM}mm double-acting, (5) Directional control valve (solenoid-operated 4/3 spring-centered, 24VDC, ${pBar}bar rated), (6) Pressure relief valve (set at ${pBar}bar, cartridge type), (7) Pressure reducing valve (for lower-pressure circuits), (8) Bladder accumulator ${accVol}L ${pBar}bar rated: ISO 4413, (9) Return line filter (10-micron absolute, visual indicator), (10) Suction strainer (150-micron, full-flow), (11) High-pressure hose assemblies ${pLineOD}mm OD, (12) Hydraulic fittings: parker or equivalent, JIC 37°, (13) Hydraulic oil ${fluid}: initial fill (capacity: ${Math.ceil(Number(qLpm)*3)} L), (14) Pressure gauges (0–${Math.ceil(Number(pBar)*1.25/10)*10}bar, glycerin-filled, 100mm): 3 pcs.
 
 "sow_sections": array of 5 objects with { "section_no", "title", "content" }
 Sections: 1.0 Scope, 2.0 Standards (ISO 4413:2010, NFPA T2.12.10, ISO 10767-1 noise, ISO 4406 contamination cleanliness, PSME Code), 3.0 Design and Procurement (all components rated ≥${pBar}bar, hydraulic hoses per SAE J517, cylinder cushioning at both ends for ${boreMM}mm bore), 4.0 Installation (reservoir on anti-vibration mounts, all piping flushed to ISO 4406 class 17/15/12 before cylinder connection, pressure-test at 1.5×${pBar}bar for 30min), 5.0 Testing and Commissioning (full-stroke test 10 cycles, pressure-hold test, measure cycle time, oil temperature steady-state <60°C, noise check per ISO 4413 §7.3).
@@ -3995,16 +3995,16 @@ Project: ${project}
 Assessment mode: ${calcMode}
 Source Lw: ${lwDb} dB | Lp at receiver: ${lpDb} dB
 Space type: ${spaceType} | NC limit: NC ${ncLimit}
-${calcMode === 'Dose' ? `TWA: ${twa} dBA — ${limitExc ? 'EXCEEDS LIMIT' : 'Within limit'}` : ''}
+${calcMode === 'Dose' ? `TWA: ${twa} dBA: ${limitExc ? 'EXCEEDS LIMIT' : 'Within limit'}` : ''}
 ${calcMode === 'Barrier' ? `Barrier insertion loss: ${barrierIL} dB` : ''}
 
 Generate a JSON object with exactly two keys:
 
 "bom_items": array of 10 objects with { "description", "specification", "unit", "qty", "remarks" }
-Cover: (1) Sound level meter (IEC 61672-1 Class 1, A/C weighting, octave band), (2) Real-time octave band analyzer (ISO 266 centre frequencies), (3) Noise dosimeter (personal, OSHA/DOLE compliant, 5dB exchange rate), (4) Acoustic enclosure panels (50mm mineral wool + perforated steel facing, NRC≥0.90), (5) Acoustic barrier (concrete block or mass-loaded vinyl, STC≥35), (6) Anti-vibration mounts for noise source isolation, (7) Duct silencers / sound attenuators (for HVAC breakout noise), (8) Acoustic door seals and thresholds (for treatment rooms), (9) Hearing protection — earmuffs (NRR≥25dB) + foam earplugs (NRR≥33dB), (10) Acoustic absorption panels — ceiling and wall treatment (50mm fibreglass, 600×600mm).
+Cover: (1) Sound level meter (IEC 61672-1 Class 1, A/C weighting, octave band), (2) Real-time octave band analyzer (ISO 266 centre frequencies), (3) Noise dosimeter (personal, OSHA/DOLE compliant, 5dB exchange rate), (4) Acoustic enclosure panels (50mm mineral wool + perforated steel facing, NRC≥0.90), (5) Acoustic barrier (concrete block or mass-loaded vinyl, STC≥35), (6) Anti-vibration mounts for noise source isolation, (7) Duct silencers / sound attenuators (for HVAC breakout noise), (8) Acoustic door seals and thresholds (for treatment rooms), (9) Hearing protection: earmuffs (NRR≥25dB) + foam earplugs (NRR≥33dB), (10) Acoustic absorption panels: ceiling and wall treatment (50mm fibreglass, 600×600mm).
 
 "sow_sections": array of 5 objects with { "section_no", "title", "content" }
-Sections: 1.0 Scope (baseline noise survey, identify control measures, achieve NC ${ncLimit} in ${spaceType} per DOLE D.O. 13), 2.0 Standards (ISO 9613-2, ISO 3745, IEC 61672-1, OSHA 29 CFR 1910.95, DOLE D.O. 13 Series 1998, ASHRAE 2019 Ch.8), 3.0 Baseline Survey (measure Lp at all occupied positions, record octave bands, determine NC rating per ASHRAE, document exceeded limits), 4.0 Noise Control Measures (engineering controls first — enclosures, barriers, vibration isolation; administrative controls — work rotation; PPE as last resort per DOLE D.O. 13 §7), 5.0 Verification and Monitoring (re-measure after control implementation, confirm NC ${ncLimit} achieved, repeat noise dosimetry annually per DOLE D.O. 13 §14, maintain audiometric testing records for all exposed workers).
+Sections: 1.0 Scope (baseline noise survey, identify control measures, achieve NC ${ncLimit} in ${spaceType} per DOLE D.O. 13), 2.0 Standards (ISO 9613-2, ISO 3745, IEC 61672-1, OSHA 29 CFR 1910.95, DOLE D.O. 13 Series 1998, ASHRAE 2019 Ch.8), 3.0 Baseline Survey (measure Lp at all occupied positions, record octave bands, determine NC rating per ASHRAE, document exceeded limits), 4.0 Noise Control Measures (engineering controls first: enclosures, barriers, vibration isolation; administrative controls: work rotation; PPE as last resort per DOLE D.O. 13 §7), 5.0 Verification and Monitoring (re-measure after control implementation, confirm NC ${ncLimit} achieved, repeat noise dosimetry annually per DOLE D.O. 13 §14, maintain audiometric testing records for all exposed workers).
 
 Content fields must start "The Contractor shall..." Reference DOLE D.O. 13. Return ONLY the JSON. No markdown.`;
 
@@ -4042,7 +4042,7 @@ serve(async (req) => {
 
     let result: { bom_items: unknown[]; sow_sections: unknown[] };
 
-    // Discipline router — add branches here for Pump Sizing, Electrical, etc.
+    // Discipline router: add branches here for Pump Sizing, Electrical, etc.
     if (discipline === "Mechanical" && calc_type === "HVAC Cooling Load") {
       result = await hvacBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Mechanical" && calc_type === "Ventilation / ACH") {

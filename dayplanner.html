@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Maintenance Day Planner — WorkHive</title>
+  <title>Maintenance Day Planner: WorkHive</title>
   <meta name="description" content="Plan your maintenance shift with DILO, WILO, MILO, and YILO views. Schedule tasks, track open items, and stay on top of your workday with WorkHive." />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://workhiveph.com/dayplanner.html" />
@@ -83,7 +83,7 @@
     .calendar-wrap::-webkit-scrollbar-track { background: transparent; }
     .calendar-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
 
-    /* DILO — day timeline */
+    /* DILO: day timeline */
     .dilo-grid { display: grid; grid-template-columns: 56px 1fr; gap: 0; }
     .time-label { font-size: 0.7rem; color: rgba(255,255,255,0.3); text-align: right; padding-right: 0.75rem; line-height: 1; padding-top: 2px; }
     .time-slot { border-top: 1px solid rgba(255,255,255,0.04); min-height: 56px; position: relative; cursor: pointer; transition: background 0.15s; }
@@ -92,7 +92,7 @@
     .sched-block { position: absolute; left: 4px; right: 4px; border-radius: 0.5rem; padding: 0.25rem 0.5rem; font-size: 0.7rem; font-weight: 600; cursor: pointer; overflow: hidden; z-index: 2; }
     .sched-block:hover { filter: brightness(1.15); }
 
-    /* WILO — week grid */
+    /* WILO: week grid */
     .wilo-grid { display: grid; grid-template-columns: 52px repeat(7, 1fr); gap: 0; }
     .wilo-day-header { text-align: center; padding: 0.5rem 0.25rem; font-size: 0.75rem; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.07); position: sticky; top: 0; background: rgba(22,32,50,0.95); z-index: 3; }
     .wilo-day-header.today { color: #F7A21B; }
@@ -102,7 +102,7 @@
     .wilo-block { margin: 2px; border-radius: 0.375rem; padding: 0.2rem 0.375rem; font-size: 0.65rem; font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer; }
     .wilo-block:hover { filter: brightness(1.15); }
 
-    /* MILO — month grid */
+    /* MILO: month grid */
     .milo-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
     .milo-day-name { text-align: center; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.4); }
     .milo-cell { background: linear-gradient(145deg, rgba(42,61,88,0.3) 0%, rgba(31,46,69,0.4) 100%); border: 1px solid rgba(255,255,255,0.05); border-radius: 0.5rem; min-height: 80px; padding: 0.375rem; cursor: pointer; transition: all 0.15s; position: relative; }
@@ -113,7 +113,7 @@
     .milo-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin: 1px; }
     .milo-more { font-size: 0.6rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
 
-    /* YILO — year grid */
+    /* YILO: year grid */
     .yilo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
     .yilo-month { background: linear-gradient(145deg, rgba(42,61,88,0.3) 0%, rgba(31,46,69,0.4) 100%); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.75rem; padding: 0.75rem; }
     .yilo-month-name { font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem; color: rgba(255,255,255,0.7); }
@@ -209,7 +209,7 @@
     <!-- Top bar -->
     <div class="top-bar">
       <!-- Visually hidden H1 for SEO -->
-      <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Maintenance Day Planner — WorkHive</h1>
+      <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Maintenance Day Planner: WorkHive</h1>
       <!-- Back + Logo -->
       <a href="index.html" class="btn-icon" title="Back to WorkHive">
         <svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
@@ -375,7 +375,7 @@ const schedCatColors = {
 function getSchedColor(cat) { return schedCatColors[cat] || schedCatColors.Other; }
 
 // ─────────────────────────────────────────────
-// ITEM STATUS — upcoming / done / missed
+// ITEM STATUS: upcoming / done / missed
 // ─────────────────────────────────────────────
 // Returns the effective status of a schedule item
 function getItemStatus(item) {
@@ -689,7 +689,7 @@ function render() {
 }
 
 // ─────────────────────────────────────────────
-// DILO — Day In the Life Of
+// DILO: Day In the Life Of
 // ─────────────────────────────────────────────
 // Convert "HH:MM" to total minutes from midnight
 function timeToMins(t) {
@@ -834,7 +834,7 @@ function renderDILO() {
     </div>`;
   }
 
-  // Schedule blocks — absolute positioned, properly spanning duration
+  // Schedule blocks: absolute positioned, properly spanning duration
   layouts.forEach(({ item, start, end, col, totalCols }) => {
     if (start === null) return;
     const top = Math.round(start / 60 * SLOT_H) + 2;
@@ -889,7 +889,7 @@ function renderDILO() {
 }
 
 // ─────────────────────────────────────────────
-// WILO — Week In the Life Of
+// WILO: Week In the Life Of
 // ─────────────────────────────────────────────
 function renderWILO() {
   // Find Monday of current week
@@ -1006,7 +1006,7 @@ function renderWILO() {
 }
 
 // ─────────────────────────────────────────────
-// MILO — Month In the Life Of
+// MILO: Month In the Life Of
 // ─────────────────────────────────────────────
 function renderMILO() {
   const y = currentDate.getFullYear(), m = currentDate.getMonth();
@@ -1078,7 +1078,7 @@ function onMiloClick(ymd) {
 }
 
 // ─────────────────────────────────────────────
-// YILO — Year In the Life Of
+// YILO: Year In the Life Of
 // ─────────────────────────────────────────────
 function renderYILO() {
   const y = currentDate.getFullYear();
@@ -1140,7 +1140,7 @@ function onYiloDayClick(ymd) {
 }
 
 // ─────────────────────────────────────────────
-// SLOT CLICK — schedule selected logbook item or open modal
+// SLOT CLICK: schedule selected logbook item or open modal
 // ─────────────────────────────────────────────
 function onSlotClick(date, time) {
   if (selectedLogbookItem) {
@@ -1278,16 +1278,16 @@ document.addEventListener('keydown', e => {
 });
 
 // ─────────────────────────────────────────────
-// INIT — runs after supabase-js CDN loads (see script block below)
+// INIT: runs after supabase-js CDN loads (see script block below)
 // ─────────────────────────────────────────────
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="utils.js"></script>
 <script>
-  // supabase-js is now loaded — safe to init
+  // supabase-js is now loaded: safe to init
   var db = supabase.createClient(
     'https://hzyvnjtisfgbksicrouu.supabase.co',
-    'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ' // anon/publishable key — safe to expose in frontend
+    'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ' // anon/publishable key: safe to expose in frontend
   );
   Promise.all([loadLogbook(), loadSchedule()]);
 </script>
