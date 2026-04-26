@@ -162,14 +162,13 @@ def _spur_gear(module_mm: float, N_pinion: int, N_gear: int,
 
 def _vbelt(power_kW: float, n_driver_rpm: float, n_driven_rpm: float,
            centre_dist_mm: float, section: str = "B (17)",
-           service_factor: float = 1.2) -> dict:
+           service_factor: float = 1.2, d_driver_mm: float = 150) -> dict:
     """V-belt drive design per RMA IP-20 / Shigley's Ch.17."""
     bd   = VBELT_SECTIONS.get(section, VBELT_SECTIONS["B (17)"])
     ratio = n_driver_rpm / n_driven_rpm if n_driven_rpm > 0 else 1.0
 
-    # Standard sheave diameters: smaller (driver) and larger (driven)
-    # Use speed ratio to compute driven diameter from driver
-    d_small_mm = float(150)   # default driver pitch diameter
+    # Sheave diameters: driver from inputs, driven computed from speed ratio
+    d_small_mm = d_driver_mm
     d_large_mm = d_small_mm * ratio
     C_mm       = centre_dist_mm
 
@@ -277,8 +276,8 @@ def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcGearBeltDrive() keys."""
     drive_type    = str  (inputs.get("drive_type",    "Spur Gear"))   # Spur Gear / V-Belt / Chain
     power_kW      = float(inputs.get("power_kW",     10.0))
-    n_driver_rpm  = float(inputs.get("n_driver_rpm", 1450))
-    n_driven_rpm  = float(inputs.get("n_driven_rpm",  725))
+    n_driver_rpm  = float(inputs.get("n_driver_rpm", inputs.get("driver_rpm", 1450)))
+    n_driven_rpm  = float(inputs.get("n_driven_rpm", inputs.get("driven_rpm",  725)))
     service_factor = float(inputs.get("service_factor", 1.25))
 
     results: dict = {"drive_type": drive_type}
@@ -304,10 +303,13 @@ def calculate(inputs: dict) -> dict:
         results["gear_material"]   = mat_g_key
 
     elif drive_type == "V-Belt":
-        section      = str  (inputs.get("belt_section",    "B (17)"))
-        centre_mm    = float(inputs.get("centre_distance_mm", 500))
+        raw_section  = str  (inputs.get("belt_section", "B (17)"))
+        SECTION_MAP  = {'A': 'A (13)', 'B': 'B (17)', 'C': 'C (22)', 'D': 'D (32)'}
+        section      = SECTION_MAP.get(raw_section, raw_section)
+        centre_mm    = float(inputs.get("centre_distance_mm", inputs.get("center_dist_mm", 500)))
+        d_driver_mm  = float(inputs.get("driver_dia_mm", 150))
         belt_res = _vbelt(power_kW, n_driver_rpm, n_driven_rpm,
-                          centre_mm, section, service_factor)
+                          centre_mm, section, service_factor, d_driver_mm)
         results.update(belt_res)
 
     else:  # Chain
