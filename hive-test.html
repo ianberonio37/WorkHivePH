@@ -366,6 +366,9 @@
     .ho-section:last-child { border-bottom: none; }
     .ho-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.5rem; }
     .ho-item { font-size: 0.78rem; color: rgba(255,255,255,0.65); padding: 3px 0; display: flex; align-items: baseline; gap: 6px; }
+    .ho-input { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.6rem; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); font-size: 0.8rem; font-family: inherit; outline: none; box-sizing: border-box; margin-bottom: 0.6rem; }
+    .ho-input::placeholder { color: rgba(255,255,255,0.25); }
+    .ho-input:focus { border-color: rgba(41,182,217,0.4); background: rgba(41,182,217,0.06); }
 
     /* Live pulse dot */
     @keyframes live-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
@@ -733,15 +736,18 @@
         <div class="sheet-inner w-full max-w-lg mx-auto">
           <div class="px-5 pt-5 pb-4 flex items-center justify-between" style="border-bottom:1px solid rgba(255,255,255,0.07);">
             <div>
-              <p class="font-black text-white text-base">Shift Handover Report</p>
+              <p class="font-black text-white text-base" id="ho-title">Shift Handover Report</p>
               <p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.35);" id="ho-meta"></p>
             </div>
             <button onclick="document.getElementById('handover-sheet').classList.add('hidden')" class="w-8 h-8 rounded-full flex items-center justify-center" style="background:rgba(255,255,255,0.08);border:none;cursor:pointer;color:rgba(255,255,255,0.5);">✕</button>
           </div>
           <div id="handover-body"></div>
-          <div class="p-4 flex gap-3" style="border-top:1px solid rgba(255,255,255,0.07);">
-            <button onclick="copyHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);">📋 Copy</button>
-            <button onclick="printHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:#29B6D9;">🖨️ Print</button>
+          <div class="p-4" style="border-top:1px solid rgba(255,255,255,0.07);">
+            <input id="ho-handover-to" type="text" class="ho-input" placeholder="Handover to… (incoming technician name)" />
+            <div class="flex gap-3">
+              <button onclick="copyHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);">📋 Copy</button>
+              <button onclick="printHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:#29B6D9;">🖨️ Print</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1917,6 +1923,8 @@ function applyOverdueUrgency(count) {
 
 let _analyticsRange = 'week';
 let _analyticsData  = [];
+let _hoTitle        = 'Shift Handover Report';
+let _hoKpi          = '';
 
 /* ── Calendar period helper — always returns exact calendar boundaries ── */
 function getAnalyticsPeriod() {
@@ -2116,18 +2124,35 @@ function renderCategoryChips() {
 
 /* 5 · Shift Handover Report */
 function generateHandover() {
-  const sheet = document.getElementById('handover-sheet');
-  const body  = document.getElementById('handover-body');
-  const meta  = document.getElementById('ho-meta');
+  const sheet   = document.getElementById('handover-sheet');
+  const body    = document.getElementById('handover-body');
+  const meta    = document.getElementById('ho-meta');
+  const titleEl = document.getElementById('ho-title');
 
-  const now    = new Date();
-  const since8h = new Date(now - 8 * 3600000); // last 8 hours = this shift
+  const now     = new Date();
+  const since8h = new Date(now - 8 * 3600000);
 
-  const all       = _feedEntries.filter(e => e._type !== 'pm');
-  const thisShift = all.filter(e => new Date(e.created_at || e.date) >= since8h);
-  const completed = thisShift.filter(e => e.status === 'Closed');
-  const stillOpen = all.filter(e => e.status === 'Open');
-  const overdue   = stillOpen.filter(e => (now - new Date(e.created_at || e.date)) > 3 * 86400000);
+  // a) Report title by period
+  _hoTitle = _analyticsRange === 'today'
+    ? 'Shift Handover Report'
+    : _analyticsRange === 'week' ? 'Weekly Maintenance Summary'
+    : 'Monthly Maintenance Summary';
+  if (titleEl) titleEl.textContent = _hoTitle;
+
+  const all = _feedEntries.filter(e => e._type !== 'pm');
+
+  // Completed this shift (closed within last 8 hours)
+  const completed = all.filter(e => e.status === 'Closed' && new Date(e.created_at || e.date) >= since8h);
+
+  // Open jobs — split into opened this shift vs carry-forward (c)
+  const stillOpen     = all.filter(e => e.status === 'Open');
+  const openThisShift = stillOpen.filter(e => new Date(e.created_at || e.date) >= since8h);
+  const carryForward  = stillOpen.filter(e => new Date(e.created_at || e.date) < since8h);
+  const overdue       = stillOpen.filter(e => (now - new Date(e.created_at || e.date)) > 3 * 86400000);
+
+  // d) LOTO / active isolation detection
+  const lotoRx   = /loto|lock.?out|tag.?out|isolat|permit.?to.?work|\bptw\b/i;
+  const lotoJobs = stillOpen.filter(e => lotoRx.test(e.problem || '') || lotoRx.test(e.category || ''));
 
   // Watch list: assets with 3+ jobs in the analytics period
   const assetCounts = {};
@@ -2144,6 +2169,7 @@ function generateHandover() {
   });
   const catEntries = Object.entries(catCounts).sort((a, b) => b[1] - a[1]).slice(0, 6);
 
+  // Period label
   const { start: pStart, end: pEnd } = getAnalyticsPeriod();
   const fmt = d => d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
   const periodLabel = _analyticsRange === 'today'
@@ -2152,29 +2178,66 @@ function generateHandover() {
   meta.textContent = now.toLocaleDateString('en-PH', { weekday: 'long', month: 'short', day: 'numeric' })
     + ' · ' + periodLabel + ' · Generated by ' + WORKER_NAME;
 
+  // f) KPI stamp
+  const total    = _analyticsData.length;
+  const plannedN = _analyticsData.filter(e => {
+    const c = (e.category || '').toLowerCase();
+    const m = (e.maintenance_type || '').toLowerCase();
+    return c.includes('pm') || c.includes('preventive') || c.includes('planned')
+        || m.includes('pm') || m.includes('preventive') || m.includes('planned');
+  }).length;
+  const plannedPct = total ? Math.round(plannedN / total * 100) : 0;
+  _hoKpi = `${total} job${total !== 1 ? 's' : ''} · Planned ${plannedPct}% · Reactive ${100 - plannedPct}% · ${overdue.length} overdue`;
+
   let html = '';
 
-  // Completed
+  // f) KPI bar
+  html += `<div class="ho-section">
+    <p class="ho-label" style="color:rgba(255,255,255,0.3);">📊 ${periodLabel} Snapshot</p>
+    <p style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin:0;">${escHtml(_hoKpi)}</p>
+  </div>`;
+
+  // d) LOTO warning — prominent, at the top if present
+  if (lotoJobs.length) {
+    html += `<div class="ho-section" style="border-left:3px solid #ef4444;padding-left:0.75rem;background:rgba(239,68,68,0.07);border-bottom:1px solid rgba(239,68,68,0.18);">
+      <p class="ho-label" style="color:#ef4444;">⚠️ Active Isolations / LOTO (${lotoJobs.length})</p>
+      ${lotoJobs.map(e =>
+        `<div class="ho-item"><span style="color:#ef4444;flex-shrink:0;">🔒</span><span><strong style="color:#fff;">${escHtml(e.machine || '—')}</strong>${e.problem ? ' — ' + escHtml(e.problem.slice(0, 60)) : ''}</span></div>`
+      ).join('')}
+    </div>`;
+  }
+
+  // Completed this shift
   html += `<div class="ho-section">
     <p class="ho-label" style="color:#4ade80;">✅ Completed This Shift (${completed.length})</p>
     ${completed.length ? completed.slice(0, 8).map(e =>
-      `<div class="ho-item"><span style="color:#4ade80;flex-shrink:0;">✓</span><span>${escHtml(e.machine || '—')}${e.worker_name ? ' · <em style="color:rgba(255,255,255,0.35);">' + escHtml(e.worker_name) + '</em>' : ''}</span></div>`
+      `<div class="ho-item"><span style="color:#4ade80;flex-shrink:0;">✓</span><span>${escHtml(e.machine || '—')}${e.worker_name ? ' · <em class="ho-dim">' + escHtml(e.worker_name) + '</em>' : ''}</span></div>`
     ).join('') : '<p class="text-xs" style="color:rgba(255,255,255,0.3);">Nothing closed this shift.</p>'}
   </div>`;
 
-  // Still open
+  // c) Opened this shift
   html += `<div class="ho-section">
-    <p class="ho-label" style="color:#f87171;">🔴 Still Open (${stillOpen.length})${overdue.length ? ' · ' + overdue.length + ' overdue' : ''}</p>
-    ${stillOpen.length ? stillOpen.slice(0, 8).map(e => {
-      const isOD = (now - new Date(e.created_at || e.date)) > 3 * 86400000;
-      return `<div class="ho-item"><span style="color:${isOD ? '#ef4444' : '#F7A21B'};flex-shrink:0;">${isOD ? '⚠️' : '•'}</span><span>${escHtml(e.machine || '—')}${e.problem ? ' — <em style="color:rgba(255,255,255,0.35);">' + escHtml(e.problem.slice(0, 50)) + '</em>' : ''}</span></div>`;
-    }).join('') : '<p class="text-xs" style="color:rgba(255,255,255,0.3);">No open jobs.</p>'}
+    <p class="ho-label" style="color:#f87171;">🔴 Opened This Shift (${openThisShift.length})</p>
+    ${openThisShift.length ? openThisShift.slice(0, 6).map(e =>
+      `<div class="ho-item"><span style="color:#F7A21B;flex-shrink:0;">•</span><span>${escHtml(e.machine || '—')}${e.problem ? ' — <em class="ho-dim">' + escHtml(e.problem.slice(0, 50)) + '</em>' : ''}</span></div>`
+    ).join('') : '<p class="text-xs" style="color:rgba(255,255,255,0.3);">No new jobs this shift.</p>'}
   </div>`;
+
+  // c) Carry-forward from previous shifts
+  if (carryForward.length) {
+    html += `<div class="ho-section">
+      <p class="ho-label" style="color:#f87171;">🔁 Carry-Forward — Previous Shifts (${carryForward.length})${overdue.length ? ' · ' + overdue.length + ' overdue' : ''}</p>
+      ${carryForward.slice(0, 8).map(e => {
+        const isOD = (now - new Date(e.created_at || e.date)) > 3 * 86400000;
+        return `<div class="ho-item"><span style="color:${isOD ? '#ef4444' : '#F7A21B'};flex-shrink:0;">${isOD ? '⚠️' : '•'}</span><span>${escHtml(e.machine || '—')}${e.problem ? ' — <em class="ho-dim">' + escHtml(e.problem.slice(0, 50)) + '</em>' : ''}</span></div>`;
+      }).join('')}
+    </div>`;
+  }
 
   // Category breakdown
   if (catEntries.length) {
     html += `<div class="ho-section">
-      <p class="ho-label" style="color:#29B6D9;">📊 Job Categories — ${periodLabel}</p>
+      <p class="ho-label" style="color:#29B6D9;">📋 Job Categories — ${periodLabel}</p>
       ${catEntries.map(([name, count]) =>
         `<div class="ho-item"><span style="color:#29B6D9;flex-shrink:0;">•</span><span>${escHtml(name)} — <strong style="color:#FDB94A;">${count} job${count !== 1 ? 's' : ''}</strong></span></div>`
       ).join('')}
@@ -2186,7 +2249,7 @@ function generateHandover() {
     html += `<div class="ho-section">
       <p class="ho-label" style="color:#F7A21B;">👁️ Watch List — High-frequency Assets</p>
       ${watchList.map(([name, count]) =>
-        `<div class="ho-item"><span style="color:#F7A21B;flex-shrink:0;">▲</span><span>${escHtml(name)} — <strong style="color:#FDB94A;">${count} jobs</strong> this period. Consider dedicated inspection.</span></div>`
+        `<div class="ho-item"><span style="color:#F7A21B;flex-shrink:0;">▲</span><span>${escHtml(name)} — <strong style="color:#FDB94A;">${count} jobs</strong> this period. Consider inspection.</span></div>`
       ).join('')}
     </div>`;
   }
@@ -2201,25 +2264,57 @@ function copyHandover() {
 }
 
 function printHandover() {
-  const body   = document.getElementById('handover-body').innerHTML;
-  const meta   = document.getElementById('ho-meta').textContent;
-  const win    = window.open('', '_blank', 'width=700,height=900');
+  const rawBody  = document.getElementById('handover-body').innerHTML;
+  const meta     = document.getElementById('ho-meta').textContent;
+  const toName   = (document.getElementById('ho-handover-to').value || '').trim();
+  const title    = _hoTitle || 'Shift Handover Report';
+  const kpi      = _hoKpi  || '';
+
+  // Fix dark-theme colors that would be invisible on white print background
+  const body = rawBody
+    .replace(/color:rgba\(255,255,255,[^)]+\)/g, 'color:#777')
+    .replace(/class="ho-dim"/g, 'style="color:#777"');
+
+  const win = window.open('', '_blank', 'width=700,height=900');
   win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
-<title>Shift Handover Report</title>
+<title>${escHtml(title)}</title>
 <style>
   @page{margin:0;}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:1.2cm 1.5cm;color:#111;max-width:640px;margin:0 auto;box-sizing:border-box;}
-  h1{font-size:1.05rem;font-weight:900;margin:0 0 0.25rem;color:#111;letter-spacing:-0.01em;}
+  h1{font-size:1.05rem;font-weight:900;margin:0 0 0.1rem;color:#111;letter-spacing:-0.01em;}
+  .kpi{font-size:0.7rem;color:#666;margin:0 0 0.2rem;}
   .meta{font-size:0.78rem;color:#555;margin:0 0 1.25rem;border-bottom:2px solid #111;padding-bottom:0.6rem;}
-  .ho-section{border-bottom:1px solid #e5e7eb;padding:0.6rem 0;}
+  .ho-section{border-bottom:1px solid #e5e7eb;padding:0.55rem 0;}
   .ho-section:last-child{border-bottom:none;}
-  .ho-label{font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#444;margin:0 0 0.35rem;}
+  .ho-label{font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#444;margin:0 0 0.3rem;}
   .ho-item{font-size:0.8rem;color:#333;padding:2px 0;display:flex;align-items:baseline;gap:6px;}
   strong{color:#111 !important;}
+  .loto-warn{border-left:3px solid #dc2626;padding-left:0.6rem;background:#fff5f5;}
+  .sig-block{margin-top:1.5rem;padding-top:0.75rem;border-top:1px solid #e5e7eb;display:grid;grid-template-columns:1fr 1fr;gap:0.75rem 1.5rem;}
+  .sig-label{font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#888;}
+  .sig-name{font-size:0.82rem;font-weight:700;color:#111;margin:0.1rem 0 0.3rem;min-height:1rem;}
+  .sig-line{border-bottom:1px solid #bbb;height:0.8rem;}
 </style></head><body>
-<h1>Shift Handover Report</h1>
-<p class="meta">${meta}</p>
+<h1>${escHtml(title)}</h1>
+${kpi ? `<p class="kpi">${escHtml(kpi)}</p>` : ''}
+<p class="meta">${meta}${toName ? ' → ' + escHtml(toName) : ''}</p>
 ${body}
+<div class="sig-block">
+  <div>
+    <div class="sig-label">Outgoing</div>
+    <div class="sig-name">${escHtml(WORKER_NAME)}</div>
+    <div class="sig-line"></div>
+  </div>
+  <div>
+    <div class="sig-label">Incoming</div>
+    <div class="sig-name">${toName ? escHtml(toName) : ''}</div>
+    <div class="sig-line"></div>
+  </div>
+  <div style="grid-column:1/-1;">
+    <div class="sig-label">Date / Time</div>
+    <div class="sig-line" style="max-width:280px;"></div>
+  </div>
+</div>
 <script>window.onload=function(){window.print();setTimeout(()=>window.close(),500);}<\/script>
 </body></html>`);
   win.document.close();
