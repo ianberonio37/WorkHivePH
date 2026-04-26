@@ -5320,8 +5320,8 @@ function calcExpansionTank(inputs: Record<string, unknown>): Record<string, unkn
     system_volume_L:       r2(systemVolumeL),
     fill_temp_c:           fillTempC,
     max_temp_c:            maxTempC,
-    v_fill:                r3(vLow),
-    v_max:                 r3(vHigh),
+    v_fill:                Math.round(waterSpecVol(fillTempC) * 100000) / 100000,
+    v_max:                 Math.round(waterSpecVol(maxTempC)  * 100000) / 100000,
     expansion_ratio:       Math.round(E_w * 100000) / 100000,  // 5dp so report formula multiplies correctly
     V_expansion_L:         r2(V_expansion),
     static_head_m:         staticHeadM,
