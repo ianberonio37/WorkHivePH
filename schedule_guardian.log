@@ -1,0 +1,25 @@
+[2026-04-27 10:06:04] Guardian scheduler started. Interval=6h
+[2026-04-27 10:06:04] === Cycle 1 starting ===
+[2026-04-27 10:06:04] Running: Guardian (fast)
+[2026-04-27 10:06:17]   PASS Guardian (fast): RUN   Engineering Calc Suite (L1+L2a+L2b)                   [92mPASS[0m  12.6s
+[2026-04-27 10:06:17] Running: Self-learn
+[2026-04-27 10:06:17]   PASS Self-learn: 0 lessons written  |  16 skipped (already known or dry-run)
+[2026-04-27 10:06:17] Running: Auto-fix scan
+[2026-04-27 10:06:50] Guardian scheduler started. Interval=6h
+[2026-04-27 10:06:50] === Cycle 1 starting ===
+[2026-04-27 10:06:50] Running: Guardian (fast)
+[2026-04-27 10:07:04]   PASS Guardian (fast): RUN   Engineering Calc Suite (L1+L2a+L2b)                   PASS  12.6s
+[2026-04-27 10:07:04] Running: Self-learn
+[2026-04-27 10:07:04]   PASS Self-learn: 0 lessons written  |  16 skipped (already known or dry-run)
+[2026-04-27 10:07:04] Running: Auto-fix scan
+[2026-04-27 10:07:30] Guardian scheduler started. Interval=6h
+[2026-04-27 10:07:30] === Cycle 1 starting ===
+[2026-04-27 10:07:30] Running: Guardian (fast)
+[2026-04-27 10:07:43]   PASS Guardian (fast): RUN   Engineering Calc Suite (L1+L2a+L2b)                   PASS  12.6s
+[2026-04-27 10:07:43] Running: Self-learn
+[2026-04-27 10:07:43]   PASS Self-learn: 0 lessons written  |  16 skipped (already known or dry-run)
+[2026-04-27 10:07:43] Running: Auto-fix scan
+[2026-04-27 10:07:43]   PASS Auto-fix scan: SKIP    Pattern not found � already fixed or not applicable. Count is already 46
+[2026-04-27 10:07:43] === Cycle 1 complete  validator=PASS ===
+
+[2026-04-27 10:07:43] Single run complete. Exiting.

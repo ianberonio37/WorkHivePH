@@ -29,8 +29,9 @@ import subprocess, sys, os, json, time, datetime
 import urllib.request
 
 PYTHON = sys.executable
-FAST   = "--fast" in sys.argv
-GATE   = "--gate-only" in sys.argv
+FAST     = "--fast" in sys.argv
+GATE     = "--gate-only" in sys.argv
+AUTOFIX  = "--autofix" in sys.argv
 
 BASELINE_FILE = "platform_baseline.json"
 HEALTH_FILE   = "platform_health.json"
@@ -410,6 +411,23 @@ def main():
         print(f"  Saved {BASELINE_FILE} (new clean baseline)\n")
 
     # ── EXIT CODE ─────────────────────────────────────────────────────────────
+    # ── AUTO-FIX (optional) ───────────────────────────────────────────────────
+    if AUTOFIX and fail_count:
+        print(f"\n  {cyan('AUTO-FIX')}\n  {'—' * 68}")
+        af_result = subprocess.run(
+            [PYTHON, "autofix.py"],
+            capture_output=True, text=True,
+            encoding="utf-8", errors="replace"
+        )
+        af_out = (af_result.stdout or "") + (af_result.stderr or "")
+        for line in af_out.strip().splitlines():
+            if any(w in line for w in ["FIXED", "SKIP", "ERROR", "fixed", "error"]):
+                print(f"  {line.strip()[:70]}")
+        af_fixed = sum(1 for l in af_out.splitlines() if "FIXED" in l)
+        if af_fixed:
+            print(f"\n  {af_fixed} auto-fix(es) applied — re-run to verify:")
+            print(f"  python run_platform_checks.py --fast\n")
+
     if regressions:
         return 2
     if fail_count:

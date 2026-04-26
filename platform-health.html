@@ -400,12 +400,15 @@ function render(report) {
   csec.className = 'section';
   csec.innerHTML = '<div class="section-title">How to Run</div>';
   const cmds = [
-    { p: 'Dev (fast)',   c: 'python run_platform_checks.py --fast' },
-    { p: 'Pre-deploy',  c: 'python run_platform_checks.py' },
-    { p: 'Self-learn',  c: 'python learn.py' },
-    { p: 'Improve',     c: 'python improve.py --fast' },
-    { p: 'Gate only',   c: 'python run_platform_checks.py --gate-only' },
-    { p: 'Serve this',  c: 'python -m http.server 8080' },
+    { p: 'Dev (fast)',    c: 'python run_platform_checks.py --fast' },
+    { p: 'Auto-fix',     c: 'python run_platform_checks.py --fast --autofix' },
+    { p: 'Pre-deploy',   c: 'python run_platform_checks.py' },
+    { p: 'Self-learn',   c: 'python learn.py' },
+    { p: 'Improve',      c: 'python improve.py --fast' },
+    { p: 'Schedule 6h',  c: 'python schedule_guardian.py' },
+    { p: 'Once & exit',  c: 'python schedule_guardian.py --once' },
+    { p: 'Gate only',    c: 'python run_platform_checks.py --gate-only' },
+    { p: 'Serve this',   c: 'python -m http.server 8080' },
   ];
   const cbox = document.createElement('div');
   cbox.className = 'cmd-box';
