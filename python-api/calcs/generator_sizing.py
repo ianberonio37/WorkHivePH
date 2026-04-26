@@ -109,12 +109,37 @@ def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcGeneratorSizing() keys.
     """
-    # ── Steady-state load ─────────────────────────────────────────────────────
-    demand_kw    = float(inputs.get("demand_kw",      0)
-                     or  inputs.get("total_demand_kW", 0))
-    demand_kva   = float(inputs.get("demand_kva",     0)
-                     or  inputs.get("total_demand_kVA", 0))
-    power_factor = float(inputs.get("power_factor",   0.85))
+    # ── Steady-state load — from loads array or explicit totals ──────────────
+    power_factor = float(inputs.get("power_factor") or inputs.get("overall_pf") or 0.85)
+
+    loads_raw    = inputs.get("loads", []) or []
+    load_breakdown: list[dict] = []
+    if loads_raw:
+        total_va = 0.0
+        for ld in loads_raw:
+            lt    = str(ld.get("load_type") or ld.get("type") or "General Load")
+            qty   = int(ld.get("quantity") or ld.get("qty") or 1)
+            w_ea  = float(ld.get("watts_each") or ld.get("watts") or 0)
+            pf_ld = float(ld.get("power_factor") or ld.get("pf") or 0.85)
+            df    = 1.0   # conservative: all loads assumed running simultaneously
+            va_ea = (w_ea / pf_ld) if pf_ld > 0 else w_ea
+            va_tot = va_ea * qty * df
+            total_va += va_tot
+            load_breakdown.append({
+                "load_type":     lt,
+                "qty":           qty,
+                "watts_each":    w_ea,
+                "pf":            round(pf_ld, 2),
+                "demand_factor": df,
+                "demand_va":     round(va_tot, 0),
+            })
+        demand_kva = total_va / 1000
+        demand_kw  = demand_kva * power_factor
+    else:
+        demand_kw  = float(inputs.get("demand_kw",      0)
+                       or  inputs.get("total_demand_kW", 0))
+        demand_kva = float(inputs.get("demand_kva",     0)
+                       or  inputs.get("total_demand_kVA", 0))
 
     if demand_kw <= 0 and demand_kva > 0:
         demand_kw = demand_kva * power_factor
@@ -125,9 +150,14 @@ def calculate(inputs: dict) -> dict:
         demand_kva = demand_kw / power_factor
 
     # ── Largest motor ─────────────────────────────────────────────────────────
-    largest_motor_kw     = float(inputs.get("largest_motor_kw",  0))
-    motor_pf             = float(inputs.get("motor_pf",         0.85))
-    start_method         = str  (inputs.get("start_method",     "DOL (Direct-on-Line)"))
+    motor_hp_in      = float(inputs.get("motor_hp", 0) or inputs.get("largest_motor_hp", 0))
+    largest_motor_kw = float(inputs.get("largest_motor_kw", 0) or (motor_hp_in * 0.746))
+    motor_pf         = float(inputs.get("motor_pf",         0.85))
+    # Accept short keys from frontend ("DOL", "Star-Delta") → full key
+    _sm_raw    = str(inputs.get("start_method", "DOL (Direct-on-Line)"))
+    _sm_map    = {"DOL": "DOL (Direct-on-Line)", "Star-delta": "Star-Delta",
+                  "Soft starter": "Soft Starter", "VFD": "VFD (Variable Frequency Drive)"}
+    start_method = _sm_map.get(_sm_raw, _sm_raw) if _sm_raw in _sm_map else _sm_raw
     gen_xd_pct           = float(inputs.get("subtransient_xd_pct", 25.0))   # X''d typical 20-30%
 
     # ── Site conditions ───────────────────────────────────────────────────────
@@ -288,7 +318,7 @@ def calculate(inputs: dict) -> dict:
         "motor_hp":         round(largest_motor_kw / 0.746, 1),
         "fuel_100pct_lhr":  round(fuel_lhr_100, 1),
         "fuel_75pct_lhr":   round(fuel_lhr_75, 1),
-        "load_breakdown":   [{"load": "Total demand", "kW": round(demand_kw, 2), "kVA": round(demand_kva, 2)}],
+        "load_breakdown":   load_breakdown if load_breakdown else [{"load_type": "Total demand", "qty": 1, "watts_each": round(demand_kw * 1000, 0), "pf": power_factor, "demand_factor": 1.0, "demand_va": round(demand_kva * 1000, 0)}],
         # Additional aliases
         "starting_kva":      start_kva,
         "start_multiplier":  MOTOR_START.get(start_method, MOTOR_START["DOL (Direct-on-Line)"])["multiplier"],
