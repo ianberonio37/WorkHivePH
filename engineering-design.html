@@ -9729,6 +9729,7 @@ function collectInputs() {
     const power_kW  = powerUnit === 'HP' ? rawPower * 0.746 : rawPower;
     return {
       project_name:    v('f-project')                         || 'Untitled Belt Drive',
+      drive_type:      'V-Belt',
       power_kW,
       power_unit:      powerUnit,
       power_input:     rawPower,
