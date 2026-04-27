@@ -212,9 +212,20 @@ def calc_skill_mttr_correlation(
     for disc, group in merged.groupby("discipline"):
         if len(group) < 3:
             continue
-        corr, p_val = stats.spearmanr(group["level"], group["avg_mttr"])
-        corr  = round(float(corr), 3)
-        p_val = round(float(p_val), 4)
+        # Guard: skip if avg_mttr has zero variance (all same worker or constant repairs)
+        # scipy spearmanr crashes with constant Y — mathematically undefined
+        if group["avg_mttr"].std() == 0 or group["level"].nunique() < 2:
+            continue
+
+        try:
+            corr, p_val = stats.spearmanr(group["level"], group["avg_mttr"])
+            corr  = round(float(corr), 3) if not np.isnan(corr)  else None
+            p_val = round(float(p_val), 4) if not np.isnan(p_val) else None
+        except Exception:
+            continue
+
+        if corr is None or p_val is None:
+            continue
 
         by_level = group.groupby("level")["avg_mttr"].mean().reset_index()
         by_level["avg_mttr"] = by_level["avg_mttr"].round(1)

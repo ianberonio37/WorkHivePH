@@ -88,11 +88,21 @@ async function fetchDiagnosticData(
   // Reuse all descriptive data sources plus two new ones
   const base = await fetchDescriptiveData(db, hiveId, workerName, periodDays);
 
-  // Skill badges — for Skill-MTTR correlation
+  // Skill badges — no hive_id column; fetch by hive members' worker_names
   const badgesQ = db.from("skill_badges")
     .select("worker_name, discipline, level")
     .limit(500);
-  if (hiveId) badgesQ.eq("hive_id", hiveId);
+  if (hiveId) {
+    // Get hive member names first, then fetch their badges
+    const { data: members } = await db.from("hive_members")
+      .select("worker_name")
+      .eq("hive_id", hiveId)
+      .eq("status", "active");
+    const memberNames = (members || []).map((m: Record<string, string>) => m.worker_name).filter(Boolean);
+    if (memberNames.length) badgesQ.in("worker_name", memberNames);
+  } else if (workerName) {
+    badgesQ.eq("worker_name", workerName);
+  }
 
   // Engineering calcs history — for design validation
   const calcsQ = db.from("engineering_calcs")
@@ -152,7 +162,7 @@ async function callPythonAnalytics(phase: string, inputs: Record<string, unknown
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ phase, inputs }),
-    signal: AbortSignal.timeout(30000), // 30s timeout for analytics
+    signal: AbortSignal.timeout(90000), // 90s timeout — Render free tier cold start can take 50s+
   });
 
   if (res.status === 404) {
