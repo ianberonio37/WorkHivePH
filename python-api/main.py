@@ -277,10 +277,17 @@ def analytics(req: AnalyticsRequest):
             print(f"ANALYTICS ERROR [predictive]: {traceback.format_exc()}")
             raise HTTPException(status_code=500, detail=f"Analytics error: {str(e)}")
 
-    # Phase 4 will be added here
+    if phase == "prescriptive":
+        from analytics.prescriptive import calculate
+        try:
+            return calculate(req.inputs)
+        except Exception as e:
+            print(f"ANALYTICS ERROR [prescriptive]: {traceback.format_exc()}")
+            raise HTTPException(status_code=500, detail=f"Analytics error: {str(e)}")
+
     raise HTTPException(
         status_code=404,
-        detail=f"Analytics phase '{phase}' not yet implemented. Available: descriptive, diagnostic, predictive"
+        detail=f"Analytics phase '{phase}' not yet implemented. Available: descriptive, diagnostic, predictive, prescriptive"
     )
 
 

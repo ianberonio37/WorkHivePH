@@ -144,6 +144,92 @@ async function fetchPredictiveData(
   };
 }
 
+async function fetchPrescriptiveData(
+  db: ReturnType<typeof createClient>,
+  hiveId: string | null,
+  workerName: string | null,
+  periodDays: number
+) {
+  const base = await fetchPredictiveData(db, hiveId, workerName, periodDays);
+
+  // pm_assets — for criticality in priority ranking and PM interval optimization
+  const assetsQ = db.from("pm_assets")
+    .select("id, asset_name, category, criticality")
+    .limit(200);
+  if (hiveId) assetsQ.eq("hive_id", hiveId);
+  else if (workerName) assetsQ.eq("worker_name", workerName);
+
+  // skill_badges — for technician assignment and training gap analysis
+  const badgesQ = db.from("skill_badges")
+    .select("worker_name, discipline, level")
+    .limit(500);
+  if (hiveId) {
+    const { data: members } = await db.from("hive_members")
+      .select("worker_name").eq("hive_id", hiveId).eq("status", "active");
+    const names = (members || []).map((m: Record<string, string>) => m.worker_name).filter(Boolean);
+    if (names.length) badgesQ.in("worker_name", names);
+  } else if (workerName) {
+    badgesQ.eq("worker_name", workerName);
+  }
+
+  const [assetsRes, badgesRes] = await Promise.allSettled([assetsQ, badgesQ]);
+
+  return {
+    ...base,
+    pm_assets:   (assetsRes.status === "fulfilled" ? assetsRes.value.data : null) || [],
+    skill_badges:(badgesRes.status === "fulfilled" ? badgesRes.value.data : null) || [],
+  };
+}
+
+// ── Groq synthesis for Prescriptive phase ─────────────────────────────────────
+
+async function callGroqSynthesis(pythonResult: Record<string, unknown>): Promise<string> {
+  const GROQ_KEY = Deno.env.get("GROQ_API_KEY");
+  if (!GROQ_KEY) return "Groq not configured — showing raw analysis results.";
+
+  const GROQ_CHAIN = [
+    "llama-3.3-70b-versatile",
+    "meta-llama/llama-4-scout-17b-16e-instruct",
+    "llama-3.1-8b-instant",
+  ];
+
+  const systemPrompt = `You are a senior maintenance manager. Based on the analytics results provided, write a concise action plan for the maintenance team this week.
+Be specific: name actual machines, workers, and parts. Use bullet points. Maximum 200 words.
+Format as JSON: { "summary": "one sentence overview", "this_week": ["action 1", "action 2", ...], "watch_list": ["machine or part to monitor"] }`;
+
+  const prompt = `Analytics results:\n${JSON.stringify({
+    top_priority: (pythonResult.priority_ranking as Record<string, unknown>)?.ranking?.slice?.(0,3),
+    pm_optimizations: (pythonResult.pm_interval_optimization as Record<string, unknown>)?.recommendations?.slice?.(0,3),
+    open_assignments: (pythonResult.technician_assignment as Record<string, unknown>)?.assignments?.slice?.(0,3),
+    reorder_critical: (pythonResult.parts_reorder as Record<string, unknown>)?.reorder?.filter?.((r: Record<string, unknown>) => r.urgency === "CRITICAL")?.slice?.(0,3),
+    training_gaps: (pythonResult.training_gaps as Record<string, unknown>)?.gaps?.slice?.(0,2),
+  }, null, 2)}`;
+
+  for (const model of GROQ_CHAIN) {
+    try {
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model, temperature: 0.3, max_tokens: 512,
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user",   content: prompt },
+          ],
+        }),
+      });
+      if (res.status === 429 || res.status === 413) continue;
+      if (!res.ok) break;
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content || "{}";
+      const parsed = JSON.parse(text);
+      return JSON.stringify(parsed);
+    } catch { continue; }
+  }
+  return "{}";
+}
+
 // ── Call the Python Analytics API ────────────────────────────────────────────
 
 async function callPythonAnalytics(phase: string, inputs: Record<string, unknown>): Promise<Record<string, unknown>> {
@@ -209,14 +295,22 @@ serve(async (req) => {
       data = await fetchDiagnosticData(db, hive_id || null, worker_name || null, periodDays);
     } else if (phase === "predictive") {
       data = await fetchPredictiveData(db, hive_id || null, worker_name || null, periodDays);
+    } else if (phase === "prescriptive") {
+      data = await fetchPrescriptiveData(db, hive_id || null, worker_name || null, periodDays);
     }
-    // Phase 4 will add its own fetch function here
 
     // Send to Python API for computation
     const results = await callPythonAnalytics(phase, {
       ...data,
       period_days: periodDays,
     });
+
+    // For prescriptive phase — add Groq synthesis as action plan
+    let groqSynthesis = null;
+    if (phase === "prescriptive" && !results.error) {
+      const raw = await callGroqSynthesis(results);
+      try { groqSynthesis = JSON.parse(raw); } catch { groqSynthesis = null; }
+    }
 
     // Attach metadata
     const response = {
@@ -226,6 +320,7 @@ serve(async (req) => {
       period_days: periodDays,
       generated_at: new Date().toISOString(),
       ...results,
+      ...(groqSynthesis ? { action_plan: groqSynthesis } : {}),
     };
 
     return new Response(
