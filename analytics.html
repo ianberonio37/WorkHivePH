@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Analytics Engine | WorkHive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0f1923;
+      color: #F4F6FA;
+      min-height: 100vh;
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+
+    /* ── Aurora ── */
+    .aurora { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+    .aurora-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.06; }
+    .aurora-blob-1 { width: 500px; height: 500px; background: #a78bfa; top: -100px; left: -100px; }
+    .aurora-blob-2 { width: 400px; height: 400px; background: #29B6D9; bottom: 0; right: -100px; }
+
+    /* ── Layout ── */
+    .page { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+    /* ── Header ── */
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
+    .page-header h1 { font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1.2; }
+    .page-header p { font-size: 0.75rem; color: #7B8794; margin-top: 0.2rem; }
+    .header-badge { font-size: 0.6rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 999px; background: rgba(167,139,250,0.15); color: #a78bfa; border: 1px solid rgba(167,139,250,0.3); white-space: nowrap; margin-top: 0.25rem; }
+
+    /* ── Period selector ── */
+    .period-row { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .period-btn {
+      font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
+      padding: 0.4rem 0.875rem; border-radius: 999px; cursor: pointer; transition: all 0.15s;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5);
+      min-height: 36px;
+    }
+    .period-btn.active { background: rgba(167,139,250,0.15); border-color: rgba(167,139,250,0.4); color: #a78bfa; }
+    .run-btn {
+      font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 700;
+      padding: 0.4rem 1rem; border-radius: 999px; cursor: pointer; transition: all 0.2s;
+      background: linear-gradient(135deg, #a78bfa, #7c3aed); border: none; color: #fff;
+      min-height: 36px; margin-left: auto;
+    }
+    .run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Phase tabs ── */
+    .phase-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; overflow-x: auto; padding-bottom: 0.25rem; }
+    .phase-tab {
+      font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
+      padding: 0.5rem 0.875rem; border-radius: 0.625rem; cursor: pointer; white-space: nowrap;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.4);
+      transition: all 0.15s; min-height: 36px;
+    }
+    .phase-tab.active { background: rgba(167,139,250,0.12); border-color: rgba(167,139,250,0.35); color: #a78bfa; }
+    .phase-tab.soon { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Cards ── */
+    .card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+      border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .card-title { font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+    .card-standard { font-size: 0.6rem; color: rgba(255,255,255,0.2); font-weight: 500; }
+
+    /* ── Tables ── */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+    .data-table th { text-align: left; color: rgba(255,255,255,0.3); font-weight: 600; padding: 0.4rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.68rem; }
+    .data-table td { padding: 0.5rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.75); }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table .machine-name { font-weight: 600; color: #fff; }
+    .data-table .num { text-align: right; font-weight: 700; }
+    .data-table .alert { color: #f87171; }
+    .data-table .warn  { color: #F7A21B; }
+    .data-table .good  { color: #4ade80; }
+
+    /* ── Stat tiles ── */
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .stat-tile { background: rgba(255,255,255,0.04); border-radius: 0.75rem; padding: 0.875rem; border: 1px solid rgba(255,255,255,0.06); }
+    .stat-tile .val { font-size: 1.5rem; font-weight: 800; color: #a78bfa; line-height: 1; }
+    .stat-tile .label { font-size: 0.65rem; color: rgba(255,255,255,0.35); margin-top: 0.25rem; font-weight: 600; }
+
+    /* ── Bar chart (CSS) ── */
+    .bar-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .bar-label { font-size: 0.7rem; color: rgba(255,255,255,0.6); width: 120px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bar-track { flex: 1; height: 8px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #a78bfa, #7c3aed); transition: width 0.6s ease; }
+    .bar-val { font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.5); width: 40px; text-align: right; flex-shrink: 0; }
+
+    /* ── Empty / loading states ── */
+    .empty { text-align: center; padding: 2rem; color: rgba(255,255,255,0.25); font-size: 0.78rem; }
+    .loading-card { display: flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 2rem; color: rgba(255,255,255,0.35); font-size: 0.8rem; }
+    .spinner { width: 20px; height: 20px; border: 2px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Info banner ── */
+    .info-banner { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.875rem 1rem; border-radius: 0.75rem; background: rgba(167,139,250,0.07); border: 1px solid rgba(167,139,250,0.15); margin-bottom: 1rem; font-size: 0.75rem; color: rgba(255,255,255,0.55); }
+
+    /* ── Repeat failure badge ── */
+    .repeat-badge { font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 999px; background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.25); }
+
+    /* ── Compliance bar ── */
+    .compliance-track { height: 10px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; margin: 0.4rem 0; }
+    .compliance-fill { height: 100%; border-radius: 999px; transition: width 0.6s ease; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-80px);
+      background: rgba(31,46,69,0.97); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: 0.8rem;
+      color: #fff; z-index: 9999; transition: transform 0.25s ease-out;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<div class="aurora">
+  <div class="aurora-blob aurora-blob-1"></div>
+  <div class="aurora-blob aurora-blob-2"></div>
+</div>
+
+<div class="page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Analytics Engine</h1>
+      <p>ISO 14224 · SMRP Metrics · Stage 3 Cyborg Worker</p>
+    </div>
+    <span class="header-badge">Stage 3</span>
+  </div>
+
+  <!-- Period selector -->
+  <div class="period-row">
+    <button class="period-btn" data-days="30" onclick="setPeriod(30)">30 days</button>
+    <button class="period-btn active" data-days="90" onclick="setPeriod(90)">90 days</button>
+    <button class="period-btn" data-days="180" onclick="setPeriod(180)">180 days</button>
+    <button class="period-btn" data-days="365" onclick="setPeriod(365)">1 year</button>
+    <button class="run-btn" id="run-btn" onclick="runAnalytics()">Run Analysis</button>
+  </div>
+
+  <!-- Phase tabs -->
+  <div class="phase-tabs">
+    <button class="phase-tab active" onclick="setPhase('descriptive')">Descriptive</button>
+    <button class="phase-tab soon" title="Coming soon">Diagnostic</button>
+    <button class="phase-tab soon" title="Coming soon">Predictive</button>
+    <button class="phase-tab soon" title="Coming soon">Prescriptive</button>
+  </div>
+
+  <!-- Info banner -->
+  <div class="info-banner">
+    <span>📊</span>
+    <span>Phase 1 — Descriptive Analytics. Shows what happened with your equipment in the selected period. Standards: ISO 14224:2016, SMRP Metrics.</span>
+  </div>
+
+  <!-- Results panel -->
+  <div id="results-panel">
+    <div class="card">
+      <div class="empty">Select a period and click <strong>Run Analysis</strong> to generate your maintenance report.</div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+  // ── Config ─────────────────────────────────────────────────────────────────
+  const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const WORKER_NAME = localStorage.getItem('wh_last_worker')
+    || localStorage.getItem('wh_worker_name')
+    || localStorage.getItem('workerName') || '';
+  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; }
+
+  const HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+  const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+
+  let _period = 90;
+  let _phase  = 'descriptive';
+  let _loading = false;
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  function escHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function setPeriod(days) {
+    _period = days;
+    document.querySelectorAll('.period-btn').forEach(b => {
+      b.classList.toggle('active', Number(b.dataset.days) === days);
+    });
+  }
+
+  function setPhase(phase) {
+    _phase = phase;
+    document.querySelectorAll('.phase-tab:not(.soon)').forEach(b => {
+      b.classList.toggle('active', b.textContent.toLowerCase() === phase);
+    });
+  }
+
+  // ── Run analysis ──────────────────────────────────────────────────────────
+  async function runAnalytics() {
+    if (_loading) return;
+    _loading = true;
+    const btn = document.getElementById('run-btn');
+    btn.disabled = true;
+    btn.textContent = 'Running...';
+
+    document.getElementById('results-panel').innerHTML = `
+      <div class="card loading-card">
+        <div class="spinner"></div>
+        Fetching data and computing analytics...
+      </div>`;
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phase:       _phase,
+          hive_id:     HIVE_ID,
+          worker_name: WORKER_NAME,
+          period_days: _period,
+        }),
+      });
+
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      const data = await res.json();
+
+      if (data.error) throw new Error(data.error);
+
+      renderDescriptive(data);
+
+    } catch (err) {
+      document.getElementById('results-panel').innerHTML = `
+        <div class="card">
+          <div class="empty" style="color:#f87171;">Error: ${escHtml(err.message)}</div>
+        </div>`;
+      showToast('Analysis failed — check console');
+      console.error(err);
+    } finally {
+      _loading = false;
+      btn.disabled = false;
+      btn.textContent = 'Run Analysis';
+    }
+  }
+
+  // ── Render Phase 1 — Descriptive ─────────────────────────────────────────
+  function renderDescriptive(data) {
+    const panel = document.getElementById('results-panel');
+    const period = data.period_days || _period;
+    const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-PH') : '';
+
+    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-bottom:1rem;">
+      Generated: ${escHtml(gen)} · Period: last ${period} days
+    </p>`;
+
+    html += renderMTBF(data.mtbf);
+    html += renderMTTR(data.mttr);
+    html += renderAvailability(data.availability);
+    html += renderPMCompliance(data.pm_compliance);
+    html += renderFailureFrequency(data.failure_frequency);
+    html += renderDowntimePareto(data.downtime_pareto);
+    html += renderPartsConsumption(data.parts_consumption);
+    html += renderRepeatFailures(data.repeat_failures);
+
+    panel.innerHTML = html;
+  }
+
+  // ── 1. MTBF ────────────────────────────────────────────────────────────────
+  function renderMTBF(d) {
+    if (!d || !d.mtbf_by_asset?.length) return cardEmpty('MTBF — Mean Time Between Failures', 'ISO 14224:2016 §9.3', 'No corrective failures found in the selected period.');
+    const rows = d.mtbf_by_asset.map(r => {
+      const cls = r.mtbf_days === null ? '' : r.mtbf_days < 14 ? 'alert' : r.mtbf_days < 30 ? 'warn' : 'good';
+      const val = r.mtbf_days !== null ? `${r.mtbf_days}d` : `—`;
+      const note = r.mtbf_days === null ? `<span style="font-size:0.65rem;color:rgba(255,255,255,0.25)">(need ≥2 failures)</span>` : '';
+      return `<tr>
+        <td class="machine-name">${escHtml(r.machine)}</td>
+        <td class="num">${r.failure_count}</td>
+        <td class="num ${cls}">${val} ${note}</td>
+      </tr>`;
+    }).join('');
+    return `<div class="card">
+      <div class="card-title">MTBF — Mean Time Between Failures <span class="card-standard">ISO 14224:2016 §9.3</span></div>
+      <table class="data-table">
+        <thead><tr><th>Machine</th><th class="num">Failures</th><th class="num">MTBF</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.75rem;">
+        🔴 &lt;14d critical · 🟡 &lt;30d watch · 🟢 ≥30d healthy
+      </p>
+    </div>`;
+  }
+
+  // ── 2. MTTR ────────────────────────────────────────────────────────────────
+  function renderMTTR(d) {
+    if (!d || !d.mttr_by_asset?.length) return cardEmpty('MTTR — Mean Time To Repair', 'ISO 14224:2016 §9.4', d?.note || 'No closed corrective entries with logged downtime_hours found.');
+    const rows = d.mttr_by_asset.map(r => {
+      const cls = r.mttr_hours > 24 ? 'alert' : r.mttr_hours > 8 ? 'warn' : 'good';
+      return `<tr>
+        <td class="machine-name">${escHtml(r.machine)}</td>
+        <td class="num">${r.repair_count}</td>
+        <td class="num">${r.total_downtime_h}h</td>
+        <td class="num ${cls}">${r.mttr_hours}h</td>
+      </tr>`;
+    }).join('');
+    return `<div class="card">
+      <div class="card-title">MTTR — Mean Time To Repair <span class="card-standard">ISO 14224:2016 §9.4</span></div>
+      <table class="data-table">
+        <thead><tr><th>Machine</th><th class="num">Repairs</th><th class="num">Total DT</th><th class="num">MTTR</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.75rem;">
+        🔴 &gt;24h · 🟡 &gt;8h · 🟢 ≤8h
+      </p>
+    </div>`;
+  }
+
+  // ── 3. Availability ────────────────────────────────────────────────────────
+  function renderAvailability(d) {
+    if (!d || !d.availability_by_asset?.length) return cardEmpty('Availability %', 'ISO 14224:2016 §9.2', 'Insufficient data — need both MTBF and MTTR per machine.');
+    const rows = d.availability_by_asset.map(r => {
+      const pct = r.availability_pct;
+      const cls = pct < 80 ? 'alert' : pct < 90 ? 'warn' : 'good';
+      const barPct = pct || 0;
+      return `<div style="margin-bottom:0.75rem;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem;">
+          <span style="font-size:0.75rem;font-weight:600;color:#fff;">${escHtml(r.machine)}</span>
+          <span class="${cls}" style="font-size:0.75rem;font-weight:700;">${pct !== null ? pct + '%' : '—'}</span>
+        </div>
+        <div class="compliance-track">
+          <div class="compliance-fill" style="width:${barPct}%;background:${pct < 80 ? '#f87171' : pct < 90 ? '#F7A21B' : '#4ade80'}"></div>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="card">
+      <div class="card-title">Availability % <span class="card-standard">ISO 14224:2016 §9.2 — MTBF / (MTBF + MTTR)</span></div>
+      ${rows}
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.25rem;">🔴 &lt;80% · 🟡 &lt;90% · 🟢 ≥90%</p>
+    </div>`;
+  }
+
+  // ── 4. PM Compliance ───────────────────────────────────────────────────────
+  function renderPMCompliance(d) {
+    if (!d || !d.compliance_by_asset?.length) return cardEmpty('PM Compliance Rate', 'SMRP Metric 2.1.1', 'No PM assets or scope items found.');
+    const overall = d.overall_pct;
+    const overallCls = overall < 70 ? '#f87171' : overall < 85 ? '#F7A21B' : '#4ade80';
+    const rows = d.compliance_by_asset.map(r => {
+      const cls = r.compliance_pct < 70 ? 'alert' : r.compliance_pct < 85 ? 'warn' : 'good';
+      return `<tr>
+        <td class="machine-name">${escHtml(r.asset_name)}</td>
+        <td class="num">${r.scheduled}</td>
+        <td class="num">${r.completed}</td>
+        <td class="num ${cls}">${r.compliance_pct}%</td>
+      </tr>`;
+    }).join('');
+    return `<div class="card">
+      <div class="card-title">PM Compliance Rate <span class="card-standard">SMRP Metric 2.1.1</span></div>
+      <div class="stat-grid" style="grid-template-columns:1fr;margin-bottom:0.75rem;">
+        <div class="stat-tile">
+          <div class="val" style="color:${overallCls}">${overall}%</div>
+          <div class="label">Overall Hive PM Compliance</div>
+        </div>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Asset</th><th class="num">Scheduled</th><th class="num">Done</th><th class="num">Rate</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }
+
+  // ── 5. Failure Frequency ───────────────────────────────────────────────────
+  function renderFailureFrequency(d) {
+    if (!d || !d.failure_frequency?.length) return cardEmpty('Failure Frequency', 'ISO 14224:2016', d?.note || 'No corrective failures in the selected period.');
+    const max = d.failure_frequency[0]?.failure_count || 1;
+    const bars = d.failure_frequency.slice(0, 10).map(r => {
+      const pct = Math.round((r.failure_count / max) * 100);
+      return `<div class="bar-row">
+        <span class="bar-label" title="${escHtml(r.machine)}">${escHtml(r.machine)}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+        <span class="bar-val">${r.failure_count}</span>
+      </div>`;
+    }).join('');
+    return `<div class="card">
+      <div class="card-title">Failure Frequency <span class="card-standard">ISO 14224:2016 · last ${d.period_days} days · ${d.total_failures} total</span></div>
+      ${bars}
+    </div>`;
+  }
+
+  // ── 6. Downtime Pareto ─────────────────────────────────────────────────────
+  function renderDowntimePareto(d) {
+    if (!d || !d.pareto?.length) return cardEmpty('Downtime Pareto', '80/20 Rule', d?.note || 'No downtime_hours logged in corrective entries.');
+    const maxDT = d.pareto[0]?.downtime_hours || 1;
+    const rows = d.pareto.slice(0, 8).map((r, i) => {
+      const pct = Math.round((r.downtime_hours / maxDT) * 100);
+      const cumulCls = r.cumulative_pct <= 80 ? 'alert' : 'warn';
+      return `<div style="margin-bottom:0.5rem;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+          <span style="font-size:0.72rem;font-weight:600;color:#fff;">${i+1}. ${escHtml(r.machine)}</span>
+          <span style="font-size:0.7rem;color:rgba(255,255,255,0.5);">${r.downtime_hours}h · <span class="${cumulCls}">${r.cumulative_pct}% cumul.</span></span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${i === 0 ? '#f87171' : i < 3 ? '#F7A21B' : '#a78bfa'}"></div></div>
+      </div>`;
+    }).join('');
+    return `<div class="card">
+      <div class="card-title">Downtime Pareto <span class="card-standard">80/20 — Total: ${d.total_downtime_hours}h</span></div>
+      ${rows}
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">Top machine: ${escHtml(d.top_machine || '—')} accounts for ${d.top_machine_pct || 0}% of all downtime.</p>
+    </div>`;
+  }
+
+  // ── 7. Parts Consumption ───────────────────────────────────────────────────
+  function renderPartsConsumption(d) {
+    if (!d || !d.consumption?.length) return cardEmpty('Parts Consumption Rate', 'SMRP', d?.note || 'No parts usage transactions found in period.');
+    const rows = d.consumption.slice(0, 10).map(r => `<tr>
+      <td class="machine-name">${escHtml(r.part_name)}</td>
+      <td class="num">${r.total_used}</td>
+      <td class="num">${r.per_week}/wk</td>
+      <td class="num">${r.per_month}/mo</td>
+    </tr>`).join('');
+    return `<div class="card">
+      <div class="card-title">Parts Consumption Rate <span class="card-standard">SMRP · last ${d.period_days} days</span></div>
+      <table class="data-table">
+        <thead><tr><th>Part</th><th class="num">Used</th><th class="num">Per Week</th><th class="num">Per Month</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }
+
+  // ── 8. Repeat Failures ─────────────────────────────────────────────────────
+  function renderRepeatFailures(d) {
+    if (!d || !d.repeats?.length) {
+      return `<div class="card">
+        <div class="card-title">Repeat Failure Count <span class="card-standard">ISO 14224:2016</span></div>
+        <div class="empty" style="padding:1rem 0;">
+          <span style="color:#4ade80;">✓ No repeat failures detected.</span><br>
+          <span style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-top:0.25rem;display:block;">Same root cause on same machine ≥ 2 times indicates ineffective repair.</span>
+        </div>
+      </div>`;
+    }
+    const rows = d.repeats.map(r => `<tr>
+      <td class="machine-name">${escHtml(r.machine)}</td>
+      <td style="font-size:0.72rem;color:rgba(255,255,255,0.6);">${escHtml(r.root_cause)}</td>
+      <td class="num"><span class="repeat-badge">${r.occurrences}×</span></td>
+    </tr>`).join('');
+    return `<div class="card">
+      <div class="card-title">Repeat Failure Count <span class="card-standard">ISO 14224:2016 · ${d.repeat_pair_count} repeat pair(s) found</span></div>
+      <table class="data-table">
+        <thead><tr><th>Machine</th><th>Root Cause</th><th class="num">Count</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
+    </div>`;
+  }
+
+  // ── Empty card helper ──────────────────────────────────────────────────────
+  function cardEmpty(title, std, msg) {
+    return `<div class="card">
+      <div class="card-title">${escHtml(title)} <span class="card-standard">${escHtml(std)}</span></div>
+      <div class="empty">${escHtml(msg)}</div>
+    </div>`;
+  }
+</script>
+
+<script src="utils.js"></script>
+<script src="nav-hub.js"></script>
+</body>
+</html>

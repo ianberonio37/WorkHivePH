@@ -506,86 +506,51 @@
     /* --viscous: linear(0,.013,.052,.113,.195,.288,.384,.478,.565,.643,.711,.769,.818,.859,.892,.919,.941,.957,.971,.981,.988,.993,.997,1.001,1.003,1.002,1) */
     /* --bouncy:  linear(0,.006,.025,.101,.25,.553,.844,1.015,1.085,1.106,1.08,1.04,1.005,.985,.993,1.002,1.004,1) */
 
-    /* ── VISCOUS spring: high damping, slow start, liquid settle ── */
-    /* Applied to: cards, reveals, sticky bar                         */
     .card-glow, .card-orange {
-      transition:
-        box-shadow 0.8s  linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.834,.843,.851,.858,.865,.871,.876,.881,.886,.890,.894,.898,.901,.904,.907,.909,.912,.914,.916,.918,.920,.922,.924,.926,.927,.929,.930,.932,.933,.934,.936,.937,.938,.939,.940,.941,.942,.943,.944,.945,.946,.947,.948,.949,.950,.952,.953,.955,.956,.958,.960,.962,.964,.967,.969,.972,.975,.978,.981,.984,.987,.990,.992,.994,.996,.998,.999,1),
-        transform  0.8s  linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.834,.843,.851,.858,.865,.871,.876,.881,.886,.890,.894,.898,.901,.904,.907,.909,.912,.914,.916,.918,.920,.922,.924,.926,.927,.929,.930,.932,.933,.934,.936,.937,.938,.939,.940,.941,.942,.943,.944,.945,.946,.947,.948,.949,.950,.952,.953,.955,.956,.958,.960,.962,.964,.967,.969,.972,.975,.978,.981,.984,.987,.990,.992,.994,.996,.998,.999,1);
+      transition: box-shadow 0.2s ease-out, transform 0.2s ease-out;
     }
-    /* Bigger lift so the spring has range to show itself */
-    .card-glow:hover  { transform: translateY(-12px) !important; }
-    .card-orange:hover { transform: translateY(-12px) !important; }
+    .card-glow:hover  { transform: translateY(-6px) !important; }
+    .card-orange:hover { transform: translateY(-6px) !important; }
 
-    /* ── BOUNCY spring: medium damping, clear overshoot ── */
-    /* Applied to: buttons, PWA install                      */
     .btn-primary {
-      transition:
-        transform   0.55s linear(0,.006,.025,.101,.25,.553,.844,1.035,1.115,1.146,1.14,1.107,1.062,1.018,.99,.979,.988,1.004,1.01,1.006,1.001,.999,1),
-        box-shadow  0.3s  ease,
-        opacity     0.2s  ease;
+      transition: transform 0.18s ease-out, box-shadow 0.18s ease, opacity 0.18s ease;
     }
     .btn-primary:hover {
-      transform: translateY(-5px) scale(1.04) !important;
-      box-shadow: 0 14px 36px -4px rgba(247,162,27,0.65);
+      transform: translateY(-3px) scale(1.02) !important;
+      box-shadow: 0 10px 28px -4px rgba(247,162,27,0.55);
     }
 
     .btn-secondary {
-      transition:
-        transform   0.55s linear(0,.006,.025,.101,.25,.553,.844,1.035,1.115,1.146,1.14,1.107,1.062,1.018,.99,.979,.988,1.004,1.01,1.006,1.001,.999,1),
-        background  0.2s ease,
-        color       0.2s ease;
+      transition: transform 0.18s ease-out, background 0.18s ease, color 0.18s ease;
     }
-    .btn-secondary:hover { transform: translateY(-5px) scale(1.04) !important; }
+    .btn-secondary:hover { transform: translateY(-3px) scale(1.02) !important; }
 
     .btn-ghost {
-      transition:
-        background  0.2s ease,
-        transform   0.55s linear(0,.006,.025,.101,.25,.553,.844,1.035,1.115,1.146,1.14,1.107,1.062,1.018,.99,.979,.988,1.004,1.01,1.006,1.001,.999,1);
+      transition: background 0.18s ease, transform 0.18s ease-out;
     }
 
-    /* Reveals: viscous */
     .reveal {
-      transition:
-        opacity   0.6s ease,
-        transform 0.85s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.834,.843,.858,.876,.894,.907,.916,.924,.932,.940,.947,.953,.958,.962,.967,.972,.978,.984,.990,.994,.998,1);
+      transition: opacity 0.4s ease, transform 0.4s ease-out;
     }
 
-    /* Stagger: viscous, feels like emerging from liquid */
     .stagger-wrap > * {
-      transition:
-        opacity   0.5s ease,
-        transform 0.9s  linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.834,.843,.858,.876,.894,.907,.916,.924,.932,.940,.947,.953,.958,.962,.967,.972,.978,.984,.990,.994,.998,1);
+      transition: opacity 0.35s ease, transform 0.35s ease-out;
     }
 
-    /* Sticky bar: viscous */
     #sticky-mobile-cta {
-      transition: transform 0.7s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.834,.843,.858,.876,.894,.907,.916,.924,.932,.940,.947,.953,.958,.962,.967,.972,.978,.984,.990,.994,.998,1);
+      transition: transform 0.25s ease-out;
     }
 
-    /* Before/after rows: viscous */
     .before-after-row {
-      transition:
-        opacity   0.4s ease,
-        transform 0.65s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.843,.876,.907,.932,.953,.967,.978,.990,.998,1);
+      transition: opacity 0.3s ease, transform 0.3s ease-out;
     }
 
-    /* PWA install: bouncy */
     #pwa-install-btn {
-      transition:
-        background   0.2s ease,
-        border-color 0.2s ease,
-        transform    0.55s linear(0,.006,.025,.101,.25,.553,.844,1.035,1.115,1.146,1.14,1.107,1.062,1.018,.99,.979,.988,1.004,1.01,1.006,1.001,.999,1);
+      transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease-out;
     }
 
-    /* Scroll reveals handled by JS IntersectionObserver: see scripts below */
-
-    /* ── Popup tool tile spring hover ── */
     #popup-tools a {
-      transition:
-        transform    0.45s linear(0,.006,.025,.101,.25,.553,.844,1.035,1.115,1.146,1.14,1.107,1.062,1.018,.99,.979,.988,1.004,1.01,1.006,1.001,.999,1),
-        border-color 0.2s ease,
-        background   0.2s ease;
+      transition: transform 0.18s ease-out, border-color 0.18s ease, background 0.18s ease;
     }
     #popup-tools a:hover {
       transform: translateY(-5px) scale(1.03);
@@ -1579,6 +1544,7 @@
       color: '#F7A21B',
       tabClass: 'active',
       tools: [
+        { name: 'Analytics Engine', desc: 'MTBF, MTTR, Availability, PM Compliance, Pareto — ISO 14224 standards-based maintenance analytics.', link: 'analytics.html', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
         { name: 'Failure Predictor Feed', desc: 'AI-flagged equipment alerts for your area.', link: null, icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
         { name: 'Smart Work Order Generator', desc: 'AI drafts work orders from your logbook patterns.', link: null, icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z' },
         { name: 'AI Copilot', desc: 'Ask questions from your plant\'s own history and manuals.', link: null, icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
@@ -1633,7 +1599,7 @@
     renderPopupStage(n);
   }
 
-  var _SPRING_VISCOUS = 'transform 0.55s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.843,.876,.907,.932,.953,.967,.978,.990,.998,1)';
+  var _SPRING_VISCOUS = 'transform 0.25s ease-out';
 
   function _popupSpringIn() {
     var popup = document.getElementById('stage-popup');
@@ -1911,7 +1877,7 @@
       });
       ['pointerup', 'pointerleave'].forEach(function(evt) {
         card.addEventListener(evt, function() {
-          this.style.transition = 'transform .4s linear(0,.006,.025,.101,.25,.553,.844,1.015,1.085,1.106,1.08,1.04,1.005,.985,.993,1.002,1.004,1)';
+          this.style.transition = 'transform 0.2s ease-out';
           this.style.transform = '';
         });
       });
