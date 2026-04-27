@@ -149,13 +149,13 @@
   <!-- Phase tabs -->
   <div class="phase-tabs">
     <button class="phase-tab active" onclick="setPhase('descriptive')">Descriptive</button>
-    <button class="phase-tab soon" title="Coming soon">Diagnostic</button>
+    <button class="phase-tab" onclick="setPhase('diagnostic')">Diagnostic</button>
     <button class="phase-tab soon" title="Coming soon">Predictive</button>
     <button class="phase-tab soon" title="Coming soon">Prescriptive</button>
   </div>
 
   <!-- Info banner -->
-  <div class="info-banner">
+  <div id="phase-banner" class="info-banner">
     <span>📊</span>
     <span>Phase 1 — Descriptive Analytics. Shows what happened with your equipment in the selected period. Standards: ISO 14224:2016, SMRP Metrics.</span>
   </div>
@@ -208,11 +208,21 @@
     });
   }
 
+  const PHASE_BANNERS = {
+    descriptive: '📊 Phase 1 — Descriptive Analytics. What happened? Standards: ISO 14224:2016, SMRP Metrics.',
+    diagnostic:  '🔍 Phase 2 — Diagnostic Analytics. Why did it happen? Standards: ISO 14224:2016 failure taxonomy, Spearman correlation, SAE JA1011.',
+  };
+
   function setPhase(phase) {
     _phase = phase;
     document.querySelectorAll('.phase-tab:not(.soon)').forEach(b => {
       b.classList.toggle('active', b.textContent.toLowerCase() === phase);
     });
+    const banner = document.getElementById('phase-banner');
+    if (banner && PHASE_BANNERS[phase]) {
+      const icon = phase === 'diagnostic' ? '🔍' : '📊';
+      banner.innerHTML = `<span>${icon}</span><span>${PHASE_BANNERS[phase]}</span>`;
+    }
   }
 
   // ── Run analysis ──────────────────────────────────────────────────────────
@@ -246,7 +256,8 @@
 
       if (data.error) throw new Error(data.error);
 
-      renderDescriptive(data);
+      if (_phase === 'descriptive') renderDescriptive(data);
+      else if (_phase === 'diagnostic') renderDiagnostic(data);
 
     } catch (err) {
       document.getElementById('results-panel').innerHTML = `
@@ -467,6 +478,129 @@
         <tbody>${rows}</tbody>
       </table>
       <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
+    </div>`;
+  }
+
+  // ── Render Phase 2 — Diagnostic ──────────────────────────────────────────
+  function renderDiagnostic(data) {
+    const panel = document.getElementById('results-panel');
+    const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-PH') : '';
+    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
+    html += renderFailureModeDistribution(data.failure_mode_distribution);
+    html += renderPMFailureCorrelation(data.pm_failure_correlation);
+    html += renderSkillMTTRCorrelation(data.skill_mttr_correlation);
+    html += renderPartsAvailabilityImpact(data.parts_availability_impact);
+    html += renderRepeatFailureClustering(data.repeat_failure_clustering);
+    html += renderEngineeringValidation(data.engineering_validation);
+    panel.innerHTML = html;
+  }
+
+  function renderFailureModeDistribution(d) {
+    if (!d?.distribution?.length) return cardEmpty('Failure Mode Distribution', 'ISO 14224:2016', d?.note || 'No root_cause data found.');
+    const max = d.distribution[0]?.count || 1;
+    const bars = d.distribution.slice(0, 8).map(r => {
+      const pct = Math.round((r.count / max) * 100);
+      return `<div class="bar-row">
+        <span class="bar-label" title="${escHtml(r.root_cause)}">${escHtml(r.root_cause)}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+        <span class="bar-val">${r.count} (${r.pct_of_total}%)</span>
+      </div>`;
+    }).join('');
+    return `<div class="card">
+      <div class="card-title">Failure Mode Distribution <span class="card-standard">ISO 14224:2016 · ${d.total_failures} total failures</span></div>
+      ${bars}
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">Top mode: <strong style="color:#a78bfa">${escHtml(d.top_root_cause || '—')}</strong> accounts for ${d.top_root_cause_pct || 0}% of all failures.</p>
+    </div>`;
+  }
+
+  function renderPMFailureCorrelation(d) {
+    if (!d) return cardEmpty('PM-Failure Correlation', 'Spearman rank', 'No data.');
+    const sig = d.significant;
+    const corr = d.correlation;
+    const cls = sig ? (corr > 0.3 ? 'alert' : 'warn') : 'good';
+    return `<div class="card">
+      <div class="card-title">PM-Failure Correlation <span class="card-standard">Spearman rank (SciPy)</span></div>
+      ${corr !== null ? `
+        <div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:0.75rem;">
+          <div class="stat-tile"><div class="val ${cls}">${corr}</div><div class="label">Correlation r</div></div>
+          <div class="stat-tile"><div class="val" style="color:rgba(255,255,255,0.6)">${d.p_value}</div><div class="label">P-value</div></div>
+          <div class="stat-tile"><div class="val" style="color:${sig ? '#f87171' : '#4ade80'}">${sig ? 'YES' : 'NO'}</div><div class="label">Significant?</div></div>
+        </div>` : ''}
+      <p style="font-size:0.75rem;color:rgba(255,255,255,0.6);line-height:1.5;">${escHtml(d.interpretation || d.note || '')}</p>
+      ${d.data_points ? `<p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">${d.data_points} machines analysed</p>` : ''}
+    </div>`;
+  }
+
+  function renderSkillMTTRCorrelation(d) {
+    if (!d?.by_discipline?.length) return cardEmpty('Skill-MTTR Correlation', 'Spearman rank (SciPy)', d?.note || 'Insufficient data — need workers with both skill badges and repair history.');
+    const cards = d.by_discipline.map(disc => {
+      const sig = disc.significant;
+      const cls = sig && disc.correlation < -0.3 ? 'good' : sig ? 'warn' : '';
+      return `<div style="margin-bottom:0.875rem;padding-bottom:0.875rem;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+          <span style="font-size:0.8rem;font-weight:700;color:#fff;">${escHtml(disc.discipline)}</span>
+          <span class="${cls}" style="font-size:0.72rem;font-weight:700;">r = ${disc.correlation} ${sig ? '✓' : ''}</span>
+        </div>
+        <p style="font-size:0.7rem;color:rgba(255,255,255,0.5);">${escHtml(disc.interpretation)}</p>
+        ${disc.by_level.map(l => `<span style="font-size:0.65rem;color:rgba(255,255,255,0.35);margin-right:0.75rem;">L${l.level}: ${l.avg_mttr}h avg</span>`).join('')}
+      </div>`;
+    }).join('');
+    return `<div class="card">
+      <div class="card-title">Skill-MTTR Correlation <span class="card-standard">Spearman rank by discipline</span></div>
+      ${cards}
+    </div>`;
+  }
+
+  function renderPartsAvailabilityImpact(d) {
+    if (!d) return cardEmpty('Parts Availability Impact', 'Cross-reference', 'No data.');
+    const rows = (d.high_downtime_jobs || []).map(j => `<tr>
+      <td class="machine-name">${escHtml(j.machine)}</td>
+      <td class="num alert">${j.downtime_hours}h</td>
+      <td class="num">${j.above_avg_by_h > 0 ? '+' : ''}${j.above_avg_by_h}h</td>
+      <td style="font-size:0.68rem;color:rgba(255,255,255,0.4);">${escHtml(j.date)}</td>
+    </tr>`).join('');
+    return `<div class="card">
+      <div class="card-title">Parts Availability Impact <span class="card-standard">logbook × inventory cross-reference</span></div>
+      <div class="stat-grid" style="margin-bottom:0.75rem;">
+        <div class="stat-tile"><div class="val">${d.overall_avg_mttr_h}h</div><div class="label">Avg MTTR</div></div>
+        <div class="stat-tile"><div class="val">${d.median_mttr_h}h</div><div class="label">Median MTTR</div></div>
+      </div>
+      ${rows ? `<table class="data-table"><thead><tr><th>Machine</th><th class="num">Downtime</th><th class="num">Above avg</th><th>Date</th></tr></thead><tbody>${rows}</tbody></table>` : ''}
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
+    </div>`;
+  }
+
+  function renderRepeatFailureClustering(d) {
+    if (!d?.clusters?.length) return cardEmpty('Repeat Failure Clustering', 'ISO 14224:2016', 'No root_cause data to cluster.');
+    const systemic = (d.systemic_issues || []).map(s => `
+      <div style="margin-bottom:0.5rem;padding:0.5rem;background:rgba(248,113,113,0.06);border-radius:0.5rem;border:1px solid rgba(248,113,113,0.15);">
+        <div style="font-size:0.75rem;font-weight:600;color:#f87171;">${escHtml(s.root_cause)}</div>
+        <div style="font-size:0.65rem;color:rgba(255,255,255,0.4);margin-top:0.2rem;">Affects ${s.machine_count} machines: ${s.machines.map(m => escHtml(m)).join(', ')} · ${s.total_occurrences} occurrences</div>
+      </div>`).join('');
+    return `<div class="card">
+      <div class="card-title">Repeat Failure Clustering <span class="card-standard">ISO 14224:2016 · ${d.systemic_count} systemic issue(s)</span></div>
+      ${systemic || '<p style="font-size:0.75rem;color:#4ade80;">✓ No systemic failures detected across machines.</p>'}
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.75rem;">${escHtml(d.insight || '')}</p>
+    </div>`;
+  }
+
+  function renderEngineeringValidation(d) {
+    if (!d?.flagged?.length) return `<div class="card">
+      <div class="card-title">Engineering Validation <span class="card-standard">WAT pattern — engineering_calcs × logbook</span></div>
+      <div class="empty" style="padding:1rem 0;color:#4ade80;">✓ ${escHtml(d?.note || 'No matches found between failure history and engineering calc records.')}</div>
+    </div>`;
+    const rows = d.flagged.map(f => `
+      <div style="margin-bottom:0.75rem;padding:0.75rem;background:rgba(247,162,27,0.06);border-radius:0.75rem;border:1px solid rgba(247,162,27,0.15);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;margin-bottom:0.3rem;">
+          <span style="font-size:0.8rem;font-weight:700;color:#fff;">${escHtml(f.machine)}</span>
+          <span class="warn" style="font-size:0.68rem;font-weight:700;">${f.failure_count} failures · ${f.total_downtime_h}h DT</span>
+        </div>
+        <div style="font-size:0.68rem;color:rgba(255,255,255,0.4);">Matched calc: ${escHtml(f.matched_calc)}</div>
+        <p style="font-size:0.7rem;color:rgba(255,255,255,0.55);margin-top:0.3rem;">${escHtml(f.recommendation)}</p>
+      </div>`).join('');
+    return `<div class="card">
+      <div class="card-title">Engineering Validation <span class="card-standard">WAT pattern — ${d.flagged_count} match(es) flagged</span></div>
+      ${rows}
     </div>`;
   }
 

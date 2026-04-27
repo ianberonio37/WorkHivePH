@@ -36,6 +36,9 @@ matplotlib==3.8.4
 # Stage 3 Analytics Engine — Phase 1 Descriptive
 pandas==2.2.2
 
+# Stage 3 Analytics Engine — Phase 2 Diagnostic
+statsmodels==0.14.2
+
 # Phase 8 — Server-side PDF generation (replaces html2pdf.js screenshot)
 # weasyprint==62.3
 # Caution: weasyprint requires system-level GTK/Pango libs in Docker image.

@@ -261,10 +261,18 @@ def analytics(req: AnalyticsRequest):
             print(f"ANALYTICS ERROR [descriptive]: {traceback.format_exc()}")
             raise HTTPException(status_code=500, detail=f"Analytics error: {str(e)}")
 
-    # Phases 2-4 will be added here as they are built
+    if phase == "diagnostic":
+        from analytics.diagnostic import calculate
+        try:
+            return calculate(req.inputs)
+        except Exception as e:
+            print(f"ANALYTICS ERROR [diagnostic]: {traceback.format_exc()}")
+            raise HTTPException(status_code=500, detail=f"Analytics error: {str(e)}")
+
+    # Phases 3-4 will be added here as they are built
     raise HTTPException(
         status_code=404,
-        detail=f"Analytics phase '{phase}' not yet implemented. Available: descriptive"
+        detail=f"Analytics phase '{phase}' not yet implemented. Available: descriptive, diagnostic"
     )
 
 
@@ -272,7 +280,7 @@ def analytics(req: AnalyticsRequest):
 def analytics_health():
     """Returns available analytics phases and their status."""
     return {
-        "available_phases": ["descriptive"],
-        "coming_soon": ["diagnostic", "predictive", "prescriptive"],
+        "available_phases": ["descriptive", "diagnostic"],
+        "coming_soon": ["predictive", "prescriptive"],
         "standards": ["ISO 14224:2016", "ISO 13381-1:2015", "ISO 55000:2014", "SMRP Metrics"],
     }
