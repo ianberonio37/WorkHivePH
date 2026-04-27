@@ -276,7 +276,6 @@
       display: flex;
       flex-direction: column;
       background: rgba(13, 22, 36, 0.98);
-      backdrop-filter: blur(16px);
     }
 
     /* ════════════════════════════════
@@ -320,7 +319,8 @@
         rgba(41,182,217,0.3) 40%,
         transparent 100%
       );
-      filter: blur(12px);
+      filter: blur(10px);
+      will-change: opacity;
       animation: mainGlow 3s ease-in-out infinite alternate;
     }
 
@@ -367,8 +367,8 @@
     }
 
     @keyframes mainGlow {
-      from { opacity: 0.5; filter: blur(14px); }
-      to   { opacity: 0.8; filter: blur(8px);  }
+      from { opacity: 0.4; }
+      to   { opacity: 0.75; }
     }
 
     /* ════════════════════════════════
@@ -437,7 +437,7 @@
     /* ── Sticky mobile CTA bar ── */
     #sticky-mobile-cta {
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
-      background: rgba(13,24,36,0.96); backdrop-filter: blur(14px);
+      background: rgba(13,24,36,0.97);
       border-top: 1px solid rgba(255,255,255,0.08);
       padding: 12px 84px 12px 20px;
       padding-bottom: max(12px, env(safe-area-inset-bottom));
@@ -489,7 +489,7 @@
     .nav-link.active::after { width: 100% !important; background: #F7A21B; }
 
     /* ── Hero badge pulse ── */
-    @keyframes badge-pulse { 0%,100%{opacity:.8} 50%{opacity:1;box-shadow:0 0 0 4px rgba(247,162,27,.15)} }
+    @keyframes badge-pulse { 0%,100%{opacity:.75} 50%{opacity:1} }
     .badge { animation: badge-pulse 3s ease-in-out infinite; }
 
     /* ── Page load fade (opacity only: transform on body breaks position:fixed) ── */
