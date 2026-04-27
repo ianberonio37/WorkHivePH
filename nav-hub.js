@@ -120,7 +120,7 @@
           align-items: center;
           justify-content: center;
           box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 0 rgba(247,162,27,0.2);
-          transition: transform 0.22s linear(0,.006,.025,.101,.25,.553,.844,1.035,1.115,1.146,1.14,1.107,1.062,1.018,.99,.979,.988,1.004,1.01,1.006,1.001,.999,1), box-shadow 0.25s ease, border-color 0.2s ease;
+          transition: transform 0.18s ease-out, box-shadow 0.2s ease, border-color 0.18s ease;
           position: relative;
           user-select: none;
         }
@@ -174,7 +174,7 @@
           opacity: 0;
           transform: translateY(10px) scale(0.96);
           pointer-events: none;
-          transition: opacity 0.3s ease, transform 0.5s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.834,.843,.858,.876,.894,.907,.916,.924,.932,.940,.947,.953,.958,.962,.967,.972,.978,.984,.990,.994,.998,1);
+          transition: opacity 0.2s ease, transform 0.2s ease-out;
         }
         #wh-hub-panel.open {
           opacity: 1;
@@ -224,9 +224,7 @@
           background: rgba(255,255,255,0.05);
           border: 1px solid rgba(255,255,255,0.08);
           text-decoration: none; cursor: pointer; min-height: 54px;
-          transition:
-            background 0.15s ease, border-color 0.15s ease,
-            transform 0.22s linear(0,.006,.025,.101,.25,.553,.844,1.035,1.115,1.146,1.14,1.107,1.062,1.018,.99,.979,.988,1.004,1.01,1.006,1.001,.999,1);
+          transition: background 0.15s ease, border-color 0.15s ease, transform 0.18s ease-out;
         }
         .wh-hub-quick-tile:hover {
           background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.18);
@@ -258,7 +256,7 @@
         }
         #wh-hub-all-toggle:hover { color: rgba(255,255,255,0.65); }
         #wh-hub-all-toggle svg {
-          transition: transform 0.45s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.843,.876,.907,.932,.953,.967,.978,.990,.998,1);
+          transition: transform 0.2s ease-out;
         }
         #wh-hub-all-toggle.open svg { transform: rotate(180deg); }
 
@@ -266,9 +264,7 @@
         #wh-hub-tiles {
           display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
           overflow: hidden; max-height: 0; opacity: 0; margin-top: 0;
-          transition:
-            max-height 0.5s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.843,.876,.907,.932,.953,.967,.978,.990,.998,1),
-            opacity 0.3s ease, margin-top 0.3s ease;
+          transition: max-height 0.25s ease-out, opacity 0.2s ease, margin-top 0.2s ease;
         }
         #wh-hub-tiles.open { max-height: 600px; opacity: 1; margin-top: 6px; }
 
@@ -284,8 +280,7 @@
           border: 1px solid rgba(255,255,255,0.06);
           text-decoration: none;
           cursor: pointer;
-          transition: background 0.15s ease, border-color 0.15s ease,
-                      transform 0.22s linear(0,.006,.025,.101,.25,.553,.844,1.035,1.115,1.146,1.14,1.107,1.062,1.018,.99,.979,.988,1.004,1.01,1.006,1.001,.999,1);
+          transition: background 0.15s ease, border-color 0.15s ease, transform 0.18s ease-out;
           position: relative;
         }
         .wh-hub-tile:hover {
