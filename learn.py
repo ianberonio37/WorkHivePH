@@ -94,6 +94,51 @@ def append_to_skill(skill_id, rule_md):
     return True, f"Appended to {path}"
 
 
+def write_autofix_rule(skill_id, rule_dict, dry_run=False):
+    """
+    Inserts an Auto-Fix Rule into the ## Auto-Fix Rules section of a skill file.
+    These rules are read at runtime by autofix.py to build SkillRule recipes.
+    Returns (written: bool, reason: str)
+    """
+    content, path = read_skill(skill_id)
+    if content is None:
+        return False, f"Skill not found: {path}"
+
+    rule_id = rule_dict["id"]
+    if f"### rule: {rule_id}" in content:
+        return False, "rule already exists"
+
+    rule_block = (
+        f"\n### rule: {rule_id}\n"
+        f"**file:** `{rule_dict['file']}`\n"
+        f"**detect:** `{rule_dict['detect']}`\n"
+        f"**replace:** `{rule_dict['replace']}`\n"
+        f"**confidence:** {rule_dict['confidence']}\n"
+        f"**description:** {rule_dict['description']}\n"
+    )
+
+    if dry_run:
+        return True, f"DRY: would write rule '{rule_id}' to {path}"
+
+    section_header = "## Auto-Fix Rules"
+    if section_header not in content:
+        intro = "\n---\n\n## Auto-Fix Rules\n<!-- Read by autofix.py — keep ### rule: format -->\n"
+        with open(path, "a", encoding="utf-8") as fh:
+            fh.write(intro + rule_block)
+    else:
+        idx = content.index(section_header) + len(section_header)
+        nxt = re.search(r"\n## ", content[idx:])
+        if nxt:
+            ins = idx + nxt.start()
+            new_content = content[:ins] + "\n" + rule_block + content[ins:]
+        else:
+            new_content = content + "\n" + rule_block
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(new_content)
+
+    return True, f"Wrote rule '{rule_id}' to {path}"
+
+
 def git_log(n):
     try:
         r = subprocess.run(
@@ -239,7 +284,45 @@ def infer_rule(finding):
     return f"Review this fix and add a specific rule: {finding[:100]}"
 
 
-def format_rule(lesson, today):
+def infer_autofix(finding):
+    """
+    Returns a rule dict if the finding maps to a deterministic string-replace fix,
+    else None. These dicts are written to SKILL.md ## Auto-Fix Rules sections
+    so that autofix.py can read and apply them at runtime.
+    """
+    f = finding.lower()
+
+    if "qty_after" in f and ("inventory_transactions" in f or "logbook" in f):
+        return {
+            "id":          "qty-after-logbook",
+            "file":        "logbook.html",
+            "detect":      "qty_change: -p.qty, type: 'use',",
+            "replace":     "qty_change: -p.qty, qty_after: newQty, type: 'use',",
+            "confidence":  "HIGH",
+            "description": "Missing qty_after in inventory_transactions inserts",
+        }
+    if ("pm_cat_to_log_cat" in f or "logbook categories" in f) and "hvac" in f:
+        return {
+            "id":          "pm-cat-hvac",
+            "file":        "pm-scheduler.html",
+            "detect":      "'HVAC': 'HVAC'",
+            "replace":     "'HVAC': 'Mechanical'",
+            "confidence":  "HIGH",
+            "description": "PM_CAT_TO_LOG_CAT maps HVAC to invalid logbook category",
+        }
+    if "total_connected_kva" in f or ("alias" in f and "load schedule" in f):
+        return {
+            "id":          "load-schedule-kva-alias",
+            "file":        "engineering-design.html",
+            "detect":      "total_connected_kW,",
+            "replace":     "total_connected_kva: r.total_connected_kW, total_connected_kW,",
+            "confidence":  "MEDIUM",
+            "description": "Load Schedule renderer missing lowercase alias for total_connected_kva",
+        }
+    return None
+
+
+def format_rule(lesson, today, has_autofix=False):
     """Convert a lesson into a markdown rule block with an inferred rule."""
     src_label = {
         "warn":       "WARN from validator",
@@ -247,7 +330,11 @@ def format_rule(lesson, today):
         "regression": "Regression detected",
     }.get(lesson["type"], lesson["type"])
 
-    rule_text = infer_rule(lesson["finding"])
+    rule_text    = infer_rule(lesson["finding"])
+    autofix_note = (
+        "\n**Auto-Fix:** Rule generated — `autofix.py` will apply this fix automatically."
+        if has_autofix else ""
+    )
 
     rule = f"""
 ---
@@ -258,7 +345,7 @@ def format_rule(lesson, today):
 
 **Finding:** {lesson['finding']}
 
-**Rule:** {rule_text}
+**Rule:** {rule_text}{autofix_note}
 """
     return rule.strip()
 
@@ -311,13 +398,16 @@ def main():
     skipped  = 0
 
     for lesson in all_lessons:
-        skills = lesson.get("skills") or [lesson.get("skill", "platform-guardian")]
-        rule   = format_rule(lesson, today)
+        skills       = lesson.get("skills") or [lesson.get("skill", "platform-guardian")]
+        autofix_rule = infer_autofix(lesson["finding"])
+        rule         = format_rule(lesson, today, has_autofix=autofix_rule is not None)
 
         for skill_id in skills:
             if DRY_RUN:
                 print(f"  DRY  {skill_id}:")
                 print(f"       {lesson['finding'][:80]}")
+                if autofix_rule:
+                    print(f"       + autofix rule: {autofix_rule['id']}")
                 skipped += 1
             else:
                 ok, reason = append_to_skill(skill_id, rule)
@@ -330,11 +420,18 @@ def main():
                         print(f"  SKIP   {skill_id} ({reason})")
                     skipped += 1
 
+                # Write autofix rule once, to the primary skill only
+                if autofix_rule and skill_id == skills[0]:
+                    af_ok, af_reason = write_autofix_rule(skill_id, autofix_rule, dry_run=False)
+                    if af_ok:
+                        print(f"  AUTOFIX  {skill_id}: rule '{autofix_rule['id']}' written")
+
         actions_taken.append({
-            "lesson":  lesson["finding"][:120],
-            "source":  lesson["source"],
-            "skills":  skills,
-            "written": not DRY_RUN,
+            "lesson":       lesson["finding"][:120],
+            "source":       lesson["source"],
+            "skills":       skills,
+            "written":      not DRY_RUN,
+            "autofix_rule": autofix_rule["id"] if autofix_rule else None,
         })
 
     # ── Save report ────────────────────────────────────────────────────────────

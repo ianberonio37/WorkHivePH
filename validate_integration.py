@@ -40,24 +40,24 @@ SAMPLES = [
         "calc_type": "Room", "source_Lw_dB": 90, "distance_m": 5,
         "directivity_Q": 2, "avg_absorption_coeff": 0.15, "room_surface_m2": 200,
         "exposures": [{"level_dBA": 90, "duration_hr": 8}],
-    }, "python", ["Lp_direct_dB", "room_constant_R", "Lp_room_dB"]),
+    }, "either", ["Lp_at_distance_dB", "NC_limit", "NC_recommended"]),
 
     ("Fluid Power", {
         "system_pressure_bar": 200, "flow_lpm": 40,
         "cylinder_force_kN": 50, "stroke_mm": 200,
         "pump_displacement_cc_rev": 0.5, "pump_rpm": 1380,
-    }, "python", ["extend_force_kN", "pump_motor_kW", "belt_speed_ms"]),
+    }, "either", ["bore_selected_mm", "pressure_line", "return_line"]),
 
     ("Fire Pump Sizing", {
         "required_flow": 1900, "required_pressure": 6.9,
         "drive_type": "Electric Motor", "redundancy": "Duplex",
-    }, "python", ["recommended_hp", "TDH", "Q_Lmin"]),
+    }, "either", ["system_flow_lpm", "system_pressure_bar", "recommended_flow_lpm"]),
 
     ("Generator Sizing", {
         "loads": [{"name": "HVAC", "kw": 50, "pf": 0.85, "qty": 1,
                    "load_type": "HVAC", "starting_method": "VFD"}],
         "voltage": 400, "frequency": 60,
-    }, "python", ["genset_kva", "total_running_kw"]),
+    }, "either", ["demand_kW", "demand_kVA", "required_kVA_governing"]),
 
     # ── TypeScript-handled (source will be absent or "typescript") ────────────
     ("Expansion Tank Sizing", {
@@ -69,19 +69,19 @@ SAMPLES = [
     ("Bearing Life (L10)", {
         "bearing_type": "Ball Bearing", "C_kN": 25.5, "Fr_kN": 5,
         "Fa_kN": 0, "speed_rpm": 1450, "required_life_hr": 25000,
-    }, "either", ["L10h", "equivalent_load_kN", "life_check"]),
+    }, "either", ["P_kN", "C_over_P", "Fa_Fr_ratio"]),
 
     ("Stairwell Pressurization", {
         "building_type": "Sprinklered", "n_floors": 10, "n_stairwells": 2,
         "door_width_m": 0.9, "door_height_m": 2.1, "design_pressure_Pa": 25,
         "fan_static_Pa": 400, "safety_factor_pct": 20,
-    }, "either", ["Q_design_m3s", "selected_HP", "door_force_N"]),
+    }, "either", ["N_stairwells", "N_floors", "door_fit"]),
 
     ("Fire Alarm Battery", {
         "system_voltage": 24,
         "n_facp": 1, "n_addr_smoke": 10, "n_horn_strobe": 5,
         "standby_hours": 24, "alarm_minutes": 5,
-    }, "either", ["required_Ah", "selected_battery", "total_standby_mA"]),
+    }, "either", ["system_voltage", "standby_hours", "panel_standby_mA"]),
 ]
 
 
@@ -94,7 +94,7 @@ def call_edge(calc_type, inputs):
     )
     try:
         with urllib.request.urlopen(req, timeout=90) as r:
-            body = json.loads(r.read())
+            body = json.loads(r.read().decode("utf-8", errors="replace"))
             return body, None
     except Exception as ex:
         return None, str(ex)[:120]

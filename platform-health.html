@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="description" content="WorkHive Platform Guardian: internal health dashboard for monitoring validators, auto-fix, and platform readiness." />
   <title>WorkHive Platform Guardian</title>
   <style>
     :root {
@@ -27,6 +29,48 @@
     }
 
     /* ── Header ── */
+    /* ── Streak counter ── */
+    .streak-badge {
+      display:flex; flex-direction:column; align-items:center;
+      gap:.1rem; padding:.35rem .6rem; border-radius:.6rem;
+      background:rgba(74,222,128,.08); border:1px solid rgba(74,222,128,.2);
+      cursor:default; transition:background .15s;
+    }
+    .streak-badge.cold {
+      background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.1);
+    }
+    .streak-badge:hover { background:rgba(74,222,128,.14); }
+    .streak-badge.cold:hover { background:rgba(255,255,255,.07); }
+    .streak-num {
+      font-size:1.1rem; font-weight:800; line-height:1; color:var(--green);
+    }
+    .streak-badge.cold .streak-num { color:var(--muted); }
+    .streak-lbl {
+      font-size:.58rem; font-weight:600; text-transform:uppercase;
+      letter-spacing:.06em; color:var(--green); white-space:nowrap;
+    }
+    .streak-badge.cold .streak-lbl { color:var(--muted); }
+    @media(max-width:600px) { .streak-badge { display:none; } }
+
+    /* ── Health Score ring ── */
+    .health-score {
+      display:flex; flex-direction:column; align-items:center;
+      gap:.15rem; margin-left:.5rem;
+    }
+    .health-ring {
+      width:52px; height:52px; position:relative;
+    }
+    .health-ring svg { transform:rotate(-90deg); }
+    .health-ring-track { fill:none; stroke:rgba(255,255,255,.08); stroke-width:4; }
+    .health-ring-fill  { fill:none; stroke-width:4; stroke-linecap:round;
+                         transition:stroke-dashoffset .6s ease, stroke .4s; }
+    .health-num {
+      position:absolute; inset:0; display:flex; align-items:center;
+      justify-content:center; font-size:.9rem; font-weight:800;
+    }
+    .health-label { font-size:.58rem; font-weight:600; text-transform:uppercase;
+                    letter-spacing:.06em; color:var(--muted); }
+
     .hdr {
       background: linear-gradient(135deg,#0f1923,#162032);
       border-bottom: 1px solid var(--border);
@@ -162,21 +206,64 @@
     .badge.skip { background:rgba(41,182,217,.15);  color:var(--blue); }
     .vrow .vlabel { flex:1; font-size:.82rem; }
     .vrow .vtime  { font-size:.7rem; color:var(--muted); min-width:3rem; text-align:right; }
+    .vtrend { font-size:.75rem; font-weight:700; min-width:1rem; text-align:center; }
+    .vtrend.reg  { color:var(--red);    }
+    .vtrend.rec  { color:var(--green);  }
+    .vtrend.stab { color:var(--muted);  }
+
+    /* ── Collapsible validator group headers ── */
+    .vgroup-hdr {
+      display:flex; align-items:center; gap:.6rem;
+      padding:.55rem 1rem; cursor:pointer; user-select:none;
+      background:rgba(255,255,255,.02); border-bottom:1px solid var(--border);
+      transition:background .1s;
+    }
+    .vgroup-hdr:hover { background:rgba(255,255,255,.04); }
+    .vgroup-hdr:first-child { border-radius:.75rem .75rem 0 0; }
+    .vgroup-name { flex:1; font-size:.8rem; font-weight:600; color:var(--text); }
+    .vgroup-summary { font-size:.72rem; color:var(--muted); display:flex; gap:.4rem; align-items:center; }
+    .vgroup-arrow { font-size:.72rem; color:var(--muted); transition:transform .2s; }
+    .vgroup-arrow.open { transform:rotate(180deg); }
+    .vgroup-body { display:none; }
+    .vgroup-body.open { display:block; }
 
     /* ── Gate cards ── */
-    .gate-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.75rem; }
+    .gate-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem; }
     @media(max-width:600px){ .gate-grid{grid-template-columns:1fr;} }
     .gcard {
       background:var(--card); border:1px solid var(--border);
-      border-radius:.75rem; padding:.8rem 1rem;
+      border-radius:.75rem; padding:.85rem 1rem;
+      display:flex; flex-direction:column; gap:.3rem;
+      transition:background .15s;
     }
-    .gcard.pass { border-left:3px solid var(--green); }
-    .gcard.fail { border-left:3px solid var(--red); }
-    .gcard.warn { border-left:3px solid var(--yellow); }
-    .gcard.skip { border-left:3px solid var(--blue); }
-    .gname  { font-size:.7rem; color:var(--muted); margin-bottom:.2rem; }
-    .gstat  { font-size:.85rem; font-weight:700; }
-    .gdetail{ font-size:.7rem; color:var(--muted); margin-top:.15rem; }
+    .gcard:hover { background:rgba(255,255,255,.03); }
+    .gcard-top { display:flex; align-items:center; justify-content:space-between; }
+    .gcard-icon { font-size:1.3rem; line-height:1; }
+    .gcard-status {
+      font-size:.62rem; font-weight:800; padding:.12rem .45rem;
+      border-radius:.3rem; text-transform:uppercase; letter-spacing:.05em;
+    }
+    .gcard.pass .gcard-status { background:rgba(74,222,128,.15);  color:var(--green); }
+    .gcard.fail .gcard-status { background:rgba(248,113,113,.15); color:var(--red); }
+    .gcard.warn .gcard-status { background:rgba(251,191,36,.15);  color:var(--yellow); }
+    .gcard.skip .gcard-status { background:rgba(41,182,217,.15);  color:var(--blue); }
+    .gname  { font-size:.82rem; font-weight:700; color:var(--text); }
+    .gdetail{ font-size:.7rem;  color:var(--muted); line-height:1.4; }
+    /* Deploy-ready banner */
+    .deploy-ready {
+      margin:.5rem 0 0;
+      padding:.55rem 1rem; border-radius:.6rem;
+      background:rgba(74,222,128,.08); border:1px solid rgba(74,222,128,.2);
+      display:flex; align-items:center; gap:.5rem;
+      font-size:.78rem; font-weight:600; color:var(--green);
+    }
+    .deploy-blocked {
+      margin:.5rem 0 0;
+      padding:.55rem 1rem; border-radius:.6rem;
+      background:rgba(248,113,113,.07); border:1px solid rgba(248,113,113,.18);
+      display:flex; align-items:center; gap:.5rem;
+      font-size:.78rem; font-weight:600; color:var(--red);
+    }
 
     /* ── Regression ── */
     .reg-alert {
@@ -193,6 +280,94 @@
     }
     .bl-row:last-child { border-bottom:none; }
     .bl-label { flex:1; font-size:.8rem; color:var(--muted); }
+    /* ── Backlog item cards ── */
+    .bl-item {
+      padding:.65rem 1rem; border-bottom:1px solid var(--border);
+      cursor:pointer; transition:background .1s;
+    }
+    .bl-item:last-child { border-bottom:none; }
+    .bl-item:hover { background:rgba(255,255,255,0.025); }
+    .bl-item-header { display:flex; align-items:center; gap:.5rem; }
+    .bl-item-label { flex:1; font-size:.82rem; font-weight:600; color:var(--text); }
+    .bl-bv {
+      font-size:.6rem; font-weight:700; padding:.12rem .4rem; border-radius:.25rem;
+      text-transform:uppercase; letter-spacing:.04em; white-space:nowrap;
+    }
+    .bl-bv.eb { background:rgba(248,113,113,.15); color:var(--red); }
+    .bl-bv.re { background:rgba(167,139,250,.15);  color:#a78bfa; }
+    .bl-bv.op { background:rgba(41,182,217,.15);   color:var(--blue); }
+    .bl-bv.sc { background:rgba(251,191,36,.15);   color:var(--yellow); }
+    .bl-item-body {
+      display:none; margin-top:.5rem; padding:.5rem .6rem;
+      background:rgba(255,255,255,.03); border-radius:.4rem;
+      font-size:.78rem; line-height:1.6;
+    }
+    .bl-item-body.open { display:block; }
+    .bl-field { display:flex; gap:.4rem; margin-bottom:.2rem; }
+    .bl-field-k { color:var(--muted); min-width:80px; flex-shrink:0; font-size:.74rem; }
+    .bl-field-v { color:var(--text); }
+    .bl-score-bar {
+      height:3px; border-radius:999px; margin-top:.4rem;
+      background:rgba(255,255,255,.08);
+    }
+    .bl-score-fill { height:100%; border-radius:999px; background:var(--gold); transition:width .4s; }
+    .bl-actions { display:flex; gap:.4rem; margin-top:.5rem; }
+    .bl-btn {
+      font-size:.68rem; font-weight:600; padding:.2rem .55rem;
+      border-radius:.3rem; border:1px solid; cursor:pointer;
+      transition:all .15s; background:transparent;
+    }
+    .bl-btn.done       { border-color:rgba(74,222,128,.35);  color:var(--green); }
+    .bl-btn.done:hover { background:rgba(74,222,128,.12); }
+    .bl-btn.in-progress       { border-color:rgba(41,182,217,.35);  color:var(--blue); }
+    .bl-btn.in-progress:hover { background:rgba(41,182,217,.1); }
+    .bl-btn.dismiss       { border-color:rgba(255,255,255,.15); color:var(--muted); }
+    .bl-btn.dismiss:hover { background:rgba(255,255,255,.06); }
+    .bl-btn.restore       { border-color:rgba(167,139,250,.35); color:#a78bfa; }
+    .bl-btn.restore:hover { background:rgba(167,139,250,.1); }
+    .bl-item.done-item { opacity:.45; }
+    .bl-item.done-item .bl-item-label { text-decoration:line-through; }
+    .bl-item.wip-item { border-left:3px solid var(--blue); }
+    .bl-wip-badge {
+      font-size:.62rem; font-weight:700; padding:.12rem .4rem;
+      border-radius:.25rem; background:rgba(41,182,217,.15);
+      color:var(--blue); white-space:nowrap;
+    }
+    .bl-archived-toggle {
+      font-size:.72rem; color:var(--muted); cursor:pointer; padding:.4rem 1rem;
+      display:flex; align-items:center; gap:.4rem;
+    }
+    .bl-archived-toggle:hover { color:var(--text); }
+    /* ── Filter pills ── */
+    .bl-filters {
+      display:flex; gap:.4rem; padding:.5rem 1rem .35rem; flex-wrap:wrap;
+      border-bottom:1px solid var(--border);
+    }
+    .bl-pill {
+      font-size:.68rem; font-weight:600; padding:.22rem .65rem;
+      border-radius:999px; border:1px solid rgba(255,255,255,.12);
+      background:transparent; color:var(--muted); cursor:pointer;
+      transition:all .15s;
+    }
+    .bl-pill:hover { border-color:rgba(255,255,255,.25); color:var(--text); }
+    .bl-pill.active { background:rgba(247,162,27,.15); border-color:rgba(247,162,27,.4); color:var(--gold); }
+    /* ── Progress bar ── */
+    .bl-progress {
+      display:flex; align-items:center; gap:.6rem;
+      padding:.35rem 1rem; font-size:.72rem; color:var(--muted);
+      border-bottom:1px solid var(--border);
+    }
+    .bl-progress-track {
+      flex:1; height:4px; background:rgba(255,255,255,.07); border-radius:999px; overflow:hidden;
+    }
+    .bl-progress-fill { height:100%; background:var(--green); border-radius:999px; transition:width .4s; }
+    /* ── Show more button ── */
+    .bl-show-more {
+      width:100%; padding:.55rem; font-size:.75rem; font-weight:600;
+      background:rgba(255,255,255,.03); border:none; border-top:1px solid var(--border);
+      color:var(--muted); cursor:pointer; transition:background .15s;
+    }
+    .bl-show-more:hover { background:rgba(255,255,255,.06); color:var(--text); }
 
     /* ── Guide overlay ── */
     .guide-overlay {
@@ -300,6 +475,36 @@
     body.terminal-open .main { padding-bottom: 58vh; }
 
     /* ── History ── */
+    /* ── Sparkline ── */
+    .sparkline-wrap {
+      padding:.5rem 1rem .25rem; display:flex; align-items:flex-end;
+      gap:3px; height:52px; border-bottom:1px solid var(--border);
+      position:relative;
+    }
+    .spark-bar {
+      width:14px; border-radius:2px 2px 0 0; flex-shrink:0;
+      cursor:pointer; transition:opacity .15s; position:relative;
+    }
+    .spark-bar:hover { opacity:.75; }
+    .spark-bar:hover .spark-tip {
+      display:block;
+    }
+    .spark-tip {
+      display:none; position:absolute; bottom:calc(100% + 5px); left:50%;
+      transform:translateX(-50%); background:rgba(22,32,50,.97);
+      border:1px solid rgba(255,255,255,.12); border-radius:.35rem;
+      padding:.3rem .55rem; white-space:nowrap; z-index:10;
+      font-size:.65rem; color:var(--text); pointer-events:none;
+      line-height:1.5;
+    }
+    .spark-label {
+      font-size:.62rem; color:var(--muted); text-align:center;
+      position:absolute; bottom:-16px; left:0; right:0;
+    }
+    .spark-axis {
+      position:absolute; bottom:.5rem; left:1rem; right:1rem;
+      height:1px; background:rgba(255,255,255,.06);
+    }
     .hist-row {
       display:flex; align-items:center; gap:.6rem;
       padding:.45rem 1rem; border-bottom:1px solid var(--border); font-size:.76rem;
@@ -309,9 +514,93 @@
     .hd { color:var(--muted); min-width:3.5rem; text-align:right; }
 
     .empty { text-align:center; color:var(--muted); padding:1.5rem; font-size:.8rem; }
+
+    /* ── Bottom sheet (mobile backlog item detail) ── */
+    .bsheet-overlay {
+      display:none; position:fixed; inset:0; z-index:150;
+      background:rgba(0,0,0,0.6); backdrop-filter:blur(4px);
+    }
+    .bsheet-overlay.open { display:flex; align-items:flex-end; }
+    .bsheet-panel {
+      width:100%; max-height:82vh; overflow-y:auto;
+      background:var(--surface); border-radius:1.25rem 1.25rem 0 0;
+      border-top:1px solid rgba(255,255,255,.1);
+      padding:0 0 calc(1.5rem + env(safe-area-inset-bottom));
+      transform:translateY(100%); transition:transform .3s cubic-bezier(.32,1,.32,1);
+    }
+    .bsheet-overlay.open .bsheet-panel { transform:translateY(0); }
+    .bsheet-handle {
+      width:36px; height:4px; background:rgba(255,255,255,.2);
+      border-radius:999px; margin:0.75rem auto .5rem; cursor:pointer;
+    }
+    .bsheet-header {
+      padding:.5rem 1.25rem .75rem; display:flex;
+      align-items:flex-start; gap:.6rem; border-bottom:1px solid var(--border);
+    }
+    .bsheet-close {
+      background:none; border:none; color:var(--muted); font-size:1.2rem;
+      cursor:pointer; padding:.1rem .3rem; margin-left:auto; flex-shrink:0;
+      transition:color .15s;
+    }
+    .bsheet-close:hover { color:var(--text); }
+    .bsheet-body { padding:.85rem 1.25rem 0; }
+    .bsheet-title { font-size:.9rem; font-weight:700; color:var(--text); flex:1; }
+
+    /* ── Sticky mobile bottom bar ── */
+    .sticky-bar {
+      display: none;  /* hidden on desktop */
+    }
+    @media (max-width: 768px) {
+      /* Show sticky bar on mobile */
+      .sticky-bar {
+        display: flex;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: rgba(15,25,35,0.97);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid rgba(255,255,255,0.08);
+        padding: .6rem 1rem calc(.6rem + env(safe-area-inset-bottom));
+        gap: .6rem; z-index: 100;
+      }
+      .sticky-bar .action-btn {
+        flex: 1; justify-content: center;
+        padding: .65rem .5rem; font-size: .78rem;
+      }
+      /* Add bottom padding so content isn't hidden under sticky bar */
+      body { padding-bottom: calc(70px + env(safe-area-inset-bottom)); }
+      /* Make top action bar scrollable/compact on mobile — it still works */
+      .actions { flex-wrap: wrap; gap: .4rem; padding: .75rem 1rem 0; }
+      .actions .action-btn { font-size: .72rem; padding: .45rem .75rem; }
+    }
   </style>
 </head>
 <body>
+
+<!-- ── Bottom sheet for backlog item detail on mobile ── -->
+<div class="bsheet-overlay" id="bsheet-overlay">
+  <div class="bsheet-panel" id="bsheet-panel">
+    <div class="bsheet-handle" onclick="closeBSheet()"></div>
+    <div class="bsheet-header">
+      <span class="bsheet-title" id="bsheet-title"></span>
+      <button class="bsheet-close" onclick="closeBSheet()">✕</button>
+    </div>
+    <div class="bsheet-body" id="bsheet-body"></div>
+  </div>
+</div>
+
+<!-- ── Sticky mobile bottom bar (two most-used actions always in thumb reach) ── -->
+<div class="sticky-bar" id="sticky-bar">
+  <button class="action-btn primary" onclick="run('fast')" id="sticky-btn-fast">
+    <span class="btn-icon">▶</span>
+    <div class="spinner"></div>
+    Validate Fast
+  </button>
+  <button class="action-btn muted" onclick="commitAndPush()" id="sticky-btn-git">
+    <span class="btn-icon">📤</span>
+    <div class="spinner"></div>
+    Commit &amp; Push
+  </button>
+</div>
 
 <!-- ── Header ── -->
 <div class="hdr">
@@ -324,6 +613,23 @@
   </div>
   <span class="refresh-chip" onclick="loadHealth()">↻ Refresh</span>
   <span class="refresh-chip" onclick="openGuide()" style="color:var(--gold);border-color:rgba(247,162,27,0.3);">? Guide</span>
+  <!-- Streak counter -->
+  <div class="streak-badge cold" id="streak-badge" title="Consecutive clean runs (0 FAIL)">
+    <div class="streak-num" id="streak-num">—</div>
+    <div class="streak-lbl" id="streak-lbl">Clean Runs</div>
+  </div>
+  <!-- Health Score -->
+  <div class="health-score" id="health-score" title="Platform Health Score (0-100)">
+    <div class="health-ring">
+      <svg viewBox="0 0 52 52" width="52" height="52">
+        <circle class="health-ring-track" cx="26" cy="26" r="22"/>
+        <circle class="health-ring-fill" id="health-ring-fill" cx="26" cy="26" r="22"
+          stroke-dasharray="138.2" stroke-dashoffset="138.2" stroke="var(--green)"/>
+      </svg>
+      <div class="health-num" id="health-num" style="color:var(--green)">—</div>
+    </div>
+    <div class="health-label" id="health-label">Score</div>
+  </div>
 </div>
 
 <!-- ── Action Buttons ── -->
@@ -381,7 +687,7 @@
       <div class="guide-stitle">What Each Button Does</div>
       <div class="guide-row">
         <span class="guide-label"><span class="gtag gold">▶ Validate Fast</span></span>
-        <span class="guide-desc">Runs all 8 checks in ~13 seconds. Use this after every code change. If green, you're safe to continue.</span>
+        <span class="guide-desc">Runs all 39 checks in ~20 seconds. Use this after every code change. If green, you're safe to continue.</span>
       </div>
       <div class="guide-row">
         <span class="guide-label"><span class="gtag red">⚡ Auto-Fix</span></span>
@@ -440,6 +746,72 @@
       <div class="guide-step"><span class="gnum">5</span><span>Git shows WARN → click <strong>📤 Commit &amp; Push</strong> → type a message → done.</span></div>
     </div>
 
+    <!-- How it all works -->
+    <div class="guide-section">
+      <div class="guide-stitle">How It All Works (Simple Flow)</div>
+
+      <div style="font-size:.8rem;color:var(--muted);margin-bottom:.75rem;">Think of it like a control room. Here is what happens behind the scenes when you use this dashboard.</div>
+
+      <!-- Step flow -->
+      <div style="display:flex;flex-direction:column;gap:.35rem;margin-bottom:1rem;">
+
+        <div style="display:flex;align-items:flex-start;gap:.6rem;">
+          <span style="background:rgba(247,162,27,.15);color:var(--gold);border-radius:.35rem;padding:.15rem .5rem;font-weight:700;font-size:.75rem;white-space:nowrap;flex-shrink:0;">1</span>
+          <span style="font-size:.82rem;"><strong>Start Guardian.bat</strong> opens a small Python web server in the background, then opens this page in your browser. The server is the engine — nothing works without it.</span>
+        </div>
+
+        <div style="text-align:center;color:var(--muted);font-size:.75rem;">↓</div>
+
+        <div style="display:flex;align-items:flex-start;gap:.6rem;">
+          <span style="background:rgba(247,162,27,.15);color:var(--gold);border-radius:.35rem;padding:.15rem .5rem;font-weight:700;font-size:.75rem;white-space:nowrap;flex-shrink:0;">2</span>
+          <span style="font-size:.82rem;"><strong>This dashboard</strong> talks to that server. When you click a button, the dashboard sends a request to the server asking it to run a specific script.</span>
+        </div>
+
+        <div style="text-align:center;color:var(--muted);font-size:.75rem;">↓</div>
+
+        <div style="display:flex;align-items:flex-start;gap:.6rem;">
+          <span style="background:rgba(247,162,27,.15);color:var(--gold);border-radius:.35rem;padding:.15rem .5rem;font-weight:700;font-size:.75rem;white-space:nowrap;flex-shrink:0;">3</span>
+          <span style="font-size:.82rem;"><strong>The server runs the script</strong> and streams every line of output back to your terminal in real time. That is why you see the text appear live as it runs.</span>
+        </div>
+
+        <div style="text-align:center;color:var(--muted);font-size:.75rem;">↓</div>
+
+        <div style="display:flex;align-items:flex-start;gap:.6rem;">
+          <span style="background:rgba(247,162,27,.15);color:var(--gold);border-radius:.35rem;padding:.15rem .5rem;font-weight:700;font-size:.75rem;white-space:nowrap;flex-shrink:0;">4</span>
+          <span style="font-size:.82rem;"><strong>39 validators run</strong> — each one checks a specific part of your platform. They cover calculations, data flows, AI quality, security, mobile UX, IoT readiness, enterprise integration, and more. See the "All 39 Validators" section below for plain-language descriptions.</span>
+        </div>
+
+        <div style="text-align:center;color:var(--muted);font-size:.75rem;">↓</div>
+
+        <div style="display:flex;align-items:flex-start;gap:.6rem;">
+          <span style="background:rgba(247,162,27,.15);color:var(--gold);border-radius:.35rem;padding:.15rem .5rem;font-weight:700;font-size:.75rem;white-space:nowrap;flex-shrink:0;">5</span>
+          <span style="font-size:.82rem;"><strong>All results are saved</strong> to one report file <code style="background:rgba(255,255,255,.08);padding:.1rem .3rem;border-radius:.25rem;">platform_health.json</code>. When a run finishes, the dashboard reads that file and updates all the cards you see here.</span>
+        </div>
+
+      </div>
+
+      <!-- Self-healing box -->
+      <div style="background:rgba(41,182,217,.08);border:1px solid rgba(41,182,217,.2);border-radius:.5rem;padding:.75rem;margin-bottom:.75rem;">
+        <div style="font-size:.78rem;font-weight:700;color:var(--blue);margin-bottom:.4rem;">The Self-Healing Loop</div>
+        <div style="font-size:.8rem;line-height:1.6;">
+          FAIL found → <strong>Auto-Fix</strong> reads your skill rules and applies the fix → <strong>Validate Fast</strong> confirms it worked → <strong>Self-Learn</strong> writes the lesson to your skill files → next time the same problem appears, Auto-Fix already knows how to fix it automatically.
+        </div>
+      </div>
+
+      <!-- Who does what -->
+      <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em;">Who Does What</div>
+      <div style="display:flex;flex-direction:column;gap:.3rem;">
+        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">guardian_server.py</span><span style="color:var(--muted);">The engine behind this web page. Routes your button clicks to scripts and streams output back.</span></div>
+        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">run_platform_checks.py</span><span style="color:var(--muted);">The boss script. Calls all 39 validators in order and writes the final report.</span></div>
+        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">validate_*.py (39 files)</span><span style="color:var(--muted);">The workers. Each one checks one area and returns PASS or FAIL.</span></div>
+        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">platform_health.json</span><span style="color:var(--muted);">The report card. Written after every run. This dashboard reads it to show the cards.</span></div>
+        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">learn.py</span><span style="color:var(--muted);">The teacher. Reads failed runs and your git history, then writes lessons to your skill files.</span></div>
+        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">autofix.py</span><span style="color:var(--muted);">The mechanic. Reads lessons from skill files and applies fixes automatically.</span></div>
+        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">platform_baseline.json</span><span style="color:var(--muted);">Saved when all checks pass. Used to detect if something that was working suddenly breaks.</span></div>
+      </div>
+
+    </div>
+
     <!-- When something is red -->
     <div class="guide-section">
       <div class="guide-stitle">When Something Is Red — What to Do</div>
@@ -480,6 +852,69 @@
       </div>
     </div>
 
+    <!-- All 39 validators -->
+    <div class="guide-section">
+      <div class="guide-stitle">All 39 Validators — What They Check</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem;">Each validator runs automatically when you click Validate Fast. Green = working correctly. Red = something needs fixing.</div>
+
+      <!-- Group 1: Core Features -->
+      <div style="font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin:.75rem 0 .35rem;">Core Platform Checks (1–8)</div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">1 Engineering Calc Suite</span><span class="guide-desc" style="font-size:.78rem;">All 46 calculation types (HVAC, Electrical, Fire, Plumbing, Structural) produce correct results and have complete BOM/SOW reports.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">2 Cross-Page Flow</span><span class="guide-desc" style="font-size:.78rem;">When the logbook saves a PM entry, it correctly updates the PM scheduler. Data flows between pages without missing fields.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">3 Hive Validator</span><span class="guide-desc" style="font-size:.78rem;">The team board's real-time channels, member approval flow, and hive ID scoping are all correctly wired.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">4 Logbook Validator</span><span class="guide-desc" style="font-size:.78rem;">Logbook entry rules work — PM category mapping, closed_at timestamp, parts deduction guards.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">5 Inventory Validator</span><span class="guide-desc" style="font-size:.78rem;">Stock management is correct — approval workflow, running balance (qty_after), overflow protection.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">6 PM Scheduler Validator</span><span class="guide-desc" style="font-size:.78rem;">PM frequencies are mapped correctly, scope categories align with logbook categories, midnight normalization works.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">7 Skill Matrix Validator</span><span class="guide-desc" style="font-size:.78rem;">Discipline names are correct, badge logic works without conflicts, exam cooldown and pass threshold are enforced.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">8 Assistant Validator</span><span class="guide-desc" style="font-size:.78rem;">The floating AI widget knows about every tool page, mentions all 46 calc types, and doesn't direct workers to retired pages.</span></div>
+
+      <!-- Group 2: AI Quality -->
+      <div style="font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin:.75rem 0 .35rem;">AI Quality Checks (9–13)</div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">9 AI Context Quality</span><span class="guide-desc" style="font-size:.78rem;">The AI's "brain" is not stale — platform tool descriptions are long enough, calc counts are correct, diagrams are mentioned.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">10 Input Guards</span><span class="guide-desc" style="font-size:.78rem;">Forms validate required fields before writing to the database. Errors are always shown to the worker — never silent.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">11 Schema Consistency</span><span class="guide-desc" style="font-size:.78rem;">Retired table names are not used, date fields use ISO 8601 format, and migration columns match what the code expects.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">12 Observability</span><span class="guide-desc" style="font-size:.78rem;">Realtime channels are cleaned up when the worker leaves, DB failures show toasts to the worker, critical saves confirm success.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">13 Data Governance</span><span class="guide-desc" style="font-size:.78rem;">Every DB row has a worker_name owner tag, deletes are scoped to the right hive, sensitive data is not in the AI prompt.</span></div>
+
+      <!-- Group 3: Platform Standards -->
+      <div style="font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin:.75rem 0 .35rem;">Platform Standards (14–18)</div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">14 PWA Integrity</span><span class="guide-desc" style="font-size:.78rem;">Workers can install WorkHive to their phone home screen. Manifest is complete, theme color set, localStorage writes are safe on iOS.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">15 Accessibility</span><span class="guide-desc" style="font-size:.78rem;">Screen readers can use the app. Images have alt text, modals announce their titles, buttons have accessible names.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">16 Tenant Boundary</span><span class="guide-desc" style="font-size:.78rem;">A worker from Hive A cannot read Hive B's data. Every database read is filtered by hive ID — no data leaks between teams.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">17 AI Prompt Regression</span><span class="guide-desc" style="font-size:.78rem;">Both AI surfaces (floating widget and full assistant) give the same answers. Discipline names, tool lists, and counts are consistent.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">18 Timer Hygiene</span><span class="guide-desc" style="font-size:.78rem;">Background timers (setInterval) are stored in variables and cleaned up. pg_cron scheduled jobs have matching edge function handlers.</span></div>
+
+      <!-- Group 4: From Skills -->
+      <div style="font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin:.75rem 0 .35rem;">From Skill Files (19–28)</div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">19 XSS / escHtml</span><span class="guide-desc" style="font-size:.78rem;">User-typed data is safely encoded before being shown on screen. No dangerous JavaScript execution patterns in any live page.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">20 SEO and Metadata</span><span class="guide-desc" style="font-size:.78rem;">Every app page has a title, description, and noindex so Google shows the landing page — not the logbook — in search results.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">21 Mobile UX</span><span class="guide-desc" style="font-size:.78rem;">viewport-fit=cover prevents content hiding behind iPhone notch. All input fonts are 16px+ to stop iOS auto-zoom.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">22 Nav Hub Registry</span><span class="guide-desc" style="font-size:.78rem;">Every tool page is registered in the navigation hub. No page is invisible to workers. Retired pages are not in the nav.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">23 Performance</span><span class="guide-desc" style="font-size:.78rem;">No unbounded database fetches on large tables (logbook, inventory history). No N+1 query patterns in loops.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">24 Catalog Approval</span><span class="guide-desc" style="font-size:.78rem;">The shared inventory catalog always filters by status=approved. Pending submissions stay invisible until a supervisor approves them.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">25 Drawing Standards</span><span class="guide-desc" style="font-size:.78rem;">All 7 engineering diagram builders use the correct A3 canvas size and arc safety formula. PDFs export cleanly.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">26 Enterprise Compliance</span><span class="guide-desc" style="font-size:.78rem;">All supervisor power actions (approve, reject, kick) are audit-logged. Scheduled jobs record success and failure.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">27 Notifications</span><span class="guide-desc" style="font-size:.78rem;">The approval channel listens for both new submissions AND status changes. Workers receive toasts when their items are approved or rejected.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">28 Predictive Analytics</span><span class="guide-desc" style="font-size:.78rem;">MTBF uses only Breakdown entries with non-empty machine names. MTTR filters out negative repair times. Downtime has no corrupting outliers.</span></div>
+
+      <!-- Group 5: AI Infrastructure -->
+      <div style="font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin:.75rem 0 .35rem;">AI Infrastructure (29–34)</div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">29 Vector Schema</span><span class="guide-desc" style="font-size:.78rem;">The RAG knowledge base tables (fault, skill, PM) have the right 384-dimension embeddings, IVFFlat indexes, and UNION ALL pattern.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">30 Groq Fallback Chain</span><span class="guide-desc" style="font-size:.78rem;">Every AI edge function has 4–6 backup models. If one hits a rate limit, the next model takes over silently.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">31 Edge Contracts</span><span class="guide-desc" style="font-size:.78rem;">All 6 AI edge functions handle CORS, return {error} JSON on failure, validate required fields, and use content:string for SOW.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">32 AI Attribution</span><span class="guide-desc" style="font-size:.78rem;">AI-generated narrative text uses the narrative-block CSS class. The floating AI states it cannot see work records. Calc reports require PRC sign-off.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">33 Context Window</span><span class="guide-desc" style="font-size:.78rem;">The floating AI keeps max 20 messages and sends only the last 10. Semantic search is capped at 3 results. Tokens stay predictable.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">34 Knowledge Freshness</span><span class="guide-desc" style="font-size:.78rem;">Embed functions are called after every logbook save, PM completion, and skill badge. The RAG knowledge base stays current.</span></div>
+
+      <!-- Group 6: Enterprise Integration -->
+      <div style="font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin:.75rem 0 .35rem;">Enterprise Integration Readiness (35–39)</div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">35 SSO Readiness</span><span class="guide-desc" style="font-size:.78rem;">Every page reads worker identity the same way. Sign-out clears all three identity keys. No identity from URL parameters.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">36 Idempotency</span><span class="guide-desc" style="font-size:.78rem;">Running the same import twice won't create duplicates. External sync table has UNIQUE constraint. Webhook handlers verify HMAC signatures.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">37 Integration Security</span><span class="guide-desc" style="font-size:.78rem;">No third-party API tokens hardcoded in page source. External fetch calls have timeouts. All external URLs use HTTPS.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">38 Digital Twin Schema</span><span class="guide-desc" style="font-size:.78rem;">Assets have all 5 required fields (ID, category, location, criticality, owner). Sensor tables include quality_flag. Status fields use CHECK constraints.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">39 IoT/MQTT Safety</span><span class="guide-desc" style="font-size:.78rem;">No unencrypted MQTT connections (mqtt:// must be mqtts://). MQTT topics include hive scoping. Sensor inserts include quality_flag.</span></div>
+    </div>
+
     <div style="text-align:center;margin-top:1rem;">
       <button onclick="closeGuide()" style="padding:.5rem 2rem;background:rgba(247,162,27,.12);border:1px solid rgba(247,162,27,.3);color:var(--gold);border-radius:.5rem;cursor:pointer;font-size:.82rem;font-weight:600;">Got it — close guide</button>
     </div>
@@ -497,6 +932,9 @@
 </div>
 
 <script>
+function escHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
 // ── State ──────────────────────────────────────────────────────────────────
 let _running    = false;
 let _evtSource  = null;
@@ -506,9 +944,13 @@ const HIST_KEY  = 'wh_guard_hist';
 function getHist()       { try { return JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); } catch { return []; } }
 function addHist(report) {
   const hist  = getHist();
+  // Build a compact {id: status} map for trend arrows
+  const vmap = {};
+  (report.validators||[]).forEach(v => { vmap[v.id] = v.status; });
   const entry = { timestamp: report.timestamp, overall: report.overall,
                   summary: report.summary, duration: report.duration_s, mode: report.mode,
-                  regressions: (report.regressions||[]).length };
+                  regressions: (report.regressions||[]).length,
+                  validators: vmap };
   if (hist.length && hist[0].timestamp === entry.timestamp) return;
   hist.unshift(entry);
   if (hist.length > 20) hist.pop();
@@ -527,6 +969,65 @@ function render(report) {
   const ts       = report.timestamp ? new Date(report.timestamp).toLocaleString() : '—';
   const mode     = report.mode === 'fast' ? 'FAST' : 'FULL';
   const dur      = report.duration_s ? `${report.duration_s}s` : '—';
+
+  // ── Health Score ─────────────────────────────────────────────────────────
+  (function() {
+    let score = 100;
+    const failN   = summary.fail || 0;
+    const warnN   = summary.warn || 0;
+    const regN    = (report.regressions || []).length;
+    const gitWarn = report.readiness?.git?.status === 'WARN';
+    const blHigh  = report.improvement_backlog?.high || 0;
+
+    score -= failN   * 5;                         // each FAIL  costs 5 pts
+    score -= warnN   * 2;                         // each WARN  costs 2 pts
+    score -= regN    * 10;                        // each regression costs 10 pts
+    score -= gitWarn ? 3 : 0;                     // uncommitted files costs 3 pts
+    score -= Math.min(blHigh * 2, 10);            // HIGH backlog items max -10 pts
+    score  = Math.max(0, Math.min(100, score));
+
+    const color = score >= 90 ? 'var(--green)'
+                : score >= 70 ? 'var(--yellow)'
+                : 'var(--red)';
+    const label = score >= 90 ? 'Healthy'
+                : score >= 70 ? 'Review'
+                : 'Action';
+
+    // SVG ring: circumference = 2π×22 ≈ 138.2
+    const circ  = 138.2;
+    const offset = circ - (score / 100) * circ;
+
+    const numEl  = document.getElementById('health-num');
+    const fillEl = document.getElementById('health-ring-fill');
+    const lblEl  = document.getElementById('health-label');
+    if (numEl)  { numEl.textContent = score; numEl.style.color = color; }
+    if (fillEl) { fillEl.style.strokeDashoffset = offset; fillEl.style.stroke = color; }
+    if (lblEl)  { lblEl.textContent = label; }
+  })();
+
+  // ── Streak counter ──────────────────────────────────────────────────────────
+  (function() {
+    const h      = getHist();
+    let streak   = 0;
+    for (const run of h) {
+      if ((run.summary?.fail || 0) === 0 && (run.regressions || 0) === 0) {
+        streak++;
+      } else {
+        break;  // streak ends at first non-clean run
+      }
+    }
+    const numEl  = document.getElementById('streak-num');
+    const lblEl  = document.getElementById('streak-lbl');
+    const badgeEl= document.getElementById('streak-badge');
+    if (numEl)  numEl.textContent  = streak;
+    if (lblEl)  lblEl.textContent  = streak === 1 ? 'Clean Run' : 'Clean Runs';
+    if (badgeEl) {
+      badgeEl.classList.toggle('cold', streak === 0);
+      badgeEl.title = streak > 0
+        ? `${streak} consecutive clean run${streak>1?'s':''} — keep it up!`
+        : 'No clean streak yet — fix any FAILs to start a streak';
+    }
+  })();
 
   // Pulse dot
   const dot = document.getElementById('pulse');
@@ -557,62 +1058,452 @@ function render(report) {
     .forEach(c=>{ g4.innerHTML+=`<div class="scard ${c.cls}"><div class="num">${c.n}</div><div class="lbl">${c.l}</div></div>`; });
   main.appendChild(g4);
 
-  // Validators by group
-  const groups = {};
-  vals.forEach(v=>{ if(!groups[v.group]) groups[v.group]=[]; groups[v.group].push(v); });
-  Object.entries(groups).forEach(([grp,items])=>{
-    const sec = ce('div','sec');
-    sec.innerHTML = `<div class="sec-title">${grp}</div>`;
-    const tbl = ce('div','vtable');
-    tbl.innerHTML = items.map(v=>{
-      const s=(v.status||'SKIP').toLowerCase();
-      return `<div class="vrow"><span class="badge ${s}">${v.status}</span><span class="vlabel">${v.label}</span><span class="vtime">${v.elapsed?v.elapsed+'s':'—'}</span></div>`;
-    }).join('');
-    sec.appendChild(tbl);
-    main.appendChild(sec);
-  });
+  // Validators — grouped with collapse/expand
+  // Sub-groups within Platform group for better navigation
+  const SUBGROUPS = {
+    'Core Features':          ['cross-page','hive','logbook','inventory','pm','skillmatrix','assistant'],
+    'AI Quality':             ['ai-context','input-guards','schema','observability','data-governance'],
+    'Platform Standards':     ['pwa','accessibility','tenant-boundary','ai-regression','timers'],
+    'Security & Code':        ['xss','seo','mobile','nav-registry','performance'],
+    'Feature Validators':     ['catalog-scope','drawings','compliance','notifications','predictive'],
+    'AI Infrastructure':      ['vector-schema','groq-fallback','edge-contracts','ai-attribution','context-window','knowledge-freshness'],
+    'Enterprise Integration': ['sso-readiness','idempotency','integration-security','digital-twin','iot-protocols'],
+  };
 
-  // Readiness gate
-  const gsec = ce('div','sec');
-  gsec.innerHTML = '<div class="sec-title">Readiness Gate</div>';
-  const gg = ce('div','gate-grid');
-  const glabels = {git:'Git',python_api:'Python API',supabase:'Supabase'};
-  Object.entries(gate).forEach(([k,v])=>{
-    const s=(v.status||'SKIP').toLowerCase();
-    const col = s==='pass'?'var(--green)':s==='fail'?'var(--red)':s==='warn'?'var(--yellow)':'var(--blue)';
-    gg.innerHTML+=`<div class="gcard ${s}"><div class="gname">${glabels[k]||k}</div><div class="gstat" style="color:${col}">${v.status}</div><div class="gdetail">${v.detail||''}</div></div>`;
-  });
-  gsec.appendChild(gg);
-  main.appendChild(gsec);
+  // Build previous-run validator status map from history (second entry = last run)
+  const histData   = getHist();
+  const prevVmap   = histData.length > 1 ? (histData[1].validators || {}) : {};
 
-  // Improvement backlog
-  if (backlog && (backlog.high||backlog.medium||backlog.low)) {
-    const bsec = ce('div','sec');
-    bsec.innerHTML='<div class="sec-title">Improvement Backlog</div>';
-    const btbl = ce('div','vtable');
-    const upd  = backlog.last_updated ? new Date(backlog.last_updated).toLocaleDateString() : '—';
-    btbl.innerHTML=`
-      <div class="bl-row"><span class="badge fail">${backlog.high||0} HIGH</span><span class="bl-label">Standards with strong update signals — review before next major build</span></div>
-      <div class="bl-row"><span class="badge warn">${backlog.medium||0} MED</span><span class="bl-label">Best practice gaps — check when relevant</span></div>
-      <div class="bl-row"><span class="badge skip">${backlog.low||0} LOW</span><span class="bl-label">Enhancement ideas — roadmap candidates</span></div>
-      <div class="bl-row" style="border-top:1px solid var(--border)">
-        <span style="font-size:.7rem;color:var(--muted);flex:1">Last scanned: ${upd}</span>
-        <button class="action-btn improve" style="font-size:.7rem;padding:.25rem .7rem;" onclick="run('improve')">🔍 Run Improve</button>
-      </div>`;
-    bsec.appendChild(btbl);
-    main.appendChild(bsec);
+  function getTrend(validatorId, currentStatus) {
+    const prev = prevVmap[validatorId];
+    if (!prev) return '';   // no previous data — no arrow
+    const curBad  = currentStatus === 'FAIL' || currentStatus === 'WARN';
+    const prevBad = prev === 'FAIL' || prev === 'WARN';
+    if (curBad  && !prevBad) return '<span class="vtrend reg" title="Regressed">↘</span>';
+    if (!curBad && prevBad)  return '<span class="vtrend rec" title="Recovered">↗</span>';
+    if (currentStatus === prev) return '<span class="vtrend stab" title="Stable">→</span>';
+    return '';
   }
 
-  // History
+  function renderValidatorGroup(groupName, groupVals) {
+    if (!groupVals.length) return;
+    const hasIssue = groupVals.some(v => v.status === 'FAIL' || v.status === 'WARN');
+    const passN = groupVals.filter(v => v.status === 'PASS').length;
+    const failN = groupVals.filter(v => v.status === 'FAIL').length;
+    const warnN = groupVals.filter(v => v.status === 'WARN').length;
+
+    const tbl = ce('div', 'vtable');
+
+    // Group header
+    const hdr = document.createElement('div');
+    hdr.className = 'vgroup-hdr';
+    const summaryParts = [];
+    if (failN) summaryParts.push(`<span style="color:var(--red);font-weight:700;">${failN} FAIL</span>`);
+    if (warnN) summaryParts.push(`<span style="color:var(--yellow);">${warnN} WARN</span>`);
+    summaryParts.push(`<span>${passN}/${groupVals.length} pass</span>`);
+
+    hdr.innerHTML = `
+      <span class="vgroup-name">${groupName}</span>
+      <span class="vgroup-summary">${summaryParts.join(' · ')}</span>
+      <span class="vgroup-arrow ${hasIssue ? 'open' : ''}">▼</span>`;
+
+    // Group body — rows with trend arrows
+    const body = document.createElement('div');
+    body.className = 'vgroup-body' + (hasIssue ? ' open' : '');
+    body.innerHTML = groupVals.map(v => {
+      const s     = (v.status||'SKIP').toLowerCase();
+      const trend = getTrend(v.id, v.status);
+      return `<div class="vrow"><span class="badge ${s}">${v.status}</span><span class="vlabel">${v.label}</span>${trend}<span class="vtime">${v.elapsed?v.elapsed+'s':'—'}</span></div>`;
+    }).join('');
+
+    hdr.addEventListener('click', () => {
+      const isOpen = body.classList.toggle('open');
+      hdr.querySelector('.vgroup-arrow').classList.toggle('open', isOpen);
+    });
+
+    tbl.appendChild(hdr);
+    tbl.appendChild(body);
+    return tbl;
+  }
+
+  // Engineering Calculator — keep as its own top-level section
+  const calcVals = vals.filter(v => v.group === 'Engineering Calculator');
+  if (calcVals.length) {
+    const sec = ce('div','sec');
+    sec.innerHTML = '<div class="sec-title">Engineering Calculator</div>';
+    const tbl = renderValidatorGroup('Engineering Calc Suite', calcVals);
+    if (tbl) sec.appendChild(tbl);
+    main.appendChild(sec);
+  }
+
+  // Platform — split into logical sub-groups
+  const platformVals = vals.filter(v => v.group === 'Platform');
+  if (platformVals.length) {
+    const sec = ce('div','sec');
+    sec.innerHTML = '<div class="sec-title">Platform Validators</div>';
+    const assigned = new Set();
+
+    Object.entries(SUBGROUPS).forEach(([subName, ids]) => {
+      const subVals = platformVals.filter(v => ids.includes(v.id));
+      if (subVals.length) {
+        subVals.forEach(v => assigned.add(v.id));
+        const tbl = renderValidatorGroup(subName, subVals);
+        if (tbl) sec.appendChild(tbl);
+      }
+    });
+
+    // Any platform validators not in a sub-group — show under "Other"
+    const other = platformVals.filter(v => !assigned.has(v.id));
+    if (other.length) {
+      const tbl = renderValidatorGroup('Other', other);
+      if (tbl) sec.appendChild(tbl);
+    }
+    main.appendChild(sec);
+  }
+
+  // Readiness gate — visual status cards
+  const gsec = ce('div','sec');
+  gsec.innerHTML = '<div class="sec-title">Readiness Gate</div>';
+
+  const GATE_META = {
+    git:        { label:'Git',            icon:{ pass:'✓', fail:'✗', warn:'⚠', skip:'⊘' } },
+    python_api: { label:'Python API',     icon:{ pass:'✓', fail:'✗', warn:'⚠', skip:'⊘' } },
+    supabase:   { label:'Supabase Edge',  icon:{ pass:'✓', fail:'✗', warn:'⚠', skip:'⊘' } },
+  };
+
+  const gg = ce('div','gate-grid');
+  let gateAllOk = true;
+  let gateBlockReason = '';
+
+  Object.entries(gate).forEach(([k,v])=>{
+    const s    = (v.status||'SKIP').toLowerCase();
+    const meta = GATE_META[k] || { label:k, icon:{pass:'✓',fail:'✗',warn:'⚠',skip:'⊘'} };
+    const icon = meta.icon[s] || '⊘';
+    const iconColor = s==='pass'?'var(--green)':s==='fail'?'var(--red)':s==='warn'?'var(--yellow)':'var(--blue)';
+
+    if (s === 'fail') { gateAllOk = false; gateBlockReason = `${meta.label} failed`; }
+
+    const card = document.createElement('div');
+    card.className = `gcard ${s}`;
+    card.innerHTML = `
+      <div class="gcard-top">
+        <span class="gcard-icon" style="color:${iconColor}">${icon}</span>
+        <span class="gcard-status">${v.status||'SKIP'}</span>
+      </div>
+      <div class="gname">${meta.label}</div>
+      <div class="gdetail">${v.detail||''}</div>`;
+    gg.appendChild(card);
+  });
+
+  gsec.appendChild(gg);
+
+  // Deploy readiness banner
+  const deployBanner = document.createElement('div');
+  const failsExist   = (summary.fail || 0) > 0 || regs.length > 0;
+  if (!failsExist && gateAllOk) {
+    deployBanner.className = 'deploy-ready';
+    deployBanner.innerHTML = `✓ &nbsp;Platform is ready to deploy`;
+  } else {
+    deployBanner.className = 'deploy-blocked';
+    const reason = failsExist
+      ? `${summary.fail||0} validator failure(s) — fix before deploying`
+      : `${gateBlockReason} — resolve before deploying`;
+    deployBanner.innerHTML = `✗ &nbsp;${reason}`;
+  }
+  gsec.appendChild(deployBanner);
+  main.appendChild(gsec);
+
+  // Improvement backlog — always show if improvement_backlog.json exists
+  // backlog counts come from platform_health.json (preserved across runs)
+  // full items loaded directly from improvement_backlog.json
+  const showBacklog = backlog && (backlog.high||backlog.medium||backlog.low);
+  if (showBacklog || true) {  // always attempt; fetch handles missing file gracefully
+    const bsec = ce('div','sec');
+    const upd  = backlog?.last_updated ? new Date(backlog.last_updated).toLocaleDateString() : '—';
+    const high = backlog?.high||0, med = backlog?.medium||0, lo = backlog?.low||0;
+    bsec.innerHTML = `
+      <div class="sec-title">Improvement Backlog
+        <span style="font-size:.7rem;font-weight:400;color:var(--muted);margin-left:.5rem;">
+          Last scanned: ${upd}
+        </span>
+      </div>`;
+
+    // Summary row
+    const sumrow = document.createElement('div');
+    sumrow.style = 'display:flex;gap:.5rem;padding:.5rem 1rem .25rem;flex-wrap:wrap;';
+    sumrow.innerHTML = `
+      <span class="badge fail">${high} HIGH</span>
+      <span class="badge warn">${med} MED</span>
+      <span class="badge skip">${lo} LOW</span>
+      <span style="flex:1"></span>
+      <button class="action-btn improve" style="font-size:.7rem;padding:.25rem .7rem;" onclick="run('improve')">🔍 Run Improve</button>`;
+    bsec.appendChild(sumrow);
+
+    // Load and render full items
+    const btbl = ce('div','vtable');
+    btbl.id = 'bl-items-table';
+    btbl.innerHTML = '<div style="padding:.6rem 1rem;font-size:.78rem;color:var(--muted);">Loading items...</div>';
+    bsec.appendChild(btbl);
+    main.appendChild(bsec);
+
+    fetch('./improvement_backlog.json?t=' + Date.now())
+      .then(r => r.ok ? r.json() : [])
+      .then(items => {
+        if (!items || !items.length) {
+          btbl.innerHTML = '<div style="padding:.6rem 1rem;font-size:.78rem;color:var(--muted);">No items yet — click Run Improve to scan.</div>';
+          return;
+        }
+
+        const BV_LABEL = {
+          enterprise_blocker: ['eb', 'Enterprise Blocker'],
+          revenue_enabler:    ['re', 'Revenue Enabler'],
+          operational:        ['op', 'Operational'],
+          standard_currency:  ['sc', 'Standards'],
+        };
+        const PRI_ORDER = {HIGH:0, MEDIUM:1, LOW:2};
+
+        // Separate active, in-progress, done, and dismissed
+        const active     = items.filter(i => !i.status && (i.score >= 20 || i.priority === 'HIGH'));
+        const inProgress = items.filter(i => i.status === 'in_progress');
+        const doneItems  = items.filter(i => i.status === 'done');
+        const dismissed  = items.filter(i => i.status === 'dismiss');
+        const allDone    = [...doneItems, ...dismissed];
+
+        // In-progress items show first, then active
+        const allActive = [
+          ...inProgress.sort((a,b) => (PRI_ORDER[a.priority]||9) - (PRI_ORDER[b.priority]||9) || (b.score||0) - (a.score||0)),
+          ...active.sort((a,b) => (PRI_ORDER[a.priority]||9) - (PRI_ORDER[b.priority]||9) || (b.score||0) - (a.score||0)),
+        ];
+        const totalItems    = active.length + inProgress.length + allDone.length;
+        const resolvedCount = allDone.length;
+
+        // ── Filter state ─────────────────────────────────────────────────────
+        let activeFilter = 'all';
+        const PAGE_SIZE  = 5;
+
+        const FILTERS = [
+          { id:'all',                label:'All' },
+          { id:'in_progress',        label:`In Progress (${inProgress.length})` },
+          { id:'HIGH',               label:'High' },
+          { id:'enterprise_blocker', label:'Enterprise Blocker' },
+          { id:'revenue_enabler',    label:'Revenue Enabler' },
+          { id:'standard_currency',  label:'Standards' },
+          { id:'done',               label:`Done (${allDone.length})` },
+        ];
+
+        // ── Progress bar ─────────────────────────────────────────────────────
+        const progEl = document.createElement('div');
+        progEl.className = 'bl-progress';
+        const pct = totalItems > 0 ? Math.round((resolvedCount / totalItems) * 100) : 0;
+        progEl.innerHTML = `
+          <span>${resolvedCount} of ${totalItems} items resolved</span>
+          <div class="bl-progress-track"><div class="bl-progress-fill" style="width:${pct}%"></div></div>
+          <span>${pct}%</span>`;
+        btbl.appendChild(progEl);
+
+        // ── Filter pills ─────────────────────────────────────────────────────
+        const filterRow = document.createElement('div');
+        filterRow.className = 'bl-filters';
+        FILTERS.forEach(f => {
+          const pill = document.createElement('button');
+          pill.className = 'bl-pill' + (f.id === 'all' ? ' active' : '');
+          pill.textContent = f.label;
+          pill.dataset.fid = f.id;
+          pill.addEventListener('click', () => {
+            activeFilter = f.id;
+            filterRow.querySelectorAll('.bl-pill').forEach(p => p.classList.toggle('active', p.dataset.fid === f.id));
+            renderPage(0);
+          });
+          filterRow.appendChild(pill);
+        });
+        btbl.appendChild(filterRow);
+
+        // ── Item list container ───────────────────────────────────────────────
+        const listEl = document.createElement('div');
+        listEl.id = 'bl-list';
+        btbl.appendChild(listEl);
+
+        // ── Render a page of items ────────────────────────────────────────────
+        function getFiltered() {
+          if (activeFilter === 'done')        return allDone;
+          if (activeFilter === 'in_progress') return inProgress;
+          return allActive.filter(i => {
+            if (activeFilter === 'all')  return true;
+            if (activeFilter === 'HIGH') return i.priority === 'HIGH';
+            return i.business_value === activeFilter;
+          });
+        }
+
+        let shownCount = 0;
+        function renderPage(reset) {
+          if (reset === 0) { listEl.innerHTML = ''; shownCount = 0; }
+          const filtered = getFiltered();
+          const slice = filtered.slice(shownCount, shownCount + PAGE_SIZE);
+          const isArchived = activeFilter === 'done';
+
+          if (shownCount === 0 && !slice.length) {
+            listEl.innerHTML = '<div style="padding:.6rem 1rem;font-size:.78rem;color:var(--muted);">No items in this filter.</div>';
+            return;
+          }
+
+          slice.forEach((item, i) => {
+            listEl.appendChild(renderBlItem(item, 'p-' + (shownCount + i), isArchived));
+          });
+          shownCount += slice.length;
+
+          // Show-more button
+          const existing = listEl.querySelector('.bl-show-more');
+          if (existing) existing.remove();
+          if (shownCount < filtered.length) {
+            const more = document.createElement('button');
+            more.className = 'bl-show-more';
+            const remaining = filtered.length - shownCount;
+            more.textContent = `Show ${Math.min(remaining, PAGE_SIZE)} more  (${remaining} remaining)`;
+            more.addEventListener('click', () => renderPage());
+            listEl.appendChild(more);
+          }
+        }
+
+        renderPage(0);
+
+        function backlogAction(itemId, action, card) {
+          fetch('/api/backlog', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({action, id: itemId})
+          }).then(r => r.json()).then(d => {
+            if (d.ok) {
+              if (action === 'in_progress') {
+                loadHealth(); // re-render to show WIP state properly
+              } else if (action === 'dismiss') {
+                card.style.transition = 'opacity .3s';
+                card.style.opacity = '0';
+                setTimeout(() => card.remove(), 300);
+              } else if (action === 'done') {
+                card.classList.add('done-item');
+                card.querySelectorAll('.bl-btn.done, .bl-btn.dismiss').forEach(b => b.remove());
+                const rb = document.createElement('button');
+                rb.className = 'bl-btn restore'; rb.textContent = '↩ Undo';
+                rb.onclick = (e) => { e.stopPropagation(); backlogAction(itemId, 'restore', card); };
+                card.querySelector('.bl-actions').appendChild(rb);
+              } else if (action === 'restore') {
+                card.classList.remove('done-item');
+                card.remove();
+                loadHealth(); // reload page to re-render
+              }
+            }
+          });
+        }
+
+        function renderBlItem(item, idx, isArchived) {
+          const [bvCls, bvText] = BV_LABEL[item.business_value] || ['op', item.business_value||''];
+          const priBadge = item.priority === 'HIGH' ? 'fail' : item.priority === 'MEDIUM' ? 'warn' : 'skip';
+          const scoreW   = Math.min(100, item.score||0);
+          const signals  = (item.signals||[]).slice(0,5).join(', ') || '—';
+          const valIds   = (item.validator_ids||[]).join(', ') || '—';
+          const opp      = item.opportunity || '—';
+          const affects  = item.affects || '—';
+          const url      = item.url || '';
+          const freq     = (item.check_frequency||'').toUpperCase();
+          const isDone   = item.status === 'done';
+          const isWIP    = item.status === 'in_progress';
+
+          const card = document.createElement('div');
+          card.className = 'bl-item' + (isDone ? ' done-item' : '') + (isWIP ? ' wip-item' : '');
+          card.innerHTML = `
+            <div class="bl-item-header">
+              <span class="badge ${priBadge}">${item.priority||'?'}</span>
+              <span class="bl-item-label">${escHtml(item.label||item.id||'')}</span>
+              ${isWIP ? '<span class="bl-wip-badge">⚙ In Progress</span>' : ''}
+              <span class="bl-bv ${bvCls}">${bvText}</span>
+              ${freq ? `<span style="font-size:.6rem;color:var(--muted);">${freq}</span>` : ''}
+              <span style="font-size:.72rem;color:var(--muted);margin-left:.25rem;">▾</span>
+            </div>
+            <div class="bl-item-body" id="bl-body-${idx}">
+              <div class="bl-field"><span class="bl-field-k">Opportunity</span><span class="bl-field-v">${escHtml(opp)}</span></div>
+              <div class="bl-field"><span class="bl-field-k">Affects</span><span class="bl-field-v">${escHtml(affects)}</span></div>
+              <div class="bl-field"><span class="bl-field-k">Validators</span><span class="bl-field-v" style="color:var(--blue);">${escHtml(valIds)}</span></div>
+              <div class="bl-field"><span class="bl-field-k">Signals</span><span class="bl-field-v" style="color:var(--gold);">${escHtml(signals)}</span></div>
+              ${url ? `<div class="bl-field"><span class="bl-field-k">Source</span><span class="bl-field-v"><a href="${escHtml(url)}" target="_blank" style="color:var(--blue);font-size:.74rem;">${escHtml(url.substring(0,60))}${url.length>60?'...':''}</a></span></div>` : ''}
+              <div class="bl-score-bar"><div class="bl-score-fill" style="width:${scoreW}%"></div></div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">Signal strength: ${scoreW}/100 — ${escHtml(item.assessment||'')}</div>
+              <div class="bl-actions">
+                ${!isArchived && !isDone && !isWIP ? `<button class="bl-btn in-progress">⚙ In Progress</button><button class="bl-btn done">✓ Done</button><button class="bl-btn dismiss">✕ Dismiss</button>` : ''}
+                ${isWIP ? `<button class="bl-btn done">✓ Done</button><button class="bl-btn restore">↩ Back to Active</button>` : ''}
+                ${isDone || (isArchived && !isWIP) ? `<button class="bl-btn restore">↩ Restore</button>` : ''}
+              </div>
+            </div>`;
+
+          card.querySelector('.bl-item-header').addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+              // Mobile: open bottom sheet
+              const bodyEl = document.getElementById('bl-body-' + idx);
+              openBSheet(item.label||item.id||'', bodyEl ? bodyEl.innerHTML : '');
+            } else {
+              // Desktop: toggle inline
+              const body = document.getElementById('bl-body-' + idx);
+              body.classList.toggle('open');
+              const arrow = card.querySelector('.bl-item-header span:last-child');
+              if (arrow) arrow.textContent = body.classList.contains('open') ? '▴' : '▾';
+            }
+          });
+          const wipBtn     = card.querySelector('.bl-btn.in-progress');
+          const doneBtn    = card.querySelector('.bl-btn.done');
+          const dismissBtn = card.querySelector('.bl-btn.dismiss');
+          const restoreBtn = card.querySelector('.bl-btn.restore');
+          if (wipBtn)     wipBtn.addEventListener('click',     (e) => { e.stopPropagation(); backlogAction(item.id, 'in_progress', card); });
+          if (doneBtn)    doneBtn.addEventListener('click',    (e) => { e.stopPropagation(); backlogAction(item.id, 'done',        card); });
+          if (dismissBtn) dismissBtn.addEventListener('click', (e) => { e.stopPropagation(); backlogAction(item.id, 'dismiss',     card); });
+          if (restoreBtn) restoreBtn.addEventListener('click', (e) => { e.stopPropagation(); backlogAction(item.id, 'restore',     card); });
+          return card;
+        }
+
+        // Initial render is handled by renderPage(0) above
+      })
+      .catch(() => {
+        btbl.innerHTML = '<div style="padding:.6rem 1rem;font-size:.78rem;color:var(--muted);">Could not load backlog. Run Improve to generate items.</div>';
+      });
+  }
+
+  // History — sparkline + compact list
   const hist = getHist();
   if (hist.length > 1) {
     const hsec = ce('div','sec');
     hsec.innerHTML = '<div class="sec-title">Run History</div>';
+
+    // ── Sparkline chart ──────────────────────────────────────────────────────
+    const chartRuns = hist.slice(0, 10).reverse(); // oldest → newest, max 10
+    const spark = document.createElement('div');
+    spark.className = 'sparkline-wrap';
+    spark.innerHTML = '<div class="spark-axis"></div>';
+
+    const BAR_H = 36; // max bar height in px
+
+    chartRuns.forEach(h => {
+      const total  = (h.summary?.pass||0) + (h.summary?.fail||0) + (h.summary?.warn||0);
+      const passR  = total > 0 ? (h.summary?.pass||0) / total : 1;
+      const barH   = Math.max(4, Math.round(passR * BAR_H));
+      const color  = h.overall === 'FAIL' ? 'var(--red)'
+                   : h.overall === 'WARN' ? 'var(--yellow)'
+                   : 'var(--green)';
+      const date   = new Date(h.timestamp).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+      const tipHtml = `${date}<br>${h.summary?.pass||0} pass · ${h.summary?.fail||0} fail · ${h.duration}s`;
+
+      const bar = document.createElement('div');
+      bar.className = 'spark-bar';
+      bar.style.cssText = `height:${barH}px; background:${color};`;
+      bar.innerHTML = `<div class="spark-tip">${tipHtml}</div>`;
+      spark.appendChild(bar);
+    });
+
+    hsec.appendChild(spark);
+
+    // ── Recent runs list (last 5) ────────────────────────────────────────────
     const htbl = ce('div','vtable');
-    htbl.innerHTML = hist.map(h=>{
-      const s=(h.overall||'PASS').toLowerCase();
-      const t=new Date(h.timestamp).toLocaleString();
-      const rg=h.regressions?`<span style="color:var(--red);font-size:.68rem"> ⚠${h.regressions}</span>`:'';
+    htbl.innerHTML = hist.slice(0, 5).map(h => {
+      const s  = (h.overall||'PASS').toLowerCase();
+      const t  = new Date(h.timestamp).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+      const rg = h.regressions ? `<span style="color:var(--red);font-size:.68rem"> ⚠${h.regressions}</span>` : '';
       return `<div class="hist-row"><span class="ht">${t}</span><span class="badge ${s}" style="font-size:.6rem">${h.overall}</span><span style="flex:1;font-size:.73rem;color:var(--muted)">${h.mode||''} ${h.summary?.pass||0}P ${h.summary?.fail||0}F${rg}</span><span class="hd">${h.duration}s</span></div>`;
     }).join('');
     hsec.appendChild(htbl);
@@ -695,7 +1586,8 @@ function commitAndPush() {
 }
 
 // ── Run a command ──────────────────────────────────────────────────────────
-const BTN_IDS = ['btn-fast','btn-autofix','btn-deploy','btn-learn','btn-improve','btn-gate','btn-git'];
+const BTN_IDS = ['btn-fast','btn-autofix','btn-deploy','btn-learn','btn-improve','btn-gate','btn-git',
+                 'sticky-btn-fast','sticky-btn-git'];
 
 function setRunning(running, label) {
   _running = running;
@@ -785,6 +1677,21 @@ function termLine(text, cls) {
 }
 
 // ── Guide ──────────────────────────────────────────────────────────────────
+// ── Bottom sheet for backlog item detail on mobile ────────────────────────────
+function openBSheet(title, bodyHtml) {
+  document.getElementById('bsheet-title').textContent = title;
+  document.getElementById('bsheet-body').innerHTML = bodyHtml;
+  document.getElementById('bsheet-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeBSheet() {
+  document.getElementById('bsheet-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('bsheet-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeBSheet();
+});
+
 function openGuide()  { document.getElementById('guide-overlay').classList.add('open'); }
 function closeGuide(e) {
   if (e && e.target !== document.getElementById('guide-overlay')) return;
@@ -795,7 +1702,7 @@ document.addEventListener('keydown', e => { if (e.key==='Escape') document.getEl
 
 // ── Auto-refresh ───────────────────────────────────────────────────────────
 loadHealth();
-setInterval(() => { if (!_running) loadHealth(); }, 15000);
+const _healthPollInterval = setInterval(() => { if (!_running) loadHealth(); }, 15000);
 </script>
 </body>
 </html>

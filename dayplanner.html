@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Maintenance Day Planner: WorkHive</title>
   <meta name="description" content="Plan your maintenance shift with DILO, WILO, MILO, and YILO views. Schedule tasks, track open items, and stay on top of your workday with WorkHive." />
@@ -183,7 +184,7 @@
           </svg>
           <span style="font-size:0.8rem;font-weight:700;color:rgba(255,255,255,0.85)">Open Items</span>
         </div>
-        <button class="btn-icon" onclick="toggleSidebar()" title="Collapse sidebar">
+        <button class="btn-icon" onclick="toggleSidebar()" title="Collapse sidebar" aria-label="Collapse sidebar">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
           </svg>
@@ -232,11 +233,11 @@
 
       <!-- Nav controls -->
       <div style="display:flex;align-items:center;gap:0.5rem">
-        <button class="btn-icon" onclick="navigate(-1)" title="Previous">
+        <button class="btn-icon" onclick="navigate(-1)" title="Previous" aria-label="Previous">
           <svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
         </button>
         <button class="btn-ghost" onclick="goToday()" style="font-size:0.75rem;padding:0.4rem 0.75rem">Today</button>
-        <button class="btn-icon" onclick="navigate(1)" title="Next">
+        <button class="btn-icon" onclick="navigate(1)" title="Next" aria-label="Next">
           <svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
       </div>

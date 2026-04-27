@@ -40,7 +40,7 @@
     if (path.includes('hive'))          return { page: 'hive',          label: 'WorkHive Board',         hint: 'Ask about team performance, PM health, downtime trends, or how to use the board.' };
     if (path.includes('inventory'))     return { page: 'inventory',     label: 'Inventory Manager',      hint: 'Help me with stock levels, reorder points, or parts management best practices.' };
     if (path.includes('skillmatrix'))   return { page: 'skillmatrix',   label: 'Skill Matrix',           hint: 'Ask about discipline requirements, exam tips, or how to progress through skill levels.' };
-    if (path.includes('engineering-design')) return { page: 'engineering-design', label: 'Eng. Design Calculator', hint: 'Ask about any of the 36 calc types (HVAC, Electrical, Structural, Machine Design, Plumbing, Fire), formula inputs, Philippine standards (PEC 2017, PSME, NSCP, ASHRAE, NFPA, IEC, ASME), how to interpret results, or generate BOM/SOW and diagrams.' };
+    if (path.includes('engineering-design')) return { page: 'engineering-design', label: 'Eng. Design Calculator', hint: 'Ask about any of the 46 calc types (HVAC, Electrical, Structural, Machine Design, Plumbing, Fire), formula inputs, Philippine standards (PEC 2017, PSME, NSCP, ASHRAE, NFPA, IEC, ASME), how to interpret results, or generate BOM/SOW and engineering diagrams.' };
     return                              { page: 'home',                 label: 'WorkHive Home',          hint: 'Ask me anything about the platform or industrial maintenance.' };
   }
 
@@ -458,13 +458,13 @@
 
 PLATFORM TOOLS (so you can answer "where do I find X?" questions):
 - Digital Logbook (logbook.html): Log daily maintenance jobs — machine, problem, root cause, action taken, downtime, parts used. When status = Closed, a Parts Used section appears. Supports asset linking and photo uploads.
-- Day Planner (dayplanner.html): DILO/WILO/MILO/YILO multi-resolution scheduler. Plan daily, weekly, monthly, and yearly work.
+- Day Planner (dayplanner.html): DILO/WILO/MILO/YILO multi-resolution scheduler. Plan daily, weekly, monthly, and yearly work. Add tasks with durations, drag to reorder by priority, flag recurring items.
 - My Work Assistant (assistant.html): Full AI assistant with access to the worker's own logbook records for personalised insights.
 - WorkHive Live Board (hive.html): Team collaboration hub. Live activity feed of logbook entries and PM completions. PM Health panel shows overdue/due-soon assets. Supervisors manage team membership and approve shared catalog submissions.
 - Inventory Manager (inventory.html): Parts and consumables stock ledger. Workers use and restock parts. Supervisors control the shared catalog.
 - PM Scheduler (pm-scheduler.html): Plant Maintenance scheduling. Register assets, assign PM scope checklists by category (Rotating Equipment, Electrical, HVAC, Utility Systems, etc.), set frequencies (Monthly, Quarterly, Semi-Annual, Yearly), and track due dates. Completing a PM task optionally creates a linked Logbook entry. When logging a Preventive Maintenance entry in the Logbook, pending PM tasks for that asset appear automatically.
 - Skill Matrix (skillmatrix.html): Competency tracking across 5 disciplines (Mechanical, Electrical, Instrumentation, Facilities Management, Production Lines). Progress through 5 levels (Awareness to Master) by passing exams. Earn badges. Radar chart shows competency profile.
-- Engineering Design Calculator (engineering-design.html): 46 calculation types across Mechanical, HVAC, Electrical, Fire Protection, Plumbing, Structural, and Machine Design disciplines. Each calc generates a print-ready report with BOM and Scope of Works. Built to Philippine standards (PEC 2017, PSME, NSCP, ASHRAE, NFPA).
+- Engineering Design Calculator (engineering-design.html): 46 calculation types across Mechanical, HVAC, Electrical, Fire Protection, Plumbing, Structural, and Machine Design disciplines. Each calc generates a print-ready report with BOM and Scope of Works. Generate engineering diagrams (SLD, LPS zone, P&ID, fire sprinkler, generator, lighting layout). Built to Philippine standards (PEC 2017, PSME, NSCP, ASHRAE, NFPA).
 - Parts Tracker: Retired. Parts are now logged inside Logbook entries.
 
 You handle three types of conversations. Adapt naturally:

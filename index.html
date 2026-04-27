@@ -2,6 +2,7 @@
 <html lang="en" style="overflow-x: hidden;">
 <head>
   <meta charset="UTF-8" />
+  <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="google-site-verification" content="0R0cbzF4Ks6d28b_uWAH3kDotNTYQ64uQfdcuMNhb_c" />
   <title>WorkHive | Free Industrial Tools for Every Filipino Worker</title>
@@ -1771,6 +1772,8 @@
 
   function signOut() {
     localStorage.removeItem('wh_last_worker');
+    localStorage.removeItem('wh_worker_name');
+    localStorage.removeItem('workerName');
     document.getElementById('user-menu').classList.add('hidden');
     document.getElementById('user-menu-mobile').classList.add('hidden');
     document.querySelectorAll('.signin-btn').forEach(el => el.textContent = 'Sign In');

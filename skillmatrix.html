@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="robots" content="noindex, follow" />
+  <meta name="description" content="Track your maintenance competency across 5 disciplines. Progress through 5 skill levels, earn badges, and see your full competency radar chart with WorkHive." />
   <title>Skill Matrix | WorkHive</title>
+  <link rel="manifest" href="/manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -366,7 +370,7 @@
 </main>
 
 <!-- ─── Lesson Modal ─────────────────────────────────────────────────────── -->
-<div id="lesson-modal" class="modal-overlay" role="dialog" aria-modal="true">
+<div id="lesson-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="lesson-title">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-header">
@@ -390,7 +394,7 @@
 </div>
 
 <!-- ─── Exam Modal ───────────────────────────────────────────────────────── -->
-<div id="exam-modal" class="modal-overlay" role="dialog" aria-modal="true">
+<div id="exam-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="exam-title">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-header">
@@ -418,7 +422,7 @@
 </div>
 
 <!-- ─── Result Modal ─────────────────────────────────────────────────────── -->
-<div id="result-modal" class="modal-overlay" role="dialog" aria-modal="true">
+<div id="result-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="result-title">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-body">
@@ -946,7 +950,7 @@ function selectAnswer(idx) {
 
   // Save draft
   const draftKey = `wh_exam_draft_${WORKER_NAME}_${_activeDiscipline}_${_activeLevel}`;
-  localStorage.setItem(draftKey, JSON.stringify({ answers: _examAnswers, currentQ: _currentQuestion }));
+  try { localStorage.setItem(draftKey, JSON.stringify({ answers: _examAnswers, currentQ: _currentQuestion })); } catch (_) {}
 }
 
 document.getElementById('exam-next-btn').addEventListener('click', async () => {
@@ -966,7 +970,7 @@ document.getElementById('exam-close-btn').addEventListener('click', () => {
   // Save draft before closing
   if (!_examSubmitted && _activeDiscipline) {
     const draftKey = `wh_exam_draft_${WORKER_NAME}_${_activeDiscipline}_${_activeLevel}`;
-    localStorage.setItem(draftKey, JSON.stringify({ answers: _examAnswers, currentQ: _currentQuestion }));
+    try { localStorage.setItem(draftKey, JSON.stringify({ answers: _examAnswers, currentQ: _currentQuestion })); } catch (_) {}
   }
   closeModal('exam-modal');
   resetExamFlow();
@@ -1134,7 +1138,7 @@ function closeModal(id) {
       if (id === 'exam-modal' && !_examSubmitted && _activeDiscipline) {
         // Save draft on backdrop close during exam
         const draftKey = `wh_exam_draft_${WORKER_NAME}_${_activeDiscipline}_${_activeLevel}`;
-        localStorage.setItem(draftKey, JSON.stringify({ answers: _examAnswers, currentQ: _currentQuestion }));
+        try { localStorage.setItem(draftKey, JSON.stringify({ answers: _examAnswers, currentQ: _currentQuestion })); } catch (_) {}
       }
       closeModal(id);
       if (id !== 'result-modal') resetExamFlow();

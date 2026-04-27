@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Digital Maintenance Logbook: WorkHive</title>
   <meta name="description" content="Log every repair, breakdown, and PM activity digitally. Track failure modes, root causes, and actions taken: all in one place with WorkHive." />
@@ -482,7 +483,7 @@
 
               <!-- Filled state: thumbnail with X and tap-to-replace -->
               <div id="photo-preview" class="hidden mt-2" style="position: relative;">
-                <img id="photo-thumb" class="photo-thumb cursor-pointer" title="Tap to replace photo" />
+                <img id="photo-thumb" class="photo-thumb cursor-pointer" title="Tap to replace photo" alt="" />
                 <button type="button" id="photo-remove-btn"
                   style="position: absolute; top: -16px; right: -16px; width: 44px; height: 44px;
                          display: flex; align-items: center; justify-content: center;
@@ -614,7 +615,7 @@
               <option value="Open">Open</option>
               <option value="Closed">Closed</option>
             </select>
-            <button id="btn-export-csv" title="Export to CSV" style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; padding:0 0.875rem; color:rgba(255,255,255,0.6); cursor:pointer; display:flex; align-items:center; gap:6px; font-size:0.75rem; font-weight:600; white-space:nowrap; flex-shrink:0; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+            <button id="btn-export-csv" title="Export to CSV" aria-label="Export to CSV" style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; padding:0 0.875rem; color:rgba(255,255,255,0.6); cursor:pointer; display:flex; align-items:center; gap:6px; font-size:0.75rem; font-weight:600; white-space:nowrap; flex-shrink:0; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
               CSV
             </button>
@@ -2263,7 +2264,7 @@ async function saveEdit(id) {
       qty_change: -p.qty, qty_after: newQty, type: 'use',
       note: 'Used in job: ' + updates.machine, job_ref: updates.machine
     });
-    if (txnErr) console.error('edit txn insert:', txnErr.message);
+    if (txnErr) { console.error('edit txn insert:', txnErr.message); showToast('Parts log failed for ' + p.partName + ': check your connection.'); }
     if (item) item.qty_on_hand = newQty;
   }
   await renderEntries();
@@ -2539,7 +2540,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
       qty_change: -p.qty, qty_after: newQty, type: 'use',
       note: 'Used in job: ' + machine, job_ref: machine
     });
-    if (txnErr) console.error('txn insert:', txnErr.message);
+    if (txnErr) { console.error('txn insert:', txnErr.message); showToast('Parts log failed for ' + p.partName + ': check your connection.'); }
     if (item) item.qty_on_hand = newQty; // update local cache
   }
   const pmSaved = [...document.querySelectorAll('.pm-task-check:checked')].length;
@@ -3135,19 +3136,21 @@ function saveDraft() {
   const problem = document.getElementById('f-problem').value;
   const action  = document.getElementById('f-action').value;
   if (!machine && !problem && !action) { localStorage.removeItem(DRAFT_KEY); return; }
-  localStorage.setItem(DRAFT_KEY, JSON.stringify({
-    machine,
-    assetRefId:  _pendingAssetRefId,
-    assetLabel:  document.getElementById('asset-picker-label').textContent,
-    maintType:   document.getElementById('f-maint-type').value,
-    category:    document.getElementById('f-category').value,
-    problem,
-    rootCause:   document.getElementById('f-root-cause').value,
-    action,
-    knowledge:   document.getElementById('f-knowledge').value,
-    downtime:    document.getElementById('f-downtime').value,
-    status:      document.querySelector('input[name="f-status"]:checked')?.value || 'Open'
-  }));
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      machine,
+      assetRefId:  _pendingAssetRefId,
+      assetLabel:  document.getElementById('asset-picker-label').textContent,
+      maintType:   document.getElementById('f-maint-type').value,
+      category:    document.getElementById('f-category').value,
+      problem,
+      rootCause:   document.getElementById('f-root-cause').value,
+      action,
+      knowledge:   document.getElementById('f-knowledge').value,
+      downtime:    document.getElementById('f-downtime').value,
+      status:      document.querySelector('input[name="f-status"]:checked')?.value || 'Open'
+    }));
+  } catch (_) {}
 }
 
 function restoreDraft() {

@@ -83,6 +83,10 @@ class GuardianHandler(BaseHTTPRequestHandler):
             body   = json.loads(self.rfile.read(length) or b"{}")
             msg    = body.get("message", "Quick commit from Guardian")
             self._git_stream(msg)
+        elif p.path == "/api/backlog":
+            length = int(self.headers.get("Content-Length", 0))
+            body   = json.loads(self.rfile.read(length) or b"{}")
+            self._backlog_action(body)
         else:
             self._json({"error": "unknown endpoint"}, 404)
 
@@ -209,6 +213,52 @@ class GuardianHandler(BaseHTTPRequestHandler):
             self.wfile.flush()
         except Exception:
             pass
+
+    # ── Backlog item management ───────────────────────────────────────────────
+    def _backlog_action(self, body):
+        """
+        Manage improvement backlog items.
+        Actions: dismiss, done, restore
+        Body: { "action": "dismiss"|"done"|"restore", "id": "topic-id" }
+        """
+        action  = body.get("action", "")
+        item_id = body.get("id", "")
+        bl_path = os.path.join(BASE, "improvement_backlog.json")
+
+        if not action or not item_id:
+            self._json({"error": "action and id required"}, 400)
+            return
+        if action not in ("dismiss", "done", "in_progress", "restore"):
+            self._json({"error": f"unknown action: {action}"}, 400)
+            return
+        if not os.path.exists(bl_path):
+            self._json({"error": "improvement_backlog.json not found"}, 404)
+            return
+
+        try:
+            with open(bl_path, encoding="utf-8") as f:
+                items = json.load(f)
+
+            found = False
+            for item in items:
+                if item.get("id") == item_id:
+                    if action == "restore":
+                        item.pop("status", None)
+                    else:
+                        item["status"] = action   # "dismiss" or "done"
+                    found = True
+                    break
+
+            if not found:
+                self._json({"error": f"item '{item_id}' not found"}, 404)
+                return
+
+            with open(bl_path, "w", encoding="utf-8") as f:
+                json.dump(items, f, indent=2)
+
+            self._json({"ok": True, "id": item_id, "action": action})
+        except Exception as ex:
+            self._json({"ok": False, "error": str(ex)})
 
     # ── Sync run (for polling clients) ────────────────────────────────────────
     # ── Git commit + push (synchronous JSON response) ────────────────────────

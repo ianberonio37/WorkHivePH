@@ -24,11 +24,15 @@ Output: autofix_report.json
 """
 import re, json, os, sys, datetime
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 DRY_RUN = "--dry-run" in sys.argv
 ONLY    = next((a.split("=")[1] for a in sys.argv if a.startswith("--recipe=")), None)
 LIST    = "--list" in sys.argv
 
 AUTOFIX_REPORT = "autofix_report.json"
+SKILLS_ROOT    = os.path.expanduser(r"C:\Users\ILBeronio\.claude\skills")
 
 
 def read_file(path):
@@ -41,6 +45,61 @@ def read_file(path):
 def write_file(path, content):
     with open(path, "w", encoding="utf-8") as f:
         f.write(content)
+
+
+# ── Skill-based rules (loaded dynamically from SKILL.md files) ───────────────
+
+def parse_skill_rules(skill_id, content):
+    """Extract Auto-Fix Rules blocks from a SKILL.md file."""
+    rules = []
+    section = re.search(r'## Auto-Fix Rules\b(.*?)(?=\n## |\Z)', content, re.DOTALL)
+    if not section:
+        return rules
+    block = section.group(1)
+    for m in re.finditer(r'### rule:\s*(\S+)(.*?)(?=\n### rule:|\Z)', block, re.DOTALL):
+        rule_id  = m.group(1).strip()
+        body     = m.group(2)
+
+        def field(name, b=body):
+            hit = re.search(rf'\*\*{name}:\*\*\s*`([^`]+)`', b)
+            return hit.group(1) if hit else None
+
+        def plain(name, b=body):
+            hit = re.search(rf'\*\*{name}:\*\*\s*(.+)', b)
+            return hit.group(1).strip() if hit else None
+
+        file_   = field('file')
+        detect  = field('detect')
+        replace = field('replace')
+        conf    = plain('confidence') or 'HIGH'
+        desc    = plain('description') or rule_id
+        if file_ and detect and replace:
+            rules.append({
+                'id':         f"{skill_id}:{rule_id}",
+                'label':      desc,
+                'file':       file_,
+                'detect':     detect,
+                'replace':    replace,
+                'confidence': conf,
+            })
+    return rules
+
+
+def load_skill_rules():
+    """Walk all SKILL.md files and collect Auto-Fix Rules."""
+    rules = []
+    if not os.path.isdir(SKILLS_ROOT):
+        return rules
+    for name in sorted(os.listdir(SKILLS_ROOT)):
+        path = os.path.join(SKILLS_ROOT, name, "SKILL.md")
+        if not os.path.exists(path):
+            continue
+        try:
+            with open(path, encoding='utf-8') as f:
+                rules.extend(parse_skill_rules(name, f.read()))
+        except Exception:
+            pass
+    return rules
 
 
 # ── Recipe base class ─────────────────────────────────────────────────────────
@@ -258,13 +317,48 @@ ALL_RECIPES = [
 ]
 
 
+class SkillRule(Recipe):
+    """A Recipe loaded dynamically from a SKILL.md ## Auto-Fix Rules block."""
+
+    def __init__(self, d):
+        self.id          = d['id']
+        self.label       = d['label']
+        self.file        = d['file']
+        self.description = d['label']
+        self.confidence  = d['confidence']
+        self._detect     = d['detect']
+        self._replace    = d['replace']
+
+    def detect(self, content):
+        if self._detect not in content:
+            return False, "Pattern not found — already fixed or not applicable"
+        if self._replace in content:
+            return False, "Replace string already present — already fixed"
+        return True, f"Found: {self._detect[:60]}"
+
+    def patch(self, content):
+        patched = content.replace(self._detect, self._replace, 1)
+        return patched, f"Replaced {self._detect[:40]!r} → {self._replace[:40]!r}"
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
     now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
+    # Load skill-based rules (dynamic, read from SKILL.md files at runtime)
+    skill_rules = [SkillRule(r) for r in load_skill_rules()]
+    all_recipes = skill_rules + ALL_RECIPES  # skill rules run first
+
     if LIST:
         print("\n  Available auto-fix recipes:\n")
+        if skill_rules:
+            print(f"  -- From SKILL.md files ({len(skill_rules)}) --------------------------")
+            for r in skill_rules:
+                print(f"  [{r.confidence:6s}] {r.id}")
+                print(f"           {r.description}")
+            print()
+        print(f"  -- Hard-coded recipes ({len(ALL_RECIPES)}) --------------------------")
         for r in ALL_RECIPES:
             print(f"  [{r.confidence:6s}] {r.id}")
             print(f"           {r.description}")
@@ -273,9 +367,11 @@ def main():
     print("\n" + "=" * 70)
     print("  WorkHive Platform Guardian — Auto-Fix")
     print(f"  {now_str}  |  {'DRY RUN' if DRY_RUN else 'WRITE mode'}")
+    if skill_rules:
+        print(f"  {len(skill_rules)} skill rule(s) + {len(ALL_RECIPES)} hard-coded recipe(s)")
     print("=" * 70)
 
-    recipes = [r for r in ALL_RECIPES if not ONLY or r.id == ONLY]
+    recipes = [r for r in all_recipes if not ONLY or r.id == ONLY]
     if ONLY and not recipes:
         print(f"\n  ERROR: Recipe '{ONLY}' not found. Run with --list to see options.")
         return 1

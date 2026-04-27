@@ -128,6 +128,285 @@ VALIDATORS = [
         "report":  "assistant_report.json",
         "skip_if_fast": False,
     },
+    {
+        "id":      "ai-context",
+        "script":  "validate_ai_context.py",
+        "args":    [],
+        "label":   "AI Context Quality Validator",
+        "group":   "Platform",
+        "report":  "ai_context_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "input-guards",
+        "script":  "validate_input_guards.py",
+        "args":    [],
+        "label":   "Input Guards Validator",
+        "group":   "Platform",
+        "report":  "input_guards_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "schema",
+        "script":  "validate_schema.py",
+        "args":    [],
+        "label":   "Schema Consistency Validator",
+        "group":   "Platform",
+        "report":  "schema_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "observability",
+        "script":  "validate_observability.py",
+        "args":    [],
+        "label":   "Observability Validator",
+        "group":   "Platform",
+        "report":  "observability_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "governance",
+        "script":  "validate_governance.py",
+        "args":    [],
+        "label":   "Data Governance Validator",
+        "group":   "Platform",
+        "report":  "governance_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "pwa",
+        "script":  "validate_pwa.py",
+        "args":    [],
+        "label":   "PWA Integrity Validator",
+        "group":   "Platform",
+        "report":  "pwa_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "accessibility",
+        "script":  "validate_accessibility.py",
+        "args":    [],
+        "label":   "Accessibility Baseline Validator",
+        "group":   "Platform",
+        "report":  "accessibility_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "tenant-boundary",
+        "script":  "validate_tenant_boundary.py",
+        "args":    [],
+        "label":   "Tenant Boundary Escape Validator",
+        "group":   "Platform",
+        "report":  "tenant_boundary_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "ai-regression",
+        "script":  "validate_ai_regression.py",
+        "args":    [],
+        "label":   "AI Prompt Regression Validator",
+        "group":   "Platform",
+        "report":  "ai_regression_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "timers",
+        "script":  "validate_timers.py",
+        "args":    [],
+        "label":   "Timer and Scheduled Job Hygiene",
+        "group":   "Platform",
+        "report":  "timers_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "xss",
+        "script":  "validate_xss.py",
+        "args":    [],
+        "label":   "XSS / escHtml Coverage Validator",
+        "group":   "Platform",
+        "report":  "xss_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "seo",
+        "script":  "validate_seo.py",
+        "args":    [],
+        "label":   "SEO and Page Metadata Validator",
+        "group":   "Platform",
+        "report":  "seo_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "mobile",
+        "script":  "validate_mobile.py",
+        "args":    [],
+        "label":   "Mobile UX Compliance Validator",
+        "group":   "Platform",
+        "report":  "mobile_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "nav-registry",
+        "script":  "validate_nav_registry.py",
+        "args":    [],
+        "label":   "Nav Hub Registry Validator",
+        "group":   "Platform",
+        "report":  "nav_registry_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "performance",
+        "script":  "validate_performance.py",
+        "args":    [],
+        "label":   "Performance Anti-Pattern Validator",
+        "group":   "Platform",
+        "report":  "performance_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "catalog-scope",
+        "script":  "validate_catalog_scope.py",
+        "args":    [],
+        "label":   "Catalog Approval Status Validator",
+        "group":   "Platform",
+        "report":  "catalog_scope_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "drawings",
+        "script":  "validate_drawings.py",
+        "args":    [],
+        "label":   "Drawing Standards Compliance Validator",
+        "group":   "Platform",
+        "report":  "drawings_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "compliance",
+        "script":  "validate_compliance.py",
+        "args":    [],
+        "label":   "Enterprise Compliance Baseline Validator",
+        "group":   "Platform",
+        "report":  "compliance_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "notifications",
+        "script":  "validate_notifications.py",
+        "args":    [],
+        "label":   "Notification and Alert Health Validator",
+        "group":   "Platform",
+        "report":  "notifications_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "predictive",
+        "script":  "validate_predictive.py",
+        "args":    [],
+        "label":   "Predictive Analytics Data Quality Validator",
+        "group":   "Platform",
+        "report":  "predictive_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "vector-schema",
+        "script":  "validate_vector_schema.py",
+        "args":    [],
+        "label":   "Vector Knowledge Base Schema Validator",
+        "group":   "Platform",
+        "report":  "vector_schema_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "groq-fallback",
+        "script":  "validate_groq_fallback.py",
+        "args":    [],
+        "label":   "Groq Fallback Chain Validator",
+        "group":   "Platform",
+        "report":  "groq_fallback_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "edge-contracts",
+        "script":  "validate_edge_contracts.py",
+        "args":    [],
+        "label":   "Edge Function API Contract Validator",
+        "group":   "Platform",
+        "report":  "edge_contracts_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "ai-attribution",
+        "script":  "validate_ai_attribution.py",
+        "args":    [],
+        "label":   "AI Output Attribution Validator",
+        "group":   "Platform",
+        "report":  "ai_attribution_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "context-window",
+        "script":  "validate_context_window.py",
+        "args":    [],
+        "label":   "Context Window Management Validator",
+        "group":   "Platform",
+        "report":  "context_window_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "knowledge-freshness",
+        "script":  "validate_knowledge_freshness.py",
+        "args":    [],
+        "label":   "Knowledge Base Freshness Validator",
+        "group":   "Platform",
+        "report":  "knowledge_freshness_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "sso-readiness",
+        "script":  "validate_sso_readiness.py",
+        "args":    [],
+        "label":   "SSO Readiness Validator",
+        "group":   "Platform",
+        "report":  "sso_readiness_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "idempotency",
+        "script":  "validate_idempotency.py",
+        "args":    [],
+        "label":   "Webhook and Integration Idempotency Validator",
+        "group":   "Platform",
+        "report":  "idempotency_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "integration-security",
+        "script":  "validate_integration_security.py",
+        "args":    [],
+        "label":   "Integration Security Baseline Validator",
+        "group":   "Platform",
+        "report":  "integration_security_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "digital-twin",
+        "script":  "validate_digital_twin.py",
+        "args":    [],
+        "label":   "Digital Twin Schema Readiness Validator",
+        "group":   "Platform",
+        "report":  "digital_twin_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "iot-protocols",
+        "script":  "validate_iot_protocols.py",
+        "args":    [],
+        "label":   "IoT and MQTT Protocol Safety Validator",
+        "group":   "Platform",
+        "report":  "iot_protocols_report.json",
+        "skip_if_fast": False,
+    },
     # ── Engineering Calc Integration Test (Layer 3) ───────────────────────────
     {
         "id":      "calc-integration",
@@ -343,6 +622,19 @@ def main():
         label = {"git": "Git working tree", "python_api": "Python API (Render)", "supabase": "Supabase edge function"}
         print(f"  {status_icon(v['status'])}  {label.get(key, key):38s}  {v['detail']}")
 
+    # ── LOOP 4: IMPROVEMENT BACKLOG SUMMARY ───────────────────────────────────
+    try:
+        import json as _json
+        if os.path.exists("improvement_backlog.json"):
+            with open("improvement_backlog.json", encoding="utf-8") as _f:
+                _bl = _json.load(_f)
+            _high  = sum(1 for i in _bl if i.get("priority") == "HIGH"   and i.get("score", 0) >= 30)
+            _eb    = sum(1 for i in _bl if i.get("business_value") == "enterprise_blocker" and i.get("score", 0) >= 30)
+            if _high > 0:
+                print(f"  {yellow('WARN')}  {'Improvement backlog':38s}  {_high} HIGH item(s)  {_eb} enterprise blocker(s) — run python improve.py")
+    except Exception:
+        pass
+
     # ── SUMMARY ───────────────────────────────────────────────────────────────
     pass_count = sum(1 for _, r in results if r["status"] == "PASS")
     fail_count = sum(1 for _, r in results if r["status"] == "FAIL")
@@ -380,6 +672,33 @@ def main():
     print(f"  {pass_count} PASS  {fail_count} FAIL  {warn_count} WARN  {skip_count} SKIP  |  {total_time}s total\n")
 
     # ── WRITE platform_health.json ────────────────────────────────────────────
+    # Preserve improvement_backlog from previous improve.py run
+    # (run_platform_checks.py rewrites health but must not wipe the backlog)
+    preserved_backlog = None
+    if os.path.exists(HEALTH_FILE):
+        try:
+            with open(HEALTH_FILE, encoding="utf-8") as _hf:
+                _prev = json.load(_hf)
+            preserved_backlog = _prev.get("improvement_backlog")
+        except Exception:
+            pass
+    # Also read directly from improvement_backlog.json if health doesn't have it
+    if not preserved_backlog and os.path.exists("improvement_backlog.json"):
+        try:
+            with open("improvement_backlog.json", encoding="utf-8") as _bf:
+                _bl = json.load(_bf)
+            _h  = sum(1 for i in _bl if i.get("priority") == "HIGH"   and i.get("score", 0) >= 30)
+            _m  = sum(1 for i in _bl if i.get("priority") == "MEDIUM" and i.get("score", 0) >= 20)
+            _lo = sum(1 for i in _bl if i.get("priority") == "LOW")
+            _eb = sum(1 for i in _bl if i.get("business_value") == "enterprise_blocker" and i.get("score", 0) >= 30)
+            _lu = _bl[-1].get("checked_at", "") if _bl else ""
+            preserved_backlog = {
+                "total": len(_bl), "high": _h, "medium": _m, "low": _lo,
+                "enterprise_blockers": _eb, "last_updated": _lu,
+            }
+        except Exception:
+            pass
+
     health = {
         "timestamp":    datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "mode":         "fast" if FAST else "full",
@@ -401,6 +720,9 @@ def main():
         "readiness":    gate,
         "baseline_ref": baseline.get("timestamp", None) if baseline else None,
     }
+    if preserved_backlog:
+        health["improvement_backlog"] = preserved_backlog
+
     with open(HEALTH_FILE, "w") as f:
         json.dump(health, f, indent=2)
     print(f"  Saved {HEALTH_FILE}")

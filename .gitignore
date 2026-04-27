@@ -27,6 +27,13 @@ index-v3-test.html
 # Supabase CLI temp files
 supabase/.temp/
 
+# Platform Guardian — generated on every run, no need to track history
+platform_health.json
+platform_baseline.json
+lessons_report.json
+autofix_report.json
+*_report.json
+
 # Leftover temp/scratch files
 lps_tmp.json
 *.tmp.json
