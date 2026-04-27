@@ -58,6 +58,47 @@
     @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,60px)} }
     @keyframes drift3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-30px)} }
 
+    /* ── Step form navigation ── */
+    .step-indicator { display:flex; align-items:center; gap:0; margin-bottom:1rem; }
+    .step-dot {
+      width:28px; height:28px; border-radius:50%; display:flex; align-items:center;
+      justify-content:center; font-size:0.72rem; font-weight:700; flex-shrink:0;
+      transition:all 0.25s; background:rgba(255,255,255,0.06);
+      border:2px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.35);
+    }
+    .step-dot.active  { background:rgba(247,162,27,0.2); border-color:#F7A21B; color:#F7A21B; }
+    .step-dot.done    { background:rgba(247,162,27,0.15); border-color:rgba(247,162,27,0.5); color:#F7A21B; }
+    .step-line        { flex:1; height:2px; background:rgba(255,255,255,0.08); margin:0 4px; }
+    .step-line.done   { background:rgba(247,162,27,0.35); }
+    .step-label       { font-size:0.7rem; font-weight:600; color:rgba(255,255,255,0.35);
+                         text-transform:uppercase; letter-spacing:0.06em; margin-bottom:1rem; }
+    .step-panel       { display:none; }
+    .step-panel.active{ display:block; }
+    .step-nav         { display:flex; gap:0.5rem; margin-top:1rem; }
+    .step-nav .btn-back {
+      font-family:inherit; font-size:0.8rem; font-weight:600; padding:0.75rem 1rem;
+      border-radius:0.75rem; cursor:pointer; transition:all 0.15s;
+      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
+      color:rgba(255,255,255,0.5); min-height:44px;
+    }
+    .step-nav .btn-next {
+      font-family:inherit; font-size:0.875rem; font-weight:700; padding:0.75rem 1.5rem;
+      border-radius:0.75rem; cursor:pointer; transition:all 0.2s; flex:1;
+      background:linear-gradient(135deg,#F7A21B,#FDB94A); border:none;
+      color:#162032; min-height:44px;
+    }
+    .step-nav .btn-next:hover { box-shadow:0 4px 16px rgba(247,162,27,0.35); transform:translateY(-1px); }
+    .extras-toggle {
+      font-family:inherit; font-size:0.75rem; font-weight:600; width:100%;
+      padding:0.6rem 1rem; border-radius:0.75rem; cursor:pointer; margin-top:0.5rem;
+      background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+      color:rgba(255,255,255,0.4); transition:all 0.15s; min-height:44px;
+      display:flex; align-items:center; justify-content:center; gap:0.5rem;
+    }
+    .extras-toggle:hover { background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); }
+    .extras-drawer { display:none; margin-top:0.75rem; }
+    .extras-drawer.open { display:block; }
+
     .hex-pattern {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E");
       background-size: 80px 92px;
@@ -359,168 +400,192 @@
             <h2 class="font-bold text-base">Log a Repair</h2>
           </div>
 
-          <form id="log-form" class="space-y-4">
+          <!-- Step indicator -->
+          <div class="step-indicator">
+            <div class="step-dot active" id="sdot-1">1</div>
+            <div class="step-line" id="sline-1"></div>
+            <div class="step-dot" id="sdot-2">2</div>
+            <div class="step-line" id="sline-2"></div>
+            <div class="step-dot" id="sdot-3">3</div>
+          </div>
+          <p class="step-label" id="step-label-text">Step 1 — Machine & Type</p>
 
-            <!-- Machine picker -->
-            <div>
-              <label class="wh-label">Machine / Equipment ID <span style="color:#f87171;font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
-              <button type="button" id="asset-picker-btn" class="wh-input text-left flex items-center justify-between gap-2" style="cursor:pointer; min-height:44px;">
-                <span id="asset-picker-label" class="truncate flex-1 text-sm" style="color:rgba(255,255,255,0.25);">Select or search asset...</span>
-                <svg class="w-4 h-4 flex-shrink-0" style="color:rgba(255,255,255,0.3)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          <form id="log-form">
+
+            <!-- ── STEP 1: Machine + Type + Status ── -->
+            <div class="step-panel active space-y-4" id="step-panel-1">
+
+              <div>
+                <label class="wh-label">Machine / Equipment <span style="color:#f87171;font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
+                <button type="button" id="asset-picker-btn" class="wh-input text-left flex items-center justify-between gap-2" style="cursor:pointer; min-height:44px;">
+                  <span id="asset-picker-label" class="truncate flex-1 text-sm" style="color:rgba(255,255,255,0.25);">Select or search asset...</span>
+                  <svg class="w-4 h-4 flex-shrink-0" style="color:rgba(255,255,255,0.3)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <input type="hidden" id="f-machine" />
+              </div>
+
+              <div>
+                <label class="wh-label">Maintenance Type</label>
+                <select id="f-maint-type" class="wh-input">
+                  <option value="">Select type...</option>
+                  <option value="Breakdown / Corrective">Breakdown / Corrective</option>
+                  <option value="Preventive Maintenance">Preventive Maintenance</option>
+                  <option value="Inspection">Inspection</option>
+                  <option value="Project Work">Project Work</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="wh-label">Status</label>
+                <div class="status-toggle">
+                  <input type="radio" name="f-status" id="st-open" value="Open" checked />
+                  <label for="st-open">Open</label>
+                  <input type="radio" name="f-status" id="st-closed" value="Closed" />
+                  <label for="st-closed">Closed</label>
+                </div>
+              </div>
+
+              <div class="step-nav">
+                <button type="button" class="btn-next" onclick="stepGo(2)">What happened? →</button>
+              </div>
+            </div>
+
+            <!-- ── STEP 2: What happened ── -->
+            <div class="step-panel space-y-4" id="step-panel-2">
+
+              <div>
+                <label class="wh-label">Discipline / Category</label>
+                <select id="f-category" class="wh-input">
+                  <option value="">Select category...</option>
+                  <option value="Mechanical">Mechanical</option>
+                  <option value="Electrical">Electrical</option>
+                  <option value="Hydraulic">Hydraulic</option>
+                  <option value="Pneumatic">Pneumatic</option>
+                  <option value="Instrumentation">Instrumentation</option>
+                  <option value="Lubrication">Lubrication</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="wh-label">Symptom / What was wrong?</label>
+                <div class="relative">
+                  <textarea id="f-problem" class="wh-input pr-10" rows="3" placeholder="Describe what you observed: noise, leak, trip, error code..."></textarea>
+                  <button type="button" id="voice-problem" title="Voice input"
+                    class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                    style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
+                    <svg class="w-3.5 h-3.5 text-white/50" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zm-1 3a1 1 0 012 0v8a1 1 0 01-2 0V4zm6 8a5 5 0 01-10 0H5a7 7 0 0014 0h-2z"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label class="wh-label">Root Cause</label>
+                <select id="f-root-cause" class="wh-input">
+                  <option value="">Select root cause...</option>
+                  <option value="Misalignment">Misalignment</option>
+                  <option value="Contamination / Dirt">Contamination / Dirt</option>
+                  <option value="Wear">Wear</option>
+                  <option value="Overload">Overload</option>
+                  <option value="Corrosion">Corrosion</option>
+                  <option value="Lubrication Failure">Lubrication Failure</option>
+                  <option value="Electrical Fault">Electrical Fault</option>
+                  <option value="Mechanical Damage">Mechanical Damage</option>
+                  <option value="Vibration / Fatigue">Vibration / Fatigue</option>
+                  <option value="Human Error">Human Error</option>
+                  <option value="Design Issue">Design Issue</option>
+                  <option value="Unknown">Unknown</option>
+                </select>
+              </div>
+
+              <div class="step-nav">
+                <button type="button" class="btn-back" onclick="stepGo(1)">← Back</button>
+                <button type="button" class="btn-next" onclick="stepGo(3)">What did you do? →</button>
+              </div>
+            </div>
+
+            <!-- ── STEP 3: Action + Save ── -->
+            <div class="step-panel space-y-4" id="step-panel-3">
+
+              <div>
+                <label class="wh-label">What did you do?</label>
+                <div class="relative">
+                  <textarea id="f-action" class="wh-input pr-10" rows="4" placeholder="Steps taken, parts replaced, settings changed..."></textarea>
+                  <button type="button" id="voice-action" title="Voice input"
+                    class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                    style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
+                    <svg class="w-3.5 h-3.5 text-white/50" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zm-1 3a1 1 0 012 0v8a1 1 0 01-2 0V4zm6 8a5 5 0 01-10 0H5a7 7 0 0014 0h-2z"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Inline save + extras toggle -->
+              <div class="flex gap-2 pt-1">
+                <button type="button" class="btn-back" onclick="stepGo(2)">←</button>
+                <button type="submit" id="save-entry-btn" class="btn-primary flex-1">Save Entry</button>
+              </div>
+
+              <button type="button" class="extras-toggle" id="extras-toggle-btn" onclick="toggleExtras()">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                <span id="extras-toggle-label">Add details — parts, photo, lesson learned</span>
               </button>
-              <input type="hidden" id="f-machine" />
-            </div>
 
-            <!-- Maintenance Type -->
-            <div>
-              <label class="wh-label">Maintenance Type</label>
-              <select id="f-maint-type" class="wh-input">
-                <option value="">Select type...</option>
-                <option value="Breakdown / Corrective">Breakdown / Corrective</option>
-                <option value="Preventive Maintenance">Preventive Maintenance</option>
-                <option value="Inspection">Inspection</option>
-                <option value="Project Work">Project Work</option>
-              </select>
-            </div>
+              <!-- ── EXTRAS DRAWER (optional) ── -->
+              <div class="extras-drawer space-y-4" id="extras-drawer">
 
-            <!-- Category -->
-            <div>
-              <label class="wh-label">Discipline / Category</label>
-              <select id="f-category" class="wh-input">
-                <option value="">Select category...</option>
-                <option value="Mechanical">Mechanical</option>
-                <option value="Electrical">Electrical</option>
-                <option value="Hydraulic">Hydraulic</option>
-                <option value="Pneumatic">Pneumatic</option>
-                <option value="Instrumentation">Instrumentation</option>
-                <option value="Lubrication">Lubrication</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
+                <div>
+                  <label class="wh-label flex items-center gap-1.5">
+                    What should the next person know?
+                    <span class="text-orange-wh text-[10px] font-bold bg-orange-wh/10 px-1.5 py-0.5 rounded-full">Most Valuable</span>
+                  </label>
+                  <div class="relative">
+                    <textarea id="f-knowledge" class="wh-input pr-10" rows="3" placeholder="Tips, gotchas, torque specs, watch-outs..."></textarea>
+                    <button type="button" id="voice-knowledge" title="Voice input"
+                      class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                      style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
+                      <svg class="w-3.5 h-3.5 text-white/50" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zm-1 3a1 1 0 012 0v8a1 1 0 01-2 0V4zm6 8a5 5 0 01-10 0H5a7 7 0 0014 0h-2z"/></svg>
+                    </button>
+                  </div>
+                </div>
 
-            <!-- What was wrong -->
-            <div>
-              <label class="wh-label">Symptom / What was wrong?</label>
-              <div class="relative">
-                <textarea id="f-problem" class="wh-input pr-10" placeholder="Describe what you observed: noise, leak, trip, error code..."></textarea>
-                <button type="button" id="voice-problem" title="Voice input"
-                  class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
-                  style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
-                  <svg class="w-3.5 h-3.5 text-white/50" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zm-1 3a1 1 0 012 0v8a1 1 0 01-2 0V4zm6 8a5 5 0 01-10 0H5a7 7 0 0014 0h-2z"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
+                <div>
+                  <label class="wh-label">Downtime Hours <span class="text-white/30 font-normal normal-case">(optional)</span></label>
+                  <input id="f-downtime" type="number" min="0" step="0.5" class="wh-input" placeholder="e.g. 2.5 — how long was the asset offline?" />
+                </div>
 
-            <!-- Root Cause -->
-            <div>
-              <label class="wh-label">Root Cause</label>
-              <select id="f-root-cause" class="wh-input">
-                <option value="">Select root cause...</option>
-                <option value="Misalignment">Misalignment</option>
-                <option value="Contamination / Dirt">Contamination / Dirt</option>
-                <option value="Wear">Wear</option>
-                <option value="Overload">Overload</option>
-                <option value="Corrosion">Corrosion</option>
-                <option value="Lubrication Failure">Lubrication Failure</option>
-                <option value="Electrical Fault">Electrical Fault</option>
-                <option value="Mechanical Damage">Mechanical Damage</option>
-                <option value="Vibration / Fatigue">Vibration / Fatigue</option>
-                <option value="Human Error">Human Error</option>
-                <option value="Design Issue">Design Issue</option>
-                <option value="Unknown">Unknown</option>
-              </select>
-            </div>
+                <div>
+                  <label class="wh-label">Attach Photo (optional)</label>
+                  <input id="f-photo" type="file" accept="image/*" class="hidden" />
+                  <label id="photo-dropzone" for="f-photo"
+                    class="flex items-center gap-3 cursor-pointer rounded-xl px-4 py-3 border border-dashed border-white/15 hover:border-white/30 transition-colors"
+                    style="background: rgba(255,255,255,0.03);">
+                    <svg class="w-4 h-4 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <span class="text-xs text-white/35">Tap to attach photo</span>
+                  </label>
+                  <div id="photo-preview" class="hidden mt-2" style="position: relative;">
+                    <img id="photo-thumb" class="photo-thumb cursor-pointer" title="Tap to replace photo" alt="" />
+                    <button type="button" id="photo-remove-btn"
+                      style="position: absolute; top: -16px; right: -16px; width: 44px; height: 44px;
+                             display: flex; align-items: center; justify-content: center;
+                             background: transparent; border: none; cursor: pointer; padding: 0;">
+                      <span style="width: 20px; height: 20px; background: rgba(30,30,40,0.95);
+                                   border: 1.5px solid rgba(255,255,255,0.18); border-radius: 50%;
+                                   color: rgba(255,255,255,0.75); font-size: 11px;
+                                   display: flex; align-items: center; justify-content: center; line-height: 1;">&#x2715;</span>
+                    </button>
+                  </div>
+                </div>
 
-            <!-- What did you do -->
-            <div>
-              <label class="wh-label">What did you do?</label>
-              <div class="relative">
-                <textarea id="f-action" class="wh-input pr-10" placeholder="Steps taken, parts replaced, settings changed..."></textarea>
-                <button type="button" id="voice-action" title="Voice input"
-                  class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
-                  style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
-                  <svg class="w-3.5 h-3.5 text-white/50" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zm-1 3a1 1 0 012 0v8a1 1 0 01-2 0V4zm6 8a5 5 0 01-10 0H5a7 7 0 0014 0h-2z"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
+                <!-- Voice status -->
+                <div id="voice-status" class="hidden rounded-xl px-4 py-3 text-xs text-white/60 flex items-center gap-2"
+                     style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);">
+                  <div class="w-2 h-2 rounded-full bg-red-400 animate-pulse"></div>
+                  <span id="voice-status-text">Listening...</span>
+                </div>
 
-            <!-- What should next person know -->
-            <div>
-              <label class="wh-label flex items-center gap-1.5">
-                What should the next person know?
-                <span class="text-orange-wh text-[10px] font-bold bg-orange-wh/10 px-1.5 py-0.5 rounded-full">Most Valuable</span>
-              </label>
-              <div class="relative">
-                <textarea id="f-knowledge" class="wh-input pr-10" placeholder="Tips, gotchas, torque specs, watch-outs..."></textarea>
-                <button type="button" id="voice-knowledge" title="Voice input"
-                  class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
-                  style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
-                  <svg class="w-3.5 h-3.5 text-white/50" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zm-1 3a1 1 0 012 0v8a1 1 0 01-2 0V4zm6 8a5 5 0 01-10 0H5a7 7 0 0014 0h-2z"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
+              </div><!-- end extras-drawer -->
 
-            <!-- Photo attach -->
-            <div>
-              <label class="wh-label">Attach Photo (optional)</label>
-              <input id="f-photo" type="file" accept="image/*" class="hidden" />
-
-              <!-- Empty state: tap to attach -->
-              <label id="photo-dropzone" for="f-photo"
-                class="flex items-center gap-3 cursor-pointer rounded-xl px-4 py-3 border border-dashed border-white/15 hover:border-white/30 transition-colors"
-                style="background: rgba(255,255,255,0.03);">
-                <svg class="w-4 h-4 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-                <span class="text-xs text-white/35">Tap to attach photo</span>
-              </label>
-
-              <!-- Filled state: thumbnail with X and tap-to-replace -->
-              <div id="photo-preview" class="hidden mt-2" style="position: relative;">
-                <img id="photo-thumb" class="photo-thumb cursor-pointer" title="Tap to replace photo" alt="" />
-                <button type="button" id="photo-remove-btn"
-                  style="position: absolute; top: -16px; right: -16px; width: 44px; height: 44px;
-                         display: flex; align-items: center; justify-content: center;
-                         background: transparent; border: none; cursor: pointer; padding: 0;">
-                  <span style="width: 20px; height: 20px; background: rgba(30,30,40,0.95);
-                               border: 1.5px solid rgba(255,255,255,0.18); border-radius: 50%;
-                               color: rgba(255,255,255,0.75); font-size: 11px;
-                               display: flex; align-items: center; justify-content: center; line-height: 1;">
-                    &#x2715;
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Voice status -->
-            <div id="voice-status" class="hidden rounded-xl px-4 py-3 text-xs text-white/60 flex items-center gap-2"
-                 style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);">
-              <div class="w-2 h-2 rounded-full bg-red-400 animate-pulse"></div>
-              <span id="voice-status-text">Listening...</span>
-            </div>
-
-            <!-- Downtime Hours -->
-            <div>
-              <label class="wh-label">Downtime Hours <span class="text-white/30 font-normal normal-case">(optional)</span></label>
-              <input id="f-downtime" type="number" min="0" step="0.5" class="wh-input" placeholder="e.g. 2.5: how long was the asset offline?" />
-            </div>
-
-            <!-- Status -->
-            <div>
-              <label class="wh-label">Status</label>
-              <div class="status-toggle">
-                <input type="radio" name="f-status" id="st-open" value="Open" checked />
-                <label for="st-open">Open</label>
-                <input type="radio" name="f-status" id="st-closed" value="Closed" />
-                <label for="st-closed">Closed</label>
-              </div>
-            </div>
+              <!-- Parts Used (shown when status = Closed — kept outside extras so it stays visible) -->
 
             <!-- Parts Used (shown when status = Closed) -->
             <div id="parts-used-section" class="hidden space-y-2">
@@ -565,10 +630,16 @@
               </div>
             </div>
 
-            <div class="flex gap-2 pt-1">
-              <button type="submit" id="save-entry-btn" class="btn-primary flex-1">Save Entry</button>
-              <button type="button" id="clear-form" class="btn-secondary px-4">Clear</button>
+            </div><!-- end step-panel-3 -->
+
+            <!-- Clear button — always accessible -->
+            <div class="mt-2">
+              <button type="button" id="clear-form" class="w-full text-xs py-2 rounded-xl transition-colors"
+                style="background:transparent;border:none;color:rgba(255,255,255,0.2);cursor:pointer;min-height:36px;">
+                Clear form
+              </button>
             </div>
+
           </form>
         </div>
       </div>
@@ -2555,10 +2626,66 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
 
 document.getElementById('clear-form').addEventListener('click', clearForm);
 
+// ── Step form navigation ──────────────────────────────────────────────────────
+
+let _currentStep = 1;
+const STEP_LABELS = {
+  1: 'Step 1 — Machine & Type',
+  2: 'Step 2 — What Happened',
+  3: 'Step 3 — What You Did',
+};
+
+function stepGo(n) {
+  // Validate step 1 requires machine
+  if (n > 1 && !document.getElementById('f-machine').value.trim()) {
+    document.getElementById('asset-picker-btn').style.borderColor = 'rgba(239,68,68,0.6)';
+    setTimeout(() => document.getElementById('asset-picker-btn').style.borderColor = '', 2000);
+    return;
+  }
+
+  // Hide current, show next
+  document.getElementById(`step-panel-${_currentStep}`).classList.remove('active');
+  document.getElementById(`step-panel-${n}`).classList.add('active');
+
+  // Update dots and lines
+  for (let i = 1; i <= 3; i++) {
+    const dot  = document.getElementById(`sdot-${i}`);
+    dot.classList.remove('active', 'done');
+    if (i < n)  dot.classList.add('done');
+    if (i === n) dot.classList.add('active');
+  }
+  for (let i = 1; i <= 2; i++) {
+    const line = document.getElementById(`sline-${i}`);
+    line.classList.toggle('done', i < n);
+  }
+
+  document.getElementById('step-label-text').textContent = STEP_LABELS[n];
+  _currentStep = n;
+
+  // Scroll form into view on mobile
+  document.getElementById('step-label-text').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function toggleExtras() {
+  const drawer = document.getElementById('extras-drawer');
+  const label  = document.getElementById('extras-toggle-label');
+  const isOpen = drawer.classList.toggle('open');
+  label.textContent = isOpen
+    ? 'Hide extra details'
+    : 'Add details — parts, photo, lesson learned';
+}
+
+// Reset step to 1 when form is cleared
+const _origClearForm = typeof clearForm === 'function' ? clearForm : null;
+
 let currentPhotoData = null;
 
 function clearForm() {
   document.getElementById('log-form').reset();
+  // Reset step flow back to step 1
+  stepGo(1);
+  document.getElementById('extras-drawer').classList.remove('open');
+  document.getElementById('extras-toggle-label').textContent = 'Add details — parts, photo, lesson learned';
   const preview = document.getElementById('photo-preview');
   preview.classList.add('hidden');
   document.getElementById('photo-dropzone').classList.remove('hidden');
