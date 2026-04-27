@@ -12,7 +12,7 @@ Usage:
 
 Then open: http://localhost:8080
 """
-import sys, os, json, subprocess, threading, time, mimetypes
+import sys, os, json, subprocess, threading, time, mimetypes, re
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 
@@ -170,6 +170,15 @@ class GuardianHandler(BaseHTTPRequestHandler):
         self._sse_write(f"$ {' '.join(cmd_list[1:])}")  # show command without python path
         self._sse_write("─" * 60)
 
+        # Verify the script exists before launching
+        script_path = os.path.join(BASE, cmd_list[1]) if len(cmd_list) > 1 else None
+        if script_path and not os.path.exists(script_path):
+            self._sse_write(f"[ERROR] Script not found: {cmd_list[1]}")
+            self._sse_write("[DONE:1] FAIL")
+            with _running_lock:
+                _running_cmd = None
+            return
+
         try:
             proc = subprocess.Popen(
                 cmd_list,
@@ -185,7 +194,6 @@ class GuardianHandler(BaseHTTPRequestHandler):
             for raw_line in proc.stdout:
                 line = raw_line.rstrip()
                 if line:
-                    import re
                     clean = re.sub(r'\x1b\[[0-9;]*m', '', line)
                     lines.append(clean)
                     _last_output.append(clean)
@@ -263,7 +271,6 @@ class GuardianHandler(BaseHTTPRequestHandler):
     # ── Sync run (for polling clients) ────────────────────────────────────────
     # ── Git commit + push (synchronous JSON response) ────────────────────────
     def _git_stream(self, message):
-        import re as _re
         lines  = []
         errors = []
 
@@ -275,7 +282,7 @@ class GuardianHandler(BaseHTTPRequestHandler):
                 encoding="utf-8", errors="replace",
                 timeout=60
             )
-            out = _re.sub(r'\x1b\[[0-9;]*m', '',
+            out = re.sub(r'\x1b\[[0-9;]*m', '',
                           (r.stdout or '') + (r.stderr or '')).strip()
             for ln in out.splitlines():
                 if ln.strip():
@@ -290,11 +297,19 @@ class GuardianHandler(BaseHTTPRequestHandler):
                 self._json({"ok": False, "lines": lines, "errors": errors})
                 return
 
+            # Show what is staged so the user knows what will be committed
+            git_run(["diff", "--cached", "--stat"])
+
             rc = git_run(["commit", "-m", message])
             if rc != 0:
-                # Nothing to commit is OK
-                lines.append("Nothing new to commit — working tree clean.")
-                self._json({"ok": True, "lines": lines, "errors": []})
+                # Check if it's genuinely nothing to commit vs a real failure
+                combined = " ".join(lines).lower()
+                if "nothing to commit" in combined or "working tree clean" in combined or "nothing added" in combined:
+                    lines.append("Nothing new to commit — working tree clean.")
+                    self._json({"ok": True, "lines": lines, "errors": []})
+                else:
+                    errors.append("Commit failed — see output above for details.")
+                    self._json({"ok": False, "lines": lines, "errors": errors})
                 return
 
             rc = git_run(["push", "origin", "master"])
@@ -318,19 +333,23 @@ class GuardianHandler(BaseHTTPRequestHandler):
             return
 
         cmd_list, label = cmd_entry
-        result = subprocess.run(
-            cmd_list, cwd=BASE,
-            capture_output=True, text=True,
-            encoding="utf-8", errors="replace"
-        )
-        import re
-        output = re.sub(r'\x1b\[[0-9;]*m', '', result.stdout + result.stderr)
-        self._json({
-            "cmd":    cmd_key,
-            "label":  label,
-            "rc":     result.returncode,
-            "output": output.splitlines()[-30:],
-        })
+        try:
+            result = subprocess.run(
+                cmd_list, cwd=BASE,
+                capture_output=True, text=True,
+                encoding="utf-8", errors="replace",
+                timeout=300   # 5-minute safety cap
+            )
+            output = re.sub(r'\x1b\[[0-9;]*m', '', result.stdout + result.stderr)
+            self._json({
+                "cmd":    cmd_key,
+                "label":  label,
+                "rc":     result.returncode,
+                "output": output.splitlines()[-30:],
+            })
+        except subprocess.TimeoutExpired:
+            self._json({"cmd": cmd_key, "label": label, "rc": 1,
+                        "output": ["Command timed out after 5 minutes."]})
 
 
 # ── Start server ──────────────────────────────────────────────────────────────

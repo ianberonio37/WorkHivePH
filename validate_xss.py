@@ -274,6 +274,9 @@ def check_injection_vectors(pages):
             if stripped.startswith("//") or stripped.startswith("*"):
                 continue
             for vector in INJECTION_VECTORS:
+                # Skip win.document.write( — safe print-popup pattern (not page injection)
+                if vector == "document.write(" and re.search(r'\w+\.document\.write\s*\(', line):
+                    continue
                 if vector in line:
                     issues.append({
                         "page":   page,

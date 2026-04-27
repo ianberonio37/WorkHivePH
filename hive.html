@@ -234,6 +234,31 @@
     }
 
     #presence-bar::-webkit-scrollbar { display: none; }
+
+    /* ── Shift Handover Report ── */
+    .handover-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 0.75rem 1rem; border-radius: 0.75rem;
+      background: linear-gradient(135deg, rgba(41,182,217,0.15), rgba(41,182,217,0.08));
+      border: 1px solid rgba(41,182,217,0.3); color: #29B6D9;
+      font-size: 0.85rem; font-weight: 700; cursor: pointer;
+      font-family: 'Poppins', sans-serif; transition: all 0.2s; min-height: 44px;
+    }
+    .handover-btn:hover { background: rgba(41,182,217,0.2); border-color: rgba(41,182,217,0.5); transform: translateY(-1px); }
+    .handover-btn:active { transform: scale(0.98); }
+    #handover-sheet .sheet-inner {
+      background: linear-gradient(160deg, #1F2E45, #162032);
+      border-radius: 1.5rem 1.5rem 0 0;
+      border: 1px solid rgba(255,255,255,0.08); border-bottom: none;
+      max-height: 85vh; overflow-y: auto; width: 100%;
+    }
+    .ho-section { border-bottom: 1px solid rgba(255,255,255,0.06); padding: 1rem 1.25rem; }
+    .ho-section:last-child { border-bottom: none; }
+    .ho-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.5rem; }
+    .ho-item { font-size: 0.78rem; color: rgba(255,255,255,0.65); padding: 3px 0; display: flex; align-items: baseline; gap: 6px; }
+    .ho-input { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.6rem; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); font-size: 0.8rem; font-family: inherit; outline: none; box-sizing: border-box; margin-bottom: 0.6rem; }
+    .ho-input::placeholder { color: rgba(255,255,255,0.25); }
+    .ho-input:focus { border-color: rgba(41,182,217,0.4); background: rgba(41,182,217,0.06); }
   </style>
 </head>
 <body class="text-white">
@@ -614,6 +639,39 @@
             </div>
           </div>
           <div id="mttr-list" class="flex flex-col gap-2"></div>
+        </div>
+      </div>
+
+      <!-- Shift Handover Report -->
+      <div id="handover-panel" class="hidden mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Shift Handover</p>
+        </div>
+        <p class="text-xs mb-3" style="color:rgba(255,255,255,0.35);">Auto-generates a summary of this shift — completed jobs, open items, LOTO alerts, and watch list — ready to share with the next team.</p>
+        <button class="handover-btn" onclick="generateHandover()">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          Generate Shift Handover Report
+        </button>
+      </div>
+
+      <!-- Handover bottom sheet -->
+      <div id="handover-sheet" class="hidden fixed inset-0 z-50 flex items-end" style="background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);">
+        <div class="sheet-inner w-full max-w-lg mx-auto">
+          <div class="px-5 pt-5 pb-4 flex items-center justify-between" style="border-bottom:1px solid rgba(255,255,255,0.07);">
+            <div>
+              <p class="font-black text-white text-base" id="ho-title">Shift Handover Report</p>
+              <p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.35);" id="ho-meta"></p>
+            </div>
+            <button onclick="document.getElementById('handover-sheet').classList.add('hidden')" class="w-8 h-8 rounded-full flex items-center justify-center" style="background:rgba(255,255,255,0.08);border:none;cursor:pointer;color:rgba(255,255,255,0.5);">✕</button>
+          </div>
+          <div id="handover-body"></div>
+          <div class="p-4" style="border-top:1px solid rgba(255,255,255,0.07);">
+            <input id="ho-handover-to" type="text" class="ho-input" placeholder="Handover to… (incoming technician name)" />
+            <div class="flex gap-3">
+              <button onclick="copyHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);">📋 Copy</button>
+              <button onclick="printHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:#29B6D9;">🖨️ Print</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2577,6 +2635,7 @@ async function loadMtbf() {
 function showRiskIntelPanel() {
   if (!HIVE_ID) return;
   document.getElementById('risk-intel-panel').classList.remove('hidden');
+  document.getElementById('handover-panel').classList.remove('hidden');
 }
 
 // Call on hive load
@@ -2784,6 +2843,170 @@ document.getElementById('btn-hive-switch-join').addEventListener('click', () => 
 document.getElementById('btn-hive-switch-cancel').addEventListener('click', () => {
   document.getElementById('modal-hive-switch').classList.add('hidden');
 });
+
+// ── Shift Handover Report ────────────────────────────────────────────────────
+let _hoTitle = 'Shift Handover Report';
+let _hoKpi   = '';
+
+function generateHandover() {
+  const sheet   = document.getElementById('handover-sheet');
+  const body    = document.getElementById('handover-body');
+  const meta    = document.getElementById('ho-meta');
+  const titleEl = document.getElementById('ho-title');
+
+  const now     = new Date();
+  const since8h = new Date(now - 8 * 3600000);
+
+  _hoTitle = 'Shift Handover Report';
+  if (titleEl) titleEl.textContent = _hoTitle;
+
+  const all = _feedEntries.filter(e => e._type !== 'pm');
+
+  const completed     = all.filter(e => e.status === 'Closed' && new Date(e.created_at || e.date) >= since8h);
+  const stillOpen     = all.filter(e => e.status === 'Open');
+  const openThisShift = stillOpen.filter(e => new Date(e.created_at || e.date) >= since8h);
+  const carryForward  = stillOpen.filter(e => new Date(e.created_at || e.date) < since8h);
+  const overdue       = stillOpen.filter(e => (now - new Date(e.created_at || e.date)) > 3 * 86400000);
+
+  const lotoRx   = /loto|lock.?out|tag.?out|isolat|permit.?to.?work|\bptw\b/i;
+  const lotoJobs = stillOpen.filter(e => lotoRx.test(e.problem || '') || lotoRx.test(e.category || ''));
+
+  const assetCounts = {};
+  all.forEach(e => { if (e.machine) assetCounts[e.machine] = (assetCounts[e.machine] || 0) + 1; });
+  const watchList = Object.entries(assetCounts).filter(([, c]) => c >= 3).sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+  const catCounts = {};
+  all.forEach(e => {
+    const cat = (e.category || e.maintenance_type || 'Other').trim();
+    catCounts[cat] = (catCounts[cat] || 0) + 1;
+  });
+  const catEntries = Object.entries(catCounts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+
+  const fmt = d => d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
+  const periodLabel = fmt(since8h) + ' – ' + fmt(now);
+  meta.textContent = now.toLocaleDateString('en-PH', { weekday: 'long', month: 'short', day: 'numeric' })
+    + ' · Last 8h · Generated by ' + WORKER_NAME;
+
+  const total      = all.length;
+  const plannedN   = all.filter(e => {
+    const c = (e.category || '').toLowerCase();
+    const m = (e.maintenance_type || '').toLowerCase();
+    return c.includes('pm') || c.includes('preventive') || c.includes('planned')
+        || m.includes('pm') || m.includes('preventive') || m.includes('planned');
+  }).length;
+  const plannedPct = total ? Math.round(plannedN / total * 100) : 0;
+  _hoKpi = `${total} job${total !== 1 ? 's' : ''} · Planned ${plannedPct}% · Reactive ${100 - plannedPct}% · ${overdue.length} overdue`;
+
+  let html = '';
+
+  html += `<div class="ho-section">
+    <p class="ho-label" style="color:rgba(255,255,255,0.3);">📊 Shift Snapshot</p>
+    <p style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin:0;">${escHtml(_hoKpi)}</p>
+  </div>`;
+
+  if (lotoJobs.length) {
+    html += `<div class="ho-section" style="border-left:3px solid #ef4444;padding-left:0.75rem;background:rgba(239,68,68,0.07);border-bottom:1px solid rgba(239,68,68,0.18);">
+      <p class="ho-label" style="color:#ef4444;">⚠️ Active Isolations / LOTO (${lotoJobs.length})</p>
+      ${lotoJobs.map(e =>
+        `<div class="ho-item"><span style="color:#ef4444;flex-shrink:0;">🔒</span><span><strong style="color:#fff;">${escHtml(e.machine || '—')}</strong>${e.problem ? ' — ' + escHtml(e.problem.slice(0, 60)) : ''}</span></div>`
+      ).join('')}
+    </div>`;
+  }
+
+  html += `<div class="ho-section">
+    <p class="ho-label" style="color:#4ade80;">✅ Completed This Shift (${completed.length})</p>
+    ${completed.length ? completed.slice(0, 8).map(e =>
+      `<div class="ho-item"><span style="color:#4ade80;flex-shrink:0;">✓</span><span>${escHtml(e.machine || '—')}${e.worker_name ? ' · <em style="color:rgba(255,255,255,0.4)">' + escHtml(e.worker_name) + '</em>' : ''}</span></div>`
+    ).join('') : '<p class="text-xs" style="color:rgba(255,255,255,0.3);">Nothing closed this shift.</p>'}
+  </div>`;
+
+  html += `<div class="ho-section">
+    <p class="ho-label" style="color:#f87171;">🔴 Opened This Shift (${openThisShift.length})</p>
+    ${openThisShift.length ? openThisShift.slice(0, 6).map(e =>
+      `<div class="ho-item"><span style="color:#F7A21B;flex-shrink:0;">•</span><span>${escHtml(e.machine || '—')}${e.problem ? ' — <em style="color:rgba(255,255,255,0.4)">' + escHtml(e.problem.slice(0, 50)) + '</em>' : ''}</span></div>`
+    ).join('') : '<p class="text-xs" style="color:rgba(255,255,255,0.3);">No new jobs this shift.</p>'}
+  </div>`;
+
+  if (carryForward.length) {
+    html += `<div class="ho-section">
+      <p class="ho-label" style="color:#f87171;">🔁 Carry-Forward — Previous Shifts (${carryForward.length})${overdue.length ? ' · ' + overdue.length + ' overdue' : ''}</p>
+      ${carryForward.slice(0, 8).map(e => {
+        const isOD = (now - new Date(e.created_at || e.date)) > 3 * 86400000;
+        return `<div class="ho-item"><span style="color:${isOD ? '#ef4444' : '#F7A21B'};flex-shrink:0;">${isOD ? '⚠️' : '•'}</span><span>${escHtml(e.machine || '—')}${e.problem ? ' — <em style="color:rgba(255,255,255,0.4)">' + escHtml(e.problem.slice(0, 50)) + '</em>' : ''}</span></div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  if (catEntries.length) {
+    html += `<div class="ho-section">
+      <p class="ho-label" style="color:#29B6D9;">📋 Job Categories</p>
+      ${catEntries.map(([name, count]) =>
+        `<div class="ho-item"><span style="color:#29B6D9;flex-shrink:0;">•</span><span>${escHtml(name)} — <strong style="color:#FDB94A;">${count} job${count !== 1 ? 's' : ''}</strong></span></div>`
+      ).join('')}
+    </div>`;
+  }
+
+  if (watchList.length) {
+    html += `<div class="ho-section">
+      <p class="ho-label" style="color:#F7A21B;">👁️ Watch List — High-frequency Assets</p>
+      ${watchList.map(([name, count]) =>
+        `<div class="ho-item"><span style="color:#F7A21B;flex-shrink:0;">▲</span><span>${escHtml(name)} — <strong style="color:#FDB94A;">${count} jobs</strong>. Consider inspection.</span></div>`
+      ).join('')}
+    </div>`;
+  }
+
+  body.innerHTML = html;
+  sheet.classList.remove('hidden');
+}
+
+function copyHandover() {
+  const text = document.getElementById('handover-body').innerText;
+  navigator.clipboard.writeText(text).then(() => showToast('Handover report copied.'));
+}
+
+function printHandover() {
+  const rawBody = document.getElementById('handover-body').innerHTML;
+  const meta    = document.getElementById('ho-meta').textContent;
+  const toName  = (document.getElementById('ho-handover-to').value || '').trim();
+  const title   = _hoTitle || 'Shift Handover Report';
+  const kpi     = _hoKpi  || '';
+
+  const bodyFixed = rawBody
+    .replace(/color:rgba\(255,255,255,[^)]+\)/g, 'color:#777')
+    .replace(/style="color:rgba\(255,255,255,[^)]+\)"/g, 'style="color:#777"');
+
+  const win = window.open('', '_blank', 'width=700,height=900');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>${escHtml(title)}</title>
+<style>
+  @page{margin:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:1.2cm 1.5cm;color:#111;max-width:640px;margin:0 auto;box-sizing:border-box;}
+  h1{font-size:1.05rem;font-weight:900;margin:0 0 0.1rem;color:#111;}
+  .kpi{font-size:0.7rem;color:#666;margin:0 0 0.2rem;}
+  .meta{font-size:0.78rem;color:#555;margin:0 0 1.25rem;border-bottom:2px solid #111;padding-bottom:0.6rem;}
+  .ho-section{border-bottom:1px solid #e5e7eb;padding:0.55rem 0;}
+  .ho-section:last-child{border-bottom:none;}
+  .ho-label{font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#444;margin:0 0 0.3rem;}
+  .ho-item{font-size:0.8rem;color:#333;padding:2px 0;display:flex;align-items:baseline;gap:6px;}
+  strong{color:#111 !important;}
+  .sig-block{margin-top:1.5rem;padding-top:0.75rem;border-top:1px solid #e5e7eb;display:grid;grid-template-columns:1fr 1fr;gap:0.75rem 1.5rem;}
+  .sig-label{font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#888;}
+  .sig-name{font-size:0.82rem;font-weight:700;color:#111;margin:0.1rem 0 0.3rem;min-height:1rem;}
+  .sig-line{border-bottom:1px solid #bbb;height:0.8rem;}
+</style></head><body>
+<h1>${escHtml(title)}</h1>
+${kpi ? `<p class="kpi">${escHtml(kpi)}</p>` : ''}
+<p class="meta">${meta}${toName ? ' → ' + escHtml(toName) : ''}</p>
+${bodyFixed}
+<div class="sig-block">
+  <div><div class="sig-label">Outgoing</div><div class="sig-name">${escHtml(WORKER_NAME)}</div><div class="sig-line"></div></div>
+  <div><div class="sig-label">Incoming</div><div class="sig-name">${toName ? escHtml(toName) : ''}</div><div class="sig-line"></div></div>
+  <div style="grid-column:1/-1;"><div class="sig-label">Date / Time</div><div class="sig-line" style="max-width:280px;"></div></div>
+</div>
+<script>window.onload=function(){window.print();setTimeout(()=>window.close(),500);};<\/script>
+</body></html>`);
+  win.document.close();
+}
 
 window.addEventListener('beforeunload', () => {
   if (presenceChannel)   db.removeChannel(presenceChannel);
