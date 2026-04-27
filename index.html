@@ -1846,13 +1846,12 @@
   }
 
   /* ── Card 3D tilt (desktop fine-pointer only) ── */
-  /* Tracking uses a sluggish ease: card chases cursor like it's heavy.
-     Return uses the full viscous spring so it settles like liquid. */
+  /* Tracking has no transition — instant follow feels like native UI.
+     Return uses the viscous spring so it settles like liquid. */
   if (!reducedMotion && window.matchMedia('(pointer: fine)').matches) {
     document.querySelectorAll('.card-glow, .card-orange, .stage-card').forEach(function(card) {
       card.addEventListener('mouseenter', function() {
-        /* Slow tracking: card lags behind cursor, feels heavy */
-        this.style.transition = 'transform 0.28s ease-out';
+        this.style.transition = 'none';
       });
       card.addEventListener('mousemove', function(e) {
         const r = this.getBoundingClientRect();
@@ -1860,7 +1859,7 @@
         this.style.transform = 'perspective(700px) rotateX(' + (-y*7) + 'deg) rotateY(' + (x*7) + 'deg) translateY(-12px)';
       });
       card.addEventListener('mouseleave', function() {
-        /* Full viscous spring on return: card settles slowly like liquid */
+        /* Spring on return only: card settles like liquid */
         this.style.transition = 'transform 0.8s linear(0,.002,.009,.022,.041,.065,.096,.133,.175,.221,.269,.318,.367,.415,.461,.504,.545,.583,.618,.650,.679,.705,.729,.750,.769,.785,.800,.813,.824,.834,.843,.858,.876,.894,.907,.916,.924,.932,.940,.947,.953,.958,.962,.967,.972,.978,.984,.990,.994,.998,1)';
         this.style.transform = '';
       });
