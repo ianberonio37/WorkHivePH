@@ -251,7 +251,7 @@
     descriptive: '📊 Phase 1 — Descriptive Analytics. What happened? Standards: ISO 14224:2016, SMRP Metrics.',
     diagnostic:  '🔍 Phase 2 — Diagnostic Analytics. Why did it happen? Standards: ISO 14224:2016 failure taxonomy, Spearman correlation, SAE JA1011.',
     predictive:  '🔮 Phase 3 — Predictive Analytics. What will happen? Standards: ISO 13381-1:2015, ISO 14224:2016, SMRP composite health score.',
-    prescriptive:'⚡ Phase 4 — Prescriptive Analytics. What should I do? Standards: ISO 55000:2014, SAE JA1011 RCM, SMRP workforce metrics. Powered by Groq AI synthesis.',
+    prescriptive:'⚡ Phase 4 — Prescriptive Analytics. What should I do? Standards: ISO 55000:2014, SAE JA1011 RCM, SMRP workforce metrics. Powered by WorkHive AI.',
   };
 
   function setPhase(phase) {
@@ -811,7 +811,7 @@
     const items = plan.this_week.map(a => `<li style="margin-bottom:0.4rem;color:rgba(255,255,255,0.8);">${escHtml(a)}</li>`).join('');
     const watchItems = (plan.watch_list || []).map(w => `<span style="font-size:0.7rem;padding:0.2rem 0.5rem;border-radius:999px;background:rgba(247,162,27,0.12);color:#F7A21B;border:1px solid rgba(247,162,27,0.25);margin-right:0.4rem;">${escHtml(w)}</span>`).join('');
     return `<div class="card" style="border-color:rgba(167,139,250,0.3);background:linear-gradient(145deg,rgba(124,58,237,0.12),rgba(31,46,69,0.7));margin-bottom:1rem;">
-      <div class="card-title" style="color:#a78bfa;">⚡ AI Action Plan <span class="card-standard">Groq synthesis · ISO 55000:2014</span></div>
+      <div class="card-title" style="color:#a78bfa;">⚡ AI Action Plan <span class="card-standard">WorkHive AI · ISO 55000:2014</span></div>
       ${plan.summary ? `<p style="font-size:0.8rem;font-weight:600;color:#fff;margin-bottom:0.75rem;">${escHtml(plan.summary)}</p>` : ''}
       <ul style="padding-left:1.25rem;font-size:0.75rem;line-height:1.7;">${items}</ul>
       ${watchItems ? `<div style="margin-top:0.75rem;"><p style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-bottom:0.4rem;">Watch list:</p>${watchItems}</div>` : ''}

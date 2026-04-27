@@ -183,7 +183,7 @@ async function fetchPrescriptiveData(
 
 // ── Groq synthesis for Prescriptive phase ─────────────────────────────────────
 
-async function callGroqSynthesis(pythonResult: Record<string, unknown>): Promise<string> {
+async function callGroqSynthesis(pythonResult: Record<string, unknown>, hiveMembers: string[]): Promise<string> {
   const GROQ_KEY = Deno.env.get("GROQ_API_KEY");
   if (!GROQ_KEY) return "Groq not configured — showing raw analysis results.";
 
@@ -193,16 +193,25 @@ async function callGroqSynthesis(pythonResult: Record<string, unknown>): Promise
     "llama-3.1-8b-instant",
   ];
 
+  const memberList = hiveMembers.length > 0
+    ? `Your actual team members are: ${hiveMembers.join(", ")}. ONLY use these names — never invent names like John, Bob, or any other person not in this list.`
+    : "You do not know the team member names — do not invent names. Refer to workers by their discipline (e.g. 'the Mechanical technician').";
+
   const systemPrompt = `You are a senior maintenance manager. Based on the analytics results provided, write a concise action plan for the maintenance team this week.
-Be specific: name actual machines, workers, and parts. Use bullet points. Maximum 200 words.
+${memberList}
+Only reference machines, parts, and workers that appear in the data. Never invent names or equipment not mentioned.
+Use bullet points. Maximum 200 words.
 Format as JSON: { "summary": "one sentence overview", "this_week": ["action 1", "action 2", ...], "watch_list": ["machine or part to monitor"] }`;
+
+  const assignments = (pythonResult.technician_assignment as Record<string, unknown>)?.assignments as Record<string, unknown>[] | undefined;
 
   const prompt = `Analytics results:\n${JSON.stringify({
     top_priority: (pythonResult.priority_ranking as Record<string, unknown>)?.ranking?.slice?.(0,3),
     pm_optimizations: (pythonResult.pm_interval_optimization as Record<string, unknown>)?.recommendations?.slice?.(0,3),
-    open_assignments: (pythonResult.technician_assignment as Record<string, unknown>)?.assignments?.slice?.(0,3),
+    open_assignments: assignments?.slice?.(0,3),
     reorder_critical: (pythonResult.parts_reorder as Record<string, unknown>)?.reorder?.filter?.((r: Record<string, unknown>) => r.urgency === "CRITICAL")?.slice?.(0,3),
     training_gaps: (pythonResult.training_gaps as Record<string, unknown>)?.gaps?.slice?.(0,2),
+    team_members: hiveMembers,
   }, null, 2)}`;
 
   for (const model of GROQ_CHAIN) {
@@ -308,7 +317,16 @@ serve(async (req) => {
     // For prescriptive phase — add Groq synthesis as action plan
     let groqSynthesis = null;
     if (phase === "prescriptive" && !results.error) {
-      const raw = await callGroqSynthesis(results);
+      // Fetch actual hive member names to prevent Groq from hallucinating worker names
+      let hiveMembers: string[] = [];
+      if (hive_id) {
+        const { data: members } = await db.from("hive_members")
+          .select("worker_name").eq("hive_id", hive_id).eq("status", "active");
+        hiveMembers = (members || []).map((m: Record<string, string>) => m.worker_name).filter(Boolean);
+      } else if (worker_name) {
+        hiveMembers = [worker_name];
+      }
+      const raw = await callGroqSynthesis(results, hiveMembers);
       try { groqSynthesis = JSON.parse(raw); } catch { groqSynthesis = null; }
     }
 
