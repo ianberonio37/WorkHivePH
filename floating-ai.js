@@ -41,6 +41,7 @@
     if (path.includes('inventory'))     return { page: 'inventory',     label: 'Inventory Manager',      hint: 'Help me with stock levels, reorder points, or parts management best practices.' };
     if (path.includes('skillmatrix'))   return { page: 'skillmatrix',   label: 'Skill Matrix',           hint: 'Ask about discipline requirements, exam tips, or how to progress through skill levels.' };
     if (path.includes('engineering-design')) return { page: 'engineering-design', label: 'Eng. Design Calculator', hint: 'Ask about any of the 46 calc types (HVAC, Electrical, Structural, Machine Design, Plumbing, Fire), formula inputs, Philippine standards (PEC 2017, PSME, NSCP, ASHRAE, NFPA, IEC, ASME), how to interpret results, or generate BOM/SOW and engineering diagrams.' };
+    if (path.includes('analytics'))     return { page: 'analytics',     label: 'Analytics Engine',       hint: 'Ask me to explain your MTBF, MTTR, or Availability results. I can interpret PM compliance scores, explain failure trends, predict next failures, or help you understand the AI Action Plan recommendations.' };
     return                              { page: 'home',                 label: 'WorkHive Home',          hint: 'Ask me anything about the platform or industrial maintenance.' };
   }
 
@@ -465,6 +466,7 @@ PLATFORM TOOLS (so you can answer "where do I find X?" questions):
 - PM Scheduler (pm-scheduler.html): Plant Maintenance scheduling. Register assets, assign PM scope checklists by category (Rotating Equipment, Electrical, HVAC, Utility Systems, etc.), set frequencies (Monthly, Quarterly, Semi-Annual, Yearly), and track due dates. Completing a PM task optionally creates a linked Logbook entry. When logging a Preventive Maintenance entry in the Logbook, pending PM tasks for that asset appear automatically.
 - Skill Matrix (skillmatrix.html): Competency tracking across 5 disciplines (Mechanical, Electrical, Instrumentation, Facilities Management, Production Lines). Progress through 5 levels (Awareness to Master) by passing exams. Earn badges. Radar chart shows competency profile.
 - Engineering Design Calculator (engineering-design.html): 46 calculation types across Mechanical, HVAC, Electrical, Fire Protection, Plumbing, Structural, and Machine Design disciplines. Each calc generates a print-ready report with BOM and Scope of Works. Generate engineering diagrams (SLD, LPS zone, P&ID, fire sprinkler, generator, lighting layout). Built to Philippine standards (PEC 2017, PSME, NSCP, ASHRAE, NFPA).
+- Analytics Engine (analytics.html): Stage 3 maintenance intelligence dashboard. 4 phases: Descriptive (MTBF, MTTR, Availability, PM Compliance, Failure Frequency, Downtime Pareto), Diagnostic (Failure Mode Distribution, PM-Failure Correlation, Skill-MTTR Correlation), Predictive (Next Failure Date, PM Due Calendar, Parts Stockout, Health Score), Prescriptive (Priority Ranking, PM Interval Optimization, Tech Assignment, WorkHive AI Action Plan). Standards: ISO 14224, ISO 13381-1, ISO 55000, SAE JA1011, SMRP.
 - Parts Tracker: Retired. Parts are now logged inside Logbook entries.
 
 You handle three types of conversations. Adapt naturally:
