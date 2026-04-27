@@ -111,6 +111,29 @@ async function fetchDiagnosticData(
   };
 }
 
+async function fetchPredictiveData(
+  db: ReturnType<typeof createClient>,
+  hiveId: string | null,
+  workerName: string | null,
+  periodDays: number
+) {
+  // Reuse descriptive data + add inventory_items for stockout prediction
+  const base = await fetchDescriptiveData(db, hiveId, workerName, periodDays);
+
+  const invQ = db.from("inventory_items")
+    .select("part_name, qty_on_hand, reorder_point, unit")
+    .limit(300);
+  if (hiveId) invQ.eq("hive_id", hiveId).eq("status", "approved");
+  else if (workerName) invQ.eq("worker_name", workerName);
+
+  const [invRes] = await Promise.allSettled([invQ]);
+
+  return {
+    ...base,
+    inventory_items: (invRes.status === "fulfilled" ? invRes.value.data : null) || [],
+  };
+}
+
 // ── Call the Python Analytics API ────────────────────────────────────────────
 
 async function callPythonAnalytics(phase: string, inputs: Record<string, unknown>): Promise<Record<string, unknown>> {
@@ -174,8 +197,10 @@ serve(async (req) => {
       data = await fetchDescriptiveData(db, hive_id || null, worker_name || null, periodDays);
     } else if (phase === "diagnostic") {
       data = await fetchDiagnosticData(db, hive_id || null, worker_name || null, periodDays);
+    } else if (phase === "predictive") {
+      data = await fetchPredictiveData(db, hive_id || null, worker_name || null, periodDays);
     }
-    // Phases 3-4 will add their own fetch functions here
+    // Phase 4 will add its own fetch function here
 
     // Send to Python API for computation
     const results = await callPythonAnalytics(phase, {

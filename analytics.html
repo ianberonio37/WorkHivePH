@@ -150,7 +150,7 @@
   <div class="phase-tabs">
     <button class="phase-tab active" onclick="setPhase('descriptive')">Descriptive</button>
     <button class="phase-tab" onclick="setPhase('diagnostic')">Diagnostic</button>
-    <button class="phase-tab soon" title="Coming soon">Predictive</button>
+    <button class="phase-tab" onclick="setPhase('predictive')">Predictive</button>
     <button class="phase-tab soon" title="Coming soon">Prescriptive</button>
   </div>
 
@@ -211,6 +211,7 @@
   const PHASE_BANNERS = {
     descriptive: '📊 Phase 1 — Descriptive Analytics. What happened? Standards: ISO 14224:2016, SMRP Metrics.',
     diagnostic:  '🔍 Phase 2 — Diagnostic Analytics. Why did it happen? Standards: ISO 14224:2016 failure taxonomy, Spearman correlation, SAE JA1011.',
+    predictive:  '🔮 Phase 3 — Predictive Analytics. What will happen? Standards: ISO 13381-1:2015, ISO 14224:2016, SMRP composite health score.',
   };
 
   function setPhase(phase) {
@@ -258,6 +259,7 @@
 
       if (_phase === 'descriptive') renderDescriptive(data);
       else if (_phase === 'diagnostic') renderDiagnostic(data);
+      else if (_phase === 'predictive') renderPredictive(data);
 
     } catch (err) {
       document.getElementById('results-panel').innerHTML = `
@@ -601,6 +603,142 @@
     return `<div class="card">
       <div class="card-title">Engineering Validation <span class="card-standard">WAT pattern — ${d.flagged_count} match(es) flagged</span></div>
       ${rows}
+    </div>`;
+  }
+
+  // ── Render Phase 3 — Predictive ──────────────────────────────────────────
+  function renderPredictive(data) {
+    const panel = document.getElementById('results-panel');
+    const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-PH') : '';
+    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
+    html += renderHealthScores(data.health_scores);
+    html += renderNextFailureDates(data.next_failure_dates);
+    html += renderPMDueCalendar(data.pm_due_calendar);
+    html += renderPartsStockout(data.parts_stockout);
+    html += renderFailureTrend(data.failure_trend);
+    panel.innerHTML = html;
+  }
+
+  function renderHealthScores(d) {
+    if (!d?.health_scores?.length) return cardEmpty('Equipment Health Score', 'SMRP-inspired composite (0-100)', d?.note || 'No data available.');
+    const scores = d.health_scores.map(s => {
+      const color = s.color === 'red' ? '#f87171' : s.color === 'yellow' ? '#F7A21B' : '#4ade80';
+      const pct = s.health_score;
+      return `<div style="margin-bottom:0.75rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
+          <span style="font-size:0.78rem;font-weight:700;color:#fff;">${escHtml(s.machine)}</span>
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <span style="font-size:0.65rem;font-weight:600;color:${color};">${escHtml(s.status)}</span>
+            <span style="font-size:1rem;font-weight:800;color:${color};">${pct}</span>
+          </div>
+        </div>
+        <div class="compliance-track">
+          <div class="compliance-fill" style="width:${pct}%;background:${color};"></div>
+        </div>
+        <div style="font-size:0.62rem;color:rgba(255,255,255,0.25);margin-top:0.25rem;">
+          MTBF score: ${s.components.mtbf_score} · Failure score: ${s.components.failure_score} · PM score: ${s.components.compliance_score}
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="card">
+      <div class="card-title">Equipment Health Score <span class="card-standard">SMRP composite · 🔴 ${d.at_risk_count} at risk · 🟡 ${d.watch_count} watch · 🟢 ${d.healthy_count} healthy</span></div>
+      ${scores}
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">Weights: ${escHtml(d.weights?.mtbf || '40%')} MTBF + ${escHtml(d.weights?.failure_frequency || '30%')} failure freq + ${escHtml(d.weights?.pm_compliance || '30%')} PM compliance</p>
+    </div>`;
+  }
+
+  function renderNextFailureDates(d) {
+    if (!d?.predictions?.length) return cardEmpty('Next Failure Prediction', 'ISO 14224:2016 + ISO 13381-1:2015', d?.note || 'Need ≥ 2 failures per machine to predict.');
+    const rows = d.predictions.map(p => {
+      const cls = p.risk === 'HIGH' ? 'alert' : p.risk === 'MEDIUM' ? 'warn' : 'good';
+      return `<tr>
+        <td class="machine-name">${escHtml(p.machine)}</td>
+        <td class="num">${p.mtbf_days}d</td>
+        <td class="num">${escHtml(p.last_failure)}</td>
+        <td class="num ${cls}">${escHtml(p.predicted_next)}</td>
+        <td class="num"><span style="font-size:0.65rem;font-weight:700;color:${p.risk==='HIGH'?'#f87171':p.risk==='MEDIUM'?'#F7A21B':'#4ade80'}">${p.risk}</span></td>
+      </tr>`;
+    }).join('');
+    return `<div class="card">
+      <div class="card-title">Next Failure Prediction <span class="card-standard">ISO 13381-1:2015 · ${d.high_risk} HIGH · ${d.medium_risk} MEDIUM</span></div>
+      <table class="data-table">
+        <thead><tr><th>Machine</th><th class="num">MTBF</th><th class="num">Last Fail</th><th class="num">Predicted Next</th><th class="num">Risk</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
+    </div>`;
+  }
+
+  function renderPMDueCalendar(d) {
+    if (!d?.calendar?.length) return cardEmpty('PM Due Calendar', 'Deterministic — last completion + frequency', 'No PM scope items found.');
+    const visible = d.calendar.filter(c => c.risk !== 'OK').slice(0, 12);
+    if (!visible.length) return `<div class="card">
+      <div class="card-title">PM Due Calendar <span class="card-standard">Deterministic · All ${d.total_tasks} tasks on schedule</span></div>
+      <div class="empty" style="color:#4ade80;padding:1rem 0;">✓ All PM tasks are on schedule.</div>
+    </div>`;
+    const rows = visible.map(c => {
+      const color = c.risk === 'OVERDUE' ? '#f87171' : c.risk === 'DUE SOON' ? '#F7A21B' : '#a78bfa';
+      return `<tr>
+        <td class="machine-name">${escHtml(c.asset_name)}</td>
+        <td style="font-size:0.68rem;color:rgba(255,255,255,0.55);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(c.task)}</td>
+        <td style="font-size:0.68rem;color:rgba(255,255,255,0.35);">${escHtml(c.frequency)}</td>
+        <td class="num"><span style="font-size:0.7rem;font-weight:700;color:${color};">${escHtml(c.status)}</span></td>
+      </tr>`;
+    }).join('');
+    return `<div class="card">
+      <div class="card-title">PM Due Calendar <span class="card-standard">🔴 ${d.overdue_count} overdue · 🟡 ${d.due_soon_count} due soon</span></div>
+      <table class="data-table">
+        <thead><tr><th>Asset</th><th>Task</th><th>Frequency</th><th class="num">Status</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }
+
+  function renderPartsStockout(d) {
+    if (!d?.stockout_risk?.length) return `<div class="card">
+      <div class="card-title">Parts Stockout Risk <span class="card-standard">Deterministic — qty / daily consumption rate</span></div>
+      <div class="empty" style="color:#4ade80;padding:1rem 0;">✓ No parts projected to stock out soon.</div>
+    </div>`;
+    const rows = d.stockout_risk.map(p => {
+      const cls = p.risk === 'CRITICAL' ? 'alert' : p.risk === 'HIGH' ? 'warn' : '';
+      return `<tr>
+        <td class="machine-name">${escHtml(p.part_name)}</td>
+        <td class="num">${p.qty_on_hand}</td>
+        <td class="num">${p.daily_rate || '—'}</td>
+        <td class="num ${cls}">${p.days_to_stockout !== null ? p.days_to_stockout + 'd' : '—'}</td>
+        <td class="num"><span style="font-size:0.65rem;font-weight:700;color:${p.risk==='CRITICAL'?'#f87171':p.risk==='HIGH'?'#F7A21B':'#a78bfa'}">${p.risk}</span></td>
+      </tr>`;
+    }).join('');
+    return `<div class="card">
+      <div class="card-title">Parts Stockout Risk <span class="card-standard">SMRP inventory · ${d.at_risk_count} parts at risk</span></div>
+      <table class="data-table">
+        <thead><tr><th>Part</th><th class="num">In Stock</th><th class="num">Daily Rate</th><th class="num">Stockout In</th><th class="num">Risk</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }
+
+  function renderFailureTrend(d) {
+    if (!d?.trend?.length) return cardEmpty('Failure Trend', 'Linear trend analysis', d?.note || 'Insufficient data.');
+    const dirColor = d.direction === 'INCREASING' ? '#f87171' : d.direction === 'DECREASING' ? '#4ade80' : '#a78bfa';
+    const max = Math.max(...d.trend.map(t => t.count), 1);
+    const bars = d.trend.slice(-12).map(t => {
+      const pct = Math.round((t.count / max) * 100);
+      return `<div class="bar-row">
+        <span class="bar-label">${escHtml(t.week)}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+        <span class="bar-val">${t.count}</span>
+      </div>`;
+    }).join('');
+    const forecast = (d.forecast || []).map(f => `<span style="font-size:0.65rem;color:rgba(255,255,255,0.35);margin-right:0.75rem;">${escHtml(f.week)}: ~${f.predicted_count}</span>`).join('');
+    return `<div class="card">
+      <div class="card-title">Failure Trend <span class="card-standard">Linear trend · ${d.data_points} weeks</span></div>
+      <div style="margin-bottom:0.75rem;">
+        <span style="font-size:0.8rem;font-weight:700;color:${dirColor};">${escHtml(d.direction || '')}</span>
+        <span style="font-size:0.72rem;color:rgba(255,255,255,0.5);margin-left:0.5rem;">${escHtml(d.trend_label || '')}</span>
+      </div>
+      ${bars}
+      ${forecast ? `<div style="margin-top:0.5rem;"><p style="font-size:0.65rem;color:rgba(255,255,255,0.25);margin-bottom:0.25rem;">4-week forecast:</p>${forecast}</div>` : ''}
     </div>`;
   }
 
