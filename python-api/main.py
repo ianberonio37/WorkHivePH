@@ -32,6 +32,11 @@ class CalcRequest(BaseModel):
     inputs: dict[str, Any]
 
 
+class AnalyticsRequest(BaseModel):
+    phase: str                          # "descriptive" | "diagnostic" | "predictive" | "prescriptive"
+    inputs: dict[str, Any]             # phase-specific payload (data arrays + params)
+
+
 class DiagramRequest(BaseModel):
     diagram_type: str
     inputs: dict[str, Any]
@@ -225,4 +230,49 @@ def list_calcs():
     return {
         "python_calcs": sorted(HANDLERS.keys()),
         "count": len(HANDLERS),
+    }
+
+
+# ─── Analytics Engine Routes (Stage 3) ───────────────────────────────────────
+
+ANALYTICS_PHASES = {
+    "descriptive": None,  # lazy-loaded on first call
+}
+
+@app.post("/analytics")
+def analytics(req: AnalyticsRequest):
+    """
+    Stage 3 Analytics Engine endpoint.
+    Routes by req.phase to the appropriate analytics module.
+
+    Phase 1 — descriptive: ISO 14224:2016 + SMRP
+      inputs: { logbook_entries, pm_completions, pm_scope_items,
+                inv_transactions, period_days }
+
+    Returns structured analytics results for the frontend dashboard.
+    """
+    phase = req.phase.lower().strip()
+
+    if phase == "descriptive":
+        from analytics.descriptive import calculate
+        try:
+            return calculate(req.inputs)
+        except Exception as e:
+            print(f"ANALYTICS ERROR [descriptive]: {traceback.format_exc()}")
+            raise HTTPException(status_code=500, detail=f"Analytics error: {str(e)}")
+
+    # Phases 2-4 will be added here as they are built
+    raise HTTPException(
+        status_code=404,
+        detail=f"Analytics phase '{phase}' not yet implemented. Available: descriptive"
+    )
+
+
+@app.get("/analytics/health")
+def analytics_health():
+    """Returns available analytics phases and their status."""
+    return {
+        "available_phases": ["descriptive"],
+        "coming_soon": ["diagnostic", "predictive", "prescriptive"],
+        "standards": ["ISO 14224:2016", "ISO 13381-1:2015", "ISO 55000:2014", "SMRP Metrics"],
     }

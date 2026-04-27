@@ -33,6 +33,9 @@ pint==0.21
 # Phase 10 — Diagram generation (server-side SVG via Agg backend, no display needed)
 matplotlib==3.8.4
 
+# Stage 3 Analytics Engine — Phase 1 Descriptive
+pandas==2.2.2
+
 # Phase 8 — Server-side PDF generation (replaces html2pdf.js screenshot)
 # weasyprint==62.3
 # Caution: weasyprint requires system-level GTK/Pango libs in Docker image.
