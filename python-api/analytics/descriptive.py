@@ -165,7 +165,7 @@ def calc_availability(logbook_entries: list[dict]) -> dict:
 # PM Compliance = Completed PMs / Scheduled PMs × 100
 # Scheduled PMs = scope items whose due date has passed within the period
 
-def calc_pm_compliance(pm_completions: list[dict], pm_scope_items: list[dict]) -> dict:
+def calc_pm_compliance(pm_completions: list[dict], pm_scope_items: list[dict], period_days: int = 90) -> dict:
     comps = _to_df(pm_completions)
     scope = _to_df(pm_scope_items)
 
@@ -174,7 +174,8 @@ def calc_pm_compliance(pm_completions: list[dict], pm_scope_items: list[dict]) -
                 "standard": "SMRP Metric 2.1.1", "note": "No PM scope items found"}
 
     comps = _parse_dates(comps, "completed_at")
-    now   = pd.Timestamp.now(tz="UTC")
+    now    = pd.Timestamp.now(tz="UTC")
+    cutoff = now - pd.Timedelta(days=period_days)  # only count completions within the period
 
     # Frequency string → days mapping
     freq_days = {
@@ -187,16 +188,21 @@ def calc_pm_compliance(pm_completions: list[dict], pm_scope_items: list[dict]) -
         asset_name = s_group.iloc[0].get("asset_name", asset_id)
         c_group    = comps[comps["asset_id"] == asset_id] if not comps.empty else pd.DataFrame()
 
+        # Filter completions to within the analysis period
+        if not c_group.empty and "completed_at" in c_group.columns:
+            c_group = c_group[c_group["completed_at"] >= cutoff]
+
         scheduled = 0
         completed = 0
 
         for _, item in s_group.iterrows():
             freq   = item.get("frequency", "Monthly")
             days   = freq_days.get(freq, 30)
-            comp_for_item = c_group[c_group.get("scope_item_id") == item.get("id")] if "scope_item_id" in c_group.columns else c_group
+            comp_for_item = c_group[c_group["scope_item_id"] == item.get("id")] if not c_group.empty and "scope_item_id" in c_group.columns else pd.DataFrame()
 
-            # Count how many times this task was due in the last full period
-            due_count = max(1, 1)  # minimum 1 scheduled per item in the window
+            # How many times was this task due in the period?
+            # e.g. Monthly (30d) in 90-day period = 3 times due
+            due_count = max(1, int(period_days / days))
             scheduled += due_count
 
             # Count completions within expected window
@@ -439,7 +445,7 @@ def calculate(inputs: dict) -> dict:
         "mttr":              calc_mttr(logbook),
         "availability":      calc_availability(logbook),
         "oee":               calc_oee(logbook, period),
-        "pm_compliance":     calc_pm_compliance(comps, scope),
+        "pm_compliance":     calc_pm_compliance(comps, scope, period),
         "failure_frequency": calc_failure_frequency(logbook, period),
         "downtime_pareto":   calc_downtime_pareto(logbook),
         "parts_consumption": calc_parts_consumption(txns, period),
