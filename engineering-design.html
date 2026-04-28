@@ -28511,7 +28511,14 @@ function renderBomTablePreview(items) {
   const isXFMR      = _calcType === 'Transformer Sizing';
   const isHarmonic  = _calcType === 'Harmonic Distortion';
   const isCleanAgt  = _calcType === 'Clean Agent Suppression';
-  const calcRef = `${isET ? 'HVAC-ET' : isFC ? 'HVAC-FCU' : isRP ? 'HVAC-RPS' : isDS ? 'HVAC-DS' : isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isCleanAgt ? 'FP-CAS' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLPS ? 'ELEC-LPS' : isEG ? 'ELEC-EGS' : isXFMR ? 'ELEC-XFMR' : isHarmonic ? 'ELEC-HD' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isGT ? 'PLMB-GT' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : isNoise ? 'MACH-NOISE' : isVibr ? 'MACH-VIBR' : isFluPwr ? 'MACH-FP' : 'HVAC'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const isPV        = _calcType === 'Pressure Vessel';
+  const isHX        = _calcType === 'Heat Exchanger';
+  const isVBelt     = _calcType === 'V-Belt Drive Design';
+  const isShaft     = _calcType === 'Shaft Design';
+  const isBeam      = _calcType === 'Beam / Column Design';
+  const isBearing   = _calcType === 'Bearing Life (L10)';
+  const isBolt      = _calcType === 'Bolt Torque & Preload';
+  const calcRef = `${isET ? 'HVAC-ET' : isFC ? 'HVAC-FCU' : isRP ? 'HVAC-RPS' : isDS ? 'HVAC-DS' : isAHU ? 'HVAC-AHU' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isCleanAgt ? 'FP-CAS' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLPS ? 'ELEC-LPS' : isEG ? 'ELEC-EGS' : isXFMR ? 'ELEC-XFMR' : isHarmonic ? 'ELEC-HD' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isGT ? 'PLMB-GT' : isRD ? 'PLMB-RD' : isSeptic ? 'PLMB-SEPTIC' : isDrain ? 'PLMB-DRN' : isHW ? 'PLMB-HW' : isWS ? 'PLMB-WSP' : isCAir ? 'MECH-CA' : isPipe ? 'MECH-PIPE' : isPump ? 'MECH-PUMP' : isVent ? 'MECH-VENT' : isNoise ? 'MECH-NOISE' : isVibr ? 'MECH-VIBR' : isFluPwr ? 'MECH-HYD' : isPV ? 'MECH-PV' : isHX ? 'MECH-HX' : isVBelt ? 'MECH-VBD' : isShaft ? 'MECH-SHF' : isBeam ? 'MECH-BEAM' : isBearing ? 'MECH-BRG' : isBolt ? 'MECH-BOLT' : 'MECH'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const disciplineSystem = isET
     ? `HVAC Systems: Expansion Tank Sizing (${_lastInputs?.system_type || 'Chilled Water'}, V=${_lastResults?.system_volume_L || _lastInputs?.system_volume_L || ''}L, Fill ${_lastInputs?.fill_temp_c || 20}°C→Max ${_lastInputs?.max_temp_c || ''}°C, Head ${_lastInputs?.static_head_m || ''}m, Pmax ${_lastInputs?.max_pressure_kpa_g || ''}kPa g, Tank ${_lastResults?.selected_tank_L || ''}L bladder, α=${_lastResults?.acceptance_factor ?? ''})`
     : isFC
@@ -28600,6 +28607,20 @@ function renderBomTablePreview(items) {
     ? `Electrical: Harmonic Distortion Analysis (THD=${_lastResults?.THD_I_pct || ''}%, TDD=${_lastResults?.TDD_pct || ''}% vs limit ${_lastResults?.TDD_limit_pct || ''}%, K-Factor=${_lastResults?.K_factor || ''}, ${_lastResults?.overall_pass ? 'IEEE 519-2022 COMPLIANT' : 'NON-COMPLIANT — mitigation required'})`
     : isCleanAgt
     ? `Fire Protection: Clean Agent Suppression (${_lastResults?.agent_label || _lastInputs?.agent_type || ''}, ${_lastResults?.hazard_volume_m3 || ''}m³ × ${_lastResults?.num_zones || 1} zone(s), C=${_lastResults?.design_concentration_pct || ''}%, W=${_lastResults?.W_design_kg || ''}kg, ${_lastResults?.recommended_qty || ''}×${_lastResults?.recommended_cylinder_kg || ''}kg cylinders, NFPA 2001:2022)`
+    : isPV
+    ? `Machine Design: Pressure Vessel (${_lastResults?.material || _lastInputs?.material || 'Carbon Steel'}, ID=${_lastInputs?.shell_id_mm || _lastInputs?.inner_diameter_mm || ''}mm, P_des=${_lastInputs?.design_pressure_bar || ''}bar, MAWP=${_lastResults?.mawp_bar || ''}bar, t=${_lastResults?.t_shell_actual_mm || ''}mm shell, Hydro=${_lastResults?.hydro_test_bar || ''}bar, ASME BPVC Sec.VIII)`
+    : isHX
+    ? `Machine Design: Heat Exchanger (Q=${_lastResults?.duty_kW || _lastInputs?.duty_kW || ''}kW, LMTD=${_lastResults?.lmtd_corrected_K || ''}K, U=${_lastResults?.U_design_W_m2K || ''}W/m²K, A=${_lastResults?.A_required_m2 || ''}m², ${_lastResults?.n_tubes || ''} tubes Ø${_lastResults?.tube_od_mm || ''}mm × ${_lastResults?.tube_length_m || ''}m, Shell ID≈${_lastResults?.shell_id_estimate_mm || ''}mm, TEMA/ASME VIII)`
+    : isVBelt
+    ? `Machine Design: V-Belt Drive (${_lastResults?.n_belts || ''}× Section ${_lastResults?.section || _lastResults?.belt_designation || ''}, ${_lastResults?.overall_ratio || ''}:1 ratio, Ø${_lastResults?.d_small_mm || ''}/${_lastResults?.d_large_mm || ''}mm sheaves, L=${_lastResults?.belt_length_mm || ''}mm, v=${_lastResults?.belt_speed_ms || ''}m/s, Wrap=${_lastResults?.wrap_angle_deg || _lastResults?.arc_deg || ''}°)`
+    : isShaft
+    ? `Machine Design: Shaft Design (Ø${_lastResults?.d_standard_mm || ''}mm ${_lastResults?.material || _lastInputs?.material || ''}, T=${_lastResults?.torque_Nm || ''}N·m, nf=${_lastResults?.nf_goodman || ''} Goodman, ncrit=${_lastResults?.critical_speed_rpm || ''}rpm, Key ${_lastResults?.key_width_mm || ''}×${_lastResults?.key_height_mm || ''}mm, ASME B106.1M)`
+    : isBeam
+    ? `Machine Design: Beam/Column (${_lastResults?.section || _lastInputs?.section || ''} ${_lastResults?.steel_grade || _lastInputs?.steel_grade || ''}, Span ${_lastResults?.span_m || _lastInputs?.span_m || ''}m, φMp=${_lastResults?.phi_Mp_kNm || ''}kN·m, DCR_M=${_lastResults?.DCR_moment || ''}, δ=${_lastResults?.deflection_mm || ''}mm, AISC 360/NSCP 2015)`
+    : isBearing
+    ? `Machine Design: Bearing Life (${_lastInputs?.bearing_type || ''}, C=${_lastInputs?.C_kN || ''}kN, P=${_lastResults?.P_kN || ''}kN, C/P=${_lastResults?.C_over_P || ''}, L10h_adj=${_lastResults?.L10h_adj || ''}h, ISO 281)`
+    : isBolt
+    ? `Machine Design: Bolt Torque (M${_lastResults?.d_mm || _lastInputs?.bolt_size_mm || ''} Grade ${_lastResults?.bolt_grade || _lastInputs?.grade || ''}, T=${_lastResults?.torque_Nm || ''}N·m, Fi=${_lastResults?.Fi_kN || ''}kN (${_lastResults?.preload_pct || ''}% Fp), SF_sep=${_lastResults?.separation_sf || ''}, ISO 898)`
     : `${_calcType}`;
 
   const rows = items.map((it, i) => `
@@ -28841,7 +28862,14 @@ function renderSowDocPreview(sections) {
   const isNoiseS     = _calcType === 'Noise / Acoustics';
   const isVibrS      = _calcType === 'Vibration Analysis';
   const isFluPwrS    = _calcType === 'Fluid Power';
-  const calcRef = `${isETS ? 'HVAC-ET' : isFCS ? 'HVAC-FCU' : isRPS ? 'HVAC-RPS' : isDSS ? 'HVAC-DS' : isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isCleanAgt ? 'FP-CAS' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLPSS ? 'ELEC-LPS' : isEGS ? 'ELEC-EGS' : isXFMR ? 'ELEC-XFMR' : isHarmonic ? 'ELEC-HD' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isGTS ? 'PLMB-GT' : isSeptic ? 'SEPTIC' : isDrain ? 'DRAIN' : isHW ? 'HW' : isWS ? 'WS' : isCAir ? 'CA' : isPipe ? 'PIPE' : isPump ? 'PUMP' : isVent ? 'VENT' : isNoiseS ? 'MACH-NOISE' : isVibrS ? 'MACH-VIBR' : isFluPwrS ? 'MACH-FP' : 'HVAC'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const isPVS        = _calcType === 'Pressure Vessel';
+  const isHXS        = _calcType === 'Heat Exchanger';
+  const isVBeltS     = _calcType === 'V-Belt Drive Design';
+  const isShaftS     = _calcType === 'Shaft Design';
+  const isBeamS      = _calcType === 'Beam / Column Design';
+  const isBearingS   = _calcType === 'Bearing Life (L10)';
+  const isBoltS      = _calcType === 'Bolt Torque & Preload';
+  const calcRef = `${isETS ? 'HVAC-ET' : isFCS ? 'HVAC-FCU' : isRPS ? 'HVAC-RPS' : isDSS ? 'HVAC-DS' : isAHUS ? 'HVAC-AHU' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isCleanAgt ? 'FP-CAS' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLPSS ? 'ELEC-LPS' : isEGS ? 'ELEC-EGS' : isXFMR ? 'ELEC-XFMR' : isHarmonic ? 'ELEC-HD' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isGTS ? 'PLMB-GT' : isRDS ? 'PLMB-RD' : isSeptic ? 'PLMB-SEPTIC' : isDrain ? 'PLMB-DRN' : isHW ? 'PLMB-HW' : isWS ? 'PLMB-WSP' : isCAir ? 'MECH-CA' : isPipe ? 'MECH-PIPE' : isPump ? 'MECH-PUMP' : isVent ? 'MECH-VENT' : isNoiseS ? 'MECH-NOISE' : isVibrS ? 'MECH-VIBR' : isFluPwrS ? 'MECH-HYD' : isPVS ? 'MECH-PV' : isHXS ? 'MECH-HX' : isVBeltS ? 'MECH-VBD' : isShaftS ? 'MECH-SHF' : isBeamS ? 'MECH-BEAM' : isBearingS ? 'MECH-BRG' : isBoltS ? 'MECH-BOLT' : 'MECH'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
@@ -28936,6 +28964,20 @@ function renderSowDocPreview(sections) {
     ? `Harmonic Distortion Analysis: I₁=${_lastResults?.fundamental_current_A || ''}A, THD=${_lastResults?.THD_I_pct || ''}%, TDD=${_lastResults?.TDD_pct || ''}% (limit ${_lastResults?.TDD_limit_pct || ''}%), K-Factor=${_lastResults?.K_factor || ''}, Status: ${_lastResults?.overall_pass ? 'COMPLIANT' : 'NON-COMPLIANT — mitigation required'}`
     : isCleanAgt
     ? `Clean Agent Suppression: ${_lastResults?.agent_label || _lastInputs?.agent_type || ''}, Vol=${_lastResults?.hazard_volume_m3 || ''}m³ × ${_lastResults?.num_zones || 1} zone(s), C=${_lastResults?.design_concentration_pct || ''}%, W_design=${_lastResults?.W_design_kg || ''}kg, ${_lastResults?.recommended_qty || ''}×${_lastResults?.recommended_cylinder_kg || ''}kg cylinders, Discharge ${_lastResults?.discharge_time_req || ''}, ${_lastResults?.safe_for_occupied_spaces ? 'Safe for occupied spaces' : 'EVACUATE before discharge'}`
+    : isPVS
+    ? `Pressure Vessel: ${_lastResults?.material || _lastInputs?.material || 'Carbon Steel'}, ID=${_lastInputs?.shell_id_mm || _lastInputs?.inner_diameter_mm || ''}mm × L=${_lastInputs?.shell_length_mm || ''}mm, P_des=${_lastInputs?.design_pressure_bar || ''}bar, MAWP=${_lastResults?.mawp_bar || ''}bar, t_shell=${_lastResults?.t_shell_actual_mm || ''}mm, Hydro Test=${_lastResults?.hydro_test_bar || ''}bar, ${_lastResults?.head_type || _lastInputs?.head_type || ''} heads, CA=${_lastInputs?.corrosion_mm || _lastInputs?.corrosion_allowance_mm || ''}mm, ASME BPVC Sec.VIII Div.1`
+    : isHXS
+    ? `Heat Exchanger: Q=${_lastResults?.duty_kW || _lastInputs?.duty_kW || ''}kW, LMTD=${_lastResults?.lmtd_corrected_K || ''}K, U=${_lastResults?.U_design_W_m2K || ''}W/m²K, A_req=${_lastResults?.A_required_m2 || ''}m², ${_lastResults?.n_tubes || ''} tubes Ø${_lastResults?.tube_od_mm || ''}mm × ${_lastResults?.tube_length_m || ''}m, Shell ID≈${_lastResults?.shell_id_estimate_mm || ''}mm, ε=${_lastResults?.effectiveness || ''}, NTU=${_lastResults?.NTU || ''}, TEMA/ASME VIII`
+    : isVBeltS
+    ? `V-Belt Drive: ${_lastResults?.n_belts || ''}× Section ${_lastResults?.section || _lastResults?.belt_designation || ''}, Ratio ${_lastResults?.overall_ratio || ''}:1, Driver Ø${_lastResults?.d_small_mm || ''}mm @ ${_lastResults?.n_driver_rpm || _lastInputs?.input_rpm || ''}rpm → Driven Ø${_lastResults?.d_large_mm || ''}mm @ ${_lastResults?.n_driven_rpm || _lastResults?.actual_driven_rpm || ''}rpm, L=${_lastResults?.belt_length_mm || ''}mm, v=${_lastResults?.belt_speed_ms || ''}m/s, RMA IP-20`
+    : isShaftS
+    ? `Shaft Design: Ø${_lastResults?.d_standard_mm || ''}mm (min ${_lastResults?.d_min_mm || ''}mm) ${_lastResults?.material || _lastInputs?.material || ''}, T=${_lastResults?.torque_Nm || ''}N·m, M=${_lastInputs?.bending_moment_Nm || ''}N·m, nf=${_lastResults?.nf_goodman || ''} Goodman, ny=${_lastResults?.ny_yield || ''}, ncrit=${_lastResults?.critical_speed_rpm || ''}rpm ${_lastResults?.critical_speed_ok ? '(OK)' : '(CHECK)'}, Key ${_lastResults?.key_width_mm || ''}×${_lastResults?.key_height_mm || ''}mm, ASME B106.1M`
+    : isBeamS
+    ? `Beam/Column Design: ${_lastResults?.section || _lastInputs?.section || ''} ${_lastResults?.steel_grade || _lastInputs?.steel_grade || ''} (Fy=${_lastResults?.Fy_MPa || ''}MPa), Span ${_lastResults?.span_m || _lastInputs?.span_m || ''}m, ${_lastInputs?.load_type || ''} ${_lastInputs?.load_kN || ''}kN, φMp=${_lastResults?.phi_Mp_kNm || ''}kN·m DCR=${_lastResults?.DCR_moment || ''} ${_lastResults?.moment_ok ? '(OK)' : '(NG)'}, δ=${_lastResults?.deflection_mm || ''}mm ${_lastResults?.deflection_ok ? '(OK)' : '(NG)'}, AISC 360/NSCP 2015`
+    : isBearingS
+    ? `Bearing Life: ${_lastInputs?.bearing_type || ''}, C=${_lastInputs?.C_kN || ''}kN, Fr=${_lastInputs?.radial_load_kN || ''}kN / Fa=${_lastInputs?.axial_load_kN || ''}kN, P=${_lastResults?.P_kN || ''}kN, C/P=${_lastResults?.C_over_P || ''}, L10h_adj=${_lastResults?.L10h_adj || ''}h @ ${_lastInputs?.speed_rpm || ''}rpm (${_lastResults?.life_check || ''}), ISO 281`
+    : isBoltS
+    ? `Bolt Torque & Preload: ${_lastResults?.n_bolts || _lastInputs?.num_bolts || ''}× M${_lastResults?.d_mm || _lastInputs?.bolt_size_mm || ''} Grade ${_lastResults?.bolt_grade || _lastInputs?.grade || ''}, T=${_lastResults?.torque_Nm || ''}N·m, Fi=${_lastResults?.Fi_kN || ''}kN (${_lastResults?.preload_pct || ''}% Fp=${_lastResults?.Fp_kN || ''}kN), σ=${_lastResults?.sigma_MPa || ''}MPa ${_lastResults?.stress_check || ''}, SF_sep=${_lastResults?.separation_sf || ''} ${_lastResults?.joint_check || ''}, ISO 898`
     : `Air-Conditioning: Split-Type, ${units} unit(s) × ${unitKW} kW (${kw} kW / ${tr} TR total)`;
 
   const clausesHtml = sections.map(sec => `
