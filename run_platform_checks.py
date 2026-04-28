@@ -30,6 +30,12 @@ Crash-prevention checks added 2026-04-28 (from production Safari iOS crash):
                                body{animation} prefers-reduced-motion override (FAIL)
   validate_performance.py +1 — body{animation} animationend safety guard (FAIL),
                                index.html added to LIVE_PAGES scope
+
+Deployment config + live endpoint coverage added 2026-04-29 (from analytics 500):
+  validate_edge_config.py    — every supabase/functions/ dir must have config.toml
+                               entry with explicit verify_jwt (catches silent JWT default)
+  validate_analytics_live.py — calls deployed analytics-orchestrator for all 4 phases
+                               (skip_if_fast=True; catches what static checks miss)
 """
 import subprocess, sys, os, json, time, datetime
 import urllib.request
@@ -467,7 +473,7 @@ VALIDATORS = [
         "id":      "analytics",
         "script":  "validate_analytics.py",
         "args":    [],
-        "label":   "Analytics Engine Validator (3-layer: HTML + Edge + Python)",
+        "label":   "Analytics Engine Validator (4-layer: HTML + Edge + Python + AST)",
         "group":   "Platform",
         "report":  "analytics_report.json",
         "skip_if_fast": False,
