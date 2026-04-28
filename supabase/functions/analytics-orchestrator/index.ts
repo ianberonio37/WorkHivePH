@@ -8,6 +8,15 @@ const corsHeaders = {
 
 // ── Fetch data from Supabase for the requested phase ─────────────────────────
 
+// ── Dynamic limits — scale with period and team size ─────────────────────────
+// Prevents silent data truncation as the hive grows.
+// Rule (Performance skill): any metric aggregating >200 rows needs a limit
+// that accounts for growth, not a hardcoded cap.
+
+function dynLimit(periodDays: number, maxPerDay: number, hardCap = 5000): number {
+  return Math.min(hardCap, Math.max(200, periodDays * maxPerDay));
+}
+
 async function fetchDescriptiveData(
   db: ReturnType<typeof createClient>,
   hiveId: string | null,
@@ -17,12 +26,13 @@ async function fetchDescriptiveData(
   const since = new Date(Date.now() - periodDays * 86400000).toISOString();
 
   // 1. Logbook — corrective entries for MTBF/MTTR/Pareto/Frequency/Repeat
+  // Assume max 15 corrective entries/day for a busy hive → scales with period
   const logbookQ = db.from("logbook")
     .select("machine, maintenance_type, category, root_cause, downtime_hours, status, created_at, closed_at, worker_name, failure_consequence, readings_json, production_output")
     .eq("maintenance_type", "Breakdown / Corrective")
     .gte("created_at", since)
     .order("created_at", { ascending: true })
-    .limit(500);
+    .limit(dynLimit(periodDays, 15)); // was hardcoded 500
 
   if (hiveId) logbookQ.eq("hive_id", hiveId);
   else if (workerName) logbookQ.eq("worker_name", workerName);
@@ -37,24 +47,27 @@ async function fetchDescriptiveData(
   const { data: assets } = await assetsQ;
   const assetIds = (assets || []).map((a: Record<string, string>) => a.id);
 
+  // Completions: enough to cover the full period per asset (5 tasks/asset/month)
+  const completionsLimit = dynLimit(periodDays, 5 * Math.max(assetIds.length, 1) / 30, 5000);
   const completionsQ = db.from("pm_completions")
     .select("asset_id, scope_item_id, completed_at, status, worker_name")
     .eq("status", "done")
     .order("completed_at", { ascending: false })
-    .limit(1000);
+    .limit(completionsLimit); // was hardcoded 1000
   if (assetIds.length) completionsQ.in("asset_id", assetIds);
 
-  // 4. PM scope items — for scheduled count
+  // 4. PM scope items — all tasks for the assets (no period filter needed)
   const scopeQ = db.from("pm_scope_items")
     .select("id, asset_id, frequency, item_text");
   if (assetIds.length) scopeQ.in("asset_id", assetIds);
 
   // 5. Inventory transactions — for parts consumption rate
+  // Assume max 20 use transactions/day across all parts
   const txnQ = db.from("inventory_transactions")
     .select("part_name, qty_change, type, created_at")
     .eq("type", "use")
     .gte("created_at", since)
-    .limit(500);
+    .limit(dynLimit(periodDays, 20)); // was hardcoded 500
   if (hiveId) txnQ.eq("hive_id", hiveId);
   else if (workerName) txnQ.eq("worker_name", workerName);
 
@@ -88,10 +101,10 @@ async function fetchDiagnosticData(
   // Reuse all descriptive data sources plus two new ones
   const base = await fetchDescriptiveData(db, hiveId, workerName, periodDays);
 
-  // Skill badges — no hive_id column; fetch by hive members' worker_names
+  // Skill badges — scales with team size (5 disciplines × 5 levels × N workers)
   const badgesQ = db.from("skill_badges")
     .select("worker_name, discipline, level")
-    .limit(500);
+    .limit(2000); // 5 disciplines × 5 levels × 80 workers = 2000 max
   if (hiveId) {
     // Get hive member names first, then fetch their badges
     const { data: members } = await db.from("hive_members")
@@ -104,11 +117,11 @@ async function fetchDiagnosticData(
     badgesQ.eq("worker_name", workerName);
   }
 
-  // Engineering calcs history — for design validation
+  // Engineering calcs — enough to match against all machines (no period filter)
   const calcsQ = db.from("engineering_calcs")
     .select("calc_type, project_name, inputs, results, created_at, worker_name")
     .order("created_at", { ascending: false })
-    .limit(200);
+    .limit(1000); // was hardcoded 200 — a hive may have hundreds of calcs
   if (hiveId) calcsQ.eq("hive_id", hiveId);
   else if (workerName) calcsQ.eq("worker_name", workerName);
 
@@ -132,7 +145,7 @@ async function fetchPredictiveData(
 
   const invQ = db.from("inventory_items")
     .select("part_name, qty_on_hand, reorder_point, unit")
-    .limit(300);
+    .limit(2000); // was hardcoded 300 — large warehouses have 500-1000+ parts
   if (hiveId) invQ.eq("hive_id", hiveId).eq("status", "approved");
   else if (workerName) invQ.eq("worker_name", workerName);
 
@@ -152,17 +165,17 @@ async function fetchPrescriptiveData(
 ) {
   const base = await fetchPredictiveData(db, hiveId, workerName, periodDays);
 
-  // pm_assets — for criticality in priority ranking and PM interval optimization
+  // pm_assets — fetch all (no reasonable hive has > 500 assets)
   const assetsQ = db.from("pm_assets")
     .select("id, asset_name, category, criticality")
-    .limit(200);
+    .limit(500); // was hardcoded 200
   if (hiveId) assetsQ.eq("hive_id", hiveId);
   else if (workerName) assetsQ.eq("worker_name", workerName);
 
-  // skill_badges — for technician assignment and training gap analysis
+  // skill_badges — scales with team (5 disciplines × 5 levels × N workers)
   const badgesQ = db.from("skill_badges")
     .select("worker_name, discipline, level")
-    .limit(500);
+    .limit(2000); // was hardcoded 500
   if (hiveId) {
     const { data: members } = await db.from("hive_members")
       .select("worker_name").eq("hive_id", hiveId).eq("status", "active");
