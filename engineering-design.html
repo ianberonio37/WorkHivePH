@@ -10889,6 +10889,8 @@ function showReport() {
     'Generator Sizing', 'Pump Sizing (TDH)', 'Fire Sprinkler Hydraulic', 'Lighting Design',
     // Phase 10a: Python matplotlib diagrams
     'AHU Sizing', 'Duct Sizing (Equal Friction)',
+    // Phase 10b: new calc diagrams
+    'Harmonic Distortion',
   ];
   const drawingSection = document.getElementById('drawing-section');
   if (DRAWING_SUPPORTED.includes(_calcType)) {
@@ -10910,6 +10912,8 @@ function showReport() {
       descEl.textContent = 'Generates a psychrometric chart with AHU process line (ASHRAE 2021 Ch.1 / PSME Code) from your AHU sizing results';
     } else if (_calcType === 'Duct Sizing (Equal Friction)' && descEl) {
       descEl.textContent = 'Generates an ASHRAE equal friction duct sizing chart with your selected duct highlighted (ASHRAE 2021 Ch.21 / SMACNA / PSME Code)';
+    } else if (_calcType === 'Harmonic Distortion' && descEl) {
+      descEl.textContent = 'Generates a harmonic spectrum bar chart with IEEE 519-2022 individual and TDD limits — identifies non-compliant harmonics requiring mitigation';
     }
     resetDrawingSection();
   } else {
@@ -18071,7 +18075,8 @@ function resetDrawingSection() {
 const PYTHON_DIAGRAM_TYPES = new Set([
   'AHU Sizing',
   'Duct Sizing (Equal Friction)',
-  'Pump Sizing (TDH)',   // Q-H curve (in addition to the JS P&ID)
+  'Pump Sizing (TDH)',       // Q-H curve (in addition to the JS P&ID)
+  'Harmonic Distortion',     // IEEE 519-2022 spectrum bar chart
 ]);
 const PYTHON_DIAGRAM_API = 'https://engineering-calc-api.onrender.com/diagram';
 

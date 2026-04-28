@@ -263,13 +263,14 @@ def diagram(req: DiagramRequest):
     Returns { svg: "..." } for supported diagram types,
     or { not_implemented: true } so the frontend can hide the button.
     """
-    from diagrams import pump_curve, psychrometric_chart, duct_chart
+    from diagrams import pump_curve, psychrometric_chart, duct_chart, harmonic_spectrum
 
     DIAGRAM_HANDLERS = {
         "Pump Sizing (TDH)":          pump_curve.generate,
         "AHU Sizing":                  psychrometric_chart.generate,
         "Duct Sizing":                 duct_chart.generate,
         "Duct Sizing (Equal Friction)": duct_chart.generate,
+        "Harmonic Distortion":         harmonic_spectrum.generate,
     }
 
     handler = DIAGRAM_HANDLERS.get(req.diagram_type)
