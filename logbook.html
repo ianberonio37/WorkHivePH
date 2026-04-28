@@ -99,6 +99,30 @@
     .extras-drawer { display:none; margin-top:0.75rem; }
     .extras-drawer.open { display:block; }
 
+    /* ── Failure consequence buttons ── */
+    .consequence-btn {
+      display: flex; flex-direction: column; align-items: flex-start;
+      gap: 0.15rem; padding: 0.75rem; border-radius: 0.75rem; cursor: pointer;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.6); text-align: left; transition: all 0.15s;
+      min-height: 72px; width: 100%; font-family: inherit;
+    }
+    .consequence-btn:active { transform: scale(0.97); }
+    .consequence-btn.selected {
+      background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.4);
+      color: #F7A21B;
+    }
+    .consequence-btn[data-value="Safety risk"].selected {
+      background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: #f87171;
+    }
+    .consequence-btn[data-value="Stopped production"].selected {
+      background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: #f87171;
+    }
+    .consequence-icon { font-size: 1.1rem; line-height: 1; }
+    .consequence-title { font-size: 0.75rem; font-weight: 700; color: inherit; }
+    .consequence-desc  { font-size: 0.62rem; color: rgba(255,255,255,0.35); font-weight: 400; }
+    .consequence-btn.selected .consequence-desc { color: inherit; opacity: 0.7; }
+
     /* ── Root cause chips ── */
     .rc-chip {
       display: inline-flex; align-items: center; gap: 0.3rem;
@@ -549,6 +573,34 @@
 
               <!-- ── EXTRAS DRAWER (optional) ── -->
               <div class="extras-drawer space-y-4" id="extras-drawer">
+
+                <!-- Failure consequence — Breakdown entries only (SAE JA1011 §5.4) -->
+                <div id="consequence-section" class="hidden">
+                  <label class="wh-label">What was the impact?</label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <button type="button" class="consequence-btn" data-value="Hidden" onclick="selectConsequence(this)">
+                      <span class="consequence-icon">👁</span>
+                      <span class="consequence-title">Hidden</span>
+                      <span class="consequence-desc">No one noticed until checked</span>
+                    </button>
+                    <button type="button" class="consequence-btn" data-value="Running reduced" onclick="selectConsequence(this)">
+                      <span class="consequence-icon">⚠️</span>
+                      <span class="consequence-title">Running reduced</span>
+                      <span class="consequence-desc">Still working, less output</span>
+                    </button>
+                    <button type="button" class="consequence-btn" data-value="Safety risk" onclick="selectConsequence(this)">
+                      <span class="consequence-icon">🚨</span>
+                      <span class="consequence-title">Safety risk</span>
+                      <span class="consequence-desc">Risk to people or environment</span>
+                    </button>
+                    <button type="button" class="consequence-btn" data-value="Stopped production" onclick="selectConsequence(this)">
+                      <span class="consequence-icon">🛑</span>
+                      <span class="consequence-title">Stopped production</span>
+                      <span class="consequence-desc">Machine or line down</span>
+                    </button>
+                  </div>
+                  <input type="hidden" id="f-consequence" />
+                </div>
 
                 <div>
                   <label class="wh-label flex items-center gap-1.5">
@@ -1126,7 +1178,8 @@ async function addEntry(entry) {
     parts_used: entry.parts_used || [],
     closed_at: entry.status === 'Closed' ? new Date().toISOString() : null,
     tasklist_acknowledged: entry.tasklist_acknowledged || false,
-    tasklist_note: entry.tasklist_note || null
+    tasklist_note: entry.tasklist_note || null,
+    failure_consequence: entry.failure_consequence || null
   });
   if (error) { showToast('Could not save entry: ' + error.message); return; }
   document.getElementById('sync-badge').classList.remove('hidden');
@@ -1877,6 +1930,40 @@ document.getElementById('f-root-cause').addEventListener('change', function() {
   });
 });
 
+// ── Failure consequence picker (SAE JA1011 §5.4) ─────────────────────────────
+
+function selectConsequence(btn) {
+  const isSelected = btn.classList.contains('selected');
+  document.querySelectorAll('.consequence-btn').forEach(b => b.classList.remove('selected'));
+  const hidden = document.getElementById('f-consequence');
+  if (isSelected) {
+    hidden.value = '';
+  } else {
+    btn.classList.add('selected');
+    hidden.value = btn.dataset.value;
+  }
+  saveDraft();
+}
+
+// Show/hide consequence section based on maintenance type
+document.getElementById('f-maint-type').addEventListener('change', function() {
+  const isBreakdown = this.value.includes('Breakdown') || this.value.includes('Corrective');
+  const section = document.getElementById('consequence-section');
+  if (isBreakdown) {
+    section.classList.remove('hidden');
+    // Auto-open extras drawer so worker sees it
+    const drawer = document.getElementById('extras-drawer');
+    if (!drawer.classList.contains('open')) {
+      drawer.classList.add('open');
+      document.getElementById('extras-toggle-label').textContent = 'Hide extra details';
+    }
+  } else {
+    section.classList.add('hidden');
+    document.getElementById('f-consequence').value = '';
+    document.querySelectorAll('.consequence-btn').forEach(b => b.classList.remove('selected'));
+  }
+});
+
 document.getElementById('f-maint-type').addEventListener('change', loadPMTasksForAsset);
 
 document.getElementById('asset-picker-btn').addEventListener('click', openAssetPicker);
@@ -2621,11 +2708,12 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
   const problem       = document.getElementById('f-problem').value.trim();
   const rootCause     = document.getElementById('f-root-cause').value;
   const action        = document.getElementById('f-action').value.trim();
-  const knowledge     = document.getElementById('f-knowledge').value.trim();
-  const downtimeRaw   = document.getElementById('f-downtime').value;
-  const downtimeHours = downtimeRaw !== '' ? parseFloat(downtimeRaw) : null;
-  const photo         = currentPhotoData;
-  const status        = document.querySelector('input[name="f-status"]:checked').value;
+  const knowledge          = document.getElementById('f-knowledge').value.trim();
+  const downtimeRaw        = document.getElementById('f-downtime').value;
+  const downtimeHours      = downtimeRaw !== '' ? parseFloat(downtimeRaw) : null;
+  const failureConsequence = document.getElementById('f-consequence').value || null;
+  const photo              = currentPhotoData;
+  const status             = document.querySelector('input[name="f-status"]:checked').value;
 
   if (!machine) {
     document.getElementById('f-machine').focus();
@@ -2654,6 +2742,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     date: new Date().toISOString(),
     machine, maintenance_type: maintType, category, problem,
     root_cause: rootCause, action, knowledge, downtime_hours: downtimeHours,
+    failure_consequence: failureConsequence,
     photo, status, asset_ref_id: _pendingAssetRefId,
     parts_used: _partsUsed.map(p => ({ partId: p.partId, partName: p.partName, partNumber: p.partNumber, qty: p.qty, unit: p.unit })),
     tasklist_acknowledged: tasklistAcknowledged,
