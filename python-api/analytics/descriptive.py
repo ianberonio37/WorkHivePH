@@ -558,6 +558,5 @@ def calculate(inputs: dict) -> dict:
         "failure_frequency": freq_result,
         "downtime_pareto":   pareto_result,
         "parts_consumption": calc_parts_consumption(txns, period),
-        "repeat_failures":      repeat_result,
-        "consequence_distribution": calc_consequence_distribution(logbook),
+        "repeat_failures":   repeat_result,
     }

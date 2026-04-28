@@ -40,9 +40,10 @@ def _parse_dates(df: pd.DataFrame, col: str) -> pd.DataFrame:
 
 
 def _corrective_only(df: pd.DataFrame) -> pd.DataFrame:
+    """Exact match — consistent with descriptive.py and hive.html."""
     if df.empty or "maintenance_type" not in df.columns:
         return df
-    return df[df["maintenance_type"].str.contains("Corrective|Breakdown", case=False, na=False)]
+    return df[df["maintenance_type"] == "Breakdown / Corrective"]
 
 
 # ── 1. Failure Mode Distribution — ISO 14224 failure taxonomy ────────────────
