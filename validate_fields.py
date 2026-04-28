@@ -184,6 +184,22 @@ TESTS = {
         "occupancy_type": "Office / Commercial", "occupants": 50,
         "desludge_years": 3, "liquid_depth": 1.5, "lw_ratio": 3, "compartments": 2,
     },
+    "Grease Trap Sizing": {
+        "suf": 0.75, "meals_per_day": 200,
+        "fixtures": [
+            {"fixture_type": "Commercial Kitchen Sink", "flow_lpm": 12, "qty": 3},
+            {"fixture_type": "Dishwasher",              "flow_lpm": 20, "qty": 2},
+        ],
+    },
+    "Roof Drain Sizing": {
+        "roof_area": 500, "n_drains": 2, "intensity_mmhr": 100,
+        "leader_slope_pct": 1.0, "has_parapet": "Yes", "pipe_material": "uPVC",
+    },
+    "Storm Drain / Stormwater": {
+        "area_mode": "single", "area_ha": 1.5, "c_value": 0.85,
+        "intensity_mmhr": 95, "slope_pct": 0.5, "pipe_material": "Concrete",
+        "return_period": 10,
+    },
     "Domestic Water System": {
         "occupancy_type": "Office", "num_persons": 50,
         "building_floors": 5, "pipe_material": "uPVC",
@@ -277,8 +293,7 @@ TYPESCRIPT_ONLY = [
     "Earthing / Grounding System",
     "Hot Water Demand", "Drainage Pipe Sizing",
     "Water Softener Sizing", "Water Treatment System",
-    "Wastewater Treatment (STP)", "Storm Drain / Stormwater",
-    "Grease Trap Sizing", "Roof Drain Sizing", "Boiler System",
+    "Wastewater Treatment (STP)", "Boiler System",
     "Elevator Traffic Analysis", "Hoist Capacity",
     "Bearing Life (L10)", "Bolt Torque & Preload",
     "Short Circuit",  # TypeScript uses "Short Circuit" (Python uses "Short Circuit Analysis" alias)

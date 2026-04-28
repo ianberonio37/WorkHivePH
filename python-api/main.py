@@ -121,6 +121,12 @@ def _load_handlers() -> dict[str, Any]:
     handlers["Water Supply Pipe Sizing"]   = water_supply_calc
     from calcs.septic_tank         import calculate as septic_calc
     handlers["Septic Tank Sizing"]         = septic_calc
+    from calcs.grease_trap   import calculate as grease_trap_calc
+    from calcs.roof_drain    import calculate as roof_drain_calc
+    from calcs.storm_drain   import calculate as storm_drain_calc
+    handlers["Grease Trap Sizing"]         = grease_trap_calc
+    handlers["Roof Drain Sizing"]          = roof_drain_calc
+    handlers["Storm Drain / Stormwater"]   = storm_drain_calc
 
     # Phase 7 — Structural / Lighting / LPS
     from calcs.beam_column          import calculate as beam_column_calc
