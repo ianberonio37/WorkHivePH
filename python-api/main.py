@@ -131,6 +131,8 @@ def _load_handlers() -> dict[str, Any]:
     from calcs.water_treatment import calculate as water_treatment_calc
     handlers["Water Softener Sizing"]      = water_softener_calc
     handlers["Water Treatment System"]     = water_treatment_calc
+    from calcs.wastewater_stp  import calculate as stp_calc
+    handlers["Wastewater Treatment (STP)"] = stp_calc
 
     # Phase 7 — Structural / Lighting / LPS
     from calcs.beam_column          import calculate as beam_column_calc

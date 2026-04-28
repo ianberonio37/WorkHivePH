@@ -217,6 +217,11 @@ TESTS = {
         "building_floors": 5, "pipe_material": "uPVC / CPVC",
         "num_persons": 50, "slope_pct": 2.0,
     },
+    "Wastewater Treatment (STP)": {
+        "flow_source": "population", "population": 200, "per_capita_lpd": 150,
+        "bod_influent": 220, "bod_effluent": 30,
+        "srt_days": 8, "mlss_mg_l": 3000, "disinfection": "Chlorination",
+    },
 
     # ── Structural / Lighting / LPS ───────────────────────────────────────────
     "Beam / Column Design": {
@@ -301,7 +306,7 @@ TYPESCRIPT_ONLY = [
     "Ventilation / ACH", "Load Estimation",
     "Earthing / Grounding System",
     "Hot Water Demand", "Drainage Pipe Sizing",
-    "Wastewater Treatment (STP)", "Boiler System",
+ "Boiler System",
     "Elevator Traffic Analysis", "Hoist Capacity",
     "Bearing Life (L10)", "Bolt Torque & Preload",
     "Short Circuit",  # TypeScript uses "Short Circuit" (Python uses "Short Circuit Analysis" alias)
