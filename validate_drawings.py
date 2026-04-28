@@ -43,7 +43,7 @@ BUILDER_FUNCTIONS = [
     "buildFirePumpPIDSvg",
     "buildHVACSvg",
     "buildLightingLayoutSvg",
-    # Phase 10 HVAC group additions
+    # Phase 10 HVAC group
     "buildCleanAgentSVG",
     "buildVentilationSVG",
     "buildFCUSVG",
@@ -51,6 +51,10 @@ BUILDER_FUNCTIONS = [
     "buildCoolingTowerSVG",
     "buildChillerSVG",
     "buildExpansionTankSVG",
+    # Phase 10 Mechanical group
+    "buildPipeSizingSVG",
+    "buildCompressedAirSVG",
+    "buildBoilerSystemSVG",
 ]
 
 REQUIRED_WIDTH = 1050

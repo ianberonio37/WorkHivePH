@@ -18931,6 +18931,32 @@ async function _runDrawing() {
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_tankL} L Bladder  |  α = ${_alpha}  |  ${_stype}`,
         { drawingNo:'MECH-ET-SCH-001', drawingTitle:'Expansion Tank — Hydronic System Schematic', standard:'ASHRAE 2023 Ch.12 / ASME BPVC Sec.VIII / PSME Code' }));
+    } else if (ct === 'Pipe Sizing') {
+      const svg = buildPipeSizingSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      const _d = Number(_r.pipe_dia_mm || _r.recommended_nominal_mm || 0);
+      const _mat = String(_lastInputs?.pipe_material || 'Carbon Steel');
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `Ø${_d}mm ${_mat}  |  v = ${Number(_r.pipe_velocity||_r.velocity||0).toFixed(2)} m/s  |  ΔP = ${Number(_r.pressure_drop_kpa||0).toFixed(2)} kPa`,
+        { drawingNo:'MECH-PIPE-SCH-001', drawingTitle:'Pipe Sizing — Hydraulic Schematic', standard:'ASHRAE 2021 Ch.22 / PSME Code / PNS ISO 4427' }));
+    } else if (ct === 'Compressed Air') {
+      const svg = buildCompressedAirSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      const _kw = Number(_r.installed_kw || _r.motor_power_kw || 0).toFixed(1);
+      const _hp = Number(_r.recommended_hp || 0);
+      const _bar = Number(_r.working_pressure_bar_g || _lastInputs?.operating_pressure_bar || 7).toFixed(1);
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${_hp} HP / ${_kw} kW  |  ${_bar} bar g  |  ${Number(_r.total_demand_m3min||0).toFixed(2)} m³/min FAD`,
+        { drawingNo:'MECH-CA-PID-001', drawingTitle:'Compressed Air System — P&ID', standard:'ISO 1217 / ISO 8573-1 / ASME B31.3 / CAGI' }));
+    } else if (ct === 'Boiler System') {
+      const svg = buildBoilerSystemSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      const _kw = Number(_r.total_capacity_kw || 0).toFixed(1);
+      const _bhp = Number(_r.total_capacity_bhp || 0).toFixed(1);
+      const _bar = Number(_lastInputs?.steam_pressure_barg || _lastInputs?.pressure_barg || 7).toFixed(1);
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${_kw} kW / ${_bhp} BHP  |  ${_bar} bar g  |  ${String(_r.boiler_type||'Steam')}`,
+        { drawingNo:'MECH-BLR-SCH-001', drawingTitle:'Boiler System Schematic', standard:'ASME BPVC Sec. I / PD Act PHL / DOLE OSHS / PSME Code' }));
     }
   }, 100);
 }
@@ -22662,6 +22688,587 @@ function buildExpansionTankSVG(inputs, results) {
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` +
     p.join('\n  ') + `\n</svg>`;
+}
+
+// ─── Pipe Sizing — Hydraulic Schematic (ASHRAE 2021 Ch.22 / PSME / PNS ISO 4427) ────
+function buildPipeSizingSVG(inputs, results) {
+  const W = 1050, H = 580, STRIP_Y = 467;
+  const r = results || {}, inp = inputs || {};
+  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const T = (x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={}) =>
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+  const HL = (x1,y,x2,sw=3,c='#1a2e4a') => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
+  const VL = (x,y1,y2,sw=3,c='#1a2e4a') => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
+
+  const diam   = Number(r.pipe_dia_mm || r.recommended_nominal_mm || 50);
+  const vel    = Number(r.pipe_velocity || r.velocity || 0).toFixed(2);
+  const flowLpm= Number(r.flow_lpm || 0).toFixed(1);
+  const flowLps= Number(r.flow_lps || 0).toFixed(2);
+  const hlM    = Number(r.head_loss_m || r.hf_total || 0).toFixed(3);
+  const dpKpa  = Number(r.pressure_drop_kpa || 0).toFixed(2);
+  const dpKpaM = Number(r.pressure_drop_kpa_per_m || 0).toFixed(4);
+  const Re     = Number(r.Reynolds_number || r.reynolds_number || 0).toFixed(0);
+  const ff     = Number(r.friction_factor || 0).toFixed(5);
+  const regime = String(r.flow_regime || (Number(Re) > 4000 ? 'Turbulent' : Number(Re) < 2300 ? 'Laminar' : 'Transitional'));
+  const velOK  = Boolean(r.velocity_ok ?? (Number(vel) >= 0.5 && Number(vel) <= 3.0));
+  const mat    = String(inp.pipe_material || r.inputs_used?.pipe_material || 'Carbon Steel');
+  const lenM   = Number(inp.pipe_length || 50);
+  const tempC  = Number(inp.fluid_temp_c || r.fluid_temp_c || 25);
+  const svc    = String(inp.service_type || 'General');
+
+  const SC = '#5a6a7a', CC = '#1a2e4a', PIPE_C = '#455a64', FLUID_C = '#1565c0';
+  const VEL_C  = velOK ? '#2e7d32' : '#c62828';
+  const GY = '#607d8b', LGY = '#eceff1';
+
+  const SPLIT_X = 640;
+  const p = [];
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(T(W/2, 31, `PIPE SIZING — HYDRAULIC SCHEMATIC  |  ${diam}mm ${esc(mat)}  |  ASHRAE 2021 Ch.22 / PSME / PNS ISO 4427`, {sz:10.5, c:'white', w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+
+  // ── SCHEMATIC ──
+  // Pipe elevation view: source tank → pipe → destination
+  const PY = 270;  // pipe centerline y
+  const PHW = 12;  // pipe half-width (visual representation)
+  const pipeX1 = 130, pipeX2 = 540;
+  const srcX = 85, dstX = 575;
+
+  // Source (upstream) pressure head box
+  p.push(`<rect x="${srcX-35}" y="${PY-70}" width="50" height="80" rx="3" fill="#e3f2fd" stroke="${FLUID_C}" stroke-width="2"/>`);
+  p.push(T(srcX-10, PY-75, 'SOURCE', {sz:7, c:FLUID_C, w:'700'}));
+  p.push(T(srcX-10, PY-30, 'P₁', {sz:9, c:FLUID_C, w:'700'}));
+
+  // Destination (downstream) box
+  p.push(`<rect x="${dstX-15}" y="${PY-40}" width="50" height="50" rx="3" fill="#e8eaf6" stroke="${GY}" stroke-width="1.5"/>`);
+  p.push(T(dstX+10, PY-48, 'DEST.', {sz:7, c:GY, w:'700'}));
+  p.push(T(dstX+10, PY-25, 'P₂', {sz:9, c:GY, w:'700'}));
+
+  // Pipe body (outer shell)
+  p.push(`<rect x="${pipeX1}" y="${PY-PHW}" width="${pipeX2-pipeX1}" height="${PHW*2}" rx="0" fill="${PIPE_C}" stroke="${CC}" stroke-width="1.5"/>`);
+  // Fluid inside pipe
+  p.push(`<rect x="${pipeX1+2}" y="${PY-PHW+3}" width="${pipeX2-pipeX1-4}" height="${PHW*2-6}" fill="${FLUID_C}" opacity="0.7"/>`);
+
+  // Flow direction arrows inside pipe
+  [pipeX1+60, pipeX1+150, pipeX1+240, pipeX1+330].forEach(ax => {
+    p.push(`<polygon points="${ax},${PY-4} ${ax+18},${PY} ${ax},${PY+4}" fill="white" opacity="0.85"/>`);
+  });
+
+  // Velocity profile parabola (above pipe, schematic representation)
+  const profX = (pipeX1 + pipeX2) / 2;
+  const profH = 40;
+  const pts = [];
+  for (let i = 0; i <= 20; i++) {
+    const t2 = i / 20;
+    const x2 = pipeX1 + 60 + t2 * (pipeX2 - pipeX1 - 120);
+    const yOff = profH * (1 - Math.pow(2 * t2 - 1, 2));
+    pts.push(`${x2},${PY - PHW - yOff}`);
+  }
+  // Reverse for bottom
+  for (let i = 20; i >= 0; i--) {
+    const t2 = i / 20;
+    const x2 = pipeX1 + 60 + t2 * (pipeX2 - pipeX1 - 120);
+    const yOff = profH * (1 - Math.pow(2 * t2 - 1, 2));
+    pts.push(`${x2},${PY + PHW + yOff}`);
+  }
+  p.push(`<polygon points="${pts.join(' ')}" fill="${FLUID_C}" opacity="0.12"/>`);
+  // Center velocity vector
+  p.push(`<line x1="${profX-30}" y1="${PY-PHW-profH}" x2="${profX+30}" y2="${PY-PHW-profH}" stroke="${FLUID_C}" stroke-width="1.5"/>`);
+  p.push(`<polygon points="${profX+30},${PY-PHW-profH-4} ${profX+42},${PY-PHW-profH} ${profX+30},${PY-PHW-profH+4}" fill="${FLUID_C}"/>`);
+  p.push(T(profX, PY-PHW-profH-12, `v_max = ${vel} m/s`, {sz:8, c:FLUID_C, w:'700'}));
+
+  // HGL (Hydraulic Grade Line) — sloped dashed line representing pressure head
+  const hglScale = Math.min(profH * 1.5, 80);
+  const hglY1 = PY - PHW - 20;
+  const hglY2 = hglY1 + hglScale * 0.6;
+  p.push(`<line x1="${pipeX1}" y1="${hglY1}" x2="${pipeX2}" y2="${hglY2}" stroke="#e65100" stroke-width="1.8" stroke-dasharray="6 3"/>`);
+  p.push(T((pipeX1+pipeX2)/2, hglY1-10, `HGL  (Δh = ${hlM} m  |  ΔP = ${dpKpa} kPa)`, {sz:7.5, c:'#e65100', w:'700'}));
+
+  // Pipe dimensions label
+  p.push(HL(pipeX1, PY+PHW+20, pipeX2, 1, SC));
+  p.push(VL(pipeX1, PY+PHW+14, PY+PHW+26, 1, SC));
+  p.push(VL(pipeX2, PY+PHW+14, PY+PHW+26, 1, SC));
+  p.push(T((pipeX1+pipeX2)/2, PY+PHW+34, `L = ${lenM} m  |  Ø${diam}mm NPS  |  ID ${Number(r.pipe_id_mm||r.recommended_id_mm||diam).toFixed(1)}mm`, {sz:7.5, c:GY}));
+
+  // Material and service tag
+  p.push(`<rect x="${pipeX1}" y="${PY+52}" width="220" height="28" rx="3" fill="${LGY}" stroke="${GY}" stroke-width="1"/>`);
+  p.push(T(pipeX1+8, PY+64, `Material: ${esc(mat)}  |  Temp: ${tempC}°C`, {a:'start', sz:7.5, c:CC}));
+  p.push(T(pipeX1+8, PY+75, `Service: ${esc(svc)}  |  Fluid: Water`, {a:'start', sz:7, c:SC}));
+
+  // Velocity badge
+  const vBadgeX = pipeX1+240, vBadgeY = PY+58;
+  p.push(`<rect x="${vBadgeX}" y="${vBadgeY}" width="140" height="24" rx="12" fill="${velOK ? '#e8f5e9' : '#ffebee'}" stroke="${VEL_C}" stroke-width="1.5"/>`);
+  p.push(T(vBadgeX+70, vBadgeY+14, `v = ${vel} m/s  ${velOK ? '✓ OK' : '✗ CHECK'}`, {sz:8, c:VEL_C, w:'700'}));
+
+  // Re annotation
+  const regimeColor = regime === 'Turbulent' ? '#c0392b' : regime === 'Laminar' ? '#2e7d32' : '#e65100';
+  p.push(T(pipeX1+240, PY+93, `Re = ${Number(Re).toLocaleString()}  |  f = ${ff}  |  Regime: ${regime}`, {a:'start', sz:7.5, c:regimeColor}));
+
+  // ── DATA PANEL ──
+  const DX = SPLIT_X + 10, DW = W - SPLIT_X - 22, rowH = 17;
+  let dy = 52;
+  const rowFn = (lbl, val, vc, i) => {
+    const bg = i%2===0 ? '#f0f4fa' : '#f8fafc';
+    const out = `<rect x="${DX}" y="${dy}" width="${DW}" height="${rowH}" fill="${bg}"/>` +
+      T(DX+4, dy+11, lbl, {a:'start', sz:7.5, c:SC}) +
+      T(DX+DW-4, dy+11, val, {a:'end', sz:7.5, c:vc, w:'bold'});
+    dy += rowH; return out;
+  };
+  const secHdr = (lbl) => {
+    const out = `<rect x="${DX}" y="${dy}" width="${DW}" height="15" rx="2" fill="#dce3ef"/>` +
+      T(DX+DW/2, dy+10, lbl, {sz:7.5, c:CC, w:'700'});
+    dy += 18; return out;
+  };
+
+  p.push(`<rect x="${DX}" y="${dy}" width="${DW}" height="20" rx="3" fill="${CC}"/>`);
+  p.push(T(DX+DW/2, dy+13, 'PIPE SIZING RESULTS', {sz:8.5, c:'white', w:'700'}));
+  dy += 24;
+
+  p.push(secHdr('PIPE SELECTION'));
+  [['Pipe Material', esc(mat), CC], ['Service Type', esc(svc), SC],
+   ['Nominal Diameter', `${diam} mm NPS`, CC],
+   ['Inside Diameter', `${Number(r.pipe_id_mm||diam).toFixed(1)} mm`, SC],
+   ['Pipe Length', `${lenM} m`, SC]].forEach(([l,v,c],i) => p.push(rowFn(l,v,c,i)));
+
+  dy += 4; p.push(secHdr('HYDRAULIC RESULTS'));
+  [['Flow Rate', `${flowLpm} L/min  (${flowLps} L/s)`, FLUID_C],
+   ['Velocity', `${vel} m/s  ${velOK ? '— OK' : '— CHECK'}`, VEL_C],
+   ['Reynolds Number', Number(Re).toLocaleString(), regimeColor],
+   ['Flow Regime', regime, regimeColor],
+   ['Friction Factor f', ff, SC],
+   ['Head Loss', `${hlM} m`, '#e65100'],
+   ['Pressure Drop', `${dpKpa} kPa total`, CC],
+   ['Unit Pressure Drop', `${dpKpaM} kPa/m`, SC],
+   ['Fluid Temperature', `${tempC}°C`, SC]].forEach(([l,v,c],i) => p.push(rowFn(l,v,c,i)));
+
+  dy += 6;
+  p.push(T(DX+DW/2, dy, `Darcy-Weisbach / Colebrook-White (Churchill)`, {sz:7, c:GY}));
+  dy += 11;
+  p.push(T(DX+DW/2, dy, `ASHRAE 2021 Fundamentals Ch.22  |  PSME Code`, {sz:7, c:GY}));
+
+  // ── LEGEND ──
+  const LY = STRIP_Y + 6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(T(18, LY+10, 'LEGEND', {a:'start', sz:8, c:CC, w:'700'}));
+  let lx=25, ly=LY+26;
+  p.push(`<rect x="${lx}" y="${ly-8}" width="30" height="14" fill="${PIPE_C}" stroke="${CC}" stroke-width="1"/>`);
+  p.push(`<rect x="${lx+2}" y="${ly-5}" width="26" height="8" fill="${FLUID_C}" opacity="0.7"/>`);
+  p.push(T(lx+34, ly+4, 'Pipe cross-section (fluid inside)', {a:'start', sz:7.5, c:CC}));
+  ly+=16;
+  p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+30}" y2="${ly}" stroke="#e65100" stroke-width="1.8" stroke-dasharray="6 3"/>`);
+  p.push(T(lx+34, ly+4, 'Hydraulic Grade Line (HGL) — friction head drop', {a:'start', sz:7.5, c:CC}));
+  ly+=16;
+  p.push(`<polygon points="${lx+6},${ly-4} ${lx+18},${ly} ${lx+6},${ly+4}" fill="${FLUID_C}" opacity="0.7"/>`);
+  p.push(T(lx+34, ly+4, 'Flow direction / velocity vector', {a:'start', sz:7.5, c:CC}));
+  const notes = [`1. Darcy-Weisbach: hf = f × (L/D) × (v²/2g). f from Colebrook-White / Churchill equation.`,
+    `2. Velocity check: 0.5–3.0 m/s recommended (general service). Turbulent Re > 4000.`,
+    `3. Pressure drop includes minor losses (fittings allowance). Verify against pump TDH.`];
+  notes.forEach((note,i) => p.push(T(18, LY+72+i*11, note, {a:'start', sz:6.5, c:CC})));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` + p.join('\n  ') + `\n</svg>`;
+}
+
+// ─── Compressed Air System P&ID — ISO 1217 / ASME B31.3 / CAGI ───────────────
+function buildCompressedAirSVG(inputs, results) {
+  const W = 1050, H = 580, STRIP_Y = 467;
+  const r = results || {}, inp = inputs || {};
+  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const T = (x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={}) =>
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+  const HL = (x1,y,x2,sw=3,c='#1a2e4a') => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
+  const VL = (x,y1,y2,sw=3,c='#1a2e4a') => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
+  const Bubble = (cx,cy,top,bot,caseClr='#1a2e4a') =>
+    `<circle cx="${cx}" cy="${cy}" r="11" fill="white" stroke="${caseClr}" stroke-width="1.5"/>` +
+    `<line x1="${cx-11}" y1="${cy}" x2="${cx+11}" y2="${cy}" stroke="${caseClr}" stroke-width="0.8"/>` +
+    T(cx, cy-3, top, {sz:5.5, c:caseClr, w:'700'}) + T(cx, cy+7, bot, {sz:5.5, c:caseClr});
+  const DrainTrap = (x,y,c='#607d8b') =>
+    `<circle cx="${x}" cy="${y+6}" r="7" fill="white" stroke="${c}" stroke-width="1.5"/>` +
+    `<line x1="${x}" y1="${y+13}" x2="${x}" y2="${y+20}" stroke="${c}" stroke-width="1.5"/>` +
+    T(x, y+30, 'Trap', {sz:6, c});
+
+  const instKW   = Number(r.installed_kw || r.motor_power_kw || 0).toFixed(1);
+  const instHP   = Number(r.recommended_hp || 0);
+  const flowM3m  = Number(r.total_demand_m3min || 0).toFixed(3);
+  const flowCFM  = Number(r.total_demand_cfm || r.design_cfm || 0).toFixed(1);
+  const pressBar = Number(r.working_pressure_bar_g || inp.operating_pressure_bar || 7).toFixed(1);
+  const tankL    = Number(r.receiver_volume_L || 0).toFixed(0);
+  const tankM3   = Number(r.receiver_volume_m3 || 0).toFixed(3);
+  const pipeNPS  = Number(r.recommended_pipe_mm || 25);
+  const pipeVel  = Number(r.pipe_velocity_ms || 0).toFixed(1);
+  const pipeDp   = Number(r.pipe_dp_bar || 0).toFixed(4);
+  const specPwr  = Number(r.specific_power_kw_m3min || 0).toFixed(2);
+  const specOK   = Boolean(r.specific_power_ok ?? true);
+  const dutyCyc  = Number(r.duty_cycle_pct || inp.duty_cycle_pct || 70);
+
+  const CC = '#1a2e4a', SC = '#5a6a7a', GY = '#607d8b', LGY = '#eceff1';
+  const AIR_C = '#1565c0', COMP_C = '#37474f', DRAIN_C = '#78909c';
+  const SPLIT_X = 645;
+  const p = [];
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(T(W/2, 31, `COMPRESSED AIR SYSTEM — P&ID  |  ${instHP} HP / ${instKW} kW  |  ${pressBar} bar g  |  ISO 1217 / ASME B31.3 / CAGI`, {sz:10.5, c:'white', w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(T(80, 57, 'P&ID — COMPRESSED AIR GENERATION & DISTRIBUTION', {a:'start', sz:8, c:CC, w:'600'}));
+
+  // Main process pipe at y=300
+  const PIPE_Y = 300;
+  const pipeX1 = 50, pipeX2 = 580;
+
+  // ── AIR INTAKE FILTER (left) ──
+  const F_X = 70, F_Y = PIPE_Y;
+  // Intake duct going down from top
+  p.push(VL(F_X, 70, F_Y-25, 2, GY));
+  p.push(T(F_X, 65, 'Atm. Air', {sz:7, c:GY}));
+  // Filter body (square with Y symbol)
+  p.push(`<polygon points="${F_X},${F_Y-25} ${F_X-14},${F_Y-10} ${F_X+14},${F_Y-10}" fill="white" stroke="${CC}" stroke-width="1.5"/>`);
+  p.push(`<polygon points="${F_X},${F_Y-10} ${F_X-14},${F_Y} ${F_X+14},${F_Y}" fill="white" stroke="${CC}" stroke-width="1.5"/>`);
+  p.push(`<circle cx="${F_X}" cy="${F_Y-12}" r="3" fill="${CC}"/>`);
+  p.push(T(F_X+18, F_Y-15, 'AF-101', {a:'start', sz:7, c:GY}));
+  p.push(T(F_X+18, F_Y-5, 'Inlet Filter', {a:'start', sz:6.5, c:SC}));
+
+  // Main air line (suction)
+  p.push(HL(F_X, PIPE_Y, 118, 3, AIR_C));
+
+  // ── COMPRESSOR ──
+  const CX = 150, CY = PIPE_Y;
+  p.push(`<rect x="${CX-28}" y="${CY-35}" width="56" height="50" rx="6" fill="${LGY}" stroke="${COMP_C}" stroke-width="2"/>`);
+  // Screw compressor symbol (two interlocking circles)
+  p.push(`<circle cx="${CX-8}" cy="${CY-12}" r="12" fill="none" stroke="${COMP_C}" stroke-width="1.5"/>`);
+  p.push(`<circle cx="${CX+8}" cy="${CY-12}" r="12" fill="none" stroke="${COMP_C}" stroke-width="1.5"/>`);
+  p.push(T(CX, CY+22, 'COMP-101', {sz:7, c:COMP_C, w:'700'}));
+  p.push(T(CX, CY+33, `${instHP} HP / ${instKW} kW`, {sz:7, c:SC}));
+  p.push(T(CX, CY+43, `Screw  |  ${dutyCyc}% DC`, {sz:6.5, c:SC}));
+  // Instrument bubbles above compressor
+  p.push(Bubble(CX-22, CY-60, 'TIT', '101'));
+  p.push(VL(CX-22, CY-35, CY-49, 1, GY));
+  p.push(Bubble(CX+22, CY-60, 'PIT', '101'));
+  p.push(VL(CX+22, CY-35, CY-49, 1, GY));
+
+  // ── DISCHARGE pipe → aftercooler ──
+  p.push(HL(CX+28, PIPE_Y, 235, 3, AIR_C));
+  // Aftercooler
+  const AC_X = 258, AC_Y = PIPE_Y;
+  p.push(`<rect x="${AC_X-22}" y="${AC_Y-25}" width="44" height="40" rx="3" fill="#e3f2fd" stroke="${AIR_C}" stroke-width="1.5"/>`);
+  for (let i=0;i<4;i++) p.push(VL(AC_X-14+i*9, AC_Y-20, AC_Y+10, 1.5, AIR_C));
+  p.push(T(AC_X, AC_Y+24, 'AC-101', {sz:7, c:AIR_C, w:'700'}));
+  p.push(T(AC_X, AC_Y+34, 'Aftercooler', {sz:6.5, c:SC}));
+  p.push(DrainTrap(AC_X, AC_Y+10));
+
+  // Pipe → moisture separator
+  p.push(HL(AC_X+22, PIPE_Y, 335, 3, AIR_C));
+  // Moisture separator
+  const MS_X = 345, MS_Y = PIPE_Y;
+  p.push(`<rect x="${MS_X-12}" y="${MS_Y-20}" width="24" height="35" rx="3" fill="${LGY}" stroke="${GY}" stroke-width="1.5"/>`);
+  p.push(`<ellipse cx="${MS_X}" cy="${MS_Y+15}" rx="12" ry="6" fill="${LGY}" stroke="${GY}" stroke-width="1"/>`);
+  p.push(T(MS_X, MS_Y+28, 'MS-101', {sz:6.5, c:GY, w:'700'}));
+  p.push(T(MS_X, MS_Y+38, 'Moist. Sep.', {sz:6, c:SC}));
+  p.push(DrainTrap(MS_X, MS_Y+15));
+
+  // Pipe → Air receiver
+  p.push(HL(MS_X+12, PIPE_Y, 410, 3, AIR_C));
+  // Air receiver (vertical cylinder)
+  const RX = 430, RY = PIPE_Y;
+  const RW = 40, RH = 110;
+  p.push(`<rect x="${RX-RW/2}" y="${RY-RH+20}" width="${RW}" height="${RH}" fill="${LGY}" stroke="${COMP_C}" stroke-width="2.5"/>`);
+  p.push(`<ellipse cx="${RX}" cy="${RY-RH+20}" rx="${RW/2}" ry="8" fill="${LGY}" stroke="${COMP_C}" stroke-width="1.5"/>`);
+  p.push(`<ellipse cx="${RX}" cy="${RY+20}" rx="${RW/2}" ry="8" fill="${LGY}" stroke="${COMP_C}" stroke-width="1.5"/>`);
+  p.push(T(RX, RY-RH/2-10, 'TANK', {sz:7, c:COMP_C, w:'700'}));
+  p.push(T(RX, RY-RH/2+2, `${tankL} L`, {sz:8, c:CC, w:'700'}));
+  p.push(T(RX, RY-RH/2+14, `(${tankM3} m³)`, {sz:6.5, c:SC}));
+  p.push(T(RX+28, RY-RH+28, 'VT-101', {a:'start', sz:7, c:COMP_C, w:'700'}));
+  p.push(T(RX+28, RY-RH+39, 'Air Receiver', {a:'start', sz:6.5, c:SC}));
+  // PRV on tank
+  p.push(VL(RX, RY-RH+12, RY-RH, 1.5, GY));
+  p.push(T(RX, RY-RH-6, `PRV  ${Number(pressBar)*1.1.toFixed(1)} bar`, {sz:6, c:'#e65100'}));
+  // PI on tank
+  p.push(Bubble(RX+26, RY-RH+50, 'PI', '102'));
+  p.push(HL(RX+20, RY-RH+50, RX+15, 1, GY));
+  // Drain trap at tank bottom
+  p.push(DrainTrap(RX, RY+20));
+
+  // Pipe → Dryer
+  p.push(HL(RX+RW/2, PIPE_Y, 515, 3, AIR_C));
+  const DRY_X = 533, DRY_Y = PIPE_Y;
+  p.push(`<rect x="${DRY_X-20}" y="${DRY_Y-20}" width="40" height="35" rx="4" fill="#e8eaf6" stroke="#5c6bc0" stroke-width="1.5"/>`);
+  p.push(T(DRY_X, DRY_Y-5, 'DRYER', {sz:6.5, c:'#5c6bc0', w:'700'}));
+  p.push(T(DRY_X, DRY_Y+5, 'Refrig.', {sz:6, c:SC}));
+  p.push(T(DRY_X, DRY_Y+24, 'DR-101', {sz:6.5, c:'#5c6bc0', w:'700'}));
+  p.push(T(DRY_X, DRY_Y+34, 'Desiccant/Refrig.', {sz:6, c:SC}));
+  p.push(DrainTrap(DRY_X, DRY_Y+15));
+
+  // Distribution header
+  p.push(HL(DRY_X+20, PIPE_Y, pipeX2, 4, AIR_C));
+  // Arrow
+  p.push(`<polygon points="${pipeX2-2},${PIPE_Y-5} ${pipeX2+12},${PIPE_Y} ${pipeX2-2},${PIPE_Y+5}" fill="${AIR_C}"/>`);
+  p.push(T(pipeX2+5, PIPE_Y-12, 'DISTRIBUTION', {a:'start', sz:7.5, c:AIR_C, w:'700'}));
+  p.push(T(pipeX2+5, PIPE_Y-1, `Ø${pipeNPS}mm  |  ${pipeVel} m/s`, {a:'start', sz:7, c:SC}));
+  p.push(T(pipeX2+5, PIPE_Y+10, `ΔP = ${pipeDp} bar`, {a:'start', sz:7, c:SC}));
+
+  // Pressure indicator on main
+  p.push(Bubble(480, PIPE_Y-28, 'PI', '103'));
+  p.push(VL(480, PIPE_Y-28+11, PIPE_Y, 1, GY));
+
+  // ── DATA PANEL ──
+  const DX = SPLIT_X + 10, DW = W - SPLIT_X - 22, rowH = 17;
+  let dy = 52;
+  const rowFn = (lbl, val, vc, i) => {
+    const bg = i%2===0 ? '#f0f4fa' : '#f8fafc';
+    const out = `<rect x="${DX}" y="${dy}" width="${DW}" height="${rowH}" fill="${bg}"/>` +
+      T(DX+4, dy+11, lbl, {a:'start', sz:7.5, c:SC}) +
+      T(DX+DW-4, dy+11, val, {a:'end', sz:7.5, c:vc, w:'bold'});
+    dy += rowH; return out;
+  };
+  const secH = (lbl) => {
+    const out = `<rect x="${DX}" y="${dy}" width="${DW}" height="15" rx="2" fill="#dce3ef"/>` +
+      T(DX+DW/2, dy+10, lbl, {sz:7.5, c:CC, w:'700'});
+    dy += 18; return out;
+  };
+
+  p.push(`<rect x="${DX}" y="${dy}" width="${DW}" height="20" rx="3" fill="${CC}"/>`);
+  p.push(T(DX+DW/2, dy+13, 'SYSTEM PARAMETERS', {sz:8.5, c:'white', w:'700'}));
+  dy += 24;
+
+  p.push(secH('AIR DEMAND'));
+  [['Total FAD Demand', `${flowM3m} m³/min  (${flowCFM} CFM)`, AIR_C],
+   ['Working Pressure', `${pressBar} bar g`, CC],
+   ['Duty Cycle', `${dutyCyc}%`, SC]].forEach(([l,v,c],i) => p.push(rowFn(l,v,c,i)));
+
+  dy += 4; p.push(secH('COMPRESSOR'));
+  [['ISO Power', `${Number(r.iso_power_kw||0).toFixed(1)} kW`, SC],
+   ['Shaft Power', `${Number(r.shaft_power_kw||0).toFixed(1)} kW`, SC],
+   ['Motor Power (Installed)', `${instHP} HP / ${instKW} kW`, CC],
+   ['Specific Power', `${specPwr} kW·min/m³  ${specOK ? '— OK' : '— HIGH'}`, specOK ? '#2e7d32' : '#c62828']].forEach(([l,v,c],i) => p.push(rowFn(l,v,c,i)));
+
+  dy += 4; p.push(secH('AIR RECEIVER'));
+  [['Required Volume', `${tankM3} m³`, SC],
+   ['Selected Tank', `${tankL} L`, CC]].forEach(([l,v,c],i) => p.push(rowFn(l,v,c,i)));
+
+  dy += 4; p.push(secH('DISTRIBUTION PIPE'));
+  [['Nominal Pipe', `Ø${pipeNPS}mm`, CC],
+   ['Air Velocity', `${pipeVel} m/s`, AIR_C],
+   ['Pressure Drop', `${pipeDp} bar`, SC]].forEach(([l,v,c],i) => p.push(rowFn(l,v,c,i)));
+
+  dy += 6;
+  p.push(T(DX+DW/2, dy, 'ISO 1217 / ISO 8573-1 / ASME B31.3 / CAGI', {sz:7, c:GY}));
+
+  // ── LEGEND ──
+  const LY = STRIP_Y + 6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(T(18, LY+10, 'LEGEND', {a:'start', sz:8, c:CC, w:'700'}));
+  let lx=25, ly=LY+26;
+  p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+30}" y2="${ly}" stroke="${AIR_C}" stroke-width="3"/>`);
+  p.push(T(lx+34, ly+4, 'Compressed air — process line', {a:'start', sz:7.5, c:CC}));
+  ly+=16;
+  p.push(`<rect x="${lx}" y="${ly-8}" width="16" height="16" rx="3" fill="${LGY}" stroke="${COMP_C}" stroke-width="1.5"/>`);
+  p.push(T(lx+20, ly+4, 'Screw compressor (COMP)', {a:'start', sz:7.5, c:CC}));
+  ly+=16;
+  p.push(`<circle cx="${lx+8}" cy="${ly}" r="8" fill="white" stroke="${CC}" stroke-width="1.5"/>`);
+  p.push(T(lx+8, ly+4, 'PI', {sz:5.5, c:CC, w:'700'}));
+  p.push(T(lx+20, ly+4, 'Pressure instrument (ISA-5.1)', {a:'start', sz:7.5, c:CC}));
+  const notes=[`1. Receiver = (FAD × p₁ × t) / (p₂ − p₁). Sized per ISO 1217 Annex C.`,
+    `2. Distribution pipe: max ΔP 0.07 bar per ISO 1217. Slope 1:200 to drain traps.`,
+    `3. Dryer: Refrigerated (ISO class 4) or desiccant (ISO class 1-2) per air quality requirement.`];
+  notes.forEach((n,i) => p.push(T(18, LY+72+i*11, n, {a:'start', sz:6.5, c:CC})));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` + p.join('\n  ') + `\n</svg>`;
+}
+
+// ─── Boiler System Schematic — ASME BPVC Sec. I / PD Act PHL / PSME Code ─────
+function buildBoilerSystemSVG(inputs, results) {
+  const W = 1050, H = 580, STRIP_Y = 467;
+  const r = results || {}, inp = inputs || {};
+  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const T = (x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={}) =>
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+  const HL = (x1,y,x2,sw=3,c='#1a2e4a') => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
+  const VL = (x,y1,y2,sw=3,c='#1a2e4a') => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
+  const GlobeV = (x,y,c='#607d8b') =>
+    `<polygon points="${x-7},${y-7} ${x},${y} ${x-7},${y+7}" fill="white" stroke="${c}" stroke-width="1.5"/>` +
+    `<polygon points="${x+7},${y-7} ${x},${y} ${x+7},${y+7}" fill="white" stroke="${c}" stroke-width="1.5"/>`;
+
+  const bType    = String(r.boiler_type || inp.boiler_type || 'Steam');
+  const isSteam  = bType === 'Steam';
+  const pressBar = Number(inp.steam_pressure_barg || inp.pressure_barg || 7).toFixed(1);
+  const tSat     = Number(r.t_sat_c || 0).toFixed(1);
+  const qKW      = Number(r.q_boiler_kw || 0).toFixed(1);
+  const qBHP     = Number(r.q_boiler_bhp || 0).toFixed(1);
+  const totKW    = Number(r.total_capacity_kw || 0).toFixed(1);
+  const totBHP   = Number(r.total_capacity_bhp || 0).toFixed(1);
+  const stmKgHr  = Number(r.design_steam_demand_kg_hr || r.steam_demand_kg_hr || 0).toFixed(0);
+  const fuelKgHr = Number(r.fuel_consumption_kg_hr || 0).toFixed(2);
+  const fuelLHr  = Number(r.fuel_consumption_lhr || 0).toFixed(2);
+  const fuelType = String(inp.fuel_type || 'Natural Gas');
+  const bdPct    = Number(r.blowdown_pct || 0).toFixed(1);
+  const bdKgHr   = Number(r.blowdown_kg_hr || 0).toFixed(1);
+  const mkupKg   = Number(r.makeup_water_kg_hr || 0).toFixed(1);
+  const svKgHr   = Number(r.safety_valve_min_kg_hr || 0).toFixed(0);
+  const nBoilers = Number(inp.num_boilers || 1);
+
+  const CC = '#1a2e4a', SC = '#5a6a7a', GY = '#607d8b', LGY = '#eceff1';
+  const STM_C = '#c62828';   // steam (red)
+  const FW_C  = '#1565c0';   // feedwater (blue)
+  const FUE_C = '#e65100';   // fuel (orange)
+  const HGS_C = '#795548';   // flue gas (brown)
+  const SPLIT_X = 645;
+  const p = [];
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(T(W/2, 31, `BOILER SYSTEM — ${isSteam ? 'STEAM' : 'HOT WATER'} SCHEMATIC  |  ${totKW} kW / ${totBHP} BHP × ${nBoilers}  |  ASME BPVC / PD ACT / PSME`, {sz:10.5, c:'white', w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(T(80, 57, `${isSteam ? 'STEAM GENERATION SYSTEM' : 'HOT WATER BOILER SYSTEM'} — ${pressBar} bar g`, {a:'start', sz:8, c:CC, w:'600'}));
+
+  // ── BOILER VESSEL ──
+  const BX = 200, BY = 130, BW = 220, BH = 200;
+  p.push(`<rect x="${BX}" y="${BY}" width="${BW}" height="${BH}" rx="8" fill="${LGY}" stroke="${CC}" stroke-width="3"/>`);
+  // Top dome
+  p.push(`<ellipse cx="${BX+BW/2}" cy="${BY}" rx="${BW/2}" ry="20" fill="${LGY}" stroke="${CC}" stroke-width="2.5"/>`);
+  // Water level inside boiler
+  const WL_Y = BY + BH * 0.55;
+  p.push(`<rect x="${BX+2}" y="${WL_Y}" width="${BW-4}" height="${BY+BH-WL_Y-4}" rx="0" fill="${FW_C}" opacity="0.25"/>`);
+  p.push(HL(BX+4, WL_Y, BX+BW-4, 1.5, FW_C));
+  p.push(T(BX+BW/2, WL_Y-6, 'Water Level (NWL)', {sz:7, c:FW_C}));
+
+  // Burner at bottom
+  const BNR_Y = BY + BH + 10;
+  p.push(`<rect x="${BX+BW/2-30}" y="${BNR_Y}" width="60" height="20" rx="3" fill="#ff8f00" stroke="${FUE_C}" stroke-width="2"/>`);
+  p.push(T(BX+BW/2, BNR_Y+13, 'BURNER', {sz:7.5, c:'white', w:'700'}));
+  // Flame symbols
+  [BX+BW/2-15, BX+BW/2, BX+BW/2+15].forEach(fx => {
+    p.push(`<path d="M ${fx} ${BY+BH} C ${fx-5} ${BY+BH-15} ${fx+3} ${BY+BH-25} ${fx} ${BY+BH-35} C ${fx-8} ${BY+BH-22} ${fx+8} ${BY+BH-10} ${fx} ${BY+BH}" fill="${FUE_C}" opacity="0.7"/>`);
+  });
+  p.push(T(BX+BW/2, BNR_Y+30, `${esc(fuelType)}  |  ${fuelKgHr} kg/hr`, {sz:7, c:FUE_C}));
+
+  // Fuel supply line (bottom left → burner)
+  p.push(HL(BX-60, BNR_Y+10, BX+BW/2-30, 3, FUE_C));
+  p.push(T(BX-60, BNR_Y+5, 'FUEL', {a:'start', sz:7, c:FUE_C, w:'700'}));
+  p.push(T(BX-60, BNR_Y+16, `FV-101`, {a:'start', sz:6.5, c:GY}));
+  // Fuel valve
+  p.push(GlobeV(BX-30, BNR_Y+10, FUE_C));
+
+  // Flue gas outlet (top right)
+  const FG_X = BX + BW + 20;
+  p.push(HL(BX+BW, BY+30, FG_X+40, 4, HGS_C));
+  p.push(`<polygon points="${FG_X+40},${BY+25} ${FG_X+55},${BY+30} ${FG_X+40},${BY+35}" fill="${HGS_C}"/>`);
+  p.push(T(FG_X+45, BY+20, 'Flue Gas', {a:'start', sz:7, c:HGS_C, w:'700'}));
+  p.push(T(FG_X+45, BY+30, '→ Chimney/Stack', {a:'start', sz:6.5, c:HGS_C}));
+
+  // ── STEAM / HW HEADER (top) ──
+  const STM_Y = BY - 30;
+  p.push(VL(BX+BW/2, BY-20, STM_Y, 4, STM_C));
+  p.push(HL(BX-50, STM_Y, BX+BW+60, 4, STM_C));
+  p.push(`<polygon points="${BX+BW+58},${STM_Y-5} ${BX+BW+72},${STM_Y} ${BX+BW+58},${STM_Y+5}" fill="${STM_C}"/>`);
+  p.push(T(BX+BW/2, STM_Y-12, `${isSteam ? 'STEAM HEADER' : 'HW SUPPLY HEADER'}  ${pressBar} bar g${isSteam ? '  |  T_sat = '+tSat+'°C' : ''}`, {sz:7.5, c:STM_C, w:'700'}));
+  if (isSteam) {
+    p.push(T(BX+BW/2, STM_Y-1, `${stmKgHr} kg/hr → Process / Steam Traps`, {sz:7, c:STM_C}));
+  }
+
+  // Safety valve on header
+  const SV_X = BX - 50;
+  p.push(VL(SV_X, STM_Y-15, STM_Y, 2, CC));
+  // PRV symbol
+  p.push(`<polygon points="${SV_X-7},${STM_Y-15} ${SV_X},${STM_Y-22} ${SV_X+7},${STM_Y-15}" fill="none" stroke="${STM_C}" stroke-width="1.8"/>`);
+  p.push(T(SV_X, STM_Y-26, `SV  ASME`, {sz:6.5, c:STM_C, w:'700'}));
+  p.push(T(SV_X, STM_Y-36, `≥${svKgHr} kg/hr`, {sz:6, c:STM_C}));
+
+  // Steam stop valve
+  const SSV_X = BX + BW + 60;
+  p.push(GlobeV(SSV_X, STM_Y, STM_C));
+  p.push(T(SSV_X, STM_Y+16, 'SV-101', {sz:6.5, c:GY}));
+  p.push(T(SSV_X, STM_Y+26, isSteam ? 'Steam Stop' : 'Isolation', {sz:6, c:SC}));
+
+  // ── FEEDWATER / CONDENSATE RETURN ──
+  const FW_Y = BY + BH * 0.7;
+  p.push(HL(BX-80, FW_Y, BX, 3, FW_C));
+  p.push(`<polygon points="${BX-2},${FW_Y-4} ${BX+10},${FW_Y} ${BX-2},${FW_Y+4}" fill="${FW_C}"/>`);
+  p.push(T(BX-80, FW_Y-10, `${isSteam ? 'FEEDWATER' : 'RETURN'}  ${isSteam ? 'FW' : 'HW'}`, {a:'start', sz:7, c:FW_C, w:'700'}));
+  p.push(T(BX-80, FW_Y+1, `${mkupKg} kg/hr makeup`, {a:'start', sz:6.5, c:FW_C}));
+  // FW check valve
+  p.push(`<polygon points="${BX-45},${FW_Y-7} ${BX-32},${FW_Y} ${BX-45},${FW_Y+7}" fill="none" stroke="${FW_C}" stroke-width="1.5"/>`);
+  p.push(`<line x1="${BX-32}" y1="${FW_Y-7}" x2="${BX-32}" y2="${FW_Y+7}" stroke="${FW_C}" stroke-width="1.5"/>`);
+  p.push(T(BX-38, FW_Y+15, 'NRV-101', {sz:6, c:GY}));
+
+  // ── BLOWDOWN ──
+  const BD_Y = BY + BH - 15;
+  p.push(VL(BX+BW/2+40, BD_Y, BY+BH+40, 2.5, GY));
+  p.push(GlobeV(BX+BW/2+40, BY+BH+22, GY));
+  p.push(T(BX+BW/2+55, BY+BH+20, 'BD-101', {a:'start', sz:6.5, c:GY}));
+  p.push(T(BX+BW/2+55, BY+BH+30, `Blowdown  ${bdPct}%`, {a:'start', sz:6, c:SC}));
+  p.push(T(BX+BW/2+55, BY+BH+40, `${bdKgHr} kg/hr`, {a:'start', sz:6, c:SC}));
+
+  // Boiler tag
+  p.push(T(BX+BW/2, BY+BH/2, `BLR-101`, {sz:10, c:CC, w:'700'}));
+  p.push(T(BX+BW/2, BY+BH/2+14, `${qKW} kW / ${qBHP} BHP`, {sz:8.5, c:CC}));
+  p.push(T(BX+BW/2, BY+BH/2+26, `${pressBar} bar g${isSteam ? '  |  '+tSat+'°C sat.' : ''}`, {sz:7.5, c:STM_C}));
+
+  // ── DATA PANEL ──
+  const DX = SPLIT_X + 10, DW = W - SPLIT_X - 22, rowH = 17;
+  let dy = 52;
+  const rowFn = (lbl, val, vc, i) => {
+    const bg = i%2===0 ? '#f0f4fa' : '#f8fafc';
+    const out = `<rect x="${DX}" y="${dy}" width="${DW}" height="${rowH}" fill="${bg}"/>` +
+      T(DX+4, dy+11, lbl, {a:'start', sz:7.5, c:SC}) +
+      T(DX+DW-4, dy+11, val, {a:'end', sz:7.5, c:vc, w:'bold'});
+    dy += rowH; return out;
+  };
+  const secH = (lbl) => {
+    const out = `<rect x="${DX}" y="${dy}" width="${DW}" height="15" rx="2" fill="#dce3ef"/>` +
+      T(DX+DW/2, dy+10, lbl, {sz:7.5, c:CC, w:'700'});
+    dy += 18; return out;
+  };
+
+  p.push(`<rect x="${DX}" y="${dy}" width="${DW}" height="20" rx="3" fill="${CC}"/>`);
+  p.push(T(DX+DW/2, dy+13, 'BOILER DESIGN DATA', {sz:8.5, c:'white', w:'700'}));
+  dy += 24;
+
+  p.push(secH(`${isSteam ? 'STEAM' : 'HOT WATER'} PARAMETERS`));
+  [['Boiler Type', bType, CC],
+   [isSteam ? 'Steam Pressure' : 'Supply Pressure', `${pressBar} bar g`, STM_C],
+   ...(isSteam ? [['Saturation Temp.', `${tSat}°C`, STM_C],
+                   ['Steam Demand (design)', `${stmKgHr} kg/hr`, CC]] : []),
+   ['Fuel Type', esc(fuelType), FUE_C],
+   ['No. of Boilers', `${nBoilers} unit(s)`, SC]].forEach(([l,v,c],i) => p.push(rowFn(l,v,c,i)));
+
+  dy += 4; p.push(secH('CAPACITY'));
+  [['Boiler Output', `${qKW} kW / ${qBHP} BHP`, CC],
+   ['Total Installed', `${totKW} kW / ${totBHP} BHP`, CC]].forEach(([l,v,c],i) => p.push(rowFn(l,v,c,i)));
+
+  dy += 4; p.push(secH('FUEL & WATER'));
+  [['Fuel Consumption', `${fuelKgHr} kg/hr  (${fuelLHr} L/hr)`, FUE_C],
+   ['Blowdown', `${bdPct}%  —  ${bdKgHr} kg/hr`, GY],
+   ['Makeup Water', `${mkupKg} kg/hr`, FW_C],
+   ['Safety Valve (min)', `${svKgHr} kg/hr  ASME Sec. I`, STM_C]].forEach(([l,v,c],i) => p.push(rowFn(l,v,c,i)));
+
+  dy += 6;
+  p.push(T(DX+DW/2, dy, 'ASME BPVC Sec. I  |  PD Act Philippines', {sz:7, c:GY}));
+  dy += 11;
+  p.push(T(DX+DW/2, dy, 'DOLE OSHS Rule 1230  |  PSME Code', {sz:7, c:GY}));
+
+  // ── LEGEND ──
+  const LY = STRIP_Y + 6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(T(18, LY+10, 'LEGEND', {a:'start', sz:8, c:CC, w:'700'}));
+  let lx=25, ly=LY+26;
+  [[STM_C, isSteam ? 'Steam / HW supply line' : 'HW supply line'],
+   [FW_C,  'Feedwater / condensate return'],
+   [FUE_C, 'Fuel supply line'],
+   [HGS_C, 'Flue gas / exhaust'],
+  ].forEach(([c2,lbl]) => {
+    p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+30}" y2="${ly}" stroke="${c2}" stroke-width="3"/>`);
+    p.push(T(lx+34, ly+4, lbl, {a:'start', sz:7.5, c:CC}));
+    ly += 16;
+  });
+  const notes=[`1. Safety valve capacity ≥ full boiler output per ASME Sec. I PG-70. ASME stamped.`,
+    `2. Blowdown ${bdPct}%: (TDS_makeup)/(TDS_max − TDS_makeup). Blowdown separator required.`,
+    `3. Boiler operator license per PD Act and DOLE OSHS Rule 1230. BPRT inspection required.`];
+  notes.forEach((n,i) => p.push(T(18, LY+72+i*11, n, {a:'start', sz:6.5, c:CC})));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` + p.join('\n  ') + `\n</svg>`;
 }
 
 // ─── HVAC System Schematic: SVG builder (ASHRAE 62.1 / PSME) ───────────────
