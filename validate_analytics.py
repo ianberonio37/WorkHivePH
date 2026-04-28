@@ -95,7 +95,7 @@ SMOKE_INPUTS = {
     },
 }
 
-# Expected output shape for descriptive phase
+# Expected output shape for descriptive phase (includes new OEE key)
 DESCRIPTIVE_SHAPE = {
     "phase":             [],
     "standard":          [],
@@ -103,12 +103,19 @@ DESCRIPTIVE_SHAPE = {
     "mtbf":              ["mtbf_by_asset", "unit", "standard"],
     "mttr":              ["mttr_by_asset", "unit", "standard"],
     "availability":      ["availability_by_asset", "unit", "standard"],
+    "oee":               ["oee_by_asset", "standard"],
     "pm_compliance":     ["compliance_by_asset", "standard"],
     "failure_frequency": ["failure_frequency", "period_days", "standard"],
     "downtime_pareto":   ["pareto"],
     "parts_consumption": ["consumption", "period_days", "standard"],
     "repeat_failures":   ["repeats", "standard"],
 }
+
+# New logbook fields that must be fetched in the edge function SELECT
+NEW_LOGBOOK_FIELDS = ["failure_consequence", "readings_json", "production_output"]
+
+# New render functions added for the new analytics features
+NEW_RENDER_FUNCTIONS = ["renderOEE", "renderRCMConsequence", "renderAnomalyBaseline"]
 
 
 # ── Layer 1: Pattern checks (HTML frontend) ───────────────────────────────────
@@ -178,6 +185,30 @@ def check_html_render_functions(html, page):
         if fn not in html:
             issues.append({"check": "render_functions", "page": page, "function": fn,
                            "reason": f"{fn}() not found — that phase's results will not display"})
+    return issues
+
+
+def check_html_new_render_functions(html, page):
+    """New render functions for OEE, RCM consequence, and anomaly baseline."""
+    if not html:
+        return []
+    issues = []
+    for fn in NEW_RENDER_FUNCTIONS:
+        if fn not in html:
+            issues.append({"check": "new_render_functions", "page": page, "function": fn,
+                           "reason": f"{fn}() not found in analytics.html — new analytics output will not be displayed"})
+    return issues
+
+
+def check_edge_new_logbook_fields(ts, path):
+    """Edge function logbook SELECT must include the new logbook fields."""
+    if not ts:
+        return []
+    issues = []
+    for field in NEW_LOGBOOK_FIELDS:
+        if field not in ts:
+            issues.append({"check": "edge_new_logbook_fields", "page": path, "field": field,
+                           "reason": f"Edge function logbook SELECT missing '{field}' — analytics can't use this new logbook data"})
     return issues
 
 
@@ -405,8 +436,10 @@ def run_checks():
     all_issues += check_html_orchestrator_ref(html, HTML_FILE)
     all_issues += check_html_render_functions(html, HTML_FILE)
     all_issues += check_html_toast_on_error(html, HTML_FILE)
+    all_issues += check_html_new_render_functions(html, HTML_FILE)
     all_issues += check_edge_all_phases(ts, EDGE_FUNC_FILE)
     all_issues += check_edge_hive_id_scoping(ts, EDGE_FUNC_FILE)
+    all_issues += check_edge_new_logbook_fields(ts, EDGE_FUNC_FILE)
     all_issues += check_edge_groq_fallback(ts, EDGE_FUNC_FILE)
     all_issues += check_edge_groq_null_guard(ts, EDGE_FUNC_FILE)
     all_issues += check_edge_python_url_null_guard(ts, EDGE_FUNC_FILE)
@@ -448,7 +481,9 @@ CHECK_NAMES = [
     # L1 — pattern
     "auth_gate", "hive_id_in_fetch", "esc_html_error", "phase_banners",
     "double_submit_guard", "orchestrator_endpoint", "render_functions", "toast_on_error",
-    "edge_phases", "edge_hive_id_scoping", "groq_fallback", "groq_null_guard",
+    "new_render_functions",
+    "edge_phases", "edge_hive_id_scoping", "edge_new_logbook_fields",
+    "groq_fallback", "groq_null_guard",
     "python_url_null_guard", "abort_timeout", "phase_validation",
     "module_exists", "calculate_entry", "descriptive_functions",
     "availability_formula", "main_phase_routing", "main_analytics_404",
@@ -463,37 +498,39 @@ CHECK_NAMES = [
 
 CHECK_LABELS = {
     # L1
-    "auth_gate":              "L1  Auth gate (WORKER_NAME redirect)",
-    "hive_id_in_fetch":       "L1  HIVE_ID sent in fetch body",
-    "esc_html_error":         "L1  escHtml on error output",
-    "phase_banners":          "L1  PHASE_BANNERS completeness (4 phases)",
-    "double_submit_guard":    "L1  Double-submit guard (_loading)",
-    "orchestrator_endpoint":  "L1  analytics-orchestrator endpoint ref",
-    "render_functions":       "L1  Render functions (all 4 phases)",
-    "toast_on_error":         "L1  Toast feedback on error",
-    "edge_phases":            "L2  Edge fn: all 4 phases handled",
-    "edge_hive_id_scoping":   "L2  Edge fn: hive_id scope on tables",
-    "groq_fallback":          "L2  Groq fallback chain (2+ models)",
-    "groq_null_guard":        "L2  GROQ_API_KEY null guard",
-    "python_url_null_guard":  "L2  PYTHON_API_URL null guard",
-    "abort_timeout":          "L2  AbortSignal.timeout on Python fetch",
-    "phase_validation":       "L2  Phase missing returns 400",
-    "module_exists":          "L3  All 4 analytics .py modules exist",
-    "calculate_entry":        "L3  calculate() entry in each module",
-    "descriptive_functions":  "L3  All 8 SMRP/ISO metrics in descriptive",
-    "availability_formula":   "L3  Availability formula MTBF/(MTBF+MTTR)",
-    "main_phase_routing":     "L3  main.py routes all 4 phases",
-    "main_analytics_404":     "L3  main.py raises 404 for unknown phase",
+    "auth_gate":                "L1  Auth gate (WORKER_NAME redirect)",
+    "hive_id_in_fetch":         "L1  HIVE_ID sent in fetch body",
+    "esc_html_error":           "L1  escHtml on error output",
+    "phase_banners":            "L1  PHASE_BANNERS completeness (4 phases)",
+    "double_submit_guard":      "L1  Double-submit guard (_loading)",
+    "orchestrator_endpoint":    "L1  analytics-orchestrator endpoint ref",
+    "render_functions":         "L1  Render functions (all 4 phases)",
+    "toast_on_error":           "L1  Toast feedback on error",
+    "new_render_functions":     "L1  New render fns (OEE, RCM, Anomaly)",
+    "edge_phases":              "L2  Edge fn: all 4 phases handled",
+    "edge_hive_id_scoping":     "L2  Edge fn: hive_id scope on tables",
+    "edge_new_logbook_fields":  "L2  Edge fn: new logbook fields in SELECT",
+    "groq_fallback":            "L2  Groq fallback chain (2+ models)",
+    "groq_null_guard":          "L2  GROQ_API_KEY null guard",
+    "python_url_null_guard":    "L2  PYTHON_API_URL null guard",
+    "abort_timeout":            "L2  AbortSignal.timeout on Python fetch",
+    "phase_validation":         "L2  Phase missing returns 400",
+    "module_exists":            "L3  All 4 analytics .py modules exist",
+    "calculate_entry":          "L3  calculate() entry in each module",
+    "descriptive_functions":    "L3  All 8 SMRP/ISO metrics in descriptive",
+    "availability_formula":     "L3  Availability formula MTBF/(MTBF+MTTR)",
+    "main_phase_routing":       "L3  main.py routes all 4 phases",
+    "main_analytics_404":       "L3  main.py raises 404 for unknown phase",
     # L2 (syntax layer)
-    "py_syntax":              "SYN Python syntax check (all .py files)",
+    "py_syntax":                "SYN Python syntax check (all .py files)",
     # L3 (smoke layer)
-    "py_smoke_descriptive":   "RUN Smoke: descriptive.calculate({}) — empty data",
-    "py_smoke_diagnostic":    "RUN Smoke: diagnostic.calculate({}) — empty data",
-    "py_smoke_predictive":    "RUN Smoke: predictive.calculate({}) — empty data",
-    "py_smoke_prescriptive":  "RUN Smoke: prescriptive.calculate({}) — empty data",
+    "py_smoke_descriptive":     "RUN Smoke: descriptive.calculate({}) — empty data",
+    "py_smoke_diagnostic":      "RUN Smoke: diagnostic.calculate({}) — empty data",
+    "py_smoke_predictive":      "RUN Smoke: predictive.calculate({}) — empty data",
+    "py_smoke_prescriptive":    "RUN Smoke: prescriptive.calculate({}) — empty data",
     # L4 (shape + consistency)
-    "py_shape_descriptive":   "SHP Shape: descriptive — all 8 metric keys present",
-    "period_consistency":     "CON period_days=90 consistent across all layers",
+    "py_shape_descriptive":     "SHP Shape: descriptive — all 9 metric keys (incl. OEE)",
+    "period_consistency":       "CON period_days=90 consistent across all layers",
 }
 
 

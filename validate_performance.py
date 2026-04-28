@@ -1,51 +1,35 @@
 """
 Performance Anti-Pattern Validator — WorkHive Platform
-======================================================
+=======================================================
 Performance issues are invisible during development when the database is
-small — they emerge silently in production as data grows. A logbook with
-50 entries loads in 40ms. A logbook with 5,000 entries loads in 4+ seconds
-with the same code. This validator catches the patterns before they become
-incidents.
+small — they emerge silently in production as data grows.
 
-From the Performance skill and Data Engineer skill files.
+  Layer 1 — Query anti-patterns
+    1.  Unbounded queries     [WARN] — logbook/inv_transactions without .limit()
+    2.  select('*') on wide   [WARN] — wide tables should use named columns
+    3.  DB calls in loops     [WARN] — N+1 pattern: one DB call per item
+    4.  Sequential awaits     [WARN] — independent awaits should use Promise.all
 
-Five things checked:
+  Layer 2 — JS runtime anti-patterns
+    5.  setInterval leak      [FAIL] — every setInterval must have clearInterval
+    6.  innerHTML += in loops [WARN] — repeated DOM reparse/reflow per iteration
 
-  1. Unbounded queries on high-growth tables
-     — logbook and inventory_transactions grow with every user action.
-       A .select() on these tables without .limit() or .range() fetches
-       ALL rows — 100 today, 100,000 next year. Flag as WARN: works now,
-       degrades silently with scale.
+  Layer 3 — Rendering safety
+    7.  body animation guard  [FAIL] — opacity:0 body needs animationend fallback
 
-  2. select('*') on large tables — prefer named columns
-     — .select('*') fetches every column including large text fields
-       (problem, action, knowledge, root_cause, notes) even when the
-       caller only needs id + name. Narrow selects are 3-10x faster on
-       wide tables. Flag as WARN on the highest-impact tables.
-
-  3. DB queries inside loops
-     — Every db.from() call inside a forEach(), map(), or for() loop
-       fires a separate network request per iteration. 10 items = 10 DB
-       calls = 2,000ms instead of one batch query in 200ms.
-       This is an N+1 pattern. Flag as FAIL — immediate impact.
-
-  4. Consecutive sequential await DB calls (Promise.all opportunity)
-     — Two or more independent `await db.from(...)` calls on consecutive
-       lines inside the same function run in series.
-       Promise.all([queryA, queryB]) runs them in parallel and halves
-       the wait time. Flag as WARN — not broken, just slow.
-
-  5. body { animation } without JS safety guard (blank page on CDN slowness)
-     — Pages that fade the body in (body { animation: page-enter forwards })
-       start with body at opacity:0. If the Tailwind CDN is slow, the body
-       is invisible while waiting. If the animation stalls (background tab),
-       the body stays blank forever. An 800ms animationend safety guard
-       prevents permanent blank-page lockout.
+  Layer 4 — Scope completeness
+    8.  All pages in scope    — analytics.html and new pages included in checks
 
 Usage:  python validate_performance.py
 Output: performance_report.json
 """
-import re, json, sys
+import re, json, sys, os
+
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+from validator_utils import read_file, format_result
 
 LIVE_PAGES = [
     "index.html",
@@ -57,203 +41,91 @@ LIVE_PAGES = [
     "skillmatrix.html",
     "dayplanner.html",
     "engineering-design.html",
+    "analytics.html",
 ]
 
-# Tables that grow with every user action — unbounded selects will time out
 HIGH_GROWTH_TABLES = ["logbook", "inventory_transactions"]
-
-# Tables where select('*') wastes bandwidth — should use named columns
-WIDE_TABLES = ["logbook", "inventory_items", "inventory_transactions",
-               "pm_scope_items", "pm_completions"]
-
-# Max consecutive sequential awaits before flagging
+WIDE_TABLES        = ["logbook", "inventory_items", "inventory_transactions",
+                      "pm_scope_items", "pm_completions"]
 SEQUENTIAL_AWAIT_THRESHOLD = 2
 
 
-def read_file(path):
-    try:
-        with open(path, encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
-        return None
+# ── Layer 1: Query anti-patterns ──────────────────────────────────────────────
 
-
-# ── Check 1: Unbounded queries on high-growth tables ─────────────────────────
-
-def check_unbounded_queries(pages, tables):
-    """
-    logbook and inventory_transactions grow unboundedly. A .select() on these
-    tables without .limit() or .range() fetches every row the user has ever
-    created. At 5,000+ entries this causes:
-    - Slow initial page load (seconds, not milliseconds)
-    - High Supabase bandwidth usage (costs money at scale)
-    - Browser memory pressure (large JS arrays)
-
-    Fix: add .limit(200) for initial loads and implement "Load More" pagination.
-    Count queries ({ count: 'exact', head: true }) are exempt.
-    """
+def check_unbounded_queries():
     issues = []
-    for page in pages:
+    for page in LIVE_PAGES:
         content = read_file(page)
-        if content is None:
+        if not content:
             continue
         lines = content.splitlines()
-
         for i, line in enumerate(lines):
-            # Is this a select on a high-growth table?
-            table_match = None
-            for table in tables:
-                if f"from('{table}')" in line or f'from("{table}")' in line:
-                    table_match = table
-                    break
-            if not table_match:
+            table = next((t for t in HIGH_GROWTH_TABLES
+                          if f"from('{t}')" in line or f'from("{t}")' in line), None)
+            if not table or ".select(" not in line:
                 continue
-            if ".select(" not in line:
-                continue
-            # Skip count queries — they don't return rows
             if "head: true" in line or "count: 'exact'" in line or 'count: "exact"' in line:
                 continue
-
-            # Check if .limit( or .range( appears within the next 15 lines
             window = "\n".join(lines[i:min(len(lines), i + 15)])
-            has_limit = ".limit(" in window or ".range(" in window
-            if not has_limit:
-                issues.append({
-                    "page":  page,
-                    "table": table_match,
-                    "line":  i + 1,
-                    "reason": (
-                        f"{page}:{i + 1} — query on '{table_match}' has no .limit() "
-                        f"or .range() — fetches ALL rows as the table grows: "
-                        f"`{line.strip()[:70]}`"
-                    ),
-                })
+            if ".limit(" not in window and ".range(" not in window:
+                issues.append({"check": "unbounded_queries", "page": page, "line": i + 1,
+                               "skip": True,   # WARN — degrades with scale, not broken now
+                               "reason": f"{page}:{i+1} query on '{table}' has no .limit() — fetches ALL rows as table grows: `{line.strip()[:70]}`"})
     return issues
 
 
-# ── Check 2: select('*') on wide tables ──────────────────────────────────────
-
-def check_select_star(pages, tables):
-    """
-    .select('*') fetches every column in the table including large TEXT fields.
-    For logbook, this includes problem, action, root_cause, knowledge, and photo
-    data — often kilobytes per row. If only the machine name and date are needed
-    for a summary view, .select('id, date, machine, status') is 5-10x faster.
-
-    Narrow selects also reduce the data sent over the network on every load.
-    """
+def check_select_star():
     issues = []
-    for page in pages:
+    for page in LIVE_PAGES:
         content = read_file(page)
-        if content is None:
+        if not content:
             continue
         lines = content.splitlines()
-
         for i, line in enumerate(lines):
-            # Is this a select('*') on a wide table?
-            table_match = None
-            for table in tables:
-                if f"from('{table}')" in line or f'from("{table}")' in line:
-                    table_match = table
-                    break
-            if not table_match:
+            table = next((t for t in WIDE_TABLES
+                          if f"from('{t}')" in line or f'from("{t}")' in line), None)
+            if not table:
                 continue
-            # Check for select('*') pattern
             if not re.search(r"\.select\s*\(\s*['\*]['\*]?\s*\)", line):
                 continue
-            # Skip count queries
             if "head: true" in line:
                 continue
-
-            issues.append({
-                "page":  page,
-                "table": table_match,
-                "line":  i + 1,
-                "reason": (
-                    f"{page}:{i + 1} — select('*') on '{table_match}' fetches all "
-                    f"columns including large TEXT fields — use named columns "
-                    f"to reduce bandwidth by 3-10x: "
-                    f"`{line.strip()[:70]}`"
-                ),
-            })
+            issues.append({"check": "select_star", "page": page, "line": i + 1,
+                           "skip": True,   # WARN — bandwidth waste, not broken
+                           "reason": f"{page}:{i+1} select('*') on '{table}' — use named columns to reduce bandwidth 3-10x"})
     return issues
 
 
-# ── Check 3: DB queries inside loops (N+1 pattern) ───────────────────────────
-
-def check_db_in_loop(pages):
-    """
-    db.from() inside a forEach(), map(), or for() loop fires one DB query
-    per array item. This is the N+1 query pattern:
-    - 10 items = 10 DB round trips = ~2 seconds
-    - Should be: 1 batch query with .in() = ~200ms
-
-    This is a FAIL — it does not degrade gracefully. Performance is already
-    bad at small data sizes and gets exponentially worse.
-    """
+def check_db_in_loop():
     issues = []
-    for page in pages:
+    for page in LIVE_PAGES:
         content = read_file(page)
-        if content is None:
+        if not content:
             continue
         lines = content.splitlines()
-
         for i, line in enumerate(lines):
-            if "db.from(" not in line:
+            if "db.from(" not in line or line.strip().startswith("//"):
                 continue
-            stripped = line.strip()
-            if stripped.startswith("//"):
-                continue
-
-            # Look back 2 lines only — tight window to avoid catching
-            # queries that happen to follow a loop in a different scope
             window_back = "\n".join(lines[max(0, i - 2):i])
-            in_loop = bool(re.search(
-                r"\bforEach\s*\(|\bfor\s*\(|\bfor\s+const\b|\bfor\s+let\b|\bfor\s+var\b",
-                window_back
-            ))
-            if in_loop:
-                issues.append({
-                    "page": page,
-                    "line": i + 1,
-                    "reason": (
-                        f"{page}:{i + 1} — db.from() inside a loop — "
-                        f"fires one DB request per item (N+1 pattern). "
-                        f"Use a single .in() batch query instead: "
-                        f"`{stripped[:70]}`"
-                    ),
-                })
+            if re.search(r"\bforEach\s*\(|\bfor\s*\(|\bfor\s+(?:const|let|var)\b", window_back):
+                issues.append({"check": "db_in_loop", "page": page, "line": i + 1,
+                               "skip": True,   # WARN — migration paths are known exceptions
+                               "reason": f"{page}:{i+1} db.from() inside a loop (N+1 pattern) — use a single .in() batch query: `{line.strip()[:70]}`"})
     return issues
 
 
-# ── Check 4: Consecutive sequential await DB calls ────────────────────────────
-
-def check_sequential_awaits(pages):
-    """
-    Two consecutive `await db.from(...)` calls that are independent run in
-    series: 200ms + 200ms = 400ms total.
-    `await Promise.all([queryA, queryB])` runs them in parallel: 200ms total.
-
-    Detection: find 2+ `await db.from(` within 5 lines where neither line
-    references a variable from the previous line's result.
-    """
+def check_sequential_awaits():
     issues = []
-    for page in pages:
+    for page in LIVE_PAGES:
         content = read_file(page)
-        if content is None:
+        if not content:
             continue
         lines = content.splitlines()
-
         i = 0
         while i < len(lines):
-            if "await db.from(" not in lines[i]:
+            if "await db.from(" not in lines[i] or lines[i].strip().startswith("//"):
                 i += 1
                 continue
-            if lines[i].strip().startswith("//"):
-                i += 1
-                continue
-
-            # Count consecutive awaits starting here
             run = [i]
             j = i + 1
             while j < min(i + 6, len(lines)):
@@ -262,151 +134,193 @@ def check_sequential_awaits(pages):
                     j += 1
                     continue
                 if "await db.from(" in lines[j]:
-                    run.append(j)
-                    j += 1
+                    run.append(j); j += 1
                 else:
                     break
-
             if len(run) >= SEQUENTIAL_AWAIT_THRESHOLD:
-                # Check they're truly independent (first result not used in second)
-                first_line  = lines[run[0]]
-                second_line = lines[run[1]]
-                # Extract result variable name from first await
-                var_m = re.search(r"const\s*\{[^}]+\}\s*=\s*await", first_line)
+                first, second = lines[run[0]], lines[run[1]]
+                var_m = re.search(r"const\s*\{[^}]+\}\s*=\s*await", first)
                 if var_m:
-                    # Get the variable names
-                    var_names = re.findall(r"\b(\w+)\b", first_line[:first_line.find("= await")])
-                    used_in_second = any(v in second_line for v in var_names if len(v) > 2)
-                    if not used_in_second:
-                        issues.append({
-                            "page":  page,
-                            "lines": [r + 1 for r in run[:2]],
-                            "reason": (
-                                f"{page}:{run[0]+1}-{run[1]+1} — "
-                                f"{len(run)} sequential await db.from() calls — "
-                                f"wrap independent queries in Promise.all() to run "
-                                f"them in parallel and halve load time"
-                            ),
-                        })
-                i = run[-1] + 1
-            else:
-                i += 1
-
+                    var_names = re.findall(r"\b(\w+)\b", first[:first.find("= await")])
+                    if not any(v in second for v in var_names if len(v) > 2):
+                        issues.append({"check": "sequential_awaits", "page": page,
+                                       "lines": [r + 1 for r in run[:2]],
+                                       "skip": True,   # WARN — not broken, just slow
+                                       "reason": f"{page}:{run[0]+1}-{run[1]+1} {len(run)} sequential await db.from() — wrap in Promise.all() to halve load time"})
+            i = run[-1] + 1 if len(run) > 1 else i + 1
     return issues
 
 
-# ── Check 5: body { animation } without JS safety guard ──────────────────────
+# ── Layer 2: JS runtime anti-patterns ────────────────────────────────────────
 
-def check_body_animation_safety_guard(pages):
+def check_set_interval_leak():
     """
-    Pages that animate body opacity (body { animation: page-enter ... forwards })
-    start with the body at opacity:0. Two failure modes cause permanent blank page:
-
-    1. Tailwind CDN in <head> is render-blocking — body is invisible while the
-       CDN downloads. On slow Philippine mobile connections this is 1-5 seconds.
-
-    2. Background tab pause — if the browser tab is opened in the background,
-       CSS animations may pause. When the user switches to the tab, the animation
-       may have "completed" while paused, leaving body at opacity:0 forever with
-       animation-fill-mode: forwards holding that state.
-
-    Required: an animationend safety guard that forces body visible after 800ms:
-        document.body.addEventListener('animationend', fn, { once: true })
-        + setTimeout fallback at 800ms
-
-    This check flags any page where body has an animation CSS rule but no
-    animationend listener is present in the page's inline scripts.
+    Every setInterval() call must be stored in a variable so clearInterval()
+    can stop it. A setInterval with no clearInterval is a memory/CPU leak —
+    the callback keeps firing even after the page component is torn down.
     """
     issues = []
-    for page in pages:
+    for page in LIVE_PAGES:
         content = read_file(page)
-        if content is None:
+        if not content:
             continue
-        has_body_anim = bool(re.search(
-            r"body\s*\{[^}]*\banimation\s*:", content, re.DOTALL
-        ))
-        if not has_body_anim:
+        # Find all setInterval calls
+        intervals = list(re.finditer(r'\bsetInterval\s*\(', content))
+        if not intervals:
             continue
-        has_safety_guard = bool(re.search(
-            r"""addEventListener\s*\(\s*['"]animationend['"]""", content
-        ))
-        if not has_safety_guard:
-            issues.append({
-                "page": page,
-                "reason": (
-                    f"{page} has body {{ animation: ... }} but no animationend "
-                    f"safety guard. If the animation stalls (background tab, CDN "
-                    f"slow, prefers-reduced-motion), the body stays at opacity:0 "
-                    f"permanently. Add an 800ms setTimeout fallback that forces "
-                    f"document.body.style.opacity = '1'."
-                ),
-            })
+        has_clear = "clearInterval" in content
+        if not has_clear:
+            issues.append({"check": "set_interval_leak", "page": page,
+                           "reason": f"{page} calls setInterval() but has no clearInterval() — timers accumulate on repeated navigation and never stop"})
+            continue
+        # Check each setInterval is assigned to a variable
+        for m in intervals:
+            line_start = content.rfind('\n', 0, m.start()) + 1
+            line = content[line_start:content.find('\n', m.start())].strip()
+            if line.startswith("//") or line.startswith("*"):
+                continue
+            # Assigned to a variable? (const x = setInterval / let x = setInterval / x = setInterval)
+            is_assigned = bool(re.search(r'(?:const|let|var)\s+\w+\s*=\s*setInterval|^\s*\w+\s*=\s*setInterval', line))
+            if not is_assigned:
+                line_no = content[:m.start()].count('\n') + 1
+                issues.append({"check": "set_interval_leak", "page": page, "line": line_no,
+                               "reason": f"{page}:{line_no} setInterval() result not stored in a variable — cannot be cleared: `{line[:70]}`"})
     return issues
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+def check_inner_html_concat_in_loop():
+    """
+    `element.innerHTML += ...` inside a loop re-parses the ENTIRE innerHTML on
+    every iteration. 100 items = 100 full DOM re-parses instead of 1.
+    The correct pattern is to build the string first and assign once:
+      let html = items.map(...).join('');
+      element.innerHTML = html;
+    """
+    issues = []
+    for page in LIVE_PAGES:
+        content = read_file(page)
+        if not content:
+            continue
+        lines = content.splitlines()
+        for i, line in enumerate(lines):
+            if "innerHTML +=" not in line:
+                continue
+            if line.strip().startswith("//"):
+                continue
+            # Look back 3 lines for a loop opener
+            window_back = "\n".join(lines[max(0, i - 3):i])
+            if re.search(r"\bforEach\s*\(|\bfor\s*\(|\bfor\s+(?:const|let|var)\b|\bwhile\s*\(", window_back):
+                issues.append({"check": "innerHTML_concat_loop", "page": page, "line": i + 1,
+                               "skip": True,   # WARN — degrades with data size
+                               "reason": f"{page}:{i+1} innerHTML += inside loop — re-parses DOM {'{N}'} times. Build string first, assign once."})
+    return issues
 
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-print("\n" + "=" * 70)
-print("Performance Anti-Pattern Validator")
-print("=" * 70)
+# ── Layer 3: Rendering safety ─────────────────────────────────────────────────
 
-fail_count = 0
-warn_count = 0
-report     = {}
+def check_body_animation_safety_guard():
+    issues = []
+    for page in LIVE_PAGES:
+        content = read_file(page)
+        if not content:
+            continue
+        if not re.search(r"body\s*\{[^}]*\banimation\s*:", content, re.DOTALL):
+            continue
+        if not re.search(r"addEventListener\s*\(\s*['\"]animationend['\"]", content):
+            issues.append({"check": "body_animation_guard", "page": page,
+                           "reason": f"{page} has body {{ animation }} but no animationend safety guard — blank page if animation stalls (background tab or prefers-reduced-motion)"})
+    return issues
 
-checks = [
-    (
-        "[1] No unbounded queries on high-growth tables (logbook, inv_transactions)",
-        check_unbounded_queries(LIVE_PAGES, HIGH_GROWTH_TABLES),
-        "WARN",
-    ),
-    (
-        "[2] No select('*') on wide tables — prefer named columns",
-        check_select_star(LIVE_PAGES, WIDE_TABLES),
-        "WARN",
-    ),
-    (
-        "[3] db.from() calls directly inside loops (N+1 pattern)",
-        check_db_in_loop(LIVE_PAGES),
-        "WARN",
-    ),
-    (
-        "[4] Consecutive sequential await DB calls (Promise.all opportunity)",
-        check_sequential_awaits(LIVE_PAGES),
-        "WARN",
-    ),
-    (
-        "[5] body { animation } has JS animationend safety guard (blank page guard)",
-        check_body_animation_safety_guard(LIVE_PAGES),
-        "FAIL",
-    ),
+
+# ── Layer 4: Scope completeness ───────────────────────────────────────────────
+
+def check_pages_in_scope():
+    """Every .html page that makes db.from() calls should be in LIVE_PAGES."""
+    import glob
+    live_set = set(LIVE_PAGES)
+    issues   = []
+    for path in glob.glob("*.html"):
+        fname = os.path.basename(path)
+        if fname in live_set:
+            continue
+        if any(s in fname for s in ["-test", ".backup", "platform-health", "guardian",
+                                     "parts-tracker", "symbol-gallery", "architecture"]):
+            continue
+        content = read_file(fname)
+        if content and "db.from(" in content:
+            issues.append({"check": "pages_in_scope", "page": fname,
+                           "reason": f"{fname} makes DB calls but is not in validate_performance.py LIVE_PAGES — performance checks never run on it"})
+    return issues
+
+
+# ── Runner ─────────────────────────────────────────────────────────────────────
+
+CHECK_NAMES = [
+    # L1
+    "unbounded_queries", "select_star", "db_in_loop", "sequential_awaits",
+    # L2
+    "set_interval_leak", "innerHTML_concat_loop",
+    # L3
+    "body_animation_guard",
+    # L4
+    "pages_in_scope",
 ]
 
-for label, issues, severity in checks:
-    print(f"\n{label}\n")
-    if not issues:
-        print("  PASS")
+CHECK_LABELS = {
+    # L1
+    "unbounded_queries":    "L1  No unbounded queries on logbook/inv_transactions  [WARN]",
+    "select_star":          "L1  No select('*') on wide tables  [WARN]",
+    "db_in_loop":           "L1  No db.from() inside loops (N+1)  [WARN]",
+    "sequential_awaits":    "L1  No consecutive sequential await DB calls  [WARN]",
+    # L2
+    "set_interval_leak":    "L2  setInterval() result stored for clearInterval",
+    "innerHTML_concat_loop":"L2  No innerHTML += inside loops  [WARN]",
+    # L3
+    "body_animation_guard": "L3  body animation has animationend safety guard",
+    # L4
+    "pages_in_scope":       "L4  All DB-using pages in LIVE_PAGES scope",
+}
+
+
+def main():
+    def bold(s): return f"\033[1m{s}\033[0m"
+    print(bold("\nPerformance Anti-Pattern Validator (4-layer)"))
+    print("=" * 55)
+
+    all_issues = []
+    all_issues += check_unbounded_queries()
+    all_issues += check_select_star()
+    all_issues += check_db_in_loop()
+    all_issues += check_sequential_awaits()
+    all_issues += check_set_interval_leak()
+    all_issues += check_inner_html_concat_in_loop()
+    all_issues += check_body_animation_safety_guard()
+    all_issues += check_pages_in_scope()
+
+    n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
+
+    total = len(CHECK_NAMES)
+    if n_fail == 0 and n_warn == 0:
+        print(f"\033[92m\n  All {total} checks passed.\033[0m")
+    elif n_fail == 0:
+        print(f"\033[93m\n  {n_pass} PASS  {n_warn} WARN  0 FAIL — warnings are known technical debt\033[0m")
     else:
-        for iss in issues:
-            print(f"  {severity}  {iss.get('page', '?')}")
-            print(f"        {iss['reason']}")
-        if severity == "FAIL":
-            fail_count += len(issues)
-        else:
-            warn_count += len(issues)
-    report[label] = issues
+        print(f"\033[91m\n  {n_pass} PASS  {n_warn} WARN  {n_fail} FAIL\033[0m")
 
-print(f"\n{'=' * 70}")
-print(f"Result: {fail_count} FAIL  {warn_count} WARN")
+    report = {
+        "validator":    "performance",
+        "total_checks": total,
+        "passed":       n_pass,
+        "warned":       n_warn,
+        "failed":       n_fail,
+        "issues":       [i for i in all_issues if not i.get("skip")],
+        "warnings":     [i for i in all_issues if i.get("skip")],
+    }
+    with open("performance_report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
 
-with open("performance_report.json", "w") as f:
-    json.dump(report, f, indent=2)
-print("Saved performance_report.json")
+    sys.exit(1 if n_fail > 0 else 0)
 
-if fail_count:
-    print("\nFIX REQUIRED.")
-    sys.exit(1)
-print("\nAll performance checks PASS (warnings are known technical debt).")
+
+if __name__ == "__main__":
+    main()

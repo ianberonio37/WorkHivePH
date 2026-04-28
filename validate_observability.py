@@ -2,42 +2,35 @@
 Observability Validator — WorkHive Platform
 ============================================
 Checks that failures are visible — to the worker AND to developers.
-"Observability" means: when something goes wrong, someone knows.
 
-Without it:
-  - A worker saves a logbook entry, sees "Saved!" but the inventory
-    transaction silently failed — their parts balance is now wrong.
-  - A developer refreshes the page and has no idea why the board didn't load.
-  - A Supabase Realtime channel leaks memory because no one cleaned it up.
+  Layer 1 — Channel hygiene
+    1.  Realtime channel cleanup    — beforeunload removes all opened channels
 
-Four things checked:
+  Layer 2 — Failure visibility
+    2.  Silent DB write failures    — console.error/warn on DB write without showToast nearby
+    3.  Swallowed catch blocks      — } catch(e) { console.xxx } with no toast or rethrow
 
-  1. Realtime channel cleanup  — every page that opens a db.channel() must
-                                 close all channels on window beforeunload.
-                                 Leaked channels = memory buildup + ghost
-                                 subscriptions consuming Supabase quota.
+  Layer 3 — Init safety
+    4.  Top-level init .catch()     — async init functions called at startup have .catch()
 
-  2. Silent DB write failures  — error handlers on DB inserts/upserts that
-                                 only call console.error (no showToast nearby)
-                                 mean the worker has no idea a save failed.
-                                 Checks a 4-line window after each error catch.
+  Layer 4 — Success feedback
+    5.  Critical saves confirm      — logbook save, PM completion, exam submit show toast
+    6.  Analytics runAnalytics      — analytics phase fetch has error feedback
 
-  3. Top-level init catch      — async functions called at page startup
-                                 (DOMContentLoaded, window.onload) must have
-                                 .catch() so init errors don't silently
-                                 leave the page in a broken state.
-
-  4. Critical ops have success toast — logbook save, PM completion, and
-                                 skill exam save must confirm success to the
-                                 worker with a showToast call so they know
-                                 the action was recorded.
+  Layer 5 — Scope
+    7.  All pages in scope          — analytics.html and new pages included
 
 Usage:  python validate_observability.py
 Output: observability_report.json
 """
 import re, json, sys
 
-# Pages to scan
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+from validator_utils import read_file, format_result
+
 LIVE_PAGES = [
     "logbook.html",
     "inventory.html",
@@ -47,310 +40,287 @@ LIVE_PAGES = [
     "assistant.html",
     "dayplanner.html",
     "engineering-design.html",
+    "analytics.html",
 ]
 
-# Pages that use Supabase Realtime — must have beforeunload cleanup
-REALTIME_PAGES = ["hive.html"]
-
-# Critical save functions: each must have a showToast confirming success.
-# Format: (page, function_pattern, description)
 CRITICAL_SAVES = [
     (
         "logbook.html",
         r"async function saveEntry\b|async function saveNew\b",
-        "logbook save must confirm success to the worker via showToast",
+        "logbook save must confirm success via showToast",
     ),
     (
         "pm-scheduler.html",
-        r"async function completeTask\b|markComplete\b",
-        "PM completion must confirm success to the worker via showToast",
+        r"async function submitCompletion\b|async function completeTask\b",
+        "PM completion must confirm success via showToast",
     ),
     (
         "skillmatrix.html",
         r"async function submitExam\b|submitExam\s*=",
-        "skill exam submit must confirm result to the worker via showToast",
+        "skill exam submit must confirm result via showToast",
     ),
 ]
 
 
-def read_file(path):
-    try:
-        with open(path, encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
-        return None
-
-
-# ── Check 1: Realtime channel beforeunload cleanup ────────────────────────────
+# ── Layer 1: Channel hygiene ──────────────────────────────────────────────────
 
 def check_realtime_cleanup(pages):
-    """
-    Every page that opens a Supabase Realtime channel must close all its
-    channels when the user navigates away (window beforeunload event).
-    Unclosed channels keep running server-side, consuming Supabase quota
-    and triggering memory leaks in long-running browser sessions.
-
-    Safe pattern:
-      window.addEventListener('beforeunload', () => {
-        db.removeChannel(myChannel);
-      });
-    """
     issues = []
     for page in pages:
         content = read_file(page)
-        if content is None:
+        if not content:
             continue
-
-        # Count channels opened
         channels_opened = re.findall(r"db\.channel\s*\(", content)
         if not channels_opened:
-            continue   # page doesn't use realtime
-
-        # Count removeChannel calls inside a beforeunload handler
+            continue
         unload_m = re.search(
             r"addEventListener\s*\(\s*['\"]beforeunload['\"][\s\S]{0,1000}?removeChannel",
             content
         )
         if not unload_m:
-            issues.append({
-                "page":     page,
-                "channels": len(channels_opened),
-                "reason": (
-                    f"{page} opens {len(channels_opened)} Supabase Realtime channel(s) "
-                    f"but has no beforeunload listener calling removeChannel — "
-                    f"channels leak on page navigation"
-                ),
-            })
+            issues.append({"check": "realtime_cleanup", "page": page,
+                           "channels": len(channels_opened),
+                           "reason": f"{page} opens {len(channels_opened)} Realtime channel(s) but no beforeunload removeChannel — channels leak on navigation"})
         else:
-            # Also count removeChannel calls in the unload section
             unload_block = content[unload_m.start():unload_m.start() + 600]
-            removes = re.findall(r"removeChannel", unload_block)
-            if len(removes) < len(channels_opened):
-                issues.append({
-                    "page":     page,
-                    "opened":   len(channels_opened),
-                    "removed":  len(removes),
-                    "reason": (
-                        f"{page} opens {len(channels_opened)} channel(s) but beforeunload "
-                        f"only removes {len(removes)} — "
-                        f"{len(channels_opened) - len(removes)} channel(s) may leak"
-                    ),
-                })
+            removes = len(re.findall(r"removeChannel", unload_block))
+            if removes < len(channels_opened):
+                issues.append({"check": "realtime_cleanup", "page": page,
+                               "opened": len(channels_opened), "removed": removes,
+                               "reason": f"{page} opens {len(channels_opened)} channels but beforeunload only removes {removes} — {len(channels_opened)-removes} leak"})
     return issues
 
 
-# ── Check 2: Silent DB write failures ─────────────────────────────────────────
+# ── Layer 2: Failure visibility ───────────────────────────────────────────────
 
 def check_silent_failures(pages):
     """
-    Error handlers on DB writes that call console.error but NOT showToast
-    within the next 4 lines are silent failures — the worker has no idea
-    the save failed.
-
-    Silent (bad):
-      if (txnErr) console.error('txn insert:', txnErr.message);
-      showToast('Entry updated.');    ← this toast is for a DIFFERENT operation
-
-    Visible (good):
-      if (txnErr) {
-        console.error('txn insert:', txnErr.message);
-        showToast('Transaction record failed: ' + txnErr.message);
-      }
+    Single-line if(err) console.error (not warn) without showToast = silent failure.
+    console.warn is excluded — it signals the developer intentionally treated
+    this as a non-critical, expected failure (background sync, fallback op).
     """
     issues = []
     for page in pages:
         content = read_file(page)
-        if content is None:
+        if not content:
             continue
         lines = content.splitlines()
-
         for i, line in enumerate(lines):
-            # Is this line an error check on a DB write result?
             if not re.search(r"if\s*\(\s*\w*[Ee]rr\w*\b", line):
                 continue
             if "console.error" not in line:
-                continue
-            # Is it a standalone one-liner (no block)?  e.g. if (err) console.error(...)
+                continue   # console.warn = intentionally non-critical, skip
             if "{" in line:
-                continue   # block form — showToast likely on next line, handled
-
-            # Check the surrounding 4 lines for showToast
-            window_start = max(0, i - 1)
-            window_end   = min(len(lines), i + 4)
-            window_text  = "\n".join(lines[window_start:window_end])
-
-            if "showToast" not in window_text:
-                issues.append({
-                    "page": page,
-                    "line": i + 1,
-                    "code": line.strip()[:80],
-                    "reason": (
-                        f"{page}:{i + 1} — DB write error silently logged "
-                        f"(no showToast within 4 lines): `{line.strip()[:60]}`"
-                    ),
-                })
+                continue   # block form — showToast likely inside
+            window = "\n".join(lines[max(0, i - 1):min(len(lines), i + 4)])
+            if "showToast" not in window:
+                issues.append({"check": "silent_failures", "page": page, "line": i + 1,
+                               "reason": f"{page}:{i+1} DB write console.error with no showToast nearby: `{line.strip()[:70]}`"})
     return issues
 
 
-# ── Check 3: Top-level async init calls have catch handlers ───────────────────
-
-def check_init_catches(pages):
+def check_swallowed_catches(pages):
     """
-    Async functions called at page startup must have .catch() so that if
-    initialisation fails (e.g. Supabase is unreachable), the error is
-    visible rather than leaving the page silently broken.
-
-    Risky pattern:
-      document.addEventListener('DOMContentLoaded', () => {
-        initApp();    ← async, no .catch()
-      });
-
-    Safe pattern:
-      initApp().catch(err => showToast('Could not load: ' + err.message));
+    Catch blocks that:
+    - contain console.error (not warn — warn = intentional non-critical handling)
+    - AND have no showToast, throw, or rethrow
+    - AND take no fallback action (no assignment, no display change, no return value)
+    These completely hide errors from the worker with no recovery path.
     """
     issues = []
     for page in pages:
         content = read_file(page)
-        if content is None:
+        if not content:
             continue
+        lines = content.splitlines()
+        for i, line in enumerate(lines):
+            if not re.search(r"}\s*catch\s*\(|\.catch\s*\(console\.error", line):
+                continue
+            if line.strip().startswith("//"):
+                continue
+            block_lines = lines[i:min(len(lines), i + 8)]
+            block = "\n".join(block_lines)
+            # Must have console.error (not warn) to qualify
+            if "console.error" not in block and ".catch(console.error)" not in line:
+                continue
+            # Safe patterns: toast, throw, fallback assignment, display change
+            if re.search(r"showToast|throw\s|showError|=\s*JSON\.parse|=\s*\[\]|\.style\.|\.display|fallback|Fall", block):
+                continue
+            # .catch(console.error) inline — the catch IS the handler
+            if re.search(r"\.catch\s*\(console\.error\)", line):
+                issues.append({"check": "swallowed_catches", "page": page, "line": i + 1,
+                               "reason": f"{page}:{i+1} .catch(console.error) swallows error silently — worker has no feedback: `{line.strip()[:70]}`"})
+                continue
+            # Block catch with only error log and no action
+            non_trivial = [l for l in block_lines[1:] if l.strip() and
+                           not l.strip().startswith("//") and
+                           not l.strip().startswith("}") and
+                           not re.match(r"^\s*console\.", l)]
+            if not non_trivial:
+                issues.append({"check": "swallowed_catches", "page": page, "line": i + 1,
+                               "reason": f"{page}:{i+1} catch block only logs error, no user feedback or fallback: `{line.strip()[:70]}`"})
+    return issues
 
-        # Find async top-level init calls that lack .catch
-        # Pattern: standalone function call at the start of a line (not inside a function body)
-        # inside a DOMContentLoaded or similar boot block
+
+# ── Layer 3: Init safety ──────────────────────────────────────────────────────
+
+def check_init_catches(pages):
+    issues = []
+    for page in pages:
+        content = read_file(page)
+        if not content:
+            continue
         boot_m = re.search(
             r"addEventListener\s*\(\s*['\"]DOMContentLoaded['\"][\s\S]{0,2000}?\}\s*\)",
             content
         )
         if not boot_m:
             continue
-
         boot_block = boot_m.group(0)
-
-        # Find async calls without .catch() in the boot block
-        bare_calls = re.findall(
-            r"^\s{2,8}(\w+)\s*\(\s*\)\s*;",   # indented call with no chained .catch
-            boot_block, re.MULTILINE
-        )
-        for call in bare_calls:
-            # Skip known sync helpers
+        for call in re.findall(r"^\s{2,8}(\w+)\s*\(\s*\)\s*;", boot_block, re.MULTILINE):
             if call.lower() in {"return", "if", "else", "for", "while", "const", "let", "var"}:
                 continue
-            # Check if this function is defined as async in the same file
             if not re.search(rf"async function {re.escape(call)}\b", content):
                 continue
-            # Check if .catch is chained or try/catch wraps it
-            call_pat = re.search(
-                rf"\b{re.escape(call)}\s*\(\s*\)\s*[;.]",
-                boot_block
-            )
+            call_pat = re.search(rf"\b{re.escape(call)}\s*\(\s*\)\s*[;.]", boot_block)
             if call_pat:
                 snippet = boot_block[call_pat.start():call_pat.start() + 60]
-                if ".catch" not in snippet and "try" not in boot_block[max(0, call_pat.start()-20):call_pat.start()]:
-                    issues.append({
-                        "page": page,
-                        "call": call,
-                        "reason": (
-                            f"{page} — async init function `{call}()` called in "
-                            f"DOMContentLoaded without .catch() — "
-                            f"init errors will leave the page silently broken"
-                        ),
-                    })
+                before  = boot_block[max(0, call_pat.start() - 20):call_pat.start()]
+                if ".catch" not in snippet and "try" not in before:
+                    issues.append({"check": "init_catches", "page": page, "call": call,
+                                   "skip": True,   # WARN — not always critical
+                                   "reason": f"{page} async init `{call}()` in DOMContentLoaded without .catch() — init errors leave page silently broken"})
     return issues
 
 
-# ── Check 4: Critical saves confirm success to the worker ────────────────────
+# ── Layer 4: Success feedback ─────────────────────────────────────────────────
 
 def check_success_feedback(saves):
-    """
-    Critical save operations must tell the worker the action was recorded.
-    Without a success toast, the worker has no confirmation — they may
-    submit twice, or leave thinking the save worked when it didn't.
-    """
     issues = []
-    for page, func_pattern, description in saves:
+    for page, func_pattern, desc in saves:
         content = read_file(page)
-        if content is None:
+        if not content:
             continue
-
-        # Find the function body
         m = re.search(func_pattern, content)
         if not m:
-            continue   # function not found — different name, skip
-
-        # Extract function body (next 60 lines after declaration)
-        start = m.start()
-        lines = content[start:start + 3000].splitlines()[:60]
-        body  = "\n".join(lines)
-
+            continue
+        body = "\n".join(content[m.start():m.start() + 3000].splitlines()[:60])
         if "showToast" not in body:
-            issues.append({
-                "page":   page,
-                "reason": (
-                    f"{page} — {description} — "
-                    f"no showToast found in first 60 lines of the save function"
-                ),
-            })
+            issues.append({"check": "success_feedback", "page": page,
+                           "reason": f"{page} — {desc} — no showToast found in save function"})
     return issues
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+def check_analytics_error_feedback(pages):
+    """
+    The analytics runAnalytics function must show a toast on error so workers
+    know when an analysis failed (not just a silent empty results panel).
+    """
+    page = "analytics.html"
+    if page not in pages:
+        return []
+    content = read_file(page)
+    if not content:
+        return []
+    m = re.search(r"async function runAnalytics\s*\(", content)
+    if not m:
+        return []
+    body = content[m.start():m.start() + 2000]
+    if "showToast" not in body:
+        return [{"check": "analytics_error_feedback", "page": page,
+                 "reason": f"{page} runAnalytics() has no showToast — analysis failures are invisible to the worker"}]
+    return []
 
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-print("\n" + "=" * 70)
-print("Observability Validator")
-print("=" * 70)
+# ── Layer 5: Scope ────────────────────────────────────────────────────────────
 
-fail_count = 0
-warn_count = 0
-report     = {}
+def check_pages_in_scope():
+    import glob, os
+    live_set = set(LIVE_PAGES)
+    issues   = []
+    for path in glob.glob("*.html"):
+        fname = os.path.basename(path)
+        if fname in live_set:
+            continue
+        if any(s in fname for s in ["-test", ".backup", "platform-health", "guardian",
+                                     "parts-tracker", "symbol-gallery", "architecture"]):
+            continue
+        content = read_file(fname)
+        if content and "db.channel(" in content:
+            issues.append({"check": "pages_in_scope", "page": fname,
+                           "reason": f"{fname} uses Realtime channels but is not in validate_observability.py LIVE_PAGES"})
+    return issues
 
-checks = [
-    (
-        "[1] Realtime channel beforeunload cleanup",
-        check_realtime_cleanup(LIVE_PAGES),
-        "FAIL",
-    ),
-    (
-        "[2] No silent DB write failures (console.error without showToast)",
-        check_silent_failures(LIVE_PAGES),
-        "FAIL",
-    ),
-    (
-        "[3] Top-level async init calls have .catch() handlers",
-        check_init_catches(LIVE_PAGES),
-        "WARN",
-    ),
-    (
-        "[4] Critical saves confirm success to the worker (showToast)",
-        check_success_feedback(CRITICAL_SAVES),
-        "FAIL",
-    ),
+
+# ── Runner ─────────────────────────────────────────────────────────────────────
+
+CHECK_NAMES = [
+    # L1
+    "realtime_cleanup",
+    # L2
+    "silent_failures", "swallowed_catches",
+    # L3
+    "init_catches",
+    # L4
+    "success_feedback", "analytics_error_feedback",
+    # L5
+    "pages_in_scope",
 ]
 
-for label, issues, severity in checks:
-    print(f"\n{label}\n")
-    if not issues:
-        print("  PASS")
+CHECK_LABELS = {
+    # L1
+    "realtime_cleanup":          "L1  Realtime channels removed on beforeunload",
+    # L2
+    "silent_failures":           "L2  No silent DB write failures (console.error/warn only)",
+    "swallowed_catches":         "L2  No catch blocks that swallow errors silently",
+    # L3
+    "init_catches":              "L3  Async init functions have .catch()  [WARN]",
+    # L4
+    "success_feedback":          "L4  Critical saves confirm success via showToast",
+    "analytics_error_feedback":  "L4  analytics runAnalytics shows toast on error",
+    # L5
+    "pages_in_scope":            "L5  All Realtime pages in LIVE_PAGES scope",
+}
+
+
+def main():
+    def bold(s): return f"\033[1m{s}\033[0m"
+    print(bold("\nObservability Validator (4-layer)"))
+    print("=" * 55)
+
+    all_issues = []
+    all_issues += check_realtime_cleanup(LIVE_PAGES)
+    all_issues += check_silent_failures(LIVE_PAGES)
+    all_issues += check_swallowed_catches(LIVE_PAGES)
+    all_issues += check_init_catches(LIVE_PAGES)
+    all_issues += check_success_feedback(CRITICAL_SAVES)
+    all_issues += check_analytics_error_feedback(LIVE_PAGES)
+    all_issues += check_pages_in_scope()
+
+    n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
+
+    total = len(CHECK_NAMES)
+    if n_fail == 0 and n_warn == 0:
+        print(f"\033[92m\n  All {total} checks passed.\033[0m")
+    elif n_fail == 0:
+        print(f"\033[93m\n  {n_pass} PASS  {n_warn} WARN  0 FAIL — warnings are informational\033[0m")
     else:
-        for iss in issues:
-            print(f"  {severity}  {iss.get('page', '?')}")
-            print(f"        {iss['reason']}")
-        if severity == "FAIL":
-            fail_count += len(issues)
-        else:
-            warn_count += len(issues)
-    report[label] = issues
+        print(f"\033[91m\n  {n_pass} PASS  {n_warn} WARN  {n_fail} FAIL\033[0m")
 
-print(f"\n{'=' * 70}")
-print(f"Result: {fail_count} FAIL  {warn_count} WARN")
+    report = {
+        "validator":    "observability",
+        "total_checks": total,
+        "passed":       n_pass,
+        "warned":       n_warn,
+        "failed":       n_fail,
+        "issues":       [i for i in all_issues if not i.get("skip")],
+        "warnings":     [i for i in all_issues if i.get("skip")],
+    }
+    with open("observability_report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
 
-with open("observability_report.json", "w") as f:
-    json.dump(report, f, indent=2)
-print("Saved observability_report.json")
+    sys.exit(1 if n_fail > 0 else 0)
 
-if fail_count:
-    print("\nFIX REQUIRED.")
-    sys.exit(1)
-print("\nAll observability checks PASS.")
+
+if __name__ == "__main__":
+    main()

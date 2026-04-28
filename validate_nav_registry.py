@@ -1,275 +1,255 @@
 """
 Nav Hub Registry Validator — WorkHive Platform
-===============================================
+================================================
 As WorkHive grows, new tools get added. Every new tool page must be
-registered in exactly the right places — nav-hub.js (so workers can
-find it), and must follow the standard boot pattern (identity key,
-nav widget). A page that is built but not registered is invisible.
-A page that has the wrong identity key breaks session continuity.
+registered correctly in nav-hub.js. A page built but not registered
+is invisible to workers. A misconfigured entry causes dead links,
+blank tiles, or wrong active-state highlighting.
 
-From the Codebase Integrity and Architect skill files.
+  Layer 1 — File integrity
+    1.  All TOOLS hrefs exist      — every href resolves to a real file on disk
+    2.  Retired pages not active   — parts-tracker / checklist not in TOOLS
 
-Four things checked:
+  Layer 2 — TOOLS entry completeness
+    3.  Every tool has a match[]   — getCurrentTool() needs match to highlight active page
+    4.  Every tool has an icon     — missing icon = blank tile in production
+    5.  No duplicate hrefs         — two tools pointing to same page = double nav entry
 
-  1. All TOOLS files exist on disk
-     — Every href in the nav-hub.js TOOLS array must resolve to a real
-       file. If a page is renamed or deleted without updating nav-hub.js,
-       workers click the nav tile and get a 404 with no explanation.
+  Layer 3 — Runtime correctness
+    6.  match[] values are unique  — two tools sharing a match value = wrong active highlight
+    7.  All TOOLS pages use 3-key identity chain — wh_last_worker || wh_worker_name || workerName
 
-  2. Retired pages not in TOOLS as active tools
-     — parts-tracker.html and checklist.html are retired. They must not
-       appear as active hrefs in the TOOLS array. A retired page in the
-       nav is a dead link that confuses workers.
-
-  3. All TOOLS pages use the 3-key identity fallback chain
-     — Every app page in TOOLS must read the worker identity from all
-       three localStorage keys in order:
-         wh_last_worker || wh_worker_name || workerName
-       Missing any key breaks identity resolution when workers switch
-       devices or browsers where only one key was set.
-
-  4. All TOOLS pages load nav-hub.js
-     — Every page in TOOLS must include <script src="nav-hub.js"> before
-       </body>. nav-hub.js provides both the navigation widget AND the
-       floating AI assistant. A page missing it has no navigation and
-       no AI help for the worker.
+  Layer 4 — Widget availability
+    8.  All TOOLS pages load nav-hub.js — missing it = no navigation + no AI widget
 
 Usage:  python validate_nav_registry.py
 Output: nav_registry_report.json
 """
 import re, json, sys, os
 
-NAV_HUB_JS = "nav-hub.js"
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-# Pages that are retired — must not appear as active tool hrefs
+from validator_utils import read_file, format_result
+
+NAV_HUB_JS    = "nav-hub.js"
 RETIRED_PAGES = {"parts-tracker.html", "checklist.html"}
-
-# The 3-key fallback chain from the Codebase Integrity skill
-# All 3 must appear in the identity lookup for full cross-device compatibility
 IDENTITY_KEYS = ["wh_last_worker", "wh_worker_name", "workerName"]
-
-# Pages that intentionally do NOT need a worker identity
-# (landing page and admin/internal tools)
 IDENTITY_EXEMPT = {"index.html"}
 
 
-def read_file(path):
-    try:
-        with open(path, encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
-        return None
-
+# ── Helpers ───────────────────────────────────────────────────────────────────
 
 def extract_tools(nav_content):
-    """
-    Parse the TOOLS array from nav-hub.js.
-    Returns list of dicts with 'label' and 'href'.
-    """
+    """Parse the TOOLS array from nav-hub.js into a list of dicts."""
     tools = []
     m = re.search(r"const TOOLS\s*=\s*\[([\s\S]+?)\];", nav_content)
     if not m:
         return tools
     block = m.group(1)
-    # Each tool object spans between consecutive { ... } blocks
     for obj_m in re.finditer(r"\{([^{}]+)\}", block, re.DOTALL):
         obj = obj_m.group(1)
         label_m = re.search(r"label:\s*['\"]([^'\"]+)['\"]", obj)
         href_m  = re.search(r"href:\s*['\"]([^'\"]+)['\"]", obj)
+        # match: ['...', '...']
+        match_m = re.search(r"match:\s*\[([^\]]+)\]", obj)
+        # icon: `...` or icon: '...' or icon: "..."
+        has_icon = bool(re.search(r"\bicon\s*:", obj))
         if label_m and href_m:
-            tools.append({"href": href_m.group(1), "label": label_m.group(1)})
+            match_vals = re.findall(r"['\"]([^'\"]+)['\"]", match_m.group(1)) if match_m else []
+            tools.append({
+                "href":       href_m.group(1),
+                "label":      label_m.group(1),
+                "match":      match_vals,
+                "has_match":  bool(match_m),
+                "has_icon":   has_icon,
+            })
     return tools
 
 
-# ── Check 1: All TOOLS hrefs resolve to existing files ───────────────────────
+# ── Layer 1: File integrity ───────────────────────────────────────────────────
 
 def check_files_exist(tools):
-    """
-    Every href in the TOOLS array must be a file that actually exists.
-    A dead link in the navigation is a confusing failure for workers —
-    they tap a tile, the browser loads a blank page, and they don't know
-    why the tool isn't working.
-    """
-    issues = []
-    for tool in tools:
-        href = tool["href"]
-        if not os.path.exists(href):
-            issues.append({
-                "page":  NAV_HUB_JS,
-                "href":  href,
-                "label": tool["label"],
-                "reason": (
-                    f"nav-hub.js TOOLS references '{href}' (label: '{tool['label']}') "
-                    f"but the file does not exist — workers will get a 404 when "
-                    f"tapping this nav tile"
-                ),
-            })
-    return issues
+    return [{"check": "files_exist", "page": NAV_HUB_JS, "href": t["href"],
+             "reason": f"nav-hub.js TOOLS references '{t['href']}' ('{t['label']}') but the file does not exist — workers get a 404"}
+            for t in tools if not os.path.exists(t["href"])]
 
-
-# ── Check 2: Retired pages not in TOOLS as active tools ──────────────────────
 
 def check_retired_not_active(tools):
+    return [{"check": "retired_not_active", "page": NAV_HUB_JS, "href": t["href"],
+             "reason": f"Retired page '{t['href']}' ('{t['label']}') is still in TOOLS — workers navigate to a dead or outdated page"}
+            for t in tools if t["href"] in RETIRED_PAGES]
+
+
+# ── Layer 2: TOOLS entry completeness ────────────────────────────────────────
+
+def check_match_arrays_present(tools):
     """
-    Retired pages must not appear as active tool hrefs in the TOOLS array.
-    If they do, workers navigate to a page that either 404s or shows
-    outdated, unmaintained functionality.
+    Every tool needs a match[] array so getCurrentTool() can highlight the
+    active page. Without it, the tool tile never shows as active/current —
+    workers have no visual cue about where they are in the platform.
     """
+    return [{"check": "match_arrays_present", "page": NAV_HUB_JS, "href": t["href"],
+             "reason": f"'{t['label']}' ({t['href']}) has no match[] array — getCurrentTool() will never identify this as the active page"}
+            for t in tools if not t["has_match"]]
+
+
+def check_icons_present(tools):
+    """
+    Every tool must have an icon field. A missing icon renders as a blank
+    space in the nav grid — visually broken and confusing on small screens.
+    """
+    return [{"check": "icons_present", "page": NAV_HUB_JS, "href": t["href"],
+             "reason": f"'{t['label']}' ({t['href']}) has no icon — nav tile renders blank in the tool grid"}
+            for t in tools if not t["has_icon"]]
+
+
+def check_no_duplicate_hrefs(tools):
+    """Two tools with the same href appear as duplicate entries in the nav grid."""
+    seen  = {}
     issues = []
-    for tool in tools:
-        if tool["href"] in RETIRED_PAGES:
-            issues.append({
-                "page":   NAV_HUB_JS,
-                "href":   tool["href"],
-                "label":  tool["label"],
-                "reason": (
-                    f"Retired page '{tool['href']}' ('{tool['label']}') is "
-                    f"still listed as an active tool in nav-hub.js TOOLS — "
-                    f"remove it or mark it as retired"
-                ),
-            })
+    for t in tools:
+        if t["href"] in seen:
+            issues.append({"check": "no_duplicate_hrefs", "page": NAV_HUB_JS, "href": t["href"],
+                           "reason": f"href '{t['href']}' appears twice in TOOLS ('{seen[t['href']]}' and '{t['label']}') — duplicate nav tile"})
+        else:
+            seen[t["href"]] = t["label"]
     return issues
 
 
-# ── Check 3: All TOOLS pages use the 3-key identity fallback chain ───────────
+# ── Layer 3: Runtime correctness ─────────────────────────────────────────────
+
+def check_match_values_unique(tools):
+    """
+    If two tools share a match[] value (e.g., both match 'hive'),
+    getCurrentTool() always returns the first one — the second tool tile
+    never highlights as active, no matter which page the worker is on.
+    """
+    seen   = {}
+    issues = []
+    for t in tools:
+        for val in t["match"]:
+            if val in seen:
+                issues.append({"check": "match_values_unique", "page": NAV_HUB_JS,
+                               "match_value": val,
+                               "reason": f"match value '{val}' used by both '{seen[val]}' and '{t['label']}' — getCurrentTool() always returns the first match, second tool never shows as active"})
+            else:
+                seen[val] = t["label"]
+    return issues
+
 
 def check_identity_keys(tools):
-    """
-    Every app page must read the worker identity from all three localStorage
-    keys in the standard fallback order:
-      localStorage.getItem('wh_last_worker') ||
-      localStorage.getItem('wh_worker_name') ||
-      localStorage.getItem('workerName')
-
-    Missing any key breaks identity when a worker's device has only the
-    older key set. For example, a worker who signed in before the key was
-    renamed would have 'workerName' but not 'wh_last_worker' — missing the
-    fallback means the app thinks they're anonymous.
-    """
     issues = []
-    for tool in tools:
-        href = tool["href"]
-        if href in IDENTITY_EXEMPT:
+    for t in tools:
+        if t["href"] in IDENTITY_EXEMPT:
             continue
-        content = read_file(href)
-        if content is None:
+        content = read_file(t["href"])
+        if not content:
             continue
-
         for key in IDENTITY_KEYS:
             if key not in content:
-                issues.append({
-                    "page":  href,
-                    "key":   key,
-                    "label": tool["label"],
-                    "reason": (
-                        f"{href} ('{tool['label']}') does not reference identity "
-                        f"key '{key}' — workers whose session used this key "
-                        f"will be treated as anonymous on this page"
-                    ),
-                })
+                issues.append({"check": "identity_keys", "page": t["href"], "key": key,
+                               "reason": f"{t['href']} ('{t['label']}') missing identity key '{key}' — workers who set only this key are treated as anonymous"})
     return issues
 
 
-# ── Check 4: All TOOLS pages load nav-hub.js ─────────────────────────────────
+# ── Layer 4: Widget availability ─────────────────────────────────────────────
 
 def check_nav_hub_loaded(tools):
-    """
-    Every page in TOOLS must load nav-hub.js before </body>.
-    nav-hub.js provides:
-    - The navigation hub widget (tile grid, recents, quick access)
-    - The floating AI assistant
-    - The page context detection for AI responses
-
-    A page missing nav-hub.js means the worker has no navigation
-    between tools and no AI assistant — they're stranded on that page.
-    """
     issues = []
-    for tool in tools:
-        href = tool["href"]
-        content = read_file(href)
-        if content is None:
+    for t in tools:
+        content = read_file(t["href"])
+        if not content:
             continue
-
         if 'src="nav-hub.js"' not in content and "src='nav-hub.js'" not in content:
-            issues.append({
-                "page":  href,
-                "label": tool["label"],
-                "reason": (
-                    f"{href} ('{tool['label']}') is in the TOOLS array but does "
-                    f"not load nav-hub.js — workers on this page have no navigation "
-                    f"widget and no AI assistant"
-                ),
-            })
+            issues.append({"check": "nav_hub_loaded", "page": t["href"],
+                           "reason": f"{t['href']} ('{t['label']}') is in TOOLS but does not load nav-hub.js — workers have no navigation widget and no AI assistant"})
     return issues
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+# ── Runner ─────────────────────────────────────────────────────────────────────
 
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-
-print("\n" + "=" * 70)
-print("Nav Hub Registry Validator")
-print("=" * 70)
-
-nav_content = read_file(NAV_HUB_JS)
-if not nav_content:
-    print(f"\n  ERROR: {NAV_HUB_JS} not found")
-    sys.exit(1)
-
-tools = extract_tools(nav_content)
-print(f"\n  Found {len(tools)} tools in TOOLS array: "
-      f"{', '.join(t['label'] for t in tools)}\n")
-
-fail_count = 0
-warn_count = 0
-report     = {}
-
-checks = [
-    (
-        "[1] All TOOLS hrefs point to existing files",
-        check_files_exist(tools),
-        "FAIL",
-    ),
-    (
-        "[2] Retired pages not listed as active tools in TOOLS",
-        check_retired_not_active(tools),
-        "FAIL",
-    ),
-    (
-        "[3] All TOOLS pages use the 3-key identity fallback chain",
-        check_identity_keys(tools),
-        "FAIL",
-    ),
-    (
-        "[4] All TOOLS pages load nav-hub.js",
-        check_nav_hub_loaded(tools),
-        "FAIL",
-    ),
+CHECK_NAMES = [
+    # L1
+    "files_exist", "retired_not_active",
+    # L2
+    "match_arrays_present", "icons_present", "no_duplicate_hrefs",
+    # L3
+    "match_values_unique", "identity_keys",
+    # L4
+    "nav_hub_loaded",
 ]
 
-for label, issues, severity in checks:
-    print(f"\n{label}\n")
-    if not issues:
-        print("  PASS")
+CHECK_LABELS = {
+    # L1
+    "files_exist":          "L1  All TOOLS hrefs point to existing files",
+    "retired_not_active":   "L1  Retired pages not listed as active tools",
+    # L2
+    "match_arrays_present": "L2  Every tool has a match[] array",
+    "icons_present":        "L2  Every tool has an icon",
+    "no_duplicate_hrefs":   "L2  No duplicate hrefs in TOOLS",
+    # L3
+    "match_values_unique":  "L3  match[] values are unique across all tools",
+    "identity_keys":        "L3  All TOOLS pages use 3-key identity chain",
+    # L4
+    "nav_hub_loaded":       "L4  All TOOLS pages load nav-hub.js",
+}
+
+
+def main():
+    def bold(s): return f"\033[1m{s}\033[0m"
+    print(bold("\nNav Hub Registry Validator (4-layer)"))
+    print("=" * 55)
+
+    nav_content = read_file(NAV_HUB_JS)
+    if not nav_content:
+        print(f"  ERROR: {NAV_HUB_JS} not found")
+        sys.exit(1)
+
+    tools = extract_tools(nav_content)
+    print(f"  {len(tools)} tools in TOOLS array: {', '.join(t['label'] for t in tools)}\n")
+
+    all_issues = []
+
+    # L1
+    all_issues += check_files_exist(tools)
+    all_issues += check_retired_not_active(tools)
+
+    # L2
+    all_issues += check_match_arrays_present(tools)
+    all_issues += check_icons_present(tools)
+    all_issues += check_no_duplicate_hrefs(tools)
+
+    # L3
+    all_issues += check_match_values_unique(tools)
+    all_issues += check_identity_keys(tools)
+
+    # L4
+    all_issues += check_nav_hub_loaded(tools)
+
+    n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
+
+    total = len(CHECK_NAMES)
+    if n_fail == 0:
+        print(f"\033[92m\n  All {total} checks passed.\033[0m")
     else:
-        for iss in issues:
-            print(f"  {severity}  {iss.get('page', '?')}")
-            print(f"        {iss['reason']}")
-        if severity == "FAIL":
-            fail_count += len(issues)
-        else:
-            warn_count += len(issues)
-    report[label] = issues
+        print(f"\033[91m\n  {n_pass} PASS  {n_skip} SKIP  {n_fail} FAIL\033[0m")
 
-print(f"\n{'=' * 70}")
-print(f"Result: {fail_count} FAIL  {warn_count} WARN")
+    report = {
+        "validator":    "nav_registry",
+        "total_checks": total,
+        "passed":       n_pass,
+        "skipped":      n_skip,
+        "failed":       n_fail,
+        "tools_found":  len(tools),
+        "issues":       [i for i in all_issues if not i.get("skip")],
+    }
+    with open("nav_registry_report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
 
-with open("nav_registry_report.json", "w") as f:
-    json.dump(report, f, indent=2)
-print("Saved nav_registry_report.json")
+    sys.exit(1 if n_fail > 0 else 0)
 
-if fail_count:
-    print("\nFIX REQUIRED.")
-    sys.exit(1)
-print("\nAll nav registry checks PASS.")
+
+if __name__ == "__main__":
+    main()

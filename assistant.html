@@ -741,7 +741,7 @@ ${scheduleText}
         document.getElementById('worker-name').value = savedName;
         startChat();
       } else {
-        loadRecordsSummary().catch(console.error);
+        loadRecordsSummary().catch(e => { console.error('loadRecordsSummary:', e); showToast('Could not load your records — check your connection.'); });
       }
     });
   </script>

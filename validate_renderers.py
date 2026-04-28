@@ -119,6 +119,18 @@ JS_NOISE = {
     "results", "data", "inputs_used", "narrative", "error",
     "bom", "sow", "not_implemented", "source", "calc_type",
     "calculation_source", "standard",
+    # Nested array item fields — from results.array.map(r => r.xxx)
+    # validate_renderers checks all r.xxx against top-level keys but these
+    # come from nested objects (e.g. size_comparison, candidates arrays).
+    # They are valid — the validator just can't see the nesting context.
+    "is_selected",   # size_comparison items in Voltage Drop
+    "size_mm2",      # size_comparison items (candidate conductor sizes)
+    "vd_v",          # voltage drop per candidate (distinct from top-level vd_volts)
+    "dia_mm",        # size_comparison items in Water Supply Pipe Sizing
+    "velocity",      # pipe velocity per candidate (distinct from top-level pipe_velocity)
+    "ok",            # pass/fail per candidate size
+    "recommended",   # recommended flag per candidate
+    "hf_per_m",      # head loss per meter per candidate
 }
 
 

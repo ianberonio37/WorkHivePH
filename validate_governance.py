@@ -4,88 +4,74 @@ Data Governance Validator — WorkHive Platform
 Governance means: data belongs to someone, only the right people can
 touch it, and nothing sensitive leaks where it shouldn't.
 
-Without it:
-  - A worker saves data with no owner tag — impossible to filter by hive later.
-  - A delete operation only scopes by 'id' — any row could be deleted by ID.
-  - A privileged action (approve, kick) has no role check — any worker executes it.
-  - An API key or email address leaks into the AI system prompt context.
+  Layer 1 — Data ownership
+    1.  Owner tag on inserts       — worker_name in all worker-owned table inserts
+    2.  Delete scope               — deletes filter by worker_name or hive_id  [WARN]
 
-Four things checked:
+  Layer 2 — Sensitive data
+    3.  AI widget prompt clean     — floating-ai.js system prompt free of PII/secrets
+    4.  Assistant prompt clean     — assistant.html system prompt free of PII/secrets
 
-  1. Owner tag on inserts      — worker_name must be in every insert/upsert
-                                 payload for worker-owned tables (logbook,
-                                 inventory_items, assets, pm_assets). Without it,
-                                 data orphans that can't be scoped to a worker.
+  Layer 3 — Access control
+    5.  Hive role gates (hive.html)  — approve/reject/kick check HIVE_ROLE
+    6.  Hive role gates (pm-scheduler) — edit/delete PM assets check HIVE_ROLE
 
-  2. Delete scope              — every .delete() on a shared table must filter
-                                 by worker_name OR hive_id, not just by 'id'.
-                                 An id-only delete is a WARN (JS-level guards exist,
-                                 but DB-level scope is missing until RLS ships).
-
-  3. Sensitive data in AI      — the floating-ai.js system prompt must not contain
-                                 email addresses, raw API keys, phone numbers, or
-                                 password patterns. These would be visible to anyone
-                                 who reads the network request.
-
-  4. Privileged op role gates  — functions that approve, reject, or kick members
-                                 in hive.html must check HIVE_ROLE before executing.
-                                 Missing gate = any worker can perform supervisor actions.
+  Layer 4 — Scope
+    7.  All write pages in scope   — skillmatrix and new pages included
 
 Usage:  python validate_governance.py
 Output: governance_report.json
 """
 import re, json, sys
 
-FLOAT_JS = "floating-ai.js"
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-# Tables whose rows are owned by a specific worker
-WORKER_OWNED_TABLES = ["logbook", "inventory_items", "assets", "pm_assets"]
+from validator_utils import read_file, format_result
 
-# Pages that contain write operations to worker-owned tables
+FLOAT_JS       = "floating-ai.js"
+ASSISTANT_HTML = "assistant.html"
+
+WORKER_OWNED_TABLES = ["logbook", "inventory_items", "assets", "pm_assets",
+                       "skill_badges", "skill_profiles", "skill_exam_attempts"]
+
 WRITE_PAGES = [
     "logbook.html",
     "inventory.html",
     "pm-scheduler.html",
     "hive.html",
+    "skillmatrix.html",
 ]
 
-# Privileged functions in hive.html that MUST have a role check
+# Supervisor-only functions: (page, func_name, description)
 PRIVILEGED_FUNCTIONS = [
-    ("removeMember",  "kick / remove hive member"),
-    ("approveItem",   "approve submitted item"),
-    ("rejectItem",    "reject submitted item"),
+    ("hive.html",         "kickMember",       "kick / remove hive member"),
+    ("hive.html",         "approveItem",      "approve submitted item"),
+    ("hive.html",         "rejectItem",       "reject submitted item"),
+    ("pm-scheduler.html", "saveEditPMAsset",    "edit PM asset (supervisor only in hive)"),
+    ("pm-scheduler.html", "confirmDeleteAsset", "delete PM asset — gated entry point must check HIVE_ROLE"),
+]
+
+# Sensitive patterns that must never appear in AI system prompts
+SENSITIVE_PATTERNS = [
+    (r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}", "email address"),
+    (r"\b(?:password|passwd)\s*[:=]\s*\S+",                  "password value"),
+    (r"\b(?:api[_-]?key|apikey)\s*[:=]\s*['\"]?\w{10,}",    "API key value"),
+    (r"\+?[0-9]{7,15}\b",                                    "phone number"),
 ]
 
 
-def read_file(path):
-    try:
-        with open(path, encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
-        return None
-
-
-# ── Check 1: worker_name in worker-owned inserts ──────────────────────────────
+# ── Layer 1: Data ownership ───────────────────────────────────────────────────
 
 def check_owner_tag(pages, tables):
-    """
-    Every insert/upsert into a worker-owned table must include worker_name
-    in the payload. Without it, data cannot be filtered back to its owner —
-    it orphans in the database with no owner context.
-
-    Note: spread syntax (...item, ...asset) may carry worker_name implicitly.
-    This check looks for worker_name anywhere within 25 lines of the insert call
-    to account for both explicit and spread-based inclusion.
-    """
     issues = []
     for page in pages:
         content = read_file(page)
-        if content is None:
+        if not content:
             continue
         lines = content.splitlines()
-
         for i, line in enumerate(lines):
-            # Is this line a DB insert or upsert on a worker-owned table?
             m = re.search(
                 r"db\.from\(['\"](" + "|".join(re.escape(t) for t in tables) + r")['\"]"
                 r"\)[^.]*\.(insert|upsert)\s*\(",
@@ -93,212 +79,184 @@ def check_owner_tag(pages, tables):
             )
             if not m:
                 continue
-
             table = m.group(1)
-            # Scan 20 lines before (payload build) + 10 lines after (spread vars)
             window = "\n".join(lines[max(0, i - 20):min(len(lines), i + 10)])
             if "worker_name" not in window and "WORKER_NAME" not in window:
-                issues.append({
-                    "page":  page,
-                    "table": table,
-                    "line":  i + 1,
-                    "reason": (
-                        f"{page}:{i + 1} — insert/upsert into '{table}' has no "
-                        f"worker_name in the next 25 lines — "
-                        f"rows will have no owner tag (unscoped data)"
-                    ),
-                })
+                issues.append({"check": "owner_tag", "page": page, "table": table, "line": i + 1,
+                               "reason": f"{page}:{i+1} insert/upsert into '{table}' has no worker_name in surrounding 30 lines — orphaned data with no owner"})
     return issues
 
 
-# ── Check 2: Delete operations scoped to owner or hive ───────────────────────
-
 def check_delete_scope(pages):
-    """
-    Every .delete() call on a shared table must filter by worker_name OR
-    hive_id, not just by 'id'. Filtering by id only means any row in the
-    table can be targeted — no ownership boundary at the DB level.
-
-    This is a WARN (not FAIL) because JavaScript-level role checks provide
-    a first line of defence while RLS is pending.
-    """
     issues = []
     for page in pages:
         content = read_file(page)
-        if content is None:
+        if not content:
             continue
         lines = content.splitlines()
-
         for i, line in enumerate(lines):
-            if ".delete()" not in line and ".delete( )" not in line:
+            if ".delete()" not in line or "db.from(" not in line:
                 continue
-            if "db.from(" not in line:
-                continue
-
-            # Check if this line OR the next 3 lines have an owner scope
             window = "\n".join(lines[i:min(len(lines), i + 4)])
-            has_owner_scope = (
-                "worker_name" in window or
-                "hive_id"     in window or
-                "WORKER_NAME" in window or
-                "HIVE_ID"     in window
-            )
-            if not has_owner_scope:
-                issues.append({
-                    "page": page,
-                    "line": i + 1,
-                    "code": line.strip()[:80],
-                    "reason": (
-                        f"{page}:{i + 1} — delete scoped only by 'id' with no "
-                        f"worker_name or hive_id filter — "
-                        f"DB-level ownership boundary missing (RLS pending): "
-                        f"`{line.strip()[:60]}`"
-                    ),
-                })
+            if not any(k in window for k in ["worker_name", "hive_id", "WORKER_NAME", "HIVE_ID"]):
+                issues.append({"check": "delete_scope", "page": page, "line": i + 1,
+                               "skip": True,   # WARN — JS guards exist, RLS pending
+                               "reason": f"{page}:{i+1} delete scoped only by 'id' — DB-level ownership boundary missing until RLS ships: `{line.strip()[:70]}`"})
     return issues
 
 
-# ── Check 3: No sensitive data in AI system prompt ───────────────────────────
+# ── Layer 2: Sensitive data ───────────────────────────────────────────────────
 
-def check_sensitive_in_prompt(path):
-    """
-    The floating-ai.js system prompt is sent to the AI API on every message.
-    It must not contain email addresses, API keys, phone numbers, or passwords.
-    If it did, these would appear in plain text in every network request.
-    """
-    issues = []
-    content = read_file(path)
-    if content is None:
-        return [{"page": path, "reason": f"{path} not found"}]
-
-    # Find the system prompt string
-    sys_m = re.search(
-        r"const system\s*=\s*`([\s\S]{0,5000}?)`",
-        content
-    )
+def _scan_prompt_for_sensitive(content, page, prompt_var="system"):
+    """Extract a system prompt string and scan for PII/secrets."""
+    if not content:
+        return [{"check": "sensitive_prompt", "page": page, "reason": f"{page} not found"}]
+    # Match: const system = `...` or const systemPrompt = `...`
+    sys_m = re.search(rf"const {prompt_var}\s*=\s*`([\s\S]{{0,8000}}?)`", content)
     if not sys_m:
         return []
-
     prompt_text = sys_m.group(1)
-
-    checks = [
-        (r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}", "email address"),
-        (r"\b(?:password|passwd)\s*[:=]\s*\S+",                 "password value"),
-        (r"\b(?:api[_-]?key|apikey)\s*[:=]\s*['\"]?\w{10,}",   "API key value"),
-        (r"\+?[0-9]{7,15}\b",                                   "phone number"),
-    ]
-
-    for pattern, label in checks:
+    issues = []
+    for pattern, label in SENSITIVE_PATTERNS:
         m = re.search(pattern, prompt_text, re.IGNORECASE)
         if m:
-            issues.append({
-                "page":  path,
-                "found": label,
-                "reason": (
-                    f"{path} — system prompt contains a {label}: "
-                    f"`{m.group(0)[:40]}` — "
-                    f"this appears in plain text in every AI API request"
-                ),
-            })
+            issues.append({"check": "sensitive_prompt", "page": page, "found": label,
+                           "reason": f"{page} system prompt contains a {label}: `{m.group(0)[:40]}` — appears in plain text in every AI API request"})
     return issues
 
 
-# ── Check 4: Privileged operations have role gate ────────────────────────────
+def check_widget_prompt_clean(path):
+    return _scan_prompt_for_sensitive(read_file(path), path, prompt_var="system")
 
-def check_role_gates(page, functions):
-    """
-    Supervisor-only functions (approve, reject, kick) must check HIVE_ROLE
-    before executing. A missing gate means any logged-in worker can call the
-    function from the browser console and perform a supervisor action.
-    """
+
+def check_assistant_prompt_clean(path):
+    content = read_file(path)
+    if not content:
+        return []
+    # assistant.html uses const systemPrompt = `...` or buildSystemPrompt
     issues = []
-    content = read_file(page)
-    if content is None:
-        return [{"page": page, "reason": f"{page} not found"}]
+    for var in ["systemPrompt", "system_prompt", "SYSTEM_PROMPT", "systemContext"]:
+        found = _scan_prompt_for_sensitive(content, path, prompt_var=var)
+        issues.extend(found)
+    # Also scan any template literal that starts with a persona statement
+    for m in re.finditer(r"You are WorkHive[\s\S]{0,5000}?`", content):
+        block = m.group(0)
+        for pattern, label in SENSITIVE_PATTERNS:
+            sm = re.search(pattern, block, re.IGNORECASE)
+            if sm:
+                issues.append({"check": "sensitive_prompt", "page": path, "found": label,
+                               "reason": f"{path} AI context block contains a {label}: `{sm.group(0)[:40]}`"})
+        break   # only scan the first persona block
+    return issues
 
-    for func_name, description in functions:
-        # Find the function definition
-        func_m = re.search(
-            rf"(?:async\s+)?function\s+{re.escape(func_name)}\s*\(",
-            content
-        )
+
+# ── Layer 3: Access control ───────────────────────────────────────────────────
+
+def check_role_gates(privileged_functions):
+    issues = []
+    for page, func_name, description in privileged_functions:
+        content = read_file(page)
+        if not content:
+            continue
+        func_m = re.search(rf"(?:async\s+)?function\s+{re.escape(func_name)}\s*\(", content)
         if not func_m:
             continue
-
-        # Extract the function body (next 30 lines)
-        start = func_m.start()
-        body  = "\n".join(content[start:start + 1500].splitlines()[:30])
-
+        body = "\n".join(content[func_m.start():func_m.start() + 1500].splitlines()[:30])
         if "HIVE_ROLE" not in body:
-            issues.append({
-                "page":     page,
-                "function": func_name,
-                "reason": (
-                    f"{page} — `{func_name}()` ({description}) has no HIVE_ROLE "
-                    f"check in first 30 lines — any worker can execute this action"
-                ),
-            })
+            issues.append({"check": "role_gates", "page": page, "function": func_name,
+                           "reason": f"{page} `{func_name}()` ({description}) has no HIVE_ROLE check — any worker can execute this supervisor action"})
     return issues
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+# ── Layer 4: Scope ────────────────────────────────────────────────────────────
 
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+def check_pages_in_scope():
+    import glob, os
+    live_set = set(WRITE_PAGES)
+    issues   = []
+    for path in glob.glob("*.html"):
+        fname = os.path.basename(path)
+        if fname in live_set:
+            continue
+        if any(s in fname for s in ["-test", ".backup", "platform-health", "guardian",
+                                     "parts-tracker", "symbol-gallery", "architecture"]):
+            continue
+        content = read_file(fname)
+        if not content:
+            continue
+        # Check if this page writes to a worker-owned table
+        for table in WORKER_OWNED_TABLES:
+            if re.search(rf"from\(['\"]({re.escape(table)})['\"].*?\.(insert|upsert)\s*\(", content):
+                issues.append({"check": "pages_in_scope", "page": fname, "table": table,
+                               "reason": f"{fname} writes to worker-owned table '{table}' but is not in WRITE_PAGES — owner_tag and delete_scope checks never run on it"})
+                break
+    return issues
 
-print("\n" + "=" * 70)
-print("Data Governance Validator")
-print("=" * 70)
 
-fail_count = 0
-warn_count = 0
-report     = {}
+# ── Runner ─────────────────────────────────────────────────────────────────────
 
-checks = [
-    (
-        "[1] worker_name present in all worker-owned inserts",
-        check_owner_tag(WRITE_PAGES, WORKER_OWNED_TABLES),
-        "FAIL",
-    ),
-    (
-        "[2] Delete operations scoped to owner or hive (not id-only)",
-        check_delete_scope(WRITE_PAGES),
-        "WARN",
-    ),
-    (
-        "[3] No sensitive data (email / key / password) in AI system prompt",
-        check_sensitive_in_prompt(FLOAT_JS),
-        "FAIL",
-    ),
-    (
-        "[4] Privileged hive operations gated by HIVE_ROLE check",
-        check_role_gates("hive.html", PRIVILEGED_FUNCTIONS),
-        "FAIL",
-    ),
+CHECK_NAMES = [
+    # L1
+    "owner_tag", "delete_scope",
+    # L2
+    "widget_prompt_clean", "assistant_prompt_clean",
+    # L3
+    "role_gates",
+    # L4
+    "pages_in_scope",
 ]
 
-for label, issues, severity in checks:
-    print(f"\n{label}\n")
-    if not issues:
-        print("  PASS")
+CHECK_LABELS = {
+    # L1
+    "owner_tag":             "L1  worker_name in all worker-owned inserts",
+    "delete_scope":          "L1  Deletes filter by worker_name or hive_id  [WARN]",
+    # L2
+    "widget_prompt_clean":   "L2  floating-ai.js prompt free of PII/secrets",
+    "assistant_prompt_clean":"L2  assistant.html prompt free of PII/secrets",
+    # L3
+    "role_gates":            "L3  Privileged ops (hive + pm-scheduler) gated by HIVE_ROLE",
+    # L4
+    "pages_in_scope":        "L4  All worker-data-writing pages in WRITE_PAGES",
+}
+
+
+def main():
+    def bold(s): return f"\033[1m{s}\033[0m"
+    print(bold("\nData Governance Validator (4-layer)"))
+    print("=" * 55)
+
+    all_issues = []
+    all_issues += check_owner_tag(WRITE_PAGES, WORKER_OWNED_TABLES)
+    all_issues += check_delete_scope(WRITE_PAGES)
+    all_issues += check_widget_prompt_clean(FLOAT_JS)
+    all_issues += check_assistant_prompt_clean(ASSISTANT_HTML)
+    all_issues += check_role_gates(PRIVILEGED_FUNCTIONS)
+    all_issues += check_pages_in_scope()
+
+    n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
+
+    total = len(CHECK_NAMES)
+    if n_fail == 0 and n_warn == 0:
+        print(f"\033[92m\n  All {total} checks passed.\033[0m")
+    elif n_fail == 0:
+        print(f"\033[93m\n  {n_pass} PASS  {n_warn} WARN  0 FAIL — delete scope warnings are known (RLS pending)\033[0m")
     else:
-        for iss in issues:
-            print(f"  {severity}  {iss.get('page', '?')}")
-            print(f"        {iss['reason']}")
-        if severity == "FAIL":
-            fail_count += len(issues)
-        else:
-            warn_count += len(issues)
-    report[label] = issues
+        print(f"\033[91m\n  {n_pass} PASS  {n_warn} WARN  {n_fail} FAIL\033[0m")
 
-print(f"\n{'=' * 70}")
-print(f"Result: {fail_count} FAIL  {warn_count} WARN")
+    report = {
+        "validator":    "governance",
+        "total_checks": total,
+        "passed":       n_pass,
+        "warned":       n_warn,
+        "failed":       n_fail,
+        "issues":       [i for i in all_issues if not i.get("skip")],
+        "warnings":     [i for i in all_issues if i.get("skip")],
+    }
+    with open("governance_report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
 
-with open("governance_report.json", "w") as f:
-    json.dump(report, f, indent=2)
-print("Saved governance_report.json")
+    sys.exit(1 if n_fail > 0 else 0)
 
-if fail_count:
-    print("\nFIX REQUIRED.")
-    sys.exit(1)
-print("\nAll governance checks PASS.")
+
+if __name__ == "__main__":
+    main()

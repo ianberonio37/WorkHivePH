@@ -39,9 +39,11 @@ CREATE INDEX IF NOT EXISTS idx_logbook_worker_date
 CREATE INDEX IF NOT EXISTS idx_pm_completions_asset_date
   ON pm_completions (asset_id, completed_at DESC);
 
--- inventory_transactions: already filtered by hive_id + type + created_at
-CREATE INDEX IF NOT EXISTS idx_inv_txns_hive_type_date
-  ON inventory_transactions (hive_id, type, created_at DESC)
+-- inventory_transactions: hive_id column does NOT exist in the actual schema
+-- (code tries to insert it but Supabase silently drops unknown columns)
+-- Use worker_name + type + created_at instead — these columns are confirmed present
+CREATE INDEX IF NOT EXISTS idx_inv_txns_worker_type_date
+  ON inventory_transactions (worker_name, type, created_at DESC)
   WHERE type = 'use';  -- partial index: analytics only queries 'use' type
 
 -- ── COMMENT: When to add a GIN index ─────────────────────────────────────────

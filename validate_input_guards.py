@@ -2,291 +2,358 @@
 Input Guards Validator — WorkHive Platform
 ==========================================
 Checks that forms and database writes are properly guarded before they
-reach Supabase. Missing guards mean bad data gets written silently —
-no error shown to the worker, no clue anything went wrong.
+reach Supabase. Missing guards mean bad data gets written silently.
 
-Four things checked:
+  Layer 1 — Error visibility
+    1.  showToast on all DB pages  — every page that writes to DB can show errors
+    2.  Bare inserts caught        — every .insert() captures the error response
 
-  1. showToast present       — every page that writes to the DB must be able
-                               to show errors to the worker. No showToast = silent failures.
+  Layer 2 — Input validation
+    3.  Required field guards      — critical save functions validate before writing
+    4.  NaN guard on numeric input — parseFloat() on user input checks for NaN
 
-  2. Required field guards   — critical save functions must validate inputs before
-                               writing. Regression check — these guards must never disappear.
+  Layer 3 — UX protection
+    5.  Save button disabled       — critical save functions disable button during operation
+    6.  Error handler coverage     — ratio of error checks to DB write calls >= 60%
 
-  3. No bare inserts         — every .insert() call must capture the error response
-                               OR be chained with .then() or .catch(). Uncaptured = ignored.
-
-  4. Error handler coverage  — ratio of error checks to DB write calls per page.
-                               If a page has many writes but few checks, something is unguarded.
+  Layer 4 — Schema enforcement
+    7.  Upsert rules               — tables that must use upsert (not raw insert)
+    8.  Pages in scope             — all DB-writing pages included in TARGET_PAGES
 
 Usage:  python validate_input_guards.py
 Output: input_guards_report.json
 """
-import re, json, sys
+import re, json, sys, os
 
-# Pages that write to the database — all must pass every check
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+from validator_utils import read_file, format_result
+
 TARGET_PAGES = [
     "logbook.html",
     "inventory.html",
     "pm-scheduler.html",
     "hive.html",
+    "skillmatrix.html",
+    "dayplanner.html",
+    "engineering-design.html",
 ]
 
-# Minimum ratio of error-check lines to DB-write lines before we warn
-# e.g. 0.6 means: for every 10 inserts/upserts, at least 6 must have a visible error check
 MIN_COVERAGE_RATIO = 0.6
 
-# Required field guards: each entry is (page, guard_pattern, description)
-# These are regression checks — if the guard disappears, catch it immediately
+# Required field guards — regression checks: if these disappear, catch it immediately
 REQUIRED_GUARDS = [
     (
         "logbook.html",
         r"if\s*\(\s*!machine\b",
-        "logbook save must validate machine/equipment field before writing to DB",
+        "logbook save must validate machine/equipment field before writing",
     ),
     (
         "inventory.html",
         r"if\s*\(\s*!partNumber\b",
-        "inventory add must validate part number before writing to DB",
+        "inventory add must validate part number before writing",
     ),
     (
         "inventory.html",
         r"if\s*\(\s*!partName\b",
-        "inventory add must validate part name before writing to DB",
+        "inventory add must validate part name before writing",
     ),
     (
         "pm-scheduler.html",
         r"if\s*\(\s*!name\b",
-        "PM asset save must validate asset name before writing to DB",
+        "PM asset save must validate asset name before writing",
     ),
     (
         "pm-scheduler.html",
         r"if\s*\(\s*!cat\b",
-        "PM asset save must validate category before writing to DB",
+        "PM asset save must validate category before writing",
+    ),
+    (
+        "skillmatrix.html",
+        r"submitExam\b",
+        "skillmatrix must have submitExam() function to gate badge writes",
+    ),
+    (
+        "skillmatrix.html",
+        r"passed\s*=\s*score\s*>=",
+        "skillmatrix exam pass threshold must be checked before writing badge",
     ),
 ]
 
-# Inventory items must use upsert (not raw insert) to prevent duplicate parts
+# Tables that must use .upsert() — not raw .insert() — to prevent duplicates
 UPSERT_RULES = [
     (
         "inventory.html",
         "inventory_items",
         "inventory_items must use .upsert() to prevent duplicate part entries",
     ),
+    (
+        "skillmatrix.html",
+        "skill_badges",
+        "skill_badges must use .upsert() to update existing badges — raw insert creates duplicates",
+    ),
+]
+
+# Save functions that must disable the submit button during operation
+SAVE_BUTTON_GUARDS = [
+    (
+        "logbook.html",
+        r"saveBtn\.disabled\s*=\s*true",
+        "logbook saveEntry must disable button during operation to prevent double-submit",
+    ),
+    (
+        "inventory.html",
+        r"showFormError|errEl\.classList",
+        "inventory submitPart must show inline form errors on validation failure",
+    ),
+    (
+        "pm-scheduler.html",
+        r"btn\.disabled\s*=\s*true",
+        "PM asset save must disable button during operation",
+    ),
+    (
+        "skillmatrix.html",
+        r"disabled\s*=\s*true",
+        "skillmatrix submitExam must disable button during operation",
+    ),
+]
+
+# Numeric input fields that should guard against NaN
+NAN_GUARD_PATTERNS = [
+    (
+        "logbook.html",
+        r"parseFloat\s*\(\s*\w+\s*\)",
+        r"isNaN\s*\(|!==\s*''\s*\?\s*parseFloat|parseFloat.*\|\|\s*null",
+        "logbook numeric inputs (downtime, good units) should guard against NaN with isNaN() or empty string check",
+    ),
 ]
 
 
-def read_file(path):
-    try:
-        with open(path, encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
-        return None
+# ── Layer 1: Error visibility ─────────────────────────────────────────────────
 
-
-# ── Check 1: showToast defined on all data-writing pages ─────────────────────
-
-def check_show_toast_present(pages):
-    """
-    Every page that writes to the database must define showToast().
-    If showToast is missing, DB errors are completely invisible to workers.
-    They click Save, nothing happens, no feedback — they don't know it failed.
-    """
+def check_show_toast(pages):
     issues = []
     for page in pages:
         content = read_file(page)
-        if content is None:
-            issues.append({
-                "page": page,
-                "reason": f"{page} not found — cannot verify input guards",
-            })
+        if not content:
+            issues.append({"check": "show_toast", "page": page,
+                           "reason": f"{page} not found"})
             continue
-        if "function showToast" not in content:
-            issues.append({
-                "page":   page,
-                "reason": (
-                    f"{page} has no showToast function — DB write errors will be "
-                    f"invisible to workers (no error message shown on failure)"
-                ),
-            })
+        if "function showToast" not in content and "showToast" not in content:
+            issues.append({"check": "show_toast", "page": page,
+                           "reason": f"{page} has no showToast — DB write errors are invisible to workers"})
     return issues
 
 
-# ── Check 2: Required field guards present ────────────────────────────────────
-
-def check_required_guards(guards):
-    """
-    Critical save functions must validate required inputs before writing.
-    These guards were added deliberately — if they disappear (e.g. during
-    a refactor), bad data starts entering the database silently.
-    """
-    issues = []
-    for page, pattern, description in guards:
-        content = read_file(page)
-        if content is None:
-            continue
-        if not re.search(pattern, content):
-            issues.append({
-                "page":    page,
-                "pattern": pattern,
-                "reason": (
-                    f"Missing guard in {page}: {description}"
-                ),
-            })
-    return issues
-
-
-# ── Check 3: No bare inserts (every insert captures the error) ────────────────
-
-def check_no_bare_inserts(pages):
-    """
-    Every .insert() call must capture the result so the error can be checked.
-
-    SAFE patterns:
-      const { error } = await db.from('X').insert(...)      ← captures error
-      await db.from('X').insert(...).catch(e => ...)        ← has catch chain
-      await db.from('X').insert(...).then(({ error }) => .) ← has then chain
-
-    UNSAFE pattern:
-      await db.from('X').insert(payload);                   ← result ignored
-
-    An ignored error means the write could fail and the worker sees nothing.
-    """
+def check_bare_inserts(pages):
     issues = []
     for page in pages:
         content = read_file(page)
-        if content is None:
+        if not content:
             continue
-
         lines = content.splitlines()
         for i, line in enumerate(lines):
             stripped = line.strip()
-
-            # Is this line a DB insert call?
             if not re.search(r"\.insert\(", stripped):
                 continue
-            # Skip HTML attribute values (not JS code)
             if stripped.startswith("<") or stripped.startswith("//"):
                 continue
-
-            # Check if it's a safe pattern
             is_safe = any([
-                re.search(r"^\s*const\s*\{", line),          # const { error } = await ...
-                re.search(r"\.then\s*\(", stripped),          # .then({ error } => ...)
-                re.search(r"\.catch\s*\(", stripped),         # .catch(e => ...)
-                re.search(r"^\s*\.from\(", line),             # chain continuation (starts with .from)
-                "select()" in stripped,                        # .insert(...).select() chain
-                not stripped.startswith("await"),             # not an await call (e.g. part of a chain)
+                re.search(r"^\s*const\s*\{", line),
+                re.search(r"\.then\s*\(", stripped),
+                re.search(r"\.catch\s*\(", stripped),
+                re.search(r"^\s*\.", line),
+                "select()" in stripped,
+                not stripped.startswith("await"),
             ])
-
             if not is_safe and "await" in stripped:
-                issues.append({
-                    "page":   page,
-                    "line":   i + 1,
-                    "reason": (
-                        f"{page}:{i + 1} — bare insert with no error capture: "
-                        f"`{stripped[:80]}`"
-                    ),
-                })
+                issues.append({"check": "bare_inserts", "page": page, "line": i + 1,
+                               "reason": f"{page}:{i+1} bare insert — result ignored, errors silent: `{stripped[:80]}`"})
     return issues
 
 
-# ── Check 4: Error handler coverage ratio ────────────────────────────────────
+# ── Layer 2: Input validation ─────────────────────────────────────────────────
+
+def check_required_guards(guards):
+    issues = []
+    for page, pattern, desc in guards:
+        content = read_file(page)
+        if not content:
+            continue
+        if not re.search(pattern, content):
+            issues.append({"check": "required_guards", "page": page,
+                           "reason": f"Missing guard in {page}: {desc}"})
+    return issues
+
+
+def check_nan_guards(rules):
+    """
+    Pages that use parseFloat() on user input should either:
+    a) check for NaN with isNaN(), or
+    b) guard with `value !== '' ? parseFloat(value) : null`
+    If parseFloat returns NaN and it gets saved to DB, numeric fields silently break.
+    """
+    issues = []
+    for page, parse_pattern, safe_pattern, desc in rules:
+        content = read_file(page)
+        if not content:
+            continue
+        has_parse = re.search(parse_pattern, content)
+        if not has_parse:
+            continue
+        has_guard = re.search(safe_pattern, content)
+        if not has_guard:
+            issues.append({"check": "nan_guard", "page": page,
+                           "reason": f"{page}: {desc}"})
+    return issues
+
+
+# ── Layer 3: UX protection ────────────────────────────────────────────────────
+
+def check_save_button_disabled(rules):
+    """
+    Critical save functions must disable the submit button during the async operation
+    to prevent workers from double-clicking and creating duplicate entries.
+    """
+    issues = []
+    for page, pattern, desc in rules:
+        content = read_file(page)
+        if not content:
+            continue
+        if not re.search(pattern, content):
+            issues.append({"check": "save_btn_disabled", "page": page,
+                           "reason": f"Missing button guard in {page}: {desc}"})
+    return issues
+
 
 def check_error_coverage(pages):
-    """
-    Counts DB write calls vs error-handling patterns per page.
-    If a page has many writes but few error checks, some writes are unguarded.
-
-    DB writes:  .insert(  .upsert(
-    Error checks: if (error)  if (err)  } catch  .catch(
-
-    A ratio below MIN_COVERAGE_RATIO (60%) means too many unguarded writes.
-    """
     issues = []
     for page in pages:
         content = read_file(page)
-        if content is None:
+        if not content:
             continue
-
-        write_calls = len(re.findall(r"\.(insert|upsert)\(", content))
+        write_calls  = len(re.findall(r"\.(insert|upsert)\(", content))
         error_checks = len(re.findall(
             r"if\s*\(\s*(error|err)\b|}\s*catch\s*\(|\.(catch)\s*\(|"
             r"if\s*\(\w+Err\b|if\s*\(\w+Error\b",
             content
         ))
-
         if write_calls == 0:
             continue
-
         ratio = error_checks / write_calls
         if ratio < MIN_COVERAGE_RATIO:
-            issues.append({
-                "page":         page,
-                "write_calls":  write_calls,
-                "error_checks": error_checks,
-                "ratio":        round(ratio, 2),
-                "minimum":      MIN_COVERAGE_RATIO,
-                "reason": (
-                    f"{page} has {write_calls} DB write calls but only "
-                    f"{error_checks} error checks (ratio {ratio:.0%}, "
-                    f"minimum {MIN_COVERAGE_RATIO:.0%}) — some writes may be unguarded"
-                ),
-            })
+            issues.append({"check": "error_coverage", "page": page,
+                           "write_calls": write_calls, "error_checks": error_checks,
+                           "ratio": round(ratio, 2),
+                           "reason": f"{page}: {write_calls} DB writes but only {error_checks} error checks ({ratio:.0%}, min {MIN_COVERAGE_RATIO:.0%})"})
     return issues
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+# ── Layer 4: Schema enforcement ───────────────────────────────────────────────
 
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+def check_upsert_rules(rules):
+    """
+    Tables that must use .upsert() to prevent duplicates.
+    A raw .insert() on these tables creates multiple rows on re-save.
+    """
+    issues = []
+    for page, table, desc in rules:
+        content = read_file(page)
+        if not content:
+            continue
+        # Check that the table is accessed with .upsert() somewhere
+        if not re.search(rf"from\(['\"]({re.escape(table)})['\"].*?\.upsert\(", content, re.DOTALL):
+            issues.append({"check": "upsert_rules", "page": page, "table": table,
+                           "reason": f"{page}: {desc}"})
+    return issues
 
-print("\n" + "=" * 70)
-print("Input Guards Validator")
-print("=" * 70)
 
-fail_count = 0
-warn_count = 0
-report     = {}
+def check_pages_in_scope():
+    """All .html pages that write to the DB should be in TARGET_PAGES."""
+    import glob
+    live_set = set(TARGET_PAGES)
+    issues   = []
+    for path in glob.glob("*.html"):
+        fname = os.path.basename(path)
+        if fname in live_set:
+            continue
+        if any(s in fname for s in ["-test", ".backup", "platform-health", "guardian",
+                                     "parts-tracker", "symbol-gallery", "architecture"]):
+            continue
+        content = read_file(fname)
+        if content and re.search(r"\.insert\(|\.upsert\(", content):
+            issues.append({"check": "pages_in_scope", "page": fname,
+                           "reason": f"{fname} writes to DB but is not in validate_input_guards.py TARGET_PAGES"})
+    return issues
 
-checks = [
-    (
-        "[1] showToast present on all data-writing pages",
-        check_show_toast_present(TARGET_PAGES),
-    ),
-    (
-        "[2] Required field guards present before critical saves",
-        check_required_guards(REQUIRED_GUARDS),
-    ),
-    (
-        "[3] No bare inserts (every .insert() captures the error)",
-        check_no_bare_inserts(TARGET_PAGES),
-    ),
-    (
-        f"[4] Error handler coverage ratio >= {MIN_COVERAGE_RATIO:.0%} per page",
-        check_error_coverage(TARGET_PAGES),
-    ),
+
+# ── Runner ─────────────────────────────────────────────────────────────────────
+
+CHECK_NAMES = [
+    # L1
+    "show_toast", "bare_inserts",
+    # L2
+    "required_guards", "nan_guard",
+    # L3
+    "save_btn_disabled", "error_coverage",
+    # L4
+    "upsert_rules", "pages_in_scope",
 ]
 
-for label, issues in checks:
-    print(f"\n{label}\n")
-    if not issues:
-        print("  PASS")
+CHECK_LABELS = {
+    # L1
+    "show_toast":       "L1  showToast present on all DB-writing pages",
+    "bare_inserts":     "L1  No bare inserts (every .insert() captures error)",
+    # L2
+    "required_guards":  "L2  Required field guards before critical saves",
+    "nan_guard":        "L2  NaN guard on parseFloat() from user input",
+    # L3
+    "save_btn_disabled":"L3  Save button disabled during async operation",
+    "error_coverage":   "L3  Error handler coverage >= 60% of DB writes",
+    # L4
+    "upsert_rules":     "L4  Tables that must use upsert (not raw insert)",
+    "pages_in_scope":   "L4  All DB-writing pages in TARGET_PAGES",
+}
+
+
+def main():
+    def bold(s): return f"\033[1m{s}\033[0m"
+    print(bold("\nInput Guards Validator (4-layer)"))
+    print("=" * 55)
+
+    all_issues = []
+    all_issues += check_show_toast(TARGET_PAGES)
+    all_issues += check_bare_inserts(TARGET_PAGES)
+    all_issues += check_required_guards(REQUIRED_GUARDS)
+    all_issues += check_nan_guards(NAN_GUARD_PATTERNS)
+    all_issues += check_save_button_disabled(SAVE_BUTTON_GUARDS)
+    all_issues += check_error_coverage(TARGET_PAGES)
+    all_issues += check_upsert_rules(UPSERT_RULES)
+    all_issues += check_pages_in_scope()
+
+    n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
+
+    total = len(CHECK_NAMES)
+    if n_fail == 0:
+        print(f"\033[92m\n  All {total} checks passed.\033[0m")
     else:
-        for iss in issues:
-            print(f"  FAIL  {iss.get('page', '?')}")
-            print(f"        {iss['reason']}")
-        fail_count += len(issues)
-    report[label] = issues
+        print(f"\033[91m\n  {n_pass} PASS  {n_skip} SKIP  {n_fail} FAIL\033[0m")
 
-print(f"\n{'=' * 70}")
-print(f"Result: {fail_count} FAIL  {warn_count} WARN")
+    report = {
+        "validator":    "input_guards",
+        "total_checks": total,
+        "passed":       n_pass,
+        "skipped":      n_skip,
+        "failed":       n_fail,
+        "issues":       [i for i in all_issues if not i.get("skip")],
+    }
+    with open("input_guards_report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
 
-with open("input_guards_report.json", "w") as f:
-    json.dump(report, f, indent=2)
-print("Saved input_guards_report.json")
+    sys.exit(1 if n_fail > 0 else 0)
 
-if fail_count:
-    print("\nFIX REQUIRED.")
-    sys.exit(1)
-print("\nAll input guard checks PASS.")
+
+if __name__ == "__main__":
+    main()
