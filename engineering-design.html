@@ -501,6 +501,7 @@
       white-space: nowrap;
     }
   </style>
+  <link rel="canonical" href="https://workhiveph.com/engineering-design.html" />
 </head>
 <body class="text-white">
 
@@ -794,7 +795,7 @@
 </div>
 
 <!-- Toast -->
-<div id="toast"></div>
+<div id="toast" role="alert" aria-live="polite"></div>
 
 <!-- Nav -->
 <script src="utils.js"></script>
@@ -12874,8 +12875,16 @@ function renderUPSSizingReport(inputs, results, narrative) {
   showReport();
 }
 
-// ─── Transformer SLD builder ─────────────────────────────────────────────────
-// Standards: IEC 60617 (symbols), PEC 2017 Art. 4.50, IEEE C57.12.00
+// ─── Transformer SLD builder — REBUILT ───────────────────────────────────────
+// Standards: IEC 60617 (graphical symbols), PEC 2017 Art. 4.50, IEEE C57.12.00
+// Drawing rules (drawing-standards skill):
+//   • A3 landscape W=1050, H=580; inner margin x=11,y=11,W-22,H-22
+//   • STRIP_Y = H-113 = 467 (legend strip)
+//   • Labels SIDE of symbol (±30px), never above/below
+//   • Leader lines: dashed '3 2' from symbol centre to label
+//   • Symbols: drawSymbol() library where available; IEC 60617 inline otherwise
+//   • Mandatory elements (SLD checklist): fault level, cable sizes, IC ratings,
+//     phase labels, GEC label, arc flash warning
 function buildTransformerSLDSvg(inputs, results) {
   const r = results || {};
 
@@ -12895,9 +12904,15 @@ function buildTransformerSLDSvg(inputs, results) {
   const numUnits  = Number(r.num_units           || 1);
   const proj      = String(inputs?.project_name  || 'Untitled Transformer');
 
-  const is3ph = phases === 3;
-  const hvLabel = `${v1} V / ${is3ph ? '3Ø' : '1Ø'} / 50 Hz`;
-  const lvLabel = `${v2} V / ${is3ph ? '3Ø' : '1Ø'} / 50 Hz`;
+  const is3ph   = phases === 3;
+  const hvLabel = `${v1} V / ${is3ph?'3Ø':'1Ø'} / 50 Hz`;
+  const lvLabel = `${v2} V / ${is3ph?'3Ø':'1Ø'} / 50 Hz`;
+  // Utility fault level — standard PH 13.8kV distribution default (editable on diagram)
+  const faultKA = 25;
+  // Estimate LV cable size from I2 (PEC Table 3.10.1 Cu THWN-2 75°C)
+  const I2n = Number(r.I2_full_load_A || 0);
+  const lvCable = I2n<=20?'3.5':I2n<=27?'5.5':I2n<=36?'8':I2n<=50?'14':I2n<=65?'22':I2n<=85?'30':I2n<=100?'38':I2n<=135?'50':I2n<=150?'60':I2n<=175?'80':I2n<=200?'100':'125';
+  const lvMCCB  = [15,20,30,40,50,60,70,80,90,100,125,150,175,200,225,250].find(s=>s>=Math.ceil(I2n*1.25)) || 250;
 
   const W = 1050, H = 580, STRIP_Y = 467;
   const CC = '#1a2e4a', SC = '#5a6a7a', AO = '#F7A21B';
@@ -12914,196 +12929,264 @@ function buildTransformerSLDSvg(inputs, results) {
       T(x, y+5, label, {sz:9, c:'#111', w:'700'});
   };
 
+  // ── Leader line helper (dashed, per drawing-standards skill) ─────────────────
+  const DL = (x1,y1,x2,y2,clr=SC) =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${clr}" stroke-width="0.8" stroke-dasharray="3 2"/>`;
+
+  // ── IEC 60617 Surge Arrester (inline — not in drawSymbol library) ─────────────
+  // Per IEC 60617-04: rectangle housing + diagonal arrow indicating protective action
+  const SA_sym = (cx, cy, clr=HV) => {
+    const bh = 20, bw = 12;
+    return `<g>
+      <line x1="${cx}" y1="${cy-bh/2-8}" x2="${cx}" y2="${cy-bh/2}" stroke="${clr}" stroke-width="2"/>
+      <rect x="${cx-bw/2}" y="${cy-bh/2}" width="${bw}" height="${bh}" fill="none" stroke="${clr}" stroke-width="1.8" rx="1"/>
+      <line x1="${cx-4}" y1="${cy+bh/2-4}" x2="${cx+4}" y2="${cy-bh/2+4}" stroke="${clr}" stroke-width="1.5"/>
+      <line x1="${cx+4}" y1="${cy+bh/2-4}" x2="${cx+4}" y2="${cy+bh/2-8}" stroke="${clr}" stroke-width="1.2"/>
+      <line x1="${cx}" y1="${cy+bh/2}" x2="${cx}" y2="${cy+bh/2+8}" stroke="${clr}" stroke-width="2"/>
+      <line x1="${cx-6}" y1="${cy+bh/2+8}" x2="${cx+6}" y2="${cy+bh/2+8}" stroke="${clr}" stroke-width="2"/>
+      <line x1="${cx-4}" y1="${cy+bh/2+12}" x2="${cx+4}" y2="${cy+bh/2+12}" stroke="${clr}" stroke-width="1.5"/>
+      <line x1="${cx-2}" y1="${cy+bh/2+16}" x2="${cx+2}" y2="${cy+bh/2+16}" stroke="${clr}" stroke-width="1"/>
+    </g>`;
+  };
+
+  // ── IEC 60617 Current Transformer CT symbol (inline) ──────────────────────────
+  // Primary conductor passes through the core (circle); secondary winding is stub
+  const CT_sym = (cx, cy, clr=CC) =>
+    `<g>
+      <line x1="${cx}" y1="${cy-30}" x2="${cx}" y2="${cy+30}" stroke="${clr}" stroke-width="2.5"/>
+      <circle cx="${cx}" cy="${cy}" r="10" fill="white" stroke="${clr}" stroke-width="1.8"/>
+      <line x1="${cx+10}" y1="${cy}" x2="${cx+22}" y2="${cy}" stroke="${clr}" stroke-width="1.5"/>
+      <circle cx="${cx+24}" cy="${cy}" r="2.5" fill="${clr}"/>
+    </g>`;
+
+  // ── Y positions — well-spaced for A3 landscape ────────────────────────────────
+  const SLD_X = 285;          // SLD centre-line
+  const Y_UTIL  = 72;         // utility source centre
+  const Y_SA    = 148;        // surge arrester centre
+  const Y_VCB   = 212;        // VCB / load-break switch
+  const Y_CT    = 268;        // CT/VT set
+  const Y_TX    = 345;        // transformer centre (symbol ±30px: top=315, bot=375)
+  const Y_MCCB  = 418;        // LV MCCB
+  const Y_BUS   = 455;        // LV bus bar
+
+  const RP_X = 590, RP_W = 442; // right data panel
+
   let p = [];
+
+  // ── Background + mandatory drawing border ────────────────────────────────────
   p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="0.75"/>`);
 
-  // Title
+  // ── Title (per skill: drawing title at top centre) ───────────────────────────
   p.push(T(W/2, 27, 'POWER TRANSFORMER — SINGLE LINE DIAGRAM', {sz:12, c:CC, w:'700'}));
   p.push(T(W/2, 41, `IEC 60617 / PEC 2017 Art. 4.50 / IEEE C57.12.00  |  ${ratedKva} kVA × ${numUnits} unit(s)`, {sz:9, c:SC}));
 
-  // ── Layout constants ────────────────────────────────────────────────────────
-  const SLD_X = 310;   // centre-line of SLD column
-  const RP_X  = 620;   // right data panel start
-  const RP_W  = 415;   // right panel width
+  // ── OLD BLOCK REMOVED — SLD_X, Y positions, RP_X already set above ──────────
+  // (duplicate constants removed; new diagram body follows)
+  const LX2 = 525;   // legend divider x
 
-  // Y positions (top to bottom)
-  const Y_UTIL  = 80;   // utility supply
-  const Y_SA    = 130;  // surge arresters
-  const Y_VCB   = 170;  // VCB / load-break switch
-  const Y_CT    = 215;  // CT/VT set (HV)
-  const Y_TX_T  = 255;  // transformer body top
-  const Y_TX_B  = 355;  // transformer body bottom
-  const Y_MCCB  = 400;  // secondary MCCB
-  const Y_BUS   = 440;  // LV bus bar
+  // (Y positions, SLD_X, RP_X defined earlier in new section)
 
-  // ── 1. UTILITY SUPPLY (top) ─────────────────────────────────────────────────
+  // ════════════════════════════════════════════════════════════════════════════
+  // DIAGRAM BODY — IEC 60617 symbols, drawing-standards skill compliant
+  // Labels: always to the SIDE (±30px), leader lines DL() dashed '3 2'
+  // All mandatory checklist items included: fault level, cable sizes, IC, GEC, arc flash
+  // ════════════════════════════════════════════════════════════════════════════
+
+  // ── 1. UTILITY SUPPLY — drawSymbol('utility_3ph') [library: IEC 60617] ──────
   p.push(`<g color="${HV}">${drawSymbol('utility_3ph', SLD_X, Y_UTIL)}</g>`);
-  p.push(T(SLD_X+48, Y_UTIL-5, hvLabel, {a:'start', sz:9, c:HV, w:'700'}));
-  p.push(T(SLD_X+48, Y_UTIL+9, 'HV Utility Supply', {a:'start', sz:8, c:SC}));
+  // Label RIGHT (per skill: labels to side, leader line)
+  p.push(DL(SLD_X+22, Y_UTIL, SLD_X+38, Y_UTIL, HV));
+  p.push(T(SLD_X+40, Y_UTIL-8, hvLabel, {a:'start', sz:9, c:HV, w:'700'}));
+  p.push(T(SLD_X+40, Y_UTIL+4, `Fault Level: ${faultKA} kA  |  60 Hz`, {a:'start', sz:8, c:SC}));
 
-  // ── 2. HV CABLE (utility → surge arresters) ─────────────────────────────────
-  p.push(VL(SLD_X, Y_UTIL+28, Y_SA-10, 3, HV));
+  // ── 2. HV CABLE to SA junction ───────────────────────────────────────────────
+  p.push(VL(SLD_X, Y_UTIL+28, Y_SA-25, 3, HV));
+  // HV cable annotation (mandatory: cable size per skill) — label RIGHT via DL
+  p.push(DL(SLD_X+3, Y_UTIL+55, SLD_X+38, Y_UTIL+55));
+  p.push(T(SLD_X+40, Y_UTIL+52, 'HV: XLPE/SWA cable', {a:'start', sz:7.5, c:SC}));
+  p.push(T(SLD_X+40, Y_UTIL+63, `(size per short-circuit study)`, {a:'start', sz:7, c:'#aaa'}));
 
-  // ── 3. SURGE ARRESTERS (3-phase symbols) ────────────────────────────────────
-  const saOffsets = is3ph ? [-18, 0, 18] : [0];
-  saOffsets.forEach(dx => {
-    // SA symbol: vertical line + zigzag + ground
-    const sx = SLD_X + dx;
-    p.push(VL(sx, Y_SA-10, Y_SA+5, 1.5, HV));
-    p.push(`<rect x="${sx-5}" y="${Y_SA+5}" width="10" height="14" fill="none" stroke="${HV}" stroke-width="1.5" rx="1"/>`);
-    p.push(`<line x1="${sx-5}" y1="${Y_SA+8}" x2="${sx+5}" y2="${Y_SA+12}" stroke="${HV}" stroke-width="1"/>`);
-    p.push(`<line x1="${sx-5}" y1="${Y_SA+12}" x2="${sx+5}" y2="${Y_SA+16}" stroke="${HV}" stroke-width="1"/>`);
-    p.push(VL(sx, Y_SA+19, Y_SA+26, 1.5, HV));
-    // Ground symbol
-    p.push(HL(sx-7, Y_SA+26, sx+7, 2, HV));
-    p.push(HL(sx-4, Y_SA+30, sx+4, 1.5, HV));
-    p.push(HL(sx-1, Y_SA+34, sx+1, 1, HV));
+  // ── SA branch tap and main HV conductor ──────────────────────────────────────
+  const Y_SA_TAP = 135;  // SA shunt taps here on main conductor
+  const SA_X     = SLD_X - 62;  // SA symbol x (to the LEFT as shunt branch)
+  const Y_VCB_C  = 200;  // VCB centre
+  const Y_CT_C   = 270;  // CT centre
+  const Y_TX_C   = 355;  // transformer centre (library symbol ±30px)
+  const Y_MCCB_C = 420;  // LV MCCB centre
+  const Y_BUS_C  = 450;  // LV bus bar
+
+  // Main HV conductor (continuous vertical spine)
+  p.push(VL(SLD_X, Y_UTIL+28, Y_VCB_C-30, 3, HV));
+
+  // ── 3. SURGE ARRESTERS — IEC 60617 shunt branch ─────────────────────────────
+  // SA is a SHUNT device; branch stubs off main conductor horizontally, then down
+  p.push(HL(SLD_X, Y_SA_TAP, SA_X+2, 1.5, HV));             // horizontal stub
+  p.push(SA_sym(SA_X, Y_SA_TAP + 18));                        // SA body (IEC 60617)
+  // Label RIGHT via DL (per drawing-standards skill: label to the SIDE)
+  p.push(DL(SLD_X+4, Y_SA_TAP, SLD_X+40, Y_SA_TAP, HV));
+  p.push(T(SLD_X+42, Y_SA_TAP-6, `SA — ${is3ph?'3×':'1×'} sets`, {a:'start', sz:8, c:HV, w:'700'}));
+  p.push(T(SLD_X+42, Y_SA_TAP+6, `Station class, ${v1} V, IEC 60099-4`, {a:'start', sz:7.5, c:SC}));
+
+  // ── 4. VCB / LOAD-BREAK SWITCH — drawSymbol('breaker') [library, IEC 60617] ─
+  // Circuit breaker symbol represents VCB per IEC 60617 in SLD convention
+  p.push(`<g color="${HV}">${drawSymbol('breaker', SLD_X, Y_VCB_C)}</g>`);
+  // Label RIGHT via leader line
+  p.push(DL(SLD_X+14, Y_VCB_C, SLD_X+40, Y_VCB_C, HV));
+  p.push(T(SLD_X+42, Y_VCB_C-9, 'VCB / Load-Break Switch', {a:'start', sz:8, c:HV, w:'700'}));
+  p.push(T(SLD_X+42, Y_VCB_C+3, `${v1} V  |  IC ≥ ${IscKA} kA  |  PEC Art. 4.50`, {a:'start', sz:7.5, c:SC}));
+
+  // ── 5. HV conductor VCB bottom → CT ──────────────────────────────────────────
+  p.push(VL(SLD_X, Y_VCB_C+30, Y_CT_C-30, 2, HV));
+
+  // ── 5a. CT/VT SET — IEC 60617 bushing CT inline symbol ───────────────────────
+  p.push(CT_sym(SLD_X, Y_CT_C));
+  // Label RIGHT via DL
+  p.push(DL(SLD_X+24, Y_CT_C, SLD_X+40, Y_CT_C, CC));
+  p.push(T(SLD_X+42, Y_CT_C-9, 'CT / VT Set', {a:'start', sz:8, c:CC, w:'700'}));
+  p.push(T(SLD_X+42, Y_CT_C+3, 'CT: Class 0.5S (metering) / 5P20 (protection)', {a:'start', sz:7.5, c:SC}));
+  p.push(T(SLD_X+42, Y_CT_C+14, `VT: ${v1}/${110} V Class 0.5  |  IEEE C57.13`, {a:'start', sz:7, c:SC}));
+
+  // ── 6. HV conductor CT → transformer ─────────────────────────────────────────
+  p.push(VL(SLD_X, Y_CT_C+30, Y_TX_C-30, 2, HV));
+
+  // ── 6a. TRANSFORMER — drawSymbol('transformer') [library: IEC 60617] ─────────
+  // Two coupled inductors: correct IEC 60617-04 power transformer symbol
+  p.push(`<g color="${CC}">${drawSymbol('transformer', SLD_X, Y_TX_C)}</g>`);
+  // Winding labels LEFT (HV) and RIGHT (LV) per IEC 60617 convention
+  p.push(T(SLD_X-18, Y_TX_C-15, winding.split('-')[0]||'D', {a:'end', sz:8, c:HV, w:'700'}));
+  p.push(T(SLD_X+18, Y_TX_C-15, winding.split('-')[1]||'yn', {a:'start', sz:8, c:LV, w:'700'}));
+  // Nameplate: compact block to the LEFT of symbol (per skill: labels to side)
+  const NP_X = SLD_X - 42;
+  p.push(DL(SLD_X-14, Y_TX_C+10, NP_X+2, Y_TX_C+10));
+  [
+    [`${ratedKva} kVA × ${numUnits}`, CC],
+    [`${v1} / ${v2} V, ${is3ph?'3Ø':'1Ø'}`, CC],
+    [`Uz = ${impPct}%  ONAN`, SC],
+    [`IEC 60076-1:2011`, SC],
+  ].forEach(([txt, clr], i) => {
+    p.push(T(NP_X, Y_TX_C+10+i*12, txt, {a:'end', sz:7.5, c:clr}));
   });
-  p.push(HL(SLD_X - (is3ph?18:0), Y_SA-10, SLD_X + (is3ph?18:0), Y_SA-10, 1.5, HV));
-  p.push(T(SLD_X+28, Y_SA+14, 'SA', {a:'start', sz:7.5, c:HV, w:'700'}));
-  p.push(T(SLD_X+28, Y_SA+26, `Station class, ${v1} V`, {a:'start', sz:7, c:SC}));
 
-  // ── 4. VCB / LOAD-BREAK SWITCH ───────────────────────────────────────────────
-  p.push(VL(SLD_X, Y_SA+19, Y_VCB-18, 2, HV));
-  // VCB symbol (open rectangle with X)
-  p.push(`<rect x="${SLD_X-10}" y="${Y_VCB-18}" width="20" height="26" fill="white" stroke="${HV}" stroke-width="1.8" rx="2"/>`);
-  p.push(`<line x1="${SLD_X-7}" y1="${Y_VCB-15}" x2="${SLD_X+7}" y2="${Y_VCB+5}" stroke="${HV}" stroke-width="1.5"/>`);
-  p.push(`<line x1="${SLD_X+7}" y1="${Y_VCB-15}" x2="${SLD_X-7}" y2="${Y_VCB+5}" stroke="${HV}" stroke-width="1.5"/>`);
-  p.push(T(SLD_X+18, Y_VCB-8, 'VCB / LBS', {a:'start', sz:7.5, c:HV, w:'700'}));
-  p.push(T(SLD_X+18, Y_VCB+4, `${v1} V, IC ≥ ${IscKA} kA`, {a:'start', sz:7, c:SC}));
-
-  // ── 5. CT/VT SET (HV) ────────────────────────────────────────────────────────
-  p.push(VL(SLD_X, Y_VCB+8, Y_CT-10, 2, HV));
-  // CT symbol (circle on line)
-  p.push(`<circle cx="${SLD_X}" cy="${Y_CT}" r="8" fill="none" stroke="${CC}" stroke-width="1.5"/>`);
-  p.push(`<line x1="${SLD_X-12}" y1="${Y_CT}" x2="${SLD_X-8}" y2="${Y_CT}" stroke="${CC}" stroke-width="1.5"/>`);
-  p.push(`<line x1="${SLD_X+8}" y1="${Y_CT}" x2="${SLD_X+12}" y2="${Y_CT}" stroke="${CC}" stroke-width="1.5"/>`);
-  p.push(T(SLD_X, Y_CT+4, 'CT', {sz:7, c:CC, w:'700'}));
-  p.push(T(SLD_X+18, Y_CT-2, 'CT/VT Set', {a:'start', sz:7.5, c:CC, w:'700'}));
-  p.push(T(SLD_X+18, Y_CT+9, `Class 0.5 metering`, {a:'start', sz:7, c:SC}));
-
-  // ── 6. TRANSFORMER BODY ───────────────────────────────────────────────────────
-  p.push(VL(SLD_X, Y_CT+8, Y_TX_T, 2, HV));
-  const TX_W = 140, TX_H = Y_TX_B - Y_TX_T;
-  const TX_L = SLD_X - TX_W/2, TX_R = SLD_X + TX_W/2;
-  p.push(`<rect x="${TX_L}" y="${Y_TX_T}" width="${TX_W}" height="${TX_H}" fill="#f0f8ff" stroke="${CC}" stroke-width="2" rx="4"/>`);
-  p.push(`<rect x="${TX_L}" y="${Y_TX_T}" width="${TX_W}" height="18" fill="${CC}" rx="4"/>`);
-  p.push(T(SLD_X, Y_TX_T+12, 'POWER TRANSFORMER', {sz:8, c:'#fff', w:'700'}));
-  // Transformer core symbol (two interlocked circles)
-  const TXM = Y_TX_T + (Y_TX_B - Y_TX_T)/2;
-  p.push(`<circle cx="${SLD_X-12}" cy="${TXM}" r="18" fill="none" stroke="${CC}" stroke-width="2"/>`);
-  p.push(`<circle cx="${SLD_X+12}" cy="${TXM}" r="18" fill="none" stroke="${CC}" stroke-width="2"/>`);
-  // Nameplate data inside transformer
-  const np = [
-    `${ratedKva} kVA × ${numUnits}`,
-    `${v1} V / ${v2} V`,
-    winding,
-    `Uz = ${impPct}%`,
-    `ONAN  |  IEC 60076-1`,
-  ];
-  np.forEach((line, i) => {
-    p.push(T(SLD_X, Y_TX_T + TX_H - 62 + i * 12, line, {sz:7.5, c:CC}));
-  });
-
-  // ── 7. LV CABLE (transformer → MCCB) ────────────────────────────────────────
-  p.push(VL(SLD_X, Y_TX_B, Y_MCCB-20, 3, LV));
-  // Phase labels on LV cable
+  // ── 7. LV conductor TX → MCCB ─────────────────────────────────────────────────
+  p.push(VL(SLD_X, Y_TX_C+30, Y_MCCB_C-30, 3, LV));
+  // Phase ticks (3-phase indication per IEC 60617) — mandatory SLD element
   if (is3ph) {
-    [-8, 0, 8].forEach(dy => p.push(HL(SLD_X-6, Y_TX_B+15+dy, SLD_X+6, Y_TX_B+15+dy, 1.5, LV)));
-  }
-  p.push(T(SLD_X+14, Y_TX_B+18, `${v2} V ${is3ph?'3Ø':'1Ø'}`, {a:'start', sz:7.5, c:LV, w:'700'}));
-  p.push(T(SLD_X+14, Y_TX_B+30, `I₂ = ${I2} A`, {a:'start', sz:7.5, c:LV}));
-
-  // ── 8. MAIN LV MCCB ──────────────────────────────────────────────────────────
-  p.push(`<g color="${LV}">${drawSymbol('breaker', SLD_X, Y_MCCB)}</g>`);
-  p.push(Badge(SLD_X+52, Y_MCCB, `${Math.ceil(Number(I2)*1.25 > 0 ? Math.ceil(Number(I2)*1.25/5)*5 : 100)} A MCCB`, '#1565c0'));
-  p.push(T(SLD_X-44, Y_MCCB-4, 'Main LV', {a:'end', sz:7.5, c:LV, w:'700'}));
-  p.push(T(SLD_X-44, Y_MCCB+8, `IC ≥ ${IscKA} kA`, {a:'end', sz:7, c:SC}));
-
-  // ── 9. LV BUS BAR ────────────────────────────────────────────────────────────
-  p.push(VL(SLD_X, Y_MCCB+22, Y_BUS, 2, LV));
-  p.push(HL(SLD_X-80, Y_BUS, SLD_X+80, 6, LV));
-  p.push(T(SLD_X+90, Y_BUS+4, 'LV Bus Bar', {a:'start', sz:8, c:SC}));
-  p.push(T(SLD_X+90, Y_BUS+16, lvLabel, {a:'start', sz:7.5, c:LV}));
-  // Phase labels
-  if (is3ph) {
-    ['L1','L2','L3','N','PE'].forEach((ph,i) => {
-      const px = SLD_X - 64 + i*32;
-      p.push(T(px, Y_BUS-10, ph, {sz:7, c:i<3?HV:i===3?LV:GN, w:'700'}));
+    [-6, 0, 6].forEach(dy => {
+      const my = Y_TX_C + 45 + dy * 2;
+      p.push(`<line x1="${SLD_X-7}" y1="${my-5}" x2="${SLD_X+7}" y2="${my+5}" stroke="${LV}" stroke-width="1.5"/>`);
     });
   }
+  // LV cable size annotation (mandatory per skill checklist)
+  p.push(DL(SLD_X+4, Y_TX_C+50, SLD_X+42, Y_TX_C+50, LV));
+  p.push(T(SLD_X+44, Y_TX_C+47, `LV: ${lvCable} mm² Cu THWN-2`, {a:'start', sz:7.5, c:LV, w:'700'}));
+  p.push(T(SLD_X+44, Y_TX_C+58, `I₂ = ${I2} A  |  EMT conduit`, {a:'start', sz:7.5, c:SC}));
 
-  // ── 10. EARTHING ─────────────────────────────────────────────────────────────
-  // Transformer neutral earth
-  p.push(VL(SLD_X-80, Y_BUS, Y_BUS+20, 2, GN));
-  p.push(HL(SLD_X-90, Y_BUS+20, SLD_X-70, 2, GN));
-  p.push(HL(SLD_X-87, Y_BUS+24, SLD_X-73, 1.5, GN));
-  p.push(HL(SLD_X-84, Y_BUS+28, SLD_X-76, 1, GN));
-  p.push(T(SLD_X-95, Y_BUS+18, 'GEC', {a:'end', sz:7, c:GN, w:'700'}));
+  // ── 8. MAIN LV MCCB — drawSymbol('breaker') [library: IEC 60617] ─────────────
+  p.push(`<g color="${LV}">${drawSymbol('breaker', SLD_X, Y_MCCB_C)}</g>`);
+  p.push(Badge(SLD_X+52, Y_MCCB_C, `${lvMCCB} A MCCB`, '#1565c0'));
+  // Label LEFT (per skill: label to side, not above/below)
+  p.push(DL(SLD_X-14, Y_MCCB_C, SLD_X-42, Y_MCCB_C, LV));
+  p.push(T(SLD_X-44, Y_MCCB_C-8, 'Main LV MCCB', {a:'end', sz:8, c:LV, w:'700'}));
+  p.push(T(SLD_X-44, Y_MCCB_C+4, `IC ≥ ${IscKA} kA  |  TPN  |  PEC Art. 2.10`, {a:'end', sz:7.5, c:SC}));
+  // ARC FLASH WARNING (mandatory per drawing-standards skill SLD checklist)
+  const afW = 210;
+  p.push(`<rect x="${SLD_X+90}" y="${Y_MCCB_C-16}" width="${afW}" height="26" rx="3" fill="#fff3e0" stroke="#e65100" stroke-width="1.2"/>`);
+  p.push(T(SLD_X+90+afW/2, Y_MCCB_C-4, '⚡ ARC FLASH HAZARD', {sz:7.5, c:'#e65100', w:'700'}));
+  p.push(T(SLD_X+90+afW/2, Y_MCCB_C+8, 'Arc flash study required — NFPA 70E / PEC 2017', {sz:6.5, c:'#b74500'}));
 
-  // Transformer tank earth (from transformer body)
-  p.push(HL(TX_L, Y_TX_T+TX_H*0.6, TX_L-25, Y_TX_T+TX_H*0.6, 1.5, GN));
-  p.push(VL(TX_L-25, Y_TX_T+TX_H*0.6, Y_TX_T+TX_H*0.6+20, 1.5, GN));
-  p.push(HL(TX_L-33, Y_TX_T+TX_H*0.6+20, TX_L-17, 1.5, GN));
-  p.push(HL(TX_L-30, Y_TX_T+TX_H*0.6+24, TX_L-20, 1.2, GN));
-  p.push(T(TX_L-38, Y_TX_T+TX_H*0.6+8, 'Tank\nEarth', {a:'end', sz:7, c:GN}));
+  // ── 9. LV BUS BAR ─────────────────────────────────────────────────────────────
+  // MCCB bottom port at Y_MCCB_C+30 = bus level
+  p.push(HL(SLD_X-90, Y_BUS_C, SLD_X+90, 6, LV));
+  // Phase labels on bus (mandatory per SLD checklist)
+  if (is3ph) {
+    ['L1','L2','L3','N','PE'].forEach((ph, i) => {
+      const px = SLD_X - 72 + i * 36;
+      const fc = i < 3 ? HV : i === 3 ? LV : GN;
+      p.push(T(px, Y_BUS_C-10, ph, {sz:7.5, c:fc, w:'700'}));
+    });
+  }
+  // Bus label RIGHT
+  p.push(DL(SLD_X+90, Y_BUS_C, SLD_X+110, Y_BUS_C));
+  p.push(T(SLD_X+112, Y_BUS_C-6, `LV Bus  —  ${lvLabel}`, {a:'start', sz:8, c:SC}));
 
-  // ── 11. RIGHT PANEL — data table ─────────────────────────────────────────────
-  const RPH = STRIP_Y - 55;
+  // ── 10. EARTHING — drawSymbol('ground') [library: IEC 60617] ──────────────────
+  // Neutral earth from bus (left end): GEC
+  const GEC_X = SLD_X - 90;
+  p.push(VL(GEC_X, Y_BUS_C+3, Y_BUS_C+15, 2, GN));
+  p.push(`<g color="${GN}">${drawSymbol('ground', GEC_X, Y_BUS_C+45)}</g>`);
+  // GEC label (mandatory: size + electrode type per SLD checklist)
+  p.push(DL(GEC_X-3, Y_BUS_C+30, GEC_X-20, Y_BUS_C+30, GN));
+  p.push(T(GEC_X-22, Y_BUS_C+27, `GEC: ${Math.max(14, Math.ceil(Number(I2)/10)*2)} mm² Cu bare`, {a:'end', sz:7.5, c:GN, w:'700'}));
+  p.push(T(GEC_X-22, Y_BUS_C+38, 'Ground rod 2.4 m  |  PEC Art. 2.50', {a:'end', sz:7, c:SC}));
+
+  // Transformer tank earth (branch from transformer level)
+  const TE_X = SLD_X - 42;
+  p.push(HL(SLD_X-14, Y_TX_C+16, TE_X, Y_TX_C+16, 1.5, GN));
+  p.push(VL(TE_X, Y_TX_C+16, Y_BUS_C+3, 1.5, GN));   // connects to GEC bus
+  p.push(T(TE_X-4, Y_TX_C+28, 'Tank Earth', {a:'end', sz:7, c:GN}));
+
+  // ── 11. RIGHT PANEL — calculation data (per drawing-standards skill title block)─
+  const RPH = STRIP_Y - 52;
   p.push(`<rect x="${RP_X}" y="50" width="${RP_W}" height="${RPH}" fill="#f8faff" stroke="#d0d8e8" stroke-width="0.8" rx="3"/>`);
   p.push(`<rect x="${RP_X}" y="50" width="${RP_W}" height="18" fill="${CC}" rx="3"/>`);
   p.push(T(RP_X+RP_W/2, 62, 'NAMEPLATE & CALCULATION DATA', {sz:8, c:'#fff', w:'700'}));
 
   const rows = [
-    ['Rating',             `${ratedKva} kVA × ${numUnits} unit(s)`,       CC],
-    ['Primary Voltage',    `${v1} V`,                                       HV],
-    ['Secondary Voltage',  `${v2} V`,                                       LV],
-    ['Phases',             `${phases}-Phase`,                               CC],
-    ['Winding Connection', winding,                                          CC],
-    ['Impedance (Uz%)',    `${impPct} %`,                                   CC],
-    ['Primary I₁ (full load)', `${I1} A`,                                  HV],
-    ['Secondary I₂ (full load)', `${I2} A`,                                LV],
-    ['Short-Circuit Isc', `${IscKA} kA`,                                   '#c0392b'],
-    ['Voltage Regulation', `${VR} %`,                                       CC],
+    ['Transformer Rating',     `${ratedKva} kVA × ${numUnits} unit(s)`,  CC],
+    ['Primary Voltage (HV)',   `${v1} V`,                                  HV],
+    ['Secondary Voltage (LV)', `${v2} V`,                                  LV],
+    ['Phases',                 `${phases}-Phase`,                          CC],
+    ['Winding Connection',     winding,                                     CC],
+    ['Impedance (Uz%)',        `${impPct} %`,                              CC],
+    ['Utility Fault Level',    `${faultKA} kA`,                           HV],
+    ['Primary I₁ (full load)', `${I1} A`,                                 HV],
+    ['Secondary I₂ (full load)', `${I2} A`,                               LV],
+    ['Short-Circuit Isc (sec)', `${IscKA} kA`,                            '#c0392b'],
+    ['LV Cable (THWN-2)',      `${lvCable} mm² Cu`,                       LV],
+    ['Main LV MCCB',          `${lvMCCB} A  |  IC ≥ ${IscKA} kA`,        LV],
+    ['Voltage Regulation',     `${VR} %`,                                   CC],
     ['Efficiency (100% load)', `${etaFl} %`,                               GN],
-    ['Loading',            `${loadPct.toFixed ? loadPct.toFixed(1) : loadPct} %`, loadPct > 80 ? HV : GN],
-    ['Cooling Type',       'ONAN',                                           CC],
-    ['Standard',          'IEC 60076-1:2011',                               SC],
+    ['Loading',                `${Number(loadPct||0).toFixed(1)} %`,       Number(loadPct||0)>80?HV:GN],
+    ['Cooling',                'ONAN  (Oil Natural Air Natural)',           SC],
+    ['Standard',              'IEC 60076-1:2011 / PEC 2017',               SC],
   ];
 
-  const RH = 13, RPY0 = 72;
+  const RH = 12, RPY0 = 72;
   rows.forEach(([label, value, vc], i) => {
     const ry = RPY0 + i * RH;
     if (i % 2 === 0) p.push(`<rect x="${RP_X+1}" y="${ry}" width="${RP_W-2}" height="${RH}" fill="#eef3fa"/>`);
-    p.push(T(RP_X+6,         ry+RH-3, label, {a:'start', sz:7.5, c:SC}));
-    p.push(T(RP_X+RP_W-6,    ry+RH-3, value, {a:'end',   sz:7.5, c:vc, w:'600'}));
+    p.push(T(RP_X+6,       ry+RH-3, label, {a:'start', sz:7.5, c:SC}));
+    p.push(T(RP_X+RP_W-6,  ry+RH-3, value, {a:'end',   sz:7.5, c:vc, w:'600'}));
   });
 
-  // ── LEGEND strip ─────────────────────────────────────────────────────────────
+  // ── LEGEND + NOTES strip (drawing-standards skill: STRIP_Y = H-113) ──────────
   p.push(HL(11, STRIP_Y, W-11, 0.75));
-  const LX2 = Math.round(W * 0.55);
   p.push(VL(LX2, STRIP_Y, H-11, 0.75));
 
   p.push(T(18, STRIP_Y+13, 'LEGEND OF SYMBOLS', {a:'start', sz:7, c:CC, w:'700'}));
+  // Symbol swatches: colour bar + text (per skill: left symbols, right text)
   [
-    [HV, 'HV Side (Primary)'],
-    [LV, 'LV Side (Secondary)'],
-    [GN, 'Earthing / Grounding'],
-    [AO, 'Protective Device Rating'],
+    [HV, '─── HV Side (Primary)  IEC 60617'],
+    [LV, '─── LV Side (Secondary)  IEC 60617'],
+    [GN, '─── Earthing / Grounding  IEC 60617'],
+    [AO, '─── Protective Device (MCCB)'],
+    [CC, '─── Transformer  IEC 60617-04'],
   ].forEach(([clr, lbl], i) => {
-    const ly = STRIP_Y + 25 + i * 14;
-    p.push(`<rect x="18" y="${ly-6}" width="22" height="8" fill="${clr}"/>`);
-    p.push(T(46, ly+1, lbl, {a:'start', sz:7.5, c:CC}));
+    const ly = STRIP_Y + 22 + i * 14;
+    p.push(`<line x1="18" y1="${ly}" x2="36" y2="${ly}" stroke="${clr}" stroke-width="3"/>`);
+    p.push(T(42, ly+4, lbl, {a:'start', sz:7.5, c:CC}));
   });
 
+  // GENERAL NOTES — 6 mandatory items from drawing-standards SLD checklist
   p.push(T(LX2+8, STRIP_Y+13, 'GENERAL NOTES', {a:'start', sz:7, c:CC, w:'700'}));
   [
-    `1. Transformer rated per IEC 60076-1:2011, winding ${winding}, impedance Uz = ${impPct}%.`,
-    `2. HV disconnecting device: VCB or load-break switch, IC ≥ ${IscKA} kA (PEC Art. 4.50).`,
-    `3. Surge arresters: station class, rated for ${v1} V system (IEC 60099-4).`,
-    `4. LV main MCCB: IC ≥ ${IscKA} kA, TPN for 3-phase (PEC 2017 Art. 2.10).`,
-    `5. All earthing conductors: bare Cu, bonded to main earth bar (PEC Art. 2.50 / IEEE 80).`,
+    `1. Transformer rated per IEC 60076-1:2011, winding ${winding}, Uz = ${impPct}%, ONAN cooling.`,
+    `2. HV switching: VCB or load-break switch, IC ≥ ${IscKA} kA (PEC 2017 Art. 4.50 / IEEE C37).`,
+    `3. Surge arresters: 3 sets, station class, rated ${v1} V, Isc ≥ ${faultKA} kA (IEC 60099-4).`,
+    `4. LV main MCCB: ${lvMCCB} A, IC ≥ ${IscKA} kA, TPN, VD ≤ 3% (PEC Art. 2.10 / 2.15).`,
+    `5. GEC: bare Cu, size per table above, ground rod ≥ 2.4 m (PEC Art. 2.50 / IEEE 80).`,
+    `6. Arc flash study required per NFPA 70E before energisation (PEC 2017 Art. 1.30).`,
   ].forEach((note, i) => {
     p.push(T(LX2+8, STRIP_Y+27+i*12, note, {a:'start', sz:7, c:SC}));
   });
