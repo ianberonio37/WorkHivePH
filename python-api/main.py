@@ -43,6 +43,11 @@ class DiagramRequest(BaseModel):
     results: dict[str, Any] = {}
 
 
+class PdfRequest(BaseModel):
+    html: str                       # full innerHTML of the report panel
+    filename: str = "report.pdf"   # suggested download filename
+
+
 # ─── Handler registry ─────────────────────────────────────────────────────────
 # Each phase adds entries here. Key = exact calc_type string used by the
 # frontend. Value = a callable that takes (inputs: dict) -> dict.
@@ -263,6 +268,82 @@ def diagram(req: DiagramRequest):
     except Exception as e:
         print(f"DIAGRAM ERROR {req.diagram_type}: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Diagram error: {str(e)}")
+
+
+@app.post("/pdf")
+def generate_pdf(req: PdfRequest):
+    """
+    Phase 8d — Server-side vector PDF via weasyprint.
+    Accepts the report HTML string, returns a true vector PDF (not a rasterised
+    screenshot). Text is selectable and searchable; SVGs remain vector.
+
+    The frontend strips contenteditable spans and no-print elements before
+    POSTing, and falls back to html2pdf.js if this endpoint is unavailable.
+    """
+    from fastapi.responses import Response as FastAPIResponse
+    try:
+        from weasyprint import HTML, CSS
+    except ImportError:
+        raise HTTPException(status_code=503, detail="weasyprint not available on this deployment")
+
+    # Base CSS: A4 page, Liberation Sans (installed via fonts-liberation Debian pkg),
+    # print-friendly table borders, page numbers in footer via CSS Paged Media.
+    base_css = CSS(string="""
+        @page {
+            size: A4;
+            margin: 14mm 14mm 20mm 14mm;
+            @bottom-center {
+                content: "Page " counter(page) " of " counter(pages);
+                font-family: 'Liberation Sans', Arial, sans-serif;
+                font-size: 8pt;
+                color: #888;
+            }
+        }
+        body {
+            font-family: 'Liberation Sans', Arial, Helvetica, sans-serif;
+            font-size: 9pt;
+            color: #1a1a1a;
+            background: #fff;
+            margin: 0;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            page-break-inside: auto;
+        }
+        tr  { page-break-inside: avoid; }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 4px 6px;
+            font-size: 8.5pt;
+        }
+        h1  { font-size: 14pt; margin: 0 0 4px 0; }
+        h2  { font-size: 11pt; margin: 10px 0 4px 0; page-break-after: avoid; }
+        h3  { font-size: 10pt; margin: 8px 0 3px 0;  page-break-after: avoid; }
+        .no-print { display: none !important; }
+        .editable-field { border-bottom: none !important; text-decoration: none; }
+        .result-highlight, .sig-block, .narrative-block {
+            page-break-inside: avoid;
+        }
+    """)
+
+    try:
+        pdf_bytes = HTML(string=req.html, base_url=None).write_pdf(stylesheets=[base_css])
+    except Exception as e:
+        print(f"weasyprint error: {e}")
+        raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}")
+
+    # Sanitise filename: keep alphanumeric, hyphens, underscores, dots
+    safe_name = "".join(c if c.isalnum() or c in "-_." else "_" for c in req.filename)
+    if not safe_name.endswith(".pdf"):
+        safe_name += ".pdf"
+
+    return FastAPIResponse(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{safe_name}"'},
+    )
 
 
 @app.get("/calcs")

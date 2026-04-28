@@ -13814,7 +13814,7 @@ function renderVDReport(inputs, results, narrative) {
   const sizeRows = (results.size_comparison || []).map(r => `
     <tr style="${r.is_selected ? 'background:#fffbf0;font-weight:700;' : ''}">
       <td>${r.size_mm2} mm²${r.is_selected ? ' (selected)' : ''}</td>
-      <td class="num">${r.resistance}</td>
+      <td class="num">${r.resistance_ohm_km}</td>
       <td class="num">${r.vd_v}</td>
       <td class="num">${r.vd_pct}</td>
       <td class="num" style="color:${r.pass ? '#2e7d32' : '#b71c1c'};">${r.pass ? 'PASS' : 'FAIL'}</td>
@@ -17527,50 +17527,64 @@ function renderAHUSizingReport(inputs, results, narrative) {
   showReport();
 }
 
-// ─── Download PDF (html2pdf: no browser headers/footers/URL) ────────────────
-function printReport() {
-  const reportEl = document.getElementById('report-panel');
-  if (!reportEl) return;
+// ─── PDF helpers ─────────────────────────────────────────────────────────────
+const PDF_API = 'https://engineering-calc-api.onrender.com/pdf';
 
-  const projectName = _lastInputs?.project_name || 'Design Calculation';
-  const fileName = projectName.replace(/[^a-z0-9]/gi, '_').replace(/_+/g, '_') + '_Report.pdf';
+function _prepareReportHtml(reportEl) {
+  // Clone the panel so we can mutate without affecting the live DOM
+  const clone = reportEl.cloneNode(true);
+  // Strip elements that must not appear in PDF
+  clone.querySelectorAll('.no-print').forEach(el => el.remove());
+  // Remove contenteditable underlines (weasyprint ignores the attribute but
+  // the amber dashed border comes from CSS class — clear it via inline style)
+  clone.querySelectorAll('.editable-field').forEach(el => {
+    el.style.borderBottom = 'none';
+    el.removeAttribute('contenteditable');
+  });
+  // Inject disclaimer at the end
+  const disc = document.createElement('div');
+  disc.style.cssText = 'margin-top:2rem;padding:0.75rem 1rem;border-top:1.5px solid #e0c97a;background:#fffdf0;font-size:8pt;color:#555;line-height:1.6;';
+  disc.innerHTML = '<strong>DISCLAIMER:</strong> For preliminary engineering reference only. Verify all results with a licensed PRC-registered Professional Engineer before use in any design or construction document. WorkHive assumes no liability for errors or omissions.';
+  clone.appendChild(disc);
+  return clone.innerHTML;
+}
 
-  // Temporarily hide no-print elements and strip editable underlines
-  const noPrintEls = reportEl.querySelectorAll('.no-print');
-  noPrintEls.forEach(el => el.style.display = 'none');
+async function _tryServerPdf(html, fileName) {
+  const resp = await fetch(PDF_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ html, filename: fileName }),
+  });
+  if (!resp.ok) throw new Error(`PDF API ${resp.status}`);
+  const blob = await resp.blob();
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = fileName; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+function _fallbackHtml2pdf(reportEl, fileName) {
+  const noPrintEls  = reportEl.querySelectorAll('.no-print');
   const editableEls = reportEl.querySelectorAll('.editable-field');
+  noPrintEls.forEach(el => el.style.display = 'none');
   editableEls.forEach(el => el.style.borderBottom = 'none');
 
-  // Inject page-break rules so html2pdf never splits a table row, heading, or
-  // result block across two pages
   const styleTag = document.createElement('style');
   styleTag.id = 'pdf-pagebreak-rules';
   styleTag.textContent = `
-    #report-panel tr   { page-break-inside: avoid; break-inside: avoid; }
-    #report-panel td   { page-break-inside: avoid; break-inside: avoid; }
-    #report-panel th   { page-break-inside: avoid; break-inside: avoid; }
-    #report-panel h2   { page-break-after: avoid;  break-after: avoid; }
-    #report-panel h3   { page-break-after: avoid;  break-after: avoid; }
-    #report-panel p    { page-break-inside: avoid; break-inside: avoid; }
-    #report-panel .result-highlight  { page-break-inside: avoid; break-inside: avoid; }
-    #report-panel .sig-block         { page-break-inside: avoid; break-inside: avoid; }
-    #report-panel .narrative-block   { page-break-inside: avoid; break-inside: avoid; }
-    #report-panel .narrative-box     { page-break-inside: avoid; break-inside: avoid; }
+    #report-panel tr,td,th { page-break-inside:avoid;break-inside:avoid; }
+    #report-panel h2,h3    { page-break-after:avoid; break-after:avoid;  }
+    #report-panel p,.result-highlight,.sig-block,.narrative-block,.narrative-box
+                           { page-break-inside:avoid;break-inside:avoid; }
   `;
   document.head.appendChild(styleTag);
 
-  // Inject disclaimer footer: appears in every PDF, removed after export
   const disclaimer = document.createElement('div');
   disclaimer.id = 'pdf-disclaimer';
   disclaimer.style.cssText = 'margin-top:2rem;padding:0.75rem 1rem;border-top:1.5px solid #e0c97a;background:#fffdf0;font-size:10px;color:#555;line-height:1.6;font-family:Arial,sans-serif;';
-  disclaimer.innerHTML = `<strong style="color:#8a6f00;">DISCLAIMER:</strong> This report is generated for preliminary engineering reference only. Results must be verified by a licensed Professional Engineer (PRC-registered) against the governing standards before use in any design, specification, or construction document. WorkHive and its developers assume no liability for errors or omissions. For inquiries or feedback, contact WorkHive at <strong>ian.beronio37@gmail.com</strong>.`;
+  disclaimer.innerHTML = `<strong style="color:#8a6f00;">DISCLAIMER:</strong> This report is generated for preliminary engineering reference only. Results must be verified by a licensed Professional Engineer (PRC-registered) against the governing standards before use in any design, specification, or construction document. WorkHive and its developers assume no liability for errors or omissions.`;
   reportEl.appendChild(disclaimer);
 
-  // Pin the panel to a fixed A4-compatible width before capture so html2canvas
-  // always renders content at the correct width: prevents both left-edge cutoff
-  // (from windowWidth resizing the whole page layout) and right-edge overflow.
-  // A4 content area at 14mm margins = 182mm = ~688px at 96dpi.
-  // Panel padding 2.5rem (40px each side) is already included inside that width.
   const origWidth    = reportEl.style.width;
   const origMaxWidth = reportEl.style.maxWidth;
   reportEl.style.width    = '688px';
@@ -17592,6 +17606,25 @@ function printReport() {
     document.getElementById('pdf-pagebreak-rules')?.remove();
     document.getElementById('pdf-disclaimer')?.remove();
   });
+}
+
+// ─── Download PDF (weasyprint server-side vector → html2pdf fallback) ────────
+async function printReport() {
+  const reportEl = document.getElementById('report-panel');
+  if (!reportEl) return;
+
+  const projectName = _lastInputs?.project_name || 'Design Calculation';
+  const fileName = projectName.replace(/[^a-z0-9]/gi, '_').replace(/_+/g, '_') + '_Report.pdf';
+
+  // Try server-side vector PDF first (weasyprint); fall back to html2pdf if
+  // the API is cold-starting or unavailable.
+  try {
+    const html = _prepareReportHtml(reportEl);
+    await _tryServerPdf(html, fileName);
+  } catch (e) {
+    console.warn('Server PDF unavailable, using html2pdf fallback:', e.message);
+    _fallbackHtml2pdf(reportEl, fileName);
+  }
 }
 
 // ─── HVAC System Diagram (Mermaid.js: deterministic, no AI) ─────────────────
@@ -20514,7 +20547,7 @@ async function renderHVACDiagram(mermaidCode) {
   document.getElementById('drawing-output').classList.remove('hidden');
 }
 
-function downloadDrawingPdf() {
+async function downloadDrawingPdf() {
   const panel       = document.getElementById('drawing-panel');
   const projectName = _lastInputs?.project_name || 'Engineering Drawing';
   const drawingType = _calcType === 'Load Estimation'                  ? 'SLD'
@@ -20525,25 +20558,26 @@ function downloadDrawingPdf() {
                     : _calcType === 'HVAC Cooling Load'                 ? 'HVAC_Schematic'
                     : _calcType === 'Lighting Design'                   ? 'Lighting_Layout'
                     : 'Schematic';
-  const fileName    = (projectName + '_' + drawingType)
+  const fileName = (projectName + '_' + drawingType)
     .replace(/[^a-z0-9]/gi, '_').replace(/_+/g, '_') + '.pdf';
 
-  if (_calcType === 'Load Estimation') {
-    _downloadSLDPdf(panel, fileName);
-  } else if (_calcType === 'Lightning Protection System (LPS)') {
-    _downloadSLDPdf(panel, fileName);
-  } else if (_calcType === 'Generator Sizing') {
-    _downloadSLDPdf(panel, fileName);
-  } else if (_calcType === 'Pump Sizing (TDH)') {
-    _downloadSLDPdf(panel, fileName);  // A3 landscape SVG export pattern
-  } else if (_calcType === 'Fire Sprinkler Hydraulic') {
-    _downloadSLDPdf(panel, fileName);  // A3 landscape SVG export pattern
-  } else if (_calcType === 'HVAC Cooling Load') {
-    _downloadSLDPdf(panel, fileName);  // A3 landscape SVG export pattern
-  } else if (_calcType === 'Lighting Design') {
-    _downloadSLDPdf(panel, fileName);  // A3 landscape SVG export pattern
-  } else {
+  // ── Server-side vector PDF (preserves SVG as true vector) ─────────────────
+  try {
+    const clone = panel.cloneNode(true);
+    clone.querySelectorAll('.editable-field').forEach(el => el.style.borderBottom = 'none');
+    clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+    const html = `<style>@page{size:A3 landscape;margin:8mm 10mm;}body{margin:0;padding:0;}svg{width:100%;height:auto;}</style>` + clone.innerHTML;
+    await _tryServerPdf(html, fileName);
+    return;
+  } catch (e) {
+    console.warn('Server drawing PDF failed, using html2pdf fallback:', e.message);
+  }
+
+  // ── html2pdf fallback ─────────────────────────────────────────────────────
+  if (_calcType === 'HVAC Cooling Load') {
     _downloadHVACPdf(panel, fileName);
+  } else {
+    _downloadSLDPdf(panel, fileName);
   }
 }
 
@@ -23238,12 +23272,32 @@ function downloadBomCsv() {
   showToast('BOM CSV downloaded.');
 }
 
-function downloadBomDocPdf() {
+async function downloadBomDocPdf() {
   const el = document.getElementById('bom-doc-content');
   if (!el) { showToast('No BOM to download.'); return; }
-  const proj = (_lastInputs?.project_name || 'BOM').replace(/[^a-z0-9]/gi, '_');
+  const proj     = (_lastInputs?.project_name || 'BOM').replace(/[^a-z0-9]/gi, '_');
+  const fileName = `BOM_${proj}_${new Date().toISOString().slice(0,10)}.pdf`;
 
-  // Replace all inputs with wrapping divs so long text is fully visible in PDF
+  // ── Server-side vector PDF ────────────────────────────────────────────────
+  try {
+    const clone = el.cloneNode(true);
+    // Replace <input> elements with plain text spans (weasyprint can't render inputs)
+    clone.querySelectorAll('input[type="text"], input[type="number"]').forEach(inp => {
+      const sp = document.createElement('span');
+      sp.textContent = inp.value;
+      inp.parentNode.replaceChild(sp, inp);
+    });
+    clone.querySelectorAll('.editable-field').forEach(el => el.style.borderBottom = 'none');
+    // Landscape A4 override via inline @page rule
+    const html = `<style>@page{size:A4 landscape;margin:10mm;}body{font-family:'Liberation Sans',Arial,sans-serif;font-size:8.5pt;}</style>` + clone.innerHTML;
+    await _tryServerPdf(html, fileName);
+    showToast('BOM PDF saved.');
+    return;
+  } catch (e) {
+    console.warn('Server BOM PDF failed, using html2pdf fallback:', e.message);
+  }
+
+  // ── html2pdf fallback ─────────────────────────────────────────────────────
   const inputs = Array.from(el.querySelectorAll('input[type="text"], input[type="number"]'));
   const inputSnapshots = inputs.map(inp => {
     const div = document.createElement('div');
@@ -23252,90 +23306,71 @@ function downloadBomDocPdf() {
     inp.parentNode.replaceChild(div, inp);
     return { div, inp };
   });
-
   const style = document.createElement('style');
   style.id = 'bom-pdf-rules';
   style.textContent = `
-    #bom-doc-content tr, #bom-doc-content td, #bom-doc-content th { page-break-inside: avoid; break-inside: avoid; }
-    #bom-doc-content thead { display: table-header-group; }
-    #bom-doc-content tfoot { display: table-footer-group; }
-    #bom-doc-content table { page-break-inside: auto; border-collapse: collapse; }
-    #bom-doc-content h1, #bom-doc-content h2, #bom-doc-content h3 { page-break-after: avoid; break-after: avoid; }
-    #bom-doc-content p { page-break-inside: avoid; break-inside: avoid; }
-    #bom-doc-content .doc-header-row { page-break-inside: avoid; break-inside: avoid; }
-    #bom-doc-content .sig-block { page-break-inside: avoid; break-inside: avoid; }
-    #bom-doc-content .bom-notes-block { page-break-inside: avoid; break-inside: avoid; }
-    #bom-doc-content .result-highlight { page-break-inside: avoid; break-inside: avoid; }
-    #bom-doc-content .editable-field { border-bottom: none !important; border: none !important; outline: none !important; background: transparent !important; }
-    #bom-doc-content td, #bom-doc-content th { vertical-align: top; }
+    #bom-doc-content tr,td,th{page-break-inside:avoid;break-inside:avoid;}
+    #bom-doc-content thead{display:table-header-group;}
+    #bom-doc-content table{page-break-inside:auto;border-collapse:collapse;}
+    #bom-doc-content h1,h2,h3{page-break-after:avoid;break-after:avoid;}
+    #bom-doc-content .editable-field{border-bottom:none!important;}
+    #bom-doc-content td,th{vertical-align:top;}
   `;
   document.head.appendChild(style);
-  el.style.paddingBottom = '40px';
-
-  // Pin width to A4 landscape content area (297mm − 10mm×2 margins = 277mm = 1047px at 96dpi)
-  const origWidth    = el.style.width;
-  const origMaxWidth = el.style.maxWidth;
-  el.style.width    = '1047px';
-  el.style.maxWidth = '1047px';
-
+  const origWidth = el.style.width, origMaxWidth = el.style.maxWidth;
+  el.style.width = '1047px'; el.style.maxWidth = '1047px';
   html2pdf().set({
-    margin:      [10, 10, 10, 10],
-    filename:    `BOM_${proj}_${new Date().toISOString().slice(0,10)}.pdf`,
-    image:       { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, scrollY: 0, scrollX: 0 },
-    jsPDF:       { unit: 'mm', format: 'a4', orientation: 'landscape' },
-    pagebreak:   { mode: ['css'] },
+    margin:[10,10,10,10], filename:fileName,
+    image:{type:'jpeg',quality:0.98},
+    html2canvas:{scale:2,useCORS:true,scrollY:0,scrollX:0},
+    jsPDF:{unit:'mm',format:'a4',orientation:'landscape'},
+    pagebreak:{mode:['css']},
   }).from(el).save().then(() => {
-    // Restore inputs and styles
-    inputSnapshots.forEach(({ div, inp }) => div.parentNode.replaceChild(inp, div));
-    el.style.paddingBottom = '';
-    el.style.width    = origWidth;
-    el.style.maxWidth = origMaxWidth;
+    inputSnapshots.forEach(({div,inp}) => div.parentNode.replaceChild(inp,div));
+    el.style.width = origWidth; el.style.maxWidth = origMaxWidth;
     document.getElementById('bom-pdf-rules')?.remove();
     showToast('BOM PDF saved.');
   });
 }
 
-function downloadSowPdf() {
+async function downloadSowPdf() {
   const el = document.getElementById('sow-doc-content');
   if (!el) { showToast('No SOW to download.'); return; }
-  const proj = (_lastInputs?.project_name || 'SOW').replace(/[^a-z0-9]/gi, '_');
+  const proj     = (_lastInputs?.project_name || 'SOW').replace(/[^a-z0-9]/gi, '_');
+  const fileName = `SOW_${proj}_${new Date().toISOString().slice(0,10)}.pdf`;
+
+  // ── Server-side vector PDF ────────────────────────────────────────────────
+  try {
+    const clone = el.cloneNode(true);
+    clone.querySelectorAll('.editable-field').forEach(el => el.style.borderBottom = 'none');
+    const html = `<style>@page{size:A4;margin:12mm 15mm;}body{font-family:'Liberation Sans',Arial,sans-serif;font-size:9pt;}</style>` + clone.innerHTML;
+    await _tryServerPdf(html, fileName);
+    showToast('SOW PDF saved.');
+    return;
+  } catch (e) {
+    console.warn('Server SOW PDF failed, using html2pdf fallback:', e.message);
+  }
+
+  // ── html2pdf fallback ─────────────────────────────────────────────────────
   const style = document.createElement('style');
   style.id = 'sow-pdf-rules';
   style.textContent = `
-    #sow-doc-content .sow-clause        { page-break-inside: avoid; break-inside: avoid; }
-    #sow-doc-content .sow-clause-header { page-break-after:  avoid; break-after:  avoid; }
-    #sow-doc-content .sow-clause-body   { page-break-inside: avoid; break-inside: avoid; }
-    #sow-doc-content h1, #sow-doc-content h2, #sow-doc-content h3 { page-break-after: avoid; break-after: avoid; }
-    #sow-doc-content p                  { page-break-inside: avoid; break-inside: avoid; }
-    #sow-doc-content li                 { page-break-inside: avoid; break-inside: avoid; }
-    #sow-doc-content .doc-header-row    { page-break-inside: avoid; break-inside: avoid; }
-    #sow-doc-content .general-notes     { page-break-inside: avoid; break-inside: avoid; }
-    #sow-doc-content .sig-block         { page-break-inside: avoid; break-inside: avoid; }
-    #sow-doc-content .result-highlight  { page-break-inside: avoid; break-inside: avoid; }
-    #sow-doc-content table, #sow-doc-content tr, #sow-doc-content td { page-break-inside: avoid; break-inside: avoid; }
-    #sow-doc-content .editable-field { border-bottom: none !important; border: none !important; outline: none !important; background: transparent !important; }
+    #sow-doc-content .sow-clause,.sow-clause-body,p,li,.sig-block,.result-highlight,
+    table,tr,td{page-break-inside:avoid;break-inside:avoid;}
+    #sow-doc-content .sow-clause-header,h1,h2,h3{page-break-after:avoid;break-after:avoid;}
+    #sow-doc-content .editable-field{border-bottom:none!important;}
   `;
   document.head.appendChild(style);
-  el.style.paddingBottom = '40px';
-
-  // Pin width to A4 portrait content area (210mm − 15mm×2 margins = 180mm = 680px at 96dpi)
-  const sowOrigWidth    = el.style.width;
-  const sowOrigMaxWidth = el.style.maxWidth;
-  el.style.width    = '680px';
-  el.style.maxWidth = '680px';
-
+  const sowOW = el.style.width, sowOMW = el.style.maxWidth;
+  el.style.width = '680px'; el.style.maxWidth = '680px';
   html2pdf().set({
-    margin:      [12, 15, 12, 15],
-    filename:    `SOW_${proj}_${new Date().toISOString().slice(0,10)}.pdf`,
-    image:       { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, scrollY: 0, scrollX: 0 },
-    jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak:   { mode: ['css'] },
+    margin:[12,15,12,15], filename:fileName,
+    image:{type:'jpeg',quality:0.98},
+    html2canvas:{scale:2,useCORS:true,scrollY:0,scrollX:0},
+    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+    pagebreak:{mode:['css']},
   }).from(el).save().then(() => {
-    el.style.paddingBottom = '';
-    el.style.width    = sowOrigWidth;
-    el.style.maxWidth = sowOrigMaxWidth;
+    el.style.width = sowOW; el.style.maxWidth = sowOMW;
     document.getElementById('sow-pdf-rules')?.remove();
     showToast('SOW PDF saved.');
   });

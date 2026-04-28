@@ -39,7 +39,6 @@ pandas==2.2.2
 # Stage 3 Analytics Engine — Phase 2 Diagnostic
 statsmodels==0.14.2
 
-# Phase 8 — Server-side PDF generation (replaces html2pdf.js screenshot)
-# weasyprint==62.3
-# Caution: weasyprint requires system-level GTK/Pango libs in Docker image.
-# Uncomment when Phase 8 is active and update the Dockerfile accordingly.
+# Phase 8d — Server-side vector PDF (replaces html2pdf.js rasterised output)
+# Requires libpango, libcairo, libgdk-pixbuf2.0 — added to Dockerfile.
+weasyprint==62.3
