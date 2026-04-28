@@ -2128,7 +2128,7 @@ document.querySelectorAll('input[name="f-status"]').forEach(r =>
 );
 
 // Show/hide consequence + readings based on maintenance type
-document.getElementById('f-maint-type').addEventListener('change', function() {
+document.getElementById('f-maint-type').addEventListener('change', async function() {
   const isBreakdown = this.value.includes('Breakdown') || this.value.includes('Corrective');
   const consequenceEl = document.getElementById('consequence-section');
   const readingsEl    = document.getElementById('readings-section');
