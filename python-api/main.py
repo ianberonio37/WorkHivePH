@@ -100,8 +100,12 @@ def _load_handlers() -> dict[str, Any]:
     from calcs.load_schedule       import calculate as load_sched_calc
     # from calcs.generator_sizing    import calculate as gen_calc
     # from calcs.solar_pv            import calculate as solar_calc
-    from calcs.load_estimation import calculate as load_est_calc
+    from calcs.load_estimation      import calculate as load_est_calc
+    from calcs.transformer_sizing   import calculate as xfmr_calc
+    from calcs.harmonic_distortion  import calculate as harmonic_calc
     handlers["Load Estimation"]         = load_est_calc
+    handlers["Transformer Sizing"]      = xfmr_calc
+    handlers["Harmonic Distortion"]     = harmonic_calc
     handlers["Voltage Drop"]            = vd_calc
     handlers["Power Factor Correction"] = pfc_calc
     handlers["Cable Tray Sizing"]       = cable_tray_calc
@@ -120,8 +124,10 @@ def _load_handlers() -> dict[str, Any]:
     from calcs.fire_pump                   import calculate as fire_pump_calc
     from calcs.stairwell_pressurization    import calculate as stairwell_calc
     from calcs.fire_alarm_battery          import calculate as fab_calc
+    from calcs.clean_agent_suppression import calculate as clean_agent_calc
     handlers["Fire Sprinkler Hydraulic"]   = sprinkler_calc
     handlers["Fire Pump Sizing"]           = fire_pump_calc
+    handlers["Clean Agent Suppression"]    = clean_agent_calc
     handlers["Stairwell Pressurization"]   = stairwell_calc
     handlers["Fire Alarm Battery"]         = fab_calc
 

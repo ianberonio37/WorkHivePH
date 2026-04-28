@@ -118,6 +118,20 @@ TESTS = {
             {"cable_type": "Control", "od_mm": 12, "qty": 6, "weight_kg_m": 0.2},
         ],
     },
+    "Transformer Sizing": {
+        "load_kva": 80, "primary_voltage": 13800, "secondary_voltage": 400,
+        "phases": 3, "impedance_pct": 5.0, "spare_capacity_pct": 25,
+        "load_power_factor": 0.85, "num_units": 1,
+    },
+    "Harmonic Distortion": {
+        "fundamental_current_a": 100, "max_demand_current_a": 100,
+        "system_voltage_v": 400, "short_circuit_current_a": 2000,
+        "harmonics": [
+            {"order": 3, "current_pct": 25},
+            {"order": 5, "current_pct": 18},
+            {"order": 7, "current_pct": 10},
+        ],
+    },
     "Wire Sizing": {
         "load_kw": 10, "voltage": 230, "power_factor": 0.85,
         "wire_length_m": 30, "phases": 1,
@@ -174,6 +188,11 @@ TESTS = {
         "required_flow": 1900, "required_pressure": 6.9,
         "drive_type": "Electric Motor", "redundancy": "Duplex",
         "hose_demand_lpm": 375,
+    },
+    "Clean Agent Suppression": {
+        "hazard_volume_m3": 100, "agent_type": "FK-5-1-12",
+        "temperature_c": 20, "altitude_m": 15,
+        "safety_factor": 1.10, "num_zones": 1,
     },
     "Stairwell Pressurization": {
         "building_type": "Sprinklered", "n_stairwells": 2, "n_floors": 10,

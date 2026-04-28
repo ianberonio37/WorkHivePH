@@ -580,9 +580,9 @@
           <div class="flex gap-3" style="flex-wrap:wrap;">
             <button class="discipline-pill active" data-disc="HVAC & Cooling" onclick="selectDiscipline('HVAC & Cooling')">❄️ HVAC & Cooling <span class="pill-count">11</span></button>
             <button class="discipline-pill" data-disc="Mechanical" onclick="selectDiscipline('Mechanical')">🔧 Mechanical <span class="pill-count">4</span></button>
-            <button class="discipline-pill" data-disc="Electrical" onclick="selectDiscipline('Electrical')">⚡ Electrical <span class="pill-count">12</span></button>
+            <button class="discipline-pill" data-disc="Electrical" onclick="selectDiscipline('Electrical')">⚡ Electrical <span class="pill-count">14</span></button>
             <button class="discipline-pill" data-disc="Plumbing" onclick="selectDiscipline('Plumbing')">🚰 Plumbing <span class="pill-count">10</span></button>
-            <button class="discipline-pill" data-disc="Fire Protection" onclick="selectDiscipline('Fire Protection')">🔥 Fire Protection <span class="pill-count">4</span></button>
+            <button class="discipline-pill" data-disc="Fire Protection" onclick="selectDiscipline('Fire Protection')">🔥 Fire Protection <span class="pill-count">5</span></button>
             <button class="discipline-pill" data-disc="Machine Design" onclick="selectDiscipline('Machine Design')">⚙️ Machine Design <span class="pill-count">12</span></button>
           </div>
         </div>
@@ -957,6 +957,7 @@ const CALC_TYPES = {
     { id: 'Fire Pump Sizing',         icon: '🔥', desc: 'Required flow and pressure, motor HP, NFPA 20',  available: true  },
     { id: 'Stairwell Pressurization', icon: '🪜', desc: 'Airflow to maintain pressure differential, NFPA 92', available: true  },
     { id: 'Fire Alarm Battery',       icon: '🔋', desc: '24h standby + 5-min alarm, battery Ah, NFPA 72', available: true  },
+    { id: 'Clean Agent Suppression', icon: '💨', desc: 'FK-5-1-12, FM-200, Inergen or CO2 agent mass, cylinder count, NOAEL check: NFPA 2001 / ISO 14520', available: true  },
   ],
   'Vertical Transportation': [
     { id: 'Elevator Traffic Analysis', icon: '🛗', desc: 'RTT, interval, handling capacity: ASME A17.1 / EN 81', available: true  },
@@ -1017,6 +1018,7 @@ const CALC_TYPES_UI = {
   'Electrical': [
     // Supply & Distribution
     { id: 'Load Estimation',               icon: '📋', desc: 'Panel schedule, demand factor, service size', available: true, subcat: 'Supply & Distribution' },
+    { id: 'Transformer Sizing',            icon: '🔄', desc: 'kVA rating, primary/secondary current, short-circuit current, efficiency, voltage regulation: IEC 60076 / IEEE C57.12 / PEC 2017', available: true, subcat: 'Supply & Distribution' },
     { id: 'Wire Sizing',                   icon: '🔌', desc: 'Ampacity, conductor size per PEC Table 3.10', available: true, subcat: 'Supply & Distribution' },
     { id: 'Cable Tray Sizing',             icon: '📐', desc: 'Fill area, tray width, NEMA VE 1: NEC 392 / PEC 2017', available: true, subcat: 'Supply & Distribution' },
     { id: 'Voltage Drop',                  icon: '📉', desc: 'VD % check, conductor length limits', available: true, subcat: 'Supply & Distribution' },
@@ -1026,6 +1028,7 @@ const CALC_TYPES_UI = {
     { id: 'UPS Sizing',                    icon: '🔌', desc: 'UPS kVA, battery Ah, autonomy: IEC 62040-3 / IEEE 446', available: true, subcat: 'Protection & Backup' },
     // Power Quality
     { id: 'Power Factor Correction',       icon: '🔋', desc: 'Capacitor bank kVAR, PF improvement, Meralco PF surcharge: IEEE 18 / PEC 2017', available: true, subcat: 'Power Quality' },
+    { id: 'Harmonic Distortion',          icon: '〰️', desc: 'THD%, TDD%, K-factor, individual harmonic limits vs IEEE 519-2022 PCC limits', available: true, subcat: 'Power Quality' },
     // Renewable & Special Systems
     { id: 'Solar PV System',               icon: '☀️', desc: 'Array kWp, panel count, string sizing, inverter, battery bank: IEC 62548 / PEC Art. 6', available: true, subcat: 'Renewable & Special' },
     { id: 'Lightning Protection System (LPS)', icon: '🌩️', desc: 'Collection area, LPL selection, rolling sphere, down conductors: IEC 62305 / NFPA 780', available: true, subcat: 'Renewable & Special' },
@@ -6671,6 +6674,157 @@ function renderInputForm(calcType) {
     document.getElementById('calc-btn').disabled = false;
   }
 
+  if (calcType === 'Transformer Sizing') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Bldg A: Main Transformer" />
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Load (kVA)</div>
+          <div class="input-group">
+            <input id="f-xfmr-load-kva" class="wh-input" type="number" value="80" min="1" />
+            <span class="input-unit">kVA</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Phases</div>
+          <div class="toggle-group" id="tg-xfmr-phases">
+            <button class="toggle-btn active" data-val="3" onclick="toggle('tg-xfmr-phases','3')">3-Phase</button>
+            <button class="toggle-btn" data-val="1" onclick="toggle('tg-xfmr-phases','1')">1-Phase</button>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Primary Voltage</div>
+          <div class="input-group">
+            <input id="f-xfmr-v1" class="wh-input" type="number" value="13800" min="100" />
+            <span class="input-unit">V</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Secondary Voltage</div>
+          <div class="input-group">
+            <input id="f-xfmr-v2" class="wh-input" type="number" value="400" min="100" />
+            <span class="input-unit">V</span>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Impedance (%)</div>
+          <div class="input-group">
+            <input id="f-xfmr-imp" class="wh-input" type="number" value="5.0" min="1" max="15" step="0.5" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Spare Capacity</div>
+          <div class="input-group">
+            <input id="f-xfmr-spare" class="wh-input" type="number" value="25" min="0" max="50" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Load Power Factor</div>
+          <div class="input-group">
+            <input id="f-xfmr-pf" class="wh-input" type="number" value="0.85" min="0.5" max="1" step="0.01" />
+            <span class="input-unit">p.u.</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Number of Units</div>
+          <div class="input-group">
+            <input id="f-xfmr-units" class="wh-input" type="number" value="1" min="1" max="4" />
+            <span class="input-unit">units</span>
+          </div>
+        </div>
+      </div>
+      <div class="mb-4">
+        <div class="field-label">Winding Connection</div>
+        <div class="toggle-group" id="tg-xfmr-winding" style="flex-wrap:wrap;">
+          <button class="toggle-btn active" data-val="Delta-Star (Dyn11)" onclick="toggle('tg-xfmr-winding','Delta-Star (Dyn11)')">Delta-Star Dyn11 (standard dist.)</button>
+          <button class="toggle-btn" data-val="Star-Star (Yyn0)" onclick="toggle('tg-xfmr-winding','Star-Star (Yyn0)')">Star-Star Yyn0</button>
+          <button class="toggle-btn" data-val="Delta-Delta (Dd0)" onclick="toggle('tg-xfmr-winding','Delta-Delta (Dd0)')">Delta-Delta Dd0</button>
+        </div>
+      </div>
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.5rem;">
+        Standards: IEC 60076-1:2011, IEEE C57.12.00, PEC 2017 Art. 4.50. Spare capacity applies 125% rule per PEC. Core and copper losses estimated from IEC 60076-1 typical values.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
+  if (calcType === 'Harmonic Distortion') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / System Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Bldg A: VFD Harmonic Analysis" />
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Fundamental Current (I₁)</div>
+          <div class="input-group">
+            <input id="f-harm-i1" class="wh-input" type="number" value="100" min="1" />
+            <span class="input-unit">A</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Max Demand Current (I_L)</div>
+          <div class="input-group">
+            <input id="f-harm-il" class="wh-input" type="number" value="100" min="1" />
+            <span class="input-unit">A</span>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">System Voltage</div>
+          <div class="toggle-group" id="tg-harm-volt">
+            <button class="toggle-btn" data-val="230" onclick="toggle('tg-harm-volt','230')">230V</button>
+            <button class="toggle-btn active" data-val="400" onclick="toggle('tg-harm-volt','400')">400V</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Short-Circuit Current (I_SC)</div>
+          <div class="input-group">
+            <input id="f-harm-isc" class="wh-input" type="number" value="2000" min="100" />
+            <span class="input-unit">A</span>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:0.78rem;color:#F7A21B;font-weight:600;margin-bottom:0.5rem;">Harmonic Components (% of I₁)</div>
+      <div style="display:grid;grid-template-columns:auto 1fr 90px;gap:0.4rem;align-items:center;font-size:0.74rem;color:rgba(255,255,255,0.4);margin-bottom:0.3rem;padding:0 0.25rem;">
+        <div>Order</div><div>Description</div><div style="text-align:center;">% of I₁</div>
+      </div>
+      ${[
+        ['f-h3',  '3rd',  'Triplen — neutral overload (motors, transformers)', 25],
+        ['f-h5',  '5th',  '5th — VFDs, switching power supplies',              18],
+        ['f-h7',  '7th',  '7th — VFDs, switching power supplies',              10],
+        ['f-h11', '11th', '11th — 12-pulse drives',                             6],
+        ['f-h13', '13th', '13th — 12-pulse drives',                             4],
+      ].map(([id, ord, desc, def]) => `
+        <div style="display:grid;grid-template-columns:auto 1fr 90px;gap:0.4rem;align-items:center;margin-bottom:0.4rem;">
+          <div style="font-weight:700;color:#F7A21B;font-size:0.8rem;min-width:36px;">${ord}</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.55);">${desc}</div>
+          <div class="input-group" style="margin:0;">
+            <input id="${id}" class="wh-input" type="number" value="${def}" min="0" max="100" step="0.5" style="padding:0.5rem;text-align:center;" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>`).join('')}
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
+        Standards: IEEE 519-2022 (PCC limits by ISC/IL ratio), IEC 61000-3-2. TDD and individual harmonic limits automatically checked. K-factor for transformer de-rating per IEEE C57.110.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
   if (calcType === 'Fire Sprinkler Hydraulic') {
     area.innerHTML = `
       <div class="mb-4">
@@ -6878,6 +7032,77 @@ function renderInputForm(calcType) {
 
       <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
         Standard: NFPA 20. Motor is rated at 115% of pump BHP (Electric) or 120% (Diesel) per NFPA 20. Pipe diameter auto-selected for velocity under 2.5 m/s if set to 0. Jockey pump sizing included in output.
+      </div>
+    `;
+    setStep(4);
+    document.getElementById('calc-btn').disabled = false;
+  }
+
+  if (calcType === 'Clean Agent Suppression') {
+    area.innerHTML = `
+      <div class="mb-4">
+        <div class="field-label">Project / Hazard Name</div>
+        <input id="f-project" class="wh-input" placeholder="e.g. Server Room A: Clean Agent System" />
+      </div>
+      <div class="mb-4">
+        <div class="field-label">Clean Agent Type</div>
+        <div class="toggle-group" id="tg-ca-agent" style="flex-wrap:wrap;">
+          <button class="toggle-btn active" data-val="FK-5-1-12" onclick="toggle('tg-ca-agent','FK-5-1-12')">FK-5-1-12 (Novec 1230) — GWP=1</button>
+          <button class="toggle-btn" data-val="FM-200" onclick="toggle('tg-ca-agent','FM-200')">FM-200 / HFC-227ea — GWP=3220</button>
+          <button class="toggle-btn" data-val="Inergen" onclick="toggle('tg-ca-agent','Inergen')">Inergen IG-541 — GWP=0</button>
+          <button class="toggle-btn" data-val="CO2" onclick="toggle('tg-ca-agent','CO2')">CO2 — toxic, unoccupied only</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Hazard Volume</div>
+          <div class="input-group">
+            <input id="f-ca-vol" class="wh-input" type="number" value="100" min="1" />
+            <span class="input-unit">m³</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Number of Zones</div>
+          <div class="input-group">
+            <input id="f-ca-zones" class="wh-input" type="number" value="1" min="1" max="20" />
+            <span class="input-unit">zones</span>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Design Temperature</div>
+          <div class="input-group">
+            <input id="f-ca-temp" class="wh-input" type="number" value="20" min="-20" max="50" />
+            <span class="input-unit">°C</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Altitude</div>
+          <div class="input-group">
+            <input id="f-ca-alt" class="wh-input" type="number" value="15" min="0" max="3000" />
+            <span class="input-unit">m ASL</span>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div class="field-label">Design Concentration</div>
+          <div class="input-group">
+            <input id="f-ca-conc" class="wh-input" type="number" value="0" min="0" max="50" step="0.5" placeholder="0 = use default" />
+            <span class="input-unit">%</span>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Safety Factor</div>
+          <div class="input-group">
+            <input id="f-ca-sf" class="wh-input" type="number" value="1.10" min="1.05" max="1.30" step="0.05" />
+            <span class="input-unit">×</span>
+          </div>
+        </div>
+      </div>
+      <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.5rem;">
+        Standards: NFPA 2001:2022, ISO 14520:2015. Agent mass: W = (V/S) × [C/(100−C)]. NOAEL concentration checked for occupied-space safety. BFP submission requires PRC-licensed Fire Protection Engineer signature.
       </div>
     `;
     setStep(4);
@@ -9584,6 +9809,52 @@ function collectInputs() {
     };
   }
 
+  if (_calcType === 'Transformer Sizing') {
+    return {
+      project_name:       v('f-project') || 'Untitled Transformer',
+      load_kva:           parseFloat(v('f-xfmr-load-kva')) || 80,
+      primary_voltage:    parseFloat(v('f-xfmr-v1'))       || 13800,
+      secondary_voltage:  parseFloat(v('f-xfmr-v2'))       || 400,
+      phases:             parseInt(getToggle('tg-xfmr-phases') || '3'),
+      impedance_pct:      parseFloat(v('f-xfmr-imp'))      || 5.0,
+      spare_capacity_pct: parseFloat(v('f-xfmr-spare'))    || 25,
+      load_power_factor:  parseFloat(v('f-xfmr-pf'))       || 0.85,
+      num_units:          parseInt(v('f-xfmr-units'))       || 1,
+      winding_connection: getToggle('tg-xfmr-winding')     || 'Delta-Star (Dyn11)',
+    };
+  }
+
+  if (_calcType === 'Harmonic Distortion') {
+    const harmonics = [
+      { order: 3,  current_pct: parseFloat(v('f-h3'))  || 0 },
+      { order: 5,  current_pct: parseFloat(v('f-h5'))  || 0 },
+      { order: 7,  current_pct: parseFloat(v('f-h7'))  || 0 },
+      { order: 11, current_pct: parseFloat(v('f-h11')) || 0 },
+      { order: 13, current_pct: parseFloat(v('f-h13')) || 0 },
+    ].filter(h => h.current_pct > 0);
+    return {
+      project_name:             v('f-project') || 'Harmonic Analysis',
+      fundamental_current_a:    parseFloat(v('f-harm-i1'))  || 100,
+      max_demand_current_a:     parseFloat(v('f-harm-il'))  || 100,
+      system_voltage_v:         parseFloat(getToggle('tg-harm-volt') || '400'),
+      short_circuit_current_a:  parseFloat(v('f-harm-isc')) || 2000,
+      harmonics,
+    };
+  }
+
+  if (_calcType === 'Clean Agent Suppression') {
+    return {
+      project_name:              v('f-project') || 'Clean Agent System',
+      agent_type:                getToggle('tg-ca-agent') || 'FK-5-1-12',
+      hazard_volume_m3:          parseFloat(v('f-ca-vol'))   || 100,
+      num_zones:                 parseInt(v('f-ca-zones'))   || 1,
+      temperature_c:             parseFloat(v('f-ca-temp'))  || 20,
+      altitude_m:                parseFloat(v('f-ca-alt'))   || 15,
+      design_concentration_pct:  parseFloat(v('f-ca-conc'))  || 0,
+      safety_factor:             parseFloat(v('f-ca-sf'))    || 1.10,
+    };
+  }
+
   if (_calcType === 'Pipe Sizing') {
     return {
       project_name:        v('f-project') || 'Untitled Pipe System',
@@ -10532,6 +10803,12 @@ async function runCalculation() {
       renderNoiseAcousticsReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Boiler / Steam System') {
       renderBoilerSteamReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Transformer Sizing') {
+      renderTransformerReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Harmonic Distortion') {
+      renderHarmonicReport(inputs, data.results, data.narrative);
+    } else if (_calcType === 'Clean Agent Suppression') {
+      renderCleanAgentReport(inputs, data.results, data.narrative);
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
@@ -12583,6 +12860,154 @@ function renderUPSSizingReport(inputs, results, narrative) {
   </div>`;
 
   panel.innerHTML = reportHTML;
+  showReport();
+}
+
+// ─── Transformer Sizing Report ───────────────────────────────────────────────
+function renderTransformerReport(inputs, results, narrative) {
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
+  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const r = results;
+  const mOk = ok => ok ? '#2e7d32' : '#c62828';
+  const panel = document.getElementById('report-panel');
+  panel.innerHTML = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div><h1 style="font-size:1.3rem;font-weight:700;margin:0 0 2px 0;">DESIGN CALCULATION</h1>
+        <div style="font-size:0.8rem;color:#555;">Transformer Sizing — IEC 60076-1 / IEEE C57.12.00 / PEC 2017</div></div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
+    </div>
+    <div style="margin-bottom:0.75rem;"><strong>Project:</strong> ${e(inputs.project_name||'Untitled')}</div>
+    <h2 style="font-size:1rem;font-weight:700;background:#1a2e4a;color:#fff;padding:0.4rem 0.75rem;border-radius:4px;margin:1rem 0 0.5rem;">1. Input Summary</h2>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:1rem;">
+      <tr><th style="background:#f0f4f8;color:#1a2e4a;padding:6px 8px;text-align:left;border:1px solid #ccc;width:40%;">Parameter</th><th style="background:#f0f4f8;color:#1a2e4a;padding:6px 8px;text-align:left;border:1px solid #ccc;">Value</th></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Load (kVA)</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.load_kva)} kVA</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Primary / Secondary Voltage</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.primary_voltage)} V / ${e(r.secondary_voltage)} V</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Phases</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.phases)}-Phase</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Winding Connection</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.winding_connection)}</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Impedance (Uz%)</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.impedance_pct)} %</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Load Power Factor</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.load_power_factor)} p.u.</td></tr>
+    </table>
+    <h2 style="font-size:1rem;font-weight:700;background:#1a2e4a;color:#fff;padding:0.4rem 0.75rem;border-radius:4px;margin:1rem 0 0.5rem;">2. Selected Transformer</h2>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:1rem;">
+      <tr><th style="background:#f0f4f8;color:#1a2e4a;padding:6px 8px;text-align:left;border:1px solid #ccc;width:40%;">Result</th><th style="background:#f0f4f8;color:#1a2e4a;padding:6px 8px;text-align:left;border:1px solid #ccc;">Value</th></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Rated kVA (standard size)</td><td style="padding:5px 8px;border:1px solid #ccc;font-weight:700;color:#1a2e4a;">${e(r.rated_kva)} kVA × ${e(r.num_units)} unit(s)</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Loading (%)</td><td style="padding:5px 8px;border:1px solid #ccc;color:${mOk(r.loading_pct<=80)};">${e(r.loading_pct)} %</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Primary Full-Load Current (I₁)</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.I1_full_load_A)} A</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Secondary Full-Load Current (I₂)</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.I2_full_load_A)} A</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Short-Circuit Current at Secondary</td><td style="padding:5px 8px;border:1px solid #ccc;font-weight:700;">${e(r.Isc_secondary_A)} A (${e(r.Isc_secondary_kA)} kA)</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Voltage Regulation (full load)</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.voltage_regulation_pct)} %</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Core Loss (no-load)</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.core_loss_kW)} kW</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Copper Loss (full load)</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.copper_loss_kW)} kW</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Efficiency at 100% Load</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.efficiency_fl_pct)} %</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Efficiency at 75% Load</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.efficiency_75pct)} %</td></tr>
+    </table>
+    ${narrative ? `<h2 style="font-size:1rem;font-weight:700;background:#1a2e4a;color:#fff;padding:0.4rem 0.75rem;border-radius:4px;margin:1rem 0 0.5rem;">3. Engineering Assessment</h2>
+    <div class="narrative-block" style="background:#f8faff;border:1px solid #e0e8f0;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.85rem;">
+      <p><strong>Objective:</strong> ${escHtml(narrative.objective||'')}</p>
+      <p><strong>Assumptions:</strong> ${escHtml(narrative.assumptions||'')}</p>
+      <p><strong>Recommendations:</strong> ${escHtml(narrative.recommendations||'')}</p>
+    </div>` : ''}
+  `;
+  showReport();
+}
+
+// ─── Harmonic Distortion Report ───────────────────────────────────────────────
+function renderHarmonicReport(inputs, results, narrative) {
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
+  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const r = results;
+  const panel = document.getElementById('report-panel');
+  panel.innerHTML = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div><h1 style="font-size:1.3rem;font-weight:700;margin:0 0 2px 0;">DESIGN CALCULATION</h1>
+        <div style="font-size:0.8rem;color:#555;">Harmonic Distortion Analysis — IEEE 519-2022 / IEC 61000-3-2</div></div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
+    </div>
+    <div style="margin-bottom:0.75rem;"><strong>Project:</strong> ${e(inputs.project_name||'Untitled')}</div>
+    <h2 style="font-size:1rem;font-weight:700;background:#1a2e4a;color:#fff;padding:0.4rem 0.75rem;border-radius:4px;margin:1rem 0 0.5rem;">1. Summary Results</h2>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:1rem;">
+      <tr><th style="background:#f0f4f8;color:#1a2e4a;padding:6px 8px;border:1px solid #ccc;text-align:left;width:40%;">Parameter</th><th style="background:#f0f4f8;color:#1a2e4a;padding:6px 8px;border:1px solid #ccc;text-align:left;">Value</th><th style="background:#f0f4f8;color:#1a2e4a;padding:6px 8px;border:1px solid #ccc;text-align:left;">Status</th></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">THD_I (Total Harmonic Distortion)</td><td style="padding:5px 8px;border:1px solid #ccc;font-weight:700;">${e(r.THD_I_pct)} %</td><td style="padding:5px 8px;border:1px solid #ccc;"></td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">TDD (Total Demand Distortion)</td><td style="padding:5px 8px;border:1px solid #ccc;font-weight:700;">${e(r.TDD_pct)} %</td><td style="padding:5px 8px;border:1px solid #ccc;color:${r.TDD_pass?'#2e7d32':'#c62828'};font-weight:700;">${r.TDD_pass?'PASS':'FAIL'} (limit ${r.TDD_limit_pct}%)</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">ISC/IL Ratio</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.isc_il_ratio)}</td><td style="padding:5px 8px;border:1px solid #ccc;"></td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">K-Factor (transformer de-rating)</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.K_factor)}</td><td style="padding:5px 8px;border:1px solid #ccc;font-size:0.78rem;color:#555;">${r.K_factor>4?'Use K-4 rated transformer':'K-1 standard transformer OK'}</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;font-weight:700;">Overall IEEE 519-2022 Compliance</td><td colspan="2" style="padding:5px 8px;border:1px solid #ccc;font-weight:700;color:${r.overall_pass?'#2e7d32':'#c62828'};">${r.overall_pass?'COMPLIANT':'NON-COMPLIANT — Harmonic mitigation required'}</td></tr>
+    </table>
+    <h2 style="font-size:1rem;font-weight:700;background:#1a2e4a;color:#fff;padding:0.4rem 0.75rem;border-radius:4px;margin:1rem 0 0.5rem;">2. Individual Harmonic Analysis</h2>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:1rem;">
+      <tr>
+        <th style="background:#f0f4f8;color:#1a2e4a;padding:6px 8px;border:1px solid #ccc;">Order (h)</th>
+        <th style="background:#f0f4f8;color:#1a2e4a;padding:6px 8px;border:1px solid #ccc;">Current (% of I₁)</th>
+        <th style="background:#f0f4f8;color:#1a2e4a;padding:6px 8px;border:1px solid #ccc;">Current (A)</th>
+        <th style="background:#f0f4f8;color:#1a2e4a;padding:6px 8px;border:1px solid #ccc;">Limit (% of IL)</th>
+        <th style="background:#f0f4f8;color:#1a2e4a;padding:6px 8px;border:1px solid #ccc;">Limit (A)</th>
+        <th style="background:#f0f4f8;color:#1a2e4a;padding:6px 8px;border:1px solid #ccc;">Status</th>
+      </tr>
+      ${(r.individual_harmonics||[]).map(h=>`
+      <tr>
+        <td style="padding:5px 8px;border:1px solid #ccc;text-align:center;font-weight:700;">${h.order}</td>
+        <td style="padding:5px 8px;border:1px solid #ccc;text-align:center;">${h.current_pct}%</td>
+        <td style="padding:5px 8px;border:1px solid #ccc;text-align:center;">${h.current_A} A</td>
+        <td style="padding:5px 8px;border:1px solid #ccc;text-align:center;">${h.limit_pct_of_IL}%</td>
+        <td style="padding:5px 8px;border:1px solid #ccc;text-align:center;">${h.limit_A} A</td>
+        <td style="padding:5px 8px;border:1px solid #ccc;text-align:center;font-weight:700;color:${h.pass?'#2e7d32':'#c62828'};">${h.pass?'PASS':'FAIL'}</td>
+      </tr>`).join('')}
+    </table>
+    ${narrative ? `<h2 style="font-size:1rem;font-weight:700;background:#1a2e4a;color:#fff;padding:0.4rem 0.75rem;border-radius:4px;margin:1rem 0 0.5rem;">3. Engineering Assessment</h2>
+    <div class="narrative-block" style="background:#f8faff;border:1px solid #e0e8f0;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.85rem;">
+      <p><strong>Objective:</strong> ${escHtml(narrative.objective||'')}</p>
+      <p><strong>Assumptions:</strong> ${escHtml(narrative.assumptions||'')}</p>
+      <p><strong>Recommendations:</strong> ${escHtml(narrative.recommendations||'')}</p>
+    </div>` : ''}
+  `;
+  showReport();
+}
+
+// ─── Clean Agent Suppression Report ──────────────────────────────────────────
+function renderCleanAgentReport(inputs, results, narrative) {
+  const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
+  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const r = results;
+  const safeColor = r.safe_for_occupied_spaces ? '#2e7d32' : '#c62828';
+  const panel = document.getElementById('report-panel');
+  panel.innerHTML = `
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
+      <div><h1 style="font-size:1.3rem;font-weight:700;margin:0 0 2px 0;">DESIGN CALCULATION</h1>
+        <div style="font-size:0.8rem;color:#555;">Clean Agent Suppression System — NFPA 2001:2022 / ISO 14520:2015</div></div>
+      <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
+    </div>
+    <div style="margin-bottom:0.75rem;"><strong>Project:</strong> ${e(inputs.project_name||'Untitled')}</div>
+    <h2 style="font-size:1rem;font-weight:700;background:#1a2e4a;color:#fff;padding:0.4rem 0.75rem;border-radius:4px;margin:1rem 0 0.5rem;">1. System Parameters</h2>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:1rem;">
+      <tr><th style="background:#f0f4f8;color:#1a2e4a;padding:6px 8px;border:1px solid #ccc;text-align:left;width:40%;">Parameter</th><th style="background:#f0f4f8;color:#1a2e4a;padding:6px 8px;border:1px solid #ccc;text-align:left;">Value</th></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Agent</td><td style="padding:5px 8px;border:1px solid #ccc;font-weight:700;">${e(r.agent_label)}</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Hazard Volume</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.hazard_volume_m3)} m³</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Altitude (correction factor)</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.altitude_m)} m ASL (factor = ${e(r.altitude_correction)})</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Design Concentration</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.design_concentration_pct)} % v/v (min. ${r.c_min_pct}%)</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Specific Vapor Volume (S)</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.specific_vol_m3_kg)} m³/kg at ${e(r.temperature_c)}°C</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Safety Factor</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.safety_factor)} ×</td></tr>
+    </table>
+    <h2 style="font-size:1rem;font-weight:700;background:#1a2e4a;color:#fff;padding:0.4rem 0.75rem;border-radius:4px;margin:1rem 0 0.5rem;">2. Agent Quantity & Cylinder Selection</h2>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:1rem;">
+      <tr><th style="background:#f0f4f8;color:#1a2e4a;padding:6px 8px;border:1px solid #ccc;text-align:left;width:40%;">Result</th><th style="background:#f0f4f8;color:#1a2e4a;padding:6px 8px;border:1px solid #ccc;text-align:left;">Value</th></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Calculated Agent Mass</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.W_calculated_kg)} kg</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Design Agent Mass (with SF)</td><td style="padding:5px 8px;border:1px solid #ccc;font-weight:700;">${e(r.W_design_kg)} kg</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Recommended Cylinder Size</td><td style="padding:5px 8px;border:1px solid #ccc;font-weight:700;">${e(r.recommended_cylinder_kg)} kg × ${e(r.recommended_qty)} cylinders = ${e(r.total_agent_kg)} kg</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Number of Zones</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.num_zones)}</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Discharge Time Requirement</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.discharge_time_req)}</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">NOAEL (No Observed Adverse Effect)</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.noael_pct)} %</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">Occupied Space Safety</td><td style="padding:5px 8px;border:1px solid #ccc;font-weight:700;color:${safeColor};">${r.safety_note}</td></tr>
+    </table>
+    ${narrative ? `<h2 style="font-size:1rem;font-weight:700;background:#1a2e4a;color:#fff;padding:0.4rem 0.75rem;border-radius:4px;margin:1rem 0 0.5rem;">3. Engineering Assessment</h2>
+    <div class="narrative-block" style="background:#f8faff;border:1px solid #e0e8f0;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.85rem;">
+      <p><strong>Objective:</strong> ${escHtml(narrative.objective||'')}</p>
+      <p><strong>Assumptions:</strong> ${escHtml(narrative.assumptions||'')}</p>
+      <p><strong>Recommendations:</strong> ${escHtml(narrative.recommendations||'')}</p>
+    </div>` : ''}
+  `;
   showReport();
 }
 
