@@ -10893,6 +10893,7 @@ function showReport() {
     // Phase 10b: new calc diagrams
     'Harmonic Distortion',
     'Transformer Sizing',
+    'Clean Agent Suppression',
   ];
   const drawingSection = document.getElementById('drawing-section');
   if (DRAWING_SUPPORTED.includes(_calcType)) {
@@ -10918,6 +10919,8 @@ function showReport() {
       descEl.textContent = 'Generates a harmonic spectrum bar chart with IEEE 519-2022 individual and TDD limits — identifies non-compliant harmonics requiring mitigation';
     } else if (_calcType === 'Transformer Sizing' && descEl) {
       descEl.textContent = 'Generates a power transformer single line diagram showing HV/LV connections, VCB, surge arresters, CT/VT, MCCB, bus bar and earthing per IEC 60617 / PEC 2017';
+    } else if (_calcType === 'Clean Agent Suppression' && descEl) {
+      descEl.textContent = 'Generates a clean agent suppression system schematic showing cylinders, manifold, nozzles, FSCU, cross-zone detection, abort station and safety status per NFPA 2001:2022 / ISO 14520:2015';
     }
     resetDrawingSection();
   } else {
@@ -13330,6 +13333,315 @@ function renderHarmonicReport(inputs, results, narrative) {
     </div>` : ''}
   `;
   showReport();
+}
+
+// ─── Clean Agent Suppression System Schematic ────────────────────────────────
+// Standards: NFPA 2001:2022, ISO 14520:2015, BFP IRR RA 9514
+// Drawing rules (drawing-standards skill):
+//   A3 landscape W=1050 H=580, inner margin, STRIP_Y=467
+//   Labels to SIDE via DL() dashed leader lines
+//   All NFPA 2001 mandatory elements included
+function buildCleanAgentSVG(inputs, results) {
+  const r = results || {};
+
+  // ── Values ──────────────────────────────────────────────────────────────────
+  const agentLabel  = String(r.agent_label      || inputs?.agent_type    || 'FK-5-1-12');
+  const agentKey    = String(r.agent_type        || inputs?.agent_type    || 'FK-5-1-12');
+  const vol         = Number(r.hazard_volume_m3  || inputs?.hazard_volume_m3 || 100);
+  const cDesign     = Number(r.design_concentration_pct || 5);
+  const cMin        = Number(r.c_min_pct         || 4);
+  const noael       = Number(r.noael_pct         || 10);
+  const Wcalc       = Number(r.W_calculated_kg   || 0).toFixed(1);
+  const Wdesign     = Number(r.W_design_kg       || 0).toFixed(1);
+  const cylKg       = Number(r.recommended_cylinder_kg || 16);
+  const cylQty      = Number(r.recommended_qty   || 1);
+  const totalKg     = Number(r.total_agent_kg    || 0);
+  const nZones      = Number(r.num_zones         || 1);
+  const dischTime   = String(r.discharge_time_req|| '≤ 10 s');
+  const safe        = Boolean(r.safe_for_occupied_spaces ?? true);
+  const gwp         = Number(r.gwp               || 1);
+  const altFactor   = Number(r.altitude_correction || 0.9982).toFixed(4);
+  const sf          = Number(r.safety_factor     || 1.10);
+  const proj        = String(inputs?.project_name || 'Clean Agent System');
+
+  const W = 1050, H = 580, STRIP_Y = 467;
+  const CC = '#1a2e4a', SC = '#5a6a7a', AO = '#F7A21B';
+  const FR = '#c0392b';   // fire red
+  const GN = '#2e7d32';   // green (safe/pass)
+  const BL = '#1565c0';   // blue (detection)
+  const PP = '#6d4c41';   // pipe brown
+
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const T = (x,y,t,{a='middle',sz=9,c=CC,w='normal'}={}) =>
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(t)}</text>`;
+  const VL = (x,y1,y2,sw=2,clr=CC,dash='') =>
+    `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${clr}" stroke-width="${sw}"${dash?` stroke-dasharray="${dash}"`:''}/>`;
+  const HL = (x1,y,x2,sw=2,clr=CC,dash='') =>
+    `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${clr}" stroke-width="${sw}"${dash?` stroke-dasharray="${dash}"`:''}/>`;
+  const DL = (x1,y1,x2,y2,clr=SC) =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${clr}" stroke-width="0.8" stroke-dasharray="3 2"/>`;
+  const Badge = (x,y,label,bg=AO,tc='#111') => {
+    const bw = Math.max(60, String(label).length * 6.5 + 16);
+    return `<rect x="${x-bw/2}" y="${y-10}" width="${bw}" height="20" rx="10" fill="${bg}"/>` +
+      T(x, y+5, label, {sz:8.5, c:tc, w:'700'});
+  };
+
+  // ── Inline symbols (not in drawSymbol library) ────────────────────────────
+  // NFPA 2001 cylinder symbol: vertical rectangle with rounded top
+  const Cylinder = (cx, cy, h=40, w=16, clr=CC) =>
+    `<rect x="${cx-w/2}" y="${cy-h/2}" width="${w}" height="${h}" rx="${w/2}" fill="#e8f5e9" stroke="${clr}" stroke-width="1.8"/>` +
+    `<ellipse cx="${cx}" cy="${cy-h/2+4}" rx="${w/2-1}" ry="4" fill="${clr}" opacity="0.3"/>`;
+
+  // Detector symbol: circle with D (smoke/heat detector NFPA 72 convention)
+  const Detector = (cx, cy, clr=BL) =>
+    `<circle cx="${cx}" cy="${cy}" r="9" fill="white" stroke="${clr}" stroke-width="1.5"/>` +
+    T(cx, cy+4, 'D', {sz:9, c:clr, w:'700'});
+
+  // Nozzle symbol: triangle pointing down (discharge nozzle)
+  const Nozzle = (cx, cy, clr=PP) =>
+    `<polygon points="${cx},${cy+10} ${cx-8},${cy-8} ${cx+8},${cy-8}" fill="${clr}" opacity="0.8"/>` +
+    `<line x1="${cx}" y1="${cy-10}" x2="${cx}" y2="${cy-14}" stroke="${clr}" stroke-width="2"/>`;
+
+  // Sounder symbol: bell outline
+  const Sounder = (cx, cy) =>
+    `<path d="M ${cx-8} ${cy+4} Q ${cx} ${cy-10} ${cx+8} ${cy+4} Z" fill="white" stroke="${FR}" stroke-width="1.5"/>` +
+    `<line x1="${cx}" y1="${cy+4}" x2="${cx}" y2="${cy+8}" stroke="${FR}" stroke-width="1.5"/>` +
+    `<line x1="${cx-5}" y1="${cy+8}" x2="${cx+5}" y2="${cy+8}" stroke="${FR}" stroke-width="1.5"/>`;
+
+  let p = [];
+
+  // ── Background + mandatory inner margin border ────────────────────────────
+  p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="0.75"/>`);
+
+  // ── Title ─────────────────────────────────────────────────────────────────
+  p.push(T(W/2, 27, 'CLEAN AGENT FIRE SUPPRESSION SYSTEM — SCHEMATIC', {sz:12, c:CC, w:'700'}));
+  p.push(T(W/2, 41, `NFPA 2001:2022 / ISO 14520:2015  |  ${esc(agentLabel)}  |  ${vol} m³ × ${nZones} zone(s)`, {sz:9, c:SC}));
+
+  // ── LAYOUT ───────────────────────────────────────────────────────────────
+  // Left panel: protected room schematic (x=15 to x=620)
+  // Right panel: data table (x=635 to x=1039)
+
+  // ── PROTECTED HAZARD SPACE (plan view) ───────────────────────────────────
+  const RM_X = 25, RM_Y = 55, RM_W = 400, RM_H = 340;
+  p.push(`<rect x="${RM_X}" y="${RM_Y}" width="${RM_W}" height="${RM_H}" fill="#f0f8ff" stroke="${CC}" stroke-width="2.5" stroke-dasharray="6 3"/>`);
+  p.push(T(RM_X + RM_W/2, RM_Y + 16, 'PROTECTED HAZARD SPACE', {sz:8.5, c:CC, w:'700'}));
+  p.push(T(RM_X + RM_W/2, RM_Y + 30, `${vol} m³  |  Design concentration ${cDesign}% v/v  |  NOAEL ${noael}%`, {sz:7.5, c:SC}));
+
+  // DOOR OPENING (bottom-right of room)
+  const DR_X = RM_X + RM_W - 60, DR_Y = RM_Y + RM_H;
+  p.push(HL(DR_X, RM_Y + RM_H, DR_X + 55, 3, '#fff'));  // erase wall at door
+  p.push(T((DR_X + DR_X+55)/2, RM_Y + RM_H + 12, 'DOOR', {sz:7, c:SC}));
+
+  // ── DISCHARGE NOZZLES (4 inside room, evenly spaced) ─────────────────────
+  const nozzles = [
+    [RM_X + 80,  RM_Y + 100],
+    [RM_X + 240, RM_Y + 100],
+    [RM_X + 80,  RM_Y + 260],
+    [RM_X + 240, RM_Y + 260],
+  ];
+  nozzles.forEach(([nx, ny], i) => {
+    p.push(Nozzle(nx, ny));
+    p.push(DL(nx, ny-14, nx, RM_Y + 55));  // pipe drop from distribution header
+    if (i === 0) {
+      p.push(DL(nx+12, ny+2, nx+52, ny+2, PP));
+      p.push(T(nx+55, ny+5, `Nozzle (${nozzles.length} sets)\nFlow per head: ${(Number(Wdesign)/nozzles.length).toFixed(1)} kg\nNFPA 2001 §4.4`, {a:'start', sz:7, c:PP}));
+    }
+  });
+
+  // Distribution header (horizontal pipe inside room ceiling)
+  p.push(HL(RM_X + 50, RM_Y + 55, RM_X + 280, 3, PP));
+  p.push(T(RM_X + 165, RM_Y + 52, 'DISTRIBUTION HEADER', {sz:7, c:PP, w:'700'}));
+
+  // ── DETECTORS (cross-zone: 2 smoke + 1 heat per zone, NFPA 2001 §4.2) ───
+  const detectors = [
+    [RM_X + 120, RM_Y + 180, 'SD-1'],
+    [RM_X + 280, RM_Y + 180, 'SD-2'],
+    [RM_X + 200, RM_Y + 280, 'HD-1'],
+  ];
+  detectors.forEach(([dx, dy, tag]) => {
+    p.push(Detector(dx, dy));
+    p.push(DL(dx+12, dy, dx+36, dy, BL));
+    p.push(T(dx+38, dy+3, tag, {a:'start', sz:7.5, c:BL, w:'700'}));
+  });
+  // Detection wiring (dashed blue)
+  p.push(HL(RM_X + 120, RM_Y + 180, RM_X + 280, 1, BL, '4 3'));
+  p.push(VL(RM_X + 200, RM_Y + 180, RM_Y + 280, 1, BL, '4 3'));
+  p.push(T(RM_X + 38, RM_Y + 195, 'Cross-Zone Detection\nNFPA 2001 §4.2 / NFPA 72', {a:'start', sz:7, c:BL}));
+
+  // ── PRESSURE RELIEF VENT (mandatory NFPA 2001 §3.6) ─────────────────────
+  const PV_X = RM_X + 1, PV_Y = RM_Y + 200;
+  p.push(`<rect x="${PV_X}" y="${PV_Y-12}" width="16" height="24" fill="#fff9c4" stroke="${AO}" stroke-width="1.5" rx="2"/>`);
+  p.push(`<polygon points="${PV_X-6},${PV_Y} ${PV_X},${PV_Y-6} ${PV_X},${PV_Y+6}" fill="${AO}"/>`);
+  p.push(DL(PV_X-8, PV_Y, PV_X-30, PV_Y, AO));
+  p.push(T(PV_X-32, PV_Y-6, 'Pressure Relief', {a:'end', sz:7.5, c:AO, w:'700'}));
+  p.push(T(PV_X-32, PV_Y+5, 'Vent — NFPA 2001 §3.6', {a:'end', sz:7, c:SC}));
+
+  // ── AGENT CYLINDER BANK (right of room) ──────────────────────────────────
+  const CYL_X0 = 445, CYL_Y0 = 120;
+  const showCyls = Math.min(cylQty, 4);
+  for (let i = 0; i < showCyls; i++) {
+    const cx = CYL_X0 + i * 30;
+    p.push(Cylinder(cx, CYL_Y0));
+    p.push(T(cx, CYL_Y0 + 28, `${cylKg}kg`, {sz:7, c:CC}));
+  }
+  if (cylQty > 4) {
+    p.push(T(CYL_X0 + showCyls * 30 + 10, CYL_Y0, `+${cylQty-4} more`, {a:'start', sz:7.5, c:SC}));
+  }
+  // Cylinder bank label
+  p.push(T(CYL_X0 + (showCyls*30)/2, CYL_Y0 - 28, `AGENT CYLINDERS`, {sz:8, c:CC, w:'700'}));
+  p.push(T(CYL_X0 + (showCyls*30)/2, CYL_Y0 - 16, `${cylQty} × ${cylKg} kg = ${totalKg} kg total`, {sz:7.5, c:SC}));
+  // Cylinder type badge
+  p.push(Badge(CYL_X0 + (showCyls*30)/2, CYL_Y0 + 42, agentLabel.split('(')[0].trim(), '#2e7d32', '#fff'));
+  // GWP badge
+  const gwpBg = gwp <= 1 ? GN : gwp <= 150 ? AO : FR;
+  p.push(Badge(CYL_X0 + (showCyls*30)/2, CYL_Y0 + 58, `GWP = ${gwp}`, gwpBg, '#fff'));
+
+  // ── MANIFOLD + RISER PIPE ────────────────────────────────────────────────
+  const MAN_Y = CYL_Y0 + 20;
+  p.push(HL(CYL_X0 - 15, MAN_Y, CYL_X0 + showCyls*30 + 15, 4, PP));
+  p.push(`<rect x="${CYL_X0-20}" y="${MAN_Y-8}" width="${showCyls*30+40}" height="16" fill="none" stroke="${PP}" stroke-width="1.5" rx="3"/>`);
+  p.push(T(CYL_X0 + (showCyls*30)/2, MAN_Y + 25, 'DISCHARGE MANIFOLD', {sz:7.5, c:PP, w:'700'}));
+  p.push(T(CYL_X0 + (showCyls*30)/2, MAN_Y + 36, 'Stainless steel 304, rated for discharge pressure', {sz:7, c:SC}));
+  // Riser from manifold to room distribution header
+  const RISER_X = CYL_X0 - 8;
+  p.push(VL(RISER_X, MAN_Y + 8, RM_Y + 55, 3, PP));
+  p.push(HL(RISER_X, RM_Y + 55, RM_X + 50, 3, PP));
+  p.push(T(RISER_X - 4, (MAN_Y + RM_Y + 55)/2 - 5, `RISER PIPE\n${dischTime} full discharge\nNFPA 2001 §4.3`, {a:'end', sz:7, c:PP}));
+
+  // ── FSCU PANEL (left of cylinder bank, below room) ───────────────────────
+  const FP_X = 445, FP_Y = CYL_Y0 + 100, FP_W = 90, FP_H = 55;
+  p.push(`<rect x="${FP_X}" y="${FP_Y}" width="${FP_W}" height="${FP_H}" fill="#fff3e0" stroke="${FR}" stroke-width="1.8" rx="3"/>`);
+  p.push(`<rect x="${FP_X}" y="${FP_Y}" width="${FP_W}" height="16" fill="${FR}" rx="3"/>`);
+  p.push(T(FP_X + FP_W/2, FP_Y + 11, 'FSCU', {sz:8, c:'#fff', w:'700'}));
+  p.push(T(FP_X + FP_W/2, FP_Y + 24, 'Fire Suppression', {sz:6.5, c:FR}));
+  p.push(T(FP_X + FP_W/2, FP_Y + 33, 'Control Unit', {sz:6.5, c:FR}));
+  p.push(T(FP_X + FP_W/2, FP_Y + 42, 'UL 864 listed', {sz:6, c:SC}));
+  p.push(T(FP_X + FP_W/2, FP_Y + 51, '24 VDC', {sz:6, c:SC}));
+  // FSCU wiring to cylinders (dashed red)
+  p.push(VL(FP_X + FP_W/2, FP_Y, CYL_Y0 + 20, 1, FR, '3 2'));
+  // FSCU wiring to detectors (dashed blue, goes into room)
+  p.push(VL(FP_X + FP_W/2, FP_Y, RM_Y + RM_H, 1, BL, '3 2'));
+  p.push(HL(FP_X + FP_W/2, RM_Y + RM_H, RM_X + 200, 1, BL, '3 2'));
+
+  // ── PRE-DISCHARGE ALARM (at door, NFPA 2001 mandatory) ───────────────────
+  const PA_X = DR_X + 27, PA_Y = RM_Y + RM_H + 55;
+  p.push(Sounder(PA_X, PA_Y));
+  p.push(DL(PA_X, PA_Y + 10, PA_X, PA_Y + 30, FR));
+  p.push(T(PA_X + 12, PA_Y + 5, 'Pre-Discharge Alarm', {a:'start', sz:7.5, c:FR, w:'700'}));
+  p.push(T(PA_X + 12, PA_Y + 16, '90 dB min @ 3m  |  30-sec countdown', {a:'start', sz:7, c:SC}));
+  p.push(T(PA_X + 12, PA_Y + 26, 'NFPA 2001 / NFPA 72', {a:'start', sz:7, c:SC}));
+
+  // ── ABORT STATION (at door, NFPA 2001 §4.7) ─────────────────────────────
+  const AB_X = DR_X - 5, AB_Y = RM_Y + RM_H + 55;
+  p.push(`<rect x="${AB_X-28}" y="${AB_Y-14}" width="56" height="28" fill="#fff" stroke="${FR}" stroke-width="1.5" rx="2"/>`);
+  p.push(T(AB_X, AB_Y - 5, 'ABORT', {sz:7.5, c:FR, w:'700'}));
+  p.push(T(AB_X, AB_Y + 6, 'STATION', {sz:7, c:FR}));
+  p.push(DL(AB_X, AB_Y+14, AB_X, AB_Y+28, FR));
+  p.push(T(AB_X - 30, AB_Y + 36, 'Key-operated  |  NFPA 2001 §4.7', {a:'end', sz:7, c:SC}));
+
+  // ── SAFETY STATUS BADGE ──────────────────────────────────────────────────
+  const occBg  = safe ? GN : FR;
+  const occTxt = safe ? `SAFE FOR OCCUPIED SPACES  (${cDesign}% < NOAEL ${noael}%)` : `EVACUATE BEFORE DISCHARGE  (${cDesign}% > NOAEL ${noael}%)`;
+  const safeBw = Math.max(300, occTxt.length * 6.5 + 24);
+  p.push(`<rect x="${W/2 - safeBw/2}" y="410" width="${safeBw}" height="22" rx="11" fill="${occBg}"/>`);
+  p.push(T(W/2, 425, occTxt, {sz:8.5, c:'#fff', w:'700'}));
+
+  // ── RIGHT DATA PANEL ─────────────────────────────────────────────────────
+  const RP_X = 640, RP_W = W - RP_X - 13;
+  p.push(`<rect x="${RP_X}" y="50" width="${RP_W}" height="${STRIP_Y-52}" fill="#f8faff" stroke="#d0d8e8" stroke-width="0.8" rx="3"/>`);
+  p.push(`<rect x="${RP_X}" y="50" width="${RP_W}" height="18" fill="${CC}" rx="3"/>`);
+  p.push(T(RP_X+RP_W/2, 62, 'SYSTEM PARAMETERS', {sz:8, c:'#fff', w:'700'}));
+
+  const rows = [
+    ['Agent',                   agentLabel,                                CC],
+    ['GWP',                     String(gwp),                               gwp<=1?GN:gwp<=150?AO:FR],
+    ['Hazard Volume',           `${vol} m³ × ${nZones} zone(s)`,           CC],
+    ['Altitude Correction',     altFactor,                                  SC],
+    ['Design Concentration',    `${cDesign}% v/v (min. ${cMin}%)`,         cDesign<=noael?GN:FR],
+    ['NOAEL',                   `${noael}%`,                               GN],
+    ['Discharge Time',          dischTime,                                  CC],
+    ['Agent (calc.)',            `${Wcalc} kg`,                             SC],
+    ['Agent (design × ${sf}×)', `${Wdesign} kg`,                           CC],
+    ['Cylinders',               `${cylQty} × ${cylKg} kg = ${totalKg} kg`, CC],
+    ['Safety Factor',           `${sf} ×  (NFPA 2001 min 1.10×)`,         GN],
+    ['Occupied Space Safety',   safe ? 'SAFE' : 'EVACUATE FIRST',          safe?GN:FR],
+    ['Standard',               'NFPA 2001:2022 / ISO 14520:2015',          SC],
+    ['Acceptance',             'BFP permit + room integrity test req.',     SC],
+  ];
+
+  const RH = 13, RPY0 = 72;
+  rows.forEach(([label, value, vc], i) => {
+    const ry = RPY0 + i * RH;
+    if (i % 2 === 0) p.push(`<rect x="${RP_X+1}" y="${ry}" width="${RP_W-2}" height="${RH}" fill="#eef3fa"/>`);
+    p.push(T(RP_X+5,       ry+RH-3, label,  {a:'start', sz:7,   c:SC}));
+    p.push(T(RP_X+RP_W-5,  ry+RH-3, esc(value), {a:'end', sz:7.5, c:vc, w:'600'}));
+  });
+
+  // ── LEGEND strip (STRIP_Y = H-113 = 467) ─────────────────────────────────
+  p.push(HL(11, STRIP_Y, W-11, 0.75));
+  const LX2 = 530;
+  p.push(VL(LX2, STRIP_Y, H-11, 0.75));
+
+  p.push(T(18, STRIP_Y+13, 'LEGEND OF SYMBOLS', {a:'start', sz:7, c:CC, w:'700'}));
+  [
+    [PP,  '─── Discharge piping (SS304)'],
+    [BL,  '─── Detection wiring (cross-zone)'],
+    [FR,  '─── Control / alarm wiring'],
+    [AO,  '─── Pressure relief vent'],
+    [GN,  '─── Earth / safe status'],
+  ].forEach(([clr, lbl], i) => {
+    const ly = STRIP_Y + 22 + i * 13;
+    p.push(`<line x1="18" y1="${ly}" x2="34" y2="${ly}" stroke="${clr}" stroke-width="3"/>`);
+    p.push(T(40, ly+4, lbl, {a:'start', sz:7.5, c:CC}));
+  });
+
+  p.push(T(LX2+8, STRIP_Y+13, 'GENERAL NOTES', {a:'start', sz:7, c:CC, w:'700'}));
+  [
+    `1. Agent mass: W = (V/S) × [C/(100-C)], C = ${cDesign}% v/v, SF = ${sf}× per NFPA 2001 §5.3.`,
+    `2. Cylinder configuration: ${cylQty} × ${cylKg} kg = ${totalKg} kg ${agentLabel}. GWP = ${gwp}.`,
+    `3. Room integrity test (door fan) required per NFPA 2001 Annex B / EN 15004 before acceptance.`,
+    `4. Discharge time: ${dischTime} (halocarbon), NFPA 2001 §5.3.4. Verify at commissioning.`,
+    `5. Annual inspection per NFPA 2001 §6; cylinder hydrostatic test every 12 years.`,
+    `6. BFP permit required. Signed by PRC-licensed Fire Protection Engineer (RA 9514).`,
+  ].forEach((note, i) => {
+    p.push(T(LX2+8, STRIP_Y+27+i*12, note, {a:'start', sz:7, c:SC}));
+  });
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` +
+    p.join('\n  ') + `\n</svg>`;
+}
+
+// ─── Clean Agent SLD Title Block ─────────────────────────────────────────────
+function buildCleanAgentTitleBlockHtml(inputs, results) {
+  const r = results || {};
+  const proj = String(inputs?.project_name || 'Clean Agent System').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const now  = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
+  const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+  const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
+  const BR  = 'border-right:1px solid #c8d0da;';
+  return `<table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}width:42%;`)}${LBL('Project Name')}${EF(proj)}</td>
+    ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('FP-CAS-SCH-001')}</td>
+    ${TD('width:35%;')}${LBL('Agent / System')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${(r.agent_label||'FK-5-1-12').replace(/[<>]/g,'')} &mdash; ${r.total_agent_kg||''}kg total</div></td>
+  </tr>
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('Clean Agent Suppression System — Schematic')}</td>
+    ${TD(`${BR}`)}${LBL('Standard / Code')}<div style="font-size:10px;color:#1a2e4a;">NFPA 2001:2022 / ISO 14520:2015 / BFP IRR RA 9514</div></td>
+    ${TD('')}${LBL('Date Prepared')}${EF(now)}</td>
+  </tr>
+  <tr>
+    ${TD(`${BR}width:22%;`)}${LBL('Prepared By')}${SIG()}</td>
+    ${TD(`${BR}width:22%;`)}${LBL('Checked By')}${SIG()}</td>
+    ${TD(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
+    ${TD(`${BR}width:17%;`)}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
+    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}<div style="font-size:8px;color:#888;margin-top:5px;">Sheet 1 of 1</div></td>
+  </tr>
+</table>`;
 }
 
 // ─── Clean Agent Suppression Report ──────────────────────────────────────────
@@ -18531,6 +18843,9 @@ async function _runDrawing() {
     } else if (ct === 'Transformer Sizing') {
       const svg = buildTransformerSLDSvg(_lastInputs, _lastResults);
       _renderGenericSLD(svg, buildTransformerSLDTitleBlockHtml(_lastInputs, _lastResults));
+    } else if (ct === 'Clean Agent Suppression') {
+      const svg = buildCleanAgentSVG(_lastInputs, _lastResults);
+      _renderGenericSLD(svg, buildCleanAgentTitleBlockHtml(_lastInputs, _lastResults));
     }
   }, 100);
 }
