@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.plot.ly/plotly-basic-2.26.0.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -483,6 +484,7 @@
     html += renderRepeatFailures(data.repeat_failures);
 
     panel.innerHTML = html;
+    flushCharts();
   }
 
   // ── Traffic Light Card Helper ─────────────────────────────────────────────
@@ -681,25 +683,78 @@
   }
 
   // ── 6. Downtime Pareto ─────────────────────────────────────────────────────
+  // ── Plotly shared config ───────────────────────────────────────────────────
+  const PLOTLY_BASE_LAYOUT = {
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor:  'rgba(0,0,0,0)',
+    font: { color: 'rgba(255,255,255,0.55)', family: 'Poppins, sans-serif', size: 11 },
+    margin: { l: 10, r: 10, t: 10, b: 30 },
+    xaxis: { gridcolor: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.3)', zeroline: false },
+    yaxis: { gridcolor: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.3)', zeroline: false },
+    showlegend: false,
+  };
+  const PLOTLY_CONFIG = { displayModeBar: false, responsive: true };
+
+  // Deferred chart draws — called after innerHTML is set
+  const _pendingCharts = [];
+
+  function queueChart(fn) { _pendingCharts.push(fn); }
+
+  function flushCharts() {
+    requestAnimationFrame(() => {
+      while (_pendingCharts.length) _pendingCharts.shift()();
+    });
+  }
+
   function renderDowntimePareto(d) {
     if (!d || !d.pareto?.length) return cardEmpty('Downtime Pareto', '80/20 Rule', d?.note || 'No downtime_hours logged in corrective entries.');
-    const maxDT = d.pareto[0]?.downtime_hours || 1;
-    const rows = d.pareto.slice(0, 8).map((r, i) => {
-      const pct = Math.round((r.downtime_hours / maxDT) * 100);
-      const cumulCls = r.cumulative_pct <= 80 ? 'alert' : 'warn';
-      return `<div style="margin-bottom:0.5rem;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
-          <span style="font-size:0.72rem;font-weight:600;color:#fff;">${i+1}. ${escHtml(r.machine)}</span>
-          <span style="font-size:0.7rem;color:rgba(255,255,255,0.5);">${r.downtime_hours}h · <span class="${cumulCls}">${r.cumulative_pct}% cumul.</span></span>
-        </div>
-        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${i === 0 ? '#f87171' : i < 3 ? '#F7A21B' : '#a78bfa'}"></div></div>
-      </div>`;
-    }).join('');
-    return `<div class="card">
-      <div class="card-title">Downtime Pareto <span class="card-standard">80/20 — Total: ${d.total_downtime_hours}h</span></div>
-      ${rows}
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">Top machine: ${escHtml(d.top_machine || '—')} accounts for ${d.top_machine_pct || 0}% of all downtime.</p>
-    </div>`;
+    const top = d.pareto[0];
+    const color = top.pct_of_total > 50 ? 'red' : top.pct_of_total > 30 ? 'yellow' : 'green';
+    const chartId = `chart-pareto-${_kpiCardId}`;
+
+    queueChart(() => {
+      const items = d.pareto.slice(0, 8);
+      const barColors = items.map((_, i) => i === 0 ? '#f87171' : i < 3 ? '#F7A21B' : '#a78bfa');
+      const traces = [
+        {
+          type: 'bar', orientation: 'h',
+          x: items.map(r => r.downtime_hours),
+          y: items.map(r => r.machine),
+          marker: { color: barColors },
+          hovertemplate: '%{y}: %{x}h<extra></extra>',
+        },
+        {
+          type: 'scatter', mode: 'lines+markers',
+          x: items.map(r => r.cumulative_pct),
+          y: items.map(r => r.machine),
+          xaxis: 'x2',
+          line: { color: '#4ade80', width: 2 },
+          marker: { color: '#4ade80', size: 5 },
+          hovertemplate: '%{y}: %{x}% cumul.<extra></extra>',
+        },
+      ];
+      const layout = {
+        ...PLOTLY_BASE_LAYOUT,
+        margin: { l: 130, r: 50, t: 10, b: 30 },
+        xaxis:  { ...PLOTLY_BASE_LAYOUT.xaxis, title: { text: 'Downtime (h)', font: { size: 10 } } },
+        xaxis2: { overlaying: 'x', side: 'top', range: [0, 110], title: { text: 'Cumulative %', font: { size: 10 } }, color: '#4ade80', gridcolor: 'rgba(0,0,0,0)' },
+        height: Math.max(180, items.length * 36),
+        shapes: [{ type: 'line', x0: 80, x1: 80, y0: -0.5, y1: items.length - 0.5, xref: 'x2', line: { color: 'rgba(74,222,128,0.4)', width: 1, dash: 'dot' } }],
+        annotations: [{ x: 80, y: items.length - 0.5, xref: 'x2', text: '80%', font: { color: '#4ade80', size: 9 }, showarrow: false, yshift: 8 }],
+      };
+      if (document.getElementById(chartId)) {
+        Plotly.newPlot(chartId, traces, layout, PLOTLY_CONFIG);
+      }
+    });
+
+    return kpiCard({
+      title: 'Downtime Pareto', standard: '80/20 Rule',
+      value: d.total_downtime_hours + 'h', unit: 'total downtime',
+      sublabel: `${escHtml(d.top_machine || '—')} = ${d.top_machine_pct || 0}% of all downtime`,
+      color,
+      detail: `<div id="${chartId}" style="width:100%;"></div>`,
+      legend: 'Green line = cumulative %. Dotted line = 80% threshold.',
+    });
   }
 
   // ── 7. Parts Consumption ───────────────────────────────────────────────────
@@ -760,6 +815,7 @@
     html += renderRepeatFailureClustering(data.repeat_failure_clustering);
     html += renderEngineeringValidation(data.engineering_validation);
     panel.innerHTML = html;
+    flushCharts();
   }
 
   function renderRCMConsequence(d) {
@@ -909,6 +965,7 @@
     html += renderPartsStockout(data.parts_stockout);
     html += renderFailureTrend(data.failure_trend);
     panel.innerHTML = html;
+    flushCharts();
   }
 
   function renderAnomalyBaseline(d) {
@@ -948,30 +1005,45 @@
 
   function renderHealthScores(d) {
     if (!d?.health_scores?.length) return cardEmpty('Equipment Health Score', 'SMRP-inspired composite (0-100)', d?.note || 'No data available.');
-    const scores = d.health_scores.map(s => {
-      const color = s.color === 'red' ? '#f87171' : s.color === 'yellow' ? '#F7A21B' : '#4ade80';
-      const pct = s.health_score;
-      return `<div style="margin-bottom:0.75rem;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
-          <span style="font-size:0.78rem;font-weight:700;color:#fff;">${escHtml(s.machine)}</span>
-          <div style="display:flex;align-items:center;gap:0.5rem;">
-            <span style="font-size:0.65rem;font-weight:600;color:${color};">${escHtml(s.status)}</span>
-            <span style="font-size:1rem;font-weight:800;color:${color};">${pct}</span>
-          </div>
-        </div>
-        <div class="compliance-track">
-          <div class="compliance-fill" style="width:${pct}%;background:${color};"></div>
-        </div>
-        <div style="font-size:0.62rem;color:rgba(255,255,255,0.25);margin-top:0.25rem;">
-          MTBF score: ${s.components.mtbf_score} · Failure score: ${s.components.failure_score} · PM score: ${s.components.compliance_score}
-        </div>
-      </div>`;
-    }).join('');
-    return `<div class="card">
-      <div class="card-title">Equipment Health Score <span class="card-standard">SMRP composite · 🔴 ${d.at_risk_count} at risk · 🟡 ${d.watch_count} watch · 🟢 ${d.healthy_count} healthy</span></div>
-      ${scores}
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">Weights: ${escHtml(d.weights?.mtbf || '40%')} MTBF + ${escHtml(d.weights?.failure_frequency || '30%')} failure freq + ${escHtml(d.weights?.pm_compliance || '30%')} PM compliance</p>
-    </div>`;
+    const worst   = d.health_scores[0]; // sorted lowest first
+    const heroColor = worst.color === 'red' ? 'red' : worst.color === 'yellow' ? 'yellow' : 'green';
+    const chartId = `chart-health-${_kpiCardId}`;
+
+    queueChart(() => {
+      const top5 = d.health_scores.slice(0, 5);
+      const colors = top5.map(s => s.color === 'red' ? '#f87171' : s.color === 'yellow' ? '#F7A21B' : '#4ade80');
+      const traces = [{
+        type: 'bar', orientation: 'h',
+        x: top5.map(s => s.health_score),
+        y: top5.map(s => s.machine),
+        marker: { color: colors },
+        text: top5.map(s => s.health_score),
+        textposition: 'outside',
+        hovertemplate: '%{y}: %{x}/100<extra></extra>',
+      }];
+      const layout = {
+        ...PLOTLY_BASE_LAYOUT,
+        margin: { l: 130, r: 40, t: 10, b: 20 },
+        xaxis: { ...PLOTLY_BASE_LAYOUT.xaxis, range: [0, 110] },
+        height: Math.max(160, top5.length * 38),
+        shapes: [
+          { type:'line', x0:80, x1:80, y0:-0.5, y1:top5.length-0.5, line:{ color:'rgba(74,222,128,0.4)', width:1, dash:'dot' } },
+          { type:'line', x0:60, x1:60, y0:-0.5, y1:top5.length-0.5, line:{ color:'rgba(247,162,27,0.4)', width:1, dash:'dot' } },
+        ],
+      };
+      if (document.getElementById(chartId)) {
+        Plotly.newPlot(chartId, traces, layout, PLOTLY_CONFIG);
+      }
+    });
+
+    return kpiCard({
+      title: 'Equipment Health Score', standard: 'SMRP composite (0-100)',
+      value: worst.health_score, unit: '/ 100 lowest',
+      sublabel: `${worst.machine} — ${worst.status} · ${d.at_risk_count} at risk · ${d.watch_count} watch · ${d.healthy_count} healthy`,
+      color: heroColor,
+      detail: `<div id="${chartId}" style="width:100%;"></div>`,
+      legend: 'Green line = 80 target · Yellow line = 60 minimum. Weights: 40% MTBF + 30% failure freq + 30% PM compliance.',
+    });
   }
 
   function renderNextFailureDates(d) {
@@ -1047,26 +1119,53 @@
 
   function renderFailureTrend(d) {
     if (!d?.trend?.length) return cardEmpty('Failure Trend', 'Linear trend analysis', d?.note || 'Insufficient data.');
-    const dirColor = d.direction === 'INCREASING' ? '#f87171' : d.direction === 'DECREASING' ? '#4ade80' : '#a78bfa';
-    const max = Math.max(...d.trend.map(t => t.count), 1);
-    const bars = d.trend.slice(-12).map(t => {
-      const pct = Math.round((t.count / max) * 100);
-      return `<div class="bar-row">
-        <span class="bar-label">${escHtml(t.week)}</span>
-        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
-        <span class="bar-val">${t.count}</span>
-      </div>`;
-    }).join('');
-    const forecast = (d.forecast || []).map(f => `<span style="font-size:0.65rem;color:rgba(255,255,255,0.35);margin-right:0.75rem;">${escHtml(f.week)}: ~${f.predicted_count}</span>`).join('');
-    return `<div class="card">
-      <div class="card-title">Failure Trend <span class="card-standard">Linear trend · ${d.data_points} weeks</span></div>
-      <div style="margin-bottom:0.75rem;">
-        <span style="font-size:0.8rem;font-weight:700;color:${dirColor};">${escHtml(d.direction || '')}</span>
-        <span style="font-size:0.72rem;color:rgba(255,255,255,0.5);margin-left:0.5rem;">${escHtml(d.trend_label || '')}</span>
-      </div>
-      ${bars}
-      ${forecast ? `<div style="margin-top:0.5rem;"><p style="font-size:0.65rem;color:rgba(255,255,255,0.25);margin-bottom:0.25rem;">4-week forecast:</p>${forecast}</div>` : ''}
-    </div>`;
+    const dirColor = d.direction === 'INCREASING' ? 'red' : d.direction === 'DECREASING' ? 'green' : 'grey';
+    const chartId  = `chart-trend-${_kpiCardId}`;
+
+    queueChart(() => {
+      const weeks  = d.trend.map(t => t.week);
+      const counts = d.trend.map(t => t.count);
+      const fWks   = (d.forecast || []).map(f => f.week);
+      const fCnts  = (d.forecast || []).map(f => f.predicted_count);
+
+      const lineColor = d.direction === 'INCREASING' ? '#f87171' : d.direction === 'DECREASING' ? '#4ade80' : '#a78bfa';
+      const traces = [
+        {
+          type: 'scatter', mode: 'lines+markers', name: 'Actual',
+          x: weeks, y: counts,
+          line: { color: lineColor, width: 2 },
+          marker: { color: lineColor, size: 5 },
+          hovertemplate: 'Week %{x}: %{y} failures<extra></extra>',
+        },
+        ...(fWks.length ? [{
+          type: 'scatter', mode: 'lines+markers', name: 'Forecast',
+          x: [weeks[weeks.length - 1], ...fWks],
+          y: [counts[counts.length - 1], ...fCnts],
+          line: { color: lineColor, width: 2, dash: 'dot' },
+          marker: { color: lineColor, size: 4, opacity: 0.6 },
+          hovertemplate: 'Forecast %{x}: ~%{y}<extra></extra>',
+        }] : []),
+      ];
+      const layout = {
+        ...PLOTLY_BASE_LAYOUT,
+        margin: { l: 30, r: 20, t: 10, b: 40 },
+        xaxis: { ...PLOTLY_BASE_LAYOUT.xaxis, tickangle: -30, nticks: 8 },
+        yaxis: { ...PLOTLY_BASE_LAYOUT.yaxis, title: { text: 'Failures', font: { size: 10 } }, rangemode: 'tozero' },
+        height: 200,
+      };
+      if (document.getElementById(chartId)) {
+        Plotly.newPlot(chartId, traces, layout, PLOTLY_CONFIG);
+      }
+    });
+
+    return kpiCard({
+      title: 'Failure Trend', standard: `Linear trend · ${d.data_points} weeks`,
+      value: d.direction || 'STABLE', unit: '',
+      sublabel: escHtml(d.trend_label || ''),
+      color: dirColor,
+      detail: `<div id="${chartId}" style="width:100%;"></div>`,
+      legend: 'Dotted line = 4-week forecast based on current trend.',
+    });
   }
 
   // ── Render Phase 4 — Prescriptive ────────────────────────────────────────
