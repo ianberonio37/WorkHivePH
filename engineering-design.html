@@ -15897,7 +15897,7 @@ function renderBoltTorqueReport(inputs, results, narrative) {
     <h2>3. Bolt Properties</h2>
     <table>
       <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
-      <tr><td>Bolt Size and Pitch</td><td>${escHtml(r.bolt_label)}</td></tr>
+      <tr><td>Bolt Size and Pitch</td><td>${escHtml(r.bolt_size)}</td></tr>
       <tr><td>Nominal Diameter (d)</td><td class="num">${r.d_mm} mm</td></tr>
       <tr><td>Tensile Stress Area (At)</td><td class="num">${r.At_mm2} mm² (ISO 898-1 Table)</td></tr>
       <tr><td>Bolt Grade</td><td>ISO 898-1 Grade ${escHtml(inputs.bolt_grade)}</td></tr>
@@ -15914,8 +15914,8 @@ function renderBoltTorqueReport(inputs, results, narrative) {
     </p>
     <p style="font-size:0.83rem;color:#333;"><strong>Bolt Stress Check:</strong></p>
     <p style="font-size:0.83rem;color:#333;">
-      σ<sub>bolt</sub> = F<sub>i</sub> / At = ${r.Fi_kN} × 1000 / ${r.At_mm2} = ${r.sigma_bolt_MPa} MPa<br>
-      Sp = ${r.Sp_MPa} MPa: Status: <strong style="color:${stressColor};">${r.stress_check} (${r.sigma_bolt_MPa} MPa ${stressOk ? '≤' : '>'} ${r.Sp_MPa} MPa)</strong>
+      σ<sub>bolt</sub> = F<sub>i</sub> / At = ${r.Fi_kN} × 1000 / ${r.At_mm2} = ${r.sigma_MPa} MPa<br>
+      Sp = ${r.Sp_MPa} MPa: Status: <strong style="color:${stressColor};">${r.stress_check} (${r.sigma_MPa} MPa ${stressOk ? '≤' : '>'} ${r.Sp_MPa} MPa)</strong>
     </p>
 
     <h2>5. Tightening Torque</h2>
@@ -17538,8 +17538,11 @@ function _prepareReportHtml(reportEl) {
   // Remove contenteditable underlines (weasyprint ignores the attribute but
   // the amber dashed border comes from CSS class — clear it via inline style)
   clone.querySelectorAll('.editable-field').forEach(el => {
-    el.style.borderBottom = 'none';
+    el.classList.remove('editable-field');
     el.removeAttribute('contenteditable');
+    el.style.border       = 'none';
+    el.style.borderBottom = 'none';
+    el.style.outline      = 'none';
   });
   // Inject disclaimer at the end
   const disc = document.createElement('div');
@@ -20564,7 +20567,11 @@ async function downloadDrawingPdf() {
   // ── Server-side vector PDF (preserves SVG as true vector) ─────────────────
   try {
     const clone = panel.cloneNode(true);
-    clone.querySelectorAll('.editable-field').forEach(el => el.style.borderBottom = 'none');
+    clone.querySelectorAll('.editable-field').forEach(el => {
+      el.classList.remove('editable-field');
+      el.removeAttribute('contenteditable');
+      el.style.border = 'none'; el.style.borderBottom = 'none'; el.style.outline = 'none';
+    });
     clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
     const html = `<style>@page{size:A3 landscape;margin:8mm 10mm;}body{margin:0;padding:0;}svg{width:100%;height:auto;}</style>` + clone.innerHTML;
     await _tryServerPdf(html, fileName);
@@ -22152,7 +22159,7 @@ function renderWaterTreatmentReport(inputs, results, narrative) {
 
   const ctOk    = (r.ct_check || '').startsWith('PASS');
   const ctColor = ctOk ? '#16a34a' : '#dc2626';
-  const pnsOk   = (r.pns_1998_status || '').startsWith('MEETS');
+  const pnsOk   = (r.pns1998_status || '').startsWith('MEETS');
   const pnsColor = pnsOk ? '#16a34a' : '#d97706';
 
   document.getElementById('report-panel').innerHTML = `
@@ -22308,7 +22315,7 @@ function renderWaterTreatmentReport(inputs, results, narrative) {
         ${r.needs_disinfection ? `<div>Contact tank: <strong>${r.contact_tank_m3} m³</strong></div>` : ''}
         ${r.needs_coag_floc ? `<div>Alum: <strong>${r.alum_dose_mg_L} mg/L → ${r.alum_daily_kg} kg/day</strong></div>` : ''}
         <div>Storage tank: <strong>${r.storage_tank_L?.toLocaleString()} L</strong></div>
-        <div style="grid-column:1/-1;font-weight:700;color:${pnsColor};margin-top:0.3rem;">${escHtml(r.pns_1998_status || '')}</div>
+        <div style="grid-column:1/-1;font-weight:700;color:${pnsColor};margin-top:0.3rem;">${escHtml(r.pns1998_status || '')}</div>
       </div>
     </div>
 
@@ -23287,9 +23294,13 @@ async function downloadBomDocPdf() {
       sp.textContent = inp.value;
       inp.parentNode.replaceChild(sp, inp);
     });
-    clone.querySelectorAll('.editable-field').forEach(el => el.style.borderBottom = 'none');
+    clone.querySelectorAll('.editable-field').forEach(el => {
+      el.classList.remove('editable-field');
+      el.removeAttribute('contenteditable');
+      el.style.border = 'none'; el.style.borderBottom = 'none'; el.style.outline = 'none';
+    });
     // Landscape A4 override via inline @page rule
-    const html = `<style>@page{size:A4 landscape;margin:10mm;}body{font-family:'Liberation Sans',Arial,sans-serif;font-size:8.5pt;}</style>` + clone.innerHTML;
+    const html = `<style>@page{size:A4 landscape;margin:10mm;}body{font-family:'Liberation Sans',Arial,sans-serif;font-size:8.5pt;}.editable-field{border:none!important;border-bottom:none!important;outline:none!important;}</style>` + clone.innerHTML;
     await _tryServerPdf(html, fileName);
     showToast('BOM PDF saved.');
     return;
@@ -23342,8 +23353,12 @@ async function downloadSowPdf() {
   // ── Server-side vector PDF ────────────────────────────────────────────────
   try {
     const clone = el.cloneNode(true);
-    clone.querySelectorAll('.editable-field').forEach(el => el.style.borderBottom = 'none');
-    const html = `<style>@page{size:A4;margin:12mm 15mm;}body{font-family:'Liberation Sans',Arial,sans-serif;font-size:9pt;}</style>` + clone.innerHTML;
+    clone.querySelectorAll('.editable-field').forEach(el => {
+      el.classList.remove('editable-field');
+      el.removeAttribute('contenteditable');
+      el.style.border = 'none'; el.style.borderBottom = 'none'; el.style.outline = 'none';
+    });
+    const html = `<style>@page{size:A4;margin:12mm 15mm;}body{font-family:'Liberation Sans',Arial,sans-serif;font-size:9pt;}.editable-field{border:none!important;border-bottom:none!important;outline:none!important;}</style>` + clone.innerHTML;
     await _tryServerPdf(html, fileName);
     showToast('SOW PDF saved.');
     return;
