@@ -534,6 +534,15 @@
     if (!detail) return;
     const isOpen = detail.classList.toggle('open');
     if (chevron) chevron.classList.toggle('open', isOpen);
+    // Plotly charts inside collapsed cards render at 0px — resize on open
+    if (isOpen) {
+      requestAnimationFrame(() => {
+        const charts = detail.querySelectorAll('[id^="chart-"]');
+        charts.forEach(el => {
+          try { Plotly.Plots.resize(el); } catch(e) {}
+        });
+      });
+    }
   }
 
   // ── 1. MTBF ────────────────────────────────────────────────────────────────
@@ -701,9 +710,12 @@
   function queueChart(fn) { _pendingCharts.push(fn); }
 
   function flushCharts() {
-    requestAnimationFrame(() => {
-      while (_pendingCharts.length) _pendingCharts.shift()();
-    });
+    // Small delay so collapsible cards that auto-open have time to expand
+    setTimeout(() => {
+      requestAnimationFrame(() => {
+        while (_pendingCharts.length) _pendingCharts.shift()();
+      });
+    }, 350); // matches the CSS transition duration
   }
 
   function renderDowntimePareto(d) {
