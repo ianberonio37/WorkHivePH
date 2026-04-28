@@ -1095,24 +1095,52 @@
 
   function renderNextFailureDates(d) {
     if (!d?.predictions?.length) return cardEmpty('Next Failure Prediction', 'ISO 14224:2016 + ISO 13381-1:2015', d?.note || 'Need ≥ 2 failures per machine to predict.');
+
     const rows = d.predictions.map(p => {
-      const cls = p.risk === 'HIGH' ? 'alert' : p.risk === 'MEDIUM' ? 'warn' : 'good';
-      return `<tr>
-        <td class="machine-name">${escHtml(p.machine)}</td>
-        <td class="num">${p.mtbf_days}d</td>
-        <td class="num">${escHtml(p.last_failure)}</td>
-        <td class="num ${cls}">${escHtml(p.predicted_next)}</td>
-        <td class="num"><span style="font-size:0.65rem;font-weight:700;color:${p.risk==='HIGH'?'#f87171':p.risk==='MEDIUM'?'#F7A21B':'#4ade80'}">${p.risk}</span></td>
+      const isOverdue = p.days_until < 0;
+      const isSuspect = p.mtbf_days < 1; // < 1 day MTBF = likely data quality issue
+
+      // Status column: explain past dates clearly
+      let statusHtml;
+      if (isSuspect) {
+        statusHtml = `<span style="font-size:0.62rem;color:#F7A21B;">⚠ Check data</span>`;
+      } else if (isOverdue) {
+        statusHtml = `<span style="font-size:0.62rem;color:#f87171;">Overdue by ${Math.abs(Math.round(p.days_until))}d — not yet logged</span>`;
+      } else {
+        statusHtml = `<span style="font-size:0.62rem;color:${p.risk==='MEDIUM'?'#F7A21B':'#4ade80'};">Due in ${Math.round(p.days_until)} days</span>`;
+      }
+
+      // Prediction date: show clearly if past
+      const dateColor = isOverdue ? '#f87171' : p.risk === 'MEDIUM' ? '#F7A21B' : 'rgba(255,255,255,0.6)';
+      const dateLabel = isOverdue ? `${escHtml(p.predicted_next)} ← past` : escHtml(p.predicted_next);
+
+      return `<tr style="${isSuspect ? 'opacity:0.6;' : ''}">
+        <td class="machine-name">${escHtml(p.machine)}${isSuspect ? ' <span style="font-size:0.6rem;color:#F7A21B;">⚠</span>' : ''}</td>
+        <td class="num" style="color:${isSuspect?'#F7A21B':'rgba(255,255,255,0.6)'};">${p.mtbf_days}d</td>
+        <td class="num" style="color:rgba(255,255,255,0.5);">${escHtml(p.last_failure)}</td>
+        <td class="num" style="color:${dateColor};font-size:0.72rem;">${dateLabel}</td>
+        <td>${statusHtml}</td>
       </tr>`;
     }).join('');
-    return `<div class="card">
-      <div class="card-title">Next Failure Prediction <span class="card-standard">ISO 13381-1:2015 · ${d.high_risk} HIGH · ${d.medium_risk} MEDIUM</span></div>
-      <table class="data-table">
-        <thead><tr><th>Machine</th><th class="num">MTBF</th><th class="num">Last Fail</th><th class="num">Predicted Next</th><th class="num">Risk</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
-    </div>`;
+
+    const suspectCount = d.predictions.filter(p => p.mtbf_days < 1).length;
+
+    return kpiCard({
+      title: 'Next Failure Prediction',
+      standard: `ISO 13381-1:2015 · last failure + MTBF`,
+      value: d.high_risk,
+      unit: `machine${d.high_risk !== 1 ? 's' : ''} overdue`,
+      sublabel: d.high_risk > 0 ? `${d.high_risk} machine(s) past predicted failure date — check if logged` : `${d.medium_risk} machine(s) due within 14 days`,
+      color: d.high_risk > 0 ? 'red' : d.medium_risk > 0 ? 'yellow' : 'green',
+      detail: `
+        <table class="data-table">
+          <thead><tr><th>Machine</th><th class="num">MTBF</th><th class="num">Last Logged</th><th class="num">Predicted Next</th><th>Status</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        ${suspectCount > 0 ? `<p style="font-size:0.65rem;color:#F7A21B;margin-top:0.75rem;">⚠ ${suspectCount} machine(s) with MTBF < 1 day — likely multiple failures logged in same shift. Review logbook entries for data accuracy.</p>` : ''}
+        <p style="font-size:0.62rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">Past dates mean the machine was due to fail again based on MTBF — check if a new failure was logged or if the machine is overdue for inspection.</p>`,
+      legend: 'Prediction = last logged failure date + mean interval between historical failures. Requires ≥ 2 failures per machine.',
+    });
   }
 
   function renderPMDueCalendar(d) {
