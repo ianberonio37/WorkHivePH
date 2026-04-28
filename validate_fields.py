@@ -93,6 +93,13 @@ TESTS = {
     },
 
     # ── Electrical ────────────────────────────────────────────────────────────
+    "Load Estimation": {
+        "phase_config": "3-Phase 4-Wire (400V)",
+        "loads": [
+            {"load_type": "Lighting (General)",    "quantity": 10, "watts_each": 40,   "power_factor": 0.9},
+            {"load_type": "Air Conditioning (Unit)","quantity":  2, "watts_each": 1500, "power_factor": 0.85},
+        ],
+    },
     "Voltage Drop": {
         "circuit_type": "Branch Circuit", "phase": "Single-phase",
         "voltage": 230, "current": 20, "wire_length": 50,
@@ -177,6 +184,20 @@ TESTS = {
     },
 
     # ── Plumbing ──────────────────────────────────────────────────────────────
+    "Hot Water Demand": {
+        "supply_temp": 28, "hot_temp": 60, "recovery_hours": 2,
+        "peak_fraction": 0.25, "storage_factor": 1.25, "pipe_loss_pct": 10,
+        "uses": [
+            {"use_type": "Hotel Room", "quantity": 20, "daily_count": 1},
+        ],
+    },
+    "Drainage Pipe Sizing": {
+        "pipe_material": "PVC", "system_type": "Horizontal Branch", "slope": "2%",
+        "fixtures": [
+            {"fixture_type": "Water Closet",         "quantity": 4},
+            {"fixture_type": "Lavatory / Hand Sink",  "quantity": 6},
+        ],
+    },
     "Water Supply Pipe Sizing": {
         "pipe_material": "PVC", "pipe_length": 40,
         "supply_pressure": 350, "min_pressure": 70, "fittings_allowance": 20,
@@ -308,6 +329,11 @@ TESTS = {
         "steam_pressure_bar": 10, "feedwater_temp_C": 80,
         "steam_flowrate_kgs": 1.0, "fuel_type": "Natural gas (LNG)",
     },
+    "Boiler System": {
+        "boiler_type": "Steam", "steam_pressure_barg": 7, "fw_temp_c": 80,
+        "fuel_type": "LPG", "efficiency_pct": 82, "safety_factor": 1.25,
+        "steam_demand_kg_hr": 500, "tds_makeup_ppm": 200, "tds_max_ppm": 3000,
+    },
     "Bearing Life (L10)": {
         "bearing_type": "Ball", "C_kN": 25.5, "speed_rpm": 1450,
         "Fr_kN": 5.0, "Fa_kN": 2.0, "reliability_pct": 90, "required_life_h": 25000,
@@ -333,10 +359,10 @@ TESTS = {
 # These are handled by the edge function TypeScript — validate_integration.py
 # tests them via the edge function.
 TYPESCRIPT_ONLY = [
-    "Load Estimation",
-    "Hot Water Demand", "Drainage Pipe Sizing",
-    "Boiler System",
-    "Short Circuit",  # TypeScript uses "Short Circuit" (Python uses "Short Circuit Analysis" alias)
+    # All calcs now have Python handlers.
+    # "Short Circuit" falls through to TypeScript because the frontend uses that exact
+    # string but Python registered it as "Short Circuit Analysis" (an alias exists).
+    "Short Circuit",
 ]
 
 

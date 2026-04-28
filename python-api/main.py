@@ -56,9 +56,11 @@ class PdfRequest(BaseModel):
 def _load_handlers() -> dict[str, Any]:
     handlers: dict[str, Any] = {}
 
-    # Mechanical — Ventilation / ACH
+    # Mechanical — Ventilation / ACH + Boiler System (frontend schema)
     from calcs.ventilation_ach import calculate as vent_ach_calc
+    from calcs.boiler_system   import calculate as boiler_system_calc
     handlers["Ventilation / ACH"] = vent_ach_calc
+    handlers["Boiler System"]     = boiler_system_calc
 
     # Phase 1 — Fluid Mechanics (Pump + Pipe + Compressed Air)
     from calcs.pump_tdh      import calculate as pump_tdh_calc
@@ -98,6 +100,8 @@ def _load_handlers() -> dict[str, Any]:
     from calcs.load_schedule       import calculate as load_sched_calc
     # from calcs.generator_sizing    import calculate as gen_calc
     # from calcs.solar_pv            import calculate as solar_calc
+    from calcs.load_estimation import calculate as load_est_calc
+    handlers["Load Estimation"]         = load_est_calc
     handlers["Voltage Drop"]            = vd_calc
     handlers["Power Factor Correction"] = pfc_calc
     handlers["Cable Tray Sizing"]       = cable_tray_calc
@@ -150,8 +154,12 @@ def _load_handlers() -> dict[str, Any]:
     handlers["Beam / Column Design"]       = beam_column_calc
     handlers["Lighting Design"]            = lighting_calc
     handlers["Lightning Protection (LPS)"] = lps_calc
-    from calcs.earthing_grounding import calculate as earthing_calc
+    from calcs.earthing_grounding    import calculate as earthing_calc
+    from calcs.hot_water_demand      import calculate as hw_demand_calc
+    from calcs.drainage_pipe_sizing  import calculate as drainage_calc
     handlers["Earthing / Grounding System"] = earthing_calc
+    handlers["Hot Water Demand"]            = hw_demand_calc
+    handlers["Drainage Pipe Sizing"]        = drainage_calc
 
     # Phase 8 — Machine Design
     from calcs.shaft_design    import calculate as shaft_calc
