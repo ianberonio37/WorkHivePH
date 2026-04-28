@@ -709,7 +709,7 @@ ${invText}
               max_tokens: 1024,
               messages: [
                 { role: 'system', content: enrichedPrompt },
-                ...sessionMessages,
+                ...sessionMessages.slice(-20),
               ],
             }),
           });
