@@ -24586,15 +24586,15 @@ function buildStairwellPressSVG(inputs, results) {
   }
 
   // ── Doors at each floor ──
-  const DX=COR_X, DW=14;
+  const doorX=COR_X, doorW=14;
   for(let f=0;f<showFloors;f++){
     const fy=BLD_TOP+f*FL_H+FL_H*0.25;
     // Door symbol
-    p.push(`<rect x="${DX}" y="${fy}" width="${DW}" height="${FL_H*0.5}" fill="${LGY}" stroke="${DOOR_C}" stroke-width="1.5"/>`);
+    p.push(`<rect x="${doorX}" y="${fy}" width="${doorW}" height="${FL_H*0.5}" fill="${LGY}" stroke="${DOOR_C}" stroke-width="1.5"/>`);
     // ΔP arrow from stairwell → corridor
     const arY=BLD_TOP+f*FL_H+FL_H/2;
-    p.push(`<polygon points="${DX+DW},${arY-4} ${DX+DW+18},${arY} ${DX+DW},${arY+4}" fill="${PRESS_C}" opacity="0.7"/>`);
-    p.push(T(DX+DW+22,arY+3,`${dP} Pa`,{a:'start',sz:6.5,c:PRESS_C}));
+    p.push(`<polygon points="${doorX+doorW},${arY-4} ${doorX+doorW+18},${arY} ${doorX+doorW},${arY+4}" fill="${PRESS_C}" opacity="0.7"/>`);
+    p.push(T(doorX+doorW+22,arY+3,`${dP} Pa`,{a:'start',sz:6.5,c:PRESS_C}));
   }
 
   // ── Fan at top of shaft ──
