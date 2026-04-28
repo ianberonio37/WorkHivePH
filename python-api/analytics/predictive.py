@@ -557,6 +557,96 @@ def calc_anomaly_baseline(logbook_entries: list[dict]) -> dict:
     }
 
 
+# ── 7. Parts Consumption Spike Detection ─────────────────────────────────────
+# Compares current period vs previous period for each part.
+# A spike (current rate > 2× previous rate) signals equipment degradation
+# BEFORE a fault is logged — often the earliest predictive signal available.
+# Standard: Predictive Analytics skill — Stage 2 rule-based feature.
+
+def calc_parts_consumption_spike(inv_transactions: list[dict], period_days: int = 90) -> dict:
+    df = _to_df(inv_transactions)
+    if df.empty or "created_at" not in df.columns or "part_name" not in df.columns:
+        return {
+            "spikes": [],
+            "standard": "Rule-based spike detection — current vs previous period consumption rate",
+            "note": "No inventory transaction data found.",
+        }
+
+    df = _parse_dates(df, "created_at")
+    df["qty_change"] = pd.to_numeric(df.get("qty_change", pd.Series()), errors="coerce").abs()
+
+    now     = pd.Timestamp.now(tz="UTC")
+    cutoff  = now - pd.Timedelta(days=period_days)          # start of current period
+    prev    = now - pd.Timedelta(days=period_days * 2)      # start of previous period
+
+    # Split into two periods
+    current_df  = df[df["created_at"] >= cutoff]
+    previous_df = df[(df["created_at"] >= prev) & (df["created_at"] < cutoff)]
+
+    if current_df.empty:
+        return {
+            "spikes": [], "note": "No transactions in current period.",
+            "standard": "Rule-based spike detection",
+        }
+
+    # Compute daily rate per part for each period
+    def daily_rate(period_df: pd.DataFrame, days: int) -> dict:
+        if period_df.empty:
+            return {}
+        grp = period_df.groupby("part_name")["qty_change"].sum()
+        return {part: float(total) / days for part, total in grp.items()}
+
+    current_rates  = daily_rate(current_df,  period_days)
+    previous_rates = daily_rate(previous_df, period_days)
+
+    spikes = []
+    for part, curr_rate in current_rates.items():
+        if curr_rate < 0.05:  # ignore < 1 unit per 20 days — too noisy
+            continue
+        prev_rate = previous_rates.get(part, 0)
+        if prev_rate == 0:
+            # First time this part is being used — not a spike, just new usage
+            if curr_rate >= 0.1:  # > 1 use per 10 days = notable new usage
+                spikes.append({
+                    "part_name":       part,
+                    "current_rate":    round(curr_rate * 30, 1),   # per month
+                    "previous_rate":   0,
+                    "spike_factor":    None,
+                    "signal":          "NEW_USAGE",
+                    "interpretation":  f"First recorded usage of {part} — {round(curr_rate*30,1)} units/month. Monitor if this is a new asset or sign of emerging fault.",
+                })
+            continue
+
+        spike_factor = curr_rate / prev_rate
+        if spike_factor >= 2.0:  # 2× threshold
+            if spike_factor >= 5.0:
+                severity = "CRITICAL"
+                interp   = f"Usage spiked {round(spike_factor,1)}× above baseline — equipment likely degrading. Inspect assets that use {part} immediately."
+            else:
+                severity = "WARNING"
+                interp   = f"Usage is {round(spike_factor,1)}× above the previous period — possible early fault developing. Schedule an inspection."
+
+            spikes.append({
+                "part_name":       part,
+                "current_rate":    round(curr_rate * 30, 1),    # units/month
+                "previous_rate":   round(prev_rate * 30, 1),    # units/month
+                "spike_factor":    round(spike_factor, 1),
+                "signal":          severity,
+                "interpretation":  interp,
+            })
+
+    spikes.sort(key=lambda x: (x["spike_factor"] or 999), reverse=True)
+
+    return {
+        "spikes":          spikes,
+        "spike_count":     len(spikes),
+        "critical_count":  sum(1 for s in spikes if s["signal"] == "CRITICAL"),
+        "period_days":     period_days,
+        "standard":        "Rule-based spike detection — Predictive Analytics skill Stage 2",
+        "note":            "Spike = current period consumption rate ≥ 2× previous period. Signals degradation before a fault is logged.",
+    }
+
+
 # ── Master function ───────────────────────────────────────────────────────────
 
 def calculate(inputs: dict) -> dict:
@@ -571,10 +661,11 @@ def calculate(inputs: dict) -> dict:
         "phase":    "predictive",
         "standard": "ISO 13381-1:2015, ISO 14224:2016, ISO 7870-2, SMRP Metrics",
         "period_days": period,
-        "next_failure_dates": calc_next_failure_dates(logbook),
-        "pm_due_calendar":    calc_pm_due_calendar(comps, scope),
-        "parts_stockout":     calc_parts_stockout(inv_items, txns, period),
-        "failure_trend":      calc_failure_trend(logbook, period),
-        "health_scores":      calc_health_scores(logbook, comps, scope, period),
-        "anomaly_baseline":   calc_anomaly_baseline(logbook),
+        "next_failure_dates":        calc_next_failure_dates(logbook),
+        "pm_due_calendar":           calc_pm_due_calendar(comps, scope),
+        "parts_stockout":            calc_parts_stockout(inv_items, txns, period),
+        "failure_trend":             calc_failure_trend(logbook, period),
+        "health_scores":             calc_health_scores(logbook, comps, scope, period),
+        "anomaly_baseline":          calc_anomaly_baseline(logbook),
+        "parts_consumption_spike":   calc_parts_consumption_spike(txns, period),
     }

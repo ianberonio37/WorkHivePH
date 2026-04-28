@@ -61,13 +61,15 @@ async function fetchDescriptiveData(
     .select("id, asset_id, frequency, item_text");
   if (assetIds.length) scopeQ.in("asset_id", assetIds);
 
-  // 5. Inventory transactions — for parts consumption rate
-  // Assume max 20 use transactions/day across all parts
+  // 5. Inventory transactions — fetch 2× period for spike detection
+  // Current period (since → now) + previous period (2×since → since)
+  // Python splits them using period_days to detect consumption spikes
+  const sincePrev = new Date(Date.now() - periodDays * 2 * 86400000).toISOString();
   const txnQ = db.from("inventory_transactions")
     .select("part_name, qty_change, type, created_at")
     .eq("type", "use")
-    .gte("created_at", since)
-    .limit(dynLimit(periodDays, 20)); // was hardcoded 500
+    .gte("created_at", sincePrev)       // 2× the period for comparison
+    .limit(dynLimit(periodDays * 2, 20));
   if (hiveId) txnQ.eq("hive_id", hiveId);
   else if (workerName) txnQ.eq("worker_name", workerName);
 

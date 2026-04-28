@@ -1005,6 +1005,7 @@
     const panel = document.getElementById('results-panel');
     const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-PH') : '';
     let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
+    html += renderPartsSpike(data.parts_consumption_spike);
     html += renderAnomalyBaseline(data.anomaly_baseline);
     html += renderHealthScores(data.health_scores);
     html += renderNextFailureDates(data.next_failure_dates);
@@ -1013,6 +1014,43 @@
     html += renderFailureTrend(data.failure_trend);
     panel.innerHTML = html;
     flushCharts();
+  }
+
+  function renderPartsSpike(d) {
+    if (!d?.spikes?.length) return `<div class="card">
+      <div class="card-title">Parts Consumption Spike <span class="card-standard">Rule-based · current vs previous period</span></div>
+      <div class="empty" style="color:#4ade80;padding:1rem 0;">✓ No consumption spikes detected. Parts usage is consistent with the previous period.</div>
+    </div>`;
+
+    const color = d.critical_count > 0 ? 'red' : 'yellow';
+    const detail = d.spikes.map(s => {
+      const sColor = s.signal === 'CRITICAL' ? '#f87171' : s.signal === 'NEW_USAGE' ? '#29B6D9' : '#F7A21B';
+      return `<div style="padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;margin-bottom:0.2rem;">
+          <span style="font-size:0.78rem;font-weight:700;color:#fff;">${escHtml(s.part_name)}</span>
+          <span style="font-size:0.65rem;font-weight:700;color:${sColor};white-space:nowrap;flex-shrink:0;">
+            ${s.spike_factor ? s.spike_factor + '× spike' : 'New usage'}
+          </span>
+        </div>
+        <div style="font-size:0.68rem;color:rgba(255,255,255,0.4);margin-bottom:0.25rem;">
+          Now: ${s.current_rate}/mo ${s.previous_rate > 0 ? `· Before: ${s.previous_rate}/mo` : '· No prior usage'}
+        </div>
+        <p style="font-size:0.7rem;color:rgba(255,255,255,0.55);">${escHtml(s.interpretation)}</p>
+      </div>`;
+    }).join('');
+
+    return kpiCard({
+      title: 'Parts Consumption Spike',
+      standard: 'Rule-based — Predictive Analytics Stage 2',
+      value: d.spike_count,
+      unit: `part${d.spike_count !== 1 ? 's' : ''} with unusual consumption`,
+      sublabel: d.critical_count > 0
+        ? `${d.critical_count} CRITICAL — inspect assets using these parts immediately`
+        : 'Consumption rising — schedule inspection before next failure',
+      color,
+      detail,
+      legend: 'Spike = current period rate ≥ 2× previous period. Signals degradation BEFORE a fault is logged.',
+    });
   }
 
   function renderAnomalyBaseline(d) {
