@@ -1,7 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+// Allow specific origin in production; use env var ALLOWED_ORIGIN to override (e.g. for local dev)
+const ORIGIN = Deno.env.get("ALLOWED_ORIGIN") || "https://workhiveph.com";
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": ORIGIN,
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
