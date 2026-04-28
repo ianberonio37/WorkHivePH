@@ -10676,8 +10676,11 @@ async function runCalculation() {
     }
   } else if (_calcType === 'Noise / Acoustics' ||
              _calcType === 'Vibration Analysis' ||
-             _calcType === 'Fluid Power') {
-    // all fields have defaults: no blocking validation needed
+             _calcType === 'Fluid Power' ||
+             _calcType === 'Transformer Sizing' ||
+             _calcType === 'Harmonic Distortion' ||
+             _calcType === 'Clean Agent Suppression') {
+    // all fields have defaults or no floor_area required
   } else if (!inputs.floor_area || inputs.floor_area <= 0) {
     showToast('Please enter the floor area.');
     return;
