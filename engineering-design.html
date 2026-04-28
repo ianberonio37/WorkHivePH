@@ -10898,6 +10898,7 @@ function showReport() {
     'Ventilation / ACH',
     'Chiller System — Air Cooled',
     'Chiller System — Water Cooled',
+    'Cooling Tower Sizing',
   ];
   const drawingSection = document.getElementById('drawing-section');
   if (DRAWING_SUPPORTED.includes(_calcType)) {
@@ -10929,6 +10930,8 @@ function showReport() {
       descEl.textContent = 'Generates a fire pump P&ID schematic showing pump, OS&Y valves, check valve, relief valve, jockey pump, test header, flow transmitter and duty-cycle data per NFPA 20:2022 / ISA-5.1:2009';
     } else if (_calcType === 'Ventilation / ACH' && descEl) {
       descEl.textContent = 'Generates a ventilation system schematic showing OA intake, filter, supply fan, supply diffusers, return/exhaust path, ASHRAE 62.1 VRP compliance summary and required ACH';
+    } else if (_calcType === 'Cooling Tower Sizing' && descEl) {
+      descEl.textContent = 'Generates a cooling tower cross-section schematic showing fill media, drift eliminator, fan, hot/cold water connections, make-up water, blowdown, approach/range and ASHRAE 90.1 compliance per CTI Std-201';
     } else if ((_calcType === 'Chiller System — Air Cooled' || _calcType === 'Chiller System — Water Cooled') && descEl) {
       const wc = _calcType.includes('Water');
       descEl.textContent = `Generates a ${wc?'water-cooled chiller plant':'air-cooled chiller plant'} schematic showing chiller, CHW loop, pump, ${wc?'CW loop and cooling tower':'condenser coil and fans'}, ASHRAE 90.1 COP/IPLV compliance per AHRI 550-590`;
@@ -18863,6 +18866,9 @@ async function _runDrawing() {
     } else if (ct === 'Ventilation / ACH') {
       const svg = buildVentilationSVG(_lastInputs, _lastResults);
       _renderGenericSLD(svg, null);
+    } else if (ct === 'Cooling Tower Sizing') {
+      const svg = buildCoolingTowerSVG(_lastInputs, _lastResults);
+      _renderGenericSLD(svg, null);
     } else if (ct === 'Chiller System — Air Cooled' || ct === 'Chiller System — Water Cooled') {
       const svg = buildChillerSVG(_lastInputs, _lastResults, ct);
       _renderGenericSLD(svg, null);
@@ -21189,6 +21195,272 @@ function buildChillerSVG(inputs, results, calcType) {
           : `4. Air-cooled condenser: ${Number(airCMH).toLocaleString()} m³/h at ${ambient}°C DB. Ensure 1.5 m clearance on all sides per PSME Code.`,
     `5. Refrigerant ${refrig}: check F-gas compliance. Annual leak check required (DENR DAO 2021-19).`,
     `6. CHW piping insulated per ASHRAE 90.1 §6.4.4. Pump P-CHW-201 sized for ${chwFlowM3} m³/h design flow.`,
+  ].forEach((note, i) => p.push(T(LX2+8, STRIP_Y+27+i*12, note, {a:'start', sz:7, c:SC})));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` +
+    p.join('\n  ') + `\n</svg>`;
+}
+
+// ─── Cooling Tower Sizing Schematic — CTI Std-201 / ASHRAE 90.1 ─────────────
+// Counter-flow induced draft cross-section view
+// Mandatory: heat rejection (TR/kW), CW flow, approach temp, fan HP,
+//            make-up water, blowdown, drift eliminator, basin volume
+function buildCoolingTowerSVG(inputs, results) {
+  const r = results || {};
+
+  // ── Values ─────────────────────────────────────────────────────────────────
+  const qKW      = Number(r.q_rejection_kw  || r.heat_rejection_kw || 0).toFixed(1);
+  const qTR      = Number(r.q_rejection_tr  || r.heat_rejection_tr || 0).toFixed(2);
+  const ewt      = Number(r.ewt  || r.t_hot_in_c  || 37).toFixed(1);
+  const lwt      = Number(r.lwt  || r.t_cold_out_c || 29).toFixed(1);
+  const wbt      = Number(r.wbt  || r.wb_design_c  || 28).toFixed(1);
+  const range    = Number(r.range_c    || 0).toFixed(1);
+  const approach = Number(r.approach_c || 0).toFixed(1);
+  const effOk    = Boolean(r.tower_efficiency_ok ?? true);
+  const effPct   = Number(r.effectiveness || 0);
+  const ntu      = Number(r.ntu || 0).toFixed(2);
+  const nCells   = Number(r.n_cells || 1);
+  const qwM3hr   = Number(r.q_w_m3hr || r.water_flow_m3hr || 0).toFixed(1);
+  const qwLps    = Number(r.q_w_lps  || r.water_flow_lps  || 0).toFixed(3);
+  const fanCMH   = Number(r.fan_flow_CMH || 0).toFixed(0);
+  const fanHP    = Number(r.fan_hp       || 0).toFixed(1);
+  const fanKW    = Number(r.fan_kw_std   || r.fan_kw_per_cell || 0).toFixed(2);
+  const evapLhr  = Number(r.evap_lhr  || r.evaporation_lps * 3600 || 0).toFixed(1);
+  const bdLhr    = Number(r.blowdown_lhr   || 0).toFixed(1);
+  const muLhr    = Number(r.makeup_lhr     || 0).toFixed(1);
+  const driftLhr = Number(r.drift_lhr      || 0).toFixed(2);
+  const basin    = Number(r.basin_volume_m3 || 0).toFixed(2);
+  const coc      = Number(r.coc || r.cycles_of_concentration || 4).toFixed(1);
+  const proj     = String(inputs?.project_name || 'Cooling Tower');
+  const ashrae   = String(r.ashrae_ct_check || 'PASS');
+
+  const W = 1050, H = 580, STRIP_Y = 467;
+  const CC = '#1a2e4a', SC = '#5a6a7a', AO = '#F7A21B';
+  const CW  = '#1565c0';   // cold water blue
+  const HW  = '#c0392b';   // hot water red
+  const AIR = '#e65100';   // air orange
+  const GN  = '#2e7d32';   // green (pass)
+
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const T = (x,y,t,{a='middle',sz=9,c=CC,w='normal'}={}) =>
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+  const VL = (x,y1,y2,sw=3,clr=CC) => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${clr}" stroke-width="${sw}"/>`;
+  const HL = (x1,y,x2,sw=3,clr=CC) => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${clr}" stroke-width="${sw}"/>`;
+  const Arrow = (x,y,dir,clr,sz=10) => {
+    if(dir==='right') return `<polygon points="${x},${y-sz/2} ${x+sz},${y} ${x},${y+sz/2}" fill="${clr}"/>`;
+    if(dir==='left')  return `<polygon points="${x},${y-sz/2} ${x-sz},${y} ${x},${y+sz/2}" fill="${clr}"/>`;
+    if(dir==='up')    return `<polygon points="${x-sz/2},${y} ${x},${y-sz} ${x+sz/2},${y}" fill="${clr}"/>`;
+    if(dir==='down')  return `<polygon points="${x-sz/2},${y} ${x},${y+sz} ${x+sz/2},${y}" fill="${clr}"/>`;
+    return '';
+  };
+  const Badge = (x,y,label,bg,tc='#fff') => {
+    const bw = Math.max(80,String(label).length*6.5+16);
+    return `<rect x="${x-bw/2}" y="${y-10}" width="${bw}" height="20" rx="10" fill="${bg}"/>` +
+      T(x,y+5,label,{sz:8.5,c:tc,w:'700'});
+  };
+
+  let p = [];
+
+  // ── Background + inner margin ────────────────────────────────────────────
+  p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="0.75"/>`);
+
+  // ── Title ─────────────────────────────────────────────────────────────────
+  p.push(T(W/2, 27, 'COOLING TOWER SYSTEM — SCHEMATIC (COUNTER-FLOW INDUCED DRAFT)', {sz:11, c:CC, w:'700'}));
+  p.push(T(W/2, 41, `CTI Std-201 / ASHRAE 90.1 / ASME PTC 23 / PSME Code  |  ${nCells} cell(s)  |  ${qKW} kW / ${qTR} TR heat rejection`, {sz:9, c:SC}));
+
+  // ── TOWER CROSS-SECTION ───────────────────────────────────────────────────
+  const TX = 130, TY = 65;   // tower body left, top
+  const TW = 230, TH = 330;  // tower width, height
+
+  // Tower outer shell
+  p.push(`<rect x="${TX}" y="${TY}" width="${TW}" height="${TH}" fill="#f5f5f5" stroke="${CC}" stroke-width="2.5" rx="4"/>`);
+
+  // FAN SECTION (top quarter)
+  const FAN_H = 60;
+  p.push(`<rect x="${TX}" y="${TY}" width="${TW}" height="${FAN_H}" fill="#e3f2fd" stroke="${CC}" stroke-width="1" rx="4"/>`);
+  // Fan symbol (3 blades)
+  const FCX = TX + TW/2, FCY = TY + FAN_H/2;
+  p.push(`<circle cx="${FCX}" cy="${FCY}" r="22" fill="#bbdefb" stroke="${CW}" stroke-width="1.5"/>`);
+  [-60, 60, 180].forEach(angle => {
+    const rad = angle * Math.PI / 180;
+    const ex = FCX + 20 * Math.cos(rad), ey = FCY + 20 * Math.sin(rad);
+    p.push(`<line x1="${FCX}" y1="${FCY}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}" stroke="${CW}" stroke-width="3.5" stroke-linecap="round"/>`);
+  });
+  p.push(`<circle cx="${FCX}" cy="${FCY}" r="4" fill="${CC}"/>`);
+  p.push(T(FCX + 30, FCY - 5, 'FAN', {a:'start', sz:8, c:CW, w:'700'}));
+  p.push(T(FCX + 30, FCY + 6, `${fanHP} HP / ${fanKW} kW`, {a:'start', sz:7.5, c:SC}));
+  p.push(T(FCX + 30, FCY + 16, `${Number(fanCMH).toLocaleString()} m³/h`, {a:'start', sz:7.5, c:CW}));
+  // Air out arrows (above tower)
+  [FCX-35, FCX, FCX+35].forEach(ax => {
+    p.push(Arrow(ax, TY-10, 'up', AIR, 10));
+    p.push(VL(ax, TY+4, TY+FAN_H-4, 1, AIR));
+  });
+  p.push(T(FCX, TY-20, `Saturated warm air out  |  WBT ${wbt}°C design`, {sz:7.5, c:AIR, w:'700'}));
+
+  // DRIFT ELIMINATOR
+  const DE_Y = TY + FAN_H + 2;
+  const DE_H = 20;
+  p.push(`<rect x="${TX+5}" y="${DE_Y}" width="${TW-10}" height="${DE_H}" fill="#e0f7fa" stroke="#00838f" stroke-width="1" rx="2"/>`);
+  for (let i = 0; i < 8; i++) {
+    const lx = TX + 12 + i * (TW-24)/7;
+    p.push(`<path d="M ${lx} ${DE_Y+3} Q ${lx+8} ${DE_Y+10} ${lx+16} ${DE_Y+3} Q ${lx+24} ${DE_Y+17} ${lx+16} ${DE_Y+17}" fill="none" stroke="#00838f" stroke-width="1"/>`);
+  }
+  p.push(T(FCX, DE_Y+DE_H+10, 'DRIFT ELIMINATOR (CTI Std-137)', {sz:7, c:'#00838f', w:'700'}));
+  p.push(T(FCX, DE_Y+DE_H+20, `Drift = ${driftLhr} L/hr  (< 0.002% per CTI)`, {sz:7, c:SC}));
+
+  // HOT WATER DISTRIBUTION (below drift eliminator)
+  const DIST_Y = DE_Y + DE_H + 28;
+  const DIST_H = 18;
+  p.push(`<rect x="${TX+5}" y="${DIST_Y}" width="${TW-10}" height="${DIST_H}" fill="#ffcdd2" stroke="${HW}" stroke-width="1" rx="2"/>`);
+  p.push(T(FCX, DIST_Y+DE_H/2+4, `HOT WATER DISTRIBUTION BASIN  ${ewt}°C`, {sz:7.5, c:HW, w:'700'}));
+  // Distribution nozzles
+  for (let i = 0; i < 6; i++) {
+    const nx = TX + 22 + i * (TW-44)/5;
+    p.push(Arrow(nx, DIST_Y+DIST_H+2, 'down', HW, 7));
+  }
+
+  // FILL MEDIA (packing)
+  const FILL_Y = DIST_Y + DIST_H + 12;
+  const FILL_H = 130;
+  p.push(`<rect x="${TX+5}" y="${FILL_Y}" width="${TW-10}" height="${FILL_H}" fill="#fff9c4" stroke="#f9a825" stroke-width="1" rx="2"/>`);
+  // Cross-hatching to represent fill media
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 7; col++) {
+      const fx = TX + 12 + col * 28, fy = FILL_Y + 8 + row * 14;
+      p.push(`<rect x="${fx}" y="${fy}" width="24" height="10" fill="none" stroke="#f9a825" stroke-width="0.7" rx="1"/>`);
+    }
+  }
+  p.push(T(FCX, FILL_Y + FILL_H/2, 'FILL MEDIA (PVC Packing)', {sz:8, c:'#7a4a00', w:'700'}));
+  p.push(T(FCX, FILL_Y + FILL_H/2 + 14, `NTU = ${ntu}  |  L/G = ${r.lg_ratio || r.l_over_g || '—'}`, {sz:7.5, c:SC}));
+  p.push(T(FCX, FILL_Y + FILL_H/2 + 26, `Effectiveness = ${(effOk ? (effPct * 100).toFixed(1) : '—')}%`, {sz:7.5, c:effOk?GN:HW}));
+
+  // AIR INLET (sides of fill — counter-flow means air goes up, water goes down)
+  const AIR_Y = FILL_Y + FILL_H/2;
+  // Left air inlet
+  p.push(HL(TX-30, AIR_Y, TX, 2, AIR));
+  p.push(Arrow(TX-2, AIR_Y, 'right', AIR, 10));
+  p.push(T(TX-32, AIR_Y-8, 'Air in', {a:'end', sz:7.5, c:AIR, w:'700'}));
+  p.push(T(TX-32, AIR_Y+3, `${wbt}°C WBT`, {a:'end', sz:7, c:SC}));
+  // Right air inlet
+  p.push(HL(TX+TW, AIR_Y, TX+TW+30, 2, AIR));
+  p.push(Arrow(TX+TW, AIR_Y, 'left', AIR, 10));
+  p.push(T(TX+TW+32, AIR_Y-8, 'Air in', {a:'start', sz:7.5, c:AIR, w:'700'}));
+
+  // COLD WATER BASIN (bottom)
+  const BASIN_Y = FILL_Y + FILL_H + 2;
+  const BASIN_H = TY + TH - BASIN_Y;
+  p.push(`<rect x="${TX}" y="${BASIN_Y}" width="${TW}" height="${BASIN_H}" fill="#e3f2fd" stroke="${CW}" stroke-width="2" rx="0 0 4 4"/>`);
+  p.push(`<rect x="${TX+5}" y="${BASIN_Y+8}" width="${TW-10}" height="${BASIN_H-18}" fill="#bbdefb" rx="3"/>`);
+  p.push(T(FCX, BASIN_Y+BASIN_H/2+4, 'COLD WATER BASIN', {sz:8, c:CC, w:'700'}));
+  p.push(T(FCX, BASIN_Y+BASIN_H/2+17, `${lwt}°C  |  Vol: ${basin} m³`, {sz:7.5, c:CW}));
+
+  // ── EXTERNAL CONNECTIONS ───────────────────────────────────────────────────
+  // HOT water IN (right side, entering distribution)
+  const HOT_Y = DIST_Y + DIST_H/2;
+  p.push(HL(TX+TW, HOT_Y, TX+TW+90, 3, HW));
+  p.push(Arrow(TX+TW, HOT_Y, 'left', HW, 10));
+  p.push(T(TX+TW+92, HOT_Y-8, `HOT CW IN`, {a:'start', sz:8, c:HW, w:'700'}));
+  p.push(T(TX+TW+92, HOT_Y+4, `${ewt}°C  |  ${qwM3hr} m³/h`, {a:'start', sz:8, c:HW, w:'700'}));
+  p.push(T(TX+TW+92, HOT_Y+15, `(from condenser)`, {a:'start', sz:7, c:SC}));
+
+  // Tag badge for hot water pipe
+  p.push(Badge(TX+TW+50, HOT_Y-18, `EWT = ${ewt}°C`, HW));
+
+  // COLD water OUT (right side, from basin)
+  const COLD_Y = BASIN_Y + BASIN_H/2;
+  p.push(HL(TX+TW, COLD_Y, TX+TW+90, 3, CW));
+  p.push(Arrow(TX+TW+88, COLD_Y, 'right', CW, 10));
+  p.push(T(TX+TW+92, COLD_Y-8, `COLD CW OUT`, {a:'start', sz:8, c:CW, w:'700'}));
+  p.push(T(TX+TW+92, COLD_Y+4, `${lwt}°C  |  ${qwM3hr} m³/h`, {a:'start', sz:8, c:CW, w:'700'}));
+  p.push(T(TX+TW+92, COLD_Y+15, `(to condenser)`, {a:'start', sz:7, c:SC}));
+  p.push(Badge(TX+TW+50, COLD_Y+24, `LWT = ${lwt}°C`, CW));
+
+  // MAKE-UP WATER (left side into basin)
+  const MU_Y = BASIN_Y + 20;
+  p.push(HL(TX-60, MU_Y, TX, 2, '#1a237e'));
+  p.push(Arrow(TX-2, MU_Y, 'right', '#1a237e', 8));
+  p.push(T(TX-62, MU_Y-8, 'Make-up Water', {a:'end', sz:7.5, c:'#1a237e', w:'700'}));
+  p.push(T(TX-62, MU_Y+3, `${muLhr} L/hr`, {a:'end', sz:7.5, c:'#1a237e'}));
+  p.push(T(TX-62, MU_Y+13, `${r.makeup_m3day?.toFixed?.(2)||'—'} m³/day`, {a:'end', sz:7, c:SC}));
+
+  // BLOWDOWN (left side from basin)
+  const BD_Y = BASIN_Y + 45;
+  p.push(HL(TX-60, BD_Y, TX, 2, '#7b1fa2'));
+  p.push(Arrow(TX-58, BD_Y, 'left', '#7b1fa2', 8));
+  p.push(T(TX-62, BD_Y-8, 'Blowdown', {a:'end', sz:7.5, c:'#7b1fa2', w:'700'}));
+  p.push(T(TX-62, BD_Y+3, `${bdLhr} L/hr`, {a:'end', sz:7.5, c:'#7b1fa2'}));
+  p.push(T(TX-62, BD_Y+13, `COC = ${coc}×`, {a:'end', sz:7, c:SC}));
+
+  // EVAPORATION label inside tower
+  p.push(T(FCX, FILL_Y + 12, `Evaporation: ${evapLhr} L/hr`, {sz:7, c:HW}));
+
+  // ── PERFORMANCE BADGES ────────────────────────────────────────────────────
+  p.push(Badge(FCX, TY + TH + 20, `Heat Rejection: ${qKW} kW / ${qTR} TR`, '#1a2e4a'));
+  p.push(Badge(FCX - 120, TY + TH + 40, `Range: ${range}K`, HW));
+  p.push(Badge(FCX + 80, TY + TH + 40, `Approach: ${approach}K`, approach < 3 ? AO : GN, approach < 3 ? '#111' : '#fff'));
+  p.push(Badge(FCX, TY + TH + 58, ashrae === 'PASS' ? `ASHRAE 90.1: PASS` : `ASHRAE 90.1: ${ashrae}`, ashrae==='PASS'?GN:HW));
+
+  // ── RIGHT DATA PANEL ──────────────────────────────────────────────────────
+  const RP_X = TX + TW + 90 + 120, RP_Y = 55, RP_W = W - RP_X - 15;
+  p.push(`<rect x="${RP_X}" y="${RP_Y}" width="${RP_W}" height="${STRIP_Y-RP_Y-6}" fill="#f8faff" stroke="#d0d8e8" stroke-width="0.8" rx="3"/>`);
+  p.push(`<rect x="${RP_X}" y="${RP_Y}" width="${RP_W}" height="18" fill="${CC}" rx="3"/>`);
+  p.push(T(RP_X+RP_W/2, RP_Y+12, 'THERMAL PERFORMANCE', {sz:8, c:'#fff', w:'700'}));
+
+  const rows = [
+    ['Heat Rejection',         `${qKW} kW / ${qTR} TR`,        CC],
+    ['No. of Cells',           `${nCells}`,                      CC],
+    ['EWT (hot water in)',      `${ewt}°C`,                      HW],
+    ['LWT (cold water out)',    `${lwt}°C`,                      CW],
+    ['Range (EWT − LWT)',      `${range} K`,                     CC],
+    ['Wet Bulb Temp (design)', `${wbt}°C`,                       AIR],
+    ['Approach (LWT − WBT)',   `${approach} K`,                  Number(approach)<3?AO:GN],
+    ['CW Flow',                `${qwM3hr} m³/h  (${qwLps} L/s)`, CW],
+    ['Tower Effectiveness',    `${(effPct*100).toFixed(1)} %`,   GN],
+    ['NTU',                    ntu,                               CC],
+    ['Fan motor',              `${fanHP} HP / ${fanKW} kW`,      CC],
+    ['Fan airflow',            `${Number(fanCMH).toLocaleString()} m³/h`, AIR],
+    ['Evaporation',            `${evapLhr} L/hr`,                HW],
+    ['Blowdown',               `${bdLhr} L/hr (COC=${coc}×)`,   '#7b1fa2'],
+    ['Make-up water',          `${muLhr} L/hr`,                  '#1a237e'],
+    ['Drift loss',             `${driftLhr} L/hr`,               SC],
+    ['Basin volume',           `${basin} m³`,                    CC],
+    ['ASHRAE 90.1',           ashrae,                             ashrae==='PASS'?GN:HW],
+  ];
+
+  const RH = 12, RPY0 = RP_Y + 22;
+  rows.forEach(([label, value, vc], i) => {
+    const ry = RPY0 + i * RH;
+    if (i%2===0) p.push(`<rect x="${RP_X+1}" y="${ry}" width="${RP_W-2}" height="${RH}" fill="#eef3fa"/>`);
+    p.push(T(RP_X+4,      ry+RH-3, label, {a:'start', sz:7, c:SC}));
+    p.push(T(RP_X+RP_W-4, ry+RH-3, esc(value), {a:'end', sz:7.5, c:vc, w:'600'}));
+  });
+
+  // ── LEGEND + NOTES ────────────────────────────────────────────────────────
+  p.push(HL(11, STRIP_Y, W-11, 0.75));
+  const LX2 = 430;
+  p.push(VL(LX2, STRIP_Y, H-11, 0.75));
+
+  p.push(T(18, STRIP_Y+13, 'LEGEND', {a:'start', sz:7, c:CC, w:'700'}));
+  [[HW, 3, 'Hot condenser water (EWT)'],
+   [CW, 3, 'Cold chilled water (LWT)'],
+   [AIR, 2, 'Air stream (ambient inlet / saturated outlet)'],
+   ['#7b1fa2', 2, 'Blowdown / Drift'],
+   ['#1a237e', 2, 'Make-up water'],
+  ].forEach(([clr, sw, lbl], i) => {
+    const ly = STRIP_Y + 20 + i * 13;
+    p.push(`<line x1="18" y1="${ly}" x2="36" y2="${ly}" stroke="${clr}" stroke-width="${sw}"/>`);
+    p.push(T(42, ly+4, lbl, {a:'start', sz:7.5, c:CC}));
+  });
+
+  p.push(T(LX2+8, STRIP_Y+13, 'GENERAL NOTES', {a:'start', sz:7, c:CC, w:'700'}));
+  [
+    `1. Cooling tower rated per CTI Std-201 at ${wbt}°C WBT design. Approach ${approach}K ${Number(approach)<3?'— WARN < 3K min recommended':': acceptable'}.`,
+    `2. Drift loss ${driftLhr} L/hr — provide drift eliminators to meet CTI Std-137 (< 0.002% of circulation rate).`,
+    `3. Blowdown ${bdLhr} L/hr required to maintain COC = ${coc}×. Total make-up = Evap + Blowdown + Drift = ${muLhr} L/hr.`,
+    `4. Water treatment mandatory: biocide, scale inhibitor, pH control (DOH R.A. 11215 / Legionella prevention).`,
+    `5. Fan motor ${fanHP} HP / ${fanKW} kW. ASHRAE 90.1 cooling tower efficiency: ${ashrae}. kW/TR = ${(Number(fanKW)/Number(qTR)).toFixed(3)}.`,
+    `6. Structure and basin designed per NSCP 2015. Seismic anchorage per NBC. PSME Code applies.`,
   ].forEach((note, i) => p.push(T(LX2+8, STRIP_Y+27+i*12, note, {a:'start', sz:7, c:SC})));
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` +
