@@ -23,74 +23,80 @@ async function fetchDescriptiveData(
   workerName: string | null,
   periodDays: number
 ) {
-  const since = new Date(Date.now() - periodDays * 86400000).toISOString();
+  const rpc = { p_hive_id: hiveId, p_worker: workerName, p_period_days: periodDays };
 
-  // 1. Logbook — corrective entries for MTBF/MTTR/Pareto/Frequency/Repeat
-  // Assume max 15 corrective entries/day for a busy hive → scales with period
-  const logbookQ = db.from("logbook")
-    .select("machine, maintenance_type, category, root_cause, downtime_hours, status, created_at, closed_at, worker_name, failure_consequence, readings_json, production_output")
-    .eq("maintenance_type", "Breakdown / Corrective")
-    .gte("created_at", since)
-    .order("created_at", { ascending: true })
-    .limit(dynLimit(periodDays, 15)); // was hardcoded 500
+  // ── FAST PATH: 5 metrics via Postgres RPC (indexed, instant, no Python needed) ──
+  // These replace Python in-memory computation for MTBF/MTTR/Pareto/Frequency/Repeat.
+  // Run all 5 in parallel — each executes directly on indexed Postgres.
+  const [mtbfRes, mttrRes, freqRes, paretoRes, repeatRes] = await Promise.allSettled([
+    db.rpc("get_mtbf_by_machine",   rpc),
+    db.rpc("get_mttr_by_machine",   rpc),
+    db.rpc("get_failure_frequency", rpc),
+    db.rpc("get_downtime_pareto",   rpc),
+    db.rpc("get_repeat_failures",   rpc),
+  ]);
 
-  if (hiveId) logbookQ.eq("hive_id", hiveId);
-  else if (workerName) logbookQ.eq("worker_name", workerName);
+  // ── RAW DATA: still needed for PM compliance, OEE, parts consumption ─────────
+  // These require JSONB access or complex period math — handled by Python.
 
-  // 2. PM assets — for compliance calculation
-  const assetsQ = db.from("pm_assets")
-    .select("id, asset_name, category");
+  // PM assets → PM completions → PM scope items (sequential: need asset IDs first)
+  const assetsQ = db.from("pm_assets").select("id, asset_name, category");
   if (hiveId) assetsQ.eq("hive_id", hiveId);
   else if (workerName) assetsQ.eq("worker_name", workerName);
-
-  // 3. PM completions — for compliance and last-done dates
   const { data: assets } = await assetsQ;
   const assetIds = (assets || []).map((a: Record<string, string>) => a.id);
 
-  // Completions: enough to cover the full period per asset (5 tasks/asset/month)
   const completionsLimit = dynLimit(periodDays, 5 * Math.max(assetIds.length, 1) / 30, 5000);
   const completionsQ = db.from("pm_completions")
     .select("asset_id, scope_item_id, completed_at, status, worker_name")
-    .eq("status", "done")
-    .order("completed_at", { ascending: false })
-    .limit(completionsLimit); // was hardcoded 1000
+    .eq("status", "done").order("completed_at", { ascending: false })
+    .limit(completionsLimit);
   if (assetIds.length) completionsQ.in("asset_id", assetIds);
 
-  // 4. PM scope items — all tasks for the assets (no period filter needed)
-  const scopeQ = db.from("pm_scope_items")
-    .select("id, asset_id, frequency, item_text");
+  const scopeQ = db.from("pm_scope_items").select("id, asset_id, frequency, item_text");
   if (assetIds.length) scopeQ.in("asset_id", assetIds);
 
-  // 5. Inventory transactions — fetch 2× period for spike detection
-  // Current period (since → now) + previous period (2×since → since)
-  // Python splits them using period_days to detect consumption spikes
+  // OEE: only needs production_output + downtime_hours (small select)
+  const oeeQ = db.from("logbook")
+    .select("machine, downtime_hours, production_output, created_at, maintenance_type")
+    .eq("maintenance_type", "Breakdown / Corrective")
+    .gte("created_at", new Date(Date.now() - periodDays * 86400000).toISOString())
+    .limit(dynLimit(periodDays, 15));
+  if (hiveId) oeeQ.eq("hive_id", hiveId);
+  else if (workerName) oeeQ.eq("worker_name", workerName);
+
+  // Transactions: 2× period for spike detection
   const sincePrev = new Date(Date.now() - periodDays * 2 * 86400000).toISOString();
   const txnQ = db.from("inventory_transactions")
-    .select("part_name, qty_change, type, created_at")
-    .eq("type", "use")
-    .gte("created_at", sincePrev)       // 2× the period for comparison
-    .limit(dynLimit(periodDays * 2, 20));
+    .select("part_name, qty_change, type, created_at").eq("type", "use")
+    .gte("created_at", sincePrev).limit(dynLimit(periodDays * 2, 20));
   if (hiveId) txnQ.eq("hive_id", hiveId);
   else if (workerName) txnQ.eq("worker_name", workerName);
 
-  // Run all queries in parallel
-  const [logbookRes, completionsRes, scopeRes, txnRes] = await Promise.allSettled([
-    logbookQ, completionsQ, scopeQ, txnQ,
+  const [completionsRes, scopeRes, oeeRes, txnRes] = await Promise.allSettled([
+    completionsQ, scopeQ, oeeQ, txnQ,
   ]);
 
-  // Enrich scope items with asset_name from assets list
   const assetMap = Object.fromEntries((assets || []).map((a: Record<string, string>) => [a.id, a.asset_name]));
   const rawScope = (scopeRes.status === "fulfilled" ? scopeRes.value.data : null) || [];
   const enrichedScope = rawScope.map((s: Record<string, string>) => ({
-    ...s,
-    asset_name: assetMap[s.asset_id] || s.asset_id,
+    ...s, asset_name: assetMap[s.asset_id] || s.asset_id,
   }));
 
   return {
-    logbook_entries:   (logbookRes.status === "fulfilled" ? logbookRes.value.data : null) || [],
+    // Pre-computed by Postgres — Python formats these, no heavy computation needed
+    precomputed: {
+      mtbf:             (mtbfRes.status   === "fulfilled" ? mtbfRes.value.data   : null) || [],
+      mttr:             (mttrRes.status   === "fulfilled" ? mttrRes.value.data   : null) || [],
+      failure_frequency:(freqRes.status   === "fulfilled" ? freqRes.value.data   : null) || [],
+      downtime_pareto:  (paretoRes.status === "fulfilled" ? paretoRes.value.data : null) || [],
+      repeat_failures:  (repeatRes.status === "fulfilled" ? repeatRes.value.data : null) || [],
+    },
+    // Raw data for Python to compute remaining metrics (PM compliance, OEE, parts)
+    logbook_entries:   (oeeRes.status        === "fulfilled" ? oeeRes.value.data        : null) || [],
     pm_completions:    (completionsRes.status === "fulfilled" ? completionsRes.value.data : null) || [],
     pm_scope_items:    enrichedScope,
-    inv_transactions:  (txnRes.status === "fulfilled" ? txnRes.value.data : null) || [],
+    inv_transactions:  (txnRes.status        === "fulfilled" ? txnRes.value.data        : null) || [],
   };
 }
 

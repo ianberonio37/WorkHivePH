@@ -437,17 +437,99 @@ def calculate(inputs: dict) -> dict:
     txns      = inputs.get("inv_transactions", [])
     period    = int(inputs.get("period_days", 90))
 
+    # Pre-computed by Postgres RPC functions — fast path
+    # If present, format them directly instead of computing in Python.
+    precomputed = inputs.get("precomputed", {})
+
+    def from_postgres_mtbf(rows: list) -> dict:
+        """Format Postgres get_mtbf_by_machine rows into the existing response shape."""
+        if not rows:
+            return {"mtbf_by_asset": [], "unit": "days", "standard": "ISO 14224:2016 §9.3"}
+        assets = [{"machine": r["machine"], "failure_count": r["failure_count"],
+                   "mtbf_days": r["mtbf_days"],
+                   "min_interval_days": r.get("min_interval_days"),
+                   "max_interval_days": r.get("max_interval_days")} for r in rows]
+        return {"mtbf_by_asset": assets, "unit": "days", "standard": "ISO 14224:2016 §9.3"}
+
+    def from_postgres_mttr(rows: list) -> dict:
+        if not rows:
+            return {"mttr_by_asset": [], "unit": "hours", "standard": "ISO 14224:2016 §9.4"}
+        assets = [{"machine": r["machine"], "repair_count": r["repair_count"],
+                   "total_downtime_h": r["total_downtime_h"], "mttr_hours": r["mttr_hours"]} for r in rows]
+        return {"mttr_by_asset": assets, "unit": "hours", "standard": "ISO 14224:2016 §9.4"}
+
+    def from_postgres_availability(mtbf_rows: list, mttr_rows: list) -> dict:
+        mtbf_map = {r["machine"]: float(r["mtbf_days"] or 0) for r in mtbf_rows if r["mtbf_days"]}
+        mttr_map = {r["machine"]: float(r["mttr_hours"] or 0) / 24 for r in mttr_rows}
+        results = []
+        for machine in set(mtbf_map) | set(mttr_map):
+            mtbf = mtbf_map.get(machine)
+            mttr = mttr_map.get(machine, 0)
+            if mtbf is None:
+                continue
+            avail = round((mtbf / (mtbf + mttr)) * 100, 1) if (mtbf + mttr) > 0 else None
+            results.append({"machine": machine, "mtbf_days": mtbf, "mttr_days": round(mttr, 2),
+                            "availability_pct": avail})
+        results.sort(key=lambda x: (x["availability_pct"] or 0))
+        return {"availability_by_asset": results, "unit": "%",
+                "standard": "ISO 14224:2016 §9.2", "formula": "MTBF / (MTBF + MTTR) × 100"}
+
+    def from_postgres_freq(rows: list, period_days: int) -> dict:
+        if not rows:
+            return {"failure_frequency": [], "period_days": period_days, "standard": "ISO 14224:2016"}
+        total = sum(r["failure_count"] for r in rows)
+        return {"failure_frequency": [{"machine": r["machine"], "failure_count": r["failure_count"]} for r in rows],
+                "period_days": period_days, "total_failures": total, "standard": "ISO 14224:2016"}
+
+    def from_postgres_pareto(rows: list) -> dict:
+        if not rows:
+            return {"pareto": [], "note": "No downtime data found"}
+        total = sum(float(r["downtime_hours"] or 0) for r in rows)
+        top   = rows[0] if rows else None
+        return {
+            "pareto": [{"machine": r["machine"], "downtime_hours": float(r["downtime_hours"] or 0),
+                        "pct_of_total": float(r["pct_of_total"] or 0),
+                        "cumulative_pct": float(r["cumulative_pct"] or 0)} for r in rows],
+            "total_downtime_hours": round(total, 1),
+            "top_machine":     top["machine"] if top else None,
+            "top_machine_pct": float(top["pct_of_total"]) if top else None,
+        }
+
+    def from_postgres_repeat(rows: list) -> dict:
+        if not rows:
+            return {"repeats": [], "repeat_pair_count": 0, "standard": "ISO 14224:2016"}
+        return {"repeats": [{"machine": r["machine"], "root_cause": r["root_cause"],
+                             "occurrences": r["occurrences"]} for r in rows],
+                "repeat_pair_count": len(rows), "standard": "ISO 14224:2016"}
+
+    # Use Postgres results if available, fall back to Python computation
+    pg_mtbf   = precomputed.get("mtbf",             [])
+    pg_mttr   = precomputed.get("mttr",             [])
+    pg_freq   = precomputed.get("failure_frequency", [])
+    pg_pareto = precomputed.get("downtime_pareto",  [])
+    pg_repeat = precomputed.get("repeat_failures",  [])
+
+    mtbf_result   = from_postgres_mtbf(pg_mtbf)    if pg_mtbf   else calc_mtbf(logbook)
+    mttr_result   = from_postgres_mttr(pg_mttr)    if pg_mttr   else calc_mttr(logbook)
+    avail_result  = (from_postgres_availability(pg_mtbf, pg_mttr)
+                     if pg_mtbf and pg_mttr else calc_availability(logbook))
+    freq_result   = (from_postgres_freq(pg_freq, period)
+                     if pg_freq is not None else calc_failure_frequency(logbook, period))
+    pareto_result = from_postgres_pareto(pg_pareto) if pg_pareto  else calc_downtime_pareto(logbook)
+    repeat_result = from_postgres_repeat(pg_repeat) if pg_repeat  else calc_repeat_failures(logbook)
+
     return {
         "phase": "descriptive",
         "standard": "ISO 14224:2016, SMRP Metrics, ISO 22400-2",
         "period_days": period,
-        "mtbf":              calc_mtbf(logbook),
-        "mttr":              calc_mttr(logbook),
-        "availability":      calc_availability(logbook),
+        "source": "postgres_rpc" if pg_mtbf else "python_computed",
+        "mtbf":              mtbf_result,
+        "mttr":              mttr_result,
+        "availability":      avail_result,
         "oee":               calc_oee(logbook, period),
         "pm_compliance":     calc_pm_compliance(comps, scope, period),
-        "failure_frequency": calc_failure_frequency(logbook, period),
-        "downtime_pareto":   calc_downtime_pareto(logbook),
+        "failure_frequency": freq_result,
+        "downtime_pareto":   pareto_result,
         "parts_consumption": calc_parts_consumption(txns, period),
-        "repeat_failures":   calc_repeat_failures(logbook),
+        "repeat_failures":   repeat_result,
     }
