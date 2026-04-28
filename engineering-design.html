@@ -23704,7 +23704,7 @@ function buildDuctSizingSVG(inputs, results) {
 
   dy+=4; p.push(secH('RECTANGULAR DUCT'));
   [['Dimensions', `${rA} × ${rB} mm`, CC],
-   ['Aspect Ratio', `${aspect}:1  (SMACNA max 4:1)', SC],
+   ['Aspect Ratio', `${aspect}:1  (SMACNA max 4:1)`, SC],
    ['Equiv. Diameter De', `${rDe} mm`, SC],
    ['Air Velocity', `${rVel} m/s`, VEL_C]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
 
