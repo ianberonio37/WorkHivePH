@@ -404,6 +404,7 @@
       renderRoleQuickView(); // update role view as data arrives
     } catch (err) {
       console.warn(`[analytics] ${phase} failed:`, err.message);
+      showToast('Analysis failed — check console');
       if (_phase === phase) {
         document.getElementById('results-panel').innerHTML = `
           <div class="card"><div class="empty" style="color:#f87171;">
@@ -1116,27 +1117,85 @@
 
   function renderPMDueCalendar(d) {
     if (!d?.calendar?.length) return cardEmpty('PM Due Calendar', 'Deterministic — last completion + frequency', 'No PM scope items found.');
-    const visible = d.calendar.filter(c => c.risk !== 'OK').slice(0, 12);
-    if (!visible.length) return `<div class="card">
+
+    if (!d.overdue_count && !d.due_soon_count) return `<div class="card">
       <div class="card-title">PM Due Calendar <span class="card-standard">Deterministic · All ${d.total_tasks} tasks on schedule</span></div>
-      <div class="empty" style="color:#4ade80;padding:1rem 0;">✓ All PM tasks are on schedule.</div>
+      <div class="empty" style="color:#4ade80;padding:1rem 0;">✓ All ${d.total_tasks} PM tasks are on schedule.</div>
     </div>`;
-    const rows = visible.map(c => {
-      const color = c.risk === 'OVERDUE' ? '#f87171' : c.risk === 'DUE SOON' ? '#F7A21B' : '#a78bfa';
-      return `<tr>
-        <td class="machine-name">${escHtml(c.asset_name)}</td>
-        <td style="font-size:0.68rem;color:rgba(255,255,255,0.55);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(c.task)}</td>
-        <td style="font-size:0.68rem;color:rgba(255,255,255,0.35);">${escHtml(c.frequency)}</td>
-        <td class="num"><span style="font-size:0.7rem;font-weight:700;color:${color};">${escHtml(c.status)}</span></td>
-      </tr>`;
+
+    // Group by asset — only show tasks that need attention
+    const actionable = d.calendar.filter(c => c.risk !== 'OK');
+    const byAsset = {};
+    actionable.forEach(c => {
+      const key = c.asset_name || 'Unknown';
+      if (!byAsset[key]) byAsset[key] = [];
+      byAsset[key].push(c);
+    });
+
+    // Sort assets: most urgent first (by worst task risk)
+    const assetOrder = Object.keys(byAsset).sort((a, b) => {
+      const worst = arr => arr.some(t => t.risk === 'OVERDUE') ? 0 : arr.some(t => t.risk === 'DUE SOON') ? 1 : 2;
+      return worst(byAsset[a]) - worst(byAsset[b]);
+    });
+
+    let pmCardId = 0;
+    const assetBlocks = assetOrder.map(assetName => {
+      const tasks     = byAsset[assetName];
+      const hasOver   = tasks.some(t => t.risk === 'OVERDUE');
+      const hasSoon   = tasks.some(t => t.risk === 'DUE SOON');
+      const assetColor = hasOver ? '#f87171' : hasSoon ? '#F7A21B' : '#a78bfa';
+      const badge     = hasOver ? `<span style="font-size:0.6rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:999px;background:rgba(248,113,113,0.15);color:#f87171;border:1px solid rgba(248,113,113,0.25);">${tasks.filter(t=>t.risk==='OVERDUE').length} OVERDUE</span>`
+                      : hasSoon ? `<span style="font-size:0.6rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:999px;background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.25);">${tasks.length} DUE SOON</span>` : '';
+      const id = `pm-asset-${pmCardId++}`;
+      // Auto-expand overdue assets
+      const autoOpen = hasOver;
+
+      const taskRows = tasks.map(t => {
+        const tc = t.risk === 'OVERDUE' ? '#f87171' : t.risk === 'DUE SOON' ? '#F7A21B' : '#a78bfa';
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+          <div style="flex:1;min-width:0;">
+            <p style="font-size:0.73rem;color:rgba(255,255,255,0.75);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(t.task)}</p>
+            <p style="font-size:0.62rem;color:rgba(255,255,255,0.3);margin-top:0.1rem;">${escHtml(t.frequency)} · Last: ${escHtml(t.last_done)}</p>
+          </div>
+          <span style="font-size:0.68rem;font-weight:700;color:${tc};white-space:nowrap;margin-left:0.75rem;flex-shrink:0;">${escHtml(t.status)}</span>
+        </div>`;
+      }).join('');
+
+      return `<div style="margin-bottom:0.5rem;border-radius:0.75rem;overflow:hidden;border:1px solid rgba(255,255,255,0.07);">
+        <button onclick="togglePMAsset('${id}')" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:rgba(255,255,255,0.03);border:none;cursor:pointer;min-height:48px;-webkit-tap-highlight-color:transparent;">
+          <div style="display:flex;align-items:center;gap:0.625rem;flex:1;min-width:0;">
+            <span style="width:8px;height:8px;border-radius:50%;background:${assetColor};flex-shrink:0;"></span>
+            <span style="font-size:0.8rem;font-weight:700;color:#fff;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(assetName)}</span>
+            ${badge}
+            <span style="font-size:0.65rem;color:rgba(255,255,255,0.3);">${tasks.length} task${tasks.length!==1?'s':''}</span>
+          </div>
+          <span id="${id}-chev" style="font-size:0.65rem;color:rgba(255,255,255,0.25);transition:transform 0.25s;flex-shrink:0;margin-left:0.5rem;${autoOpen?'transform:rotate(180deg)':''}">▼</span>
+        </button>
+        <div id="${id}" style="max-height:${autoOpen?'800px':'0'};overflow:hidden;transition:max-height 0.3s ease;padding:${autoOpen?'0 1rem':'0'};background:rgba(22,32,50,0.4);">
+          <div style="padding-bottom:0.5rem;">${taskRows}</div>
+        </div>
+      </div>`;
     }).join('');
-    return `<div class="card">
-      <div class="card-title">PM Due Calendar <span class="card-standard">🔴 ${d.overdue_count} overdue · 🟡 ${d.due_soon_count} due soon</span></div>
-      <table class="data-table">
-        <thead><tr><th>Asset</th><th>Task</th><th>Frequency</th><th class="num">Status</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
+
+    return kpiCard({
+      title: 'PM Due Calendar',
+      standard: `🔴 ${d.overdue_count} overdue · 🟡 ${d.due_soon_count} due soon · ${d.total_tasks} total`,
+      value: d.overdue_count + d.due_soon_count,
+      unit: 'tasks need attention',
+      sublabel: `${assetOrder.length} asset(s) with pending PM tasks`,
+      color: d.overdue_count > 0 ? 'red' : d.due_soon_count > 0 ? 'yellow' : 'green',
+      detail: assetBlocks,
+    });
+  }
+
+  function togglePMAsset(id) {
+    const panel = document.getElementById(id);
+    const chev  = document.getElementById(id + '-chev');
+    if (!panel) return;
+    const isOpen = panel.style.maxHeight !== '0px' && panel.style.maxHeight !== '0';
+    panel.style.maxHeight  = isOpen ? '0' : '800px';
+    panel.style.padding    = isOpen ? '0 1rem' : '0 1rem';
+    if (chev) chev.style.transform = isOpen ? '' : 'rotate(180deg)';
   }
 
   function renderPartsStockout(d) {
@@ -1586,7 +1645,7 @@
     autoLoad();
 
     // Refresh status bar every minute so "Updated X min ago" stays current
-    setInterval(() => updateStatusBar(_phase), 60000);
+    const _statusBarTimer = setInterval(() => updateStatusBar(_phase), 60000);
   });
 </script>
 
