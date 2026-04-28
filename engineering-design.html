@@ -10900,6 +10900,7 @@ function showReport() {
     'Chiller System — Water Cooled',
     'Cooling Tower Sizing',
     'Refrigerant Pipe Sizing',
+    'FCU Selection',
   ];
   const drawingSection = document.getElementById('drawing-section');
   if (DRAWING_SUPPORTED.includes(_calcType)) {
@@ -10931,6 +10932,8 @@ function showReport() {
       descEl.textContent = 'Generates a fire pump P&ID schematic showing pump, OS&Y valves, check valve, relief valve, jockey pump, test header, flow transmitter and duty-cycle data per NFPA 20:2022 / ISA-5.1:2009';
     } else if (_calcType === 'Ventilation / ACH' && descEl) {
       descEl.textContent = 'Generates a ventilation system schematic showing OA intake, filter, supply fan, supply diffusers, return/exhaust path, ASHRAE 62.1 VRP compliance summary and required ACH';
+    } else if (_calcType === 'FCU Selection' && descEl) {
+      descEl.textContent = 'Generates an FCU system schematic showing ceiling cassette FCU, CHW piping with control valve, 4-way blow air distribution, return air grille, drain pan and ASHRAE 90.1 fan power check per ARI 440';
     } else if (_calcType === 'Refrigerant Pipe Sizing' && descEl) {
       descEl.textContent = 'Generates a refrigerant circuit P&ID showing ODU (compressor+condenser), IDU (evaporator+TXV), suction/discharge/liquid lines with OD, velocity, dT per ASHRAE Refrigeration Handbook / ASTM B280';
     } else if (_calcType === 'Cooling Tower Sizing' && descEl) {
@@ -18869,6 +18872,9 @@ async function _runDrawing() {
     } else if (ct === 'Ventilation / ACH') {
       const svg = buildVentilationSVG(_lastInputs, _lastResults);
       _renderGenericSLD(svg, null);
+    } else if (ct === 'FCU Selection') {
+      const svg = buildFCUSVG(_lastInputs, _lastResults);
+      _renderGenericSLD(svg, null);
     } else if (ct === 'Refrigerant Pipe Sizing') {
       const svg = buildRefrigPipeSVG(_lastInputs, _lastResults);
       _renderGenericSLD(svg, null);
@@ -21202,6 +21208,273 @@ function buildChillerSVG(inputs, results, calcType) {
     `5. Refrigerant ${refrig}: check F-gas compliance. Annual leak check required (DENR DAO 2021-19).`,
     `6. CHW piping insulated per ASHRAE 90.1 §6.4.4. Pump P-CHW-201 sized for ${chwFlowM3} m³/h design flow.`,
   ].forEach((note, i) => p.push(T(LX2+8, STRIP_Y+27+i*12, note, {a:'start', sz:7, c:SC})));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` +
+    p.join('\n  ') + `\n</svg>`;
+}
+
+// ─── FCU Selection — System P&ID / Elevation Schematic ───────────────────────
+// Standards: ARI 440 (Fan Coil Units), ASHRAE 62.1, ASHRAE 90.1, PSME Code
+// Drawing: ceiling cassette FCU elevation + CHW piping P&ID + air distribution
+// Mandatory: FCU model, capacity kW/TR, airflow m³/h, CHW flow L/s,
+//            CHW temps, control valve, filter, drain pan, fan power
+function buildFCUSVG(inputs, results) {
+  const r = results || {};
+
+  // ── Values ─────────────────────────────────────────────────────────────────
+  const rooms      = Array.isArray(r.rooms) ? r.rooms : [];
+  const zone       = rooms[0] || {};
+  const fcuModel   = String(zone.selected_model || r.selected_fcu || 'FCU');
+  const capKW      = Number(zone.selected_kw    || r.fcu_capacity_kW || 0).toFixed(1);
+  const capTR      = Number(zone.selected_tr    || capKW / 3.517).toFixed(2);
+  const airCMH     = Number(zone.airflow_cmh    || r.fcu_airflow_m3hr || 0);
+  const chwFlowLps = Number(zone.chw_flow_lps_total || r.chw_flow_lps_total || 0).toFixed(3);
+  const qty        = Number(zone.qty || r.qty || 1);
+  const roomName   = String(zone.room_name || r.room_name || 'Zone 1');
+  const loadKW     = Number(zone.load_kw    || r.q_total_kW || 0).toFixed(1);
+  const chws       = Number(r.cw_ewt_c     || inputs?.chw_supply_c || 7);
+  const chwr       = Number(r.cw_lwt_c     || inputs?.chw_return_c || 12);
+  const dTchw      = (chwr - chws).toFixed(1);
+  const supT       = Number(r.supply_temp_c || 13).toFixed(1);
+  const shr        = Number(r.shr          || 0.7).toFixed(2);
+  const oaLps      = Number(r.oa_required_lps  || 0).toFixed(1);
+  const fanKW      = Number(r.fan_power_kW     || 0).toFixed(3);
+  const fanWLps    = Number(r.fan_power_w_lps  || 0).toFixed(2);
+  const fanOk      = Boolean(r.fan_power_ok ?? true);
+  const pipeSystem = String(inputs?.pipe_system || '2-Pipe (Cooling Only)');
+  const mountType  = String(inputs?.mounting_type || 'Ceiling Cassette');
+  const proj       = String(inputs?.project_name || 'FCU System');
+  const isCassette = mountType.toLowerCase().includes('cassette');
+
+  const W = 1050, H = 580, STRIP_Y = 467;
+  const CC = '#1a2e4a', SC = '#5a6a7a', AO = '#F7A21B';
+  const CHW = '#1565c0';  // chilled water blue
+  const SA  = '#1565c0';  // supply air
+  const RA  = '#2e7d32';  // return air green
+  const OA  = '#e65100';  // outdoor air orange
+
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const T  = (x,y,t,{a='middle',sz=9,c=CC,w='normal'}={}) =>
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+  const VL = (x,y1,y2,sw=3,clr=CC) => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${clr}" stroke-width="${sw}"/>`;
+  const HL = (x1,y,x2,sw=3,clr=CC) => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${clr}" stroke-width="${sw}"/>`;
+  const DL = (x1,y1,x2,y2,c=SC) =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="1" stroke-dasharray="4 3"/>`;
+  const Arrow = (x,y,dir,clr,sz=10) => {
+    if(dir==='right') return `<polygon points="${x},${y-sz/2} ${x+sz},${y} ${x},${y+sz/2}" fill="${clr}"/>`;
+    if(dir==='left')  return `<polygon points="${x},${y-sz/2} ${x-sz},${y} ${x},${y+sz/2}" fill="${clr}"/>`;
+    if(dir==='up')    return `<polygon points="${x-sz/2},${y} ${x},${y-sz} ${x+sz/2},${y}" fill="${clr}"/>`;
+    if(dir==='down')  return `<polygon points="${x-sz/2},${y} ${x},${y+sz} ${x+sz/2},${y}" fill="${clr}"/>`;
+    return '';
+  };
+  const Badge = (x,y,label,bg=AO,tc='#111') => {
+    const bw = Math.max(70,String(label).length*6.5+16);
+    return `<rect x="${x-bw/2}" y="${y-10}" width="${bw}" height="20" rx="10" fill="${bg}"/>` +
+      T(x,y+5,label,{sz:8.5,c:tc,w:'700'});
+  };
+  // Valve symbols
+  const GlobeV = (x,y,clr=CC) =>
+    `<polygon points="${x-9},${y-9} ${x},${y} ${x-9},${y+9}" fill="white" stroke="${clr}" stroke-width="1.5"/>` +
+    `<polygon points="${x+9},${y-9} ${x},${y} ${x+9},${y+9}" fill="white" stroke="${clr}" stroke-width="1.5"/>` +
+    `<circle cx="${x}" cy="${y}" r="3" fill="${clr}"/>`;
+  const CtrlV = (x,y,clr=AO) =>   // 2-way control valve
+    GlobeV(x,y,clr) +
+    `<line x1="${x}" y1="${y-9}" x2="${x}" y2="${y-22}" stroke="${clr}" stroke-width="1.5"/>` +
+    `<rect x="${x-8}" y="${y-32}" width="16" height="10" rx="2" fill="${clr}" fill-opacity="0.3" stroke="${clr}" stroke-width="1"/>` +
+    T(x,y-27,'CV',{sz:6.5,c:clr,w:'700'});
+  const Strainer = (x,y,clr=CC) =>
+    `<polygon points="${x},${y-12} ${x+12},${y} ${x},${y+12} ${x-12},${y}" fill="white" stroke="${clr}" stroke-width="1.5"/>` +
+    T(x,y+4,'Y',{sz:8,c:clr,w:'700'});
+
+  let p = [];
+
+  // ── Background + margin ────────────────────────────────────────────────────
+  p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="0.75"/>`);
+
+  // ── Title ─────────────────────────────────────────────────────────────────
+  p.push(T(W/2, 27, 'FAN COIL UNIT — SYSTEM SCHEMATIC', {sz:12, c:CC, w:'700'}));
+  p.push(T(W/2, 41, `ARI 440 / ASHRAE 62.1 / ASHRAE 90.1 / PSME Code  |  ${fcuModel} × ${qty}  |  ${capKW} kW / ${capTR} TR  |  ${mountType}`, {sz:9, c:SC}));
+
+  // ── ROOM BOUNDARY ─────────────────────────────────────────────────────────
+  const RM_X = 120, RM_Y = 220, RM_W = 600, RM_H = 200;
+  p.push(`<rect x="${RM_X}" y="${RM_Y}" width="${RM_W}" height="${RM_H}" fill="#f8fafb" stroke="${CC}" stroke-width="2" stroke-dasharray="8 4" rx="4"/>`);
+  p.push(T(RM_X+10, RM_Y+14, `CONDITIONED SPACE — ${roomName}`, {a:'start', sz:8, c:CC, w:'700'}));
+  p.push(T(RM_X+10, RM_Y+27, `Load: ${loadKW} kW  |  SHR: ${shr}  |  OA: ${oaLps} L/s  |  ${pipeSystem}`, {a:'start', sz:7.5, c:SC}));
+
+  // ── FCU BODY (ceiling-mounted) ────────────────────────────────────────────
+  const FCU_X = RM_X + RM_W/2 - 150, FCU_Y = RM_Y - 100;
+  const FCU_W = 300, FCU_H = 90;
+  // Ceiling line
+  p.push(HL(RM_X, RM_Y, RM_X+RM_W, 2, '#bbb'));
+  p.push(T(RM_X+RM_W/2, RM_Y+8, 'CEILING', {sz:7, c:'#bbb'}));
+
+  // FCU casing
+  p.push(`<rect x="${FCU_X}" y="${FCU_Y}" width="${FCU_W}" height="${FCU_H}" fill="#eceff1" stroke="${CC}" stroke-width="2" rx="6"/>`);
+  p.push(`<rect x="${FCU_X}" y="${FCU_Y}" width="${FCU_W}" height="18" fill="${CC}" rx="6"/>`);
+  p.push(T(FCU_X+FCU_W/2, FCU_Y+12, `FCU-201  ${fcuModel}`, {sz:8, c:'#fff', w:'700'}));
+
+  // Internal components
+  // Filter
+  p.push(`<rect x="${FCU_X+10}" y="${FCU_Y+22}" width="40" height="30" fill="#fff9c4" stroke="${AO}" stroke-width="1" rx="2"/>`);
+  for(let i=0;i<5;i++) p.push(VL(FCU_X+15+i*6, FCU_Y+24, FCU_Y+50, 1, AO));
+  p.push(T(FCU_X+30, FCU_Y+56, 'FILTER', {sz:6.5, c:AO}));
+
+  // Fan
+  const FAN_CX = FCU_X+95, FAN_CY = FCU_Y+37;
+  p.push(`<circle cx="${FAN_CX}" cy="${FAN_CY}" r="18" fill="#e3f2fd" stroke="${CHW}" stroke-width="1.5"/>`);
+  [-90,30,150].forEach(a => {
+    const ra = a*Math.PI/180;
+    p.push(`<line x1="${FAN_CX}" y1="${FAN_CY}" x2="${(FAN_CX+15*Math.cos(ra)).toFixed(1)}" y2="${(FAN_CY+15*Math.sin(ra)).toFixed(1)}" stroke="${CHW}" stroke-width="2.5" stroke-linecap="round"/>`);
+  });
+  p.push(T(FAN_CX, FAN_CY+26, 'FAN', {sz:6.5, c:CC}));
+  p.push(T(FAN_CX, FAN_CY+36, `${airCMH} m³/h`, {sz:6.5, c:SC}));
+
+  // Chilled water coil
+  p.push(`<rect x="${FCU_X+130}" y="${FCU_Y+22}" width="90" height="40" fill="#e3f2fd" stroke="${CHW}" stroke-width="1.5" rx="2"/>`);
+  for(let i=0;i<6;i++) {
+    const cx = FCU_X+137+i*12;
+    p.push(VL(cx, FCU_Y+26, FCU_Y+58, 1, CHW));
+    if(i%2===0) p.push(HL(cx, FCU_Y+32, cx+12, 1, CHW));
+    if(i%2===1) p.push(HL(cx, FCU_Y+44, cx+12, 1, CHW));
+  }
+  p.push(T(FCU_X+175, FCU_Y+68, 'CHW COIL', {sz:6.5, c:CHW}));
+
+  // Drain pan
+  p.push(`<rect x="${FCU_X+10}" y="${FCU_Y+FCU_H-14}" width="${FCU_W-20}" height="10" fill="#e8eaf6" stroke="#5c6bc0" stroke-width="1" rx="2"/>`);
+  p.push(T(FCU_X+FCU_W/2, FCU_Y+FCU_H-7, 'DRAIN PAN  (min 1% slope to drain)', {sz:6.5, c:'#5c6bc0'}));
+
+  // Drain connection
+  p.push(VL(FCU_X+FCU_W/2, FCU_Y+FCU_H, RM_Y-14, 1.5, '#5c6bc0'));
+  p.push(T(FCU_X+FCU_W/2+8, FCU_Y+FCU_H+8, 'Condensate drain', {a:'start', sz:7, c:'#5c6bc0'}));
+
+  // ── CHW PIPING (above FCU) ────────────────────────────────────────────────
+  const CHW_MAIN_Y = FCU_Y - 50;
+  // Main CHW supply riser
+  p.push(VL(FCU_X-40, 55, CHW_MAIN_Y+10, 4, CHW));
+  p.push(T(FCU_X-40, 52, 'CHW SUPPLY RISER', {sz:7, c:CHW, w:'700'}));
+  p.push(T(FCU_X-40, 42, `${chws}°C`, {sz:8, c:CHW, w:'700'}));
+  // Main CHW return riser
+  p.push(VL(FCU_X+FCU_W+40, 55, CHW_MAIN_Y+10, 4, '#c62828'));
+  p.push(T(FCU_X+FCU_W+40, 52, 'CHW RETURN RISER', {sz:7, c:'#c62828', w:'700'}));
+  p.push(T(FCU_X+FCU_W+40, 42, `${chwr}°C`, {sz:8, c:'#c62828', w:'700'}));
+
+  // Branch from supply riser → FCU
+  const SUP_BRANCH_Y = CHW_MAIN_Y;
+  p.push(HL(FCU_X-40, SUP_BRANCH_Y, FCU_X+135, 3, CHW));
+  p.push(Arrow(FCU_X+133, SUP_BRANCH_Y, 'right', CHW, 9));
+  // Strainer on supply branch
+  const STR_X = FCU_X+30;
+  p.push(Strainer(STR_X, SUP_BRANCH_Y));
+  p.push(T(STR_X, SUP_BRANCH_Y+18, 'ST-201', {sz:7, c:SC}));
+  // 2-way control valve
+  const CV_X = FCU_X+80;
+  p.push(CtrlV(CV_X, SUP_BRANCH_Y));
+  p.push(T(CV_X, SUP_BRANCH_Y+26, 'CV-201', {sz:7, c:AO}));
+  p.push(T(CV_X, SUP_BRANCH_Y+35, '2-way', {sz:6.5, c:SC}));
+  // Down to FCU coil supply
+  p.push(VL(FCU_X+135, SUP_BRANCH_Y, FCU_Y+22, 3, CHW));
+  // CHW supply annotation
+  p.push(T(FCU_X+135+10, SUP_BRANCH_Y-15, `CHW = ${chwFlowLps} L/s  |  ${chws}°C supply`, {a:'start', sz:7.5, c:CHW, w:'700'}));
+
+  // Return from FCU coil → return riser
+  const RET_BRANCH_Y = SUP_BRANCH_Y - 18;
+  p.push(HL(FCU_X+215, RET_BRANCH_Y, FCU_X+FCU_W+40, 3, '#c62828'));
+  p.push(Arrow(FCU_X+FCU_W+38, RET_BRANCH_Y, 'right', '#c62828', 9));
+  p.push(VL(FCU_X+215, FCU_Y+22, RET_BRANCH_Y, 3, '#c62828'));
+  p.push(T(FCU_X+215+10, RET_BRANCH_Y-12, `${chwr}°C return`, {a:'start', sz:7.5, c:'#c62828', w:'700'}));
+
+  // ── AIR SIDE ──────────────────────────────────────────────────────────────
+  // Supply air outlet (cassette: 4-way blow)
+  const SA_Y_OUTLET = RM_Y;  // at ceiling level
+  const SA_CX = FCU_X + FCU_W/2;
+
+  if(isCassette) {
+    // 4-way blow pattern (cassette FCU)
+    const DIFF_OFFSETS = [-120, -40, 40, 120];
+    DIFF_OFFSETS.forEach(dx => {
+      const dx2 = SA_CX + dx;
+      p.push(VL(dx2, SA_Y_OUTLET, SA_Y_OUTLET+60, 2, SA));
+      p.push(Arrow(dx2, SA_Y_OUTLET+60, 'down', SA, 9));
+      p.push(`<polygon points="${dx2},${SA_Y_OUTLET+8} ${dx2-10},${SA_Y_OUTLET} ${dx2+10},${SA_Y_OUTLET}" fill="${SA}" opacity="0.7"/>`);
+    });
+    // Center return air grille (cassette returns air from center)
+    p.push(`<circle cx="${SA_CX}" cy="${SA_Y_OUTLET}" r="18" fill="#e8f5e9" stroke="${RA}" stroke-width="1.8"/>`);
+    for(let i=-2;i<=2;i++) p.push(HL(SA_CX-14, SA_Y_OUTLET+i*5, SA_CX+14, 1, RA));
+    p.push(T(SA_CX, SA_Y_OUTLET-22, 'RETURN AIR GRILLE', {sz:7, c:RA, w:'700'}));
+    p.push(T(SA_CX, SA_Y_OUTLET+30, '4-WAY BLOW SUPPLY', {sz:7, c:SA, w:'700'}));
+    p.push(Arrow(SA_CX, SA_Y_OUTLET-8, 'up', RA, 8));
+  } else {
+    // Ceiling concealed / horizontal blow
+    p.push(HL(RM_X+60, SA_Y_OUTLET, RM_X+200, 3, SA));
+    p.push(Arrow(RM_X+198, SA_Y_OUTLET, 'right', SA, 10));
+    p.push(T(RM_X+130, SA_Y_OUTLET-12, `SA = ${airCMH} m³/h`, {sz:7.5, c:SA, w:'700'}));
+    p.push(T(RM_X+130, SA_Y_OUTLET-1, `${supT}°C supply air`, {sz:7, c:SC}));
+  }
+
+  // ── DATA PANEL (right) ────────────────────────────────────────────────────
+  const RP_X = RM_X+RM_W+30, RP_Y = 55, RP_W = W-RP_X-15;
+  p.push(`<rect x="${RP_X}" y="${RP_Y}" width="${RP_W}" height="${STRIP_Y-RP_Y-6}" fill="#f8faff" stroke="#d0d8e8" stroke-width="0.8" rx="3"/>`);
+  p.push(`<rect x="${RP_X}" y="${RP_Y}" width="${RP_W}" height="18" fill="${CC}" rx="3"/>`);
+  p.push(T(RP_X+RP_W/2, RP_Y+12, 'FCU SELECTION DATA', {sz:8, c:'#fff', w:'700'}));
+
+  const rows = [
+    ['FCU Model',          `${fcuModel}`,                     CC],
+    ['Qty',                `${qty} unit(s)`,                  CC],
+    ['Total Capacity',     `${capKW} kW / ${capTR} TR`,       CC],
+    ['Room Load',          `${loadKW} kW`,                    SC],
+    ['SHR',                `${shr}`,                          CC],
+    ['Airflow',            `${airCMH} m³/h`,                  CHW],
+    ['Supply Air Temp',    `${supT}°C`,                       CHW],
+    ['CHW Supply',         `${chws}°C`,                       CHW],
+    ['CHW Return',         `${chwr}°C`,                       '#c62828'],
+    ['CHW ΔT',             `${dTchw} K`,                      CC],
+    ['CHW Flow',           `${chwFlowLps} L/s`,               CHW],
+    ['Fan Power',          `${fanKW} kW (${fanWLps} W/L·s)`, fanOk?RA:AO],
+    ['ASHRAE 90.1 Fan',   fanOk?'PASS':'CHECK',               fanOk?RA:'#c62828'],
+    ['OA Required',        `${oaLps} L/s  (ASHRAE 62.1)`,    OA],
+    ['Mount Type',         mountType,                          SC],
+    ['Pipe System',        pipeSystem,                         SC],
+    ['Standard',          'ARI 440 / ASHRAE / PSME',          SC],
+  ];
+
+  const RH = 12, RPY0 = RP_Y+22;
+  rows.forEach(([label,value,vc],i) => {
+    const ry = RPY0 + i*RH;
+    if(i%2===0) p.push(`<rect x="${RP_X+1}" y="${ry}" width="${RP_W-2}" height="${RH}" fill="#eef3fa"/>`);
+    p.push(T(RP_X+4,      ry+RH-3, label,      {a:'start', sz:7,   c:SC}));
+    p.push(T(RP_X+RP_W-4, ry+RH-3, esc(value), {a:'end',   sz:7.5, c:vc, w:'600'}));
+  });
+
+  // Performance badge
+  p.push(Badge(RP_X+RP_W/2, RP_Y+RH*18+28, `${fcuModel}  ${capKW} kW  ${airCMH} m³/h`, CC));
+
+  // ── LEGEND + NOTES ────────────────────────────────────────────────────────
+  p.push(HL(11, STRIP_Y, W-11, 0.75));
+  const LX2 = 460;
+  p.push(VL(LX2, STRIP_Y, H-11, 0.75));
+
+  p.push(T(18, STRIP_Y+13, 'LEGEND', {a:'start', sz:7, c:CC, w:'700'}));
+  [[CHW, 3, '', 'Chilled water (CHW) supply'],
+   ['#c62828', 3, '', 'Chilled water (CHW) return'],
+   [SA,  2, '', 'Supply air (cooled)'],
+   [RA,  2, '', 'Return air'],
+   [AO,  2, '', 'Control valve / instruments'],
+  ].forEach(([clr,sw,d,lbl],i) => {
+    const ly = STRIP_Y+20+i*13;
+    p.push(`<line x1="18" y1="${ly}" x2="38" y2="${ly}" stroke="${clr}" stroke-width="${sw}"/>`);
+    p.push(T(44, ly+4, lbl, {a:'start', sz:7.5, c:CC}));
+  });
+
+  p.push(T(LX2+8, STRIP_Y+13, 'GENERAL NOTES', {a:'start', sz:7, c:CC, w:'700'}));
+  [
+    `1. FCU ${fcuModel} rated per ARI 440 at 7°C EWT, 27°C/50% RH room. Capacity = ${capKW} kW (${capTR} TR).`,
+    `2. CHW flow = ${chwFlowLps} L/s at ΔT = ${dTchw}K (${chws}°C supply / ${chwr}°C return). Install strainer + 2-way control valve.`,
+    `3. Fan power = ${fanKW} kW (${fanWLps} W/L·s). ASHRAE 90.1 FCU fan power limit = 0.3 W/(L/s): ${fanOk?'PASS':'EXCEEDS LIMIT'}.`,
+    `4. OA = ${oaLps} L/s per ASHRAE 62.1 VRP. Provide dedicated OA duct or fresh air connection to FCU return.`,
+    `5. Condensate drain: 25mm minimum, 1% slope, P-trap installed, drain to sanitary system per Philippine Plumbing Code.`,
+    `6. ${pipeSystem}. Pipe insulated per ASHRAE 90.1 §6.4.4. Control valve sized for 100% design CHW flow.`,
+  ].forEach((note,i) => p.push(T(LX2+8, STRIP_Y+27+i*12, note, {a:'start', sz:7, c:SC})));
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` +
     p.join('\n  ') + `\n</svg>`;
