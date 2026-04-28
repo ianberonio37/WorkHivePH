@@ -18868,25 +18868,69 @@ async function _runDrawing() {
       _renderGenericSLD(svg, buildCleanAgentTitleBlockHtml(_lastInputs, _lastResults));
     } else if (ct === 'Fire Pump Sizing') {
       const svg = buildFirePumpPIDSvg(_lastInputs, _lastResults);
-      _renderGenericSLD(svg, null);
+      const _r = _lastResults || {};
+      const _flowLpm  = Number(_r.req_flow_lpm || _r.required_flow_lpm || _r.flow_lpm || 0).toFixed(0);
+      const _presBar  = Number(_r.req_pressure_bar || _r.required_pressure_bar || _r.tdh_bar || 0).toFixed(2);
+      const _motorHP  = Number(_r.motor_hp || _r.required_hp || _r.hp || 0).toFixed(0);
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${_flowLpm} L/min @ ${_presBar} bar  |  ${_motorHP} HP`,
+        { drawingNo:'FP-PUMP-PID-001', drawingTitle:'Fire Pump System — P&ID Schematic', standard:'NFPA 20:2022 / ISA-5.1:2009 / PSME Code' }));
     } else if (ct === 'Ventilation / ACH') {
       const svg = buildVentilationSVG(_lastInputs, _lastResults);
-      _renderGenericSLD(svg, null);
+      const _r = _lastResults || {};
+      const _ach   = Number(_r.required_ach || _r.ach_required || _r.ach || 0).toFixed(1);
+      const _cmh   = Number(_r.supply_airflow_m3h || _r.total_airflow_m3h || _r.airflow_m3h || 0).toFixed(0);
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${_ach} ACH  |  ${_cmh} m³/h`,
+        { drawingNo:'MECH-VENT-SCH-001', drawingTitle:'Ventilation System Schematic', standard:'ASHRAE 62.1:2022 / PSME Code / ASHRAE 90.1' }));
     } else if (ct === 'FCU Selection') {
       const svg = buildFCUSVG(_lastInputs, _lastResults);
-      _renderGenericSLD(svg, null);
+      const _r = _lastResults || {};
+      const _z0    = (Array.isArray(_r.rooms) ? _r.rooms[0] : null) || {};
+      const _capKW = Number(_z0.selected_kw || _r.fcu_capacity_kW || 0).toFixed(1);
+      const _capTR = Number(_z0.selected_tr || _capKW / 3.517).toFixed(2);
+      const _model = String(_z0.selected_model || _r.selected_fcu || 'FCU');
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${_capKW} kW / ${_capTR} TR  |  ${_model}`,
+        { drawingNo:'MECH-FCU-SCH-001', drawingTitle:'Fan Coil Unit — System Schematic', standard:'ARI 440 / ASHRAE 62.1 / ASHRAE 90.1 / PSME Code' }));
     } else if (ct === 'Refrigerant Pipe Sizing') {
       const svg = buildRefrigPipeSVG(_lastInputs, _lastResults);
-      _renderGenericSLD(svg, null);
+      const _r = _lastResults || {};
+      const _ref   = String(_r.refrigerant || _r.refrig || _lastInputs?.refrigerant || 'R-410A');
+      const _capKW = Number(_r.capacity_kw || _r.capacity_kW || 0).toFixed(1);
+      const _evapT = Number(_r.evap_temp_c || _r.evaporating_temp_c || _lastInputs?.evap_temp_c || 0).toFixed(0);
+      const _condT = Number(_r.cond_temp_c || _r.condensing_temp_c || _lastInputs?.cond_temp_c || 0).toFixed(0);
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${_ref}  |  ${_capKW} kW  |  Tevap ${_evapT}°C / Tcond ${_condT}°C`,
+        { drawingNo:'MECH-REFRIG-PID-001', drawingTitle:'Refrigerant Pipe Sizing — Circuit P&ID', standard:'ASHRAE Refrigeration Hbk / ASTM B280 / ASHRAE 15 / PSME Code' }));
     } else if (ct === 'Cooling Tower Sizing') {
       const svg = buildCoolingTowerSVG(_lastInputs, _lastResults);
-      _renderGenericSLD(svg, null);
+      const _r = _lastResults || {};
+      const _qKW    = Number(_r.q_rejection_kw || _r.heat_rejection_kw || 0).toFixed(0);
+      const _qTR    = Number(_r.q_rejection_tr || _r.heat_rejection_tr || 0).toFixed(1);
+      const _nCells = Number(_r.n_cells || 1);
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${_qKW} kW / ${_qTR} TR  |  ${_nCells} cell(s)`,
+        { drawingNo:'MECH-CT-SCH-001', drawingTitle:'Cooling Tower — Counter-Flow Induced Draft Schematic', standard:'CTI Std-201 / ASHRAE 90.1 / ASME PTC 23 / PSME Code' }));
     } else if (ct === 'Chiller System — Air Cooled' || ct === 'Chiller System — Water Cooled') {
       const svg = buildChillerSVG(_lastInputs, _lastResults, ct);
-      _renderGenericSLD(svg, null);
+      const _r = _lastResults || {};
+      const _nU    = Number(_r.n_units || 1);
+      const _trTot = Number(_r.total_capacity_tr || _r.capacity_tr || 0).toFixed(1);
+      const _cop   = Number(_r.cop || _r.eer_cop || 0).toFixed(2);
+      const _isAC  = ct.includes('Air');
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${_nU} × ${(Number(_trTot)/_nU).toFixed(1)} TR = ${_trTot} TR total  |  COP ${_cop}`,
+        { drawingNo:`MECH-CHLR-SCH-001`, drawingTitle:`${_isAC ? 'Air-Cooled' : 'Water-Cooled'} Chiller Plant — System Schematic`, standard:'ASHRAE 90.1 / AHRI 550/590 / PSME Code' }));
     } else if (ct === 'Expansion Tank Sizing') {
       const svg = buildExpansionTankSVG(_lastInputs, _lastResults);
-      _renderGenericSLD(svg, null);
+      const _r = _lastResults || {};
+      const _tankL = _r.selected_tank_L || '—';
+      const _alpha = Number(_r.acceptance_factor || 0).toFixed(3);
+      const _stype = String(_lastInputs?.system_type || 'Chilled Water');
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${_tankL} L Bladder  |  α = ${_alpha}  |  ${_stype}`,
+        { drawingNo:'MECH-ET-SCH-001', drawingTitle:'Expansion Tank — Hydronic System Schematic', standard:'ASHRAE 2023 Ch.12 / ASME BPVC Sec.VIII / PSME Code' }));
     }
   }, 100);
 }
@@ -18900,6 +18944,38 @@ function _renderGenericSLD(svgString, titleBlockHtml) {
   document.getElementById('drawing-output').classList.remove('hidden');
   const dlBtn = document.getElementById('diagram-dl-svg');
   if (dlBtn) { dlBtn.style.display = 'inline-block'; dlBtn._svg = svgString; }
+}
+
+// Generic title block — same 3-row format as Transformer SLD, reusable for all diagram types
+function _buildGenericTitleBlock(inputs, ratingStr, opts) {
+  const esc2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const proj  = esc2(inputs?.project_name || 'Untitled Project');
+  const now   = new Date().toLocaleDateString('en-PH', {year:'numeric', month:'long', day:'numeric'});
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${esc2(v)}</div>`;
+  const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+  const TD  = (s='') => `<td style="padding:6px 8px;vertical-align:top;${s}">`;
+  const BR  = 'border-right:1px solid #c8d0da;';
+  return `<table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(BR+'width:42%;')}${LBL('Project Name')}${EF(proj)}</td>
+    ${TD(BR+'width:23%;')}${LBL('Drawing No.')}${EF(opts.drawingNo||'DRAW-001')}</td>
+    ${TD('width:35%;')}${LBL('Rating / Key Specification')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${esc2(ratingStr)}</div></td>
+  </tr>
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(BR)}${LBL('Drawing Title')}${EF(opts.drawingTitle||'Engineering Schematic')}</td>
+    ${TD(BR)}${LBL('Standard / Code')}<div style="font-size:10px;color:#1a2e4a;">${opts.standard||''}</div></td>
+    ${TD('')}${LBL('Date Prepared')}${EF(now)}</td>
+  </tr>
+  <tr>
+    ${TD(BR+'width:22%;')}${LBL('Prepared By')}${SIG()}</td>
+    ${TD(BR+'width:22%;')}${LBL('Checked By')}${SIG()}</td>
+    ${TD(BR+'width:22%;')}${LBL('Approved By')}${SIG()}</td>
+    ${TD(BR+'width:17%;')}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
+    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}<div style="font-size:8px;color:#888;margin-top:5px;">Sheet 1 of 1</div></td>
+  </tr>
+</table>`;
 }
 
 function generateDrawing() {
