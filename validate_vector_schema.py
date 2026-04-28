@@ -9,70 +9,43 @@ If ANY of the structural rules below break, the semantic search pipeline
 fails SILENTLY — the AI assistant returns generic answers instead of
 contextual ones, and no error appears in the Guardian.
 
-From the AI Engineer skill, RAG architecture images, and the
-Predictive Analytics + Knowledge Manager skills.
+  Layer 1 — Foundation
+    1.  pgvector extension enabled     — CREATE EXTENSION vector in migrations
 
-Four things checked:
+  Layer 2 — Schema integrity
+    2.  All tables declare vector(384) — dimension must match embedding model exactly
+    3.  IVFFlat indexes on embeddings  — full table scan above 10k rows is unusable
 
-  1. pgvector extension enabled
-     — CREATE EXTENSION IF NOT EXISTS vector must appear in a migration.
-       Without it, the vector type doesn't exist and all knowledge tables
-       fail to create. This is the foundation the entire RAG pipeline
-       depends on.
+  Layer 3 — Query correctness
+    4.  UNION ALL subquery LIMIT       — each subquery must LIMIT before the UNION
+    5.  hive_id scoping in search fn   — search_all_knowledge must filter by hive_id
 
-  2. All knowledge tables declare vector(384)
-     — fault_knowledge, skill_knowledge, pm_knowledge must each have
-       an 'embedding vector(384)' column. The 384 dimension matches
-       nomic-embed-text-v1.5 (the Groq free-tier embedding model).
-       A mismatch — even 383 or 512 — causes every insert to fail with
-       a silent dimension error.
-
-  3. IVFFlat indexes on all embedding columns
-     — Every embedding column must have an IVFFlat index using
-       vector_cosine_ops. Without it, similarity search runs a full
-       table scan — fine at 100 rows, takes minutes at 100,000 rows.
-       The AI Engineer skill specifies IVFFlat (not HNSW) for this
-       platform's access pattern.
-
-  4. UNION ALL subqueries each have ORDER BY + LIMIT
-     — The search_all_knowledge SQL function uses UNION ALL to merge
-       results from all 3 tables. Each subquery MUST have its own
-       ORDER BY + LIMIT BEFORE the UNION. If LIMIT is only on the
-       outer query, Postgres processes ALL rows from all tables,
-       then limits — defeating the purpose entirely.
-       This is the UNION ALL bug the AI Engineer skill explicitly
-       calls out as a known gotcha.
+  Layer 4 — Result quality
+    6.  Similarity threshold guard     — low-relevance results must be filtered out  [WARN]
 
 Usage:  python validate_vector_schema.py
 Output: vector_schema_report.json
 """
 import re, json, sys, os
 
-MIGRATIONS_DIR   = os.path.join("supabase", "migrations")
-FUNCTIONS_DIR    = os.path.join("supabase", "functions")
-SEMANTIC_SEARCH  = os.path.join(FUNCTIONS_DIR, "semantic-search", "index.ts")
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-# The exact embedding model and its dimension
+from validator_utils import read_file, format_result
+
+MIGRATIONS_DIR  = os.path.join("supabase", "migrations")
+FUNCTIONS_DIR   = os.path.join("supabase", "functions")
+SEMANTIC_SEARCH = os.path.join(FUNCTIONS_DIR, "semantic-search", "index.ts")
+
 EMBEDDING_MODEL  = "nomic-embed-text-v1_5"
 EMBEDDING_DIM    = 384
-
-# Knowledge tables that must have vector columns and indexes
 KNOWLEDGE_TABLES = ["fault_knowledge", "skill_knowledge", "pm_knowledge"]
-
-# The unified search SQL function that uses UNION ALL
 UNION_SEARCH_FN  = "search_all_knowledge"
-
-
-def read_file(path):
-    try:
-        with open(path, encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
-        return None
+MIN_SIMILARITY   = 0.5   # minimum acceptable similarity score
 
 
 def read_all_migrations():
-    """Return combined content of all migration SQL files."""
     combined = ""
     if not os.path.isdir(MIGRATIONS_DIR):
         return combined
@@ -85,264 +58,235 @@ def read_all_migrations():
     return combined
 
 
-# ── Check 1: pgvector extension enabled ──────────────────────────────────────
+# ── Layer 1: Foundation ───────────────────────────────────────────────────────
 
 def check_vector_extension(migrations):
-    """
-    CREATE EXTENSION IF NOT EXISTS vector must exist in a migration.
-    This is the foundation — without it, the vector column type is
-    not registered in PostgreSQL and every knowledge table fails to create.
-    """
-    issues = []
     if not migrations:
-        return [{"source": MIGRATIONS_DIR, "reason": f"{MIGRATIONS_DIR} not found"}]
-
+        return [{"check": "vector_extension", "source": MIGRATIONS_DIR,
+                 "reason": f"{MIGRATIONS_DIR} not found"}]
     if not re.search(r"CREATE\s+EXTENSION.*\bvector\b", migrations, re.IGNORECASE):
-        issues.append({
-            "source": MIGRATIONS_DIR,
-            "reason": (
-                "No 'CREATE EXTENSION IF NOT EXISTS vector' found in any "
-                "migration file — the pgvector extension is not enabled, "
-                "all knowledge tables and embedding columns will fail to create"
-            ),
-        })
-    return issues
+        return [{"check": "vector_extension", "source": MIGRATIONS_DIR,
+                 "reason": ("No 'CREATE EXTENSION IF NOT EXISTS vector' found — "
+                            "pgvector not enabled, all knowledge tables will fail to create")}]
+    return []
 
 
-# ── Check 2: All knowledge tables have vector(384) ────────────────────────────
+# ── Layer 2: Schema integrity ─────────────────────────────────────────────────
 
 def check_vector_dimension(migrations, tables, dim):
-    """
-    Each knowledge table must declare 'embedding vector(DIM)' where DIM
-    matches the embedding model dimension exactly.
-
-    nomic-embed-text-v1.5 produces 384-dimensional vectors.
-    A mismatch causes every INSERT to fail with a dimension error.
-    The AI Assistant keeps working but returns no contextual knowledge.
-    """
+    """Each knowledge table must declare embedding vector(384) — dimension must
+    match nomic-embed-text-v1.5 exactly. A mismatch causes every INSERT to fail."""
     issues = []
     if not migrations:
         return []
-
     for table in tables:
-        # Find the CREATE TABLE block for this table
         table_m = re.search(
             rf"CREATE TABLE.*?\b{re.escape(table)}\b([\s\S]+?)(?=CREATE TABLE|CREATE INDEX|CREATE OR REPLACE|$)",
             migrations, re.IGNORECASE
         )
         if not table_m:
-            issues.append({
-                "table":  table,
-                "reason": (
-                    f"Table '{table}' not found in migration files — "
-                    f"the knowledge table is missing, semantic search will "
-                    f"return no results for this knowledge type"
-                ),
-            })
+            issues.append({"check": "vector_dimension", "table": table,
+                           "reason": (f"Table '{table}' not found in migrations — "
+                                      f"knowledge table missing, semantic search returns no results")})
             continue
-
-        table_body = table_m.group(1)
-        # Check for embedding vector(DIM) declaration
-        vec_m = re.search(
-            r"\bembedding\s+vector\s*\(\s*(\d+)\s*\)",
-            table_body
-        )
+        vec_m = re.search(r"\bembedding\s+vector\s*\(\s*(\d+)\s*\)", table_m.group(1))
         if not vec_m:
-            issues.append({
-                "table":  table,
-                "reason": (
-                    f"Table '{table}' has no 'embedding vector({dim})' column — "
-                    f"embeddings cannot be stored for this knowledge type"
-                ),
-            })
-        else:
-            found_dim = int(vec_m.group(1))
-            if found_dim != dim:
-                issues.append({
-                    "table":      table,
-                    "found_dim":  found_dim,
-                    "expected":   dim,
-                    "reason": (
-                        f"Table '{table}' uses vector({found_dim}) but model "
-                        f"'{EMBEDDING_MODEL}' produces {dim}-dimensional vectors — "
-                        f"dimension mismatch causes every embedding INSERT to fail"
-                    ),
-                })
+            issues.append({"check": "vector_dimension", "table": table,
+                           "reason": f"Table '{table}' has no embedding vector({dim}) column"})
+        elif int(vec_m.group(1)) != dim:
+            issues.append({"check": "vector_dimension", "table": table,
+                           "reason": (f"Table '{table}' uses vector({vec_m.group(1)}) but model "
+                                      f"produces {dim}-dim vectors — dimension mismatch on every INSERT")})
     return issues
 
-
-# ── Check 3: IVFFlat indexes on all embedding columns ────────────────────────
 
 def check_ivfflat_indexes(migrations, tables):
-    """
-    Every embedding column must have an IVFFlat index with vector_cosine_ops.
-    IVFFlat is the recommended index type for approximate nearest neighbor
-    search on this platform's access pattern (medium dataset, high read).
-
-    Without this index:
-    - 100 rows: 2ms query (fine)
-    - 10,000 rows: 200ms (slow)
-    - 100,000 rows: 2+ seconds (unusable)
-    The AI assistant would silently fall back to a full table scan.
-    """
+    """Every embedding column must have an IVFFlat index with vector_cosine_ops.
+    Without it, similarity search full-scans the table — unusable above 10k rows."""
     issues = []
     if not migrations:
         return []
-
     for table in tables:
-        # Find the IVFFlat index for this table
-        ivfflat_m = re.search(
+        if not re.search(
             rf"CREATE INDEX[\s\S]*?ON\s+{re.escape(table)}\s+USING\s+ivfflat\s*\([\s\S]*?vector_cosine_ops[\s\S]*?\)",
             migrations, re.IGNORECASE
-        )
-        if not ivfflat_m:
-            issues.append({
-                "table":  table,
-                "reason": (
-                    f"Table '{table}' has no IVFFlat index on the embedding column "
-                    f"(USING ivfflat (embedding vector_cosine_ops)) — "
-                    f"similarity search will full-scan the table, "
-                    f"becoming unusably slow above 10,000 rows"
-                ),
-            })
+        ):
+            issues.append({"check": "ivfflat_indexes", "table": table,
+                           "reason": (f"Table '{table}' has no IVFFlat index on embedding — "
+                                      f"similarity search will full-scan, unusable above 10,000 rows")})
     return issues
 
 
-# ── Check 4: UNION ALL subqueries each have ORDER BY + LIMIT ─────────────────
+# ── Layer 3: Query correctness ────────────────────────────────────────────────
 
 def check_union_all_pattern(migrations):
-    """
-    The search_all_knowledge SQL function uses UNION ALL across 3 tables.
-    Each subquery MUST have its own ORDER BY + LIMIT.
-
-    Correct pattern (AI Engineer skill rule):
-      SELECT ... FROM fault_knowledge
-      WHERE ... ORDER BY embedding <=> query_embedding LIMIT N
-      UNION ALL
-      SELECT ... FROM skill_knowledge
-      WHERE ... ORDER BY embedding <=> query_embedding LIMIT N
-
-    Wrong pattern (common mistake):
-      SELECT ... FROM fault_knowledge WHERE ...
-      UNION ALL
-      SELECT ... FROM skill_knowledge WHERE ...
-      ORDER BY ... LIMIT N   ← applies AFTER the union (processes all rows)
-
-    The wrong pattern makes Postgres retrieve ALL rows from all 3 tables,
-    compute all similarities, then limit — defeating vector index use entirely
-    and causing full table scans even with IVFFlat indexes.
-    """
-    issues = []
+    """search_all_knowledge must have ORDER BY + LIMIT inside each UNION ALL subquery.
+    Outer-only LIMIT makes Postgres process all rows before limiting — defeats the index."""
     if not migrations:
         return []
-
-    # Find the search_all_knowledge function body
     fn_m = re.search(
-        rf"CREATE OR REPLACE FUNCTION\s+{re.escape(UNION_SEARCH_FN)}[\s\S]+?(?=CREATE OR REPLACE FUNCTION|$$;)",
+        rf"CREATE OR REPLACE FUNCTION\s+{re.escape(UNION_SEARCH_FN)}[\s\S]+?(?=CREATE OR REPLACE FUNCTION|\$\$;)",
         migrations, re.IGNORECASE
     )
     if not fn_m:
-        issues.append({
-            "source": MIGRATIONS_DIR,
-            "reason": (
-                f"Function '{UNION_SEARCH_FN}' not found in migration files — "
-                f"the unified cross-reference search is missing"
-            ),
-        })
-        return issues
-
-    fn_body = fn_m.group(0)
-
-    # Each UNION ALL branch should have ORDER BY ... LIMIT inside a subquery
-    # Count how many LIMIT clauses appear BEFORE UNION ALL
-    subquery_blocks = re.findall(
-        r"SELECT[\s\S]+?LIMIT\s+\w+[\s\S]*?(?=UNION ALL|\Z)",
-        fn_body, re.IGNORECASE
-    )
-
-    # Count UNION ALL occurrences
+        return [{"check": "union_all_pattern", "source": MIGRATIONS_DIR,
+                 "reason": f"Function '{UNION_SEARCH_FN}' not found in migrations"}]
+    fn_body     = fn_m.group(0)
     union_count = len(re.findall(r"UNION\s+ALL", fn_body, re.IGNORECASE))
+    sub_limits  = re.findall(r"SELECT[\s\S]+?LIMIT\s+\w+[\s\S]*?(?=UNION ALL|\Z)", fn_body, re.IGNORECASE)
+    if len(sub_limits) < union_count + 1:
+        return [{"check": "union_all_pattern", "source": MIGRATIONS_DIR,
+                 "reason": (f"'{UNION_SEARCH_FN}' has {union_count} UNION ALL but only "
+                            f"{len(sub_limits)} subquery LIMIT(s) — LIMIT must be inside each "
+                            f"subquery before the UNION, not only on the outer query")}]
+    return []
 
-    # There should be at least union_count + 1 subqueries with LIMIT
-    if len(subquery_blocks) < union_count + 1:
-        issues.append({
-            "source":       MIGRATIONS_DIR,
-            "union_count":  union_count,
-            "limit_count":  len(subquery_blocks),
-            "reason": (
-                f"Function '{UNION_SEARCH_FN}' has {union_count} UNION ALL "
-                f"but only {len(subquery_blocks)} subquery LIMIT clause(s) — "
-                f"LIMIT must appear inside each subquery before the UNION, "
-                f"not only on the outer query (AI Engineer skill: "
-                f"'UNION ALL ORDER BY/LIMIT in subqueries')"
-            ),
-        })
+
+def check_hive_id_scoping(migrations, tables):
+    """
+    search_all_knowledge must filter by hive_id so each tenant's AI assistant
+    only searches their own knowledge base. Without hive_id scoping, Worker A's
+    logbook faults appear as context in Worker B's AI responses — cross-tenant
+    data leakage through the semantic search pipeline.
+    """
+    if not migrations:
+        return []
+    fn_m = re.search(
+        rf"CREATE OR REPLACE FUNCTION\s+{re.escape(UNION_SEARCH_FN)}[\s\S]+?(?=CREATE OR REPLACE FUNCTION|\$\$;)",
+        migrations, re.IGNORECASE
+    )
+    if not fn_m:
+        return []
+    fn_body = fn_m.group(0)
+    issues  = []
+    for table in tables:
+        # Find the subquery that references this table
+        table_block = re.search(
+            rf"FROM\s+{re.escape(table)}[\s\S]*?(?=UNION ALL|\Z)",
+            fn_body, re.IGNORECASE
+        )
+        if not table_block:
+            continue
+        block = table_block.group(0)
+        if "hive_id" not in block and "match_hive_id" not in block:
+            issues.append({"check": "hive_id_scoping", "table": table,
+                           "reason": (f"search_all_knowledge subquery for '{table}' has no "
+                                      f"hive_id filter — semantic search crosses tenant boundaries, "
+                                      f"exposing other hives' knowledge to this worker's AI assistant")})
     return issues
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+# ── Layer 4: Result quality ───────────────────────────────────────────────────
 
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+def check_similarity_threshold(migrations, semantic_search_path):
+    """
+    The search_all_knowledge function and the semantic-search edge function must
+    filter results by a minimum similarity score (e.g. similarity > 0.5).
+    Without a threshold, the AI receives results from completely unrelated records
+    whenever the knowledge base is small or the query is on an unfamiliar topic.
+    A worker asking 'what's our most common pump failure?' gets an answer from
+    their only logbook entry — a compressor fault with 0.2 similarity — presented
+    as if it were relevant context. The fix: add WHERE similarity > 0.5 to the
+    outer query, or filter in the edge function before injecting into the prompt.
+    Reported as WARN — functional but degrades AI answer quality on sparse data.
+    """
+    issues = []
+    # Check SQL function
+    if migrations:
+        fn_m = re.search(
+            rf"CREATE OR REPLACE FUNCTION\s+{re.escape(UNION_SEARCH_FN)}[\s\S]+?(?=CREATE OR REPLACE FUNCTION|\$\$;)",
+            migrations, re.IGNORECASE
+        )
+        if fn_m:
+            fn_body = fn_m.group(0)
+            has_threshold = bool(re.search(
+                r"similarity\s*[><=]+\s*0\.\d+|match_threshold|min_similarity|\bWHERE\b.*similarity",
+                fn_body, re.IGNORECASE
+            ))
+            if not has_threshold:
+                issues.append({"check": "similarity_threshold", "source": "migrations",
+                               "skip": True,
+                               "reason": (f"'{UNION_SEARCH_FN}' has no similarity threshold filter — "
+                                          f"low-relevance results (similarity < {MIN_SIMILARITY}) are "
+                                          f"injected into the AI prompt when the knowledge base is sparse; "
+                                          f"add WHERE similarity > {MIN_SIMILARITY} to the outer query")})
 
-print("\n" + "=" * 70)
-print("Vector Knowledge Base Schema Validator")
-print("=" * 70)
+    # Check edge function
+    ef_content = read_file(semantic_search_path)
+    if ef_content:
+        has_threshold = bool(re.search(
+            r"similarity\s*[><=]+\s*0\.\d+|match_threshold|min_similarity|filter.*similarity",
+            ef_content, re.IGNORECASE
+        ))
+        if not has_threshold and issues:
+            # Both SQL and edge function lack thresholds — strengthen the WARN message
+            issues[-1]["reason"] += (f"; the semantic-search edge function also has no "
+                                     f"threshold filter before injecting results into the prompt")
+    return issues
 
-migrations = read_all_migrations()
-print(f"\n  Checking {len(KNOWLEDGE_TABLES)} knowledge tables: "
-      f"{', '.join(KNOWLEDGE_TABLES)}")
-print(f"  Expected embedding model: {EMBEDDING_MODEL} ({EMBEDDING_DIM} dims)\n")
 
-fail_count = 0
-warn_count = 0
-report     = {}
+# ── Runner ─────────────────────────────────────────────────────────────────────
 
-checks = [
-    (
-        "[1] pgvector extension enabled in migrations",
-        check_vector_extension(migrations),
-        "FAIL",
-    ),
-    (
-        f"[2] All knowledge tables declare embedding vector({EMBEDDING_DIM})",
-        check_vector_dimension(migrations, KNOWLEDGE_TABLES, EMBEDDING_DIM),
-        "FAIL",
-    ),
-    (
-        "[3] IVFFlat indexes on all knowledge table embedding columns",
-        check_ivfflat_indexes(migrations, KNOWLEDGE_TABLES),
-        "FAIL",
-    ),
-    (
-        f"[4] {UNION_SEARCH_FN}() UNION ALL subqueries each have ORDER BY + LIMIT",
-        check_union_all_pattern(migrations),
-        "FAIL",
-    ),
+CHECK_NAMES = [
+    "vector_extension",
+    "vector_dimension",
+    "ivfflat_indexes",
+    "union_all_pattern",
+    "hive_id_scoping",
+    "similarity_threshold",
 ]
 
-for label, issues, severity in checks:
-    print(f"\n{label}\n")
-    if not issues:
-        print("  PASS")
+CHECK_LABELS = {
+    "vector_extension":    "L1  pgvector extension enabled in migrations",
+    "vector_dimension":    "L2  All knowledge tables declare embedding vector(384)",
+    "ivfflat_indexes":     "L2  IVFFlat indexes on all embedding columns",
+    "union_all_pattern":   "L3  search_all_knowledge UNION ALL subqueries each have LIMIT",
+    "hive_id_scoping":     "L3  search_all_knowledge filters by hive_id (tenant isolation)",
+    "similarity_threshold":"L4  Similarity threshold filters low-relevance results  [WARN]",
+}
+
+
+def main():
+    def bold(s): return f"\033[1m{s}\033[0m"
+    print(bold("\nVector Knowledge Base Schema Validator (4-layer)"))
+    print("=" * 55)
+
+    migrations = read_all_migrations()
+    print(f"  {len(KNOWLEDGE_TABLES)} knowledge tables: {', '.join(KNOWLEDGE_TABLES)}")
+    print(f"  Embedding model: {EMBEDDING_MODEL} ({EMBEDDING_DIM} dims)\n")
+
+    all_issues = []
+    all_issues += check_vector_extension(migrations)
+    all_issues += check_vector_dimension(migrations, KNOWLEDGE_TABLES, EMBEDDING_DIM)
+    all_issues += check_ivfflat_indexes(migrations, KNOWLEDGE_TABLES)
+    all_issues += check_union_all_pattern(migrations)
+    all_issues += check_hive_id_scoping(migrations, KNOWLEDGE_TABLES)
+    all_issues += check_similarity_threshold(migrations, SEMANTIC_SEARCH)
+
+    n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
+
+    total = len(CHECK_NAMES)
+    if n_fail == 0 and n_warn == 0:
+        print(f"\033[92m\n  All {total} checks passed.\033[0m")
+    elif n_fail == 0:
+        print(f"\033[93m\n  {n_pass} PASS  {n_warn} WARN  0 FAIL\033[0m")
     else:
-        for iss in issues:
-            print(f"  {severity}  {iss.get('table', iss.get('source', '?'))}")
-            print(f"        {iss['reason']}")
-        if severity == "FAIL":
-            fail_count += len(issues)
-        else:
-            warn_count += len(issues)
-    report[label] = issues
+        print(f"\033[91m\n  {n_pass} PASS  {n_warn} WARN  {n_fail} FAIL\033[0m")
 
-print(f"\n{'=' * 70}")
-print(f"Result: {fail_count} FAIL  {warn_count} WARN")
+    report = {
+        "validator":    "vector_schema",
+        "total_checks": total,
+        "passed":       n_pass,
+        "warned":       n_warn,
+        "failed":       n_fail,
+        "issues":       [i for i in all_issues if not i.get("skip")],
+        "warnings":     [i for i in all_issues if i.get("skip")],
+    }
+    with open("vector_schema_report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
 
-with open("vector_schema_report.json", "w") as f:
-    json.dump(report, f, indent=2)
-print("Saved vector_schema_report.json")
+    sys.exit(1 if n_fail > 0 else 0)
 
-if fail_count:
-    print("\nFIX REQUIRED.")
-    sys.exit(1)
-print("\nAll vector schema checks PASS.")
+
+if __name__ == "__main__":
+    main()

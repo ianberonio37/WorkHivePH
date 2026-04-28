@@ -4,57 +4,37 @@ Webhook and Integration Idempotency Validator — WorkHive Platform
 Idempotency means: running the same operation twice produces the same
 result as running it once. This is critical for enterprise integrations:
 SAP PM and IBM Maximo retry failed API calls. CMMS systems re-send
-webhooks on timeout. CSV import jobs sometimes run twice.
+webhooks on timeout. pg_cron occasionally fires duplicate runs.
 
-Without idempotency, each retry creates a duplicate:
-- A SAP work order gets created twice in WorkHive
-- A PM completion fires two logbook entries
-- A parts import adds 500 rows twice = 1000 rows
+  Layer 1 — Schema foundations
+    1.  external_sync UNIQUE constraint    — dedup anchor for all external system IDs
 
-The Integration Engineer skill says explicitly:
-"Idempotent imports — importing the same data twice should not create
-duplicates; use external IDs as deduplication keys."
+  Layer 2 — Webhook security
+    2.  Webhook HMAC verified before payload read — spoofing + replay prevention
 
-Four things checked:
+  Layer 3 — Upsert discipline
+    3.  Shared table upserts specify onConflict   — explicit conflict resolution
+    4.  Batch inserts in loops use upsert         — retry-safe bulk writes
 
-  1. external_sync table has required UNIQUE constraint
-     — The integration skill defines: CREATE TABLE external_sync with
-       UNIQUE(system_type, external_id, entity_type). This constraint
-       is the deduplication anchor for ALL external system IDs.
-       Without it, a retry creates a duplicate sync record.
-       This is a forward guard: PASS if table doesn't exist yet,
-       FAIL if it exists without the constraint.
-
-  2. Any webhook edge function verifies HMAC before payload access
-     — Inbound webhook handlers must verify the HMAC signature on
-       the X-WorkHive-Signature header BEFORE reading req.json().
-       An unverified webhook is a spoofing vector: any client can
-       send fake events. Also, HMAC verification IS the idempotency
-       gate — the same signed event cannot be replayed once processed.
-       Forward guard: PASS if no webhook handler exists, FAIL if it
-       exists without verification.
-
-  3. Upserts on shared tables specify onConflict within 5 lines
-     — .upsert() without onConflict relies on the primary key for
-       conflict resolution. For tables with UNIQUE constraints on
-       non-PK columns (assets, hive_members), a bare upsert may
-       CREATE instead of UPDATE when only the unique column matches.
-       Check that .upsert() calls on shared tables have onConflict
-       within the next 5 lines.
-
-  4. Batch import operations use upsert not raw insert on shared tables
-     — Any function processing a batch of items (forEach, map over
-       an array into a DB write) must use .upsert() not .insert() on
-       shared tables. A raw batch insert retried after failure creates
-       duplicates. upsert is idempotent by design.
+  Layer 4 — Internal idempotency
+    5.  PM completions have dedup protection      — no UNIQUE constraint = duplicate completions on retry
+    6.  Scheduled report writes use upsert        — pg_cron double-fire creates duplicate reports
 
 Usage:  python validate_idempotency.py
 Output: idempotency_report.json
 """
 import re, json, sys, os
 
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+from validator_utils import read_file, format_result
+
 MIGRATIONS_DIR = os.path.join("supabase", "migrations")
 FUNCTIONS_DIR  = os.path.join("supabase", "functions")
+SCHEDULED_AGENTS = os.path.join(FUNCTIONS_DIR, "scheduled-agents", "index.ts")
+PM_PAGE        = "pm-scheduler.html"
 
 LIVE_PAGES = [
     "logbook.html", "inventory.html", "pm-scheduler.html",
@@ -62,19 +42,10 @@ LIVE_PAGES = [
     "engineering-design.html", "assistant.html",
 ]
 
-# Shared multi-tenant tables — upserts on these must specify onConflict
 SHARED_TABLES = [
     "inventory_items", "assets", "hive_members",
     "pm_assets", "skill_profiles", "schedule_items",
 ]
-
-
-def read_file(path):
-    try:
-        with open(path, encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
-        return None
 
 
 def read_all_migrations():
@@ -89,270 +60,248 @@ def read_all_migrations():
     return content
 
 
-# ── Check 1: external_sync UNIQUE constraint ──────────────────────────────────
+# ── Layer 1: Schema foundations ───────────────────────────────────────────────
 
 def check_external_sync_schema(migrations):
-    """
-    The external_sync table (defined in the Integration Engineer skill) maps
-    WorkHive records to their external system equivalents (SAP AUFNR, Maximo
-    ASSETNUM, etc.). Without a UNIQUE(system_type, external_id, entity_type)
-    constraint, retried sync operations create duplicate mapping records.
-
-    Forward guard: PASS if table not yet built.
-    FAIL if table exists without the required uniqueness constraint.
-    """
-    issues = []
+    """Forward guard: if external_sync table exists, it must have
+    UNIQUE(system_type, external_id, entity_type) or retries create duplicates."""
     if not migrations:
         return []
-
-    has_table = bool(re.search(
-        r"CREATE TABLE.*\bexternal_sync\b", migrations, re.IGNORECASE
-    ))
-    if not has_table:
-        return []   # table not built yet — forward guard passes
-
-    # Table exists — verify the UNIQUE constraint
-    has_unique = bool(re.search(
+    if not re.search(r"CREATE TABLE.*\bexternal_sync\b", migrations, re.IGNORECASE):
+        return []
+    if not re.search(
         r"UNIQUE\s*\(\s*system_type\s*,\s*external_id\s*,\s*entity_type\s*\)"
         r"|UNIQUE\s*\(\s*external_id\s*,\s*system_type\s*,\s*entity_type\s*\)",
         migrations, re.IGNORECASE
-    ))
-    if not has_unique:
-        issues.append({
-            "source": MIGRATIONS_DIR,
-            "reason": (
-                "external_sync table exists but is missing "
-                "UNIQUE(system_type, external_id, entity_type) — "
-                "retried sync operations will create duplicate mapping records "
-                "instead of updating existing ones"
-            ),
-        })
-    return issues
+    ):
+        return [{"check": "external_sync_schema", "source": MIGRATIONS_DIR,
+                 "reason": ("external_sync table exists but is missing "
+                            "UNIQUE(system_type, external_id, entity_type) — "
+                            "retried sync operations create duplicate mapping records")}]
+    return []
 
 
-# ── Check 2: Webhook edge functions verify HMAC before payload access ──────────
+# ── Layer 2: Webhook security ─────────────────────────────────────────────────
 
 def check_webhook_hmac():
-    """
-    Any edge function that receives inbound webhooks must verify the
-    HMAC signature before calling req.json(). An unverified webhook
-    is a spoofing vector — any client can send fake events.
-
-    The Integration Engineer skill defines the HMAC pattern:
-      const signature = hmacSign(`${timestamp}.${JSON.stringify(payload)}`, secret)
-      header: 'X-WorkHive-Signature'
-
-    An inbound handler must verify this signature before processing.
-    Forward guard: PASS if no webhook handler exists.
-    """
+    """Webhook handlers must verify HMAC before reading req.json() — prevents
+    spoofing and replay attacks."""
     issues = []
     if not os.path.isdir(FUNCTIONS_DIR):
         return []
-
     for func_name in os.listdir(FUNCTIONS_DIR):
         func_path = os.path.join(FUNCTIONS_DIR, func_name, "index.ts")
         content = read_file(func_path)
         if content is None:
             continue
-
-        # Is this a webhook receiver? (receives inbound events from external systems)
-        is_webhook_receiver = bool(re.search(
+        is_receiver = bool(re.search(
             r"X-WorkHive-Signature|webhook.*signature|hmac.*verify|verify.*hmac"
             r"|X-Hub-Signature|X-Shopify-Webhook",
             content, re.IGNORECASE
         ))
-        if not is_webhook_receiver:
+        if not is_receiver:
             continue
-
-        # Verify signature check appears BEFORE req.json() call
-        hmac_pos = re.search(
-            r"hmac|verifySignature|verify.*sign",
-            content, re.IGNORECASE
-        )
-        json_pos = re.search(r"req\.json\(\)", content)
-
+        hmac_pos = re.search(r"hmac|verifySignature|verify.*sign", content, re.IGNORECASE)
+        json_pos  = re.search(r"req\.json\(\)", content)
         if hmac_pos and json_pos and hmac_pos.start() > json_pos.start():
-            issues.append({
-                "func":   func_name,
-                "reason": (
-                    f"supabase/functions/{func_name}/index.ts — webhook handler "
-                    f"reads req.json() BEFORE verifying the HMAC signature — "
-                    f"attacker can send spoofed events that bypass signature check"
-                ),
-            })
+            issues.append({"check": "webhook_hmac", "func": func_name,
+                           "reason": (f"{func_name}/index.ts reads req.json() BEFORE "
+                                      f"verifying HMAC — spoofed events bypass the signature check")})
         elif json_pos and not hmac_pos:
-            issues.append({
-                "func":   func_name,
-                "reason": (
-                    f"supabase/functions/{func_name}/index.ts — "
-                    f"webhook handler has no HMAC verification — "
-                    f"any client can send fake events without a valid signature"
-                ),
-            })
+            issues.append({"check": "webhook_hmac", "func": func_name,
+                           "reason": (f"{func_name}/index.ts has no HMAC verification — "
+                                      f"any client can send fake events")})
     return issues
 
 
-# ── Check 3: Shared table upserts specify onConflict within 5 lines ───────────
+# ── Layer 3: Upsert discipline ────────────────────────────────────────────────
 
 def check_upsert_conflict_spec(pages, tables):
-    """
-    .upsert() without onConflict uses the primary key for conflict resolution.
-    Tables with UNIQUE constraints on non-PK columns (like assets.asset_id,
-    hive_members.(hive_id,worker_name)) may CREATE a new row instead of
-    merging when the unique column matches but the PK differs.
-
-    Bare .upsert(data) on shared tables without onConflict on the same
-    or next 5 lines is flagged as WARN — may behave correctly today but
-    breaks silently when the table gains new unique constraints.
-    """
+    """.upsert() on shared tables must specify onConflict — bare upsert uses PK
+    and may create instead of merge when only a unique column matches."""
     issues = []
     for page in pages:
         content = read_file(page)
         if content is None:
             continue
         lines = content.splitlines()
-
         for i, line in enumerate(lines):
-            # Find .upsert( on a shared table
-            table_match = None
-            for table in tables:
-                if (f"from('{table}')" in line or f'from("{table}")' in line) \
-                        and ".upsert(" in line:
-                    table_match = table
-                    break
+            table_match = next(
+                (t for t in tables
+                 if (f"from('{t}')" in line or f'from("{t}")' in line) and ".upsert(" in line),
+                None
+            )
             if not table_match:
                 continue
-
-            # Check if onConflict appears within the next 8 lines
-            # (multi-line upsert calls can span up to 6-7 lines)
             window = "\n".join(lines[i:min(len(lines), i + 8)])
             if "onConflict" not in window:
-                issues.append({
-                    "page":  page,
-                    "table": table_match,
-                    "line":  i + 1,
-                    "reason": (
-                        f"{page}:{i + 1} — .upsert() on '{table_match}' with no "
-                        f"onConflict in the next 5 lines — relies on primary key "
-                        f"for deduplication; add onConflict: 'unique_column' to "
-                        f"make retry behavior explicit and predictable"
-                    ),
-                })
+                issues.append({"check": "upsert_conflict_spec", "page": page,
+                               "skip": True,
+                               "reason": (f"{page}:{i + 1} .upsert() on '{table_match}' with no "
+                                          f"onConflict — relies on primary key for deduplication; "
+                                          f"add onConflict: 'unique_column' to make retry behavior explicit")})
     return issues
 
 
-# ── Check 4: Batch array inserts on shared tables use upsert not insert ───────
-
 def check_batch_idempotency(pages, tables):
-    """
-    When importing or syncing an array of items into a shared table,
-    .insert() creates a new row on every call — not idempotent.
-    .upsert() merges on conflict — safe to run multiple times.
-
-    Pattern to detect: db.from(SHARED_TABLE).insert( appears after
-    a forEach/map/for loop that iterates an array of items.
-    This indicates a batch insert that will create duplicates on retry.
-
-    The integration-engineer skill explicitly requires:
-    "Upsert — safe to run multiple times" for all import operations.
-    """
+    """Batch inserts inside loops on shared tables should use upsert — raw insert
+    in a loop creates duplicates on retry."""
     issues = []
     for page in pages:
         content = read_file(page)
         if content is None:
             continue
         lines = content.splitlines()
-
         for i, line in enumerate(lines):
-            # Is this a .insert( on a shared table?
-            table_match = None
-            for table in tables:
-                if (f"from('{table}')" in line or f'from("{table}")' in line) \
-                        and ".insert(" in line and ".select(" not in line:
-                    table_match = table
-                    break
+            table_match = next(
+                (t for t in tables
+                 if (f"from('{t}')" in line or f'from("{t}")' in line)
+                 and ".insert(" in line and ".select(" not in line),
+                None
+            )
             if not table_match:
                 continue
-
-            # Look back 8 lines for a loop pattern
             window_back = "\n".join(lines[max(0, i - 8):i])
-            in_loop = bool(re.search(
-                r"\bforEach\s*\(|\bfor\s*\(|\bfor\s+const\b|\bfor\s+let\b",
-                window_back
-            ))
-            if in_loop:
-                issues.append({
-                    "page":  page,
-                    "table": table_match,
-                    "line":  i + 1,
-                    "reason": (
-                        f"{page}:{i + 1} — .insert() on '{table_match}' inside "
-                        f"a loop — batch inserts are not idempotent. Use .upsert() "
-                        f"with onConflict so retried imports merge instead of duplicating"
-                    ),
-                })
+            if re.search(r"\bforEach\s*\(|\bfor\s*\(|\bfor\s+const\b|\bfor\s+let\b", window_back):
+                issues.append({"check": "batch_idempotency", "page": page,
+                               "skip": True,
+                               "reason": (f"{page}:{i + 1} .insert() on '{table_match}' inside a loop — "
+                                          f"not idempotent; use .upsert() with onConflict for retry safety")})
     return issues
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+# ── Layer 4: Internal idempotency ─────────────────────────────────────────────
 
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+def check_pm_completion_dedup(pm_page, migrations):
+    """
+    pm-scheduler.html submitCompletion() uses .insert() on pm_completions with
+    no UNIQUE constraint in the migration files. If an enterprise system (SAP PM,
+    Maximo) sends the completion event twice (network timeout, retry), or a
+    worker taps Complete twice before the first request returns, two duplicate
+    PM completion records are created.
 
-print("\n" + "=" * 70)
-print("Webhook and Integration Idempotency Validator")
-print("=" * 70)
+    The fix is either:
+    1. Add a UNIQUE(scope_item_id, worker_name, DATE(completed_at)) constraint
+       to pm_completions so retries resolve to an upsert
+    2. Change submitCompletion() to use .upsert() with onConflict
 
-migrations = read_all_migrations()
-fail_count = 0
-warn_count = 0
-report     = {}
+    Forward guard: this is WARN because no external integration exists yet.
+    When SAP integration is built, this must become a FAIL.
+    """
+    issues = []
+    # Check for UNIQUE constraint on pm_completions
+    has_unique = bool(re.search(
+        r"UNIQUE.*pm_completions|pm_completions.*UNIQUE"
+        r"|unique.*scope_item_id.*worker_name|unique.*worker_name.*scope_item",
+        migrations, re.IGNORECASE
+    ))
+    if has_unique:
+        return []   # constraint exists — PASS
 
-checks = [
-    (
-        "[1] external_sync table has UNIQUE(system_type, external_id, entity_type)",
-        check_external_sync_schema(migrations),
-        "FAIL",
-    ),
-    (
-        "[2] Webhook edge functions verify HMAC before reading payload",
-        check_webhook_hmac(),
-        "FAIL",
-    ),
-    (
-        "[3] Shared table upserts specify onConflict (within 5 lines)",
-        check_upsert_conflict_spec(LIVE_PAGES, SHARED_TABLES),
-        "WARN",
-    ),
-    (
-        "[4] Batch array inserts on shared tables use upsert not insert",
-        check_batch_idempotency(LIVE_PAGES, SHARED_TABLES),
-        "WARN",
-    ),
+    # Check if pm-scheduler.html uses upsert on pm_completions
+    content = read_file(pm_page)
+    if content is None:
+        return []
+    has_upsert = bool(re.search(r"pm_completions.*upsert|upsert.*pm_completions", content))
+    if has_upsert:
+        return []
+
+    # Neither constraint nor upsert — real gap
+    issues.append({"check": "pm_completion_dedup", "page": pm_page, "skip": True,
+                   "reason": (f"{pm_page} submitCompletion() uses .insert() on pm_completions "
+                              f"with no UNIQUE constraint in migrations — enterprise system retry "
+                              f"(SAP, Maximo) or network timeout creates a duplicate PM completion; "
+                              f"add UNIQUE(scope_item_id, worker_name) or switch to .upsert()")})
+    return issues
+
+
+def check_scheduled_report_idempotency(func_path):
+    """
+    scheduled-agents writes ai_reports with .insert(). If pg_cron fires twice
+    (edge case documented in Supabase pg_cron known issues), a duplicate weekly
+    report is created for the same hive and report_type. Workers see two copies
+    of the same digest report with no indication either is a duplicate.
+
+    The fix: use .upsert() with onConflict on (hive_id, report_type) and a
+    date-based period column, or add a UNIQUE constraint on ai_reports.
+    """
+    content = read_file(func_path)
+    if content is None:
+        return []
+    # Check if ai_reports uses insert
+    has_insert = bool(re.search(r'from\(["\']ai_reports["\'].*\.insert\(|\.insert.*ai_reports', content))
+    if not has_insert:
+        return []
+    # Check if upsert is used instead
+    has_upsert = bool(re.search(r'from\(["\']ai_reports["\'].*\.upsert\(|\.upsert.*ai_reports', content))
+    if has_upsert:
+        return []
+    return [{"check": "scheduled_report_idempotency", "source": func_path, "skip": True,
+             "reason": (f"{func_path} writes ai_reports with .insert() — if pg_cron fires "
+                        f"twice (known edge case), duplicate weekly reports are created; "
+                        f"use .upsert() with onConflict: 'hive_id,report_type' to dedup")}]
+
+
+# ── Runner ─────────────────────────────────────────────────────────────────────
+
+CHECK_NAMES = [
+    "external_sync_schema",
+    "webhook_hmac",
+    "upsert_conflict_spec",
+    "batch_idempotency",
+    "pm_completion_dedup",
+    "scheduled_report_idempotency",
 ]
 
-for label, issues, severity in checks:
-    print(f"\n{label}\n")
-    if not issues:
-        print("  PASS")
+CHECK_LABELS = {
+    "external_sync_schema":          "L1  external_sync table has UNIQUE(system_type, external_id, entity_type)",
+    "webhook_hmac":                  "L2  Webhook handlers verify HMAC before reading payload",
+    "upsert_conflict_spec":          "L3  Shared table upserts specify onConflict  [WARN]",
+    "batch_idempotency":             "L3  Batch loop inserts on shared tables use upsert  [WARN]",
+    "pm_completion_dedup":           "L4  pm_completions has dedup protection against double-submit  [WARN]",
+    "scheduled_report_idempotency":  "L4  Scheduled ai_reports writes use upsert (pg_cron double-fire)  [WARN]",
+}
+
+
+def main():
+    def bold(s): return f"\033[1m{s}\033[0m"
+    print(bold("\nWebhook and Integration Idempotency Validator (4-layer)"))
+    print("=" * 55)
+
+    migrations = read_all_migrations()
+
+    all_issues = []
+    all_issues += check_external_sync_schema(migrations)
+    all_issues += check_webhook_hmac()
+    all_issues += check_upsert_conflict_spec(LIVE_PAGES, SHARED_TABLES)
+    all_issues += check_batch_idempotency(LIVE_PAGES, SHARED_TABLES)
+    all_issues += check_pm_completion_dedup(PM_PAGE, migrations)
+    all_issues += check_scheduled_report_idempotency(SCHEDULED_AGENTS)
+
+    n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
+
+    total = len(CHECK_NAMES)
+    if n_fail == 0 and n_warn == 0:
+        print(f"\033[92m\n  All {total} checks passed.\033[0m")
+    elif n_fail == 0:
+        print(f"\033[93m\n  {n_pass} PASS  {n_warn} WARN  0 FAIL\033[0m")
     else:
-        for iss in issues:
-            print(f"  {severity}  {iss.get('page', iss.get('func', iss.get('source', '?')))}")
-            print(f"        {iss['reason']}")
-        if severity == "FAIL":
-            fail_count += len(issues)
-        else:
-            warn_count += len(issues)
-    report[label] = issues
+        print(f"\033[91m\n  {n_pass} PASS  {n_warn} WARN  {n_fail} FAIL\033[0m")
 
-print(f"\n{'=' * 70}")
-print(f"Result: {fail_count} FAIL  {warn_count} WARN")
+    report = {
+        "validator":    "idempotency",
+        "total_checks": total,
+        "passed":       n_pass,
+        "warned":       n_warn,
+        "failed":       n_fail,
+        "issues":       [i for i in all_issues if not i.get("skip")],
+        "warnings":     [i for i in all_issues if i.get("skip")],
+    }
+    with open("idempotency_report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
 
-with open("idempotency_report.json", "w") as f:
-    json.dump(report, f, indent=2)
-print("Saved idempotency_report.json")
+    sys.exit(1 if n_fail > 0 else 0)
 
-if fail_count:
-    print("\nFIX REQUIRED.")
-    sys.exit(1)
-print("\nAll idempotency checks PASS.")
+
+if __name__ == "__main__":
+    main()

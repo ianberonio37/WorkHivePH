@@ -131,6 +131,8 @@ JS_NOISE = {
     "ok",            # pass/fail per candidate size
     "recommended",   # recommended flag per candidate
     "hf_per_m",      # head loss per meter per candidate
+    "max_dfu",       # size_comparison items in Drainage Pipe Sizing (per candidate DFU limit)
+    "q_ls",          # size_comparison items in Drainage Pipe Sizing (flow capacity L/s per candidate)
 }
 
 

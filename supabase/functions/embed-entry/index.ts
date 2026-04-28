@@ -14,6 +14,7 @@ async function generateEmbedding(text: string): Promise<number[]> {
 
   const res = await fetch("https://api.groq.com/openai/v1/embeddings", {
     method: "POST",
+    signal: AbortSignal.timeout(30000),
     headers: {
       "Authorization": `Bearer ${GROQ_KEY}`,
       "Content-Type": "application/json",
@@ -119,6 +120,11 @@ serve(async (req) => {
         entry.category      && `Category: ${entry.category}`,
       ].filter(Boolean).join(". ");
 
+      // Content quality guard: skip near-empty entries that would create useless embeddings
+      if (text.trim().length < 50) {
+        console.warn('embed-entry: skipping near-empty fault entry (' + text.length + ' chars) — insufficient context for semantic retrieval');
+        return new Response(JSON.stringify({ skipped: true, reason: 'insufficient_content', text_length: text.length }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
       embedding = await generateEmbedding(text);
       table = "fault_knowledge";
       row = {

@@ -46,6 +46,7 @@ async function callGroq(prompt: string): Promise<string> {
   for (const model of GROQ_FALLBACK_CHAIN) {
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
+      signal: AbortSignal.timeout(60000),
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${GROQ_KEY}`,

@@ -5,52 +5,33 @@ WorkHive's AI features depend entirely on Groq for LLM calls and
 embeddings. Groq's free tier imposes TPM (tokens per minute) limits
 per model — a single model call that hits a rate limit returns nothing.
 
-The platform uses multi-model fallback chains to stay resilient:
-  1. Try model 1 (highest TPM)
-  2. On 429 (rate limit) or 413 (prompt too large): skip to model 2
-  3. Continue until a model responds or all are exhausted
+  Layer 1 — Chain resilience
+    1.  Multi-model fallback chain     — every LLM function needs >= 2 models
 
-This validator ensures every LLM-calling edge function implements
-this pattern correctly. A missing max_tokens or unhandled 413 is an
-invisible failure — the caller gets no response and no error message
-that points to the cause.
+  Layer 2 — Token budget safety
+    2.  max_tokens on every call       — uncapped calls exhaust TPM, causing 429s
 
-From the AI Engineer skill (Groq reliability rules).
+  Layer 3 — Error handling completeness
+    3.  413 and 429 both handled       — large prompts fall back, not permanently fail
+    4.  GROQ_API_KEY validated upfront — missing key gives cryptic 401 deep in retry loop
 
-Four things checked:
-
-  1. Every LLM-calling function has a multi-model fallback chain
-     — A GROQ_CHAIN / GROQ_FALLBACK_CHAIN / GROQ_NARRATIVE_CHAIN constant
-       with at least 2 models must exist. A single-model function has zero
-       resilience — one rate limit = zero AI response for that request.
-
-  2. max_tokens set on every Groq chat completion call
-     — Without max_tokens, the model generates until it hits its own
-       context window limit, consuming all remaining tokens and leaving
-       nothing for subsequent requests in the same minute. This is the
-       primary cause of unexpected 429s at low traffic.
-
-  3. Both 413 and 429 handled in the fallback loop
-     — 429 = rate limit (too many requests per minute for this model)
-     — 413 = payload too large (prompt exceeds this model's context window)
-       Both must trigger a skip to the next model. Handling only 429 means
-       a large prompt permanently fails instead of falling back to a model
-       with a larger context window.
-
-  4. GROQ_API_KEY validated before making any calls
-     — If the key is missing (not set in Supabase Edge Function secrets),
-       all Groq calls fail with an auth error. Functions must validate the
-       key at the start of the callGroq helper and fail fast with a clear
-       message — not deep in the retry loop with a cryptic 401.
+  Layer 4 — Call hygiene
+    5.  No deprecated model IDs        — stale model names return 404 silently
+    6.  AbortSignal timeout on calls   — hanging Groq fetch blocks the edge function forever
 
 Usage:  python validate_groq_fallback.py
 Output: groq_fallback_report.json
 """
 import re, json, sys, os
 
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+from validator_utils import read_file, format_result
+
 FUNCTIONS_DIR = os.path.join("supabase", "functions")
 
-# Edge functions that make Groq LLM (chat completion) calls — need fallback chains
 LLM_FUNCTIONS = [
     "ai-orchestrator",
     "engineering-calc-agent",
@@ -58,11 +39,21 @@ LLM_FUNCTIONS = [
     "scheduled-agents",
 ]
 
-# Edge functions that call ANY Groq API (LLM + embeddings) — need key validation
 ALL_GROQ_FUNCTIONS = LLM_FUNCTIONS + ["semantic-search", "embed-entry"]
 
-# Minimum number of models in a fallback chain
 MIN_CHAIN_MODELS = 2
+
+# Model IDs confirmed deprecated by Groq — using these returns 404
+DEPRECATED_MODELS = {
+    "llama2-70b-4096",
+    "llama3-70b-8192",
+    "llama3-8b-8192",
+    "llama3-groq-70b-8192-tool-use-preview",
+    "llama3-groq-8b-8192-tool-use-preview",
+    "mixtral-8x7b-32768",
+    "gemma-7b-it",
+    "llama-3.1-70b-versatile",   # superseded by llama-3.3-70b-versatile
+}
 
 
 def read_function(name):
@@ -74,253 +65,213 @@ def read_function(name):
         return None, path
 
 
-# ── Check 1: Every LLM function has a multi-model fallback chain ──────────────
+# ── Layer 1: Chain resilience ─────────────────────────────────────────────────
 
 def check_fallback_chains(func_names):
-    """
-    Every function that makes Groq chat completion calls must declare a
-    fallback chain constant (any name containing GROQ and CHAIN or FALLBACK)
-    with at least MIN_CHAIN_MODELS entries.
-
-    A single-model function has no resilience: one rate limit hit means
-    the entire feature fails for that request with no explanation to the user.
-    """
+    """Every LLM-calling function must declare a fallback chain constant with
+    >= 2 models. A single model has zero rate-limit resilience."""
     issues = []
     for name in func_names:
         content, path = read_function(name)
         if content is None:
-            issues.append({
-                "func":   name,
-                "reason": f"{path} not found — cannot verify fallback chain",
-            })
+            issues.append({"check": "fallback_chains", "func": name,
+                           "reason": f"{path} not found — cannot verify fallback chain"})
             continue
-
-        # Find the chain constant declaration
         chain_m = re.search(
             r"(?:GROQ_CHAIN|GROQ_FALLBACK_CHAIN|GROQ_NARRATIVE_CHAIN)\s*=\s*\[([\s\S]+?)\]",
             content
         )
         if not chain_m:
-            issues.append({
-                "func":   name,
-                "reason": (
-                    f"{name}/index.ts has no Groq fallback chain constant "
-                    f"(GROQ_CHAIN / GROQ_FALLBACK_CHAIN / GROQ_NARRATIVE_CHAIN) — "
-                    f"a single rate limit hit will return no AI response"
-                ),
-            })
+            issues.append({"check": "fallback_chains", "func": name,
+                           "reason": (f"{name}/index.ts has no Groq fallback chain constant — "
+                                      f"a single rate limit hit will return no AI response")})
             continue
-
-        # Count the number of model entries
         models = re.findall(r'["\']([^"\']+)["\']', chain_m.group(1))
         if len(models) < MIN_CHAIN_MODELS:
-            issues.append({
-                "func":   name,
-                "models": models,
-                "reason": (
-                    f"{name}/index.ts fallback chain has only {len(models)} model(s) "
-                    f"(minimum {MIN_CHAIN_MODELS}) — not enough redundancy for "
-                    f"rate limit resilience"
-                ),
-            })
+            issues.append({"check": "fallback_chains", "func": name,
+                           "reason": (f"{name}/index.ts chain has only {len(models)} model(s) "
+                                      f"(minimum {MIN_CHAIN_MODELS}) — insufficient rate limit resilience")})
     return issues
 
 
-# ── Check 2: max_tokens set on every Groq chat completion call ────────────────
+# ── Layer 2: Token budget safety ──────────────────────────────────────────────
 
 def check_max_tokens(func_names):
-    """
-    max_tokens must be set on every Groq chat/completions API call body.
-    Without it, the model generates up to its context limit, consuming
-    the entire TPM budget in one call and causing 429s for subsequent requests.
-
-    The AI Engineer skill specifies per-function limits:
-    - Narratives (short): 512 tokens
-    - Reports/analysis: 1024 tokens
-    - BOM/SOW (long structured output): 8000 tokens
-    """
+    """max_tokens must be set on every Groq chat completion call body — uncapped
+    generation consumes the entire TPM budget, causing 429s for subsequent requests."""
     issues = []
     for name in func_names:
         content, path = read_function(name)
         if content is None:
             continue
-
-        # Find all chat completion API calls
-        # A Groq chat call contains the messages array + model + temperature
-        has_chat_call = bool(re.search(
-            r"openai/v1/chat/completions",
-            content
-        ))
-        if not has_chat_call:
+        if not re.search(r"openai/v1/chat/completions", content):
             continue
-
-        # Every JSON body sent to the chat completions API should include max_tokens
-        has_max_tokens = bool(re.search(r"\bmax_tokens\s*:", content))
-        if not has_max_tokens:
-            issues.append({
-                "func":   name,
-                "reason": (
-                    f"{name}/index.ts makes Groq chat completion calls but "
-                    f"does not set max_tokens — uncapped generation consumes "
-                    f"the entire TPM budget, causing 429s for subsequent requests"
-                ),
-            })
+        if not re.search(r"\bmax_tokens\s*:", content):
+            issues.append({"check": "max_tokens", "func": name,
+                           "reason": (f"{name}/index.ts makes Groq chat calls but does not set "
+                                      f"max_tokens — uncapped generation exhausts the TPM budget")})
     return issues
 
 
-# ── Check 3: Both 413 and 429 handled in the fallback loop ───────────────────
+# ── Layer 3: Error handling completeness ─────────────────────────────────────
 
 def check_error_handling(func_names):
-    """
-    The fallback loop must handle both 429 AND 413:
-    - 429 (Too Many Requests): rate limit hit — try next model
-    - 413 (Request Entity Too Large): prompt too large for this model's context
-      window — try next model with a larger window
-
-    Handling only 429 is a common mistake. A large prompt (e.g., a complex
-    BOM/SOW with 40+ items) that exceeds llama-3.1-8b's 8K context will get
-    a 413 and permanently fail instead of falling back to llama-3.3-70b (32K).
-    """
+    """Both 429 (rate limit) and 413 (payload too large) must trigger fallback.
+    Handling only 429 means large prompts permanently fail instead of falling back."""
     issues = []
     for name in func_names:
         content, path = read_function(name)
         if content is None:
             continue
-
-        has_chat_call = bool(re.search(r"openai/v1/chat/completions", content))
-        if not has_chat_call:
+        if not re.search(r"openai/v1/chat/completions", content):
             continue
-
-        has_429 = bool(re.search(r"429", content))
-        has_413 = bool(re.search(r"413", content))
-
-        if not has_429:
-            issues.append({
-                "func":   name,
-                "reason": (
-                    f"{name}/index.ts does not handle HTTP 429 (rate limit) "
-                    f"in the Groq fallback loop — rate limit hits will not "
-                    f"trigger a fallback to the next model"
-                ),
-            })
-        if not has_413:
-            issues.append({
-                "func":   name,
-                "reason": (
-                    f"{name}/index.ts does not handle HTTP 413 (payload too large) "
-                    f"in the Groq fallback loop — large prompts will permanently "
-                    f"fail instead of falling back to a model with a larger context window"
-                ),
-            })
+        if not re.search(r"429", content):
+            issues.append({"check": "error_handling", "func": name,
+                           "reason": (f"{name}/index.ts does not handle HTTP 429 — "
+                                      f"rate limit hits will not trigger model fallback")})
+        if not re.search(r"413", content):
+            issues.append({"check": "error_handling", "func": name,
+                           "reason": (f"{name}/index.ts does not handle HTTP 413 — "
+                                      f"large prompts permanently fail instead of falling back")})
     return issues
 
-
-# ── Check 4: GROQ_API_KEY validated before making calls ──────────────────────
 
 def check_api_key_validation(func_names):
-    """
-    Every function that calls the Groq API must validate GROQ_API_KEY
-    at the start of the callGroq helper. If the key is missing (not set
-    in Supabase Edge Function secrets), all calls fail with a cryptic 401.
-    An explicit key check produces a clear error message immediately.
+    """GROQ_API_KEY must be validated before making any calls — a missing secret
+    produces a cryptic 401 deep in the retry loop."""
+    issues = []
+    for name in func_names:
+        content, path = read_function(name)
+        if content is None:
+            issues.append({"check": "api_key_validation", "func": name,
+                           "reason": f"{path} not found"})
+            continue
+        if not re.search(r"api\.groq\.com", content):
+            continue
+        if not re.search(r"if\s*\(\s*!GROQ(?:_API)?_KEY\s*\)", content):
+            issues.append({"check": "api_key_validation", "func": name,
+                           "reason": (f"{name}/index.ts calls Groq but does not validate "
+                                      f"GROQ_API_KEY upfront — missing secret gives cryptic 401")})
+    return issues
 
-    Acceptable patterns:
-    - if (!GROQ_KEY) throw new Error("GROQ_API_KEY not set")
-    - if (!GROQ_API_KEY) { ... use fallback ... }
-    Both throw and graceful-fallback are acceptable.
+
+# ── Layer 4: Call hygiene ─────────────────────────────────────────────────────
+
+def check_deprecated_models(func_names):
+    """
+    Chain arrays must not contain model IDs deprecated by Groq. Deprecated models
+    return a 404 or specific error — the fallback loop catches it and moves on,
+    but a deprecated primary model wastes the first attempt on every call and
+    causes visible latency. As Groq retires older models, stale IDs become
+    silent performance drains.
     """
     issues = []
     for name in func_names:
         content, path = read_function(name)
         if content is None:
-            issues.append({
-                "func":   name,
-                "reason": f"{path} not found",
-            })
             continue
-
-        has_groq_call = bool(re.search(r"api\.groq\.com", content))
-        if not has_groq_call:
-            continue   # function doesn't call Groq, skip
-
-        # Check for key validation pattern
-        has_key_check = bool(re.search(
-            r"if\s*\(\s*!GROQ(?:_API)?_KEY\s*\)",
+        chain_m = re.search(
+            r"(?:GROQ_CHAIN|GROQ_FALLBACK_CHAIN|GROQ_NARRATIVE_CHAIN)\s*=\s*\[([\s\S]+?)\]",
             content
-        ))
-        if not has_key_check:
-            issues.append({
-                "func":   name,
-                "reason": (
-                    f"{name}/index.ts calls Groq but does not validate "
-                    f"GROQ_API_KEY before making requests — a missing secret "
-                    f"produces a cryptic 401 instead of a clear error message"
-                ),
-            })
+        )
+        if not chain_m:
+            continue
+        models = re.findall(r'["\']([^"\']+)["\']', chain_m.group(1))
+        for model in models:
+            if model in DEPRECATED_MODELS:
+                issues.append({"check": "deprecated_models", "func": name,
+                               "reason": (f"{name}/index.ts chain contains deprecated model "
+                                          f"'{model}' — Groq has retired this ID; "
+                                          f"replace with a current model (e.g. llama-3.3-70b-versatile)")})
     return issues
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+def check_groq_timeout(func_names):
+    """
+    Every fetch() to the Groq API must include an AbortSignal timeout.
+    Without it, a slow or unresponsive Groq endpoint hangs the edge function
+    until Supabase's 150-second wall clock limit, blocking the worker's entire
+    request. engineering-calc-agent already uses AbortSignal.timeout(60000) —
+    the other LLM functions are missing this guard.
 
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    Correct pattern: signal: AbortSignal.timeout(60000)
+    """
+    issues = []
+    for name in func_names:
+        content, path = read_function(name)
+        if content is None:
+            continue
+        if not re.search(r"api\.groq\.com|openai/v1/chat/completions|openai/v1/embeddings", content):
+            continue
+        has_timeout = bool(re.search(r"AbortSignal\.timeout|AbortController", content))
+        if not has_timeout:
+            issues.append({"check": "groq_timeout", "func": name,
+                           "reason": (f"{name}/index.ts makes Groq API calls but has no "
+                                      f"AbortSignal.timeout() — a slow Groq response hangs "
+                                      f"the edge function until Supabase's 150s wall clock limit; "
+                                      f"add signal: AbortSignal.timeout(60000) to every Groq fetch()")})
+    return issues
 
-print("\n" + "=" * 70)
-print("Groq Fallback Chain Validator")
-print("=" * 70)
-print(f"\n  Checking {len(LLM_FUNCTIONS)} LLM-calling functions: "
-      f"{', '.join(LLM_FUNCTIONS)}")
-print(f"  API key validation includes {len(ALL_GROQ_FUNCTIONS)} Groq-calling functions\n")
 
-fail_count = 0
-warn_count = 0
-report     = {}
+# ── Runner ─────────────────────────────────────────────────────────────────────
 
-checks = [
-    (
-        f"[1] Every LLM function has a multi-model fallback chain (>= {MIN_CHAIN_MODELS} models)",
-        check_fallback_chains(LLM_FUNCTIONS),
-        "FAIL",
-    ),
-    (
-        "[2] max_tokens set on every Groq chat completion call",
-        check_max_tokens(LLM_FUNCTIONS),
-        "FAIL",
-    ),
-    (
-        "[3] Both 413 and 429 handled in every fallback loop",
-        check_error_handling(LLM_FUNCTIONS),
-        "FAIL",
-    ),
-    (
-        "[4] GROQ_API_KEY validated before use in all Groq-calling functions",
-        check_api_key_validation(ALL_GROQ_FUNCTIONS),
-        "FAIL",
-    ),
+CHECK_NAMES = [
+    "fallback_chains",
+    "max_tokens",
+    "error_handling",
+    "api_key_validation",
+    "deprecated_models",
+    "groq_timeout",
 ]
 
-for label, issues, severity in checks:
-    print(f"\n{label}\n")
-    if not issues:
-        print("  PASS")
+CHECK_LABELS = {
+    "fallback_chains":    "L1  Every LLM function has a multi-model fallback chain",
+    "max_tokens":         "L2  max_tokens set on every Groq chat completion call",
+    "error_handling":     "L3  Both 413 and 429 handled in every fallback loop",
+    "api_key_validation": "L3  GROQ_API_KEY validated before use in all Groq functions",
+    "deprecated_models":  "L4  No deprecated Groq model IDs in chain constants",
+    "groq_timeout":       "L4  AbortSignal.timeout() on all Groq fetch() calls",
+}
+
+
+def main():
+    def bold(s): return f"\033[1m{s}\033[0m"
+    print(bold("\nGroq Fallback Chain Validator (4-layer)"))
+    print("=" * 55)
+    print(f"  {len(LLM_FUNCTIONS)} LLM functions: {', '.join(LLM_FUNCTIONS)}\n")
+
+    all_issues = []
+    all_issues += check_fallback_chains(LLM_FUNCTIONS)
+    all_issues += check_max_tokens(LLM_FUNCTIONS)
+    all_issues += check_error_handling(LLM_FUNCTIONS)
+    all_issues += check_api_key_validation(ALL_GROQ_FUNCTIONS)
+    all_issues += check_deprecated_models(LLM_FUNCTIONS)
+    all_issues += check_groq_timeout(ALL_GROQ_FUNCTIONS)
+
+    n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
+
+    total = len(CHECK_NAMES)
+    if n_fail == 0 and n_warn == 0:
+        print(f"\033[92m\n  All {total} checks passed.\033[0m")
+    elif n_fail == 0:
+        print(f"\033[93m\n  {n_pass} PASS  {n_warn} WARN  0 FAIL\033[0m")
     else:
-        for iss in issues:
-            print(f"  {severity}  {iss.get('func', '?')}")
-            print(f"        {iss['reason']}")
-        if severity == "FAIL":
-            fail_count += len(issues)
-        else:
-            warn_count += len(issues)
-    report[label] = issues
+        print(f"\033[91m\n  {n_pass} PASS  {n_warn} WARN  {n_fail} FAIL\033[0m")
 
-print(f"\n{'=' * 70}")
-print(f"Result: {fail_count} FAIL  {warn_count} WARN")
+    report = {
+        "validator":    "groq_fallback",
+        "total_checks": total,
+        "passed":       n_pass,
+        "warned":       n_warn,
+        "failed":       n_fail,
+        "issues":       [i for i in all_issues if not i.get("skip")],
+        "warnings":     [i for i in all_issues if i.get("skip")],
+    }
+    with open("groq_fallback_report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
 
-with open("groq_fallback_report.json", "w") as f:
-    json.dump(report, f, indent=2)
-print("Saved groq_fallback_report.json")
+    sys.exit(1 if n_fail > 0 else 0)
 
-if fail_count:
-    print("\nFIX REQUIRED.")
-    sys.exit(1)
-print("\nAll Groq fallback checks PASS.")
+
+if __name__ == "__main__":
+    main()

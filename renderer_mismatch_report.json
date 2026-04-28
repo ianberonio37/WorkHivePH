@@ -14,6 +14,7 @@
     "Chiller System \u2014 Air Cooled",
     "Expansion Tank Sizing",
     "Heat Exchanger",
+    "Load Estimation",
     "Voltage Drop",
     "Wire Sizing",
     "Short Circuit Analysis",
@@ -31,6 +32,8 @@
     "Stairwell Pressurization",
     "Fire Alarm Battery",
     "Water Supply Pipe Sizing",
+    "Hot Water Demand",
+    "Drainage Pipe Sizing",
     "Septic Tank Sizing",
     "Water Softener Sizing",
     "Water Treatment System",
@@ -45,13 +48,9 @@
     "Bolt Torque & Preload",
     "Pressure Vessel",
     "Vibration Analysis",
+    "Boiler System",
     "Boiler / Steam System"
   ],
-  "no_api": [
-    "Load Estimation",
-    "Hot Water Demand",
-    "Drainage Pipe Sizing",
-    "Boiler System"
-  ],
+  "no_api": [],
   "no_fn": []
 }

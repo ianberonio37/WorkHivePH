@@ -14,6 +14,7 @@ async function generateEmbedding(text: string): Promise<number[]> {
 
   const res = await fetch("https://api.groq.com/openai/v1/embeddings", {
     method: "POST",
+    signal: AbortSignal.timeout(30000),
     headers: {
       "Authorization": `Bearer ${GROQ_KEY}`,
       "Content-Type": "application/json",

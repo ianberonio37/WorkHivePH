@@ -5,39 +5,35 @@ WorkHive is installed as a Progressive Web App by field workers on mobile.
 A broken PWA means: no home screen install, no offline shell, browser chrome
 that flickers between pages, and lost user data when storage fills up.
 
-Four things checked:
+  Layer 1 — Manifest validity
+    1.  manifest.json completeness    — required fields + valid display + icon sizes
 
-  1. manifest.json completeness  — required fields must all be present and
-                                   valid: name, short_name, start_url, display,
-                                   background_color, theme_color, and icons with
-                                   both 192px and 512px entries.
+  Layer 2 — Page-level manifest presence
+    2.  Manifest link on all pages    — every live page links to /manifest.json
 
-  2. Manifest link on all pages  — every live page must have
-                                   <link rel="manifest" href="/manifest.json">
-                                   in its <head>. Missing it means workers on
-                                   that page cannot install WorkHive to their
-                                   home screen from that entry point.
+  Layer 3 — Theme consistency
+    3.  theme-color meta tag          — all pages match manifest theme_color  [WARN]
 
-  3. theme-color meta tag        — every live page must have
-                                   <meta name="theme-color" content="...">
-                                   matching the manifest theme_color value.
-                                   Missing or mismatched = browser chrome flickers
-                                   between colors as the worker navigates pages
-                                   (destroys the native-app illusion on mobile).
-                                   Reported as WARN.
+  Layer 4 — Storage safety
+    4.  Unguarded localStorage        — setItem(JSON.stringify) must be in try/catch
 
-  4. Unguarded localStorage      — localStorage.setItem(JSON.stringify(...)) calls
-                                   with no try/catch risk a silent crash on iOS
-                                   Safari when the 5 MB storage quota is hit.
-                                   The exam draft saves in skillmatrix.html are
-                                   the highest-risk case (workers lose exam progress).
+  Layer 5 — App shell integrity
+    5.  Service worker offline mode   — sw.js must have a fetch handler for offline  [WARN]
+    6.  Install prompt on app pages   — beforeinstallprompt only on index, missed on app pages  [WARN]
 
 Usage:  python validate_pwa.py
 Output: pwa_report.json
 """
 import re, json, sys, os
 
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+from validator_utils import read_file, format_result
+
 MANIFEST_FILE = "manifest.json"
+SW_FILE       = "sw.js"
 
 LIVE_PAGES = [
     "index.html",
@@ -52,169 +48,107 @@ LIVE_PAGES = [
     "nav-hub.html",
 ]
 
-# Required top-level fields in manifest.json
+APP_PAGES = [p for p in LIVE_PAGES if p != "index.html"]
+
 REQUIRED_MANIFEST_FIELDS = [
     "name", "short_name", "start_url", "display",
     "background_color", "theme_color", "icons",
 ]
 
-# display values that qualify as installable
 VALID_DISPLAY_VALUES = {"standalone", "fullscreen", "minimal-ui"}
-
-# Required icon sizes
-REQUIRED_ICON_SIZES = {"192x192", "512x512"}
+REQUIRED_ICON_SIZES  = {"192x192", "512x512"}
 
 
-def read_file(path):
-    try:
-        with open(path, encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
-        return None
+# ── Layer 1: Manifest validity ────────────────────────────────────────────────
 
-
-# ── Check 1: manifest.json completeness ──────────────────────────────────────
-
-def check_manifest(path):
-    """
-    Validates that manifest.json has all required fields with valid values.
-    A missing or misconfigured manifest breaks the PWA install prompt entirely.
-    """
-    issues = []
+def check_manifest_completeness(path):
     content = read_file(path)
     if content is None:
-        return [{"page": path, "reason": "manifest.json not found — PWA install impossible"}]
-
+        return [{"check": "manifest_completeness", "page": path,
+                 "reason": "manifest.json not found — PWA install impossible"}]
     try:
         manifest = json.loads(content)
     except json.JSONDecodeError as e:
-        return [{"page": path, "reason": f"manifest.json is invalid JSON: {e}"}]
+        return [{"check": "manifest_completeness", "page": path,
+                 "reason": f"manifest.json is invalid JSON: {e}"}]
 
-    # Check required top-level fields
+    issues = []
     for field in REQUIRED_MANIFEST_FIELDS:
         if field not in manifest:
-            issues.append({
-                "page":   path,
-                "field":  field,
-                "reason": f"manifest.json missing required field '{field}'",
-            })
+            issues.append({"check": "manifest_completeness", "page": path,
+                           "reason": f"manifest.json missing required field '{field}'"})
 
-    # Check display value is installable
     display = manifest.get("display", "")
     if display and display not in VALID_DISPLAY_VALUES:
-        issues.append({
-            "page":   path,
-            "field":  "display",
-            "reason": (
-                f"manifest.json display='{display}' is not installable — "
-                f"must be one of: {', '.join(sorted(VALID_DISPLAY_VALUES))}"
-            ),
-        })
+        issues.append({"check": "manifest_completeness", "page": path,
+                       "reason": (f"manifest.json display='{display}' is not installable — "
+                                  f"must be one of: {', '.join(sorted(VALID_DISPLAY_VALUES))}")})
 
-    # Check icons include both required sizes
     icons = manifest.get("icons", [])
-    declared_sizes = set()
-    for icon in icons:
-        for size in icon.get("sizes", "").split():
-            declared_sizes.add(size)
-    for required_size in REQUIRED_ICON_SIZES:
-        if required_size not in declared_sizes:
-            issues.append({
-                "page":   path,
-                "field":  "icons",
-                "reason": (
-                    f"manifest.json missing {required_size} icon — "
-                    f"Android requires 192px; splash screen requires 512px"
-                ),
-            })
-
+    declared_sizes = {s for icon in icons for s in icon.get("sizes", "").split()}
+    for size in REQUIRED_ICON_SIZES:
+        if size not in declared_sizes:
+            issues.append({"check": "manifest_completeness", "page": path,
+                           "reason": (f"manifest.json missing {size} icon — "
+                                      f"Android requires 192px; splash screen requires 512px")})
     return issues
 
 
-# ── Check 2: Manifest link present on all live pages ─────────────────────────
+# ── Layer 2: Manifest link on all pages ───────────────────────────────────────
 
 def check_manifest_link(pages):
-    """
-    Every live page must link to the manifest in its <head>.
-    Without this, a worker arriving on that page cannot trigger the
-    PWA install prompt — the browser doesn't even know it's a PWA.
-    """
     issues = []
     for page in pages:
         content = read_file(page)
         if content is None:
             continue
         if not re.search(r'<link[^>]+rel=["\']manifest["\']', content, re.IGNORECASE):
-            issues.append({
-                "page": page,
-                "reason": (
-                    f"{page} is missing <link rel=\"manifest\" href=\"/manifest.json\"> "
-                    f"— workers on this page cannot install WorkHive to their home screen"
-                ),
-            })
+            issues.append({"check": "manifest_link", "page": page,
+                           "reason": (f"{page} missing <link rel=\"manifest\" href=\"/manifest.json\"> "
+                                      f"— workers on this page cannot install WorkHive to their home screen")})
     return issues
 
 
-# ── Check 3: theme-color meta tag on all live pages (WARN) ───────────────────
+# ── Layer 3: Theme-color consistency (WARN) ───────────────────────────────────
 
 def check_theme_color(pages, manifest_theme_color):
     """
-    Every live page should have <meta name="theme-color" content="..."> matching
-    the manifest theme_color. Without it, the browser's address bar and system UI
-    revert to the default colour when the worker navigates to that page, breaking
-    the native-app feel on Android Chrome and iOS Safari.
-    Reported as WARN — functional but degrades the installed app experience.
+    Every live page should have <meta name="theme-color"> matching the manifest
+    theme_color. Mismatch causes address bar flicker when navigating on Android
+    Chrome, breaking the native-app illusion on installed PWAs.
     """
     issues = []
     for page in pages:
         content = read_file(page)
         if content is None:
             continue
-
         m = re.search(
             r'<meta[^>]+name=["\']theme-color["\'][^>]*content=["\']([^"\']+)["\']'
             r'|<meta[^>]+content=["\']([^"\']+)["\'][^>]*name=["\']theme-color["\']',
             content, re.IGNORECASE
         )
         if not m:
-            issues.append({
-                "page": page,
-                "reason": (
-                    f"{page} missing <meta name=\"theme-color\" content=\"{manifest_theme_color}\"> "
-                    f"— browser chrome reverts to default colour on this page "
-                    f"(breaks native-app appearance on mobile)"
-                ),
-            })
+            issues.append({"check": "theme_color", "page": page, "skip": True,
+                           "reason": (f"{page} missing <meta name=\"theme-color\" content=\"{manifest_theme_color}\"> "
+                                      f"— browser chrome reverts to default colour (breaks native-app appearance on mobile)")})
         else:
             page_color = (m.group(1) or m.group(2) or "").strip().upper()
             if manifest_theme_color and page_color != manifest_theme_color.upper():
-                issues.append({
-                    "page": page,
-                    "reason": (
-                        f"{page} theme-color is '{page_color}' but manifest says "
-                        f"'{manifest_theme_color}' — colour mismatch causes visible "
-                        f"flicker when navigating between pages on mobile"
-                    ),
-                })
+                issues.append({"check": "theme_color", "page": page, "skip": True,
+                               "reason": (f"{page} theme-color is '{page_color}' but manifest says "
+                                          f"'{manifest_theme_color}' — colour mismatch causes visible flicker "
+                                          f"when navigating between pages on mobile")})
     return issues
 
 
-# ── Check 4: Unguarded localStorage quota writes ─────────────────────────────
+# ── Layer 4: Storage safety ───────────────────────────────────────────────────
 
 def check_localstorage_quota(pages):
     """
-    localStorage.setItem(JSON.stringify(...)) calls must be wrapped in try/catch.
-    iOS Safari (and some Android browsers) enforce a hard 5 MB quota and throw
-    a QuotaExceededError when it's hit. Without try/catch, the error is unhandled:
-    - The current operation silently fails
-    - No feedback to the worker
-    - On skillmatrix.html: the worker loses their in-progress exam draft
-
-    Safe pattern:
-      try { localStorage.setItem(key, JSON.stringify(val)); } catch (_) {}
-
-    Unsafe pattern:
-      localStorage.setItem(key, JSON.stringify(val));
+    localStorage.setItem(JSON.stringify(...)) must be wrapped in try/catch.
+    iOS Safari enforces a hard 5 MB quota and throws QuotaExceededError.
+    Without try/catch the write silently fails — on skillmatrix.html this
+    means a worker loses their in-progress exam draft with no warning.
     """
     issues = []
     for page in pages:
@@ -222,93 +156,147 @@ def check_localstorage_quota(pages):
         if content is None:
             continue
         lines = content.splitlines()
-
         for i, line in enumerate(lines):
             if "localStorage.setItem" not in line or "JSON.stringify" not in line:
                 continue
-            # Check if try { appears within 3 lines before this line
             window_before = "\n".join(lines[max(0, i - 3):i + 1])
             if not re.search(r"\btry\s*\{", window_before):
-                issues.append({
-                    "page": page,
-                    "line": i + 1,
-                    "code": line.strip()[:80],
-                    "reason": (
-                        f"{page}:{i + 1} — unguarded localStorage.setItem(JSON.stringify(...)) "
-                        f"— a QuotaExceededError on iOS Safari silently discards this write "
-                        f"with no feedback to the worker: `{line.strip()[:60]}`"
-                    ),
-                })
+                issues.append({"check": "localstorage_quota", "page": page, "line": i + 1,
+                               "reason": (f"{page}:{i + 1} unguarded localStorage.setItem(JSON.stringify(...)) "
+                                          f"— QuotaExceededError on iOS Safari silently discards this write: "
+                                          f"`{line.strip()[:60]}`")})
     return issues
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+# ── Layer 5: App shell integrity ──────────────────────────────────────────────
 
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+def check_sw_offline_capability(sw_path):
+    """
+    sw.js must have a fetch event handler to serve cached responses when offline.
+    A service worker that only unregisters itself provides no offline capability —
+    workers lose access to the app entirely when network drops on the factory floor.
+    The current sw.js is a cleanup worker (unregisters itself) with no fetch handler.
+    """
+    content = read_file(sw_path)
+    if content is None:
+        return [{"check": "sw_offline_capability", "page": sw_path, "skip": True,
+                 "reason": "sw.js not found — no service worker, no offline support"}]
 
-print("\n" + "=" * 70)
-print("PWA Integrity Validator")
-print("=" * 70)
+    has_fetch   = re.search(r"addEventListener\s*\(\s*['\"]fetch['\"]", content) is not None
+    has_unreg   = "unregister" in content
+    has_install = re.search(r"addEventListener\s*\(\s*['\"]install['\"]", content) is not None
 
-# Read manifest theme_color for cross-check
-manifest_theme_color = ""
-manifest_raw = read_file(MANIFEST_FILE)
-if manifest_raw:
-    try:
-        manifest_theme_color = json.loads(manifest_raw).get("theme_color", "")
-    except Exception:
-        pass
+    if has_install and has_unreg and not has_fetch:
+        return [{"check": "sw_offline_capability", "page": sw_path, "skip": True,
+                 "reason": ("sw.js is a cleanup/unregister worker (no fetch handler) — WorkHive has no offline "
+                            "cache strategy. Workers lose app access when network drops on the factory floor. "
+                            "Add a fetch handler with a cache-first strategy to serve the app shell offline.")}]
+    if not has_fetch:
+        return [{"check": "sw_offline_capability", "page": sw_path, "skip": True,
+                 "reason": "sw.js has no fetch event handler — no offline fallback when network drops"}]
+    return []
 
-fail_count = 0
-warn_count = 0
-report     = {}
 
-checks = [
-    (
-        "[1] manifest.json completeness (required fields + icon sizes)",
-        check_manifest(MANIFEST_FILE),
-        "FAIL",
-    ),
-    (
-        "[2] Manifest link present on all live pages",
-        check_manifest_link(LIVE_PAGES),
-        "FAIL",
-    ),
-    (
-        "[3] theme-color meta tag on all live pages",
-        check_theme_color(LIVE_PAGES, manifest_theme_color),
-        "WARN",
-    ),
-    (
-        "[4] Unguarded localStorage quota writes (try/catch missing)",
-        check_localstorage_quota(LIVE_PAGES),
-        "FAIL",
-    ),
+def check_install_prompt_scope(pages):
+    """
+    beforeinstallprompt must be captured on app pages, not just the landing page.
+    If a worker's first interaction is opening hive.html directly (e.g., from a
+    bookmark), they never see the install prompt because it was only captured on
+    index.html. Either handle beforeinstallprompt in a shared JS (nav-hub.js,
+    utils.js) or on every app page.
+    """
+    shared_js_files = ["nav-hub.js", "utils.js", "floating-ai.js"]
+    for js_file in shared_js_files:
+        content = read_file(js_file)
+        if content and "beforeinstallprompt" in content:
+            return []
+
+    pages_with_prompt = []
+    for page in pages:
+        content = read_file(page)
+        if content and "beforeinstallprompt" in content:
+            pages_with_prompt.append(page)
+
+    if not pages_with_prompt:
+        return [{"check": "install_prompt_scope", "page": "all pages", "skip": True,
+                 "reason": "beforeinstallprompt not found on any page or shared JS — workers cannot install WorkHive from any entry point"}]
+
+    missing = [p for p in pages if p not in pages_with_prompt]
+    app_pages_missing = [p for p in missing if p != "index.html"]
+    if app_pages_missing:
+        return [{"check": "install_prompt_scope", "page": ", ".join(app_pages_missing[:3]) + ("..." if len(app_pages_missing) > 3 else ""), "skip": True,
+                 "reason": (f"beforeinstallprompt only captured on {pages_with_prompt} — "
+                            f"workers entering through app pages miss the install prompt. "
+                            f"Move the handler to a shared JS file (nav-hub.js or utils.js).")}]
+    return []
+
+
+# ── Runner ─────────────────────────────────────────────────────────────────────
+
+CHECK_NAMES = [
+    "manifest_completeness",
+    "manifest_link",
+    "theme_color",
+    "localstorage_quota",
+    "sw_offline_capability",
+    "install_prompt_scope",
 ]
 
-for label, issues, severity in checks:
-    print(f"\n{label}\n")
-    if not issues:
-        print("  PASS")
+CHECK_LABELS = {
+    "manifest_completeness":  "L1  manifest.json has required fields + valid display + icon sizes",
+    "manifest_link":          "L2  All live pages link to /manifest.json",
+    "theme_color":            "L3  All pages have matching theme-color meta tag  [WARN]",
+    "localstorage_quota":     "L4  localStorage.setItem(JSON.stringify) wrapped in try/catch",
+    "sw_offline_capability":  "L5  sw.js has fetch handler for offline mode  [WARN]",
+    "install_prompt_scope":   "L5  beforeinstallprompt captured on app pages or shared JS  [WARN]",
+}
+
+
+def main():
+    def bold(s): return f"\033[1m{s}\033[0m"
+    print(bold("\nPWA Integrity Validator (5-layer)"))
+    print("=" * 55)
+
+    manifest_theme_color = ""
+    manifest_raw = read_file(MANIFEST_FILE)
+    if manifest_raw:
+        try:
+            manifest_theme_color = json.loads(manifest_raw).get("theme_color", "")
+        except Exception:
+            pass
+
+    all_issues = []
+    all_issues += check_manifest_completeness(MANIFEST_FILE)
+    all_issues += check_manifest_link(LIVE_PAGES)
+    all_issues += check_theme_color(LIVE_PAGES, manifest_theme_color)
+    all_issues += check_localstorage_quota(LIVE_PAGES)
+    all_issues += check_sw_offline_capability(SW_FILE)
+    all_issues += check_install_prompt_scope(LIVE_PAGES)
+
+    n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
+
+    total = len(CHECK_NAMES)
+    if n_fail == 0 and n_warn == 0:
+        print(f"\033[92m\n  All {total} checks passed.\033[0m")
+    elif n_fail == 0:
+        print(f"\033[93m\n  {n_pass} PASS  {n_warn} WARN  0 FAIL\033[0m")
     else:
-        for iss in issues:
-            print(f"  {severity}  {iss.get('page', '?')}")
-            print(f"        {iss['reason']}")
-        if severity == "FAIL":
-            fail_count += len(issues)
-        else:
-            warn_count += len(issues)
-    report[label] = issues
+        print(f"\033[91m\n  {n_pass} PASS  {n_warn} WARN  {n_fail} FAIL\033[0m")
 
-print(f"\n{'=' * 70}")
-print(f"Result: {fail_count} FAIL  {warn_count} WARN")
+    report = {
+        "validator":    "pwa",
+        "total_checks": total,
+        "passed":       n_pass,
+        "warned":       n_warn,
+        "failed":       n_fail,
+        "issues":       [i for i in all_issues if not i.get("skip")],
+        "warnings":     [i for i in all_issues if i.get("skip")],
+    }
+    with open("pwa_report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
 
-with open("pwa_report.json", "w") as f:
-    json.dump(report, f, indent=2)
-print("Saved pwa_report.json")
+    sys.exit(1 if n_fail > 0 else 0)
 
-if fail_count:
-    print("\nFIX REQUIRED.")
-    sys.exit(1)
-print("\nAll PWA checks PASS (warnings may need review).")
+
+if __name__ == "__main__":
+    main()

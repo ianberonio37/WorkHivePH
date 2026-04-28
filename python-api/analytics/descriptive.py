@@ -325,6 +325,27 @@ def calc_parts_consumption(inv_transactions: list[dict], period_days: int = 90) 
 # Same root_cause on same machine ≥ 2 times = repeat failure
 # Indicates ineffective repair or systemic issue
 
+def calc_consequence_distribution(logbook_entries: list[dict]) -> dict:
+    """SAE JA1011 RCM Consequence Analysis — distribution across 4 failure consequence categories."""
+    df = _to_df(logbook_entries)
+    df = _corrective_only(df)
+    if df.empty or "failure_consequence" not in df.columns:
+        return {"distribution": [], "total": 0, "standard": "SAE JA1011:2009"}
+    CANONICAL = ["Hidden", "Running reduced", "Safety risk", "Stopped production"]
+    fc_series = df["failure_consequence"] if "failure_consequence" in df.columns else None
+    counts = fc_series.value_counts().to_dict() if fc_series is not None else {}
+    total  = sum(counts.values())
+    return {
+        "distribution": [
+            {"consequence": c, "count": counts.get(c, 0),
+             "pct": round(counts.get(c, 0) / total * 100, 1) if total else 0}
+            for c in CANONICAL
+        ],
+        "total":    total,
+        "standard": "SAE JA1011:2009",
+    }
+
+
 def calc_repeat_failures(logbook_entries: list[dict]) -> dict:
     df = _to_df(logbook_entries)
     if df.empty or "root_cause" not in df.columns:
@@ -531,5 +552,6 @@ def calculate(inputs: dict) -> dict:
         "failure_frequency": freq_result,
         "downtime_pareto":   pareto_result,
         "parts_consumption": calc_parts_consumption(txns, period),
-        "repeat_failures":   repeat_result,
+        "repeat_failures":      repeat_result,
+        "consequence_distribution": calc_consequence_distribution(logbook),
     }

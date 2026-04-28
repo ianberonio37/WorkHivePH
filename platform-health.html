@@ -573,6 +573,7 @@
       .actions .action-btn { font-size: .72rem; padding: .45rem .75rem; }
     }
   </style>
+  <link rel="canonical" href="https://workhiveph.com/platform-health.html" />
 </head>
 <body>
 
@@ -687,31 +688,31 @@
       <div class="guide-stitle">What Each Button Does</div>
       <div class="guide-row">
         <span class="guide-label"><span class="gtag gold">▶ Validate Fast</span></span>
-        <span class="guide-desc">Runs all 40 checks in ~20 seconds. Use this after every code change. If green, you're safe to continue.</span>
+        <span class="guide-desc">Runs all 44 validators across 5-6 check layers in ~40 seconds. Use after every code change. Skips live API calls (use Full Deploy Check for those). If all green with no red FAIL, you are safe to continue building.</span>
       </div>
       <div class="guide-row">
         <span class="guide-label"><span class="gtag red">⚡ Auto-Fix</span></span>
-        <span class="guide-desc">When you see a red FAIL, click this. It tries to fix the problem automatically. Then run Validate Fast again to confirm.</span>
+        <span class="guide-desc">When you see a red FAIL, click this first. It reads your skill files to find the fix pattern and applies it automatically. Then click Validate Fast again to confirm it turned green. If it stays red, the fix needs manual review.</span>
       </div>
       <div class="guide-row">
         <span class="guide-label"><span class="gtag green">🚀 Full Deploy Check</span></span>
-        <span class="guide-desc">Use only before pushing live. Checks if your real servers are responding. Takes ~60 seconds.</span>
+        <span class="guide-desc">Run this before pushing live to production. It does everything Validate Fast does, PLUS calls your real Python API on Render.com and your real Supabase edge function to confirm they are responding. Takes ~60–90 seconds. Only needed at deploy time.</span>
       </div>
       <div class="guide-row">
         <span class="guide-label"><span class="gtag blue">🧠 Self-Learn</span></span>
-        <span class="guide-desc">After fixing a bug, click this. It captures the lesson so the system gets smarter and won't miss it next time.</span>
+        <span class="guide-desc">After fixing a bug, click this. It reads your git history and the validator output, then writes lessons to your skill files. Next time the same class of bug appears, Auto-Fix already knows how to handle it. Run once per bug fix session.</span>
       </div>
       <div class="guide-row">
         <span class="guide-label"><span class="gtag purple">🔍 Improve</span></span>
-        <span class="guide-desc">Once a month. Searches the web for updates to engineering standards (NFPA, ISO, ASHRAE) that affect your calculators.</span>
+        <span class="guide-desc">Run once a month (or when you get a backlog alert). Searches the web for updates to 50+ engineering standards (NFPA, ISO, ASHRAE, PEC, ASME) and emerging technology signals (Groq models, pgvector, Supabase). Tells you what to update in your platform. Results appear in the Improvement Backlog panel below.</span>
       </div>
       <div class="guide-row">
         <span class="guide-label">🔒 Gate Only</span>
-        <span class="guide-desc">Quick 3-second check: Is git clean? Are live servers up? Use before deploying if you already know the code is good.</span>
+        <span class="guide-desc">Skips all 44 validators and just checks: Is git clean? Are live servers up? Is the backlog empty? Takes 3 seconds. Use this when you know your code is good and just want to confirm the environment is ready before pushing.</span>
       </div>
       <div class="guide-row">
         <span class="guide-label">📤 Commit &amp; Push</span>
-        <span class="guide-desc">When Git shows WARN (uncommitted files), click this. Type your commit message, click OK. Done — no terminal needed.</span>
+        <span class="guide-desc">When the Git card shows WARN (uncommitted files), click this. A dialog asks for your commit message — type it and click OK. The button commits all staged changes and pushes to your remote branch automatically. No terminal needed.</span>
       </div>
     </div>
 
@@ -720,30 +721,37 @@
       <div class="guide-stitle">What the Colors Mean</div>
       <div class="guide-row">
         <span class="guide-label"><span class="gtag green">PASS — Green</span></span>
-        <span class="guide-desc">This check is working correctly. No action needed.</span>
+        <span class="guide-desc">This check is working correctly. No action needed. Safe to keep building.</span>
       </div>
       <div class="guide-row">
         <span class="guide-label"><span class="gtag red">FAIL — Red</span></span>
-        <span class="guide-desc">Something broke. Fix it before deploying. Click Auto-Fix first, then Validate Fast again.</span>
+        <span class="guide-desc">Something broke or a required pattern is missing. Fix it before deploying. Click Auto-Fix first, then Validate Fast again to confirm.</span>
       </div>
       <div class="guide-row">
-        <span class="guide-label"><span class="gtag gold">WARN — Yellow</span></span>
-        <span class="guide-desc">A known gap that is acceptable for now (e.g., Git has uncommitted files). Review but not always urgent.</span>
+        <span class="guide-label"><span class="gtag gold">WARN — Yellow (Gate)</span></span>
+        <span class="guide-desc">A readiness issue that is not a code bug — for example, Git has uncommitted files, or the backlog has HIGH items. Review but not always urgent to fix immediately.</span>
       </div>
       <div class="guide-row">
-        <span class="guide-label"><span class="gtag blue">SKIP — Blue</span></span>
-        <span class="guide-desc">This check was skipped because you're in fast mode. Normal. Run Full Deploy Check to include it.</span>
+        <span class="guide-label"><span class="gtag blue">SKIP — Blue (in terminal)</span></span>
+        <span class="guide-desc">Inside a validator's output, SKIP means a known technical debt item — the check found a real gap but it is tracked as a backlog item rather than a blocking failure. The validator still shows PASS overall. Read the SKIP lines to understand your improvement backlog.</span>
+      </div>
+      <div class="guide-row">
+        <span class="guide-label"><span class="gtag blue">SKIP — Blue (Full Deploy)</span></span>
+        <span class="guide-desc">A live API check was skipped because you are in fast mode. Normal. Run Full Deploy Check to include it.</span>
       </div>
     </div>
 
     <!-- Daily routine -->
     <div class="guide-section">
       <div class="guide-stitle">Your Daily Routine</div>
-      <div class="guide-step"><span class="gnum">1</span><span>Open dashboard → click <strong style="color:var(--gold)">Validate Fast</strong> → green = start coding safely.</span></div>
-      <div class="guide-step"><span class="gnum">2</span><span>Made a code change → click <strong style="color:var(--gold)">Validate Fast</strong> again → still green? Continue.</span></div>
-      <div class="guide-step"><span class="gnum">3</span><span>Ready to push live → click <strong style="color:var(--green)">Full Deploy Check</strong> → green = safe to push.</span></div>
-      <div class="guide-step"><span class="gnum">4</span><span>After fixing a bug → click <strong style="color:var(--blue)">Self-Learn</strong> → lesson captured for next time.</span></div>
-      <div class="guide-step"><span class="gnum">5</span><span>Git shows WARN → click <strong>📤 Commit &amp; Push</strong> → type a message → done.</span></div>
+      <div class="guide-step"><span class="gnum">1</span><span>Open dashboard → click <strong style="color:var(--gold)">▶ Validate Fast</strong> → all green = safe to start coding.</span></div>
+      <div class="guide-step"><span class="gnum">2</span><span>Made a code change → click <strong style="color:var(--gold)">▶ Validate Fast</strong> again → still all green? Continue building.</span></div>
+      <div class="guide-step"><span class="gnum">3</span><span>See a red FAIL → click <strong style="color:var(--red)">⚡ Auto-Fix</strong> → click <strong style="color:var(--gold)">▶ Validate Fast</strong> → confirm it turned green.</span></div>
+      <div class="guide-step"><span class="gnum">4</span><span>See blue SKIP lines in the terminal → these are known backlog items, not blockers. Read them to understand what to improve next session.</span></div>
+      <div class="guide-step"><span class="gnum">5</span><span>After fixing a bug → click <strong style="color:var(--blue)">🧠 Self-Learn</strong> → lesson written to skill files for next time.</span></div>
+      <div class="guide-step"><span class="gnum">6</span><span>Ready to push live → click <strong style="color:var(--green)">🚀 Full Deploy Check</strong> → green = safe to push.</span></div>
+      <div class="guide-step"><span class="gnum">7</span><span>Git shows WARN → click <strong>📤 Commit &amp; Push</strong> → type a message → done.</span></div>
+      <div class="guide-step"><span class="gnum">8</span><span>Once a month → click <strong style="color:var(--purple)">🔍 Improve</strong> → check the Backlog panel for new HIGH items.</span></div>
     </div>
 
     <!-- How it all works -->
@@ -778,7 +786,7 @@
 
         <div style="display:flex;align-items:flex-start;gap:.6rem;">
           <span style="background:rgba(247,162,27,.15);color:var(--gold);border-radius:.35rem;padding:.15rem .5rem;font-weight:700;font-size:.75rem;white-space:nowrap;flex-shrink:0;">4</span>
-          <span style="font-size:.82rem;"><strong>40 validators run</strong> — each one checks a specific part of your platform. They cover calculations, data flows, AI quality, security, mobile UX, IoT readiness, enterprise integration, analytics, and more. See the "All 40 Validators" section below for plain-language descriptions.</span>
+          <span style="font-size:.82rem;"><strong>44 validators run</strong> — each one checks a specific part of your platform across 4–6 layers. Layers 1–3 catch hard failures (FAIL). Layers 4–6 include improvement checks that show as SKIP (blue) in the terminal — these are known backlog items, not blocking failures. See the "All 40 Validators" section below for plain-language descriptions of every check.</span>
         </div>
 
         <div style="text-align:center;color:var(--muted);font-size:.75rem;">↓</div>
@@ -802,8 +810,8 @@
       <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em;">Who Does What</div>
       <div style="display:flex;flex-direction:column;gap:.3rem;">
         <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">guardian_server.py</span><span style="color:var(--muted);">The engine behind this web page. Routes your button clicks to scripts and streams output back.</span></div>
-        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">run_platform_checks.py</span><span style="color:var(--muted);">The boss script. Calls all 40 validators in order and writes the final report.</span></div>
-        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">validate_*.py (40 files)</span><span style="color:var(--muted);">The workers. Each one checks one area and returns PASS or FAIL.</span></div>
+        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">run_platform_checks.py</span><span style="color:var(--muted);">The boss script. Calls all 44 validators in order and writes the final report.</span></div>
+        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">validate_*.py (44 files)</span><span style="color:var(--muted);">The workers. Each checks one area across 4–6 layers. Hard failures exit 1 (red FAIL). Improvement checks exit 0 but show blue SKIP lines in the terminal.</span></div>
         <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">platform_health.json</span><span style="color:var(--muted);">The report card. Written after every run. This dashboard reads it to show the cards.</span></div>
         <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">learn.py</span><span style="color:var(--muted);">The teacher. Reads failed runs and your git history, then writes lessons to your skill files.</span></div>
         <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">autofix.py</span><span style="color:var(--muted);">The mechanic. Reads lessons from skill files and applies fixes automatically.</span></div>
@@ -816,11 +824,12 @@
     <div class="guide-section">
       <div class="guide-stitle">When Something Is Red — What to Do</div>
       <div class="guide-tip">
-        <strong>Step 1:</strong> Read the terminal output — it tells you exactly which file has the problem.<br>
-        <strong>Step 2:</strong> Click <strong>⚡ Auto-Fix</strong> — it fixes known patterns automatically.<br>
-        <strong>Step 3:</strong> Click <strong>▶ Validate Fast</strong> — verify it turned green.<br>
-        <strong>Step 4:</strong> Click <strong>🧠 Self-Learn</strong> — capture the lesson.<br><br>
-        If Auto-Fix doesn't help, the problem needs manual code review. Tell your developer which validator failed and what the terminal showed.
+        <strong>Step 1:</strong> Read the terminal — find the red FAIL line. It names the file and exactly what is wrong.<br>
+        <strong>Step 2:</strong> Click <strong>⚡ Auto-Fix</strong> — it applies the fix automatically for known patterns.<br>
+        <strong>Step 3:</strong> Click <strong>▶ Validate Fast</strong> — confirm it turned green.<br>
+        <strong>Step 4:</strong> Click <strong>🧠 Self-Learn</strong> — write the lesson to your skill files.<br><br>
+        <strong>If Auto-Fix doesn't help:</strong> The problem needs manual code review. The terminal tells you which validator failed, which file, and what line. Fix the code, then Validate Fast again.<br><br>
+        <strong>Blue SKIP lines are NOT failures.</strong> They are known improvement items — read them when you have time, but they do not block you from deploying.
       </div>
     </div>
 
@@ -832,91 +841,102 @@
         <span class="guide-desc">A command that is running. Normal to see these.</span>
       </div>
       <div class="guide-row">
-        <span class="guide-label" style="color:var(--green)">PASS lines</span>
-        <span class="guide-desc">That check passed. All good.</span>
+        <span class="guide-label" style="color:var(--green)">PASS lines (green)</span>
+        <span class="guide-desc">That check layer passed. All good — nothing to do.</span>
       </div>
       <div class="guide-row">
-        <span class="guide-label" style="color:var(--red)">FAIL lines</span>
-        <span class="guide-desc">That check found a problem. The line after it usually says which file and what's wrong.</span>
+        <span class="guide-label" style="color:var(--red)">FAIL lines (red)</span>
+        <span class="guide-desc">That check layer found a problem. The line after it names the file, line number, and what is wrong. Fix it before deploying.</span>
       </div>
       <div class="guide-row">
-        <span class="guide-label" style="color:var(--green)">✓ DONE</span>
-        <span class="guide-desc">Everything finished and passed. Safe to continue.</span>
+        <span class="guide-label" style="color:var(--blue)">SKIP lines (blue)</span>
+        <span class="guide-desc">A known improvement or backlog item. The validator still passes (exit 0). Read these to understand what to improve — but they do not block you. Example: "assistant.html system prompt is 8327 chars — exceeds small model budget."</span>
       </div>
       <div class="guide-row">
-        <span class="guide-label" style="color:var(--red)">✗ DONE</span>
-        <span class="guide-desc">Something failed. Scroll up in the terminal to find the red FAIL line and read what it says.</span>
+        <span class="guide-label" style="color:var(--green)">✓ DONE / READY</span>
+        <span class="guide-desc">Everything finished and all hard checks passed. Safe to continue building or deploy.</span>
+      </div>
+      <div class="guide-row">
+        <span class="guide-label" style="color:var(--red)">✗ BLOCKED</span>
+        <span class="guide-desc">Something failed. Scroll up to find the red FAIL line. Read exactly which validator and file is the problem.</span>
       </div>
       <div class="guide-note">
-        💡 Tip: The terminal closes automatically when you click ✕ in its top-right corner. It stays open so you can read it — that's intentional.
+        💡 Tip: The terminal stays open after the run finishes so you can scroll and read. Click ✕ in its top-right corner to close it when done.
       </div>
     </div>
 
-    <!-- All 40 validators -->
+    <!-- All 44 validators -->
     <div class="guide-section">
-      <div class="guide-stitle">All 40 Validators — What They Check</div>
-      <div style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem;">Each validator runs automatically when you click Validate Fast. Green = working correctly. Red = something needs fixing.</div>
+      <div class="guide-stitle">All 44 Validators — What They Check</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem;">Each validator runs 4–6 check layers. Green = all hard checks pass. Red = fix required. Blue SKIP lines in the terminal = known improvement items (not blocking). Counts show (hard checks / total layers).</div>
 
       <!-- Group 1: Core Features -->
       <div style="font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin:.75rem 0 .35rem;">Core Platform Checks (1–8)</div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">1 Engineering Calc Suite</span><span class="guide-desc" style="font-size:.78rem;">All 46 calculation types (HVAC, Electrical, Fire, Plumbing, Structural) produce correct results and have complete BOM/SOW reports.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">2 Cross-Page Flow</span><span class="guide-desc" style="font-size:.78rem;">When the logbook saves a PM entry, it correctly updates the PM scheduler. Data flows between pages without missing fields.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">3 Hive Validator</span><span class="guide-desc" style="font-size:.78rem;">The team board's real-time channels, member approval flow, and hive ID scoping are all correctly wired.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">4 Logbook Validator</span><span class="guide-desc" style="font-size:.78rem;">Logbook entry rules work — PM category mapping, closed_at timestamp, parts deduction guards.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">5 Inventory Validator</span><span class="guide-desc" style="font-size:.78rem;">Stock management is correct — approval workflow, running balance (qty_after), overflow protection.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">6 PM Scheduler Validator</span><span class="guide-desc" style="font-size:.78rem;">PM frequencies are mapped correctly, scope categories align with logbook categories, midnight normalization works.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">7 Skill Matrix Validator</span><span class="guide-desc" style="font-size:.78rem;">Discipline names are correct, badge logic works without conflicts, exam cooldown and pass threshold are enforced.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">8 Assistant Validator</span><span class="guide-desc" style="font-size:.78rem;">The floating AI widget knows about every tool page, mentions all 46 calc types, and doesn't direct workers to retired pages.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">1 Engineering Calc Suite</span><span class="guide-desc" style="font-size:.78rem;">All 46 calculation types (HVAC, Electrical, Fire, Plumbing, Structural, Machine Design) produce correct results with complete BOM/SOW. 3 layers: Python API unit tests → renderer contract (HTML fields match API output) → BOM/SOW contract. Layer 4 (live Render API) runs on Full Deploy Check only.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">2 Cross-Page Flow</span><span class="guide-desc" style="font-size:.78rem;">When the logbook saves a PM entry it correctly updates the PM scheduler. When inventory records a use it writes qty_after. All cross-page inserts include every required column — missing fields are caught before they reach the database.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">3 Hive Validator</span><span class="guide-desc" style="font-size:.78rem;">The team board's real-time channels subscribe to the right events, all queries are filtered by hive_id, the approval flow handles both approved and rejected, and all channels are removed when the worker leaves the page.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">4 Logbook Validator</span><span class="guide-desc" style="font-size:.78rem;">Logbook entry rules work: PM category mapping is correct, closed_at is written when status is Closed, parts deduction runs before quantity check, and new predictive fields (failure_consequence, readings_json, production_output) are included in all save and edit paths.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">5 Inventory Validator</span><span class="guide-desc" style="font-size:.78rem;">Stock management is correct: approval workflow fires for hive mode, running balance (qty_after) is calculated on every transaction, overflow protection prevents deducting more than available, and hive_id is included in all transaction records.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">6 PM Scheduler Validator</span><span class="guide-desc" style="font-size:.78rem;">PM frequencies map correctly to FREQ_DAYS, scope categories align with logbook categories, midnight normalization is applied to due dates, all required payload fields are present, and logbook entries created from PM completions include the right category and status.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">7 Skill Matrix Validator</span><span class="guide-desc" style="font-size:.78rem;">Discipline names match across all constants, badge conflict keys are unique, cooldown logic uses the right field, pass threshold is enforced, all 25 exam arrays (5 disciplines × 5 levels) have exactly 10 questions, and answer indices are 0–3.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">8 Assistant Validator</span><span class="guide-desc" style="font-size:.78rem;">The floating AI widget knows about every live tool page, mentions all 46 calc types and all 7 diagram types, does not mention retired pages (checklist.html, parts-tracker.html), and discipline names in the AI context match the skill matrix constants exactly.</span></div>
 
       <!-- Group 2: AI Quality -->
       <div style="font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin:.75rem 0 .35rem;">AI Quality Checks (9–13)</div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">9 AI Context Quality</span><span class="guide-desc" style="font-size:.78rem;">The AI's "brain" is not stale — platform tool descriptions are long enough, calc counts are correct, diagrams are mentioned.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">10 Input Guards</span><span class="guide-desc" style="font-size:.78rem;">Forms validate required fields before writing to the database. Errors are always shown to the worker — never silent.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">11 Schema Consistency</span><span class="guide-desc" style="font-size:.78rem;">Retired table names are not used, date fields use ISO 8601 format, and migration columns match what the code expects.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">12 Observability</span><span class="guide-desc" style="font-size:.78rem;">Realtime channels are cleaned up when the worker leaves, DB failures show toasts to the worker, critical saves confirm success.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">13 Data Governance</span><span class="guide-desc" style="font-size:.78rem;">Every DB row has a worker_name owner tag, deletes are scoped to the right hive, sensitive data is not in the AI prompt.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">9 AI Context Quality</span><span class="guide-desc" style="font-size:.78rem;">The floating AI's platform description is not stale: tool descriptions are long enough, calc and diagram counts are correct, OEE and predictive analytics features are mentioned, and new fields (failure_consequence, readings_json) are described.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">10 Input Guards</span><span class="guide-desc" style="font-size:.78rem;">Required form fields are validated before any database write. Every validation failure shows a toast to the worker — no silent failures. Dayplanner's recurring item save correctly shows errors instead of silently dropping the entry.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">11 Schema Consistency</span><span class="guide-desc" style="font-size:.78rem;">No retired table names (old_logbook, checklist_items) are used. Date fields use ISO 8601 format. Migration column names match what the code reads. No cross-page column name mismatches that would silently return null.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">12 Observability</span><span class="guide-desc" style="font-size:.78rem;">Realtime channels are cleaned up on page unload (no ghost subscriptions). DB failures show toasts to the worker. Critical saves (logbook, inventory transaction) have success confirmation. No catch blocks that swallow errors silently.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">13 Data Governance</span><span class="guide-desc" style="font-size:.78rem;">Every DB insert includes worker_name for ownership. Deletes are scoped to the worker or hive (no unscoped bulk deletes). Sensitive data (WORKER_NAME, logbook entries) is not leaked into the floating AI's static system prompt.</span></div>
 
       <!-- Group 3: Platform Standards -->
       <div style="font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin:.75rem 0 .35rem;">Platform Standards (14–18)</div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">14 PWA Integrity</span><span class="guide-desc" style="font-size:.78rem;">Workers can install WorkHive to their phone home screen. Manifest is complete, theme color set, localStorage writes are safe on iOS.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">15 Accessibility</span><span class="guide-desc" style="font-size:.78rem;">Screen readers can use the app. Images have alt text, modals announce their titles, buttons have accessible names.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">16 Tenant Boundary</span><span class="guide-desc" style="font-size:.78rem;">A worker from Hive A cannot read Hive B's data. Every database read is filtered by hive ID — no data leaks between teams.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">17 AI Prompt Regression</span><span class="guide-desc" style="font-size:.78rem;">Both AI surfaces (floating widget and full assistant) give the same answers. Discipline names, tool lists, and counts are consistent.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">18 Timer Hygiene</span><span class="guide-desc" style="font-size:.78rem;">Background timers (setInterval) are stored in variables and cleaned up. pg_cron scheduled jobs have matching edge function handlers.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">14 PWA Integrity</span><span class="guide-desc" style="font-size:.78rem;">Workers can install WorkHive to their phone home screen. L1: manifest.json has all required fields, valid display mode, and both 192px + 512px icons. L2: every live page links to the manifest. L3: theme-color meta tag matches manifest on all pages. L4: localStorage.setItem(JSON.stringify) calls are in try/catch (iOS Safari 5 MB quota guard). L5 backlog: sw.js is currently a cleanup-only worker (no offline cache), and the install prompt is only captured on the landing page.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">15 Accessibility</span><span class="guide-desc" style="font-size:.78rem;">Field workers on mobile can use the app reliably. L1: every static img has alt text. L2: all role=dialog elements have aria-labelledby (screen reader announces the modal title) and aria-modal=true (focus stays inside). L3: unlabeled form inputs are flagged as backlog. L4: icon buttons use aria-label not title. L5: every toast container has role=alert aria-live=polite so screen readers announce status messages when they appear.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">16 Tenant Boundary</span><span class="guide-desc" style="font-size:.78rem;">A worker from Hive A cannot read Hive B's data. Every SELECT on shared tables (logbook, inventory_items, assets, hive_members) includes a hive_id filter. WORKER_NAME and HIVE_ID are never set from URL parameters — a URL edit cannot switch your identity or team context.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">17 AI Prompt Regression</span><span class="guide-desc" style="font-size:.78rem;">Both AI surfaces give consistent answers. The floating widget and the full assistant agree on: available tools, calc types, discipline names, and OEE fields. The analytics-orchestrator edge function includes the new predictive fields in its logbook SELECT so the Python analytics modules receive complete data.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">18 Timer Hygiene</span><span class="guide-desc" style="font-size:.78rem;">Background timers cannot run forever. setInterval calls are stored in named variables (not bare calls). All 6 pg_cron jobs (pm_overdue, failure_digest, shift_handover × 3, predictive) have matching handler entries in scheduled-agents/index.ts. No setInterval calls inside event listeners (timer storm guard).</span></div>
 
       <!-- Group 4: From Skills -->
       <div style="font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin:.75rem 0 .35rem;">From Skill Files (19–28)</div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">19 XSS / escHtml</span><span class="guide-desc" style="font-size:.78rem;">User-typed data is safely encoded before being shown on screen. No dangerous JavaScript execution patterns in any live page.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">20 SEO and Metadata</span><span class="guide-desc" style="font-size:.78rem;">Every app page has a title, description, and noindex so Google shows the landing page — not the logbook — in search results.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">21 Mobile UX</span><span class="guide-desc" style="font-size:.78rem;">viewport-fit=cover prevents content hiding behind iPhone notch. All input fonts are 16px+ to stop iOS auto-zoom.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">22 Nav Hub Registry</span><span class="guide-desc" style="font-size:.78rem;">Every tool page is registered in the navigation hub. No page is invisible to workers. Retired pages are not in the nav.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">23 Performance</span><span class="guide-desc" style="font-size:.78rem;">No unbounded database fetches on large tables (logbook, inventory history). No N+1 query patterns in loops.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">24 Catalog Approval</span><span class="guide-desc" style="font-size:.78rem;">The shared inventory catalog always filters by status=approved. Pending submissions stay invisible until a supervisor approves them.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">25 Drawing Standards</span><span class="guide-desc" style="font-size:.78rem;">All 7 engineering diagram builders use the correct A3 canvas size and arc safety formula. PDFs export cleanly.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">26 Enterprise Compliance</span><span class="guide-desc" style="font-size:.78rem;">All supervisor power actions (approve, reject, kick) are audit-logged. Scheduled jobs record success and failure.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">27 Notifications</span><span class="guide-desc" style="font-size:.78rem;">The approval channel listens for both new submissions AND status changes. Workers receive toasts when their items are approved or rejected.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">28 Predictive Analytics</span><span class="guide-desc" style="font-size:.78rem;">MTBF uses only Breakdown entries with non-empty machine names. MTTR filters out negative repair times. Downtime has no corrupting outliers.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">19 XSS / escHtml</span><span class="guide-desc" style="font-size:.78rem;">User-typed data is safely encoded before being shown on screen. escHtml is loaded from utils.js on every page (not redefined inline). No raw template literal interpolation of user data. No innerHTML concatenation in loops. All pages are in scope including analytics.html.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">20 SEO and Metadata</span><span class="guide-desc" style="font-size:.78rem;">Google shows the landing page, not the logbook. L1: every app page has noindex. L2: every page has a WorkHive-branded title and a canonical link (prevents staging URLs from splitting SEO). L3: every page has a meta description. L4: index.html has complete Open Graph tags (og:title, og:description, og:image, og:url). L5: index.html has JSON-LD SoftwareApplication schema for Google rich results.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">21 Mobile UX</span><span class="guide-desc" style="font-size:.78rem;">Field workers on phones get a proper experience. L1: viewport-fit=cover on all pages (iOS notch), .wh-input font-size >= 16px (no iOS auto-zoom). L2: fixed bottom elements have safe-area-inset-bottom, no touch targets below 44px. L3: will-change:filter has mobile override (iOS GPU crash guard), body animation has prefers-reduced-motion override. L4 backlog: scrollable modals need overscroll-behavior:contain. L5: analytics.html and nav-hub.html are now in scope.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">22 Nav Hub Registry</span><span class="guide-desc" style="font-size:.78rem;">Every live tool page is registered in the TOOLS array in nav-hub.js. No page is invisible to workers in the launcher. Retired pages (checklist.html, parts-tracker.html) are not in the registry. Page titles and icons are consistent.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">23 Performance</span><span class="guide-desc" style="font-size:.78rem;">No unbounded database fetches on large tables. No setInterval leaks (intervals stored in variables). No innerHTML concatenation in loops. No body animation without animationend safety guard. index.html is now in scope. Also flags: body animations must handle the case where animationend never fires (page stays blank).</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">24 Catalog Approval</span><span class="guide-desc" style="font-size:.78rem;">The shared catalog only shows approved items. Hive-mode SELECT on inventory_items and assets always filters by status=approved. Worker edits reset status to pending (re-approval). Only pending/approved/rejected are valid status values. loadApprovalQueue is scoped to the current hive_id. Deletes have worker or hive scope.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">25 Drawing Standards</span><span class="guide-desc" style="font-size:.78rem;">All registered engineering diagram builders use A3 canvas (W=1050), correct H/W ratio, arc chord safety formula, and viewBox referencing W/H variables. Original 9 (LPS, Electrical SLD, Generator, Pump P&amp;ID, Fire Sprinkler, Fire Pump P&amp;ID, HVAC, Lighting, Transformer SLD) plus Phase 10 HVAC group (Clean Agent, Ventilation, FCU, Refrigerant Pipe, Cooling Tower, Chiller, Expansion Tank) — all 16 builders validated. The coverage check auto-detects any new buildXxxSvg — none can escape validation silently.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">26 Enterprise Compliance</span><span class="guide-desc" style="font-size:.78rem;">Audit trail is complete for enterprise clients. L1: supervisor power actions (approve, reject, kick) call writeAuditLog. Member join and leave events flagged as backlog. L2: audit log reads are scoped to hive_id. L3: scheduled jobs write to automation_log. L4: no service_role key in client code, Supabase keys use the publishable format.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">27 Notifications</span><span class="guide-desc" style="font-size:.78rem;">Workers and supervisors always receive the right alerts. L1: approval channel subscribes to both INSERT (new submission) and UPDATE (status change). Channel variables are at module level. L2: workers get toasts for both approved and rejected. L3: notification bell is visible, checkStockAlert pushes both stock-out and stock-low, PM health pushes both pm-overdue and pm-duesoon. L4: buildNotifications is called in initBoard so alerts appear immediately on load.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">28 Predictive Analytics</span><span class="guide-desc" style="font-size:.78rem;">MTBF and MTTR calculations are not corrupted by bad data. L1: loadMtbf filters by maintenance_type=Breakdown/Corrective and excludes blank machine names, skips machines with fewer than 2 failures. L2: loadMttr filters out zero and negative repair times. MTBF/MTTR cache validates computed_at TTL. L3: Python descriptive.py uses the same Corrective filter as the hive board JS so both surfaces agree. Downtime cap backlog tracked as WARN.</span></div>
 
       <!-- Group 5: AI Infrastructure -->
       <div style="font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin:.75rem 0 .35rem;">AI Infrastructure (29–34)</div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">29 Vector Schema</span><span class="guide-desc" style="font-size:.78rem;">The RAG knowledge base tables (fault, skill, PM) have the right 384-dimension embeddings, IVFFlat indexes, and UNION ALL pattern.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">30 Groq Fallback Chain</span><span class="guide-desc" style="font-size:.78rem;">Every AI edge function has 4–6 backup models. If one hits a rate limit, the next model takes over silently.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">31 Edge Contracts</span><span class="guide-desc" style="font-size:.78rem;">All 6 AI edge functions handle CORS, return {error} JSON on failure, validate required fields, and use content:string for SOW.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">32 AI Attribution</span><span class="guide-desc" style="font-size:.78rem;">AI-generated narrative text uses the narrative-block CSS class. The floating AI states it cannot see work records. Calc reports require PRC sign-off.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">33 Context Window</span><span class="guide-desc" style="font-size:.78rem;">The floating AI keeps max 20 messages and sends only the last 10. Semantic search is capped at 3 results. Tokens stay predictable.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">34 Knowledge Freshness</span><span class="guide-desc" style="font-size:.78rem;">Embed functions are called after every logbook save, PM completion, and skill badge. The RAG knowledge base stays current.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">29 Vector Schema</span><span class="guide-desc" style="font-size:.78rem;">The RAG knowledge base is structurally sound. L1: pgvector extension enabled. L2: all 3 knowledge tables (fault, skill, pm) have embedding vector(384) columns and IVFFlat indexes. L3: search_all_knowledge uses per-subquery LIMIT before UNION ALL (uses the index), and filters by hive_id for tenant isolation. L4 backlog: no similarity threshold — low-relevance results still reach the AI when the knowledge base is sparse.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">30 Groq Fallback Chain</span><span class="guide-desc" style="font-size:.78rem;">AI keeps working under rate limits. L1: every LLM function has a multi-model fallback chain (min 2 models). L2: max_tokens set on every call (prevents TPM budget burn). L3: both 413 (prompt too large) and 429 (rate limit) trigger fallback, GROQ_API_KEY validated upfront. L4: no deprecated model IDs, and all 5 Groq-calling functions now have AbortSignal.timeout(60s) — a slow Groq response cannot hang the edge function until Supabase's 150-second wall clock limit.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">31 Edge Contracts</span><span class="guide-desc" style="font-size:.78rem;">All 7 AI edge functions (ai-orchestrator, analytics-orchestrator, engineering-calc-agent, engineering-bom-sow, scheduled-agents, semantic-search, embed-entry) have a stable API contract. L1: every function handles CORS OPTIONS preflight. L2: every failure returns JSON with an error key. L3: required fields validated at entry, BOM/SOW uses content:string format. L4: all 7 functions are registered in the validator scope, SUPABASE_URL inline null-assertion flagged as backlog.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">32 AI Attribution</span><span class="guide-desc" style="font-size:.78rem;">Workers and regulators know what is AI-generated. L1: calc report narratives use the narrative-block CSS class, safety-critical calcs require PRC sign-off in recommendation text. L2: floating AI explicitly states it has no access to work records, full assistant limits itself to only the records shown in the prompt. L3 backlog: the narrative generation prompt says You are a licensed engineer without clarifying this is AI-generated text; assistant chat area needs a persistent AI attribution label.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">33 Context Window</span><span class="guide-desc" style="font-size:.78rem;">AI calls stay within token budgets. L1: floating AI has maxHistory:20 and sends only history.slice(-10) per request. L2: assistant.html sessionMessages spread is flagged as backlog, semantic search match_count is explicit. L3 backlog: assistant.html static system prompt is 8327 chars (~2081 tokens) — exceeds the 8192-token llama-3.1-8b-instant fallback model budget before any history or RAG is added. All context data sources use .limit() calls.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">34 Knowledge Freshness</span><span class="guide-desc" style="font-size:.78rem;">The RAG knowledge base stays current after every save. L1: embed-entry handles all 3 types (fault/skill/pm), all 3 embed functions are defined in their source pages. L2: each embed call passes the correct type so data goes to the right knowledge table. L3: SQL search functions filter embedding IS NOT NULL (null embeddings crash cosine distance). L4: embed calls are fire-and-forget (no await — a slow Groq embed cannot block the worker's logbook save), and embed functions have try/catch that does not rethrow.</span></div>
 
       <!-- Group 6: Enterprise Integration -->
       <div style="font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin:.75rem 0 .35rem;">Enterprise Integration Readiness (35–39)</div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">35 SSO Readiness</span><span class="guide-desc" style="font-size:.78rem;">Every page reads worker identity the same way. Sign-out clears all three identity keys. No identity from URL parameters.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">36 Idempotency</span><span class="guide-desc" style="font-size:.78rem;">Running the same import twice won't create duplicates. External sync table has UNIQUE constraint. Webhook handlers verify HMAC signatures.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">37 Integration Security</span><span class="guide-desc" style="font-size:.78rem;">No third-party API tokens hardcoded in page source. External fetch calls have timeouts. All external URLs use HTTPS.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">38 Digital Twin Schema</span><span class="guide-desc" style="font-size:.78rem;">Assets have all 5 required fields (ID, category, location, criticality, owner). Sensor tables include quality_flag. Status fields use CHECK constraints.</span></div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">39 IoT/MQTT Safety</span><span class="guide-desc" style="font-size:.78rem;">No unencrypted MQTT connections (mqtt:// must be mqtts://). MQTT topics include hive scoping. Sensor inserts include quality_flag.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">35 SSO Readiness</span><span class="guide-desc" style="font-size:.78rem;">The platform is structurally ready for SSO/SAML. L1: every app page reads WORKER_NAME using all 3 legacy keys in the correct fallback order, sign-out clears all 3 identity keys. L2: worker identity is only written to the primary key. L3: WORKER_NAME and HIVE_ID never come from URL parameters (URL manipulation cannot switch identity or hive). L4: sign-out now also clears all hive context keys (wh_active_hive_id, wh_hive_id, wh_hive_role) — Worker B inheriting Worker A's hive on a shared device was fixed in this session.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">36 Idempotency</span><span class="guide-desc" style="font-size:.78rem;">Running the same operation twice produces the same result. L1: external_sync table has UNIQUE(system_type, external_id, entity_type). L2: webhook handlers verify HMAC before reading payload. L3 backlog: upserts on shared tables should specify onConflict explicitly, batch loop inserts on shared tables should use upsert. L4 backlog: pm_completions has no UNIQUE constraint (SAP retry = duplicate PM completion), scheduled-agents writes ai_reports with insert (pg_cron double-fire = duplicate weekly reports).</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">37 Integration Security</span><span class="guide-desc" style="font-size:.78rem;">External integrations do not expose credentials. L1: no third-party webhook tokens hardcoded in client code (Make.com webhook token in index.html is flagged as backlog), no API credentials logged to console. L2: all external fetch calls use HTTPS. L3 backlog: all 7 edge functions use CORS wildcard * (should be restricted to workhiveph.com for enterprise hardening), engineering-calc-agent returns String(err) in error responses which can expose Deno stack traces. Embed-entry calls missing AbortSignal.timeout also tracked.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">38 Digital Twin Schema</span><span class="guide-desc" style="font-size:.78rem;">The asset model is ready to become a digital twin. L1: assets carry all 5 minimum DT fields (asset_id, category, location, criticality, hive_id). L2: sensor_readings table will require all 6 DT fields when built (forward guard). L3: status fields on automation tables use CHECK constraints, pm_knowledge.asset_id FK reference flagged as backlog. L4 backlog: no lifecycle state field (Active/Inactive/Decommissioned) — MTBF includes data from decommissioned assets. logbook addEntry() carries asset_ref_id to link maintenance history to the digital twin record.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">39 IoT/MQTT Safety</span><span class="guide-desc" style="font-size:.78rem;">When MQTT is added, it will be secure and reliable. L1: no unencrypted mqtt:// connections (must use mqtts://), unique clientId required. L2: sensor_readings inserts must include quality_flag (Good/Uncertain/Bad) so bad probe readings do not corrupt MTBF. L3: MQTT topics must include hive/tenant scoping (shared broker data isolation). L4: MQTT sensor paths must use QoS 1 at-least-once (QoS 0 silently drops readings on industrial WiFi), and MQTT clients must implement reconnect with exponential backoff. All 6 checks are forward guards — they fire the moment IoT code is added.</span></div>
 
       <!-- Group 7: Stage 3 Analytics -->
       <div style="font-size:.72rem;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.08em;margin:.75rem 0 .35rem;">Stage 3 Analytics Engine (40)</div>
-      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">40 Analytics Engine</span><span class="guide-desc" style="font-size:.78rem;">3-layer check: frontend auth gate + hive scoping in the Supabase edge function + all 8 SMRP/ISO 14224 metrics (MTBF, MTTR, Availability, PM Compliance, Pareto, etc.) in the Python backend.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">40 Analytics Engine</span><span class="guide-desc" style="font-size:.78rem;">3-layer check: L1 frontend — analytics.html has auth gate, hive scoping, and all 4 phase buttons wired. L2 edge function — analytics-orchestrator handles CORS, validates the phase field, and includes the new fields (failure_consequence, readings_json, production_output) in its Supabase queries. L3 Python backend — all 8 SMRP/ISO 14224 metrics are returned (MTBF, MTTR, Availability %, PM Compliance Rate, Failure Frequency, Downtime Pareto, Parts Consumption, Repeat Failure Count), and the descriptive.py module uses the Breakdown/Corrective filter to match the hive board JS calculation.</span></div>
+
+      <!-- Group 8: Data Quality & AI Pipeline (from Top 20 AI Data Problems) -->
+      <div style="font-size:.72rem;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:.08em;margin:.75rem 0 .35rem;">Data Quality &amp; AI Pipeline (41–44)</div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">41 Content Quality</span><span class="guide-desc" style="font-size:.78rem;">Addresses Problems 01, 04, 16 (Missing Context, Schema Drift, Poor Labeling). L1: embed-entry now refuses near-empty fault entries — text under 50 chars is skipped, preventing useless near-zero vectors from polluting the knowledge base. L2: fault_knowledge only stores Breakdown/Corrective entries. L3: Python and hive board MTBF filters compared for consistency. L4: Python descriptive.py now reads and computes failure_consequence for RCM Consequence Analysis. L5–L6: column safety guards and MTTR zero-filter consistency checks.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">42 Data Governance (KB)</span><span class="guide-desc" style="font-size:.78rem;">Addresses Problems 07, 10, 15, 18, 19 (No Ownership, No Metadata, Weak Governance, Fragmented Context, No Version Control). L1: all 3 knowledge tables have worker_name attribution — pm_knowledge worker_name was missing and added via migration. L2: fault_knowledge includes maintenance_type for RAG type filtering. L3: no client HTML/JS writes directly to knowledge tables — only embed-entry edge function. L4: RLS policy guard (deferred pending Supabase Auth). L5: embedding_model version column added to all 3 knowledge tables via migration for re-embedding safety.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">43 AI Data Pipeline</span><span class="guide-desc" style="font-size:.78rem;">Addresses Problems 02, 03, 11, 13, 14, 20 (Stale Data, Data Silos, Latency, Broken Pipelines, Overloaded Volume, No Observability). L1: automation_log is monitored for pipeline health. L2 backlog: buildSystemPrompt only uses 2 of 5 personal data sources (skill badges, inventory, PM health missing). L3 backlog: semantic context only on fallback path, not orchestrator path. L4 backlog: logbook count not in AI prompt. L5 backlog: no data freshness indicator in system prompt. L6: empty knowledge base state communicated to worker.</span></div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">44 Data Quality</span><span class="guide-desc" style="font-size:.78rem;">Addresses Problems 05, 06, 08, 09, 12, 17 (Duplicates, Incomplete Data, Poor Quality, Unstructured Chaos, Inconsistent Formats, Bias). L1: MTBF now groups by normalized machine name — "PUMP A" and "pump a" no longer create separate MTBF buckets (fixed in hive.html). L2 backlog: Breakdown entries should require failure_consequence on save. L3 backlog: category required on save. L4: canonical maintenance_type values consistent across add and edit forms. L5: only the 4 SAE JA1011 consequence values accepted. L6 backlog: no duplicate entry guard (same worker + machine + date).</span></div>
     </div>
 
     <div style="text-align:center;margin-top:1rem;">
@@ -1072,6 +1092,7 @@ function render(report) {
     'Feature Validators':     ['catalog-scope','drawings','compliance','notifications','predictive'],
     'AI Infrastructure':      ['vector-schema','groq-fallback','edge-contracts','ai-attribution','context-window','knowledge-freshness'],
     'Enterprise Integration': ['sso-readiness','idempotency','integration-security','digital-twin','iot-protocols'],
+    'Data Quality & AI Pipeline': ['content-quality','data-governance-kb','ai-data-pipeline','data-quality'],
   };
 
   // Build previous-run validator status map from history (second entry = last run)

@@ -1307,7 +1307,7 @@ document.addEventListener('keydown', e => {
   Promise.all([loadLogbook(), loadSchedule()]);
 </script>
 <script src="nav-hub.js"></script>
-<div id="dp-toast" class="dp-toast"></div>
+<div id="dp-toast" class="dp-toast" role="alert" aria-live="polite"></div>
 <style>
   .dp-toast { position:fixed; top:1rem; left:50%; transform:translateX(-50%) translateY(-80px);
     background:rgba(31,46,69,0.97); border:1px solid rgba(255,255,255,0.1); border-radius:.75rem;

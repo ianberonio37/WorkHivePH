@@ -23,7 +23,7 @@ Checks that failures are visible — to the worker AND to developers.
 Usage:  python validate_observability.py
 Output: observability_report.json
 """
-import re, json, sys
+import re, json, sys, os
 
 if sys.platform == "win32":
     import io
@@ -252,6 +252,50 @@ def check_pages_in_scope():
     return issues
 
 
+def check_automation_log_recency(scan_paths):
+    """
+    automation_log is written by scheduled-agents on success and failure.
+    validate_compliance.py confirms the write path is correct.
+    But no code anywhere READS automation_log with a time-based filter to
+    surface recent failures as alerts.
+
+    Problem 13 (Broken Pipelines): if the weekly digest cron job fails for
+    3 days, there is no alert — the hive board shows no change, the Guardian
+    shows no warning, and the worker has no idea. Only a direct DB query would
+    reveal the failure log entries.
+
+    The fix: add a recency query to the Guardian dashboard or a hive board
+    notification check:
+      SELECT * FROM automation_log
+      WHERE status = 'failed'
+        AND created_at > NOW() - INTERVAL '48 hours'
+        AND hive_id = $hive_id
+
+    This check verifies that some code queries automation_log with a time
+    filter (gte created_at / hours / interval) to surface recent failures.
+    Reported as WARN — scheduled jobs run but pipeline failures are invisible.
+    """
+    all_content = ""
+    for path in scan_paths:
+        c = read_file(path)
+        if c:
+            all_content += c
+
+    has_recency_query = bool(re.search(
+        r"automation_log[\s\S]{0,200}(?:gte|gt|created_at|hours|interval|recent|last.*24|last.*48|last.*36)"
+        r"|(?:gte|gt|created_at|hours|interval|recent)[\s\S]{0,200}automation_log",
+        all_content, re.IGNORECASE
+    ))
+    if not has_recency_query:
+        return [{"check": "automation_log_recency", "skip": True,
+                 "reason": ("No code queries automation_log with a time-based filter — "
+                            "cron job failures are invisible until someone manually checks the DB; "
+                            "add: SELECT * FROM automation_log WHERE status='failed' AND "
+                            "created_at > NOW() - INTERVAL '48 hours' to the Guardian dashboard "
+                            "or hive board init to surface pipeline failures as alerts")}]
+    return []
+
+
 # ── Runner ─────────────────────────────────────────────────────────────────────
 
 CHECK_NAMES = [
@@ -264,7 +308,7 @@ CHECK_NAMES = [
     # L4
     "success_feedback", "analytics_error_feedback",
     # L5
-    "pages_in_scope",
+    "pages_in_scope", "automation_log_recency",
 ]
 
 CHECK_LABELS = {
@@ -280,6 +324,7 @@ CHECK_LABELS = {
     "analytics_error_feedback":  "L4  analytics runAnalytics shows toast on error",
     # L5
     "pages_in_scope":            "L5  All Realtime pages in LIVE_PAGES scope",
+    "automation_log_recency":    "L5  automation_log queried with time filter for failure monitoring  [WARN]",
 }
 
 
@@ -296,6 +341,10 @@ def main():
     all_issues += check_success_feedback(CRITICAL_SAVES)
     all_issues += check_analytics_error_feedback(LIVE_PAGES)
     all_issues += check_pages_in_scope()
+    all_issues += check_automation_log_recency(LIVE_PAGES + [
+        "platform-health.html",
+        os.path.join("supabase", "functions", "scheduled-agents", "index.ts"),
+    ])
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

@@ -214,6 +214,63 @@ def check_migration_column_coverage(pages, column_adds):
     return issues
 
 
+def check_python_analytics_column_alignment():
+    """
+    Python descriptive.py references logbook columns by name using df["col"].
+    If a column is referenced but was never added to the logbook schema
+    (not in migrations), the analytics orchestrator never SELECTs it, so
+    the Python DataFrame will never have that column — producing KeyError
+    or always-null results.
+
+    This check extracts every df["col"] reference from descriptive.py,
+    then verifies it exists in either the analytics orchestrator SELECT
+    (the definitive list of what Python receives) or in migration column adds.
+
+    Problem 04 (Schema Drift): a renamed column in a migration breaks
+    Python analytics silently — this guard catches the mismatch at code level.
+    """
+    import os as _os
+    descriptive_path = _os.path.join("python-api", "analytics", "descriptive.py")
+    orch_path        = _os.path.join("supabase", "functions", "analytics-orchestrator", "index.ts")
+
+    py_content   = read_file(descriptive_path)
+    orch_content = read_file(orch_path)
+    if py_content is None or orch_content is None:
+        return []
+
+    # Extract column names Python reads from logbook-like DataFrames
+    py_cols = set(re.findall(r'df\s*\[\s*["\']([^"\']+)["\']', py_content))
+    # Also get df.get() patterns
+    py_cols |= set(re.findall(r'df\.get\s*\(\s*["\']([^"\']+)["\']', py_content))
+
+    # These columns are from inventory_transactions, not logbook — exempt
+    TXN_COLS = {"type", "qty_change", "part_name", "created_at"}
+
+    # What does the orchestrator SELECT from logbook? Find the logbook-specific select
+    # (look for the select following a .from("logbook") reference)
+    logbook_select_m = re.search(
+        r'from\s*\(\s*["\']logbook["\'][\s\S]{0,200}?\.select\s*\(\s*["\']([^"\']+)["\']',
+        orch_content
+    )
+    orch_cols = set()
+    if logbook_select_m:
+        orch_cols = {c.strip() for c in logbook_select_m.group(1).split(",")}
+
+    issues = []
+    for col in sorted(py_cols - TXN_COLS):
+        if col in orch_cols:
+            continue
+        if col in ("created_at", "status"):  # universal audit columns
+            continue
+        issues.append({"check": "python_analytics_column_alignment",
+                       "skip": True,
+                       "reason": (f"descriptive.py references df['{col}'] but '{col}' is not in "
+                                  f"the analytics-orchestrator logbook SELECT — Python may receive "
+                                  f"an empty or missing column; verify the orchestrator SELECT includes "
+                                  f"'{col}' or remove the reference from descriptive.py")})
+    return issues
+
+
 # ── Layer 3: Scope completeness ───────────────────────────────────────────────
 
 def check_pages_in_scope():
@@ -243,6 +300,7 @@ CHECK_NAMES = [
     "date_format", "jsonb_not_stringified", "migration_column_coverage",
     # L3
     "pages_in_scope",
+    "python_analytics_column_alignment",
 ]
 
 CHECK_LABELS = {
@@ -255,7 +313,8 @@ CHECK_LABELS = {
     "jsonb_not_stringified":     "L2  jsonb columns not wrapped in JSON.stringify()",
     "migration_column_coverage": "L2  New migration columns referenced in frontend",
     # L3
-    "pages_in_scope":            "L3  All DB-using pages in LIVE_PAGES",
+    "pages_in_scope":                        "L3  All DB-using pages in LIVE_PAGES",
+    "python_analytics_column_alignment":     "L4  Python analytics df[] columns exist in orchestrator SELECT  [WARN]",
 }
 
 
@@ -275,6 +334,7 @@ def main():
     all_issues += check_jsonb_not_stringified(LIVE_PAGES)
     all_issues += check_migration_column_coverage(LIVE_PAGES, column_adds)
     all_issues += check_pages_in_scope()
+    all_issues += check_python_analytics_column_alignment()
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

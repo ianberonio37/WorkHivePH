@@ -260,6 +260,7 @@
     .ho-input::placeholder { color: rgba(255,255,255,0.25); }
     .ho-input:focus { border-color: rgba(41,182,217,0.4); background: rgba(41,182,217,0.06); }
   </style>
+  <link rel="canonical" href="https://workhiveph.com/hive.html" />
 </head>
 <body class="text-white">
 <div class="aurora-bg"></div>
@@ -788,7 +789,7 @@
 </main>
 
 <!-- Toast notification -->
-<div id="hive-toast" class="hidden fixed bottom-6 left-1/2 z-50 px-4 py-3 rounded-xl text-sm font-semibold text-white shadow-xl" style="transform:translateX(-50%); background:rgba(30,44,65,0.97); border:1px solid rgba(255,255,255,0.12); max-width:calc(100vw - 2rem); text-align:center; pointer-events:none;"></div>
+<div id="hive-toast" class="hidden fixed bottom-6 left-1/2 z-50 px-4 py-3 rounded-xl text-sm font-semibold text-white shadow-xl" style="transform:translateX(-50%); background:rgba(30,44,65,0.97); border:1px solid rgba(255,255,255,0.12); max-width:calc(100vw - 2rem); text-align:center; pointer-events:none;" role="alert" aria-live="polite"></div>
 
 <!-- Hive switcher modal -->
 <div id="modal-hive-switch" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
@@ -1435,7 +1436,7 @@ async function loadMembers() {
         ${isSup ? '<span class="supervisor-tag" style="font-size:0.55rem; padding:1px 6px; margin-top:2px; display:inline-flex;">Supervisor</span>' : ''}
       </div>
       ${workloadBadge}
-      ${canKick ? `<button onclick="kickMember('${escHtml(m.worker_name)}')" class="btn-danger" style="font-size:0.7rem; padding:0.3rem 0.75rem; min-height:36px;">Remove</button>` : ''}
+      ${canKick ? `<button onclick="kickMember('${escHtml(m.worker_name)}')" class="btn-danger" style="font-size:0.7rem; padding:0.3rem 0.75rem; min-height:44px;">Remove</button>` : ''}
     </div>`;
   }).join('');
 }
@@ -2137,8 +2138,8 @@ function renderApprovalQueue() {
         </div>
       </div>
       <div class="flex gap-2">
-        <button onclick="approveItem('assets','${escHtml(a.id)}','${escHtml(a.submitted_by || a.worker_name)}','${escHtml(a.asset_id)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.25);min-height:36px;cursor:pointer;">Approve</button>
-        <button onclick="rejectItem('assets','${escHtml(a.id)}','${escHtml(a.submitted_by || a.worker_name)}','${escHtml(a.asset_id)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);min-height:36px;cursor:pointer;">Reject</button>
+        <button onclick="approveItem('assets','${escHtml(a.id)}','${escHtml(a.submitted_by || a.worker_name)}','${escHtml(a.asset_id)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.25);min-height:44px;cursor:pointer;">Approve</button>
+        <button onclick="rejectItem('assets','${escHtml(a.id)}','${escHtml(a.submitted_by || a.worker_name)}','${escHtml(a.asset_id)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);min-height:44px;cursor:pointer;">Reject</button>
       </div>
     </div>`).join('');
 
@@ -2152,8 +2153,8 @@ function renderApprovalQueue() {
         </div>
       </div>
       <div class="flex gap-2">
-        <button onclick="approveItem('inventory_items','${escHtml(p.id)}','${escHtml(p.submitted_by || p.worker_name)}','${escHtml(p.part_name)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.25);min-height:36px;cursor:pointer;">Approve</button>
-        <button onclick="rejectItem('inventory_items','${escHtml(p.id)}','${escHtml(p.submitted_by || p.worker_name)}','${escHtml(p.part_name)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);min-height:36px;cursor:pointer;">Reject</button>
+        <button onclick="approveItem('inventory_items','${escHtml(p.id)}','${escHtml(p.submitted_by || p.worker_name)}','${escHtml(p.part_name)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.25);min-height:44px;cursor:pointer;">Approve</button>
+        <button onclick="rejectItem('inventory_items','${escHtml(p.id)}','${escHtml(p.submitted_by || p.worker_name)}','${escHtml(p.part_name)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);min-height:44px;cursor:pointer;">Reject</button>
       </div>
     </div>`).join('');
 
@@ -2615,8 +2616,9 @@ async function loadMtbf() {
   const byMachine = {};
   entries.forEach(e => {
     if (!e.machine) return;
-    if (!byMachine[e.machine]) byMachine[e.machine] = [];
-    byMachine[e.machine].push(new Date(e.created_at).getTime());
+    const key = e.machine.trim();   // normalize: 'PUMP A' and 'pump a' group together
+    if (!byMachine[key]) byMachine[key] = [];
+    byMachine[key].push(new Date(e.created_at).getTime());
   });
 
   const results = [];

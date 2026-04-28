@@ -1,56 +1,41 @@
 """
 Edge Function API Contract Validator — WorkHive Platform
 =========================================================
-WorkHive's AI features are powered by 6 Supabase Edge Functions. Each
-function is a mini-API with an implicit contract: the caller (browser
-or cron job) sends a specific JSON body and expects a specific JSON
-response. A broken contract produces a silent failure or a cryptic error.
+WorkHive's AI features are powered by Supabase Edge Functions. Each
+function is a mini-API with an implicit contract: the caller sends a
+specific JSON body and expects a specific JSON response. A broken
+contract produces a silent failure or a cryptic error.
 
-The AI Engineer skill and the Multi-Agent Supervisor agentic pattern
-require that every agent interface is stable and self-describing.
+  Layer 1 — Request handling
+    1.  CORS OPTIONS preflight         — every function must handle OPTIONS or browser blocks all calls
 
-Four things checked:
+  Layer 2 — Response contract
+    2.  { error: string } on failure   — callers check result.error; wrong shape = silent failure
 
-  1. All edge functions handle CORS OPTIONS preflight
-     — Every function must respond to OPTIONS requests with the CORS
-       headers. Without it, the browser blocks ALL requests from the
-       frontend before they even reach the function logic. This is the
-       #1 cause of "the AI feature just stopped working" incidents.
+  Layer 3 — Input safety
+    3.  Required fields validated      — missing field should 400, not 500 deep in logic
+    4.  BOM/SOW sections: content:string — renderer reads section.content; items[] renders blank
 
-  2. All edge functions return { error: string } JSON on failure
-     — The error contract: every failure path must return a JSON object
-       with an "error" key. Callers (browser, cron, orchestrator) check
-       for response.error. If a function returns plain text or a
-       differently-shaped object, the caller silently fails to detect
-       the error and treats the result as success.
-
-  3. Required input fields validated at function entry
-     — Every function that expects required fields (calc_type, question,
-       report_type, etc.) must validate them upfront and return a 400
-       with a clear error message. Missing input validation means the
-       function crashes deep in its logic with a cryptic 500 error
-       instead of a meaningful "Missing required field: X" message.
-
-  4. BOM/SOW sections use content:string format (not items:array)
-     — The SOW schema MUST be:
-         { section_no: string, title: string, content: string }
-       NOT:
-         { title: string, items: string[] }
-       The AI Engineer skill explicitly calls out this format as the
-       correct one. The renderer in engineering-design.html reads
-       section.content — if the LLM returns items[], the SOW renders
-       blank. This is the most common silent format regression.
+  Layer 4 — Operational hygiene
+    5.  All function dirs registered   — new functions escape all checks if not in ALL_FUNCTIONS
+    6.  SUPABASE env vars guarded      — createClient() should not use bare Deno.env.get()! [WARN]
 
 Usage:  python validate_edge_contracts.py
 Output: edge_contracts_report.json
 """
 import re, json, sys, os
 
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+from validator_utils import read_file, format_result
+
 FUNCTIONS_DIR = os.path.join("supabase", "functions")
 
-# All 6 edge functions that serve HTTP requests
 ALL_FUNCTIONS = [
     "ai-orchestrator",
+    "analytics-orchestrator",
     "engineering-calc-agent",
     "engineering-bom-sow",
     "scheduled-agents",
@@ -58,13 +43,13 @@ ALL_FUNCTIONS = [
     "embed-entry",
 ]
 
-# Functions that must validate specific required fields (function → field list)
 REQUIRED_FIELDS = {
-    "ai-orchestrator":        ["question"],
-    "engineering-calc-agent": ["calc_type", "inputs"],
-    "engineering-bom-sow":    ["discipline", "calc_type"],
-    "scheduled-agents":       ["report_type"],
-    "semantic-search":        ["query"],
+    "ai-orchestrator":          ["question"],
+    "analytics-orchestrator":   ["phase"],
+    "engineering-calc-agent":   ["calc_type", "inputs"],
+    "engineering-bom-sow":      ["discipline", "calc_type"],
+    "scheduled-agents":         ["report_type"],
+    "semantic-search":          ["query"],
 }
 
 
@@ -77,228 +62,201 @@ def read_function(name):
         return None, path
 
 
-# ── Check 1: All edge functions handle CORS OPTIONS preflight ─────────────────
+# ── Layer 1: Request handling ─────────────────────────────────────────────────
 
 def check_cors_options(func_names):
-    """
-    Every edge function must handle OPTIONS requests and return CORS headers.
-    Without this, the browser's preflight check fails BEFORE any request
-    body is sent — the AI feature appears completely broken with no
-    specific error in the browser console.
-
-    Required pattern:
-      if (req.method === "OPTIONS") { return new Response("ok", { headers: corsHeaders }); }
-    """
+    """Every edge function must handle OPTIONS requests — without it, the browser
+    preflight check blocks all calls before any request body is even sent."""
     issues = []
     for name in func_names:
         content, path = read_function(name)
         if content is None:
-            issues.append({
-                "func":   name,
-                "reason": f"{path} not found — cannot verify CORS OPTIONS handling",
-            })
+            issues.append({"check": "cors_options", "func": name,
+                           "reason": f"{path} not found — cannot verify CORS OPTIONS handling"})
             continue
         if not re.search(r'req\.method\s*===\s*["\']OPTIONS["\']', content):
-            issues.append({
-                "func":   name,
-                "reason": (
-                    f"{name}/index.ts does not handle OPTIONS preflight — "
-                    f"browser CORS check will block all frontend requests to this function"
-                ),
-            })
+            issues.append({"check": "cors_options", "func": name,
+                           "reason": (f"{name}/index.ts does not handle OPTIONS preflight — "
+                                      f"browser CORS check blocks all frontend requests")})
     return issues
 
 
-# ── Check 2: All functions return { error: string } JSON on failure ───────────
+# ── Layer 2: Response contract ────────────────────────────────────────────────
 
 def check_error_contract(func_names):
-    """
-    Every error response must be a JSON object with an 'error' key.
-    The frontend and orchestrator both check result.error — if the shape
-    differs, the caller silently misses the error condition.
-
-    Required patterns:
-      JSON.stringify({ error: "..." })
-      JSON.stringify({ error: err.message })
-    """
+    """Every failure path must return JSON.stringify({ error: ... }) — the frontend
+    and orchestrator both check result.error; wrong shape = silent failure."""
     issues = []
     for name in func_names:
         content, path = read_function(name)
         if content is None:
             continue
-        # Every function should have at least one { error: ... } JSON response
-        has_error_contract = bool(re.search(
-            r'JSON\.stringify\s*\(\s*\{\s*error\s*:',
-            content
-        ))
-        if not has_error_contract:
-            issues.append({
-                "func":   name,
-                "reason": (
-                    f"{name}/index.ts has no JSON.stringify({{ error: ... }}) "
-                    f"error response — callers cannot detect failures because "
-                    f"the error shape doesn't match the expected contract"
-                ),
-            })
+        if not re.search(r'JSON\.stringify\s*\(\s*\{\s*error\s*:', content):
+            issues.append({"check": "error_contract", "func": name,
+                           "reason": (f"{name}/index.ts has no JSON.stringify({{ error: ... }}) "
+                                      f"error response — callers cannot detect failures")})
     return issues
 
 
-# ── Check 3: Required input fields validated at function entry ────────────────
+# ── Layer 3: Input safety ─────────────────────────────────────────────────────
 
 def check_input_validation(required_fields):
-    """
-    Functions that expect required fields must validate them at the top of
-    the request handler and return a 400 with a clear message.
-
-    Without this check:
-    - A caller that sends an empty body gets a cryptic 500 error deep
-      in the function logic instead of "Missing required field: X"
-    - Debugging takes minutes instead of seconds
-    - The cron scheduler or orchestrator can't distinguish missing fields
-      from server errors
-    """
+    """Required fields must be validated at entry with a 400 — a missing field
+    should produce 'Missing required field: X', not a cryptic 500."""
     issues = []
     for name, fields in required_fields.items():
         content, path = read_function(name)
         if content is None:
             continue
-
         for field in fields:
-            # Check for !field_name or Missing required field: field
-            has_validation = bool(re.search(
-                rf"!{re.escape(field)}\b|Missing.*{re.escape(field)}",
-                content
-            ))
-            if not has_validation:
-                issues.append({
-                    "func":  name,
-                    "field": field,
-                    "reason": (
-                        f"{name}/index.ts does not validate required field "
-                        f"'{field}' at entry — a missing field produces a "
-                        f"cryptic 500 instead of a clear 400 'Missing required field'"
-                    ),
-                })
+            if not re.search(rf"!{re.escape(field)}\b|Missing.*{re.escape(field)}", content):
+                issues.append({"check": "input_validation", "func": name,
+                               "reason": (f"{name}/index.ts does not validate required field "
+                                          f"'{field}' at entry — missing field produces cryptic 500")})
     return issues
 
-
-# ── Check 4: BOM/SOW sections use content:string not items:array ──────────────
 
 def check_sow_content_format():
-    """
-    The SOW schema in engineering-bom-sow must instruct the LLM to return
-    sections as { section_no, title, content: string } — NOT { title, items[] }.
-
-    The engineering-design.html renderer reads section.content.
-    If the LLM returns items[], the SOW silently renders blank.
-
-    This is the format bug the AI Engineer skill explicitly documents:
-    'SOW agent schema (content: string, not items: array)'
-    """
-    issues = []
+    """The SOW schema must instruct the LLM to return sections as
+    { section_no, title, content:string } — NOT { title, items[] }.
+    The renderer reads section.content; items[] renders blank silently."""
     content, path = read_function("engineering-bom-sow")
     if content is None:
-        return [{"func": "engineering-bom-sow", "reason": f"{path} not found"}]
-
-    # Look for the SOW section schema definition
-    # The correct pattern includes "content": string in the schema instruction
-    has_content_field = bool(re.search(
-        r'"content"\s*:\s*(?:string|"[^"]*")',
-        content
-    ))
-    if not has_content_field:
-        issues.append({
-            "func":   "engineering-bom-sow",
-            "reason": (
-                "engineering-bom-sow/index.ts SOW schema does not declare "
-                "'content': string for section objects — the renderer reads "
-                "section.content; if the LLM returns items[] instead, "
-                "the entire SOW renders blank silently"
-            ),
-        })
-        return issues
-
-    # Also check that 'items' is not used as the section content field
-    # (The wrong pattern: { "title": ..., "items": [...] })
-    # Find SOW section schema blocks and check for items:array instruction
-    sow_schema_blocks = re.findall(
-        r"sow_sections.*?(?=bom_items|\Z)",
-        content[:5000], re.DOTALL | re.IGNORECASE
-    )
-    for block in sow_schema_blocks[:3]:
+        return [{"check": "sow_content_format", "func": "engineering-bom-sow",
+                 "reason": f"{path} not found"}]
+    if not re.search(r'"content"\s*:\s*(?:string|"[^"]*")', content):
+        return [{"check": "sow_content_format", "func": "engineering-bom-sow",
+                 "reason": ("engineering-bom-sow SOW schema has no 'content': string field — "
+                            "renderer reads section.content; LLM returning items[] renders blank")}]
+    sow_blocks = re.findall(r"sow_sections.*?(?=bom_items|\Z)", content[:5000], re.DOTALL | re.IGNORECASE)
+    for block in sow_blocks[:3]:
         if re.search(r'"items"\s*:\s*(?:array|Array|\[)', block, re.IGNORECASE):
-            issues.append({
-                "func":   "engineering-bom-sow",
-                "reason": (
-                    "engineering-bom-sow/index.ts SOW schema uses 'items: array' "
-                    "format — must use 'content: string' per AI Engineer skill. "
-                    "The renderer reads section.content, not section.items"
-                ),
-            })
-            break
+            return [{"check": "sow_content_format", "func": "engineering-bom-sow",
+                     "reason": ("engineering-bom-sow SOW schema uses 'items: array' — "
+                                "must use 'content: string' per AI Engineer skill")}]
+    return []
+
+
+# ── Layer 4: Operational hygiene ──────────────────────────────────────────────
+
+def check_all_functions_covered(registered):
+    """
+    Every directory under supabase/functions/ that contains an index.ts must
+    be in ALL_FUNCTIONS. analytics-orchestrator was previously not registered —
+    its CORS handling, error contract, and input validation were never checked.
+    A new function deployed without being added here escapes all contract checks.
+    """
+    issues = []
+    if not os.path.isdir(FUNCTIONS_DIR):
+        return []
+    registered_set = set(registered)
+    for dirname in sorted(os.listdir(FUNCTIONS_DIR)):
+        func_path = os.path.join(FUNCTIONS_DIR, dirname, "index.ts")
+        if not os.path.isfile(func_path):
+            continue
+        if dirname not in registered_set:
+            issues.append({"check": "all_functions_covered", "func": dirname,
+                           "reason": (f"supabase/functions/{dirname}/ exists but is not in "
+                                      f"ALL_FUNCTIONS — its CORS, error contract, and input "
+                                      f"validation are never checked; add it to validate_edge_contracts.py")})
     return issues
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+def check_env_var_validation(func_names):
+    """
+    Functions that call createClient() must not use bare Deno.env.get("SUPABASE_URL")!
+    with the TypeScript non-null assertion operator as the only guard. The ! is
+    compile-time only — at runtime, if the env var is missing, createClient() receives
+    undefined and fails with a cryptic 'Invalid URL' error instead of a clear message.
+    The GROQ_API_KEY already uses an explicit if (!GROQ_KEY) throw guard; SUPABASE_URL
+    and SUPABASE_SERVICE_ROLE_KEY should follow the same pattern.
+    Reported as WARN — functions work correctly when properly deployed.
+    """
+    issues = []
+    for name in func_names:
+        content, path = read_function(name)
+        if content is None:
+            continue
+        # Find createClient calls that use Deno.env.get() inline without prior assignment
+        inline_pattern = re.search(
+            r"createClient\s*\(\s*Deno\.env\.get\s*\(",
+            content
+        )
+        if not inline_pattern:
+            continue
+        # Check if SUPABASE_URL is explicitly validated somewhere
+        has_guard = bool(re.search(
+            r"if\s*\(\s*!.*SUPABASE_URL|const\s+\w+\s*=\s*Deno\.env\.get.*SUPABASE_URL.*\n.*if\s*\(!",
+            content
+        ))
+        if not has_guard:
+            issues.append({"check": "env_var_validation", "func": name, "skip": True,
+                           "reason": (f"{name}/index.ts passes Deno.env.get('SUPABASE_URL')! "
+                                      f"directly to createClient() without an explicit guard — "
+                                      f"a missing env var produces cryptic 'Invalid URL' error; "
+                                      f"assign to a const and add if (!SUPABASE_URL) throw first")})
+    return issues
 
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-print("\n" + "=" * 70)
-print("Edge Function API Contract Validator")
-print("=" * 70)
-print(f"\n  Checking {len(ALL_FUNCTIONS)} edge functions: "
-      f"{', '.join(ALL_FUNCTIONS)}\n")
+# ── Runner ─────────────────────────────────────────────────────────────────────
 
-fail_count = 0
-warn_count = 0
-report     = {}
-
-checks = [
-    (
-        "[1] All edge functions handle CORS OPTIONS preflight",
-        check_cors_options(ALL_FUNCTIONS),
-        "FAIL",
-    ),
-    (
-        "[2] All edge functions return { error: string } JSON on failure",
-        check_error_contract(ALL_FUNCTIONS),
-        "FAIL",
-    ),
-    (
-        "[3] Required input fields validated at function entry",
-        check_input_validation(REQUIRED_FIELDS),
-        "FAIL",
-    ),
-    (
-        "[4] BOM/SOW sections use content:string format (not items:array)",
-        check_sow_content_format(),
-        "FAIL",
-    ),
+CHECK_NAMES = [
+    "cors_options",
+    "error_contract",
+    "input_validation",
+    "sow_content_format",
+    "all_functions_covered",
+    "env_var_validation",
 ]
 
-for label, issues, severity in checks:
-    print(f"\n{label}\n")
-    if not issues:
-        print("  PASS")
+CHECK_LABELS = {
+    "cors_options":          "L1  All edge functions handle CORS OPTIONS preflight",
+    "error_contract":        "L2  All functions return { error: string } JSON on failure",
+    "input_validation":      "L3  Required input fields validated at function entry",
+    "sow_content_format":    "L3  BOM/SOW sections use content:string (not items:array)",
+    "all_functions_covered": "L4  All supabase/functions/ dirs registered in validator scope",
+    "env_var_validation":    "L4  SUPABASE env vars guarded before createClient()  [WARN]",
+}
+
+
+def main():
+    def bold(s): return f"\033[1m{s}\033[0m"
+    print(bold("\nEdge Function API Contract Validator (4-layer)"))
+    print("=" * 55)
+    print(f"  {len(ALL_FUNCTIONS)} edge functions: {', '.join(ALL_FUNCTIONS)}\n")
+
+    all_issues = []
+    all_issues += check_cors_options(ALL_FUNCTIONS)
+    all_issues += check_error_contract(ALL_FUNCTIONS)
+    all_issues += check_input_validation(REQUIRED_FIELDS)
+    all_issues += check_sow_content_format()
+    all_issues += check_all_functions_covered(ALL_FUNCTIONS)
+    all_issues += check_env_var_validation(ALL_FUNCTIONS)
+
+    n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
+
+    total = len(CHECK_NAMES)
+    if n_fail == 0 and n_warn == 0:
+        print(f"\033[92m\n  All {total} checks passed.\033[0m")
+    elif n_fail == 0:
+        print(f"\033[93m\n  {n_pass} PASS  {n_warn} WARN  0 FAIL\033[0m")
     else:
-        for iss in issues:
-            print(f"  {severity}  {iss.get('func', '?')}")
-            print(f"        {iss['reason']}")
-        if severity == "FAIL":
-            fail_count += len(issues)
-        else:
-            warn_count += len(issues)
-    report[label] = issues
+        print(f"\033[91m\n  {n_pass} PASS  {n_warn} WARN  {n_fail} FAIL\033[0m")
 
-print(f"\n{'=' * 70}")
-print(f"Result: {fail_count} FAIL  {warn_count} WARN")
+    report = {
+        "validator":    "edge_contracts",
+        "total_checks": total,
+        "passed":       n_pass,
+        "warned":       n_warn,
+        "failed":       n_fail,
+        "issues":       [i for i in all_issues if not i.get("skip")],
+        "warnings":     [i for i in all_issues if i.get("skip")],
+    }
+    with open("edge_contracts_report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
 
-with open("edge_contracts_report.json", "w") as f:
-    json.dump(report, f, indent=2)
-print("Saved edge_contracts_report.json")
+    sys.exit(1 if n_fail > 0 else 0)
 
-if fail_count:
-    print("\nFIX REQUIRED.")
-    sys.exit(1)
-print("\nAll edge contract checks PASS.")
+
+if __name__ == "__main__":
+    main()

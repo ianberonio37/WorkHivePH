@@ -6,7 +6,10 @@
     "Pump Sizing (TDH)",
     "Pipe Sizing",
     "Compressed Air",
+    "Boiler System",
     "Water Supply Pipe Sizing",
+    "Hot Water Demand",
+    "Drainage Pipe Sizing",
     "Septic Tank Sizing",
     "Water Softener Sizing",
     "Water Treatment System",
@@ -14,6 +17,7 @@
     "Storm Drain / Stormwater",
     "Grease Trap Sizing",
     "Roof Drain Sizing",
+    "Load Estimation",
     "Voltage Drop",
     "Wire Sizing",
     "Short Circuit",
@@ -52,10 +56,5 @@
     "Noise / Acoustics"
   ],
   "no_block": [],
-  "no_api": [
-    "Boiler System",
-    "Hot Water Demand",
-    "Drainage Pipe Sizing",
-    "Load Estimation"
-  ]
+  "no_api": []
 }

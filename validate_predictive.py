@@ -25,7 +25,7 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-from validator_utils import read_file, format_result
+from validator_utils import read_file, format_result  # noqa: E402
 
 HIVE_PAGE        = "hive.html"
 LOGBOOK_PAGE     = "logbook.html"
@@ -162,6 +162,49 @@ def check_downtime_cap(hive_page, logbook_page):
 
 # ── Runner ─────────────────────────────────────────────────────────────────────
 
+def check_failure_consequence_adoption(hive_page, orch_path):
+    """
+    failure_consequence was added to the logbook form (Apr 2026) for RCM analysis.
+    For the Diagnostic phase to produce meaningful consequence distribution charts,
+    this field must be included in the analytics pipeline.
+
+    Two things verified:
+    1. The analytics-orchestrator edge function SELECTs failure_consequence from
+       logbook — if it doesn't, the Python analytics module never receives the field
+       even if workers fill it in.
+    2. The hive board or analytics UI surfaces a consequence distribution chart —
+       if no chart renderer references consequence data, workers have no incentive
+       to fill in the field (0% adoption is guaranteed without visible output).
+
+    Reported as WARN — field exists, adoption depends on chart visibility.
+    """
+    issues = []
+
+    # Check 1: analytics orchestrator SELECTs failure_consequence
+    orch_content = read_file(orch_path)
+    if orch_content and "failure_consequence" not in orch_content:
+        issues.append({"check": "failure_consequence_adoption", "skip": True,
+                       "reason": (f"{orch_path} does not SELECT failure_consequence from logbook — "
+                                  f"the Python analytics module never receives it; "
+                                  f"add failure_consequence to the logbook .select() in the orchestrator")})
+
+    # Check 2: analytics page renders a consequence distribution chart
+    analytics_content = read_file("analytics.html") or ""
+    hive_content      = read_file(hive_page) or ""
+    has_renderer = bool(re.search(
+        r"consequence.*dist\b|consequence.*chart\b|renderConsequence\|consequence.*render"
+        r"|RCM.*consequence\|consequence.*RCM",
+        analytics_content + hive_content, re.IGNORECASE
+    ))
+    if not has_renderer:
+        issues.append({"check": "failure_consequence_adoption", "skip": True,
+                       "reason": ("No consequence distribution chart renderer found in analytics.html "
+                                  "or hive.html — workers have no visible output for this field, "
+                                  "so adoption rate stays near 0%; add a consequence distribution "
+                                  "chart to the Diagnostic analytics phase")})
+    return issues
+
+
 CHECK_NAMES = [
     # L1
     "mtbf_filters", "mtbf_min_count", "mttr_positive_filter",
@@ -169,18 +212,22 @@ CHECK_NAMES = [
     "cache_ttl",
     # L3
     "python_corrective_filter", "downtime_cap",
+    # L4
+    "failure_consequence_adoption",
 ]
 
 CHECK_LABELS = {
     # L1
-    "mtbf_filters":             "L1  MTBF query: maintenance_type + non-null machine filters",
-    "mtbf_min_count":           "L1  MTBF skips machines with < 2 failures",
-    "mttr_positive_filter":     "L1  MTTR filters out zero and negative repair times",
+    "mtbf_filters":                 "L1  MTBF query: maintenance_type + non-null machine filters",
+    "mtbf_min_count":               "L1  MTBF skips machines with < 2 failures",
+    "mttr_positive_filter":         "L1  MTTR filters out zero and negative repair times",
     # L2
-    "cache_ttl":                "L2  MTBF/MTTR cache freshness validated with computed_at TTL",
+    "cache_ttl":                    "L2  MTBF/MTTR cache freshness validated with computed_at TTL",
     # L3
-    "python_corrective_filter": "L3  Python descriptive.py uses 'Breakdown / Corrective' filter",
-    "downtime_cap":             "L3  Downtime hours capped at 720h (data entry + analytics)  [WARN]",
+    "python_corrective_filter":     "L3  Python descriptive.py uses 'Breakdown / Corrective' filter",
+    "downtime_cap":                 "L3  Downtime hours capped at 720h (data entry + analytics)  [WARN]",
+    # L4
+    "failure_consequence_adoption": "L4  failure_consequence in analytics pipeline + chart renderer  [WARN]",
 }
 
 
@@ -196,6 +243,8 @@ def main():
     all_issues += check_cache_ttl(HIVE_PAGE)
     all_issues += check_python_corrective_filter(DESCRIPTIVE_PY)
     all_issues += check_downtime_cap(HIVE_PAGE, LOGBOOK_PAGE)
+    all_issues += check_failure_consequence_adoption(HIVE_PAGE,
+                      os.path.join("supabase", "functions", "analytics-orchestrator", "index.ts"))
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 
