@@ -10676,17 +10676,14 @@ async function runCalculation() {
       showToast('Please enter a valid building height.');
       return;
     }
-  } else if (_calcType === 'Noise / Acoustics' ||
-             _calcType === 'Vibration Analysis' ||
-             _calcType === 'Fluid Power' ||
-             _calcType === 'Transformer Sizing' ||
-             _calcType === 'Harmonic Distortion' ||
-             _calcType === 'Clean Agent Suppression') {
-    // all fields have defaults or no floor_area required
-  } else if (!inputs.floor_area || inputs.floor_area <= 0) {
-    showToast('Please enter the floor area.');
-    return;
+  } else if (_calcType === 'HVAC Cooling Load' || _calcType === 'Lighting Design') {
+    // Only these two calc types collect floor_area — validate it
+    if (!inputs.floor_area || inputs.floor_area <= 0) {
+      showToast('Please enter the floor area.');
+      return;
+    }
   }
+  // All other calc types: no floor_area validation (they use their own required fields)
 
   showLoading();
 
