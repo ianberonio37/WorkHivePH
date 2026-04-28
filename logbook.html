@@ -99,6 +99,18 @@
     .extras-drawer { display:none; margin-top:0.75rem; }
     .extras-drawer.open { display:block; }
 
+    /* ── Root cause chips ── */
+    .rc-chip {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.3rem 0.75rem; border-radius: 999px; cursor: pointer;
+      font-size: 0.7rem; font-weight: 600; min-height: 36px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.55); transition: all 0.15s; user-select: none;
+    }
+    .rc-chip:active  { transform: scale(0.96); }
+    .rc-chip.selected { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.4); color: #F7A21B; }
+    .rc-chip .chip-count { font-size: 0.6rem; opacity: 0.6; }
+
     .hex-pattern {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E");
       background-size: 80px 92px;
@@ -481,6 +493,11 @@
 
               <div>
                 <label class="wh-label">Root Cause</label>
+                <!-- History chips — populated when a machine is selected -->
+                <div id="root-cause-chips" class="hidden mb-2">
+                  <p class="text-[10px] text-white/30 mb-1.5 font-semibold uppercase tracking-widest">Common for this machine</p>
+                  <div id="root-cause-chip-list" class="flex flex-wrap gap-1.5"></div>
+                </div>
                 <select id="f-root-cause" class="wh-input">
                   <option value="">Select root cause...</option>
                   <option value="Misalignment">Misalignment</option>
@@ -1793,7 +1810,72 @@ function selectAsset(assetId, assetName, assetRefId) {
   closeAssetPicker();
   saveDraft();
   loadPMTasksForAsset();
+  renderRootCauseChips(assetId);
 }
+
+// ── Root cause chip picker ────────────────────────────────────────────────────
+
+function renderRootCauseChips(machineName) {
+  const chipsWrap = document.getElementById('root-cause-chips');
+  const chipList  = document.getElementById('root-cause-chip-list');
+
+  // Get historical root causes for this machine from cached entries
+  const entries = loadEntries ? loadEntries() : _allEntries;
+  const forMachine = entries.filter(e =>
+    e.machine === machineName &&
+    e.root_cause &&
+    e.root_cause.trim() !== '' &&
+    e.root_cause !== 'Unknown'
+  );
+
+  if (!forMachine.length) { chipsWrap.classList.add('hidden'); return; }
+
+  // Count + rank by frequency
+  const counts = {};
+  forMachine.forEach(e => { counts[e.root_cause] = (counts[e.root_cause] || 0) + 1; });
+  const ranked = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5); // top 5 max
+
+  chipList.innerHTML = ranked.map(([cause, count]) => `
+    <button type="button" class="rc-chip" onclick="selectRootCauseChip(this, '${escHtml(cause).replace(/'/g, "&#39;")}')">
+      ${escHtml(cause)}
+      ${count > 1 ? `<span class="chip-count">${count}×</span>` : ''}
+    </button>`).join('');
+
+  chipsWrap.classList.remove('hidden');
+}
+
+function selectRootCauseChip(btn, cause) {
+  const select = document.getElementById('f-root-cause');
+
+  // Toggle: tap same chip to deselect
+  const isSelected = btn.classList.contains('selected');
+  document.querySelectorAll('.rc-chip').forEach(c => c.classList.remove('selected'));
+
+  if (isSelected) {
+    select.value = '';
+  } else {
+    btn.classList.add('selected');
+    // Set dropdown — find matching option or add it
+    const existing = [...select.options].find(o => o.value === cause);
+    if (existing) {
+      select.value = cause;
+    } else {
+      const opt = new Option(cause, cause);
+      select.appendChild(opt);
+      select.value = cause;
+    }
+  }
+  saveDraft();
+}
+
+// Keep chips in sync when dropdown changes manually
+document.getElementById('f-root-cause').addEventListener('change', function() {
+  document.querySelectorAll('.rc-chip').forEach(c => {
+    c.classList.toggle('selected', c.textContent.trim().split('×')[0].trim() === this.value);
+  });
+});
 
 document.getElementById('f-maint-type').addEventListener('change', loadPMTasksForAsset);
 
