@@ -10886,21 +10886,24 @@ function showReport() {
   resetBomSow();
   // Show drawing section for supported calc types
   const DRAWING_SUPPORTED = [
+    // ── Original builders ──────────────────────────────────────────────────────
     'HVAC Cooling Load', 'Load Estimation', 'Lightning Protection System (LPS)',
     'Generator Sizing', 'Pump Sizing (TDH)', 'Fire Sprinkler Hydraulic', 'Lighting Design',
-    // Phase 10a: Python matplotlib diagrams
+    // ── HVAC group ────────────────────────────────────────────────────────────
     'AHU Sizing', 'Duct Sizing (Equal Friction)',
-    // Phase 10b: new calc diagrams
     'Harmonic Distortion',
-    'Transformer Sizing',
-    'Clean Agent Suppression',
-    'Fire Pump Sizing',
     'Ventilation / ACH',
-    'Chiller System — Air Cooled',
-    'Chiller System — Water Cooled',
-    'Cooling Tower Sizing',
-    'Refrigerant Pipe Sizing',
-    'FCU Selection',
+    'Chiller System — Air Cooled', 'Chiller System — Water Cooled',
+    'Cooling Tower Sizing', 'Refrigerant Pipe Sizing',
+    'FCU Selection', 'Expansion Tank Sizing',
+    // ── Electrical group ──────────────────────────────────────────────────────
+    'Transformer Sizing', 'Harmonic Distortion',
+    'Solar PV System', 'Power Factor Correction', 'UPS Sizing',
+    'Earthing / Grounding System',
+    // ── Fire & Life Safety ────────────────────────────────────────────────────
+    'Clean Agent Suppression', 'Fire Pump Sizing',
+    // ── Mechanical group ──────────────────────────────────────────────────────
+    'Pipe Sizing', 'Compressed Air', 'Boiler System',
   ];
   const drawingSection = document.getElementById('drawing-section');
   if (DRAWING_SUPPORTED.includes(_calcType)) {
@@ -10941,6 +10944,26 @@ function showReport() {
     } else if ((_calcType === 'Chiller System — Air Cooled' || _calcType === 'Chiller System — Water Cooled') && descEl) {
       const wc = _calcType.includes('Water');
       descEl.textContent = `Generates a ${wc?'water-cooled chiller plant':'air-cooled chiller plant'} schematic showing chiller, CHW loop, pump, ${wc?'CW loop and cooling tower':'condenser coil and fans'}, ASHRAE 90.1 COP/IPLV compliance per AHRI 550-590`;
+    } else if (_calcType === 'Expansion Tank Sizing' && descEl) {
+      descEl.textContent = 'Generates a hydronic loop schematic showing expansion tank at pump suction (PNPC), air separator, makeup water fill valve, isolation valve, PRV and acceptance factor α per ASHRAE 2023 Ch.12 / ASME BPVC Sec.VIII';
+    } else if (_calcType === 'Solar PV System' && descEl) {
+      descEl.textContent = 'Generates a Solar PV one-line diagram showing PV array, string combiner, DC disconnect, inverter, AC disconnect, MDB and grid/net meter per IEC 62548 / PEC 2017 Art.6 / DOE Net Metering';
+    } else if (_calcType === 'Power Factor Correction' && descEl) {
+      descEl.textContent = 'Generates a power factor correction single-line diagram showing capacitor bank, PF phasor triangle (before/after), current reduction and estimated monthly savings per IEEE 18 / IEEE 1036 / PEC 2017';
+    } else if (_calcType === 'UPS Sizing' && descEl) {
+      descEl.textContent = 'Generates a UPS block diagram showing rectifier, DC bus, battery bank (cells×strings), inverter, static bypass and critical load with runtime and loading% per IEC 62040-3 / IEEE 446 / PEC 2017';
+    } else if (_calcType === 'Earthing / Grounding System' && descEl) {
+      descEl.textContent = 'Generates an earthing system layout showing MDB PE bus, GEC, test link, soil strata, vertical rod(s) with Dwight formula resistance and PASS/FAIL badge per PEC 2017 Art.2.50 / IEEE 80 / IEC 62305';
+    } else if (_calcType === 'Pipe Sizing' && descEl) {
+      descEl.textContent = 'Generates a hydraulic schematic showing pipe cross-section, hydraulic grade line (HGL), velocity profile, friction head loss and pressure drop per ASHRAE 2021 Ch.22 / PSME Code / PNS ISO 4427';
+    } else if (_calcType === 'Compressed Air' && descEl) {
+      descEl.textContent = 'Generates a compressed air P&ID showing intake filter, screw compressor, aftercooler, moisture separator, air receiver, dryer, distribution main and ISA-5.1 instruments per ISO 1217 / ASME B31.3 / CAGI';
+    } else if (_calcType === 'Boiler System' && descEl) {
+      descEl.textContent = 'Generates a boiler system schematic showing vessel with water level, burner/flame, steam or HW header, safety valve, feedwater check valve, blowdown and fuel supply per ASME BPVC Sec.I / PD Act PHL / PSME';
+    } else if (_calcType === 'AHU Sizing' && descEl) {
+      descEl.textContent = 'Generates an AHU cross-section schematic showing mixing plenum, OA louver, filter, CHW cooling coil with dimensions, fan with motor kW and ASHRAE 90.1 fan power density check per ASHRAE 62.1 / SMACNA';
+    } else if (_calcType === 'Duct Sizing (Equal Friction)' && descEl) {
+      descEl.textContent = 'Generates a duct sizing schematic showing plan view with branch takeoffs, circular and rectangular cross-sections, pressure gradient line and velocity compliance per ASHRAE 2021 Ch.21 / SMACNA';
     }
     resetDrawingSection();
   } else {
