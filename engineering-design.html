@@ -21345,9 +21345,9 @@ async function generateBomSowChecklist() {
   if (!_lastResults || !_lastInputs) { showToast('Run a calculation first.'); return; }
   const BOM_SOW_SUPPORTED = {
     'Mechanical':             ['HVAC Cooling Load', 'Ventilation / ACH', 'Pump Sizing (TDH)', 'Pipe Sizing', 'Compressed Air', 'Boiler System'],
-    'Electrical':             ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design', 'Generator Sizing', 'Solar PV System', 'Power Factor Correction', 'Cable Tray Sizing', 'UPS Sizing', 'Lightning Protection System (LPS)', 'Earthing / Grounding System'],
+    'Electrical':             ['Load Estimation', 'Voltage Drop', 'Wire Sizing', 'Short Circuit', 'Lighting Design', 'Generator Sizing', 'Solar PV System', 'Power Factor Correction', 'Cable Tray Sizing', 'UPS Sizing', 'Lightning Protection System (LPS)', 'Earthing / Grounding System', 'Transformer Sizing', 'Harmonic Distortion'],
     'Plumbing':               ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)', 'Storm Drain / Stormwater', 'Grease Trap Sizing', 'Roof Drain Sizing'],
-    'Fire Protection':        ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery'],
+    'Fire Protection':        ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery', 'Clean Agent Suppression'],
     'Vertical Transportation':['Elevator Traffic Analysis', 'Hoist Capacity'],
     'HVAC Systems':           ['Chiller System — Air Cooled', 'Chiller System — Water Cooled', 'AHU Sizing', 'Cooling Tower Sizing', 'Duct Sizing (Equal Friction)', 'Refrigerant Pipe Sizing', 'FCU Selection', 'Expansion Tank Sizing', 'Heat Exchanger'],
     'Machine Design':         ['Shaft Design', 'V-Belt Drive Design', 'Gear / Belt Drive', 'Bearing Life (L10)', 'Bolt Torque & Preload', 'Beam / Column Design', 'Pressure Vessel', 'Heat Exchanger', 'Vibration Analysis', 'Fluid Power', 'Noise / Acoustics'],

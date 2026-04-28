@@ -2518,6 +2518,145 @@ Respond ONLY in JSON with keys bom_items and sow_sections.`;
   };
 }
 
+// ─── Electrical: Transformer Sizing BOM + SOW Agent ──────────────────────────
+
+async function transformerSizingBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project    = inputs.project_name      || "Transformer Installation Project";
+  const ratedKva   = results.rated_kva        ?? inputs.load_kva ?? "N/A";
+  const v1         = results.primary_voltage  ?? inputs.primary_voltage ?? "N/A";
+  const v2         = results.secondary_voltage?? inputs.secondary_voltage?? "N/A";
+  const phases     = results.phases           ?? 3;
+  const winding    = results.winding_connection?? "Delta-Star (Dyn11)";
+  const impPct     = results.impedance_pct    ?? 5.0;
+  const I1         = results.I1_full_load_A   ?? "N/A";
+  const I2         = results.I2_full_load_A   ?? "N/A";
+  const IscKA      = results.Isc_secondary_kA ?? "N/A";
+  const etaFl      = results.efficiency_fl_pct?? "N/A";
+  const VR         = results.voltage_regulation_pct ?? "N/A";
+  const numUnits   = results.num_units        ?? 1;
+  const loadPct    = results.loading_pct      ?? "N/A";
+
+  const prompt = `You are a Philippine electrical engineering expert (PEC 2017, IEC 60076, IEEE C57). Generate a professional BOM and SOW for a POWER TRANSFORMER installation project.
+
+PROJECT: ${project}
+TRANSFORMER RATING: ${ratedKva} kVA × ${numUnits} unit(s)
+VOLTAGE RATIO: ${v1} V / ${v2} V, ${phases}-Phase
+WINDING CONNECTION: ${winding}
+IMPEDANCE: ${impPct}%
+CALCULATED RESULTS: I₁ = ${I1} A, I₂ = ${I2} A, Isc = ${IscKA} kA, VR = ${VR}%, Efficiency = ${etaFl}%, Loading = ${loadPct}%
+
+STANDARDS: IEC 60076-1:2011 (Power Transformers), IEEE C57.12.00, PEC 2017 Art. 4.50, Philippine Grid Code
+
+Generate a JSON object with:
+1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: distribution transformer (rated ${ratedKva} kVA, ${v1}/${v2} V, ${phases}-phase, ${winding}, Uz = ${impPct}%, ONAN cooling, IEC 60076-1, DOE-certified, BPS standard), primary disconnecting switch (load-break switch or VCB rated for ${v1} V, fault current ≥ ${IscKA} kA, primary current ≥ ${I1} A), secondary main circuit breaker (MCCB rated ≥ 125% of ${I2} A, IC ≥ ${IscKA} kA, TPN for 3-phase), metering current transformers CT (primary: suitable for ${I1} A, accuracy Class 0.5 for metering, 5P20 for protection, qty: one set per phase), voltage transformers VT (primary: ${v1} V, secondary: 110 V, Class 0.5, for metering panel), surge arresters primary side (station class, rated for ${v1} V system, 10 kA discharge capability, IEC 60099-4), transformer earthing conductor (copper conductor 70 mm² bare Cu, from transformer tank to main earth bar), neutral earthing resistor NER or solid neutral earthing (per local utility requirements and system earthing philosophy), oil containment / bund wall (concrete or steel bund, 110% of transformer oil volume, with oil separator sump), transformer oil (IEC 60296 inhibited mineral oil, quantity to fill transformer tank, spare: 5% additional), outdoor transformer pad / plinth (reinforced concrete pad, 300 mm above grade, rated for transformer weight, with anchor bolts), HV and LV cable terminations (HV: heatshrink or cold-shrink termination kit for ${v1} V, LV: bolted copper bus connector for ${v2} V), fire protection (CO2 or clean agent extinguisher minimum 9 kg, plus automatic fire detection at transformer bay), commissioning and testing equipment (transformer oil test kit: dielectric strength, dissolved gas analysis; insulation resistance tester; ratio tester; spare breaker fuses)
+2. "sow_sections": array of 8 sections (each: section_no, title, content)
+   Cover: Scope of Works (${ratedKva} kVA × ${numUnits} distribution transformer, ${v1}/${v2} V, ${phases}-phase), Design Basis (IEC 60076-1 rating, ${impPct}% impedance, fault current ${IscKA} kA at secondary, VR ${VR}%, Efficiency ${etaFl}%, loading ${loadPct}%), Civil and Structural Works (transformer pad design, cable trench, bund wall and oil separator, security fencing, outdoor lighting), Primary and Secondary Electrical Works (HV incoming connection, load-break switch installation, LV outgoing breaker, CT/VT installation, bus bars and cable terminations, PEC 2017 Art. 4.50 compliance), Earthing and Bonding (transformer neutral earthing, tank earthing, all metalwork bond to main earth bar per PEC Art. 2.50 / IEEE 80), Protection and Metering (overcurrent and earth fault protection relay settings, energy metering per WESM/distribution utility requirements, CT ratio and class verification), Testing and Commissioning (factory test certificates review, site insulation resistance test, turns ratio test, vector group check, oil sampling and dielectric test, protection relay testing and coordination study, load test at rated current, 24-hour monitoring), Regulatory and Utility Compliance (PEC 2017, DOE certificate of product registration, distribution utility interconnection requirement, Environmental Compliance Certificate for oil-filled equipment, O&M manual and as-built drawings submission to Building Official)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw    = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return { bom_items: parsed.bom_items || [], sow_sections: parsed.sow_sections || [] };
+}
+
+// ─── Electrical: Harmonic Distortion BOM + SOW Agent ─────────────────────────
+
+async function harmonicDistortionBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project    = inputs.project_name        || "Harmonic Mitigation Project";
+  const THD        = results.THD_I_pct          ?? "N/A";
+  const TDD        = results.TDD_pct            ?? "N/A";
+  const tddLimit   = results.TDD_limit_pct      ?? 8;
+  const kFactor    = results.K_factor           ?? "N/A";
+  const overall    = results.overall_pass       ?? false;
+  const iscIl      = results.isc_il_ratio       ?? 20;
+  const I1         = results.fundamental_current_A ?? inputs.fundamental_current_a ?? 100;
+  const sysV       = results.system_voltage_V   ?? inputs.system_voltage_v ?? 400;
+  const harmonics  = results.individual_harmonics as Array<{ order: number; current_pct: number; pass: boolean }> || [];
+  const failOrders = harmonics.filter(h => !h.pass).map(h => `${h.order}th`).join(", ");
+  const status     = overall ? "COMPLIANT" : "NON-COMPLIANT";
+
+  const prompt = `You are a Philippine power quality engineering expert (IEEE 519-2022, IEC 61000). Generate a professional BOM and SOW for a HARMONIC DISTORTION ANALYSIS AND MITIGATION project.
+
+PROJECT: ${project}
+SYSTEM: ${sysV} V, Fundamental Current ${I1} A, ISC/IL = ${iscIl}
+ANALYSIS RESULTS: THD_I = ${THD}%, TDD = ${TDD}% (limit ${tddLimit}%), K-Factor = ${kFactor}
+STATUS: ${status}
+NON-COMPLIANT HARMONICS: ${failOrders || "None"}
+MITIGATION REQUIRED: ${overall ? "None — system compliant" : `Yes — TDD exceeds limit. Consider passive filters (5th/7th order tuned), active harmonic filter, or 12-pulse drive upgrade.`}
+
+STANDARDS: IEEE 519-2022 (Recommended Practice for Harmonic Control), IEC 61000-3-2:2018, IEC 61000-3-12, PEC 2017
+
+Generate a JSON object with:
+1. "bom_items": array of 12 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: power quality analyzer (class A per IEC 61000-4-30, continuous monitoring, 400V 3-phase, memory min 1 year, Fluke 435-II or equivalent), harmonic current transducers / CTs (accuracy class 0.5, bandwidth DC to 3 kHz, clamping type for easy installation, one per phase), data logger (for long-term THD trending, 4GB internal memory, RS485/Ethernet output for SCADA), ${overall ? "passive harmonic filter (not required — system compliant)" : `passive harmonic filter (single-tuned, 5th and 7th order, rated ${sysV} V, capacitor bank ${Math.ceil(Number(I1) * 0.3)} kVAR, detuning reactor Q ≥ 50, IEEE 18 / IEC 60831)`}, ${overall ? "active harmonic filter (not required)" : `active harmonic filter (instantaneous harmonic cancellation, rated for ${Math.ceil(Number(I1) * 0.5)} A harmonic compensation current, 98% efficiency, IGBT-based, ${sysV} V 3-phase)`}, K-rated transformer (K-${Number(kFactor) > 13 ? "20" : Number(kFactor) > 9 ? "13" : "4"} rated, ${sysV} V secondary, for non-linear loads: K-factor = ${kFactor}; required if K > 1), harmonic-rated capacitor bank reactors (detuning factor p = 7%, prevents capacitor bank resonance amplification, sized for existing PFC bank if present), surge protection device SPD (Type 2 SPD at main panel, 40 kA discharge, for power quality protection per IEC 61643-11), cable trays and conduit for filter wiring (galvanized steel cable tray 150×50 mm, EMT conduit 25 mm, for filter panel to MDB connection), filter enclosure / panel (NEMA 12 / IP54, steel enclosure, ventilated, sized for active or passive filter components), commissioning test instruments (spectrum analyzer, insulation tester, power quality test kit), spare parts kit (filter capacitor bank fuses, relay module, cooling fan for active filter)
+2. "sow_sections": array of 8 sections (each: section_no, title, content)
+   Cover: Scope of Works (power quality audit, harmonic measurement, ${overall ? "compliance documentation" : "harmonic mitigation installation"}, IEEE 519-2022 verification), Design Basis (IEEE 519-2022 Table 2 TDD limit ${tddLimit}% at ISC/IL = ${iscIl}, measured THD = ${THD}%, TDD = ${TDD}%, individual harmonic limits Table 3, K-factor = ${kFactor}), Power Quality Measurement Campaign (3-phase power quality logging minimum 7 days per IEC 61000-4-30 Class A, capture full load, light load and transient conditions, document harmonic spectrum vs. time), ${overall ? "Compliance Documentation (system meets IEEE 519-2022; document and file PQ report, issue Certificate of Compliance, recommend annual monitoring)" : "Harmonic Mitigation Design (passive filter tuning for dominant harmonics, active filter sizing for remaining THD, resonance study to prevent capacitor bank resonance, filter placement at point of common coupling PCC)"}, Equipment Supply and Installation (filter panel installation adjacent to MDB, bus duct or cable connection to MDB, grounding of filter enclosure, interlock wiring with MDB main breaker), Commissioning and Verification Testing (pre-installation baseline THD measurement, post-installation THD and TDD verification per IEEE 519-2022, spectrum analysis at PCC, capacitor bank and filter resonance frequency check, load test at rated and 50% load), Monitoring and Maintenance (power quality analyzer installation and trending setup, quarterly THD report, annual filter inspection, capacitor bank thermal imaging, replacement schedule per manufacturer), Regulatory Compliance (IEEE 519-2022, IEC 61000-3-12, PEC 2017, PSALM / distribution utility interconnection power quality requirements, O&M manual)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw    = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return { bom_items: parsed.bom_items || [], sow_sections: parsed.sow_sections || [] };
+}
+
+// ─── Fire Protection: Clean Agent Suppression BOM + SOW Agent ────────────────
+
+async function cleanAgentSuppressionBomSowAgent(
+  inputs: Record<string, unknown>,
+  results: Record<string, unknown>
+): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
+
+  const project    = inputs.project_name              || "Clean Agent Suppression System";
+  const agentLabel = String(results.agent_label       ?? inputs.agent_type ?? "FK-5-1-12");
+  const agentKey   = String(results.agent_type        ?? "FK-5-1-12");
+  const vol        = results.hazard_volume_m3          ?? inputs.hazard_volume_m3 ?? "N/A";
+  const cDesign    = results.design_concentration_pct ?? "N/A";
+  const Wcalc      = results.W_calculated_kg           ?? "N/A";
+  const Wdesign    = results.W_design_kg               ?? "N/A";
+  const cylKg      = results.recommended_cylinder_kg   ?? "N/A";
+  const cylQty     = results.recommended_qty           ?? "N/A";
+  const totalKg    = results.total_agent_kg            ?? "N/A";
+  const nZones     = results.num_zones                 ?? 1;
+  const discharge  = results.discharge_time_req        ?? "≤ 10 s";
+  const noael      = results.noael_pct                 ?? "N/A";
+  const safe       = results.safe_for_occupied_spaces  ?? true;
+  const gwp        = results.gwp                       ?? "N/A";
+
+  const prompt = `You are a Philippine fire protection engineering expert (NFPA 2001, ISO 14520, BFP Philippines). Generate a professional BOM and SOW for a CLEAN AGENT FIRE SUPPRESSION SYSTEM installation project.
+
+PROJECT: ${project}
+AGENT: ${agentLabel} (GWP = ${gwp})
+HAZARD VOLUME: ${vol} m³ × ${nZones} zone(s)
+DESIGN CONCENTRATION: ${cDesign}% v/v (NOAEL = ${noael}%)
+AGENT REQUIRED: ${Wcalc} kg calculated → ${Wdesign} kg design (with safety factor)
+CYLINDER CONFIGURATION: ${cylQty} × ${cylKg} kg cylinders = ${totalKg} kg total
+DISCHARGE TIME: ${discharge}
+OCCUPIED SPACE: ${safe ? "SAFE — concentration below NOAEL, system approved for occupied areas" : "EVACUATE before discharge — concentration exceeds NOAEL, area must be evacuated"}
+
+STANDARDS: NFPA 2001:2022, ISO 14520:2015, BFP IRR RA 9514, NFPA 72 (detection/alarm), PEC 2017
+
+Generate a JSON object with:
+1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
+   Include: clean agent cylinders (${agentKey} agent, ${cylKg} kg each × ${cylQty} units, DOT or UN certified cylinder with integrated valve, pressure gauge, anti-recoil device, UL listed, ${agentLabel}, GWP = ${gwp}), cylinder mounting bracket / rack (steel, powder-coated, wall or floor mount, designed for ${cylKg} kg cylinder weight including agent, with seismic restraint for Philippine seismic zone), discharge manifold (stainless steel 304, rated for clean agent service pressure, sized for ${discharge} full discharge, with check valves per NFPA 2001), discharge nozzles (360° or directional nozzle, stainless steel, orifice sized for design flow per NFPA 2001 §4.4, quantity as per hydraulic calculation), discharge piping (stainless steel 304 Schedule 40 or seamless black steel ASTM A53, sized for ${discharge} discharge, pressure-rated for agent cylinder pressure, hangers per NFPA 13), agent control panel / fire suppression control unit (FSCU, listed per UL 864, microprocessor-based, dual-channel releasing, compatible with FACP by signal input, abort switch input, audible/visual pre-discharge alarm output, end-of-line supervision, 24 VDC), ionisation and photo-electric smoke detectors (cross-zone detection for double-knock system per NFPA 2001 §4.2, UL 268 listed, BFP-listed, addressable type, spacing per NFPA 72 Chapter 17), pre-discharge alarm: alarm bells or sounders (audible alarm minimum 90 dB at 3 m, mounted at every zone entrance, activate 30 seconds before discharge per NFPA 2001), abort station (manual abort switch at each zone entrance, spring-return, key-operated, NFPA 2001 §4.7, labelled "ABORT – PRESS TO HALT DISCHARGE"), safety signage package (NFPA 170 / ISO 7010 compliant: "EVACUATE NOW" strobes, "DO NOT ENTER AFTER DISCHARGE", "CLEAN AGENT SUPPRESSION PROTECTED AREA", "MANUAL DISCHARGE STATION", minimum 1 set per zone entrance), agent monitoring / weighing system (continuous cylinder weight monitoring via load cell or magnetic level indicator, low agent alarm at 5% loss, supervisory signal to FACP per NFPA 2001 §4.6), pressure relief port / explosion vent (for ${safe ? "room pressure relief during discharge" : "mandatory pressure relief due to high concentration: sized per NFPA 2001 §3.6.1"}), commissioning test kit (${agentKey} agent leak detector, room integrity pressurisation test equipment per EN 15004 / NFPA 2001 Annex B, door fan test for room tightness), spare agent (minimum 10% additional agent for annual inspection top-up and one full recharge as required by NFPA 2001 §6.1.2)
+2. "sow_sections": array of 8 sections (each: section_no, title, content)
+   Cover: Scope of Works (total flooding clean agent system, ${agentKey} agent, ${vol} m³ × ${nZones} zone(s), ${discharge} discharge), Design Basis (NFPA 2001:2022 §5.3 design concentration ${cDesign}% v/v at ${noael}% NOAEL, W = (V/S)×[C/(100-C)], calculated ${Wcalc} kg, design ${Wdesign} kg with 10% safety factor, ${cylQty}×${cylKg} kg = ${totalKg} kg selected), Equipment Supply and Cylinder Manifold Installation (cylinder mounting, manifold fabrication, pressure testing at 1.5× MAWP, connection to discharge piping, NFPA 2001 §4.3), Discharge Piping and Nozzle Installation (pipe routing to minimise bends, pipe support spacing per NFPA 13, nozzle positioning for uniform agent distribution, hydraulic calculation acceptance check, NFPA 2001 §4.4), Detection Control and Alarm System Integration (cross-zone detection wiring, FSCU panel installation, abort station wiring, pre-discharge alarm (30-second countdown per NFPA 2001), interface to building FACP/BMS, end-of-line supervision), Room Integrity and Enclosure Qualification (door fan pressure test per NFPA 2001 Annex B / EN 15004, target: maintain design concentration for minimum 10 minutes, seal all penetrations, pressure relief vent sizing ${safe ? "per NFPA 2001 §3.6" : "MANDATORY: room concentration exceeds NOAEL — strict enclosure integrity and evacuation protocol required"}), Testing and Commissioning (point-to-point wiring test, cross-zone detection simulation, abort station test, pre-discharge alarm timing verification, cylinder weight check vs. design quantity, simulated discharge test with nitrogen (no agent), BFP acceptance inspection, NFPA 2001 acceptance test record), Regulatory Compliance and Maintenance (RA 9514 Philippine Fire Code, BFP permit for suppression system, annual inspection per NFPA 2001 §6, cylinder hydrostatic test every 12 years, agent analysis every 6 years, ${agentKey} GWP=${gwp} — ${gwp === 1 ? "environmentally preferred, zero ozone depletion" : "high GWP: maintain leak log per DENR DAO 2021-19 F-gas reporting"}, O&M manual and as-built drawings to BFP and Building Official)
+
+Respond ONLY in JSON with keys bom_items and sow_sections.`;
+
+  const raw    = await callGroq(prompt);
+  const parsed = JSON.parse(raw);
+  return { bom_items: parsed.bom_items || [], sow_sections: parsed.sow_sections || [] };
+}
+
 // ─── Vertical Transportation: Elevator Traffic Analysis BOM + SOW Agent ───────
 
 async function elevatorTrafficBomSowAgent(
@@ -4099,6 +4238,12 @@ serve(async (req) => {
       result = await lpsBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Electrical" && calc_type === "Generator Sizing") {
       result = await generatorSizingBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Electrical" && calc_type === "Transformer Sizing") {
+      result = await transformerSizingBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Electrical" && calc_type === "Harmonic Distortion") {
+      result = await harmonicDistortionBomSowAgent(calc_inputs || {}, calc_results);
+    } else if (discipline === "Fire Protection" && calc_type === "Clean Agent Suppression") {
+      result = await cleanAgentSuppressionBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Fire Protection" && calc_type === "Fire Sprinkler Hydraulic") {
       result = await fireSprinklerBomSowAgent(calc_inputs || {}, calc_results);
     } else if (discipline === "Fire Protection" && calc_type === "Fire Pump Sizing") {
