@@ -38,3 +38,6 @@ autofix_report.json
 lps_tmp.json
 *.tmp.json
 CLAUDE (1).md
+__pycache__/
+*.pyc
+*.pyo

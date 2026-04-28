@@ -3,15 +3,24 @@
 
 FROM python:3.11-slim
 
-# System dependencies for CoolProp compilation (if needed) and general build
+# System dependencies
+# weasyprint 62.x requires: pango, pangocairo, pangoft2, cairo, gdk-pixbuf,
+# harfbuzz, fontconfig, and shared-mime-info (for MIME type detection).
+# libgdk-pixbuf-2.0-0 is the correct Debian Bookworm package name
+# (python:3.11-slim is Bookworm-based).
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libfreetype6-dev \
     libpng-dev \
     libpango-1.0-0 \
     libpangocairo-1.0-0 \
+    libpangoft2-1.0-0 \
     libcairo2 \
-    libgdk-pixbuf2.0-0 \
+    libgdk-pixbuf-2.0-0 \
+    libharfbuzz0b \
+    libfontconfig1 \
+    fontconfig \
+    shared-mime-info \
     fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
 

@@ -40,5 +40,7 @@ pandas==2.2.2
 statsmodels==0.14.2
 
 # Phase 8d — Server-side vector PDF (replaces html2pdf.js rasterised output)
-# Requires libpango, libcairo, libgdk-pixbuf2.0 — added to Dockerfile.
-weasyprint==62.3
+# DISABLED: weasyprint causes Render Docker build failure on python:3.11-slim (Debian Bookworm).
+# The /pdf endpoint returns 503 when weasyprint is absent; frontend falls back to html2pdf.js.
+# Re-enable after verifying Dockerfile system deps on Bookworm (libgdk-pixbuf-2.0-0 rename).
+# weasyprint==62.3
