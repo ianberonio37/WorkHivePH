@@ -66,6 +66,19 @@ BUILDER_FUNCTIONS = [
     # Phase 10 Fire & Life Safety
     "buildStairwellPressSVG",
     "buildFireAlarmBatterySVG",
+    # Phase 10 Mechanical Specialty group
+    "buildHeatExchangerSVG",
+    "buildPressureVesselSVG",
+    "buildFluidPowerSVG",
+    "buildVBeltDriveSVG",
+    "buildVibrationSVG",
+    "buildNoiseAcousticsSVG",
+    "buildShaftDesignSVG",
+    "buildBeamColumnSVG",
+    "buildBearingLifeSVG",
+    "buildBoltTorqueSVG",
+    "buildElevatorTrafficSVG",
+    "buildHoistCapacitySVG",
     # Phase 10 Plumbing group
     "buildWaterSupplyPipeSVG",
     "buildHotWaterDemandSVG",

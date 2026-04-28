@@ -10903,6 +10903,11 @@ function showReport() {
     // ── Fire & Life Safety ────────────────────────────────────────────────────
     'Clean Agent Suppression', 'Fire Pump Sizing',
     'Stairwell Pressurization', 'Fire Alarm Battery',
+    // ── Mechanical Specialty group ────────────────────────────────────────────
+    'Heat Exchanger', 'Pressure Vessel', 'Fluid Power',
+    'V-Belt Drive Design', 'Vibration Analysis', 'Noise / Acoustics',
+    'Shaft Design', 'Beam / Column Design', 'Bearing Life (L10)',
+    'Bolt Torque & Preload', 'Elevator Traffic Analysis', 'Hoist Capacity',
     // ── Mechanical group ──────────────────────────────────────────────────────
     'Pipe Sizing', 'Compressed Air', 'Boiler System',
     // ── Plumbing group ────────────────────────────────────────────────────────
@@ -10960,6 +10965,30 @@ function showReport() {
       descEl.textContent = 'Generates a UPS block diagram showing rectifier, DC bus, battery bank (cells×strings), inverter, static bypass and critical load with runtime and loading% per IEC 62040-3 / IEEE 446 / PEC 2017';
     } else if (_calcType === 'Earthing / Grounding System' && descEl) {
       descEl.textContent = 'Generates an earthing system layout showing MDB PE bus, GEC, test link, soil strata, vertical rod(s) with Dwight formula resistance and PASS/FAIL badge per PEC 2017 Art.2.50 / IEEE 80 / IEC 62305';
+    } else if (_calcType === 'Heat Exchanger' && descEl) {
+      descEl.textContent = 'Generates a shell-and-tube cross-section showing hot/cold fluid nozzles, tube bundle, LMTD, effectiveness-NTU and required area per TEMA / ASME Sec.VIII';
+    } else if (_calcType === 'Pressure Vessel' && descEl) {
+      descEl.textContent = 'Generates a pressure vessel elevation showing shell, ellipsoidal heads, nozzles, shell thickness, MAWP vs design pressure PASS/FAIL, and hydrostatic test pressure per ASME BPVC Sec.VIII';
+    } else if (_calcType === 'Fluid Power' && descEl) {
+      descEl.textContent = 'Generates a hydraulic circuit showing reservoir, pump, relief valve, directional control valve, cylinder with extend/retract force arrows and return line per ISO 4413';
+    } else if (_calcType === 'V-Belt Drive Design' && descEl) {
+      descEl.textContent = 'Generates a V-belt drive schematic showing driver and driven sheaves with diameter labels, belt tangents, center distance, and belt section/number/speed/wrap angle badges per RMA / ASME B40.1';
+    } else if (_calcType === 'Vibration Analysis' && descEl) {
+      descEl.textContent = 'Generates a spring-mass-damper diagram and magnification factor vs frequency ratio chart with ISO 10816-3 vibration severity zone badge per ISO 10816-3';
+    } else if (_calcType === 'Noise / Acoustics' && descEl) {
+      descEl.textContent = 'Generates a room SPL plan showing source, propagation rings, receiver position, SPL bar chart and DOLE D.O.13 (85 dBA) and NC curve compliance badges per ISO 9613 / DOLE D.O.13';
+    } else if (_calcType === 'Shaft Design' && descEl) {
+      descEl.textContent = 'Generates a shaft FBD showing bearings, torque arrow, bending load, keyway cross-section and four safety factor badges (Goodman fatigue, yield, critical speed, deflection) per ASME B106.1M';
+    } else if (_calcType === 'Beam / Column Design' && descEl) {
+      descEl.textContent = 'Generates a beam loading diagram with UDL/point load, deflected shape, DCR moment/shear badges and capacity values per AISC 360 / NSCP 2015';
+    } else if (_calcType === 'Bearing Life (L10)' && descEl) {
+      descEl.textContent = 'Generates a bearing cross-section showing rolling elements, radial/axial load arrows, L10 life bar chart comparing basic and adjusted life vs 20,000h target per ISO 281';
+    } else if (_calcType === 'Bolt Torque & Preload' && descEl) {
+      descEl.textContent = 'Generates a bolt joint cross-section showing top/bottom members, bolt shank, nut, preload arrows and tightening sequence (snug→30%→70%→100%) per ISO 898 / ASME B18.2';
+    } else if (_calcType === 'Elevator Traffic Analysis' && descEl) {
+      descEl.textContent = 'Generates a building elevation with elevator shafts/cars, RTT timeline bar, interval bar and handling capacity PASS/FAIL badge per ASME A17.1 / EN 81';
+    } else if (_calcType === 'Hoist Capacity' && descEl) {
+      descEl.textContent = 'Generates a rigging diagram showing overhead crane beam, drum, motor, rope parts of line, hook block, load and MBF safety factor check per ASME B30.2 / ISO 4301';
     } else if (_calcType === 'Water Supply Pipe Sizing' && descEl) {
       descEl.textContent = 'Generates a plumbing riser diagram showing water meter, main riser, floor branches and fixture groups — with pressure and velocity PASS/FAIL badges per Hunter\'s Method / Philippine Plumbing Code';
     } else if (_calcType === 'Hot Water Demand' && descEl) {
@@ -18984,6 +19013,79 @@ async function _runDrawing() {
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_tankL} L Bladder  |  α = ${_alpha}  |  ${_stype}`,
         { drawingNo:'MECH-ET-SCH-001', drawingTitle:'Expansion Tank — Hydronic System Schematic', standard:'ASHRAE 2023 Ch.12 / ASME BPVC Sec.VIII / PSME Code' }));
+    } else if (ct === 'Heat Exchanger') {
+      const svg = buildHeatExchangerSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${Number(_r.duty_kW||0).toFixed(1)} kW  |  LMTD ${Number(_r.lmtd_corrected_K||_r.lmtd_K||0).toFixed(2)} K  |  A=${Number(_r.A_required_m2||0).toFixed(2)} m²`,
+        { drawingNo:'MECH-HX-SCH-001', drawingTitle:'Heat Exchanger — Shell-and-Tube Cross-Section', standard:'TEMA 10th Ed. / ASME Sec.VIII' }));
+    } else if (ct === 'Pressure Vessel') {
+      const svg = buildPressureVesselSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `Ø${Number(_r.outer_diameter_mm||0).toFixed(0)}mm  |  MAWP ${Number(_r.mawp_bar||0).toFixed(2)} bar  |  ${String(_r.material||_lastInputs?.material||'CS')}`,
+        { drawingNo:'MECH-PV-SCH-001', drawingTitle:'Pressure Vessel — Cross-Section', standard:'ASME BPVC Sec.VIII Div.1' }));
+    } else if (ct === 'Fluid Power') {
+      const svg = buildFluidPowerSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      const _cyl = _r.cylinder || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${Number(_lastInputs?.system_pressure_bar||0).toFixed(0)} bar  |  Ø${Number(_lastInputs?.cylinder_bore_mm||0).toFixed(0)}mm  |  ${Number(_cyl.force_extend_kN||0).toFixed(1)} kN`,
+        { drawingNo:'MECH-HYD-PID-001', drawingTitle:'Hydraulic Circuit — Fluid Power P&ID', standard:'ISO 4413 / ISO 1219' }));
+    } else if (ct === 'V-Belt Drive Design') {
+      const svg = buildVBeltDriveSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${Number(_r.n_belts||1)} × Section ${String(_r.section||_r.belt_designation||'B')}  |  Ratio ${Number(_r.overall_ratio||0).toFixed(2)}:1`,
+        { drawingNo:'MECH-VBD-SCH-001', drawingTitle:'V-Belt Drive — Schematic', standard:'RMA IP-20 / ASME B40.1' }));
+    } else if (ct === 'Vibration Analysis') {
+      const svg = buildVibrationSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `fn=${Number(_r.fn_Hz||0).toFixed(2)} Hz  |  v_rms=${Number(_r.V_rms_mm_s||0).toFixed(2)} mm/s  |  Zone ${String(_r.iso_zone||'A')}`,
+        { drawingNo:'MECH-VIB-SCH-001', drawingTitle:'Vibration Analysis — SDOF Response', standard:'ISO 10816-3 / ISO 20816' }));
+    } else if (ct === 'Noise / Acoustics') {
+      const svg = buildNoiseAcousticsSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `Lp=${Number(_r.Lp_at_distance_dB||0).toFixed(1)} dB @ ${Number(_r.distance_m||5).toFixed(1)}m  |  NC-${Number(_r.NC_recommended||35).toFixed(0)}`,
+        { drawingNo:'MECH-ACO-SCH-001', drawingTitle:'Noise / Acoustics — Room SPL Plan', standard:'ISO 9613 / DOLE D.O.13-1998' }));
+    } else if (ct === 'Shaft Design') {
+      const svg = buildShaftDesignSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `Ø${Number(_r.d_standard_mm||0).toFixed(0)}mm  |  nf=${Number(_r.nf_goodman||0).toFixed(2)}  |  T=${Number(_r.torque_Nm||0).toFixed(1)} N·m`,
+        { drawingNo:'MECH-SHF-SCH-001', drawingTitle:'Shaft Design — Free Body Diagram', standard:'ASME B106.1M / DE-Goodman' }));
+    } else if (ct === 'Beam / Column Design') {
+      const svg = buildBeamColumnSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${String(_r.section||_lastInputs?.section||'W250x33')}  |  DCR_M=${Number(_r.DCR_moment||0).toFixed(3)}  |  Span ${Number(_r.span_m||_lastInputs?.span_m||6).toFixed(1)}m`,
+        { drawingNo:'MECH-BM-SCH-001', drawingTitle:'Beam / Column Design — Loading Diagram', standard:'AISC 360 / ACI 318 / NSCP 2015' }));
+    } else if (ct === 'Bearing Life (L10)') {
+      const svg = buildBearingLifeSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `L10h_adj = ${Number(_r.L10h_adj||0).toFixed(0)} h  |  C/P = ${Number(_r.C_over_P||0).toFixed(2)}`,
+        { drawingNo:'MECH-BRG-SCH-001', drawingTitle:'Bearing Life (L10) — Cross-Section', standard:'ISO 281 / ISO 14728' }));
+    } else if (ct === 'Bolt Torque & Preload') {
+      const svg = buildBoltTorqueSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `M${Number(_r.d_mm||_lastInputs?.bolt_size_mm||16).toFixed(0)} Grade ${String(_r.bolt_grade||_lastInputs?.grade||'8.8')}  |  T=${Number(_r.torque_Nm||0).toFixed(1)} N·m`,
+        { drawingNo:'MECH-BLT-SCH-001', drawingTitle:'Bolt Torque & Preload — Joint Cross-Section', standard:'ISO 898 / ASME B18.2 / VDI 2230' }));
+    } else if (ct === 'Elevator Traffic Analysis') {
+      const svg = buildElevatorTrafficSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `RTT=${Number(_r.RTT_s||0).toFixed(0)}s  |  Interval=${Number(_r.interval_s||0).toFixed(0)}s  |  HC=${Number(_r.HC_pct||0).toFixed(1)}%`,
+        { drawingNo:'TRANS-ELEV-SCH-001', drawingTitle:'Elevator Traffic Analysis — Building Diagram', standard:'ASME A17.1 / EN 81-20 / CIBSE Guide D' }));
+    } else if (ct === 'Hoist Capacity') {
+      const svg = buildHoistCapacitySVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `SWL ${Number(_lastInputs?.swl_kN||0).toFixed(1)} kN  |  MBF ${Number(_r.MBF_kN||0).toFixed(1)} kN  |  ${Number(_r.motor_hp_std||0).toFixed(1)} HP`,
+        { drawingNo:'MECH-HST-SCH-001', drawingTitle:'Hoist Capacity — Rigging Diagram', standard:'ASME B30.2 / ISO 4301 / DOLE OSH' }));
     } else if (ct === 'Water Supply Pipe Sizing') {
       const svg = buildWaterSupplyPipeSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
@@ -25648,6 +25750,1064 @@ function buildStormDrainSVG(inputs, results) {
     ]}
   ]);
 
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Heat Exchanger — TEMA / ASME Sec.VIII ───────────────────────────────────
+function buildHeatExchangerSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const HOT='#c0392b',CLD='#1565c0',STL='#455a64';
+  const p=[];
+  const dutyKW=Number(r.duty_kW||0).toFixed(1);
+  const lmtdK=Number(r.lmtd_corrected_K||r.lmtd_K||0).toFixed(2);
+  const aM2=Number(r.A_required_m2||0).toFixed(2);
+  const nTubes=Number(r.n_tubes||0);
+  const tubeOD=Number(r.tube_od_mm||19).toFixed(0);
+  const tubeL=Number(r.tube_length_m||0).toFixed(2);
+  const shellID=Number(r.shell_id_estimate_mm||0).toFixed(0);
+  const U=Number(r.U_design_W_m2K||0).toFixed(0);
+  const eff=Number(r.effectiveness||0).toFixed(3);
+  const ntu=Number(r.NTU||0).toFixed(3);
+  const balOK=Boolean(r.heat_balance_ok??true);
+  const hotIn=Number(inp.hot_T_in_c||80).toFixed(0);
+  const hotOut=Number(inp.hot_T_out_c||50).toFixed(0);
+  const cldIn=Number(inp.cold_T_in_c||20).toFixed(0);
+  const cldOut=Number(r.Q_cold_kW?((Number(inp.cold_T_in_c||20)+Number(r.duty_kW||0)*1000/(Number(inp.cold_flow_kgs||1)*4186)).toFixed(1)):'—');
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`HEAT EXCHANGER — ${dutyKW} kW  |  LMTD ${lmtdK} K  |  A=${aM2} m²  |  TEMA / ASME Sec.VIII`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  // Shell-and-tube cross-section
+  const SX=60,SY=100,SW=480,SH=120,SR=SH/2;
+  // Shell body
+  p.push(`<rect x="${SX+SR}" y="${SY}" width="${SW-SR*2}" height="${SH}" fill="${LGY}" stroke="${STL}" stroke-width="3"/>`);
+  p.push(`<ellipse cx="${SX+SR}" cy="${SY+SR}" rx="${SR}" ry="${SR}" fill="${LGY}" stroke="${STL}" stroke-width="2.5"/>`);
+  p.push(`<ellipse cx="${SX+SW-SR}" cy="${SY+SR}" rx="${SR}" ry="${SR}" fill="${LGY}" stroke="${STL}" stroke-width="2.5"/>`);
+  // Tube bundle (simplified as horizontal lines)
+  const tubeRows=5,tubeCols=8;
+  for(let row=0;row<tubeRows;row++){
+    for(let col=0;col<tubeCols;col++){
+      const tx=SX+SR+30+col*((SW-SR*2-60)/tubeCols);
+      const ty=SY+20+row*((SH-40)/tubeRows);
+      p.push(`<circle cx="${tx}" cy="${ty}" r="5" fill="${CLD}" stroke="${CC}" stroke-width="0.8"/>`);
+    }
+  }
+  p.push(_plumbT(SX+SW/2,SY+SH/2+5,`${nTubes} tubes  Ø${tubeOD}mm × ${tubeL}m  |  Shell ID ${shellID}mm`,{sz:7.5,c:STL,w:'700'}));
+  // Hot fluid (shell side) — top/bottom nozzles
+  const hotNozX=SX+SW*0.25;
+  p.push(`<line x1="${hotNozX}" y1="${SY-25}" x2="${hotNozX}" y2="${SY}" stroke="${HOT}" stroke-width="4"/>`);
+  p.push(`<polygon points="${hotNozX-6},${SY-28} ${hotNozX+6},${SY-28} ${hotNozX},${SY-18}" fill="${HOT}"/>`);
+  p.push(_plumbT(hotNozX,SY-38,`HOT IN  ${hotIn}°C`,{sz:7.5,c:HOT,w:'700'}));
+  const hotOutX=SX+SW*0.75;
+  p.push(`<line x1="${hotOutX}" y1="${SY+SH}" x2="${hotOutX}" y2="${SY+SH+25}" stroke="${HOT}" stroke-width="4"/>`);
+  p.push(_plumbT(hotOutX,SY+SH+38,`HOT OUT  ${hotOut}°C`,{sz:7.5,c:HOT,w:'700'}));
+  // Cold fluid (tube side) — side nozzles
+  p.push(`<line x1="${SX-25}" y1="${SY+SR}" x2="${SX+SR}" y2="${SY+SR}" stroke="${CLD}" stroke-width="4"/>`);
+  p.push(`<polygon points="${SX-8},${SY+SR-5} ${SX+SR-2},${SY+SR} ${SX-8},${SY+SR+5}" fill="${CLD}"/>`);
+  p.push(_plumbT(SX-30,SY+SR-14,`COLD IN`,{sz:7,c:CLD,w:'700'}));
+  p.push(_plumbT(SX-30,SY+SR-2,`${cldIn}°C`,{sz:7,c:CLD}));
+  p.push(`<line x1="${SX+SW-SR}" y1="${SY+SR}" x2="${SX+SW+20}" y2="${SY+SR}" stroke="${CLD}" stroke-width="4"/>`);
+  p.push(_plumbT(SX+SW+25,SY+SR-14,`COLD OUT`,{a:'start',sz:7,c:CLD,w:'700'}));
+  // Performance badges
+  const bY=SY+SH+60;
+  [[`Q = ${dutyKW} kW`,CC],[`LMTD = ${lmtdK} K`,HOT],[`U = ${U} W/m²K`,STL],[`ε = ${eff}  NTU = ${ntu}`,CLD]].forEach(([txt,clr],i)=>{
+    p.push(`<rect x="${SX+i*115}" y="${bY}" width="112" height="28" rx="3" fill="${LGY}" stroke="${clr}" stroke-width="1.5"/>`);
+    p.push(_plumbT(SX+i*115+56,bY+17,txt,{sz:8,c:clr,w:'700'}));
+  });
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  [[HOT,'Hot fluid (shell side)'],[CLD,'Cold fluid (tube side)'],[STL,'Shell & tube bundle']].forEach(([c,lbl],i)=>{
+    p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
+    p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
+  });
+  [`1. Q = U × A × LMTD_corrected. LMTD correction factor F per TEMA (multi-pass correction).`,
+   `2. Required area A = Q / (U × LMTD). Standard tube OD ${tubeOD}mm, n = ${nTubes} tubes.`,
+   `3. TEMA / ASME Sec.VIII: design pressure, nozzle loads, corrosion allowance per material code.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+  _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'HEAT EXCHANGER', rows:[
+    ['Duty',`${dutyKW} kW`,CC],['LMTD (corrected)',`${lmtdK} K`,HOT],
+    ['Overall U',`${U} W/m²·K`,STL],['Required Area',`${aM2} m²`,CC],
+    ['No. of Tubes',`${nTubes}`,STL],['Tube OD × Length',`${tubeOD}mm × ${tubeL}m`,STL],
+    ['Shell ID',`${shellID} mm`,STL],['Effectiveness ε',eff,CLD],
+    ['NTU',ntu,CLD],['Heat Balance',balOK?'OK ✓':'CHECK ✗',balOK?'#2e7d32':'#c62828']
+  ]}]);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Pressure Vessel — ASME BPVC Sec.VIII Div.1 ──────────────────────────────
+function buildPressureVesselSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const STL='#455a64',OK_C='#2e7d32',ORG='#e65100';
+  const p=[];
+  const tShell=Number(r.t_shell_actual_mm||0).toFixed(1);
+  const OD=Number(r.outer_diameter_mm||0).toFixed(0);
+  const ID=Number(inp.shell_id_mm||600).toFixed(0);
+  const mawpBar=Number(r.mawp_bar||0).toFixed(2);
+  const mawpOK=Boolean(r.mawp_ok??true);
+  const hydBar=Number(r.hydro_test_bar||0).toFixed(2);
+  const desPBar=Number(r.design_pressure_bar||0).toFixed(2);
+  const tHead=Number(r.t_head_actual_mm||0).toFixed(1);
+  const wEmpty=Number(r.weight_empty_kg||0).toFixed(0);
+  const wHydro=Number(r.weight_hydro_kg||0).toFixed(0);
+  const mat=String(r.material||inp.material||'Carbon Steel');
+  const Sallow=Number(r.allowable_stress_MPa||0).toFixed(0);
+  const nozPad=Boolean(r.nozzle_reinforcement_pad_required??false);
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`PRESSURE VESSEL — Ø${OD}mm  |  MAWP ${mawpBar} bar  |  ${mat}  |  ASME BPVC Sec.VIII`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  // Vessel cross-section (elevation)
+  const VX=80,VY=75,VW=420,VH=160,VR=20;
+  const headW=60;
+  // Shell
+  p.push(`<rect x="${VX+headW}" y="${VY}" width="${VW}" height="${VH}" fill="${LGY}" stroke="${STL}" stroke-width="3.5"/>`);
+  // Left head (ellipsoidal)
+  p.push(`<ellipse cx="${VX+headW}" cy="${VY+VH/2}" rx="${headW}" ry="${VH/2}" fill="${LGY}" stroke="${STL}" stroke-width="3"/>`);
+  // Right head
+  p.push(`<ellipse cx="${VX+headW+VW}" cy="${VY+VH/2}" rx="${headW}" ry="${VH/2}" fill="${LGY}" stroke="${STL}" stroke-width="3"/>`);
+  // Shell thickness annotation (top)
+  p.push(`<line x1="${VX+headW+VW/2-30}" y1="${VY}" x2="${VX+headW+VW/2+30}" y2="${VY}" stroke="${ORG}" stroke-width="1.5"/>`);
+  p.push(`<line x1="${VX+headW+VW/2-30}" y1="${VY-12}" x2="${VX+headW+VW/2+30}" y2="${VY-12}" stroke="${ORG}" stroke-width="1.5"/>`);
+  p.push(_plumbT(VX+headW+VW/2,VY-22,`t = ${tShell} mm`,{sz:8,c:ORG,w:'700'}));
+  // Nozzles (top)
+  const noz1X=VX+headW+VW*0.25,noz2X=VX+headW+VW*0.7;
+  p.push(`<rect x="${noz1X-15}" y="${VY-30}" width="30" height="30" fill="${LGY}" stroke="${STL}" stroke-width="2"/>`);
+  p.push(_plumbT(noz1X,VY-38,'N1',{sz:7,c:STL,w:'700'}));
+  p.push(`<rect x="${noz2X-15}" y="${VY+VH}" width="30" height="30" fill="${LGY}" stroke="${STL}" stroke-width="2"/>`);
+  p.push(_plumbT(noz2X,VY+VH+42,'N2',{sz:7,c:STL,w:'700'}));
+  if(nozPad){
+    p.push(`<ellipse cx="${noz1X}" cy="${VY}" rx="28" ry="10" fill="none" stroke="${ORG}" stroke-width="1.5" stroke-dasharray="4 2"/>`);
+    p.push(_plumbT(noz1X+35,VY+3,'Reinf. Pad',{a:'start',sz:7,c:ORG}));
+  }
+  // Dimensions
+  p.push(`<line x1="${VX}" y1="${VY+VH+35}" x2="${VX+headW*2+VW}" y2="${VY+VH+35}" stroke="${SC}" stroke-width="1"/>`);
+  p.push(_plumbT((VX+VX+headW*2+VW)/2,VY+VH+48,`OD = ${OD}mm  |  ID = ${ID}mm  |  t = ${tShell}mm shell / ${tHead}mm head`,{sz:7.5,c:CC,w:'700'}));
+  // Pressure badges
+  const bY=VY+VH+70;
+  [[`Des. P = ${desPBar} bar`,CC],[`MAWP = ${mawpBar} bar`,mawpOK?OK_C:ORG],[`Hydro = ${hydBar} bar`,ORG]].forEach(([txt,clr],i)=>{
+    p.push(`<rect x="${VX+i*145}" y="${bY}" width="140" height="28" rx="3" fill="${LGY}" stroke="${clr}" stroke-width="1.5"/>`);
+    p.push(_plumbT(VX+i*145+70,bY+17,txt,{sz:8,c:clr,w:'700'}));
+  });
+  p.push(`<rect x="${VX}" y="${bY+40}" width="250" height="28" rx="3" fill="${mawpOK?'#e8f5e9':'#ffebee'}" stroke="${mawpOK?OK_C:ORG}" stroke-width="1.5"/>`);
+  p.push(_plumbT(VX+125,bY+57,`MAWP ${mawpOK?'≥':'<'} Design P  —  ${mawpOK?'PASS ✓':'FAIL ✗'}`,{sz:8,c:mawpOK?OK_C:ORG,w:'700'}));
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  p.push(`<line x1="25" y1="${LY+26}" x2="53" y2="${LY+26}" stroke="${STL}" stroke-width="4"/>`);
+  p.push(_plumbT(57,LY+30,'Shell & heads',{a:'start',sz:7.5,c:CC}));
+  p.push(`<line x1="25" y1="${LY+42}" x2="53" y2="${LY+42}" stroke="${ORG}" stroke-width="2" stroke-dasharray="4 2"/>`);
+  p.push(_plumbT(57,LY+46,'Nozzle reinforcement pad',{a:'start',sz:7.5,c:CC}));
+  [`1. ASME VIII-1 UG-27: t = P×R/(S×E − 0.6P). E = joint efficiency, S = allowable stress.`,
+   `2. Hydrostatic test: 1.3 × MAWP (ASME VIII-1 UG-99). Nozzle reinforcement per UG-36.`,
+   `3. Nameplate: ASME stamp required. Manufacturer Data Report (MDR) Form U-1.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+  _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'PRESSURE VESSEL', rows:[
+    ['Material',mat,CC],['Allowable Stress',`${Sallow} MPa`,STL],
+    ['Design Pressure',`${desPBar} bar`,CC],['Shell ID / OD',`${ID}/${OD} mm`,STL],
+    ['Shell Thickness',`${tShell} mm`,STL],['Head Thickness',`${tHead} mm`,STL],
+    ['MAWP',`${mawpBar} bar  ${mawpOK?'✓':'✗'}`,mawpOK?OK_C:ORG],
+    ['Hydro Test',`${hydBar} bar`,ORG],['Weight (empty)',`${wEmpty} kg`,GY],
+    ['Weight (hydro)',`${wHydro} kg`,GY],['Nozzle Pad',nozPad?'Required':'Not required',nozPad?ORG:OK_C]
+  ]}]);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Fluid Power (Hydraulic) — ISO 4413 ──────────────────────────────────────
+function buildFluidPowerSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const HYD='#c0392b',RTN='#1565c0',PUMP_C='#37474f';
+  const p=[];
+  const presBar=Number(r.system_pressure_bar||inp.system_pressure_bar||200).toFixed(0);
+  const cyl=r.cylinder||{};
+  const bore=Number(cyl.bore_mm||r.bore_selected_mm||inp.cylinder_bore_mm||100).toFixed(0);
+  const rod=Number(cyl.rod_mm||r.rod_selected_mm||0).toFixed(0);
+  const forceExt=Number(cyl.force_extend_kN||0).toFixed(1);
+  const forceRet=Number(cyl.force_retract_kN||0).toFixed(1);
+  const spdExt=Number(cyl.speed_extend_mms||0).toFixed(1);
+  const stroke=Number(inp.cylinder_stroke_mm||500).toFixed(0);
+  const presL=r.pressure_line||{};
+  const pipeOD=Number(presL.od_mm||presL.pipe_od_mm||0).toFixed(0);
+  const flowLpm=Number(inp.pump_flow_lpm||20).toFixed(1);
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`FLUID POWER — ${presBar} bar  |  Ø${bore}mm Cylinder  |  ${forceExt} kN Extend  |  ISO 4413`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  // Reservoir
+  p.push(`<rect x="40" y="340" width="80" height="60" fill="#e3f2fd" stroke="${RTN}" stroke-width="2"/>`);
+  p.push(_plumbT(80,368,'RESERVOIR',{sz:7,c:RTN,w:'700'})); p.push(_plumbT(80,380,`${flowLpm} L/min`,{sz:7,c:SC}));
+  // Pump
+  p.push(`<circle cx="160" cy="340" r="25" fill="${LGY}" stroke="${PUMP_C}" stroke-width="2.5"/>`);
+  p.push(_plumbT(160,337,'P',{sz:10,c:PUMP_C,w:'700'})); p.push(_plumbT(160,350,'Pump',{sz:6.5,c:GY}));
+  p.push(`<line x1="120" y1="340" x2="135" y2="340" stroke="${RTN}" stroke-width="2.5"/>`);
+  p.push(`<line x1="185" y1="340" x2="220" y2="340" stroke="${HYD}" stroke-width="3"/>`);
+  p.push(_plumbT(200,330,`${presBar} bar`,{sz:7,c:HYD,w:'700'}));
+  // Relief valve
+  p.push(`<rect x="218" y="310" width="28" height="22" rx="2" fill="${LGY}" stroke="${HYD}" stroke-width="1.5"/>`);
+  p.push(_plumbT(232,324,'RV',{sz:7,c:HYD,w:'700'}));
+  p.push(`<line x1="232" y1="310" x2="232" y2="290" stroke="${HYD}" stroke-width="1.5" stroke-dasharray="3 2"/>`);
+  p.push(_plumbT(245,286,'Relief',{a:'start',sz:7,c:HYD}));
+  // Directional control valve
+  p.push(`<line x1="248" y1="340" x2="285" y2="340" stroke="${HYD}" stroke-width="3"/>`);
+  p.push(`<rect x="285" y="322" width="50" height="36" fill="${LGY}" stroke="${CC}" stroke-width="2"/>`);
+  p.push(_plumbT(310,342,'DCV',{sz:7.5,c:CC,w:'700'}));
+  p.push(`<line x1="335" y1="340" x2="370" y2="340" stroke="${HYD}" stroke-width="3"/>`);
+  // Cylinder (horizontal)
+  const CYX=370,CYY=300,CYW=160,CYH=80;
+  p.push(`<rect x="${CYX}" y="${CYY}" width="${CYW}" height="${CYH}" fill="#fff3e0" stroke="${PUMP_C}" stroke-width="2.5" rx="4"/>`);
+  // Piston
+  const pistonX=CYX+CYW*0.6;
+  p.push(`<rect x="${pistonX}" y="${CYY+5}" width="15" height="${CYH-10}" fill="${PUMP_C}" rx="2"/>`);
+  // Rod
+  p.push(`<rect x="${pistonX+15}" y="${CYY+CYH/2-6}" width="${CYW-pistonX+CYX-15}" height="12" fill="${GY}" rx="2"/>`);
+  // Labels
+  p.push(_plumbT(CYX+CYW/2-30,CYY+CYH/2+5,`Bore Ø${bore}  Rod Ø${rod}mm`,{sz:7,c:CC}));
+  p.push(_plumbT(CYX+CYW/2-30,CYY-12,`Stroke: ${stroke}mm`,{sz:7.5,c:PUMP_C,w:'700'}));
+  // Force arrows
+  p.push(`<polygon points="${CYX+30},${CYY-15} ${CYX+30+18},${CYY-15} ${CYX+30+18},${CYY-22} ${CYX+60},${CYY-8} ${CYX+30+18},${CYY+6} ${CYX+30+18},${CYY-2}" fill="${HYD}"/>`);
+  p.push(_plumbT(CYX+100,CYY-20,`F_ext = ${forceExt} kN  |  F_ret = ${forceRet} kN`,{sz:7.5,c:HYD,w:'700'}));
+  // Return line
+  p.push(`<line x1="${CYX}" y1="${CYY+CYH/2}" x2="${CYX-35}" y2="${CYY+CYH/2}" stroke="${RTN}" stroke-width="2.5"/>`);
+  p.push(`<line x1="${CYX-35}" y1="${CYY+CYH/2}" x2="${CYX-35}" y2="370" stroke="${RTN}" stroke-width="2.5"/>`);
+  p.push(`<line x1="${CYX-35}" y1="370" x2="120" y2="370" stroke="${RTN}" stroke-width="2.5"/>`);
+  // Speed label
+  p.push(_plumbT(CYX+CYW+20,CYY+CYH/2+4,`v = ${spdExt} mm/s`,{a:'start',sz:8,c:PUMP_C,w:'700'}));
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  [[HYD,'High-pressure line'],[RTN,'Return / low-pressure'],[PUMP_C,'Actuator / mechanical']].forEach(([c,lbl],i)=>{
+    p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
+    p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
+  });
+  [`1. F_extend = P × A_bore = ${presBar} bar × π×(${bore}mm)²/4. F_retract uses annulus area.`,
+   `2. Flow Q = A × v. Pump: P_hydraulic = Q × ΔP. Motor: P_shaft = P_hydraulic / η_pump.`,
+   `3. ISO 4413: relief valve set at 110% system pressure. Filtration ISO 4406 class 18/16/13.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+  _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'FLUID POWER', rows:[
+    ['System Pressure',`${presBar} bar`,HYD],['Cylinder Bore',`Ø${bore} mm`,PUMP_C],
+    ['Rod Diameter',`Ø${rod} mm`,PUMP_C],['Stroke',`${stroke} mm`,GY],
+    ['Extend Force',`${forceExt} kN`,HYD],['Retract Force',`${forceRet} kN`,HYD],
+    ['Extend Speed',`${spdExt} mm/s`,PUMP_C],['Pump Flow',`${flowLpm} L/min`,RTN],
+    ['Pressure Line',pipeOD?`Ø${pipeOD}mm OD`:'—',GY]
+  ]}]);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── V-Belt Drive — RMA / ASME B40.1 ─────────────────────────────────────────
+function buildVBeltDriveSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const BLT='#37474f',DRV='#1565c0',DRN='#c0392b';
+  const p=[];
+  const dSmall=Number(r.d_small_mm||r.driven_dia_mm||100).toFixed(0);
+  const dLarge=Number(r.d_large_mm||200).toFixed(0);
+  const nBelts=Number(r.n_belts||r.n_belts_calc||1).toFixed(0);
+  const beltL=Number(r.belt_length_mm||0).toFixed(0);
+  const ratio=Number(r.overall_ratio||0).toFixed(2);
+  const beltSpd=Number(r.belt_speed_ms||0).toFixed(1);
+  const section=String(r.section||r.belt_designation||'B');
+  const wrapDeg=Number(r.wrap_angle_deg||r.arc_deg||165).toFixed(1);
+  const capMarPct=Number(r.capacity_margin_pct||0).toFixed(1);
+  const powKW=Number(r.power_kW||inp.power_kw||0).toFixed(1);
+  const drvRPM=Number(r.n_driver_rpm||inp.input_rpm||1450).toFixed(0);
+  const drnRPM=Number(r.n_driven_rpm||r.actual_driven_rpm||inp.output_rpm||0).toFixed(0);
+  const cDist=Number(inp.center_distance_mm||600).toFixed(0);
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`V-BELT DRIVE — ${nBelts}× Section ${section}  |  Ratio ${ratio}:1  |  ${powKW} kW  |  RMA / ASME B40.1`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  // Drive schematic
+  const rSmall=Math.max(25,Math.min(Number(dSmall)*0.12,55));
+  const rLarge=Math.max(40,Math.min(Number(dLarge)*0.12,85));
+  const cx1=130,cy=240,cx2=cx1+Number(cDist)*0.35;
+  // Driver sheave (small)
+  p.push(`<circle cx="${cx1}" cy="${cy}" r="${rSmall}" fill="${LGY}" stroke="${DRV}" stroke-width="3"/>`);
+  for(let i=0;i<6;i++){const a=i*60*Math.PI/180;p.push(`<line x1="${cx1}" y1="${cy}" x2="${(cx1+rSmall*0.7*Math.cos(a)).toFixed(0)}" y2="${(cy+rSmall*0.7*Math.sin(a)).toFixed(0)}" stroke="${DRV}" stroke-width="2"/>`);};
+  p.push(_plumbT(cx1,cy-rSmall-14,`Ø${dSmall}mm`,{sz:8,c:DRV,w:'700'}));
+  p.push(_plumbT(cx1,cy-rSmall-2,`${drvRPM} rpm`,{sz:7,c:DRV}));
+  p.push(_plumbT(cx1,cy+rSmall+14,'DRIVER',{sz:7.5,c:DRV,w:'700'}));
+  // Driven sheave (large)
+  p.push(`<circle cx="${cx2}" cy="${cy}" r="${rLarge}" fill="${LGY}" stroke="${DRN}" stroke-width="3"/>`);
+  for(let i=0;i<6;i++){const a=i*60*Math.PI/180;p.push(`<line x1="${cx2}" y1="${cy}" x2="${(cx2+rLarge*0.7*Math.cos(a)).toFixed(0)}" y2="${(cy+rLarge*0.7*Math.sin(a)).toFixed(0)}" stroke="${DRN}" stroke-width="2"/>`);};
+  p.push(_plumbT(cx2,cy-rLarge-14,`Ø${dLarge}mm`,{sz:8,c:DRN,w:'700'}));
+  p.push(_plumbT(cx2,cy-rLarge-2,`${drnRPM} rpm`,{sz:7,c:DRN}));
+  p.push(_plumbT(cx2,cy+rLarge+14,'DRIVEN',{sz:7.5,c:DRN,w:'700'}));
+  // Belt tangents
+  const dy=Math.abs(rLarge-rSmall)*0.3;
+  p.push(`<line x1="${cx1+rSmall*0.7}" y1="${cy-dy}" x2="${cx2-rLarge*0.7}" y2="${cy-dy}" stroke="${BLT}" stroke-width="4"/>`);
+  p.push(`<line x1="${cx1+rSmall*0.7}" y1="${cy+dy}" x2="${cx2-rLarge*0.7}" y2="${cy+dy}" stroke="${BLT}" stroke-width="4"/>`);
+  // Center distance
+  p.push(`<line x1="${cx1}" y1="${cy+rLarge+35}" x2="${cx2}" y2="${cy+rLarge+35}" stroke="${SC}" stroke-width="1"/>`);
+  p.push(_plumbT((cx1+cx2)/2,cy+rLarge+48,`C = ${cDist} mm`,{sz:7.5,c:SC,w:'700'}));
+  // Info badges
+  const bY=cy-rLarge-55;
+  [[`${nBelts}× Section ${section}`,BLT],[`Belt L = ${beltL} mm`,BLT],[`v = ${beltSpd} m/s`,CC],[`Wrap = ${wrapDeg}°`,DRV]].forEach(([txt,clr],i)=>{
+    p.push(`<rect x="${cx1-20+i*115}" y="${bY}" width="112" height="24" rx="3" fill="${LGY}" stroke="${clr}" stroke-width="1.5"/>`);
+    p.push(_plumbT(cx1-20+i*115+56,bY+15,txt,{sz:8,c:clr,w:'700'}));
+  });
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  [[DRV,'Driver sheave'],[DRN,'Driven sheave'],[BLT,'V-belt']].forEach(([c,lbl],i)=>{
+    p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
+    p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
+  });
+  [`1. Speed ratio i = D_large / D_small = ${ratio}:1. Driven rpm = ${drnRPM} rpm.`,
+   `2. Belt selection: Section ${section}, L = ${beltL}mm. Arc correction factor Kθ (wrap < 180°).`,
+   `3. Power per belt corrected for arc + length. Margin = ${capMarPct}%. RMA IP-20 / ASME B40.1.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+  _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'V-BELT DRIVE', rows:[
+    ['Power',`${powKW} kW`,CC],['Speed Ratio',`${ratio}:1`,CC],
+    ['Driver RPM',`${drvRPM} rpm`,DRV],['Driven RPM',`${drnRPM} rpm`,DRN],
+    ['Driver Sheave',`Ø${dSmall} mm`,DRV],['Driven Sheave',`Ø${dLarge} mm`,DRN],
+    ['Belt Section',section,BLT],['No. of Belts',nBelts,BLT],
+    ['Belt Length',`${beltL} mm`,BLT],['Belt Speed',`${beltSpd} m/s`,GY],
+    ['Wrap Angle',`${wrapDeg}°`,DRV],['Capacity Margin',`${capMarPct}%`,capMarPct>=0?'#2e7d32':'#c62828']
+  ]}]);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Vibration Analysis — ISO 10816-3 ────────────────────────────────────────
+function buildVibrationSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const ISO_A='#2e7d32',ISO_B='#f9a825',ISO_C='#e65100',ISO_D='#c62828';
+  const p=[];
+  const fn=Number(r.fn_Hz||0).toFixed(2);
+  const freq=Number(r.f_op_Hz||inp.excitation_freq_hz||10).toFixed(2);
+  const ratio=Number(r.frequency_ratio_r||0).toFixed(3);
+  const MF=Number(r.magnification_factor||0).toFixed(2);
+  const Vrms=Number(r.V_rms_mm_s||0).toFixed(2);
+  const zone=String(r.iso_zone||'A');
+  const zoneOK=Boolean(r.zone_ok??true);
+  const isolEff=Number(r.isolation_efficiency_pct||0).toFixed(1);
+  const T=Number(r.transmissibility||0).toFixed(3);
+  const resRisk=Boolean(r.in_resonance_band??false);
+  const resMgn=Number(r.resonance_margin_pct||0).toFixed(1);
+  const xMM=Number(r.X_mm||0).toFixed(3);
+  const zoneC={A:ISO_A,B:ISO_B,C:ISO_C,D:ISO_D}[zone]||GY;
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`VIBRATION ANALYSIS — fn=${fn} Hz  |  v_rms=${Vrms} mm/s  |  Zone ${zone}  |  ISO 10816-3`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  // Spring-mass-damper diagram
+  const CX=150,CY=180;
+  // Mass block
+  p.push(`<rect x="${CX-40}" y="${CY-30}" width="80" height="60" fill="${LGY}" stroke="${CC}" stroke-width="2.5"/>`);
+  p.push(_plumbT(CX,CY+2,'MASS m',{sz:8,c:CC,w:'700'}));
+  p.push(_plumbT(CX,CY+14,`${inp.mass_kg||500} kg`,{sz:7.5,c:GY}));
+  // Spring (left)
+  const spX=CX-40,spY1=CY,spY2=CY+100;
+  const spH=spY2-spY1; const nCoils=6;
+  p.push(`<line x1="${spX}" y1="${CY+30}" x2="${spX}" y2="${spY1+10}" stroke="${CC}" stroke-width="1.5"/>`);
+  for(let i=0;i<nCoils;i++){const sy=spY1+10+i*(spH-20)/nCoils;p.push(`<line x1="${spX}" y1="${sy}" x2="${i%2===0?spX-15:spX+15}" y2="${sy+(spH-20)/nCoils/2}" stroke="${CC}" stroke-width="2"/>`);}
+  p.push(`<line x1="${spX}" y1="${spY2-10}" x2="${spX}" y2="${spY2}" stroke="${CC}" stroke-width="1.5"/>`);
+  p.push(_plumbT(spX-28,spY1+(spY2-spY1)/2,`k=${inp.stiffness_N_m||200000} N/m`,{sz:6.5,c:CC}));
+  // Damper (right)
+  const dpX=CX+40;
+  p.push(`<line x1="${dpX}" y1="${CY+30}" x2="${dpX}" y2="${spY1+30}" stroke="${CC}" stroke-width="1.5"/>`);
+  p.push(`<rect x="${dpX-12}" y="${spY1+30}" width="24" height="30}" fill="${LGY}" stroke="${CC}" stroke-width="2"/>`);
+  p.push(`<rect x="${dpX-8}" y="${spY1+30}" width="16" height="22" fill="${GY}"/>`);
+  p.push(`<line x1="${dpX}" y1="${spY1+60}" x2="${dpX}" y2="${spY2}" stroke="${CC}" stroke-width="1.5"/>`);
+  p.push(_plumbT(dpX+28,spY1+(spY2-spY1)/2,`ζ=${inp.damping_ratio||0.05}`,{sz:6.5,c:CC}));
+  // Ground
+  p.push(`<line x1="${CX-60}" y1="${spY2}" x2="${CX+60}" y2="${spY2}" stroke="${CC}" stroke-width="3"/>`);
+  for(let i=0;i<6;i++) p.push(`<line x1="${CX-55+i*22}" y1="${spY2}" x2="${CX-62+i*22}" y2="${spY2+10}" stroke="${CC}" stroke-width="1.5"/>`);
+  // Excitation force arrow
+  p.push(`<polygon points="${CX-50},${CY-25} ${CX-25},${CY-45} ${CX-50},${CY-60}" fill="${ISO_C}"/>`);
+  p.push(`<line x1="${CX-40}" y1="${CY-30}" x2="${CX-40}" y2="${CY-62}" stroke="${ISO_C}" stroke-width="2.5"/>`);
+  p.push(_plumbT(CX-70,CY-65,`F excit`,{sz:7,c:ISO_C,w:'700'}));
+  p.push(_plumbT(CX-70,CY-53,`${inp.excitation_freq_hz||10} Hz`,{sz:7,c:ISO_C}));
+  // Frequency response chart (simplified bar chart)
+  const ChX=290,ChY=80,ChW=300,ChH=200;
+  p.push(`<rect x="${ChX}" y="${ChY}" width="${ChW}" height="${ChH}" fill="#f8faff" stroke="${GY}" stroke-width="1"/>`);
+  p.push(_plumbT(ChX+ChW/2,ChY-10,'MAGNIFICATION FACTOR vs FREQUENCY RATIO',{sz:7.5,c:CC,w:'700'}));
+  // Draw simplified MF curve
+  const nPts=50;
+  const mfPts=[];
+  const zeta=Number(inp.damping_ratio||0.05);
+  for(let i=0;i<=nPts;i++){
+    const ri=i/nPts*3;
+    const mfi=1/Math.sqrt(Math.pow(1-ri*ri,2)+Math.pow(2*zeta*ri,2));
+    const px=ChX+ri/3*ChW;
+    const py=ChY+ChH-Math.min(mfi,10)*ChH/12;
+    mfPts.push(`${px.toFixed(0)},${py.toFixed(0)}`);
+  }
+  p.push(`<polyline points="${mfPts.join(' ')}" fill="none" stroke="${CC}" stroke-width="2"/>`);
+  // Operating point marker
+  const opX=ChX+Math.min(Number(ratio),3)/3*ChW;
+  const opMF=Math.min(Number(MF),10);
+  const opY=ChY+ChH-opMF*ChH/12;
+  p.push(`<circle cx="${opX}" cy="${opY}" r="7" fill="${zoneC}" stroke="${CC}" stroke-width="1.5"/>`);
+  p.push(_plumbT(opX+12,opY-2,`r=${ratio}`,{a:'start',sz:7,c:zoneC,w:'700'}));
+  p.push(`<line x1="${opX}" y1="${ChY+ChH}" x2="${opX}" y2="${ChY+ChH+10}" stroke="${zoneC}" stroke-width="1.5" stroke-dasharray="3 2"/>`);
+  // Axis labels
+  p.push(_plumbT(ChX+ChW/2,ChY+ChH+22,'Frequency Ratio r = f/fn',{sz:7.5,c:SC}));
+  p.push(_plumbT(ChX-8,ChY+ChH/2,'MF',{sz:7.5,c:SC}));
+  // ISO zone badge
+  const bX=ChX,bY=ChY+ChH+35;
+  p.push(`<rect x="${bX}" y="${bY}" width="${ChW}" height="38" rx="4" fill="${zoneOK?'#e8f5e9':'#ffebee'}" stroke="${zoneC}" stroke-width="2"/>`);
+  p.push(_plumbT(bX+ChW/2,bY+14,`v_rms = ${Vrms} mm/s  |  ISO Zone ${zone}`,{sz:9,c:zoneC,w:'700'}));
+  p.push(_plumbT(bX+ChW/2,bY+28,`MF = ${MF}  |  T = ${T}  |  Isolation = ${isolEff}%  |  Margin ${resMgn}%`,{sz:7.5,c:CC}));
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND — ISO 10816-3 Velocity Zones',{a:'start',sz:8,c:CC,w:'700'}));
+  [[ISO_A,'Zone A: < 2.3 mm/s — New machine'],[ISO_B,'Zone B: 2.3–4.5 mm/s — Satisfactory'],
+   [ISO_C,'Zone C: 4.5–7.1 mm/s — Unsatisfactory'],[ISO_D,'Zone D: > 7.1 mm/s — Danger']].forEach(([c,lbl],i)=>{
+    p.push(`<line x1="25" y1="${LY+26+i*11}" x2="40" y2="${LY+26+i*11}" stroke="${c}" stroke-width="4"/>`);
+    p.push(_plumbT(44,LY+30+i*11,lbl,{a:'start',sz:7,c:CC}));
+  });
+  _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'VIBRATION ANALYSIS', rows:[
+    ['Natural Freq. fn',`${fn} Hz`,CC],['Operating Freq.',`${freq} Hz`,ISO_C],
+    ['Frequency Ratio r',ratio,resRisk?ISO_D:ISO_A],['Magnification Factor',MF,CC],
+    ['Amplitude X',`${xMM} mm`,GY],['v_rms',`${Vrms} mm/s`,zoneC],
+    ['ISO Zone',zone,zoneC],['Transmissibility T',T,GY],
+    ['Isolation Eff.',`${isolEff}%`,GY],['Resonance Margin',`${resMgn}%`,resRisk?ISO_D:ISO_A]
+  ]}]);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Noise / Acoustics — ISO 9613 / DOLE D.O. 13 ─────────────────────────────
+function buildNoiseAcousticsSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const SND='#e65100',SFE='#1565c0',OK_C='#2e7d32';
+  const p=[];
+  const LpDb=Number(r.Lp_at_distance_dB||0).toFixed(1);
+  const LwDb=Number(r.source_Lw_dB||inp.source_spl_db||90).toFixed(1);
+  const distM=Number(r.distance_m||inp.distance_m||5).toFixed(1);
+  const room=r.room||{};
+  const alpha=Number(r.alpha||0).toFixed(3);
+  const NCrec=Number(r.NC_recommended||35).toFixed(0);
+  const NCLim=Number(r.NC_limit||45).toFixed(0);
+  const spType=String(r.space_type||inp.space_type||'Open Office');
+  const doleLimit=85; // DOLE 8h TWA limit
+  const doleOK=Number(LpDb)<=doleLimit;
+  const ncOK=Number(LpDb)<=Number(NCLim)+15;
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`NOISE / ACOUSTICS — ${LpDb} dB at ${distM}m  |  NC-${NCrec} recommend.  |  ISO 9613 / DOLE D.O.13`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  // Room plan diagram
+  const RX=50,RY=75,RW=400,RH=250;
+  p.push(`<rect x="${RX}" y="${RY}" width="${RW}" height="${RH}" fill="${LGY}" stroke="${CC}" stroke-width="2.5" rx="6"/>`);
+  p.push(_plumbT(RX+RW/2,RY-10,'ROOM / SPACE PLAN',{sz:7.5,c:CC,w:'700'}));
+  // Source (noise machine)
+  const srcX=RX+60,srcY=RY+RH/2;
+  p.push(`<rect x="${srcX-20}" y="${srcY-20}" width="40" height="40" rx="4" fill="#fff3e0" stroke="${SND}" stroke-width="2.5"/>`);
+  p.push(_plumbT(srcX,srcY+2,'SRC',{sz:8,c:SND,w:'700'}));
+  p.push(_plumbT(srcX,srcY-32,`Lw = ${LwDb} dB`,{sz:7.5,c:SND,w:'700'}));
+  // Sound propagation rings
+  [50,100,150,200].forEach((rad,i)=>{
+    const alpha2=0.15*(i+1);
+    p.push(`<circle cx="${srcX}" cy="${srcY}" r="${rad}" fill="none" stroke="${SND}" stroke-width="0.8" opacity="${1-alpha2}" stroke-dasharray="${i%2===0?'':'4 2'}"/>`);
+  });
+  // Receiver position
+  const recX=srcX+Number(distM)*22,recY=srcY;
+  const clamp=(v,mn,mx)=>Math.max(mn,Math.min(mx,v));
+  const recXc=clamp(recX,RX+20,RX+RW-20);
+  p.push(`<circle cx="${recXc}" cy="${recY}" r="12" fill="#e3f2fd" stroke="${SFE}" stroke-width="2.5"/>`);
+  p.push(_plumbT(recXc,recY+3,'REC',{sz:7,c:SFE,w:'700'}));
+  p.push(_plumbT(recXc,recY-24,`Lp = ${LpDb} dB`,{sz:8,c:SFE,w:'700'}));
+  // Distance annotation
+  p.push(`<line x1="${srcX+20}" y1="${srcY+35}" x2="${recXc-12}" y2="${srcY+35}" stroke="${SC}" stroke-width="1"/>`);
+  p.push(_plumbT((srcX+20+recXc-12)/2,srcY+48,`r = ${distM} m`,{sz:7.5,c:SC,w:'700'}));
+  // Room data
+  p.push(_plumbT(RX+RW-80,RY+30,`α = ${alpha}`,{sz:7.5,c:GY}));
+  p.push(_plumbT(RX+RW-80,RY+44,spType,{sz:7,c:GY}));
+  // SPL bar chart
+  const BC_X=RX,BC_Y=RY+RH+30,BC_W=RW,BC_H=80;
+  p.push(`<rect x="${BC_X}" y="${BC_Y}" width="${BC_W}" height="${BC_H}" fill="#f8faff" stroke="${GY}" stroke-width="1"/>`);
+  // Bars for Lw, Lp, NC limit, DOLE limit
+  const bars=[['Lw',Number(LwDb),SND],[`Lp@${distM}m`,Number(LpDb),SFE],['NC Limit',Number(NCLim)+15,GY],['DOLE 85dB',doleLimit,'#c62828']];
+  const maxDB=Math.max(120,Number(LwDb)+10);
+  bars.forEach(([lbl,val,clr],i)=>{
+    const bw=(BC_W/bars.length)-8;
+    const bx=BC_X+4+i*(bw+8);
+    const bh=val/maxDB*BC_H*0.9;
+    p.push(`<rect x="${bx}" y="${BC_Y+BC_H-bh-5}" width="${bw}" height="${bh}" fill="${clr}" opacity="0.8" rx="2"/>`);
+    p.push(_plumbT(bx+bw/2,BC_Y+BC_H-bh-10,`${val.toFixed(1)}`,{sz:7.5,c:clr,w:'700'}));
+    p.push(_plumbT(bx+bw/2,BC_Y+BC_H+12,lbl,{sz:7,c:CC}));
+  });
+  // Compliance badges
+  const b1X=RX,b1Y=BC_Y+BC_H+30;
+  p.push(`<rect x="${b1X}" y="${b1Y}" width="195" height="32" rx="4" fill="${doleOK?'#e8f5e9':'#ffebee'}" stroke="${doleOK?OK_C:'#c62828'}" stroke-width="1.5"/>`);
+  p.push(_plumbT(b1X+97,b1Y+14,`DOLE D.O.13: ${LpDb} dB ${doleOK?'≤':'>'} 85 dB — ${doleOK?'PASS ✓':'FAIL ✗'}`,{sz:8,c:doleOK?OK_C:'#c62828',w:'700'}));
+  p.push(`<rect x="${b1X+205}" y="${b1Y}" width="195" height="32" rx="4" fill="#e3f2fd" stroke="${SFE}" stroke-width="1.5"/>`);
+  p.push(_plumbT(b1X+302,b1Y+14,`NC Recommended: NC-${NCrec} (${spType})`,{sz:8,c:SFE,w:'700'}));
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  [[SND,'Sound source (Lw)'],[SFE,'Receiver position (Lp)']].forEach(([c,lbl],i)=>{
+    p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
+    p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
+  });
+  [`1. Lp = Lw − 20log(r) − 11 (free-field). Room correction: +10log(Q/4πr² + 4/R).`,
+   `2. DOLE D.O. 13: 85 dBA 8-hr TWA. Each +5 dB halves allowable exposure time.`,
+   `3. NC curves: NC-${NCrec} recommended for ${spType}. Use absorption α ≥ ${alpha} to achieve target.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+  _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'NOISE / ACOUSTICS', rows:[
+    ['Source Lw',`${LwDb} dB`,SND],['Distance',`${distM} m`,SC],
+    ['Lp at Distance',`${LpDb} dB`,SFE],['Room Absorption α',alpha,GY],
+    ['Space Type',spType,CC],['NC Recommended',`NC-${NCrec}`,SFE],
+    ['DOLE Limit','85 dBA (8-hr TWA)','#c62828'],
+    ['DOLE Compliance',doleOK?'PASS ✓':'FAIL ✗',doleOK?OK_C:'#c62828']
+  ]}]);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Shaft Design — ASME B106.1M / DE-Goodman ────────────────────────────────
+function buildShaftDesignSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const STL='#455a64',OK_C='#2e7d32',FAIL_C='#c62828',TRQ='#e65100';
+  const p=[];
+  const dStd=Number(r.d_standard_mm||0).toFixed(0);
+  const dMin=Number(r.d_min_mm||0).toFixed(1);
+  const torqNm=Number(r.torque_Nm||0).toFixed(1);
+  const bendNm=Number(r.bending_moment_Nm||inp.bending_moment_Nm||0).toFixed(1);
+  const nfGood=Number(r.nf_goodman||0).toFixed(2);
+  const nyYield=Number(r.ny_yield||0).toFixed(2);
+  const fatOK=Boolean(r.fatigue_ok??true);
+  const yldOK=Boolean(r.yield_ok??true);
+  const critRPM=Number(r.critical_speed_rpm||0).toFixed(0);
+  const spdRPM=Number(inp.speed_rpm||1450).toFixed(0);
+  const critOK=Boolean(r.critical_speed_ok??true);
+  const defMM=Number(r.deflection_mm||0).toFixed(4);
+  const defLim=Number(r.deflection_limit_mm||0).toFixed(4);
+  const defOK=Boolean(r.deflection_ok??true);
+  const keyW=Number(r.key_width_mm||0).toFixed(0);
+  const keyH=Number(r.key_height_mm||0).toFixed(0);
+  const keyOK=Boolean(r.key_ok??true);
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`SHAFT DESIGN — Ø${dStd}mm  |  T=${torqNm} N·m  |  nf=${nfGood}  |  ASME B106.1M / DE-Goodman`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  // Shaft FBD (elevation)
+  const SHX=60,SHY=170,SHW=460,SHR=Math.max(12,Math.min(Number(dStd)*0.35,35));
+  // Bearings
+  p.push(`<polygon points="${SHX},${SHY-20} ${SHX+20},${SHY+20} ${SHX-20},${SHY+20}" fill="${GY}" stroke="${CC}" stroke-width="1.5"/>`);
+  p.push(`<polygon points="${SHX+SHW},${SHY-20} ${SHX+SHW+20},${SHY+20} ${SHX+SHW-20},${SHY+20}" fill="${GY}" stroke="${CC}" stroke-width="1.5"/>`);
+  // Shaft body
+  p.push(`<rect x="${SHX}" y="${SHY-SHR}" width="${SHW}" height="${SHR*2}" rx="4" fill="${LGY}" stroke="${STL}" stroke-width="3"/>`);
+  p.push(_plumbT(SHX+SHW/2,SHY+3,`Ø${dStd}mm  (min: ${dMin}mm)`,{sz:8,c:STL,w:'700'}));
+  // Torque arrow (arc with chord safety)
+  const _taX1=SHX+SHW*0.6, _taX2=SHX+SHW*0.6+40, _taY=SHY-SHR-15;
+  const chordH_ta=(_taX2-_taX1)/2;
+  const _taR=Math.max(chordH_ta+20, 30);
+  p.push(`<path d="M ${_taX1},${_taY} A ${_taR},${_taR} 0 0 1 ${_taX2},${_taY}" fill="none" stroke="${TRQ}" stroke-width="2.5"/>`);
+  p.push(`<polygon points="${_taX2},${_taY-7} ${_taX2+12},${_taY} ${_taX2},${_taY+7}" fill="${TRQ}"/>`);
+  p.push(_plumbT(_taX1+(_taX2-_taX1)/2,_taY-14,`T = ${torqNm} N·m`,{sz:8,c:TRQ,w:'700'}));
+  // Bending moment (downward load)
+  const loadX=SHX+SHW*0.4;
+  p.push(`<line x1="${loadX}" y1="${SHY-SHR-40}" x2="${loadX}" y2="${SHY-SHR-5}" stroke="${FAIL_C}" stroke-width="2.5"/>`);
+  p.push(`<polygon points="${loadX-6},${SHY-SHR-5} ${loadX+6},${SHY-SHR-5} ${loadX},${SHY-SHR+8}" fill="${FAIL_C}"/>`);
+  p.push(_plumbT(loadX+12,SHY-SHR-28,`M = ${bendNm} N·m`,{a:'start',sz:8,c:FAIL_C,w:'700'}));
+  // Keyway cross-section (inset)
+  if(Number(keyW)>0){
+    const KX=SHX+SHW*0.7,KY=SHY+SHR+25;
+    p.push(`<circle cx="${KX}" cy="${KY+20}" r="20" fill="${LGY}" stroke="${STL}" stroke-width="2"/>`);
+    p.push(`<rect x="${KX-Number(keyW)*0.8}" y="${KY}" width="${Number(keyW)*1.6}" height="${Number(keyH)*2}" fill="${STL}"/>`);
+    p.push(_plumbT(KX,KY+52,`Key ${keyW}×${keyH}mm  ${keyOK?'✓':'✗'}`,{sz:7.5,c:keyOK?OK_C:FAIL_C,w:'700'}));
+  }
+  // Safety factor badges
+  const bY=SHY+SHR+20;
+  [[`nf = ${nfGood}`,fatOK,`Fatigue`],[`ny = ${nyYield}`,yldOK,'Yield'],[`ncrit = ${critRPM}rpm`,critOK,'Crit.Spd'],[`δ = ${defMM}mm`,defOK,'Deflection']].forEach(([txt,ok,lbl],i)=>{
+    p.push(`<rect x="${SHX+i*115}" y="${bY}" width="112" height="36" rx="3" fill="${ok?'#e8f5e9':'#ffebee'}" stroke="${ok?OK_C:FAIL_C}" stroke-width="1.5"/>`);
+    p.push(_plumbT(SHX+i*115+56,bY+13,lbl,{sz:7,c:ok?OK_C:FAIL_C,w:'700'}));
+    p.push(_plumbT(SHX+i*115+56,bY+27,txt,{sz:8,c:ok?OK_C:FAIL_C,w:'700'}));
+  });
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  [[TRQ,'Torque T (torsion)'],[FAIL_C,'Bending moment M'],[STL,'Shaft cross-section']].forEach(([c,lbl],i)=>{
+    p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
+    p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
+  });
+  [`1. DE-Goodman: σ_a/Se + σ_m/Sut = 1/nf. Se = 0.5Sut × surface × size × reliability × Kf factors.`,
+   `2. Critical speed: Ω_cr = √(k/m). Operating rpm must be < 75% or > 125% of critical speed.`,
+   `3. ASME B106.1M shaft key: ${keyW}×${keyH}mm. τ_key = T/(A×d/2). Safety factor n_key = ${Number(r.n_key||0).toFixed(2)}.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+  _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'SHAFT DESIGN', rows:[
+    ['Material',String(r.material||inp.material||'AISI 1045'),CC],['Min Diameter',`${dMin} mm`,GY],
+    ['Standard Diameter',`Ø${dStd} mm`,STL],['Torque T',`${torqNm} N·m`,TRQ],
+    ['Bending Moment M',`${bendNm} N·m`,FAIL_C],['Fatigue nf (Goodman)',`${nfGood}  ${fatOK?'✓':'✗'}`,fatOK?OK_C:FAIL_C],
+    ['Yield Factor ny',`${nyYield}  ${yldOK?'✓':'✗'}`,yldOK?OK_C:FAIL_C],
+    ['Critical Speed',`${critRPM} rpm  ${critOK?'✓':'✗'}`,critOK?OK_C:FAIL_C],
+    ['Deflection',`${defMM} mm  (lim ${defLim})  ${defOK?'✓':'✗'}`,defOK?OK_C:FAIL_C],
+    ['Key Size',`${keyW}×${keyH} mm  ${keyOK?'✓':'✗'}`,keyOK?OK_C:FAIL_C]
+  ]}]);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Beam / Column Design — AISC 360 / ACI 318 / NSCP 2015 ──────────────────
+function buildBeamColumnSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const STL='#1565c0',OK_C='#2e7d32',FAIL_C='#c62828',LD_C='#e65100';
+  const p=[];
+  const section=String(r.section||inp.section||'W250x33');
+  const spanM=Number(r.span_m||inp.span_m||6).toFixed(1);
+  const phiMpKNm=Number(r.phi_Mp_kNm||0).toFixed(1);
+  const phiVnKN=Number(r.phi_Vn_kN||0).toFixed(1);
+  const DCRm=Number(r.DCR_moment||0).toFixed(3);
+  const DCRv=Number(r.DCR_shear||0).toFixed(3);
+  const mOK=Boolean(r.moment_ok??true);
+  const vOK=Boolean(r.shear_ok??true);
+  const defMM=Number(r.deflection_mm||0).toFixed(2);
+  const defLimMM=Number(r.deflection_limit_mm||0).toFixed(2);
+  const defOK=Boolean(r.deflection_ok??true);
+  const steel=String(r.steel_grade||inp.steel_grade||'A36');
+  const FyMPa=Number(r.Fy_MPa||250).toFixed(0);
+  const loadKN=Number(inp.load_kN||50).toFixed(0);
+  const loadType=String(inp.load_type||'UDL');
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`BEAM/COLUMN — ${section}  |  Span ${spanM}m  |  DCR_M=${DCRm}  |  AISC 360 / NSCP 2015`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  // Beam elevation
+  const BX=80,BY=150,BW=440,BH=28;
+  // Supports
+  p.push(`<polygon points="${BX},${BY+BH} ${BX+20},${BY+BH+30} ${BX-20},${BY+BH+30}" fill="${GY}" stroke="${CC}" stroke-width="1.5"/>`);
+  p.push(`<polygon points="${BX+BW},${BY+BH} ${BX+BW+20},${BY+BH+30} ${BX+BW-20},${BY+BH+30}" fill="${GY}" stroke="${CC}" stroke-width="1.5"/>`);
+  // Beam body
+  p.push(`<rect x="${BX}" y="${BY}" width="${BW}" height="${BH}" fill="${LGY}" stroke="${STL}" stroke-width="3"/>`);
+  p.push(_plumbT(BX+BW/2,BY+BH/2+4,section,{sz:9,c:STL,w:'700'}));
+  // Load
+  if(loadType==='UDL'){
+    for(let i=0;i<=10;i++){
+      const lx=BX+i*(BW/10);
+      p.push(`<line x1="${lx}" y1="${BY-30}" x2="${lx}" y2="${BY-5}" stroke="${LD_C}" stroke-width="1.5"/>`);
+      p.push(`<polygon points="${lx-4},${BY-8} ${lx+4},${BY-8} ${lx},${BY+2}" fill="${LD_C}"/>`);
+    }
+    p.push(`<line x1="${BX}" y1="${BY-32}" x2="${BX+BW}" y2="${BY-32}" stroke="${LD_C}" stroke-width="2.5"/>`);
+    p.push(_plumbT(BX+BW/2,BY-42,`w = ${(Number(loadKN)/Number(spanM)).toFixed(1)} kN/m (UDL)`,{sz:8,c:LD_C,w:'700'}));
+  } else {
+    const pmX=BX+BW/2;
+    p.push(`<line x1="${pmX}" y1="${BY-40}" x2="${pmX}" y2="${BY-5}" stroke="${LD_C}" stroke-width="3"/>`);
+    p.push(`<polygon points="${pmX-7},${BY-8} ${pmX+7},${BY-8} ${pmX},${BY+2}" fill="${LD_C}"/>`);
+    p.push(_plumbT(pmX,BY-52,`P = ${loadKN} kN`,{sz:8,c:LD_C,w:'700'}));
+  }
+  // Span label
+  p.push(`<line x1="${BX}" y1="${BY+BH+48}" x2="${BX+BW}" y2="${BY+BH+48}" stroke="${SC}" stroke-width="1"/>`);
+  p.push(_plumbT(BX+BW/2,BY+BH+62,`L = ${spanM} m  (${steel}  Fy = ${FyMPa} MPa)`,{sz:7.5,c:CC,w:'700'}));
+  // Deflection diagram (simplified parabola)
+  const defPts=[];
+  const maxDef=Math.min(Number(defMM)*3,40);
+  for(let i=0;i<=20;i++){
+    const t=i/20;
+    const dx=BX+t*BW;
+    const dy=BY+BH+80+maxDef*4*t*(1-t);
+    defPts.push(`${dx.toFixed(0)},${dy.toFixed(0)}`);
+  }
+  p.push(`<polyline points="${defPts.join(' ')}" fill="none" stroke="${STL}" stroke-width="2" stroke-dasharray="5 2"/>`);
+  p.push(`<line x1="${BX+BW/2}" y1="${BY+BH+80}" x2="${BX+BW/2}" y2="${BY+BH+80+maxDef*4*0.25}" stroke="${SC}" stroke-width="1"/>`);
+  p.push(_plumbT(BX+BW/2+12,BY+BH+82+maxDef,`δ = ${defMM}mm  (lim ${defLimMM})  ${defOK?'✓':'✗'}`,{a:'start',sz:7.5,c:defOK?OK_C:FAIL_C,w:'700'}));
+  // DCR badges
+  const bY=BY+BH+145;
+  [[`DCR_M = ${DCRm}`,mOK,'Moment'],[`DCR_V = ${DCRv}`,vOK,'Shear'],
+   [`φMp = ${phiMpKNm} kN·m`,true,'Capacity'],[`φVn = ${phiVnKN} kN`,true,'Shear Cap.']].forEach(([txt,ok,lbl],i)=>{
+    p.push(`<rect x="${BX+i*115}" y="${bY}" width="112" height="36" rx="3" fill="${ok?'#e8f5e9':'#ffebee'}" stroke="${ok?OK_C:FAIL_C}" stroke-width="1.5"/>`);
+    p.push(_plumbT(BX+i*115+56,bY+13,lbl,{sz:7,c:ok?OK_C:FAIL_C,w:'700'}));
+    p.push(_plumbT(BX+i*115+56,bY+27,txt,{sz:8,c:ok?OK_C:FAIL_C,w:'700'}));
+  });
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  [[LD_C,'Applied load'],[STL,'Steel section / deflected shape'],[GY,'Support reactions']].forEach(([c,lbl],i)=>{
+    p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
+    p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
+  });
+  [`1. LRFD (AISC 360): φMp = φ × Fy × Zx. DCR = Mu/φMp ≤ 1.0.`,
+   `2. Deflection limit L/${(Number(spanM)*1000/Number(defLimMM)).toFixed(0)} = ${defLimMM}mm per NSCP 2015 Table 506.1.`,
+   `3. Web shear: φVn = φ × 0.6Fy × Aw. Lateral-torsional buckling check per AISC Chapter F.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+  _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'BEAM / COLUMN DESIGN', rows:[
+    ['Section',section,STL],['Steel Grade',`${steel}  Fy=${FyMPa} MPa`,STL],
+    ['Span',`${spanM} m`,CC],['Load',`${loadKN} kN (${loadType})`,LD_C],
+    ['φMp',`${phiMpKNm} kN·m`,STL],['DCR Moment',`${DCRm}  ${mOK?'✓':'✗'}`,mOK?OK_C:FAIL_C],
+    ['φVn',`${phiVnKN} kN`,STL],['DCR Shear',`${DCRv}  ${vOK?'✓':'✗'}`,vOK?OK_C:FAIL_C],
+    ['Deflection',`${defMM} mm  ${defOK?'✓':'✗'}`,defOK?OK_C:FAIL_C]
+  ]}]);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Bearing Life (L10) — ISO 281 ─────────────────────────────────────────────
+function buildBearingLifeSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const BRG='#455a64',OK_C='#2e7d32',WARN_C='#e65100',FAIL_C='#c62828';
+  const p=[];
+  const L10h=Number(r.L10h||0).toFixed(0);
+  const L10adj=Number(r.L10h_adj||0).toFixed(0);
+  const L10Mrev=Number(r.L10_Mrev||0).toFixed(2);
+  const lifeChk=String(r.life_check||'OK');
+  const lifeOK=lifeChk.toUpperCase().includes('OK')||lifeChk.toUpperCase().includes('PASS');
+  const PkN=Number(r.P_kN||0).toFixed(2);
+  const CkN=Number(inp.C_kN||25).toFixed(1);
+  const CoP=Number(r.C_over_P||0).toFixed(2);
+  const a1=Number(r.a1||1).toFixed(2);
+  const pExp=Number(r.p_exp||3).toFixed(0);
+  const FrkN=Number(inp.radial_load_kN||5).toFixed(1);
+  const FakN=Number(inp.axial_load_kN||1).toFixed(1);
+  const rpm=Number(inp.speed_rpm||1450).toFixed(0);
+  const bType=String(inp.bearing_type||'Deep Groove Ball');
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`BEARING LIFE (L10) — ${L10adj} h  |  C/P=${CoP}  |  ${bType}  |  ISO 281`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  // Bearing cross-section
+  const CX=150,CY=220;
+  const OR=80,IR=45,BallR=12;
+  p.push(`<circle cx="${CX}" cy="${CY}" r="${OR}" fill="${LGY}" stroke="${BRG}" stroke-width="4"/>`);
+  p.push(`<circle cx="${CX}" cy="${CY}" r="${IR}" fill="white" stroke="${BRG}" stroke-width="3"/>`);
+  // Rolling elements
+  const nBalls=8;
+  for(let i=0;i<nBalls;i++){
+    const a=i*2*Math.PI/nBalls;
+    const bx=CX+(OR+IR)/2*Math.cos(a),by=CY+(OR+IR)/2*Math.sin(a);
+    p.push(`<circle cx="${bx.toFixed(0)}" cy="${by.toFixed(0)}" r="${BallR}" fill="${LGY}" stroke="${BRG}" stroke-width="2"/>`);
+  }
+  p.push(_plumbT(CX,CY,`C=${CkN} kN`,{sz:7.5,c:BRG,w:'700'}));
+  // Load arrows
+  p.push(`<line x1="${CX}" y1="${CY-OR-35}" x2="${CX}" y2="${CY-OR-5}" stroke="${FAIL_C}" stroke-width="2.5"/>`);
+  p.push(`<polygon points="${CX-5},${CY-OR-5} ${CX+5},${CY-OR-5} ${CX},${CY-OR+5}" fill="${FAIL_C}"/>`);
+  p.push(_plumbT(CX+12,CY-OR-25,`Fr = ${FrkN} kN`,{a:'start',sz:7.5,c:FAIL_C,w:'700'}));
+  p.push(`<line x1="${CX+OR+35}" y1="${CY}" x2="${CX+OR+5}" y2="${CY}" stroke="${WARN_C}" stroke-width="2.5"/>`);
+  p.push(`<polygon points="${CX+OR+8},${CY-5} ${CX+OR+8},${CY+5} ${CX+OR-2},${CY}" fill="${WARN_C}"/>`);
+  p.push(_plumbT(CX+OR+40,CY+4,`Fa = ${FakN} kN`,{a:'start',sz:7.5,c:WARN_C,w:'700'}));
+  // Equivalent load P
+  p.push(_plumbT(CX,CY+OR+25,`P = ${PkN} kN  (equiv. dynamic load)`,{sz:7.5,c:BRG,w:'700'}));
+  // Life bar chart
+  const BC_X=310,BC_Y=100,BC_W=280,BC_H=200;
+  p.push(`<rect x="${BC_X}" y="${BC_Y}" width="${BC_W}" height="${BC_H}" fill="#f8faff" stroke="${GY}" stroke-width="1"/>`);
+  p.push(_plumbT(BC_X+BC_W/2,BC_Y-10,'L10 LIFE COMPARISON (hours)',{sz:7.5,c:CC,w:'700'}));
+  const targets=[['L10h (basic)',Number(L10h),BRG],['L10h (adjusted)',Number(L10adj),lifeOK?OK_C:WARN_C],['Target 20000h',20000,'#90a4ae']];
+  const maxH=Math.max(25000,Number(L10adj)*1.2);
+  targets.forEach(([lbl,val,clr],i)=>{
+    const bw=(BC_W/3)-12;
+    const bx=BC_X+6+i*(bw+12);
+    const bh=Math.min(val/maxH*BC_H*0.9,BC_H*0.92);
+    p.push(`<rect x="${bx}" y="${BC_Y+BC_H-bh}" width="${bw}" height="${bh}" fill="${clr}" opacity="0.8" rx="2"/>`);
+    p.push(_plumbT(bx+bw/2,BC_Y+BC_H-bh-10,`${val>=1000?(val/1000).toFixed(0)+'k':val.toFixed(0)}h`,{sz:8,c:clr,w:'700'}));
+    p.push(_plumbT(bx+bw/2,BC_Y+BC_H+13,lbl,{sz:6.5,c:CC}));
+  });
+  // Life badge
+  const bY=BC_Y+BC_H+35;
+  p.push(`<rect x="${BC_X}" y="${bY}" width="${BC_W}" height="38" rx="4" fill="${lifeOK?'#e8f5e9':'#ffebee'}" stroke="${lifeOK?OK_C:WARN_C}" stroke-width="2"/>`);
+  p.push(_plumbT(BC_X+BC_W/2,bY+14,`L10h_adj = ${Number(L10adj).toLocaleString()} h`,{sz:10,c:lifeOK?OK_C:WARN_C,w:'700'}));
+  p.push(_plumbT(BC_X+BC_W/2,bY+28,`C/P = ${CoP}  |  a1 = ${a1}  |  ${lifeChk}`,{sz:7.5,c:lifeOK?OK_C:WARN_C}));
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  [[FAIL_C,'Radial load Fr'],[WARN_C,'Axial load Fa'],[BRG,'Bearing cross-section']].forEach(([c,lbl],i)=>{
+    p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
+    p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
+  });
+  [`1. ISO 281: L10 = (C/P)^p × 10^6/60n (hours). p=3 (ball), p=10/3 (roller).`,
+   `2. Adjusted life L10h_adj = a1 × L10h. a1 = reliability factor (90%=1, 95%=0.62).`,
+   `3. Target industrial bearing life: 20,000 h (ISO 14728). Replace at 80% Cr degradation.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+  _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'BEARING LIFE (L10)', rows:[
+    ['Bearing Type',bType,BRG],['Dynamic Rating C',`${CkN} kN`,BRG],
+    ['Radial Load Fr',`${FrkN} kN`,FAIL_C],['Axial Load Fa',`${FakN} kN`,WARN_C],
+    ['Equiv. Load P',`${PkN} kN`,BRG],['C/P Ratio',CoP,CC],
+    ['Speed',`${rpm} rpm`,GY],['L10 (basic)',`${Number(L10h).toLocaleString()} h`,BRG],
+    ['L10 (adjusted)',`${Number(L10adj).toLocaleString()} h`,lifeOK?OK_C:WARN_C],
+    ['Life Check',lifeChk,lifeOK?OK_C:WARN_C]
+  ]}]);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Bolt Torque & Preload — ISO 898 / ASME B18.2 ───────────────────────────
+function buildBoltTorqueSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const BLT='#37474f',OK_C='#2e7d32',FAIL_C='#c62828',PRE_C='#1565c0';
+  const p=[];
+  const torqNm=Number(r.torque_Nm||0).toFixed(1);
+  const FiKN=Number(r.Fi_kN||0).toFixed(2);
+  const sigMPa=Number(r.sigma_MPa||0).toFixed(1);
+  const stressChk=String(r.stress_check||'OK');
+  const stressOK=stressChk.toUpperCase().includes('OK')||stressChk.toUpperCase().includes('PASS');
+  const sepSF=Number(r.separation_sf||0).toFixed(2);
+  const jntChk=String(r.joint_check||'OK');
+  const jntOK=jntChk.toUpperCase().includes('OK')||jntChk.toUpperCase().includes('PASS');
+  const nBolts=Number(r.n_bolts||inp.num_bolts||4).toFixed(0);
+  const dMM=Number(r.d_mm||inp.bolt_size_mm||16).toFixed(0);
+  const grade=String(r.bolt_grade||inp.grade||'8.8');
+  const SpMPa=Number(r.Sp_MPa||0).toFixed(0);
+  const FpKN=Number(r.Fp_kN||0).toFixed(2);
+  const prePct=Number(r.preload_pct||inp.target_preload_pct||75).toFixed(0);
+  const torq30=Number(r.torque_30pct||0).toFixed(1);
+  const torq70=Number(r.torque_70pct||0).toFixed(1);
+  const extKN=Number(r.ext_load_kN||0).toFixed(2);
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`BOLT TORQUE & PRELOAD — M${dMM} Grade ${grade}  |  T=${torqNm} N·m  |  Fi=${FiKN} kN  |  ISO 898`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  // Bolt joint cross-section
+  const JX=80,JY=90,JW=320,JH=180;
+  // Top member
+  p.push(`<rect x="${JX}" y="${JY}" width="${JW}" height="50" fill="${LGY}" stroke="${BLT}" stroke-width="2"/>`);
+  p.push(_plumbT(JX+JW/2,JY+28,'TOP MEMBER',{sz:8,c:BLT,w:'700'}));
+  // Bottom member
+  p.push(`<rect x="${JX}" y="${JY+100}" width="${JW}" height="50" fill="${LGY}" stroke="${BLT}" stroke-width="2"/>`);
+  p.push(_plumbT(JX+JW/2,JY+128,'BOTTOM MEMBER',{sz:8,c:BLT,w:'700'}));
+  // Bolts
+  const bSpacing=JW/(Number(nBolts)+1);
+  for(let b=0;b<Math.min(Number(nBolts),4);b++){
+    const bx=JX+bSpacing*(b+1);
+    // Bolt shank
+    p.push(`<rect x="${bx-6}" y="${JY+18}" width="12" height="115}" fill="${BLT}" stroke="${CC}" stroke-width="1"/>`);
+    // Nut (top)
+    p.push(`<rect x="${bx-10}" y="${JY+8}" width="20" height="12" fill="${BLT}" rx="2"/>`);
+    // Nut (bottom)
+    p.push(`<rect x="${bx-10}" y="${JY+133}" width="20" height="12" fill="${BLT}" rx="2"/>`);
+    // Preload arrows
+    p.push(`<polygon points="${bx-4},${JY+50} ${bx+4},${JY+50} ${bx},${JY+62}" fill="${PRE_C}"/>`);
+    p.push(`<polygon points="${bx-4},${JY+100} ${bx+4},${JY+100} ${bx},${JY+88}" fill="${PRE_C}"/>`);
+  }
+  // Preload arrow legend (side)
+  p.push(`<line x1="${JX+JW+15}" y1="${JY+50}" x2="${JX+JW+15}" y2="${JY+100}" stroke="${PRE_C}" stroke-width="2.5" stroke-dasharray="5 2"/>`);
+  p.push(`<polygon points="${JX+JW+10},${JY+52} ${JX+JW+20},${JY+52} ${JX+JW+15},${JY+42}" fill="${PRE_C}"/>`);
+  p.push(`<polygon points="${JX+JW+10},${JY+98} ${JX+JW+20},${JY+98} ${JX+JW+15},${JY+108}" fill="${PRE_C}"/>`);
+  p.push(_plumbT(JX+JW+35,JY+78,`Fi = ${FiKN} kN`,{a:'start',sz:8,c:PRE_C,w:'700'}));
+  p.push(_plumbT(JX+JW+35,JY+90,`(${prePct}% Fp)`,{a:'start',sz:7,c:PRE_C}));
+  // Torque wrench annotation
+  p.push(_plumbT(JX+JW/2,JY+JH+25,`T = ${torqNm} N·m  |  Snug → 30%=${torq30} N·m → 70%=${torq70} N·m → Full ${torqNm} N·m`,{sz:7.5,c:CC,w:'700'}));
+  // Badges
+  const bY=JY+JH+55;
+  [[`σ = ${sigMPa} MPa`,stressOK,'Thread Stress'],[`Sp = ${SpMPa} MPa`,true,'Proof Str.'],[`SF_sep = ${sepSF}`,jntOK,'Separation'],[`${Number(nBolts)}× M${dMM}`,true,'Config']].forEach(([txt,ok,lbl],i)=>{
+    p.push(`<rect x="${JX+i*115}" y="${bY}" width="112" height="36" rx="3" fill="${ok?'#e8f5e9':'#ffebee'}" stroke="${ok?OK_C:FAIL_C}" stroke-width="1.5"/>`);
+    p.push(_plumbT(JX+i*115+56,bY+13,lbl,{sz:7,c:ok?OK_C:FAIL_C,w:'700'}));
+    p.push(_plumbT(JX+i*115+56,bY+27,txt,{sz:8,c:ok?OK_C:FAIL_C,w:'700'}));
+  });
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  [[PRE_C,'Preload / clamping force'],[BLT,'Bolt / fastener']].forEach(([c,lbl],i)=>{
+    p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
+    p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
+  });
+  [`1. ISO 898: T = K × d × Fi. K = nut factor (0.15–0.20 lubricated). Fi = ${prePct}% × Fp.`,
+   `2. Tightening sequence (torque-angle): snug → 30% → 70% → 100%. Use calibrated torque wrench.`,
+   `3. Joint separation SF = Total_clamp / External_load = ${sepSF}. Must be > 1.0 for joint integrity.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+  _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'BOLT TORQUE & PRELOAD', rows:[
+    ['Bolt Size',`M${dMM} Grade ${grade}`,BLT],['No. of Bolts',`${nBolts}`,BLT],
+    ['Proof Stress Sp',`${SpMPa} MPa`,GY],['Full Preload Fp',`${FpKN} kN`,PRE_C],
+    ['Target Preload Fi',`${FiKN} kN  (${prePct}% Fp)`,PRE_C],
+    ['Thread Stress σ',`${sigMPa} MPa  ${stressOK?'✓':'✗'}`,stressOK?OK_C:FAIL_C],
+    ['Tightening Torque',`${torqNm} N·m`,CC],['Separation SF',`${sepSF}  ${jntOK?'✓':'✗'}`,jntOK?OK_C:FAIL_C]
+  ]}]);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Elevator Traffic Analysis — ASME A17.1 / EN 81 ─────────────────────────
+function buildElevatorTrafficSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const ELV='#1565c0',OK_C='#2e7d32',FAIL_C='#c62828',ORG='#e65100';
+  const p=[];
+  const RTTs=Number(r.RTT_s||0).toFixed(0);
+  const intS=Number(r.interval_s||0).toFixed(0);
+  const HCpct=Number(r.HC_pct||0).toFixed(1);
+  const cap5min=Number(r.capacity_5min||0).toFixed(0);
+  const intOK=Boolean(r.interval_check??true);
+  const HCok=Boolean(r.HC_check??true);
+  const overallOK=Boolean(r.overall_check??true);
+  const nFloors=Number(inp.num_floors||10).toFixed(0);
+  const nElev=Number(inp.num_elevators||2).toFixed(0);
+  const carCap=Number(inp.car_capacity_persons||13).toFixed(0);
+  const speed=Number(inp.contract_speed_mps||1.6).toFixed(1);
+  const pop=Number(inp.building_population||200).toFixed(0);
+  const flrH=Number(inp.floor_height_m||3.5).toFixed(1);
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`ELEVATOR TRAFFIC — RTT=${RTTs}s  |  Interval=${intS}s  |  HC=${HCpct}%  |  ASME A17.1`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  // Building elevation with elevator shafts
+  const BX=50,BT=65,flrH_px=50,bldH=Math.min(Number(nFloors),8)*flrH_px;
+  const bldW=Number(nElev)*70+60;
+  // Building outline
+  p.push(`<rect x="${BX}" y="${BT}" width="${bldW}" height="${bldH}" fill="${LGY}" stroke="${CC}" stroke-width="2.5" rx="3"/>`);
+  // Floor lines
+  for(let f=1;f<Math.min(Number(nFloors),8);f++){
+    p.push(`<line x1="${BX}" y1="${BT+f*flrH_px}" x2="${BX+bldW}" y2="${BT+f*flrH_px}" stroke="${GY}" stroke-width="0.8"/>`);
+    p.push(_plumbT(BX-20,BT+f*flrH_px-flrH_px/2+4,`${Math.min(Number(nFloors),8)-f+1}F`,{sz:7,c:GY}));
+  }
+  p.push(_plumbT(BX-20,BT+bldH-flrH_px/2+4,'1F',{sz:7,c:GY}));
+  // Elevator shafts and cars
+  for(let e=0;e<Math.min(Number(nElev),4);e++){
+    const ex=BX+30+e*70;
+    p.push(`<rect x="${ex-15}" y="${BT+5}" width="30" height="${bldH-10}" fill="#e3f2fd" stroke="${ELV}" stroke-width="1.5"/>`);
+    // Elevator car (at ground level)
+    const carY=BT+bldH-flrH_px+8;
+    p.push(`<rect x="${ex-12}" y="${carY}" width="24" height="${flrH_px-16}" fill="${ELV}" rx="2"/>`);
+    p.push(_plumbT(ex,carY+flrH_px/2-12,`${carCap}P`,{sz:7,c:'white',w:'700'}));
+    p.push(_plumbT(ex,BT+bldH+14,`Lift ${e+1}`,{sz:7,c:ELV}));
+  }
+  if(Number(nElev)>4) p.push(_plumbT(BX+bldW-20,BT+bldH/2,`+${Number(nElev)-4}`,{sz:8,c:ELV,w:'700'}));
+  // Speed annotation
+  p.push(_plumbT(BX+bldW/2,BT-14,`${speed} m/s  |  ${nFloors}F @ ${flrH}m  |  Pop ${pop}`,{sz:7.5,c:CC,w:'700'}));
+  // RTT timeline
+  const TLX=BX+bldW+40,TLY=BT+40,TLW=300,TLH=30;
+  p.push(_plumbT(TLX,TLY-16,'ROUND TRIP TIME (RTT)',{a:'start',sz:8,c:CC,w:'700'}));
+  p.push(`<rect x="${TLX}" y="${TLY}" width="${TLW}" height="${TLH}" fill="#e3f2fd" stroke="${ELV}" stroke-width="1.5" rx="3"/>`);
+  p.push(_plumbT(TLX+TLW/2,TLY+TLH/2+5,`RTT = ${RTTs} s`,{sz:10,c:ELV,w:'700'}));
+  // Interval
+  const intY=TLY+55;
+  const intW=Math.min(Number(intS)/Number(RTTs)*TLW,TLW);
+  p.push(_plumbT(TLX,intY-14,'INTERVAL = RTT / No. of elevators',{a:'start',sz:8,c:CC,w:'700'}));
+  p.push(`<rect x="${TLX}" y="${intY}" width="${TLW}" height="${TLH}" fill="${intOK?'#e8f5e9':'#ffebee'}" stroke="${intOK?OK_C:FAIL_C}" stroke-width="1.5" rx="3"/>`);
+  p.push(`<rect x="${TLX}" y="${intY}" width="${intW.toFixed(0)}" height="${TLH}" fill="${ELV}" opacity="0.4" rx="3"/>`);
+  p.push(_plumbT(TLX+TLW/2,intY+TLH/2+5,`Interval = ${intS}s  ${intOK?'✓ ≤ 30s':'✗ > 30s'}`,{sz:9,c:intOK?OK_C:FAIL_C,w:'700'}));
+  // HC badge
+  const hcY=intY+55;
+  p.push(`<rect x="${TLX}" y="${hcY}" width="${TLW}" height="50" rx="4" fill="${overallOK?'#e8f5e9':'#ffebee'}" stroke="${overallOK?OK_C:FAIL_C}" stroke-width="2"/>`);
+  p.push(_plumbT(TLX+TLW/2,hcY+16,`Handling Capacity: ${HCpct}%`,{sz:11,c:overallOK?OK_C:FAIL_C,w:'700'}));
+  p.push(_plumbT(TLX+TLW/2,hcY+30,`${cap5min} persons/5min  |  Target ≥ 12%  —  ${overallOK?'PASS ✓':'FAIL ✗'}`,{sz:7.5,c:overallOK?OK_C:FAIL_C,w:'700'}));
+  p.push(_plumbT(TLX+TLW/2,hcY+44,'ASME A17.1 / EN 81-20',{sz:7,c:SC}));
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  p.push(`<rect x="25" y="${LY+20}" width="28" height="20" fill="${ELV}" opacity="0.5" stroke="${ELV}" stroke-width="1.5" rx="2"/>`);
+  p.push(_plumbT(57,LY+32,'Elevator shaft / car',{a:'start',sz:7.5,c:CC}));
+  [`1. RTT = 2 × H / v + stops × (door + load/unload). Interval = RTT / number of elevators.`,
+   `2. Handling capacity ≥ 12% of building population per 5 minutes (CIBSE Guide D / EN 81).`,
+   `3. Interval ≤ 30s (offices), ≤ 40s (residential) for acceptable waiting experience.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+  _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'ELEVATOR TRAFFIC', rows:[
+    ['No. of Floors',`${nFloors}  @  ${flrH}m`,CC],['No. of Elevators',`${nElev}`,ELV],
+    ['Car Capacity',`${carCap} persons`,ELV],['Contract Speed',`${speed} m/s`,ELV],
+    ['Building Population',`${pop}`,CC],['RTT',`${RTTs} s`,ELV],
+    ['Interval',`${intS} s  ${intOK?'✓':'✗'}`,intOK?OK_C:FAIL_C],
+    ['5-min Capacity',`${cap5min} persons`,CC],
+    ['Handling Capacity',`${HCpct}%  ${HCok?'✓':'✗'}`,HCok?OK_C:FAIL_C],
+    ['Overall',overallOK?'PASS ✓':'FAIL ✗',overallOK?OK_C:FAIL_C]
+  ]}]);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Hoist Capacity — ASME B30.2 / ISO 4301 ──────────────────────────────────
+function buildHoistCapacitySVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const HST='#37474f',ROPE_C='#795548',OK_C='#2e7d32',FAIL_C='#c62828';
+  const p=[];
+  const grossKg=Number(r.gross_load_kg||0).toFixed(0);
+  const grossKN=Number(r.gross_load_kN||0).toFixed(2);
+  const MBFkg=Number(r.MBF_kg||0).toFixed(0);
+  const MBFkN=Number(r.MBF_kN||0).toFixed(1);
+  const ropePull=Number(r.rope_pull_kg||0).toFixed(0);
+  const motorKW=Number(r.motor_kW||0).toFixed(2);
+  const motorHP=Number(r.motor_hp_std||0).toFixed(1);
+  const speedMs=Number(r.speed_ms||0).toFixed(2);
+  const sfChk=String(r.safety_factor_check||'OK');
+  const sfOK=sfChk.toUpperCase().includes('OK')||sfChk.toUpperCase().includes('PASS');
+  const nParts=Number(inp.num_parts_line||4).toFixed(0);
+  const ropeD=Number(inp.rope_diameter_mm||16).toFixed(0);
+  const drumD=Number(inp.drum_diameter_mm||400).toFixed(0);
+  const SWLkN=Number(inp.swl_kN||50).toFixed(1);
+  const hoistSpd=Number(inp.hoist_speed_mpm||8).toFixed(0);
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`HOIST CAPACITY — SWL ${SWLkN} kN  |  ${motorHP} HP / ${motorKW} kW  |  ASME B30.2 / ISO 4301`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  // Hoist rigging diagram
+  // Overhead beam / crane bridge
+  p.push(`<rect x="50" y="75" width="440" height="20" fill="${HST}" stroke="${CC}" stroke-width="2" rx="2"/>`);
+  p.push(_plumbT(270,70,'OVERHEAD CRANE / HOIST BEAM',{sz:7.5,c:HST,w:'700'}));
+  // Drum
+  p.push(`<ellipse cx="140" cy="95" rx="30" ry="16" fill="${LGY}" stroke="${HST}" stroke-width="2.5"/>`);
+  p.push(_plumbT(140,75,'DRUM',{sz:7,c:HST,w:'700'}));
+  p.push(_plumbT(140,108,`Ø${drumD}mm`,{sz:7,c:GY}));
+  // Motor
+  p.push(`<rect x="170" y="80" width="55" height="30" rx="3" fill="${LGY}" stroke="${HST}" stroke-width="2"/>`);
+  p.push(_plumbT(197,92,'MOTOR',{sz:7.5,c:HST,w:'700'}));
+  p.push(_plumbT(197,103,`${motorHP}HP`,{sz:7,c:HST}));
+  // Rope parts (show nParts lines)
+  const showParts=Math.min(Number(nParts),6);
+  const hookX=270,hookTopY=95,hookBotY=330;
+  for(let i=0;i<showParts;i++){
+    const rx=hookX-showParts*8+i*16;
+    p.push(`<line x1="${rx}" y1="${hookTopY}" x2="${rx}" y2="${hookBotY-20}" stroke="${ROPE_C}" stroke-width="${Math.max(1.5,Number(ropeD)*0.08)}"/>`);
+  }
+  // Sheave at top
+  p.push(`<ellipse cx="${hookX}" cy="${hookTopY}" rx="25" ry="12" fill="${LGY}" stroke="${HST}" stroke-width="2"/>`);
+  p.push(_plumbT(hookX,hookTopY+3,`${nParts}P`,{sz:7.5,c:HST,w:'700'}));
+  // Hook block
+  p.push(`<rect x="${hookX-25}" y="${hookBotY-20}" width="50" height="25" rx="3" fill="${HST}" stroke="${CC}" stroke-width="2"/>`);
+  // Hook curve — chord-safe arc (chord=16px, chordH=8px, R=Math.max(8+12,22)=22)
+  const _hkChordH=8; const _hkR=Math.max(_hkChordH+12,22);
+  p.push(`<path d="M ${hookX},${hookBotY+5} L ${hookX-8},${hookBotY+22} A ${_hkR},${_hkR} 0 0 0 ${hookX+8},${hookBotY+22}" fill="none" stroke="${HST}" stroke-width="4" stroke-linecap="round"/>`);
+  // Load block
+  p.push(`<rect x="${hookX-35}" y="${hookBotY+30}" width="70" height="50" fill="#fff9c4" stroke="${ROPE_C}" stroke-width="2" rx="3"/>`);
+  p.push(_plumbT(hookX,hookBotY+55,`SWL: ${SWLkN} kN`,{sz:8.5,c:CC,w:'700'}));
+  p.push(_plumbT(hookX,hookBotY+68,`${grossKg} kg gross`,{sz:7.5,c:CC}));
+  // Weight arrow
+  p.push(`<polygon points="${hookX-6},${hookBotY+82} ${hookX+6},${hookBotY+82} ${hookX},${hookBotY+96}" fill="${FAIL_C}"/>`);
+  p.push(_plumbT(hookX+12,hookBotY+95,`W = ${grossKN} kN`,{a:'start',sz:8,c:FAIL_C,w:'700'}));
+  // Rope data annotation
+  const annX=hookX+60;
+  p.push(`<line x1="${hookX+26}" y1="${(hookTopY+hookBotY)/2}" x2="${annX}" y2="${(hookTopY+hookBotY)/2}" stroke="${GY}" stroke-width="1" stroke-dasharray="3 2"/>`);
+  p.push(_plumbT(annX+4,hookTopY+40,`Rope: Ø${ropeD}mm`,{a:'start',sz:7.5,c:ROPE_C,w:'700'}));
+  p.push(_plumbT(annX+4,hookTopY+52,`${nParts} parts of line`,{a:'start',sz:7,c:ROPE_C}));
+  p.push(_plumbT(annX+4,hookTopY+64,`Rope pull: ${ropePull} kg/part`,{a:'start',sz:7,c:ROPE_C}));
+  p.push(_plumbT(annX+4,hookTopY+76,`MBF = ${MBFkN} kN`,{a:'start',sz:7.5,c:ROPE_C,w:'700'}));
+  p.push(_plumbT(annX+4,hookTopY+88,`Speed: ${speedMs} m/s (${hoistSpd} m/min)`,{a:'start',sz:7,c:GY}));
+  // SF badge
+  const bX=50,bY=hookBotY+110;
+  p.push(`<rect x="${bX}" y="${bY}" width="280" height="38" rx="4" fill="${sfOK?'#e8f5e9':'#ffebee'}" stroke="${sfOK?OK_C:FAIL_C}" stroke-width="2"/>`);
+  p.push(_plumbT(bX+140,bY+14,`MBF = ${MBFkN} kN  |  SWL = ${SWLkN} kN`,{sz:9,c:sfOK?OK_C:FAIL_C,w:'700'}));
+  p.push(_plumbT(bX+140,bY+28,`SF = ${(Number(MBFkN)/Number(SWLkN)).toFixed(1)}:1  —  ${sfChk}  |  Min 5:1 per ASME B30.2`,{sz:7.5,c:sfOK?OK_C:FAIL_C}));
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  [[ROPE_C,'Wire rope'],[HST,'Structural / mechanical'],[FAIL_C,'Load / weight vector']].forEach(([c,lbl],i)=>{
+    p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
+    p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
+  });
+  [`1. Rope pull = Gross load / (n_parts × η_pulley). Motor power P = F × v / η_mech.`,
+   `2. Safety factor = MBF / (rope_pull per part). ASME B30.2: SF ≥ 5:1 for wire rope hoists.`,
+   `3. WLL (Working Load Limit) = SWL. Rope inspection every 3 months per ASME B30.2.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+  _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'HOIST CAPACITY', rows:[
+    ['SWL (Working Load)',`${SWLkN} kN`,CC],['Gross Load',`${grossKg} kg  (${grossKN} kN)`,FAIL_C],
+    ['No. of Parts of Line',`${nParts}`,ROPE_C],['Rope Diameter',`Ø${ropeD} mm`,ROPE_C],
+    ['Rope Pull (per part)',`${ropePull} kg`,ROPE_C],['MBF',`${MBFkN} kN`,ROPE_C],
+    ['Safety Factor',`${(Number(MBFkN)/Number(SWLkN)).toFixed(1)}:1  ${sfOK?'✓':'✗'}`,sfOK?OK_C:FAIL_C],
+    ['Hoist Speed',`${hoistSpd} m/min  (${speedMs} m/s)`,GY],
+    ['Motor',`${motorHP} HP / ${motorKW} kW`,HST]
+  ]}]);
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
 }
 
