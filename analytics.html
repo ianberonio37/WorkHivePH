@@ -41,13 +41,15 @@
       min-height: 36px;
     }
     .period-btn.active { background: rgba(167,139,250,0.15); border-color: rgba(167,139,250,0.4); color: #a78bfa; }
-    .run-btn {
-      font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 700;
-      padding: 0.4rem 1rem; border-radius: 999px; cursor: pointer; transition: all 0.2s;
-      background: linear-gradient(135deg, #a78bfa, #7c3aed); border: none; color: #fff;
-      min-height: 36px; margin-left: auto;
+    .refresh-btn {
+      font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
+      padding: 0.4rem 0.875rem; border-radius: 999px; cursor: pointer; transition: all 0.2s;
+      background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25); color: #a78bfa;
+      min-height: 36px; margin-left: auto; display: flex; align-items: center; gap: 0.35rem;
     }
-    .run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .refresh-btn:hover { background: rgba(167,139,250,0.18); }
+    .refresh-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .refresh-btn.spinning #refresh-icon { display: inline-block; animation: spin 0.8s linear infinite; }
 
     /* ── Phase tabs ── */
     .phase-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; overflow-x: auto; padding-bottom: 0.25rem; }
@@ -141,13 +143,23 @@
     <span class="header-badge">Stage 3</span>
   </div>
 
-  <!-- Period selector -->
+  <!-- Period selector + refresh -->
   <div class="period-row">
-    <button class="period-btn" data-days="30" onclick="setPeriod(30)">30 days</button>
-    <button class="period-btn active" data-days="90" onclick="setPeriod(90)">90 days</button>
-    <button class="period-btn" data-days="180" onclick="setPeriod(180)">180 days</button>
-    <button class="period-btn" data-days="365" onclick="setPeriod(365)">1 year</button>
-    <button class="run-btn" id="run-btn" onclick="runAnalytics()">Run Analysis</button>
+    <button class="period-btn" data-days="30" onclick="setPeriod(30, true)">30 days</button>
+    <button class="period-btn active" data-days="90" onclick="setPeriod(90, true)">90 days</button>
+    <button class="period-btn" data-days="180" onclick="setPeriod(180, true)">180 days</button>
+    <button class="period-btn" data-days="365" onclick="setPeriod(365, true)">1 year</button>
+    <button class="refresh-btn" id="refresh-btn" onclick="refreshAll()" title="Refresh all phases">
+      <span id="refresh-icon">🔄</span>
+      <span id="refresh-label">Refresh</span>
+    </button>
+  </div>
+
+  <!-- Status bar: last updated + loading indicator -->
+  <div id="status-bar" style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;min-height:20px;">
+    <span id="status-dot" style="width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0;display:none;"></span>
+    <span id="status-text" style="font-size:0.68rem;color:rgba(255,255,255,0.3);"></span>
+    <div id="status-spinner" class="spinner" style="width:14px;height:14px;border-width:2px;border-color:rgba(167,139,250,0.2);border-top-color:#a78bfa;display:none;"></div>
   </div>
 
   <!-- Phase tabs -->
@@ -161,13 +173,14 @@
   <!-- Info banner -->
   <div id="phase-banner" class="info-banner">
     <span>📊</span>
-    <span>Phase 1 — Descriptive Analytics. Shows what happened with your equipment in the selected period. Standards: ISO 14224:2016, SMRP Metrics.</span>
+    <span>Phase 1 — Descriptive Analytics. What happened? Standards: ISO 14224:2016, SMRP Metrics.</span>
   </div>
 
   <!-- Results panel -->
   <div id="results-panel">
-    <div class="card">
-      <div class="empty">Select a period and click <strong>Run Analysis</strong> to generate your maintenance report.</div>
+    <div class="card" style="padding:2rem;text-align:center;">
+      <div class="spinner" style="width:32px;height:32px;border-width:3px;border-color:rgba(167,139,250,0.15);border-top-color:#a78bfa;margin:0 auto 1rem;"></div>
+      <p style="font-size:0.8rem;color:rgba(255,255,255,0.3);">Loading analytics...</p>
     </div>
   </div>
 
@@ -224,9 +237,14 @@
   const HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
   const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
 
-  let _period = 90;
-  let _phase  = 'descriptive';
+  let _period  = 90;
+  let _phase   = 'descriptive';
   let _loading = false;
+
+  // ── Result cache — one entry per phase, survives tab switching ────────────
+  const _cache = { descriptive: null, diagnostic: null, predictive: null, prescriptive: null };
+  const _cacheTime = { descriptive: null, diagnostic: null, predictive: null, prescriptive: null };
+  const PHASES = ['descriptive', 'diagnostic', 'predictive', 'prescriptive'];
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   function showToast(msg) {
@@ -240,11 +258,16 @@
     return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
-  function setPeriod(days) {
+  function setPeriod(days, rerun = false) {
     _period = days;
     document.querySelectorAll('.period-btn').forEach(b => {
       b.classList.toggle('active', Number(b.dataset.days) === days);
     });
+    if (rerun) {
+      // Clear cache when period changes — data is stale
+      PHASES.forEach(p => { _cache[p] = null; _cacheTime[p] = null; });
+      refreshAll();
+    }
   }
 
   const PHASE_BANNERS = {
@@ -261,68 +284,135 @@
     });
     const banner = document.getElementById('phase-banner');
     if (banner && PHASE_BANNERS[phase]) {
-      const icon = phase === 'diagnostic' ? '🔍' : '📊';
-      banner.innerHTML = `<span>${icon}</span><span>${PHASE_BANNERS[phase]}</span>`;
+      const icons = { descriptive:'📊', diagnostic:'🔍', predictive:'🔮', prescriptive:'⚡' };
+      banner.innerHTML = `<span>${icons[phase]||'📊'}</span><span>${PHASE_BANNERS[phase]}</span>`;
+    }
+
+    // Instant switch from cache if available
+    if (_cache[phase]) {
+      renderPhase(phase, _cache[phase]);
+      updateStatusBar(phase);
+    } else if (!_loading) {
+      // Phase not loaded yet — show skeleton and fetch it
+      showSkeleton();
+      fetchPhase(phase);
     }
   }
 
-  // ── Run analysis ──────────────────────────────────────────────────────────
-  async function runAnalytics() {
+  // ── Core fetch for a single phase ─────────────────────────────────────────
+  async function fetchPhase(phase) {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phase,
+          hive_id:     HIVE_ID,
+          worker_name: WORKER_NAME,
+          period_days: _period,
+        }),
+      });
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      _cache[phase]     = data;
+      _cacheTime[phase] = Date.now();
+      if (_phase === phase) {
+        renderPhase(phase, data);
+        updateStatusBar(phase);
+      }
+    } catch (err) {
+      console.warn(`[analytics] ${phase} failed:`, err.message);
+      if (_phase === phase) {
+        document.getElementById('results-panel').innerHTML = `
+          <div class="card"><div class="empty" style="color:#f87171;">
+            ${escHtml(err.message.includes('not yet available') ? 'Analytics engine warming up — try Refresh in a moment.' : err.message)}
+          </div></div>`;
+      }
+    }
+  }
+
+  // ── Refresh all 4 phases in parallel ──────────────────────────────────────
+  async function refreshAll() {
     if (_loading) return;
     _loading = true;
-    const btn = document.getElementById('run-btn');
+    const btn = document.getElementById('refresh-btn');
     btn.disabled = true;
-    btn.textContent = 'Running...';
+    btn.classList.add('spinning');
+    document.getElementById('refresh-label').textContent = 'Refreshing...';
+    document.getElementById('status-spinner').style.display = 'block';
+    document.getElementById('status-text').textContent = 'Fetching all phases in parallel...';
 
+    showSkeleton();
+    startLoadingMessages();
+
+    // All 4 phases run simultaneously — no more 4× wait
+    await Promise.allSettled(PHASES.map(p => fetchPhase(p)));
+
+    stopLoadingMessages();
+    _loading = false;
+    btn.disabled = false;
+    btn.classList.remove('spinning');
+    document.getElementById('refresh-label').textContent = 'Refresh';
+    document.getElementById('status-spinner').style.display = 'none';
+    updateStatusBar(_phase);
+  }
+
+  // ── Auto-load on page open ─────────────────────────────────────────────────
+  async function autoLoad() {
+    // Show current phase skeleton immediately
+    showSkeleton();
+    // Start all 4 in parallel — descriptive first so visible tab loads first
+    startLoadingMessages();
+    _loading = true;
+    document.getElementById('status-spinner').style.display = 'block';
+    document.getElementById('status-text').textContent = 'Loading analytics...';
+
+    // Prioritise current tab — fetch it first, others follow
+    await fetchPhase('descriptive');
+    _loading = false;
+    stopLoadingMessages();
+    document.getElementById('status-spinner').style.display = 'none';
+    updateStatusBar('descriptive');
+
+    // Remaining phases load in background (don't block UI)
+    Promise.allSettled(['diagnostic','predictive','prescriptive'].map(p => fetchPhase(p)));
+  }
+
+  // ── Status bar: "Updated X min ago" ──────────────────────────────────────
+  function updateStatusBar(phase) {
+    const t   = _cacheTime[phase];
+    const dot = document.getElementById('status-dot');
+    const txt = document.getElementById('status-text');
+    if (!t) { dot.style.display = 'none'; txt.textContent = ''; return; }
+    const mins = Math.round((Date.now() - t) / 60000);
+    dot.style.display = 'block';
+    dot.style.background = mins > 60 ? '#F7A21B' : '#4ade80';
+    txt.textContent = `Updated ${mins < 1 ? 'just now' : mins + ' min ago'}`;
+  }
+
+  // ── Skeleton loading cards ─────────────────────────────────────────────────
+  function showSkeleton() {
     document.getElementById('results-panel').innerHTML = `
-      <div class="card" style="min-height:320px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2.5rem;">
-        <div class="spinner" style="width:48px;height:48px;border-width:4px;border-color:rgba(167,139,250,0.15);border-top-color:#a78bfa;margin-bottom:1.5rem;"></div>
-        <div style="color:#a78bfa;font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.75rem;">WorkHive Analytics AI</div>
-        <div id="loading-status-msg" style="font-size:0.95rem;font-weight:600;color:#fff;min-height:1.6rem;transition:opacity 0.4s;margin-bottom:0.5rem;">Connecting to WorkHive Analytics AI...</div>
-        <div style="font-size:0.75rem;color:rgba(255,255,255,0.35);margin-bottom:1.25rem;">ISO 14224 standards-grade analysis in progress</div>
+      <div class="card" style="min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2.5rem;">
+        <div class="spinner" style="width:40px;height:40px;border-width:3px;border-color:rgba(167,139,250,0.15);border-top-color:#a78bfa;margin-bottom:1.25rem;"></div>
+        <div style="color:#a78bfa;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem;">WorkHive Analytics AI</div>
+        <div id="loading-status-msg" style="font-size:0.85rem;font-weight:600;color:#fff;min-height:1.4rem;transition:opacity 0.4s;margin-bottom:0.4rem;">Loading...</div>
+        <div style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-bottom:1rem;">ISO 14224 standards-grade analysis</div>
         <div style="display:flex;gap:0.5rem;">
           <div style="width:7px;height:7px;border-radius:50%;background:#a78bfa;animation:dotPulse 1.4s ease-in-out infinite;"></div>
           <div style="width:7px;height:7px;border-radius:50%;background:#a78bfa;animation:dotPulse 1.4s ease-in-out 0.2s infinite;"></div>
           <div style="width:7px;height:7px;border-radius:50%;background:#a78bfa;animation:dotPulse 1.4s ease-in-out 0.4s infinite;"></div>
         </div>
       </div>`;
-    startLoadingMessages();
+  }
 
-    try {
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          phase:       _phase,
-          hive_id:     HIVE_ID,
-          worker_name: WORKER_NAME,
-          period_days: _period,
-        }),
-      });
-
-      if (!res.ok) throw new Error(`Server error ${res.status}`);
-      const data = await res.json();
-
-      if (data.error) throw new Error(data.error);
-
-      if (_phase === 'descriptive') renderDescriptive(data);
-      else if (_phase === 'diagnostic') renderDiagnostic(data);
-      else if (_phase === 'predictive') renderPredictive(data);
-      else if (_phase === 'prescriptive') renderPrescriptive(data);
-
-    } catch (err) {
-      document.getElementById('results-panel').innerHTML = `
-        <div class="card">
-          <div class="empty" style="color:#f87171;">Error: ${escHtml(err.message)}</div>
-        </div>`;
-      showToast('Analysis failed — check console');
-      console.error(err);
-    } finally {
-      stopLoadingMessages();
-      _loading = false;
-      btn.disabled = false;
-      btn.textContent = 'Run Analysis';
-    }
+  // ── Render dispatcher ──────────────────────────────────────────────────────
+  function renderPhase(phase, data) {
+    if (phase === 'descriptive')  renderDescriptive(data);
+    else if (phase === 'diagnostic')   renderDiagnostic(data);
+    else if (phase === 'predictive')   renderPredictive(data);
+    else if (phase === 'prescriptive') renderPrescriptive(data);
   }
 
   // ── Render Phase 1 — Descriptive ─────────────────────────────────────────
@@ -1017,6 +1107,15 @@
       <div class="empty">${escHtml(msg)}</div>
     </div>`;
   }
+
+  // ── Kick off on page load ─────────────────────────────────────────────────
+  // Runs automatically — no button click needed
+  window.addEventListener('DOMContentLoaded', () => {
+    autoLoad();
+
+    // Refresh status bar every minute so "Updated X min ago" stays current
+    setInterval(() => updateStatusBar(_phase), 60000);
+  });
 </script>
 
 <script src="utils.js"></script>
