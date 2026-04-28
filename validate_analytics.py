@@ -244,7 +244,8 @@ def check_edge_hive_id_scoping(ts, path):
     if not ts:
         return []
     issues = []
-    for table, var in [("logbook", "logbookQ"), ("inventory_transactions", "txnQ"), ("pm_assets", "assetsQ")]:
+    # logbook is now queried via oeeQ (refactored from logbookQ)
+    for table, var in [("logbook", "oeeQ"), ("inventory_transactions", "txnQ"), ("pm_assets", "assetsQ")]:
         if not re.search(rf'{re.escape(var)}\.eq\("hive_id"', ts):
             issues.append({"check": "edge_hive_id_scoping", "page": path, "table": table,
                            "reason": f'{var} missing .eq("hive_id", hiveId) — data leaks across tenants'})

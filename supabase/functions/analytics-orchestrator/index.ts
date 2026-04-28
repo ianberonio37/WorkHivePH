@@ -58,7 +58,7 @@ async function fetchDescriptiveData(
 
   // OEE: only needs production_output + downtime_hours (small select)
   const oeeQ = db.from("logbook")
-    .select("machine, downtime_hours, production_output, created_at, maintenance_type")
+    .select("machine, maintenance_type, category, root_cause, downtime_hours, status, created_at, closed_at, worker_name, failure_consequence, readings_json, production_output")
     .eq("maintenance_type", "Breakdown / Corrective")
     .gte("created_at", new Date(Date.now() - periodDays * 86400000).toISOString())
     .limit(dynLimit(periodDays, 15));

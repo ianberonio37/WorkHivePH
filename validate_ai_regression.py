@@ -5,38 +5,32 @@ WorkHive has two AI surfaces that both describe the platform:
   1. floating-ai.js  — the floating widget on every page
   2. assistant.html  — the full work assistant page
 
-As the platform grows (new tools, renamed disciplines, updated calc counts),
-these prompts will drift apart. A worker on the logbook page gets a different
-answer about what WorkHive can do than a worker using the full assistant.
-This validator catches that drift before it reaches users.
+As the platform grows, these prompts drift apart. A worker on the logbook
+page gets a different answer about what WorkHive can do than a worker using
+the full assistant. This validator catches that drift before it reaches users.
 
-Four things checked:
+  Layer 1 — Structural consistency
+    1.  Discipline names match          — DISCIPLINES in skill-content.js == both prompts
+    2.  Tool list consistent            — all active tools in floating-ai.js in assistant.html too
+    3.  Calc count consistent           — both surfaces agree on engineering calc count (46)
 
-  1. Skill Matrix discipline names match across surfaces
-     — The discipline names in both prompts must match the actual DISCIPLINES
-       constant in skill-content.js. Stale discipline names cause the AI to
-       give wrong answers about what competencies are tracked.
+  Layer 2 — Content quality
+    4.  No draft artifacts              — no TODO/FIXME/placeholder in either prompt
 
-  2. Tool list consistent across both surfaces
-     — Every tool active in floating-ai.js PLATFORM TOOLS must also be
-       mentioned in assistant.html PLATFORM CONTEXT. A tool added to one
-       but not the other means split answers about what WorkHive can do.
-
-  3. No draft artifacts in either prompt
-     — System prompts must not contain TODO, FIXME, [PLACEHOLDER], or
-       "your company name". These are development leftovers that expose
-       the AI's incompleteness to workers asking real questions.
-
-  4. Engineering calc count consistent across surfaces
-     — Both prompts must agree on the number of calc types. The correct
-       count is 46. A mismatch means the AI gives different answers to
-       "how many calc types does the Engineering Design Calculator have?"
-       depending on which surface the worker uses.
+  Layer 3 — Feature parity (new features must land in both surfaces)
+    5.  Analytics feature parity        — OEE, RCM consequence, anomaly in both
+    6.  Logbook feature parity          — failure consequence, production output in both
 
 Usage:  python validate_ai_regression.py
 Output: ai_regression_report.json
 """
 import re, json, sys
+
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+from validator_utils import read_file, extract_js_array, format_result
 
 FLOAT_JS       = "floating-ai.js"
 ASSISTANT_HTML = "assistant.html"
@@ -49,248 +43,221 @@ DRAFT_ARTIFACTS = [
     "your company name", "example.com", "your-company",
 ]
 
-
-def read_file(path):
-    try:
-        with open(path, encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
-        return None
-
-
-def extract_disciplines(skill_content):
-    """Extract the DISCIPLINES array from skill-content.js."""
-    m = re.search(
-        r"(?:const|var|let)\s+DISCIPLINES\s*=\s*\[([^\]]+)\]",
-        skill_content, re.DOTALL
-    )
-    if not m:
-        return []
-    return re.findall(r"['\"]([^'\"]+)['\"]", m.group(1))
+# Feature terms that must appear in BOTH surfaces once added to either one.
+# Format: (check_id, surface_anchor, feature_terms, description)
+FEATURE_PARITY_CHECKS = [
+    (
+        "analytics_feature_parity",
+        "analytics",
+        ["OEE", "consequence", "anomaly"],
+        "Analytics Engine — new features (OEE, RCM consequence, anomaly detection)",
+    ),
+    (
+        "logbook_feature_parity",
+        "logbook",
+        ["consequence", "production"],
+        "Digital Logbook — new fields (failure consequence, production output/OEE)",
+    ),
+]
 
 
-def extract_prompt_block(content, markers):
-    """Extract a block of text between two markers."""
-    for start_marker in markers["start"]:
-        idx = content.find(start_marker)
-        if idx != -1:
-            end_idx = len(content)
-            for end_marker in markers.get("end", []):
-                ei = content.find(end_marker, idx + len(start_marker))
-                if ei != -1:
-                    end_idx = min(end_idx, ei)
-            return content[idx:end_idx]
-    return ""
+def get_platform_tools_block(content):
+    start = content.find("PLATFORM TOOLS")
+    if start == -1:
+        return ""
+    return content[start:start + 4000]
 
 
-# ── Check 1: Skill Matrix disciplines consistent across surfaces ──────────────
+def get_tool_entry(content, tool_anchor):
+    """Extract the paragraph in PLATFORM TOOLS for a given tool keyword."""
+    block = get_platform_tools_block(content)
+    if not block:
+        # Try searching the whole content for a tool context block
+        block = content
+    m = re.search(rf"-\s*[^\n]*{re.escape(tool_anchor)}[\s\S]{{0,600}}?(?=\n-|\Z)", block, re.IGNORECASE)
+    return m.group(0) if m else ""
+
+
+# ── Layer 1: Structural consistency ──────────────────────────────────────────
 
 def check_discipline_consistency(float_content, assistant_content, skill_content):
-    """
-    The discipline names in both AI surfaces must match the actual DISCIPLINES
-    constant in skill-content.js. These names are used by the AI to answer
-    questions about what competencies are tracked in the Skill Matrix.
-
-    If floating-ai.js says "Facilities Management" but assistant.html still
-    says "HVAC", workers on different pages get contradictory answers.
-    """
-    issues = []
     if not skill_content:
-        return [{"page": SKILL_CONTENT, "reason": f"{SKILL_CONTENT} not found"}]
-
-    disciplines = extract_disciplines(skill_content)
+        return [{"check": "discipline_names", "page": SKILL_CONTENT,
+                 "reason": f"{SKILL_CONTENT} not found"}]
+    disciplines = extract_js_array(skill_content, "DISCIPLINES")
     if not disciplines:
-        return [{"page": SKILL_CONTENT, "reason": "DISCIPLINES array not found in skill-content.js"}]
-
-    surfaces = {
-        FLOAT_JS:       float_content or "",
-        ASSISTANT_HTML: assistant_content or "",
-    }
-
-    for page, content in surfaces.items():
+        return [{"check": "discipline_names", "page": SKILL_CONTENT,
+                 "reason": "DISCIPLINES array not found in skill-content.js"}]
+    issues = []
+    for page, content in [(FLOAT_JS, float_content), (ASSISTANT_HTML, assistant_content)]:
         if not content:
-            issues.append({"page": page, "reason": f"{page} not found"})
+            issues.append({"check": "discipline_names", "page": page,
+                           "reason": f"{page} not found"})
             continue
         for disc in disciplines:
             if disc not in content:
-                issues.append({
-                    "page":       page,
-                    "discipline": disc,
-                    "reason": (
-                        f"{page} does not mention actual Skill Matrix discipline "
-                        f"'{disc}' — AI will give wrong answers about available "
-                        f"disciplines to workers using this surface"
-                    ),
-                })
+                issues.append({"check": "discipline_names", "page": page,
+                               "discipline": disc,
+                               "reason": f"{page} missing Skill Matrix discipline '{disc}' — AI gives wrong answers about available disciplines"})
     return issues
 
 
-# ── Check 2: Tool list consistent across both surfaces ───────────────────────
-
 def check_tool_consistency(float_content, assistant_content):
-    """
-    Every active tool in floating-ai.js PLATFORM TOOLS must also be mentioned
-    in assistant.html PLATFORM CONTEXT. Workers using the full assistant page
-    must get the same platform knowledge as the floating widget.
+    if not float_content or not assistant_content:
+        return []
+    pt_block = get_platform_tools_block(float_content)
+    if not pt_block:
+        return [{"check": "tool_consistency", "page": FLOAT_JS,
+                 "reason": "PLATFORM TOOLS section not found"}]
+    issues = []
+    for m in re.finditer(r"- [^(]+\((\w[\w.-]+\.html)\)", pt_block):
+        filename = m.group(1)
+        line_start = pt_block.rfind("\n", 0, m.start()) + 1
+        line_end   = pt_block.find("\n", m.end())
+        line_text  = pt_block[line_start:line_end if line_end != -1 else len(pt_block)]
+        if "retired" in line_text.lower():
+            continue
+        if filename not in assistant_content:
+            issues.append({"check": "tool_consistency", "page": ASSISTANT_HTML,
+                           "tool": filename,
+                           "reason": f"{ASSISTANT_HTML} missing '{filename}' — tool is in floating-ai.js PLATFORM TOOLS but not in full assistant context"})
+    return issues
 
-    Active tools are detected as lines starting with "- ToolName (filename.html)"
-    in the floating-ai.js PLATFORM TOOLS section.
-    Retired tools (containing "Retired") are excluded.
+
+def check_calc_count_consistency(float_content, assistant_content):
+    issues = []
+    counts = {}
+    for page, content in [(FLOAT_JS, float_content), (ASSISTANT_HTML, assistant_content)]:
+        if not content:
+            continue
+        m = re.search(r"(\d+)\s*calc(?:ulation)?\s*type", content, re.IGNORECASE)
+        if m:
+            counts[page] = int(m.group(1))
+    for page, count in counts.items():
+        if count != CORRECT_CALC_COUNT:
+            issues.append({"check": "calc_count_consistent", "page": page,
+                           "found": count, "expected": CORRECT_CALC_COUNT,
+                           "reason": f"{page} says '{count} calc types' but platform has {CORRECT_CALC_COUNT} — contradictory AI answers across surfaces"})
+    if len(counts) == 2:
+        vals = list(counts.values())
+        if vals[0] != vals[1]:
+            issues.append({"check": "calc_count_consistent",
+                           "reason": f"Calc count mismatch: {FLOAT_JS}={counts[FLOAT_JS]}, {ASSISTANT_HTML}={counts[ASSISTANT_HTML]}"})
+    return issues
+
+
+# ── Layer 2: Content quality ──────────────────────────────────────────────────
+
+def check_draft_artifacts(float_content, assistant_content):
+    issues = []
+    for page, content in [(FLOAT_JS, float_content), (ASSISTANT_HTML, assistant_content)]:
+        if not content:
+            continue
+        for artifact in DRAFT_ARTIFACTS:
+            if artifact in content:
+                issues.append({"check": "draft_artifacts", "page": page,
+                               "artifact": artifact,
+                               "reason": f"{page} system prompt contains draft artifact '{artifact}' — remove before shipping"})
+    return issues
+
+
+# ── Layer 3: Feature parity ───────────────────────────────────────────────────
+
+def check_feature_parity(float_content, assistant_content):
+    """
+    When a new feature is added to a tool description in floating-ai.js,
+    the same feature must appear in assistant.html's description of that tool.
+    Otherwise workers get contradictory answers depending on which AI surface
+    they use.
+
+    Strategy: for each tool, extract its entry from both surfaces and compare
+    the presence of key feature terms. If floating-ai.js mentions a term but
+    assistant.html does not, flag it.
     """
     issues = []
     if not float_content or not assistant_content:
         return issues
 
-    # Extract PLATFORM TOOLS block from floating-ai.js
-    pt_start = float_content.find("PLATFORM TOOLS")
-    if pt_start == -1:
-        return [{"page": FLOAT_JS, "reason": "PLATFORM TOOLS section not found"}]
-    pt_block = float_content[pt_start:pt_start + 3000]
+    for check_id, tool_anchor, feature_terms, description in FEATURE_PARITY_CHECKS:
+        float_entry     = get_tool_entry(float_content, tool_anchor)
+        assistant_entry = get_tool_entry(assistant_content, tool_anchor)
 
-    # Extract active tool filenames from the block
-    active_tools = []
-    for m in re.finditer(r"- [^(]+\((\w[\w.-]+\.html)\)", pt_block):
-        filename = m.group(1)
-        # Get the surrounding text to check if retired
-        line_start = pt_block.rfind("\n", 0, m.start()) + 1
-        line_end   = pt_block.find("\n", m.end())
-        line_text  = pt_block[line_start:line_end if line_end != -1 else len(pt_block)]
-        if "retired" not in line_text.lower():
-            active_tools.append(filename)
+        for term in feature_terms:
+            in_float     = bool(re.search(re.escape(term), float_entry, re.IGNORECASE))
+            in_assistant = bool(re.search(re.escape(term), assistant_entry, re.IGNORECASE))
 
-    # Check each active tool appears in assistant.html
-    for tool_file in active_tools:
-        if tool_file not in assistant_content:
-            issues.append({
-                "page":  ASSISTANT_HTML,
-                "tool":  tool_file,
-                "reason": (
-                    f"{ASSISTANT_HTML} does not mention '{tool_file}' — "
-                    f"this tool is in floating-ai.js PLATFORM TOOLS but missing "
-                    f"from the full assistant page context"
-                ),
-            })
+            if in_float and not in_assistant:
+                issues.append({"check": check_id, "page": ASSISTANT_HTML,
+                               "term": term, "tool": tool_anchor,
+                               "reason": f"{ASSISTANT_HTML} {description}: missing '{term}' — floating widget mentions it but full assistant doesn't, causing contradictory answers"})
+            elif in_assistant and not in_float:
+                issues.append({"check": check_id, "page": FLOAT_JS,
+                               "term": term, "tool": tool_anchor,
+                               "reason": f"{FLOAT_JS} {description}: missing '{term}' — full assistant mentions it but widget doesn't"})
     return issues
 
 
-# ── Check 3: No draft artifacts in either prompt ─────────────────────────────
+# ── Runner ─────────────────────────────────────────────────────────────────────
 
-def check_draft_artifacts(pages_content):
-    """
-    System prompts that ship with TODO, FIXME, or placeholder text expose
-    the AI's incompleteness to workers. When a worker asks a question that
-    touches the placeholder section, the AI returns a confused or broken answer.
-    """
-    issues = []
-    for page, content in pages_content.items():
-        if not content:
-            continue
-        for artifact in DRAFT_ARTIFACTS:
-            if artifact in content:
-                issues.append({
-                    "page":     page,
-                    "artifact": artifact,
-                    "reason": (
-                        f"{page} system prompt contains draft artifact '{artifact}' — "
-                        f"remove or replace before shipping"
-                    ),
-                })
-    return issues
-
-
-# ── Check 4: Engineering calc count consistent across surfaces ────────────────
-
-def check_calc_count_consistency(pages_content):
-    """
-    Both AI surfaces must agree on the number of engineering calc types.
-    A worker on the logbook page asking 'how many calcs does the engineering
-    calculator have?' should get the same answer as one using the full assistant.
-    """
-    issues = []
-    for page, content in pages_content.items():
-        if not content:
-            continue
-        m = re.search(r"(\d+)\s*calc(?:ulation)?\s*type", content, re.IGNORECASE)
-        if not m:
-            # Not all surfaces need to mention calc count
-            continue
-        count = int(m.group(1))
-        if count != CORRECT_CALC_COUNT:
-            issues.append({
-                "page":     page,
-                "found":    count,
-                "expected": CORRECT_CALC_COUNT,
-                "reason": (
-                    f"{page} says '{count} calc types' but the platform has "
-                    f"{CORRECT_CALC_COUNT} — divergent counts give inconsistent "
-                    f"answers across AI surfaces"
-                ),
-            })
-    return issues
-
-
-# ── Main ──────────────────────────────────────────────────────────────────────
-
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-
-print("\n" + "=" * 70)
-print("AI Prompt Regression Validator")
-print("=" * 70)
-
-float_js      = read_file(FLOAT_JS)
-assistant     = read_file(ASSISTANT_HTML)
-skill_content = read_file(SKILL_CONTENT)
-
-fail_count = 0
-warn_count = 0
-report     = {}
-
-checks = [
-    (
-        "[1] Skill Matrix discipline names match across all AI surfaces",
-        check_discipline_consistency(float_js, assistant, skill_content),
-        "FAIL",
-    ),
-    (
-        "[2] Tool list consistent between floating-ai.js and assistant.html",
-        check_tool_consistency(float_js, assistant),
-        "FAIL",
-    ),
-    (
-        "[3] No draft artifacts (TODO / FIXME / placeholder) in prompts",
-        check_draft_artifacts({FLOAT_JS: float_js, ASSISTANT_HTML: assistant}),
-        "FAIL",
-    ),
-    (
-        f"[4] Engineering calc count consistent across surfaces ({CORRECT_CALC_COUNT})",
-        check_calc_count_consistency({FLOAT_JS: float_js, ASSISTANT_HTML: assistant}),
-        "FAIL",
-    ),
+CHECK_NAMES = [
+    # L1
+    "discipline_names", "tool_consistency", "calc_count_consistent",
+    # L2
+    "draft_artifacts",
+    # L3
+    "analytics_feature_parity", "logbook_feature_parity",
 ]
 
-for label, issues, severity in checks:
-    print(f"\n{label}\n")
-    if not issues:
-        print("  PASS")
+CHECK_LABELS = {
+    # L1
+    "discipline_names":         "L1  Skill Matrix disciplines match across both AI surfaces",
+    "tool_consistency":         "L1  All active tools in floating-ai.js also in assistant.html",
+    "calc_count_consistent":    "L1  Calc count consistent across both surfaces (46)",
+    # L2
+    "draft_artifacts":          "L2  No TODO/FIXME/placeholder in either prompt",
+    # L3
+    "analytics_feature_parity": "L3  Analytics features (OEE, consequence, anomaly) in both surfaces",
+    "logbook_feature_parity":   "L3  Logbook new fields (consequence, production) in both surfaces",
+}
+
+
+def main():
+    def bold(s): return f"\033[1m{s}\033[0m"
+    print(bold("\nAI Prompt Regression Validator (4-layer)"))
+    print("=" * 55)
+
+    float_js      = read_file(FLOAT_JS)
+    assistant     = read_file(ASSISTANT_HTML)
+    skill_content = read_file(SKILL_CONTENT)
+
+    all_issues = []
+    all_issues += check_discipline_consistency(float_js, assistant, skill_content)
+    all_issues += check_tool_consistency(float_js, assistant)
+    all_issues += check_calc_count_consistency(float_js, assistant)
+    all_issues += check_draft_artifacts(float_js, assistant)
+    all_issues += check_feature_parity(float_js, assistant)
+
+    n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
+
+    total = len(CHECK_NAMES)
+    if n_fail == 0:
+        print(f"\033[92m\n  All {total} checks passed.\033[0m")
     else:
-        for iss in issues:
-            print(f"  {severity}  {iss.get('page', '?')}")
-            print(f"        {iss['reason']}")
-        if severity == "FAIL":
-            fail_count += len(issues)
-        else:
-            warn_count += len(issues)
-    report[label] = issues
+        print(f"\033[91m\n  {n_pass} PASS  {n_skip} SKIP  {n_fail} FAIL\033[0m")
 
-print(f"\n{'=' * 70}")
-print(f"Result: {fail_count} FAIL  {warn_count} WARN")
+    report = {
+        "validator":    "ai_regression",
+        "total_checks": total,
+        "passed":       n_pass,
+        "skipped":      n_skip,
+        "failed":       n_fail,
+        "issues":       [i for i in all_issues if not i.get("skip")],
+    }
+    with open("ai_regression_report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
 
-with open("ai_regression_report.json", "w") as f:
-    json.dump(report, f, indent=2)
-print("Saved ai_regression_report.json")
+    sys.exit(1 if n_fail > 0 else 0)
 
-if fail_count:
-    print("\nFIX REQUIRED.")
-    sys.exit(1)
-print("\nAll AI regression checks PASS.")
+
+if __name__ == "__main__":
+    main()

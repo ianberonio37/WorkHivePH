@@ -2,40 +2,34 @@
 Tenant Boundary Escape Validator — WorkHive Platform
 =====================================================
 Multi-tenancy means Worker A cannot see Worker B's hive data.
-The boundary is enforced in JavaScript (no RLS yet) — so if any read
-query forgets the hive_id/worker_name filter, that boundary is gone.
+The boundary is enforced in JavaScript (no RLS yet). Any query that
+forgets the hive_id/worker_name filter exposes all tenants' data.
 
-This is a regression guard. The platform currently passes all checks.
-Future features that add new queries must keep passing.
+  Layer 1 — Query scope
+    1.  SELECT queries filtered      — every .select() on shared tables has ownership filter
+    2.  Realtime subscription scope  — channels on shared tables must have filter
 
-Four things checked:
+  Layer 2 — Identity integrity
+    3.  HIVE_ID from trusted source  — never from URLSearchParams or user input
+    4.  WORKER_NAME from trusted source — never from URLSearchParams or user input
 
-  1. Shared-table SELECT queries have an ownership filter
-     — Every .select() call on a multi-tenant table (logbook, inventory_items,
-       assets, pm_assets, hive_members) must be followed within 8 lines by
-       an .eq('hive_id', ...) or .eq('worker_name', ...) filter.
-       A bare .select('*') with no filter returns ALL tenants' data.
+  Layer 3 — Membership validation
+    5.  Hive switcher validates      — membership confirmed before writing HIVE_ID to localStorage
+    6.  URL params not injected      — URL params not written to hive context
 
-  2. HIVE_ID never assigned from user-controlled input
-     — HIVE_ID must only come from localStorage (set by DB-validated
-       join/switch flows) or from a DB membership query result.
-       Assigning it from URLSearchParams, location.search, or input.value
-       lets an attacker switch hives by editing the URL.
-
-  3. Hive switcher validates membership before switching
-     — The hive switch function in hive.html must query the hive_members
-       table and verify membership status before writing HIVE_ID to
-       localStorage. Skipping this lets workers rejoin kicked hives.
-
-  4. URL parameters not used to set hive context
-     — No URLSearchParams.get() or searchParams.get() call should be
-       followed within 10 lines by localStorage.setItem with a hive key
-       or a HIVE_ID assignment. This prevents ?hive=<other-tenant> attacks.
+  Layer 4 — Scope
+    7.  All tenant-aware pages checked — LIVE_PAGES covers analytics + all data pages
 
 Usage:  python validate_tenant_boundary.py
 Output: tenant_boundary_report.json
 """
 import re, json, sys
+
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+from validator_utils import read_file, format_result
 
 LIVE_PAGES = [
     "logbook.html",
@@ -45,9 +39,10 @@ LIVE_PAGES = [
     "skillmatrix.html",
     "dayplanner.html",
     "engineering-design.html",
+    "analytics.html",
+    "assistant.html",
 ]
 
-# Tables that hold per-tenant data and MUST always be filtered
 SHARED_TABLES = [
     "logbook",
     "inventory_items",
@@ -56,9 +51,11 @@ SHARED_TABLES = [
     "pm_assets",
     "pm_completions",
     "hive_members",
+    "schedule_items",
+    "skill_exam_attempts",
+    "skill_badges",
 ]
 
-# Patterns that indicate user-controlled input (injection risk)
 USER_CONTROLLED = [
     r"URLSearchParams",
     r"location\.search",
@@ -67,301 +64,223 @@ USER_CONTROLLED = [
     r"\.value\b",
 ]
 
-# Hive-context localStorage keys
 HIVE_LOCAL_KEYS = ["wh_hive_id", "wh_active_hive_id", "wh_hive_role", "wh_hive_name"]
 
 
-def read_file(path):
-    try:
-        with open(path, encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
-        return None
-
-
-# ── Check 1: Shared-table SELECT queries have ownership filter ────────────────
+# ── Layer 1: Query scope ──────────────────────────────────────────────────────
 
 def check_select_filters(pages, tables):
-    """
-    Every .select() call on a multi-tenant table must be followed within
-    8 lines by at least one of:
-      - .eq('hive_id', ...)
-      - .eq('worker_name', ...)
-      - .in('hive_id', ...)
-      - .or(`hive_id.eq.${...}`)
-
-    The 8-line window covers chained query builders like:
-      let q = db.from('logbook').select('*');   ← line 0
-      if (HIVE_ID) q = q.eq('hive_id', HIVE_ID); ← line 2
-
-    A bare .select('*') with no filter in the window returns ALL rows.
-    """
     issues = []
     for page in pages:
         content = read_file(page)
-        if content is None:
+        if not content:
             continue
         lines = content.splitlines()
-
         for i, line in enumerate(lines):
-            # Find .select( calls on shared tables
-            table_match = None
-            for table in tables:
-                if f"from('{table}')" in line or f'from("{table}")' in line:
-                    table_match = table
-                    break
-            if not table_match:
+            table = next((t for t in tables
+                          if f"from('{t}')" in line or f'from("{t}")' in line), None)
+            if not table or ".select(" not in line:
                 continue
-            if ".select(" not in line and ".select (" not in line:
-                continue
-
-            # Skip insert(...).select() — this returns only the inserted row
-            # Also check the previous line for multi-line insert chains
-            prev_line = lines[i - 1] if i > 0 else ""
+            prev = lines[i - 1] if i > 0 else ""
             if re.search(r"\.(insert|upsert)\s*\(", line) or \
-               re.search(r"\.(insert|upsert)\s*\(", prev_line):
+               re.search(r"\.(insert|upsert)\s*\(", prev):
                 continue
-
-            # Check for ownership filter within an 8-line window
             window = "\n".join(lines[i:min(len(lines), i + 8)])
             has_filter = any([
                 "hive_id"     in window,
                 "worker_name" in window,
                 "WORKER_NAME" in window,
                 "HIVE_ID"     in window,
-                re.search(r'\.eq\s*\(["\']id["\']',   window) is not None,
-                re.search(r'\.in\s*\(["\']id["\']',   window) is not None,
-                re.search(r'\.in\s*\(["\']asset_id["\']', window) is not None,
+                re.search(r'\.eq\s*\(["\']id["\']',        window),
+                re.search(r'\.in\s*\(["\']id["\']',        window),
+                re.search(r'\.in\s*\(["\']asset_id["\']',  window),
+                re.search(r'\.in\s*\(["\']worker_name["\']', window),
             ])
             if not has_filter:
-                issues.append({
-                    "page":  page,
-                    "table": table_match,
-                    "line":  i + 1,
-                    "reason": (
-                        f"{page}:{i + 1} — .select() on '{table_match}' with no "
-                        f"hive_id or worker_name filter in the next 8 lines — "
-                        f"returns all tenants' rows"
-                    ),
-                })
+                issues.append({"check": "select_filters", "page": page, "table": table, "line": i + 1,
+                               "reason": f"{page}:{i+1} .select() on '{table}' has no hive_id or worker_name filter in 8 lines — returns all tenants' rows"})
     return issues
 
 
-# ── Check 2: HIVE_ID never assigned from user-controlled input ────────────────
-
-def check_hive_id_source(pages):
+def check_realtime_subscription_scope(pages, tables):
     """
-    HIVE_ID must only be set from trusted sources:
-      - localStorage.getItem(...)          ← persisted from previous DB-validated flow
-      - DB membership query result         ← hive_members table lookup
-      - hive.id from a Supabase .insert()  ← server-assigned UUID
-
-    It must NEVER be set from:
-      - URLSearchParams / location.search  ← attacker controls ?hive=...
-      - input.value                        ← attacker types any UUID
-      - location.hash                      ← attacker controls #hive=...
-
-    If HIVE_ID comes from user-controlled input, a worker can switch to
-    any hive by editing the URL, reading another tenant's data.
+    Realtime channel .on('postgres_changes', {...}) subscriptions on shared
+    tables must include a filter like 'hive_id=eq.XXX' or 'worker_name=eq.XXX'.
+    Without it, the client receives events from ALL tenants, potentially
+    exposing other hives' logbook entries or inventory changes in real time.
     """
     issues = []
     for page in pages:
         content = read_file(page)
-        if content is None:
+        if not content:
+            continue
+        for m in re.finditer(
+            r"\.on\s*\(['\"]postgres_changes['\"][^)]*table\s*:\s*['\"](\w+)['\"]",
+            content
+        ):
+            table = m.group(1)
+            if table not in tables:
+                continue
+            # Get the surrounding channel block (~200 chars after the .on call)
+            block = content[m.start():m.start() + 300]
+            has_filter = bool(re.search(
+                r"filter\s*:\s*['\"](?:hive_id|worker_name)=eq\.",
+                block
+            ))
+            if not has_filter:
+                line = content[:m.start()].count("\n") + 1
+                issues.append({"check": "realtime_scope", "page": page, "table": table, "line": line,
+                               "reason": f"{page}:{line} Realtime subscription on '{table}' has no hive_id/worker_name filter — receives events from ALL tenants"})
+    return issues
+
+
+# ── Layer 2: Identity integrity ───────────────────────────────────────────────
+
+def check_identity_source(pages, var_name, check_id):
+    """
+    Identity variables (HIVE_ID, WORKER_NAME) must only be assigned from
+    trusted sources (localStorage, DB query results). Never from URL params.
+    """
+    issues = []
+    for page in pages:
+        content = read_file(page)
+        if not content:
             continue
         lines = content.splitlines()
-
         for i, line in enumerate(lines):
-            # Is this line assigning HIVE_ID?
-            if not re.search(r"\bHIVE_ID\s*=\s*", line):
+            if not re.search(rf"\b{re.escape(var_name)}\s*=\s*", line):
                 continue
-            # Does the assignment use user-controlled input?
             for pattern in USER_CONTROLLED:
                 if re.search(pattern, line):
-                    issues.append({
-                        "page": page,
-                        "line": i + 1,
-                        "code": line.strip()[:80],
-                        "reason": (
-                            f"{page}:{i + 1} — HIVE_ID assigned from user-controlled "
-                            f"input ({pattern}) — attacker can set any hive_id "
-                            f"by manipulating the URL or form: `{line.strip()[:60]}`"
-                        ),
-                    })
+                    issues.append({"check": check_id, "page": page, "line": i + 1,
+                                   "reason": f"{page}:{i+1} {var_name} assigned from user-controlled input — attacker can impersonate any worker/hive: `{line.strip()[:70]}`"})
                     break
     return issues
 
 
-# ── Check 3: Hive switcher validates membership before switch ─────────────────
+# ── Layer 3: Membership validation ────────────────────────────────────────────
 
 def check_switcher_validation(page):
-    """
-    The hive switcher in hive.html must confirm the worker is still a member
-    of the target hive before writing its id to localStorage.
-    This prevents a kicked member from re-entering a hive by:
-      - Refreshing the page
-      - Having a stale localStorage entry
-
-    Safe pattern:
-      1. Query hive_members for (hive_id, worker_name)
-      2. Check membership.status !== 'kicked'
-      3. THEN write to localStorage + set HIVE_ID
-
-    Unsafe pattern:
-      1. Read hive id from cached list
-      2. Write directly to localStorage + set HIVE_ID (no DB check)
-    """
-    issues = []
     content = read_file(page)
-    if content is None:
-        return [{"page": page, "reason": f"{page} not found"}]
-
-    # Find the switcher function (renderHiveSwitcher or similar)
-    switcher_m = re.search(
-        r"async function\s+renderHiveSwitcher\s*\(",
-        content
-    )
-    if not switcher_m:
-        # No switcher function — nothing to check
+    if not content:
+        return [{"check": "switcher_validation", "page": page, "reason": f"{page} not found"}]
+    m = re.search(r"async function\s+renderHiveSwitcher\s*\(", content)
+    if not m:
         return []
-
-    # Extract function body (300 lines should be more than enough)
-    body_start = switcher_m.start()
-    body = "\n".join(content[body_start:body_start + 8000].splitlines()[:120])
-
-    # Check that hive_members is queried inside the switcher
+    body = "\n".join(content[m.start():m.start() + 8000].splitlines()[:120])
     if "hive_members" not in body:
-        issues.append({
-            "page": page,
-            "reason": (
-                f"{page} — renderHiveSwitcher() does not query hive_members "
-                f"before switching — kicked members can re-enter a hive via "
-                f"stale localStorage"
-            ),
-        })
-        return issues
+        return [{"check": "switcher_validation", "page": page,
+                 "reason": f"{page} renderHiveSwitcher() does not query hive_members before switching — kicked members can re-enter via stale localStorage"}]
+    if "kicked" not in body and "membership.status" not in body:
+        return [{"check": "switcher_validation", "page": page,
+                 "reason": f"{page} renderHiveSwitcher() queries hive_members but doesn't check membership.status — kicked members may still be admitted"}]
+    return []
 
-    # Check that a status/kicked check exists
-    if "kicked" not in body and "membership.status" not in body and "status" not in body:
-        issues.append({
-            "page": page,
-            "reason": (
-                f"{page} — renderHiveSwitcher() queries hive_members but does not "
-                f"check membership status — kicked members may still be admitted"
-            ),
-        })
-
-    return issues
-
-
-# ── Check 4: URL parameters not used to inject hive context ──────────────────
 
 def check_url_param_injection(pages):
-    """
-    URL parameters (?hive=X, ?hive_id=X) must not be written directly into
-    hive context (localStorage or HIVE_ID variable) without first verifying
-    the worker's membership in the DB.
-
-    If a page reads ?hive=<some-uuid> from the URL and writes it to
-    localStorage as wh_hive_id, any worker can access any hive by visiting:
-      logbook.html?hive=<target-hive-uuid>
-
-    This check scans for searchParams.get / URLSearchParams reads followed
-    within 10 lines by a hive-related localStorage write or HIVE_ID assignment.
-    """
     issues = []
     for page in pages:
         content = read_file(page)
-        if content is None:
+        if not content:
             continue
         lines = content.splitlines()
-
         for i, line in enumerate(lines):
-            # Is this line reading a URL parameter?
-            if not re.search(
-                r"searchParams\.get|URLSearchParams|location\.search|location\.hash",
-                line
-            ):
+            if not re.search(r"searchParams\.get|URLSearchParams|location\.search|location\.hash", line):
                 continue
-
-            # Check the next 10 lines for a hive context write
             window = "\n".join(lines[i:min(len(lines), i + 10)])
-            hive_write = any(k in window for k in HIVE_LOCAL_KEYS) or \
-                         re.search(r"\bHIVE_ID\s*=", window)
-
-            if hive_write:
-                issues.append({
-                    "page": page,
-                    "line": i + 1,
-                    "code": line.strip()[:80],
-                    "reason": (
-                        f"{page}:{i + 1} — URL parameter read followed by hive "
-                        f"context write within 10 lines — "
-                        f"attacker may set hive context via URL: "
-                        f"`{line.strip()[:60]}`"
-                    ),
-                })
+            if any(k in window for k in HIVE_LOCAL_KEYS) or re.search(r"\bHIVE_ID\s*=", window):
+                issues.append({"check": "url_param_injection", "page": page, "line": i + 1,
+                               "reason": f"{page}:{i+1} URL parameter read followed by hive context write — attacker can set hive context via URL: `{line.strip()[:70]}`"})
     return issues
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+# ── Layer 4: Scope ────────────────────────────────────────────────────────────
 
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+def check_pages_in_scope():
+    import glob, os
+    live_set = set(LIVE_PAGES)
+    issues   = []
+    for path in glob.glob("*.html"):
+        fname = os.path.basename(path)
+        if fname in live_set:
+            continue
+        if any(s in fname for s in ["-test", ".backup", "platform-health", "guardian",
+                                     "parts-tracker", "symbol-gallery", "architecture"]):
+            continue
+        content = read_file(fname)
+        if not content:
+            continue
+        for table in SHARED_TABLES:
+            if f"from('{table}')" in content or f'from("{table}")' in content:
+                issues.append({"check": "pages_in_scope", "page": fname, "table": table,
+                               "reason": f"{fname} reads from shared table '{table}' but is not in validate_tenant_boundary.py LIVE_PAGES"})
+                break
+    return issues
 
-print("\n" + "=" * 70)
-print("Tenant Boundary Escape Validator")
-print("=" * 70)
 
-fail_count = 0
-warn_count = 0
-report     = {}
+# ── Runner ─────────────────────────────────────────────────────────────────────
 
-checks = [
-    (
-        "[1] Shared-table SELECT queries have hive_id or worker_name filter",
-        check_select_filters(LIVE_PAGES, SHARED_TABLES),
-        "FAIL",
-    ),
-    (
-        "[2] HIVE_ID never assigned from URL params or user input",
-        check_hive_id_source(LIVE_PAGES),
-        "FAIL",
-    ),
-    (
-        "[3] Hive switcher validates membership before switching",
-        check_switcher_validation("hive.html"),
-        "FAIL",
-    ),
-    (
-        "[4] URL parameters not used to inject hive context",
-        check_url_param_injection(LIVE_PAGES),
-        "FAIL",
-    ),
+CHECK_NAMES = [
+    # L1
+    "select_filters", "realtime_scope",
+    # L2
+    "hive_id_source", "worker_name_source",
+    # L3
+    "switcher_validation", "url_param_injection",
+    # L4
+    "pages_in_scope",
 ]
 
-for label, issues, severity in checks:
-    print(f"\n{label}\n")
-    if not issues:
-        print("  PASS")
+CHECK_LABELS = {
+    # L1
+    "select_filters":      "L1  SELECT queries on shared tables have ownership filter",
+    "realtime_scope":      "L1  Realtime subscriptions on shared tables have filter",
+    # L2
+    "hive_id_source":      "L2  HIVE_ID never from URL params or user input",
+    "worker_name_source":  "L2  WORKER_NAME never from URL params or user input",
+    # L3
+    "switcher_validation": "L3  Hive switcher validates membership before switch",
+    "url_param_injection": "L3  URL params not written to hive context",
+    # L4
+    "pages_in_scope":      "L4  All shared-table pages in LIVE_PAGES",
+}
+
+
+def main():
+    def bold(s): return f"\033[1m{s}\033[0m"
+    print(bold("\nTenant Boundary Escape Validator (4-layer)"))
+    print("=" * 55)
+
+    all_issues = []
+    all_issues += check_select_filters(LIVE_PAGES, SHARED_TABLES)
+    all_issues += check_realtime_subscription_scope(LIVE_PAGES, SHARED_TABLES)
+    all_issues += check_identity_source(LIVE_PAGES, "HIVE_ID", "hive_id_source")
+    all_issues += check_identity_source(LIVE_PAGES, "WORKER_NAME", "worker_name_source")
+    all_issues += check_switcher_validation("hive.html")
+    all_issues += check_url_param_injection(LIVE_PAGES)
+    all_issues += check_pages_in_scope()
+
+    n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
+
+    total = len(CHECK_NAMES)
+    if n_fail == 0:
+        print(f"\033[92m\n  All {total} checks passed.\033[0m")
     else:
-        for iss in issues:
-            print(f"  {severity}  {iss.get('page', '?')}")
-            print(f"        {iss['reason']}")
-        if severity == "FAIL":
-            fail_count += len(issues)
-        else:
-            warn_count += len(issues)
-    report[label] = issues
+        print(f"\033[91m\n  {n_pass} PASS  {n_skip} SKIP  {n_fail} FAIL\033[0m")
 
-print(f"\n{'=' * 70}")
-print(f"Result: {fail_count} FAIL  {warn_count} WARN")
+    report = {
+        "validator":    "tenant_boundary",
+        "total_checks": total,
+        "passed":       n_pass,
+        "skipped":      n_skip,
+        "failed":       n_fail,
+        "issues":       [i for i in all_issues if not i.get("skip")],
+    }
+    with open("tenant_boundary_report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
 
-with open("tenant_boundary_report.json", "w") as f:
-    json.dump(report, f, indent=2)
-print("Saved tenant_boundary_report.json")
+    sys.exit(1 if n_fail > 0 else 0)
 
-if fail_count:
-    print("\nFIX REQUIRED.")
-    sys.exit(1)
-print("\nAll tenant boundary checks PASS.")
+
+if __name__ == "__main__":
+    main()
