@@ -40,10 +40,16 @@ def _parse_dates(df: pd.DataFrame, col: str) -> pd.DataFrame:
 
 
 def _corrective_only(df: pd.DataFrame) -> pd.DataFrame:
-    """ISO 14224 §9.3 — MTBF uses Breakdown/Corrective entries only."""
+    """ISO 14224 §9.3 — MTBF uses Breakdown/Corrective entries only.
+    Uses exact match to stay consistent with hive.html which uses
+    .eq('maintenance_type', 'Breakdown / Corrective'). The WorkHive UI
+    dropdown only ever produces this exact value, so case-insensitive
+    contains was overly permissive and caused different MTBF values
+    between the hive board and the Python analytics engine.
+    """
     if df.empty or "maintenance_type" not in df.columns:
         return df
-    return df[df["maintenance_type"].str.contains("Corrective|Breakdown", case=False, na=False)]
+    return df[df["maintenance_type"] == "Breakdown / Corrective"]
 
 
 # ── 1. MTBF per asset — ISO 14224 §9.3 ──────────────────────────────────────

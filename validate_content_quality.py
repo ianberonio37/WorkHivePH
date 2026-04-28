@@ -326,7 +326,7 @@ def check_mttr_zero_filter_consistency(hive_page, python_path):
     if not mttr_m:
         return []
 
-    mttr_body = python_content[mttr_m.start():mttr_m.start() + 500]
+    mttr_body = python_content[mttr_m.start():mttr_m.start() + 900]
 
     # Check if Python filters out zero downtime
     has_zero_filter = bool(re.search(

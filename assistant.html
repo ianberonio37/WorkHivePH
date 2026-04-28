@@ -414,12 +414,23 @@
     async function buildSystemPrompt(name, contextNote) {
       const pastDate   = new Date(Date.now() - 3  * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
       const futureDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-      const [lRes, sRes] = await Promise.all([
+      const hiveIdCtx = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+      const [lRes, sRes, skillRes, invRes, pmRes] = await Promise.all([
         db.from('logbook').select('date,machine,maintenance_type,category,status,problem,root_cause,downtime_hours,action,parts_used').eq('worker_name', name).order('date', { ascending: false }).limit(10),
         db.from('schedule_items').select('date,start_time,end_time,title,category,item_status,notes').eq('worker_name', name).gte('date', pastDate).lte('date', futureDate).order('date', { ascending: true }).order('start_time', { ascending: true }),
+        db.from('skill_badges').select('discipline,level,badge_type').eq('worker_name', name).order('level', { ascending: false }).limit(6),
+        hiveIdCtx
+          ? db.from('inventory_items').select('name,qty_on_hand,unit,reorder_point,category').eq('hive_id', hiveIdCtx).eq('status', 'approved').order('qty_on_hand', { ascending: true }).limit(20)
+          : Promise.resolve({ data: [] }),
+        hiveIdCtx
+          ? db.from('pm_assets').select('asset_name,category').eq('hive_id', hiveIdCtx).order('asset_name', { ascending: true }).limit(8)
+          : Promise.resolve({ data: [] }),
       ]);
       const logbook  = lRes.data || [];
       const schedule = sRes.data || [];
+      const skills   = skillRes.data || [];
+      const invItems = invRes.data || [];
+      const pmAssets = pmRes.data || [];
 
       const fmtDate = iso => {
         try { return new Date(iso).toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' }); }
@@ -448,6 +459,23 @@
             return `[${s.date}${time}] ${s.title || 'Untitled'} (${s.category || 'Other'})${status}${notes}`;
           }).join('\n')
         : 'No schedule items in this window.';
+
+      // Skill summary — compact one-liner per discipline
+      const LEVEL_NAMES = ['', 'Awareness', 'Foundational', 'Competent', 'Proficient', 'Master'];
+      const skillText = skills.length
+        ? skills.map(s => `${s.discipline}: Level ${s.level} (${LEVEL_NAMES[s.level] || 'L' + s.level})`).join(' | ')
+        : 'No skill badges earned yet.';
+
+      // PM health — registered assets with schedules in this hive
+      const pmText = pmAssets.length
+        ? 'Assets with PM schedules: ' + pmAssets.map(a => `${a.asset_name} (${a.category || 'General'})`).join(', ') + '. Check PM Scheduler for overdue and due-soon tasks.'
+        : hiveIdCtx ? 'No PM assets registered in this hive yet.' : 'Not in a hive — no PM schedule visible.';
+
+      // Low-stock inventory — only items at or below reorder point
+      const lowStock = invItems.filter(i => i.qty_on_hand != null && (i.reorder_point != null ? i.qty_on_hand <= i.reorder_point : i.qty_on_hand <= 2));
+      const invText = lowStock.length
+        ? lowStock.slice(0, 5).map(i => `${i.name}: ${i.qty_on_hand} ${i.unit || 'units'}${i.reorder_point != null ? ' (reorder at ' + i.reorder_point + ')' : ' (LOW)'}`).join(' | ')
+        : hiveIdCtx ? 'All inventory items are adequately stocked.' : 'Not in a hive — no shared inventory visible.';
 
       const todayISO = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
       const todayReadable = new Date().toLocaleDateString('en-PH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -501,9 +529,9 @@ You handle three types of conversations. Adapt naturally:
 STRICT RULE: You may ONLY reference records that are explicitly listed below. If the records show "No entries yet", there is nothing to reference. Say so and move on.
 ${contextNote ? `\nToday's context: ${contextNote}` : ''}
 
---- WORKER RECORDS (last 10 entries each) ---
+--- WORKER RECORDS ---
 
-LOGBOOK:
+LOGBOOK (${logbook.length} entries shown, most recent: ${logbook[0]?.date || 'none'}):
 ${logbookText}
 
 PARTS USED (from logbook entries):
@@ -511,6 +539,15 @@ ${partsText}
 
 SCHEDULE (last 3 days + next 14 days):
 ${scheduleText}
+
+SKILL PROFILE:
+${skillText}
+
+PM HEALTH:
+${pmText}
+
+INVENTORY ALERTS (low-stock items in hive):
+${invText}
 --- END OF RECORDS ---`;
     }
 
@@ -640,13 +677,21 @@ ${scheduleText}
         const hiveId = localStorage.getItem('wh_hive_id') || null;
         let reply = null;
 
+        // Fetch semantic context FIRST — enriches both orchestrator and fallback paths
+        // Previously only the fallback got RAG enrichment; now team knowledge base
+        // context reaches the orchestrator on every question.
+        const semanticContext = await getSemanticContext(text);
+        const enrichedQuestion = semanticContext
+          ? (text + '\n\n--- RELEVANT TEAM KNOWLEDGE (from fault history and skills) ---\n' + semanticContext + '\n--- END KNOWLEDGE ---')
+          : text;
+
         // ── Step 1: Try orchestrator (team intelligence, Groq free tier) ──
         try {
           const orchRes = await fetch(`${SUPABASE_URL}/functions/v1/ai-orchestrator`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              question:    text,
+              question:    enrichedQuestion,
               hive_id:     hiveId,
               worker_name: workerName,
             }),
@@ -659,7 +704,7 @@ ${scheduleText}
 
         // ── Step 2: Fall back to personal assistant if orchestrator has no answer ──
         if (!reply) {
-          const semanticContext = await getSemanticContext(text);
+          // semanticContext already fetched above — reuse it here
           const enrichedPrompt = semanticContext
             ? `${window._systemPrompt}\n\n--- KNOWLEDGE BASE CONTEXT (from your team's history) ---\n${semanticContext}\n--- END CONTEXT ---`
             : window._systemPrompt;

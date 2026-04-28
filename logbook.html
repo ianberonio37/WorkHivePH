@@ -576,7 +576,7 @@
 
                 <!-- Failure consequence — Breakdown entries only (SAE JA1011 §5.4) -->
                 <div id="consequence-section" class="hidden">
-                  <label class="wh-label">What was the impact?</label>
+                  <label class="wh-label">What was the impact? <span id="consequence-required-badge" class="hidden" style="color:rgba(239,68,68,0.8);font-size:0.65rem;font-weight:700;margin-left:0.25rem;">required for Breakdown</span></label>
                   <div class="grid grid-cols-2 gap-2">
                     <button type="button" class="consequence-btn" data-value="Hidden" onclick="selectConsequence(this)">
                       <span class="consequence-icon">👁</span>
@@ -2146,6 +2146,7 @@ document.getElementById('f-maint-type').addEventListener('change', async functio
     consequenceEl.classList.add('hidden');
     readingsEl.classList.add('hidden');
     document.getElementById('f-consequence').value = '';
+    document.getElementById('consequence-required-badge').classList.add('hidden');
     document.querySelectorAll('.consequence-btn').forEach(b => b.classList.remove('selected'));
   }
   updateProductionVisibility();
@@ -2911,6 +2912,27 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     document.getElementById('f-machine').focus();
     document.getElementById('f-machine').style.borderColor = 'rgba(239,68,68,0.6)';
     setTimeout(() => document.getElementById('f-machine').style.borderColor = '', 2000);
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save Entry';
+    return;
+  }
+
+  // Breakdown entry requires failure consequence (SAE JA1011 RCM analysis)
+  const isBreakdownEntry = maintType.includes('Breakdown') || maintType.includes('Corrective');
+  if (isBreakdownEntry && !failureConsequence) {
+    const sect = document.getElementById('consequence-section');
+    // Open the extras drawer if closed
+    const drawer = document.getElementById('extras-drawer');
+    if (!drawer.classList.contains('open')) {
+      drawer.classList.add('open');
+      document.getElementById('extras-toggle-label').textContent = 'Hide extra details';
+    }
+    // Flash the consequence section border
+    sect.style.outline = '2px solid rgba(239,68,68,0.7)';
+    sect.style.borderRadius = '0.5rem';
+    sect.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => { sect.style.outline = ''; }, 3000);
+    showToast('Please select what was the impact (required for Breakdown entries).', '⚠️');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save Entry';
     return;

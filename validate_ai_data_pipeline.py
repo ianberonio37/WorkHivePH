@@ -145,7 +145,7 @@ def check_context_data_sources(page):
                                   f"the AI cannot warn about low-stock critical parts or suggest "
                                   f"parts before a planned maintenance; add inventory summary to prompt")})
 
-    if not re.search(r"pm_completion\b|pm_asset\b|overdue.*pm\b|pm.*overdue\b|pm.*health", body):
+    if not re.search(r"pm_completion\b|pm_assets?\b|overdue.*pm\b|pm.*overdue\b|pm.*health|PM HEALTH|pmText|pmAssets", body):
         issues.append({"check": "context_data_sources", "page": page, "skip": True,
                        "reason": (f"{page} buildSystemPrompt() does not include PM health context — "
                                   f"the AI cannot answer 'what PM tasks are overdue?' or prioritize "
@@ -234,8 +234,8 @@ def check_logbook_count_in_prompt(page):
     if not build_m:
         return []
 
-    body = content[build_m.start():build_m.start() + 3000]
-    if not re.search(r"logbookCount\b|logbook\.length\b|count.*entries|entries.*count", body):
+    body = content[build_m.start():build_m.start() + 4000]
+    if not re.search(r"logbookCount\b|logbook\.length\b|count.*entries|entries.*count|most recent.*date|logbook\[0\]", body):
         return [{"check": "logbook_count_in_prompt", "page": page, "skip": True,
                  "reason": (f"{page} logbookCount is tracked in the sidebar but never injected into "
                             f"the AI system prompt — the AI cannot calibrate confidence or tell the "
@@ -272,10 +272,11 @@ def check_knowledge_freshness_indicator(page):
     if not build_m:
         return []
 
-    body = content[build_m.start():build_m.start() + 3000]
+    body = content[build_m.start():build_m.start() + 25000]
     has_freshness = bool(re.search(
         r"most.*recent\b|last.*updated\b|freshness\b|as of\b.*date|date.*as of\b"
-        r"|logbook\[0\].*date|\.date.*logbook|latest.*entry",
+        r"|logbook\[0\]\?\.date|logbook\[0\]\.date|\.date.*logbook|latest.*entry"
+        r"|most recent:|entries shown",
         body, re.IGNORECASE
     ))
     if not has_freshness:
