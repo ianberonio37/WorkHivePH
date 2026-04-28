@@ -18957,6 +18957,24 @@ async function _runDrawing() {
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_kw} kW / ${_bhp} BHP  |  ${_bar} bar g  |  ${String(_r.boiler_type||'Steam')}`,
         { drawingNo:'MECH-BLR-SCH-001', drawingTitle:'Boiler System Schematic', standard:'ASME BPVC Sec. I / PD Act PHL / DOLE OSHS / PSME Code' }));
+    } else if (ct === 'AHU Sizing') {
+      const svg = buildAHUSizingSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      const _m3h = Number(_r.supply_flow_m3hr || 0).toFixed(0);
+      const _kw  = Number(_r.coil_total_kw || 0).toFixed(1);
+      const _tr  = Number(_r.coil_total_tr || 0).toFixed(2);
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${_m3h} m³/h  |  ${_kw} kW / ${_tr} TR  |  ${Number(_r.fan_motor_kw||_r.recommended_motor_kw||0).toFixed(2)} kW fan`,
+        { drawingNo:'MECH-AHU-SCH-001', drawingTitle:'Air Handling Unit — System Schematic', standard:'ASHRAE 62.1 / ASHRAE 90.1 / SMACNA / PSME Code' }));
+    } else if (ct === 'Duct Sizing (Equal Friction)') {
+      const svg = buildDuctSizingSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      const _d  = Number(_r.D_std_mm || _r.D_calc_mm || 0).toFixed(0);
+      const _v  = Number(_r.circular_velocity_ms || 0).toFixed(2);
+      const _dp = Number(_r.circular_dp_pam || 0).toFixed(3);
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `Ø${_d}mm  |  v = ${_v} m/s  |  ${_dp} Pa/m`,
+        { drawingNo:'MECH-DUCT-SCH-001', drawingTitle:'Duct Sizing — Equal Friction Method', standard:'ASHRAE 2021 Ch.21 / SMACNA HVAC Duct Design / PSME Code' }));
     }
   }, 100);
 }
@@ -23269,6 +23287,396 @@ function buildBoilerSystemSVG(inputs, results) {
   notes.forEach((n,i) => p.push(T(18, LY+72+i*11, n, {a:'start', sz:6.5, c:CC})));
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` + p.join('\n  ') + `\n</svg>`;
+}
+
+// ─── AHU Sizing Schematic — ASHRAE 62.1 / ASHRAE 90.1 / SMACNA / PSME ────────
+function buildAHUSizingSVG(inputs, results) {
+  const W = 1050, H = 580, STRIP_Y = 467;
+  const r = results || {}, inp = inputs || {};
+  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const T = (x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={}) =>
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+  const HL = (x1,y,x2,sw=3,c='#1a2e4a') => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
+  const VL = (x,y1,y2,sw=3,c='#1a2e4a') => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
+  const Arrow = (x,y,dir,clr,sz=10) => {
+    if(dir==='right') return `<polygon points="${x},${y-sz/2} ${x+sz},${y} ${x},${y+sz/2}" fill="${clr}"/>`;
+    if(dir==='left')  return `<polygon points="${x},${y-sz/2} ${x-sz},${y} ${x},${y+sz/2}" fill="${clr}"/>`;
+    if(dir==='up')    return `<polygon points="${x-sz/2},${y} ${x},${y-sz} ${x+sz/2},${y}" fill="${clr}"/>`;
+    if(dir==='down')  return `<polygon points="${x-sz/2},${y} ${x},${y+sz} ${x+sz/2},${y}" fill="${clr}"/>`;
+    return '';
+  };
+
+  const psych   = r.psychrometrics || {};
+  const saM3hr  = Number(r.supply_flow_m3hr || 0).toFixed(0);
+  const saCFM   = Number(r.supply_flow_cfm  || 0).toFixed(0);
+  const coilKW  = Number(r.coil_total_kw    || 0).toFixed(1);
+  const coilTR  = Number(r.coil_total_tr    || 0).toFixed(2);
+  const coilSHR = Number(r.coil_shr         || 0).toFixed(2);
+  const fanPa   = Number(r.fan_total_static_pa || 0).toFixed(0);
+  const fanKW   = Number(r.recommended_motor_kw || r.fan_motor_kw || 0).toFixed(2);
+  const fanWLps = Number(r.fan_power_w_lps  || 0).toFixed(2);
+  const fanOK   = Boolean(r.fan_power_ok    ?? true);
+  const coilH   = Number(r.coil_height_m    || 0).toFixed(2);
+  const coilW2  = Number(r.coil_width_m     || 0).toFixed(2);
+  const coilRows= Number(r.coil_rows        || 4);
+  const cbf     = Number(r.coil_bypass_factor|| 0).toFixed(3);
+  const adp     = Number(r.adp_c || psych.adp_c || 0).toFixed(1);
+  const roomDB  = Number(psych.room_db_c    || inp.indoor_db_c  || 24).toFixed(1);
+  const oaDB    = Number(psych.outdoor_db_c || inp.outdoor_db_c || 35).toFixed(1);
+  const mixDB   = Number(psych.mixed_db_c   || 0).toFixed(1);
+  const saDB    = Number(psych.supply_db_c  || inp.supply_temp_c|| 13).toFixed(1);
+  const oaPct   = Number(psych.oa_fraction_pct || inp.oa_fraction_pct || 20).toFixed(0);
+
+  const CC = '#1a2e4a', SC = '#5a6a7a', GY = '#607d8b', LGY = '#eceff1';
+  const SA_C  = '#1565c0';  // supply air (cold blue)
+  const RA_C  = '#2e7d32';  // return air (green)
+  const OA_C  = '#e65100';  // outdoor air (orange)
+  const CHW_C = '#0d47a1';  // CHW (dark blue)
+  const FAN_C = '#37474f';  // fan (dark gray)
+
+  const SPLIT_X = 640;
+  const p = [];
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(T(W/2, 31, `AHU SIZING — SYSTEM SCHEMATIC  |  ${saM3hr} m³/h  |  ${coilKW} kW / ${coilTR} TR  |  ASHRAE 62.1 / 90.1 / SMACNA / PSME`, {sz:10.5, c:'white', w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+
+  // ── AHU CASING ──
+  const AX = 80, AY = 110, AW = 520, AH = 220;
+  const ACX = AX + AW/2, ACY = AY + AH/2;
+  p.push(`<rect x="${AX}" y="${AY}" width="${AW}" height="${AH}" rx="4" fill="${LGY}" stroke="${CC}" stroke-width="3"/>`);
+  p.push(T(ACX, AY - 10, 'AIR HANDLING UNIT — AHU-101', {sz:9, c:CC, w:'700'}));
+
+  // Section dividers
+  const secX = [AX+80, AX+160, AX+310, AX+400];
+  secX.forEach(sx => p.push(VL(sx, AY, AY+AH, 1, GY)));
+
+  // Section labels (top)
+  [[AX+40, 'MIXING', ''], [AX+120, 'FILTER', ''], [AX+235, 'CHW COIL', ''], [AX+355, 'FAN', ''], [AX+460, 'SUPPLY', '']].forEach(([x,lbl]) => {
+    p.push(T(x, AY+12, lbl, {sz:7, c:CC, w:'700'}));
+  });
+
+  // ── SECTION 1: MIXING PLENUM ──
+  // Return air arrow from left
+  p.push(HL(AX-60, ACY+20, AX, 4, RA_C));
+  p.push(Arrow(AX-2, ACY+20, 'right', RA_C, 10));
+  p.push(T(AX-60, ACY+8, `RA  ${roomDB}°C DB`, {a:'start', sz:7, c:RA_C, w:'700'}));
+  // OA louver from top
+  p.push(VL(AX+40, AY-50, AY+20, 3, OA_C));
+  p.push(Arrow(AX+40, AY+18, 'down', OA_C, 10));
+  // Louver symbol (horizontal slats)
+  for(let i=0;i<4;i++) p.push(HL(AX+20, AY-50+i*12, AX+60, 2, OA_C));
+  p.push(T(AX+40, AY-58, `OA  ${oaDB}°C  (${oaPct}%)`, {sz:7, c:OA_C, w:'700'}));
+  // Mixed air label
+  p.push(T(AX+40, ACY, `Mixed`, {sz:7, c:GY}));
+  p.push(T(AX+40, ACY+11, `${mixDB}°C DB`, {sz:7.5, c:GY, w:'700'}));
+
+  // ── SECTION 2: FILTER ──
+  const FX1 = AX+80, FX2 = AX+160;
+  for(let i=0;i<5;i++) {
+    const fy = AY+20+i*36;
+    p.push(`<rect x="${FX1+4}" y="${fy}" width="${FX2-FX1-8}" height="28" rx="2" fill="#fff9c4" stroke="#f57f17" stroke-width="1" opacity="0.8"/>`);
+    for(let j=0;j<4;j++) p.push(VL(FX1+8+j*14, fy+3, fy+24, 1, '#f57f17'));
+  }
+  p.push(T((FX1+FX2)/2, AY+AH+12, 'FILTER  MERV-8+', {sz:7, c:'#f57f17'}));
+
+  // ── SECTION 3: CHW COOLING COIL ──
+  const CX1 = AX+160, CX2 = AX+310;
+  p.push(`<rect x="${CX1+4}" y="${AY+10}" width="${CX2-CX1-8}" height="${AH-20}" rx="2" fill="#e3f2fd" stroke="${CHW_C}" stroke-width="1.5"/>`);
+  for(let i=0;i<6;i++) {
+    const cx = CX1+14+i*18;
+    p.push(VL(cx, AY+14, AY+AH-14, 1.5, CHW_C));
+    if(i%2===0) {
+      p.push(HL(cx, AY+30+i*18, cx+18, 1, CHW_C));
+      p.push(HL(cx, AY+AH-30-i*18, cx+18, 1, CHW_C));
+    }
+  }
+  // CHW supply enters bottom, return exits top
+  const coilMidX = (CX1+CX2)/2;
+  p.push(VL(coilMidX-20, AY+AH, AY+AH+45, 3, CHW_C));
+  p.push(Arrow(coilMidX-20, AY+AH+2, 'up', CHW_C, 8));
+  p.push(T(coilMidX-20, AY+AH+55, `CHW Supply`, {sz:6.5, c:CHW_C}));
+  p.push(VL(coilMidX+20, AY+AH, AY+AH+45, 3, '#c62828'));
+  p.push(Arrow(coilMidX+20, AY+AH+44, 'down', '#c62828', 8));
+  p.push(T(coilMidX+20, AY+AH+55, `CHW Return`, {sz:6.5, c:'#c62828'}));
+  // Coil data
+  p.push(T(coilMidX, ACY-8, `${coilRows} Row`, {sz:7, c:CHW_C, w:'700'}));
+  p.push(T(coilMidX, ACY+4, `${coilH}m×${coilW2}m`, {sz:7, c:CHW_C}));
+  p.push(T(coilMidX, ACY+16, `ADP=${adp}°C`, {sz:6.5, c:CHW_C}));
+  p.push(T(coilMidX, AY+AH+12, `${coilKW} kW / ${coilTR} TR`, {sz:7, c:CHW_C, w:'700'}));
+
+  // Process arrow on coil
+  p.push(T(coilMidX, AY-8, `${mixDB}°C → ${saDB}°C  (SHR=${coilSHR})`, {sz:7, c:SA_C}));
+
+  // ── SECTION 4: FAN ──
+  const fanMidX = AX+355, fanMidY = ACY;
+  const fanR = 35;
+  p.push(`<circle cx="${fanMidX}" cy="${fanMidY}" r="${fanR}" fill="#e8eaf6" stroke="${FAN_C}" stroke-width="2"/>`);
+  [-60,60,180].forEach(angle => {
+    const rad = angle*Math.PI/180;
+    p.push(`<line x1="${fanMidX}" y1="${fanMidY}" x2="${(fanMidX+30*Math.cos(rad)).toFixed(1)}" y2="${(fanMidY+30*Math.sin(rad)).toFixed(1)}" stroke="${FAN_C}" stroke-width="3" stroke-linecap="round"/>`);
+  });
+  p.push(`<circle cx="${fanMidX}" cy="${fanMidY}" r="5" fill="${FAN_C}"/>`);
+  p.push(T(fanMidX, fanMidY+fanR+12, `FAN-101`, {sz:7, c:FAN_C, w:'700'}));
+  p.push(T(fanMidX, fanMidY+fanR+23, `${fanKW} kW  |  ${fanPa} Pa`, {sz:7, c:SC}));
+  const fanColor = fanOK ? '#2e7d32' : '#c62828';
+  p.push(T(fanMidX, fanMidY+fanR+34, `${fanWLps} W/(L/s)  ${fanOK ? 'OK' : 'HIGH'}`, {sz:7, c:fanColor, w:'700'}));
+
+  // ── SECTION 5: SUPPLY AIR ──
+  p.push(HL(AX+400, ACY, AX+AW+60, 4, SA_C));
+  p.push(Arrow(AX+AW+58, ACY, 'right', SA_C, 10));
+  p.push(T(AX+AW+65, ACY-10, `SA  ${saM3hr} m³/h`, {a:'start', sz:7.5, c:SA_C, w:'700'}));
+  p.push(T(AX+AW+65, ACY+2, `${saCFM} CFM  |  ${saDB}°C DB`, {a:'start', sz:7, c:SA_C}));
+
+  // ── Exhaust damper (return side) ──
+  p.push(VL(AX+40, AY+AH, AY+AH+40, 2, GY));
+  p.push(T(AX+40, AY+AH+52, 'Relief/Exhaust', {sz:6.5, c:GY}));
+  p.push(T(AX+40, AY+AH+63, 'Damper', {sz:6.5, c:GY}));
+
+  // ── DATA PANEL ──
+  const DX = SPLIT_X+10, DW = W-SPLIT_X-22, rowH = 17;
+  let dy = 52;
+  const rowFn = (lbl,val,vc,i) => {
+    const bg = i%2===0 ? '#f0f4fa' : '#f8fafc';
+    const out = `<rect x="${DX}" y="${dy}" width="${DW}" height="${rowH}" fill="${bg}"/>` +
+      T(DX+4,dy+11,lbl,{a:'start',sz:7.5,c:SC})+T(DX+DW-4,dy+11,val,{a:'end',sz:7.5,c:vc,w:'bold'});
+    dy+=rowH; return out;
+  };
+  const secH = (lbl) => {
+    const out=`<rect x="${DX}" y="${dy}" width="${DW}" height="15" rx="2" fill="#dce3ef"/>`+T(DX+DW/2,dy+10,lbl,{sz:7.5,c:CC,w:'700'});
+    dy+=18; return out;
+  };
+  p.push(`<rect x="${DX}" y="${dy}" width="${DW}" height="20" rx="3" fill="${CC}"/>`);
+  p.push(T(DX+DW/2,dy+13,'AHU DESIGN DATA',{sz:8.5,c:'white',w:'700'}));
+  dy+=24;
+
+  p.push(secH('AIRFLOW'));
+  [['Supply Airflow',`${saM3hr} m³/h  (${saCFM} CFM)`,SA_C],
+   ['OA Fraction',`${oaPct}% of supply`,OA_C]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+
+  dy+=4; p.push(secH('PSYCHROMETRICS'));
+  [['Room Condition',`${roomDB}°C DB  |  ${Number(psych.room_rh_pct||inp.indoor_rh_pct||50).toFixed(0)}% RH`,RA_C],
+   ['Outdoor Air',`${oaDB}°C DB`,OA_C],
+   ['Mixed Air',`${mixDB}°C DB`,GY],
+   ['Supply Air (off-coil)',`${saDB}°C DB`,SA_C],
+   ['ADP',`${adp}°C`,CHW_C],
+   ['Bypass Factor (CBF)',cbf,GY]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+
+  dy+=4; p.push(secH('COOLING COIL'));
+  [['Total Coil Duty',`${coilKW} kW / ${coilTR} TR`,CHW_C],
+   ['SHR',coilSHR,SC],
+   ['Coil Size',`${coilH}m H × ${coilW2}m W  |  ${coilRows} rows`,CHW_C]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+
+  dy+=4; p.push(secH('FAN'));
+  [['Fan Static Pressure',`${fanPa} Pa`,FAN_C],
+   ['Motor (Installed)',`${fanKW} kW`,FAN_C],
+   ['Fan Power Density',`${fanWLps} W/(L/s)  ${fanOK?'— OK':'— HIGH'}`,fanColor]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+
+  dy+=6;
+  p.push(T(DX+DW/2,dy,'ASHRAE 62.1 / ASHRAE 90.1 / SMACNA',{sz:7,c:GY}));
+  dy+=11;
+  p.push(T(DX+DW/2,dy,'PSME Code  |  Psychrolib (ASHRAE RP-1485)',{sz:7,c:GY}));
+
+  // ── LEGEND ──
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(T(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  let lx=25, ly=LY+26;
+  [[SA_C,'Supply air (cooled)'],[RA_C,'Return air'],[OA_C,'Outdoor air (OA)'],[CHW_C,'Chilled water (CHW)']].forEach(([c2,lbl])=>{
+    p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+28}" y2="${ly}" stroke="${c2}" stroke-width="3"/>`);
+    p.push(T(lx+32,ly+4,lbl,{a:'start',sz:7.5,c:CC}));
+    ly+=15;
+  });
+  const notes=[`1. Supply airflow from sensible load / (ρ × Cp × ΔT). Coil sized at 2.0–2.5 m/s face velocity.`,
+    `2. ASHRAE 90.1 fan power limit: 0.3 W/(L/s) single-zone; 0.5 W/(L/s) VAV system.`,
+    `3. Bypass factor (CBF) per ASHRAE 2021 Fundamentals. ADP = Apparatus Dew Point.`];
+  notes.forEach((n,i)=>p.push(T(18,LY+72+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Duct Sizing Schematic — ASHRAE 2021 Ch.21 / SMACNA / PSME ───────────────
+function buildDuctSizingSVG(inputs, results) {
+  const W = 1050, H = 580, STRIP_Y = 467;
+  const r = results || {}, inp = inputs || {};
+  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const T = (x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={}) =>
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+  const HL = (x1,y,x2,sw=3,c='#1a2e4a') => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
+  const VL = (x,y1,y2,sw=3,c='#1a2e4a') => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
+  const Arrow = (x,y,dir,clr,sz=10) => {
+    if(dir==='right') return `<polygon points="${x},${y-sz/2} ${x+sz},${y} ${x},${y+sz/2}" fill="${clr}"/>`;
+    if(dir==='down')  return `<polygon points="${x-sz/2},${y} ${x},${y+sz} ${x+sz/2},${y}" fill="${clr}"/>`;
+    return '';
+  };
+
+  const dCirc  = Number(r.D_std_mm || r.D_calc_mm || 0).toFixed(0);
+  const velMs  = Number(r.circular_velocity_ms || 0).toFixed(2);
+  const dpPam  = Number(r.circular_dp_pam || 0).toFixed(3);
+  const dpTot  = Number(r.circular_dp_total_pa || 0).toFixed(1);
+  const rA     = Number(r.rect_a_mm || 0).toFixed(0);
+  const rB     = Number(r.rect_b_mm || 0).toFixed(0);
+  const rDe    = Number(r.rect_De_mm || 0).toFixed(0);
+  const rVel   = Number(r.rect_velocity_ms || 0).toFixed(2);
+  const aspect = Number(r.rect_aspect || 0).toFixed(1);
+  const fr     = Number(r.friction_rate_pam || 1.0).toFixed(3);
+  const app    = String(r.application || inp.application || 'Supply Main');
+  const flowM3h= Number(r.flow_m3hr || 0).toFixed(1);
+  const flowLps= Number(r.max_flow_lps || 0).toFixed(2);
+  const lenM   = Number(r.duct_length_m || inp.duct_length_m || 10).toFixed(0);
+  const velOK  = Boolean(r.velocity_ok ?? true);
+  const velNote= String(r.velocity_note || '');
+
+  const isReturn = app.toLowerCase().includes('return');
+  const isBranch = app.toLowerCase().includes('branch');
+
+  const CC = '#1a2e4a', SC = '#5a6a7a', GY = '#607d8b', LGY = '#eceff1';
+  const DUCT_C  = '#37474f';
+  const AIR_C   = isReturn ? '#2e7d32' : '#1565c0';
+  const VEL_C   = velOK ? '#2e7d32' : '#c62828';
+
+  const SPLIT_X = 645;
+  const p = [];
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(T(W/2,31,`DUCT SIZING — EQUAL FRICTION METHOD  |  Ø${dCirc}mm or ${rA}×${rB}mm  |  v=${velMs} m/s  |  ASHRAE 2021 Ch.21 / SMACNA`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(T(80,57,`APPLICATION: ${esc(app.toUpperCase())}  |  Flow: ${flowM3h} m³/h (${flowLps} L/s)  |  Length: ${lenM} m`,{a:'start',sz:8,c:CC,w:'600'}));
+
+  // ── PLAN VIEW: DUCT LAYOUT ──
+  const MAIN_Y = 200, MAIN_X1 = 90, MAIN_X2 = 540, MAIN_HH = 22;
+  // AHU / fan box on left
+  p.push(`<rect x="${MAIN_X1-65}" y="${MAIN_Y-35}" width="65" height="70" rx="4" fill="${LGY}" stroke="${DUCT_C}" stroke-width="2"/>`);
+  p.push(T(MAIN_X1-32, MAIN_Y-16, 'AHU', {sz:8, c:CC, w:'700'}));
+  p.push(T(MAIN_X1-32, MAIN_Y-4, 'FAN', {sz:7, c:SC}));
+
+  // Main duct (plan view — top and bottom walls of duct)
+  p.push(HL(MAIN_X1, MAIN_Y-MAIN_HH, MAIN_X2, 2.5, DUCT_C));
+  p.push(HL(MAIN_X1, MAIN_Y+MAIN_HH, MAIN_X2, 2.5, DUCT_C));
+  // Fill
+  p.push(`<rect x="${MAIN_X1}" y="${MAIN_Y-MAIN_HH}" width="${MAIN_X2-MAIN_X1}" height="${MAIN_HH*2}" fill="${AIR_C}" opacity="0.1"/>`);
+
+  // Flow direction arrows inside main duct
+  [MAIN_X1+50, MAIN_X1+150, MAIN_X1+250, MAIN_X1+350].forEach(ax => {
+    p.push(`<polygon points="${ax},${MAIN_Y-7} ${ax+16},${MAIN_Y} ${ax},${MAIN_Y+7}" fill="${AIR_C}" opacity="0.6"/>`);
+  });
+
+  // Duct dimension leaders (width of duct)
+  p.push(VL(MAIN_X1+20, MAIN_Y+MAIN_HH+10, MAIN_Y+MAIN_HH+22, 1, SC));
+  p.push(VL(MAIN_X1+20+MAIN_HH*2, MAIN_Y+MAIN_HH+10, MAIN_Y+MAIN_HH+22, 1, SC));
+  p.push(HL(MAIN_X1+20, MAIN_Y+MAIN_HH+16, MAIN_X1+20+MAIN_HH*2, 1, SC));
+  p.push(T(MAIN_X1+20+MAIN_HH, MAIN_Y+MAIN_HH+28, `Width = ${rA} mm`, {sz:7, c:SC}));
+
+  // Branch ducts (takeoffs downward)
+  const branches = !isBranch ? [MAIN_X1+120, MAIN_X1+240, MAIN_X1+360] : [];
+  branches.forEach((bx, i) => {
+    const BY1 = MAIN_Y+MAIN_HH, BY2 = BY1+70;
+    // Duct walls (branch)
+    p.push(VL(bx-10, BY1, BY2, 2, DUCT_C));
+    p.push(VL(bx+10, BY1, BY2, 2, DUCT_C));
+    p.push(HL(bx-10, BY2, bx+10, 2, DUCT_C));
+    p.push(Arrow(bx, BY2-8, 'down', AIR_C, 8));
+    p.push(T(bx, BY2+12, `Diff. ${i+1}`, {sz:7, c:AIR_C}));
+  });
+
+  // ── CROSS-SECTION VIEWS ──
+  // Circular cross-section (right of plan)
+  const CSX = MAIN_X2+30, CSY = MAIN_Y;
+  const csR = Number(dCirc) * 0.12;  // scale down for display
+  const csRc = Math.max(18, Math.min(csR, 45));
+  p.push(T(CSX, CSY-csRc-16, 'CIRCULAR', {sz:7.5, c:CC, w:'700'}));
+  p.push(`<circle cx="${CSX}" cy="${CSY}" r="${csRc}" fill="${AIR_C}" opacity="0.15" stroke="${DUCT_C}" stroke-width="2.5"/>`);
+  p.push(`<circle cx="${CSX}" cy="${CSY}" r="${csRc+5}" fill="none" stroke="${DUCT_C}" stroke-width="5" opacity="0.4"/>`);
+  // Dimension arrows
+  p.push(HL(CSX-csRc-5, CSY, CSX+csRc+5, 1, SC));
+  p.push(T(CSX, CSY+csRc+14, `Ø${dCirc} mm`, {sz:8.5, c:CC, w:'700'}));
+  p.push(T(CSX, CSY+csRc+26, `v = ${velMs} m/s`, {sz:7.5, c:VEL_C, w:'700'}));
+  p.push(T(CSX, CSY+csRc+37, `${velOK ? '— OK' : '— CHECK'}`, {sz:7, c:VEL_C}));
+
+  // Rectangular cross-section (below circular)
+  const RCX = CSX, RCY = CSY + csRc + 75;
+  const rcH = Math.max(12, Math.min(Number(rB)*0.07, 35));
+  const rcW = Math.max(18, Math.min(Number(rA)*0.07, 55));
+  p.push(T(RCX, RCY-rcH-10, 'RECTANGULAR', {sz:7.5, c:CC, w:'700'}));
+  p.push(`<rect x="${RCX-rcW}" y="${RCY-rcH}" width="${rcW*2}" height="${rcH*2}" fill="${AIR_C}" opacity="0.15" stroke="${DUCT_C}" stroke-width="2.5"/>`);
+  p.push(`<rect x="${RCX-rcW-4}" y="${RCY-rcH-4}" width="${rcW*2+8}" height="${rcH*2+8}" fill="none" stroke="${DUCT_C}" stroke-width="4" opacity="0.4"/>`);
+  p.push(HL(RCX-rcW-8, RCY, RCX+rcW+8, 1, SC));
+  p.push(VL(RCX, RCY-rcH-8, RCY+rcH+8, 1, SC));
+  p.push(T(RCX, RCY+rcH+14, `${rA} × ${rB} mm`, {sz:8.5, c:CC, w:'700'}));
+  p.push(T(RCX, RCY+rcH+26, `AR = ${aspect}:1  |  De = ${rDe}mm`, {sz:7, c:SC}));
+  p.push(T(RCX, RCY+rcH+37, `v = ${rVel} m/s`, {sz:7.5, c:VEL_C, w:'700'}));
+
+  // HGL annotation on main duct
+  const hglScale = Math.min(60, dpTot * 0.3);
+  p.push(`<line x1="${MAIN_X1}" y1="${MAIN_Y-MAIN_HH-20}" x2="${MAIN_X2}" y2="${MAIN_Y-MAIN_HH-20+hglScale}" stroke="#e65100" stroke-width="1.8" stroke-dasharray="6 3"/>`);
+  p.push(T((MAIN_X1+MAIN_X2)/2, MAIN_Y-MAIN_HH-30, `ΔP = ${dpPam} Pa/m  (${fr} Pa/m design)  |  Total = ${dpTot} Pa`, {sz:7.5, c:'#e65100', w:'700'}));
+
+  // Velocity badge
+  const vBadgeX = MAIN_X1, vBadgeY = MAIN_Y+MAIN_HH+55;
+  p.push(`<rect x="${vBadgeX}" y="${vBadgeY}" width="200" height="24" rx="12" fill="${velOK?'#e8f5e9':'#ffebee'}" stroke="${VEL_C}" stroke-width="1.5"/>`);
+  p.push(T(vBadgeX+100, vBadgeY+14, `${velMs} m/s  ${velOK?'✓ Within limit':'✗ Exceeds limit'}`, {sz:8, c:VEL_C, w:'700'}));
+  if(velNote) p.push(T(vBadgeX+100, vBadgeY+34, esc(velNote), {sz:7, c:VEL_C}));
+
+  // ── DATA PANEL ──
+  const DX = SPLIT_X+10, DW = W-SPLIT_X-22, rowH = 17;
+  let dy = 52;
+  const rowFn = (lbl,val,vc,i) => {
+    const bg=i%2===0?'#f0f4fa':'#f8fafc';
+    const out=`<rect x="${DX}" y="${dy}" width="${DW}" height="${rowH}" fill="${bg}"/>`+
+      T(DX+4,dy+11,lbl,{a:'start',sz:7.5,c:SC})+T(DX+DW-4,dy+11,val,{a:'end',sz:7.5,c:vc,w:'bold'});
+    dy+=rowH; return out;
+  };
+  const secH = (lbl) => {
+    const out=`<rect x="${DX}" y="${dy}" width="${DW}" height="15" rx="2" fill="#dce3ef"/>`+T(DX+DW/2,dy+10,lbl,{sz:7.5,c:CC,w:'700'});
+    dy+=18; return out;
+  };
+  p.push(`<rect x="${DX}" y="${dy}" width="${DW}" height="20" rx="3" fill="${CC}"/>`);
+  p.push(T(DX+DW/2,dy+13,'DUCT SIZING RESULTS',{sz:8.5,c:'white',w:'700'}));
+  dy+=24;
+
+  p.push(secH('DESIGN BASIS'));
+  [['Application', esc(app), CC],
+   ['Flow Rate', `${flowM3h} m³/h  (${flowLps} L/s)`, AIR_C],
+   ['Duct Length', `${lenM} m`, SC],
+   ['Design Friction Rate', `${fr} Pa/m`, GY]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+
+  dy+=4; p.push(secH('CIRCULAR DUCT'));
+  [['Calculated Diameter', `${Number(r.D_calc_mm||0).toFixed(0)} mm`, SC],
+   ['Standard Diameter', `Ø${dCirc} mm`, CC],
+   ['Air Velocity', `${velMs} m/s  ${velOK?'— OK':'— CHECK'}`, VEL_C],
+   ['Pressure Drop', `${dpPam} Pa/m  |  ${dpTot} Pa total`, '#e65100']].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+
+  dy+=4; p.push(secH('RECTANGULAR DUCT'));
+  [['Dimensions', `${rA} × ${rB} mm`, CC],
+   ['Aspect Ratio', `${aspect}:1  (SMACNA max 4:1)', SC],
+   ['Equiv. Diameter De', `${rDe} mm`, SC],
+   ['Air Velocity', `${rVel} m/s`, VEL_C]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+
+  dy+=6;
+  p.push(T(DX+DW/2,dy,'ASHRAE 2021 Fundamentals Ch.21  |  SMACNA',{sz:7,c:GY}));
+  dy+=11;
+  p.push(T(DX+DW/2,dy,'Equal Friction Method (Darcy-Weisbach + Blasius)',{sz:7,c:GY}));
+
+  // ── LEGEND ──
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(T(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  let lx=25, ly=LY+26;
+  p.push(`<rect x="${lx}" y="${ly-6}" width="30" height="12" fill="${AIR_C}" opacity="0.2" stroke="${DUCT_C}" stroke-width="1.5"/>`);
+  p.push(T(lx+34,ly+4,'Duct (plan view — top/bottom walls shown)',{a:'start',sz:7.5,c:CC}));
+  ly+=15;
+  p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+30}" y2="${ly+8}" stroke="#e65100" stroke-width="1.8" stroke-dasharray="6 3"/>`);
+  p.push(T(lx+34,ly+4,'Pressure gradient (Pa/m)',{a:'start',sz:7.5,c:CC}));
+  const notes=[`1. Equal Friction Method: constant ΔP/m throughout system. Design rate ${fr} Pa/m.`,
+    `2. Velocity limits (SMACNA): Supply Main ≤ 8 m/s, Branch ≤ 5 m/s, Return ≤ 6 m/s.`,
+    `3. Rectangular AR ≤ 4:1 preferred. De = 1.30×(a×b)^0.625/(a+b)^0.25 per ASHRAE Ch.21.`];
+  notes.forEach((n,i)=>p.push(T(18,LY+72+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
 }
 
 // ─── HVAC System Schematic: SVG builder (ASHRAE 62.1 / PSME) ───────────────

@@ -55,6 +55,9 @@ BUILDER_FUNCTIONS = [
     "buildPipeSizingSVG",
     "buildCompressedAirSVG",
     "buildBoilerSystemSVG",
+    # Phase 10 HVAC remaining
+    "buildAHUSizingSVG",
+    "buildDuctSizingSVG",
 ]
 
 REQUIRED_WIDTH = 1050
