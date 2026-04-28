@@ -100,6 +100,20 @@
     .loading-card { display: flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 2rem; color: rgba(255,255,255,0.35); font-size: 0.8rem; }
     .spinner { width: 20px; height: 20px; border: 2px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── Command bar pills ── */
+    .cmd-pill {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.72rem;
+      font-weight: 700; cursor: pointer; border: 1px solid transparent;
+      transition: all 0.15s; min-height: 32px; white-space: nowrap;
+    }
+    .cmd-pill:active { transform: scale(0.96); }
+    .cmd-pill.green  { background: rgba(74,222,128,0.1);  border-color: rgba(74,222,128,0.25);  color: #4ade80; }
+    .cmd-pill.yellow { background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.3);   color: #F7A21B; }
+    .cmd-pill.red    { background: rgba(248,113,113,0.12);border-color: rgba(248,113,113,0.3);  color: #f87171; }
+    .cmd-pill.grey   { background: rgba(255,255,255,0.05);border-color: rgba(255,255,255,0.1);  color: rgba(255,255,255,0.4); }
+    .cmd-pill .pill-label { font-weight: 400; opacity: 0.7; font-size: 0.65rem; }
+
     @keyframes dotPulse {
       0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
       40% { transform: scale(1); opacity: 1; }
@@ -153,6 +167,12 @@
       <span id="refresh-icon">🔄</span>
       <span id="refresh-label">Refresh</span>
     </button>
+  </div>
+
+  <!-- Command Summary Bar -->
+  <div id="command-bar" class="hidden" style="margin-bottom:0.875rem;">
+    <div id="command-pills" style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;"></div>
+    <p id="command-alert" class="hidden" style="font-size:0.7rem;margin-top:0.5rem;padding:0.5rem 0.75rem;border-radius:0.625rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:rgba(255,255,255,0.6);line-height:1.4;"></p>
   </div>
 
   <!-- Status bar: last updated + loading indicator -->
@@ -321,6 +341,7 @@
         renderPhase(phase, data);
         updateStatusBar(phase);
       }
+      updateCommandBar(); // update summary bar whenever any phase lands
     } catch (err) {
       console.warn(`[analytics] ${phase} failed:`, err.message);
       if (_phase === phase) {
@@ -1106,6 +1127,104 @@
       <div class="card-title">${escHtml(title)} <span class="card-standard">${escHtml(std)}</span></div>
       <div class="empty">${escHtml(msg)}</div>
     </div>`;
+  }
+
+  // ── Command Summary Bar ───────────────────────────────────────────────────
+  // Reads from _cache and shows key KPIs as RAG pills.
+  // Updates whenever any phase finishes loading.
+
+  function ragColor(value, greenThresh, yellowThresh, higherIsBetter = true) {
+    if (value === null || value === undefined) return 'grey';
+    if (higherIsBetter) {
+      return value >= greenThresh ? 'green' : value >= yellowThresh ? 'yellow' : 'red';
+    } else {
+      return value <= greenThresh ? 'green' : value <= yellowThresh ? 'yellow' : 'red';
+    }
+  }
+
+  function makePill(label, value, unit, color, phaseTarget) {
+    const tip = phaseTarget ? `onclick="setPhase('${phaseTarget}')"` : '';
+    return `<button class="cmd-pill ${color}" ${tip} title="Jump to ${phaseTarget || ''} analytics">
+      <span class="pill-label">${escHtml(label)}</span>
+      <span>${escHtml(String(value))}${escHtml(unit)}</span>
+    </button>`;
+  }
+
+  function updateCommandBar() {
+    const bar   = document.getElementById('command-bar');
+    const pills = document.getElementById('command-pills');
+    const alert = document.getElementById('command-alert');
+    const desc  = _cache.descriptive;
+    const pred  = _cache.predictive;
+    const presc = _cache.prescriptive;
+
+    if (!desc && !pred && !presc) return; // nothing loaded yet
+
+    bar.classList.remove('hidden');
+    let pillsHtml = '';
+    let topAlert  = '';
+
+    // ── MTBF pill (descriptive) ──
+    if (desc?.mtbf?.mtbf_by_asset?.length) {
+      const withMTBF = desc.mtbf.mtbf_by_asset.filter(a => a.mtbf_days !== null);
+      if (withMTBF.length) {
+        const worst = withMTBF[0]; // sorted lowest first
+        const color = ragColor(worst.mtbf_days, 30, 14, true);
+        pillsHtml += makePill('MTBF', worst.mtbf_days + 'd', ` worst`, color, 'descriptive');
+      }
+    }
+
+    // ── MTTR pill (descriptive) ──
+    if (desc?.mttr?.mttr_by_asset?.length) {
+      const worst = desc.mttr.mttr_by_asset[0]; // sorted highest first
+      const color = ragColor(worst.mttr_hours, 8, 24, false);
+      pillsHtml += makePill('MTTR', worst.mttr_hours + 'h', ` avg`, color, 'descriptive');
+    }
+
+    // ── PM Compliance pill (descriptive) ──
+    if (desc?.pm_compliance?.overall_pct !== null && desc?.pm_compliance?.overall_pct !== undefined) {
+      const pct   = desc.pm_compliance.overall_pct;
+      const color = ragColor(pct, 85, 70, true);
+      pillsHtml += makePill('PM', pct + '%', ' compliance', color, 'descriptive');
+    }
+
+    // ── OEE pill (descriptive) ──
+    if (desc?.oee?.oee_by_asset?.length) {
+      const withOEE = desc.oee.oee_by_asset.filter(a => a.oee_pct !== null);
+      if (withOEE.length) {
+        const worst = withOEE[0];
+        const color = ragColor(worst.oee_pct, 85, 65, true);
+        pillsHtml += makePill('OEE', worst.oee_pct + '%', ' worst', color, 'descriptive');
+      }
+    }
+
+    // ── Anomaly alert pill (predictive) ──
+    if (pred?.anomaly_baseline?.anomaly_count > 0) {
+      const n = pred.anomaly_baseline.anomaly_count;
+      pillsHtml += makePill('⚠', n, ` anomal${n === 1 ? 'y' : 'ies'}`, 'red', 'predictive');
+      topAlert = pred.anomaly_baseline.anomalies?.[0]?.alert || '';
+    }
+
+    // ── HIGH risk failures pill (predictive) ──
+    if (pred?.next_failure_dates?.high_risk > 0) {
+      const n = pred.next_failure_dates.high_risk;
+      pillsHtml += makePill('🔴', n, ` failure${n === 1 ? '' : 's'} overdue`, 'red', 'predictive');
+    }
+
+    // ── Prescriptive summary pill ──
+    if (presc?.action_plan?.summary) {
+      pillsHtml += makePill('⚡', 'AI plan ready', '', 'green', 'prescriptive');
+      if (!topAlert) topAlert = presc.action_plan.summary;
+    }
+
+    pills.innerHTML = pillsHtml || '<span class="cmd-pill grey">Loading summary...</span>';
+
+    if (topAlert) {
+      alert.textContent = '⚡ ' + topAlert;
+      alert.classList.remove('hidden');
+    } else {
+      alert.classList.add('hidden');
+    }
   }
 
   // ── Kick off on page load ─────────────────────────────────────────────────
