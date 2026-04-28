@@ -180,6 +180,10 @@ TESTS = {
             {"fixture_type": "Kitchen Sink (commercial)", "quantity": 2},
         ],
     },
+    "Septic Tank Sizing": {
+        "occupancy_type": "Office / Commercial", "occupants": 50,
+        "desludge_years": 3, "liquid_depth": 1.5, "lw_ratio": 3, "compartments": 2,
+    },
     "Domestic Water System": {
         "occupancy_type": "Office", "num_persons": 50,
         "building_floors": 5, "pipe_material": "uPVC",
@@ -271,7 +275,7 @@ TESTS = {
 TYPESCRIPT_ONLY = [
     "Ventilation / ACH", "Load Estimation",
     "Earthing / Grounding System",
-    "Hot Water Demand", "Drainage Pipe Sizing", "Septic Tank Sizing",
+    "Hot Water Demand", "Drainage Pipe Sizing",
     "Water Softener Sizing", "Water Treatment System",
     "Wastewater Treatment (STP)", "Storm Drain / Stormwater",
     "Grease Trap Sizing", "Roof Drain Sizing", "Boiler System",
