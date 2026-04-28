@@ -171,6 +171,15 @@ TESTS = {
     },
 
     # ── Plumbing ──────────────────────────────────────────────────────────────
+    "Water Supply Pipe Sizing": {
+        "pipe_material": "PVC", "pipe_length": 40,
+        "supply_pressure": 350, "min_pressure": 70, "fittings_allowance": 20,
+        "fixtures": [
+            {"fixture_type": "Water Closet (Flush Tank)", "quantity": 6},
+            {"fixture_type": "Lavatory / Hand Sink",      "quantity": 8},
+            {"fixture_type": "Kitchen Sink (commercial)", "quantity": 2},
+        ],
+    },
     "Domestic Water System": {
         "occupancy_type": "Office", "num_persons": 50,
         "building_floors": 5, "pipe_material": "uPVC",
@@ -261,7 +270,7 @@ TESTS = {
 # tests them via the edge function.
 TYPESCRIPT_ONLY = [
     "Ventilation / ACH", "Load Estimation",
-    "Earthing / Grounding System", "Water Supply Pipe Sizing",
+    "Earthing / Grounding System",
     "Hot Water Demand", "Drainage Pipe Sizing", "Septic Tank Sizing",
     "Water Softener Sizing", "Water Treatment System",
     "Wastewater Treatment (STP)", "Storm Drain / Stormwater",

@@ -113,10 +113,12 @@ def _load_handlers() -> dict[str, Any]:
     handlers["Fire Alarm Battery"]         = fab_calc
 
     # Phase 6 — Plumbing / Water
-    from calcs.domestic_water  import calculate as domestic_water_calc
-    from calcs.sewer_drainage  import calculate as sewer_drainage_calc
-    handlers["Domestic Water System"] = domestic_water_calc
-    handlers["Sewer / Drainage"]      = sewer_drainage_calc
+    from calcs.domestic_water      import calculate as domestic_water_calc
+    from calcs.sewer_drainage      import calculate as sewer_drainage_calc
+    from calcs.water_supply_pipe   import calculate as water_supply_calc
+    handlers["Domestic Water System"]      = domestic_water_calc
+    handlers["Sewer / Drainage"]           = sewer_drainage_calc
+    handlers["Water Supply Pipe Sizing"]   = water_supply_calc
 
     # Phase 7 — Structural / Lighting / LPS
     from calcs.beam_column          import calculate as beam_column_calc
