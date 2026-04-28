@@ -73,10 +73,12 @@ def _load_handlers() -> dict[str, Any]:
     from calcs.refrigerant_pipe  import calculate as refrig_pipe_calc
     from calcs.fcu_selection     import calculate as fcu_calc
     from calcs.chiller           import calculate as chiller_calc
+    from calcs.expansion_tank    import calculate as expansion_tank_calc
     handlers["Refrigerant Pipe Sizing"]              = refrig_pipe_calc
     handlers["FCU Selection"]                        = fcu_calc
     handlers["Chiller System — Water Cooled"]        = chiller_calc
     handlers["Chiller System — Air Cooled"]          = chiller_calc
+    handlers["Expansion Tank Sizing"]                = expansion_tank_calc
 
     # Phase 4 — Electrical
     from calcs.wire_sizing         import calculate as wire_calc

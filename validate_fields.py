@@ -80,6 +80,11 @@ TESTS = {
         "chw_supply_C": 7, "chw_return_C": 12,
         "cop": 3.0, "safety_factor": 1.15, "n_units": 1,
     },
+    "Expansion Tank Sizing": {
+        "system_type": "Chilled Water", "volume_method": "Direct Entry",
+        "system_volume_L": 500, "fill_temp_c": 20, "max_temp_c": 7,
+        "static_head_m": 15, "max_pressure_kpa_g": 400,
+    },
 
     # ── Electrical ────────────────────────────────────────────────────────────
     "Wire Sizing": {
@@ -225,7 +230,7 @@ TESTS = {
 # These are handled by the edge function TypeScript — validate_integration.py
 # tests them via the edge function.
 TYPESCRIPT_ONLY = [
-    "Ventilation / ACH", "Expansion Tank Sizing", "Load Estimation",
+    "Ventilation / ACH", "Load Estimation",
     "Voltage Drop", "Power Factor Correction", "Cable Tray Sizing",
     "Earthing / Grounding System", "Water Supply Pipe Sizing",
     "Hot Water Demand", "Drainage Pipe Sizing", "Septic Tank Sizing",
