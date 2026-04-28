@@ -145,6 +145,29 @@
       40% { transform: scale(1); opacity: 1; }
     }
 
+    /* ── Role selector ── */
+    .role-bar { display:flex; gap:0.375rem; margin-bottom:1rem; }
+    .role-btn {
+      font-family:inherit; font-size:0.72rem; font-weight:600;
+      padding:0.35rem 0.875rem; border-radius:999px; cursor:pointer;
+      background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+      color:rgba(255,255,255,0.4); transition:all 0.15s; min-height:34px;
+    }
+    .role-btn.active { background:rgba(41,182,217,0.12); border-color:rgba(41,182,217,0.3); color:#29B6D9; }
+    .role-btn .role-icon { margin-right:0.25rem; }
+
+    /* ── Role Quick View card ── */
+    .role-card {
+      border-radius:1rem; padding:1rem 1.25rem; margin-bottom:1rem;
+      background:linear-gradient(145deg,rgba(41,182,217,0.08),rgba(31,46,69,0.7));
+      border:1px solid rgba(41,182,217,0.2);
+    }
+    .role-card-title { font-size:0.68rem; font-weight:700; color:#29B6D9; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.625rem; }
+    .role-row { display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.75rem; }
+    .role-row:last-child { border-bottom:none; }
+    .role-row .label { color:rgba(255,255,255,0.45); }
+    .role-row .val { font-weight:700; }
+
     /* ── Info banner ── */
     .info-banner { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.875rem 1rem; border-radius: 0.75rem; background: rgba(167,139,250,0.07); border: 1px solid rgba(167,139,250,0.15); margin-bottom: 1rem; font-size: 0.75rem; color: rgba(255,255,255,0.55); }
 
@@ -182,6 +205,16 @@
     </div>
     <span class="header-badge">Stage 3</span>
   </div>
+
+  <!-- Role selector -->
+  <div class="role-bar" id="role-bar">
+    <button class="role-btn" id="role-worker"     onclick="setRole('worker')"    ><span class="role-icon">🔧</span>Field Tech</button>
+    <button class="role-btn" id="role-supervisor" onclick="setRole('supervisor')"><span class="role-icon">👷</span>Supervisor</button>
+    <button class="role-btn" id="role-manager"    onclick="setRole('manager')"   ><span class="role-icon">📋</span>Manager</button>
+  </div>
+
+  <!-- Role Quick View (injected by JS) -->
+  <div id="role-quick-view"></div>
 
   <!-- Period selector + refresh -->
   <div class="period-row">
@@ -367,7 +400,8 @@
         renderPhase(phase, data);
         updateStatusBar(phase);
       }
-      updateCommandBar(); // update summary bar whenever any phase lands
+      updateCommandBar();    // update summary bar whenever any phase lands
+      renderRoleQuickView(); // update role view as data arrives
     } catch (err) {
       console.warn(`[analytics] ${phase} failed:`, err.message);
       if (_phase === phase) {
@@ -1321,6 +1355,131 @@
     </div>`;
   }
 
+  // ── Role-Based Views ─────────────────────────────────────────────────────
+  // Three views: worker (field tech), supervisor (team lead), manager (plant)
+  // Defaults from HIVE_ROLE. Manually switchable.
+
+  let _role = HIVE_ROLE === 'supervisor' ? 'supervisor' : 'worker';
+
+  function setRole(role) {
+    _role = role;
+    document.querySelectorAll('.role-btn').forEach(b => {
+      b.classList.toggle('active', b.id === `role-${role}`);
+    });
+    renderRoleQuickView();
+  }
+
+  function renderRoleQuickView() {
+    const el = document.getElementById('role-quick-view');
+    if (!el) return;
+
+    const desc  = _cache.descriptive;
+    const pred  = _cache.predictive;
+    const presc = _cache.prescriptive;
+
+    if (!desc && !pred && !presc) { el.innerHTML = ''; return; }
+
+    if (_role === 'worker') {
+      el.innerHTML = buildWorkerView(pred, presc);
+    } else if (_role === 'supervisor') {
+      el.innerHTML = buildSupervisorView(desc, pred, presc);
+    } else {
+      el.innerHTML = buildManagerView(desc, pred, presc);
+    }
+  }
+
+  // ── Worker Quick View: PM due + open jobs + parts needed ──────────────────
+  function buildWorkerView(pred, presc) {
+    const rows = [];
+
+    // PM tasks due this week
+    const cal = pred?.pm_due_calendar?.calendar || [];
+    const urgent = cal.filter(c => c.risk === 'OVERDUE' || c.risk === 'DUE SOON').slice(0, 4);
+    if (urgent.length) {
+      rows.push(`<div class="role-row"><span class="label">📅 PM tasks due</span><span class="val" style="color:#F7A21B;">${urgent.length} need attention</span></div>`);
+      urgent.forEach(t => rows.push(`<div class="role-row" style="padding-left:1rem;">
+        <span class="label">${escHtml(t.asset_name)} — ${escHtml(t.task.slice(0,40))}</span>
+        <span class="val" style="color:${t.risk==='OVERDUE'?'#f87171':'#F7A21B'};">${escHtml(t.status)}</span>
+      </div>`));
+    } else {
+      rows.push(`<div class="role-row"><span class="label">📅 PM tasks</span><span class="val" style="color:#4ade80;">All on schedule ✓</span></div>`);
+    }
+
+    // Parts needed
+    const reorder = presc?.parts_reorder?.reorder?.filter(r => r.urgency === 'CRITICAL').slice(0, 3) || [];
+    if (reorder.length) {
+      rows.push(`<div class="role-row"><span class="label">📦 Critical parts</span><span class="val" style="color:#f87171;">${reorder.length} out of stock</span></div>`);
+      reorder.forEach(r => rows.push(`<div class="role-row" style="padding-left:1rem;">
+        <span class="label">${escHtml(r.part_name)}</span>
+        <span class="val" style="color:#f87171;">Out — order ${r.suggested_order}</span>
+      </div>`));
+    }
+
+    // Next predicted failure
+    const nextFail = pred?.next_failure_dates?.predictions?.filter(p => p.risk === 'HIGH')[0];
+    if (nextFail) {
+      rows.push(`<div class="role-row"><span class="label">⚠ Next failure risk</span><span class="val" style="color:#f87171;">${escHtml(nextFail.machine)} by ${escHtml(nextFail.predicted_next)}</span></div>`);
+    }
+
+    if (!rows.length) return '';
+    return `<div class="role-card"><div class="role-card-title">🔧 Field Tech — My Focus Today</div>${rows.join('')}</div>`;
+  }
+
+  // ── Supervisor Quick View: team KPIs + overdue + training ─────────────────
+  function buildSupervisorView(desc, pred, presc) {
+    const rows = [];
+
+    // MTBF worst
+    const mtbf = desc?.mtbf?.mtbf_by_asset?.filter(a => a.mtbf_days !== null)[0];
+    if (mtbf) rows.push(`<div class="role-row"><span class="label">⏱ Worst MTBF</span><span class="val" style="color:${mtbf.mtbf_days<14?'#f87171':mtbf.mtbf_days<30?'#F7A21B':'#4ade80'};">${mtbf.machine} · ${mtbf.mtbf_days}d</span></div>`);
+
+    // MTTR worst
+    const mttr = desc?.mttr?.mttr_by_asset?.[0];
+    if (mttr) rows.push(`<div class="role-row"><span class="label">🔧 Slowest repair</span><span class="val" style="color:${mttr.mttr_hours>24?'#f87171':mttr.mttr_hours>8?'#F7A21B':'#4ade80'};">${mttr.machine} · ${mttr.mttr_hours}h</span></div>`);
+
+    // PM compliance
+    const pm = desc?.pm_compliance?.overall_pct;
+    if (pm !== null && pm !== undefined) rows.push(`<div class="role-row"><span class="label">📋 PM compliance</span><span class="val" style="color:${pm<70?'#f87171':pm<85?'#F7A21B':'#4ade80'};">${pm}%</span></div>`);
+
+    // Overdue PMs
+    const overdue = pred?.pm_due_calendar?.overdue_count;
+    if (overdue > 0) rows.push(`<div class="role-row"><span class="label">🔴 Overdue PMs</span><span class="val" style="color:#f87171;">${overdue} task(s) overdue</span></div>`);
+
+    // Training gaps
+    const gaps = presc?.training_gaps?.gaps?.[0];
+    if (gaps) rows.push(`<div class="role-row"><span class="label">📚 Training gap</span><span class="val" style="color:#F7A21B;">${escHtml(gaps.discipline)} — avg MTTR ${gaps.avg_mttr_h}h</span></div>`);
+
+    if (!rows.length) return '';
+    return `<div class="role-card"><div class="role-card-title">👷 Supervisor — Team Status</div>${rows.join('')}</div>`;
+  }
+
+  // ── Manager Quick View: OEE + trend + AI action ───────────────────────────
+  function buildManagerView(desc, pred, presc) {
+    const rows = [];
+
+    // OEE worst
+    const oee = desc?.oee?.oee_by_asset?.filter(a => a.oee_pct !== null)[0];
+    if (oee) rows.push(`<div class="role-row"><span class="label">📊 OEE (lowest)</span><span class="val" style="color:${oee.oee_pct<65?'#f87171':oee.oee_pct<85?'#F7A21B':'#4ade80'};">${oee.machine} · ${oee.oee_pct}%</span></div>`);
+
+    // Failure trend
+    const trend = pred?.failure_trend;
+    if (trend?.direction) {
+      const tColor = trend.direction === 'INCREASING' ? '#f87171' : trend.direction === 'DECREASING' ? '#4ade80' : '#a78bfa';
+      rows.push(`<div class="role-row"><span class="label">📈 Failure trend</span><span class="val" style="color:${tColor};">${trend.direction} · ${trend.slope_per_week > 0 ? '+' : ''}${trend.slope_per_week}/week</span></div>`);
+    }
+
+    // Anomalies
+    const anomalies = pred?.anomaly_baseline?.anomaly_count;
+    if (anomalies > 0) rows.push(`<div class="role-row"><span class="label">⚠ Sensor anomalies</span><span class="val" style="color:#f87171;">${anomalies} reading(s) outside control limits</span></div>`);
+
+    // AI action plan summary
+    const action = presc?.action_plan?.summary;
+    if (action) rows.push(`<div class="role-row"><span class="label">⚡ AI recommendation</span><span class="val" style="color:#a78bfa;max-width:60%;text-align:right;font-size:0.68rem;font-weight:600;">${escHtml(action.slice(0,80))}...</span></div>`);
+
+    if (!rows.length) return '';
+    return `<div class="role-card"><div class="role-card-title">📋 Manager — Plant Overview</div>${rows.join('')}</div>`;
+  }
+
   // ── Command Summary Bar ───────────────────────────────────────────────────
   // Reads from _cache and shows key KPIs as RAG pills.
   // Updates whenever any phase finishes loading.
@@ -1422,6 +1581,8 @@
   // ── Kick off on page load ─────────────────────────────────────────────────
   // Runs automatically — no button click needed
   window.addEventListener('DOMContentLoaded', () => {
+    // Set default role based on HIVE_ROLE
+    setRole(_role);
     autoLoad();
 
     // Refresh status bar every minute so "Updated X min ago" stays current
