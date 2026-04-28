@@ -10894,6 +10894,7 @@ function showReport() {
     'Harmonic Distortion',
     'Transformer Sizing',
     'Clean Agent Suppression',
+    'Fire Pump Sizing',
   ];
   const drawingSection = document.getElementById('drawing-section');
   if (DRAWING_SUPPORTED.includes(_calcType)) {
@@ -10921,6 +10922,8 @@ function showReport() {
       descEl.textContent = 'Generates a power transformer single line diagram showing HV/LV connections, VCB, surge arresters, CT/VT, MCCB, bus bar and earthing per IEC 60617 / PEC 2017';
     } else if (_calcType === 'Clean Agent Suppression' && descEl) {
       descEl.textContent = 'Generates a clean agent suppression system schematic showing cylinders, manifold, nozzles, FSCU, cross-zone detection, abort station and safety status per NFPA 2001:2022 / ISO 14520:2015';
+    } else if (_calcType === 'Fire Pump Sizing' && descEl) {
+      descEl.textContent = 'Generates a fire pump P&ID schematic showing pump, OS&Y valves, check valve, relief valve, jockey pump, test header, flow transmitter and duty-cycle data per NFPA 20:2022 / ISA-5.1:2009';
     }
     resetDrawingSection();
   } else {
@@ -18846,6 +18849,9 @@ async function _runDrawing() {
     } else if (ct === 'Clean Agent Suppression') {
       const svg = buildCleanAgentSVG(_lastInputs, _lastResults);
       _renderGenericSLD(svg, buildCleanAgentTitleBlockHtml(_lastInputs, _lastResults));
+    } else if (ct === 'Fire Pump Sizing') {
+      const svg = buildFirePumpPIDSvg(_lastInputs, _lastResults);
+      _renderGenericSLD(svg, null);
     }
   }, 100);
 }
@@ -19205,6 +19211,316 @@ function buildLPSZoneSvg(inputs, results) {
     `6. Main EPB at service entry level bonds all metallic services (IEC 62305-3 §6.2). Sep. distance s \u2265 ${(ki * bldgH).toFixed(1)} m (§6.3).`,
   ].forEach((note, i) => {
     p.push(T(NX2, STRIP_Y + 27 + i * 14, note, { a: 'start', sz: 7.5, c: SC }));
+  });
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` +
+    p.join('\n  ') + `\n</svg>`;
+}
+
+// ─── Fire Pump P&ID builder — NFPA 20:2022 / ISA-5.1:2009 ───────────────────
+// Drawing rules (drawing-standards skill):
+//   A3 landscape W=1050 H=580, STRIP_Y=467
+//   ISA-5.1 P&ID conventions: tag format, instrument bubbles, line type legend
+//   All NFPA 20 mandatory elements: pump rating, OS&Y valves, check valve,
+//   relief valve, jockey pump, test connection, strainer, controller
+function buildFirePumpPIDSvg(inputs, results) {
+  const r = results || {};
+
+  // ── Values ──────────────────────────────────────────────────────────────────
+  const reqFlow     = Number(r.required_flow || inputs?.required_flow || 1900);  // L/min
+  const reqPress    = Number(r.required_pressure || inputs?.required_pressure || 6.9);  // bar
+  const motorHP     = Number(r.recommended_hp || 0).toFixed(0);
+  const motorKW     = (Number(motorHP) * 0.746).toFixed(1);
+  const pipeD       = Number(r.pipe_dia_mm || 0);
+  const pipeMat     = String(r.pipe_material || 'Black Steel Sch40');
+  const velocity    = Number(r.velocity || 0).toFixed(2);
+  const hoseQ       = Number(r.hose_demand_lpm || 946).toFixed(0);
+  const totalQ      = (reqFlow + Number(hoseQ)).toFixed(0);
+  const driveType   = String(inputs?.drive_type || 'Electric Motor');
+  const redundancy  = String(inputs?.redundancy || 'Duplex');
+  const proj        = String(inputs?.project_name || 'Fire Pump System');
+  const isDiesel    = driveType.toLowerCase().includes('diesel');
+
+  // Jockey pump: ~1% of main pump flow
+  const jockeyQ     = Math.ceil(reqFlow * 0.01);
+  const jockeyHP    = Math.max(0.5, (reqFlow * reqPress / (60 * 0.6 * 1000)).toFixed(1));
+
+  const W = 1050, H = 580, STRIP_Y = 467;
+  const CP = '#1a2e4a';   // process / navy
+  const CI = '#c0392b';   // fire red (instrument signal + fire system)
+  const CG = '#2e7d32';   // motor / power green
+  const CF = '#e65100';   // flow highlight amber
+  const CW = '#1565c0';   // water supply blue
+
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const T = (x,y,t,{a='middle',sz=9,c=CP,w='normal'}={}) =>
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+  const VL = (x,y1,y2,sw=2.5,clr=CP) => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${clr}" stroke-width="${sw}"/>`;
+  const HL = (x1,y,x2,sw=2.5,clr=CP) => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${clr}" stroke-width="${sw}"/>`;
+  const DL = (x1,y1,x2,y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${CI}" stroke-width="1" stroke-dasharray="4 3"/>`;
+
+  // ── ISA-5.1 symbols ──────────────────────────────────────────────────────
+  // OS&Y Gate valve (outside screw and yoke — NFPA 20 required on suction/discharge)
+  const osyV = (x,y,open=true,clr=CP) =>
+    `<polygon points="${x-12},${y-12} ${x},${y} ${x-12},${y+12}" fill="${open?'white':'none'}" stroke="${clr}" stroke-width="1.8"/>` +
+    `<polygon points="${x+12},${y-12} ${x},${y} ${x+12},${y+12}" fill="${open?'white':'none'}" stroke="${clr}" stroke-width="1.8"/>` +
+    `<line x1="${x}" y1="${y-12}" x2="${x}" y2="${y-24}" stroke="${clr}" stroke-width="1.5"/>` +
+    `<line x1="${x-6}" y1="${y-24}" x2="${x+6}" y2="${y-24}" stroke="${clr}" stroke-width="1.5"/>` +
+    T(x, y+18, open?'N.O.':'N.C.', {sz:6.5, c:clr});
+
+  // Check valve (swing type — NFPA 20 required on discharge)
+  const checkV = (x,y,clr=CP) =>
+    `<polygon points="${x-12},${y-12} ${x-12},${y+12} ${x+11},${y}" fill="${clr}" stroke="${clr}" stroke-width="1"/>` +
+    `<line x1="${x+11}" y1="${y-12}" x2="${x+11}" y2="${y+12}" stroke="${clr}" stroke-width="2"/>`;
+
+  // Y-Strainer on suction (NFPA 20 required)
+  const strainer = (x,y) =>
+    `<polygon points="${x},${y-14} ${x+14},${y} ${x},${y+14} ${x-14},${y}" fill="white" stroke="${CP}" stroke-width="1.8"/>` +
+    T(x, y+4, 'Y', {sz:9, c:CP, w:'700'});
+
+  // ISA-5.1 instrument bubble (open = field-mounted, solid = panel-mounted)
+  const bubble = (x,y,tag,loop,shared=false,clr=CI) =>
+    `<circle cx="${x}" cy="${y}" r="16" fill="white" stroke="${clr}" stroke-width="1.5"/>` +
+    (shared ? `<line x1="${x-14}" y1="${y}" x2="${x+14}" y2="${y}" stroke="${clr}" stroke-width="1"/>` : '') +
+    T(x, y-4, tag,  {sz:7.5, c:clr, w:'700'}) +
+    T(x, y+8, loop, {sz:7, c:'#444'});
+
+  // Centrifugal pump (ISA-5.1: circle + impeller lines)
+  const pumpSym = (cx,cy,r=30) =>
+    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#f0f8ff" stroke="${CP}" stroke-width="2.5"/>` +
+    `<polyline points="${cx-r*0.65},${cy-r*0.6} ${cx+r*0.5},${cy} ${cx-r*0.65},${cy+r*0.6}" fill="none" stroke="${CP}" stroke-width="2" stroke-linejoin="round"/>` +
+    `<circle cx="${cx}" cy="${cy}" r="3" fill="${CP}"/>`;
+
+  // Motor / Engine box
+  const driverSym = (cx,ty,w=44,h=34,label='M') =>
+    `<rect x="${cx-w/2}" y="${ty}" width="${w}" height="${h}" fill="${isDiesel?'#fff8e1':'#e8f5e9'}" stroke="${CG}" stroke-width="1.8" rx="3"/>` +
+    T(cx, ty+h/2+4, label, {sz:14, c:CG, w:'700'});
+
+  // Relief valve (spring-loaded: diamond with spring symbol per ISA-5.1)
+  const reliefV = (x,y) =>
+    `<polygon points="${x},${y-10} ${x+10},${y} ${x},${y+10} ${x-10},${y}" fill="white" stroke="${CP}" stroke-width="1.8"/>` +
+    `<line x1="${x}" y1="${y-10}" x2="${x}" y2="${y-18}" stroke="${CP}" stroke-width="1.5"/>` +
+    `<line x1="${x-5}" y1="${y-20}" x2="${x+5}" y2="${y-20}" stroke="${CP}" stroke-width="2"/>` +
+    `<line x1="${x-3}" y1="${y-22}" x2="${x+3}" y2="${y-22}" stroke="${CP}" stroke-width="1.5"/>`;
+
+  // Tag badge
+  const tagBadge = (x,y,tag,bg=CP) =>
+    `<rect x="${x-32}" y="${y-10}" width="64" height="20" fill="${bg}" rx="2"/>` +
+    T(x, y+5, tag, {sz:7.5, c:'#fff', w:'700'});
+
+  // ── Layout ────────────────────────────────────────────────────────────────
+  const PIPE_Y  = 285;
+  const GND_Y   = 430;
+  const JK_Y    = 165;   // jockey pump level
+
+  // Key X positions (left to right flow)
+  const SRC_X   = 30;    // water source
+  const STR_X   = 130;   // strainer
+  const SV1_X   = 195;   // suction OS&Y valve
+  const SPG_X   = 248;   // suction pressure gauge
+  const PMP_X   = 340;   // main pump centre
+  const RV_X    = 415;   // relief valve branch
+  const CV_X    = 470;   // check valve
+  const DV_X    = 540;   // discharge OS&Y valve
+  const FIT_X   = 615;   // flow transmitter
+  const DPG_X   = 680;   // discharge pressure gauge
+  const TH_X    = 760;   // test header branch
+  const SYS_X   = 950;   // system connection
+
+  let p = [];
+
+  // ── Background + mandatory inner margin (drawing-standards skill) ─────────
+  p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CP}" stroke-width="0.75"/>`);
+
+  // ── Title ─────────────────────────────────────────────────────────────────
+  p.push(T(W/2, 27, 'FIRE PUMP SYSTEM — P&ID SCHEMATIC', {sz:12, c:CP, w:'700'}));
+  p.push(T(W/2, 41, `NFPA 20:2022 / ISA-5.1:2009  |  ${reqFlow} L/min @ ${reqPress} bar  |  ${motorHP} HP ${driveType}  |  ${redundancy}`, {sz:9, c:'#5a6a7a'}));
+
+  // ── WATER SUPPLY SOURCE ───────────────────────────────────────────────────
+  // City main / suction tank
+  p.push(`<rect x="${SRC_X}" y="${PIPE_Y-60}" width="70" height="90" fill="#e3f2fd" stroke="${CW}" stroke-width="2" rx="3"/>`);
+  p.push(`<rect x="${SRC_X+2}" y="${PIPE_Y-45}" width="66" height="70" fill="#b3d1f0" opacity="0.55"/>`);
+  p.push(HL(SRC_X, PIPE_Y-60, SRC_X+70, 1.5, CW));  // water surface
+  p.push(T(SRC_X+35, PIPE_Y-30, 'T-101', {sz:8, c:CW, w:'700'}));
+  p.push(T(SRC_X+35, PIPE_Y-18, 'SUCTION', {sz:7.5, c:'#555'}));
+  p.push(T(SRC_X+35, PIPE_Y-7, 'TANK', {sz:7.5, c:'#555'}));
+  p.push(T(SRC_X+35, PIPE_Y+4, 'N1 (OUT)', {sz:7, c:'#777'}));
+
+  // ── MAIN SUCTION LINE ─────────────────────────────────────────────────────
+  p.push(HL(SRC_X+70, PIPE_Y, STR_X-14, 3, CW));   // supply → strainer
+  p.push(HL(STR_X+14, PIPE_Y, SV1_X-12, 3, CP));   // strainer → suction valve
+  p.push(HL(SV1_X+12, PIPE_Y, PMP_X-30, 3, CP));   // valve → pump
+
+  // ── STRAINER ST-201 ───────────────────────────────────────────────────────
+  p.push(strainer(STR_X, PIPE_Y));
+  p.push(tagBadge(STR_X, PIPE_Y+28, 'ST-201'));
+  p.push(T(STR_X, PIPE_Y+40, 'Y-Strainer', {sz:7.5, c:CP}));
+
+  // ── SUCTION OS&Y GATE VALVE HV-201 ───────────────────────────────────────
+  p.push(osyV(SV1_X, PIPE_Y, true, CP));
+  p.push(tagBadge(SV1_X, PIPE_Y+32, 'HV-201', CP));
+  p.push(T(SV1_X, PIPE_Y+44, 'OS&Y N.O.', {sz:7, c:'#666'}));
+
+  // ── SUCTION PRESSURE GAUGE PI-201 (ISA-5.1 field-mounted) ───────────────
+  p.push(`<circle cx="${SPG_X}" cy="${PIPE_Y}" r="4" fill="${CI}"/>`);
+  p.push(DL(SPG_X, PIPE_Y-4, SPG_X, PIPE_Y-40));
+  p.push(bubble(SPG_X, PIPE_Y-58, 'PI', '201'));
+  p.push(T(SPG_X, PIPE_Y-80, 'SUCTION P', {sz:6.5, c:'#666'}));
+
+  // ── MAIN FIRE PUMP P-201 ──────────────────────────────────────────────────
+  p.push(pumpSym(PMP_X, PIPE_Y));
+  p.push(tagBadge(PMP_X, PIPE_Y+35, 'P-201', '#c0392b'));
+  p.push(T(PMP_X, PIPE_Y+48, `${reqFlow} L/min @ ${reqPress} bar`, {sz:7, c:'#555'}));
+  p.push(T(PMP_X, PIPE_Y+59, `NFPA 20  |  ${isDiesel?'DESO':'Electric Drive'}`, {sz:7, c:'#777'}));
+
+  // Motor/Engine above pump
+  const MTR_TY = PIPE_Y - 30 - 34;
+  p.push(driverSym(PMP_X, MTR_TY, 48, 34, isDiesel ? 'E' : 'M'));
+  p.push(`<line x1="${PMP_X}" y1="${MTR_TY+34}" x2="${PMP_X}" y2="${PIPE_Y-30}" stroke="${CG}" stroke-width="1.5" stroke-dasharray="5 3"/>`);
+  p.push(tagBadge(PMP_X, MTR_TY-12, isDiesel ? 'E-201' : 'M-201', CG));
+  p.push(T(PMP_X+30, MTR_TY+17, `${motorHP} HP`, {a:'start', sz:7.5, c:CG, w:'700'}));
+  p.push(T(PMP_X+30, MTR_TY+29, `${motorKW} kW`, {a:'start', sz:7, c:CG}));
+
+  // ── PUMP BASEPLATE ────────────────────────────────────────────────────────
+  p.push(`<rect x="${PMP_X-44}" y="${GND_Y-10}" width="88" height="10" fill="#bbb" stroke="#999" stroke-width="1"/>`);
+
+  // ── DISCHARGE LINE ────────────────────────────────────────────────────────
+  p.push(HL(PMP_X+30, PIPE_Y, RV_X-10, 3, CP));    // pump → relief valve branch
+  p.push(HL(RV_X+10, PIPE_Y, CV_X-12, 3, CP));      // RV → check valve
+  p.push(HL(CV_X+12, PIPE_Y, DV_X-12, 3, CP));      // check → discharge valve
+  p.push(HL(DV_X+12, PIPE_Y, FIT_X-16, 3, CP));     // valve → flow transmitter
+  p.push(HL(FIT_X+16, PIPE_Y, TH_X, 3, CP));        // FIT → test header
+  p.push(HL(TH_X, PIPE_Y, SYS_X, 3, CP));           // test header → system
+  // Discharge pipe label
+  p.push(T((DV_X+FIT_X)/2, PIPE_Y-14, `DISCHARGE  DN${pipeD||150} ${pipeMat}  v=${velocity} m/s`, {sz:7.5, c:'#666'}));
+
+  // ── RELIEF VALVE RV-201 (NFPA 20 mandatory — protects pump from deadhead) ─
+  p.push(`<circle cx="${RV_X}" cy="${PIPE_Y}" r="4" fill="${CF}"/>`);
+  p.push(VL(RV_X, PIPE_Y+4, PIPE_Y+40, 2, CP));
+  p.push(reliefV(RV_X, PIPE_Y+60));
+  p.push(VL(RV_X, PIPE_Y+70, PIPE_Y+110, 1.5, CP));
+  p.push(HL(RV_X, PIPE_Y+110, SRC_X+35, 1.5, CP));  // relief → back to suction tank
+  p.push(tagBadge(RV_X, PIPE_Y+52, 'RV-201', CF));
+  p.push(T(RV_X+16, PIPE_Y+62, 'Relief Valve', {a:'start', sz:7.5, c:CP, w:'700'}));
+  p.push(T(RV_X+16, PIPE_Y+73, 'NFPA 20 §4.17', {a:'start', sz:7, c:'#666'}));
+
+  // ── CHECK VALVE CK-201 (NFPA 20 §4.13) ──────────────────────────────────
+  p.push(checkV(CV_X, PIPE_Y));
+  p.push(tagBadge(CV_X, PIPE_Y+24, 'CK-201'));
+  p.push(T(CV_X, PIPE_Y+36, 'Swing Check', {sz:7, c:'#666'}));
+
+  // ── DISCHARGE OS&Y GATE VALVE HV-202 ─────────────────────────────────────
+  p.push(osyV(DV_X, PIPE_Y, true, CP));
+  p.push(tagBadge(DV_X, PIPE_Y+32, 'HV-202', CP));
+  p.push(T(DV_X, PIPE_Y+44, 'OS&Y N.O.', {sz:7, c:'#666'}));
+
+  // ── FLOW TRANSMITTER FIT-201 (ISA-5.1 remote shared) ────────────────────
+  p.push(`<circle cx="${FIT_X}" cy="${PIPE_Y}" r="${16}" fill="white" stroke="${CI}" stroke-width="2"/>`);
+  p.push(`<line x1="${FIT_X-14}" y1="${PIPE_Y}" x2="${FIT_X+14}" y2="${PIPE_Y}" stroke="${CI}" stroke-width="1"/>`);
+  p.push(T(FIT_X, PIPE_Y-5, 'FIT', {sz:7.5, c:CI, w:'700'}));
+  p.push(T(FIT_X, PIPE_Y+7, '201',  {sz:7,   c:'#444'}));
+  p.push(T(FIT_X, PIPE_Y-28, `${reqFlow} L/min`, {sz:7.5, c:CF, w:'600'}));
+
+  // ── DISCHARGE PRESSURE TRANSMITTER PIT-202 ───────────────────────────────
+  p.push(`<circle cx="${DPG_X}" cy="${PIPE_Y}" r="4" fill="${CI}"/>`);
+  p.push(DL(DPG_X, PIPE_Y+4, DPG_X, PIPE_Y+48));
+  p.push(bubble(DPG_X, PIPE_Y+66, 'PIT', '202', true));
+  p.push(T(DPG_X, PIPE_Y+90, 'DISCHARGE P', {sz:6.5, c:'#666'}));
+  p.push(T(DPG_X, PIPE_Y+100, `${reqPress} bar`, {sz:7.5, c:CI, w:'600'}));
+
+  // ── TEST HEADER / FLOW TEST CONNECTION (NFPA 20 §4.20) ───────────────────
+  p.push(`<circle cx="${TH_X}" cy="${PIPE_Y}" r="4" fill="${CP}"/>`);
+  p.push(VL(TH_X, PIPE_Y-4, PIPE_Y-80, 2, CP));
+  // 3 hose connections on test header
+  [TH_X-22, TH_X, TH_X+22].forEach((tx, i) => {
+    p.push(HL(TH_X, PIPE_Y-80, tx, 2, CP));
+    p.push(`<circle cx="${tx}" cy="${PIPE_Y-80}" r="6" fill="white" stroke="${CP}" stroke-width="1.5"/>`);
+    p.push(T(tx, PIPE_Y-80+4, '2½"', {sz:5.5, c:CP}));
+  });
+  p.push(T(TH_X, PIPE_Y-100, 'TEST HEADER', {sz:7.5, c:CP, w:'700'}));
+  p.push(T(TH_X, PIPE_Y-110, 'NFPA 20 §4.20', {sz:7, c:'#666'}));
+  p.push(tagBadge(TH_X, PIPE_Y-70, 'TH-201'));
+
+  // ── SYSTEM CONNECTION (to fire sprinkler / standpipe) ────────────────────
+  p.push(`<rect x="${SYS_X+5}" y="${PIPE_Y-40}" width="70" height="80" fill="#fce4ec" stroke="${CI}" stroke-width="1.8" rx="3"/>`);
+  p.push(T(SYS_X+40, PIPE_Y-15, 'TO SYSTEM', {sz:8, c:CI, w:'700'}));
+  p.push(T(SYS_X+40, PIPE_Y, '(Sprinkler /  ', {sz:7, c:'#555'}));
+  p.push(T(SYS_X+40, PIPE_Y+12, 'Standpipe)', {sz:7, c:'#555'}));
+
+  // ── JOCKEY PUMP (pressure maintenance — NFPA 20 §4.25) ───────────────────
+  const JK_X = 840;
+  p.push(pumpSym(JK_X, JK_Y, 18));
+  // Jockey suction from discharge line
+  p.push(VL(JK_X, PIPE_Y-4, JK_Y+18, 1.5, CP));
+  // Jockey discharge back to main discharge
+  p.push(VL(JK_X+20, JK_Y, PIPE_Y-4, 1.5, CP));
+  p.push(HL(JK_X, PIPE_Y-4, JK_X+20, 1.5, CP));
+  p.push(tagBadge(JK_X, JK_Y-28, 'JP-201', '#7b1fa2'));
+  p.push(T(JK_X, JK_Y-42, 'JOCKEY PUMP', {sz:7.5, c:'#7b1fa2', w:'700'}));
+  p.push(T(JK_X, JK_Y-53, `${jockeyQ} L/min | ${jockeyHP} HP`, {sz:7, c:SC}));
+  p.push(T(JK_X, JK_Y-62, 'NFPA 20 §4.25', {sz:7, c:'#666'}));
+
+  // ── PUMP CONTROLLER (NFPA 20 §10) ────────────────────────────────────────
+  const CTRL_X = 120, CTRL_Y = PIPE_Y + 130;
+  p.push(`<rect x="${CTRL_X}" y="${CTRL_Y}" width="120" height="60" fill="${isDiesel?'#fff8e1':'#e8f5e9'}" stroke="${CG}" stroke-width="1.8" rx="3"/>`);
+  p.push(`<rect x="${CTRL_X}" y="${CTRL_Y}" width="120" height="18" fill="${CG}" rx="3"/>`);
+  p.push(T(CTRL_X+60, CTRL_Y+12, isDiesel ? 'ENGINE CONTROLLER' : 'PUMP CONTROLLER', {sz:7.5, c:'#fff', w:'700'}));
+  p.push(T(CTRL_X+60, CTRL_Y+28, isDiesel ? 'Diesel — NFPA 20 §12' : 'Electric — NFPA 20 §10', {sz:7, c:CG}));
+  p.push(T(CTRL_X+60, CTRL_Y+40, `${redundancy} configuration`, {sz:7, c:'#666'}));
+  p.push(T(CTRL_X+60, CTRL_Y+52, 'UL listed / FM approved', {sz:7, c:'#888'}));
+  // Controller wiring to pump motor (dashed green)
+  p.push(`<line x1="${CTRL_X+120}" y1="${CTRL_Y+30}" x2="${PMP_X-30}" y2="${MTR_TY+17}" stroke="${CG}" stroke-width="1" stroke-dasharray="4 2"/>`);
+
+  // ── NFPA 20 DUTY CYCLE (mandatory per standard) ──────────────────────────
+  const DC_X = 430, DC_Y = PIPE_Y + 120;
+  p.push(`<rect x="${DC_X}" y="${DC_Y}" width="200" height="60" fill="#fafafa" stroke="${CI}" stroke-width="1.2" rx="3"/>`);
+  p.push(`<rect x="${DC_X}" y="${DC_Y}" width="200" height="16" fill="${CI}" rx="3"/>`);
+  p.push(T(DC_X+100, DC_Y+11, 'NFPA 20 DUTY CYCLE', {sz:7.5, c:'#fff', w:'700'}));
+  const dc = [
+    [`Rated (100%): ${reqFlow} L/min @ ${reqPress} bar`],
+    [`Peak (150% Q): ${Math.round(reqFlow*1.5)} L/min @ ${(reqPress*0.65).toFixed(1)} bar`],
+    [`Churn (0% Q): 0 L/min @ ${(reqPress*1.21).toFixed(1)} bar max`],
+  ];
+  dc.forEach(([line], i) => p.push(T(DC_X+6, DC_Y+26+i*11, line, {a:'start', sz:7, c:CP})));
+
+  // ── LEGEND + NOTES STRIP (STRIP_Y = H-113 = 467) ─────────────────────────
+  p.push(HL(11, STRIP_Y, W-11, 0.75));
+  const LX2 = 480;
+  p.push(VL(LX2, STRIP_Y, H-11, 0.75));
+
+  p.push(T(18, STRIP_Y+13, 'LEGEND OF SYMBOLS', {a:'start', sz:7, c:CP, w:'700'}));
+  // ISA-5.1 line type legend (mandatory per P&ID skill checklist)
+  [
+    [CP, 3, '',   'Process line (main pipe)'],
+    [CI, 1, '4 3','Instrument signal line (ISA-5.1)'],
+    [CG, 1, '5 2','Electrical power / control wiring'],
+  ].forEach(([clr, sw, dash, lbl], i) => {
+    const ly = STRIP_Y + 22 + i * 14;
+    p.push(`<line x1="18" y1="${ly}" x2="40" y2="${ly}" stroke="${clr}" stroke-width="${sw}"${dash?` stroke-dasharray="${dash}"`:''}/>` );
+    p.push(T(46, ly+4, lbl, {a:'start', sz:7.5, c:CP}));
+  });
+  // Symbol legend
+  const SYM_Y = STRIP_Y + 68;
+  [[osyV(60, SYM_Y, true, CP), 'OS&Y Gate Valve (NFPA 20)'],
+   [checkV(130, SYM_Y), 'Check Valve (swing)'],
+   [strainer(200, SYM_Y), 'Y-Strainer'],
+   [reliefV(265, SYM_Y+10), 'Relief Valve (spring)'],
+  ].forEach(([sym, lbl], i) => {
+    p.push(sym);
+    p.push(T([70, 140, 210, 275][i], SYM_Y+20, lbl, {sz:6.5, c:CP}));
+  });
+
+  p.push(T(LX2+8, STRIP_Y+13, 'GENERAL NOTES', {a:'start', sz:7, c:CP, w:'700'}));
+  [
+    `1. Fire pump rated per NFPA 20:2022. ${redundancy} configuration: duty + standby or duty + jockey.`,
+    `2. OS&Y valves (HV-201, HV-202) supervisory monitored per NFPA 20 §4.12 — must remain open.`,
+    `3. Check valve (CK-201) prevents back-flow through pump at shutoff per NFPA 20 §4.13.`,
+    `4. Relief valve (RV-201) protects pump from deadhead pressure per NFPA 20 §4.17.`,
+    `5. Duty-cycle test: rated (100%), peak (150% Q, 65% P), churn (0% Q, 121% P) per NFPA 20 §14.`,
+    `6. Signed by PRC-licensed Mechanical or Fire Protection Engineer. BFP permit required.`,
+  ].forEach((note, i) => {
+    p.push(T(LX2+8, STRIP_Y+27+i*12, note, {a:'start', sz:7, c:'#5a6a7a'}));
   });
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` +
