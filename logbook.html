@@ -2886,6 +2886,7 @@ function togglePMOnTrack() {
   renderPMTasksPanel();
 }
 let _tasklistNote = ''; // note from tasklist modal: module-level to survive re-renders
+let _duplicateWarned  = false; // soft guard: worker confirmed duplicate entry
 
 document.getElementById('log-form').addEventListener('submit', async function(e) {
   e.preventDefault();
@@ -2948,6 +2949,22 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     saveBtn.textContent = 'Save Entry';
     return;
   }
+
+  // Duplicate entry soft guard (same worker + machine + today)
+  if (machine && !_duplicateWarned) {
+    const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+    const { data: dupeCheck } = await db.from('logbook')
+      .select('id').eq('worker_name', WORKER_NAME).eq('machine', machine)
+      .gte('date', todayStart.toISOString()).limit(1);
+    if (dupeCheck && dupeCheck.length > 0) {
+      showToast(`${machine} already logged today. Submit again to save anyway.`, '⚠️');
+      _duplicateWarned = true;
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save Entry';
+      return;
+    }
+  }
+  _duplicateWarned = false; // reset after guard passes
 
   // Tasklist acknowledgment gate
   const tasklistSection = document.getElementById('tasklist-ack-section');
