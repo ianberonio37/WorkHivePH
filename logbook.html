@@ -631,6 +631,33 @@
                   <input id="f-downtime" type="number" min="0" step="0.5" class="wh-input" placeholder="e.g. 2.5 — how long was the asset offline?" />
                 </div>
 
+                <!-- Production Output — Closed Breakdown entries (unlocks OEE Quality + Performance) -->
+                <div id="production-section" class="hidden">
+                  <label class="wh-label flex items-center gap-1.5">
+                    Production this shift
+                    <span style="font-size:0.6rem;color:rgba(255,255,255,0.3);font-weight:500;text-transform:none;letter-spacing:0;">optional — unlocks OEE</span>
+                  </label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-[10px] text-white/35 font-semibold mb-1">Good units produced</label>
+                      <input type="number" id="f-good-units" min="0" step="1" class="wh-input"
+                             placeholder="e.g. 1850" style="padding:0.6rem 0.75rem;font-size:0.875rem;"
+                             oninput="updateQualityPct()" />
+                    </div>
+                    <div>
+                      <label class="block text-[10px] text-white/35 font-semibold mb-1">Total units attempted</label>
+                      <input type="number" id="f-total-units" min="0" step="1" class="wh-input"
+                             placeholder="e.g. 2000" style="padding:0.6rem 0.75rem;font-size:0.875rem;"
+                             oninput="updateQualityPct()" />
+                    </div>
+                  </div>
+                  <div id="quality-pct-display" class="hidden mt-2 text-center py-1.5 rounded-lg"
+                       style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);">
+                    <span style="font-size:0.72rem;color:rgba(255,255,255,0.4);">OEE Quality: </span>
+                    <span id="quality-pct-value" style="font-size:0.9rem;font-weight:800;color:#4ade80;"></span>
+                  </div>
+                </div>
+
                 <div>
                   <label class="wh-label">Attach Photo (optional)</label>
                   <input id="f-photo" type="file" accept="image/*" class="hidden" />
@@ -1189,7 +1216,8 @@ async function addEntry(entry) {
     tasklist_acknowledged: entry.tasklist_acknowledged || false,
     tasklist_note: entry.tasklist_note || null,
     failure_consequence: entry.failure_consequence || null,
-    readings_json: entry.readings_json || null
+    readings_json: entry.readings_json || null,
+    production_output: entry.production_output || null
   });
   if (error) { showToast('Could not save entry: ' + error.message); return; }
   document.getElementById('sync-badge').classList.remove('hidden');
@@ -2015,6 +2043,55 @@ document.getElementById('f-category').addEventListener('change', function() {
   if (isBreakdown) renderReadingsFields(this.value);
 });
 
+// ── Production Output (OEE Quality + Performance) ────────────────────────────
+
+function updateQualityPct() {
+  const good  = parseFloat(document.getElementById('f-good-units').value);
+  const total = parseFloat(document.getElementById('f-total-units').value);
+  const display = document.getElementById('quality-pct-display');
+  const val     = document.getElementById('quality-pct-value');
+  if (good >= 0 && total > 0) {
+    const pct = Math.min(100, (good / total * 100)).toFixed(1);
+    val.textContent = pct + '%';
+    display.classList.remove('hidden');
+    val.style.color = parseFloat(pct) >= 95 ? '#4ade80' : parseFloat(pct) >= 85 ? '#F7A21B' : '#f87171';
+  } else {
+    display.classList.add('hidden');
+  }
+}
+
+function collectProductionOutput() {
+  const good  = document.getElementById('f-good-units').value;
+  const total = document.getElementById('f-total-units').value;
+  if (!good && !total) return null;
+  const g = parseFloat(good) || 0;
+  const t = parseFloat(total) || 0;
+  return {
+    good_units:  g,
+    total_units: t,
+    quality_pct: t > 0 ? Math.round(g / t * 1000) / 10 : null,
+  };
+}
+
+function updateProductionVisibility() {
+  const isBreakdown = document.getElementById('f-maint-type').value.includes('Breakdown');
+  const isClosed    = document.querySelector('input[name="f-status"]:checked')?.value === 'Closed';
+  const section     = document.getElementById('production-section');
+  if (isBreakdown && isClosed) {
+    section.classList.remove('hidden');
+  } else {
+    section.classList.add('hidden');
+    document.getElementById('f-good-units').value  = '';
+    document.getElementById('f-total-units').value = '';
+    document.getElementById('quality-pct-display').classList.add('hidden');
+  }
+}
+
+// Wire status change → show/hide production section
+document.querySelectorAll('input[name="f-status"]').forEach(r =>
+  r.addEventListener('change', updateProductionVisibility)
+);
+
 // Show/hide consequence + readings based on maintenance type
 document.getElementById('f-maint-type').addEventListener('change', function() {
   const isBreakdown = this.value.includes('Breakdown') || this.value.includes('Corrective');
@@ -2036,6 +2113,7 @@ document.getElementById('f-maint-type').addEventListener('change', function() {
     document.getElementById('f-consequence').value = '';
     document.querySelectorAll('.consequence-btn').forEach(b => b.classList.remove('selected'));
   }
+  updateProductionVisibility();
 });
 
 document.getElementById('f-maint-type').addEventListener('change', loadPMTasksForAsset);
@@ -2787,6 +2865,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
   const downtimeHours      = downtimeRaw !== '' ? parseFloat(downtimeRaw) : null;
   const failureConsequence = document.getElementById('f-consequence').value || null;
   const readingsJson       = collectReadings();
+  const productionOutput   = collectProductionOutput();
   const photo              = currentPhotoData;
   const status             = document.querySelector('input[name="f-status"]:checked').value;
 
@@ -2819,6 +2898,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     root_cause: rootCause, action, knowledge, downtime_hours: downtimeHours,
     failure_consequence: failureConsequence,
     readings_json: readingsJson,
+    production_output: productionOutput,
     photo, status, asset_ref_id: _pendingAssetRefId,
     parts_used: _partsUsed.map(p => ({ partId: p.partId, partName: p.partName, partNumber: p.partNumber, qty: p.qty, unit: p.unit })),
     tasklist_acknowledged: tasklistAcknowledged,
