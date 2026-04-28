@@ -157,6 +157,18 @@ TESTS = {
         "drive_type": "Electric Motor", "redundancy": "Duplex",
         "hose_demand_lpm": 375,
     },
+    "Stairwell Pressurization": {
+        "building_type": "Sprinklered", "n_stairwells": 2, "n_floors": 10,
+        "doors_per_floor": 1, "door_fit": "Average",
+        "door_width": 0.9, "door_height": 2.1,
+        "fan_static_pressure": 400, "fan_efficiency": 60,
+    },
+    "Fire Alarm Battery": {
+        "system_voltage": 24, "standby_hours": 24, "alarm_minutes": 5,
+        "panel_standby_mA": 50, "panel_alarm_mA": 200,
+        "n_addr_smoke": 20, "n_conv_smoke": 0, "n_heat": 5,
+        "n_pull": 4, "n_horn_strobe": 8, "n_strobe": 0, "n_bell": 0,
+    },
 
     # ── Plumbing ──────────────────────────────────────────────────────────────
     "Domestic Water System": {
@@ -254,7 +266,6 @@ TYPESCRIPT_ONLY = [
     "Water Softener Sizing", "Water Treatment System",
     "Wastewater Treatment (STP)", "Storm Drain / Stormwater",
     "Grease Trap Sizing", "Roof Drain Sizing", "Boiler System",
-    "Fire Alarm Battery", "Stairwell Pressurization",
     "Elevator Traffic Analysis", "Hoist Capacity",
     "Bearing Life (L10)", "Bolt Torque & Preload",
     "Short Circuit",  # TypeScript uses "Short Circuit" (Python uses "Short Circuit Analysis" alias)
