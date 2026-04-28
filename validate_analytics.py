@@ -406,6 +406,56 @@ def check_py_syntax():
     return issues
 
 
+def check_py_duplicate_dict_keys():
+    """Detect duplicate keys in Python dict literals using AST.
+    Python silently accepts {\"a\": 1, \"a\": 2} — last value wins, first is lost.
+    This is a semantic bug the syntax checker and smoke tests both miss."""
+    import ast
+
+    class DuplicateKeyVisitor(ast.NodeVisitor):
+        def __init__(self):
+            self.dupes = []
+
+        def visit_Dict(self, node):
+            seen = {}
+            for key in node.keys:
+                if isinstance(key, ast.Constant):
+                    k = key.value
+                elif isinstance(key, ast.Str):  # Python 3.7
+                    k = key.s
+                else:
+                    self.generic_visit(node)
+                    continue
+                if k in seen:
+                    self.dupes.append((k, key.lineno))
+                seen[k] = True
+            self.generic_visit(node)
+
+    files = [DESCRIPTIVE_PY, DIAGNOSTIC_PY, PREDICTIVE_PY, PRESCRIPTIVE_PY]
+    issues = []
+    for fp in files:
+        if not os.path.exists(fp):
+            continue
+        try:
+            with open(fp, encoding="utf-8") as f:
+                source = f.read()
+            tree    = ast.parse(source)
+            visitor = DuplicateKeyVisitor()
+            visitor.visit(tree)
+            for key, lineno in visitor.dupes:
+                issues.append({
+                    "check":  "duplicate_dict_key",
+                    "page":   fp,
+                    "reason": (
+                        f"Duplicate dict key '{key}' at line {lineno} in "
+                        f"{os.path.basename(fp)} — Python silently drops the first value"
+                    ),
+                })
+        except SyntaxError:
+            pass  # caught by check_py_syntax
+    return issues
+
+
 # ── Layer 3: Smoke tests ──────────────────────────────────────────────────────
 
 def check_smoke(phase, filepath):
@@ -485,6 +535,7 @@ def run_checks():
 
     # Layer 2 — syntax
     all_issues += check_py_syntax()
+    all_issues += check_py_duplicate_dict_keys()
 
     # Layer 3 — smoke tests
     desc_result = None
@@ -518,6 +569,7 @@ CHECK_NAMES = [
     "availability_formula", "main_phase_routing", "main_analytics_404",
     # L2 — syntax
     "py_syntax",
+    "duplicate_dict_key",
     # L3 — smoke
     "py_smoke_descriptive", "py_smoke_diagnostic",
     "py_smoke_predictive", "py_smoke_prescriptive",
@@ -554,6 +606,7 @@ CHECK_LABELS = {
     "main_analytics_404":       "L3  main.py raises 404 for unknown phase",
     # L2 (syntax layer)
     "py_syntax":                "SYN Python syntax check (all .py files)",
+    "duplicate_dict_key":       "SYN Duplicate dict keys in analytics modules (AST)",
     # L3 (smoke layer)
     "py_smoke_descriptive":     "RUN Smoke: descriptive.calculate({}) — empty data",
     "py_smoke_diagnostic":      "RUN Smoke: diagnostic.calculate({}) — empty data",

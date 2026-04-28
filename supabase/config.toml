@@ -1,9 +1,33 @@
 
+[functions.ai-orchestrator]
+enabled = true
+verify_jwt = false
+import_map = "./functions/ai-orchestrator/deno.json"
+entrypoint = "./functions/ai-orchestrator/index.ts"
+
 [functions.analytics-orchestrator]
 enabled = true
 verify_jwt = false
 import_map = "./functions/analytics-orchestrator/deno.json"
 entrypoint = "./functions/analytics-orchestrator/index.ts"
+
+[functions.embed-entry]
+enabled = true
+verify_jwt = false
+import_map = "./functions/embed-entry/deno.json"
+entrypoint = "./functions/embed-entry/index.ts"
+
+[functions.scheduled-agents]
+enabled = true
+verify_jwt = false
+import_map = "./functions/scheduled-agents/deno.json"
+entrypoint = "./functions/scheduled-agents/index.ts"
+
+[functions.semantic-search]
+enabled = true
+verify_jwt = false
+import_map = "./functions/semantic-search/deno.json"
+entrypoint = "./functions/semantic-search/index.ts"
 
 [functions.engineering-calc-agent]
 enabled = true

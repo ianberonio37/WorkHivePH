@@ -72,6 +72,15 @@ VALIDATORS = [
     },
     # ── Platform Validators ───────────────────────────────────────────────────
     {
+        "id":      "edge-config",
+        "script":  "validate_edge_config.py",
+        "args":    [],
+        "label":   "Edge Function Config Validator (config.toml coverage)",
+        "group":   "Platform",
+        "report":  "edge_config_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "cross-page",
         "script":  "validate_cross_page.py",
         "args":    [],
@@ -462,6 +471,16 @@ VALIDATORS = [
         "group":   "Platform",
         "report":  "analytics_report.json",
         "skip_if_fast": False,
+    },
+    # ── Analytics Live Integration Test ──────────────────────────────────────
+    {
+        "id":      "analytics-live",
+        "script":  "validate_analytics_live.py",
+        "args":    [],
+        "label":   "Analytics Live Test (L4 — deployed endpoint, all 4 phases)",
+        "group":   "Platform",
+        "report":  "analytics_live_report.json",
+        "skip_if_fast": True,   # skip with --fast
     },
     # ── Engineering Calc Integration Test (Layer 3) ───────────────────────────
     {

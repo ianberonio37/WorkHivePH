@@ -2917,6 +2917,17 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     return;
   }
 
+  if (!category) {
+    const catEl = document.getElementById('f-category');
+    catEl.style.borderColor = 'rgba(239,68,68,0.6)';
+    catEl.focus();
+    setTimeout(() => { catEl.style.borderColor = ''; }, 2000);
+    showToast('Please select a discipline / category.', '⚠️');
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save Entry';
+    return;
+  }
+
   // Breakdown entry requires failure consequence (SAE JA1011 RCM analysis)
   const isBreakdownEntry = maintType.includes('Breakdown') || maintType.includes('Corrective');
   if (isBreakdownEntry && !failureConsequence) {
