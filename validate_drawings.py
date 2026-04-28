@@ -63,6 +63,9 @@ BUILDER_FUNCTIONS = [
     "buildPFCSVG",
     "buildUPSSVG",
     "buildEarthingSVG",
+    # Phase 10 Fire & Life Safety
+    "buildStairwellPressSVG",
+    "buildFireAlarmBatterySVG",
 ]
 
 REQUIRED_WIDTH = 1050

@@ -10902,6 +10902,7 @@ function showReport() {
     'Earthing / Grounding System',
     // ── Fire & Life Safety ────────────────────────────────────────────────────
     'Clean Agent Suppression', 'Fire Pump Sizing',
+    'Stairwell Pressurization', 'Fire Alarm Battery',
     // ── Mechanical group ──────────────────────────────────────────────────────
     'Pipe Sizing', 'Compressed Air', 'Boiler System',
   ];
@@ -10954,6 +10955,10 @@ function showReport() {
       descEl.textContent = 'Generates a UPS block diagram showing rectifier, DC bus, battery bank (cells×strings), inverter, static bypass and critical load with runtime and loading% per IEC 62040-3 / IEEE 446 / PEC 2017';
     } else if (_calcType === 'Earthing / Grounding System' && descEl) {
       descEl.textContent = 'Generates an earthing system layout showing MDB PE bus, GEC, test link, soil strata, vertical rod(s) with Dwight formula resistance and PASS/FAIL badge per PEC 2017 Art.2.50 / IEEE 80 / IEC 62305';
+    } else if (_calcType === 'Stairwell Pressurization' && descEl) {
+      descEl.textContent = 'Generates a stairwell pressurization schematic showing pressurized shaft, fan, floor doors with ΔP arrows, and PASS/FAIL badges for pressure differential (25–80 Pa) and door opening force (<67 N) per NFPA 92:2021';
+    } else if (_calcType === 'Fire Alarm Battery' && descEl) {
+      descEl.textContent = 'Generates a fire alarm system block diagram showing FACP, charger, battery bank, initiating devices, notification appliances, and standby/alarm timeline with Ah calculation per NFPA 72:2022 §10.6.7 / UL 864';
     } else if (_calcType === 'Pipe Sizing' && descEl) {
       descEl.textContent = 'Generates a hydraulic schematic showing pipe cross-section, hydraulic grade line (HGL), velocity profile, friction head loss and pressure drop per ASHRAE 2021 Ch.22 / PSME Code / PNS ISO 4427';
     } else if (_calcType === 'Compressed Air' && descEl) {
@@ -18954,6 +18959,18 @@ async function _runDrawing() {
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_tankL} L Bladder  |  α = ${_alpha}  |  ${_stype}`,
         { drawingNo:'MECH-ET-SCH-001', drawingTitle:'Expansion Tank — Hydronic System Schematic', standard:'ASHRAE 2023 Ch.12 / ASME BPVC Sec.VIII / PSME Code' }));
+    } else if (ct === 'Stairwell Pressurization') {
+      const svg = buildStairwellPressSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `ΔP = ${Number(_r.delta_P_Pa||0).toFixed(0)} Pa  |  Q = ${Number(_r.Q_design_CMH||0).toFixed(0)} m³/h  |  ${Number(_r.selected_HP||0).toFixed(1)} HP fan`,
+        { drawingNo:'FP-STAIR-SCH-001', drawingTitle:'Stairwell Pressurization Schematic', standard:'NFPA 92:2021 / PSME Code / PEC 2017' }));
+    } else if (ct === 'Fire Alarm Battery') {
+      const svg = buildFireAlarmBatterySVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${Number(_r.selected_Ah||0).toFixed(0)} Ah  |  ${Number(_r.standby_hours||24).toFixed(0)}h Standby  |  ${Number(_r.system_voltage||24).toFixed(0)}V`,
+        { drawingNo:'FA-BATT-SCH-001', drawingTitle:'Fire Alarm Battery Standby Block Diagram', standard:'NFPA 72:2022 §10.6.7 / UL 864 / PEC 2017 Art.7' }));
     } else if (ct === 'Pipe Sizing') {
       const svg = buildPipeSizingSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
@@ -24314,6 +24331,331 @@ function buildEarthingSVG(inputs, results) {
   [`1. Dwight: R = (ρ/2πL)×[ln(4L/d)−1]. For parallel rods, add spacing factor per IEEE 80.`,
    `2. GEC sized per PEC 2017 Table 2.50 (based on largest service conductor / overcurrent device).`,
    `3. Test link required for resistance measurement after installation. Annual testing recommended.`
+  ].forEach((n,i)=>p.push(T(18,LY+72+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Stairwell Pressurization — NFPA 92:2021 / PSME Code ─────────────────────
+function buildStairwellPressSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467;
+  const r=results||{},inp=inputs||{};
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const T=(x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={})=>
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+  const HL=(x1,y,x2,sw=3,c='#1a2e4a')=>`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
+  const VL=(x,y1,y2,sw=3,c='#1a2e4a')=>`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
+
+  const nFloors  = Number(r.N_floors||inp.n_floors||6);
+  const nStairs  = Number(r.N_stairwells||inp.n_stairwells||1);
+  const dP       = Number(r.delta_P_Pa||inp.delta_P||50).toFixed(0);
+  const dPMin    = Number(r.delta_P_min||25).toFixed(0);
+  const dPMax    = Number(r.delta_P_max||80).toFixed(0);
+  const dPOk     = Boolean(r.delta_P_ok??true);
+  const qCMH     = Number(r.Q_design_CMH||0).toFixed(0);
+  const qM3s     = Number(r.Q_design_m3s||0).toFixed(3);
+  const selHP    = Number(r.selected_HP||0).toFixed(1);
+  const fanKW    = Number(r.P_fan_kW||0).toFixed(2);
+  const fanPa    = Number(r.fan_static_Pa||0).toFixed(0);
+  const fTotal   = Number(r.F_total_N||0).toFixed(1);
+  const fOk      = Boolean(r.door_force_ok??true);
+  const doorFit  = String(r.door_fit||inp.door_fit||'Average');
+  const bldgType = String(r.building_type||inp.building_type||'High-Rise');
+
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const PRESS_C='#1565c0', SMOKE_C='#78909c', FAN_C='#37474f', DOOR_C='#795548';
+  const OK_C='#2e7d32', FAIL_C='#c62828';
+  const SPLIT_X=645;
+  const p=[];
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(T(W/2,31,`STAIRWELL PRESSURIZATION — ${bldgType}  |  ΔP = ${dP} Pa  |  Q = ${qCMH} m³/h  |  NFPA 92:2021 / PSME`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+
+  // ── BUILDING ELEVATION ──
+  const showFloors=Math.min(nFloors,7);
+  const FL_H=50, FL_W=160;
+  const BLD_X=60, BLD_TOP=65; // y=65 > 55 rule ✓
+  const totalH=showFloors*FL_H;
+  const BLD_BOT=BLD_TOP+totalH;
+
+  // ── Stairwell shaft (left of building) ──
+  const SW_X=BLD_X, SW_W=55;
+  p.push(`<rect x="${SW_X}" y="${BLD_TOP}" width="${SW_W}" height="${totalH}" fill="#e3f2fd" stroke="${PRESS_C}" stroke-width="2.5" rx="2"/>`);
+  p.push(T(SW_X+SW_W/2,BLD_TOP+totalH/2-8,'PRESSURIZED',{sz:7,c:PRESS_C,w:'700'}));
+  p.push(T(SW_X+SW_W/2,BLD_TOP+totalH/2+3,'STAIRWELL',{sz:7,c:PRESS_C,w:'700'}));
+  p.push(T(SW_X+SW_W/2,BLD_TOP+totalH/2+15,`+${dP} Pa`,{sz:8.5,c:PRESS_C,w:'700'}));
+
+  // ── Building corridor (right of stairwell) ──
+  const COR_X=SW_X+SW_W, COR_W=FL_W-SW_W;
+  for(let f=0;f<showFloors;f++){
+    const fy=BLD_TOP+f*FL_H;
+    const bg=f%2===0?'#fafafa':'#f0f0f0';
+    p.push(`<rect x="${COR_X}" y="${fy}" width="${COR_W}" height="${FL_H}" fill="${bg}" stroke="${GY}" stroke-width="0.8"/>`);
+    p.push(T(COR_X+COR_W/2,fy+FL_H/2+3,`Floor ${showFloors-f}`,{sz:7.5,c:GY}));
+  }
+  if(nFloors>showFloors){
+    p.push(T(BLD_X+FL_W/2,BLD_TOP+totalH+10,`... +${nFloors-showFloors} more floors`,{sz:7,c:SC}));
+  }
+
+  // ── Doors at each floor ──
+  const DX=COR_X, DW=14;
+  for(let f=0;f<showFloors;f++){
+    const fy=BLD_TOP+f*FL_H+FL_H*0.25;
+    // Door symbol
+    p.push(`<rect x="${DX}" y="${fy}" width="${DW}" height="${FL_H*0.5}" fill="${LGY}" stroke="${DOOR_C}" stroke-width="1.5"/>`);
+    // ΔP arrow from stairwell → corridor
+    const arY=BLD_TOP+f*FL_H+FL_H/2;
+    p.push(`<polygon points="${DX+DW},${arY-4} ${DX+DW+18},${arY} ${DX+DW},${arY+4}" fill="${PRESS_C}" opacity="0.7"/>`);
+    p.push(T(DX+DW+22,arY+3,`${dP} Pa`,{a:'start',sz:6.5,c:PRESS_C}));
+  }
+
+  // ── Fan at top of shaft ──
+  const FAN_CX=SW_X+SW_W/2, FAN_CY=BLD_TOP-28;
+  p.push(`<circle cx="${FAN_CX}" cy="${FAN_CY}" r="20" fill="${LGY}" stroke="${FAN_C}" stroke-width="2"/>`);
+  [-90,30,150].forEach(a=>{
+    const rad=a*Math.PI/180;
+    p.push(`<line x1="${FAN_CX}" y1="${FAN_CY}" x2="${(FAN_CX+16*Math.cos(rad)).toFixed(1)}" y2="${(FAN_CY+16*Math.sin(rad)).toFixed(1)}" stroke="${FAN_C}" stroke-width="2.5" stroke-linecap="round"/>`);
+  });
+  p.push(`<circle cx="${FAN_CX}" cy="${FAN_CY}" r="4" fill="${FAN_C}"/>`);
+  p.push(T(FAN_CX+28,FAN_CY-8,`FAN-101  ${selHP} HP`,{a:'start',sz:7.5,c:FAN_C,w:'700'}));
+  p.push(T(FAN_CX+28,FAN_CY+3,`${fanKW} kW  |  ${fanPa} Pa`,{a:'start',sz:7,c:SC}));
+  p.push(T(FAN_CX+28,FAN_CY+14,`Q = ${qCMH} m³/h  (${qM3s} m³/s)`,{a:'start',sz:7,c:PRESS_C}));
+  // Duct from fan to shaft
+  p.push(VL(FAN_CX,FAN_CY+20,BLD_TOP,2,PRESS_C));
+
+  // ── PASS/FAIL badges ──
+  const bd1X=BLD_X+FL_W+30, bd1Y=BLD_TOP+20;
+  p.push(`<rect x="${bd1X}" y="${bd1Y}" width="175" height="44" rx="5" fill="${dPOk?'#e8f5e9':'#ffebee'}" stroke="${dPOk?OK_C:FAIL_C}" stroke-width="2"/>`);
+  p.push(T(bd1X+87,bd1Y+14,`ΔP = ${dP} Pa`,{sz:10,c:dPOk?OK_C:FAIL_C,w:'700'}));
+  p.push(T(bd1X+87,bd1Y+28,`Range: ${dPMin}–${dPMax} Pa  —  ${dPOk?'PASS ✓':'FAIL ✗'}`,{sz:7.5,c:dPOk?OK_C:FAIL_C,w:'700'}));
+  p.push(T(bd1X+87,bd1Y+40,'NFPA 92:2021 §6.4',{sz:6.5,c:SC}));
+
+  const bd2X=bd1X, bd2Y=bd1Y+60;
+  const fColor=fOk?OK_C:FAIL_C;
+  p.push(`<rect x="${bd2X}" y="${bd2Y}" width="175" height="44" rx="5" fill="${fOk?'#e8f5e9':'#ffebee'}" stroke="${fColor}" stroke-width="2"/>`);
+  p.push(T(bd2X+87,bd2Y+14,`Door Force = ${fTotal} N`,{sz:10,c:fColor,w:'700'}));
+  p.push(T(bd2X+87,bd2Y+28,`Limit: 67 N  —  ${fOk?'PASS ✓':'FAIL ✗'}`,{sz:7.5,c:fColor,w:'700'}));
+  p.push(T(bd2X+87,bd2Y+40,'NFPA 92:2021 §6.4.2',{sz:6.5,c:SC}));
+
+  // Smoke leakage annotation
+  p.push(T(bd1X,bd1Y+130,`Door Fit: ${esc(doorFit)}  |  ${nStairs} stairwell(s)  |  ${nFloors} floors`,{a:'start',sz:7.5,c:CC}));
+  p.push(T(bd1X,bd1Y+143,`Total leakage area: ${Number(r.A_total_m2||0).toFixed(3)} m²`,{a:'start',sz:7,c:SC}));
+
+  // ── DATA PANEL ──
+  const DX=SPLIT_X+10,DW=W-SPLIT_X-22,rowH=17;
+  let dy=60; // > 55 rule ✓
+  const rowFn=(lbl,val,vc,i)=>{
+    const bg=i%2===0?'#f0f4fa':'#f8fafc';
+    const out=`<rect x="${DX}" y="${dy}" width="${DW}" height="${rowH}" fill="${bg}"/>` +
+      T(DX+4,dy+11,lbl,{a:'start',sz:7.5,c:SC})+T(DX+DW-4,dy+11,val,{a:'end',sz:7.5,c:vc,w:'bold'});
+    dy+=rowH; return out;};
+  const secH=(lbl)=>{const out=`<rect x="${DX}" y="${dy}" width="${DW}" height="15" rx="2" fill="#dce3ef"/>`+T(DX+DW/2,dy+10,lbl,{sz:7.5,c:CC,w:'700'});dy+=18;return out;};
+  p.push(`<rect x="${DX}" y="${dy-8}" width="${DW}" height="20" rx="3" fill="${CC}"/>`);
+  p.push(T(DX+DW/2,dy+4,'PRESSURIZATION DATA',{sz:8.5,c:'white',w:'700'})); dy+=24;
+
+  p.push(secH('SYSTEM'));
+  [['Building Type',esc(bldgType),CC],['No. of Stairwells',`${nStairs}`,CC],
+   ['No. of Floors',`${nFloors}`,CC],['Door Fit',esc(doorFit),DOOR_C]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+
+  dy+=4; p.push(secH('PRESSURE'));
+  [['Design ΔP',`${dP} Pa`,dPOk?OK_C:FAIL_C],['NFPA 92 Range',`${dPMin} – ${dPMax} Pa`,SC],
+   ['Compliance',dPOk?'PASS ✓':'FAIL ✗',dPOk?OK_C:FAIL_C]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+
+  dy+=4; p.push(secH('AIRFLOW & FAN'));
+  [['Design Airflow',`${qCMH} m³/h  (${qM3s} m³/s)`,PRESS_C],
+   ['Fan Static Pressure',`${fanPa} Pa`,FAN_C],
+   ['Fan Motor',`${selHP} HP / ${fanKW} kW`,FAN_C]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+
+  dy+=4; p.push(secH('DOOR FORCE'));
+  [['Total Door Force',`${fTotal} N`,fOk?OK_C:FAIL_C],
+   ['NFPA 92 Limit','67 N',SC],
+   ['Compliance',fOk?'PASS ✓':'FAIL ✗',fOk?OK_C:FAIL_C]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+
+  dy+=6; p.push(T(DX+DW/2,dy,'NFPA 92:2021 (Smoke Control Systems)',{sz:7,c:GY}));
+  dy+=11; p.push(T(DX+DW/2,dy,'PEC 2017  |  PSME Code  |  NFPA 92 §6.4',{sz:7,c:GY}));
+
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(T(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  let lx=25,ly=LY+26;
+  [[PRESS_C,'Pressurized stairwell (positive pressure zone)'],[DOOR_C,'Stair door (leakage path)'],
+   [FAN_C,'Pressurization fan']].forEach(([c2,lbl])=>{
+    p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+28}" y2="${ly}" stroke="${c2}" stroke-width="3"/>`);
+    p.push(T(lx+32,ly+4,lbl,{a:'start',sz:7.5,c:CC})); ly+=15;});
+  [`1. NFPA 92 §6.4: ΔP = 25–80 Pa (smoke control) for high-rise per BFP / local AHJ.`,
+   `2. Door force limit: 67 N (15 lbf) total — closing force + pressure force per NFPA 92 §6.4.2.`,
+   `3. Fan sized with safety factor on total leakage area: Q = Cd × A_total × √(2ΔP/ρ).`
+  ].forEach((n,i)=>p.push(T(18,LY+72+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Fire Alarm Battery Standby — NFPA 72:2022 / UL 864 / PEC 2017 ────────────
+function buildFireAlarmBatterySVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467;
+  const r=results||{},inp=inputs||{};
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const T=(x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={})=>
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+  const HL=(x1,y,x2,sw=3,c='#1a2e4a')=>`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
+  const VL=(x,y1,y2,sw=3,c='#1a2e4a')=>`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
+  const Box=(x,y,w2,h,fill,stk,lbl,sub='')=>`<rect x="${x}" y="${y}" width="${w2}" height="${h}" rx="4" fill="${fill}" stroke="${stk}" stroke-width="2"/>` +
+    T(x+w2/2,y+h/2-5,lbl,{sz:8,c:stk,w:'700'})+(sub?T(x+w2/2,y+h/2+7,sub,{sz:7,c:stk}):'');
+
+  const sysV     = Number(r.system_voltage||24).toFixed(0);
+  const stbyH    = Number(r.standby_hours||24).toFixed(0);
+  const alrmMin  = Number(r.alarm_minutes||5).toFixed(0);
+  const iStbyMA  = Number(r.I_standby_total_mA||0).toFixed(1);
+  const iAlrmMA  = Number(r.I_alarm_total_mA||0).toFixed(1);
+  const ahCalc   = Number(r.Ah_calc||0).toFixed(2);
+  const ahReq    = Number(r.Ah_required||0).toFixed(2);
+  const selAh    = Number(r.selected_Ah||0).toFixed(0);
+  const nBat     = Number(r.n_batteries||1);
+  const batV     = Number(r.battery_volts||12).toFixed(0);
+  const batCfg   = String(r.battery_config||'2S');
+  const chargerA = Number(r.I_charger_rec_A||0).toFixed(2);
+  const rchgOk   = Boolean(r.recharge_48h_ok??true);
+  const nSmkAddr = Number(r.n_addr_smoke||0);
+  const nSmkConv = Number(r.n_conv_smoke||0);
+  const nHeat    = Number(r.n_heat||0);
+  const nPull    = Number(r.n_pull||0);
+  const nHornStr = Number(r.n_horn_strobe||0);
+  const nStrobe  = Number(r.n_strobe||0);
+  const nBell    = Number(r.n_bell||0);
+  const sf       = Number(r.safety_factor||1.25).toFixed(2);
+
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const FA_C ='#c62828', BAT_C='#7b1fa2', CHG_C='#1565c0';
+  const OK_C ='#2e7d32', DEV_C='#e65100';
+  const SPLIT_X=645;
+  const p=[];
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(T(W/2,31,`FIRE ALARM BATTERY STANDBY  |  ${selAh} Ah  |  ${stbyH}h Standby + ${alrmMin}min Alarm  |  NFPA 72:2022 / UL 864 / PEC 2017`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(T(80,58,`${sysV}V System  |  Battery: ${nBat}× ${selAh}Ah/${batV}V (${batCfg})  |  Charger: ${chargerA}A`,{a:'start',sz:8,c:CC,w:'600'}));
+
+  // ── BLOCK DIAGRAM ──
+  // FACP (central panel)
+  const FACP_X=230,FACP_Y=95,FACP_W=120,FACP_H=70; // y=95 > 55 ✓
+  p.push(Box(FACP_X,FACP_Y,FACP_W,FACP_H,'#fff3e0',FA_C,'FACP',`${sysV}V DC`));
+  p.push(T(FACP_X+FACP_W/2,FACP_Y+FACP_H+12,'Fire Alarm',{sz:7,c:FA_C}));
+  p.push(T(FACP_X+FACP_W/2,FACP_Y+FACP_H+22,'Control Panel',{sz:7,c:FA_C}));
+
+  // AC Mains → Charger → FACP
+  p.push(`<circle cx="80" cy="${FACP_Y+FACP_H/2}" r="18" fill="${LGY}" stroke="${CC}" stroke-width="2"/>`);
+  p.push(T(80,FACP_Y+FACP_H/2-2,'~',{sz:12,c:CC,w:'700'}));
+  p.push(T(80,FACP_Y+FACP_H/2+10,'Mains',{sz:6.5,c:GY}));
+  p.push(HL(98,FACP_Y+FACP_H/2,140,2,CHG_C));
+  p.push(Box(140,FACP_Y+FACP_H/2-18,55,36,LGY,CHG_C,'CHG',`${chargerA}A`));
+  p.push(HL(195,FACP_Y+FACP_H/2,FACP_X,2,CHG_C));
+
+  // Battery bank below FACP
+  const BAT_Y=FACP_Y+FACP_H+45;
+  p.push(VL(FACP_X+FACP_W/2,FACP_Y+FACP_H,BAT_Y,2,BAT_C));
+  // Battery cells
+  for(let b=0;b<Math.min(nBat,4);b++){
+    const bx=FACP_X+10+b*38;
+    p.push(`<rect x="${bx}" y="${BAT_Y}" width="30" height="44" rx="3" fill="#f3e5f5" stroke="${BAT_C}" stroke-width="1.5"/>`);
+    // Cell terminals
+    p.push(`<rect x="${bx+10}" y="${BAT_Y-5}" width="10" height="8" fill="${BAT_C}" rx="1"/>`);
+    p.push(T(bx+15,BAT_Y+16,`${batV}V`,{sz:6.5,c:BAT_C,w:'700'}));
+    p.push(T(bx+15,BAT_Y+28,`${selAh}Ah`,{sz:6.5,c:BAT_C}));
+    if(b<Math.min(nBat,4)-1) p.push(HL(bx+30,BAT_Y+10,bx+38,2,BAT_C));
+  }
+  if(nBat>4) p.push(T(FACP_X+10+4*38,BAT_Y+22,`+${nBat-4}`,{a:'start',sz:7,c:BAT_C}));
+  p.push(T(FACP_X+FACP_W/2,BAT_Y+54,`${nBat}× ${selAh}Ah/${batV}V  (${batCfg})  =  ${selAh} Ah total`,{sz:7.5,c:BAT_C,w:'700'}));
+
+  // ── Initiating devices (left of FACP) ──
+  const devItems=[
+    [nSmkAddr,'Addr. Smoke','🔴'],
+    [nSmkConv,'Conv. Smoke','🔴'],
+    [nHeat,'Heat Det.','🟠'],
+    [nPull,'Pull Station','🔴'],
+  ].filter(d=>Number(d[0])>0);
+  const IDX=40, IDY=FACP_Y+FACP_H+80;
+  p.push(T(IDX+40,IDY-14,'INITIATING DEVICES',{sz:7.5,c:CC,w:'700',a:'start'}));
+  devItems.forEach(([n,lbl,_],i)=>{
+    const dy2=IDY+i*22;
+    p.push(`<rect x="${IDX}" y="${dy2}" width="14" height="14" rx="2" fill="#ffcdd2" stroke="${FA_C}" stroke-width="1"/>`);
+    p.push(T(IDX+7,dy2+10,'D',{sz:6.5,c:FA_C,w:'700'}));
+    p.push(T(IDX+18,dy2+10,`${n}× ${esc(lbl)}`,{a:'start',sz:7,c:CC}));
+  });
+  p.push(HL(IDX+80,IDY+devItems.length*22/2,FACP_X,1.5,DEV_C));
+
+  // ── Notification appliances (right of FACP) ──
+  const naItems=[
+    [nHornStr,'Horn/Strobe'],
+    [nStrobe,'Strobe'],
+    [nBell,'Bell'],
+  ].filter(d=>Number(d[0])>0);
+  const NAX=FACP_X+FACP_W+30,NAY=FACP_Y+FACP_H+80;
+  p.push(T(NAX,NAY-14,'NOTIFICATION APPLIANCES',{sz:7.5,c:CC,w:'700',a:'start'}));
+  naItems.forEach(([n,lbl],i)=>{
+    const dy2=NAY+i*22;
+    p.push(`<rect x="${NAX}" y="${dy2}" width="14" height="14" rx="2" fill="#c8e6c9" stroke="${OK_C}" stroke-width="1"/>`);
+    p.push(T(NAX+7,dy2+10,'N',{sz:6.5,c:OK_C,w:'700'}));
+    p.push(T(NAX+18,dy2+10,`${n}× ${esc(lbl)}`,{a:'start',sz:7,c:CC}));
+  });
+  p.push(HL(FACP_X+FACP_W,FACP_Y+FACP_H/2,NAX,1.5,FA_C));
+
+  // ── Timeline bar ──
+  const TL_X=40,TL_Y=380,TL_W=540;
+  p.push(T(TL_X,TL_Y-16,'NFPA 72 STANDBY CAPACITY TIMELINE',{a:'start',sz:8,c:CC,w:'700'}));
+  // Standby phase
+  const stbyW=TL_W*0.85;
+  p.push(`<rect x="${TL_X}" y="${TL_Y}" width="${stbyW}" height="28" fill="#e3f2fd" stroke="${CHG_C}" stroke-width="1.5" rx="3"/>`);
+  p.push(T(TL_X+stbyW/2,TL_Y+17,`STANDBY  ${stbyH}h  |  ${iStbyMA} mA`,{sz:8,c:CHG_C,w:'700'}));
+  // Alarm phase
+  const alrmW=TL_W-stbyW;
+  p.push(`<rect x="${TL_X+stbyW}" y="${TL_Y}" width="${alrmW}" height="28" fill="#ffebee" stroke="${FA_C}" stroke-width="1.5" rx="3"/>`);
+  p.push(T(TL_X+stbyW+alrmW/2,TL_Y+17,`ALARM ${alrmMin}min`,{sz:7.5,c:FA_C,w:'700'}));
+  // Labels
+  p.push(T(TL_X,TL_Y+42,`Ah calc = (${iStbyMA} mA × ${stbyH}h + ${iAlrmMA} mA × ${alrmMin}/60 min) × ${sf} S.F. = ${ahCalc} Ah → Selected: ${selAh} Ah`,{a:'start',sz:7.5,c:CC}));
+  p.push(T(TL_X,TL_Y+55,`Recharge within 48h: ${rchgOk?'PASS ✓ — charger '+chargerA+'A':'FAIL ✗ — increase charger rating'}`,{a:'start',sz:7.5,c:rchgOk?OK_C:FAIL_C,w:'700'}));
+
+  // ── DATA PANEL ──
+  const DX=SPLIT_X+10,DW=W-SPLIT_X-22,rowH=17;
+  let dy=60; // > 55 ✓
+  const rowFn=(lbl,val,vc,i)=>{const bg=i%2===0?'#f0f4fa':'#f8fafc';
+    const out=`<rect x="${DX}" y="${dy}" width="${DW}" height="${rowH}" fill="${bg}"/>` +
+      T(DX+4,dy+11,lbl,{a:'start',sz:7.5,c:SC})+T(DX+DW-4,dy+11,val,{a:'end',sz:7.5,c:vc,w:'bold'});
+    dy+=rowH; return out;};
+  const secH=(lbl)=>{const out=`<rect x="${DX}" y="${dy}" width="${DW}" height="15" rx="2" fill="#dce3ef"/>`+T(DX+DW/2,dy+10,lbl,{sz:7.5,c:CC,w:'700'});dy+=18;return out;};
+  p.push(`<rect x="${DX}" y="${dy-8}" width="${DW}" height="20" rx="3" fill="${CC}"/>`);
+  p.push(T(DX+DW/2,dy+4,'BATTERY STANDBY DATA',{sz:8.5,c:'white',w:'700'})); dy+=24;
+
+  p.push(secH('SYSTEM PARAMETERS'));
+  [['System Voltage',`${sysV}V DC`,CC],['Standby Duration',`${stbyH} h`,CHG_C],
+   ['Alarm Duration',`${alrmMin} min`,FA_C],['Safety Factor',`${sf}`,SC]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+
+  dy+=4; p.push(secH('LOAD CURRENTS'));
+  [['Standby Current',`${iStbyMA} mA total`,CHG_C],
+   ['Alarm Current',`${iAlrmMA} mA total`,FA_C]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+
+  dy+=4; p.push(secH('BATTERY SELECTION'));
+  [['Ah Calculated',`${ahCalc} Ah`,SC],['Ah Required (×S.F.)',`${ahReq} Ah`,CC],
+   ['Selected Battery',`${selAh} Ah`,BAT_C],
+   ['Configuration',`${nBat}× ${batV}V/${selAh}Ah  (${batCfg})`,BAT_C],
+   ['Charger',`${chargerA}A  |  Recharge <48h: ${rchgOk?'PASS':'FAIL'}`,rchgOk?OK_C:FAIL_C]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+
+  dy+=6; p.push(T(DX+DW/2,dy,'NFPA 72:2022 §10.6.7  |  UL 864  |  PEC 2017 Art.7',{sz:7,c:GY}));
+
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(T(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  let lx=25,ly=LY+26;
+  [[FA_C,'Initiating / supervisory (alarm current)'],[CHG_C,'AC mains / charger circuit'],[BAT_C,'Battery bank (standby source)']].forEach(([c2,lbl])=>{
+    p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+28}" y2="${ly}" stroke="${c2}" stroke-width="3"/>`);
+    p.push(T(lx+32,ly+4,lbl,{a:'start',sz:7.5,c:CC})); ly+=15;});
+  [`1. NFPA 72 §10.6.7: 24h standby + 5 min alarm minimum (60h for central station accounts).`,
+   `2. Charger must restore battery to 80% in ≤48h (NFPA 72 §10.6.9.3). Use C/10 rate minimum.`,
+   `3. VRLA/AGM sealed batteries required. Replace when capacity falls to 80% rated Ah.`
   ].forEach((n,i)=>p.push(T(18,LY+72+i*11,n,{a:'start',sz:6.5,c:CC})));
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
