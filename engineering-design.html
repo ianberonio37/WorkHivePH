@@ -18884,6 +18884,9 @@ async function _runDrawing() {
     } else if (ct === 'Chiller System — Air Cooled' || ct === 'Chiller System — Water Cooled') {
       const svg = buildChillerSVG(_lastInputs, _lastResults, ct);
       _renderGenericSLD(svg, null);
+    } else if (ct === 'Expansion Tank Sizing') {
+      const svg = buildExpansionTankSVG(_lastInputs, _lastResults);
+      _renderGenericSLD(svg, null);
     }
   }, 100);
 }
@@ -22301,6 +22304,285 @@ function buildVentilationSVG(inputs, results) {
     `5. Balancing by certified TAB contractor per AABC/NEBB standards after installation.`,
     `6. Duct construction per SMACNA HVAC Duct Construction Standards. Insulate per ASHRAE 90.1.`,
   ].forEach((note, i) => p.push(T(LX2+8, STRIP_Y+27+i*12, note, {a:'start', sz:7, c:SC})));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` +
+    p.join('\n  ') + `\n</svg>`;
+}
+
+// ─── Expansion Tank Sizing Schematic — ASHRAE 2023 Ch.12 / ASME VIII ────────
+function buildExpansionTankSVG(inputs, results) {
+  const W = 1050, H = 580;
+  const r   = results || {};
+  const inp = inputs  || {};
+
+  const sysType    = inp.system_type          || 'Chilled Water';
+  const sysVolL    = Number(r.system_volume_L   || 0).toFixed(1);
+  const fillT      = Number(inp.fill_temp_c     ?? 20);
+  const maxT       = Number(inp.max_temp_c      ?? 7);
+  const headM      = Number(inp.static_head_m   ?? 10);
+  const maxPressG  = Number(inp.max_pressure_kpa_g ?? 400);
+  const selTankL   = r.selected_tank_L          || '—';
+  const reqTankL   = Number(r.required_volume_L || 0).toFixed(1);
+  const alpha      = Number(r.acceptance_factor || 0);
+  const prechargeG = Number(r.precharge_kpa_g   || 0);
+  const fillPressG = Number(r.fill_pressure_kpa_g || 0);
+  const Ew         = Number(r.expansion_ratio   || 0);
+  const netExpL    = Number(r.V_expansion_L     || 0).toFixed(2);
+  const alphaOK    = alpha >= 0.25;
+  const pressOK    = (r.pressure_check || '').startsWith('PASS');
+
+  const isHHW  = sysType === 'Heating Hot Water';
+  const SC     = '#1a3a5c';
+  const SUP_C  = isHHW ? '#c0392b' : '#1565c0';
+  const RET_C  = isHHW ? '#e57373' : '#5c93d8';
+  const TANK_C = '#455a64';
+  const BLD_C  = '#e3f2fd';
+  const N2_C   = '#ce93d8';
+  const PMP_C  = '#1a2e4a';
+  const ALP_C  = alphaOK ? '#2e7d32' : '#c62828';
+  const GRN    = '#2e7d32';
+  const ORG    = '#e65100';
+  const GY     = '#607d8b';
+  const LGY    = '#eceff1';
+
+  const SPLIT_X = 645;
+  const STRIP_Y = H - 113;   // 467
+
+  // Schematic coordinates
+  const supY   = 195;
+  const retY   = 315;
+  const lftX   = 110;
+  const rgtX   = 555;
+  const pmpX   = lftX;
+  const pmpY   = Math.round((supY + retY) / 2);  // 255
+  const pmpR   = 22;
+  const sepX   = 285;           // air separator x on supply
+  const sepR   = 14;
+  const teeX   = 195;           // tank branch tee x on return
+  const fillX  = 133;           // makeup water x on return
+  const isoY   = retY + 40;    // 355 — isolation valve
+  const tnkTop = isoY  + 22;   // 377 — tank top
+  const tnkBot = tnkTop + 72;  // 449 — tank bottom (< STRIP_Y 467)
+  const tnkW   = 50;
+  const tnkH2  = Math.round(tnkW / 2);  // 25
+  const bladY  = Math.round((tnkTop + tnkBot) / 2);  // 413
+
+  const p = [];
+
+  // Background + border
+  p.push(`<rect x="0" y="0" width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${SC}" stroke-width="1.2"/>`);
+
+  // Title bar
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${SC}"/>`);
+  p.push(`<text x="${W/2}" y="31" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="bold" fill="white">EXPANSION TANK — HYDRONIC SYSTEM SCHEMATIC  |  ${sysType.toUpperCase()}  |  ASHRAE 2023 CH.12 / ASME VIII</text>`);
+
+  // Divider
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+
+  // Panel sub-heading
+  p.push(`<text x="70" y="58" font-family="Segoe UI,Arial,sans-serif" font-size="8" font-weight="600" fill="${SC}">POINT OF NO PRESSURE CHANGE (PNPC) EXPANSION TANK CONNECTION — PUMP SUCTION SIDE</text>`);
+
+  // ── Supply header ──────────────────────────────────────────────────────────
+  p.push(`<line x1="${lftX}" y1="${supY}" x2="${sepX-sepR}" y2="${supY}" stroke="${SUP_C}" stroke-width="4"/>`);
+  p.push(`<line x1="${sepX+sepR}" y1="${supY}" x2="${rgtX}" y2="${supY}" stroke="${SUP_C}" stroke-width="4"/>`);
+  const sArwX = Math.round((sepX + sepR + rgtX) / 2);
+  p.push(`<polygon points="${sArwX-8},${supY-5} ${sArwX+10},${supY} ${sArwX-8},${supY+5}" fill="${SUP_C}"/>`);
+  p.push(`<text x="${Math.round((lftX+sepX)/2)}" y="${supY-10}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" font-weight="600" fill="${SUP_C}">${isHHW ? 'HHW SUPPLY' : 'CHW SUPPLY'}  (${maxT}°C)</text>`);
+
+  // ── Return header ──────────────────────────────────────────────────────────
+  p.push(`<line x1="${lftX}" y1="${retY}" x2="${rgtX}" y2="${retY}" stroke="${RET_C}" stroke-width="4"/>`);
+  const rArwX = Math.round((lftX + rgtX) * 0.58);
+  p.push(`<polygon points="${rArwX+8},${retY-5} ${rArwX-10},${retY} ${rArwX+8},${retY+5}" fill="${RET_C}"/>`);
+  p.push(`<text x="${rArwX}" y="${retY+14}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" font-weight="600" fill="${RET_C}">${isHHW ? 'HHW RETURN' : 'CHW RETURN'}  (${fillT}°C fill)</text>`);
+
+  // ── Left vertical (pump) ───────────────────────────────────────────────────
+  p.push(`<line x1="${lftX}" y1="${supY}" x2="${lftX}" y2="${pmpY-pmpR}" stroke="${SUP_C}" stroke-width="4"/>`);
+  p.push(`<line x1="${lftX}" y1="${pmpY+pmpR}" x2="${lftX}" y2="${retY}" stroke="${RET_C}" stroke-width="4"/>`);
+
+  // Pump symbol
+  p.push(`<circle cx="${pmpX}" cy="${pmpY}" r="${pmpR}" fill="${LGY}" stroke="${PMP_C}" stroke-width="2.2"/>`);
+  p.push(`<polygon points="${pmpX-9},${pmpY-6} ${pmpX+11},${pmpY} ${pmpX-9},${pmpY+6}" fill="${PMP_C}"/>`);
+  p.push(`<text x="${pmpX-pmpR-6}" y="${pmpY-6}" text-anchor="end" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" font-weight="700" fill="${PMP_C}">CHW PUMP</text>`);
+  p.push(`<text x="${pmpX-pmpR-6}" y="${pmpY+6}" text-anchor="end" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">P-01</text>`);
+
+  // ── Right vertical + Load box ──────────────────────────────────────────────
+  p.push(`<line x1="${rgtX}" y1="${supY}" x2="${rgtX}" y2="${retY}" stroke="${GY}" stroke-width="2.5"/>`);
+  const boxX = rgtX + 4, boxW = 58, boxH = retY - supY;
+  p.push(`<rect x="${boxX}" y="${supY}" width="${boxW}" height="${boxH}" rx="4" fill="${LGY}" stroke="${GY}" stroke-width="1.5"/>`);
+  p.push(`<text x="${boxX+boxW/2}" y="${supY+boxH/2-7}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="8" font-weight="600" fill="${SC}">LOAD</text>`);
+  p.push(`<text x="${boxX+boxW/2}" y="${supY+boxH/2+5}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="8" font-weight="600" fill="${SC}">COILS</text>`);
+  p.push(`<text x="${boxX+boxW/2}" y="${supY+boxH/2+17}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">/ FCUs</text>`);
+
+  // ── Air separator (inline on supply) ─────────────────────────────────────
+  p.push(`<circle cx="${sepX}" cy="${supY}" r="${sepR}" fill="${LGY}" stroke="${GY}" stroke-width="2"/>`);
+  p.push(`<text x="${sepX}" y="${supY+4}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="6.5" font-weight="bold" fill="${SC}">AS</text>`);
+  p.push(`<line x1="${sepX}" y1="${supY-sepR}" x2="${sepX}" y2="${supY-sepR-14}" stroke="${GY}" stroke-width="1.5"/>`);
+  p.push(`<circle cx="${sepX}" cy="${supY-sepR-18}" r="5" fill="${LGY}" stroke="${GY}" stroke-width="1.5"/>`);
+  p.push(`<text x="${sepX+8}" y="${supY-sepR-14}" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">Air Vent  AV-01</text>`);
+  p.push(`<text x="${sepX}" y="${supY+sepR+12}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">Air Sep. AS-01</text>`);
+
+  // ── Makeup water stub (on return at fillX) ───────────────────────────────
+  p.push(`<line x1="${fillX}" y1="${retY}" x2="${fillX}" y2="${retY+32}" stroke="${GY}" stroke-width="1.5" stroke-dasharray="4 2"/>`);
+  const mvY2 = retY + 35;
+  p.push(`<polygon points="${fillX-7},${mvY2-5} ${fillX+7},${mvY2-5} ${fillX},${mvY2+2}" fill="${GY}"/>`);
+  p.push(`<polygon points="${fillX-7},${mvY2+10} ${fillX+7},${mvY2+10} ${fillX},${mvY2+2}" fill="${GY}"/>`);
+  p.push(`<text x="${fillX-12}" y="${mvY2+24}" text-anchor="end" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">Makeup Water</text>`);
+  p.push(`<text x="${fillX-12}" y="${mvY2+34}" text-anchor="end" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">FV-01  MV</text>`);
+
+  // ── Expansion tank branch ─────────────────────────────────────────────────
+  // Tee dot on return
+  p.push(`<circle cx="${teeX}" cy="${retY}" r="5" fill="${RET_C}"/>`);
+  // Branch pipe to isolation valve
+  p.push(`<line x1="${teeX}" y1="${retY+5}" x2="${teeX}" y2="${isoY-9}" stroke="${RET_C}" stroke-width="3"/>`);
+
+  // Pressure indicator at tee
+  const piCX = teeX + 24, piCY = retY - 4;
+  p.push(`<line x1="${teeX+5}" y1="${retY-3}" x2="${piCX-10}" y2="${piCY}" stroke="${GY}" stroke-width="1"/>`);
+  p.push(`<circle cx="${piCX}" cy="${piCY}" r="10" fill="${LGY}" stroke="${GY}" stroke-width="1.5"/>`);
+  p.push(`<text x="${piCX}" y="${piCY+3}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="6" font-weight="bold" fill="${SC}">PI</text>`);
+  p.push(`<text x="${piCX+13}" y="${piCY-2}" font-family="Segoe UI,Arial,sans-serif" font-size="6.5" fill="${GY}">PI-01</text>`);
+  p.push(`<text x="${piCX+13}" y="${piCY+8}" font-family="Segoe UI,Arial,sans-serif" font-size="6.5" fill="${SUP_C}">${fillPressG} kPa g</text>`);
+
+  // Isolation valve (two-triangle gate valve symbol)
+  p.push(`<polygon points="${teeX-8},${isoY-7} ${teeX+8},${isoY-7} ${teeX},${isoY}" fill="${GY}"/>`);
+  p.push(`<polygon points="${teeX-8},${isoY+7} ${teeX+8},${isoY+7} ${teeX},${isoY}" fill="${GY}"/>`);
+  p.push(`<text x="${teeX+12}" y="${isoY+4}" font-family="Segoe UI,Arial,sans-serif" font-size="6.5" fill="${GY}">ISO-01  Gate Valve</text>`);
+
+  // Branch pipe below iso to tank top
+  p.push(`<line x1="${teeX}" y1="${isoY+9}" x2="${teeX}" y2="${tnkTop}" stroke="${RET_C}" stroke-width="3"/>`);
+
+  // ── Tank body ─────────────────────────────────────────────────────────────
+  p.push(`<rect x="${teeX-tnkH2}" y="${tnkTop}" width="${tnkW}" height="${tnkBot-tnkTop}" rx="7" fill="${TANK_C}" stroke="${SC}" stroke-width="2"/>`);
+  p.push(`<ellipse cx="${teeX}" cy="${tnkTop}" rx="${tnkH2}" ry="8" fill="${GY}" stroke="${SC}" stroke-width="1.5"/>`);
+  p.push(`<ellipse cx="${teeX}" cy="${tnkBot}" rx="${tnkH2}" ry="8" fill="${GY}" stroke="${SC}" stroke-width="1.5"/>`);
+  // Bladder (ellipse at mid-height)
+  p.push(`<ellipse cx="${teeX}" cy="${bladY}" rx="${tnkH2-4}" ry="18" fill="${BLD_C}" stroke="${RET_C}" stroke-width="1.5"/>`);
+  // N2 zone label (above bladder)
+  const n2Y = Math.round((tnkTop + bladY) / 2) - 2;
+  p.push(`<text x="${teeX}" y="${n2Y}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="6.5" fill="${N2_C}">N₂</text>`);
+  p.push(`<text x="${teeX}" y="${n2Y+11}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="6" fill="${N2_C}">${prechargeG} kPa g</text>`);
+  // Water zone label (below bladder)
+  const watY = Math.round((bladY + tnkBot) / 2) + 2;
+  p.push(`<text x="${teeX}" y="${watY}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="6.5" fill="${RET_C}">H₂O</text>`);
+
+  // PRV on tank (right side at tnkTop+22)
+  const prvBX = teeX + tnkH2, prvY = tnkTop + 22;
+  p.push(`<line x1="${prvBX}" y1="${prvY}" x2="${prvBX+20}" y2="${prvY}" stroke="${GY}" stroke-width="1.5"/>`);
+  p.push(`<polygon points="${prvBX+20},${prvY-6} ${prvBX+32},${prvY} ${prvBX+20},${prvY+6}" fill="none" stroke="${ORG}" stroke-width="1.5"/>`);
+  p.push(`<line x1="${prvBX+32}" y1="${prvY}" x2="${prvBX+42}" y2="${prvY}" stroke="${ORG}" stroke-width="1.5"/>`);
+  p.push(`<text x="${prvBX+45}" y="${prvY+4}" font-family="Segoe UI,Arial,sans-serif" font-size="6.5" fill="${ORG}">PRV-01  Set: ${Math.round(maxPressG*1.15)} kPa g</text>`);
+
+  // Tank tag labels (right of tank)
+  const tLX = teeX + tnkH2 + 8;
+  p.push(`<text x="${tLX}" y="${tnkTop+12}" font-family="Segoe UI,Arial,sans-serif" font-size="8" font-weight="700" fill="${SC}">ET-01</text>`);
+  p.push(`<text x="${tLX}" y="${tnkTop+23}" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">Bladder Type — ASME VIII</text>`);
+  p.push(`<text x="${tLX}" y="${tnkTop+36}" font-family="Segoe UI,Arial,sans-serif" font-size="8.5" font-weight="700" fill="${SUP_C}">${selTankL} L</text>`);
+  p.push(`<text x="${tLX}" y="${tnkTop+48}" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${TANK_C}">Pre-charge: ${prechargeG} kPa g (N₂)</text>`);
+  p.push(`<text x="${tLX}" y="${tnkTop+59}" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${TANK_C}">MAWP: ${maxPressG} kPa g</text>`);
+  p.push(`<text x="${tLX}" y="${tnkTop+70}" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">Req'd: ${reqTankL} L</text>`);
+
+  // Acceptance factor badge
+  const bdX = 375, bdY = supY - 32, bdW = 155, bdH = 28;
+  p.push(`<rect x="${bdX}" y="${bdY}" width="${bdW}" height="${bdH}" rx="4" fill="${alphaOK ? '#e8f5e9' : '#ffebee'}" stroke="${ALP_C}" stroke-width="1.5"/>`);
+  p.push(`<text x="${bdX+bdW/2}" y="${bdY+11}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" font-weight="700" fill="${ALP_C}">Acceptance Factor α = ${alpha.toFixed(4)}</text>`);
+  p.push(`<text x="${bdX+bdW/2}" y="${bdY+22}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${ALP_C}">${alphaOK ? 'PASS — ASHRAE min 0.25 ✓' : 'FAIL — below ASHRAE 0.25 ✗'}</text>`);
+
+  // ── DATA PANEL ────────────────────────────────────────────────────────────
+  const DX = SPLIT_X + 10, DW = W - SPLIT_X - 22;
+  const rowH = 17;
+  let dy = 52;
+
+  const secHdr = (label) => {
+    const r = [`<rect x="${DX}" y="${dy}" width="${DW}" height="15" rx="2" fill="#dce3ef"/>`,
+               `<text x="${DX+DW/2}" y="${dy+10}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" font-weight="700" fill="${SC}">${label}</text>`];
+    dy += 18;  return r.join('');
+  };
+  const dataRow = (label, val, vc, idx) => {
+    const bg = idx % 2 === 0 ? '#f0f4fa' : '#f8fafc';
+    const r = [`<rect x="${DX}" y="${dy}" width="${DW}" height="${rowH}" fill="${bg}"/>`,
+               `<text x="${DX+4}" y="${dy+11}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="#5a6a7a">${label}</text>`,
+               `<text x="${DX+DW-4}" y="${dy+11}" text-anchor="end" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" font-weight="bold" fill="${vc}">${val}</text>`];
+    dy += rowH;  return r.join('');
+  };
+
+  // Header
+  p.push(`<rect x="${DX}" y="${dy}" width="${DW}" height="20" rx="3" fill="${SC}"/>`);
+  p.push(`<text x="${DX+DW/2}" y="${dy+13}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="8.5" font-weight="bold" fill="white">DESIGN PARAMETERS</text>`);
+  dy += 24;
+
+  [['System Type', sysType, SC], ['System Volume', `${sysVolL} L`, SC],
+   ['Fill Temperature', `${fillT}°C`, RET_C], ['Operating Temp.', `${maxT}°C`, SUP_C],
+   ['Static Head', `${headM} m`, GY], ['Expansion Factor E_w', Ew.toFixed(5), GY],
+   ['Net Expansion Vol.', `${netExpL} L`, SC]].forEach(([l,v,c],i) => p.push(dataRow(l,v,c,i)));
+
+  dy += 4;  p.push(secHdr('PRESSURE SCHEDULE (kPa gauge)'));
+  [['Pre-Charge (N₂)', `${prechargeG} kPa g`, GY], ['Fill (Min) Pressure', `${fillPressG} kPa g`, SUP_C],
+   ['Max System Pressure', `${maxPressG} kPa g`, SC],
+   ['Pressure Check', pressOK ? 'PASS ✓' : 'REVIEW ✗', pressOK ? GRN : ORG]].forEach(([l,v,c],i) => p.push(dataRow(l,v,c,i)));
+
+  dy += 4;  p.push(secHdr('TANK SELECTION'));
+  [[`Accept. Factor α`, `${alpha.toFixed(4)}  (min 0.25)`, ALP_C],
+   ['Required Volume', `${reqTankL} L`, SC], ['Selected Tank', `${selTankL} L`, SUP_C],
+   ['Tank Type', 'Bladder/Diaphragm — ASME VIII', GY],
+   ['PRV Set Pressure', `${Math.round(maxPressG*1.15)} kPa g`, ORG]].forEach(([l,v,c],i) => p.push(dataRow(l,v,c,i)));
+
+  dy += 6;
+  p.push(`<text x="${DX+DW/2}" y="${dy}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">V_tank = V_exp / α  |  α = 1 − P_fill(abs) / P_max(abs)</text>`);
+  dy += 11;
+  p.push(`<text x="${DX+DW/2}" y="${dy}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">ASHRAE 2023 HVAC S&amp;E Ch.12  |  IAPWS-IF97 water props</text>`);
+
+  // ── LEGEND ────────────────────────────────────────────────────────────────
+  const LY = STRIP_Y + 6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${SC}" stroke-width="0.8"/>`);
+  p.push(`<text x="18" y="${LY+10}" font-family="Segoe UI,Arial,sans-serif" font-size="8" font-weight="700" fill="${SC}">LEGEND</text>`);
+
+  let lx = 25, ly = LY + 25;
+  p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+30}" y2="${ly}" stroke="${SUP_C}" stroke-width="4"/>`);
+  p.push(`<text x="${lx+34}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">${isHHW ? 'HHW' : 'CHW'} Supply Pipe</text>`);
+  ly += 16;
+  p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+30}" y2="${ly}" stroke="${RET_C}" stroke-width="4"/>`);
+  p.push(`<text x="${lx+34}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">${isHHW ? 'HHW' : 'CHW'} Return Pipe</text>`);
+  ly += 16;
+  p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+30}" y2="${ly}" stroke="${GY}" stroke-width="1.5" stroke-dasharray="4 2"/>`);
+  p.push(`<text x="${lx+34}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">Instrument / Makeup Line</text>`);
+
+  lx = 280; ly = LY + 25;
+  p.push(`<circle cx="${lx+8}" cy="${ly}" r="8" fill="${LGY}" stroke="${PMP_C}" stroke-width="1.5"/>`);
+  p.push(`<polygon points="${lx+2},${ly-5} ${lx+15},${ly} ${lx+2},${ly+5}" fill="${PMP_C}"/>`);
+  p.push(`<text x="${lx+20}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">Centrifugal Pump (P)</text>`);
+  ly += 16;
+  p.push(`<circle cx="${lx+8}" cy="${ly}" r="8" fill="${LGY}" stroke="${GY}" stroke-width="1.5"/>`);
+  p.push(`<text x="${lx+8}" y="${ly+3}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="5.5" font-weight="bold" fill="${SC}">AS</text>`);
+  p.push(`<text x="${lx+20}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">Air Separator (AS)</text>`);
+  ly += 16;
+  p.push(`<polygon points="${lx},${ly-5} ${lx+14},${ly-5} ${lx+7},${ly+1}" fill="${GY}"/>`);
+  p.push(`<polygon points="${lx},${ly+8} ${lx+14},${ly+8} ${lx+7},${ly+1}" fill="${GY}"/>`);
+  p.push(`<text x="${lx+20}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">Gate Valve — Isolation (ISO)</text>`);
+
+  lx = 560; ly = LY + 25;
+  p.push(`<rect x="${lx}" y="${ly-8}" width="20" height="17" rx="3" fill="${TANK_C}" stroke="${SC}" stroke-width="1"/>`);
+  p.push(`<ellipse cx="${lx+10}" cy="${ly}" rx="10" ry="5" fill="${BLD_C}" stroke="${RET_C}" stroke-width="1"/>`);
+  p.push(`<text x="${lx+24}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">Bladder Expansion Tank (ET)</text>`);
+  ly += 16;
+  p.push(`<circle cx="${lx+8}" cy="${ly}" r="7" fill="${LGY}" stroke="${GY}" stroke-width="1.5"/>`);
+  p.push(`<text x="${lx+8}" y="${ly+3}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="5.5" font-weight="bold" fill="${SC}">PI</text>`);
+  p.push(`<text x="${lx+24}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">Pressure Indicator (PI)</text>`);
+  ly += 16;
+  p.push(`<polygon points="${lx},${ly-6} ${lx+12},${ly}" fill="none" stroke="${ORG}" stroke-width="1.5"/>`);
+  p.push(`<polygon points="${lx},${ly+6} ${lx+12},${ly}" fill="none" stroke="${ORG}" stroke-width="1.5"/>`);
+  p.push(`<line x1="${lx+12}" y1="${ly}" x2="${lx+20}" y2="${ly}" stroke="${ORG}" stroke-width="1.5"/>`);
+  p.push(`<text x="${lx+24}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">Pressure Relief Valve (PRV)</text>`);
+
+  // Notes
+  const notes = [
+    `1. Tank at PNPC (pump suction) per ASHRAE 2023 Ch.12 — set pre-charge with system depressurised.`,
+    `2. PRV at ${Math.round(maxPressG*1.15)} kPa g (115% MAWP). ASME VIII Mfr. Data Report required before commissioning.`,
+    `3. TAB contractor to verify fill pressure at ${fillPressG} kPa g and α ≥ 0.25 after commissioning.`,
+  ];
+  notes.forEach((note, i) => {
+    p.push(`<text x="18" y="${LY+80+i*11}" font-family="Segoe UI,Arial,sans-serif" font-size="6.5" fill="${SC}">${note}</text>`);
+  });
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` +
     p.join('\n  ') + `\n</svg>`;
