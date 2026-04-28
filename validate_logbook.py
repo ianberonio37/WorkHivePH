@@ -289,8 +289,12 @@ def check_await_in_non_async(content, page):
     """
     An `await` inside a regular function() callback (not async function) is a
     SyntaxError that crashes the entire JS engine on page load — ALL entries
-    disappear because no code after the crash runs. This happened on 2026-04-28
-    when a category change listener used await without async.
+    disappear because no code after the crash runs.
+
+    Bug history (2026-04-28): TWO separate listeners had this bug in logbook.html.
+    The first was caught at line 2076 (f-category). A second was missed at line 2138
+    (f-maint-type) because the validator lookback window was only 5 lines and the
+    function() was 7 lines above the await. Fixed: lookback extended to 20 lines.
     """
     issues = []
     lines = content.splitlines()
@@ -300,19 +304,16 @@ def check_await_in_non_async(content, page):
         stripped = line.strip()
         if stripped.startswith("//") or stripped.startswith("*"):
             continue
-        # Look back up to 5 lines for the enclosing function definition
-        window_back = "\n".join(lines[max(0, i - 5):i])
-        # If a non-async function() starts in the look-back window and no async function
-        has_plain_fn  = bool(re.search(r"\bfunction\s*\(", window_back))
-        has_async_fn  = bool(re.search(r"\basync\s+function\s*\(", window_back))
-        # Also flag arrow functions like .then(e => { ... await ... })
-        has_plain_arrow = bool(re.search(r"(?<!=>)\b\w+\s*=>\s*\{", window_back))
-        has_async_arrow = bool(re.search(r"\basync\s*\w*\s*=>\s*\{|\basync\s*\([^)]*\)\s*=>\s*\{", window_back))
+        # Look back up to 20 lines — function() can be many lines above the await
+        # (e.g. a long variable declaration block between the function header and the await)
+        window_back = "\n".join(lines[max(0, i - 20):i])
+        has_plain_fn = bool(re.search(r"\bfunction\s*\(", window_back))
+        has_async_fn = bool(re.search(r"\basync\s+function\s*\(", window_back))
         if has_plain_fn and not has_async_fn:
             issues.append({"check": "await_in_non_async", "page": page, "line": i + 1,
                            "reason": (f"{page}:{i+1} — `await` inside a non-async function() callback. "
-                                      f"This is a SyntaxError that crashes ALL JS on the page — "
-                                      f"entries never load. Fix: add `async` to the function keyword.")})
+                                      f"SyntaxError crashes ALL JS — entries never load. "
+                                      f"Fix: add `async` to the function keyword.")})
     return issues
 
 
