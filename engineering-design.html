@@ -21315,7 +21315,7 @@ function buildFCUSVG(inputs, results) {
   // FCU casing
   p.push(`<rect x="${FCU_X}" y="${FCU_Y}" width="${FCU_W}" height="${FCU_H}" fill="#eceff1" stroke="${CC}" stroke-width="2" rx="6"/>`);
   p.push(`<rect x="${FCU_X}" y="${FCU_Y}" width="${FCU_W}" height="18" fill="${CC}" rx="6"/>`);
-  p.push(T(FCU_X+FCU_W/2, FCU_Y+12, `FCU-201  ${fcuModel}`, {sz:8, c:'#fff', w:'700'}));
+  p.push(T(FCU_X+FCU_W/2, FCU_Y+12, `FCU-201  |  Model: ${fcuModel}`, {sz:8, c:'#fff', w:'700'}));
 
   // Internal components
   // Filter
@@ -21353,14 +21353,14 @@ function buildFCUSVG(inputs, results) {
 
   // ── CHW PIPING (above FCU) ────────────────────────────────────────────────
   const CHW_MAIN_Y = FCU_Y - 50;
-  // Main CHW supply riser
+  // Main CHW supply riser — labels placed below title zone (y > 55)
   p.push(VL(FCU_X-40, 55, CHW_MAIN_Y+10, 4, CHW));
-  p.push(T(FCU_X-40, 52, 'CHW SUPPLY RISER', {sz:7, c:CHW, w:'700'}));
-  p.push(T(FCU_X-40, 42, `${chws}°C`, {sz:8, c:CHW, w:'700'}));
+  p.push(T(FCU_X-40, 60, 'CHW SUPPLY RISER', {sz:7, c:CHW, w:'700'}));
+  p.push(T(FCU_X-40, 71, `${chws}°C`, {sz:8, c:CHW, w:'700'}));
   // Main CHW return riser
   p.push(VL(FCU_X+FCU_W+40, 55, CHW_MAIN_Y+10, 4, '#c62828'));
-  p.push(T(FCU_X+FCU_W+40, 52, 'CHW RETURN RISER', {sz:7, c:'#c62828', w:'700'}));
-  p.push(T(FCU_X+FCU_W+40, 42, `${chwr}°C`, {sz:8, c:'#c62828', w:'700'}));
+  p.push(T(FCU_X+FCU_W+40, 60, 'CHW RETURN RISER', {sz:7, c:'#c62828', w:'700'}));
+  p.push(T(FCU_X+FCU_W+40, 71, `${chwr}°C`, {sz:8, c:'#c62828', w:'700'}));
 
   // Branch from supply riser → FCU
   const SUP_BRANCH_Y = CHW_MAIN_Y;
@@ -21732,7 +21732,7 @@ function buildRefrigPipeSVG(inputs, results) {
   p.push(T(DPT_X, DIS_PORT_Y+78, `${condT}°C`, {sz:7.5, c:DIS, w:'700'}));
 
   // ── MASS FLOW ANNOTATION ──────────────────────────────────────────────────
-  p.push(T(W/2-40, 55, `Mass flow: ${massKgs} kg/s  |  Refrigerant: ${refrig}`, {sz:8.5, c:CC, w:'700'}));
+  p.push(T(W/2-40, 72, `Mass flow: ${massKgs} kg/s  |  Refrigerant: ${refrig}`, {sz:8.5, c:CC, w:'700'}));
 
   // ── LEGEND + NOTES (STRIP_Y = 467) ───────────────────────────────────────
   p.push(HL(11, STRIP_Y, W-11, 0.75));
@@ -21834,7 +21834,7 @@ function buildCoolingTowerSVG(inputs, results) {
   p.push(T(W/2, 41, `CTI Std-201 / ASHRAE 90.1 / ASME PTC 23 / PSME Code  |  ${nCells} cell(s)  |  ${qKW} kW / ${qTR} TR heat rejection`, {sz:9, c:SC}));
 
   // ── TOWER CROSS-SECTION ───────────────────────────────────────────────────
-  const TX = 130, TY = 65;   // tower body left, top
+  const TX = 130, TY = 90;   // tower body left, top (offset 90px from border to keep labels above title-free)
   const TW = 230, TH = 330;  // tower width, height
 
   // Tower outer shell
