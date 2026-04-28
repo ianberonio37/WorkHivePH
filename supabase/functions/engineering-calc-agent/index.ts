@@ -5223,6 +5223,154 @@ function calcDuctSizing(inputs: Record<string, unknown>): Record<string, unknown
   };
 }
 
+// ─── Transformer Sizing: IEC 60076-1 / IEEE C57.12.00 / PEC 2017 ────────────
+
+function calcTransformerSizing(inputs: Record<string, unknown>): Record<string, unknown> {
+  const r2 = (v: number) => Math.round(v * 100) / 100;
+  const loadKva      = Number(inputs.load_kva          || 80);
+  const primaryV     = Number(inputs.primary_voltage   || 13800);
+  const secondaryV   = Number(inputs.secondary_voltage || 400);
+  const phases       = Number(inputs.phases            || 3);
+  const impedancePct = Number(inputs.impedance_pct     || 5.0);
+  const sparePct     = Number(inputs.spare_capacity_pct|| 25);
+  const loadPf       = Number(inputs.load_power_factor || 0.85);
+  const numUnits     = Math.max(1, Math.round(Number(inputs.num_units || 1)));
+  const winding      = String(inputs.winding_connection|| 'Delta-Star (Dyn11)');
+
+  const STD_KVA = [5,10,15,25,37.5,50,75,100,112.5,150,167,200,225,250,300,333,400,500,750,1000,1500,2000,2500,3000];
+  const requiredKva  = loadKva * (1 + sparePct / 100);
+  const ratedKva     = STD_KVA.find(s => s >= requiredKva) ?? Math.ceil(requiredKva / 100) * 100;
+
+  const sqrt3 = Math.sqrt(3);
+  const I1 = (ratedKva * 1000) / (phases === 3 ? sqrt3 * primaryV   : primaryV);
+  const I2 = (ratedKva * 1000) / (phases === 3 ? sqrt3 * secondaryV : secondaryV);
+  const Isc = I2 * 100 / impedancePct;
+
+  // IEC 60076-1 typical loss fractions
+  const nlFrac = ratedKva <= 100 ? 0.0022 : ratedKva <= 500 ? 0.0018 : 0.0014;
+  const llFrac = ratedKva <= 100 ? 0.014  : ratedKva <= 500 ? 0.012  : 0.010;
+  const coreLoss = ratedKva * nlFrac;
+  const cuLoss   = ratedKva * llFrac;
+  const pOut     = ratedKva * loadPf;
+  const etaFl    = pOut / (pOut + coreLoss + cuLoss) * 100;
+  const eta75    = (pOut * 0.75) / (pOut * 0.75 + coreLoss + cuLoss * 0.5625) * 100;
+
+  const er  = (cuLoss / ratedKva) * 100;
+  const ex  = Math.sqrt(Math.max(0, impedancePct ** 2 - er ** 2));
+  const sinf = Math.sqrt(Math.max(0, 1 - loadPf * loadPf));
+  const VR  = er * loadPf + ex * sinf;
+
+  return {
+    load_kva: r2(loadKva), spare_capacity_pct: sparePct,
+    required_kva: r2(requiredKva), rated_kva: ratedKva,
+    num_units: numUnits, total_installed_kva: ratedKva * numUnits,
+    loading_pct: r2(loadKva / ratedKva * 100),
+    primary_voltage: primaryV, secondary_voltage: secondaryV,
+    phases, winding_connection: winding, cooling_type: 'ONAN',
+    I1_full_load_A: r2(I1), I2_full_load_A: r2(I2),
+    impedance_pct: impedancePct,
+    Isc_secondary_A: r2(Isc), Isc_secondary_kA: r2(Isc / 1000),
+    core_loss_kW: r2(coreLoss), copper_loss_kW: r2(cuLoss),
+    total_loss_fl_kW: r2(coreLoss + cuLoss),
+    total_loss_75pct_kW: r2(coreLoss + cuLoss * 0.5625),
+    efficiency_fl_pct: r2(etaFl), efficiency_75pct: r2(eta75),
+    voltage_regulation_pct: r2(VR), load_power_factor: loadPf,
+  };
+}
+
+// ─── Harmonic Distortion: IEEE 519-2022 / IEC 61000-3-2 ─────────────────────
+
+function calcHarmonicDistortion(inputs: Record<string, unknown>): Record<string, unknown> {
+  const r2 = (v: number) => Math.round(v * 100) / 100;
+  const I1  = Number(inputs.fundamental_current_a   || 100);
+  const IL  = Number(inputs.max_demand_current_a    || 0) || I1;
+  const Isc = Number(inputs.short_circuit_current_a || 0);
+  const harmonics = (inputs.harmonics as Array<{ order: number; current_pct: number }>) || [];
+
+  const iscIl = (Isc > 0 && IL > 0) ? Isc / IL : 20;
+  // IEEE 519-2022 Table 2 TDD limits by ISC/IL
+  const tddLimit = iscIl < 20 ? 5 : iscIl < 50 ? 8 : iscIl < 100 ? 12 : iscIl < 1000 ? 15 : 20;
+  // Individual harmonic scale factor per ISC/IL tier
+  const indvScale = iscIl < 20 ? 1.0 : iscIl < 50 ? 2.0 : iscIl < 100 ? 3.0 : iscIl < 1000 ? 3.5 : 5.0;
+
+  let sumSq = 0;
+  const harmonicTable = harmonics.map(h => {
+    const Ih  = I1 * h.current_pct / 100;
+    sumSq += Ih * Ih;
+    const basePct = h.order < 11 ? 4.0 : h.order < 17 ? 2.0 : h.order < 23 ? 1.5 : h.order < 35 ? 0.6 : 0.3;
+    const limPct  = basePct * indvScale;
+    const limA    = IL * limPct / 100;
+    return { order: h.order, current_pct: h.current_pct, current_A: r2(Ih), limit_pct_of_IL: r2(limPct), limit_A: r2(limA), pass: Ih <= limA };
+  });
+
+  const THD = IL > 0 ? Math.sqrt(sumSq) / I1 * 100 : 0;
+  const TDD = IL > 0 ? Math.sqrt(sumSq) / IL * 100 : 0;
+  const kFactor = harmonics.reduce((s, h) => s + (h.current_pct / 100) ** 2 * h.order ** 2, 0) + 1;
+  const allIndvPass = harmonicTable.every(h => h.pass);
+
+  return {
+    fundamental_current_A: I1, max_demand_current_A: IL,
+    system_voltage_V: Number(inputs.system_voltage_v || 400),
+    isc_il_ratio: Math.round(iscIl * 10) / 10,
+    THD_I_pct: r2(THD), TDD_pct: r2(TDD),
+    TDD_limit_pct: tddLimit, TDD_pass: TDD <= tddLimit,
+    TDD_status: TDD <= tddLimit ? 'PASS' : `FAIL: TDD ${r2(TDD)}% > limit ${tddLimit}%`,
+    K_factor: r2(kFactor),
+    individual_harmonics: harmonicTable,
+    all_individuals_pass: allIndvPass,
+    overall_pass: TDD <= tddLimit && allIndvPass,
+  };
+}
+
+// ─── Clean Agent Suppression: NFPA 2001:2022 / ISO 14520:2015 ────────────────
+
+function calcCleanAgentSuppression(inputs: Record<string, unknown>): Record<string, unknown> {
+  const r2 = (v: number) => Math.round(v * 100) / 100;
+  const agentKey = String(inputs.agent_type       || 'FK-5-1-12');
+  const vol      = Number(inputs.hazard_volume_m3 || 100);
+  const tempC    = Number(inputs.temperature_c    || 20);
+  const alt      = Number(inputs.altitude_m       || 15);
+  const sf       = Number(inputs.safety_factor    || 1.10);
+  const nZones   = Math.max(1, Math.round(Number(inputs.num_zones || 1)));
+
+  const AGENTS: Record<string, { s1: number; s2: number; c_design: number; c_min: number; label: string; noael: number; type: string; gwp: number }> = {
+    'FK-5-1-12': { s1: 0.0664,  s2: 0.0002738, c_design: 5.0,  c_min: 4.0,  label: 'FK-5-1-12 (Novec 1230)', noael: 10, type: 'halocarbon', gwp: 1 },
+    'FM-200':    { s1: 0.1269,  s2: 0.0005007, c_design: 7.0,  c_min: 6.25, label: 'FM-200 / HFC-227ea',     noael: 9,  type: 'halocarbon', gwp: 3220 },
+    'Inergen':   { s1: 0.6598,  s2: 0.0024475, c_design: 38.0, c_min: 35.0, label: 'Inergen (IG-541)',       noael: 43, type: 'inert_gas',  gwp: 0 },
+    'CO2':       { s1: 0.5541,  s2: 0.002031,  c_design: 34.0, c_min: 30.0, label: 'CO2',                   noael: 5,  type: 'inert_gas',  gwp: 1 },
+  };
+  const agent    = AGENTS[agentKey] ?? AGENTS['FK-5-1-12'];
+  const cDesign  = Number(inputs.design_concentration_pct || 0) || agent.c_design;
+
+  const S        = agent.s1 + agent.s2 * tempC;
+  const altFactor= Math.pow(1 - 2.2558e-5 * alt, 5.2559);
+  const Vadj     = vol * altFactor;
+  const W        = (Vadj / S) * (cDesign / (100 - cDesign));
+  const Wdesign  = W * sf;
+
+  const STD_CYL = [16, 32, 50, 80, 100, 150, 200];
+  const selCyl  = STD_CYL.find(c => c >= Wdesign) ?? 200;
+  const selQty  = Math.ceil(Wdesign / selCyl);
+  const safe    = cDesign <= agent.noael;
+
+  return {
+    agent_type: agentKey, agent_label: agent.label, agent_class: agent.type, gwp: agent.gwp,
+    hazard_volume_m3: vol, altitude_m: alt,
+    altitude_correction: Math.round(altFactor * 10000) / 10000,
+    adjusted_volume_m3: r2(Vadj), temperature_c: tempC,
+    specific_vol_m3_kg: Math.round(S * 1000000) / 1000000,
+    design_concentration_pct: cDesign, c_min_pct: agent.c_min,
+    W_calculated_kg: r2(W), W_design_kg: r2(Wdesign),
+    safety_factor: sf, flooding_factor: 1.0, num_zones: nZones,
+    recommended_cylinder_kg: selCyl, recommended_qty: selQty,
+    total_agent_kg: selCyl * selQty,
+    discharge_time_req: agent.type === 'halocarbon' ? '≤ 10 s' : '≤ 60 s',
+    noael_pct: agent.noael, safe_for_occupied_spaces: safe,
+    safety_note: safe ? 'Safe for occupied spaces' : `EVACUATE before discharge — ${cDesign}% > NOAEL ${agent.noael}%`,
+    cylinder_options: STD_CYL.map(c => ({ cylinder_kg: c, qty: Math.ceil(Wdesign / c), total_kg: c * Math.ceil(Wdesign / c) })),
+  };
+}
+
 // ─── Expansion Tank Sizing: ASHRAE Acceptance Ratio Method / ASME VIII ──────
 
 // Water specific volume table (ASHRAE/IAPWS, L/kg) at key temperatures (°C)
@@ -5817,6 +5965,12 @@ serve(async (req) => {
       results = calcFCUSelection(inputs);
     } else if (calc_type === "Expansion Tank Sizing") {
       results = calcExpansionTank(inputs);
+    } else if (calc_type === "Transformer Sizing") {
+      results = calcTransformerSizing(inputs);
+    } else if (calc_type === "Harmonic Distortion") {
+      results = calcHarmonicDistortion(inputs);
+    } else if (calc_type === "Clean Agent Suppression") {
+      results = calcCleanAgentSuppression(inputs);
     } else {
       return new Response(
         JSON.stringify({ error: `Calculation type "${calc_type}" not yet implemented.` }),
