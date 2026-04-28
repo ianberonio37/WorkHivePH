@@ -62,20 +62,26 @@ FEATURE_PARITY_CHECKS = [
 
 
 def get_platform_tools_block(content):
-    start = content.find("PLATFORM TOOLS")
-    if start == -1:
-        return ""
-    return content[start:start + 4000]
+    # Support both "PLATFORM TOOLS" (floating-ai.js) and "PLATFORM CONTEXT" (assistant.html)
+    for marker in ("PLATFORM TOOLS", "PLATFORM CONTEXT"):
+        start = content.find(marker)
+        if start != -1:
+            return content[start:start + 6000]
+    return ""
 
 
 def get_tool_entry(content, tool_anchor):
     """Extract the paragraph in PLATFORM TOOLS for a given tool keyword."""
     block = get_platform_tools_block(content)
     if not block:
-        # Try searching the whole content for a tool context block
         block = content
-    m = re.search(rf"-\s*[^\n]*{re.escape(tool_anchor)}[\s\S]{{0,600}}?(?=\n-|\Z)", block, re.IGNORECASE)
-    return m.group(0) if m else ""
+    # Search for the tool entry — allow the last entry to have no trailing \n-
+    m = re.search(rf"-\s*[^\n]*{re.escape(tool_anchor)}[\s\S]{{0,800}}?(?=\n-|\n\n|\Z)", block, re.IGNORECASE)
+    if not m:
+        # Fallback: just find the line containing the anchor and grab 600 chars
+        m2 = re.search(rf".{{0,5}}{re.escape(tool_anchor)}.{{0,800}}", block, re.IGNORECASE)
+        return m2.group(0) if m2 else ""
+    return m.group(0)
 
 
 # ── Layer 1: Structural consistency ──────────────────────────────────────────
