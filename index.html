@@ -495,6 +495,14 @@
     /* ── Page load fade (opacity only: transform on body breaks position:fixed) ── */
     @keyframes page-enter { from{opacity:0} to{opacity:1} }
     body { animation: page-enter .65s ease forwards; }
+    @media (prefers-reduced-motion: reduce) { body { animation: none; } }
+    /* Prevent GPU memory pressure on mobile — kills WebKit on iOS with too many concurrent animations */
+    @media (max-width: 767px) {
+      .logo-glow-img { will-change: auto; animation: none; }
+      .main-column, .floor { animation: none; }
+      .cta-pulse { animation: none; }
+      .badge { animation: none; }
+    }
 
     /* ════════════════════════════════════════
        SPRING PHYSICS TIMING
@@ -1427,7 +1435,9 @@
   // AURORA BEAM GENERATOR
   // ════════════════════════════════
   (function initAuroraBeams() {
-    const BEAM_COUNT = 60;
+    // Skip beams on mobile — 120 concurrent infinite CSS animations crash WebKit on iOS
+    if (window.innerWidth < 768) return;
+    const BEAM_COUNT = 40;
     const container = document.getElementById('beam-container');
     if (!container) return;
 
@@ -1896,6 +1906,19 @@
     }, { threshold: 0.4 }).observe(s);
   });
 
+})();
+</script>
+
+<script>
+/* ── Blank-page guard: force body visible if page-enter animation stalls ── */
+(function() {
+  var guard = setTimeout(function() {
+    document.body.style.opacity = '1';
+    document.body.style.animation = 'none';
+  }, 800);
+  document.body.addEventListener('animationend', function() {
+    clearTimeout(guard);
+  }, { once: true });
 })();
 </script>
 

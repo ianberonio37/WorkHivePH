@@ -18162,6 +18162,24 @@ function buildElectricalSLDSvg(inputs, results) {
     return sizes.find(s => s >= a) || 600;
   };
 
+  // Cable sizing helper: returns minimum Cu mm² (THWN-2, 75°C, in conduit) per PEC Table 3.10
+  const cableSz = I => {
+    const thr = [20,27,36,50,66,84,104,127,167,207,240];
+    const sz  = [2.5,4,6,10,16,25,35,50,70,95,120];
+    for (let i = 0; i < thr.length; i++) if (thr[i] >= Math.ceil(I * 1.25)) return sz[i];
+    return 150;
+  };
+  const condSz = mm => mm <= 4 ? 20 : mm <= 10 ? 25 : mm <= 25 ? 32 : mm <= 50 ? 40 : 63;
+
+  const faultKa   = Number(r.fault_level_kA || 25);          // PH utility default 25 kA
+  const mainIcKa  = faultKa >= 35 ? 50 : faultKa >= 22 ? 25 : 10;
+  const mainI     = Number(demandA);
+  const mainWire  = cableSz(mainI);
+  const mainCond  = condSz(mainWire);
+  const gecSize   = mainBkr <= 100 ? 14 : mainBkr <= 200 ? 22 : 38; // PEC Table 2.50
+  const gecStr    = `GEC: ${gecSize} mm² Cu`;
+  const egcStr    = `EGC: ${gecSize} mm² Cu`;
+
   // Branch X positions centred on CX
   const branchXs = [];
   if (numBranches > 0) {
@@ -18188,6 +18206,7 @@ function buildElectricalSLDSvg(inputs, results) {
   // Utility labels to the RIGHT of the symbol: avoids overlapping the circle body
   p.push(T(CX + 42, YU - 4, voltageLabel, { a: 'start', sz: 9, c: CC, w: '700' }));
   p.push(T(CX + 42, YU + 10, isThreePhase ? '3-Phase Utility Supply' : 'Single-Phase Utility Supply', { a: 'start', sz: 8, c: SC }));
+  p.push(T(CX + 42, YU + 22, `Fault Level: ${faultKa} kA | BIL 95 kV (PEC / MERALCO SOP)`, { a: 'start', sz: 7, c: SC }));
 
   // ── Main spine conductors ──────────────────────────────────────
   // 3-phase: three parallel thin lines as visual cue
@@ -18203,6 +18222,22 @@ function buildElectricalSLDSvg(inputs, results) {
   // ── Bus bar ───────────────────────────────────────────────────
   p.push(HL(busLeft, YBUS, busRight, 6));
   p.push(T(busRight + 8, YBUS + 4, 'Bus Bar', { a: 'start', sz: 8, c: SC }));
+  // Phase labels on bus bar (IEC 60617 / PEC 2017)
+  if (isThreePhase && numBranches > 0) {
+    const phLabels = ['L1','L2','L3','N','PE'];
+    const phColors = ['#c0392b','#c0392b','#c0392b','#1565c0','#2e7d32'];
+    const busSpan  = busRight - busLeft;
+    phLabels.forEach((ph, i) => {
+      const px = busLeft + busSpan * i / (phLabels.length - 1);
+      p.push(T(px, YBUS - 11, ph, { sz: 6.5, c: phColors[i], w: '700' }));
+    });
+  } else if (!isThreePhase) {
+    ['L','N','PE'].forEach((ph, i) => {
+      const px = busLeft + (busRight - busLeft) * i / 2;
+      const cl = i === 0 ? '#c0392b' : i === 1 ? '#1565c0' : '#2e7d32';
+      p.push(T(px, YBUS - 11, ph, { sz: 6.5, c: cl, w: '700' }));
+    });
+  }
 
   // ── Symbols ───────────────────────────────────────────────────
   p.push(`<g color="${CC}">${drawSymbol('utility_3ph', CX, YU)}</g>`);
@@ -18213,8 +18248,17 @@ function buildElectricalSLDSvg(inputs, results) {
 
   p.push(`<g color="${CC}">${drawSymbol('breaker', CX, YB)}</g>`);
   p.push(Badge(CX + 52, YB, `${mainBkr}A MCCB`));
+  p.push(T(CX + 52, YB + 18, `IC: ${mainIcKa} kA`, { a: 'start', sz: 7.5, c: '#c0392b', w: '700' }));
   p.push(T(CX - 44, YB - 6, 'Main Circuit Breaker', { a: 'end', sz: 8, c: SC }));
   p.push(T(CX - 44, YB + 8, `${demandA}A`, { a: 'end', sz: 9, c: CC, w: '600' }));
+  // Arc flash hazard label (NFPA 70E / PEC 2017 - required on all MDB drawings)
+  p.push(`<rect x="${CX - 244}" y="${YB + 22}" width="196" height="24" rx="3" fill="#fff3e0" stroke="#e65100" stroke-width="1.2"/>`);
+  p.push(T(CX - 146, YB + 33, '⚡ ARC FLASH HAZARD', { sz: 7.5, c: '#e65100', w: '700' }));
+  p.push(T(CX - 146, YB + 44, 'Study required per NFPA 70E / PEC 2017', { sz: 6.5, c: '#b74500' }));
+  // Main feeder cable size annotation on spine (between meter and main breaker)
+  p.push(T(CX + 8, Math.round((YM + YB) / 2) - 4, `${mainWire} mm² THWN-2`, { a: 'start', sz: 7, c: '#1565c0', w: '700' }));
+  p.push(T(CX + 8, Math.round((YM + YB) / 2) + 8,  `in Φ${mainCond} mm EMT conduit`, { a: 'start', sz: 6.5, c: '#1565c0' }));
+  p.push(T(CX + 8, Math.round((YM + YB) / 2) + 19, `VD ≤ 3.0% (PEC 2017 Art. 2.15)`,  { a: 'start', sz: 6.5, c: '#2e7d32' }));
 
   p.push(`<g color="${CC}">${drawSymbol('panel', CX, YP)}</g>`);
   // MDB label to the LEFT: ground symbol is at CX+55 so right side is blocked
@@ -18223,6 +18267,9 @@ function buildElectricalSLDSvg(inputs, results) {
 
   // Ground on MDB
   p.push(`<g color="${CC}">${drawSymbol('ground', CX + 55, YP)}</g>`);
+  p.push(T(CX + 82, YP - 7, gecStr, { a: 'start', sz: 7, c: '#2e7d32', w: '700' }));
+  p.push(T(CX + 82, YP + 5, egcStr + ' (PEC §2.50)', { a: 'start', sz: 6.5, c: '#2e7d32' }));
+  p.push(T(CX + 82, YP + 16, 'TBE: 2 × Ground Rod 2.4 m (PEC §2.56)', { a: 'start', sz: 6.5, c: SC }));
 
   // ── Branch circuits ───────────────────────────────────────────
   for (let i = 0; i < numBranches; i++) {
@@ -18236,6 +18283,13 @@ function buildElectricalSLDSvg(inputs, results) {
     p.push(VL(bx, YBUS, YBR - 22));
     p.push(`<g color="${CC}" transform="translate(${bx},${YBR}) scale(0.7)">${drawSymbol('breaker', 0, 0)}</g>`);
     p.push(Badge(bx, YBR - 38, `${brkAmp}A`));
+    // Branch cable + conduit annotation on feeder wire (PEC 2017 / IEC 60364)
+    const brI     = demVA > 0 ? demVA / (isThreePhase ? Math.sqrt(3) * 400 : 230) : brkAmp * 0.8;
+    const brWire  = cableSz(brI);
+    const brCond  = condSz(brWire);
+    const brMidY  = Math.round((YBUS + (YBR - 22)) / 2);
+    p.push(T(bx + 4, brMidY,      `${brWire}mm²`, { a: 'start', sz: 6, c: '#1565c0', w: '700' }));
+    p.push(T(bx + 4, brMidY + 10, `Φ${brCond}EMT`, { a: 'start', sz: 6, c: '#1565c0' }));
     p.push(VL(bx, YBR + 22, YLD - 16));
 
     const bW = 108, bHt = 55;
@@ -18586,6 +18640,50 @@ function buildGeneratorConnectionSvg(inputs, results) {
   ${ln(p2cx, busY, p2cx, P2Y, CP2, 2)}
   <!-- Bus → P3 (purple dashed = shed relay) -->
   ${ln(p3cx, busY, p3cx, P3Y, CP3, 2, '6,3')}
+
+  <!-- ─── ATS TYPE + TRANSFER TIME (below ATS box, PEC / NFPA 110) ── -->
+  ${tx(ABX+4, ABY+ABH+13, `Type: ${String(inputs.ats_type||'Open Transition (Break-Before-Make)')}`, 7, '#555', 'start')}
+  ${tx(ABX+4, ABY+ABH+24, `Transfer: ≤10 s (NFPA 110 §6.2.3)  |  Retransfer delay: 15 min`, 7, '#555', 'start')}
+
+  <!-- ─── CABLE SIZE ANNOTATIONS (ISO 8528-1 / PEC 2017) ─────────── -->
+  ${(()=>{
+    const is3 = phaseConf.includes('3');
+    const genI  = is3 ? selKva*1000/(1.732*400) : selKva*1000/230;
+    const genCa = genI<=50?'16':genI<=80?'25':genI<=104?'35':genI<=127?'50':genI<=167?'70':genI<=207?'95':'120';
+    const condGa= genCa<=16?25:genCa<=35?32:genCa<=70?40:63;
+    const midG  = Math.round((gy_bot + ats_mid_y)/2);
+    const midA  = Math.round((ay_bot + MBY)/2);
+    return `${tx(gcx+6, midG,    `${genCa} mm² THWN-2`, 7, '#1565c0', 'start','700')}
+  ${tx(gcx+6, midG+12, `Φ${condGa} mm EMT`, 7, '#1565c0', 'start')}
+  ${tx(acx+6, midA,    `${genCa} mm² THWN-2`, 7, CA, 'start','700')}
+  ${tx(acx+6, midA+12, `Φ${condGa} mm EMT`, 7, CA, 'start')}`;
+  })()}
+
+  <!-- ─── EXHAUST ROUTING (ISO 8528-1 / NFPA 37) ──────────────────── -->
+  ${(()=>{
+    const EX_X = GBX + 35;      // left zone of generator box
+    const EX_TY = 11;           // drawing top margin
+    const EX_BY = GBY;          // generator top
+    const EX_MID = Math.round(EX_TY + (EX_BY - EX_TY)/2);
+    const SIL_Y = EX_TY + 24;  // silencer box top
+    const chordH = 10; // exhaust silencer arc: half-chord = (EX_X+10)-(EX_X-10))/2 = 10
+    const R_arc  = Math.max(chordH, 10); // chord safety: R must be >= half-chord
+    return `
+  <!-- Exhaust riser pipe (vertical, insulated: double-line) -->
+  ${ln(EX_X-4, EX_BY, EX_X-4, EX_TY+4, CF, 2)}
+  ${ln(EX_X+4, EX_BY, EX_X+4, EX_TY+4, CF, 2)}
+  <!-- Rain cap / exhaust outlet (inverted U) -->
+  <path d="M ${EX_X-10},${EX_TY+6} A 10 10 0 0 1 ${EX_X+10},${EX_TY+6}" fill="none" stroke="${CF}" stroke-width="2"/>
+  ${ln(EX_X-10, EX_TY+6, EX_X-10, EX_TY+10, CF, 2)}
+  ${ln(EX_X+10, EX_TY+6, EX_X+10, EX_TY+10, CF, 2)}
+  <!-- Silencer box -->
+  <rect x="${EX_X-12}" y="${SIL_Y}" width="24" height="14" fill="#efebe9" stroke="${CF}" stroke-width="1.5" rx="2"/>
+  ${tx(EX_X, SIL_Y+10, 'SIL', 6.5, CF, 'middle','700')}
+  <!-- Exhaust label -->
+  ${tx(EX_X+14, EX_MID, 'EXHAUST', 6.5, CF, 'start','700')}
+  ${tx(EX_X+14, EX_MID+11, `Φ100 mm SS`, 6.5, CF, 'start')}
+  ${tx(EX_X+14, EX_MID+22, 'NFPA 37', 6.5, '#888', 'start')}`;
+  })()}
 </svg>`;
 }
 
@@ -19478,6 +19576,19 @@ function buildHVACSvg(inputs, results) {
   s+=rc(AHU_R,SA_DY1,PL_X-AHU_R,SA_DY2-SA_DY1,`fill="${BLL}" stroke="${BL}" stroke-width="1.5"`);
   s+=arR(AHU_R+8,(SA_DY1+SA_DY2)/2,BL);
   s+=tx((AHU_R+PL_X)/2,(SA_DY1+SA_DY2)/2+5,'SA',`text-anchor="middle" font-size="6" font-weight="700" fill="${BL}" font-family="Arial"`);
+  // ── Fire/Smoke Damper FSD-01 on supply duct (ASHRAE 62.1 / UL 555S req) ───
+  const FSD_X = Math.round(AHU_R + (PL_X-AHU_R)*0.7);
+  const FSD_W = 14;
+  const FSD_MID_Y = Math.round((SA_DY1+SA_DY2)/2);
+  // Callout badge above duct
+  s+=rc(FSD_X-20, SA_DY1-22, 44, 16, `fill="white" stroke="${RD}" stroke-width="1.2" rx="2"`);
+  s+=tx(FSD_X+2, SA_DY1-11, 'FSD-01', `text-anchor="middle" font-size="7" font-weight="700" fill="${RD}" font-family="Arial"`);
+  s+=ln(FSD_X+2, SA_DY1-6, FSD_X+2, SA_DY1, `stroke="${RD}" stroke-width="0.8" stroke-dasharray="2,1"`);
+  // Damper X symbol inline on duct
+  s+=rc(FSD_X-7, SA_DY1+1, FSD_W, SA_DY2-SA_DY1-2, `fill="white" stroke="${RD}" stroke-width="1.2"`);
+  s+=ln(FSD_X-7, SA_DY1+1, FSD_X-7+FSD_W, SA_DY2-1, `stroke="${RD}" stroke-width="1"`);
+  s+=ln(FSD_X-7+FSD_W, SA_DY1+1, FSD_X-7, SA_DY2-1, `stroke="${RD}" stroke-width="1"`);
+  s+=tx(FSD_X+2, SA_DY2+10, 'UL 555S', `text-anchor="middle" font-size="6" fill="${RD}" font-family="Arial"`);
 
   // ── Supply plenum (vertical) ─────────────────────────────────────────────────
   s+=rc(PL_X,PL_Y1,PL_W,PL_Y2-PL_Y1,`fill="${BLL}" stroke="${BL}" stroke-width="1.5"`);
@@ -19815,6 +19926,33 @@ function buildLightingLayoutSvg(inputs, results) {
     if (isEmerg) s += `<text x="0" y="${(fh/2 + 8).toFixed(1)}" text-anchor="middle" font-size="6.5" fill="${GRN}" font-weight="bold">EM</text>`;
     s += `</g>`;
   });
+
+  // ── Occupancy sensor symbol (PIR, ceiling-mounted) — IESNA RP-1 / PEC req ─
+  const SENS_X = Math.round(RM_X + RM_W - 14);
+  const SENS_Y = Math.round(RM_Y + 14);
+  s += `<circle cx="${SENS_X}" cy="${SENS_Y}" r="7" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.2"/>`;
+  [0,60,120,180,240,300].forEach(d => {
+    const rad = d * Math.PI / 180;
+    s += `<line x1="${SENS_X}" y1="${SENS_Y}" x2="${(SENS_X+13*Math.cos(rad)).toFixed(1)}" y2="${(SENS_Y+13*Math.sin(rad)).toFixed(1)}" stroke="#1565c0" stroke-width="0.7" stroke-dasharray="2,2"/>`;
+  });
+  s += `<text x="${SENS_X}" y="${SENS_Y+20}" text-anchor="middle" font-size="6" fill="#1565c0" font-weight="bold">PIR-1</text>`;
+
+  // ── Light switch symbol at room entry (bottom-left) ─────────────────────
+  const SW_X = Math.round(RM_X + 10);
+  const SW_Y = Math.round(RM_Y + RM_H - 10);
+  s += `<circle cx="${SW_X}" cy="${SW_Y}" r="5.5" fill="white" stroke="${CC}" stroke-width="1.2"/>`;
+  s += `<line x1="${SW_X}" y1="${SW_Y-3}" x2="${SW_X+7}" y2="${SW_Y-9}" stroke="${CC}" stroke-width="1.3"/>`;
+  s += `<line x1="${SW_X+7}" y1="${SW_Y-9}" x2="${SW_X+11}" y2="${SW_Y-9}" stroke="${CC}" stroke-width="1.3"/>`;
+  s += `<text x="${SW_X+13}" y="${SW_Y+3}" font-size="6" fill="${CC}" font-weight="bold">SW-1</text>`;
+
+  // ── Exit signs (NFPA 101 / PEC 2017 — ≥1 at each exit, spacing ≤30 m) ──
+  const EXIT_W = 36, EXIT_H = 13;
+  // Primary exit: bottom-center of room
+  const EX1_X = Math.round(RM_X + RM_W/2 - EXIT_W/2);
+  const EX1_Y = Math.round(RM_Y + RM_H - EXIT_H - 1);
+  s += `<rect x="${EX1_X}" y="${EX1_Y}" width="${EXIT_W}" height="${EXIT_H}" rx="2" fill="#1b5e20"/>`;
+  s += `<text x="${EX1_X+EXIT_W/2}" y="${EX1_Y+9}" text-anchor="middle" font-size="7" fill="white" font-weight="bold">EXIT</text>`;
+  s += `<text x="${EX1_X+EXIT_W/2}" y="${EX1_Y+EXIT_H+9}" text-anchor="middle" font-size="5.5" fill="#2e7d32">EL-CKT-2 (90 min)</text>`;
 
   // ── Homerun arrow (circuit) from first fixture toward left wall ────────────
   if (fixPositions.length > 0) {

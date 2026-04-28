@@ -1041,6 +1041,7 @@ function addTransaction(itemId, type, qtyChange, qtyAfter, note) {
     qty_after:   qtyAfter,
     note:        note || '',
     worker_name: WORKER_NAME,
+    hive_id:     HIVE_ID || null,
     created_at:  new Date().toISOString(),
   });
   saveTransactions(txns);

@@ -58,6 +58,7 @@
       "table": "inventory_transactions",
       "status": "WARN",
       "fields_found": [
+        "hive_id",
         "item_id",
         "job",
         "job_ref",

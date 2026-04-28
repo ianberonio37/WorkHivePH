@@ -1,35 +1,48 @@
 """
 Logbook Validator — WorkHive Platform
+======================================
+Four-layer validation of logbook.html + pm-scheduler.html:
 
-Static analysis of logbook.html (and pm-scheduler.html for cross-page checks) covering:
+  Layer 1 — Data integrity rules
+    1.  closed_at consistency         — every write with status='Closed' sets closed_at
+    2.  Parts deduction guard         — saveEdit skips _existing parts (no double-deduct)
+    3.  closed_at preservation        — re-editing a closed entry keeps original timestamp
+    4.  Valid status values           — only 'Open' and 'Closed' used
+    5.  Valid category values         — categories match the dropdown
+    6.  PM category alignment         — PM_CAT_TO_LOG_CAT maps to valid logbook categories
 
-  1. closed_at consistency  — every code path that writes status='Closed' sets closed_at
-  2. Parts deduction guards — edit path skips existing parts (_existing flag) to avoid
-                              double-deducting on re-save
-  3. closed_at preservation — re-editing a closed entry keeps the original close timestamp
-  4. Valid status values     — only 'Open' and 'Closed' used as status field values
-  5. Valid category values   — all categories written to logbook exist in the UI dropdown
-  6. PM category alignment   — PM_CAT_TO_LOG_CAT values match logbook's valid categories
+  Layer 2 — Tenant isolation
+    7.  hive_id in txn insert         — inventory_transactions.insert includes hive_id
+    8.  delete scoped by worker       — deleteEntry uses .eq('worker_name', WORKER_NAME)
+    9.  update scoped by worker       — saveEdit update uses .eq('worker_name', WORKER_NAME)
+
+  Layer 3 — Logic correctness
+    10. Auth gate present             — WORKER_NAME redirect before any DB access
+    11. maintenance_type values       — types used match VALID_MAINTENANCE_TYPES
+    12. qty_after floor               — inventory deduction uses Math.max(0, ...) guard
+
+  Layer 4 — XSS / security
+    13. highlight() calls escHtml     — search highlight function escapes before rendering
 
 Usage:  python validate_logbook.py
 Output: logbook_report.json
 """
-import re, json, sys
+import re, json, sys, os
+
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+from validator_utils import read_file, format_result
 
 LOGBOOK_PAGE = "logbook.html"
 PM_PAGE      = "pm-scheduler.html"
 
-# ── Valid logbook category values (from the category <select> in logbook.html) ─
-# Update this list if the dropdown changes.
 VALID_LOGBOOK_CATEGORIES = [
     "Mechanical", "Electrical", "Hydraulic", "Pneumatic",
     "Instrumentation", "Lubrication", "Other",
 ]
-
-# ── Valid status values ──────────────────────────────────────────────────────
 VALID_STATUSES = ["Open", "Closed"]
-
-# ── Valid maintenance_type values ─────────────────────────────────────────────
 VALID_MAINTENANCE_TYPES = [
     "Breakdown / Corrective",
     "Preventive Maintenance",
@@ -38,276 +51,284 @@ VALID_MAINTENANCE_TYPES = [
 ]
 
 
-def read_file(path):
-    try:
-        with open(path, encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
-        return None
-
-
 def strip_template_literals(text):
     return re.sub(r'\$\{[^}]*\}', '__INTERP__', text)
 
 
-# ── Check 1: closed_at set whenever status = 'Closed' ─────────────────────────
-def check_closed_at_consistency(content, page):
-    """
-    Find every .insert({...}) and .update({...}) block on 'logbook' table.
-    If the block contains status: 'Closed', it must also contain closed_at.
-    """
-    issues = []
-    clean  = strip_template_literals(content)
+# ── Layer 1: Data integrity ───────────────────────────────────────────────────
 
-    # Find .insert({ ... }) blocks associated with logbook
+def check_closed_at_consistency(content, page):
+    issues = []
+    clean = strip_template_literals(content)
     for op in ("insert", "update"):
         pattern = rf"from\(['\"]logbook['\"]\)\.{op}\((\{{[^}}]{{0,1500}}\}})"
         for m in re.finditer(pattern, clean, re.DOTALL):
             block = m.group(1)
-            has_closed = bool(re.search(r"status\s*:\s*['\"]Closed['\"]", block))
-            has_closed_at = bool(re.search(r"closed_at\s*:", block))
-            if has_closed and not has_closed_at:
+            if re.search(r"status\s*:\s*['\"]Closed['\"]", block) and \
+               not re.search(r"closed_at\s*:", block):
                 line_no = content[:m.start()].count('\n') + 1
-                issues.append({
-                    "page": page, "operation": op, "line": line_no,
-                    "reason": f"logbook.{op}() sets status='Closed' but missing closed_at field",
-                })
+                issues.append({"check": "closed_at_consistency", "page": page,
+                               "operation": op, "line": line_no,
+                               "reason": f"logbook.{op}() sets status='Closed' but missing closed_at field"})
     return issues
 
 
-# ── Check 2: Parts deduction guard on edit path ───────────────────────────────
 def check_parts_deduction_guard(content, page):
-    """
-    When editing an existing logbook entry and deducting parts from inventory,
-    there must be a guard like `if (!p.partId || p._existing) continue;`
-    to skip parts that were already counted when the entry was first saved.
-    Without this guard, re-saving a closed entry double-deducts inventory.
-    """
-    issues = []
-    # Find inventory deduction loops in edit context (saveEdit function vicinity)
-    edit_fn_pat = r"async function saveEdit\b[\s\S]{0,3000}?"
-    m = re.search(edit_fn_pat, content)
+    m = re.search(r"async function saveEdit\b", content)
     if not m:
-        return [{"page": page, "reason": "saveEdit function not found — cannot verify parts guard"}]
-
+        return [{"check": "parts_deduction_guard", "page": page,
+                 "reason": "saveEdit() function not found — cannot verify parts deduction guard"}]
     edit_block = content[m.start():m.start() + 3000]
-    has_guard = bool(re.search(
-        r"if\s*\(!p\.partId\s*\|\|\s*p\._existing\)\s*continue",
-        edit_block
-    ))
-    if not has_guard:
-        issues.append({
-            "page": page,
-            "reason": "saveEdit() deducts parts without _existing guard — will double-deduct on re-save",
-        })
-    return issues
+    if not re.search(r"if\s*\(!p\.partId\s*\|\|\s*p\._existing\)\s*continue", edit_block):
+        return [{"check": "parts_deduction_guard", "page": page,
+                 "reason": "saveEdit() deducts parts without _existing guard — will double-deduct inventory on re-save"}]
+    return []
 
 
-# ── Check 3: closed_at preserved on re-edit ───────────────────────────────────
 def check_closed_at_preservation(content, page):
-    """
-    When re-saving a closed entry, closed_at must preserve the original timestamp
-    rather than overwriting with now(). Pattern to look for:
-        existing?.closed_at || new Date().toISOString()
-    or equivalent.
-    """
-    issues = []
-    preserve_patterns = [
+    patterns = [
         r"existing\?\.closed_at\s*\|\|",
         r"existing\.closed_at\s*\|\|",
         r"original.*closed_at",
         r"preserve.*close",
     ]
-    found = any(re.search(pat, content) for pat in preserve_patterns)
-    if not found:
-        issues.append({
-            "page": page,
-            "reason": "No closed_at preservation pattern found — re-saving a closed entry may overwrite the original close timestamp",
-        })
-    return issues
+    if not any(re.search(p, content) for p in patterns):
+        return [{"check": "closed_at_preservation", "page": page,
+                 "reason": "No closed_at preservation pattern found — re-saving a closed entry may overwrite the original close timestamp"}]
+    return []
 
 
-# ── Check 4: Valid status values ──────────────────────────────────────────────
 def check_status_values(content, page):
-    """
-    Every string literal used as a status value must be in VALID_STATUSES.
-    Look for status: '...' patterns in insert/update payloads.
-    """
-    issues = []
-    found_statuses = set(re.findall(
-        r"status\s*:\s*['\"]([^'\"]+)['\"]", content
-    ))
-    # Remove metadata statuses (not logbook status field)
-    logbook_statuses = found_statuses & {"Open", "Closed", "open", "closed",
-                                          "pending", "approved", "rejected",
-                                          "done", "kicked", "active"}
-    logbook_only = {s for s in found_statuses
+    logbook_only = {s for s in re.findall(r"status\s*:\s*['\"]([^'\"]+)['\"]", content)
                     if s in ("Open", "Closed", "open", "closed")}
     bad = [s for s in logbook_only if s not in VALID_STATUSES]
     if bad:
-        issues.append({
-            "page": page, "bad_values": bad,
-            "reason": f"Non-standard status values found: {bad}. Only {VALID_STATUSES} allowed.",
-        })
-    return issues
+        return [{"check": "status_values", "page": page, "bad_values": bad,
+                 "reason": f"Non-standard status values found: {bad} — only {VALID_STATUSES} allowed"}]
+    return []
 
 
-# ── Check 5: Valid category values in logbook.html ───────────────────────────
 def check_category_values(content, page):
-    """
-    Find the category <select> options defined in the form.
-    Compare against VALID_LOGBOOK_CATEGORIES to ensure they're in sync.
-    """
-    issues = []
-    # Find category select options
-    options = re.findall(r"option value=['\"]([^'\"]+)['\"].*?category", content[:5000])
-    # Look for the category select specifically: array .map() that references entry.category
-    # This narrows to the one dropdown that writes to the category field
     array_matches = re.findall(
         r"\[([^\]]+)\]\s*\.map\s*\(\s*\w+\s*=>\s*`<option[^`]{0,200}?entry\.category",
         content, re.DOTALL
     )
-    cats_in_code = set()
+    cats = set()
     for arr in array_matches:
-        cats = re.findall(r"['\"]([^'\"]+)['\"]", arr)
-        cats_in_code.update(cats)
+        cats.update(re.findall(r"['\"]([^'\"]+)['\"]", arr))
+    unknown = [c for c in cats if c not in VALID_LOGBOOK_CATEGORIES]
+    if unknown:
+        return [{"check": "category_values", "page": page, "unknown": unknown,
+                 "reason": f"Category values {unknown} not in VALID_LOGBOOK_CATEGORIES — update the constant in this validator"}]
+    return []
 
-    if cats_in_code:
-        unknown = [c for c in cats_in_code if c not in VALID_LOGBOOK_CATEGORIES]
-        if unknown:
-            issues.append({
-                "page": page, "unknown_categories": unknown,
-                "reason": "Category values in code not in VALID_LOGBOOK_CATEGORIES — update the constant in this script",
-            })
+
+def check_pm_category_alignment(pm_content):
+    if not pm_content:
+        return [{"check": "pm_category_alignment", "page": PM_PAGE,
+                 "reason": f"{PM_PAGE} not found"}]
+    m = re.search(r"PM_CAT_TO_LOG_CAT\s*=\s*\{([^}]+)\}", pm_content, re.DOTALL)
+    if not m:
+        return [{"check": "pm_category_alignment", "page": PM_PAGE,
+                 "reason": "PM_CAT_TO_LOG_CAT not found in pm-scheduler.html"}]
+    issues = []
+    for pm_cat, log_cat in re.findall(r"['\"]([^'\"]+)['\"]\s*:\s*['\"]([^'\"]+)['\"]", m.group(1)):
+        if log_cat not in VALID_LOGBOOK_CATEGORIES:
+            issues.append({"check": "pm_category_alignment", "page": PM_PAGE,
+                           "pm_category": pm_cat, "maps_to": log_cat,
+                           "reason": f"PM category '{pm_cat}' maps to '{log_cat}' which is not in logbook's category dropdown — PM entries will have unrecognized category"})
     return issues
 
 
-# ── Check 6: PM_CAT_TO_LOG_CAT alignment ─────────────────────────────────────
-def check_pm_category_alignment(pm_content):
+# ── Layer 2: Tenant isolation ─────────────────────────────────────────────────
+
+def check_hive_id_in_txn_insert(content, page):
     """
-    Extract PM_CAT_TO_LOG_CAT from pm-scheduler.html.
-    Verify every VALUE (target logbook category) is in VALID_LOGBOOK_CATEGORIES.
-    A mismatch means PM-triggered logbook entries will have unrecognized categories
-    that won't appear in logbook filters and won't show category color badges.
+    Both saveEntry and saveEdit insert to inventory_transactions when parts are used.
+    Each insert must include hive_id: HIVE_ID so transactions are tenant-scoped.
     """
     issues = []
-    if not pm_content:
-        return [{"reason": f"{PM_PAGE} not found"}]
-
-    # Extract the mapping object
-    m = re.search(
-        r"PM_CAT_TO_LOG_CAT\s*=\s*\{([^}]+)\}",
-        pm_content, re.DOTALL
-    )
-    if not m:
-        return [{"reason": "PM_CAT_TO_LOG_CAT not found in pm-scheduler.html"}]
-
-    block = m.group(1)
-    pairs = re.findall(r"['\"]([^'\"]+)['\"]\s*:\s*['\"]([^'\"]+)['\"]", block)
-
-    for pm_cat, log_cat in pairs:
-        if log_cat not in VALID_LOGBOOK_CATEGORIES:
-            issues.append({
-                "pm_category":      pm_cat,
-                "maps_to":          log_cat,
-                "valid_categories": VALID_LOGBOOK_CATEGORIES,
-                "reason":           f"PM category '{pm_cat}' maps to '{log_cat}' which is NOT in logbook's category dropdown — PM-triggered entries will have unrecognized category, invisible in logbook filters",
-            })
+    for m in re.finditer(r"from\(['\"]inventory_transactions['\"]\)\.insert\((\{[^}]{0,600}\})", content, re.DOTALL):
+        block = m.group(1)
+        if "hive_id" not in block:
+            line = content[:m.start()].count('\n') + 1
+            issues.append({"check": "hive_id_in_txn_insert", "page": page, "line": line,
+                           "reason": f"inventory_transactions.insert() at line {line} missing hive_id — transactions not tenant-scoped in hive mode"})
     return issues
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
-print("\n" + "=" * 70)
-print("Logbook Validator")
-print("=" * 70)
+def check_delete_scoped_by_worker(content, page):
+    m = re.search(r"async function deleteEntry\s*\(", content)
+    if not m:
+        return [{"check": "delete_scoped_by_worker", "page": page,
+                 "reason": "deleteEntry() function not found"}]
+    body = content[m.start():m.start() + 400]
+    if not re.search(r"\.eq\s*\(['\"]worker_name['\"],\s*WORKER_NAME\s*\)", body):
+        return [{"check": "delete_scoped_by_worker", "page": page,
+                 "reason": "deleteEntry() does not scope delete by worker_name — users could delete other workers' entries"}]
+    return []
 
-logbook = read_file(LOGBOOK_PAGE)
-pm      = read_file(PM_PAGE)
 
-if not logbook:
-    print(f"ERROR: {LOGBOOK_PAGE} not found")
-    sys.exit(1)
+def check_update_scoped_by_worker(content, page):
+    m = re.search(r"async function saveEdit\s*\(", content)
+    if not m:
+        return [{"check": "update_scoped_by_worker", "page": page,
+                 "reason": "saveEdit() function not found"}]
+    body = content[m.start():m.start() + 3000]
+    update_m = re.search(r"from\(['\"]logbook['\"]\)\.update\(", body)
+    if not update_m:
+        return [{"check": "update_scoped_by_worker", "page": page,
+                 "reason": "saveEdit() logbook.update() call not found"}]
+    after = body[update_m.start():update_m.start() + 200]
+    if not re.search(r"\.eq\s*\(['\"]worker_name['\"],\s*WORKER_NAME\s*\)", after):
+        return [{"check": "update_scoped_by_worker", "page": page,
+                 "reason": "saveEdit() logbook.update() not scoped by worker_name — users could overwrite other workers' entries"}]
+    return []
 
-fail_count = 0
-warn_count = 0
-report     = {}
 
-# [1] closed_at consistency
-print("\n[1] closed_at consistency\n")
-ca_issues = check_closed_at_consistency(logbook, LOGBOOK_PAGE)
-if ca_issues:
-    for iss in ca_issues:
-        print(f"  FAIL  {iss['page']} line {iss['line']}: {iss['reason']}")
-        fail_count += 1
-else:
-    print("  PASS  All logbook inserts/updates with status='Closed' include closed_at")
-report["closed_at_consistency"] = ca_issues
+# ── Layer 3: Logic correctness ────────────────────────────────────────────────
 
-# [2] Parts deduction guard
-print("\n[2] Parts deduction guard on edit path\n")
-guard_issues = check_parts_deduction_guard(logbook, LOGBOOK_PAGE)
-if guard_issues:
-    for iss in guard_issues:
-        print(f"  FAIL  {iss['reason']}")
-        fail_count += 1
-else:
-    print("  PASS  saveEdit() has _existing guard — no double-deduction on re-save")
-report["parts_guard"] = guard_issues
+def check_auth_gate(content, page):
+    if not re.search(r"if\s*\(\s*!\s*WORKER_NAME\s*\)", content):
+        return [{"check": "auth_gate", "page": page,
+                 "reason": "WORKER_NAME auth gate missing — unauthenticated users can access the logbook"}]
+    return []
 
-# [3] closed_at preservation
-print("\n[3] closed_at preservation on re-edit\n")
-pres_issues = check_closed_at_preservation(logbook, LOGBOOK_PAGE)
-if pres_issues:
-    for iss in pres_issues:
-        print(f"  WARN  {iss['reason']}")
-        warn_count += 1
-else:
-    print("  PASS  closed_at preserved from original entry on re-save")
-report["closed_at_preservation"] = pres_issues
 
-# [4] Status values
-print("\n[4] Valid status values\n")
-stat_issues = check_status_values(logbook, LOGBOOK_PAGE)
-if stat_issues:
-    for iss in stat_issues:
-        print(f"  WARN  {iss['reason']}")
-        warn_count += 1
-else:
-    print(f"  PASS  Only valid status values used: {VALID_STATUSES}")
-report["status_values"] = stat_issues
+def check_maintenance_type_values(content, page):
+    """
+    Find maintenance_type values written to the DB in insert/update payloads.
+    They should match VALID_MAINTENANCE_TYPES exactly.
+    """
+    found = set(re.findall(r"maintenance_type\s*:\s*['\"]([^'\"]+)['\"]", content))
+    # Exclude field selector references (short strings or UI labels)
+    bad = [v for v in found if len(v) > 3 and v not in VALID_MAINTENANCE_TYPES]
+    if bad:
+        return [{"check": "maintenance_type_values", "page": page, "bad_values": bad,
+                 "reason": f"maintenance_type values {bad} not in VALID_MAINTENANCE_TYPES — entries may have unrecognized types"}]
+    return []
 
-# [5] Category values
-print("\n[5] Valid logbook category values\n")
-cat_issues = check_category_values(logbook, LOGBOOK_PAGE)
-if cat_issues:
-    for iss in cat_issues:
-        print(f"  WARN  {iss['reason']} ({iss['unknown_categories']})")
-        warn_count += 1
-else:
-    print(f"  PASS  Category values match VALID_LOGBOOK_CATEGORIES")
-report["category_values"] = cat_issues
 
-# [6] PM category alignment
-print("\n[6] PM_CAT_TO_LOG_CAT -> logbook category alignment\n")
-pm_cat_issues = check_pm_category_alignment(pm)
-if pm_cat_issues:
-    for iss in pm_cat_issues:
-        print(f"  FAIL  '{iss['pm_category']}' -> '{iss['maps_to']}'")
-        print(f"        {iss['reason']}")
-        fail_count += 1
-else:
-    print("  PASS  All PM categories map to valid logbook category values")
-report["pm_category_alignment"] = pm_cat_issues
+def check_qty_after_floor(content, page):
+    """
+    Every inventory deduction in logbook must use Math.max(0, ...) to prevent
+    qty_after going negative.
+    """
+    for m in re.finditer(r"from\(['\"]inventory_transactions['\"]\)\.insert\(", content):
+        # Check within 500 chars before the insert for Math.max
+        context = content[max(0, m.start() - 500):m.start()]
+        if "Math.max(0," not in context and "Math.max( 0," not in context:
+            line = content[:m.start()].count('\n') + 1
+            return [{"check": "qty_after_floor", "page": page, "line": line,
+                     "reason": f"inventory_transactions.insert() near line {line}: no Math.max(0,...) guard found — qty_after may go negative"}]
+    return []
 
-# Summary
-print(f"\n{'=' * 70}")
-print(f"Result: {fail_count} FAIL  {warn_count} WARN")
 
-with open("logbook_report.json", "w") as f:
-    json.dump(report, f, indent=2)
-print("Saved logbook_report.json")
+# ── Layer 4: XSS / security ───────────────────────────────────────────────────
 
-if fail_count:
-    print("\nFIX REQUIRED.")
-    sys.exit(1)
-print("\nAll logbook checks PASS.")
+def check_highlight_escapes(content, page):
+    m = re.search(r"function highlight\s*\(", content)
+    if not m:
+        return [{"check": "highlight_escapes", "page": page,
+                 "reason": "highlight() function not found — logbook entries may render unsanitized HTML"}]
+    body = content[m.start():m.start() + 300]
+    if "escHtml" not in body:
+        return [{"check": "highlight_escapes", "page": page,
+                 "reason": "highlight() function does not call escHtml — search results render raw DB content as HTML"}]
+    return []
+
+
+# ── Runner ─────────────────────────────────────────────────────────────────────
+
+CHECK_NAMES = [
+    # L1 — data integrity
+    "closed_at_consistency", "parts_deduction_guard", "closed_at_preservation",
+    "status_values", "category_values", "pm_category_alignment",
+    # L2 — tenant isolation
+    "hive_id_in_txn_insert", "delete_scoped_by_worker", "update_scoped_by_worker",
+    # L3 — logic
+    "auth_gate", "maintenance_type_values", "qty_after_floor",
+    # L4 — XSS
+    "highlight_escapes",
+]
+
+CHECK_LABELS = {
+    # L1
+    "closed_at_consistency":   "L1  closed_at set when status='Closed'",
+    "parts_deduction_guard":   "L1  saveEdit: _existing guard (no double-deduct)",
+    "closed_at_preservation":  "L1  closed_at preserved on re-edit",
+    "status_values":           "L1  Only Open/Closed used as status values",
+    "category_values":         "L1  Category values match dropdown",
+    "pm_category_alignment":   "L1  PM_CAT_TO_LOG_CAT maps to valid categories",
+    # L2
+    "hive_id_in_txn_insert":   "L2  hive_id in inventory_transactions insert",
+    "delete_scoped_by_worker": "L2  deleteEntry scoped by worker_name",
+    "update_scoped_by_worker": "L2  saveEdit update scoped by worker_name",
+    # L3
+    "auth_gate":               "L3  WORKER_NAME auth gate present",
+    "maintenance_type_values": "L3  maintenance_type values match valid list",
+    "qty_after_floor":         "L3  Math.max(0,...) guard on qty_after",
+    # L4
+    "highlight_escapes":       "L4  highlight() calls escHtml before rendering",
+}
+
+
+def main():
+    def bold(s): return f"\033[1m{s}\033[0m"
+    print(bold("\nLogbook Validator (4-layer)"))
+    print("=" * 55)
+
+    logbook = read_file(LOGBOOK_PAGE)
+    pm      = read_file(PM_PAGE)
+
+    if not logbook:
+        print(f"  ERROR: {LOGBOOK_PAGE} not found")
+        sys.exit(1)
+
+    all_issues = []
+
+    # L1
+    all_issues += check_closed_at_consistency(logbook, LOGBOOK_PAGE)
+    all_issues += check_parts_deduction_guard(logbook, LOGBOOK_PAGE)
+    all_issues += check_closed_at_preservation(logbook, LOGBOOK_PAGE)
+    all_issues += check_status_values(logbook, LOGBOOK_PAGE)
+    all_issues += check_category_values(logbook, LOGBOOK_PAGE)
+    all_issues += check_pm_category_alignment(pm)
+
+    # L2
+    all_issues += check_hive_id_in_txn_insert(logbook, LOGBOOK_PAGE)
+    all_issues += check_delete_scoped_by_worker(logbook, LOGBOOK_PAGE)
+    all_issues += check_update_scoped_by_worker(logbook, LOGBOOK_PAGE)
+
+    # L3
+    all_issues += check_auth_gate(logbook, LOGBOOK_PAGE)
+    all_issues += check_maintenance_type_values(logbook, LOGBOOK_PAGE)
+    all_issues += check_qty_after_floor(logbook, LOGBOOK_PAGE)
+
+    # L4
+    all_issues += check_highlight_escapes(logbook, LOGBOOK_PAGE)
+
+    n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
+
+    total = len(CHECK_NAMES)
+    if n_fail == 0:
+        print(f"\033[92m\n  All {total} checks passed.\033[0m")
+    else:
+        print(f"\033[91m\n  {n_pass} PASS  {n_skip} SKIP  {n_fail} FAIL\033[0m")
+
+    report = {
+        "validator":    "logbook",
+        "total_checks": total,
+        "passed":       n_pass,
+        "skipped":      n_skip,
+        "failed":       n_fail,
+        "issues":       [i for i in all_issues if not i.get("skip")],
+    }
+    with open("logbook_report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
+
+    sys.exit(1 if n_fail > 0 else 0)
+
+
+if __name__ == "__main__":
+    main()

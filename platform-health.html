@@ -687,7 +687,7 @@
       <div class="guide-stitle">What Each Button Does</div>
       <div class="guide-row">
         <span class="guide-label"><span class="gtag gold">▶ Validate Fast</span></span>
-        <span class="guide-desc">Runs all 39 checks in ~20 seconds. Use this after every code change. If green, you're safe to continue.</span>
+        <span class="guide-desc">Runs all 40 checks in ~20 seconds. Use this after every code change. If green, you're safe to continue.</span>
       </div>
       <div class="guide-row">
         <span class="guide-label"><span class="gtag red">⚡ Auto-Fix</span></span>
@@ -778,7 +778,7 @@
 
         <div style="display:flex;align-items:flex-start;gap:.6rem;">
           <span style="background:rgba(247,162,27,.15);color:var(--gold);border-radius:.35rem;padding:.15rem .5rem;font-weight:700;font-size:.75rem;white-space:nowrap;flex-shrink:0;">4</span>
-          <span style="font-size:.82rem;"><strong>39 validators run</strong> — each one checks a specific part of your platform. They cover calculations, data flows, AI quality, security, mobile UX, IoT readiness, enterprise integration, and more. See the "All 39 Validators" section below for plain-language descriptions.</span>
+          <span style="font-size:.82rem;"><strong>40 validators run</strong> — each one checks a specific part of your platform. They cover calculations, data flows, AI quality, security, mobile UX, IoT readiness, enterprise integration, analytics, and more. See the "All 40 Validators" section below for plain-language descriptions.</span>
         </div>
 
         <div style="text-align:center;color:var(--muted);font-size:.75rem;">↓</div>
@@ -802,8 +802,8 @@
       <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em;">Who Does What</div>
       <div style="display:flex;flex-direction:column;gap:.3rem;">
         <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">guardian_server.py</span><span style="color:var(--muted);">The engine behind this web page. Routes your button clicks to scripts and streams output back.</span></div>
-        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">run_platform_checks.py</span><span style="color:var(--muted);">The boss script. Calls all 39 validators in order and writes the final report.</span></div>
-        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">validate_*.py (39 files)</span><span style="color:var(--muted);">The workers. Each one checks one area and returns PASS or FAIL.</span></div>
+        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">run_platform_checks.py</span><span style="color:var(--muted);">The boss script. Calls all 40 validators in order and writes the final report.</span></div>
+        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">validate_*.py (40 files)</span><span style="color:var(--muted);">The workers. Each one checks one area and returns PASS or FAIL.</span></div>
         <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">platform_health.json</span><span style="color:var(--muted);">The report card. Written after every run. This dashboard reads it to show the cards.</span></div>
         <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">learn.py</span><span style="color:var(--muted);">The teacher. Reads failed runs and your git history, then writes lessons to your skill files.</span></div>
         <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">autofix.py</span><span style="color:var(--muted);">The mechanic. Reads lessons from skill files and applies fixes automatically.</span></div>
@@ -852,9 +852,9 @@
       </div>
     </div>
 
-    <!-- All 39 validators -->
+    <!-- All 40 validators -->
     <div class="guide-section">
-      <div class="guide-stitle">All 39 Validators — What They Check</div>
+      <div class="guide-stitle">All 40 Validators — What They Check</div>
       <div style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem;">Each validator runs automatically when you click Validate Fast. Green = working correctly. Red = something needs fixing.</div>
 
       <!-- Group 1: Core Features -->
@@ -913,6 +913,10 @@
       <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">37 Integration Security</span><span class="guide-desc" style="font-size:.78rem;">No third-party API tokens hardcoded in page source. External fetch calls have timeouts. All external URLs use HTTPS.</span></div>
       <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">38 Digital Twin Schema</span><span class="guide-desc" style="font-size:.78rem;">Assets have all 5 required fields (ID, category, location, criticality, owner). Sensor tables include quality_flag. Status fields use CHECK constraints.</span></div>
       <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">39 IoT/MQTT Safety</span><span class="guide-desc" style="font-size:.78rem;">No unencrypted MQTT connections (mqtt:// must be mqtts://). MQTT topics include hive scoping. Sensor inserts include quality_flag.</span></div>
+
+      <!-- Group 7: Stage 3 Analytics -->
+      <div style="font-size:.72rem;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.08em;margin:.75rem 0 .35rem;">Stage 3 Analytics Engine (40)</div>
+      <div class="guide-row"><span class="guide-label" style="font-size:.78rem;">40 Analytics Engine</span><span class="guide-desc" style="font-size:.78rem;">3-layer check: frontend auth gate + hive scoping in the Supabase edge function + all 8 SMRP/ISO 14224 metrics (MTBF, MTTR, Availability, PM Compliance, Pareto, etc.) in the Python backend.</span></div>
     </div>
 
     <div style="text-align:center;margin-top:1rem;">

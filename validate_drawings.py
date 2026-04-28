@@ -65,13 +65,32 @@ def read_file(path):
 
 
 def extract_function_body(content, func_name, max_lines=600):
-    """Extract the body of a named function (up to max_lines)."""
+    """
+    Extract the body of a named JS function using brace counting.
+    Falls back to max_lines if brace counting fails (e.g. template literals).
+    """
     m = re.search(rf"function\s+{re.escape(func_name)}\s*\(", content)
     if not m:
         return None, -1
-    start = m.start()
-    lines = content[start:start + max_lines * 80].splitlines()[:max_lines]
-    return "\n".join(lines), content[:start].count("\n") + 1
+    start_line = content[:m.start()].count("\n") + 1
+    # Walk forward from the opening brace to find the matching closing brace
+    brace_start = content.find("{", m.end())
+    if brace_start == -1:
+        return None, -1
+    depth = 0
+    i = brace_start
+    limit = min(brace_start + max_lines * 80, len(content))
+    while i < limit:
+        if content[i] == "{":
+            depth += 1
+        elif content[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return content[brace_start:i + 1], start_line
+        i += 1
+    # Fallback: return max_lines worth of content if brace counting ran out
+    lines = content[m.start():m.start() + max_lines * 80].splitlines()[:max_lines]
+    return "\n".join(lines), start_line
 
 
 # ── Check 1: Canvas width = 1050 in every builder ────────────────────────────

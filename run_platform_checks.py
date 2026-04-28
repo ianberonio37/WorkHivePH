@@ -407,6 +407,15 @@ VALIDATORS = [
         "report":  "iot_protocols_report.json",
         "skip_if_fast": False,
     },
+    {
+        "id":      "analytics",
+        "script":  "validate_analytics.py",
+        "args":    [],
+        "label":   "Analytics Engine Validator (3-layer: HTML + Edge + Python)",
+        "group":   "Platform",
+        "report":  "analytics_report.json",
+        "skip_if_fast": False,
+    },
     # ── Engineering Calc Integration Test (Layer 3) ───────────────────────────
     {
         "id":      "calc-integration",

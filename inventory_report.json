@@ -1,9 +1,8 @@
 {
-  "[1] Status transition logic": [],
-  "[2] Use/Restock guards (pending+rejected)": [],
-  "[3] Transaction on every qty change": [],
-  "[4] qty_after in addTransaction": [],
-  "[5] hive_id on save payload": [],
-  "[6] Use blocked when qty exceeds stock": [],
-  "[7] Supervisor approval/rejection writes": []
+  "validator": "inventory",
+  "total_checks": 13,
+  "passed": 13,
+  "skipped": 0,
+  "failed": 0,
+  "issues": []
 }

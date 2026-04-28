@@ -1,8 +1,8 @@
 {
-  "closed_at_consistency": [],
-  "parts_guard": [],
-  "closed_at_preservation": [],
-  "status_values": [],
-  "category_values": [],
-  "pm_category_alignment": []
+  "validator": "logbook",
+  "total_checks": 13,
+  "passed": 13,
+  "skipped": 0,
+  "failed": 0,
+  "issues": []
 }

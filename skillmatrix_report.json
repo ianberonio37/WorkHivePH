@@ -1,8 +1,8 @@
 {
-  "[1] DISCIPLINE_COLORS covers all DISCIPLINES": [],
-  "[2] LEVEL_LABELS has exactly levels 1-5": [],
-  "[3] Badge upsert conflict key includes level": [],
-  "[4] Cooldown on failed attempts only": [],
-  "[5] Pass threshold defined and reasonable": [],
-  "[6] SKILL_CONTENT covers all disciplines": []
+  "validator": "skillmatrix",
+  "total_checks": 15,
+  "passed": 15,
+  "skipped": 0,
+  "failed": 0,
+  "issues": []
 }
