@@ -264,6 +264,7 @@ def diagram(req: DiagramRequest):
     or { not_implemented: true } so the frontend can hide the button.
     """
     from diagrams import pump_curve, psychrometric_chart, duct_chart, harmonic_spectrum
+    from diagrams import transformer_sld
 
     DIAGRAM_HANDLERS = {
         "Pump Sizing (TDH)":          pump_curve.generate,
@@ -271,6 +272,7 @@ def diagram(req: DiagramRequest):
         "Duct Sizing":                 duct_chart.generate,
         "Duct Sizing (Equal Friction)": duct_chart.generate,
         "Harmonic Distortion":         harmonic_spectrum.generate,
+        "Transformer Sizing":          transformer_sld.generate,   # schemdraw IEC 60617
     }
 
     handler = DIAGRAM_HANDLERS.get(req.diagram_type)

@@ -33,6 +33,10 @@ pint==0.21
 # Phase 10 — Diagram generation (server-side SVG via Agg backend, no display needed)
 matplotlib==3.8.4
 
+# Phase 10 — Engineering schematic diagrams (electrical SLD, circuit diagrams)
+# schemdraw provides IEC/ANSI electrical symbols built on matplotlib
+schemdraw==0.18
+
 # Stage 3 Analytics Engine — Phase 1 Descriptive
 pandas==2.2.2
 
