@@ -92,6 +92,19 @@ TESTS = {
         "voltage": 230, "current": 20, "wire_length": 50,
         "conductor_mm2": 5.5, "conductor_mat": "Copper", "vd_limit": 3,
     },
+    "Power Factor Correction": {
+        "load_kw": 100, "pf_existing": 0.75, "pf_target": 0.95,
+        "voltage_v": 400, "phases": 3,
+        "monthly_kwh": 15000, "meralco_rate": 12.0,
+    },
+    "Cable Tray Sizing": {
+        "tray_type": "Ladder", "depth_mm": 75, "fill_ratio_pct": 40,
+        "span_m": 1.5, "run_length_m": 30,
+        "cables": [
+            {"cable_type": "Power", "od_mm": 25, "qty": 3, "weight_kg_m": 0.8},
+            {"cable_type": "Control", "od_mm": 12, "qty": 6, "weight_kg_m": 0.2},
+        ],
+    },
     "Wire Sizing": {
         "load_kw": 10, "voltage": 230, "power_factor": 0.85,
         "wire_length_m": 30, "phases": 1,
@@ -236,7 +249,6 @@ TESTS = {
 # tests them via the edge function.
 TYPESCRIPT_ONLY = [
     "Ventilation / ACH", "Load Estimation",
-    "Power Factor Correction", "Cable Tray Sizing",
     "Earthing / Grounding System", "Water Supply Pipe Sizing",
     "Hot Water Demand", "Drainage Pipe Sizing", "Septic Tank Sizing",
     "Water Softener Sizing", "Water Treatment System",
