@@ -2073,7 +2073,7 @@ function collectReadings() {
 }
 
 // Wire category change → update readings fields
-document.getElementById('f-category').addEventListener('change', function() {
+document.getElementById('f-category').addEventListener('change', async function() {
   const isBreakdown = document.getElementById('f-maint-type').value.includes('Breakdown');
   if (isBreakdown) await renderReadingsFields(this.value);
 });

@@ -21,8 +21,9 @@ Four-layer validation of logbook.html + pm-scheduler.html:
     11. maintenance_type values       — types used match VALID_MAINTENANCE_TYPES
     12. qty_after floor               — inventory deduction uses Math.max(0, ...) guard
 
-  Layer 4 — XSS / security
+  Layer 4 — XSS / JS correctness
     13. highlight() calls escHtml     — search highlight function escapes before rendering
+    14. No await in non-async cb      — await in regular function() crashes ALL JS on page load
 
 Usage:  python validate_logbook.py
 Output: logbook_report.json
@@ -284,6 +285,37 @@ def check_new_fields_in_load_entries(content, page):
 
 # ── Layer 4: XSS / security ───────────────────────────────────────────────────
 
+def check_await_in_non_async(content, page):
+    """
+    An `await` inside a regular function() callback (not async function) is a
+    SyntaxError that crashes the entire JS engine on page load — ALL entries
+    disappear because no code after the crash runs. This happened on 2026-04-28
+    when a category change listener used await without async.
+    """
+    issues = []
+    lines = content.splitlines()
+    for i, line in enumerate(lines):
+        if "await " not in line:
+            continue
+        stripped = line.strip()
+        if stripped.startswith("//") or stripped.startswith("*"):
+            continue
+        # Look back up to 5 lines for the enclosing function definition
+        window_back = "\n".join(lines[max(0, i - 5):i])
+        # If a non-async function() starts in the look-back window and no async function
+        has_plain_fn  = bool(re.search(r"\bfunction\s*\(", window_back))
+        has_async_fn  = bool(re.search(r"\basync\s+function\s*\(", window_back))
+        # Also flag arrow functions like .then(e => { ... await ... })
+        has_plain_arrow = bool(re.search(r"(?<!=>)\b\w+\s*=>\s*\{", window_back))
+        has_async_arrow = bool(re.search(r"\basync\s*\w*\s*=>\s*\{|\basync\s*\([^)]*\)\s*=>\s*\{", window_back))
+        if has_plain_fn and not has_async_fn:
+            issues.append({"check": "await_in_non_async", "page": page, "line": i + 1,
+                           "reason": (f"{page}:{i+1} — `await` inside a non-async function() callback. "
+                                      f"This is a SyntaxError that crashes ALL JS on the page — "
+                                      f"entries never load. Fix: add `async` to the function keyword.")})
+    return issues
+
+
 def check_highlight_escapes(content, page):
     m = re.search(r"function highlight\s*\(", content)
     if not m:
@@ -307,8 +339,8 @@ CHECK_NAMES = [
     # L3 — logic + new field sync
     "auth_gate", "maintenance_type_values", "qty_after_floor",
     "new_fields_in_add_entry", "new_fields_in_save_edit", "new_fields_in_load_entries",
-    # L4 — XSS
-    "highlight_escapes",
+    # L4 — XSS / JS correctness
+    "highlight_escapes", "await_in_non_async",
 ]
 
 CHECK_LABELS = {
@@ -333,6 +365,7 @@ CHECK_LABELS = {
     "new_fields_in_load_entries":   "L3  New fields included in loadEntries cache shape",
     # L4
     "highlight_escapes":            "L4  highlight() calls escHtml before rendering",
+    "await_in_non_async":           "L4  No await inside non-async callback (JS crash guard)",
 }
 
 
@@ -373,6 +406,7 @@ def main():
 
     # L4
     all_issues += check_highlight_escapes(logbook, LOGBOOK_PAGE)
+    all_issues += check_await_in_non_async(logbook, LOGBOOK_PAGE)
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

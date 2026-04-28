@@ -1,7 +1,7 @@
 {
   "validator": "logbook",
-  "total_checks": 13,
-  "passed": 13,
+  "total_checks": 17,
+  "passed": 17,
   "skipped": 0,
   "failed": 0,
   "issues": []

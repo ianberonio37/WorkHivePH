@@ -1,87 +1,69 @@
 {
-  "flows": [
-    {
-      "flow": "pm-scheduler->logbook",
-      "table": "logbook",
-      "status": "WARN",
-      "fields_found": [
-        "action",
-        "asset_ref_id",
-        "category",
-        "closed_at",
+  "validator": "cross_page",
+  "total_checks": 7,
+  "passed": 7,
+  "skipped": 0,
+  "failed": 0,
+  "canonical": {
+    "logbook": {
+      "critical": [
+        "worker_name",
         "date",
-        "hive_id",
-        "knowledge",
         "machine",
         "maintenance_type",
-        "pm_completion_id",
+        "category",
         "problem",
+        "action",
         "status",
-        "worker_name"
+        "closed_at",
+        "hive_id"
       ],
-      "missing_critical": [],
-      "missing_optional": [
+      "optional": [
         "root_cause",
         "downtime_hours",
         "photo",
+        "knowledge",
         "parts_used",
+        "asset_ref_id",
         "tasklist_acknowledged",
         "tasklist_note",
-        "id"
-      ],
-      "extra_fields": []
-    },
-    {
-      "flow": "logbook->pm_completions",
-      "table": "pm_completions",
-      "status": "WARN",
-      "fields_found": [
-        "Logbook",
-        "asset_id",
-        "completed_at",
-        "hive_id",
-        "notes",
-        "scope_item_id",
-        "status",
-        "worker_name"
-      ],
-      "missing_critical": [],
-      "missing_optional": [
-        "id"
-      ],
-      "extra_fields": [
-        "Logbook"
+        "pm_completion_id",
+        "id",
+        "failure_consequence",
+        "readings_json",
+        "production_output"
       ]
     },
-    {
-      "flow": "logbook->inventory_transactions",
-      "table": "inventory_transactions",
-      "status": "WARN",
-      "fields_found": [
+    "pm_completions": {
+      "critical": [
+        "asset_id",
+        "scope_item_id",
         "hive_id",
-        "item_id",
-        "job",
-        "job_ref",
-        "note",
-        "qty_after",
-        "qty_change",
-        "type",
-        "worker_name"
+        "worker_name",
+        "status",
+        "completed_at"
       ],
-      "missing_critical": [],
-      "missing_optional": [
-        "created_at",
+      "optional": [
+        "notes",
         "id"
+      ]
+    },
+    "inventory_transactions": {
+      "critical": [
+        "item_id",
+        "type",
+        "qty_change",
+        "qty_after",
+        "worker_name",
+        "hive_id"
       ],
-      "extra_fields": [
-        "job"
+      "optional": [
+        "note",
+        "created_at",
+        "id",
+        "job_ref"
       ]
     }
-  ],
-  "closed_at_issues": [],
-  "summary": {
-    "fail": 0,
-    "warn": 3,
-    "pass": 0
-  }
+  },
+  "issues": []
 }

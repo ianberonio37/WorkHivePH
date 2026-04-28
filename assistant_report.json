@@ -1,7 +1,8 @@
 {
-  "[1] Page context entries (path.includes) for all live tools": [],
-  "[2] PLATFORM TOOLS mentions all live pages": [],
-  "[3] Skill Matrix discipline names match actual DISCIPLINES": [],
-  "[4] Retired pages not listed as active": [],
-  "[5] Engineering design calc count is current (46)": []
+  "validator": "assistant",
+  "total_checks": 13,
+  "passed": 13,
+  "skipped": 0,
+  "failed": 0,
+  "issues": []
 }
