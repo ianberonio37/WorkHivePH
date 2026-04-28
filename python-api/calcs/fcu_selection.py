@@ -88,11 +88,112 @@ def _leaving_air_state(supply_db: float) -> tuple[float, float, float]:
         return 12.5, 0.0088, 35000.0
 
 
+def _pipe_nps_from_flow(lps: float) -> tuple[int, float]:
+    """Select NPS (mm) for CHW pipe at ≤2.5 m/s and return (nps_mm, vel_ms)."""
+    q_m3s = lps / 1000.0   # L/s → m³/s
+    for nps in [15, 20, 25, 32, 40, 50, 65, 80, 100, 125, 150]:
+        area = math.pi * (nps / 1000.0 / 2.0) ** 2
+        v = q_m3s / area if area > 0 else 999.0
+        if v <= 2.5:
+            return nps, round(v, 2)
+    return 150, round(q_m3s / (math.pi * 0.075 ** 2), 2)
+
+
+def _calc_single_zone(inputs: dict) -> dict:
+    """Internal single-zone calculation (existing logic)."""
+    return calculate(dict(inputs, _skip_multi=True))
+
+
 def calculate(inputs: dict) -> dict:
     """
-    Main entry point - compatible with TypeScript calcFCUSelection() input keys.
-    Accepts pre-calculated load (q_sensible_w, q_latent_w) or raw room parameters.
+    Main entry point. Supports both single-zone and multi-room (rooms[]) inputs.
+    - Single zone: reads q_sensible_w / q_total_kW / floor_area etc. directly.
+    - Multi-room:  iterates inputs.rooms[], selects FCU per zone, aggregates totals.
+    Compatible with TypeScript calcFCUSelection() input keys.
     """
+    # ── Multi-room dispatch ───────────────────────────────────────────────────
+    rooms_input = inputs.get("rooms", [])
+    if rooms_input and len(rooms_input) > 0 and not inputs.get("_skip_multi"):
+        diversity   = float(inputs.get("diversity_factor", 0.85))
+        chw_supply  = float(inputs.get("chw_supply_c", CW_EWT_C))
+        chw_return  = float(inputs.get("chw_return_c", CW_LWT_C))
+        dT_custom   = chw_return - chw_supply
+
+        room_results: list[dict] = []
+        total_units    = 0
+        total_conn_kw  = 0.0
+        total_chw_lps  = 0.0
+
+        for rm in rooms_input:
+            qty  = max(1, int(rm.get("qty", 1)))
+            load = float(rm.get("cooling_load_kw", 0) or rm.get("load_kw", 0))
+            area = float(rm.get("area_m2", 50))
+            name = str(rm.get("room_name", "Zone"))
+
+            # Build single-zone sub-call
+            zone_inp = dict(inputs)
+            zone_inp.update({
+                "q_total_kW":    load,
+                "floor_area":    area,
+                "room_name":     name,
+                "rooms":         [],       # prevent recursion
+                "_skip_multi":   True,
+            })
+            z = calculate(zone_inp)
+
+            # chw_flow_lps_total is stored as kg/s ≈ L/s (ρ_water ≈ 1 kg/L)
+            fcu_flow_lps = float(z.get("chw_flow_lps_total", 0) or
+                                  z.get("cw_flow_lps_total", 0))
+
+            rr = {
+                "room_name":          name,
+                "area_m2":            area,
+                "load_kw":            round(load, 2),
+                "cooling_load_kw":    round(load, 2),   # alias for renderer
+                "qty":                qty,
+                "selected_model":     z.get("selected_fcu", "—"),
+                "selected_kw":        z.get("fcu_capacity_kW", 0),
+                "selected_tr":        round(z.get("fcu_capacity_kW", 0) / 3.517, 2),
+                "airflow_cmh":        z.get("fcu_airflow_m3hr", 0),
+                "chw_flow_lps_total": round(fcu_flow_lps * qty, 3),
+            }
+            room_results.append(rr)
+            total_units   += qty
+            total_conn_kw += z.get("fcu_capacity_kW", 0) * qty
+            total_chw_lps += fcu_flow_lps * qty
+
+        total_req_kw  = sum(float(rm.get("cooling_load_kw", 0)) for rm in rooms_input)
+        total_des_kw  = total_req_kw * diversity
+        nps_mm, vel_ms = _pipe_nps_from_flow(total_chw_lps)
+
+        return {
+            # Aggregate totals (renderer uses these)
+            "total_units":         total_units,
+            "total_connected_kw":  round(total_conn_kw, 2),
+            "total_connected_tr":  round(total_conn_kw / 3.517, 2),
+            "total_required_kw":   round(total_req_kw, 2),
+            "total_design_kw":     round(total_des_kw, 2),
+            "total_design_tr":     round(total_des_kw / 3.517, 2),
+            "total_chw_lps":       round(total_chw_lps, 3),
+            "main_pipe_nps_mm":    nps_mm,
+            "main_pipe_vel_ms":    vel_ms,
+            "diversity_factor":    diversity,
+            # Room-level results
+            "rooms":               room_results,
+            # Single-zone aliases (for diagram / narrative)
+            "fcu_capacity_kW":     round(total_conn_kw / max(total_units, 1), 2),
+            "fcu_airflow_m3hr":    room_results[0]["airflow_cmh"] if room_results else 0,
+            "chw_flow_lps_total":  round(total_chw_lps, 3),
+            "selected_fcu":        room_results[0]["selected_model"] if room_results else "—",
+            "selected_kw":         room_results[0]["selected_kw"] if room_results else 0,
+            "qty":                 total_units,
+            "room_name":           f"{len(rooms_input)} zones",
+            "cw_ewt_c":            chw_supply,
+            "cw_lwt_c":            chw_return,
+            "calculation_source":  "python/psychrolib",
+            "standard":            "ARI 440 | ASHRAE 62.1 | ASHRAE 90.1 | PSME",
+        }
+    # ── Single-zone path (existing logic) ────────────────────────────────────
     # ── Room load inputs ──────────────────────────────────────────────────────
     q_sensible_w = float(inputs.get("q_sensible_w",      0)
                      or  inputs.get("q_sensible_total",   0)
@@ -285,14 +386,26 @@ def calculate(inputs: dict) -> dict:
         "qty":                1,   # single-zone calc always = 1
         # Wrap single result as rooms array for multi-room renderer
         "rooms": [{
-            "room_name":            str(inputs.get("room_name", "Zone 1")),
-            "area_m2":              floor_area,
-            "load_kw":              round(q_design_kw, 2),   # room cooling load (renderer reads this)
-            "qty":                  1,                        # always 1 for single-zone
-            "selected_model":       selected["size"],
-            "selected_kw":          selected["total_kW"],
-            "selected_tr":          round(selected["total_kW"] / 3.517, 2),
-            "airflow_cmh":          selected["airflow_m3hr"],
-            "chw_flow_lps_total":   round(cw_flow_kgs, 3),
+            "room_name":          str(inputs.get("room_name", "Zone 1")),
+            "area_m2":            floor_area,
+            "load_kw":            round(q_design_kw, 2),
+            "cooling_load_kw":    round(q_design_kw, 2),   # alias — renderer reads this key
+            "qty":                1,
+            "selected_model":     selected["size"],
+            "selected_kw":        selected["total_kW"],
+            "selected_tr":        round(selected["total_kW"] / 3.517, 2),
+            "airflow_cmh":        selected["airflow_m3hr"],
+            "chw_flow_lps_total": round(cw_flow_lps, 3),
         }],
+
+        # ── Aggregate fields (renderer uses these for totals row) ──────────────
+        "total_units":         1,
+        "total_connected_kw":  round(selected["total_kW"], 2),
+        "total_connected_tr":  round(selected["total_kW"] / 3.517, 2),
+        "total_required_kw":   round(q_total_w / 1000, 2),
+        "total_design_kw":     round(q_design_kw, 2),
+        "total_design_tr":     round(q_design_kw / 3.517, 2),
+        "total_chw_lps":       round(cw_flow_lps, 3),
+        "main_pipe_nps_mm":    _pipe_nps_from_flow(cw_flow_lps)[0],
+        "main_pipe_vel_ms":    _pipe_nps_from_flow(cw_flow_lps)[1],
     }

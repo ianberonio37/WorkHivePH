@@ -14462,7 +14462,7 @@ function renderFCUSelectionReport(inputs, results, narrative) {
     <tr>
       <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">${escHtml(r.room_name || rooms[i]?.room_name || '')}</td>
       <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${escHtml(String(rooms[i]?.area_m2 || '—'))}</td>
-      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${Number(r.cooling_load_kw || 0).toFixed(2)}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${Number(r.load_kw || r.cooling_load_kw || 0).toFixed(2)}</td>
       <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${escHtml(String(r.qty || 1))}</td>
       <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;font-weight:600;">${escHtml(r.selected_model || '—')}</td>
       <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${Number(r.selected_kw || 0).toFixed(2)}</td>
