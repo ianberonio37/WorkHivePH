@@ -24,6 +24,12 @@ Loops (Phase 1 implements 1 + 3; Phases 2-4 add the rest):
   Loop 3: Readiness Gate — git/deployment/API status
   Loop 2: Self-Learning  — (future: auto-update skill files)
   Loop 4: Improvement    — (future: web search, backlog)
+
+Crash-prevention checks added 2026-04-28 (from production Safari iOS crash):
+  validate_mobile.py     +2  — will-change:filter mobile override (FAIL),
+                               body{animation} prefers-reduced-motion override (FAIL)
+  validate_performance.py +1 — body{animation} animationend safety guard (FAIL),
+                               index.html added to LIVE_PAGES scope
 """
 import subprocess, sys, os, json, time, datetime
 import urllib.request
@@ -240,6 +246,9 @@ VALIDATORS = [
         "id":      "mobile",
         "script":  "validate_mobile.py",
         "args":    [],
+        # Checks: viewport-fit=cover, input font-size >=16px, safe-area-inset-bottom,
+        # touch targets >=44px, will-change:filter mobile override (iOS GPU crash guard),
+        # body{animation} prefers-reduced-motion override (blank page guard)
         "label":   "Mobile UX Compliance Validator",
         "group":   "Platform",
         "report":  "mobile_report.json",
@@ -258,6 +267,8 @@ VALIDATORS = [
         "id":      "performance",
         "script":  "validate_performance.py",
         "args":    [],
+        # Checks: unbounded queries, select('*') on wide tables, N+1 loops,
+        # sequential awaits, body{animation} animationend safety guard (blank page guard)
         "label":   "Performance Anti-Pattern Validator",
         "group":   "Platform",
         "report":  "performance_report.json",

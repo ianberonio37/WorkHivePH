@@ -2181,7 +2181,7 @@ async function approveItem(table, id, submittedBy, label) {
     status:      'approved',
     approved_by: WORKER_NAME,
     approved_at: new Date().toISOString()
-  }).eq('id', id);
+  }).eq('id', id).eq('hive_id', HIVE_ID);
   if (error) { showToast('Approve failed: ' + error.message); return; }
 
   if (table === 'assets')           _pendingAssets = _pendingAssets.filter(a => a.id !== id);
@@ -2195,7 +2195,7 @@ async function approveItem(table, id, submittedBy, label) {
 
 async function rejectItem(table, id, submittedBy, label) {
   if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
-  const { error } = await db.from(table).update({ status: 'rejected' }).eq('id', id);
+  const { error } = await db.from(table).update({ status: 'rejected' }).eq('id', id).eq('hive_id', HIVE_ID);
   if (error) { showToast('Reject failed: ' + error.message); return; }
 
   if (table === 'assets')               _pendingAssets = _pendingAssets.filter(a => a.id !== id);

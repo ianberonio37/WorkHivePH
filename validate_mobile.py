@@ -5,7 +5,7 @@ WorkHive targets field workers on mobile phones in industrial environments:
 bright sunlight, gloves, noisy floors. Mobile UX failures are invisible
 on desktop during development but break the experience for every field worker.
 
-Four things checked:
+Six things checked:
 
   1. viewport-fit=cover on all pages
      — Every page must include viewport-fit=cover in its <meta name="viewport">
@@ -31,6 +31,19 @@ Four things checked:
        fingers. The Mobile Maestro skill sets 44x44px as the hard minimum.
        This check scans inline styles only — CSS-class-defined sizes are handled
        by the design system and assumed correct.
+
+  5. will-change: filter has a mobile override (iOS GPU crash guard)
+     — will-change: filter forces a separate GPU compositing layer per element
+       per animation frame. On iOS Safari, a glowing logo with will-change:filter
+       and no mobile override exhausts GPU memory and crashes the browser tab with
+       "A problem repeatedly occurred". The fix is a max-width:767px override
+       that sets will-change: auto and animation: none.
+
+  6. body { animation } has a prefers-reduced-motion override
+     — Pages that fade in the body (body { animation: page-enter ... }) start
+       with opacity:0. If the OS "Reduce Motion" setting is enabled and no
+       @media (prefers-reduced-motion: reduce) { body { animation: none } }
+       override is present, the animation may not fire and the page stays blank.
 
 Usage:  python validate_mobile.py
 Output: mobile_report.json
@@ -260,6 +273,90 @@ def check_touch_targets(pages):
     return issues
 
 
+# ── Check 5: will-change: filter without mobile override ─────────────────────
+
+def check_will_change_filter(pages):
+    """
+    will-change: filter forces a dedicated GPU compositing layer for every
+    animated element. On a glowing logo that animates drop-shadow every frame,
+    this creates significant GPU memory pressure. On iOS Safari with no mobile
+    override, this crashes the browser tab — shown to the user as
+    "A problem repeatedly occurred on [URL]".
+
+    The fix is a @media (max-width: 767px) block that resets the property:
+        .logo-glow-img { will-change: auto; animation: none; }
+
+    This check flags any page that uses will-change: filter in CSS without
+    a corresponding mobile override block setting will-change: auto.
+    """
+    issues = []
+    for page in pages:
+        content = read_file(page)
+        if content is None:
+            continue
+        has_filter = bool(re.search(r"will-change\s*:\s*filter", content))
+        if not has_filter:
+            continue
+        # Must have a mobile media query block that resets will-change to auto
+        has_mobile_override = bool(re.search(
+            r"@media\s*\([^)]*max-width[^)]*\)[^{]*\{.*?will-change\s*:\s*auto",
+            content, re.DOTALL
+        ))
+        if not has_mobile_override:
+            issues.append({
+                "page": page,
+                "reason": (
+                    f"{page} uses will-change: filter with no mobile override "
+                    f"(will-change: auto at max-width: 767px). On iOS Safari, "
+                    f"will-change: filter exhausts GPU memory and crashes the "
+                    f"browser tab — user sees 'A problem repeatedly occurred'."
+                ),
+            })
+    return issues
+
+
+# ── Check 6: body animation without prefers-reduced-motion override ───────────
+
+def check_body_animation_reduced_motion(pages):
+    """
+    Pages that animate body opacity (body { animation: page-enter ... }) start
+    with the body at opacity:0. If the OS "Reduce Motion" accessibility setting
+    is enabled, some browsers pause or skip CSS animations — leaving the body
+    permanently invisible (blank page).
+
+    Required companion rule:
+        @media (prefers-reduced-motion: reduce) { body { animation: none; } }
+
+    This check flags any page where body has an animation but no reduced-motion
+    override is present.
+    """
+    issues = []
+    for page in pages:
+        content = read_file(page)
+        if content is None:
+            continue
+        has_body_anim = bool(re.search(
+            r"body\s*\{[^}]*\banimation\s*:", content, re.DOTALL
+        ))
+        if not has_body_anim:
+            continue
+        has_reduced_motion = bool(re.search(
+            r"prefers-reduced-motion[^)]*\)[^{]*\{[^}]*body[^}]*animation\s*:\s*none",
+            content, re.DOTALL
+        ))
+        if not has_reduced_motion:
+            issues.append({
+                "page": page,
+                "reason": (
+                    f"{page} has body {{ animation: ... }} but no "
+                    f"@media (prefers-reduced-motion: reduce) override. "
+                    f"Users with OS Reduce Motion enabled see a blank page "
+                    f"because body starts at opacity:0 and the animation doesn't fire."
+                ),
+            })
+    return issues
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -293,6 +390,16 @@ checks = [
         f"[4] No inline touch target below {MIN_TOUCH_PX}px on interactive elements",
         check_touch_targets(LIVE_PAGES),
         "WARN",
+    ),
+    (
+        "[5] will-change: filter has a mobile override (iOS GPU crash guard)",
+        check_will_change_filter(LIVE_PAGES),
+        "FAIL",
+    ),
+    (
+        "[6] body { animation } has prefers-reduced-motion override (blank page guard)",
+        check_body_animation_reduced_motion(LIVE_PAGES),
+        "FAIL",
     ),
 ]
 

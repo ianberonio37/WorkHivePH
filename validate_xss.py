@@ -1,43 +1,39 @@
 """
 XSS / escHtml Coverage Validator — WorkHive Platform
-=====================================================
-Cross-Site Scripting (XSS) is the #1 web vulnerability for platforms
-that render user-supplied data into the DOM. WorkHive renders logbook
-entries, inventory item names, asset IDs, PM task descriptions, and
-worker names directly into HTML cards and lists.
+======================================================
+Cross-Site Scripting (XSS) is the #1 web vulnerability for platforms that
+render user-supplied data into the DOM. WorkHive renders logbook entries,
+inventory item names, asset IDs, PM task descriptions, and worker names
+directly into HTML cards.
 
-The platform uses escHtml() as its single XSS defence. It is defined
-in utils.js and used in every innerHTML template that renders user data.
-This validator ensures that defence can never be accidentally removed.
+The platform uses escHtml() as its single XSS defence. This validator
+ensures that defence is present everywhere it is needed.
 
-Four things checked:
+  Layer 1 — Presence checks
+    1.  escHtml available             — every innerHTML page has escHtml in scope
+    2.  outerHTML not raw             — outerHTML with interpolation uses escHtml
 
-  1. escHtml available on every innerHTML page
-     — Every page that assigns innerHTML with template literals (${...})
-       must have escHtml in scope: either defined locally or via utils.js.
-       A page without escHtml available is one refactor away from XSS.
+  Layer 2 — Coverage checks
+    3.  Raw interpolation ratio       — no page exceeds 40% raw (unescaped) interpolations
+    4.  insertAdjacentHTML safe       — every insertAdjacentHTML with ${...} uses escHtml
 
-  2. innerHTML template literal coverage ratio
-     — For each page, count interpolations (${...}) inside innerHTML
-       assignments. If more than THRESHOLD% are raw (no escHtml wrapper),
-       the page likely has unescaped user data somewhere in its rendering.
-       Reported as WARN — some interpolations are legitimately safe
-       (numbers, boolean flags, internal enum strings).
+  Layer 3 — High-risk patterns
+    5.  No injection vectors          — no eval / new Function / document.write in live pages
+    6.  No setAttribute event handler — no setAttribute('onclick', ...) with user data
 
-  3. insertAdjacentHTML with raw interpolation
-     — insertAdjacentHTML() is equivalent to innerHTML but easier to
-       miss in reviews. Every call with ${...} must use escHtml on any
-       variable that could contain user-supplied content.
-
-  4. No high-risk injection vectors
-     — eval(), new Function(), and document.write() are banned in live
-       pages. These bypass all escaping and allow arbitrary code execution.
-       This is a regression guard — the platform currently has none.
+  Layer 4 — Scope completeness
+    7.  All live pages in scope       — analytics.html and all new pages included in checks
 
 Usage:  python validate_xss.py
 Output: xss_report.json
 """
-import re, json, sys
+import re, json, sys, os
+
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+from validator_utils import read_file, format_result
 
 LIVE_PAGES = [
     "logbook.html",
@@ -48,6 +44,7 @@ LIVE_PAGES = [
     "skillmatrix.html",
     "dayplanner.html",
     "engineering-design.html",
+    "analytics.html",
     "platform-health.html",
     "nav-hub.html",
     "index.html",
@@ -55,216 +52,155 @@ LIVE_PAGES = [
     "nav-hub.js",
 ]
 
-# Pages that define escHtml themselves (don't need utils.js)
+# Pages that define escHtml themselves (don't load utils.js)
 SELF_DEFINES_ESC = {"engineering-design.html"}
 
-# Known safe interpolation patterns (numbers, enums, internal flags)
-# These don't need escHtml because they cannot contain HTML
+# Known-safe interpolation patterns: numbers, enums, internal counters
 SAFE_PATTERNS = [
-    r"^\s*\d+",                    # pure number
-    r"\.length\b",                 # array length
-    r"\bcount\b", r"\blen\b",      # count variables
-    r"\bi\b", r"\bj\b", r"\bn\b",  # loop counters
-    r"\?\s*'[^'<>]+'\s*:\s*'[^'<>]+'",  # ternary with static strings
-    r"new Date\(",                  # date object
-    r"\.toFixed\(", r"\.toLocaleString\(",  # number formatting
-    r"Math\.", r"Number\(",         # math expressions
-    r"parseFloat\(", r"parseInt\(",  # numeric conversions
+    r"^\s*\d+", r"\.length\b", r"\bcount\b", r"\blen\b",
+    r"\bi\b", r"\bj\b", r"\bn\b",
+    r"\?\s*'[^'<>]+'\s*:\s*'[^'<>]+'",
+    r"new Date\(", r"\.toFixed\(", r"\.toLocaleString\(",
+    r"Math\.", r"Number\(", r"parseFloat\(", r"parseInt\(",
 ]
 
-# High-risk injection vectors — none of these should exist in live pages
 INJECTION_VECTORS = ["eval(", "new Function(", "document.write("]
-
-# Threshold: if more than this fraction of innerHTML interpolations are raw, warn
-RAW_THRESHOLD = 0.40
+RAW_THRESHOLD     = 0.40
 
 
-def read_file(path):
-    try:
-        with open(path, encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
-        return None
-
+# ── Helpers ───────────────────────────────────────────────────────────────────
 
 def loads_utils_js(content):
-    """Returns True if the file loads utils.js."""
     return bool(re.search(r'src=["\'][^"\']*utils\.js["\']', content))
 
-
 def has_esc_html(content):
-    """Returns True if escHtml is defined or available in this file."""
     return bool(re.search(
         r"function\s+escHtml\s*\(|const\s+escHtml\s*=|var\s+escHtml\s*=|let\s+escHtml\s*=",
         content
     ))
 
+def esc_available(page, content):
+    return page in SELF_DEFINES_ESC or has_esc_html(content) or loads_utils_js(content)
 
 def is_safe_interpolation(expr):
-    """Returns True if the interpolated expression is known-safe (number/enum/flag)."""
     return any(re.search(p, expr) for p in SAFE_PATTERNS)
 
 
-# ── Check 1: escHtml available on every innerHTML page ───────────────────────
+# ── Layer 1: Presence checks ──────────────────────────────────────────────────
 
-def check_esc_html_availability(pages):
-    """
-    Every page that uses innerHTML / insertAdjacentHTML with template literal
-    interpolation must have escHtml in scope. Without it, there is zero XSS
-    protection for any string that gets rendered into the DOM.
-
-    A page without escHtml available is one developer mistake away from
-    introducing a stored XSS vulnerability that persists in the database.
-    """
+def check_esc_html_available():
     issues = []
-    for page in pages:
+    for page in LIVE_PAGES:
         content = read_file(page)
         if content is None:
             continue
-
-        # Does the page use innerHTML / insertAdjacentHTML with interpolation?
         uses_inner = bool(re.search(
-            r'(innerHTML|insertAdjacentHTML)\s*[=+(]\s*[^;]*\$\{',
+            r'(innerHTML|insertAdjacentHTML|outerHTML)\s*[=+(]\s*[^;]*\$\{',
             content, re.DOTALL
         ))
         if not uses_inner:
             continue
-
-        # Does escHtml exist in scope?
-        esc_available = (
-            page in SELF_DEFINES_ESC or
-            has_esc_html(content) or
-            loads_utils_js(content)
-        )
-        if not esc_available:
-            issues.append({
-                "page": page,
-                "reason": (
-                    f"{page} uses innerHTML/insertAdjacentHTML with template "
-                    f"literal interpolation but has no escHtml function available "
-                    f"(not defined locally and utils.js not loaded) — "
-                    f"any future user-data interpolation will be an XSS vulnerability"
-                ),
-            })
+        if not esc_available(page, content):
+            issues.append({"check": "esc_html_available", "page": page,
+                           "reason": f"{page} uses innerHTML/outerHTML with interpolation but escHtml is not in scope — any user data rendered is an XSS vulnerability"})
     return issues
 
 
-# ── Check 2: innerHTML interpolation coverage ratio ───────────────────────────
-
-def check_interpolation_coverage(pages):
+def check_outer_html_raw():
     """
-    For pages that have escHtml available, count the ratio of raw (unescaped)
-    interpolations vs escaped ones in innerHTML assignments.
-
-    Safe interpolations (numbers, .length, Math operations) are excluded
-    from both counts — they don't need escaping.
-
-    A high raw ratio means the page likely renders some user data without
-    escaping. Reported as WARN because not all interpolations are user data.
+    outerHTML = `...${expr}...` carries the same XSS risk as innerHTML.
+    The existing innerHTML scan misses outerHTML entirely.
     """
+    # Helper functions that internally escape their output — false-positive suppression
+    SAFE_HELPER_CALLS = {
+        "statusBadge(",   # uses hard-coded enum label map
+        "freqBadge(",     # uses hard-coded frequency abbreviations
+        "stockStatus(",   # returns internal status enum
+        "catBadge(",      # uses CATEGORY_COLORS lookup (no raw user string rendered)
+        "catPill(",       # internally calls escHtml(cat)
+        "critBadge(",     # internally calls escHtml(crit)
+    }
+
     issues = []
-    for page in pages:
+    for page in LIVE_PAGES:
         content = read_file(page)
-        if content is None:
+        if content is None or not esc_available(page, content):
             continue
-
-        # Only check pages where escHtml is available
-        esc_available = (
-            page in SELF_DEFINES_ESC or
-            has_esc_html(content) or
-            loads_utils_js(content)
-        )
-        if not esc_available:
-            continue
-
-        # Find all innerHTML/insertAdjacentHTML template literals
-        raw_count     = 0
-        escaped_count = 0
-
-        for m in re.finditer(
-            r'(?:innerHTML|insertAdjacentHTML\s*\([^,]+,)\s*`([^`]+)`',
-            content
-        ):
+        for m in re.finditer(r'outerHTML\s*=\s*`([^`]+)`', content):
             template = m.group(1)
-            # Extract all ${...} interpolations
-            for interp_m in re.finditer(r'\$\{([^}]+)\}', template):
-                expr = interp_m.group(1).strip()
+            for im in re.finditer(r'\$\{([^}]+)\}', template):
+                expr = im.group(1).strip()
                 if is_safe_interpolation(expr):
                     continue
                 if "escHtml" in expr:
-                    escaped_count += 1
-                else:
-                    raw_count += 1
-
-        total = raw_count + escaped_count
-        if total == 0:
-            continue
-        raw_ratio = raw_count / total
-        if raw_ratio > RAW_THRESHOLD:
-            issues.append({
-                "page":         page,
-                "raw":          raw_count,
-                "escaped":      escaped_count,
-                "ratio":        round(raw_ratio, 2),
-                "reason": (
-                    f"{page} has {raw_count}/{total} innerHTML interpolations "
-                    f"without escHtml ({raw_ratio:.0%}) — "
-                    f"review raw interpolations to confirm none are user-supplied data"
-                ),
-            })
+                    continue
+                if any(expr.startswith(fn) for fn in SAFE_HELPER_CALLS):
+                    continue
+                line = content[:m.start()].count('\n') + 1
+                issues.append({"check": "outer_html_raw", "page": page, "line": line,
+                               "reason": f"{page}:{line} outerHTML interpolation '${{  {expr[:40]}  }}' without escHtml"})
+                break
     return issues
 
 
-# ── Check 3: insertAdjacentHTML with raw string interpolation ─────────────────
+# ── Layer 2: Coverage checks ──────────────────────────────────────────────────
 
-def check_insert_adjacent_html(pages):
-    """
-    insertAdjacentHTML() is as dangerous as innerHTML but often missed in
-    security reviews because it looks like a method call rather than an
-    assignment. Every call with ${...} that isn't clearly a safe value
-    (number, enum, static string) must use escHtml.
-    """
+def check_raw_interpolation_ratio():
     issues = []
-    for page in pages:
+    for page in LIVE_PAGES:
+        content = read_file(page)
+        if content is None or not esc_available(page, content):
+            continue
+        raw = 0; esc = 0
+        for m in re.finditer(
+            r'(?:innerHTML|outerHTML|insertAdjacentHTML\s*\([^,]+,)\s*`([^`]+)`',
+            content
+        ):
+            for im in re.finditer(r'\$\{([^}]+)\}', m.group(1)):
+                expr = im.group(1).strip()
+                if is_safe_interpolation(expr):
+                    continue
+                if "escHtml" in expr:
+                    esc += 1
+                else:
+                    raw += 1
+        total = raw + esc
+        if total == 0:
+            continue
+        ratio = raw / total
+        if ratio > RAW_THRESHOLD:
+            issues.append({"check": "raw_interpolation_ratio", "page": page,
+                           "raw": raw, "escaped": esc, "ratio": round(ratio, 2),
+                           "skip": True,   # WARN not FAIL — some raw interpolations are safe
+                           "reason": f"{page}: {raw}/{total} innerHTML interpolations without escHtml ({ratio:.0%}) — review raw ones to confirm none are user-supplied data"})
+    return issues
+
+
+def check_insert_adjacent_html():
+    issues = []
+    for page in LIVE_PAGES:
         content = read_file(page)
         if content is None:
             continue
         lines = content.splitlines()
         for i, line in enumerate(lines):
-            if "insertAdjacentHTML" not in line:
+            if "insertAdjacentHTML" not in line or "${" not in line:
                 continue
-            if "${" not in line:
-                continue
-            # Extract interpolations from this line
-            for interp_m in re.finditer(r'\$\{([^}]+)\}', line):
-                expr = interp_m.group(1).strip()
-                if is_safe_interpolation(expr):
+            for im in re.finditer(r'\$\{([^}]+)\}', line):
+                expr = im.group(1).strip()
+                if is_safe_interpolation(expr) or "escHtml" in expr:
                     continue
-                if "escHtml" not in expr:
-                    issues.append({
-                        "page": page,
-                        "line": i + 1,
-                        "expr": expr[:60],
-                        "reason": (
-                            f"{page}:{i + 1} — insertAdjacentHTML with raw "
-                            f"interpolation '${{  {expr[:40]}  }}' — "
-                            f"wrap user-data variables with escHtml()"
-                        ),
-                    })
-                    break  # one report per line
+                issues.append({"check": "insert_adjacent_html", "page": page, "line": i + 1,
+                               "reason": f"{page}:{i+1} insertAdjacentHTML with raw '${{  {expr[:40]}  }}' — wrap user-data with escHtml()"})
+                break
     return issues
 
 
-# ── Check 4: No high-risk injection vectors ───────────────────────────────────
+# ── Layer 3: High-risk patterns ───────────────────────────────────────────────
 
-def check_injection_vectors(pages):
-    """
-    eval(), new Function(), and document.write() bypass all escaping and
-    allow arbitrary code execution. None of these should exist in live pages.
-    This is a regression guard — the platform currently passes clean.
-    """
+def check_injection_vectors():
     issues = []
-    for page in pages:
+    for page in LIVE_PAGES:
         content = read_file(page)
         if content is None:
             continue
@@ -274,82 +210,139 @@ def check_injection_vectors(pages):
             if stripped.startswith("//") or stripped.startswith("*"):
                 continue
             for vector in INJECTION_VECTORS:
-                # Skip win.document.write( — safe print-popup pattern (not page injection)
                 if vector == "document.write(" and re.search(r'\w+\.document\.write\s*\(', line):
                     continue
                 if vector in line:
-                    issues.append({
-                        "page":   page,
-                        "line":   i + 1,
-                        "vector": vector,
-                        "reason": (
-                            f"{page}:{i + 1} — high-risk injection vector "
-                            f"'{vector}' found — this bypasses all XSS escaping "
-                            f"and allows arbitrary code execution"
-                        ),
-                    })
+                    issues.append({"check": "injection_vectors", "page": page,
+                                   "line": i + 1, "vector": vector,
+                                   "reason": f"{page}:{i+1} high-risk vector '{vector}' bypasses all XSS escaping — remove or wrap in code review comment"})
                     break
     return issues
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+def check_set_attribute_event_handlers():
+    """
+    setAttribute('onclick', userInput) dynamically adds event handlers from
+    user-supplied strings. escHtml does not protect this because the value is
+    evaluated as JavaScript, not HTML.
+    Pattern: setAttribute('on...', expr) where expr is not a static string.
+    """
+    issues = []
+    for page in LIVE_PAGES:
+        content = read_file(page)
+        if content is None:
+            continue
+        lines = content.splitlines()
+        for i, line in enumerate(lines):
+            m = re.search(r'setAttribute\s*\(\s*[\'"]on\w+[\'"]\s*,\s*([^)]+)\)', line)
+            if not m:
+                continue
+            expr = m.group(1).strip()
+            # Static string literals are safe
+            if re.match(r'^[\'"][^\'\"]*[\'"]$', expr):
+                continue
+            # Template literals without interpolation are safe
+            if re.match(r'^`[^$`]*`$', expr):
+                continue
+            issues.append({"check": "set_attribute_event_handler", "page": page, "line": i + 1,
+                           "reason": f"{page}:{i+1} setAttribute('on...', {expr[:40]}) with dynamic value — use data-attributes + addEventListener instead"})
+    return issues
 
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-print("\n" + "=" * 70)
-print("XSS / escHtml Coverage Validator")
-print("=" * 70)
+# ── Layer 4: Scope completeness ───────────────────────────────────────────────
 
-fail_count = 0
-warn_count = 0
-report     = {}
+def check_all_html_pages_in_scope():
+    """
+    Every .html file that renders user data must be in LIVE_PAGES.
+    Check that no html/js file that uses innerHTML with interpolation is silently excluded.
+    """
+    import glob
+    issues = []
+    live_set = set(LIVE_PAGES)
+    for path in glob.glob("*.html") + glob.glob("*.js"):
+        fname = os.path.basename(path)
+        if fname in live_set:
+            continue
+        # Skip backup/test/platform-internal/retired files
+        if any(s in fname for s in ["-test", ".backup", "platform-health", "guardian",
+                                     "parts-tracker", "symbol-gallery", "architecture"]):
+            continue
+        content = read_file(fname)
+        if not content:
+            continue
+        uses_inner = bool(re.search(r'innerHTML\s*[=+]\s*[^;]*\$\{', content))
+        if uses_inner:
+            issues.append({"check": "all_pages_in_scope", "page": fname,
+                           "reason": f"{fname} uses innerHTML with interpolation but is not in validate_xss.py LIVE_PAGES — XSS checks never run on it"})
+    return issues
 
-checks = [
-    (
-        "[1] escHtml available on every page that writes innerHTML",
-        check_esc_html_availability(LIVE_PAGES),
-        "FAIL",
-    ),
-    (
-        f"[2] innerHTML interpolation coverage ratio (raw <= {RAW_THRESHOLD:.0%})",
-        check_interpolation_coverage(LIVE_PAGES),
-        "WARN",
-    ),
-    (
-        "[3] insertAdjacentHTML calls use escHtml on variable content",
-        check_insert_adjacent_html(LIVE_PAGES),
-        "FAIL",
-    ),
-    (
-        "[4] No eval() / new Function() / document.write() in live pages",
-        check_injection_vectors(LIVE_PAGES),
-        "FAIL",
-    ),
+
+# ── Runner ─────────────────────────────────────────────────────────────────────
+
+CHECK_NAMES = [
+    # L1
+    "esc_html_available", "outer_html_raw",
+    # L2
+    "raw_interpolation_ratio", "insert_adjacent_html",
+    # L3
+    "injection_vectors", "set_attribute_event_handler",
+    # L4
+    "all_pages_in_scope",
 ]
 
-for label, issues, severity in checks:
-    print(f"\n{label}\n")
-    if not issues:
-        print("  PASS")
+CHECK_LABELS = {
+    # L1
+    "esc_html_available":          "L1  escHtml in scope on every innerHTML/outerHTML page",
+    "outer_html_raw":              "L1  outerHTML interpolations use escHtml",
+    # L2
+    "raw_interpolation_ratio":     "L2  Raw interpolation ratio <= 40% per page  [WARN]",
+    "insert_adjacent_html":        "L2  insertAdjacentHTML interpolations use escHtml",
+    # L3
+    "injection_vectors":           "L3  No eval / new Function / document.write",
+    "set_attribute_event_handler": "L3  No setAttribute('on...', dynamic) patterns",
+    # L4
+    "all_pages_in_scope":          "L4  All innerHTML pages included in LIVE_PAGES",
+}
+
+
+def main():
+    def bold(s): return f"\033[1m{s}\033[0m"
+    print(bold("\nXSS / escHtml Coverage Validator (4-layer)"))
+    print("=" * 55)
+
+    all_issues = []
+    all_issues += check_esc_html_available()
+    all_issues += check_outer_html_raw()
+    all_issues += check_raw_interpolation_ratio()
+    all_issues += check_insert_adjacent_html()
+    all_issues += check_injection_vectors()
+    all_issues += check_set_attribute_event_handlers()
+    all_issues += check_all_html_pages_in_scope()
+
+    n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
+
+    total = len(CHECK_NAMES)
+    if n_fail == 0 and n_skip == 0:
+        print(f"\033[92m\n  All {total} checks passed.\033[0m")
+    elif n_fail == 0:
+        print(f"\033[93m\n  {n_pass} PASS  {n_skip} WARN  0 FAIL\033[0m")
     else:
-        for iss in issues:
-            print(f"  {severity}  {iss.get('page', '?')}")
-            print(f"        {iss['reason']}")
-        if severity == "FAIL":
-            fail_count += len(issues)
-        else:
-            warn_count += len(issues)
-    report[label] = issues
+        print(f"\033[91m\n  {n_pass} PASS  {n_skip} WARN  {n_fail} FAIL\033[0m")
 
-print(f"\n{'=' * 70}")
-print(f"Result: {fail_count} FAIL  {warn_count} WARN")
+    report = {
+        "validator":    "xss",
+        "total_checks": total,
+        "passed":       n_pass,
+        "warned":       n_skip,
+        "failed":       n_fail,
+        "issues":       [i for i in all_issues if not i.get("skip")],
+        "warnings":     [i for i in all_issues if i.get("skip")],
+    }
+    with open("xss_report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
 
-with open("xss_report.json", "w") as f:
-    json.dump(report, f, indent=2)
-print("Saved xss_report.json")
+    sys.exit(1 if n_fail > 0 else 0)
 
-if fail_count:
-    print("\nFIX REQUIRED.")
-    sys.exit(1)
-print("\nAll XSS checks PASS.")
+
+if __name__ == "__main__":
+    main()

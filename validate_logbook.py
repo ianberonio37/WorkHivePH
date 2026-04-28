@@ -224,6 +224,64 @@ def check_qty_after_floor(content, page):
     return []
 
 
+# ── Layer 3 (cont): New field sync ───────────────────────────────────────────
+
+NEW_LOGBOOK_FIELDS = ["failure_consequence", "readings_json", "production_output"]
+
+def check_new_fields_in_add_entry(content, page):
+    """
+    addEntry() must include all new fields in its Supabase insert.
+    Missing = new entries saved without the data.
+    """
+    m = re.search(r"async function addEntry\s*\(", content)
+    if not m:
+        return [{"check": "new_fields_in_add_entry", "page": page,
+                 "reason": "addEntry() not found"}]
+    body = content[m.start():m.start() + 1500]
+    issues = []
+    for field in NEW_LOGBOOK_FIELDS:
+        if field not in body:
+            issues.append({"check": "new_fields_in_add_entry", "page": page, "field": field,
+                           "reason": f"addEntry() missing '{field}' in Supabase insert — new entries lose this data"})
+    return issues
+
+
+def check_new_fields_in_save_edit(content, page):
+    """
+    saveEdit() updates object must include or preserve the new fields.
+    Missing = editing an entry silently wipes failure_consequence, readings, production data.
+    """
+    m = re.search(r"async function saveEdit\s*\(", content)
+    if not m:
+        return [{"check": "new_fields_in_save_edit", "page": page,
+                 "reason": "saveEdit() not found"}]
+    body = content[m.start():m.start() + 3000]
+    issues = []
+    for field in NEW_LOGBOOK_FIELDS:
+        if field not in body:
+            issues.append({"check": "new_fields_in_save_edit", "page": page, "field": field,
+                           "reason": f"saveEdit() updates object missing '{field}' — editing an entry wipes this field to null"})
+    return issues
+
+
+def check_new_fields_in_load_entries(content, page):
+    """
+    loadEntries() data.map() must include the new fields in the cached entry shape.
+    Missing = fields are dropped from the local cache, openEditModal can't read them.
+    """
+    m = re.search(r"_allEntries\s*=\s*data\.map\s*\(", content)
+    if not m:
+        return [{"check": "new_fields_in_load_entries", "page": page,
+                 "reason": "_allEntries = data.map() not found"}]
+    body = content[m.start():m.start() + 800]
+    issues = []
+    for field in NEW_LOGBOOK_FIELDS:
+        if field not in body:
+            issues.append({"check": "new_fields_in_load_entries", "page": page, "field": field,
+                           "reason": f"loadEntries() cache missing '{field}' — field dropped from local state, saveEdit reads null instead of DB value"})
+    return issues
+
+
 # ── Layer 4: XSS / security ───────────────────────────────────────────────────
 
 def check_highlight_escapes(content, page):
@@ -246,30 +304,35 @@ CHECK_NAMES = [
     "status_values", "category_values", "pm_category_alignment",
     # L2 — tenant isolation
     "hive_id_in_txn_insert", "delete_scoped_by_worker", "update_scoped_by_worker",
-    # L3 — logic
+    # L3 — logic + new field sync
     "auth_gate", "maintenance_type_values", "qty_after_floor",
+    "new_fields_in_add_entry", "new_fields_in_save_edit", "new_fields_in_load_entries",
     # L4 — XSS
     "highlight_escapes",
 ]
 
 CHECK_LABELS = {
     # L1
-    "closed_at_consistency":   "L1  closed_at set when status='Closed'",
-    "parts_deduction_guard":   "L1  saveEdit: _existing guard (no double-deduct)",
-    "closed_at_preservation":  "L1  closed_at preserved on re-edit",
-    "status_values":           "L1  Only Open/Closed used as status values",
-    "category_values":         "L1  Category values match dropdown",
-    "pm_category_alignment":   "L1  PM_CAT_TO_LOG_CAT maps to valid categories",
+    "closed_at_consistency":        "L1  closed_at set when status='Closed'",
+    "parts_deduction_guard":        "L1  saveEdit: _existing guard (no double-deduct)",
+    "closed_at_preservation":       "L1  closed_at preserved on re-edit",
+    "status_values":                "L1  Only Open/Closed used as status values",
+    "category_values":              "L1  Category values match dropdown",
+    "pm_category_alignment":        "L1  PM_CAT_TO_LOG_CAT maps to valid categories",
     # L2
-    "hive_id_in_txn_insert":   "L2  hive_id in inventory_transactions insert",
-    "delete_scoped_by_worker": "L2  deleteEntry scoped by worker_name",
-    "update_scoped_by_worker": "L2  saveEdit update scoped by worker_name",
+    "hive_id_in_txn_insert":        "L2  hive_id in inventory_transactions insert",
+    "delete_scoped_by_worker":      "L2  deleteEntry scoped by worker_name",
+    "update_scoped_by_worker":      "L2  saveEdit update scoped by worker_name",
     # L3
-    "auth_gate":               "L3  WORKER_NAME auth gate present",
-    "maintenance_type_values": "L3  maintenance_type values match valid list",
+    "auth_gate":                    "L3  WORKER_NAME auth gate present",
+    "maintenance_type_values":      "L3  maintenance_type values match valid list",
     "qty_after_floor":         "L3  Math.max(0,...) guard on qty_after",
+    # L3 (new field sync)
+    "new_fields_in_add_entry":      "L3  New fields in addEntry insert (consequence/readings/production)",
+    "new_fields_in_save_edit":      "L3  New fields preserved in saveEdit update",
+    "new_fields_in_load_entries":   "L3  New fields included in loadEntries cache shape",
     # L4
-    "highlight_escapes":       "L4  highlight() calls escHtml before rendering",
+    "highlight_escapes":            "L4  highlight() calls escHtml before rendering",
 }
 
 
@@ -304,6 +367,9 @@ def main():
     all_issues += check_auth_gate(logbook, LOGBOOK_PAGE)
     all_issues += check_maintenance_type_values(logbook, LOGBOOK_PAGE)
     all_issues += check_qty_after_floor(logbook, LOGBOOK_PAGE)
+    all_issues += check_new_fields_in_add_entry(logbook, LOGBOOK_PAGE)
+    all_issues += check_new_fields_in_save_edit(logbook, LOGBOOK_PAGE)
+    all_issues += check_new_fields_in_load_entries(logbook, LOGBOOK_PAGE)
 
     # L4
     all_issues += check_highlight_escapes(logbook, LOGBOOK_PAGE)

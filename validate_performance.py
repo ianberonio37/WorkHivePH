@@ -9,7 +9,7 @@ incidents.
 
 From the Performance skill and Data Engineer skill files.
 
-Four things checked:
+Five things checked:
 
   1. Unbounded queries on high-growth tables
      — logbook and inventory_transactions grow with every user action.
@@ -35,12 +35,20 @@ Four things checked:
        Promise.all([queryA, queryB]) runs them in parallel and halves
        the wait time. Flag as WARN — not broken, just slow.
 
+  5. body { animation } without JS safety guard (blank page on CDN slowness)
+     — Pages that fade the body in (body { animation: page-enter forwards })
+       start with body at opacity:0. If the Tailwind CDN is slow, the body
+       is invisible while waiting. If the animation stalls (background tab),
+       the body stays blank forever. An 800ms animationend safety guard
+       prevents permanent blank-page lockout.
+
 Usage:  python validate_performance.py
 Output: performance_report.json
 """
 import re, json, sys
 
 LIVE_PAGES = [
+    "index.html",
     "logbook.html",
     "inventory.html",
     "pm-scheduler.html",
@@ -287,6 +295,55 @@ def check_sequential_awaits(pages):
     return issues
 
 
+# ── Check 5: body { animation } without JS safety guard ──────────────────────
+
+def check_body_animation_safety_guard(pages):
+    """
+    Pages that animate body opacity (body { animation: page-enter ... forwards })
+    start with the body at opacity:0. Two failure modes cause permanent blank page:
+
+    1. Tailwind CDN in <head> is render-blocking — body is invisible while the
+       CDN downloads. On slow Philippine mobile connections this is 1-5 seconds.
+
+    2. Background tab pause — if the browser tab is opened in the background,
+       CSS animations may pause. When the user switches to the tab, the animation
+       may have "completed" while paused, leaving body at opacity:0 forever with
+       animation-fill-mode: forwards holding that state.
+
+    Required: an animationend safety guard that forces body visible after 800ms:
+        document.body.addEventListener('animationend', fn, { once: true })
+        + setTimeout fallback at 800ms
+
+    This check flags any page where body has an animation CSS rule but no
+    animationend listener is present in the page's inline scripts.
+    """
+    issues = []
+    for page in pages:
+        content = read_file(page)
+        if content is None:
+            continue
+        has_body_anim = bool(re.search(
+            r"body\s*\{[^}]*\banimation\s*:", content, re.DOTALL
+        ))
+        if not has_body_anim:
+            continue
+        has_safety_guard = bool(re.search(
+            r"""addEventListener\s*\(\s*['"]animationend['"]""", content
+        ))
+        if not has_safety_guard:
+            issues.append({
+                "page": page,
+                "reason": (
+                    f"{page} has body {{ animation: ... }} but no animationend "
+                    f"safety guard. If the animation stalls (background tab, CDN "
+                    f"slow, prefers-reduced-motion), the body stays at opacity:0 "
+                    f"permanently. Add an 800ms setTimeout fallback that forces "
+                    f"document.body.style.opacity = '1'."
+                ),
+            })
+    return issues
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -320,6 +377,11 @@ checks = [
         "[4] Consecutive sequential await DB calls (Promise.all opportunity)",
         check_sequential_awaits(LIVE_PAGES),
         "WARN",
+    ),
+    (
+        "[5] body { animation } has JS animationend safety guard (blank page guard)",
+        check_body_animation_safety_guard(LIVE_PAGES),
+        "FAIL",
     ),
 ]
 

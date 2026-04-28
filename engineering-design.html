@@ -18283,16 +18283,13 @@ function buildElectricalSLDSvg(inputs, results) {
     p.push(VL(bx, YBUS, YBR - 22));
     p.push(`<g color="${CC}" transform="translate(${bx},${YBR}) scale(0.7)">${drawSymbol('breaker', 0, 0)}</g>`);
     p.push(Badge(bx, YBR - 38, `${brkAmp}A`));
-    // Branch cable + conduit annotation on feeder wire (PEC 2017 / IEC 60364)
-    const brI     = demVA > 0 ? demVA / (isThreePhase ? Math.sqrt(3) * 400 : 230) : brkAmp * 0.8;
-    const brWire  = cableSz(brI);
-    const brCond  = condSz(brWire);
-    const brMidY  = Math.round((YBUS + (YBR - 22)) / 2);
-    p.push(T(bx + 4, brMidY,      `${brWire}mm²`, { a: 'start', sz: 6, c: '#1565c0', w: '700' }));
-    p.push(T(bx + 4, brMidY + 10, `Φ${brCond}EMT`, { a: 'start', sz: 6, c: '#1565c0' }));
+    // Branch cable vars (PEC 2017 / IEC 60364)
+    const brI    = demVA > 0 ? demVA / (isThreePhase ? Math.sqrt(3) * 400 : 230) : brkAmp * 0.8;
+    const brWire = cableSz(brI);
+    const brCond = condSz(brWire);
     p.push(VL(bx, YBR + 22, YLD - 16));
 
-    const bW = 108, bHt = 55;
+    const bW = 108, bHt = 67;  // +12px for cable row
     p.push(`<rect x="${bx - bW/2}" y="${YLD - 14}" width="${bW}" height="${bHt}" rx="5" fill="#f0f4f8" stroke="${CC}" stroke-width="1" opacity="0.8"/>`);
 
     const words = String(br.load_type || 'Load').split(/\s+/);
@@ -18307,6 +18304,7 @@ function buildElectricalSLDSvg(inputs, results) {
     const off = line2 ? 23 : 13;
     p.push(T(bx, YLD + off,      `${qty} × ${wEach}W`, { sz: 8, c: SC }));
     p.push(T(bx, YLD + off + 12, `${Number(wTot).toLocaleString()} W`, { sz: 9, c: AO, w: '700' }));
+    p.push(T(bx, YLD + off + 24, `${brWire}mm² THWN / Φ${brCond}EMT`, { sz: 6.5, c: '#1565c0' }));
   }
 
   if (hiddenCount > 0) {
@@ -18314,8 +18312,8 @@ function buildElectricalSLDSvg(inputs, results) {
   }
 
   // ── Legend + Notes strip (PEC 2017 Art. 1.3 requirement) ─────────────────
-  // load box bottom = YLD - 14 + bHt = 422 - 14 + 55 = 463; STRIP_Y adds 6px gap
-  const STRIP_Y = 470;
+  // load box bottom = YLD - 14 + bHt = 422 - 14 + 67 = 475; STRIP_Y = 480 gives 5px gap
+  const STRIP_Y = 480;
   p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W - 11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.75"/>`);
 
   // Vertical divider: legend (left) | notes (right)
@@ -18354,7 +18352,7 @@ function buildElectricalSLDSvg(inputs, results) {
     '5. All demand factors applied per load type in accordance with PEC 2017 Article 2.20.',
     '6. This diagram is schematic only. Refer to architectural/structural plans for routing.',
   ].forEach((note, i) => {
-    p.push(T(NX2, STRIP_Y + 27 + i * 14, note, { a: 'start', sz: 7.5, c: SC }));
+    p.push(T(NX2, STRIP_Y + 27 + i * 12, note, { a: 'start', sz: 7.5, c: SC }));
   });
 
   // width:100% + viewBox lets html2pdf scale to any container: no fixed px clipping

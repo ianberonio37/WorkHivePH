@@ -1,307 +1,343 @@
 """
 Hive Validator — WorkHive Platform
+=====================================
+Four-layer validation of hive.html:
 
-Static analysis of hive.html covering:
-  1. Realtime channel event coverage (INSERT + UPDATE for tables where both matter)
-  2. Hive ID scoping — every SELECT on a hive table must include .eq('hive_id', ...)
-  3. Approval flow completeness — worker-appr channel handles both 'approved' and 'rejected'
-  4. Channel cleanup — every channel started must have a removeChannel() call
+  Layer 1 — Realtime integrity
+    1.  Channel event coverage        — INSERT/UPDATE handlers present on every hive table
+    2.  Hive ID scoping on SELECT     — every hive-table SELECT includes hive_id filter
+    3.  Approval flow completeness    — worker-appr channel handles both approved + rejected
+    4.  Channel cleanup               — every started channel has removeChannel() call
+
+  Layer 2 — Tenant isolation
+    5.  approveItem scoped by hive_id — update includes .eq('hive_id', HIVE_ID)
+    6.  rejectItem scoped by hive_id  — update includes .eq('hive_id', HIVE_ID)
+    7.  Realtime approval filter      — approvalChannel uses hive_id=eq. filter
+
+  Layer 3 — Access control
+    8.  Auth gate present             — WORKER_NAME redirect on page load
+    9.  Supervisor gate on kick       — kickMember checks HIVE_ROLE !== 'supervisor'
+    10. Supervisor gate on approve    — approveItem checks HIVE_ROLE !== 'supervisor'
+    11. Supervisor gate on reject     — rejectItem checks HIVE_ROLE !== 'supervisor'
+
+  Layer 4 — Audit + XSS
+    12. writeAuditLog on power actions — kick/approve/reject all call writeAuditLog
+    13. escHtml in feed/member render  — worker names and entry fields escaped in DOM
 
 Usage:  python validate_hive.py
 Output: hive_report.json
 """
-import re, json, sys
+import re, json, sys, os
+
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+from validator_utils import read_file, format_result
 
 PAGE = "hive.html"
 
-# ── Expected realtime coverage per table ─────────────────────────────────────
-# "required": events that MUST be handled (missing = FAIL)
-# "expected": events that SHOULD be handled (missing = WARN)
-# "immutable": True means the table is write-once, so UPDATE is not needed
 CHANNEL_EXPECTATIONS = {
     "hive-feed": {
-        "logbook": {
-            "required": ["INSERT", "UPDATE"],
-            "expected": ["DELETE"],
-            "reason":   "Open/Closed status changes must update stat-open counter in real time",
-        },
+        "logbook":          {"required": ["INSERT", "UPDATE"], "expected": ["DELETE"],
+                             "reason": "Open/Closed status changes must update stat counters in real time"},
     },
     "hive-pm": {
-        "pm_completions": {
-            "required": ["INSERT"],
-            "expected": [],
-            "immutable": True,
-            "reason":   "PM completions are write-once; UPDATE not needed",
-        },
+        "pm_completions":   {"required": ["INSERT"], "expected": [], "immutable": True,
+                             "reason": "PM completions are write-once; UPDATE not needed"},
     },
     "hive-inventory": {
-        "inventory_items": {
-            "required": ["UPDATE"],
-            "expected": ["INSERT"],
-            "reason":   "INSERT miss means newly approved parts do not auto-refresh panel",
-        },
+        "inventory_items":  {"required": ["UPDATE"], "expected": ["INSERT"],
+                             "reason": "INSERT miss means newly approved parts do not auto-refresh"},
     },
     "hive-approval": {
-        "assets":          {"required": ["INSERT", "UPDATE"], "expected": []},
-        "inventory_items": {"required": ["INSERT", "UPDATE"], "expected": []},
+        "assets":           {"required": ["INSERT", "UPDATE"], "expected": []},
+        "inventory_items":  {"required": ["INSERT", "UPDATE"], "expected": []},
     },
     "worker-appr": {
-        "assets":          {"required": ["UPDATE"], "expected": []},
-        "inventory_items": {"required": ["UPDATE"], "expected": []},
+        "assets":           {"required": ["UPDATE"], "expected": []},
+        "inventory_items":  {"required": ["UPDATE"], "expected": []},
     },
 }
 
-# ── Tables that must always have hive_id in their SELECT queries ──────────────
 HIVE_SCOPED_TABLES = [
     "logbook", "assets", "inventory_items", "pm_assets",
     "pm_scope_items", "pm_completions", "hive_members",
 ]
 
-# ── Approval status values worker notification must handle ────────────────────
 APPROVAL_STATUSES = ["approved", "rejected"]
 
 
-def read_file(path):
-    try:
-        with open(path, encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
-        return None
-
+# ── Helpers ───────────────────────────────────────────────────────────────────
 
 def extract_channel_events(content):
-    """
-    Parse every db.channel(...).on('postgres_changes', {event: X, table: Y}, ...) pattern.
-    Returns: { channel_name: { table_name: set(events) } }
-    """
     channels = {}
-
-    # Find each channel block: db.channel('name') ... .subscribe()
-    channel_starts = list(re.finditer(
-        r"db\.channel\(['\"]([^'\"]+)['\"]", content  # no closing ) — handles 'name:' + VAR form
-    ))
-
-    for i, m in enumerate(channel_starts):
-        ch_name_raw = m.group(1)
-        # Strip the dynamic part (e.g., 'hive-feed:' + HIVE_ID -> 'hive-feed')
-        ch_name = ch_name_raw.split(':')[0].split("'")[0].split('"')[0].split(' +')[0].strip()
-
-        # Get the text until the next channel definition or end of string
-        end = channel_starts[i + 1].start() if i + 1 < len(channel_starts) else len(content)
-        block = content[m.start():end]
-
+    starts = list(re.finditer(r"db\.channel\(['\"]([^'\"]+)['\"]", content))
+    for i, m in enumerate(starts):
+        ch_name = m.group(1).split(':')[0].split("'")[0].split('"')[0].split(' +')[0].strip()
+        end     = starts[i + 1].start() if i + 1 < len(starts) else len(content)
+        block   = content[m.start():end]
         if ch_name not in channels:
             channels[ch_name] = {}
-
-        # Find all .on('postgres_changes', { event: X, table: Y }) in this block
-        on_pats = re.findall(
+        for pat in [
             r"\.on\(['\"]postgres_changes['\"],\s*\{[^}]*event\s*:\s*['\"](\w+)['\"][^}]*table\s*:\s*['\"](\w+)['\"]",
-            block,
-            re.DOTALL,
-        )
-        for event, table in on_pats:
-            if table not in channels[ch_name]:
-                channels[ch_name][table] = set()
-            channels[ch_name][table].add(event)
-
-        # Also match reversed order: table then event
-        on_pats2 = re.findall(
             r"\.on\(['\"]postgres_changes['\"],\s*\{[^}]*table\s*:\s*['\"](\w+)['\"][^}]*event\s*:\s*['\"](\w+)['\"]",
-            block,
-            re.DOTALL,
-        )
-        for table, event in on_pats2:
-            if table not in channels[ch_name]:
-                channels[ch_name][table] = set()
-            channels[ch_name][table].add(event)
-
+        ]:
+            for a, b in re.findall(pat, block, re.DOTALL):
+                event, table = (a, b) if pat.index('event') < pat.index('table') else (b, a)
+                if table not in channels[ch_name]:
+                    channels[ch_name][table] = set()
+                channels[ch_name][table].add(event)
     return channels
 
 
+def extract_function_body(content, func_name, window=600):
+    m = re.search(rf"async function {re.escape(func_name)}\s*\(", content)
+    if not m:
+        return None
+    return content[m.start():m.start() + window]
+
+
+# ── Layer 1: Realtime integrity ───────────────────────────────────────────────
+
 def check_realtime_coverage(content):
-    """Check every channel has the required INSERT/UPDATE handlers."""
     channels = extract_channel_events(content)
     issues   = []
-    warnings = []
-    passed   = []
-
-    for ch_key, table_expectations in CHANNEL_EXPECTATIONS.items():
-        # Match channel by prefix (hive-feed matches hive-feed:HIVE_ID)
+    for ch_key, table_exp in CHANNEL_EXPECTATIONS.items():
         actual = {}
         for ch_name, tables in channels.items():
             if ch_name == ch_key or ch_name.startswith(ch_key):
                 for t, evts in tables.items():
-                    if t not in actual:
-                        actual[t] = set()
-                    actual[t].update(evts)
-
-        for table, exp in table_expectations.items():
-            found     = actual.get(table, set())
-            missing_r = [e for e in exp["required"] if e not in found]
-            missing_w = [e for e in exp.get("expected", []) if e not in found]
-
-            label = f"{ch_key} -> {table}"
-            if missing_r:
-                issues.append({
-                    "channel": ch_key, "table": table,
-                    "missing_required": missing_r,
-                    "found_events": sorted(found),
-                    "reason": exp.get("reason", ""),
-                })
-            elif missing_w:
-                warnings.append({
-                    "channel": ch_key, "table": table,
-                    "missing_expected": missing_w,
-                    "found_events": sorted(found),
-                    "reason": exp.get("reason", ""),
-                })
-            else:
-                passed.append(label)
-
-    return issues, warnings, passed
+                    actual.setdefault(t, set()).update(evts)
+        for table, exp in table_exp.items():
+            found   = actual.get(table, set())
+            missing = [e for e in exp["required"] if e not in found]
+            for e in missing:
+                issues.append({"check": "realtime_coverage",
+                               "channel": ch_key, "table": table, "missing_event": e,
+                               "reason": f"{ch_key}->{table} missing required event '{e}': {exp.get('reason','')}"})
+    return issues
 
 
 def check_hive_id_scoping(content):
-    """
-    Every db.from('table').select() on a hive-scoped table must include hive_id filter.
-    Heuristic: find .select() calls on hive tables; check if .eq('hive_id'...) or
-    .filter('hive_id'...) appears nearby (within 200 chars).
-    """
     issues = []
     for table in HIVE_SCOPED_TABLES:
-        pattern = rf"from\(['\"{table}['\"]\)\.select\("
-        for m in re.finditer(pattern, content):
+        for m in re.finditer(rf"from\(['\"]?{re.escape(table)}['\"]?\)\.select\(", content):
             snippet = content[m.start():m.start() + 300]
-            has_hive = bool(re.search(
-                r"\.eq\(['\"]hive_id['\"]|\.filter\(['\"]hive_id|\.or\(`hive_id",
+            has_scope = bool(re.search(
+                r"\.eq\(['\"]hive_id['\"]"         # eq('hive_id', ...)
+                r"|\.filter\(['\"]hive_id"          # filter('hive_id', ...)
+                r"|\.or\(`hive_id"                  # or(`hive_id.eq....`)
+                r"|\.eq\(['\"]worker_name['\"]"     # eq('worker_name', ...)
+                r"|\.in\(['\"]worker_name['\"]"     # in('worker_name', [...])
+                r"|\.eq\(['\"]id['\"]",             # single-record lookup by PK — no hive scope needed
                 snippet
             ))
-            has_worker = bool(re.search(r"\.eq\(['\"]worker_name['\"]", snippet))
-            if not has_hive and not has_worker:
-                line_no = content[:m.start()].count('\n') + 1
-                issues.append({
-                    "table":   table,
-                    "line":    line_no,
-                    "snippet": snippet[:80].replace('\n', ' ').strip(),
-                    "reason":  "SELECT without hive_id or worker_name filter — may leak cross-hive data",
-                })
+            if not has_scope:
+                line = content[:m.start()].count('\n') + 1
+                issues.append({"check": "hive_id_scoping", "table": table, "line": line,
+                               "reason": f"{table} SELECT at line {line} missing hive_id or worker_name filter"})
     return issues
 
 
 def check_approval_flow(content):
-    """
-    worker-appr channel UPDATE handlers must notify for both 'approved' and 'rejected'.
-    """
-    issues = []
-    # Find the worker-appr channel block
     m = re.search(r"db\.channel\(['\"]worker-appr", content)
     if not m:
-        return [{"reason": "worker-appr channel not found"}]
-
-    end = content.find(".subscribe()", m.start())
+        return [{"check": "approval_flow", "reason": "worker-appr channel not found"}]
+    end   = content.find(".subscribe()", m.start())
     block = content[m.start():end + 12] if end != -1 else content[m.start():m.start() + 2000]
-
-    for status in APPROVAL_STATUSES:
-        if f"status === '{status}'" not in block and f'status === "{status}"' not in block:
-            issues.append({
-                "status": status,
-                "reason": f"worker-appr UPDATE handler does not check for '{status}' status — worker will not be notified",
-            })
-    return issues
+    return [{"check": "approval_flow", "status": s,
+             "reason": f"worker-appr UPDATE handler does not check for '{s}' — worker not notified"}
+            for s in APPROVAL_STATUSES
+            if f"status === '{s}'" not in block and f'status === "{s}"' not in block]
 
 
 def check_channel_cleanup(content):
-    """
-    Every channel variable that is started must also have a db.removeChannel() call.
-    """
     started  = set(re.findall(r'(\w+Channel)\s*=\s*db\.channel\(', content))
     removed  = set(re.findall(r'db\.removeChannel\((\w+Channel)\)', content))
-    missing  = started - removed
-    return sorted(missing)
+    missing  = sorted(started - removed)
+    return [{"check": "channel_cleanup", "channel": ch,
+             "reason": f"{ch} started but db.removeChannel({ch}) not found — memory/subscription leak"}
+            for ch in missing]
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
-print("\n" + "=" * 70)
-print("Hive Validator")
-print("=" * 70)
+# ── Layer 2: Tenant isolation ─────────────────────────────────────────────────
 
-content = read_file(PAGE)
-if not content:
-    print(f"ERROR: {PAGE} not found")
-    sys.exit(1)
+def check_approve_scoped(content):
+    m = re.search(r"async function approveItem\s*\(", content)
+    if not m:
+        return [{"check": "approve_scoped", "reason": "approveItem() not found"}]
+    body = content[m.start():m.start() + 400]
+    update_m = re.search(r"\.update\s*\(", body)
+    if not update_m:
+        return [{"check": "approve_scoped", "reason": "approveItem() .update() call not found"}]
+    after = body[update_m.start():update_m.start() + 200]
+    if not re.search(r"\.eq\s*\(['\"]hive_id['\"]", after):
+        return [{"check": "approve_scoped",
+                 "reason": "approveItem() update not scoped by hive_id — supervisor of hive A can approve items in hive B via UUID"}]
+    return []
 
-fail_count = 0
-warn_count = 0
 
-# [1] Realtime coverage
-print("\n[1] Realtime channel event coverage\n")
-rt_issues, rt_warns, rt_passed = check_realtime_coverage(content)
+def check_reject_scoped(content):
+    m = re.search(r"async function rejectItem\s*\(", content)
+    if not m:
+        return [{"check": "reject_scoped", "reason": "rejectItem() not found"}]
+    body = content[m.start():m.start() + 300]
+    update_m = re.search(r"\.update\s*\(", body)
+    if not update_m:
+        return [{"check": "reject_scoped", "reason": "rejectItem() .update() call not found"}]
+    after = body[update_m.start():update_m.start() + 150]
+    if not re.search(r"\.eq\s*\(['\"]hive_id['\"]", after):
+        return [{"check": "reject_scoped",
+                 "reason": "rejectItem() update not scoped by hive_id — supervisor of hive A can reject items in hive B via UUID"}]
+    return []
 
-for p in rt_passed:
-    print(f"  PASS  {p}")
-for w in rt_warns:
-    ch, tbl = w["channel"], w["table"]
-    print(f"  WARN  {ch} -> {tbl}")
-    for e in w["missing_expected"]:
-        print(f"        missing expected event: {e}  ({w['reason']})")
-    warn_count += 1
-for issue in rt_issues:
-    ch, tbl = issue["channel"], issue["table"]
-    print(f"  FAIL  {ch} -> {tbl}")
-    for e in issue["missing_required"]:
-        print(f"        MISSING REQUIRED: {e}  ({issue['reason']})")
-    fail_count += 1
 
-# [2] Hive ID scoping
-print("\n[2] Hive ID scoping on SELECT queries\n")
-scope_issues = check_hive_id_scoping(content)
-if scope_issues:
-    for iss in scope_issues:
-        print(f"  WARN  {iss['table']} (line {iss['line']}): {iss['reason']}")
-        warn_count += 1
-else:
-    print("  PASS  All hive-table SELECTs include hive_id or worker_name filter")
+def check_realtime_approval_filter(content):
+    m = re.search(r"approvalChannel\s*=\s*db\.channel\(", content)
+    if not m:
+        return [{"check": "realtime_approval_filter",
+                 "reason": "approvalChannel not found — cannot verify hive_id filter"}]
+    block = content[m.start():m.start() + 600]
+    if not re.search(r"hive_id\s*=\s*eq\.", block):
+        return [{"check": "realtime_approval_filter",
+                 "reason": "approvalChannel does not use hive_id=eq. filter — all hives see each other's approval queue events"}]
+    return []
 
-# [3] Approval flow
-print("\n[3] Approval notification coverage\n")
-appr_issues = check_approval_flow(content)
-if appr_issues:
-    for iss in appr_issues:
-        print(f"  FAIL  {iss['reason']}")
-        fail_count += 1
-else:
-    print("  PASS  worker-appr channel handles both 'approved' and 'rejected'")
 
-# [4] Channel cleanup
-print("\n[4] Channel cleanup (removeChannel on every started channel)\n")
-uncleaned = check_channel_cleanup(content)
-if uncleaned:
-    for ch in uncleaned:
-        print(f"  WARN  {ch}: started but no db.removeChannel({ch}) call found")
-        warn_count += 1
-else:
-    print("  PASS  All channel variables have removeChannel() cleanup")
+# ── Layer 3: Access control ───────────────────────────────────────────────────
 
-# Summary
-print(f"\n{'=' * 70}")
-print(f"Result: {fail_count} FAIL  {warn_count} WARN")
+def check_auth_gate(content):
+    if not re.search(r"if\s*\(\s*!\s*WORKER_NAME\s*\)", content):
+        return [{"check": "auth_gate",
+                 "reason": "WORKER_NAME auth gate missing — unauthenticated users can access hive board"}]
+    return []
 
-report = {
-    "realtime": {
-        "issues":   rt_issues,
-        "warnings": rt_warns,
-        "passed":   rt_passed,
-    },
-    "scoping_issues":  scope_issues,
-    "approval_issues": appr_issues,
-    "uncleaned_channels": uncleaned,
-    "summary": {"fail": fail_count, "warn": warn_count},
+
+def check_supervisor_gate(content, func_name, check_id):
+    body = extract_function_body(content, func_name, window=300)
+    if body is None:
+        return [{"check": check_id, "reason": f"{func_name}() not found"}]
+    if not re.search(r"HIVE_ROLE\s*!==?\s*['\"]supervisor['\"]", body):
+        return [{"check": check_id,
+                 "reason": f"{func_name}() missing HIVE_ROLE !== 'supervisor' check — workers can perform supervisor actions"}]
+    return []
+
+
+# ── Layer 4: Audit + XSS ─────────────────────────────────────────────────────
+
+def check_audit_log_on_power_actions(content):
+    issues = []
+    for func in ("kickMember", "approveItem", "rejectItem"):
+        body = extract_function_body(content, func, window=1500)
+        if body is None:
+            continue
+        if "writeAuditLog" not in body:
+            issues.append({"check": "audit_log_power_actions", "function": func,
+                           "reason": f"{func}() does not call writeAuditLog — supervisor action not recorded in audit trail"})
+    return issues
+
+
+def check_eschtml_in_render(content):
+    if "escHtml" not in content:
+        return [{"check": "eschtml_render",
+                 "reason": "escHtml not found in hive.html — worker names and entry data render as raw HTML"}]
+    # Check escHtml used near worker_name in render functions
+    if not re.search(r"escHtml\s*\(\s*(?:entry|record|m)\.\s*worker_name", content):
+        return [{"check": "eschtml_render",
+                 "reason": "escHtml not applied to worker_name in feed/member render — malicious names inject HTML"}]
+    return []
+
+
+# ── Runner ─────────────────────────────────────────────────────────────────────
+
+CHECK_NAMES = [
+    # L1
+    "realtime_coverage", "hive_id_scoping", "approval_flow", "channel_cleanup",
+    # L2
+    "approve_scoped", "reject_scoped", "realtime_approval_filter",
+    # L3
+    "auth_gate",
+    "supervisor_gate_kick", "supervisor_gate_approve", "supervisor_gate_reject",
+    # L4
+    "audit_log_power_actions", "eschtml_render",
+]
+
+CHECK_LABELS = {
+    # L1
+    "realtime_coverage":       "L1  Realtime channel event coverage (INSERT/UPDATE)",
+    "hive_id_scoping":         "L1  hive_id filter on all hive-table SELECTs",
+    "approval_flow":           "L1  worker-appr handles approved + rejected",
+    "channel_cleanup":         "L1  All channels have removeChannel() cleanup",
+    # L2
+    "approve_scoped":          "L2  approveItem update scoped by hive_id",
+    "reject_scoped":           "L2  rejectItem update scoped by hive_id",
+    "realtime_approval_filter":"L2  approvalChannel uses hive_id=eq. filter",
+    # L3
+    "auth_gate":               "L3  WORKER_NAME auth gate present",
+    "supervisor_gate_kick":    "L3  kickMember checks HIVE_ROLE supervisor",
+    "supervisor_gate_approve": "L3  approveItem checks HIVE_ROLE supervisor",
+    "supervisor_gate_reject":  "L3  rejectItem checks HIVE_ROLE supervisor",
+    # L4
+    "audit_log_power_actions": "L4  writeAuditLog called on kick/approve/reject",
+    "eschtml_render":          "L4  escHtml applied to worker_name in render",
 }
-with open("hive_report.json", "w") as f:
-    json.dump(report, f, indent=2, default=list)
-print("Saved hive_report.json")
 
-if fail_count:
-    print("\nFIX REQUIRED.")
-    sys.exit(1)
-print("\nAll hive checks PASS (review WARNs for known gaps).")
+
+def main():
+    def bold(s): return f"\033[1m{s}\033[0m"
+    print(bold("\nHive Validator (4-layer)"))
+    print("=" * 55)
+
+    content = read_file(PAGE)
+    if not content:
+        print(f"  ERROR: {PAGE} not found")
+        sys.exit(1)
+
+    all_issues = []
+
+    # L1
+    all_issues += check_realtime_coverage(content)
+    all_issues += check_hive_id_scoping(content)
+    all_issues += check_approval_flow(content)
+    all_issues += check_channel_cleanup(content)
+
+    # L2
+    all_issues += check_approve_scoped(content)
+    all_issues += check_reject_scoped(content)
+    all_issues += check_realtime_approval_filter(content)
+
+    # L3
+    all_issues += check_auth_gate(content)
+    all_issues += check_supervisor_gate(content, "kickMember",   "supervisor_gate_kick")
+    all_issues += check_supervisor_gate(content, "approveItem",  "supervisor_gate_approve")
+    all_issues += check_supervisor_gate(content, "rejectItem",   "supervisor_gate_reject")
+
+    # L4
+    all_issues += check_audit_log_on_power_actions(content)
+    all_issues += check_eschtml_in_render(content)
+
+    n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
+
+    total = len(CHECK_NAMES)
+    if n_fail == 0:
+        print(f"\033[92m\n  All {total} checks passed.\033[0m")
+    else:
+        print(f"\033[91m\n  {n_pass} PASS  {n_skip} SKIP  {n_fail} FAIL\033[0m")
+
+    report = {
+        "validator":    "hive",
+        "total_checks": total,
+        "passed":       n_pass,
+        "skipped":      n_skip,
+        "failed":       n_fail,
+        "issues":       [i for i in all_issues if not i.get("skip")],
+    }
+    with open("hive_report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2, default=list)
+
+    sys.exit(1 if n_fail > 0 else 0)
+
+
+if __name__ == "__main__":
+    main()

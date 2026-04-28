@@ -1,255 +1,359 @@
 """
 Assistant Validator — WorkHive Platform
+========================================
+Four-layer validation of floating-ai.js + assistant.html:
 
-Static analysis of floating-ai.js (the AI widget on every page) and assistant.html
-(the full AI assistant page) covering:
+  Layer 1 — Page coverage
+    1.  Page context entries          — every live tool has path.includes() in floating-ai.js
+    2.  PLATFORM TOOLS completeness   — every live tool mentioned in system prompt
+    3.  assistant.html completeness   — assistant.html system prompt covers all live tools
+    4.  Retired pages not active      — parts-tracker/checklist not listed as active tools
 
-  1. Page context coverage   — every live tool page has a path.includes() entry in floating-ai.js
-  2. Platform tools list     — every live tool page mentioned in the PLATFORM TOOLS system prompt
-  3. Skill Matrix disciplines — discipline names in system prompt match actual DISCIPLINES constant
-  4. Retired page status     — parts-tracker noted as retired, not as active tool
-  5. Cal count accuracy      — engineering-design.html description mentions correct calc count
-  6. No live links to retired pages — system prompt doesn't direct users to retired pages
+  Layer 2 — AI config correctness
+    5.  API key not exposed           — no hardcoded key string in source
+    6.  API routed through Worker     — fetch uses workerUrl, not direct Groq endpoint
+    7.  isTyping double-submit guard  — concurrent request prevention in handleSend
+    8.  History slice bounded         — slice sent to API is <= maxHistory/2
+
+  Layer 3 — Content accuracy
+    9.  Skill Matrix disciplines      — discipline names match actual DISCIPLINES constant
+    10. Calc count accuracy           — engineering-design description says 46 calc types
+    11. System prompt word limit      — "under X words" instruction present
+
+  Layer 4 — XSS / output safety
+    12. renderMarkdown wraps AI output — AI replies pass through renderMarkdown before innerHTML
+    13. AI cannot-access disclaimer   — widget states it has no DB access to worker records
 
 Usage:  python validate_assistant.py
 Output: assistant_report.json
 """
-import re, json, sys
+import re, json, sys, os
+
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+from validator_utils import read_file, extract_js_array, format_result
 
 FLOAT_JS       = "floating-ai.js"
 ASSISTANT_PAGE = "assistant.html"
 CONTENT_FILE   = "skill-content.js"
 
-# Live tool pages (non-home, non-utility) that must have page context entries
+# All live tool pages — must be covered in both floating-ai.js and assistant.html
 LIVE_TOOL_PAGES = [
-    "logbook",
-    "assistant",
-    "dayplanner",
-    "pm-scheduler",
-    "hive",
-    "inventory",
-    "skillmatrix",
-    "engineering-design",
+    "logbook", "assistant", "dayplanner", "pm-scheduler",
+    "hive", "inventory", "skillmatrix", "engineering-design", "analytics",
 ]
 
-# Retired pages — must NOT be listed as active tools
 RETIRED_PAGES = ["parts-tracker", "checklist"]
 
+PAGE_ALIASES = {
+    "engineering-design": ["engineering-design", "Engineering Design", "Engineering Calculator", "Engineering Design Calculator"],
+    "pm-scheduler":       ["pm-scheduler", "PM Scheduler"],
+    "skillmatrix":        ["skillmatrix", "Skill Matrix"],
+    "analytics":          ["analytics", "Analytics Engine"],
+}
 
-def read_file(path):
-    try:
-        with open(path, encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
-        return None
+
+# ── Layer 1: Page coverage ────────────────────────────────────────────────────
+
+def check_page_context_entries(content, page):
+    if not content:
+        return [{"check": "page_context_entries", "page": page, "reason": f"{page} not found"}]
+    issues = []
+    for tool in LIVE_TOOL_PAGES:
+        if not re.search(rf"path\.includes\(['\"]({re.escape(tool)})['\"]", content):
+            issues.append({"check": "page_context_entries", "page": page, "tool": tool,
+                           "reason": f"path.includes('{tool}') missing — users on {tool}.html get generic hints"})
+    return issues
 
 
-def extract_array(content, var_name):
-    m = re.search(
-        rf"(?:const|var|let)\s+{re.escape(var_name)}\s*=\s*\[([^\]]+)\]",
-        content, re.DOTALL
-    )
-    if not m:
+def check_platform_tools_completeness(content, page):
+    if not content:
         return []
-    return re.findall(r"['\"]([^'\"]+)['\"]", m.group(1))
-
-
-# ── Check 1: path.includes() coverage for all live pages ─────────────────────
-def check_page_context_entries(float_content, page):
-    """Every live tool page must have a path.includes('page-name') entry."""
+    start = content.find("PLATFORM TOOLS")
+    if start == -1:
+        return [{"check": "platform_tools_completeness", "page": page,
+                 "reason": "PLATFORM TOOLS section not found in system prompt"}]
+    block = content[start:start + 3000]
     issues = []
-    if not float_content:
-        return [{"page": page, "reason": f"{page} not found"}]
-
     for tool in LIVE_TOOL_PAGES:
-        pattern = rf"path\.includes\(['\"]({re.escape(tool)})['\"]"
-        if not re.search(pattern, float_content):
-            issues.append({
-                "page": page, "tool": tool,
-                "reason": f"path.includes('{tool}') missing — users on {tool}.html get generic AI hints instead of page-specific help",
-            })
+        aliases = PAGE_ALIASES.get(tool, [tool])
+        if not any(a in block for a in aliases):
+            issues.append({"check": "platform_tools_completeness", "page": page, "tool": tool,
+                           "reason": f"'{tool}' not in PLATFORM TOOLS — AI cannot answer 'where do I find {tool}?'"})
     return issues
 
 
-# ── Check 2: PLATFORM TOOLS mentions all live pages ───────────────────────────
-def check_platform_tools_list(float_content, page):
-    """
-    The PLATFORM TOOLS section in the system prompt must mention every live page.
-    If a page is missing, the AI can't answer 'where do I find X?' correctly.
-    """
+def check_assistant_page_completeness(content, page):
+    """assistant.html has its own system prompt — must also cover all live tools."""
+    if not content:
+        return [{"check": "assistant_page_completeness", "page": page,
+                 "reason": f"{page} not found"}]
     issues = []
-    if not float_content:
-        return [{"page": page, "reason": f"{page} not found"}]
-
-    # Find the PLATFORM TOOLS block
-    tools_m = re.search(r"PLATFORM TOOLS[\s\S]{0,3000}?^You handle", float_content, re.MULTILINE)
-    if not tools_m:
-        # Try without the ending anchor
-        tools_block = float_content[float_content.find("PLATFORM TOOLS"):float_content.find("PLATFORM TOOLS") + 2000]
-    else:
-        tools_block = tools_m.group(0)
-
     for tool in LIVE_TOOL_PAGES:
-        # Check page filename or well-known alias mentioned
-        aliases = {
-            "engineering-design": ["engineering-design", "Engineering Design", "Engineering Calculator"],
-            "pm-scheduler":       ["pm-scheduler", "PM Scheduler"],
-            "skillmatrix":        ["skillmatrix", "Skill Matrix"],
-        }
-        checks = aliases.get(tool, [tool])
-        if not any(c in tools_block for c in checks):
-            issues.append({
-                "page": page, "tool": tool,
-                "reason": f"'{tool}' not mentioned in PLATFORM TOOLS — AI cannot direct users to this page",
-            })
+        aliases = PAGE_ALIASES.get(tool, [tool])
+        if not any(a in content for a in aliases):
+            issues.append({"check": "assistant_page_completeness", "page": page, "tool": tool,
+                           "reason": f"'{tool}' not mentioned in assistant.html system context — full assistant gives incomplete answers"})
     return issues
 
 
-# ── Check 3: Skill Matrix discipline names match actual DISCIPLINES ────────────
+def check_retired_pages(content, page):
+    if not content:
+        return []
+    issues = []
+    for retired in RETIRED_PAGES:
+        for mention in re.findall(
+            rf".{{0,50}}{re.escape(retired)}\.html.{{0,100}}|.{{0,10}}-\s*{re.escape(retired).title()}\s*[(\-].{{0,100}}",
+            content, re.IGNORECASE
+        ):
+            if not any(w in mention.lower() for w in ["retired", "removed", "no longer", "deprecated", "replaced"]):
+                issues.append({"check": "retired_pages", "page": page, "retired_page": retired,
+                               "context": mention.strip(),
+                               "reason": f"'{retired}.html' referenced as active — AI may direct users to a non-existent page"})
+    return issues
+
+
+# ── Layer 2: AI config correctness ────────────────────────────────────────────
+
+def check_api_key_not_exposed(content, page):
+    if not content:
+        return []
+    # Check apiKey field — should be '' (empty) since key is in the Worker
+    m = re.search(r"apiKey\s*:\s*['\"]([^'\"]{8,})['\"]", content)
+    if m:
+        return [{"check": "api_key_not_exposed", "page": page,
+                 "reason": f"apiKey appears to contain a non-empty value — API key should never be in client-side source"}]
+    return []
+
+
+def check_api_routed_through_worker(content, page):
+    if not content:
+        return []
+    # API call must use workerUrl, not a direct Groq/OpenAI endpoint
+    if re.search(r"fetch\s*\(\s*['\"]https://api\.groq\.com", content):
+        return [{"check": "api_routed_through_worker", "page": page,
+                 "reason": "Direct fetch to api.groq.com found — API calls should route through the Cloudflare Worker to keep the key server-side"}]
+    if not re.search(r"fetch\s*\(\s*config\.workerUrl", content):
+        return [{"check": "api_routed_through_worker", "page": page,
+                 "reason": "fetch(config.workerUrl) not found — API routing pattern may have changed"}]
+    return []
+
+
+def check_is_typing_guard(content, page):
+    if not content:
+        return []
+    if "isTyping" not in content:
+        return [{"check": "is_typing_guard", "page": page,
+                 "reason": "isTyping guard not found — user can fire multiple concurrent API requests"}]
+    # Confirm it's used in handleSend as a guard
+    m = re.search(r"async function handleSend\s*\(", content)
+    if m:
+        body = content[m.start():m.start() + 200]
+        if "isTyping" not in body:
+            return [{"check": "is_typing_guard", "page": page,
+                     "reason": "isTyping not checked at start of handleSend — double-submit possible"}]
+    return []
+
+
+def check_history_slice_bounded(content, page):
+    """
+    The messages sent to the AI API must be a bounded slice of history.
+    history.slice(-N) where N should be <= maxHistory/2 to prevent token overflow.
+    """
+    if not content:
+        return []
+    # Find maxHistory value
+    max_hist_m = re.search(r"maxHistory\s*:\s*(\d+)", content)
+    max_hist = int(max_hist_m.group(1)) if max_hist_m else None
+
+    # Find history.slice(-N)
+    slice_m = re.search(r"history\.slice\s*\(-\s*(\d+)\)", content)
+    if not slice_m:
+        # Also check Math.floor pattern
+        floor_m = re.search(r"history\.slice\s*\(-\s*Math\.floor\s*\([^)]+\)\s*\)", content)
+        if not floor_m:
+            return [{"check": "history_slice_bounded", "page": page,
+                     "reason": "history.slice(-N) not found — all history may be sent to API causing token overflow"}]
+        return []
+
+    slice_n = int(slice_m.group(1))
+    if max_hist and slice_n > max_hist / 2:
+        return [{"check": "history_slice_bounded", "page": page,
+                 "found_slice": slice_n, "max_history": max_hist,
+                 "reason": f"history.slice(-{slice_n}) sends more than half of maxHistory ({max_hist}) — risk of token overflow"}]
+    return []
+
+
+# ── Layer 3: Content accuracy ─────────────────────────────────────────────────
+
 def check_skillmatrix_disciplines(float_content, skill_content, page):
-    """
-    The discipline names mentioned in the floating AI system prompt must match
-    the actual DISCIPLINES array in skill-content.js.
-    """
-    issues = []
     if not float_content or not skill_content:
         return []
-
-    actual_disciplines = extract_array(skill_content, "DISCIPLINES")
-    if not actual_disciplines:
-        return [{"page": CONTENT_FILE, "reason": "DISCIPLINES not found in skill-content.js"}]
-
-    # Find the Skill Matrix entry specifically in the PLATFORM TOOLS block
-    # (not in the detectPageContext hint which doesn't list disciplines)
-    tools_start = float_content.find("PLATFORM TOOLS")
-    if tools_start == -1:
-        return [{"page": page, "reason": "PLATFORM TOOLS section not found"}]
-    tools_block = float_content[tools_start:tools_start + 3000]
-
-    sm_pat = re.search(r"[Ss]kill [Mm]atrix[\s\S]{0,400}?(?=\n-|\Z)", tools_block)
-    if not sm_pat:
-        return [{"page": page, "reason": "Skill Matrix description not found in PLATFORM TOOLS section"}]
-
-    sm_line = sm_pat.group(0)
-
-    for disc in actual_disciplines:
-        if disc not in sm_line:
-            issues.append({
-                "page": page, "discipline": disc,
-                "actual_disciplines": actual_disciplines,
-                "reason": f"Skill Matrix description does not mention actual discipline '{disc}' — AI will give wrong answer about available disciplines",
-            })
-    return issues
+    actual = extract_js_array(skill_content, "DISCIPLINES")
+    if not actual:
+        return [{"check": "skillmatrix_disciplines", "page": CONTENT_FILE,
+                 "reason": "DISCIPLINES not found in skill-content.js"}]
+    start = float_content.find("PLATFORM TOOLS")
+    if start == -1:
+        return [{"check": "skillmatrix_disciplines", "page": page,
+                 "reason": "PLATFORM TOOLS section not found"}]
+    block = float_content[start:start + 3000]
+    sm_m  = re.search(r"[Ss]kill [Mm]atrix[\s\S]{0,400}?(?=\n-|\Z)", block)
+    if not sm_m:
+        return [{"check": "skillmatrix_disciplines", "page": page,
+                 "reason": "Skill Matrix description not found in PLATFORM TOOLS"}]
+    sm_line = sm_m.group(0)
+    return [{"check": "skillmatrix_disciplines", "page": page, "discipline": d,
+             "reason": f"Skill Matrix description missing discipline '{d}' — AI gives wrong answer about available disciplines"}
+            for d in actual if d not in sm_line]
 
 
-# ── Check 4: Retired pages not listed as active ───────────────────────────────
-def check_retired_pages(float_content, page):
-    """
-    Retired pages (parts-tracker, checklist) must be marked as retired,
-    not as active tools that users are directed to.
-    """
-    issues = []
-    if not float_content:
-        return []
-
-    for retired in RETIRED_PAGES:
-        # Look specifically for .html reference or a tool listing (not generic word use)
-        # e.g. "checklist.html" or "- Checklist (" but NOT "scope checklists"
-        mentions = re.findall(
-            rf".{{0,50}}{re.escape(retired)}\.html.{{0,100}}|"
-            rf".{{0,10}}-\s*{re.escape(retired).title()}\s*[(\-].{{0,100}}",
-            float_content, re.IGNORECASE
-        )
-        for mention in mentions:
-            is_retired_note = any(w in mention.lower() for w in
-                                  ["retired", "removed", "no longer", "deprecated", "replaced"])
-            if not is_retired_note:
-                issues.append({
-                    "page": page, "retired_page": retired,
-                    "context": mention.strip(),
-                    "reason": f"'{retired}.html' referenced as an active tool — AI may direct users to a non-existent page",
-                })
-    return issues
-
-
-# ── Check 5: Engineering design calc count in assistant.html ──────────────────
-def check_calc_count_accuracy(assistant_content, page):
-    """
-    assistant.html platform context must reference 46 calculation types
-    (not the old count of 36). Stale count gives wrong information.
-    """
-    issues = []
-    if not assistant_content:
-        return [{"page": page, "reason": f"{page} not found"}]
-
-    # Find calc count mention near engineering-design description
-    m = re.search(
-        r"engineering.design[\s\S]{0,500}?(\d+)\s*calc(?:ulation)?\s*type",
-        assistant_content, re.IGNORECASE
-    )
+def check_calc_count_accuracy(content, page):
+    if not content:
+        return [{"check": "calc_count_accuracy", "page": page, "reason": f"{page} not found"}]
+    m = re.search(r"engineering.design[\s\S]{0,500}?(\d+)\s*calc(?:ulation)?\s*type", content, re.IGNORECASE)
     if not m:
-        issues.append({
-            "page": page,
-            "reason": "Calc type count not found in engineering-design description in assistant.html",
-        })
-        return issues
-
+        return [{"check": "calc_count_accuracy", "page": page,
+                 "reason": "Calc type count not found in engineering-design description"}]
     count = int(m.group(1))
     if count < 46:
-        issues.append({
-            "page": page, "found_count": count,
-            "reason": f"assistant.html says '{count} calculation types' but platform now has 46 — stale count gives wrong information",
-        })
-    return issues
+        return [{"check": "calc_count_accuracy", "page": page, "found_count": count,
+                 "reason": f"Says '{count} calculation types' but platform has 46 — stale count"}]
+    return []
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
-print("\n" + "=" * 70)
-print("Assistant Validator")
-print("=" * 70)
+def check_system_prompt_word_limit(content, page):
+    if not content:
+        return []
+    if not re.search(r"under\s+\d+\s+words", content, re.IGNORECASE):
+        return [{"check": "system_prompt_word_limit", "page": page,
+                 "reason": "'Keep responses under N words' instruction missing — AI may give excessively long replies"}]
+    return []
 
-float_js    = read_file(FLOAT_JS)
-assistant   = read_file(ASSISTANT_PAGE)
-skill_cont  = read_file(CONTENT_FILE)
 
-fail_count = 0
-warn_count = 0
-report     = {}
+# ── Layer 4: XSS / output safety ─────────────────────────────────────────────
 
-checks = [
-    ("[1] Page context entries (path.includes) for all live tools",
-     check_page_context_entries(float_js, FLOAT_JS)),
-    ("[2] PLATFORM TOOLS mentions all live pages",
-     check_platform_tools_list(float_js, FLOAT_JS)),
-    ("[3] Skill Matrix discipline names match actual DISCIPLINES",
-     check_skillmatrix_disciplines(float_js, skill_cont, FLOAT_JS)),
-    ("[4] Retired pages not listed as active",
-     check_retired_pages(float_js, FLOAT_JS)),
-    ("[5] Engineering design calc count is current (46)",
-     check_calc_count_accuracy(assistant, ASSISTANT_PAGE)),
+def check_render_markdown_used(content, page):
+    """AI replies must pass through renderMarkdown (which sanitises output) before innerHTML."""
+    if not content:
+        return []
+    # addMessage should use renderMarkdown
+    m = re.search(r"function addMessage\s*\(", content)
+    if not m:
+        return [{"check": "render_markdown_used", "page": page,
+                 "reason": "addMessage() not found — cannot verify AI output sanitisation"}]
+    body = content[m.start():m.start() + 300]
+    if "renderMarkdown" not in body:
+        return [{"check": "render_markdown_used", "page": page,
+                 "reason": "addMessage() does not call renderMarkdown — AI output inserted as raw HTML"}]
+    return []
+
+
+def check_no_db_access_disclaimer(content, page):
+    """Floating AI widget must tell users it has no access to their work records."""
+    if not content:
+        return []
+    if not re.search(r"not connected|no access|don.t have access", content, re.IGNORECASE):
+        return [{"check": "no_db_access_disclaimer", "page": page,
+                 "reason": "No 'not connected to database' disclaimer in system prompt — users may expect the widget to know their work history"}]
+    return []
+
+
+# ── Runner ─────────────────────────────────────────────────────────────────────
+
+CHECK_NAMES = [
+    # L1
+    "page_context_entries", "platform_tools_completeness",
+    "assistant_page_completeness", "retired_pages",
+    # L2
+    "api_key_not_exposed", "api_routed_through_worker",
+    "is_typing_guard", "history_slice_bounded",
+    # L3
+    "skillmatrix_disciplines", "calc_count_accuracy", "system_prompt_word_limit",
+    # L4
+    "render_markdown_used", "no_db_access_disclaimer",
 ]
 
-for label, issues in checks:
-    print(f"\n{label}\n")
-    if not issues:
-        print("  PASS")
+CHECK_LABELS = {
+    # L1
+    "page_context_entries":        "L1  path.includes() entry for every live tool",
+    "platform_tools_completeness": "L1  PLATFORM TOOLS covers all live tools",
+    "assistant_page_completeness": "L1  assistant.html context covers all live tools",
+    "retired_pages":               "L1  Retired pages not listed as active",
+    # L2
+    "api_key_not_exposed":         "L2  API key not hardcoded in source",
+    "api_routed_through_worker":   "L2  API calls routed through Cloudflare Worker",
+    "is_typing_guard":             "L2  isTyping guard prevents double-submit",
+    "history_slice_bounded":       "L2  history.slice(-N) bounded to <= maxHistory/2",
+    # L3
+    "skillmatrix_disciplines":     "L3  Skill Matrix disciplines match DISCIPLINES constant",
+    "calc_count_accuracy":         "L3  Engineering design says 46 calc types",
+    "system_prompt_word_limit":    "L3  System prompt has word limit instruction",
+    # L4
+    "render_markdown_used":        "L4  AI output passes through renderMarkdown",
+    "no_db_access_disclaimer":     "L4  Widget disclaims no DB access to worker records",
+}
+
+
+def main():
+    def bold(s): return f"\033[1m{s}\033[0m"
+    print(bold("\nAssistant Validator (4-layer)"))
+    print("=" * 55)
+
+    float_js   = read_file(FLOAT_JS)
+    assistant  = read_file(ASSISTANT_PAGE)
+    skill_cont = read_file(CONTENT_FILE)
+
+    if not float_js:
+        print(f"  ERROR: {FLOAT_JS} not found")
+        sys.exit(1)
+
+    all_issues = []
+
+    # L1
+    all_issues += check_page_context_entries(float_js, FLOAT_JS)
+    all_issues += check_platform_tools_completeness(float_js, FLOAT_JS)
+    all_issues += check_assistant_page_completeness(assistant, ASSISTANT_PAGE)
+    all_issues += check_retired_pages(float_js, FLOAT_JS)
+
+    # L2
+    all_issues += check_api_key_not_exposed(float_js, FLOAT_JS)
+    all_issues += check_api_routed_through_worker(float_js, FLOAT_JS)
+    all_issues += check_is_typing_guard(float_js, FLOAT_JS)
+    all_issues += check_history_slice_bounded(float_js, FLOAT_JS)
+
+    # L3
+    all_issues += check_skillmatrix_disciplines(float_js, skill_cont, FLOAT_JS)
+    all_issues += check_calc_count_accuracy(assistant, ASSISTANT_PAGE)
+    all_issues += check_system_prompt_word_limit(float_js, FLOAT_JS)
+
+    # L4
+    all_issues += check_render_markdown_used(float_js, FLOAT_JS)
+    all_issues += check_no_db_access_disclaimer(float_js, FLOAT_JS)
+
+    n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
+
+    total = len(CHECK_NAMES)
+    if n_fail == 0:
+        print(f"\033[92m\n  All {total} checks passed.\033[0m")
     else:
-        for iss in issues:
-            print(f"  FAIL  {iss.get('page', '?')}")
-            print(f"        {iss['reason']}")
-            if "context" in iss:
-                print(f"        context: ...{iss['context']}...")
-            fail_count += 1
-    report[label] = issues
+        print(f"\033[91m\n  {n_pass} PASS  {n_skip} SKIP  {n_fail} FAIL\033[0m")
 
-print(f"\n{'=' * 70}")
-print(f"Result: {fail_count} FAIL  {warn_count} WARN")
+    report = {
+        "validator":    "assistant",
+        "total_checks": total,
+        "passed":       n_pass,
+        "skipped":      n_skip,
+        "failed":       n_fail,
+        "issues":       [i for i in all_issues if not i.get("skip")],
+    }
+    with open("assistant_report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
 
-with open("assistant_report.json", "w") as f:
-    json.dump(report, f, indent=2)
-print("Saved assistant_report.json")
+    sys.exit(1 if n_fail > 0 else 0)
 
-if fail_count:
-    print("\nFIX REQUIRED.")
-    sys.exit(1)
-print("\nAll assistant checks PASS.")
+
+if __name__ == "__main__":
+    main()

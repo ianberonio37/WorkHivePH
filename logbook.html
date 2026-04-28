@@ -1196,8 +1196,11 @@ async function loadEntries() {
     parts_used: r.parts_used || [],
     closed_at: r.closed_at || null,
     created_at: r.created_at || null,
-    tasklist_acknowledged: r.tasklist_acknowledged || false,
-    tasklist_note: r.tasklist_note || null,
+    tasklist_acknowledged:  r.tasklist_acknowledged || false,
+    tasklist_note:          r.tasklist_note || null,
+    failure_consequence:    r.failure_consequence || null,
+    readings_json:          r.readings_json || null,
+    production_output:      r.production_output || null,
     worker_name: r.worker_name
   }));
   return _allEntries;
@@ -2640,6 +2643,9 @@ async function saveEdit(id) {
     closed_at:              closedAt,
     tasklist_acknowledged:  document.getElementById('e-tasklist-ack-check')?.checked ?? existing?.tasklist_acknowledged ?? false,
     tasklist_note:          _tasklistNote || existing?.tasklist_note || null,
+    failure_consequence:    existing?.failure_consequence ?? null,
+    readings_json:          existing?.readings_json ?? null,
+    production_output:      existing?.production_output ?? null,
   };
   _tasklistNote = ''; // clear so it doesn't bleed into the next edit session
   const { error } = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME);
