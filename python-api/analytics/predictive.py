@@ -361,12 +361,21 @@ def calc_health_scores(
     pm_scope_items: list[dict],
     period_days: int = 90
 ) -> dict:
+    """
+    Equipment Health Score v2 — Predictive Analytics skill formula.
+    Four components (Predictive Analytics skill §Risk Score Model):
+      30% PM overdue factor  — how far past due is the last PM?
+      30% Fault frequency    — recent failure count vs MTBF expectation
+      20% Time to failure    — how close are we to the next predicted failure?
+      20% Repeat fault       — same root cause occurring multiple times?
+    Score: 0-100, higher = healthier. Inverse of risk score.
+    """
     log   = _to_df(logbook_entries)
     comps = _to_df(pm_completions)
     scope = _to_df(pm_scope_items)
 
     if log.empty:
-        return {"health_scores": [], "standard": "SMRP-inspired weighted composite (0-100)"}
+        return {"health_scores": [], "standard": "Predictive Analytics skill — 4-component formula (0-100)"}
 
     log   = _parse_dates(log,   "created_at")
     comps = _parse_dates(comps, "completed_at")
@@ -375,51 +384,101 @@ def calc_health_scores(
     now    = pd.Timestamp.now(tz="UTC")
     cutoff = now - pd.Timedelta(days=period_days)
 
-    # MTBF per machine (from all history)
-    mtbf_map: dict = {}
+    FREQ_DAYS = {"Monthly": 30, "Quarterly": 90, "Semi-Annual": 180, "Yearly": 365}
+
+    # ── Component 1 data: MTBF + last failure per machine ────────────────────
+    mtbf_map:        dict = {}
+    last_failure_map: dict = {}
     for machine, group in corr.groupby("machine"):
         dates = group["created_at"].dropna().sort_values()
+        last_failure_map[machine] = dates.iloc[-1] if len(dates) > 0 else None
         if len(dates) >= 2:
             intervals = dates.diff().dropna().dt.total_seconds() / 86400
             mtbf_map[machine] = float(intervals.mean())
 
-    # Recent failure count per machine (within period)
+    # ── Component 2 data: recent failure count per machine ───────────────────
     recent_failures: dict = {}
     recent = corr[corr["created_at"] >= cutoff]
     if not recent.empty and "machine" in recent.columns:
         recent_failures = recent.groupby("machine").size().to_dict()
 
-    # PM compliance per asset (simplified — % tasks with any completion)
-    pm_compliance: dict = {}
-    if not scope.empty and "asset_name" in scope.columns:
+    # ── Component 3 data: PM overdue factor per asset ────────────────────────
+    pm_overdue_factor: dict = {}  # asset_name → overdue_factor (0=just done, 1=one cycle late)
+    if not scope.empty and "asset_name" in scope.columns and not comps.empty:
+        last_comp_map: dict = {}
+        if "asset_id" in comps.columns:
+            for _, c in comps.iterrows():
+                aid = c.get("asset_id")
+                dt  = c.get("completed_at")
+                if aid and pd.notna(dt):
+                    if aid not in last_comp_map or dt > last_comp_map[aid]:
+                        last_comp_map[aid] = dt
+
         for asset_name, s_group in scope.groupby("asset_name"):
-            if comps.empty:
-                pm_compliance[asset_name] = 0
-                continue
-            c_group = comps[comps.get("asset_id", pd.Series(dtype=str)).isin(s_group["asset_id"].values)] if "asset_id" in comps.columns else pd.DataFrame()
-            pm_compliance[asset_name] = min(100, len(c_group) / max(len(s_group), 1) * 100)
+            factors = []
+            for _, item in s_group.iterrows():
+                freq_days = FREQ_DAYS.get(item.get("frequency", "Monthly"), 30)
+                last = last_comp_map.get(item.get("asset_id"))
+                if last:
+                    days_since = (now - last).total_seconds() / 86400
+                    factors.append(days_since / freq_days)
+                else:
+                    factors.append(2.0)  # never done = two cycles late
+            pm_overdue_factor[asset_name] = float(np.mean(factors)) if factors else 2.0
 
-    # Normalize MTBF: use 90 days as "perfect" MTBF (score = 100)
-    max_mtbf = 90.0
+    # ── Component 4 data: repeat fault count per machine ─────────────────────
+    repeat_map: dict = {}
+    if not corr.empty and "root_cause" in corr.columns:
+        rc_df = corr[corr["root_cause"].notna() & (corr["root_cause"].str.strip() != "")]
+        if not rc_df.empty:
+            grp = rc_df.groupby(["machine", "root_cause"]).size().reset_index(name="count")
+            repeats = grp[grp["count"] >= 2].groupby("machine")["count"].sum()
+            repeat_map = repeats.to_dict()
 
+    # ── Score each machine ────────────────────────────────────────────────────
     all_machines = set(mtbf_map) | set(recent_failures)
     scores = []
 
     for machine in all_machines:
-        mtbf         = mtbf_map.get(machine, None)
-        failures     = recent_failures.get(machine, 0)
-        compliance   = pm_compliance.get(machine, 50)  # default 50 if no PM data
+        mtbf          = mtbf_map.get(machine)
+        failures      = recent_failures.get(machine, 0)
+        last_fail     = last_failure_map.get(machine)
+        repeat_count  = repeat_map.get(machine, 0)
+        overdue       = pm_overdue_factor.get(machine, 1.0)  # default: 1 cycle late
 
-        # Component scores (0-100 each)
-        mtbf_score       = min(100, (mtbf / max_mtbf * 100)) if mtbf else 30
-        failure_score    = max(0, 100 - failures * 15)  # -15 per failure, floor at 0
-        compliance_score = float(compliance)
+        # Component A: PM overdue (30%) — 0=just done → 100, 2+ cycles late → 0
+        pm_score = max(0.0, min(100.0, (2.0 - overdue) / 2.0 * 100))
 
-        # Weighted composite
+        # Component B: Fault frequency (30%)
+        # Fewer failures vs MTBF expectation = healthier
+        # If no MTBF: penalise proportionally to failure count
+        if mtbf:
+            expected_failures = period_days / mtbf  # expected count in period
+            freq_ratio = failures / max(expected_failures, 1)
+            fault_score = max(0.0, min(100.0, (1.0 - freq_ratio) * 100))
+        else:
+            fault_score = max(0.0, 100.0 - failures * 15)
+
+        # Component C: Time to next failure (20%)
+        # days_remaining / MTBF: 1.0 = at MTBF (neutral), >1 = healthy, <0 = overdue
+        if mtbf and last_fail:
+            days_since_last = (now - last_fail).total_seconds() / 86400
+            days_remaining  = mtbf - days_since_last
+            time_ratio      = days_remaining / max(mtbf, 1)
+            time_score = max(0.0, min(100.0, time_ratio * 100))
+        else:
+            time_score = 50.0  # neutral if insufficient data
+
+        # Component D: Repeat fault (20%)
+        # 0 repeats = 100, 5+ repeats = 0 (−20 per repeat pair)
+        repeat_score = max(0.0, 100.0 - repeat_count * 20)
+
+        # Weighted composite (Predictive Analytics skill weights)
         health = round(
-            0.40 * mtbf_score +
-            0.30 * failure_score +
-            0.30 * compliance_score,
+            0.30 * pm_score    +
+            0.30 * fault_score +
+            0.20 * time_score  +
+            0.20 * repeat_score,
             1
         )
 
@@ -434,17 +493,19 @@ def calc_health_scores(
             color  = "red"
 
         scores.append({
-            "machine":          machine,
-            "health_score":     health,
-            "status":           status,
-            "color":            color,
-            "mtbf_days":        round(mtbf, 1) if mtbf else None,
-            "recent_failures":  failures,
-            "pm_compliance_pct": round(compliance, 1),
+            "machine":           machine,
+            "health_score":      health,
+            "status":            status,
+            "color":             color,
+            "mtbf_days":         round(mtbf, 1) if mtbf else None,
+            "recent_failures":   failures,
+            "repeat_faults":     repeat_count,
+            "pm_overdue_factor": round(overdue, 2),
             "components": {
-                "mtbf_score":       round(mtbf_score, 1),
-                "failure_score":    round(failure_score, 1),
-                "compliance_score": round(compliance_score, 1),
+                "pm_score":      round(pm_score, 1),
+                "fault_score":   round(fault_score, 1),
+                "time_score":    round(time_score, 1),
+                "repeat_score":  round(repeat_score, 1),
             }
         })
 
@@ -454,7 +515,13 @@ def calc_health_scores(
         "at_risk_count": sum(1 for s in scores if s["status"] == "AT RISK"),
         "watch_count":   sum(1 for s in scores if s["status"] == "WATCH"),
         "healthy_count": sum(1 for s in scores if s["status"] == "HEALTHY"),
-        "weights":       {"mtbf": "40%", "failure_frequency": "30%", "pm_compliance": "30%"},
+        "weights": {
+            "pm_overdue":        "30%",
+            "fault_frequency":   "30%",
+            "time_to_failure":   "20%",
+            "repeat_faults":     "20%",
+        },
+        "standard": "Predictive Analytics skill — 4-component formula (ISO 14224, SMRP)",
         "standard":      "SMRP-inspired weighted composite — 40% MTBF + 30% failure freq + 30% PM compliance",
     }
 

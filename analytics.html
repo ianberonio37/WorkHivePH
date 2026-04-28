@@ -1121,13 +1121,23 @@
       }
     });
 
+    // Show component breakdown for worst machine
+    const worstComps = worst.components || {};
+    const compBreakdown = worstComps.pm_score !== undefined ? `
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
+        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);">PM ${worstComps.pm_score}</span>
+        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);">Fault ${worstComps.fault_score}</span>
+        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);">Time ${worstComps.time_score}</span>
+        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);">Repeat ${worstComps.repeat_score}</span>
+      </div>` : '';
+
     return kpiCard({
-      title: 'Equipment Health Score', standard: 'SMRP composite (0-100)',
+      title: 'Equipment Health Score', standard: 'Predictive Analytics skill — 4-component formula',
       value: worst.health_score, unit: '/ 100 lowest',
       sublabel: `${worst.machine} — ${worst.status} · ${d.at_risk_count} at risk · ${d.watch_count} watch · ${d.healthy_count} healthy`,
       color: heroColor,
-      detail: `<div id="${chartId}" style="width:100%;"></div>`,
-      legend: 'Green line = 80 target · Yellow line = 60 minimum. Weights: 40% MTBF + 30% failure freq + 30% PM compliance.',
+      detail: `<div id="${chartId}" style="width:100%;"></div>${compBreakdown}`,
+      legend: 'Weights: 30% PM overdue + 30% fault frequency + 20% time-to-failure + 20% repeat faults. Green = 80, Yellow = 60.',
     });
   }
 
