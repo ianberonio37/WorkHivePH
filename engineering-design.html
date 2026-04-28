@@ -10896,6 +10896,8 @@ function showReport() {
     'Clean Agent Suppression',
     'Fire Pump Sizing',
     'Ventilation / ACH',
+    'Chiller System — Air Cooled',
+    'Chiller System — Water Cooled',
   ];
   const drawingSection = document.getElementById('drawing-section');
   if (DRAWING_SUPPORTED.includes(_calcType)) {
@@ -10927,6 +10929,9 @@ function showReport() {
       descEl.textContent = 'Generates a fire pump P&ID schematic showing pump, OS&Y valves, check valve, relief valve, jockey pump, test header, flow transmitter and duty-cycle data per NFPA 20:2022 / ISA-5.1:2009';
     } else if (_calcType === 'Ventilation / ACH' && descEl) {
       descEl.textContent = 'Generates a ventilation system schematic showing OA intake, filter, supply fan, supply diffusers, return/exhaust path, ASHRAE 62.1 VRP compliance summary and required ACH';
+    } else if ((_calcType === 'Chiller System — Air Cooled' || _calcType === 'Chiller System — Water Cooled') && descEl) {
+      const wc = _calcType.includes('Water');
+      descEl.textContent = `Generates a ${wc?'water-cooled chiller plant':'air-cooled chiller plant'} schematic showing chiller, CHW loop, pump, ${wc?'CW loop and cooling tower':'condenser coil and fans'}, ASHRAE 90.1 COP/IPLV compliance per AHRI 550-590`;
     }
     resetDrawingSection();
   } else {
@@ -18858,6 +18863,9 @@ async function _runDrawing() {
     } else if (ct === 'Ventilation / ACH') {
       const svg = buildVentilationSVG(_lastInputs, _lastResults);
       _renderGenericSLD(svg, null);
+    } else if (ct === 'Chiller System — Air Cooled' || ct === 'Chiller System — Water Cooled') {
+      const svg = buildChillerSVG(_lastInputs, _lastResults, ct);
+      _renderGenericSLD(svg, null);
     }
   }, 100);
 }
@@ -20886,6 +20894,305 @@ function regenerateHVACDrawing() {
     const code = buildHVACMermaidCode(_lastInputs, _lastResults);
     renderHVACDiagram(code);
   }, 250);
+}
+
+// ─── Chiller System Schematic — ASHRAE 90.1 / AHRI 550-590 / PSME Code ──────
+// Handles both Air-Cooled and Water-Cooled configurations
+// Mandatory: chiller capacity, COP + ASHRAE compliance, CHW temps/flow,
+//            condenser side (CW loop or air-cooled), refrigerant type, IPLV
+function buildChillerSVG(inputs, results, calcType) {
+  const r = results || {};
+  const isWC = (calcType || '').includes('Water');
+
+  // ── Values ─────────────────────────────────────────────────────────────────
+  const nUnits    = Number(r.n_units || inputs?.n_units || 1);
+  const trEach    = Number(r.nominal_TR_each   || r.recommended_TR || 0).toFixed(1);
+  const kWEach    = Number(r.nominal_kW_each   || r.recommended_kW || 0);
+  const trTotal   = Number(r.nominal_total_TR  || 0).toFixed(1);
+  const cop       = Number(r.COP_full_load     || r.cop || 0).toFixed(2);
+  const iplv      = Number(r.iplv             || r.IPLV || 0).toFixed(2);
+  const copOk     = Boolean(r.cop_compliant    ?? true);
+  const iplvOk    = Boolean(r.iplv_compliant   ?? true);
+  const refrig    = String(r.refrigerant || 'R-134a');
+  const chws      = Number(r.chw_supply_c || r.chw_supply_C || 7);
+  const chwr      = Number(r.chw_return_c || r.chw_return_C || 12);
+  const dTchw     = Number(r.dT_chw_C || chwr - chws).toFixed(1);
+  const chwFlowLs = Number(r.chw_flow_lps || r.Q_chw_lps || 0).toFixed(2);
+  const chwFlowM3 = Number(r.chw_flow_m3hr || r.Q_chw_m3h || 0).toFixed(1);
+  // Water-cooled specific
+  const cws       = Number(r.cw_supply_c || r.cw_supply_C || 29);
+  const cwr       = Number(r.cw_return_c || r.cw_return_C || 35);
+  const dTcw      = Number(r.dT_cw_C || cwr - cws).toFixed(1);
+  const cwFlowLs  = Number(r.cw_flow_lps || 0).toFixed(2);
+  const cwFlowM3  = Number(r.cw_flow_m3hr || 0).toFixed(1);
+  const rejTR     = Number(r.q_rejection_TR || r.Q_rejection_TR || 0).toFixed(1);
+  const rejKW     = Number(r.q_rejection_kW || r.Q_rejection_kW || 0).toFixed(0);
+  // Air-cooled specific
+  const airCMH    = Number(r.Q_airflow_CMH || 0).toFixed(0);
+  const ambient   = Number(inputs?.ambient_temp_C || 35);
+  const kWperTR   = Number(r.kW_per_TR || 0).toFixed(3);
+  const proj      = String(inputs?.project_name || 'Chiller Plant');
+
+  const W = 1050, H = 580, STRIP_Y = 467;
+  const CC = '#1a2e4a', SC = '#5a6a7a', AO = '#F7A21B';
+  const CHW = '#1565c0';  // chilled water blue
+  const CW  = '#2e7d32';  // condenser water green
+  const AIR = '#e65100';  // air orange
+  const CH  = '#37474f';  // chiller grey
+
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const T = (x,y,t,{a='middle',sz=9,c=CC,w='normal'}={}) =>
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+  const VL = (x,y1,y2,sw=3,clr=CC) => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${clr}" stroke-width="${sw}"/>`;
+  const HL = (x1,y,x2,sw=3,clr=CC) => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${clr}" stroke-width="${sw}"/>`;
+  const Arrow = (x,y,dir,clr,sz=10) => {
+    if(dir==='right') return `<polygon points="${x},${y-sz/2} ${x+sz},${y} ${x},${y+sz/2}" fill="${clr}"/>`;
+    if(dir==='left')  return `<polygon points="${x},${y-sz/2} ${x-sz},${y} ${x},${y+sz/2}" fill="${clr}"/>`;
+    if(dir==='up')    return `<polygon points="${x-sz/2},${y} ${x},${y-sz} ${x+sz/2},${y}" fill="${clr}"/>`;
+    if(dir==='down')  return `<polygon points="${x-sz/2},${y} ${x},${y+sz} ${x+sz/2},${y}" fill="${clr}"/>`;
+    return '';
+  };
+  const Badge = (x,y,label,bg,tc='#fff') => {
+    const bw = Math.max(60, String(label).length*6.5+16);
+    return `<rect x="${x-bw/2}" y="${y-10}" width="${bw}" height="20" rx="10" fill="${bg}"/>` +
+      T(x, y+5, label, {sz:8.5, c:tc, w:'700'});
+  };
+  // Pump symbol
+  const PumpSym = (cx,cy,r=16,clr=CC) =>
+    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#f5f5f5" stroke="${clr}" stroke-width="2"/>` +
+    `<polyline points="${cx-r*.6},${cy-r*.5} ${cx+r*.4},${cy} ${cx-r*.6},${cy+r*.5}" fill="none" stroke="${clr}" stroke-width="2" stroke-linejoin="round"/>` +
+    `<circle cx="${cx}" cy="${cy}" r="3" fill="${clr}"/>`;
+  // Temperature label on pipe
+  const TempLabel = (x,y,temp,side='right',clr=CC) =>
+    T(x, y, `${temp}°C`, {a:side, sz:8, c:clr, w:'700'});
+
+  let p = [];
+
+  // ── Background + inner margin ─────────────────────────────────────────────
+  p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="0.75"/>`);
+
+  // ── Title ─────────────────────────────────────────────────────────────────
+  const typeLabel = isWC ? 'WATER-COOLED CHILLER PLANT' : 'AIR-COOLED CHILLER PLANT';
+  p.push(T(W/2, 27, `${typeLabel} — SYSTEM SCHEMATIC`, {sz:11, c:CC, w:'700'}));
+  p.push(T(W/2, 41, `ASHRAE 90.1-2019 / AHRI 550-590 / PSME Code  |  ${nUnits}× ${trEach} TR = ${trTotal} TR total  |  COP ${cop}`, {sz:9, c:SC}));
+
+  // ── CHILLER BODY (centre) ─────────────────────────────────────────────────
+  const CX = isWC ? 420 : 380;  // chiller centre x
+  const CY = 270;                // chiller centre y
+  const CW_BOX = 200, CH_BOX = 140;
+  const CL = CX - CW_BOX/2, CR = CX + CW_BOX/2;
+  const CT = CY - CH_BOX/2, CB = CY + CH_BOX/2;
+
+  p.push(`<rect x="${CL}" y="${CT}" width="${CW_BOX}" height="${CH_BOX}" fill="#eceff1" stroke="${CH}" stroke-width="2.5" rx="6"/>`);
+  p.push(`<rect x="${CL}" y="${CT}" width="${CW_BOX}" height="20" fill="${CH}" rx="6"/>`);
+  p.push(T(CX, CT+14, isWC ? 'WATER-COOLED CHILLER' : 'AIR-COOLED CHILLER', {sz:8, c:'#fff', w:'700'}));
+
+  // Internal components labels
+  p.push(`<rect x="${CL+8}" y="${CT+24}" width="${CW_BOX-16}" height="32" fill="#e3f2fd" stroke="${CHW}" stroke-width="1" rx="3"/>`);
+  p.push(T(CX, CT+36, 'EVAPORATOR', {sz:7.5, c:CHW, w:'700'}));
+  p.push(T(CX, CT+47, `CHW ${chws}°C / ${chwr}°C  ΔT=${dTchw}K`, {sz:7, c:CHW}));
+
+  // Compressor symbol (circle in middle)
+  const COMP_Y = CY;
+  p.push(`<circle cx="${CX}" cy="${COMP_Y}" r="18" fill="#fff9c4" stroke="${AO}" stroke-width="1.8"/>`);
+  p.push(T(CX, COMP_Y+5, 'COMP', {sz:7.5, c:'#7a4a00', w:'700'}));
+  p.push(T(CX, COMP_Y+15, `${kWperTR} kW/TR`, {sz:6.5, c:SC}));
+
+  p.push(`<rect x="${CL+8}" y="${CB-36}" width="${CW_BOX-16}" height="32" fill="${isWC?'#e8f5e9':'#fff3e0'}" stroke="${isWC?CW:AIR}" stroke-width="1" rx="3"/>`);
+  p.push(T(CX, CB-24, 'CONDENSER', {sz:7.5, c:isWC?CW:AIR, w:'700'}));
+  p.push(T(CX, CB-13, isWC ? `CW ${cws}°C / ${cwr}°C  ΔT=${dTcw}K` : `Air ${ambient}°C ambient`, {sz:7, c:isWC?CW:AIR}));
+
+  // Refrigerant type + chiller tags
+  p.push(Badge(CX, CT-16, `CH-${nUnits===1?'201':'201A/B'}  ×${nUnits}`, CH));
+  p.push(T(CX, CB+14, `Refrigerant: ${refrig}  |  ${kWEach} kW / ${trEach} TR each`, {sz:7.5, c:SC}));
+
+  // ── CHW LOOP (left side, blue) ────────────────────────────────────────────
+  const CHW_SX = CL;    // evaporator CHW supply (left side)
+  const CHW_Y_S = CT+40; // supply connection on chiller
+  const CHW_Y_R = CB-20; // return connection on chiller
+
+  // CHW pump P-CHW-201
+  const PCHW_X = 190, PCHW_Y = 230;
+  p.push(PumpSym(PCHW_X, PCHW_Y, 18, CHW));
+  p.push(Badge(PCHW_X, PCHW_Y-28, 'P-CHW-201', CHW));
+  p.push(T(PCHW_X, PCHW_Y+26, 'CHW Pump', {sz:7.5, c:CHW}));
+  p.push(T(PCHW_X, PCHW_Y+36, `${chwFlowM3} m³/h`, {sz:7.5, c:CHW, w:'700'}));
+  p.push(T(PCHW_X, PCHW_Y+46, `${chwFlowLs} L/s`, {sz:7, c:SC}));
+
+  // CHW supply path: chiller evap → HL left → VL down → HL to load (blue)
+  const CHW_PX = 120;  // CHW pipe x
+  HL(CHW_SX, CHW_Y_S, CHW_PX, 3, CHW); // evap → pipe x
+  p.push(HL(CHW_SX, CHW_Y_S, CHW_PX, 3, CHW));
+  p.push(VL(CHW_PX, CHW_Y_S, PCHW_Y+18, 3, CHW));  // down to pump
+  p.push(VL(CHW_PX, PCHW_Y-18, CHW_Y_S, 3, CHW));   // re-connect above pump
+  p.push(Arrow(CHW_PX, PCHW_Y+18, 'down', CHW, 10));
+  p.push(VL(CHW_PX, PCHW_Y+18, 370, 3, CHW));  // pump → load
+  // CHW supply arrow direction
+  p.push(Arrow(CHW_PX-1, PCHW_Y+18+30, 'down', CHW, 10));
+
+  // LOAD block (AHU / FCU)
+  const LOAD_X = 30, LOAD_Y = 370, LOAD_W = 180, LOAD_H = 65;
+  p.push(`<rect x="${LOAD_X}" y="${LOAD_Y}" width="${LOAD_W}" height="${LOAD_H}" fill="#e3f2fd" stroke="${CHW}" stroke-width="1.8" rx="4"/>`);
+  p.push(`<rect x="${LOAD_X}" y="${LOAD_Y}" width="${LOAD_W}" height="16" fill="${CHW}" rx="4"/>`);
+  p.push(T(LOAD_X+LOAD_W/2, LOAD_Y+11, 'AHU / FCU LOAD', {sz:7.5, c:'#fff', w:'700'}));
+  p.push(T(LOAD_X+LOAD_W/2, LOAD_Y+28, `CHW Supply: ${chws}°C`, {sz:7.5, c:CHW}));
+  p.push(T(LOAD_X+LOAD_W/2, LOAD_Y+40, `CHW Return: ${chwr}°C`, {sz:7.5, c:'#d32f2f'}));
+  p.push(T(LOAD_X+LOAD_W/2, LOAD_Y+52, `Flow: ${chwFlowM3} m³/h`, {sz:7.5, c:SC}));
+  // Load connections
+  p.push(VL(CHW_PX, 370, 435, 3, CHW));  // supply to load
+  p.push(Arrow(CHW_PX, 370, 'down', CHW, 10));
+  p.push(T(CHW_PX-6, 355, `${chws}°C`, {a:'end', sz:8, c:CHW, w:'700'}));
+  p.push(T(CHW_PX-6, 365, 'CHW Supply', {a:'end', sz:7, c:SC}));
+
+  // CHW return path: load → VL up → HL back to chiller evaporator return
+  const CHW_RX = 65;  // return pipe x
+  p.push(VL(CHW_RX, CHW_Y_R, 435, 3, '#d32f2f'));  // return pipe
+  p.push(HL(CHW_SX, CHW_Y_R, CHW_RX, 3, '#d32f2f'));  // return to chiller
+  p.push(Arrow(CHW_SX+4, CHW_Y_R, 'right', '#d32f2f', 10));
+  p.push(Arrow(CHW_RX, 320, 'up', '#d32f2f', 10));
+  p.push(T(CHW_RX-6, 360, `${chwr}°C`, {a:'end', sz:8, c:'#d32f2f', w:'700'}));
+  p.push(T(CHW_RX-6, 370, 'CHW Return', {a:'end', sz:7, c:SC}));
+
+  // CHW flow label on supply duct
+  p.push(T(CHW_PX+10, PCHW_Y+80, `CHW = ${chwFlowM3} m³/h`, {a:'start', sz:8, c:CHW, w:'700'}));
+  p.push(T(CHW_PX+10, PCHW_Y+91, `= ${chwFlowLs} L/s  (${r.Q_chw_GPM?.toFixed?.(0)||'—'} GPM)`, {a:'start', sz:7, c:SC}));
+
+  if (isWC) {
+    // ── WATER-COOLED: CW LOOP (right side, green) ───────────────────────────
+    const CW_PX = CR;
+    const CW_Y_S = CB-20; // CW supply from chiller condenser (warm)
+    const CW_Y_R = CT+40; // CW return to chiller condenser (cool)
+
+    // CW pump P-CW-201
+    const PCW_X = 680, PCW_Y = 320;
+    p.push(PumpSym(PCW_X, PCW_Y, 18, CW));
+    p.push(Badge(PCW_X, PCW_Y-28, 'P-CW-201', CW));
+    p.push(T(PCW_X, PCW_Y+26, 'CW Pump', {sz:7.5, c:CW}));
+    p.push(T(PCW_X, PCW_Y+36, `${cwFlowM3} m³/h`, {sz:7.5, c:CW, w:'700'}));
+
+    // CW warm pipe from condenser
+    const CW_WARM_X = 760;
+    p.push(HL(CW_PX, CW_Y_S, CW_WARM_X, 3, '#c62828'));
+    p.push(VL(CW_WARM_X, CW_Y_S, PCW_Y+18, 3, '#c62828'));
+    p.push(Arrow(CW_WARM_X, PCW_Y-18+50, 'down', '#c62828', 10));
+    p.push(T(CW_WARM_X+6, CW_Y_S+15, `${cwr}°C CW hot`, {a:'start', sz:8, c:'#c62828', w:'700'}));
+
+    // Cooling Tower CT-201
+    const CT_X = 850, CT_Y = 150, CT_W = 130, CT_H = 90;
+    p.push(`<rect x="${CT_X}" y="${CT_Y}" width="${CT_W}" height="${CT_H}" fill="#e8f5e9" stroke="${CW}" stroke-width="2" rx="6"/>`);
+    p.push(`<rect x="${CT_X}" y="${CT_Y}" width="${CT_W}" height="18" fill="${CW}" rx="6"/>`);
+    p.push(T(CT_X+CT_W/2, CT_Y+12, 'COOLING TOWER', {sz:8, c:'#fff', w:'700'}));
+    p.push(T(CT_X+CT_W/2, CT_Y+32, 'CT-201', {sz:8, c:CW, w:'700'}));
+    p.push(T(CT_X+CT_W/2, CT_Y+45, `Rej: ${rejTR} TR`, {sz:7.5, c:SC}));
+    p.push(T(CT_X+CT_W/2, CT_Y+56, `${rejKW} kW`, {sz:7.5, c:SC}));
+    // Air arrows through cooling tower
+    for (let i = 0; i < 3; i++) {
+      p.push(Arrow(CT_X+25+i*38, CT_Y-12, 'up', AIR, 9));
+    }
+    p.push(T(CT_X+CT_W/2, CT_Y-20, 'Warm moist air out', {sz:7, c:AIR}));
+    // Cool water down arrow
+    p.push(Arrow(CT_X+CT_W/2, CT_Y+CT_H+2, 'down', CW, 9));
+
+    // Pipe: pump → cooling tower (cool CW)
+    const CW_COOL_X = 840;
+    p.push(VL(CW_WARM_X, PCW_Y-18, CT_Y+CT_H, 3, CW));  // pump → tower
+    p.push(T(CW_WARM_X+6, PCW_Y-60, `${cws}°C CW cool`, {a:'start', sz:8, c:CW, w:'700'}));
+
+    // Return: tower → chiller condenser
+    p.push(HL(CW_PX, CW_Y_R, CW_WARM_X, 3, CW));
+    p.push(VL(CW_WARM_X, CW_Y_R, CT_Y+CT_H+14, 3, CW));
+    p.push(Arrow(CW_PX+4, CW_Y_R, 'right', CW, 10));
+    p.push(T(CW_PX+8, CW_Y_R-10, `${cws}°C CW Return`, {a:'start', sz:8, c:CW, w:'700'}));
+    p.push(T(CW_PX+8, CW_Y_R+1, `${cwFlowM3} m³/h  (${cwFlowLs} L/s)`, {a:'start', sz:7.5, c:SC}));
+
+  } else {
+    // ── AIR-COOLED: Condenser coil + fan on top ───────────────────────────
+    const COND_X = CR, COND_Y = 110, COND_W = 160, COND_H = CT-COND_Y-10;
+    p.push(`<rect x="${COND_X}" y="${COND_Y}" width="${COND_W}" height="${COND_H}" fill="#fff3e0" stroke="${AIR}" stroke-width="1.8" rx="4"/>`);
+    p.push(T(COND_X+COND_W/2, COND_Y+15, 'CONDENSER COIL', {sz:8, c:AIR, w:'700'}));
+    p.push(T(COND_X+COND_W/2, COND_Y+28, '(Air-cooled)', {sz:7.5, c:SC}));
+    // Condenser fans
+    [COND_X+30, COND_X+90, COND_X+150].forEach(fx => {
+      p.push(`<circle cx="${fx}" cy="${COND_Y+52}" r="14" fill="#e3f2fd" stroke="${AIR}" stroke-width="1.5"/>`);
+      p.push(`<line x1="${fx-10}" y1="${COND_Y+42}" x2="${fx+10}" y2="${COND_Y+62}" stroke="${AIR}" stroke-width="2"/>`);
+      p.push(`<line x1="${fx+10}" y1="${COND_Y+42}" x2="${fx-10}" y2="${COND_Y+62}" stroke="${AIR}" stroke-width="2"/>`);
+      p.push(Arrow(fx, COND_Y+20, 'up', AIR, 8));
+    });
+    p.push(T(COND_X+COND_W/2, COND_Y+80, `Air: ${Number(airCMH).toLocaleString()} m³/h`, {sz:7.5, c:AIR, w:'700'}));
+    p.push(T(COND_X+COND_W/2, COND_Y+91, `Ambient: ${ambient}°C DB`, {sz:7, c:SC}));
+    // Connect condenser to chiller
+    p.push(VL(CX+30, COND_Y+COND_H, CT, 2, AIR));
+    // Air inlet label at bottom
+    for (let i = 0; i < 3; i++) p.push(Arrow(COND_X+30+i*60, COND_Y-6, 'up', AIR, 8));
+    p.push(T(COND_X+COND_W/2, COND_Y-15, `Ambient air in: ${ambient}°C`, {sz:7, c:AIR}));
+  }
+
+  // ── PERFORMANCE DATA TABLE (right panel / bottom) ─────────────────────────
+  const DP_X = isWC ? 20 : 650, DP_Y = isWC ? 410 : 80, DP_W = isWC ? 380 : 340, DP_H = isWC ? 45 : 320;
+  if (!isWC) {
+    p.push(`<rect x="${DP_X}" y="${DP_Y}" width="${DP_W}" height="${DP_H}" fill="#f8faff" stroke="#d0d8e8" stroke-width="0.8" rx="3"/>`);
+    p.push(`<rect x="${DP_X}" y="${DP_Y}" width="${DP_W}" height="18" fill="${CC}" rx="3"/>`);
+    p.push(T(DP_X+DP_W/2, DP_Y+12, 'PERFORMANCE DATA', {sz:8, c:'#fff', w:'700'}));
+    const perf = [
+      ['Capacity (each)',   `${trEach} TR / ${kWEach} kW`],
+      ['Total capacity',    `${trTotal} TR total (${nUnits}× units)`],
+      ['COP (full load)',   cop],
+      ['IPLV',             iplv],
+      ['ASHRAE 90.1',      copOk && iplvOk ? 'COMPLIANT' : 'NON-COMPLIANT'],
+      ['CHW Supply/Return',`${chws}°C / ${chwr}°C  ΔT=${dTchw}K`],
+      ['CHW Flow',         `${chwFlowM3} m³/h  (${chwFlowLs} L/s)`],
+      ['Condenser air',    `${Number(airCMH).toLocaleString()} m³/h`],
+      ['Ambient',          `${ambient}°C DB`],
+      ['Refrigerant',      refrig],
+      ['kW/TR',            kWperTR],
+    ];
+    perf.forEach(([lbl, val], i) => {
+      const ry = DP_Y+20+i*13;
+      const ok = lbl === 'ASHRAE 90.1' && (copOk && iplvOk);
+      const vc = lbl === 'ASHRAE 90.1' ? (copOk&&iplvOk?CW:'#c62828') : CC;
+      if (i%2===0) p.push(`<rect x="${DP_X+1}" y="${ry}" width="${DP_W-2}" height="13" fill="#eef3fa"/>`);
+      p.push(T(DP_X+4, ry+10, lbl, {a:'start', sz:7, c:SC}));
+      p.push(T(DP_X+DP_W-4, ry+10, val, {a:'end', sz:7.5, c:vc, w:'600'}));
+    });
+  }
+
+  // ASHRAE compliance badge
+  const bx = isWC ? 310 : CX;
+  const by = isWC ? 420 : CB+32;
+  p.push(Badge(bx, by, copOk&&iplvOk ? `ASHRAE 90.1 COMPLIANT  COP ${cop}` : `ASHRAE 90.1 NON-COMPLIANT  COP ${cop}`, copOk&&iplvOk?CW:'#c62828'));
+  p.push(Badge(bx + (isWC?180:0), by+(isWC?0:16), `IPLV: ${iplv}  ${iplvOk?'✓':'✗ BELOW LIMIT'}`, iplvOk?CW:'#c62828'));
+
+  // ── LEGEND + NOTES (STRIP_Y = 467) ───────────────────────────────────────
+  p.push(HL(11, STRIP_Y, W-11, 0.75));
+  const LX2 = isWC ? 430 : 450;
+  p.push(VL(LX2, STRIP_Y, H-11, 0.75));
+
+  p.push(T(18, STRIP_Y+13, 'LEGEND', {a:'start', sz:7, c:CC, w:'700'}));
+  const legItems = [
+    [CHW, 3, '', 'Chilled Water (CHW) — supply/return'],
+    [isWC?'#c62828':AIR, 3, '', isWC ? 'Condenser Water (CW) — warm side' : 'Condenser Air discharge'],
+    [isWC?CW:CC, 3, '', isWC ? 'Condenser Water (CW) — cool side / tower' : 'Chiller body'],
+  ];
+  legItems.forEach(([clr, sw, dash, lbl], i) => {
+    const ly = STRIP_Y + 22 + i * 14;
+    p.push(`<line x1="18" y1="${ly}" x2="38" y2="${ly}" stroke="${clr}" stroke-width="${sw}"/>`);
+    p.push(T(44, ly+4, lbl, {a:'start', sz:7.5, c:CC}));
+  });
+
+  p.push(T(LX2+8, STRIP_Y+13, 'GENERAL NOTES', {a:'start', sz:7, c:CC, w:'700'}));
+  [
+    `1. Chiller rated per AHRI 550/590 at ARI standard conditions (44°F CHW, 85°F CW entering or 95°F DB ambient).`,
+    `2. COP ${cop} ${copOk?'meets':'DOES NOT meet'} ASHRAE 90.1-2019 Table 6.8.1 minimum requirement.`,
+    `3. IPLV ${iplv} ${iplvOk?'meets':'DOES NOT meet'} ASHRAE 90.1-2019 minimum — part-load performance check required.`,
+    isWC ? `4. Cooling tower sized for ${rejTR} TR heat rejection. Drift eliminator required per DOLE-OSHC Legionella guidelines.`
+          : `4. Air-cooled condenser: ${Number(airCMH).toLocaleString()} m³/h at ${ambient}°C DB. Ensure 1.5 m clearance on all sides per PSME Code.`,
+    `5. Refrigerant ${refrig}: check F-gas compliance. Annual leak check required (DENR DAO 2021-19).`,
+    `6. CHW piping insulated per ASHRAE 90.1 §6.4.4. Pump P-CHW-201 sized for ${chwFlowM3} m³/h design flow.`,
+  ].forEach((note, i) => p.push(T(LX2+8, STRIP_Y+27+i*12, note, {a:'start', sz:7, c:SC})));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` +
+    p.join('\n  ') + `\n</svg>`;
 }
 
 // ─── Ventilation / ACH Schematic — ASHRAE 62.1:2022 / PSME Code ─────────────
