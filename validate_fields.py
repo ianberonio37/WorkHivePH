@@ -87,6 +87,11 @@ TESTS = {
     },
 
     # ── Electrical ────────────────────────────────────────────────────────────
+    "Voltage Drop": {
+        "circuit_type": "Branch Circuit", "phase": "Single-phase",
+        "voltage": 230, "current": 20, "wire_length": 50,
+        "conductor_mm2": 5.5, "conductor_mat": "Copper", "vd_limit": 3,
+    },
     "Wire Sizing": {
         "load_kw": 10, "voltage": 230, "power_factor": 0.85,
         "wire_length_m": 30, "phases": 1,
@@ -231,7 +236,7 @@ TESTS = {
 # tests them via the edge function.
 TYPESCRIPT_ONLY = [
     "Ventilation / ACH", "Load Estimation",
-    "Voltage Drop", "Power Factor Correction", "Cable Tray Sizing",
+    "Power Factor Correction", "Cable Tray Sizing",
     "Earthing / Grounding System", "Water Supply Pipe Sizing",
     "Hot Water Demand", "Drainage Pipe Sizing", "Septic Tank Sizing",
     "Water Softener Sizing", "Water Treatment System",

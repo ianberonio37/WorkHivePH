@@ -81,11 +81,13 @@ def _load_handlers() -> dict[str, Any]:
     handlers["Expansion Tank Sizing"]                = expansion_tank_calc
 
     # Phase 4 — Electrical
+    from calcs.voltage_drop        import calculate as vd_calc
     from calcs.wire_sizing         import calculate as wire_calc
     from calcs.short_circuit       import calculate as sc_calc
     from calcs.load_schedule       import calculate as load_sched_calc
     # from calcs.generator_sizing    import calculate as gen_calc
     # from calcs.solar_pv            import calculate as solar_calc
+    handlers["Voltage Drop"]       = vd_calc
     handlers["Wire Sizing"]        = wire_calc
     handlers["Short Circuit"]      = sc_calc
     handlers["Load Schedule"]      = load_sched_calc
