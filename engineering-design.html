@@ -18975,6 +18975,35 @@ async function _runDrawing() {
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `Ø${_d}mm  |  v = ${_v} m/s  |  ${_dp} Pa/m`,
         { drawingNo:'MECH-DUCT-SCH-001', drawingTitle:'Duct Sizing — Equal Friction Method', standard:'ASHRAE 2021 Ch.21 / SMACNA HVAC Duct Design / PSME Code' }));
+    } else if (ct === 'Solar PV System') {
+      const svg = buildSolarPVSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      const _kwp = Number(_r.array_kWp || _r.actual_array_kwp || 0).toFixed(2);
+      const _pan = Number(_r.total_panels || _r.panel_qty || 0);
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${_kwp} kWp  |  ${_pan} panels  |  ${String(_lastInputs?.grid_type || 'On-Grid')}`,
+        { drawingNo:'ELEC-PV-SLD-001', drawingTitle:'Solar PV System — One-Line Diagram', standard:'IEC 62548 / PEC 2017 Art.6 / DOE Net Metering' }));
+    } else if (ct === 'Power Factor Correction') {
+      const svg = buildPFCSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${Number(_r.selected_kvar||0).toFixed(0)} kVAR  |  PF ${Number(_r.pf_existing||0).toFixed(2)}→${Number(_r.pf_target||0).toFixed(2)}`,
+        { drawingNo:'ELEC-PFC-SLD-001', drawingTitle:'Power Factor Correction — Single-Line Diagram', standard:'IEEE 18 / IEEE 1036 / PEC 2017' }));
+    } else if (ct === 'UPS Sizing') {
+      const svg = buildUPSSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      const _kva = Number(_r.recommended_kVA || _r.selected_kva || 0).toFixed(1);
+      const _rt  = Number(_r.backup_minutes_actual || _r.actual_runtime_min || 0).toFixed(0);
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${_kva} kVA  |  ${_rt} min runtime  |  ${String(_r.topology||'Double-Conversion')}`,
+        { drawingNo:'ELEC-UPS-BLK-001', drawingTitle:'UPS System — Block Diagram', standard:'IEC 62040-3 / IEEE 446 / IEEE 1184 / PEC 2017' }));
+    } else if (ct === 'Earthing / Grounding System') {
+      const svg = buildEarthingSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      const _r2 = Number(_r.r_parallel_ohm || 0).toFixed(3);
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `R = ${_r2} Ω  |  GEC ${Number(_r.gec_mm2||0).toFixed(0)}mm²  |  ${String(_lastInputs?.electrode_type||'Vertical Rod')}`,
+        { drawingNo:'ELEC-EARTH-SCH-001', drawingTitle:'Earthing / Grounding System Layout', standard:'PEC 2017 Art.2.50 / IEEE 80 / IEC 62305' }));
     }
   }, 100);
 }
@@ -23675,6 +23704,594 @@ function buildDuctSizingSVG(inputs, results) {
     `2. Velocity limits (SMACNA): Supply Main ≤ 8 m/s, Branch ≤ 5 m/s, Return ≤ 6 m/s.`,
     `3. Rectangular AR ≤ 4:1 preferred. De = 1.30×(a×b)^0.625/(a+b)^0.25 per ASHRAE Ch.21.`];
   notes.forEach((n,i)=>p.push(T(18,LY+72+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Solar PV One-Line Diagram — IEC 62548 / PEC Art.6 / DOE Net Metering ────
+function buildSolarPVSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467;
+  const r=results||{},inp=inputs||{};
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const T=(x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={})=>
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+  const HL=(x1,y,x2,sw=3,c='#1a2e4a')=>`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
+  const VL=(x,y1,y2,sw=3,c='#1a2e4a')=>`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
+  const Box=(x,y,w2,h,fill,stk,lbl,sub='')=>`<rect x="${x}" y="${y}" width="${w2}" height="${h}" rx="4" fill="${fill}" stroke="${stk}" stroke-width="2"/>` +
+    T(x+w2/2,y+h/2-4,lbl,{sz:8,c:stk,w:'700'})+
+    (sub?T(x+w2/2,y+h/2+8,sub,{sz:7,c:stk}):'');
+
+  const totalPanels=Number(r.total_panels||r.panel_qty||0);
+  const arrayKWp=Number(r.array_kWp||r.actual_array_kwp||0).toFixed(2);
+  const strPanels=Number(r.panels_per_string||0);
+  const nStrings=Number(r.strings_parallel||r.num_strings||1);
+  const vocStr=Number(r.voc_string_cold_V||0).toFixed(1);
+  const vmpStr=Number(r.vmp_string_stc_V||0).toFixed(1);
+  const iscArr=Number(r.isc_array_A||0).toFixed(1);
+  const invKVA=Number(r.recommended_inverter_kVA||r.inverter_kw||0).toFixed(1);
+  const yieldKWh=Number(r.energy_yr_kWh||r.annual_yield_kwh||0).toFixed(0);
+  const co2=Number(r.co2_offset_kg_yr||r.co2_reduction_kg||0).toFixed(0);
+  const batAh=Number(r.battery_ah||0).toFixed(0);
+  const psh=Number(r.peak_sun_hours||r.psh_hr||4.5).toFixed(1);
+  const gridType=String(inp.grid_type||'On-Grid');
+  const isHybrid=gridType.toLowerCase().includes('hybrid');
+  const isOffGrid=gridType.toLowerCase().includes('off');
+
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const DC_C='#f57f17',AC_C='#1565c0',PV_C='#2e7d32',GRD_C='#37474f';
+  const SPLIT_X=645;
+  const p=[];
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(T(W/2,31,`SOLAR PV SYSTEM — ONE-LINE DIAGRAM  |  ${arrayKWp} kWp  |  ${totalPanels} panels  |  IEC 62548 / PEC Art.6 / DOE Net Metering`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(T(80,57,`${gridType.toUpperCase()}  |  ${arrayKWp} kWp Array  |  ${nStrings} string(s) × ${strPanels} panels  |  Inverter: ${invKVA} kVA`,{a:'start',sz:8,c:CC,w:'600'}));
+
+  // ── PV ARRAY (left) ──
+  const ARY=60,ARX=30,panW=28,panH=18,gap=5;
+  const showStr=Math.min(nStrings,4);
+  const showPan=Math.min(strPanels,5);
+  for(let s=0;s<showStr;s++){
+    const sy=ARY+s*(panH+gap)*1.8;
+    for(let j=0;j<showPan;j++){
+      const px=ARX+j*(panW+gap);
+      p.push(`<rect x="${px}" y="${sy}" width="${panW}" height="${panH}" fill="#1a237e" stroke="#5c6bc0" stroke-width="1" rx="1"/>`);
+      p.push(HL(px+3,sy+panH/2,px+panW-3,0.5,'#5c6bc0'));
+      p.push(VL(px+panW/2,sy+3,sy+panH-3,0.5,'#5c6bc0'));
+    }
+    if(nStrings>4&&s===showStr-1) p.push(T(ARX+showPan*(panW+gap)/2,sy+panH+6,'...',{sz:8,c:PV_C}));
+    // String label
+    p.push(T(ARX+showPan*(panW+gap)/2,sy+panH+8,`String ${s+1}  ${strPanels}× ${Number(inp.panel_watt||400)}Wp`,{sz:6.5,c:PV_C}));
+    // String wire to combiner
+    p.push(HL(ARX+showPan*(panW+gap),sy+panH/2,ARX+showPan*(panW+gap)+30,1.5,DC_C));
+  }
+  // String combiner label
+  const combX=ARX+showPan*(panW+gap)+30;
+  const combY=ARY+(showStr*(panH+gap)*1.8)/2;
+  p.push(Box(combX,combY-20,50,40,'#fff9c4',DC_C,'SCB-01','Combiner'));
+  // Wire to inverter
+  const combRight=combX+50;
+  p.push(HL(combRight,combY,combRight+30,2,DC_C));
+
+  // DC disconnect
+  const dcDisX=combRight+30,dcDisY=combY-15;
+  p.push(Box(dcDisX,dcDisY,45,30,'#fff9c4',DC_C,'DC-01','Disconnect'));
+  p.push(HL(dcDisX+45,combY,dcDisX+70,2,DC_C));
+
+  // Inverter
+  const invX=dcDisX+70,invY=combY-30;
+  p.push(Box(invX,invY,80,60,LGY,CC,'INV-01',`${invKVA} kVA`));
+  p.push(T(invX+40,invY+42,'Inverter',{sz:6.5,c:GY}));
+  // DC label
+  p.push(T(invX-5,invY-6,'DC bus',{sz:6.5,c:DC_C}));
+  p.push(T(invX-5,invY-15,`${vmpStr}V  |  ${iscArr}A`,{sz:6.5,c:DC_C,w:'700'}));
+
+  // AC wire from inverter
+  const acX=invX+80,acY=combY;
+  p.push(HL(acX,acY,acX+30,3,AC_C));
+
+  // AC Disconnect
+  const acDisX=acX+30;
+  p.push(Box(acDisX,acY-15,45,30,'#e3f2fd',AC_C,'AC-01','Disconnect'));
+  p.push(HL(acDisX+45,acY,acDisX+70,3,AC_C));
+
+  // MDB / Main Panel
+  const mdbX=acDisX+70;
+  p.push(Box(mdbX,acY-20,60,40,'#e3f2fd',AC_C,'MDB','Main Panel'));
+  p.push(HL(mdbX+60,acY,mdbX+90,3,AC_C));
+
+  // Grid / Net meter
+  const gridX=mdbX+90,gridY=acY;
+  p.push(`<circle cx="${gridX+15}" cy="${gridY}" r="15" fill="#e8f5e9" stroke="${PV_C}" stroke-width="2"/>`);
+  p.push(T(gridX+15,gridY-2,'~',{sz:11,c:PV_C,w:'700'}));
+  p.push(T(gridX+15,gridY+8,'Grid',{sz:6,c:PV_C}));
+  p.push(T(gridX+15,gridY+22,'Net Meter',{sz:6.5,c:PV_C,w:'700'}));
+
+  // Battery (hybrid/off-grid)
+  if(isHybrid||isOffGrid){
+    const batX=invX+20,batY=invY+60+15;
+    p.push(VL(invX+40,invY+60,batY,2,DC_C));
+    p.push(Box(batX,batY,40,30,'#f3e5f5','#7b1fa2','BAT-01',`${batAh}Ah`));
+    p.push(T(invX+40,batY+44,'Battery Bank',{sz:6.5,c:'#7b1fa2'}));
+  }
+
+  // Annual yield badge
+  const bdX=invX-10,bdY=invY-60;
+  p.push(`<rect x="${bdX}" y="${bdY}" width="120" height="34" rx="4" fill="#e8f5e9" stroke="${PV_C}" stroke-width="1.5"/>`);
+  p.push(T(bdX+60,bdY+12,`${Number(yieldKWh).toLocaleString()} kWh/yr`,{sz:8.5,c:PV_C,w:'700'}));
+  p.push(T(bdX+60,bdY+24,`CO₂ offset: ${Number(co2).toLocaleString()} kg/yr`,{sz:7,c:PV_C}));
+
+  // ── DATA PANEL ──
+  const DX=SPLIT_X+10,DW=W-SPLIT_X-22,rowH=17;
+  let dy=52;
+  const rowFn=(lbl,val,vc,i)=>{const bg=i%2===0?'#f0f4fa':'#f8fafc';
+    const out=`<rect x="${DX}" y="${dy}" width="${DW}" height="${rowH}" fill="${bg}"/>` +
+      T(DX+4,dy+11,lbl,{a:'start',sz:7.5,c:SC})+T(DX+DW-4,dy+11,val,{a:'end',sz:7.5,c:vc,w:'bold'});
+    dy+=rowH; return out;};
+  const secH=(lbl)=>{const out=`<rect x="${DX}" y="${dy}" width="${DW}" height="15" rx="2" fill="#dce3ef"/>`+T(DX+DW/2,dy+10,lbl,{sz:7.5,c:CC,w:'700'});dy+=18;return out;};
+  p.push(`<rect x="${DX}" y="${dy}" width="${DW}" height="20" rx="3" fill="${CC}"/>`);
+  p.push(T(DX+DW/2,dy+13,'SOLAR PV SYSTEM DATA',{sz:8.5,c:'white',w:'700'})); dy+=24;
+  p.push(secH('ARRAY'));
+  [['System Type',gridType,CC],['Array Size',`${arrayKWp} kWp`,PV_C],
+   ['Total Panels',`${totalPanels} panels`,CC],
+   ['String Config',`${nStrings} string(s) × ${strPanels} panels/string`,PV_C],
+   ['Peak Sun Hours',`${psh} h/day`,SC]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+  dy+=4; p.push(secH('DC PARAMETERS'));
+  [['Voc (cold, string)',`${vocStr} V`,DC_C],['Vmp (STC, string)',`${vmpStr} V`,DC_C],
+   ['Isc (array)',`${iscArr} A`,DC_C]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+  dy+=4; p.push(secH('INVERTER & YIELD'));
+  [['Inverter Size',`${invKVA} kVA`,AC_C],
+   ['Annual Yield',`${Number(yieldKWh).toLocaleString()} kWh/yr`,PV_C],
+   ['CO₂ Offset',`${Number(co2).toLocaleString()} kg/yr`,PV_C],
+   ...(batAh>0?[['Battery Bank',`${batAh} Ah`,'#7b1fa2']]:[])]
+   .forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+  dy+=6; p.push(T(DX+DW/2,dy,'IEC 62548 / PEC 2017 Art.6 / DOE Net Metering',{sz:7,c:GY}));
+
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(T(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  let lx=25,ly=LY+26;
+  [[DC_C,'DC power (yellow)'],[AC_C,'AC power (blue)'],[PV_C,'PV generation / grid']].forEach(([c2,lbl])=>{
+    p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+28}" y2="${ly}" stroke="${c2}" stroke-width="3"/>`);
+    p.push(T(lx+32,ly+4,lbl,{a:'start',sz:7.5,c:CC})); ly+=15;});
+  ['1. String combiner (SCB): fuse/MCCB per string. DC disconnect per IEC 62548.',
+   '2. Inverter Voc check: string Voc_cold ≤ inverter max DC input voltage.',
+   '3. Net metering: DOE Circular 2013-006. Generation meter by distribution utility.'
+  ].forEach((n,i)=>p.push(T(18,LY+72+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Power Factor Correction — One-Line (IEEE 18 / IEEE 1036 / PEC 2017) ──────
+function buildPFCSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467;
+  const r=results||{},inp=inputs||{};
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const T=(x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={})=>
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+  const HL=(x1,y,x2,sw=3,c='#1a2e4a')=>`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
+  const VL=(x,y1,y2,sw=3,c='#1a2e4a')=>`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
+  const Box=(x,y,w2,h,fill,stk,lbl,sub='')=>`<rect x="${x}" y="${y}" width="${w2}" height="${h}" rx="4" fill="${fill}" stroke="${stk}" stroke-width="2"/>` +
+    T(x+w2/2,y+h/2-4,lbl,{sz:8,c:stk,w:'700'})+(sub?T(x+w2/2,y+h/2+8,sub,{sz:7,c:stk}):'');
+
+  const kw       =Number(r.kw||0).toFixed(1);
+  const pfBefore =Number(r.pf_existing||inp.existing_pf||0.75).toFixed(2);
+  const pfAfter  =Number(r.pf_target||inp.target_pf||0.95).toFixed(2);
+  const kvarReq  =Number(r.kvar_required||0).toFixed(1);
+  const kvarSel  =Number(r.selected_kvar||0).toFixed(0);
+  const kvaBefore=Number(r.kva_before||0).toFixed(1);
+  const kvaAfter =Number(r.kva_after||0).toFixed(1);
+  const iBefore  =Number(r.current_before||0).toFixed(1);
+  const iAfter   =Number(r.current_after||0).toFixed(1);
+  const iRedPct  =Number(r.current_reduction_pct||0).toFixed(1);
+  const savings  =Number(r.monthly_savings_php||0).toFixed(0);
+  const penalty  =Boolean(r.meralco_penalty??true);
+  const vLv      =Number(inp.supply_voltage_v||400).toFixed(0);
+
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const PF_C ='#1565c0',CAP_C='#7b1fa2',GRN='#2e7d32',ORG='#e65100';
+  const SPLIT_X=645;
+  const p=[];
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(T(W/2,31,`POWER FACTOR CORRECTION — SINGLE-LINE  |  ${kvarSel} kVAR  |  PF ${pfBefore}→${pfAfter}  |  IEEE 18 / IEEE 1036 / PEC 2017`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+
+  // ── ONE-LINE DIAGRAM ──
+  const BUS_Y=240, BUS_X1=60, BUS_X2=560;
+  // Utility supply
+  p.push(`<circle cx="100" cy="130" r="25" fill="${LGY}" stroke="${CC}" stroke-width="2"/>`);
+  p.push(T(100,127,'~',{sz:14,c:CC,w:'700'}));
+  p.push(T(100,145,'Utility',{sz:7,c:GY}));
+  p.push(T(100,115,`${vLv}V, 3Φ`,{sz:7,c:CC,w:'700'}));
+  VL(100,155,BUS_Y,3,PF_C);
+  p.push(VL(100,155,BUS_Y,3,PF_C));
+
+  // Main breaker
+  p.push(Box(70,175,60,28,LGY,CC,'MCB-01','Main CB'));
+  // Bus bar (before)
+  p.push(HL(BUS_X1,BUS_Y,BUS_X2,5,PF_C));
+  p.push(T((BUS_X1+BUS_X2)/2,BUS_Y-12,`MAIN BUS  ${vLv}V  |  ${kvaBefore} kVA  |  I = ${iBefore} A  |  PF = ${pfBefore}`,{sz:7.5,c:PF_C,w:'700'}));
+
+  // Loads (left side)
+  [['LOAD-A',kw,'kW'],[`PF=${pfBefore}`,'—','']].slice(0,1).forEach((_,i)=>{
+    const lx=120+i*80,ly=BUS_Y;
+    p.push(VL(lx,ly,ly+60,2,PF_C));
+    p.push(Box(lx-28,ly+60,56,36,LGY,GY,'LOADS',`${kw} kW`));
+    p.push(T(lx,ly+104,`PF = ${pfBefore}`,{sz:7,c:ORG,w:'700'}));
+    p.push(T(lx,ly+115,`${kvaBefore} kVA`,{sz:7,c:GY}));
+  });
+
+  // Capacitor bank
+  const CAP_X=380, CAP_Y=BUS_Y;
+  p.push(VL(CAP_X,CAP_Y,CAP_Y+45,2.5,CAP_C));
+  // Capacitor symbol (two horizontal lines)
+  p.push(Box(CAP_X-35,CAP_Y+45,70,60,'#f3e5f5',CAP_C,'CB-01',`${kvarSel} kVAR`));
+  for(let i=0;i<3;i++){
+    p.push(HL(CAP_X-20,CAP_Y+55+i*8,CAP_X+20,2.5,CAP_C));
+    p.push(HL(CAP_X-20,CAP_Y+58+i*8,CAP_X+20,2.5,CAP_C));
+  }
+  p.push(T(CAP_X,CAP_Y+112,`Capacitor Bank`,{sz:7,c:CAP_C,w:'700'}));
+  p.push(T(CAP_X,CAP_Y+122,`${kvarReq} kVAR req'd → ${kvarSel} kVAR sel.`,{sz:7,c:SC}));
+
+  // Bus bar (after — improved)
+  const BUS2_Y=BUS_Y+175;
+  p.push(HL(BUS_X1,BUS2_Y,BUS_X2-150,4,GRN));
+  p.push(T((BUS_X1+BUS_X2-150)/2,BUS2_Y-11,`IMPROVED  |  ${kvaAfter} kVA  |  I = ${iAfter} A  |  PF = ${pfAfter}  |  ↓${iRedPct}% current`,{sz:7.5,c:GRN,w:'700'}));
+
+  // PF phasor diagram (simplified triangle)
+  const PH_X=490, PH_Y=BUS_Y-20;
+  const scale=70;
+  const phi1=Math.acos(Number(pfBefore));
+  const phi2=Math.acos(Number(pfAfter));
+  // Before triangle (gray)
+  p.push(`<line x1="${PH_X}" y1="${PH_Y+scale}" x2="${PH_X+scale}" y2="${PH_Y+scale}" stroke="${ORG}" stroke-width="2"/>`);
+  p.push(`<line x1="${PH_X}" y1="${PH_Y+scale}" x2="${PH_X}" y2="${PH_Y+scale-Math.sin(phi1)*scale}" stroke="${ORG}" stroke-width="1.5" stroke-dasharray="4 3"/>`);
+  p.push(`<line x1="${PH_X}" y1="${PH_Y+scale-Math.sin(phi1)*scale}" x2="${PH_X+scale}" y2="${PH_Y+scale}" stroke="${ORG}" stroke-width="1.5"/>`);
+  // After triangle (green)
+  p.push(`<line x1="${PH_X}" y1="${PH_Y+scale}" x2="${PH_X}" y2="${PH_Y+scale-Math.sin(phi2)*scale}" stroke="${GRN}" stroke-width="2"/>`);
+  p.push(`<line x1="${PH_X}" y1="${PH_Y+scale-Math.sin(phi2)*scale}" x2="${PH_X+scale}" y2="${PH_Y+scale}" stroke="${GRN}" stroke-width="2"/>`);
+  p.push(T(PH_X+scale/2,PH_Y+scale+14,'kW',{sz:7,c:CC}));
+  p.push(T(PH_X-20,PH_Y+scale-Math.sin(phi2)*scale/2,'kVAR',{sz:7,c:CAP_C}));
+  p.push(T(PH_X+scale+8,PH_Y+scale-Math.sin(phi2)*scale/2,`PF=${pfAfter}`,{sz:7,c:GRN,w:'700'}));
+  p.push(T(PH_X+scale+8,PH_Y+scale-Math.sin(phi1)*scale/2,`PF=${pfBefore}`,{sz:7,c:ORG}));
+
+  // Savings badge
+  p.push(`<rect x="${CAP_X+45}" y="${BUS_Y+50}" width="115" height="36" rx="4" fill="#e8f5e9" stroke="${GRN}" stroke-width="1.5"/>`);
+  p.push(T(CAP_X+102,BUS_Y+63,`₱${Number(savings).toLocaleString()}/mo`,{sz:9,c:GRN,w:'700'}));
+  p.push(T(CAP_X+102,BUS_Y+75,`Estimated savings`,{sz:7,c:GRN}));
+  if(penalty) p.push(T(CAP_X+102,BUS_Y+87,'Meralco PF surcharge removed',{sz:6.5,c:GRN}));
+
+  // ── DATA PANEL ──
+  const DX=SPLIT_X+10,DW=W-SPLIT_X-22,rowH=17;
+  let dy=52;
+  const rowFn=(lbl,val,vc,i)=>{const bg=i%2===0?'#f0f4fa':'#f8fafc';
+    const out=`<rect x="${DX}" y="${dy}" width="${DW}" height="${rowH}" fill="${bg}"/>` +
+      T(DX+4,dy+11,lbl,{a:'start',sz:7.5,c:SC})+T(DX+DW-4,dy+11,val,{a:'end',sz:7.5,c:vc,w:'bold'});
+    dy+=rowH; return out;};
+  const secH=(lbl)=>{const out=`<rect x="${DX}" y="${dy}" width="${DW}" height="15" rx="2" fill="#dce3ef"/>`+T(DX+DW/2,dy+10,lbl,{sz:7.5,c:CC,w:'700'});dy+=18;return out;};
+  p.push(`<rect x="${DX}" y="${dy}" width="${DW}" height="20" rx="3" fill="${CC}"/>`);
+  p.push(T(DX+DW/2,dy+13,'PFC RESULTS',{sz:8.5,c:'white',w:'700'})); dy+=24;
+  p.push(secH('POWER FACTOR'));
+  [['Active Power',`${kw} kW`,CC],['Existing PF',pfBefore,ORG],['Target PF',pfAfter,GRN]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+  dy+=4; p.push(secH('CAPACITOR BANK'));
+  [['kVAR Required',`${kvarReq} kVAR`,CAP_C],['Selected Capacitor',`${kvarSel} kVAR`,CAP_C],
+   ['kVA (before)',`${kvaBefore} kVA`,ORG],['kVA (after)',`${kvaAfter} kVA`,GRN]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+  dy+=4; p.push(secH('CURRENT SAVINGS'));
+  [['Current (before)',`${iBefore} A`,ORG],['Current (after)',`${iAfter} A`,GRN],
+   ['Current Reduction',`${iRedPct}%`,GRN],
+   ['Est. Monthly Savings',`₱${Number(savings).toLocaleString()}`,GRN]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+  dy+=6; p.push(T(DX+DW/2,dy,'IEEE 18 / IEEE 1036 / PEC 2017  |  Meralco TOU',{sz:7,c:GY}));
+
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(T(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  let lx=25,ly=LY+26;
+  [[PF_C,'Power bus (before correction)'],[GRN,'Power bus (after correction)'],[CAP_C,'Capacitor bank']].forEach(([c2,lbl])=>{
+    p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+28}" y2="${ly}" stroke="${c2}" stroke-width="3"/>`);
+    p.push(T(lx+32,ly+4,lbl,{a:'start',sz:7.5,c:CC})); ly+=15;});
+  ['1. kVAR = kW × (tan φ1 − tan φ2). Capacitor bank at main bus, 3-phase delta connected.',
+   '2. Meralco surcharge: 1% per 0.01 PF below 0.85 (residential/commercial accounts).',
+   '3. Detuned reactors (5-7% impedance) recommended if harmonic distortion > 8% THD.'
+  ].forEach((n,i)=>p.push(T(18,LY+72+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── UPS Sizing Block Diagram — IEC 62040-3 / IEEE 446 / IEEE 1184 / PEC 2017 ─
+function buildUPSSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467;
+  const r=results||{},inp=inputs||{};
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const T=(x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={})=>
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+  const HL=(x1,y,x2,sw=3,c='#1a2e4a')=>`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
+  const VL=(x,y1,y2,sw=3,c='#1a2e4a')=>`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
+  const Blk=(x,y,w2,h,fill,stk,lbl,sub='',sub2='')=>
+    `<rect x="${x}" y="${y}" width="${w2}" height="${h}" rx="4" fill="${fill}" stroke="${stk}" stroke-width="2"/>` +
+    T(x+w2/2,y+h/2-6,lbl,{sz:8,c:stk,w:'700'})+
+    (sub?T(x+w2/2,y+h/2+5,sub,{sz:7,c:stk}):'')+(sub2?T(x+w2/2,y+h/2+16,sub2,{sz:6.5,c:GY}):'');
+
+  const selKVA  =Number(r.recommended_kVA||r.selected_kva||0).toFixed(1);
+  const loadKVA =Number(r.load_kVA||r.design_va/1000||0).toFixed(1);
+  const ldPct   =Number(r.loading_pct||0).toFixed(0);
+  const topo    =String(r.topology||'Online Double-Conversion');
+  const redund  =String(r.redundancy||inp.redundancy||'N');
+  const dcV     =Number(r.dc_bus_voltage_V||240).toFixed(0);
+  const batCells=Number(r.battery_cells_per_string||0);
+  const batStrs =Number(r.battery_strings||1);
+  const totalCells=Number(r.total_battery_cells||0);
+  const selAh   =Number(r.recommended_Ah||r.selected_ah||0).toFixed(0);
+  const runtime =Number(r.backup_minutes_actual||r.actual_runtime_min||0).toFixed(0);
+  const iInp    =Number(r.input_current_A||r.input_current_a||0).toFixed(1);
+  const iOut    =Number(r.output_current_A||r.output_current_a||0).toFixed(1);
+  const breakerA=Number(r.recommended_breaker_A||r.input_breaker_a||0).toFixed(0);
+  const loadOK  =Boolean(r.loading_ok??true);
+
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const AC_C='#1565c0',DC_C='#f57f17',BAT_C='#7b1fa2',BYP_C='#2e7d32';
+  const SPLIT_X=645;
+  const p=[];
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(T(W/2,31,`UPS SIZING — BLOCK DIAGRAM  |  ${selKVA} kVA  |  ${topo.split(' ')[0]}  |  IEC 62040-3 / IEEE 446 / PEC 2017`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(T(80,57,`${topo}  |  Redundancy: ${redund}  |  Battery: ${batCells}S×${batStrs}P = ${totalCells} cells  |  Runtime: ${runtime} min`,{a:'start',sz:8,c:CC,w:'600'}));
+
+  // ── BLOCK DIAGRAM (horizontal flow) ──
+  const BY=220,BH=70;
+  // Mains input
+  p.push(`<circle cx="60" cy="${BY+BH/2}" r="20" fill="${LGY}" stroke="${CC}" stroke-width="2"/>`);
+  p.push(T(60,BY+BH/2-2,'~',{sz:12,c:CC,w:'700'}));
+  p.push(T(60,BY+BH/2+10,'Mains',{sz:6.5,c:GY}));
+  p.push(T(60,BY+BH/2-16,`${inp.input_voltage_v||400}V`,{sz:7,c:CC,w:'700'}));
+  p.push(T(60,BY-26,`${esc(iInp)} A  |  MCCB ${breakerA}A`,{sz:7,c:AC_C,w:'700'}));
+  p.push(HL(80,BY+BH/2,110,3,AC_C));
+
+  // Input breaker
+  p.push(Blk(110,BY+BH/2-15,50,30,LGY,CC,'MCCB',`${breakerA}A`));
+  p.push(HL(160,BY+BH/2,190,3,AC_C));
+
+  // Rectifier/charger
+  p.push(Blk(190,BY,90,BH,'#e3f2fd',AC_C,'RECT','Rectifier','/Charger'));
+  p.push(HL(280,BY+BH/2,320,3,DC_C));
+  p.push(T(300,BY+BH/2-12,'DC Bus',{sz:7,c:DC_C,w:'700'}));
+  p.push(T(300,BY+BH/2-1,`${dcV}V DC`,{sz:7,c:DC_C}));
+
+  // Battery bank (below DC bus)
+  const BX=285,BATY=BY+BH+30;
+  p.push(VL(BX+17,BY+BH,BATY,2,DC_C));
+  // Battery symbol
+  for(let i=0;i<3;i++){
+    p.push(HL(BX+i*22,BATY+10,BX+i*22+16,3,BAT_C));
+    p.push(HL(BX+i*22+3,BATY+18,BX+i*22+12,1,BAT_C));
+  }
+  p.push(`<rect x="${BX-5}" y="${BATY}" width="${Math.min(batStrs,4)*22+20}" height="35" rx="3" fill="#f3e5f5" stroke="${BAT_C}" stroke-width="1.5"/>`);
+  p.push(T(BX+30,BATY+12,`${batCells}S × ${batStrs}P`,{sz:7,c:BAT_C,w:'700'}));
+  p.push(T(BX+30,BATY+23,`${totalCells} cells  ${selAh}Ah`,{sz:7,c:BAT_C}));
+  p.push(T(BX+30,BATY+45,`Runtime: ${runtime} min`,{sz:8,c:BAT_C,w:'700'}));
+
+  // Inverter
+  p.push(Blk(320,BY,90,BH,'#e3f2fd',AC_C,'INV','Inverter',''));
+  p.push(HL(410,BY+BH/2,445,3,AC_C));
+
+  // Static bypass (parallel path)
+  const byp_y=BY-55;
+  p.push(HL(160,byp_y,445,2,BYP_C));
+  p.push(VL(160,BY+BH/2,byp_y,1.5,BYP_C));
+  p.push(VL(445,BY+BH/2,byp_y,1.5,BYP_C));
+  p.push(T(302,byp_y-10,'STATIC BYPASS (STS)',{sz:7,c:BYP_C,w:'700'}));
+
+  // Output MCCB
+  p.push(Blk(445,BY+BH/2-15,50,30,LGY,CC,'MCCB',`Output`));
+  p.push(HL(495,BY+BH/2,530,3,AC_C));
+
+  // Critical load
+  p.push(`<rect x="530" y="${BY}" width="85" height="${BH}" rx="4" fill="${LGY}" stroke="${CC}" stroke-width="2"/>`);
+  p.push(T(572,BY+BH/2-8,'CRITICAL',{sz:8,c:CC,w:'700'}));
+  p.push(T(572,BY+BH/2+4,'LOAD',{sz:8,c:CC,w:'700'}));
+  p.push(T(572,BY+BH/2+17,`${loadKVA} kVA`,{sz:7.5,c:AC_C}));
+  const ldColor=loadOK?'#2e7d32':'#c62828';
+  p.push(T(572,BY+BH+12,`Loading: ${ldPct}%  ${loadOK?'— OK':'— HIGH'}`,{sz:7,c:ldColor,w:'700'}));
+
+  // UPS unit boundary
+  p.push(`<rect x="185" y="${BY-8}" width="${445-185}" height="${BH+16}" rx="6" fill="none" stroke="${CC}" stroke-width="1.5" stroke-dasharray="6 3"/>`);
+  p.push(T(315,BY-18,`UPS-01  |  ${selKVA} kVA  |  ${topo}`,{sz:8,c:CC,w:'700'}));
+
+  // ── DATA PANEL ──
+  const DX=SPLIT_X+10,DW=W-SPLIT_X-22,rowH=17;
+  let dy=52;
+  const rowFn=(lbl,val,vc,i)=>{const bg=i%2===0?'#f0f4fa':'#f8fafc';
+    const out=`<rect x="${DX}" y="${dy}" width="${DW}" height="${rowH}" fill="${bg}"/>` +
+      T(DX+4,dy+11,lbl,{a:'start',sz:7.5,c:SC})+T(DX+DW-4,dy+11,val,{a:'end',sz:7.5,c:vc,w:'bold'});
+    dy+=rowH; return out;};
+  const secH=(lbl)=>{const out=`<rect x="${DX}" y="${dy}" width="${DW}" height="15" rx="2" fill="#dce3ef"/>`+T(DX+DW/2,dy+10,lbl,{sz:7.5,c:CC,w:'700'});dy+=18;return out;};
+  p.push(`<rect x="${DX}" y="${dy}" width="${DW}" height="20" rx="3" fill="${CC}"/>`);
+  p.push(T(DX+DW/2,dy+13,'UPS DESIGN DATA',{sz:8.5,c:'white',w:'700'})); dy+=24;
+  p.push(secH('UPS UNIT'));
+  [['Selected UPS',`${selKVA} kVA`,CC],['IT Load',`${loadKVA} kVA`,AC_C],
+   ['Loading',`${ldPct}%  ${loadOK?'— OK':'— HIGH'}`,loadOK?'#2e7d32':'#c62828'],
+   ['Topology',esc(topo),GY],['Redundancy',esc(redund),GY]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+  dy+=4; p.push(secH('BATTERY BANK'));
+  [['Battery Config',`${batCells}S × ${batStrs}P (${totalCells} cells)`,BAT_C],
+   ['Capacity',`${selAh} Ah`,BAT_C],['DC Bus Voltage',`${dcV}V DC`,DC_C],
+   ['Runtime',`${runtime} min`,BAT_C]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+  dy+=4; p.push(secH('ELECTRICAL'));
+  [['Input Current',`${iInp} A`,AC_C],['Output Current',`${iOut} A`,AC_C],
+   ['Input MCCB',`${breakerA} A`,CC]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+  dy+=6; p.push(T(DX+DW/2,dy,'IEC 62040-3 / IEEE 446 / IEEE 1184 / PEC 2017',{sz:7,c:GY}));
+
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(T(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  let lx=25,ly=LY+26;
+  [[AC_C,'AC power'],[DC_C,'DC bus / battery'],[BYP_C,'Static bypass path'],[BAT_C,'Battery bank']].forEach(([c2,lbl])=>{
+    p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+28}" y2="${ly}" stroke="${c2}" stroke-width="3"/>`);
+    p.push(T(lx+32,ly+4,lbl,{a:'start',sz:7.5,c:CC})); ly+=14;});
+  ['1. Online double-conversion (IEC 62040-3 VFI): zero transfer time. Preferred for IT loads.',
+   '2. Battery: VRLA / AGM 12V cells. Replace at 80% capacity (IEC 60896-21/22).',
+   '3. Manual bypass maintenance switch required. Test under load every 6 months (IEEE 446).'
+  ].forEach((n,i)=>p.push(T(18,LY+72+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Earthing / Grounding System — PEC 2017 Art.2.50 / IEEE 80 / IEC 62305 ───
+function buildEarthingSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467;
+  const r=results||{},inp=inputs||{};
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const T=(x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={})=>
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+  const HL=(x1,y,x2,sw=3,c='#1a2e4a')=>`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
+  const VL=(x,y1,y2,sw=3,c='#1a2e4a')=>`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
+
+  const rSingle =Number(r.r_single_ohm||0).toFixed(3);
+  const rParallel=Number(r.r_parallel_ohm||0).toFixed(3);
+  const rLimit  =Number(r.r_limit_ohm||inp.resistance_limit_ohm||1).toFixed(1);
+  const pass    =Boolean(r.pass??true);
+  const gecMM2  =Number(r.gec_mm2||0).toFixed(0);
+  const gecLbl  =String(r.gec_label||'');
+  const soilRho =Number(inp.soil_resistivity_ohm_m||100);
+  const eType   =String(inp.electrode_type||'Vertical Rod');
+  const rodL    =Number(inp.rod_length_m||3);
+  const rodD    =Number(inp.rod_diameter_mm||16);
+  const nElec   =Number(inp.num_electrodes||1);
+  const isRod   =eType.toLowerCase().includes('rod')||eType.toLowerCase().includes('vertical');
+  const passClr =pass?'#2e7d32':'#c62828';
+
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const GEC_C='#2e7d32',SOIL_C='#795548',ROD_C='#455a64',BUS_C='#1565c0';
+  const SPLIT_X=645;
+  const p=[];
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(T(W/2,31,`EARTHING / GROUNDING SYSTEM  |  R = ${rParallel} Ω  |  ${eType}  |  PEC Art.2.50 / IEEE 80 / IEC 62305`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+
+  // ── BUILDING ELEVATION SCHEMATIC ──
+  // MDB / main panel at top
+  const MDB_X=160,MDB_Y=85,MDB_W=120,MDB_H=60;
+  p.push(`<rect x="${MDB_X}" y="${MDB_Y}" width="${MDB_W}" height="${MDB_H}" rx="4" fill="${LGY}" stroke="${CC}" stroke-width="2.5"/>`);
+  p.push(T(MDB_X+MDB_W/2,MDB_Y+20,'MDB',{sz:9,c:CC,w:'700'}));
+  p.push(T(MDB_X+MDB_W/2,MDB_Y+34,`${inp.supply_voltage_v||400}V 3Φ`,{sz:7.5,c:SC}));
+  p.push(T(MDB_X+MDB_W/2,MDB_Y+46,`PE Bus`,{sz:7,c:GEC_C}));
+
+  // Bonding bar inside MDB
+  p.push(HL(MDB_X+15,MDB_Y+MDB_H-8,MDB_X+MDB_W-15,3,GEC_C));
+
+  // GEC from MDB down
+  const GEC_X=MDB_X+MDB_W/2,GEC_TOP=MDB_Y+MDB_H;
+  // Test link
+  const TL_Y=GEC_TOP+40;
+  p.push(VL(GEC_X,GEC_TOP,TL_Y-8,2.5,GEC_C));
+  p.push(`<rect x="${GEC_X-12}" y="${TL_Y-8}" width="24" height="16" rx="2" fill="#fff9c4" stroke="${GEC_C}" stroke-width="1.5"/>`);
+  p.push(T(GEC_X,TL_Y,'TL',{sz:6.5,c:GEC_C,w:'700'}));
+  p.push(T(GEC_X+18,TL_Y-2,'Test Link',{a:'start',sz:7,c:GEC_C}));
+  p.push(T(GEC_X+18,TL_Y+8,'(Accessible)',{a:'start',sz:6.5,c:SC}));
+
+  // Ground surface line
+  const GL_Y=220;
+  p.push(HL(40,GL_Y,580,3,'#8d6e63'));
+  p.push(T(50,GL_Y+12,'Ground Level (GL)',{a:'start',sz:7,c:SOIL_C}));
+
+  // GEC from test link to ground
+  p.push(VL(GEC_X,TL_Y+8,GL_Y,2.5,GEC_C));
+
+  // Soil strata
+  p.push(`<rect x="50" y="${GL_Y}" width="520" height="${STRIP_Y-GL_Y-20}" rx="0" fill="#efebe9" stroke="#8d6e63" stroke-width="1"/>`);
+  p.push(T(200,GL_Y+20,`Soil: ρ = ${soilRho} Ω·m`,{a:'start',sz:8,c:SOIL_C,w:'700'}));
+
+  // Electrode(s)
+  const showElec=Math.min(nElec,4);
+  const elecSpacing=Math.max(60,3*rodL*10);
+  const startX=GEC_X-(showElec-1)*elecSpacing/2;
+  for(let i=0;i<showElec;i++){
+    const ex=startX+i*elecSpacing;
+    // Horizontal GEC bus at GL
+    if(i>0) p.push(HL(startX,GL_Y+8,ex,2,GEC_C));
+    // Electrode rod
+    if(isRod){
+      const rodPxH=Math.min(rodL*30,STRIP_Y-GL_Y-40);
+      p.push(`<rect x="${ex-4}" y="${GL_Y+10}" width="8" height="${rodPxH}" rx="2" fill="${ROD_C}" stroke="${CC}" stroke-width="1.2"/>`);
+      // Rod tip
+      p.push(`<polygon points="${ex-4},${GL_Y+10+rodPxH} ${ex},${GL_Y+10+rodPxH+10} ${ex+4},${GL_Y+10+rodPxH}" fill="${ROD_C}"/>`);
+      // Length dimension
+      if(i===0){
+        p.push(VL(ex-20,GL_Y+10,GL_Y+10+rodPxH,1,SC));
+        p.push(HL(ex-26,GL_Y+10,ex-14,1,SC));
+        p.push(HL(ex-26,GL_Y+10+rodPxH,ex-14,1,SC));
+        p.push(T(ex-35,GL_Y+10+rodPxH/2,`${rodL}m`,{sz:7,c:SC}));
+      }
+      // Diameter label
+      p.push(T(ex,GL_Y+10+rodPxH+20,`Ø${rodD}mm`,{sz:7,c:ROD_C}));
+    } else {
+      // Plate electrode (horizontal rectangle)
+      p.push(`<rect x="${ex-30}" y="${GL_Y+40}" width="60" height="10" fill="${ROD_C}" stroke="${CC}" stroke-width="1"/>`);
+      p.push(T(ex,GL_Y+70,'Plate electrode',{sz:6.5,c:ROD_C}));
+    }
+    // R label at electrode
+    const rLabel=nElec===1?`R = ${rSingle}Ω`:`R${i+1}=${rSingle}Ω`;
+    p.push(T(ex+18,GL_Y+50,rLabel,{a:'start',sz:7,c:ROD_C,w:'700'}));
+  }
+  if(nElec>4) p.push(T(startX+(showElec-1)*elecSpacing+40,GL_Y+40,`...+${nElec-4} more`,{a:'start',sz:7,c:SC}));
+
+  // GEC label
+  p.push(T(GEC_X+14,GL_Y-50,`GEC: ${gecMM2}mm² Cu bare`,{a:'start',sz:7.5,c:GEC_C,w:'700'}));
+  if(gecLbl) p.push(T(GEC_X+14,GL_Y-38,esc(gecLbl),{a:'start',sz:7,c:GEC_C}));
+
+  // PASS/FAIL badge
+  const bdX=350,bdY=GL_Y+50;
+  p.push(`<rect x="${bdX}" y="${bdY}" width="160" height="46" rx="6" fill="${pass?'#e8f5e9':'#ffebee'}" stroke="${passClr}" stroke-width="2"/>`);
+  p.push(T(bdX+80,bdY+16,`R = ${rParallel} Ω`,{sz:11,c:passClr,w:'700'}));
+  p.push(T(bdX+80,bdY+29,`Limit: ${rLimit} Ω  —  ${pass?'PASS ✓':'FAIL ✗'}`,{sz:8,c:passClr,w:'700'}));
+  p.push(T(bdX+80,bdY+41,`${nElec} electrode(s) in parallel`,{sz:7,c:passClr}));
+
+  // ── DATA PANEL ──
+  const DX=SPLIT_X+10,DW=W-SPLIT_X-22,rowH=17;
+  let dy=52;
+  const rowFn=(lbl,val,vc,i)=>{const bg=i%2===0?'#f0f4fa':'#f8fafc';
+    const out=`<rect x="${DX}" y="${dy}" width="${DW}" height="${rowH}" fill="${bg}"/>` +
+      T(DX+4,dy+11,lbl,{a:'start',sz:7.5,c:SC})+T(DX+DW-4,dy+11,val,{a:'end',sz:7.5,c:vc,w:'bold'});
+    dy+=rowH; return out;};
+  const secH=(lbl)=>{const out=`<rect x="${DX}" y="${dy}" width="${DW}" height="15" rx="2" fill="#dce3ef"/>`+T(DX+DW/2,dy+10,lbl,{sz:7.5,c:CC,w:'700'});dy+=18;return out;};
+  p.push(`<rect x="${DX}" y="${dy}" width="${DW}" height="20" rx="3" fill="${CC}"/>`);
+  p.push(T(DX+DW/2,dy+13,'EARTHING SYSTEM DATA',{sz:8.5,c:'white',w:'700'})); dy+=24;
+  p.push(secH('SOIL & ELECTRODE'));
+  [['Soil Resistivity',`${soilRho} Ω·m`,SOIL_C],['Electrode Type',esc(eType),ROD_C],
+   ...(isRod?[['Rod Length',`${rodL} m`,ROD_C],['Rod Diameter',`${rodD} mm`,ROD_C]]:
+             [['Plate Area',`${Number(r.plate_area_m2||0).toFixed(2)} m²`,ROD_C]]),
+   ['No. of Electrodes',`${nElec}`,CC]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+  dy+=4; p.push(secH('RESISTANCE'));
+  [['R (single electrode)',`${rSingle} Ω`,ROD_C],
+   ['R (parallel, installed)',`${rParallel} Ω`,passClr],
+   ['Resistance Limit',`${rLimit} Ω`,CC],
+   ['Compliance',pass?'PASS ✓':'FAIL — add electrodes',passClr]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+  dy+=4; p.push(secH('GEC SIZING'));
+  [['GEC Size',`${gecMM2} mm² Cu bare`,GEC_C],[...(gecLbl?['Basis',esc(gecLbl),GY]:[])].join(',')&&[gecLbl?'Basis':'—',gecLbl||'—',GY]].filter(a=>Array.isArray(a)&&a.length===3).forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+  dy+=6; p.push(T(DX+DW/2,dy,'PEC 2017 Art.2.50 / IEEE 80 / IEC 62305',{sz:7,c:GY}));
+  dy+=11; p.push(T(DX+DW/2,dy,'Dwight formula for vertical rod electrodes',{sz:7,c:GY}));
+
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(T(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  let lx=25,ly=LY+26;
+  [[GEC_C,'GEC — Grounding Electrode Conductor (Cu bare)'],[ROD_C,'Earth electrode (rod/plate)'],
+   [SOIL_C,'Soil / earth strata']].forEach(([c2,lbl])=>{
+    p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+28}" y2="${ly}" stroke="${c2}" stroke-width="3"/>`);
+    p.push(T(lx+32,ly+4,lbl,{a:'start',sz:7.5,c:CC})); ly+=15;});
+  [`1. Dwight: R = (ρ/2πL)×[ln(4L/d)−1]. For parallel rods, add spacing factor per IEEE 80.`,
+   `2. GEC sized per PEC 2017 Table 2.50 (based on largest service conductor / overcurrent device).`,
+   `3. Test link required for resistance measurement after installation. Annual testing recommended.`
+  ].forEach((n,i)=>p.push(T(18,LY+72+i*11,n,{a:'start',sz:6.5,c:CC})));
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
 }
