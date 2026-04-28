@@ -66,6 +66,17 @@ BUILDER_FUNCTIONS = [
     # Phase 10 Fire & Life Safety
     "buildStairwellPressSVG",
     "buildFireAlarmBatterySVG",
+    # Phase 10 Plumbing group
+    "buildWaterSupplyPipeSVG",
+    "buildHotWaterDemandSVG",
+    "buildDrainagePipeSVG",
+    "buildSepticTankSVG",
+    "buildGreaseTrapSVG",
+    "buildRoofDrainSVG",
+    "buildWaterSoftenerSVG",
+    "buildWaterTreatmentSVG",
+    "buildWastewaterSTPSVG",
+    "buildStormDrainSVG",
 ]
 
 REQUIRED_WIDTH = 1050

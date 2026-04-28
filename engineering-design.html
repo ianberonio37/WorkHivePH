@@ -10905,6 +10905,11 @@ function showReport() {
     'Stairwell Pressurization', 'Fire Alarm Battery',
     // ── Mechanical group ──────────────────────────────────────────────────────
     'Pipe Sizing', 'Compressed Air', 'Boiler System',
+    // ── Plumbing group ────────────────────────────────────────────────────────
+    'Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing',
+    'Septic Tank Sizing', 'Grease Trap Sizing', 'Roof Drain Sizing',
+    'Water Softener Sizing', 'Water Treatment System',
+    'Wastewater Treatment (STP)', 'Storm Drain / Stormwater',
   ];
   const drawingSection = document.getElementById('drawing-section');
   if (DRAWING_SUPPORTED.includes(_calcType)) {
@@ -10955,6 +10960,26 @@ function showReport() {
       descEl.textContent = 'Generates a UPS block diagram showing rectifier, DC bus, battery bank (cells×strings), inverter, static bypass and critical load with runtime and loading% per IEC 62040-3 / IEEE 446 / PEC 2017';
     } else if (_calcType === 'Earthing / Grounding System' && descEl) {
       descEl.textContent = 'Generates an earthing system layout showing MDB PE bus, GEC, test link, soil strata, vertical rod(s) with Dwight formula resistance and PASS/FAIL badge per PEC 2017 Art.2.50 / IEEE 80 / IEC 62305';
+    } else if (_calcType === 'Water Supply Pipe Sizing' && descEl) {
+      descEl.textContent = 'Generates a plumbing riser diagram showing water meter, main riser, floor branches and fixture groups — with pressure and velocity PASS/FAIL badges per Hunter\'s Method / Philippine Plumbing Code';
+    } else if (_calcType === 'Hot Water Demand' && descEl) {
+      descEl.textContent = 'Generates a hot water system schematic showing cold water inlet, storage tank with heater element, PRV, and hot water distribution — with daily energy kWh and recovery time per Philippine Plumbing Code';
+    } else if (_calcType === 'Drainage Pipe Sizing' && descEl) {
+      descEl.textContent = 'Generates a drainage riser elevation showing soil/waste stack, sloped floor branches, fixture connections, cleanout, and building drain — with velocity compliance per Philippine Plumbing Code / IPC';
+    } else if (_calcType === 'Septic Tank Sizing' && descEl) {
+      descEl.textContent = 'Generates a septic tank cross-section showing 2-compartment layout with scum/liquid/sludge layers, inlet, outlet, leach field note and DENR BOD compliance badge per DENR DAO 2016-08 / DOH';
+    } else if (_calcType === 'Grease Trap Sizing' && descEl) {
+      descEl.textContent = 'Generates a grease trap cross-section showing grease/water/sludge layers, baffles, inlet from kitchen sinks, outlet to sewer, and cleaning interval — per PDI BH-201 / Philippine Plumbing Code';
+    } else if (_calcType === 'Roof Drain Sizing' && descEl) {
+      descEl.textContent = 'Generates a roof drain schematic showing drain bodies, vertical leaders, horizontal collector, overflow drains and flow badge per IPC §1106 / Philippine Plumbing Code';
+    } else if (_calcType === 'Water Softener Sizing' && descEl) {
+      descEl.textContent = 'Generates a water softener flow diagram showing raw water inlet, ion exchange resin vessel, brine tank, soft water outlet and regeneration cycle per NSF/ANSI 44 / WQA';
+    } else if (_calcType === 'Water Treatment System' && descEl) {
+      descEl.textContent = 'Generates a water treatment train showing source → screening → coagulation → flocculation → sedimentation → filtration → disinfection → distribution per PNS 1998 / DOH / WHO';
+    } else if (_calcType === 'Wastewater Treatment (STP)' && descEl) {
+      descEl.textContent = 'Generates a wastewater STP process train showing bar screen → primary clarifier → aeration basin → secondary clarifier → disinfection with blower, sludge and DENR compliance badge per DAO 2016-08';
+    } else if (_calcType === 'Storm Drain / Stormwater' && descEl) {
+      descEl.textContent = 'Generates a storm drain schematic showing catchment area, Rational Method calculation, pipe cross-section buried below grade with velocity compliance per DPWH / PAGASA / Manning\'s equation';
     } else if (_calcType === 'Stairwell Pressurization' && descEl) {
       descEl.textContent = 'Generates a stairwell pressurization schematic showing pressurized shaft, fan, floor doors with ΔP arrows, and PASS/FAIL badges for pressure differential (25–80 Pa) and door opening force (<67 N) per NFPA 92:2021';
     } else if (_calcType === 'Fire Alarm Battery' && descEl) {
@@ -18959,6 +18984,64 @@ async function _runDrawing() {
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_tankL} L Bladder  |  α = ${_alpha}  |  ${_stype}`,
         { drawingNo:'MECH-ET-SCH-001', drawingTitle:'Expansion Tank — Hydronic System Schematic', standard:'ASHRAE 2023 Ch.12 / ASME BPVC Sec.VIII / PSME Code' }));
+    } else if (ct === 'Water Supply Pipe Sizing') {
+      const svg = buildWaterSupplyPipeSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `Ø${Number(_r.recommended_dia_mm||0).toFixed(0)}mm  |  ${Number(_r.peak_lps||0).toFixed(2)} L/s  |  ${Number(_r.total_wfu||0).toFixed(0)} WSFU`,
+        { drawingNo:'PLMB-WSP-SCH-001', drawingTitle:'Water Supply Pipe Sizing — Riser Diagram', standard:"Hunter's Method / Philippine Plumbing Code / IPC" }));
+    } else if (ct === 'Hot Water Demand') {
+      const svg = buildHotWaterDemandSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${Number(_r.recommended_storage_L||0).toFixed(0)} L Storage  |  ${Number(_r.recommended_heater_kW||0).toFixed(1)} kW Heater`,
+        { drawingNo:'PLMB-HWD-SCH-001', drawingTitle:'Hot Water Demand — System Schematic', standard:'Philippine Plumbing Code / AS/NZS 3500' }));
+    } else if (ct === 'Drainage Pipe Sizing') {
+      const svg = buildDrainagePipeSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `Ø${Number(_r.recommended_dia_mm||0).toFixed(0)}mm  |  ${Number(_r.total_dfu||0).toFixed(0)} DFU  |  Slope ${Number(_r.slope_mm_per_m||20).toFixed(0)} mm/m`,
+        { drawingNo:'PLMB-DRN-SCH-001', drawingTitle:'Drainage Pipe Sizing — Riser Elevation', standard:'Philippine Plumbing Code / IPC Table 710' }));
+    } else if (ct === 'Septic Tank Sizing') {
+      const svg = buildSepticTankSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${Number(_r.design_volume_m3||0).toFixed(2)} m³  |  ${Number(_r.tank_length_m||0).toFixed(2)}×${Number(_r.tank_width_m||0).toFixed(2)} m`,
+        { drawingNo:'PLMB-SEP-SCH-001', drawingTitle:'Septic Tank — Cross-Section', standard:'DENR DAO 2016-08 / DOH / Philippine Plumbing Code' }));
+    } else if (ct === 'Grease Trap Sizing') {
+      const svg = buildGreaseTrapSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${Number(_r.liquid_cap_l||0).toFixed(0)} L  |  ${Number(_r.pdi_gpm||0).toFixed(1)} GPM`,
+        { drawingNo:'PLMB-GT-SCH-001', drawingTitle:'Grease Trap — Cross-Section', standard:'PDI BH-201 / ASPE / Philippine Plumbing Code' }));
+    } else if (ct === 'Roof Drain Sizing') {
+      const svg = buildRoofDrainSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${Number(_r.n_drains||0)}× Ø${Number(_r.drain_size_mm||0).toFixed(0)}mm  |  ${Number(_r.q_total_ls||0).toFixed(2)} L/s`,
+        { drawingNo:'PLMB-RD-SCH-001', drawingTitle:'Roof Drain Sizing — Schematic', standard:'IPC §1106 / Philippine Plumbing Code' }));
+    } else if (ct === 'Water Softener Sizing') {
+      const svg = buildWaterSoftenerSVG(_lastInputs, _lastResults);
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${Number(_lastInputs?.daily_volume_m3||0).toFixed(1)} m³/day  |  ${Number(_lastInputs?.raw_hardness_mg_l||0).toFixed(0)}→${Number(_lastInputs?.target_hardness_mg_l||0).toFixed(0)} mg/L`,
+        { drawingNo:'PLMB-WS-SCH-001', drawingTitle:'Water Softener — Flow Diagram', standard:'NSF/ANSI 44 / WQA' }));
+    } else if (ct === 'Water Treatment System') {
+      const svg = buildWaterTreatmentSVG(_lastInputs, _lastResults);
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${Number(_lastInputs?.flow_m3d||0).toFixed(0)} m³/day  |  ${String(_lastInputs?.source_type||'Surface Water')}`,
+        { drawingNo:'PLMB-WT-SCH-001', drawingTitle:'Water Treatment — Process Train', standard:'PNS 1998 / DOH AO 2017-0010 / WHO' }));
+    } else if (ct === 'Wastewater Treatment (STP)') {
+      const svg = buildWastewaterSTPSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `${Number(_r.flow_m3_day||0).toFixed(1)} m³/day  |  BOD out ${Number(_r.effluent_bod||0).toFixed(1)} mg/L`,
+        { drawingNo:'PLMB-STP-SCH-001', drawingTitle:'Wastewater STP — Activated Sludge Process', standard:'DENR DAO 2016-08 / DOH PD 856' }));
+    } else if (ct === 'Storm Drain / Stormwater') {
+      const svg = buildStormDrainSVG(_lastInputs, _lastResults);
+      const _r = _lastResults || {};
+      _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
+        `Ø${Number(_r.d_selected_mm||0).toFixed(0)}mm  |  Q=${Number(_r.design_flow_lps||0).toFixed(1)} L/s  |  ${Number(_r.total_area_ha||0).toFixed(2)} ha`,
+        { drawingNo:'PLMB-SD-SCH-001', drawingTitle:'Storm Drain — Rational Method Schematic', standard:'DPWH / PAGASA / Rational Method / Manning' }));
     } else if (ct === 'Stairwell Pressurization') {
       const svg = buildStairwellPressSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
@@ -24657,6 +24740,913 @@ function buildFireAlarmBatterySVG(inputs, results) {
    `2. Charger must restore battery to 80% in ≤48h (NFPA 72 §10.6.9.3). Use C/10 rate minimum.`,
    `3. VRLA/AGM sealed batteries required. Replace when capacity falls to 80% rated Ah.`
   ].forEach((n,i)=>p.push(T(18,LY+72+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Plumbing SVG helpers (shared) ───────────────────────────────────────────
+function _plumbT(x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={}){
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  return `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+}
+function _plumbPanel(p,DX,DW,rows,sections){
+  const rowH=17,SC='#5a6a7a',CC='#1a2e4a';
+  let dy=60;
+  p.push(`<rect x="${DX}" y="${dy-8}" width="${DW}" height="20" rx="3" fill="${CC}"/>`);
+  p.push(_plumbT(DX+DW/2,dy+4,sections[0].title,{sz:8.5,c:'white',w:'700'})); dy+=24;
+  sections.forEach((sec,si)=>{
+    if(si>0){ dy+=4; p.push(`<rect x="${DX}" y="${dy}" width="${DW}" height="15" rx="2" fill="#dce3ef"/>`+_plumbT(DX+DW/2,dy+10,sec.title,{sz:7.5,c:CC,w:'700'})); dy+=18; }
+    sec.rows.forEach(([lbl,val,vc],i)=>{
+      const bg=i%2===0?'#f0f4fa':'#f8fafc';
+      p.push(`<rect x="${DX}" y="${dy}" width="${DW}" height="${rowH}" fill="${bg}"/>` +
+        _plumbT(DX+4,dy+11,lbl,{a:'start',sz:7.5,c:SC})+_plumbT(DX+DW-4,dy+11,val,{a:'end',sz:7.5,c:vc,w:'bold'}));
+      dy+=rowH;
+    });
+  });
+  return dy;
+}
+
+// ─── Water Supply Pipe Sizing — WSFU / Hunter's Method / Philippine Plumbing Code ─
+function buildWaterSupplyPipeSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const WC='#1565c0',GRN='#2e7d32',ORG='#e65100';
+  const p=[];
+
+  const dMM    = Number(r.recommended_dia_mm||0).toFixed(0);
+  const vel    = Number(r.pipe_velocity||0).toFixed(2);
+  const velOK  = Boolean(r.velocity_ok??true);
+  const peakLps= Number(r.peak_lps||0).toFixed(2);
+  const wfu    = Number(r.total_wfu||0).toFixed(0);
+  const presKpa= Number(r.pressure_available||0).toFixed(1);
+  const presOK = Boolean(r.pressure_ok??true);
+  const minPres= Number(r.min_pressure||138).toFixed(0);
+  const mat    = String(r.pipe_material||inp.pipe_material||'Copper');
+  const hfM    = Number(r.hf_total_m||0).toFixed(2);
+  const OK_C   = presOK&&velOK?GRN:ORG;
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`WATER SUPPLY PIPE SIZING — Ø${dMM}mm ${mat}  |  ${peakLps} L/s  |  ${wfu} WSFU  |  Hunter's Method`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+
+  // ── Plumbing riser schematic (elevation) ──
+  const RX=120,RT=65,RW=20,nFloors=4,FH=80;
+  const totalH=nFloors*FH;
+  // Water main (bottom horizontal)
+  const mainY=RT+totalH+30;
+  p.push(`<line x1="40" y1="${mainY}" x2="${SPLIT_X-20}" y2="${mainY}" stroke="${WC}" stroke-width="5"/>`);
+  p.push(_plumbT(200,mainY+14,`WATER MAIN  |  Static: ${inp.static_pressure_kpa||300} kPa`,{sz:7.5,c:WC,w:'700'}));
+  // Water meter
+  p.push(`<rect x="60" y="${mainY-12}" width="40" height="24" rx="4" fill="${LGY}" stroke="${WC}" stroke-width="2"/>`);
+  p.push(_plumbT(80,mainY+4,'WM',{sz:7.5,c:WC,w:'700'}));
+  // Main riser (vertical)
+  p.push(`<line x1="${RX}" y1="${RT}" x2="${RX}" y2="${mainY}" stroke="${WC}" stroke-width="${Math.max(3,Math.round(Number(dMM)/8))}"/>`);
+  p.push(_plumbT(RX,RT-10,`Ø${dMM}mm`,{sz:7.5,c:WC,w:'700'}));
+  // Floor branches
+  for(let f=0;f<nFloors;f++){
+    const fy=RT+f*FH+FH/2;
+    p.push(`<line x1="${RX}" y1="${fy}" x2="${RX+140}" y2="${fy}" stroke="${WC}" stroke-width="2"/>`);
+    // Fixture symbols (simplified)
+    ['WC','LAV','SHR'].forEach((fix,j)=>{
+      const fx=RX+40+j*45;
+      p.push(`<circle cx="${fx}" cy="${fy-12}" r="8" fill="${LGY}" stroke="${WC}" stroke-width="1.5"/>`);
+      p.push(_plumbT(fx,fy-9,fix.charAt(0),{sz:6,c:WC,w:'700'}));
+      p.push(`<line x1="${fx}" y1="${fy-4}" x2="${fx}" y2="${fy}" stroke="${WC}" stroke-width="1.5"/>`);
+    });
+    p.push(_plumbT(RX-12,fy+4,`Fl.${nFloors-f}`,{sz:7,c:GY}));
+  }
+  // Velocity + pressure badges
+  const b1X=320,b1Y=RT;
+  p.push(`<rect x="${b1X}" y="${b1Y}" width="170" height="40" rx="4" fill="${velOK?'#e8f5e9':'#ffebee'}" stroke="${velOK?GRN:ORG}" stroke-width="1.5"/>`);
+  p.push(_plumbT(b1X+85,b1Y+14,`v = ${vel} m/s  ${velOK?'✓ OK':'✗ HIGH'}`,{sz:9,c:velOK?GRN:ORG,w:'700'}));
+  p.push(_plumbT(b1X+85,b1Y+28,`Peak: ${peakLps} L/s  |  ${wfu} WSFU`,{sz:7.5,c:CC}));
+  const b2X=320,b2Y=b1Y+52;
+  p.push(`<rect x="${b2X}" y="${b2Y}" width="170" height="40" rx="4" fill="${presOK?'#e8f5e9':'#ffebee'}" stroke="${presOK?GRN:ORG}" stroke-width="1.5"/>`);
+  p.push(_plumbT(b2X+85,b2Y+14,`P = ${presKpa} kPa  ${presOK?'✓':'✗'}`,{sz:9,c:presOK?GRN:ORG,w:'700'}));
+  p.push(_plumbT(b2X+85,b2Y+28,`Min required: ${minPres} kPa  |  hf = ${hfM} m`,{sz:7.5,c:CC}));
+
+  // Legend
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  p.push(`<line x1="25" y1="${LY+26}" x2="53" y2="${LY+26}" stroke="${WC}" stroke-width="4"/>`);
+  p.push(_plumbT(57,LY+30,'Water supply pipe (sizing per WSFU)',{a:'start',sz:7.5,c:CC}));
+  [`1. Hunter's Method: peak flow from total WSFU via IPC Table E103.3(2) / Philippine Plumbing Code.`,
+   `2. Velocity 0.6–3.0 m/s (supply). Pressure ≥ 138 kPa (20 psi) at highest fixture.`,
+   `3. Hazen-Williams: hf = 10.67 × L × Q^1.852 / (C^1.852 × D^4.87).`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  const DX=SPLIT_X+10,DW=W-SPLIT_X-22;
+  _plumbPanel(p,DX,DW,[],[
+    {title:'WATER SUPPLY PIPE SIZING', rows:[
+      ['Pipe Material',mat,CC],['Total WSFU',wfu,WC],['Peak Flow',`${peakLps} L/s`,WC],
+      ['Recommended Dia.',`Ø${dMM} mm`,CC],['Velocity',`${vel} m/s  ${velOK?'— OK':'— CHECK'}`,velOK?GRN:ORG],
+      ['Pressure Available',`${presKpa} kPa`,presOK?GRN:ORG],['Min Required',`${minPres} kPa`,SC],
+      ['Head Loss',`${hfM} m`,SC],['Pressure',presOK?'PASS ✓':'FAIL ✗',presOK?GRN:ORG]
+    ]}
+  ]);
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Hot Water Demand — AS/NZS 3500 / Philippine Plumbing Code ────────────────
+function buildHotWaterDemandSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const HW_C='#c0392b',CW_C='#1565c0',GRN='#2e7d32';
+  const p=[];
+
+  const stoL   = Number(r.recommended_storage_L||0).toFixed(0);
+  const htrKW  = Number(r.recommended_heater_kW||0).toFixed(1);
+  const peakL  = Number(r.peak_hour_L||0).toFixed(0);
+  const dailyL = Number(r.total_daily_L||0).toFixed(0);
+  const tHot   = Number(r.T_hot||r.T_supply||60).toFixed(0);
+  const tCold  = Number(r.T_supply||inp.inlet_temp_c||20).toFixed(0);
+  const dT     = Number(r.delta_T||40).toFixed(0);
+  const recHr  = Number(r.recovery_hours||0).toFixed(1);
+  const kWh    = Number(r.heat_energy_kWh||0).toFixed(2);
+  const occType= String(inp.occupancy_type||'Office');
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`HOT WATER DEMAND  |  ${stoL} L Storage  |  ${htrKW} kW Heater  |  ${tHot}°C  |  Philippine Plumbing Code`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+
+  // ── System schematic ──
+  // Cold water supply
+  p.push(_plumbT(80,72,'COLD WATER',{sz:7.5,c:CW_C,w:'700'}));
+  p.push(`<line x1="80" y1="78" x2="80" y2="130" stroke="${CW_C}" stroke-width="3"/>`);
+  p.push(`<polygon points="75,130 85,130 80,140" fill="${CW_C}"/>`);
+  // Storage tank
+  const TY=145,TH=140,TX=50,TW=90;
+  p.push(`<rect x="${TX}" y="${TY}" width="${TW}" height="${TH}" rx="5" fill="#fff3e0" stroke="${HW_C}" stroke-width="2.5"/>`);
+  p.push(`<ellipse cx="${TX+TW/2}" cy="${TY}" rx="${TW/2}" ry="12" fill="#fff3e0" stroke="${HW_C}" stroke-width="2"/>`);
+  p.push(`<ellipse cx="${TX+TW/2}" cy="${TY+TH}" rx="${TW/2}" ry="12" fill="#fff3e0" stroke="${HW_C}" stroke-width="1.5"/>`);
+  p.push(_plumbT(TX+TW/2,TY+TH/2-8,'STORAGE',{sz:8,c:HW_C,w:'700'}));
+  p.push(_plumbT(TX+TW/2,TY+TH/2+5,`${stoL} L`,{sz:10,c:CC,w:'700'}));
+  p.push(_plumbT(TX+TW/2,TY+TH/2+19,`${tHot}°C`,{sz:8,c:HW_C}));
+  // Heater element symbol
+  const HEX=TX+TW-15,HEY=TY+TH-30;
+  p.push(`<rect x="${HEX}" y="${HEY}" width="12" height="20" rx="2" fill="#ff8f00" stroke="${HW_C}" stroke-width="1"/>`);
+  p.push(_plumbT(HEX+6,HEY+12,'~',{sz:8,c:'white',w:'700'}));
+  // CW inlet label
+  p.push(_plumbT(TX+TW+5,TY+TH*0.8,`CW ${tCold}°C`,{a:'start',sz:7,c:CW_C}));
+  p.push(`<line x1="${TX+TW}" y1="${TY+TH*0.8}" x2="${TX+TW+12}" y2="${TY+TH*0.8}" stroke="${CW_C}" stroke-width="2"/>`);
+  // Heater label
+  p.push(_plumbT(TX-5,HEY+10,`${htrKW} kW`,{a:'end',sz:8,c:HW_C,w:'700'}));
+  p.push(_plumbT(TX-5,HEY+21,'Heater',{a:'end',sz:7,c:HW_C}));
+  // Hot water outlet
+  const outY=TY+40;
+  p.push(`<line x1="${TX+TW}" y1="${outY}" x2="${TX+TW+60}" y2="${outY}" stroke="${HW_C}" stroke-width="3"/>`);
+  p.push(`<polygon points="${TX+TW+58},${outY-5} ${TX+TW+72},${outY} ${TX+TW+58},${outY+5}" fill="${HW_C}"/>`);
+  p.push(_plumbT(TX+TW+75,outY+4,`HW ${tHot}°C → Fixtures`,{a:'start',sz:7.5,c:HW_C,w:'700'}));
+  // PRV on tank
+  p.push(`<line x1="${TX+TW/2+10}" y1="${TY}" x2="${TX+TW/2+10}" y2="${TY-30}" stroke="${GY}" stroke-width="1.5"/>`);
+  p.push(_plumbT(TX+TW/2+10,TY-38,'PRV',{sz:7,c:GY,w:'700'}));
+  // ΔT annotation
+  const arY=TY+TH+35;
+  p.push(`<line x1="${TX}" y1="${arY}" x2="${TX+TW}" y2="${arY}" stroke="#e65100" stroke-width="1.5" stroke-dasharray="4 2"/>`);
+  p.push(_plumbT(TX+TW/2,arY+14,`ΔT = ${dT}°C  (${tCold}°C → ${tHot}°C)`,{sz:7.5,c:'#e65100',w:'700'}));
+  // Energy badge
+  const bdX=220,bdY=TY+20;
+  p.push(`<rect x="${bdX}" y="${bdY}" width="175" height="55" rx="4" fill="#fff9c4" stroke="#f57f17" stroke-width="1.5"/>`);
+  p.push(_plumbT(bdX+87,bdY+14,'DAILY ENERGY',{sz:7.5,c:'#f57f17',w:'700'}));
+  p.push(_plumbT(bdX+87,bdY+28,`${kWh} kWh/day`,{sz:11,c:CC,w:'700'}));
+  p.push(_plumbT(bdX+87,bdY+42,`Peak: ${peakL} L/hr  |  Recovery: ${recHr} h`,{sz:7,c:SC}));
+
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  [[HW_C,'Hot water supply'],[CW_C,'Cold water supply']].forEach(([c,lbl],i)=>{
+    p.push(`<line x1="25" y1="${LY+26+i*15}" x2="53" y2="${LY+26+i*15}" stroke="${c}" stroke-width="3"/>`);
+    p.push(_plumbT(57,LY+30+i*15,lbl,{a:'start',sz:7.5,c:CC}));
+  });
+  [`1. Storage sized for peak hour demand × storage factor. Heater: Q = m × Cp × ΔT / η.`,
+   `2. HW temp ≥ 60°C in storage to prevent Legionella (DOH / ASHRAE 188).`,
+   `3. PRV required. Expansion tank required for closed systems per Philippine Plumbing Code.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  const DX=SPLIT_X+10,DW=W-SPLIT_X-22;
+  _plumbPanel(p,DX,DW,[],[
+    {title:'HOT WATER DEMAND', rows:[
+      ['Occupancy Type',occType,CC],['Daily Volume',`${dailyL} L/day`,CW_C],
+      ['Peak Hour Demand',`${peakL} L/hr`,HW_C],['Supply Temp (Cold)',`${tCold}°C`,CW_C],
+      ['Hot Water Temp',`${tHot}°C`,HW_C],['Temperature Rise ΔT',`${dT}°C`,HW_C],
+      ['Storage Tank',`${stoL} L`,CC],['Heater Size',`${htrKW} kW`,HW_C],
+      ['Recovery Time',`${recHr} h`,SC],['Daily Energy',`${kWh} kWh`,GY]
+    ]}
+  ]);
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Drainage Pipe Sizing — Philippine Plumbing Code / IPC Table 710 ──────────
+function buildDrainagePipeSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const DRN_C='#78909c',OK_C='#2e7d32',ORG='#e65100';
+  const p=[];
+
+  const dMM   = Number(r.recommended_dia_mm||100).toFixed(0);
+  const dfu   = Number(r.total_dfu||0).toFixed(0);
+  const slope = Number(r.slope_mm_per_m||20).toFixed(0);
+  const vel   = Number(r.design_velocity||0).toFixed(2);
+  const velOK = Boolean(r.velocity_ok??true);
+  const sysType=String(r.system_type||'Sanitary');
+  const mat   = String(r.pipe_material||inp.pipe_material||'PVC');
+  const capLs = Number(r.capacity_q_ls||0).toFixed(2);
+  const n_man = Number(r.manning_n||0.013).toFixed(3);
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`DRAINAGE PIPE SIZING — Ø${dMM}mm ${mat}  |  ${dfu} DFU  |  Slope ${slope} mm/m  |  Philippine Plumbing Code`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+
+  // ── Drainage riser elevation ──
+  const stackX=120,stackTop=65,nFloors=4,FH=75,stackH=nFloors*FH;
+  // Soil stack (vertical)
+  p.push(`<rect x="${stackX-8}" y="${stackTop}" width="16" height="${stackH+40}" rx="0" fill="${DRN_C}" stroke="${CC}" stroke-width="1.5"/>`);
+  p.push(_plumbT(stackX,stackTop-12,`Soil/Waste Stack  Ø${dMM}mm`,{sz:7.5,c:DRN_C,w:'700'}));
+  // Floor branches (sloped)
+  for(let f=0;f<nFloors;f++){
+    const fy=stackTop+f*FH+FH/2;
+    // Sloped branch
+    p.push(`<line x1="${stackX+8}" y1="${fy}" x2="${stackX+160}" y2="${fy-8}" stroke="${DRN_C}" stroke-width="2.5"/>`);
+    // Fixtures
+    ['WC','LAV','SINK'].forEach((fix,j)=>{
+      const fx=stackX+40+j*45;
+      p.push(`<rect x="${fx-10}" y="${fy-30}" width="20" height="16" rx="2" fill="${LGY}" stroke="${DRN_C}" stroke-width="1"/>`);
+      p.push(_plumbT(fx,fy-20,fix.charAt(0),{sz:6.5,c:DRN_C,w:'700'}));
+      p.push(`<line x1="${fx}" y1="${fy-14}" x2="${fx}" y2="${fy-8}" stroke="${DRN_C}" stroke-width="1.5"/>`);
+    });
+    p.push(_plumbT(stackX-18,fy+3,`Fl ${nFloors-f}`,{sz:7,c:GY}));
+  }
+  // Slope annotation
+  const slopeY=stackTop+stackH+10;
+  p.push(`<line x1="${stackX+8}" y1="${slopeY}" x2="${stackX+100}" y2="${slopeY+10}" stroke="${DRN_C}" stroke-width="2" stroke-dasharray="5 2"/>`);
+  p.push(_plumbT(stackX+55,slopeY+24,`Slope: ${slope} mm/m (${(Number(slope)/10).toFixed(1)}%)`,{sz:7.5,c:DRN_C,w:'700'}));
+  // Building drain → sewer
+  const bldDrY=stackTop+stackH+40;
+  p.push(`<line x1="${stackX}" y1="${bldDrY}" x2="${stackX+250}" y2="${bldDrY+15}" stroke="${DRN_C}" stroke-width="4"/>`);
+  p.push(_plumbT(stackX+125,bldDrY+28,'Building Drain → Public Sewer',{sz:7.5,c:DRN_C,w:'700'}));
+  // Cleanout
+  p.push(`<rect x="${stackX+80}" y="${bldDrY-8}" width="14" height="18" rx="2" fill="${LGY}" stroke="${DRN_C}" stroke-width="1.5"/>`);
+  p.push(_plumbT(stackX+87,bldDrY+2,'CO',{sz:6,c:DRN_C,w:'700'}));
+  // Velocity badge
+  const bX=330,bY=stackTop;
+  p.push(`<rect x="${bX}" y="${bY}" width="190" height="44" rx="4" fill="${velOK?'#e8f5e9':'#ffebee'}" stroke="${velOK?OK_C:ORG}" stroke-width="1.5"/>`);
+  p.push(_plumbT(bX+95,bY+14,`v = ${vel} m/s  ${velOK?'✓ OK':'✗ CHECK'}`,{sz:9,c:velOK?OK_C:ORG,w:'700'}));
+  p.push(_plumbT(bX+95,bY+28,`Capacity: ${capLs} L/s  |  ${dfu} DFU  |  n=${n_man}`,{sz:7.5,c:CC}));
+
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  p.push(`<line x1="25" y1="${LY+26}" x2="53" y2="${LY+26}" stroke="${DRN_C}" stroke-width="4"/>`);
+  p.push(_plumbT(57,LY+30,'Drainage / soil pipe',{a:'start',sz:7.5,c:CC}));
+  [`1. Manning: Q = (1/n) × A × R^(2/3) × S^(1/2). Pipe designed at ½-full flow depth.`,
+   `2. Min slope: DN100 = 20 mm/m (2%), DN150 = 10 mm/m per Philippine Plumbing Code.`,
+   `3. Cleanout every 15m or at each change of direction. Vent stack per IPC §904.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  const DX=SPLIT_X+10,DW=W-SPLIT_X-22;
+  _plumbPanel(p,DX,DW,[],[
+    {title:'DRAINAGE PIPE SIZING', rows:[
+      ['System Type',sysType,CC],['Pipe Material',mat,CC],
+      ['Total DFU',dfu,DRN_C],['Selected Diameter',`Ø${dMM} mm`,CC],
+      ['Slope',`${slope} mm/m`,DRN_C],['Manning n',n_man,SC],
+      ['Design Velocity',`${vel} m/s  ${velOK?'— OK':'— CHECK'}`,velOK?OK_C:ORG],
+      ['Pipe Capacity',`${capLs} L/s`,DRN_C]
+    ]}
+  ]);
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Septic Tank Sizing — DENR DAO 2016-08 / DOH / Philippine Plumbing Code ───
+function buildSepticTankSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const TK_C='#795548',EFF_C='#2e7d32',WW_C='#546e7a';
+  const p=[];
+
+  const volM3 = Number(r.design_volume_m3||0).toFixed(2);
+  const lenM  = Number(r.tank_length_m||0).toFixed(2);
+  const wdM   = Number(r.tank_width_m||0).toFixed(2);
+  const depM  = Number(r.total_depth_m||0).toFixed(2);
+  const comp1 = Number(r.comp1_L||0).toFixed(0);
+  const comp2 = Number(r.comp2_L||0).toFixed(0);
+  const leachM2=Number(r.leach_field_area_m2||0).toFixed(1);
+  const daily = Number(r.daily_flow_L||0).toFixed(0);
+  const occ   = Number(r.occupants||inp.num_persons||0);
+  const secTx = Boolean(r.secondary_treatment_needed??false);
+  const bodEff= Number(r.effluent_bod_mgl||0).toFixed(0);
+  const denrLim=Number(r.denr_limit_mgl||50).toFixed(0);
+  const denrOK= Number(bodEff)<=Number(denrLim);
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`SEPTIC TANK SIZING — ${volM3} m³  |  ${occ} persons  |  ${lenM}×${wdM}×${depM}m  |  DENR DAO 2016-08`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+
+  // ── Tank cross-section (longitudinal) ──
+  const TX=60,TY=85,scaleLenPx=Math.min(400,(Number(lenM)||3)*80),scaleDepPx=Math.min(160,Number(depM)*50);
+  // Ground surface
+  p.push(`<line x1="40" y1="${TY}" x2="${SPLIT_X-20}" y2="${TY}" stroke="${GY}" stroke-width="1.5" stroke-dasharray="6 3"/>`);
+  p.push(_plumbT(50,TY-6,'Ground Level',{a:'start',sz:7,c:GY}));
+  // Tank walls
+  const tankBot=TY+scaleDepPx;
+  p.push(`<rect x="${TX}" y="${TY}" width="${scaleLenPx}" height="${scaleDepPx}" fill="#efebe9" stroke="${TK_C}" stroke-width="3"/>`);
+  // Compartment divider (at 2/3 of length)
+  const divX=TX+Math.round(scaleLenPx*0.65);
+  p.push(`<line x1="${divX}" y1="${TY}" x2="${divX}" y2="${tankBot-20}" stroke="${TK_C}" stroke-width="2.5"/>`);
+  // Scum / liquid / sludge layers
+  const liqH=Math.round(scaleDepPx*0.65);
+  p.push(`<rect x="${TX+2}" y="${TY+2}" width="${scaleLenPx-4}" height="18" rx="0" fill="#bcaaa4" opacity="0.5"/>`);
+  p.push(_plumbT(TX+scaleLenPx/2,TY+14,'Scum',{sz:7,c:TK_C}));
+  p.push(`<rect x="${TX+2}" y="${tankBot-22}" width="${scaleLenPx-4}" height="20" rx="0" fill="#8d6e63" opacity="0.5"/>`);
+  p.push(_plumbT(TX+scaleLenPx/2,tankBot-10,'Sludge',{sz:7,c:TK_C}));
+  // Compartment labels
+  p.push(_plumbT(TX+(divX-TX)/2,TY+liqH/2+12,`Comp 1`,{sz:7.5,c:TK_C,w:'700'}));
+  p.push(_plumbT(TX+(divX-TX)/2,TY+liqH/2+24,`${comp1} L`,{sz:8,c:CC,w:'700'}));
+  p.push(_plumbT(divX+(TX+scaleLenPx-divX)/2,TY+liqH/2+12,`Comp 2`,{sz:7.5,c:TK_C,w:'700'}));
+  p.push(_plumbT(divX+(TX+scaleLenPx-divX)/2,TY+liqH/2+24,`${comp2} L`,{sz:8,c:CC,w:'700'}));
+  // Inlet
+  p.push(`<line x1="${TX-40}" y1="${TY+30}" x2="${TX}" y2="${TY+30}" stroke="${WW_C}" stroke-width="3"/>`);
+  p.push(_plumbT(TX-48,TY+30+12,'WW In',{sz:7,c:WW_C,a:'end'}));
+  // Outlet / effluent
+  p.push(`<line x1="${TX+scaleLenPx}" y1="${TY+30}" x2="${TX+scaleLenPx+50}" y2="${TY+30}" stroke="${EFF_C}" stroke-width="2.5"/>`);
+  p.push(_plumbT(TX+scaleLenPx+55,TY+30+12,'Effluent',{sz:7,c:EFF_C,a:'start'}));
+  // Depth dimension
+  p.push(`<line x1="${TX+scaleLenPx+65}" y1="${TY}" x2="${TX+scaleLenPx+65}" y2="${tankBot}" stroke="${SC}" stroke-width="1"/>`);
+  p.push(`<line x1="${TX+scaleLenPx+59}" y1="${TY}" x2="${TX+scaleLenPx+71}" y2="${TY}" stroke="${SC}" stroke-width="1"/>`);
+  p.push(`<line x1="${TX+scaleLenPx+59}" y1="${tankBot}" x2="${TX+scaleLenPx+71}" y2="${tankBot}" stroke="${SC}" stroke-width="1"/>`);
+  p.push(_plumbT(TX+scaleLenPx+80,TY+scaleDepPx/2,`D=${depM}m`,{sz:7,c:SC,a:'start'}));
+  // Length dimension
+  p.push(`<line x1="${TX}" y1="${tankBot+15}" x2="${TX+scaleLenPx}" y2="${tankBot+15}" stroke="${SC}" stroke-width="1"/>`);
+  p.push(_plumbT(TX+scaleLenPx/2,tankBot+27,`L = ${lenM} m  ×  W = ${wdM} m  =  ${volM3} m³`,{sz:7.5,c:CC,w:'700'}));
+  // DENR compliance badge
+  const bY=tankBot+50;
+  p.push(`<rect x="${TX}" y="${bY}" width="250" height="36" rx="4" fill="${denrOK?'#e8f5e9':'#ffebee'}" stroke="${denrOK?EFF_C:'#c62828'}" stroke-width="1.5"/>`);
+  p.push(_plumbT(TX+125,bY+14,`Effluent BOD = ${bodEff} mg/L  ${denrOK?'✓':'✗'}`,{sz:8.5,c:denrOK?EFF_C:'#c62828',w:'700'}));
+  p.push(_plumbT(TX+125,bY+28,`DENR limit: ${denrLim} mg/L  —  ${denrOK?'PASS':'Needs treatment'}`,{sz:7.5,c:denrOK?EFF_C:'#c62828'}));
+
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  [`1. Two-compartment: Comp 1 = 2/3 liquid volume, Comp 2 = 1/3. Min L:W = 2:1 per DOH.`,
+   `2. Desludge every 3–5 years. Effluent to leach field: ${leachM2} m² required.`,
+   `3. DENR DAO 2016-08: BOD ≤ 50 mg/L, TSS ≤ 70 mg/L for discharge to water body.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  const DX=SPLIT_X+10,DW=W-SPLIT_X-22;
+  _plumbPanel(p,DX,DW,[],[
+    {title:'SEPTIC TANK SIZING', rows:[
+      ['No. of Persons',`${occ}`,CC],['Daily Wastewater',`${daily} L/day`,WW_C],
+      ['Liquid Volume',`${volM3} m³`,TK_C],['Tank Dimensions',`${lenM}×${wdM}×${depM}m`,CC],
+      ['Compartment 1',`${comp1} L`,TK_C],['Compartment 2',`${comp2} L`,TK_C],
+      ['Leach Field',`${leachM2} m²`,EFF_C],['Effluent BOD',`${bodEff} mg/L`,denrOK?EFF_C:'#c62828'],
+      ['DENR Status',denrOK?'PASS ✓':'Needs Treatment',denrOK?EFF_C:'#c62828']
+    ]}
+  ]);
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Grease Trap Sizing — PDI BH-201 / ASPE / Philippine Plumbing Code ─────────
+function buildGreaseTrapSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const GT_C='#795548',GRS_C='#f57f17',WW_C='#546e7a',OK_C='#2e7d32';
+  const p=[];
+
+  const capL    = Number(r.liquid_cap_l||0).toFixed(0);
+  const grsKg   = Number(r.grease_ret_kg||0).toFixed(1);
+  const cleanDay= Number(r.clean_interval_days||0).toFixed(0);
+  const pdiGpm  = Number(r.pdi_gpm||0).toFixed(1);
+  const qLpm    = Number(r.q_design_lpm||0).toFixed(1);
+  const fogMgl  = Number(r.fog_effluent_mgl||0).toFixed(0);
+  const denrOK  = Boolean(r.fog_denr_compliant??true);
+  const nFix    = Number(inp.num_fixtures||3);
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`GREASE TRAP SIZING — ${capL} L  |  ${pdiGpm} GPM  |  PDI BH-201 / Philippine Plumbing Code`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+
+  // ── Grease trap cross-section ──
+  const TX=60,TY=100,TW=280,TH=160;
+  // Ground line
+  p.push(`<line x1="40" y1="${TY}" x2="${SPLIT_X-20}" y2="${TY}" stroke="${GY}" stroke-width="1.5" stroke-dasharray="5 3"/>`);
+  // Tank
+  p.push(`<rect x="${TX}" y="${TY}" width="${TW}" height="${TH}" fill="#efebe9" stroke="${GT_C}" stroke-width="3"/>`);
+  // Grease layer (top)
+  const grsH=Math.min(40,Math.round(TH*0.25));
+  p.push(`<rect x="${TX+3}" y="${TY+3}" width="${TW-6}" height="${grsH}" rx="0" fill="${GRS_C}" opacity="0.6"/>`);
+  p.push(_plumbT(TX+TW/2,TY+grsH/2+3,'GREASE LAYER',{sz:7.5,c:GRS_C,w:'700'}));
+  p.push(_plumbT(TX+TW/2,TY+grsH/2+14,`${grsKg} kg capacity`,{sz:7,c:GRS_C}));
+  // Water layer (middle)
+  p.push(`<rect x="${TX+3}" y="${TY+grsH}" width="${TW-6}" height="${TH-grsH-25}" fill="#e3f2fd" opacity="0.5"/>`);
+  p.push(_plumbT(TX+TW/2,TY+grsH+(TH-grsH-25)/2+4,'Retained Water',{sz:7,c:WW_C}));
+  // Sludge (bottom)
+  p.push(`<rect x="${TX+3}" y="${TY+TH-22}" width="${TW-6}" height="19" rx="0" fill="#bcaaa4" opacity="0.6"/>`);
+  p.push(_plumbT(TX+TW/2,TY+TH-10,'Settled Solids',{sz:7,c:GT_C}));
+  // Baffles
+  [0.3,0.65].forEach(pos=>{
+    const bx=TX+Math.round(TW*pos);
+    p.push(`<line x1="${bx}" y1="${TY}" x2="${bx}" y2="${TY+TH-30}" stroke="${GT_C}" stroke-width="2.5"/>`);
+  });
+  // Inlet pipe
+  p.push(`<line x1="${TX-50}" y1="${TY+30}" x2="${TX}" y2="${TY+30}" stroke="${WW_C}" stroke-width="3"/>`);
+  p.push(_plumbT(TX-52,TY+30+12,'Kitchen\nSinks',{sz:7,c:WW_C,a:'end'}));
+  // Outlet pipe
+  p.push(`<line x1="${TX+TW}" y1="${TY+30}" x2="${TX+TW+50}" y2="${TY+30}" stroke="${OK_C}" stroke-width="2.5"/>`);
+  p.push(_plumbT(TX+TW+52,TY+30+12,'→ Sewer',{sz:7,c:OK_C,a:'start'}));
+  // Dimensions
+  p.push(_plumbT(TX+TW/2,TY+TH+18,`Volume: ${capL} L  |  Design Flow: ${qLpm} L/min (${pdiGpm} GPM)`,{sz:7.5,c:CC,w:'700'}));
+  p.push(_plumbT(TX+TW/2,TY+TH+30,`Clean every ${cleanDay} days  |  FOG in effluent: ${fogMgl} mg/L  ${denrOK?'✓ DENR OK':'✗ Exceeds limit'}`,{sz:7,c:denrOK?OK_C:'#c62828'}));
+
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  [[GRS_C,'Grease / FOG layer'],[WW_C,'Wastewater flow'],[OK_C,'Treated effluent to sewer']].forEach(([c,lbl],i)=>{
+    p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
+    p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
+  });
+  [`1. PDI BH-201: Tank size (GPM) based on fixtures × flow rate × retention time factor.`,
+   `2. Clean grease trap every ${cleanDay} days or when grease layer reaches 25% of tank depth.`,
+   `3. DENR limit: FOG ≤ 100 mg/L for discharge to public sewer (DAO 2016-08).`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+72+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  const DX=SPLIT_X+10,DW=W-SPLIT_X-22;
+  _plumbPanel(p,DX,DW,[],[
+    {title:'GREASE TRAP SIZING', rows:[
+      ['No. of Fixtures',`${nFix}`,CC],['Design Flow',`${qLpm} L/min  (${pdiGpm} GPM)`,WW_C],
+      ['Tank Capacity',`${capL} L`,GT_C],['Grease Retention',`${grsKg} kg`,GRS_C],
+      ['Cleaning Interval',`${cleanDay} days`,GY],
+      ['FOG in Effluent',`${fogMgl} mg/L`,denrOK?OK_C:'#c62828'],
+      ['DENR Compliance',denrOK?'PASS ✓':'FAIL ✗',denrOK?OK_C:'#c62828']
+    ]}
+  ]);
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Roof Drain Sizing — IPC §1106 / Philippine Plumbing Code ─────────────────
+function buildRoofDrainSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const RAIN_C='#1565c0',DR_C='#455a64',OK_C='#2e7d32',ORG='#e65100';
+  const p=[];
+
+  const drainMM  = Number(r.drain_size_mm||100).toFixed(0);
+  const leaderMM = Number(r.leader_size_mm||100).toFixed(0);
+  const horizMM  = Number(r.horiz_leader_mm||100).toFixed(0);
+  const ovflowMM = Number(r.overflow_drain_mm||100).toFixed(0);
+  const qTotLs   = Number(r.q_total_ls||0).toFixed(2);
+  const qEachLs  = Number(r.q_each_ls||0).toFixed(2);
+  const nDrains  = Number(r.n_drains||inp.num_drains||4);
+  const roofM2   = Number(r.roof_area_m2||inp.roof_area_m2||500).toFixed(0);
+  const intMmhr  = Number(r.intensity_mmhr||100).toFixed(0);
+  const overallOK= String(r.overall_status||'PASS').toUpperCase().includes('PASS');
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`ROOF DRAIN SIZING — ${nDrains}× Ø${drainMM}mm  |  ${qTotLs} L/s  |  ${roofM2} m²  |  IPC §1106 / Philippine Plumbing Code`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+
+  // ── Roof cross-section ──
+  const RX=60,RY=80,RW=480,RH=20;
+  // Roof slab
+  p.push(`<rect x="${RX}" y="${RY}" width="${RW}" height="${RH}" fill="#bdbdbd" stroke="${CC}" stroke-width="2"/>`);
+  p.push(_plumbT(RX+RW/2,RY-10,'ROOF SLAB',{sz:7.5,c:CC,w:'700'}));
+  // Rain arrows
+  for(let i=0;i<8;i++){
+    const rx=RX+30+i*60;
+    p.push(`<line x1="${rx}" y1="${RY-30}" x2="${rx}" y2="${RY}" stroke="${RAIN_C}" stroke-width="1.5" stroke-dasharray="3 2"/>`);
+    p.push(`<polygon points="${rx-3},${RY-5} ${rx+3},${RY-5} ${rx},${RY+2}" fill="${RAIN_C}"/>`);
+  }
+  p.push(_plumbT(RX+RW/2,RY-36,`Rainfall Intensity: ${intMmhr} mm/hr`,{sz:7.5,c:RAIN_C,w:'700'}));
+  // Drain bodies on roof
+  const showDrains=Math.min(nDrains,3);
+  const drainSpacing=Math.round(RW/(showDrains+1));
+  for(let d=0;d<showDrains;d++){
+    const dx=RX+drainSpacing*(d+1);
+    // Drain body (circle on roof)
+    p.push(`<circle cx="${dx}" cy="${RY+RH/2}" r="14" fill="${LGY}" stroke="${DR_C}" stroke-width="2"/>`);
+    p.push(_plumbT(dx,RY+RH/2+4,'DR',{sz:7,c:DR_C,w:'700'}));
+    p.push(_plumbT(dx,RY+RH+14,`Ø${drainMM}mm`,{sz:7,c:DR_C}));
+    // Vertical leader
+    p.push(`<line x1="${dx}" y1="${RY+RH}" x2="${dx}" y2="${RY+RH+80}" stroke="${DR_C}" stroke-width="3"/>`);
+  }
+  if(nDrains>3) p.push(_plumbT(RX+RW-30,RY+RH/2,`+${nDrains-3}`,{sz:8,c:DR_C,w:'700'}));
+  // Horizontal collector
+  const HY=RY+RH+80;
+  p.push(`<line x1="${RX+drainSpacing}" y1="${HY}" x2="${RX+drainSpacing*(showDrains)+20}" y2="${HY}" stroke="${DR_C}" stroke-width="4"/>`);
+  p.push(_plumbT(RX+RW/2,HY+14,`Horiz. Leader  Ø${horizMM}mm  →  Sewer`,{sz:7.5,c:DR_C,w:'700'}));
+  // Overflow drain
+  p.push(`<circle cx="${RX+RW-30}" cy="${RY+8}" r="10" fill="#ffccbc" stroke="${ORG}" stroke-width="2"/>`);
+  p.push(_plumbT(RX+RW-30,RY-6,`OVF Ø${ovflowMM}mm`,{sz:7,c:ORG,w:'700'}));
+  // Status badge
+  const bY=HY+40;
+  p.push(`<rect x="${RX}" y="${bY}" width="280" height="40" rx="4" fill="${overallOK?'#e8f5e9':'#ffebee'}" stroke="${overallOK?OK_C:ORG}" stroke-width="1.5"/>`);
+  p.push(_plumbT(RX+140,bY+14,`Total Flow: ${qTotLs} L/s  (${qEachLs} L/s/drain)`,{sz:8.5,c:CC,w:'700'}));
+  p.push(_plumbT(RX+140,bY+28,`${nDrains}× Ø${drainMM}mm drain bodies  —  ${overallOK?'PASS ✓':'CHECK ✗'}`,{sz:7.5,c:overallOK?OK_C:ORG,w:'700'}));
+
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  p.push(`<line x1="25" y1="${LY+26}" x2="53" y2="${LY+26}" stroke="${RAIN_C}" stroke-width="2" stroke-dasharray="3 2"/>`);
+  p.push(_plumbT(57,LY+30,'Rainfall / stormwater',{a:'start',sz:7.5,c:CC}));
+  p.push(`<line x1="25" y1="${LY+42}" x2="53" y2="${LY+42}" stroke="${DR_C}" stroke-width="3"/>`);
+  p.push(_plumbT(57,LY+46,'Vertical leader / horizontal drain pipe',{a:'start',sz:7.5,c:CC}));
+  [`1. Rational Method: Q = (i × A × C) / 360. Roof C = 0.90–0.95 (impervious).`,
+   `2. Overflow drain required at 2× primary drain capacity (IPC §1108). Min 1 overflow per roof section.`,
+   `3. Roof drain body capacity per IPC Table 1106.2. Leader sized per IPC Table 1106.6.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  const DX=SPLIT_X+10,DW=W-SPLIT_X-22;
+  _plumbPanel(p,DX,DW,[],[
+    {title:'ROOF DRAIN SIZING', rows:[
+      ['Roof Area',`${roofM2} m²`,CC],['Rainfall Intensity',`${intMmhr} mm/hr`,RAIN_C],
+      ['Total Design Flow',`${qTotLs} L/s`,DR_C],['Flow per Drain',`${qEachLs} L/s`,DR_C],
+      ['No. of Drains',`${nDrains}`,CC],['Drain Body Size',`Ø${drainMM} mm`,DR_C],
+      ['Vertical Leader',`Ø${leaderMM} mm`,DR_C],['Horizontal Leader',`Ø${horizMM} mm`,DR_C],
+      ['Overflow Drain',`Ø${ovflowMM} mm`,ORG],['Overall Status',overallOK?'PASS ✓':'CHECK ✗',overallOK?OK_C:ORG]
+    ]}
+  ]);
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Water Softener — NSF/ANSI 44 / WQA (flow diagram) ──────────────────────
+function buildWaterSoftenerSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const HD_C='#1565c0',SF_C='#2e7d32',BRINE_C='#f57f17';
+  const p=[];
+
+  const rawHard  = Number(inp.raw_hardness_mg_l||r.raw_hardness_mg_l||300).toFixed(0);
+  const tgtHard  = Number(inp.target_hardness_mg_l||r.target_hardness_mg_l||50).toFixed(0);
+  const dailyM3  = Number(inp.daily_volume_m3||r.daily_volume_m3||5).toFixed(1);
+  const resinType= String(inp.resin_type||'Strong Cation');
+  const resinL   = Number(r.resin_volume_l||r.resin_L||0)||Math.round(dailyM3*rawHard/5000);
+  const brineKg  = Number(r.salt_per_regen_kg||r.brine_kg||0)||Math.round(resinL*0.3);
+  const regenDays= Number(r.regen_interval_days||r.regen_days||0)||Math.round(resinL*1000/(dailyM3*1000/1000*rawHard/17.1));
+  const tankDiaMm= Number(r.tank_diameter_mm||r.vessel_dia_mm||0)||Math.round(Math.sqrt(resinL/3.14)*100);
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`WATER SOFTENER — ${dailyM3} m³/day  |  ${rawHard}→${tgtHard} mg/L  |  ${resinType}  |  NSF/ANSI 44 / WQA`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+
+  // ── Flow diagram ──
+  // Hard water inlet
+  p.push(`<rect x="40" y="200" width="70" height="40" rx="4" fill="${LGY}" stroke="${HD_C}" stroke-width="2"/>`);
+  p.push(_plumbT(75,216,'RAW',{sz:7.5,c:HD_C,w:'700'})); p.push(_plumbT(75,228,`${rawHard} mg/L`,{sz:7,c:HD_C}));
+  p.push(`<line x1="110" y1="220" x2="140" y2="220" stroke="${HD_C}" stroke-width="3"/>`);
+  p.push(`<polygon points="138,215 150,220 138,225" fill="${HD_C}"/>`);
+  // Softener vessel
+  const VX=150,VY=130,VW=100,VH=140;
+  p.push(`<rect x="${VX}" y="${VY}" width="${VW}" height="${VH}" rx="5" fill="#e8f5e9" stroke="${SF_C}" stroke-width="2.5"/>`);
+  p.push(`<ellipse cx="${VX+VW/2}" cy="${VY}" rx="${VW/2}" ry="12" fill="#e8f5e9" stroke="${SF_C}" stroke-width="2"/>`);
+  p.push(`<ellipse cx="${VX+VW/2}" cy="${VY+VH}" rx="${VW/2}" ry="12" fill="#e8f5e9" stroke="${SF_C}" stroke-width="1.5"/>`);
+  p.push(_plumbT(VX+VW/2,VY+VH/2-10,'ION EXCHANGE',{sz:7.5,c:SF_C,w:'700'}));
+  p.push(_plumbT(VX+VW/2,VY+VH/2+4,'RESIN BED',{sz:7.5,c:SF_C,w:'700'}));
+  p.push(_plumbT(VX+VW/2,VY+VH/2+20,`${resinL} L`,{sz:9,c:CC,w:'700'}));
+  p.push(_plumbT(VX+VW/2,VY+VH+22,'Softener',{sz:7,c:GY}));
+  // Soft water outlet
+  p.push(`<line x1="${VX+VW}" y1="220" x2="${VX+VW+50}" y2="220" stroke="${SF_C}" stroke-width="3"/>`);
+  p.push(`<polygon points="${VX+VW+48},215 ${VX+VW+62},220 ${VX+VW+48},225" fill="${SF_C}"/>`);
+  p.push(`<rect x="${VX+VW+62}" y="200" width="70" height="40" rx="4" fill="${LGY}" stroke="${SF_C}" stroke-width="2"/>`);
+  p.push(_plumbT(VX+VW+97,216,'SOFT',{sz:7.5,c:SF_C,w:'700'})); p.push(_plumbT(VX+VW+97,228,`${tgtHard} mg/L`,{sz:7,c:SF_C}));
+  // Brine tank
+  const BX=VX+10,BY=VY+VH+45;
+  p.push(`<rect x="${BX}" y="${BY}" width="70" height="50" rx="3" fill="#fff9c4" stroke="${BRINE_C}" stroke-width="2"/>`);
+  p.push(_plumbT(BX+35,BY+18,'BRINE',{sz:8,c:BRINE_C,w:'700'}));
+  p.push(_plumbT(BX+35,BY+30,`${brineKg} kg NaCl`,{sz:7,c:BRINE_C}));
+  p.push(_plumbT(BX+35,BY+42,`per regen`,{sz:7,c:BRINE_C}));
+  p.push(`<line x1="${BX+35}" y1="${BY}" x2="${VX+VW/2}" y2="${VY+VH}" stroke="${BRINE_C}" stroke-width="1.5" stroke-dasharray="4 2"/>`);
+  // Regen interval badge
+  const bX=340,bY=185;
+  p.push(`<rect x="${bX}" y="${bY}" width="200" height="70" rx="4" fill="#e3f2fd" stroke="${HD_C}" stroke-width="1.5"/>`);
+  p.push(_plumbT(bX+100,bY+16,'REGENERATION CYCLE',{sz:8,c:HD_C,w:'700'}));
+  p.push(_plumbT(bX+100,bY+32,`Every ${regenDays} days`,{sz:11,c:CC,w:'700'}));
+  p.push(_plumbT(bX+100,bY+46,`${brineKg} kg NaCl / regen`,{sz:7.5,c:BRINE_C}));
+  p.push(_plumbT(bX+100,bY+60,`${resinType} resin  |  Ø${tankDiaMm}mm vessel`,{sz:7,c:GY}));
+
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  [[HD_C,'Hard water (raw)'],[SF_C,'Soft water (treated)'],[BRINE_C,'Brine / regeneration']].forEach(([c,lbl],i)=>{
+    p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
+    p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
+  });
+  [`1. Ion exchange: Ca²⁺ / Mg²⁺ exchanged for Na⁺ on strong cation resin (NSF/ANSI 44).`,
+   `2. Regen with NaCl brine at 10% solution. Backwash → brining → slow rinse → fast rinse.`,
+   `3. Bypass valve required. Brine tank = 1.5× NaCl per regen cycle (WQA standard practice).`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  const DX=SPLIT_X+10,DW=W-SPLIT_X-22;
+  _plumbPanel(p,DX,DW,[],[
+    {title:'WATER SOFTENER', rows:[
+      ['Raw Hardness',`${rawHard} mg/L as CaCO₃`,HD_C],['Target Hardness',`${tgtHard} mg/L`,SF_C],
+      ['Daily Volume',`${dailyM3} m³/day`,CC],['Resin Type',resinType,SF_C],
+      ['Resin Volume',`${resinL} L`,SF_C],['Vessel Diameter',`Ø${tankDiaMm} mm`,GY],
+      ['NaCl per Regen',`${brineKg} kg`,BRINE_C],['Regen Interval',`Every ${regenDays} days`,GY]
+    ]}
+  ]);
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Water Treatment — PNS 1998 / DOH / WHO (treatment train) ────────────────
+function buildWaterTreatmentSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const RAW_C='#795548',CLN_C='#1565c0',OK_C='#2e7d32';
+  const p=[];
+
+  const flowM3d  = Number(inp.flow_m3d||r.flow_m3d||100).toFixed(0);
+  const turbNtu  = Number(inp.turbidity_ntu||r.turbidity_ntu||50).toFixed(0);
+  const ironMgl  = Number(inp.iron_mg_l||r.iron_mg_l||0.5).toFixed(2);
+  const srcType  = String(inp.source_type||'Surface Water');
+  const ph       = Number(inp.ph||r.ph||7.0).toFixed(1);
+  // Treatment steps depend on source
+  const isSurface= srcType.toLowerCase().includes('surface');
+  const steps = isSurface
+    ? [['Screening','SC-101','Remove debris'],['Coagulation','CC-101','Alum dosing'],
+       ['Flocculation','FL-101','Gentle mixing'],['Sedimentation','SD-101','Clarification'],
+       ['Filtration','FT-101','Sand/anthracite'],['Disinfection','DI-101','Cl₂ / NaOCl']]
+    : [['Aeration','AE-101','Iron removal'],['Filtration','FT-101','Sand filter'],
+       ['Softening','SO-101','If hard water'],['Disinfection','DI-101','Cl₂ / UV']];
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`WATER TREATMENT — ${flowM3d} m³/day  |  ${srcType}  |  Turbidity ${turbNtu} NTU  |  PNS 1998 / DOH / WHO`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+
+  // ── Treatment train flow diagram ──
+  const startX=35,trainY=200,boxW=76,boxH=60,gap=8;
+  const totalW=(boxW+gap)*steps.length+gap;
+  // Source
+  p.push(`<circle cx="${startX+15}" cy="${trainY+boxH/2}" r="20" fill="${LGY}" stroke="${RAW_C}" stroke-width="2"/>`);
+  p.push(_plumbT(startX+15,trainY+boxH/2-3,'RAW',{sz:7,c:RAW_C,w:'700'}));
+  p.push(_plumbT(startX+15,trainY+boxH/2+8,srcType.split(' ')[0],{sz:6.5,c:RAW_C}));
+  p.push(`<line x1="${startX+35}" y1="${trainY+boxH/2}" x2="${startX+45}" y2="${trainY+boxH/2}" stroke="${RAW_C}" stroke-width="3"/>`);
+
+  steps.forEach((step,i)=>{
+    const bx=startX+45+i*(boxW+gap);
+    const clr=i===steps.length-1?OK_C:RAW_C;
+    p.push(`<rect x="${bx}" y="${trainY}" width="${boxW}" height="${boxH}" rx="4" fill="${LGY}" stroke="${clr}" stroke-width="2"/>`);
+    p.push(`<rect x="${bx}" y="${trainY}" width="${boxW}" height="16" rx="4" fill="${clr}"/>`);
+    p.push(_plumbT(bx+boxW/2,trainY+11,step[0],{sz:7,c:'white',w:'700'}));
+    p.push(_plumbT(bx+boxW/2,trainY+30,step[1],{sz:7,c:clr,w:'700'}));
+    p.push(_plumbT(bx+boxW/2,trainY+44,step[2],{sz:6.5,c:SC}));
+    // Arrow to next
+    if(i<steps.length-1){
+      p.push(`<line x1="${bx+boxW}" y1="${trainY+boxH/2}" x2="${bx+boxW+gap}" y2="${trainY+boxH/2}" stroke="${RAW_C}" stroke-width="2.5"/>`);
+      p.push(`<polygon points="${bx+boxW+gap-1},${trainY+boxH/2-4} ${bx+boxW+gap+6},${trainY+boxH/2} ${bx+boxW+gap-1},${trainY+boxH/2+4}" fill="${RAW_C}"/>`);
+    }
+  });
+  // Distribution at end
+  const endX=startX+45+steps.length*(boxW+gap);
+  p.push(`<line x1="${endX}" y1="${trainY+boxH/2}" x2="${endX+20}" y2="${trainY+boxH/2}" stroke="${OK_C}" stroke-width="3"/>`);
+  p.push(`<rect x="${endX+20}" y="${trainY+boxH/2-20}" width="65" height="40" rx="4" fill="#e8f5e9" stroke="${OK_C}" stroke-width="2"/>`);
+  p.push(_plumbT(endX+52,trainY+boxH/2-5,'TREATED',{sz:7,c:OK_C,w:'700'}));
+  p.push(_plumbT(endX+52,trainY+boxH/2+8,'WATER',{sz:7,c:OK_C,w:'700'}));
+  // Source quality labels
+  p.push(_plumbT(startX+15,trainY+boxH+20,`Turbidity: ${turbNtu} NTU`,{sz:7.5,c:RAW_C,w:'700'}));
+  p.push(_plumbT(startX+15,trainY+boxH+32,`Iron: ${ironMgl} mg/L`,{sz:7,c:RAW_C}));
+  p.push(_plumbT(startX+15,trainY+boxH+44,`pH: ${ph}`,{sz:7,c:RAW_C}));
+  p.push(_plumbT(startX+15,trainY+boxH+56,`Flow: ${flowM3d} m³/d`,{sz:7,c:CC}));
+
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  [[RAW_C,'Raw water / treatment process'],[OK_C,'Treated water (compliant)']].forEach(([c,lbl],i)=>{
+    p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
+    p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
+  });
+  [`1. ${srcType}: ${steps.map(s=>s[0]).join(' → ')} → Distribution.`,
+   `2. Design per PNS 1998 (Philippine National Standard for Drinking Water). Comply with DOH AO 2017-0010.`,
+   `3. Disinfection: min 0.3 mg/L free residual chlorine at point of delivery (WHO / DOH guideline).`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  const DX=SPLIT_X+10,DW=W-SPLIT_X-22;
+  _plumbPanel(p,DX,DW,[],[
+    {title:'WATER TREATMENT', rows:[
+      ['Source Type',srcType,RAW_C],['Design Flow',`${flowM3d} m³/day`,CC],
+      ['Raw Turbidity',`${turbNtu} NTU`,RAW_C],['Iron Content',`${ironMgl} mg/L`,RAW_C],
+      ['pH',ph,SC],['Treatment Steps',`${steps.length} unit processes`,CLN_C],
+      ['Final Process',steps[steps.length-1][0],OK_C],
+      ['Standard','PNS 1998 / DOH AO 2017-0010 / WHO',GY]
+    ]}
+  ]);
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Wastewater STP — DENR DAO 2016-08 / DOH PD 856 ─────────────────────────
+function buildWastewaterSTPSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const WW_C='#795548',OK_C='#2e7d32',AIR_C='#1565c0';
+  const p=[];
+
+  const flowM3d  = Number(r.flow_m3_day||0).toFixed(1);
+  const bodLoad  = Number(r.bod_load_kg_day||0).toFixed(1);
+  const aerVolM3 = Number(r.aeration_vol_m3||0).toFixed(1);
+  const blowerKW = Number(r.blower_kw||0).toFixed(2);
+  const bodEff   = Number(r.effluent_bod||0).toFixed(1);
+  const denrSt   = String(r.denr_status||'PASS');
+  const denrOK   = denrSt.toUpperCase().includes('PASS');
+  const primDiaM = Number(r.prim_dia_m||0).toFixed(2);
+  const secDiaM  = Number(r.sec_dia_m||0).toFixed(2);
+  const sludge   = Number(r.sludge_m3_day||0).toFixed(2);
+  const pop      = Number(inp.population||r.population||200);
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`WASTEWATER STP — ${flowM3d} m³/day  |  BOD out: ${bodEff} mg/L  |  ${denrSt}  |  DENR DAO 2016-08`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+
+  // ── Treatment process train ──
+  const units=[
+    {tag:'SC-101',lbl:'Bar Screen',sub:'Screening',c:WW_C},
+    {tag:'PC-101',lbl:'Primary\nClarifier',sub:`Ø${primDiaM}m`,c:WW_C},
+    {tag:'AB-101',lbl:'Aeration\nBasin',sub:`${aerVolM3} m³`,c:AIR_C},
+    {tag:'SC-201',lbl:'Secondary\nClarifier',sub:`Ø${secDiaM}m`,c:WW_C},
+    {tag:'DI-101',lbl:'Disinfection',sub:'Cl₂ / UV',c:OK_C},
+  ];
+  const bW=78,bH=65,gap=8,startX=28,trainY=165;
+  p.push(_plumbT(startX,trainY-16,'INFLUENT',{a:'start',sz:7.5,c:WW_C,w:'700'}));
+  p.push(`<line x1="${startX}" y1="${trainY+bH/2}" x2="${startX+20}" y2="${trainY+bH/2}" stroke="${WW_C}" stroke-width="3"/>`);
+  units.forEach((u,i)=>{
+    const bx=startX+20+i*(bW+gap);
+    p.push(`<rect x="${bx}" y="${trainY}" width="${bW}" height="${bH}" rx="4" fill="${LGY}" stroke="${u.c}" stroke-width="2"/>`);
+    p.push(`<rect x="${bx}" y="${trainY}" width="${bW}" height="15" rx="4" fill="${u.c}"/>`);
+    p.push(_plumbT(bx+bW/2,trainY+11,u.tag,{sz:7,c:'white',w:'700'}));
+    u.lbl.split('\n').forEach((line,li)=>p.push(_plumbT(bx+bW/2,trainY+28+li*13,line,{sz:7.5,c:u.c,w:'700'})));
+    p.push(_plumbT(bx+bW/2,trainY+bH-8,u.sub,{sz:6.5,c:SC}));
+    if(i<units.length-1){
+      p.push(`<line x1="${bx+bW}" y1="${trainY+bH/2}" x2="${bx+bW+gap}" y2="${trainY+bH/2}" stroke="${WW_C}" stroke-width="2.5"/>`);
+      p.push(`<polygon points="${bx+bW+gap-1},${trainY+bH/2-4} ${bx+bW+gap+6},${trainY+bH/2} ${bx+bW+gap-1},${trainY+bH/2+4}" fill="${WW_C}"/>`);
+    }
+  });
+  // Effluent
+  const endX=startX+20+units.length*(bW+gap);
+  p.push(`<line x1="${endX}" y1="${trainY+bH/2}" x2="${endX+20}" y2="${trainY+bH/2}" stroke="${OK_C}" stroke-width="3"/>`);
+  p.push(_plumbT(endX+12,trainY+bH/2-14,'EFFLUENT',{sz:7.5,c:OK_C,w:'700'}));
+  p.push(_plumbT(endX+12,trainY+bH/2-2,`BOD: ${bodEff} mg/L`,{sz:7,c:OK_C}));
+  // Blower
+  const aerIdx=2; const aerBx=startX+20+aerIdx*(bW+gap);
+  p.push(`<line x1="${aerBx+bW/2}" y1="${trainY+bH}" x2="${aerBx+bW/2}" y2="${trainY+bH+40}" stroke="${AIR_C}" stroke-width="2" stroke-dasharray="4 2"/>`);
+  p.push(`<rect x="${aerBx+bW/2-30}" y="${trainY+bH+40}" width="60" height="28" rx="3" fill="${LGY}" stroke="${AIR_C}" stroke-width="1.5"/>`);
+  p.push(_plumbT(aerBx+bW/2,trainY+bH+52,'BLOWER',{sz:7.5,c:AIR_C,w:'700'}));
+  p.push(_plumbT(aerBx+bW/2,trainY+bH+63,`${blowerKW} kW`,{sz:7,c:AIR_C}));
+  // Sludge
+  const secBx=startX+20+3*(bW+gap);
+  p.push(`<line x1="${secBx+bW/2}" y1="${trainY+bH}" x2="${secBx+bW/2}" y2="${trainY+bH+40}" stroke="${WW_C}" stroke-width="1.5" stroke-dasharray="4 2"/>`);
+  p.push(_plumbT(secBx+bW/2+35,trainY+bH+52,`Sludge: ${sludge} m³/day`,{sz:7,c:WW_C}));
+  // Status badge
+  const bY=trainY+bH+100;
+  p.push(`<rect x="${startX+20}" y="${bY}" width="300" height="38" rx="4" fill="${denrOK?'#e8f5e9':'#ffebee'}" stroke="${denrOK?OK_C:'#c62828'}" stroke-width="2"/>`);
+  p.push(_plumbT(startX+170,bY+14,`BOD ${bodEff} mg/L  —  DENR DAO 2016-08: ${denrSt}`,{sz:9,c:denrOK?OK_C:'#c62828',w:'700'}));
+  p.push(_plumbT(startX+170,bY+28,`BOD load: ${bodLoad} kg/day  |  Blower: ${blowerKW} kW`,{sz:7.5,c:CC}));
+
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  [[WW_C,'Wastewater / sludge'],[AIR_C,'Aeration air'],[OK_C,'Treated effluent']].forEach(([c,lbl],i)=>{
+    p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
+    p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
+  });
+  [`1. Activated sludge: BOD removal via aerobic biodegradation. F/M ratio 0.2–0.4 kgBOD/kgMLVSS·day.`,
+   `2. DENR DAO 2016-08: BOD ≤ 50 mg/L, TSS ≤ 70 mg/L, pH 6–9 for Class C water body.`,
+   `3. Sludge dewatering required. Return activated sludge (RAS) to aeration basin at 25–50% Q.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  const DX=SPLIT_X+10,DW=W-SPLIT_X-22;
+  _plumbPanel(p,DX,DW,[],[
+    {title:'STP DESIGN DATA', rows:[
+      ['Population Served',`${pop}`,CC],['Design Flow',`${flowM3d} m³/day`,WW_C],
+      ['BOD Load',`${bodLoad} kg/day`,WW_C],['Aeration Volume',`${aerVolM3} m³`,AIR_C],
+      ['Blower Power',`${blowerKW} kW`,AIR_C],['Primary Clarifier',`Ø${primDiaM} m`,WW_C],
+      ['Secondary Clarifier',`Ø${secDiaM} m`,WW_C],['Sludge',`${sludge} m³/day`,GY],
+      ['Effluent BOD',`${bodEff} mg/L`,denrOK?OK_C:'#c62828'],
+      ['DENR Status',denrSt,denrOK?OK_C:'#c62828']
+    ]}
+  ]);
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
+}
+
+// ─── Storm Drain — Rational Method / DPWH / PAGASA ───────────────────────────
+function buildStormDrainSVG(inputs, results) {
+  const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
+  const r=results||{},inp=inputs||{};
+  const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
+  const RAIN_C='#1565c0',DR_C='#37474f',OK_C='#2e7d32',ORG='#e65100';
+  const p=[];
+
+  const areaHa   = Number(r.total_area_ha||inp.area_ha||2).toFixed(2);
+  const cVal     = Number(r.composite_c||inp.c_value||0.7).toFixed(2);
+  const intMmhr  = Number(r.intensity_mmhr||0).toFixed(0);
+  const tcMin    = Number(r.tc_min||inp.tc_min||15).toFixed(0);
+  const retYr    = Number(r.return_period_yr||inp.return_period_yr||10).toFixed(0);
+  const qM3s     = Number(r.design_flow_m3s||0).toFixed(3);
+  const qLps     = Number(r.design_flow_lps||0).toFixed(1);
+  const dSelMM   = Number(r.d_selected_mm||0).toFixed(0);
+  const velMs    = Number(r.full_pipe_vel_ms||0).toFixed(2);
+  const velNote  = String(r.velocity_note||'');
+  const velOK    = !velNote.toLowerCase().includes('high')&&!velNote.toLowerCase().includes('low');
+  const slopePct = Number(r.slope_pct||inp.pipe_slope_pct||0.5).toFixed(2);
+  const mat      = String(r.pipe_material||inp.pipe_material||'Concrete');
+
+  p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
+  p.push(_plumbT(W/2,31,`STORM DRAIN — Ø${dSelMM}mm ${mat}  |  Q=${qLps} L/s  |  ${areaHa} ha  |  ${retYr}-yr  |  Rational Method / DPWH`,{sz:10.5,c:'white',w:'700'}));
+  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+
+  // ── Catchment + pipe cross-section ──
+  // Catchment area (plan view simplified)
+  const CAX=50,CAY=75,CAW=360,CAH=140;
+  p.push(`<rect x="${CAX}" y="${CAY}" width="${CAW}" height="${CAH}" fill="#e8f5e9" stroke="${OK_C}" stroke-width="1.5" rx="4" stroke-dasharray="6 3"/>`);
+  p.push(_plumbT(CAX+CAW/2,CAY+20,'CATCHMENT AREA',{sz:8,c:OK_C,w:'700'}));
+  p.push(_plumbT(CAX+CAW/2,CAY+36,`A = ${areaHa} ha  |  C = ${cVal}  |  tc = ${tcMin} min`,{sz:7.5,c:CC}));
+  // Rain arrows over catchment
+  for(let i=0;i<7;i++){
+    const rx=CAX+30+i*50;
+    p.push(`<line x1="${rx}" y1="${CAY}" x2="${rx+10}" y2="${CAY+25}" stroke="${RAIN_C}" stroke-width="1.5" stroke-dasharray="3 2"/>`);
+    p.push(`<polygon points="${rx+7},${CAY+22} ${rx+13},${CAY+22} ${rx+10},${CAY+30}" fill="${RAIN_C}"/>`);
+  }
+  p.push(_plumbT(CAX+CAW/2,CAY+55,`i = ${intMmhr} mm/hr  (${retYr}-yr return, PAGASA)`,{sz:7.5,c:RAIN_C,w:'700'}));
+  // Q calculation
+  p.push(_plumbT(CAX+CAW/2,CAY+72,`Q = C × i × A / 360 = ${cVal} × ${intMmhr} × ${areaHa} / 360 = ${qM3s} m³/s`,{sz:7.5,c:CC}));
+  // Flow arrow down to pipe
+  p.push(`<line x1="${CAX+CAW/2}" y1="${CAY+CAH}" x2="${CAX+CAW/2}" y2="${CAY+CAH+30}" stroke="${RAIN_C}" stroke-width="3"/>`);
+  p.push(`<polygon points="${CAX+CAW/2-6},${CAY+CAH+24} ${CAX+CAW/2+6},${CAY+CAH+24} ${CAX+CAW/2},${CAY+CAH+35}" fill="${RAIN_C}"/>`);
+  // Pipe cross-section (elevation)
+  const PY=CAY+CAH+40,groundY=PY;
+  p.push(`<line x1="${CAX}" y1="${groundY}" x2="${CAX+CAW+60}" y2="${groundY}" stroke="${GY}" stroke-width="2" stroke-dasharray="5 2"/>`);
+  p.push(_plumbT(CAX+10,groundY-6,'Ground',{a:'start',sz:7,c:GY}));
+  // Pipe buried below ground
+  const pipeR=Math.min(40,Math.round(Number(dSelMM)*0.06));
+  const pipeCX=CAX+CAW/2,pipeCY=groundY+pipeR+15;
+  p.push(`<circle cx="${pipeCX}" cy="${pipeCY}" r="${pipeR+6}" fill="${GY}" stroke="${CC}" stroke-width="1"/>`);
+  p.push(`<circle cx="${pipeCX}" cy="${pipeCY}" r="${pipeR}" fill="${DR_C}" stroke="${CC}" stroke-width="2"/>`);
+  p.push(`<circle cx="${pipeCX}" cy="${pipeCY}" r="${pipeR-6}" fill="${RAIN_C}" opacity="0.3"/>`);
+  p.push(_plumbT(pipeCX,pipeCY+4,`Ø${dSelMM}mm`,{sz:8,c:'white',w:'700'}));
+  p.push(_plumbT(pipeCX,pipeCY+pipeR+18,`${mat}  |  Slope ${slopePct}%  |  v=${velMs} m/s  ${velOK?'✓':'⚠'}`,{sz:7.5,c:CC,w:'700'}));
+  // Flow badge
+  const bX=330,bY=groundY-20;
+  p.push(`<rect x="${bX}" y="${bY}" width="200" height="50" rx="4" fill="${velOK?'#e8f5e9':'#fff9c4'}" stroke="${velOK?OK_C:ORG}" stroke-width="1.5"/>`);
+  p.push(_plumbT(bX+100,bY+16,`Q = ${qLps} L/s  (${qM3s} m³/s)`,{sz:9,c:CC,w:'700'}));
+  p.push(_plumbT(bX+100,bY+30,`v = ${velMs} m/s`,{sz:8,c:velOK?OK_C:ORG,w:'700'}));
+  p.push(_plumbT(bX+100,bY+43,velOK?'Velocity OK ✓':velNote,{sz:7,c:velOK?OK_C:ORG}));
+
+  const LY=STRIP_Y+6;
+  p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
+  p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
+  p.push(`<rect x="25" y="${LY+20}" width="28" height="18" fill="#e8f5e9" stroke="${OK_C}" stroke-width="1.5" stroke-dasharray="4 2" rx="2"/>`);
+  p.push(_plumbT(57,LY+32,'Catchment area (impervious + pervious)',{a:'start',sz:7.5,c:CC}));
+  p.push(`<line x1="25" y1="${LY+48}" x2="53" y2="${LY+48}" stroke="${RAIN_C}" stroke-width="2" stroke-dasharray="3 2"/>`);
+  p.push(_plumbT(57,LY+52,'Rainfall / runoff',{a:'start',sz:7.5,c:CC}));
+  [`1. Rational Method: Q (m³/s) = C × i (mm/hr) × A (ha) / 360. Time of concentration per DPWH.`,
+   `2. Velocity: 0.6–3.0 m/s (concrete). Below 0.6 m/s = silting risk; above 3.0 m/s = erosion risk.`,
+   `3. Manning: Q = (1/n) × A × R^(2/3) × S^(1/2). n = 0.013 concrete, 0.011 PVC.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+72+i*11,n,{a:'start',sz:6.5,c:CC})));
+
+  const DX=SPLIT_X+10,DW=W-SPLIT_X-22;
+  _plumbPanel(p,DX,DW,[],[
+    {title:'STORM DRAIN SIZING', rows:[
+      ['Catchment Area',`${areaHa} ha`,OK_C],['Runoff Coeff. C',cVal,SC],
+      ['Time of Conc.',`${tcMin} min`,SC],['Rainfall Intensity',`${intMmhr} mm/hr`,RAIN_C],
+      ['Return Period',`${retYr} years`,SC],['Design Flow',`${qLps} L/s  (${qM3s} m³/s)`,CC],
+      ['Selected Pipe',`Ø${dSelMM} mm  ${mat}`,DR_C],['Pipe Slope',`${slopePct}%`,SC],
+      ['Full-Pipe Velocity',`${velMs} m/s  ${velOK?'— OK':'— CHECK'}`,velOK?OK_C:ORG]
+    ]}
+  ]);
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
 }
