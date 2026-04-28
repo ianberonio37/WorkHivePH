@@ -127,6 +127,10 @@ def _load_handlers() -> dict[str, Any]:
     handlers["Grease Trap Sizing"]         = grease_trap_calc
     handlers["Roof Drain Sizing"]          = roof_drain_calc
     handlers["Storm Drain / Stormwater"]   = storm_drain_calc
+    from calcs.water_softener  import calculate as water_softener_calc
+    from calcs.water_treatment import calculate as water_treatment_calc
+    handlers["Water Softener Sizing"]      = water_softener_calc
+    handlers["Water Treatment System"]     = water_treatment_calc
 
     # Phase 7 — Structural / Lighting / LPS
     from calcs.beam_column          import calculate as beam_column_calc

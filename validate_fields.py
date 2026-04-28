@@ -200,6 +200,15 @@ TESTS = {
         "intensity_mmhr": 95, "slope_pct": 0.5, "pipe_material": "Concrete",
         "return_period": 10,
     },
+    "Water Softener Sizing": {
+        "demand_lpd": 10000, "inlet_hardness": 250, "target_hardness": 50,
+        "regen_interval": 3, "salt_dose_gL": 80, "n_units": 1,
+    },
+    "Water Treatment System": {
+        "demand_lpd": 5000, "raw_source": "Deep Well / Bore",
+        "turbidity_ntu": 8, "iron_mg": 0.5,
+        "bacteria_concern": "yes", "intended_use": "Potable", "peak_factor": 1.5,
+    },
     "Domestic Water System": {
         "occupancy_type": "Office", "num_persons": 50,
         "building_floors": 5, "pipe_material": "uPVC",
@@ -292,7 +301,6 @@ TYPESCRIPT_ONLY = [
     "Ventilation / ACH", "Load Estimation",
     "Earthing / Grounding System",
     "Hot Water Demand", "Drainage Pipe Sizing",
-    "Water Softener Sizing", "Water Treatment System",
     "Wastewater Treatment (STP)", "Boiler System",
     "Elevator Traffic Analysis", "Hoist Capacity",
     "Bearing Life (L10)", "Bolt Torque & Preload",
