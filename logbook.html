@@ -602,6 +602,15 @@
                   <input type="hidden" id="f-consequence" />
                 </div>
 
+                <!-- Quick Readings — Breakdown entries only, category-smart -->
+                <div id="readings-section" class="hidden">
+                  <label class="wh-label flex items-center gap-1.5">
+                    Quick Readings
+                    <span style="font-size:0.6rem;color:rgba(255,255,255,0.3);font-weight:500;text-transform:none;letter-spacing:0;">optional — unlocks anomaly detection</span>
+                  </label>
+                  <div id="readings-fields" class="grid grid-cols-2 gap-2"></div>
+                </div>
+
                 <div>
                   <label class="wh-label flex items-center gap-1.5">
                     What should the next person know?
@@ -1179,7 +1188,8 @@ async function addEntry(entry) {
     closed_at: entry.status === 'Closed' ? new Date().toISOString() : null,
     tasklist_acknowledged: entry.tasklist_acknowledged || false,
     tasklist_note: entry.tasklist_note || null,
-    failure_consequence: entry.failure_consequence || null
+    failure_consequence: entry.failure_consequence || null,
+    readings_json: entry.readings_json || null
   });
   if (error) { showToast('Could not save entry: ' + error.message); return; }
   document.getElementById('sync-badge').classList.remove('hidden');
@@ -1945,20 +1955,84 @@ function selectConsequence(btn) {
   saveDraft();
 }
 
-// Show/hide consequence section based on maintenance type
+// ── Readings section (category-smart, Breakdown only) ────────────────────────
+
+const READINGS_BY_CATEGORY = {
+  'Mechanical':       [{ key: 'temperature_c', label: 'Temperature', unit: '°C', placeholder: '85' },
+                       { key: 'vibration_mms',  label: 'Vibration',   unit: 'mm/s', placeholder: '4.5' },
+                       { key: 'pressure_bar',   label: 'Pressure',    unit: 'bar', placeholder: '4.2' }],
+  'Electrical':       [{ key: 'voltage_v',      label: 'Voltage',     unit: 'V', placeholder: '220' },
+                       { key: 'current_a',      label: 'Current',     unit: 'A', placeholder: '15' },
+                       { key: 'temperature_c',  label: 'Temperature', unit: '°C', placeholder: '65' }],
+  'Hydraulic':        [{ key: 'pressure_bar',   label: 'Pressure',    unit: 'bar', placeholder: '180' },
+                       { key: 'flow_lpm',       label: 'Flow',        unit: 'L/min', placeholder: '45' },
+                       { key: 'temperature_c',  label: 'Oil Temp',    unit: '°C', placeholder: '55' }],
+  'Pneumatic':        [{ key: 'pressure_bar',   label: 'Pressure',    unit: 'bar', placeholder: '6.5' },
+                       { key: 'temperature_c',  label: 'Temperature', unit: '°C', placeholder: '40' }],
+  'Instrumentation':  [{ key: 'signal_ma',      label: 'Signal',      unit: 'mA', placeholder: '12' },
+                       { key: 'temperature_c',  label: 'Temperature', unit: '°C', placeholder: '35' }],
+  'Lubrication':      [{ key: 'temperature_c',  label: 'Oil Temp',    unit: '°C', placeholder: '60' },
+                       { key: 'pressure_bar',   label: 'Pressure',    unit: 'bar', placeholder: '3.5' }],
+};
+
+function renderReadingsFields(category) {
+  const section = document.getElementById('readings-section');
+  const fields  = document.getElementById('readings-fields');
+  const defs    = READINGS_BY_CATEGORY[category];
+
+  if (!defs) { section.classList.add('hidden'); return; }
+
+  fields.innerHTML = defs.map(d => `
+    <div>
+      <label class="block text-[10px] text-white/35 font-semibold mb-1">${escHtml(d.label)} <span class="text-white/20">(${escHtml(d.unit)})</span></label>
+      <input type="number" step="any" class="wh-input text-sm py-2"
+             id="reading-${escHtml(d.key)}"
+             data-key="${escHtml(d.key)}" data-unit="${escHtml(d.unit)}"
+             placeholder="${escHtml(d.placeholder)}"
+             style="padding:0.6rem 0.75rem;font-size:0.875rem;" />
+    </div>`).join('');
+
+  section.classList.remove('hidden');
+}
+
+function collectReadings() {
+  const inputs = document.querySelectorAll('#readings-fields input[data-key]');
+  if (!inputs.length) return null;
+  const readings = {};
+  let hasValue = false;
+  inputs.forEach(inp => {
+    if (inp.value !== '' && inp.value !== null) {
+      readings[inp.dataset.key] = parseFloat(inp.value);
+      hasValue = true;
+    }
+  });
+  return hasValue ? readings : null;
+}
+
+// Wire category change → update readings fields
+document.getElementById('f-category').addEventListener('change', function() {
+  const isBreakdown = document.getElementById('f-maint-type').value.includes('Breakdown');
+  if (isBreakdown) renderReadingsFields(this.value);
+});
+
+// Show/hide consequence + readings based on maintenance type
 document.getElementById('f-maint-type').addEventListener('change', function() {
   const isBreakdown = this.value.includes('Breakdown') || this.value.includes('Corrective');
-  const section = document.getElementById('consequence-section');
+  const consequenceEl = document.getElementById('consequence-section');
+  const readingsEl    = document.getElementById('readings-section');
+
   if (isBreakdown) {
-    section.classList.remove('hidden');
-    // Auto-open extras drawer so worker sees it
+    consequenceEl.classList.remove('hidden');
+    renderReadingsFields(document.getElementById('f-category').value);
+    // Auto-open extras drawer
     const drawer = document.getElementById('extras-drawer');
     if (!drawer.classList.contains('open')) {
       drawer.classList.add('open');
       document.getElementById('extras-toggle-label').textContent = 'Hide extra details';
     }
   } else {
-    section.classList.add('hidden');
+    consequenceEl.classList.add('hidden');
+    readingsEl.classList.add('hidden');
     document.getElementById('f-consequence').value = '';
     document.querySelectorAll('.consequence-btn').forEach(b => b.classList.remove('selected'));
   }
@@ -2712,6 +2786,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
   const downtimeRaw        = document.getElementById('f-downtime').value;
   const downtimeHours      = downtimeRaw !== '' ? parseFloat(downtimeRaw) : null;
   const failureConsequence = document.getElementById('f-consequence').value || null;
+  const readingsJson       = collectReadings();
   const photo              = currentPhotoData;
   const status             = document.querySelector('input[name="f-status"]:checked').value;
 
@@ -2743,6 +2818,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     machine, maintenance_type: maintType, category, problem,
     root_cause: rootCause, action, knowledge, downtime_hours: downtimeHours,
     failure_consequence: failureConsequence,
+    readings_json: readingsJson,
     photo, status, asset_ref_id: _pendingAssetRefId,
     parts_used: _partsUsed.map(p => ({ partId: p.partId, partName: p.partName, partNumber: p.partNumber, qty: p.qty, unit: p.unit })),
     tasklist_acknowledged: tasklistAcknowledged,
