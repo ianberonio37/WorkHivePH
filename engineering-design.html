@@ -10895,6 +10895,7 @@ function showReport() {
     'Transformer Sizing',
     'Clean Agent Suppression',
     'Fire Pump Sizing',
+    'Ventilation / ACH',
   ];
   const drawingSection = document.getElementById('drawing-section');
   if (DRAWING_SUPPORTED.includes(_calcType)) {
@@ -10924,6 +10925,8 @@ function showReport() {
       descEl.textContent = 'Generates a clean agent suppression system schematic showing cylinders, manifold, nozzles, FSCU, cross-zone detection, abort station and safety status per NFPA 2001:2022 / ISO 14520:2015';
     } else if (_calcType === 'Fire Pump Sizing' && descEl) {
       descEl.textContent = 'Generates a fire pump P&ID schematic showing pump, OS&Y valves, check valve, relief valve, jockey pump, test header, flow transmitter and duty-cycle data per NFPA 20:2022 / ISA-5.1:2009';
+    } else if (_calcType === 'Ventilation / ACH' && descEl) {
+      descEl.textContent = 'Generates a ventilation system schematic showing OA intake, filter, supply fan, supply diffusers, return/exhaust path, ASHRAE 62.1 VRP compliance summary and required ACH';
     }
     resetDrawingSection();
   } else {
@@ -18852,6 +18855,9 @@ async function _runDrawing() {
     } else if (ct === 'Fire Pump Sizing') {
       const svg = buildFirePumpPIDSvg(_lastInputs, _lastResults);
       _renderGenericSLD(svg, null);
+    } else if (ct === 'Ventilation / ACH') {
+      const svg = buildVentilationSVG(_lastInputs, _lastResults);
+      _renderGenericSLD(svg, null);
     }
   }, 100);
 }
@@ -20880,6 +20886,284 @@ function regenerateHVACDrawing() {
     const code = buildHVACMermaidCode(_lastInputs, _lastResults);
     renderHVACDiagram(code);
   }, 250);
+}
+
+// ─── Ventilation / ACH Schematic — ASHRAE 62.1:2022 / PSME Code ─────────────
+// Drawing rules: A3 landscape W=1050 H=580, STRIP_Y=467
+// Shows: OA intake → filter → supply fan → supply duct → room → return/exhaust
+// Mandatory: OA quantity (L/s+CMH), required ACH, supply airflow, fan size,
+//            ASHRAE 62.1 Ventilation Rate Procedure reference
+function buildVentilationSVG(inputs, results) {
+  const r = results || {};
+
+  // ── Values ──────────────────────────────────────────────────────────────────
+  const roomVol    = Number(r.room_volume      || 0).toFixed(1);
+  const vbzLs      = Number(r.vbz_ls          || 0).toFixed(1);
+  const reqACH     = Number(r.required_ach     || 0).toFixed(2);
+  const minACH     = Number(r.min_ach_required || 6);
+  const supCMH     = Number(r.supply_cmh       || 0);
+  const supLs      = Number(r.supply_ls        || 0).toFixed(1);
+  const supCFM     = Number(r.supply_cfm       || 0);
+  const desCMH     = Number(r.design_cmh       || 0);
+  const fanCMH     = Number(r.recommended_fan_cmh || 0);
+  const oaCMH      = Number(r.outdoor_air_cmh  || 0);
+  const oaCFM      = Number(r.outdoor_air_cfm  || 0);
+  const ventType   = String(r.inputs_used?.vent_type || inputs?.vent_type || 'Supply and Exhaust');
+  const spaceLabel = String(r.inputs_used?.space_label || inputs?.room_function || 'General Space');
+  const useMinACH  = Boolean(r.inputs_used?.use_min_ach);
+  const floorArea  = Number(inputs?.floor_area  || 0);
+  const ceilingH   = Number(inputs?.ceiling_height || 3);
+  const persons    = Number(inputs?.persons     || 0);
+  const proj       = String(inputs?.project_name || 'Ventilation System');
+
+  const isExhaust  = ventType.toLowerCase().includes('exhaust') && !ventType.toLowerCase().includes('supply');
+  const hasBoth    = ventType.toLowerCase().includes('supply') && ventType.toLowerCase().includes('exhaust');
+
+  const W = 1050, H = 580, STRIP_Y = 467;
+  const CC = '#1a2e4a', SC = '#5a6a7a', AO = '#F7A21B';
+  const OG = '#d35400';   // OA / orange (outdoor air)
+  const BL = '#1565c0';   // supply air blue
+  const GN = '#2e7d32';   // return air green
+  const EX = '#7b1fa2';   // exhaust purple
+
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const T = (x,y,t,{a='middle',sz=9,c=CC,w='normal'}={}) =>
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+  const VL = (x,y1,y2,sw=2,clr=CC,dash='') =>
+    `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${clr}" stroke-width="${sw}"${dash?` stroke-dasharray="${dash}"`:''}/>`;
+  const HL = (x1,y,x2,sw=2,clr=CC,dash='') =>
+    `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${clr}" stroke-width="${sw}"${dash?` stroke-dasharray="${dash}"`:''}/>`;
+  const DL = (x1,y1,x2,y2,clr=SC) =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${clr}" stroke-width="0.8" stroke-dasharray="3 2"/>`;
+  const Arrow = (x,y,dir='right',clr=BL,sz=10) => {
+    if (dir==='right') return `<polygon points="${x},${y-sz/2} ${x+sz},${y} ${x},${y+sz/2}" fill="${clr}"/>`;
+    if (dir==='left')  return `<polygon points="${x},${y-sz/2} ${x-sz},${y} ${x},${y+sz/2}" fill="${clr}"/>`;
+    if (dir==='down')  return `<polygon points="${x-sz/2},${y} ${x},${y+sz} ${x+sz/2},${y}" fill="${clr}"/>`;
+    if (dir==='up')    return `<polygon points="${x-sz/2},${y} ${x},${y-sz} ${x+sz/2},${y}" fill="${clr}"/>`;
+    return '';
+  };
+  const Badge = (x,y,label,bg=AO,tc='#111') => {
+    const bw = Math.max(80, String(label).length * 6.8 + 20);
+    return `<rect x="${x-bw/2}" y="${y-11}" width="${bw}" height="22" rx="11" fill="${bg}"/>` +
+      T(x, y+5, label, {sz:8.5, c:tc, w:'700'});
+  };
+
+  // ── Fan symbol (circle + blade) ───────────────────────────────────────────
+  const FanSym = (cx,cy,r=22,clr=BL) =>
+    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#e3f2fd" stroke="${clr}" stroke-width="2"/>` +
+    `<line x1="${cx-r*0.6}" y1="${cy-r*0.5}" x2="${cx+r*0.6}" y2="${cy+r*0.5}" stroke="${clr}" stroke-width="2.5"/>` +
+    `<line x1="${cx+r*0.6}" y1="${cy-r*0.5}" x2="${cx-r*0.6}" y2="${cy+r*0.5}" stroke="${clr}" stroke-width="2.5"/>` +
+    `<circle cx="${cx}" cy="${cy}" r="4" fill="${clr}"/>`;
+
+  // ── Filter symbol ─────────────────────────────────────────────────────────
+  const FilterSym = (x,y,w=24,h=36,clr=OG) =>
+    `<rect x="${x-w/2}" y="${y-h/2}" width="${w}" height="${h}" fill="white" stroke="${clr}" stroke-width="1.8"/>` +
+    `<line x1="${x-w/2+3}" y1="${y-h/2+5}" x2="${x+w/2-3}" y2="${y+h/2-5}" stroke="${clr}" stroke-width="1.2"/>` +
+    `<line x1="${x-w/2+3}" y1="${y+h/2-5}" x2="${x+w/2-3}" y2="${y-h/2+5}" stroke="${clr}" stroke-width="1.2"/>`;
+
+  // ── Damper symbol ─────────────────────────────────────────────────────────
+  const DamperSym = (x,y,w=22,h=30,clr=OG) =>
+    `<rect x="${x-w/2}" y="${y-h/2}" width="${w}" height="${h}" fill="white" stroke="${clr}" stroke-width="1.8"/>` +
+    `<line x1="${x-w/2+3}" y1="${y-4}" x2="${x+w/2-3}" y2="${y+4}" stroke="${clr}" stroke-width="2"/>` +
+    `<line x1="${x-w/2+3}" y1="${y}" x2="${x+w/2-3}" y2="${y}" stroke="${clr}" stroke-width="1"/>`;
+
+  // ── Diffuser symbol (supply) ──────────────────────────────────────────────
+  const DiffSym = (cx,cy,clr=BL) =>
+    `<polygon points="${cx},${cy+8} ${cx+12},${cy-6} ${cx-12},${cy-6}" fill="${clr}" stroke="${clr}" stroke-width="0.8"/>` +
+    `<line x1="${cx-9}" y1="${cy-3}" x2="${cx+9}" y2="${cy-3}" stroke="${clr}" stroke-width="1.5"/>`;
+
+  // ── Return grille symbol ──────────────────────────────────────────────────
+  const GrilleSym = (cx,cy,clr=GN) =>
+    `<rect x="${cx-10}" y="${cy-6}" width="20" height="12" fill="${clr}" fill-opacity="0.18" stroke="${clr}" stroke-width="1.5"/>` +
+    [-4,0,4].map(dy => `<line x1="${cx-9}" y1="${cy+dy}" x2="${cx+9}" y2="${cy+dy}" stroke="${clr}" stroke-width="0.8"/>`).join('');
+
+  let p = [];
+
+  // ── Background + inner margin (mandatory) ────────────────────────────────
+  p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="0.75"/>`);
+
+  // ── Title ─────────────────────────────────────────────────────────────────
+  p.push(T(W/2, 27, 'VENTILATION SYSTEM SCHEMATIC — ASHRAE 62.1 VENTILATION RATE PROCEDURE', {sz:11, c:CC, w:'700'}));
+  p.push(T(W/2, 41, `ASHRAE 62.1:2022 / PSME Code  |  ${spaceLabel}  |  ${ventType}  |  Required ACH: ${reqACH}`, {sz:9, c:SC}));
+
+  // ── ROOM (conditioned space) ──────────────────────────────────────────────
+  const RM_X = 330, RM_Y = 80, RM_W = 380, RM_H = 290;
+  p.push(`<rect x="${RM_X}" y="${RM_Y}" width="${RM_W}" height="${RM_H}" fill="#e8f5e9" stroke="${CC}" stroke-width="2" rx="4"/>`);
+  p.push(`<rect x="${RM_X}" y="${RM_Y}" width="${RM_W}" height="20" fill="${CC}" rx="4"/>`);
+  p.push(T(RM_X+RM_W/2, RM_Y+14, 'CONDITIONED SPACE', {sz:8, c:'#fff', w:'700'}));
+
+  // Room data inside
+  const roomData = [
+    `${spaceLabel}`,
+    `Floor Area: ${floorArea} m²  |  Ceiling H: ${ceilingH} m`,
+    `Volume: ${roomVol} m³`,
+    persons > 0 ? `Occupancy: ${persons} persons` : '',
+    `Design Temperature: ${inputs?.indoor_temp || 24}°C`,
+  ].filter(Boolean);
+  roomData.forEach((line, i) => p.push(T(RM_X+RM_W/2, RM_Y+50+i*18, line, {sz:8.5, c:CC})));
+
+  // ACH badge inside room (mandatory element)
+  p.push(Badge(RM_X+RM_W/2, RM_Y+200, `Required ACH: ${reqACH} (min ${minACH})`, AO));
+  p.push(Badge(RM_X+RM_W/2, RM_Y+225, useMinACH ? 'Method: Minimum ACH' : 'Method: ASHRAE 62.1 VRP', '#1a2e4a', '#fff'));
+
+  // ── OA INTAKE SIDE (left of room) ────────────────────────────────────────
+  // Louver (OA intake)
+  const LV_X = 30, LV_Y = 160, LV_W = 36, LV_H = 70;
+  p.push(`<rect x="${LV_X}" y="${LV_Y}" width="${LV_W}" height="${LV_H}" fill="${OG}" fill-opacity="0.1" stroke="${OG}" stroke-width="1.8" rx="2"/>`);
+  for (let i = 0; i < 5; i++) {
+    const sy = LV_Y + 8 + i * (LV_H - 16) / 4;
+    p.push(HL(LV_X+4, sy, LV_X+LV_W-4, 1.5, OG));
+  }
+  p.push(T(LV_X+LV_W/2, LV_Y-9, 'OA INTAKE', {sz:7.5, c:OG, w:'700'}));
+  p.push(T(LV_X+LV_W/2, LV_Y-18, `${inputs?.outdoor_temp||35}°C DB`, {sz:7, c:SC}));
+
+  // OA duct: louver → filter → damper → fan
+  const OA_Y = LV_Y + LV_H/2;
+  p.push(HL(LV_X+LV_W, OA_Y, LV_X+LV_W+25, 3, OG));
+
+  // Filter F-01
+  const F_X = LV_X + LV_W + 40;
+  p.push(FilterSym(F_X, OA_Y, 24, 38, OG));
+  p.push(T(F_X, OA_Y+26, 'F-01', {sz:7, c:OG, w:'700'}));
+  p.push(HL(LV_X+LV_W+25, OA_Y, F_X-12, 3, OG));
+  p.push(HL(F_X+12, OA_Y, F_X+30, 3, OG));
+
+  // OA Damper OAD-01
+  const OAD_X = F_X + 50;
+  p.push(DamperSym(OAD_X, OA_Y, 22, 32, OG));
+  p.push(T(OAD_X, OA_Y+22, 'OAD-01', {sz:7, c:OG, w:'700'}));
+  p.push(HL(F_X+30, OA_Y, OAD_X-11, 3, OG));
+  p.push(HL(OAD_X+11, OA_Y, OAD_X+30, 3, OG));
+
+  // OA quantity label (mandatory per ASHRAE 62.1)
+  p.push(DL(F_X+20, OA_Y-30, F_X+20, OA_Y-55, OG));
+  p.push(T(F_X+22, OA_Y-60, `OA = ${oaCMH} m³/h  (${oaCFM} CFM)`, {a:'start', sz:8, c:OG, w:'700'}));
+  p.push(T(F_X+22, OA_Y-48, `ASHRAE 62.1 min. requirement`, {a:'start', sz:7, c:SC}));
+
+  // ── SUPPLY FAN SF-01 ──────────────────────────────────────────────────────
+  const FAN_X = 215, FAN_Y = OA_Y;
+  p.push(HL(OAD_X+30, OA_Y, FAN_X-22, 3, BL));
+  p.push(FanSym(FAN_X, FAN_Y, 22, BL));
+  p.push(T(FAN_X, FAN_Y+30, 'SF-01', {sz:7.5, c:BL, w:'700'}));
+  p.push(T(FAN_X, FAN_Y+41, 'SUPPLY FAN', {sz:7, c:SC}));
+  p.push(Badge(FAN_X, FAN_Y+56, `${fanCMH} m³/h`, BL, '#fff'));
+  p.push(HL(FAN_X+22, OA_Y, RM_X, 3, BL));
+  p.push(Arrow(RM_X-6, OA_Y, 'right', BL, 10));
+
+  // Supply airflow label on duct
+  p.push(T((FAN_X+22+RM_X)/2, OA_Y-12, `SA = ${supCMH} m³/h  (${supCFM} CFM)`, {sz:8, c:BL, w:'700'}));
+  p.push(T((FAN_X+22+RM_X)/2, OA_Y, `Design = ${desCMH} m³/h  |  ACH = ${reqACH}`, {sz:7.5, c:SC}));
+
+  // ── SUPPLY DIFFUSERS inside room ──────────────────────────────────────────
+  const diffPositions = [
+    [RM_X+80, RM_Y+28],
+    [RM_X+190, RM_Y+28],
+    [RM_X+300, RM_Y+28],
+  ];
+  // Supply duct inside room (along ceiling)
+  p.push(HL(RM_X, RM_Y+28, RM_X+RM_W-20, 3, BL));
+  diffPositions.forEach(([dx, dy], i) => {
+    p.push(DiffSym(dx, dy+12));
+    p.push(VL(dx, dy+3, dy+12, 1.5, BL));
+    if (i === 0) p.push(T(dx+16, dy+20, `${Math.round(supCMH/diffPositions.length)} m³/h`, {a:'start', sz:7, c:BL}));
+  });
+  p.push(T(RM_X+RM_W/2, RM_Y+30, 'SUPPLY AIR DIFFUSERS', {sz:7, c:BL, w:'700'}));
+
+  // ── RETURN/EXHAUST SIDE ───────────────────────────────────────────────────
+  const EXHF_Y = 310;   // exhaust/return fan level
+
+  // Return grilles on right wall of room
+  const raGrilles = [RM_Y+110, RM_Y+200];
+  raGrilles.forEach(gy => {
+    p.push(GrilleSym(RM_X+RM_W-1, gy));
+    p.push(Arrow(RM_X+RM_W+4, gy, 'right', hasBoth?GN:EX, 8));
+  });
+
+  if (hasBoth) {
+    // Return duct → Return fan → back to room (recirculation)
+    const RAF_X = 820, RAF_Y = EXHF_Y;
+    p.push(HL(RM_X+RM_W, raGrilles[0], RAF_X-22, 2.5, GN));
+    p.push(FanSym(RAF_X, RAF_Y, 20, GN));
+    p.push(T(RAF_X, RAF_Y+28, 'RF-01', {sz:7.5, c:GN, w:'700'}));
+    p.push(T(RAF_X, RAF_Y+38, 'RETURN FAN', {sz:7, c:SC}));
+    p.push(T((RM_X+RM_W+RAF_X)/2, raGrilles[0]-12, `RA = ${Math.round(supCMH - Number(oaCMH))} m³/h`, {sz:8, c:GN, w:'700'}));
+
+    // Exhaust branch from return duct
+    const EXH_Y = 250;
+    p.push(VL(760, raGrilles[0], EXH_Y, 2, EX));
+    const EXF_X = 820, EXF_Y = EXH_Y;
+    p.push(HL(760, EXH_Y, EXF_X-20, 2, EX));
+    p.push(FanSym(EXF_X, EXF_Y, 16, EX));
+    p.push(T(EXF_X, EXF_Y+24, 'EF-01', {sz:7, c:EX, w:'700'}));
+    p.push(HL(EXF_X+16, EXF_Y, EXF_X+55, 2, EX));
+    // Exhaust outlet
+    p.push(`<rect x="${EXF_X+55}" y="${EXF_Y-18}" width="28" height="36" fill="${EX}" fill-opacity="0.1" stroke="${EX}" stroke-width="1.5" rx="2"/>`);
+    p.push(T(EXF_X+69, EXF_Y+3, 'EXHAUST', {sz:7, c:EX, w:'700'}));
+    p.push(T(EXF_X+69, EXF_Y+14, 'OUTLET', {sz:7, c:EX}));
+    p.push(T(760+20, EXH_Y-8, `EX = ${oaCMH} m³/h`, {a:'start', sz:7.5, c:EX, w:'700'}));
+
+  } else {
+    // Exhaust only
+    const EXF_X = 820, EXF_Y = (raGrilles[0] + raGrilles[1]) / 2;
+    p.push(HL(RM_X+RM_W, EXF_Y, EXF_X-20, 3, EX));
+    p.push(FanSym(EXF_X, EXF_Y, 22, EX));
+    p.push(T(EXF_X, EXF_Y+30, 'EF-01', {sz:7.5, c:EX, w:'700'}));
+    p.push(T(EXF_X, EXF_Y+41, 'EXHAUST FAN', {sz:7, c:SC}));
+    p.push(Badge(EXF_X, EXF_Y+56, `${fanCMH} m³/h`, EX, '#fff'));
+    p.push(HL(EXF_X+22, EXF_Y, EXF_X+70, 3, EX));
+    p.push(`<rect x="${EXF_X+70}" y="${EXF_Y-22}" width="30" height="44" fill="${EX}" fill-opacity="0.1" stroke="${EX}" stroke-width="1.5" rx="2"/>`);
+    p.push(T(EXF_X+85, EXF_Y-6, 'EXHAUST', {sz:7, c:EX, w:'700'}));
+    p.push(T(EXF_X+85, EXF_Y+6, 'OUTLET', {sz:7, c:EX}));
+    p.push(T((RM_X+RM_W+EXF_X)/2, EXF_Y-12, `Exhaust = ${fanCMH} m³/h`, {sz:8, c:EX, w:'700'}));
+  }
+
+  // ── RIGHT DATA PANEL ──────────────────────────────────────────────────────
+  const RP_X = 20, RP_Y = 395, RP_W = 300, RP_H = 60;
+  p.push(`<rect x="${RP_X}" y="${RP_Y}" width="${RP_W}" height="${RP_H}" fill="#f8faff" stroke="#d0d8e8" stroke-width="0.8" rx="3"/>`);
+  p.push(`<rect x="${RP_X}" y="${RP_Y}" width="${RP_W}" height="16" fill="${CC}" rx="3"/>`);
+  p.push(T(RP_X+RP_W/2, RP_Y+11, 'ASHRAE 62.1 COMPLIANCE SUMMARY', {sz:7.5, c:'#fff', w:'700'}));
+  [
+    [`VBZ (breathing zone OA)`, `${vbzLs} L/s  =  ${oaCMH} m³/h`],
+    [`Required ACH`, `${reqACH}  (min. ${minACH} for ${spaceLabel})`],
+    [`Supply airflow`, `${supCMH} m³/h  (${supLs} L/s  |  ${supCFM} CFM)`],
+    [`Recommended fan`, `${fanCMH} m³/h  (${Math.round(fanCMH/3.6*2.119)} CFM)`],
+  ].forEach(([label, val], i) => {
+    const ry = RP_Y + 18 + i*11;
+    if (i%2===0) p.push(`<rect x="${RP_X+1}" y="${ry}" width="${RP_W-2}" height="11" fill="#eef3fa"/>`);
+    p.push(T(RP_X+4, ry+9, label, {a:'start', sz:7, c:SC}));
+    p.push(T(RP_X+RP_W-4, ry+9, val, {a:'end', sz:7.5, c:CC, w:'600'}));
+  });
+
+  // ── LEGEND + NOTES (STRIP_Y = 467) ───────────────────────────────────────
+  p.push(HL(11, STRIP_Y, W-11, 0.75));
+  const LX2 = 460;
+  p.push(VL(LX2, STRIP_Y, H-11, 0.75));
+
+  p.push(T(18, STRIP_Y+13, 'LEGEND', {a:'start', sz:7, c:CC, w:'700'}));
+  [
+    [OG, 3, '', 'Outdoor Air (OA) / Fresh Air'],
+    [BL, 3, '', 'Supply Air (SA)'],
+    [GN, 3, '', 'Return Air (RA)'],
+    [EX, 3, '', 'Exhaust Air (EX)'],
+  ].forEach(([clr, sw, dash, lbl], i) => {
+    const ly = STRIP_Y + 22 + i * 13;
+    p.push(`<line x1="18" y1="${ly}" x2="36" y2="${ly}" stroke="${clr}" stroke-width="${sw}"/>`);
+    p.push(T(42, ly+4, lbl, {a:'start', sz:7.5, c:CC}));
+  });
+
+  p.push(T(LX2+8, STRIP_Y+13, 'GENERAL NOTES', {a:'start', sz:7, c:CC, w:'700'}));
+  [
+    `1. Ventilation designed per ASHRAE 62.1:2022 Ventilation Rate Procedure: Vbz = Rp×Pz + Ra×Az.`,
+    `2. Outdoor air quantity = ${vbzLs} L/s = ${oaCMH} m³/h. Required ACH = ${reqACH} (min. ${minACH} per space type).`,
+    `3. Supply fan SF-01 selected at ${fanCMH} m³/h (design ${desCMH} m³/h × 1.15 safety margin per ASHRAE).`,
+    `4. Filters: minimum MERV-8 per ASHRAE 62.1 §6.2.1. Provide access doors for filter replacement.`,
+    `5. Balancing by certified TAB contractor per AABC/NEBB standards after installation.`,
+    `6. Duct construction per SMACNA HVAC Duct Construction Standards. Insulate per ASHRAE 90.1.`,
+  ].forEach((note, i) => p.push(T(LX2+8, STRIP_Y+27+i*12, note, {a:'start', sz:7, c:SC})));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` +
+    p.join('\n  ') + `\n</svg>`;
 }
 
 // ─── HVAC System Schematic: SVG builder (ASHRAE 62.1 / PSME) ───────────────
