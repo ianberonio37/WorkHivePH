@@ -341,6 +341,78 @@ def calc_repeat_failures(logbook_entries: list[dict]) -> dict:
     }
 
 
+# ── 9. OEE — Overall Equipment Effectiveness — ISO 22400-2 ───────────────────
+# OEE = Availability × Quality (Performance requires planned rate — excluded)
+# Availability: from MTBF/MTTR already calculated
+# Quality: from production_output.quality_pct in logbook entries
+# Note: Performance remains flagged (needs planned production rate input)
+
+def calc_oee(logbook_entries: list[dict], period_days: int = 90) -> dict:
+    df = _to_df(logbook_entries)
+    if df.empty:
+        return {"oee_by_asset": [], "standard": "ISO 22400-2:2014 (partial — Availability × Quality)",
+                "note": "No logbook data found"}
+
+    df = _parse_dates(df, "created_at")
+    df = _corrective_only(df)
+
+    # Availability component — from downtime vs period hours
+    # Assume 8h shift × period_days as total available time
+    total_hours = period_days * 8.0
+    downtime_by_machine = {}
+    if "downtime_hours" in df.columns:
+        dh = df.copy()
+        dh["downtime_hours"] = pd.to_numeric(dh["downtime_hours"], errors="coerce").fillna(0)
+        downtime_by_machine = dh.groupby("machine")["downtime_hours"].sum().to_dict()
+
+    # Quality component — from production_output field
+    quality_data: dict[str, list] = {}
+    if "production_output" in df.columns:
+        for _, row in df.iterrows():
+            po = row.get("production_output")
+            if not po or not isinstance(po, dict):
+                continue
+            machine = row.get("machine", "Unknown")
+            q_pct   = po.get("quality_pct")
+            if q_pct is not None:
+                quality_data.setdefault(machine, []).append(float(q_pct))
+
+    all_machines = set(downtime_by_machine) | set(quality_data)
+    if not all_machines:
+        return {"oee_by_asset": [], "standard": "ISO 22400-2:2014",
+                "note": "No downtime or production_output data recorded yet"}
+
+    results = []
+    for machine in all_machines:
+        downtime      = downtime_by_machine.get(machine, 0)
+        avail_pct     = max(0, min(100, (total_hours - downtime) / total_hours * 100)) if total_hours > 0 else None
+        qual_readings = quality_data.get(machine, [])
+        quality_pct   = round(float(np.mean(qual_readings)), 1) if qual_readings else None
+
+        # OEE = Availability × Quality (Performance excluded — needs planned rate)
+        if avail_pct is not None and quality_pct is not None:
+            oee = round(avail_pct / 100 * quality_pct / 100 * 100, 1)
+        else:
+            oee = None
+
+        results.append({
+            "machine":        machine,
+            "availability_pct": round(avail_pct, 1) if avail_pct is not None else None,
+            "quality_pct":    quality_pct,
+            "oee_pct":        oee,
+            "quality_readings": len(qual_readings),
+            "note":           "Performance dimension excluded — needs planned production rate" if oee else "Insufficient data",
+        })
+
+    results.sort(key=lambda x: (x["oee_pct"] or 0))
+    return {
+        "oee_by_asset":  results,
+        "assets_tracked": len(results),
+        "standard":      "ISO 22400-2:2014 — Availability × Quality (partial OEE)",
+        "note":          "Performance dimension will activate when planned production rate is configured.",
+    }
+
+
 # ── Master function — runs all 8 and returns combined result ─────────────────
 
 def calculate(inputs: dict) -> dict:
@@ -361,11 +433,12 @@ def calculate(inputs: dict) -> dict:
 
     return {
         "phase": "descriptive",
-        "standard": "ISO 14224:2016, SMRP Metrics",
+        "standard": "ISO 14224:2016, SMRP Metrics, ISO 22400-2",
         "period_days": period,
         "mtbf":              calc_mtbf(logbook),
         "mttr":              calc_mttr(logbook),
         "availability":      calc_availability(logbook),
+        "oee":               calc_oee(logbook, period),
         "pm_compliance":     calc_pm_compliance(comps, scope),
         "failure_frequency": calc_failure_frequency(logbook, period),
         "downtime_pareto":   calc_downtime_pareto(logbook),

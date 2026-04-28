@@ -459,6 +459,104 @@ def calc_health_scores(
     }
 
 
+# ── 6. Anomaly Baseline Detection — ISO 7870-2 (Statistical Process Control) ──
+# Uses readings_json from logbook entries.
+# Calculates mean ± 2σ per reading type per machine.
+# Flags readings outside control limits as anomalies.
+
+def calc_anomaly_baseline(logbook_entries: list[dict]) -> dict:
+    df = _to_df(logbook_entries)
+    if df.empty or "readings_json" not in df.columns:
+        return {
+            "baselines": [],
+            "anomalies": [],
+            "standard": "ISO 7870-2 Statistical Process Control (2σ control limits)",
+            "note": "No readings_json data yet. Fill Quick Readings in Breakdown entries to activate.",
+        }
+
+    df = _corrective_only(df)
+    has_readings = df[df["readings_json"].notna()]
+    if has_readings.empty:
+        return {
+            "baselines": [], "anomalies": [],
+            "standard": "ISO 7870-2 SPC",
+            "note": "Readings logged but none linked to Breakdown entries yet.",
+        }
+
+    # Collect all readings per machine per reading type
+    from collections import defaultdict
+    machine_readings: dict = defaultdict(lambda: defaultdict(list))
+
+    for _, row in has_readings.iterrows():
+        machine  = row.get("machine", "Unknown")
+        readings = row.get("readings_json")
+        if not isinstance(readings, dict):
+            continue
+        for key, val in readings.items():
+            try:
+                machine_readings[machine][key].append(float(val))
+            except (TypeError, ValueError):
+                pass
+
+    UNIT_MAP = {
+        "temperature_c": "°C", "vibration_mms": "mm/s", "pressure_bar": "bar",
+        "voltage_v": "V", "current_a": "A", "flow_lpm": "L/min",
+        "signal_ma": "mA", "oil_temp_c": "°C",
+    }
+
+    baselines = []
+    anomalies = []
+
+    for machine, reading_types in machine_readings.items():
+        for rtype, values in reading_types.items():
+            if len(values) < 3:
+                continue  # need ≥ 3 readings to establish baseline
+            arr  = np.array(values)
+            mean = float(arr.mean())
+            std  = float(arr.std())
+            ucl  = mean + 2 * std   # upper control limit
+            lcl  = mean - 2 * std   # lower control limit
+
+            unit = UNIT_MAP.get(rtype, "")
+            label = rtype.replace("_", " ").replace("c", "").replace("mms", "mm/s").strip()
+
+            baseline = {
+                "machine":   machine,
+                "reading":   rtype,
+                "label":     label,
+                "unit":      unit,
+                "mean":      round(mean, 2),
+                "std":       round(std, 2),
+                "ucl":       round(ucl, 2),
+                "lcl":       round(max(lcl, 0), 2),
+                "n_readings": len(values),
+                "last_value": round(values[-1], 2),
+            }
+            baselines.append(baseline)
+
+            # Flag last reading if outside control limits
+            last = values[-1]
+            if last > ucl or last < lcl:
+                anomalies.append({
+                    "machine":    machine,
+                    "reading":    label,
+                    "unit":       unit,
+                    "value":      round(last, 2),
+                    "mean":       round(mean, 2),
+                    "deviation":  round(abs(last - mean) / std, 1) if std > 0 else None,
+                    "direction":  "HIGH" if last > ucl else "LOW",
+                    "alert":      f"{label} reading ({round(last,1)}{unit}) is outside 2σ control limits — potential fault developing.",
+                })
+
+    return {
+        "baselines":       baselines,
+        "anomalies":       anomalies,
+        "anomaly_count":   len(anomalies),
+        "machines_tracked": len(machine_readings),
+        "standard":        "ISO 7870-2 — Statistical Process Control, ±2σ control limits",
+    }
+
+
 # ── Master function ───────────────────────────────────────────────────────────
 
 def calculate(inputs: dict) -> dict:
@@ -471,11 +569,12 @@ def calculate(inputs: dict) -> dict:
 
     return {
         "phase":    "predictive",
-        "standard": "ISO 13381-1:2015, ISO 14224:2016, SMRP Metrics",
+        "standard": "ISO 13381-1:2015, ISO 14224:2016, ISO 7870-2, SMRP Metrics",
         "period_days": period,
         "next_failure_dates": calc_next_failure_dates(logbook),
         "pm_due_calendar":    calc_pm_due_calendar(comps, scope),
         "parts_stockout":     calc_parts_stockout(inv_items, txns, period),
         "failure_trend":      calc_failure_trend(logbook, period),
         "health_scores":      calc_health_scores(logbook, comps, scope, period),
+        "anomaly_baseline":   calc_anomaly_baseline(logbook),
     }

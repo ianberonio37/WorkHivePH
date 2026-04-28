@@ -430,6 +430,60 @@ def calc_engineering_validation(
     }
 
 
+# ── 7. RCM Consequence Distribution — SAE JA1011 §5.4 ───────────────────────
+# Uses failure_consequence field from logbook to classify failures by impact.
+# Four consequence categories: Hidden / Running reduced / Safety risk / Stopped production
+
+def calc_rcm_consequence(logbook_entries: list[dict]) -> dict:
+    df = _to_df(logbook_entries)
+    if df.empty or "failure_consequence" not in df.columns:
+        return {
+            "distribution": [],
+            "standard": "SAE JA1011 §5.4 RCM consequence classification",
+            "note": "No failure_consequence data recorded yet. Select impact level when logging Breakdown entries.",
+        }
+
+    df = _corrective_only(df)
+    has_data = df[df["failure_consequence"].notna() & (df["failure_consequence"].str.strip() != "")]
+
+    if has_data.empty:
+        return {
+            "distribution": [],
+            "coverage_pct": 0,
+            "standard": "SAE JA1011 §5.4",
+            "note": "No consequence data yet. Start selecting impact level in Breakdown entries to populate this.",
+        }
+
+    total = len(df)
+    covered = len(has_data)
+    coverage_pct = round(covered / total * 100, 1)
+
+    ORDER = ["Stopped production", "Safety risk", "Running reduced", "Hidden"]
+    counts = has_data["failure_consequence"].value_counts()
+
+    distribution = []
+    for cat in ORDER:
+        n = int(counts.get(cat, 0))
+        pct = round(n / covered * 100, 1) if covered > 0 else 0
+        distribution.append({
+            "consequence": cat,
+            "count": n,
+            "pct_of_recorded": pct,
+        })
+
+    # Highest severity first (non-zero)
+    top = next((d for d in distribution if d["count"] > 0), None)
+
+    return {
+        "distribution":    distribution,
+        "total_failures":  total,
+        "recorded_count":  covered,
+        "coverage_pct":    coverage_pct,
+        "top_consequence": top["consequence"] if top else None,
+        "standard":        "SAE JA1011 §5.4 RCM consequence classification",
+    }
+
+
 # ── Master function ───────────────────────────────────────────────────────────
 
 def calculate(inputs: dict) -> dict:
@@ -453,6 +507,7 @@ def calculate(inputs: dict) -> dict:
     return {
         "phase":    "diagnostic",
         "standard": "ISO 14224:2016, SAE JA1011, Spearman rank correlation",
+        "rcm_consequence":             calc_rcm_consequence(logbook),
         "failure_mode_distribution":   calc_failure_mode_distribution(logbook),
         "pm_failure_correlation":      calc_pm_failure_correlation(logbook, comps, scope),
         "skill_mttr_correlation":      calc_skill_mttr_correlation(logbook, skill_badges),

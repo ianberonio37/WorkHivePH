@@ -335,6 +335,7 @@
       Generated: ${escHtml(gen)} · Period: last ${period} days
     </p>`;
 
+    html += renderOEE(data.oee);
     html += renderMTBF(data.mtbf);
     html += renderMTTR(data.mttr);
     html += renderAvailability(data.availability);
@@ -348,6 +349,32 @@
   }
 
   // ── 1. MTBF ────────────────────────────────────────────────────────────────
+  // ── OEE (Descriptive) ──────────────────────────────────────────────────────
+  function renderOEE(d) {
+    if (!d?.oee_by_asset?.length) return `<div class="card">
+      <div class="card-title">OEE — Overall Equipment Effectiveness <span class="card-standard">ISO 22400-2:2014 · Availability × Quality</span></div>
+      <div class="empty" style="padding:1rem 0;">${escHtml(d?.note || 'No production_output data yet. Fill Quick Readings and production units in Breakdown entries.')}</div>
+    </div>`;
+    const rows = d.oee_by_asset.map(r => {
+      const oee = r.oee_pct;
+      const cls = oee === null ? '' : oee >= 85 ? 'good' : oee >= 65 ? 'warn' : 'alert';
+      return `<tr>
+        <td class="machine-name">${escHtml(r.machine)}</td>
+        <td class="num">${r.availability_pct !== null ? r.availability_pct + '%' : '—'}</td>
+        <td class="num">${r.quality_pct !== null ? r.quality_pct + '%' : '—'}</td>
+        <td class="num ${cls}">${oee !== null ? oee + '%' : '—'}</td>
+      </tr>`;
+    }).join('');
+    return `<div class="card">
+      <div class="card-title">OEE — Overall Equipment Effectiveness <span class="card-standard">ISO 22400-2:2014 · ${d.assets_tracked} asset(s)</span></div>
+      <table class="data-table">
+        <thead><tr><th>Machine</th><th class="num">Availability</th><th class="num">Quality</th><th class="num">OEE</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">🟢 ≥85% World class · 🟡 ≥65% Typical · 🔴 &lt;65% Needs attention. Performance dimension pending planned rate data.</p>
+    </div>`;
+  }
+
   function renderMTBF(d) {
     if (!d || !d.mtbf_by_asset?.length) return cardEmpty('MTBF — Mean Time Between Failures', 'ISO 14224:2016 §9.3', 'No corrective failures found in the selected period.');
     const rows = d.mtbf_by_asset.map(r => {
@@ -538,6 +565,7 @@
     const panel = document.getElementById('results-panel');
     const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-PH') : '';
     let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
+    html += renderRCMConsequence(data.rcm_consequence);
     html += renderFailureModeDistribution(data.failure_mode_distribution);
     html += renderPMFailureCorrelation(data.pm_failure_correlation);
     html += renderSkillMTTRCorrelation(data.skill_mttr_correlation);
@@ -545,6 +573,31 @@
     html += renderRepeatFailureClustering(data.repeat_failure_clustering);
     html += renderEngineeringValidation(data.engineering_validation);
     panel.innerHTML = html;
+  }
+
+  function renderRCMConsequence(d) {
+    if (!d?.distribution?.length || d.distribution.every(x => x.count === 0)) {
+      return `<div class="card">
+        <div class="card-title">RCM Consequence Classification <span class="card-standard">SAE JA1011 §5.4</span></div>
+        <div class="empty" style="padding:1rem 0;">${escHtml(d?.note || 'No consequence data yet. Select impact level in Breakdown entries.')}</div>
+      </div>`;
+    }
+    const COLORS = { 'Stopped production':'#f87171','Safety risk':'#f87171','Running reduced':'#F7A21B','Hidden':'#a78bfa' };
+    const total = d.recorded_count || 1;
+    const bars = d.distribution.filter(r => r.count > 0).map(r => {
+      const pct = Math.round(r.count / total * 100);
+      const color = COLORS[r.consequence] || '#a78bfa';
+      return `<div class="bar-row">
+        <span class="bar-label" style="width:140px;">${escHtml(r.consequence)}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color};"></div></div>
+        <span class="bar-val">${r.count} (${r.pct_of_recorded}%)</span>
+      </div>`;
+    }).join('');
+    return `<div class="card">
+      <div class="card-title">RCM Consequence Classification <span class="card-standard">SAE JA1011 §5.4 · ${d.coverage_pct}% coverage</span></div>
+      ${bars}
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">${d.recorded_count} of ${d.total_failures} failures have consequence recorded. Coverage improves as team fills impact level on Breakdown entries.</p>
+    </div>`;
   }
 
   function renderFailureModeDistribution(d) {
@@ -661,12 +714,48 @@
     const panel = document.getElementById('results-panel');
     const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-PH') : '';
     let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
+    html += renderAnomalyBaseline(data.anomaly_baseline);
     html += renderHealthScores(data.health_scores);
     html += renderNextFailureDates(data.next_failure_dates);
     html += renderPMDueCalendar(data.pm_due_calendar);
     html += renderPartsStockout(data.parts_stockout);
     html += renderFailureTrend(data.failure_trend);
     panel.innerHTML = html;
+  }
+
+  function renderAnomalyBaseline(d) {
+    if (!d?.baselines?.length) return `<div class="card">
+      <div class="card-title">Anomaly Baseline Detection <span class="card-standard">ISO 7870-2 SPC · ±2σ control limits</span></div>
+      <div class="empty" style="padding:1rem 0;">${escHtml(d?.note || 'No readings data yet. Fill Quick Readings in Breakdown entries to activate.')}</div>
+    </div>`;
+
+    const anomalies = d.anomalies || [];
+    const anomalyHtml = anomalies.length
+      ? anomalies.map(a => `<div style="padding:0.6rem;border-radius:0.625rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);margin-bottom:0.5rem;">
+          <div style="display:flex;justify-content:space-between;">
+            <span style="font-size:0.75rem;font-weight:700;color:#fff;">${escHtml(a.machine)}</span>
+            <span class="alert" style="font-size:0.7rem;font-weight:700;">${escHtml(a.direction)} · ${a.deviation}σ</span>
+          </div>
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.5);margin-top:0.2rem;">${escHtml(a.alert)}</p>
+        </div>`).join('')
+      : `<p style="font-size:0.72rem;color:#4ade80;margin-bottom:0.75rem;">✓ All readings within 2σ control limits.</p>`;
+
+    const baselineRows = d.baselines.map(b => `<tr>
+      <td class="machine-name">${escHtml(b.machine)}</td>
+      <td style="font-size:0.68rem;color:rgba(255,255,255,0.5);">${escHtml(b.label)} (${escHtml(b.unit)})</td>
+      <td class="num">${b.mean}</td>
+      <td class="num">${b.ucl}</td>
+      <td class="num">${b.last_value}</td>
+    </tr>`).join('');
+
+    return `<div class="card">
+      <div class="card-title">Anomaly Baseline Detection <span class="card-standard">ISO 7870-2 SPC · ${d.machines_tracked} machine(s) · ${d.anomaly_count} alert(s)</span></div>
+      ${anomalyHtml}
+      <table class="data-table" style="margin-top:0.5rem;">
+        <thead><tr><th>Machine</th><th>Reading</th><th class="num">Mean</th><th class="num">UCL</th><th class="num">Last</th></tr></thead>
+        <tbody>${baselineRows}</tbody>
+      </table>
+    </div>`;
   }
 
   function renderHealthScores(d) {

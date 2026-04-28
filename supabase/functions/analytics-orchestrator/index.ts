@@ -18,7 +18,7 @@ async function fetchDescriptiveData(
 
   // 1. Logbook — corrective entries for MTBF/MTTR/Pareto/Frequency/Repeat
   const logbookQ = db.from("logbook")
-    .select("machine, maintenance_type, category, root_cause, downtime_hours, status, created_at, closed_at, worker_name")
+    .select("machine, maintenance_type, category, root_cause, downtime_hours, status, created_at, closed_at, worker_name, failure_consequence, readings_json, production_output")
     .eq("maintenance_type", "Breakdown / Corrective")
     .gte("created_at", since)
     .order("created_at", { ascending: true })
