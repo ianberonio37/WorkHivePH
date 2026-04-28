@@ -51,6 +51,10 @@ class DiagramRequest(BaseModel):
 def _load_handlers() -> dict[str, Any]:
     handlers: dict[str, Any] = {}
 
+    # Mechanical — Ventilation / ACH
+    from calcs.ventilation_ach import calculate as vent_ach_calc
+    handlers["Ventilation / ACH"] = vent_ach_calc
+
     # Phase 1 — Fluid Mechanics (Pump + Pipe + Compressed Air)
     from calcs.pump_tdh      import calculate as pump_tdh_calc
     from calcs.pipe_sizing   import calculate as pipe_sizing_calc
@@ -141,6 +145,8 @@ def _load_handlers() -> dict[str, Any]:
     handlers["Beam / Column Design"]       = beam_column_calc
     handlers["Lighting Design"]            = lighting_calc
     handlers["Lightning Protection (LPS)"] = lps_calc
+    from calcs.earthing_grounding import calculate as earthing_calc
+    handlers["Earthing / Grounding System"] = earthing_calc
 
     # Phase 8 — Machine Design
     from calcs.shaft_design    import calculate as shaft_calc
@@ -160,7 +166,15 @@ def _load_handlers() -> dict[str, Any]:
     handlers["Vibration Analysis"]    = vibration_calc
     handlers["Fluid Power"]           = fluid_power_calc
     handlers["Noise / Acoustics"]     = noise_calc
-    handlers["Boiler / Steam System"] = boiler_calc
+    handlers["Boiler / Steam System"]  = boiler_calc
+    from calcs.bearing_life    import calculate as bearing_calc
+    from calcs.bolt_torque     import calculate as bolt_calc
+    from calcs.hoist_capacity  import calculate as hoist_calc
+    from calcs.elevator_traffic import calculate as elevator_calc
+    handlers["Bearing Life (L10)"]     = bearing_calc
+    handlers["Bolt Torque & Preload"]  = bolt_calc
+    handlers["Hoist Capacity"]         = hoist_calc
+    handlers["Elevator Traffic Analysis"] = elevator_calc
 
     # ── Frontend name aliases ─────────────────────────────────────────────────
     # Only alias calc types where the frontend input field schema matches what

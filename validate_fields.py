@@ -31,6 +31,12 @@ TESTS = {
         "pipe_material": "Steel", "pipe_diameter_in": 1.0,
     },
 
+    # ── Mechanical ────────────────────────────────────────────────────────────
+    "Ventilation / ACH": {
+        "floor_area": 100, "ceiling_height": 3, "persons": 20,
+        "room_function": "Office", "vent_type": "Supply and Exhaust",
+    },
+
     # ── HVAC ──────────────────────────────────────────────────────────────────
     "HVAC Cooling Load": {
         "floor_area": 100, "ceiling_height": 3, "persons": 10,
@@ -241,6 +247,11 @@ TESTS = {
         "structure_type": "General",
         "location_type": "Suburban (Ng = 2.0 /km²/yr)",
     },
+    "Earthing / Grounding System": {
+        "electrode_type": "Rod", "soil_resistivity": 100,
+        "num_electrodes": 2, "system_type": "Industrial",
+        "rod_length_m": 3.0, "rod_dia_mm": 16, "service_cond_mm2": 35,
+    },
 
     # ── Machine Design ────────────────────────────────────────────────────────
     "Shaft Design": {
@@ -297,18 +308,34 @@ TESTS = {
         "steam_pressure_bar": 10, "feedwater_temp_C": 80,
         "steam_flowrate_kgs": 1.0, "fuel_type": "Natural gas (LNG)",
     },
+    "Bearing Life (L10)": {
+        "bearing_type": "Ball", "C_kN": 25.5, "speed_rpm": 1450,
+        "Fr_kN": 5.0, "Fa_kN": 2.0, "reliability_pct": 90, "required_life_h": 25000,
+    },
+    "Bolt Torque & Preload": {
+        "bolt_size": "M16", "bolt_grade": "8.8", "nut_factor": 0.20,
+        "preload_pct": 75, "ext_load_kN": 50, "n_bolts": 4,
+    },
+    "Hoist Capacity": {
+        "rated_load_kg": 2000, "hook_weight_kg": 30, "sling_weight_kg": 15,
+        "lift_height_m": 6, "lift_speed_mpm": 8, "n_parts": 1,
+        "safety_factor": 5, "mech_eff_pct": 82,
+    },
+    "Elevator Traffic Analysis": {
+        "n_floors": 12, "floor_height": 3.5, "population": 500,
+        "n_elevators": 3, "capacity": 13, "speed": 1.5,
+        "t_door_open": 2.5, "t_door_close": 3.0, "t_dwell": 2.0,
+        "occupancy_type": "Office",
+    },
 }
 
 # ── TypeScript-only calc types (Python returns not_implemented) ────────────────
 # These are handled by the edge function TypeScript — validate_integration.py
 # tests them via the edge function.
 TYPESCRIPT_ONLY = [
-    "Ventilation / ACH", "Load Estimation",
-    "Earthing / Grounding System",
+    "Load Estimation",
     "Hot Water Demand", "Drainage Pipe Sizing",
- "Boiler System",
-    "Elevator Traffic Analysis", "Hoist Capacity",
-    "Bearing Life (L10)", "Bolt Torque & Preload",
+    "Boiler System",
     "Short Circuit",  # TypeScript uses "Short Circuit" (Python uses "Short Circuit Analysis" alias)
 ]
 
