@@ -459,6 +459,35 @@
     panel.innerHTML = html;
   }
 
+  // ── Traffic Light Card Helper ─────────────────────────────────────────────
+  // Builds a card with a large RAG-colored hero number + standard label + detail below.
+  function kpiCard({ title, standard, value, unit, sublabel, color, detail, legend }) {
+    const COLORS = {
+      green:  { bg: 'rgba(74,222,128,0.08)',   border: 'rgba(74,222,128,0.3)',   text: '#4ade80',  label: '✓ Healthy'  },
+      yellow: { bg: 'rgba(247,162,27,0.08)',   border: 'rgba(247,162,27,0.3)',   text: '#F7A21B',  label: '⚠ Watch'    },
+      red:    { bg: 'rgba(248,113,113,0.08)',  border: 'rgba(248,113,113,0.3)',  text: '#f87171',  label: '✗ Critical' },
+      grey:   { bg: 'rgba(255,255,255,0.03)',  border: 'rgba(255,255,255,0.08)', text: 'rgba(255,255,255,0.4)', label: '— No data' },
+    };
+    const c = COLORS[color] || COLORS.grey;
+    return `<div class="card" style="border-left:3px solid ${c.border};margin-bottom:1rem;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:${detail ? '0.875rem' : '0'};">
+        <div>
+          <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;">
+            ${escHtml(title)} <span style="font-size:0.58rem;color:rgba(255,255,255,0.2);font-weight:500;">${escHtml(standard)}</span>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:0.4rem;margin-bottom:0.2rem;">
+            <span style="font-size:2rem;font-weight:800;line-height:1;color:${c.text};">${escHtml(String(value))}</span>
+            <span style="font-size:0.8rem;color:rgba(255,255,255,0.5);">${escHtml(unit)}</span>
+          </div>
+          ${sublabel ? `<div style="font-size:0.68rem;color:rgba(255,255,255,0.4);">${escHtml(sublabel)}</div>` : ''}
+        </div>
+        <span style="font-size:0.65rem;font-weight:700;padding:0.25rem 0.6rem;border-radius:999px;background:${c.bg};border:1px solid ${c.border};color:${c.text};white-space:nowrap;margin-top:0.25rem;">${c.label}</span>
+      </div>
+      ${detail ? `<div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:0.75rem;">${detail}</div>` : ''}
+      ${legend ? `<p style="font-size:0.62rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">${escHtml(legend)}</p>` : ''}
+    </div>`;
+  }
+
   // ── 1. MTBF ────────────────────────────────────────────────────────────────
   // ── OEE (Descriptive) ──────────────────────────────────────────────────────
   function renderOEE(d) {
@@ -488,31 +517,32 @@
 
   function renderMTBF(d) {
     if (!d || !d.mtbf_by_asset?.length) return cardEmpty('MTBF — Mean Time Between Failures', 'ISO 14224:2016 §9.3', 'No corrective failures found in the selected period.');
+    const withData = d.mtbf_by_asset.filter(r => r.mtbf_days !== null);
+    const worst    = withData[0]; // sorted lowest first
+    const heroVal  = worst ? worst.mtbf_days + 'd' : '—';
+    const heroColor= !worst ? 'grey' : worst.mtbf_days < 14 ? 'red' : worst.mtbf_days < 30 ? 'yellow' : 'green';
+    const heroSub  = worst ? `${worst.machine} — most critical asset` : 'Insufficient failure history';
     const rows = d.mtbf_by_asset.map(r => {
       const cls = r.mtbf_days === null ? '' : r.mtbf_days < 14 ? 'alert' : r.mtbf_days < 30 ? 'warn' : 'good';
-      const val = r.mtbf_days !== null ? `${r.mtbf_days}d` : `—`;
-      const note = r.mtbf_days === null ? `<span style="font-size:0.65rem;color:rgba(255,255,255,0.25)">(need ≥2 failures)</span>` : '';
       return `<tr>
         <td class="machine-name">${escHtml(r.machine)}</td>
         <td class="num">${r.failure_count}</td>
-        <td class="num ${cls}">${val} ${note}</td>
+        <td class="num ${cls}">${r.mtbf_days !== null ? r.mtbf_days + 'd' : '—'}</td>
       </tr>`;
     }).join('');
-    return `<div class="card">
-      <div class="card-title">MTBF — Mean Time Between Failures <span class="card-standard">ISO 14224:2016 §9.3</span></div>
-      <table class="data-table">
-        <thead><tr><th>Machine</th><th class="num">Failures</th><th class="num">MTBF</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.75rem;">
-        🔴 &lt;14d critical · 🟡 &lt;30d watch · 🟢 ≥30d healthy
-      </p>
-    </div>`;
+    return kpiCard({
+      title: 'MTBF — Mean Time Between Failures', standard: 'ISO 14224:2016 §9.3',
+      value: heroVal, unit: worst ? 'average between failures' : '', sublabel: heroSub,
+      color: heroColor,
+      detail: `<table class="data-table"><thead><tr><th>Machine</th><th class="num">Failures</th><th class="num">MTBF</th></tr></thead><tbody>${rows}</tbody></table>`,
+      legend: '🔴 <14d critical · 🟡 <30d watch · 🟢 ≥30d healthy',
+    });
   }
 
-  // ── 2. MTTR ────────────────────────────────────────────────────────────────
   function renderMTTR(d) {
     if (!d || !d.mttr_by_asset?.length) return cardEmpty('MTTR — Mean Time To Repair', 'ISO 14224:2016 §9.4', d?.note || 'No closed corrective entries with logged downtime_hours found.');
+    const worst = d.mttr_by_asset[0]; // sorted highest first
+    const heroColor = worst.mttr_hours > 24 ? 'red' : worst.mttr_hours > 8 ? 'yellow' : 'green';
     const rows = d.mttr_by_asset.map(r => {
       const cls = r.mttr_hours > 24 ? 'alert' : r.mttr_hours > 8 ? 'warn' : 'good';
       return `<tr>
@@ -522,76 +552,71 @@
         <td class="num ${cls}">${r.mttr_hours}h</td>
       </tr>`;
     }).join('');
-    return `<div class="card">
-      <div class="card-title">MTTR — Mean Time To Repair <span class="card-standard">ISO 14224:2016 §9.4</span></div>
-      <table class="data-table">
-        <thead><tr><th>Machine</th><th class="num">Repairs</th><th class="num">Total DT</th><th class="num">MTTR</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.75rem;">
-        🔴 &gt;24h · 🟡 &gt;8h · 🟢 ≤8h
-      </p>
-    </div>`;
+    return kpiCard({
+      title: 'MTTR — Mean Time To Repair', standard: 'ISO 14224:2016 §9.4',
+      value: worst.mttr_hours + 'h', unit: 'slowest repair', sublabel: `${worst.machine} — ${worst.repair_count} repair(s)`,
+      color: heroColor,
+      detail: `<table class="data-table"><thead><tr><th>Machine</th><th class="num">Repairs</th><th class="num">Total DT</th><th class="num">MTTR</th></tr></thead><tbody>${rows}</tbody></table>`,
+      legend: '🔴 >24h · 🟡 >8h · 🟢 ≤8h',
+    });
   }
 
-  // ── 3. Availability ────────────────────────────────────────────────────────
   function renderAvailability(d) {
     if (!d || !d.availability_by_asset?.length) return cardEmpty('Availability %', 'ISO 14224:2016 §9.2', 'Insufficient data — need both MTBF and MTTR per machine.');
-    const rows = d.availability_by_asset.map(r => {
+    const withData = d.availability_by_asset.filter(r => r.availability_pct !== null);
+    const worst = withData[0]; // sorted lowest first
+    const heroColor = !worst ? 'grey' : worst.availability_pct < 80 ? 'red' : worst.availability_pct < 90 ? 'yellow' : 'green';
+    const rows = withData.map(r => {
       const pct = r.availability_pct;
-      const cls = pct < 80 ? 'alert' : pct < 90 ? 'warn' : 'good';
       const barPct = pct || 0;
-      return `<div style="margin-bottom:0.75rem;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem;">
-          <span style="font-size:0.75rem;font-weight:600;color:#fff;">${escHtml(r.machine)}</span>
-          <span class="${cls}" style="font-size:0.75rem;font-weight:700;">${pct !== null ? pct + '%' : '—'}</span>
+      return `<div style="margin-bottom:0.6rem;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:0.2rem;">
+          <span style="font-size:0.72rem;font-weight:600;color:#fff;">${escHtml(r.machine)}</span>
+          <span style="font-size:0.72rem;font-weight:700;color:${pct < 80 ? '#f87171' : pct < 90 ? '#F7A21B' : '#4ade80'}">${pct !== null ? pct + '%' : '—'}</span>
         </div>
-        <div class="compliance-track">
-          <div class="compliance-fill" style="width:${barPct}%;background:${pct < 80 ? '#f87171' : pct < 90 ? '#F7A21B' : '#4ade80'}"></div>
-        </div>
+        <div class="compliance-track"><div class="compliance-fill" style="width:${barPct}%;background:${pct < 80 ? '#f87171' : pct < 90 ? '#F7A21B' : '#4ade80'}"></div></div>
       </div>`;
     }).join('');
-    return `<div class="card">
-      <div class="card-title">Availability % <span class="card-standard">ISO 14224:2016 §9.2 — MTBF / (MTBF + MTTR)</span></div>
-      ${rows}
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.25rem;">🔴 &lt;80% · 🟡 &lt;90% · 🟢 ≥90%</p>
-    </div>`;
+    return kpiCard({
+      title: 'Availability %', standard: 'ISO 14224:2016 §9.2',
+      value: worst ? worst.availability_pct + '%' : '—', unit: 'lowest asset',
+      sublabel: worst ? `${worst.machine} — MTBF/(MTBF+MTTR)` : 'No data',
+      color: heroColor,
+      detail: rows,
+      legend: '🔴 <80% · 🟡 <90% · 🟢 ≥90%',
+    });
   }
 
-  // ── 4. PM Compliance ───────────────────────────────────────────────────────
   function renderPMCompliance(d) {
     if (!d || !d.compliance_by_asset?.length) return cardEmpty('PM Compliance Rate', 'SMRP Metric 2.1.1', 'No PM assets or scope items found.');
     const overall = d.overall_pct;
-    const overallCls = overall < 70 ? '#f87171' : overall < 85 ? '#F7A21B' : '#4ade80';
+    const heroColor = overall < 70 ? 'red' : overall < 85 ? 'yellow' : 'green';
+    const failing = d.compliance_by_asset.filter(r => r.compliance_pct < 85);
     const rows = d.compliance_by_asset.map(r => {
       const cls = r.compliance_pct < 70 ? 'alert' : r.compliance_pct < 85 ? 'warn' : 'good';
       return `<tr>
         <td class="machine-name">${escHtml(r.asset_name)}</td>
-        <td class="num">${r.scheduled}</td>
-        <td class="num">${r.completed}</td>
+        <td class="num">${r.completed}/${r.scheduled}</td>
         <td class="num ${cls}">${r.compliance_pct}%</td>
       </tr>`;
     }).join('');
-    return `<div class="card">
-      <div class="card-title">PM Compliance Rate <span class="card-standard">SMRP Metric 2.1.1</span></div>
-      <div class="stat-grid" style="grid-template-columns:1fr;margin-bottom:0.75rem;">
-        <div class="stat-tile">
-          <div class="val" style="color:${overallCls}">${overall}%</div>
-          <div class="label">Overall Hive PM Compliance</div>
-        </div>
-      </div>
-      <table class="data-table">
-        <thead><tr><th>Asset</th><th class="num">Scheduled</th><th class="num">Done</th><th class="num">Rate</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
+    return kpiCard({
+      title: 'PM Compliance Rate', standard: 'SMRP Metric 2.1.1',
+      value: overall + '%', unit: 'overall hive',
+      sublabel: failing.length ? `${failing.length} asset(s) below 85% target` : 'All assets on track',
+      color: heroColor,
+      detail: `<table class="data-table"><thead><tr><th>Asset</th><th class="num">Done/Sched</th><th class="num">Rate</th></tr></thead><tbody>${rows}</tbody></table>`,
+      legend: '🔴 <70% · 🟡 <85% · 🟢 ≥85%',
+    });
   }
 
-  // ── 5. Failure Frequency ───────────────────────────────────────────────────
   function renderFailureFrequency(d) {
     if (!d || !d.failure_frequency?.length) return cardEmpty('Failure Frequency', 'ISO 14224:2016', d?.note || 'No corrective failures in the selected period.');
-    const max = d.failure_frequency[0]?.failure_count || 1;
-    const bars = d.failure_frequency.slice(0, 10).map(r => {
+    const total = d.total_failures;
+    const top   = d.failure_frequency[0];
+    const heroColor = total > 10 ? 'red' : total > 4 ? 'yellow' : 'green';
+    const max = top?.failure_count || 1;
+    const bars = d.failure_frequency.slice(0, 8).map(r => {
       const pct = Math.round((r.failure_count / max) * 100);
       return `<div class="bar-row">
         <span class="bar-label" title="${escHtml(r.machine)}">${escHtml(r.machine)}</span>
@@ -599,10 +624,14 @@
         <span class="bar-val">${r.failure_count}</span>
       </div>`;
     }).join('');
-    return `<div class="card">
-      <div class="card-title">Failure Frequency <span class="card-standard">ISO 14224:2016 · last ${d.period_days} days · ${d.total_failures} total</span></div>
-      ${bars}
-    </div>`;
+    return kpiCard({
+      title: 'Failure Frequency', standard: `ISO 14224:2016 · last ${d.period_days} days`,
+      value: total, unit: 'total failures',
+      sublabel: top ? `${top.machine} — most failures (${top.failure_count})` : '',
+      color: heroColor,
+      detail: bars,
+      legend: '🔴 >10 failures · 🟡 >4 · 🟢 ≤4 in period',
+    });
   }
 
   // ── 6. Downtime Pareto ─────────────────────────────────────────────────────
