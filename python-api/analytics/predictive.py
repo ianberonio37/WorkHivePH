@@ -522,7 +522,6 @@ def calc_health_scores(
             "repeat_faults":     "20%",
         },
         "standard": "Predictive Analytics skill — 4-component formula (ISO 14224, SMRP)",
-        "standard":      "SMRP-inspired weighted composite — 40% MTBF + 30% failure freq + 30% PM compliance",
     }
 
 

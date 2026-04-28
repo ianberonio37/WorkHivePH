@@ -1,4 +1,10 @@
 
+[functions.analytics-orchestrator]
+enabled = true
+verify_jwt = false
+import_map = "./functions/analytics-orchestrator/deno.json"
+entrypoint = "./functions/analytics-orchestrator/index.ts"
+
 [functions.engineering-calc-agent]
 enabled = true
 verify_jwt = false

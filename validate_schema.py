@@ -33,6 +33,7 @@ from validator_utils import read_file, format_result
 MIGRATIONS_DIR = os.path.join("supabase", "migrations")
 
 LIVE_PAGES = [
+    "index.html",
     "logbook.html",
     "inventory.html",
     "pm-scheduler.html",

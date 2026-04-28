@@ -139,6 +139,31 @@ def check_html_hive_id_in_fetch(html, page):
     return []
 
 
+def check_html_auth_headers_in_fetch(html, page):
+    """Edge function fetch must include apikey + Authorization headers."""
+    if not html:
+        return []
+    issues = []
+    if "'apikey'" not in html and '"apikey"' not in html:
+        issues.append({"check": "auth_headers_in_fetch", "page": page,
+                       "reason": "apikey header missing from analytics-orchestrator fetch — Supabase may reject with 401"})
+    if "'Authorization'" not in html and '"Authorization"' not in html:
+        issues.append({"check": "auth_headers_in_fetch", "page": page,
+                       "reason": "Authorization header missing from analytics-orchestrator fetch — Supabase may reject with 401"})
+    return issues
+
+
+def check_html_error_body_read(html, page):
+    """When fetch returns non-200, code must read response body to surface actual error."""
+    if not html:
+        return []
+    if "res.json()" not in html or "errBody" not in html:
+        if re.search(r"if\s*\(!res\.ok\)\s*throw\s+new\s+Error\(`Server error", html):
+            return [{"check": "error_body_read", "page": page,
+                     "reason": "Non-OK fetch throws without reading response body — actual server error message is lost"}]
+    return []
+
+
 def check_html_esc_html_on_error(html, page):
     if not html:
         return []
@@ -431,6 +456,8 @@ def run_checks():
     # Layer 1 — pattern checks
     all_issues += check_html_auth_gate(html, HTML_FILE)
     all_issues += check_html_hive_id_in_fetch(html, HTML_FILE)
+    all_issues += check_html_auth_headers_in_fetch(html, HTML_FILE)
+    all_issues += check_html_error_body_read(html, HTML_FILE)
     all_issues += check_html_esc_html_on_error(html, HTML_FILE)
     all_issues += check_html_phase_banners(html, HTML_FILE)
     all_issues += check_html_double_submit_guard(html, HTML_FILE)
@@ -480,7 +507,8 @@ def run_checks():
 
 CHECK_NAMES = [
     # L1 — pattern
-    "auth_gate", "hive_id_in_fetch", "esc_html_error", "phase_banners",
+    "auth_gate", "hive_id_in_fetch", "auth_headers_in_fetch", "error_body_read",
+    "esc_html_error", "phase_banners",
     "double_submit_guard", "orchestrator_endpoint", "render_functions", "toast_on_error",
     "new_render_functions",
     "edge_phases", "edge_hive_id_scoping", "edge_new_logbook_fields",
@@ -501,6 +529,8 @@ CHECK_LABELS = {
     # L1
     "auth_gate":                "L1  Auth gate (WORKER_NAME redirect)",
     "hive_id_in_fetch":         "L1  HIVE_ID sent in fetch body",
+    "auth_headers_in_fetch":    "L1  apikey + Authorization headers in fetch",
+    "error_body_read":          "L1  Error body read on non-200 (not swallowed)",
     "esc_html_error":           "L1  escHtml on error output",
     "phase_banners":            "L1  PHASE_BANNERS completeness (4 phases)",
     "double_submit_guard":      "L1  Double-submit guard (_loading)",

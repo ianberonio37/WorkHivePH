@@ -383,7 +383,11 @@
     try {
       const res = await fetch(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type':  'application/json',
+          'apikey':        SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+        },
         body: JSON.stringify({
           phase,
           hive_id:     HIVE_ID,
@@ -391,7 +395,10 @@
           period_days: _period,
         }),
       });
-      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.error || errBody.message || `Server error ${res.status}`);
+      }
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       _cache[phase]     = data;

@@ -1401,19 +1401,11 @@
     input.disabled = true;
 
     try {
-      const res = await fetch('https://hook.us2.make.com/12pnddjkqjyq7721lfl771cc7u6e5f73', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: input.value.trim().toLowerCase() }),
-      });
+      await window._supabaseSignup(input.value);
 
-      if (res.ok) {
-        btn.textContent = "You're on the list!";
-        btn.style.background = 'linear-gradient(135deg, #29B6D9 0%, #1A9ABF 100%)';
-        btn.style.color = '#162032';
-      } else {
-        throw new Error('Submit failed');
-      }
+      btn.textContent = "You're on the list!";
+      btn.style.background = 'linear-gradient(135deg, #29B6D9 0%, #1A9ABF 100%)';
+      btn.style.color = '#162032';
     } catch (err) {
       btn.textContent = 'Try again';
       btn.disabled = false;
@@ -1960,6 +1952,21 @@
   };
 
   window.addEventListener('appinstalled', hideBtns);
+})();
+</script>
+
+<!-- Supabase for early access signup (anon key: safe to expose in frontend) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function() {
+  const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+  const _db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  window._supabaseSignup = async function(email) {
+    const { error } = await _db.from('early_access_emails')
+      .insert({ email: email.trim().toLowerCase(), source: 'landing_page' });
+    if (error && error.code !== '23505') throw error;
+  };
 })();
 </script>
 </body>
