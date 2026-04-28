@@ -1988,28 +1988,60 @@ function selectConsequence(btn) {
 
 // ── Readings section (category-smart, Breakdown only) ────────────────────────
 
-const READINGS_BY_CATEGORY = {
-  'Mechanical':       [{ key: 'temperature_c', label: 'Temperature', unit: '°C', placeholder: '85' },
-                       { key: 'vibration_mms',  label: 'Vibration',   unit: 'mm/s', placeholder: '4.5' },
-                       { key: 'pressure_bar',   label: 'Pressure',    unit: 'bar', placeholder: '4.2' }],
-  'Electrical':       [{ key: 'voltage_v',      label: 'Voltage',     unit: 'V', placeholder: '220' },
-                       { key: 'current_a',      label: 'Current',     unit: 'A', placeholder: '15' },
-                       { key: 'temperature_c',  label: 'Temperature', unit: '°C', placeholder: '65' }],
-  'Hydraulic':        [{ key: 'pressure_bar',   label: 'Pressure',    unit: 'bar', placeholder: '180' },
-                       { key: 'flow_lpm',       label: 'Flow',        unit: 'L/min', placeholder: '45' },
-                       { key: 'temperature_c',  label: 'Oil Temp',    unit: '°C', placeholder: '55' }],
-  'Pneumatic':        [{ key: 'pressure_bar',   label: 'Pressure',    unit: 'bar', placeholder: '6.5' },
-                       { key: 'temperature_c',  label: 'Temperature', unit: '°C', placeholder: '40' }],
-  'Instrumentation':  [{ key: 'signal_ma',      label: 'Signal',      unit: 'mA', placeholder: '12' },
-                       { key: 'temperature_c',  label: 'Temperature', unit: '°C', placeholder: '35' }],
-  'Lubrication':      [{ key: 'temperature_c',  label: 'Oil Temp',    unit: '°C', placeholder: '60' },
-                       { key: 'pressure_bar',   label: 'Pressure',    unit: 'bar', placeholder: '3.5' }],
+// ── Equipment reading templates — loaded from DB, falls back to hardcoded ─────
+// Supervisors can add new categories via Supabase dashboard:
+//   Table: equipment_reading_templates (category, reading_key, label, unit, placeholder)
+// No code deploy needed for new equipment types.
+
+const READINGS_FALLBACK = {
+  'Mechanical':      [{ key: 'temperature_c', label: 'Temperature', unit: '°C',   placeholder: '85'  },
+                      { key: 'vibration_mms', label: 'Vibration',   unit: 'mm/s', placeholder: '4.5' },
+                      { key: 'pressure_bar',  label: 'Pressure',    unit: 'bar',  placeholder: '4.2' }],
+  'Electrical':      [{ key: 'voltage_v',     label: 'Voltage',     unit: 'V',    placeholder: '220' },
+                      { key: 'current_a',     label: 'Current',     unit: 'A',    placeholder: '15'  },
+                      { key: 'temperature_c', label: 'Temperature', unit: '°C',   placeholder: '65'  }],
+  'Hydraulic':       [{ key: 'pressure_bar',  label: 'Pressure',    unit: 'bar',  placeholder: '180' },
+                      { key: 'flow_lpm',      label: 'Flow',        unit: 'L/min',placeholder: '45'  },
+                      { key: 'temperature_c', label: 'Oil Temp',    unit: '°C',   placeholder: '55'  }],
+  'Pneumatic':       [{ key: 'pressure_bar',  label: 'Pressure',    unit: 'bar',  placeholder: '6.5' },
+                      { key: 'temperature_c', label: 'Temperature', unit: '°C',   placeholder: '40'  }],
+  'Instrumentation': [{ key: 'signal_ma',     label: 'Signal',      unit: 'mA',   placeholder: '12'  },
+                      { key: 'temperature_c', label: 'Temperature', unit: '°C',   placeholder: '35'  }],
+  'Lubrication':     [{ key: 'temperature_c', label: 'Oil Temp',    unit: '°C',   placeholder: '60'  },
+                      { key: 'pressure_bar',  label: 'Pressure',    unit: 'bar',  placeholder: '3.5' }],
 };
 
-function renderReadingsFields(category) {
-  const section = document.getElementById('readings-section');
-  const fields  = document.getElementById('readings-fields');
-  const defs    = READINGS_BY_CATEGORY[category];
+let _readingTemplates = null; // cached after first load
+
+async function loadReadingTemplates() {
+  if (_readingTemplates) return _readingTemplates;
+  try {
+    const { data, error } = await db.from('equipment_reading_templates')
+      .select('category, reading_key, label, unit, placeholder, sort_order')
+      .order('category').order('sort_order');
+    if (error || !data?.length) {
+      _readingTemplates = READINGS_FALLBACK;
+      return _readingTemplates;
+    }
+    // Group rows by category → same shape as READINGS_FALLBACK
+    const grouped = {};
+    data.forEach(r => {
+      if (!grouped[r.category]) grouped[r.category] = [];
+      grouped[r.category].push({ key: r.reading_key, label: r.label, unit: r.unit, placeholder: r.placeholder });
+    });
+    _readingTemplates = grouped;
+    return _readingTemplates;
+  } catch {
+    _readingTemplates = READINGS_FALLBACK;
+    return _readingTemplates;
+  }
+}
+
+async function renderReadingsFields(category) {
+  const section   = document.getElementById('readings-section');
+  const fields    = document.getElementById('readings-fields');
+  const templates = await loadReadingTemplates();
+  const defs      = templates[category];
 
   if (!defs) { section.classList.add('hidden'); return; }
 
@@ -2043,7 +2075,7 @@ function collectReadings() {
 // Wire category change → update readings fields
 document.getElementById('f-category').addEventListener('change', function() {
   const isBreakdown = document.getElementById('f-maint-type').value.includes('Breakdown');
-  if (isBreakdown) renderReadingsFields(this.value);
+  if (isBreakdown) await renderReadingsFields(this.value);
 });
 
 // ── Production Output (OEE Quality + Performance) ────────────────────────────
@@ -2103,7 +2135,7 @@ document.getElementById('f-maint-type').addEventListener('change', function() {
 
   if (isBreakdown) {
     consequenceEl.classList.remove('hidden');
-    renderReadingsFields(document.getElementById('f-category').value);
+    await renderReadingsFields(document.getElementById('f-category').value);
     // Auto-open extras drawer
     const drawer = document.getElementById('extras-drawer');
     if (!drawer.classList.contains('open')) {
