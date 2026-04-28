@@ -10899,6 +10899,7 @@ function showReport() {
     'Chiller System — Air Cooled',
     'Chiller System — Water Cooled',
     'Cooling Tower Sizing',
+    'Refrigerant Pipe Sizing',
   ];
   const drawingSection = document.getElementById('drawing-section');
   if (DRAWING_SUPPORTED.includes(_calcType)) {
@@ -10930,6 +10931,8 @@ function showReport() {
       descEl.textContent = 'Generates a fire pump P&ID schematic showing pump, OS&Y valves, check valve, relief valve, jockey pump, test header, flow transmitter and duty-cycle data per NFPA 20:2022 / ISA-5.1:2009';
     } else if (_calcType === 'Ventilation / ACH' && descEl) {
       descEl.textContent = 'Generates a ventilation system schematic showing OA intake, filter, supply fan, supply diffusers, return/exhaust path, ASHRAE 62.1 VRP compliance summary and required ACH';
+    } else if (_calcType === 'Refrigerant Pipe Sizing' && descEl) {
+      descEl.textContent = 'Generates a refrigerant circuit P&ID showing ODU (compressor+condenser), IDU (evaporator+TXV), suction/discharge/liquid lines with OD, velocity, dT per ASHRAE Refrigeration Handbook / ASTM B280';
     } else if (_calcType === 'Cooling Tower Sizing' && descEl) {
       descEl.textContent = 'Generates a cooling tower cross-section schematic showing fill media, drift eliminator, fan, hot/cold water connections, make-up water, blowdown, approach/range and ASHRAE 90.1 compliance per CTI Std-201';
     } else if ((_calcType === 'Chiller System — Air Cooled' || _calcType === 'Chiller System — Water Cooled') && descEl) {
@@ -18866,6 +18869,9 @@ async function _runDrawing() {
     } else if (ct === 'Ventilation / ACH') {
       const svg = buildVentilationSVG(_lastInputs, _lastResults);
       _renderGenericSLD(svg, null);
+    } else if (ct === 'Refrigerant Pipe Sizing') {
+      const svg = buildRefrigPipeSVG(_lastInputs, _lastResults);
+      _renderGenericSLD(svg, null);
     } else if (ct === 'Cooling Tower Sizing') {
       const svg = buildCoolingTowerSVG(_lastInputs, _lastResults);
       _renderGenericSLD(svg, null);
@@ -21195,6 +21201,288 @@ function buildChillerSVG(inputs, results, calcType) {
           : `4. Air-cooled condenser: ${Number(airCMH).toLocaleString()} m³/h at ${ambient}°C DB. Ensure 1.5 m clearance on all sides per PSME Code.`,
     `5. Refrigerant ${refrig}: check F-gas compliance. Annual leak check required (DENR DAO 2021-19).`,
     `6. CHW piping insulated per ASHRAE 90.1 §6.4.4. Pump P-CHW-201 sized for ${chwFlowM3} m³/h design flow.`,
+  ].forEach((note, i) => p.push(T(LX2+8, STRIP_Y+27+i*12, note, {a:'start', sz:7, c:SC})));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` +
+    p.join('\n  ') + `\n</svg>`;
+}
+
+// ─── Refrigerant Pipe Sizing — Circuit P&ID ───────────────────────────────────
+// Standards: ASHRAE Refrigeration Handbook, ASTM B280 (ACR copper), ASHRAE 15,
+//            PSME Code, PEC 2017 (electrical)
+// Drawing rules: ISA-5.1 instrument bubbles, A3 W=1050 H=580, STRIP_Y=467
+// Mandatory per ASHRAE: suction/discharge/liquid OD + velocity check,
+//   saturation temperature loss (delta_T_eq_K), pipe material (ASTM B280),
+//   refrigerant type, compressor/condenser/evaporator tags
+function buildRefrigPipeSVG(inputs, results) {
+  const r = results || {};
+
+  // ── Extract line data ───────────────────────────────────────────────────────
+  const lines   = Array.isArray(r.lines) ? r.lines : [];
+  const getSuc  = t => lines.find(l => l.line_type?.toLowerCase().includes('suction')     && !l.line_type?.toLowerCase().includes('riser')) || r.suction_horizontal || {};
+  const getDis  = t => lines.find(l => l.line_type?.toLowerCase().includes('discharge'))   || r.discharge || {};
+  const getLiq  = t => lines.find(l => l.line_type?.toLowerCase().includes('liquid'))      || r.liquid || {};
+
+  const suc     = getSuc();
+  const dis     = getDis();
+  const liq     = getLiq();
+
+  const refrig  = String(inputs?.refrigerant || r.inputs_used?.refrigerant || 'R-410A');
+  const capKW   = Number(inputs?.capacity_kw || 50);
+  const evapT   = Number(r.evap_temp_c  || inputs?.evap_temp_c  || 7);
+  const condT   = Number(r.cond_temp_c  || inputs?.cond_temp_c  || 45);
+  const massKgs = Number(r.mass_flow_kgs || 0).toFixed(4);
+  const applic  = String(inputs?.application || 'AC');
+
+  const sucOD   = Number(suc.selected_od_mm || suc.od_mm || 0).toFixed(2);
+  const disOD   = Number(dis.selected_od_mm || dis.od_mm || 0).toFixed(2);
+  const liqOD   = Number(liq.selected_od_mm || liq.od_mm || 0).toFixed(2);
+  const sucV    = Number(suc.velocity_ms    || 0).toFixed(2);
+  const disV    = Number(dis.velocity_ms    || 0).toFixed(2);
+  const liqV    = Number(liq.velocity_ms    || 0).toFixed(2);
+  const sucDT   = Number(suc.delta_t_k || suc.delta_T_eq_K || 0).toFixed(3);
+  const disDT   = Number(dis.delta_t_k || dis.delta_T_eq_K || 0).toFixed(3);
+  const liqDT   = Number(liq.delta_t_k || liq.delta_T_eq_K || 0).toFixed(3);
+  const sucOk   = suc.vel_check === 'OK' || suc.velocity_ok;
+  const disOk   = dis.vel_check === 'OK' || dis.velocity_ok;
+  const liqOk   = liq.vel_check === 'OK' || liq.velocity_ok;
+  const insul   = String(r.insulation_requirement || 'Suction line insulation required');
+  const proj    = String(inputs?.project_name || 'Refrigerant Pipe Sizing');
+
+  const W = 1050, H = 580, STRIP_Y = 467;
+  const CC = '#1a2e4a', SC = '#5a6a7a', AO = '#F7A21B';
+  const SUC = '#1565c0';   // suction — cold blue (low pressure, vapor)
+  const DIS = '#c0392b';   // discharge — hot red (high pressure, vapor)
+  const LIQ = '#2e7d32';   // liquid — green (high pressure, liquid)
+  const EQ  = '#7b1fa2';   // equipment purple
+
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const T  = (x,y,t,{a='middle',sz=9,c=CC,w='normal'}={}) =>
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+  const VL = (x,y1,y2,sw=3,clr=CC) => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${clr}" stroke-width="${sw}"/>`;
+  const HL = (x1,y,x2,sw=3,clr=CC) => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${clr}" stroke-width="${sw}"/>`;
+  const DL = (x1,y1,x2,y2,clr=SC)  =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${clr}" stroke-width="1" stroke-dasharray="4 3"/>`;
+  const Arrow = (x,y,dir,clr,sz=10) => {
+    if(dir==='right') return `<polygon points="${x},${y-sz/2} ${x+sz},${y} ${x},${y+sz/2}" fill="${clr}"/>`;
+    if(dir==='left')  return `<polygon points="${x},${y-sz/2} ${x-sz},${y} ${x},${y+sz/2}" fill="${clr}"/>`;
+    if(dir==='up')    return `<polygon points="${x-sz/2},${y} ${x},${y-sz} ${x+sz/2},${y}" fill="${clr}"/>`;
+    if(dir==='down')  return `<polygon points="${x-sz/2},${y} ${x},${y+sz} ${x+sz/2},${y}" fill="${clr}"/>`;
+    return '';
+  };
+  const Bubble = (cx,cy,tag,loop,shared=true,clr=SC) =>
+    `<circle cx="${cx}" cy="${cy}" r="16" fill="white" stroke="${clr}" stroke-width="1.5"/>` +
+    (shared?`<line x1="${cx-14}" y1="${cy}" x2="${cx+14}" y2="${cy}" stroke="${clr}" stroke-width="1"/>`:'')+
+    T(cx, cy-4, tag, {sz:7.5, c:clr, w:'700'}) +
+    T(cx, cy+8, loop, {sz:7,   c:'#444'});
+  const PipeTag = (x,y,od,v,ok,mat='ACR Cu') =>
+    `<rect x="${x-52}" y="${y-12}" width="104" height="24" rx="3" fill="white" stroke="${ok?AO:'#c62828'}" stroke-width="1.2"/>` +
+    T(x, y-4, `OD ${od} mm  v=${v} m/s`, {sz:7.5, c:CC, w:'700'}) +
+    T(x, y+6, `${mat} ASTM B280  ${ok?'OK':'FAIL'}`, {sz:7, c:ok?SC:'#c62828'});
+
+  let p = [];
+
+  // ── Background + inner margin ─────────────────────────────────────────────
+  p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="0.75"/>`);
+
+  // ── Title ─────────────────────────────────────────────────────────────────
+  p.push(T(W/2, 27, 'REFRIGERANT PIPE SIZING — CIRCUIT P&ID', {sz:12, c:CC, w:'700'}));
+  p.push(T(W/2, 41, `ASHRAE Refrigeration Handbook / ASTM B280 (ACR Cu) / ASHRAE 15  |  ${refrig}  |  ${capKW} kW  |  Tevap ${evapT}°C / Tcond ${condT}°C`, {sz:9, c:SC}));
+
+  // ── LAYOUT: Outdoor unit (left) ── pipes ── Indoor unit (right) ─────────
+  // OUTDOOR UNIT (compressor + condenser)
+  const OU_X = 30, OU_Y = 80, OU_W = 180, OU_H = 280;
+  p.push(`<rect x="${OU_X}" y="${OU_Y}" width="${OU_W}" height="${OU_H}" fill="#fafafa" stroke="${EQ}" stroke-width="2" rx="6"/>`);
+  p.push(`<rect x="${OU_X}" y="${OU_Y}" width="${OU_W}" height="20" fill="${EQ}" rx="6"/>`);
+  p.push(T(OU_X+OU_W/2, OU_Y+14, 'OUTDOOR UNIT (ODU)', {sz:8, c:'#fff', w:'700'}));
+  p.push(T(OU_X+OU_W/2, OU_Y+32, 'ODU-201', {sz:8.5, c:EQ, w:'700'}));
+
+  // Compressor inside ODU
+  const CP_CX = OU_X+90, CP_CY = OU_Y+90;
+  p.push(`<circle cx="${CP_CX}" cy="${CP_CY}" r="32" fill="#fff9c4" stroke="${DIS}" stroke-width="2"/>`);
+  p.push(T(CP_CX, CP_CY-4, 'COMP', {sz:8.5, c:'#7a4a00', w:'700'}));
+  p.push(T(CP_CX, CP_CY+8, 'C-201', {sz:7.5, c:SC}));
+  p.push(T(CP_CX, CP_CY+20, `${refrig}`, {sz:7, c:SC}));
+
+  // Condenser coil inside ODU
+  const CD_Y = OU_Y + 155;
+  p.push(`<rect x="${OU_X+10}" y="${CD_Y}" width="${OU_W-20}" height="60" fill="#ffebee" stroke="${DIS}" stroke-width="1.5" rx="3"/>`);
+  p.push(T(OU_X+OU_W/2, CD_Y+14, 'CONDENSER COIL', {sz:7.5, c:DIS, w:'700'}));
+  p.push(T(OU_X+OU_W/2, CD_Y+27, `Tcond = ${condT}°C`, {sz:7.5, c:DIS}));
+  // Condenser fan
+  p.push(T(OU_X+OU_W/2, CD_Y+55, `Fan: ${Math.ceil(capKW*0.04*10)/10} kW`, {sz:7, c:SC}));
+  // Air arrows through condenser
+  [OU_X+40, OU_X+90, OU_X+140].forEach(ax => {
+    p.push(Arrow(ax, CD_Y-10, 'down', AO, 8));
+    p.push(Arrow(ax, CD_Y+60+6, 'down', AO, 8));
+  });
+  p.push(T(OU_X+OU_W/2, OU_Y+OU_H-12, `Tcond = ${condT}°C  |  Air-cooled`, {sz:7, c:SC}));
+
+  // ── CONNECTION PORTS on ODU ───────────────────────────────────────────────
+  // Suction port (top — compressor suction, low pressure vapor)
+  const SUC_PORT_Y = OU_Y + 58;
+  p.push(`<circle cx="${OU_X+OU_W}" cy="${SUC_PORT_Y}" r="5" fill="${SUC}" stroke="white" stroke-width="1.5"/>`);
+  p.push(T(OU_X+OU_W+8, SUC_PORT_Y-6, 'SUC', {a:'start', sz:7, c:SUC, w:'700'}));
+  p.push(T(OU_X+OU_W+8, SUC_PORT_Y+5, `(LP Vapor)`, {a:'start', sz:6.5, c:SC}));
+
+  // Discharge port (mid — compressor discharge, high pressure vapor)
+  const DIS_PORT_Y = OU_Y + 120;
+  p.push(`<circle cx="${OU_X+OU_W}" cy="${DIS_PORT_Y}" r="5" fill="${DIS}" stroke="white" stroke-width="1.5"/>`);
+  p.push(T(OU_X+OU_W+8, DIS_PORT_Y-6, 'DIS', {a:'start', sz:7, c:DIS, w:'700'}));
+  p.push(T(OU_X+OU_W+8, DIS_PORT_Y+5, `(HP Vapor)`, {a:'start', sz:6.5, c:SC}));
+
+  // Liquid port (bottom — sub-cooled liquid out of condenser)
+  const LIQ_PORT_Y = OU_Y + 200;
+  p.push(`<circle cx="${OU_X+OU_W}" cy="${LIQ_PORT_Y}" r="5" fill="${LIQ}" stroke="white" stroke-width="1.5"/>`);
+  p.push(T(OU_X+OU_W+8, LIQ_PORT_Y-6, 'LIQ', {a:'start', sz:7, c:LIQ, w:'700'}));
+  p.push(T(OU_X+OU_W+8, LIQ_PORT_Y+5, `(HP Liquid)`, {a:'start', sz:6.5, c:SC}));
+
+  // ── INDOOR UNIT (evaporator) ─────────────────────────────────────────────
+  const IU_X = 790, IU_Y = 130, IU_W = 200, IU_H = 160;
+  p.push(`<rect x="${IU_X}" y="${IU_Y}" width="${IU_W}" height="${IU_H}" fill="#fafafa" stroke="${EQ}" stroke-width="2" rx="6"/>`);
+  p.push(`<rect x="${IU_X}" y="${IU_Y}" width="${IU_W}" height="20" fill="${EQ}" rx="6"/>`);
+  p.push(T(IU_X+IU_W/2, IU_Y+14, 'INDOOR UNIT (IDU)', {sz:8, c:'#fff', w:'700'}));
+  p.push(T(IU_X+IU_W/2, IU_Y+34, 'IDU-201', {sz:8.5, c:EQ, w:'700'}));
+
+  // Evaporator coil
+  p.push(`<rect x="${IU_X+10}" y="${IU_Y+44}" width="${IU_W-20}" height="55" fill="#e3f2fd" stroke="${SUC}" stroke-width="1.5" rx="3"/>`);
+  p.push(T(IU_X+IU_W/2, IU_Y+64, 'EVAPORATOR COIL', {sz:7.5, c:SUC, w:'700'}));
+  p.push(T(IU_X+IU_W/2, IU_Y+78, `Tevap = ${evapT}°C`, {sz:7.5, c:SUC}));
+  p.push(T(IU_X+IU_W/2, IU_Y+91, `Cap: ${capKW} kW`, {sz:7, c:CC}));
+
+  // Expansion valve (TXV)
+  const TXV_Y = IU_Y + 115;
+  p.push(`<rect x="${IU_X+20}" y="${TXV_Y}" width="70" height="28" fill="#fff3e0" stroke="${AO}" stroke-width="1.5" rx="3"/>`);
+  p.push(T(IU_X+55, TXV_Y+12, 'TXV', {sz:8, c:AO, w:'700'}));
+  p.push(T(IU_X+55, TXV_Y+22, 'EV-201', {sz:7, c:SC}));
+  // Bulb sensing line (dashed)
+  p.push(DL(IU_X+20, TXV_Y+14, IU_X+10, IU_Y+66));
+
+  // IDU fan
+  p.push(T(IU_X+IU_W/2, IU_Y+IU_H-12, 'IDU Fan', {sz:7, c:SC}));
+
+  // IDU ports
+  const IDU_SUC_Y = IU_Y + 66;   // suction out (vapor to ODU)
+  const IDU_LIQ_Y = IU_Y + TXV_Y - IU_Y + 14; // liquid in
+  p.push(`<circle cx="${IU_X}" cy="${IDU_SUC_Y}" r="5" fill="${SUC}" stroke="white" stroke-width="1.5"/>`);
+  p.push(`<circle cx="${IU_X}" cy="${IU_Y + 129}" r="5" fill="${LIQ}" stroke="white" stroke-width="1.5"/>`);
+
+  // ── PIPE ROUTING ──────────────────────────────────────────────────────────
+  const PIPE_BEND = OU_X + OU_W + 50;  // vertical routing column x
+
+  // ── SUCTION LINE (blue) — low pressure vapor from evaporator to compressor ─
+  const SY = SUC_PORT_Y;
+  // ODU suction port → horizontal → bend → up/down to IDU evap
+  p.push(HL(OU_X+OU_W+5, SY, PIPE_BEND, 4, SUC));
+  p.push(VL(PIPE_BEND, SY, IDU_SUC_Y, 4, SUC));
+  p.push(HL(PIPE_BEND, IDU_SUC_Y, IU_X-5, 4, SUC));
+  p.push(Arrow(OU_X+OU_W+8, SY, 'right', SUC, 10));
+  p.push(Arrow(PIPE_BEND, IDU_SUC_Y+4, 'right', SUC, 10));
+  // Suction line tag (centre of horizontal run)
+  const SUC_MX = (PIPE_BEND + IU_X) / 2;
+  p.push(PipeTag(SUC_MX, IDU_SUC_Y-28, sucOD, sucV, sucOk));
+  p.push(T(SUC_MX, IDU_SUC_Y-40, `SUCTION LINE  |  dT = ${sucDT} K equiv.  |  INSULATED`, {sz:7.5, c:SUC, w:'700'}));
+
+  // ── DISCHARGE LINE (red) — high pressure hot vapor from compressor to condenser ─
+  const DSY = DIS_PORT_Y;
+  // ODU discharge port → routing loop ABOVE suction
+  const DIS_ROUTE_Y = 62;
+  p.push(HL(OU_X+OU_W+5, DSY, PIPE_BEND+30, 3.5, DIS));
+  p.push(VL(PIPE_BEND+30, DSY, DIS_ROUTE_Y, 3.5, DIS));
+  // Discharge goes back INTO ODU condenser at a higher level
+  // In our schematic we just show it returning to the condenser via the ODU body
+  p.push(T((OU_X+OU_W + PIPE_BEND+30)/2, DSY-10, `DISCHARGE LINE  OD ${disOD} mm  v=${disV} m/s  ${disOk?'OK':'FAIL'}`, {sz:7.5, c:DIS, w:'700'}));
+  p.push(`<rect x="${OU_X+OU_W+8}" y="${DSY-14}" width="180" height="20" rx="3" fill="white" stroke="${disOk?AO:'#c62828'}" stroke-width="1.2"/>`);
+  p.push(T(OU_X+OU_W+98, DSY-4, `OD ${disOD} mm  |  v=${disV} m/s  |  dT=${disDT}K`, {sz:7, c:DIS, w:'700'}));
+  p.push(T(OU_X+OU_W+98, DSY+6, `ASTM B280 ACR Cu  ${disOk?'OK':'FAIL'}`, {sz:7, c:disOk?SC:'#c62828'}));
+  p.push(Arrow(OU_X+OU_W+8, DSY, 'right', DIS, 10));
+
+  // ── LIQUID LINE (green) — sub-cooled liquid to TXV ────────────────────────
+  const LY = LIQ_PORT_Y;
+  const LIQ_ROUTE_Y = IU_Y + 129;
+  const LIQ_BEND_X  = PIPE_BEND + 60;
+  p.push(HL(OU_X+OU_W+5, LY, LIQ_BEND_X, 3.5, LIQ));
+  p.push(VL(LIQ_BEND_X, LY, LIQ_ROUTE_Y, 3.5, LIQ));
+  p.push(HL(LIQ_BEND_X, LIQ_ROUTE_Y, IU_X-5, 3.5, LIQ));
+  p.push(Arrow(OU_X+OU_W+8, LY, 'right', LIQ, 10));
+  p.push(Arrow(LIQ_BEND_X, LIQ_ROUTE_Y+3, 'right', LIQ, 10));
+  // Liquid line tag
+  const LIQ_MX = (LIQ_BEND_X + IU_X) / 2;
+  p.push(PipeTag(LIQ_MX, LIQ_ROUTE_Y+28, liqOD, liqV, liqOk));
+  p.push(T(LIQ_MX, LIQ_ROUTE_Y+42, `LIQUID LINE  |  dT = ${liqDT} K equiv.  |  NOT INSULATED`, {sz:7.5, c:LIQ, w:'700'}));
+
+  // ── ACCESSORIES ON LIQUID LINE ────────────────────────────────────────────
+  // Filter drier (mandatory on liquid line — ASHRAE)
+  const FD_X = 430, FD_Y = LIQ_ROUTE_Y;
+  p.push(`<rect x="${FD_X-22}" y="${FD_Y-12}" width="44" height="24" rx="12" fill="#fff8e1" stroke="${LIQ}" stroke-width="1.8"/>`);
+  p.push(T(FD_X, FD_Y-2, 'FD', {sz:8, c:LIQ, w:'700'}));
+  p.push(T(FD_X, FD_Y+8, '201', {sz:7, c:SC}));
+  p.push(T(FD_X, FD_Y+22, 'Filter Drier', {sz:7, c:SC}));
+
+  // Sight glass (liquid line indicator)
+  const SG_X = 530, SG_Y = LIQ_ROUTE_Y;
+  p.push(`<circle cx="${SG_X}" cy="${SG_Y}" r="12" fill="white" stroke="${LIQ}" stroke-width="1.8"/>`);
+  p.push(`<line x1="${SG_X-8}" y1="${SG_Y-8}" x2="${SG_X+8}" y2="${SG_Y+8}" stroke="${LIQ}" stroke-width="1.5"/>`);
+  p.push(T(SG_X, SG_Y+20, 'SG-201', {sz:7, c:SC}));
+  p.push(T(SG_X, SG_Y+30, 'Sight Glass', {sz:7, c:SC}));
+
+  // Service valves (suction and liquid sides — ASHRAE 15)
+  const SV_SUC_X = 350, SV_Y = IDU_SUC_Y;
+  // Suction service valve
+  p.push(`<polygon points="${SV_SUC_X-8},${SV_Y-8} ${SV_SUC_X},${SV_Y} ${SV_SUC_X-8},${SV_Y+8}" fill="white" stroke="${SUC}" stroke-width="1.5"/>`);
+  p.push(`<polygon points="${SV_SUC_X+8},${SV_Y-8} ${SV_SUC_X},${SV_Y} ${SV_SUC_X+8},${SV_Y+8}" fill="white" stroke="${SUC}" stroke-width="1.5"/>`);
+  p.push(T(SV_SUC_X, SV_Y+18, 'SV-201S', {sz:7, c:SC}));
+
+  // Accumulator on suction line (ASHRAE Refrig. recommendation)
+  const ACC_X = 640, ACC_Y = IDU_SUC_Y;
+  p.push(`<rect x="${ACC_X-15}" y="${ACC_Y-28}" width="30" height="56" rx="15" fill="#e3f2fd" stroke="${SUC}" stroke-width="1.8"/>`);
+  p.push(T(ACC_X, ACC_Y-8, 'ACC', {sz:7.5, c:SUC, w:'700'}));
+  p.push(T(ACC_X, ACC_Y+5, '201', {sz:7, c:SC}));
+  p.push(T(ACC_X, ACC_Y+30, 'Accumulator', {sz:7, c:SC}));
+
+  // ── ISA-5.1 INSTRUMENTS ───────────────────────────────────────────────────
+  // Suction pressure/temperature (TIT/PIT-201)
+  p.push(`<circle cx="${SV_SUC_X-60}" cy="${IDU_SUC_Y}" r="4" fill="${SUC}"/>`);
+  p.push(DL(SV_SUC_X-60, IDU_SUC_Y-4, SV_SUC_X-60, IDU_SUC_Y-50));
+  p.push(Bubble(SV_SUC_X-60, IDU_SUC_Y-66, 'TIT', '201', true, SUC));
+  p.push(T(SV_SUC_X-60, IDU_SUC_Y-86, `${evapT}°C`, {sz:7.5, c:SUC, w:'700'}));
+
+  // Discharge pressure/temperature (TIT/PIT-202)
+  const DPT_X = OU_X+OU_W + 30;
+  p.push(`<circle cx="${DPT_X}" cy="${DIS_PORT_Y}" r="4" fill="${DIS}"/>`);
+  p.push(DL(DPT_X, DIS_PORT_Y+4, DPT_X, DIS_PORT_Y+42));
+  p.push(Bubble(DPT_X, DIS_PORT_Y+58, 'TIT', '202', true, DIS));
+  p.push(T(DPT_X, DIS_PORT_Y+78, `${condT}°C`, {sz:7.5, c:DIS, w:'700'}));
+
+  // ── MASS FLOW ANNOTATION ──────────────────────────────────────────────────
+  p.push(T(W/2-40, 55, `Mass flow: ${massKgs} kg/s  |  Refrigerant: ${refrig}`, {sz:8.5, c:CC, w:'700'}));
+
+  // ── LEGEND + NOTES (STRIP_Y = 467) ───────────────────────────────────────
+  p.push(HL(11, STRIP_Y, W-11, 0.75));
+  const LX2 = 460;
+  p.push(VL(LX2, STRIP_Y, H-11, 0.75));
+
+  p.push(T(18, STRIP_Y+13, 'LEGEND', {a:'start', sz:7, c:CC, w:'700'}));
+  // ISA-5.1 line types (mandatory P&ID checklist)
+  [[SUC, 4, '', `Suction line — LP vapor  OD ${sucOD}mm  v=${sucV} m/s`],
+   [DIS, 3.5, '', `Discharge line — HP vapor  OD ${disOD}mm  v=${disV} m/s`],
+   [LIQ, 3.5, '', `Liquid line — HP liquid  OD ${liqOD}mm  v=${liqV} m/s`],
+   [SC,  1, '4 3', 'Instrument signal (ISA-5.1)'],
+  ].forEach(([clr, sw, dash, lbl], i) => {
+    const ly = STRIP_Y + 20 + i * 13;
+    p.push(`<line x1="18" y1="${ly}" x2="42" y2="${ly}" stroke="${clr}" stroke-width="${sw}"${dash?` stroke-dasharray="${dash}"`:''}/>` );
+    p.push(T(48, ly+4, lbl, {a:'start', sz:7.5, c:CC}));
+  });
+
+  p.push(T(LX2+8, STRIP_Y+13, 'GENERAL NOTES', {a:'start', sz:7, c:CC, w:'700'}));
+  [
+    `1. Pipe sizing per ASHRAE Refrigeration Handbook Ch.2. All ACR copper per ASTM B280 (cleaned, dehydrated, sealed).`,
+    `2. Suction OD ${sucOD}mm v=${sucV}m/s (target 4-18 m/s horiz.) — ${sucOk?'OK':'CHECK VELOCITY'}. Insulate full length (25mm minimum).`,
+    `3. Discharge OD ${disOD}mm v=${disV}m/s (target 8-18 m/s) — ${disOk?'OK':'CHECK VELOCITY'}. dT=${disDT}K equiv. sat. temp. loss.`,
+    `4. Liquid OD ${liqOD}mm v=${liqV}m/s (target 0.5-1.5 m/s) — ${liqOk?'OK':'CHECK VELOCITY'}. Filter drier + sight glass mandatory.`,
+    `5. All refrigerant systems per ASHRAE 15 (Safety Code). Annual leak check per DENR DAO 2021-19 (F-gas reporting).`,
+    `6. ${insul}. Brazed joints per AWS B2.2. Pressure test to 1.5× MAWP with dry nitrogen before charging.`,
   ].forEach((note, i) => p.push(T(LX2+8, STRIP_Y+27+i*12, note, {a:'start', sz:7, c:SC})));
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` +
