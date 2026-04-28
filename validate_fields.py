@@ -127,6 +127,11 @@ TESTS = {
         "primary_voltage": 13800, "secondary_voltage": 400,
         "cable_length_m": 10, "cable_size_mm2": 50,
     },
+    "Short Circuit": {
+        "xfmr_kva": 500, "xfmr_impedance_pct": 5.0,
+        "primary_voltage": 13800, "secondary_voltage": 400,
+        "cable_length_m": 10, "cable_size_mm2": 50,
+    },
     "Load Schedule": {
         "loads": [
             {"name": "AC Unit", "qty": 2, "watts_each": 2000,
@@ -358,12 +363,7 @@ TESTS = {
 # ── TypeScript-only calc types (Python returns not_implemented) ────────────────
 # These are handled by the edge function TypeScript — validate_integration.py
 # tests them via the edge function.
-TYPESCRIPT_ONLY = [
-    # All calcs now have Python handlers.
-    # "Short Circuit" falls through to TypeScript because the frontend uses that exact
-    # string but Python registered it as "Short Circuit Analysis" (an alias exists).
-    "Short Circuit",
-]
+TYPESCRIPT_ONLY = []  # All calc types are now handled by the Python API
 
 
 def call(calc_type, inputs):
