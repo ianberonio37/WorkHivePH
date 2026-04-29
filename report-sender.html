@@ -394,11 +394,10 @@
       </div>
     </header>
 
-    <!-- Install instructions — platform-specific, hidden when already installed -->
-    <div class="install-guide" id="install-guide" style="display:none">
+    <!-- Install instructions — always visible, platform-specific -->
+    <div class="install-guide" id="install-guide">
       <div class="install-guide-icon" id="install-guide-icon"></div>
       <div class="install-guide-text" id="install-guide-text"></div>
-      <button class="ios-hint-close" id="ios-hint-close" aria-label="Dismiss">&#x2715;</button>
     </div>
 
     <div class="card" id="main-card" data-state="idle">
@@ -529,9 +528,16 @@
       };
     }
 
-    // Hide everything if already running as installed PWA
+    // Show guide immediately on load (or hide if already installed)
     if (_isStandalone) {
-      _installBtn.style.display = 'none';
+      _installBtn.style.display   = 'none';
+      _installGuide.style.display = 'none';
+    } else {
+      const guide = _getGuide();
+      _installGuide.className = 'install-guide ' + guide.cls;
+      document.getElementById('install-guide-icon').innerHTML = guide.icon;
+      document.getElementById('install-guide-text').innerHTML = guide.html;
+      _installGuide.style.display = 'flex';
     }
 
     // Capture Android/Chrome install prompt
@@ -541,11 +547,11 @@
     });
 
     window.addEventListener('appinstalled', () => {
-      _installBtn.style.display    = 'none';
-      _installGuide.style.display  = 'none';
+      _installBtn.style.display   = 'none';
+      _installGuide.style.display = 'none';
     });
 
-    // Install button tap
+    // Install button tap — trigger native prompt on Android/desktop
     _installBtn.addEventListener('click', async () => {
       if (_deferredInstall) {
         _deferredInstall.prompt();
@@ -555,22 +561,7 @@
           _installGuide.style.display = 'none';
         }
         _deferredInstall = null;
-        return;
       }
-      // Show platform guide
-      if (_installGuide.style.display !== 'none') {
-        _installGuide.style.display = 'none';
-        return;
-      }
-      const guide = _getGuide();
-      _installGuide.className          = 'install-guide ' + guide.cls;
-      document.getElementById('install-guide-icon').innerHTML = guide.icon;
-      document.getElementById('install-guide-text').innerHTML = guide.html;
-      _installGuide.style.display      = 'flex';
-    });
-
-    document.getElementById('ios-hint-close').addEventListener('click', () => {
-      _installGuide.style.display = 'none';
     });
 
     // ── Config ───────────────────────────────────────────────────────────────────
