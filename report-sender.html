@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Report Sender | WorkHive</title>
   <link rel="manifest" href="report-sender-manifest.json" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
@@ -993,8 +994,12 @@
       document.querySelectorAll('.label-pill').forEach(p =>
         p.classList.toggle('active', p.dataset.label === 'Team')
       );
-      document.getElementById('sheet-overlay').style.display = 'flex';
-      setTimeout(() => document.getElementById('contact-name').focus(), 300);
+
+      const overlay = document.getElementById('sheet-overlay');
+      const nameInput = document.getElementById('contact-name');
+      overlay.style.display = 'flex';
+      // Delay focus until sheet animation completes (~300ms)
+      setTimeout(() => nameInput.focus(), 300);
     }
 
     function closeSheet() {

@@ -41,6 +41,8 @@ ALL_FUNCTIONS = [
     "scheduled-agents",
     "semantic-search",
     "embed-entry",
+    "send-report-email",
+    "voice-report-intent",
 ]
 
 REQUIRED_FIELDS = {
@@ -50,6 +52,8 @@ REQUIRED_FIELDS = {
     "engineering-bom-sow":      ["discipline", "calc_type"],
     "scheduled-agents":         ["report_type"],
     "semantic-search":          ["query"],
+    "send-report-email":        ["hive_id", "recipient_email", "reports"],
+    "voice-report-intent":      ["transcript"],
 }
 
 

@@ -45,6 +45,7 @@ LIVE_PAGES = [
     "analytics.html",
     "nav-hub.html",
     "floating-ai.js",
+    "report-sender.html",
 ]
 
 RETIRED_TABLES = {"parts_records", "checklist_records"}
@@ -52,6 +53,7 @@ RETIRED_TABLES = {"parts_records", "checklist_records"}
 CORE_TABLES = {
     "logbook", "assets", "inventory_items", "inventory_transactions",
     "hives", "hive_members", "pm_assets", "pm_scope_items", "pm_completions",
+    "report_contacts", "ai_reports", "automation_log",
     "skill_profiles", "skill_badges", "skill_exam_attempts", "schedule_items",
     "engineering_calcs",
 }

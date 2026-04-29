@@ -39,3 +39,13 @@ entrypoint = "./functions/engineering-calc-agent/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/engineering-bom-sow/index.ts"
+
+[functions.send-report-email]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/send-report-email/index.ts"
+
+[functions.voice-report-intent]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/voice-report-intent/index.ts"

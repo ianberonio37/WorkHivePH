@@ -39,6 +39,7 @@ TARGET_PAGES = [
     "skillmatrix.html",
     "dayplanner.html",
     "engineering-design.html",
+    "report-sender.html",
 ]
 
 MIN_COVERAGE_RATIO = 0.6
