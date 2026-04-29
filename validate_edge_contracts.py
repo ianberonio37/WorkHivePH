@@ -43,6 +43,7 @@ ALL_FUNCTIONS = [
     "embed-entry",
     "send-report-email",
     "voice-report-intent",
+    "voice-transcribe",
 ]
 
 REQUIRED_FIELDS = {
@@ -54,6 +55,7 @@ REQUIRED_FIELDS = {
     "semantic-search":          ["query"],
     "send-report-email":        ["hive_id", "recipient_email", "reports"],
     "voice-report-intent":      ["transcript"],
+    "voice-transcribe":         ["audio"],
 }
 
 

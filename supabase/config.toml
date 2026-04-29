@@ -49,3 +49,8 @@ entrypoint = "./functions/send-report-email/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/voice-report-intent/index.ts"
+
+[functions.voice-transcribe]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/voice-transcribe/index.ts"

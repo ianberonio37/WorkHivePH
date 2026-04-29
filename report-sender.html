@@ -759,7 +759,11 @@
     let   _cardState        = 'idle';
     let   _micState         = 'hidden';
     let   _voiceContext     = null;
-    let   _recognition      = null;
+    let   _recognition      = null;    // Web Speech API (Android / Desktop)
+    let   _mediaRecorder    = null;    // MediaRecorder API (iOS / Firefox)
+    let   _audioChunks      = [];
+    let   _recordingTimer   = null;
+    let   _useMediaRecorder = false;
     let   _contacts         = [];
     const _selectedContacts = new Set();
     let   _selectedLabel    = 'Team';
@@ -1074,32 +1078,44 @@
     }
 
     // ── Voice pipeline ────────────────────────────────────────────────────────────
+    // Path A: Web Speech API  → Android Chrome, Desktop Chrome/Edge (instant, no upload)
+    // Path B: MediaRecorder   → iOS Safari, Firefox (records audio → Groq Whisper)
+    // Both paths converge at parseVoiceIntent(transcript).
     (function initSpeech() {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) {
-        document.getElementById('mic-wrap').style.display = 'none';
-        return; // not available — hide silently
-      }
-      _recognition = new SR();
-      _recognition.lang          = 'en-US';
-      _recognition.interimResults = false;
-      _recognition.maxAlternatives = 1;
-      _recognition.continuous     = false;
 
-      _recognition.onresult = (e) => {
-        const transcript = e.results[0][0].transcript;
-        setMicState('processing');
-        parseVoiceIntent(transcript);
-      };
-      _recognition.onerror = (e) => {
+      if (SR) {
+        // ── Path A: Web Speech API ──────────────────────────────────────────────
+        _recognition = new SR();
+        _recognition.lang             = 'en-US';
+        _recognition.interimResults   = false;
+        _recognition.maxAlternatives  = 1;
+        _recognition.continuous       = false;
+
+        _recognition.onresult = (e) => {
+          const transcript = e.results[0][0].transcript;
+          setMicState('processing');
+          parseVoiceIntent(transcript);
+        };
+        _recognition.onerror = (e) => {
+          setMicState('ready');
+          if (e.error !== 'no-speech') showToast('Mic error: ' + e.error);
+        };
+        _recognition.onend = () => {
+          if (_micState === 'listening') setMicState('ready');
+        };
+
         setMicState('ready');
-        if (e.error !== 'no-speech') showToast('Mic error: ' + e.error);
-      };
-      _recognition.onend = () => {
-        if (_micState === 'listening') setMicState('ready');
-      };
 
-      setMicState('ready');
+      } else if (window.MediaRecorder && navigator.mediaDevices?.getUserMedia) {
+        // ── Path B: MediaRecorder + Groq Whisper (iOS Safari, Firefox) ──────────
+        _useMediaRecorder = true;
+        setMicState('ready');
+
+      } else {
+        // No audio capability — hide mic circle silently
+        document.getElementById('mic-wrap').style.display = 'none';
+      }
     })();
 
     function setMicState(state) {
@@ -1138,11 +1154,93 @@
     }
 
     function startListening() {
-      try { _recognition.start(); setMicState('listening'); }
-      catch (e) { showToast('Could not start microphone'); }
+      if (_recognition) {
+        try { _recognition.start(); setMicState('listening'); }
+        catch (e) { showToast('Could not start microphone'); }
+      } else if (_useMediaRecorder) {
+        startMediaRecorder();
+      }
     }
 
-    function stopListening() { _recognition.stop(); }
+    function stopListening() {
+      if (_recognition) {
+        _recognition.stop();
+      } else if (_mediaRecorder?.state === 'recording') {
+        clearTimeout(_recordingTimer);
+        _mediaRecorder.stop();
+      }
+    }
+
+    // ── MediaRecorder path (iOS Safari / Firefox) ─────────────────────────────
+    async function startMediaRecorder() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mimeType = MediaRecorder.isTypeSupported('audio/mp4')
+          ? 'audio/mp4'
+          : MediaRecorder.isTypeSupported('audio/webm')
+            ? 'audio/webm'
+            : '';
+
+        _audioChunks   = [];
+        _mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+
+        _mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) _audioChunks.push(e.data);
+        };
+
+        _mediaRecorder.onstop = async () => {
+          stream.getTracks().forEach(t => t.stop());
+          const ext  = (_mediaRecorder.mimeType || 'audio/mp4').includes('webm') ? 'webm' : 'mp4';
+          const blob = new Blob(_audioChunks, { type: _mediaRecorder.mimeType || 'audio/mp4' });
+          setMicState('processing');
+          await transcribeAndParse(blob, `voice.${ext}`);
+        };
+
+        _mediaRecorder.start();
+        setMicState('listening');
+
+        // Auto-stop after 15 seconds — enough for any voice context
+        _recordingTimer = setTimeout(() => {
+          if (_mediaRecorder?.state === 'recording') _mediaRecorder.stop();
+        }, 15000);
+
+      } catch (err) {
+        showToast('Microphone access denied');
+        setMicState('ready');
+      }
+    }
+
+    async function transcribeAndParse(audioBlob, filename) {
+      try {
+        const form = new FormData();
+        form.append('audio', audioBlob, filename);
+
+        const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-transcribe`, {
+          method:  'POST',
+          headers: {
+            'apikey':        SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+          },
+          body: form,
+        });
+
+        if (!resp.ok) {
+          const data = await resp.json().catch(() => ({}));
+          throw new Error(data.error || `HTTP ${resp.status}`);
+        }
+
+        const { text } = await resp.json();
+        if (text?.trim()) {
+          await parseVoiceIntent(text.trim()); // same function as Path A
+        } else {
+          showToast('Could not hear you — try again');
+          setMicState('ready');
+        }
+      } catch (err) {
+        showToast('Transcription failed: ' + escHtml(String(err).slice(0, 50)));
+        setMicState('ready');
+      }
+    }
 
     async function parseVoiceIntent(transcript) {
       try {

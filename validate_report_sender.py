@@ -43,6 +43,9 @@ Comprehensive validation of the Report Sender PWA feature across 4 layers:
     31. report-sender-manifest.json exists with start_url
     32. sw.js exists with fetch handler
     33. Bottom sheet HTML is before the <script> block (DOM ordering)
+    34. voice-transcribe edge function exists
+    35. audio-chain.ts exists with Whisper fallback chain
+    36. MediaRecorder path present in report-sender.html (iOS support)
 
 Usage:  python validate_report_sender.py
 Output: report_sender_report.json
@@ -59,7 +62,9 @@ PAGE            = "report-sender.html"
 MANIFEST        = "report-sender-manifest.json"
 SW              = "sw.js"
 SEND_EMAIL_FN   = "supabase/functions/send-report-email/index.ts"
-VOICE_INTENT_FN = "supabase/functions/voice-report-intent/index.ts"
+VOICE_INTENT_FN    = "supabase/functions/voice-report-intent/index.ts"
+VOICE_TRANSCRIBE_FN = "supabase/functions/voice-transcribe/index.ts"
+AUDIO_CHAIN_FN      = "supabase/functions/_shared/audio-chain.ts"
 SCHEDULED_FN    = "supabase/functions/scheduled-agents/index.ts"
 
 ACTIVE_REPORT_TYPES = ["pm_overdue", "failure_digest", "shift_handover", "predictive"]
@@ -75,6 +80,7 @@ CHECK_NAMES = [
     "send_email_exists", "resend_key", "voice_intent_exists",
     "voice_intent_chain", "scheduled_voice_ctx", "manifest_start_url", "sw_fetch",
     "dom_ordering",
+    "voice_transcribe_exists", "audio_chain_exists", "media_recorder_path",
 ]
 
 CHECK_LABELS = {
@@ -110,7 +116,10 @@ CHECK_LABELS = {
     "scheduled_voice_ctx":  "scheduled-agents accepts voice_context",
     "manifest_start_url":   "report-sender-manifest.json has correct start_url",
     "sw_fetch":             "sw.js has fetch event handler",
-    "dom_ordering":         "Bottom sheet HTML is before the <script> block",
+    "dom_ordering":             "Bottom sheet HTML is before the <script> block",
+    "voice_transcribe_exists":  "voice-transcribe/index.ts exists (iOS audio upload)",
+    "audio_chain_exists":       "audio-chain.ts exists with Whisper fallback chain",
+    "media_recorder_path":      "MediaRecorder path present in report-sender.html",
 }
 
 
@@ -275,6 +284,23 @@ def run():
     elif "fetch" not in sw:
         issues.append({"check": "sw_fetch",
                        "reason": "sw.js has no fetch handler — Chrome will not recognise page as installable PWA"})
+
+    # 34-36. iOS voice support (voice-transcribe + audio-chain + MediaRecorder)
+    voice_t = read_file(VOICE_TRANSCRIBE_FN)
+    audio_c = read_file(AUDIO_CHAIN_FN)
+
+    if not voice_t:
+        issues.append({"check": "voice_transcribe_exists",
+                       "reason": f"{VOICE_TRANSCRIBE_FN} not found — iOS voice transcription non-functional"})
+    if not audio_c:
+        issues.append({"check": "audio_chain_exists",
+                       "reason": f"{AUDIO_CHAIN_FN} not found — Groq Whisper fallback chain missing"})
+    elif "WHISPER_CHAIN" not in audio_c:
+        issues.append({"check": "audio_chain_exists",
+                       "reason": "audio-chain.ts exists but WHISPER_CHAIN not defined — no fallback models"})
+    if page and "MediaRecorder" not in page:
+        issues.append({"check": "media_recorder_path",
+                       "reason": "MediaRecorder not referenced in report-sender.html — iOS voice will not work"})
 
     # 33. Bottom sheet HTML before <script> block (DOM ordering)
     # Root cause of April 2026 bug: chips disappeared because #cancel-contact-btn

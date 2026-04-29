@@ -5,3 +5,4 @@ npx supabase functions deploy scheduled-agents --no-verify-jwt
 npx supabase functions deploy analytics-orchestrator --no-verify-jwt
 npx supabase functions deploy send-report-email --no-verify-jwt
 npx supabase functions deploy voice-report-intent --no-verify-jwt
+npx supabase functions deploy voice-transcribe --no-verify-jwt
