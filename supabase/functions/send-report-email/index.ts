@@ -84,10 +84,10 @@ serve(async (req) => {
   try {
     const { hive_id, recipient_email, reports, sent_at } = await req.json();
 
-    // Input validation
-    if (!hive_id || !recipient_email || !Array.isArray(reports) || reports.length === 0) {
+    // Input validation — hive_id is optional (workers without hive context can still send)
+    if (!recipient_email || !Array.isArray(reports) || reports.length === 0) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: hive_id, recipient_email, reports" }),
+        JSON.stringify({ error: "Missing required fields: recipient_email, reports" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -112,31 +112,30 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Verify hive exists
-    const { data: hive, error: hiveErr } = await db
-      .from("hives").select("id, name").eq("id", hive_id).single();
-    if (hiveErr || !hive) {
-      return new Response(
-        JSON.stringify({ error: "Hive not found" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    // Hive lookup — optional. If hive_id is null (e.g. worker cleared cache),
+    // skip verification and rate limiting; use "WorkHive" as display name.
+    let hiveName = "WorkHive";
+    if (hive_id) {
+      const { data: hive } = await db
+        .from("hives").select("id, name").eq("id", hive_id).single();
+      if (hive) hiveName = hive.name;
 
-    // Rate limit: max 20 successful email sends per hive per hour
-    const windowStart = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-    const { count: recentSends } = await db
-      .from("automation_log")
-      .select("*", { count: "exact", head: true })
-      .eq("hive_id", hive_id)
-      .eq("job_name", "send_report_email")
-      .eq("status", "success")
-      .gte("triggered_at", windowStart);
+      // Rate limit: max 20 successful email sends per hive per hour
+      const windowStart = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      const { count: recentSends } = await db
+        .from("automation_log")
+        .select("*", { count: "exact", head: true })
+        .eq("hive_id", hive_id)
+        .eq("job_name", "send_report_email")
+        .eq("status", "success")
+        .gte("triggered_at", windowStart);
 
-    if ((recentSends ?? 0) >= 20) {
-      return new Response(
-        JSON.stringify({ error: "Email rate limit reached (20/hour per hive). Try again later." }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      if ((recentSends ?? 0) >= 20) {
+        return new Response(
+          JSON.stringify({ error: "Email rate limit reached (20/hour per hive). Try again later." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     // Build subject and HTML
@@ -149,7 +148,7 @@ serve(async (req) => {
       .map((r: { type: string }) => REPORT_META[r.type]?.label ?? r.type)
       .join(" + ");
     const subject = `[WorkHive] ${reportLabels} - ${sentAt}`;
-    const html    = buildEmailHtml(hive.name, reports, sentAt);
+    const html    = buildEmailHtml(hiveName, reports, sentAt);
 
     // Send via Resend
     // Note: verify workhiveph.com in your Resend dashboard before going live.

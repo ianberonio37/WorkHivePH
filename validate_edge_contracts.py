@@ -53,7 +53,7 @@ REQUIRED_FIELDS = {
     "engineering-bom-sow":      ["discipline", "calc_type"],
     "scheduled-agents":         ["report_type"],
     "semantic-search":          ["query"],
-    "send-report-email":        ["hive_id", "recipient_email", "reports"],
+    "send-report-email":        ["recipient_email", "reports"],  # hive_id optional — workers without hive context can still send
     "voice-report-intent":      ["transcript"],
     "voice-transcribe":         ["audio"],
 }
