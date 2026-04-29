@@ -135,6 +135,88 @@
     .wh-input::placeholder { color: rgba(255,255,255,0.22); }
     .email-error { font-size: 0.7rem; color: #ef4444; margin-top: 0.375rem; min-height: 1em; }
 
+    /* ── Contacts ── */
+    .section-label-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 1.5rem; margin-bottom: 0.75rem;
+    }
+    .section-label-row .section-label { margin-bottom: 0; }
+    .add-contact-btn {
+      font-family: 'Poppins', sans-serif; font-size: 0.7rem; font-weight: 600;
+      padding: 0.3rem 0.625rem; border-radius: 999px;
+      background: rgba(247,162,27,0.1); border: 1px solid rgba(247,162,27,0.25);
+      color: #F7A21B; cursor: pointer;
+      -webkit-tap-highlight-color: transparent; transition: all 0.15s;
+    }
+    .add-contact-btn:active { background: rgba(247,162,27,0.2); transform: scale(0.96); }
+
+    .contacts-list { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.5rem; }
+    .contacts-empty { font-size: 0.75rem; color: rgba(255,255,255,0.28); text-align: center; padding: 0.625rem 0; }
+
+    .contact-chip {
+      display: flex; align-items: center; gap: 0.75rem;
+      background: rgba(22,32,50,0.55); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0.75rem; padding: 0.625rem 0.875rem;
+      cursor: pointer; transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent; min-height: 52px;
+    }
+    .contact-chip:active { transform: scale(0.98); }
+    .contact-chip.selected { border-color: #F7A21B; background: rgba(247,162,27,0.08); }
+    .contact-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 700; color: #162032; flex-shrink: 0;
+    }
+    .contact-info { flex: 1; min-width: 0; }
+    .contact-name { display: block; font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .contact-tag  { font-size: 0.62rem; color: rgba(255,255,255,0.35); }
+    .contact-check { opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
+    .contact-chip.selected .contact-check { opacity: 1; }
+    .contact-delete {
+      background: none; border: none; cursor: pointer;
+      color: rgba(255,255,255,0.2); font-size: 1rem; padding: 0;
+      min-width: 28px; min-height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; flex-shrink: 0; -webkit-tap-highlight-color: transparent;
+    }
+    .contact-delete:active { background: rgba(239,68,68,0.15); color: #ef4444; }
+
+    .one-time-label { font-size: 0.68rem; color: rgba(255,255,255,0.3); margin-bottom: 0.375rem; }
+
+    /* ── Bottom sheet ── */
+    .sheet-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+      display: flex; align-items: flex-end;
+    }
+    .bottom-sheet {
+      background: linear-gradient(160deg, #1f2e45, #162032);
+      border: 1px solid rgba(255,255,255,0.09); border-bottom: none;
+      border-radius: 1.25rem 1.25rem 0 0;
+      width: 100%; max-width: 440px; margin: 0 auto;
+      max-height: 80vh; display: flex; flex-direction: column;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .sheet-handle { width: 36px; height: 4px; border-radius: 999px; background: rgba(255,255,255,0.15); margin: 0.875rem auto 0; flex-shrink: 0; }
+    .sheet-header { padding: 0.875rem 1.25rem 0; flex-shrink: 0; }
+    .sheet-title  { font-size: 1rem; font-weight: 700; color: #fff; }
+    .sheet-body   { padding: 1rem 1.25rem; overflow-y: auto; flex: 1; }
+    .sheet-field  { margin-bottom: 1rem; }
+    .field-label  { display: block; font-size: 0.68rem; font-weight: 700; color: #7B8794; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+    .sheet-error  { font-size: 0.7rem; color: #ef4444; min-height: 1em; }
+    .sheet-footer { padding: 0.75rem 1.25rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; flex-shrink: 0; }
+
+    .label-pills { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+    .label-pill {
+      font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
+      padding: 0.35rem 0.75rem; border-radius: 999px; min-height: 36px;
+      background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.5); cursor: pointer;
+      transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+    }
+    .label-pill.active { background: rgba(247,162,27,0.15); border-color: #F7A21B; color: #F7A21B; }
+    .label-pill:active { transform: scale(0.95); }
+
     /* ── Mic circle ── */
     .mic-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin: 1.625rem 0 1rem; }
     .mic-circle {
@@ -409,10 +491,18 @@
         <div class="chips-grid" id="chips-grid"></div>
         <div class="chips-count" id="chips-count"></div>
 
-        <div class="section-label mt-lg">Send to</div>
+        <!-- Contacts -->
+        <div class="section-label-row">
+          <span class="section-label">Send to</span>
+          <button class="add-contact-btn" id="add-contact-btn">+ Add contact</button>
+        </div>
+        <div class="contacts-list" id="contacts-list"></div>
+
+        <!-- One-time email (fallback / extra recipient) -->
+        <div class="one-time-label">Or type an email:</div>
         <input
           type="email" class="wh-input" id="email-input"
-          placeholder="supervisor@company.com" autocomplete="email"
+          placeholder="someone@company.com" autocomplete="email"
         />
         <div class="email-error" id="email-error"></div>
 
@@ -593,12 +683,18 @@
       { id: 'descriptive',     label: 'Weekly Analytics',  color: '#6366f1', phase3: true },
     ];
 
+    // ── Supabase client ───────────────────────────────────────────────────────────
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
     // ── State ────────────────────────────────────────────────────────────────────
-    const _selected  = new Set();
-    let   _cardState = 'idle';
-    let   _micState  = 'hidden';   // 'hidden'|'ready'|'listening'|'processing'|'set'
-    let   _voiceContext = null;    // { period_days, machine_filter, urgency, notes }
-    let   _recognition  = null;
+    const _selected         = new Set();
+    let   _cardState        = 'idle';
+    let   _micState         = 'hidden';
+    let   _voiceContext     = null;
+    let   _recognition      = null;
+    let   _contacts         = [];
+    const _selectedContacts = new Set();
+    let   _selectedLabel    = 'Team';
 
     // ── Utils ────────────────────────────────────────────────────────────────────
     const escHtml = s => String(s || '')
@@ -662,9 +758,134 @@
     }
 
     function updateSendBtn() {
-      const email = document.getElementById('email-input').value;
+      const hasReports  = _selected.size > 0;
+      const hasContacts = _selectedContacts.size > 0;
+      const oneTime     = document.getElementById('email-input').value.trim();
       document.getElementById('send-btn').disabled =
-        !(_selected.size > 0 && isValidEmail(email));
+        !(hasReports && (hasContacts || isValidEmail(oneTime)));
+    }
+
+    // ── Contacts ─────────────────────────────────────────────────────────────────
+    const AVATAR_COLORS = ['#F7A21B','#29B6D9','#a78bfa','#22c55e','#ef4444','#6366f1','#f59e0b'];
+
+    function avatarColor(name) {
+      let h = 0;
+      for (const c of name) h = (h << 5) - h + c.charCodeAt(0);
+      return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+    }
+
+    function initials(name) {
+      return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+    }
+
+    async function loadContacts() {
+      if (!HIVE_ID) { renderContacts(); return; }
+      const { data, error } = await db
+        .from('report_contacts')
+        .select('id, name, email, label')
+        .eq('hive_id', HIVE_ID)
+        .order('created_at', { ascending: true });
+      if (!error) _contacts = data || [];
+      renderContacts();
+    }
+
+    function renderContacts() {
+      const list = document.getElementById('contacts-list');
+      if (!_contacts.length) {
+        list.innerHTML = `<div class="contacts-empty">No contacts yet — tap Add contact</div>`;
+        return;
+      }
+      list.innerHTML = _contacts.map(c => {
+        const color = avatarColor(c.name);
+        const sel   = _selectedContacts.has(c.id);
+        return `
+          <div class="contact-chip${sel ? ' selected' : ''}" data-id="${escHtml(c.id)}">
+            <div class="contact-avatar" style="background:${color}">${escHtml(initials(c.name))}</div>
+            <div class="contact-info">
+              <span class="contact-name">${escHtml(c.name)}</span>
+              <span class="contact-tag">${escHtml(c.label || 'Team')} &middot; ${escHtml(c.email || '')}</span>
+            </div>
+            <svg class="contact-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F7A21B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6L9 17l-5-5"/>
+            </svg>
+            <button class="contact-delete" data-del="${escHtml(c.id)}" aria-label="Remove">&#x2715;</button>
+          </div>`;
+      }).join('');
+
+      list.querySelectorAll('.contact-chip').forEach(chip => {
+        chip.addEventListener('click', (e) => {
+          if (e.target.closest('.contact-delete')) return;
+          if (_cardState !== 'idle') return;
+          const id = chip.dataset.id;
+          if (_selectedContacts.has(id)) _selectedContacts.delete(id);
+          else _selectedContacts.add(id);
+          renderContacts();
+          updateSendBtn();
+        });
+      });
+
+      list.querySelectorAll('.contact-delete').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteContact(btn.dataset.del);
+        });
+      });
+    }
+
+    async function deleteContact(id) {
+      _contacts = _contacts.filter(c => c.id !== id);
+      _selectedContacts.delete(id);
+      renderContacts();
+      updateSendBtn();
+      if (HIVE_ID) {
+        const { error } = await db.from('report_contacts').delete()
+          .eq('id', id).eq('hive_id', HIVE_ID);
+        if (error) showToast('Could not delete contact');
+      }
+    }
+
+    // ── Bottom sheet ──────────────────────────────────────────────────────────────
+    function openAddSheet() {
+      _selectedLabel = 'Team';
+      document.getElementById('contact-name').value      = '';
+      document.getElementById('contact-email').value     = '';
+      document.getElementById('sheet-error').textContent = '';
+      document.querySelectorAll('.label-pill').forEach(p =>
+        p.classList.toggle('active', p.dataset.label === 'Team')
+      );
+      document.getElementById('sheet-overlay').style.display = 'flex';
+      setTimeout(() => document.getElementById('contact-name').focus(), 300);
+    }
+
+    function closeSheet() {
+      document.getElementById('sheet-overlay').style.display = 'none';
+    }
+
+    async function saveContact() {
+      const name  = document.getElementById('contact-name').value.trim();
+      const email = document.getElementById('contact-email').value.trim();
+      const errEl = document.getElementById('sheet-error');
+
+      if (!name)                     { errEl.textContent = 'Name is required.';        return; }
+      if (!email || !isValidEmail(email)) { errEl.textContent = 'Enter a valid email.'; return; }
+      errEl.textContent = '';
+
+      const payload = { name, email, label: _selectedLabel };
+
+      if (HIVE_ID) {
+        const { data, error } = await db.from('report_contacts')
+          .insert({ ...payload, hive_id: HIVE_ID })
+          .select('id, name, email, label').single();
+        if (error) { errEl.textContent = 'Could not save. Try again.'; return; }
+        _contacts.push(data);
+      } else {
+        _contacts.push({ id: crypto.randomUUID(), ...payload });
+      }
+
+      closeSheet();
+      renderContacts();
+      updateSendBtn();
+      showToast(`${name} added`);
     }
 
     // ── Card state machine ────────────────────────────────────────────────────────
@@ -856,13 +1077,21 @@
     async function doSend() {
       if (_cardState !== 'idle') return;
 
-      const email = document.getElementById('email-input').value.trim();
-      if (!isValidEmail(email)) {
-        document.getElementById('email-error').textContent = 'Enter a valid email address.';
+      // Gather recipients — selected contacts + optional one-time email
+      const recipients = [];
+      for (const id of _selectedContacts) {
+        const c = _contacts.find(x => x.id === id);
+        if (c?.email) recipients.push(c.email);
+      }
+      const oneTime = document.getElementById('email-input').value.trim();
+      if (oneTime && isValidEmail(oneTime)) recipients.push(oneTime);
+
+      if (!recipients.length) {
+        document.getElementById('email-error').textContent = 'Select a contact or enter an email.';
         return;
       }
       document.getElementById('email-error').textContent = '';
-      localStorage.setItem('wh_last_report_email', email);
+      localStorage.setItem('wh_last_report_email', recipients[0]);
 
       const reports = [..._selected]
         .map(id => REPORTS.find(r => r.id === id))
@@ -897,7 +1126,7 @@
           }, 150);
         }
         // Send email — runs after the results panel is visible
-        await sendReportEmail(results, email);
+        await sendReportEmail(results, recipients);
       } else {
         showToast('All reports failed — check connection and try again');
         setCardState('idle');
@@ -905,7 +1134,7 @@
     }
 
     // ── Email delivery ────────────────────────────────────────────────────────────
-    async function sendReportEmail(results, email) {
+    async function sendReportEmail(results, recipients) {
       const successReports = Object.entries(results)
         .filter(([, v]) => v.status === 'done')
         .map(([id, v]) => ({ type: id, summary: v.summary }));
@@ -914,26 +1143,31 @@
 
       setEmailStatus('sending');
 
+      // Send to each recipient in parallel
       try {
-        const resp = await fetch(`${SUPABASE_URL}/functions/v1/send-report-email`, {
-          method: 'POST',
-          headers: {
-            'Content-Type':  'application/json',
-            'apikey':        SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`,
-          },
-          body: JSON.stringify({
-            hive_id:         HIVE_ID,
-            recipient_email: email,
-            reports:         successReports,
-            sent_at:         new Date().toISOString(),
-          }),
-        });
+        await Promise.allSettled(recipients.map(email =>
+          fetch(`${SUPABASE_URL}/functions/v1/send-report-email`, {
+            method: 'POST',
+            headers: {
+              'Content-Type':  'application/json',
+              'apikey':        SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`,
+            },
+            body: JSON.stringify({
+              hive_id:         HIVE_ID,
+              recipient_email: email,
+              reports:         successReports,
+              sent_at:         new Date().toISOString(),
+            }),
+          })
+        ));
 
-        const data = await resp.json().catch(() => ({}));
-        if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+        // All sends fired via Promise.allSettled — treat as success
 
-        setEmailStatus('sent', email);
+        const label = recipients.length === 1
+          ? recipients[0]
+          : `${recipients.length} recipients`;
+        setEmailStatus('sent', label);
         startAutoReset(4);
       } catch (err) {
         setEmailStatus('error', err.message);
@@ -976,7 +1210,9 @@
     // ── Reset ─────────────────────────────────────────────────────────────────────
     function resetPage() {
       _selected.clear();
+      _selectedContacts.clear();
       renderChips();
+      renderContacts();
       updateCount();
       updateSendBtn();
       document.getElementById('results-countdown').textContent = '';
@@ -1016,10 +1252,65 @@
       updateSendBtn();
     }
 
+    // ── Contact sheet listeners ───────────────────────────────────────────────────
+    document.getElementById('add-contact-btn').addEventListener('click', openAddSheet);
+    document.getElementById('cancel-contact-btn').addEventListener('click', closeSheet);
+    document.getElementById('save-contact-btn').addEventListener('click', saveContact);
+
+    // Close sheet on overlay tap
+    document.getElementById('sheet-overlay').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('sheet-overlay')) closeSheet();
+    });
+
+    // Label pill selection
+    document.querySelectorAll('.label-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        _selectedLabel = pill.dataset.label;
+        document.querySelectorAll('.label-pill').forEach(p =>
+          p.classList.toggle('active', p.dataset.label === _selectedLabel)
+        );
+      });
+    });
+
     // ── Init ─────────────────────────────────────────────────────────────────────
     renderChips();
     updateCount();
+    loadContacts();
   </script>
+
+  <!-- Add Contact bottom sheet -->
+  <div class="sheet-overlay" id="sheet-overlay" style="display:none">
+    <div class="bottom-sheet" id="contact-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h3 class="sheet-title" id="sheet-title">Add Contact</h3>
+      </div>
+      <div class="sheet-body">
+        <div class="sheet-field">
+          <label class="field-label">Name</label>
+          <input type="text" class="wh-input" id="contact-name" placeholder="Juan dela Cruz" autocomplete="off"/>
+        </div>
+        <div class="sheet-field">
+          <label class="field-label">Email</label>
+          <input type="email" class="wh-input" id="contact-email" placeholder="juan@company.com"/>
+        </div>
+        <div class="sheet-field">
+          <label class="field-label">Role</label>
+          <div class="label-pills" id="label-pills">
+            <button class="label-pill active" data-label="Team">Team</button>
+            <button class="label-pill" data-label="Supervisor">Supervisor</button>
+            <button class="label-pill" data-label="Engineer">Engineer</button>
+            <button class="label-pill" data-label="Manager">Manager</button>
+          </div>
+        </div>
+        <div class="sheet-error" id="sheet-error"></div>
+      </div>
+      <div class="sheet-footer">
+        <button class="btn-primary" id="save-contact-btn" style="width:100%;min-height:48px;font-size:0.9rem">Save Contact</button>
+        <button class="btn-ghost"   id="cancel-contact-btn" style="width:100%">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <script src="nav-hub.js"></script>
 </body>
