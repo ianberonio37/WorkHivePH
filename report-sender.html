@@ -142,18 +142,66 @@
       border: 2px dashed rgba(255,255,255,0.13);
       background: rgba(22,32,50,0.4);
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: all 0.2s;
+      cursor: pointer; transition: border-color 0.2s, opacity 0.2s, color 0.2s;
       color: rgba(255,255,255,0.28); opacity: 0.55;
       -webkit-tap-highlight-color: transparent;
+      position: relative;
     }
-    .mic-circle:active { transform: scale(0.93); opacity: 0.75; }
+    .mic-circle:active { transform: scale(0.93); }
+
+    /* ── Mic active states ── */
+    .mic-circle.ready {
+      opacity: 0.82; border-style: solid;
+      border-color: rgba(255,255,255,0.22);
+      color: rgba(255,255,255,0.55);
+    }
+    .mic-circle.listening {
+      opacity: 1; border-style: solid;
+      border-color: #F7A21B; color: #F7A21B;
+    }
+    .mic-circle.listening::before {
+      content: ''; position: absolute; inset: -8px;
+      border-radius: 50%; border: 2px solid rgba(247,162,27,0.35);
+      animation: mic-ripple 1.4s ease-out infinite;
+      pointer-events: none;
+    }
+    @keyframes mic-ripple {
+      0%   { transform: scale(1);   opacity: 0.7; }
+      100% { transform: scale(1.65); opacity: 0;  }
+    }
+    .mic-circle.processing {
+      opacity: 0.9; border-style: solid;
+      border-color: rgba(247,162,27,0.4);
+      color: rgba(247,162,27,0.6);
+      animation: spin 1s linear infinite;
+    }
+    .mic-circle.set {
+      opacity: 1; border-style: solid;
+      border-color: #22c55e; color: #22c55e;
+    }
+
     .mic-label { font-size: 0.7rem; color: rgba(255,255,255,0.28); text-align: center; font-weight: 500; }
-    .mic-phase-badge {
-      display: inline-block; font-size: 0.58rem; font-weight: 700;
-      padding: 0.1rem 0.4rem; border-radius: 999px;
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.28); margin-left: 0.25rem; vertical-align: middle;
+
+    /* ── Voice context card ── */
+    .voice-ctx {
+      background: rgba(22,32,50,0.6);
+      border: 1px solid rgba(34,197,94,0.25);
+      border-radius: 0.625rem;
+      padding: 0.5rem 0.75rem;
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.72rem; color: rgba(255,255,255,0.65);
+      width: 100%; margin-bottom: 0.5rem;
     }
+    .voice-ctx-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
+    .voice-ctx-text { flex: 1; line-height: 1.35; font-style: italic; }
+    .voice-ctx-clear {
+      background: none; border: none; cursor: pointer;
+      color: rgba(255,255,255,0.3); font-size: 1rem;
+      padding: 0; line-height: 1; min-width: 28px; min-height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; -webkit-tap-highlight-color: transparent;
+    }
+    .voice-ctx-clear:active { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
 
     /* ── Send button ── */
     .send-btn {
@@ -312,10 +360,11 @@
         />
         <div class="email-error" id="email-error"></div>
 
-        <!-- Mic circle — Phase 4 placeholder -->
-        <div class="mic-wrap">
-          <button class="mic-circle" id="mic-btn" aria-label="Voice input, available in Phase 4">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+        <!-- Mic circle -->
+        <div class="mic-wrap" id="mic-wrap">
+          <button class="mic-circle" id="mic-btn" aria-label="Tap to add voice context">
+            <!-- Mic icon -->
+            <svg id="mic-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="1.75"
                  stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
@@ -323,11 +372,20 @@
               <line x1="12" y1="19" x2="12" y2="23"/>
               <line x1="8" y1="23" x2="16" y2="23"/>
             </svg>
+            <!-- Check icon (shown when context is set) -->
+            <svg id="mic-check-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5"
+                 stroke-linecap="round" stroke-linejoin="round" style="display:none">
+              <path d="M20 6L9 17l-5-5"/>
+            </svg>
           </button>
-          <div class="mic-label">
-            Voice context
-            <span class="mic-phase-badge">Phase 4</span>
-          </div>
+          <div class="mic-label" id="mic-label">Tap to speak context</div>
+        </div>
+        <!-- Voice context card — visible when context is captured -->
+        <div class="voice-ctx" id="voice-ctx" style="display:none">
+          <div class="voice-ctx-dot"></div>
+          <span class="voice-ctx-text" id="voice-ctx-text"></span>
+          <button class="voice-ctx-clear" id="voice-ctx-clear" aria-label="Clear voice context">&#x2715;</button>
         </div>
 
         <button class="send-btn" id="send-btn" disabled>Send Reports</button>
@@ -405,6 +463,9 @@
     // ── State ────────────────────────────────────────────────────────────────────
     const _selected  = new Set();
     let   _cardState = 'idle';
+    let   _micState  = 'hidden';   // 'hidden'|'ready'|'listening'|'processing'|'set'
+    let   _voiceContext = null;    // { period_days, machine_filter, urgency, notes }
+    let   _recognition  = null;
 
     // ── Utils ────────────────────────────────────────────────────────────────────
     const escHtml = s => String(s || '')
@@ -479,8 +540,109 @@
       document.getElementById('main-card').dataset.state = state;
     }
 
+    // ── Voice pipeline ────────────────────────────────────────────────────────────
+    (function initSpeech() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) {
+        document.getElementById('mic-wrap').style.display = 'none';
+        return; // not available — hide silently
+      }
+      _recognition = new SR();
+      _recognition.lang          = 'en-US';
+      _recognition.interimResults = false;
+      _recognition.maxAlternatives = 1;
+      _recognition.continuous     = false;
+
+      _recognition.onresult = (e) => {
+        const transcript = e.results[0][0].transcript;
+        setMicState('processing');
+        parseVoiceIntent(transcript);
+      };
+      _recognition.onerror = (e) => {
+        setMicState('ready');
+        if (e.error !== 'no-speech') showToast('Mic error: ' + e.error);
+      };
+      _recognition.onend = () => {
+        if (_micState === 'listening') setMicState('ready');
+      };
+
+      setMicState('ready');
+    })();
+
+    function setMicState(state) {
+      _micState = state;
+      const btn       = document.getElementById('mic-btn');
+      const label     = document.getElementById('mic-label');
+      const micIcon   = document.getElementById('mic-icon');
+      const checkIcon = document.getElementById('mic-check-icon');
+      if (!btn) return;
+
+      btn.className = 'mic-circle' + (state !== 'hidden' ? ' ' + state : '');
+
+      switch (state) {
+        case 'ready':
+          label.textContent = 'Tap to speak context';
+          micIcon.style.display   = '';
+          checkIcon.style.display = 'none';
+          document.getElementById('voice-ctx').style.display = 'none';
+          break;
+        case 'listening':
+          label.textContent = 'Listening...';
+          micIcon.style.display   = '';
+          checkIcon.style.display = 'none';
+          break;
+        case 'processing':
+          label.textContent = 'Processing...';
+          micIcon.style.display   = '';
+          checkIcon.style.display = 'none';
+          break;
+        case 'set':
+          label.textContent = 'Tap to clear';
+          micIcon.style.display   = 'none';
+          checkIcon.style.display = '';
+          break;
+      }
+    }
+
+    function startListening() {
+      try { _recognition.start(); setMicState('listening'); }
+      catch (e) { showToast('Could not start microphone'); }
+    }
+
+    function stopListening() { _recognition.stop(); }
+
+    async function parseVoiceIntent(transcript) {
+      try {
+        const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-report-intent`, {
+          method: 'POST',
+          headers: {
+            'Content-Type':  'application/json',
+            'apikey':        SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+          },
+          body: JSON.stringify({ transcript, hive_id: HIVE_ID }),
+        });
+        const data = resp.ok ? await resp.json() : null;
+        _voiceContext = data ?? { notes: transcript, period_days: null, machine_filter: null, urgency: 'normal' };
+      } catch {
+        _voiceContext = { notes: transcript, period_days: null, machine_filter: null, urgency: 'normal' };
+      }
+      document.getElementById('voice-ctx-text').textContent = _voiceContext.notes || transcript;
+      document.getElementById('voice-ctx').style.display = 'flex';
+      setMicState('set');
+    }
+
+    function clearVoiceContext() {
+      _voiceContext = null;
+      document.getElementById('voice-ctx').style.display = 'none';
+      setMicState('ready');
+    }
+
     // ── Edge function call ────────────────────────────────────────────────────────
     async function generateReport(reportType) {
+      const body = { report_type: reportType, hive_id: HIVE_ID };
+      if (_voiceContext?.notes) body.voice_context = _voiceContext.notes;
+
       const resp = await fetch(`${SUPABASE_URL}/functions/v1/scheduled-agents`, {
         method: 'POST',
         headers: {
@@ -488,7 +650,7 @@
           'apikey': SUPABASE_KEY,
           'Authorization': `Bearer ${SUPABASE_KEY}`,
         },
-        body: JSON.stringify({ report_type: reportType, hive_id: HIVE_ID }),
+        body: JSON.stringify(body),
       });
 
       if (!resp.ok) {
@@ -685,6 +847,7 @@
       updateCount();
       updateSendBtn();
       document.getElementById('results-countdown').textContent = '';
+      if (_micState !== 'hidden') clearVoiceContext();
       setCardState('idle');
     }
 
@@ -699,7 +862,18 @@
     document.getElementById('reset-btn').addEventListener('click', resetPage);
 
     document.getElementById('mic-btn').addEventListener('click', () => {
-      showToast('Voice input coming in Phase 4');
+      if (_cardState !== 'idle') return;
+      switch (_micState) {
+        case 'ready':      startListening();     break;
+        case 'listening':  stopListening();      break;
+        case 'set':        clearVoiceContext();  break;
+        case 'processing': break;
+      }
+    });
+
+    document.getElementById('voice-ctx-clear').addEventListener('click', (e) => {
+      e.stopPropagation();
+      clearVoiceContext();
     });
 
     // ── Pre-fill last used email ──────────────────────────────────────────────────

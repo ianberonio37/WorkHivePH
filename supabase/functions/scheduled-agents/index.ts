@@ -31,7 +31,7 @@ const PM_OVERDUE_SYSTEM = `You are a PM health analyst. Analyze asset PM data an
 Identify assets with no PM in 30+ days as overdue, 15-29 days as at-risk.
 Respond only in JSON: { "overdue_count": number, "at_risk_count": number, "overdue_assets": [{"asset_name","days_since_pm","risk":"CRITICAL|HIGH"}], "summary": "one sentence for supervisor" }`;
 
-async function runPMOverdue(db: SupabaseClient, hiveId: string): Promise<string> {
+async function runPMOverdue(db: SupabaseClient, hiveId: string, voiceContext?: string): Promise<string> {
   const { data: assets } = await db.from("pm_assets").select("id, asset_name, category").eq("hive_id", hiveId);
   if (!assets?.length) return "No assets found.";
 
@@ -51,7 +51,8 @@ async function runPMOverdue(db: SupabaseClient, hiveId: string): Promise<string>
     return `${a.asset_name}|${a.category}|${last ? `${days} days ago` : "never"}`;
   }).join("\n");
 
-  const raw = await callGroq(`Assets (name|category|last_pm):\n${summary}`, PM_OVERDUE_SYSTEM);
+  const ctx = voiceContext ? `\n\nUser context: "${voiceContext}"` : "";
+  const raw = await callGroq(`Assets (name|category|last_pm):\n${summary}${ctx}`, PM_OVERDUE_SYSTEM);
   const result = JSON.parse(raw);
   await saveReport(db, hiveId, "pm_overdue", result, result.summary || "PM overdue check complete.");
   return result.summary || "PM check done.";
@@ -62,7 +63,7 @@ async function runPMOverdue(db: SupabaseClient, hiveId: string): Promise<string>
 const FAILURE_DIGEST_SYSTEM = `You are a weekly maintenance risk analyst. Analyze this week's failure records.
 Respond only in JSON: { "top_risk_machines": [{"machine","failure_count","total_downtime_h"}], "repeat_failures": [{"machine","root_cause","times"}], "week_summary": "two sentence executive summary for the supervisor" }`;
 
-async function runFailureDigest(db: SupabaseClient, hiveId: string): Promise<string> {
+async function runFailureDigest(db: SupabaseClient, hiveId: string, voiceContext?: string): Promise<string> {
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const { data } = await db.from("logbook")
     .select("machine, category, root_cause, downtime_hours, created_at")
@@ -77,7 +78,8 @@ async function runFailureDigest(db: SupabaseClient, hiveId: string): Promise<str
     `${e.machine}|${e.category}|${e.root_cause || "unknown"}|${e.downtime_hours || 0}h`
   ).join("\n");
 
-  const raw = await callGroq(`This week's failures (machine|category|root_cause|downtime):\n${summary}`, FAILURE_DIGEST_SYSTEM);
+  const ctx = voiceContext ? `\n\nUser context: "${voiceContext}"` : "";
+  const raw = await callGroq(`This week's failures (machine|category|root_cause|downtime):\n${summary}${ctx}`, FAILURE_DIGEST_SYSTEM);
   const result = JSON.parse(raw);
   await saveReport(db, hiveId, "failure_digest", result, result.week_summary || "Failure digest complete.");
   return result.week_summary || "Failure digest done.";
@@ -88,7 +90,7 @@ async function runFailureDigest(db: SupabaseClient, hiveId: string): Promise<str
 const HANDOVER_SYSTEM = `You are a shift handover report generator. Summarize the last 8 hours of maintenance activity.
 Respond only in JSON: { "open_jobs": [{"machine","problem","priority":"HIGH|MEDIUM|LOW"}], "completed_jobs": [{"machine","action"}], "critical_alerts": ["alert"], "handover_note": "one paragraph for the next shift" }`;
 
-async function runShiftHandover(db: SupabaseClient, hiveId: string): Promise<string> {
+async function runShiftHandover(db: SupabaseClient, hiveId: string, voiceContext?: string): Promise<string> {
   const since = new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString();
   const { data } = await db.from("logbook")
     .select("machine, category, problem, action, status, worker_name, created_at")
@@ -103,7 +105,8 @@ async function runShiftHandover(db: SupabaseClient, hiveId: string): Promise<str
     `${e.machine}|${e.status}|${e.problem || ""}|${e.action || ""}|${e.worker_name}`
   ).join("\n");
 
-  const raw = await callGroq(`Last 8h records (machine|status|problem|action|worker):\n${summary}`, HANDOVER_SYSTEM);
+  const ctx = voiceContext ? `\n\nUser context: "${voiceContext}"` : "";
+  const raw = await callGroq(`Last 8h records (machine|status|problem|action|worker):\n${summary}${ctx}`, HANDOVER_SYSTEM);
   const result = JSON.parse(raw);
   await saveReport(db, hiveId, "shift_handover", result, result.handover_note || "Shift handover report saved.");
   return result.handover_note || "Handover done.";
@@ -114,7 +117,7 @@ async function runShiftHandover(db: SupabaseClient, hiveId: string): Promise<str
 const PREDICTIVE_SYSTEM = `You are a predictive maintenance analyst. Calculate MTBF per machine and predict next failures.
 Respond only in JSON: { "predictions": [{"machine","mtbf_days":number,"last_failure":"YYYY-MM-DD","predicted_next":"YYYY-MM-DD","risk":"HIGH|MEDIUM|LOW"}], "highest_risk_machine": "machine name", "summary": "one sentence for supervisor" }`;
 
-async function runPredictive(db: SupabaseClient, hiveId: string): Promise<string> {
+async function runPredictive(db: SupabaseClient, hiveId: string, voiceContext?: string): Promise<string> {
   const { data } = await db.from("logbook")
     .select("machine, created_at")
     .eq("hive_id", hiveId)
@@ -128,7 +131,8 @@ async function runPredictive(db: SupabaseClient, hiveId: string): Promise<string
   const summary = data.map(e => `${e.machine}|${e.created_at?.slice(0, 10)}`).join("\n");
   const today = new Date().toISOString().slice(0, 10);
 
-  const raw = await callGroq(`Today: ${today}\nFailure history (machine|date):\n${summary}`, PREDICTIVE_SYSTEM);
+  const ctx = voiceContext ? `\n\nUser context: "${voiceContext}"` : "";
+  const raw = await callGroq(`Today: ${today}\nFailure history (machine|date):\n${summary}${ctx}`, PREDICTIVE_SYSTEM);
   const result = JSON.parse(raw);
   await saveReport(db, hiveId, "predictive", result, result.summary || "Predictive analysis complete.");
   return result.summary || "Predictive done.";
@@ -144,7 +148,7 @@ serve(async (req) => {
   try {
     // hive_id is optional — when provided, runs for that hive only (on-demand from Report Sender).
     // When omitted, runs for all hives (cron path — unchanged behaviour).
-    const { report_type, hive_id } = await req.json();
+    const { report_type, hive_id, voice_context } = await req.json();
 
     if (!report_type) {
       return new Response(
@@ -185,7 +189,7 @@ serve(async (req) => {
       hives = data;
     }
 
-    const runners: Record<string, (db: SupabaseClient, hiveId: string) => Promise<string>> = {
+    const runners: Record<string, (db: SupabaseClient, hiveId: string, voiceContext?: string) => Promise<string>> = {
       pm_overdue:      runPMOverdue,
       failure_digest:  runFailureDigest,
       shift_handover:  runShiftHandover,
@@ -204,7 +208,7 @@ serve(async (req) => {
     const results = await Promise.allSettled(
       hives.map(async (hive) => {
         try {
-          const summary = await runner(db, hive.id);
+          const summary = await runner(db, hive.id, voice_context);
           await logRun(db, report_type, hive.id, "success", summary);
           return { hive: hive.name, status: "success", summary };
         } catch (err) {
