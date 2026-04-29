@@ -496,11 +496,6 @@
     const _installBtn    = document.getElementById('install-icon-btn');
     const _iosHint       = document.getElementById('ios-install-hint');
     const _isIOS         = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.navigator.standalone;
-    const _isInstalled   = window.navigator.standalone ||
-                           window.matchMedia('(display-mode: standalone)').matches;
-
-    // Hide button if already running as installed PWA
-    if (_isInstalled) _installBtn.classList.add('installed');
 
     // Capture Android/Chrome install prompt when it fires
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -508,8 +503,9 @@
       _deferredInstall = e;
     });
 
+    // Hide button only after confirmed install — never hide preemptively
     window.addEventListener('appinstalled', () => {
-      _installBtn.classList.add('installed');
+      _installBtn.style.display = 'none';
     });
 
     // Install button — always visible, handles all platforms
