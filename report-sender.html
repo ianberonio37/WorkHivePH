@@ -610,6 +610,40 @@
 
   </div><!-- /page -->
 
+  <!-- Add Contact bottom sheet — must be in DOM before the <script> block runs -->
+  <div class="sheet-overlay" id="sheet-overlay" style="display:none">
+    <div class="bottom-sheet" id="contact-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h3 class="sheet-title" id="sheet-title">Add Contact</h3>
+      </div>
+      <div class="sheet-body">
+        <div class="sheet-field">
+          <label class="field-label">Name</label>
+          <input type="text" class="wh-input" id="contact-name" placeholder="Juan dela Cruz" autocomplete="off"/>
+        </div>
+        <div class="sheet-field">
+          <label class="field-label">Email</label>
+          <input type="email" class="wh-input" id="contact-email" placeholder="juan@company.com"/>
+        </div>
+        <div class="sheet-field">
+          <label class="field-label">Role</label>
+          <div class="label-pills" id="label-pills">
+            <button class="label-pill active" data-label="Team">Team</button>
+            <button class="label-pill" data-label="Supervisor">Supervisor</button>
+            <button class="label-pill" data-label="Engineer">Engineer</button>
+            <button class="label-pill" data-label="Manager">Manager</button>
+          </div>
+        </div>
+        <div class="sheet-error" id="sheet-error"></div>
+      </div>
+      <div class="sheet-footer">
+        <button class="btn-primary" id="save-contact-btn" style="width:100%;min-height:48px;font-size:0.9rem">Save Contact</button>
+        <button class="btn-ghost"   id="cancel-contact-btn" style="width:100%">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ── PWA: service worker + install prompt ──────────────────────────────────────
     if ('serviceWorker' in navigator) {
@@ -1425,40 +1459,8 @@
     loadHistory();
   </script>
 
-  <!-- Add Contact bottom sheet -->
-  <div class="sheet-overlay" id="sheet-overlay" style="display:none">
-    <div class="bottom-sheet" id="contact-sheet">
-      <div class="sheet-handle"></div>
-      <div class="sheet-header">
-        <h3 class="sheet-title" id="sheet-title">Add Contact</h3>
-      </div>
-      <div class="sheet-body">
-        <div class="sheet-field">
-          <label class="field-label">Name</label>
-          <input type="text" class="wh-input" id="contact-name" placeholder="Juan dela Cruz" autocomplete="off"/>
-        </div>
-        <div class="sheet-field">
-          <label class="field-label">Email</label>
-          <input type="email" class="wh-input" id="contact-email" placeholder="juan@company.com"/>
-        </div>
-        <div class="sheet-field">
-          <label class="field-label">Role</label>
-          <div class="label-pills" id="label-pills">
-            <button class="label-pill active" data-label="Team">Team</button>
-            <button class="label-pill" data-label="Supervisor">Supervisor</button>
-            <button class="label-pill" data-label="Engineer">Engineer</button>
-            <button class="label-pill" data-label="Manager">Manager</button>
-          </div>
-        </div>
-        <div class="sheet-error" id="sheet-error"></div>
-      </div>
-      <div class="sheet-footer">
-        <button class="btn-primary" id="save-contact-btn" style="width:100%;min-height:48px;font-size:0.9rem">Save Contact</button>
-        <button class="btn-ghost"   id="cancel-contact-btn" style="width:100%">Cancel</button>
-      </div>
-    </div>
-  </div>
-
   <script src="nav-hub.js"></script>
+</body>
+</html>
 </body>
 </html>
