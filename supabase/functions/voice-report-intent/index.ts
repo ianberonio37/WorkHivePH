@@ -11,22 +11,45 @@ const corsHeaders = {
 // Kept static for prompt caching eligibility when upgraded to Claude.
 
 const INTENT_SYSTEM = `You are a voice command parser for a maintenance reporting tool.
-A maintenance worker spoke a command while selecting reports to send.
-Extract their intent. Respond ONLY in JSON — no explanation, no markdown.
+A maintenance worker spoke a command. Extract their COMPLETE intent in one pass.
+Respond ONLY in JSON — no explanation, no markdown.
+
+Available report types: pm_overdue, failure_digest, shift_handover, predictive
 
 Output format:
 {
-  "period_days": <integer or null — extract time period: "today"=1, "this week"=7, "last week"=7, "this month"=30, "last month"=30, "last quarter"=90, "last 3 months"=90, null if not mentioned>,
-  "machine_filter": <string or null — exact machine or equipment name mentioned, preserve original wording, null if not mentioned>,
-  "urgency": <"high" or "normal" — "urgent", "ASAP", "critical", "emergency" maps to high, otherwise normal>,
-  "notes": <string — one plain English sentence summarising what the user wants>
+  "report_types": <array of report IDs to select, empty array [] if none mentioned>,
+  "recipient_hint": <string or null — name or role the worker said to send to>,
+  "period_days": <integer or null — time period>,
+  "machine_filter": <string or null — specific machine/equipment>,
+  "urgency": <"high" or "normal">,
+  "notes": <string — one plain sentence summary of everything the worker wants>
 }
 
+Report type mapping (be generous with synonyms):
+- "pm", "pm overdue", "preventive", "overdue", "maintenance due" → "pm_overdue"
+- "failure", "failures", "breakdown", "digest", "corrective" → "failure_digest"
+- "shift", "handover", "turnover", "handoff", "next shift" → "shift_handover"
+- "predictive", "predict", "prediction", "forecast", "mtbf", "next failure" → "predictive"
+- "everything", "all", "all reports", "complete report" → all four types
+
+Recipient hint — preserve exactly as spoken:
+- A person's name: "Ian", "Juan", "Maria" → use that name
+- A role: "supervisor", "engineer", "manager", "team" → use that role word
+- "everyone" or "all" → "everyone"
+- Not mentioned → null
+
 Examples:
-- "focus on pump 3 this week" → {"period_days":7,"machine_filter":"Pump 3","urgency":"normal","notes":"Focus on Pump 3 for the last 7 days"}
-- "urgent report for conveyor line A" → {"period_days":null,"machine_filter":"Conveyor Line A","urgency":"high","notes":"Urgent report focusing on Conveyor Line A"}
-- "send everything for this month" → {"period_days":30,"machine_filter":null,"urgency":"normal","notes":"All reports for the last 30 days"}
-- "just send it" → {"period_days":null,"machine_filter":null,"urgency":"normal","notes":"Standard report, no specific context"}`;
+- "Send PM Overdue and Shift Handover to Ian, focus on pump 3"
+  → {"report_types":["pm_overdue","shift_handover"],"recipient_hint":"Ian","machine_filter":"Pump 3","period_days":null,"urgency":"normal","notes":"PM Overdue and Shift Handover for Pump 3, send to Ian"}
+- "send everything to supervisor this week"
+  → {"report_types":["pm_overdue","failure_digest","shift_handover","predictive"],"recipient_hint":"supervisor","period_days":7,"machine_filter":null,"urgency":"normal","notes":"All reports for last 7 days, send to supervisor"}
+- "urgent failure digest to everyone"
+  → {"report_types":["failure_digest"],"recipient_hint":"everyone","period_days":null,"machine_filter":null,"urgency":"high","notes":"Urgent failure digest to all contacts"}
+- "focus on conveyor line, this week"
+  → {"report_types":[],"recipient_hint":null,"machine_filter":"conveyor line","period_days":7,"urgency":"normal","notes":"Focus on conveyor line for last 7 days"}
+- "just send it"
+  → {"report_types":[],"recipient_hint":null,"machine_filter":null,"period_days":null,"urgency":"normal","notes":"Standard report, no specific context"}`;
 
 // ── Entry point ───────────────────────────────────────────────────────────────
 
@@ -55,7 +78,11 @@ serve(async (req) => {
       jsonMode:     true,
     });
 
+    const VALID_TYPES = new Set(["pm_overdue","failure_digest","shift_handover","predictive"]);
+
     let parsed: {
+      report_types:   string[];
+      recipient_hint: string | null;
       period_days:    number | null;
       machine_filter: string | null;
       urgency:        "high" | "normal";
@@ -67,6 +94,8 @@ serve(async (req) => {
     } catch {
       // AI returned non-JSON — fall back to raw transcript as notes
       parsed = {
+        report_types:   [],
+        recipient_hint: null,
         period_days:    null,
         machine_filter: null,
         urgency:        "normal",
@@ -74,9 +103,15 @@ serve(async (req) => {
       };
     }
 
-    // Sanitise — enforce expected types
-    parsed.period_days    = typeof parsed.period_days === "number"   ? parsed.period_days    : null;
-    parsed.machine_filter = typeof parsed.machine_filter === "string" ? parsed.machine_filter : null;
+    // Sanitise — enforce expected types and filter invalid values
+    parsed.report_types   = Array.isArray(parsed.report_types)
+                              ? parsed.report_types.filter((t: unknown) => typeof t === "string" && VALID_TYPES.has(t))
+                              : [];
+    parsed.recipient_hint = typeof parsed.recipient_hint === "string" && parsed.recipient_hint.length > 0
+                              ? parsed.recipient_hint.slice(0, 80)
+                              : null;
+    parsed.period_days    = typeof parsed.period_days === "number"    ? parsed.period_days    : null;
+    parsed.machine_filter = typeof parsed.machine_filter === "string"  ? parsed.machine_filter : null;
     parsed.urgency        = parsed.urgency === "high" ? "high" : "normal";
     parsed.notes          = typeof parsed.notes === "string" && parsed.notes.length > 0
                               ? parsed.notes.slice(0, 200)

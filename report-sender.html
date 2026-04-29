@@ -757,14 +757,16 @@
     // ── State ────────────────────────────────────────────────────────────────────
     const _selected         = new Set();
     let   _cardState        = 'idle';
-    let   _micState         = 'hidden';
-    let   _voiceContext     = null;
-    let   _recognition      = null;    // Web Speech API (Android / Desktop)
-    let   _mediaRecorder    = null;    // MediaRecorder API (iOS / Firefox)
-    let   _audioChunks      = [];
-    let   _recordingTimer   = null;
+    let   _micState          = 'hidden';
+    let   _voiceContext      = null;
+    let   _recognition       = null;    // Web Speech API (Android / Desktop)
+    let   _mediaRecorder     = null;    // MediaRecorder API (iOS / Firefox)
+    let   _audioChunks       = [];
+    let   _recordingTimer    = null;
     let   _useMediaRecorder  = false;
     let   _silenceAnimFrame  = null;
+    let   _preVoiceSelected  = null;    // snapshot before voice auto-selects (restored on clear)
+    let   _preVoiceContacts  = null;
     let   _contacts         = [];
     const _selectedContacts = new Set();
     let   _selectedLabel    = 'Team';
@@ -1319,6 +1321,10 @@
     }
 
     async function parseVoiceIntent(transcript) {
+      // Save current selections before voice auto-selects (restored on clear)
+      _preVoiceSelected = new Set(_selected);
+      _preVoiceContacts = new Set(_selectedContacts);
+
       try {
         const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-report-intent`, {
           method: 'POST',
@@ -1330,17 +1336,104 @@
           body: JSON.stringify({ transcript, hive_id: HIVE_ID }),
         });
         const data = resp.ok ? await resp.json() : null;
-        _voiceContext = data ?? { notes: transcript, period_days: null, machine_filter: null, urgency: 'normal' };
+        _voiceContext = data ?? { report_types: [], recipient_hint: null, notes: transcript, period_days: null, machine_filter: null, urgency: 'normal' };
       } catch {
-        _voiceContext = { notes: transcript, period_days: null, machine_filter: null, urgency: 'normal' };
+        _voiceContext = { report_types: [], recipient_hint: null, notes: transcript, period_days: null, machine_filter: null, urgency: 'normal' };
       }
-      document.getElementById('voice-ctx-text').textContent = _voiceContext.notes || transcript;
+
+      // Auto-select report chips if voice specified any
+      if (_voiceContext.report_types?.length) {
+        _selected.clear();
+        for (const type of _voiceContext.report_types) {
+          const r = REPORTS.find(x => x.id === type && !x.phase3);
+          if (r) _selected.add(r.id);
+        }
+        renderChips();
+        updateCount();
+      }
+
+      // Fuzzy match recipient hint against saved contacts
+      if (_voiceContext.recipient_hint) {
+        applyRecipientHint(_voiceContext.recipient_hint);
+      }
+
+      // Show enriched context card
+      document.getElementById('voice-ctx-text').textContent = buildVoiceSummary();
       document.getElementById('voice-ctx').style.display = 'flex';
+      updateSendBtn();
       setMicState('set');
+    }
+
+    function applyRecipientHint(hint) {
+      if (!_contacts.length) return;
+      const h = hint.toLowerCase().trim();
+
+      // "everyone" / "all" — select all contacts
+      if (h === 'everyone' || h === 'all' || h === 'all contacts') {
+        for (const c of _contacts) _selectedContacts.add(c.id);
+        renderContacts();
+        return;
+      }
+
+      // Role label match — "supervisor", "engineer", "manager", "team"
+      const byLabel = _contacts.filter(c => (c.label || 'Team').toLowerCase() === h);
+      if (byLabel.length) {
+        for (const c of byLabel) _selectedContacts.add(c.id);
+        renderContacts();
+        return;
+      }
+
+      // Name match — partial first name or full name contains hint
+      const byName = _contacts.filter(c => {
+        const name = c.name.toLowerCase();
+        return name.includes(h) || name.split(' ').some(part => part.startsWith(h));
+      });
+
+      if (!byName.length) {
+        showToast(`"${escHtml(hint)}" not found in contacts — add them first`);
+        return;
+      }
+      for (const c of byName) _selectedContacts.add(c.id);
+      renderContacts();
+    }
+
+    function buildVoiceSummary() {
+      const parts = [];
+
+      // Report types
+      if (_voiceContext.report_types?.length) {
+        parts.push(_voiceContext.report_types.map(id => reportLabel(id)).join(' + '));
+      }
+
+      // Matched contacts
+      const names = [..._selectedContacts]
+        .map(id => _contacts.find(c => c.id === id)?.name.split(' ')[0])
+        .filter(Boolean);
+      if (names.length) parts.push('→ ' + names.join(', '));
+
+      // Machine filter
+      if (_voiceContext.machine_filter) parts.push('· ' + _voiceContext.machine_filter);
+
+      return parts.length ? parts.join(' ') : (_voiceContext.notes || '');
     }
 
     function clearVoiceContext() {
       _voiceContext = null;
+      // Restore the selections that were active before voice ran
+      if (_preVoiceSelected !== null) {
+        _selected.clear();
+        for (const id of _preVoiceSelected) _selected.add(id);
+        _preVoiceSelected = null;
+      }
+      if (_preVoiceContacts !== null) {
+        _selectedContacts.clear();
+        for (const id of _preVoiceContacts) _selectedContacts.add(id);
+        _preVoiceContacts = null;
+      }
+      renderChips();
+      renderContacts();
+      updateCount();
+      updateSendBtn();
       document.getElementById('voice-ctx').style.display = 'none';
       setMicState('ready');
     }
