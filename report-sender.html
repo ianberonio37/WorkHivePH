@@ -217,6 +217,32 @@
     .label-pill.active { background: rgba(247,162,27,0.15); border-color: #F7A21B; color: #F7A21B; }
     .label-pill:active { transform: scale(0.95); }
 
+    /* ── Report history ── */
+    .history-section { margin-top: 1rem; }
+    .history-list { display: flex; flex-direction: column; gap: 0.4rem; }
+    .history-item {
+      display: flex; align-items: center; gap: 0.75rem;
+      background: rgba(22,32,50,0.35);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 0.75rem; padding: 0.75rem 1rem;
+    }
+    .history-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .history-body { flex: 1; min-width: 0; }
+    .history-type    { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.8); }
+    .history-meta    { font-size: 0.65rem; color: rgba(255,255,255,0.3); margin-top: 0.1rem; }
+    .history-summary { font-size: 0.68rem; color: #7B8794; margin-top: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .resend-btn {
+      font-family: 'Poppins', sans-serif; font-size: 0.68rem; font-weight: 600;
+      padding: 0.35rem 0.625rem; border-radius: 0.5rem;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.45); cursor: pointer;
+      -webkit-tap-highlight-color: transparent; transition: all 0.15s;
+      white-space: nowrap; flex-shrink: 0; min-height: 32px;
+    }
+    .resend-btn:hover   { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
+    .resend-btn:active  { transform: scale(0.95); }
+    .resend-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
     /* ── Mic circle ── */
     .mic-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin: 1.625rem 0 1rem; }
     .mic-circle {
@@ -574,6 +600,13 @@
       </div>
 
     </div><!-- /card -->
+
+    <!-- Report history -->
+    <div class="history-section" id="history-section" style="display:none">
+      <div class="section-label" style="margin-bottom:0.75rem">Recent Reports</div>
+      <div class="history-list" id="history-list"></div>
+    </div>
+
   </div><!-- /page -->
 
   <script>
@@ -763,6 +796,113 @@
       const oneTime     = document.getElementById('email-input').value.trim();
       document.getElementById('send-btn').disabled =
         !(hasReports && (hasContacts || isValidEmail(oneTime)));
+    }
+
+    // ── Report helpers ───────────────────────────────────────────────────────────
+    function reportLabel(type) { return REPORTS.find(r => r.id === type)?.label || type; }
+    function reportColor(type) { return REPORTS.find(r => r.id === type)?.color || '#F7A21B'; }
+
+    function relativeTime(dateStr) {
+      const diff = Date.now() - new Date(dateStr).getTime();
+      const mins = Math.floor(diff / 60000);
+      if (mins < 1)  return 'Just now';
+      if (mins < 60) return `${mins}m ago`;
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24)  return `${hrs}h ago`;
+      const days = Math.floor(hrs / 24);
+      if (days === 1) return 'Yesterday';
+      return `${days}d ago`;
+    }
+
+    // ── Report history ────────────────────────────────────────────────────────────
+    async function loadHistory() {
+      if (!HIVE_ID) return;
+      const { data, error } = await db
+        .from('ai_reports')
+        .select('id, report_type, summary, created_at')
+        .eq('hive_id', HIVE_ID)
+        .order('created_at', { ascending: false })
+        .limit(5);
+      if (error || !data?.length) return;
+      renderHistory(data);
+    }
+
+    function renderHistory(items) {
+      const section = document.getElementById('history-section');
+      const list    = document.getElementById('history-list');
+      if (!items?.length) { section.style.display = 'none'; return; }
+
+      list.innerHTML = items.map(item => {
+        const color   = reportColor(item.report_type);
+        const label   = reportLabel(item.report_type);
+        const time    = relativeTime(item.created_at);
+        const summary = escHtml((item.summary || '').slice(0, 90));
+        return `
+          <div class="history-item">
+            <div class="history-dot" style="background:${color}"></div>
+            <div class="history-body">
+              <div class="history-type">${escHtml(label)}</div>
+              <div class="history-meta">${escHtml(time)}</div>
+              ${item.summary ? `<div class="history-summary">${summary}</div>` : ''}
+            </div>
+            <button class="resend-btn"
+                    data-type="${escHtml(item.report_type)}"
+                    data-summary="${escHtml(item.summary || '')}">
+              Resend
+            </button>
+          </div>`;
+      }).join('');
+
+      list.querySelectorAll('.resend-btn').forEach(btn => {
+        btn.addEventListener('click', () =>
+          resendReport(btn.dataset.type, btn.dataset.summary, btn)
+        );
+      });
+
+      section.style.display = 'block';
+    }
+
+    async function resendReport(reportType, summary, btn) {
+      const recipients = [];
+      for (const id of _selectedContacts) {
+        const c = _contacts.find(x => x.id === id);
+        if (c?.email) recipients.push(c.email);
+      }
+      const oneTime = document.getElementById('email-input').value.trim();
+      if (oneTime && isValidEmail(oneTime)) recipients.push(oneTime);
+
+      if (!recipients.length) {
+        showToast('Select a recipient first');
+        return;
+      }
+
+      btn.textContent = 'Sending...';
+      btn.disabled    = true;
+
+      try {
+        await Promise.allSettled(recipients.map(email =>
+          fetch(`${SUPABASE_URL}/functions/v1/send-report-email`, {
+            method: 'POST',
+            headers: {
+              'Content-Type':  'application/json',
+              'apikey':        SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`,
+            },
+            body: JSON.stringify({
+              hive_id:         HIVE_ID,
+              recipient_email: email,
+              reports:         [{ type: reportType, summary }],
+              sent_at:         new Date().toISOString(),
+            }),
+          })
+        ));
+        showToast(`${reportLabel(reportType)} resent`);
+      } catch {
+        showToast('Resend failed');
+      }
+
+      btn.textContent = 'Resend';
+      btn.disabled    = false;
     }
 
     // ── Contacts ─────────────────────────────────────────────────────────────────
@@ -1120,6 +1260,7 @@
       if (successCount > 0) {
         renderResults(results);
         setCardState('results');
+        loadHistory(); // refresh history with newly generated reports
         if (window.innerWidth < 768) {
           setTimeout(() => {
             document.getElementById('main-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1276,6 +1417,7 @@
     renderChips();
     updateCount();
     loadContacts();
+    loadHistory();
   </script>
 
   <!-- Add Contact bottom sheet -->
