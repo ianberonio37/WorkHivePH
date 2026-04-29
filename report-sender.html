@@ -331,18 +331,23 @@
     .install-icon-btn:active { background: rgba(247,162,27,0.22); transform: scale(0.96); }
     .install-icon-btn.installed { display: none; }
 
-    /* ── iOS install hint ── */
-    .ios-install-hint {
-      background: rgba(41,182,217,0.07);
-      border: 1px solid rgba(41,182,217,0.18);
+    /* ── Install guide ── */
+    .install-guide {
       border-radius: 0.75rem;
       padding: 0.75rem 1rem;
-      display: flex; align-items: center; gap: 0.625rem;
+      display: flex; align-items: flex-start; gap: 0.625rem;
       margin-bottom: 1rem;
-      font-size: 0.74rem; color: rgba(255,255,255,0.6);
+      font-size: 0.74rem;
     }
-    .ios-hint-text { flex: 1; line-height: 1.45; }
-    .ios-hint-text strong { color: rgba(255,255,255,0.85); }
+    .install-guide.android { background: rgba(34,197,94,0.07);  border: 1px solid rgba(34,197,94,0.2);  color: rgba(255,255,255,0.65); }
+    .install-guide.desktop { background: rgba(247,162,27,0.07); border: 1px solid rgba(247,162,27,0.2); color: rgba(255,255,255,0.65); }
+    .install-guide.ios-sf  { background: rgba(41,182,217,0.07); border: 1px solid rgba(41,182,217,0.2); color: rgba(255,255,255,0.65); }
+    .install-guide.ios-cr  { background: rgba(239,68,68,0.07);  border: 1px solid rgba(239,68,68,0.2);  color: rgba(255,255,255,0.65); }
+    .install-guide-icon { flex-shrink: 0; margin-top: 0.1rem; }
+    .install-guide-text { flex: 1; line-height: 1.55; }
+    .install-guide-text strong { color: rgba(255,255,255,0.9); display: block; margin-bottom: 0.2rem; font-size: 0.78rem; }
+    .install-guide-text ol { margin: 0.25rem 0 0 1rem; padding: 0; }
+    .install-guide-text ol li { margin-bottom: 0.15rem; }
     .ios-hint-close {
       background: none; border: none; cursor: pointer;
       color: rgba(255,255,255,0.3); font-size: 1rem;
@@ -389,14 +394,10 @@
       </div>
     </header>
 
-    <!-- iOS hint — shown on Safari when not in standalone mode -->
-    <div class="ios-install-hint" id="ios-install-hint" style="display:none">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#29B6D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">
-        <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
-      </svg>
-      <span class="ios-hint-text">
-        Tap <strong>Share</strong> then <strong>Add to Home Screen</strong> to install
-      </span>
+    <!-- Install instructions — platform-specific, hidden when already installed -->
+    <div class="install-guide" id="install-guide" style="display:none">
+      <div class="install-guide-icon" id="install-guide-icon"></div>
+      <div class="install-guide-text" id="install-guide-text"></div>
       <button class="ios-hint-close" id="ios-hint-close" aria-label="Dismiss">&#x2715;</button>
     </div>
 
@@ -494,39 +495,82 @@
 
     let _deferredInstall = null;
     const _installBtn    = document.getElementById('install-icon-btn');
-    const _iosHint       = document.getElementById('ios-install-hint');
-    const _isIOS         = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.navigator.standalone;
+    const _installGuide  = document.getElementById('install-guide');
 
-    // Capture Android/Chrome install prompt when it fires
+    // ── Platform detection ────────────────────────────────────────────────────────
+    const ua           = navigator.userAgent;
+    const _isStandalone = window.navigator.standalone === true ||
+                          window.matchMedia('(display-mode: standalone)').matches;
+    const _isIosCr      = /CriOS/.test(ua);
+    const _isIos        = /iPad|iPhone|iPod/.test(ua) && !_isIosCr;
+    const _isAndroid    = /Android/.test(ua);
+
+    // Determine which guide to show
+    function _getGuide() {
+      if (_isIosCr) return {
+        cls: 'ios-cr', color: '#ef4444',
+        icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+        html: `<strong>Chrome on iPhone cannot install apps</strong>Open this page in <strong>Safari</strong> instead, then tap Install.`
+      };
+      if (_isIos) return {
+        cls: 'ios-sf', color: '#29B6D9',
+        icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#29B6D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>`,
+        html: `<strong>Install on iPhone (Safari)</strong><ol><li>Tap the <strong>Share</strong> icon at the bottom of Safari</li><li>Scroll down and tap <strong>Add to Home Screen</strong></li><li>Tap <strong>Add</strong></li></ol>`
+      };
+      if (_isAndroid) return {
+        cls: 'android', color: '#22c55e',
+        icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v13M8 11l4 4 4-4"/><rect x="3" y="18" width="18" height="3" rx="1"/></svg>`,
+        html: `<strong>Install on Android</strong><ol><li>Tap the <strong>Install</strong> button above</li><li>Tap <strong>Install</strong> in the dialog that appears</li></ol>`
+      };
+      return {
+        cls: 'desktop', color: '#F7A21B',
+        icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F7A21B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
+        html: `<strong>Install on Desktop (Chrome / Edge)</strong><ol><li>Look for the <strong>install icon</strong> (&#8853; or &#x1F4BB;) in the right side of your address bar</li><li>Click it and select <strong>Install</strong></li></ol>`
+      };
+    }
+
+    // Hide everything if already running as installed PWA
+    if (_isStandalone) {
+      _installBtn.style.display = 'none';
+    }
+
+    // Capture Android/Chrome install prompt
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       _deferredInstall = e;
     });
 
-    // Hide button only after confirmed install — never hide preemptively
     window.addEventListener('appinstalled', () => {
-      _installBtn.style.display = 'none';
+      _installBtn.style.display    = 'none';
+      _installGuide.style.display  = 'none';
     });
 
-    // Install button — always visible, handles all platforms
+    // Install button tap
     _installBtn.addEventListener('click', async () => {
       if (_deferredInstall) {
-        // Android / Chrome desktop — trigger native prompt
         _deferredInstall.prompt();
         const { outcome } = await _deferredInstall.userChoice;
-        if (outcome === 'accepted') _installBtn.classList.add('installed');
+        if (outcome === 'accepted') {
+          _installBtn.style.display   = 'none';
+          _installGuide.style.display = 'none';
+        }
         _deferredInstall = null;
-      } else if (_isIOS) {
-        // iOS Safari — show Share instructions
-        _iosHint.style.display = _iosHint.style.display === 'none' ? 'flex' : 'none';
-      } else {
-        // Desktop Chrome before prompt fires — guide to address bar
-        showToast('Click the install icon in your browser address bar');
+        return;
       }
+      // Show platform guide
+      if (_installGuide.style.display !== 'none') {
+        _installGuide.style.display = 'none';
+        return;
+      }
+      const guide = _getGuide();
+      _installGuide.className          = 'install-guide ' + guide.cls;
+      document.getElementById('install-guide-icon').innerHTML = guide.icon;
+      document.getElementById('install-guide-text').innerHTML = guide.html;
+      _installGuide.style.display      = 'flex';
     });
 
     document.getElementById('ios-hint-close').addEventListener('click', () => {
-      _iosHint.style.display = 'none';
+      _installGuide.style.display = 'none';
     });
 
     // ── Config ───────────────────────────────────────────────────────────────────
