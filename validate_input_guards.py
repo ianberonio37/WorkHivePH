@@ -271,6 +271,60 @@ def check_upsert_rules(rules):
     return issues
 
 
+def check_dom_ordering(pages):
+    """
+    Elements referenced by addEventListener at the TOP LEVEL of a <script> block
+    (i.e. in the init section, not inside function bodies) must exist in the DOM
+    before that script tag. A null reference there crashes the entire script.
+
+    Root cause of report-sender.html chips disappearing (April 2026):
+    #cancel-contact-btn was declared AFTER the script block, returned null,
+    TypeError on .addEventListener() crashed everything including renderChips().
+
+    Scope: only pages in DOM_ORDER_CHECK_PAGES — existing pages use the
+    same pattern safely (addEventListener inside functions, called after load).
+    Add new pages here when they have top-level init addEventListener calls.
+    """
+    # Only check pages where top-level addEventListener is used at init time.
+    # Existing pages (logbook, inventory, hive, etc.) reference elements inside
+    # function bodies that run after DOMContentLoaded — different pattern, safe.
+    DOM_ORDER_CHECK_PAGES = [
+        "report-sender.html",
+    ]
+
+    issues = []
+    for page in DOM_ORDER_CHECK_PAGES:
+        if page not in pages:
+            continue
+        content = read_file(page)
+        if not content:
+            continue
+
+        script_match = re.search(r'<script>\s*\n', content)
+        if not script_match:
+            continue
+        script_pos   = script_match.start()
+        html_before  = content[:script_pos]
+        script_block = content[script_pos:]
+
+        refs = re.findall(
+            r"document\.getElementById\(['\"]([^'\"]+)['\"]\)\.addEventListener",
+            script_block
+        )
+
+        for el_id in set(refs):
+            if f'id="{el_id}"' not in html_before and f"id='{el_id}'" not in html_before:
+                issues.append({
+                    "check": "dom_ordering",
+                    "page":  page,
+                    "reason": (
+                        f"{page}: #{el_id} has top-level .addEventListener() in <script> "
+                        f"but element is declared AFTER the script — null crash on load"
+                    )
+                })
+    return issues
+
+
 def check_pages_in_scope():
     """All .html pages that write to the DB should be in TARGET_PAGES."""
     import glob
@@ -301,6 +355,8 @@ CHECK_NAMES = [
     "save_btn_disabled", "error_coverage",
     # L4
     "upsert_rules", "pages_in_scope",
+    # L5
+    "dom_ordering",
 ]
 
 CHECK_LABELS = {
@@ -316,6 +372,8 @@ CHECK_LABELS = {
     # L4
     "upsert_rules":     "L4  Tables that must use upsert (not raw insert)",
     "pages_in_scope":   "L4  All DB-writing pages in TARGET_PAGES",
+    # L5
+    "dom_ordering":     "L5  All addEventListener targets exist in DOM before <script> block",
 }
 
 
@@ -333,6 +391,7 @@ def main():
     all_issues += check_error_coverage(TARGET_PAGES)
     all_issues += check_upsert_rules(UPSERT_RULES)
     all_issues += check_pages_in_scope()
+    all_issues += check_dom_ordering(TARGET_PAGES)
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

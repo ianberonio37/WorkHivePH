@@ -42,6 +42,7 @@ Comprehensive validation of the Report Sender PWA feature across 4 layers:
     30. scheduled-agents accepts voice_context in request body
     31. report-sender-manifest.json exists with start_url
     32. sw.js exists with fetch handler
+    33. Bottom sheet HTML is before the <script> block (DOM ordering)
 
 Usage:  python validate_report_sender.py
 Output: report_sender_report.json
@@ -73,6 +74,7 @@ CHECK_NAMES = [
     "contacts_table", "hive_id_scoping", "transcript_cap",
     "send_email_exists", "resend_key", "voice_intent_exists",
     "voice_intent_chain", "scheduled_voice_ctx", "manifest_start_url", "sw_fetch",
+    "dom_ordering",
 ]
 
 CHECK_LABELS = {
@@ -108,6 +110,7 @@ CHECK_LABELS = {
     "scheduled_voice_ctx":  "scheduled-agents accepts voice_context",
     "manifest_start_url":   "report-sender-manifest.json has correct start_url",
     "sw_fetch":             "sw.js has fetch event handler",
+    "dom_ordering":         "Bottom sheet HTML is before the <script> block",
 }
 
 
@@ -272,6 +275,19 @@ def run():
     elif "fetch" not in sw:
         issues.append({"check": "sw_fetch",
                        "reason": "sw.js has no fetch handler — Chrome will not recognise page as installable PWA"})
+
+    # 33. Bottom sheet HTML before <script> block (DOM ordering)
+    # Root cause of April 2026 bug: chips disappeared because #cancel-contact-btn
+    # was declared after the script, returned null, crashed entire script on load.
+    script_match = re.search(r'<script>\s*\n', page or '')
+    if script_match and page:
+        script_pos  = script_match.start()
+        html_before = page[:script_pos]
+        for el_id in ["cancel-contact-btn", "save-contact-btn", "sheet-overlay"]:
+            if f'id="{el_id}"' not in html_before and f"id=\'{el_id}\'" not in html_before:
+                issues.append({"check": "dom_ordering",
+                               "reason": f"#{el_id} declared AFTER the <script> block — getElementById returns null, TypeError crashes entire script (unrelated sections break too)"})
+                break
 
     return format_result(CHECK_NAMES, CHECK_LABELS, issues)
 
