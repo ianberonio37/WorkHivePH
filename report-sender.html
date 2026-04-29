@@ -958,14 +958,30 @@
       return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
     }
 
+    const LS_CONTACTS = 'wh_report_contacts'; // localStorage key for contacts fallback
+
     async function loadContacts() {
-      if (!HIVE_ID) { renderContacts(); return; }
+      if (!HIVE_ID) {
+        // No hive — load from localStorage (persists across navigation)
+        try { _contacts = JSON.parse(localStorage.getItem(LS_CONTACTS) || '[]'); }
+        catch { _contacts = []; }
+        renderContacts();
+        return;
+      }
       const { data, error } = await db
         .from('report_contacts')
         .select('id, name, email, label')
         .eq('hive_id', HIVE_ID)
         .order('created_at', { ascending: true });
-      if (!error) _contacts = data || [];
+      if (error) {
+        // Supabase failed — fall back to localStorage so contacts aren't lost
+        try { _contacts = JSON.parse(localStorage.getItem(LS_CONTACTS) || '[]'); }
+        catch { _contacts = []; }
+      } else {
+        _contacts = data || [];
+        // Keep localStorage in sync as backup
+        localStorage.setItem(LS_CONTACTS, JSON.stringify(_contacts));
+      }
       renderContacts();
     }
 
@@ -1017,10 +1033,12 @@
       _selectedContacts.delete(id);
       renderContacts();
       updateSendBtn();
+      // Sync deletion to localStorage immediately
+      localStorage.setItem(LS_CONTACTS, JSON.stringify(_contacts));
       if (HIVE_ID) {
         const { error } = await db.from('report_contacts').delete()
           .eq('id', id).eq('hive_id', HIVE_ID);
-        if (error) showToast('Could not delete contact');
+        if (error) showToast('Could not delete from server');
       }
     }
 
@@ -1065,6 +1083,8 @@
       } else {
         _contacts.push({ id: crypto.randomUUID(), ...payload });
       }
+      // Always sync to localStorage so contacts survive navigation
+      localStorage.setItem(LS_CONTACTS, JSON.stringify(_contacts));
 
       closeSheet();
       renderContacts();
@@ -1465,35 +1485,49 @@
 
       setEmailStatus('sending');
 
-      // Send to each recipient in parallel
+      // Send to each recipient — check each result individually
       try {
-        await Promise.allSettled(recipients.map(email =>
-          fetch(`${SUPABASE_URL}/functions/v1/send-report-email`, {
-            method: 'POST',
-            headers: {
-              'Content-Type':  'application/json',
-              'apikey':        SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`,
-            },
-            body: JSON.stringify({
-              hive_id:         HIVE_ID,
-              recipient_email: email,
-              reports:         successReports,
-              sent_at:         new Date().toISOString(),
-            }),
+        const sendResults = await Promise.allSettled(
+          recipients.map(async (email) => {
+            const resp = await fetch(`${SUPABASE_URL}/functions/v1/send-report-email`, {
+              method: 'POST',
+              headers: {
+                'Content-Type':  'application/json',
+                'apikey':        SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+              },
+              body: JSON.stringify({
+                hive_id:         HIVE_ID,
+                recipient_email: email,
+                reports:         successReports,
+                sent_at:         new Date().toISOString(),
+              }),
+            });
+            if (!resp.ok) {
+              const body = await resp.json().catch(() => ({}));
+              throw new Error(body.error || `HTTP ${resp.status}`);
+            }
+            return email;
           })
-        ));
+        );
 
-        // All sends fired via Promise.allSettled — treat as success
+        const sent   = sendResults.filter(r => r.status === 'fulfilled');
+        const failed = sendResults.filter(r => r.status === 'rejected');
 
-        const label = recipients.length === 1
-          ? recipients[0]
-          : `${recipients.length} recipients`;
-        setEmailStatus('sent', label);
-        startAutoReset(4);
+        if (sent.length > 0) {
+          const label = sent.length === 1
+            ? sent[0].value
+            : `${sent.length} recipients`;
+          const suffix = failed.length > 0 ? ` (${failed.length} failed)` : '';
+          setEmailStatus('sent', label + suffix);
+          startAutoReset(4);
+        } else {
+          // All failed
+          const reason = failed[0]?.reason?.message || 'Send failed';
+          setEmailStatus('error', reason);
+        }
       } catch (err) {
         setEmailStatus('error', err.message);
-        // No auto-reset on email failure — let user read the error
       }
     }
 
