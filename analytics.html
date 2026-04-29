@@ -1339,7 +1339,7 @@
         ...PLOTLY_BASE_LAYOUT,
         margin: { l: 30, r: 20, t: 10, b: 40 },
         xaxis: { ...PLOTLY_BASE_LAYOUT.xaxis, tickangle: -30, nticks: 8 },
-        yaxis: { ...PLOTLY_BASE_LAYOUT.yaxis, title: { text: 'Failures/week', font: { size: 10 } }, range: [0, maxCount + 1] },
+        yaxis: { ...PLOTLY_BASE_LAYOUT.yaxis, title: { text: 'Failures/week', font: { size: 10 } }, autorange: false, range: [0, maxCount + 1] },
         height: 200,
       };
       if (document.getElementById(chartId)) {
@@ -1355,7 +1355,7 @@
       sublabel: `${arrow} — ${escHtml(d.trend_label || '')}`,
       color: dirColor,
       detail: `<div id="${chartId}" style="width:100%;"></div>`,
-      legend: 'Y-axis = failures per week. Higher = more failures. Dotted line = 4-week forecast.',
+      legend: 'Y-axis = failures per week. Declining line = improving maintenance. Dotted line = 4-week forecast.',
     });
   }
 
