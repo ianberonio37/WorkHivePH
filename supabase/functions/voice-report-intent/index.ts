@@ -39,9 +39,18 @@ Recipient hint — preserve exactly as spoken:
 - "everyone" or "all" → "everyone"
 - Not mentioned → null
 
+IMPORTANT: Always look for "to [name/role]" in the command and extract it as recipient_hint.
+"send X to Ian" → recipient_hint: "Ian"
+"send X to supervisor" → recipient_hint: "supervisor"
+"send to everyone" → recipient_hint: "everyone"
+
 Examples:
 - "Send PM Overdue and Shift Handover to Ian, focus on pump 3"
   → {"report_types":["pm_overdue","shift_handover"],"recipient_hint":"Ian","machine_filter":"Pump 3","period_days":null,"urgency":"normal","notes":"PM Overdue and Shift Handover for Pump 3, send to Ian"}
+- "all predictive analytics to Ian"
+  → {"report_types":["predictive"],"recipient_hint":"Ian","machine_filter":null,"period_days":null,"urgency":"normal","notes":"Predictive analytics, send to Ian"}
+- "send predictive to Juan"
+  → {"report_types":["predictive"],"recipient_hint":"Juan","machine_filter":null,"period_days":null,"urgency":"normal","notes":"Predictive report, send to Juan"}
 - "send everything to supervisor this week"
   → {"report_types":["pm_overdue","failure_digest","shift_handover","predictive"],"recipient_hint":"supervisor","period_days":7,"machine_filter":null,"urgency":"normal","notes":"All reports for last 7 days, send to supervisor"}
 - "urgent failure digest to everyone"

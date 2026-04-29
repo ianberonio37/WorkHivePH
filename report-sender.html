@@ -859,12 +859,23 @@
     // ── Report history ────────────────────────────────────────────────────────────
     async function loadHistory() {
       if (!HIVE_ID) return;
-      const { data, error } = await db
+      // Try with created_at first; fall back without it if column missing (400 = schema gap)
+      let { data, error } = await db
         .from('ai_reports')
         .select('id, report_type, summary, created_at')
         .eq('hive_id', HIVE_ID)
         .order('created_at', { ascending: false })
         .limit(5);
+      if (error) {
+        // created_at may not exist — retry without ordering
+        const fallback = await db
+          .from('ai_reports')
+          .select('id, report_type, summary')
+          .eq('hive_id', HIVE_ID)
+          .limit(5);
+        data  = fallback.data;
+        error = fallback.error;
+      }
       if (error || !data?.length) return;
       renderHistory(data);
     }
@@ -1339,6 +1350,13 @@
         _voiceContext = data ?? { report_types: [], recipient_hint: null, notes: transcript, period_days: null, machine_filter: null, urgency: 'normal' };
       } catch {
         _voiceContext = { report_types: [], recipient_hint: null, notes: transcript, period_days: null, machine_filter: null, urgency: 'normal' };
+      }
+
+      // Client-side fallback: extract "to [Name/Role]" if AI missed it
+      // Handles "send predictive to Ian" when AI returns recipient_hint: null
+      if (!_voiceContext.recipient_hint) {
+        const m = transcript.match(/\bto\s+([A-Za-z][A-Za-z\s]{0,25}?)(?:\s*(?:and|,|\.|this|focus|for|$))/i);
+        if (m) _voiceContext.recipient_hint = m[1].trim();
       }
 
       // Auto-select report chips if voice specified any
