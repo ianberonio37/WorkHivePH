@@ -502,6 +502,10 @@
       .main-column, .floor { animation: none; }
       .cta-pulse { animation: none; }
       .badge { animation: none; }
+      /* Additional kills — discovered April 2026 (iOS "A problem repeatedly occurred") */
+      #scroll-progress { animation: none; }
+      .light-beam { animation: none !important; }
+      .hc3-elite  { animation: none !important; } /* !important: overrides inline <style> declared later in DOM */
     }
 
     /* ════════════════════════════════════════

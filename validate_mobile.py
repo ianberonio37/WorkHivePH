@@ -267,7 +267,139 @@ def check_overscroll_behavior(pages):
     return issues
 
 
-# ── Layer 5: Scope completeness ───────────────────────────────────────────────
+# ── Layer 5: Infinite animation kill coverage ─────────────────────────────────
+
+def check_infinite_animation_kills(pages):
+    """
+    Every DECORATIVE CSS selector with 'animation: ... infinite' must appear
+    inside a @media (max-width: 767px) block with 'animation: none'.
+    Without this, iOS WebKit exhausts GPU memory and kills the tab with
+    'A problem repeatedly occurred on [URL]'.
+
+    Root cause of April 2026 iOS Safari crash on workhiveph.com:
+    - #scroll-progress (pgbar-shine) — omitted from kill list
+    - .hc3-elite (hc3-pulse) — declared in inline <style> after the kill
+    - .light-beam — JS-gated but CSS had no independent kill
+
+    FUNCTIONAL_ANIM_ALLOWED: selectors for loading/feedback animations that
+    MUST run on mobile — spinners, cursors, ripples. These are excluded.
+    Add to this list when a new functional animation selector is introduced.
+    """
+    # Functional animations — needed for UX feedback on mobile, never kill these
+    FUNCTIONAL_ANIM_ALLOWED = {
+        ".spinner",        # loading indicator
+        "#refresh-icon",   # refresh button spin
+        ".busy",           # loading state indicator
+        ".term-cursor",    # terminal cursor (platform-health dashboard)
+        ".pulse",          # status pulse (platform-health)
+        ".rpl",            # button ripple — one-shot, forwards fill
+        ".selected-pulse", # selection feedback
+        ".typing-dot",     # AI assistant typing indicator — functional feedback
+        ".skeleton",       # skeleton loading animation — functional feedback
+        ".live",           # connection status dot — functional live indicator
+    }
+
+    issues = []
+    for page in pages:
+        content = read_file(page)
+        if not content:
+            continue
+
+        all_style = "\n".join(re.findall(r"<style[^>]*>(.*?)</style>", content, re.DOTALL | re.IGNORECASE))
+
+        infinite_pairs = re.findall(
+            r"([.#][\w-]+)\s*\{[^}]*animation\s*:[^;}]*\binfinite\b",
+            all_style
+        )
+
+        mobile_blocks = re.findall(
+            r"@media[^{]*max-width\s*:\s*767px[^{]*\{(.*?)\}(?=\s*(?:@media|\Z|</style>))",
+            all_style, re.DOTALL
+        )
+        killed = set()
+        for block in mobile_blocks:
+            # Extract all rules that contain animation:none, then collect all selectors in those rules
+            # Handles multi-selector rules: .beam-1, .beam-2, .beam-3 { animation: none }
+            for rule in re.findall(r"([^{}]+)\{[^{}]*animation\s*:\s*none[^{}]*\}", block):
+                for sel in re.findall(r"([.#][\w-]+)", rule):
+                    killed.add(sel)
+
+        for selector in set(infinite_pairs):
+            if selector in FUNCTIONAL_ANIM_ALLOWED:
+                continue  # skip — these are needed for UX feedback
+            if selector not in killed:
+                issues.append({
+                    "check": "infinite_anim_kills",
+                    "page":  page,
+                    "reason": (
+                        f"{page}: {selector} has 'animation: infinite' but no "
+                        f"'animation: none' in @media (max-width: 767px) — "
+                        f"iOS WebKit may kill the tab ('A problem repeatedly occurred'). "
+                        f"If this is a functional animation, add it to FUNCTIONAL_ANIM_ALLOWED."
+                    )
+                })
+    return issues
+
+
+def check_animation_cascade_order(pages):
+    """
+    A mobile kill in the main <style> block can be silently overridden by an
+    animation declaration in a later inline <style> block inside the <body>.
+    Same CSS specificity — later wins.
+
+    Root cause: .hc3-elite was killed in the head <style> media query but
+    redeclared with animation in a <style> block inside <body> HTML at line 782,
+    overriding the kill. Needs !important on the kill to enforce it.
+
+    Detection: find selectors that appear in BOTH a mobile kill block AND
+    in a later <style> block with an infinite animation.
+    """
+    issues = []
+    for page in pages:
+        content = read_file(page)
+        if not content:
+            continue
+
+        style_blocks = re.findall(r"<style[^>]*>(.*?)</style>", content, re.DOTALL | re.IGNORECASE)
+        if len(style_blocks) < 2:
+            continue  # only one style block — no cascade order risk
+
+        # Find selectors killed in any mobile block (in any style block)
+        killed_selectors = set()
+        for block in style_blocks:
+            mobile_blocks = re.findall(
+                r"@media[^{]*max-width\s*:\s*767px[^{]*\{(.*?)\}",
+                block, re.DOTALL
+            )
+            for mb in mobile_blocks:
+                for sel in re.findall(r"([.#][\w-]+)\s*\{[^}]*animation\s*:\s*none", mb):
+                    killed_selectors.add(sel)
+
+        # Find the position of the LAST mobile kill block in the full content
+        last_kill_pos = 0
+        for m in re.finditer(r"animation\s*:\s*none", content):
+            last_kill_pos = max(last_kill_pos, m.end())
+
+        # Find infinite animations declared AFTER the last kill position
+        for m in re.finditer(
+            r"([.#][\w-]+)\s*\{[^}]*animation\s*:[^;}]*\binfinite\b",
+            content[last_kill_pos:]
+        ):
+            selector = m.group(1)
+            if selector in killed_selectors:
+                issues.append({
+                    "check": "animation_cascade_order",
+                    "page":  page,
+                    "reason": (
+                        f"{page}: {selector} is killed in a mobile media query BUT "
+                        f"redeclared with 'animation: infinite' in a later <style> block — "
+                        f"same specificity, later wins; add !important to the kill rule"
+                    )
+                })
+    return issues
+
+
+# ── Layer 6: Scope completeness ───────────────────────────────────────────────
 
 def check_all_pages_in_scope(live_pages):
     """
@@ -303,24 +435,28 @@ CHECK_NAMES = [
     "will_change_filter",
     "body_animation_motion",
     "overscroll_behavior",
+    "infinite_anim_kills",
+    "animation_cascade_order",
     "pages_in_scope",
 ]
 
 CHECK_LABELS = {
-    "viewport_fit":          "L1  viewport-fit=cover on all live pages",
-    "input_font_size":       "L1  .wh-input font-size >= 16px (iOS auto-zoom guard)",
-    "safe_area":             "L2  Fixed bottom elements have safe-area-inset-bottom",
-    "touch_targets":         "L2  No inline touch target below 44px",
-    "will_change_filter":    "L3  will-change:filter has mobile override (iOS GPU crash guard)",
-    "body_animation_motion": "L3  body animation has prefers-reduced-motion override",
-    "overscroll_behavior":   "L4  Scrollable modal containers have overscroll-behavior:contain  [WARN]",
-    "pages_in_scope":        "L5  All live pages included in mobile validation scope",
+    "viewport_fit":            "L1  viewport-fit=cover on all live pages",
+    "input_font_size":         "L1  .wh-input font-size >= 16px (iOS auto-zoom guard)",
+    "safe_area":               "L2  Fixed bottom elements have safe-area-inset-bottom",
+    "touch_targets":           "L2  No inline touch target below 44px",
+    "will_change_filter":      "L3  will-change:filter has mobile override (iOS GPU crash guard)",
+    "body_animation_motion":   "L3  body animation has prefers-reduced-motion override",
+    "overscroll_behavior":     "L4  Scrollable modal containers have overscroll-behavior:contain  [WARN]",
+    "infinite_anim_kills":     "L5  All infinite animations have mobile kill in max-width:767px block",
+    "animation_cascade_order": "L5  No mobile kill overridden by later inline <style> declaration",
+    "pages_in_scope":          "L6  All live pages included in mobile validation scope",
 }
 
 
 def main():
     def bold(s): return f"\033[1m{s}\033[0m"
-    print(bold("\nMobile UX Compliance Validator (5-layer)"))
+    print(bold("\nMobile UX Compliance Validator (6-layer)"))
     print("=" * 55)
 
     all_issues = []
@@ -331,6 +467,8 @@ def main():
     all_issues += check_will_change_filter(LIVE_PAGES)
     all_issues += check_body_animation_reduced_motion(LIVE_PAGES)
     all_issues += check_overscroll_behavior(SCROLL_PAGES)
+    all_issues += check_infinite_animation_kills(LIVE_PAGES)
+    all_issues += check_animation_cascade_order(LIVE_PAGES)
     all_issues += check_all_pages_in_scope(LIVE_PAGES)
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)

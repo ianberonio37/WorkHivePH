@@ -34,6 +34,9 @@
     @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(60px,40px)} }
     @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,60px)} }
     @keyframes drift3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-30px)} }
+    @media (max-width: 767px) {
+      .beam-1, .beam-2, .beam-3 { animation: none; will-change: auto; }
+    }
 
     .card {
       background: linear-gradient(145deg, rgba(42,61,88,0.6) 0%, rgba(22,32,50,0.9) 100%);
