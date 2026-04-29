@@ -167,6 +167,13 @@
     .role-row:last-child { border-bottom:none; }
     .role-row .label { color:rgba(255,255,255,0.45); }
     .role-row .val { font-weight:700; }
+    .pm-asset-select {
+      font-family:'Poppins',sans-serif; font-size:0.72rem; font-weight:500;
+      background:rgba(22,32,50,0.7); border:1px solid rgba(247,162,27,0.25);
+      border-radius:0.5rem; color:#F7A21B; padding:0.3rem 0.6rem;
+      cursor:pointer; outline:none; width:100%; margin:0.25rem 0;
+    }
+    .pm-asset-select option { background:#1a2e44; color:#F4F6FA; }
 
     /* ── Info banner ── */
     .info-banner { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.875rem 1rem; border-radius: 0.75rem; background: rgba(167,139,250,0.07); border: 1px solid rgba(167,139,250,0.15); margin-bottom: 1rem; font-size: 0.75rem; color: rgba(255,255,255,0.55); }
@@ -1530,19 +1537,59 @@
     }
   }
 
+  // ── PM task helpers (shared by worker view + dropdown filter) ────────────────
+  function _buildPMTaskRows(tasks) {
+    return tasks.map(t => `
+      <div class="role-row" style="padding-left:1rem;">
+        <span class="label">${escHtml(t.asset_name)} — ${escHtml(t.task.slice(0, 45))}</span>
+        <span class="val" style="color:${t.risk==='OVERDUE'?'#f87171':'#F7A21B'};">${escHtml(t.status)}</span>
+      </div>`).join('');
+  }
+
+  function filterPMTasks(assetName) {
+    const cal    = _cache.predictive?.pm_due_calendar?.calendar || [];
+    const urgent = cal.filter(c => c.risk === 'OVERDUE' || c.risk === 'DUE SOON');
+    const tasks  = assetName
+      ? urgent.filter(t => t.asset_name === assetName)  // all tasks for selected asset
+      : urgent.slice(0, 5);                              // default: top 5 across all
+    const el = document.getElementById('pm-task-list');
+    if (el) el.innerHTML = _buildPMTaskRows(tasks);
+  }
+
   // ── Worker Quick View: PM due + open jobs + parts needed ──────────────────
   function buildWorkerView(pred, presc) {
     const rows = [];
 
-    // PM tasks due this week
-    const cal = pred?.pm_due_calendar?.calendar || [];
-    const urgent = cal.filter(c => c.risk === 'OVERDUE' || c.risk === 'DUE SOON').slice(0, 4);
+    // PM tasks — asset dropdown (scales to any number of assets)
+    const cal    = pred?.pm_due_calendar?.calendar || [];
+    const urgent = cal.filter(c => c.risk === 'OVERDUE' || c.risk === 'DUE SOON');
+
     if (urgent.length) {
+      // Group tasks by asset
+      const assetMap = {};
+      urgent.forEach(t => {
+        if (!assetMap[t.asset_name]) assetMap[t.asset_name] = [];
+        assetMap[t.asset_name].push(t);
+      });
+      const assetNames = Object.keys(assetMap).sort();
+
+      // Summary row
       rows.push(`<div class="role-row"><span class="label">📅 PM tasks due</span><span class="val" style="color:#F7A21B;">${urgent.length} need attention</span></div>`);
-      urgent.forEach(t => rows.push(`<div class="role-row" style="padding-left:1rem;">
-        <span class="label">${escHtml(t.asset_name)} — ${escHtml(t.task.slice(0,40))}</span>
-        <span class="val" style="color:${t.risk==='OVERDUE'?'#f87171':'#F7A21B'};">${escHtml(t.status)}</span>
-      </div>`));
+
+      // Asset dropdown
+      const opts = [`<option value="">— Filter by asset (${assetNames.length}) —</option>`]
+        .concat(assetNames.map(a =>
+          `<option value="${escHtml(a)}">${escHtml(a)} (${assetMap[a].length})</option>`
+        )).join('');
+      rows.push(`<div class="role-row" style="padding-left:0.5rem;">
+        <select class="pm-asset-select" onchange="filterPMTasks(this.value)">
+          ${opts}
+        </select>
+      </div>`);
+
+      // Task list container — shows first 5 by default, filtered on dropdown change
+      const defaultTasks = urgent.slice(0, 5);
+      rows.push(`<div id="pm-task-list">${_buildPMTaskRows(defaultTasks)}</div>`);
     } else {
       rows.push(`<div class="role-row"><span class="label">📅 PM tasks</span><span class="val" style="color:#4ade80;">All on schedule ✓</span></div>`);
     }
