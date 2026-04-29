@@ -763,7 +763,8 @@
     let   _mediaRecorder    = null;    // MediaRecorder API (iOS / Firefox)
     let   _audioChunks      = [];
     let   _recordingTimer   = null;
-    let   _useMediaRecorder = false;
+    let   _useMediaRecorder  = false;
+    let   _silenceAnimFrame  = null;
     let   _contacts         = [];
     const _selectedContacts = new Set();
     let   _selectedLabel    = 'Team';
@@ -1190,6 +1191,7 @@
 
         _mediaRecorder.onstop = async () => {
           stream.getTracks().forEach(t => t.stop());
+          if (_silenceAnimFrame) { cancelAnimationFrame(_silenceAnimFrame); _silenceAnimFrame = null; }
           const ext  = (_mediaRecorder.mimeType || 'audio/mp4').includes('webm') ? 'webm' : 'mp4';
           const blob = new Blob(_audioChunks, { type: _mediaRecorder.mimeType || 'audio/mp4' });
           setMicState('processing');
@@ -1199,9 +1201,48 @@
         _mediaRecorder.start();
         setMicState('listening');
 
-        // Auto-stop after 15 seconds — enough for any voice context
+        // ── 2-second silence detection via Web Audio API ───────────────────────
+        // Monitors RMS volume every animation frame. When quiet for 2s → auto-stop.
+        // Workers speak and pause naturally — no second tap needed on iOS.
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const source   = audioCtx.createMediaStreamSource(stream);
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        source.connect(analyser);
+
+        const dataArray      = new Uint8Array(analyser.frequencyBinCount);
+        const SILENCE_MS     = 2000; // stop after 2 seconds of silence
+        const SILENCE_THRESH = 4;    // RMS < 4 (0-255 scale) = silence
+        let   silenceStart   = null;
+
+        function checkSilence() {
+          if (_mediaRecorder?.state !== 'recording') return;
+          analyser.getByteTimeDomainData(dataArray);
+          // RMS of deviation from 128 (midpoint = silence in PCM time-domain)
+          const rms = Math.sqrt(
+            dataArray.reduce((s, v) => s + Math.pow(v - 128, 2), 0) / dataArray.length
+          );
+          if (rms < SILENCE_THRESH) {
+            if (!silenceStart) silenceStart = Date.now();
+            else if (Date.now() - silenceStart >= SILENCE_MS) {
+              clearTimeout(_recordingTimer);
+              audioCtx.close();
+              _mediaRecorder.stop();
+              return;
+            }
+          } else {
+            silenceStart = null; // sound detected — reset silence timer
+          }
+          _silenceAnimFrame = requestAnimationFrame(checkSilence);
+        }
+        _silenceAnimFrame = requestAnimationFrame(checkSilence);
+
+        // Hard-stop safety net at 15s (in case silence detection misses in noisy env)
         _recordingTimer = setTimeout(() => {
-          if (_mediaRecorder?.state === 'recording') _mediaRecorder.stop();
+          if (_mediaRecorder?.state === 'recording') {
+            audioCtx.close();
+            _mediaRecorder.stop();
+          }
         }, 15000);
 
       } catch (err) {
