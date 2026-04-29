@@ -77,13 +77,18 @@ def calc_next_failure_dates(logbook_entries: list[dict]) -> dict:
         days_until = (predicted_next - now).total_seconds() / 86400
 
         if days_until < 0:
-            risk = "HIGH"
-            status = f"Overdue by {abs(int(days_until))} days"
+            d      = abs(int(days_until))
+            risk   = "HIGH"
+            status = f"Overdue by {d} day{'s' if d != 1 else ''}"
+        elif days_until < 1:
+            risk   = "HIGH"
+            status = "Predicted today"
         elif days_until <= 14:
-            risk = "MEDIUM"
-            status = f"Due in {int(days_until)} days"
+            d      = int(days_until)
+            risk   = "MEDIUM"
+            status = f"Due in {d} day{'s' if d != 1 else ''}"
         else:
-            risk = "LOW"
+            risk   = "LOW"
             status = f"Due in {int(days_until)} days"
 
         predictions.append({
@@ -160,25 +165,33 @@ def calc_pm_due_calendar(
         # Get last done date (scope item match preferred, asset fallback)
         last_done = last_comp.get(item_id) or last_asset_comp.get(asset_id)
 
-        if last_done:
-            next_due = last_done + pd.Timedelta(days=days)
+        if not last_done:
+            # Never completed — no baseline exists yet
+            next_due   = now
+            days_until = 0.0
+            risk       = "DUE SOON"
+            status     = "No record — set baseline"
         else:
-            next_due = now  # never done = overdue immediately
+            next_due   = last_done + pd.Timedelta(days=days)
+            days_until = (next_due - now).total_seconds() / 86400
 
-        days_until = (next_due - now).total_seconds() / 86400
-
-        if days_until < 0:
-            risk   = "OVERDUE"
-            status = f"Overdue by {abs(int(days_until))} days"
-        elif days_until <= 7:
-            risk   = "DUE SOON"
-            status = f"Due in {int(days_until)} days"
-        elif days_until <= 30:
-            risk   = "UPCOMING"
-            status = f"Due in {int(days_until)} days"
-        else:
-            risk   = "OK"
-            status = f"Due {next_due.strftime('%Y-%m-%d')}"
+            if days_until < 0:
+                d      = abs(int(days_until))
+                risk   = "OVERDUE"
+                status = f"Overdue by {d} day{'s' if d != 1 else ''}"
+            elif days_until < 1:
+                risk   = "DUE SOON"
+                status = "Due today"
+            elif days_until <= 7:
+                d      = int(days_until)
+                risk   = "DUE SOON"
+                status = f"Due in {d} day{'s' if d != 1 else ''}"
+            elif days_until <= 30:
+                risk   = "UPCOMING"
+                status = f"Due in {int(days_until)} days"
+            else:
+                risk   = "OK"
+                status = f"Due {next_due.strftime('%Y-%m-%d')}"
 
         calendar.append({
             "asset_name":  asset_name,
