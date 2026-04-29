@@ -920,8 +920,8 @@
       btn.disabled    = true;
 
       try {
-        await Promise.allSettled(recipients.map(email =>
-          fetch(`${SUPABASE_URL}/functions/v1/send-report-email`, {
+        const results = await Promise.allSettled(recipients.map(async email => {
+          const resp = await fetch(`${SUPABASE_URL}/functions/v1/send-report-email`, {
             method: 'POST',
             headers: {
               'Content-Type':  'application/json',
@@ -934,11 +934,23 @@
               reports:         [{ type: reportType, summary }],
               sent_at:         new Date().toISOString(),
             }),
-          })
-        ));
-        showToast(`${reportLabel(reportType)} resent`);
-      } catch {
-        showToast('Resend failed');
+          });
+          if (!resp.ok) {
+            const body = await resp.json().catch(() => ({}));
+            throw new Error(body.error || `HTTP ${resp.status}`);
+          }
+          return email;
+        }));
+
+        const sent   = results.filter(r => r.status === 'fulfilled').length;
+        const failed = results.filter(r => r.status === 'rejected').length;
+        if (sent > 0) {
+          showToast(`${reportLabel(reportType)} resent` + (failed ? ` (${failed} failed)` : ''));
+        } else {
+          showToast('Resend failed: ' + (results[0]?.reason?.message || 'unknown error'));
+        }
+      } catch (err) {
+        showToast('Resend failed: ' + escHtml(err.message || 'unknown'));
       }
 
       btn.textContent = 'Resend';

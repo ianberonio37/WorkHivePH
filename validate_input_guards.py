@@ -344,6 +344,129 @@ def check_pages_in_scope():
     return issues
 
 
+# ── Layer 6: Async result inspection ─────────────────────────────────────────
+
+def check_allsettled_inspection(pages):
+    """
+    Promise.allSettled() results must be inspected — not silently ignored.
+
+    Bug pattern: fire allSettled then unconditionally mark as success.
+    Root cause of report-sender email issue (April 2026):
+    email sends used allSettled but never checked results — UI showed
+    green checkmark even when Resend returned HTTP 500.
+
+    Looks for .status / 'fulfilled' / 'rejected' within 600 chars
+    of each allSettled call.
+    """
+    issues = []
+    for page in pages:
+        content = read_file(page)
+        if not content:
+            continue
+        for m in re.finditer(r'Promise\.allSettled\s*\(', content):
+            # Only check allSettled(collection.map(...)) — these process external requests.
+            # allSettled([func1(), func2()]) is a background parallel-run pattern — skip it.
+            call_start = content[m.start():m.start() + 50]
+            if not re.search(r'\.map\s*\(', call_start):
+                continue  # array literal — background refresh, result check not required
+
+            # 1200 chars covers async map() bodies before the result variable is used
+            window = content[m.start():m.start() + 1200]
+            has_inspection = any(re.search(p, window) for p in [
+                r'\.status\b', r"['\"]fulfilled['\"]", r"['\"]rejected['\"]",
+                r'\.filter\s*\(', r'\br\.status\b',
+            ])
+            if not has_inspection:
+                line = content[:m.start()].count('\n') + 1
+                issues.append({
+                    "check": "allsettled_inspection",
+                    "page":  page,
+                    "reason": (
+                        f"{page}:{line} Promise.allSettled(collection.map(...)) called but "
+                        f"results not inspected — HTTP failures silently treated as success; "
+                        f"check r.status === 'fulfilled'/'rejected' on each result"
+                    )
+                })
+    return issues
+
+
+def check_fetch_error_handling(pages):
+    """
+    fetch() calls to Supabase edge functions must check resp.ok or resp.status.
+    A fetch that ignores the HTTP response will show success even on 500 errors.
+
+    Scoped to calls containing SUPABASE_URL — avoids false positives on
+    third-party CDN fetches (fonts, Supabase JS, etc.).
+
+    FIRE_AND_FORGET: embed-entry calls are intentionally silent (AI Engineer skill) —
+    they update the knowledge base in the background without blocking the main save.
+    Failures are caught by try/catch with console.warn, not surfaced to the user.
+    """
+    FIRE_AND_FORGET_FUNCTIONS = ['embed-entry']  # background ops — silence is intentional
+
+    issues = []
+    for page in pages:
+        content = read_file(page)
+        if not content:
+            continue
+        for m in re.finditer(r'\bfetch\s*\(`?\$\{SUPABASE_URL\}', content):
+            # Skip fire-and-forget edge functions
+            call_snippet = content[m.start():m.start() + 100]
+            if any(fn in call_snippet for fn in FIRE_AND_FORGET_FUNCTIONS):
+                continue
+            # Look at next 700 chars for response check (covers large request bodies)
+            window = content[m.start():m.start() + 700]
+            has_check = any(p in window for p in [
+                'resp.ok', 'response.ok', '.ok)', '.ok\n', '.ok ',
+                'resp.status', 'response.status',
+                'if (!resp', 'if (!response',
+            ])
+            if not has_check:
+                line = content[:m.start()].count('\n') + 1
+                issues.append({
+                    "check": "fetch_error_handling",
+                    "page":  page,
+                    "reason": (
+                        f"{page}:{line} fetch() to edge function doesn't check resp.ok — "
+                        f"HTTP 4xx/5xx errors silently ignored; add if (!resp.ok) handling"
+                    )
+                })
+    return issues
+
+
+def check_localstorage_backup(pages):
+    """
+    Pages that save critical data to Supabase AND display it as a list
+    should also write to localStorage as fallback. Without this, a Supabase
+    failure or missing HIVE_ID causes the data to vanish on next page load.
+
+    Root cause of report-sender contacts disappearing (April 2026):
+    contacts written to Supabase only — localStorage fallback missing.
+    """
+    # Map: page → (supabase table, expected localStorage key pattern)
+    BACKUP_REQUIRED = {
+        "report-sender.html": ("report_contacts", "LS_CONTACTS"),
+    }
+
+    issues = []
+    for page, (table, ls_key) in BACKUP_REQUIRED.items():
+        if page not in pages:
+            continue
+        content = read_file(page)
+        if not content:
+            continue
+        if table in content and ls_key not in content:
+            issues.append({
+                "check": "localstorage_backup",
+                "page":  page,
+                "reason": (
+                    f"{page}: writes to '{table}' but has no localStorage backup ({ls_key}) "
+                    f"— data disappears on navigation when Supabase is unavailable or HIVE_ID is null"
+                )
+            })
+    return issues
+
+
 # ── Runner ─────────────────────────────────────────────────────────────────────
 
 CHECK_NAMES = [
@@ -357,23 +480,29 @@ CHECK_NAMES = [
     "upsert_rules", "pages_in_scope",
     # L5
     "dom_ordering",
+    # L6
+    "allsettled_inspection", "fetch_error_handling", "localstorage_backup",
 ]
 
 CHECK_LABELS = {
     # L1
-    "show_toast":       "L1  showToast present on all DB-writing pages",
-    "bare_inserts":     "L1  No bare inserts (every .insert() captures error)",
+    "show_toast":            "L1  showToast present on all DB-writing pages",
+    "bare_inserts":          "L1  No bare inserts (every .insert() captures error)",
     # L2
-    "required_guards":  "L2  Required field guards before critical saves",
-    "nan_guard":        "L2  NaN guard on parseFloat() from user input",
+    "required_guards":       "L2  Required field guards before critical saves",
+    "nan_guard":             "L2  NaN guard on parseFloat() from user input",
     # L3
-    "save_btn_disabled":"L3  Save button disabled during async operation",
-    "error_coverage":   "L3  Error handler coverage >= 60% of DB writes",
+    "save_btn_disabled":     "L3  Save button disabled during async operation",
+    "error_coverage":        "L3  Error handler coverage >= 60% of DB writes",
     # L4
-    "upsert_rules":     "L4  Tables that must use upsert (not raw insert)",
-    "pages_in_scope":   "L4  All DB-writing pages in TARGET_PAGES",
+    "upsert_rules":          "L4  Tables that must use upsert (not raw insert)",
+    "pages_in_scope":        "L4  All DB-writing pages in TARGET_PAGES",
     # L5
-    "dom_ordering":     "L5  All addEventListener targets exist in DOM before <script> block",
+    "dom_ordering":          "L5  All addEventListener targets exist in DOM before <script> block",
+    # L6
+    "allsettled_inspection": "L6  Promise.allSettled() results inspected — not silently ignored",
+    "fetch_error_handling":  "L6  fetch() to edge functions checks resp.ok",
+    "localstorage_backup":   "L6  Critical Supabase data has localStorage backup",
 }
 
 
@@ -392,6 +521,9 @@ def main():
     all_issues += check_upsert_rules(UPSERT_RULES)
     all_issues += check_pages_in_scope()
     all_issues += check_dom_ordering(TARGET_PAGES)
+    all_issues += check_allsettled_inspection(TARGET_PAGES)
+    all_issues += check_fetch_error_handling(TARGET_PAGES)
+    all_issues += check_localstorage_backup(TARGET_PAGES)
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 
