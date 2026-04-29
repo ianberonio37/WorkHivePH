@@ -25771,10 +25771,10 @@ function buildHeatExchangerSVG(inputs, results) {
   const eff=Number(r.effectiveness||0).toFixed(3);
   const ntu=Number(r.NTU||0).toFixed(3);
   const balOK=Boolean(r.heat_balance_ok??true);
-  const hotIn=Number(inp.hot_T_in_c||80).toFixed(0);
-  const hotOut=Number(inp.hot_T_out_c||50).toFixed(0);
-  const cldIn=Number(inp.cold_T_in_c||20).toFixed(0);
-  const cldOut=Number(r.Q_cold_kW?((Number(inp.cold_T_in_c||20)+Number(r.duty_kW||0)*1000/(Number(inp.cold_flow_kgs||1)*4186)).toFixed(1)):'—');
+  const hotIn=Number(inp.hot_inlet_C||90).toFixed(0);
+  const hotOut=Number(inp.hot_outlet_C||60).toFixed(0);
+  const cldIn=Number(inp.cold_inlet_C||25).toFixed(0);
+  const cldOut=Number(inp.cold_outlet_C||55).toFixed(0);
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
@@ -25847,7 +25847,7 @@ function buildPressureVesselSVG(inputs, results) {
   const p=[];
   const tShell=Number(r.t_shell_actual_mm||0).toFixed(1);
   const OD=Number(r.outer_diameter_mm||0).toFixed(0);
-  const ID=Number(inp.shell_id_mm||600).toFixed(0);
+  const ID=Number(inp.inner_diameter_mm||800).toFixed(0);
   const mawpBar=Number(r.mawp_bar||0).toFixed(2);
   const mawpOK=Boolean(r.mawp_ok??true);
   const hydBar=Number(r.hydro_test_bar||0).toFixed(2);

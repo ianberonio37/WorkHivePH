@@ -128,7 +128,7 @@
     "snippet": "Rate Limits - GroqDocs | Groq Free Tier 2026 \u2014 Free Models, Credits &amp; Limits | Price Per Token | Top free-tier LLM API providers \u2014 November 2025 - Medium | Understand  Groq  API rate  limits , headers, and best practices for managing request and  token  quotas in your applications. | Groq  offer",
     "url": "",
     "query": "Groq AI new models 2025 free tier tokens per minute limits llama4",
-    "checked_at": "2026-04-29 14:27"
+    "checked_at": "2026-04-29 22:58"
   },
   {
     "id": "pgvector-updates",
@@ -152,7 +152,7 @@
     "snippet": "GitHub - pgvector/pgvector: Open-source vector similarity search for ... | How to Use Cosine Similarity for Vector Search in pgvector | Understanding vector search and HNSW index with pgvector | An  HNSW   index  creates a multilayer graph. It has better query  performance  than IVFFlat (in terms of",
     "url": "",
     "query": "pgvector 0.7 0.8 HNSW index cosine similarity performance 2025",
-    "checked_at": "2026-04-29 14:27"
+    "checked_at": "2026-04-29 22:58"
   },
   {
     "id": "nomic-embed-updates",
@@ -161,20 +161,21 @@
     "priority": "HIGH",
     "business_value": "operational",
     "check_frequency": "monthly",
-    "score": 20,
+    "score": 40,
     "signals": [
-      "v2"
+      "v2",
+      "768"
     ],
-    "assessment": "Weak signal \u2014 file for reference",
+    "assessment": "Moderate signal \u2014 check when relevant",
     "affects": "pgvector vector(384) dimension \u2014 must match embedding model",
     "validator_ids": [
       "vector-schema"
     ],
     "opportunity": "Migration plan: re-embed all knowledge tables if model dimensions change",
-    "snippet": "nomic-ai/nomic-embed-text-v2-moe \u00b7 Hugging Face | nomic-embed-text-v2-moe - ollama.com | Nomic Embed Text V2: An Open Source, Multilingual, Mixture-of-Experts ... | In this paper, we introduce  Nomic   Embed   v2 , the first general purpose MoE  text   embedding   model . Our  model  outperforms  mo",
+    "snippet": "nomic-ai/nomic-embed-text-v2-moe \u00b7 Hugging Face | Text Embedding | Nomic Platform Documentation | Nomic Embed Text V2: An Open Source, Multilingual, Mixture-of-Experts ... | In this paper, we introduce  Nomic   Embed   v2 , the first general purpose MoE  text   embedding   model . Our  model  outper",
     "url": "",
     "query": "nomic-embed-text v2 2025 new dimensions embedding model update Groq",
-    "checked_at": "2026-04-29 14:27"
+    "checked_at": "2026-04-29 22:58"
   },
   {
     "id": "supabase-edge-deno-updates",
@@ -183,23 +184,22 @@
     "priority": "HIGH",
     "business_value": "operational",
     "check_frequency": "monthly",
-    "score": 60,
+    "score": 40,
     "signals": [
       "Deno 2",
-      "runtime",
-      "update"
+      "runtime"
     ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "assessment": "Moderate signal \u2014 check when relevant",
     "affects": "All 6 edge functions \u2014 Deno upgrades may break import URLs",
     "validator_ids": [
       "edge-contracts",
       "groq-fallback"
     ],
     "opportunity": "Update Deno import URLs in edge functions to new registry format",
-    "snippet": "Supabase Edge Functions Deno 2.0 support - GitHub | Edge Functions: Deploy from the Dashboard + Deno 2.1 | Supabase Edge Functions in Practice: Deno Runtime and TypeScript ... | Just wanted to ask if there are any plans if and when  Deno   2.0  will be supported for  Supabase   Edge   Functions . Th",
+    "snippet": "Supabase Edge Functions Deno 2.0 support - GitHub | Edge Functions - Supabase Docs | Supabase Edge Functions in Practice: Deno Runtime and TypeScript ... | Just wanted to ask if there are any plans if and when  Deno   2.0  will be supported for  Supabase   Edge   Functions . The latest supported ver",
     "url": "",
     "query": "Supabase Edge Functions Deno 2.0 2025 breaking changes new APIs",
-    "checked_at": "2026-04-29 14:27"
+    "checked_at": "2026-04-29 22:58"
   },
   {
     "id": "supabase-realtime-v2",
@@ -224,7 +224,7 @@
     "snippet": "Postgres Changes - Supabase Docs | GitHub - supabase/realtime: Broadcast, Presence, and Postgres Changes ... | Postgres Changes | supabase/realtime | DeepWiki | We are making many improvements to  Realtime&#x27;s   Postgres   Changes . If you are uncertain about the  performance  of your use case, r",
     "url": "",
     "query": "Supabase Realtime broadcast filtered postgres changes 2025 performance",
-    "checked_at": "2026-04-29 14:27"
+    "checked_at": "2026-04-29 22:58"
   },
   {
     "id": "owasp-top10-2025",
@@ -233,10 +233,11 @@
     "priority": "HIGH",
     "business_value": "enterprise_blocker",
     "check_frequency": "monthly",
-    "score": 60,
+    "score": 80,
     "signals": [
       "2025",
-      "new"
+      "new",
+      "update"
     ],
     "assessment": "Strong signal \u2014 review immediately",
     "affects": "XSS/escHtml coverage, input guards, governance checks",
@@ -246,10 +247,10 @@
       "data-governance"
     ],
     "opportunity": "Verify new OWASP categories are covered by existing validators",
-    "snippet": "OWASP Top 10:2025 | OWASP Top 10 2025: The Main Web Vulnerabilities in 2025 | OWASP Top 10 2025 - Revised Version Released With Two New Categories | The  OWASP   Top   10  is a standard awareness document for developers and  web   application   security . It represents a broad consensus about the mo",
+    "snippet": "OWASP Top 10:2025 | OWASP Top 10 2025 - Revised Version Released With Two New Categories | OWASP Top 10 2025: The Main Web Vulnerabilities in 2025 | The  OWASP   Top   10  is a standard awareness document for developers and  web   application   security . It represents a broad consensus about the mo",
     "url": "",
     "query": "OWASP Top 10 web application security vulnerabilities 2025 update",
-    "checked_at": "2026-04-29 14:27"
+    "checked_at": "2026-04-29 22:58"
   },
   {
     "id": "saml-oidc-2025",
@@ -258,22 +259,21 @@
     "priority": "HIGH",
     "business_value": "enterprise_blocker",
     "check_frequency": "weekly",
-    "score": 60,
+    "score": 20,
     "signals": [
-      "2025",
-      "CVE"
+      "vulnerability"
     ],
-    "assessment": "Strong signal \u2014 review immediately",
+    "assessment": "Weak signal \u2014 file for reference",
     "affects": "SSO readiness, Supabase Auth SAML integration",
     "validator_ids": [
       "sso-readiness",
       "compliance"
     ],
     "opportunity": "Review Supabase SSO config against any published SAML/OIDC CVEs",
-    "snippet": "Security Vulnerabilities in SAML, OAuth 2.0, OpenID Connect, and JWT | SSO Protocol Security: Critical Vulnerabilities in SAML, OAuth, OIDC ... | Critical Node-SAML Flaw (CVE-2025-54369) Exposes SAML 2.0 to ... | This report provides a data-rich overview of known  security  flaws in four major SSO t",
+    "snippet": "SSO Protocol Security: Critical Vulnerabilities in SAML, OAuth, OIDC ... | Security Vulnerabilities in SAML, OAuth 2.0, OpenID Connect, and JWT | Notice of a Security Vulnerability - openid.net | Compare critical  security  vulnerabilities across major SSO protocols with expert analysis of  SAML , O",
     "url": "",
     "query": "SAML 2.0 OpenID Connect OIDC security advisory 2024 2025 vulnerability",
-    "checked_at": "2026-04-29 14:27"
+    "checked_at": "2026-04-29 22:58"
   },
   {
     "id": "supabase-rls-auth",
@@ -294,10 +294,10 @@
       "tenant-boundary"
     ],
     "opportunity": "Design RLS policies for hive_id isolation before Supabase Auth migration",
-    "snippet": "Supabase RLS Best Practices: Production Patterns for Secure Multi ... | Enforcing Row Level Security in Supabase: A Deep Dive into LockIn&#x27;s ... | Multi-Tenant Architecture for Self-Hosted Supabase: A Complete Guide | Learn battle-tested  Supabase   Row   Level   Security   patterns  with perfor",
+    "snippet": "Supabase RLS Best Practices: Production Patterns for Secure Multi ... | Supabase RLS Deep Dive \u2014 Multi-tenant Access Control | Multi-Tenant Architecture for Self-Hosted Supabase: A Complete Guide | Learn battle-tested  Supabase   Row   Level   Security   patterns  with performance optimizations,  mu",
     "url": "",
     "query": "Supabase Auth row level security RLS multi-tenant 2025 patterns JWT",
-    "checked_at": "2026-04-29 14:27"
+    "checked_at": "2026-04-29 22:58"
   },
   {
     "id": "nfpa13-update",
