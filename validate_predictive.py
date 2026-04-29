@@ -48,7 +48,12 @@ def check_mtbf_filters(page):
         return [{"check": "mtbf_filters", "page": page, "reason": f"{page} not found"}]
     body = extract_function_body(content, "loadMtbf")
     if not body:
-        return [{"check": "mtbf_filters", "page": page, "reason": "loadMtbf() not found"}]
+        # MTBF moved to Python analytics engine (descriptive.py) — filters enforced server-side.
+        # If analytics.html renders renderMTBF, the L3 Python check covers filter correctness.
+        analytics = read_file("analytics.html") or ""
+        if "renderMTBF" in analytics:
+            return []
+        return [{"check": "mtbf_filters", "page": page, "reason": "loadMtbf() not found and renderMTBF not in analytics.html"}]
     issues = []
     guards = [
         (r"maintenance_type.*Breakdown.*Corrective|eq\s*\(['\"]maintenance_type['\"]",
@@ -84,7 +89,11 @@ def check_mttr_positive_filter(page):
         return []
     body = extract_function_body(content, "loadMttr")
     if not body:
-        return [{"check": "mttr_positive_filter", "page": page, "reason": "loadMttr() not found"}]
+        # MTTR moved to Python analytics engine (descriptive.py) — enforced server-side.
+        analytics = read_file("analytics.html") or ""
+        if "renderMTTR" in analytics:
+            return []
+        return [{"check": "mttr_positive_filter", "page": page, "reason": "loadMttr() not found and renderMTTR not in analytics.html"}]
     if not re.search(r"repairMs\s*>\s*0|repair.*>\s*0|filter.*>\s*0", body):
         return [{"check": "mttr_positive_filter", "page": page,
                  "reason": f"{page} loadMttr() does not filter zero/negative repair times — data errors corrupt MTTR averages"}]

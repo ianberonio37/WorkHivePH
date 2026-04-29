@@ -280,6 +280,15 @@ def check_edge_hive_id_scoping(ts, path):
 def check_edge_groq_fallback(ts, path):
     if not ts:
         return []
+    # New architecture: edge functions import callAI from _shared/ai-chain.ts.
+    # The shared module contains the full multi-provider chain — check it instead.
+    if "callAI" in ts and "_shared/ai-chain" in ts:
+        shared_path = os.path.join("supabase", "functions", "_shared", "ai-chain.ts")
+        shared = read_file(shared_path) or ""
+        entries = len(re.findall(r'\{\s*provider:', shared))
+        if entries >= 2:
+            return []  # shared chain confirmed with 2+ providers
+    # Fallback: inline model check
     models = re.findall(r'"(llama[^"]+|meta-llama[^"]+|mixtral[^"]+)"', ts)
     if len(models) < 2:
         return [{"check": "groq_fallback", "page": path, "found_models": models,
@@ -289,6 +298,10 @@ def check_edge_groq_fallback(ts, path):
 
 def check_edge_groq_null_guard(ts, path):
     if not ts:
+        return []
+    # New architecture: callAI() from _shared/ai-chain.ts silently skips missing keys —
+    # explicit GROQ_KEY null guard not needed when using the shared module.
+    if "callAI" in ts and "_shared/ai-chain" in ts:
         return []
     if "if (!GROQ_KEY)" not in ts and "if(!GROQ_KEY)" not in ts:
         return [{"check": "groq_null_guard", "page": path,

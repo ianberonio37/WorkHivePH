@@ -50,6 +50,7 @@ LIVE_PAGES = [
     "index.html",
     "floating-ai.js",
     "nav-hub.js",
+    "report-sender.html",
 ]
 
 # Pages that define escHtml themselves (don't load utils.js)

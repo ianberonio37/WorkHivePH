@@ -10888,7 +10888,6 @@ function showReport() {
     'Generator Sizing', 'Pump Sizing (TDH)', 'Fire Sprinkler Hydraulic', 'Lighting Design',
     // ── HVAC group ────────────────────────────────────────────────────────────
     'AHU Sizing', 'Duct Sizing (Equal Friction)',
-    'Harmonic Distortion',
     'Ventilation / ACH',
     'Chiller System — Air Cooled', 'Chiller System — Water Cooled',
     'Cooling Tower Sizing', 'Refrigerant Pipe Sizing',
@@ -18904,6 +18903,7 @@ async function _runDrawing() {
         'Pump Sizing (TDH)':            'Q-H Pump Performance Curve',
         'AHU Sizing':                   'Psychrometric Chart: AHU Process Line',
         'Duct Sizing (Equal Friction)': 'ASHRAE Equal Friction Duct Chart',
+        'Harmonic Distortion':          'Harmonic Spectrum — IEEE 519-2022 Bar Chart',
       };
       const svg = await _callPythonDiagram(ct, _lastInputs, _lastResults);
       _renderPythonSVG(svg, titleMap[ct] || ct);

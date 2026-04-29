@@ -433,7 +433,7 @@
       </div>
 
       <!-- Presence bar -->
-      <div class="mb-5">
+      <div class="mb-4">
         <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest mb-2">On Shift Now</p>
         <div id="presence-bar" class="flex gap-2 overflow-x-auto pb-1">
           <span class="presence-chip" style="color:rgba(255,255,255,0.2); font-style:italic;">Connecting...</span>
@@ -441,126 +441,19 @@
       </div>
 
       <!-- Stats row -->
-      <div class="grid grid-cols-2 gap-3 mb-5">
+      <div class="grid grid-cols-2 gap-3 mb-4">
         <div class="wh-card p-4 text-center">
-          <p class="text-2xl font-black text-white" id="stat-open">—</p>
+          <p class="text-2xl font-black text-white" id="stat-open">&#8212;</p>
           <p class="text-[11px] text-white/40 mt-1">Open Work Orders</p>
         </div>
         <div class="wh-card p-4 text-center">
-          <p class="text-2xl font-black" style="color:#29B6D9" id="stat-members">—</p>
+          <p class="text-2xl font-black" style="color:#29B6D9" id="stat-members">&#8212;</p>
           <p class="text-[11px] text-white/40 mt-1">Team Members</p>
         </div>
       </div>
 
-      <!-- Resolution bar (this week) -->
-      <div id="resolution-bar-wrap" class="hidden mb-5 wh-card p-4">
-        <div class="flex justify-between mb-1.5">
-          <span class="text-[11px] font-semibold text-white/40 uppercase tracking-widest">This Week: Resolution</span>
-          <span id="resolution-label" class="text-[11px] font-semibold text-white/50"></span>
-        </div>
-        <div class="rounded-full overflow-hidden h-2 flex" style="background:rgba(255,255,255,0.06);">
-          <div id="resolution-bar-closed" class="h-2 transition-all duration-500" style="background:#4ade80;width:0%"></div>
-          <div id="resolution-bar-open"   class="h-2 transition-all duration-500" style="background:#f87171;width:0%"></div>
-        </div>
-        <div class="flex justify-between mt-1.5">
-          <span class="text-[10px] text-white/30"><span class="font-bold" style="color:#4ade80;" id="resolution-closed-n">0</span> closed</span>
-          <span class="text-[10px] text-white/30"><span class="font-bold" style="color:#f87171;" id="resolution-open-n">0</span> open</span>
-        </div>
-      </div>
-
-      <!-- Analytics panel -->
-      <div id="analytics-panel" class="hidden mb-5">
-        <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">This Week</p>
-          <button id="btn-toggle-analytics" style="color:#29B6D9; background:none; border:none; cursor:pointer; font-size:0.75rem; font-weight:600; min-height:44px; padding:0.5rem 0;">Hide</button>
-        </div>
-        <div id="analytics-body">
-          <!-- stat tiles -->
-          <div class="grid grid-cols-3 gap-2 mb-3">
-            <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
-              <p class="text-xl font-black text-white" id="an-jobs-week">—</p>
-              <p class="text-[10px] text-white/35 mt-0.5">Jobs</p>
-            </div>
-            <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
-              <p class="text-xl font-black" style="color:#f87171" id="an-open-week">—</p>
-              <p class="text-[10px] text-white/35 mt-0.5">Still Open</p>
-            </div>
-            <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
-              <p class="text-xl font-black" style="color:#F7A21B" id="an-parts-week">—</p>
-              <p class="text-[10px] text-white/35 mt-0.5">Parts Jobs</p>
-            </div>
-          </div>
-          <!-- week-over-week trend -->
-          <div id="an-wow-wrap" class="hidden mb-3 rounded-xl px-3 py-2" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-            <p class="text-[10px] text-white/25 uppercase tracking-widest font-semibold mb-0.5">Week-over-Week</p>
-            <p class="text-[11px] text-white/60" id="an-wow"></p>
-          </div>
-          <!-- top categories -->
-          <div class="mb-3">
-            <p class="text-[10px] text-white/25 uppercase tracking-widest font-semibold mb-1.5">Top Categories</p>
-            <div id="an-categories" class="flex flex-col gap-1"></div>
-          </div>
-          <!-- hot assets -->
-          <div class="mb-3">
-            <p class="text-[10px] text-white/25 uppercase tracking-widest font-semibold mb-1.5">Most Active Assets</p>
-            <div id="an-assets" class="flex flex-col gap-1"></div>
-          </div>
-          <!-- PM this week -->
-          <div id="an-pm-wrap" class="hidden">
-            <div class="h-px mb-3" style="background:rgba(255,255,255,0.05);"></div>
-            <p class="text-[10px] text-white/25 uppercase tracking-widest font-semibold mb-1.5">PM This Week</p>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-[11px] text-white/50">Tasks completed</span>
-              <span class="text-[11px] font-black" style="color:#F7A21B;" id="an-pm-week">0</span>
-            </div>
-            <div id="an-pm-worker-wrap" class="hidden flex items-center justify-between">
-              <span class="text-[11px] text-white/50">Top PM worker</span>
-              <span class="text-[11px] font-semibold text-white/70">
-                <span id="an-pm-worker-name"></span>
-                <span class="text-white/30 ml-1" id="an-pm-worker-count"></span>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Roster panel -->
-      <div class="mb-5">
-        <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Roster</p>
-          <button id="btn-toggle-members" style="color:#29B6D9; background:none; border:none; cursor:pointer; font-size:0.75rem; font-weight:600; min-height:44px; padding:0.5rem 0;">Show</button>
-        </div>
-        <div id="members-list" style="display:none; flex-direction:column; gap:0.5rem;"></div>
-      </div>
-
-      <!-- My stock alert -->
-      <div id="stock-alert" class="hidden mb-5 rounded-xl p-4" style="background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.25);">
-        <div class="flex items-start gap-3">
-          <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="#F7A21B" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-          </svg>
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-bold text-orange-wh mb-0.5">Your Stock Alert</p>
-            <p class="text-xs text-white/60" id="stock-alert-text"></p>
-            <a href="inventory.html" class="text-xs font-semibold mt-1.5 inline-block" style="color:#F7A21B;">View Inventory →</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Team stock alert (supervisor only) -->
-      <div id="team-stock-alert" class="hidden mb-5 rounded-xl p-4" style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.18);">
-        <div class="flex items-center gap-2 mb-3">
-          <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#f87171" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-          </svg>
-          <p class="text-xs font-bold text-red-400">Team Stock Issues</p>
-        </div>
-        <div id="team-stock-list" class="flex flex-col gap-2"></div>
-        <a href="inventory.html" class="text-[11px] font-semibold mt-2 inline-block" style="color:#f87171;">View your inventory →</a>
-      </div>
-
-      <!-- PM Overdue Alert -->
-      <div id="pm-overdue-alert" class="hidden mb-5 rounded-xl p-4" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);">
+      <!-- Alerts -->
+      <div id="pm-overdue-alert" class="hidden mb-3 rounded-xl p-4" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);">
         <div class="flex items-start gap-3">
           <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="#f87171" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
@@ -568,83 +461,65 @@
           <div class="flex-1 min-w-0">
             <p class="text-xs font-bold text-red-400 mb-0.5">PM Tasks Overdue</p>
             <p class="text-xs text-white/60" id="pm-overdue-text"></p>
-            <a href="pm-scheduler.html" class="text-xs font-semibold mt-1.5 inline-block" style="color:#f87171;">Open PM Scheduler →</a>
+            <a href="pm-scheduler.html" class="text-xs font-semibold mt-1.5 inline-block" style="color:#f87171;">Open PM Scheduler &#8594;</a>
           </div>
         </div>
       </div>
 
-      <!-- PM Health Panel -->
-      <div id="pm-health-panel" class="hidden mb-5">
-        <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">PM Health</p>
-          <button id="btn-toggle-pm-health" style="color:#F7A21B;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;padding:0.5rem 0;">Show</button>
-        </div>
-        <div id="pm-health-body" style="display:none;">
-          <div class="grid grid-cols-4 gap-2 mb-3">
-            <div class="rounded-xl p-2.5 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
-              <p class="text-lg font-black text-white" id="pm-health-assets">—</p>
-              <p class="text-[9px] text-white/35 mt-0.5 leading-tight">Assets</p>
-            </div>
-            <div class="rounded-xl p-2.5 text-center" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.18);">
-              <p class="text-lg font-black text-red-400" id="pm-health-overdue">—</p>
-              <p class="text-[9px] text-white/35 mt-0.5 leading-tight">Overdue</p>
-            </div>
-            <div class="rounded-xl p-2.5 text-center" style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.18);">
-              <p class="text-lg font-black text-yellow-400" id="pm-health-duesoon">—</p>
-              <p class="text-[9px] text-white/35 mt-0.5 leading-tight">Due Soon</p>
-            </div>
-            <div class="rounded-xl p-2.5 text-center" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.18);">
-              <p class="text-lg font-black" style="color:#F7A21B;" id="pm-health-week">—</p>
-              <p class="text-[9px] text-white/35 mt-0.5 leading-tight">Done/Wk</p>
-            </div>
+      <div id="stock-alert" class="hidden mb-3 rounded-xl p-4" style="background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.25);">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="#F7A21B" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-bold text-orange-wh mb-0.5">Your Stock Alert</p>
+            <p class="text-xs text-white/60" id="stock-alert-text"></p>
+            <a href="inventory.html" class="text-xs font-semibold mt-1.5 inline-block" style="color:#F7A21B;">View Inventory &#8594;</a>
           </div>
-          <a href="pm-scheduler.html" class="text-[11px] font-semibold" style="color:#F7A21B;">Open PM Scheduler →</a>
         </div>
       </div>
 
-      <!-- Asset Downtime (open work orders) -->
-      <div id="downtime-panel" class="hidden mb-5">
-        <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Asset Downtime</p>
-          <button id="btn-toggle-downtime" style="color:#f87171;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;padding:0.5rem 0;">Show</button>
+      <div id="team-stock-alert" class="hidden mb-4 rounded-xl p-4" style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.18);">
+        <div class="flex items-center gap-2 mb-3">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#f87171" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+          <p class="text-xs font-bold text-red-400">Team Stock Issues</p>
         </div>
-        <div id="downtime-body" style="display:none;">
-          <div id="downtime-list" class="flex flex-col gap-2"></div>
-        </div>
+        <div id="team-stock-list" class="flex flex-col gap-2"></div>
+        <a href="inventory.html" class="text-[11px] font-semibold mt-2 inline-block" style="color:#f87171;">View your inventory &#8594;</a>
       </div>
 
-      <!-- MTBF per Asset (last 90 days) -->
-      <div id="mtbf-panel" class="hidden mb-5">
+      <!-- Today's Brief (AI, auto-loaded, 8h cache) -->
+      <div id="todays-brief-panel" class="hidden mb-5">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">MTBF: Mean Time Between Failures</p>
-          <button id="btn-toggle-mtbf" style="color:#a78bfa;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;padding:0.5rem 0;">Show</button>
+          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Today's Brief</p>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(248,113,113,0.12);color:#f87171;">AI</span>
         </div>
-        <div id="mtbf-body" style="display:none;">
-          <p class="text-[10px] text-white/25 mb-2">Based on last 90 days of logbook entries. Assets need at least 2 entries to calculate.</p>
-          <div id="mtbf-list" class="flex flex-col gap-2"></div>
-        </div>
-      </div>
-
-      <!-- MTTR (Mean Time to Repair) -->
-      <div id="mttr-panel" class="hidden mb-5">
-        <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">MTTR: Mean Time to Repair</p>
-          <button id="btn-toggle-mttr" style="color:#34d399;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;padding:0.5rem 0;">Show</button>
-        </div>
-        <div id="mttr-body" style="display:none;">
-          <p class="text-[10px] text-white/25 mb-2">Elapsed time from entry created to marked Closed. Clock time: includes non-working hours.</p>
-          <div id="mttr-summary" class="rounded-xl px-3 py-3 mb-2" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-            <div class="flex justify-between items-center">
-              <span class="text-[11px] text-white/40">Hive Average MTTR</span>
-              <span id="mttr-avg" class="text-lg font-black" style="color:#34d399;">—</span>
-            </div>
+        <div class="wh-card p-4">
+          <div id="todays-brief-content">
+            <p class="text-xs text-white/30">Loading...</p>
           </div>
-          <div id="mttr-list" class="flex flex-col gap-2"></div>
         </div>
       </div>
 
-      <!-- Shift Handover Report -->
-      <div id="handover-panel" class="hidden mb-5">
+      <!-- Hive Activity (hero) -->
+      <div class="flex items-center justify-between mb-3">
+        <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Hive Activity</p>
+        <span class="text-[11px] text-white/20">Live</span>
+      </div>
+      <div id="feed-empty" class="hidden wh-card p-8 text-center">
+        <svg class="w-8 h-8 mx-auto mb-3 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        <p class="text-sm text-white/30">No activity yet in this hive.</p>
+        <p class="text-xs text-white/20 mt-1">Logbook entries from team members will appear here.</p>
+      </div>
+      <div id="feed" class="flex flex-col gap-3"></div>
+      <div id="feed-more" class="hidden mt-3">
+        <button onclick="loadMoreFeed()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.08);color:#29B6D9;border:1px solid rgba(41,182,217,0.25);">Load More</button>
+      </div>
+
+      <!-- Shift Handover -->
+      <div id="handover-panel" class="hidden mt-5 mb-5">
         <div class="flex items-center justify-between mb-2">
           <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Shift Handover</p>
         </div>
@@ -663,87 +538,45 @@
               <p class="font-black text-white text-base" id="ho-title">Shift Handover Report</p>
               <p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.35);" id="ho-meta"></p>
             </div>
-            <button onclick="document.getElementById('handover-sheet').classList.add('hidden')" class="w-8 h-8 rounded-full flex items-center justify-center" style="background:rgba(255,255,255,0.08);border:none;cursor:pointer;color:rgba(255,255,255,0.5);">✕</button>
+            <button onclick="document.getElementById('handover-sheet').classList.add('hidden')" class="w-8 h-8 rounded-full flex items-center justify-center" style="background:rgba(255,255,255,0.08);border:none;cursor:pointer;color:rgba(255,255,255,0.5);">&#x2715;</button>
           </div>
           <div id="handover-body"></div>
           <div class="p-4" style="border-top:1px solid rgba(255,255,255,0.07);">
-            <input id="ho-handover-to" type="text" class="ho-input" placeholder="Handover to… (incoming technician name)" />
+            <input id="ho-handover-to" type="text" class="ho-input" placeholder="Handover to&#8230; (incoming technician name)" />
             <div class="flex gap-3">
-              <button onclick="copyHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);">📋 Copy</button>
-              <button onclick="printHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:#29B6D9;">🖨️ Print</button>
+              <button onclick="copyHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);">&#128203; Copy</button>
+              <button onclick="printHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:#29B6D9;">&#128424; Print</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Risk Intelligence Panel (AI cross-reference insights) -->
-      <div id="risk-intel-panel" class="hidden mb-5">
-        <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Risk Intelligence</p>
-          <button id="btn-toggle-risk-intel" style="color:#f87171;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;padding:0.5rem 0;">Show</button>
-        </div>
-        <div id="risk-intel-body" style="display:none;">
-          <p class="text-[10px] text-white/25 mb-2">AI cross-references logbook, skill matrix, PM health, and inventory to surface insights your team would otherwise miss.</p>
+      <!-- Supervisor section -->
 
-          <!-- PM Overdue -->
-          <div class="mb-3">
-            <p class="text-[10px] text-white/25 uppercase tracking-widest font-semibold mb-1.5">PM Health</p>
-            <div id="ri-pm" class="rounded-xl px-3 py-3" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-              <p class="text-xs text-white/30">Loading...</p>
-            </div>
+      <!-- Team Pulse (supervisor only) -->
+      <div id="team-pulse-panel" class="hidden mb-5">
+        <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest mb-2">Team Pulse</p>
+        <div class="grid grid-cols-3 gap-2">
+          <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
+            <p class="text-xl font-black text-white" id="pulse-jobs-today">&#8212;</p>
+            <p class="text-[10px] text-white/35 mt-0.5 leading-tight">Jobs Today</p>
           </div>
-
-          <!-- Failure Digest -->
-          <div class="mb-3">
-            <p class="text-[10px] text-white/25 uppercase tracking-widest font-semibold mb-1.5">Failure Digest</p>
-            <div id="ri-failure" class="rounded-xl px-3 py-3" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-              <p class="text-xs text-white/30">Loading...</p>
-            </div>
+          <div class="rounded-xl p-3 text-center" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.18);">
+            <p class="text-xl font-black text-red-400" id="pulse-pm-overdue">&#8212;</p>
+            <p class="text-[10px] text-white/35 mt-0.5 leading-tight">PMs Overdue</p>
           </div>
-
-          <!-- Shift Handover -->
-          <div class="mb-3">
-            <p class="text-[10px] text-white/25 uppercase tracking-widest font-semibold mb-1.5">Last Shift Handover</p>
-            <div id="ri-handover" class="rounded-xl px-3 py-3" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-              <p class="text-xs text-white/30">Loading...</p>
-            </div>
+          <div class="rounded-xl p-3 text-center" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.18);">
+            <p class="text-xl font-black" style="color:#F7A21B;" id="pulse-stock-issues">&#8212;</p>
+            <p class="text-[10px] text-white/35 mt-0.5 leading-tight">Stock Issues</p>
           </div>
-
-          <!-- Predictive -->
-          <div class="mb-3">
-            <p class="text-[10px] text-white/25 uppercase tracking-widest font-semibold mb-1.5">Predictive Risk</p>
-            <div id="ri-predictive" class="rounded-xl px-3 py-3" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-              <p class="text-xs text-white/30">Loading...</p>
-            </div>
-          </div>
-
-          <!-- Run Now button -->
-          <button id="ri-run-btn" onclick="runRiskIntelNow()" class="w-full rounded-xl py-2.5 text-xs font-bold mt-1" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.25);color:#f87171;">
-            Run Analysis Now
-          </button>
         </div>
       </div>
 
-      <!-- Hive Inventory (all members) -->
-      <div id="hive-inventory-panel" class="hidden mb-5">
-        <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Hive Inventory</p>
-          <button id="btn-toggle-hive-inv" style="color:#29B6D9;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;padding:0.5rem 0;">Show</button>
-        </div>
-        <div id="hive-inventory-body" style="display:none;">
-          <div id="hive-inventory-list" class="flex flex-col gap-2"></div>
-          <a href="inventory.html" class="text-[11px] font-semibold mt-3 inline-block" style="color:#29B6D9;">Manage Inventory →</a>
-        </div>
-      </div>
-
-      <!-- Approval Queue (supervisor only) -->
+      <!-- Approval Queue (supervisor only, always open) -->
       <div id="approval-queue" class="hidden mb-5">
-        <div class="flex items-center justify-between mb-2">
-          <div class="flex items-center gap-2">
-            <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Approval Queue</p>
-            <span id="approval-badge" class="hidden text-[10px] font-black px-1.5 py-0.5 rounded-full" style="background:#F7A21B;color:#162032;min-width:18px;text-align:center;"></span>
-          </div>
-          <button id="btn-toggle-approval" style="color:#F7A21B;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;padding:0.5rem 0;">Hide</button>
+        <div class="flex items-center gap-2 mb-2">
+          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Approval Queue</p>
+          <span id="approval-badge" class="hidden text-[10px] font-black px-1.5 py-0.5 rounded-full" style="background:#F7A21B;color:#162032;min-width:18px;text-align:center;"></span>
         </div>
         <div id="approval-body">
           <div id="approval-list" class="flex flex-col gap-2"></div>
@@ -751,6 +584,15 @@
             <p class="text-xs text-white/30">All caught up: no pending items.</p>
           </div>
         </div>
+      </div>
+
+      <!-- Roster -->
+      <div class="mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Roster</p>
+          <button id="btn-toggle-members" style="color:#29B6D9; background:none; border:none; cursor:pointer; font-size:0.75rem; font-weight:600; min-height:44px; padding:0.5rem 0;">Show</button>
+        </div>
+        <div id="members-list" style="display:none; flex-direction:column; gap:0.5rem;"></div>
       </div>
 
       <!-- Audit Log (supervisor only) -->
@@ -765,21 +607,6 @@
             <p class="text-xs text-white/30">No supervisor actions recorded yet.</p>
           </div>
         </div>
-      </div>
-
-      <!-- Activity feed -->
-      <div class="flex items-center justify-between mb-3">
-        <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Hive Activity</p>
-        <span class="text-[11px] text-white/20">Live</span>
-      </div>
-      <div id="feed-empty" class="hidden wh-card p-8 text-center">
-        <svg class="w-8 h-8 mx-auto mb-3 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-        <p class="text-sm text-white/30">No activity yet in this hive.</p>
-        <p class="text-xs text-white/20 mt-1">Logbook entries from team members will appear here.</p>
-      </div>
-      <div id="feed" class="flex flex-col gap-3"></div>
-      <div id="feed-more" class="hidden mt-3">
-        <button onclick="loadMoreFeed()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.08);color:#29B6D9;border:1px solid rgba(41,182,217,0.25);">Load More</button>
       </div>
 
     </div>
@@ -863,14 +690,12 @@ let _pendingAssets      = [];
 let _pendingParts       = [];
 let _feedEntries        = [];
 let _feedDisplayCount   = 15;
-const refreshAnalytics  = debounce(loadAnalytics,  2000);
-const refreshMtbf       = debounce(loadMtbf,       2000);
-const refreshMttr       = debounce(loadMttr,       2000);
-const refreshDowntime   = debounce(loadDowntime,   2000);
 const refreshPMHealth   = debounce(loadPMHealth,   2000);
 const refreshInventory  = debounce(async () => {
-  await Promise.allSettled([loadHiveInventory(), checkStockAlert(), buildNotifications()]);
+  await Promise.allSettled([checkStockAlert(), buildNotifications()]);
 }, 3000);
+
+let _pmOverdueCount = 0;
 
 let _toastTimer = null;
 function showToast(msg) {
@@ -1380,7 +1205,7 @@ async function initBoard() {
 
   updateSwitchButton();
   // allSettled: never rejects, so startPresence() is always reached even if one data load fails
-  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), loadAnalytics(), buildNotifications(), loadApprovalQueue(), loadHiveInventory(), loadDowntime(), loadMtbf(), loadMttr(), loadPMHealth(), loadAuditLog()]);
+  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), buildNotifications(), loadApprovalQueue(), loadPMHealth(), loadAuditLog(), loadTodaysBrief(), loadTeamPulse()]);
   _boardResults.forEach((r, i) => { if (r.status === 'rejected') console.error('initBoard step', i, 'failed:', r.reason); });
   // Team stock alert needs memberNames populated by loadMembers first
   checkTeamStockAlert();
@@ -1621,9 +1446,6 @@ function startFeedRealtime() {
         const cur = parseInt(document.getElementById('stat-open').textContent) || 0;
         document.getElementById('stat-open').textContent = cur + 1;
       }
-      refreshAnalytics();
-      // New breakdown entry affects MTBF gap intervals
-      if (payload.new.maintenance_type === 'Breakdown / Corrective') refreshMtbf();
     })
     .on('postgres_changes', {
       event: 'UPDATE', schema: 'public', table: 'logbook',
@@ -1647,13 +1469,6 @@ function startFeedRealtime() {
         _feedEntries.unshift({ ...updated, _type: 'logbook' });
       }
       renderFeed();
-      refreshAnalytics();
-      // Status or maintenance_type change can affect MTBF, MTTR, and live downtime panel
-      if (payload.new.maintenance_type === 'Breakdown / Corrective') {
-        refreshMtbf();
-        refreshMttr();
-        refreshDowntime(); // re-check which breakdowns are still open
-      }
     })
     .on('postgres_changes', {
       event: 'DELETE', schema: 'public', table: 'logbook',
@@ -1670,7 +1485,6 @@ function startFeedRealtime() {
         }
         _feedEntries.splice(idx, 1);
         renderFeed();
-        refreshAnalytics();
       }
     })
     .subscribe();
@@ -1896,33 +1710,14 @@ async function loadPMHealth() {
   const weekAgo   = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const weekComps = pmComps.filter(c => c.completed_at >= weekAgo);
 
-  // Show PM health panel
-  document.getElementById('pm-health-panel').classList.remove('hidden');
-  document.getElementById('pm-health-assets').textContent  = pmAssets.length;
-  document.getElementById('pm-health-overdue').textContent = overdue;
-  document.getElementById('pm-health-duesoon').textContent = dueSoon;
-  document.getElementById('pm-health-week').textContent    = weekComps.length;
+  // Store for Team Pulse
+  _pmOverdueCount = overdue;
 
   // PM overdue alert banner
   if (overdue > 0) {
     document.getElementById('pm-overdue-text').textContent =
       `${overdue} PM task${overdue > 1 ? 's' : ''} overdue across hive assets.`;
     document.getElementById('pm-overdue-alert').classList.remove('hidden');
-  }
-
-  // Analytics PM row
-  if (weekComps.length > 0) {
-    document.getElementById('an-pm-week').textContent = weekComps.length;
-    document.getElementById('an-pm-wrap').classList.remove('hidden');
-
-    const pmWorkerCount = {};
-    weekComps.forEach(c => { pmWorkerCount[c.worker_name] = (pmWorkerCount[c.worker_name] || 0) + 1; });
-    const top = Object.entries(pmWorkerCount).sort((a, b) => b[1] - a[1])[0];
-    if (top) {
-      document.getElementById('an-pm-worker-name').textContent  = top[0];
-      document.getElementById('an-pm-worker-count').textContent = `${top[1]} task${top[1] > 1 ? 's' : ''}`;
-      document.getElementById('an-pm-worker-wrap').classList.remove('hidden');
-    }
   }
 
   // Notification bell: PM overdue
@@ -1940,119 +1735,6 @@ async function loadPMHealth() {
   }
 }
 
-// ── ANALYTICS ──
-async function loadAnalytics() {
-  const weekAgo      = new Date(Date.now() -  7 * 24 * 60 * 60 * 1000).toISOString();
-  const twoWeeksAgo  = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
-
-  const { data: logData } = await db.from('logbook')
-    .select('id, machine, category, status, parts_used, created_at')
-    .eq('hive_id', HIVE_ID)
-    .gte('created_at', twoWeeksAgo);
-
-  const allLogs  = logData || [];
-  const logs     = allLogs.filter(e => e.created_at >= weekAgo);     // this week
-  const prevLogs = allLogs.filter(e => e.created_at < weekAgo);      // prior week
-
-  if (!logs.length) return; // nothing to show yet
-  document.getElementById('analytics-panel').classList.remove('hidden');
-
-  // Tile counts
-  const openCount   = logs.filter(e => e.status === 'Open').length;
-  const closedCount = logs.filter(e => e.status === 'Closed').length;
-  const partsJobCount = logs.filter(e => Array.isArray(e.parts_used) && e.parts_used.length > 0).length;
-  document.getElementById('an-jobs-week').textContent  = logs.length;
-  document.getElementById('an-open-week').textContent  = openCount;
-  document.getElementById('an-parts-week').textContent = partsJobCount;
-
-  // Resolution split bar
-  const total = openCount + closedCount;
-  if (total > 0) {
-    const closedPct = Math.round((closedCount / total) * 100);
-    const openPct   = 100 - closedPct;
-    document.getElementById('resolution-bar-closed').style.width = closedPct + '%';
-    document.getElementById('resolution-bar-open').style.width   = openPct + '%';
-    document.getElementById('resolution-closed-n').textContent   = closedCount;
-    document.getElementById('resolution-open-n').textContent     = openCount;
-    document.getElementById('resolution-label').textContent      = closedPct + '% resolved';
-    document.getElementById('resolution-bar-wrap').classList.remove('hidden');
-  }
-
-  // Week-over-week resolution trend
-  const prevTotal  = prevLogs.length;
-  const prevClosed = prevLogs.filter(e => e.status === 'Closed').length;
-  const wowEl = document.getElementById('an-wow');
-  if (wowEl && prevTotal > 0 && total > 0) {
-    const thisPct = Math.round((closedCount / total) * 100);
-    const prevPct = Math.round((prevClosed / prevTotal) * 100);
-    const delta   = thisPct - prevPct;
-    const arrow   = delta > 0 ? '▲' : delta < 0 ? '▼' : '→';
-    const col     = delta > 0 ? '#4ade80' : delta < 0 ? '#f87171' : '#94a3b8';
-    const deltaLabel = delta === 0 ? 'No change' : `${arrow} ${Math.abs(delta)}%`;
-    wowEl.innerHTML = `<span style="color:${col};font-weight:700;">${deltaLabel}</span> vs last week (${prevPct}% resolved)`;
-    document.getElementById('an-wow-wrap').classList.remove('hidden');
-  }
-
-  // Top 3 categories
-  const catCount = {};
-  logs.forEach(e => { if (e.category) catCount[e.category] = (catCount[e.category] || 0) + 1; });
-  const topCats = Object.entries(catCount).sort((a,b) => b[1]-a[1]).slice(0, 3);
-  const maxCat  = topCats[0]?.[1] || 1;
-  const catColors = { Electrical:'#F7A21B', Mechanical:'#29B6D9', Hydraulic:'#a78bfa', Pneumatic:'#34d399', Instrumentation:'#fb923c' };
-  document.getElementById('an-categories').innerHTML = topCats.length
-    ? topCats.map(([cat, count]) => {
-        const pct  = Math.round((count / maxCat) * 100);
-        const col  = catColors[cat] || '#94a3b8';
-        return `<div>
-          <div class="flex justify-between mb-0.5">
-            <span class="text-[11px] text-white/60">${escHtml(cat)}</span>
-            <span class="text-[11px] font-bold text-white/50">${count}</span>
-          </div>
-          <div class="rounded-full h-1.5" style="background:rgba(255,255,255,0.06);">
-            <div class="rounded-full h-1.5" style="width:${pct}%;background:${col};transition:width 0.4s;"></div>
-          </div>
-        </div>`;
-      }).join('')
-    : '<p class="text-[11px] text-white/25">No categorised entries yet.</p>';
-
-  // Top 3 assets by log count
-  const assetCount = {};
-  logs.forEach(e => { if (e.machine) assetCount[e.machine] = (assetCount[e.machine] || 0) + 1; });
-  const topAssets = Object.entries(assetCount).sort((a,b) => b[1]-a[1]).slice(0, 3);
-  const maxAsset  = topAssets[0]?.[1] || 1;
-  document.getElementById('an-assets').innerHTML = topAssets.length
-    ? topAssets.map(([machine, count]) => {
-        const pct = Math.round((count / maxAsset) * 100);
-        return `<div>
-          <div class="flex justify-between mb-0.5">
-            <span class="text-[11px] font-semibold text-white/70 truncate">${escHtml(machine)}</span>
-            <span class="text-[11px] font-bold text-white/50 flex-shrink-0 ml-2">${count} ${count === 1 ? 'job' : 'jobs'}</span>
-          </div>
-          <div class="rounded-full h-1.5" style="background:rgba(255,255,255,0.06);">
-            <div class="rounded-full h-1.5" style="width:${pct}%;background:#29B6D9;transition:width 0.4s;"></div>
-          </div>
-        </div>`;
-      }).join('')
-    : '<p class="text-[11px] text-white/25">No asset data yet.</p>';
-}
-
-document.getElementById('btn-toggle-analytics').addEventListener('click', () => {
-  const body = document.getElementById('analytics-body');
-  const btn  = document.getElementById('btn-toggle-analytics');
-  const isHidden = body.style.display === 'none';
-  body.style.display = isHidden ? '' : 'none';
-  btn.textContent = isHidden ? 'Hide' : 'Show';
-});
-
-document.getElementById('btn-toggle-pm-health').addEventListener('click', () => {
-  const body = document.getElementById('pm-health-body');
-  const btn  = document.getElementById('btn-toggle-pm-health');
-  const isHidden = body.style.display === 'none';
-  body.style.display = isHidden ? '' : 'none';
-  btn.textContent = isHidden ? 'Hide' : 'Show';
-});
-
-// ── TEAM STOCK ALERT (supervisor only) ──
 async function checkTeamStockAlert() {
   if (HIVE_ROLE !== 'supervisor' || !memberNames.length) return;
 
@@ -2188,7 +1870,6 @@ async function approveItem(table, id, submittedBy, label) {
   if (table === 'assets')           _pendingAssets = _pendingAssets.filter(a => a.id !== id);
   else if (table === 'inventory_items') _pendingParts = _pendingParts.filter(p => p.id !== id);
   renderApprovalQueue();
-  if (table === 'inventory_items') loadHiveInventory();
   showToast(escHtml(label) + ' approved and published to hive.');
   pushNotif('approval', 'Item Approved', `${label} submitted by ${submittedBy} was approved.`, null);
   writeAuditLog('approve_item', table, id, label, { submitted_by: submittedBy });
@@ -2356,417 +2037,99 @@ document.getElementById('btn-toggle-downtime').addEventListener('click', () => {
   btn.textContent = isHidden ? 'Hide' : 'Show';
 });
 
-// ── Risk Intelligence Panel ───────────────────────────────────────────────────
 
-document.getElementById('btn-toggle-risk-intel').addEventListener('click', () => {
-  const body = document.getElementById('risk-intel-body');
-  const btn  = document.getElementById('btn-toggle-risk-intel');
-  const isHidden = body.style.display === 'none';
-  body.style.display = isHidden ? '' : 'none';
-  btn.textContent = isHidden ? 'Hide' : 'Show';
-  if (isHidden) loadRiskIntel();
-});
-
-async function loadRiskIntel() {
+// ── TODAY'S BRIEF (AI, reads ai_reports, 8h sessionStorage cache) ──────────────
+async function loadTodaysBrief() {
   if (!HIVE_ID) return;
+  const panel = document.getElementById('todays-brief-panel');
+  const el    = document.getElementById('todays-brief-content');
+  if (!panel || !el) return;
 
-  const types = ['pm_overdue', 'failure_digest', 'shift_handover', 'predictive'];
-  const elMap = {
-    pm_overdue:     'ri-pm',
-    failure_digest: 'ri-failure',
-    shift_handover: 'ri-handover',
-    predictive:     'ri-predictive',
-  };
-
-  await Promise.allSettled(types.map(async (type) => {
-    const el = document.getElementById(elMap[type]);
-    if (!el) return;
-
-    const { data } = await db.from('ai_reports')
-      .select('summary, report_json, generated_at')
-      .eq('hive_id', HIVE_ID)
-      .eq('report_type', type)
-      .order('generated_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (!data) {
-      el.innerHTML = '<p class="text-xs text-white/30">No report yet: will generate automatically on schedule.</p>';
-      return;
+  const cacheKey = 'wh_brief_' + HIVE_ID;
+  try {
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      const { html, ts } = JSON.parse(cached);
+      if (Date.now() - ts < 8 * 60 * 60 * 1000) {
+        el.innerHTML = html; panel.classList.remove('hidden'); return;
+      }
     }
+  } catch {}
 
-    const age  = Math.floor((Date.now() - new Date(data.generated_at).getTime()) / 3600000);
-    const ageText = age < 1 ? 'just now' : age < 24 ? `${age}h ago` : `${Math.floor(age/24)}d ago`;
-    const r    = data.report_json || {};
-
-    let html = `<p class="text-xs text-white/70 mb-2">${data.summary || 'No summary.'}</p>`;
-
-    // PM overdue details
-    if (type === 'pm_overdue' && r.overdue_assets?.length) {
-      html += r.overdue_assets.slice(0, 3).map(a =>
-        `<div class="flex justify-between items-center py-1 border-t border-white/5">
-          <span class="text-[11px] text-white/60">${a.asset_name}</span>
-          <span class="text-[11px] font-bold" style="color:${a.risk === 'CRITICAL' ? '#f87171' : '#F7A21B'}">${a.risk}: ${a.days_since_pm}</span>
-        </div>`
-      ).join('');
-    }
-
-    // Failure digest details
-    if (type === 'failure_digest' && r.top_risk_machines?.length) {
-      html += r.top_risk_machines.slice(0, 3).map(m =>
-        `<div class="flex justify-between items-center py-1 border-t border-white/5">
-          <span class="text-[11px] text-white/60">${m.machine}</span>
-          <span class="text-[11px] font-bold text-white/50">${m.failure_count} failures: ${m.total_downtime_h}h down</span>
-        </div>`
-      ).join('');
-    }
-
-    // Shift handover open jobs
-    if (type === 'shift_handover' && r.open_jobs?.length) {
-      html += r.open_jobs.slice(0, 3).map(j =>
-        `<div class="flex justify-between items-center py-1 border-t border-white/5">
-          <span class="text-[11px] text-white/60">${j.machine}</span>
-          <span class="text-[11px] font-bold" style="color:${j.priority === 'HIGH' ? '#f87171' : j.priority === 'MEDIUM' ? '#F7A21B' : '#34d399'}">${j.priority}</span>
-        </div>`
-      ).join('');
-    }
-
-    // Predictive
-    if (type === 'predictive' && r.predictions?.length) {
-      html += r.predictions.filter(p => p.risk === 'HIGH' || p.risk === 'MEDIUM').slice(0, 3).map(p =>
-        `<div class="flex justify-between items-center py-1 border-t border-white/5">
-          <span class="text-[11px] text-white/60">${p.machine}</span>
-          <span class="text-[11px] font-bold" style="color:${p.risk === 'HIGH' ? '#f87171' : '#F7A21B'}">Next: ${p.predicted_next}</span>
-        </div>`
-      ).join('');
-    }
-
-    html += `<p class="text-[10px] text-white/20 mt-2">Updated ${ageText}</p>`;
-    el.innerHTML = html;
-  }));
-}
-
-async function runRiskIntelNow() {
-  const btn = document.getElementById('ri-run-btn');
-  btn.disabled = true;
-  btn.textContent = 'Running...';
-
-  const types = ['pm_overdue', 'failure_digest', 'shift_handover', 'predictive'];
-  await Promise.allSettled(types.map(type =>
-    fetch(`${SUPABASE_URL}/functions/v1/scheduled-agents`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ report_type: type })
-    })
+  const types = ['failure_digest', 'predictive', 'pm_overdue'];
+  const results = await Promise.allSettled(types.map(type =>
+    db.from('ai_reports')
+      .select('summary, report_json, generated_at, report_type')
+      .eq('hive_id', HIVE_ID).eq('report_type', type)
+      .order('generated_at', { ascending: false }).limit(1).maybeSingle()
   ));
 
-  await loadRiskIntel();
-  btn.disabled = false;
-  btn.textContent = 'Run Analysis Now';
-}
-
-document.getElementById('btn-toggle-hive-inv').addEventListener('click', () => {
-  const body = document.getElementById('hive-inventory-body');
-  const btn  = document.getElementById('btn-toggle-hive-inv');
-  const isHidden = body.style.display === 'none';
-  body.style.display = isHidden ? '' : 'none';
-  btn.textContent = isHidden ? 'Hide' : 'Show';
-});
-
-// ── MTTR (MEAN TIME TO REPAIR) ──
-async function loadMttr() {
-  if (!HIVE_ID) return;
-
-  // Cache-first: use pre-computed nightly cache if fresh (< 12h old)
-  const CACHE_TTL_MS = 12 * 60 * 60 * 1000;
-  const { data: cache } = await db.from('hive_analytics_cache')
-    .select('mttr_by_machine, computed_at')
-    .eq('hive_id', HIVE_ID)
-    .maybeSingle();
-
-  if (cache && cache.mttr_by_machine && (Date.now() - new Date(cache.computed_at).getTime()) < CACHE_TTL_MS) {
-    renderMttr(cache.mttr_by_machine);
-    return;
-  }
-
-  // Fallback: live query when cache is empty or stale
-  const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
-
-  const { data: closed } = await db.from('logbook')
-    .select('id, machine, worker_name, problem, created_at, closed_at, downtime_hours')
-    .eq('hive_id', HIVE_ID)
-    .eq('status', 'Closed')
-    .eq('maintenance_type', 'Breakdown / Corrective')
-    .not('closed_at', 'is', null)
-    .gte('closed_at', ninetyDaysAgo)
-    .order('closed_at', { ascending: false })
-    .limit(200);
-
-  if (!closed || !closed.length) return;
-
-  const entries = closed.map(e => {
-    const repairMs = (e.downtime_hours != null && e.downtime_hours > 0)
-      ? e.downtime_hours * 3600000
-      : new Date(e.closed_at).getTime() - new Date(e.created_at).getTime();
-    return { ...e, repairMs };
-  }).filter(e => e.repairMs > 0);
-
-  if (!entries.length) return;
-
-  const byMachine = {};
-  entries.forEach(e => {
-    const m = e.machine || 'Unknown';
-    if (!byMachine[m]) byMachine[m] = { total: 0, count: 0 };
-    byMachine[m].total += e.repairMs;
-    byMachine[m].count++;
+  const bullets = [];
+  results.forEach((res, i) => {
+    if (res.status !== 'fulfilled' || !res.value.data) return;
+    const d = res.value.data; const r = d.report_json || {}; const type = types[i];
+    if (type === 'failure_digest' && r.top_risk_machines?.length) {
+      const top = r.top_risk_machines[0];
+      bullets.push({ color: '#f87171', text: escHtml(`Top risk: ${top.machine} — ${top.failure_count} failures, ${top.total_downtime_h}h down`) });
+    }
+    if (type === 'predictive' && r.predictions?.length) {
+      const high = r.predictions.find(p => p.risk === 'HIGH');
+      if (high) bullets.push({ color: '#F7A21B', text: escHtml(`Predicted failure: ${high.machine} by ${high.predicted_next}`) });
+    }
+    if (type === 'pm_overdue' && r.overdue_assets?.length) {
+      const n = r.overdue_assets.length;
+      bullets.push({ color: '#f87171', text: escHtml(`${n} asset${n > 1 ? 's' : ''} with overdue PM — ${r.overdue_assets[0].asset_name} is ${r.overdue_assets[0].risk}`) });
+    }
   });
 
-  const ranked = Object.entries(byMachine)
-    .map(([machine, { total, count }]) => ({ machine, avgMs: total / count, count }))
-    .sort((a, b) => b.avgMs - a.avgMs);
-
-  renderMttr(ranked);
-}
-
-function renderMttr(ranked) {
-  if (!ranked || !ranked.length) return;
-  document.getElementById('mttr-panel').classList.remove('hidden');
-
-  const formatDuration = ms => {
-    const totalMins = Math.floor(ms / 60000);
-    const days  = Math.floor(totalMins / 1440);
-    const hrs   = Math.floor((totalMins % 1440) / 60);
-    const mins  = totalMins % 60;
-    if (days > 0)  return `${days}d ${hrs}h`;
-    if (hrs > 0)   return `${hrs}h ${mins}m`;
-    return `${mins}m`;
-  };
-
-}
-
-function renderMttr(ranked) {
-  if (!ranked || !ranked.length) return;
-  document.getElementById('mttr-panel').classList.remove('hidden');
-
-  const formatDuration = ms => {
-    const totalMins = Math.floor(ms / 60000);
-    const days  = Math.floor(totalMins / 1440);
-    const hrs   = Math.floor((totalMins % 1440) / 60);
-    const mins  = totalMins % 60;
-    if (days > 0)  return `${days}d ${hrs}h`;
-    if (hrs > 0)   return `${hrs}h ${mins}m`;
-    return `${mins}m`;
-  };
-
-  // Hive average across all machines
-  const totalMs  = ranked.reduce((sum, r) => sum + (r.avgMs * r.count), 0);
-  const totalCnt = ranked.reduce((sum, r) => sum + r.count, 0);
-  if (totalCnt > 0) document.getElementById('mttr-avg').textContent = formatDuration(totalMs / totalCnt);
-
-  const maxMs = ranked[0]?.avgMs || 1;
-  document.getElementById('mttr-list').innerHTML = ranked.map(item => {
-    const pct   = Math.round((item.avgMs / maxMs) * 100);
-    const ratio = item.avgMs / maxMs;
-    const color = ratio > 0.66 ? '#f87171' : ratio > 0.33 ? '#F7A21B' : '#34d399';
-    const label = item.count === 1 ? '1 repair' : `${item.count} repairs`;
-    return `<div class="rounded-xl px-3 py-2.5" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-      <div class="flex items-center justify-between mb-1">
-        <span class="text-xs font-bold text-white truncate mr-2">${escHtml(item.machine)}</span>
-        <span class="text-[11px] font-black flex-shrink-0" style="color:${color};">avg ${escHtml(formatDuration(item.avgMs))}</span>
-      </div>
-      <div class="rounded-full h-1.5 mb-1.5" style="background:rgba(255,255,255,0.06);">
-        <div class="rounded-full h-1.5 transition-all duration-500" style="width:${pct}%;background:${color};"></div>
-      </div>
-      <span class="text-[10px] text-white/30">${escHtml(label)} in 90 days</span>
-    </div>`;
-  }).join('');
-}
-
-// ── MTBF PER ASSET ──
-async function loadMtbf() {
-  if (!HIVE_ID) return;
-
-  // Cache-first: use pre-computed nightly cache if fresh (< 12h old)
-  const CACHE_TTL_MS = 12 * 60 * 60 * 1000;
-  const { data: cache } = await db.from('hive_analytics_cache')
-    .select('mtbf_by_machine, computed_at')
-    .eq('hive_id', HIVE_ID)
-    .maybeSingle();
-
-  if (cache && cache.mtbf_by_machine && (Date.now() - new Date(cache.computed_at).getTime()) < CACHE_TTL_MS) {
-    renderMtbf(cache.mtbf_by_machine);
-    return;
+  let html;
+  if (!bullets.length) {
+    html = '<p class="text-xs text-white/30">No AI analysis yet. Reports generate automatically on schedule.</p>';
+  } else {
+    const latest = results.find(r => r.status === 'fulfilled' && r.value.data)?.value.data;
+    const ageText = latest ? timeAgo(latest.generated_at) : '';
+    html = bullets.slice(0, 3).map(b =>
+      `<div class="flex items-start gap-2 py-1.5 border-b border-white/5 last:border-0">
+        <div class="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style="background:${b.color};"></div>
+        <p class="text-xs text-white/70 leading-relaxed">${b.text}</p>
+      </div>`
+    ).join('');
+    if (ageText) html += `<p class="text-[10px] text-white/20 mt-2">Updated ${escHtml(ageText)}</p>`;
   }
 
-  // Fallback: live query when cache is empty or stale
-  const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+  el.innerHTML = html;
+  try { sessionStorage.setItem(cacheKey, JSON.stringify({ html, ts: Date.now() })); } catch {}
+  panel.classList.remove('hidden');
+}
 
-  const { data: entries } = await db.from('logbook')
-    .select('machine, created_at, maintenance_type')
-    .eq('hive_id', HIVE_ID)
-    .eq('maintenance_type', 'Breakdown / Corrective')
-    .gte('created_at', ninetyDaysAgo)
-    .not('machine', 'is', null)
-    .neq('machine', '')
-    .order('created_at', { ascending: true })
-    .limit(500);
+// ── TEAM PULSE (supervisor only) ──────────────────────────────────────────────
+async function loadTeamPulse() {
+  if (!HIVE_ID || HIVE_ROLE !== 'supervisor') return;
+  const panel = document.getElementById('team-pulse-panel');
+  if (!panel) return;
 
-  if (!entries || !entries.length) return;
+  const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
 
-  const byMachine = {};
-  entries.forEach(e => {
-    if (!e.machine) return;
-    const key = e.machine.trim();   // normalize: 'PUMP A' and 'pump a' group together
-    if (!byMachine[key]) byMachine[key] = [];
-    byMachine[key].push(new Date(e.created_at).getTime());
-  });
+  const [jobsRes, stockRes] = await Promise.allSettled([
+    db.from('logbook').select('*', { count: 'exact', head: true })
+      .eq('hive_id', HIVE_ID).gte('created_at', todayStart.toISOString()),
+    db.from('inventory_items').select('id, qty_on_hand, min_qty')
+      .eq('hive_id', HIVE_ID).eq('status', 'approved'),
+  ]);
 
-  const results = [];
-  for (const [machine, timestamps] of Object.entries(byMachine)) {
-    if (timestamps.length < 2) continue;
-    const gaps = [];
-    for (let i = 1; i < timestamps.length; i++) gaps.push(timestamps[i] - timestamps[i - 1]);
-    const avgDays = (gaps.reduce((a, b) => a + b, 0) / gaps.length) / (24 * 60 * 60 * 1000);
-    results.push({ machine, avgDays, count: timestamps.length });
+  const jobsToday = jobsRes.status === 'fulfilled' ? (jobsRes.value.count ?? 0) : '?';
+
+  let stockIssues = 0;
+  if (stockRes.status === 'fulfilled' && stockRes.value.data) {
+    stockIssues = stockRes.value.data.filter(i =>
+      (i.qty_on_hand ?? 0) <= 0 || ((i.min_qty ?? 0) > 0 && (i.qty_on_hand ?? 0) <= (i.min_qty ?? 0))
+    ).length;
   }
 
-  renderMtbf(results);
-}
-
-// Show Risk Intelligence panel for hive members (hive_id required)
-function showRiskIntelPanel() {
-  if (!HIVE_ID) return;
-  document.getElementById('risk-intel-panel').classList.remove('hidden');
-  document.getElementById('handover-panel').classList.remove('hidden');
-}
-
-// Call on hive load
-showRiskIntelPanel();
-
-function renderMtbf(results) {
-  if (!results || !results.length) return;
-  document.getElementById('mtbf-panel').classList.remove('hidden');
-
-  const sorted  = [...results].sort((a, b) => a.avgDays - b.avgDays);
-  const maxDays = sorted[sorted.length - 1]?.avgDays || 1;
-
-  const formatDays = d => {
-    if (d < 1)  return `${Math.round(d * 24)}h`;
-    if (d < 7)  return `${d.toFixed(1)}d`;
-    if (d < 30) return `${(d / 7).toFixed(1)}w`;
-    return `${(d / 30).toFixed(1)}mo`;
-  };
-
-  document.getElementById('mtbf-list').innerHTML = sorted.map(item => {
-    const pct   = Math.round((item.avgDays / maxDays) * 100);
-    const ratio = item.avgDays / maxDays;
-    const color = ratio < 0.3 ? '#f87171' : ratio < 0.6 ? '#F7A21B' : '#4ade80';
-    return `<div class="rounded-xl px-3 py-2.5" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-      <div class="flex items-center justify-between mb-1">
-        <span class="text-xs font-bold text-white truncate mr-2">${escHtml(item.machine)}</span>
-        <span class="text-[11px] font-black flex-shrink-0" style="color:${color};">avg ${escHtml(formatDays(item.avgDays))}</span>
-      </div>
-      <div class="rounded-full h-1.5 mb-1.5" style="background:rgba(255,255,255,0.06);">
-        <div class="rounded-full h-1.5 transition-all duration-500" style="width:${pct}%;background:${color};"></div>
-      </div>
-      <span class="text-[10px] text-white/30">${item.count} ${item.count === 1 ? 'breakdown' : 'breakdowns'} in 90 days</span>
-    </div>`;
-  }).join('');
-}
-
-// ── ASSET DOWNTIME ──
-async function loadDowntime() {
-  if (!HIVE_ID) return;
-  const { data: openJobs } = await db.from('logbook')
-    .select('id, machine, problem, worker_name, created_at')
-    .eq('hive_id', HIVE_ID)
-    .eq('status', 'Open')
-    .eq('maintenance_type', 'Breakdown / Corrective')
-    .order('created_at', { ascending: true }); // oldest first = longest downtime first
-
-  if (!openJobs || !openJobs.length) return;
-  document.getElementById('downtime-panel').classList.remove('hidden');
-
-  // Group by machine, keep oldest entry per machine
-  const byMachine = {};
-  openJobs.forEach(job => {
-    const m = job.machine || 'Unknown Asset';
-    if (!byMachine[m]) byMachine[m] = { oldest: job, count: 0 };
-    byMachine[m].count++;
-  });
-
-  const now = Date.now();
-  const formatDuration = ms => {
-    const totalMins = Math.floor(ms / 60000);
-    const days  = Math.floor(totalMins / 1440);
-    const hrs   = Math.floor((totalMins % 1440) / 60);
-    const mins  = totalMins % 60;
-    if (days > 0)  return `${days}d ${hrs}h`;
-    if (hrs > 0)   return `${hrs}h ${mins}m`;
-    return `${mins}m`;
-  };
-
-  const sorted = Object.entries(byMachine)
-    .map(([machine, { oldest, count }]) => ({
-      machine,
-      count,
-      duration: now - new Date(oldest.created_at).getTime(),
-      problem: oldest.problem,
-      worker: oldest.worker_name,
-    }))
-    .sort((a, b) => b.duration - a.duration); // longest downtime first
-
-  const maxDuration = sorted[0]?.duration || 1;
-
-  document.getElementById('downtime-list').innerHTML = sorted.map(item => {
-    const pct      = Math.round((item.duration / maxDuration) * 100);
-    const urgency  = item.duration > 24 * 60 * 60 * 1000 ? '#f87171' : item.duration > 4 * 60 * 60 * 1000 ? '#F7A21B' : '#29B6D9';
-    const jobLabel = item.count === 1 ? '1 open job' : `${item.count} open jobs`;
-    return `<div class="rounded-xl px-3 py-2.5" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-      <div class="flex items-center justify-between mb-1">
-        <span class="text-xs font-bold text-white truncate mr-2">${escHtml(item.machine)}</span>
-        <span class="text-[11px] font-black flex-shrink-0" style="color:${urgency};">${escHtml(formatDuration(item.duration))}</span>
-      </div>
-      <div class="rounded-full h-1.5 mb-1.5" style="background:rgba(255,255,255,0.06);">
-        <div class="rounded-full h-1.5 transition-all duration-500" style="width:${pct}%;background:${urgency};"></div>
-      </div>
-      <div class="flex justify-between">
-        <span class="text-[10px] text-white/35 truncate">${escHtml(item.problem || '—')}</span>
-        <span class="text-[10px] text-white/30 flex-shrink-0 ml-2">${escHtml(jobLabel)}</span>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ── HIVE INVENTORY (all members view) ──
-async function loadHiveInventory() {
-  if (!HIVE_ID) return;
-  const { data: items } = await db.from('inventory_items')
-    .select('part_name, part_number, qty_on_hand, min_qty, unit, worker_name')
-    .eq('hive_id', HIVE_ID)
-    .eq('status', 'approved')
-    .order('part_name', { ascending: true });
-
-  if (!items || !items.length) return;
-  document.getElementById('hive-inventory-panel').classList.remove('hidden');
-
-  document.getElementById('hive-inventory-list').innerHTML = items.map(item => {
-    const qty    = item.qty_on_hand ?? 0;
-    const minQty = item.min_qty ?? 0;
-    const isOut  = qty <= 0;
-    const isLow  = !isOut && minQty > 0 && qty <= minQty;
-    const dotColor = isOut ? '#f87171' : isLow ? '#F7A21B' : '#4ade80';
-    const qtyLabel = isOut ? 'Out of stock' : isLow ? `${qty} ${item.unit || ''}: Low`.trim() : `${qty} ${item.unit || ''}`.trim();
-
-    return `<div class="flex items-center gap-3 rounded-xl px-3 py-2.5" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-      <div class="w-2 h-2 rounded-full flex-shrink-0" style="background:${dotColor};"></div>
-      <div class="flex-1 min-w-0">
-        <p class="text-xs font-semibold text-white truncate">${escHtml(item.part_name)}${item.part_number ? ` <span class="text-white/30 font-normal">#${escHtml(item.part_number)}</span>` : ''}</p>
-        <p class="text-[10px] text-white/35">${escHtml(item.worker_name)}</p>
-      </div>
-      <span class="text-[11px] font-bold flex-shrink-0" style="color:${dotColor};">${escHtml(qtyLabel)}</span>
-    </div>`;
-  }).join('');
+  document.getElementById('pulse-jobs-today').textContent   = jobsToday;
+  document.getElementById('pulse-pm-overdue').textContent   = _pmOverdueCount;
+  document.getElementById('pulse-stock-issues').textContent = stockIssues;
+  panel.classList.remove('hidden');
 }
 
 // ── HIVE_ID BACKFILL (one-time, silent) ──

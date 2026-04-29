@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { callAI } from "../_shared/ai-chain.ts";
 
 // Allow specific origin in production; use env var ALLOWED_ORIGIN to override (e.g. for local dev)
 const ORIGIN = Deno.env.get("ALLOWED_ORIGIN") || "https://workhiveph.com";
@@ -8,50 +9,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// ── Groq call helper (with fallback chain) ────────────────────────────────────
-
-const GROQ_CHAIN = [
-  "llama-3.3-70b-versatile",
-  "meta-llama/llama-4-scout-17b-16e-instruct",
-  "qwen/qwen3-32b",
-  "llama-3.1-8b-instant",
-];
-
-async function callGroq(prompt: string, systemPrompt: string): Promise<string> {
-  const GROQ_KEY = Deno.env.get("GROQ_API_KEY");
-  if (!GROQ_KEY) throw new Error("GROQ_API_KEY not set");
-
-  for (const model of GROQ_CHAIN) {
-    try {
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        signal: AbortSignal.timeout(60000),
-        headers: {
-          "Authorization": `Bearer ${GROQ_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model,
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user",   content: prompt },
-          ],
-          temperature: 0.2,
-          max_tokens: 1024,
-          response_format: { type: "json_object" },
-        }),
-      });
-
-      if (res.status === 429 || res.status === 413) continue;
-      if (!res.ok) break;
-
-      const data = await res.json();
-      return data.choices?.[0]?.message?.content || "{}";
-    } catch {
-      continue;
-    }
-  }
-  return "{}";
+function callGroq(prompt: string, systemPrompt: string): Promise<string> {
+  return callAI(prompt, { systemPrompt, temperature: 0.2, maxTokens: 1024, jsonMode: true });
 }
 
 // ── AGENT 1: Failure Analysis ─────────────────────────────────────────────────

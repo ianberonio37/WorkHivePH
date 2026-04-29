@@ -1,23 +1,31 @@
 """
-Groq Fallback Chain Validator — WorkHive Platform
-==================================================
-WorkHive's AI features depend entirely on Groq for LLM calls and
-embeddings. Groq's free tier imposes TPM (tokens per minute) limits
-per model — a single model call that hits a rate limit returns nothing.
+AI Provider Chain Validator — WorkHive Platform
+================================================
+WorkHive's AI features use a multi-provider fallback chain defined in
+supabase/functions/_shared/ai-chain.ts.  All LLM-calling edge functions
+import callAI() from that shared module instead of embedding their own chains.
 
-  Layer 1 — Chain resilience
-    1.  Multi-model fallback chain     — every LLM function needs >= 2 models
+  Layer 1 — Shared chain integrity
+    1.  Shared chain exists and has >= 6 entries
+    2.  No deprecated or known-bad model IDs in the chain
+    3.  Every entry has required fields (provider, baseUrl, model, envKey)
 
-  Layer 2 — Token budget safety
-    2.  max_tokens on every call       — uncapped calls exhaust TPM, causing 429s
+  Layer 2 — Edge function wiring
+    4.  Every LLM function imports callAI from _shared/ai-chain
+    5.  No function embeds its own raw Groq fetch() — all calls go through callAI
 
-  Layer 3 — Error handling completeness
-    3.  413 and 429 both handled       — large prompts fall back, not permanently fail
-    4.  GROQ_API_KEY validated upfront — missing key gives cryptic 401 deep in retry loop
+  Layer 3 — Call hygiene in the shared module
+    6.  max_tokens set on every chat completion call in the shared module
+    7.  Both 429 and 413 handled (skip, not throw)
+    8.  503 handled (service unavailable — new in multi-provider chain)
+    9.  AbortSignal.timeout on every fetch() in the shared module
 
-  Layer 4 — Call hygiene
-    5.  No deprecated model IDs        — stale model names return 404 silently
-    6.  AbortSignal timeout on calls   — hanging Groq fetch blocks the edge function forever
+  Layer 4 — Free-tier sustainability
+   10.  No NVIDIA NIM entries (credit-based, will exhaust)
+   11.  No gemini-2.0-flash-lite (dropped from free tier April 2026)
+   12.  No deepseek-chat (legacy name — retiring July 24 2026)
+   13.  No llama-4-maverick (deprecated on Groq Feb 2026)
+   14.  No gemma2-9b-it (deprecated on Groq)
 
 Usage:  python validate_groq_fallback.py
 Output: groq_fallback_report.json
@@ -30,30 +38,50 @@ if sys.platform == "win32":
 
 from validator_utils import read_file, format_result
 
-FUNCTIONS_DIR = os.path.join("supabase", "functions")
+FUNCTIONS_DIR   = os.path.join("supabase", "functions")
+SHARED_CHAIN    = os.path.join(FUNCTIONS_DIR, "_shared", "ai-chain.ts")
 
+# Edge functions that make LLM calls via callAI
 LLM_FUNCTIONS = [
     "ai-orchestrator",
     "engineering-calc-agent",
     "engineering-bom-sow",
     "scheduled-agents",
+    "analytics-orchestrator",
 ]
 
-ALL_GROQ_FUNCTIONS = LLM_FUNCTIONS + ["semantic-search", "embed-entry"]
+MIN_CHAIN_ENTRIES = 6   # 6 Groq + Cerebras + SambaNova + Gemini + OpenRouter + DeepSeek
 
-MIN_CHAIN_MODELS = 2
-
-# Model IDs confirmed deprecated by Groq — using these returns 404
-DEPRECATED_MODELS = {
-    "llama2-70b-4096",
-    "llama3-70b-8192",
-    "llama3-8b-8192",
-    "llama3-groq-70b-8192-tool-use-preview",
-    "llama3-groq-8b-8192-tool-use-preview",
-    "mixtral-8x7b-32768",
-    "gemma-7b-it",
-    "llama-3.1-70b-versatile",   # superseded by llama-3.3-70b-versatile
+# Models that must never appear in the chain
+BANNED_MODELS = {
+    # Groq deprecated
+    "meta-llama/llama-4-maverick-17b-128e-instruct": "Deprecated on Groq Feb 20 2026",
+    "gemma2-9b-it":                                  "Deprecated on Groq",
+    "llama2-70b-4096":                               "Deprecated on Groq",
+    "llama3-70b-8192":                               "Deprecated on Groq",
+    "llama3-8b-8192":                                "Deprecated on Groq",
+    "llama3-groq-70b-8192-tool-use-preview":         "Deprecated on Groq",
+    "llama3-groq-8b-8192-tool-use-preview":          "Deprecated on Groq",
+    "mixtral-8x7b-32768":                            "Deprecated on Groq",
+    "gemma-7b-it":                                   "Deprecated on Groq",
+    "llama-3.1-70b-versatile":                       "Deprecated on Groq — use llama-3.3-70b-versatile",
+    # NVIDIA NIM (credit-based, not sustainably free)
+    "meta/llama-3.3-70b-instruct":                   "NVIDIA NIM is credit-based, not permanently free",
+    "meta/llama-3.1-8b-instruct":                    "NVIDIA NIM is credit-based, not permanently free",
+    # SambaNova (only $5 credits, expire in 30 days)
+    "llama-3.3-70b-instruct":                        "SambaNova is credit-based ($5/30 days), not permanently free",
+    "llama-3.1-8b-instruct":                         "SambaNova is credit-based ($5/30 days), not permanently free",
 }
+
+REQUIRED_ENTRY_FIELDS = {"provider", "baseUrl", "model", "envKey"}
+
+
+def read_shared_chain():
+    try:
+        with open(SHARED_CHAIN, encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        return None
 
 
 def read_function(name):
@@ -65,188 +93,211 @@ def read_function(name):
         return None, path
 
 
-# ── Layer 1: Chain resilience ─────────────────────────────────────────────────
+def extract_chain_models(content):
+    """Pull every model string from the PROVIDER_CHAIN array."""
+    chain_m = re.search(r"const PROVIDER_CHAIN[^=]*=\s*\[([\s\S]+?)\];", content)
+    if not chain_m:
+        return []
+    return re.findall(r'"model"\s*:\s*"([^"]+)"', chain_m.group(1))
 
-def check_fallback_chains(func_names):
-    """Every LLM-calling function must declare a fallback chain constant with
-    >= 2 models. A single model has zero rate-limit resilience."""
+
+def extract_chain_entries(content):
+    """Count distinct provider entries (lines with both 'provider' and 'model' keys)."""
+    return len(re.findall(r'\{\s*provider:', content))
+
+
+# ── Layer 1: Shared chain integrity ───────────────────────────────────────────
+
+def check_chain_exists_and_size():
     issues = []
-    for name in func_names:
-        content, path = read_function(name)
-        if content is None:
-            issues.append({"check": "fallback_chains", "func": name,
-                           "reason": f"{path} not found — cannot verify fallback chain"})
-            continue
-        chain_m = re.search(
-            r"(?:GROQ_CHAIN|GROQ_FALLBACK_CHAIN|GROQ_NARRATIVE_CHAIN)\s*=\s*\[([\s\S]+?)\]",
-            content
-        )
-        if not chain_m:
-            issues.append({"check": "fallback_chains", "func": name,
-                           "reason": (f"{name}/index.ts has no Groq fallback chain constant — "
-                                      f"a single rate limit hit will return no AI response")})
-            continue
-        models = re.findall(r'["\']([^"\']+)["\']', chain_m.group(1))
-        if len(models) < MIN_CHAIN_MODELS:
-            issues.append({"check": "fallback_chains", "func": name,
-                           "reason": (f"{name}/index.ts chain has only {len(models)} model(s) "
-                                      f"(minimum {MIN_CHAIN_MODELS}) — insufficient rate limit resilience")})
+    content = read_shared_chain()
+    if content is None:
+        issues.append({"check": "chain_exists", "reason":
+                       f"{SHARED_CHAIN} not found — shared AI chain module is missing"})
+        return issues
+
+    n = extract_chain_entries(content)
+    if n < MIN_CHAIN_ENTRIES:
+        issues.append({"check": "chain_exists", "reason":
+                       f"_shared/ai-chain.ts has only {n} provider entries "
+                       f"(minimum {MIN_CHAIN_ENTRIES}) — chain is too short for resilience"})
     return issues
 
 
-# ── Layer 2: Token budget safety ──────────────────────────────────────────────
-
-def check_max_tokens(func_names):
-    """max_tokens must be set on every Groq chat completion call body — uncapped
-    generation consumes the entire TPM budget, causing 429s for subsequent requests."""
+def check_no_banned_models():
     issues = []
-    for name in func_names:
-        content, path = read_function(name)
-        if content is None:
-            continue
-        if not re.search(r"openai/v1/chat/completions", content):
-            continue
-        if not re.search(r"\bmax_tokens\s*:", content):
-            issues.append({"check": "max_tokens", "func": name,
-                           "reason": (f"{name}/index.ts makes Groq chat calls but does not set "
-                                      f"max_tokens — uncapped generation exhausts the TPM budget")})
+    content = read_shared_chain()
+    if content is None:
+        return issues
+
+    models = extract_chain_models(content)
+    for model in models:
+        if model in BANNED_MODELS:
+            issues.append({"check": "banned_models", "reason":
+                           f"_shared/ai-chain.ts contains banned model '{model}': "
+                           f"{BANNED_MODELS[model]}"})
     return issues
 
 
-# ── Layer 3: Error handling completeness ─────────────────────────────────────
-
-def check_error_handling(func_names):
-    """Both 429 (rate limit) and 413 (payload too large) must trigger fallback.
-    Handling only 429 means large prompts permanently fail instead of falling back."""
+def check_entry_fields():
     issues = []
-    for name in func_names:
-        content, path = read_function(name)
-        if content is None:
-            continue
-        if not re.search(r"openai/v1/chat/completions", content):
-            continue
-        if not re.search(r"429", content):
-            issues.append({"check": "error_handling", "func": name,
-                           "reason": (f"{name}/index.ts does not handle HTTP 429 — "
-                                      f"rate limit hits will not trigger model fallback")})
-        if not re.search(r"413", content):
-            issues.append({"check": "error_handling", "func": name,
-                           "reason": (f"{name}/index.ts does not handle HTTP 413 — "
-                                      f"large prompts permanently fail instead of falling back")})
+    content = read_shared_chain()
+    if content is None:
+        return issues
+
+    # Strip JS template literal interpolations ${...} first — they contain words
+    # like "provider" and "model" and get falsely matched as provider entry blocks.
+    content_clean = re.sub(r'\$\{[^}]*\}', '', content)
+
+    # Each entry block: { provider: "x", baseUrl: "y", model: "z", envKey: "k" }
+    entry_blocks = re.findall(r'\{([^}]+)\}', content_clean)
+    for i, block in enumerate(entry_blocks):
+        if "provider" not in block:
+            continue   # not a provider entry block
+        present = set(re.findall(r'(\w+)\s*:', block))
+        missing = REQUIRED_ENTRY_FIELDS - present
+        if missing:
+            model_m = re.search(r'model\s*:\s*"([^"]+)"', block)
+            label   = model_m.group(1) if model_m else f"entry #{i}"
+            issues.append({"check": "entry_fields", "reason":
+                           f"_shared/ai-chain.ts entry '{label}' is missing fields: "
+                           f"{', '.join(sorted(missing))}"})
     return issues
 
 
-def check_api_key_validation(func_names):
-    """GROQ_API_KEY must be validated before making any calls — a missing secret
-    produces a cryptic 401 deep in the retry loop."""
+# ── Layer 2: Edge function wiring ─────────────────────────────────────────────
+
+def check_functions_import_callai():
     issues = []
-    for name in func_names:
+    for name in LLM_FUNCTIONS:
         content, path = read_function(name)
         if content is None:
-            issues.append({"check": "api_key_validation", "func": name,
-                           "reason": f"{path} not found"})
+            issues.append({"check": "callai_import", "reason":
+                           f"{path} not found — cannot verify callAI import"})
             continue
-        if not re.search(r"api\.groq\.com", content):
-            continue
-        if not re.search(r"if\s*\(\s*!GROQ(?:_API)?_KEY\s*\)", content):
-            issues.append({"check": "api_key_validation", "func": name,
-                           "reason": (f"{name}/index.ts calls Groq but does not validate "
-                                      f"GROQ_API_KEY upfront — missing secret gives cryptic 401")})
+        if not re.search(r'import\s*\{[^}]*callAI[^}]*\}\s*from\s*["\']\.\./_shared/ai-chain', content):
+            issues.append({"check": "callai_import", "reason":
+                           f"{name}/index.ts does not import callAI from _shared/ai-chain.ts — "
+                           f"LLM calls are not going through the shared fallback chain"})
     return issues
 
 
-# ── Layer 4: Call hygiene ─────────────────────────────────────────────────────
-
-def check_deprecated_models(func_names):
-    """
-    Chain arrays must not contain model IDs deprecated by Groq. Deprecated models
-    return a 404 or specific error — the fallback loop catches it and moves on,
-    but a deprecated primary model wastes the first attempt on every call and
-    causes visible latency. As Groq retires older models, stale IDs become
-    silent performance drains.
-    """
+def check_no_raw_groq_fetch():
+    """No function should have a raw fetch() directly to api.groq.com — all calls go through callAI."""
     issues = []
-    for name in func_names:
+    for name in LLM_FUNCTIONS:
         content, path = read_function(name)
         if content is None:
             continue
-        chain_m = re.search(
-            r"(?:GROQ_CHAIN|GROQ_FALLBACK_CHAIN|GROQ_NARRATIVE_CHAIN)\s*=\s*\[([\s\S]+?)\]",
-            content
-        )
-        if not chain_m:
-            continue
-        models = re.findall(r'["\']([^"\']+)["\']', chain_m.group(1))
-        for model in models:
-            if model in DEPRECATED_MODELS:
-                issues.append({"check": "deprecated_models", "func": name,
-                               "reason": (f"{name}/index.ts chain contains deprecated model "
-                                          f"'{model}' — Groq has retired this ID; "
-                                          f"replace with a current model (e.g. llama-3.3-70b-versatile)")})
+        if re.search(r'fetch\s*\(\s*["\']https://api\.groq\.com', content):
+            issues.append({"check": "no_raw_groq_fetch", "reason":
+                           f"{name}/index.ts contains a raw fetch() to api.groq.com — "
+                           f"all LLM calls must go through callAI() from _shared/ai-chain.ts"})
     return issues
 
 
-def check_groq_timeout(func_names):
-    """
-    Every fetch() to the Groq API must include an AbortSignal timeout.
-    Without it, a slow or unresponsive Groq endpoint hangs the edge function
-    until Supabase's 150-second wall clock limit, blocking the worker's entire
-    request. engineering-calc-agent already uses AbortSignal.timeout(60000) —
-    the other LLM functions are missing this guard.
+# ── Layer 3: Call hygiene in the shared module ────────────────────────────────
 
-    Correct pattern: signal: AbortSignal.timeout(60000)
-    """
+def check_shared_max_tokens():
     issues = []
-    for name in func_names:
-        content, path = read_function(name)
-        if content is None:
-            continue
-        if not re.search(r"api\.groq\.com|openai/v1/chat/completions|openai/v1/embeddings", content):
-            continue
-        has_timeout = bool(re.search(r"AbortSignal\.timeout|AbortController", content))
-        if not has_timeout:
-            issues.append({"check": "groq_timeout", "func": name,
-                           "reason": (f"{name}/index.ts makes Groq API calls but has no "
-                                      f"AbortSignal.timeout() — a slow Groq response hangs "
-                                      f"the edge function until Supabase's 150s wall clock limit; "
-                                      f"add signal: AbortSignal.timeout(60000) to every Groq fetch()")})
+    content = read_shared_chain()
+    if content is None:
+        return issues
+    if not re.search(r"\bmax_tokens\s*:", content):
+        issues.append({"check": "max_tokens", "reason":
+                       "_shared/ai-chain.ts does not set max_tokens — "
+                       "uncapped generation exhausts TPM budgets on rate-limited providers"})
+    return issues
+
+
+def check_shared_error_handling():
+    issues = []
+    content = read_shared_chain()
+    if content is None:
+        return issues
+    for code, desc in [("429", "rate limit"), ("413", "payload too large"), ("503", "service unavailable")]:
+        if not re.search(code, content):
+            issues.append({"check": "error_handling", "reason":
+                           f"_shared/ai-chain.ts does not handle HTTP {code} ({desc}) — "
+                           f"affected providers will not trigger fallback to next entry"})
+    return issues
+
+
+def check_shared_timeout():
+    issues = []
+    content = read_shared_chain()
+    if content is None:
+        return issues
+    if not re.search(r"AbortSignal\.timeout|AbortController", content):
+        issues.append({"check": "abort_timeout", "reason":
+                       "_shared/ai-chain.ts fetch() has no AbortSignal.timeout — "
+                       "a slow provider hangs the edge function until Supabase's 150s wall clock"})
+    return issues
+
+
+# ── Layer 4: Free-tier sustainability ─────────────────────────────────────────
+
+def check_no_credit_based_providers():
+    issues = []
+    content = read_shared_chain()
+    if content is None:
+        return issues
+    checks = [
+        ("integrate.api.nvidia.com", "NVIDIA NIM — credit-based, will exhaust"),
+        ("api.sambanova.ai",         "SambaNova — $5 credits expire in 30 days"),
+    ]
+    for pattern, label in checks:
+        if re.search(re.escape(pattern), content):
+            issues.append({"check": "free_tier_only", "reason":
+                           f"_shared/ai-chain.ts includes {label}; "
+                           f"remove for a sustainably free chain"})
     return issues
 
 
 # ── Runner ─────────────────────────────────────────────────────────────────────
 
 CHECK_NAMES = [
-    "fallback_chains",
+    "chain_exists",
+    "banned_models",
+    "entry_fields",
+    "callai_import",
+    "no_raw_groq_fetch",
     "max_tokens",
     "error_handling",
-    "api_key_validation",
-    "deprecated_models",
-    "groq_timeout",
+    "abort_timeout",
+    "free_tier_only",
 ]
 
 CHECK_LABELS = {
-    "fallback_chains":    "L1  Every LLM function has a multi-model fallback chain",
-    "max_tokens":         "L2  max_tokens set on every Groq chat completion call",
-    "error_handling":     "L3  Both 413 and 429 handled in every fallback loop",
-    "api_key_validation": "L3  GROQ_API_KEY validated before use in all Groq functions",
-    "deprecated_models":  "L4  No deprecated Groq model IDs in chain constants",
-    "groq_timeout":       "L4  AbortSignal.timeout() on all Groq fetch() calls",
+    "chain_exists":        "L1  Shared chain exists with >= 6 provider entries",
+    "banned_models":       "L1  No deprecated / non-free models in chain",
+    "entry_fields":        "L1  Every chain entry has provider, baseUrl, model, envKey",
+    "callai_import":       "L2  All LLM functions import callAI from _shared/ai-chain",
+    "no_raw_groq_fetch":   "L2  No raw fetch() to api.groq.com in any LLM function",
+    "max_tokens":          "L3  max_tokens set in shared module",
+    "error_handling":      "L3  429 / 413 / 503 all handled in shared module",
+    "abort_timeout":       "L3  AbortSignal.timeout on fetch() in shared module",
+    "free_tier_only":      "L4  No credit-based providers (NVIDIA NIM) in chain",
 }
 
 
 def main():
     def bold(s): return f"\033[1m{s}\033[0m"
-    print(bold("\nGroq Fallback Chain Validator (4-layer)"))
+    print(bold("\nAI Provider Chain Validator (4-layer)"))
     print("=" * 55)
+    print(f"  Shared chain: {SHARED_CHAIN}")
     print(f"  {len(LLM_FUNCTIONS)} LLM functions: {', '.join(LLM_FUNCTIONS)}\n")
 
     all_issues = []
-    all_issues += check_fallback_chains(LLM_FUNCTIONS)
-    all_issues += check_max_tokens(LLM_FUNCTIONS)
-    all_issues += check_error_handling(LLM_FUNCTIONS)
-    all_issues += check_api_key_validation(ALL_GROQ_FUNCTIONS)
-    all_issues += check_deprecated_models(LLM_FUNCTIONS)
-    all_issues += check_groq_timeout(ALL_GROQ_FUNCTIONS)
+    all_issues += check_chain_exists_and_size()
+    all_issues += check_no_banned_models()
+    all_issues += check_entry_fields()
+    all_issues += check_functions_import_callai()
+    all_issues += check_no_raw_groq_fetch()
+    all_issues += check_shared_max_tokens()
+    all_issues += check_shared_error_handling()
+    all_issues += check_shared_timeout()
+    all_issues += check_no_credit_based_providers()
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 
@@ -259,7 +310,7 @@ def main():
         print(f"\033[91m\n  {n_pass} PASS  {n_warn} WARN  {n_fail} FAIL\033[0m")
 
     report = {
-        "validator":    "groq_fallback",
+        "validator":    "ai_provider_chain",
         "total_checks": total,
         "passed":       n_pass,
         "warned":       n_warn,

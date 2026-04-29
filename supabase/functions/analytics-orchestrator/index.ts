@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { callAI } from "../_shared/ai-chain.ts";
 
 // Allow specific origin in production; use env var ALLOWED_ORIGIN to override (e.g. for local dev)
 const ORIGIN = Deno.env.get("ALLOWED_ORIGIN") || "https://workhiveph.com";
@@ -207,15 +208,6 @@ async function fetchPrescriptiveData(
 // ── Groq synthesis for Prescriptive phase ─────────────────────────────────────
 
 async function callGroqSynthesis(pythonResult: Record<string, unknown>, hiveMembers: string[]): Promise<string> {
-  const GROQ_KEY = Deno.env.get("GROQ_API_KEY");
-  if (!GROQ_KEY) return "Groq not configured — showing raw analysis results.";
-
-  const GROQ_CHAIN = [
-    "llama-3.3-70b-versatile",
-    "meta-llama/llama-4-scout-17b-16e-instruct",
-    "llama-3.1-8b-instant",
-  ];
-
   const memberList = hiveMembers.length > 0
     ? `Your actual team members are: ${hiveMembers.join(", ")}. ONLY use these names — never invent names like John, Bob, or any other person not in this list.`
     : "You do not know the team member names — do not invent names. Refer to workers by their discipline (e.g. 'the Mechanical technician').";
@@ -237,28 +229,10 @@ Format as JSON: { "summary": "one sentence overview", "this_week": ["action 1", 
     team_members: hiveMembers,
   }, null, 2)}`;
 
-  for (const model of GROQ_CHAIN) {
-    try {
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model, temperature: 0.3, max_tokens: 512,
-          response_format: { type: "json_object" },
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user",   content: prompt },
-          ],
-        }),
-      });
-      if (res.status === 429 || res.status === 413) continue;
-      if (!res.ok) break;
-      const data = await res.json();
-      const text = data.choices?.[0]?.message?.content || "{}";
-      const parsed = JSON.parse(text);
-      return JSON.stringify(parsed);
-    } catch { continue; }
-  }
+  try {
+    const raw = await callAI(prompt, { systemPrompt, temperature: 0.3, maxTokens: 512, jsonMode: true });
+    if (raw && raw !== "{}") return JSON.stringify(JSON.parse(raw));
+  } catch { /* fall through */ }
   return "{}";
 }
 
