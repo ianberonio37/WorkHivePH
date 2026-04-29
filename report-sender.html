@@ -318,28 +318,18 @@
     .btn-ghost:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
     .btn-ghost:active { transform: scale(0.97); }
 
-    /* ── Install banner (Android) ── */
-    .install-banner {
-      background: linear-gradient(135deg, rgba(247,162,27,0.1), rgba(247,162,27,0.05));
-      border: 1px solid rgba(247,162,27,0.22);
-      border-radius: 0.75rem;
-      padding: 0.875rem 1rem;
-      display: flex; align-items: center; gap: 0.75rem;
-      margin-bottom: 1rem;
-    }
-    .install-banner-icon { flex-shrink: 0; color: #F7A21B; }
-    .install-banner-text { flex: 1; }
-    .install-banner-text strong { display: block; font-size: 0.82rem; font-weight: 700; color: #fff; margin-bottom: 0.1rem; }
-    .install-banner-text span   { font-size: 0.7rem; color: #7B8794; }
-    .install-btn {
-      font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 700;
-      padding: 0.5rem 1rem; border-radius: 0.625rem;
-      background: linear-gradient(135deg, #F7A21B, #FDB94A);
-      color: #162032; border: none; cursor: pointer;
-      white-space: nowrap; min-height: 36px; flex-shrink: 0;
+    /* ── Install icon button in header ── */
+    .install-icon-btn {
+      display: flex; align-items: center; gap: 0.35rem;
+      font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
+      padding: 0.45rem 0.75rem; border-radius: 0.625rem;
+      background: rgba(247,162,27,0.12); border: 1px solid rgba(247,162,27,0.28);
+      color: #F7A21B; cursor: pointer; white-space: nowrap;
       -webkit-tap-highlight-color: transparent; transition: all 0.15s;
+      flex-shrink: 0; margin-top: 0.2rem;
     }
-    .install-btn:active { transform: scale(0.96); opacity: 0.8; }
+    .install-icon-btn:active { background: rgba(247,162,27,0.22); transform: scale(0.96); }
+    .install-icon-btn.installed { display: none; }
 
     /* ── iOS install hint ── */
     .ios-install-hint {
@@ -384,24 +374,20 @@
 
   <div class="page">
     <header class="page-header">
-      <div class="header-badge">WorkHive</div>
-      <h1>Report Sender</h1>
-      <p>Select reports. Add email. Send.</p>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem">
+        <div>
+          <div class="header-badge">WorkHive</div>
+          <h1>Report Sender</h1>
+          <p>Select reports. Add email. Send.</p>
+        </div>
+        <button class="install-icon-btn" id="install-icon-btn" aria-label="Install app">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v13M8 11l4 4 4-4"/><rect x="3" y="18" width="18" height="3" rx="1"/>
+          </svg>
+          <span>Install</span>
+        </button>
+      </div>
     </header>
-
-    <!-- Install banner — shown on Android/Chrome when installable -->
-    <div class="install-banner" id="install-banner" style="display:none">
-      <div class="install-banner-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2v13M8 11l4 4 4-4"/><rect x="3" y="18" width="18" height="3" rx="1"/>
-        </svg>
-      </div>
-      <div class="install-banner-text">
-        <strong>Install Report Sender</strong>
-        <span>One tap from your home screen</span>
-      </div>
-      <button class="install-btn" id="install-btn">Install</button>
-    </div>
 
     <!-- iOS hint — shown on Safari when not in standalone mode -->
     <div class="ios-install-hint" id="ios-install-hint" style="display:none">
@@ -507,30 +493,44 @@
     }
 
     let _deferredInstall = null;
+    const _installBtn    = document.getElementById('install-icon-btn');
+    const _iosHint       = document.getElementById('ios-install-hint');
+    const _isIOS         = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.navigator.standalone;
+    const _isInstalled   = window.navigator.standalone ||
+                           window.matchMedia('(display-mode: standalone)').matches;
 
+    // Hide button if already running as installed PWA
+    if (_isInstalled) _installBtn.classList.add('installed');
+
+    // Capture Android/Chrome install prompt when it fires
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       _deferredInstall = e;
-      document.getElementById('install-banner').style.display = 'flex';
     });
 
     window.addEventListener('appinstalled', () => {
-      document.getElementById('install-banner').style.display = 'none';
+      _installBtn.classList.add('installed');
     });
 
-    document.getElementById('install-btn').addEventListener('click', async () => {
-      if (!_deferredInstall) return;
-      _deferredInstall.prompt();
-      const { outcome } = await _deferredInstall.userChoice;
-      if (outcome === 'accepted') document.getElementById('install-banner').style.display = 'none';
-      _deferredInstall = null;
+    // Install button — always visible, handles all platforms
+    _installBtn.addEventListener('click', async () => {
+      if (_deferredInstall) {
+        // Android / Chrome desktop — trigger native prompt
+        _deferredInstall.prompt();
+        const { outcome } = await _deferredInstall.userChoice;
+        if (outcome === 'accepted') _installBtn.classList.add('installed');
+        _deferredInstall = null;
+      } else if (_isIOS) {
+        // iOS Safari — show Share instructions
+        _iosHint.style.display = _iosHint.style.display === 'none' ? 'flex' : 'none';
+      } else {
+        // Desktop Chrome before prompt fires — guide to address bar
+        showToast('Click the install icon in your browser address bar');
+      }
     });
 
-    // iOS: show hint if on Safari and not already installed
-    const _isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.navigator.standalone;
-    if (_isIOS) document.getElementById('ios-install-hint').style.display = 'flex';
     document.getElementById('ios-hint-close').addEventListener('click', () => {
-      document.getElementById('ios-install-hint').style.display = 'none';
+      _iosHint.style.display = 'none';
     });
 
     // ── Config ───────────────────────────────────────────────────────────────────
