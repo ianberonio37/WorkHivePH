@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Report Sender | WorkHive</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0f1923;
+      color: #F4F6FA;
+      min-height: 100vh;
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+
+    /* ── Aurora (desktop only — gated in JS) ── */
+    .aurora { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+    .aurora-blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.055; }
+    .aurora-blob-1 { width: 480px; height: 480px; background: #F7A21B; top: -120px; left: -80px; }
+    .aurora-blob-2 { width: 380px; height: 380px; background: #29B6D9; bottom: -60px; right: -80px; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; top: 1rem; left: 50%;
+      transform: translateX(-50%) translateY(-72px);
+      background: rgba(31,46,69,0.96); color: #F4F6FA;
+      padding: 0.6rem 1.25rem; border-radius: 0.625rem;
+      font-size: 0.8rem; font-weight: 500;
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      z-index: 200; white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.09);
+      backdrop-filter: blur(14px);
+      pointer-events: none;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── Page layout ── */
+    .page { position: relative; z-index: 1; max-width: 440px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+    /* ── Header ── */
+    .page-header { margin-bottom: 1.5rem; }
+    .header-badge {
+      display: inline-block;
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.2rem 0.6rem; border-radius: 999px;
+      background: rgba(247,162,27,0.14); color: #F7A21B;
+      border: 1px solid rgba(247,162,27,0.28);
+      margin-bottom: 0.5rem;
+    }
+    .page-header h1 { font-size: 1.55rem; font-weight: 800; color: #fff; line-height: 1.2; }
+    .page-header p { font-size: 0.75rem; color: #7B8794; margin-top: 0.25rem; }
+
+    /* ── Card ── */
+    .card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      min-height: 420px;
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 0.68rem; font-weight: 700;
+      color: #7B8794; text-transform: uppercase; letter-spacing: 0.07em;
+      margin-bottom: 0.75rem;
+    }
+    .mt-lg { margin-top: 1.5rem; }
+
+    /* ── Chips ── */
+    .chips-grid { display: flex; flex-wrap: wrap; gap: 0.625rem; }
+    .chip {
+      flex: 1 1 auto;
+      min-width: calc(50% - 0.625rem);
+      min-height: 52px;
+      display: flex; align-items: center; gap: 0.625rem;
+      padding: 0.75rem 0.875rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(22,32,50,0.55);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, transform 0.1s;
+      font-family: 'Poppins', sans-serif;
+      color: rgba(255,255,255,0.5);
+      font-size: 0.8rem; font-weight: 500;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      text-align: left;
+    }
+    .chip:active { transform: scale(0.96); }
+    .chip.selected {
+      border-color: #F7A21B;
+      background: rgba(247,162,27,0.1);
+      color: rgba(255,255,255,0.9);
+    }
+    .chip.ph3 { opacity: 0.38; }
+    .chip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; opacity: 0.7; }
+    .chip.selected .chip-dot { opacity: 1; }
+    .chip-label { flex: 1; line-height: 1.25; }
+    .chip-check { opacity: 0; flex-shrink: 0; transition: opacity 0.15s; }
+    .chip.selected .chip-check { opacity: 1; }
+    .phase-badge {
+      display: inline-block;
+      font-size: 0.58rem; font-weight: 700;
+      padding: 0.1rem 0.4rem; border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.28);
+      margin-left: auto; flex-shrink: 0;
+    }
+    .chips-count {
+      font-size: 0.72rem; font-weight: 600;
+      color: rgba(247,162,27,0.75);
+      margin-top: 0.625rem; min-height: 1.1em;
+    }
+
+    /* ── Email input ── */
+    .wh-input {
+      background: rgba(22,32,50,0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.75rem;
+      color: #fff; padding: 0.75rem 1rem;
+      width: 100%; font-size: 1rem;
+      font-family: 'Poppins', sans-serif;
+      outline: none; transition: border-color 0.2s;
+    }
+    .wh-input:focus { border-color: rgba(247,162,27,0.5); }
+    .wh-input::placeholder { color: rgba(255,255,255,0.22); }
+    .email-error { font-size: 0.7rem; color: #ef4444; margin-top: 0.375rem; min-height: 1em; }
+
+    /* ── Mic circle ── */
+    .mic-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin: 1.625rem 0 1rem; }
+    .mic-circle {
+      width: 72px; height: 72px; border-radius: 50%;
+      border: 2px dashed rgba(255,255,255,0.13);
+      background: rgba(22,32,50,0.4);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s;
+      color: rgba(255,255,255,0.28); opacity: 0.55;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mic-circle:active { transform: scale(0.93); opacity: 0.75; }
+    .mic-label { font-size: 0.7rem; color: rgba(255,255,255,0.28); text-align: center; font-weight: 500; }
+    .mic-phase-badge {
+      display: inline-block; font-size: 0.58rem; font-weight: 700;
+      padding: 0.1rem 0.4rem; border-radius: 999px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.28); margin-left: 0.25rem; vertical-align: middle;
+    }
+
+    /* ── Send button ── */
+    .send-btn {
+      width: 100%; min-height: 48px;
+      background: linear-gradient(135deg, #F7A21B, #FDB94A);
+      color: #162032; font-weight: 700; border-radius: 0.75rem;
+      padding: 0.875rem 1.5rem; font-size: 0.9rem;
+      font-family: 'Poppins', sans-serif; border: none; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .send-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
+    .send-btn:active:not(:disabled) { opacity: 0.75; transform: scale(0.98); box-shadow: none; }
+    .send-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ── State overlay base ── */
+    #processing-overlay,
+    #results-overlay {
+      display: none; flex-direction: column; align-items: center;
+      gap: 0.875rem; padding: 1.25rem 0; min-height: 320px;
+    }
+    .card[data-state="processing"] .main-content { display: none; }
+    .card[data-state="processing"] #processing-overlay { display: flex; }
+    .card[data-state="results"] .main-content { display: none; }
+    .card[data-state="results"] #results-overlay { display: flex; }
+
+    /* ── Processing state ── */
+    .proc-header { display: flex; align-items: center; gap: 0.75rem; align-self: flex-start; width: 100%; }
+    .spinner {
+      width: 20px; height: 20px; flex-shrink: 0;
+      border: 2px solid rgba(247,162,27,0.2);
+      border-top-color: #F7A21B; border-radius: 50%;
+      animation: spin 0.85s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .proc-title { font-size: 0.9rem; font-weight: 700; color: #fff; }
+
+    .proc-list { width: 100%; display: flex; flex-direction: column; gap: 0.4rem; }
+    .proc-row {
+      display: flex; align-items: center; gap: 0.625rem;
+      background: rgba(22,32,50,0.45); border-radius: 0.625rem;
+      padding: 0.625rem 0.875rem;
+    }
+    .proc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .proc-dot.pending { background: rgba(255,255,255,0.18); }
+    .proc-dot.done { background: #22c55e; }
+    .proc-dot.err { background: #ef4444; }
+    .proc-dot.spin-sm {
+      width: 10px; height: 10px;
+      border: 1.5px solid rgba(247,162,27,0.25);
+      border-top-color: #F7A21B;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      background: transparent;
+    }
+    .proc-label { flex: 1; font-size: 0.8rem; font-weight: 500; color: rgba(255,255,255,0.75); }
+    .proc-status { font-size: 0.7rem; }
+    .proc-status.pending { color: rgba(255,255,255,0.3); }
+    .proc-status.running { color: #F7A21B; }
+    .proc-status.done { color: #22c55e; }
+    .proc-status.err { color: #ef4444; }
+
+    /* ── Results state ── */
+    .results-header { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; text-align: center; }
+    .check-circle {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: rgba(34,197,94,0.1); border: 2px solid rgba(34,197,94,0.3);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .state-title { font-size: 1rem; font-weight: 700; color: #fff; }
+    .state-sub { font-size: 0.78rem; color: #7B8794; }
+    /* Email status row inside results */
+    .email-status {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.72rem; font-weight: 600;
+      color: rgba(255,255,255,0.45);
+    }
+    .email-status.sent  { color: #22c55e; }
+    .email-status.error { color: #ef4444; }
+    .email-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+      border: 1.5px solid rgba(247,162,27,0.25);
+      border-top-color: #F7A21B;
+      animation: spin 0.8s linear infinite;
+    }
+    .email-dot.done { animation: none; background: #22c55e; border-color: #22c55e; }
+    .email-dot.err  { animation: none; background: #ef4444; border-color: #ef4444; }
+    .results-fail-note { font-size: 0.7rem; color: #ef4444; min-height: 1em; }
+
+    .results-list {
+      width: 100%; display: flex; flex-direction: column; gap: 0.4rem;
+      max-height: 200px; overflow-y: auto;
+      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
+    }
+    .result-card {
+      display: flex; align-items: flex-start; gap: 0.625rem;
+      background: rgba(22,32,50,0.5);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 0.625rem; padding: 0.75rem;
+      text-align: left;
+    }
+    .result-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 0.3rem; }
+    .result-body { flex: 1; min-width: 0; }
+    .result-type { font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.85); margin-bottom: 0.2rem; }
+    .result-summary { font-size: 0.7rem; color: #7B8794; line-height: 1.4; }
+
+    .btn-ghost {
+      font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600;
+      padding: 0.625rem 1.5rem; border-radius: 0.625rem;
+      border: 1px solid rgba(255,255,255,0.15); background: transparent;
+      color: rgba(255,255,255,0.6); cursor: pointer;
+      transition: all 0.15s; min-height: 40px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+    .btn-ghost:active { transform: scale(0.97); }
+
+    /* ── Mobile overrides ── */
+    @media (max-width: 480px) {
+      .page { padding: 1rem 0.875rem; }
+      .card { padding: 1.25rem; }
+      .chip { min-height: 52px; }
+      .send-btn { min-height: 52px; font-size: 0.875rem; }
+      .mic-wrap { margin-bottom: max(1rem, env(safe-area-inset-bottom)); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="aurora" id="aurora" aria-hidden="true">
+    <div class="aurora-blob aurora-blob-1"></div>
+    <div class="aurora-blob aurora-blob-2"></div>
+  </div>
+
+  <div id="toast" role="alert" aria-live="polite"></div>
+
+  <div class="page">
+    <header class="page-header">
+      <div class="header-badge">WorkHive</div>
+      <h1>Report Sender</h1>
+      <p>Select reports. Add email. Send.</p>
+    </header>
+
+    <div class="card" id="main-card" data-state="idle">
+
+      <!-- ── Main content ── -->
+      <div class="main-content" id="main-content">
+
+        <div class="section-label">Select Reports</div>
+        <div class="chips-grid" id="chips-grid"></div>
+        <div class="chips-count" id="chips-count"></div>
+
+        <div class="section-label mt-lg">Send to</div>
+        <input
+          type="email" class="wh-input" id="email-input"
+          placeholder="supervisor@company.com" autocomplete="email"
+        />
+        <div class="email-error" id="email-error"></div>
+
+        <!-- Mic circle — Phase 4 placeholder -->
+        <div class="mic-wrap">
+          <button class="mic-circle" id="mic-btn" aria-label="Voice input, available in Phase 4">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.75"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+          </button>
+          <div class="mic-label">
+            Voice context
+            <span class="mic-phase-badge">Phase 4</span>
+          </div>
+        </div>
+
+        <button class="send-btn" id="send-btn" disabled>Send Reports</button>
+
+      </div><!-- /main-content -->
+
+      <!-- ── Processing state ── -->
+      <div id="processing-overlay">
+        <div class="proc-header">
+          <div class="spinner"></div>
+          <div class="proc-title" id="proc-title">Generating reports...</div>
+        </div>
+        <div class="proc-list" id="proc-list"></div>
+      </div>
+
+      <!-- ── Results state ── -->
+      <div id="results-overlay">
+        <div class="results-header">
+          <div class="check-circle">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+                 stroke="#22c55e" stroke-width="2.5"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6L9 17l-5-5"/>
+            </svg>
+          </div>
+          <div class="state-title">Reports generated</div>
+          <div class="state-sub" id="results-sub"></div>
+          <!-- Email delivery status -->
+          <div class="email-status" id="email-status">
+            <div class="email-dot" id="email-dot"></div>
+            <span id="email-status-text">Sending email...</span>
+          </div>
+          <div class="results-fail-note" id="results-fail-note"></div>
+        </div>
+
+        <div class="results-list" id="results-list"></div>
+
+        <div class="state-reset" id="results-countdown"></div>
+        <button class="btn-ghost" id="reset-btn">Reset now</button>
+      </div>
+
+    </div><!-- /card -->
+  </div><!-- /page -->
+
+  <script>
+    // ── Config ───────────────────────────────────────────────────────────────────
+    const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+
+    // ── Auth gate ────────────────────────────────────────────────────────────────
+    const WORKER_NAME = localStorage.getItem('wh_last_worker')
+      || localStorage.getItem('wh_worker_name')
+      || localStorage.getItem('workerName') || '';
+    if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; }
+
+    const HIVE_ID = localStorage.getItem('wh_active_hive_id')
+      || localStorage.getItem('wh_hive_id') || null;
+
+    // Gate aurora on mobile — WebKit animation limit
+    if (window.innerWidth < 768) {
+      document.getElementById('aurora').style.display = 'none';
+    }
+
+    // ── Report definitions ────────────────────────────────────────────────────────
+    // phase3: true = wired when analytics-orchestrator integration ships in Phase 3
+    const REPORTS = [
+      { id: 'pm_overdue',      label: 'PM Overdue',       color: '#F7A21B' },
+      { id: 'failure_digest',  label: 'Failure Digest',   color: '#ef4444' },
+      { id: 'shift_handover',  label: 'Shift Handover',   color: '#29B6D9' },
+      { id: 'predictive',      label: 'Predictive',        color: '#a78bfa' },
+      { id: 'oee',             label: 'OEE Summary',       color: '#22c55e', phase3: true },
+      { id: 'descriptive',     label: 'Weekly Analytics',  color: '#6366f1', phase3: true },
+    ];
+
+    // ── State ────────────────────────────────────────────────────────────────────
+    const _selected  = new Set();
+    let   _cardState = 'idle';
+
+    // ── Utils ────────────────────────────────────────────────────────────────────
+    const escHtml = s => String(s || '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    function isValidEmail(e) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim());
+    }
+
+    // ── Chips ────────────────────────────────────────────────────────────────────
+    function renderChips() {
+      const grid = document.getElementById('chips-grid');
+      grid.innerHTML = REPORTS.map(r => `
+        <button class="chip${_selected.has(r.id) ? ' selected' : ''}${r.phase3 ? ' ph3' : ''}"
+                data-id="${escHtml(r.id)}"
+                aria-pressed="${_selected.has(r.id)}"
+                ${r.phase3 ? 'aria-disabled="true"' : ''}>
+          <span class="chip-dot" style="background:${r.color}"></span>
+          <span class="chip-label">${escHtml(r.label)}</span>
+          ${r.phase3
+            ? `<span class="phase-badge">Phase 3</span>`
+            : `<svg class="chip-check" width="14" height="14" viewBox="0 0 24 24"
+                    fill="none" stroke="${r.color}" stroke-width="3"
+                    stroke-linecap="round" stroke-linejoin="round">
+                 <path d="M20 6L9 17l-5-5"/>
+               </svg>`
+          }
+        </button>
+      `).join('');
+
+      grid.querySelectorAll('.chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          if (_cardState !== 'idle') return;
+          const id   = chip.dataset.id;
+          const rpt  = REPORTS.find(x => x.id === id);
+          if (rpt.phase3) {
+            showToast(`${rpt.label} will be wired in Phase 3`);
+            return;
+          }
+          if (_selected.has(id)) _selected.delete(id);
+          else _selected.add(id);
+          renderChips();
+          updateCount();
+          updateSendBtn();
+        });
+      });
+    }
+
+    function updateCount() {
+      const n  = _selected.size;
+      const el = document.getElementById('chips-count');
+      el.textContent = n === 0 ? '' : `${n} report${n > 1 ? 's' : ''} selected`;
+    }
+
+    function updateSendBtn() {
+      const email = document.getElementById('email-input').value;
+      document.getElementById('send-btn').disabled =
+        !(_selected.size > 0 && isValidEmail(email));
+    }
+
+    // ── Card state machine ────────────────────────────────────────────────────────
+    function setCardState(state) {
+      _cardState = state;
+      document.getElementById('main-card').dataset.state = state;
+    }
+
+    // ── Edge function call ────────────────────────────────────────────────────────
+    async function generateReport(reportType) {
+      const resp = await fetch(`${SUPABASE_URL}/functions/v1/scheduled-agents`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+        },
+        body: JSON.stringify({ report_type: reportType, hive_id: HIVE_ID }),
+      });
+
+      if (!resp.ok) {
+        const body = await resp.text().catch(() => '');
+        throw new Error(`HTTP ${resp.status}${body ? ': ' + body.slice(0, 80) : ''}`);
+      }
+
+      const data = await resp.json();
+      // results[0] because we passed hive_id — exactly one hive processed
+      const result = data.results?.[0];
+      if (!result || result.status === 'failed') {
+        throw new Error(result?.detail || 'Generation failed');
+      }
+      return result.summary || 'Report generated successfully.';
+    }
+
+    // ── Processing UI helpers ─────────────────────────────────────────────────────
+    function renderProcList(reports) {
+      document.getElementById('proc-list').innerHTML = reports.map(r => `
+        <div class="proc-row" data-id="${escHtml(r.id)}">
+          <div class="proc-dot spin-sm" id="pdot-${escHtml(r.id)}"></div>
+          <span class="proc-label">${escHtml(r.label)}</span>
+          <span class="proc-status running" id="pstatus-${escHtml(r.id)}">Generating...</span>
+        </div>
+      `).join('');
+    }
+
+    function updateProcRow(id, status) {
+      const dot    = document.getElementById(`pdot-${id}`);
+      const status_ = document.getElementById(`pstatus-${id}`);
+      if (!dot || !status_) return;
+      if (status === 'done') {
+        dot.className     = 'proc-dot done';
+        status_.className = 'proc-status done';
+        status_.textContent = 'Done';
+      } else {
+        dot.className     = 'proc-dot err';
+        status_.className = 'proc-status err';
+        status_.textContent = 'Failed';
+      }
+    }
+
+    // ── Results UI helpers ────────────────────────────────────────────────────────
+    function renderResults(results) {
+      const successes    = Object.entries(results).filter(([, v]) => v.status === 'done');
+      const failedCount  = Object.values(results).filter(v => v.status === 'error').length;
+
+      document.getElementById('results-sub').textContent =
+        `${successes.length} report${successes.length !== 1 ? 's' : ''} saved to WorkHive`;
+      document.getElementById('results-fail-note').textContent =
+        failedCount > 0 ? `${failedCount} report${failedCount > 1 ? 's' : ''} failed to generate.` : '';
+      // Reset email status to "sending" default so it's ready before sendReportEmail() runs
+      setEmailStatus('sending');
+
+      document.getElementById('results-list').innerHTML = successes.map(([id, val]) => {
+        const r = REPORTS.find(x => x.id === id);
+        return `
+          <div class="result-card">
+            <div class="result-dot" style="background:${r.color}"></div>
+            <div class="result-body">
+              <div class="result-type">${escHtml(r.label)}</div>
+              <div class="result-summary">${escHtml(val.summary)}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ── Send flow ─────────────────────────────────────────────────────────────────
+    async function doSend() {
+      if (_cardState !== 'idle') return;
+
+      const email = document.getElementById('email-input').value.trim();
+      if (!isValidEmail(email)) {
+        document.getElementById('email-error').textContent = 'Enter a valid email address.';
+        return;
+      }
+      document.getElementById('email-error').textContent = '';
+      localStorage.setItem('wh_last_report_email', email);
+
+      const reports = [..._selected]
+        .map(id => REPORTS.find(r => r.id === id))
+        .filter(Boolean);
+
+      document.getElementById('proc-title').textContent =
+        `Generating ${reports.length} report${reports.length > 1 ? 's' : ''}...`;
+      renderProcList(reports);
+      setCardState('processing');
+
+      // Run all reports in parallel — Promise.allSettled so one failure never blocks others
+      const results = {};
+      await Promise.allSettled(reports.map(async (r) => {
+        try {
+          const summary  = await generateReport(r.id);
+          results[r.id]  = { status: 'done', summary };
+          updateProcRow(r.id, 'done');
+        } catch (err) {
+          results[r.id]  = { status: 'error', message: err.message };
+          updateProcRow(r.id, 'error');
+        }
+      }));
+
+      const successCount = Object.values(results).filter(v => v.status === 'done').length;
+
+      if (successCount > 0) {
+        renderResults(results);
+        setCardState('results');
+        if (window.innerWidth < 768) {
+          setTimeout(() => {
+            document.getElementById('main-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 150);
+        }
+        // Send email — runs after the results panel is visible
+        await sendReportEmail(results, email);
+      } else {
+        showToast('All reports failed — check connection and try again');
+        setCardState('idle');
+      }
+    }
+
+    // ── Email delivery ────────────────────────────────────────────────────────────
+    async function sendReportEmail(results, email) {
+      const successReports = Object.entries(results)
+        .filter(([, v]) => v.status === 'done')
+        .map(([id, v]) => ({ type: id, summary: v.summary }));
+
+      if (!successReports.length) return;
+
+      setEmailStatus('sending');
+
+      try {
+        const resp = await fetch(`${SUPABASE_URL}/functions/v1/send-report-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type':  'application/json',
+            'apikey':        SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+          },
+          body: JSON.stringify({
+            hive_id:         HIVE_ID,
+            recipient_email: email,
+            reports:         successReports,
+            sent_at:         new Date().toISOString(),
+          }),
+        });
+
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+
+        setEmailStatus('sent', email);
+        startAutoReset(4);
+      } catch (err) {
+        setEmailStatus('error', err.message);
+        // No auto-reset on email failure — let user read the error
+      }
+    }
+
+    function setEmailStatus(status, detail) {
+      const wrap   = document.getElementById('email-status');
+      const dot    = document.getElementById('email-dot');
+      const text   = document.getElementById('email-status-text');
+      if (!wrap || !dot || !text) return;
+
+      if (status === 'sending') {
+        wrap.className = 'email-status';
+        dot.className  = 'email-dot';
+        text.textContent = 'Sending email...';
+      } else if (status === 'sent') {
+        wrap.className = 'email-status sent';
+        dot.className  = 'email-dot done';
+        text.textContent = `Sent to ${escHtml(detail)}`;
+      } else {
+        wrap.className = 'email-status error';
+        dot.className  = 'email-dot err';
+        text.textContent = `Email failed: ${escHtml(String(detail).slice(0, 60))}`;
+      }
+    }
+
+    function startAutoReset(seconds) {
+      let count    = seconds;
+      const el     = document.getElementById('results-countdown');
+      el.textContent = `Resetting in ${count}s`;
+      const timer  = setInterval(() => {
+        count--;
+        if (count <= 0) { clearInterval(timer); resetPage(); }
+        else { el.textContent = `Resetting in ${count}s`; }
+      }, 1000);
+    }
+
+    // ── Reset ─────────────────────────────────────────────────────────────────────
+    function resetPage() {
+      _selected.clear();
+      renderChips();
+      updateCount();
+      updateSendBtn();
+      document.getElementById('results-countdown').textContent = '';
+      setCardState('idle');
+    }
+
+    // ── Event listeners ───────────────────────────────────────────────────────────
+    document.getElementById('email-input').addEventListener('input', () => {
+      document.getElementById('email-error').textContent = '';
+      updateSendBtn();
+    });
+
+    document.getElementById('send-btn').addEventListener('click', doSend);
+
+    document.getElementById('reset-btn').addEventListener('click', resetPage);
+
+    document.getElementById('mic-btn').addEventListener('click', () => {
+      showToast('Voice input coming in Phase 4');
+    });
+
+    // ── Pre-fill last used email ──────────────────────────────────────────────────
+    const lastEmail = localStorage.getItem('wh_last_report_email') || '';
+    if (lastEmail) {
+      document.getElementById('email-input').value = lastEmail;
+      updateSendBtn();
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────────────────
+    renderChips();
+    updateCount();
+  </script>
+
+  <script src="nav-hub.js"></script>
+</body>
+</html>
