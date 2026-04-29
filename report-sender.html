@@ -1083,7 +1083,10 @@
     // Path B: MediaRecorder   → iOS Safari, Firefox (records audio → Groq Whisper)
     // Both paths converge at parseVoiceIntent(transcript).
     (function initSpeech() {
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      // iOS defines webkitSpeechRecognition but immediately aborts on use —
+      // always force MediaRecorder path on iOS regardless of API presence.
+      const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const SR = !isIOSDevice && (window.SpeechRecognition || window.webkitSpeechRecognition);
 
       if (SR) {
         // ── Path A: Web Speech API ──────────────────────────────────────────────
