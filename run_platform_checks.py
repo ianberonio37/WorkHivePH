@@ -437,7 +437,7 @@ VALIDATORS = [
         "id":      "integration-security",
         "script":  "validate_integration_security.py",
         "args":    [],
-        "label":   "Integration Security Baseline Validator",
+        "label":   "Integration Security Baseline Validator (3-layer, +cors dynamic, +deploy coverage)",
         "group":   "Platform",
         "report":  "integration_security_report.json",
         "skip_if_fast": False,
