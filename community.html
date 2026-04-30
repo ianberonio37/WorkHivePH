@@ -428,10 +428,13 @@
   if (!HIVE_ID)     { window.location.href = 'hive.html'; }
 
   // ── State ─────────────────────────────────────────────────────────────────────
-  let allPosts         = [];
-  let replyCountMap    = {}; // { postId: count }
-  let _postDisplayCount = 20;
-  let activeFilter   = 'all';
+  let allPosts            = [];
+  let pinnedPosts         = []; // always shown at top, fetched separately
+  let replyCountMap       = {}; // { postId: count }
+  let _lastPostCreatedAt  = null; // keyset cursor — timestamp of oldest loaded post
+  let _hasMorePosts       = true;
+  let _isFetchingMore     = false;
+  let activeFilter        = 'all';
   let activeTab      = 'feed';
   let activeThreadId = null;
   let presenceChannel, feedChannel;
@@ -508,23 +511,50 @@
   }
 
   // ── Load posts ────────────────────────────────────────────────────────────────
-  async function loadPosts() {
-    const { data, error } = await db.from('community_posts')
+  function _resetFeed() {
+    allPosts = []; pinnedPosts = [];
+    _lastPostCreatedAt = null; _hasMorePosts = true;
+  }
+
+  async function _fetchPage() {
+    const raw  = document.getElementById('search-input').value.trim();
+    const safQ = raw.replace(/%/g, '\\%').replace(/_/g, '\\_');
+    let q = db.from('community_posts')
       .select('id, hive_id, author_name, content, category, pinned, flagged, created_at')
-      .eq('hive_id', HIVE_ID)
-      .order('pinned', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(50);
+      .eq('hive_id', HIVE_ID).eq('pinned', false)
+      .order('created_at', { ascending: false }).limit(20);
+    if (HIVE_ROLE !== 'supervisor') q = q.eq('flagged', false);
+    if (activeFilter !== 'all') q = q.eq('category', activeFilter);
+    if (safQ) q = q.or(`content.ilike.%${safQ}%,author_name.ilike.%${safQ}%`);
+    if (_lastPostCreatedAt) q = q.lt('created_at', _lastPostCreatedAt);
+    return q;
+  }
+
+  async function loadPosts() {
+    document.getElementById('feed-skeleton').style.display = 'flex';
+    document.getElementById('feed-list').style.display     = 'none';
+    _resetFeed();
+
+    const [pinnedRes, pageRes] = await Promise.all([
+      db.from('community_posts')
+        .select('id, hive_id, author_name, content, category, pinned, flagged, created_at')
+        .eq('hive_id', HIVE_ID).eq('pinned', true)
+        .order('created_at', { ascending: false }),
+      _fetchPage(),
+    ]);
 
     document.getElementById('feed-skeleton').style.display = 'none';
-    document.getElementById('feed-list').style.display = 'flex';
+    document.getElementById('feed-list').style.display     = 'flex';
 
-    if (error) {
-      showToast('Could not load posts', 'error');
-      return;
-    }
-    allPosts = data || [];
-    if (allPosts.length) await loadReplyCounts(allPosts.map(p => p.id));
+    if (pageRes.error) { showToast('Could not load posts', 'error'); return; }
+
+    pinnedPosts = pinnedRes.data || [];
+    allPosts    = pageRes.data  || [];
+    if (allPosts.length) _lastPostCreatedAt = allPosts[allPosts.length - 1].created_at;
+    _hasMorePosts = allPosts.length === 20;
+
+    const allIds = [...pinnedPosts, ...allPosts].map(p => p.id);
+    if (allIds.length) await loadReplyCounts(allIds);
     renderFeed();
     loadModQueue();
   }
@@ -538,17 +568,11 @@
     });
   }
 
-  // ── Render feed (filtered + paginated) ───────────────────────────────────────
+  // ── Render feed (all accumulated pages — no client-side slicing) ─────────────
   function renderFeed() {
-    const query   = document.getElementById('search-input').value.toLowerCase().trim();
-    const el      = document.getElementById('feed-list');
-    const lmWrap  = document.getElementById('feed-load-more');
-    let   posts   = allPosts.filter(p => !p.flagged || HIVE_ROLE === 'supervisor');
-
-    if (activeFilter !== 'all') posts = posts.filter(p => p.category === activeFilter);
-    if (query) posts = posts.filter(p =>
-      p.content.toLowerCase().includes(query) || p.author_name.toLowerCase().includes(query)
-    );
+    const el     = document.getElementById('feed-list');
+    const lmWrap = document.getElementById('feed-load-more');
+    const posts  = [...pinnedPosts, ...allPosts];
 
     if (posts.length === 0) {
       el.innerHTML = `<div class="empty-state">
@@ -559,24 +583,35 @@
       return;
     }
 
-    const visible = posts.slice(0, _postDisplayCount);
-    el.innerHTML  = visible.map(p => renderPostCard(p)).join('');
+    el.innerHTML = posts.map(p => renderPostCard(p)).join('');
 
-    // Show Load More only when there are hidden posts
     if (lmWrap) {
-      const remaining = posts.length - visible.length;
-      if (remaining > 0) {
-        lmWrap.style.display = 'flex';
-        const btn = document.getElementById('btn-load-more-posts');
-        if (btn) btn.textContent = `Load ${Math.min(remaining, 20)} more posts`;
-      } else {
-        lmWrap.style.display = 'none';
-      }
+      lmWrap.style.display = _hasMorePosts ? 'flex' : 'none';
+      const btn = document.getElementById('btn-load-more-posts');
+      if (btn) { btn.disabled = false; btn.textContent = 'Load more posts'; }
     }
   }
 
-  function loadMorePosts() {
-    _postDisplayCount += 20;
+  async function loadMorePosts() {
+    if (!_hasMorePosts || _isFetchingMore) return;
+    _isFetchingMore = true;
+    const btn = document.getElementById('btn-load-more-posts');
+    if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
+
+    const { data, error } = await _fetchPage();
+    _isFetchingMore = false;
+
+    if (error) {
+      showToast('Could not load more posts', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Load more posts'; }
+      return;
+    }
+    if (data && data.length > 0) {
+      _lastPostCreatedAt = data[data.length - 1].created_at;
+      await loadReplyCounts(data.map(p => p.id));
+      allPosts = [...allPosts, ...data];
+    }
+    _hasMorePosts = (data?.length ?? 0) === 20;
     renderFeed();
   }
 
@@ -679,15 +714,14 @@
   // ── Filter & search ───────────────────────────────────────────────────────────
   function setFilter(cat) {
     activeFilter = cat;
-    _postDisplayCount = 20;
     document.querySelectorAll('.filter-chip').forEach(c => {
       c.classList.toggle('active', c.dataset.cat === cat);
     });
-    renderFeed();
+    loadPosts(); // resets cursor and refetches from DB
   }
 
   const searchInput = document.getElementById('search-input');
-  searchInput.addEventListener('input', debounce(() => { _postDisplayCount = 20; renderFeed(); }, 250));
+  searchInput.addEventListener('input', debounce(() => loadPosts(), 400));
 
   // ── Tabs ──────────────────────────────────────────────────────────────────────
   function switchTab(tab) {
@@ -703,7 +737,7 @@
   // ── Mod queue (supervisor only) ───────────────────────────────────────────────
   async function loadModQueue() {
     if (HIVE_ROLE !== 'supervisor') return;
-    const flagged = allPosts.filter(p => p.flagged);
+    const flagged = [...pinnedPosts, ...allPosts].filter(p => p.flagged);
     const countEl = document.getElementById('mod-count');
     if (flagged.length > 0) {
       countEl.textContent = flagged.length;
@@ -717,7 +751,7 @@
       el.innerHTML = '<div class="empty-state"><p style="color:rgba(255,255,255,0.4); font-size:0.875rem;">No flagged posts.</p></div>';
       return;
     }
-    el.innerHTML = flagged.map(p => renderPostCard(p)).join('');
+    el.innerHTML = [...pinnedPosts, ...allPosts].filter(p => p.flagged).map(p => renderPostCard(p)).join('');
   }
 
   // ── Mod actions (HIVE_ROLE guard inside function — security rule) ──────────────
@@ -728,8 +762,17 @@
       .eq('id', postId).eq('hive_id', HIVE_ID);
     if (error) { showToast('Could not update pin', 'error'); return; }
     await writeAuditLog(currentlyPinned ? 'unpin_post' : 'pin_post', postId);
-    const idx = allPosts.findIndex(p => p.id === postId);
-    if (idx !== -1) allPosts[idx].pinned = !currentlyPinned;
+    const post = allPosts.find(p => p.id === postId) || pinnedPosts.find(p => p.id === postId);
+    if (post) {
+      post.pinned = !currentlyPinned;
+      if (!currentlyPinned) {
+        allPosts    = allPosts.filter(p => p.id !== postId);
+        pinnedPosts = [post, ...pinnedPosts];
+      } else {
+        pinnedPosts = pinnedPosts.filter(p => p.id !== postId);
+        allPosts    = [post, ...allPosts];
+      }
+    }
     renderFeed();
     showToast(currentlyPinned ? 'Post unpinned' : 'Post pinned');
   }
@@ -741,15 +784,17 @@
       .eq('id', postId).eq('hive_id', HIVE_ID);
     if (error) { showToast('Could not update flag', 'error'); return; }
     await writeAuditLog(currentlyFlagged ? 'unflag_post' : 'flag_post', postId);
-    const idx = allPosts.findIndex(p => p.id === postId);
-    if (idx !== -1) allPosts[idx].flagged = !currentlyFlagged;
+    const pa = allPosts.find(p => p.id === postId);
+    const pp = pinnedPosts.find(p => p.id === postId);
+    if (pa) pa.flagged = !currentlyFlagged;
+    if (pp) pp.flagged = !currentlyFlagged;
     renderFeed();
     loadModQueue();
     showToast(currentlyFlagged ? 'Post unflagged' : 'Post flagged');
   }
 
   async function deletePost(postId) {
-    const post = allPosts.find(p => p.id === postId);
+    const post = [...pinnedPosts, ...allPosts].find(p => p.id === postId);
     if (!post) return;
     if (HIVE_ROLE !== 'supervisor' && post.author_name !== WORKER_NAME) {
       showToast('Cannot delete another worker\'s post', 'error'); return;
@@ -758,7 +803,8 @@
       .delete().eq('id', postId).eq('hive_id', HIVE_ID);
     if (error) { showToast('Could not delete post', 'error'); return; }
     if (HIVE_ROLE === 'supervisor') await writeAuditLog('delete_post', postId);
-    allPosts = allPosts.filter(p => p.id !== postId);
+    allPosts    = allPosts.filter(p => p.id !== postId);
+    pinnedPosts = pinnedPosts.filter(p => p.id !== postId);
     renderFeed();
     if (activeThreadId === postId) closeThread();
     showToast('Post deleted');
@@ -807,7 +853,7 @@
 
     if (error) { showToast('Could not post. Try again.', 'error'); return; }
 
-    allPosts.unshift(data);
+    allPosts.unshift(data); // new posts are never pinned on creation
     renderFeed();
     closeComposer();
     showToast('Posted!');
@@ -817,7 +863,7 @@
   // ── Thread view ───────────────────────────────────────────────────────────────
   async function openThread(postId) {
     activeThreadId = postId;
-    const post = allPosts.find(p => p.id === postId);
+    const post = [...pinnedPosts, ...allPosts].find(p => p.id === postId);
     if (!post) return;
 
     document.getElementById('thread-title').textContent = 'Thread';
@@ -932,8 +978,10 @@
         event: 'INSERT', schema: 'public', table: 'community_posts',
         filter: `hive_id=eq.${HIVE_ID}`
       }, (payload) => {
-        if (allPosts.find(p => p.id === payload.new.id)) return;
-        allPosts.unshift(payload.new);
+        const exists = [...pinnedPosts, ...allPosts].find(p => p.id === payload.new.id);
+        if (exists) return;
+        if (payload.new.pinned) pinnedPosts.unshift(payload.new);
+        else                    allPosts.unshift(payload.new);
         renderFeed();
         if (payload.new.author_name !== WORKER_NAME) {
           showToast(`${payload.new.author_name} posted in the hive`);
@@ -943,14 +991,25 @@
         event: 'UPDATE', schema: 'public', table: 'community_posts',
         filter: `hive_id=eq.${HIVE_ID}`
       }, (payload) => {
-        const idx = allPosts.findIndex(p => p.id === payload.new.id);
-        if (idx !== -1) allPosts[idx] = payload.new;
+        const ia = allPosts.findIndex(p => p.id === payload.new.id);
+        const ip = pinnedPosts.findIndex(p => p.id === payload.new.id);
+        if (payload.new.pinned && ia !== -1) {
+          // just got pinned — move to pinnedPosts
+          pinnedPosts = [payload.new, ...pinnedPosts];
+          allPosts.splice(ia, 1);
+        } else if (!payload.new.pinned && ip !== -1) {
+          // just got unpinned — move to allPosts
+          allPosts = [payload.new, ...allPosts];
+          pinnedPosts.splice(ip, 1);
+        } else if (ia !== -1) { allPosts[ia]    = payload.new; }
+          else if (ip !== -1) { pinnedPosts[ip] = payload.new; }
         renderFeed();
       })
       .on('postgres_changes', {
         event: 'DELETE', schema: 'public', table: 'community_posts'
       }, (payload) => {
-        allPosts = allPosts.filter(p => p.id !== payload.old.id);
+        allPosts    = allPosts.filter(p => p.id !== payload.old.id);
+        pinnedPosts = pinnedPosts.filter(p => p.id !== payload.old.id);
         renderFeed();
       })
       .subscribe();
