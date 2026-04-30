@@ -910,7 +910,7 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
     const hiveIds = memberships.map(m => m.hive_id);
     const { data: hives } = await db
       .from('hives')
-      .select('id, name, code, created_by')
+      .select('id, name, created_by')
       .in('id', hiveIds);
 
     if (!hives || !hives.length) {
@@ -922,7 +922,7 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
     const restored = hives.map(h => {
       const m = memberships.find(x => x.hive_id === h.id);
       const role = m ? m.role : 'worker';
-      return { id: h.id, name: h.name, role, code: h.code || '' };
+      return { id: h.id, name: h.name, role, code: '' };
     });
     saveHiveList(restored);
     const first = restored[0];
@@ -1958,7 +1958,7 @@ function startWorkerApprovalListener() {
     .subscribe();
 }
 
-document.getElementById('btn-toggle-approval').addEventListener('click', () => {
+document.getElementById('btn-toggle-approval')?.addEventListener('click', () => {
   const body = document.getElementById('approval-body');
   const btn  = document.getElementById('btn-toggle-approval');
   const isHidden = body.style.display === 'none';
