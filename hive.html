@@ -2020,7 +2020,7 @@ document.getElementById('btn-toggle-audit').addEventListener('click', () => {
   btn.textContent = isHidden ? 'Hide' : 'Show';
 });
 
-document.getElementById('btn-toggle-mttr').addEventListener('click', () => {
+document.getElementById('btn-toggle-mttr')?.addEventListener('click', () => {
   const body = document.getElementById('mttr-body');
   const btn  = document.getElementById('btn-toggle-mttr');
   const isHidden = body.style.display === 'none';
@@ -2028,7 +2028,7 @@ document.getElementById('btn-toggle-mttr').addEventListener('click', () => {
   btn.textContent = isHidden ? 'Hide' : 'Show';
 });
 
-document.getElementById('btn-toggle-mtbf').addEventListener('click', () => {
+document.getElementById('btn-toggle-mtbf')?.addEventListener('click', () => {
   const body = document.getElementById('mtbf-body');
   const btn  = document.getElementById('btn-toggle-mtbf');
   const isHidden = body.style.display === 'none';
@@ -2036,7 +2036,7 @@ document.getElementById('btn-toggle-mtbf').addEventListener('click', () => {
   btn.textContent = isHidden ? 'Hide' : 'Show';
 });
 
-document.getElementById('btn-toggle-downtime').addEventListener('click', () => {
+document.getElementById('btn-toggle-downtime')?.addEventListener('click', () => {
   const body = document.getElementById('downtime-body');
   const btn  = document.getElementById('btn-toggle-downtime');
   const isHidden = body.style.display === 'none';
