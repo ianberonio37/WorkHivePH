@@ -13,8 +13,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="utils.js"></script>
   <style>
     * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
     body { background-color: #162032; min-height: 100vh; margin: 0; color: white; }
@@ -404,13 +402,17 @@
 </div>
 
 <!-- Elements must be before the script block -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="utils.js"></script>
 <script>
   'use strict';
 
   // ── Supabase ──────────────────────────────────────────────────────────────────
   const SUPABASE_URL  = 'https://hzyvnjtisfgbksicrouu.supabase.co';
   const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6eXZuanRpc2Zna3NpY3JvdXUiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc0MzMxNjM5OCwiZXhwIjoyMDU4ODkyMzk4fQ.iFRgDpRLNSFGe6lhfhOmHXFSz2YRf6PwHCCZ3GzJYiI';
-  const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+    global: { headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` } }
+  });
 
   // ── Identity (string auth — HIGH security note: spoofable until Supabase Auth migration) ──
   const WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
