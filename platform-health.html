@@ -688,7 +688,7 @@
       <div class="guide-stitle">What Each Button Does</div>
       <div class="guide-row">
         <span class="guide-label"><span class="gtag gold">▶ Validate Fast</span></span>
-        <span class="guide-desc">Runs all 45 validators across 5-6 check layers in ~40 seconds. Use after every code change. Skips live API calls (use Full Deploy Check for those). If all green with no red FAIL, you are safe to continue building.</span>
+        <span class="guide-desc">Runs all 51 validators across 5-6 check layers in ~40 seconds. Use after every code change. Skips live API calls (use Full Deploy Check for those). If all green with no red FAIL, you are safe to continue building.</span>
       </div>
       <div class="guide-row">
         <span class="guide-label"><span class="gtag red">⚡ Auto-Fix</span></span>
@@ -708,7 +708,7 @@
       </div>
       <div class="guide-row">
         <span class="guide-label">🔒 Gate Only</span>
-        <span class="guide-desc">Skips all 45 validators and just checks: Is git clean? Are live servers up? Is the backlog empty? Takes 3 seconds. Use this when you know your code is good and just want to confirm the environment is ready before pushing.</span>
+        <span class="guide-desc">Skips all 51 validators and just checks: Is git clean? Are live servers up? Is the backlog empty? Takes 3 seconds. Use this when you know your code is good and just want to confirm the environment is ready before pushing.</span>
       </div>
       <div class="guide-row">
         <span class="guide-label">📤 Commit &amp; Push</span>
@@ -786,7 +786,7 @@
 
         <div style="display:flex;align-items:flex-start;gap:.6rem;">
           <span style="background:rgba(247,162,27,.15);color:var(--gold);border-radius:.35rem;padding:.15rem .5rem;font-weight:700;font-size:.75rem;white-space:nowrap;flex-shrink:0;">4</span>
-          <span style="font-size:.82rem;"><strong>45 validators run</strong> — each one checks a specific part of your platform across 4–6 layers. Layers 1–3 catch hard failures (FAIL). Layers 4–6 include improvement checks that show as SKIP (blue) in the terminal — these are known backlog items, not blocking failures. See the "All 45 Validators" section below for plain-language descriptions of every check.</span>
+          <span style="font-size:.82rem;"><strong>51 validators run</strong> — each one checks a specific part of your platform across 4–6 layers. Layers 1–3 catch hard failures (FAIL). Layers 4–6 include improvement checks that show as SKIP (blue) in the terminal — these are known backlog items, not blocking failures. See the "All 45 Validators" section below for plain-language descriptions of every check.</span>
         </div>
 
         <div style="text-align:center;color:var(--muted);font-size:.75rem;">↓</div>
@@ -810,8 +810,8 @@
       <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em;">Who Does What</div>
       <div style="display:flex;flex-direction:column;gap:.3rem;">
         <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">guardian_server.py</span><span style="color:var(--muted);">The engine behind this web page. Routes your button clicks to scripts and streams output back.</span></div>
-        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">run_platform_checks.py</span><span style="color:var(--muted);">The boss script. Calls all 45 validators in order and writes the final report.</span></div>
-        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">validate_*.py (44 files)</span><span style="color:var(--muted);">The workers. Each checks one area across 4–6 layers. Hard failures exit 1 (red FAIL). Improvement checks exit 0 but show blue SKIP lines in the terminal.</span></div>
+        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">run_platform_checks.py</span><span style="color:var(--muted);">The boss script. Calls all 51 validators in order and writes the final report.</span></div>
+        <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">validate_*.py (50 files)</span><span style="color:var(--muted);">The workers. Each checks one area across 4–6 layers. Hard failures exit 1 (red FAIL). Improvement checks exit 0 but show blue SKIP lines in the terminal.</span></div>
         <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">platform_health.json</span><span style="color:var(--muted);">The report card. Written after every run. This dashboard reads it to show the cards.</span></div>
         <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">learn.py</span><span style="color:var(--muted);">The teacher. Reads failed runs and your git history, then writes lessons to your skill files.</span></div>
         <div style="display:flex;gap:.5rem;font-size:.8rem;"><span style="color:var(--gold);min-width:180px;flex-shrink:0;">autofix.py</span><span style="color:var(--muted);">The mechanic. Reads lessons from skill files and applies fixes automatically.</span></div>
@@ -865,7 +865,7 @@
       </div>
     </div>
 
-    <!-- All 45 validators -->
+    <!-- All 51 validators -->
     <div class="guide-section">
       <div class="guide-stitle">All 46 Validators — What They Check</div>
       <div style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem;">Each validator runs 4–6 check layers. Green = all hard checks pass. Red = fix required. Blue SKIP lines in the terminal = known improvement items (not blocking). Counts show (hard checks / total layers).</div>
