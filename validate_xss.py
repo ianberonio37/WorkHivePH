@@ -24,6 +24,9 @@ ensures that defence is present everywhere it is needed.
   Layer 4 — Scope completeness
     7.  All live pages in scope       — analytics.html and all new pages included in checks
 
+  Layer 5 — Script load order
+    8.  utils.js before main script   — escHtml undefined at runtime if utils.js loads after
+
 Usage:  python validate_xss.py
 Output: xss_report.json
 """
@@ -51,6 +54,7 @@ LIVE_PAGES = [
     "floating-ai.js",
     "nav-hub.js",
     "report-sender.html",
+    "community.html",
 ]
 
 # Pages that define escHtml themselves (don't load utils.js)
@@ -278,6 +282,42 @@ def check_all_html_pages_in_scope():
     return issues
 
 
+# ── Layer 5: Script load order ────────────────────────────────────────────────
+
+def check_utils_load_order():
+    """
+    utils.js must be loaded via a <script src="utils.js"> tag BEFORE the main
+    inline <script> block. If it appears after, escHtml() is undefined when the
+    page script executes — XSS protection silently fails for the entire page
+    without any runtime error or warning.
+
+    This was the root cause of a community.html regression where the CDN and
+    utils.js were placed after the main <script> block during a refactor.
+    """
+    issues = []
+    html_pages = [p for p in LIVE_PAGES if p.endswith(".html")]
+    for page in html_pages:
+        content = read_file(page)
+        if content is None or "utils.js" not in content:
+            continue
+        utils_pos = content.find("utils.js")
+        # Find the last inline <script> block (no src= attribute)
+        script_pos = -1
+        for m in re.finditer(r"<script(?!\s+src=)[^>]*>", content):
+            script_pos = m.start()
+        if utils_pos == -1 or script_pos == -1:
+            continue
+        if utils_pos > script_pos:
+            issues.append({
+                "check": "utils_load_order",
+                "page": page,
+                "reason": (f"{page} loads utils.js AFTER the main <script> block — "
+                           f"escHtml() is undefined when page code runs; "
+                           f"move utils.js <script src> above the main <script> block")
+            })
+    return issues
+
+
 # ── Runner ─────────────────────────────────────────────────────────────────────
 
 CHECK_NAMES = [
@@ -289,6 +329,8 @@ CHECK_NAMES = [
     "injection_vectors", "set_attribute_event_handler",
     # L4
     "all_pages_in_scope",
+    # L5
+    "utils_load_order",
 ]
 
 CHECK_LABELS = {
@@ -303,12 +345,14 @@ CHECK_LABELS = {
     "set_attribute_event_handler": "L3  No setAttribute('on...', dynamic) patterns",
     # L4
     "all_pages_in_scope":          "L4  All innerHTML pages included in LIVE_PAGES",
+    # L5
+    "utils_load_order":            "L5  utils.js loads before main <script> block on all pages",
 }
 
 
 def main():
     def bold(s): return f"\033[1m{s}\033[0m"
-    print(bold("\nXSS / escHtml Coverage Validator (4-layer)"))
+    print(bold("\nXSS / escHtml Coverage Validator (5-layer)"))
     print("=" * 55)
 
     all_issues = []
@@ -319,6 +363,7 @@ def main():
     all_issues += check_injection_vectors()
     all_issues += check_set_attribute_event_handlers()
     all_issues += check_all_html_pages_in_scope()
+    all_issues += check_utils_load_order()
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

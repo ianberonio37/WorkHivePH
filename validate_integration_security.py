@@ -7,14 +7,15 @@ webhook endpoints, OAuth tokens, and third-party service credentials.
   Layer 1 — Credential exposure
     1.  No webhook tokens in client code     — embedded tokens expose API access to anyone
     2.  No credentials logged to console     — tokens logged are captured by extensions/tools
+    3.  Supabase key uses sb_publishable_ format — old JWT key causes 401 on all queries
 
   Layer 2 — Transport security
-    3.  External fetch calls have timeout    — no timeout = hanging UI on slow external service
-    4.  All external fetches use HTTPS       — HTTP sends auth headers unencrypted
+    4.  External fetch calls have timeout    — no timeout = hanging UI on slow external service
+    5.  All external fetches use HTTPS       — HTTP sends auth headers unencrypted
 
   Layer 3 — Edge function hardening
-    5.  CORS not wildcard on edge functions  — * allows any origin to call the API  [WARN]
-    6.  No raw String(err) in responses      — stack traces must not reach the browser  [WARN]
+    6.  CORS not wildcard on edge functions  — * allows any origin to call the API  [WARN]
+    7.  No raw String(err) in responses      — stack traces must not reach the browser  [WARN]
 
 Usage:  python validate_integration_security.py
 Output: integration_security_report.json
@@ -82,6 +83,38 @@ def check_webhook_tokens(pages):
                                               f"token in client code: '{url[:60]}' — move to a "
                                               f"Supabase Edge Function so the URL stays server-side")})
                     break
+    return issues
+
+
+def check_supabase_key_format(pages):
+    """
+    New Supabase projects (2024+) use the 'sb_publishable_...' key format.
+    Old JWT anon keys start with 'eyJ'. Using an old-format key on a project
+    that expects the publishable format causes 401 on every database query —
+    all page data goes blank with no clear error in the UI. Both key types are
+    safe to embed in frontend code (both are anon keys), but only the matching
+    format for the project actually works.
+    """
+    issues = []
+    for page in pages:
+        content = read_file(page)
+        if content is None:
+            continue
+        m = re.search(
+            r'(?:SUPABASE_KEY|supabaseKey|ANON_KEY)\s*=\s*[\'"]([^\'"]{20,})[\'"]',
+            content
+        )
+        if not m:
+            continue
+        key_val = m.group(1)
+        if key_val.startswith("eyJ") and not key_val.startswith("sb_publishable_"):
+            issues.append({
+                "check": "supabase_key_format",
+                "page": page,
+                "reason": (f"{page} uses old JWT anon key (starts with 'eyJ') — "
+                           f"new Supabase projects require 'sb_publishable_...' format; "
+                           f"wrong key causes 401 on all queries silently")
+            })
     return issues
 
 
@@ -258,6 +291,7 @@ def check_raw_error_in_response():
 CHECK_NAMES = [
     "webhook_tokens",
     "no_credential_logging",
+    "supabase_key_format",
     "fetch_timeout",
     "https_only",
     "cors_not_wildcard",
@@ -267,6 +301,7 @@ CHECK_NAMES = [
 CHECK_LABELS = {
     "webhook_tokens":         "L1  No webhook tokens hardcoded in client-side code  [WARN]",
     "no_credential_logging":  "L1  No API credentials or tokens logged to console",
+    "supabase_key_format":    "L1  Supabase key uses sb_publishable_ format (not old JWT)",
     "fetch_timeout":          "L2  External fetch calls have AbortSignal timeout  [WARN]",
     "https_only":             "L2  All external fetch calls use HTTPS not HTTP",
     "cors_not_wildcard":      "L3  Edge function CORS not wildcard (enterprise hardening)  [WARN]",
@@ -282,6 +317,7 @@ def main():
     all_issues = []
     all_issues += check_webhook_tokens(LIVE_PAGES)
     all_issues += check_no_credential_logging(LIVE_PAGES)
+    all_issues += check_supabase_key_format(LIVE_PAGES)
     all_issues += check_fetch_timeout(LIVE_PAGES)
     all_issues += check_https_only(LIVE_PAGES)
     all_issues += check_cors_not_wildcard()

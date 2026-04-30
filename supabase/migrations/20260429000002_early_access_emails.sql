@@ -11,6 +11,9 @@ CREATE TABLE IF NOT EXISTS early_access_emails (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_early_access_email
   ON early_access_emails (lower(email));
 
+-- Grant anon role access (required — migrations don't auto-grant like the dashboard)
+GRANT INSERT ON early_access_emails TO anon;
+
 -- Allow anon inserts from the landing page (no auth required)
 ALTER TABLE early_access_emails ENABLE ROW LEVEL SECURITY;
 

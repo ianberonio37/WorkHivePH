@@ -6,19 +6,24 @@ result as running it once. This is critical for enterprise integrations:
 SAP PM and IBM Maximo retry failed API calls. CMMS systems re-send
 webhooks on timeout. pg_cron occasionally fires duplicate runs.
 
+  Layer 0 — Migration SQL correctness
+    1.  CREATE INDEX uses IF NOT EXISTS        — re-running supabase db push doesn't fail
+    2.  CREATE POLICY preceded by DROP IF EXISTS — re-running supabase db push doesn't fail
+    3.  Tables with RLS have GRANT statements  — missing GRANT = 401 despite valid RLS policies
+
   Layer 1 — Schema foundations
-    1.  external_sync UNIQUE constraint    — dedup anchor for all external system IDs
+    4.  external_sync UNIQUE constraint    — dedup anchor for all external system IDs
 
   Layer 2 — Webhook security
-    2.  Webhook HMAC verified before payload read — spoofing + replay prevention
+    5.  Webhook HMAC verified before payload read — spoofing + replay prevention
 
   Layer 3 — Upsert discipline
-    3.  Shared table upserts specify onConflict   — explicit conflict resolution
-    4.  Batch inserts in loops use upsert         — retry-safe bulk writes
+    6.  Shared table upserts specify onConflict   — explicit conflict resolution
+    7.  Batch inserts in loops use upsert         — retry-safe bulk writes
 
   Layer 4 — Internal idempotency
-    5.  PM completions have dedup protection      — no UNIQUE constraint = duplicate completions on retry
-    6.  Scheduled report writes use upsert        — pg_cron double-fire creates duplicate reports
+    8.  PM completions have dedup protection      — no UNIQUE constraint = duplicate completions on retry
+    9.  Scheduled report writes use upsert        — pg_cron double-fire creates duplicate reports
 
 Usage:  python validate_idempotency.py
 Output: idempotency_report.json
@@ -58,6 +63,100 @@ def read_all_migrations():
             if c:
                 content += c
     return content
+
+
+# ── Layer 0: Migration SQL correctness ────────────────────────────────────────
+
+def check_migration_index_idempotency():
+    """
+    CREATE INDEX without IF NOT EXISTS fails when supabase db push re-runs the
+    migration (e.g., on a fresh clone or after a failed push). The CLI shows a
+    Y/n prompt which blocks CI pipelines and confuses developers.
+    Every CREATE INDEX in migrations must use IF NOT EXISTS.
+    """
+    issues = []
+    if not os.path.isdir(MIGRATIONS_DIR):
+        return issues
+    for fname in sorted(os.listdir(MIGRATIONS_DIR)):
+        if not fname.endswith(".sql"):
+            continue
+        content = read_file(os.path.join(MIGRATIONS_DIR, fname))
+        if not content:
+            continue
+        for m in re.finditer(r'\bCREATE\s+(?:UNIQUE\s+)?INDEX\s+', content, re.IGNORECASE):
+            context = content[m.start():m.start() + 120]
+            if re.search(r'IF\s+NOT\s+EXISTS', context, re.IGNORECASE):
+                continue
+            issues.append({
+                "check": "migration_index_idempotency",
+                "source": fname,
+                "reason": f"{fname}: CREATE INDEX without IF NOT EXISTS — fails when supabase db push re-runs; use CREATE INDEX IF NOT EXISTS"
+            })
+            break  # one violation per file is enough
+    return issues
+
+
+def check_migration_policy_idempotency():
+    """
+    Every CREATE POLICY in a migration must have a matching DROP POLICY IF EXISTS
+    somewhere in the same file. The safe pattern groups all DROPs before all
+    CREATEs, or pairs them immediately — either way the count must match.
+    Supabase returns "policy already exists" on re-run otherwise.
+    """
+    issues = []
+    if not os.path.isdir(MIGRATIONS_DIR):
+        return issues
+    for fname in sorted(os.listdir(MIGRATIONS_DIR)):
+        if not fname.endswith(".sql"):
+            continue
+        content = read_file(os.path.join(MIGRATIONS_DIR, fname))
+        if not content:
+            continue
+        # Strip comment lines before counting
+        non_comment = "\n".join(
+            line for line in content.splitlines()
+            if not line.strip().startswith("--")
+        )
+        create_count = len(re.findall(r'\bCREATE\s+POLICY\b', non_comment, re.IGNORECASE))
+        drop_count   = len(re.findall(r'\bDROP\s+POLICY\s+IF\s+EXISTS\b', non_comment, re.IGNORECASE))
+        if create_count > 0 and drop_count < create_count:
+            issues.append({
+                "check": "migration_policy_idempotency",
+                "source": fname,
+                "reason": (f"{fname}: {create_count} CREATE POLICY but only {drop_count} "
+                           f"DROP POLICY IF EXISTS — missing {create_count - drop_count} DROP(s); "
+                           f"add DROP POLICY IF EXISTS before each CREATE POLICY")
+            })
+    return issues
+
+
+def check_migration_grant_coverage(migrations):
+    """
+    Supabase dashboard auto-grants SELECT/INSERT/UPDATE/DELETE to anon and
+    authenticated roles when creating tables via the GUI. SQL migrations do NOT
+    auto-grant. Any table created in a migration that also has RLS enabled needs
+    explicit GRANT statements — without them, the anon role gets 401 on every
+    query regardless of what the RLS policies allow.
+    """
+    issues = []
+    if not migrations:
+        return issues
+    rls_tables = set(re.findall(
+        r'ALTER\s+TABLE\s+(?:public\.)?(\w+)\s+ENABLE\s+ROW\s+LEVEL\s+SECURITY',
+        migrations, re.IGNORECASE
+    ))
+    for table in sorted(rls_tables):
+        if not re.search(
+            rf'GRANT\s+[^;]+ON\s+(?:public\.)?{re.escape(table)}\b',
+            migrations, re.IGNORECASE
+        ):
+            issues.append({
+                "check": "migration_grant_coverage",
+                "reason": (f"Table '{table}' has RLS enabled in migrations but no GRANT statement — "
+                           f"anon/authenticated roles get 401 despite valid RLS policies; "
+                           f"add: GRANT SELECT,INSERT,UPDATE,DELETE ON {table} TO anon,authenticated")
+            })
+    return issues
 
 
 # ── Layer 1: Schema foundations ───────────────────────────────────────────────
@@ -245,19 +344,35 @@ def check_scheduled_report_idempotency(func_path):
 # ── Runner ─────────────────────────────────────────────────────────────────────
 
 CHECK_NAMES = [
+    # L0
+    "migration_index_idempotency",
+    "migration_policy_idempotency",
+    "migration_grant_coverage",
+    # L1
     "external_sync_schema",
+    # L2
     "webhook_hmac",
+    # L3
     "upsert_conflict_spec",
     "batch_idempotency",
+    # L4
     "pm_completion_dedup",
     "scheduled_report_idempotency",
 ]
 
 CHECK_LABELS = {
+    # L0
+    "migration_index_idempotency":   "L0  CREATE INDEX uses IF NOT EXISTS in all migrations",
+    "migration_policy_idempotency":  "L0  CREATE POLICY preceded by DROP POLICY IF EXISTS",
+    "migration_grant_coverage":      "L0  RLS-enabled tables have GRANT statements in migrations",
+    # L1
     "external_sync_schema":          "L1  external_sync table has UNIQUE(system_type, external_id, entity_type)",
+    # L2
     "webhook_hmac":                  "L2  Webhook handlers verify HMAC before reading payload",
+    # L3
     "upsert_conflict_spec":          "L3  Shared table upserts specify onConflict  [WARN]",
     "batch_idempotency":             "L3  Batch loop inserts on shared tables use upsert  [WARN]",
+    # L4
     "pm_completion_dedup":           "L4  pm_completions has dedup protection against double-submit  [WARN]",
     "scheduled_report_idempotency":  "L4  Scheduled ai_reports writes use upsert (pg_cron double-fire)  [WARN]",
 }
@@ -271,6 +386,9 @@ def main():
     migrations = read_all_migrations()
 
     all_issues = []
+    all_issues += check_migration_index_idempotency()
+    all_issues += check_migration_policy_idempotency()
+    all_issues += check_migration_grant_coverage(migrations)
     all_issues += check_external_sync_schema(migrations)
     all_issues += check_webhook_hmac()
     all_issues += check_upsert_conflict_spec(LIVE_PAGES, SHARED_TABLES)
