@@ -279,6 +279,7 @@
         <!-- Tabs (feed / mod queue) -->
         <div style="display:flex; border-bottom:1px solid rgba(255,255,255,0.07); margin-bottom:1rem;">
           <button class="tab-btn active" id="tab-feed" onclick="switchTab('feed')">Feed</button>
+          <button class="tab-btn" id="tab-global" onclick="switchTab('global')">🌐 Global</button>
           <button class="tab-btn" id="tab-mod" onclick="switchTab('mod')" style="display:none;">Mod Queue <span id="mod-count" style="display:none; background:rgba(239,68,68,0.2); color:#f87171; font-size:0.6rem; border-radius:999px; padding:1px 6px; margin-left:4px;"></span></button>
         </div>
 
@@ -307,6 +308,20 @@
             <button id="btn-load-more-posts" onclick="loadMorePosts()"
               style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:0.625rem; padding:0.6rem 1.25rem; font-size:0.8rem; cursor:pointer; transition:background 0.15s;">
               Load more posts
+            </button>
+          </div>
+        </div>
+
+        <!-- Global feed panel (D Phase 2 — public posts from all hives) -->
+        <div id="panel-global" style="display:none; flex-direction:column; gap:0.75rem;">
+          <p style="font-size:0.75rem; color:rgba(255,255,255,0.3); margin:0 0 0.5rem; text-align:center;">
+            Public posts from all WorkHive teams · Read-only outside your hive
+          </p>
+          <div id="global-list" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+          <div id="global-load-more" style="display:none; justify-content:center; padding:0.75rem 0;">
+            <button id="btn-load-more-global" onclick="loadMoreGlobalPosts()"
+              style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:0.625rem; padding:0.6rem 1.25rem; font-size:0.8rem; cursor:pointer;">
+              Load more
             </button>
           </div>
         </div>
@@ -439,6 +454,11 @@
   let replyCountMap       = {}; // { postId: count }
   const myPostIds         = new Set(); // post IDs authored by WORKER_NAME — for reply notifications
   let _authUid            = null; // C3: populated at init from Supabase Auth session
+  // D Phase 2: cross-hive global feed state
+  let _globalPosts        = [];
+  let _globalLastCreatedAt = null;
+  let _globalHasMore      = true;
+  let _globalLoaded       = false; // lazy load — only fetch when tab first opened
   let _lastPostCreatedAt  = null; // keyset cursor — timestamp of oldest loaded post
   let _hasMorePosts       = true;
   let _isFetchingMore     = false;
@@ -777,7 +797,7 @@
     const _rx = reactionMap[p.id] || {};
     function rxBtn(emoji, label, icon) {
       const d = _rx[emoji] || { count: 0, mine: false };
-      return `<button class="reaction-btn${d.mine ? ' active' : ''}" onclick="toggleReaction('${p.id}', '${emoji}')" aria-label="${label}">${icon} <span id="rxn-${emoji}-${escHtml(p.id)}">${d.count}</span></button>`;
+      return `<button class="reaction-btn${d.mine ? ' active' : ''}" onclick="toggleReaction('${p.id}', '${escHtml(p.hive_id)}', '${emoji}')" aria-label="${label}">${icon} <span id="rxn-${emoji}-${escHtml(p.id)}">${d.count}</span></button>`;
     }
 
     return `<div class="post-card ${catClass}${p.pinned ? ' pinned' : ''}" id="post-${escHtml(p.id)}" data-post-id="${escHtml(p.id)}" style="padding:1rem;">
@@ -840,15 +860,15 @@
     });
   }
 
-  // ── Toggle reaction ───────────────────────────────────────────────────────────
-  async function toggleReaction(postId, emoji) {
+  // ── Toggle reaction (postHiveId: the post's own hive — supports cross-hive) ──
+  async function toggleReaction(postId, postHiveId, emoji) {
     const countEl = document.getElementById(`rxn-${emoji}-${postId}`);
     const btn     = countEl?.closest('.reaction-btn');
     const isActive = btn?.classList.contains('active');
 
     if (isActive) {
       const { error } = await db.from('community_reactions')
-        .delete().eq('post_id', postId).eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).eq('emoji', emoji);
+        .delete().eq('post_id', postId).eq('hive_id', postHiveId).eq('worker_name', WORKER_NAME).eq('emoji', emoji);
       if (!error) {
         btn.classList.remove('active');
         const n = Math.max(0, parseInt(countEl?.textContent, 10) - 1);
@@ -857,7 +877,7 @@
       }
     } else {
       const { error } = await db.from('community_reactions')
-        .insert({ post_id: postId, hive_id: HIVE_ID, worker_name: WORKER_NAME, emoji });
+        .insert({ post_id: postId, hive_id: postHiveId, worker_name: WORKER_NAME, emoji });
       if (!error) {
         btn?.classList.add('active');
         const n = parseInt(countEl?.textContent, 10) + 1;
@@ -885,11 +905,14 @@
   function switchTab(tab) {
     activeTab = tab;
     document.getElementById('tab-feed').classList.toggle('active', tab === 'feed');
+    document.getElementById('tab-global').classList.toggle('active', tab === 'global');
     document.getElementById('tab-mod').classList.toggle('active', tab === 'mod');
-    document.getElementById('panel-feed').style.display    = tab === 'feed' ? 'flex' : 'none';
-    document.getElementById('panel-feed-controls').style.display = tab === 'feed' ? 'flex' : 'none';
-    document.getElementById('panel-mod').style.display     = tab === 'mod'  ? 'flex' : 'none';
+    document.getElementById('panel-feed').style.display         = tab === 'feed'   ? 'flex' : 'none';
+    document.getElementById('panel-feed-controls').style.display = tab === 'feed'   ? 'flex' : 'none';
+    document.getElementById('panel-global').style.display       = tab === 'global' ? 'flex' : 'none';
+    document.getElementById('panel-mod').style.display          = tab === 'mod'    ? 'flex' : 'none';
     if (tab === 'mod') loadModQueue();
+    if (tab === 'global' && !_globalLoaded) loadGlobalFeed();
   }
 
   // ── Mod queue (supervisor only) ───────────────────────────────────────────────
@@ -910,6 +933,101 @@
       return;
     }
     el.innerHTML = [...pinnedPosts, ...allPosts].filter(p => p.flagged).map(p => renderPostCard(p)).join('');
+  }
+
+  // ── D Phase 2: Global feed (public posts from all hives) ─────────────────────
+
+  async function loadGlobalFeed() {
+    _globalLoaded   = true;
+    _globalPosts    = [];
+    _globalLastCreatedAt = null;
+    _globalHasMore  = true;
+
+    const el = document.getElementById('global-list');
+    el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0;">Loading…</p>';
+
+    const { data, error } = await db.from('community_posts')
+      .select('id, hive_id, author_name, content, category, created_at, hives(name)')
+      .eq('public', true).eq('flagged', false)
+      .order('created_at', { ascending: false }).limit(20);
+
+    if (error || !data || data.length === 0) {
+      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0;">No public posts yet. Supervisors can make posts public from the Feed tab.</p>';
+      document.getElementById('global-load-more').style.display = 'none';
+      return;
+    }
+
+    _globalPosts = data;
+    _globalLastCreatedAt = data[data.length - 1].created_at;
+    _globalHasMore = data.length === 20;
+
+    const ids = data.map(p => p.id);
+    await loadReactions(ids);
+
+    el.innerHTML = data.map(renderGlobalPostCard).join('');
+    document.getElementById('global-load-more').style.display = _globalHasMore ? 'flex' : 'none';
+  }
+
+  async function loadMoreGlobalPosts() {
+    if (!_globalHasMore) return;
+    const btn = document.getElementById('btn-load-more-global');
+    if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
+
+    const { data } = await db.from('community_posts')
+      .select('id, hive_id, author_name, content, category, created_at, hives(name)')
+      .eq('public', true).eq('flagged', false)
+      .lt('created_at', _globalLastCreatedAt)
+      .order('created_at', { ascending: false }).limit(20);
+
+    if (data && data.length > 0) {
+      _globalLastCreatedAt = data[data.length - 1].created_at;
+      _globalPosts = [..._globalPosts, ...data];
+      await loadReactions(data.map(p => p.id));
+      document.getElementById('global-list')
+        .insertAdjacentHTML('beforeend', data.map(renderGlobalPostCard).join(''));
+      _globalHasMore = data.length === 20;
+    } else {
+      _globalHasMore = false;
+    }
+    document.getElementById('global-load-more').style.display = _globalHasMore ? 'flex' : 'none';
+    if (btn) { btn.disabled = false; btn.textContent = 'Load more'; }
+  }
+
+  function renderGlobalPostCard(p) {
+    const hiveName = p.hives?.name || 'Unknown Hive';
+    const catClass = 'cat-' + (p.category === 'announcement' ? 'announcement' : p.category);
+    const catLabel = p.category === 'announcement' ? 'Announcement'
+                   : p.category.charAt(0).toUpperCase() + p.category.slice(1);
+    const timeAgo  = formatTimeAgo(p.created_at);
+    const initials = p.author_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const _rx = reactionMap[p.id] || {};
+    function rxBtn(emoji, label, icon) {
+      const d = _rx[emoji] || { count: 0, mine: false };
+      return `<button class="reaction-btn${d.mine ? ' active' : ''}" onclick="toggleReaction('${p.id}', '${escHtml(p.hive_id)}', '${emoji}')" aria-label="${label}">${icon} <span id="rxn-${emoji}-${escHtml(p.id)}">${d.count}</span></button>`;
+    }
+    return `<div class="post-card ${catClass}" data-post-id="${escHtml(p.id)}" style="padding:1rem;">
+      <div style="display:flex; align-items:flex-start; gap:10px;">
+        <div class="avatar-initial">${escHtml(initials)}</div>
+        <div style="flex:1; min-width:0;">
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
+            <span style="font-size:0.8rem; font-weight:700;">${escHtml(p.author_name)}</span>
+            <span class="cat-badge ${catClass}">${escHtml(catLabel)}</span>
+            <span style="font-size:0.7rem; color:rgba(255,255,255,0.3); margin-left:auto;">${escHtml(timeAgo)}</span>
+          </div>
+          <p style="font-size:0.85rem; line-height:1.55; color:rgba(255,255,255,0.82); margin:0 0 0.5rem; word-break:break-word;">${escHtml(p.content)}</p>
+          <div style="font-size:0.7rem; color:rgba(255,255,255,0.25); margin-bottom:0.5rem; display:flex; align-items:center; gap:4px;">
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+            From <strong style="color:rgba(255,255,255,0.45); margin-left:2px;">${escHtml(hiveName)}</strong>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            ${rxBtn('thumbs_up','Thumbs up','👍')}
+            ${rxBtn('wrench','Wrench','🔧')}
+            ${rxBtn('fire','Fire','🔥')}
+            ${rxBtn('eyes','Eyes','👀')}
+          </div>
+        </div>
+      </div>
+    </div>`;
   }
 
   // ── Mod actions (HIVE_ROLE guard inside function — security rule) ──────────────
