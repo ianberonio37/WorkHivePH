@@ -43,6 +43,7 @@ LIVE_PAGES = [
     "engineering-design.html",
     "nav-hub.html",
     "community.html",
+    "public-feed.html",
 ]
 
 LABEL_EXEMPT_TYPES = {

@@ -44,6 +44,7 @@ LIVE_PAGES = [
     "analytics.html",
     "report-sender.html",
     "community.html",
+    "public-feed.html",
 ]
 
 HIGH_GROWTH_TABLES = ["logbook", "inventory_transactions"]

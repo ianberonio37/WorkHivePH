@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#F7A21B" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Public Feed — WorkHive</title>
+  <meta name="description" content="Public posts from WorkHive maintenance teams worldwide. See what field workers are sharing." />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
+  <style>
+    * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
+    body { background: #162032; min-height: 100vh; margin: 0; color: white; }
+
+    .aurora {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+    }
+    .aurora::before {
+      content: ''; position: absolute; top: -20%; left: -10%; width: 60%; height: 60%;
+      background: radial-gradient(ellipse, rgba(41,182,217,0.07) 0%, transparent 70%);
+      filter: blur(60px);
+    }
+    .aurora::after {
+      content: ''; position: absolute; bottom: -20%; right: -10%; width: 60%; height: 60%;
+      background: radial-gradient(ellipse, rgba(247,162,27,0.05) 0%, transparent 70%);
+      filter: blur(60px);
+    }
+    @media (max-width: 767px) { .aurora::before, .aurora::after { display: none; } }
+
+    /* Header */
+    .header {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(22,32,50,0.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 0.875rem 1.25rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .header-logo { height: 28px; width: auto; }
+    .header-title {
+      font-size: 0.875rem; font-weight: 700; color: white;
+    }
+    .header-pill {
+      background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.25);
+      color: #4ade80; font-size: 0.65rem; font-weight: 700; padding: 2px 8px;
+      border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .header-btn {
+      background: rgba(247,162,27,0.12); border: 1px solid rgba(247,162,27,0.3);
+      color: #F7A21B; font-size: 0.75rem; font-weight: 700; padding: 6px 14px;
+      border-radius: 0.5rem; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+      text-decoration: none; display: inline-block;
+    }
+    .header-btn:hover { background: rgba(247,162,27,0.22); }
+
+    /* Main layout */
+    .main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; position: relative; z-index: 1; }
+
+    .page-intro {
+      text-align: center; margin-bottom: 2rem;
+    }
+    .page-intro h1 { font-size: 1.5rem; font-weight: 800; margin: 0 0 0.5rem; }
+    .page-intro p { font-size: 0.82rem; color: rgba(255,255,255,0.4); margin: 0; }
+
+    /* Post cards */
+    .post-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+      border: 1px solid rgba(255,255,255,0.07); border-radius: 0.875rem;
+      border-left: 3px solid rgba(255,255,255,0.15);
+      padding: 1rem; margin-bottom: 0.75rem; transition: border-color 0.2s;
+    }
+    .post-card:hover { border-color: rgba(255,255,255,0.18); }
+    .post-card.cat-safety      { border-left-color: #ef4444; }
+    .post-card.cat-technical   { border-left-color: #29B6D9; }
+    .post-card.cat-announcement{ border-left-color: #c084fc; }
+
+    .post-meta {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;
+    }
+    .post-author { font-size: 0.8rem; font-weight: 700; }
+    .cat-badge {
+      display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px;
+      font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .cat-general      { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
+    .cat-safety       { background: rgba(239,68,68,0.15); color: #f87171; }
+    .cat-technical    { background: rgba(41,182,217,0.12); color: #29B6D9; }
+    .cat-announcement { background: rgba(168,85,247,0.12); color: #c084fc; }
+    .post-time { font-size: 0.7rem; color: rgba(255,255,255,0.3); margin-left: auto; }
+
+    .post-content {
+      font-size: 0.85rem; line-height: 1.55; color: rgba(255,255,255,0.82);
+      margin: 0; word-break: break-word;
+    }
+
+    /* Skeleton */
+    .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 0.5rem; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .skeleton-card { height: 90px; border-radius: 0.875rem; margin-bottom: 0.75rem; }
+
+    .empty-state {
+      text-align: center; padding: 3rem 1rem; color: rgba(255,255,255,0.3); font-size: 0.875rem;
+    }
+
+    .load-more-wrap { display: flex; justify-content: center; padding: 1rem 0; }
+    .load-more-btn {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7); border-radius: 0.625rem; padding: 0.6rem 1.5rem;
+      font-size: 0.8rem; cursor: pointer; transition: background 0.15s;
+    }
+    .load-more-btn:hover { background: rgba(255,255,255,0.1); }
+    .load-more-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+<div class="aurora"></div>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-left">
+    <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="header-logo" />
+    <span class="header-title">Public Feed</span>
+    <span class="header-pill">Read-only</span>
+  </div>
+  <a href="index.html" class="header-btn">Sign In →</a>
+</header>
+
+<!-- Main -->
+<main class="main">
+  <div class="page-intro">
+    <h1>What hives are talking about</h1>
+    <p>Public posts from WorkHive maintenance teams. Sign in to join the conversation.</p>
+  </div>
+
+  <!-- Skeleton -->
+  <div id="feed-skeleton">
+    <div class="skeleton skeleton-card"></div>
+    <div class="skeleton skeleton-card"></div>
+    <div class="skeleton skeleton-card"></div>
+  </div>
+
+  <!-- Feed -->
+  <div id="feed-list" style="display:none;"></div>
+
+  <!-- Load More -->
+  <div id="load-more-wrap" class="load-more-wrap" style="display:none;">
+    <button id="btn-load-more" class="load-more-btn" onclick="loadMore()">Load more</button>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="utils.js"></script>
+<script>
+  const _DB = supabase.createClient(
+    'https://hzyvnjtisfgbksicrouu.supabase.co',
+    'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'
+  );
+
+  const PAGE_SIZE = 20;
+  let _lastCreatedAt = null;
+  let _hasMore = true;
+  let _loading = false;
+
+  function formatTimeAgo(ts) {
+    const diff = Date.now() - new Date(ts).getTime();
+    const m = Math.floor(diff / 60000);
+    if (m < 1) return 'just now';
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ago`;
+    const d = Math.floor(h / 24);
+    if (d < 7) return `${d}d ago`;
+    return new Date(ts).toLocaleDateString();
+  }
+
+  function catClass(cat) {
+    return cat === 'announcement' ? 'cat-announcement'
+         : cat === 'safety'       ? 'cat-safety'
+         : cat === 'technical'    ? 'cat-technical'
+         : 'cat-general';
+  }
+
+  function catLabel(cat) {
+    return cat === 'announcement' ? 'Announcement'
+         : cat.charAt(0).toUpperCase() + cat.slice(1);
+  }
+
+  function renderCard(p) {
+    const cc = catClass(p.category);
+    return `<div class="post-card ${cc}">
+      <div class="post-meta">
+        <span class="post-author">${escHtml(p.author_name)}</span>
+        <span class="cat-badge ${cc}">${escHtml(catLabel(p.category))}</span>
+        <span class="post-time">${escHtml(formatTimeAgo(p.created_at))}</span>
+      </div>
+      <p class="post-content">${escHtml(p.content)}</p>
+    </div>`;
+  }
+
+  async function fetchPage() {
+    let q = _DB.from('community_posts')
+      .select('id, author_name, content, category, created_at')
+      .eq('public', true)
+      .eq('flagged', false)
+      .order('created_at', { ascending: false })
+      .limit(PAGE_SIZE);
+    if (_lastCreatedAt) q = q.lt('created_at', _lastCreatedAt);
+    return q;
+  }
+
+  async function loadInitial() {
+    const { data, error } = await fetchPage();
+    document.getElementById('feed-skeleton').style.display = 'none';
+    document.getElementById('feed-list').style.display     = 'block';
+
+    if (error || !data || data.length === 0) {
+      document.getElementById('feed-list').innerHTML =
+        '<div class="empty-state">No public posts yet. Be the first hive to share with the world!</div>';
+      return;
+    }
+
+    document.getElementById('feed-list').innerHTML = data.map(renderCard).join('');
+    if (data.length > 0) _lastCreatedAt = data[data.length - 1].created_at;
+    _hasMore = data.length === PAGE_SIZE;
+
+    const lmWrap = document.getElementById('load-more-wrap');
+    if (lmWrap) lmWrap.style.display = _hasMore ? 'flex' : 'none';
+  }
+
+  async function loadMore() {
+    if (!_hasMore || _loading) return;
+    _loading = true;
+    const btn = document.getElementById('btn-load-more');
+    if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
+
+    const { data } = await fetchPage();
+    _loading = false;
+
+    if (data && data.length > 0) {
+      _lastCreatedAt = data[data.length - 1].created_at;
+      document.getElementById('feed-list').insertAdjacentHTML('beforeend', data.map(renderCard).join(''));
+      _hasMore = data.length === PAGE_SIZE;
+    } else {
+      _hasMore = false;
+    }
+
+    const lmWrap = document.getElementById('load-more-wrap');
+    if (lmWrap) lmWrap.style.display = _hasMore ? 'flex' : 'none';
+    if (btn) { btn.disabled = false; btn.textContent = 'Load more'; }
+  }
+
+  loadInitial();
+</script>
+<script src="nav-hub.js"></script>
+</body>
+</html>

@@ -42,6 +42,7 @@ LIVE_PAGES = [
     "engineering-design.html",
     "analytics.html",
     "community.html",
+    "public-feed.html",
 ]
 
 CRITICAL_SAVES = [

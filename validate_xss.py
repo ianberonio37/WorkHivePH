@@ -55,6 +55,7 @@ LIVE_PAGES = [
     "nav-hub.js",
     "report-sender.html",
     "community.html",
+    "public-feed.html",
 ]
 
 # Pages that define escHtml themselves (don't load utils.js)

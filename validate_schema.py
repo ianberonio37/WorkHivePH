@@ -48,6 +48,7 @@ LIVE_PAGES = [
     "utils.js",
     "report-sender.html",
     "community.html",
+    "public-feed.html",
 ]
 
 RETIRED_TABLES = {"parts_records", "checklist_records"}

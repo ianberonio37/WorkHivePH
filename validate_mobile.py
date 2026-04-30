@@ -48,6 +48,7 @@ LIVE_PAGES = [
     "nav-hub.html",
     "platform-health.html",
     "community.html",
+    "public-feed.html",
 ]
 
 MIN_TOUCH_PX = 44
@@ -428,6 +429,25 @@ def check_all_pages_in_scope(live_pages):
 
 # ── Runner ─────────────────────────────────────────────────────────────────────
 
+def check_offline_banner_present():
+    """
+    Any page with an offline queue must render a visible offline indicator
+    so field workers know their entries are queued, not lost.
+    Currently only logbook.html has an offline queue.
+    """
+    content = read_file("logbook.html")
+    if not content:
+        return []
+    issues = []
+    if 'id="offline-banner"' not in content:
+        issues.append({"check": "offline_banner_present", "page": "logbook.html",
+                       "reason": "#offline-banner element missing — worker gets no feedback when offline"})
+    if "updateOfflineUI" not in content:
+        issues.append({"check": "offline_banner_present", "page": "logbook.html",
+                       "reason": "updateOfflineUI() missing — offline banner never toggled on/off"})
+    return issues
+
+
 CHECK_NAMES = [
     "viewport_fit",
     "input_font_size",
@@ -439,6 +459,7 @@ CHECK_NAMES = [
     "infinite_anim_kills",
     "animation_cascade_order",
     "pages_in_scope",
+    "offline_banner_present",
 ]
 
 CHECK_LABELS = {
@@ -452,6 +473,7 @@ CHECK_LABELS = {
     "infinite_anim_kills":     "L5  All infinite animations have mobile kill in max-width:767px block",
     "animation_cascade_order": "L5  No mobile kill overridden by later inline <style> declaration",
     "pages_in_scope":          "L6  All live pages included in mobile validation scope",
+    "offline_banner_present":  "L6  Offline-queue pages show visible offline banner",
 }
 
 
@@ -471,6 +493,7 @@ def main():
     all_issues += check_infinite_animation_kills(LIVE_PAGES)
     all_issues += check_animation_cascade_order(LIVE_PAGES)
     all_issues += check_all_pages_in_scope(LIVE_PAGES)
+    all_issues += check_offline_banner_present()
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

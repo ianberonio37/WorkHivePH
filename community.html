@@ -629,7 +629,7 @@
     const raw  = document.getElementById('search-input').value.trim();
     const safQ = raw.replace(/%/g, '\\%').replace(/_/g, '\\_');
     let q = db.from('community_posts')
-      .select('id, hive_id, author_name, content, category, pinned, flagged, created_at')
+      .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at')
       .eq('hive_id', HIVE_ID).eq('pinned', false)
       .order('created_at', { ascending: false }).limit(20);
     if (HIVE_ROLE !== 'supervisor') q = q.eq('flagged', false);
@@ -646,7 +646,7 @@
 
     const [pinnedRes, pageRes] = await Promise.all([
       db.from('community_posts')
-        .select('id, hive_id, author_name, content, category, pinned, flagged, created_at')
+        .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at')
         .eq('hive_id', HIVE_ID).eq('pinned', true)
         .order('created_at', { ascending: false }),
       _fetchPage(),
@@ -753,11 +753,15 @@
 
     const pinnedBadge  = p.pinned  ? `<span class="cat-badge badge-pinned">PINNED</span>` : '';
     const flaggedBadge = p.flagged ? `<span class="cat-badge badge-mod">FLAGGED</span>` : '';
+    const publicBadge  = p.public  ? `<span class="cat-badge" style="background:rgba(34,197,94,0.12);color:#4ade80;">PUBLIC</span>` : '';
     const catBadge     = `<span class="cat-badge ${catClass}">${escHtml(catLabel)}</span>`;
 
     const modActions = HIVE_ROLE === 'supervisor' ? `
       <button class="btn-icon" onclick="togglePin('${p.id}', ${p.pinned})" title="${p.pinned ? 'Unpin' : 'Pin'}" aria-label="${p.pinned ? 'Unpin post' : 'Pin post'}">
         <svg width="15" height="15" fill="${p.pinned ? '#F7A21B' : 'none'}" viewBox="0 0 24 24" stroke="${p.pinned ? '#F7A21B' : 'currentColor'}" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+      </button>
+      <button class="btn-icon" onclick="togglePublic('${p.id}', ${p.public})" title="${p.public ? 'Make private' : 'Make public'}" aria-label="${p.public ? 'Make post private' : 'Make post public'}">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="${p.public ? '#4ade80' : 'currentColor'}" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       </button>
       <button class="btn-icon" onclick="toggleFlag('${p.id}', ${p.flagged})" title="${p.flagged ? 'Unflag' : 'Flag'}" aria-label="${p.flagged ? 'Unflag post' : 'Flag post'}">
         <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="${p.flagged ? '#f87171' : 'currentColor'}" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>
@@ -782,7 +786,7 @@
         <div style="flex:1; min-width:0;">
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
             <span style="font-size:0.8rem; font-weight:700;">${escHtml(p.author_name)}</span>
-            ${catBadge}${pinnedBadge}${flaggedBadge}
+            ${catBadge}${pinnedBadge}${flaggedBadge}${publicBadge}
             <span style="font-size:0.7rem; color:rgba(255,255,255,0.3); margin-left:auto;">${escHtml(timeAgo)}</span>
           </div>
           <p style="font-size:0.85rem; line-height:1.55; color:rgba(255,255,255,0.82); margin:0 0 0.75rem; word-break:break-word;">${escHtml(p.content)}</p>
@@ -945,6 +949,19 @@
     _updateRenderedCard(postId); // refresh only this card if expanded
     loadModQueue();
     showToast(currentlyFlagged ? 'Post unflagged' : 'Post flagged');
+  }
+
+  async function togglePublic(postId, currentlyPublic) {
+    if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only', 'error'); return; }
+    const { error } = await db.from('community_posts')
+      .update({ public: !currentlyPublic })
+      .eq('id', postId).eq('hive_id', HIVE_ID);
+    if (error) { showToast('Could not update visibility', 'error'); return; }
+    await writeAuditLog(currentlyPublic ? 'make_post_private' : 'make_post_public', postId);
+    const post = _findPost(postId);
+    if (post) { post.public = !currentlyPublic; }
+    _updateRenderedCard(postId);
+    showToast(currentlyPublic ? 'Post is now private' : 'Post is now public 🌐');
   }
 
   async function deletePost(postId) {
