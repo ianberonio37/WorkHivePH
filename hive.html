@@ -653,8 +653,8 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let _authUid = null; // C3: populated at init from Supabase Auth session
 
 // ── IDENTITY ──
-const WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
-if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; }
+let WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+// C4: redirect deferred to async init — checks auth session first
 
 // ── MULTI-HIVE STATE ──
 // hives stored as JSON array: [{id, name, role, code}]
@@ -854,8 +854,10 @@ let _notifs = [];
 document.getElementById('nav-worker').textContent = WORKER_NAME;
 
 (async function initHive() {
-  // C3: get auth session so new records include auth_uid
+  // C4: restore identity from auth session on new device, then get auth_uid
+  if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
   try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
+  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
 
   if (HIVE_ID) {
     // Re-validate against DB: HIVE_ID in localStorage is not trusted alone

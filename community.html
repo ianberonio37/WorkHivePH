@@ -419,12 +419,12 @@
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // ── Identity (string auth — HIGH security note: spoofable until Supabase Auth migration) ──
-  const WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+  let WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
   const HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
   const HIVE_NAME   = localStorage.getItem('wh_hive_name') || '';
   const HIVE_ROLE   = localStorage.getItem('wh_hive_role') || 'worker';
 
-  if (!WORKER_NAME) { window.location.href = 'index.html'; }
+  // C4: redirects deferred to DOMContentLoaded — checks auth session first
   if (!HIVE_ID)     { window.location.href = 'hive.html'; }
 
   // ── State ─────────────────────────────────────────────────────────────────────
@@ -458,8 +458,10 @@
       document.getElementById('opt-announcement').style.display = '';
     }
 
-    // C3: get auth session so new records include auth_uid
+    // C4: restore identity from auth session on new device, then get auth_uid
+    if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
     try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
+    if (!WORKER_NAME) { window.location.href = 'index.html'; return; }
 
     renderProfileCard();
     _initObservers();

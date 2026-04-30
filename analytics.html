@@ -316,10 +316,10 @@
   const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  const WORKER_NAME = localStorage.getItem('wh_last_worker')
+  let WORKER_NAME = localStorage.getItem('wh_last_worker')
     || localStorage.getItem('wh_worker_name')
     || localStorage.getItem('workerName') || '';
-  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; }
+  // C4: redirect deferred to DOMContentLoaded — checks auth session first
 
   const HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
   const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
@@ -1770,7 +1770,10 @@
 
   // ── Kick off on page load ─────────────────────────────────────────────────
   // Runs automatically — no button click needed
-  window.addEventListener('DOMContentLoaded', () => {
+  window.addEventListener('DOMContentLoaded', async () => {
+    // C4: restore identity from auth session on new device
+    if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
+    if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
     // Set default role based on HIVE_ROLE
     setRole(_role);
     autoLoad();

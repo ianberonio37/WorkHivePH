@@ -45,6 +45,7 @@ LIVE_PAGES = [
     "analytics.html",
     "nav-hub.html",
     "floating-ai.js",
+    "utils.js",
     "report-sender.html",
     "community.html",
 ]

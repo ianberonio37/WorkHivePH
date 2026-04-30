@@ -1126,9 +1126,7 @@ let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getI
 let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
 let _authUid    = null; // C3: populated at init from Supabase Auth session
 
-if (!WORKER_NAME) {
-  window.location.href = 'index.html?signin=1';
-}
+// C4: redirect deferred to async init — checks auth session first
 
 // ── Hive membership + role re-validation ─────────────────────────────────────
 // localStorage is not a source of truth. A worker may have been removed from
@@ -4063,8 +4061,10 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
 // INIT
 // ────────────────────────────────────────────
 (async () => {
-  // C3: get auth session so new records include auth_uid
+  // C4: restore identity from auth session on new device, then get auth_uid
+  if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
   try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
+  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
 
   const isMember = await validateHiveMembership();
   if (!isMember) return; // gate is showing: stop all data loads

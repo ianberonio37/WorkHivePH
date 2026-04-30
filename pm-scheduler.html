@@ -741,7 +741,7 @@ let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getI
 let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
 let HIVE_NAME   = localStorage.getItem('wh_hive_name') || '';
 
-if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; }
+// C4: redirect deferred to async init — checks auth session first
 
 // ─────────────────────────────────────
 // PM CATEGORY SCOPE TEMPLATES
@@ -1039,7 +1039,9 @@ async function validateHiveMembership() {
 // INIT
 // ─────────────────────────────────────
 async function init() {
+  if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
   try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
+  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
   await validateHiveMembership();
   document.getElementById('nav-worker').textContent = WORKER_NAME;
 
