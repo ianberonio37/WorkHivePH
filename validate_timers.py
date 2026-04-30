@@ -50,6 +50,7 @@ LIVE_PAGES = [
     "platform-health.html",
     "nav-hub.html",
     "report-sender.html",
+    "community.html",
 ]
 
 # Event types where spawning intervals is dangerous (fires repeatedly)

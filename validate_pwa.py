@@ -46,6 +46,7 @@ LIVE_PAGES = [
     "dayplanner.html",
     "engineering-design.html",
     "nav-hub.html",
+    "community.html",
 ]
 
 APP_PAGES = [p for p in LIVE_PAGES if p != "index.html"]

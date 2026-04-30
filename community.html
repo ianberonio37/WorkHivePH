@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#F7A21B" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Community: WorkHive</title>
+  <meta name="robots" content="noindex, follow" />
+  <meta name="description" content="WorkHive Community — hive-scoped discussion board for your maintenance team. Post, reply, react, and stay connected." />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="canonical" href="https://workhiveph.com/community.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="utils.js"></script>
+  <style>
+    * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
+    body { background-color: #162032; min-height: 100vh; margin: 0; color: white; }
+
+    /* ── Aurora ── */
+    .aurora-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .aurora-bg::before {
+      content: ''; position: absolute; top: -20%; left: -10%; width: 60%; height: 60%;
+      background: radial-gradient(ellipse, rgba(41,182,217,0.08) 0%, transparent 70%);
+      filter: blur(60px);
+    }
+    .aurora-bg::after {
+      content: ''; position: absolute; bottom: -20%; right: -10%; width: 60%; height: 60%;
+      background: radial-gradient(ellipse, rgba(247,162,27,0.06) 0%, transparent 70%);
+      filter: blur(60px);
+    }
+    @media (max-width: 767px) { .aurora-bg::before, .aurora-bg::after { animation: none !important; } }
+
+    /* ── Cards & Inputs ── */
+    .wh-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.6), rgba(31,46,69,0.8));
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 1rem;
+    }
+    .wh-input {
+      width: 100%; background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.75rem; color: white; padding: 0.75rem 1rem; font-size: 1rem;
+      outline: none; transition: border-color 0.2s; -webkit-appearance: none;
+    }
+    .wh-input:focus { border-color: rgba(247,162,27,0.5); }
+    .wh-input::placeholder { color: rgba(255,255,255,0.3); }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      min-height: 44px; background: linear-gradient(135deg, #F7A21B, #FDB94A);
+      color: #162032; font-weight: 700; border-radius: 0.75rem; padding: 0.75rem 1.5rem;
+      font-size: 0.875rem; border: none; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
+    .btn-primary:active { opacity: 0.75; transform: scale(0.98); box-shadow: none; }
+    .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .btn-ghost {
+      min-height: 44px; background: transparent; color: rgba(255,255,255,0.7); font-weight: 600;
+      border-radius: 0.75rem; padding: 0.75rem 1.5rem; font-size: 0.875rem;
+      border: 1px solid rgba(255,255,255,0.15); cursor: pointer; transition: all 0.2s;
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.4); color: white; }
+    .btn-ghost:active { transform: scale(0.98); }
+
+    .btn-icon {
+      min-height: 44px; min-width: 44px; background: transparent; border: none;
+      border-radius: 0.5rem; color: rgba(255,255,255,0.4); cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: all 0.15s; padding: 0.5rem;
+    }
+    .btn-icon:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.06); }
+    .btn-icon:active { background: rgba(255,255,255,0.12); transform: scale(0.93); }
+
+    /* ── Connection dot ── */
+    .conn-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .conn-dot.live         { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.7); animation: pulse-dot 2s infinite; }
+    .conn-dot.reconnecting { background: #f59e0b; }
+    .conn-dot.offline      { background: #ef4444; }
+    @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+    @media (max-width: 767px) { .conn-dot.live { animation: none !important; } }
+
+    /* ── Presence chips ── */
+    .presence-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 999px; padding: 6px 12px; font-size: 0.75rem;
+      color: rgba(255,255,255,0.8); white-space: nowrap; flex-shrink: 0;
+    }
+    .presence-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .presence-dot.online  { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.6); }
+    .presence-dot.offline { background: rgba(255,255,255,0.2); }
+    #presence-bar::-webkit-scrollbar { display: none; }
+
+    /* ── Filter chips ── */
+    .filter-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 14px; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.5); cursor: pointer; white-space: nowrap;
+      transition: all 0.15s; min-height: 36px;
+    }
+    .filter-chip:hover { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.8); }
+    .filter-chip.active { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.4); color: #F7A21B; }
+    .filter-chip.cat-safety.active     { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: #f87171; }
+    .filter-chip.cat-technical.active  { background: rgba(41,182,217,0.12); border-color: rgba(41,182,217,0.4); color: #29B6D9; }
+    .filter-chip.cat-announce.active   { background: rgba(168,85,247,0.12); border-color: rgba(168,85,247,0.4); color: #c084fc; }
+
+    /* ── Post cards ── */
+    .post-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+      border: 1px solid rgba(255,255,255,0.07); border-radius: 0.875rem;
+      border-left-width: 3px; transition: border-color 0.2s;
+    }
+    .post-card:hover { border-color: rgba(255,255,255,0.14); }
+    .post-card.new-entry { animation: slideIn 0.3s ease; }
+    .post-card.cat-general     { border-left-color: rgba(255,255,255,0.2); }
+    .post-card.cat-safety      { border-left-color: #ef4444; }
+    .post-card.cat-technical   { border-left-color: #29B6D9; }
+    .post-card.cat-announcement{ border-left-color: #c084fc; }
+    .post-card.pinned          { border-left-color: #F7A21B; }
+    @keyframes slideIn { from { opacity:0; transform: translateY(-8px); } to { opacity:1; transform: translateY(0); } }
+
+    /* ── Category badges ── */
+    .cat-badge {
+      display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px;
+      font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .cat-general     { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
+    .cat-safety      { background: rgba(239,68,68,0.15); color: #f87171; }
+    .cat-technical   { background: rgba(41,182,217,0.12); color: #29B6D9; }
+    .cat-announcement{ background: rgba(168,85,247,0.12); color: #c084fc; }
+    .badge-pinned    { background: rgba(247,162,27,0.15); color: #F7A21B; }
+    .badge-mod       { background: rgba(239,68,68,0.12); color: #fca5a5; }
+
+    /* ── Avatar initials ── */
+    .avatar-initial {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(41,182,217,0.2); border: 1px solid rgba(41,182,217,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 700; color: #29B6D9;
+    }
+    .avatar-initial.mine { background: rgba(247,162,27,0.2); border-color: rgba(247,162,27,0.3); color: #F7A21B; }
+
+    /* ── Reaction buttons ── */
+    .reaction-btn {
+      display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px;
+      border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.15s;
+      min-height: 30px;
+    }
+    .reaction-btn:hover  { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
+    .reaction-btn.active { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.35); color: #F7A21B; }
+
+    /* ── Reply thread ── */
+    .reply-card {
+      border-left: 2px solid rgba(255,255,255,0.06); margin-left: 12px; padding-left: 14px;
+    }
+
+    /* ── Leaderboard row ── */
+    .lb-row {
+      display: flex; align-items: center; gap: 12px; padding: 0.65rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .lb-row:last-child { border-bottom: none; }
+    .lb-rank { width: 22px; text-align: center; font-size: 0.75rem; font-weight: 800; color: rgba(255,255,255,0.3); flex-shrink: 0; }
+    .lb-rank.gold   { color: #F7A21B; }
+    .lb-rank.silver { color: #94a3b8; }
+    .lb-rank.bronze { color: #b45309; }
+
+    /* ── Bottom sheet (post composer) ── */
+    .sheet-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 50;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    }
+    .sheet-overlay.open { opacity: 1; pointer-events: all; }
+    .sheet-inner {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 51;
+      background: linear-gradient(160deg, #1F2E45, #162032);
+      border-radius: 1.5rem 1.5rem 0 0; border: 1px solid rgba(255,255,255,0.08); border-bottom: none;
+      max-height: 90vh; overflow-y: auto; padding: 1.25rem 1.25rem;
+      padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
+      transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+    }
+    .sheet-overlay.open .sheet-inner { transform: translateY(0); }
+
+    /* ── Mod queue tab ── */
+    .tab-btn {
+      flex: 1; padding: 0.6rem 0.5rem; border: none; background: transparent;
+      color: rgba(255,255,255,0.4); font-size: 0.8rem; font-weight: 600;
+      border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s;
+      min-height: 44px;
+    }
+    .tab-btn.active { color: #F7A21B; border-bottom-color: #F7A21B; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: calc(80px + env(safe-area-inset-bottom)); left: 50%;
+      transform: translateX(-50%); z-index: 200; white-space: nowrap;
+      background: rgba(22,32,50,0.95); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 999px; padding: 0.6rem 1.25rem; font-size: 0.8rem;
+      display: flex; align-items: center; gap: 8px; transition: opacity 0.3s;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    #toast.hidden { opacity: 0; pointer-events: none; }
+
+    /* ── FAB (new post) ── */
+    #fab-post {
+      position: fixed; bottom: calc(24px + env(safe-area-inset-bottom)); right: 24px;
+      z-index: 40; width: 56px; height: 56px; border-radius: 50%;
+      background: linear-gradient(135deg, #F7A21B, #FDB94A); border: none;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(247,162,27,0.45); transition: all 0.2s;
+    }
+    #fab-post:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(247,162,27,0.55); }
+    #fab-post:active { transform: scale(0.95); }
+
+    /* ── Empty state ── */
+    .empty-state { text-align: center; padding: 3rem 1rem; }
+    .empty-state svg { opacity: 0.25; margin: 0 auto 1rem; display: block; }
+
+    /* ── Skeleton loader ── */
+    .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 0.5rem; }
+    @keyframes shimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+    @media (prefers-reduced-motion: reduce) { .skeleton { animation: none !important; } }
+    @media (max-width: 767px) { .skeleton { animation: none !important; } }
+
+    /* ── Desktop layout ── */
+    @media (min-width: 768px) {
+      .layout-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; align-items: start; }
+      #fab-post { bottom: 32px; right: 32px; }
+    }
+  </style>
+</head>
+<body>
+<div class="aurora-bg"></div>
+
+<!-- ── NAV ── -->
+<nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(22,32,50,0.92); border-bottom:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(12px); padding-top:env(safe-area-inset-top);">
+  <div style="max-width:900px; margin:0 auto; padding:0 1.25rem; height:56px; display:flex; align-items:center; justify-content:space-between;">
+    <a href="index.html" style="display:flex; align-items:center; gap:8px; color:rgba(255,255,255,0.4); text-decoration:none; font-size:0.875rem; transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height:28px; width:auto;" />
+    </a>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <div class="conn-dot offline" id="conn-dot"></div>
+        <span id="conn-label" style="font-size:0.7rem; color:rgba(255,255,255,0.35);">Connecting…</span>
+      </div>
+      <span id="nav-worker" style="font-size:0.75rem; color:rgba(255,255,255,0.4); max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+    </div>
+  </div>
+</nav>
+
+<!-- ── TOAST ── -->
+<div id="toast" class="hidden" role="alert" aria-live="polite">
+  <span id="toast-icon">✓</span>
+  <span id="toast-text"></span>
+</div>
+
+<!-- ── MAIN ── -->
+<main style="position:relative; z-index:10; padding-top:56px; padding-bottom:calc(5rem + env(safe-area-inset-bottom));">
+  <div style="max-width:900px; margin:0 auto; padding:1.5rem 1rem;">
+
+    <!-- Page header -->
+    <div style="margin-bottom:1.25rem;">
+      <h1 style="font-size:1.5rem; font-weight:800; margin:0 0 2px;">Community</h1>
+      <p id="hive-name-label" style="font-size:0.8rem; color:rgba(255,255,255,0.4); margin:0;">Your hive's discussion board</p>
+    </div>
+
+    <!-- Presence bar -->
+    <div id="presence-bar" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:1.25rem; scrollbar-width:none;"></div>
+
+    <!-- Layout grid (feed + sidebar on desktop) -->
+    <div class="layout-grid">
+
+      <!-- ── LEFT: Feed ── -->
+      <div>
+        <!-- Tabs (feed / mod queue) -->
+        <div style="display:flex; border-bottom:1px solid rgba(255,255,255,0.07); margin-bottom:1rem;">
+          <button class="tab-btn active" id="tab-feed" onclick="switchTab('feed')">Feed</button>
+          <button class="tab-btn" id="tab-mod" onclick="switchTab('mod')" style="display:none;">Mod Queue <span id="mod-count" style="display:none; background:rgba(239,68,68,0.2); color:#f87171; font-size:0.6rem; border-radius:999px; padding:1px 6px; margin-left:4px;"></span></button>
+        </div>
+
+        <!-- Search + filter -->
+        <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1rem;" id="panel-feed-controls">
+          <input type="text" id="search-input" class="wh-input" placeholder="Search posts…" autocomplete="off" style="font-size:1rem;" aria-label="Search posts" />
+          <div id="filter-chips" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none;">
+            <button class="filter-chip active" data-cat="all" onclick="setFilter('all')">All</button>
+            <button class="filter-chip" data-cat="general" onclick="setFilter('general')">General</button>
+            <button class="filter-chip cat-safety" data-cat="safety" onclick="setFilter('safety')">Safety</button>
+            <button class="filter-chip cat-technical" data-cat="technical" onclick="setFilter('technical')">Technical</button>
+            <button class="filter-chip cat-announce" data-cat="announcement" onclick="setFilter('announcement')">Announcements</button>
+          </div>
+        </div>
+
+        <!-- Feed panel -->
+        <div id="panel-feed">
+          <!-- Skeleton while loading -->
+          <div id="feed-skeleton" style="display:flex; flex-direction:column; gap:0.75rem;">
+            <div style="height:90px; border-radius:0.875rem;" class="skeleton"></div>
+            <div style="height:90px; border-radius:0.875rem;" class="skeleton"></div>
+            <div style="height:90px; border-radius:0.875rem;" class="skeleton"></div>
+          </div>
+          <div id="feed-list" style="display:none; display:flex; flex-direction:column; gap:0.75rem;"></div>
+        </div>
+
+        <!-- Mod queue panel (supervisor only) -->
+        <div id="panel-mod" style="display:none; flex-direction:column; gap:0.75rem;">
+          <div id="mod-list"></div>
+        </div>
+      </div>
+
+      <!-- ── RIGHT: Sidebar (leaderboard + profile) ── -->
+      <div>
+        <!-- My profile card -->
+        <div class="wh-card" style="padding:1.25rem; margin-bottom:1rem;" id="profile-card">
+          <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.35); margin:0 0 0.75rem;">Your Profile</p>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div class="avatar-initial mine" id="profile-avatar" style="width:44px; height:44px; font-size:1rem;"></div>
+            <div style="flex:1; min-width:0;">
+              <p id="profile-name" style="font-size:0.9rem; font-weight:700; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></p>
+              <p id="profile-role" style="font-size:0.7rem; color:rgba(255,255,255,0.4); margin:0; text-transform:capitalize;"></p>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:1rem;">
+            <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:0.625rem; padding:0.75rem; text-align:center;">
+              <p id="profile-posts" style="font-size:1.25rem; font-weight:800; margin:0; color:#F7A21B;">—</p>
+              <p style="font-size:0.65rem; color:rgba(255,255,255,0.4); margin:0; margin-top:2px;">Posts</p>
+            </div>
+            <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:0.625rem; padding:0.75rem; text-align:center;">
+              <p id="profile-xp" style="font-size:1.25rem; font-weight:800; margin:0; color:#29B6D9;">—</p>
+              <p style="font-size:0.65rem; color:rgba(255,255,255,0.4); margin:0; margin-top:2px;">XP</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="wh-card" style="padding:1.25rem;" id="leaderboard-card">
+          <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.35); margin:0 0 0.75rem;">Top Contributors</p>
+          <div id="leaderboard-list">
+            <div style="height:16px; width:80%; border-radius:4px;" class="skeleton"></div>
+            <div style="height:16px; width:70%; border-radius:4px; margin-top:10px;" class="skeleton"></div>
+            <div style="height:16px; width:60%; border-radius:4px; margin-top:10px;" class="skeleton"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- ── FAB: New Post ── -->
+<button id="fab-post" aria-label="Write a new post" onclick="openComposer()">
+  <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#162032" stroke-width="2.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+  </svg>
+</button>
+
+<!-- ── SHEET: Post Composer ── -->
+<div id="composer-overlay" class="sheet-overlay" role="dialog" aria-modal="true" aria-labelledby="composer-title">
+  <div class="sheet-inner" id="composer-sheet">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
+      <h2 id="composer-title" style="font-size:1rem; font-weight:800; margin:0;">New Post</h2>
+      <button class="btn-icon" onclick="closeComposer()" aria-label="Close">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.4); margin-bottom:6px;">Category</label>
+    <select id="post-category" class="wh-input" style="margin-bottom:1rem; cursor:pointer;" aria-label="Post category">
+      <option value="general">General</option>
+      <option value="safety">Safety</option>
+      <option value="technical">Technical</option>
+      <option value="announcement" id="opt-announcement" style="display:none;">Announcement (Supervisor only)</option>
+    </select>
+
+    <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.4); margin-bottom:6px;">Message</label>
+    <textarea id="post-content" class="wh-input" rows="4" placeholder="What's on your mind? Share a tip, ask a question, flag a safety concern…" maxlength="2000" aria-label="Post content" style="resize:vertical; min-height:100px;"></textarea>
+    <p id="post-char-count" style="text-align:right; font-size:0.7rem; color:rgba(255,255,255,0.3); margin:4px 0 1rem;">0 / 2000</p>
+
+    <button id="btn-submit-post" class="btn-primary" style="width:100%;" onclick="submitPost()">Post to Hive</button>
+  </div>
+</div>
+
+<!-- ── SHEET: Thread (post + replies) ── -->
+<div id="thread-overlay" class="sheet-overlay" role="dialog" aria-modal="true" aria-labelledby="thread-title">
+  <div class="sheet-inner" id="thread-sheet">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+      <h2 id="thread-title" style="font-size:1rem; font-weight:800; margin:0;">Thread</h2>
+      <button class="btn-icon" onclick="closeThread()" aria-label="Close thread">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div id="thread-post"></div>
+    <div id="thread-replies" style="margin-top:1rem; display:flex; flex-direction:column; gap:0.5rem;"></div>
+    <div style="margin-top:1rem; display:flex; gap:8px; align-items:flex-start;">
+      <textarea id="reply-content" class="wh-input" rows="2" placeholder="Write a reply…" maxlength="1000" aria-label="Reply content" style="resize:none;"></textarea>
+      <button id="btn-submit-reply" class="btn-primary" style="min-width:80px; padding:0.75rem 1rem;" onclick="submitReply()">Reply</button>
+    </div>
+  </div>
+</div>
+
+<!-- Elements must be before the script block -->
+<script>
+  'use strict';
+
+  // ── Supabase ──────────────────────────────────────────────────────────────────
+  const SUPABASE_URL  = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6eXZuanRpc2Zna3NpY3JvdXUiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc0MzMxNjM5OCwiZXhwIjoyMDU4ODkyMzk4fQ.iFRgDpRLNSFGe6lhfhOmHXFSz2YRf6PwHCCZ3GzJYiI';
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  // ── Identity (string auth — HIGH security note: spoofable until Supabase Auth migration) ──
+  const WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+  const HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
+  const HIVE_NAME   = localStorage.getItem('wh_hive_name') || '';
+  const HIVE_ROLE   = localStorage.getItem('wh_hive_role') || 'worker';
+
+  if (!WORKER_NAME) { window.location.href = 'index.html'; }
+  if (!HIVE_ID)     { window.location.href = 'hive.html'; }
+
+  // ── State ─────────────────────────────────────────────────────────────────────
+  let allPosts       = [];
+  let activeFilter   = 'all';
+  let activeTab      = 'feed';
+  let activeThreadId = null;
+  let presenceChannel, feedChannel;
+  let replyingToPostId = null;
+
+  // ── Init ──────────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', async () => {
+    document.getElementById('nav-worker').textContent = WORKER_NAME;
+    document.getElementById('hive-name-label').textContent = HIVE_NAME ? HIVE_NAME + ' · Discussion Board' : 'Your hive\'s discussion board';
+
+    if (HIVE_ROLE === 'supervisor') {
+      document.getElementById('tab-mod').style.display = 'block';
+      document.getElementById('opt-announcement').style.display = '';
+    }
+
+    renderProfileCard();
+    startPresence();
+    startFeedChannel();
+    await Promise.all([loadPosts(), loadLeaderboard(), loadProfileStats()]);
+  });
+
+  // ── Profile card ──────────────────────────────────────────────────────────────
+  function renderProfileCard() {
+    const initials = WORKER_NAME.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    document.getElementById('profile-avatar').textContent = initials;
+    document.getElementById('profile-name').textContent   = WORKER_NAME;
+    document.getElementById('profile-role').textContent   = HIVE_ROLE;
+  }
+
+  async function loadProfileStats() {
+    const [postsRes, xpRes] = await Promise.all([
+      db.from('community_posts').select('id', { count: 'exact', head: true })
+        .eq('hive_id', HIVE_ID).eq('author_name', WORKER_NAME),
+      db.from('skill_profiles').select('xp_total').eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).maybeSingle(),
+    ]);
+    if (!postsRes.error) document.getElementById('profile-posts').textContent = postsRes.count ?? 0;
+    if (!xpRes.error && xpRes.data) document.getElementById('profile-xp').textContent = xpRes.data.xp_total ?? 0;
+    else document.getElementById('profile-xp').textContent = '—';
+  }
+
+  // ── Leaderboard ───────────────────────────────────────────────────────────────
+  async function loadLeaderboard() {
+    const el = document.getElementById('leaderboard-list');
+    const { data, error } = await db.from('skill_profiles')
+      .select('worker_name, xp_total')
+      .eq('hive_id', HIVE_ID)
+      .order('xp_total', { ascending: false })
+      .limit(10);
+
+    if (error || !data || data.length === 0) {
+      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0;">No XP data yet.</p>';
+      return;
+    }
+    el.innerHTML = data.map((row, i) => {
+      const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+      const rankIcon  = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+      const initials  = row.worker_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      const isMine    = row.worker_name === WORKER_NAME;
+      return `<div class="lb-row">
+        <div class="lb-rank ${rankClass}">${rankIcon}</div>
+        <div class="avatar-initial${isMine ? ' mine' : ''}" style="width:28px; height:28px; font-size:0.65rem;">${escHtml(initials)}</div>
+        <div style="flex:1; min-width:0;">
+          <p style="font-size:0.8rem; font-weight:${isMine ? '700' : '500'}; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:${isMine ? '#F7A21B' : 'white'};">${escHtml(row.worker_name)}</p>
+        </div>
+        <div style="font-size:0.75rem; font-weight:700; color:rgba(255,255,255,0.5);">${row.xp_total ?? 0} XP</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Load posts ────────────────────────────────────────────────────────────────
+  async function loadPosts() {
+    const { data, error } = await db.from('community_posts')
+      .select('*')
+      .eq('hive_id', HIVE_ID)
+      .order('pinned', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    document.getElementById('feed-skeleton').style.display = 'none';
+    document.getElementById('feed-list').style.display = 'flex';
+
+    if (error) {
+      showToast('Could not load posts', 'error');
+      return;
+    }
+    allPosts = data || [];
+    renderFeed();
+    loadModQueue();
+  }
+
+  // ── Render feed (filtered) ────────────────────────────────────────────────────
+  function renderFeed() {
+    const query   = document.getElementById('search-input').value.toLowerCase().trim();
+    const el      = document.getElementById('feed-list');
+    let   posts   = allPosts.filter(p => !p.flagged || HIVE_ROLE === 'supervisor');
+
+    if (activeFilter !== 'all') posts = posts.filter(p => p.category === activeFilter);
+    if (query) posts = posts.filter(p =>
+      p.content.toLowerCase().includes(query) || p.author_name.toLowerCase().includes(query)
+    );
+
+    if (posts.length === 0) {
+      el.innerHTML = `<div class="empty-state">
+        <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+        <p style="color:rgba(255,255,255,0.4); font-size:0.875rem;">No posts yet. Be the first to post in your hive!</p>
+      </div>`;
+      return;
+    }
+    el.innerHTML = posts.map(p => renderPostCard(p)).join('');
+  }
+
+  // ── Post card HTML ────────────────────────────────────────────────────────────
+  function renderPostCard(p) {
+    const initials  = p.author_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const isMine    = p.author_name === WORKER_NAME;
+    const timeAgo   = formatTimeAgo(p.created_at);
+    const catLabel  = p.category === 'announcement' ? 'Announcement' : p.category.charAt(0).toUpperCase() + p.category.slice(1);
+    const catClass  = 'cat-' + (p.category === 'announcement' ? 'announcement' : p.category);
+
+    const pinnedBadge  = p.pinned  ? `<span class="cat-badge badge-pinned">PINNED</span>` : '';
+    const flaggedBadge = p.flagged ? `<span class="cat-badge badge-mod">FLAGGED</span>` : '';
+    const catBadge     = `<span class="cat-badge ${catClass}">${escHtml(catLabel)}</span>`;
+
+    const modActions = HIVE_ROLE === 'supervisor' ? `
+      <button class="btn-icon" onclick="togglePin('${p.id}', ${p.pinned})" title="${p.pinned ? 'Unpin' : 'Pin'}" aria-label="${p.pinned ? 'Unpin post' : 'Pin post'}">
+        <svg width="15" height="15" fill="${p.pinned ? '#F7A21B' : 'none'}" viewBox="0 0 24 24" stroke="${p.pinned ? '#F7A21B' : 'currentColor'}" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+      </button>
+      <button class="btn-icon" onclick="toggleFlag('${p.id}', ${p.flagged})" title="${p.flagged ? 'Unflag' : 'Flag'}" aria-label="${p.flagged ? 'Unflag post' : 'Flag post'}">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="${p.flagged ? '#f87171' : 'currentColor'}" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>
+      </button>
+      <button class="btn-icon" onclick="deletePost('${p.id}')" title="Delete post" aria-label="Delete post">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#ef4444" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+      </button>` : (isMine ? `
+      <button class="btn-icon" onclick="deletePost('${p.id}')" title="Delete post" aria-label="Delete my post">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#ef4444" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+      </button>` : '');
+
+    return `<div class="post-card ${catClass}${p.pinned ? ' pinned' : ''}" id="post-${escHtml(p.id)}" style="padding:1rem;">
+      <div style="display:flex; align-items:flex-start; gap:10px;">
+        <div class="avatar-initial${isMine ? ' mine' : ''}">${escHtml(initials)}</div>
+        <div style="flex:1; min-width:0;">
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
+            <span style="font-size:0.8rem; font-weight:700;">${escHtml(p.author_name)}</span>
+            ${catBadge}${pinnedBadge}${flaggedBadge}
+            <span style="font-size:0.7rem; color:rgba(255,255,255,0.3); margin-left:auto;">${escHtml(timeAgo)}</span>
+          </div>
+          <p style="font-size:0.85rem; line-height:1.55; color:rgba(255,255,255,0.82); margin:0 0 0.75rem; word-break:break-word;">${escHtml(p.content)}</p>
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <button class="reaction-btn" onclick="toggleReaction('${p.id}', 'thumbs_up')" aria-label="Thumbs up">👍 <span id="rxn-thumbs_up-${escHtml(p.id)}">0</span></button>
+            <button class="reaction-btn" onclick="toggleReaction('${p.id}', 'wrench')" aria-label="Wrench">🔧 <span id="rxn-wrench-${escHtml(p.id)}">0</span></button>
+            <button class="reaction-btn" onclick="toggleReaction('${p.id}', 'fire')" aria-label="Fire">🔥 <span id="rxn-fire-${escHtml(p.id)}">0</span></button>
+            <button class="reaction-btn" onclick="toggleReaction('${p.id}', 'eyes')" aria-label="Eyes">👀 <span id="rxn-eyes-${escHtml(p.id)}">0</span></button>
+            <button class="btn-icon" style="margin-left:auto;" onclick="openThread('${p.id}')" aria-label="Open thread and reply">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            </button>
+            <div style="display:flex; gap:4px; align-items:center;">${modActions}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Load reactions for rendered posts
+  async function loadReactions(postIds) {
+    if (!postIds.length) return;
+    const { data } = await db.from('community_reactions').select('post_id, emoji, worker_name').eq('hive_id', HIVE_ID).in('post_id', postIds);
+    if (!data) return;
+    const counts = {};
+    data.forEach(r => {
+      const key = `${r.post_id}:${r.emoji}`;
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    ['thumbs_up','wrench','fire','eyes'].forEach(emoji => {
+      postIds.forEach(pid => {
+        const el = document.getElementById(`rxn-${emoji}-${pid}`);
+        if (el) el.textContent = counts[`${pid}:${emoji}`] || 0;
+        const btn = el?.closest('.reaction-btn');
+        const myReaction = data.find(r => r.post_id === pid && r.emoji === emoji && r.worker_name === WORKER_NAME);
+        if (btn && myReaction) btn.classList.add('active');
+      });
+    });
+  }
+
+  // ── Toggle reaction ───────────────────────────────────────────────────────────
+  async function toggleReaction(postId, emoji) {
+    const countEl = document.getElementById(`rxn-${emoji}-${postId}`);
+    const btn     = countEl?.closest('.reaction-btn');
+    const isActive = btn?.classList.contains('active');
+
+    if (isActive) {
+      const { error } = await db.from('community_reactions')
+        .delete().eq('post_id', postId).eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).eq('emoji', emoji);
+      if (!error) {
+        btn.classList.remove('active');
+        if (countEl) countEl.textContent = Math.max(0, parseInt(countEl.textContent, 10) - 1);
+      }
+    } else {
+      const { error } = await db.from('community_reactions')
+        .insert({ post_id: postId, hive_id: HIVE_ID, worker_name: WORKER_NAME, emoji });
+      if (!error) {
+        btn?.classList.add('active');
+        if (countEl) countEl.textContent = parseInt(countEl.textContent, 10) + 1;
+      }
+    }
+  }
+
+  // ── Filter & search ───────────────────────────────────────────────────────────
+  function setFilter(cat) {
+    activeFilter = cat;
+    document.querySelectorAll('.filter-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.cat === cat);
+    });
+    renderFeed();
+  }
+
+  const searchInput = document.getElementById('search-input');
+  searchInput.addEventListener('input', debounce(() => renderFeed(), 250));
+
+  // ── Tabs ──────────────────────────────────────────────────────────────────────
+  function switchTab(tab) {
+    activeTab = tab;
+    document.getElementById('tab-feed').classList.toggle('active', tab === 'feed');
+    document.getElementById('tab-mod').classList.toggle('active', tab === 'mod');
+    document.getElementById('panel-feed').style.display    = tab === 'feed' ? 'flex' : 'none';
+    document.getElementById('panel-feed-controls').style.display = tab === 'feed' ? 'flex' : 'none';
+    document.getElementById('panel-mod').style.display     = tab === 'mod'  ? 'flex' : 'none';
+    if (tab === 'mod') loadModQueue();
+  }
+
+  // ── Mod queue (supervisor only) ───────────────────────────────────────────────
+  async function loadModQueue() {
+    if (HIVE_ROLE !== 'supervisor') return;
+    const flagged = allPosts.filter(p => p.flagged);
+    const countEl = document.getElementById('mod-count');
+    if (flagged.length > 0) {
+      countEl.textContent = flagged.length;
+      countEl.style.display = 'inline';
+    } else {
+      countEl.style.display = 'none';
+    }
+    if (activeTab !== 'mod') return;
+    const el = document.getElementById('mod-list');
+    if (flagged.length === 0) {
+      el.innerHTML = '<div class="empty-state"><p style="color:rgba(255,255,255,0.4); font-size:0.875rem;">No flagged posts.</p></div>';
+      return;
+    }
+    el.innerHTML = flagged.map(p => renderPostCard(p)).join('');
+  }
+
+  // ── Mod actions (HIVE_ROLE guard inside function — security rule) ──────────────
+  async function togglePin(postId, currentlyPinned) {
+    if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only', 'error'); return; }
+    const { error } = await db.from('community_posts')
+      .update({ pinned: !currentlyPinned })
+      .eq('id', postId).eq('hive_id', HIVE_ID);
+    if (error) { showToast('Could not update pin', 'error'); return; }
+    await writeAuditLog(currentlyPinned ? 'unpin_post' : 'pin_post', postId);
+    const idx = allPosts.findIndex(p => p.id === postId);
+    if (idx !== -1) allPosts[idx].pinned = !currentlyPinned;
+    renderFeed();
+    showToast(currentlyPinned ? 'Post unpinned' : 'Post pinned');
+  }
+
+  async function toggleFlag(postId, currentlyFlagged) {
+    if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only', 'error'); return; }
+    const { error } = await db.from('community_posts')
+      .update({ flagged: !currentlyFlagged })
+      .eq('id', postId).eq('hive_id', HIVE_ID);
+    if (error) { showToast('Could not update flag', 'error'); return; }
+    await writeAuditLog(currentlyFlagged ? 'unflag_post' : 'flag_post', postId);
+    const idx = allPosts.findIndex(p => p.id === postId);
+    if (idx !== -1) allPosts[idx].flagged = !currentlyFlagged;
+    renderFeed();
+    loadModQueue();
+    showToast(currentlyFlagged ? 'Post unflagged' : 'Post flagged');
+  }
+
+  async function deletePost(postId) {
+    const post = allPosts.find(p => p.id === postId);
+    if (!post) return;
+    if (HIVE_ROLE !== 'supervisor' && post.author_name !== WORKER_NAME) {
+      showToast('Cannot delete another worker\'s post', 'error'); return;
+    }
+    const { error } = await db.from('community_posts')
+      .delete().eq('id', postId).eq('hive_id', HIVE_ID);
+    if (error) { showToast('Could not delete post', 'error'); return; }
+    if (HIVE_ROLE === 'supervisor') await writeAuditLog('delete_post', postId);
+    allPosts = allPosts.filter(p => p.id !== postId);
+    renderFeed();
+    if (activeThreadId === postId) closeThread();
+    showToast('Post deleted');
+  }
+
+  // ── Post composer ─────────────────────────────────────────────────────────────
+  function openComposer() {
+    document.getElementById('post-content').value = '';
+    document.getElementById('post-char-count').textContent = '0 / 2000';
+    document.getElementById('post-category').value = 'general';
+    document.getElementById('composer-overlay').classList.add('open');
+  }
+
+  function closeComposer() {
+    document.getElementById('composer-overlay').classList.remove('open');
+  }
+
+  document.getElementById('post-content').addEventListener('input', function () {
+    document.getElementById('post-char-count').textContent = `${this.value.length} / 2000`;
+  });
+
+  document.getElementById('composer-overlay').addEventListener('click', function (e) {
+    if (e.target === this) closeComposer();
+  });
+
+  async function submitPost() {
+    const content  = document.getElementById('post-content').value.trim();
+    const category = document.getElementById('post-category').value;
+    const btn      = document.getElementById('btn-submit-post');
+
+    if (!content) { showToast('Write something first', 'error'); return; }
+
+    if (category === 'announcement' && HIVE_ROLE !== 'supervisor') {
+      showToast('Supervisors only can post announcements', 'error'); return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Posting…';
+
+    const { data, error } = await db.from('community_posts')
+      .insert({ hive_id: HIVE_ID, author_name: WORKER_NAME, content, category })
+      .select().single();
+
+    btn.disabled = false;
+    btn.textContent = 'Post to Hive';
+
+    if (error) { showToast('Could not post. Try again.', 'error'); return; }
+
+    allPosts.unshift(data);
+    renderFeed();
+    closeComposer();
+    showToast('Posted!');
+    loadProfileStats();
+  }
+
+  // ── Thread view ───────────────────────────────────────────────────────────────
+  async function openThread(postId) {
+    activeThreadId = postId;
+    const post = allPosts.find(p => p.id === postId);
+    if (!post) return;
+
+    document.getElementById('thread-title').textContent = 'Thread';
+    document.getElementById('thread-post').innerHTML = renderPostCard(post);
+    document.getElementById('thread-replies').innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.3);">Loading replies…</p>';
+    document.getElementById('reply-content').value = '';
+    document.getElementById('thread-overlay').classList.add('open');
+
+    replyingToPostId = postId;
+    await loadReplies(postId);
+    await loadReactions([postId]);
+  }
+
+  function closeThread() {
+    document.getElementById('thread-overlay').classList.remove('open');
+    activeThreadId = null;
+    replyingToPostId = null;
+  }
+
+  document.getElementById('thread-overlay').addEventListener('click', function (e) {
+    if (e.target === this) closeThread();
+  });
+
+  async function loadReplies(postId) {
+    const { data, error } = await db.from('community_replies')
+      .select('*').eq('post_id', postId).eq('hive_id', HIVE_ID)
+      .order('created_at', { ascending: true }).limit(200);
+
+    const el = document.getElementById('thread-replies');
+    if (error) { el.innerHTML = '<p style="color:rgba(239,68,68,0.7); font-size:0.78rem;">Could not load replies.</p>'; return; }
+    if (!data || data.length === 0) {
+      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.3);">No replies yet. Start the conversation.</p>';
+      return;
+    }
+    el.innerHTML = data.map(r => {
+      const initials = r.author_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      const isMine   = r.author_name === WORKER_NAME;
+      return `<div class="reply-card">
+        <div style="display:flex; align-items:flex-start; gap:8px;">
+          <div class="avatar-initial${isMine ? ' mine' : ''}" style="width:26px; height:26px; font-size:0.6rem;">${escHtml(initials)}</div>
+          <div style="flex:1; min-width:0;">
+            <div style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
+              <span style="font-size:0.75rem; font-weight:700;">${escHtml(r.author_name)}</span>
+              <span style="font-size:0.65rem; color:rgba(255,255,255,0.3);">${escHtml(formatTimeAgo(r.created_at))}</span>
+            </div>
+            <p style="font-size:0.82rem; line-height:1.5; color:rgba(255,255,255,0.78); margin:0; word-break:break-word;">${escHtml(r.content)}</p>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  async function submitReply() {
+    const content = document.getElementById('reply-content').value.trim();
+    const btn     = document.getElementById('btn-submit-reply');
+    if (!content || !replyingToPostId) { showToast('Write something first', 'error'); return; }
+
+    btn.disabled = true;
+    const { error } = await db.from('community_replies')
+      .insert({ post_id: replyingToPostId, hive_id: HIVE_ID, author_name: WORKER_NAME, content });
+    btn.disabled = false;
+
+    if (error) { showToast('Could not post reply', 'error'); return; }
+    document.getElementById('reply-content').value = '';
+    await loadReplies(replyingToPostId);
+    showToast('Reply posted');
+  }
+
+  // ── Realtime: presence ────────────────────────────────────────────────────────
+  function startPresence() {
+    let connTimeout = setTimeout(() => setConn('offline'), 8000);
+
+    presenceChannel = db.channel('hive-community-presence:' + HIVE_ID, {
+      config: { presence: { key: WORKER_NAME } }
+    });
+
+    presenceChannel
+      .on('presence', { event: 'sync' }, renderPresence)
+      .subscribe(async (status) => {
+        clearTimeout(connTimeout);
+        if (status === 'SUBSCRIBED') {
+          setConn('live');
+          await presenceChannel.track({ worker_name: WORKER_NAME, at: Date.now() });
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          setConn('offline');
+        }
+      });
+  }
+
+  function renderPresence() {
+    const state   = presenceChannel.presenceState();
+    const members = Object.values(state).flat();
+    const bar     = document.getElementById('presence-bar');
+    if (members.length === 0) { bar.innerHTML = ''; return; }
+    bar.innerHTML = members.map(m => {
+      const initials = m.worker_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      return `<div class="presence-chip">
+        <div class="presence-dot online"></div>
+        <div style="width:20px; height:20px; border-radius:50%; background:rgba(41,182,217,0.2); border:1px solid rgba(41,182,217,0.3); display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:700; color:#29B6D9; flex-shrink:0;">${escHtml(initials)}</div>
+        <span>${escHtml(m.worker_name)}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Realtime: live feed ───────────────────────────────────────────────────────
+  function startFeedChannel() {
+    feedChannel = db.channel('hive-community-feed:' + HIVE_ID)
+      .on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'community_posts',
+        filter: `hive_id=eq.${HIVE_ID}`
+      }, (payload) => {
+        if (allPosts.find(p => p.id === payload.new.id)) return;
+        allPosts.unshift(payload.new);
+        renderFeed();
+        if (payload.new.author_name !== WORKER_NAME) {
+          showToast(`${payload.new.author_name} posted in the hive`);
+        }
+      })
+      .on('postgres_changes', {
+        event: 'UPDATE', schema: 'public', table: 'community_posts',
+        filter: `hive_id=eq.${HIVE_ID}`
+      }, (payload) => {
+        const idx = allPosts.findIndex(p => p.id === payload.new.id);
+        if (idx !== -1) allPosts[idx] = payload.new;
+        renderFeed();
+      })
+      .on('postgres_changes', {
+        event: 'DELETE', schema: 'public', table: 'community_posts'
+      }, (payload) => {
+        allPosts = allPosts.filter(p => p.id !== payload.old.id);
+        renderFeed();
+      })
+      .subscribe();
+  }
+
+  function setConn(state) {
+    const dot   = document.getElementById('conn-dot');
+    const label = document.getElementById('conn-label');
+    dot.className   = 'conn-dot ' + state;
+    label.textContent = state === 'live' ? 'Live' : state === 'reconnecting' ? 'Reconnecting…' : 'Offline';
+  }
+
+  // ── Audit log ─────────────────────────────────────────────────────────────────
+  async function writeAuditLog(action, targetId) {
+    try {
+      const { error: _auditErr } = await db.from('hive_audit_log').insert({
+        hive_id: HIVE_ID,
+        actor:   WORKER_NAME,
+        action,
+        meta:    { target_id: targetId, page: 'community' }
+      });
+    } catch (_) {}
+  }
+
+  // ── Toast ─────────────────────────────────────────────────────────────────────
+  function showToast(message, type = 'success') {
+    const toast  = document.getElementById('toast');
+    const text   = document.getElementById('toast-text');
+    const icon   = document.getElementById('toast-icon');
+    if (!toast || !text) return;
+    text.textContent = message;
+    icon.textContent = type === 'error' ? '✕' : '✓';
+    toast.style.borderColor = type === 'error' ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.12)';
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 3500);
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────────
+  function formatTimeAgo(ts) {
+    const diff = Date.now() - new Date(ts).getTime();
+    const m = Math.floor(diff / 60000);
+    if (m < 1)   return 'just now';
+    if (m < 60)  return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24)  return `${h}h ago`;
+    const d = Math.floor(h / 24);
+    if (d < 7)   return `${d}d ago`;
+    return new Date(ts).toLocaleDateString();
+  }
+
+  // ── Load reactions after first render ─────────────────────────────────────────
+  const _origRenderFeed = renderFeed;
+  async function renderFeedAndReactions() {
+    _origRenderFeed();
+    const ids = allPosts.map(p => p.id);
+    if (ids.length) await loadReactions(ids);
+  }
+  // Override to auto-load reactions after render
+  window.renderFeed = renderFeedAndReactions;
+
+  // ── Cleanup ───────────────────────────────────────────────────────────────────
+  window.addEventListener('beforeunload', () => {
+    if (presenceChannel) db.removeChannel(presenceChannel);
+    if (feedChannel)     db.removeChannel(feedChannel);
+  });
+</script>
+
+<script src="nav-hub.js"></script>
+</body>
+</html>

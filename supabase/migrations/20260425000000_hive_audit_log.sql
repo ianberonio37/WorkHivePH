@@ -14,5 +14,5 @@ CREATE TABLE IF NOT EXISTS hive_audit_log (
   created_at  timestamptz DEFAULT now() NOT NULL
 );
 
-CREATE INDEX idx_hive_audit_log_hive_created
+CREATE INDEX IF NOT EXISTS idx_hive_audit_log_hive_created
   ON hive_audit_log (hive_id, created_at DESC);

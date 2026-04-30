@@ -150,6 +150,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "community",
+        "script":  "validate_community.py",
+        "args":    [],
+        "label":   "Community Validator (20 checks: XSS + isolation + access + realtime + standards)",
+        "group":   "Platform",
+        "report":  "community_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "assistant",
         "script":  "validate_assistant.py",
         "args":    [],

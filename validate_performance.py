@@ -43,6 +43,7 @@ LIVE_PAGES = [
     "engineering-design.html",
     "analytics.html",
     "report-sender.html",
+    "community.html",
 ]
 
 HIGH_GROWTH_TABLES = ["logbook", "inventory_transactions"]

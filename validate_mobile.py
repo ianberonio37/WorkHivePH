@@ -47,6 +47,7 @@ LIVE_PAGES = [
     "analytics.html",
     "nav-hub.html",
     "platform-health.html",
+    "community.html",
 ]
 
 MIN_TOUCH_PX = 44

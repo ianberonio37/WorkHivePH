@@ -41,6 +41,7 @@ LIVE_PAGES = [
     "dayplanner.html",
     "engineering-design.html",
     "analytics.html",
+    "community.html",
 ]
 
 CRITICAL_SAVES = [

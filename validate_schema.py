@@ -46,6 +46,7 @@ LIVE_PAGES = [
     "nav-hub.html",
     "floating-ai.js",
     "report-sender.html",
+    "community.html",
 ]
 
 RETIRED_TABLES = {"parts_records", "checklist_records"}
@@ -56,6 +57,7 @@ CORE_TABLES = {
     "report_contacts", "ai_reports", "automation_log",
     "skill_profiles", "skill_badges", "skill_exam_attempts", "schedule_items",
     "engineering_calcs",
+    "community_posts", "community_replies", "community_reactions",
 }
 
 DATE_FIELDS = [

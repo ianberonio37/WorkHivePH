@@ -34,6 +34,7 @@ LIVE_PAGES = [
     "hive.html", "assistant.html", "skillmatrix.html",
     "dayplanner.html", "engineering-design.html", "index.html",
     "platform-health.html", "floating-ai.js", "nav-hub.js",
+    "community.html",
 ]
 
 ALLOWED_DOMAINS = {

@@ -42,6 +42,7 @@ LIVE_PAGES = [
     "dayplanner.html",
     "engineering-design.html",
     "nav-hub.html",
+    "community.html",
 ]
 
 LABEL_EXEMPT_TYPES = {

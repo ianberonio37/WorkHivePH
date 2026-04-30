@@ -14,11 +14,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_early_access_email
 -- Allow anon inserts from the landing page (no auth required)
 ALTER TABLE early_access_emails ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "anon can insert early access email" ON early_access_emails;
 CREATE POLICY "anon can insert early access email"
   ON early_access_emails FOR INSERT
   WITH CHECK (true);
 
 -- Only service role can read (admin dashboard access only)
+DROP POLICY IF EXISTS "service role can read early access emails" ON early_access_emails;
 CREATE POLICY "service role can read early access emails"
   ON early_access_emails FOR SELECT
   USING (auth.role() = 'service_role');
