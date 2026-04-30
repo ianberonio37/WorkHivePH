@@ -438,6 +438,7 @@
   let pinnedPosts         = []; // always shown at top, fetched separately
   let replyCountMap       = {}; // { postId: count }
   const myPostIds         = new Set(); // post IDs authored by WORKER_NAME — for reply notifications
+  let _authUid            = null; // C3: populated at init from Supabase Auth session
   let _lastPostCreatedAt  = null; // keyset cursor — timestamp of oldest loaded post
   let _hasMorePosts       = true;
   let _isFetchingMore     = false;
@@ -456,6 +457,9 @@
       document.getElementById('tab-mod').style.display = 'block';
       document.getElementById('opt-announcement').style.display = '';
     }
+
+    // C3: get auth session so new records include auth_uid
+    try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
 
     renderProfileCard();
     _initObservers();
@@ -994,7 +998,7 @@
     btn.textContent = 'Posting…';
 
     const { data, error } = await db.from('community_posts')
-      .insert({ hive_id: HIVE_ID, author_name: WORKER_NAME, content, category })
+      .insert({ hive_id: HIVE_ID, author_name: WORKER_NAME, content, category, auth_uid: _authUid || null })
       .select().single();
 
     btn.disabled = false;

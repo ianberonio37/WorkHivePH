@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -8,7 +8,7 @@
   <meta name="description" content="Log every repair, breakdown, and PM activity digitally. Track failure modes, root causes, and actions taken: all in one place with WorkHive." />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://workhiveph.com/logbook.html" />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -77,6 +77,9 @@
                          text-transform:uppercase; letter-spacing:0.06em; margin-bottom:1rem; }
     .step-panel       { display:none; }
     .step-panel.active{ display:block; }
+    /* Edit-in-place: collapse the step wizard, show everything at once */
+    #log-form.editing .step-panel { display:block !important; }
+    #log-form.editing .step-nav   { display:none  !important; }
     .step-nav         { display:flex; gap:0.5rem; margin-top:1rem; }
     .step-nav .btn-back {
       font-family:inherit; font-size:0.8rem; font-weight:600; padding:0.75rem 1rem;
@@ -451,6 +454,16 @@
 
           <form id="log-form">
 
+            <!-- Edit-in-place banner — shown when editing an existing entry -->
+            <div id="edit-mode-banner" class="hidden mb-4 rounded-xl px-4 py-3 flex items-center gap-3" style="background:rgba(41,182,217,0.1);border:1px solid rgba(41,182,217,0.3);">
+              <svg class="w-4 h-4 flex-shrink-0" style="color:#29B6D9;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              <div class="flex-1 min-w-0">
+                <p class="text-[10px] font-bold uppercase tracking-widest" style="color:rgba(41,182,217,0.7);">Editing entry</p>
+                <p id="edit-mode-machine" class="text-sm font-semibold text-white/80 truncate mt-0.5"></p>
+              </div>
+              <button type="button" onclick="cancelEditMode()" style="min-height:44px;padding:0.5rem 1rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:0.625rem;color:rgba(255,255,255,0.6);font-size:0.75rem;font-weight:600;cursor:pointer;">Cancel</button>
+            </div>
+
             <!-- ── STEP 1: Machine + Type + Status ── -->
             <div class="step-panel active space-y-4" id="step-panel-1">
 
@@ -799,6 +812,22 @@
               CSV
             </button>
           </div>
+          <!-- Team-specific filters: visible only in team mode -->
+          <div id="team-filter-row" class="hidden mt-3 flex flex-col sm:flex-row gap-3 items-center flex-wrap">
+            <select id="filter-worker" class="wh-input sm:w-44">
+              <option value="">All workers</option>
+            </select>
+            <input id="filter-date-from" type="date" class="wh-input sm:w-36" />
+            <input id="filter-date-to" type="date" class="wh-input sm:w-36" />
+            <button id="btn-search-team" onclick="searchTeam()" style="min-height:44px;background:rgba(41,182,217,0.15);color:#29B6D9;border:1px solid rgba(41,182,217,0.3);border-radius:0.75rem;padding:0 1.25rem;font-size:0.75rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background 0.2s;" onmouseover="this.style.background='rgba(41,182,217,0.25)'" onmouseout="this.style.background='rgba(41,182,217,0.15)'">Search Team</button>
+          </div>
+        </div>
+
+        <!-- Offline banner -->
+        <div id="offline-banner" class="hidden mb-3 rounded-xl px-4 py-2.5 flex items-center gap-2.5" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.3);">
+          <svg class="w-4 h-4 flex-shrink-0" style="color:#F7A21B;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636a9 9 0 010 12.728M15.536 8.464a5 5 0 010 7.072M12 12h.01M8.464 15.536a5 5 0 010-7.072M5.636 18.364a9 9 0 010-12.728"/></svg>
+          <span class="text-xs font-semibold" style="color:#F7A21B;">Offline — new entries will sync when connected</span>
+          <span id="offline-queue-count" class="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full hidden" style="background:rgba(247,162,27,0.2);color:#F7A21B;"></span>
         </div>
 
         <!-- Entries list -->
@@ -827,6 +856,15 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
           <p class="text-sm text-white/40">No entries match your search.</p>
+        </div>
+
+        <!-- Team prompt: shown in team mode before first search -->
+        <div id="team-prompt" class="text-center py-20 empty-state hidden">
+          <svg class="w-12 h-12 mx-auto mb-4 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+          <p class="text-sm font-medium" style="color:rgba(255,255,255,0.4);">Search team entries above.</p>
+          <p class="text-xs mt-1" style="color:rgba(255,255,255,0.25);">Set a date range, filter by worker or category, then tap <strong style="color:rgba(41,182,217,0.7);">Search Team</strong>.</p>
         </div>
 
       </div>
@@ -1086,6 +1124,7 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
 let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
 let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
+let _authUid    = null; // C3: populated at init from Supabase Auth session
 
 if (!WORKER_NAME) {
   window.location.href = 'index.html?signin=1';
@@ -1159,59 +1198,257 @@ function setViewMode(mode) {
   const mine = document.getElementById('btn-view-mine');
   const team = document.getElementById('btn-view-team');
   if (!mine || !team) return;
-  const activeStyle  = 'background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);';
+  const activeStyle   = 'background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);';
   const inactiveStyle = 'background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.08);';
   mine.style.cssText = mode === 'mine' ? activeStyle : inactiveStyle;
   team.style.cssText = mode === 'team' ? activeStyle : inactiveStyle;
   _logbookDisplayCount = 20;
-  renderEntries();
+
+  const teamRow    = document.getElementById('team-filter-row');
+  const teamPrompt = document.getElementById('team-prompt');
+
+  if (mode === 'team') {
+    teamRow.classList.remove('hidden');
+    _teamEntries  = [];
+    _teamSearched = false;
+    _teamLastDate = null;
+    document.getElementById('entries-list').innerHTML = '';
+    document.getElementById('empty-state').classList.add('hidden');
+    document.getElementById('no-results').classList.add('hidden');
+    document.getElementById('logbook-load-more-wrap').classList.add('hidden');
+    teamPrompt.classList.remove('hidden');
+    loadTeamMembers();
+  } else {
+    teamRow.classList.add('hidden');
+    teamPrompt.classList.add('hidden');
+    renderEntries();
+  }
 }
 
 let _allEntries = [];
 let _logbookDisplayCount = 20;
 
+// Team view query state
+let _teamEntries  = [];
+let _teamSearched = false;
+let _teamLastDate = null;
+let _teamHasMore  = false;
+const TEAM_PAGE   = 30;
+
 function loadMoreLogbook() {
+  if (_viewMode === 'team') { searchTeam(true); return; }
   _logbookDisplayCount += 20;
   renderEntries(false);
 }
 
-async function loadEntries() {
-  let query = db.from('logbook').select('*');
+// ────────────────────────────────────────────
+// TEAM SEARCH: server-side filtered query
+// ────────────────────────────────────────────
+async function searchTeam(append = false) {
+  if (!HIVE_ID) return;
 
-  if (HIVE_ID && _viewMode === 'team') {
-    // Team feed: all hive entries, newest first
-    query = query.eq('hive_id', HIVE_ID).order('date', { ascending: false });
-  } else {
-    // Personal view: own entries in current hive + solo entries logged before joining any hive
-    query = query.eq('worker_name', WORKER_NAME);
-    if (HIVE_ID) query = query.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
-    query = query.order('date', { ascending: false });
+  if (!append) {
+    _teamLastDate = null;
+    _teamEntries  = [];
+    _teamSearched = true;
+    document.getElementById('team-prompt').classList.add('hidden');
+    document.getElementById('entries-list').innerHTML =
+      '<div class="text-center py-10 text-xs" style="color:rgba(255,255,255,0.3);">Searching team entries...</div>';
   }
 
+  const rawSearch = document.getElementById('search-input').value.trim();
+  const safeSV    = rawSearch.replace(/%/g, '\\%').replace(/_/g, '\\_');
+  const category  = document.getElementById('filter-category').value;
+  const status    = document.getElementById('filter-status').value;
+  const worker    = document.getElementById('filter-worker').value;
+  const dateFrom  = document.getElementById('filter-date-from').value;
+  const dateTo    = document.getElementById('filter-date-to').value;
+
+  let query = db.from('logbook')
+    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_ref_id, parts_used, closed_at, created_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, worker_name')
+    .eq('hive_id', HIVE_ID)
+    .order('date', { ascending: false })
+    .limit(TEAM_PAGE);
+
+  if (category) query = query.eq('category', category);
+  if (status)   query = query.eq('status', status);
+  if (worker)   query = query.eq('worker_name', worker);
+  if (dateFrom) query = query.gte('date', dateFrom);
+  if (dateTo)   query = query.lte('date', dateTo + 'T23:59:59');
+  if (safeSV)   query = query.or(`machine.ilike.%${safeSV}%,problem.ilike.%${safeSV}%,action.ilike.%${safeSV}%,knowledge.ilike.%${safeSV}%,root_cause.ilike.%${safeSV}%`);
+  if (append && _teamLastDate) query = query.lt('date', _teamLastDate);
+
   const { data, error } = await query;
-  if (error) { console.error(error); showToast('Could not load entries. Check your connection.'); return []; }
-  _allEntries = data.map(r => ({
+  if (error) { showToast('Search failed: ' + error.message); return; }
+
+  const mapped = (data || []).map(r => ({
     id: r.id, date: r.date, machine: r.machine || '', category: r.category,
     maintenance_type: r.maintenance_type, root_cause: r.root_cause,
     problem: r.problem, action: r.action, knowledge: r.knowledge,
     downtime_hours: r.downtime_hours, photo: r.photo, status: r.status,
-    asset_ref_id: r.asset_ref_id || null,
-    parts_used: r.parts_used || [],
-    closed_at: r.closed_at || null,
-    created_at: r.created_at || null,
-    tasklist_acknowledged:  r.tasklist_acknowledged || false,
-    tasklist_note:          r.tasklist_note || null,
-    failure_consequence:    r.failure_consequence || null,
-    readings_json:          r.readings_json || null,
-    production_output:      r.production_output || null,
+    asset_ref_id: r.asset_ref_id || null, parts_used: r.parts_used || [],
+    closed_at: r.closed_at || null, created_at: r.created_at || null,
+    tasklist_acknowledged: r.tasklist_acknowledged || false,
+    tasklist_note: r.tasklist_note || null,
+    failure_consequence: r.failure_consequence || null,
+    readings_json: r.readings_json || null,
+    production_output: r.production_output || null,
     worker_name: r.worker_name
   }));
+
+  _teamEntries = append ? [..._teamEntries, ...mapped] : mapped;
+  _teamHasMore = mapped.length === TEAM_PAGE;
+  if (mapped.length) _teamLastDate = mapped[mapped.length - 1].date;
+
+  renderEntries(false);
+}
+
+// ── Load hive members into worker dropdown ──
+async function loadTeamMembers() {
+  if (!HIVE_ID) return;
+  const { data } = await db.from('hive_members')
+    .select('worker_name').eq('hive_id', HIVE_ID).order('worker_name');
+  const sel = document.getElementById('filter-worker');
+  sel.innerHTML = '<option value="">All workers</option>';
+  (data || []).forEach(m => {
+    const o = document.createElement('option');
+    o.value = m.worker_name; o.textContent = m.worker_name;
+    sel.appendChild(o);
+  });
+  const today   = new Date().toISOString().slice(0, 10);
+  const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+  document.getElementById('filter-date-from').value = weekAgo;
+  document.getElementById('filter-date-to').value   = today;
+}
+
+// ────────────────────────────────────────────
+// INDEXEDDB OFFLINE QUEUE
+// ────────────────────────────────────────────
+let _idb = null;
+async function openOfflineDB() {
+  if (_idb) return _idb;
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('wh_logbook_offline', 1);
+    req.onupgradeneeded = e => e.target.result.createObjectStore('pending', { keyPath: 'id' });
+    req.onsuccess = e => { _idb = e.target.result; resolve(_idb); };
+    req.onerror   = e => reject(e.target.error);
+  });
+}
+async function queueEntryOffline(payload) {
+  const idb = await openOfflineDB();
+  return new Promise((resolve, reject) => {
+    const tx = idb.transaction('pending', 'readwrite');
+    tx.objectStore('pending').put(payload);
+    tx.oncomplete = resolve; tx.onerror = e => reject(e.target.error);
+  });
+}
+async function getPendingEntries() {
+  const idb = await openOfflineDB();
+  return new Promise((resolve, reject) => {
+    const tx = idb.transaction('pending', 'readonly');
+    const req = tx.objectStore('pending').getAll();
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror   = e => reject(e.target.error);
+  });
+}
+async function removeFromQueue(id) {
+  const idb = await openOfflineDB();
+  return new Promise((resolve, reject) => {
+    const tx = idb.transaction('pending', 'readwrite');
+    tx.objectStore('pending').delete(id);
+    tx.oncomplete = resolve; tx.onerror = e => reject(e.target.error);
+  });
+}
+
+// ── Offline UI helpers ──
+function updateOfflineUI(isOnline) {
+  document.getElementById('offline-banner').classList.toggle('hidden', isOnline);
+}
+async function updateOfflineBadge() {
+  const pending = await getPendingEntries();
+  const badge   = document.getElementById('offline-queue-count');
+  if (pending.length) {
+    badge.textContent = pending.length + ' pending';
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+
+// ── Drain queue when connection returns ──
+async function syncOfflineQueue() {
+  const pending = await getPendingEntries();
+  if (!pending.length) return;
+  let synced = 0;
+  for (const p of pending) {
+    const { _offline, _queueOp, ...rest } = p; // rest retains worker_name and hive_id
+    let error;
+    if (_queueOp === 'update') {
+      // Offline edit — apply update to existing DB row
+      const { id, updates } = rest;
+      ({ error } = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME));
+    } else {
+      // Offline new entry — insert
+      ({ error } = await db.from('logbook').insert(rest));
+      if (!error) embedFaultEntry({ ...rest });
+    }
+    if (!error) {
+      await removeFromQueue(p.id);
+      synced++;
+    }
+  }
+  if (synced) {
+    _allEntries = _allEntries.filter(e => !e._offline && !e._pending_edit);
+    await updateOfflineBadge();
+    showToast(`${synced} offline ${synced === 1 ? 'change' : 'changes'} synced.`);
+    await renderEntries();
+  }
+}
+
+async function loadEntries() {
+  // Mine-mode only. Team mode uses searchTeam().
+  let query = db.from('logbook')
+    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_ref_id, parts_used, closed_at, created_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, worker_name')
+    .eq('worker_name', WORKER_NAME);
+  if (HIVE_ID) query = query.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
+  query = query.order('date', { ascending: false }).limit(200);
+
+  const { data, error } = await query;
+  if (error) { console.error(error); showToast('Could not load entries. Check your connection.'); return []; }
+
+  // Merge pending inserts (new offline entries) and pending updates (offline edits)
+  const pending        = await getPendingEntries();
+  const pendingInserts = pending.filter(p => !p._queueOp || p._queueOp !== 'update');
+  const pendingUpdates = pending.filter(p => p._queueOp === 'update');
+  const insertIds      = new Set(pendingInserts.map(p => p.id));
+  const updateMap      = Object.fromEntries(pendingUpdates.map(p => [p.id, p.updates]));
+  _allEntries = [
+    ...pendingInserts.map(p => ({ ...p, _offline: true })),
+    ...(data || []).filter(r => !insertIds.has(r.id)).map(r => {
+      const mapped = {
+        id: r.id, date: r.date, machine: r.machine || '', category: r.category,
+        maintenance_type: r.maintenance_type, root_cause: r.root_cause,
+        problem: r.problem, action: r.action, knowledge: r.knowledge,
+        downtime_hours: r.downtime_hours, photo: r.photo, status: r.status,
+        asset_ref_id: r.asset_ref_id || null, parts_used: r.parts_used || [],
+        closed_at: r.closed_at || null, created_at: r.created_at || null,
+        tasklist_acknowledged: r.tasklist_acknowledged || false,
+        tasklist_note: r.tasklist_note || null,
+        failure_consequence: r.failure_consequence || null,
+        readings_json: r.readings_json || null,
+        production_output: r.production_output || null,
+        worker_name: r.worker_name
+      };
+      if (updateMap[r.id]) return { ...mapped, ...updateMap[r.id], _pending_edit: true };
+      return mapped;
+    })
+  ];
   return _allEntries;
 }
 
 async function addEntry(entry) {
-  const { error } = await db.from('logbook').insert({
-    id: entry.id, worker_name: WORKER_NAME, date: entry.date,
+  const payload = {
+    id: entry.id, date: entry.date,
     machine: entry.machine, maintenance_type: entry.maintenance_type,
     category: entry.category, problem: entry.problem, root_cause: entry.root_cause,
     action: entry.action, knowledge: entry.knowledge, downtime_hours: entry.downtime_hours,
@@ -1223,12 +1460,24 @@ async function addEntry(entry) {
     tasklist_note: entry.tasklist_note || null,
     failure_consequence: entry.failure_consequence || null,
     readings_json: entry.readings_json || null,
-    production_output: entry.production_output || null
-  });
+    production_output: entry.production_output || null,
+    worker_name: WORKER_NAME,
+    auth_uid: _authUid || null  // C3: link auth identity on every new entry
+  };
+
+  if (!navigator.onLine) {
+    await queueEntryOffline(payload);
+    _allEntries.unshift({ ...payload, _offline: true });
+    await updateOfflineBadge();
+    document.getElementById('sync-badge').classList.remove('hidden');
+    if (_viewMode === 'mine') await renderEntries(false);
+    showToast('Saved offline — will sync when connected.');
+    return;
+  }
+
+  const { error } = await db.from('logbook').insert(payload);
   if (error) { showToast('Could not save entry: ' + error.message); return; }
   document.getElementById('sync-badge').classList.remove('hidden');
-
-  // Embed in background: does not block the user
   embedFaultEntry(entry);
 }
 
@@ -1917,7 +2166,7 @@ function renderRootCauseChips(machineName) {
   const chipList  = document.getElementById('root-cause-chip-list');
 
   // Get historical root causes for this machine from cached entries
-  const entries = loadEntries ? loadEntries() : _allEntries;
+  const entries = _allEntries;
   const forMachine = entries.filter(e =>
     e.machine === machineName &&
     e.root_cause &&
@@ -2220,15 +2469,32 @@ function formatDate(iso) {
 }
 
 async function renderEntries(reload = true) {
-  if (reload || !_allEntries.length) await loadEntries();
-  const entries = _allEntries;
+  const teamPrompt = document.getElementById('team-prompt');
 
-  const query = document.getElementById('search-input').value.trim().toLowerCase();
-  const catFilter = document.getElementById('filter-category').value;
+  if (_viewMode === 'team') {
+    // Team mode: entries come from searchTeam(), not loadEntries()
+    if (!_teamSearched) {
+      teamPrompt.classList.remove('hidden');
+      document.getElementById('entries-list').innerHTML = '';
+      document.getElementById('empty-state').classList.add('hidden');
+      document.getElementById('no-results').classList.add('hidden');
+      document.getElementById('logbook-load-more-wrap').classList.add('hidden');
+      return;
+    }
+    teamPrompt.classList.add('hidden');
+  } else {
+    teamPrompt.classList.add('hidden');
+    if (reload || !_allEntries.length) await loadEntries();
+  }
+
+  const entries      = _viewMode === 'team' ? _teamEntries : _allEntries;
+  const query        = document.getElementById('search-input').value.trim().toLowerCase();
+  const catFilter    = document.getElementById('filter-category').value;
   const statusFilter = document.getElementById('filter-status').value;
 
-  let filtered = entries.filter(e => {
-    const matchCat = !catFilter || e.category === catFilter;
+  // Mine mode: client-side filter. Team mode: server already filtered — show all.
+  const filtered = _viewMode === 'team' ? entries : entries.filter(e => {
+    const matchCat    = !catFilter    || e.category === catFilter;
     const matchStatus = !statusFilter || (e.status || 'Open') === statusFilter;
     if (!matchCat || !matchStatus) return false;
     if (!query) return true;
@@ -2236,18 +2502,20 @@ async function renderEntries(reload = true) {
       .some(f => f && f.toLowerCase().includes(query));
   });
 
-  // Stats
-  const allMachines = new Set(entries.map(e => (e.machine || '').trim().toUpperCase()).filter(Boolean));
-  const openCount = entries.filter(e => (e.status || 'Open') === 'Open').length;
-  document.getElementById('total-count').textContent = entries.length;
-  document.getElementById('machine-count').textContent = allMachines.size;
-  document.getElementById('open-count').textContent = openCount;
+  // Stats always reflect personal entries (header cards say "My Logbook")
+  if (_viewMode !== 'team') {
+    const allMachines = new Set(_allEntries.map(e => (e.machine || '').trim().toUpperCase()).filter(Boolean));
+    const openCount   = _allEntries.filter(e => (e.status || 'Open') === 'Open').length;
+    document.getElementById('total-count').textContent   = _allEntries.length;
+    document.getElementById('machine-count').textContent = allMachines.size;
+    document.getElementById('open-count').textContent    = openCount;
+  }
 
-  const list = document.getElementById('entries-list');
-  const empty = document.getElementById('empty-state');
+  const list      = document.getElementById('entries-list');
+  const empty     = document.getElementById('empty-state');
   const noResults = document.getElementById('no-results');
 
-  renderOpenJobs(entries);
+  renderOpenJobs(_allEntries);
 
   if (entries.length === 0) {
     list.innerHTML = '';
@@ -2266,17 +2534,26 @@ async function renderEntries(reload = true) {
 
   noResults.classList.add('hidden');
 
-  const visible = filtered.slice(0, _logbookDisplayCount);
-  const wrap = document.getElementById('logbook-load-more-wrap');
-  const lbl  = document.getElementById('logbook-count-label');
-  wrap.classList.toggle('hidden', _logbookDisplayCount >= filtered.length);
-  lbl.textContent = `Showing ${visible.length} of ${filtered.length} entries`;
+  // Team mode: show all loaded entries (keyset Load More). Mine: display-count slice.
+  const visible = _viewMode === 'team' ? filtered : filtered.slice(0, _logbookDisplayCount);
+  const wrap    = document.getElementById('logbook-load-more-wrap');
+  const lbl     = document.getElementById('logbook-count-label');
+
+  if (_viewMode === 'team') {
+    wrap.classList.toggle('hidden', !_teamHasMore);
+    lbl.textContent = _teamHasMore
+      ? `Showing ${visible.length} entries — load more below`
+      : `${visible.length} entries found`;
+  } else {
+    wrap.classList.toggle('hidden', _logbookDisplayCount >= filtered.length);
+    lbl.textContent = `Showing ${visible.length} of ${filtered.length} entries`;
+  }
 
   list.innerHTML = visible.map(e => {
-    const q = query;
-    const machine = highlight(e.machine, q);
-    const problem = highlight(e.problem, q);
-    const action  = highlight(e.action, q);
+    const q         = query;
+    const machine   = highlight(e.machine, q);
+    const problem   = highlight(e.problem, q);
+    const action    = highlight(e.action, q);
     const knowledge = highlight(e.knowledge, q);
 
     return `
@@ -2287,6 +2564,7 @@ async function renderEntries(reload = true) {
             <span class="font-bold text-white text-sm truncate">${machine}</span>
             ${catBadge(e.category)}
             ${statusBadge(e.status || 'Open')}
+            ${(e._offline || e._pending_edit) ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.2);">${e._offline ? 'Pending sync' : 'Edit pending sync'}</span>` : ''}
           </div>
           <span class="text-[11px] text-white/30">${formatDate(e.date)}</span>
           ${_viewMode === 'team' && e.worker_name !== WORKER_NAME ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(41,182,217,0.12);color:#29B6D9;">${escHtml(e.worker_name)}</span>` : ''}
@@ -2324,8 +2602,11 @@ async function renderEntries(reload = true) {
 // MODAL: VIEW
 // ────────────────────────────────────────────
 async function openModal(id) {
-  const entries = await loadEntries();
-  const entry = entries.find(e => e.id === id);
+  let entry = (_viewMode === 'team' ? _teamEntries : _allEntries).find(e => e.id === id);
+  if (!entry) {
+    const { data } = await db.from('logbook').select('*').eq('id', id).single();
+    entry = data;
+  }
   if (!entry) return;
   const status = entry.status || 'Open';
 
@@ -2411,7 +2692,8 @@ async function openModal(id) {
 // MODAL: EDIT
 // ────────────────────────────────────────────
 let _editPartsUsed = []; // tracks parts added during edit session
-let _editingEntry  = null; // cached entry being edited: avoids extra loadEntries() call in saveEdit
+let _editingEntry  = null; // cached entry being edited
+let _editingId     = null; // null = new entry, string id = edit-in-place mode
 let _editPhotoData = null; // current photo for the edit modal (null = remove, string = keep/replace)
 
 function renderEditParts() {
@@ -2435,217 +2717,130 @@ function renderEditParts() {
 }
 
 async function openEditModal(id) {
-  const entries = await loadEntries();
-  const entry = entries.find(e => e.id === id);
+  // Resolve entry from cache (avoids re-fetching all entries)
+  let entry = (_viewMode === 'team' ? _teamEntries : _allEntries).find(e => e.id === id);
+  if (!entry) {
+    const { data } = await db.from('logbook').select('*').eq('id', id).single();
+    entry = data;
+  }
   if (!entry) return;
-  _editingEntry  = entry; // cache for saveEdit: avoids extra DB call
-  const status = entry.status || 'Open';
-  _editPartsUsed = (entry.parts_used || []).map(p => ({ ...p, _existing: true }));
 
-  const mc = document.getElementById('modal-content');
-  mc.innerHTML = `
-    <h3 class="font-black text-lg text-white mb-5">Edit Entry</h3>
+  // Close the view modal
+  document.getElementById('modal').classList.add('hidden');
 
-    <div class="space-y-4">
-      <div>
-        <label class="wh-label">Machine / Equipment ID</label>
-        <input id="e-machine" type="text" class="wh-input" value="${escHtml(entry.machine)}" list="machine-suggestions" />
-      </div>
-      <div>
-        <label class="wh-label">Maintenance Type</label>
-        <select id="e-maint-type" class="wh-input">
-          <option value="">Select type...</option>
-          ${['Breakdown / Corrective','Preventive Maintenance','Inspection','Project Work']
-            .map(t => `<option value="${t}" ${(entry.maintenance_type||'') === t ? 'selected' : ''}>${t}</option>`).join('')}
-        </select>
-      </div>
-      <div>
-        <label class="wh-label">Discipline / Category</label>
-        <select id="e-category" class="wh-input">
-          <option value="">Select category...</option>
-          ${['Mechanical','Electrical','Hydraulic','Pneumatic','Instrumentation','Lubrication','Other']
-            .map(c => `<option value="${c}" ${entry.category === c ? 'selected' : ''}>${c}</option>`).join('')}
-        </select>
-      </div>
-      <div>
-        <label class="wh-label">Symptom / What was wrong?</label>
-        <textarea id="e-problem" class="wh-input">${escHtml(entry.problem || '')}</textarea>
-      </div>
-      <div>
-        <label class="wh-label">Root Cause</label>
-        <select id="e-root-cause" class="wh-input">
-          <option value="">Select root cause...</option>
-          ${['Misalignment','Contamination / Dirt','Wear','Overload','Corrosion','Lubrication Failure','Electrical Fault','Mechanical Damage','Vibration / Fatigue','Human Error','Design Issue','Unknown']
-            .map(r => `<option value="${r}" ${(entry.root_cause||'') === r ? 'selected' : ''}>${r}</option>`).join('')}
-        </select>
-      </div>
-      <div>
-        <label class="wh-label">What did you do?</label>
-        <textarea id="e-action" class="wh-input">${escHtml(entry.action || '')}</textarea>
-      </div>
-      <div>
-        <label class="wh-label flex items-center gap-1.5">
-          What should the next person know?
-          <span class="text-orange-wh text-[10px] font-bold bg-orange-wh/10 px-1.5 py-0.5 rounded-full">Most Valuable</span>
-        </label>
-        <textarea id="e-knowledge" class="wh-input">${escHtml(entry.knowledge || '')}</textarea>
-      </div>
-      <div>
-        <label class="wh-label">Downtime Hours <span class="text-white/30 font-normal normal-case">(optional)</span></label>
-        <input id="e-downtime" type="number" min="0" step="0.5" class="wh-input" value="${entry.downtime_hours != null ? entry.downtime_hours : ''}" placeholder="e.g. 2.5" />
-      </div>
-      <div>
-        <label class="wh-label">Photo <span class="text-white/30 font-normal normal-case">(optional)</span></label>
-        <input id="e-photo" type="file" accept="image/*" class="hidden" />
-        <label id="e-photo-dropzone" for="e-photo"
-          class="flex items-center gap-3 cursor-pointer rounded-xl px-4 py-3 border border-dashed border-white/15 hover:border-white/30 transition-colors ${entry.photo && (entry.photo.startsWith('data:image/') || entry.photo.startsWith('https://')) ? 'hidden' : ''}"
-          style="background: rgba(255,255,255,0.03);">
-          <svg class="w-4 h-4 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-          </svg>
-          <span class="text-xs text-white/35">Tap to attach photo</span>
-        </label>
-        <div id="e-photo-preview" class="${entry.photo && (entry.photo.startsWith('data:image/') || entry.photo.startsWith('https://')) ? '' : 'hidden'} mt-2" style="position: relative;">
-          <img id="e-photo-thumb" class="photo-thumb cursor-pointer" title="Tap to replace photo" src="${entry.photo && (entry.photo.startsWith('data:image/') || entry.photo.startsWith('https://')) ? escHtml(entry.photo) : ''}" />
-          <button type="button" id="e-photo-remove-btn"
-            style="position: absolute; top: -16px; right: -16px; width: 44px; height: 44px;
-                   display: flex; align-items: center; justify-content: center;
-                   background: transparent; border: none; cursor: pointer; padding: 0;">
-            <span style="width: 20px; height: 20px; background: rgba(30,30,40,0.95);
-                         border: 1.5px solid rgba(255,255,255,0.18); border-radius: 50%;
-                         color: rgba(255,255,255,0.75); font-size: 11px;
-                         display: flex; align-items: center; justify-content: center; line-height: 1;">
-              &#x2715;
-            </span>
-          </button>
-        </div>
-      </div>
-      <div>
-        <label class="wh-label">Status</label>
-        <div class="status-toggle">
-          <input type="radio" name="e-status" id="est-open" value="Open" ${status === 'Open' ? 'checked' : ''} />
-          <label for="est-open">Open</label>
-          <input type="radio" name="e-status" id="est-closed" value="Closed" ${status === 'Closed' ? 'checked' : ''} />
-          <label for="est-closed">Closed</label>
-        </div>
-      </div>
-      <div id="e-parts-section" class="${status === 'Closed' ? '' : 'hidden'} space-y-2">
-        <label class="wh-label">Parts Used <span class="text-white/30 font-normal normal-case">(from your inventory)</span></label>
-        <div id="e-parts-display" class="space-y-1.5"></div>
-        <button type="button" onclick="openPartsPickerForEdit()" class="btn-secondary w-full text-xs py-2.5 flex items-center justify-center gap-1.5" style="min-height:44px;">
-          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-          Add Part Used
-        </button>
-      </div>
-      <div id="e-tasklist-section" class="${status === 'Closed' && getTasklist(entry.maintenance_type, entry.category) ? '' : 'hidden'}">
-        <div class="rounded-xl p-3" style="background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.18);">
-          <div class="flex items-center justify-between mb-2">
-            <p class="text-[11px] font-bold uppercase tracking-widest" style="color:#29B6D9;">Work Tasklist</p>
-            <button type="button" id="e-btn-view-tasklist" class="text-[11px] font-semibold flex items-center gap-1" style="color:#29B6D9;background:none;border:none;cursor:pointer;min-height:44px;padding:0.25rem 0;">
-              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-              View Tasklist
-            </button>
-          </div>
-          <label id="e-tasklist-ack-label" class="flex items-center gap-3 cursor-pointer" style="min-height:44px;">
-            <input type="checkbox" id="e-tasklist-ack-check" class="hidden" ${entry.tasklist_acknowledged ? 'checked' : ''} />
-            <div id="e-tasklist-ack-box" class="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-all" style="background:${entry.tasklist_acknowledged ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.06)'};border:2px solid ${entry.tasklist_acknowledged ? '#4ade80' : 'rgba(255,255,255,0.2)'};">
-              <svg id="e-tasklist-ack-tick" class="w-3.5 h-3.5 ${entry.tasklist_acknowledged ? '' : 'hidden'}" fill="none" viewBox="0 0 24 24" stroke="#4ade80" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-            </div>
-            <span class="text-sm text-white/70">I have read the work tasklist for this job</span>
-          </label>
-          <p id="e-tasklist-ack-error" class="hidden text-[11px] mt-1.5" style="color:#f87171;">Please acknowledge you have read the work tasklist before closing.</p>
-        </div>
-      </div>
-      <div class="flex gap-2 pt-2">
-        <button onclick="saveEdit('${entry.id}')" class="btn-primary flex-1">Save Changes</button>
-        <button onclick="openModal('${entry.id}')" class="btn-secondary px-4">Cancel</button>
-      </div>
-    </div>
-  `;
-  updateStatusToggle('e-status');
-  renderEditParts();
+  // Start from a clean form
+  clearForm();
 
-  // Tasklist ack checkbox toggle in edit modal
-  const eAckLabel = document.getElementById('e-tasklist-ack-label');
-  if (eAckLabel) {
-    eAckLabel.addEventListener('click', () => {
-      const check = document.getElementById('e-tasklist-ack-check');
-      const box   = document.getElementById('e-tasklist-ack-box');
-      const tick  = document.getElementById('e-tasklist-ack-tick');
-      const err   = document.getElementById('e-tasklist-ack-error');
-      check.checked = !check.checked;
-      box.style.background  = check.checked ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.06)';
-      box.style.borderColor = check.checked ? '#4ade80' : 'rgba(255,255,255,0.2)';
-      tick.classList.toggle('hidden', !check.checked);
-      if (check.checked && err) err.classList.add('hidden');
+  // ── Machine / asset ──
+  document.getElementById('f-machine').value = entry.machine || '';
+  const labelEl = document.getElementById('asset-picker-label');
+  if (entry.machine) { labelEl.textContent = entry.machine; labelEl.style.color = 'white'; }
+  _pendingAssetRefId = entry.asset_ref_id || null;
+
+  // ── Maintenance type ──
+  document.getElementById('f-maint-type').value = entry.maintenance_type || '';
+
+  // ── Status (triggers parts + tasklist visibility) ──
+  const statusVal   = entry.status || 'Open';
+  const statusRadio = document.querySelector(`input[name="f-status"][value="${statusVal}"]`);
+  if (statusRadio) {
+    statusRadio.checked = true;
+    updateStatusToggle('f-status');
+    if (statusVal === 'Closed') {
+      document.getElementById('parts-used-section').classList.remove('hidden');
+      if (_inventoryItems.length === 0) loadInventoryForPicker();
+    }
+  }
+
+  // ── Category / problem / root cause / action / knowledge / downtime ──
+  document.getElementById('f-category').value   = entry.category || '';
+  document.getElementById('f-problem').value    = entry.problem  || '';
+  document.getElementById('f-root-cause').value = entry.root_cause || '';
+  document.getElementById('f-action').value     = entry.action   || '';
+  document.getElementById('f-knowledge').value  = entry.knowledge || '';
+  document.getElementById('f-downtime').value   = entry.downtime_hours != null ? entry.downtime_hours : '';
+
+  // ── Parts used (reuse the add-form array + renderer) ──
+  _partsUsed = (entry.parts_used || []).map(p => ({ ...p, _existing: true }));
+  renderSelectedParts();
+
+  // ── Photo ──
+  currentPhotoData = (entry.photo && (entry.photo.startsWith('data:image/') || entry.photo.startsWith('https://')))
+    ? entry.photo : null;
+  if (currentPhotoData) {
+    document.getElementById('photo-thumb').src = currentPhotoData;
+    document.getElementById('photo-preview').classList.remove('hidden');
+    document.getElementById('photo-dropzone').classList.add('hidden');
+  }
+
+  // ── Failure consequence ──
+  if (entry.failure_consequence) {
+    document.getElementById('consequence-section').classList.remove('hidden');
+    document.getElementById('f-consequence').value = entry.failure_consequence;
+    document.querySelectorAll('.consequence-btn').forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.value === entry.failure_consequence);
     });
   }
 
-  // View Tasklist button in edit modal
-  const eBtnView = document.getElementById('e-btn-view-tasklist');
-  if (eBtnView) {
-    eBtnView.addEventListener('click', () => {
-      const maintType = document.getElementById('e-maint-type').value;
-      const category  = document.getElementById('e-category').value;
-      const tasks     = getTasklist(maintType, category);
-      if (!tasks) return;
-      const key = TASKLIST_TYPE_MAP[maintType];
-      document.getElementById('tasklist-modal-subtitle').textContent = `${key}: ${category}`;
-      document.getElementById('tasklist-modal-items').innerHTML = tasks.map((t, i) =>
-        `<div class="flex items-start gap-3 rounded-xl px-3 py-2.5" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-          <span class="text-[11px] font-black flex-shrink-0 mt-0.5" style="color:rgba(255,255,255,0.25);">${String(i + 1).padStart(2, '0')}</span>
-          <span class="text-sm text-white/80 leading-snug">${escHtml(t)}</span>
-        </div>`
-      ).join('');
-      document.getElementById('tasklist-modal-note').value = _tasklistNote;
-      // When Done is clicked from edit-modal context, tick the edit checkbox
-      _tasklistDoneTarget = 'edit';
-      document.getElementById('tasklist-modal').style.display = 'flex';
-    });
+  // ── Production output ──
+  if (entry.production_output) {
+    document.getElementById('f-good-units').value  = entry.production_output.good_units  ?? '';
+    document.getElementById('f-total-units').value = entry.production_output.total_units ?? '';
+    updateQualityPct();
+    document.getElementById('production-section').classList.remove('hidden');
   }
 
-  // Photo events for edit modal
-  _editPhotoData = (entry.photo && (entry.photo.startsWith('data:image/') || entry.photo.startsWith('https://'))) ? entry.photo : null;
+  // ── Readings (render fields for category then populate) ──
+  if (entry.readings_json && entry.category) {
+    await renderReadingsFields(entry.category);
+    Object.entries(entry.readings_json).forEach(([key, val]) => {
+      const inp = document.querySelector(`#readings-fields input[data-key="${key}"]`);
+      if (inp) inp.value = val;
+    });
+    document.getElementById('readings-section').classList.remove('hidden');
+  }
 
-  document.getElementById('e-photo').addEventListener('change', function() {
-    const file = this.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(ev) {
-      const img = new Image();
-      img.onload = function() {
-        const MAX = 800;
-        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
-        const canvas = document.createElement('canvas');
-        canvas.width  = Math.round(img.width  * scale);
-        canvas.height = Math.round(img.height * scale);
-        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-        _editPhotoData = canvas.toDataURL('image/jpeg', 0.7);
-        document.getElementById('e-photo-thumb').src = _editPhotoData;
-        document.getElementById('e-photo-dropzone').classList.add('hidden');
-        document.getElementById('e-photo-preview').classList.remove('hidden');
-      };
-      img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
+  // ── Tasklist acknowledgment ──
+  if (entry.tasklist_acknowledged) {
+    const check = document.getElementById('tasklist-ack-check');
+    const box   = document.getElementById('tasklist-ack-box');
+    const tick  = document.getElementById('tasklist-ack-tick');
+    check.checked = true;
+    box.style.background  = 'rgba(74,222,128,0.15)';
+    box.style.borderColor = '#4ade80';
+    tick.classList.remove('hidden');
+  }
+  if (entry.tasklist_note) _tasklistNote = entry.tasklist_note;
 
-  document.getElementById('e-photo-thumb').addEventListener('click', function() {
-    document.getElementById('e-photo').value = '';
-    document.getElementById('e-photo').click();
-  });
+  // ── Cache and mode state ──
+  _editingEntry = entry;
+  _editingId    = entry.id;
 
-  document.getElementById('e-photo-remove-btn').addEventListener('click', function(e) {
-    e.stopPropagation();
-    _editPhotoData = null;
-    document.getElementById('e-photo').value = '';
-    document.getElementById('e-photo-preview').classList.add('hidden');
-    document.getElementById('e-photo-dropzone').classList.remove('hidden');
-  });
+  // ── Show edit banner ──
+  document.getElementById('edit-mode-machine').textContent = entry.machine || 'Entry';
+  document.getElementById('edit-mode-banner').classList.remove('hidden');
 
-  // Status change for edit modal is handled by the global document 'change' listener.
-  if (status === 'Closed' && _inventoryItems.length === 0) loadInventoryForPicker();
+  // ── Switch save button label ──
+  document.getElementById('save-entry-btn').textContent = 'Update Entry';
+
+  // ── Open extras drawer so all fields are visible ──
+  const drawer = document.getElementById('extras-drawer');
+  if (!drawer.classList.contains('open')) toggleExtras();
+
+  // ── Collapse wizard: show all step panels at once ──
+  document.getElementById('log-form').classList.add('editing');
+
+  // ── Trigger conditional sections based on restored values ──
+  updateTasklistSection();
+
+  // ── Scroll to form ──
+  const form = document.getElementById('log-form');
+  form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (window.innerWidth < 768) {
+    setTimeout(() => form.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+  }
 }
+
 
 async function saveEdit(id) {
   const downtimeRaw = document.getElementById('e-downtime').value;
@@ -2704,6 +2899,108 @@ async function saveEdit(id) {
   await renderEntries();
   showToast('Entry updated.');
   openModal(id);
+}
+
+// ────────────────────────────────────────────
+// EDIT-IN-PLACE: cancel + save via main form
+// ────────────────────────────────────────────
+function cancelEditMode() {
+  clearForm();
+  document.getElementById('log-form').classList.remove('editing');
+  document.getElementById('edit-mode-banner').classList.add('hidden');
+  document.getElementById('save-entry-btn').textContent = 'Save Entry';
+  _editingId    = null;
+  _editingEntry = null;
+}
+
+async function saveEditFromForm() {
+  const id      = _editingId;
+  const saveBtn = document.getElementById('save-entry-btn');
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving…';
+
+  const machine    = document.getElementById('f-machine').value.trim();
+  const newStatus  = document.querySelector('input[name="f-status"]:checked').value;
+  const existing   = _editingEntry;
+  const assetMatch = loadAssets().find(a => a.asset_id.toUpperCase() === machine.toUpperCase());
+
+  const closedAt = newStatus === 'Closed'
+    ? (existing?.closed_at || new Date().toISOString())
+    : null;
+
+  const downtimeRaw = document.getElementById('f-downtime').value;
+
+  const updates = {
+    machine,
+    maintenance_type:      document.getElementById('f-maint-type').value,
+    category:              document.getElementById('f-category').value,
+    problem:               document.getElementById('f-problem').value.trim(),
+    root_cause:            document.getElementById('f-root-cause').value,
+    action:                document.getElementById('f-action').value.trim(),
+    knowledge:             document.getElementById('f-knowledge').value.trim(),
+    downtime_hours:        downtimeRaw !== '' ? parseFloat(downtimeRaw) : null,
+    photo:                 currentPhotoData,
+    status:                newStatus,
+    asset_ref_id:          assetMatch ? assetMatch.id : (_pendingAssetRefId || null),
+    hive_id:               HIVE_ID,
+    worker_name:           WORKER_NAME,
+    parts_used:            _partsUsed.map(p => ({ partId: p.partId, partName: p.partName, partNumber: p.partNumber, qty: p.qty, unit: p.unit })),
+    closed_at:             closedAt,
+    failure_consequence:   document.getElementById('f-consequence').value  || existing?.failure_consequence  || null,
+    readings_json:         collectReadings()                               || existing?.readings_json         || null,
+    production_output:     collectProductionOutput()                       || existing?.production_output      || null,
+    tasklist_acknowledged: document.getElementById('tasklist-ack-check').checked,
+    tasklist_note:         _tasklistNote || existing?.tasklist_note || null,
+  };
+
+  // ── Offline edit path ───────────────────────────────────────────────
+  if (!navigator.onLine) {
+    if (existing?._offline) {
+      // Entry was itself created offline — update the pending insert payload in-place
+      const insertPayload = { ...updates, id, date: existing.date };
+      await queueEntryOffline(insertPayload); // put() replaces by id keyPath
+      const idx = _allEntries.findIndex(e => e.id === id);
+      if (idx !== -1) _allEntries[idx] = { ...insertPayload, _offline: true };
+    } else {
+      // Entry is in DB — queue an update operation
+      await queueEntryOffline({ id, _queueOp: 'update', updates });
+      const idx = _allEntries.findIndex(e => e.id === id);
+      if (idx !== -1) _allEntries[idx] = { ..._allEntries[idx], ...updates, _pending_edit: true };
+    }
+    await updateOfflineBadge();
+    cancelEditMode();
+    if (_viewMode === 'mine') await renderEntries(false);
+    showToast('Edit saved offline — will sync when connected.');
+    return;
+  }
+  // ── Online path ─────────────────────────────────────────────────────
+  const { error } = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME);
+  if (error) {
+    showToast('Could not update: ' + error.message);
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Update Entry';
+    return;
+  }
+
+  // Deduct newly added parts (skip existing — already deducted on original save)
+  for (const p of _partsUsed) {
+    if (!p.partId || p._existing) continue;
+    const item   = _inventoryItems.find(i => i.id === p.partId);
+    const newQty = Math.max(0, (item?.qty_on_hand || 0) - p.qty);
+    const { error: deductErr } = await db.from('inventory_items').update({ qty_on_hand: newQty }).eq('id', p.partId);
+    if (deductErr) { showToast('Stock update failed for ' + p.partName + ': ' + deductErr.message); continue; }
+    const { error: txnErr } = await db.from('inventory_transactions').insert({
+      item_id: p.partId, worker_name: WORKER_NAME, hive_id: HIVE_ID || null,
+      qty_change: -p.qty, qty_after: newQty, type: 'use',
+      note: 'Used in job: ' + updates.machine, job_ref: updates.machine
+    });
+    if (txnErr) { showToast('Parts log failed for ' + p.partName + ': check your connection.'); }
+    if (item) item.qty_on_hand = newQty;
+  }
+
+  cancelEditMode();
+  await renderEntries();
+  showToast('Entry updated.');
 }
 
 document.getElementById('modal-close').addEventListener('click', () => {
@@ -2893,6 +3190,9 @@ let _duplicateWarned  = false; // soft guard: worker confirmed duplicate entry
 
 document.getElementById('log-form').addEventListener('submit', async function(e) {
   e.preventDefault();
+  // Route to update path when editing an existing entry
+  if (_editingId !== null) { await saveEditFromForm(); return; }
+
   const saveBtn = document.getElementById('save-entry-btn');
   saveBtn.disabled = true;
   saveBtn.textContent = 'Saving…';
@@ -3264,15 +3564,40 @@ function stopVoiceUI() {
 // ────────────────────────────────────────────
 // SEARCH + FILTER
 // ────────────────────────────────────────────
-document.getElementById('search-input').addEventListener('input', debounce(() => { _logbookDisplayCount = 20; renderEntries(false); }, 300));
-document.getElementById('filter-category').addEventListener('change', () => { _logbookDisplayCount = 20; renderEntries(false); });
-document.getElementById('filter-status').addEventListener('change', () => { _logbookDisplayCount = 20; renderEntries(false); });
+const _teamSearchDebounce = debounce(() => { if (_teamSearched) searchTeam(); }, 400);
+
+document.getElementById('search-input').addEventListener('input', () => {
+  _logbookDisplayCount = 20;
+  _viewMode === 'team' ? _teamSearchDebounce() : renderEntries(false);
+});
+document.getElementById('filter-category').addEventListener('change', () => {
+  _logbookDisplayCount = 20;
+  if (_viewMode === 'team' && _teamSearched) { searchTeam(); } else { renderEntries(false); }
+});
+document.getElementById('filter-status').addEventListener('change', () => {
+  _logbookDisplayCount = 20;
+  if (_viewMode === 'team' && _teamSearched) { searchTeam(); } else { renderEntries(false); }
+});
+document.getElementById('filter-worker').addEventListener('change', () => {
+  if (_viewMode === 'team' && _teamSearched) searchTeam();
+});
+document.getElementById('filter-date-from').addEventListener('change', () => {
+  if (_viewMode === 'team' && _teamSearched) searchTeam();
+});
+document.getElementById('filter-date-to').addEventListener('change', () => {
+  if (_viewMode === 'team' && _teamSearched) searchTeam();
+});
+
+window.addEventListener('online',  () => { updateOfflineUI(true);  syncOfflineQueue(); });
+window.addEventListener('offline', () => updateOfflineUI(false));
 
 // ────────────────────────────────────────────
 // CSV EXPORT
 // ────────────────────────────────────────────
 document.getElementById('btn-export-csv').addEventListener('click', async () => {
-  const entries = await loadEntries();
+  const entries = _viewMode === 'team'
+    ? _teamEntries
+    : (_allEntries.length ? _allEntries : await loadEntries());
   if (!entries.length) { showToast('No entries to export.'); return; }
 
   const cols = ['Date','Machine','Category','Maintenance Type','Problem','Root Cause','Action Taken','Knowledge','Downtime (hrs)','Status'];
@@ -3677,6 +4002,7 @@ function renderOpenJobs(entries) {
 const DRAFT_KEY = 'wh_logbook_draft_' + WORKER_NAME;
 
 function saveDraft() {
+  if (_editingId !== null) return; // don't overwrite draft while editing
   const machine = document.getElementById('f-machine').value;
   const problem = document.getElementById('f-problem').value;
   const action  = document.getElementById('f-action').value;
@@ -3737,16 +4063,22 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
 // INIT
 // ────────────────────────────────────────────
 (async () => {
+  // C3: get auth session so new records include auth_uid
+  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
+
   const isMember = await validateHiveMembership();
   if (!isMember) return; // gate is showing: stop all data loads
 
   applyRoleUI();
 
+  if (!navigator.onLine) updateOfflineUI(false);
+  await updateOfflineBadge();
+
   // Show team/mine toggle only when in a hive
   if (HIVE_ID) {
     const bar = document.getElementById('view-toggle-bar');
     bar.classList.remove('hidden');
-    // Supervisors default to team view
+    // Supervisors default to team view (prompt shown — no auto-load)
     if (HIVE_ROLE === 'supervisor') setViewMode('team');
 
     document.getElementById('btn-view-mine').addEventListener('click', () => setViewMode('mine'));
@@ -3759,7 +4091,7 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
     restoreDraft();
   });
   loadInventoryForPicker();
-  renderEntries();
+  if (_viewMode === 'mine') renderEntries();
   updateStatusToggle('f-status');
 })();
 

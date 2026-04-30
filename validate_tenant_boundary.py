@@ -94,6 +94,8 @@ def check_select_filters(pages, tables):
                 "worker_name" in window,
                 "WORKER_NAME" in window,
                 "HIVE_ID"     in window,
+                "auth_uid"    in window,   # C3: auth.uid() based scoping is valid
+                "_authUid"    in window,   # C3: client-side auth session variable
                 re.search(r'\.eq\s*\(["\']id["\']',        window),
                 re.search(r'\.in\s*\(["\']id["\']',        window),
                 re.search(r'\.in\s*\(["\']asset_id["\']',  window),
