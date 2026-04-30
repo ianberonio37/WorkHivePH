@@ -7,7 +7,7 @@
   <title>Community: WorkHive</title>
   <meta name="robots" content="noindex, follow" />
   <meta name="description" content="WorkHive Community — hive-scoped discussion board for your maintenance team. Post, reply, react, and stay connected." />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" href="manifest.json" />
   <link rel="canonical" href="https://workhiveph.com/community.html" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -428,6 +428,12 @@
   if (!HIVE_ID)     { window.location.href = 'hive.html'; }
 
   // ── State ─────────────────────────────────────────────────────────────────────
+  // ── Virtual list constants ────────────────────────────────────────────────────
+  const CARD_H_EST = 140; // estimated post card height (px) for stub placeholders
+  const heightCache  = {}; // { postId: measured height after first render }
+  const reactionMap  = {}; // { postId: { emoji: { count, mine } } }
+  let   renderIO, collapseIO; // IntersectionObserver pair
+
   let allPosts            = [];
   let pinnedPosts         = []; // always shown at top, fetched separately
   let replyCountMap       = {}; // { postId: count }
@@ -451,6 +457,7 @@
     }
 
     renderProfileCard();
+    _initObservers();
     startPresence();
     startFeedChannel();
     await Promise.all([loadPosts(), loadLeaderboard(), loadProfileStats()]);
@@ -474,6 +481,105 @@
     if (!postsRes.error)  document.getElementById('profile-posts').textContent = postsRes.count ?? 0;
     if (!badgesRes.error) document.getElementById('profile-xp').textContent   = badgesRes.count ?? 0;
     else                  document.getElementById('profile-xp').textContent   = '—';
+  }
+
+  // ── Virtual list observers ────────────────────────────────────────────────────
+  function _initObservers() {
+    // renderIO: expands stubs that are within 400px of the viewport
+    renderIO = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        if (!el.classList.contains('vcard-stub')) return; // already a full card
+        const postId = el.dataset.postId;
+        const post   = _findPost(postId);
+        if (!post) return;
+
+        const tmp = document.createElement('div');
+        tmp.innerHTML = renderPostCard(post);
+        const card = tmp.firstChild;
+        card.dataset.postId = postId;
+
+        renderIO.unobserve(el);
+        el.parentNode.replaceChild(card, el);
+        collapseIO.observe(card);
+        requestAnimationFrame(() => { heightCache[postId] = card.offsetHeight; });
+      });
+    }, { rootMargin: '400px 0px 400px 0px', threshold: 0 });
+
+    // collapseIO: collapses full cards that drift more than 1500px from viewport
+    collapseIO = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) return; // still near viewport — keep rendered
+        const el = entry.target;
+        const postId = el.dataset.postId;
+        if (!postId || el.classList.contains('vcard-stub')) return;
+        if (!heightCache[postId]) return; // can't stub without a known height
+
+        const stub = _makeStub(postId);
+        collapseIO.unobserve(el);
+        el.parentNode.replaceChild(stub, el);
+        renderIO.observe(stub);
+      });
+    }, { rootMargin: '1500px 0px 1500px 0px', threshold: 0 });
+  }
+
+  // ── Virtual list helpers ──────────────────────────────────────────────────────
+  function _findPost(postId) {
+    return [...pinnedPosts, ...allPosts].find(p => p.id === postId);
+  }
+
+  function _makeStub(postId) {
+    const s = document.createElement('div');
+    s.className        = 'vcard-stub';
+    s.dataset.postId   = postId;
+    s.style.cssText    = `height:${heightCache[postId] || CARD_H_EST}px; border-radius:0.875rem; background:rgba(255,255,255,0.02); flex-shrink:0;`;
+    return s;
+  }
+
+  function _prependPostCard(post) {
+    const el = document.getElementById('feed-list');
+    if (!el) return;
+    const stub = _makeStub(post.id);
+    el.prepend(stub);
+    renderIO.observe(stub);
+  }
+
+  function _removePostCard(postId) {
+    const el = document.querySelector(`[data-post-id="${postId}"]`);
+    if (!el) return;
+    renderIO.unobserve(el);
+    collapseIO.unobserve(el);
+    el.remove();
+  }
+
+  function _updateRenderedCard(postId) {
+    // Only replaces if the card is currently fully rendered (not a stub)
+    const el = document.querySelector(`.post-card[data-post-id="${postId}"]`);
+    if (!el) return;
+    const post = _findPost(postId);
+    if (!post) return;
+    const tmp = document.createElement('div');
+    tmp.innerHTML = renderPostCard(post);
+    const newCard = tmp.firstChild;
+    newCard.dataset.postId = postId;
+    collapseIO.unobserve(el);
+    el.parentNode.replaceChild(newCard, el);
+    collapseIO.observe(newCard);
+  }
+
+  function _appendMoreStubs(newPosts) {
+    const el = document.getElementById('feed-list');
+    if (!el) return;
+    newPosts.forEach(p => {
+      const stub = _makeStub(p.id);
+      el.appendChild(stub);
+      renderIO.observe(stub);
+    });
+    const lmWrap = document.getElementById('feed-load-more');
+    const btn    = document.getElementById('btn-load-more-posts');
+    if (lmWrap) lmWrap.style.display = _hasMorePosts ? 'flex' : 'none';
+    if (btn)    { btn.disabled = false; btn.textContent = 'Load more posts'; }
   }
 
   // ── Leaderboard (top posters in this hive) ────────────────────────────────────
@@ -554,7 +660,7 @@
     _hasMorePosts = allPosts.length === 20;
 
     const allIds = [...pinnedPosts, ...allPosts].map(p => p.id);
-    if (allIds.length) await loadReplyCounts(allIds);
+    if (allIds.length) await Promise.all([loadReplyCounts(allIds), loadReactions(allIds)]);
     renderFeed();
     loadModQueue();
   }
@@ -568,11 +674,15 @@
     });
   }
 
-  // ── Render feed (all accumulated pages — no client-side slicing) ─────────────
+  // ── Render feed — full rebuild with virtual stubs ─────────────────────────────
   function renderFeed() {
     const el     = document.getElementById('feed-list');
     const lmWrap = document.getElementById('feed-load-more');
     const posts  = [...pinnedPosts, ...allPosts];
+
+    // Disconnect observers before rebuilding DOM
+    if (renderIO)   renderIO.disconnect();
+    if (collapseIO) collapseIO.disconnect();
 
     if (posts.length === 0) {
       el.innerHTML = `<div class="empty-state">
@@ -583,7 +693,14 @@
       return;
     }
 
-    el.innerHTML = posts.map(p => renderPostCard(p)).join('');
+    // Create all stubs via DocumentFragment — single DOM insertion
+    const frag = document.createDocumentFragment();
+    posts.forEach(p => frag.appendChild(_makeStub(p.id)));
+    el.innerHTML = ''; // clear old content
+    el.appendChild(frag);
+
+    // Observe stubs — renderIO expands those near viewport immediately
+    el.querySelectorAll('.vcard-stub').forEach(s => renderIO.observe(s));
 
     if (lmWrap) {
       lmWrap.style.display = _hasMorePosts ? 'flex' : 'none';
@@ -608,11 +725,16 @@
     }
     if (data && data.length > 0) {
       _lastPostCreatedAt = data[data.length - 1].created_at;
-      await loadReplyCounts(data.map(p => p.id));
+      const ids = data.map(p => p.id);
+      await Promise.all([loadReplyCounts(ids), loadReactions(ids)]);
       allPosts = [...allPosts, ...data];
+      _hasMorePosts = data.length === 20;
+      _appendMoreStubs(data); // incremental DOM append — no full re-render
+    } else {
+      _hasMorePosts = false;
+      const lmWrap = document.getElementById('feed-load-more');
+      if (lmWrap) lmWrap.style.display = 'none';
     }
-    _hasMorePosts = (data?.length ?? 0) === 20;
-    renderFeed();
   }
 
   // ── Post card HTML ────────────────────────────────────────────────────────────
@@ -641,7 +763,14 @@
         <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#ef4444" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
       </button>` : '');
 
-    return `<div class="post-card ${catClass}${p.pinned ? ' pinned' : ''}" id="post-${escHtml(p.id)}" style="padding:1rem;">
+    // Read reaction data from reactionMap (populated before renderFeed is called)
+    const _rx = reactionMap[p.id] || {};
+    function rxBtn(emoji, label, icon) {
+      const d = _rx[emoji] || { count: 0, mine: false };
+      return `<button class="reaction-btn${d.mine ? ' active' : ''}" onclick="toggleReaction('${p.id}', '${emoji}')" aria-label="${label}">${icon} <span id="rxn-${emoji}-${escHtml(p.id)}">${d.count}</span></button>`;
+    }
+
+    return `<div class="post-card ${catClass}${p.pinned ? ' pinned' : ''}" id="post-${escHtml(p.id)}" data-post-id="${escHtml(p.id)}" style="padding:1rem;">
       <div style="display:flex; align-items:flex-start; gap:10px;">
         <div class="avatar-initial${isMine ? ' mine' : ''}">${escHtml(initials)}</div>
         <div style="flex:1; min-width:0;">
@@ -652,10 +781,10 @@
           </div>
           <p style="font-size:0.85rem; line-height:1.55; color:rgba(255,255,255,0.82); margin:0 0 0.75rem; word-break:break-word;">${escHtml(p.content)}</p>
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-            <button class="reaction-btn" onclick="toggleReaction('${p.id}', 'thumbs_up')" aria-label="Thumbs up">👍 <span id="rxn-thumbs_up-${escHtml(p.id)}">0</span></button>
-            <button class="reaction-btn" onclick="toggleReaction('${p.id}', 'wrench')" aria-label="Wrench">🔧 <span id="rxn-wrench-${escHtml(p.id)}">0</span></button>
-            <button class="reaction-btn" onclick="toggleReaction('${p.id}', 'fire')" aria-label="Fire">🔥 <span id="rxn-fire-${escHtml(p.id)}">0</span></button>
-            <button class="reaction-btn" onclick="toggleReaction('${p.id}', 'eyes')" aria-label="Eyes">👀 <span id="rxn-eyes-${escHtml(p.id)}">0</span></button>
+            ${rxBtn('thumbs_up','Thumbs up','👍')}
+            ${rxBtn('wrench','Wrench','🔧')}
+            ${rxBtn('fire','Fire','🔥')}
+            ${rxBtn('eyes','Eyes','👀')}
             <button class="reaction-btn" style="margin-left:auto;" onclick="openThread('${p.id}')" aria-label="Open thread and reply" id="reply-btn-${escHtml(p.id)}">
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
               <span id="reply-count-${escHtml(p.id)}">${replyCountMap[p.id] || 0}</span>
@@ -667,23 +796,36 @@
     </div>`;
   }
 
-  // Load reactions for rendered posts
+  // Load reactions — populate reactionMap first, then patch any already-rendered spans
   async function loadReactions(postIds) {
     if (!postIds.length) return;
-    const { data } = await db.from('community_reactions').select('post_id, emoji, worker_name').eq('hive_id', HIVE_ID).in('post_id', postIds);
+    const { data } = await db.from('community_reactions')
+      .select('post_id, emoji, worker_name').eq('hive_id', HIVE_ID).in('post_id', postIds);
     if (!data) return;
-    const counts = {};
-    data.forEach(r => {
-      const key = `${r.post_id}:${r.emoji}`;
-      counts[key] = (counts[key] || 0) + 1;
+
+    // Initialise reactionMap entries for requested posts
+    postIds.forEach(pid => {
+      if (!reactionMap[pid]) reactionMap[pid] = {};
+      ['thumbs_up','wrench','fire','eyes'].forEach(e => {
+        reactionMap[pid][e] = { count: 0, mine: false };
+      });
     });
+    data.forEach(r => {
+      if (!reactionMap[r.post_id]?.[r.emoji]) return;
+      reactionMap[r.post_id][r.emoji].count++;
+      if (r.worker_name === WORKER_NAME) reactionMap[r.post_id][r.emoji].mine = true;
+    });
+
+    // Patch already-rendered spans (cards that were expanded before this call)
     ['thumbs_up','wrench','fire','eyes'].forEach(emoji => {
       postIds.forEach(pid => {
-        const el = document.getElementById(`rxn-${emoji}-${pid}`);
-        if (el) el.textContent = counts[`${pid}:${emoji}`] || 0;
-        const btn = el?.closest('.reaction-btn');
-        const myReaction = data.find(r => r.post_id === pid && r.emoji === emoji && r.worker_name === WORKER_NAME);
-        if (btn && myReaction) btn.classList.add('active');
+        const span = document.getElementById(`rxn-${emoji}-${pid}`);
+        if (!span) return;
+        const rx  = reactionMap[pid]?.[emoji];
+        const btn = span.closest('.reaction-btn');
+        if (!rx) return;
+        span.textContent = rx.count;
+        btn?.classList.toggle('active', rx.mine);
       });
     });
   }
@@ -699,14 +841,20 @@
         .delete().eq('post_id', postId).eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).eq('emoji', emoji);
       if (!error) {
         btn.classList.remove('active');
-        if (countEl) countEl.textContent = Math.max(0, parseInt(countEl.textContent, 10) - 1);
+        const n = Math.max(0, parseInt(countEl?.textContent, 10) - 1);
+        if (countEl) countEl.textContent = n;
+        if (reactionMap[postId]?.[emoji]) { reactionMap[postId][emoji].count = n; reactionMap[postId][emoji].mine = false; }
       }
     } else {
       const { error } = await db.from('community_reactions')
         .insert({ post_id: postId, hive_id: HIVE_ID, worker_name: WORKER_NAME, emoji });
       if (!error) {
         btn?.classList.add('active');
-        if (countEl) countEl.textContent = parseInt(countEl.textContent, 10) + 1;
+        const n = parseInt(countEl?.textContent, 10) + 1;
+        if (countEl) countEl.textContent = n;
+        if (!reactionMap[postId]) reactionMap[postId] = {};
+        if (!reactionMap[postId][emoji]) reactionMap[postId][emoji] = { count: 0, mine: false };
+        reactionMap[postId][emoji].count = n; reactionMap[postId][emoji].mine = true;
       }
     }
   }
@@ -788,7 +936,7 @@
     const pp = pinnedPosts.find(p => p.id === postId);
     if (pa) pa.flagged = !currentlyFlagged;
     if (pp) pp.flagged = !currentlyFlagged;
-    renderFeed();
+    _updateRenderedCard(postId); // refresh only this card if expanded
     loadModQueue();
     showToast(currentlyFlagged ? 'Post unflagged' : 'Post flagged');
   }
@@ -805,7 +953,7 @@
     if (HIVE_ROLE === 'supervisor') await writeAuditLog('delete_post', postId);
     allPosts    = allPosts.filter(p => p.id !== postId);
     pinnedPosts = pinnedPosts.filter(p => p.id !== postId);
-    renderFeed();
+    _removePostCard(postId);
     if (activeThreadId === postId) closeThread();
     showToast('Post deleted');
   }
@@ -854,7 +1002,7 @@
     if (error) { showToast('Could not post. Try again.', 'error'); return; }
 
     allPosts.unshift(data); // new posts are never pinned on creation
-    renderFeed();
+    _prependPostCard(data);
     closeComposer();
     showToast('Posted!');
     loadProfileStats();
@@ -978,14 +1126,12 @@
         event: 'INSERT', schema: 'public', table: 'community_posts',
         filter: `hive_id=eq.${HIVE_ID}`
       }, (payload) => {
-        const exists = [...pinnedPosts, ...allPosts].find(p => p.id === payload.new.id);
-        if (exists) return;
+        if (_findPost(payload.new.id)) return; // dedup
         if (payload.new.pinned) pinnedPosts.unshift(payload.new);
         else                    allPosts.unshift(payload.new);
-        renderFeed();
-        if (payload.new.author_name !== WORKER_NAME) {
+        _prependPostCard(payload.new);
+        if (payload.new.author_name !== WORKER_NAME)
           showToast(`${payload.new.author_name} posted in the hive`);
-        }
       })
       .on('postgres_changes', {
         event: 'UPDATE', schema: 'public', table: 'community_posts',
@@ -993,24 +1139,22 @@
       }, (payload) => {
         const ia = allPosts.findIndex(p => p.id === payload.new.id);
         const ip = pinnedPosts.findIndex(p => p.id === payload.new.id);
+        const pinChanged = (payload.new.pinned && ia !== -1) || (!payload.new.pinned && ip !== -1);
         if (payload.new.pinned && ia !== -1) {
-          // just got pinned — move to pinnedPosts
-          pinnedPosts = [payload.new, ...pinnedPosts];
-          allPosts.splice(ia, 1);
+          pinnedPosts = [payload.new, ...pinnedPosts]; allPosts.splice(ia, 1);
         } else if (!payload.new.pinned && ip !== -1) {
-          // just got unpinned — move to allPosts
-          allPosts = [payload.new, ...allPosts];
-          pinnedPosts.splice(ip, 1);
+          allPosts = [payload.new, ...allPosts]; pinnedPosts.splice(ip, 1);
         } else if (ia !== -1) { allPosts[ia]    = payload.new; }
           else if (ip !== -1) { pinnedPosts[ip] = payload.new; }
-        renderFeed();
+        if (pinChanged) renderFeed(); // pin moves require full reorder
+        else _updateRenderedCard(payload.new.id);
       })
       .on('postgres_changes', {
         event: 'DELETE', schema: 'public', table: 'community_posts'
       }, (payload) => {
         allPosts    = allPosts.filter(p => p.id !== payload.old.id);
         pinnedPosts = pinnedPosts.filter(p => p.id !== payload.old.id);
-        renderFeed();
+        _removePostCard(payload.old.id);
       })
       .subscribe();
   }
@@ -1059,16 +1203,6 @@
     if (d < 7)   return `${d}d ago`;
     return new Date(ts).toLocaleDateString();
   }
-
-  // ── Load reactions after first render ─────────────────────────────────────────
-  const _origRenderFeed = renderFeed;
-  async function renderFeedAndReactions() {
-    _origRenderFeed();
-    const ids = allPosts.map(p => p.id);
-    if (ids.length) await loadReactions(ids);
-  }
-  // Override to auto-load reactions after render
-  window.renderFeed = renderFeedAndReactions;
 
   // ── Cleanup ───────────────────────────────────────────────────────────────────
   window.addEventListener('beforeunload', () => {
