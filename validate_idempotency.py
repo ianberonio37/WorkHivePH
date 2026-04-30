@@ -10,6 +10,8 @@ webhooks on timeout. pg_cron occasionally fires duplicate runs.
     1.  CREATE INDEX uses IF NOT EXISTS        — re-running supabase db push doesn't fail
     2.  CREATE POLICY preceded by DROP IF EXISTS — re-running supabase db push doesn't fail
     3.  Tables with RLS have GRANT statements  — missing GRANT = 401 despite valid RLS policies
+    4.  UPDATE SET col references existing col — col not in ALTER TABLE ADD COLUMN = 42703 error
+    5.  Backfill FROM identity tables warned   — no-op if worker_profiles empty at migration time
 
   Layer 1 — Schema foundations
     4.  external_sync UNIQUE constraint    — dedup anchor for all external system IDs
@@ -156,6 +158,113 @@ def check_migration_grant_coverage(migrations):
                            f"anon/authenticated roles get 401 despite valid RLS policies; "
                            f"add: GRANT SELECT,INSERT,UPDATE,DELETE ON {table} TO anon,authenticated")
             })
+    return issues
+
+
+def check_migration_update_column_exists():
+    """
+    UPDATE table SET col = X in a migration requires col to exist on table.
+    If col was never added via ALTER TABLE ADD COLUMN, the migration fails with
+    'ERROR: 42703: column does not exist'.
+
+    Root cause of May 2026 incident: community_xp.auth_uid was referenced in a
+    backfill UPDATE but never added via ALTER TABLE ADD COLUMN — backfill SQL
+    crashed, leaving auth_uid NULL in community_xp rows.
+    """
+    issues = []
+    if not os.path.isdir(MIGRATIONS_DIR):
+        return issues
+
+    # Build { table: set(cols) } from all ALTER TABLE ADD COLUMN across all migrations
+    added_columns = {}
+    all_files = sorted(os.listdir(MIGRATIONS_DIR))
+    for fname in all_files:
+        if not fname.endswith(".sql"):
+            continue
+        content = read_file(os.path.join(MIGRATIONS_DIR, fname))
+        if not content:
+            continue
+        for m in re.finditer(
+            r'ALTER\s+TABLE\s+(?:public\.)?(\w+)\s+ADD\s+COLUMN\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)',
+            content, re.IGNORECASE
+        ):
+            added_columns.setdefault(m.group(1).lower(), set()).add(m.group(2).lower())
+
+    # Columns that appear in ADD COLUMN somewhere — only flag these in UPDATE checks
+    migration_added_cols = {c for cols in added_columns.values() for c in cols}
+
+    for fname in all_files:
+        if not fname.endswith(".sql"):
+            continue
+        content = read_file(os.path.join(MIGRATIONS_DIR, fname))
+        if not content:
+            continue
+        # Strip comment lines before scanning UPDATE statements
+        no_comments = "\n".join(
+            line for line in content.splitlines()
+            if not line.strip().startswith("--")
+        )
+        for m in re.finditer(
+            r'\bUPDATE\s+(\w+)(?:\s+\w+)?\s+SET\s+(\w+)\s*=',
+            no_comments, re.IGNORECASE
+        ):
+            table = m.group(1).lower()
+            col   = m.group(2).lower()
+            if col not in migration_added_cols:
+                continue  # not a migration-added col, skip
+            if col not in added_columns.get(table, set()):
+                issues.append({
+                    "check": "migration_update_column_exists",
+                    "source": fname,
+                    "reason": (f"{fname}: UPDATE {table} SET {col} — "
+                               f"'{col}' was never added to '{table}' via ALTER TABLE ADD COLUMN; "
+                               f"migration will fail with ERROR 42703 column does not exist")
+                })
+    return issues
+
+
+def check_backfill_timing():
+    """
+    Migrations that UPDATE records FROM worker_profiles (or other auth identity tables)
+    are silent no-ops if the source table is empty at deploy time. This happens when
+    workers haven't signed up yet when the migration runs — leaving auth_uid = NULL
+    in all existing records.
+
+    After C4 enforces auth.uid() = auth_uid in RLS, NULL auth_uid records become
+    invisible to all authenticated users — data loss symptom without actual deletion.
+
+    Root cause of May 2026 incident: C3 backfill ran when worker_profiles was empty.
+    Workers who signed up AFTER C3 had auth_uid = NULL in all their rows. C4 then
+    blocked access because NULL != auth.uid() is always false in SQL.
+
+    Fix: re-run the backfill after workers sign up, OR add a trigger on worker_profiles
+    INSERT that immediately links all existing records (trg_sync_auth_uid_on_signup).
+    """
+    issues = []
+    if not os.path.isdir(MIGRATIONS_DIR):
+        return issues
+
+    IDENTITY_TABLES = {"worker_profiles"}
+
+    for fname in sorted(os.listdir(MIGRATIONS_DIR)):
+        if not fname.endswith(".sql"):
+            continue
+        content = read_file(os.path.join(MIGRATIONS_DIR, fname))
+        if not content:
+            continue
+        for table in IDENTITY_TABLES:
+            if re.search(rf'\bFROM\s+{re.escape(table)}\b', content, re.IGNORECASE):
+                issues.append({
+                    "check": "backfill_timing_warning",
+                    "source": fname,
+                    "skip": True,  # WARN — valid pattern but timing-sensitive
+                    "reason": (f"{fname} backfills FROM {table} — if {table} is empty at "
+                               f"migration time (workers not yet signed up), auth_uid stays NULL "
+                               f"in all rows; after C4 RLS enforcement this makes records "
+                               f"invisible; ensure trg_sync_auth_uid_on_signup trigger exists "
+                               f"or re-run backfill after workers create accounts")
+                })
+                break
     return issues
 
 
@@ -348,6 +457,8 @@ CHECK_NAMES = [
     "migration_index_idempotency",
     "migration_policy_idempotency",
     "migration_grant_coverage",
+    "migration_update_column_exists",
+    "backfill_timing_warning",
     # L1
     "external_sync_schema",
     # L2
@@ -365,6 +476,8 @@ CHECK_LABELS = {
     "migration_index_idempotency":   "L0  CREATE INDEX uses IF NOT EXISTS in all migrations",
     "migration_policy_idempotency":  "L0  CREATE POLICY preceded by DROP POLICY IF EXISTS",
     "migration_grant_coverage":      "L0  RLS-enabled tables have GRANT statements in migrations",
+    "migration_update_column_exists":"L0  UPDATE SET col references a col added via ALTER TABLE ADD COLUMN",
+    "backfill_timing_warning":       "L0  Backfill FROM worker_profiles warned — no-op if table empty at deploy  [WARN]",
     # L1
     "external_sync_schema":          "L1  external_sync table has UNIQUE(system_type, external_id, entity_type)",
     # L2
@@ -389,6 +502,8 @@ def main():
     all_issues += check_migration_index_idempotency()
     all_issues += check_migration_policy_idempotency()
     all_issues += check_migration_grant_coverage(migrations)
+    all_issues += check_migration_update_column_exists()
+    all_issues += check_backfill_timing()
     all_issues += check_external_sync_schema(migrations)
     all_issues += check_webhook_hmac()
     all_issues += check_upsert_conflict_spec(LIVE_PAGES, SHARED_TABLES)

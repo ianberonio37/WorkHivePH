@@ -20,10 +20,13 @@ forgets the hive_id/worker_name filter exposes all tenants' data.
   Layer 4 — Scope
     7.  All tenant-aware pages checked — LIVE_PAGES covers analytics + all data pages
 
+  Layer 5 — Auth RLS safety
+    8.  Nullable auth_uid RLS trap    — auth_uid = auth.uid() is always false when auth_uid is NULL
+
 Usage:  python validate_tenant_boundary.py
 Output: tenant_boundary_report.json
 """
-import re, json, sys
+import re, json, sys, os
 
 if sys.platform == "win32":
     import io
@@ -200,6 +203,66 @@ def check_url_param_injection(pages):
     return issues
 
 
+# ── Layer 5: Auth RLS safety ──────────────────────────────────────────────────
+
+def check_nullable_auth_uid_rls_trap():
+    """
+    Tables where auth_uid was added as nullable (no NOT NULL) AND RLS uses
+    auth_uid = auth.uid() (equality) become completely invisible to authenticated
+    users when auth_uid IS NULL — because NULL = anything is always FALSE in SQL.
+
+    Root cause of May 2026 incident: C3 backfill ran before workers signed up,
+    leaving auth_uid = NULL. C4 then enforced auth.uid() = auth_uid in RLS.
+    Authenticated workers could not see any of their own data.
+
+    The correct fix: ensure a trigger (trg_sync_auth_uid_on_signup) fires on
+    worker_profiles INSERT to immediately link all existing records, OR use
+    auth_uid IS NOT DISTINCT FROM auth.uid() (NULL-safe equality).
+    """
+    issues = []
+    migrations_dir = os.path.join("supabase", "migrations")
+    if not os.path.isdir(migrations_dir):
+        return issues
+
+    all_sql = ""
+    for fname in sorted(os.listdir(migrations_dir)):
+        if fname.endswith(".sql"):
+            content = read_file(os.path.join(migrations_dir, fname))
+            if content:
+                all_sql += content + "\n"
+
+    if not all_sql:
+        return issues
+
+    # Find tables with nullable auth_uid (ADD COLUMN auth_uid uuid without NOT NULL)
+    nullable_tables = set()
+    for m in re.finditer(
+        r'ALTER\s+TABLE\s+(?:public\.)?(\w+)\s+ADD\s+COLUMN\s+(?:IF\s+NOT\s+EXISTS\s+)?'
+        r'auth_uid\s+uuid(?!\s+NOT\s+NULL)',
+        all_sql, re.IGNORECASE
+    ):
+        nullable_tables.add(m.group(1).lower())
+
+    # If trg_sync_auth_uid_on_signup trigger exists, risk is mitigated (WARN not FAIL)
+    has_sync_trigger = bool(re.search(r'trg_sync_auth_uid_on_signup', all_sql, re.IGNORECASE))
+
+    # Check if any nullable-auth_uid table has equality RLS
+    for table in sorted(nullable_tables):
+        pattern = rf'ON\s+{re.escape(table)}\b[^;]{{0,300}}auth_uid\s*=\s*auth\.uid\(\)'
+        if re.search(pattern, all_sql, re.IGNORECASE | re.DOTALL):
+            issues.append({
+                "check": "nullable_auth_uid_rls_trap",
+                "skip": has_sync_trigger,  # WARN if trigger exists, FAIL if not
+                "reason": (f"Table '{table}' has nullable auth_uid + RLS using "
+                           f"auth_uid = auth.uid() — records with auth_uid IS NULL are "
+                           f"invisible to all authenticated users (NULL != X is always false); "
+                           + ("trg_sync_auth_uid_on_signup trigger present — risk mitigated for new signups"
+                              if has_sync_trigger else
+                              "CRITICAL: add trg_sync_auth_uid_on_signup trigger or run backfill after signup"))
+            })
+    return issues
+
+
 # ── Layer 4: Scope ────────────────────────────────────────────────────────────
 
 def check_pages_in_scope():
@@ -235,26 +298,30 @@ CHECK_NAMES = [
     "switcher_validation", "url_param_injection",
     # L4
     "pages_in_scope",
+    # L5
+    "nullable_auth_uid_rls_trap",
 ]
 
 CHECK_LABELS = {
     # L1
-    "select_filters":      "L1  SELECT queries on shared tables have ownership filter",
-    "realtime_scope":      "L1  Realtime subscriptions on shared tables have filter",
+    "select_filters":             "L1  SELECT queries on shared tables have ownership filter",
+    "realtime_scope":             "L1  Realtime subscriptions on shared tables have filter",
     # L2
-    "hive_id_source":      "L2  HIVE_ID never from URL params or user input",
-    "worker_name_source":  "L2  WORKER_NAME never from URL params or user input",
+    "hive_id_source":             "L2  HIVE_ID never from URL params or user input",
+    "worker_name_source":         "L2  WORKER_NAME never from URL params or user input",
     # L3
-    "switcher_validation": "L3  Hive switcher validates membership before switch",
-    "url_param_injection": "L3  URL params not written to hive context",
+    "switcher_validation":        "L3  Hive switcher validates membership before switch",
+    "url_param_injection":        "L3  URL params not written to hive context",
     # L4
-    "pages_in_scope":      "L4  All shared-table pages in LIVE_PAGES",
+    "pages_in_scope":             "L4  All shared-table pages in LIVE_PAGES",
+    # L5
+    "nullable_auth_uid_rls_trap": "L5  Nullable auth_uid + equality RLS doesn't trap NULL records",
 }
 
 
 def main():
     def bold(s): return f"\033[1m{s}\033[0m"
-    print(bold("\nTenant Boundary Escape Validator (4-layer)"))
+    print(bold("\nTenant Boundary Escape Validator (5-layer)"))
     print("=" * 55)
 
     all_issues = []
@@ -265,6 +332,7 @@ def main():
     all_issues += check_switcher_validation("hive.html")
     all_issues += check_url_param_injection(LIVE_PAGES)
     all_issues += check_pages_in_scope()
+    all_issues += check_nullable_auth_uid_rls_trap()
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 
