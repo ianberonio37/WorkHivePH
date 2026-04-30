@@ -55,6 +55,7 @@ SHARED_TABLES = [
     "schedule_items",
     "skill_exam_attempts",
     "skill_badges",
+    "community_xp",
 ]
 
 USER_CONTROLLED = [

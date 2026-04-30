@@ -59,6 +59,7 @@ CHECKS = {
     "delete_post_guard":      "L3  deletePost has role/author guard inside function",
     "presence_channel_name":  "L4  Presence channel uses hive-community-presence: prefix",
     "feed_channel_name":      "L4  Feed channel uses hive-community-feed: prefix",
+    "replies_realtime_scope": "L4  community_replies Realtime subscription has hive_id filter",
     "channel_cleanup":        "L4  Both channels removed on beforeunload",
     "conn_timeout":           "L4  Connection timeout present (8s WebSocket fail guard)",
     "supabase_cdn":           "L5  Supabase CDN script in <head>",
@@ -164,6 +165,23 @@ def check_delete_guard(content):
             "check": "delete_post_guard",
             "reason": "deletePost has no role/author guard — any worker can delete any post via console"
         })
+    return issues
+
+
+def check_replies_realtime_scope(content):
+    issues = []
+    # community_replies subscription must include hive_id filter to prevent
+    # cross-hive reply events leaking through (B1 reply notifications)
+    if re.search(r"table\s*:\s*['\"]community_replies['\"]", content):
+        block_match = re.search(
+            r"table\s*:\s*['\"]community_replies['\"].*?filter\s*:\s*['\"`]hive_id=eq\.",
+            content, re.DOTALL
+        )
+        if not block_match:
+            issues.append({
+                "check": "replies_realtime_scope",
+                "reason": "community_replies Realtime subscription missing hive_id filter — reply events from other hives received by all subscribers"
+            })
     return issues
 
 
@@ -284,6 +302,7 @@ def main():
     all_issues += check_role_guard_inside(content, "toggleFlag", "flag_role_guard")
     all_issues += check_delete_guard(content)
     all_issues += check_channel_names(content)
+    all_issues += check_replies_realtime_scope(content)
     all_issues += check_channel_cleanup(content)
     all_issues += check_conn_timeout(content)
     all_issues += check_supabase_cdn(content)
