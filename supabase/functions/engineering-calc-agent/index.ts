@@ -1,14 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { callAI } from "../_shared/ai-chain.ts";
-
-// Allow specific origin in production; use env var ALLOWED_ORIGIN to override (e.g. for local dev)
-const ORIGIN = Deno.env.get("ALLOWED_ORIGIN") || "https://workhiveph.com";
-function buildCors(reqOrigin: string | null) {
-  return {
-    "Access-Control-Allow-Origin": (!reqOrigin || reqOrigin === "null") ? "*" : ORIGIN,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  };
-}
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 // ─── HVAC Lookup Tables (Philippine Tropical Climate) ───────────────────────
 
@@ -5777,7 +5769,7 @@ function calcRefrigPipeSizing(inputs: Record<string, unknown>): Record<string, u
 // ─────────────────────────────────────────────────────────────────────────────
 
 serve(async (req) => {
-  const corsHeaders = buildCors(req.headers.get("Origin"));
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }

@@ -15,7 +15,9 @@ webhook endpoints, OAuth tokens, and third-party service credentials.
 
   Layer 3 — Edge function hardening
     6.  CORS not wildcard on edge functions  — * allows any origin to call the API  [WARN]
-    7.  No raw String(err) in responses      — stack traces must not reach the browser  [WARN]
+    7.  getCorsHeaders(req) used (not static) — static origin breaks file:// local testing  [FAIL]
+    8.  deploy-functions.ps1 covers all fns  — missing entry = edge fn stays on old code  [WARN]
+    9.  No raw String(err) in responses      — stack traces must not reach the browser  [WARN]
 
 Usage:  python validate_integration_security.py
 Output: integration_security_report.json
@@ -249,6 +251,76 @@ def check_cors_not_wildcard():
     return issues
 
 
+def check_cors_dynamic_pattern():
+    """
+    Every edge function that sets Access-Control-Allow-Origin must use getCorsHeaders(req)
+    from _shared/cors.ts. A static constant (const corsHeaders = { "Access-Control-Allow-Origin": ORIGIN })
+    locks the origin to the production domain, breaking local file:// testing (Chrome sends
+    Origin: null which never matches) and any dev environment without the ALLOWED_ORIGIN env var.
+
+    The shared getCorsHeaders(req) echoes the request origin back when it is in the allow-list
+    (production domain, env-var override, or "null" for file://), so local and production both work.
+    """
+    issues = []
+    if not os.path.isdir(FUNCTIONS_DIR):
+        return []
+    for func_name in sorted(os.listdir(FUNCTIONS_DIR)):
+        if func_name.startswith("_"):
+            continue
+        func_path = os.path.join(FUNCTIONS_DIR, func_name, "index.ts")
+        content = read_file(func_path)
+        if content is None:
+            continue
+        if not re.search(r"Access-Control-Allow-Origin", content):
+            continue
+        if not re.search(r"getCorsHeaders\s*\(", content):
+            issues.append({
+                "check": "cors_dynamic_pattern",
+                "func": func_name,
+                "reason": (
+                    f"supabase/functions/{func_name}/index.ts uses a static CORS origin instead of "
+                    f"getCorsHeaders(req) from _shared/cors.ts — static origin breaks file:// local "
+                    f"testing (Chrome sends Origin: null) and any non-production client; "
+                    f"import getCorsHeaders and call it at the top of serve(async (req) => {{)"
+                )
+            })
+    return issues
+
+
+def check_deploy_script_coverage():
+    """
+    deploy-functions.ps1 must list every Supabase edge function directory.
+    Any function missing from the script stays on old code after a git push — the
+    frontend HTML gets Netlify auto-deploy but the edge function never gets updated.
+    This is a silent mismatch: no error is shown, old behaviour persists.
+    """
+    issues = []
+    deploy_script = read_file("deploy-functions.ps1")
+    if deploy_script is None:
+        return []
+    if not os.path.isdir(FUNCTIONS_DIR):
+        return []
+    deployed = set(re.findall(r"functions deploy\s+(\S+)\s+", deploy_script))
+    for func_name in sorted(os.listdir(FUNCTIONS_DIR)):
+        if func_name.startswith("_"):
+            continue
+        func_path = os.path.join(FUNCTIONS_DIR, func_name, "index.ts")
+        if not os.path.isfile(func_path):
+            continue
+        if func_name not in deployed:
+            issues.append({
+                "check": "deploy_script_coverage",
+                "func": func_name,
+                "skip": True,
+                "reason": (
+                    f"supabase/functions/{func_name}/ exists but is NOT in deploy-functions.ps1 — "
+                    f"git push will update the frontend but this edge function stays at old code; "
+                    f"add: npx supabase functions deploy {func_name} --no-verify-jwt"
+                )
+            })
+    return issues
+
+
 def check_raw_error_in_response():
     """
     Edge function catch blocks must not return String(err) or raw error.message
@@ -296,6 +368,8 @@ CHECK_NAMES = [
     "fetch_timeout",
     "https_only",
     "cors_not_wildcard",
+    "cors_dynamic_pattern",
+    "deploy_script_coverage",
     "raw_error_in_response",
 ]
 
@@ -306,6 +380,8 @@ CHECK_LABELS = {
     "fetch_timeout":          "L2  External fetch calls have AbortSignal timeout  [WARN]",
     "https_only":             "L2  All external fetch calls use HTTPS not HTTP",
     "cors_not_wildcard":      "L3  Edge function CORS not wildcard (enterprise hardening)  [WARN]",
+    "cors_dynamic_pattern":   "L3  Edge functions use getCorsHeaders(req) not static origin  [FAIL]",
+    "deploy_script_coverage": "L3  All edge functions listed in deploy-functions.ps1  [WARN]",
     "raw_error_in_response":  "L3  No String(err) in edge function HTTP responses  [WARN]",
 }
 
@@ -322,6 +398,8 @@ def main():
     all_issues += check_fetch_timeout(LIVE_PAGES)
     all_issues += check_https_only(LIVE_PAGES)
     all_issues += check_cors_not_wildcard()
+    all_issues += check_cors_dynamic_pattern()
+    all_issues += check_deploy_script_coverage()
     all_issues += check_raw_error_in_response()
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
