@@ -10,7 +10,7 @@
   <meta name="keywords" content="industrial tools Philippines, maintenance logbook, PM scheduler, inventory management, plant supervisor, maintenance engineer, plant manager, free industrial tools, predictive maintenance Philippines" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://workhiveph.com/" />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" href="manifest.json" />
   <!-- Open Graph -->
   <meta property="og:title" content="WorkHive | Free Industrial Tools for Every Worker" />
   <meta property="og:description" content="Free industrial tools for Filipino workers at every level. Digital logbook, PM scheduler, inventory, skill matrix, and AI assistant. Built for the plant floor." />
@@ -1679,53 +1679,266 @@
 
 <!-- ── SIGN IN MODAL ── -->
 <div id="signin-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" style="background:rgba(0,0,0,0.75); backdrop-filter:blur(10px);">
-  <div class="relative rounded-2xl p-8 w-full max-w-sm mx-4" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 24px 80px rgba(0,0,0,0.5);">
-    <!-- Close -->
+  <div class="relative rounded-2xl p-7 w-full max-w-sm mx-4" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 24px 80px rgba(0,0,0,0.5);">
     <button onclick="closeSignIn()" class="absolute top-4 right-4 text-white/30 hover:text-white/70 transition-colors text-xl leading-none">&times;</button>
 
-    <!-- Logo -->
-    <div class="flex justify-center mb-6">
-      <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-10 w-auto" />
+    <div class="flex justify-center mb-5">
+      <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-9 w-auto" />
     </div>
 
-    <!-- Sign in form -->
-    <div id="signin-form">
-      <h2 class="text-xl font-black text-white mb-1">Welcome back</h2>
-      <p class="text-xs text-white/40 mb-6">Enter your name to access your records.</p>
-      <input id="signin-input" type="text" placeholder="Your name" autocomplete="name"
-        class="w-full rounded-xl px-4 py-3 text-sm text-white mb-2 outline-none"
+    <!-- Tabs: Sign In / Sign Up -->
+    <div class="flex mb-5 rounded-xl overflow-hidden" style="border:1px solid rgba(255,255,255,0.1);">
+      <button id="tab-signin" onclick="switchAuthTab('signin')"
+        class="flex-1 py-2.5 text-sm font-bold transition-colors"
+        style="background:rgba(247,162,27,0.1); color:#F7A21B; border-right:1px solid rgba(255,255,255,0.1);">Sign In</button>
+      <button id="tab-signup" onclick="switchAuthTab('signup')"
+        class="flex-1 py-2.5 text-sm font-semibold transition-colors"
+        style="color:rgba(255,255,255,0.4);">Sign Up</button>
+    </div>
+
+    <!-- Sign In panel -->
+    <div id="panel-signin">
+      <div class="space-y-3 mb-3">
+        <input id="si-username" type="text" placeholder="Username" autocomplete="username"
+          class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
+          style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);" />
+        <input id="si-password" type="password" placeholder="Password" autocomplete="current-password"
+          class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
+          style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);" />
+      </div>
+      <p id="si-error" class="text-xs text-red-400 mb-3 hidden"></p>
+      <button id="si-btn" onclick="submitSignIn()"
+        class="w-full rounded-xl py-3 text-sm font-bold"
+        style="background:#F7A21B; color:#162032;">Sign In</button>
+    </div>
+
+    <!-- Sign Up panel -->
+    <div id="panel-signup" class="hidden">
+      <div class="space-y-3 mb-3">
+        <div>
+          <input id="su-username" type="text" placeholder="Username (e.g. ianberonio)" autocomplete="username"
+            class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
+            style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);"
+            oninput="checkUsernameDebounced()" />
+          <p id="su-username-status" class="text-xs mt-1 hidden"></p>
+        </div>
+        <input id="su-password" type="password" placeholder="Password (min 6 characters)" autocomplete="new-password"
+          class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
+          style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);" />
+        <input id="su-displayname" type="text" placeholder="Display name (shown to teammates)" autocomplete="nickname"
+          class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
+          style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);" />
+      </div>
+      <p id="su-error" class="text-xs text-red-400 mb-3 hidden"></p>
+      <button id="su-btn" onclick="submitSignUp()"
+        class="w-full rounded-xl py-3 text-sm font-bold"
+        style="background:#F7A21B; color:#162032;">Create Account</button>
+      <p class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.2);">Username cannot be changed later</p>
+    </div>
+
+    <!-- Guest panel (backward compat) -->
+    <div id="panel-guest" class="hidden">
+      <p class="text-xs mb-4" style="color:rgba(255,255,255,0.4);">No account needed — just enter your display name.</p>
+      <input id="guest-input" type="text" placeholder="Your display name" autocomplete="nickname"
+        class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none mb-3"
         style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);" />
-      <p id="signin-error" class="text-xs text-red-400 mb-3 hidden">Please enter your name.</p>
-      <button onclick="submitSignIn()" class="w-full rounded-xl py-3 text-sm font-bold" style="background:#F7A21B; color:#162032;">Enter WorkHive</button>
-      <p class="text-center text-xs text-white/25 mt-4">No password needed, just your name</p>
+      <p id="guest-error" class="text-xs text-red-400 mb-3 hidden">Please enter a name.</p>
+      <button onclick="submitGuest()"
+        class="w-full rounded-xl py-3 text-sm font-bold mb-2"
+        style="background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.15);">Continue →</button>
+      <button onclick="switchAuthTab('signin')" class="w-full text-xs py-1 transition-colors" style="color:rgba(255,255,255,0.3);">← Back to Sign In</button>
+    </div>
+
+    <!-- Continue without account link -->
+    <div id="guest-link" class="mt-4 pt-4 text-center" style="border-top:1px solid rgba(255,255,255,0.06);">
+      <button onclick="switchAuthTab('guest')" class="text-xs transition-colors" style="color:rgba(255,255,255,0.25);">Continue without account</button>
     </div>
   </div>
 </div>
 
 <script>
+  // ── WorkHive Auth (C1) ────────────────────────────────────────────────────
+  // Supabase Auth with username + password.
+  // Synthetic email = username@auth.workhiveph.com — workers never see it.
+  // PREREQUISITE: Supabase Dashboard → Auth → Settings → Disable email confirmation.
+  const _AUTH_URL    = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+  const _AUTH_KEY    = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+  const _AUTH_DOMAIN = '@auth.workhiveph.com';
+  let   _authDb      = null;
+
+  function _getDb() {
+    if (!_authDb) _authDb = supabase.createClient(_AUTH_URL, _AUTH_KEY);
+    return _authDb;
+  }
+
+  function _syntheticEmail(username) {
+    return username.toLowerCase().replace(/[^a-z0-9_]/g, '') + _AUTH_DOMAIN;
+  }
+
+  // ── Tab switching ──────────────────────────────────────────────────────────
+  function switchAuthTab(tab) {
+    ['signin','signup','guest'].forEach(t => {
+      document.getElementById('panel-' + t)?.classList.toggle('hidden', t !== tab);
+      const btn = document.getElementById('tab-' + t);
+      if (btn) {
+        const active = t === tab;
+        btn.style.background = active ? 'rgba(247,162,27,0.1)' : 'transparent';
+        btn.style.color      = active ? '#F7A21B' : 'rgba(255,255,255,0.4)';
+        btn.style.fontWeight = active ? '700' : '600';
+      }
+    });
+    const guestLink = document.getElementById('guest-link');
+    if (guestLink) guestLink.style.display = tab === 'guest' ? 'none' : '';
+    const firstInput = { signin: 'si-username', signup: 'su-username', guest: 'guest-input' }[tab];
+    if (firstInput) setTimeout(() => document.getElementById(firstInput)?.focus(), 50);
+  }
+
+  // ── Open / Close ───────────────────────────────────────────────────────────
   function openSignIn(e) {
     if (e) e.preventDefault();
     const name = localStorage.getItem('wh_last_worker') || '';
     if (name) { toggleUserMenu(e); return; }
     document.getElementById('signin-modal').classList.remove('hidden');
-    setTimeout(() => document.getElementById('signin-input')?.focus(), 100);
+    switchAuthTab('signin');
   }
 
   function closeSignIn() {
     document.getElementById('signin-modal').classList.add('hidden');
   }
 
-  function submitSignIn() {
-    const val = document.getElementById('signin-input').value.trim();
-    if (!val) {
-      document.getElementById('signin-error').classList.remove('hidden');
-      return;
+  // ── Sign In ────────────────────────────────────────────────────────────────
+  async function submitSignIn() {
+    const username = document.getElementById('si-username').value.trim();
+    const password = document.getElementById('si-password').value;
+    const errEl    = document.getElementById('si-error');
+    const btn      = document.getElementById('si-btn');
+
+    errEl.classList.add('hidden');
+    if (!username || !password) {
+      errEl.textContent = 'Enter your username and password.';
+      errEl.classList.remove('hidden'); return;
     }
+
+    btn.textContent = 'Signing in…'; btn.disabled = true;
+
+    const db = _getDb();
+    const { data, error } = await db.auth.signInWithPassword({
+      email: _syntheticEmail(username), password
+    });
+
+    btn.textContent = 'Sign In'; btn.disabled = false;
+
+    if (error) {
+      errEl.textContent = error.message.includes('Invalid login') ? 'Wrong username or password.' : error.message;
+      errEl.classList.remove('hidden'); return;
+    }
+
+    // Fetch display_name from worker_profiles
+    const { data: profile } = await db.from('worker_profiles')
+      .select('display_name').eq('auth_uid', data.user.id).single();
+
+    const displayName = profile?.display_name || username;
+    localStorage.setItem('wh_last_worker', displayName);
+    closeSignIn();
+    updateNavbarName(displayName);
+  }
+
+  // ── Sign Up ────────────────────────────────────────────────────────────────
+  async function submitSignUp() {
+    const username    = document.getElementById('su-username').value.trim().toLowerCase();
+    const password    = document.getElementById('su-password').value;
+    const displayName = document.getElementById('su-displayname').value.trim();
+    const errEl = document.getElementById('su-error');
+    const btn   = document.getElementById('su-btn');
+
+    errEl.classList.add('hidden');
+    if (!username || !/^[a-z0-9_]{3,30}$/.test(username)) {
+      errEl.textContent = 'Username must be 3–30 characters: letters, numbers, underscores only.';
+      errEl.classList.remove('hidden'); return;
+    }
+    if (password.length < 6) {
+      errEl.textContent = 'Password must be at least 6 characters.';
+      errEl.classList.remove('hidden'); return;
+    }
+    if (!displayName) {
+      errEl.textContent = 'Display name is required — this is what teammates see.';
+      errEl.classList.remove('hidden'); return;
+    }
+
+    btn.textContent = 'Creating account…'; btn.disabled = true;
+
+    const db = _getDb();
+
+    // Username uniqueness check
+    const { data: existing } = await db.from('worker_profiles')
+      .select('id').eq('username', username).maybeSingle();
+    if (existing) {
+      errEl.textContent = 'Username already taken — try a different one.';
+      errEl.classList.remove('hidden');
+      btn.textContent = 'Create Account'; btn.disabled = false; return;
+    }
+
+    // Create Supabase Auth user
+    const { data, error } = await db.auth.signUp({
+      email: _syntheticEmail(username), password
+    });
+
+    if (error) {
+      errEl.textContent = error.message;
+      errEl.classList.remove('hidden');
+      btn.textContent = 'Create Account'; btn.disabled = false; return;
+    }
+
+    // Insert worker_profiles
+    const { error: profileErr } = await db.from('worker_profiles').insert({
+      auth_uid:     data.user.id,
+      username,
+      display_name: displayName
+    });
+
+    btn.textContent = 'Create Account'; btn.disabled = false;
+
+    if (profileErr) {
+      errEl.textContent = 'Account created but profile setup failed — try signing in.';
+      errEl.classList.remove('hidden'); return;
+    }
+
+    localStorage.setItem('wh_last_worker', displayName);
+    closeSignIn();
+    updateNavbarName(displayName);
+  }
+
+  // ── Guest (backward compat — no account needed) ───────────────────────────
+  function submitGuest() {
+    const val = document.getElementById('guest-input').value.trim();
+    if (!val) { document.getElementById('guest-error').classList.remove('hidden'); return; }
     localStorage.setItem('wh_last_worker', val);
     closeSignIn();
     updateNavbarName(val);
   }
 
+  // ── Username availability check ────────────────────────────────────────────
+  let _usernameTimer = null;
+  function checkUsernameDebounced() {
+    clearTimeout(_usernameTimer);
+    _usernameTimer = setTimeout(async () => {
+      const username = document.getElementById('su-username').value.trim().toLowerCase();
+      const statusEl = document.getElementById('su-username-status');
+      if (!username || username.length < 3) { statusEl.classList.add('hidden'); return; }
+      if (!/^[a-z0-9_]+$/.test(username)) {
+        statusEl.textContent = 'Only letters, numbers, underscores allowed';
+        statusEl.className = 'text-xs mt-1 text-red-400';
+        statusEl.classList.remove('hidden'); return;
+      }
+      const { data } = await _getDb().from('worker_profiles')
+        .select('id').eq('username', username).maybeSingle();
+      statusEl.textContent = data ? '✗ Username taken' : '✓ Available';
+      statusEl.className   = `text-xs mt-1 ${data ? 'text-red-400' : 'text-green-400'}`;
+      statusEl.classList.remove('hidden');
+    }, 400);
+  }
+
+  // ── Navbar helpers ─────────────────────────────────────────────────────────
   function updateNavbarName(name) {
     const first = name.split(' ')[0];
     document.querySelectorAll('.signin-btn').forEach(el => el.textContent = first);
@@ -1737,32 +1950,34 @@
 
   function toggleUserMenu(e) {
     if (e) e.preventDefault();
-    // Toggle whichever menu is visible (desktop or mobile)
     const isMobile = window.innerWidth < 768;
     const menuId = isMobile ? 'user-menu-mobile' : 'user-menu';
     document.getElementById(menuId).classList.toggle('hidden');
   }
 
-  function signOut() {
-    localStorage.removeItem('wh_last_worker');
-    localStorage.removeItem('wh_worker_name');
-    localStorage.removeItem('workerName');
-    localStorage.removeItem('wh_active_hive_id');
-    localStorage.removeItem('wh_hive_id');
-    localStorage.removeItem('wh_hive_role');
-    localStorage.removeItem('wh_hive_name');
-    document.getElementById('user-menu').classList.add('hidden');
-    document.getElementById('user-menu-mobile').classList.add('hidden');
+  // ── Sign Out ───────────────────────────────────────────────────────────────
+  async function signOut() {
+    ['wh_last_worker','wh_worker_name','workerName',
+     'wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name']
+      .forEach(k => localStorage.removeItem(k));
+    document.getElementById('user-menu')?.classList.add('hidden');
+    document.getElementById('user-menu-mobile')?.classList.add('hidden');
     document.querySelectorAll('.signin-btn').forEach(el => el.textContent = 'Sign In');
-    document.getElementById('signin-input').value = '';
+    _getDb().auth.signOut(); // best effort, fire-and-forget after clearing local state
   }
 
-  document.getElementById('signin-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') submitSignIn();
-  });
-
+  // ── Keyboard + backdrop ────────────────────────────────────────────────────
   document.getElementById('signin-modal').addEventListener('click', function(e) {
     if (e.target === this) closeSignIn();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    const modal = document.getElementById('signin-modal');
+    if (modal.classList.contains('hidden')) return;
+    if (!document.getElementById('panel-signin').classList.contains('hidden')) submitSignIn();
+    else if (!document.getElementById('panel-signup').classList.contains('hidden')) submitSignUp();
+    else if (!document.getElementById('panel-guest').classList.contains('hidden')) submitGuest();
   });
 
   document.addEventListener('click', function(e) {

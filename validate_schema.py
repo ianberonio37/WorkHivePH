@@ -58,6 +58,7 @@ CORE_TABLES = {
     "skill_profiles", "skill_badges", "skill_exam_attempts", "schedule_items",
     "engineering_calcs",
     "community_posts", "community_replies", "community_reactions", "community_xp",
+    "worker_profiles",
 }
 
 DATE_FIELDS = [

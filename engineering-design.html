@@ -7,7 +7,7 @@
   <title>Engineering Design Calculator: WorkHive</title>
   <meta name="robots" content="noindex, follow" />
   <meta name="description" content="Standards-grade engineering design calculator with 46 calculation types across Mechanical, HVAC, Electrical, Fire Protection, Plumbing, and Structural disciplines. Generates BOM, SOW, and diagrams." />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -246,6 +246,17 @@
     #drawing-panel .editable-field { border-bottom: 1.5px dashed #F7A21B; outline: none; min-width: 40px; cursor: text; display: block; }
     #drawing-panel .editable-field:focus { background: #fffbf0; border-radius: 2px; }
     @media print { #drawing-panel .editable-field { border-bottom: none; } }
+    #drawing-panel.svg-edit-mode svg { cursor: crosshair; }
+    #drawing-panel.svg-edit-mode svg text { cursor: move !important; user-select: none; }
+    #drawing-panel.svg-edit-mode svg text:hover { opacity: 0.55; }
+    #drawing-panel.svg-edit-mode svg rect:not(#_svg_rb):not(#_svg_sb),
+    #drawing-panel.svg-edit-mode svg circle,
+    #drawing-panel.svg-edit-mode svg ellipse,
+    #drawing-panel.svg-edit-mode svg line,
+    #drawing-panel.svg-edit-mode svg polygon,
+    #drawing-panel.svg-edit-mode svg polyline,
+    #drawing-panel.svg-edit-mode svg path { cursor: crosshair; }
+    #svg-edit-banner { display:none; background:#e3f2fd; border:1px solid #1565c0; border-radius:0.4rem; padding:0.35rem 0.85rem; font-size:0.73rem; color:#1565c0; margin-bottom:0.6rem; }
 
     /* History card */
     .hist-card {
@@ -758,10 +769,12 @@
               <div class="font-semibold text-sm" id="drawing-output-title" style="color:rgba(255,255,255,0.85);">System Diagram</div>
               <div class="flex gap-2">
                 <button onclick="regenerateDrawing()" class="btn-ghost text-xs py-1.5 px-3">↺ Regenerate</button>
+                <button id="btn-svg-edit" onclick="toggleSVGEdit()" class="btn-ghost text-xs py-1.5 px-3">✏ Edit</button>
                 <button id="diagram-dl-svg" onclick="downloadDiagramSVG()" class="btn-ghost text-xs py-1.5 px-3" style="display:none;">⬇ SVG</button>
                 <button onclick="downloadDrawingPdf()" class="btn-ghost text-xs py-1.5 px-3">⬇ PDF</button>
               </div>
             </div>
+            <div id="svg-edit-banner">✏ <strong>Edit mode:</strong> <strong>drag</strong> text to move it — <strong>double-click</strong> text to edit — <strong>drag on empty space</strong> to rubber-band select symbols, then drag the selection to move. Click <strong>✓ Done</strong> when finished.</div>
             <div id="drawing-panel" style="background:#fff;border-radius:0.5rem;padding:1.5rem;overflow-x:auto;"></div>
           </div>
 
@@ -13079,7 +13092,7 @@ function buildTransformerSLDSvg(inputs, results) {
 
   // ── Background + mandatory drawing border ────────────────────────────────────
   p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="0.75"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
 
   // ── Title (per skill: drawing title at top centre) ───────────────────────────
   p.push(T(W/2, 27, 'POWER TRANSFORMER — SINGLE LINE DIAGRAM', {sz:12, c:CC, w:'700'}));
@@ -13513,7 +13526,7 @@ function buildCleanAgentSVG(inputs, results) {
 
   // ── Background + mandatory inner margin border ────────────────────────────
   p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="0.75"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
 
   // ── Title ─────────────────────────────────────────────────────────────────
   p.push(T(W/2, 27, 'CLEAN AGENT FIRE SUPPRESSION SYSTEM — SCHEMATIC', {sz:12, c:CC, w:'700'}));
@@ -19030,7 +19043,7 @@ async function _runDrawing() {
       const _r = _lastResults || {};
       const _cyl = _r.cylinder || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `${Number(_lastInputs?.system_pressure_bar||0).toFixed(0)} bar  |  Ø${Number(_lastInputs?.cylinder_bore_mm||0).toFixed(0)}mm  |  ${Number(_cyl.force_extend_kN||0).toFixed(1)} kN`,
+        `${Number(_lastInputs?.system_pressure_bar||0).toFixed(0)} bar  |  Ø${Number(_r.bore_selected_mm||_lastInputs?.cylinder_bore_mm||0).toFixed(0)}mm  |  ${Number(_cyl.F_extend_kN||0).toFixed(1)} kN`,
         { drawingNo:'MECH-HYD-PID-001', drawingTitle:'Hydraulic Circuit — Fluid Power P&ID', standard:'ISO 4413 / ISO 1219' }));
     } else if (ct === 'V-Belt Drive Design') {
       const svg = buildVBeltDriveSVG(_lastInputs, _lastResults);
@@ -19042,13 +19055,13 @@ async function _runDrawing() {
       const svg = buildVibrationSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `fn=${Number(_r.fn_Hz||0).toFixed(2)} Hz  |  v_rms=${Number(_r.V_rms_mm_s||0).toFixed(2)} mm/s  |  Zone ${String(_r.iso_zone||'A')}`,
+        `fn=${Number(_r.fn_Hz||0).toFixed(2)} Hz  |  v_rms=${Number(_r.V_rms_mm_s||0).toFixed(2)} mm/s  |  ${String(_r.iso_zone||'Zone A')}`,
         { drawingNo:'MECH-VIB-SCH-001', drawingTitle:'Vibration Analysis — SDOF Response', standard:'ISO 10816-3 / ISO 20816' }));
     } else if (ct === 'Noise / Acoustics') {
       const svg = buildNoiseAcousticsSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `Lp=${Number(_r.Lp_at_distance_dB||0).toFixed(1)} dB @ ${Number(_r.distance_m||5).toFixed(1)}m  |  NC-${Number(_r.NC_recommended||35).toFixed(0)}`,
+        `Lp=${Number(_r.Lp_at_distance_dB||0).toFixed(1)} dB @ ${Number(_r.distance_m||5).toFixed(1)}m  |  NC-${Number(_r.NC_limit||35).toFixed(0)}`,
         { drawingNo:'MECH-ACO-SCH-001', drawingTitle:'Noise / Acoustics — Room SPL Plan', standard:'ISO 9613 / DOLE D.O.13-1998' }));
     } else if (ct === 'Shaft Design') {
       const svg = buildShaftDesignSVG(_lastInputs, _lastResults);
@@ -19084,7 +19097,7 @@ async function _runDrawing() {
       const svg = buildHoistCapacitySVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `SWL ${Number(_lastInputs?.swl_kN||0).toFixed(1)} kN  |  MBF ${Number(_r.MBF_kN||0).toFixed(1)} kN  |  ${Number(_r.motor_hp_std||0).toFixed(1)} HP`,
+        `SWL ${Number(_lastInputs?.swl_kN||(_lastInputs?.rated_load_kg||0)*9.81/1000).toFixed(1)} kN  |  MBF ${Number(_r.MBF_kN||0).toFixed(1)} kN  |  ${Number(_r.motor_hp_std||0).toFixed(1)} HP`,
         { drawingNo:'MECH-HST-SCH-001', drawingTitle:'Hoist Capacity — Rigging Diagram', standard:'ASME B30.2 / ISO 4301 / DOLE OSH' }));
     } else if (ct === 'Water Supply Pipe Sizing') {
       const svg = buildWaterSupplyPipeSVG(_lastInputs, _lastResults);
@@ -19283,9 +19296,265 @@ function generateDrawing() {
 }
 
 function regenerateDrawing() {
+  _exitSVGEdit();
   document.getElementById('drawing-output').classList.add('hidden');
   document.getElementById('drawing-loading').classList.remove('hidden');
   _runDrawing();
+}
+
+// ─── SVG Diagram Text Edit Mode ───────────────────────────────────────────────
+let _svgEditActive = false;
+let _svgEditCtrl = null;
+
+function toggleSVGEdit() {
+  if (!_svgEditActive) {
+    const svg = document.querySelector('#drawing-panel svg');
+    if (!svg) return;
+    _svgEditActive = true;
+    const btn = document.getElementById('btn-svg-edit');
+    btn.textContent = '✓ Done';
+    btn.style.color = '#2e7d32';
+    btn.style.borderColor = '#2e7d32';
+    document.getElementById('drawing-panel').classList.add('svg-edit-mode');
+    document.getElementById('svg-edit-banner').style.display = 'block';
+    _makeSVGEditable(svg);
+  } else {
+    _exitSVGEdit();
+  }
+}
+
+function _exitSVGEdit() {
+  if (!_svgEditActive) return;
+  _svgEditActive = false;
+  if (_svgEditCtrl) { _svgEditCtrl.abort(); _svgEditCtrl = null; }
+  const svg = document.querySelector('#drawing-panel svg');
+  if (svg) {
+    ['_svg_rb','_svg_sb'].forEach(id => { const el = svg.querySelector('#'+id); if(el) el.remove(); });
+  }
+  const btn = document.getElementById('btn-svg-edit');
+  if (btn) { btn.textContent = '✏ Edit'; btn.style.color = ''; btn.style.borderColor = ''; }
+  const panel = document.getElementById('drawing-panel');
+  if (panel) panel.classList.remove('svg-edit-mode');
+  const banner = document.getElementById('svg-edit-banner');
+  if (banner) banner.style.display = 'none';
+}
+
+function _makeSVGEditable(svg) {
+  _svgEditCtrl = new AbortController();
+  const sig = _svgEditCtrl.signal;
+  const NS = 'http://www.w3.org/2000/svg';
+
+  let mode = 'idle'; // idle | textdrag | rubberband | groupdrag
+  let textEl = null, textOX = 0, textOY = 0;
+  let ds = {x:0,y:0};
+  const sel = new Set();
+  let grpEl = null, rbEl = null, sbEl = null, sbOX = 0, sbOY = 0;
+
+  function toSVG(e) {
+    const p = svg.createSVGPoint();
+    p.x = e.clientX; p.y = e.clientY;
+    return p.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  // Skip full-canvas background/border rects — they fill >80% of canvas width
+  function isBg(el) {
+    return el.tagName === 'rect' && (+el.getAttribute('width')||0) > 800;
+  }
+
+  // ── Rubber band ──────────────────────────────────────────────────────────────
+  function makeRB(x,y) {
+    rbEl = document.createElementNS(NS,'rect');
+    rbEl.setAttribute('fill','rgba(21,101,192,0.07)'); rbEl.setAttribute('stroke','#1565c0');
+    rbEl.setAttribute('stroke-width','1.2'); rbEl.setAttribute('stroke-dasharray','5 3');
+    rbEl.setAttribute('pointer-events','none'); rbEl.id='_svg_rb';
+    svg.appendChild(rbEl); updateRB(x,y,x,y);
+  }
+  function updateRB(sx,sy,ex,ey) {
+    if(!rbEl) return;
+    rbEl.setAttribute('x',Math.min(sx,ex)); rbEl.setAttribute('y',Math.min(sy,ey));
+    rbEl.setAttribute('width',Math.abs(ex-sx)); rbEl.setAttribute('height',Math.abs(ey-sy));
+  }
+  function removeRB() { if(rbEl){rbEl.remove();rbEl=null;} }
+
+  // ── Selection box ────────────────────────────────────────────────────────────
+  function makeSB() {
+    if(sbEl){sbEl.remove();sbEl=null;}
+    let mx=Infinity,my=Infinity,Mx=-Infinity,My=-Infinity;
+    sel.forEach(el=>{ try{ const b=el.getBBox();
+      mx=Math.min(mx,b.x); my=Math.min(my,b.y); Mx=Math.max(Mx,b.x+b.width); My=Math.max(My,b.y+b.height);
+    }catch(er){} });
+    if(mx===Infinity) return;
+    sbEl=document.createElementNS(NS,'rect');
+    sbEl.setAttribute('x',mx-5); sbEl.setAttribute('y',my-5);
+    sbEl.setAttribute('width',Mx-mx+10); sbEl.setAttribute('height',My-my+10);
+    sbEl.setAttribute('fill','rgba(21,101,192,0.05)'); sbEl.setAttribute('stroke','#1565c0');
+    sbEl.setAttribute('stroke-width','1.5'); sbEl.setAttribute('stroke-dasharray','6 3');
+    sbEl.setAttribute('pointer-events','none'); sbEl.id='_svg_sb';
+    svg.appendChild(sbEl);
+    sbOX=+sbEl.getAttribute('x'); sbOY=+sbEl.getAttribute('y');
+  }
+  function inSB(c) {
+    if(!sbEl) return false;
+    return c.x >= sbOX && c.x <= sbOX+(+sbEl.getAttribute('width')) &&
+           c.y >= sbOY && c.y <= sbOY+(+sbEl.getAttribute('height'));
+  }
+  function clearSel() {
+    if(grpEl) { // ungroup if drag was started but not ended
+      [...grpEl.children].forEach(el => svg.insertBefore(el, grpEl));
+      grpEl.remove(); grpEl=null;
+    }
+    sel.clear();
+    if(sbEl){sbEl.remove();sbEl=null;}
+  }
+
+  // ── Group drag using a <g> wrapper (most reliable for all element types) ─────
+  function startGroup(c) {
+    mode='groupdrag'; ds=c;
+    grpEl=document.createElementNS(NS,'g'); grpEl.id='_svg_grp';
+    grpEl.setAttribute('transform','translate(0,0)');
+    svg.insertBefore(grpEl, sbEl||null);
+    sel.forEach(el => grpEl.appendChild(el));
+  }
+  function moveGroup(dx,dy) {
+    if(grpEl) grpEl.setAttribute('transform',`translate(${dx.toFixed(1)},${dy.toFixed(1)})`);
+    if(sbEl) { sbEl.setAttribute('x',(sbOX+dx).toFixed(1)); sbEl.setAttribute('y',(sbOY+dy).toFixed(1)); }
+  }
+  function dropGroup(dx,dy) {
+    if(!grpEl) return;
+    const f=v=>v.toFixed(1);
+    // Bake transform into each element's coordinates, then restore to SVG root
+    [...grpEl.children].forEach(el => {
+      const t=el.tagName.toLowerCase();
+      if(t==='text'||t==='rect'||t==='image') {
+        el.setAttribute('x',f((+el.getAttribute('x')||0)+dx));
+        el.setAttribute('y',f((+el.getAttribute('y')||0)+dy));
+      } else if(t==='circle'||t==='ellipse') {
+        el.setAttribute('cx',f((+el.getAttribute('cx')||0)+dx));
+        el.setAttribute('cy',f((+el.getAttribute('cy')||0)+dy));
+      } else if(t==='line') {
+        el.setAttribute('x1',f((+el.getAttribute('x1')||0)+dx)); el.setAttribute('y1',f((+el.getAttribute('y1')||0)+dy));
+        el.setAttribute('x2',f((+el.getAttribute('x2')||0)+dx)); el.setAttribute('y2',f((+el.getAttribute('y2')||0)+dy));
+      } else if(t==='polygon'||t==='polyline') {
+        const tk=(el.getAttribute('points')||'').trim().split(/[\s,]+/),np=[];
+        for(let i=0;i+1<tk.length;i+=2) np.push(f(+tk[i]+dx)+','+f(+tk[i+1]+dy));
+        el.setAttribute('points',np.join(' '));
+      } else {
+        const m=(el.getAttribute('transform')||'').match(/translate\(([^,]+),([^)]+)\)/);
+        el.setAttribute('transform',`translate(${f((m?+m[1]:0)+dx)},${f((m?+m[2]:0)+dy)})`);
+      }
+      svg.insertBefore(el, grpEl);
+    });
+    grpEl.remove(); grpEl=null;
+    // Update selbox origin for next drag
+    sbOX=+(sbEl?.getAttribute('x')||0); sbOY=+(sbEl?.getAttribute('y')||0);
+  }
+
+  // ── Events ───────────────────────────────────────────────────────────────────
+  svg.addEventListener('mousedown', e => {
+    if(e.button!==0) return;
+    const c=toSVG(e), id=e.target.id||'';
+    if(id==='_svg_rb') return;
+
+    if(sel.size>0) {
+      e.preventDefault();
+      if(inSB(c)) { startGroup(c); }
+      else { clearSel(); }
+      return;
+    }
+
+    if(e.target.tagName==='text') {
+      e.preventDefault(); mode='textdrag'; textEl=e.target; ds=c;
+      textOX=+textEl.getAttribute('x')||0; textOY=+textEl.getAttribute('y')||0;
+      textEl.style.opacity='0.5'; return;
+    }
+    e.preventDefault(); mode='rubberband'; ds=c; makeRB(c.x,c.y);
+  }, { signal: sig });
+
+  svg.addEventListener('mousemove', e => {
+    if(mode==='idle') return;
+    const c=toSVG(e);
+    if(mode==='textdrag'&&textEl) {
+      textEl.setAttribute('x',(textOX+c.x-ds.x).toFixed(1));
+      textEl.setAttribute('y',(textOY+c.y-ds.y).toFixed(1));
+    } else if(mode==='rubberband') {
+      updateRB(ds.x,ds.y,c.x,c.y);
+    } else if(mode==='groupdrag') {
+      moveGroup(c.x-ds.x, c.y-ds.y);
+    }
+  }, { signal: sig });
+
+  svg.addEventListener('mouseup', e => {
+    const c=toSVG(e);
+    if(mode==='textdrag'&&textEl) { textEl.style.opacity=''; textEl=null; }
+    else if(mode==='rubberband') {
+      removeRB();
+      const rx=Math.min(ds.x,c.x), ry=Math.min(ds.y,c.y);
+      const rw=Math.abs(c.x-ds.x), rh=Math.abs(c.y-ds.y);
+      if(rw>8&&rh>8) {
+        svg.querySelectorAll('rect,circle,ellipse,line,polygon,polyline,path,text').forEach(el=>{
+          if(el.id==='_svg_rb'||el.id==='_svg_sb'||isBg(el)) return;
+          try { const b=el.getBBox();
+            if(b.x<rx+rw && b.x+b.width>rx && b.y<ry+rh && b.y+b.height>ry) sel.add(el);
+          } catch(er) {}
+        });
+        if(sel.size>0) makeSB();
+      }
+    } else if(mode==='groupdrag') {
+      dropGroup(c.x-ds.x, c.y-ds.y);
+    }
+    mode='idle';
+  }, { signal: sig });
+
+  svg.addEventListener('mouseleave', () => {
+    if(mode==='textdrag'&&textEl){textEl.style.opacity='';textEl=null;}
+    if(mode==='rubberband') removeRB();
+    if(mode==='groupdrag') dropGroup(0,0);
+    mode='idle';
+  }, { signal: sig });
+
+  svg.querySelectorAll('text').forEach(t => {
+    t.addEventListener('dblclick', e => {
+      e.preventDefault(); e.stopPropagation();
+      if(mode!=='idle') return;
+      _editSVGTextInline(t);
+    }, { signal: sig });
+  });
+}
+
+function _editSVGTextInline(textEl) {
+  const bbox = textEl.getBoundingClientRect();
+  const fontSize = Math.max(parseFloat(textEl.getAttribute('font-size') || 12), 11);
+  const inp = document.createElement('input');
+  inp.value = textEl.textContent.trim();
+  Object.assign(inp.style, {
+    position: 'fixed',
+    left: bbox.left + 'px',
+    top: (bbox.top - 4) + 'px',
+    minWidth: Math.max(bbox.width + 20, 90) + 'px',
+    fontSize: (fontSize * 1.15) + 'px',
+    fontFamily: 'sans-serif',
+    border: '1.5px solid #1565c0',
+    borderRadius: '3px',
+    padding: '2px 6px',
+    background: '#fff',
+    color: '#1a2e4a',
+    outline: 'none',
+    zIndex: '9999',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.18)'
+  });
+  document.body.appendChild(inp);
+  inp.focus();
+  inp.select();
+  const commit = () => {
+    const val = inp.value.trim();
+    if (val) textEl.textContent = val;
+    inp.remove();
+  };
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); commit(); }
+    if (e.key === 'Escape') inp.remove();
+  });
+  inp.addEventListener('blur', commit);
 }
 
 // ─── LPS Protection Zone Diagram builder ─────────────────────────────────────────────────
@@ -19351,7 +19620,7 @@ function buildLPSZoneSvg(inputs, results) {
 
   // ── White background + inner margin ─────────────────────────────────────
   p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="0.75"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
 
   // ── Drawing title ────────────────────────────────────────────────────────
   p.push(T(W/2, 27, 'LIGHTNING PROTECTION ZONE DIAGRAM', { sz: 12, c: CC, w: '700' }));
@@ -19740,7 +20009,7 @@ function buildFirePumpPIDSvg(inputs, results) {
 
   // ── Background + mandatory inner margin (drawing-standards skill) ─────────
   p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CP}" stroke-width="0.75"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CP}" stroke-width="2"/>`);
 
   // ── Title ─────────────────────────────────────────────────────────────────
   p.push(T(W/2, 27, 'FIRE PUMP SYSTEM — P&ID SCHEMATIC', {sz:12, c:CP, w:'700'}));
@@ -20080,7 +20349,7 @@ function buildElectricalSLDSvg(inputs, results) {
 
   // Inner margin line only: outer perimeter border comes from the CSS wrapper div + HTML table,
   // which guarantees pixel-perfect alignment and avoids the SVG-rect / table-border offset gap.
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="0.75"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
 
   // Drawing title inside frame (top centre)
   p.push(T(CX, 27, 'SINGLE LINE DIAGRAM', { sz: 12, c: CC, w: '700' }));
@@ -21365,7 +21634,7 @@ function buildChillerSVG(inputs, results, calcType) {
 
   // ── Background + inner margin ─────────────────────────────────────────────
   p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="0.75"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
 
   // ── Title ─────────────────────────────────────────────────────────────────
   const typeLabel = isWC ? 'WATER-COOLED CHILLER PLANT' : 'AIR-COOLED CHILLER PLANT';
@@ -21667,7 +21936,7 @@ function buildFCUSVG(inputs, results) {
 
   // ── Background + margin ────────────────────────────────────────────────────
   p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="0.75"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
 
   // ── Title ─────────────────────────────────────────────────────────────────
   p.push(T(W/2, 27, 'FAN COIL UNIT — SYSTEM SCHEMATIC', {sz:12, c:CC, w:'700'}));
@@ -21934,7 +22203,7 @@ function buildRefrigPipeSVG(inputs, results) {
 
   // ── Background + inner margin ─────────────────────────────────────────────
   p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="0.75"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
 
   // ── Title ─────────────────────────────────────────────────────────────────
   p.push(T(W/2, 27, 'REFRIGERANT PIPE SIZING — CIRCUIT P&ID', {sz:12, c:CC, w:'700'}));
@@ -22201,7 +22470,7 @@ function buildCoolingTowerSVG(inputs, results) {
 
   // ── Background + inner margin ────────────────────────────────────────────
   p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="0.75"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
 
   // ── Title ─────────────────────────────────────────────────────────────────
   p.push(T(W/2, 27, 'COOLING TOWER SYSTEM — SCHEMATIC (COUNTER-FLOW INDUCED DRAFT)', {sz:11, c:CC, w:'700'}));
@@ -22498,7 +22767,7 @@ function buildVentilationSVG(inputs, results) {
 
   // ── Background + inner margin (mandatory) ────────────────────────────────
   p.push(`<rect width="${W}" height="${H}" fill="#fff"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="0.75"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
 
   // ── Title ─────────────────────────────────────────────────────────────────
   p.push(T(W/2, 27, 'VENTILATION SYSTEM SCHEMATIC — ASHRAE 62.1 VENTILATION RATE PROCEDURE', {sz:11, c:CC, w:'700'}));
@@ -22752,7 +23021,7 @@ function buildExpansionTankSVG(inputs, results) {
   p.push(`<text x="${W/2}" y="31" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="bold" fill="white">EXPANSION TANK — HYDRONIC SYSTEM SCHEMATIC  |  ${sysType.toUpperCase()}  |  ASHRAE 2023 CH.12 / ASME VIII</text>`);
 
   // Divider
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // Panel sub-heading
   p.push(`<text x="70" y="58" font-family="Segoe UI,Arial,sans-serif" font-size="8" font-weight="600" fill="${SC}">POINT OF NO PRESSURE CHANGE (PNPC) EXPANSION TANK CONNECTION — PUMP SUCTION SIDE</text>`);
@@ -22996,10 +23265,10 @@ function buildPipeSizingSVG(inputs, results) {
   const p = [];
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(T(W/2, 31, `PIPE SIZING — HYDRAULIC SCHEMATIC  |  ${diam}mm ${esc(mat)}  |  ASHRAE 2021 Ch.22 / PSME / PNS ISO 4427`, {sz:10.5, c:'white', w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── SCHEMATIC ──
   // Pipe elevation view: source tank → pipe → destination
@@ -23180,10 +23449,10 @@ function buildCompressedAirSVG(inputs, results) {
   const p = [];
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(T(W/2, 31, `COMPRESSED AIR SYSTEM — P&ID  |  ${instHP} HP / ${instKW} kW  |  ${pressBar} bar g  |  ISO 1217 / ASME B31.3 / CAGI`, {sz:10.5, c:'white', w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   p.push(T(80, 57, 'P&ID — COMPRESSED AIR GENERATION & DISTRIBUTION', {a:'start', sz:8, c:CC, w:'600'}));
 
   // Main process pipe at y=300
@@ -23389,10 +23658,10 @@ function buildBoilerSystemSVG(inputs, results) {
   const p = [];
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(T(W/2, 31, `BOILER SYSTEM — ${isSteam ? 'STEAM' : 'HOT WATER'} SCHEMATIC  |  ${totKW} kW / ${totBHP} BHP × ${nBoilers}  |  ASME BPVC / PD ACT / PSME`, {sz:10.5, c:'white', w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   p.push(T(80, 57, `${isSteam ? 'STEAM GENERATION SYSTEM' : 'HOT WATER BOILER SYSTEM'} — ${pressBar} bar g`, {a:'start', sz:8, c:CC, w:'600'}));
 
   // ── BOILER VESSEL ──
@@ -23592,10 +23861,10 @@ function buildAHUSizingSVG(inputs, results) {
   const p = [];
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(T(W/2, 31, `AHU SIZING — SYSTEM SCHEMATIC  |  ${saM3hr} m³/h  |  ${coilKW} kW / ${coilTR} TR  |  ASHRAE 62.1 / 90.1 / SMACNA / PSME`, {sz:10.5, c:'white', w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── AHU CASING ──
   const AX = 80, AY = 110, AW = 520, AH = 220;
@@ -23795,10 +24064,10 @@ function buildDuctSizingSVG(inputs, results) {
   const p = [];
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(T(W/2,31,`DUCT SIZING — EQUAL FRICTION METHOD  |  Ø${dCirc}mm or ${rA}×${rB}mm  |  v=${velMs} m/s  |  ASHRAE 2021 Ch.21 / SMACNA`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   p.push(T(80,57,`APPLICATION: ${esc(app.toUpperCase())}  |  Flow: ${flowM3h} m³/h (${flowLps} L/s)  |  Length: ${lenM} m`,{a:'start',sz:8,c:CC,w:'600'}));
 
   // ── PLAN VIEW: DUCT LAYOUT ──
@@ -23968,10 +24237,10 @@ function buildSolarPVSVG(inputs, results) {
   const p=[];
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(T(W/2,31,`SOLAR PV SYSTEM — ONE-LINE DIAGRAM  |  ${arrayKWp} kWp  |  ${totalPanels} panels  |  IEC 62548 / PEC Art.6 / DOE Net Metering`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   p.push(T(80,57,`${gridType.toUpperCase()}  |  ${arrayKWp} kWp Array  |  ${nStrings} string(s) × ${strPanels} panels  |  Inverter: ${invKVA} kVA`,{a:'start',sz:8,c:CC,w:'600'}));
 
   // ── PV ARRAY (left) ──
@@ -24121,10 +24390,10 @@ function buildPFCSVG(inputs, results) {
   const p=[];
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(T(W/2,31,`POWER FACTOR CORRECTION — SINGLE-LINE  |  ${kvarSel} kVAR  |  PF ${pfBefore}→${pfAfter}  |  IEEE 18 / IEEE 1036 / PEC 2017`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── ONE-LINE DIAGRAM ──
   const BUS_Y=240, BUS_X1=60, BUS_X2=560;
@@ -24263,10 +24532,10 @@ function buildUPSSVG(inputs, results) {
   const p=[];
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(T(W/2,31,`UPS SIZING — BLOCK DIAGRAM  |  ${selKVA} kVA  |  ${topo.split(' ')[0]}  |  IEC 62040-3 / IEEE 446 / PEC 2017`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   p.push(T(80,57,`${topo}  |  Redundancy: ${redund}  |  Battery: ${batCells}S×${batStrs}P = ${totalCells} cells  |  Runtime: ${runtime} min`,{a:'start',sz:8,c:CC,w:'600'}));
 
   // ── BLOCK DIAGRAM (horizontal flow) ──
@@ -24397,10 +24666,10 @@ function buildEarthingSVG(inputs, results) {
   const p=[];
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(T(W/2,31,`EARTHING / GROUNDING SYSTEM  |  R = ${rParallel} Ω  |  ${eType}  |  PEC Art.2.50 / IEEE 80 / IEC 62305`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── BUILDING ELEVATION SCHEMATIC ──
   // MDB / main panel at top
@@ -24554,10 +24823,10 @@ function buildStairwellPressSVG(inputs, results) {
   const p=[];
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(T(W/2,31,`STAIRWELL PRESSURIZATION — ${bldgType}  |  ΔP = ${dP} Pa  |  Q = ${qCMH} m³/h  |  NFPA 92:2021 / PSME`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── BUILDING ELEVATION ──
   const showFloors=Math.min(nFloors,7);
@@ -24719,10 +24988,10 @@ function buildFireAlarmBatterySVG(inputs, results) {
   const p=[];
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(T(W/2,31,`FIRE ALARM BATTERY STANDBY  |  ${selAh} Ah  |  ${stbyH}h Standby + ${alrmMin}min Alarm  |  NFPA 72:2022 / UL 864 / PEC 2017`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   p.push(T(80,58,`${sysV}V System  |  Battery: ${nBat}× ${selAh}Ah/${batV}V (${batCfg})  |  Charger: ${chargerA}A`,{a:'start',sz:8,c:CC,w:'600'}));
 
   // ── BLOCK DIAGRAM ──
@@ -24889,10 +25158,10 @@ function buildWaterSupplyPipeSVG(inputs, results) {
   const OK_C   = presOK&&velOK?GRN:ORG;
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`WATER SUPPLY PIPE SIZING — Ø${dMM}mm ${mat}  |  ${peakLps} L/s  |  ${wfu} WSFU  |  Hunter's Method`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Plumbing riser schematic (elevation) ──
   const RX=120,RT=65,RW=20,nFloors=4,FH=80;
@@ -24974,10 +25243,10 @@ function buildHotWaterDemandSVG(inputs, results) {
   const occType= String(inp.occupancy_type||'Office');
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`HOT WATER DEMAND  |  ${stoL} L Storage  |  ${htrKW} kW Heater  |  ${tHot}°C  |  Philippine Plumbing Code`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── System schematic ──
   // Cold water supply
@@ -25066,10 +25335,10 @@ function buildDrainagePipeSVG(inputs, results) {
   const n_man = Number(r.manning_n||0.013).toFixed(3);
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`DRAINAGE PIPE SIZING — Ø${dMM}mm ${mat}  |  ${dfu} DFU  |  Slope ${slope} mm/m  |  Philippine Plumbing Code`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Drainage riser elevation ──
   const stackX=120,stackTop=65,nFloors=4,FH=75,stackH=nFloors*FH;
@@ -25154,10 +25423,10 @@ function buildSepticTankSVG(inputs, results) {
   const denrOK= Number(bodEff)<=Number(denrLim);
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`SEPTIC TANK SIZING — ${volM3} m³  |  ${occ} persons  |  ${lenM}×${wdM}×${depM}m  |  DENR DAO 2016-08`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Tank cross-section (longitudinal) ──
   const TX=60,TY=85,scaleLenPx=Math.min(400,(Number(lenM)||3)*80),scaleDepPx=Math.min(160,Number(depM)*50);
@@ -25241,10 +25510,10 @@ function buildGreaseTrapSVG(inputs, results) {
   const nFix    = Number(inp.num_fixtures||3);
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`GREASE TRAP SIZING — ${capL} L  |  ${pdiGpm} GPM  |  PDI BH-201 / Philippine Plumbing Code`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Grease trap cross-section ──
   const TX=60,TY=100,TW=280,TH=160;
@@ -25324,10 +25593,10 @@ function buildRoofDrainSVG(inputs, results) {
   const overallOK= String(r.overall_status||'PASS').toUpperCase().includes('PASS');
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`ROOF DRAIN SIZING — ${nDrains}× Ø${drainMM}mm  |  ${qTotLs} L/s  |  ${roofM2} m²  |  IPC §1106 / Philippine Plumbing Code`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Roof cross-section ──
   const RX=60,RY=80,RW=480,RH=20;
@@ -25411,10 +25680,10 @@ function buildWaterSoftenerSVG(inputs, results) {
   const tankDiaMm= Number(r.tank_diameter_mm||r.vessel_dia_mm||0)||Math.round(Math.sqrt(resinL/3.14)*100);
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`WATER SOFTENER — ${dailyM3} m³/day  |  ${rawHard}→${tgtHard} mg/L  |  ${resinType}  |  NSF/ANSI 44 / WQA`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Flow diagram ──
   // Hard water inlet
@@ -25499,10 +25768,10 @@ function buildWaterTreatmentSVG(inputs, results) {
        ['Softening','SO-101','If hard water'],['Disinfection','DI-101','Cl₂ / UV']];
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`WATER TREATMENT — ${flowM3d} m³/day  |  ${srcType}  |  Turbidity ${turbNtu} NTU  |  PNS 1998 / DOH / WHO`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Treatment train flow diagram ──
   const startX=35,trainY=200,boxW=76,boxH=60,gap=8;
@@ -25586,10 +25855,10 @@ function buildWastewaterSTPSVG(inputs, results) {
   const pop      = Number(inp.population||r.population||200);
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`WASTEWATER STP — ${flowM3d} m³/day  |  BOD out: ${bodEff} mg/L  |  ${denrSt}  |  DENR DAO 2016-08`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Treatment process train ──
   const units=[
@@ -25685,10 +25954,10 @@ function buildStormDrainSVG(inputs, results) {
   const mat      = String(r.pipe_material||inp.pipe_material||'Concrete');
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`STORM DRAIN — Ø${dSelMM}mm ${mat}  |  Q=${qLps} L/s  |  ${areaHa} ha  |  ${retYr}-yr  |  Rational Method / DPWH`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Catchment + pipe cross-section ──
   // Catchment area (plan view simplified)
@@ -25776,10 +26045,10 @@ function buildHeatExchangerSVG(inputs, results) {
   const cldIn=Number(inp.cold_inlet_C||25).toFixed(0);
   const cldOut=Number(inp.cold_outlet_C||55).toFixed(0);
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`HEAT EXCHANGER — ${dutyKW} kW  |  LMTD ${lmtdK} K  |  A=${aM2} m²  |  TEMA / ASME Sec.VIII`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Shell-and-tube cross-section
   const SX=60,SY=100,SW=480,SH=120,SR=SH/2;
   // Shell body
@@ -25859,10 +26128,10 @@ function buildPressureVesselSVG(inputs, results) {
   const Sallow=Number(r.allowable_stress_MPa||0).toFixed(0);
   const nozPad=Boolean(r.nozzle_reinforcement_pad_required??false);
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`PRESSURE VESSEL — Ø${OD}mm  |  MAWP ${mawpBar} bar  |  ${mat}  |  ASME BPVC Sec.VIII`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Vessel cross-section (elevation)
   const VX=80,VY=75,VW=420,VH=160,VR=20;
   const headW=60;
@@ -25930,18 +26199,18 @@ function buildFluidPowerSVG(inputs, results) {
   const cyl=r.cylinder||{};
   const bore=Number(cyl.bore_mm||r.bore_selected_mm||inp.cylinder_bore_mm||100).toFixed(0);
   const rod=Number(cyl.rod_mm||r.rod_selected_mm||0).toFixed(0);
-  const forceExt=Number(cyl.force_extend_kN||0).toFixed(1);
-  const forceRet=Number(cyl.force_retract_kN||0).toFixed(1);
-  const spdExt=Number(cyl.speed_extend_mms||0).toFixed(1);
+  const forceExt=Number(cyl.F_extend_kN||0).toFixed(1);
+  const forceRet=Number(cyl.F_retract_kN||0).toFixed(1);
+  const spdExt=Number(cyl.v_extend_m_s||0).toFixed(3);
   const stroke=Number(inp.cylinder_stroke_mm||500).toFixed(0);
   const presL=r.pressure_line||{};
   const pipeOD=Number(presL.od_mm||presL.pipe_od_mm||0).toFixed(0);
   const flowLpm=Number(inp.pump_flow_lpm||20).toFixed(1);
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`FLUID POWER — ${presBar} bar  |  Ø${bore}mm Cylinder  |  ${forceExt} kN Extend  |  ISO 4413`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Reservoir
   p.push(`<rect x="40" y="340" width="80" height="60" fill="#e3f2fd" stroke="${RTN}" stroke-width="2"/>`);
   p.push(_plumbT(80,368,'RESERVOIR',{sz:7,c:RTN,w:'700'})); p.push(_plumbT(80,380,`${flowLpm} L/min`,{sz:7,c:SC}));
@@ -25996,7 +26265,7 @@ function buildFluidPowerSVG(inputs, results) {
     ['System Pressure',`${presBar} bar`,HYD],['Cylinder Bore',`Ø${bore} mm`,PUMP_C],
     ['Rod Diameter',`Ø${rod} mm`,PUMP_C],['Stroke',`${stroke} mm`,GY],
     ['Extend Force',`${forceExt} kN`,HYD],['Retract Force',`${forceRet} kN`,HYD],
-    ['Extend Speed',`${spdExt} mm/s`,PUMP_C],['Pump Flow',`${flowLpm} L/min`,RTN],
+    ['Extend Speed',`${spdExt} m/s`,PUMP_C],['Pump Flow',`${flowLpm} L/min`,RTN],
     ['Pressure Line',pipeOD?`Ø${pipeOD}mm OD`:'—',GY]
   ]}]);
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
@@ -26019,14 +26288,14 @@ function buildVBeltDriveSVG(inputs, results) {
   const wrapDeg=Number(r.wrap_angle_deg||r.arc_deg||165).toFixed(1);
   const capMarPct=Number(r.capacity_margin_pct||0).toFixed(1);
   const powKW=Number(r.power_kW||inp.power_kw||0).toFixed(1);
-  const drvRPM=Number(r.n_driver_rpm||inp.input_rpm||1450).toFixed(0);
-  const drnRPM=Number(r.n_driven_rpm||r.actual_driven_rpm||inp.output_rpm||0).toFixed(0);
-  const cDist=Number(inp.center_distance_mm||600).toFixed(0);
+  const drvRPM=Number(r.n_driver_rpm||inp.driver_rpm||1450).toFixed(0);
+  const drnRPM=Number(r.n_driven_rpm||r.actual_driven_rpm||inp.driven_rpm||720).toFixed(0);
+  const cDist=Number(inp.center_dist_mm||500).toFixed(0);
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`V-BELT DRIVE — ${nBelts}× Section ${section}  |  Ratio ${ratio}:1  |  ${powKW} kW  |  RMA / ASME B40.1`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Drive schematic
   const rSmall=Math.max(25,Math.min(Number(dSmall)*0.12,55));
   const rLarge=Math.max(40,Math.min(Number(dLarge)*0.12,85));
@@ -26099,10 +26368,10 @@ function buildVibrationSVG(inputs, results) {
   const xMM=Number(r.X_mm||0).toFixed(3);
   const zoneC={A:ISO_A,B:ISO_B,C:ISO_C,D:ISO_D}[zone]||GY;
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`VIBRATION ANALYSIS — fn=${fn} Hz  |  v_rms=${Vrms} mm/s  |  Zone ${zone}  |  ISO 10816-3`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Spring-mass-damper diagram
   const CX=150,CY=180;
   // Mass block
@@ -26192,17 +26461,17 @@ function buildNoiseAcousticsSVG(inputs, results) {
   const distM=Number(r.distance_m||inp.distance_m||5).toFixed(1);
   const room=r.room||{};
   const alpha=Number(r.alpha||0).toFixed(3);
-  const NCrec=Number(r.NC_recommended||35).toFixed(0);
+  const NCrec=Number(r.NC_limit||r.NC_recommended||35).toFixed(0);
   const NCLim=Number(r.NC_limit||45).toFixed(0);
   const spType=String(r.space_type||inp.space_type||'Open Office');
   const doleLimit=85; // DOLE 8h TWA limit
   const doleOK=Number(LpDb)<=doleLimit;
   const ncOK=Number(LpDb)<=Number(NCLim)+15;
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`NOISE / ACOUSTICS — ${LpDb} dB at ${distM}m  |  NC-${NCrec} recommend.  |  ISO 9613 / DOLE D.O.13`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Room plan diagram
   const RX=50,RY=75,RW=400,RH=250;
   p.push(`<rect x="${RX}" y="${RY}" width="${RW}" height="${RH}" fill="${LGY}" stroke="${CC}" stroke-width="2.5" rx="6"/>`);
@@ -26296,10 +26565,10 @@ function buildShaftDesignSVG(inputs, results) {
   const keyH=Number(r.key_height_mm||0).toFixed(0);
   const keyOK=Boolean(r.key_ok??true);
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`SHAFT DESIGN — Ø${dStd}mm  |  T=${torqNm} N·m  |  nf=${nfGood}  |  ASME B106.1M / DE-Goodman`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Shaft FBD (elevation)
   const SHX=60,SHY=170,SHW=460,SHR=Math.max(12,Math.min(Number(dStd)*0.35,35));
   // Bearings
@@ -26377,13 +26646,13 @@ function buildBeamColumnSVG(inputs, results) {
   const defOK=Boolean(r.deflection_ok??true);
   const steel=String(r.steel_grade||inp.steel_grade||'A36');
   const FyMPa=Number(r.Fy_MPa||250).toFixed(0);
-  const loadKN=Number(inp.load_kN||50).toFixed(0);
-  const loadType=String(inp.load_type||'UDL');
+  const loadKN=Number(inp.w_kNm||inp.load_kN||0);
+  const loadType=String((inp.member_type||'Beam').includes('Beam') ? 'UDL' : 'Point');
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`BEAM/COLUMN — ${section}  |  Span ${spanM}m  |  DCR_M=${DCRm}  |  AISC 360 / NSCP 2015`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Beam elevation
   const BX=80,BY=150,BW=440,BH=28;
   // Supports
@@ -26400,12 +26669,12 @@ function buildBeamColumnSVG(inputs, results) {
       p.push(`<polygon points="${lx-4},${BY-8} ${lx+4},${BY-8} ${lx},${BY+2}" fill="${LD_C}"/>`);
     }
     p.push(`<line x1="${BX}" y1="${BY-32}" x2="${BX+BW}" y2="${BY-32}" stroke="${LD_C}" stroke-width="2.5"/>`);
-    p.push(_plumbT(BX+BW/2,BY-42,`w = ${(Number(loadKN)/Number(spanM)).toFixed(1)} kN/m (UDL)`,{sz:8,c:LD_C,w:'700'}));
+    p.push(_plumbT(BX+BW/2,BY-42,`w = ${loadKN.toFixed(1)} kN/m (UDL)`,{sz:8,c:LD_C,w:'700'}));
   } else {
     const pmX=BX+BW/2;
     p.push(`<line x1="${pmX}" y1="${BY-40}" x2="${pmX}" y2="${BY-5}" stroke="${LD_C}" stroke-width="3"/>`);
     p.push(`<polygon points="${pmX-7},${BY-8} ${pmX+7},${BY-8} ${pmX},${BY+2}" fill="${LD_C}"/>`);
-    p.push(_plumbT(pmX,BY-52,`P = ${loadKN} kN`,{sz:8,c:LD_C,w:'700'}));
+    p.push(_plumbT(pmX,BY-52,`Mu = ${Number(inp.Mu_kNm||loadKN||0).toFixed(1)} kN·m`,{sz:8,c:LD_C,w:'700'}));
   }
   // Span label
   p.push(`<line x1="${BX}" y1="${BY+BH+48}" x2="${BX+BW}" y2="${BY+BH+48}" stroke="${SC}" stroke-width="1"/>`);
@@ -26443,7 +26712,7 @@ function buildBeamColumnSVG(inputs, results) {
   ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
   _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'BEAM / COLUMN DESIGN', rows:[
     ['Section',section,STL],['Steel Grade',`${steel}  Fy=${FyMPa} MPa`,STL],
-    ['Span',`${spanM} m`,CC],['Load',`${loadKN} kN (${loadType})`,LD_C],
+    ['Span',`${spanM} m`,CC],['Load',`${loadKN.toFixed(1)} kN/m (${loadType})`,LD_C],
     ['φMp',`${phiMpKNm} kN·m`,STL],['DCR Moment',`${DCRm}  ${mOK?'✓':'✗'}`,mOK?OK_C:FAIL_C],
     ['φVn',`${phiVnKN} kN`,STL],['DCR Shear',`${DCRv}  ${vOK?'✓':'✗'}`,vOK?OK_C:FAIL_C],
     ['Deflection',`${defMM} mm  ${defOK?'✓':'✗'}`,defOK?OK_C:FAIL_C]
@@ -26468,15 +26737,15 @@ function buildBearingLifeSVG(inputs, results) {
   const CoP=Number(r.C_over_P||0).toFixed(2);
   const a1=Number(r.a1||1).toFixed(2);
   const pExp=Number(r.p_exp||3).toFixed(0);
-  const FrkN=Number(inp.radial_load_kN||5).toFixed(1);
-  const FakN=Number(inp.axial_load_kN||1).toFixed(1);
+  const FrkN=Number(inp.Fr_kN||inp.radial_load_kN||5).toFixed(1);
+  const FakN=Number(inp.Fa_kN||inp.axial_load_kN||0).toFixed(1);
   const rpm=Number(inp.speed_rpm||1450).toFixed(0);
   const bType=String(inp.bearing_type||'Deep Groove Ball');
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`BEARING LIFE (L10) — ${L10adj} h  |  C/P=${CoP}  |  ${bType}  |  ISO 281`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Bearing cross-section
   const CX=150,CY=220;
   const OR=80,IR=45,BallR=12;
@@ -26555,20 +26824,20 @@ function buildBoltTorqueSVG(inputs, results) {
   const sepSF=Number(r.separation_sf||0).toFixed(2);
   const jntChk=String(r.joint_check||'OK');
   const jntOK=jntChk.toUpperCase().includes('OK')||jntChk.toUpperCase().includes('PASS');
-  const nBolts=Number(r.n_bolts||inp.num_bolts||4).toFixed(0);
-  const dMM=Number(r.d_mm||inp.bolt_size_mm||16).toFixed(0);
-  const grade=String(r.bolt_grade||inp.grade||'8.8');
+  const nBolts=Number(r.n_bolts||inp.n_bolts||inp.num_bolts||4).toFixed(0);
+  const dMM=Number(r.d_mm||16).toFixed(0);
+  const grade=String(r.bolt_grade||inp.bolt_grade||inp.grade||'8.8');
   const SpMPa=Number(r.Sp_MPa||0).toFixed(0);
   const FpKN=Number(r.Fp_kN||0).toFixed(2);
-  const prePct=Number(r.preload_pct||inp.target_preload_pct||75).toFixed(0);
+  const prePct=Number(r.preload_pct||inp.preload_pct||inp.target_preload_pct||75).toFixed(0);
   const torq30=Number(r.torque_30pct||0).toFixed(1);
   const torq70=Number(r.torque_70pct||0).toFixed(1);
-  const extKN=Number(r.ext_load_kN||0).toFixed(2);
+  const extKN=Number(r.ext_load_kN||inp.ext_load_kN||0).toFixed(2);
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`BOLT TORQUE & PRELOAD — M${dMM} Grade ${grade}  |  T=${torqNm} N·m  |  Fi=${FiKN} kN  |  ISO 898`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Bolt joint cross-section
   const JX=80,JY=90,JW=320,JH=180;
   // Top member
@@ -26641,17 +26910,17 @@ function buildElevatorTrafficSVG(inputs, results) {
   const intOK=Boolean(r.interval_check??true);
   const HCok=Boolean(r.HC_check??true);
   const overallOK=Boolean(r.overall_check??true);
-  const nFloors=Number(inp.num_floors||10).toFixed(0);
-  const nElev=Number(inp.num_elevators||2).toFixed(0);
-  const carCap=Number(inp.car_capacity_persons||13).toFixed(0);
-  const speed=Number(inp.contract_speed_mps||1.6).toFixed(1);
-  const pop=Number(inp.building_population||200).toFixed(0);
-  const flrH=Number(inp.floor_height_m||3.5).toFixed(1);
+  const nFloors=Number(inp.n_floors||inp.num_floors||10).toFixed(0);
+  const nElev=Number(inp.n_elevators||inp.num_elevators||2).toFixed(0);
+  const carCap=Number(inp.capacity||inp.car_capacity_persons||13).toFixed(0);
+  const speed=Number(inp.speed||inp.contract_speed_mps||1.5).toFixed(1);
+  const pop=Number(inp.population||inp.building_population||200).toFixed(0);
+  const flrH=Number(inp.floor_height||inp.floor_height_m||3.5).toFixed(1);
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`ELEVATOR TRAFFIC — RTT=${RTTs}s  |  Interval=${intS}s  |  HC=${HCpct}%  |  ASME A17.1`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Building elevation with elevator shafts
   const BX=50,BT=65,flrH_px=50,bldH=Math.min(Number(nFloors),8)*flrH_px;
   const bldW=Number(nElev)*70+60;
@@ -26732,16 +27001,17 @@ function buildHoistCapacitySVG(inputs, results) {
   const speedMs=Number(r.speed_ms||0).toFixed(2);
   const sfChk=String(r.safety_factor_check||'OK');
   const sfOK=sfChk.toUpperCase().includes('OK')||sfChk.toUpperCase().includes('PASS');
-  const nParts=Number(inp.num_parts_line||4).toFixed(0);
-  const ropeD=Number(inp.rope_diameter_mm||16).toFixed(0);
-  const drumD=Number(inp.drum_diameter_mm||400).toFixed(0);
-  const SWLkN=Number(inp.swl_kN||50).toFixed(1);
-  const hoistSpd=Number(inp.hoist_speed_mpm||8).toFixed(0);
+  const nParts=Number(inp.n_parts||inp.num_parts_line||4).toFixed(0);
+  const _ropeRec=String(r.rope_recommendation||''); const _ropeM=_ropeRec.match(/(\d+)\s*mm/);
+  const ropeD=_ropeM?_ropeM[1]:Number(r.rope_diameter_mm||inp.rope_diameter_mm||16).toFixed(0);
+  const drumD=Number(r.drum_diameter_mm||inp.drum_diameter_mm||400).toFixed(0);
+  const SWLkN=Number(inp.swl_kN||(Number(inp.rated_load_kg||0)*9.81/1000)||50).toFixed(1);
+  const hoistSpd=Number(inp.lift_speed_mpm||inp.hoist_speed_mpm||8).toFixed(0);
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
-  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(_plumbT(W/2,31,`HOIST CAPACITY — SWL ${SWLkN} kN  |  ${motorHP} HP / ${motorKW} kW  |  ASME B30.2 / ISO 4301`,{sz:10.5,c:'white',w:'700'}));
-  p.push(`<line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="#d0d8e8" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Hoist rigging diagram
   // Overhead beam / crane bridge
   p.push(`<rect x="50" y="75" width="440" height="20" fill="${HST}" stroke="${CC}" stroke-width="2" rx="2"/>`);
@@ -28599,11 +28869,11 @@ function renderBomTablePreview(items) {
     : isVent
     ? `Mechanical: HVAC Ventilation (${_lastResults?.inputs_used?.vent_type || _lastInputs?.vent_type || 'Supply and Exhaust'})`
     : isNoise
-    ? `Machine Design: Noise / Acoustics (Space: ${_lastInputs?.space_type || ''}, NC target: ${_lastInputs?.nc_target || ''}, SPL: ${_lastResults?.Lp_dBA || ''}dB(A))`
+    ? `Machine Design: Noise / Acoustics (Space: ${_lastInputs?.space_type || ''}, Lw=${_lastInputs?.source_Lw_dB||''}dB, Lp=${Number(_lastResults?.Lp_at_distance_dB||0).toFixed(1)}dB @ ${_lastInputs?.distance_m||''}m, NC-${_lastResults?.NC_limit||''} recommend., ISO 9613/DOLE D.O.13)`
     : isVibr
-    ? `Machine Design: Vibration Analysis (${_lastInputs?.machine_type || ''}, ${_lastInputs?.speed_rpm || ''}rpm, fn=${_lastResults?.natural_freq_hz || ''}Hz, ${_lastResults?.severity_zone || ''})`
+    ? `Machine Design: Vibration Analysis (${_lastInputs?.project_name || ''}, ${_lastInputs?.speed_rpm || ''}rpm, fn=${Number(_lastResults?.fn_Hz||0).toFixed(2)}Hz, ${_lastResults?.iso_zone || ''})`
     : isFluPwr
-    ? `Machine Design: Fluid Power (${_lastInputs?.system_type || 'Hydraulic'}, Cyl Force ${_lastResults?.cylinder_force_kN || ''}kN, Pump ${_lastResults?.pump_hp || ''}HP, ${_lastInputs?.system_pressure_bar || ''}bar)`
+    ? `Machine Design: Fluid Power (${_lastInputs?.system_type || 'Hydraulic'}, Cyl Force ${Number(_lastResults?.cylinder?.F_extend_kN||0).toFixed(1)}kN, Pump ${Number(_lastResults?.pump?.P_motor_kW||0).toFixed(2)}kW, ${_lastInputs?.system_pressure_bar || ''}bar)`
     : isXFMR
     ? `Electrical: Transformer Sizing (${_lastResults?.rated_kva || ''}kVA × ${_lastResults?.num_units || 1}, ${_lastResults?.primary_voltage || ''}/${_lastResults?.secondary_voltage || ''}V, ${_lastResults?.winding_connection || 'Dyn11'}, Uz=${_lastResults?.impedance_pct || ''}%, Isc=${_lastResults?.Isc_secondary_kA || ''}kA, η=${_lastResults?.efficiency_fl_pct || ''}%)`
     : isHarmonic
@@ -28956,11 +29226,11 @@ function renderSowDocPreview(sections) {
     : isVent
     ? `Ventilation: ${_lastResults?.inputs_used?.space_label || _lastInputs?.room_function || 'General Space'}, ${_lastResults?.inputs_used?.vent_type || _lastInputs?.vent_type || 'Supply and Exhaust'}, ${_lastResults?.recommended_fan_cmh || _lastResults?.design_cmh || ''} m³/hr Design Airflow, ${_lastResults?.required_ach || ''} ACH`
     : isNoiseS
-    ? `Noise / Acoustics: Space type ${_lastInputs?.space_type || ''}, NC target ${_lastInputs?.nc_target || ''}, Peak SPL ${_lastResults?.Lp_dBA || ''}dB(A), OSHA TWA ${_lastResults?.twa_dBA || ''}dB(A)`
+    ? `Noise / Acoustics: Space type ${_lastInputs?.space_type || ''}, Lw=${_lastInputs?.source_Lw_dB||''}dB, Lp=${Number(_lastResults?.Lp_at_distance_dB||0).toFixed(1)}dB @ ${_lastInputs?.distance_m||''}m, NC-${_lastResults?.NC_limit||''} target, ISO 9613 / DOLE D.O.13`
     : isVibrS
     ? `Vibration Analysis: ${_lastInputs?.machine_type || ''}, n=${_lastInputs?.speed_rpm || ''}rpm, fn=${_lastResults?.natural_freq_hz || ''}Hz, Severity: ${_lastResults?.severity_zone || ''}, TR=${_lastResults?.transmissibility || ''}`
     : isFluPwrS
-    ? `Fluid Power: ${_lastInputs?.system_type || 'Hydraulic'} system, Cyl Force ${_lastResults?.cylinder_force_kN || ''}kN, Pump ${_lastResults?.pump_hp || ''}HP, Pressure ${_lastInputs?.system_pressure_bar || ''}bar`
+    ? `Fluid Power: ${_lastInputs?.system_type || 'Hydraulic'} system, Cyl Force ${Number(_lastResults?.cylinder?.F_extend_kN||0).toFixed(1)}kN, Pump ${Number(_lastResults?.pump?.P_motor_kW||0).toFixed(2)}kW, Pressure ${_lastInputs?.system_pressure_bar || ''}bar`
     : isXFMR
     ? `Transformer Sizing: ${_lastResults?.rated_kva || ''}kVA × ${_lastResults?.num_units || 1} unit(s), ${_lastResults?.primary_voltage || ''}/${_lastResults?.secondary_voltage || ''}V ${_lastResults?.phases || 3}-Phase, ${_lastResults?.winding_connection || 'Dyn11'}, Uz=${_lastResults?.impedance_pct || ''}%, Isc=${_lastResults?.Isc_secondary_kA || ''}kA, η=${_lastResults?.efficiency_fl_pct || ''}%`
     : isHarmonic
@@ -28974,11 +29244,11 @@ function renderSowDocPreview(sections) {
     : isVBeltS
     ? `V-Belt Drive: ${_lastResults?.n_belts || ''}× Section ${_lastResults?.section || _lastResults?.belt_designation || ''}, Ratio ${_lastResults?.overall_ratio || ''}:1, Driver Ø${_lastResults?.d_small_mm || ''}mm @ ${_lastResults?.n_driver_rpm || _lastInputs?.input_rpm || ''}rpm → Driven Ø${_lastResults?.d_large_mm || ''}mm @ ${_lastResults?.n_driven_rpm || _lastResults?.actual_driven_rpm || ''}rpm, L=${_lastResults?.belt_length_mm || ''}mm, v=${_lastResults?.belt_speed_ms || ''}m/s, RMA IP-20`
     : isShaftS
-    ? `Shaft Design: Ø${_lastResults?.d_standard_mm || ''}mm (min ${_lastResults?.d_min_mm || ''}mm) ${_lastResults?.material || _lastInputs?.material || ''}, T=${_lastResults?.torque_Nm || ''}N·m, M=${_lastInputs?.bending_moment_Nm || ''}N·m, nf=${_lastResults?.nf_goodman || ''} Goodman, ny=${_lastResults?.ny_yield || ''}, ncrit=${_lastResults?.critical_speed_rpm || ''}rpm ${_lastResults?.critical_speed_ok ? '(OK)' : '(CHECK)'}, Key ${_lastResults?.key_width_mm || ''}×${_lastResults?.key_height_mm || ''}mm, ASME B106.1M`
+    ? `Shaft Design: Ø${_lastResults?.d_standard_mm || ''}mm (min ${_lastResults?.d_min_mm || ''}mm) ${_lastResults?.material || _lastInputs?.material || ''}, T=${_lastResults?.torque_Nm || ''}N·m, M=${_lastResults?.M_Nm || '0.0'}N·m, nf=${_lastResults?.nf_goodman || ''} Goodman, ny=${_lastResults?.ny_yield || ''}, ncrit=${_lastResults?.critical_speed_rpm || ''}rpm ${_lastResults?.critical_speed_ok ? '(OK)' : '(CHECK)'}, Key ${_lastResults?.key_width_mm || ''}×${_lastResults?.key_height_mm || ''}mm, ASME B106.1M`
     : isBeamS
-    ? `Beam/Column Design: ${_lastResults?.section || _lastInputs?.section || ''} ${_lastResults?.steel_grade || _lastInputs?.steel_grade || ''} (Fy=${_lastResults?.Fy_MPa || ''}MPa), Span ${_lastResults?.span_m || _lastInputs?.span_m || ''}m, ${_lastInputs?.load_type || ''} ${_lastInputs?.load_kN || ''}kN, φMp=${_lastResults?.phi_Mp_kNm || ''}kN·m DCR=${_lastResults?.DCR_moment || ''} ${_lastResults?.moment_ok ? '(OK)' : '(NG)'}, δ=${_lastResults?.deflection_mm || ''}mm ${_lastResults?.deflection_ok ? '(OK)' : '(NG)'}, AISC 360/NSCP 2015`
+    ? `Beam/Column Design: ${_lastResults?.section || _lastInputs?.section || ''} ${_lastResults?.steel_grade || _lastInputs?.steel_grade || ''} (Fy=${_lastResults?.Fy_MPa || ''}MPa), Span ${_lastResults?.span_m || _lastInputs?.span_m || ''}m, w=${_lastInputs?.w_kNm || ''}kN/m UDL, φMp=${_lastResults?.phi_Mp_kNm || ''}kN·m DCR=${_lastResults?.DCR_moment || ''} ${_lastResults?.moment_ok ? '(OK)' : '(NG)'}, δ=${_lastResults?.deflection_mm || ''}mm ${_lastResults?.deflection_ok ? '(OK)' : '(NG)'}, AISC 360/NSCP 2015`
     : isBearingS
-    ? `Bearing Life: ${_lastInputs?.bearing_type || ''}, C=${_lastInputs?.C_kN || ''}kN, Fr=${_lastInputs?.radial_load_kN || ''}kN / Fa=${_lastInputs?.axial_load_kN || ''}kN, P=${_lastResults?.P_kN || ''}kN, C/P=${_lastResults?.C_over_P || ''}, L10h_adj=${_lastResults?.L10h_adj || ''}h @ ${_lastInputs?.speed_rpm || ''}rpm (${_lastResults?.life_check || ''}), ISO 281`
+    ? `Bearing Life: ${_lastInputs?.bearing_type || ''}, C=${_lastInputs?.C_kN || ''}kN, Fr=${_lastInputs?.Fr_kN ?? ''}kN / Fa=${_lastInputs?.Fa_kN ?? 0}kN, P=${_lastResults?.P_kN || ''}kN, C/P=${_lastResults?.C_over_P || ''}, L10h_adj=${_lastResults?.L10h_adj || ''}h @ ${_lastInputs?.speed_rpm || ''}rpm (${_lastResults?.life_check || ''}), ISO 281`
     : isBoltS
     ? `Bolt Torque & Preload: ${_lastResults?.n_bolts || _lastInputs?.num_bolts || ''}× M${_lastResults?.d_mm || _lastInputs?.bolt_size_mm || ''} Grade ${_lastResults?.bolt_grade || _lastInputs?.grade || ''}, T=${_lastResults?.torque_Nm || ''}N·m, Fi=${_lastResults?.Fi_kN || ''}kN (${_lastResults?.preload_pct || ''}% Fp=${_lastResults?.Fp_kN || ''}kN), σ=${_lastResults?.sigma_MPa || ''}MPa ${_lastResults?.stress_check || ''}, SF_sep=${_lastResults?.separation_sf || ''} ${_lastResults?.joint_check || ''}, ISO 898`
     : `Air-Conditioning: Split-Type, ${units} unit(s) × ${unitKW} kW (${kw} kW / ${tr} TR total)`;
