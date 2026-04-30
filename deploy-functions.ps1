@@ -6,3 +6,5 @@ npx supabase functions deploy analytics-orchestrator --no-verify-jwt
 npx supabase functions deploy send-report-email --no-verify-jwt
 npx supabase functions deploy voice-report-intent --no-verify-jwt
 npx supabase functions deploy voice-transcribe --no-verify-jwt
+npx supabase functions deploy semantic-search --no-verify-jwt
+npx supabase functions deploy embed-entry --no-verify-jwt

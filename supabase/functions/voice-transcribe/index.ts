@@ -1,11 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { transcribeAudio } from "../_shared/audio-chain.ts";
-
-const ORIGIN = Deno.env.get("ALLOWED_ORIGIN") || "https://workhiveph.com";
-const corsHeaders = {
-  "Access-Control-Allow-Origin": ORIGIN,
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 // Receives a multipart audio blob from the browser (iOS MediaRecorder output),
 // transcribes via Groq Whisper fallback chain, and returns plain text.
@@ -13,6 +8,7 @@ const corsHeaders = {
 // Output: { text: "transcribed text" }
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
