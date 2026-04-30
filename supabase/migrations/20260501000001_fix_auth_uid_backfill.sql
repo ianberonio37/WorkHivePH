@@ -25,10 +25,7 @@ SET    auth_uid = wp.auth_uid
 FROM   worker_profiles wp
 WHERE  cp.author_name = wp.display_name AND cp.auth_uid IS NULL;
 
-UPDATE community_xp cx
-SET    auth_uid = wp.auth_uid
-FROM   worker_profiles wp
-WHERE  cx.worker_name = wp.display_name AND cx.auth_uid IS NULL;
+-- community_xp excluded: auth_uid column was never added to this table
 
 UPDATE inventory_items ii
 SET    auth_uid = wp.auth_uid
@@ -75,7 +72,6 @@ BEGIN
   UPDATE hive_members        SET auth_uid = NEW.auth_uid WHERE worker_name = NEW.display_name AND auth_uid IS NULL;
   UPDATE logbook             SET auth_uid = NEW.auth_uid WHERE worker_name = NEW.display_name AND auth_uid IS NULL;
   UPDATE community_posts     SET auth_uid = NEW.auth_uid WHERE author_name = NEW.display_name AND auth_uid IS NULL;
-  UPDATE community_xp        SET auth_uid = NEW.auth_uid WHERE worker_name = NEW.display_name AND auth_uid IS NULL;
   UPDATE inventory_items     SET auth_uid = NEW.auth_uid WHERE worker_name = NEW.display_name AND auth_uid IS NULL;
   UPDATE assets              SET auth_uid = NEW.auth_uid WHERE worker_name = NEW.display_name AND auth_uid IS NULL;
   UPDATE pm_assets           SET auth_uid = NEW.auth_uid WHERE worker_name = NEW.display_name AND auth_uid IS NULL;
