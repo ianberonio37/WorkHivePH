@@ -336,7 +336,7 @@
             </div>
             <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:0.625rem; padding:0.75rem; text-align:center;">
               <p id="profile-xp" style="font-size:1.25rem; font-weight:800; margin:0; color:#29B6D9;">—</p>
-              <p style="font-size:0.65rem; color:rgba(255,255,255,0.4); margin:0; margin-top:2px;">Badges</p>
+              <p style="font-size:0.65rem; color:rgba(255,255,255,0.4); margin:0; margin-top:2px;">Community XP</p>
             </div>
           </div>
         </div>
@@ -473,15 +473,14 @@
   }
 
   async function loadProfileStats() {
-    const [postsRes, badgesRes] = await Promise.all([
+    const [postsRes, xpRes] = await Promise.all([
       db.from('community_posts').select('id', { count: 'exact', head: true })
         .eq('hive_id', HIVE_ID).eq('author_name', WORKER_NAME),
-      db.from('skill_badges').select('id', { count: 'exact', head: true })
-        .eq('worker_name', WORKER_NAME),
+      db.from('community_xp').select('xp_total')
+        .eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).maybeSingle(),
     ]);
-    if (!postsRes.error)  document.getElementById('profile-posts').textContent = postsRes.count ?? 0;
-    if (!badgesRes.error) document.getElementById('profile-xp').textContent   = badgesRes.count ?? 0;
-    else                  document.getElementById('profile-xp').textContent   = '—';
+    if (!postsRes.error) document.getElementById('profile-posts').textContent = postsRes.count ?? 0;
+    document.getElementById('profile-xp').textContent = xpRes.data?.xp_total ?? 0;
   }
 
   // ── Virtual list observers ────────────────────────────────────────────────────
@@ -583,36 +582,32 @@
     if (btn)    { btn.disabled = false; btn.textContent = 'Load more posts'; }
   }
 
-  // ── Leaderboard (top posters in this hive) ────────────────────────────────────
+  // ── Leaderboard (top XP earners in this hive) ────────────────────────────────
   async function loadLeaderboard() {
     const el = document.getElementById('leaderboard-list');
-    const { data, error } = await db.from('community_posts')
-      .select('author_name')
+    const { data, error } = await db.from('community_xp')
+      .select('worker_name, xp_total')
       .eq('hive_id', HIVE_ID)
-      .eq('flagged', false)
-      .limit(500);
+      .order('xp_total', { ascending: false })
+      .limit(10);
 
     if (error || !data || data.length === 0) {
-      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0;">No posts yet.</p>';
+      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0;">No activity yet.</p>';
       return;
     }
 
-    const counts = {};
-    data.forEach(r => { counts[r.author_name] = (counts[r.author_name] || 0) + 1; });
-    const ranked = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
-
-    el.innerHTML = ranked.map(([name, count], i) => {
+    el.innerHTML = data.map((row, i) => {
       const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
       const rankIcon  = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
-      const initials  = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-      const isMine    = name === WORKER_NAME;
+      const initials  = row.worker_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      const isMine    = row.worker_name === WORKER_NAME;
       return `<div class="lb-row">
         <div class="lb-rank ${rankClass}">${rankIcon}</div>
         <div class="avatar-initial${isMine ? ' mine' : ''}" style="width:28px; height:28px; font-size:0.65rem;">${escHtml(initials)}</div>
         <div style="flex:1; min-width:0;">
-          <p style="font-size:0.8rem; font-weight:${isMine ? '700' : '500'}; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:${isMine ? '#F7A21B' : 'white'};">${escHtml(name)}</p>
+          <p style="font-size:0.8rem; font-weight:${isMine ? '700' : '500'}; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:${isMine ? '#F7A21B' : 'white'};">${escHtml(row.worker_name)}</p>
         </div>
-        <div style="font-size:0.75rem; font-weight:700; color:rgba(255,255,255,0.5);">${count} post${count !== 1 ? 's' : ''}</div>
+        <div style="font-size:0.75rem; font-weight:700; color:#29B6D9;">${row.xp_total} XP</div>
       </div>`;
     }).join('');
   }
@@ -1007,11 +1002,19 @@
 
     if (error) { showToast('Could not post. Try again.', 'error'); return; }
 
+    // XP toast — DB trigger handles the actual award server-side
+    const isFirstPost = myPostIds.size === 0;
+    const isSafety    = category === 'safety';
+    if      (isFirstPost && isSafety) showToast('+75 XP · First Post + Safety! 🎉🛡️');
+    else if (isFirstPost)             showToast('+50 XP · First Hive Post! 🎉');
+    else if (isSafety)                showToast('+25 XP · Safety Post! 🛡️');
+    else                              showToast('Posted!');
+
     myPostIds.add(data.id);
     allPosts.unshift(data); // new posts are never pinned on creation
     _prependPostCard(data);
     closeComposer();
-    showToast('Posted!');
+    loadProfileStats(); // refresh XP counter in profile card
     loadProfileStats();
   }
 
@@ -1087,7 +1090,8 @@
     const rcEl = document.getElementById(`reply-count-${replyingToPostId}`);
     if (rcEl) rcEl.textContent = replyCountMap[replyingToPostId];
     await loadReplies(replyingToPostId);
-    showToast('Reply posted');
+    showToast('+10 XP · Reply posted! 💪');
+    loadProfileStats(); // refresh XP counter
   }
 
   // ── Realtime: presence ────────────────────────────────────────────────────────

@@ -66,7 +66,7 @@ CHECKS = {
     "nav_hub_loaded":         "L5  nav-hub.js loaded at end of <body>",
     "toast_aria":             "L5  Toast has role=alert and aria-live",
     "audit_log_calls":        "L5  writeAuditLog called on pin/flag/delete actions",
-    "leaderboard_exact":      "L5  Leaderboard query uses exact count or ordered fetch from skill_profiles",
+    "leaderboard_exact":      "L5  Leaderboard query uses community_xp, community_posts, or skill_badges",
 }
 
 
@@ -249,8 +249,8 @@ def check_audit_log(content):
 
 def check_leaderboard_exact(content):
     issues = []
-    if "community_posts" not in content and "skill_badges" not in content:
-        issues.append({"check": "leaderboard_exact", "reason": "Leaderboard does not query community_posts or skill_badges — contributor data unavailable"})
+    if "community_posts" not in content and "skill_badges" not in content and "community_xp" not in content:
+        issues.append({"check": "leaderboard_exact", "reason": "Leaderboard does not query community_posts, skill_badges, or community_xp — contributor data unavailable"})
     return issues
 
 
