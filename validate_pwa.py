@@ -21,10 +21,14 @@ that flickers between pages, and lost user data when storage fills up.
     5.  Service worker offline mode   — sw.js must have a fetch handler for offline  [WARN]
     6.  Install prompt on app pages   — beforeinstallprompt only on index, missed on app pages  [WARN]
 
+  Layer 6 — Cache freshness
+    7.  SW cache not stale            — any SHELL_FILE committed after sw.js = stale cache
+    8.  Logbook IndexedDB queue       — offline entry queue present
+
 Usage:  python validate_pwa.py
 Output: pwa_report.json
 """
-import re, json, sys, os
+import re, json, sys, os, subprocess
 
 if sys.platform == "win32":
     import io
@@ -198,6 +202,86 @@ def check_sw_offline_capability(sw_path):
     return []
 
 
+def check_sw_cache_staleness(sw_path):
+    """
+    Any file listed in sw.js SHELL_FILES that was committed more recently than
+    sw.js itself will be served from the stale cache — users never see the update.
+
+    Root cause of April 2026 incident: nav-hub.js was updated with the Community
+    link in commit baa4bcc, but sw.js CACHE_NAME was last bumped in 7295fc8
+    (an earlier commit). The service worker kept serving the old nav-hub.js
+    without Community to all installed PWA users until a hard refresh.
+
+    This check uses git commit timestamps so it catches the gap automatically:
+    if any SHELL_FILE commit timestamp > sw.js commit timestamp → FAIL.
+    """
+    sw_content = read_file(sw_path)
+    if not sw_content:
+        return []
+
+    # Parse SHELL_FILES from sw.js dynamically — stays in sync with actual config
+    shell_match = re.search(r"SHELL_FILES\s*=\s*\[([^\]]+)\]", sw_content, re.DOTALL)
+    if not shell_match:
+        return []
+    shell_files = [
+        f.lstrip("/")
+        for f in re.findall(r"['\"]([^'\"]+)['\"]", shell_match.group(1))
+    ]
+
+    def git_commit_time(path):
+        try:
+            result = subprocess.run(
+                ["git", "log", "-1", "--format=%ct", "--", path],
+                capture_output=True, text=True, timeout=5
+            )
+            ts = result.stdout.strip()
+            return int(ts) if ts else 0
+        except Exception:
+            return 0
+
+    sw_time = git_commit_time(sw_path)
+    if sw_time == 0:
+        return []  # not in a git repo or file not tracked — skip
+
+    issues = []
+    for f in shell_files:
+        file_time = git_commit_time(f)
+        if file_time > sw_time:
+            issues.append({
+                "check": "sw_cache_staleness",
+                "reason": (
+                    f"'{f}' was committed more recently than sw.js — "
+                    f"service worker serves the stale cached version to all PWA users; "
+                    f"bump CACHE_NAME in sw.js (e.g. v4→v5) whenever any SHELL_FILE changes"
+                )
+            })
+    return issues
+
+
+def check_logbook_offline_queue():
+    """
+    logbook.html must have an IndexedDB offline entry queue so field workers in
+    dead zones can log jobs and have them auto-sync on reconnect. This is the
+    correct PWA offline pattern for data entry (as opposed to a Service Worker
+    cache which only covers static assets).
+    """
+    content = read_file("logbook.html")
+    if not content:
+        return [{"check": "logbook_offline_queue", "page": "logbook.html",
+                 "reason": "logbook.html not found"}]
+    tokens = {
+        "indexedDB.open(":                "IndexedDB not opened — no persistent offline store",
+        "queueEntryOffline":              "queueEntryOffline() missing — no way to save entry offline",
+        "syncOfflineQueue":               "syncOfflineQueue() missing — queue never drains on reconnect",
+        "window.addEventListener('online'": "online event listener missing — sync never triggered",
+    }
+    missing = [reason for token, reason in tokens.items() if token not in content]
+    if missing:
+        return [{"check": "logbook_offline_queue", "page": "logbook.html",
+                 "reason": "Logbook offline queue incomplete — " + "; ".join(missing)}]
+    return []
+
+
 def check_install_prompt_scope(pages):
     """
     beforeinstallprompt must be captured on app pages, not just the landing page.
@@ -241,6 +325,8 @@ CHECK_NAMES = [
     "localstorage_quota",
     "sw_offline_capability",
     "install_prompt_scope",
+    "sw_cache_staleness",
+    "logbook_offline_queue",
 ]
 
 CHECK_LABELS = {
@@ -250,6 +336,8 @@ CHECK_LABELS = {
     "localstorage_quota":     "L4  localStorage.setItem(JSON.stringify) wrapped in try/catch",
     "sw_offline_capability":  "L5  sw.js has fetch handler for offline mode  [WARN]",
     "install_prompt_scope":   "L5  beforeinstallprompt captured on app pages or shared JS  [WARN]",
+    "sw_cache_staleness":     "L6  SHELL_FILES not committed after sw.js (cache is fresh)",
+    "logbook_offline_queue":  "L6  Logbook has IndexedDB offline entry queue",
 }
 
 
@@ -273,6 +361,8 @@ def main():
     all_issues += check_localstorage_quota(LIVE_PAGES)
     all_issues += check_sw_offline_capability(SW_FILE)
     all_issues += check_install_prompt_scope(LIVE_PAGES)
+    all_issues += check_sw_cache_staleness(SW_FILE)
+    all_issues += check_logbook_offline_queue()
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 
