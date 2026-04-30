@@ -249,8 +249,8 @@ def check_audit_log(content):
 
 def check_leaderboard_exact(content):
     issues = []
-    if "skill_profiles" not in content:
-        issues.append({"check": "leaderboard_exact", "reason": "Leaderboard does not query skill_profiles — XP data unavailable"})
+    if "community_posts" not in content and "skill_badges" not in content:
+        issues.append({"check": "leaderboard_exact", "reason": "Leaderboard does not query community_posts or skill_badges — contributor data unavailable"})
     return issues
 
 

@@ -41,6 +41,7 @@ LIVE_PAGES = [
     "engineering-design.html",
     "analytics.html",
     "assistant.html",
+    "community.html",
 ]
 
 SHARED_TABLES = [
