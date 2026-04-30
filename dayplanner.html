@@ -8,7 +8,7 @@
   <meta name="description" content="Plan your maintenance shift with DILO, WILO, MILO, and YILO views. Schedule tasks, track open items, and stay on top of your workday with WorkHive." />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://workhiveph.com/dayplanner.html" />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -339,6 +339,7 @@
 // ─────────────────────────────────────────────
 // db initialized after supabase-js CDN loads (see script block below)
 let WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+var _authUid = null; // C3b: populated at init from Supabase Auth session
 if (!WORKER_NAME) {
   window.location.href = 'index.html?signin=1';
 }
@@ -456,6 +457,7 @@ function toDBRow(item) {
   return {
     id:          item.id,
     worker_name: WORKER_NAME,
+    auth_uid:    _authUid || null,  // C3b
     title:       item.title,
     date:        item.date,
     start_time:  item.startTime,
@@ -1307,6 +1309,7 @@ document.addEventListener('keydown', e => {
     'https://hzyvnjtisfgbksicrouu.supabase.co',
     'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ' // anon/publishable key: safe to expose in frontend
   );
+  db.auth.getSession().then(({ data: { session } }) => { _authUid = session?.user?.id || null; }).catch(() => {});
   Promise.all([loadLogbook(), loadSchedule()]);
 </script>
 <script src="nav-hub.js"></script>

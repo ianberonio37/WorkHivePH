@@ -8,7 +8,7 @@
   <meta name="description" content="Track spare parts stock levels, link parts to assets, and get alerted before critical spares run out. WorkHive Inventory Monitor." />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://workhiveph.com/inventory.html" />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -473,6 +473,7 @@
 const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let _authUid = null; // C3b: populated at init from Supabase Auth session
 
 // ────────────────────────────────────────────
 // IDENTITY
@@ -507,7 +508,7 @@ function saveInventory(arr) {
   arr.forEach(item => {
     const old = prev.find(o => o.id === item.id);
     if (!old || JSON.stringify(old) !== JSON.stringify(item)) {
-      db.from('inventory_items').upsert({ ...item, worker_name: item.worker_name || WORKER_NAME })
+      db.from('inventory_items').upsert({ ...item, worker_name: item.worker_name || WORKER_NAME, auth_uid: _authUid || null })
         .then(({ error }) => { if (error) { console.error('inv sync:', error.message); showToast('Inventory save failed: ' + error.message); } });
     }
   });
@@ -927,7 +928,7 @@ async function submitPart() {
     _items = items; // update local cache immediately
 
     // Await DB insert before adding transaction: FK constraint requires item to exist first
-    const { error: insertErr } = await db.from('inventory_items').upsert({ ...item, worker_name: WORKER_NAME });
+    const { error: insertErr } = await db.from('inventory_items').upsert({ ...item, worker_name: WORKER_NAME, auth_uid: _authUid || null });
     if (insertErr) { showFormError(errEl, 'Could not save part: ' + insertErr.message); return; }
 
     if (qty > 0) addTransaction(item.id, 'add', qty, qty, 'Initial stock entry');
@@ -1267,7 +1268,7 @@ async function initData() {
   // Migrate inventory items + transactions from localStorage if Supabase is empty
   if (mergedItems.length === 0 && lsItems.length > 0) {
     for (const item of lsItems) {
-      await db.from('inventory_items').upsert({ ...item, worker_name: WORKER_NAME, status: 'approved' });
+      await db.from('inventory_items').upsert({ ...item, worker_name: WORKER_NAME, status: 'approved', auth_uid: _authUid || null });
     }
     for (const txn of lsTxns) {
       await db.from('inventory_transactions').insert(txn).catch(e => console.warn('txn migrate:', e.message));
@@ -1288,7 +1289,7 @@ async function initData() {
   // Migrate assets from localStorage if Supabase is empty
   if (mergedAssets.length === 0 && lsAssets.length > 0) {
     for (const a of lsAssets) {
-      await db.from('assets').upsert({ ...a, worker_name: WORKER_NAME, status: 'approved' });
+      await db.from('assets').upsert({ ...a, worker_name: WORKER_NAME, status: 'approved', auth_uid: _authUid || null });
     }
     localStorage.removeItem(ASSETS_KEY);
     const { data: migA } = await db.from('assets').select('*').eq('worker_name', WORKER_NAME).order('created_at');
@@ -1333,6 +1334,7 @@ async function validateHiveMembership() {
 // INIT
 // ────────────────────────────────────────────
 (async () => {
+  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
   await validateHiveMembership();
   await initData();
 })();

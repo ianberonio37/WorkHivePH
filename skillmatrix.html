@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex, follow" />
   <meta name="description" content="Track your maintenance competency across 5 disciplines. Progress through 5 skill levels, earn badges, and see your full competency radar chart with WorkHive." />
   <title>Skill Matrix | WorkHive</title>
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -450,6 +450,7 @@
 const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let _authUid = null; // C3b: populated at init from Supabase Auth session
 
 // ─── Identity ─────────────────────────────────────────────────────────────────
 const WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
@@ -501,6 +502,7 @@ function showToast(msg, icon = '✓') {
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 async function init() {
+  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
   // Load profile and badges in parallel
   const [profileRes, badgesRes] = await Promise.all([
     db.from('skill_profiles').select('*').eq('worker_name', WORKER_NAME).maybeSingle(),
@@ -992,6 +994,7 @@ async function submitExam() {
   // Save attempt to DB
   const attemptData = {
     worker_name: WORKER_NAME,
+    auth_uid:    _authUid || null,  // C3b
     discipline: disc,
     level,
     score,
@@ -1012,6 +1015,7 @@ async function submitExam() {
   if (passed) {
     const { error: badgeErr } = await db.from('skill_badges').upsert({
       worker_name: WORKER_NAME,
+      auth_uid:    _authUid || null,  // C3b
       discipline: disc,
       level,
       exam_score: score,

@@ -8,7 +8,7 @@
   <meta name="description" content="Plant Maintenance Scheduler. Add assets, assign PM scope by category, set frequencies, and track due dates. Syncs with your WorkHive hive board." />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://workhiveph.com/pm-scheduler.html" />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -731,6 +731,7 @@
 const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let _authUid = null; // C3b: populated at init from Supabase Auth session
 
 // ─────────────────────────────────────
 // IDENTITY + HIVE
@@ -1038,6 +1039,7 @@ async function validateHiveMembership() {
 // INIT
 // ─────────────────────────────────────
 async function init() {
+  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
   await validateHiveMembership();
   document.getElementById('nav-worker').textContent = WORKER_NAME;
 
@@ -1496,6 +1498,7 @@ async function submitCompletion() {
     scope_item_id: _sheetScopeItemId,
     hive_id:       HIVE_ID || null,
     worker_name:   WORKER_NAME,
+    auth_uid:      _authUid || null,  // C3b
     status:        'done',
     notes:         findings || null,
     completed_at:  now,
@@ -1899,6 +1902,7 @@ async function saveAsset() {
   const assetPayload = {
     hive_id:          HIVE_ID || null,
     worker_name:      WORKER_NAME,
+    auth_uid:         _authUid || null,  // C3b
     asset_name:       name,
     tag_id:           tag || null,
     location:         loc || null,
