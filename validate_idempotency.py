@@ -380,7 +380,7 @@ CHECK_LABELS = {
 
 def main():
     def bold(s): return f"\033[1m{s}\033[0m"
-    print(bold("\nWebhook and Integration Idempotency Validator (4-layer)"))
+    print(bold("\nWebhook and Integration Idempotency Validator (5-layer)"))
     print("=" * 55)
 
     migrations = read_all_migrations()

@@ -281,7 +281,7 @@ CHECK_LABELS = CHECKS
 
 def main():
     def bold(s): return f"\033[1m{s}\033[0m"
-    print(bold("\nCommunity Validator (5-layer)"))
+    print(bold("\nCommunity Validator (5-layer, 21 checks)"))
     print("=" * 55)
 
     content = read_file(PAGE)

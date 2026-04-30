@@ -343,7 +343,7 @@ CHECK_LABELS = {
 
 def main():
     def bold(s): return f"\033[1m{s}\033[0m"
-    print(bold("\nPWA Integrity Validator (5-layer)"))
+    print(bold("\nPWA Integrity Validator (6-layer)"))
     print("=" * 55)
 
     manifest_theme_color = ""
