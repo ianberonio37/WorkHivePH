@@ -303,6 +303,12 @@
             <div style="height:90px; border-radius:0.875rem;" class="skeleton"></div>
           </div>
           <div id="feed-list" style="display:none; display:flex; flex-direction:column; gap:0.75rem;"></div>
+          <div id="feed-load-more" style="display:none; justify-content:center; padding:0.75rem 0;">
+            <button id="btn-load-more-posts" onclick="loadMorePosts()"
+              style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:0.625rem; padding:0.6rem 1.25rem; font-size:0.8rem; cursor:pointer; transition:background 0.15s;">
+              Load more posts
+            </button>
+          </div>
         </div>
 
         <!-- Mod queue panel (supervisor only) -->
@@ -422,8 +428,9 @@
   if (!HIVE_ID)     { window.location.href = 'hive.html'; }
 
   // ── State ─────────────────────────────────────────────────────────────────────
-  let allPosts       = [];
-  let replyCountMap  = {}; // { postId: count }
+  let allPosts         = [];
+  let replyCountMap    = {}; // { postId: count }
+  let _postDisplayCount = 20;
   let activeFilter   = 'all';
   let activeTab      = 'feed';
   let activeThreadId = null;
@@ -503,11 +510,11 @@
   // ── Load posts ────────────────────────────────────────────────────────────────
   async function loadPosts() {
     const { data, error } = await db.from('community_posts')
-      .select('*')
+      .select('id, hive_id, author_name, content, category, pinned, flagged, created_at')
       .eq('hive_id', HIVE_ID)
       .order('pinned', { ascending: false })
       .order('created_at', { ascending: false })
-      .limit(100);
+      .limit(50);
 
     document.getElementById('feed-skeleton').style.display = 'none';
     document.getElementById('feed-list').style.display = 'flex';
@@ -531,10 +538,11 @@
     });
   }
 
-  // ── Render feed (filtered) ────────────────────────────────────────────────────
+  // ── Render feed (filtered + paginated) ───────────────────────────────────────
   function renderFeed() {
     const query   = document.getElementById('search-input').value.toLowerCase().trim();
     const el      = document.getElementById('feed-list');
+    const lmWrap  = document.getElementById('feed-load-more');
     let   posts   = allPosts.filter(p => !p.flagged || HIVE_ROLE === 'supervisor');
 
     if (activeFilter !== 'all') posts = posts.filter(p => p.category === activeFilter);
@@ -547,9 +555,29 @@
         <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
         <p style="color:rgba(255,255,255,0.4); font-size:0.875rem;">No posts yet. Be the first to post in your hive!</p>
       </div>`;
+      if (lmWrap) lmWrap.style.display = 'none';
       return;
     }
-    el.innerHTML = posts.map(p => renderPostCard(p)).join('');
+
+    const visible = posts.slice(0, _postDisplayCount);
+    el.innerHTML  = visible.map(p => renderPostCard(p)).join('');
+
+    // Show Load More only when there are hidden posts
+    if (lmWrap) {
+      const remaining = posts.length - visible.length;
+      if (remaining > 0) {
+        lmWrap.style.display = 'flex';
+        const btn = document.getElementById('btn-load-more-posts');
+        if (btn) btn.textContent = `Load ${Math.min(remaining, 20)} more posts`;
+      } else {
+        lmWrap.style.display = 'none';
+      }
+    }
+  }
+
+  function loadMorePosts() {
+    _postDisplayCount += 20;
+    renderFeed();
   }
 
   // ── Post card HTML ────────────────────────────────────────────────────────────
@@ -651,6 +679,7 @@
   // ── Filter & search ───────────────────────────────────────────────────────────
   function setFilter(cat) {
     activeFilter = cat;
+    _postDisplayCount = 20;
     document.querySelectorAll('.filter-chip').forEach(c => {
       c.classList.toggle('active', c.dataset.cat === cat);
     });
@@ -658,7 +687,7 @@
   }
 
   const searchInput = document.getElementById('search-input');
-  searchInput.addEventListener('input', debounce(() => renderFeed(), 250));
+  searchInput.addEventListener('input', debounce(() => { _postDisplayCount = 20; renderFeed(); }, 250));
 
   // ── Tabs ──────────────────────────────────────────────────────────────────────
   function switchTab(tab) {
