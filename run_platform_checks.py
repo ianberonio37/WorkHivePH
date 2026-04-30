@@ -96,6 +96,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "dom-refs",
+        "script":  "validate_dom_refs.py",
+        "args":    [],
+        "label":   "DOM Reference Integrity Validator (bare getElementById on missing elements)",
+        "group":   "Platform",
+        "report":  "dom_refs_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "hive",
         "script":  "validate_hive.py",
         "args":    [],

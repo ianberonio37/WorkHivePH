@@ -2841,10 +2841,10 @@ async function openEditModal(id) {
 
 
 async function saveEdit(id) {
-  const downtimeRaw = document.getElementById('e-downtime').value;
-  const machine     = document.getElementById('e-machine').value.trim();
+  const downtimeRaw = document.getElementById('f-downtime').value;
+  const machine     = document.getElementById('f-machine').value.trim();
   const assetMatch  = loadAssets().find(a => a.asset_id.toUpperCase() === machine.toUpperCase());
-  const newStatus   = document.querySelector('input[name="e-status"]:checked').value;
+  const newStatus   = document.querySelector('input[name="f-status"]:checked').value;
 
   // Use cached entry from openEditModal: avoids an extra DB round-trip
   const existing  = _editingEntry?.id === id ? _editingEntry : null;
@@ -2857,12 +2857,12 @@ async function saveEdit(id) {
 
   const updates = {
     machine,
-    maintenance_type: document.getElementById('e-maint-type').value,
-    category:        document.getElementById('e-category').value,
-    problem:         document.getElementById('e-problem').value.trim(),
-    root_cause:      document.getElementById('e-root-cause').value,
-    action:          document.getElementById('e-action').value.trim(),
-    knowledge:       document.getElementById('e-knowledge').value.trim(),
+    maintenance_type: document.getElementById('f-maint-type').value,
+    category:        document.getElementById('f-category').value,
+    problem:         document.getElementById('f-problem').value.trim(),
+    root_cause:      document.getElementById('f-root-cause').value,
+    action:          document.getElementById('f-action').value.trim(),
+    knowledge:       document.getElementById('f-knowledge').value.trim(),
     downtime_hours:  downtimeRaw !== '' ? parseFloat(downtimeRaw) : null,
     photo:           _editPhotoData,
     status:          newStatus,
