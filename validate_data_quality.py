@@ -209,17 +209,23 @@ def check_category_required_on_save(page):
 
 def check_canonical_maint_type_consistency(page, canonical_types):
     """
-    Both the add form (<select id="f-maint-type">) and the edit form (JS array
-    in the template literal) must use identical maintenance_type values.
-    A mismatch means edited entries can have values the add form never produces,
-    creating orphaned groups in MTBF and the Python analytics filter.
+    Both the add form (<select id="f-maint-type">) and the edit form must use
+    identical maintenance_type values. Accepts two patterns:
+    1. Legacy: JS array in mc.innerHTML template literal  → check array values
+    2. Modern edit-in-place: openEditModal populates f-maint-type directly
+       → consistency guaranteed by construction, no separate check needed
     """
     content = read_file(page)
     if content is None:
         return [{"check": "canonical_maint_type_consistency", "page": page,
                  "reason": f"{page} not found"}]
 
-    # Find the edit form JS array — template literal pattern
+    # Modern edit-in-place: openEditModal sets f-maint-type.value from entry
+    # Consistency is guaranteed — edit reuses the exact same select element
+    if "document.getElementById('f-maint-type').value = entry.maintenance_type" in content:
+        return []
+
+    # Legacy: find the edit form JS array in the template literal
     edit_m = re.search(r"(\[\s*'Breakdown[^]]+?\])\s*\.map\(t\s*=>", content)
     if not edit_m:
         return [{"check": "canonical_maint_type_consistency", "page": page,

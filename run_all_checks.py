@@ -50,6 +50,13 @@ LAYERS = [
         "skip_if_fast": False,
     },
     {
+        "id":     "Layer 2c",
+        "name":   "Diagram Inputs Contract Test",
+        "script": "validate_diagram_inputs.py",
+        "desc":   "Checks inp.xxx in every buildXxxSVG() and inputs.xxx in BOM/SOW edge function against collectInputs() keys.",
+        "skip_if_fast": False,
+    },
+    {
         "id":     "Layer 3",
         "name":   "Edge Function Integration Test",
         "script": "validate_integration.py",

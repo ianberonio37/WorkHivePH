@@ -3,10 +3,12 @@ import { callAI } from "../_shared/ai-chain.ts";
 
 // Allow specific origin in production; use env var ALLOWED_ORIGIN to override (e.g. for local dev)
 const ORIGIN = Deno.env.get("ALLOWED_ORIGIN") || "https://workhiveph.com";
-const corsHeaders = {
-  "Access-Control-Allow-Origin": ORIGIN,
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+function buildCors(reqOrigin: string | null) {
+  return {
+    "Access-Control-Allow-Origin": (!reqOrigin || reqOrigin === "null") ? "*" : ORIGIN,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  };
+}
 
 // ─── BOM unit sanitizer ───────────────────────────────────────────────────────
 // LLMs sometimes put descriptive text in the `unit` field.
@@ -3698,7 +3700,7 @@ async function shaftDesignBomSowAgent(
 ): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
   const project   = inputs.project_name  || "Shaft Design Project";
   const powerKW   = Number(inputs.power_kW    || 0).toFixed(1);
-  const speedRPM  = Number(inputs.speed_rpm   || 0);
+  const speedRPM  = Number(inputs.shaft_rpm || inputs.speed_rpm || 0);
   const material  = String(inputs.material    || "AISI 1045");
   const dMin      = Number(results.d_min_mm   || 0).toFixed(1);
   const dStd      = Number(results.d_standard_mm || 0);
@@ -3744,8 +3746,8 @@ async function gearBeltDriveBomSowAgent(
   const project    = inputs.project_name  || "Drive Design Project";
   const driveType  = String(inputs.drive_type || results.drive_type || "Gear Drive");
   const powerKW    = Number(inputs.power_kW    || 0).toFixed(1);
-  const nDriver    = Number(inputs.n_driver_rpm || 0);
-  const nDriven    = Number(inputs.n_driven_rpm || 0);
+  const nDriver    = Number(inputs.driver_rpm || inputs.n_driver_rpm || 0);
+  const nDriven    = Number(inputs.driven_rpm || inputs.n_driven_rpm || 0);
   const ratio      = Number(results.overall_ratio || results.speed_ratio || 0).toFixed(3);
   const nBelts     = Number(results.n_belts || 0);
   const section    = String(results.section || inputs.belt_section || "—");
@@ -3788,10 +3790,11 @@ async function bearingLifeBomSowAgent(
   const bearingType = String(inputs.bearing_type || "Ball");
   const bearingNo  = String(inputs.bearing_no   || "—");
   const speedRPM   = Number(inputs.speed_rpm    || 0);
-  const L10h       = Number(results.L10_hours   || 0).toFixed(0);
-  const L10m       = Number(results.L10_million_revs || 0).toFixed(2);
+  const L10h       = Number(results.L10h || results.L10h_adj || results.L10_hours || 0).toFixed(0);
+  const L10m       = Number(results.L10_Mrev || results.L10_million_revs || 0).toFixed(2);
   const cRating    = Number(inputs.C_kN         || 0).toFixed(1);
-  const adequate   = results.bearing_adequate   ?? true;
+  const lifeCheck  = String(results.life_check || '');
+  const adequate   = results.bearing_adequate ?? !lifeCheck.toUpperCase().includes('FAIL');
 
   const prompt = `You are a senior Mechanical Engineer in the Philippines preparing a BOM and SOW for bearing selection and installation per ISO 281 and SKF/FAG application guidelines.
 
@@ -4103,6 +4106,7 @@ Content fields must start "The Contractor shall..." Reference DOLE D.O. 13. Retu
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
+  const corsHeaders = buildCors(req.headers.get("Origin"));
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }

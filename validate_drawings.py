@@ -247,6 +247,52 @@ def check_title_block_ef(content, builders):
     return issues
 
 
+# ── Layer 5: PDF border visibility ───────────────────────────────────────────
+
+def check_outer_border_thickness(content, builders):
+    """Outer border rect must use stroke-width >= 1.5 for PDF visibility.
+    Builders using helper-function style (HL/VL) are skipped — only inline pattern checked.
+    Root cause found April 2026: standard builders had stroke-width=1.2 hairline borders."""
+    issues = []
+    for func in builders:
+        body, start_line = extract_function_body(content, func)
+        if body is None:
+            continue
+        # Match outer border: fill=none, stroke=CC, NO stroke-dasharray (structural border only)
+        m = re.search(r'fill="none"\s+stroke="\$\{C[CP]\}"\s+stroke-width="(\d+(?:\.\d+)?)"(?!.*stroke-dasharray)', body)
+        if not m:
+            continue  # helper-function style or no inline border — skip
+        sw = float(m.group(1))
+        if sw < 1.5:
+            issues.append({"check": "outer_border_thickness", "func": func, "line": start_line,
+                           "reason": (f"{func}() outer border stroke-width={sw} < 1.5 — "
+                                      f"renders as hairline in PDF; change to stroke-width='2'")})
+    return issues
+
+
+def check_header_separator_line(content, builders):
+    """Builders with the standard dark title bar (height='32' fill='${CC}') must
+    have an explicit horizontal line at y=43 separating header from content.
+    Builders with plain-text headers (older custom style) are skipped.
+    Root cause found April 2026: title bar fill creates visual edge on screen
+    but no drawn line in PDF export."""
+    issues = []
+    for func in builders:
+        body, start_line = extract_function_body(content, func)
+        if body is None:
+            continue
+        # Only check builders that use the standard dark title bar
+        if not re.search(r'height="32"\s+fill="\$\{CC\}"', body):
+            continue  # non-standard header — skip
+        # Check for horizontal separator line at y=43
+        if not re.search(r'y1=["\']43["\'].*y2=["\']43["\']', body):
+            issues.append({"check": "header_separator_line", "func": func, "line": start_line,
+                           "reason": (f"{func}() has dark title bar but no horizontal separator "
+                                      "line at y=43 — PDF shows no border between title bar and "
+                                      "content; add line y1='43' y2='43' stroke=CC sw='1.5'")})
+    return issues
+
+
 # ── Layer 4: Coverage completeness ────────────────────────────────────────────
 
 def check_all_builders_covered(content, registered):
@@ -281,15 +327,19 @@ CHECK_NAMES = [
     "viewbox_uses_wh",
     "title_block_ef",
     "all_builders_covered",
+    "outer_border_thickness",
+    "header_separator_line",
 ]
 
 CHECK_LABELS = {
-    "canvas_width":          "L1  Canvas width = 1050px in all diagram builders",
-    "canvas_ratio":          "L1  Canvas height H/W <= 0.55 (A3 landscape fit)",
-    "arc_safety":            "L2  Arc chord safety formula used when SVG arcs are present",
-    "viewbox_uses_wh":       "L2  viewBox references W and H variables (not hard-coded)",
-    "title_block_ef":        "L3  Title block editable cells use EF() not bare contenteditable",
-    "all_builders_covered":  "L4  All buildXxxSvg functions registered in BUILDER_FUNCTIONS",
+    "canvas_width":           "L1  Canvas width = 1050px in all diagram builders",
+    "canvas_ratio":           "L1  Canvas height H/W <= 0.55 (A3 landscape fit)",
+    "arc_safety":             "L2  Arc chord safety formula used when SVG arcs are present",
+    "viewbox_uses_wh":        "L2  viewBox references W and H variables (not hard-coded)",
+    "title_block_ef":         "L3  Title block editable cells use EF() not bare contenteditable",
+    "all_builders_covered":   "L4  All buildXxxSvg functions registered in BUILDER_FUNCTIONS",
+    "outer_border_thickness": "L5  Outer border stroke-width >= 2 (visible in PDF export)",
+    "header_separator_line":  "L5  Horizontal header separator line at y=43 present in all builders",
 }
 
 
@@ -312,6 +362,8 @@ def main():
     all_issues += check_viewbox_uses_wh(content, BUILDER_FUNCTIONS)
     all_issues += check_title_block_ef(content, BUILDER_FUNCTIONS)
     all_issues += check_all_builders_covered(content, BUILDER_FUNCTIONS)
+    all_issues += check_outer_border_thickness(content, BUILDER_FUNCTIONS)
+    all_issues += check_header_separator_line(content, BUILDER_FUNCTIONS)
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

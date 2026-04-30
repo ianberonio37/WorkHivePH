@@ -267,14 +267,21 @@ def check_new_fields_in_save_edit(content, page):
 
 def check_new_fields_in_load_entries(content, page):
     """
-    loadEntries() data.map() must include the new fields in the cached entry shape.
-    Missing = fields are dropped from the local cache, openEditModal can't read them.
+    loadEntries() cache shape must include the new fields.
+    Anchors to the loadEntries function body so the offline-queue spread
+    pattern `_allEntries = [...pending.map(...), ...(data||[]).map(` is
+    accepted alongside the legacy `_allEntries = data.map(` form.
+    Missing = fields are dropped from the local cache, openEditModal reads null.
     """
-    m = re.search(r"_allEntries\s*=\s*data\.map\s*\(", content)
+    fn = re.search(r"async function loadEntries\s*\(", content)
+    if not fn:
+        return [{"check": "new_fields_in_load_entries", "page": page,
+                 "reason": "loadEntries() function not found"}]
+    body = content[fn.start():fn.start() + 3000]
+    m = re.search(r"_allEntries\s*=", body)
     if not m:
         return [{"check": "new_fields_in_load_entries", "page": page,
-                 "reason": "_allEntries = data.map() not found"}]
-    body = content[m.start():m.start() + 800]
+                 "reason": "_allEntries = ... not found inside loadEntries()"}]
     issues = []
     for field in NEW_LOGBOOK_FIELDS:
         if field not in body:
@@ -329,6 +336,68 @@ def check_highlight_escapes(content, page):
     return []
 
 
+def check_offline_queue(content, page):
+    """
+    logbook.html must implement the IndexedDB offline entry queue so field workers
+    in low-signal areas can log jobs without losing data.
+    Missing any piece = entries silently fail with no recovery when offline.
+    """
+    required = {
+        "openOfflineDB":               "openOfflineDB() function missing",
+        "queueEntryOffline":           "queueEntryOffline() function missing",
+        "syncOfflineQueue":            "syncOfflineQueue() function missing",
+        "navigator.onLine":            "navigator.onLine check missing in addEntry",
+        "window.addEventListener('online'": "online event listener missing — queue never drains on reconnect",
+        "offline-banner":              "#offline-banner element missing — worker has no visual feedback when offline",
+    }
+    issues = []
+    for token, reason in required.items():
+        if token not in content:
+            issues.append({"check": "offline_queue", "page": page, "reason": reason})
+    return issues
+
+
+def check_team_query_first(content, page):
+    """
+    The team feed must use query-first UX: show an empty prompt until the user
+    explicitly searches. Auto-loading all team entries is an unbounded fetch that
+    causes visible lag on large hives.
+    """
+    required = {
+        "async function searchTeam":  "searchTeam() function missing",
+        "loadTeamMembers":            "loadTeamMembers() function missing",
+        "team-filter-row":            "#team-filter-row element missing",
+        "team-prompt":                "#team-prompt empty state missing",
+        "TEAM_PAGE":                  "TEAM_PAGE constant missing — no server-side page size limit",
+        "_teamSearched":              "_teamSearched flag missing — team view will auto-load on switch",
+    }
+    issues = []
+    for token, reason in required.items():
+        if token not in content:
+            issues.append({"check": "team_query_first", "page": page, "reason": reason})
+    return issues
+
+
+def check_edit_in_place(content, page):
+    """
+    Edit must reuse the main add form (edit-in-place) not a parallel mc.innerHTML modal.
+    A parallel modal drifts from the add form over time — edited entries can have
+    different field options, missing sections, or silently dropped fields.
+    """
+    required = {
+        "_editingId":            "_editingId state variable missing",
+        "cancelEditMode":        "cancelEditMode() function missing",
+        "saveEditFromForm":      "saveEditFromForm() function missing",
+        "edit-mode-banner":      "#edit-mode-banner element missing",
+        "log-form.editing":      "CSS .editing class missing — step wizard not collapsed in edit mode",
+    }
+    issues = []
+    for token, reason in required.items():
+        if token not in content:
+            issues.append({"check": "edit_in_place", "page": page, "reason": reason})
+    return issues
+
+
 # ── Runner ─────────────────────────────────────────────────────────────────────
 
 CHECK_NAMES = [
@@ -342,6 +411,8 @@ CHECK_NAMES = [
     "new_fields_in_add_entry", "new_fields_in_save_edit", "new_fields_in_load_entries",
     # L4 — XSS / JS correctness
     "highlight_escapes", "await_in_non_async",
+    # L4 — feature completeness
+    "offline_queue", "team_query_first", "edit_in_place",
 ]
 
 CHECK_LABELS = {
@@ -359,7 +430,7 @@ CHECK_LABELS = {
     # L3
     "auth_gate":                    "L3  WORKER_NAME auth gate present",
     "maintenance_type_values":      "L3  maintenance_type values match valid list",
-    "qty_after_floor":         "L3  Math.max(0,...) guard on qty_after",
+    "qty_after_floor":              "L3  Math.max(0,...) guard on qty_after",
     # L3 (new field sync)
     "new_fields_in_add_entry":      "L3  New fields in addEntry insert (consequence/readings/production)",
     "new_fields_in_save_edit":      "L3  New fields preserved in saveEdit update",
@@ -367,6 +438,10 @@ CHECK_LABELS = {
     # L4
     "highlight_escapes":            "L4  highlight() calls escHtml before rendering",
     "await_in_non_async":           "L4  No await inside non-async callback (JS crash guard)",
+    # L4 — feature completeness
+    "offline_queue":                "L4  Offline queue present (IndexedDB + online drain + banner)",
+    "team_query_first":             "L4  Team feed uses query-first UX (not auto-load)",
+    "edit_in_place":                "L4  Edit uses main form in-place (not parallel mc.innerHTML)",
 }
 
 
@@ -408,6 +483,11 @@ def main():
     # L4
     all_issues += check_highlight_escapes(logbook, LOGBOOK_PAGE)
     all_issues += check_await_in_non_async(logbook, LOGBOOK_PAGE)
+
+    # L4 — feature completeness
+    all_issues += check_offline_queue(logbook, LOGBOOK_PAGE)
+    all_issues += check_team_query_first(logbook, LOGBOOK_PAGE)
+    all_issues += check_edit_in_place(logbook, LOGBOOK_PAGE)
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 
