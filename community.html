@@ -437,6 +437,7 @@
   let allPosts            = [];
   let pinnedPosts         = []; // always shown at top, fetched separately
   let replyCountMap       = {}; // { postId: count }
+  const myPostIds         = new Set(); // post IDs authored by WORKER_NAME — for reply notifications
   let _lastPostCreatedAt  = null; // keyset cursor — timestamp of oldest loaded post
   let _hasMorePosts       = true;
   let _isFetchingMore     = false;
@@ -619,6 +620,7 @@
   // ── Load posts ────────────────────────────────────────────────────────────────
   function _resetFeed() {
     allPosts = []; pinnedPosts = [];
+    myPostIds.clear();
     _lastPostCreatedAt = null; _hasMorePosts = true;
   }
 
@@ -658,6 +660,8 @@
     allPosts    = pageRes.data  || [];
     if (allPosts.length) _lastPostCreatedAt = allPosts[allPosts.length - 1].created_at;
     _hasMorePosts = allPosts.length === 20;
+
+    [...pinnedPosts, ...allPosts].forEach(p => { if (p.author_name === WORKER_NAME) myPostIds.add(p.id); });
 
     const allIds = [...pinnedPosts, ...allPosts].map(p => p.id);
     if (allIds.length) await Promise.all([loadReplyCounts(allIds), loadReactions(allIds)]);
@@ -725,6 +729,7 @@
     }
     if (data && data.length > 0) {
       _lastPostCreatedAt = data[data.length - 1].created_at;
+      data.forEach(p => { if (p.author_name === WORKER_NAME) myPostIds.add(p.id); });
       const ids = data.map(p => p.id);
       await Promise.all([loadReplyCounts(ids), loadReactions(ids)]);
       allPosts = [...allPosts, ...data];
@@ -951,6 +956,7 @@
       .delete().eq('id', postId).eq('hive_id', HIVE_ID);
     if (error) { showToast('Could not delete post', 'error'); return; }
     if (HIVE_ROLE === 'supervisor') await writeAuditLog('delete_post', postId);
+    myPostIds.delete(postId);
     allPosts    = allPosts.filter(p => p.id !== postId);
     pinnedPosts = pinnedPosts.filter(p => p.id !== postId);
     _removePostCard(postId);
@@ -1001,6 +1007,7 @@
 
     if (error) { showToast('Could not post. Try again.', 'error'); return; }
 
+    myPostIds.add(data.id);
     allPosts.unshift(data); // new posts are never pinned on creation
     _prependPostCard(data);
     closeComposer();
@@ -1127,6 +1134,7 @@
         filter: `hive_id=eq.${HIVE_ID}`
       }, (payload) => {
         if (_findPost(payload.new.id)) return; // dedup
+        if (payload.new.author_name === WORKER_NAME) myPostIds.add(payload.new.id);
         if (payload.new.pinned) pinnedPosts.unshift(payload.new);
         else                    allPosts.unshift(payload.new);
         _prependPostCard(payload.new);
@@ -1155,6 +1163,19 @@
         allPosts    = allPosts.filter(p => p.id !== payload.old.id);
         pinnedPosts = pinnedPosts.filter(p => p.id !== payload.old.id);
         _removePostCard(payload.old.id);
+      })
+      .on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'community_replies',
+        filter: `hive_id=eq.${HIVE_ID}`
+      }, (payload) => {
+        const postId = payload.new.post_id;
+        // Only notify when someone else replies to YOUR post
+        if (!myPostIds.has(postId) || payload.new.author_name === WORKER_NAME) return;
+        showToast(`💬 ${payload.new.author_name} replied to your post`);
+        // Update reply count badge if card is rendered
+        replyCountMap[postId] = (replyCountMap[postId] || 0) + 1;
+        const rcEl = document.getElementById(`reply-count-${postId}`);
+        if (rcEl) rcEl.textContent = replyCountMap[postId];
       })
       .subscribe();
   }
