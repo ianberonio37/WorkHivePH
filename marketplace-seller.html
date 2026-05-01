@@ -242,8 +242,11 @@
     </div>
     <div class="stripe-banner" id="stripe-banner" style="display:none;">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#29B6D9" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-      <p>Connect your Stripe account to receive payments when buyers confirm receipt.</p>
+      <p id="stripe-banner-text">Connect your Stripe account to receive payments when buyers confirm receipt.</p>
       <button class="btn-connect-stripe" id="btn-stripe-connect" aria-label="Connect Stripe">Connect Stripe</button>
+    </div>
+    <div id="stripe-recheck-row" style="display:none;margin-top:0.75rem;text-align:right;">
+      <button id="btn-stripe-recheck" style="background:none;border:none;color:#7B8794;font-family:'Poppins',sans-serif;font-size:0.72rem;cursor:pointer;text-decoration:underline;" aria-label="Re-check Stripe status">Re-check Stripe status</button>
     </div>
   </div>
 
@@ -432,8 +435,16 @@
           : `<span class="badge-unverified">KYB Pending</span>`}`;
     }
 
-    if (bannerEl && _seller && !_seller.stripe_account_id) bannerEl.style.display = 'flex';
-    if (bannerEl && !_seller) bannerEl.style.display = 'flex';
+    /* Show Stripe banner if no account yet, or account exists but not verified */
+    if (bannerEl) {
+      if (!_seller || !_seller.stripe_account_id) {
+        bannerEl.style.display = 'flex';
+      } else if (_seller.stripe_account_id && !_seller.kyb_verified) {
+        const bannerText = document.getElementById('stripe-banner-text');
+        if (bannerText) bannerText.textContent = 'Your Stripe account is connected but verification is pending. Check status or complete the onboarding.';
+        bannerEl.style.display = 'flex';
+      }
+    }
   }
 
   /* ── Load listings ──────────────────────────────────────────────────────── */
@@ -814,14 +825,58 @@
     } catch (_) { showToast('Failed. Try again.', 'error'); }
   }
 
-  /* ── Stripe Connect ─────────────────────────────────────────────────────── */
+  /* ── Check Stripe Connect status ───────────────────────────────────────── */
+  async function checkStripeStatus(showResult) {
+    const recheckBtn = document.getElementById('btn-stripe-recheck');
+    if (recheckBtn) { recheckBtn.disabled = true; recheckBtn.textContent = 'Checking…'; }
+
+    try {
+      const res = await fetch('https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/marketplace-connect-status', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ worker_name: WORKER_NAME })
+      });
+      const data = await res.json();
+      if (data.error) { if (showResult) showToast(data.error, 'error'); return; }
+
+      if (data.verified) {
+        /* Update local seller profile and badges */
+        if (_seller) _seller.kyb_verified = true;
+        const badgesEl  = document.getElementById('profile-badges');
+        const bannerEl  = document.getElementById('stripe-banner');
+        const recheckRow = document.getElementById('stripe-recheck-row');
+        if (badgesEl) {
+          const tier = _seller?.tier || 'bronze';
+          badgesEl.innerHTML = `
+            <span class="badge-tier ${escHtml(tier)}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>
+            <span class="badge-kyb"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>KYB Verified</span>`;
+        }
+        if (bannerEl) bannerEl.style.display = 'none';
+        if (recheckRow) recheckRow.style.display = 'none';
+        if (showResult) showToast('KYB verified! You can now receive payments.', 'success');
+      } else {
+        /* Not yet verified — show pending requirements if any */
+        const bannerText = document.getElementById('stripe-banner-text');
+        if (bannerText && data.requirements_due?.length) {
+          bannerText.textContent = 'Stripe needs more info: ' + data.requirements_due.join(', ') + '. Click Connect Stripe to continue.';
+        } else if (bannerText && data.details_submitted && !data.charges_enabled) {
+          bannerText.textContent = 'Your Stripe account is under review. This usually takes 1-2 business days.';
+        }
+        if (showResult) showToast('Not verified yet. Complete the Stripe onboarding to enable payments.', 'info');
+      }
+    } catch (_) { if (showResult) showToast('Could not check Stripe status. Try again.', 'error'); }
+    finally {
+      if (recheckBtn) { recheckBtn.disabled = false; recheckBtn.textContent = 'Re-check Stripe status'; }
+    }
+  }
+
+  /* ── Stripe Connect onboard ─────────────────────────────────────────────── */
   async function handleStripeConnect() {
     const btn = document.getElementById('btn-stripe-connect');
     if (btn) { btn.disabled = true; btn.textContent = 'Opening…'; }
     try {
       const res = await fetch('https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/marketplace-connect-onboard', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ worker_name: WORKER_NAME, return_url: window.location.href + '?onboard=success', refresh_url: window.location.href + '?onboard=refresh' })
+        body: JSON.stringify({ worker_name: WORKER_NAME, return_url: window.location.href.split('?')[0] + '?onboard=success', refresh_url: window.location.href.split('?')[0] + '?onboard=refresh' })
       });
       const data = await res.json();
       if (data.error) { showToast(data.error, 'error'); return; }
@@ -863,11 +918,29 @@
     document.getElementById('btn-close-edit')?.addEventListener('click', () => { document.getElementById('overlay-edit')?.classList.remove('open'); document.getElementById('sheet-edit')?.classList.remove('open'); document.body.style.overflow = ''; });
     document.getElementById('form-edit')?.addEventListener('submit', handleEditSubmit);
     document.getElementById('btn-stripe-connect')?.addEventListener('click', handleStripeConnect);
+    document.getElementById('btn-stripe-recheck')?.addEventListener('click', () => checkStripeStatus(true));
 
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('onboard') === 'success') showToast('Stripe onboarding complete! You can now receive payments.', 'success');
 
     await Promise.all([loadProfile(), loadListings(), loadInquiries(), loadOrders()]);
+
+    /* After profile loads: show re-check button if seller has Stripe but KYB pending */
+    if (_seller?.stripe_account_id && !_seller?.kyb_verified) {
+      const recheckRow = document.getElementById('stripe-recheck-row');
+      if (recheckRow) recheckRow.style.display = 'block';
+    }
+
+    /* Auto-check Stripe status on return from onboarding */
+    if (urlParams.get('onboard') === 'success') {
+      showToast('Checking Stripe account status…', 'info');
+      await checkStripeStatus(true);
+      /* Clean URL so refresh doesn't re-trigger */
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    if (urlParams.get('onboard') === 'refresh') {
+      showToast('Onboarding session expired. Click Connect Stripe to try again.', 'info');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
   });
 
 })();

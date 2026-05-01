@@ -48,6 +48,7 @@ ALL_FUNCTIONS = [
     "marketplace-webhook",
     "marketplace-connect-onboard",
     "marketplace-release",
+    "marketplace-connect-status",
 ]
 
 REQUIRED_FIELDS = {
@@ -62,7 +63,8 @@ REQUIRED_FIELDS = {
     "voice-transcribe":         ["audio"],
     "marketplace-checkout":        ["listing_id", "buyer_name"],
     "marketplace-release":         ["order_id", "buyer_name"],
-    "marketplace-connect-onboard": ["worker_name", "return_url", "refresh_url"],
+    "marketplace-connect-onboard":  ["worker_name", "return_url", "refresh_url"],
+    "marketplace-connect-status":   ["worker_name"],
 }
 
 
