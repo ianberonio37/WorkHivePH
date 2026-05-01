@@ -721,7 +721,7 @@
     /* Wire dispute reply buttons after render */
     setTimeout(() => {
       document.querySelectorAll('[data-action="dispute-reply"]').forEach(btn => {
-        btn.addEventListener('click', () => handleSellerDisputeReply((btn as HTMLElement).dataset.orderId || ''));
+        btn.addEventListener('click', () => handleSellerDisputeReply(btn.dataset.orderId || ''));
       });
     }, 0);
 

@@ -1050,7 +1050,7 @@
     grid.querySelectorAll('.listing-card').forEach(card => {
       card.addEventListener('click', (ev) => {
         /* Skip when clicking the seller link (let it navigate normally) */
-        if ((ev.target as HTMLElement)?.closest?.('.seller-link')) return;
+        if (ev.target?.closest?.('.seller-link')) return;
         openDetailSheet(card.dataset.id);
       });
     });
@@ -1509,7 +1509,7 @@
 
       const e = escHtml;
       content.innerHTML = orders.map(ord => {
-        const st = STATUS_LABEL[ord.status as keyof typeof STATUS_LABEL] || { label: ord.status, color: '#7B8794' };
+        const st = STATUS_LABEL[ord.status] || { label: ord.status, color: '#7B8794' };
         const canConfirm  = ord.status === 'escrow_hold';
         const canDispute  = ord.status === 'escrow_hold';
         const canReview   = ord.status === 'released' && !ord.reviewed_at;
@@ -1550,15 +1550,13 @@
       }).join('');
 
       content.querySelectorAll('.btn-confirm-receipt').forEach(btn => {
-        btn.addEventListener('click', () => handleConfirmReceipt((btn as HTMLElement).dataset.orderId || ''));
+        btn.addEventListener('click', () => handleConfirmReceipt(btn.dataset.orderId || ''));
       });
       content.querySelectorAll('.btn-leave-review').forEach(btn => {
-        const el = btn as HTMLElement;
-        btn.addEventListener('click', () => openReviewSheet(el.dataset.orderId || '', el.dataset.listingId || '', el.dataset.seller || ''));
+        btn.addEventListener('click', () => openReviewSheet(btn.dataset.orderId || '', btn.dataset.listingId || '', btn.dataset.seller || ''));
       });
       content.querySelectorAll('.btn-open-dispute').forEach(btn => {
-        const el = btn as HTMLElement;
-        btn.addEventListener('click', () => openDisputeSheet(el.dataset.orderId || '', el.dataset.listingId || '', el.dataset.seller || ''));
+        btn.addEventListener('click', () => openDisputeSheet(btn.dataset.orderId || '', btn.dataset.listingId || '', btn.dataset.seller || ''));
       });
 
     } catch (_err) {
@@ -1566,8 +1564,8 @@
     }
   }
 
-  async function handleConfirmReceipt(orderId: string) {
-    const btn = document.querySelector(`.btn-confirm-receipt[data-order-id="${orderId}"]`) as HTMLButtonElement | null;
+  async function handleConfirmReceipt(orderId) {
+    const btn = document.querySelector(`.btn-confirm-receipt[data-order-id="${orderId}"]`);
     if (btn) { btn.disabled = true; btn.textContent = 'Releasing…'; }
 
     try {
@@ -1619,12 +1617,12 @@
   /* ============================================================
      DISPUTE SHEET
   ============================================================ */
-  function openDisputeSheet(orderId: string, listingId: string, sellerName: string) {
-    const orderIdEl   = document.getElementById('dispute-order-id')   as HTMLInputElement | null;
-    const listingIdEl = document.getElementById('dispute-listing-id') as HTMLInputElement | null;
-    const sellerEl    = document.getElementById('dispute-seller-name') as HTMLInputElement | null;
-    const reasonEl    = document.getElementById('dispute-reason')     as HTMLSelectElement | null;
-    const descEl      = document.getElementById('dispute-description') as HTMLTextAreaElement | null;
+  function openDisputeSheet(orderId, listingId, sellerName) {
+    const orderIdEl   = document.getElementById('dispute-order-id');
+    const listingIdEl = document.getElementById('dispute-listing-id');
+    const sellerEl    = document.getElementById('dispute-seller-name');
+    const reasonEl    = document.getElementById('dispute-reason');
+    const descEl      = document.getElementById('dispute-description');
     const titleEl     = document.getElementById('title-sheet-dispute');
 
     if (orderIdEl)   orderIdEl.value   = orderId;
@@ -1638,19 +1636,19 @@
     openSheet('dispute');
   }
 
-  async function handleSubmitDispute(ev: Event) {
+  async function handleSubmitDispute(ev) {
     ev.preventDefault();
 
-    const orderId    = (document.getElementById('dispute-order-id')   as HTMLInputElement | null)?.value || '';
-    const listingId  = (document.getElementById('dispute-listing-id') as HTMLInputElement | null)?.value || '';
-    const sellerName = (document.getElementById('dispute-seller-name') as HTMLInputElement | null)?.value || '';
-    const reason     = (document.getElementById('dispute-reason')     as HTMLSelectElement | null)?.value || '';
-    const desc       = ((document.getElementById('dispute-description') as HTMLTextAreaElement | null)?.value || '').trim();
+    const orderId    = document.getElementById('dispute-order-id')?.value   || '';
+    const listingId  = document.getElementById('dispute-listing-id')?.value || '';
+    const sellerName = document.getElementById('dispute-seller-name')?.value || '';
+    const reason     = document.getElementById('dispute-reason')?.value     || '';
+    const desc       = (document.getElementById('dispute-description')?.value || '').trim();
 
     if (!reason)       { showToast('Please select a reason.', 'error'); return; }
     if (desc.length < 20) { showToast('Please describe the issue in more detail (min 20 characters).', 'error'); return; }
 
-    const btn = document.getElementById('btn-submit-dispute') as HTMLButtonElement | null;
+    const btn = document.getElementById('btn-submit-dispute');
     if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
 
     try {
@@ -1687,13 +1685,13 @@
   ============================================================ */
   let _reviewRating = 0;
 
-  function openReviewSheet(orderId: string, listingId: string, sellerName: string) {
+  function openReviewSheet(orderId, listingId, sellerName) {
     /* Reset form */
     _reviewRating = 0;
-    const ratingInput = document.getElementById('review-rating') as HTMLInputElement | null;
-    const commentEl   = document.getElementById('review-comment') as HTMLTextAreaElement | null;
-    const orderIdEl   = document.getElementById('review-order-id') as HTMLInputElement | null;
-    const listingIdEl = document.getElementById('review-listing-id') as HTMLInputElement | null;
+    const ratingInput = document.getElementById('review-rating');
+    const commentEl   = document.getElementById('review-comment');
+    const orderIdEl   = document.getElementById('review-order-id');
+    const listingIdEl = document.getElementById('review-listing-id');
     const titleEl     = document.getElementById('title-sheet-review');
 
     if (ratingInput)  ratingInput.value  = '0';
@@ -1704,16 +1702,16 @@
 
     /* Reset star colours */
     document.querySelectorAll('.star-btn').forEach(btn => {
-      (btn as HTMLElement).style.color = '#7B8794';
+      btn.style.color = '#7B8794';
     });
 
     /* Wire star buttons */
     document.querySelectorAll('.star-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        _reviewRating = parseInt((btn as HTMLElement).dataset.star || '0', 10);
+        _reviewRating = parseInt(btn.dataset.star || '0', 10);
         if (ratingInput) ratingInput.value = String(_reviewRating);
         document.querySelectorAll('.star-btn').forEach(b => {
-          (b as HTMLElement).style.color = parseInt((b as HTMLElement).dataset.star || '0', 10) <= _reviewRating ? '#F7A21B' : '#7B8794';
+          b.style.color = parseInt(b.dataset.star || '0', 10) <= _reviewRating ? '#F7A21B' : '#7B8794';
         });
       });
     });
@@ -1722,18 +1720,18 @@
     openSheet('review');
   }
 
-  async function handleSubmitReview(ev: Event) {
+  async function handleSubmitReview(ev) {
     ev.preventDefault();
 
-    const orderId   = (document.getElementById('review-order-id')  as HTMLInputElement | null)?.value || '';
-    const listingId = (document.getElementById('review-listing-id') as HTMLInputElement | null)?.value || '';
-    const rating    = parseInt((document.getElementById('review-rating') as HTMLInputElement | null)?.value || '0', 10);
-    const comment   = ((document.getElementById('review-comment')   as HTMLTextAreaElement | null)?.value || '').trim();
+    const orderId   = document.getElementById('review-order-id')?.value   || '';
+    const listingId = document.getElementById('review-listing-id')?.value || '';
+    const rating    = parseInt(document.getElementById('review-rating')?.value || '0', 10);
+    const comment   = (document.getElementById('review-comment')?.value || '').trim();
 
     if (!rating || rating < 1 || rating > 5) { showToast('Please select a star rating.', 'error'); return; }
     if (!orderId || !listingId) { showToast('Missing order info. Close and try again.', 'error'); return; }
 
-    const btn = document.getElementById('btn-submit-review') as HTMLButtonElement | null;
+    const btn = document.getElementById('btn-submit-review');
     if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
 
     try {
