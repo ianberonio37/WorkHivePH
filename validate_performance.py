@@ -44,6 +44,7 @@ LIVE_PAGES = [
     "analytics.html",
     "report-sender.html",
     "community.html",
+    "marketplace.html",
     "public-feed.html",
 ]
 

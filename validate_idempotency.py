@@ -47,6 +47,7 @@ LIVE_PAGES = [
     "logbook.html", "inventory.html", "pm-scheduler.html",
     "hive.html", "skillmatrix.html", "dayplanner.html",
     "engineering-design.html", "assistant.html", "community.html",
+    "marketplace.html",
 ]
 
 SHARED_TABLES = [

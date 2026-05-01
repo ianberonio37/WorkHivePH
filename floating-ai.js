@@ -44,6 +44,7 @@
     if (path.includes('analytics'))     return { page: 'analytics',     label: 'Analytics Engine',       hint: 'Ask me to explain your MTBF, MTTR, Availability, or OEE results. I can interpret PM compliance scores, explain failure trends by consequence type (safety/production impact), predict next failures from sensor readings, or help you understand the AI Action Plan recommendations.' };
     if (path.includes('report-sender')) return { page: 'report-sender', label: 'Report Sender',          hint: 'Ask me about the Report Sender tool. I can help you choose which reports to send (PM Overdue, Failure Digest, Shift Handover, Predictive), explain what each report contains, guide you through adding contacts, using voice context, or installing the app on your phone.' };
     if (path.includes('community'))     return { page: 'community',     label: 'Community Board',        hint: 'Ask about how to use the community board — posting, replying, categories (General, Safety, Technical, Announcements), reactions, leaderboard, or moderation tools for supervisors.' };
+    if (path.includes('marketplace'))  return { page: 'marketplace',   label: 'Marketplace',            hint: 'Browse Parts, Training and Jobs listings. Ask me to help find a specific part number, compare seller tiers, explain escrow and KYB verification, help you write a listing description, or guide you through contacting a seller.' };
     return                              { page: 'home',                 label: 'WorkHive Home',          hint: 'Ask me anything about the platform or industrial maintenance.' };
   }
 
@@ -471,6 +472,7 @@ PLATFORM TOOLS (so you can answer "where do I find X?" questions):
 - Engineering Design Calculator (engineering-design.html): 46 calc types across Mechanical, HVAC, Electrical, Fire Protection, Plumbing, Structural, Machine Design. BOM and Scope of Works reports. Engineering diagrams. Philippine standards (PEC 2017, PSME, NSCP, ASHRAE, NFPA).
 - Day Planner (dayplanner.html): DILO/WILO/MILO/YILO multi-resolution scheduler for daily, weekly, monthly, and yearly maintenance work planning. Add tasks, set durations, drag to reorder.
 - My Work Assistant (assistant.html): Full AI assistant with access to the worker's own logbook records for personalised insights.
+- Marketplace (marketplace.html): Browse and post Parts, Training, and Jobs listings for Philippine industrial plants. KYB-verified sellers with Bronze/Silver/Gold tier badges. Buyers send inquiries directly; payments via Stripe Connect with escrow hold.
 - Parts Tracker: Retired. Parts are now logged inside Logbook entries.
 
 You handle three types of conversations. Adapt naturally:

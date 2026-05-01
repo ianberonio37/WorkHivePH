@@ -48,6 +48,7 @@ LIVE_PAGES = [
     "utils.js",
     "report-sender.html",
     "community.html",
+    "marketplace.html",
     "public-feed.html",
 ]
 

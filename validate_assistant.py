@@ -43,7 +43,7 @@ CONTENT_FILE   = "skill-content.js"
 LIVE_TOOL_PAGES = [
     "logbook", "assistant", "dayplanner", "pm-scheduler",
     "hive", "inventory", "skillmatrix", "engineering-design", "analytics",
-    "report-sender", "community",
+    "report-sender", "community", "marketplace",
 ]
 
 RETIRED_PAGES = ["parts-tracker", "checklist"]

@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#F7A21B" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Marketplace — WorkHive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0f1923;
+      color: #F4F6FA;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Aurora */
+    .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .aurora-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.07; }
+    .aurora-blob.a1 { width: 600px; height: 600px; background: #F7A21B; top: -200px; left: -200px; }
+    .aurora-blob.a2 { width: 500px; height: 500px; background: #29B6D9; bottom: -150px; right: -150px; }
+    .aurora-blob.a3 { width: 400px; height: 400px; background: #c084fc; top: 40%; left: 30%; }
+
+    /* Layout */
+    .page { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem 7rem; }
+
+    /* Page header */
+    .page-header { margin-bottom: 1.25rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 800; }
+    .page-header p { font-size: 0.8rem; color: #7B8794; margin-top: 0.2rem; }
+
+    /* Section tabs */
+    .section-tabs {
+      display: flex; gap: 0.5rem; margin-bottom: 1rem;
+      background: rgba(22,32,50,0.6);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 0.75rem; padding: 0.375rem;
+    }
+    .section-tab {
+      flex: 1; padding: 0.6rem 0.75rem; border: none; border-radius: 0.5rem;
+      background: transparent; color: #7B8794;
+      font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    }
+    .section-tab.active {
+      background: linear-gradient(135deg, rgba(247,162,27,0.15), rgba(247,162,27,0.08));
+      color: #F7A21B; border: 1px solid rgba(247,162,27,0.25);
+    }
+    .tab-count {
+      background: rgba(247,162,27,0.2); color: #F7A21B;
+      border-radius: 999px; font-size: 0.62rem; padding: 0.1rem 0.4rem; font-weight: 700;
+    }
+
+    /* Trust bar */
+    .trust-bar {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      padding: 0.6rem 0.875rem;
+      background: rgba(41,182,217,0.06); border: 1px solid rgba(41,182,217,0.15);
+      border-radius: 0.75rem; margin-bottom: 1rem;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 0.35rem;
+      font-size: 0.72rem; color: #29B6D9;
+    }
+    .trust-item.right { margin-left: auto; }
+
+    /* Search + filter */
+    .search-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .search-wrap { flex: 1; position: relative; }
+    .search-wrap svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #7B8794; pointer-events: none; }
+    .search-input {
+      width: 100%; padding: 0.6rem 0.75rem 0.6rem 2.25rem;
+      background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.625rem; color: #F4F6FA;
+      font-family: 'Poppins', sans-serif; font-size: 0.82rem;
+    }
+    .search-input:focus { outline: none; border-color: rgba(247,162,27,0.4); }
+    .search-input::placeholder { color: #7B8794; }
+    .btn-filter {
+      padding: 0.6rem 0.875rem;
+      background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.625rem; color: #F4F6FA;
+      font-family: 'Poppins', sans-serif; font-size: 0.8rem;
+      cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;
+    }
+    .btn-filter.active { border-color: rgba(247,162,27,0.4); color: #F7A21B; }
+
+    /* Price filter panel */
+    .price-filter {
+      display: none; padding: 0.75rem;
+      background: rgba(22,32,50,0.5); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 0.625rem; margin-bottom: 0.75rem;
+    }
+    .price-filter.show { display: block; }
+    .price-filter > label { font-size: 0.72rem; color: #7B8794; margin-bottom: 0.4rem; display: block; }
+    .price-range-row { display: flex; gap: 0.5rem; align-items: center; }
+    .price-range-row input { flex: 1; }
+    .price-range-sep { color: #7B8794; font-size: 0.8rem; }
+
+    /* Filter chips */
+    .filter-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .filter-chip {
+      padding: 0.3rem 0.75rem; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(22,32,50,0.5); color: #7B8794;
+      font-size: 0.72rem; font-family: 'Poppins', sans-serif; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-chip.active {
+      background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.35); color: #F7A21B;
+    }
+
+    /* Listings info */
+    .listings-info { font-size: 0.75rem; color: #7B8794; margin-bottom: 0.75rem; }
+    .listings-info span { color: #F7A21B; font-weight: 600; }
+
+    /* Listing grid */
+    .listing-grid { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+    @media (min-width: 480px) { .listing-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 720px) { .listing-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 960px) { .listing-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    /* Listing card */
+    .listing-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+      border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem;
+      overflow: hidden; cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .listing-card:hover { transform: translateY(-2px); border-color: rgba(247,162,27,0.25); }
+
+    /* Card image */
+    .card-image {
+      width: 100%; aspect-ratio: 4 / 3;
+      background: linear-gradient(135deg, rgba(42,61,88,0.8), rgba(22,32,50,0.9));
+      display: flex; align-items: center; justify-content: center;
+      color: #7B8794; position: relative; overflow: hidden;
+    }
+    .card-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .card-badges { position: absolute; top: 0.5rem; left: 0.5rem; display: flex; gap: 0.3rem; flex-wrap: wrap; }
+
+    /* Tier + verified badges */
+    .badge-tier {
+      padding: 0.2rem 0.5rem; border-radius: 999px;
+      font-size: 0.62rem; font-weight: 700; font-family: 'Poppins', sans-serif;
+    }
+    .badge-tier.bronze { background: rgba(205,127,50,0.2); color: #cd7f32; border: 1px solid rgba(205,127,50,0.3); }
+    .badge-tier.silver { background: rgba(192,192,192,0.15); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.3); }
+    .badge-tier.gold   { background: rgba(247,162,27,0.15); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
+    .badge-verified {
+      padding: 0.2rem 0.5rem; border-radius: 999px;
+      font-size: 0.62rem; font-weight: 700; font-family: 'Poppins', sans-serif;
+      background: rgba(41,182,217,0.15); color: #29B6D9; border: 1px solid rgba(41,182,217,0.3);
+      display: inline-flex; align-items: center; gap: 0.2rem;
+    }
+
+    /* Price pill over image */
+    .card-price-pill {
+      position: absolute; bottom: 0.5rem; right: 0.5rem;
+      background: rgba(15,25,35,0.9); border: 1px solid rgba(247,162,27,0.3);
+      border-radius: 999px; padding: 0.25rem 0.6rem;
+      font-size: 0.75rem; font-weight: 700; color: #F7A21B;
+    }
+
+    /* Card body */
+    .card-body { padding: 0.875rem; }
+    .card-title {
+      font-size: 0.85rem; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.3;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .card-meta { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+    .cat-chip {
+      padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.65rem; font-weight: 600;
+      background: rgba(255,255,255,0.06); color: #7B8794; border: 1px solid rgba(255,255,255,0.08);
+    }
+    .cond-chip { padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.65rem; font-weight: 600; }
+    .cond-chip.new   { background: rgba(74,222,128,0.1); color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
+    .cond-chip.used  { background: rgba(255,255,255,0.06); color: #7B8794; border: 1px solid rgba(255,255,255,0.1); }
+    .cond-chip.refurb { background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+
+    /* Card footer */
+    .card-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 0.625rem; border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .seller-row { display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
+    .seller-avatar {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(247,162,27,0.2); border: 1px solid rgba(247,162,27,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.6rem; font-weight: 700; color: #F7A21B;
+    }
+    .seller-name { font-size: 0.7rem; color: #7B8794; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px; }
+    .stars { color: #F7A21B; font-size: 0.7rem; letter-spacing: -1px; }
+    .rating-val { font-size: 0.7rem; color: #7B8794; }
+    .btn-view {
+      padding: 0.35rem 0.75rem; border-radius: 0.5rem; cursor: pointer;
+      background: rgba(247,162,27,0.1); border: 1px solid rgba(247,162,27,0.25);
+      color: #F7A21B; font-size: 0.72rem; font-weight: 600;
+      font-family: 'Poppins', sans-serif; white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .btn-view:hover { background: rgba(247,162,27,0.2); }
+
+    /* Skeleton */
+    .skel { background: rgba(255,255,255,0.04); border-radius: 0.5rem; }
+    .skel-pulse { animation: skel-anim 1.5s ease-in-out infinite; }
+    @keyframes skel-anim { 0%,100% { opacity: 0.4; } 50% { opacity: 0.8; } }
+    .skel-card { border-radius: 1rem; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); background: linear-gradient(145deg, rgba(42,61,88,0.3), rgba(31,46,69,0.5)); }
+
+    /* Empty state */
+    .empty-state { grid-column: 1 / -1; text-align: center; padding: 3rem 1rem; color: #7B8794; }
+    .empty-state svg { opacity: 0.25; margin-bottom: 1rem; }
+    .empty-state h3 { font-size: 1rem; font-weight: 700; color: #F4F6FA; margin-bottom: 0.4rem; }
+    .empty-state p { font-size: 0.8rem; }
+    .btn-post-first {
+      margin-top: 1.25rem; display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.6rem 1.25rem;
+      background: linear-gradient(135deg, #F7A21B, #e8920a); border: none; border-radius: 0.625rem;
+      color: #0f1923; font-size: 0.82rem; font-weight: 700;
+      font-family: 'Poppins', sans-serif; cursor: pointer;
+    }
+
+    /* FAB Post */
+    #fab-post {
+      position: fixed; bottom: calc(5.5rem + env(safe-area-inset-bottom)); right: 1.25rem; z-index: 80;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: linear-gradient(135deg, #F7A21B, #e8920a); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(247,162,27,0.45); transition: transform 0.2s;
+    }
+    #fab-post:hover { transform: scale(1.08); }
+
+    /* Bottom sheets */
+    .sheet-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    }
+    .sheet-overlay.open { opacity: 1; pointer-events: all; }
+    .sheet {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 101;
+      background: linear-gradient(160deg, #1F2E45 0%, #162032 100%);
+      border-radius: 1.25rem 1.25rem 0 0; border-top: 1px solid rgba(255,255,255,0.1);
+      padding: 1.25rem 1.25rem 2rem;
+      transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+      max-height: 92vh; overflow-y: auto;
+    }
+    .sheet.open { transform: translateY(0); }
+    .sheet-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 0 auto 1rem; }
+    .sheet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+    .sheet-title { font-size: 1rem; font-weight: 700; }
+    .btn-close-sheet {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(255,255,255,0.06); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; color: #7B8794;
+    }
+
+    /* Form elements */
+    .form-group { margin-bottom: 1rem; }
+    .form-label { font-size: 0.75rem; font-weight: 600; color: #7B8794; margin-bottom: 0.4rem; display: block; }
+    .wh-input {
+      width: 100%; padding: 0.65rem 0.875rem;
+      background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.625rem; color: #F4F6FA;
+      font-family: 'Poppins', sans-serif; font-size: 1rem;
+    }
+    .wh-input:focus { outline: none; border-color: rgba(247,162,27,0.4); }
+    .wh-input::placeholder { color: #7B8794; }
+    .wh-select {
+      width: 100%; padding: 0.65rem 0.875rem;
+      background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.625rem; color: #F4F6FA;
+      font-family: 'Poppins', sans-serif; font-size: 0.82rem;
+      cursor: pointer; appearance: none; -webkit-appearance: none;
+    }
+    .wh-select:focus { outline: none; border-color: rgba(247,162,27,0.4); }
+    .wh-textarea {
+      width: 100%; padding: 0.65rem 0.875rem;
+      background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.625rem; color: #F4F6FA;
+      font-family: 'Poppins', sans-serif; font-size: 0.82rem;
+      resize: vertical; min-height: 80px;
+    }
+    .wh-textarea:focus { outline: none; border-color: rgba(247,162,27,0.4); }
+    .wh-textarea::placeholder { color: #7B8794; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    @media (max-width: 400px) { .form-row { grid-template-columns: 1fr; } }
+
+    /* Section toggle inside post form */
+    .section-toggle { display: flex; gap: 0.4rem; }
+    .section-toggle-btn {
+      flex: 1; padding: 0.5rem; text-align: center;
+      background: rgba(22,32,50,0.5); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.5rem; color: #7B8794;
+      font-size: 0.72rem; font-weight: 600; font-family: 'Poppins', sans-serif; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .section-toggle-btn.active {
+      background: rgba(247,162,27,0.1); border-color: rgba(247,162,27,0.3); color: #F7A21B;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      width: 100%; padding: 0.75rem;
+      background: linear-gradient(135deg, #F7A21B, #e8920a); border: none; border-radius: 0.625rem;
+      color: #0f1923; font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.92; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-secondary {
+      flex: 1; padding: 0.7rem;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 0.625rem; color: #F4F6FA;
+      font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.08); }
+    .btn-cta {
+      flex: 2; padding: 0.7rem;
+      background: linear-gradient(135deg, #F7A21B, #e8920a); border: none; border-radius: 0.625rem;
+      color: #0f1923; font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer;
+    }
+    .action-row { display: flex; gap: 0.625rem; margin-top: 1rem; }
+
+    /* Detail sheet */
+    .detail-image {
+      width: 100%; aspect-ratio: 16 / 9;
+      background: linear-gradient(135deg, rgba(42,61,88,0.8), rgba(22,32,50,0.9));
+      border-radius: 0.75rem; margin-bottom: 1rem;
+      display: flex; align-items: center; justify-content: center; color: #7B8794; overflow: hidden;
+    }
+    .detail-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .detail-price { font-size: 1.5rem; font-weight: 800; color: #F7A21B; margin-bottom: 0.25rem; }
+    .detail-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem; line-height: 1.3; }
+    .detail-section { margin-bottom: 1.25rem; }
+    .detail-section-label {
+      font-size: 0.72rem; font-weight: 600; color: #7B8794; text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 0.5rem;
+    }
+    .detail-description { font-size: 0.82rem; color: #b0b8c4; line-height: 1.6; }
+
+    /* Seller card in detail */
+    .seller-card {
+      background: rgba(22,32,50,0.5); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 0.75rem; padding: 0.875rem;
+      display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;
+    }
+    .seller-card-avatar {
+      width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(247,162,27,0.2), rgba(247,162,27,0.1));
+      border: 2px solid rgba(247,162,27,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 700; color: #F7A21B;
+    }
+    .seller-card-info { flex: 1; min-width: 0; }
+    .seller-card-name { font-size: 0.88rem; font-weight: 700; }
+    .seller-card-meta { font-size: 0.7rem; color: #7B8794; margin-top: 0.15rem; }
+    .seller-badges { display: flex; gap: 0.35rem; margin-top: 0.35rem; flex-wrap: wrap; }
+
+    /* Reviews */
+    .review-item { padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .review-item:last-child { border-bottom: none; }
+    .review-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem; }
+    .review-author { font-size: 0.78rem; font-weight: 600; }
+    .review-date { font-size: 0.7rem; color: #7B8794; }
+    .review-text { font-size: 0.78rem; color: #b0b8c4; line-height: 1.5; }
+
+    /* Info notice */
+    .info-notice {
+      background: rgba(41,182,217,0.06); border: 1px solid rgba(41,182,217,0.15);
+      border-radius: 0.625rem; padding: 0.625rem 0.875rem;
+      font-size: 0.75rem; color: #29B6D9; margin-bottom: 1rem;
+      display: flex; align-items: flex-start; gap: 0.5rem;
+    }
+    .info-notice svg { flex-shrink: 0; margin-top: 1px; }
+
+    /* Toast */
+    #toast {
+      position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-80px);
+      background: rgba(31,46,69,0.97); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 0.75rem; padding: 0.75rem 1.25rem;
+      font-size: 0.82rem; font-weight: 600; z-index: 200;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      white-space: nowrap; max-width: 90vw;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.success { border-color: rgba(74,222,128,0.3); color: #4ade80; }
+    #toast.error   { border-color: rgba(248,113,113,0.3); color: #f87171; }
+    #toast.info    { border-color: rgba(41,182,217,0.3);  color: #29B6D9; }
+
+    /* Load More button */
+    .btn-load-more {
+      padding: 0.65rem 2rem; border-radius: 0.625rem; cursor: pointer;
+      background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.25);
+      color: #F7A21B; font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 0.5rem; transition: background 0.15s;
+    }
+    .btn-load-more:hover:not(:disabled) { background: rgba(247,162,27,0.16); }
+    .btn-load-more:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Mobile adjustments */
+    @media (max-width: 400px) {
+      .section-tab .tab-label { display: none; }
+      .trust-item.hide-sm { display: none; }
+    }
+    /* Disable skeleton animation when Reduce Motion is enabled or on mobile */
+    @media (max-width: 767px) {
+      .skel-pulse { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="aurora">
+  <div class="aurora-blob a1"></div>
+  <div class="aurora-blob a2"></div>
+  <div class="aurora-blob a3"></div>
+</div>
+
+<div id="toast" role="alert" aria-live="polite"></div>
+
+<main class="page">
+  <div class="page-header">
+    <h1>Marketplace</h1>
+    <p>Parts, training and services for Philippine industrial plants</p>
+  </div>
+
+  <!-- Section tabs -->
+  <div class="section-tabs" role="tablist" aria-label="Marketplace sections">
+    <button class="section-tab active" data-section="parts" role="tab" aria-selected="true">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 0-14.14 0"/><path d="M4.93 19.07a10 10 0 0 0 14.14 0"/></svg>
+      <span class="tab-label">Parts</span>
+      <span class="tab-count" id="count-parts">0</span>
+    </button>
+    <button class="section-tab" data-section="training" role="tab" aria-selected="false">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      <span class="tab-label">Training</span>
+      <span class="tab-count" id="count-training">0</span>
+    </button>
+    <button class="section-tab" data-section="jobs" role="tab" aria-selected="false">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      <span class="tab-label">Jobs</span>
+      <span class="tab-count" id="count-jobs">0</span>
+    </button>
+  </div>
+
+  <!-- Trust bar -->
+  <div class="trust-bar">
+    <div class="trust-item">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+      KYB-Verified Sellers
+    </div>
+    <div class="trust-item hide-sm">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Secure Inquiries
+    </div>
+    <div class="trust-item hide-sm">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Escrow on Payments
+    </div>
+    <div class="trust-item right">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      <span id="txt-total-listings">0 listings</span>
+    </div>
+    <button id="btn-my-orders" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);border-radius:999px;color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;padding:0.2rem 0.65rem;cursor:pointer;display:flex;align-items:center;gap:0.3rem;" aria-label="My Orders">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      My Orders
+    </button>
+  </div>
+
+  <!-- Search + filter row -->
+  <div class="search-row">
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-input" id="search-input" type="search" placeholder="Search listings..." autocomplete="off" />
+    </div>
+    <button class="btn-filter" id="btn-price-filter">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+      Price
+    </button>
+  </div>
+
+  <!-- Price range panel -->
+  <div class="price-filter" id="price-filter-panel">
+    <label>Price Range (PHP)</label>
+    <div class="price-range-row">
+      <input class="wh-input" type="number" id="price-min" placeholder="Min" min="0" />
+      <span class="price-range-sep">to</span>
+      <input class="wh-input" type="number" id="price-max" placeholder="Max" min="0" />
+    </div>
+  </div>
+
+  <!-- Category chips -->
+  <div class="filter-row" id="filter-chips" role="group" aria-label="Filter by category"></div>
+
+  <!-- Listings count -->
+  <div class="listings-info" id="listings-info"></div>
+
+  <!-- Grid -->
+  <div class="listing-grid" id="listing-grid" role="list"></div>
+
+  <!-- Load More -->
+  <div style="text-align:center;margin-top:1.25rem;">
+    <button id="btn-load-more" style="display:none;" class="btn-load-more">Load More</button>
+  </div>
+</main>
+
+<!-- FAB -->
+<button id="fab-post" title="Post a listing" aria-label="Post a listing">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f1923" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+</button>
+
+<!-- ==============================
+     SHEET: POST LISTING
+     ============================== -->
+<div class="sheet-overlay" id="overlay-post" role="dialog" aria-modal="true" aria-labelledby="title-sheet-post"></div>
+<div class="sheet" id="sheet-post">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title" id="title-sheet-post">Post a Listing</span>
+    <button class="btn-close-sheet" id="btn-close-post" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <form id="form-post" novalidate>
+    <div class="form-group">
+      <label class="form-label">What are you listing?</label>
+      <div class="section-toggle">
+        <button type="button" class="section-toggle-btn active" data-post-sec="parts">Parts</button>
+        <button type="button" class="section-toggle-btn" data-post-sec="training">Training</button>
+        <button type="button" class="section-toggle-btn" data-post-sec="jobs">Jobs</button>
+      </div>
+      <input type="hidden" id="post-section" value="parts" />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="post-title">Title</label>
+      <input class="wh-input" type="text" id="post-title" placeholder="e.g. SKF 6205 Deep Groove Ball Bearing" required />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="post-category">Category</label>
+        <select class="wh-select" id="post-category" required></select>
+      </div>
+      <div class="form-group" id="post-condition-wrap">
+        <label class="form-label" for="post-condition">Condition</label>
+        <select class="wh-select" id="post-condition">
+          <option value="new">New</option>
+          <option value="used">Used</option>
+          <option value="refurb">Refurbished</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="post-desc">Description</label>
+      <textarea class="wh-textarea" id="post-desc" placeholder="Specs, compatibility, dimensions, quantity available..." required></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="post-price">Price (PHP)</label>
+        <input class="wh-input" type="number" id="post-price" placeholder="Leave blank if negotiable" min="0" step="0.01" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="post-location">Location</label>
+        <input class="wh-input" type="text" id="post-location" placeholder="City, Province" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="post-contact">Contact (phone or email)</label>
+      <input class="wh-input" type="text" id="post-contact" placeholder="09XX-XXX-XXXX or email@domain.com" />
+    </div>
+    <div class="info-notice">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Listings are reviewed before publishing. KYB verification is required to receive payments.
+      <button onclick="handleSellerOnboard()" style="display:block;margin-top:0.5rem;background:none;border:none;color:#29B6D9;font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;padding:0;text-decoration:underline;">Connect Stripe to receive payments</button>
+    </div>
+    <button type="submit" class="btn-primary" id="btn-submit-post">Post Listing</button>
+  </form>
+</div>
+
+<!-- ==============================
+     SHEET: LISTING DETAIL
+     ============================== -->
+<div class="sheet-overlay" id="overlay-detail" role="dialog" aria-modal="true" aria-labelledby="title-sheet-detail"></div>
+<div class="sheet" id="sheet-detail">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title" id="title-sheet-detail">Listing</span>
+    <button class="btn-close-sheet" id="btn-close-detail" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div id="detail-content"></div>
+</div>
+
+<!-- ==============================
+     SHEET: INQUIRY / CONTACT SELLER
+     ============================== -->
+<div class="sheet-overlay" id="overlay-inquiry" role="dialog" aria-modal="true" aria-labelledby="title-sheet-inquiry"></div>
+<div class="sheet" id="sheet-inquiry">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title" id="title-sheet-inquiry">Contact Seller</span>
+    <button class="btn-close-sheet" id="btn-close-inquiry" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <form id="form-inquiry" novalidate>
+    <input type="hidden" id="inq-listing-id" value="" />
+    <div class="form-group">
+      <label class="form-label">Listing</label>
+      <div id="inq-listing-title" style="font-size:0.82rem;font-weight:600;padding:0.4rem 0;"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="inq-name">Your Name</label>
+      <input class="wh-input" type="text" id="inq-name" placeholder="Full name" required />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="inq-contact">Your Contact (phone or email)</label>
+      <input class="wh-input" type="text" id="inq-contact" placeholder="09XX-XXX-XXXX or email@domain.com" required />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="inq-message">Message</label>
+      <textarea class="wh-textarea" id="inq-message" placeholder="Ask about availability, quantity, shipping, price, or specifications..." required></textarea>
+    </div>
+    <div class="info-notice">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Sellers are expected to respond within 48 hours. Payments are processed through Stripe with escrow protection.
+    </div>
+    <button type="submit" class="btn-primary" id="btn-submit-inquiry">Send Inquiry</button>
+  </form>
+</div>
+
+<!-- ==============================
+     SHEET: MY ORDERS (buyer view)
+     ============================== -->
+<div class="sheet-overlay" id="overlay-orders" role="dialog" aria-modal="true" aria-labelledby="title-sheet-orders"></div>
+<div class="sheet" id="sheet-orders">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title" id="title-sheet-orders">My Orders</span>
+    <button class="btn-close-sheet" id="btn-close-orders" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div id="orders-content">
+    <div style="text-align:center;padding:2rem 1rem;color:#7B8794;">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <p style="margin-top:0.75rem;font-size:0.82rem;">Loading orders…</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================
+     SCRIPTS
+     ============================== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="utils.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ============================================================
+     CONFIG
+  ============================================================ */
+  const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  /* ============================================================
+     CATEGORIES PER SECTION
+  ============================================================ */
+  const CATS = {
+    parts:    ['All','Bearings','Seals & Gaskets','Motors & Drives','Pumps & Valves',
+               'Electrical','Instrumentation','Fasteners','Lubricants','Safety Equipment','Other'],
+    training: ['All','Electrical','Mechanical','Instrumentation','Safety & LOTO',
+               'CMMS','Management','Certification Prep','Other'],
+    jobs:     ['All','Inspection','Repair & Overhaul','Installation','Welding & Fabrication',
+               'Electrical Work','Instrumentation','Shutdown / TAR','Project Management','Other']
+  };
+
+  /* ============================================================
+     STATE
+  ============================================================ */
+  let _realtimeChannel = null;
+  let _section       = 'parts';
+  let _cat           = 'All';
+  let _query         = '';
+  let _priceMin      = null;
+  let _priceMax      = null;
+  let _listings      = [];
+  let _counts        = { parts: 0, training: 0, jobs: 0 };
+  let _authUid       = null;
+  let _lastCreatedAt = null;
+  let _hasMore       = false;
+  let _loadingMore   = false;
+  const PAGE_SIZE    = 24;
+
+  /* ============================================================
+     IDENTITY
+  ============================================================ */
+  const WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+  const HIVE_ID     = localStorage.getItem('wh_active_hive_id') || null;
+
+  /* ============================================================
+     UTILITIES
+  ============================================================ */
+  function escHtml(s) {
+    if (s == null) return '';
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  let _toastTimer;
+  function showToast(msg, type) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'show ' + (type || 'info');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => { el.className = ''; }, 3200);
+  }
+
+  function fmtPrice(price) {
+    if (price == null || price === '') return 'Negotiable';
+    const n = Number(price);
+    if (!n) return 'Negotiable';
+    return 'PHP ' + n.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function tierOf(sales) {
+    const n = Number(sales) || 0;
+    if (n >= 51) return 'gold';
+    if (n >= 11) return 'silver';
+    return 'bronze';
+  }
+
+  function initials(name) {
+    return (name || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  }
+
+  function renderStars(rating) {
+    const r = Math.round(Number(rating) || 0);
+    let s = '';
+    for (let i = 1; i <= 5; i++) s += i <= r ? '★' : '☆';
+    return s;
+  }
+
+  function condClass(c) {
+    if (c === 'new') return 'new';
+    if (c === 'refurb') return 'refurb';
+    return 'used';
+  }
+
+  function condLabel(c) {
+    if (c === 'new') return 'New';
+    if (c === 'refurb') return 'Refurb';
+    return 'Used';
+  }
+
+  function timeAgo(iso) {
+    if (!iso) return '';
+    const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+    if (diff < 60)    return 'just now';
+    if (diff < 3600)  return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return Math.floor(diff / 86400) + 'd ago';
+  }
+
+  /* ============================================================
+     FILTER CHIPS
+  ============================================================ */
+  function renderFilterChips() {
+    const e = escHtml;
+    const row = document.getElementById('filter-chips');
+    if (!row) return;
+    row.innerHTML = (CATS[_section] || []).map(c =>
+      `<button class="filter-chip${_cat === c ? ' active' : ''}" data-cat="${e(c)}">${e(c)}</button>`
+    ).join('');
+    row.querySelectorAll('.filter-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        _cat = btn.dataset.cat;
+        renderFilterChips();
+        loadListings();
+      });
+    });
+  }
+
+  /* ============================================================
+     LISTING CARD HTML
+  ============================================================ */
+  function cardHtml(item) {
+    const e   = escHtml;
+    const tier = tierOf(item.completed_sales);
+    const hasImg   = !!item.image_url;
+    const hasPrice = item.price != null && Number(item.price) > 0;
+
+    return `
+      <article class="listing-card" role="listitem" data-id="${e(item.id)}">
+        <div class="card-image">
+          ${hasImg
+            ? `<img src="${e(item.image_url)}" alt="${e(item.title)}" loading="lazy" />`
+            : `<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`}
+          <div class="card-badges">
+            <span class="badge-tier ${e(tier)}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>
+            ${item.seller_verified
+              ? `<span class="badge-verified"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>KYB</span>`
+              : ''}
+          </div>
+          ${hasPrice ? `<span class="card-price-pill">${e(fmtPrice(item.price))}</span>` : ''}
+        </div>
+        <div class="card-body">
+          <div class="card-title">${e(item.title)}</div>
+          <div class="card-meta">
+            <span class="cat-chip">${e(item.category || 'Other')}</span>
+            ${item.section === 'parts' && item.condition
+              ? `<span class="cond-chip ${condClass(item.condition)}">${e(condLabel(item.condition))}</span>`
+              : ''}
+            ${item.location
+              ? `<span class="cat-chip" style="display:inline-flex;align-items:center;gap:3px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${e(item.location)}</span>`
+              : ''}
+          </div>
+          <div class="card-footer">
+            <div class="seller-row">
+              <div class="seller-avatar">${e(initials(item.seller_name))}</div>
+              <span class="seller-name">${e(item.seller_name || 'Seller')}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.4rem;">
+              ${item.rating_avg
+                ? `<span class="stars">${renderStars(item.rating_avg)}</span><span class="rating-val">${Number(item.rating_avg).toFixed(1)}</span>`
+                : ''}
+              <button class="btn-view" data-id="${e(item.id)}">View</button>
+            </div>
+          </div>
+        </div>
+      </article>`;
+  }
+
+  /* ============================================================
+     RENDER LISTINGS
+  ============================================================ */
+  function renderListings() {
+    const grid = document.getElementById('listing-grid');
+    const info = document.getElementById('listings-info');
+    if (!grid) return;
+
+    if (info) {
+      info.innerHTML = _listings.length
+        ? `Showing <span>${_listings.length}</span>${_hasMore ? '+' : ''} listing${_listings.length !== 1 ? 's' : ''}`
+        : '';
+    }
+
+    if (!_listings.length) {
+      grid.innerHTML = `
+        <div class="empty-state">
+          <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <h3>No listings yet</h3>
+          <p>Be the first to list something in this section.</p>
+          <button class="btn-post-first" id="btn-empty-post">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Post a Listing
+          </button>
+        </div>`;
+      document.getElementById('btn-empty-post')?.addEventListener('click', openPostSheet);
+      return;
+    }
+
+    grid.innerHTML = _listings.map(cardHtml).join('');
+
+    grid.querySelectorAll('.btn-view').forEach(btn => {
+      btn.addEventListener('click', ev => {
+        ev.stopPropagation();
+        openDetailSheet(btn.dataset.id);
+      });
+    });
+    grid.querySelectorAll('.listing-card').forEach(card => {
+      card.addEventListener('click', () => openDetailSheet(card.dataset.id));
+    });
+  }
+
+  /* ============================================================
+     SKELETONS
+  ============================================================ */
+  function showSkeletons() {
+    const grid = document.getElementById('listing-grid');
+    if (!grid) return;
+    grid.innerHTML = Array(8).fill(0).map(() => `
+      <div class="skel-card skel-pulse">
+        <div class="skel" style="height:160px;"></div>
+        <div style="padding:0.875rem;">
+          <div class="skel" style="height:13px;width:80%;margin-bottom:8px;"></div>
+          <div class="skel" style="height:11px;width:50%;margin-bottom:12px;"></div>
+          <div style="display:flex;justify-content:space-between;">
+            <div class="skel" style="height:22px;width:55px;border-radius:999px;"></div>
+            <div class="skel" style="height:26px;width:55px;border-radius:0.5rem;"></div>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  /* ============================================================
+     LOAD LISTINGS  (keyset pagination — stays O(log n) at any depth)
+  ============================================================ */
+  async function loadListings(append = false) {
+    if (!append) { showSkeletons(); _listings = []; _lastCreatedAt = null; }
+    else { _loadingMore = true; updateLoadMoreBtn(); }
+
+    try {
+      let q = db
+        .from('marketplace_listings')
+        .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at')
+        .eq('status', 'published')
+        .eq('section', _section)
+        .order('created_at', { ascending: false })
+        .limit(PAGE_SIZE);
+
+      /* server-side full-text search (uses tsvector index when available) */
+      if (_query) q = q.textSearch('search_vector', _query, { type: 'plain', config: 'english' });
+
+      /* category + price filters (server-side, index-backed) */
+      if (_cat !== 'All')  q = q.eq('category', _cat);
+      if (_priceMin != null) q = q.gte('price', _priceMin);
+      if (_priceMax != null) q = q.lte('price', _priceMax);
+
+      /* keyset: skip already-seen rows */
+      if (append && _lastCreatedAt) q = q.lt('created_at', _lastCreatedAt);
+
+      const { data, error } = await q;
+      if (error) throw error;
+
+      const rows = data || [];
+      _listings = append ? [..._listings, ...rows] : rows;
+      _hasMore  = rows.length === PAGE_SIZE;
+      if (rows.length) _lastCreatedAt = rows[rows.length - 1].created_at;
+    } catch (_err) {
+      if (!append) _listings = [];
+      _hasMore = false;
+    }
+
+    _loadingMore = false;
+    renderListings();
+    updateLoadMoreBtn();
+  }
+
+  function updateLoadMoreBtn() {
+    const btn = document.getElementById('btn-load-more');
+    if (!btn) return;
+    btn.style.display = _hasMore ? 'flex' : 'none';
+    btn.disabled      = _loadingMore;
+    btn.textContent   = _loadingMore ? 'Loading…' : 'Load More';
+  }
+
+  /* ============================================================
+     LOAD COUNTS
+  ============================================================ */
+  async function loadCounts() {
+    try {
+      const { data } = await db
+        .from('marketplace_listings')
+        .select('section')
+        .eq('status', 'published');
+      if (data) {
+        _counts = { parts: 0, training: 0, jobs: 0 };
+        data.forEach(row => { if (_counts[row.section] != null) _counts[row.section]++; });
+        updateCountBadges();
+      }
+    } catch (_) { /* ignore — table may not exist yet */ }
+  }
+
+  function updateCountBadges() {
+    const total = _counts.parts + _counts.training + _counts.jobs;
+    const cp = document.getElementById('count-parts');
+    const ct = document.getElementById('count-training');
+    const cj = document.getElementById('count-jobs');
+    const tt = document.getElementById('txt-total-listings');
+    if (cp) cp.textContent = _counts.parts;
+    if (ct) ct.textContent = _counts.training;
+    if (cj) cj.textContent = _counts.jobs;
+    if (tt) tt.textContent = total + ' listing' + (total !== 1 ? 's' : '');
+  }
+
+  /* ============================================================
+     DETAIL SHEET
+  ============================================================ */
+  async function openDetailSheet(id) {
+    const item = _listings.find(l => l.id === id);
+    if (!item) return;
+
+    const e    = escHtml;
+    const tier = tierOf(item.completed_sales);
+    const titleEl = document.getElementById('title-sheet-detail');
+    if (titleEl) titleEl.textContent = item.section.charAt(0).toUpperCase() + item.section.slice(1) + ' Listing';
+
+    let reviewsHtml = '<p style="font-size:0.78rem;color:#7B8794;">No reviews yet.</p>';
+    try {
+      const { data: reviews } = await db
+        .from('marketplace_reviews')
+        .select('reviewer_name,rating,comment,created_at,verified_purchase')
+        .eq('listing_id', id)
+        .order('created_at', { ascending: false })
+        .limit(5);
+      if (reviews && reviews.length) {
+        reviewsHtml = reviews.map(rv => `
+          <div class="review-item">
+            <div class="review-header">
+              <div style="display:flex;align-items:center;gap:0.4rem;">
+                <span class="review-author">${e(rv.reviewer_name)}</span>
+                ${rv.verified_purchase ? `<span class="badge-verified" style="font-size:0.6rem;padding:0.1rem 0.4rem;"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Verified</span>` : ''}
+                <span class="stars" style="font-size:0.75rem;">${renderStars(rv.rating)}</span>
+              </div>
+              <span class="review-date">${e(timeAgo(rv.created_at))}</span>
+            </div>
+            <p class="review-text">${e(rv.comment)}</p>
+          </div>`).join('');
+      }
+    } catch (_) { /* ignore */ }
+
+    const content = document.getElementById('detail-content');
+    if (!content) return;
+
+    content.innerHTML = `
+      <div class="detail-image">
+        ${item.image_url
+          ? `<img src="${e(item.image_url)}" alt="${e(item.title)}" />`
+          : `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`}
+      </div>
+      <div class="detail-price">${e(fmtPrice(item.price))}</div>
+      <div class="detail-title">${e(item.title)}</div>
+
+      <div class="detail-section">
+        <div class="detail-section-label">Details</div>
+        <div class="card-meta" style="margin-bottom:0.75rem;">
+          <span class="cat-chip">${e(item.category || 'Other')}</span>
+          ${item.section === 'parts' && item.condition
+            ? `<span class="cond-chip ${condClass(item.condition)}">${e(condLabel(item.condition))}</span>`
+            : ''}
+          ${item.location ? `<span class="cat-chip">${e(item.location)}</span>` : ''}
+          <span class="cat-chip">${e(timeAgo(item.created_at))}</span>
+        </div>
+        <p class="detail-description">${e(item.description || 'No description provided.')}</p>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-label">Seller</div>
+        <div class="seller-card">
+          <div class="seller-card-avatar">${e(initials(item.seller_name))}</div>
+          <div class="seller-card-info">
+            <div class="seller-card-name">${e(item.seller_name || 'Seller')}</div>
+            <div class="seller-card-meta">
+              ${item.rating_avg ? renderStars(item.rating_avg) + ' ' + Number(item.rating_avg).toFixed(1) : 'No ratings yet'}
+              ${item.completed_sales ? ' · ' + item.completed_sales + ' completed' : ''}
+            </div>
+            <div class="seller-badges">
+              <span class="badge-tier ${e(tier)}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>
+              ${item.seller_verified
+                ? `<span class="badge-verified"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>KYB Verified</span>`
+                : `<span class="cat-chip" style="font-size:0.62rem;color:#7B8794;">Unverified</span>`}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-label">Reviews</div>
+        ${reviewsHtml}
+      </div>
+
+      <div class="info-notice">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Payments are processed through Stripe with escrow hold. Funds release to seller only after you confirm receipt.
+      </div>
+
+      <div class="action-row">
+        <button class="btn-secondary" id="btn-detail-save">Save</button>
+        ${item.price && Number(item.price) > 0
+          ? `<button class="btn-cta" id="btn-detail-buy">Buy Now &mdash; ${e(fmtPrice(item.price))}</button>`
+          : `<button class="btn-cta" id="btn-detail-contact">Contact Seller</button>`}
+      </div>`;
+
+    document.getElementById('btn-detail-buy')?.addEventListener('click', () => handleBuyNow(item.id));
+    document.getElementById('btn-detail-contact')?.addEventListener('click', () => {
+      closeSheet('detail');
+      openInquirySheet(item);
+    });
+    document.getElementById('btn-detail-save')?.addEventListener('click', () => {
+      showToast('Saved to watchlist', 'success');
+    });
+
+    openSheet('detail');
+  }
+
+  /* ============================================================
+     INQUIRY SHEET
+  ============================================================ */
+  function openInquirySheet(item) {
+    const titleEl = document.getElementById('inq-listing-title');
+    const idEl    = document.getElementById('inq-listing-id');
+    const nameEl  = document.getElementById('inq-name');
+    if (titleEl) titleEl.textContent = item.title;
+    if (idEl)    idEl.value = item.id;
+    if (nameEl && WORKER_NAME) nameEl.value = WORKER_NAME;
+    openSheet('inquiry');
+  }
+
+  /* ============================================================
+     SHEET HELPERS
+  ============================================================ */
+  function openSheet(name) {
+    document.getElementById('overlay-' + name)?.classList.add('open');
+    document.getElementById('sheet-' + name)?.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSheet(name) {
+    document.getElementById('overlay-' + name)?.classList.remove('open');
+    document.getElementById('sheet-' + name)?.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function openPostSheet() {
+    populateCategorySelect(_section);
+    openSheet('post');
+  }
+
+  /* ============================================================
+     CATEGORY SELECT (post form)
+  ============================================================ */
+  function populateCategorySelect(section) {
+    const sel = document.getElementById('post-category');
+    if (!sel) return;
+    const cats = (CATS[section] || []).filter(c => c !== 'All');
+    sel.innerHTML = cats.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
+    const condWrap = document.getElementById('post-condition-wrap');
+    if (condWrap) condWrap.style.display = section === 'parts' ? '' : 'none';
+  }
+
+  /* ============================================================
+     POST LISTING SUBMIT
+  ============================================================ */
+  async function handlePostSubmit(ev) {
+    ev.preventDefault();
+
+    const section  = document.getElementById('post-section')?.value || 'parts';
+    const title    = (document.getElementById('post-title')?.value || '').trim();
+    const category = document.getElementById('post-category')?.value || '';
+    const condition = document.getElementById('post-condition')?.value || null;
+    const desc     = (document.getElementById('post-desc')?.value || '').trim();
+    const priceRaw = document.getElementById('post-price')?.value || '';
+    const price    = priceRaw !== '' ? parseFloat(priceRaw) : null;
+    const location = (document.getElementById('post-location')?.value || '').trim();
+    const contact  = (document.getElementById('post-contact')?.value || '').trim();
+
+    if (!title || !desc) { showToast('Title and description are required.', 'error'); return; }
+
+    const btn = document.getElementById('btn-submit-post');
+    if (btn) { btn.disabled = true; btn.textContent = 'Posting…'; }
+
+    try {
+      const { error } = await db.from('marketplace_listings').insert([{
+        section,
+        title,
+        category,
+        description:     desc,
+        price:           price,
+        location,
+        seller_name:     WORKER_NAME || 'Anonymous',
+        seller_contact:  contact,
+        hive_id:         HIVE_ID,
+        status:          'draft',
+        condition:       section === 'parts' ? condition : null,
+        seller_verified: false,
+        completed_sales: 0,
+        rating_avg:      null
+      }]);
+      if (error) throw error;
+
+      showToast('Listing submitted for review!', 'success');
+      closeSheet('post');
+      document.getElementById('form-post')?.reset();
+      document.querySelectorAll('.section-toggle-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
+      const hiddenSec = document.getElementById('post-section');
+      if (hiddenSec) hiddenSec.value = 'parts';
+      populateCategorySelect('parts');
+      await loadCounts();
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to post listing. Try again.', 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Post Listing'; }
+    }
+  }
+
+  /* ============================================================
+     INQUIRY SUBMIT
+  ============================================================ */
+  async function handleInquirySubmit(ev) {
+    ev.preventDefault();
+
+    const listingId = document.getElementById('inq-listing-id')?.value || '';
+    const name      = (document.getElementById('inq-name')?.value || '').trim();
+    const contact   = (document.getElementById('inq-contact')?.value || '').trim();
+    const message   = (document.getElementById('inq-message')?.value || '').trim();
+
+    if (!name || !contact || !message) { showToast('All fields are required.', 'error'); return; }
+
+    const btn = document.getElementById('btn-submit-inquiry');
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+
+    try {
+      const { error } = await db.from('marketplace_inquiries').insert([{
+        listing_id:    listingId,
+        buyer_name:    name,
+        buyer_contact: contact,
+        message,
+        hive_id:       HIVE_ID,
+        status:        'pending'
+      }]);
+      if (error) throw error;
+
+      showToast('Inquiry sent! Seller responds within 48 hours.', 'success');
+      closeSheet('inquiry');
+      document.getElementById('form-inquiry')?.reset();
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to send inquiry. Try again.', 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Send Inquiry'; }
+    }
+  }
+
+  /* ============================================================
+     SECTION SWITCH
+  ============================================================ */
+  function switchSection(section) {
+    _section       = section;
+    _cat           = 'All';
+    _query         = '';
+    _lastCreatedAt = null;
+    const srch = document.getElementById('search-input');
+    if (srch) srch.value = '';
+
+    document.querySelectorAll('.section-tab').forEach(tab => {
+      const active = tab.dataset.section === section;
+      tab.classList.toggle('active', active);
+      tab.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+
+    /* re-subscribe Realtime to new section */
+    if (_realtimeChannel) { db.removeChannel(_realtimeChannel); _realtimeChannel = null; }
+    renderFilterChips();
+    loadListings();
+    startRealtime();
+  }
+
+  /* ============================================================
+     REALTIME CHANNEL
+  ============================================================ */
+  function startRealtime() {
+    _realtimeChannel = db.channel('marketplace-' + _section)
+      .on('postgres_changes', {
+        event:  'INSERT',
+        schema: 'public',
+        table:  'marketplace_listings',
+        filter: 'status=eq.published&section=eq.' + _section
+      }, payload => {
+        if (!payload.new) return;
+        /* prepend the new listing and update count */
+        _listings.unshift(payload.new);
+        renderListings();
+        _counts[_section] = (_counts[_section] || 0) + 1;
+        updateCountBadges();
+        showToast('New listing just posted!', 'info');
+      })
+      .subscribe();
+  }
+
+  /* ============================================================
+     MY ORDERS — buyer order history + escrow release
+  ============================================================ */
+  const STATUS_LABEL = {
+    pending_payment: { label: 'Awaiting Payment', color: '#7B8794' },
+    escrow_hold:     { label: 'Paid — Awaiting Receipt', color: '#29B6D9' },
+    buyer_confirmed: { label: 'Receipt Confirmed', color: '#4ade80' },
+    released:        { label: 'Complete', color: '#4ade80' },
+    refunded:        { label: 'Refunded', color: '#f87171' },
+    disputed:        { label: 'Disputed', color: '#fbbf24' },
+  };
+
+  async function openOrdersSheet() {
+    openSheet('orders');
+    const content = document.getElementById('orders-content');
+    if (!content) return;
+
+    try {
+      const { data: orders, error } = await db
+        .from('marketplace_orders')
+        .select('id,listing_id,seller_name,price,status,stripe_session_id,escrow_release_at,created_at')
+        .eq('buyer_name', WORKER_NAME)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+
+      if (!orders || !orders.length) {
+        content.innerHTML = `<div style="text-align:center;padding:2rem 1rem;color:#7B8794;">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          <p style="margin-top:0.75rem;font-size:0.82rem;">No orders yet.</p>
+        </div>`;
+        return;
+      }
+
+      const e = escHtml;
+      content.innerHTML = orders.map(ord => {
+        const st = STATUS_LABEL[ord.status as keyof typeof STATUS_LABEL] || { label: ord.status, color: '#7B8794' };
+        const canConfirm = ord.status === 'escrow_hold';
+        const releaseDate = ord.escrow_release_at
+          ? new Date(ord.escrow_release_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })
+          : null;
+
+        return `
+          <div style="padding:0.875rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
+              <span style="font-size:0.78rem;font-weight:600;color:#F4F6FA;">
+                ${e(fmtPrice(ord.price))}
+              </span>
+              <span style="font-size:0.65rem;font-weight:600;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.06);color:${e(st.color)};">${e(st.label)}</span>
+            </div>
+            <div style="font-size:0.72rem;color:#7B8794;margin-bottom:0.35rem;">
+              Seller: ${e(ord.seller_name)} &nbsp;·&nbsp; ${e(timeAgo(ord.created_at))}
+              ${releaseDate && canConfirm ? `<br>Auto-releases: ${e(releaseDate)}` : ''}
+            </div>
+            ${canConfirm ? `
+              <button class="btn-confirm-receipt" data-order-id="${e(ord.id)}"
+                style="margin-top:0.5rem;padding:0.45rem 1rem;border-radius:0.5rem;border:1px solid rgba(74,222,128,0.3);background:rgba(74,222,128,0.1);color:#4ade80;font-family:'Poppins',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;width:100%;">
+                Confirm Receipt — Release to Seller
+              </button>` : ''}
+          </div>`;
+      }).join('');
+
+      content.querySelectorAll('.btn-confirm-receipt').forEach(btn => {
+        btn.addEventListener('click', () => handleConfirmReceipt((btn as HTMLElement).dataset.orderId || ''));
+      });
+
+    } catch (_err) {
+      if (content) content.innerHTML = `<p style="color:#f87171;font-size:0.82rem;padding:1rem 0;">Could not load orders. Try again.</p>`;
+    }
+  }
+
+  async function handleConfirmReceipt(orderId: string) {
+    const btn = document.querySelector(`.btn-confirm-receipt[data-order-id="${orderId}"]`) as HTMLButtonElement | null;
+    if (btn) { btn.disabled = true; btn.textContent = 'Releasing…'; }
+
+    try {
+      const res = await fetch(
+        'https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/marketplace-release',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order_id: orderId, buyer_name: WORKER_NAME })
+        }
+      );
+      const data = await res.json();
+      if (data.error) { showToast(data.error, 'error'); return; }
+      showToast('Payment released to seller. Thank you!', 'success');
+      openOrdersSheet(); /* reload orders */
+    } catch (_) {
+      showToast('Release failed. Try again.', 'error');
+    } finally {
+      if (btn) { btn.disabled = false; }
+    }
+  }
+
+  /* ============================================================
+     SELLER ONBOARD — links seller to Stripe Connect
+  ============================================================ */
+  async function handleSellerOnboard() {
+    showToast('Opening Stripe seller onboarding…', 'info');
+    try {
+      const res = await fetch(
+        'https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/marketplace-connect-onboard',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            worker_name:  WORKER_NAME || 'Seller',
+            return_url:   window.location.href + '?onboard=success',
+            refresh_url:  window.location.href + '?onboard=refresh',
+          })
+        }
+      );
+      const data = await res.json();
+      if (data.error) { showToast(data.error, 'error'); return; }
+      window.location.href = data.url;
+    } catch (_) {
+      showToast('Could not start onboarding. Try again.', 'error');
+    }
+  }
+
+  /* ============================================================
+     BUY NOW — calls marketplace-checkout edge function
+  ============================================================ */
+  async function handleBuyNow(listingId) {
+    const btn = document.getElementById('btn-detail-buy');
+    if (btn) { btn.disabled = true; btn.textContent = 'Redirecting…'; }
+
+    try {
+      const res = await fetch(
+        'https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/marketplace-checkout',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            listing_id: listingId,
+            buyer_name: WORKER_NAME || 'Guest',
+            hive_id:    HIVE_ID
+          })
+        }
+      );
+      const data = await res.json();
+      if (data.error) { showToast(data.error, 'error'); return; }
+      window.location.href = data.url;
+    } catch (_) {
+      showToast('Could not start checkout. Try again.', 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Buy Now'; }
+    }
+  }
+
+  /* ============================================================
+     INIT
+  ============================================================ */
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const { data: { session } } = await db.auth.getSession();
+      _authUid = session?.user?.id || null;
+    } catch (_) {}
+
+    /* Section tabs */
+    document.querySelectorAll('.section-tab').forEach(btn => {
+      btn.addEventListener('click', () => switchSection(btn.dataset.section));
+    });
+
+    /* FAB */
+    document.getElementById('fab-post')?.addEventListener('click', openPostSheet);
+
+    /* My Orders button */
+    document.getElementById('btn-my-orders')?.addEventListener('click', openOrdersSheet);
+
+    /* Close overlays */
+    ['post', 'detail', 'inquiry', 'orders'].forEach(name => {
+      document.getElementById('overlay-' + name)?.addEventListener('click', () => closeSheet(name));
+      document.getElementById('btn-close-' + name)?.addEventListener('click', () => closeSheet(name));
+    });
+
+    /* Handle onboard return URL */
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('onboard') === 'success') showToast('Stripe onboarding complete! You can now receive payments.', 'success');
+    if (urlParams.get('checkout') === 'success') { showToast('Payment successful! Check My Orders for status.', 'success'); openOrdersSheet(); }
+
+    /* Forms */
+    document.getElementById('form-post')?.addEventListener('submit', handlePostSubmit);
+    document.getElementById('form-inquiry')?.addEventListener('submit', handleInquirySubmit);
+
+    /* Section toggle inside post sheet */
+    document.querySelectorAll('.section-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.section-toggle-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const sec = btn.dataset.postSec;
+        const hidden = document.getElementById('post-section');
+        if (hidden) hidden.value = sec;
+        populateCategorySelect(sec);
+      });
+    });
+
+    /* Search — server-side via tsvector; resets pagination */
+    let _searchTimer;
+    document.getElementById('search-input')?.addEventListener('input', ev => {
+      _query = ev.target.value.trim();
+      clearTimeout(_searchTimer);
+      _searchTimer = setTimeout(() => loadListings(), 400);
+    });
+
+    /* Price filter toggle */
+    document.getElementById('btn-price-filter')?.addEventListener('click', () => {
+      const panel = document.getElementById('price-filter-panel');
+      const btn   = document.getElementById('btn-price-filter');
+      if (!panel) return;
+      const visible = panel.classList.toggle('show');
+      btn?.classList.toggle('active', visible);
+    });
+
+    /* Price range inputs — server-side; resets pagination */
+    let _priceTimer;
+    function onPriceInput() {
+      clearTimeout(_priceTimer);
+      _priceTimer = setTimeout(() => {
+        const minRaw = document.getElementById('price-min')?.value;
+        const maxRaw = document.getElementById('price-max')?.value;
+        _priceMin = minRaw ? parseFloat(minRaw) : null;
+        _priceMax = maxRaw ? parseFloat(maxRaw) : null;
+        loadListings();
+      }, 400);
+    }
+    document.getElementById('price-min')?.addEventListener('input', onPriceInput);
+    document.getElementById('price-max')?.addEventListener('input', onPriceInput);
+
+    /* Load More */
+    document.getElementById('btn-load-more')?.addEventListener('click', () => {
+      if (!_loadingMore && _hasMore) loadListings(true);
+    });
+
+    /* Init UI */
+    renderFilterChips();
+    populateCategorySelect('parts');
+
+    /* Load data */
+    await Promise.all([loadListings(), loadCounts()]);
+
+    /* Realtime channel cleanup on navigation */
+    window.addEventListener('beforeunload', () => { if (_realtimeChannel) db.removeChannel(_realtimeChannel); });
+
+    /* Realtime */
+    startRealtime();
+  });
+
+})();
+</script>
+<script src="nav-hub.js"></script>
+</body>
+</html>

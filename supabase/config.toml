@@ -54,3 +54,23 @@ entrypoint = "./functions/voice-report-intent/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/voice-transcribe/index.ts"
+
+[functions.marketplace-checkout]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/marketplace-checkout/index.ts"
+
+[functions.marketplace-webhook]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/marketplace-webhook/index.ts"
+
+[functions.marketplace-connect-onboard]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/marketplace-connect-onboard/index.ts"
+
+[functions.marketplace-release]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/marketplace-release/index.ts"

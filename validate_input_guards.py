@@ -41,6 +41,7 @@ TARGET_PAGES = [
     "engineering-design.html",
     "report-sender.html",
     "community.html",
+    "marketplace.html",
 ]
 
 MIN_COVERAGE_RATIO = 0.6

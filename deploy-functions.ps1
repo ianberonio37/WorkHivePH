@@ -8,3 +8,7 @@ npx supabase functions deploy voice-report-intent --no-verify-jwt
 npx supabase functions deploy voice-transcribe --no-verify-jwt
 npx supabase functions deploy semantic-search --no-verify-jwt
 npx supabase functions deploy embed-entry --no-verify-jwt
+npx supabase functions deploy marketplace-checkout --no-verify-jwt
+npx supabase functions deploy marketplace-webhook --no-verify-jwt
+npx supabase functions deploy marketplace-connect-onboard --no-verify-jwt
+npx supabase functions deploy marketplace-release --no-verify-jwt

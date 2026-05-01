@@ -44,6 +44,10 @@ ALL_FUNCTIONS = [
     "send-report-email",
     "voice-report-intent",
     "voice-transcribe",
+    "marketplace-checkout",
+    "marketplace-webhook",
+    "marketplace-connect-onboard",
+    "marketplace-release",
 ]
 
 REQUIRED_FIELDS = {
@@ -56,6 +60,9 @@ REQUIRED_FIELDS = {
     "send-report-email":        ["recipient_email", "reports"],  # hive_id optional — workers without hive context can still send
     "voice-report-intent":      ["transcript"],
     "voice-transcribe":         ["audio"],
+    "marketplace-checkout":        ["listing_id", "buyer_name"],
+    "marketplace-release":         ["order_id", "buyer_name"],
+    "marketplace-connect-onboard": ["worker_name", "return_url", "refresh_url"],
 }
 
 

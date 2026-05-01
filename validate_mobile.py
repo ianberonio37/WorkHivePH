@@ -48,6 +48,7 @@ LIVE_PAGES = [
     "nav-hub.html",
     "platform-health.html",
     "community.html",
+    "marketplace.html",
     "public-feed.html",
 ]
 
@@ -298,6 +299,7 @@ def check_infinite_animation_kills(pages):
         ".selected-pulse", # selection feedback
         ".typing-dot",     # AI assistant typing indicator — functional feedback
         ".skeleton",       # skeleton loading animation — functional feedback
+        ".skel-pulse",     # skeleton pulse loading animation — functional feedback
         ".live",           # connection status dot — functional live indicator
     }
 

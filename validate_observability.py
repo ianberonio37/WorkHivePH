@@ -42,6 +42,7 @@ LIVE_PAGES = [
     "engineering-design.html",
     "analytics.html",
     "community.html",
+    "marketplace.html",
     "public-feed.html",
 ]
 
