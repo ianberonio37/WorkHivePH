@@ -132,6 +132,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "marketplace",
+        "script":  "validate_marketplace.py",
+        "args":    [],
+        "label":   "Marketplace Validator (4-layer: schema + edge functions + UI gates + money flow)",
+        "group":   "Platform",
+        "report":  "marketplace_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "pm",
         "script":  "validate_pm.py",
         "args":    [],
