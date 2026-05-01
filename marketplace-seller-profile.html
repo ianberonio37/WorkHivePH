@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#F7A21B" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Seller Profile — WorkHive Marketplace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Poppins', sans-serif; background: #0f1923; color: #F4F6FA; min-height: 100vh; overflow-x: hidden; }
+
+    /* Aurora */
+    .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .aurora-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.07; }
+    .aurora-blob.a1 { width: 600px; height: 600px; background: #F7A21B; top: -200px; left: -200px; }
+    .aurora-blob.a2 { width: 500px; height: 500px; background: #29B6D9; bottom: -150px; right: -150px; }
+
+    .page { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; padding: 1rem 1rem 6rem; }
+
+    /* Back link */
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      color: #7B8794; font-size: 0.78rem; text-decoration: none;
+      margin-bottom: 1rem; padding: 0.4rem 0; transition: color 0.15s;
+    }
+    .back-link:hover { color: #F7A21B; }
+
+    /* Hero card */
+    .hero-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.6), rgba(31,46,69,0.85));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 1.25rem;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .hero-top { display: flex; align-items: flex-start; gap: 1rem; flex-wrap: wrap; }
+    .hero-avatar {
+      width: 80px; height: 80px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(247,162,27,0.25), rgba(247,162,27,0.1));
+      border: 3px solid rgba(247,162,27,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.75rem; font-weight: 800; color: #F7A21B;
+    }
+    .hero-info { flex: 1; min-width: 200px; }
+    .hero-name { font-size: 1.4rem; font-weight: 800; line-height: 1.2; }
+    .hero-since { font-size: 0.75rem; color: #7B8794; margin-top: 0.25rem; }
+    .hero-badges { display: flex; gap: 0.4rem; margin-top: 0.6rem; flex-wrap: wrap; }
+    .badge-tier { padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700; }
+    .badge-tier.bronze { background: rgba(205,127,50,0.2); color: #cd7f32; border: 1px solid rgba(205,127,50,0.3); }
+    .badge-tier.silver { background: rgba(192,192,192,0.15); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.3); }
+    .badge-tier.gold   { background: rgba(247,162,27,0.15); color: #F7A21B; border: 1px solid rgba(247,162,27,0.35); }
+    .badge-verified {
+      display: inline-flex; align-items: center; gap: 0.25rem;
+      padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700;
+      background: rgba(41,182,217,0.15); color: #29B6D9; border: 1px solid rgba(41,182,217,0.3);
+    }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.65rem 1.25rem;
+      background: linear-gradient(135deg, #F7A21B, #e8920a);
+      border: none; border-radius: 0.625rem;
+      color: #0f1923; font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; text-decoration: none;
+      margin-top: 1rem;
+      transition: opacity 0.2s;
+    }
+    .hero-cta:hover { opacity: 0.92; }
+
+    /* Stats grid */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.625rem;
+      margin-bottom: 1.25rem;
+    }
+    .stat-cell {
+      background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 0.75rem;
+      padding: 0.875rem 0.5rem;
+      text-align: center;
+    }
+    .stat-num { font-size: 1.4rem; font-weight: 800; color: #F7A21B; line-height: 1.1; }
+    .stat-num.blue  { color: #29B6D9; }
+    .stat-num.green { color: #4ade80; }
+    .stat-lbl { font-size: 0.65rem; color: #7B8794; margin-top: 0.25rem; line-height: 1.2; }
+
+    /* Section heading */
+    .section-heading {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 1.5rem 0 0.75rem;
+    }
+    .section-heading h2 { font-size: 1rem; font-weight: 700; }
+    .section-heading .count { font-size: 0.72rem; color: #7B8794; }
+
+    /* Reviews */
+    .reviews-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.45), rgba(31,46,69,0.65));
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 0.875rem;
+      padding: 1rem;
+    }
+    .review-item { padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .review-item:first-child { padding-top: 0; }
+    .review-item:last-child  { padding-bottom: 0; border-bottom: none; }
+    .review-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem; gap: 0.5rem; }
+    .review-author { font-size: 0.78rem; font-weight: 600; }
+    .stars { color: #F7A21B; font-size: 0.78rem; letter-spacing: -1px; }
+    .review-date { font-size: 0.7rem; color: #7B8794; }
+    .review-text { font-size: 0.78rem; color: #b0b8c4; line-height: 1.5; }
+    .empty-reviews { text-align: center; color: #7B8794; font-size: 0.8rem; padding: 1rem 0; }
+
+    /* Listing tabs (Parts/Training/Jobs) */
+    .filter-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .filter-chip {
+      padding: 0.35rem 0.85rem; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(22,32,50,0.5); color: #7B8794;
+      font-size: 0.74rem; font-family: 'Poppins', sans-serif; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .filter-chip.active {
+      background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.35); color: #F7A21B;
+    }
+
+    /* Listing grid */
+    .listing-grid {
+      display: grid; gap: 0.875rem;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    }
+    .listing-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+      border: 1px solid rgba(255,255,255,0.07); border-radius: 0.875rem;
+      overflow: hidden; cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .listing-card:hover { transform: translateY(-2px); border-color: rgba(247,162,27,0.25); }
+    .card-image {
+      width: 100%; aspect-ratio: 4 / 3;
+      background: linear-gradient(135deg, rgba(42,61,88,0.8), rgba(22,32,50,0.9));
+      display: flex; align-items: center; justify-content: center;
+      color: #7B8794; position: relative; overflow: hidden;
+    }
+    .card-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .card-price-pill {
+      position: absolute; bottom: 0.5rem; right: 0.5rem;
+      background: rgba(15,25,35,0.9); border: 1px solid rgba(247,162,27,0.3);
+      border-radius: 999px; padding: 0.25rem 0.6rem;
+      font-size: 0.72rem; font-weight: 700; color: #F7A21B;
+    }
+    .card-body { padding: 0.75rem 0.875rem; }
+    .card-title {
+      font-size: 0.82rem; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.3;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .card-meta { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .meta-chip {
+      padding: 0.12rem 0.45rem; border-radius: 999px;
+      font-size: 0.62rem; font-weight: 600;
+      background: rgba(255,255,255,0.06); color: #7B8794;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 2.5rem 1rem; color: #7B8794; }
+    .empty-state svg { opacity: 0.25; margin-bottom: 0.75rem; }
+    .empty-state h3 { font-size: 0.95rem; font-weight: 700; color: #F4F6FA; margin-bottom: 0.4rem; }
+    .empty-state p { font-size: 0.78rem; }
+
+    /* Skeleton */
+    .skel { background: rgba(255,255,255,0.04); border-radius: 0.5rem; }
+    .skel-pulse { animation: sk 1.5s ease-in-out infinite; }
+    @keyframes sk { 0%,100% { opacity: 0.4; } 50% { opacity: 0.8; } }
+    @media (max-width: 767px) { .skel-pulse { animation: none; } }
+
+    /* Toast */
+    #toast {
+      position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-80px);
+      background: rgba(31,46,69,0.97); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 0.75rem; padding: 0.75rem 1.25rem;
+      font-size: 0.82rem; font-weight: 600; z-index: 200;
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      white-space: nowrap; max-width: 90vw;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.success { border-color: rgba(74,222,128,0.3); color: #4ade80; }
+    #toast.error   { border-color: rgba(248,113,113,0.3); color: #f87171; }
+    #toast.info    { border-color: rgba(41,182,217,0.3);  color: #29B6D9; }
+
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .listing-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="aurora">
+  <div class="aurora-blob a1"></div>
+  <div class="aurora-blob a2"></div>
+</div>
+
+<div id="toast" role="alert" aria-live="polite"></div>
+
+<main class="page">
+  <a href="marketplace.html" class="back-link" aria-label="Back to marketplace">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Back to Marketplace
+  </a>
+
+  <!-- Hero card -->
+  <div class="hero-card" id="hero-card">
+    <div class="hero-top">
+      <div class="hero-avatar" id="hero-avatar">?</div>
+      <div class="hero-info">
+        <div class="hero-name" id="hero-name">Loading…</div>
+        <div class="hero-since" id="hero-since">&nbsp;</div>
+        <div class="hero-badges" id="hero-badges"></div>
+      </div>
+    </div>
+    <a href="#listings" class="hero-cta" id="hero-cta">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      View Listings
+    </a>
+  </div>
+
+  <!-- Stats grid -->
+  <div class="stats-grid">
+    <div class="stat-cell"><div class="stat-num" id="stat-listings">—</div><div class="stat-lbl">Active Listings</div></div>
+    <div class="stat-cell"><div class="stat-num blue" id="stat-replies">—</div><div class="stat-lbl">Inquiries Replied</div></div>
+    <div class="stat-cell"><div class="stat-num green" id="stat-response">—</div><div class="stat-lbl">Avg Response</div></div>
+    <div class="stat-cell"><div class="stat-num" id="stat-rating">—</div><div class="stat-lbl">Rating</div></div>
+  </div>
+
+  <!-- Reviews -->
+  <div class="section-heading">
+    <h2>Reviews</h2>
+    <span class="count" id="reviews-count"></span>
+  </div>
+  <div class="reviews-card" id="reviews-content">
+    <div class="empty-reviews">Loading reviews…</div>
+  </div>
+
+  <!-- Listings -->
+  <div class="section-heading" id="listings">
+    <h2>Listings</h2>
+    <span class="count" id="listings-count"></span>
+  </div>
+  <div class="filter-row" id="section-filter" role="group" aria-label="Filter by section">
+    <button class="filter-chip active" data-section="all">All</button>
+    <button class="filter-chip" data-section="parts">Parts</button>
+    <button class="filter-chip" data-section="training">Training</button>
+    <button class="filter-chip" data-section="jobs">Jobs</button>
+  </div>
+  <div class="listing-grid" id="listing-grid"></div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="utils.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  /* ── Read worker_name from URL ──────────────────────────────────────── */
+  const urlParams  = new URLSearchParams(window.location.search);
+  const WORKER_VIEW = decodeURIComponent(urlParams.get('worker') || '').trim();
+
+  /* ── State ──────────────────────────────────────────────────────────── */
+  let _seller    = null;
+  let _listings  = [];
+  let _reviews   = [];
+  let _section   = 'all';
+  let _avgResponseHours = null;
+  let _replyCount       = 0;
+
+  /* ── Utilities ──────────────────────────────────────────────────────── */
+  function escHtml(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  let _toastTimer;
+  function showToast(msg, type) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'show ' + (type || 'info');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => { el.className = ''; }, 3200);
+  }
+  function fmtPrice(price) {
+    if (!price || Number(price) === 0) return 'Negotiable';
+    return 'PHP ' + Number(price).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function timeAgo(iso) {
+    if (!iso) return '';
+    const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+    if (diff < 60)    return 'just now';
+    if (diff < 3600)  return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return Math.floor(diff / 86400) + 'd ago';
+  }
+  function initials(name) {
+    return (name || '?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  }
+  function renderStars(rating) {
+    const r = Math.round(Number(rating) || 0);
+    let s = '';
+    for (let i = 1; i <= 5; i++) s += i <= r ? '★' : '☆';
+    return s;
+  }
+  function memberSinceText(iso) {
+    if (!iso) return '';
+    const days = (Date.now() - new Date(iso).getTime()) / 86400000;
+    if (days < 30)    return 'Member since ' + Math.floor(days) + ' days ago';
+    if (days < 365)   return 'Member since ' + Math.floor(days / 30) + ' months ago';
+    return 'Member since ' + Math.floor(days / 365) + ' year' + (Math.floor(days / 365) === 1 ? '' : 's') + ' ago';
+  }
+
+  /* ── Auth gate ──────────────────────────────────────────────────────── */
+  if (!WORKER_VIEW) {
+    document.querySelector('.page').innerHTML = `
+      <a href="marketplace.html" class="back-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back to Marketplace
+      </a>
+      <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <h3>No seller specified</h3>
+        <p>This page needs a seller name in the URL. Open it via marketplace.html.</p>
+      </div>`;
+  }
+
+  /* ── Load seller profile ────────────────────────────────────────────── */
+  async function loadSeller() {
+    try {
+      const { data } = await db
+        .from('marketplace_sellers')
+        .select('worker_name, tier, kyb_verified, kyb_verified_at, total_sales, rating_avg, rating_count, created_at')
+        .eq('worker_name', WORKER_VIEW)
+        .maybeSingle();
+      _seller = data;
+    } catch (_) { _seller = null; }
+    renderHero();
+  }
+
+  function renderHero() {
+    const e = escHtml;
+    const avatarEl  = document.getElementById('hero-avatar');
+    const nameEl    = document.getElementById('hero-name');
+    const sinceEl   = document.getElementById('hero-since');
+    const badgesEl  = document.getElementById('hero-badges');
+
+    if (avatarEl) avatarEl.textContent = initials(WORKER_VIEW);
+    if (nameEl)   nameEl.textContent   = WORKER_VIEW;
+    if (sinceEl)  sinceEl.textContent  = _seller?.created_at ? memberSinceText(_seller.created_at) : 'New seller';
+
+    const tier = _seller?.tier || 'bronze';
+    if (badgesEl) {
+      badgesEl.innerHTML = `
+        <span class="badge-tier ${e(tier)}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>
+        ${_seller?.kyb_verified
+          ? `<span class="badge-verified"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Verified</span>`
+          : ''}`;
+    }
+  }
+
+  /* ── Load listings (this seller, published only) ────────────────────── */
+  async function loadListings() {
+    try {
+      const { data } = await db
+        .from('marketplace_listings')
+        .select('id,title,section,category,condition,price,location,image_url,created_at')
+        .eq('seller_name', WORKER_VIEW)
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .limit(60);
+      _listings = data || [];
+    } catch (_) { _listings = []; }
+
+    document.getElementById('stat-listings').textContent = _listings.length;
+    renderListings();
+  }
+
+  function renderListings() {
+    const e = escHtml;
+    const grid = document.getElementById('listing-grid');
+    const countEl = document.getElementById('listings-count');
+    if (!grid) return;
+
+    const filtered = _section === 'all' ? _listings : _listings.filter(l => l.section === _section);
+    if (countEl) countEl.textContent = filtered.length + (filtered.length === 1 ? ' listing' : ' listings');
+
+    if (!filtered.length) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column: 1 / -1;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          <h3>No ${_section === 'all' ? '' : _section + ' '}listings</h3>
+          <p>${_section === 'all' ? 'This seller has no published listings yet.' : 'Try a different section above.'}</p>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(item => {
+      const hasPrice = item.price && Number(item.price) > 0;
+      const hasImg   = !!item.image_url;
+      return `
+        <a class="listing-card" href="marketplace.html#listing-${e(item.id)}" data-id="${e(item.id)}" style="text-decoration:none;color:inherit;display:block;">
+          <div class="card-image">
+            ${hasImg
+              ? `<img src="${e(item.image_url)}" alt="${e(item.title)}" loading="lazy" />`
+              : `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`}
+            ${hasPrice ? `<span class="card-price-pill">${e(fmtPrice(item.price))}</span>` : ''}
+          </div>
+          <div class="card-body">
+            <div class="card-title">${e(item.title)}</div>
+            <div class="card-meta">
+              <span class="meta-chip">${e(item.section)}</span>
+              <span class="meta-chip">${e(item.category || 'Other')}</span>
+              ${item.location ? `<span class="meta-chip">${e(item.location)}</span>` : ''}
+            </div>
+          </div>
+        </a>`;
+    }).join('');
+  }
+
+  /* ── Load reviews ───────────────────────────────────────────────────── */
+  async function loadReviews() {
+    try {
+      const listingIds = _listings.map(l => l.id);
+      if (!listingIds.length) { _reviews = []; renderReviews(); return; }
+
+      const { data } = await db
+        .from('marketplace_reviews')
+        .select('reviewer_name, rating, comment, created_at, verified_purchase')
+        .in('listing_id', listingIds)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      _reviews = data || [];
+    } catch (_) { _reviews = []; }
+    renderReviews();
+  }
+
+  function renderReviews() {
+    const e = escHtml;
+    const wrap     = document.getElementById('reviews-content');
+    const countEl  = document.getElementById('reviews-count');
+    const ratingEl = document.getElementById('stat-rating');
+    if (!wrap) return;
+
+    const avg = _reviews.length
+      ? (_reviews.reduce((s, r) => s + Number(r.rating || 0), 0) / _reviews.length)
+      : (_seller?.rating_avg || 0);
+    if (ratingEl) ratingEl.textContent = avg ? avg.toFixed(1) + '★' : '—';
+    if (countEl)  countEl.textContent  = _reviews.length + (_reviews.length === 1 ? ' review' : ' reviews');
+
+    if (!_reviews.length) {
+      wrap.innerHTML = `<div class="empty-reviews">No reviews yet. Reviews will appear here after buyers submit them.</div>`;
+      return;
+    }
+
+    wrap.innerHTML = _reviews.map(rv => `
+      <div class="review-item">
+        <div class="review-head">
+          <div style="display:flex;align-items:center;gap:0.4rem;">
+            <span class="review-author">${e(rv.reviewer_name)}</span>
+            <span class="stars">${renderStars(rv.rating)}</span>
+            ${rv.verified_purchase ? `<span class="badge-verified" style="font-size:0.6rem;padding:0.1rem 0.4rem;">Verified</span>` : ''}
+          </div>
+          <span class="review-date">${e(timeAgo(rv.created_at))}</span>
+        </div>
+        ${rv.comment ? `<p class="review-text">${e(rv.comment)}</p>` : ''}
+      </div>`).join('');
+  }
+
+  /* ── Compute response time ──────────────────────────────────────────── */
+  async function computeResponseStats() {
+    try {
+      const { data } = await db
+        .from('marketplace_inquiries')
+        .select('created_at, replied_at, status')
+        .eq('seller_name', WORKER_VIEW)
+        .not('replied_at', 'is', null)
+        .limit(50);
+
+      const replied = data || [];
+      _replyCount = replied.length;
+      if (replied.length) {
+        const totalMs = replied.reduce((sum, inq) => {
+          const start = new Date(inq.created_at).getTime();
+          const end   = new Date(inq.replied_at).getTime();
+          return sum + Math.max(0, end - start);
+        }, 0);
+        _avgResponseHours = (totalMs / replied.length) / 3600000;
+      } else {
+        _avgResponseHours = null;
+      }
+    } catch (_) {
+      _replyCount = 0;
+      _avgResponseHours = null;
+    }
+
+    const repEl = document.getElementById('stat-replies');
+    const resEl = document.getElementById('stat-response');
+    if (repEl) repEl.textContent = _replyCount;
+    if (resEl) resEl.textContent = _avgResponseHours == null
+      ? '—'
+      : (_avgResponseHours < 1 ? '<1h' : Math.round(_avgResponseHours) + 'h');
+  }
+
+  /* ── Init ───────────────────────────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', async () => {
+    if (!WORKER_VIEW) return;
+
+    /* Filter chips */
+    document.querySelectorAll('[data-section]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        _section = chip.dataset.section;
+        document.querySelectorAll('[data-section]').forEach(c => c.classList.toggle('active', c === chip));
+        renderListings();
+      });
+    });
+
+    /* Load all in parallel except reviews which needs listings first */
+    await Promise.all([loadSeller(), loadListings(), computeResponseStats()]);
+    await loadReviews();
+  });
+
+})();
+</script>
+<script src="nav-hub.js"></script>
+</body>
+</html>

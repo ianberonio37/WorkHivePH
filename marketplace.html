@@ -925,10 +925,10 @@
               : ''}
           </div>
           <div class="card-footer">
-            <div class="seller-row">
+            <a class="seller-row seller-link" href="marketplace-seller-profile.html?worker=${encodeURIComponent(item.seller_name || '')}" style="text-decoration:none;color:inherit;" data-seller="${e(item.seller_name || '')}">
               <div class="seller-avatar">${e(initials(item.seller_name))}</div>
               <span class="seller-name">${e(item.seller_name || 'Seller')}</span>
-            </div>
+            </a>
             <div style="display:flex;align-items:center;gap:0.4rem;">
               ${item.rating_avg
                 ? `<span class="stars">${renderStars(item.rating_avg)}</span><span class="rating-val">${Number(item.rating_avg).toFixed(1)}</span>`
@@ -955,14 +955,35 @@
     }
 
     if (!_listings.length) {
+      const emptyConfig = {
+        parts: {
+          icon:  `<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 0-14.14 0"/><path d="M4.93 19.07a10 10 0 0 0 14.14 0"/><path d="M12 2v4M12 18v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M2 12h4M18 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>`,
+          title: 'No spare parts listed yet',
+          body:  'Be the first to sell bearings, motors, valves, electrical, or consumables to industrial plants across the Philippines. Free to list — buyers contact you directly via phone or email.',
+          cta:   'Post a Parts Listing',
+        },
+        training: {
+          icon:  `<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+          title: 'No training courses yet',
+          body:  'Share your industrial expertise. Post a course on Electrical, Mechanical, Instrumentation, Safety/LOTO, CMMS, or Certification Prep. Workers across the country are looking for trainers like you.',
+          cta:   'Post a Training Course',
+        },
+        jobs: {
+          icon:  `<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12.01"/></svg>`,
+          title: 'No jobs posted yet',
+          body:  'Post a service request (you need work done) or list yourself as a service provider for inspection, repair, installation, welding, or shutdown work.',
+          cta:   'Post a Job',
+        },
+      };
+      const cfg = emptyConfig[_section] || emptyConfig.parts;
       grid.innerHTML = `
         <div class="empty-state">
-          <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <h3>No listings yet</h3>
-          <p>Be the first to list something in this section.</p>
+          ${cfg.icon}
+          <h3>${escHtml(cfg.title)}</h3>
+          <p style="max-width:420px;margin:0 auto;">${escHtml(cfg.body)}</p>
           <button class="btn-post-first" id="btn-empty-post">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Post a Listing
+            ${escHtml(cfg.cta)}
           </button>
         </div>`;
       document.getElementById('btn-empty-post')?.addEventListener('click', openPostSheet);
@@ -978,7 +999,11 @@
       });
     });
     grid.querySelectorAll('.listing-card').forEach(card => {
-      card.addEventListener('click', () => openDetailSheet(card.dataset.id));
+      card.addEventListener('click', (ev) => {
+        /* Skip when clicking the seller link (let it navigate normally) */
+        if ((ev.target as HTMLElement)?.closest?.('.seller-link')) return;
+        openDetailSheet(card.dataset.id);
+      });
     });
   }
 
@@ -1145,7 +1170,10 @@
       </div>
 
       <div class="detail-section">
-        <div class="detail-section-label">Seller</div>
+        <div class="detail-section-label" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Seller</span>
+          <a href="marketplace-seller-profile.html?worker=${encodeURIComponent(item.seller_name || '')}" style="text-transform:none;letter-spacing:normal;font-size:0.7rem;color:#29B6D9;text-decoration:none;font-weight:600;">View profile →</a>
+        </div>
         <div class="seller-card">
           <div class="seller-card-avatar">${e(initials(item.seller_name))}</div>
           <div class="seller-card-info">
