@@ -15,7 +15,15 @@ function sanitizeBomItems(items: unknown[]): unknown[] {
     const it = item as Record<string, unknown>;
     const raw = String(it.unit || 'unit').trim();
     const clean = VALID_UNITS.has(raw.toLowerCase()) ? raw : (raw.length > 12 || raw.includes(' ') ? 'unit' : raw);
-    return { ...it, unit: clean };
+    // Strip non-ASCII characters from text fields (guards against LLM Unicode garbling)
+    const stripNonAscii = (s: unknown) => String(s || '').replace(/[^\x20-\x7E]/g, '');
+    return {
+      ...it,
+      unit:        clean,
+      description: stripNonAscii(it.description),
+      specification: stripNonAscii(it.specification),
+      remarks:     stripNonAscii(it.remarks),
+    };
   });
 }
 
@@ -1247,7 +1255,7 @@ Generate a JSON object with:
    2. Inlet Pipe Connection: 100 mm (4-inch) PVC Schedule 40 inlet pipe from kitchen fixture drain header to grease interceptor inlet; includes 45° elbow, short nipple, and union for maintenance access: qty: 1 lot (per site layout)
    3. Outlet Pipe Connection: 100 mm (4-inch) PVC Schedule 40 outlet pipe from grease interceptor outlet to building drain or septic tank connection; P-trap on outlet side; cleanout plug at low point: qty: 1 lot (per site layout)
    4. Vent Pipe Assembly: 50 mm (2-inch) PVC Schedule 40 vent pipe from grease interceptor body to open air above roof line; anti-siphon vent valve if direct roof vent is not possible; all joints solvent-welded per PPC: qty: 1 lot
-   5. Grease Trap Cover / Access Lid: factory-supplied gastight bolted lid (matching interceptor unit); if installed in floor slab: 600 mm × 600 mm cast iron traffic-rated access cover, HS20-rated where in vehicular area, frame set in concrete haunch: qty: 1 set
+   5. Grease Trap Cover and Access Lid: factory-supplied gastight bolted lid (matching interceptor unit); if installed in floor slab: 600 mm x 600 mm cast iron traffic-rated access cover, HS20-rated where in vehicular area, frame set in concrete haunch: qty: 1 set
    6. Inlet and Outlet Fittings: 100 mm tee (for inlet drop pipe baffle), 100 mm 90° elbows (min 2), cleanout plugs (min 2), reducing bushings (if fixture piping is 75 mm), PVC solvent cement and primer: qty: 1 lot
    7. Inlet Strainer / Basket: stainless steel SS 304 perforated basket strainer at interceptor inlet to capture food solids before grease chamber; removable for cleaning; mesh opening 5–10 mm: qty: 1 unit
    8. Grease Waste Drum / Collection Container: 200 L HDPE closed-head drum with tight-lid, labelled "GREASE WASTE: HAZARDOUS" per DENR DAO 2013-22; used for collected grease during pump-out service; quantity per cleaning cycle: qty: 2 units (initial supply)

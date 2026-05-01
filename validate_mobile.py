@@ -49,6 +49,7 @@ LIVE_PAGES = [
     "platform-health.html",
     "community.html",
     "marketplace.html",
+    "marketplace-admin.html",
     "public-feed.html",
 ]
 

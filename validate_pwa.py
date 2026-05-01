@@ -52,6 +52,7 @@ LIVE_PAGES = [
     "nav-hub.html",
     "community.html",
     "marketplace.html",
+    "marketplace-admin.html",
     "public-feed.html",
 ]
 

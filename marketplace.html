@@ -470,6 +470,10 @@
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
       <span id="txt-total-listings">0 listings</span>
     </div>
+    <a id="btn-admin-link" href="marketplace-admin.html" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;padding:0.2rem 0.65rem;text-decoration:none;align-items:center;gap:0.3rem;" aria-label="Marketplace Admin">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 0-14.14 0"/><path d="M4.93 19.07a10 10 0 0 0 14.14 0"/></svg>
+      Admin
+    </a>
     <button id="btn-my-orders" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);border-radius:999px;color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;padding:0.2rem 0.65rem;cursor:pointer;display:flex;align-items:center;gap:0.3rem;" aria-label="My Orders">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
       My Orders
@@ -1450,6 +1454,13 @@
 
     /* FAB */
     document.getElementById('fab-post')?.addEventListener('click', openPostSheet);
+
+    /* Show admin link only for supervisors */
+    const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+    if (HIVE_ROLE === 'supervisor') {
+      const adminLink = document.getElementById('btn-admin-link');
+      if (adminLink) adminLink.style.display = 'inline-flex';
+    }
 
     /* My Orders button */
     document.getElementById('btn-my-orders')?.addEventListener('click', openOrdersSheet);
