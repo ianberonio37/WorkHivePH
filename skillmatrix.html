@@ -569,6 +569,7 @@ function showOnboarding() {
       worker_name: WORKER_NAME,
       primary_skill: selectedPrimary,
       targets,
+      auth_uid:    _authUid || null,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'worker_name' });
 
@@ -640,6 +641,7 @@ document.getElementById('target-save-btn').addEventListener('click', async () =>
     worker_name: WORKER_NAME,
     primary_skill: _profile.primary_skill,
     targets: _profile.targets,
+    auth_uid:    _authUid || null,
     updated_at: new Date().toISOString(),
   }, { onConflict: 'worker_name' });
 
