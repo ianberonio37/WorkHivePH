@@ -248,6 +248,20 @@
     <div id="stripe-recheck-row" style="display:none;margin-top:0.75rem;text-align:right;">
       <button id="btn-stripe-recheck" style="background:none;border:none;color:#7B8794;font-family:'Poppins',sans-serif;font-size:0.72rem;cursor:pointer;text-decoration:underline;" aria-label="Re-check Stripe status">Re-check Stripe status</button>
     </div>
+
+    <!-- Messenger handle input — buyers reach you via m.me/<handle> -->
+    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.07);">
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#0084ff"><path d="M12 2C6.36 2 1.85 6.18 1.85 11.4c0 2.91 1.4 5.5 3.6 7.21V22l3.31-1.82c.88.24 1.81.37 2.74.37 5.64 0 10.15-4.18 10.15-9.41C22.15 6.18 17.64 2 12 2zm1.07 12.55l-2.55-2.71-4.97 2.71 5.46-5.79 2.55 2.71 4.97-2.71-5.46 5.79z"/></svg>
+        <strong style="font-size:0.82rem;">Facebook Messenger handle</strong>
+      </div>
+      <p style="font-size:0.72rem;color:#7B8794;margin-bottom:0.5rem;">Buyers see a "Message on Messenger" button on your listings that opens m.me/<your-handle> directly. Find your handle at facebook.com/settings under Username.</p>
+      <div style="display:flex;gap:0.5rem;">
+        <input class="wh-input" id="messenger-input" type="text" placeholder="your.handle (without m.me/)" style="flex:1;font-size:1rem;" />
+        <button id="btn-save-messenger" style="padding:0.6rem 1rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;white-space:nowrap;">Save</button>
+      </div>
+      <div id="messenger-preview" style="display:none;margin-top:0.5rem;font-size:0.72rem;color:#4ade80;"></div>
+    </div>
   </div>
 
   <!-- Tabs -->
@@ -437,6 +451,15 @@
         ${_seller?.kyb_verified
           ? `<span class="badge-kyb"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>KYB Verified</span>`
           : `<span class="badge-unverified">KYB Pending</span>`}`;
+    }
+
+    /* Pre-fill Messenger input + preview from existing profile */
+    const msgInput   = document.getElementById('messenger-input');
+    const msgPreview = document.getElementById('messenger-preview');
+    if (msgInput && _seller?.messenger_username) msgInput.value = _seller.messenger_username;
+    if (msgPreview && _seller?.messenger_username) {
+      msgPreview.style.display = 'block';
+      msgPreview.innerHTML = `Live: <a href="https://m.me/${e(_seller.messenger_username)}" target="_blank" rel="noopener" style="color:#4ade80;text-decoration:underline;">m.me/${e(_seller.messenger_username)}</a>`;
     }
 
     /* Show Stripe banner if no account yet, or account exists but not verified.
@@ -922,6 +945,51 @@
     if (tab === 'orders')    loadOrders();
   }
 
+  /* ── Save Messenger handle ──────────────────────────────────────────────── */
+  async function handleSaveMessenger() {
+    const input = document.getElementById('messenger-input');
+    const btn   = document.getElementById('btn-save-messenger');
+    const preview = document.getElementById('messenger-preview');
+    let raw = (input?.value || '').trim();
+
+    /* Strip leading m.me/, facebook.com/, https://, and @ — store the bare handle */
+    raw = raw.replace(/^https?:\/\//i, '').replace(/^(m\.me\/|messenger\.com\/|facebook\.com\/|fb\.com\/)/i, '').replace(/^@/, '').replace(/\/$/, '');
+
+    if (raw && !/^[a-zA-Z0-9_.\-]{3,50}$/.test(raw)) {
+      showToast('Invalid handle. Use only letters, numbers, periods, underscores, hyphens (3-50 chars).', 'error');
+      return;
+    }
+
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+    try {
+      const { error } = await db.from('marketplace_sellers').upsert({
+        worker_name:        WORKER_NAME,
+        messenger_username: raw || null,
+        updated_at:         new Date().toISOString(),
+      }, { onConflict: 'worker_name' });
+      if (error) throw error;
+
+      if (_seller) _seller.messenger_username = raw || null;
+      else _seller = { worker_name: WORKER_NAME, messenger_username: raw || null, tier: 'bronze' };
+
+      if (input) input.value = raw;
+      if (preview) {
+        if (raw) {
+          preview.style.display = 'block';
+          preview.innerHTML = `Live: <a href="https://m.me/${escHtml(raw)}" target="_blank" rel="noopener" style="color:#4ade80;text-decoration:underline;">m.me/${escHtml(raw)}</a>`;
+        } else {
+          preview.style.display = 'none';
+        }
+      }
+      showToast(raw ? 'Messenger handle saved.' : 'Messenger handle cleared.', 'success');
+    } catch (_err) {
+      showToast('Save failed. Try again.', 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Save'; }
+    }
+  }
+
   /* ── Seller dispute reply ───────────────────────────────────────────────── */
   async function handleSellerDisputeReply(orderId) {
     const textarea = document.getElementById('reply-' + orderId);
@@ -976,6 +1044,7 @@
     document.getElementById('overlay-edit')?.addEventListener('click', () => { document.getElementById('overlay-edit')?.classList.remove('open'); document.getElementById('sheet-edit')?.classList.remove('open'); document.body.style.overflow = ''; });
     document.getElementById('btn-close-edit')?.addEventListener('click', () => { document.getElementById('overlay-edit')?.classList.remove('open'); document.getElementById('sheet-edit')?.classList.remove('open'); document.body.style.overflow = ''; });
     document.getElementById('form-edit')?.addEventListener('submit', handleEditSubmit);
+    document.getElementById('btn-save-messenger')?.addEventListener('click', handleSaveMessenger);
     if (PAYMENTS_ENABLED) {
       document.getElementById('btn-stripe-connect')?.addEventListener('click', handleStripeConnect);
       document.getElementById('btn-stripe-recheck')?.addEventListener('click', () => checkStripeStatus(true));

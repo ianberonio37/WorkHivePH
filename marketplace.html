@@ -6,6 +6,55 @@
   <meta name="theme-color" content="#F7A21B" />
   <link rel="manifest" href="manifest.json" />
   <title>Marketplace — WorkHive</title>
+  <meta name="description" content="WorkHive Marketplace: spare parts, training courses, and maintenance jobs for Philippine industrial plants. Connect directly with verified sellers via phone, email, or Facebook Messenger." />
+  <meta name="keywords" content="industrial parts marketplace Philippines, plant maintenance jobs, HVAC training, electrical training, industrial spare parts, maintenance services, WorkHive" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://workhiveph.com/marketplace.html" />
+  <meta property="og:title" content="WorkHive Marketplace — Parts, Training, Jobs for Philippine Industrial Plants" />
+  <meta property="og:description" content="Connect directly with verified sellers offering spare parts, training, and maintenance services across the Philippines. Free to browse and post." />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/workhive-logo-transparent.png" />
+  <meta property="og:site_name" content="WorkHive" />
+  <meta property="og:locale" content="en_PH" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="WorkHive Marketplace — Industrial Parts, Training, Jobs PH" />
+  <meta name="twitter:description" content="Verified sellers, contact-only inquiries, no platform fees. Browse and post listings free." />
+  <meta name="twitter:image" content="https://workhiveph.com/brand_assets/workhive-logo-transparent.png" />
+
+  <!-- JSON-LD: WebSite + SearchAction (Google Sitelinks Search Box) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "WorkHive Marketplace",
+    "url": "https://workhiveph.com/marketplace.html",
+    "description": "Industrial parts, training, and jobs marketplace for Philippine plants",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://workhiveph.com/marketplace.html?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
+  <!-- JSON-LD: BreadcrumbList -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "WorkHive", "item": "https://workhiveph.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Marketplace", "item": "https://workhiveph.com/marketplace.html" }
+    ]
+  }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -1120,6 +1169,17 @@
     const titleEl = document.getElementById('title-sheet-detail');
     if (titleEl) titleEl.textContent = item.section.charAt(0).toUpperCase() + item.section.slice(1) + ' Listing';
 
+    /* Fetch seller profile to get messenger_username (and any other seller-level data) */
+    let sellerProfile = null;
+    try {
+      const { data: sp } = await db
+        .from('marketplace_sellers')
+        .select('messenger_username,kyb_verified,tier')
+        .eq('worker_name', item.seller_name)
+        .maybeSingle();
+      sellerProfile = sp;
+    } catch (_) { sellerProfile = null; }
+
     let reviewsHtml = '<p style="font-size:0.78rem;color:#7B8794;">No reviews yet.</p>';
     try {
       const { data: reviews } = await db
@@ -1207,7 +1267,13 @@
         ${PAYMENTS_ENABLED && item.price && Number(item.price) > 0
           ? `<button class="btn-cta" id="btn-detail-buy">Buy Now &mdash; ${e(fmtPrice(item.price))}</button>`
           : `<button class="btn-cta" id="btn-detail-contact">Contact Seller</button>`}
-      </div>`;
+      </div>
+      ${sellerProfile?.messenger_username
+        ? `<a href="https://m.me/${e(sellerProfile.messenger_username)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:0.625rem;padding:0.7rem;background:rgba(0,132,255,0.12);border:1px solid rgba(0,132,255,0.35);border-radius:0.625rem;color:#0084ff;font-family:'Poppins',sans-serif;font-size:0.82rem;font-weight:700;text-decoration:none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.36 2 1.85 6.18 1.85 11.4c0 2.91 1.4 5.5 3.6 7.21V22l3.31-1.82c.88.24 1.81.37 2.74.37 5.64 0 10.15-4.18 10.15-9.41C22.15 6.18 17.64 2 12 2zm1.07 12.55l-2.55-2.71-4.97 2.71 5.46-5.79 2.55 2.71 4.97-2.71-5.46 5.79z"/></svg>
+            Message on Messenger
+          </a>`
+        : ''}`;
 
     document.getElementById('btn-detail-buy')?.addEventListener('click', () => handleBuyNow(item.id));
     document.getElementById('btn-detail-contact')?.addEventListener('click', () => {

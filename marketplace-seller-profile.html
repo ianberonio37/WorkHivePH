@@ -6,6 +6,22 @@
   <meta name="theme-color" content="#F7A21B" />
   <link rel="manifest" href="manifest.json" />
   <title>Seller Profile — WorkHive Marketplace</title>
+  <meta name="description" content="Verified seller profile on WorkHive Marketplace: response time, listings, reviews, and direct contact for Philippine industrial parts, training, and services." />
+
+  <!-- Open Graph (titles get filled in dynamically by JS once seller name is known) -->
+  <meta property="og:type" content="profile" id="og-type" />
+  <meta property="og:title" content="Seller Profile — WorkHive Marketplace" id="og-title" />
+  <meta property="og:description" content="Verified seller on WorkHive Marketplace" id="og-description" />
+  <meta property="og:image" content="https://workhiveph.com/brand_assets/workhive-logo-transparent.png" />
+  <meta property="og:site_name" content="WorkHive" />
+  <meta property="og:locale" content="en_PH" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Seller Profile — WorkHive Marketplace" id="tw-title" />
+  <meta name="twitter:description" content="Verified seller on WorkHive Marketplace" id="tw-description" />
+
+  <!-- JSON-LD will be injected by JS when seller data loads (Person + ItemList of listings) -->
+  <script type="application/ld+json" id="seller-ld-json"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -220,10 +236,16 @@
         <div class="hero-badges" id="hero-badges"></div>
       </div>
     </div>
-    <a href="#listings" class="hero-cta" id="hero-cta">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-      View Listings
-    </a>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem;" id="hero-cta-row">
+      <a href="#listings" class="hero-cta" id="hero-cta">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        View Listings
+      </a>
+      <a id="hero-messenger" href="#" target="_blank" rel="noopener noreferrer" style="display:none;align-items:center;gap:0.4rem;padding:0.65rem 1.25rem;background:rgba(0,132,255,0.12);border:1px solid rgba(0,132,255,0.35);border-radius:0.625rem;color:#0084ff;font-family:'Poppins',sans-serif;font-size:0.85rem;font-weight:700;text-decoration:none;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.36 2 1.85 6.18 1.85 11.4c0 2.91 1.4 5.5 3.6 7.21V22l3.31-1.82c.88.24 1.81.37 2.74.37 5.64 0 10.15-4.18 10.15-9.41C22.15 6.18 17.64 2 12 2zm1.07 12.55l-2.55-2.71-4.97 2.71 5.46-5.79 2.55 2.71 4.97-2.71-5.46 5.79z"/></svg>
+        Message on Messenger
+      </a>
+    </div>
   </div>
 
   <!-- Stats grid -->
@@ -342,7 +364,7 @@
     try {
       const { data } = await db
         .from('marketplace_sellers')
-        .select('worker_name, tier, kyb_verified, kyb_verified_at, total_sales, rating_avg, rating_count, created_at')
+        .select('worker_name, tier, kyb_verified, kyb_verified_at, total_sales, rating_avg, rating_count, messenger_username, created_at')
         .eq('worker_name', WORKER_VIEW)
         .maybeSingle();
       _seller = data;
@@ -369,6 +391,61 @@
           ? `<span class="badge-verified"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Verified</span>`
           : ''}`;
     }
+
+    /* Messenger CTA — only if seller has set their handle */
+    const msgr = document.getElementById('hero-messenger');
+    if (msgr && _seller?.messenger_username) {
+      msgr.setAttribute('href', 'https://m.me/' + encodeURIComponent(_seller.messenger_username));
+      msgr.style.display = 'inline-flex';
+    }
+
+    /* Set OG tags dynamically — title + description with seller name */
+    const ogTitleEl  = document.getElementById('og-title');
+    const ogDescEl   = document.getElementById('og-description');
+    const twTitleEl  = document.getElementById('tw-title');
+    const twDescEl   = document.getElementById('tw-description');
+    const docTitleEl = document.querySelector('title');
+    const tierLabel  = (_seller?.tier || 'bronze');
+    const ogTitle    = `${WORKER_VIEW} — Verified Seller on WorkHive Marketplace`;
+    const ogDesc     = `${WORKER_VIEW} (${tierLabel.charAt(0).toUpperCase() + tierLabel.slice(1)} tier${_seller?.kyb_verified ? ', KYB verified' : ''}). View listings, response time, reviews, and contact options on WorkHive Marketplace.`;
+    if (ogTitleEl) ogTitleEl.setAttribute('content', ogTitle);
+    if (ogDescEl)  ogDescEl.setAttribute('content', ogDesc);
+    if (twTitleEl) twTitleEl.setAttribute('content', ogTitle);
+    if (twDescEl)  twDescEl.setAttribute('content', ogDesc);
+    if (docTitleEl) docTitleEl.textContent = `${WORKER_VIEW} — WorkHive Marketplace`;
+  }
+
+  /* ── Inject JSON-LD Person + ItemList schema once seller + listings loaded ─ */
+  function injectJsonLd() {
+    const ldEl = document.getElementById('seller-ld-json');
+    if (!ldEl) return;
+    const tier = _seller?.tier || 'bronze';
+    const personSchema = {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": WORKER_VIEW,
+      "url": window.location.href,
+      "description": `${WORKER_VIEW} on WorkHive Marketplace, Philippines. Tier: ${tier}.${_seller?.kyb_verified ? ' KYB verified.' : ''}`,
+    };
+    if (_seller?.rating_avg && _seller.rating_count) {
+      personSchema.aggregateRating = {
+        "@type": "AggregateRating",
+        "ratingValue": Number(_seller.rating_avg).toFixed(1),
+        "reviewCount": _seller.rating_count,
+      };
+    }
+    const itemListSchema = {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": `${WORKER_VIEW}'s Listings`,
+      "itemListElement": _listings.slice(0, 20).map((l, i) => ({
+        "@type": "ListItem",
+        "position": i + 1,
+        "name": l.title,
+        "url": `https://workhiveph.com/marketplace.html#listing-${l.id}`,
+      })),
+    };
+    ldEl.textContent = JSON.stringify([personSchema, itemListSchema]);
   }
 
   /* ── Load listings (this seller, published only) ────────────────────── */
@@ -530,6 +607,9 @@
     /* Load all in parallel except reviews which needs listings first */
     await Promise.all([loadSeller(), loadListings(), computeResponseStats()]);
     await loadReviews();
+
+    /* Inject JSON-LD now that seller + listings are loaded */
+    injectJsonLd();
   });
 
 })();

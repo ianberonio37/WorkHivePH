@@ -42,6 +42,8 @@ TARGET_PAGES = [
     "report-sender.html",
     "community.html",
     "marketplace.html",
+    "marketplace-seller.html",
+    "marketplace-admin.html",
 ]
 
 MIN_COVERAGE_RATIO = 0.6
