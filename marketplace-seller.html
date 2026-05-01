@@ -238,7 +238,7 @@
       <div class="pstat"><div class="pstat-num" id="ps-listings">—</div><div class="pstat-lbl">Listings</div></div>
       <div class="pstat"><div class="pstat-num" id="ps-sales">—</div><div class="pstat-lbl">Sales</div></div>
       <div class="pstat"><div class="pstat-num red" id="ps-pending-inq">—</div><div class="pstat-lbl">New Inquiries</div></div>
-      <div class="pstat"><div class="pstat-num green" id="ps-earned">—</div><div class="pstat-lbl">PHP Earned</div></div>
+      <div class="pstat" id="pstat-earned"><div class="pstat-num green" id="ps-earned">—</div><div class="pstat-lbl">PHP Earned</div></div>
     </div>
     <div class="stripe-banner" id="stripe-banner" style="display:none;">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#29B6D9" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
@@ -262,7 +262,7 @@
       <span class="lbl">Inquiries</span>
       <span class="tab-count red" id="badge-inquiries">0</span>
     </button>
-    <button class="tab-btn" data-tab="orders" role="tab" aria-selected="false">
+    <button class="tab-btn" data-tab="orders" role="tab" aria-selected="false" id="tab-orders">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
       <span class="lbl">Orders</span>
       <span class="tab-count" id="badge-orders">0</span>
@@ -342,6 +342,10 @@
   const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  /* Set true to re-enable Orders tab, Earnings card, Stripe Connect onboarding.
+     See MARKETPLACE_GO_LIVE_ROADMAP.md for the activation path. */
+  const PAYMENTS_ENABLED = false;
 
   const WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
   const HIVE_ID     = localStorage.getItem('wh_active_hive_id') || null;
@@ -435,8 +439,9 @@
           : `<span class="badge-unverified">KYB Pending</span>`}`;
     }
 
-    /* Show Stripe banner if no account yet, or account exists but not verified */
-    if (bannerEl) {
+    /* Show Stripe banner if no account yet, or account exists but not verified.
+       Skipped entirely when PAYMENTS_ENABLED is false (contact-only marketplace). */
+    if (bannerEl && PAYMENTS_ENABLED) {
       if (!_seller || !_seller.stripe_account_id) {
         bannerEl.style.display = 'flex';
       } else if (_seller.stripe_account_id && !_seller.kyb_verified) {
@@ -946,6 +951,18 @@
   document.addEventListener('DOMContentLoaded', async () => {
     if (!WORKER_NAME) return;
 
+    /* Hide payment-only UI when payments disabled (contact-only marketplace) */
+    if (!PAYMENTS_ENABLED) {
+      const ordersTab    = document.getElementById('tab-orders');
+      const earnedStat   = document.getElementById('pstat-earned');
+      const stripeBanner = document.getElementById('stripe-banner');
+      const recheckRow   = document.getElementById('stripe-recheck-row');
+      if (ordersTab)    ordersTab.style.display    = 'none';
+      if (earnedStat)   earnedStat.style.display   = 'none';
+      if (stripeBanner) stripeBanner.style.display = 'none';
+      if (recheckRow)   recheckRow.style.display   = 'none';
+    }
+
     document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
 
     document.querySelectorAll('[data-status]').forEach(chip => {
@@ -959,27 +976,32 @@
     document.getElementById('overlay-edit')?.addEventListener('click', () => { document.getElementById('overlay-edit')?.classList.remove('open'); document.getElementById('sheet-edit')?.classList.remove('open'); document.body.style.overflow = ''; });
     document.getElementById('btn-close-edit')?.addEventListener('click', () => { document.getElementById('overlay-edit')?.classList.remove('open'); document.getElementById('sheet-edit')?.classList.remove('open'); document.body.style.overflow = ''; });
     document.getElementById('form-edit')?.addEventListener('submit', handleEditSubmit);
-    document.getElementById('btn-stripe-connect')?.addEventListener('click', handleStripeConnect);
-    document.getElementById('btn-stripe-recheck')?.addEventListener('click', () => checkStripeStatus(true));
+    if (PAYMENTS_ENABLED) {
+      document.getElementById('btn-stripe-connect')?.addEventListener('click', handleStripeConnect);
+      document.getElementById('btn-stripe-recheck')?.addEventListener('click', () => checkStripeStatus(true));
+    }
 
     const urlParams = new URLSearchParams(window.location.search);
 
-    await Promise.all([loadProfile(), loadListings(), loadInquiries(), loadOrders()]);
+    /* Skip orders fetch when payments disabled — saves a round-trip on each load */
+    const tasks = [loadProfile(), loadListings(), loadInquiries()];
+    if (PAYMENTS_ENABLED) tasks.push(loadOrders());
+    await Promise.all(tasks);
 
     /* After profile loads: show re-check button if seller has Stripe but KYB pending */
-    if (_seller?.stripe_account_id && !_seller?.kyb_verified) {
+    if (PAYMENTS_ENABLED && _seller?.stripe_account_id && !_seller?.kyb_verified) {
       const recheckRow = document.getElementById('stripe-recheck-row');
       if (recheckRow) recheckRow.style.display = 'block';
     }
 
     /* Auto-check Stripe status on return from onboarding */
-    if (urlParams.get('onboard') === 'success') {
+    if (PAYMENTS_ENABLED && urlParams.get('onboard') === 'success') {
       showToast('Checking Stripe account status…', 'info');
       await checkStripeStatus(true);
       /* Clean URL so refresh doesn't re-trigger */
       window.history.replaceState({}, '', window.location.pathname);
     }
-    if (urlParams.get('onboard') === 'refresh') {
+    if (PAYMENTS_ENABLED && urlParams.get('onboard') === 'refresh') {
       showToast('Onboarding session expired. Click Connect Stripe to try again.', 'info');
       window.history.replaceState({}, '', window.location.pathname);
     }

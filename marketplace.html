@@ -761,6 +761,16 @@
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   /* ============================================================
+     FEATURE FLAGS
+     Set PAYMENTS_ENABLED = true to re-enable Stripe checkout, escrow,
+     orders, disputes, and seller payouts. All edge functions, DB tables,
+     and webhooks stay deployed — only the UI is gated by this flag.
+     Activation requires: DTI registration + Stripe live + webhook re-register.
+     See MARKETPLACE_GO_LIVE_ROADMAP.md for the full path.
+  ============================================================ */
+  const PAYMENTS_ENABLED = false;
+
+  /* ============================================================
      CATEGORIES PER SECTION
   ============================================================ */
   const CATS = {
@@ -1166,7 +1176,7 @@
 
       <div class="action-row">
         <button class="btn-secondary" id="btn-detail-save">Save</button>
-        ${item.price && Number(item.price) > 0
+        ${PAYMENTS_ENABLED && item.price && Number(item.price) > 0
           ? `<button class="btn-cta" id="btn-detail-buy">Buy Now &mdash; ${e(fmtPrice(item.price))}</button>`
           : `<button class="btn-cta" id="btn-detail-contact">Contact Seller</button>`}
       </div>`;
@@ -1713,8 +1723,13 @@
       if (adminLink) adminLink.style.display = 'inline-flex';
     }
 
-    /* My Orders button */
-    document.getElementById('btn-my-orders')?.addEventListener('click', openOrdersSheet);
+    /* My Orders button — only when payments enabled */
+    if (!PAYMENTS_ENABLED) {
+      const ordersBtn = document.getElementById('btn-my-orders');
+      if (ordersBtn) ordersBtn.style.display = 'none';
+    } else {
+      document.getElementById('btn-my-orders')?.addEventListener('click', openOrdersSheet);
+    }
 
     /* Close overlays */
     ['post', 'detail', 'inquiry', 'orders', 'review', 'dispute'].forEach(name => {
@@ -1728,10 +1743,12 @@
     /* Dispute form */
     document.getElementById('form-dispute')?.addEventListener('submit', handleSubmitDispute);
 
-    /* Handle onboard return URL */
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('onboard') === 'success') showToast('Stripe onboarding complete! You can now receive payments.', 'success');
-    if (urlParams.get('checkout') === 'success') { showToast('Payment successful! Check My Orders for status.', 'success'); openOrdersSheet(); }
+    /* Handle onboard / checkout return URL — only when payments enabled */
+    if (PAYMENTS_ENABLED) {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('onboard') === 'success') showToast('Stripe onboarding complete! You can now receive payments.', 'success');
+      if (urlParams.get('checkout') === 'success') { showToast('Payment successful! Check My Orders for status.', 'success'); openOrdersSheet(); }
+    }
 
     /* Forms */
     document.getElementById('form-post')?.addEventListener('submit', handlePostSubmit);

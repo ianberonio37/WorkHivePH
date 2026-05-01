@@ -1,8 +1,10 @@
 # WorkHive Marketplace — Go-Live Roadmap
 
-**Status as of May 1, 2026**
+**Status as of May 2, 2026**
 
-The marketplace is fully built and tested in Stripe sandbox. Going live requires business registration, then a clean switch from sandbox to live mode.
+**The marketplace is now in CONTACT-ONLY mode** — buyers reach sellers via phone or email, no payment processing. The full Stripe escrow flow is fully built and deployed, just gated behind a single feature flag (`PAYMENTS_ENABLED = false`). Flipping that flag to `true` re-activates the entire payment system once business registration is complete.
+
+This means **you can launch publicly today** without DTI/BIR registration. Payment activation becomes a future Phase, not a launch blocker.
 
 ---
 
@@ -10,12 +12,51 @@ The marketplace is fully built and tested in Stripe sandbox. Going live requires
 
 | Component | Status |
 |---|---|
-| Frontend (marketplace.html, admin, seller) | Built, tested |
-| 5 Edge Functions (checkout, webhook, connect-onboard, connect-status, release) | Deployed to Supabase |
+| Frontend (marketplace.html, admin, seller) | Built, contact-only mode active |
+| Inquiry flow (buyer → seller via email/phone) | Live |
+| Listing approval queue (admin) | Live |
+| Seller verified badge (admin grants manually) | Live |
+| 5 Edge Functions (checkout, webhook, connect-onboard, connect-status, release) | Deployed to Supabase, dormant |
 | Database (8 tables, indexes, triggers, full-text search) | Live on Supabase |
-| Stripe sandbox integration | Working end-to-end |
-| Business registration | Not yet done |
-| Stripe live mode | Blocked by business registration |
+| Stripe sandbox integration | Working end-to-end (gated by flag) |
+| Business registration | Not yet done — not blocking launch |
+| Stripe live mode | Phase 3+ activation |
+
+---
+
+## Phase 0 — Contact-Only Launch (NOW — no blockers)
+
+This is the immediate launch path. Zero registration required.
+
+### 0.1 What buyers can do
+- Browse all 3 marketplace sections (Parts, Training, Jobs)
+- Search and filter by category, price range, location
+- View listing detail with seller profile and trust badge
+- Tap **Contact Seller** → send an inquiry with name, contact (phone or email), and message
+- Inquiry lands in the seller's dashboard and triggers an email or in-app notification
+
+### 0.2 What sellers can do
+- Post a listing (goes to admin draft queue for review)
+- Edit their own listings (re-submits as draft)
+- View incoming inquiries with buyer name + contact
+- Reply to inquiries with stored reply text or by phone/email directly
+- See response-time and inquiry stats on their dashboard
+
+### 0.3 What admin can do
+- Approve / reject draft listings
+- Mark sellers as Verified (grants the blue trust badge)
+- Manage seller tier (Bronze / Silver / Gold) manually
+- Re-publish or restore removed listings
+
+### 0.4 Soft launch checklist
+- [ ] Internal QA: post a listing, get it approved, send an inquiry, reply
+- [ ] Mobile test (iOS Safari + Android Chrome)
+- [ ] Invite 5–10 trusted sellers (existing WorkHive hive members)
+- [ ] Verify trust badge appears on their listings after admin grants it
+- [ ] Test on slow 3G connection (Chrome DevTools throttle)
+- [ ] Soft-launch announcement in Community board
+
+**Time to launch:** Today. No registration, no Stripe activation, no waiting period.
 
 ---
 
@@ -229,14 +270,30 @@ Items from your scaling strategy (already documented in skills) that activate at
 
 | Phase | Duration | Cost |
 |---|---|---|
+| 0. Contact-only launch | Today | Free |
 | 1. Business registration | 1–2 weeks | ~PHP 4,000–6,000 |
 | 2. Stripe live switch | 1 hour | Free |
-| 3. Soft launch | 2 weeks | Free |
-| 4. Public launch | Ongoing | Free |
+| 3. Payments soft-launch | 2 weeks | Free |
+| 4. Payments public | Ongoing | Free |
 | 5. Scale upgrades | When triggered | $25–500/mo |
 | 6. Tax & compliance | Quarterly + annually | Variable |
 
-**Total time from today to first real transaction:** 2–3 weeks if you start DTI registration this week.
+**Total time to first contact-based transaction:** Today.
+**Total time to first paid transaction:** 2–3 weeks (DTI + Stripe live), only when ready.
+
+---
+
+## How to flip the PAYMENTS_ENABLED flag
+
+When DTI/BIR registration is complete and Stripe is in live mode, change `const PAYMENTS_ENABLED = false;` to `true` in three files:
+
+1. `marketplace.html`
+2. `marketplace-seller.html`
+3. `marketplace-admin.html`
+
+That single change re-activates: Buy Now button, My Orders sheet, Confirm Receipt, Open Dispute, Stripe Connect onboarding, Orders tab, Earnings stat, Disputes tab. The Edge Functions and Supabase tables are already deployed and waiting.
+
+Run `python run_platform_checks.py --fast` afterward to confirm 0 regressions.
 
 ---
 
