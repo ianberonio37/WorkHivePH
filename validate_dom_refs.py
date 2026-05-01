@@ -34,7 +34,7 @@ LIVE_PAGES = [
     "hive.html", "assistant.html", "skillmatrix.html",
     "dayplanner.html", "engineering-design.html", "index.html",
     "platform-health.html", "community.html", "public-feed.html",
-    "analytics.html", "marketplace.html", "marketplace-admin.html",
+    "analytics.html", "marketplace.html", "marketplace-admin.html", "marketplace-seller.html",
 ]
 
 CHECK_NAMES = ["getelementbyid_null_trap"]
