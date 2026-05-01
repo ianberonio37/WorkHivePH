@@ -667,6 +667,44 @@
 </div>
 
 <!-- ==============================
+     SHEET: LEAVE A REVIEW
+     ============================== -->
+<div class="sheet-overlay" id="overlay-review" role="dialog" aria-modal="true" aria-labelledby="title-sheet-review"></div>
+<div class="sheet" id="sheet-review">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title" id="title-sheet-review">Leave a Review</span>
+    <button class="btn-close-sheet" id="btn-close-review" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <form id="form-review" novalidate>
+    <input type="hidden" id="review-order-id" value="" />
+    <input type="hidden" id="review-listing-id" value="" />
+    <div style="margin-bottom:1rem;">
+      <div style="font-size:0.75rem;font-weight:600;color:#7B8794;margin-bottom:0.5rem;">Your rating</div>
+      <div id="star-rating" style="display:flex;gap:0.5rem;" role="group" aria-label="Star rating">
+        <button type="button" class="star-btn" data-star="1" aria-label="1 star" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#7B8794;transition:color 0.1s;line-height:1;">★</button>
+        <button type="button" class="star-btn" data-star="2" aria-label="2 stars" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#7B8794;transition:color 0.1s;line-height:1;">★</button>
+        <button type="button" class="star-btn" data-star="3" aria-label="3 stars" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#7B8794;transition:color 0.1s;line-height:1;">★</button>
+        <button type="button" class="star-btn" data-star="4" aria-label="4 stars" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#7B8794;transition:color 0.1s;line-height:1;">★</button>
+        <button type="button" class="star-btn" data-star="5" aria-label="5 stars" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#7B8794;transition:color 0.1s;line-height:1;">★</button>
+      </div>
+      <input type="hidden" id="review-rating" value="0" />
+    </div>
+    <div style="margin-bottom:1rem;">
+      <label class="form-label" for="review-comment">Your review (optional)</label>
+      <textarea class="wh-textarea" id="review-comment" placeholder="Describe the item quality, seller communication, delivery speed…" style="min-height:90px;"></textarea>
+    </div>
+    <div class="info-notice">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Your review is marked as a verified purchase and shown on the listing page.
+    </div>
+    <button type="submit" class="btn-primary" id="btn-submit-review">Submit Review</button>
+  </form>
+</div>
+
+<!-- ==============================
      SCRIPTS
      ============================== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -1310,7 +1348,7 @@
     try {
       const { data: orders, error } = await db
         .from('marketplace_orders')
-        .select('id,listing_id,seller_name,price,status,stripe_session_id,escrow_release_at,created_at')
+        .select('id,listing_id,seller_name,price,status,stripe_session_id,escrow_release_at,reviewed_at,created_at')
         .eq('buyer_name', WORKER_NAME)
         .order('created_at', { ascending: false })
         .limit(20);
@@ -1328,7 +1366,9 @@
       const e = escHtml;
       content.innerHTML = orders.map(ord => {
         const st = STATUS_LABEL[ord.status as keyof typeof STATUS_LABEL] || { label: ord.status, color: '#7B8794' };
-        const canConfirm = ord.status === 'escrow_hold';
+        const canConfirm  = ord.status === 'escrow_hold';
+        const canReview   = ord.status === 'released' && !ord.reviewed_at;
+        const didReview   = !!ord.reviewed_at;
         const releaseDate = ord.escrow_release_at
           ? new Date(ord.escrow_release_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })
           : null;
@@ -1350,11 +1390,21 @@
                 style="margin-top:0.5rem;padding:0.45rem 1rem;border-radius:0.5rem;border:1px solid rgba(74,222,128,0.3);background:rgba(74,222,128,0.1);color:#4ade80;font-family:'Poppins',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;width:100%;">
                 Confirm Receipt — Release to Seller
               </button>` : ''}
+            ${canReview ? `
+              <button class="btn-leave-review" data-order-id="${e(ord.id)}" data-listing-id="${e(ord.listing_id)}" data-seller="${e(ord.seller_name)}"
+                style="margin-top:0.5rem;padding:0.45rem 1rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.08);color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:0.35rem;">
+                <span>★</span> Leave a Review
+              </button>` : ''}
+            ${didReview ? `<div style="margin-top:0.35rem;font-size:0.7rem;color:#4ade80;">★ Review submitted ${e(timeAgo(ord.reviewed_at))}</div>` : ''}
           </div>`;
       }).join('');
 
       content.querySelectorAll('.btn-confirm-receipt').forEach(btn => {
         btn.addEventListener('click', () => handleConfirmReceipt((btn as HTMLElement).dataset.orderId || ''));
+      });
+      content.querySelectorAll('.btn-leave-review').forEach(btn => {
+        const el = btn as HTMLElement;
+        btn.addEventListener('click', () => openReviewSheet(el.dataset.orderId || '', el.dataset.listingId || '', el.dataset.seller || ''));
       });
 
     } catch (_err) {
@@ -1409,6 +1459,87 @@
       window.location.href = data.url;
     } catch (_) {
       showToast('Could not start onboarding. Try again.', 'error');
+    }
+  }
+
+  /* ============================================================
+     REVIEW SHEET
+  ============================================================ */
+  let _reviewRating = 0;
+
+  function openReviewSheet(orderId: string, listingId: string, sellerName: string) {
+    /* Reset form */
+    _reviewRating = 0;
+    const ratingInput = document.getElementById('review-rating') as HTMLInputElement | null;
+    const commentEl   = document.getElementById('review-comment') as HTMLTextAreaElement | null;
+    const orderIdEl   = document.getElementById('review-order-id') as HTMLInputElement | null;
+    const listingIdEl = document.getElementById('review-listing-id') as HTMLInputElement | null;
+    const titleEl     = document.getElementById('title-sheet-review');
+
+    if (ratingInput)  ratingInput.value  = '0';
+    if (commentEl)    commentEl.value    = '';
+    if (orderIdEl)    orderIdEl.value    = orderId;
+    if (listingIdEl)  listingIdEl.value  = listingId;
+    if (titleEl)      titleEl.textContent = `Review — ${sellerName}`;
+
+    /* Reset star colours */
+    document.querySelectorAll('.star-btn').forEach(btn => {
+      (btn as HTMLElement).style.color = '#7B8794';
+    });
+
+    /* Wire star buttons */
+    document.querySelectorAll('.star-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        _reviewRating = parseInt((btn as HTMLElement).dataset.star || '0', 10);
+        if (ratingInput) ratingInput.value = String(_reviewRating);
+        document.querySelectorAll('.star-btn').forEach(b => {
+          (b as HTMLElement).style.color = parseInt((b as HTMLElement).dataset.star || '0', 10) <= _reviewRating ? '#F7A21B' : '#7B8794';
+        });
+      });
+    });
+
+    closeSheet('orders');
+    openSheet('review');
+  }
+
+  async function handleSubmitReview(ev: Event) {
+    ev.preventDefault();
+
+    const orderId   = (document.getElementById('review-order-id')  as HTMLInputElement | null)?.value || '';
+    const listingId = (document.getElementById('review-listing-id') as HTMLInputElement | null)?.value || '';
+    const rating    = parseInt((document.getElementById('review-rating') as HTMLInputElement | null)?.value || '0', 10);
+    const comment   = ((document.getElementById('review-comment')   as HTMLTextAreaElement | null)?.value || '').trim();
+
+    if (!rating || rating < 1 || rating > 5) { showToast('Please select a star rating.', 'error'); return; }
+    if (!orderId || !listingId) { showToast('Missing order info. Close and try again.', 'error'); return; }
+
+    const btn = document.getElementById('btn-submit-review') as HTMLButtonElement | null;
+    if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
+
+    try {
+      /* Insert review */
+      const { error: reviewErr } = await db.from('marketplace_reviews').insert([{
+        listing_id:        listingId,
+        reviewer_name:     WORKER_NAME || 'Buyer',
+        rating,
+        comment:           comment || null,
+        verified_purchase: true,
+      }]);
+      if (reviewErr) throw reviewErr;
+
+      /* Mark order as reviewed */
+      await db.from('marketplace_orders')
+        .update({ reviewed_at: new Date().toISOString() })
+        .eq('id', orderId)
+        .eq('buyer_name', WORKER_NAME);
+
+      showToast('Review submitted! Thank you.', 'success');
+      closeSheet('review');
+      openOrdersSheet();
+    } catch (_err) {
+      showToast('Failed to submit review. Try again.', 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Submit Review'; }
     }
   }
 
@@ -1470,10 +1601,13 @@
     document.getElementById('btn-my-orders')?.addEventListener('click', openOrdersSheet);
 
     /* Close overlays */
-    ['post', 'detail', 'inquiry', 'orders'].forEach(name => {
+    ['post', 'detail', 'inquiry', 'orders', 'review'].forEach(name => {
       document.getElementById('overlay-' + name)?.addEventListener('click', () => closeSheet(name));
       document.getElementById('btn-close-' + name)?.addEventListener('click', () => closeSheet(name));
     });
+
+    /* Review form */
+    document.getElementById('form-review')?.addEventListener('submit', handleSubmitReview);
 
     /* Handle onboard return URL */
     const urlParams = new URLSearchParams(window.location.search);
