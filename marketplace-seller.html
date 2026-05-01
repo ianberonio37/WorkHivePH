@@ -662,23 +662,40 @@
       </div>`;
 
     const ordersHtml = _orders.map(ord => {
+      const e  = escHtml;
       const st = STATUS_ORDER_LABEL[ord.status] || { label: ord.status, color: '#7B8794' };
       const listingTitle = ord.marketplace_listings?.title || 'Listing';
-      const sellerNet = (Number(ord.price || 0) * 0.95).toFixed(2);
+      const sellerNet    = (Number(ord.price || 0) * 0.95).toFixed(2);
+      const isDisputed   = ord.status === 'disputed';
+
       return `
-        <div class="order-item">
+        <div class="order-item" style="${isDisputed ? 'border-left:3px solid #f87171;' : ''}">
           <div class="order-header">
-            <span class="order-amount">PHP ${Number(sellerNet).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
-            <span class="order-status" style="background:rgba(255,255,255,0.06);color:${escHtml(st.color)};">${escHtml(st.label)}</span>
+            <span class="order-amount" style="${isDisputed ? 'color:#f87171;' : ''}">PHP ${Number(sellerNet).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+            <span class="order-status" style="background:rgba(255,255,255,0.06);color:${e(st.color)};">${e(st.label)}</span>
           </div>
           <div class="order-meta">
-            ${escHtml(listingTitle)}<br>
-            Buyer: <strong>${escHtml(ord.buyer_name)}</strong> &nbsp;·&nbsp; ${escHtml(timeAgo(ord.created_at))}
+            ${e(listingTitle)}<br>
+            Buyer: <strong>${e(ord.buyer_name)}</strong> &nbsp;·&nbsp; ${e(timeAgo(ord.created_at))}
             ${ord.status === 'escrow_hold' && ord.escrow_release_at ? `<br>Auto-releases: ${new Date(ord.escrow_release_at).toLocaleDateString('en-PH',{month:'short',day:'numeric'})}` : ''}
-            ${ord.stripe_transfer_id ? `<br>Transfer ID: ${escHtml(ord.stripe_transfer_id)}` : ''}
+            ${ord.stripe_transfer_id ? `<br>Transfer ID: ${e(ord.stripe_transfer_id)}` : ''}
           </div>
+          ${isDisputed ? `
+            <div id="dispute-block-${e(ord.id)}" style="margin-top:0.75rem;padding:0.75rem;background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:0.625rem;">
+              <div style="font-size:0.72rem;font-weight:700;color:#f87171;margin-bottom:0.4rem;">DISPUTE OPEN</div>
+              <div style="font-size:0.72rem;color:#7B8794;margin-bottom:0.625rem;">The buyer has opened a dispute. Reply within 48 hours or an admin will intervene.</div>
+              <textarea class="reply-textarea" id="reply-${e(ord.id)}" placeholder="Explain your side clearly — what was shipped, when, any tracking info…" style="margin-bottom:0.4rem;font-size:1rem;"></textarea>
+              <button class="btn-sm primary" data-action="dispute-reply" data-order-id="${e(ord.id)}">Send Reply to Admin</button>
+            </div>` : ''}
         </div>`;
     }).join('');
+
+    /* Wire dispute reply buttons after render */
+    setTimeout(() => {
+      document.querySelectorAll('[data-action="dispute-reply"]').forEach(btn => {
+        btn.addEventListener('click', () => handleSellerDisputeReply((btn as HTMLElement).dataset.orderId || ''));
+      });
+    }, 0);
 
     area.innerHTML = earningsHtml + `<div class="item-list" style="margin-top:0.75rem;">${ordersHtml}</div>`;
   }
@@ -898,6 +915,31 @@
     if (tab === 'listings')  loadListings();
     if (tab === 'inquiries') loadInquiries();
     if (tab === 'orders')    loadOrders();
+  }
+
+  /* ── Seller dispute reply ───────────────────────────────────────────────── */
+  async function handleSellerDisputeReply(orderId) {
+    const textarea = document.getElementById('reply-' + orderId);
+    const replyText = (textarea?.value || '').trim();
+    if (replyText.length < 10) { showToast('Please write a reply of at least 10 characters.', 'error'); return; }
+
+    const btn = document.querySelector(`[data-action="dispute-reply"][data-order-id="${orderId}"]`);
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+
+    try {
+      const now = new Date().toISOString();
+      const { error } = await db
+        .from('marketplace_disputes')
+        .update({ seller_reply: replyText, seller_replied_at: now, status: 'seller_responded' })
+        .eq('order_id', orderId);
+      if (error) throw error;
+
+      showToast('Reply sent. An admin will review the dispute.', 'success');
+      await loadOrders();
+    } catch (_) {
+      showToast('Failed to send reply. Try again.', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Send Reply to Admin'; }
+    }
   }
 
   /* ── Init ───────────────────────────────────────────────────────────────── */

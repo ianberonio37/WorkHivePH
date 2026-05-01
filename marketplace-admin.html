@@ -291,6 +291,11 @@
       Removed
       <span class="tab-count" id="badge-removed">0</span>
     </button>
+    <button class="tab-btn" data-tab="disputes" role="tab" aria-selected="false">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Disputes
+      <span class="tab-count red" id="badge-disputes">0</span>
+    </button>
   </div>
 
   <!-- Search -->
@@ -645,6 +650,129 @@
   }
 
   /* ============================================================
+     DISPUTES
+  ============================================================ */
+  let _disputes = [];
+
+  async function loadDisputes() {
+    showSkeletons();
+    try {
+      const { data, error } = await db
+        .from('marketplace_disputes')
+        .select('id,order_id,listing_id,opened_by,seller_name,reason,status,seller_reply,seller_replied_at,admin_decision,resolved_at,created_at')
+        .order('created_at', { ascending: true })
+        .limit(100);
+      if (error) throw error;
+      _disputes = data || [];
+    } catch (_) { _disputes = []; }
+
+    const bd = document.getElementById('badge-disputes');
+    if (bd) bd.textContent = _disputes.filter(d => d.status === 'open' || d.status === 'seller_responded').length;
+    renderDisputes();
+  }
+
+  function renderDisputes() {
+    const e = escHtml;
+    const area = document.getElementById('content-area');
+    if (!area) return;
+
+    const DISP_STATUS = {
+      open:              { label: 'Open — Awaiting Seller', color: '#f87171' },
+      seller_responded:  { label: 'Seller Responded', color: '#fbbf24' },
+      admin_review:      { label: 'Admin Review', color: '#c084fc' },
+      resolved_refund:   { label: 'Resolved — Refunded', color: '#4ade80' },
+      resolved_release:  { label: 'Resolved — Released', color: '#29B6D9' },
+    };
+
+    const filtered = _disputes.filter(d => {
+      if (!_query) return true;
+      return ((d.opened_by || '') + ' ' + (d.seller_name || '') + ' ' + (d.reason || '')).toLowerCase().includes(_query.toLowerCase());
+    });
+
+    if (!filtered.length) {
+      area.innerHTML = `<div class="empty-state">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+        <h3>No disputes</h3>
+        <p>All clear — no open disputes at this time.</p>
+      </div>`;
+      return;
+    }
+
+    area.innerHTML = filtered.map(d => {
+      const st = DISP_STATUS[d.status] || { label: d.status, color: '#7B8794' };
+      const isOpen = d.status === 'open' || d.status === 'seller_responded' || d.status === 'admin_review';
+      return `
+        <div class="admin-card ${isOpen ? 'draft' : 'published'}" data-id="${e(d.id)}">
+          <div class="card-top" style="flex-direction:column;gap:0.5rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+              <span style="font-size:0.85rem;font-weight:700;">${e(d.reason)}</span>
+              <span class="meta-chip" style="color:${e(st.color)};border-color:${e(st.color)}40;">${e(st.label)}</span>
+            </div>
+            <div style="font-size:0.72rem;color:#7B8794;">
+              Buyer: <strong>${e(d.opened_by)}</strong> &nbsp;·&nbsp; Seller: <strong>${e(d.seller_name)}</strong> &nbsp;·&nbsp; ${e(timeAgo(d.created_at))}
+            </div>
+            ${d.seller_reply ? `
+              <div style="background:rgba(0,0,0,0.2);border-radius:0.5rem;padding:0.625rem;font-size:0.75rem;">
+                <span style="color:#7B8794;font-size:0.68rem;font-weight:600;">SELLER REPLY</span>
+                <p style="margin-top:0.25rem;color:#b0b8c4;line-height:1.5;">${e(d.seller_reply)}</p>
+              </div>` : ''}
+            ${d.resolved_at ? `<div style="font-size:0.72rem;color:#4ade80;">Resolved ${e(timeAgo(d.resolved_at))}</div>` : ''}
+          </div>
+          ${isOpen ? `
+          <div class="card-actions" style="gap:0.4rem;">
+            <button class="btn-approve" data-action="release" data-id="${e(d.id)}" data-order="${e(d.order_id || '')}">
+              Release to Seller
+            </button>
+            <button class="btn-reject" data-action="refund" data-id="${e(d.id)}" data-order="${e(d.order_id || '')}">
+              Refund Buyer
+            </button>
+            ${d.status !== 'admin_review' ? `
+            <button class="btn-unpublish" data-action="escalate" data-id="${e(d.id)}">Escalate</button>` : ''}
+          </div>` : ''}
+        </div>`;
+    }).join('');
+
+    area.querySelectorAll('[data-action]').forEach(btn => {
+      btn.addEventListener('click', () => handleDisputeAction(btn.dataset.action, btn.dataset.id, btn.dataset.order || ''));
+    });
+  }
+
+  async function handleDisputeAction(action, disputeId, orderId) {
+    const card = document.querySelector(`.admin-card[data-id="${disputeId}"]`);
+    card?.querySelectorAll('button').forEach(b => { b.disabled = true; });
+
+    const statusMap = { release: 'resolved_release', refund: 'resolved_refund', escalate: 'admin_review' };
+    const newStatus = statusMap[action];
+    const isResolved = action === 'release' || action === 'refund';
+
+    try {
+      const disputeUpdate = {
+        status: newStatus,
+        admin_decision: action === 'release' ? 'Funds released to seller by admin' : action === 'refund' ? 'Refund issued to buyer by admin' : null,
+      };
+      if (isResolved) disputeUpdate.resolved_at = new Date().toISOString();
+
+      const { error } = await db.from('marketplace_disputes').update(disputeUpdate).eq('id', disputeId);
+      if (error) throw error;
+
+      /* Update order status */
+      if (isResolved && orderId) {
+        await db.from('marketplace_orders')
+          .update({ status: action === 'release' ? 'released' : 'refunded', updated_at: new Date().toISOString() })
+          .eq('id', orderId);
+      }
+
+      const label = action === 'release' ? 'Released to seller.' : action === 'refund' ? 'Refund marked.' : 'Escalated to admin review.';
+      showToast(label, 'success');
+      await loadDisputes();
+      await loadStats();
+    } catch (_err) {
+      showToast('Action failed. Try again.', 'error');
+      card?.querySelectorAll('button').forEach(b => { b.disabled = false; });
+    }
+  }
+
+  /* ============================================================
      TAB SWITCH
   ============================================================ */
   function switchTab(tab) {
@@ -659,7 +787,8 @@
       btn.setAttribute('aria-selected', active ? 'true' : 'false');
     });
 
-    if (tab === 'sellers') loadSellers();
+    if (tab === 'sellers')   loadSellers();
+    else if (tab === 'disputes') loadDisputes();
     else loadListings(tab === 'removed' ? 'removed' : tab === 'published' ? 'published' : 'draft');
   }
 
@@ -678,7 +807,8 @@
       _query = ev.target.value.trim();
       clearTimeout(_searchTimer);
       _searchTimer = setTimeout(() => {
-        if (_tab === 'sellers') renderSellers();
+        if (_tab === 'sellers')   renderSellers();
+        else if (_tab === 'disputes') renderDisputes();
         else renderListings();
       }, 250);
     });

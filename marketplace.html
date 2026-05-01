@@ -669,6 +669,46 @@
 <!-- ==============================
      SHEET: LEAVE A REVIEW
      ============================== -->
+<!-- ==============================
+     SHEET: OPEN A DISPUTE
+     ============================== -->
+<div class="sheet-overlay" id="overlay-dispute" role="dialog" aria-modal="true" aria-labelledby="title-sheet-dispute"></div>
+<div class="sheet" id="sheet-dispute">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title" id="title-sheet-dispute">Open a Dispute</span>
+    <button class="btn-close-sheet" id="btn-close-dispute" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <form id="form-dispute" novalidate>
+    <input type="hidden" id="dispute-order-id" value="" />
+    <input type="hidden" id="dispute-listing-id" value="" />
+    <input type="hidden" id="dispute-seller-name" value="" />
+    <div class="form-group">
+      <label class="form-label" for="dispute-reason">Reason for dispute</label>
+      <select class="wh-select" id="dispute-reason" required>
+        <option value="">Select a reason…</option>
+        <option value="Item not as described">Item not as described</option>
+        <option value="Item not received">Item not received</option>
+        <option value="Wrong item sent">Wrong item sent</option>
+        <option value="Damaged or defective">Damaged or defective</option>
+        <option value="Seller unresponsive">Seller unresponsive (48+ hours)</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="dispute-description">Describe the issue</label>
+      <textarea class="wh-textarea" id="dispute-description" placeholder="Provide details — what you ordered, what happened, what resolution you expect…" required style="min-height:100px;"></textarea>
+    </div>
+    <div class="info-notice">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      The seller has 48 hours to respond. If unresolved, an admin will review and issue a refund or release funds.
+    </div>
+    <button type="submit" class="btn-primary" id="btn-submit-dispute">Open Dispute</button>
+  </form>
+</div>
+
 <div class="sheet-overlay" id="overlay-review" role="dialog" aria-modal="true" aria-labelledby="title-sheet-review"></div>
 <div class="sheet" id="sheet-review">
   <div class="sheet-handle"></div>
@@ -1367,6 +1407,7 @@
       content.innerHTML = orders.map(ord => {
         const st = STATUS_LABEL[ord.status as keyof typeof STATUS_LABEL] || { label: ord.status, color: '#7B8794' };
         const canConfirm  = ord.status === 'escrow_hold';
+        const canDispute  = ord.status === 'escrow_hold';
         const canReview   = ord.status === 'released' && !ord.reviewed_at;
         const didReview   = !!ord.reviewed_at;
         const releaseDate = ord.escrow_release_at
@@ -1390,6 +1431,11 @@
                 style="margin-top:0.5rem;padding:0.45rem 1rem;border-radius:0.5rem;border:1px solid rgba(74,222,128,0.3);background:rgba(74,222,128,0.1);color:#4ade80;font-family:'Poppins',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;width:100%;">
                 Confirm Receipt — Release to Seller
               </button>` : ''}
+            ${canDispute ? `
+              <button class="btn-open-dispute" data-order-id="${e(ord.id)}" data-listing-id="${e(ord.listing_id)}" data-seller="${e(ord.seller_name)}"
+                style="margin-top:0.35rem;padding:0.4rem 1rem;border-radius:0.5rem;border:1px solid rgba(248,113,113,0.25);background:rgba(248,113,113,0.06);color:#f87171;font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;width:100%;">
+                Open Dispute
+              </button>` : ''}
             ${canReview ? `
               <button class="btn-leave-review" data-order-id="${e(ord.id)}" data-listing-id="${e(ord.listing_id)}" data-seller="${e(ord.seller_name)}"
                 style="margin-top:0.5rem;padding:0.45rem 1rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.08);color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:0.35rem;">
@@ -1405,6 +1451,10 @@
       content.querySelectorAll('.btn-leave-review').forEach(btn => {
         const el = btn as HTMLElement;
         btn.addEventListener('click', () => openReviewSheet(el.dataset.orderId || '', el.dataset.listingId || '', el.dataset.seller || ''));
+      });
+      content.querySelectorAll('.btn-open-dispute').forEach(btn => {
+        const el = btn as HTMLElement;
+        btn.addEventListener('click', () => openDisputeSheet(el.dataset.orderId || '', el.dataset.listingId || '', el.dataset.seller || ''));
       });
 
     } catch (_err) {
@@ -1459,6 +1509,72 @@
       window.location.href = data.url;
     } catch (_) {
       showToast('Could not start onboarding. Try again.', 'error');
+    }
+  }
+
+  /* ============================================================
+     DISPUTE SHEET
+  ============================================================ */
+  function openDisputeSheet(orderId: string, listingId: string, sellerName: string) {
+    const orderIdEl   = document.getElementById('dispute-order-id')   as HTMLInputElement | null;
+    const listingIdEl = document.getElementById('dispute-listing-id') as HTMLInputElement | null;
+    const sellerEl    = document.getElementById('dispute-seller-name') as HTMLInputElement | null;
+    const reasonEl    = document.getElementById('dispute-reason')     as HTMLSelectElement | null;
+    const descEl      = document.getElementById('dispute-description') as HTMLTextAreaElement | null;
+    const titleEl     = document.getElementById('title-sheet-dispute');
+
+    if (orderIdEl)   orderIdEl.value   = orderId;
+    if (listingIdEl) listingIdEl.value = listingId;
+    if (sellerEl)    sellerEl.value    = sellerName;
+    if (reasonEl)    reasonEl.value    = '';
+    if (descEl)      descEl.value      = '';
+    if (titleEl)     titleEl.textContent = `Dispute — vs. ${sellerName}`;
+
+    closeSheet('orders');
+    openSheet('dispute');
+  }
+
+  async function handleSubmitDispute(ev: Event) {
+    ev.preventDefault();
+
+    const orderId    = (document.getElementById('dispute-order-id')   as HTMLInputElement | null)?.value || '';
+    const listingId  = (document.getElementById('dispute-listing-id') as HTMLInputElement | null)?.value || '';
+    const sellerName = (document.getElementById('dispute-seller-name') as HTMLInputElement | null)?.value || '';
+    const reason     = (document.getElementById('dispute-reason')     as HTMLSelectElement | null)?.value || '';
+    const desc       = ((document.getElementById('dispute-description') as HTMLTextAreaElement | null)?.value || '').trim();
+
+    if (!reason)       { showToast('Please select a reason.', 'error'); return; }
+    if (desc.length < 20) { showToast('Please describe the issue in more detail (min 20 characters).', 'error'); return; }
+
+    const btn = document.getElementById('btn-submit-dispute') as HTMLButtonElement | null;
+    if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
+
+    try {
+      /* Insert dispute */
+      const { error: dispErr } = await db.from('marketplace_disputes').insert([{
+        order_id:    orderId   || null,
+        listing_id:  listingId || null,
+        opened_by:   WORKER_NAME || 'Buyer',
+        seller_name: sellerName,
+        reason,
+        evidence_urls: [],
+        status:      'open',
+      }]);
+      if (dispErr) throw dispErr;
+
+      /* Mark order as disputed */
+      await db.from('marketplace_orders')
+        .update({ status: 'disputed', updated_at: new Date().toISOString() })
+        .eq('id', orderId)
+        .eq('buyer_name', WORKER_NAME);
+
+      showToast('Dispute opened. Seller has 48 hours to respond.', 'info');
+      closeSheet('dispute');
+      openOrdersSheet();
+    } catch (_err) {
+      showToast('Failed to open dispute. Try again.', 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Open Dispute'; }
     }
   }
 
@@ -1601,13 +1717,16 @@
     document.getElementById('btn-my-orders')?.addEventListener('click', openOrdersSheet);
 
     /* Close overlays */
-    ['post', 'detail', 'inquiry', 'orders', 'review'].forEach(name => {
+    ['post', 'detail', 'inquiry', 'orders', 'review', 'dispute'].forEach(name => {
       document.getElementById('overlay-' + name)?.addEventListener('click', () => closeSheet(name));
       document.getElementById('btn-close-' + name)?.addEventListener('click', () => closeSheet(name));
     });
 
     /* Review form */
     document.getElementById('form-review')?.addEventListener('submit', handleSubmitReview);
+
+    /* Dispute form */
+    document.getElementById('form-dispute')?.addEventListener('submit', handleSubmitDispute);
 
     /* Handle onboard return URL */
     const urlParams = new URLSearchParams(window.location.search);
