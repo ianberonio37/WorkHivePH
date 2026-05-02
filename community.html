@@ -204,6 +204,24 @@
     }
     #toast.hidden { opacity: 0; pointer-events: none; }
 
+    /* Undo toast — same shape with an inline action button */
+    #undo-toast {
+      position: fixed; bottom: calc(80px + env(safe-area-inset-bottom)); left: 50%;
+      transform: translateX(-50%); z-index: 201; white-space: nowrap;
+      background: rgba(22,32,50,0.97); border: 1px solid rgba(247,162,27,0.4);
+      border-radius: 999px; padding: 0.5rem 0.5rem 0.5rem 1.25rem; font-size: 0.8rem;
+      display: flex; align-items: center; gap: 12px; transition: opacity 0.3s;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+    #undo-toast.hidden { opacity: 0; pointer-events: none; }
+    #undo-toast button {
+      background: rgba(247,162,27,0.15); border: 1px solid rgba(247,162,27,0.4);
+      color: #F7A21B; font-weight: 700; border-radius: 999px;
+      padding: 0.35rem 0.9rem; font-size: 0.75rem; cursor: pointer;
+      min-height: 32px;
+    }
+    #undo-toast button:hover { background: rgba(247,162,27,0.25); }
+
     /* ── FAB (new post) ── */
     #fab-post {
       position: fixed; bottom: calc(24px + env(safe-area-inset-bottom)); right: 24px;
@@ -230,6 +248,50 @@
       .layout-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; align-items: start; }
       #fab-post { bottom: 32px; right: 32px; }
     }
+
+    /* ── Mention highlighting + autocomplete ── */
+    .mention {
+      color: #29B6D9;
+      background: rgba(41,182,217,0.1);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    #mention-dropdown {
+      position: absolute; left: 0; right: 0; z-index: 60;
+      background: #1F2E45;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 0.625rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      max-height: 200px; overflow-y: auto;
+      display: none;
+    }
+    #mention-dropdown.open { display: block; }
+    .mention-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 0.55rem 0.85rem; cursor: pointer;
+      font-size: 0.85rem; color: rgba(255,255,255,0.85);
+    }
+    .mention-item:hover, .mention-item.active {
+      background: rgba(41,182,217,0.15);
+    }
+    .mention-item .avatar-initial { width: 26px; height: 26px; font-size: 0.65rem; }
+
+    /* ── Keyboard focus rings (WCAG 2.2 SC 2.4.13 Focus Appearance) ── */
+    .btn-icon:focus-visible,
+    .btn-primary:focus-visible,
+    .btn-ghost:focus-visible,
+    .reaction-btn:focus-visible,
+    .filter-chip:focus-visible,
+    .tab-btn:focus-visible,
+    #fab-post:focus-visible {
+      outline: 2px solid #F7A21B;
+      outline-offset: 2px;
+    }
+    .wh-input:focus-visible {
+      outline: 2px solid rgba(247,162,27,0.7);
+      outline-offset: 0;
+    }
   </style>
 </head>
 <body>
@@ -243,8 +305,8 @@
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height:28px; width:auto;" />
     </a>
     <div style="display:flex; align-items:center; gap:12px;">
-      <div style="display:flex; align-items:center; gap:6px;">
-        <div class="conn-dot offline" id="conn-dot"></div>
+      <div role="status" aria-live="polite" aria-atomic="true" style="display:flex; align-items:center; gap:6px;">
+        <div class="conn-dot offline" id="conn-dot" aria-hidden="true"></div>
         <span id="conn-label" style="font-size:0.7rem; color:rgba(255,255,255,0.35);">Connecting…</span>
       </div>
       <span id="nav-worker" style="font-size:0.75rem; color:rgba(255,255,255,0.4); max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
@@ -256,6 +318,12 @@
 <div id="toast" class="hidden" role="alert" aria-live="polite">
   <span id="toast-icon">✓</span>
   <span id="toast-text"></span>
+</div>
+
+<!-- ── UNDO TOAST (soft-delete recovery, 5s window) ── -->
+<div id="undo-toast" class="hidden" role="alert" aria-live="polite">
+  <span id="undo-toast-text"></span>
+  <button id="undo-toast-btn" type="button">Undo</button>
 </div>
 
 <!-- ── MAIN ── -->
@@ -396,9 +464,37 @@
       <option value="announcement" id="opt-announcement" style="display:none;">Announcement (Supervisor only)</option>
     </select>
 
+    <!-- Share publicly (supervisor-only); auto-locked ON for announcements -->
+    <label id="post-public-row" for="post-public" style="display:none; align-items:center; gap:10px; margin-bottom:1rem; padding:0.65rem 0.85rem; background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.2); border-radius:0.625rem; cursor:pointer;">
+      <input type="checkbox" id="post-public" style="width:18px; height:18px; flex-shrink:0; cursor:pointer; accent-color:#4ade80;" aria-label="Share publicly with all WorkHive teams" />
+      <span style="flex:1; font-size:0.8rem; color:rgba(255,255,255,0.85);">
+        🌐 Share with all WorkHive teams
+        <span style="display:block; font-size:0.65rem; color:rgba(255,255,255,0.45); font-weight:400; margin-top:2px;">Public posts appear on the Global tab for every hive.</span>
+      </span>
+    </label>
+
     <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.4); margin-bottom:6px;">Message</label>
-    <textarea id="post-content" class="wh-input" rows="4" placeholder="What's on your mind? Share a tip, ask a question, flag a safety concern…" maxlength="2000" aria-label="Post content" style="resize:vertical; min-height:100px;"></textarea>
+    <div style="position:relative;">
+      <textarea id="post-content" class="wh-input" rows="4" placeholder="What's on your mind? Type @ to mention a teammate." maxlength="2000" aria-label="Post content" style="resize:vertical; min-height:100px;"></textarea>
+      <div id="mention-dropdown" role="listbox" aria-label="Mention suggestions"></div>
+    </div>
     <p id="post-char-count" style="text-align:right; font-size:0.7rem; color:rgba(255,255,255,0.3); margin:4px 0 1rem;">0 / 2000</p>
+
+    <details style="margin-bottom:1rem; padding:0.65rem 0.85rem; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:0.625rem; font-size:0.78rem; color:rgba(255,255,255,0.7);">
+      <summary style="cursor:pointer; font-weight:600; color:rgba(255,255,255,0.85); list-style:none; display:flex; align-items:center; gap:6px;">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Community guidelines
+        <span style="margin-left:auto; font-size:0.65rem; color:rgba(255,255,255,0.4); font-weight:400;">tap to read</span>
+      </summary>
+      <ul style="margin:0.6rem 0 0; padding-left:1.2rem; line-height:1.55;">
+        <li>Be respectful — no harassment, bullying, or personal attacks.</li>
+        <li>Stay on-topic — keep posts related to your team's work.</li>
+        <li>Flag safety issues clearly. For emergencies, call your supervisor first.</li>
+        <li>Do not share personal data (phone numbers, addresses, IDs).</li>
+        <li>No spam, advertising, or unrelated external links.</li>
+        <li>Reports go to your supervisor with your name attached.</li>
+      </ul>
+    </details>
 
     <button id="btn-submit-post" class="btn-primary" style="width:100%;" onclick="submitPost()">Post to Hive</button>
   </div>
@@ -409,9 +505,14 @@
   <div class="sheet-inner" id="thread-sheet">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
       <h2 id="thread-title" style="font-size:1rem; font-weight:800; margin:0;">Thread</h2>
-      <button class="btn-icon" onclick="closeThread()" aria-label="Close thread">
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
+      <div style="display:flex; gap:4px; align-items:center;">
+        <button class="btn-icon" onclick="copyThreadLink()" aria-label="Copy link to this thread" title="Copy link">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+        </button>
+        <button class="btn-icon" onclick="closeThread()" aria-label="Close thread">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
     </div>
     <div id="thread-post"></div>
     <div id="thread-replies" style="margin-top:1rem; display:flex; flex-direction:column; gap:0.5rem;"></div>
@@ -419,6 +520,36 @@
       <textarea id="reply-content" class="wh-input" rows="2" placeholder="Write a reply…" maxlength="1000" aria-label="Reply content" style="resize:none;"></textarea>
       <button id="btn-submit-reply" class="btn-primary" style="min-width:80px; padding:0.75rem 1rem;" onclick="submitReply()">Reply</button>
     </div>
+  </div>
+</div>
+
+<!-- ── SHEET: Report Post (worker reason picker → flips flagged, audits) ── -->
+<div id="report-overlay" class="sheet-overlay" role="dialog" aria-modal="true" aria-labelledby="report-title">
+  <div class="sheet-inner" id="report-sheet" style="max-width:480px; margin:0 auto;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+      <h2 id="report-title" style="font-size:1rem; font-weight:800; margin:0;">Report Post</h2>
+      <button class="btn-icon" onclick="closeReport()" aria-label="Close">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <p style="font-size:0.78rem; color:rgba(255,255,255,0.55); margin:0 0 1rem; line-height:1.5;">
+      Send this post to your supervisor for review. Your name and reason will be recorded in the audit log.
+    </p>
+
+    <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.4); margin-bottom:6px;">Reason</label>
+    <select id="report-reason" class="wh-input" style="margin-bottom:1rem; cursor:pointer;" aria-label="Reason for report">
+      <option value="harassment">Harassment or bullying</option>
+      <option value="unsafe">Unsafe or wrong information</option>
+      <option value="spam">Spam or off-topic</option>
+      <option value="other">Other</option>
+    </select>
+
+    <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.4); margin-bottom:6px;">Details (optional)</label>
+    <textarea id="report-details" class="wh-input" rows="3" maxlength="500" placeholder="Any extra context for your supervisor…" aria-label="Report details" style="resize:vertical; min-height:80px;"></textarea>
+    <p id="report-char-count" style="text-align:right; font-size:0.7rem; color:rgba(255,255,255,0.3); margin:4px 0 1rem;">0 / 500</p>
+
+    <button id="btn-submit-report" class="btn-primary" style="width:100%;" onclick="submitReport()">Send Report</button>
   </div>
 </div>
 
@@ -465,8 +596,22 @@
   let activeFilter        = 'all';
   let activeTab      = 'feed';
   let activeThreadId = null;
-  let presenceChannel, feedChannel;
+  let presenceChannel, feedChannel, globalFeedChannel;
   let replyingToPostId = null;
+  let _editingPostId   = null; // when set, the composer is in edit mode
+
+  // Client-side rate limit (UX guard; DB trigger should enforce real protection)
+  const POST_COOLDOWN_MS  = 5000;
+  const REPLY_COOLDOWN_MS = 3000;
+  let _lastPostTs  = 0;
+  let _lastReplyTs = 0;
+
+  // @mention state
+  let _hiveMembers = [];          // [{ worker_name, role }]
+  let _mentionActive = false;
+  let _mentionStartIdx = -1;      // index of '@' in textarea, when dropdown is open
+  let _mentionResults = [];       // currently filtered candidates
+  let _mentionSelected = 0;       // active row in dropdown (keyboard nav)
 
   // ── Init ──────────────────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', async () => {
@@ -476,6 +621,7 @@
     if (HIVE_ROLE === 'supervisor') {
       document.getElementById('tab-mod').style.display = 'block';
       document.getElementById('opt-announcement').style.display = '';
+      document.getElementById('post-public-row').style.display = 'flex';
     }
 
     // C4: restore identity from auth session on new device, then get auth_uid
@@ -487,7 +633,12 @@
     _initObservers();
     startPresence();
     startFeedChannel();
-    await Promise.all([loadPosts(), loadLeaderboard(), loadProfileStats()]);
+    startGlobalFeedChannel();
+    await Promise.all([loadPosts(), loadLeaderboard(), loadProfileStats(), loadHiveMembers()]);
+
+    // Deep-link: open the thread for ?post=<uuid> after the feed is rendered
+    const deepLinkId = new URLSearchParams(location.search).get('post');
+    if (deepLinkId) openThread(deepLinkId);
   });
 
   // ── Profile card ──────────────────────────────────────────────────────────────
@@ -501,7 +652,7 @@
   async function loadProfileStats() {
     const [postsRes, xpRes] = await Promise.all([
       db.from('community_posts').select('id', { count: 'exact', head: true })
-        .eq('hive_id', HIVE_ID).eq('author_name', WORKER_NAME),
+        .eq('hive_id', HIVE_ID).eq('author_name', WORKER_NAME).is('deleted_at', null),
       db.from('community_xp').select('xp_total')
         .eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).maybeSingle(),
     ]);
@@ -649,8 +800,8 @@
     const raw  = document.getElementById('search-input').value.trim();
     const safQ = raw.replace(/%/g, '\\%').replace(/_/g, '\\_');
     let q = db.from('community_posts')
-      .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at')
-      .eq('hive_id', HIVE_ID).eq('pinned', false)
+      .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at')
+      .eq('hive_id', HIVE_ID).eq('pinned', false).is('deleted_at', null)
       .order('created_at', { ascending: false }).limit(20);
     if (HIVE_ROLE !== 'supervisor') q = q.eq('flagged', false);
     if (activeFilter !== 'all') q = q.eq('category', activeFilter);
@@ -666,8 +817,8 @@
 
     const [pinnedRes, pageRes] = await Promise.all([
       db.from('community_posts')
-        .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at')
-        .eq('hive_id', HIVE_ID).eq('pinned', true)
+        .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at')
+        .eq('hive_id', HIVE_ID).eq('pinned', true).is('deleted_at', null)
         .order('created_at', { ascending: false }),
       _fetchPage(),
     ]);
@@ -710,10 +861,37 @@
     if (collapseIO) collapseIO.disconnect();
 
     if (posts.length === 0) {
-      el.innerHTML = `<div class="empty-state">
-        <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-        <p style="color:rgba(255,255,255,0.4); font-size:0.875rem;">No posts yet. Be the first to post in your hive!</p>
-      </div>`;
+      const safeQ      = !!document.getElementById('search-input').value.trim();
+      const filtered   = activeFilter !== 'all';
+      const isFiltered = safeQ || filtered;
+
+      if (isFiltered) {
+        el.innerHTML = `<div class="empty-state">
+          <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <p style="color:rgba(255,255,255,0.4); font-size:0.875rem;">No posts match your search or filter.</p>
+        </div>`;
+      } else {
+        // First-time / fresh-hive welcome with a clear CTA + how-to
+        el.innerHTML = `<div class="wh-card" style="padding:1.5rem; text-align:left;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:0.75rem;">
+            <span style="font-size:1.25rem;">👋</span>
+            <h3 style="font-size:1rem; font-weight:800; margin:0;">Welcome to your hive's discussion board</h3>
+          </div>
+          <p style="font-size:0.85rem; color:rgba(255,255,255,0.6); line-height:1.55; margin:0 0 1rem;">
+            Share tips, ask questions, and flag safety concerns with your team. Posts in this hive are private to its members.
+          </p>
+          <ul style="margin:0 0 1.25rem; padding-left:1.2rem; font-size:0.82rem; color:rgba(255,255,255,0.7); line-height:1.7;">
+            <li><strong>Tap the orange + button</strong> to write a post.</li>
+            <li>Use categories to organise — <span style="color:#f87171;">Safety</span>, <span style="color:#29B6D9;">Technical</span>, General.</li>
+            <li>React with 👍 🔧 🔥 👀 or open a thread to reply.</li>
+            <li>Type <strong>@</strong> in the message to mention a teammate.</li>
+            ${HIVE_ROLE === 'supervisor' ? '<li>As supervisor: tick "Share with all WorkHive teams" to publish a post globally.</li>' : '<li>See something off? Use the ⚠️ report button — your supervisor will review it.</li>'}
+          </ul>
+          <button class="btn-primary" onclick="openComposer()" style="width:auto; padding:0.65rem 1.25rem;">
+            Write the first post
+          </button>
+        </div>`;
+      }
       if (lmWrap) lmWrap.style.display = 'none';
       return;
     }
@@ -789,15 +967,22 @@
       <button class="btn-icon" onclick="deletePost('${p.id}')" title="Delete post" aria-label="Delete post">
         <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#ef4444" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
       </button>` : (isMine ? `
+      <button class="btn-icon" onclick="openEditor('${p.id}')" title="Edit post" aria-label="Edit my post">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+      </button>
       <button class="btn-icon" onclick="deletePost('${p.id}')" title="Delete post" aria-label="Delete my post">
         <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#ef4444" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-      </button>` : '');
+      </button>` : `
+      <button class="btn-icon" onclick="openReport('${p.id}')" title="Report this post to your supervisor" aria-label="Report this post">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4a2 2 0 00-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"/></svg>
+      </button>`);
 
     // Read reaction data from reactionMap (populated before renderFeed is called)
     const _rx = reactionMap[p.id] || {};
     function rxBtn(emoji, label, icon) {
       const d = _rx[emoji] || { count: 0, mine: false };
-      return `<button class="reaction-btn${d.mine ? ' active' : ''}" onclick="toggleReaction('${p.id}', '${escHtml(p.hive_id)}', '${emoji}')" aria-label="${label}">${icon} <span id="rxn-${emoji}-${escHtml(p.id)}">${d.count}</span></button>`;
+      const aria = d.mine ? `${label}, ${d.count} reactions, you reacted` : `${label}, ${d.count} reactions`;
+      return `<button class="reaction-btn${d.mine ? ' active' : ''}" onclick="toggleReaction('${p.id}', '${escHtml(p.hive_id)}', '${emoji}')" aria-label="${aria}" aria-pressed="${d.mine}">${icon} <span id="rxn-${emoji}-${escHtml(p.id)}">${d.count}</span></button>`;
     }
 
     return `<div class="post-card ${catClass}${p.pinned ? ' pinned' : ''}" id="post-${escHtml(p.id)}" data-post-id="${escHtml(p.id)}" style="padding:1rem;">
@@ -807,9 +992,9 @@
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
             <span style="font-size:0.8rem; font-weight:700;">${escHtml(p.author_name)}</span>
             ${catBadge}${pinnedBadge}${flaggedBadge}${publicBadge}
-            <span style="font-size:0.7rem; color:rgba(255,255,255,0.3); margin-left:auto;">${escHtml(timeAgo)}</span>
+            <span style="font-size:0.7rem; color:rgba(255,255,255,0.3); margin-left:auto;">${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span>
           </div>
-          <p style="font-size:0.85rem; line-height:1.55; color:rgba(255,255,255,0.82); margin:0 0 0.75rem; word-break:break-word;">${escHtml(p.content)}</p>
+          <p style="font-size:0.85rem; line-height:1.55; color:rgba(255,255,255,0.82); margin:0 0 0.75rem; word-break:break-word;">${renderContentWithMentions(p.content, p.mentions)}</p>
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
             ${rxBtn('thumbs_up','Thumbs up','👍')}
             ${rxBtn('wrench','Wrench','🔧')}
@@ -826,11 +1011,16 @@
     </div>`;
   }
 
-  // Load reactions — populate reactionMap first, then patch any already-rendered spans
-  async function loadReactions(postIds) {
+  // Load reactions — populate reactionMap first, then patch any already-rendered spans.
+  // hiveIds defaults to the current hive; the Global feed passes the set of hives
+  // whose public posts are on screen, so cross-hive reactions render correctly
+  // while every query stays explicitly hive-scoped.
+  async function loadReactions(postIds, hiveIds = [HIVE_ID]) {
     if (!postIds.length) return;
     const { data } = await db.from('community_reactions')
-      .select('post_id, emoji, worker_name').eq('hive_id', HIVE_ID).in('post_id', postIds);
+      .select('post_id, emoji, worker_name')
+      .in('hive_id', hiveIds)
+      .in('post_id', postIds);
     if (!data) return;
 
     // Initialise reactionMap entries for requested posts
@@ -947,8 +1137,8 @@
     el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0;">Loading…</p>';
 
     const { data, error } = await db.from('community_posts')
-      .select('id, hive_id, author_name, content, category, created_at, hives(name)')
-      .eq('public', true).eq('flagged', false)
+      .select('id, hive_id, author_name, content, category, created_at, edited_at, mentions, deleted_at, hives(name)')
+      .eq('public', true).eq('flagged', false).is('deleted_at', null)
       .order('created_at', { ascending: false }).limit(20);
 
     if (error || !data || data.length === 0) {
@@ -962,7 +1152,8 @@
     _globalHasMore = data.length === 20;
 
     const ids = data.map(p => p.id);
-    await loadReactions(ids);
+    const hiveIds = [...new Set(data.map(p => p.hive_id))];
+    await loadReactions(ids, hiveIds);
 
     el.innerHTML = data.map(renderGlobalPostCard).join('');
     document.getElementById('global-load-more').style.display = _globalHasMore ? 'flex' : 'none';
@@ -974,15 +1165,18 @@
     if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
 
     const { data } = await db.from('community_posts')
-      .select('id, hive_id, author_name, content, category, created_at, hives(name)')
-      .eq('public', true).eq('flagged', false)
+      .select('id, hive_id, author_name, content, category, created_at, edited_at, mentions, deleted_at, hives(name)')
+      .eq('public', true).eq('flagged', false).is('deleted_at', null)
       .lt('created_at', _globalLastCreatedAt)
       .order('created_at', { ascending: false }).limit(20);
 
     if (data && data.length > 0) {
       _globalLastCreatedAt = data[data.length - 1].created_at;
       _globalPosts = [..._globalPosts, ...data];
-      await loadReactions(data.map(p => p.id));
+      await loadReactions(
+        data.map(p => p.id),
+        [...new Set(data.map(p => p.hive_id))]
+      );
       document.getElementById('global-list')
         .insertAdjacentHTML('beforeend', data.map(renderGlobalPostCard).join(''));
       _globalHasMore = data.length === 20;
@@ -1003,7 +1197,8 @@
     const _rx = reactionMap[p.id] || {};
     function rxBtn(emoji, label, icon) {
       const d = _rx[emoji] || { count: 0, mine: false };
-      return `<button class="reaction-btn${d.mine ? ' active' : ''}" onclick="toggleReaction('${p.id}', '${escHtml(p.hive_id)}', '${emoji}')" aria-label="${label}">${icon} <span id="rxn-${emoji}-${escHtml(p.id)}">${d.count}</span></button>`;
+      const aria = d.mine ? `${label}, ${d.count} reactions, you reacted` : `${label}, ${d.count} reactions`;
+      return `<button class="reaction-btn${d.mine ? ' active' : ''}" onclick="toggleReaction('${p.id}', '${escHtml(p.hive_id)}', '${emoji}')" aria-label="${aria}" aria-pressed="${d.mine}">${icon} <span id="rxn-${emoji}-${escHtml(p.id)}">${d.count}</span></button>`;
     }
     return `<div class="post-card ${catClass}" data-post-id="${escHtml(p.id)}" style="padding:1rem;">
       <div style="display:flex; align-items:flex-start; gap:10px;">
@@ -1012,9 +1207,9 @@
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
             <span style="font-size:0.8rem; font-weight:700;">${escHtml(p.author_name)}</span>
             <span class="cat-badge ${catClass}">${escHtml(catLabel)}</span>
-            <span style="font-size:0.7rem; color:rgba(255,255,255,0.3); margin-left:auto;">${escHtml(timeAgo)}</span>
+            <span style="font-size:0.7rem; color:rgba(255,255,255,0.3); margin-left:auto;">${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span>
           </div>
-          <p style="font-size:0.85rem; line-height:1.55; color:rgba(255,255,255,0.82); margin:0 0 0.5rem; word-break:break-word;">${escHtml(p.content)}</p>
+          <p style="font-size:0.85rem; line-height:1.55; color:rgba(255,255,255,0.82); margin:0 0 0.5rem; word-break:break-word;">${renderContentWithMentions(p.content, p.mentions)}</p>
           <div style="font-size:0.7rem; color:rgba(255,255,255,0.25); margin-bottom:0.5rem; display:flex; align-items:center; gap:4px;">
             <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
             From <strong style="color:rgba(255,255,255,0.45); margin-left:2px;">${escHtml(hiveName)}</strong>
@@ -1079,6 +1274,26 @@
     const post = _findPost(postId);
     if (post) { post.public = !currentlyPublic; }
     _updateRenderedCard(postId);
+
+    // Keep the Global tab in sync when supervisor flips visibility on their own hive's posts
+    if (_globalLoaded && post) {
+      const idx = _globalPosts.findIndex(p => p.id === postId);
+      if (!currentlyPublic) {
+        // becoming public — add to global list if not already there
+        if (idx === -1) {
+          const globalRow = { ...post, hives: { name: HIVE_NAME || 'My Hive' } };
+          _globalPosts.unshift(globalRow);
+          const gel = document.getElementById('global-list');
+          if (gel) gel.insertAdjacentHTML('afterbegin', renderGlobalPostCard(globalRow));
+        }
+      } else {
+        // becoming private — remove from global list
+        if (idx !== -1) _globalPosts.splice(idx, 1);
+        const gcard = document.querySelector(`#panel-global [data-post-id="${postId}"]`);
+        if (gcard) gcard.remove();
+      }
+    }
+
     showToast(currentlyPublic ? 'Post is now private' : 'Post is now public 🌐');
   }
 
@@ -1088,32 +1303,131 @@
     if (HIVE_ROLE !== 'supervisor' && post.author_name !== WORKER_NAME) {
       showToast('Cannot delete another worker\'s post', 'error'); return;
     }
+    // Soft-delete: stamp deleted_at, leave the row for 5s undo or supervisor recovery.
+    const deletedAt = new Date().toISOString();
     const { error } = await db.from('community_posts')
-      .delete().eq('id', postId).eq('hive_id', HIVE_ID);
+      .update({ deleted_at: deletedAt })
+      .eq('id', postId).eq('hive_id', HIVE_ID);
     if (error) { showToast('Could not delete post', 'error'); return; }
-    if (HIVE_ROLE === 'supervisor') await writeAuditLog('delete_post', postId);
+    if (HIVE_ROLE === 'supervisor') await writeAuditLog('soft_delete_post', postId);
+
+    // Local cache + DOM (treat as removed; realtime UPDATE will mirror this on other clients)
     myPostIds.delete(postId);
     allPosts    = allPosts.filter(p => p.id !== postId);
     pinnedPosts = pinnedPosts.filter(p => p.id !== postId);
     _removePostCard(postId);
     if (activeThreadId === postId) closeThread();
-    showToast('Post deleted');
+
+    // Snapshot the row for restore — include the original pinned flag so it lands back in place
+    const snapshot = { ...post, deleted_at: deletedAt };
+    showUndoToast('Post deleted', () => restorePost(postId, snapshot));
+  }
+
+  async function restorePost(postId, snapshot) {
+    const { error } = await db.from('community_posts')
+      .update({ deleted_at: null })
+      .eq('id', postId).eq('hive_id', HIVE_ID);
+    if (error) { showToast('Could not undo delete', 'error'); return; }
+    if (HIVE_ROLE === 'supervisor') await writeAuditLog('restore_post', postId);
+
+    // Re-add to local state
+    if (snapshot && snapshot.author_name === WORKER_NAME) myPostIds.add(postId);
+    if (snapshot) {
+      const restored = { ...snapshot, deleted_at: null };
+      if (restored.pinned) pinnedPosts.unshift(restored);
+      else                 allPosts.unshift(restored);
+      _prependPostCard(restored);
+    }
+    showToast('Post restored');
   }
 
   // ── Post composer ─────────────────────────────────────────────────────────────
   function openComposer() {
+    _editingPostId = null;
+    document.getElementById('composer-title').textContent = 'New Post';
+    document.getElementById('btn-submit-post').textContent = 'Post to Hive';
     document.getElementById('post-content').value = '';
     document.getElementById('post-char-count').textContent = '0 / 2000';
     document.getElementById('post-category').value = 'general';
+    const cb = document.getElementById('post-public');
+    if (cb) { cb.checked = false; cb.disabled = false; }
+    const row = document.getElementById('post-public-row');
+    if (row) row.style.opacity = '1';
     document.getElementById('composer-overlay').classList.add('open');
+    if (_focusTrapCleanup) _focusTrapCleanup();
+    _focusTrapCleanup = trapFocus(document.getElementById('composer-sheet'));
   }
+
+  function openEditor(postId) {
+    const post = _findPost(postId);
+    if (!post) { showToast('Post not found', 'error'); return; }
+    if (post.author_name !== WORKER_NAME) {
+      showToast('You can only edit your own posts', 'error'); return;
+    }
+    _editingPostId = postId;
+    document.getElementById('composer-title').textContent = 'Edit Post';
+    document.getElementById('btn-submit-post').textContent = 'Save changes';
+    document.getElementById('post-content').value = post.content || '';
+    document.getElementById('post-char-count').textContent = `${(post.content || '').length} / 2000`;
+    document.getElementById('post-category').value = post.category || 'general';
+    const cb = document.getElementById('post-public');
+    if (cb) { cb.checked = !!post.public; cb.disabled = false; }
+    // Re-run announcement auto-lock for the chosen category
+    document.getElementById('post-category').dispatchEvent(new Event('change'));
+    document.getElementById('composer-overlay').classList.add('open');
+    if (_focusTrapCleanup) _focusTrapCleanup();
+    _focusTrapCleanup = trapFocus(document.getElementById('composer-sheet'));
+  }
+
+  // Announcements are always public — auto-tick + lock the checkbox when chosen
+  document.getElementById('post-category').addEventListener('change', function () {
+    const cb  = document.getElementById('post-public');
+    const row = document.getElementById('post-public-row');
+    if (!cb || !row) return;
+    if (this.value === 'announcement') {
+      cb.checked = true;
+      cb.disabled = true;
+      row.style.opacity = '0.85';
+    } else {
+      cb.disabled = false;
+      row.style.opacity = '1';
+    }
+  });
 
   function closeComposer() {
     document.getElementById('composer-overlay').classList.remove('open');
+    if (_focusTrapCleanup) { _focusTrapCleanup(); _focusTrapCleanup = null; }
+    _editingPostId = null;
   }
 
   document.getElementById('post-content').addEventListener('input', function () {
     document.getElementById('post-char-count').textContent = `${this.value.length} / 2000`;
+    _maybeOpenMentionDropdown();
+  });
+
+  document.getElementById('post-content').addEventListener('keydown', function (e) {
+    if (!_mentionActive) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      _mentionSelected = (_mentionSelected + 1) % _mentionResults.length;
+      _renderMentionDropdown();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      _mentionSelected = (_mentionSelected - 1 + _mentionResults.length) % _mentionResults.length;
+      _renderMentionDropdown();
+    } else if (e.key === 'Enter' || e.key === 'Tab') {
+      e.preventDefault();
+      selectMention(_mentionSelected);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      _hideMentionDropdown();
+    }
+  });
+
+  document.getElementById('post-content').addEventListener('blur', function () {
+    // mousedown on a dropdown item runs preventDefault, so blur fires only when
+    // the user really left the textarea — safe to hide here.
+    setTimeout(_hideMentionDropdown, 100);
   });
 
   document.getElementById('composer-overlay').addEventListener('click', function (e) {
@@ -1131,17 +1445,59 @@
       showToast('Supervisors only can post announcements', 'error'); return;
     }
 
+    // Rate limit applies to new posts only — edits skip the cooldown
+    if (!_editingPostId) {
+      const since = Date.now() - _lastPostTs;
+      if (since < POST_COOLDOWN_MS) {
+        const remaining = Math.ceil((POST_COOLDOWN_MS - since) / 1000);
+        showToast(`Slow down — wait ${remaining}s before posting again`, 'error');
+        return;
+      }
+    }
+
     btn.disabled = true;
-    btn.textContent = 'Posting…';
+    btn.textContent = _editingPostId ? 'Saving…' : 'Posting…';
+
+    // Supervisors can choose to share publicly. Workers never see the toggle, so
+    // their posts default to private. Announcements force-tick the checkbox.
+    const isPublic = HIVE_ROLE === 'supervisor' &&
+                     !!document.getElementById('post-public')?.checked;
+
+    const mentions = parseMentions(content);
+
+    // Edit mode: UPDATE the existing post (must be the author per RLS-deferred guard).
+    if (_editingPostId) {
+      const editId = _editingPostId;
+      const post = _findPost(editId);
+      if (!post || post.author_name !== WORKER_NAME) {
+        btn.disabled = false; btn.textContent = 'Save changes';
+        showToast('Cannot edit this post', 'error'); return;
+      }
+      const editedAt = new Date().toISOString();
+      const { error: editErr } = await db.from('community_posts')
+        .update({ content, category, public: isPublic, mentions, edited_at: editedAt })
+        .eq('id', editId).eq('hive_id', HIVE_ID).eq('author_name', WORKER_NAME);
+      btn.disabled = false; btn.textContent = 'Save changes';
+      if (editErr) { showToast('Could not save changes', 'error'); return; }
+      // Local cache + DOM
+      post.content = content; post.category = category;
+      post.public = isPublic; post.edited_at = editedAt; post.mentions = mentions;
+      _updateRenderedCard(editId);
+      closeComposer();
+      showToast('Post updated');
+      return;
+    }
 
     const { data, error } = await db.from('community_posts')
-      .insert({ hive_id: HIVE_ID, author_name: WORKER_NAME, content, category, auth_uid: _authUid || null })
+      .insert({ hive_id: HIVE_ID, author_name: WORKER_NAME, content, category, public: isPublic, mentions, auth_uid: _authUid || null })
       .select().single();
 
     btn.disabled = false;
     btn.textContent = 'Post to Hive';
 
     if (error) { showToast('Could not post. Try again.', 'error'); return; }
+
+    _lastPostTs = Date.now(); // start cooldown only after a confirmed insert
 
     // XP toast — DB trigger handles the actual award server-side
     const isFirstPost = myPostIds.size === 0;
@@ -1154,22 +1510,54 @@
     myPostIds.add(data.id);
     allPosts.unshift(data); // new posts are never pinned on creation
     _prependPostCard(data);
+
+    // Optimistic add to the Global tab if it's already loaded and the post is public.
+    // We synthesize hives.name from local HIVE_NAME (this is our own hive).
+    if (data.public && _globalLoaded && !_globalPosts.find(p => p.id === data.id)) {
+      const globalRow = { ...data, hives: { name: HIVE_NAME || 'My Hive' } };
+      _globalPosts.unshift(globalRow);
+      const gel = document.getElementById('global-list');
+      if (gel) gel.insertAdjacentHTML('afterbegin', renderGlobalPostCard(globalRow));
+    }
+
     closeComposer();
     loadProfileStats(); // refresh XP counter in profile card
-    loadProfileStats();
   }
 
   // ── Thread view ───────────────────────────────────────────────────────────────
   async function openThread(postId) {
     activeThreadId = postId;
-    const post = [...pinnedPosts, ...allPosts].find(p => p.id === postId);
-    if (!post) return;
+    let post = [...pinnedPosts, ...allPosts].find(p => p.id === postId);
+
+    // Deep-link fallback: post may be older than the loaded page. Fetch it,
+    // hive-scoped, so cross-hive links return null and we surface "not found".
+    if (!post) {
+      const { data } = await db.from('community_posts')
+        .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at')
+        .eq('id', postId).eq('hive_id', HIVE_ID).is('deleted_at', null).maybeSingle();
+      if (!data) {
+        showToast('Post not found in this hive', 'error');
+        activeThreadId = null;
+        return;
+      }
+      post = data;
+    }
 
     document.getElementById('thread-title').textContent = 'Thread';
     document.getElementById('thread-post').innerHTML = renderPostCard(post);
     document.getElementById('thread-replies').innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.3);">Loading replies…</p>';
     document.getElementById('reply-content').value = '';
     document.getElementById('thread-overlay').classList.add('open');
+    if (_focusTrapCleanup) _focusTrapCleanup();
+    _focusTrapCleanup = trapFocus(document.getElementById('thread-sheet'));
+
+    // Reflect in URL so the thread is shareable and bookmarkable
+    try {
+      const next = location.pathname + '?post=' + encodeURIComponent(postId);
+      if (location.search !== '?post=' + encodeURIComponent(postId)) {
+        history.replaceState(null, '', next);
+      }
+    } catch (_) {}
 
     replyingToPostId = postId;
     await loadReplies(postId);
@@ -1178,8 +1566,25 @@
 
   function closeThread() {
     document.getElementById('thread-overlay').classList.remove('open');
+    if (_focusTrapCleanup) { _focusTrapCleanup(); _focusTrapCleanup = null; }
     activeThreadId = null;
     replyingToPostId = null;
+    // Drop the ?post= param from the URL so reload doesn't auto-reopen
+    try {
+      if (location.search) history.replaceState(null, '', location.pathname);
+    } catch (_) {}
+  }
+
+  async function copyThreadLink() {
+    if (!activeThreadId) return;
+    const url = location.origin + location.pathname + '?post=' + encodeURIComponent(activeThreadId);
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('Link copied to clipboard');
+    } catch (_) {
+      // Fallback: select-and-prompt for older browsers / file:// origin
+      window.prompt('Copy this link:', url);
+    }
   }
 
   document.getElementById('thread-overlay').addEventListener('click', function (e) {
@@ -1220,12 +1625,20 @@
     const btn     = document.getElementById('btn-submit-reply');
     if (!content || !replyingToPostId) { showToast('Write something first', 'error'); return; }
 
+    const sinceR = Date.now() - _lastReplyTs;
+    if (sinceR < REPLY_COOLDOWN_MS) {
+      const remaining = Math.ceil((REPLY_COOLDOWN_MS - sinceR) / 1000);
+      showToast(`Slow down — wait ${remaining}s between replies`, 'error');
+      return;
+    }
+
     btn.disabled = true;
     const { error } = await db.from('community_replies')
       .insert({ post_id: replyingToPostId, hive_id: HIVE_ID, author_name: WORKER_NAME, content });
     btn.disabled = false;
 
     if (error) { showToast('Could not post reply', 'error'); return; }
+    _lastReplyTs = Date.now();
     document.getElementById('reply-content').value = '';
     replyCountMap[replyingToPostId] = (replyCountMap[replyingToPostId] || 0) + 1;
     const rcEl = document.getElementById(`reply-count-${replyingToPostId}`);
@@ -1283,8 +1696,13 @@
         if (payload.new.pinned) pinnedPosts.unshift(payload.new);
         else                    allPosts.unshift(payload.new);
         _prependPostCard(payload.new);
-        if (payload.new.author_name !== WORKER_NAME)
-          showToast(`${payload.new.author_name} posted in the hive`);
+        if (payload.new.author_name !== WORKER_NAME) {
+          // Mention takes priority over the generic "posted in the hive" toast
+          const mentioned = Array.isArray(payload.new.mentions) &&
+                            payload.new.mentions.includes(WORKER_NAME);
+          if (mentioned) showToast(`💬 ${payload.new.author_name} mentioned you in a post`);
+          else           showToast(`${payload.new.author_name} posted in the hive`);
+        }
       })
       .on('postgres_changes', {
         event: 'UPDATE', schema: 'public', table: 'community_posts',
@@ -1292,6 +1710,29 @@
       }, (payload) => {
         const ia = allPosts.findIndex(p => p.id === payload.new.id);
         const ip = pinnedPosts.findIndex(p => p.id === payload.new.id);
+        const onScreen = ia !== -1 || ip !== -1;
+
+        // Soft-delete transition: remove from local state + DOM
+        if (payload.new.deleted_at) {
+          if (onScreen) {
+            myPostIds.delete(payload.new.id);
+            allPosts    = allPosts.filter(p => p.id !== payload.new.id);
+            pinnedPosts = pinnedPosts.filter(p => p.id !== payload.new.id);
+            _removePostCard(payload.new.id);
+            if (activeThreadId === payload.new.id) closeThread();
+          }
+          return;
+        }
+
+        // Restore transition: was off-screen, now visible — add it back
+        if (!onScreen) {
+          if (payload.new.author_name === WORKER_NAME) myPostIds.add(payload.new.id);
+          if (payload.new.pinned) pinnedPosts.unshift(payload.new);
+          else                    allPosts.unshift(payload.new);
+          _prependPostCard(payload.new);
+          return;
+        }
+
         const pinChanged = (payload.new.pinned && ia !== -1) || (!payload.new.pinned && ip !== -1);
         if (payload.new.pinned && ia !== -1) {
           pinnedPosts = [payload.new, ...pinnedPosts]; allPosts.splice(ia, 1);
@@ -1322,6 +1763,44 @@
         const rcEl = document.getElementById(`reply-count-${postId}`);
         if (rcEl) rcEl.textContent = replyCountMap[postId];
       })
+      .on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'community_reactions',
+        filter: `hive_id=eq.${HIVE_ID}`
+      }, (payload) => {
+        const r = payload.new;
+        const slot = reactionMap[r.post_id]?.[r.emoji];
+        if (!slot) return; // post not on screen
+        const isMine = r.worker_name === WORKER_NAME;
+        // Skip if optimistic UI already counted this client's own reaction
+        if (isMine && slot.mine) return;
+        slot.count++;
+        if (isMine) slot.mine = true;
+        const span = document.getElementById(`rxn-${r.emoji}-${r.post_id}`);
+        if (span) {
+          span.textContent = slot.count;
+          if (isMine) span.closest('.reaction-btn')?.classList.add('active');
+        }
+      })
+      .on('postgres_changes', {
+        // No hive_id filter: REPLICA IDENTITY defaults to PK (post_id, worker_name, emoji),
+        // which excludes hive_id, so a server-side filter would drop every event.
+        // Gate client-side via local reactionMap cache instead.
+        event: 'DELETE', schema: 'public', table: 'community_reactions'
+      }, (payload) => {
+        const o = payload.old || {};
+        const slot = reactionMap[o.post_id]?.[o.emoji];
+        if (!slot) return; // post not on screen, ignore (covers cross-hive noise)
+        const wasMine = o.worker_name === WORKER_NAME;
+        // Skip if optimistic UI already decremented this client's own un-react
+        if (wasMine && !slot.mine) return;
+        slot.count = Math.max(0, slot.count - 1);
+        if (wasMine) slot.mine = false;
+        const span = document.getElementById(`rxn-${o.emoji}-${o.post_id}`);
+        if (span) {
+          span.textContent = slot.count;
+          if (wasMine) span.closest('.reaction-btn')?.classList.remove('active');
+        }
+      })
       .subscribe();
   }
 
@@ -1332,16 +1811,301 @@
     label.textContent = state === 'live' ? 'Live' : state === 'reconnecting' ? 'Reconnecting…' : 'Offline';
   }
 
+  // ── Realtime: cross-hive Global feed ──────────────────────────────────────────
+  // Separate, no-hive-scope channel: surfaces public posts from every hive into
+  // the Global tab without a refresh. Skips work entirely until the tab is opened.
+  async function _addGlobalPostFromRealtime(rowId) {
+    if (!_globalLoaded) return; // tab not opened — initial loadGlobalFeed will pick it up
+    if (_globalPosts.find(p => p.id === rowId)) return; // already on screen
+    const { data } = await db.from('community_posts')
+      .select('id, hive_id, author_name, content, category, created_at, edited_at, mentions, deleted_at, hives(name)')
+      .eq('id', rowId).eq('public', true).eq('flagged', false).is('deleted_at', null).maybeSingle();
+    if (!data) return;
+    if (_globalPosts.find(p => p.id === data.id)) return; // race dedup
+    _globalPosts.unshift(data);
+    const gel = document.getElementById('global-list');
+    if (gel) gel.insertAdjacentHTML('afterbegin', renderGlobalPostCard(data));
+    // Pull reactions for the new post (use its own hive)
+    loadReactions([data.id], [data.hive_id]);
+  }
+
+  function startGlobalFeedChannel() {
+    globalFeedChannel = db.channel('community-global-feed')
+      .on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'community_posts',
+        filter: 'public=eq.true'
+      }, (payload) => {
+        if (payload.new.flagged) return;
+        _addGlobalPostFromRealtime(payload.new.id);
+      })
+      .on('postgres_changes', {
+        // Catches private→public transitions (NEW row matches public=true).
+        // Public→private transitions are skipped here — fresh load on next open
+        // will reconcile; not worth a second filtered subscription for that case.
+        event: 'UPDATE', schema: 'public', table: 'community_posts',
+        filter: 'public=eq.true'
+      }, (payload) => {
+        if (payload.new.flagged) return;
+        _addGlobalPostFromRealtime(payload.new.id);
+      })
+      .subscribe();
+  }
+
+  // ── Report (worker → flagged + audit log with reason) ───────────────────────
+  let _reportingPostId = null;
+
+  function openReport(postId) {
+    _reportingPostId = postId;
+    document.getElementById('report-reason').value = 'harassment';
+    document.getElementById('report-details').value = '';
+    document.getElementById('report-char-count').textContent = '0 / 500';
+    document.getElementById('report-overlay').classList.add('open');
+    if (_focusTrapCleanup) _focusTrapCleanup();
+    _focusTrapCleanup = trapFocus(document.getElementById('report-sheet'));
+  }
+
+  function closeReport() {
+    document.getElementById('report-overlay').classList.remove('open');
+    if (_focusTrapCleanup) { _focusTrapCleanup(); _focusTrapCleanup = null; }
+    _reportingPostId = null;
+  }
+
+  document.getElementById('report-overlay').addEventListener('click', function (e) {
+    if (e.target === this) closeReport();
+  });
+
+  document.getElementById('report-details').addEventListener('input', function () {
+    document.getElementById('report-char-count').textContent = `${this.value.length} / 500`;
+  });
+
+  async function submitReport() {
+    if (!_reportingPostId) return;
+    const reason  = document.getElementById('report-reason').value;
+    const details = document.getElementById('report-details').value.trim();
+    const btn     = document.getElementById('btn-submit-report');
+
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    // Flip flagged so the post enters the supervisor mod queue. Audit log
+    // captures the reporter + reason — supervisors see context, not just a flag.
+    const { error } = await db.from('community_posts')
+      .update({ flagged: true })
+      .eq('id', _reportingPostId).eq('hive_id', HIVE_ID);
+
+    btn.disabled = false;
+    btn.textContent = 'Send Report';
+
+    if (error) { showToast('Could not send report. Try again.', 'error'); return; }
+
+    await writeAuditLog('report_post', _reportingPostId, { reason, details });
+
+    // Local state: hide the post from this worker's feed (workers don't see flagged)
+    const post = _findPost(_reportingPostId);
+    if (post) {
+      post.flagged = true;
+      if (HIVE_ROLE !== 'supervisor') {
+        allPosts    = allPosts.filter(p => p.id !== _reportingPostId);
+        pinnedPosts = pinnedPosts.filter(p => p.id !== _reportingPostId);
+        _removePostCard(_reportingPostId);
+      } else {
+        _updateRenderedCard(_reportingPostId);
+        loadModQueue();
+      }
+    }
+
+    closeReport();
+    showToast('Report sent to your supervisor', 'success');
+  }
+
   // ── Audit log ─────────────────────────────────────────────────────────────────
-  async function writeAuditLog(action, targetId) {
+  async function writeAuditLog(action, targetId, extraMeta) {
     try {
       const { error: _auditErr } = await db.from('hive_audit_log').insert({
         hive_id: HIVE_ID,
         actor:   WORKER_NAME,
         action,
-        meta:    { target_id: targetId, page: 'community' }
+        meta:    { target_id: targetId, page: 'community', ...(extraMeta || {}) }
       });
     } catch (_) {}
+  }
+
+  // ── @mentions ────────────────────────────────────────────────────────────────
+  async function loadHiveMembers() {
+    const { data } = await db.from('hive_members')
+      .select('worker_name, role')
+      .eq('hive_id', HIVE_ID).neq('status', 'kicked');
+    _hiveMembers = (data || []).filter(m => m.worker_name && m.worker_name !== WORKER_NAME);
+  }
+
+  // Escape user input for safe insertion into a regex
+  function _reEscape(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+  // Parse content for @<member name> mentions; returns unique array of names
+  function parseMentions(content) {
+    if (!content || !_hiveMembers.length) return [];
+    // Sort longest-first so "Ian Phone" wins over "Ian" when both members exist
+    const names = _hiveMembers.map(m => m.worker_name).sort((a, b) => b.length - a.length);
+    const found = new Set();
+    for (const name of names) {
+      // Word-boundary at end: end-of-string or non-name char follows
+      const re = new RegExp('@' + _reEscape(name) + '(?![A-Za-z0-9_])', 'g');
+      if (re.test(content)) found.add(name);
+    }
+    return Array.from(found);
+  }
+
+  // Render content with @mentions highlighted. Input is raw content; we
+  // escapeHtml first, then inject styled spans for each known mention.
+  function renderContentWithMentions(content, mentions) {
+    let out = escHtml(content || '');
+    if (!mentions || !mentions.length) return out;
+    const sorted = [...mentions].sort((a, b) => b.length - a.length);
+    for (const name of sorted) {
+      const escaped = escHtml(name);
+      const re = new RegExp('@' + _reEscape(escaped) + '(?![A-Za-z0-9_])', 'g');
+      out = out.replace(re, `<span class="mention">@${escaped}</span>`);
+    }
+    return out;
+  }
+
+  function _mentionDropdownEl() { return document.getElementById('mention-dropdown'); }
+
+  function _renderMentionDropdown() {
+    const el = _mentionDropdownEl();
+    if (!el) return;
+    if (!_mentionResults.length) { el.classList.remove('open'); return; }
+    el.innerHTML = _mentionResults.map((m, i) => {
+      const initials = m.worker_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      return `<div class="mention-item${i === _mentionSelected ? ' active' : ''}"
+                   role="option" aria-selected="${i === _mentionSelected}"
+                   data-name="${escHtml(m.worker_name)}"
+                   onmousedown="event.preventDefault(); selectMention(${i});">
+        <div class="avatar-initial">${escHtml(initials)}</div>
+        <span>${escHtml(m.worker_name)}</span>
+        <span style="margin-left:auto; font-size:0.65rem; color:rgba(255,255,255,0.4); text-transform:capitalize;">${escHtml(m.role || 'worker')}</span>
+      </div>`;
+    }).join('');
+    el.classList.add('open');
+  }
+
+  function selectMention(idx) {
+    if (idx == null) idx = _mentionSelected;
+    const m = _mentionResults[idx];
+    const ta = document.getElementById('post-content');
+    if (!m || !ta || _mentionStartIdx < 0) { _hideMentionDropdown(); return; }
+    const before = ta.value.slice(0, _mentionStartIdx);
+    const after  = ta.value.slice(ta.selectionStart);
+    const insert = '@' + m.worker_name + ' ';
+    ta.value = before + insert + after;
+    document.getElementById('post-char-count').textContent = `${ta.value.length} / 2000`;
+    const newCursor = before.length + insert.length;
+    ta.setSelectionRange(newCursor, newCursor);
+    ta.focus();
+    _hideMentionDropdown();
+  }
+
+  function _hideMentionDropdown() {
+    _mentionActive = false;
+    _mentionStartIdx = -1;
+    _mentionResults = [];
+    _mentionSelected = 0;
+    _mentionDropdownEl()?.classList.remove('open');
+  }
+
+  function _maybeOpenMentionDropdown() {
+    const ta = document.getElementById('post-content');
+    if (!ta) return;
+    const cursor = ta.selectionStart;
+    const before = ta.value.slice(0, cursor);
+    // Look back for an unbroken @<chars no spaces yet> ending at cursor.
+    // Allow up to 30 chars after @ so "@Ian Phone" works mid-typing.
+    const m = before.match(/@([^\n@]{0,30})$/);
+    if (!m) { _hideMentionDropdown(); return; }
+    const query = m[1].toLowerCase();
+    _mentionStartIdx = cursor - m[0].length;
+    _mentionResults = _hiveMembers
+      .filter(hm => hm.worker_name.toLowerCase().includes(query))
+      .slice(0, 5);
+    _mentionSelected = 0;
+    _mentionActive = _mentionResults.length > 0;
+    _renderMentionDropdown();
+  }
+
+  // ── Focus trap (WCAG 2.4.3 Focus Order, 2.1.2 No Keyboard Trap) ──────────────
+  // Saves the previously-focused element, traps Tab inside the open sheet,
+  // and restores focus on close. One trap at a time — sheets stack via Escape.
+  let _focusTrapCleanup = null;
+
+  function trapFocus(container) {
+    const previouslyFocused = document.activeElement;
+    const focusableSel = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+    function listFocusable() {
+      return Array.from(container.querySelectorAll(focusableSel))
+        .filter(el => el.offsetParent !== null && !el.hasAttribute('aria-hidden'));
+    }
+
+    function onKeyDown(e) {
+      if (e.key !== 'Tab') return;
+      const focusable = listFocusable();
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last  = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first.focus();
+      }
+    }
+
+    container.addEventListener('keydown', onKeyDown);
+    // Move initial focus after the open transition starts
+    setTimeout(() => {
+      const focusable = listFocusable();
+      if (focusable.length) focusable[0].focus();
+    }, 60);
+
+    return function cleanup() {
+      container.removeEventListener('keydown', onKeyDown);
+      if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
+        try { previouslyFocused.focus(); } catch (_) {}
+      }
+    };
+  }
+
+  // Escape closes whichever sheet is currently open
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (document.getElementById('composer-overlay')?.classList.contains('open')) closeComposer();
+    else if (document.getElementById('thread-overlay')?.classList.contains('open')) closeThread();
+    else if (document.getElementById('report-overlay')?.classList.contains('open')) closeReport();
+  });
+
+  // ── Undo toast (5s window for soft-delete recovery) ─────────────────────────
+  let _undoTimer = null;
+  function showUndoToast(message, onUndo, ttlMs = 5000) {
+    const el  = document.getElementById('undo-toast');
+    const txt = document.getElementById('undo-toast-text');
+    const btn = document.getElementById('undo-toast-btn');
+    if (!el || !txt || !btn) return;
+
+    txt.textContent = message;
+    let consumed = false;
+    if (_undoTimer) clearTimeout(_undoTimer);
+
+    btn.onclick = () => {
+      if (consumed) return;
+      consumed = true;
+      el.classList.add('hidden');
+      try { onUndo(); } catch (e) { console.error('Undo failed:', e); }
+    };
+
+    el.classList.remove('hidden');
+    _undoTimer = setTimeout(() => {
+      if (!consumed) el.classList.add('hidden');
+      _undoTimer = null;
+    }, ttlMs);
   }
 
   // ── Toast ─────────────────────────────────────────────────────────────────────
@@ -1372,8 +2136,9 @@
 
   // ── Cleanup ───────────────────────────────────────────────────────────────────
   window.addEventListener('beforeunload', () => {
-    if (presenceChannel) db.removeChannel(presenceChannel);
-    if (feedChannel)     db.removeChannel(feedChannel);
+    if (presenceChannel)   db.removeChannel(presenceChannel);
+    if (feedChannel)       db.removeChannel(feedChannel);
+    if (globalFeedChannel) db.removeChannel(globalFeedChannel);
   });
 </script>
 
