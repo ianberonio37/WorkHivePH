@@ -638,6 +638,19 @@
       Listings are reviewed before publishing. KYB verification is required to receive payments.
       <button onclick="handleSellerOnboard()" style="display:block;margin-top:0.5rem;background:none;border:none;color:#29B6D9;font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;padding:0;text-decoration:underline;">Connect Stripe to receive payments</button>
     </div>
+
+    <!-- Quality score widget — updates in real time as the seller types -->
+    <div id="quality-widget" style="margin-bottom:1rem;padding:0.875rem;background:rgba(22,32,50,0.5);border:1px solid rgba(255,255,255,0.07);border-radius:0.75rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+        <span style="font-size:0.78rem;font-weight:700;">Listing quality</span>
+        <span id="quality-score-num" style="font-size:0.95rem;font-weight:800;color:#7B8794;">0 / 100</span>
+      </div>
+      <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:999px;overflow:hidden;">
+        <div id="quality-bar" style="height:100%;width:0%;background:#f87171;transition:width 0.3s,background 0.3s;"></div>
+      </div>
+      <div id="quality-tips" style="margin-top:0.625rem;font-size:0.7rem;color:#7B8794;line-height:1.6;"></div>
+    </div>
+
     <button type="submit" class="btn-primary" id="btn-submit-post">Post Listing</button>
   </form>
 </div>
@@ -685,7 +698,7 @@
     </div>
     <div class="form-group">
       <label class="form-label" for="inq-message">Message</label>
-      <textarea class="wh-textarea" id="inq-message" placeholder="Ask about availability, quantity, shipping, price, or specifications..." required></textarea>
+      <textarea class="wh-textarea" id="inq-message" placeholder="A template will appear here. Edit any line you want, then send." style="min-height:140px;" required></textarea>
     </div>
     <div class="info-notice">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -1290,13 +1303,43 @@
   /* ============================================================
      INQUIRY SHEET
   ============================================================ */
+  /* Inquiry message templates per section — pre-filled to lower buyer friction
+     and raise message quality. Buyers can edit before sending. */
+  const INQUIRY_TEMPLATES = {
+    parts: (item) =>
+      `Hi! I'm interested in your "${item.title}" listing.\n\n` +
+      `Quantity needed: \n` +
+      `Delivery to (city/province): \n` +
+      `Required by (date): \n` +
+      `Spec sheet or photos available?`,
+    training: (item) =>
+      `Hi! I'm interested in your "${item.title}" course.\n\n` +
+      `My role / current level: \n` +
+      `Group size (if booking for a team): \n` +
+      `Preferred schedule (date/time/online or onsite): \n` +
+      `Any prerequisites I should know about?`,
+    jobs: (item) =>
+      `Hi! I'm interested in your service.\n\n` +
+      `Scope of work: \n` +
+      `Site location: \n` +
+      `Timeline / start date: \n` +
+      `Equipment or systems involved: \n` +
+      `Certifications required?`,
+  };
+
   function openInquirySheet(item) {
-    const titleEl = document.getElementById('inq-listing-title');
-    const idEl    = document.getElementById('inq-listing-id');
-    const nameEl  = document.getElementById('inq-name');
-    if (titleEl) titleEl.textContent = item.title;
-    if (idEl)    idEl.value = item.id;
+    const titleEl   = document.getElementById('inq-listing-title');
+    const idEl      = document.getElementById('inq-listing-id');
+    const nameEl    = document.getElementById('inq-name');
+    const messageEl = document.getElementById('inq-message');
+    if (titleEl)   titleEl.textContent = item.title;
+    if (idEl)      idEl.value = item.id;
     if (nameEl && WORKER_NAME) nameEl.value = WORKER_NAME;
+    /* Pre-fill the message with a section-specific template */
+    if (messageEl) {
+      const tplFn = INQUIRY_TEMPLATES[item.section] || INQUIRY_TEMPLATES.parts;
+      messageEl.value = tplFn(item);
+    }
     openSheet('inquiry');
   }
 
@@ -1335,6 +1378,77 @@
   /* ============================================================
      POST LISTING SUBMIT
   ============================================================ */
+  /* ============================================================
+     LISTING QUALITY SCORE — updates live as the seller fills the post form
+  ============================================================ */
+  function computeListingQuality() {
+    const section  = document.getElementById('post-section')?.value      || 'parts';
+    const title    = (document.getElementById('post-title')?.value      || '').trim();
+    const category = document.getElementById('post-category')?.value    || '';
+    const desc     = (document.getElementById('post-desc')?.value       || '').trim();
+    const price    = document.getElementById('post-price')?.value       || '';
+    const location = (document.getElementById('post-location')?.value   || '').trim();
+    const contact  = (document.getElementById('post-contact')?.value    || '').trim();
+
+    let score = 0;
+    const tips = [];
+
+    /* Title — 30 pts (15 for length, 15 for specificity) */
+    if (title.length >= 10) score += 15;
+    else tips.push('Title needs at least 10 characters');
+    if (/(\d|model|spec|brand|grade|series|hp|kw|mm|inch|class|level|cert|pec|psme|asme|nfpa|iso)/i.test(title)) score += 15;
+    else tips.push('Add specifics to title (model number, brand, spec, certification)');
+
+    /* Description — 30 pts (15 for length, 15 for detail) */
+    if (desc.length >= 50) score += 15;
+    else tips.push('Description needs at least 50 characters');
+    if (desc.length >= 150) score += 15;
+    else if (desc.length >= 50) tips.push('Add more detail to description (150+ chars helps)');
+
+    /* Category — 10 pts */
+    if (category && category !== 'Other') score += 10;
+    else tips.push('Pick a specific category (avoid "Other")');
+
+    /* Price — 10 pts (or noted in description) */
+    if (Number(price) > 0) score += 10;
+    else if (/negotiable|contact|quote|inquire/i.test(desc)) score += 10;
+    else tips.push('Set a price, or write "Negotiable" in your description');
+
+    /* Location — 10 pts */
+    if (location.length >= 3) score += 10;
+    else tips.push('Add a city or province');
+
+    /* Contact — 10 pts */
+    if (/\d{7,}|@/.test(contact)) score += 10;
+    else if (contact.length >= 5) score += 5;
+    else tips.push('Add a phone number or email');
+
+    return { score: Math.min(100, score), tips, section };
+  }
+
+  function updateQualityWidget() {
+    const { score, tips } = computeListingQuality();
+    const numEl  = document.getElementById('quality-score-num');
+    const barEl  = document.getElementById('quality-bar');
+    const tipsEl = document.getElementById('quality-tips');
+
+    if (numEl) numEl.textContent = score + ' / 100';
+    if (barEl) {
+      barEl.style.width = score + '%';
+      barEl.style.background = score >= 75 ? '#4ade80' : score >= 50 ? '#fbbf24' : '#f87171';
+    }
+    if (numEl) numEl.style.color = score >= 75 ? '#4ade80' : score >= 50 ? '#fbbf24' : '#f87171';
+
+    if (tipsEl) {
+      if (!tips.length) {
+        tipsEl.innerHTML = '<span style="color:#4ade80;">✓ Great listing — buyers love specifics like yours.</span>';
+      } else {
+        tipsEl.innerHTML = '<strong style="color:#F4F6FA;">To improve:</strong><br>' +
+          tips.slice(0, 4).map(t => '• ' + escHtml(t)).join('<br>');
+      }
+    }
+  }
+
   async function handlePostSubmit(ev) {
     ev.preventDefault();
 
@@ -1379,6 +1493,7 @@
       const hiddenSec = document.getElementById('post-section');
       if (hiddenSec) hiddenSec.value = 'parts';
       populateCategorySelect('parts');
+      updateQualityWidget();
       await loadCounts();
     } catch (err) {
       console.error(err);
@@ -1855,8 +1970,18 @@
         const hidden = document.getElementById('post-section');
         if (hidden) hidden.value = sec;
         populateCategorySelect(sec);
+        updateQualityWidget();
       });
     });
+
+    /* Wire quality widget to every post-form input — recompute on every change */
+    ['post-title','post-category','post-condition','post-desc','post-price','post-location','post-contact'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('input',  updateQualityWidget);
+      el.addEventListener('change', updateQualityWidget);
+    });
+    updateQualityWidget();
 
     /* Search — server-side via tsvector; resets pagination */
     let _searchTimer;
