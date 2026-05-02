@@ -928,6 +928,8 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
     const first = restored[0];
     localStorage.setItem('wh_active_hive_id', first.id);
     localStorage.setItem('wh_hive_id',         first.id);
+    localStorage.setItem('wh_hive_name',       first.name);
+    localStorage.setItem('wh_hive_role',       first.role);
     if (first.code) localStorage.setItem('wh_hive_code', first.code);
 
     HIVE_ID   = first.id;

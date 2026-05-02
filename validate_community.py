@@ -33,6 +33,13 @@ Validates community.html for correctness, security, and platform standards.
     19. writeAuditLog called on power actions (pin, flag, delete)
     20. Leaderboard uses exact count from skill_profiles
 
+  Layer 6 — Feature schema completeness (May 2026)
+    21. All community_posts SELECTs include the optional columns when present
+        in the schema: mentions, edited_at, deleted_at
+    22. Soft-delete UI uses showUndoToast (not showToast) on deletePost
+    23. parseMentions exists and is called from submitPost when @mention UI
+        is present in the composer
+
 Usage:  python validate_community.py
 Output: community_report.json
 """
@@ -68,6 +75,9 @@ CHECKS = {
     "toast_aria":             "L5  Toast has role=alert and aria-live",
     "audit_log_calls":        "L5  writeAuditLog called on pin/flag/delete actions",
     "leaderboard_exact":      "L5  Leaderboard query uses community_xp, community_posts, or skill_badges",
+    "select_includes_optional_cols": "L6  community_posts SELECTs include mentions/edited_at/deleted_at if any do",
+    "soft_delete_uses_undo":  "L6  deletePost uses showUndoToast (soft-delete recovery window)",
+    "mention_parser_wired":   "L6  parseMentions defined and called in submitPost when @mention UI exists",
 }
 
 
@@ -272,6 +282,88 @@ def check_leaderboard_exact(content):
     return issues
 
 
+def check_select_includes_optional_cols(content):
+    """If ANY community_posts SELECT mentions one of {mentions, edited_at, deleted_at},
+    EVERY community_posts SELECT should include all three. The community page added
+    these columns in May 2026; missing them on a single call site means deleted rows
+    leak (deleted_at), edit indicator disappears (edited_at), or @mentions don't
+    render (mentions)."""
+    issues = []
+    optional_cols = ["mentions", "edited_at", "deleted_at"]
+    # Find every .from('community_posts').select('...') block
+    selects = re.findall(
+        r"\.from\(\s*['\"]community_posts['\"]\s*\)\s*\.select\(\s*['\"]([^'\"]+)['\"]",
+        content
+    )
+    if not selects:
+        return issues
+    # The "head:true" count selects don't have full column lists — exclude them.
+    real_selects = [s for s in selects if "," in s and "count" not in s.replace(" ", "")]
+    # If none of them mentions any optional column, the schema may simply not have
+    # added them yet — skip silently.
+    any_uses = any(any(c in s for c in optional_cols) for s in real_selects)
+    if not any_uses:
+        return issues
+    # At least one SELECT uses an optional column → enforce on all.
+    for idx, s in enumerate(real_selects):
+        missing = [c for c in optional_cols if c not in s]
+        if missing:
+            line = content[:content.find(s)].count("\n") + 1
+            issues.append({
+                "check": "select_includes_optional_cols",
+                "reason": f"community_posts SELECT at ~line {line} is missing {', '.join(missing)} — other SELECTs include these; inconsistency hides edit/delete/mention state"
+            })
+    return issues
+
+
+def check_soft_delete_uses_undo(content):
+    """If deletePost is implemented as a soft-delete (UPDATE on deleted_at),
+    it should pair with showUndoToast for the 5-second recovery window. Hard-delete
+    via .delete() means the row is gone — undo toast wouldn't help. So the rule
+    only applies when deletePost is soft-delete shaped."""
+    issues = []
+    fn_match = re.search(r'async function deletePost\b', content)
+    if not fn_match:
+        return issues
+    body = content[fn_match.start():fn_match.start() + 1500]
+    is_soft_delete = bool(re.search(r"deleted_at\s*:", body) or
+                          re.search(r"update\(\s*\{[^}]*deleted_at", body))
+    if not is_soft_delete:
+        return issues  # hard-delete shape, no undo expected
+    if "showUndoToast" not in body:
+        issues.append({
+            "check": "soft_delete_uses_undo",
+            "reason": "deletePost is soft-delete (sets deleted_at) but does not call showUndoToast — users have no recovery window"
+        })
+    return issues
+
+
+def check_mention_parser_wired(content):
+    """If the composer has @mention UI (mention-dropdown element or @ trigger
+    handler), parseMentions must be defined and called from submitPost. Otherwise
+    the dropdown sets up names but the insert doesn't store them."""
+    issues = []
+    has_mention_ui = bool(re.search(r"mention-dropdown|_maybeOpenMentionDropdown|selectMention", content))
+    if not has_mention_ui:
+        return issues
+    if not re.search(r"function\s+parseMentions\b", content):
+        issues.append({
+            "check": "mention_parser_wired",
+            "reason": "Composer has @mention UI but parseMentions() is not defined — selected names won't be stored on the post row"
+        })
+        return issues
+    fn_match = re.search(r'async function submitPost\b', content)
+    if not fn_match:
+        return issues
+    body = content[fn_match.start():fn_match.start() + 3000]
+    if "parseMentions" not in body:
+        issues.append({
+            "check": "mention_parser_wired",
+            "reason": "parseMentions exists but submitPost does not call it — mentions array would be empty on insert"
+        })
+    return issues
+
+
 # Ordered list of check keys (drives print order)
 CHECK_NAMES = list(CHECKS.keys())
 CHECK_LABELS = CHECKS
@@ -281,7 +373,7 @@ CHECK_LABELS = CHECKS
 
 def main():
     def bold(s): return f"\033[1m{s}\033[0m"
-    print(bold("\nCommunity Validator (5-layer, 21 checks)"))
+    print(bold("\nCommunity Validator (6-layer, 24 checks)"))
     print("=" * 55)
 
     content = read_file(PAGE)
@@ -311,6 +403,9 @@ def main():
     all_issues += check_toast_aria(content)
     all_issues += check_audit_log(content)
     all_issues += check_leaderboard_exact(content)
+    all_issues += check_select_includes_optional_cols(content)
+    all_issues += check_soft_delete_uses_undo(content)
+    all_issues += check_mention_parser_wired(content)
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 
