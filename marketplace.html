@@ -218,6 +218,19 @@
       font-size: 0.75rem; font-weight: 700; color: #F7A21B;
     }
 
+    /* Heart watchlist toggle on listing card */
+    .heart-btn {
+      position: absolute; top: 0.5rem; right: 0.5rem;
+      width: 32px; height: 32px; border-radius: 50%; border: none;
+      background: rgba(15,25,35,0.7);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.15s, transform 0.15s;
+      color: #F4F6FA;
+    }
+    .heart-btn:hover { background: rgba(15,25,35,0.95); transform: scale(1.08); }
+    .heart-btn.saved { color: #f87171; background: rgba(248,113,113,0.15); }
+    .heart-btn.saved:hover { background: rgba(248,113,113,0.25); }
+
     /* Card body */
     .card-body { padding: 0.875rem; }
     .card-title {
@@ -519,6 +532,10 @@
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
       <span id="txt-total-listings">0 listings</span>
     </div>
+    <button id="btn-my-watchlist" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Watchlist">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      Watchlist
+    </button>
     <a href="marketplace-seller.html" style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.25);border-radius:999px;color:#29B6D9;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;padding:0.2rem 0.65rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Listings">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
       My Listings
@@ -729,6 +746,26 @@
 </div>
 
 <!-- ==============================
+     SHEET: MY WATCHLIST
+     ============================== -->
+<div class="sheet-overlay" id="overlay-watchlist" role="dialog" aria-modal="true" aria-labelledby="title-sheet-watchlist"></div>
+<div class="sheet" id="sheet-watchlist">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title" id="title-sheet-watchlist">My Watchlist</span>
+    <button class="btn-close-sheet" id="btn-close-watchlist" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div id="watchlist-content">
+    <div style="text-align:center;padding:2rem 1rem;color:#7B8794;">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <p style="margin-top:0.75rem;font-size:0.82rem;">Loading saved listings…</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================
      SHEET: LEAVE A REVIEW
      ============================== -->
 <!-- ==============================
@@ -859,6 +896,7 @@
   let _lastCreatedAt = null;
   let _hasMore       = false;
   let _loadingMore   = false;
+  let _watchlist     = new Set(); /* listing IDs the current buyer has saved */
   const PAGE_SIZE    = 24;
 
   /* ============================================================
@@ -953,6 +991,149 @@
   }
 
   /* ============================================================
+     WATCHLIST — load, toggle, render
+  ============================================================ */
+  async function loadWatchlist() {
+    if (!WORKER_NAME) { _watchlist = new Set(); return; }
+    try {
+      const { data } = await db
+        .from('marketplace_watchlist')
+        .select('listing_id')
+        .eq('worker_name', WORKER_NAME);
+      _watchlist = new Set((data || []).map(r => r.listing_id));
+    } catch (_) { _watchlist = new Set(); }
+  }
+
+  async function toggleWatchlist(listingId) {
+    if (!WORKER_NAME) {
+      showToast('Sign in first to save listings.', 'error');
+      return;
+    }
+    const isSaved = _watchlist.has(listingId);
+    /* Optimistic UI update first */
+    if (isSaved) _watchlist.delete(listingId);
+    else _watchlist.add(listingId);
+    syncHeartIcons(listingId);
+
+    try {
+      if (isSaved) {
+        const { error } = await db
+          .from('marketplace_watchlist')
+          .delete()
+          .eq('worker_name', WORKER_NAME)
+          .eq('listing_id', listingId);
+        if (error) throw error;
+        showToast('Removed from watchlist.', 'info');
+      } else {
+        const { error } = await db
+          .from('marketplace_watchlist')
+          .insert([{ worker_name: WORKER_NAME, listing_id: listingId }]);
+        if (error) throw error;
+        showToast('Saved to watchlist.', 'success');
+      }
+    } catch (_err) {
+      /* Rollback the optimistic change */
+      if (isSaved) _watchlist.add(listingId);
+      else _watchlist.delete(listingId);
+      syncHeartIcons(listingId);
+      showToast('Could not update watchlist. Try again.', 'error');
+    }
+  }
+
+  /* Update every heart icon for a given listing ID across the page */
+  function syncHeartIcons(listingId) {
+    const isSaved = _watchlist.has(listingId);
+    document.querySelectorAll(`.heart-btn[data-listing="${listingId}"]`).forEach(btn => {
+      btn.classList.toggle('saved', isSaved);
+      btn.setAttribute('aria-pressed', isSaved ? 'true' : 'false');
+      btn.setAttribute('aria-label',  isSaved ? 'Remove from watchlist' : 'Save to watchlist');
+      btn.innerHTML = isSaved
+        ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`
+        : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
+    });
+    /* Also update the detail sheet Save button if it's open */
+    const detailBtn = document.getElementById('btn-detail-save');
+    if (detailBtn && detailBtn.dataset.listing === listingId) {
+      detailBtn.textContent = isSaved ? '★ Saved' : 'Save';
+      detailBtn.classList.toggle('saved-active', isSaved);
+    }
+  }
+
+  /* Render the My Watchlist sheet */
+  async function openWatchlistSheet() {
+    if (!WORKER_NAME) { showToast('Sign in to view your watchlist.', 'error'); return; }
+    openSheet('watchlist');
+    const content = document.getElementById('watchlist-content');
+    if (!content) return;
+
+    try {
+      /* Fetch the actual listings, joined via watchlist IDs */
+      const ids = Array.from(_watchlist);
+      if (!ids.length) {
+        content.innerHTML = `
+          <div style="text-align:center;padding:2.5rem 1rem;color:#7B8794;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <h3 style="font-size:0.95rem;font-weight:700;color:#F4F6FA;margin:0.625rem 0 0.4rem;">No saved listings</h3>
+            <p style="font-size:0.78rem;">Tap the heart on any listing to save it for later.</p>
+          </div>`;
+        return;
+      }
+
+      const { data, error } = await db
+        .from('marketplace_listings')
+        .select('id,title,section,category,price,location,seller_name,image_url,status,created_at')
+        .in('id', ids)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+
+      const items = data || [];
+      if (!items.length) {
+        content.innerHTML = `<p style="font-size:0.78rem;color:#7B8794;padding:1rem 0;">Saved listings are no longer available.</p>`;
+        return;
+      }
+
+      const e = escHtml;
+      content.innerHTML = items.map(item => {
+        const removed = item.status === 'removed';
+        const hasImg  = !!item.image_url;
+        return `
+          <div style="display:flex;gap:0.75rem;padding:0.75rem 0;border-bottom:1px solid rgba(255,255,255,0.05);${removed ? 'opacity:0.6;' : ''}">
+            <div style="width:60px;height:60px;border-radius:0.5rem;flex-shrink:0;background:rgba(42,61,88,0.8);display:flex;align-items:center;justify-content:center;overflow:hidden;">
+              ${hasImg ? `<img src="${e(item.image_url)}" alt="${e(item.title)}" style="width:100%;height:100%;object-fit:cover;" />`
+                       : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7B8794" stroke-width="1.5" opacity="0.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:0.82rem;font-weight:700;line-height:1.3;margin-bottom:0.2rem;">${e(item.title)}</div>
+              <div style="font-size:0.7rem;color:#7B8794;">
+                ${e(fmtPrice(item.price))} &nbsp;·&nbsp; ${e(item.section)} &nbsp;·&nbsp; ${e(item.seller_name || 'Seller')}
+                ${removed ? `<br><span style="color:#f87171;">No longer available</span>` : ''}
+              </div>
+              <div style="display:flex;gap:0.4rem;margin-top:0.5rem;">
+                ${!removed ? `<button class="btn-watch-view"   data-id="${e(item.id)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;">View</button>` : ''}
+                <button class="btn-watch-remove" data-id="${e(item.id)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;">Remove</button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      content.querySelectorAll('.btn-watch-view').forEach(btn => {
+        btn.addEventListener('click', () => {
+          closeSheet('watchlist');
+          openDetailSheet(btn.dataset.id);
+        });
+      });
+      content.querySelectorAll('.btn-watch-remove').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          await toggleWatchlist(btn.dataset.id);
+          openWatchlistSheet(); /* reload */
+        });
+      });
+    } catch (_err) {
+      content.innerHTML = `<p style="font-size:0.78rem;color:#f87171;padding:1rem 0;">Could not load watchlist. Try again.</p>`;
+    }
+  }
+
+  /* ============================================================
      LISTING CARD HTML
   ============================================================ */
   function cardHtml(item) {
@@ -973,6 +1154,13 @@
               ? `<span class="badge-verified"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>KYB</span>`
               : ''}
           </div>
+          <button class="heart-btn ${_watchlist.has(item.id) ? 'saved' : ''}" data-listing="${e(item.id)}"
+                  aria-pressed="${_watchlist.has(item.id) ? 'true' : 'false'}"
+                  aria-label="${_watchlist.has(item.id) ? 'Remove from watchlist' : 'Save to watchlist'}">
+            ${_watchlist.has(item.id)
+              ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`
+              : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`}
+          </button>
           ${hasPrice ? `<span class="card-price-pill">${e(fmtPrice(item.price))}</span>` : ''}
         </div>
         <div class="card-body">
@@ -1064,7 +1252,17 @@
       card.addEventListener('click', (ev) => {
         /* Skip when clicking the seller link (let it navigate normally) */
         if (ev.target?.closest?.('.seller-link')) return;
+        /* Skip when tapping the heart button — that has its own handler */
+        if (ev.target?.closest?.('.heart-btn')) return;
         openDetailSheet(card.dataset.id);
+      });
+    });
+
+    /* Heart-button toggle wiring */
+    grid.querySelectorAll('.heart-btn').forEach(btn => {
+      btn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        toggleWatchlist(btn.dataset.listing);
       });
     });
   }
@@ -1276,7 +1474,7 @@
       </div>
 
       <div class="action-row">
-        <button class="btn-secondary" id="btn-detail-save">Save</button>
+        <button class="btn-secondary" id="btn-detail-save" data-listing="${e(item.id)}">${_watchlist.has(item.id) ? '★ Saved' : 'Save'}</button>
         ${PAYMENTS_ENABLED && item.price && Number(item.price) > 0
           ? `<button class="btn-cta" id="btn-detail-buy">Buy Now &mdash; ${e(fmtPrice(item.price))}</button>`
           : `<button class="btn-cta" id="btn-detail-contact">Contact Seller</button>`}
@@ -1293,9 +1491,7 @@
       closeSheet('detail');
       openInquirySheet(item);
     });
-    document.getElementById('btn-detail-save')?.addEventListener('click', () => {
-      showToast('Saved to watchlist', 'success');
-    });
+    document.getElementById('btn-detail-save')?.addEventListener('click', () => toggleWatchlist(item.id));
 
     openSheet('detail');
   }
@@ -1938,8 +2134,11 @@
       document.getElementById('btn-my-orders')?.addEventListener('click', openOrdersSheet);
     }
 
+    /* Watchlist button */
+    document.getElementById('btn-my-watchlist')?.addEventListener('click', openWatchlistSheet);
+
     /* Close overlays */
-    ['post', 'detail', 'inquiry', 'orders', 'review', 'dispute'].forEach(name => {
+    ['post', 'detail', 'inquiry', 'orders', 'review', 'dispute', 'watchlist'].forEach(name => {
       document.getElementById('overlay-' + name)?.addEventListener('click', () => closeSheet(name));
       document.getElementById('btn-close-' + name)?.addEventListener('click', () => closeSheet(name));
     });
@@ -2023,6 +2222,9 @@
     /* Init UI */
     renderFilterChips();
     populateCategorySelect('parts');
+
+    /* Load watchlist first so heart states render correctly on first paint */
+    await loadWatchlist();
 
     /* Load data */
     await Promise.all([loadListings(), loadCounts()]);
