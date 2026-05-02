@@ -577,6 +577,14 @@
 </head>
 <body>
 
+<!-- ── Platform Admin Gate (visible by default, hides only when async DB check confirms admin) ── -->
+<div id="pa-gate" style="position:fixed;inset:0;z-index:99999;background:#0f1923;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.75rem;text-align:center;padding:2rem;font-family:'Segoe UI', system-ui, sans-serif;color:#F4F6FA;">
+  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#F7A21B" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+  <h2 id="pa-gate-title" style="font-size:1.25rem;font-weight:700;margin:0;">Platform Guardian</h2>
+  <p id="pa-gate-msg" style="font-size:0.85rem;color:rgba(255,255,255,0.55);max-width:340px;line-height:1.5;margin:0;">Verifying admin access…</p>
+  <a id="pa-gate-back" href="marketplace.html" style="display:none;margin-top:0.5rem;padding:0.55rem 1.25rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.3);border-radius:0.625rem;color:#F7A21B;font-weight:600;font-size:0.82rem;text-decoration:none;">Back to Marketplace</a>
+</div>
+
 <!-- ── Bottom sheet for backlog item detail on mobile ── -->
 <div class="bsheet-overlay" id="bsheet-overlay">
   <div class="bsheet-panel" id="bsheet-panel">
@@ -962,7 +970,52 @@
   <div id="terminal"></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
+// ── Platform Admin Gate ──────────────────────────────────────────────────────
+// Async DB check against marketplace_platform_admins. Until verified, the
+// gate overlay hides every dashboard widget. Non-admins see the gate copy
+// and a Back to Marketplace link.
+(async function gateAdminAccess() {
+  try {
+    const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+
+    const gate    = document.getElementById('pa-gate');
+    const titleEl = document.getElementById('pa-gate-title');
+    const msgEl   = document.getElementById('pa-gate-msg');
+    const backEl  = document.getElementById('pa-gate-back');
+
+    function deny(title, msg) {
+      if (titleEl) titleEl.textContent = title;
+      if (msgEl)   msgEl.textContent   = msg;
+      if (backEl)  backEl.style.display = 'inline-block';
+    }
+
+    if (!WORKER_NAME) { deny('Sign in required', 'Sign in to WorkHive first, then return to this page.'); return; }
+
+    const { data, error } = await db
+      .from('marketplace_platform_admins')
+      .select('worker_name')
+      .eq('worker_name', WORKER_NAME)
+      .maybeSingle();
+
+    if (error) { deny('Could not verify access', 'Network or DB error. Reload to try again.'); return; }
+    if (!data)  { deny('Platform Admins Only', 'This dashboard is restricted to platform admins. Ask the existing admin to add your worker name to marketplace_platform_admins.'); return; }
+
+    /* Verified — hide the gate so the dashboard renders normally */
+    if (gate) gate.style.display = 'none';
+  } catch (_) {
+    /* Fail closed — gate stays up */
+    const msgEl = document.getElementById('pa-gate-msg');
+    const backEl = document.getElementById('pa-gate-back');
+    if (msgEl)  msgEl.textContent = 'Could not verify admin access. Reload to try again.';
+    if (backEl) backEl.style.display = 'inline-block';
+  }
+})();
+
 function escHtml(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
