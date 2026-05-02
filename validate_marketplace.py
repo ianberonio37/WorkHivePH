@@ -51,6 +51,7 @@ REQUIRED_TABLES = [
     ("marketplace_orders",    ["id", "listing_id", "buyer_name", "seller_name", "price", "status", "stripe_session_id"]),
     ("marketplace_disputes",  ["id", "order_id", "opened_by", "seller_name", "reason", "status", "created_at"]),
     ("marketplace_watchlist", ["id", "worker_name", "listing_id", "created_at"]),
+    ("marketplace_saved_searches", ["id", "worker_name", "search_name", "section", "active", "created_at"]),
 ]
 
 REQUIRED_CHECK_CONSTRAINTS = [
@@ -100,7 +101,7 @@ CHECK_NAMES = [
 ]
 
 CHECK_LABELS = {
-    "tables_defined":              "L1  All 7 marketplace tables defined with required columns",
+    "tables_defined":              "L1  All 8 marketplace tables defined with required columns",
     "check_constraints":           "L1  All CHECK constraints present (section, status, tier, condition)",
     "triggers_present":            "L1  All 3 marketplace triggers present (tier, rate-limit, rating)",
     "migration_timestamps_unique": "L1  Migration timestamp prefixes unique (no supabase db push conflict)",

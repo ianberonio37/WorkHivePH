@@ -536,6 +536,10 @@
       <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       Watchlist
     </button>
+    <button id="btn-saved-searches" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:999px;color:#a78bfa;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="Saved Searches">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 21 12 17 5 21 5 5 19 5 19 21"/></svg>
+      Searches
+    </button>
     <a href="marketplace-seller.html" style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.25);border-radius:999px;color:#29B6D9;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;padding:0.2rem 0.65rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Listings">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
       My Listings
@@ -761,6 +765,40 @@
     <div style="text-align:center;padding:2rem 1rem;color:#7B8794;">
       <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
       <p style="margin-top:0.75rem;font-size:0.82rem;">Loading orders…</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================
+     SHEET: SAVED SEARCHES
+     ============================== -->
+<div class="sheet-overlay" id="overlay-saved-searches" role="dialog" aria-modal="true" aria-labelledby="title-sheet-saved-searches"></div>
+<div class="sheet" id="sheet-saved-searches">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title" id="title-sheet-saved-searches">Saved Searches</span>
+    <button class="btn-close-sheet" id="btn-close-saved-searches" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <!-- Save current panel — only shown when at least one filter is active -->
+  <div id="save-current-panel" style="display:none;background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.18);border-radius:0.75rem;padding:0.875rem;margin-bottom:1rem;">
+    <div style="font-size:0.78rem;font-weight:700;margin-bottom:0.5rem;color:#29B6D9;">Save current search</div>
+    <div id="save-current-summary" style="font-size:0.72rem;color:#7B8794;margin-bottom:0.625rem;line-height:1.5;"></div>
+    <div class="form-group" style="margin-bottom:0.625rem;">
+      <input class="wh-input" type="text" id="save-search-name" placeholder="Name this search (e.g. HVAC Manila)" maxlength="60" style="font-size:1rem;" />
+    </div>
+    <div class="form-group" style="margin-bottom:0.625rem;">
+      <input class="wh-input" type="email" id="save-search-email" placeholder="Email for future alerts (optional)" style="font-size:1rem;" />
+    </div>
+    <button id="btn-save-current-search" class="btn-primary" style="font-size:0.85rem;">Save Search</button>
+  </div>
+
+  <div id="saved-searches-content">
+    <div style="text-align:center;padding:2rem 1rem;color:#7B8794;">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><polygon points="19 21 12 17 5 21 5 5 19 5 19 21"/></svg>
+      <p style="margin-top:0.75rem;font-size:0.82rem;">Loading saved searches…</p>
     </div>
   </div>
 </div>
@@ -1008,6 +1046,180 @@
         loadListings();
       });
     });
+  }
+
+  /* ============================================================
+     SAVED SEARCHES — save, apply, delete
+  ============================================================ */
+  function buildSearchSummary() {
+    const parts = [];
+    parts.push(_section.charAt(0).toUpperCase() + _section.slice(1));
+    if (_cat && _cat !== 'All') parts.push(_cat);
+    if (_query) parts.push(`"${_query}"`);
+    if (_priceMin != null || _priceMax != null) {
+      const lo = _priceMin != null ? Number(_priceMin).toLocaleString('en-PH') : '0';
+      const hi = _priceMax != null ? Number(_priceMax).toLocaleString('en-PH') : 'any';
+      parts.push(`PHP ${lo}-${hi}`);
+    }
+    return parts.join(' · ');
+  }
+
+  function hasActiveFilters() {
+    return (_cat && _cat !== 'All') || _query || _priceMin != null || _priceMax != null;
+  }
+
+  async function openSavedSearchesSheet() {
+    if (!WORKER_NAME) { showToast('Sign in to save searches.', 'error'); return; }
+
+    /* Toggle the "save current" panel based on whether filters are active */
+    const savePanel  = document.getElementById('save-current-panel');
+    const summaryEl  = document.getElementById('save-current-summary');
+    const nameInput  = document.getElementById('save-search-name');
+    if (savePanel) savePanel.style.display = hasActiveFilters() ? 'block' : 'none';
+    if (summaryEl) summaryEl.textContent   = buildSearchSummary();
+    if (nameInput) nameInput.value         = buildSearchSummary().slice(0, 60);
+
+    openSheet('saved-searches');
+    const content = document.getElementById('saved-searches-content');
+    if (!content) return;
+
+    try {
+      const { data, error } = await db
+        .from('marketplace_saved_searches')
+        .select('id,search_name,section,category,query_text,price_min,price_max,email,created_at')
+        .eq('worker_name', WORKER_NAME)
+        .eq('active', true)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (error) throw error;
+
+      const items = data || [];
+      if (!items.length) {
+        content.innerHTML = `<div style="text-align:center;padding:2rem 1rem;color:#7B8794;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><polygon points="19 21 12 17 5 21 5 5 19 5 19 21"/></svg>
+          <h3 style="font-size:0.95rem;font-weight:700;color:#F4F6FA;margin:0.625rem 0 0.4rem;">No saved searches</h3>
+          <p style="font-size:0.78rem;">Set filters above and save them here for quick reuse.</p>
+        </div>`;
+        return;
+      }
+
+      const e = escHtml;
+      content.innerHTML = items.map(s => {
+        const pieces = [];
+        if (s.section)    pieces.push(s.section.charAt(0).toUpperCase() + s.section.slice(1));
+        if (s.category)   pieces.push(s.category);
+        if (s.query_text) pieces.push(`"${s.query_text}"`);
+        if (s.price_min != null || s.price_max != null) {
+          pieces.push(`PHP ${s.price_min ?? '0'}-${s.price_max ?? 'any'}`);
+        }
+        return `
+          <div style="padding:0.75rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.35rem;">
+              <span style="font-size:0.85rem;font-weight:700;">${e(s.search_name)}</span>
+              ${s.email ? '<span style="font-size:0.62rem;color:#a78bfa;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);border-radius:999px;padding:0.1rem 0.45rem;">✉ Alerts on</span>' : ''}
+            </div>
+            <div style="font-size:0.72rem;color:#7B8794;margin-bottom:0.625rem;">${e(pieces.join(' · ') || 'All listings')}</div>
+            <div style="display:flex;gap:0.4rem;">
+              <button class="btn-apply-search" data-id="${e(s.id)}" data-section="${e(s.section || 'parts')}" data-cat="${e(s.category || 'All')}" data-q="${e(s.query_text || '')}" data-min="${s.price_min ?? ''}" data-max="${s.price_max ?? ''}"
+                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;">Apply</button>
+              <button class="btn-delete-search" data-id="${e(s.id)}"
+                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(248,113,113,0.25);background:rgba(248,113,113,0.06);color:#f87171;font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;">Delete</button>
+            </div>
+          </div>`;
+      }).join('');
+
+      content.querySelectorAll('.btn-apply-search').forEach(btn => {
+        btn.addEventListener('click', () => applySavedSearch({
+          section: btn.dataset.section,
+          cat:     btn.dataset.cat,
+          query:   btn.dataset.q,
+          min:     btn.dataset.min,
+          max:     btn.dataset.max,
+        }));
+      });
+      content.querySelectorAll('.btn-delete-search').forEach(btn => {
+        btn.addEventListener('click', () => deleteSavedSearch(btn.dataset.id));
+      });
+    } catch (_err) {
+      content.innerHTML = `<p style="font-size:0.78rem;color:#f87171;padding:1rem 0;">Could not load saved searches. Try again.</p>`;
+    }
+  }
+
+  async function handleSaveCurrentSearch() {
+    const name  = (document.getElementById('save-search-name')?.value  || '').trim();
+    const email = (document.getElementById('save-search-email')?.value || '').trim();
+    if (!name) { showToast('Give this search a name.', 'error'); return; }
+    if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { showToast('Invalid email address.', 'error'); return; }
+
+    const btn = document.getElementById('btn-save-current-search');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    try {
+      const { error } = await db.from('marketplace_saved_searches').insert([{
+        worker_name: WORKER_NAME,
+        email:       email || null,
+        search_name: name,
+        section:     _section,
+        category:    _cat !== 'All' ? _cat : null,
+        query_text:  _query || null,
+        price_min:   _priceMin,
+        price_max:   _priceMax,
+      }]);
+      if (error) throw error;
+      showToast('Search saved.', 'success');
+      /* Reload the sheet content with the new entry */
+      openSavedSearchesSheet();
+    } catch (_err) {
+      showToast('Could not save. Try again.', 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Save Search'; }
+    }
+  }
+
+  function applySavedSearch({ section, cat, query, min, max }) {
+    /* Switch to the section first (this clears _cat, _query, _priceMin/Max and re-fetches) */
+    if (section && section !== _section) {
+      switchSection(section);
+    }
+    /* Apply the rest after switchSection's loadListings settles */
+    setTimeout(() => {
+      _cat      = cat || 'All';
+      _query    = query || '';
+      _priceMin = min ? parseFloat(min) : null;
+      _priceMax = max ? parseFloat(max) : null;
+
+      const srch = document.getElementById('search-input');
+      if (srch) srch.value = _query;
+      const minEl = document.getElementById('price-min');
+      const maxEl = document.getElementById('price-max');
+      if (minEl) minEl.value = _priceMin != null ? String(_priceMin) : '';
+      if (maxEl) maxEl.value = _priceMax != null ? String(_priceMax) : '';
+
+      /* Show the price filter panel if a price was set */
+      if (_priceMin != null || _priceMax != null) {
+        document.getElementById('price-filter-panel')?.classList.add('show');
+        document.getElementById('btn-price-filter')?.classList.add('active');
+      }
+
+      renderFilterChips();
+      loadListings();
+      closeSheet('saved-searches');
+      showToast('Search applied.', 'info');
+    }, 50);
+  }
+
+  async function deleteSavedSearch(id) {
+    try {
+      const { error } = await db
+        .from('marketplace_saved_searches')
+        .delete()
+        .eq('id', id)
+        .eq('worker_name', WORKER_NAME);
+      if (error) throw error;
+      showToast('Saved search removed.', 'info');
+      openSavedSearchesSheet(); /* reload */
+    } catch (_) {
+      showToast('Could not delete. Try again.', 'error');
+    }
   }
 
   /* ============================================================
@@ -2293,8 +2505,12 @@
     /* Watchlist button */
     document.getElementById('btn-my-watchlist')?.addEventListener('click', openWatchlistSheet);
 
+    /* Saved searches button + save handler */
+    document.getElementById('btn-saved-searches')?.addEventListener('click', openSavedSearchesSheet);
+    document.getElementById('btn-save-current-search')?.addEventListener('click', handleSaveCurrentSearch);
+
     /* Close overlays */
-    ['post', 'detail', 'inquiry', 'orders', 'review', 'dispute', 'watchlist'].forEach(name => {
+    ['post', 'detail', 'inquiry', 'orders', 'review', 'dispute', 'watchlist', 'saved-searches'].forEach(name => {
       document.getElementById('overlay-' + name)?.addEventListener('click', () => closeSheet(name));
       document.getElementById('btn-close-' + name)?.addEventListener('click', () => closeSheet(name));
     });
