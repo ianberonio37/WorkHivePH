@@ -230,12 +230,12 @@
   <div class="aurora-blob a2"></div>
 </div>
 
-<!-- Supervisor gate -->
+<!-- Platform admin gate -->
 <div id="supervisor-gate" role="alert">
   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-  <h2>Supervisors Only</h2>
-  <p>This page is restricted to hive supervisors. Sign in as a supervisor to access the marketplace admin.</p>
-  <a href="hive.html">Go to WorkHive</a>
+  <h2>Platform Admins Only</h2>
+  <p>This page is restricted to platform admins. If you should have access, ask the existing admin to add your worker name to the marketplace_platform_admins table.</p>
+  <a href="marketplace.html">Back to Marketplace</a>
 </div>
 
 <div id="toast" role="alert" aria-live="polite"></div>
@@ -326,15 +326,25 @@
   const PAYMENTS_ENABLED = false;
 
   /* ============================================================
-     IDENTITY + GATE
+     IDENTITY + PLATFORM ADMIN GATE
+     Asynchronously checks marketplace_platform_admins table — being a hive
+     supervisor is no longer enough; explicit platform admin grant required.
   ============================================================ */
   const WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
   const HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
   const HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
+  let _isPlatformAdmin = false;
 
-  if (!WORKER_NAME || HIVE_ROLE !== 'supervisor') {
-    document.getElementById('supervisor-gate').style.display = 'flex';
-    document.getElementById('main-content').style.display   = 'none';
+  async function verifyPlatformAdmin() {
+    if (!WORKER_NAME) return false;
+    try {
+      const { data } = await db
+        .from('marketplace_platform_admins')
+        .select('worker_name')
+        .eq('worker_name', WORKER_NAME)
+        .maybeSingle();
+      return !!data;
+    } catch (_) { return false; }
   }
 
   /* ============================================================
@@ -835,7 +845,13 @@
      INIT
   ============================================================ */
   document.addEventListener('DOMContentLoaded', async () => {
-    if (HIVE_ROLE !== 'supervisor') return;
+    /* Verify the worker is a platform admin via DB — supersedes HIVE_ROLE */
+    _isPlatformAdmin = await verifyPlatformAdmin();
+    if (!_isPlatformAdmin) {
+      document.getElementById('supervisor-gate').style.display = 'flex';
+      document.getElementById('main-content').style.display    = 'none';
+      return;
+    }
 
     /* Hide Disputes tab when payments disabled (no orders → no escrow disputes) */
     if (!PAYMENTS_ENABLED) {

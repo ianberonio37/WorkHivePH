@@ -19,7 +19,7 @@ discovered while shipping the marketplace end-to-end (May 2026).
     9.  Stripe key server-side only             — STRIPE_SECRET_KEY only in Deno.env.get, never on frontend
 
   Layer 3 — UI integrity
-    10. marketplace-admin supervisor gate       — HIVE_ROLE !== 'supervisor' redirect
+    10. marketplace-admin platform-admin gate   — verifyPlatformAdmin() DB check on marketplace_platform_admins
     11. marketplace-seller identity gate        — WORKER_NAME check
     12. Sub-page path ordering                  — marketplace-admin/seller checked BEFORE marketplace
                                                   in floating-ai.js (path.includes() match conflict)
@@ -52,6 +52,7 @@ REQUIRED_TABLES = [
     ("marketplace_disputes",  ["id", "order_id", "opened_by", "seller_name", "reason", "status", "created_at"]),
     ("marketplace_watchlist", ["id", "worker_name", "listing_id", "created_at"]),
     ("marketplace_saved_searches", ["id", "worker_name", "search_name", "section", "active", "created_at"]),
+    ("marketplace_platform_admins", ["worker_name", "granted_at", "granted_by"]),
 ]
 
 REQUIRED_CHECK_CONSTRAINTS = [
@@ -101,7 +102,7 @@ CHECK_NAMES = [
 ]
 
 CHECK_LABELS = {
-    "tables_defined":              "L1  All 8 marketplace tables defined with required columns",
+    "tables_defined":              "L1  All 9 marketplace tables defined with required columns",
     "check_constraints":           "L1  All CHECK constraints present (section, status, tier, condition)",
     "triggers_present":            "L1  All 3 marketplace triggers present (tier, rate-limit, rating)",
     "migration_timestamps_unique": "L1  Migration timestamp prefixes unique (no supabase db push conflict)",
@@ -111,7 +112,7 @@ CHECK_LABELS = {
     "platform_fee":                "L2  marketplace-checkout uses application_fee_amount for platform cut",
     "functions_registered":        "L2  All 5 marketplace functions registered in config.toml + deploy-functions.ps1",
     "stripe_key_server_only":      "L2  STRIPE_SECRET_KEY only used in Edge Functions, never on frontend",
-    "admin_supervisor_gate":       "L3  marketplace-admin.html has supervisor role gate",
+    "admin_supervisor_gate":       "L3  marketplace-admin.html gates on marketplace_platform_admins (not just hive supervisor)",
     "seller_identity_gate":        "L3  marketplace-seller.html has WORKER_NAME identity gate",
     "subpage_path_ordering":       "L3  marketplace-admin/seller checked BEFORE marketplace in floating-ai.js",
     "order_status_consistency":    "L4  All 6 order status values declared on backend match UI labels",
@@ -341,10 +342,11 @@ def check_admin_supervisor_gate():
             "reason": "marketplace-admin.html not found",
         })
         return issues
-    if not re.search(r"HIVE_ROLE\s*!==\s*['\"]supervisor['\"]", content):
+    has_platform_admin_check = re.search(r"marketplace_platform_admins", content)
+    if not has_platform_admin_check:
         issues.append({
             "check":  "admin_supervisor_gate",
-            "reason": "marketplace-admin.html does not gate on HIVE_ROLE !== 'supervisor' — non-supervisors can approve listings",
+            "reason": "marketplace-admin.html does not check marketplace_platform_admins table — any hive supervisor (not just platform admins) could access the page",
         })
     return issues
 

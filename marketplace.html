@@ -2711,11 +2711,18 @@
     /* FAB */
     document.getElementById('fab-post')?.addEventListener('click', openPostSheet);
 
-    /* Show admin link only for supervisors */
-    const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
-    if (HIVE_ROLE === 'supervisor') {
-      const adminLink = document.getElementById('btn-admin-link');
-      if (adminLink) adminLink.style.display = 'inline-flex';
+    /* Show admin link only for platform admins (async DB check via marketplace_platform_admins) */
+    if (WORKER_NAME) {
+      db.from('marketplace_platform_admins')
+        .select('worker_name')
+        .eq('worker_name', WORKER_NAME)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data) {
+            const adminLink = document.getElementById('btn-admin-link');
+            if (adminLink) adminLink.style.display = 'inline-flex';
+          }
+        });
     }
 
     /* My Orders button — only when payments enabled */
