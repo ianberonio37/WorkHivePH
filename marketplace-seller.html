@@ -295,6 +295,10 @@
       <span class="lbl">Orders</span>
       <span class="tab-count" id="badge-orders">0</span>
     </button>
+    <button class="tab-btn" data-tab="analytics" role="tab" aria-selected="false">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+      <span class="lbl">Analytics</span>
+    </button>
   </div>
 
   <!-- Listings filter chips -->
@@ -531,7 +535,7 @@
     try {
       const { data, error } = await db
         .from('marketplace_listings')
-        .select('id,title,section,category,condition,price,location,seller_contact,image_url,status,created_at,updated_at')
+        .select('id,title,section,category,condition,price,location,seller_contact,image_url,view_count,status,created_at,updated_at')
         .eq('seller_name', WORKER_NAME)
         .order('created_at', { ascending: false });
       if (error) throw error;
@@ -1106,6 +1110,145 @@
     if (tab === 'listings')  loadListings();
     if (tab === 'inquiries') loadInquiries();
     if (tab === 'orders')    loadOrders();
+    if (tab === 'analytics') loadAnalytics();
+  }
+
+  /* ── Analytics tab — views, inquiry conversion, response benchmark ───────── */
+  async function loadAnalytics() {
+    const area = document.getElementById('content-area');
+    if (!area) return;
+    area.innerHTML = `<div class="empty-state"><div class="skel skel-pulse" style="height:120px;border-radius:0.875rem;"></div></div>`;
+
+    const e = escHtml;
+    let myAvgH = null, platformAvgH = null;
+
+    try {
+      /* My response time + reply count (already used elsewhere) */
+      const { data: myRepliedInq } = await db
+        .from('marketplace_inquiries')
+        .select('created_at, replied_at')
+        .eq('seller_name', WORKER_NAME)
+        .not('replied_at', 'is', null)
+        .limit(200);
+      const myRepl = myRepliedInq || [];
+      if (myRepl.length) {
+        const totalMs = myRepl.reduce((sum, i) => sum + Math.max(0, new Date(i.replied_at).getTime() - new Date(i.created_at).getTime()), 0);
+        myAvgH = (totalMs / myRepl.length) / 3600000;
+      }
+
+      /* Platform avg (sample up to 500 most-recent replied inquiries across all sellers) */
+      const { data: platRepliedInq } = await db
+        .from('marketplace_inquiries')
+        .select('created_at, replied_at')
+        .not('replied_at', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(500);
+      const platRepl = platRepliedInq || [];
+      if (platRepl.length) {
+        const totalMs = platRepl.reduce((sum, i) => sum + Math.max(0, new Date(i.replied_at).getTime() - new Date(i.created_at).getTime()), 0);
+        platformAvgH = (totalMs / platRepl.length) / 3600000;
+      }
+    } catch (_) { /* ignore — render with nulls */ }
+
+    /* Aggregate inquiry counts per listing */
+    const inqByListing = {};
+    let totalInquiries = 0;
+    let pendingInquiries = 0;
+    try {
+      const { data } = await db
+        .from('marketplace_inquiries')
+        .select('listing_id, status')
+        .eq('seller_name', WORKER_NAME);
+      (data || []).forEach(r => {
+        if (r.listing_id) {
+          inqByListing[r.listing_id] = (inqByListing[r.listing_id] || 0) + 1;
+          totalInquiries++;
+          if (r.status === 'pending') pendingInquiries++;
+        }
+      });
+    } catch (_) {}
+
+    /* Aggregate views from already-loaded _listings */
+    const myListings = _listings || [];
+    const totalViews = myListings.reduce((sum, l) => sum + Number(l.view_count || 0), 0);
+    const conversionRate = totalViews > 0 ? Math.round((totalInquiries / totalViews) * 1000) / 10 : 0;
+
+    /* Render */
+    const respColor =
+      myAvgH == null ? '#7B8794'
+        : platformAvgH == null ? '#F7A21B'
+          : myAvgH <= platformAvgH ? '#4ade80' : '#fbbf24';
+    const respCmp =
+      myAvgH == null ? 'No replies yet'
+        : platformAvgH == null ? 'Your average'
+          : myAvgH <= platformAvgH
+            ? `${Math.round((1 - myAvgH / platformAvgH) * 100)}% faster than platform avg`
+            : `${Math.round((myAvgH / platformAvgH - 1) * 100)}% slower than platform avg`;
+
+    let html = `
+      <!-- Overview cards -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.625rem;margin-bottom:1rem;">
+        <div class="pstat" style="background:linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));"><div class="pstat-num">${totalViews}</div><div class="pstat-lbl">Total Views</div></div>
+        <div class="pstat" style="background:linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));"><div class="pstat-num blue">${totalInquiries}</div><div class="pstat-lbl">Inquiries</div></div>
+        <div class="pstat" style="background:linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));"><div class="pstat-num green">${conversionRate}%</div><div class="pstat-lbl">Conversion</div></div>
+        <div class="pstat" style="background:linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));"><div class="pstat-num red">${pendingInquiries}</div><div class="pstat-lbl">Awaiting Reply</div></div>
+      </div>
+
+      <!-- Response time benchmark -->
+      <div style="background:linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));border:1px solid rgba(255,255,255,0.07);border-radius:0.875rem;padding:1rem;margin-bottom:1rem;">
+        <div style="font-size:0.78rem;font-weight:700;margin-bottom:0.625rem;">Response Time</div>
+        <div style="display:flex;align-items:flex-end;gap:1.5rem;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:1.6rem;font-weight:800;color:${e(respColor)};line-height:1;">
+              ${myAvgH == null ? '—' : myAvgH < 1 ? '<1h' : Math.round(myAvgH) + 'h'}
+            </div>
+            <div style="font-size:0.65rem;color:#7B8794;margin-top:0.2rem;">YOUR AVERAGE</div>
+          </div>
+          <div>
+            <div style="font-size:1.1rem;font-weight:600;color:#7B8794;line-height:1;">
+              ${platformAvgH == null ? '—' : platformAvgH < 1 ? '<1h' : Math.round(platformAvgH) + 'h'}
+            </div>
+            <div style="font-size:0.65rem;color:#7B8794;margin-top:0.2rem;">PLATFORM AVG</div>
+          </div>
+          <div style="flex:1;min-width:140px;">
+            <div style="font-size:0.78rem;color:${e(respColor)};font-weight:600;">${e(respCmp)}</div>
+            <div style="font-size:0.7rem;color:#7B8794;margin-top:0.2rem;">Quick Reply badge unlocks at &lt;4h with 5+ replies.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Per-listing performance table -->
+      <div style="font-size:0.78rem;font-weight:700;margin-bottom:0.5rem;">Listing Performance</div>`;
+
+    if (!myListings.length) {
+      html += `<div class="empty-state" style="padding:1.5rem 1rem;"><p>Post a listing to start tracking performance.</p></div>`;
+    } else {
+      const sorted = [...myListings].sort((a, b) => Number(b.view_count || 0) - Number(a.view_count || 0));
+      html += `<div style="display:flex;flex-direction:column;gap:0.5rem;">`;
+      sorted.forEach(l => {
+        const views = Number(l.view_count || 0);
+        const inq   = inqByListing[l.id] || 0;
+        const conv  = views > 0 ? Math.round((inq / views) * 1000) / 10 : 0;
+        const isPub = l.status === 'published';
+        html += `
+          <div style="background:rgba(31,46,69,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.625rem;padding:0.75rem;display:flex;align-items:center;gap:0.75rem;${!isPub ? 'opacity:0.55;' : ''}">
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:0.78rem;font-weight:600;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e(l.title)}</div>
+              <div style="font-size:0.65rem;color:#7B8794;margin-top:0.15rem;">
+                ${e(l.section)} &nbsp;·&nbsp; ${e(l.status)}${isPub ? '' : ' (not visible)'}
+              </div>
+            </div>
+            <div style="display:flex;gap:0.875rem;text-align:right;">
+              <div><div style="font-size:0.95rem;font-weight:700;">${views}</div><div style="font-size:0.6rem;color:#7B8794;">VIEWS</div></div>
+              <div><div style="font-size:0.95rem;font-weight:700;color:#29B6D9;">${inq}</div><div style="font-size:0.6rem;color:#7B8794;">INQUIRIES</div></div>
+              <div><div style="font-size:0.95rem;font-weight:700;color:${conv >= 5 ? '#4ade80' : '#7B8794'};">${views ? conv + '%' : '—'}</div><div style="font-size:0.6rem;color:#7B8794;">CONV</div></div>
+            </div>
+          </div>`;
+      });
+      html += `</div>`;
+    }
+
+    area.innerHTML = html;
   }
 
   /* ── Save Messenger handle ──────────────────────────────────────────────── */

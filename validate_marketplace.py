@@ -44,7 +44,7 @@ MIGRATIONS_DIR = os.path.join("supabase", "migrations")
 FUNCTIONS_DIR  = os.path.join("supabase", "functions")
 
 REQUIRED_TABLES = [
-    ("marketplace_listings",  ["id", "hive_id", "seller_name", "section", "title", "price", "status", "created_at"]),
+    ("marketplace_listings",  ["id", "hive_id", "seller_name", "section", "title", "price", "status", "created_at", "view_count"]),
     ("marketplace_inquiries", ["id", "listing_id", "buyer_name", "message", "status", "created_at"]),
     ("marketplace_reviews",   ["id", "listing_id", "reviewer_name", "rating", "verified_purchase", "created_at"]),
     ("marketplace_sellers",   ["id", "worker_name", "tier", "kyb_verified", "stripe_account_id", "rating_avg"]),

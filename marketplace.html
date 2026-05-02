@@ -1395,6 +1395,10 @@
     const item = _listings.find(l => l.id === id);
     if (!item) return;
 
+    /* Fire-and-forget: bump view counter for this listing (no await — never block UI on analytics) */
+    db.rpc('increment_listing_view', { p_listing_id: id })
+      .then(({ error }) => { if (error) console.warn('view inc:', error.message); });
+
     const e    = escHtml;
     const tier = tierOf(item.completed_sales);
     const titleEl = document.getElementById('title-sheet-detail');
