@@ -650,6 +650,26 @@
       <label class="form-label" for="post-contact">Contact (phone or email)</label>
       <input class="wh-input" type="text" id="post-contact" placeholder="09XX-XXX-XXXX or email@domain.com" />
     </div>
+
+    <!-- Image picker — single photo, compressed client-side before upload -->
+    <div class="form-group">
+      <label class="form-label">Photo (recommended)</label>
+      <div id="post-image-zone" style="position:relative;border:2px dashed rgba(255,255,255,0.15);border-radius:0.625rem;padding:1.25rem;text-align:center;cursor:pointer;transition:border-color 0.15s;">
+        <input type="file" id="post-image-file" accept="image/jpeg,image/jpg,image/png,image/webp" style="position:absolute;inset:0;opacity:0;cursor:pointer;" aria-label="Choose listing photo" />
+        <div id="post-image-empty" style="color:#7B8794;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:0.4rem;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <div style="font-size:0.78rem;font-weight:600;color:#F4F6FA;">Tap to add a photo</div>
+          <div style="font-size:0.7rem;margin-top:0.2rem;">JPEG, PNG or WebP up to 5MB. Listings with photos get 3× more inquiries.</div>
+        </div>
+        <div id="post-image-preview" style="display:none;">
+          <img id="post-image-preview-img" alt="Preview" style="max-width:100%;max-height:200px;border-radius:0.5rem;display:block;margin:0 auto;" />
+          <div id="post-image-status" style="font-size:0.7rem;color:#7B8794;margin-top:0.5rem;"></div>
+          <button type="button" id="post-image-remove" style="margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;">Remove photo</button>
+        </div>
+      </div>
+      <input type="hidden" id="post-image-url" value="" />
+    </div>
+
     <div class="info-notice">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       Listings are reviewed before publishing. KYB verification is required to receive payments.
@@ -1575,6 +1595,115 @@
      POST LISTING SUBMIT
   ============================================================ */
   /* ============================================================
+     IMAGE UPLOAD — client-side compress + Supabase Storage upload
+  ============================================================ */
+  const STORAGE_BUCKET = 'marketplace-listings';
+  const IMAGE_MAX_WIDTH = 1200;   /* px */
+  const IMAGE_QUALITY   = 0.82;   /* JPEG quality (0-1) */
+  const IMAGE_MAX_BYTES = 5 * 1024 * 1024; /* 5 MB pre-compression cap */
+
+  /* Compress an image File to a JPEG Blob via canvas — clamps long edge to 1200px */
+  function compressImageFile(file) {
+    return new Promise((resolve, reject) => {
+      if (!file) return reject(new Error('No file'));
+      if (file.size > IMAGE_MAX_BYTES) return reject(new Error('Image is over 5MB before compression. Pick a smaller photo.'));
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = img.naturalWidth, h = img.naturalHeight;
+          const longEdge = Math.max(w, h);
+          if (longEdge > IMAGE_MAX_WIDTH) {
+            const scale = IMAGE_MAX_WIDTH / longEdge;
+            w = Math.round(w * scale);
+            h = Math.round(h * scale);
+          }
+          canvas.width  = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Canvas export failed')), 'image/jpeg', IMAGE_QUALITY);
+        };
+        img.onerror = () => reject(new Error('Could not read image. Try a different file.'));
+        img.src = reader.result;
+      };
+      reader.onerror = () => reject(new Error('File read failed'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /* Upload a Blob to Supabase Storage and return its public URL */
+  async function uploadImageBlob(blob) {
+    const filename = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now()) + '.jpg';
+    const { error } = await db.storage.from(STORAGE_BUCKET).upload(filename, blob, {
+      contentType: 'image/jpeg',
+      cacheControl: '3600',
+      upsert: false,
+    });
+    if (error) throw error;
+    const { data } = db.storage.from(STORAGE_BUCKET).getPublicUrl(filename);
+    return data?.publicUrl || '';
+  }
+
+  /* Wire the post-form image picker (preview + compress + upload + remove) */
+  function wirePostImagePicker() {
+    const fileInput   = document.getElementById('post-image-file');
+    const emptyView   = document.getElementById('post-image-empty');
+    const previewView = document.getElementById('post-image-preview');
+    const previewImg  = document.getElementById('post-image-preview-img');
+    const statusEl    = document.getElementById('post-image-status');
+    const removeBtn   = document.getElementById('post-image-remove');
+    const urlInput    = document.getElementById('post-image-url');
+    if (!fileInput) return;
+
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+
+      /* Show local preview while compressing/uploading */
+      const localUrl = URL.createObjectURL(file);
+      if (previewImg) previewImg.src = localUrl;
+      if (emptyView)   emptyView.style.display   = 'none';
+      if (previewView) previewView.style.display = 'block';
+      if (statusEl)    statusEl.textContent      = 'Compressing…';
+
+      try {
+        const blob = await compressImageFile(file);
+        if (statusEl) statusEl.textContent = 'Uploading… (' + Math.round(blob.size / 1024) + ' KB)';
+        const publicUrl = await uploadImageBlob(blob);
+        if (urlInput) urlInput.value = publicUrl;
+        if (statusEl) {
+          statusEl.style.color = '#4ade80';
+          statusEl.textContent = '✓ Photo ready (' + Math.round(blob.size / 1024) + ' KB)';
+        }
+      } catch (err) {
+        console.error('Image upload error:', err);
+        showToast(err?.message || 'Image upload failed. Try a different photo.', 'error');
+        resetPostImagePicker();
+      }
+    });
+
+    removeBtn?.addEventListener('click', () => {
+      resetPostImagePicker();
+    });
+  }
+
+  function resetPostImagePicker() {
+    const fileInput   = document.getElementById('post-image-file');
+    const emptyView   = document.getElementById('post-image-empty');
+    const previewView = document.getElementById('post-image-preview');
+    const statusEl    = document.getElementById('post-image-status');
+    const urlInput    = document.getElementById('post-image-url');
+    if (fileInput)  fileInput.value  = '';
+    if (urlInput)   urlInput.value   = '';
+    if (emptyView)   emptyView.style.display   = 'block';
+    if (previewView) previewView.style.display = 'none';
+    if (statusEl)   { statusEl.style.color = '#7B8794'; statusEl.textContent = ''; }
+  }
+
+  /* ============================================================
      LISTING QUALITY SCORE — updates live as the seller fills the post form
   ============================================================ */
   function computeListingQuality() {
@@ -1657,6 +1786,7 @@
     const price    = priceRaw !== '' ? parseFloat(priceRaw) : null;
     const location = (document.getElementById('post-location')?.value || '').trim();
     const contact  = (document.getElementById('post-contact')?.value || '').trim();
+    const imageUrl = (document.getElementById('post-image-url')?.value || '').trim() || null;
 
     if (!title || !desc) { showToast('Title and description are required.', 'error'); return; }
 
@@ -1671,6 +1801,7 @@
         description:     desc,
         price:           price,
         location,
+        image_url:       imageUrl,
         seller_name:     WORKER_NAME || 'Anonymous',
         seller_contact:  contact,
         hive_id:         HIVE_ID,
@@ -1689,6 +1820,7 @@
       const hiddenSec = document.getElementById('post-section');
       if (hiddenSec) hiddenSec.value = 'parts';
       populateCategorySelect('parts');
+      resetPostImagePicker();
       updateQualityWidget();
       await loadCounts();
     } catch (err) {
@@ -2172,6 +2304,9 @@
         updateQualityWidget();
       });
     });
+
+    /* Wire image picker (compress + upload + preview + remove) */
+    wirePostImagePicker();
 
     /* Wire quality widget to every post-form input — recompute on every change */
     ['post-title','post-category','post-condition','post-desc','post-price','post-location','post-contact'].forEach(id => {

@@ -86,6 +86,7 @@ CHECK_NAMES = [
     "check_constraints",
     "triggers_present",
     "migration_timestamps_unique",
+    "storage_bucket_defined",
     "server_price_fetch",
     "webhook_signature",
     "platform_fee",
@@ -103,6 +104,7 @@ CHECK_LABELS = {
     "check_constraints":           "L1  All CHECK constraints present (section, status, tier, condition)",
     "triggers_present":            "L1  All 3 marketplace triggers present (tier, rate-limit, rating)",
     "migration_timestamps_unique": "L1  Migration timestamp prefixes unique (no supabase db push conflict)",
+    "storage_bucket_defined":      "L1  marketplace-listings storage bucket defined with size limit + MIME whitelist",
     "server_price_fetch":          "L2  marketplace-checkout fetches price from DB (no client trust)",
     "webhook_signature":           "L2  marketplace-webhook verifies Stripe signature with HMAC",
     "platform_fee":                "L2  marketplace-checkout uses application_fee_amount for platform cut",
@@ -181,6 +183,25 @@ def check_triggers_present(migrations):
                 "trigger": trig_func,
                 "reason": f"Trigger function {trig_func} not defined — depended-on side effect on {expected_table} will not fire",
             })
+    return issues
+
+
+def check_storage_bucket_defined(migrations):
+    """Listing image upload requires the marketplace-listings bucket to exist
+       with a file_size_limit + allowed_mime_types whitelist. Without it,
+       uploads fail with cryptic 'bucket not found' or 400 errors."""
+    issues = []
+    if "'marketplace-listings'" not in migrations:
+        issues.append({
+            "check":  "storage_bucket_defined",
+            "reason": "marketplace-listings storage bucket not declared in any migration — image uploads will fail",
+        })
+        return issues
+    if "file_size_limit" not in migrations or "allowed_mime_types" not in migrations:
+        issues.append({
+            "check":  "storage_bucket_defined",
+            "reason": "marketplace-listings bucket missing file_size_limit or allowed_mime_types — spam guard absent",
+        })
     return issues
 
 
@@ -433,6 +454,7 @@ def main():
     all_issues.extend(check_check_constraints(migrations))
     all_issues.extend(check_triggers_present(migrations))
     all_issues.extend(check_migration_timestamps_unique())
+    all_issues.extend(check_storage_bucket_defined(migrations))
     all_issues.extend(check_server_price_fetch())
     all_issues.extend(check_webhook_signature())
     all_issues.extend(check_platform_fee())
