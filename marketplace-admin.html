@@ -410,7 +410,7 @@
     try {
       const { data, error } = await db
         .from('marketplace_sellers')
-        .select('id,worker_name,tier,kyb_verified,kyb_verified_at,total_sales,rating_avg,stripe_account_id,created_at')
+        .select('id,worker_name,tier,kyb_verified,kyb_verified_at,cert_verified,cert_verified_at,certifications,total_sales,rating_avg,stripe_account_id,created_at')
         .order('created_at', { ascending: false })
         .limit(100);
       if (error) throw error;
@@ -557,22 +557,41 @@
       return;
     }
 
-    area.innerHTML = filtered.map(s => `
-      <div class="seller-card" data-worker="${e(s.worker_name)}">
-        <div class="seller-avatar">${e(initials(s.worker_name))}</div>
-        <div class="seller-info">
-          <div class="seller-name">${e(s.worker_name)}</div>
-          <div class="seller-meta">
-            Tier: <strong>${e(s.tier || 'bronze')}</strong>
-            &nbsp;·&nbsp; Sales: <strong>${e(String(s.total_sales || 0))}</strong>
-            ${s.stripe_account_id ? ' &nbsp;·&nbsp; <span style="color:#4ade80;">Stripe Connected</span>' : ' &nbsp;·&nbsp; <span style="color:#f87171;">No Stripe</span>'}
-            ${s.kyb_verified ? ` &nbsp;·&nbsp; <span style="color:#29B6D9;">KYB Verified ${s.kyb_verified_at ? timeAgo(s.kyb_verified_at) : ''}</span>` : ''}
+    area.innerHTML = filtered.map(s => {
+      const certs = (s.certifications || '').split('\n').map(c => c.trim()).filter(c => c);
+      return `
+      <div class="seller-card" data-worker="${e(s.worker_name)}" style="flex-direction:column;align-items:stretch;gap:0.625rem;">
+        <div style="display:flex;align-items:center;gap:0.875rem;">
+          <div class="seller-avatar">${e(initials(s.worker_name))}</div>
+          <div class="seller-info">
+            <div class="seller-name">${e(s.worker_name)}</div>
+            <div class="seller-meta">
+              Tier: <strong>${e(s.tier || 'bronze')}</strong>
+              &nbsp;·&nbsp; Sales: <strong>${e(String(s.total_sales || 0))}</strong>
+              ${s.kyb_verified ? ` &nbsp;·&nbsp; <span style="color:#29B6D9;">ID Verified</span>` : ''}
+              ${s.cert_verified ? ` &nbsp;·&nbsp; <span style="color:#a78bfa;">Cert Verified</span>` : ''}
+            </div>
           </div>
         </div>
-        ${s.kyb_verified
-          ? `<button class="btn-unverify" data-action="unverify" data-worker="${e(s.worker_name)}">Remove KYB</button>`
-          : `<button class="btn-verify"   data-action="verify"   data-worker="${e(s.worker_name)}">Verify KYB</button>`}
-      </div>`).join('');
+        ${certs.length ? `
+          <div style="background:rgba(0,0,0,0.2);border-radius:0.5rem;padding:0.625rem;">
+            <div style="font-size:0.65rem;font-weight:700;color:${s.cert_verified ? '#a78bfa' : '#fbbf24'};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.4rem;">
+              ${s.cert_verified ? '✓ Certifications Verified' : 'Certifications Pending Review'}
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:0.3rem;">
+              ${certs.map(c => `<span style="padding:0.2rem 0.5rem;border-radius:999px;font-size:0.65rem;background:rgba(255,255,255,0.06);color:#F4F6FA;border:1px solid rgba(255,255,255,0.1);">${e(c)}</span>`).join('')}
+            </div>
+          </div>` : ''}
+        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+          ${s.kyb_verified
+            ? `<button class="btn-unverify" data-action="unverify"     data-worker="${e(s.worker_name)}">Remove ID</button>`
+            : `<button class="btn-verify"   data-action="verify"       data-worker="${e(s.worker_name)}">Verify ID</button>`}
+          ${certs.length ? (s.cert_verified
+            ? `<button class="btn-unverify" data-action="cert-unverify" data-worker="${e(s.worker_name)}">Remove Cert</button>`
+            : `<button class="btn-verify"   data-action="cert-verify"   data-worker="${e(s.worker_name)}" style="background:rgba(167,139,250,0.1);border-color:rgba(167,139,250,0.3);color:#a78bfa;">Verify Cert</button>`) : ''}
+        </div>
+      </div>`;
+    }).join('');
 
     area.querySelectorAll('[data-action]').forEach(btn => {
       btn.addEventListener('click', () => handleSellerAction(btn.dataset.action, btn.dataset.worker));
@@ -610,20 +629,36 @@
   }
 
   /* ============================================================
-     SELLER KYB ACTIONS
+     SELLER VERIFICATION ACTIONS (Identity + Certifications)
   ============================================================ */
   async function handleSellerAction(action, workerName) {
-    const verified    = action === 'verify';
-    const verifiedAt  = verified ? new Date().toISOString() : null;
+    const isCert    = action === 'cert-verify' || action === 'cert-unverify';
+    const verified  = action === 'verify' || action === 'cert-verify';
+    const nowIso    = new Date().toISOString();
+
+    const update = { updated_at: nowIso };
+    if (isCert) {
+      update.cert_verified    = verified;
+      update.cert_verified_at = verified ? nowIso : null;
+    } else {
+      update.kyb_verified    = verified;
+      update.kyb_verified_at = verified ? nowIso : null;
+    }
 
     try {
       const { error } = await db
         .from('marketplace_sellers')
-        .update({ kyb_verified: verified, kyb_verified_at: verifiedAt, updated_at: new Date().toISOString() })
+        .update(update)
         .eq('worker_name', workerName);
       if (error) throw error;
 
-      showToast(verified ? workerName + ' KYB verified.' : 'KYB removed for ' + workerName + '.', verified ? 'success' : 'info');
+      const labelMap = {
+        'verify':         workerName + ' identity verified.',
+        'unverify':       'Identity removed for ' + workerName + '.',
+        'cert-verify':    workerName + ' certifications verified.',
+        'cert-unverify':  'Certification badge removed for ' + workerName + '.',
+      };
+      showToast(labelMap[action] || 'Updated.', verified ? 'success' : 'info');
       await Promise.all([loadSellers(), loadStats()]);
     } catch (_err) {
       showToast('Update failed. Try again.', 'error');

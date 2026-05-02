@@ -262,6 +262,20 @@
       </div>
       <div id="messenger-preview" style="display:none;margin-top:0.5rem;font-size:0.72rem;color:#4ade80;"></div>
     </div>
+
+    <!-- Certifications input — admin verifies before the Certified badge shows -->
+    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.07);">
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+        <strong style="font-size:0.82rem;">Certifications</strong>
+        <span id="cert-status-pill" style="margin-left:auto;font-size:0.65rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.06);color:#7B8794;">Not verified</span>
+      </div>
+      <p style="font-size:0.72rem;color:#7B8794;margin-bottom:0.5rem;">List your trade certifications, one per line. Admin reviews before the "Certified" badge appears on your listings. Examples: <em>PRC ME License, TESDA HVAC NC II, Welder NC III</em>.</p>
+      <textarea class="wh-textarea" id="cert-input" placeholder="PRC Master Electrician License&#10;TESDA Welder NC II&#10;HVAC Technician Certification" style="min-height:90px;font-size:1rem;"></textarea>
+      <div style="display:flex;justify-content:flex-end;margin-top:0.5rem;">
+        <button id="btn-save-certs" style="padding:0.5rem 1rem;border-radius:0.5rem;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.1);color:#a78bfa;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;">Save certifications</button>
+      </div>
+    </div>
   </div>
 
   <!-- Tabs -->
@@ -480,6 +494,22 @@
     if (msgPreview && _seller?.messenger_username) {
       msgPreview.style.display = 'block';
       msgPreview.innerHTML = `Live: <a href="https://m.me/${e(_seller.messenger_username)}" target="_blank" rel="noopener" style="color:#4ade80;text-decoration:underline;">m.me/${e(_seller.messenger_username)}</a>`;
+    }
+
+    /* Pre-fill certifications input + status pill */
+    const certInput  = document.getElementById('cert-input');
+    const certPill   = document.getElementById('cert-status-pill');
+    if (certInput && _seller?.certifications) certInput.value = _seller.certifications;
+    if (certPill) {
+      if (_seller?.cert_verified) {
+        certPill.textContent = '✓ Admin verified';
+        certPill.style.background = 'rgba(167,139,250,0.15)';
+        certPill.style.color = '#a78bfa';
+      } else if (_seller?.certifications) {
+        certPill.textContent = 'Pending admin review';
+        certPill.style.background = 'rgba(251,191,36,0.1)';
+        certPill.style.color = '#fbbf24';
+      }
     }
 
     /* Show Stripe banner if no account yet, or account exists but not verified.
@@ -1123,6 +1153,61 @@
     }
   }
 
+  /* ── Save certifications (admin verification flips the badge) ──────────── */
+  async function handleSaveCerts() {
+    const input = document.getElementById('cert-input');
+    const btn   = document.getElementById('btn-save-certs');
+    const pill  = document.getElementById('cert-status-pill');
+    const raw = (input?.value || '').trim();
+
+    /* Normalize: split by newlines, strip blanks, rejoin with single \n */
+    const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+    if (lines.length > 10) {
+      showToast('List up to 10 certifications.', 'error');
+      return;
+    }
+    const normalized = lines.join('\n') || null;
+
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    try {
+      /* Setting cert_verified=false here invalidates any previous admin verification
+         when the seller edits their cert list — admin must re-review on changes. */
+      const wasVerified = _seller?.cert_verified;
+      const verifiedChanged = wasVerified && (normalized !== (_seller?.certifications || null));
+      const update = { worker_name: WORKER_NAME, certifications: normalized, updated_at: new Date().toISOString() };
+      if (verifiedChanged || !normalized) {
+        update.cert_verified = false;
+        update.cert_verified_at = null;
+      }
+      const { error } = await db.from('marketplace_sellers').upsert(update, { onConflict: 'worker_name' });
+      if (error) throw error;
+
+      if (_seller) {
+        _seller.certifications = normalized;
+        if (update.cert_verified === false) _seller.cert_verified = false;
+      } else {
+        _seller = { worker_name: WORKER_NAME, certifications: normalized, cert_verified: false, tier: 'bronze' };
+      }
+
+      if (pill) {
+        if (normalized) {
+          pill.textContent = 'Pending admin review';
+          pill.style.background = 'rgba(251,191,36,0.1)';
+          pill.style.color = '#fbbf24';
+        } else {
+          pill.textContent = 'Not verified';
+          pill.style.background = 'rgba(255,255,255,0.06)';
+          pill.style.color = '#7B8794';
+        }
+      }
+      showToast(normalized ? 'Saved. Admin will review your certifications.' : 'Certifications cleared.', 'success');
+    } catch (_err) {
+      showToast('Save failed. Try again.', 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Save certifications'; }
+    }
+  }
+
   /* ── Seller dispute reply ───────────────────────────────────────────────── */
   async function handleSellerDisputeReply(orderId) {
     const textarea = document.getElementById('reply-' + orderId);
@@ -1179,6 +1264,7 @@
     document.getElementById('form-edit')?.addEventListener('submit', handleEditSubmit);
     wireEditImagePicker();
     document.getElementById('btn-save-messenger')?.addEventListener('click', handleSaveMessenger);
+    document.getElementById('btn-save-certs')?.addEventListener('click', handleSaveCerts);
     if (PAYMENTS_ENABLED) {
       document.getElementById('btn-stripe-connect')?.addEventListener('click', handleStripeConnect);
       document.getElementById('btn-stripe-recheck')?.addEventListener('click', () => checkStripeStatus(true));

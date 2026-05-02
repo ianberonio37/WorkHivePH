@@ -1400,12 +1400,12 @@
     const titleEl = document.getElementById('title-sheet-detail');
     if (titleEl) titleEl.textContent = item.section.charAt(0).toUpperCase() + item.section.slice(1) + ' Listing';
 
-    /* Fetch seller profile to get messenger_username (and any other seller-level data) */
+    /* Fetch seller profile to get messenger_username, badges, and rating data */
     let sellerProfile = null;
     try {
       const { data: sp } = await db
         .from('marketplace_sellers')
-        .select('messenger_username,kyb_verified,tier')
+        .select('messenger_username,kyb_verified,cert_verified,certifications,tier,rating_avg,rating_count')
         .eq('worker_name', item.seller_name)
         .maybeSingle();
       sellerProfile = sp;
@@ -1475,10 +1475,30 @@
             </div>
             <div class="seller-badges">
               <span class="badge-tier ${e(tier)}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>
-              ${item.seller_verified
-                ? `<span class="badge-verified"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>KYB Verified</span>`
-                : `<span class="cat-chip" style="font-size:0.62rem;color:#7B8794;">Unverified</span>`}
+              ${(() => {
+                const sp = sellerProfile || {};
+                const ratingCount = Number(sp.rating_count || 0);
+                const ratingAvg   = Number(sp.rating_avg || 0);
+                const isTopRated  = ratingAvg >= 4.5 && ratingCount >= 5;
+                const out = [];
+                if (sp.kyb_verified || item.seller_verified) {
+                  out.push(`<span class="badge-verified"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>ID Verified</span>`);
+                }
+                if (sp.cert_verified) {
+                  out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(167,139,250,0.15);color:#a78bfa;border:1px solid rgba(167,139,250,0.3);"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Certified</span>`);
+                }
+                if (isTopRated) {
+                  out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">★ Top Rated</span>`);
+                }
+                if (!out.length) {
+                  out.push(`<span class="cat-chip" style="font-size:0.62rem;color:#7B8794;">Unverified</span>`);
+                }
+                return out.join('');
+              })()}
             </div>
+            ${sellerProfile?.cert_verified && sellerProfile?.certifications
+              ? `<div style="margin-top:0.5rem;font-size:0.7rem;color:#7B8794;line-height:1.5;"><strong style="color:#a78bfa;">Certifications:</strong> ${e((sellerProfile.certifications || '').split('\n').filter(c => c.trim()).join(' · '))}</div>`
+              : ''}
           </div>
         </div>
       </div>

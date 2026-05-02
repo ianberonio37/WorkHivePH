@@ -21,6 +21,12 @@ compliance — it is direct usability for your actual users.
   Layer 5 — Dynamic content announcements
     6.  Toast aria-live          — toast containers need role="alert" aria-live="polite"
 
+  Layer 6 — Bottom-sheet keyboard accessibility (May 2026)
+    7.  Focus trap present       — pages with sheet-overlay need a trapFocus helper  [WARN]
+    8.  Escape closes sheets     — pages with sheet-overlay need Escape handler  [WARN]
+    9.  Toggle buttons aria-pressed — buttons that toggle .active need aria-pressed  [WARN]
+    10. Status regions live      — connection chip / presence area need role=status  [WARN]
+
 Usage:  python validate_accessibility.py
 Output: accessibility_report.json
 """
@@ -242,6 +248,115 @@ def check_toast_aria_live(pages):
     return issues
 
 
+# ── Layer 6: Bottom-sheet keyboard accessibility (May 2026) ────────────────────
+
+def check_focus_trap(pages):
+    """Pages that have bottom-sheet UI (sheet-overlay class) need a focus-trap
+    helper. Otherwise Tab from inside the sheet escapes to background nav,
+    which is a WCAG 2.4.3 Focus Order failure."""
+    issues = []
+    for page in pages:
+        content = read_file(page)
+        if content is None:
+            continue
+        if "sheet-overlay" not in content and "modal-overlay" not in content:
+            continue
+        has_trap = ("trapFocus" in content) or ("function trapFocus" in content)
+        if not has_trap:
+            issues.append({"check": "focus_trap", "skip": True,
+                           "reason": (f"{page} has bottom-sheet UI but no trapFocus helper — "
+                                      f"Tab from inside the sheet escapes to background nav (WCAG 2.4.3)")})
+    return issues
+
+
+def check_escape_closes(pages):
+    """Pages with bottom-sheet UI need a document-level keydown listener that
+    handles Escape so users can close the sheet without reaching for a mouse."""
+    issues = []
+    for page in pages:
+        content = read_file(page)
+        if content is None:
+            continue
+        if "sheet-overlay" not in content and "modal-overlay" not in content:
+            continue
+        has_escape = bool(re.search(
+            r"addEventListener\(\s*['\"]keydown['\"][^)]*\).*?Escape",
+            content, re.DOTALL
+        )) or "e.key === 'Escape'" in content or 'e.key === "Escape"' in content
+        if not has_escape:
+            issues.append({"check": "escape_closes", "skip": True,
+                           "reason": (f"{page} has bottom-sheet UI but no document-level "
+                                      f"Escape handler — keyboard users can't close the sheet")})
+    return issues
+
+
+def check_toggle_aria_pressed(pages):
+    """Buttons that toggle an .active class via classList should also expose
+    aria-pressed so screen readers announce the toggle state. Match: a button
+    that has classList.toggle('active' or classList.add('active') near it."""
+    issues = []
+    for page in pages:
+        content = read_file(page)
+        if content is None:
+            continue
+        # Only flag if the page has BOTH a toggle pattern AND any button class
+        # used for a toggleable widget (reaction-btn, filter-chip, tab-btn etc.)
+        toggles_active = bool(re.search(r"classList\.(toggle|add)\(\s*['\"]active['\"]", content))
+        if not toggles_active:
+            continue
+        # Look at the button class definitions used as toggleables
+        toggleable_classes = ["reaction-btn", "filter-chip", "tab-btn"]
+        for cls in toggleable_classes:
+            if cls not in content:
+                continue
+            # If buttons of this class exist, at least one of them should carry aria-pressed
+            cls_buttons = re.findall(
+                r'<button[^>]*class="[^"]*' + re.escape(cls) + r'[^"]*"[^>]*>',
+                content
+            )
+            cls_buttons += re.findall(
+                r'class="[^"]*' + re.escape(cls) + r'[^"]*"[^>]*aria-pressed',
+                content
+            )
+            # Heuristic: at least 50% of buttons of this class should have aria-pressed
+            with_pressed = sum(1 for b in cls_buttons if "aria-pressed" in b)
+            if cls_buttons and with_pressed == 0:
+                issues.append({"check": "toggle_aria_pressed", "skip": True,
+                               "reason": (f"{page} has toggleable .{cls} buttons that flip "
+                                          f"an .active class but none declare aria-pressed — "
+                                          f"screen readers don't announce the toggle state")})
+                break  # one report per page is enough
+    return issues
+
+
+def check_status_live_region(pages):
+    """Connection status indicators (conn-dot / conn-label) should sit inside a
+    role="status" + aria-live region so screen readers announce online/offline
+    transitions."""
+    issues = []
+    for page in pages:
+        content = read_file(page)
+        if content is None:
+            continue
+        has_conn_dot = ("conn-dot" in content) or ("conn-label" in content)
+        if not has_conn_dot:
+            continue
+        # Find the wrapper element that contains conn-dot — does it have role=status?
+        # Match within a small window (~250 chars) around the conn-dot id
+        wrapper_re = re.compile(
+            r'<(?:div|span)[^>]*role\s*=\s*"status"[^>]*aria-live[^>]*>[\s\S]{0,250}?conn-dot|'
+            r'conn-dot[\s\S]{0,250}?role\s*=\s*"status"',
+            re.DOTALL
+        )
+        if not wrapper_re.search(content):
+            issues.append({"check": "status_live_region", "skip": True,
+                           "reason": (f"{page} has a connection-status indicator (conn-dot) but "
+                                      f"the surrounding container is not a role=\"status\" "
+                                      f"aria-live region — connect/disconnect transitions are "
+                                      f"silent to screen readers")})
+    return issues
+
+
 # ── Runner ─────────────────────────────────────────────────────────────────────
 
 CHECK_NAMES = [
@@ -251,6 +366,10 @@ CHECK_NAMES = [
     "unlabeled_inputs",
     "button_title_only",
     "toast_aria_live",
+    "focus_trap",
+    "escape_closes",
+    "toggle_aria_pressed",
+    "status_live_region",
 ]
 
 CHECK_LABELS = {
@@ -260,12 +379,16 @@ CHECK_LABELS = {
     "unlabeled_inputs":   "L3  Form inputs with id= have a labeling mechanism  [WARN]",
     "button_title_only":  "L4  Icon buttons use aria-label, not title=",
     "toast_aria_live":    "L5  Toast containers have role=\"alert\" aria-live=\"polite\"",
+    "focus_trap":         "L6  Pages with sheet-overlay have a trapFocus helper  [WARN]",
+    "escape_closes":      "L6  Pages with sheet-overlay have a document Escape handler  [WARN]",
+    "toggle_aria_pressed":"L6  Toggleable .active buttons declare aria-pressed  [WARN]",
+    "status_live_region": "L6  Connection-status conn-dot lives in role=status aria-live  [WARN]",
 }
 
 
 def main():
     def bold(s): return f"\033[1m{s}\033[0m"
-    print(bold("\nAccessibility Baseline Validator (5-layer)"))
+    print(bold("\nAccessibility Baseline Validator (6-layer)"))
     print("=" * 55)
 
     all_issues = []
@@ -275,6 +398,10 @@ def main():
     all_issues += check_unlabeled_inputs(LIVE_PAGES)
     all_issues += check_button_title_only(LIVE_PAGES)
     all_issues += check_toast_aria_live(LIVE_PAGES)
+    all_issues += check_focus_trap(LIVE_PAGES)
+    all_issues += check_escape_closes(LIVE_PAGES)
+    all_issues += check_toggle_aria_pressed(LIVE_PAGES)
+    all_issues += check_status_live_region(LIVE_PAGES)
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

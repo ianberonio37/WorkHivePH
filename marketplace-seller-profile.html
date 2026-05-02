@@ -256,6 +256,15 @@
     <div class="stat-cell"><div class="stat-num" id="stat-rating">—</div><div class="stat-lbl">Rating</div></div>
   </div>
 
+  <!-- Certifications (only renders when seller has any) -->
+  <div id="cert-section" style="display:none;">
+    <div class="section-heading">
+      <h2>Certifications</h2>
+      <span class="count" id="cert-status"></span>
+    </div>
+    <div class="reviews-card" id="cert-list" style="display:flex;flex-wrap:wrap;gap:0.4rem;"></div>
+  </div>
+
   <!-- Reviews -->
   <div class="section-heading">
     <h2>Reviews</h2>
@@ -364,7 +373,7 @@
     try {
       const { data } = await db
         .from('marketplace_sellers')
-        .select('worker_name, tier, kyb_verified, kyb_verified_at, total_sales, rating_avg, rating_count, messenger_username, created_at')
+        .select('worker_name, tier, kyb_verified, kyb_verified_at, cert_verified, cert_verified_at, certifications, total_sales, rating_avg, rating_count, messenger_username, created_at')
         .eq('worker_name', WORKER_VIEW)
         .maybeSingle();
       _seller = data;
@@ -385,11 +394,24 @@
 
     const tier = _seller?.tier || 'bronze';
     if (badgesEl) {
-      badgesEl.innerHTML = `
-        <span class="badge-tier ${e(tier)}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>
-        ${_seller?.kyb_verified
-          ? `<span class="badge-verified"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Verified</span>`
-          : ''}`;
+      const ratingCount = Number(_seller?.rating_count || 0);
+      const ratingAvg   = Number(_seller?.rating_avg || 0);
+      const isTopRated  = ratingAvg >= 4.5 && ratingCount >= 5;
+      const isQuickReply = _avgResponseHours != null && _avgResponseHours < 4 && _replyCount >= 5;
+      const parts = [`<span class="badge-tier ${e(tier)}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>`];
+      if (_seller?.kyb_verified) {
+        parts.push(`<span class="badge-verified"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>ID Verified</span>`);
+      }
+      if (_seller?.cert_verified) {
+        parts.push(`<span style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.25rem 0.65rem;border-radius:999px;font-size:0.7rem;font-weight:700;background:rgba(167,139,250,0.15);color:#a78bfa;border:1px solid rgba(167,139,250,0.3);"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Certified</span>`);
+      }
+      if (isQuickReply) {
+        parts.push(`<span style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.25rem 0.65rem;border-radius:999px;font-size:0.7rem;font-weight:700;background:rgba(74,222,128,0.15);color:#4ade80;border:1px solid rgba(74,222,128,0.3);">⚡ Quick Reply</span>`);
+      }
+      if (isTopRated) {
+        parts.push(`<span style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.25rem 0.65rem;border-radius:999px;font-size:0.7rem;font-weight:700;background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">★ Top Rated</span>`);
+      }
+      badgesEl.innerHTML = parts.join('');
     }
 
     /* Messenger CTA — only if seller has set their handle */
@@ -397,6 +419,22 @@
     if (msgr && _seller?.messenger_username) {
       msgr.setAttribute('href', 'https://m.me/' + encodeURIComponent(_seller.messenger_username));
       msgr.style.display = 'inline-flex';
+    }
+
+    /* Render certifications section if seller has any */
+    const certSection = document.getElementById('cert-section');
+    const certList    = document.getElementById('cert-list');
+    const certStatus  = document.getElementById('cert-status');
+    const certs = (_seller?.certifications || '').split('\n').map(c => c.trim()).filter(c => c);
+    if (certSection && certs.length) {
+      certSection.style.display = 'block';
+      if (certStatus) certStatus.textContent = _seller?.cert_verified ? '✓ Verified by admin' : 'Pending verification';
+      if (certStatus) certStatus.style.color = _seller?.cert_verified ? '#a78bfa' : '#7B8794';
+      if (certList) {
+        certList.innerHTML = certs.map(c =>
+          `<span style="padding:0.4rem 0.75rem;border-radius:999px;font-size:0.75rem;background:${_seller?.cert_verified ? 'rgba(167,139,250,0.12)' : 'rgba(255,255,255,0.04)'};color:${_seller?.cert_verified ? '#a78bfa' : '#7B8794'};border:1px solid ${_seller?.cert_verified ? 'rgba(167,139,250,0.3)' : 'rgba(255,255,255,0.08)'};">${escHtml(c)}</span>`
+        ).join('');
+      }
     }
 
     /* Set OG tags dynamically — title + description with seller name */
@@ -589,6 +627,9 @@
     if (resEl) resEl.textContent = _avgResponseHours == null
       ? '—'
       : (_avgResponseHours < 1 ? '<1h' : Math.round(_avgResponseHours) + 'h');
+
+    /* Re-render hero so Quick Reply badge appears now that response data is loaded */
+    if (_seller) renderHero();
   }
 
   /* ── Init ───────────────────────────────────────────────────────────── */
