@@ -228,6 +228,23 @@ def get_head_sha() -> str:
         return "unknown"
 
 
+def parse_layer_summary(text: str) -> dict:
+    """Extract pass/fail/warn from a summary line like 'Summary  62 pass · 0 warn · 0 fail'
+    or platform_guardian's '54 PASS  0 FAIL  0 WARN  2 SKIP'."""
+    if not text:
+        return {"pass": 0, "fail": 0, "warn": 0}
+    s = text.strip()
+    # Pattern A: "62 pass · 0 warn · 0 fail" (test-data-seeder format)
+    m = re.search(r"(\d+)\s*pass[^\d]+(\d+)\s*warn[^\d]+(\d+)\s*fail", s, re.IGNORECASE)
+    if m:
+        return {"pass": int(m.group(1)), "warn": int(m.group(2)), "fail": int(m.group(3))}
+    # Pattern B: "54 PASS  0 FAIL  0 WARN  2 SKIP" (platform_guardian format)
+    m = re.search(r"(\d+)\s*PASS[^\d]+(\d+)\s*FAIL[^\d]+(\d+)\s*WARN", s)
+    if m:
+        return {"pass": int(m.group(1)), "fail": int(m.group(2)), "warn": int(m.group(3))}
+    return {"pass": 0, "fail": 0, "warn": 0}
+
+
 def write_pass_marker(results: dict):
     sha = get_head_sha()
     LAST_PASS_FILE.write_text(json.dumps({
@@ -236,6 +253,48 @@ def write_pass_marker(results: dict):
         "results": results,
     }, indent=2), encoding="utf-8")
     print(f"\nWrote .last-gate-pass for HEAD = {sha[:8]}")
+
+
+def persist_run(verdict: str, layer_results: dict):
+    """Compute health score, append to run_history.json, update streak.json."""
+    sys.path.insert(0, str(SEEDER))
+    try:
+        from lib.health_score import compute_score, update_streak
+        from lib.run_history import append_run, load_streak, save_streak
+    except ImportError as e:
+        print(f"  WARN: could not persist run history: {e}")
+        return
+
+    layers = {
+        name: parse_layer_summary(layer_results.get(name, {}).get("summary", ""))
+        for name in ("static", "data", "ui")
+    }
+
+    score_info = compute_score(layers)  # not stale on a fresh run
+    sha = get_head_sha()
+    now = datetime.now(timezone.utc)
+    run_record = {
+        "timestamp": now.isoformat(),
+        "commit": sha,
+        "commit_short": sha[:8],
+        "verdict": verdict,
+        "score": score_info["score"],
+        "tier": score_info["tier"],
+        "layers": layers,
+        "flags": [a for a in sys.argv[1:] if a.startswith("--")],
+    }
+    append_run(run_record)
+
+    streak = load_streak()
+    streak = update_streak(streak, verdict, now.date().isoformat(),
+                           commit=sha if verdict == "PASS" else None)
+    save_streak(streak)
+
+    print(f"  Score: {score_info['score']}/100 ({score_info['tier']})")
+    if streak["current_streak"]:
+        print(f"  Streak: {streak['current_streak']} day(s) (best: {streak['best_streak']})")
+    elif streak.get("broken_at"):
+        print(f"  Streak: broken (was {streak.get('broken_after_days', 0)} days)")
 
 
 def main() -> int:
@@ -261,11 +320,14 @@ def main() -> int:
     results = {"static": static_res, "data": data_res, "ui": ui_res}
     all_pass = static_ok and data_ok and ui_ok
 
+    layer_results = {"static": static_res, "data": data_res, "ui": ui_res}
+
     if all_pass:
         banner("GATE PASS — safe to deploy", "green")
-        for label, res in [("static", static_res), ("data", data_res), ("ui", ui_res)]:
+        for label, res in layer_results.items():
             print(f"  {label}: {res['summary'] or 'ok'}")
         write_pass_marker(results)
+        persist_run("PASS", layer_results)
         return 0
     else:
         banner("GATE BLOCK — push aborted", "red")
@@ -276,6 +338,7 @@ def main() -> int:
         ]:
             mark = "PASS" if passed else "FAIL"
             print(f"  {label}: {mark} — {res['summary'] or '(no summary)'}")
+        persist_run("BLOCK", layer_results)
         print("\nFix the failures above, then re-run.")
         print("To bypass (NOT recommended): git push --no-verify")
         return 1
