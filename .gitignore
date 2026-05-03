@@ -26,6 +26,13 @@ index-v3-test.html
 
 # Supabase CLI temp files
 supabase/.temp/
+supabase/.branches/
+
+# Test environment migration staging area (originals are restored to migrations/)
+supabase/migrations_archived/
+
+# Release gate per-machine state
+.last-gate-pass
 
 # Platform Guardian — generated on every run, no need to track history
 platform_health.json

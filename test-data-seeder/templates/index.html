@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WorkHive Test Seeder</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    max-width: 1140px;
+    margin: 32px auto;
+    padding: 24px;
+    background: #fafafa;
+    color: #1f2937;
+  }
+  h1 { margin: 0 0 4px; }
+  h2 { margin: 0 0 14px; font-size: 16px; color: #374151; }
+  .subtitle { color: #6b7280; margin-top: 0; font-size: 14px; }
+  .card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin: 16px 0;
+  }
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .badge-ok { background: #d1fae5; color: #065f46; }
+  .badge-err { background: #fee2e2; color: #991b1b; }
+  .badge-running { background: #fef3c7; color: #92400e; }
+  code {
+    background: #1f2937;
+    color: #f9fafb;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .button-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+  }
+  button.seed-btn {
+    background: #1e40af;
+    color: #fff;
+    border: 0;
+    padding: 11px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button.seed-btn:hover:not(:disabled) { background: #1e3a8a; }
+  button.seed-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+  button.seed-all { background: #059669; grid-column: 1 / -1; padding: 14px; font-size: 15px; }
+  button.seed-all:hover:not(:disabled) { background: #047857; }
+  button.reset-btn { background: #b91c1c; }
+  button.reset-btn:hover:not(:disabled) { background: #991b1b; }
+  .log-panel {
+    background: #0b1020;
+    color: #d1d5db;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 12.5px;
+    line-height: 1.55;
+    max-height: 320px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+  }
+  .log-panel:empty::before { content: "No job running. Click a button above to start."; color: #6b7280; }
+  .stats-grid, .counts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+  }
+  .stat, .count-tile {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+  .stat-num, .count-num { font-size: 20px; font-weight: 700; color: #1e40af; }
+  .stat-label, .count-label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+  .preview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .preview-block {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 12px 16px;
+  }
+  .preview-block h3 { margin: 0 0 8px; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+  .preview-list { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.7; }
+  .fault-block { background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px 12px; margin-bottom: 6px; font-size: 12.5px; }
+  .fault-block .meta { color: #6b7280; font-size: 11px; }
+  .fault-block .problem { color: #991b1b; font-weight: 600; margin: 3px 0; }
+  details summary { cursor: pointer; padding: 6px 0; font-size: 13px; color: #6b7280; }
+  .err-detail { background: #fef2f2; color: #991b1b; padding: 10px 14px; border-radius: 6px; font-family: monospace; font-size: 12px; }
+  @media (max-width: 700px) {
+    .preview-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <h1>WorkHive Test Data Seeder</h1>
+  <p class="subtitle">Click buttons → fake data flows into local Supabase. Phase 4c.</p>
+
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+      <div>
+        {% if connected %}
+          <span class="badge badge-ok">CONNECTED</span>
+          <span style="margin-left:8px;">Local Supabase at <code>{{ supabase_url }}</code></span>
+        {% else %}
+          <span class="badge badge-err">NOT CONNECTED</span>
+          <div class="err-detail" style="margin-top:8px;">{{ error }}</div>
+        {% endif %}
+      </div>
+      <span id="job-badge" class="badge" style="display:none;"></span>
+    </div>
+    {% if connected %}
+    <div style="margin-top:14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <a href="/workhive/" target="_blank" style="display:inline-block; background:#7c3aed; color:#fff; padding:10px 18px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px;">▶ Open WorkHive (test mode) →</a>
+      <a href="/testing" target="_blank" style="display:inline-block; background:#fff; color:#1e40af; border:1px solid #93c5fd; padding:9px 16px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px;">✅ Testing Checklist</a>
+      <a href="/findings" target="_blank" style="display:inline-block; background:#fff; color:#b91c1c; border:1px solid #fca5a5; padding:9px 16px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px;">📋 Production Fixes</a>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if connected and test_logins %}
+  <div class="card" style="background:#fef3c7; border-color:#fcd34d;">
+    <h2>🔑 Test login credentials</h2>
+    <p style="font-size:13px; color:#92400e; margin:0 0 10px;">
+      All seeded workers share password: <code style="background:#92400e; color:#fef3c7;">test1234</code>
+      &nbsp;·&nbsp; Sign in via the platform's "Sign In" modal using <strong>username</strong> + password.
+    </p>
+    <table style="width:100%; font-size:13px; border-collapse:collapse;">
+      <thead>
+        <tr style="text-align:left; color:#92400e;">
+          <th style="padding:6px 8px; border-bottom:1px solid #fcd34d;">Username (for sign-in)</th>
+          <th style="padding:6px 8px; border-bottom:1px solid #fcd34d;">Display name (worker_name in DB)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for login in test_logins %}
+        <tr>
+          <td style="padding:5px 8px;"><code>{{ login.username }}</code></td>
+          <td style="padding:5px 8px;">{{ login.display_name }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  {% if connected %}
+  <div class="card">
+    <h2>Current row counts (live)</h2>
+    <div id="counts-grid" class="counts-grid">
+      {% for t, c in counts.items() %}
+      <div class="count-tile">
+        <div class="count-num" data-table="{{ t }}">{{ c }}</div>
+        <div class="count-label">{{ t }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Bulk seed buttons</h2>
+    <div class="button-grid">
+      <button class="seed-btn seed-all" data-action="all">▶ Seed Everything (full ~10k rows)</button>
+      <button class="seed-btn" data-action="hives_workers">1. Hives & Workers</button>
+      <button class="seed-btn" data-action="assets">2. Assets/Equipment</button>
+      <button class="seed-btn" data-action="pm">3. PM (assets/scope/completions)</button>
+      <button class="seed-btn" data-action="logbook">4. Logbook (~3700)</button>
+      <button class="seed-btn" data-action="inventory">5. Inventory + Tx</button>
+      <button class="seed-btn" data-action="skill_matrix">6. Skill Matrix</button>
+      <button class="seed-btn" data-action="marketplace">7. Marketplace</button>
+      <button class="seed-btn" data-action="community">8. Community</button>
+      <button class="seed-btn" data-action="run-tests" style="background:#059669; grid-column:1 / -1;">🧪 Run Data Tests (~5s, 62 checks)</button>
+      <button class="seed-btn" data-action="run-flows" style="background:#0891b2; grid-column:1 / -1;">🎬 Run UI Tests (Playwright, ~30s, drives real browser)</button>
+      <button class="seed-btn" data-action="run-gate" style="background:#7c3aed; grid-column:1 / -1; padding:14px; font-size:15px;">🚀 Run Full Release Gate (reset + reseed + 3 layers · ~90s · GO/NO-GO)</button>
+      <button class="seed-btn reset-btn" data-action="reset">⚠ Reset (wipe all)</button>
+    </div>
+    <p style="font-size:12px; color:#6b7280; margin-top:12px;">
+      Tip: First run "Seed Everything". For incremental tweaks, use individual buttons (each requires hives/workers/assets to already exist).
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Live log</h2>
+    <div id="log-panel" class="log-panel"></div>
+  </div>
+  {% endif %}
+
+  <details>
+    <summary>Show realism libraries (Phase 4b sample previews)</summary>
+    <div class="card">
+      <h2>Library size</h2>
+      <div class="stats-grid">
+        <div class="stat"><div class="stat-num">{{ stats.first_names_male }}</div><div class="stat-label">Male first names</div></div>
+        <div class="stat"><div class="stat-num">{{ stats.first_names_female }}</div><div class="stat-label">Female first names</div></div>
+        <div class="stat"><div class="stat-num">{{ stats.surnames }}</div><div class="stat-label">Surnames</div></div>
+        <div class="stat"><div class="stat-num">{{ stats.equipment_archetypes }}</div><div class="stat-label">Equipment</div></div>
+        <div class="stat"><div class="stat-num">{{ stats.fault_categories }}</div><div class="stat-label">Fault categories</div></div>
+        <div class="stat"><div class="stat-num">{{ stats.fault_templates }}</div><div class="stat-label">Fault templates</div></div>
+        <div class="stat"><div class="stat-num">{{ stats.cities }}</div><div class="stat-label">PH cities</div></div>
+        <div class="stat"><div class="stat-num">{{ stats.hive_templates }}</div><div class="stat-label">Hive templates</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Sample previews (refresh page for new draws)</h2>
+      <div class="preview-grid">
+        <div class="preview-block">
+          <h3>Sample workers</h3>
+          <ul class="preview-list">{% for w in samples.workers %}<li>{{ w }}</li>{% endfor %}</ul>
+        </div>
+        <div class="preview-block">
+          <h3>Sample hives</h3>
+          <ul class="preview-list">{% for h in samples.hives %}<li>{{ h.name }} <span style="color:#9ca3af;">— {{ h.industry }}</span></li>{% endfor %}</ul>
+        </div>
+      </div>
+      <div style="margin-top: 14px;">
+        <h3 style="font-size:12px; color:#6b7280; text-transform:uppercase; margin: 0 0 8px;">Sample equipment</h3>
+        <div class="preview-grid">
+          {% for e in samples.equipment %}
+          <div class="preview-block">
+            <strong>{{ e.make }} {{ e.model }}</strong><br>
+            <span style="color:#6b7280; font-size:12px;">{{ e.category }} · {{ e.discipline }}</span><br>
+            <span style="color:#374151; font-size:12px;">{{ e.spec }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div style="margin-top: 14px;">
+        <h3 style="font-size:12px; color:#6b7280; text-transform:uppercase; margin: 0 0 8px;">Sample faults</h3>
+        {% for f in samples.faults %}
+        <div class="fault-block">
+          <div class="meta">{{ f.category }} · severity: {{ f.severity }}</div>
+          <div class="problem">{{ f.problem }}</div>
+          <div><strong>Root cause:</strong> {{ f.root_cause }}</div>
+          <div><strong>Action:</strong> {{ f.action }}</div>
+          {% if f.parts_used %}<div style="color:#6b7280; margin-top:4px;"><strong>Parts:</strong> {{ f.parts_used | join(', ') }}</div>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </details>
+
+<script>
+  const buttons = document.querySelectorAll('button.seed-btn');
+  const logPanel = document.getElementById('log-panel');
+  const jobBadge = document.getElementById('job-badge');
+  let polling = false;
+
+  function setButtonsDisabled(disabled) {
+    buttons.forEach(b => b.disabled = disabled);
+  }
+
+  async function trigger(action) {
+    if (action === 'reset' && !confirm('This will WIPE all seeded data. Continue?')) return;
+    setButtonsDisabled(true);
+    logPanel.textContent = '';
+    let url;
+    if (action === 'all') url = '/api/seed/all';
+    else if (action === 'reset') url = '/api/reset';
+    else if (action === 'run-tests') url = '/api/run-tests';
+    else if (action === 'run-flows') url = '/api/run-flows';
+    else if (action === 'run-gate') url = '/api/run-gate';
+    else url = '/api/seed/' + action;
+
+    const resp = await fetch(url, { method: 'POST' });
+    const data = await resp.json();
+    if (data.error) {
+      logPanel.textContent = 'ERROR: ' + data.error;
+      setButtonsDisabled(false);
+      return;
+    }
+    if (!polling) startPolling();
+  }
+
+  buttons.forEach(b => b.addEventListener('click', () => trigger(b.dataset.action)));
+
+  async function poll() {
+    try {
+      const resp = await fetch('/api/status');
+      const data = await resp.json();
+      logPanel.textContent = data.log.join('\n');
+      logPanel.scrollTop = logPanel.scrollHeight;
+
+      if (data.running) {
+        jobBadge.style.display = 'inline-block';
+        jobBadge.className = 'badge badge-running';
+        jobBadge.textContent = 'RUNNING: ' + data.name;
+      } else {
+        jobBadge.style.display = 'none';
+        setButtonsDisabled(false);
+        polling = false;
+        if (data.counts) updateCounts(data.counts);
+        return;
+      }
+      setTimeout(poll, 1000);
+    } catch (e) {
+      console.error(e);
+      polling = false;
+      setButtonsDisabled(false);
+    }
+  }
+
+  function startPolling() {
+    polling = true;
+    poll();
+  }
+
+  function updateCounts(counts) {
+    Object.entries(counts).forEach(([table, n]) => {
+      const el = document.querySelector(`[data-table="${table}"]`);
+      if (el) el.textContent = n;
+    });
+  }
+
+  // Auto-resume polling on page load if a job was running
+  fetch('/api/status').then(r => r.json()).then(data => {
+    if (data.running) {
+      setButtonsDisabled(true);
+      startPolling();
+    }
+  });
+</script>
+</body>
+</html>

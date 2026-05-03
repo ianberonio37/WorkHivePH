@@ -1,3 +1,4 @@
+project_id = "workhive"
 
 [functions.ai-orchestrator]
 enabled = true

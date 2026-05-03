@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WorkHive — Test Mode</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    max-width: 960px;
+    margin: 32px auto;
+    padding: 24px;
+    background: #fafafa;
+    color: #1f2937;
+  }
+  h1 { margin: 0 0 4px; }
+  .subtitle { color: #6b7280; margin-top: 0; font-size: 14px; }
+  .banner {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 18px 0;
+    font-size: 14px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-top: 18px;
+  }
+  a.tile {
+    display: block;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 16px 18px;
+    text-decoration: none;
+    color: #1f2937;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  a.tile:hover {
+    border-color: #1e40af;
+    transform: translateY(-2px);
+  }
+  .tile h3 { margin: 0 0 4px; font-size: 15px; color: #1e40af; }
+  .tile small { color: #6b7280; font-size: 12px; font-family: ui-monospace, monospace; }
+  a.back { color: #6b7280; font-size: 13px; text-decoration: none; }
+  a.back:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+  <a href="/" class="back">← back to seeder</a>
+  <h1>WorkHive — Test Mode</h1>
+  <p class="subtitle">Pages below load with <code>SUPABASE_URL</code> rewritten to <strong>{{ supabase_url }}</strong> — your local seeded DB.</p>
+
+  <div class="banner">
+    <strong>Heads up:</strong> Edge functions (AI assistant, BOM/SOW, voice transcribe, etc.) won't work locally without their API keys configured. Page rendering / data display will work fine.
+  </div>
+
+  <div class="grid">
+    {% for filename, label in pages %}
+    <a href="/workhive/{{ filename }}" class="tile" target="_blank">
+      <h3>{{ label }}</h3>
+      <small>{{ filename }}</small>
+    </a>
+    {% endfor %}
+  </div>
+</body>
+</html>

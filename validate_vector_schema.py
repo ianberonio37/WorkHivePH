@@ -52,6 +52,11 @@ def read_all_migrations():
     for fname in sorted(os.listdir(MIGRATIONS_DIR)):
         if not fname.endswith(".sql"):
             continue
+        # Skip pg_dump baseline snapshots — they use quoted identifiers and
+        # follow Postgres conventions, not project conventions. The same
+        # tables are also defined in developer-written incremental migrations.
+        if fname.endswith("_baseline.sql"):
+            continue
         content = read_file(os.path.join(MIGRATIONS_DIR, fname))
         if content:
             combined += f"\n-- FILE: {fname}\n" + content

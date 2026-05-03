@@ -61,10 +61,14 @@ def read_all_migrations():
     if not os.path.isdir(MIGRATIONS_DIR):
         return content
     for fname in sorted(os.listdir(MIGRATIONS_DIR)):
-        if fname.endswith(".sql"):
-            c = read_file(os.path.join(MIGRATIONS_DIR, fname))
-            if c:
-                content += c
+        if not fname.endswith(".sql"):
+            continue
+        # Skip pg_dump baseline snapshots (different SQL dialect than dev migrations)
+        if fname.endswith("_baseline.sql"):
+            continue
+        c = read_file(os.path.join(MIGRATIONS_DIR, fname))
+        if c:
+            content += c
     return content
 
 
@@ -83,6 +87,8 @@ def check_migration_index_idempotency():
     for fname in sorted(os.listdir(MIGRATIONS_DIR)):
         if not fname.endswith(".sql"):
             continue
+        if fname.endswith("_baseline.sql"):
+            continue  # skip pg_dump baseline snapshots
         content = read_file(os.path.join(MIGRATIONS_DIR, fname))
         if not content:
             continue
@@ -112,6 +118,8 @@ def check_migration_policy_idempotency():
     for fname in sorted(os.listdir(MIGRATIONS_DIR)):
         if not fname.endswith(".sql"):
             continue
+        if fname.endswith("_baseline.sql"):
+            continue  # skip pg_dump baseline snapshots
         content = read_file(os.path.join(MIGRATIONS_DIR, fname))
         if not content:
             continue
@@ -250,6 +258,8 @@ def check_backfill_timing():
     for fname in sorted(os.listdir(MIGRATIONS_DIR)):
         if not fname.endswith(".sql"):
             continue
+        if fname.endswith("_baseline.sql"):
+            continue  # skip pg_dump baseline snapshots
         content = read_file(os.path.join(MIGRATIONS_DIR, fname))
         if not content:
             continue

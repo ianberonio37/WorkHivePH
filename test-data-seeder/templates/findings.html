@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{ page_title }}</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    max-width: 960px;
+    margin: 32px auto;
+    padding: 24px;
+    background: #fafafa;
+    color: #1f2937;
+    line-height: 1.6;
+  }
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  a.back { color: #6b7280; font-size: 13px; text-decoration: none; }
+  a.back:hover { text-decoration: underline; }
+  .file-hint {
+    font-size: 12px;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-family: ui-monospace, monospace;
+    word-break: break-all;
+  }
+  .progress-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .progress-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+    min-width: 140px;
+  }
+  .progress-bar-track {
+    flex: 1;
+    height: 10px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+    min-width: 200px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #059669);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  .toolbar {
+    display: flex;
+    gap: 8px;
+  }
+  .toolbar button {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .toolbar button:hover { border-color: #1e40af; color: #1e40af; }
+  .toolbar button.danger:hover { border-color: #b91c1c; color: #b91c1c; }
+  .rendered {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 28px 36px;
+  }
+  .rendered h1 { margin-top: 0; }
+  .rendered h2 {
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+    cursor: pointer;
+    user-select: none;
+  }
+  .rendered h2::before {
+    content: "▾ ";
+    color: #9ca3af;
+    font-size: 14px;
+  }
+  .rendered h2.collapsed::before { content: "▸ "; }
+  .rendered h3 { margin-top: 22px; color: #1e40af; }
+  .rendered code {
+    background: #1f2937;
+    color: #f9fafb;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .rendered pre {
+    background: #0b1020;
+    color: #d1d5db;
+    padding: 14px 18px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 12.5px;
+  }
+  .rendered pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+  }
+  .rendered hr { border: 0; border-top: 1px solid #e5e7eb; margin: 28px 0; }
+  .rendered blockquote {
+    border-left: 4px solid #1e40af;
+    padding-left: 14px;
+    color: #4b5563;
+    margin-left: 0;
+  }
+  .rendered ul.contains-task-list {
+    list-style: none;
+    padding-left: 0;
+  }
+  .rendered li.task-list-item {
+    list-style: none;
+    margin: 4px 0;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .rendered li.task-list-item:hover { background: #f9fafb; }
+  .rendered li.task-list-item.checked {
+    color: #6b7280;
+    text-decoration: line-through;
+    background: #ecfdf5;
+  }
+  .rendered li.task-list-item input[type="checkbox"] {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    vertical-align: middle;
+    accent-color: #059669;
+  }
+  .section-progress {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+    background: #f3f4f6;
+    padding: 2px 10px;
+    border-radius: 999px;
+    cursor: default;
+    vertical-align: middle;
+  }
+  .section-progress.complete { background: #d1fae5; color: #065f46; }
+  .footer-hint {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 18px;
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="/" class="back">← back to seeder</a>
+    <span class="file-hint">{{ file_path }}</span>
+  </div>
+
+  <div class="progress-card">
+    <div class="progress-text">
+      <span id="progress-count">0 / 0</span> checked
+      <span id="progress-pct" style="color:#6b7280; font-weight:500; margin-left:6px;"></span>
+    </div>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <div class="toolbar">
+      <button onclick="location.reload()">↻ Reload file</button>
+      <button class="danger" onclick="resetChecks()">⌫ Reset all</button>
+    </div>
+  </div>
+
+  <div id="rendered" class="rendered"></div>
+  <pre id="raw" style="display:none;">{{ content }}</pre>
+
+  <p class="footer-hint">
+    Edit the file directly in your editor at the path above. Reload to see changes.
+    Or tell Claude Code "save this finding: …" / "mark section X done" — checkbox state persists per-file in your browser.
+  </p>
+
+<script>
+  // Per-file storage key (sanitized server-side)
+  const FILE_KEY = {{ storage_key | tojson }};
+  const raw = document.getElementById('raw').textContent;
+  document.getElementById('rendered').innerHTML = marked.parse(raw, { gfm: true, breaks: false });
+
+  // Load saved state
+  let state = {};
+  try { state = JSON.parse(localStorage.getItem(FILE_KEY) || '{}'); } catch(e) { state = {}; }
+
+  // Hash a string into a short stable key
+  function hashKey(s) {
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+    return 'k' + (h >>> 0).toString(36);
+  }
+
+  // Find every checkbox marked.js inserted (regardless of li class).
+  const checkboxes = document.querySelectorAll('.rendered input[type="checkbox"]');
+  console.log('[checklist] found checkboxes:', checkboxes.length);
+
+  checkboxes.forEach(cb => {
+    cb.disabled = false;
+    cb.removeAttribute('disabled');
+    const li = cb.closest('li');
+    if (li) li.classList.add('task-list-item');
+    const txt = (li ? li.textContent : cb.parentElement.textContent).trim();
+    const id = hashKey(txt);
+    cb.dataset.checkId = id;
+    if (state[id]) {
+      cb.checked = true;
+      if (li) li.classList.add('checked');
+    }
+    cb.addEventListener('change', () => {
+      if (cb.checked) {
+        state[id] = 1;
+        if (li) li.classList.add('checked');
+      } else {
+        delete state[id];
+        if (li) li.classList.remove('checked');
+      }
+      localStorage.setItem(FILE_KEY, JSON.stringify(state));
+      updateProgress();
+    });
+  });
+
+  // Make parent <ul> show checkboxes inline cleanly even without the GFM class
+  document.querySelectorAll('.rendered ul').forEach(ul => {
+    if (ul.querySelector('input[type="checkbox"]')) {
+      ul.classList.add('contains-task-list');
+    }
+  });
+
+  // Per-section progress badges next to each H2
+  const headings = document.querySelectorAll('.rendered h2');
+  headings.forEach(h => {
+    const badge = document.createElement('span');
+    badge.className = 'section-progress';
+    h.appendChild(badge);
+
+    // Click h2 to collapse — but ignore clicks on the badge itself
+    h.addEventListener('click', (e) => {
+      if (e.target === badge || badge.contains(e.target)) return;
+      h.classList.toggle('collapsed');
+      let n = h.nextElementSibling;
+      while (n && n.tagName !== 'H2') {
+        n.style.display = h.classList.contains('collapsed') ? 'none' : '';
+        n = n.nextElementSibling;
+      }
+    });
+  });
+
+  function updateProgress() {
+    const total = checkboxes.length;
+    const done = Array.from(checkboxes).filter(cb => cb.checked).length;
+    document.getElementById('progress-count').textContent = `${done} / ${total}`;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    document.getElementById('progress-pct').textContent = `(${pct}%)`;
+    document.getElementById('progress-fill').style.width = pct + '%';
+
+    // Per-section badges
+    headings.forEach(h => {
+      let n = h.nextElementSibling;
+      let secTotal = 0, secDone = 0;
+      while (n && n.tagName !== 'H2') {
+        const boxes = n.querySelectorAll('input[type="checkbox"]');
+        boxes.forEach(b => { secTotal++; if (b.checked) secDone++; });
+        n = n.nextElementSibling;
+      }
+      const badge = h.querySelector('.section-progress');
+      if (!badge) return;
+      if (secTotal === 0) {
+        badge.textContent = '';
+        badge.style.display = 'none';
+      } else {
+        badge.style.display = '';
+        badge.textContent = `${secDone} / ${secTotal}`;
+        badge.classList.toggle('complete', secDone === secTotal && secTotal > 0);
+      }
+    });
+  }
+
+  function resetChecks() {
+    if (!confirm('Reset all checkboxes on this page? Your saved state will be cleared.')) return;
+    state = {};
+    localStorage.removeItem(FILE_KEY);
+    checkboxes.forEach(cb => {
+      cb.checked = false;
+      cb.closest('li').classList.remove('checked');
+    });
+    updateProgress();
+  }
+
+  updateProgress();
+</script>
+</body>
+</html>
