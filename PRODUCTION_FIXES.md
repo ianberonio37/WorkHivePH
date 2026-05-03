@@ -13,46 +13,7 @@ Bugs, missing fields, schema gaps, and UX issues found while running the test-da
 
 ## 🔴 Critical — breaks a user flow
 
-### 7. `semantic-search` and `embed-entry` use a non-existent Groq embedding model
-
-**Discovered:** 2026-05-04 — testing AI Assistant with seeded data.
-
-**What's wrong:**
-Both `supabase/functions/semantic-search/index.ts` and `supabase/functions/embed-entry/index.ts` call Groq's embeddings API:
-```typescript
-fetch("https://api.groq.com/openai/v1/embeddings", {
-  body: JSON.stringify({ model: "nomic-embed-text-v1_5", input: text })
-});
-```
-**Groq does not offer embeddings** — it's a chat-completion-only API. Calling this endpoint returns:
-> `Groq embedding error 404: The model 'nomic-embed-text-v1_5' does not exist or you do not have access to it.`
-
-This means:
-- New logbook/PM/skill entries are NEVER getting embedded
-- The `*_knowledge` tables exist with the `embedding vector(384)` schema, but rows have `embedding = NULL`
-- The AI assistant's RAG retrieval always returns "no semantic context found"
-- The `search_all_knowledge` function correctly filters `embedding IS NOT NULL`, so it returns zero results
-
-**Where:**
-- `supabase/functions/semantic-search/index.ts` — uses Groq embeddings
-- `supabase/functions/embed-entry/index.ts` — uses Groq embeddings
-- Possibly other functions that call `generateEmbedding()`
-
-**How to fix:** Swap to a real embedding provider:
-- **Option A (recommended): Hugging Face Inference API** — has `nomic-embed-text-v1.5` for free, well-supported, OpenAI-compatible payload. Endpoint: `https://api-inference.huggingface.co/models/nomic-ai/nomic-embed-text-v1.5`
-- **Option B: Cohere** — `embed-english-light-v3.0` is free up to 100 calls/min. Different API shape.
-- **Option C: OpenAI** — `text-embedding-3-small` is paid (~$0.02 per 1M tokens) but most reliable.
-
-Whichever you pick, also change the **vector dimension** in:
-- `embed-entry/index.ts` — output dimension
-- `semantic-search/index.ts` — query dimension
-- Migration that defines `embedding vector(N)` columns — must match
-
-If you swap from `nomic-embed-text-v1.5` (384) to `text-embedding-3-small` (1536), all knowledge tables need ALTER TABLE to widen the column.
-
-**Production impact:** RAG-based features (assistant context, "find similar issues", knowledge surfacing in BOM/SOW prompts) all fall back to "no context found." The platform still works, just less intelligently than designed.
-
-**Status:** TO DO — high priority, blocks the platform's "smart" features
+_(none currently)_
 
 ---
 
@@ -85,6 +46,24 @@ Found and fixed in one session:
 - `marketplace.html` — three CSS classes (`.search-input`, `.wh-select`, `.wh-textarea`) all had `font-size: 0.82rem`. Bumped all three to `1rem`.
 
 **Verified by:** Mobile Playwright flow now reports `41 pass, 0 fail` (was `39 pass, 2 fail`). All visible inputs measure ≥16px.
+
+### 7. semantic-search + embed-entry used non-existent Groq embedding model — FIXED 2026-05-04
+
+Replaced the single Groq embedding call (which never worked — Groq offers chat-only) with a 2-provider fallback chain at `supabase/functions/_shared/embedding-chain.ts`:
+
+1. **Voyage AI** (`voyage-3.5-lite` at 512 dims, truncated to 384) — primary, 200M tokens/month free
+2. **Jina AI** (`jina-embeddings-v3` at 384 dims native) — secondary, 100M tokens/month free
+
+Both `semantic-search` and `embed-entry` now import `generateEmbedding()` from this shared file. Output is a 384-dim vector compatible with the existing `vector(384)` schema on knowledge tables.
+
+**Verified by:**
+- Local edge function logs show `[embedding] ok via voyage (384 dims)` on every semantic search call
+- AI gate's `ai_semantic` test now PASS (was KNOWN-FAIL)
+- Total free capacity ~300M tokens/month, sustainable for production
+
+**Production migration:** Add `VOYAGE_API_KEY` and `JINA_API_KEY` to your Supabase project's secrets dashboard before deploying. Without those, the chain falls through and embeddings throw — same behavior as before, just with explicit error.
+
+---
 
 ### 10. handle_community_post_xp trigger didn't propagate auth_uid — FIXED 2026-05-04
 

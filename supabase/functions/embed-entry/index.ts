@@ -1,34 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
-
-// ── Generate embedding via Groq (nomic-embed-text-v1.5, 384 dimensions, free) ─
-
-async function generateEmbedding(text: string): Promise<number[]> {
-  const GROQ_KEY = Deno.env.get("GROQ_API_KEY");
-  if (!GROQ_KEY) throw new Error("GROQ_API_KEY not set");
-
-  const res = await fetch("https://api.groq.com/openai/v1/embeddings", {
-    method: "POST",
-    signal: AbortSignal.timeout(30000),
-    headers: {
-      "Authorization": `Bearer ${GROQ_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "nomic-embed-text-v1_5",
-      input: text,
-    }),
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Groq embedding error ${res.status}: ${err}`);
-  }
-
-  const data = await res.json();
-  return data.data[0].embedding;
-}
+import { generateEmbedding } from "../_shared/embedding-chain.ts";
 
 // ── Entry point ───────────────────────────────────────────────────────────────
 
