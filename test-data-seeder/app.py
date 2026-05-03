@@ -327,20 +327,16 @@ def api_run_flows():
     return jsonify({"started": True})
 
 
-@app.route("/api/run-gate", methods=["POST"])
-def api_run_gate():
-    """Runs the full release gate (pre-flight + reseed + static + data + UI)."""
-    if JOB_STATE["running"]:
-        return jsonify({"error": "another job is running"}), 409
-
+def _run_release_gate(extra_args: list = None):
+    """Helper to launch release_gate.py with optional flags."""
     def _run(client, log):
-        # release_gate.py lives at project root, one level above the seeder
         gate = WORKHIVE_ROOT / "release_gate.py"
         if not gate.exists():
             log(f"ERROR: release_gate.py not found at {gate}")
             return {"exit_code": 1}
+        cmd = [sys.executable, str(gate)] + (extra_args or [])
         proc = subprocess.Popen(
-            [sys.executable, str(gate)],
+            cmd,
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             cwd=str(WORKHIVE_ROOT), bufsize=1,
             text=True, encoding="utf-8", errors="replace",
@@ -353,8 +349,24 @@ def api_run_gate():
                 log(clean)
         proc.wait()
         return {"exit_code": proc.returncode}
+    return _run
 
-    _run_job("release_gate", _run)
+
+@app.route("/api/run-gate", methods=["POST"])
+def api_run_gate():
+    """Runs the full release gate (pre-flight + reseed + static + data + UI)."""
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+    _run_job("release_gate", _run_release_gate())
+    return jsonify({"started": True})
+
+
+@app.route("/api/run-gate-ai", methods=["POST"])
+def api_run_gate_ai():
+    """Runs the full release gate WITH AI Full pack (adds Groq API calls)."""
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+    _run_job("release_gate_ai", _run_release_gate(["--with-ai"]))
     return jsonify({"started": True})
 
 

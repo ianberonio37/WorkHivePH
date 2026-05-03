@@ -28,6 +28,12 @@ index-v3-test.html
 supabase/.temp/
 supabase/.branches/
 
+# Edge function secrets — never commit
+.env
+.env.local
+supabase/functions/.env
+supabase/.env.local
+
 # Test environment migration staging area (originals are restored to migrations/)
 supabase/migrations_archived/
 

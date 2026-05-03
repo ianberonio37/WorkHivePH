@@ -18,6 +18,9 @@ from playwright.sync_api import sync_playwright
 
 from flows.harness import browser_session, sign_in, SCREENSHOTS_DIR
 from flows import smoke, logbook, community, analytics, isolation, signup, mobile
+from flows import ai_assistant, ai_analytics, ai_semantic, ai_generation
+
+WITH_AI = "--with-ai" in sys.argv
 
 
 def main():
@@ -91,6 +94,26 @@ def main():
             if r[0] == "PASS": total_pass += 1
             elif r[0] == "FAIL": total_fail += 1
             elif r[0] == "WARN": total_warn += 1
+
+        # 6. AI Full — only with --with-ai flag (uses Groq API, ~10 calls, ~$0)
+        if WITH_AI:
+            for label, mod in [
+                ("AI Assistant", ai_assistant),
+                ("AI Analytics", ai_analytics),
+                ("AI Semantic Search", ai_semantic),
+                ("AI Generation (BOM/SOW)", ai_generation),
+            ]:
+                print(f"\n[{label}]")
+                try:
+                    out = mod.run(None, [], [], log=print)
+                except Exception as e:
+                    print(f"  ✗ flow crashed: {type(e).__name__}: {e}")
+                    out = {"results": [("FAIL", f"crashed: {e}")]}
+                section_results.append((label, out))
+                for r in out.get("results", []):
+                    if r[0] == "PASS": total_pass += 1
+                    elif r[0] == "FAIL": total_fail += 1
+                    elif r[0] == "WARN": total_warn += 1
 
     print()
     print("=" * 60)

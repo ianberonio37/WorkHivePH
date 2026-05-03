@@ -47,7 +47,7 @@ def s0_counts(db):
         "hives": 3, "hive_members": 15, "assets": 90, "logbook": 3700,
         "pm_assets": 90, "pm_completions": 1500, "inventory_items": 81,
         "inventory_transactions": 440, "skill_profiles": 15, "skill_badges": 30,
-        "marketplace_listings": 27, "community_posts": 90,
+        "marketplace_listings": 27, "community_posts": 145,
     }
     results = []
     for table, expect in expected.items():

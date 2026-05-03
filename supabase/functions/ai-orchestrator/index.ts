@@ -304,12 +304,47 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
 
   const synthRaw = await callGroq(synthPrompt, SYNTH_SYSTEM);
 
-  let answer = "I analyzed your data but had trouble formatting the response. Please try again.";
+  let answer: string = "I analyzed your data but had trouble formatting the response. Please try again.";
   try {
-    answer = JSON.parse(synthRaw).answer || answer;
+    const parsed = JSON.parse(synthRaw).answer;
+    if (typeof parsed === "string") {
+      answer = parsed;
+    } else if (parsed && typeof parsed === "object") {
+      // LLM returned a structured object instead of a prose string. Format it
+      // as readable markdown-ish bullets so the chat UI can render it.
+      answer = formatStructuredAnswer(parsed);
+    }
   } catch { /* use fallback */ }
 
   return { answer, agents_used: agentsToRun, raw_results: successfulResults };
+}
+
+// Coerce a structured object response into readable text. Keys become bold
+// headings; arrays become bullet lists; primitives become "key: value".
+function formatStructuredAnswer(obj: Record<string, unknown>, depth = 0): string {
+  const lines: string[] = [];
+  const indent = "  ".repeat(depth);
+  for (const [key, value] of Object.entries(obj)) {
+    const heading = key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+    if (Array.isArray(value)) {
+      if (!value.length) continue;
+      lines.push(`${indent}**${heading}:**`);
+      for (const item of value) {
+        if (item && typeof item === "object") {
+          const parts = Object.entries(item).map(([k, v]) => `${k}: ${v}`).join(", ");
+          lines.push(`${indent}- ${parts}`);
+        } else {
+          lines.push(`${indent}- ${item}`);
+        }
+      }
+    } else if (value && typeof value === "object") {
+      lines.push(`${indent}**${heading}:**`);
+      lines.push(formatStructuredAnswer(value as Record<string, unknown>, depth + 1));
+    } else if (value !== null && value !== undefined) {
+      lines.push(`${indent}**${heading}:** ${value}`);
+    }
+  }
+  return lines.join("\n");
 }
 
 // ── Entry point ───────────────────────────────────────────────────────────────

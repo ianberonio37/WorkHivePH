@@ -53,6 +53,7 @@ def seed_community(client, log, ctx: dict) -> dict:
                     "flagged": False,
                     "created_at": to_iso(ts),
                     "public": random.random() < 0.3,
+                    "auth_uid": author.get("auth_uid"),
                 })
 
     client.table("community_posts").insert(rows).execute()

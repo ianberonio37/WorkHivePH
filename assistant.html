@@ -419,7 +419,7 @@
       const [lRes, sRes, skillRes, invRes, pmRes] = await Promise.all([
         db.from('logbook').select('date,machine,maintenance_type,category,status,problem,root_cause,downtime_hours,action,parts_used').eq('worker_name', name).order('date', { ascending: false }).limit(10),
         db.from('schedule_items').select('date,start_time,end_time,title,category,item_status,notes').eq('worker_name', name).gte('date', pastDate).lte('date', futureDate).order('date', { ascending: true }).order('start_time', { ascending: true }),
-        db.from('skill_badges').select('discipline,level,badge_type').eq('worker_name', name).order('level', { ascending: false }).limit(6),
+        db.from('skill_badges').select('discipline,level,badge_key').eq('worker_name', name).order('level', { ascending: false }).limit(6),
         hiveIdCtx
           ? db.from('inventory_items').select('name,qty_on_hand,unit,reorder_point,category').eq('hive_id', hiveIdCtx).eq('status', 'approved').order('qty_on_hand', { ascending: true }).limit(20)
           : Promise.resolve({ data: [] }),
