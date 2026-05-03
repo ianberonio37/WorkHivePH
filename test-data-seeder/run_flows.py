@@ -153,6 +153,28 @@ def main():
     print(f"  Screenshots: {SCREENSHOTS_DIR}")
     print("=" * 60)
 
+    # Persist per-flow detail for the dashboard's drill-down
+    try:
+        from pathlib import Path as _P
+        import json as _json
+        from datetime import datetime as _dt, timezone as _tz
+        sections_out = []
+        for label, payload in section_results:
+            tests = []
+            for r in (payload or {}).get("results", []):
+                if isinstance(r, tuple) and len(r) >= 2:
+                    tests.append({"status": r[0], "message": str(r[1])})
+            sections_out.append({"section": label, "tests": tests})
+        out = _P(__file__).parent / ".tmp" / "last_ui_run.json"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(_json.dumps({
+            "timestamp": _dt.now(_tz.utc).isoformat(),
+            "summary": {"pass": total_pass, "warn": total_warn, "fail": total_fail},
+            "sections": sections_out,
+        }, indent=2), encoding="utf-8")
+    except Exception as e:
+        print(f"  WARN: could not save UI detail JSON: {e}")
+
     return 0 if total_fail == 0 else 1
 
 

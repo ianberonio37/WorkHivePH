@@ -1,4 +1,5 @@
 import io
+import json
 import random
 import threading
 from datetime import datetime, timezone
@@ -368,6 +369,228 @@ def api_run_gate_ai():
         return jsonify({"error": "another job is running"}), 409
     _run_job("release_gate_ai", _run_release_gate(["--with-ai"]))
     return jsonify({"started": True})
+
+
+@app.route("/api/run-gate-visual", methods=["POST"])
+def api_run_gate_visual():
+    """Gate + visual regression only (no AI, no perf). Faster than Mega Gate.
+
+    ~3-4 min on a warm cache. Useful for verifying visual baselines after a
+    seeder change, without paying for the AI or perf passes.
+    """
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+    _run_job("release_gate_visual", _run_release_gate(["--with-visual"]))
+    return jsonify({"started": True})
+
+
+@app.route("/api/run-mega-gate", methods=["POST"])
+def api_run_mega_gate():
+    """Mega Gate: release gate + AI Full + visual regression + performance budgets.
+
+    The most thorough single-click validation. ~7-10 min on a warm cache.
+    """
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+    _run_job(
+        "mega_gate",
+        _run_release_gate(["--with-ai", "--with-visual", "--with-perf"]),
+    )
+    return jsonify({"started": True})
+
+
+# ---------- Health panel data (Phase 2) ----------
+
+def _parse_backlog_items():
+    """Parse PRODUCTION_FIXES.md into categorized item lists.
+
+    Returns a dict keyed by category with a list of {num, title, status, date}.
+    Used by both the count summary and the drill-down endpoint.
+    """
+    items = {"critical": [], "important": [], "nice_to_have": [], "fixed": []}
+    if not FINDINGS_FILE.exists():
+        return items
+    text = FINDINGS_FILE.read_text(encoding="utf-8")
+    import re as _re
+    sections = {
+        "critical":     r"## 🔴 Critical",
+        "important":    r"## 🟡 Important",
+        "nice_to_have": r"## 🟢 Nice to have",
+        "fixed":        r"## ✅ Fixed",
+    }
+    for key, header in sections.items():
+        m = _re.search(rf"{header}.*?(?=\n## |\Z)", text, _re.DOTALL)
+        if not m:
+            continue
+        body = m.group(0)
+        if "_(none" in body:
+            continue
+        for entry in _re.finditer(r"^###\s+([\w-]+)\.\s+(.+?)$", body, _re.MULTILINE):
+            num = entry.group(1)
+            line = entry.group(2).strip()
+            tail = _re.search(
+                r"\s+[—\-]\s+(FIXED|OPEN|WIP|DEFERRED)(?:\s+(\d{4}-\d{2}-\d{2}))?\s*$",
+                line,
+            )
+            if tail:
+                title = line[:tail.start()].rstrip()
+                status = tail.group(1)
+                date = tail.group(2)
+            else:
+                title = line
+                status = "FIXED" if key == "fixed" else "OPEN"
+                date = None
+            items[key].append({
+                "num": num,
+                "title": title,
+                "status": status,
+                "date": date,
+            })
+    return items
+
+
+def _parse_backlog():
+    """Count entries per PRODUCTION_FIXES.md category (used by /api/health)."""
+    items = _parse_backlog_items()
+    return {k: len(v) for k, v in items.items()}
+
+
+@app.route("/api/health")
+def api_health():
+    """Returns the unified health snapshot for the dashboard panel."""
+    sys.path.insert(0, str(Path(__file__).parent))
+    try:
+        from lib.health_score import compute_score, tier_for
+        from lib.run_history import latest_run, load_streak
+    except Exception as e:
+        return jsonify({"error": f"health libs unavailable: {e}"}), 500
+
+    streak = load_streak()
+    last = latest_run()
+
+    response = {
+        "streak": {
+            "current": streak.get("current_streak", 0),
+            "best": streak.get("best_streak", 0),
+            "last_green_date": streak.get("last_green_date"),
+            "last_green_commit": (streak.get("last_green_commit") or "")[:8],
+            "last_run_date": streak.get("last_run_date"),
+            "last_run_verdict": streak.get("last_run_verdict"),
+            "broken_at": streak.get("broken_at"),
+            "broken_after_days": streak.get("broken_after_days"),
+        },
+        "last_run": last,
+        "backlog": _parse_backlog(),
+    }
+
+    if last:
+        # Recompute score with stale-aware penalty (last run > 24h ago = -10)
+        recomputed = compute_score(last.get("layers", {}), last_run_iso=last.get("timestamp"))
+        response["score"] = recomputed["score"]
+        response["tier"] = recomputed["tier"]
+        response["stale"] = recomputed["stale"]
+        response["breakdown"] = recomputed["breakdown"]
+    else:
+        response["score"] = None
+        response["tier"] = "No runs yet"
+        response["stale"] = False
+        response["breakdown"] = []
+
+    return jsonify(response)
+
+
+@app.route("/api/health/details/<layer>")
+def api_health_details(layer):
+    """Returns per-test detail for a single layer (drill-down view)."""
+    layer = layer.lower()
+    seeder_tmp = Path(__file__).parent / ".tmp"
+
+    if layer == "static":
+        # Read platform_health.json from project root
+        ph = WORKHIVE_ROOT / "platform_health.json"
+        if not ph.exists():
+            return jsonify({"layer": layer, "sections": [], "error": "platform_health.json not found. Run the gate first."}), 200
+        try:
+            data = json.loads(ph.read_text(encoding="utf-8"))
+        except Exception as e:
+            return jsonify({"layer": layer, "sections": [], "error": str(e)}), 200
+        # Format for drill-down
+        validators = data.get("validators", [])
+        tests = []
+        for v in validators:
+            status = (v.get("status") or "").upper()
+            tests.append({
+                "status": status,
+                "message": v.get("label") or v.get("id") or "?",
+                "elapsed": v.get("elapsed"),
+            })
+        return jsonify({
+            "layer": layer,
+            "timestamp": data.get("timestamp"),
+            "sections": [{"section": "All validators", "tests": tests}],
+        })
+
+    if layer == "data":
+        f = seeder_tmp / "last_data_run.json"
+        if not f.exists():
+            return jsonify({"layer": layer, "sections": [], "error": "Run data tests once to populate this view."}), 200
+        return jsonify({"layer": layer, **json.loads(f.read_text(encoding="utf-8"))})
+
+    if layer == "ui":
+        f = seeder_tmp / "last_ui_run.json"
+        if not f.exists():
+            return jsonify({"layer": layer, "sections": [], "error": "Run UI tests once to populate this view."}), 200
+        return jsonify({"layer": layer, **json.loads(f.read_text(encoding="utf-8"))})
+
+    return jsonify({"layer": layer, "error": "unknown layer"}), 400
+
+
+@app.route("/api/health/history")
+def api_health_history():
+    """Returns the last N runs as a flat array (oldest first) for the sparkline."""
+    sys.path.insert(0, str(Path(__file__).parent))
+    try:
+        from lib.run_history import load_history
+    except Exception as e:
+        return jsonify({"error": f"history libs unavailable: {e}", "runs": []}), 500
+    try:
+        n = int(request.args.get("n", "30"))
+    except ValueError:
+        n = 30
+    n = max(1, min(n, 50))
+    history = load_history()[-n:]
+    runs = []
+    for r in history:
+        runs.append({
+            "timestamp":    r.get("timestamp"),
+            "commit_short": r.get("commit_short"),
+            "verdict":      r.get("verdict"),
+            "score":        r.get("score"),
+            "tier":         r.get("tier"),
+            "flags":        r.get("flags") or [],
+        })
+    return jsonify({"runs": runs, "count": len(runs)})
+
+
+@app.route("/api/health/backlog")
+def api_health_backlog():
+    """Returns categorized PRODUCTION_FIXES.md items for the backlog drill-down."""
+    items = _parse_backlog_items()
+    labels = {
+        "critical":     "Critical",
+        "important":    "Important",
+        "nice_to_have": "Nice to have",
+        "fixed":        "Fixed",
+    }
+    sections = [
+        {"key": k, "label": labels[k], "items": items.get(k, [])}
+        for k in ("critical", "important", "nice_to_have", "fixed")
+    ]
+    return jsonify({
+        "sections": sections,
+        "exists": FINDINGS_FILE.exists(),
+        "file_path": str(FINDINGS_FILE),
+    })
 
 
 # ---------- Production findings + testing checklist (running backlogs) ----------

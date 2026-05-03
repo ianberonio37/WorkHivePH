@@ -510,6 +510,7 @@ MANUAL_NOTES = [
 def main():
     db = get_client()
     total_pass = total_fail = total_warn = 0
+    detail_sections = []  # for JSON output
 
     print(f"\n{BOLD}WorkHive Test Runner — data-level checks{RESET}")
     print(f"{GRAY}Local Supabase: http://127.0.0.1:54321{RESET}")
@@ -519,14 +520,37 @@ def main():
         try:
             results = fn(db)
         except Exception as e:
-            print(fail(f"crashed: {type(e).__name__}: {e}"))
+            err_msg = f"crashed: {type(e).__name__}: {e}"
+            print(fail(err_msg))
             total_fail += 1
+            detail_sections.append({"section": name, "tests": [{"status": "FAIL", "message": err_msg}]})
             continue
+
+        section_tests = []
         for r in results:
             print("  " + r)
-            if "PASS" in r: total_pass += 1
-            elif "FAIL" in r: total_fail += 1
-            elif "WARN" in r: total_warn += 1
+            # Strip ANSI color codes for JSON detail
+            import re as _re
+            clean = _re.sub(r"\x1b\[[0-9;]*m", "", r)
+            if "PASS" in r:
+                total_pass += 1
+                status = "PASS"
+            elif "FAIL" in r:
+                total_fail += 1
+                status = "FAIL"
+            elif "WARN" in r:
+                total_warn += 1
+                status = "WARN"
+            else:
+                status = "INFO"
+            # Extract message portion (after the status keyword)
+            msg = clean
+            for kw in ("✓ PASS ", "✗ FAIL ", "⚠ WARN ", "PASS ", "FAIL ", "WARN "):
+                if kw in clean:
+                    msg = clean.split(kw, 1)[-1]
+                    break
+            section_tests.append({"status": status, "message": msg.strip()})
+        detail_sections.append({"section": name, "tests": section_tests})
 
     header("Manual / browser-driven items (still on you)")
     for n in MANUAL_NOTES:
@@ -537,6 +561,21 @@ def main():
     summary = f"  {GREEN}{total_pass} pass{RESET}  ·  {YELLOW}{total_warn} warn{RESET}  ·  {RED}{total_fail} fail{RESET}"
     print(BOLD + "  Summary" + RESET + summary)
     print("─" * 60)
+
+    # Persist per-test detail for the dashboard's drill-down
+    try:
+        from pathlib import Path as _P
+        import json as _json
+        from datetime import datetime as _dt, timezone as _tz
+        out = _P(__file__).parent / ".tmp" / "last_data_run.json"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(_json.dumps({
+            "timestamp": _dt.now(_tz.utc).isoformat(),
+            "summary": {"pass": total_pass, "warn": total_warn, "fail": total_fail},
+            "sections": detail_sections,
+        }, indent=2), encoding="utf-8")
+    except Exception as e:
+        print(f"  WARN: could not save detail JSON: {e}")
 
     return 0 if total_fail == 0 else 1
 

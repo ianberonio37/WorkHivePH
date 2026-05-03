@@ -1,4 +1,6 @@
 """Top-level orchestrator that runs all seeders in dependency order."""
+import random
+
 from .hives_workers import seed_hives_and_workers
 from .assets import seed_assets
 from .pm import seed_pm
@@ -9,10 +11,18 @@ from .marketplace import seed_marketplace
 from .community import seed_community
 
 
+# Fixed RNG seed so each full reseed produces the same volume of rows per hive.
+# Stable seed = stable page heights = visual regression baselines stay valid.
+# If you need fresh randomness for ad-hoc exploration, override before calling.
+SEEDER_RNG_SEED = 20260503
+
+
 def seed_everything(client, log) -> dict:
     """Runs all seeders in correct order, sharing context between them."""
+    random.seed(SEEDER_RNG_SEED)
     log("=" * 50)
     log("SEEDING EVERYTHING — this takes 1-3 minutes")
+    log(f"  RNG seed: {SEEDER_RNG_SEED} (deterministic data shape)")
     log("=" * 50)
 
     ctx: dict = {}
