@@ -287,7 +287,7 @@
   .layer-detail .section-head:first-child { margin-top: 0; }
   .layer-detail .test-row {
     display: grid;
-    grid-template-columns: 56px 1fr;
+    grid-template-columns: 56px 1fr auto;
     gap: 10px;
     align-items: start;
     padding: 5px 8px;
@@ -334,6 +334,177 @@
     border-top: 1px solid var(--border);
     padding-top: 6px;
   }
+
+  /* Wizard button + modal (Phase 9) */
+  button.seed-btn.wizard-btn {
+    grid-column: 1 / -1;
+    background: rgba(167,139,250,0.12);
+    color: var(--purple);
+    border-color: rgba(167,139,250,0.4);
+    padding: 12px 14px;
+    font-weight: 600;
+  }
+  button.seed-btn.wizard-btn:hover:not(:disabled) { background: rgba(167,139,250,0.22); }
+
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(10,18,29,0.78);
+    backdrop-filter: blur(2px);
+    z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-card {
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 520px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  }
+  .modal-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-close {
+    background: none; border: none; color: var(--muted);
+    font-size: 1rem; cursor: pointer; padding: 4px 8px;
+    font-family: inherit;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-body { padding: 18px 20px; }
+
+  /* Trend alert chips (Phase 13) */
+  .trend-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    border: 1px solid;
+    background: var(--card);
+  }
+  .trend-alert .ta-icon { font-size: 1.1rem; flex-shrink: 0; }
+  .trend-alert .ta-body { flex: 1; line-height: 1.4; }
+  .trend-alert .ta-title { font-weight: 700; color: var(--text); }
+  .trend-alert .ta-detail { color: var(--muted-2); font-size: 0.76rem; margin-top: 1px; }
+  .trend-alert.good { border-color: rgba(74,222,128,0.3); background: rgba(74,222,128,0.06); }
+  .trend-alert.good .ta-icon { color: var(--green); }
+  .trend-alert.warn { border-color: rgba(251,191,36,0.35); background: rgba(251,191,36,0.06); }
+  .trend-alert.warn .ta-icon { color: var(--yellow); }
+  .trend-alert.bad  { border-color: rgba(248,113,113,0.4); background: rgba(248,113,113,0.07); }
+  .trend-alert.bad  .ta-icon { color: var(--red); }
+
+  /* Bug-intake button + form (Phase 8) */
+  .test-actions {
+    display: inline-flex;
+    gap: 4px;
+    align-self: center;
+  }
+  .bug-log-btn,
+  .ai-diagnose-btn {
+    background: rgba(248,113,113,0.08);
+    border: 1px solid rgba(248,113,113,0.25);
+    color: var(--red);
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: 0.66rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: all 0.12s;
+  }
+  .bug-log-btn:hover { background: rgba(248,113,113,0.16); border-color: rgba(248,113,113,0.4); }
+  .ai-diagnose-btn {
+    background: rgba(167,139,250,0.1);
+    border-color: rgba(167,139,250,0.3);
+    color: var(--purple);
+  }
+  .ai-diagnose-btn:hover { background: rgba(167,139,250,0.2); border-color: rgba(167,139,250,0.5); }
+  .bug-log-btn.logged {
+    background: rgba(74,222,128,0.1);
+    border-color: rgba(74,222,128,0.3);
+    color: var(--green);
+    cursor: default;
+  }
+  .bug-form {
+    margin: 4px 0 8px 64px;
+    padding: 12px 14px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(248,113,113,0.25);
+    border-radius: 8px;
+  }
+  .bug-form-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .bug-form-row label {
+    flex: 0 0 70px;
+    font-size: 0.66rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-top: 6px;
+    font-weight: 600;
+  }
+  .bug-form-row input,
+  .bug-form-row select,
+  .bug-form-row textarea {
+    flex: 1;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 6px 10px;
+    font-family: inherit;
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+  .bug-form-row textarea { resize: vertical; min-height: 56px; font-family: ui-monospace, monospace; font-size: 0.74rem; }
+  .bug-form-row input:focus,
+  .bug-form-row select:focus,
+  .bug-form-row textarea:focus { outline: none; border-color: var(--gold); }
+  .bug-form-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 4px;
+  }
+  .bug-form-actions button {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    border: 1px solid;
+    transition: all 0.12s;
+  }
+  .bug-form-actions .bf-cancel {
+    background: rgba(255,255,255,0.04);
+    border-color: var(--border-strong);
+    color: var(--muted-2);
+  }
+  .bug-form-actions .bf-cancel:hover { background: rgba(255,255,255,0.08); }
+  .bug-form-actions .bf-submit {
+    background: rgba(247,162,27,0.14);
+    border-color: rgba(247,162,27,0.45);
+    color: var(--gold);
+  }
+  .bug-form-actions .bf-submit:hover:not(:disabled) { background: rgba(247,162,27,0.24); }
+  .bug-form-actions .bf-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .bf-result { margin-top: 8px; font-size: 0.74rem; }
+  .bf-success {
+    color: var(--green);
+    font-size: 0.78rem;
+    padding: 4px 0;
+  }
+  .bf-success a { color: var(--blue); }
 
   /* Backlog rows (clickable, Phase 4) */
   .bl-row {
@@ -475,6 +646,9 @@
     <!-- Layer breakdown bars -->
     <div id="layer-bars" style="margin-top:18px; display:flex; flex-direction:column; gap:8px;"></div>
 
+    <!-- Trend alerts (Phase 13) — only renders when alerts exist -->
+    <div id="trends-card" style="margin-top:14px; display:none; flex-direction:column; gap:6px;"></div>
+
     <!-- Run history sparkline (Phase 5) -->
     <div id="sparkline-card" style="margin-top:18px; display:none; position:relative;">
       <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
@@ -576,6 +750,17 @@
       <button class="seed-btn" data-action="run-flows">🎬 UI Tests (Playwright, ~30s)</button>
     </div>
 
+    <!-- Section 2.5: Wizards (Phase 9 — scaffold new things with all registrations) -->
+    <div class="section-head-row" style="margin-top:18px;">
+      <h3 class="action-section-title">Wizards</h3>
+      <span class="action-section-hint">Scaffold a new thing with every registration the gate expects.</span>
+    </div>
+    <div class="button-grid">
+      <button class="seed-btn wizard-btn" onclick="openEdgeFunctionWizard()">🧙 New edge function (creates dir + index.ts + config.toml block)</button>
+      <button class="seed-btn wizard-btn" onclick="openHtmlPageWizard()">🧙 New HTML page (file + 4 registry updates for tools)</button>
+      <button class="seed-btn wizard-btn" onclick="openSkillLessonWizard()">🧠 Add lesson to a skill (Phase 14)</button>
+    </div>
+
     <!-- Section 3: Seeders -->
     <div class="section-head-row" style="margin-top:18px;">
       <h3 class="action-section-title">Seed data</h3>
@@ -608,6 +793,139 @@
     <div id="log-panel" class="log-panel"></div>
   </div>
   {% endif %}
+
+  <!-- AI diagnose prompt modal (Phase 15) -->
+  <div id="ai-diag-overlay" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeAiDiagnose()">
+    <div class="modal-card" style="max-width:780px;">
+      <div class="modal-head">
+        <h3 style="margin:0;">🤖 AI diagnose prompt</h3>
+        <button class="modal-close" onclick="closeAiDiagnose()" title="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin:0 0 10px; color:var(--muted-2); font-size:0.82rem;">
+          Paste this into Claude / ChatGPT / your AI of choice. It bundles the failing test, latest gate run, recent fixes, and repo context into one self-contained question.
+        </p>
+        <textarea id="ai-diag-prompt" rows="14" readonly style="width:100%; background:rgba(0,0,0,0.4); border:1px solid var(--border-strong); border-radius:8px; color:var(--text); padding:10px 12px; font-family:ui-monospace,monospace; font-size:0.74rem; line-height:1.4; resize:vertical;"></textarea>
+        <div class="bug-form-actions" style="margin-top:10px;">
+          <button type="button" class="bf-cancel" onclick="closeAiDiagnose()">Close</button>
+          <button type="button" class="bf-submit" id="ai-diag-copy" onclick="copyAiDiagnose()">Copy to clipboard</button>
+        </div>
+        <div id="ai-diag-result" style="margin-top:8px; font-size:0.74rem; color:var(--muted);"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skill lesson wizard modal (Phase 14) -->
+  <div id="sl-wizard-overlay" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeSkillLessonWizard()">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 style="margin:0;">🧠 Add Lesson to a Skill</h3>
+        <button class="modal-close" onclick="closeSkillLessonWizard()" title="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin:0 0 14px; color:var(--muted-2); font-size:0.82rem;">
+          After fixing a real bug, capture the lesson in the relevant skill so future sessions don't repeat it. Appends a new <code>## Lesson YYYY-MM-DD: &lt;title&gt;</code> section to the skill's <code>SKILL.md</code>.
+        </p>
+        <div class="bug-form-row">
+          <label>Skill</label>
+          <select id="sl-skill" style="font-family:inherit;">
+            <option value="">Loading…</option>
+          </select>
+        </div>
+        <div class="bug-form-row">
+          <label>Lesson title</label>
+          <input type="text" id="sl-title" placeholder="Short imperative phrase, e.g. 'Validate column names against migrations'" maxlength="120" />
+        </div>
+        <div class="bug-form-row">
+          <label>Source</label>
+          <input type="text" id="sl-source" placeholder="e.g. PRODUCTION_FIXES.md #12, or session 2026-05-03" maxlength="120" />
+        </div>
+        <div class="bug-form-row">
+          <label>Lesson body</label>
+          <textarea id="sl-body" rows="6" placeholder="What broke, why, how to detect/prevent next time. Markdown is fine." style="font-family: ui-monospace, monospace;"></textarea>
+        </div>
+        <div class="bug-form-actions">
+          <button type="button" class="bf-cancel" onclick="closeSkillLessonWizard()">Cancel</button>
+          <button type="button" class="bf-submit" id="sl-submit" onclick="submitSkillLesson()">Append lesson</button>
+        </div>
+        <div id="sl-result" style="margin-top:12px; font-size:0.78rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HTML page wizard modal (Phase 9) -->
+  <div id="hp-wizard-overlay" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeHtmlPageWizard()">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 style="margin:0;">🧙 New HTML Page</h3>
+        <button class="modal-close" onclick="closeHtmlPageWizard()" title="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin:0 0 14px; color:var(--muted-2); font-size:0.82rem;">
+          Creates <code>&lt;name&gt;.html</code> from a starter template and registers it everywhere the gate checks: <code>LIVE_TOOL_PAGES</code>, <code>nav-hub.js</code>, <code>floating-ai.js</code>, and the assistant system prompt (for tool pages); or <code>NON_TOOL_PAGES</code> (for satellite/landing pages).
+        </p>
+        <div class="bug-form-row">
+          <label>Name</label>
+          <input type="text" id="hp-name" placeholder="kebab-case, e.g. logbook-v2" maxlength="42" />
+        </div>
+        <div class="bug-form-row">
+          <label>Type</label>
+          <select id="hp-class" onchange="updateHtmlWizardFields()">
+            <option value="tool">Tool (worker page, registers in 4 places)</option>
+            <option value="non_tool">Non-tool (landing/satellite, registers in 1 place)</option>
+          </select>
+        </div>
+        <div class="bug-form-row hp-tool-only">
+          <label>Display name</label>
+          <input type="text" id="hp-display-name" placeholder="e.g. Digital Logbook V2" maxlength="60" />
+        </div>
+        <div class="bug-form-row hp-tool-only">
+          <label>AI hint</label>
+          <input type="text" id="hp-hint" placeholder="One sentence: what can the AI assistant help with on this page?" maxlength="240" />
+        </div>
+        <div class="bug-form-row hp-tool-only">
+          <label>Summary</label>
+          <textarea id="hp-summary" rows="2" placeholder="One sentence describing what this tool does (goes into assistant.html system prompt)" maxlength="400"></textarea>
+        </div>
+        <div class="bug-form-actions">
+          <button type="button" class="bf-cancel" onclick="closeHtmlPageWizard()">Cancel</button>
+          <button type="button" class="bf-submit" id="hp-submit" onclick="submitHtmlPageWizard()">Create</button>
+        </div>
+        <div id="hp-result" style="margin-top:12px; font-size:0.78rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edge function wizard modal (Phase 9) -->
+  <div id="ef-wizard-overlay" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeEdgeFunctionWizard()">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 style="margin:0;">🧙 New Edge Function</h3>
+        <button class="modal-close" onclick="closeEdgeFunctionWizard()" title="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin:0 0 14px; color:var(--muted-2); font-size:0.82rem;">
+          Creates <code>supabase/functions/&lt;name&gt;/index.ts</code> with CORS + handler stub, and adds the <code>[functions.&lt;name&gt;]</code> block to <code>supabase/config.toml</code>. Auto-discovery runs after to confirm.
+        </p>
+        <div class="bug-form-row">
+          <label>Name</label>
+          <input type="text" id="ef-name" placeholder="kebab-case, e.g. report-export" maxlength="42" />
+        </div>
+        <div class="bug-form-row" style="align-items:center;">
+          <label>Verify JWT</label>
+          <label style="flex:1; display:flex; align-items:center; gap:8px; cursor:pointer; padding-top:6px;">
+            <input type="checkbox" id="ef-verify-jwt" />
+            <span style="color:var(--muted-2); font-size:0.78rem;">Require Supabase auth token (default: off — for public/anonymous endpoints)</span>
+          </label>
+        </div>
+        <div class="bug-form-actions">
+          <button type="button" class="bf-cancel" onclick="closeEdgeFunctionWizard()">Cancel</button>
+          <button type="button" class="bf-submit" id="ef-submit" onclick="submitEdgeFunctionWizard()">Create</button>
+        </div>
+        <div id="ef-result" style="margin-top:12px; font-size:0.78rem;"></div>
+      </div>
+    </div>
+  </div>
 
   <details>
     <summary>Show realism libraries (Phase 4b sample previews)</summary>
@@ -919,6 +1237,15 @@
             : 'Show passes (' + btn.dataset.count + ')';
         });
       });
+
+      // Wire "Log bug" buttons (Phase 8)
+      panel.querySelectorAll('.bug-log-btn').forEach(btn => {
+        btn.addEventListener('click', () => openBugForm(btn));
+      });
+      // Wire "AI diagnose" buttons (Phase 15)
+      panel.querySelectorAll('.ai-diagnose-btn').forEach(btn => {
+        btn.addEventListener('click', () => openAiDiagnose(btn));
+      });
     } catch (e) {
       panel.innerHTML = '<div class="err">Failed to load details: ' + escHtml(e.message || e) + '</div>';
     }
@@ -957,7 +1284,7 @@
       }
 
       // Render fails + warns inline
-      [...fails, ...warns].forEach(t => parts.push(renderTestRow(t)));
+      [...fails, ...warns].forEach(t => parts.push(renderTestRow(t, layer, sec.section)));
 
       // Passes hidden behind a toggle
       if (passes.length) {
@@ -967,7 +1294,7 @@
           'Show passes (' + passes.length + ')</button>'
         );
         parts.push('<div data-passes-for="' + sid + '" style="display:none; margin-top:6px;">');
-        passes.forEach(t => parts.push(renderTestRow(t)));
+        passes.forEach(t => parts.push(renderTestRow(t, layer, sec.section)));
         parts.push('</div>');
       }
       sectionIdx++;
@@ -980,15 +1307,454 @@
     return parts.join('');
   }
 
-  function renderTestRow(t) {
+  function _bugIntakeId() {
+    // Unique ID per call so multiple form instances don't collide
+    return 'bi-' + Math.random().toString(36).slice(2, 10);
+  }
+
+  function _suggestedTitle(testMessage) {
+    // Strip "page.html: " prefix (common UI test format) for a cleaner title
+    const m = (testMessage || '').match(/^([\w\-.]+\.html):\s+(.+)$/);
+    if (m) return m[2].length > 100 ? m[2].slice(0, 100) : m[2];
+    return (testMessage || '').slice(0, 100);
+  }
+
+  function _suggestedCategory(layerKey, sectionName, status) {
+    // Failures in critical layers (static/data) default to Important.
+    // UI/Visual/Perf failures often non-blocking, default to Nice-to-have.
+    if (status === 'FAIL' && (layerKey === 'static' || layerKey === 'data')) return 'important';
+    if (status === 'FAIL') return 'important';
+    return 'nice_to_have';
+  }
+
+  function renderTestRow(t, layerKey, sectionName) {
     const status = (t.status || '').toUpperCase();
     const cls = status === 'FAIL' ? 'fail' : (status === 'WARN' ? 'warn' : 'pass');
     const pillCls = status === 'FAIL' ? 'pill-fail' : (status === 'WARN' ? 'pill-warn' : 'pill-pass');
     const elapsed = t.elapsed != null ? ' <span style="color:var(--muted); font-size:0.66rem;">(' + Number(t.elapsed).toFixed(2) + 's)</span>' : '';
-    return '<div class="test-row ' + cls + '">' +
+    const showLog = status === 'FAIL' || status === 'WARN';
+    const formId = showLog ? _bugIntakeId() : '';
+    const sourceStr = (layerKey || '?') + ':' + (sectionName || '?');
+
+    let logBtn = '';
+    if (showLog) {
+      const dataAttrs =
+        ' data-layer="' + escHtml(layerKey || '') + '"' +
+        ' data-section="' + escHtml(sectionName || '') + '"' +
+        ' data-status="' + escHtml(status) + '"' +
+        ' data-message="' + escHtml(t.message || '') + '"';
+      logBtn =
+        '<span class="test-actions">' +
+          '<button class="bug-log-btn" data-form="' + formId + '"' + dataAttrs +
+          ' title="Log as bug in PRODUCTION_FIXES.md">📋 Log bug</button>' +
+          '<button class="ai-diagnose-btn"' + dataAttrs +
+          ' title="Build a paste-ready diagnose prompt for your AI of choice">🤖 AI</button>' +
+        '</span>';
+    }
+
+    let row = '<div class="test-row ' + cls + '">' +
       '<span class="test-pill ' + pillCls + '">' + escHtml(status || '?') + '</span>' +
       '<div class="test-msg">' + escHtml(t.message || '?') + elapsed + '</div>' +
+      logBtn +
     '</div>';
+
+    if (showLog) {
+      // Inline form, hidden by default. _wireBugIntake fills + shows it on click.
+      row += '<div class="bug-form" id="' + formId + '" data-source="' + escHtml(sourceStr) + '" style="display:none;"></div>';
+    }
+    return row;
+  }
+
+  // ── Skill lesson wizard (Phase 14) ────────────────────────────────────
+  let _skillsLoaded = false;
+
+  async function openSkillLessonWizard() {
+    document.getElementById('sl-title').value = '';
+    document.getElementById('sl-source').value = '';
+    document.getElementById('sl-body').value = '';
+    document.getElementById('sl-result').innerHTML = '';
+    const submit = document.getElementById('sl-submit');
+    submit.disabled = false;
+    submit.textContent = 'Append lesson';
+
+    if (!_skillsLoaded) {
+      try {
+        const r = await fetch('/api/skills/list');
+        const data = await r.json();
+        const sel = document.getElementById('sl-skill');
+        sel.innerHTML = '<option value="">Pick a skill…</option>';
+        (data.skills || []).forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          const desc = (s.description || '').slice(0, 70);
+          opt.textContent = s.id + (desc ? ' — ' + desc : '');
+          sel.appendChild(opt);
+        });
+        _skillsLoaded = true;
+      } catch (e) {
+        document.getElementById('sl-result').innerHTML =
+          '<span style="color:var(--red);">Failed to load skills: ' + escHtml(e.message || e) + '</span>';
+      }
+    }
+
+    document.getElementById('sl-wizard-overlay').style.display = 'flex';
+    document.getElementById('sl-skill').focus();
+  }
+
+  function closeSkillLessonWizard() {
+    document.getElementById('sl-wizard-overlay').style.display = 'none';
+  }
+
+  async function submitSkillLesson() {
+    const skill_id = document.getElementById('sl-skill').value;
+    const title = (document.getElementById('sl-title').value || '').trim();
+    const source = (document.getElementById('sl-source').value || '').trim();
+    const body = (document.getElementById('sl-body').value || '').trim();
+    const resultEl = document.getElementById('sl-result');
+    const submitBtn = document.getElementById('sl-submit');
+
+    if (!skill_id) { resultEl.innerHTML = '<span style="color:var(--red);">Pick a skill first.</span>'; return; }
+    if (!title) { resultEl.innerHTML = '<span style="color:var(--red);">Title is required.</span>'; return; }
+    if (!body) { resultEl.innerHTML = '<span style="color:var(--red);">Body is required.</span>'; return; }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Appending…';
+    resultEl.innerHTML = '';
+
+    try {
+      const r = await fetch('/api/skills/append-lesson', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ skill_id, title, source, body }),
+      });
+      const data = await r.json();
+      if (!data.ok) {
+        resultEl.innerHTML = '<span style="color:var(--red);">Error: ' + escHtml(data.error || 'unknown') + '</span>';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Append lesson';
+        return;
+      }
+      resultEl.innerHTML =
+        '<div style="color:var(--green); margin-bottom:6px;">✓ Appended to <code style="color:var(--gold);">' + escHtml(data.skill_id) + '</code></div>' +
+        '<div style="color:var(--muted-2); font-size:0.74rem;">Section: <code>' + escHtml(data.section_header) + '</code></div>';
+      submitBtn.textContent = 'Done';
+    } catch (e) {
+      resultEl.innerHTML = '<span style="color:var(--red);">Network error: ' + escHtml(e.message || e) + '</span>';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Append lesson';
+    }
+  }
+
+  // ── HTML page wizard (Phase 9.b) ──────────────────────────────────────
+  function openHtmlPageWizard() {
+    document.getElementById('hp-name').value = '';
+    document.getElementById('hp-class').value = 'tool';
+    document.getElementById('hp-display-name').value = '';
+    document.getElementById('hp-hint').value = '';
+    document.getElementById('hp-summary').value = '';
+    document.getElementById('hp-result').innerHTML = '';
+    const submit = document.getElementById('hp-submit');
+    submit.disabled = false;
+    submit.textContent = 'Create';
+    updateHtmlWizardFields();
+    document.getElementById('hp-wizard-overlay').style.display = 'flex';
+    document.getElementById('hp-name').focus();
+  }
+  function closeHtmlPageWizard() {
+    document.getElementById('hp-wizard-overlay').style.display = 'none';
+  }
+  function updateHtmlWizardFields() {
+    const isTool = document.getElementById('hp-class').value === 'tool';
+    document.querySelectorAll('.hp-tool-only').forEach(el => {
+      el.style.display = isTool ? '' : 'none';
+    });
+  }
+  async function submitHtmlPageWizard() {
+    const name = (document.getElementById('hp-name').value || '').trim();
+    const classification = document.getElementById('hp-class').value;
+    const displayName = (document.getElementById('hp-display-name').value || '').trim();
+    const hint = (document.getElementById('hp-hint').value || '').trim();
+    const summary = (document.getElementById('hp-summary').value || '').trim();
+    const resultEl = document.getElementById('hp-result');
+    const submitBtn = document.getElementById('hp-submit');
+
+    if (!name) {
+      resultEl.innerHTML = '<span style="color:var(--red);">Name is required.</span>';
+      return;
+    }
+    if (!/^[a-z][a-z0-9-]{1,40}[a-z0-9]$/.test(name)) {
+      resultEl.innerHTML = '<span style="color:var(--red);">Use kebab-case, 3-42 chars (lowercase, digits, hyphens).</span>';
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Creating…';
+    resultEl.innerHTML = '<span style="color:var(--muted);">Scaffolding files + updating registries…</span>';
+
+    try {
+      const r = await fetch('/api/wizard/html-page', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          name, classification,
+          display_name: displayName,
+          hint, summary,
+        }),
+      });
+      const data = await r.json();
+      if (!data.ok) {
+        resultEl.innerHTML = '<span style="color:var(--red);">Error: ' + escHtml(data.error || 'unknown') + '</span>';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create';
+        return;
+      }
+      const adIcon = data.auto_discovery_pass ? '✓' : '⚠';
+      const adColor = data.auto_discovery_pass ? 'var(--green)' : 'var(--yellow)';
+      const regList = (data.registries_updated || []).map(r => {
+        const note = r.added || r.skipped || r.error || '?';
+        const color = r.error ? 'var(--red)' : (r.skipped ? 'var(--muted)' : 'var(--green)');
+        return '<li style="color:' + color + ';"><code>' + escHtml(r.file) + '</code>: ' + escHtml(note) + '</li>';
+      }).join('');
+      resultEl.innerHTML =
+        '<div style="color:var(--green); margin-bottom:6px;">✓ Created <code style="color:var(--gold);">' + escHtml(data.name) + '.html</code></div>' +
+        '<ul style="margin:6px 0 6px 20px; color:var(--muted-2); font-size:0.74rem;">' + regList + '</ul>' +
+        '<div style="color:' + adColor + ';">' + adIcon + ' Auto-discovery: ' +
+          (data.auto_discovery_pass ? 'PASS' : 'FAIL — check stdout below') + '</div>' +
+        '<div style="margin-top:10px;">' +
+          '<strong>Next:</strong> open <code>' + escHtml(data.name) + '.html</code> and replace the stub. ' +
+          (classification === 'tool'
+            ? 'The placeholder nav icon is a generic box: replace it in <code>nav-hub.js</code> with something fitting.'
+            : 'Non-tool pages skip nav, so just flesh out the page content.') +
+        '</div>';
+      submitBtn.textContent = 'Done';
+    } catch (e) {
+      resultEl.innerHTML = '<span style="color:var(--red);">Network error: ' + escHtml(e.message || e) + '</span>';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create';
+    }
+  }
+
+  // ── Edge function wizard (Phase 9) ────────────────────────────────────
+  function openEdgeFunctionWizard() {
+    document.getElementById('ef-name').value = '';
+    document.getElementById('ef-verify-jwt').checked = false;
+    document.getElementById('ef-result').innerHTML = '';
+    const submit = document.getElementById('ef-submit');
+    submit.disabled = false;
+    submit.textContent = 'Create';
+    document.getElementById('ef-wizard-overlay').style.display = 'flex';
+    document.getElementById('ef-name').focus();
+  }
+  function closeEdgeFunctionWizard() {
+    document.getElementById('ef-wizard-overlay').style.display = 'none';
+  }
+  async function submitEdgeFunctionWizard() {
+    const name = (document.getElementById('ef-name').value || '').trim();
+    const verifyJwt = document.getElementById('ef-verify-jwt').checked;
+    const resultEl = document.getElementById('ef-result');
+    const submitBtn = document.getElementById('ef-submit');
+
+    if (!name) {
+      resultEl.innerHTML = '<span style="color:var(--red);">Name is required.</span>';
+      return;
+    }
+    if (!/^[a-z][a-z0-9-]{1,40}[a-z0-9]$/.test(name)) {
+      resultEl.innerHTML = '<span style="color:var(--red);">Use kebab-case, 3-42 chars (lowercase, digits, hyphens).</span>';
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Creating…';
+    resultEl.innerHTML = '<span style="color:var(--muted);">Scaffolding files…</span>';
+
+    try {
+      const r = await fetch('/api/wizard/edge-function', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ name: name, verify_jwt: verifyJwt }),
+      });
+      const data = await r.json();
+      if (!data.ok) {
+        resultEl.innerHTML = '<span style="color:var(--red);">Error: ' + escHtml(data.error || 'unknown') + '</span>';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create';
+        return;
+      }
+      const adIcon = data.auto_discovery_pass ? '✓' : '⚠';
+      const adColor = data.auto_discovery_pass ? 'var(--green)' : 'var(--yellow)';
+      resultEl.innerHTML =
+        '<div style="color:var(--green); margin-bottom:6px;">✓ Created <code style="color:var(--gold);">' + escHtml(data.name) + '</code></div>' +
+        '<div style="color:var(--muted-2); font-size:0.74rem;">' +
+          'Wrote <code>' + escHtml(data.files_created.join(', ')) + '</code><br>' +
+          'Added <code>' + escHtml(data.config_block_added) + '</code> to <code>supabase/config.toml</code><br>' +
+          '<span style="color:' + adColor + ';">' + adIcon + ' Auto-discovery: ' +
+          (data.auto_discovery_pass ? 'PASS' : 'FAIL — check logs') + '</span>' +
+        '</div>' +
+        '<div style="margin-top:10px;">' +
+          '<strong>Next:</strong> open <code>supabase/functions/' + escHtml(data.name) + '/index.ts</code> and replace the stub. ' +
+          'Deploy with <code>npx supabase functions deploy ' + escHtml(data.name) + '</code> when ready.' +
+        '</div>';
+      submitBtn.textContent = 'Done';
+      // Don't re-enable: force user to close + reopen for a fresh form.
+    } catch (e) {
+      resultEl.innerHTML = '<span style="color:var(--red);">Network error: ' + escHtml(e.message || e) + '</span>';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create';
+    }
+  }
+
+  // ── AI diagnose prompt builder (Phase 15) ─────────────────────────────
+  async function openAiDiagnose(btn) {
+    const overlay = document.getElementById('ai-diag-overlay');
+    const ta = document.getElementById('ai-diag-prompt');
+    const result = document.getElementById('ai-diag-result');
+    overlay.style.display = 'flex';
+    ta.value = 'Building prompt…';
+    result.textContent = '';
+
+    try {
+      const r = await fetch('/api/ai/diagnose-prompt', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          layer:   btn.dataset.layer,
+          section: btn.dataset.section,
+          status:  btn.dataset.status,
+          message: btn.dataset.message,
+        }),
+      });
+      const data = await r.json();
+      if (!data.ok) {
+        ta.value = 'Error: ' + (data.error || 'unknown');
+        return;
+      }
+      ta.value = data.prompt || '';
+      result.textContent = data.context_size + ' chars · ready to paste';
+    } catch (e) {
+      ta.value = 'Network error: ' + (e.message || e);
+    }
+  }
+  function closeAiDiagnose() {
+    document.getElementById('ai-diag-overlay').style.display = 'none';
+  }
+  async function copyAiDiagnose() {
+    const ta = document.getElementById('ai-diag-prompt');
+    const result = document.getElementById('ai-diag-result');
+    try {
+      await navigator.clipboard.writeText(ta.value);
+      result.innerHTML = '<span style="color:var(--green);">✓ Copied. Now paste into Claude / your AI assistant.</span>';
+    } catch (e) {
+      ta.select();
+      document.execCommand('copy');
+      result.innerHTML = '<span style="color:var(--green);">✓ Copied (fallback).</span>';
+    }
+  }
+
+  // ── Bug intake from drill-down (Phase 8) ──────────────────────────────
+  function openBugForm(btn) {
+    const formId = btn.dataset.form;
+    const form = document.getElementById(formId);
+    if (!form) return;
+    if (form.style.display !== 'none') {
+      form.style.display = 'none';
+      return;
+    }
+    const message = btn.dataset.message || '';
+    const layer   = btn.dataset.layer || '';
+    const section = btn.dataset.section || '';
+    const status  = btn.dataset.status || '';
+    const title   = _suggestedTitle(message);
+    const cat     = _suggestedCategory(layer, section, status);
+
+    form.innerHTML =
+      '<div class="bug-form-inner">' +
+        '<div class="bug-form-row">' +
+          '<label>Title</label>' +
+          '<input type="text" class="bf-title" value="' + escHtml(title) + '" maxlength="200" />' +
+        '</div>' +
+        '<div class="bug-form-row">' +
+          '<label>Severity</label>' +
+          '<select class="bf-cat">' +
+            '<option value="critical"' + (cat === 'critical' ? ' selected' : '') + '>🔴 Critical (breaks user flow)</option>' +
+            '<option value="important"' + (cat === 'important' ? ' selected' : '') + '>🟡 Important (UX or data quality)</option>' +
+            '<option value="nice_to_have"' + (cat === 'nice_to_have' ? ' selected' : '') + '>🟢 Nice to have (polish)</option>' +
+          '</select>' +
+        '</div>' +
+        '<div class="bug-form-row">' +
+          '<label>Notes (optional)</label>' +
+          '<textarea class="bf-notes" rows="3" placeholder="Steps to reproduce, hypothesis, related files…"></textarea>' +
+        '</div>' +
+        '<div class="bug-form-actions">' +
+          '<button type="button" class="bf-cancel">Cancel</button>' +
+          '<button type="button" class="bf-submit">Log to PRODUCTION_FIXES.md</button>' +
+        '</div>' +
+        '<div class="bf-result"></div>' +
+      '</div>';
+    form.style.display = 'block';
+    form.querySelector('.bf-title').focus();
+
+    form.querySelector('.bf-cancel').addEventListener('click', () => {
+      form.style.display = 'none';
+    });
+    form.querySelector('.bf-submit').addEventListener('click', () => submitBugForm(form, btn));
+  }
+
+  async function submitBugForm(form, btn) {
+    const titleEl = form.querySelector('.bf-title');
+    const catEl   = form.querySelector('.bf-cat');
+    const notesEl = form.querySelector('.bf-notes');
+    const resultEl = form.querySelector('.bf-result');
+    const submitBtn = form.querySelector('.bf-submit');
+
+    const title = (titleEl.value || '').trim();
+    if (!title) {
+      resultEl.innerHTML = '<span style="color:var(--red);">Title is required.</span>';
+      return;
+    }
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Logging…';
+    resultEl.innerHTML = '';
+
+    try {
+      const r = await fetch('/api/findings/add', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          title:        title,
+          category:     catEl.value,
+          notes:        notesEl.value,
+          source:       form.dataset.source,
+          test_message: btn.dataset.message,
+        }),
+      });
+      const data = await r.json();
+      if (!data.ok) {
+        resultEl.innerHTML = '<span style="color:var(--red);">Error: ' + escHtml(data.error || 'unknown') + '</span>';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Log to PRODUCTION_FIXES.md';
+        return;
+      }
+      // Success: replace form with confirmation, mark the source button
+      form.innerHTML =
+        '<div class="bf-success">✓ Logged as <strong>#' + escHtml(data.num) + '</strong> in <strong>' +
+          escHtml({critical:'Critical', important:'Important', nice_to_have:'Nice to have'}[data.category] || data.category) +
+        '</strong>. <a href="/findings" target="_blank">View backlog →</a></div>';
+      btn.textContent = '✓ Logged #' + data.num;
+      btn.disabled = true;
+      btn.classList.add('logged');
+      // Invalidate backlog cache + refresh open backlog category if any
+      _backlogCache = null;
+      loadHealth();
+      if (_backlogActiveCat) {
+        const cat = _backlogActiveCat;
+        _backlogActiveCat = null;
+        toggleBacklogCat(cat);
+      }
+    } catch (e) {
+      resultEl.innerHTML = '<span style="color:var(--red);">Network error: ' + escHtml(e.message || e) + '</span>';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Log to PRODUCTION_FIXES.md';
+    }
   }
 
   // ── Backlog drill-down (Phase 4) ──────────────────────────────────────
@@ -1057,6 +1823,46 @@
     )).join('');
 
     return head + rows;
+  }
+
+  // ── Trend alerts (Phase 13) ──────────────────────────────────────────
+  const ALERT_ICONS = {
+    score_decline:    '↓',
+    score_recovery:   '↑',
+    personal_best:    '★',
+    streak_broken:    '⚠',
+    streak_extended:  '🔥',
+    sustained_block:  '⛔',
+    layer_regression: '⚠',
+  };
+
+  async function loadTrends() {
+    const card = document.getElementById('trends-card');
+    if (!card) return;
+    try {
+      const r = await fetch('/api/health/trends');
+      const data = await r.json();
+      const alerts = data.alerts || [];
+      if (alerts.length === 0) {
+        card.style.display = 'none';
+        card.innerHTML = '';
+        return;
+      }
+      card.innerHTML = alerts.map(a => {
+        const sev = (a.severity || 'warn');
+        const icon = ALERT_ICONS[a.kind] || '•';
+        return '<div class="trend-alert ' + escHtml(sev) + '">' +
+          '<span class="ta-icon">' + escHtml(icon) + '</span>' +
+          '<div class="ta-body">' +
+            '<div class="ta-title">' + escHtml(a.title) + '</div>' +
+            '<div class="ta-detail">' + escHtml(a.detail) + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      card.style.display = 'flex';
+    } catch (e) {
+      console.error('loadTrends failed', e);
+    }
   }
 
   // ── Run history sparkline (Phase 5) ──────────────────────────────────
@@ -1183,6 +1989,7 @@
   // Initial load + reload after every job finishes
   loadHealth();
   loadSparkline();
+  loadTrends();
   const _origPoll = poll;
   poll = async function() {
     await _origPoll();
@@ -1191,6 +1998,7 @@
       _backlogCache = null;
       loadHealth();
       loadSparkline();
+      loadTrends();
       // If a backlog category was open, re-render it with fresh data (don't collapse)
       if (_backlogActiveCat) {
         const cat = _backlogActiveCat;
