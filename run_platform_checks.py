@@ -78,6 +78,24 @@ VALIDATORS = [
     },
     # ── Platform Validators ───────────────────────────────────────────────────
     {
+        "id":      "auto-discovery",
+        "script":  "validate_auto_discovery.py",
+        "args":    [],
+        "label":   "Auto-discovery Validator (HTML classified, edge fns in config, validators registered)",
+        "group":   "Platform",
+        "report":  "auto_discovery_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "schema-coverage",
+        "script":  "validate_schema_coverage.py",
+        "args":    [],
+        "label":   "Schema Coverage Validator (auto-derived from migrations, table+column existence)",
+        "group":   "Platform",
+        "report":  "schema_coverage_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "edge-config",
         "script":  "validate_edge_config.py",
         "args":    [],

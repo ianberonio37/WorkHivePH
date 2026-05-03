@@ -7,7 +7,7 @@ Bugs, missing fields, schema gaps, and UX issues found while running the test-da
 - Move entries between sections (🔴 → 🟡 → ✅) as priorities shift or fixes ship.
 - When you ship a fix in production, copy the entry into your PR description and move it to ✅ Fixed with the date + commit ref.
 
-**Last updated:** 2026-05-03
+**Last updated:** 2026-05-03 (entry #12 logged + fixed)
 
 ---
 
@@ -33,11 +33,30 @@ _(none currently)_
 
 ## 🟢 Nice to have — polish, refactors, doc gaps
 
-_(none currently)_
+### 11. 6 tap targets <44px — OPEN 2026-05-03
+
+**Source:** `ui:Mobile`
+
+**Test message:** logbook.html: 6 tap targets <44px
+
+**Found:** 2026-05-03T08:59:43+00:00 via WorkHive Tester
+
 
 ---
 
 ## ✅ Fixed — for the changelog
+
+### 12. assistant.html queried inventory_items with wrong column names (name, reorder_point) — FIXED 2026-05-03
+
+`assistant.html:424` SELECTed `name, reorder_point` from `inventory_items` but the schema columns are `part_name` and `min_qty`. The downstream low-stock filter and render logic at lines 476-478 also referenced the wrong field names, so all 5 references were broken.
+
+**Production impact:** workers using the AI assistant on a hive page got broken inventory context. Items showed as `undefined: 5 pcs` in the prompt, and the low-stock filter never triggered (`i.reorder_point` was always `undefined`, falling through to the `qty_on_hand <= 2` fallback). The AI saw broken data and either ignored inventory or hallucinated names from elsewhere in the prompt.
+
+**Fix:** at all 5 references in `assistant.html`, changed `name` → `part_name` and `reorder_point` → `min_qty`. The actual schema (in `supabase/migrations/20260420000000_baseline.sql:828`) defines `part_name` and `min_qty`.
+
+**Found by:** the new `validate_schema_coverage.py` validator on its first run. It auto-derives the table/column map from `supabase/migrations/*.sql` and checks every `db.from().select()` plain-column reference exists. Caught both bad columns immediately.
+
+**Verified by:** `python validate_schema_coverage.py` returns `2 pass · 0 warn · 0 fail`. Full `python run_platform_checks.py --fast` returns `56 PASS · 0 FAIL · 0 WARN`.
 
 ### 2. iOS auto-zoom on inputs in pm-scheduler + marketplace pages — FIXED 2026-05-04
 

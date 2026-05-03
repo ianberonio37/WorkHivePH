@@ -421,7 +421,7 @@
         db.from('schedule_items').select('date,start_time,end_time,title,category,item_status,notes').eq('worker_name', name).gte('date', pastDate).lte('date', futureDate).order('date', { ascending: true }).order('start_time', { ascending: true }),
         db.from('skill_badges').select('discipline,level,badge_key').eq('worker_name', name).order('level', { ascending: false }).limit(6),
         hiveIdCtx
-          ? db.from('inventory_items').select('name,qty_on_hand,unit,reorder_point,category').eq('hive_id', hiveIdCtx).eq('status', 'approved').order('qty_on_hand', { ascending: true }).limit(20)
+          ? db.from('inventory_items').select('part_name,qty_on_hand,unit,min_qty,category').eq('hive_id', hiveIdCtx).eq('status', 'approved').order('qty_on_hand', { ascending: true }).limit(20)
           : Promise.resolve({ data: [] }),
         hiveIdCtx
           ? db.from('pm_assets').select('asset_name,category').eq('hive_id', hiveIdCtx).order('asset_name', { ascending: true }).limit(8)
@@ -472,10 +472,10 @@
         ? 'Assets with PM schedules: ' + pmAssets.map(a => `${a.asset_name} (${a.category || 'General'})`).join(', ') + '. Check PM Scheduler for overdue and due-soon tasks.'
         : hiveIdCtx ? 'No PM assets registered in this hive yet.' : 'Not in a hive — no PM schedule visible.';
 
-      // Low-stock inventory — only items at or below reorder point
-      const lowStock = invItems.filter(i => i.qty_on_hand != null && (i.reorder_point != null ? i.qty_on_hand <= i.reorder_point : i.qty_on_hand <= 2));
+      // Low-stock inventory — only items at or below min_qty (reorder threshold)
+      const lowStock = invItems.filter(i => i.qty_on_hand != null && (i.min_qty != null ? i.qty_on_hand <= i.min_qty : i.qty_on_hand <= 2));
       const invText = lowStock.length
-        ? lowStock.slice(0, 5).map(i => `${i.name}: ${i.qty_on_hand} ${i.unit || 'units'}${i.reorder_point != null ? ' (reorder at ' + i.reorder_point + ')' : ' (LOW)'}`).join(' | ')
+        ? lowStock.slice(0, 5).map(i => `${i.part_name}: ${i.qty_on_hand} ${i.unit || 'units'}${i.min_qty != null ? ' (reorder at ' + i.min_qty + ')' : ' (LOW)'}`).join(' | ')
         : hiveIdCtx ? 'All inventory items are adequately stocked.' : 'Not in a hive — no shared inventory visible.';
 
       const todayISO = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
