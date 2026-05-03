@@ -19,8 +19,10 @@ from playwright.sync_api import sync_playwright
 from flows.harness import browser_session, sign_in, SCREENSHOTS_DIR
 from flows import smoke, logbook, community, analytics, isolation, signup, mobile
 from flows import ai_assistant, ai_analytics, ai_semantic, ai_generation, ai_chains
+from flows import visual
 
 WITH_AI = "--with-ai" in sys.argv
+WITH_VISUAL = "--with-visual" in sys.argv
 
 
 def main():
@@ -77,6 +79,20 @@ def main():
                 print(f"  ✗ flow crashed: {type(e).__name__}: {e}")
                 out = {"results": [("FAIL", f"crashed: {e}")]}
             section_results.append(("Signup", out))
+            for r in out.get("results", []):
+                if r[0] == "PASS": total_pass += 1
+                elif r[0] == "FAIL": total_fail += 1
+                elif r[0] == "WARN": total_warn += 1
+
+        # 4b. Visual regression — separate browser at 1280x900, pixel-diff baselines
+        if WITH_VISUAL:
+            print("\n[Visual regression]")
+            try:
+                out = visual.run_in_visual_browser(pw, log=print)
+            except Exception as e:
+                print(f"  ✗ flow crashed: {type(e).__name__}: {e}")
+                out = {"results": [("FAIL", f"crashed: {e}")]}
+            section_results.append(("Visual", out))
             for r in out.get("results", []):
                 if r[0] == "PASS": total_pass += 1
                 elif r[0] == "FAIL": total_fail += 1

@@ -53,6 +53,7 @@ ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 SKIP_UI = "--skip-ui" in sys.argv
 NO_SESEED = "--no-seed" in sys.argv
 WITH_AI = "--with-ai" in sys.argv
+WITH_VISUAL = "--with-visual" in sys.argv
 
 
 def py_for(path: Path) -> str:
@@ -203,10 +204,13 @@ def phase_ui() -> tuple[bool, dict]:
     if not can_reach("127.0.0.1:5000"):
         warn("Skipping UI tests: Flask not running on :5000")
         return (True, {"summary": "skipped (no Flask)", "lines": []})
-    step("Phase 4: UI tests (Playwright)" + (" + AI Full" if WITH_AI else ""))
+    extras = []
+    if WITH_AI: extras.append("AI Full")
+    if WITH_VISUAL: extras.append("Visual")
+    step("Phase 4: UI tests (Playwright)" + (f" + {' + '.join(extras)}" if extras else ""))
     cmd = [py_for(SEEDER), "run_flows.py"]
-    if WITH_AI:
-        cmd.append("--with-ai")
+    if WITH_AI: cmd.append("--with-ai")
+    if WITH_VISUAL: cmd.append("--with-visual")
     rc, summary, lines = run_subprocess(cmd, cwd=SEEDER)
     return (rc == 0, {"summary": summary, "lines": lines})
 

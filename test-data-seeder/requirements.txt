@@ -5,3 +5,5 @@ faker>=22.0.0
 playwright>=1.40.0
 # pandas is needed by validate_analytics.py smoke tests (analytics modules)
 pandas>=2.0.0
+# Pillow is for visual regression flow (image diff)
+Pillow>=10.0.0
