@@ -22,11 +22,15 @@ def generate(inputs: dict, results: dict) -> str:
     Accepts results from Pump Sizing (TDH) calc.
     """
     # ── Extract calc results ──────────────────────────────────────────────────
-    Q_design  = float(results.get("flow_rate",    inputs.get("flow_rate",    10)))   # m³/hr
-    H_design  = float(results.get("tdh_m",        inputs.get("static_head",  20)))   # m
-    H_static  = float(results.get("static_head_m", inputs.get("static_head", 10)))   # m
-    pump_eff  = float(results.get("pump_efficiency_pct", 70)) / 100
-    motor_kw  = float(results.get("motor_kw",     0))
+    # Calc engine (pump_tdh.py) returns: flow_m3hr, TDH, static_head,
+    # inputs_used.pump_efficiency, recommended_kw (selected motor size).
+    Q_design  = float(results.get("flow_m3hr",    inputs.get("flow_rate", 10) * 60 / 1000))  # m³/hr
+    H_design  = float(results.get("TDH",          inputs.get("static_head", 20)))            # m
+    H_static  = float(results.get("static_head",  inputs.get("static_head", 10)))            # m
+    pump_eff  = float(results.get("inputs_used", {}).get("pump_efficiency",
+                                  results.get("pump_efficiency_pct", 70))) / 100
+    # Display the SELECTED motor size (matches BOM/SOW), not the raw computed kW
+    motor_kw  = float(results.get("recommended_kw", results.get("motor_kw", 0)))
 
     project   = str(inputs.get("project_name", "Pump System"))
 
@@ -76,9 +80,9 @@ def generate(inputs: dict, results: dict) -> str:
 
     # Design operating point
     ax1.scatter([Q_design], [H_design], color="#2E7D32", s=120, zorder=5,
-                label=f"Operating point ({Q_design:.1f} m³/hr, {H_design:.1f} m)")
+                label=f"Operating point ({Q_design:.2f} m³/hr, {H_design:.2f} m)")
     ax1.annotate(
-        f"  BEP\n  Q={Q_design:.1f} m³/hr\n  H={H_design:.1f} m\n  η={pump_eff*100:.0f}%",
+        f"  BEP\n  Q={Q_design:.2f} m³/hr\n  H={H_design:.2f} m\n  η={pump_eff*100:.0f}%",
         xy=(Q_design, H_design), xytext=(Q_design * 1.05, H_design * 0.88),
         fontsize=8, color="#2E7D32",
         arrowprops=dict(arrowstyle="->", color="#2E7D32", lw=1.2),
@@ -86,7 +90,7 @@ def generate(inputs: dict, results: dict) -> str:
 
     # Static head line
     ax1.axhline(H_static, color="#795548", linewidth=1.0, linestyle=":",
-                alpha=0.7, label=f"Static head = {H_static:.1f} m")
+                alpha=0.7, label=f"Static head = {H_static:.2f} m")
 
     ax1.set_xlabel("Flow rate Q (m³/hr)", fontsize=10)
     ax1.set_ylabel("Total Head H (m)", fontsize=10, color="#1565C0")
@@ -112,8 +116,8 @@ def generate(inputs: dict, results: dict) -> str:
     # ── Title block ───────────────────────────────────────────────────────────
     fig.suptitle(f"Pump Performance Curve — {project}", fontsize=11,
                  fontweight="bold", y=0.98)
-    subtitle = (f"Design: Q={Q_design:.1f} m³/hr | TDH={H_design:.1f} m | "
-                f"η={pump_eff*100:.0f}% | Motor={motor_kw:.1f} kW")
+    subtitle = (f"Design: Q={Q_design:.2f} m³/hr | TDH={H_design:.2f} m | "
+                f"η={pump_eff*100:.0f}% | Motor={motor_kw:.2f} kW")
     ax1.set_title(subtitle, fontsize=8.5, color="#555555", pad=4)
 
     fig.text(0.01, 0.01, "Standard: Hydraulic Institute (HI) | PSME Code",

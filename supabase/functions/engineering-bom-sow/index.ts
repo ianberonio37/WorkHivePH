@@ -903,7 +903,7 @@ Generate a JSON object with:
    12. Backwash Filter (if sediment > 5 NTU): qty: 1 unit: specify automatic backwash sediment filter, sized for system flow, multimedia or sand media: checked: ${Number(inletHardness) > 300 ? 'true' : 'false'} (include if inlet total suspended solids is high)
    13. Water Quality Test Kit (hardness, TDS): qty: 1 set: specify digital TDS meter + titration hardness test kit (as CaCO3), for pre-commissioning and periodic post-regeneration hardness verification
    14. Pipe Supports, Hangers, Anchors: qty: 1 lot: specify galvanized pipe clamps, wall anchors for inlet/outlet piping and bypass assembly
-   15. Miscellaneous (Teflon tape, pipe cement PVC, labels "SOFTENED WATER / HARD WATER BYPASS", warning signs): qty: 1 lot
+   15. Miscellaneous (Teflon tape, PVC pipe cement, pipe labels for SOFTENED WATER and HARD WATER BYPASS lines, warning signs): qty: 1 lot
 
 2. "sow_sections": array of 8 sections (each: section_no, title, content)
    Cover:

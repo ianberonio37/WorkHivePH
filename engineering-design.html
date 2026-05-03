@@ -10715,6 +10715,70 @@ async function runCalculation() {
     _lastNarrative = data.narrative;
     _lastInputs    = inputs;
 
+    // Normalize Water Softener result + input aliases. Form input field names diverge from
+    // the names used by the diagram builder, BOM/SOW HTML templates, and edge function:
+    //   form: inlet_hardness, target_hardness, regen_interval, demand_lpd
+    //   consumers: inlet_hardness_mg, target_hardness_mg_l, raw_hardness_mg_l, daily_volume_m3, regen_interval_days
+    // Calc result uses yet another convention (selected_resin_L, tank_dia_mm, salt_per_regen_kg, etc.).
+    // Populate every alias on _lastResults and _lastInputs so all consumers find their expected keys.
+    if (_calcType === 'Water Softener Sizing' && _lastResults) {
+      const r = _lastResults;
+      _lastResults = {
+        ...r,
+        resin_volume_L:       r.selected_resin_L ?? r.resin_L_per_unit ?? r.resin_volume_L,
+        resin_volume_l:       r.selected_resin_L ?? r.resin_L_per_unit ?? r.resin_volume_l,
+        resin_L:              r.selected_resin_L ?? r.resin_L_per_unit ?? r.resin_L,
+        mineral_tank_size:    (r.tank_dia_mm && r.tank_ht_mm)
+                                ? `Ø${r.tank_dia_mm}mm × ${r.tank_ht_mm}mm H`
+                                : r.mineral_tank_size,
+        tank_diameter_mm:     r.tank_dia_mm ?? r.tank_diameter_mm,
+        vessel_dia_mm:        r.tank_dia_mm ?? r.vessel_dia_mm,
+        brine_tank_size_L:    r.brine_tank_L ?? r.brine_tank_size_L,
+        salt_kg_per_regen:    r.salt_per_regen_kg ?? r.salt_kg_per_regen,
+        regen_freq_days:      r.regen_interval_days ?? r.regen_freq_days,
+        regen_days:           r.regen_interval_days ?? r.regen_days,
+        raw_hardness_mg_l:    r.inlet_hardness_mgL ?? r.raw_hardness_mg_l,
+        target_hardness_mg_l: r.target_hardness_mgL ?? r.target_hardness_mg_l,
+        daily_volume_m3:      r.demand_lpd != null ? Number(r.demand_lpd) / 1000 : r.daily_volume_m3,
+        design_flow_Lpm:      r.design_flow_lpm ?? r.design_flow_Lpm,
+        min_flow_Lpm:         r.min_flow_lpm ?? r.min_flow_Lpm,
+      };
+      _lastInputs = {
+        ..._lastInputs,
+        inlet_hardness_mg:    _lastInputs.inlet_hardness ?? _lastInputs.inlet_hardness_mg,
+        raw_hardness_mg_l:    _lastInputs.inlet_hardness ?? _lastInputs.raw_hardness_mg_l,
+        target_hardness_mg_l: _lastInputs.target_hardness ?? _lastInputs.target_hardness_mg_l,
+        regen_interval_days:  _lastInputs.regen_interval ?? _lastInputs.regen_interval_days,
+        regen_freq_days:      _lastInputs.regen_interval ?? _lastInputs.regen_freq_days,
+        daily_volume_m3:      _lastInputs.demand_lpd != null ? Number(_lastInputs.demand_lpd) / 1000 : _lastInputs.daily_volume_m3,
+      };
+    }
+
+    // ── Water Treatment System: normalize result field names for edge function (BOM/SOW) ──
+    //   calc returns: demand_m3d, peak_flow_m3hr, selected_filter_dia_mm, selected_filter_area_m2,
+    //                 pns_1998_status, proj_turbidity_ntu, proj_iron_mg_L
+    //   edge function (BOM prompt) expects: peak_flow_Lpm, filter_vessel_dia_mm, filter_area_m2,
+    //                                       filter_type, pns_compliance_status,
+    //                                       projected_turbidity_out, projected_iron_out
+    if (_calcType === 'Water Treatment System' && _lastResults) {
+      const r = _lastResults;
+      const peakFlowLpm = r.peak_flow_m3hr != null
+        ? parseFloat((Number(r.peak_flow_m3hr) * 1000 / 60).toFixed(2))
+        : r.peak_flow_Lpm;
+      const filterType = r.filter_type
+        ?? (r.needs_iron_removal ? 'Greensand' : 'Multimedia');
+      _lastResults = {
+        ...r,
+        peak_flow_Lpm:             peakFlowLpm,
+        filter_vessel_dia_mm:      r.selected_filter_dia_mm ?? r.filter_vessel_dia_mm,
+        filter_area_m2:            r.selected_filter_area_m2 ?? r.filter_area_m2,
+        filter_type:               filterType,
+        pns_compliance_status:     r.pns_1998_status ?? r.pns_compliance_status,
+        projected_turbidity_out:   r.proj_turbidity_ntu ?? r.projected_turbidity_out,
+        projected_iron_out:        r.proj_iron_mg_L ?? r.projected_iron_out,
+      };
+    }
+
     if (_calcType === 'Ventilation / ACH') {
       renderVentReport(inputs, data.results, data.narrative);
     } else if (_calcType === 'Pump Sizing (TDH)') {
@@ -13605,11 +13669,11 @@ function buildCleanAgentSVG(inputs, results) {
   // Cylinder bank label
   p.push(T(CYL_X0 + (showCyls*30)/2, CYL_Y0 - 28, `AGENT CYLINDERS`, {sz:8, c:CC, w:'700'}));
   p.push(T(CYL_X0 + (showCyls*30)/2, CYL_Y0 - 16, `${cylQty} × ${cylKg} kg = ${totalKg} kg total`, {sz:7.5, c:SC}));
-  // Cylinder type badge
-  p.push(Badge(CYL_X0 + (showCyls*30)/2, CYL_Y0 + 42, agentLabel.split('(')[0].trim(), '#2e7d32', '#fff'));
+  // Cylinder type badge — positioned below manifold descriptions to avoid overlap
+  p.push(Badge(CYL_X0 + (showCyls*30)/2, CYL_Y0 + 75, agentLabel.split('(')[0].trim(), '#2e7d32', '#fff'));
   // GWP badge
   const gwpBg = gwp <= 1 ? GN : gwp <= 150 ? AO : FR;
-  p.push(Badge(CYL_X0 + (showCyls*30)/2, CYL_Y0 + 58, `GWP = ${gwp}`, gwpBg, '#fff'));
+  p.push(Badge(CYL_X0 + (showCyls*30)/2, CYL_Y0 + 95, `GWP = ${gwp}`, gwpBg, '#fff'));
 
   // ── MANIFOLD + RISER PIPE ────────────────────────────────────────────────
   const MAN_Y = CYL_Y0 + 20;
@@ -13624,7 +13688,8 @@ function buildCleanAgentSVG(inputs, results) {
   p.push(T(RISER_X - 4, (MAN_Y + RM_Y + 55)/2 - 5, `RISER PIPE\n${dischTime} full discharge\nNFPA 2001 §4.3`, {a:'end', sz:7, c:PP}));
 
   // ── FSCU PANEL (left of cylinder bank, below room) ───────────────────────
-  const FP_X = 445, FP_Y = CYL_Y0 + 100, FP_W = 90, FP_H = 55;
+  // FP_Y pushed to CYL_Y0 + 130 to clear repositioned FK + GWP badges
+  const FP_X = 445, FP_Y = CYL_Y0 + 130, FP_W = 90, FP_H = 55;
   p.push(`<rect x="${FP_X}" y="${FP_Y}" width="${FP_W}" height="${FP_H}" fill="#fff3e0" stroke="${FR}" stroke-width="1.8" rx="3"/>`);
   p.push(`<rect x="${FP_X}" y="${FP_Y}" width="${FP_W}" height="16" fill="${FR}" rx="3"/>`);
   p.push(T(FP_X + FP_W/2, FP_Y + 11, 'FSCU', {sz:8, c:'#fff', w:'700'}));
@@ -13676,7 +13741,7 @@ function buildCleanAgentSVG(inputs, results) {
     ['NOAEL',                   `${noael}%`,                               GN],
     ['Discharge Time',          dischTime,                                  CC],
     ['Agent (calc.)',            `${Wcalc} kg`,                             SC],
-    ['Agent (design × ${sf}×)', `${Wdesign} kg`,                           CC],
+    [`Agent (design × ${sf}×)`,  `${Wdesign} kg`,                           CC],
     ['Cylinders',               `${cylQty} × ${cylKg} kg = ${totalKg} kg`, CC],
     ['Safety Factor',           `${sf} ×  (NFPA 2001 min 1.10×)`,         GN],
     ['Occupied Space Safety',   safe ? 'SAFE' : 'EVACUATE FIRST',          safe?GN:FR],
@@ -19142,8 +19207,10 @@ async function _runDrawing() {
         { drawingNo:'PLMB-WS-SCH-001', drawingTitle:'Water Softener — Flow Diagram', standard:'NSF/ANSI 44 / WQA' }));
     } else if (ct === 'Water Treatment System') {
       const svg = buildWaterTreatmentSVG(_lastInputs, _lastResults);
+      const _wtFlowM3d = Number(_lastResults?.demand_m3d ?? (_lastInputs?.demand_lpd ? Number(_lastInputs.demand_lpd) / 1000 : 0));
+      const _wtSource  = String(_lastInputs?.raw_source ?? 'Deep Well / Bore');
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `${Number(_lastInputs?.flow_m3d||0).toFixed(0)} m³/day  |  ${String(_lastInputs?.source_type||'Surface Water')}`,
+        `${_wtFlowM3d.toFixed(1)} m³/day  |  ${_wtSource}`,
         { drawingNo:'PLMB-WT-SCH-001', drawingTitle:'Water Treatment — Process Train', standard:'PNS 1998 / DOH AO 2017-0010 / WHO' }));
     } else if (ct === 'Wastewater Treatment (STP)') {
       const svg = buildWastewaterSTPSVG(_lastInputs, _lastResults);
@@ -24848,7 +24915,7 @@ function buildStairwellPressSVG(inputs, results) {
     const fy=BLD_TOP+f*FL_H;
     const bg=f%2===0?'#fafafa':'#f0f0f0';
     p.push(`<rect x="${COR_X}" y="${fy}" width="${COR_W}" height="${FL_H}" fill="${bg}" stroke="${GY}" stroke-width="0.8"/>`);
-    p.push(T(COR_X+COR_W/2,fy+FL_H/2+3,`Floor ${showFloors-f}`,{sz:7.5,c:GY}));
+    p.push(T(COR_X+COR_W-6,fy+FL_H/2+3,`Floor ${showFloors-f}`,{a:'end',sz:7.5,c:GY}));
   }
   if(nFloors>showFloors){
     p.push(T(BLD_X+FL_W/2,BLD_TOP+totalH+10,`... +${nFloors-showFloors} more floors`,{sz:7,c:SC}));
@@ -24891,7 +24958,7 @@ function buildStairwellPressSVG(inputs, results) {
   const fColor=fOk?OK_C:FAIL_C;
   p.push(`<rect x="${bd2X}" y="${bd2Y}" width="175" height="44" rx="5" fill="${fOk?'#e8f5e9':'#ffebee'}" stroke="${fColor}" stroke-width="2"/>`);
   p.push(T(bd2X+87,bd2Y+14,`Door Force = ${fTotal} N`,{sz:10,c:fColor,w:'700'}));
-  p.push(T(bd2X+87,bd2Y+28,`Limit: 67 N  —  ${fOk?'PASS ✓':'FAIL ✗'}`,{sz:7.5,c:fColor,w:'700'}));
+  p.push(T(bd2X+87,bd2Y+28,`Limit: 133 N  —  ${fOk?'PASS ✓':'FAIL ✗'}`,{sz:7.5,c:fColor,w:'700'}));
   p.push(T(bd2X+87,bd2Y+40,'NFPA 92:2021 §6.4.2',{sz:6.5,c:SC}));
 
   // Smoke leakage annotation
@@ -24925,7 +24992,7 @@ function buildStairwellPressSVG(inputs, results) {
 
   dy+=4; p.push(secH('DOOR FORCE'));
   [['Total Door Force',`${fTotal} N`,fOk?OK_C:FAIL_C],
-   ['NFPA 92 Limit','67 N',SC],
+   ['NFPA 92 Limit','133 N',SC],
    ['Compliance',fOk?'PASS ✓':'FAIL ✗',fOk?OK_C:FAIL_C]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
 
   dy+=6; p.push(T(DX+DW/2,dy,'NFPA 92:2021 (Smoke Control Systems)',{sz:7,c:GY}));
@@ -24940,7 +25007,7 @@ function buildStairwellPressSVG(inputs, results) {
     p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+28}" y2="${ly}" stroke="${c2}" stroke-width="3"/>`);
     p.push(T(lx+32,ly+4,lbl,{a:'start',sz:7.5,c:CC})); ly+=15;});
   [`1. NFPA 92 §6.4: ΔP = 25–80 Pa (smoke control) for high-rise per BFP / local AHJ.`,
-   `2. Door force limit: 67 N (15 lbf) total — closing force + pressure force per NFPA 92 §6.4.2.`,
+   `2. Door opening force limit: 133 N (30 lbf) total — closer + pressure per NFPA 92 §6.4.2 / NFPA 101 §7.2.1.4.5.1.`,
    `3. Fan sized with safety factor on total leakage area: Q = Cd × A_total × √(2ΔP/ρ).`
   ].forEach((n,i)=>p.push(T(18,LY+72+i*11,n,{a:'start',sz:6.5,c:CC})));
 
@@ -24966,7 +25033,9 @@ function buildFireAlarmBatterySVG(inputs, results) {
   const iAlrmMA  = Number(r.I_alarm_total_mA||0).toFixed(1);
   const ahCalc   = Number(r.Ah_calc||0).toFixed(2);
   const ahReq    = Number(r.Ah_required||0).toFixed(2);
-  const selAh    = Number(r.selected_Ah||0).toFixed(0);
+  // Preserve decimal Ah for non-integer std sizes (2.6, 4.5, etc.)
+  const _selAhN  = Number(r.selected_Ah||0);
+  const selAh    = _selAhN % 1 === 0 ? _selAhN.toFixed(0) : _selAhN.toFixed(1);
   const nBat     = Number(r.n_batteries||1);
   const batV     = Number(r.battery_volts||12).toFixed(0);
   const batCfg   = String(r.battery_config||'2S');
@@ -25023,7 +25092,8 @@ function buildFireAlarmBatterySVG(inputs, results) {
     if(b<Math.min(nBat,4)-1) p.push(HL(bx+30,BAT_Y+10,bx+38,2,BAT_C));
   }
   if(nBat>4) p.push(T(FACP_X+10+4*38,BAT_Y+22,`+${nBat-4}`,{a:'start',sz:7,c:BAT_C}));
-  p.push(T(FACP_X+FACP_W/2,BAT_Y+54,`${nBat}× ${selAh}Ah/${batV}V  (${batCfg})  =  ${selAh} Ah total`,{sz:7.5,c:BAT_C,w:'700'}));
+  // Series doubles voltage, not capacity → "= 2.6 Ah total" was physics-wrong
+  p.push(T(FACP_X+FACP_W/2,BAT_Y+54,`${batCfg}  →  ${sysV}V DC @ ${selAh} Ah`,{sz:7.5,c:BAT_C,w:'700'}));
 
   // ── Initiating devices (left of FACP) ──
   const devItems=[
@@ -25095,7 +25165,7 @@ function buildFireAlarmBatterySVG(inputs, results) {
   dy+=4; p.push(secH('BATTERY SELECTION'));
   [['Ah Calculated',`${ahCalc} Ah`,SC],['Ah Required (×S.F.)',`${ahReq} Ah`,CC],
    ['Selected Battery',`${selAh} Ah`,BAT_C],
-   ['Configuration',`${nBat}× ${batV}V/${selAh}Ah  (${batCfg})`,BAT_C],
+   ['Configuration',`${batCfg}`,BAT_C],
    ['Charger',`${chargerA}A  |  Recharge <48h: ${rchgOk?'PASS':'FAIL'}`,rchgOk?OK_C:FAIL_C]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
 
   dy+=6; p.push(T(DX+DW/2,dy,'NFPA 72:2022 §10.6.7  |  UL 864  |  PEC 2017 Art.7',{sz:7,c:GY}));
@@ -25760,19 +25830,43 @@ function buildWaterTreatmentSVG(inputs, results) {
   const RAW_C='#795548',CLN_C='#1565c0',OK_C='#2e7d32';
   const p=[];
 
-  const flowM3d  = Number(inp.flow_m3d||r.flow_m3d||100).toFixed(0);
-  const turbNtu  = Number(inp.turbidity_ntu||r.turbidity_ntu||50).toFixed(0);
-  const ironMgl  = Number(inp.iron_mg_l||r.iron_mg_l||0.5).toFixed(2);
-  const srcType  = String(inp.source_type||'Surface Water');
-  const ph       = Number(inp.ph||r.ph||7.0).toFixed(1);
-  // Treatment steps depend on source
-  const isSurface= srcType.toLowerCase().includes('surface');
-  const steps = isSurface
-    ? [['Screening','SC-101','Remove debris'],['Coagulation','CC-101','Alum dosing'],
-       ['Flocculation','FL-101','Gentle mixing'],['Sedimentation','SD-101','Clarification'],
-       ['Filtration','FT-101','Sand/anthracite'],['Disinfection','DI-101','Cl₂ / NaOCl']]
-    : [['Aeration','AE-101','Iron removal'],['Filtration','FT-101','Sand filter'],
-       ['Softening','SO-101','If hard water'],['Disinfection','DI-101','Cl₂ / UV']];
+  const flowM3dRaw = r.demand_m3d ?? r.flow_m3d
+                  ?? (inp.demand_lpd != null ? Number(inp.demand_lpd) / 1000 : null)
+                  ?? (r.demand_lpd != null ? Number(r.demand_lpd) / 1000 : null);
+  const flowM3d  = Number(flowM3dRaw || 0).toFixed(1);
+  const turbNtu  = Number(inp.turbidity_ntu||r.turbidity_ntu||0).toFixed(0);
+  const ironMgl  = Number(inp.iron_mg ?? r.iron_mg ?? 0).toFixed(2);
+  const srcType  = String(inp.raw_source || r.raw_source || 'Deep Well / Bore');
+  const ph       = 7.0.toFixed(1);
+  // Treatment steps: prefer calc-supplied train_steps (reflects coag/iron/AC/UV decisions),
+  // fall back to source-based defaults if missing.
+  const _stepMeta = (label) => {
+    const L = String(label || '').toLowerCase();
+    if (L.includes('coag') || L.includes('floc'))     return ['Coag/Floc','CC-101','Alum dosing'];
+    if (L.includes('sediment') || L.includes('clari')) return ['Sedimentation','SD-101','Clarification'];
+    if (L.includes('iron') || L.includes('greensand')) return ['Iron Removal','IR-101','Greensand'];
+    if (L.includes('aerat'))                           return ['Aeration','AE-101','Air contact'];
+    if (L.includes('multimedia') || (L.includes('filter') && !L.includes('carbon') && !L.includes('iron')))
+                                                       return ['Filtration','FT-101','Multimedia'];
+    if (L.includes('carbon') || L.includes('gac'))     return ['GAC Filter','AC-101','Taste/Odor'];
+    if (L.includes('uv') && L.includes('chlor'))       return ['UV + Cl₂','DI-101','Disinfect'];
+    if (L.includes('uv'))                              return ['UV Disinfect','DI-101','40 mJ/cm²'];
+    if (L.includes('chlor') || L.includes('hypochlor')) return ['Chlorination','DI-101','NaOCl'];
+    if (L.includes('soften'))                          return ['Softening','SO-101','Ion Exchange'];
+    if (L.includes('reverse osmosis') || L.includes('ro:')) return ['RO','RO-101','Membrane'];
+    if (L.includes('storage') || L.includes('tank'))   return ['Storage','ST-101','Treated water'];
+    if (L.includes('screen'))                          return ['Screening','SC-101','Remove debris'];
+    return [String(label).slice(0, 12), 'PR-101', String(label).slice(0, 14)];
+  };
+  const trainSrc = Array.isArray(r.train_steps) && r.train_steps.length ? r.train_steps : null;
+  const steps = trainSrc
+    ? trainSrc.filter(s => !String(s).toLowerCase().includes('storage')).map(_stepMeta)
+    : (srcType.toLowerCase().includes('surface')
+      ? [['Screening','SC-101','Remove debris'],['Coag/Floc','CC-101','Alum dosing'],
+         ['Sedimentation','SD-101','Clarification'],
+         ['Filtration','FT-101','Sand/anthracite'],['Disinfection','DI-101','Cl₂ / NaOCl']]
+      : [['Aeration','AE-101','Iron removal'],['Filtration','FT-101','Sand filter'],
+         ['GAC Filter','AC-101','Taste/Odor'],['Disinfection','DI-101','Cl₂ / UV']]);
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
