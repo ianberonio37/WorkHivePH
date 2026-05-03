@@ -18,7 +18,7 @@ from playwright.sync_api import sync_playwright
 
 from flows.harness import browser_session, sign_in, SCREENSHOTS_DIR
 from flows import smoke, logbook, community, analytics, isolation, signup, mobile
-from flows import ai_assistant, ai_analytics, ai_semantic, ai_generation
+from flows import ai_assistant, ai_analytics, ai_semantic, ai_generation, ai_chains
 
 WITH_AI = "--with-ai" in sys.argv
 
@@ -102,6 +102,7 @@ def main():
                 ("AI Analytics", ai_analytics),
                 ("AI Semantic Search", ai_semantic),
                 ("AI Generation (BOM/SOW)", ai_generation),
+                ("AI Chains (multi-agent RAG)", ai_chains),
             ]:
                 print(f"\n[{label}]")
                 try:
