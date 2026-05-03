@@ -54,6 +54,7 @@ SKIP_UI = "--skip-ui" in sys.argv
 NO_SESEED = "--no-seed" in sys.argv
 WITH_AI = "--with-ai" in sys.argv
 WITH_VISUAL = "--with-visual" in sys.argv
+WITH_PERF = "--with-perf" in sys.argv
 
 
 def py_for(path: Path) -> str:
@@ -207,10 +208,12 @@ def phase_ui() -> tuple[bool, dict]:
     extras = []
     if WITH_AI: extras.append("AI Full")
     if WITH_VISUAL: extras.append("Visual")
+    if WITH_PERF: extras.append("Perf")
     step("Phase 4: UI tests (Playwright)" + (f" + {' + '.join(extras)}" if extras else ""))
     cmd = [py_for(SEEDER), "run_flows.py"]
     if WITH_AI: cmd.append("--with-ai")
     if WITH_VISUAL: cmd.append("--with-visual")
+    if WITH_PERF: cmd.append("--with-perf")
     rc, summary, lines = run_subprocess(cmd, cwd=SEEDER)
     return (rc == 0, {"summary": summary, "lines": lines})
 

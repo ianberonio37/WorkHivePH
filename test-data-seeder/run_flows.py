@@ -19,10 +19,11 @@ from playwright.sync_api import sync_playwright
 from flows.harness import browser_session, sign_in, SCREENSHOTS_DIR
 from flows import smoke, logbook, community, analytics, isolation, signup, mobile
 from flows import ai_assistant, ai_analytics, ai_semantic, ai_generation, ai_chains
-from flows import visual
+from flows import visual, performance
 
 WITH_AI = "--with-ai" in sys.argv
 WITH_VISUAL = "--with-visual" in sys.argv
+WITH_PERF = "--with-perf" in sys.argv
 
 
 def main():
@@ -79,6 +80,20 @@ def main():
                 print(f"  ✗ flow crashed: {type(e).__name__}: {e}")
                 out = {"results": [("FAIL", f"crashed: {e}")]}
             section_results.append(("Signup", out))
+            for r in out.get("results", []):
+                if r[0] == "PASS": total_pass += 1
+                elif r[0] == "FAIL": total_fail += 1
+                elif r[0] == "WARN": total_warn += 1
+
+        # 4a. Performance budgets — page load timings vs fixed budgets
+        if WITH_PERF:
+            print("\n[Performance budgets]")
+            try:
+                out = performance.run_in_perf_browser(pw, log=print)
+            except Exception as e:
+                print(f"  ✗ flow crashed: {type(e).__name__}: {e}")
+                out = {"results": [("FAIL", f"crashed: {e}")]}
+            section_results.append(("Performance", out))
             for r in out.get("results", []):
                 if r[0] == "PASS": total_pass += 1
                 elif r[0] == "FAIL": total_fail += 1
