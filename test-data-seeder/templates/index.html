@@ -151,6 +151,95 @@
     min-width: 200px;
   }
 
+  /* ── Per-section help block (collapsible, native <details>) ─────────── */
+  details.section-help {
+    margin: 6px 0 4px;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0;
+  }
+  details.section-help summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 8px 14px;
+    font-size: 0.72rem;
+    color: var(--blue);
+    font-weight: 600;
+    user-select: none;
+  }
+  details.section-help summary::-webkit-details-marker { display: none; }
+  details.section-help summary::before {
+    content: "▸ ";
+    display: inline-block;
+    transition: transform 0.15s;
+    color: var(--muted);
+    margin-right: 4px;
+  }
+  details.section-help[open] summary::before { transform: rotate(90deg); }
+  details.section-help summary:hover { color: var(--gold); }
+  details.section-help .help-body {
+    padding: 4px 14px 12px;
+    font-size: 0.72rem;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.78);
+  }
+  details.section-help .help-body table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 4px;
+  }
+  details.section-help .help-body th,
+  details.section-help .help-body td {
+    text-align: left;
+    padding: 6px 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    vertical-align: top;
+  }
+  details.section-help .help-body th {
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  details.section-help .help-body td:first-child {
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  details.section-help .help-body code {
+    background: rgba(255,255,255,0.06);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.86em;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+  }
+
+  /* "I made changes — what now?" workflow card */
+  .workflow-card {
+    background: linear-gradient(135deg, rgba(167,139,250,0.08), rgba(41,182,217,0.05));
+    border: 1px solid rgba(167,139,250,0.25);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+  }
+  .workflow-card h4 {
+    margin: 0 0 6px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--purple, #a78bfa);
+  }
+  .workflow-card ol {
+    margin: 4px 0 0 18px;
+    padding: 0;
+    font-size: 0.74rem;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.65;
+  }
+  .workflow-card ol li { margin: 2px 0; }
+  .workflow-card ol li b { color: var(--gold); }
+
   /* Mega Gate (top-of-panel hero button) */
   button.seed-btn.mega-btn {
     grid-column: 1 / -1;
@@ -756,6 +845,25 @@
 
   <!-- ── ACTION PANEL (Phase 6 reorg) ──────────────────────────────────── -->
   <div class="card">
+
+    <!-- "I made changes — what now?" cheat sheet (always visible at top) -->
+    <div class="workflow-card">
+      <h4>📍 I made changes — what now? (the standard workflow)</h4>
+      <ol>
+        <li>If schema or seeders changed → <b>Reset</b> (Danger zone) then <b>Seed Everything</b>. Otherwise skip.</li>
+        <li>Open <b>Open pages</b> (panel above) → click the changed page (e.g. <code>analytics-report.html</code>) to test it against seeded data with one of the test logins.</li>
+        <li>Run the gate that matches what you changed:<br>
+          &nbsp;&nbsp;• Schema / seeders changed → <b>🧪 Data Tests</b><br>
+          &nbsp;&nbsp;• Layout / rendering changed → <b>🎬 UI Tests</b> (or <b>📷 Visual Regression</b> for pixel-perfect)<br>
+          &nbsp;&nbsp;• Static code changes (no rendering) → <b>🚀 Release Gate</b><br>
+          &nbsp;&nbsp;• AI prompts / Groq logic → <b>🤖 Release Gate + AI Full</b><br>
+          &nbsp;&nbsp;• About to deploy to prod → <b>🚀 Mega Gate</b> (everything)
+        </li>
+        <li>Bug found? → log in <code>PRODUCTION_FIXES.md</code> and tell Claude to fix.</li>
+        <li>All clean? → tell Claude to commit + push.</li>
+      </ol>
+    </div>
+
     <!-- Section 1: Mega Gate (most prominent, top of panel) -->
     <div class="section-head-row">
       <h3 class="action-section-title">Mega Gate</h3>
@@ -764,6 +872,14 @@
     <div class="button-grid">
       <button class="seed-btn mega-btn" data-action="run-mega-gate">🚀 Mega Gate (gate + AI + visual + perf · ~7-10 min)</button>
     </div>
+    <details class="section-help">
+      <summary>What does Mega Gate do, and when should I use it?</summary>
+      <div class="help-body">
+        Runs the full Release Gate <i>plus</i> AI Full <i>plus</i> Visual Regression <i>plus</i> Performance budgets — basically every check in one go.
+        <br><br>
+        <b>Use it when:</b> you're about to deploy to production, finishing a multi-day feature, or want a confidence check before a long break. <b>Avoid for tiny changes</b> — it takes 7-10 minutes; the lighter gates below are usually enough during normal development.
+      </div>
+    </details>
 
     <!-- Section 2: Lighter gates + test runners -->
     <div class="section-head-row" style="margin-top:18px;">
@@ -777,6 +893,41 @@
       <button class="seed-btn" data-action="run-tests">🧪 Data Tests (~5s, 62 checks)</button>
       <button class="seed-btn" data-action="run-flows">🎬 UI Tests (Playwright, ~30s)</button>
     </div>
+    <details class="section-help">
+      <summary>What does each gate check, and when do I use which?</summary>
+      <div class="help-body">
+        <table>
+          <thead><tr><th>Button</th><th>What it does</th><th>Use when</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>🚀 Release Gate</td>
+              <td>Runs all 57 static validators (registries, schema, XSS, mobile UX, etc.) — same as <code>run_platform_checks.py --fast</code>. Returns clean GO / NO-GO.</td>
+              <td>Default pre-commit gate. After any code change that doesn't touch AI prompts.</td>
+            </tr>
+            <tr>
+              <td>🤖 Release Gate + AI Full</td>
+              <td>Release Gate <i>plus</i> ~10 live Groq calls to verify AI prompts haven't regressed. Free (~$0) but slower.</td>
+              <td>After editing any AI prompt (assistant.html, floating-ai.js, edge functions that call Groq) or tweaking RAG context.</td>
+            </tr>
+            <tr>
+              <td>📷 Visual Regression</td>
+              <td>Screenshots every page at desktop viewport, diffs against the saved baseline, fails on pixel drift.</td>
+              <td>After CSS / layout work. <b>Don't run on data-only changes</b> — false positives waste time.</td>
+            </tr>
+            <tr>
+              <td>🧪 Data Tests</td>
+              <td>62 deterministic checks against the seeded DB (no browser): schema, FKs, hive isolation, soft-delete consistency, etc. Very fast.</td>
+              <td>After schema migration, seeder edits, or any change to DB writes.</td>
+            </tr>
+            <tr>
+              <td>🎬 UI Tests</td>
+              <td>Playwright-driven smoke + interaction checks across all pages: page loads, console errors, key flows.</td>
+              <td>After rendering / interaction code changes. Catches blank pages, JS errors, missing buttons.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
 
     <!-- Section 2.5: Wizards (Phase 9 — scaffold new things with all registrations) -->
     <div class="section-head-row" style="margin-top:18px;">
@@ -785,9 +936,34 @@
     </div>
     <div class="button-grid">
       <button class="seed-btn wizard-btn" onclick="openEdgeFunctionWizard()">🧙 New edge function (creates dir + index.ts + config.toml block)</button>
-      <button class="seed-btn wizard-btn" onclick="openHtmlPageWizard()">🧙 New HTML page (file + 4 registry updates for tools)</button>
+      <button class="seed-btn wizard-btn" onclick="openHtmlPageWizard()">🧙 New HTML page (file + 9 registry updates for tools — true one-click)</button>
       <button class="seed-btn wizard-btn" onclick="openSkillLessonWizard()">🧠 Add lesson to a skill (Phase 14)</button>
     </div>
+    <details class="section-help">
+      <summary>What does each wizard create, and when do I use it?</summary>
+      <div class="help-body">
+        <table>
+          <thead><tr><th>Wizard</th><th>What it creates</th><th>Use when</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>🧙 New edge function</td>
+              <td>Creates <code>supabase/functions/&lt;name&gt;/index.ts</code> from a starter template <i>and</i> appends the matching <code>[functions.&lt;name&gt;]</code> block to <code>supabase/config.toml</code> with explicit <code>verify_jwt</code>.</td>
+              <td>Need a new server-side endpoint (Groq call, webhook, secure DB write). Skip if you just need a UI tweak.</td>
+            </tr>
+            <tr>
+              <td>🧙 New HTML page</td>
+              <td>Creates <code>&lt;name&gt;.html</code> at project root <i>and</i> registers it in <b>9 places</b> in one shot: (1) <code>LIVE_TOOL_PAGES</code> in validate_assistant.py, (2) <code>nav-hub.js</code> TOOLS array, (3) <code>floating-ai.js</code> page-context branch, (4) <code>floating-ai.js</code> PLATFORM TOOLS bullet, (5) <code>assistant.html</code> system prompt, (6) <code>PUBLIC_PAGES</code> in test-data-seeder/app.py, (7-9) <code>PAGES</code> in flows/smoke.py + visual.py + mobile.py + performance.py (counts as 4 but uses one helper), and <code>LIVE_PAGES</code> in validate_schema.py + validate_performance.py. Then re-runs <i>both</i> auto-discovery and tester-coverage validators to confirm.</td>
+              <td>Adding a brand-new tool page. True one-click registration — covers everything <code>run_platform_checks.py --fast</code> checks. Just provide the kebab-case name, classification, display name, hint, and a 1-2 sentence summary.</td>
+            </tr>
+            <tr>
+              <td>🧠 Add lesson to a skill</td>
+              <td>Adds a lesson entry to <code>skill-content.js</code> for a specific discipline + level combination, with question/answer template ready to fill in.</td>
+              <td>Building out the Skill Matrix curriculum (Phase 14 — incremental content authoring).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
 
     <!-- Section 3: Seeders -->
     <div class="section-head-row" style="margin-top:18px;">
@@ -805,6 +981,20 @@
       <button class="seed-btn" data-action="marketplace">7. Marketplace</button>
       <button class="seed-btn" data-action="community">8. Community</button>
     </div>
+    <details class="section-help">
+      <summary>When do I seed, and which buttons should I press?</summary>
+      <div class="help-body">
+        <b>First time / fresh DB:</b> press <b>Seed Everything</b>. It runs all 8 modules in dependency order (~10k rows total, ~30-60s).
+        <br><br>
+        <b>After a Reset:</b> same — press <b>Seed Everything</b>.
+        <br><br>
+        <b>Re-seed just one module:</b> use the numbered buttons. They depend on earlier ones existing — e.g. you can't seed "4. Logbook" without "1. Hives &amp; Workers" + "2. Assets" already in the DB.
+        <br><br>
+        <b>You probably don't need to re-seed when:</b> you're testing a UI/styling change, or a small data tweak that doesn't depend on existing rows being a specific shape. Just open the page and test.
+        <br><br>
+        <b>You DO need to re-seed when:</b> the schema migrated, the seeder logic changed, or your previous test corrupted state (e.g. you deleted things while testing).
+      </div>
+    </details>
 
     <!-- Section 4: Danger zone -->
     <div class="section-head-row" style="margin-top:18px;">
@@ -814,6 +1004,16 @@
     <div class="button-grid">
       <button class="seed-btn reset-btn" data-action="reset">⚠ Reset (wipe all seeded data)</button>
     </div>
+    <details class="section-help">
+      <summary>What does Reset wipe, and when should I use it?</summary>
+      <div class="help-body">
+        Wipes <i>all</i> seeded rows from your <b>local</b> Supabase: hives, workers, assets, PMs, logbook, inventory, skill matrix, marketplace, community. Auth users are preserved.
+        <br><br>
+        <b>Use when:</b> the schema changed (so old seeded rows have stale columns), seeder logic changed (so you want to regenerate from scratch), or your previous testing corrupted the data.
+        <br><br>
+        <b>Safe?</b> Yes — this only touches the local Supabase at <code>127.0.0.1:54321</code>, never production. After Reset, click <b>Seed Everything</b> to repopulate.
+      </div>
+    </details>
   </div>
 
   <div class="card">
@@ -1536,18 +1736,27 @@
         submitBtn.textContent = 'Create';
         return;
       }
-      const adIcon = data.auto_discovery_pass ? '✓' : '⚠';
-      const adColor = data.auto_discovery_pass ? 'var(--green)' : 'var(--yellow)';
       const regList = (data.registries_updated || []).map(r => {
         const note = r.added || r.skipped || r.error || '?';
         const color = r.error ? 'var(--red)' : (r.skipped ? 'var(--muted)' : 'var(--green)');
-        return '<li style="color:' + color + ';"><code>' + escHtml(r.file) + '</code>: ' + escHtml(note) + '</li>';
+        const icon  = r.error ? '✗' : (r.skipped ? '∅' : '✓');
+        return '<li style="color:' + color + ';">' + icon + ' <code>' + escHtml(r.file) + '</code>: ' + escHtml(note) + '</li>';
       }).join('');
+
+      // Surface BOTH verifiers (auto-discovery + tester-coverage)
+      const verifiers = data.verifiers || {};
+      const verifierLines = Object.keys(verifiers).map(k => {
+        const v = verifiers[k];
+        const ok = v && v.pass;
+        const c  = ok ? 'var(--green)' : 'var(--yellow)';
+        const ic = ok ? '✓' : '⚠';
+        return '<div style="color:' + c + ';">' + ic + ' ' + escHtml(k) + ': ' + (ok ? 'PASS' : 'FAIL — see logs') + '</div>';
+      }).join('');
+
       resultEl.innerHTML =
-        '<div style="color:var(--green); margin-bottom:6px;">✓ Created <code style="color:var(--gold);">' + escHtml(data.name) + '.html</code></div>' +
-        '<ul style="margin:6px 0 6px 20px; color:var(--muted-2); font-size:0.74rem;">' + regList + '</ul>' +
-        '<div style="color:' + adColor + ';">' + adIcon + ' Auto-discovery: ' +
-          (data.auto_discovery_pass ? 'PASS' : 'FAIL — check stdout below') + '</div>' +
+        '<div style="color:var(--green); margin-bottom:6px;">✓ Created <code style="color:var(--gold);">' + escHtml(data.name) + '.html</code> + registered in ' + (data.registries_updated || []).length + ' places</div>' +
+        '<ul style="margin:6px 0 6px 20px; color:var(--muted-2); font-size:0.74rem; max-height:280px; overflow:auto;">' + regList + '</ul>' +
+        verifierLines +
         '<div style="margin-top:10px;">' +
           '<strong>Next:</strong> open <code>' + escHtml(data.name) + '.html</code> and replace the stub. ' +
           (classification === 'tool'

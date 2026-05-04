@@ -52,7 +52,18 @@
 <body>
   <a href="/" class="back">← back to seeder</a>
   <h1>WorkHive — Test Mode</h1>
-  <p class="subtitle">Pages below load with <code>SUPABASE_URL</code> rewritten to <strong>{{ supabase_url }}</strong> — your local seeded DB.</p>
+  <p class="subtitle">Pages below load with <code>SUPABASE_URL</code> rewritten to <strong>{{ supabase_url }}</strong> — your local seeded DB. Tests run safely; production data is not touched.</p>
+
+  <details style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;margin:18px 0 8px;color:#1e40af;font-size:13px;">
+    <summary style="cursor:pointer;font-weight:600;color:#1e40af;">📍 What do I do here? (click to expand)</summary>
+    <ol style="margin:8px 0 0 20px;padding:0;line-height:1.7;">
+      <li>Pick the page you want to test from the tiles below — opens in a new tab.</li>
+      <li>You'll land on the page like a real user would. <b>Sign in</b> using one of the <i>test login credentials</i> from the seeder home page (username + <code>test1234</code> + hive code).</li>
+      <li>Test your changes — click around, watch DevTools, save a PDF, whatever the change calls for.</li>
+      <li>Found a bug? Log it in <code>PRODUCTION_FIXES.md</code>. All clean? Tell Claude to commit.</li>
+    </ol>
+    <p style="margin:8px 0 0;font-size:12px;color:#3b82f6;">Tip: keep the seeder tab open so you can reset/reseed without hunting for it.</p>
+  </details>
 
   <div class="banner">
     <strong>Heads up:</strong> Edge functions (AI assistant, BOM/SOW, voice transcribe, etc.) won't work locally without their API keys configured. Page rendering / data display will work fine.
