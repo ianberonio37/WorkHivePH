@@ -1066,6 +1066,20 @@ async function submitJoin() {
     });
     if (joinErr) {
       btn.textContent = 'Join Hive'; btn.disabled = false;
+      // Detect a stale Supabase JWT (auth.users row got wiped while the
+      // browser still holds the old session). Force a fresh sign-in instead
+      // of leaving the user stuck on a confusing FK error.
+      if (/auth_uid.*fkey|violates foreign key/i.test(joinErr.message || '')) {
+        try { await db.auth.signOut(); } catch (_) {}
+        try {
+          ['wh_active_hive_id','wh_hive_id','wh_hive_name','wh_hive_role','wh_hive_code',
+           'wh_last_worker','wh_worker_name','workerName'].forEach(k => localStorage.removeItem(k));
+        } catch (_) {}
+        errEl.innerHTML = 'Your sign-in session expired (auth was reset). Redirecting you to sign in again…';
+        errEl.classList.remove('hidden');
+        setTimeout(() => { window.location.href = 'index.html?signin=1'; }, 1200);
+        return;
+      }
       errEl.textContent = 'Could not join: ' + joinErr.message;
       errEl.classList.remove('hidden'); return;
     }
@@ -1757,32 +1771,50 @@ async function checkTeamStockAlert() {
     .in('worker_name', others);
   if (!inv || !inv.length) return;
 
-  // Group by worker, collect problems
-  const byWorker = {};
+  // Build a flat list of problem items (item-first, worker is secondary context).
+  // Supervisors and teammates need to know WHAT is low, not just WHO.
+  const items = [];
   inv.forEach(i => {
     const isOut = i.qty_on_hand <= 0;
     const isLow = !isOut && i.min_qty > 0 && i.qty_on_hand <= i.min_qty;
     if (!isOut && !isLow) return;
-    if (!byWorker[i.worker_name]) byWorker[i.worker_name] = { out: [], low: [] };
-    if (isOut) byWorker[i.worker_name].out.push(i.part_name);
-    else       byWorker[i.worker_name].low.push(i.part_name);
+    items.push({
+      part_name:   i.part_name || '(unnamed part)',
+      qty:         Number(i.qty_on_hand) || 0,
+      min_qty:     Number(i.min_qty) || 0,
+      unit:        i.unit || 'pcs',
+      worker_name: i.worker_name,
+      severity:    isOut ? 'out' : 'low',
+    });
+  });
+  if (!items.length) return;
+
+  // Sort: out-of-stock first (most urgent), then low, then alphabetical by part name
+  items.sort((a, b) => {
+    if (a.severity !== b.severity) return a.severity === 'out' ? -1 : 1;
+    return a.part_name.localeCompare(b.part_name);
   });
 
-  const workers = Object.keys(byWorker);
-  if (!workers.length) return;
+  const MAX_SHOWN = 8;
+  const visible = items.slice(0, MAX_SHOWN);
+  const hidden = items.length - visible.length;
 
   const list = document.getElementById('team-stock-list');
-  list.innerHTML = workers.map(name => {
-    const { out, low } = byWorker[name];
-    const parts = [];
-    if (out.length) parts.push(`<span style="color:#f87171;font-weight:700;">${out.length} out</span>`);
-    if (low.length) parts.push(`<span style="color:#F7A21B;font-weight:700;">${low.length} low</span>`);
+  list.innerHTML = visible.map(it => {
+    const isOut = it.severity === 'out';
+    const dotColor = isOut ? '#f87171' : '#F7A21B';
+    const tagBg    = isOut ? 'rgba(248,113,113,0.14)' : 'rgba(247,162,27,0.14)';
+    const tagFg    = isOut ? '#f87171' : '#F7A21B';
+    const tagText  = isOut ? 'OUT' : `${it.qty} of ${it.min_qty} ${escHtml(it.unit)}`;
     return `<div class="flex items-center gap-2">
-      <div class="avatar-initial" style="width:24px;height:24px;font-size:0.6rem;">${escHtml(name[0].toUpperCase())}</div>
-      <span class="text-xs text-white/70 font-semibold flex-1">${escHtml(name)}</span>
-      <span class="text-xs">${parts.join(' · ')}</span>
+      <span style="width:8px;height:8px;border-radius:50%;background:${dotColor};flex-shrink:0;"></span>
+      <span class="text-xs text-white font-semibold flex-1" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(it.part_name)}</span>
+      <span class="text-[10px] text-white/40">${escHtml(it.worker_name)}</span>
+      <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:${tagBg};color:${tagFg};">${tagText}</span>
     </div>`;
-  }).join('');
+  }).join('') + (hidden > 0
+    ? `<div class="text-[10px] text-white/40 mt-1">+${hidden} more — view inventory for the full list</div>`
+    : '');
 
   document.getElementById('team-stock-alert').classList.remove('hidden');
 }
