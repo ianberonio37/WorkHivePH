@@ -11,10 +11,14 @@ LOCATIONS_PER_HIVE = [
     "Cooling Tower Bay", "Boiler Room", "Workshop", "Warehouse",
     "Yard - North", "Yard - South",
 ]
+# Match platform canonical labels (pm-scheduler.html dropdown).
+# Weights here = relative frequency in the seeded distribution (not the
+# analytics multiplier — that lives in CRITICALITY_WEIGHT in prescriptive.py).
 CRITICALITY_WEIGHTS = [
-    ("Critical", 1),
-    ("Major", 4),
-    ("Minor", 3),
+    ("Critical", 1),   # ~12% of assets — show-stoppers
+    ("High",     2),   # ~25% — important but not life-or-death
+    ("Medium",   4),   # ~50% — bulk of equipment
+    ("Low",      1),   # ~12% — non-critical
 ]
 
 

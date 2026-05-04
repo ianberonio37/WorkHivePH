@@ -4,8 +4,11 @@ import random
 from .utils import random_timestamp_in_last_n_days, to_iso
 
 DISCIPLINES = [
-    "Mechanical", "Electrical", "Instrumentation", "Hydraulics",
-    "HVAC", "Welding", "Pipefitting", "Reliability", "Safety",
+    # Canonical platform disciplines, must match skill-content.js DISCIPLINES.
+    # Don't add Hydraulics/HVAC/Welding/etc. here — those map back to one of these
+    # 5 via CAT_TO_DISC in python-api/analytics/prescriptive.py.
+    "Mechanical", "Electrical", "Instrumentation",
+    "Facilities Management", "Production Lines",
 ]
 
 PRIMARY_SKILLS = [

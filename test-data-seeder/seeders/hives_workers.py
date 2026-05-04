@@ -60,6 +60,20 @@ def seed_hives_and_workers(client, log) -> dict:
     used_display_names: set = set()
     used_usernames: set = set()
 
+    # Pre-compute hive assignment so each hive gets at least 1 supervisor.
+    # 3 supervisors get pinned to 3 hives 1:1 (in shuffled order); other workers
+    # land randomly. Without this, ~78% of seed runs leave at least one hive
+    # supervisor-less, which breaks role-based testing in that hive.
+    n_supervisors = sum(1 for p in WORKER_PROFILES if p["role"] == "supervisor"
+                          for _ in range(p["count"]))
+    hive_ids = [h["id"] for h in hives]
+    sup_hive_assignment = list(hive_ids)
+    random.shuffle(sup_hive_assignment)
+    # Pad with random choices if more supervisors than hives
+    while len(sup_hive_assignment) < n_supervisors:
+        sup_hive_assignment.append(random.choice(hive_ids))
+    sup_idx = 0
+
     for profile in WORKER_PROFILES:
         for _ in range(profile["count"]):
             # Generate unique full name + unique username
@@ -104,6 +118,12 @@ def seed_hives_and_workers(client, log) -> dict:
                     log(f"  ERROR creating auth user {email}: {e}")
                     raise
 
+            if profile["role"] == "supervisor":
+                hive_id = sup_hive_assignment[sup_idx]
+                sup_idx += 1
+            else:
+                hive_id = random.choice(hives)["id"]
+
             workers.append({
                 "display_name": full,
                 "worker_name": full,           # platform uses display_name as worker_name
@@ -113,7 +133,7 @@ def seed_hives_and_workers(client, log) -> dict:
                 "role": profile["role"],
                 "tier": profile["tier"],
                 "logbook_target": profile["logbook_target"],
-                "hive_id": random.choice(hives)["id"],
+                "hive_id": hive_id,
             })
 
     log(f"  created {len(workers)} auth users (password for all: '{TEST_PASSWORD}')")

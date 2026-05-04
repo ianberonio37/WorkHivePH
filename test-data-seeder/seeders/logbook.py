@@ -195,7 +195,10 @@ def seed_logbook(client, log, ctx: dict) -> dict:
                 "id": entry_id,
                 "worker_name": w["worker_name"],
                 "date": to_iso(ts),
-                "machine": f"{asset['name']} ({asset['asset_id']})",
+                # Match production format: logbook.html stores assets.asset_id
+                # (the human code like "PMP-001"), not "{name} (asset_id)".
+                # Misalignment broke analytics joins (PRODUCTION_FIXES #17).
+                "machine": asset["asset_id"],
                 "category": discipline,                  # ← discipline goes here
                 "problem": problem,
                 "action": action,
