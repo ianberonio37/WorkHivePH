@@ -19029,9 +19029,9 @@ async function _runDrawing() {
     } else if (ct === 'Fire Pump Sizing') {
       const svg = buildFirePumpPIDSvg(_lastInputs, _lastResults);
       const _r = _lastResults || {};
-      const _flowLpm  = Number(_r.req_flow_lpm || _r.required_flow_lpm || _r.flow_lpm || 0).toFixed(0);
-      const _presBar  = Number(_r.req_pressure_bar || _r.required_pressure_bar || _r.tdh_bar || 0).toFixed(2);
-      const _motorHP  = Number(_r.motor_hp || _r.required_hp || _r.hp || 0).toFixed(0);
+      const _flowLpm  = Number(_r.Q_Lmin || _r.req_flow_lpm || _r.required_flow_lpm || 0).toFixed(0);
+      const _presBar  = Number(_r.P_req_bar || _r.TDH_bar || _r.req_pressure_bar || 0).toFixed(2);
+      const _motorHP  = Number(_r.selected_HP || _r.motor_hp || _r.required_hp || 0).toFixed(0);
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_flowLpm} L/min @ ${_presBar} bar  |  ${_motorHP} HP`,
         { drawingNo:'FP-PUMP-PID-001', drawingTitle:'Fire Pump System — P&ID Schematic', standard:'NFPA 20:2022 / ISA-5.1:2009 / PSME Code' }));
@@ -19972,26 +19972,28 @@ function buildFirePumpPIDSvg(inputs, results) {
   const r = results || {};
 
   // ── Values ──────────────────────────────────────────────────────────────────
-  const reqFlow     = Number(r.required_flow || inputs?.required_flow || 1900);  // L/min
-  const reqPress    = Number(r.required_pressure || inputs?.required_pressure || 6.9);  // bar
-  const motorHP     = Number(r.recommended_hp || 0).toFixed(0);
-  const motorKW     = (Number(motorHP) * 0.746).toFixed(1);
-  const pipeD       = Number(r.pipe_dia_mm || 0);
+  // Calc engine (calcFirePumpSizing) returns: Q_Lmin, P_req_bar, TDH_m, TDH_bar,
+  // pipe_dia, pipe_material, velocity, selected_HP, selected_kW, drive_type,
+  // Q_jockey_Lmin, P_jockey_bar, selected_jockey_HP
+  const reqFlow     = Number(r.Q_Lmin || inputs?.required_flow || 1900);  // L/min
+  const reqPress    = Number(r.P_req_bar || inputs?.required_pressure || 6.9);  // bar
+  const motorHP     = Number(r.selected_HP || 0).toFixed(0);
+  const motorKW     = (Number(r.selected_kW || Number(motorHP) * 0.746)).toFixed(1);
+  const pipeD       = Number(r.pipe_dia || 0);
   const pipeMat     = String(r.pipe_material || 'Black Steel Sch40');
   const velocity    = Number(r.velocity || 0).toFixed(2);
-  const hoseQ       = Number(r.hose_demand_lpm || 946).toFixed(0);
-  const totalQ      = (reqFlow + Number(hoseQ)).toFixed(0);
-  const driveType   = String(inputs?.drive_type || 'Electric Motor');
+  const driveType   = String(r.drive_type || inputs?.drive_type || 'Electric Motor');
   const redundancy  = String(inputs?.redundancy || 'Duplex');
   const proj        = String(inputs?.project_name || 'Fire Pump System');
   const isDiesel    = driveType.toLowerCase().includes('diesel');
 
-  // Jockey pump: ~1% of main pump flow
-  const jockeyQ     = Math.ceil(reqFlow * 0.01);
-  const jockeyHP    = Math.max(0.5, (reqFlow * reqPress / (60 * 0.6 * 1000)).toFixed(1));
+  // Jockey pump: read from calc results
+  const jockeyQ     = Number(r.Q_jockey_Lmin || Math.ceil(Number(reqFlow) * 0.01));
+  const jockeyHP    = Number(r.selected_jockey_HP || 2);
 
   const W = 1050, H = 580, STRIP_Y = 467;
   const CP = '#1a2e4a';   // process / navy
+  const SC = '#5a6a7a';   // secondary / muted label grey
   const CI = '#c0392b';   // fire red (instrument signal + fire system)
   const CG = '#2e7d32';   // motor / power green
   const CF = '#e65100';   // flow highlight amber
@@ -28919,7 +28921,7 @@ function renderBomTablePreview(items) {
     : isSPress
     ? `Fire Protection: Stairwell Pressurization (${_lastResults?.building_type || ''}, ${_lastResults?.N_stairwells || ''}× fans, ${_lastResults?.Q_per_CMH || ''}m³/h each, ΔP=${_lastResults?.delta_P_Pa || ''}Pa, ${_lastResults?.selected_HP || ''}HP motor)`
     : isFPump
-    ? `Fire Protection: Fire Pump Sizing (${_lastInputs?.drive_type || 'Electric Motor'}, ${_lastResults?.recommended_hp || ''}HP, TDH=${_lastResults?.TDH || ''}m, Q=${_lastResults?.flow_lpm || _lastInputs?.required_flow || ''}L/min, ${_lastResults?.pipe_dia_mm || ''}mm pipe)`
+    ? `Fire Protection: Fire Pump Sizing (${_lastResults?.drive_type || _lastInputs?.drive_type || 'Electric Motor'}, ${_lastResults?.selected_HP || ''}HP (${Number(_lastResults?.selected_kW||0).toFixed(1)}kW), TDH=${_lastResults?.TDH_m || ''}m, Q=${_lastResults?.Q_Lmin || _lastInputs?.required_flow || ''}L/min @ ${_lastResults?.P_req_bar || _lastInputs?.required_pressure || ''}bar, ${_lastResults?.pipe_dia || ''}mm ${_lastResults?.pipe_material || 'Steel'} pipe)`
     : isFSprink
     ? `Fire Protection: Fire Sprinkler Hydraulic (${_lastInputs?.hazard || ''}, ${_lastResults?.N_sprinklers || ''} heads, Q=${_lastResults?.Q_total || ''}L/min, ${_lastResults?.pipe_dia || ''}mm ${_lastResults?.pipe_material || ''} riser)`
     : isLight
@@ -29274,7 +29276,7 @@ function renderSowDocPreview(sections) {
     : isSPress
     ? `Stairwell Pressurization: ${_lastResults?.building_type || ''}, ${_lastResults?.N_stairwells || ''} stairwells, ${_lastResults?.N_floors || ''} floors, ΔP=${_lastResults?.delta_P_Pa || ''}Pa, Q_design=${_lastResults?.Q_design_CMH || ''}m³/h, Fan ${_lastResults?.selected_HP || ''}HP, Door force=${_lastResults?.F_total_N || ''}N (${_lastResults?.door_force_ok ? 'OK' : 'EXCEEDS LIMIT'})`
     : isFPump
-    ? `Fire Pump Sizing: ${_lastInputs?.drive_type || 'Electric Motor'}, ${_lastResults?.recommended_hp || ''}HP (${_lastResults?.recommended_kw || ''}kW), TDH=${_lastResults?.TDH || ''}m, Q=${_lastResults?.flow_lpm || _lastInputs?.required_flow || ''}L/min @ ${_lastInputs?.required_pressure || ''}bar, ${_lastResults?.pipe_dia_mm || ''}mm ${_lastInputs?.pipe_material || 'Steel'} pipe, NPSHa=${_lastResults?.npsh_available || ''}m`
+    ? `Fire Pump Sizing: ${_lastResults?.drive_type || _lastInputs?.drive_type || 'Electric Motor'}, ${_lastResults?.selected_HP || ''}HP (${Number(_lastResults?.selected_kW||0).toFixed(1)}kW), TDH=${_lastResults?.TDH_m || ''}m, Q=${_lastResults?.Q_Lmin || _lastInputs?.required_flow || ''}L/min @ ${_lastResults?.P_req_bar || _lastInputs?.required_pressure || ''}bar, ${_lastResults?.pipe_dia || ''}mm ${_lastResults?.pipe_material || 'Steel'} pipe, Jockey: ${_lastResults?.Q_jockey_Lmin || ''}L/min @ ${_lastResults?.P_jockey_bar || ''}bar`
     : isFSprink
     ? `Fire Sprinkler Hydraulic: ${_lastInputs?.hazard || ''} Hazard, ${_lastResults?.N_sprinklers || ''} sprinkler heads, Q_total=${_lastResults?.Q_total || ''}L/min, P_design=${_lastResults?.P_design || ''}kPa, ${_lastResults?.pipe_dia || ''}mm ${_lastResults?.pipe_material || ''} riser, Duration ${_lastResults?.duration || ''}min, Storage ${_lastResults?.water_volume_m3 || ''}m³`
     : isLight
