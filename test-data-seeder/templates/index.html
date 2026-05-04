@@ -691,26 +691,54 @@
   <div class="card" style="border-color:rgba(247,162,27,0.3);">
     <h2 style="color:var(--gold);">🔑 Test login credentials</h2>
     <p style="font-size:0.82rem; color:var(--muted-2); margin:0 0 12px;">
-      All seeded workers share password: <code>test1234</code>
-      &nbsp;·&nbsp; Sign in via the platform's "Sign In" modal using <strong>username</strong> + password.
+      Password (all workers): <code>test1234</code>
+      &nbsp;·&nbsp; Sign in with <strong>username</strong>, then if prompted for a hive code, paste the matching code below. Click any code to copy it.
     </p>
     <table style="width:100%; font-size:0.82rem; border-collapse:collapse;">
       <thead>
         <tr style="text-align:left; color:var(--muted);">
-          <th style="padding:8px 10px; border-bottom:1px solid var(--border); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:600;">Username (for sign-in)</th>
-          <th style="padding:8px 10px; border-bottom:1px solid var(--border); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:600;">Display name (worker_name in DB)</th>
+          <th style="padding:8px 10px; border-bottom:1px solid var(--border); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:600;">Username</th>
+          <th style="padding:8px 10px; border-bottom:1px solid var(--border); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:600;">Display name</th>
+          <th style="padding:8px 10px; border-bottom:1px solid var(--border); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:600;">Role</th>
+          <th style="padding:8px 10px; border-bottom:1px solid var(--border); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:600;">Hive</th>
+          <th style="padding:8px 10px; border-bottom:1px solid var(--border); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:600;">Hive code</th>
         </tr>
       </thead>
       <tbody>
         {% for login in test_logins %}
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:7px 10px;"><code>{{ login.username }}</code></td>
+          <td style="padding:7px 10px;"><code class="copyable" title="Click to copy username">{{ login.username }}</code></td>
           <td style="padding:7px 10px; color:var(--text);">{{ login.display_name }}</td>
+          <td style="padding:7px 10px; color:var(--muted);">{% if login.role == 'supervisor' %}<span style="color:var(--gold); font-weight:600;">{{ login.role }}</span>{% else %}{{ login.role }}{% endif %}</td>
+          <td style="padding:7px 10px; color:var(--muted-2); font-size:0.78rem;">{{ login.hive_name }}</td>
+          <td style="padding:7px 10px;"><code class="copyable" title="Click to copy hive code" style="background:rgba(247,162,27,0.1); color:var(--gold);">{{ login.invite_code }}</code></td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
+    <p style="font-size:0.72rem; color:var(--muted); margin:10px 0 0;">
+      Workers are already members of their hive (status=active in <code>hive_members</code>). The hive-code prompt appears because the platform's <code>localStorage.wh_active_hive_id</code> is empty on first sign-in. Pasting the code restores it.
+    </p>
   </div>
+  <script>
+    // Click-to-copy on test-login codes
+    document.querySelectorAll('.card .copyable').forEach(el => {
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(el.textContent); }
+        catch (e) {
+          const r = document.createRange(); r.selectNode(el);
+          window.getSelection().removeAllRanges(); window.getSelection().addRange(r);
+          document.execCommand('copy'); window.getSelection().removeAllRanges();
+        }
+        const orig = el.textContent;
+        const origBg = el.style.background;
+        el.textContent = '✓ copied';
+        el.style.background = 'rgba(74,222,128,0.18)';
+        setTimeout(() => { el.textContent = orig; el.style.background = origBg; }, 900);
+      });
+    });
+  </script>
   {% endif %}
 
   {% if connected %}

@@ -175,11 +175,63 @@ def get_db_counts():
 
 
 def get_test_logins():
-    """Returns up to 6 sample workers (username + display_name) for the dashboard."""
+    """Returns sample workers with their hive name + invite code, grouped so
+    every hive has at least one supervisor + one worker shown.
+
+    The platform prompts for a hive code on first login because localStorage
+    has no wh_active_hive_id yet. Surfacing the code here saves the user from
+    having to dig through the database for it.
+    """
     try:
         client = get_client()
-        res = client.table("worker_profiles").select("username, display_name").limit(6).execute()
-        return res.data or []
+        # Pull all hives (id, name, invite_code)
+        hives_res = client.table("hives").select("id, name, invite_code").execute()
+        hives = {h["id"]: h for h in (hives_res.data or [])}
+        if not hives:
+            return []
+
+        # Pull all hive_members (auth_uid → hive_id, role)
+        members_res = client.table("hive_members").select(
+            "auth_uid, hive_id, role"
+        ).eq("status", "active").execute()
+        member_by_uid = {m["auth_uid"]: m for m in (members_res.data or []) if m.get("auth_uid")}
+
+        # Pull worker_profiles (username, display_name, auth_uid)
+        profiles_res = client.table("worker_profiles").select(
+            "username, display_name, auth_uid"
+        ).execute()
+        profiles = profiles_res.data or []
+
+        # Build enriched rows
+        rows = []
+        for p in profiles:
+            m = member_by_uid.get(p.get("auth_uid"))
+            if not m:
+                continue
+            h = hives.get(m["hive_id"])
+            if not h:
+                continue
+            rows.append({
+                "username":     p.get("username", ""),
+                "display_name": p.get("display_name", ""),
+                "role":         m.get("role", "worker"),
+                "hive_name":    h.get("name", ""),
+                "invite_code":  h.get("invite_code", ""),
+            })
+
+        # Group by hive. Pick the FIRST supervisor and the FIRST worker per
+        # hive so the user can test both roles in every hive.
+        by_hive = {}
+        for r in rows:
+            by_hive.setdefault(r["hive_name"], []).append(r)
+
+        out = []
+        for hive_rows in by_hive.values():
+            sup = next((r for r in hive_rows if r["role"] == "supervisor"), None)
+            wkr = next((r for r in hive_rows if r["role"] != "supervisor"), None)
+            if sup: out.append(sup)
+            if wkr: out.append(wkr)
+        return out
     except Exception:
         return []
 
