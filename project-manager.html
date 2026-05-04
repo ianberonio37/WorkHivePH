@@ -556,14 +556,30 @@
       <div class="grid-3">
         <div class="field"><label>Planned start</label><input type="date" id="s-pstart"></div>
         <div class="field"><label>Planned end</label><input type="date" id="s-pend"></div>
-        <div class="field"><label>Est. hours</label><input type="number" id="s-est" min="0" step="0.5"></div>
+        <div class="field"><label>Est. hours</label><input type="number" id="s-est" min="0" step="0.5">
+          <div class="field-hint">Rule of thumb: 8h × crew × days.</div></div>
+      </div>
+      <div class="field">
+        <label>Phase</label>
+        <select id="s-phase">
+          <option value="">— none —</option>
+          <option value="pre">Pre (prep, isolation, PTW)</option>
+          <option value="execute">Execute (main work)</option>
+          <option value="commission">Commission (testing, run-in)</option>
+          <option value="close">Close (sign-off, archive)</option>
+          <option value="fel1">FEL-1 (concept)</option>
+          <option value="fel2">FEL-2 (feasibility)</option>
+          <option value="fel3">FEL-3 (FEED)</option>
+          <option value="gate">Stage Gate (review)</option>
+        </select>
+        <div class="field-hint">Used to group scope items in the project view.</div>
       </div>
       <div class="field">
         <label>Predecessors (depends on)</label>
         <select id="s-preds" multiple style="min-height: 80px;"></select>
-        <div class="small" style="color: var(--muted); margin-top: 3px;">Hold Ctrl/Cmd to select multiple. Drives critical-path calculation.</div>
+        <div class="field-hint">Hold Ctrl/Cmd to select multiple. Drives critical-path calculation. Defaults to the previous item.</div>
       </div>
-      <div class="field"><label>Notes</label><textarea id="s-notes" maxlength="1000"></textarea></div>
+      <div class="field"><label>Notes</label><textarea id="s-notes" maxlength="1000" placeholder="Free-text notes — not the phase, that's above."></textarea></div>
       <div class="modal-foot">
         <button type="button" class="btn ghost" onclick="closeModal('modal-scope')">Cancel</button>
         <button type="submit" class="btn primary">Save</button>
@@ -1456,6 +1472,7 @@ async function openDetail(id) {
   _links = linksRes.data || [];
   _logs  = logsRes.data || [];
   _progress = progRes;
+  await refreshSuggestedLinks();
   renderActivePane();
 }
 
@@ -1527,33 +1544,100 @@ function renderOverview() {
 }
 
 /* ── Pane: Scope / WBS ────────────────────────────────────── */
+/* Phase helpers — phase is stored as "phase: X" prefix on the notes column.
+   Single source of truth so we don't need a schema change for v1. */
+const PHASE_LABELS = { pre: 'Pre', execute: 'Execute', commission: 'Commission', close: 'Close',
+                       fel1: 'FEL-1', fel2: 'FEL-2', fel3: 'FEL-3', gate: 'Stage Gate' };
+const PHASE_ORDER = ['pre', 'fel1', 'fel2', 'fel3', 'gate', 'execute', 'commission', 'close', ''];
+function getPhase(it) {
+  const m = (it.notes || '').match(/^phase:\s*([a-z0-9]+)/i);
+  return m ? m[1].toLowerCase() : '';
+}
+function getFreeNotes(it) {
+  return (it.notes || '').replace(/^phase:\s*[a-z0-9]+\s*\n?/i, '').trim();
+}
+function combineNotes(phase, free) {
+  const f = (free || '').trim();
+  if (!phase && !f) return null;
+  if (!phase) return f;
+  return `phase: ${phase}` + (f ? `\n${f}` : '');
+}
+
+/* Cycle status: pending → in_progress → done → pending (called from inline pill click) */
+async function cycleScopeStatus(id, ev) {
+  if (ev) ev.stopPropagation();
+  const it = _items.find(x => x.id === id); if (!it) return;
+  const next = it.status === 'pending' ? 'in_progress'
+             : it.status === 'in_progress' ? 'done'
+             : 'pending';
+  const pct = next === 'done' ? 100 : next === 'in_progress' ? Math.max(it.pct_complete || 0, 50) : 0;
+  const { error } = await db.from('project_items')
+    .update({ status: next, pct_complete: pct }).eq('id', id);
+  if (error) { showToast(error.message, 'error'); return; }
+  await refreshDetail();
+}
+
 function renderScope() {
-  const rows = _items.map(it => {
+  if (!_items.length) {
+    $('pane-scope').innerHTML = `
+      <div class="row" style="justify-content: space-between; margin-bottom: 10px;">
+        <div class="small" style="color: var(--muted);">No scope items yet. Add the first work breakdown item to start tracking.</div>
+        <button class="btn primary small" onclick="openNewScope()">+ Add scope item</button>
+      </div>`;
+    return;
+  }
+  // Group items by phase. Items without a phase land under "Other".
+  const byPhase = {};
+  _items.forEach(it => { const p = getPhase(it); (byPhase[p] = byPhase[p] || []).push(it); });
+  const phasesWithItems = PHASE_ORDER.filter(p => byPhase[p]?.length);
+
+  const renderRow = (it) => {
     const isCritical = _progress?.critical_path?.item_ids?.includes(it.id);
+    const sCls = it.status === 'done' ? 'complete' : it.status === 'blocked' ? 'cancelled' : it.status === 'in_progress' ? 'active' : 'planning';
     return `
       <tr class="${it.status === 'done' ? 'done' : ''} ${isCritical ? 'critical' : ''}">
         <td class="mono small">${e(it.wbs_code || '')}</td>
         <td>${e(it.title)}</td>
         <td class="small">${e(it.owner_name || '—')}</td>
-        <td><span class="status-pill status-${it.status === 'done' ? 'complete' : it.status === 'blocked' ? 'cancelled' : 'planning'}">${e(it.status.replace('_', ' '))}</span></td>
+        <td><span class="status-pill status-${sCls}" style="cursor:pointer;" title="Click to cycle status" onclick="cycleScopeStatus('${e(it.id)}', event)">${e(it.status.replace('_', ' '))}</span></td>
         <td><div class="progress" style="width:80px;"><div class="progress-bar ${progressColor(it.pct_complete)}" style="width:${it.pct_complete}%"></div></div></td>
         <td class="small">${e(fmtDate(it.planned_end))}</td>
         <td class="small">${it.estimated_hours || '—'}h</td>
         <td><button class="btn small ghost" onclick="openEditScope('${e(it.id)}')">Edit</button></td>
       </tr>`;
-  }).join('');
+  };
+
+  const sections = phasesWithItems.length > 1 ? phasesWithItems.map(p => {
+    const items = byPhase[p];
+    const phaseLabel = p ? PHASE_LABELS[p] : 'Other';
+    const phaseClass = p ? `phase-${p}` : 'phase-pre';
+    return `
+      <div style="margin-bottom: 14px;">
+        <div style="display:flex; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid var(--border); margin-bottom:6px;">
+          <span class="phase-tag ${phaseClass}">${e(phaseLabel)}</span>
+          <span class="small" style="color:var(--muted);">${items.length} item${items.length === 1 ? '' : 's'}</span>
+        </div>
+        <table>
+          <thead><tr><th>WBS</th><th>Title</th><th>Owner</th><th>Status</th><th>Progress</th><th>Due</th><th>Est</th><th></th></tr></thead>
+          <tbody>${items.map(renderRow).join('')}</tbody>
+        </table>
+      </div>`;
+  }).join('') : `
+    <table>
+      <thead><tr><th>WBS</th><th>Title</th><th>Owner</th><th>Status</th><th>Progress</th><th>Due</th><th>Est</th><th></th></tr></thead>
+      <tbody>${_items.map(renderRow).join('')}</tbody>
+    </table>`;
+
   $('pane-scope').innerHTML = `
     <div class="row" style="justify-content: space-between; margin-bottom: 10px;">
-      <div class="small" style="color: var(--muted);">${_items.length} scope item(s) · ${_items.filter(i => i.status === 'done').length} done</div>
+      <div class="small" style="color: var(--muted);">
+        ${_items.length} scope item(s) · ${_items.filter(i => i.status === 'done').length} done
+        · click any status pill to cycle pending → in progress → done
+      </div>
       <button class="btn primary small" onclick="openNewScope()">+ Add scope item</button>
     </div>
-    ${_items.length ? `
-      <div style="overflow-x:auto;"><table>
-        <thead><tr><th>WBS</th><th>Title</th><th>Owner</th><th>Status</th><th>Progress</th><th>Due</th><th>Est</th><th></th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table></div>
-      <div class="small" style="margin-top: 8px; color: var(--muted);">Rows highlighted red are on the critical path.</div>
-    ` : '<div class="empty">No scope items yet. Add the first work breakdown item to start tracking.</div>'}
+    <div style="overflow-x:auto;">${sections}</div>
+    <div class="small" style="margin-top: 8px; color: var(--muted);">Rows highlighted red are on the critical path.</div>
   `;
 }
 
@@ -1562,8 +1646,13 @@ function openNewScope() {
   $('m-scope-title').textContent = 'Add scope item';
   ['s-title','s-wbs','s-pstart','s-pend','s-est','s-notes'].forEach(id => $(id).value = '');
   $('s-status').value = 'pending';
+  $('s-phase').value = '';
   $('s-owner').value = '';
-  populatePredecessors(null);
+  // Smart predecessor: default-select the most recent existing item (chain by default)
+  const lastId = _items.length ? _items[_items.length - 1].id : null;
+  populatePredecessors(null, lastId ? [lastId] : []);
+  // Smart WBS: auto-suggest next number (1.0, 2.0, ...)
+  $('s-wbs').value = `${_items.length + 1}.0`;
   openModal('modal-scope');
 }
 function openEditScope(id) {
@@ -1574,10 +1663,11 @@ function openEditScope(id) {
   $('s-wbs').value = it.wbs_code || '';
   $('s-owner').value = it.owner_name || '';
   $('s-status').value = it.status;
+  $('s-phase').value = getPhase(it);
   $('s-pstart').value = it.planned_start || '';
   $('s-pend').value = it.planned_end || '';
   $('s-est').value = it.estimated_hours || '';
-  $('s-notes').value = it.notes || '';
+  $('s-notes').value = getFreeNotes(it);
   populatePredecessors(id, it.predecessors || []);
   openModal('modal-scope');
 }
@@ -1590,17 +1680,18 @@ function populatePredecessors(currentId, selected = []) {
 async function saveScopeItem() {
   const title = $('s-title').value.trim(); if (!title) { showToast('Title required'); return; }
   const preds = Array.from($('s-preds').selectedOptions).map(o => o.value);
+  const status = $('s-status').value;
   const payload = {
     project_id: _detailId, hive_id: HIVE_ID,
     title, wbs_code: $('s-wbs').value.trim() || null,
     owner_name: $('s-owner').value || null,
-    status: $('s-status').value,
+    status,
     planned_start: $('s-pstart').value || null,
     planned_end:   $('s-pend').value || null,
     estimated_hours: $('s-est').value ? Number($('s-est').value) : null,
     predecessors: preds,
-    notes: $('s-notes').value.trim() || null,
-    pct_complete: $('s-status').value === 'done' ? 100 : ($('s-status').value === 'in_progress' ? 50 : 0),
+    notes: combineNotes($('s-phase').value, $('s-notes').value),
+    pct_complete: status === 'done' ? 100 : (status === 'in_progress' ? 50 : 0),
     sort_order: _items.length,
   };
   let err;
@@ -1616,6 +1707,33 @@ async function saveScopeItem() {
 }
 
 /* ── Pane: Linked work ────────────────────────────────────── */
+let _linkSuggestions = [];
+async function refreshSuggestedLinks() {
+  _linkSuggestions = [];
+  if (!_detail) return;
+  // Skip suggestions for closed projects — no point pulling new work in
+  if (['complete', 'cancelled', 'archived'].includes(_detail.status)) return;
+  const linkedLogIds = new Set(_links.filter(l => l.link_type === 'logbook').map(l => l.link_id));
+  const since = new Date(Date.now() - 30 * 86400000).toISOString();
+  const { data } = await db.from('logbook')
+    .select('id, machine, problem, status, created_at')
+    .eq('hive_id', HIVE_ID).eq('status', 'Open')
+    .gte('created_at', since)
+    .order('created_at', { ascending: false }).limit(20);
+  _linkSuggestions = (data || []).filter(r => !linkedLogIds.has(r.id)).slice(0, 5);
+}
+async function linkSuggested(idx) {
+  const c = _linkSuggestions[idx]; if (!c) return;
+  const { error } = await db.from('project_links').insert({
+    project_id: _detailId, hive_id: HIVE_ID,
+    link_type: 'logbook', link_id: c.id,
+    label: `${c.machine || '?'} — ${(c.problem || '').slice(0, 60)}`,
+  });
+  if (error) { showToast(error.message, 'error'); return; }
+  showToast('Linked.', 'success');
+  await refreshDetail();
+}
+
 function renderLinked() {
   const groups = {};
   _links.forEach(l => { if (!groups[l.link_type]) groups[l.link_type] = []; groups[l.link_type].push(l); });
@@ -1630,12 +1748,24 @@ function renderLinked() {
       `).join('')}</div>
     </div>`;
   }).join('');
+  const suggestionBanner = _linkSuggestions.length ? `
+    <div style="background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.28); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px;">
+      <div style="font-weight: 600; margin-bottom: 4px; font-size: 0.92rem;">💡 ${_linkSuggestions.length} open logbook ${_linkSuggestions.length === 1 ? 'entry' : 'entries'} from the last 30 days</div>
+      <div class="small" style="color: var(--muted); margin-bottom: 8px;">Consider linking related work to this project.</div>
+      <div>
+        ${_linkSuggestions.map((c, i) => `
+          <span class="link-pill" style="cursor:pointer;" onclick="linkSuggested(${i})" title="Click to link">
+            ${e((c.machine || '?') + ' — ' + (c.problem || '').slice(0, 50))} <span style="color: var(--gold);">+ link</span>
+          </span>`).join('')}
+      </div>
+    </div>` : '';
   $('pane-linked').innerHTML = `
     <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
       <div class="small" style="color: var(--muted);">${_links.length} linked item(s) — pull existing logbook entries, PMs, parts, contractor info into this project</div>
       <button class="btn primary small" onclick="openModal('modal-link'); loadLinkOptions();">+ Link work</button>
     </div>
-    ${_links.length ? html : '<div class="empty">No links yet. Use “Link work” to pull in existing logbook entries, PMs, parts, or contractor info.</div>'}
+    ${suggestionBanner}
+    ${_links.length ? html : '<div class="empty">No links yet. Use "Link work" to pull in existing logbook entries, PMs, parts, or contractor info.</div>'}
   `;
 }
 
@@ -1717,6 +1847,8 @@ function openProgressLog() {
   $('p-date').value = new Date().toISOString().slice(0, 10);
   ['p-pct','p-hours','p-notes','p-blockers'].forEach(id => $(id).value = '');
   $('p-pct').value = _progress?.rollup?.pct_complete ?? 0;
+  $('p-hours').value = 8;  // default shift length; user can edit
+  setTimeout(() => $('p-pct').focus(), 50);
   openModal('modal-progress');
 }
 async function saveProgressLog() {
