@@ -43,6 +43,7 @@ CONTENT_FILE   = "skill-content.js"
 LIVE_TOOL_PAGES = [
     "logbook", "assistant", "dayplanner", "pm-scheduler",
     "hive", "inventory", "skillmatrix", "engineering-design", "analytics",
+    "analytics-report",
     "report-sender", "community", "marketplace",
 ]
 
@@ -53,6 +54,7 @@ PAGE_ALIASES = {
     "pm-scheduler":       ["pm-scheduler", "PM Scheduler"],
     "skillmatrix":        ["skillmatrix", "Skill Matrix"],
     "analytics":          ["analytics", "Analytics Engine"],
+    "analytics-report":   ["analytics-report", "Analytics Report"],
 }
 
 
@@ -76,7 +78,10 @@ def check_platform_tools_completeness(content, page):
     if start == -1:
         return [{"check": "platform_tools_completeness", "page": page,
                  "reason": "PLATFORM TOOLS section not found in system prompt"}]
-    block = content[start:start + 3000]
+    # Window must cover the entire PLATFORM TOOLS list. 3000 was too tight
+    # — bumping to 5000 leaves headroom for new tool blurbs without cascade
+    # failures on adjacent tools that drift past the cutoff.
+    block = content[start:start + 5000]
     issues = []
     for tool in LIVE_TOOL_PAGES:
         aliases = PAGE_ALIASES.get(tool, [tool])

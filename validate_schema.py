@@ -43,6 +43,7 @@ LIVE_PAGES = [
     "dayplanner.html",
     "engineering-design.html",
     "analytics.html",
+    "analytics-report.html",
     "nav-hub.html",
     "floating-ai.js",
     "utils.js",

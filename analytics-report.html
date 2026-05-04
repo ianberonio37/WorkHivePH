@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#a78bfa" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Analytics Report | WorkHive</title>
+  <meta name="robots" content="noindex, follow" />
+  <meta name="description" content="Standards-grade analytics report with cover, executive summary, findings, predictive outlook, action plan, and drilldowns. Save as PDF for client delivery." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0f1923;
+      color: #F4F6FA;
+      min-height: 100vh;
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+    .aurora { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .aurora-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.06; }
+    .aurora-blob-1 { width: 500px; height: 500px; background: #a78bfa; top: -100px; left: -100px; }
+    .aurora-blob-2 { width: 400px; height: 400px; background: #29B6D9; bottom: 0; right: -100px; }
+
+    /* ── Page wrapper ── */
+    #ar-page { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; padding: 1.25rem 1rem; }
+
+    /* Print wrapper sits at body root (so print isolation works) but mirrors
+       page centering so the report looks the same in normal viewing. */
+    #ar-print-wrapper { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; padding: 0 1rem 2rem; }
+
+    /* ── Page header ── */
+    .ar-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+    .ar-header h1 { font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1.2; }
+    .ar-header p  { font-size: 0.75rem; color: #7B8794; margin-top: 0.2rem; }
+    .ar-badge {
+      font-size: 0.6rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 999px;
+      background: rgba(167,139,250,0.15); color: #a78bfa;
+      border: 1px solid rgba(167,139,250,0.3); white-space: nowrap; margin-top: 0.25rem;
+    }
+
+    /* ── Toolbar (period + role + actions) ── */
+    .ar-toolbar {
+      display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
+      padding: 0.65rem 0.75rem; margin-bottom: 1rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 0.625rem;
+    }
+    .toolbar-label {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.07em;
+      text-transform: uppercase; color: rgba(255,255,255,0.35);
+      margin-right: 0.4rem;
+    }
+    .pill-btn {
+      font-family: inherit; font-size: 0.72rem; font-weight: 600;
+      padding: 0.4rem 0.875rem; border-radius: 999px; cursor: pointer;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.55); min-height: 36px; transition: all 0.15s;
+    }
+    .pill-btn.active {
+      background: rgba(167,139,250,0.15);
+      border-color: rgba(167,139,250,0.4);
+      color: #a78bfa;
+    }
+    .pill-btn:hover:not(.active) { color: rgba(255,255,255,0.85); }
+    .pill-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .toolbar-spacer { flex: 1; min-width: 0; }
+    .btn-action {
+      font-family: inherit; font-size: 0.75rem; font-weight: 700;
+      padding: 0.55rem 1.1rem; border-radius: 0.625rem;
+      cursor: pointer; min-height: 40px; border: none;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+    }
+    .btn-generate { background: linear-gradient(135deg, #a78bfa, #c4b5fd); color: #1a1132; }
+    .btn-generate:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(167,139,250,0.35); }
+    .btn-generate:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-pdf {
+      background: rgba(255,255,255,0.06); color: #fff;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .btn-pdf:hover { background: rgba(255,255,255,0.12); }
+    .btn-pdf:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Empty / loading ── */
+    .ar-status {
+      padding: 2.5rem 1rem; text-align: center; color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.02);
+      border: 1px dashed rgba(255,255,255,0.08);
+      border-radius: 0.75rem; font-size: 0.85rem;
+    }
+    .ar-spinner {
+      width: 32px; height: 32px; margin: 0 auto 0.75rem;
+      border: 3px solid rgba(167,139,250,0.2);
+      border-top-color: #a78bfa;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .ar-error {
+      padding: 1.25rem; border-radius: 0.625rem;
+      background: rgba(248,113,113,0.08);
+      border: 1px solid rgba(248,113,113,0.25);
+      color: #fca5a5; font-size: 0.8rem;
+    }
+
+    /* ════════════════════════════════════════════════════
+       DOC-PANEL — light theme (lifted from engineering-design.html)
+       The actual report renders inside #ar-report-mount > .doc-panel
+    ════════════════════════════════════════════════════ */
+    .doc-panel {
+      background: #ffffff;
+      color: #1a1a1a;
+      border-radius: 0.75rem;
+      padding: 2rem;
+      font-size: 0.84rem;
+      font-family: 'Poppins', sans-serif;
+      line-height: 1.7;
+    }
+    @media (max-width: 640px) { .doc-panel { padding: 1.1rem; font-size: 0.78rem; } }
+
+    .doc-panel h1 { font-size: 1.25rem; font-weight: 800; margin-bottom: 0.25rem; color: #1a1a1a; }
+    .doc-panel h2 {
+      font-size: 0.84rem; font-weight: 700; margin: 1.5rem 0 0.55rem;
+      border-bottom: 1.5px solid #e0e0e0; padding-bottom: 0.25rem;
+      text-transform: uppercase; letter-spacing: 0.05em; color: #1a1a1a;
+    }
+    .doc-panel h3 { font-size: 0.82rem; font-weight: 700; margin: 0.85rem 0 0.4rem; color: #1a1a1a; }
+    .doc-panel p  { margin: 0.4rem 0; }
+    .doc-panel ul, .doc-panel ol { margin: 0.4rem 0 0.6rem 1.25rem; }
+    .doc-panel li { margin: 0.15rem 0; }
+
+    /* Cover header strip */
+    .doc-panel .doc-header-row {
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;
+      margin-bottom: 1.25rem; padding-bottom: 1rem;
+      border-bottom: 2px solid #1a1a1a;
+    }
+    .doc-panel .doc-meta { font-size: 0.76rem; color: #555; line-height: 1.6; }
+    .doc-panel .doc-title-block { flex: 1 1 220px; }
+    .doc-panel .doc-logo {
+      font-weight: 800; font-size: 1rem;
+      color: #a78bfa; letter-spacing: 0.04em;
+    }
+    .doc-panel .doc-subtitle {
+      font-size: 0.78rem; color: #555; margin-top: 0.2rem;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+
+    /* Editable fields (dashed orange underline) */
+    .doc-panel .editable-field {
+      border-bottom: 1.5px dashed #a78bfa;
+      outline: none; min-width: 90px; display: inline-block;
+      background: transparent; padding: 0 4px;
+    }
+    .doc-panel .editable-field:empty::before {
+      content: attr(data-placeholder);
+      color: #aaa; font-style: italic;
+    }
+
+    /* Tables — print-safe, scrollable on small screens */
+    .doc-panel .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0.5rem 0 0.75rem; }
+    .doc-panel table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 0; }
+    .doc-panel th {
+      background: #f0f0f0; text-align: left; padding: 0.4rem 0.55rem;
+      border: 1px solid #ccc; font-weight: 600; font-size: 0.74rem;
+    }
+    .doc-panel td { padding: 0.35rem 0.55rem; border: 1px solid #ddd; vertical-align: middle; }
+    .doc-panel td.nowrap-cell { white-space: nowrap; }
+
+    /* RAG tile row (uses <table> not grid — print-safe) */
+    .doc-panel .rag-tiles { width: 100%; border-collapse: separate; border-spacing: 8px 0; margin: 0.4rem 0 0.75rem; }
+    .doc-panel .rag-tiles td {
+      width: 33.333%; padding: 0.85rem 0.75rem; border-radius: 0.5rem;
+      vertical-align: top; border: 1px solid transparent;
+    }
+    .doc-panel .rag-green  { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+    .doc-panel .rag-amber  { background: #fffbeb; border-color: #fde68a; color: #78350f; }
+    .doc-panel .rag-red    { background: #fef2f2; border-color: #fecaca; color: #7f1d1d; }
+    .doc-panel .rag-tile-num   { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+    .doc-panel .rag-tile-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.3rem; font-weight: 600; }
+    .doc-panel .rag-tile-note  { font-size: 0.7rem; margin-top: 0.4rem; opacity: 0.85; line-height: 1.4; }
+
+    /* Result-highlight tile (single big number) */
+    .doc-panel .result-tile {
+      display: inline-block; padding: 0.8rem 1.1rem; margin: 0.3rem 0.3rem 0.3rem 0;
+      background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 0.5rem;
+      min-width: 140px;
+    }
+    .doc-panel .result-tile-label { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.07em; color: #6d28d9; font-weight: 700; }
+    .doc-panel .result-tile-value { font-size: 1.4rem; font-weight: 800; color: #1a1132; line-height: 1.1; margin-top: 0.2rem; }
+    .doc-panel .result-tile-unit  { font-size: 0.7rem; color: #6b7280; margin-left: 0.25rem; }
+
+    /* SOW clause format (action plan) */
+    .doc-panel .sow-clause { margin: 0.65rem 0; page-break-inside: avoid; }
+    .doc-panel .sow-clause-header { font-weight: 700; display: flex; gap: 0.5rem; }
+    .doc-panel .sow-clause-no { color: #7c3aed; min-width: 2.5rem; flex-shrink: 0; }
+    .doc-panel .sow-clause-body { margin-top: 0.2rem; padding-left: 3rem; color: #333; }
+    .doc-panel .sow-meta {
+      display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem;
+      font-size: 0.7rem; color: #6b7280; margin: 0.25rem 0 0 3rem;
+    }
+    .doc-panel .sow-meta b { color: #1a1a1a; font-weight: 600; }
+
+    /* Tip banner (no-print, top of cover) */
+    .doc-panel .tip-banner {
+      background: #fef3c7; border: 1px solid #fcd34d; color: #78350f;
+      padding: 0.55rem 0.75rem; border-radius: 0.5rem;
+      font-size: 0.72rem; margin-bottom: 1rem; line-height: 1.5;
+    }
+
+    /* Signature block */
+    .doc-panel .sig-block {
+      margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 1.5rem;
+      page-break-inside: avoid;
+    }
+    .doc-panel .sig-block > div { flex: 1 1 220px; }
+    .doc-panel .sig-line {
+      border-top: 1px solid #999; padding-top: 0.3rem;
+      font-size: 0.74rem; color: #666; margin-top: 2.25rem;
+    }
+
+    /* Section anchor scroll (mobile keyboard offset) */
+    .doc-panel section { scroll-margin-top: 80px; page-break-inside: auto; }
+
+    /* ════════════════════════════════════════════════════
+       NEW VISUAL ELEMENTS — insight cards, charts, badges
+       Designed print-first (pure CSS + inline SVG, no canvas).
+    ════════════════════════════════════════════════════ */
+
+    /* Hero finding — the single most important thing on the cover */
+    .doc-panel .hero-finding {
+      margin: 1.25rem 0 1.5rem;
+      padding: 1.25rem 1.4rem;
+      border-radius: 0.625rem;
+      border-left: 6px solid #dc2626;
+      background: linear-gradient(90deg, #fef2f2 0%, #ffffff 70%);
+      page-break-inside: avoid;
+    }
+    .doc-panel .hero-finding.amber { border-left-color: #d97706; background: linear-gradient(90deg, #fffbeb 0%, #ffffff 70%); }
+    .doc-panel .hero-finding.green { border-left-color: #16a34a; background: linear-gradient(90deg, #f0fdf4 0%, #ffffff 70%); }
+    .doc-panel .hero-finding-label {
+      font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em;
+      color: #6b7280; font-weight: 700; margin-bottom: 0.25rem;
+    }
+    .doc-panel .hero-finding-text {
+      font-size: 1.1rem; font-weight: 700; color: #1a1132; line-height: 1.35;
+    }
+    .doc-panel .hero-finding-sub {
+      font-size: 0.78rem; color: #555; margin-top: 0.5rem; line-height: 1.5;
+    }
+
+    /* Insight cards — the "what this means" callouts */
+    .doc-panel .insight-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;
+      margin: 0.75rem 0 1rem;
+    }
+    @media (max-width: 720px) { .doc-panel .insight-grid { grid-template-columns: 1fr; } }
+    .doc-panel .insight-card {
+      border-radius: 0.5rem; padding: 0.85rem 0.95rem;
+      border: 1px solid; background: #fff;
+      page-break-inside: avoid;
+    }
+    .doc-panel .insight-card.red    { border-color: #fecaca; background: #fef2f2; }
+    .doc-panel .insight-card.amber  { border-color: #fde68a; background: #fffbeb; }
+    .doc-panel .insight-card.green  { border-color: #bbf7d0; background: #f0fdf4; }
+    .doc-panel .insight-card.purple { border-color: #ddd6fe; background: #f5f3ff; }
+    .doc-panel .insight-card-icon  {
+      display: inline-block; font-size: 0.95rem; line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .doc-panel .insight-card-head  { font-size: 0.78rem; font-weight: 700; color: #1a1132; line-height: 1.3; margin-bottom: 0.3rem; }
+    .doc-panel .insight-card-body  { font-size: 0.72rem; color: #444; line-height: 1.5; }
+    .doc-panel .insight-card-action {
+      display: inline-block; margin-top: 0.5rem;
+      font-size: 0.66rem; font-weight: 600;
+      padding: 2px 8px; border-radius: 999px;
+      background: rgba(0,0,0,0.06); color: #1a1132;
+    }
+
+    /* Severity chips — small colored pills for risk/criticality */
+    .doc-panel .sev-chip {
+      display: inline-block; font-size: 0.66rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 999px; letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .doc-panel .sev-chip.red    { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .doc-panel .sev-chip.amber  { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .doc-panel .sev-chip.green  { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .doc-panel .sev-chip.gray   { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
+    .doc-panel .sev-chip.purple { background: #ede9fe; color: #5b21b6; border: 1px solid #ddd6fe; }
+
+    /* Asset cards — used in Findings (problem assets) and Predictive (risk assets) */
+    .doc-panel .asset-card-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.65rem;
+      margin: 0.65rem 0 1rem;
+    }
+    @media (max-width: 720px) { .doc-panel .asset-card-grid { grid-template-columns: 1fr; } }
+    .doc-panel .asset-card {
+      border: 1px solid #e5e7eb; border-radius: 0.5rem;
+      padding: 0.75rem 0.85rem; background: #fff;
+      page-break-inside: avoid;
+    }
+    .doc-panel .asset-card-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.5rem; margin-bottom: 0.4rem;
+    }
+    .doc-panel .asset-card-name {
+      font-size: 0.85rem; font-weight: 700; color: #1a1132;
+      font-family: ui-monospace, SFMono-Regular, monospace; letter-spacing: -0.01em;
+    }
+    .doc-panel .asset-card-stats {
+      font-size: 0.72rem; color: #555; line-height: 1.55; margin-bottom: 0.3rem;
+    }
+    .doc-panel .asset-card-stats b { color: #1a1132; font-weight: 600; }
+    .doc-panel .asset-card-why {
+      font-size: 0.7rem; color: #666; font-style: italic; line-height: 1.45;
+      border-top: 1px dashed #e5e7eb; padding-top: 0.35rem; margin-top: 0.35rem;
+    }
+
+    /* CSS-only horizontal bar chart (rows of label + bar + value) */
+    .doc-panel .hbar {
+      display: grid; grid-template-columns: 130px 1fr 60px;
+      gap: 0.5rem; align-items: center; margin: 4px 0;
+      font-size: 0.74rem;
+    }
+    .doc-panel .hbar-label { color: #1a1132; font-weight: 500; }
+    .doc-panel .hbar-track {
+      height: 12px; background: #f3f4f6; border-radius: 999px; overflow: hidden;
+    }
+    .doc-panel .hbar-fill {
+      height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, #a78bfa, #8b5cf6);
+    }
+    .doc-panel .hbar-fill.red   { background: linear-gradient(90deg, #f87171, #dc2626); }
+    .doc-panel .hbar-fill.amber { background: linear-gradient(90deg, #fbbf24, #d97706); }
+    .doc-panel .hbar-fill.green { background: linear-gradient(90deg, #4ade80, #16a34a); }
+    .doc-panel .hbar-value { font-size: 0.72rem; color: #555; text-align: right; font-weight: 600; }
+
+    /* Stacked bar (one row, multiple colored segments — for RCM consequence split) */
+    .doc-panel .stack-bar {
+      height: 28px; border-radius: 6px; overflow: hidden;
+      display: flex; margin: 0.5rem 0; border: 1px solid #e5e7eb;
+    }
+    .doc-panel .stack-bar > div {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.66rem; font-weight: 700; color: white;
+      min-width: 20px;
+    }
+    .doc-panel .stack-legend {
+      display: flex; flex-wrap: wrap; gap: 0.5rem 1rem;
+      font-size: 0.7rem; color: #444; margin-top: 0.35rem;
+    }
+    .doc-panel .stack-legend-dot {
+      display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+      margin-right: 4px; vertical-align: middle;
+    }
+
+    /* "This week" call-to-action box */
+    .doc-panel .this-week-box {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 1px solid #f59e0b; border-radius: 0.625rem;
+      padding: 1rem 1.1rem; margin: 0.75rem 0 1rem;
+      page-break-inside: avoid;
+    }
+    .doc-panel .this-week-head {
+      font-size: 0.78rem; font-weight: 800; color: #78350f;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.4rem;
+    }
+    .doc-panel .this-week-list {
+      list-style: none; margin: 0; padding: 0;
+    }
+    .doc-panel .this-week-list li {
+      display: flex; gap: 0.5rem; align-items: flex-start;
+      margin: 0.25rem 0; font-size: 0.78rem; color: #1a1132;
+    }
+    .doc-panel .this-week-list li::before {
+      content: "▸"; color: #d97706; font-weight: 700; flex-shrink: 0;
+    }
+
+    /* Caption under charts ("What this means") */
+    .doc-panel .chart-caption {
+      font-size: 0.72rem; color: #555; font-style: italic;
+      margin-top: 0.4rem; padding-left: 0.5rem;
+      border-left: 3px solid #ddd6fe;
+    }
+
+    /* KPI strip (compact, for executive summary) */
+    .doc-panel .kpi-strip {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.65rem;
+      margin: 0.75rem 0;
+    }
+    @media (max-width: 720px) { .doc-panel .kpi-strip { grid-template-columns: repeat(2, 1fr); } }
+    .doc-panel .kpi-cell {
+      padding: 0.65rem 0.75rem; border-radius: 0.5rem;
+      background: #fafafa; border: 1px solid #e5e7eb;
+    }
+    .doc-panel .kpi-cell.warn { background: #fffbeb; border-color: #fde68a; }
+    .doc-panel .kpi-cell.bad  { background: #fef2f2; border-color: #fecaca; }
+    .doc-panel .kpi-cell.good { background: #f0fdf4; border-color: #bbf7d0; }
+    .doc-panel .kpi-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.07em; color: #6b7280; font-weight: 700; }
+    .doc-panel .kpi-value { font-size: 1.45rem; font-weight: 800; color: #1a1132; line-height: 1.1; margin-top: 0.2rem; }
+    .doc-panel .kpi-unit  { font-size: 0.72rem; color: #6b7280; margin-left: 0.25rem; font-weight: 500; }
+
+    /* Donut chart container (SVG sized intrinsically) */
+    .doc-panel .donut-row {
+      display: flex; align-items: center; gap: 1.25rem; margin: 0.5rem 0 1rem;
+      flex-wrap: wrap;
+    }
+    .doc-panel .donut-row svg { flex-shrink: 0; }
+    .doc-panel .donut-legend {
+      flex: 1; min-width: 200px; font-size: 0.72rem; line-height: 1.6;
+    }
+    .doc-panel .donut-legend-row {
+      display: flex; gap: 0.5rem; align-items: center; padding: 2px 0;
+    }
+    .doc-panel .donut-legend-dot {
+      display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+    .doc-panel .donut-legend-name { flex: 1; color: #1a1132; }
+    .doc-panel .donut-legend-val  { color: #555; font-weight: 600; }
+
+    /* Appendix tables — smaller, compact */
+    .doc-panel .appendix-note {
+      font-size: 0.72rem; color: #6b7280; font-style: italic;
+      margin: 0.4rem 0 0.75rem; padding: 0.55rem 0.75rem;
+      background: #f9fafb; border-left: 3px solid #d1d5db; border-radius: 4px;
+    }
+    .doc-panel .appendix-section table { font-size: 0.7rem; }
+    .doc-panel .appendix-section th { font-size: 0.66rem; padding: 0.3rem 0.4rem; }
+    .doc-panel .appendix-section td { padding: 0.25rem 0.4rem; }
+
+    /* ════════════════════════════════════════════════════
+       PRINT — only the report renders, dark UI hides
+    ════════════════════════════════════════════════════ */
+    @media print {
+      body { background: #ffffff; padding: 0; }
+      body > *:not(#ar-print-wrapper) { display: none !important; }
+      #ar-print-wrapper { display: block !important; }
+      .doc-panel { box-shadow: none; border-radius: 0; padding: 1.5cm; }
+      .tip-banner, .no-print { display: none !important; }
+      .doc-panel h2 { page-break-after: avoid; }
+      .doc-panel table, .doc-panel .sow-clause, .doc-panel .result-tile { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="aurora">
+    <div class="aurora-blob aurora-blob-1"></div>
+    <div class="aurora-blob aurora-blob-2"></div>
+  </div>
+
+  <main id="ar-page">
+
+    <!-- Header ────────────────────────────────────────── -->
+    <header class="ar-header">
+      <div>
+        <h1>Analytics Report</h1>
+        <p>Standards-grade. Print-ready. Save as PDF for client delivery.</p>
+      </div>
+      <span class="ar-badge">BETA</span>
+    </header>
+
+    <!-- Toolbar ───────────────────────────────────────── -->
+    <div class="ar-toolbar" id="ar-toolbar">
+      <span class="toolbar-label">Period</span>
+      <button type="button" class="pill-btn period-btn" data-days="30"  onclick="setPeriod(30)">30d</button>
+      <button type="button" class="pill-btn period-btn active" data-days="90"  onclick="setPeriod(90)">90d</button>
+      <button type="button" class="pill-btn period-btn" data-days="180" onclick="setPeriod(180)">180d</button>
+      <button type="button" class="pill-btn period-btn" data-days="365" onclick="setPeriod(365)">365d</button>
+
+      <span class="toolbar-label" style="margin-left: 0.5rem;">Audience</span>
+      <button type="button" class="pill-btn role-btn active" id="role-supervisor" onclick="setRole('supervisor')">Supervisor</button>
+      <button type="button" class="pill-btn role-btn" id="role-worker" onclick="setRole('worker')">Worker</button>
+
+      <span class="toolbar-spacer"></span>
+
+      <button type="button" class="btn-action btn-generate" id="generate-btn" onclick="generateReport()">Generate Report</button>
+      <button type="button" class="btn-action btn-pdf" id="pdf-btn" onclick="saveAsPdf()" disabled>Save as PDF</button>
+    </div>
+
+  </main>
+
+  <!-- ── Print wrapper (sibling of <main>, NOT nested inside it) ─────
+       Must be a direct child of <body> so the @media print rule
+       `body > *:not(#ar-print-wrapper) { display: none }` correctly hides
+       everything else without hiding this wrapper as a side-effect.
+       Styled with the same centering/padding as #ar-page so the report
+       still looks centered in normal viewing. -->
+  <div id="ar-print-wrapper">
+    <div id="ar-report-mount">
+      <div class="ar-status" id="ar-empty">
+        Click <b style="color:#a78bfa;">Generate Report</b> to compile the latest analytics into a print-ready document.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       Report logic — config + fetch + render + PDF
+  ═══════════════════════════════════════════════════ -->
+  <script>
+  (function(){
+    'use strict';
+
+    // ── Config ───────────────────────────────────────────
+    var SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+    var SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+    var db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    var WORKER_NAME = localStorage.getItem('wh_last_worker')
+      || localStorage.getItem('wh_worker_name')
+      || localStorage.getItem('workerName') || '';
+    var HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+    var HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+
+    var _period = 90;
+    var _role   = HIVE_ROLE === 'supervisor' ? 'supervisor' : 'supervisor'; // default supervisor view for the report
+    var _data   = null; // last successful fetch (all 4 phases bundled)
+    var _loading = false;
+    var _hiveName = ''; // populated on first generate
+
+    // Look up hive name once for the cover page (used as default Client field)
+    async function loadHiveName(){
+      if (_hiveName || !HIVE_ID) return _hiveName;
+      try {
+        var r = await db.from('hives').select('name').eq('id', HIVE_ID).maybeSingle();
+        _hiveName = (r && r.data && r.data.name) || '';
+      } catch (_) { /* non-fatal */ }
+      return _hiveName;
+    }
+
+    // Expose toolbar handlers on window so onclick can find them
+    window.setPeriod = function(days){
+      _period = days;
+      document.querySelectorAll('.period-btn').forEach(function(b){
+        b.classList.toggle('active', Number(b.dataset.days) === days);
+      });
+    };
+    window.setRole = function(role){
+      if (role !== 'worker') role = 'supervisor';
+      _role = role;
+      document.querySelectorAll('.role-btn').forEach(function(b){
+        b.classList.toggle('active', b.id === 'role-' + role);
+      });
+      // Re-render if we already have data
+      if (_data) renderReport(_data);
+    };
+
+    // ── Helpers ──────────────────────────────────────────
+    function escHtml(s){
+      return String(s == null ? '' : s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+    // Defensive — never paint [object Object]
+    function safeText(v){
+      if (v == null) return '';
+      if (typeof v === 'object') { try { return JSON.stringify(v); } catch(_) { return ''; } }
+      return String(v);
+    }
+    function fmtDate(d){
+      try { return new Date(d).toLocaleDateString('en-PH', {year:'numeric', month:'short', day:'numeric'}); }
+      catch(_) { return String(d || ''); }
+    }
+    function todayISO(){ return new Date().toISOString().slice(0,10); }
+    function periodStartISO(days){
+      var d = new Date(); d.setDate(d.getDate() - Number(days || 0));
+      return d.toISOString().slice(0,10);
+    }
+
+    // ── Fetch — bundles all 4 phases from the orchestrator ─
+    async function fetchReport(){
+      var url = SUPABASE_URL + '/functions/v1/analytics-orchestrator';
+      var body = {
+        phase: 'report',
+        hive_id: HIVE_ID,
+        worker_name: WORKER_NAME,
+        period_days: _period,
+      };
+      var res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+        },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        var errBody = await res.json().catch(function(){ return {}; });
+        throw new Error(errBody.error || errBody.message || ('Server error ' + res.status));
+      }
+      var data = await res.json();
+      if (data && data.error) throw new Error(data.error);
+      return data;
+    }
+
+    // ── Generate (entry point) ────────────────────────────
+    window.generateReport = async function(){
+      if (_loading) return;
+      _loading = true;
+      var genBtn = document.getElementById('generate-btn');
+      var pdfBtn = document.getElementById('pdf-btn');
+      genBtn.disabled = true;
+      pdfBtn.disabled = true;
+
+      var mount = document.getElementById('ar-report-mount');
+      mount.innerHTML =
+        '<div class="ar-status">' +
+          '<div class="ar-spinner"></div>' +
+          'Compiling analytics across all 4 phases. This usually takes 5–15 seconds.' +
+        '</div>';
+
+      try {
+        var hivePromise = loadHiveName();
+        var data = await fetchReport();
+        await hivePromise;
+        _data = data;
+        renderReport(data);
+        pdfBtn.disabled = false;
+      } catch (err) {
+        console.warn('[analytics-report] generate failed:', err && err.message);
+        mount.innerHTML =
+          '<div class="ar-error">' +
+            'Could not generate report: ' + escHtml(err && err.message ? err.message : String(err)) +
+          '</div>';
+      } finally {
+        _loading = false;
+        genBtn.disabled = false;
+      }
+    };
+
+    // ── Render — fills #ar-report-mount with the .doc-panel report ─
+    // Section order is opinionated: action-first, reference-last.
+    //   Cover → Executive Summary → Findings → Predictive → Action Plan → Appendix → Footer
+    // Standards now lives in the footer as a compliance footnote (not a body section).
+    function renderReport(data){
+      var mount = document.getElementById('ar-report-mount');
+      var html =
+        '<article class="doc-panel" id="ar-doc">' +
+          renderCover(data) +
+          renderExecutiveSummary(data) +
+          renderFindings(data) +
+          renderPredictive(data) +
+          renderActionPlan(data) +
+          renderAppendix(data) +
+          renderFooter(data) +
+        '</article>';
+      mount.innerHTML = html;
+    }
+
+    // ─── AR-COVER ──────────────────────────────────────────
+    // Hero finding instead of a dense metadata table. Pulls the worst P1
+    // asset and surfaces it in plain English at the top of the page so the
+    // reader gets the headline before scrolling.
+    function renderCover(data){
+      var startISO = periodStartISO(_period);
+      var endISO   = todayISO();
+      var hiveLbl  = _hiveName ? escHtml(_hiveName) : 'Your Hive';
+      var preparer = WORKER_NAME ? escHtml(WORKER_NAME) : 'Maintenance Team';
+
+      // Find the top P1 asset for the hero finding
+      var presc = pickPhase(data, 'prescriptive');
+      var ranking = rankingItems(presc);
+      var counts  = rankingCounts(presc);
+      var topP1   = ranking.find(function(r){ return r.priority === 'P1'; });
+
+      var heroCls, heroLabel, heroText, heroSub;
+      if (topP1) {
+        heroCls   = 'hero-finding';
+        heroLabel = '⚠ HEADLINE';
+        heroText  = topP1.machine + ' needs immediate attention this week.';
+        var dt    = topP1.total_downtime_h != null ? Number(topP1.total_downtime_h).toFixed(0) + ' hrs of downtime' : '';
+        var fc    = topP1.failure_count != null ? topP1.failure_count + ' failures' : '';
+        var bits  = [fc, dt].filter(function(x){ return x; }).join(' · ');
+        heroSub   = 'Tied with ' + counts.p1 + ' other Critical (P1) asset' + (counts.p1 === 1 ? '' : 's') +
+                    ' and ' + counts.p2 + ' At-Risk (P2) asset' + (counts.p2 === 1 ? '' : 's') +
+                    ' over the last ' + _period + ' days.' +
+                    (bits ? ' ' + topP1.machine + ': ' + bits + '.' : '');
+      } else if (counts.p2 > 0) {
+        heroCls = 'hero-finding amber'; heroLabel = '⚠ HEADLINE';
+        heroText = counts.p2 + ' asset' + (counts.p2 === 1 ? '' : 's') + ' on the watch list — no Critical findings.';
+        heroSub  = 'No P1 priorities this period. Address the P2 watch list before any escalate.';
+      } else {
+        heroCls = 'hero-finding green'; heroLabel = '✓ HEADLINE';
+        heroText = 'Fleet healthy — no Critical or At-Risk priorities this period.';
+        heroSub  = 'Good baseline. Use this report to confirm current cadence and refresh PM intervals where warranted.';
+      }
+
+      return '' +
+        '<div class="tip-banner no-print">Tip: click any purple-dashed field to edit (project name, client, prepared-by) before saving as PDF.</div>' +
+        '<div class="doc-header-row">' +
+          '<div class="doc-title-block">' +
+            '<div class="doc-logo">WORKHIVE</div>' +
+            '<div class="doc-subtitle">Maintenance Analytics Report</div>' +
+          '</div>' +
+          '<div class="doc-meta" style="text-align:right;">' +
+            '<div><b>Report Date:</b> ' + escHtml(fmtDate(endISO)) + '</div>' +
+            '<div><b>Period:</b> ' + escHtml(fmtDate(startISO)) + ' – ' + escHtml(fmtDate(endISO)) + ' (' + _period + 'd)</div>' +
+            '<div><b>Audience:</b> ' + (_role === 'worker' ? 'Worker' : 'Supervisor') + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<section id="ar-cover">' +
+          '<h1>Maintenance Analytics Report</h1>' +
+          '<p style="color:#555;margin-bottom:0.25rem;">A standards-grade view of what happened, why, what is coming, and what to do next.</p>' +
+
+          // Hero finding — the one thing the reader sees first
+          '<div class="' + heroCls + '">' +
+            '<div class="hero-finding-label">' + heroLabel + '</div>' +
+            '<div class="hero-finding-text">' + escHtml(safeText(heroText)) + '</div>' +
+            '<div class="hero-finding-sub">' + escHtml(safeText(heroSub)) + '</div>' +
+          '</div>' +
+
+          // Compact 2-column metadata table (Project + Prepared by only — fewer fields, less noise)
+          '<table style="width:100%;border-collapse:collapse;margin-top:0.5rem;font-size:0.78rem;">' +
+            '<tr>' +
+              '<td style="width:120px;color:#555;padding:0.3rem 0.5rem 0.3rem 0;"><b>Project / Site:</b></td>' +
+              '<td style="padding:0.3rem 0;">' +
+                '<span class="editable-field" contenteditable="true" data-placeholder="e.g. Plant Reliability Q2">' + hiveLbl + '</span>' +
+              '</td>' +
+              '<td style="width:120px;color:#555;padding:0.3rem 0.5rem 0.3rem 1rem;"><b>Prepared by:</b></td>' +
+              '<td style="padding:0.3rem 0;">' +
+                '<span class="editable-field" contenteditable="true" data-placeholder="Your name">' + preparer + '</span>' +
+              '</td>' +
+            '</tr>' +
+          '</table>' +
+        '</section>';
+    }
+
+    // ─── Common pickers (tolerant — phases may be partial/missing) ─
+    // Orchestrator (phase=report) bundles each phase under its name:
+    //   { descriptive:{mtbf,mttr,pm_compliance,...}, diagnostic:{...},
+    //     predictive:{next_failure_dates,health_scores,...},
+    //     prescriptive:{priority_ranking:{ranking:[],p1_count,p2_count,...},
+    //                   pm_interval_optimization:{recommendations:[]},...} }
+    function pickPhase(data, name){
+      if (!data) return {};
+      if (data[name] && typeof data[name] === 'object') return data[name];
+      return data; // fallback (single-phase responses, dev probes)
+    }
+    function arr(x){ return Array.isArray(x) ? x : []; }
+    function num(x, d){ var n = Number(x); return isFinite(n) ? n : (d == null ? 0 : d); }
+
+    // ─── Schema-aware accessors — extract the right list from each section ─
+    function descriptiveSummary(desc){
+      if (!desc) return { totalAssets: 0, fleetMtbfDays: null, pmCompliancePct: null };
+      var mtbfArr = arr(desc.mtbf && desc.mtbf.mtbf_by_asset);
+      var withDays = mtbfArr.filter(function(r){ return r && r.mtbf_days != null; });
+      var avg = withDays.length
+        ? withDays.reduce(function(s,r){ return s + Number(r.mtbf_days); }, 0) / withDays.length
+        : null;
+      return {
+        totalAssets:     mtbfArr.length,
+        fleetMtbfDays:   avg,
+        pmCompliancePct: desc.pm_compliance && desc.pm_compliance.overall_pct,
+      };
+    }
+    function rankingItems(presc){
+      // priority_ranking is { ranking:[], p1_count, p2_count, ... } — NOT a flat array
+      if (!presc || !presc.priority_ranking) return [];
+      return arr(presc.priority_ranking.ranking);
+    }
+    function rankingCounts(presc){
+      var pr = presc && presc.priority_ranking;
+      if (!pr) return { p1: 0, p2: 0, p3: 0 };
+      var ranking = arr(pr.ranking);
+      return {
+        p1: pr.p1_count != null ? pr.p1_count : ranking.filter(function(r){ return r.priority === 'P1'; }).length,
+        p2: pr.p2_count != null ? pr.p2_count : ranking.filter(function(r){ return r.priority === 'P2'; }).length,
+        p3: ranking.filter(function(r){ return r.priority === 'P3'; }).length,
+      };
+    }
+    function pmRecommendations(presc){
+      return arr(presc && presc.pm_interval_optimization && presc.pm_interval_optimization.recommendations);
+    }
+    function technicianAssignments(presc){
+      return arr(presc && presc.technician_assignment && presc.technician_assignment.assignments);
+    }
+
+    // ─── Visual helpers (SVG charts + cards + chips) ──────────
+    // All print-safe (pure SVG, no canvas). Each helper takes data and
+    // returns an HTML string ready to drop into a render function.
+
+    // Severity chip — colored pill for a risk/criticality label
+    function chip(severity, label){
+      var sev = String(severity || '').toLowerCase();
+      var cls = sev === 'high' || sev === 'critical' || sev === 'p1' || sev === 'red'
+        ? 'red'
+        : sev === 'medium' || sev === 'major' || sev === 'p2' || sev === 'amber' || sev === 'at risk'
+        ? 'amber'
+        : sev === 'low' || sev === 'minor' || sev === 'p3' || sev === 'green' || sev === 'on track'
+        ? 'green'
+        : 'gray';
+      return '<span class="sev-chip ' + cls + '">' + escHtml(safeText(label || severity || '')) + '</span>';
+    }
+
+    // Insight card — one of 3 colored callouts in the Executive Summary
+    function insightCard(opts){
+      var cls = opts.color || 'purple'; // red / amber / green / purple
+      var icon = opts.icon || '';
+      var head = opts.head || '';
+      var body = opts.body || '';
+      var action = opts.action || '';
+      return '<div class="insight-card ' + cls + '">' +
+        (icon ? '<div class="insight-card-icon">' + icon + '</div>' : '') +
+        '<div class="insight-card-head">' + escHtml(safeText(head)) + '</div>' +
+        '<div class="insight-card-body">' + escHtml(safeText(body)) + '</div>' +
+        (action ? '<div class="insight-card-action">' + escHtml(safeText(action)) + '</div>' : '') +
+      '</div>';
+    }
+
+    // Asset card — used in Findings & Predictive for the worst-N callouts
+    function assetCard(opts){
+      return '<div class="asset-card">' +
+        '<div class="asset-card-head">' +
+          '<div class="asset-card-name">' + escHtml(safeText(opts.name || '')) + '</div>' +
+          (opts.chip ? opts.chip : '') +
+        '</div>' +
+        (opts.stats ? '<div class="asset-card-stats">' + opts.stats + '</div>' : '') +
+        (opts.why ? '<div class="asset-card-why">' + escHtml(safeText(opts.why)) + '</div>' : '') +
+      '</div>';
+    }
+
+    // Horizontal bar chart — CSS only, perfect for top-N comparisons
+    // rows: [{label, value, total?, severity?}]
+    function hbarChart(rows, opts){
+      if (!rows || !rows.length) return '';
+      opts = opts || {};
+      var max = opts.max || rows.reduce(function(m, r){ return Math.max(m, Number(r.value) || 0); }, 0);
+      if (max <= 0) max = 1;
+      var fmt = opts.fmt || function(v){ return String(v); };
+      return '<div class="hbar-chart">' + rows.map(function(r){
+        var pct = Math.max(2, Math.min(100, (Number(r.value) / max) * 100));
+        var sevCls = r.severity ? ' ' + r.severity : '';
+        return '<div class="hbar">' +
+          '<div class="hbar-label">' + escHtml(safeText(r.label)) + '</div>' +
+          '<div class="hbar-track"><div class="hbar-fill' + sevCls + '" style="width:' + pct.toFixed(1) + '%"></div></div>' +
+          '<div class="hbar-value">' + escHtml(fmt(r.value)) + '</div>' +
+        '</div>';
+      }).join('') + '</div>';
+    }
+
+    // Stacked bar — single-row bar with multiple colored segments
+    // segs: [{label, value, color}]
+    function stackedBar(segs){
+      if (!segs || !segs.length) return '';
+      var total = segs.reduce(function(s, x){ return s + (Number(x.value) || 0); }, 0);
+      if (total <= 0) return '';
+      var bar = '<div class="stack-bar">' + segs.map(function(s){
+        var pct = (Number(s.value) / total) * 100;
+        if (pct < 0.5) return '';
+        return '<div style="width:' + pct.toFixed(1) + '%; background:' + s.color + ';" title="' +
+          escHtml(safeText(s.label + ': ' + s.value)) + '">' +
+          (pct >= 8 ? Math.round(pct) + '%' : '') +
+        '</div>';
+      }).join('') + '</div>';
+      var legend = '<div class="stack-legend">' + segs.map(function(s){
+        var pct = total > 0 ? ((Number(s.value) / total) * 100).toFixed(0) + '%' : '0%';
+        return '<span><span class="stack-legend-dot" style="background:' + s.color + ';"></span>' +
+          escHtml(safeText(s.label)) + ' <b>' + s.value + '</b> (' + pct + ')</span>';
+      }).join('') + '</div>';
+      return bar + legend;
+    }
+
+    // Donut chart (SVG) — proportions of a categorical breakdown
+    // segs: [{label, value, color}], size in px
+    function donutChart(segs, opts){
+      if (!segs || !segs.length) return '';
+      opts = opts || {};
+      var size = opts.size || 140;
+      var stroke = opts.stroke || 22;
+      var r = (size - stroke) / 2;
+      var c = 2 * Math.PI * r;
+      var total = segs.reduce(function(s, x){ return s + (Number(x.value) || 0); }, 0);
+      if (total <= 0) return '';
+      var offset = 0;
+      var arcs = segs.map(function(s){
+        var frac = (Number(s.value) || 0) / total;
+        var len = c * frac;
+        var arc =
+          '<circle cx="' + (size/2) + '" cy="' + (size/2) + '" r="' + r + '" ' +
+          'fill="none" stroke="' + s.color + '" stroke-width="' + stroke + '" ' +
+          'stroke-dasharray="' + len + ' ' + (c - len) + '" ' +
+          'stroke-dashoffset="' + (-offset) + '" ' +
+          'transform="rotate(-90 ' + (size/2) + ' ' + (size/2) + ')" />';
+        offset += len;
+        return arc;
+      }).join('');
+      var centerLabel = opts.centerLabel != null
+        ? '<text x="' + (size/2) + '" y="' + (size/2 - 2) + '" text-anchor="middle" font-size="13" font-weight="800" fill="#1a1132">' +
+            escHtml(safeText(opts.centerLabel)) +
+          '</text>' +
+          (opts.centerSub ? '<text x="' + (size/2) + '" y="' + (size/2 + 14) + '" text-anchor="middle" font-size="9" fill="#6b7280">' +
+            escHtml(safeText(opts.centerSub)) +
+          '</text>' : '')
+        : '';
+      var svg = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '" xmlns="http://www.w3.org/2000/svg">' +
+        arcs + centerLabel +
+      '</svg>';
+      var legend = '<div class="donut-legend">' + segs.map(function(s){
+        var pct = total > 0 ? ((Number(s.value) / total) * 100).toFixed(0) + '%' : '0%';
+        return '<div class="donut-legend-row">' +
+          '<span class="donut-legend-dot" style="background:' + s.color + ';"></span>' +
+          '<span class="donut-legend-name">' + escHtml(safeText(s.label)) + '</span>' +
+          '<span class="donut-legend-val">' + s.value + ' (' + pct + ')</span>' +
+        '</div>';
+      }).join('') + '</div>';
+      return '<div class="donut-row">' + svg + legend + '</div>';
+    }
+
+    // Severity classifier — picks 'red' / 'amber' / 'green' for hbar fills
+    function sevByPercentile(value, total){
+      if (!total) return '';
+      var p = (value / total) * 100;
+      return p >= 50 ? 'red' : p >= 25 ? 'amber' : '';
+    }
+
+    // (Standards section removed — folded into footer compliance footnote)
+
+    // ─── AR-EXEC ─────────────────────────────────────────
+    // Three-part: (1) RAG tiles with severity, (2) KPI strip with thresholded
+    // backgrounds, (3) "What this means" insight cards in plain English.
+    function renderExecutiveSummary(data){
+      var presc = pickPhase(data, 'prescriptive');
+      var desc  = pickPhase(data, 'descriptive');
+      var pred  = pickPhase(data, 'predictive');
+      var diag  = pickPhase(data, 'diagnostic');
+
+      var counts = rankingCounts(presc);
+      var p1 = counts.p1, p2 = counts.p2;
+      var summary = descriptiveSummary(desc);
+      var totalAssets = summary.totalAssets || rankingItems(presc).length;
+      var ok = Math.max(0, totalAssets - p1 - p2);
+
+      var compliance = summary.pmCompliancePct;
+      var mtbfDays   = summary.fleetMtbfDays;
+      var predHigh   = arr(pred.next_failure_dates && pred.next_failure_dates.predictions)
+        .filter(function(r){ return (r.risk || '').toLowerCase() === 'high'; }).length;
+      var totalFailures = arr(desc.failure_frequency && desc.failure_frequency.failure_frequency)
+        .reduce(function(s, r){ return s + (Number(r.failure_count) || 0); }, 0);
+
+      var ranking = rankingItems(presc);
+      var topP1 = ranking.find(function(r){ return r.priority === 'P1'; });
+
+      // KPI strip — color-coded by threshold so eyes go to the bad ones first
+      var pmKpiCls = compliance == null ? '' : (compliance < 50 ? ' bad' : compliance < 70 ? ' warn' : ' good');
+      var kpiStrip =
+        '<div class="kpi-strip">' +
+          '<div class="kpi-cell' + pmKpiCls + '">' +
+            '<div class="kpi-label">PM Compliance</div>' +
+            '<div class="kpi-value">' + (compliance != null ? Number(compliance).toFixed(0) : '—') + '<span class="kpi-unit">%</span></div>' +
+          '</div>' +
+          '<div class="kpi-cell">' +
+            '<div class="kpi-label">Fleet MTBF</div>' +
+            '<div class="kpi-value">' + (mtbfDays != null ? Number(mtbfDays).toFixed(0) : '—') + '<span class="kpi-unit">days</span></div>' +
+          '</div>' +
+          '<div class="kpi-cell' + (totalFailures > 100 ? ' warn' : '') + '">' +
+            '<div class="kpi-label">Total Failures</div>' +
+            '<div class="kpi-value">' + totalFailures + '</div>' +
+          '</div>' +
+          '<div class="kpi-cell' + (predHigh > 5 ? ' bad' : predHigh > 0 ? ' warn' : '') + '">' +
+            '<div class="kpi-label">High Risk (Predicted)</div>' +
+            '<div class="kpi-value">' + predHigh + '</div>' +
+          '</div>' +
+        '</div>';
+
+      // Insight cards — plain English "what this means" / "what to do"
+      var insights = [];
+
+      if (p1 > 0 && topP1) {
+        insights.push(insightCard({
+          color: 'red', icon: '🚨',
+          head: 'Act this week on ' + p1 + ' Critical asset' + (p1 === 1 ? '' : 's'),
+          body: 'Top: ' + topP1.machine + ' (' + (topP1.criticality || 'Critical') + ') — ' +
+                topP1.failure_count + ' failures, ' +
+                Number(topP1.total_downtime_h || 0).toFixed(0) + ' hrs downtime.',
+          action: 'See §3 Action Plan',
+        }));
+      } else {
+        insights.push(insightCard({
+          color: 'green', icon: '✅',
+          head: 'No Critical priorities this period',
+          body: 'Fleet is operating without P1-level failures. Maintain current cadence and watch the P2 list for early warning.',
+        }));
+      }
+
+      // Diagnostic insight — top root cause
+      var topMode = arr(diag.failure_mode_distribution && diag.failure_mode_distribution.distribution)[0];
+      if (topMode) {
+        var pctTxt = topMode.pct_of_total != null ? ' (' + Number(topMode.pct_of_total).toFixed(0) + '% of all failures)' : '';
+        insights.push(insightCard({
+          color: 'amber', icon: '🔍',
+          head: 'Top root cause: ' + (topMode.root_cause || 'unknown') + pctTxt,
+          body: 'Targeting this single failure mode would prevent the largest share of breakdowns. Consider PM tasks specific to this cause.',
+          action: 'See §2 Findings',
+        }));
+      } else {
+        insights.push(insightCard({
+          color: 'gray', icon: '🔍',
+          head: 'No root-cause data this period',
+          body: 'Log root_cause on every breakdown entry to enable diagnostic analysis.',
+        }));
+      }
+
+      // Predictive insight
+      if (predHigh > 0) {
+        insights.push(insightCard({
+          color: 'amber', icon: '🔮',
+          head: predHigh + ' asset' + (predHigh === 1 ? '' : 's') + ' likely to fail in the coming weeks',
+          body: 'The predictive model flags these as HIGH risk based on MTBF + failure history. Review §4 to see specific dates.',
+          action: 'See §4 Predictive',
+        }));
+      } else {
+        insights.push(insightCard({
+          color: 'green', icon: '🔮',
+          head: 'No high-risk forecasts',
+          body: 'No asset is currently flagged for near-term failure. This may reflect short history — re-check next period.',
+        }));
+      }
+
+      return '' +
+        '<section id="ar-exec">' +
+          '<h2>1. Executive Summary</h2>' +
+          '<p style="color:#555;">Snapshot across the fleet for the last ' + _period + ' days. Three things to know first:</p>' +
+
+          // Insight cards (what this means + what to do)
+          '<div class="insight-grid">' + insights.join('') + '</div>' +
+
+          // RAG tiles
+          '<table class="rag-tiles" role="presentation"><tr>' +
+            '<td class="rag-red">' +
+              '<div class="rag-tile-num">' + p1 + '</div>' +
+              '<div class="rag-tile-label">Critical (P1)</div>' +
+              '<div class="rag-tile-note">' + (p1 ? 'Need immediate intervention' : 'Clear') + '</div>' +
+            '</td>' +
+            '<td class="rag-amber">' +
+              '<div class="rag-tile-num">' + p2 + '</div>' +
+              '<div class="rag-tile-label">At-Risk (P2)</div>' +
+              '<div class="rag-tile-note">' + (p2 ? 'On watch list' : 'Clear') + '</div>' +
+            '</td>' +
+            '<td class="rag-green">' +
+              '<div class="rag-tile-num">' + ok + '</div>' +
+              '<div class="rag-tile-label">On Track</div>' +
+              '<div class="rag-tile-note">' + (ok ? 'Operating normally' : 'No assets in green band') + '</div>' +
+            '</td>' +
+          '</tr></table>' +
+
+          // KPI strip
+          kpiStrip +
+        '</section>';
+    }
+
+    // Small helpers to render data tables without [object Object] traps.
+    // Each picks 2-3 fields, escapes them, and skips when no rows.
+    function tableSection(title, rows, columns, opts){
+      if (!rows || !rows.length) return '';
+      var topN = (opts && opts.topN) || rows.length;
+      var slice = rows.slice(0, topN);
+      var thead = '<thead><tr>' + columns.map(function(c){ return '<th>' + escHtml(c.label) + '</th>'; }).join('') + '</tr></thead>';
+      var tbody = '<tbody>' + slice.map(function(r){
+        return '<tr>' + columns.map(function(c){
+          var v = typeof c.get === 'function' ? c.get(r) : r[c.key];
+          if (typeof v === 'number' && c.fmt) v = c.fmt(v);
+          var cls = c.nowrap ? ' class="nowrap-cell"' : '';
+          return '<td' + cls + '>' + escHtml(safeText(v)) + '</td>';
+        }).join('') + '</tr>';
+      }).join('') + '</tbody>';
+      var more = rows.length > topN
+        ? '<p style="font-size:0.7rem;color:#888;margin-top:0.25rem;">Showing top ' + topN + ' of ' + rows.length + '. Full list in §7 Drilldowns.</p>'
+        : '';
+      return '<h3>' + escHtml(title) + '</h3><div class="table-wrap"><table>' + thead + tbody + '</table></div>' + more;
+    }
+
+    // ─── AR-FINDINGS (revamped: charts + asset cards) ────────
+    // Replaces the wall of tables with: top-5 problem assets (cards), failure
+    // modes (donut), RCM consequence split (stacked bar), and parts (hbar).
+    // Each visual gets a one-line "what this means" caption.
+    function renderFindings(data){
+      var desc = pickPhase(data, 'descriptive');
+      var diag = pickPhase(data, 'diagnostic');
+      var presc = pickPhase(data, 'prescriptive');
+
+      var failFreq      = arr(desc.failure_frequency && desc.failure_frequency.failure_frequency);
+      var mtbfRows      = arr(desc.mtbf && desc.mtbf.mtbf_by_asset);
+      var topConsumers  = arr(desc.parts_consumption && desc.parts_consumption.consumption);
+      var mttrRows      = arr(desc.mttr && desc.mttr.mttr_by_asset);
+      var pmCorr        = diag.pm_failure_correlation || null;
+      var modeDist      = arr(diag.failure_mode_distribution && diag.failure_mode_distribution.distribution);
+      var rcmDist       = arr(diag.rcm_consequence && diag.rcm_consequence.distribution);
+      var ranking       = rankingItems(presc);
+
+      // Build downtime lookup for asset cards
+      var dtByMachine = {};
+      mttrRows.forEach(function(r){ if (r && r.machine != null) dtByMachine[r.machine] = r.total_downtime_h; });
+
+      // Build criticality lookup from ranking
+      var critByMachine = {};
+      ranking.forEach(function(r){ if (r.machine != null) critByMachine[r.machine] = r; });
+
+      if (!failFreq.length && !modeDist.length && !rcmDist.length) {
+        return '' +
+          '<section id="ar-findings"><h2>2. Findings</h2>' +
+            '<p style="color:#888;font-size:0.78rem;">No descriptive or diagnostic data this period. Seed activity (logbook entries) before re-running.</p>' +
+          '</section>';
+      }
+
+      var html = '<section id="ar-findings"><h2>2. Findings</h2>';
+
+      // ── 2.1 Top problem assets (cards) ─────────────────
+      var topAssets = failFreq.slice(0, 4);
+      if (topAssets.length) {
+        var maxFail = topAssets[0].failure_count || 1;
+        html +=
+          '<h3 style="margin-top:0.8rem;font-size:0.84rem;color:#1a1132;">2.1 The Worst Offenders</h3>' +
+          '<p style="color:#555;font-size:0.74rem;margin-bottom:0.5rem;">Assets with the most failures in the last ' + _period + ' days. Focus PM attention on these first.</p>' +
+          '<div class="asset-card-grid">' +
+            topAssets.map(function(a){
+              var rk = critByMachine[a.machine] || {};
+              var dt = dtByMachine[a.machine];
+              var stats =
+                '<b>' + a.failure_count + '</b> failure' + (a.failure_count === 1 ? '' : 's') +
+                (dt != null ? ' · <b>' + Number(dt).toFixed(0) + 'h</b> downtime' : '') +
+                (rk.criticality ? ' · ' + rk.criticality : '');
+              var why = '';
+              if (rk.priority === 'P1') why = 'Top-tier risk this period — escalate.';
+              else if (rk.avg_downtime_h && Number(rk.avg_downtime_h) > 5) why = 'High average downtime per failure: each event hurts.';
+              else why = 'Frequent failures — recurring problem worth investigating.';
+              return assetCard({
+                name:  a.machine,
+                chip:  rk.priority ? chip(rk.priority, rk.priority) : (a.failure_count >= maxFail * 0.8 ? chip('high', 'High freq') : ''),
+                stats: stats,
+                why:   why,
+              });
+            }).join('') +
+          '</div>';
+      }
+
+      // ── 2.2 Failure mode distribution (donut) ──────────
+      if (modeDist.length) {
+        var modeColors = ['#a78bfa','#f59e0b','#ef4444','#10b981','#3b82f6','#ec4899','#84cc16','#f97316','#06b6d4','#8b5cf6','#facc15','#94a3b8'];
+        var topModesForDonut = modeDist.slice(0, 8).map(function(m, i){
+          return { label: m.root_cause || 'Unknown', value: Number(m.count) || 0, color: modeColors[i % modeColors.length] };
+        });
+        var topMode = modeDist[0];
+        var topPctTxt = topMode && topMode.pct_of_total != null ? Number(topMode.pct_of_total).toFixed(0) + '%' : '';
+        var totalFailMode = modeDist.reduce(function(s, m){ return s + (Number(m.count) || 0); }, 0);
+        html +=
+          '<h3 style="margin-top:1rem;font-size:0.84rem;color:#1a1132;">2.2 Why It Broke — Top Root Causes</h3>' +
+          donutChart(topModesForDonut, { size: 150, centerLabel: String(totalFailMode), centerSub: 'failures' }) +
+          (topMode
+            ? '<div class="chart-caption"><b>What this means:</b> ' + escHtml(topMode.root_cause || 'top cause') +
+              ' is responsible for ' + topPctTxt + ' of all breakdowns. Targeting this single cause ' +
+              'has the biggest payoff — review your PM tasks specific to this failure mode.</div>'
+            : '');
+      }
+
+      // ── 2.3 RCM consequence split (stacked bar) ────────
+      if (rcmDist.length) {
+        var consColors = {
+          'Stopped production': '#dc2626',
+          'Safety risk':         '#f59e0b',
+          'Running reduced':     '#3b82f6',
+          'Hidden':              '#94a3b8',
+        };
+        var segs = rcmDist.map(function(r){
+          return {
+            label: r.consequence || r.label || 'Unknown',
+            value: Number(r.count) || 0,
+            color: consColors[r.consequence] || '#a78bfa',
+          };
+        });
+        var stoppedCount = segs.find(function(s){ return s.label === 'Stopped production'; });
+        var safetyCount  = segs.find(function(s){ return s.label === 'Safety risk'; });
+        var stoppedTxt   = stoppedCount ? stoppedCount.value + ' production stops' : '';
+        var safetyTxt    = safetyCount ? safetyCount.value + ' safety incidents' : '';
+        var bits = [stoppedTxt, safetyTxt].filter(function(x){ return x; }).join(' and ');
+        html +=
+          '<h3 style="margin-top:1rem;font-size:0.84rem;color:#1a1132;">2.3 Failure Consequences (RCM, SAE JA1011)</h3>' +
+          stackedBar(segs) +
+          '<div class="chart-caption"><b>What this means:</b> ' +
+            (bits ? bits + ' this period. ' : '') +
+            'Stopped + safety bars are your highest-priority categories — RCM ranks these above the others.' +
+          '</div>';
+      }
+
+      // ── 2.4 Top parts consumers (hbar) ─────────────────
+      if (topConsumers.length) {
+        var topParts = topConsumers.slice(0, 5).map(function(p){
+          return { label: p.part_name || 'Unknown', value: Number(p.total_used) || 0 };
+        });
+        html +=
+          '<h3 style="margin-top:1rem;font-size:0.84rem;color:#1a1132;">2.4 Top Parts Consumed</h3>' +
+          hbarChart(topParts) +
+          '<div class="chart-caption"><b>What this means:</b> Make sure these parts have safety stock above ' +
+            'expected monthly consumption — running out forces unplanned downtime.</div>';
+      }
+
+      // ── 2.5 PM ↔ failure correlation (single-row insight) ──
+      if (pmCorr && (pmCorr.correlation != null || pmCorr.interpretation)) {
+        var rVal = pmCorr.correlation != null ? Number(pmCorr.correlation).toFixed(2) : '—';
+        var pVal = pmCorr.p_value != null ? Number(pmCorr.p_value).toFixed(3) : '—';
+        var sig  = pmCorr.p_value != null && Number(pmCorr.p_value) < 0.05 && Math.abs(Number(pmCorr.correlation || 0)) >= 0.5;
+        var sigCls = sig ? 'red' : 'gray';
+        var interp = pmCorr.interpretation || (sig ? 'Significant relationship — investigate.' : 'Not statistically significant.');
+        html +=
+          '<h3 style="margin-top:1rem;font-size:0.84rem;color:#1a1132;">2.5 Are PMs Preventing Failures?</h3>' +
+          '<div style="display:flex;gap:0.75rem;align-items:center;margin:0.4rem 0 0.4rem;flex-wrap:wrap;">' +
+            '<span class="sev-chip ' + sigCls + '">r = ' + rVal + '</span>' +
+            '<span class="sev-chip gray">p = ' + pVal + '</span>' +
+            '<span style="font-size:0.74rem;color:#444;">' + escHtml(safeText(interp)) + '</span>' +
+          '</div>' +
+          '<div class="chart-caption"><b>Plain English:</b> ' +
+            (sig
+              ? 'PM gaps and failures are statistically related — your PM schedule isn\'t catching what it should.'
+              : 'PM gaps and failure counts are NOT linked in this dataset. Either PMs are doing their job, or the dataset is too small to tell.') +
+          '</div>';
+      }
+
+      html += '</section>';
+      return html;
+    }
+
+    // ─── AR-PREDICTIVE ───────────────────────────────────
+    function renderPredictive(data){
+      var pred = pickPhase(data, 'predictive');
+      var preds  = arr(pred.next_failure_dates && pred.next_failure_dates.predictions);
+      var health = arr(pred.health_scores && pred.health_scores.health_scores);
+
+      if (!preds.length && !health.length) {
+        return '' +
+          '<section id="ar-predictive"><h2>3. What\'s Next - Predictive Outlook</h2>' +
+            '<p style="color:#888;font-size:0.78rem;">No predictive signal yet. Models need at least 3 failure events per asset.</p>' +
+          '</section>';
+      }
+
+      // Sort predictions: most overdue first (smallest days_until)
+      var sortedPreds = preds.slice().sort(function(a, b){
+        return (Number(a.days_until) || 0) - (Number(b.days_until) || 0);
+      });
+      var topRisks = sortedPreds.slice(0, 4);
+      var overdueCnt = preds.filter(function(p){ return Number(p.days_until) < 0; }).length;
+      var soonCnt    = preds.filter(function(p){ var d = Number(p.days_until); return d >= 0 && d <= 30; }).length;
+
+      var html = '<section id="ar-predictive">' +
+        '<h2>3. What\'s Next - Predictive Outlook</h2>' +
+        '<p style="color:#555;font-size:0.78rem;margin-bottom:0.5rem;">' +
+          'Forecasted from MTBF (mean time between failures) per <i>ISO 13381-1:2015</i>. ' +
+          'Negative "days" means the asset has already lasted longer than its MTBF predicted - failure is overdue.' +
+        '</p>';
+
+      if (overdueCnt || soonCnt) {
+        html +=
+          '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin:0.4rem 0 0.75rem;">' +
+            (overdueCnt ? '<span class="sev-chip red">' + overdueCnt + ' overdue</span>' : '') +
+            (soonCnt    ? '<span class="sev-chip amber">' + soonCnt + ' due in next 30 days</span>' : '') +
+          '</div>';
+      }
+
+      // ── 3.1 Top 4 highest-risk asset cards ────────────
+      if (topRisks.length) {
+        html +=
+          '<h3 style="margin-top:0.6rem;font-size:0.84rem;color:#1a1132;">3.1 Watch These First</h3>' +
+          '<div class="asset-card-grid">' +
+            topRisks.map(function(p){
+              var days = Number(p.days_until);
+              var isOverdue = days < 0;
+              var daysTxt = isOverdue ? 'Overdue ' + Math.abs(days).toFixed(0) + ' days' : 'In ' + days.toFixed(0) + ' days';
+              var dateTxt = p.predicted_next ? fmtDate(p.predicted_next) : '';
+              var risk = (p.risk || '').toLowerCase();
+              var sevCls = risk === 'high' ? 'red' : risk === 'medium' ? 'amber' : 'green';
+              var stats =
+                '<b>' + daysTxt + '</b>' + (dateTxt ? ' (' + dateTxt + ')' : '') +
+                ' &middot; MTBF ' + (p.mtbf_days != null ? Number(p.mtbf_days).toFixed(1) + 'd' : '-') +
+                ' &middot; ' + (p.failure_count != null ? p.failure_count : '?') + ' prior failures';
+              var why = isOverdue
+                ? 'Last failure was longer ago than its average MTBF - statistically due now.'
+                : 'Predicted from average interval between this asset\'s past failures.';
+              return assetCard({
+                name:  p.machine,
+                chip:  '<span class="sev-chip ' + sevCls + '">' + (p.risk || 'Watch') + '</span>',
+                stats: stats,
+                why:   why,
+              });
+            }).join('') +
+          '</div>';
+      }
+
+      // ── 3.2 Composite asset health (horizontal bars) ───
+      if (health.length) {
+        var healthBars = health.slice(0, 8).map(function(h){
+          var score = Number(h.health_score) || 0;
+          var sev = score < 30 ? 'red' : score < 60 ? 'amber' : 'green';
+          return { label: h.machine || '', value: score, severity: sev };
+        });
+        html +=
+          '<h3 style="margin-top:1rem;font-size:0.84rem;color:#1a1132;">3.2 Asset Health Scores (0-100)</h3>' +
+          hbarChart(healthBars, { max: 100, fmt: function(v){ return v + '/100'; } }) +
+          '<div class="chart-caption"><b>Reading the chart:</b> ' +
+            'red = under 30 (critical), amber = 30-60 (degrading), green = 60+ (healthy). ' +
+            'Composite of failure count, downtime, MTBF, and recency.' +
+          '</div>';
+      }
+
+      html += '</section>';
+      return html;
+    }
+
+    // ─── AR-ACTION (SOW clauses, optionally enriched by Groq AI) ─
+    function renderActionPlan(data){
+      var presc = pickPhase(data, 'prescriptive');
+      var aiPlan = (data && data.action_plan) || presc.action_plan || null;
+      var ranking     = rankingItems(presc);     // presc.priority_ranking.ranking
+      var pmIntervals = pmRecommendations(presc); // presc.pm_interval_optimization.recommendations
+
+      // 1) AI synthesis (if present from Groq) — render as numbered SOW clauses.
+      // We DON'T pre-assign sub-section numbers; subSections array below counts
+      // what's actually rendering and numbers sequentially (5.1, 5.2, ...).
+      var aiClausesBody = '';
+      if (aiPlan && (aiPlan.actions || aiPlan.recommendations || aiPlan.next_steps)) {
+        var actions = arr(aiPlan.actions || aiPlan.recommendations || aiPlan.next_steps);
+        if (actions.length) {
+          aiClausesBody = '' +
+            actions.map(function(a, i){
+              var no = String(i + 1).padStart(2, '0');
+              var title = a.title || a.action || a.summary || ('Action ' + (i+1));
+              var body  = a.detail || a.description || a.rationale || '';
+              var owner = a.owner || a.assignee || '';
+              var due   = a.due || a.deadline || a.eta || '';
+              var prio  = a.priority || a.tier || '';
+              return '<div class="sow-clause">' +
+                '<div class="sow-clause-header">' +
+                  '<span class="sow-clause-no">' + no + '</span>' +
+                  '<span>' + escHtml(safeText(title)) + '</span>' +
+                '</div>' +
+                (body ? '<div class="sow-clause-body">' + escHtml(safeText(body)) + '</div>' : '') +
+                ((owner || due || prio)
+                  ? '<div class="sow-meta">' +
+                      (owner ? '<span><b>Owner:</b> ' + escHtml(safeText(owner)) + '</span>' : '') +
+                      (due   ? '<span><b>Due:</b> '   + escHtml(safeText(due))   + '</span>' : '') +
+                      (prio  ? '<span><b>Priority:</b> ' + escHtml(safeText(prio)) + '</span>' : '') +
+                    '</div>'
+                  : '') +
+              '</div>';
+            }).join('');
+        }
+      }
+
+      // 2) Top P1 priorities — always show as a table for accountability
+      var p1Rows = ranking.filter(function(r){ return r.priority === 'P1'; });
+      var p1Table = tableSection('Critical priorities (P1) — act this week', p1Rows, [
+        { label: 'Asset',        get: function(r){ return r.machine || ''; } },
+        { label: 'Criticality',  get: function(r){ return r.criticality || ''; } },
+        { label: 'Risk score',   get: function(r){ return r.risk_score != null ? Number(r.risk_score).toFixed(0) : ''; } },
+        { label: 'Failures',     get: function(r){ return r.failure_count != null ? r.failure_count : 0; } },
+        { label: 'Downtime (h)', get: function(r){ return r.total_downtime_h != null ? Number(r.total_downtime_h).toFixed(1) : ''; } },
+      ], { topN: 8 });
+
+      // 3) PM interval changes — actionable adjustments.
+      // Show machine_code (unique tag like 'CMP-001') as primary so each row is
+      // identifiable. asset_name is the make/model and would repeat across many
+      // assets of the same equipment type.
+      var pmTable = tableSection('PM interval adjustments', pmIntervals, [
+        { label: 'Asset',     nowrap: true, get: function(r){ return r.machine_code || r.asset_name || ''; } },
+        { label: 'Equipment', nowrap: true, get: function(r){ return r.asset_name || ''; } },
+        { label: 'Current',   nowrap: true, get: function(r){ return r.current_interval_d != null ? Number(r.current_interval_d).toFixed(0) + 'd' : ''; } },
+        { label: 'Suggested', nowrap: true, get: function(r){ return r.recommended_days   != null ? Number(r.recommended_days).toFixed(0)   + 'd' : ''; } },
+        { label: 'Action',    nowrap: true, get: function(r){ return r.action || ''; } },
+        { label: 'Why',       get: function(r){ return r.reason || ''; } },
+      ], { topN: 8 });
+
+      // Build sub-sections in order, numbering only those that actually render.
+      var subSections = [];
+      if (aiClausesBody) subSections.push({ title: 'Recommended Actions (AI Synthesis)', body: aiClausesBody });
+      if (p1Table)       subSections.push({ title: 'Critical Priorities (P1) — act this week', body: p1Table });
+      if (pmTable)       subSections.push({ title: 'PM Interval Adjustments', body: pmTable });
+
+      if (!subSections.length) {
+        return '' +
+          '<section id="ar-action"><h2>4. Action Plan</h2>' +
+            '<p style="color:#888;font-size:0.78rem;">No prescriptive actions yet. Run the analytics engine end-to-end (logbook → PMs → priorities) to populate this section.</p>' +
+          '</section>';
+      }
+
+      // "This Week" callout box — top 3 highest-impact actions in plain English
+      var thisWeekActions = [];
+      // Top 1-2 P1 priorities
+      var topP1s = ranking.filter(function(r){ return r.priority === 'P1'; }).slice(0, 2);
+      topP1s.forEach(function(r){
+        thisWeekActions.push(
+          '<b>Schedule corrective work on ' + r.machine + '</b> (' + (r.criticality || 'Critical') + ') — ' +
+          r.failure_count + ' failures, ' + Number(r.total_downtime_h || 0).toFixed(0) + ' hrs downtime so far.'
+        );
+      });
+      // Top 1 PM interval adjustment if it shortens cadence (most urgent)
+      var pmTopUrgent = pmIntervals.filter(function(r){
+        return r.action && r.action.toUpperCase().indexOf('INCREASE') >= 0;
+      })[0];
+      if (pmTopUrgent) {
+        thisWeekActions.push(
+          '<b>Tighten PM cadence on ' + (pmTopUrgent.machine_code || pmTopUrgent.asset_name) + '</b> — ' +
+          'change from ' + (pmTopUrgent.current_interval_d || '?') + 'd to ' +
+          (pmTopUrgent.recommended_days || '?') + 'd. Failures are slipping past the current interval.'
+        );
+      }
+
+      var thisWeekBox = '';
+      if (thisWeekActions.length) {
+        thisWeekBox =
+          '<div class="this-week-box">' +
+            '<div class="this-week-head">⚡ This Week — Top Priorities</div>' +
+            '<ul class="this-week-list">' +
+              thisWeekActions.map(function(a){ return '<li>' + a + '</li>'; }).join('') +
+            '</ul>' +
+          '</div>';
+      }
+
+      var subBody = subSections.map(function(s, i){
+        return '<h3 style="margin-top:1.25rem;font-size:0.86rem;color:#1a1132;">4.' + (i + 1) + ' ' + escHtml(s.title) + '</h3>' + s.body;
+      }).join('');
+
+      return '' +
+        '<section id="ar-action"><h2>4. Action Plan</h2>' +
+          '<p style="color:#555;font-size:0.78rem;">' +
+            'Action items below follow <i>ISO 55000:2014</i> + <i>SAE JA1011</i> RCM. Clauses are SOW-format ' +
+            'so you can copy-paste into a work order or contractor brief.' +
+          '</p>' +
+          thisWeekBox +
+          subBody +
+        '</section>';
+    }
+
+    // ─── AR-APPENDIX (was Drilldowns; renamed + restyled compact) ──
+    // Reference tables for those who need the full data. Smaller font,
+    // dimmer borders, clearly labeled as appendix material.
+    function renderAppendix(data){
+      var presc = pickPhase(data, 'prescriptive');
+      var ranking     = rankingItems(presc);
+      var pmIntervals = pmRecommendations(presc);
+      var techAssign  = technicianAssignments(presc);
+
+      var fullPriority = tableSection('A1. All asset priorities', ranking, [
+        { label: 'Asset',        get: function(r){ return r.machine || ''; } },
+        { label: 'Tier',         get: function(r){ return r.priority || ''; } },
+        { label: 'Criticality',  get: function(r){ return r.criticality || ''; } },
+        { label: 'Risk score',   get: function(r){ return r.risk_score != null ? Number(r.risk_score).toFixed(0) : ''; } },
+        { label: 'Failures',     get: function(r){ return r.failure_count != null ? r.failure_count : 0; } },
+        { label: 'Avg DT (h)',   get: function(r){ return r.avg_downtime_h != null ? Number(r.avg_downtime_h).toFixed(1) : ''; } },
+      ], { topN: ranking.length });
+
+      var fullPm = tableSection('A2. All PM interval recommendations', pmIntervals, [
+        { label: 'Asset',     nowrap: true, get: function(r){ return r.machine_code || r.asset_name || ''; } },
+        { label: 'Equipment', nowrap: true, get: function(r){ return r.asset_name || ''; } },
+        { label: 'Current',   nowrap: true, get: function(r){ return r.current_interval_d != null ? Number(r.current_interval_d).toFixed(0) + 'd' : ''; } },
+        { label: 'Suggested', nowrap: true, get: function(r){ return r.recommended_days   != null ? Number(r.recommended_days).toFixed(0)   + 'd' : ''; } },
+        { label: 'MTBF (d)',  nowrap: true, get: function(r){ return r.mtbf_days != null ? Number(r.mtbf_days).toFixed(1) : ''; } },
+        { label: 'Action',    nowrap: true, get: function(r){ return r.action || ''; } },
+      ], { topN: pmIntervals.length });
+
+      var techTable = tableSection('A3. Technician assignments (workload-balanced)', techAssign, [
+        { label: 'Asset',       get: function(r){ return r.machine || ''; } },
+        { label: 'Problem',     get: function(r){ return r.problem || ''; } },
+        { label: 'Discipline',  get: function(r){ return r.required_discipline || ''; } },
+        { label: 'Assigned to', get: function(r){ return r.assigned_to || ''; } },
+        { label: 'Skill level', get: function(r){ return r.skill_level || ''; } },
+      ], { topN: techAssign.length });
+
+      var any = fullPriority || fullPm || techTable;
+      if (!any) return '';
+
+      return '' +
+        '<section id="ar-appendix" class="appendix-section"><h2>Appendix — Reference Data</h2>' +
+          '<div class="appendix-note">' +
+            'The body of this report is summarised. The tables below are the complete underlying data — ' +
+            'use them when you need the full picture for CMMS exports, work-order planning, or audit trails.' +
+          '</div>' +
+          fullPriority +
+          fullPm +
+          techTable +
+        '</section>';
+    }
+
+    // ─── AR-FOOTER ───────────────────────────────────────
+    function renderFooter(data){
+      var generated = (data && data.generated_at) ? fmtDate(data.generated_at) : fmtDate(todayISO());
+      return '' +
+        '<section id="ar-footer">' +
+          '<h2>5. Sign-off</h2>' +
+          '<div class="sig-block">' +
+            '<div>' +
+              '<div class="sig-line"></div>' +
+              'Prepared by' +
+              '<div style="font-size:0.7rem;color:#888;margin-top:0.2rem;">Maintenance / Reliability Lead</div>' +
+            '</div>' +
+            '<div>' +
+              '<div class="sig-line"></div>' +
+              'Reviewed by' +
+              '<div style="font-size:0.7rem;color:#888;margin-top:0.2rem;">Operations / Engineering Manager</div>' +
+            '</div>' +
+            '<div>' +
+              '<div class="sig-line"></div>' +
+              'Approved by' +
+              '<div style="font-size:0.7rem;color:#888;margin-top:0.2rem;">Plant / Site Manager</div>' +
+            '</div>' +
+          '</div>' +
+          // Compliance footnote — folds the old Standards section into a one-liner
+          '<p style="font-size:0.7rem;color:#555;margin-top:1.25rem;text-align:center;line-height:1.55;">' +
+            '<b>Computed against:</b> ISO 14224:2016 (failure taxonomy + reliability metrics) · ' +
+            'SMRP Best Practices (KPIs + composite health) · ' +
+            'ISO 13381-1:2015 (prognostics) · ' +
+            'SAE JA1011 (RCM evaluation) · ' +
+            'ISO 55000:2014 (asset management priority).' +
+          '</p>' +
+          '<p style="font-size:0.66rem;color:#888;margin-top:0.6rem;text-align:center;">' +
+            'Generated by WorkHive Analytics Engine on ' + escHtml(generated) + ' · workhiveph.com' +
+          '</p>' +
+        '</section>';
+    }
+
+    // ── Save as PDF ──────────────────────────────────────
+    // Uses the browser's native print → "Save as PDF" path. The @media print
+    // rule above hides the dark UI and renders only #ar-print-wrapper, so the
+    // PDF contains only the .doc-panel report. We swap document.title around
+    // the print() call so the saved file gets a meaningful default name.
+    window.saveAsPdf = function(){
+      var doc = document.getElementById('ar-doc');
+      if (!doc) {
+        alert('Generate the report first, then save as PDF.');
+        return;
+      }
+      // Inject explicit page breaks before each top-level section so the PDF
+      // splits cleanly. Idempotent — re-running just resets the existing rule.
+      var existing = document.getElementById('ar-pdf-pagebreak-style');
+      if (existing) existing.remove();
+      var styleEl = document.createElement('style');
+      styleEl.id = 'ar-pdf-pagebreak-style';
+      styleEl.textContent = [
+        '@page { margin: 1.5cm 1.25cm; }',
+        '@media print {',
+        // Sections flow naturally — no forced break per section. Only the
+        // cover header takes its own page. This dropped the report from
+        // 17 pages of mostly whitespace to ~9 pages of dense content.
+        '  #ar-doc > section { page-break-before: auto; break-before: auto; }',
+        '  #ar-doc > .doc-header-row { page-break-after: always; break-after: page; }',
+        '  #ar-doc h2 { page-break-after: avoid; break-after: avoid; }',
+        '  #ar-doc h3 { page-break-after: avoid; break-after: avoid; }',
+        // Small atomic blocks should never split across pages.
+        '  #ar-doc .sow-clause, #ar-doc .result-tile, #ar-doc .sig-block, #ar-doc .rag-tiles { page-break-inside: avoid; break-inside: avoid; }',
+        // Table rows stay atomic so no orphaned cells; whole table can split
+        // across pages but a single row never does.
+        '  #ar-doc table thead { display: table-header-group; }',
+        '  #ar-doc table tr { page-break-inside: avoid; break-inside: avoid; }',
+        // Asset codes like "AC-001" must not wrap onto two lines in narrow cells
+        '  #ar-doc td.asset-cell, #ar-doc td.nowrap-cell { white-space: nowrap; }',
+        '}',
+      ].join('\n');
+      document.head.appendChild(styleEl);
+
+      // Build a sensible default filename: WorkHive-Analytics-YYYY-MM-DD.pdf
+      var origTitle = document.title;
+      var today = todayISO();
+      var fname  = 'WorkHive-Analytics-' + today;
+      document.title = fname;
+
+      var restore = function(){
+        document.title = origTitle;
+        window.removeEventListener('afterprint', restore);
+      };
+      window.addEventListener('afterprint', restore);
+
+      // Slight delay so the styleEl mounts before print sees it
+      setTimeout(function(){ window.print(); }, 50);
+    };
+
+  })();
+  </script>
+
+  <!-- nav-hub + floating-ai (loaded LAST per Frontend skill) -->
+  <script src="nav-hub.js"></script>
+  <script src="floating-ai.js"></script>
+
+</body>
+</html>

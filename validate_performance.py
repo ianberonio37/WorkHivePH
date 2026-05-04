@@ -42,6 +42,7 @@ LIVE_PAGES = [
     "dayplanner.html",
     "engineering-design.html",
     "analytics.html",
+    "analytics-report.html",
     "report-sender.html",
     "community.html",
     "marketplace.html",

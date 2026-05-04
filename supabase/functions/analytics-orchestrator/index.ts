@@ -58,7 +58,7 @@ async function fetchDescriptiveData(
 
   // OEE: only needs production_output + downtime_hours (small select)
   const oeeQ = db.from("logbook")
-    .select("machine, maintenance_type, category, root_cause, downtime_hours, status, created_at, closed_at, worker_name, failure_consequence, readings_json, production_output")
+    .select("machine, maintenance_type, category, problem, root_cause, downtime_hours, status, created_at, closed_at, worker_name, failure_consequence, readings_json, production_output")
     .eq("maintenance_type", "Breakdown / Corrective")
     .gte("created_at", new Date(Date.now() - periodDays * 86400000).toISOString())
     .limit(dynLimit(periodDays, 15));
@@ -453,6 +453,75 @@ serve(async (req) => {
     );
 
     const periodDays = Number(period_days) || 90;
+
+    // ── phase=report: fan out all 4 phases in parallel + Groq synthesis ──
+    // Returns a single bundled payload shaped as
+    //   { descriptive:{...}, diagnostic:{...}, predictive:{...}, prescriptive:{...}, action_plan:{...} }
+    // Used by analytics-report.html which renders all 4 in one print-ready document.
+    if (phase === "report") {
+      const [descData, diagData, predData, prescData] = await Promise.all([
+        fetchDescriptiveData(db,  hive_id || null, worker_name || null, periodDays),
+        fetchDiagnosticData(db,   hive_id || null, worker_name || null, periodDays),
+        fetchPredictiveData(db,   hive_id || null, worker_name || null, periodDays),
+        fetchPrescriptiveData(db, hive_id || null, worker_name || null, periodDays),
+      ]);
+
+      const fp = { criticality, discipline };
+      const descIn  = applyFilters(descData,  fp);
+      const diagIn  = applyFilters(diagData,  fp);
+      const predIn  = applyFilters(predData,  fp);
+      const prescIn = applyFilters(prescData, fp);
+
+      const [descR, diagR, predR, prescR] = await Promise.allSettled([
+        callPythonAnalytics("descriptive",  { ...descIn,  period_days: periodDays }),
+        callPythonAnalytics("diagnostic",   { ...diagIn,  period_days: periodDays }),
+        callPythonAnalytics("predictive",   { ...predIn,  period_days: periodDays }),
+        callPythonAnalytics("prescriptive", { ...prescIn, period_days: periodDays }),
+      ]);
+
+      const descriptive  = descR.status  === "fulfilled" ? descR.value  : { error: String(descR.reason) };
+      const diagnostic   = diagR.status  === "fulfilled" ? diagR.value  : { error: String(diagR.reason) };
+      const predictive   = predR.status  === "fulfilled" ? predR.value  : { error: String(predR.reason) };
+      const prescriptive = prescR.status === "fulfilled" ? prescR.value : { error: String(prescR.reason) };
+
+      // Optional Groq synthesis — only if prescriptive succeeded
+      let actionPlan = null;
+      if (prescR.status === "fulfilled" && !(prescriptive as { error?: unknown }).error) {
+        let hiveMembers: string[] = [];
+        if (hive_id) {
+          const { data: members } = await db.from("hive_members")
+            .select("worker_name").eq("hive_id", hive_id).eq("status", "active");
+          hiveMembers = (members || []).map((m: Record<string, string>) => m.worker_name).filter(Boolean);
+        } else if (worker_name) {
+          hiveMembers = [worker_name];
+        }
+        try {
+          const raw = await callGroqSynthesis(
+            { descriptive, diagnostic, predictive, prescriptive },
+            hiveMembers,
+          );
+          actionPlan = JSON.parse(raw);
+        } catch (_e) { actionPlan = null; }
+      }
+
+      const bundled = {
+        phase: "report",
+        hive_id:     hive_id || null,
+        worker_name: worker_name || null,
+        period_days: periodDays,
+        generated_at: new Date().toISOString(),
+        descriptive,
+        diagnostic,
+        predictive,
+        prescriptive,
+        ...(actionPlan ? { action_plan: actionPlan } : {}),
+      };
+
+      return new Response(
+        JSON.stringify(bundled),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Fetch the right data for the requested phase
     let data: Record<string, unknown> = {};
