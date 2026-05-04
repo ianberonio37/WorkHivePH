@@ -48,6 +48,14 @@ class PdfRequest(BaseModel):
     filename: str = "report.pdf"   # suggested download filename
 
 
+class ProjectRequest(BaseModel):
+    project: dict[str, Any]                    # the projects row
+    items: list[dict[str, Any]] = []           # project_items rows
+    links: list[dict[str, Any]] = []           # project_links rows
+    logs:  list[dict[str, Any]] = []           # project_progress_logs rows (last ~30)
+    labor_rate_php_per_hour: float | None = None  # optional override; default 200
+
+
 # ─── Handler registry ─────────────────────────────────────────────────────────
 # Each phase adds entries here. Key = exact calc_type string used by the
 # frontend. Value = a callable that takes (inputs: dict) -> dict.
@@ -438,4 +446,87 @@ def analytics_health():
         "available_phases": ["descriptive", "diagnostic"],
         "coming_soon": ["predictive", "prescriptive"],
         "standards": ["ISO 14224:2016", "ISO 13381-1:2015", "ISO 55000:2014", "SMRP Metrics"],
+    }
+
+
+# ─── Project Manager Routes (Stage 4) ────────────────────────────────────────
+# Mirrors the analytics 4-phase pattern: one endpoint runs all 4 phases and
+# returns a combined payload so the front-end makes a single round-trip.
+# Standards: PMBOK 7th ed., AACE 17R-97, IDCON 6-Phase, ISO 21500.
+
+@app.post("/project/progress")
+def project_progress(req: ProjectRequest):
+    """
+    Aggregates all 4 project phases into one response.
+    Body: { project, items, links, logs, labor_rate_php_per_hour? }
+    Returns: { rollup, earned_value, forecast, prescriptive, latest_logs }
+
+    Front-end (project-manager.html) and the edge function `project-progress`
+    both call this endpoint. Edge function is a thin proxy that adds CORS +
+    auth + Supabase data fetch.
+    """
+    inputs = {
+        "project": req.project,
+        "items":   req.items,
+        "links":   req.links,
+        "logs":    req.logs,
+        "labor_rate_php_per_hour": req.labor_rate_php_per_hour,
+    }
+
+    out: dict[str, Any] = {}
+    try:
+        from projects.descriptive import calculate as desc_calc
+        out["rollup"] = desc_calc(inputs)
+    except Exception as e:
+        print(f"PROJECT ERROR [descriptive]: {traceback.format_exc()}")
+        out["rollup"] = {"error": str(e)}
+
+    try:
+        from projects.diagnostic import calculate as diag_calc
+        out["earned_value"] = diag_calc(inputs)
+    except Exception as e:
+        print(f"PROJECT ERROR [diagnostic]: {traceback.format_exc()}")
+        out["earned_value"] = {"available": False, "reason": str(e)}
+
+    try:
+        from projects.predictive import calculate as pred_calc
+        out["forecast"] = pred_calc(inputs)
+    except Exception as e:
+        print(f"PROJECT ERROR [predictive]: {traceback.format_exc()}")
+        out["forecast"] = {"forecasts": {}, "error": str(e)}
+
+    try:
+        from projects.prescriptive import calculate as presc_calc
+        presc = presc_calc(inputs)
+        # Flatten the prescriptive payload so the front-end can read
+        # critical_path / blockers / cycle_warning at the top level
+        # (matches the client-side fallback shape — single contract).
+        out["critical_path"]         = presc.get("critical_path", {"item_ids": [], "total_days": 0, "slack_per_item": {}})
+        out["fast_track_candidates"] = presc.get("fast_track_candidates", [])
+        out["blockers"]              = presc.get("blockers", [])
+        out["cycle_warning"]         = presc.get("cycle_warning")
+    except Exception as e:
+        print(f"PROJECT ERROR [prescriptive]: {traceback.format_exc()}")
+        out["critical_path"]         = {"item_ids": [], "total_days": 0, "slack_per_item": {}}
+        out["fast_track_candidates"] = []
+        out["blockers"]              = []
+        out["cycle_warning"]         = {"message": str(e)}
+
+    out["latest_logs"] = (req.logs or [])[:10]
+    return out
+
+
+@app.get("/project/health")
+def project_health():
+    """Returns Project Manager backend status."""
+    try:
+        import networkx
+        nx_status = f"available ({networkx.__version__})"
+    except ImportError:
+        nx_status = "missing — install via pip"
+    return {
+        "endpoints": ["/project/progress"],
+        "phases": ["descriptive", "diagnostic", "predictive", "prescriptive"],
+        "networkx": nx_status,
+        "standards": ["PMBOK 7th ed.", "AACE 17R-97", "IDCON 6-Phase", "ISO 21500"],
     }

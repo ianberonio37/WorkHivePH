@@ -43,6 +43,9 @@ pandas==2.2.2
 # Stage 3 Analytics Engine — Phase 2 Diagnostic
 statsmodels==0.14.2
 
+# Project Manager — Phase 2 (CPM via DAG longest path, slack/float analysis)
+networkx==3.3
+
 # Phase 8d — Server-side vector PDF (replaces html2pdf.js rasterised output)
 # DISABLED: weasyprint causes Render Docker build failure on python:3.11-slim (Debian Bookworm).
 # The /pdf endpoint returns 503 when weasyprint is absent; frontend falls back to html2pdf.js.

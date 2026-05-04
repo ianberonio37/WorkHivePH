@@ -586,6 +586,15 @@ VALIDATORS = [
         "report":  "analytics_report.json",
         "skip_if_fast": False,
     },
+    {
+        "id":      "project-manager",
+        "script":  "validate_project_manager.py",
+        "args":    [],
+        "label":   "Project Manager Validator (4-layer: HTML + Edge + Python + Smoke)",
+        "group":   "Platform",
+        "report":  "project_manager_report.json",
+        "skip_if_fast": False,
+    },
     # ── Analytics Live Integration Test ──────────────────────────────────────
     {
         "id":      "analytics-live",
