@@ -1362,17 +1362,55 @@
       ], { topN: 8 });
 
       // 3) PM interval changes — actionable adjustments.
-      // Show machine_code (unique tag like 'CMP-001') as primary so each row is
-      // identifiable. asset_name is the make/model and would repeat across many
-      // assets of the same equipment type.
-      var pmTable = tableSection('PM interval adjustments', pmIntervals, [
-        { label: 'Asset',     nowrap: true, get: function(r){ return r.machine_code || r.asset_name || ''; } },
-        { label: 'Equipment', nowrap: true, get: function(r){ return r.asset_name || ''; } },
-        { label: 'Current',   nowrap: true, get: function(r){ return r.current_interval_d != null ? Number(r.current_interval_d).toFixed(0) + 'd' : ''; } },
-        { label: 'Suggested', nowrap: true, get: function(r){ return r.recommended_days   != null ? Number(r.recommended_days).toFixed(0)   + 'd' : ''; } },
-        { label: 'Action',    nowrap: true, get: function(r){ return r.action || ''; } },
-        { label: 'Why',       get: function(r){ return r.reason || ''; } },
-      ], { topN: 8 });
+      // The full table was overwhelming (30 near-identical rows + a wide "Why"
+      // column that wrapped to one character per line). Replace with a 1-line
+      // summary + top-6 most-impactful cards. Full table lives in Appendix A2.
+      var pmTable = '';
+      if (pmIntervals.length) {
+        // Summary by action type
+        var byAction = {};
+        pmIntervals.forEach(function(r){
+          var k = r.action || 'OTHER';
+          byAction[k] = (byAction[k] || 0) + 1;
+        });
+        var summaryBits = Object.keys(byAction).map(function(k){
+          return '<b>' + byAction[k] + '</b> ' + escHtml(k.toLowerCase());
+        }).join(' &middot; ');
+
+        // Pick top 6 by largest gap between current interval and MTBF (most over-due adjustments)
+        var sortedPm = pmIntervals.slice().sort(function(a, b){
+          var ga = (Number(a.current_interval_d) || 0) - (Number(a.mtbf_days) || 0);
+          var gb = (Number(b.current_interval_d) || 0) - (Number(b.mtbf_days) || 0);
+          return gb - ga; // largest gap first
+        });
+        var topAdjust = sortedPm.slice(0, 6);
+
+        pmTable =
+          '<p style="font-size:0.78rem;color:#444;margin:0.25rem 0 0.5rem;">' +
+            'Across ' + pmIntervals.length + ' assets: ' + summaryBits + '. ' +
+            'The 6 assets below have the biggest gap between their current PM interval and their measured MTBF — fix these first.' +
+          '</p>' +
+          '<div class="asset-card-grid">' +
+            topAdjust.map(function(r){
+              var cur = Number(r.current_interval_d) || 0;
+              var sug = Number(r.recommended_days) || 0;
+              var mtbf = Number(r.mtbf_days) || 0;
+              var actCls = (r.action || '').toUpperCase().indexOf('INCREASE') >= 0 ? 'red' : 'amber';
+              return assetCard({
+                name:  r.machine_code || r.asset_name || '',
+                chip:  '<span class="sev-chip ' + actCls + '">' + (r.action || '') + '</span>',
+                stats:
+                  '<b>' + cur.toFixed(0) + 'd → ' + sug.toFixed(0) + 'd</b> ' +
+                  '(MTBF ' + mtbf.toFixed(1) + 'd) &middot; ' +
+                  escHtml(r.asset_name || ''),
+                why: 'Failures hitting more often than the current PM cadence catches.',
+              });
+            }).join('') +
+          '</div>' +
+          '<p style="font-size:0.7rem;color:#888;font-style:italic;margin-top:0.4rem;">' +
+            'Full list (' + pmIntervals.length + ' rows) in <b>Appendix A2</b>.' +
+          '</p>';
+      }
 
       // Build sub-sections in order, numbering only those that actually render.
       var subSections = [];
@@ -1542,11 +1580,11 @@
       styleEl.textContent = [
         '@page { margin: 1.5cm 1.25cm; }',
         '@media print {',
-        // Sections flow naturally — no forced break per section. Only the
-        // cover header takes its own page. This dropped the report from
-        // 17 pages of mostly whitespace to ~9 pages of dense content.
+        // Sections flow naturally — no forced break per section, no forced
+        // break after the header strip. Page 1 was rendering blank because
+        // the WORKHIVE letterhead was alone on it.
         '  #ar-doc > section { page-break-before: auto; break-before: auto; }',
-        '  #ar-doc > .doc-header-row { page-break-after: always; break-after: page; }',
+        '  #ar-doc > .doc-header-row { page-break-after: auto; break-after: auto; }',
         '  #ar-doc h2 { page-break-after: avoid; break-after: avoid; }',
         '  #ar-doc h3 { page-break-after: avoid; break-after: avoid; }',
         // Small atomic blocks should never split across pages.
@@ -1580,9 +1618,9 @@
   })();
   </script>
 
-  <!-- nav-hub + floating-ai (loaded LAST per Frontend skill) -->
+  <!-- nav-hub is the single FAB (replaces floating-ai per its own header comment).
+       Loading both produces 2 floating buttons — only nav-hub here. -->
   <script src="nav-hub.js"></script>
-  <script src="floating-ai.js"></script>
 
 </body>
 </html>
