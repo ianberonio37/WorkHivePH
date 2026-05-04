@@ -1519,6 +1519,10 @@ async function submitCompletion() {
 
   completions.unshift(compData);
 
+  // Phase 3C — auto-link this completion to any active project that has
+  // the asset linked. Fire-and-forget; gentle toast on match.
+  _autoLinkPmToProject(compData, currentAsset).catch(e => console.warn('project auto-link:', e));
+
   // 2. Optionally save logbook entry
   if (logAlso) {
     // Resolve the task's actual PM category by scanning templates (task may be from a different category than the asset)
@@ -1568,6 +1572,35 @@ async function submitCompletion() {
   renderDashboard();
   saveBtn.disabled = false;
   saveLabel.textContent = logAlso ? 'Save + Log in Logbook' : 'Save Completion';
+}
+
+// Phase 3C — When a PM is completed on an asset already linked to an
+// active project, auto-create a project_link so the completion surfaces
+// under the project's Linked work tab. Silent if no match.
+async function _autoLinkPmToProject(compData, asset) {
+  if (!HIVE_ID || !compData?.id || !asset?.id) return;
+  const { data: assetLinks } = await db.from('project_links')
+    .select('project_id')
+    .eq('hive_id', HIVE_ID)
+    .eq('link_type', 'asset')
+    .eq('link_id', asset.id);
+  if (!assetLinks?.length) return;
+  const projectIds = [...new Set(assetLinks.map(l => l.project_id))];
+  const { data: projs } = await db.from('projects')
+    .select('id, project_code, status')
+    .in('id', projectIds)
+    .in('status', ['planning', 'active']);
+  if (!projs?.length) return;
+  const linkRows = projs.map(p => ({
+    project_id: p.id, hive_id: HIVE_ID,
+    link_type: 'pm_completion', link_id: compData.id,
+    label: `PM ${asset.asset_name || asset.tag_id || asset.id} — ${new Date(compData.completed_at).toLocaleDateString()}`,
+  }));
+  const { error: linkErr } = await db.from('project_links').insert(linkRows);
+  if (linkErr) { console.warn('project auto-link insert:', linkErr.message); return; }
+  if (typeof showToast === 'function') {
+    showToast(`Linked to ${projs.length === 1 ? projs[0].project_code : projs.length + ' active projects'}.`);
+  }
 }
 
 async function embedPMEntry(entry) {

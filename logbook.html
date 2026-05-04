@@ -1477,6 +1477,38 @@ async function addEntry(entry) {
   if (error) { showToast('Could not save entry: ' + error.message); return; }
   document.getElementById('sync-badge').classList.remove('hidden');
   embedFaultEntry(entry);
+  // Project Manager Phase 3B — auto-link this entry to active projects
+  // that have the asset linked. Fire-and-forget; don't block save flow.
+  _autoLinkLogbookToProject(entry).catch(e => console.warn('project auto-link:', e));
+}
+
+// Phase 3B — When a logbook entry is created on an asset that's already
+// linked to an active project, auto-create a project_link so the work
+// surfaces under the project. Silent if no match; gentle toast if matched.
+async function _autoLinkLogbookToProject(entry) {
+  if (!HIVE_ID || !entry?.asset_ref_id || !entry?.id) return;
+  const { data: assetLinks } = await db.from('project_links')
+    .select('project_id, label')
+    .eq('hive_id', HIVE_ID)
+    .eq('link_type', 'asset')
+    .eq('link_id', entry.asset_ref_id);
+  if (!assetLinks?.length) return;
+  const projectIds = [...new Set(assetLinks.map(l => l.project_id))];
+  const { data: projs } = await db.from('projects')
+    .select('id, project_code, name, status')
+    .in('id', projectIds)
+    .in('status', ['planning', 'active']);
+  if (!projs?.length) return;
+  const linkRows = projs.map(p => ({
+    project_id: p.id, hive_id: HIVE_ID,
+    link_type: 'logbook', link_id: entry.id,
+    label: `${entry.machine || '?'} — ${(entry.problem || '').slice(0, 60)}`,
+  }));
+  const { error: linkErr } = await db.from('project_links').insert(linkRows);
+  if (linkErr) { console.warn('project auto-link insert:', linkErr.message); return; }
+  if (typeof showToast === 'function') {
+    showToast(`Linked to ${projs.length === 1 ? projs[0].project_code : projs.length + ' active projects'}.`);
+  }
 }
 
 async function embedFaultEntry(entry) {

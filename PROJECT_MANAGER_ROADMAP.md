@@ -222,18 +222,18 @@ Add intelligence on top of stable foundations. AI is enhancement, not the engine
 | Phase | Status | Owner | Target |
 |---|---|---|---|
 | 0 — Foundation | ✓ Done | shipped | 2026-05-05 |
-| 1A — Templates + wizard | ⬜ | — | next |
-| 1B — List view recents + grouping | ⬜ | — | next |
-| 1C — Detail view smart defaults | ⬜ | — | next |
-| 2A — networkx + module skeleton | ⬜ | — | follow-up |
-| 2B — CPM via networkx | ⬜ | — | follow-up |
-| 2C — Edge fn thin proxy | ⬜ | — | follow-up |
-| 2D — Project validator | ⬜ | — | follow-up |
-| 3A — Notifications | ⬜ | — | TBD |
-| 3B — Logbook integration | ⬜ | — | TBD |
-| 3C — PM scheduler integration | ⬜ | — | TBD |
-| 3D — Analytics integration | ⬜ | — | TBD |
-| 3E — Home card | ⬜ | — | TBD |
+| 1A — Templates + wizard | ✓ Done | local commit 71e5ea0 | 2026-05-05 |
+| 1B — List view recents + grouping | ✓ Done | local commit 6daae9b | 2026-05-05 |
+| 1C — Detail view smart defaults | ✓ Done | local commit f5fae17 | 2026-05-05 |
+| 2A — networkx + module skeleton | ✓ Done | local commit 12d619c | 2026-05-05 |
+| 2B — CPM via networkx | ✓ Done | folded into 2A | 2026-05-05 |
+| 2C — Edge fn thin proxy | ✓ Done | local commit 12d619c | 2026-05-05 |
+| 2D — Project validator | ✓ Done | local commit 12d619c | 2026-05-05 |
+| 3A — Notifications | ⬜ Deferred | — | Phase 3.5 — leverage scheduled-agents pattern |
+| 3B — Logbook integration | ✓ Done | this commit | 2026-05-05 |
+| 3C — PM scheduler integration | ✓ Done | this commit | 2026-05-05 |
+| 3D — Analytics integration | ⬜ Deferred | — | Phase 3.5 — needs analytics tab refactor |
+| 3E — Home card | ⬜ Deferred | — | Phase 3.5 — index.html is marketing page; need authenticated dashboard target |
 | 4A — Project Report PDF | ⬜ | — | TBD |
 | 4B — Lessons Learned archive | ⬜ | — | TBD |
 | 4C — Weekly digest | ⬜ | — | TBD |
