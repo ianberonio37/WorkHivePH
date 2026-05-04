@@ -87,6 +87,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "tester-coverage",
+        "script":  "validate_tester_coverage.py",
+        "args":    [],
+        "label":   "Tester Coverage Validator (every live tool page is in PUBLIC_PAGES + 4 flow PAGES lists)",
+        "group":   "Platform",
+        "report":  "tester_coverage_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "schema-coverage",
         "script":  "validate_schema_coverage.py",
         "args":    [],

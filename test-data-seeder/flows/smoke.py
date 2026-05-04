@@ -8,6 +8,7 @@ PAGES = [
     ("inventory.html",           "Inventory",             "body"),
     ("pm-scheduler.html",        "PM Scheduler",          "body"),
     ("analytics.html",           "Analytics",             "body"),
+    ("analytics-report.html",    "Analytics Report",      "body"),
     ("skillmatrix.html",         "Skill Matrix",          "body"),
     ("community.html",           "Community",             "body"),
     ("public-feed.html",         "Public feed",           "body"),

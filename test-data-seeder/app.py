@@ -47,6 +47,7 @@ PUBLIC_PAGES = [
     ("inventory.html", "Inventory"),
     ("pm-scheduler.html", "PM Scheduler"),
     ("analytics.html", "Analytics dashboard"),
+    ("analytics-report.html", "Analytics Report (print/PDF)"),
     ("skillmatrix.html", "Skill Matrix"),
     ("community.html", "Community"),
     ("public-feed.html", "Public feed"),
@@ -1424,6 +1425,119 @@ def _register_in_assistant_prompt(name: str, label: str, summary: str) -> dict:
     return {"file": "assistant.html", "added": f"STAGE 2 bullet for {name}.html"}
 
 
+# ── Phase 2 wizard helpers (added 2026-05-04) ────────────────────────────────
+# Extends the wizard from "scaffold + 4 registries" to true one-click coverage:
+# also writes to floating-ai PLATFORM TOOLS, the 5 Tester registries, and the
+# 2 LIVE_PAGES validator scopes. Together with the existing 4 helpers above
+# this makes the wizard register a new tool page in 9 places per click, which
+# covers everything `run_platform_checks.py --fast` checks.
+
+def _register_in_floating_ai_platform_tools(name: str, label: str, summary: str) -> dict:
+    """Add a `- {label} ({name}.html): {summary}` bullet to the PLATFORM TOOLS
+    section in floating-ai.js. This is separate from the page-context branch
+    that `_register_in_floating_ai` adds — that one tells the AI the page name,
+    this one tells the AI what the page DOES so it can answer
+    'where do I find X?' questions. validate_assistant.py
+    `check_platform_tools_completeness` enforces this.
+    """
+    f = WORKHIVE_ROOT / "floating-ai.js"
+    text = f.read_text(encoding="utf-8")
+    if f"({name}.html)" in text:
+        return {"file": "floating-ai.js (PLATFORM TOOLS)", "skipped": "tool already in PLATFORM TOOLS"}
+
+    new_bullet = f"- {label} ({name}.html): {summary}\n"
+    # Insert just before the "Parts Tracker: Retired." line that closes the
+    # PLATFORM TOOLS list. Fallback markers for resilience if the file changes.
+    for marker in [
+        "- Parts Tracker: Retired.",
+        "You handle three types of conversations",
+    ]:
+        if marker in text:
+            text = text.replace(marker, new_bullet + marker, 1)
+            f.write_text(text, encoding="utf-8")
+            return {"file": "floating-ai.js (PLATFORM TOOLS)", "added": f"bullet for {name}.html"}
+    return {"file": "floating-ai.js (PLATFORM TOOLS)", "error": "could not locate insertion point"}
+
+
+def _register_in_tester_public_pages(name: str, label: str) -> dict:
+    """Add a `("{name}.html", "{label}")` tuple to PUBLIC_PAGES in
+    test-data-seeder/app.py — the Tester needs this to serve the page."""
+    f = WORKHIVE_ROOT / "test-data-seeder" / "app.py"
+    text = f.read_text(encoding="utf-8")
+    if f'"{name}.html"' in text:
+        return {"file": "test-data-seeder/app.py (PUBLIC_PAGES)", "skipped": "page already listed"}
+    new_text, n = re.subn(
+        r'(PUBLIC_PAGES\s*=\s*\[[^\]]*?)(\n\])',
+        rf'\1\n    ("{name}.html", "{label}"),\2',
+        text,
+        count=1,
+        flags=re.DOTALL,
+    )
+    if n == 0:
+        return {"file": "test-data-seeder/app.py (PUBLIC_PAGES)", "error": "could not locate PUBLIC_PAGES list"}
+    f.write_text(new_text, encoding="utf-8")
+    return {"file": "test-data-seeder/app.py (PUBLIC_PAGES)", "added": f'"{name}.html" entry'}
+
+
+def _register_in_tester_flow(name: str, flow_file: str) -> dict:
+    """Add `"{name}.html"` to the PAGES list in a Tester flow file
+    (smoke.py / visual.py / mobile.py / performance.py).
+
+    These four files have slightly different PAGES list shapes:
+      smoke.py:       list of (filename, label, selector) tuples
+      visual/mobile/performance: flat list of filename strings
+    We detect which by looking at the first item.
+    """
+    rel = f"test-data-seeder/flows/{flow_file}"
+    f = WORKHIVE_ROOT / "test-data-seeder" / "flows" / flow_file
+    text = f.read_text(encoding="utf-8")
+    if f'"{name}.html"' in text or f"'{name}.html'" in text:
+        return {"file": rel, "skipped": "page already in PAGES"}
+
+    # Detect flow shape: smoke.py uses tuples (filename, label, selector)
+    if flow_file == "smoke.py":
+        # Best-effort label from name: "analytics-report" -> "Analytics Report"
+        label = name.replace("-", " ").title()
+        new_entry = f'    ("{name}.html",   "{label}",  "body"),'
+    else:
+        new_entry = f'    "{name}.html",'
+
+    new_text, n = re.subn(
+        r'(PAGES\s*=\s*\[[^\]]*?)(\n\])',
+        rf'\1\n{new_entry}\2',
+        text,
+        count=1,
+        flags=re.DOTALL,
+    )
+    if n == 0:
+        return {"file": rel, "error": "could not locate PAGES list"}
+    f.write_text(new_text, encoding="utf-8")
+    return {"file": rel, "added": f'"{name}.html" to PAGES'}
+
+
+def _register_in_validator_live_pages(name: str, validator_file: str) -> dict:
+    """Add `"{name}.html"` to the LIVE_PAGES list in a validator
+    (validate_schema.py or validate_performance.py). These are the per-page
+    DB / performance scopes — without registration, the validator silently
+    skips your new page.
+    """
+    f = WORKHIVE_ROOT / validator_file
+    text = f.read_text(encoding="utf-8")
+    if f'"{name}.html"' in text:
+        return {"file": validator_file + " (LIVE_PAGES)", "skipped": "page already in LIVE_PAGES"}
+    new_text, n = re.subn(
+        r'(LIVE_PAGES\s*=\s*\[[^\]]*?)(\n\])',
+        rf'\1\n    "{name}.html",\2',
+        text,
+        count=1,
+        flags=re.DOTALL,
+    )
+    if n == 0:
+        return {"file": validator_file + " (LIVE_PAGES)", "error": "could not locate LIVE_PAGES list"}
+    f.write_text(new_text, encoding="utf-8")
+    return {"file": validator_file + " (LIVE_PAGES)", "added": f'"{name}.html" entry'}
+
+
 @app.route("/api/wizard/html-page", methods=["POST"])
 def api_wizard_html_page():
     """Scaffold a new HTML page and register it in every registry the gate checks."""
@@ -1463,30 +1577,52 @@ def api_wizard_html_page():
     target.write_text(html, encoding="utf-8")
 
     # ── Register in registries based on classification ────────────────────
+    # For "tool" pages we hit 9 registries in one pass, mirroring everything
+    # `run_platform_checks.py --fast` checks. The 4 original (Phase 1) plus
+    # the 5 new (Phase 2) below — together this is true one-click coverage.
     registry_results = []
     if classification == "tool":
+        # Phase 1 — original 4 registries
         registry_results.append(_register_in_live_tool_pages(name))
         registry_results.append(_register_in_nav_hub(name, display_name))
         registry_results.append(_register_in_floating_ai(name, display_name, hint))
         registry_results.append(_register_in_assistant_prompt(name, display_name, summary))
+
+        # Phase 2 — extended one-click coverage (added 2026-05-04)
+        # PLATFORM TOOLS bullet — different from page-context branch above
+        registry_results.append(_register_in_floating_ai_platform_tools(name, display_name, summary))
+        # Tester registries (5: PUBLIC_PAGES + 4 flow PAGES lists) — without
+        # these the new page never gets served by the Tester or covered by
+        # smoke / visual / mobile / performance flows.
+        registry_results.append(_register_in_tester_public_pages(name, display_name))
+        for flow_file in ("smoke.py", "visual.py", "mobile.py", "performance.py"):
+            registry_results.append(_register_in_tester_flow(name, flow_file))
+        # LIVE_PAGES validator scopes — without these the page is silently
+        # skipped by schema-coverage and performance-budget scans.
+        for validator_file in ("validate_schema.py", "validate_performance.py"):
+            registry_results.append(_register_in_validator_live_pages(name, validator_file))
     else:
         registry_results.append(_register_in_non_tool_pages(f"{name}.html"))
 
-    # ── Re-run auto-discovery to verify ────────────────────────────────────
-    auto_discovery_ok = None
-    auto_discovery_msg = None
-    try:
-        proc = subprocess.run(
-            [sys.executable, str(WORKHIVE_ROOT / "validate_auto_discovery.py")],
-            cwd=str(WORKHIVE_ROOT),
-            capture_output=True, text=True,
-            encoding="utf-8", errors="replace",
-            timeout=30,
-        )
-        auto_discovery_ok = proc.returncode == 0
-        auto_discovery_msg = (proc.stdout or "")[-400:]
-    except Exception as e:
-        auto_discovery_msg = f"verifier crashed: {e}"
+    # ── Re-run auto-discovery + tester-coverage validators to verify ─────────
+    # auto-discovery alone catches ~half of the registries above; running
+    # tester-coverage in addition gives full confidence the wizard worked.
+    verifier_results = {}
+    for vname in ("validate_auto_discovery.py", "validate_tester_coverage.py"):
+        try:
+            proc = subprocess.run(
+                [sys.executable, str(WORKHIVE_ROOT / vname)],
+                cwd=str(WORKHIVE_ROOT),
+                capture_output=True, text=True,
+                encoding="utf-8", errors="replace",
+                timeout=30,
+            )
+            verifier_results[vname] = {
+                "pass": proc.returncode == 0,
+                "tail": (proc.stdout or "")[-400:],
+            }
+        except Exception as e:
+            verifier_results[vname] = {"pass": False, "tail": f"verifier crashed: {e}"}
 
     return jsonify({
         "ok": True,
@@ -1495,8 +1631,10 @@ def api_wizard_html_page():
         "display_name": display_name,
         "files_created": [f"{name}.html"],
         "registries_updated": registry_results,
-        "auto_discovery_pass": auto_discovery_ok,
-        "auto_discovery_tail": auto_discovery_msg,
+        "verifiers": verifier_results,
+        # Back-compat: keep the original keys so the existing modal still works
+        "auto_discovery_pass": verifier_results.get("validate_auto_discovery.py", {}).get("pass"),
+        "auto_discovery_tail": verifier_results.get("validate_auto_discovery.py", {}).get("tail"),
     })
 
 
