@@ -79,11 +79,17 @@ def s0_logbook_quality(db):
     else:
         results.append(fail(f"worker_name not display-name format: {name_samples}"))
 
-    # Equipment in machine field — should contain a tag like (GEN-001)
+    # Equipment in machine field — should be the bare tag ID like 'GEN-001'.
+    # The seeder was deliberately changed (PRODUCTION_FIXES #17) to match the
+    # production format; logbook.html stores assets.asset_id directly, NOT
+    # "<name> (asset_id)". The legacy paren-wrapped format would break analytics
+    # joins. Accept bare tag IDs of the form LETTERS-DIGITS.
+    import re as _re
     machine_samples = [r["machine"] for r in rows[:5]]
-    has_tag = sum(1 for m in machine_samples if "(" in str(m) and ")" in str(m))
+    tag_re = _re.compile(r"^[A-Z]{1,6}-\d{2,4}$")
+    has_tag = sum(1 for m in machine_samples if tag_re.match(str(m or "").strip()))
     if has_tag >= 4:
-        results.append(ok(f"machine field includes tag IDs: {machine_samples[:2]}"))
+        results.append(ok(f"machine field uses bare tag IDs: {machine_samples[:2]}"))
     else:
         results.append(fail(f"machine field missing tag IDs: {machine_samples}"))
 
