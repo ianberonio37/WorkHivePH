@@ -54,6 +54,51 @@
   .filter-row { display: grid; grid-template-columns: 1fr 1fr 2fr auto; gap: 8px; margin-bottom: 14px; }
   @media (max-width: 720px) { .filter-row { grid-template-columns: 1fr 1fr; } .filter-row > .new-btn { grid-column: 1 / -1; } }
 
+  /* ── Recents strip ────────────────────────────────────────── */
+  .recent-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .recent-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-right: 4px; }
+  .recent-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 999px;
+    padding: 5px 11px; font-size: 0.82rem; cursor: pointer; transition: all 0.15s;
+  }
+  .recent-chip:hover { border-color: var(--gold); background: var(--card-hover); }
+  .recent-chip .pcode { font-size: 0.7rem; color: var(--muted); font-weight: 600; }
+  .recent-chip .ptype-pill { font-size: 0.6rem; padding: 1px 6px; }
+
+  /* ── Tab counts ───────────────────────────────────────────── */
+  .tab-count {
+    display: inline-block; background: rgba(255,255,255,0.08); color: var(--muted);
+    border-radius: 999px; padding: 1px 8px; font-size: 0.72rem; font-weight: 600; margin-left: 5px;
+  }
+  .tab-strip button.active .tab-count { background: rgba(247,162,27,0.22); color: var(--gold); }
+
+  /* ── Status group headers (All tab grouped view) ─────────── */
+  .group {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    margin-bottom: 12px; overflow: hidden;
+  }
+  .group-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px; cursor: pointer; user-select: none;
+    background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border);
+  }
+  .group-header:hover { background: rgba(255,255,255,0.04); }
+  .group-title { font-weight: 700; font-size: 0.92rem; display: flex; gap: 8px; align-items: center; }
+  .group-chev { color: var(--muted); transition: transform 0.2s; }
+  .group.collapsed .group-chev { transform: rotate(-90deg); }
+  .group.collapsed .group-content { display: none; }
+  .group-content { padding: 12px; }
+  .group-content .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 12px; }
+
+  /* ── Empty state with type tiles (reuses wizard tile style) ── */
+  .empty-tiles-wrap {
+    background: var(--surface); border: 1px dashed var(--border); border-radius: 14px;
+    padding: 24px; margin-top: 8px;
+  }
+  .empty-tiles-headline { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; text-align: center; }
+  .empty-tiles-sub { font-size: 0.88rem; color: var(--muted); text-align: center; margin-bottom: 18px; }
+
   /* ── Project cards ────────────────────────────────────────── */
   .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 12px; }
   .pcard {
@@ -280,6 +325,8 @@
       <span id="hive-tag" class="small" style="color: var(--muted);"></span>
     </div>
     <div class="sub">Plan, track and close out maintenance projects: work-order bundles, shutdowns, CAPEX, and contractor jobs.</div>
+
+    <div class="recent-row" id="recent-strip"></div>
 
     <div class="tab-strip" id="status-tabs">
       <button data-status="active"   class="active">Active</button>
@@ -597,6 +644,8 @@ const db = supabase.createClient(
 let _projects   = [];
 let _members    = [];                      // hive_members worker_name list
 let _activeFilter = { status: 'active', type: '', owner: '', search: '' };
+let _recents    = [];                      // last-5 opened {id, code, name, type}
+let _groupOpen  = {};                      // status -> bool, persisted
 let _detailId   = null;
 let _detail     = null;                    // currently opened project
 let _items      = [];                      // scope items for opened project
@@ -661,6 +710,8 @@ async function validateHiveMembership() {
   if (!isMember) { $('hive-gate').style.display = 'flex'; return; }
 
   $('hive-tag').textContent = HIVE_NAME ? '🐝 ' + HIVE_NAME : '';
+  loadRecents();
+  loadGroupState();
   await loadHiveMembers();
   await loadProjects();
   bindFilters();
@@ -709,26 +760,13 @@ async function loadProjects() {
       p._items_done  = r ? r.done : 0;
     });
   }
+  updateTabCounts();
+  renderRecents();
   renderList();
 }
 
-function renderList() {
-  const grid = $('card-grid');
-  let list = _projects.filter(p => {
-    if (_activeFilter.status && p.status !== _activeFilter.status) return false;
-    if (_activeFilter.type && p.project_type !== _activeFilter.type) return false;
-    if (_activeFilter.owner && p.owner_name !== _activeFilter.owner) return false;
-    if (_activeFilter.search) {
-      const q = _activeFilter.search.toLowerCase();
-      if (!p.name.toLowerCase().includes(q) && !p.project_code.toLowerCase().includes(q)) return false;
-    }
-    return true;
-  });
-  if (!list.length) {
-    grid.innerHTML = '<div class="empty" style="grid-column: 1 / -1;">No projects match the filter.<br><br><button class="btn primary" onclick="openNewProject()">+ Create your first project</button></div>';
-    return;
-  }
-  grid.innerHTML = list.map(p => `
+function pcardHtml(p) {
+  return `
     <div class="pcard" onclick="openDetail('${e(p.id)}')">
       <div class="pcard-head">
         <span class="pcode">${e(p.project_code)}</span>
@@ -745,8 +783,140 @@ function renderList() {
         <span class="status-pill status-${p.status}">${e(p.status.replace('_', ' '))}</span>
         <span>${p._pct || 0}%</span>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+}
+
+function renderEmptyState(grid, totalProjects) {
+  // No projects at all → show 4 type tiles to start. Some projects exist but
+  // none match filter → simple empty hint.
+  if (totalProjects === 0) {
+    grid.innerHTML = `
+      <div class="empty-tiles-wrap" style="grid-column: 1 / -1;">
+        <div class="empty-tiles-headline">No projects yet — start with a template</div>
+        <div class="empty-tiles-sub">Pick a flavour. Each one comes with industry-standard scope items you can tweak.</div>
+        <div class="type-tile-grid">
+          <div class="type-tile" onclick="openNewProject(); setTimeout(()=>wizardPickType('workorder'), 0);">
+            <div class="type-tile-icon">🔧</div>
+            <div class="type-tile-name">Work Order Bundle</div>
+            <div class="type-tile-desc">Tie related logbook entries, PMs and parts under one umbrella.</div>
+          </div>
+          <div class="type-tile" onclick="openNewProject(); setTimeout(()=>wizardPickType('shutdown'), 0);">
+            <div class="type-tile-icon">🛑</div>
+            <div class="type-tile-name">Shutdown / Turnaround</div>
+            <div class="type-tile-desc">Multi-day plant outages with critical path and daily progress.</div>
+          </div>
+          <div class="type-tile" onclick="openNewProject(); setTimeout(()=>wizardPickType('capex'), 0);">
+            <div class="type-tile-icon">📐</div>
+            <div class="type-tile-name">CAPEX / Improvement</div>
+            <div class="type-tile-desc">FEL stage gates, budget tracking, EVM. Class 5 → 1.</div>
+          </div>
+          <div class="type-tile" onclick="openNewProject(); setTimeout(()=>wizardPickType('contractor'), 0);">
+            <div class="type-tile-icon">📋</div>
+            <div class="type-tile-name">Contractor Job Folder</div>
+            <div class="type-tile-desc">Outside-vendor scope: BOM, SOW, daily progress, sign-off.</div>
+          </div>
+        </div>
+      </div>`;
+  } else {
+    grid.innerHTML = '<div class="empty" style="grid-column: 1 / -1;">No projects match the filter. Try clearing search or switching to All.</div>';
+  }
+}
+
+function renderList() {
+  const grid = $('card-grid');
+  let list = _projects.filter(p => {
+    if (_activeFilter.status && p.status !== _activeFilter.status) return false;
+    if (_activeFilter.type && p.project_type !== _activeFilter.type) return false;
+    if (_activeFilter.owner && p.owner_name !== _activeFilter.owner) return false;
+    if (_activeFilter.search) {
+      const q = _activeFilter.search.toLowerCase();
+      if (!p.name.toLowerCase().includes(q) && !p.project_code.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+  if (!list.length) { renderEmptyState(grid, _projects.length); return; }
+
+  // Status filter set → flat grid (current behaviour)
+  if (_activeFilter.status) {
+    grid.style.display = 'grid';
+    grid.innerHTML = list.map(pcardHtml).join('');
+    return;
+  }
+
+  // "All" tab → group by status, auto-expand active, collapse others (user-toggleable)
+  grid.style.display = 'block';
+  const order = ['active', 'planning', 'on_hold', 'complete', 'cancelled', 'archived'];
+  const labels = { active: 'Active', planning: 'Planning', on_hold: 'On hold', complete: 'Complete', cancelled: 'Cancelled', archived: 'Archived' };
+  const groups = {};
+  list.forEach(p => { (groups[p.status] = groups[p.status] || []).push(p); });
+  const html = order.filter(k => groups[k]?.length).map(status => {
+    const items = groups[status];
+    const open = (_groupOpen[status] !== undefined) ? _groupOpen[status] : (status === 'active');
+    return `
+      <div class="group ${open ? '' : 'collapsed'}" data-status="${status}">
+        <div class="group-header" onclick="toggleGroup('${status}')">
+          <div class="group-title">
+            <span class="status-pill status-${status}">${e(labels[status])}</span>
+            <span class="small" style="color:var(--muted);">${items.length} project${items.length === 1 ? '' : 's'}</span>
+          </div>
+          <span class="group-chev">▾</span>
+        </div>
+        <div class="group-content"><div class="card-grid">${items.map(pcardHtml).join('')}</div></div>
+      </div>`;
+  }).join('');
+  grid.innerHTML = html;
+}
+
+function toggleGroup(status) {
+  const cur = (_groupOpen[status] !== undefined) ? _groupOpen[status] : (status === 'active');
+  _groupOpen[status] = !cur;
+  try { localStorage.setItem('wh_pm_groups_' + HIVE_ID, JSON.stringify(_groupOpen)); } catch {}
+  document.querySelector(`.group[data-status="${status}"]`)?.classList.toggle('collapsed', !_groupOpen[status]);
+}
+
+/* ── Tab counts ────────────────────────────────────────────── */
+function updateTabCounts() {
+  const counts = { active: 0, planning: 0, on_hold: 0, complete: 0, '': _projects.length };
+  _projects.forEach(p => { counts[p.status] = (counts[p.status] || 0) + 1; });
+  document.querySelectorAll('#status-tabs button').forEach(btn => {
+    const s = btn.dataset.status;
+    const label = btn.dataset.label || (btn.textContent.replace(/\s*\d+\s*$/, '').trim());
+    btn.dataset.label = label;
+    const n = counts[s] ?? 0;
+    btn.innerHTML = `${e(label)} <span class="tab-count">${n}</span>`;
+  });
+}
+
+/* ── Recents strip ────────────────────────────────────────── */
+function loadRecents() {
+  try { _recents = JSON.parse(localStorage.getItem('wh_pm_recent_' + HIVE_ID) || '[]'); } catch { _recents = []; }
+}
+function saveRecents() {
+  try { localStorage.setItem('wh_pm_recent_' + HIVE_ID, JSON.stringify(_recents.slice(0, 5))); } catch {}
+}
+function pushRecent(p) {
+  _recents = [{ id: p.id, code: p.project_code, name: p.name, type: p.project_type, opened_at: Date.now() },
+              ..._recents.filter(r => r.id !== p.id)].slice(0, 5);
+  saveRecents();
+  renderRecents();
+}
+function renderRecents() {
+  const strip = $('recent-strip'); if (!strip) return;
+  if (!_recents.length) { strip.innerHTML = ''; return; }
+  // Drop any recents that no longer exist (deleted projects)
+  const valid = _recents.filter(r => _projects.some(p => p.id === r.id));
+  if (valid.length !== _recents.length) { _recents = valid; saveRecents(); }
+  if (!valid.length) { strip.innerHTML = ''; return; }
+  strip.innerHTML = '<span class="recent-label">Jump back:</span>' +
+    valid.map(r => `
+      <span class="recent-chip" onclick="openDetail('${e(r.id)}')" title="${e(r.name)}">
+        <span class="pcode">${e(r.code)}</span>
+        <span class="ptype-pill ptype-${r.type}">${e(r.type)}</span>
+      </span>`).join('');
+}
+
+function loadGroupState() {
+  try { _groupOpen = JSON.parse(localStorage.getItem('wh_pm_groups_' + HIVE_ID) || '{}'); } catch { _groupOpen = {}; }
 }
 
 /* ── Filters ───────────────────────────────────────────────── */
@@ -1263,6 +1433,7 @@ async function openDetail(id) {
   const { data, error } = await db.from('projects').select('*').eq('id', id).is('deleted_at', null).maybeSingle();
   if (error || !data) { showToast('Could not load project', 'error'); return; }
   _detail = data;
+  pushRecent(data);
   $('list-view').style.display = 'none';
   $('detail-view').classList.add('open');
   $('d-code').textContent = data.project_code;
