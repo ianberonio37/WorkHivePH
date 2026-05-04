@@ -234,6 +234,11 @@ Add intelligence on top of stable foundations. AI is enhancement, not the engine
 | 3C — PM scheduler integration | ✓ Done | this commit | 2026-05-05 |
 | 3D — Analytics integration | ⬜ Deferred | — | Phase 3.5 — needs analytics tab refactor |
 | 3E — Home card | ⬜ Deferred | — | Phase 3.5 — index.html is marketing page; need authenticated dashboard target |
+| 4A — Project Report PDF | ✓ Done | this commit | 2026-05-05 |
+| 4B — Lessons Learned (in-page) | ✓ Done | this commit (textarea on Sign-off) | 2026-05-05 |
+| 4B — Lessons Learned archive | ⬜ Deferred | — | dedicated searchable page; Phase 4.5 |
+| 4C — Weekly digest email | ⬜ Deferred | — | Phase 4.5 — pairs with 3A notifications |
+| 4D — Contractor handover packet | ✓ Done | this commit (Sign-off block adapts when project_type=contractor) | 2026-05-05 |
 | 4A — Project Report PDF | ⬜ | — | TBD |
 | 4B — Lessons Learned archive | ⬜ | — | TBD |
 | 4C — Weekly digest | ⬜ | — | TBD |

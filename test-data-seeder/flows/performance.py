@@ -22,6 +22,7 @@ PAGES = [
     "marketplace.html", "dayplanner.html", "engineering-design.html",
     "report-sender.html",
     "project-manager.html",
+    "project-report.html",
 ]
 
 # All in milliseconds

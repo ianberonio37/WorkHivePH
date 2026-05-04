@@ -61,6 +61,7 @@ PUBLIC_PAGES = [
     ("architecture.html", "Architecture"),
     ("symbol-gallery.html", "Symbol gallery"),
     ("project-manager.html", "Project Manager"),
+    ("project-report.html", "Project Report"),
 ]
 PUBLIC_PAGE_SET = {p[0] for p in PUBLIC_PAGES}
 

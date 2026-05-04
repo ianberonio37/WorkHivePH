@@ -51,6 +51,7 @@ LIVE_PAGES = [
     "marketplace-seller-profile.html",
     "public-feed.html",
     "project-manager.html",
+    "project-report.html",
 ]
 
 HIGH_GROWTH_TABLES = ["logbook", "inventory_transactions"]

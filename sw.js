@@ -1,7 +1,7 @@
 // WorkHive Report Sender — Service Worker
 // Enables PWA installability and offline shell on Chrome/Android.
 
-const CACHE_NAME  = 'report-sender-v8';
+const CACHE_NAME  = 'report-sender-v9';
 const SHELL_FILES = [
   '/report-sender.html',
   '/report-sender-manifest.json',

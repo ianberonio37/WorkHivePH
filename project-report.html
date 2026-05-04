@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Project Report | WorkHive</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FFFFFF; --ink: #1F2A37; --muted: #5B6878;
+    --accent: #0E5E8A; --rule: #D7DDE5; --cell-bg: #F7F9FC;
+    --green: #1F7A3A; --amber: #B47B00; --red: #B43A3A; --gold: #B47B00;
+    --bg-shell: #0f1923; --shell-text: #F4F6FA;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg-shell); color: var(--shell-text); font-family: 'Poppins', system-ui, sans-serif; }
+  body { padding-top: 60px; min-height: 100vh; }
+
+  .toolbar {
+    position: sticky; top: 60px; z-index: 50;
+    background: rgba(15,25,35,0.96); border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 10px 16px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+  }
+  .toolbar h1 { font-size: 1.05rem; font-weight: 700; }
+  .toolbar .grow { flex: 1; min-width: 0; }
+  .toolbar button, .toolbar a.btn {
+    font-family: inherit; font-size: 0.9rem; font-weight: 600;
+    background: #1d2e44; color: var(--shell-text);
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
+    padding: 8px 14px; cursor: pointer; text-decoration: none;
+  }
+  .toolbar button:hover, .toolbar a.btn:hover { background: #243a55; }
+  .toolbar .primary { background: #F7A21B; color: #1a1208; border-color: #F7A21B; }
+  .toolbar .primary:hover { background: #ffb840; }
+
+  #ar-print-wrapper {
+    background: var(--paper); color: var(--ink);
+    font-family: 'IBM Plex Sans', 'Poppins', system-ui, sans-serif;
+    font-size: 11pt; line-height: 1.55;
+    max-width: 980px; margin: 16px auto; padding: 32px 38px;
+    box-shadow: 0 4px 22px rgba(0,0,0,0.6);
+  }
+  #ar-print-wrapper h1, #ar-print-wrapper h2, #ar-print-wrapper h3 { color: var(--ink); font-weight: 700; }
+  #ar-print-wrapper h1 { font-size: 24pt; line-height: 1.15; letter-spacing: -0.01em; }
+  #ar-print-wrapper h2 { font-size: 14pt; margin: 24px 0 8px; padding-bottom: 4px; border-bottom: 2px solid var(--accent); }
+  #ar-print-wrapper h3 { font-size: 11pt; margin: 16px 0 4px; color: var(--accent); }
+  #ar-print-wrapper p, #ar-print-wrapper li { color: var(--ink); font-size: 10.5pt; }
+
+  .doc-cover { text-align: left; padding-bottom: 18px; border-bottom: 3px solid var(--accent); margin-bottom: 18px; }
+  .doc-cover .pcode { font-size: 9.5pt; color: var(--muted); letter-spacing: 0.06em; font-weight: 700; }
+  .doc-cover .ptitle { font-size: 22pt; font-weight: 700; margin: 6px 0; line-height: 1.1; }
+  .doc-cover .pmeta { font-size: 9.5pt; color: var(--muted); margin-top: 8px; }
+  .doc-cover .pmeta span { display: inline-block; margin-right: 16px; }
+
+  .ptype-pill { display: inline-block; font-size: 8pt; padding: 2px 9px; border-radius: 999px;
+                font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+  .ptype-workorder  { background: #DCEEF6; color: #186A88; }
+  .ptype-shutdown   { background: #FBE4E4; color: #8E1F1F; }
+  .ptype-capex      { background: #FBEED2; color: #885200; }
+  .ptype-contractor { background: #DBF1E2; color: #1F6F35; }
+
+  .status-pill { display: inline-block; font-size: 8pt; padding: 2px 8px; border-radius: 999px;
+                 font-weight: 700; letter-spacing: 0.04em; }
+  .status-planning  { background: #ECEFF4; color: var(--muted); }
+  .status-active    { background: #DBF1E2; color: var(--green); }
+  .status-on_hold   { background: #FBEED2; color: var(--amber); }
+  .status-complete  { background: #DCEEF6; color: var(--accent); }
+  .status-cancelled { background: #FBE4E4; color: var(--red); }
+  .status-archived  { background: #ECEFF4; color: var(--muted); }
+
+  .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0 8px; }
+  .kpi { background: var(--cell-bg); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; }
+  .kpi-label { font-size: 8.5pt; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .kpi-value { font-size: 18pt; font-weight: 800; color: var(--ink); margin-top: 2px; line-height: 1.05; }
+  .kpi-sub   { font-size: 8.5pt; color: var(--muted); margin-top: 2px; }
+  .kpi.green .kpi-value { color: var(--green); }
+  .kpi.amber .kpi-value { color: var(--amber); }
+  .kpi.red   .kpi-value { color: var(--red); }
+
+  .insight-card { background: linear-gradient(135deg, #FBEED2 0%, #FFFCF0 100%);
+                  border-left: 4px solid var(--accent); padding: 12px 16px;
+                  border-radius: 6px; margin: 12px 0; }
+  .insight-card .label { font-size: 8.5pt; color: var(--muted); font-weight: 700;
+                         text-transform: uppercase; letter-spacing: 0.05em; }
+  .insight-card .text { font-size: 11pt; color: var(--ink); margin-top: 4px; }
+
+  table.doc-table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 6px 0 10px; }
+  table.doc-table th, table.doc-table td { text-align: left; padding: 6px 8px;
+                                            border-bottom: 1px solid var(--rule); vertical-align: top; }
+  table.doc-table th { font-size: 8pt; color: var(--muted); text-transform: uppercase;
+                       letter-spacing: 0.04em; font-weight: 700; background: var(--cell-bg); }
+  table.doc-table tr.done td { color: var(--muted); text-decoration: line-through; }
+  .nowrap { white-space: nowrap; }
+  .right  { text-align: right; }
+
+  .phase-tag { display: inline-block; font-size: 8pt; padding: 1px 7px; border-radius: 999px;
+               font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+  .phase-pre, .phase-fel1        { background: #ECEFF4; color: var(--muted); }
+  .phase-execute, .phase-fel2    { background: #DCEEF6; color: var(--accent); }
+  .phase-commission, .phase-fel3 { background: #DBF1E2; color: var(--green); }
+  .phase-close                   { background: #FBEED2; color: var(--gold); }
+  .phase-gate                    { background: #FBE4E4; color: var(--red); }
+
+  .signoff-block { border: 1px solid var(--rule); border-radius: 6px; padding: 16px;
+                   margin-top: 12px; background: var(--cell-bg); }
+  .signoff-row { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 18px; }
+  .signoff-line { border-top: 1px solid var(--ink); padding-top: 4px; font-size: 9pt; color: var(--muted); }
+  .signoff-line strong { color: var(--ink); display: block; font-size: 10pt; margin-bottom: 1px; }
+
+  .progress-mini { display: inline-block; vertical-align: middle; height: 6px; background: var(--rule);
+                   border-radius: 3px; overflow: hidden; width: 80px; }
+  .progress-mini > div { height: 100%; background: var(--accent); }
+  .empty-section { padding: 16px; color: var(--muted); font-style: italic; text-align: center; }
+
+  @media print {
+    @page { size: A4; margin: 14mm 12mm; }
+    html, body { background: white; padding: 0; }
+    .toolbar, nav, header, .nav-hub, #wh-nav, [data-nav-hub], #floating-ai-root, #floating-ai-fab { display: none !important; }
+    body > *:not(#ar-print-wrapper) { display: none !important; }
+    #ar-print-wrapper { box-shadow: none; max-width: none; margin: 0; padding: 0; }
+    h2 { page-break-after: avoid; }
+    table.doc-table, .signoff-block { page-break-inside: avoid; }
+    tr { page-break-inside: avoid; }
+  }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div id="ar-print-wrapper">
+  <div class="doc-cover">
+    <span class="pcode" id="cov-code">PROJECT</span>
+    <h1 class="ptitle" id="cov-title">Project Report</h1>
+    <div>
+      <span class="ptype-pill"  id="cov-type">type</span>
+      <span class="status-pill" id="cov-status">status</span>
+      <span style="font-size: 9pt; color: var(--muted); margin-left: 8px;" id="cov-priority"></span>
+    </div>
+    <div class="pmeta">
+      <span><strong>Owner:</strong> <span id="cov-owner">—</span></span>
+      <span><strong>Period:</strong> <span id="cov-period">—</span></span>
+      <span><strong>Generated:</strong> <span id="cov-generated">—</span></span>
+      <span><strong>Hive:</strong> <span id="cov-hive">—</span></span>
+    </div>
+  </div>
+
+  <h2>&sect;1&nbsp;&nbsp;Executive Summary</h2>
+  <div id="exec-summary"></div>
+
+  <h2>&sect;2&nbsp;&nbsp;Scope of Work (WBS)</h2>
+  <div id="scope-section"></div>
+
+  <h2>&sect;3&nbsp;&nbsp;Linked Work</h2>
+  <div id="linked-section"></div>
+
+  <h2>&sect;4&nbsp;&nbsp;Daily Progress Timeline</h2>
+  <div id="progress-section"></div>
+
+  <h2>&sect;5&nbsp;&nbsp;Lessons Learned</h2>
+  <div id="lessons-section"></div>
+
+  <h2>&sect;6&nbsp;&nbsp;Sign-off</h2>
+  <div id="signoff-section"></div>
+
+  <h2>&sect;7&nbsp;&nbsp;Appendix &mdash; Standards &amp; References</h2>
+  <div id="appendix-section">
+    <p style="font-size: 9.5pt; color: var(--muted); line-height: 1.55;">
+      This report follows: <strong>PMBOK 7th ed.</strong>, <strong>AACE 17R-97</strong>
+      (Cost Estimate Classification), <strong>AACE 80R-13</strong> (Project Performance
+      Measurement / EVM), <strong>IDCON 6-Phase</strong> shutdown management model, and
+      <strong>ISO 21500:2021</strong> (Guidance on project management). Critical path
+      computed via Forward + Backward Pass (PMBOK &sect;6.5.2.2). Earned Value formulas:
+      PV = BAC &times; planned %, EV = BAC &times; actual %, AC = labour hours &times; rate.
+    </p>
+  </div>
+</div>
+
+<main>
+  <div class="toolbar">
+    <h1 id="tb-title">Loading project&hellip;</h1>
+    <div class="grow"></div>
+    <a href="project-manager.html" class="btn">&larr; Back</a>
+    <button class="btn" onclick="window.print()">Print</button>
+    <button class="btn primary" onclick="saveAsPdf()">Save as PDF</button>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="utils.js"></script>
+<script>
+let WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
+let HIVE_NAME   = localStorage.getItem('wh_hive_name') || '';
+
+const db = supabase.createClient(
+  'https://hzyvnjtisfgbksicrouu.supabase.co',
+  'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'
+);
+
+const e = typeof escHtml === 'function' ? escHtml : (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function $(id) { return document.getElementById(id); }
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function fmtPHP(n) { return n == null ? '—' : '₱' + Number(n).toLocaleString(undefined, { maximumFractionDigits: 0 }); }
+
+const PHASE_LABELS = { pre: 'Pre', execute: 'Execute', commission: 'Commission', close: 'Close',
+                       fel1: 'FEL-1', fel2: 'FEL-2', fel3: 'FEL-3', gate: 'Stage Gate' };
+const PHASE_ORDER = ['pre', 'fel1', 'fel2', 'fel3', 'gate', 'execute', 'commission', 'close', ''];
+function getPhase(it) {
+  const m = (it.notes || '').match(/^phase:\s*([a-z0-9]+)/i);
+  return m ? m[1].toLowerCase() : '';
+}
+
+(async () => {
+  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+  const params = new URLSearchParams(window.location.search);
+  const projectId = params.get('project_id');
+  if (!projectId) {
+    $('tb-title').textContent = 'No project specified';
+    $('exec-summary').innerHTML = '<div class="empty-section">Open this page from the Project Manager (Detail &rarr; Print Report).<br><a href="project-manager.html" style="color: var(--accent);">Go to Project Manager</a></div>';
+    return;
+  }
+  await loadAndRender(projectId);
+})();
+
+async function loadAndRender(projectId) {
+  const [projRes, itemsRes, linksRes, logsRes] = await Promise.all([
+    db.from('projects').select('*').eq('id', projectId).is('deleted_at', null).maybeSingle(),
+    db.from('project_items').select('*').eq('project_id', projectId).order('sort_order'),
+    db.from('project_links').select('*').eq('project_id', projectId).order('created_at'),
+    db.from('project_progress_logs').select('*').eq('project_id', projectId).order('log_date', { ascending: false }).limit(60),
+  ]);
+  if (projRes.error || !projRes.data) {
+    $('tb-title').textContent = 'Project not found';
+    $('exec-summary').innerHTML = '<div class="empty-section">' + e(projRes.error?.message || 'Project not accessible.') + '</div>';
+    return;
+  }
+  const project = projRes.data;
+  const items   = itemsRes.data || [];
+  const links   = linksRes.data || [];
+  const logs    = logsRes.data  || [];
+  document.title = `${project.project_code} — Project Report`;
+  $('tb-title').textContent = `${project.project_code} — ${project.name}`;
+  renderCover(project);
+  renderExecSummary(project, items, logs);
+  renderScope(items);
+  renderLinked(links);
+  renderProgress(logs);
+  renderLessons(project);
+  renderSignoff(project);
+}
+
+function renderCover(p) {
+  $('cov-code').textContent = p.project_code;
+  $('cov-title').textContent = p.name;
+  $('cov-type').textContent = p.project_type;
+  $('cov-type').className = 'ptype-pill ptype-' + p.project_type;
+  $('cov-status').textContent = (p.status || '').replace('_', ' ');
+  $('cov-status').className = 'status-pill status-' + p.status;
+  $('cov-priority').textContent = '· ' + (p.priority || 'medium') + ' priority';
+  $('cov-owner').textContent = p.owner_name || '—';
+  $('cov-period').textContent = (p.start_date && p.end_date)
+    ? `${fmtDate(p.start_date)} → ${fmtDate(p.end_date)}`
+    : (p.start_date ? `from ${fmtDate(p.start_date)}` : 'not set');
+  $('cov-generated').textContent = new Date().toLocaleString();
+  $('cov-hive').textContent = HIVE_NAME || '—';
+}
+
+function renderExecSummary(p, items, logs) {
+  const totalW = items.reduce((s, i) => s + (i.estimated_hours || 1), 0) || 1;
+  const pct = items.length
+    ? Math.round(items.reduce((s, i) => s + (i.pct_complete || 0) * (i.estimated_hours || 1), 0) / totalW)
+    : 0;
+  const itemsDone = items.filter(i => i.status === 'done').length;
+  const hoursEst  = items.reduce((s, i) => s + (i.estimated_hours || 0), 0);
+  const hoursAct  = items.reduce((s, i) => s + (i.actual_hours || 0), 0);
+  const blockers  = items.filter(i => i.status === 'blocked').length;
+  const recentBlockers = logs.filter(l => (l.blockers || '').trim()).length;
+
+  let hero;
+  if (p.status === 'complete')      hero = `${p.project_code} is complete — ${itemsDone} of ${items.length} scope items closed, ${hoursAct.toFixed(0)} hours logged.`;
+  else if (blockers > 0)            hero = `${p.project_code} has ${blockers} blocked scope item${blockers === 1 ? '' : 's'} requiring attention.`;
+  else if (pct >= 95)               hero = `${p.project_code} is ${pct}% complete — closeout phase.`;
+  else if (pct >= 50)               hero = `${p.project_code} is ${pct}% complete with ${items.length - itemsDone} scope items remaining.`;
+  else                              hero = `${p.project_code} is ${pct}% complete — ${items.length} scope items defined, ${itemsDone} done.`;
+
+  let evHtml = '';
+  if (p.budget_php && p.start_date && p.end_date) {
+    const BAC = Number(p.budget_php);
+    const dt = (a, b) => a && b ? Math.max(1, Math.ceil((new Date(b) - new Date(a)) / 86400000)) : 0;
+    const daysElapsed = dt(p.start_date, new Date().toISOString());
+    const daysTotal   = dt(p.start_date, p.end_date) || 1;
+    const plannedPct  = Math.min(1, daysElapsed / daysTotal);
+    const PV  = BAC * plannedPct;
+    const EV  = BAC * (pct / 100);
+    const AC  = hoursAct * 200;
+    const SPI = PV > 0 ? (EV / PV).toFixed(2) : '—';
+    const CPI = AC > 0 ? (EV / AC).toFixed(2) : '—';
+    const min = Math.min(SPI === '—' ? 1 : Number(SPI), CPI === '—' ? 1 : Number(CPI));
+    const cls = min >= 0.95 ? 'green' : min >= 0.85 ? 'amber' : 'red';
+    evHtml = `
+      <div class="kpi-strip">
+        <div class="kpi"><div class="kpi-label">Budget (BAC)</div><div class="kpi-value">${e(fmtPHP(BAC))}</div></div>
+        <div class="kpi"><div class="kpi-label">Earned (EV)</div><div class="kpi-value">${e(fmtPHP(EV))}</div></div>
+        <div class="kpi ${cls}"><div class="kpi-label">SPI / CPI</div><div class="kpi-value">${e(SPI)} / ${e(CPI)}</div><div class="kpi-sub">schedule / cost</div></div>
+        <div class="kpi ${cls}"><div class="kpi-label">EVM Status</div><div class="kpi-value" style="font-size: 14pt; text-transform: uppercase;">${e(cls)}</div><div class="kpi-sub">AACE 80R-13</div></div>
+      </div>`;
+  }
+
+  $('exec-summary').innerHTML = `
+    <div class="insight-card">
+      <div class="label">Hero finding</div>
+      <div class="text">${e(hero)}</div>
+    </div>
+    <div class="kpi-strip">
+      <div class="kpi"><div class="kpi-label">Progress</div><div class="kpi-value">${pct}%</div><div class="kpi-sub">${itemsDone}/${items.length} done</div></div>
+      <div class="kpi"><div class="kpi-label">Hours</div><div class="kpi-value">${hoursAct.toFixed(0)}<span style="font-size:10pt; color:var(--muted);"> / ${hoursEst.toFixed(0)}</span></div><div class="kpi-sub">actual / estimated</div></div>
+      <div class="kpi ${blockers > 0 ? 'red' : ''}"><div class="kpi-label">Blocked</div><div class="kpi-value">${blockers}</div><div class="kpi-sub">scope items</div></div>
+      <div class="kpi"><div class="kpi-label">Daily logs</div><div class="kpi-value">${logs.length}</div><div class="kpi-sub">${recentBlockers} flagged</div></div>
+    </div>
+    ${evHtml}
+    ${p.description ? `<div style="margin-top: 12px; padding: 10px 14px; background: var(--cell-bg); border-radius: 6px; font-size: 10pt; line-height: 1.5;">${e(p.description).replace(/\n/g, '<br>')}</div>` : ''}
+  `;
+}
+
+function renderScope(items) {
+  if (!items.length) { $('scope-section').innerHTML = '<div class="empty-section">No scope items defined.</div>'; return; }
+  const byPhase = {};
+  items.forEach(it => { const p = getPhase(it); (byPhase[p] = byPhase[p] || []).push(it); });
+  const phasesUsed = PHASE_ORDER.filter(p => byPhase[p]?.length);
+  const html = phasesUsed.map(p => {
+    const list = byPhase[p];
+    const phaseLabel = p ? PHASE_LABELS[p] : 'Other';
+    const phaseClass = p ? `phase-${p}` : 'phase-pre';
+    return `
+      <h3><span class="phase-tag ${phaseClass}">${e(phaseLabel)}</span> <span style="font-weight: 400; color: var(--muted); font-size: 9.5pt;">${list.length} item${list.length === 1 ? '' : 's'}</span></h3>
+      <table class="doc-table">
+        <thead><tr><th>WBS</th><th>Title</th><th>Owner</th><th>Status</th><th class="right">Est h</th><th class="right">Actual h</th><th class="nowrap">Due</th></tr></thead>
+        <tbody>${list.map(it => `
+          <tr class="${it.status === 'done' ? 'done' : ''}">
+            <td class="nowrap" style="font-family: monospace;">${e(it.wbs_code || '')}</td>
+            <td>${e(it.title)}</td>
+            <td>${e(it.owner_name || '—')}</td>
+            <td><span class="status-pill status-${it.status === 'done' ? 'complete' : it.status === 'blocked' ? 'cancelled' : 'planning'}">${e((it.status || '').replace('_', ' '))}</span></td>
+            <td class="right">${it.estimated_hours ?? '—'}</td>
+            <td class="right">${it.actual_hours ?? '—'}</td>
+            <td class="nowrap">${e(fmtDate(it.planned_end))}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  }).join('');
+  $('scope-section').innerHTML = html;
+}
+
+function renderLinked(links) {
+  if (!links.length) { $('linked-section').innerHTML = '<div class="empty-section">No linked work items.</div>'; return; }
+  const labels = { asset: 'Assets', logbook: 'Logbook entries', pm_completion: 'PM completions',
+                   inventory_item: 'Parts', engineering_calc: 'Engineering calcs',
+                   marketplace_listing: 'Marketplace listings', contractor: 'Contractors' };
+  const groups = {};
+  links.forEach(l => { (groups[l.link_type] = groups[l.link_type] || []).push(l); });
+  const html = Object.keys(labels).filter(k => groups[k]?.length).map(k => `
+    <h3>${e(labels[k])} <span style="font-weight: 400; color: var(--muted); font-size: 9.5pt;">${groups[k].length} item${groups[k].length === 1 ? '' : 's'}</span></h3>
+    <ul style="font-size: 9.5pt; padding-left: 20px; line-height: 1.7;">
+      ${groups[k].map(l => `<li>${e(l.label || l.link_id || '—')}</li>`).join('')}
+    </ul>`).join('');
+  $('linked-section').innerHTML = html;
+}
+
+function renderProgress(logs) {
+  if (!logs.length) { $('progress-section').innerHTML = '<div class="empty-section">No daily progress logs recorded.</div>'; return; }
+  const sorted = [...logs].sort((a, b) => (a.log_date || '').localeCompare(b.log_date || ''));
+  $('progress-section').innerHTML = `
+    <table class="doc-table">
+      <thead><tr><th class="nowrap">Date</th><th>Reported by</th><th style="width:110px;">% complete</th><th class="right">Hours</th><th>Notes</th><th>Blockers</th></tr></thead>
+      <tbody>${sorted.map(l => `
+        <tr>
+          <td class="nowrap">${e(fmtDate(l.log_date))}</td>
+          <td>${e(l.reported_by || '—')}</td>
+          <td>
+            <span class="progress-mini"><div style="width: ${l.pct_complete || 0}%;"></div></span>
+            <span style="margin-left: 4px; font-size: 8.5pt;">${l.pct_complete || 0}%</span>
+          </td>
+          <td class="right">${l.hours_worked ?? '—'}</td>
+          <td>${e((l.notes || '').slice(0, 200))}</td>
+          <td style="color: ${l.blockers ? 'var(--red)' : 'var(--muted)'};">${e((l.blockers || '').slice(0, 200))}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+function renderLessons(p) {
+  const lessons = (p.meta && p.meta.lessons_learned) || '';
+  if (!lessons.trim()) {
+    $('lessons-section').innerHTML = `
+      <div class="empty-section" style="text-align: left;">
+        <p>No lessons recorded for this project yet.</p>
+        <p style="font-size: 8.5pt; margin-top: 6px;">To capture lessons learned: open the project in Project Manager &rarr; Sign-off tab &rarr; Lessons Learned text area.</p>
+      </div>`;
+    return;
+  }
+  $('lessons-section').innerHTML = `
+    <div style="background: var(--cell-bg); padding: 12px 14px; border-left: 3px solid var(--green); border-radius: 4px; font-size: 10pt; line-height: 1.55;">
+      ${e(lessons).replace(/\n/g, '<br>')}
+    </div>`;
+}
+
+function renderSignoff(p) {
+  const isContractor = p.project_type === 'contractor';
+  $('signoff-section').innerHTML = `
+    <div class="signoff-block">
+      <p style="font-size: 9.5pt; line-height: 1.5;">
+        By signing below, the parties acknowledge that the scope items in &sect;2 have been
+        ${p.status === 'complete' ? 'completed and accepted' : 'reviewed for the period covered by this report'}.
+        ${isContractor ? 'Final acceptance triggers retention release per the contract terms.' : ''}
+      </p>
+      <div class="signoff-row">
+        <div class="signoff-line">
+          <strong>Project Owner</strong>
+          ${e(p.owner_name || 'name')}<br>Date: __________________
+        </div>
+        <div class="signoff-line">
+          <strong>${isContractor ? 'Contractor representative' : 'Supervisor / approver'}</strong>
+          name: __________________<br>Date: __________________
+        </div>
+      </div>
+      ${isContractor ? `
+        <div class="signoff-row" style="margin-top: 24px;">
+          <div class="signoff-line"><strong>Final acceptance</strong>name: __________________<br>Date: __________________</div>
+          <div class="signoff-line"><strong>Retention release</strong>amount: __________________<br>Date: __________________</div>
+        </div>` : ''}
+    </div>`;
+}
+
+function saveAsPdf() {
+  const code = ($('cov-code').textContent || 'project').trim();
+  const filename = `${code}_report_${new Date().toISOString().slice(0, 10)}.pdf`;
+  document.title = filename.replace(/\.pdf$/, '');
+  setTimeout(() => window.print(), 50);
+}
+</script>
+<script src="nav-hub.js"></script>
+<script src="floating-ai.js"></script>
+</body>
+</html>

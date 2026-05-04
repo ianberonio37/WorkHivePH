@@ -46,6 +46,7 @@ LIVE_TOOL_PAGES = [
     "analytics-report",
     "report-sender", "community", "marketplace",
     "project-manager",
+    "project-report",
 ]
 
 RETIRED_PAGES = ["parts-tracker", "checklist"]

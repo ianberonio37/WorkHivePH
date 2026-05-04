@@ -1934,19 +1934,21 @@ function renderBudget() {
 function renderSignoff() {
   const allDone = _items.length && _items.every(i => i.status === 'done' || i.status === 'skipped');
   const hasLogs = _logs.length > 0;
+  const lessonsExisting = (_detail.meta && _detail.meta.lessons_learned) || '';
   const checks = [
     { ok: !!_detail.description, label: 'Description filled in' },
     { ok: _items.length > 0, label: 'Scope items added' },
     { ok: allDone, label: 'All scope items done or skipped' },
     { ok: hasLogs, label: 'At least one progress log recorded' },
     { ok: _detail.end_date, label: 'End date set' },
+    { ok: !!lessonsExisting.trim(), label: 'Lessons learned captured' },
   ];
   const passed = checks.filter(c => c.ok).length;
   $('pane-signoff').innerHTML = `
     <div class="kpi-row">
       <div class="kpi"><div class="kpi-label">Sign-off readiness</div><div class="kpi-value">${passed}/${checks.length}</div><div class="kpi-sub">checks passed</div></div>
     </div>
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px;">
       ${checks.map(c => `<div style="padding:6px 0; border-bottom: 1px solid var(--border); display:flex; justify-content:space-between;">
         <span>${c.ok ? '✓' : '○'} ${e(c.label)}</span>
         <span class="small" style="color:${c.ok ? 'var(--green)' : 'var(--muted)'};">${c.ok ? 'OK' : 'pending'}</span>
@@ -1955,9 +1957,29 @@ function renderSignoff() {
         <button class="btn primary" onclick="markComplete()" ${_detail.status === 'complete' ? 'disabled' : ''}>Mark complete</button>
         <button class="btn" onclick="markStatus('on_hold')">Put on hold</button>
         <button class="btn" onclick="markStatus('archived')">Archive</button>
+        <a href="project-report.html?project_id=${e(_detail.id)}" class="btn small" style="text-decoration: none; margin-left: auto;">📄 Print report</a>
+      </div>
+    </div>
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
+      <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">Lessons learned</h3>
+      <div class="small" style="color: var(--muted); margin-bottom: 8px;">What went well, what to do differently next time. Feeds the Project Report appendix and the searchable lessons archive.</div>
+      <textarea id="lessons-text" maxlength="4000" style="min-height: 100px;" placeholder="• Mech alignment took 2x estimated — consider buffer hours for next pump overhaul\n• Parts staging was on point — keep weekly cadence\n• PTW issued late by 2h — pre-stage on the prior shift">${e(lessonsExisting)}</textarea>
+      <div class="row" style="gap: 8px; margin-top: 8px; justify-content: flex-end;">
+        <button class="btn small" onclick="saveLessons()">Save lessons</button>
       </div>
     </div>
   `;
+}
+
+async function saveLessons() {
+  if (!_detail) return;
+  const text = $('lessons-text').value.trim();
+  const meta = { ...(_detail.meta || {}), lessons_learned: text };
+  const { error } = await db.from('projects')
+    .update({ meta }).eq('id', _detail.id).eq('hive_id', HIVE_ID);
+  if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+  showToast('Lessons saved.', 'success');
+  _detail.meta = meta;
 }
 async function markComplete() {
   if (!confirm('Mark project as complete? Subsequent edits will need to reopen it.')) return;
