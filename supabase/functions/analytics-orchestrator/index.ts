@@ -36,8 +36,11 @@ async function fetchDescriptiveData(
   // ── RAW DATA: still needed for PM compliance, OEE, parts consumption ─────────
   // These require JSONB access or complex period math — handled by Python.
 
-  // PM assets → PM completions → PM scope items (sequential: need asset IDs first)
-  const assetsQ = db.from("pm_assets").select("id, asset_name, category");
+  // PM assets → PM completions → PM scope items (sequential: need asset IDs first).
+  // Include `tag_id` (the human asset code, e.g. "PMP-001") because logbook.machine
+  // stores that same code. Without tag_id, downstream calcs that join PM data with
+  // logbook entries can't bridge the two (PRODUCTION_FIXES #17).
+  const assetsQ = db.from("pm_assets").select("id, asset_name, tag_id, category");
   if (hiveId) assetsQ.eq("hive_id", hiveId);
   else if (workerName) assetsQ.eq("worker_name", workerName);
   const { data: assets } = await assetsQ;
@@ -62,10 +65,13 @@ async function fetchDescriptiveData(
   if (hiveId) oeeQ.eq("hive_id", hiveId);
   else if (workerName) oeeQ.eq("worker_name", workerName);
 
-  // Transactions: 2× period for spike detection
+  // Transactions: 2× period for spike detection.
+  // inventory_transactions has item_id, NOT part_name — embed the part_name
+  // from inventory_items via PostgREST so the Python calc finds it directly.
   const sincePrev = new Date(Date.now() - periodDays * 2 * 86400000).toISOString();
   const txnQ = db.from("inventory_transactions")
-    .select("part_name, qty_change, type, created_at").eq("type", "use")
+    .select("qty_change, type, created_at, item:inventory_items(part_name)")
+    .eq("type", "use")
     .gte("created_at", sincePrev).limit(dynLimit(periodDays * 2, 20));
   if (hiveId) txnQ.eq("hive_id", hiveId);
   else if (workerName) txnQ.eq("worker_name", workerName);
@@ -74,10 +80,34 @@ async function fetchDescriptiveData(
     completionsQ, scopeQ, oeeQ, txnQ,
   ]);
 
+  // Build two lookup maps from the pm_assets fetch:
+  //  - assetMap:    UUID → readable asset_name ("Centrifugal Pump 50HP")
+  //  - tagIdMap:    UUID → human asset code ("PMP-001") — matches logbook.machine
   const assetMap = Object.fromEntries((assets || []).map((a: Record<string, string>) => [a.id, a.asset_name]));
+  const tagIdMap = Object.fromEntries((assets || []).map((a: Record<string, string>) => [a.id, a.tag_id || ""]));
+
   const rawScope = (scopeRes.status === "fulfilled" ? scopeRes.value.data : null) || [];
   const enrichedScope = rawScope.map((s: Record<string, string>) => ({
-    ...s, asset_name: assetMap[s.asset_id] || s.asset_id,
+    ...s,
+    asset_name:   assetMap[s.asset_id] || s.asset_id,
+    machine_code: tagIdMap[s.asset_id] || "",
+  }));
+
+  // Same enrichment on completions so Python can join completions to logbook by machine_code.
+  const rawCompletions = (completionsRes.status === "fulfilled" ? completionsRes.value.data : null) || [];
+  const enrichedCompletions = rawCompletions.map((c: Record<string, string>) => ({
+    ...c,
+    asset_name:   assetMap[c.asset_id] || c.asset_id,
+    machine_code: tagIdMap[c.asset_id] || "",
+  }));
+
+  // Flatten the embedded part_name so the Python API gets a flat shape it expects.
+  const rawTxns = (txnRes.status === "fulfilled" ? txnRes.value.data : null) || [];
+  const flatTxns = rawTxns.map((t: Record<string, unknown>) => ({
+    qty_change: t.qty_change,
+    type:       t.type,
+    created_at: t.created_at,
+    part_name:  (t.item as Record<string, string> | null)?.part_name || "(unknown part)",
   }));
 
   return {
@@ -90,10 +120,10 @@ async function fetchDescriptiveData(
       repeat_failures:  (repeatRes.status === "fulfilled" ? repeatRes.value.data : null) || [],
     },
     // Raw data for Python to compute remaining metrics (PM compliance, OEE, parts)
-    logbook_entries:   (oeeRes.status        === "fulfilled" ? oeeRes.value.data        : null) || [],
-    pm_completions:    (completionsRes.status === "fulfilled" ? completionsRes.value.data : null) || [],
-    pm_scope_items:    enrichedScope,
-    inv_transactions:  (txnRes.status        === "fulfilled" ? txnRes.value.data        : null) || [],
+    logbook_entries:   (oeeRes.status === "fulfilled" ? oeeRes.value.data : null) || [],
+    pm_completions:    enrichedCompletions,   // includes machine_code
+    pm_scope_items:    enrichedScope,         // includes machine_code
+    inv_transactions:  flatTxns,
   };
 }
 
@@ -148,8 +178,11 @@ async function fetchPredictiveData(
   // Reuse descriptive data + add inventory_items for stockout prediction
   const base = await fetchDescriptiveData(db, hiveId, workerName, periodDays);
 
+  // The DB column is `min_qty`, but the Python analytics code uses
+  // `reorder_point` semantically. Alias min_qty as reorder_point in the
+  // PostgREST response so the Python side doesn't have to change.
   const invQ = db.from("inventory_items")
-    .select("part_name, qty_on_hand, reorder_point, unit")
+    .select("part_name, qty_on_hand, reorder_point:min_qty, unit")
     .limit(2000); // was hardcoded 300 — large warehouses have 500-1000+ parts
   if (hiveId) invQ.eq("hive_id", hiveId).eq("status", "approved");
   else if (workerName) invQ.eq("worker_name", workerName);
@@ -170,9 +203,11 @@ async function fetchPrescriptiveData(
 ) {
   const base = await fetchPredictiveData(db, hiveId, workerName, periodDays);
 
-  // pm_assets — fetch all (no reasonable hive has > 500 assets)
+  // pm_assets — fetch all (no reasonable hive has > 500 assets).
+  // tag_id is the human asset code (e.g. "PMP-001") that logbook.machine
+  // stores; needed for the priority calc to look up criticality per machine.
   const assetsQ = db.from("pm_assets")
-    .select("id, asset_name, category, criticality")
+    .select("id, asset_name, tag_id, category, criticality")
     .limit(500); // was hardcoded 200
   if (hiveId) assetsQ.eq("hive_id", hiveId);
   else if (workerName) assetsQ.eq("worker_name", workerName);
@@ -201,33 +236,165 @@ async function fetchPrescriptiveData(
 
 // ── Groq synthesis for Prescriptive phase ─────────────────────────────────────
 
-async function callGroqSynthesis(pythonResult: Record<string, unknown>, hiveMembers: string[]): Promise<string> {
+async function callGroqSynthesis(fullContext: Record<string, unknown>, hiveMembers: string[]): Promise<string> {
   const memberList = hiveMembers.length > 0
     ? `Your actual team members are: ${hiveMembers.join(", ")}. ONLY use these names — never invent names like John, Bob, or any other person not in this list.`
     : "You do not know the team member names — do not invent names. Refer to workers by their discipline (e.g. 'the Mechanical technician').";
 
-  const systemPrompt = `You are a senior maintenance manager. Based on the analytics results provided, write a concise action plan for the maintenance team this week.
+  const systemPrompt = `You are a senior maintenance manager writing a weekly action plan for an industrial team.
+
+The analytics data covers all 4 ISO/SMRP phases:
+  • Descriptive  — what happened: MTBF, MTTR, OEE, Pareto of downtime causes
+  • Diagnostic   — why: failure mode distribution, repeat failures, PM-failure correlation, skill-MTTR correlation
+  • Predictive   — what's coming: forecasted next failure dates, anomaly readings, stockout risk
+  • Prescriptive — what to do: priority ranking, PM optimisation, technician assignment, parts reorder, training gaps
+
+Write a connected plan that DRAWS FROM ALL 4 PHASES, not just prescriptive recommendations. Examples of phase-linked reasoning:
+  • "Pump P-103 has the highest failure rate (descriptive) AND its top root cause is bearing wear (diagnostic), so tighten its quarterly bearing inspection (prescriptive)."
+  • "Compressor AC-002 is forecast to fail by next Tuesday (predictive), and we have only 1 spare seal kit (prescriptive reorder), so order 2 more this week."
+  • "Mechanical category has 3.2h higher MTTR than the team average (diagnostic) — schedule the L4 mechanical tech to mentor L1-L2 workers on bearing replacement procedures."
+
 ${memberList}
-Only reference machines, parts, and workers that appear in the data. Never invent names or equipment not mentioned.
-Use bullet points. Maximum 200 words.
-Format as JSON: { "summary": "one sentence overview", "this_week": ["action 1", "action 2", ...], "watch_list": ["machine or part to monitor"] }`;
+Only reference machines, parts, and workers that appear in the data. Never invent names or equipment not mentioned. Be specific: cite the machine codes (e.g. PMP-001, AC-002), KPI numbers, dates.
 
-  const assignments = (pythonResult.technician_assignment as Record<string, unknown>)?.assignments as Record<string, unknown>[] | undefined;
+Use bullet points. Maximum 250 words.
+Format as JSON:
+{
+  "summary": "one sentence overview tying together the most important phase signal",
+  "this_week": ["action 1 with phase-linked reasoning", "action 2", ...],
+  "watch_list": ["machine or part to monitor + WHY (which phase signal flagged it)"]
+}`;
 
-  const prompt = `Analytics results:\n${JSON.stringify({
-    top_priority: (pythonResult.priority_ranking as Record<string, unknown>)?.ranking?.slice?.(0,3),
-    pm_optimizations: (pythonResult.pm_interval_optimization as Record<string, unknown>)?.recommendations?.slice?.(0,3),
-    open_assignments: assignments?.slice?.(0,3),
-    reorder_critical: (pythonResult.parts_reorder as Record<string, unknown>)?.reorder?.filter?.((r: Record<string, unknown>) => r.urgency === "CRITICAL")?.slice?.(0,3),
-    training_gaps: (pythonResult.training_gaps as Record<string, unknown>)?.gaps?.slice?.(0,2),
+  const desc = fullContext.descriptive  as Record<string, unknown> | null;
+  const diag = fullContext.diagnostic   as Record<string, unknown> | null;
+  const pred = fullContext.predictive   as Record<string, unknown> | null;
+  const pres = fullContext.prescriptive as Record<string, unknown> | null;
+
+  // Slim each phase down to its top signals — we don't need the full payload,
+  // just the headline data the AI should reason about.
+  const promptPayload = {
+    descriptive: desc ? {
+      top_downtime: (desc.downtime_pareto as Record<string, unknown>)?.pareto?.slice?.(0,3),
+      top_mtbf:     (desc.mtbf as Record<string, unknown>)?.mtbf_by_asset?.slice?.(0,3),
+      top_mttr:     (desc.mttr as Record<string, unknown>)?.mttr_by_asset?.slice?.(0,3),
+      oee_avg:      (desc.oee  as Record<string, unknown>)?.note ? null
+                  : ((desc.oee as Record<string, unknown>)?.average_oee_pct),
+    } : null,
+    diagnostic: diag ? {
+      top_failure_modes: (diag.failure_mode_distribution as Record<string, unknown>)?.distribution?.slice?.(0,3),
+      pm_failure_corr:   diag.pm_failure_correlation,
+      repeat_failures:   (diag.repeat_failures as Record<string, unknown>)?.repeat_failures?.slice?.(0,3),
+      skill_mttr:        (diag.skill_mttr_correlation as Record<string, unknown>)?.by_discipline?.slice?.(0,3),
+    } : null,
+    predictive: pred ? {
+      next_failures:    (pred.next_failure_forecast as Record<string, unknown>)?.predictions?.slice?.(0,3)
+                     ?? (pred.failure_forecast       as Record<string, unknown>)?.forecasts?.slice?.(0,3),
+      anomalies:        (pred.anomaly_detection as Record<string, unknown>)?.anomalies?.slice?.(0,3),
+      stockout_risk:    (pred.stockout_forecast as Record<string, unknown>)?.at_risk?.slice?.(0,3),
+    } : null,
+    prescriptive: pres ? {
+      top_priority:      (pres.priority_ranking as Record<string, unknown>)?.ranking?.slice?.(0,3),
+      pm_optimizations:  (pres.pm_interval_optimization as Record<string, unknown>)?.recommendations?.slice?.(0,3),
+      open_assignments:  (pres.technician_assignment as Record<string, unknown>)?.assignments?.slice?.(0,3),
+      reorder_critical:  (pres.parts_reorder as Record<string, unknown>)?.reorder?.filter?.((r: Record<string, unknown>) => r.urgency === "CRITICAL")?.slice?.(0,3),
+      training_gaps:     (pres.training_gaps as Record<string, unknown>)?.gaps?.slice?.(0,2),
+    } : null,
     team_members: hiveMembers,
-  }, null, 2)}`;
+  };
+
+  const prompt = `4-phase analytics results:\n${JSON.stringify(promptPayload, null, 2)}`;
 
   try {
-    const raw = await callAI(prompt, { systemPrompt, temperature: 0.3, maxTokens: 512, jsonMode: true });
+    const raw = await callAI(prompt, { systemPrompt, temperature: 0.3, maxTokens: 800, jsonMode: true });
     if (raw && raw !== "{}") return JSON.stringify(JSON.parse(raw));
   } catch { /* fall through */ }
   return "{}";
+}
+
+// ── Global filters (criticality, discipline) ─────────────────────────────────
+// Applied at the orchestrator level AFTER fetching the raw data. We narrow
+// every asset-keyed array (logbook entries, pm_completions, pm_scope_items,
+// precomputed RPC results) so downstream Python calcs see a smaller dataset
+// and produce filtered output naturally.
+
+function applyFilters(
+  data: Record<string, unknown>,
+  filters: { criticality?: string | null; discipline?: string | null },
+): Record<string, unknown> {
+  const crit = (filters.criticality || "all").trim();
+  const disc = (filters.discipline  || "all").trim();
+  if (crit === "all" && disc === "all") return data;
+
+  // Step 1: build allowedCodes from criticality (machine_code lookup set).
+  // Both filters end up contributing to the same set so that asset-keyed
+  // arrays (MTBF, MTTR, PM data) are narrowed even when only `discipline`
+  // is selected (which is normally a logbook-only field).
+  let allowedCodes: Set<string> | null = null;
+  if (crit !== "all") {
+    const assets = (data.pm_assets as Array<Record<string, unknown>>) || [];
+    allowedCodes = new Set(
+      assets
+        .filter((a) => String(a.criticality || "") === crit)
+        .map((a) => String(a.tag_id || "").toLowerCase())
+        .filter(Boolean),
+    );
+  }
+
+  // Step 2: filter logbook by machine code AND/OR discipline
+  let logbook = ((data.logbook_entries as Array<Record<string, unknown>>) || []);
+  if (allowedCodes) {
+    logbook = logbook.filter((l) => allowedCodes!.has(String(l.machine || "").toLowerCase()));
+  }
+  if (disc !== "all") {
+    logbook = logbook.filter((l) => String(l.category || "") === disc);
+  }
+
+  // If discipline narrowed the logbook, also restrict allowedCodes to the
+  // machine codes that actually appear in the filtered logbook. Without this,
+  // precomputed RPCs (MTBF/MTTR/etc) wouldn't be narrowed by discipline.
+  if (disc !== "all") {
+    const codesFromLogbook = new Set(
+      logbook.map((l) => String(l.machine || "").toLowerCase()).filter(Boolean),
+    );
+    allowedCodes = allowedCodes
+      ? new Set([...allowedCodes].filter((c) => codesFromLogbook.has(c)))
+      : codesFromLogbook;
+  }
+
+  // Step 3: filter PM data by machine_code (criticality only — PM doesn't have discipline)
+  const filterByCode = (arr: Array<Record<string, unknown>>) =>
+    allowedCodes
+      ? arr.filter((r) => allowedCodes!.has(String(r.machine_code || "").toLowerCase()))
+      : arr;
+
+  // Step 4: filter precomputed RPCs (they expose `machine` = human code)
+  const precomputed = { ...((data.precomputed as Record<string, unknown>) || {}) };
+  if (allowedCodes) {
+    for (const key of ["mtbf", "mttr", "failure_frequency", "downtime_pareto", "repeat_failures"]) {
+      const val = precomputed[key];
+      if (Array.isArray(val)) {
+        precomputed[key] = val.filter((r: Record<string, unknown>) =>
+          allowedCodes!.has(String(r.machine || r.machine_code || "").toLowerCase()),
+        );
+      }
+    }
+  }
+
+  // Step 5: filter pm_assets by criticality (so prescriptive priority calc sees narrowed set)
+  const pmAssets = crit !== "all"
+    ? ((data.pm_assets as Array<Record<string, unknown>>) || []).filter(
+        (a) => String(a.criticality || "") === crit,
+      )
+    : data.pm_assets;
+
+  return {
+    ...data,
+    logbook_entries: logbook,
+    pm_completions:  filterByCode((data.pm_completions  as Array<Record<string, unknown>>) || []),
+    pm_scope_items:  filterByCode((data.pm_scope_items  as Array<Record<string, unknown>>) || []),
+    pm_assets:       pmAssets,
+    precomputed,
+  };
 }
 
 // ── Call the Python Analytics API ────────────────────────────────────────────
@@ -271,7 +438,7 @@ serve(async (req) => {
   }
 
   try {
-    const { phase, hive_id, worker_name, period_days } = await req.json();
+    const { phase, hive_id, worker_name, period_days, criticality, discipline } = await req.json();
 
     if (!phase) {
       return new Response(
@@ -300,16 +467,23 @@ serve(async (req) => {
       data = await fetchPrescriptiveData(db, hive_id || null, worker_name || null, periodDays);
     }
 
+    // Apply optional global filters (criticality + discipline) before sending
+    // to Python. Narrows every asset-keyed array consistently.
+    data = applyFilters(data, { criticality, discipline });
+
     // Send to Python API for computation
     const results = await callPythonAnalytics(phase, {
       ...data,
       period_days: periodDays,
     });
 
-    // For prescriptive phase — add Groq synthesis as action plan
+    // For prescriptive phase — add Groq synthesis as action plan.
+    // The synthesis now reasons across ALL 4 phases (descriptive/diagnostic/
+    // predictive/prescriptive), not just prescriptive recommendations. We
+    // already have the loaded `data` in scope; fan out to Python for the
+    // other 3 phases in parallel using the same input shape.
     let groqSynthesis = null;
     if (phase === "prescriptive" && !results.error) {
-      // Fetch actual hive member names to prevent Groq from hallucinating worker names
       let hiveMembers: string[] = [];
       if (hive_id) {
         const { data: members } = await db.from("hive_members")
@@ -318,7 +492,20 @@ serve(async (req) => {
       } else if (worker_name) {
         hiveMembers = [worker_name];
       }
-      const raw = await callGroqSynthesis(results, hiveMembers);
+
+      const [descRes, diagRes, predRes] = await Promise.allSettled([
+        callPythonAnalytics("descriptive", data),
+        callPythonAnalytics("diagnostic",  data),
+        callPythonAnalytics("predictive",  data),
+      ]);
+      const fullContext = {
+        descriptive:  descRes.status === "fulfilled" ? descRes.value : null,
+        diagnostic:   diagRes.status === "fulfilled" ? diagRes.value : null,
+        predictive:   predRes.status === "fulfilled" ? predRes.value : null,
+        prescriptive: results,
+      };
+
+      const raw = await callGroqSynthesis(fullContext, hiveMembers);
       try { groqSynthesis = JSON.parse(raw); } catch { groqSynthesis = null; }
     }
 

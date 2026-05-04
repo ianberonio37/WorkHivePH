@@ -120,26 +120,41 @@ def calc_pm_failure_correlation(
         return {"correlation": None, "p_value": None, "interpretation": "No PM completion data",
                 "standard": "Spearman rank correlation (SciPy)"}
 
-    # Build: asset_name → days since last PM
-    last_pm = comps.groupby("asset_id")["completed_at"].max().reset_index()
-    last_pm.columns = ["asset_id", "last_pm_date"]
-
-    # Map asset_id → asset_name via scope items
-    if "asset_name" in scope.columns:
-        asset_name_map = scope.drop_duplicates("asset_id").set_index("asset_id")["asset_name"].to_dict()
-        last_pm["machine"] = last_pm["asset_id"].map(asset_name_map)
-    else:
-        return {"correlation": None, "p_value": None, "interpretation": "Cannot map assets to machines",
+    # Build: machine_code → days since last PM.
+    # The orchestrator now passes pm_completions + pm_scope_items pre-enriched with
+    # `machine_code` (the human asset code, e.g. "PMP-001"). Logbook stores the
+    # same code in its `machine` column. Joining on machine_code is the only way
+    # to bridge PM data with breakdown data — see PRODUCTION_FIXES #17.
+    if "machine_code" not in comps.columns:
+        # Fallback for older orchestrators that haven't been redeployed yet
+        return {"correlation": None, "p_value": None,
+                "interpretation": "Orchestrator did not provide machine_code on pm_completions — analytics-orchestrator needs redeploy.",
                 "standard": "Spearman rank correlation (SciPy)"}
+
+    # Guard: log might be empty after _corrective_only filter (no breakdowns
+    # in this period). Empty DataFrame has no columns, so groupby("machine")
+    # would crash with KeyError "['machine'] not in index".
+    if log.empty or "machine" not in log.columns:
+        return {
+            "correlation": None, "p_value": None,
+            "interpretation": "No corrective failures logged in this period — nothing to correlate.",
+            "standard": "Spearman rank correlation (SciPy)",
+            "data_points": 0,
+        }
+
+    last_pm = comps.dropna(subset=["machine_code"]).groupby("machine_code")["completed_at"].max().reset_index()
+    last_pm.columns = ["machine_code", "last_pm_date"]
+    last_pm = last_pm[last_pm["machine_code"] != ""]
 
     now = pd.Timestamp.now(tz="UTC")
     last_pm["days_since_pm"] = (now - last_pm["last_pm_date"]).dt.days
 
-    # Get failure count per machine
+    # Logbook stores the human asset code in `machine` (since PRODUCTION_FIXES #17 alignment)
     failure_count = log.groupby("machine").size().reset_index(name="failure_count")
+    failure_count.columns = ["machine_code", "failure_count"]
 
-    # Merge on machine name
-    merged = last_pm.merge(failure_count, on="machine", how="inner").dropna()
+    # Merge on the shared human code
+    merged = last_pm.merge(failure_count, on="machine_code", how="inner").dropna()
 
     if len(merged) < 5:
         return {
@@ -162,13 +177,18 @@ def calc_pm_failure_correlation(
     else:
         interpretation = f"Weak or no correlation (r = {corr}) — PM timing may not be the primary failure driver here."
 
+    # Project to a stable shape — rename machine_code → machine for the UI,
+    # which expects the column to be called "machine".
+    asset_data_df = merged[["machine_code", "days_since_pm", "failure_count"]].copy()
+    asset_data_df.columns = ["machine", "days_since_pm", "failure_count"]
+
     return {
         "correlation":     corr,
         "p_value":         p_value,
         "significant":     p_value <= 0.05,
         "interpretation":  interpretation,
         "data_points":     len(merged),
-        "asset_data":      merged[["machine", "days_since_pm", "failure_count"]].to_dict(orient="records"),
+        "asset_data":      asset_data_df.to_dict(orient="records"),
         "standard":        "Spearman rank correlation — SciPy stats.spearmanr",
     }
 

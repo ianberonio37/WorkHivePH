@@ -87,8 +87,10 @@ const INVENTORY_SYSTEM = `You are an inventory risk analyst. Given parts stock l
 Respond only in JSON: { "out_of_stock": ["part_name"], "low_stock": [{"part_name","qty_on_hand","reorder_point"}], "risk_summary": "one sentence" }`;
 
 async function inventoryRiskAgent(db: SupabaseClient, hiveId: string | null, workerName: string | null) {
+  // DB column is `min_qty`; alias it as `reorder_point` so the prompt and
+  // downstream JSON shape don't have to change. Same pattern as analytics-orchestrator.
   const query = db.from("inventory_items")
-    .select("part_name, qty_on_hand, reorder_point, bin_location")
+    .select("part_name, qty_on_hand, reorder_point:min_qty, bin_location")
     .limit(200);
 
   if (hiveId) query.eq("hive_id", hiveId);

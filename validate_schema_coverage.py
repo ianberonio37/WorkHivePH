@@ -46,6 +46,12 @@ MIGRATIONS_DIR = os.path.join(ROOT, "supabase", "migrations")
 SCAN_GLOBS = [
     os.path.join(ROOT, "*.html"),
     os.path.join(ROOT, "*.js"),
+    # Edge functions: db.from() patterns appear here too. Without scanning
+    # these, schema drift in supabase/functions/<name>/index.ts goes
+    # undetected (caught by user 2026-05-03 in analytics-orchestrator —
+    # PRODUCTION_FIXES #16/17).
+    os.path.join(ROOT, "supabase", "functions", "*", "index.ts"),
+    os.path.join(ROOT, "supabase", "functions", "_shared", "*.ts"),
 ]
 
 # Test/dev/backup file patterns to skip
