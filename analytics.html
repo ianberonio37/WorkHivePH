@@ -54,6 +54,60 @@
 
     /* ── Phase tabs ── */
     .phase-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; overflow-x: auto; padding-bottom: 0.25rem; }
+
+    /* ── Global filter chips (Criticality + Discipline) ──────────────── */
+    .global-filters {
+      display: flex; flex-direction: column; gap: 0.5rem;
+      padding: 0.65rem 0.75rem;
+      margin-bottom: 1rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 0.625rem;
+    }
+    .filter-group { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+    .filter-label {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.07em;
+      text-transform: uppercase; color: rgba(255,255,255,0.35);
+      margin-right: 0.5rem; flex-shrink: 0;
+      min-width: 80px;
+    }
+    .filter-chip {
+      min-height: 32px;             /* visual; full row remains tappable */
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.55);
+      font-size: 0.7rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.12s, border-color 0.12s, color 0.12s;
+      white-space: nowrap;
+    }
+    .filter-chip:hover {
+      background: rgba(255,255,255,0.07);
+      color: #fff;
+    }
+    .filter-chip.active {
+      background: rgba(167,139,250,0.18);
+      border-color: rgba(167,139,250,0.5);
+      color: #fff;
+    }
+    .filter-chip:active { transform: scale(0.97); }
+    .filter-active-banner {
+      font-size: 0.68rem;
+      color: rgba(167,139,250,0.85);
+      padding: 0.25rem 0.5rem;
+      background: rgba(167,139,250,0.06);
+      border-radius: 0.4rem;
+      margin-top: 0.25rem;
+    }
+    /* Mobile: chips wrap; ensure horizontal scroll for long discipline list */
+    @media (max-width: 600px) {
+      .filter-group { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 0.25rem; }
+      .filter-label { min-width: 70px; }
+    }
     .phase-tab {
       font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
       padding: 0.5rem 0.875rem; border-radius: 0.625rem; cursor: pointer; white-space: nowrap;
@@ -82,6 +136,58 @@
     .data-table .alert { color: #f87171; }
     .data-table .warn  { color: #F7A21B; }
     .data-table .good  { color: #4ade80; }
+
+    /* ── Top-N + Show All toggle ─────────────────────────────────────────
+       Long lists default to top N rows visible; the button below reveals
+       the rest without re-rendering. */
+    .list-with-showall { display: block; }
+    .list-with-showall .cards-stack { display: flex; flex-direction: column; }
+    .list-with-showall .showall-toggle {
+      display: block;
+      width: 100%;
+      margin-top: 0.6rem;
+      padding: 0.7rem 1rem;
+      min-height: 44px;                    /* mobile tap target */
+      background: rgba(167,139,250,0.06);
+      border: 1px solid rgba(167,139,250,0.18);
+      border-radius: 0.625rem;
+      color: rgba(167,139,250,0.85);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .list-with-showall .showall-toggle:hover {
+      background: rgba(167,139,250,0.12);
+      border-color: rgba(167,139,250,0.35);
+      color: #fff;
+    }
+    .list-with-showall .showall-toggle:active { transform: scale(0.99); }
+
+    .list-with-showall .list-search {
+      display: block;
+      width: 100%;
+      margin-bottom: 0.6rem;
+      padding: 0.55rem 0.85rem;
+      min-height: 38px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.5rem;
+      color: #fff;
+      font-size: 0.82rem;     /* >=16px equivalent on mobile, no auto-zoom */
+      font-family: inherit;
+      transition: border-color 0.12s, background 0.12s;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .list-with-showall .list-search::placeholder { color: rgba(255,255,255,0.3); }
+    .list-with-showall .list-search:focus {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(167,139,250,0.5);
+    }
+    /* iOS Safari adds a clear button by default; keep it. */
+    .list-with-showall .list-search::-webkit-search-cancel-button { cursor: pointer; }
 
     /* ── Stat tiles ── */
     .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
@@ -126,20 +232,6 @@
     }
     .kpi-chevron.open { transform: rotate(180deg); }
 
-    /* ── Command bar pills ── */
-    .cmd-pill {
-      display: inline-flex; align-items: center; gap: 0.3rem;
-      padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.72rem;
-      font-weight: 700; cursor: pointer; border: 1px solid transparent;
-      transition: all 0.15s; min-height: 32px; white-space: nowrap;
-    }
-    .cmd-pill:active { transform: scale(0.96); }
-    .cmd-pill.green  { background: rgba(74,222,128,0.1);  border-color: rgba(74,222,128,0.25);  color: #4ade80; }
-    .cmd-pill.yellow { background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.3);   color: #F7A21B; }
-    .cmd-pill.red    { background: rgba(248,113,113,0.12);border-color: rgba(248,113,113,0.3);  color: #f87171; }
-    .cmd-pill.grey   { background: rgba(255,255,255,0.05);border-color: rgba(255,255,255,0.1);  color: rgba(255,255,255,0.4); }
-    .cmd-pill .pill-label { font-weight: 400; opacity: 0.7; font-size: 0.65rem; }
-
     @keyframes dotPulse {
       0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
       40% { transform: scale(1); opacity: 1; }
@@ -167,6 +259,22 @@
     .role-row:last-child { border-bottom:none; }
     .role-row .label { color:rgba(255,255,255,0.45); }
     .role-row .val { font-weight:700; }
+
+    /* In-card AI recommendation block (replaces the separate banner below) */
+    .role-ai-rec {
+      margin-top: 0.7rem;
+      padding: 0.65rem 0.8rem;
+      background: rgba(167,139,250,0.06);
+      border: 1px solid rgba(167,139,250,0.18);
+      border-radius: 0.5rem;
+    }
+    .role-ai-rec-label {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.07em;
+      text-transform: uppercase; color: #a78bfa; margin-bottom: 0.25rem;
+    }
+    .role-ai-rec-text {
+      font-size: 0.74rem; color: rgba(255,255,255,0.75); line-height: 1.45;
+    }
     .pm-asset-select {
       font-family:'Poppins',sans-serif; font-size:0.72rem; font-weight:500;
       background:rgba(22,32,50,0.7); border:1px solid rgba(247,162,27,0.25);
@@ -213,17 +321,9 @@
     <span class="header-badge">Stage 3</span>
   </div>
 
-  <!-- Role selector -->
-  <div class="role-bar" id="role-bar">
-    <button class="role-btn" id="role-worker"     onclick="setRole('worker')"    ><span class="role-icon">🔧</span>Field Tech</button>
-    <button class="role-btn" id="role-supervisor" onclick="setRole('supervisor')"><span class="role-icon">👷</span>Supervisor</button>
-    <button class="role-btn" id="role-manager"    onclick="setRole('manager')"   ><span class="role-icon">📋</span>Manager</button>
-  </div>
-
-  <!-- Role Quick View (injected by JS) -->
-  <div id="role-quick-view"></div>
-
-  <!-- Period selector + refresh -->
+  <!-- Page-level controls: period selector + refresh.
+       These are not role-specific so they live with the header, not inside
+       each role view. -->
   <div class="period-row">
     <button class="period-btn" data-days="30" onclick="setPeriod(30, true)">30 days</button>
     <button class="period-btn active" data-days="90" onclick="setPeriod(90, true)">90 days</button>
@@ -235,11 +335,16 @@
     </button>
   </div>
 
-  <!-- Command Summary Bar -->
-  <div id="command-bar" class="hidden" style="margin-bottom:0.875rem;">
-    <div id="command-pills" style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;"></div>
-    <p id="command-alert" class="hidden" style="font-size:0.7rem;margin-top:0.5rem;padding:0.5rem 0.75rem;border-radius:0.625rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:rgba(255,255,255,0.6);line-height:1.4;"></p>
+  <!-- Role selector — only Worker / Supervisor exist as actual hive_members.role values
+       (per multitenant-engineer skill). The "Manager" tier was UI-only and showed
+       reframed supervisor data — removed to reduce clutter. -->
+  <div class="role-bar" id="role-bar">
+    <button class="role-btn" id="role-worker"     onclick="setRole('worker')"    ><span class="role-icon">🔧</span>Field Tech</button>
+    <button class="role-btn" id="role-supervisor" onclick="setRole('supervisor')"><span class="role-icon">👷</span>Supervisor</button>
   </div>
+
+  <!-- Role Quick View (injected by JS) -->
+  <div id="role-quick-view"></div>
 
   <!-- Status bar: last updated + loading indicator -->
   <div id="status-bar" style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;min-height:20px;">
@@ -254,6 +359,30 @@
     <button class="phase-tab" onclick="setPhase('diagnostic')">Diagnostic</button>
     <button class="phase-tab" onclick="setPhase('predictive')">Predictive</button>
     <button class="phase-tab" onclick="setPhase('prescriptive')">Prescriptive</button>
+  </div>
+
+  <!-- Global filters: narrow every panel by criticality + discipline.
+       Empty / all = no filter. State persists in localStorage. -->
+  <div class="global-filters" id="global-filters">
+    <div class="filter-group">
+      <span class="filter-label">Criticality</span>
+      <button class="filter-chip active" data-dim="criticality" data-value="all"     onclick="setFilter(this)">All</button>
+      <button class="filter-chip"        data-dim="criticality" data-value="Critical" onclick="setFilter(this)">🔴 Critical</button>
+      <button class="filter-chip"        data-dim="criticality" data-value="High"     onclick="setFilter(this)">🟠 High</button>
+      <button class="filter-chip"        data-dim="criticality" data-value="Medium"   onclick="setFilter(this)">🟡 Medium</button>
+      <button class="filter-chip"        data-dim="criticality" data-value="Low"      onclick="setFilter(this)">🟢 Low</button>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Discipline</span>
+      <button class="filter-chip active" data-dim="discipline" data-value="all"           onclick="setFilter(this)">All</button>
+      <button class="filter-chip"        data-dim="discipline" data-value="Mechanical"     onclick="setFilter(this)">Mechanical</button>
+      <button class="filter-chip"        data-dim="discipline" data-value="Electrical"     onclick="setFilter(this)">Electrical</button>
+      <button class="filter-chip"        data-dim="discipline" data-value="Instrumentation" onclick="setFilter(this)">Instrumentation</button>
+      <button class="filter-chip"        data-dim="discipline" data-value="Hydraulic"      onclick="setFilter(this)">Hydraulic</button>
+      <button class="filter-chip"        data-dim="discipline" data-value="Pneumatic"      onclick="setFilter(this)">Pneumatic</button>
+      <button class="filter-chip"        data-dim="discipline" data-value="Lubrication"    onclick="setFilter(this)">Lubrication</button>
+    </div>
+    <div id="filter-active-banner" class="filter-active-banner" style="display:none;"></div>
   </div>
 
   <!-- Info banner -->
@@ -386,6 +515,78 @@
     }
   }
 
+  // ── Global filter state ───────────────────────────────────────────────────
+  // Persisted in localStorage so the user's filter survives a page reload.
+  // `all` means no filter on that dimension.
+  let _filters = (() => {
+    try { return JSON.parse(localStorage.getItem('wh_analytics_filters') || '{}'); } catch { return {}; }
+  })();
+  if (!_filters.criticality) _filters.criticality = 'all';
+  if (!_filters.discipline)  _filters.discipline  = 'all';
+
+  function setFilter(btn) {
+    const dim = btn.dataset.dim;
+    const val = btn.dataset.value;
+    if (!dim || _filters[dim] === val) return;
+    _filters[dim] = val;
+    try { localStorage.setItem('wh_analytics_filters', JSON.stringify(_filters)); } catch {}
+
+    // Update chip active state for this dimension
+    document.querySelectorAll(`.filter-chip[data-dim="${dim}"]`).forEach(c => {
+      c.classList.toggle('active', c.dataset.value === val);
+    });
+    updateFilterActiveBanner();
+
+    // Filters change the data shape — invalidate cache + re-fetch all phases.
+    _cache = {};
+    _cacheTime = {};
+    showSkeleton();
+    fetchPhase(_phase);
+    // Background-prefetch the others so tab switches stay snappy
+    ['descriptive','diagnostic','predictive','prescriptive']
+      .filter(p => p !== _phase)
+      .forEach(p => fetchPhase(p));
+  }
+
+  function updateFilterActiveBanner() {
+    const banner = document.getElementById('filter-active-banner');
+    if (!banner) return;
+    const active = [];
+    if (_filters.criticality !== 'all') active.push(`Criticality: ${_filters.criticality}`);
+    if (_filters.discipline  !== 'all') active.push(`Discipline: ${_filters.discipline}`);
+    if (active.length === 0) {
+      banner.style.display = 'none';
+      banner.textContent = '';
+    } else {
+      banner.style.display = '';
+      banner.innerHTML = `Filtered: ${active.map(escHtml).join(' · ')} <button onclick="resetFilters()" style="margin-left:0.5rem;background:none;border:none;color:#a78bfa;cursor:pointer;text-decoration:underline;font-size:0.66rem;font-family:inherit;">clear</button>`;
+    }
+  }
+  function resetFilters() {
+    _filters = { criticality: 'all', discipline: 'all' };
+    try { localStorage.setItem('wh_analytics_filters', JSON.stringify(_filters)); } catch {}
+    document.querySelectorAll('.filter-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.value === 'all');
+    });
+    updateFilterActiveBanner();
+    _cache = {}; _cacheTime = {};
+    showSkeleton();
+    fetchPhase(_phase);
+    ['descriptive','diagnostic','predictive','prescriptive']
+      .filter(p => p !== _phase)
+      .forEach(p => fetchPhase(p));
+  }
+
+  // Restore saved filter state on page load
+  function applySavedFilters() {
+    document.querySelectorAll('.filter-chip').forEach(c => {
+      const dim = c.dataset.dim;
+      const val = c.dataset.value;
+      c.classList.toggle('active', _filters[dim] === val);
+    });
+    updateFilterActiveBanner();
+  }
+
   // ── Core fetch for a single phase ─────────────────────────────────────────
   async function fetchPhase(phase) {
     try {
@@ -401,6 +602,8 @@
           hive_id:     HIVE_ID,
           worker_name: WORKER_NAME,
           period_days: _period,
+          criticality: _filters.criticality,
+          discipline:  _filters.discipline,
         }),
       });
       if (!res.ok) {
@@ -415,7 +618,6 @@
         renderPhase(phase, data);
         updateStatusBar(phase);
       }
-      updateCommandBar();    // update summary bar whenever any phase lands
       renderRoleQuickView(); // update role view as data arrives
     } catch (err) {
       console.warn(`[analytics] ${phase} failed:`, err.message);
@@ -464,6 +666,9 @@
     _loading = true;
     document.getElementById('status-spinner').style.display = 'block';
     document.getElementById('status-text').textContent = 'Loading analytics...';
+
+    // Restore any persisted global filters (criticality, discipline)
+    applySavedFilters();
 
     // Prioritise current tab — fetch it first, others follow
     await fetchPhase('descriptive');
@@ -523,15 +728,16 @@
       Generated: ${escHtml(gen)} · Period: last ${period} days
     </p>`;
 
-    html += renderOEE(data.oee);
-    html += renderMTBF(data.mtbf);
-    html += renderMTTR(data.mttr);
-    html += renderAvailability(data.availability);
-    html += renderPMCompliance(data.pm_compliance);
-    html += renderFailureFrequency(data.failure_frequency);
-    html += renderDowntimePareto(data.downtime_pareto);
-    html += renderPartsConsumption(data.parts_consumption);
-    html += renderRepeatFailures(data.repeat_failures);
+    // Order: synthesis → reliability dimensions → drilldowns → cost
+    html += renderOEE(data.oee);                                  // composite — single health number
+    html += renderAvailability(data.availability);                // OEE's most-relatable driver
+    html += renderMTBF(data.mtbf);                                // how often does it break
+    html += renderMTTR(data.mttr);                                // how fast do we recover
+    html += renderPMCompliance(data.pm_compliance);               // process discipline
+    html += renderDowntimePareto(data.downtime_pareto);           // where time bleeds (supports MTTR)
+    html += renderFailureFrequency(data.failure_frequency);       // which assets break most (supports MTBF)
+    html += renderRepeatFailures(data.repeat_failures);           // ineffective repair signal — high action
+    html += renderPartsConsumption(data.parts_consumption);       // cost angle — least urgent for ops
 
     panel.innerHTML = html;
     flushCharts();
@@ -629,19 +835,28 @@
     const heroVal  = worst ? worst.mtbf_days + 'd' : '—';
     const heroColor= !worst ? 'grey' : worst.mtbf_days < 14 ? 'red' : worst.mtbf_days < 30 ? 'yellow' : 'green';
     const heroSub  = worst ? `${worst.machine} — most critical asset` : 'Insufficient failure history';
-    const rows = d.mtbf_by_asset.map(r => {
-      const cls = r.mtbf_days === null ? '' : r.mtbf_days < 14 ? 'alert' : r.mtbf_days < 30 ? 'warn' : 'good';
-      return `<tr>
-        <td class="machine-name">${escHtml(r.machine)}</td>
-        <td class="num">${r.failure_count}</td>
-        <td class="num ${cls}">${r.mtbf_days !== null ? r.mtbf_days + 'd' : '—'}</td>
-      </tr>`;
-    }).join('');
+
+    const detail = renderListWithShowAll({
+      items: d.mtbf_by_asset,
+      tableHeader: '<thead><tr><th>Machine</th><th class="num">Failures</th><th class="num">MTBF</th></tr></thead>',
+      defaultN: 8,
+      itemNoun: 'asset',
+      searchable: true,
+      renderRow: (r) => {
+        const cls = r.mtbf_days === null ? '' : r.mtbf_days < 14 ? 'alert' : r.mtbf_days < 30 ? 'warn' : 'good';
+        return `<tr>
+          <td class="machine-name">${escHtml(r.machine)}</td>
+          <td class="num">${r.failure_count}</td>
+          <td class="num ${cls}">${r.mtbf_days !== null ? r.mtbf_days + 'd' : '—'}</td>
+        </tr>`;
+      },
+    });
+
     return kpiCard({
       title: 'MTBF — Mean Time Between Failures', standard: 'ISO 14224:2016 §9.3',
       value: heroVal, unit: worst ? 'average between failures' : '', sublabel: heroSub,
       color: heroColor,
-      detail: `<table class="data-table"><thead><tr><th>Machine</th><th class="num">Failures</th><th class="num">MTBF</th></tr></thead><tbody>${rows}</tbody></table>`,
+      detail,
       legend: '🔴 <14d critical · 🟡 <30d watch · 🟢 ≥30d healthy',
     });
   }
@@ -650,20 +865,29 @@
     if (!d || !d.mttr_by_asset?.length) return cardEmpty('MTTR — Mean Time To Repair', 'ISO 14224:2016 §9.4', d?.note || 'No closed corrective entries with logged downtime_hours found.');
     const worst = d.mttr_by_asset[0]; // sorted highest first
     const heroColor = worst.mttr_hours > 24 ? 'red' : worst.mttr_hours > 8 ? 'yellow' : 'green';
-    const rows = d.mttr_by_asset.map(r => {
-      const cls = r.mttr_hours > 24 ? 'alert' : r.mttr_hours > 8 ? 'warn' : 'good';
-      return `<tr>
-        <td class="machine-name">${escHtml(r.machine)}</td>
-        <td class="num">${r.repair_count}</td>
-        <td class="num">${r.total_downtime_h}h</td>
-        <td class="num ${cls}">${r.mttr_hours}h</td>
-      </tr>`;
-    }).join('');
+
+    const detail = renderListWithShowAll({
+      items: d.mttr_by_asset,
+      tableHeader: '<thead><tr><th>Machine</th><th class="num">Repairs</th><th class="num">Total DT</th><th class="num">MTTR</th></tr></thead>',
+      defaultN: 8,
+      itemNoun: 'asset',
+      searchable: true,
+      renderRow: (r) => {
+        const cls = r.mttr_hours > 24 ? 'alert' : r.mttr_hours > 8 ? 'warn' : 'good';
+        return `<tr>
+          <td class="machine-name">${escHtml(r.machine)}</td>
+          <td class="num">${r.repair_count}</td>
+          <td class="num">${r.total_downtime_h}h</td>
+          <td class="num ${cls}">${r.mttr_hours}h</td>
+        </tr>`;
+      },
+    });
+
     return kpiCard({
       title: 'MTTR — Mean Time To Repair', standard: 'ISO 14224:2016 §9.4',
       value: worst.mttr_hours + 'h', unit: 'slowest repair', sublabel: `${worst.machine} — ${worst.repair_count} repair(s)`,
       color: heroColor,
-      detail: `<table class="data-table"><thead><tr><th>Machine</th><th class="num">Repairs</th><th class="num">Total DT</th><th class="num">MTTR</th></tr></thead><tbody>${rows}</tbody></table>`,
+      detail,
       legend: '🔴 >24h · 🟡 >8h · 🟢 ≤8h',
     });
   }
@@ -673,23 +897,33 @@
     const withData = d.availability_by_asset.filter(r => r.availability_pct !== null);
     const worst = withData[0]; // sorted lowest first
     const heroColor = !worst ? 'grey' : worst.availability_pct < 80 ? 'red' : worst.availability_pct < 90 ? 'yellow' : 'green';
-    const rows = withData.map(r => {
-      const pct = r.availability_pct;
-      const barPct = pct || 0;
-      return `<div style="margin-bottom:0.6rem;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:0.2rem;">
-          <span style="font-size:0.72rem;font-weight:600;color:#fff;">${escHtml(r.machine)}</span>
-          <span style="font-size:0.72rem;font-weight:700;color:${pct < 80 ? '#f87171' : pct < 90 ? '#F7A21B' : '#4ade80'}">${pct !== null ? pct + '%' : '—'}</span>
-        </div>
-        <div class="compliance-track"><div class="compliance-fill" style="width:${barPct}%;background:${pct < 80 ? '#f87171' : pct < 90 ? '#F7A21B' : '#4ade80'}"></div></div>
-      </div>`;
-    }).join('');
+
+    const detail = renderListWithShowAll({
+      items: withData,
+      wrap: 'cards',
+      defaultN: 8,
+      itemNoun: 'asset',
+      searchable: true,
+      renderRow: (r) => {
+        const pct = r.availability_pct;
+        const barPct = pct || 0;
+        const color = pct < 80 ? '#f87171' : pct < 90 ? '#F7A21B' : '#4ade80';
+        return `<div style="margin-bottom:0.6rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.2rem;">
+            <span style="font-size:0.72rem;font-weight:600;color:#fff;">${escHtml(r.machine)}</span>
+            <span style="font-size:0.72rem;font-weight:700;color:${color}">${pct !== null ? pct + '%' : '—'}</span>
+          </div>
+          <div class="compliance-track"><div class="compliance-fill" style="width:${barPct}%;background:${color}"></div></div>
+        </div>`;
+      },
+    });
+
     return kpiCard({
       title: 'Availability %', standard: 'ISO 14224:2016 §9.2',
       value: worst ? worst.availability_pct + '%' : '—', unit: 'lowest asset',
       sublabel: worst ? `${worst.machine} — MTBF/(MTBF+MTTR)` : 'No data',
       color: heroColor,
-      detail: rows,
+      detail,
       legend: '🔴 <80% · 🟡 <90% · 🟢 ≥90%',
     });
   }
@@ -723,20 +957,26 @@
     const top   = d.failure_frequency[0];
     const heroColor = total > 10 ? 'red' : total > 4 ? 'yellow' : 'green';
     const max = top?.failure_count || 1;
-    const bars = d.failure_frequency.slice(0, 8).map(r => {
-      const pct = Math.round((r.failure_count / max) * 100);
-      return `<div class="bar-row">
-        <span class="bar-label" title="${escHtml(r.machine)}">${escHtml(r.machine)}</span>
-        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
-        <span class="bar-val">${r.failure_count}</span>
-      </div>`;
-    }).join('');
+    const detail = renderListWithShowAll({
+      items: d.failure_frequency,
+      wrap: 'cards',
+      defaultN: 8,
+      itemNoun: 'machine',
+      renderRow: (r) => {
+        const pct = Math.round((r.failure_count / max) * 100);
+        return `<div class="bar-row">
+          <span class="bar-label" title="${escHtml(r.machine)}">${escHtml(r.machine)}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+          <span class="bar-val">${r.failure_count}</span>
+        </div>`;
+      },
+    });
     return kpiCard({
       title: 'Failure Frequency', standard: `ISO 14224:2016 · last ${d.period_days} days`,
       value: total, unit: 'total failures',
       sublabel: top ? `${top.machine} — most failures (${top.failure_count})` : '',
       color: heroColor,
-      detail: bars,
+      detail,
       legend: '🔴 >10 failures · 🟡 >4 · 🟢 ≤4 in period',
     });
   }
@@ -822,18 +1062,22 @@
   // ── 7. Parts Consumption ───────────────────────────────────────────────────
   function renderPartsConsumption(d) {
     if (!d || !d.consumption?.length) return cardEmpty('Parts Consumption Rate', 'SMRP', d?.note || 'No parts usage transactions found in period.');
-    const rows = d.consumption.slice(0, 10).map(r => `<tr>
-      <td class="machine-name">${escHtml(r.part_name)}</td>
-      <td class="num">${r.total_used}</td>
-      <td class="num">${r.per_week}/wk</td>
-      <td class="num">${r.per_month}/mo</td>
-    </tr>`).join('');
+    const list = renderListWithShowAll({
+      items: d.consumption,
+      tableHeader: '<thead><tr><th>Part</th><th class="num">Used</th><th class="num">Per Week</th><th class="num">Per Month</th></tr></thead>',
+      defaultN: 10,
+      itemNoun: 'part',
+      searchable: true,
+      renderRow: (r) => `<tr>
+        <td class="machine-name">${escHtml(r.part_name)}</td>
+        <td class="num">${r.total_used}</td>
+        <td class="num">${r.per_week}/wk</td>
+        <td class="num">${r.per_month}/mo</td>
+      </tr>`,
+    });
     return `<div class="card">
       <div class="card-title">Parts Consumption Rate <span class="card-standard">SMRP · last ${d.period_days} days</span></div>
-      <table class="data-table">
-        <thead><tr><th>Part</th><th class="num">Used</th><th class="num">Per Week</th><th class="num">Per Month</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
+      ${list}
     </div>`;
   }
 
@@ -848,17 +1092,20 @@
         </div>
       </div>`;
     }
-    const rows = d.repeats.map(r => `<tr>
-      <td class="machine-name">${escHtml(r.machine)}</td>
-      <td style="font-size:0.72rem;color:rgba(255,255,255,0.6);">${escHtml(r.root_cause)}</td>
-      <td class="num"><span class="repeat-badge">${r.occurrences}×</span></td>
-    </tr>`).join('');
+    const list = renderListWithShowAll({
+      items: d.repeats,
+      tableHeader: '<thead><tr><th>Machine</th><th>Root Cause</th><th class="num">Count</th></tr></thead>',
+      defaultN: 8,
+      itemNoun: 'pair',
+      renderRow: (r) => `<tr>
+        <td class="machine-name">${escHtml(r.machine)}</td>
+        <td style="font-size:0.72rem;color:rgba(255,255,255,0.6);">${escHtml(r.root_cause)}</td>
+        <td class="num"><span class="repeat-badge">${r.occurrences}×</span></td>
+      </tr>`,
+    });
     return `<div class="card">
       <div class="card-title">Repeat Failure Count <span class="card-standard">ISO 14224:2016 · ${d.repeat_pair_count} repeat pair(s) found</span></div>
-      <table class="data-table">
-        <thead><tr><th>Machine</th><th>Root Cause</th><th class="num">Count</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
+      ${list}
       <p style="font-size:0.65rem;color:rgba(255,255,255,0.2);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
     </div>`;
   }
@@ -869,13 +1116,14 @@
     const panel = document.getElementById('results-panel');
     const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-PH') : '';
     let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
-    html += renderRCMConsequence(data.rcm_consequence);
-    html += renderFailureModeDistribution(data.failure_mode_distribution);
-    html += renderPMFailureCorrelation(data.pm_failure_correlation);
-    html += renderSkillMTTRCorrelation(data.skill_mttr_correlation);
-    html += renderPartsAvailabilityImpact(data.parts_availability_impact);
-    html += renderRepeatFailureClustering(data.repeat_failure_clustering);
-    html += renderEngineeringValidation(data.engineering_validation);
+    // Order: root causes → recurrence → correlations (strategic→tactical) → taxonomy → QA
+    html += renderFailureModeDistribution(data.failure_mode_distribution);  // top "why" signal
+    html += renderRepeatFailureClustering(data.repeat_failure_clustering);  // root cause × machine = clearest action
+    html += renderPMFailureCorrelation(data.pm_failure_correlation);        // strategic — does PM work?
+    html += renderSkillMTTRCorrelation(data.skill_mttr_correlation);        // workforce — does skill speed up repairs?
+    html += renderPartsAvailabilityImpact(data.parts_availability_impact);  // supply chain × MTTR
+    html += renderRCMConsequence(data.rcm_consequence);                     // taxonomy — useful but least actionable
+    html += renderEngineeringValidation(data.engineering_validation);       // sanity / data quality — last
     panel.innerHTML = html;
     flushCharts();
   }
@@ -1020,13 +1268,14 @@
     const panel = document.getElementById('results-panel');
     const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-PH') : '';
     let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
-    html += renderPartsSpike(data.parts_consumption_spike);
-    html += renderAnomalyBaseline(data.anomaly_baseline);
-    html += renderHealthScores(data.health_scores);
-    html += renderNextFailureDates(data.next_failure_dates);
-    html += renderPMDueCalendar(data.pm_due_calendar);
-    html += renderPartsStockout(data.parts_stockout);
-    html += renderFailureTrend(data.failure_trend);
+    // Order: trend → specific predictions → triage → realtime sensors → schedule → supply → leading indicator
+    html += renderFailureTrend(data.failure_trend);                  // high-altitude direction
+    html += renderNextFailureDates(data.next_failure_dates);         // specific assets + dates — most actionable
+    html += renderHealthScores(data.health_scores);                  // per-asset composite for triage
+    html += renderAnomalyBaseline(data.anomaly_baseline);            // sensors flagging something off NOW
+    html += renderPMDueCalendar(data.pm_due_calendar);               // scheduled work coming up
+    html += renderPartsStockout(data.parts_stockout);                // supply chain forecast
+    html += renderPartsSpike(data.parts_consumption_spike);          // early-warning indicator — secondary signal
     panel.innerHTML = html;
     flushCharts();
   }
@@ -1038,21 +1287,28 @@
     </div>`;
 
     const color = d.critical_count > 0 ? 'red' : 'yellow';
-    const detail = d.spikes.map(s => {
-      const sColor = s.signal === 'CRITICAL' ? '#f87171' : s.signal === 'NEW_USAGE' ? '#29B6D9' : '#F7A21B';
-      return `<div style="padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;margin-bottom:0.2rem;">
-          <span style="font-size:0.78rem;font-weight:700;color:#fff;">${escHtml(s.part_name)}</span>
-          <span style="font-size:0.65rem;font-weight:700;color:${sColor};white-space:nowrap;flex-shrink:0;">
-            ${s.spike_factor ? s.spike_factor + '× spike' : 'New usage'}
-          </span>
-        </div>
-        <div style="font-size:0.68rem;color:rgba(255,255,255,0.4);margin-bottom:0.25rem;">
-          Now: ${s.current_rate}/mo ${s.previous_rate > 0 ? `· Before: ${s.previous_rate}/mo` : '· No prior usage'}
-        </div>
-        <p style="font-size:0.7rem;color:rgba(255,255,255,0.55);">${escHtml(s.interpretation)}</p>
-      </div>`;
-    }).join('');
+    const detail = renderListWithShowAll({
+      items: d.spikes,
+      wrap: 'cards',
+      defaultN: 6,
+      itemNoun: 'part',
+      searchable: true,
+      renderRow: (s) => {
+        const sColor = s.signal === 'CRITICAL' ? '#f87171' : s.signal === 'NEW_USAGE' ? '#29B6D9' : '#F7A21B';
+        return `<div style="padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;margin-bottom:0.2rem;">
+            <span style="font-size:0.78rem;font-weight:700;color:#fff;">${escHtml(s.part_name)}</span>
+            <span style="font-size:0.65rem;font-weight:700;color:${sColor};white-space:nowrap;flex-shrink:0;">
+              ${s.spike_factor ? s.spike_factor + '× spike' : 'New usage'}
+            </span>
+          </div>
+          <div style="font-size:0.68rem;color:rgba(255,255,255,0.4);margin-bottom:0.25rem;">
+            Now: ${s.current_rate}/mo ${s.previous_rate > 0 ? `· Before: ${s.previous_rate}/mo` : '· No prior usage'}
+          </div>
+          <p style="font-size:0.7rem;color:rgba(255,255,255,0.55);">${escHtml(s.interpretation)}</p>
+        </div>`;
+      },
+    });
 
     return kpiCard({
       title: 'Parts Consumption Spike',
@@ -1085,21 +1341,27 @@
         </div>`).join('')
       : `<p style="font-size:0.72rem;color:#4ade80;margin-bottom:0.75rem;">✓ All readings within 2σ control limits.</p>`;
 
-    const baselineRows = d.baselines.map(b => `<tr>
-      <td class="machine-name">${escHtml(b.machine)}</td>
-      <td style="font-size:0.68rem;color:rgba(255,255,255,0.5);">${escHtml(b.label)} (${escHtml(b.unit)})</td>
-      <td class="num">${b.mean}</td>
-      <td class="num">${b.ucl}</td>
-      <td class="num">${b.last_value}</td>
-    </tr>`).join('');
+    const baselineList = renderListWithShowAll({
+      items: d.baselines,
+      tableHeader: '<thead><tr><th>Machine</th><th>Reading</th><th class="num">Mean</th><th class="num">UCL</th><th class="num">Last</th></tr></thead>',
+      defaultN: 8,
+      itemNoun: 'reading',
+      searchable: true,
+      searchPlaceholder: 'Filter by machine or reading type…',
+      renderRow: (b) => `<tr>
+        <td class="machine-name">${escHtml(b.machine)}</td>
+        <td style="font-size:0.68rem;color:rgba(255,255,255,0.5);">${escHtml(b.label)} (${escHtml(b.unit)})</td>
+        <td class="num">${b.mean}</td>
+        <td class="num">${b.ucl}</td>
+        <td class="num">${b.last_value}</td>
+      </tr>`,
+    });
 
     return `<div class="card">
       <div class="card-title">Anomaly Baseline Detection <span class="card-standard">ISO 7870-2 SPC · ${d.machines_tracked} machine(s) · ${d.anomaly_count} alert(s)</span></div>
       ${anomalyHtml}
-      <table class="data-table" style="margin-top:0.5rem;">
-        <thead><tr><th>Machine</th><th>Reading</th><th class="num">Mean</th><th class="num">UCL</th><th class="num">Last</th></tr></thead>
-        <tbody>${baselineRows}</tbody>
-      </table>
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.25);margin:0.75rem 0 0.4rem;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Baseline reference (top 8 by sample count)</p>
+      ${baselineList}
     </div>`;
   }
 
@@ -1159,32 +1421,34 @@
   function renderNextFailureDates(d) {
     if (!d?.predictions?.length) return cardEmpty('Next Failure Prediction', 'ISO 14224:2016 + ISO 13381-1:2015', d?.note || 'Need ≥ 2 failures per machine to predict.');
 
-    const rows = d.predictions.map(p => {
-      const isOverdue = p.days_until < 0;
-      const isSuspect = p.mtbf_days < 1; // < 1 day MTBF = likely data quality issue
-
-      // Status column: explain past dates clearly
-      let statusHtml;
-      if (isSuspect) {
-        statusHtml = `<span style="font-size:0.62rem;color:#F7A21B;">⚠ Check data</span>`;
-      } else if (isOverdue) {
-        statusHtml = `<span style="font-size:0.62rem;color:#f87171;">Overdue by ${Math.abs(Math.round(p.days_until))}d — not yet logged</span>`;
-      } else {
-        statusHtml = `<span style="font-size:0.62rem;color:${p.risk==='MEDIUM'?'#F7A21B':'#4ade80'};">Due in ${Math.round(p.days_until)} days</span>`;
-      }
-
-      // Prediction date: show clearly if past
-      const dateColor = isOverdue ? '#f87171' : p.risk === 'MEDIUM' ? '#F7A21B' : 'rgba(255,255,255,0.6)';
-      const dateLabel = isOverdue ? `${escHtml(p.predicted_next)} ← past` : escHtml(p.predicted_next);
-
-      return `<tr style="${isSuspect ? 'opacity:0.6;' : ''}">
-        <td class="machine-name">${escHtml(p.machine)}${isSuspect ? ' <span style="font-size:0.6rem;color:#F7A21B;">⚠</span>' : ''}</td>
-        <td class="num" style="color:${isSuspect?'#F7A21B':'rgba(255,255,255,0.6)'};">${p.mtbf_days}d</td>
-        <td class="num" style="color:rgba(255,255,255,0.5);">${escHtml(p.last_failure)}</td>
-        <td class="num" style="color:${dateColor};font-size:0.72rem;">${dateLabel}</td>
-        <td>${statusHtml}</td>
-      </tr>`;
-    }).join('');
+    const list = renderListWithShowAll({
+      items: d.predictions,
+      tableHeader: '<thead><tr><th>Machine</th><th class="num">MTBF</th><th class="num">Last Logged</th><th class="num">Predicted Next</th><th>Status</th></tr></thead>',
+      defaultN: 8,
+      itemNoun: 'machine',
+      searchable: true,
+      renderRow: (p) => {
+        const isOverdue = p.days_until < 0;
+        const isSuspect = p.mtbf_days < 1; // < 1 day MTBF = likely data quality issue
+        let statusHtml;
+        if (isSuspect) {
+          statusHtml = `<span style="font-size:0.62rem;color:#F7A21B;">⚠ Check data</span>`;
+        } else if (isOverdue) {
+          statusHtml = `<span style="font-size:0.62rem;color:#f87171;">Overdue by ${Math.abs(Math.round(p.days_until))}d — not yet logged</span>`;
+        } else {
+          statusHtml = `<span style="font-size:0.62rem;color:${p.risk==='MEDIUM'?'#F7A21B':'#4ade80'};">Due in ${Math.round(p.days_until)} days</span>`;
+        }
+        const dateColor = isOverdue ? '#f87171' : p.risk === 'MEDIUM' ? '#F7A21B' : 'rgba(255,255,255,0.6)';
+        const dateLabel = isOverdue ? `${escHtml(p.predicted_next)} ← past` : escHtml(p.predicted_next);
+        return `<tr style="${isSuspect ? 'opacity:0.6;' : ''}">
+          <td class="machine-name">${escHtml(p.machine)}${isSuspect ? ' <span style="font-size:0.6rem;color:#F7A21B;">⚠</span>' : ''}</td>
+          <td class="num" style="color:${isSuspect?'#F7A21B':'rgba(255,255,255,0.6)'};">${p.mtbf_days}d</td>
+          <td class="num" style="color:rgba(255,255,255,0.5);">${escHtml(p.last_failure)}</td>
+          <td class="num" style="color:${dateColor};font-size:0.72rem;">${dateLabel}</td>
+          <td>${statusHtml}</td>
+        </tr>`;
+      },
+    });
 
     const suspectCount = d.predictions.filter(p => p.mtbf_days < 1).length;
 
@@ -1196,10 +1460,7 @@
       sublabel: d.high_risk > 0 ? `${d.high_risk} machine(s) past predicted failure date — check if logged` : `${d.medium_risk} machine(s) due within 14 days`,
       color: d.high_risk > 0 ? 'red' : d.medium_risk > 0 ? 'yellow' : 'green',
       detail: `
-        <table class="data-table">
-          <thead><tr><th>Machine</th><th class="num">MTBF</th><th class="num">Last Logged</th><th class="num">Predicted Next</th><th>Status</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
+        ${list}
         ${suspectCount > 0 ? `<p style="font-size:0.65rem;color:#F7A21B;margin-top:0.75rem;">⚠ ${suspectCount} machine(s) with MTBF < 1 day — likely multiple failures logged in same shift. Review logbook entries for data accuracy.</p>` : ''}
         <p style="font-size:0.62rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">Past dates mean the machine was due to fail again based on MTBF — check if a new failure was logged or if the machine is overdue for inspection.</p>`,
       legend: 'Prediction = last logged failure date + mean interval between historical failures. Requires ≥ 2 failures per machine.',
@@ -1294,22 +1555,26 @@
       <div class="card-title">Parts Stockout Risk <span class="card-standard">Deterministic — qty / daily consumption rate</span></div>
       <div class="empty" style="color:#4ade80;padding:1rem 0;">✓ No parts projected to stock out soon.</div>
     </div>`;
-    const rows = d.stockout_risk.map(p => {
-      const cls = p.risk === 'CRITICAL' ? 'alert' : p.risk === 'HIGH' ? 'warn' : '';
-      return `<tr>
-        <td class="machine-name">${escHtml(p.part_name)}</td>
-        <td class="num">${p.qty_on_hand}</td>
-        <td class="num">${p.daily_rate || '—'}</td>
-        <td class="num ${cls}">${p.days_to_stockout !== null ? p.days_to_stockout + 'd' : '—'}</td>
-        <td class="num"><span style="font-size:0.65rem;font-weight:700;color:${p.risk==='CRITICAL'?'#f87171':p.risk==='HIGH'?'#F7A21B':'#a78bfa'}">${p.risk}</span></td>
-      </tr>`;
-    }).join('');
+    const list = renderListWithShowAll({
+      items: d.stockout_risk,
+      tableHeader: '<thead><tr><th>Part</th><th class="num">In Stock</th><th class="num">Daily Rate</th><th class="num">Stockout In</th><th class="num">Risk</th></tr></thead>',
+      defaultN: 8,
+      itemNoun: 'part',
+      searchable: true,
+      renderRow: (p) => {
+        const cls = p.risk === 'CRITICAL' ? 'alert' : p.risk === 'HIGH' ? 'warn' : '';
+        return `<tr>
+          <td class="machine-name">${escHtml(p.part_name)}</td>
+          <td class="num">${p.qty_on_hand}</td>
+          <td class="num">${p.daily_rate || '—'}</td>
+          <td class="num ${cls}">${p.days_to_stockout !== null ? p.days_to_stockout + 'd' : '—'}</td>
+          <td class="num"><span style="font-size:0.65rem;font-weight:700;color:${p.risk==='CRITICAL'?'#f87171':p.risk==='HIGH'?'#F7A21B':'#a78bfa'}">${p.risk}</span></td>
+        </tr>`;
+      },
+    });
     return `<div class="card">
       <div class="card-title">Parts Stockout Risk <span class="card-standard">SMRP inventory · ${d.at_risk_count} parts at risk</span></div>
-      <table class="data-table">
-        <thead><tr><th>Part</th><th class="num">In Stock</th><th class="num">Daily Rate</th><th class="num">Stockout In</th><th class="num">Risk</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
+      ${list}
     </div>`;
   }
 
@@ -1373,12 +1638,13 @@
     const panel = document.getElementById('results-panel');
     const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-PH') : '';
     let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
-    if (data.action_plan) html += renderActionPlan(data.action_plan);
-    html += renderPriorityRanking(data.priority_ranking);
-    html += renderPMOptimization(data.pm_interval_optimization);
-    html += renderTechAssignment(data.technician_assignment);
-    html += renderPartsReorder(data.parts_reorder);
-    html += renderTrainingGaps(data.training_gaps);
+    // Order: AI synthesis → triage → this-week ops actions → scheduling change → HR development
+    if (data.action_plan) html += renderActionPlan(data.action_plan);  // cross-phase synthesis
+    html += renderPriorityRanking(data.priority_ranking);              // which assets to attack first
+    html += renderTechAssignment(data.technician_assignment);          // who works on what (this week)
+    html += renderPartsReorder(data.parts_reorder);                    // what to buy now
+    html += renderPMOptimization(data.pm_interval_optimization);       // longer-horizon schedule change
+    html += renderTrainingGaps(data.training_gaps);                    // longest-horizon HR action
     panel.innerHTML = html;
   }
 
@@ -1396,44 +1662,81 @@
 
   function renderPriorityRanking(d) {
     if (!d?.ranking?.length) return cardEmpty('Priority Maintenance Ranking', 'ISO 55001 risk framework', 'No corrective failure data found in the selected period.');
-    const rows = d.ranking.slice(0, 8).map(r => {
-      const pColor = r.priority==='P1' ? '#f87171' : r.priority==='P2' ? '#F7A21B' : '#4ade80';
-      return `<tr>
-        <td><span style="font-size:0.7rem;font-weight:800;color:${pColor};padding:0.15rem 0.4rem;border-radius:999px;background:rgba(0,0,0,0.2);">${r.priority}</span></td>
-        <td class="machine-name">${escHtml(r.machine)}</td>
-        <td style="font-size:0.68rem;color:rgba(255,255,255,0.4);">${escHtml(r.criticality)}</td>
-        <td class="num">${r.failure_count}</td>
-        <td class="num">${r.avg_downtime_h}h</td>
-        <td class="num" style="color:#a78bfa;font-weight:800;">${r.risk_score}</td>
-      </tr>`;
-    }).join('');
+    const list = renderListWithShowAll({
+      items: d.ranking,
+      tableHeader: '<thead><tr><th>Priority</th><th>Machine</th><th>Criticality</th><th class="num">Failures</th><th class="num">Avg DT</th><th class="num">Score</th></tr></thead>',
+      defaultN: 8,
+      itemNoun: 'asset',
+      searchable: true,
+      renderRow: (r) => {
+        const pColor = r.priority==='P1' ? '#f87171' : r.priority==='P2' ? '#F7A21B' : '#4ade80';
+        return `<tr>
+          <td><span style="font-size:0.7rem;font-weight:800;color:${pColor};padding:0.15rem 0.4rem;border-radius:999px;background:rgba(0,0,0,0.2);">${r.priority}</span></td>
+          <td class="machine-name">${escHtml(r.machine)}</td>
+          <td style="font-size:0.68rem;color:rgba(255,255,255,0.4);">${escHtml(r.criticality)}</td>
+          <td class="num">${r.failure_count}</td>
+          <td class="num">${r.avg_downtime_h}h</td>
+          <td class="num" style="color:#a78bfa;font-weight:800;">${r.risk_score}</td>
+        </tr>`;
+      },
+    });
     return `<div class="card">
       <div class="card-title">Priority Maintenance Ranking <span class="card-standard">ISO 55001 · 🔴 ${d.p1_count} P1 · 🟡 ${d.p2_count} P2</span></div>
-      <table class="data-table">
-        <thead><tr><th>Priority</th><th>Machine</th><th>Criticality</th><th class="num">Failures</th><th class="num">Avg DT</th><th class="num">Score</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">Score = Criticality × Failure count × Avg downtime. P1 ≥ 20, P2 ≥ 8.</p>
+      ${list}
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">Score = Criticality × Failure count × Avg downtime. P1 ≥ 150, P2 ≥ 60.</p>
     </div>`;
   }
 
   function renderPMOptimization(d) {
-    if (!d?.recommendations?.length) return `<div class="card">
-      <div class="card-title">PM Interval Optimization <span class="card-standard">SAE JA1011 §7 RCM</span></div>
-      <div class="empty" style="color:#4ade80;padding:1rem 0;">✓ Current PM intervals are appropriate based on failure history.</div>
-    </div>`;
-    const rows = d.recommendations.map(r => `
-      <div style="margin-bottom:0.75rem;padding:0.75rem;border-radius:0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
-          <span style="font-size:0.78rem;font-weight:700;color:#fff;">${escHtml(r.asset_name)}</span>
-          <span style="font-size:0.65rem;font-weight:700;color:${r.action.includes('INCREASE')?'#f87171':'#F7A21B'};">${escHtml(r.action)}</span>
-        </div>
-        <p style="font-size:0.68rem;color:rgba(255,255,255,0.5);">${escHtml(r.reason)}</p>
-        <p style="font-size:0.65rem;color:#a78bfa;margin-top:0.25rem;">Recommended: every ${r.recommended_days} days (currently ${r.current_frequency})</p>
-      </div>`).join('');
+    // Distinguish three empty cases honestly:
+    //  - compared_count > 0 and 0 recommendations → really healthy
+    //  - compared_count == 0 → couldn't match any asset (data plumbing issue, see PRODUCTION_FIXES #17)
+    //  - scope_asset_count == 0 → no PM scopes registered yet
+    if (!d?.recommendations?.length) {
+      const cmp     = d?.compared_count ?? 0;
+      const scopeN  = d?.scope_asset_count ?? 0;
+      const skipped = d?.skipped_count ?? 0;
+      let empty;
+      if (scopeN === 0) {
+        empty = `<div class="empty" style="color:rgba(255,255,255,0.4);padding:1rem 0;font-size:0.82rem;">No PM scopes registered yet. Add PM tasks to assets in PM Scheduler to enable interval optimisation.</div>`;
+      } else if (cmp === 0) {
+        empty = `<div class="empty" style="color:rgba(255,255,255,0.4);padding:1rem 0;font-size:0.82rem;">Couldn't compare PM intervals: ${scopeN} assets have PM scopes but none have matching failure history in logbook for this period. Recommendations will appear once breakdowns log against the same assets.</div>`;
+      } else {
+        empty = `<div class="empty" style="color:#4ade80;padding:1rem 0;">✓ Compared ${cmp} asset${cmp === 1 ? '' : 's'}: current PM intervals are appropriate based on failure history.</div>`;
+      }
+      return `<div class="card">
+        <div class="card-title">PM Interval Optimization <span class="card-standard">SAE JA1011 §7 RCM</span></div>
+        ${empty}
+      </div>`;
+    }
+    const list = renderListWithShowAll({
+      items: d.recommendations,
+      wrap: 'cards',
+      defaultN: 5,
+      itemNoun: 'recommendation',
+      searchable: true,
+      searchPlaceholder: 'Filter by asset name or code…',
+      renderRow: (r) => {
+        const codeBadge = r.machine_code
+          ? `<code style="font-size:0.65rem;color:#F7A21B;background:rgba(247,162,27,0.08);padding:1px 6px;border-radius:4px;margin-left:0.4rem;">${escHtml(r.machine_code)}</code>`
+          : '';
+        const scopeNote = r.scope_items_count
+          ? ` · covers ${r.scope_items_count} PM task${r.scope_items_count === 1 ? '' : 's'}`
+          : '';
+        return `
+          <div style="margin-bottom:0.75rem;padding:0.75rem;border-radius:0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
+              <span style="font-size:0.78rem;font-weight:700;color:#fff;">${escHtml(r.asset_name)}${codeBadge}</span>
+              <span style="font-size:0.65rem;font-weight:700;color:${r.action.includes('INCREASE')?'#f87171':'#F7A21B'};">${escHtml(r.action)}</span>
+            </div>
+            <p style="font-size:0.68rem;color:rgba(255,255,255,0.5);">${escHtml(r.reason)}</p>
+            <p style="font-size:0.65rem;color:#a78bfa;margin-top:0.25rem;">Recommended: every ${r.recommended_days} days (currently tightest = ${r.current_frequency}${scopeNote})</p>
+          </div>`;
+      },
+    });
     return `<div class="card">
       <div class="card-title">PM Interval Optimization <span class="card-standard">SAE JA1011 §7 RCM · ${d.count} recommendation(s)</span></div>
-      ${rows}
+      ${list}
     </div>`;
   }
 
@@ -1445,7 +1748,20 @@
       <td style="font-size:0.72rem;font-weight:600;color:#29B6D9;">${escHtml(a.assigned_to)}</td>
       <td class="num good">L${a.skill_level}</td>
     </tr>`).join('');
-    const gaps = (d.skill_gaps || []).map(g => `<div style="font-size:0.72rem;color:#f87171;margin-top:0.4rem;">⚠ ${escHtml(g.gap)}</div>`).join('');
+    // Group identical gaps so we don't render 8 copies of "No qualified Mechanical
+    // technician found." Each gap row shows the discipline + the machines waiting on it.
+    const gapsByDisc = {};
+    (d.skill_gaps || []).forEach(g => {
+      const key = g.discipline || 'unknown';
+      if (!gapsByDisc[key]) gapsByDisc[key] = { discipline: key, machines: [] };
+      if (g.machine) gapsByDisc[key].machines.push(g.machine);
+    });
+    const gaps = Object.values(gapsByDisc).map(grp => {
+      const machineList = grp.machines.length
+        ? `<span style="color:rgba(255,255,255,0.55);"> · ${escHtml(grp.machines.slice(0, 4).join(', '))}${grp.machines.length > 4 ? ` +${grp.machines.length - 4} more` : ''}</span>`
+        : '';
+      return `<div style="font-size:0.74rem;color:#f87171;margin-top:0.5rem;">⚠ No qualified <strong>${escHtml(grp.discipline)}</strong> technician in the team. <span style="color:rgba(255,255,255,0.4);">(${grp.machines.length} machine${grp.machines.length === 1 ? '' : 's'} affected)</span>${machineList}</div>`;
+    }).join('');
     return `<div class="card">
       <div class="card-title">Technician Assignment <span class="card-standard">SMRP workforce · ${d.open_job_count || 0} open job(s)</span></div>
       ${assignments ? `<table class="data-table"><thead><tr><th>Machine</th><th>Problem</th><th>Assign To</th><th class="num">Level</th></tr></thead><tbody>${assignments}</tbody></table>` : ''}
@@ -1458,30 +1774,54 @@
       <div class="card-title">Parts Reorder Recommendation <span class="card-standard">Inventory × PM cross-reference</span></div>
       <div class="empty" style="color:#4ade80;padding:1rem 0;">✓ All parts are above reorder points.</div>
     </div>`;
-    const rows = d.reorder.map(r => {
-      const cls = r.urgency==='CRITICAL' ? 'alert' : r.urgency==='HIGH' ? 'warn' : '';
-      return `<tr>
-        <td class="machine-name">${escHtml(r.part_name)}${r.pm_relevant ? ' <span style="font-size:0.6rem;color:#a78bfa;">PM</span>' : ''}</td>
-        <td class="num">${r.qty_on_hand}</td>
-        <td class="num">${r.reorder_point}</td>
-        <td class="num ${cls}">${r.urgency}</td>
-        <td style="font-size:0.68rem;color:rgba(255,255,255,0.5);">Order ${r.suggested_order}</td>
-      </tr>`;
-    }).join('');
+    const list = renderListWithShowAll({
+      items: d.reorder,
+      tableHeader: '<thead><tr><th>Part</th><th class="num">In Stock</th><th class="num">Reorder At</th><th class="num">Urgency</th><th>Action</th></tr></thead>',
+      defaultN: 8,
+      itemNoun: 'part',
+      searchable: true,
+      renderRow: (r) => {
+        const cls = r.urgency==='CRITICAL' ? 'alert' : r.urgency==='HIGH' ? 'warn' : '';
+        return `<tr>
+          <td class="machine-name">${escHtml(r.part_name)}${r.pm_relevant ? ' <span style="font-size:0.6rem;color:#a78bfa;">PM</span>' : ''}</td>
+          <td class="num">${r.qty_on_hand}</td>
+          <td class="num">${r.reorder_point}</td>
+          <td class="num ${cls}">${r.urgency}</td>
+          <td style="font-size:0.68rem;color:rgba(255,255,255,0.5);">Order ${r.suggested_order}</td>
+        </tr>`;
+      },
+    });
     return `<div class="card">
       <div class="card-title">Parts Reorder Recommendation <span class="card-standard">🔴 ${d.critical_count} critical · PM-linked parts marked</span></div>
-      <table class="data-table">
-        <thead><tr><th>Part</th><th class="num">In Stock</th><th class="num">Reorder At</th><th class="num">Urgency</th><th>Action</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
+      ${list}
     </div>`;
   }
 
   function renderTrainingGaps(d) {
-    if (!d?.gaps?.length) return `<div class="card">
-      <div class="card-title">Training Gap Recommendation <span class="card-standard">MTTR × Skill cross-reference</span></div>
-      <div class="empty" style="color:#4ade80;padding:1rem 0;">✓ No significant training gaps detected.</div>
-    </div>`;
+    // Distinguish empty states honestly:
+    //  - categories_evaluated > 0 and above_threshold_count == 0 → real "no spike"
+    //  - categories_evaluated == 0 → no closed corrective entries with downtime
+    //  - above_threshold_count > 0 but gaps == 0 → spike exists but no low-skill workers (everyone is L3+) — that's also good
+    //  - badge_count == 0 → no skill badges seeded yet
+    if (!d?.gaps?.length) {
+      const cats   = d?.categories_evaluated ?? 0;
+      const above  = d?.above_threshold_count ?? 0;
+      const badges = d?.badge_count ?? 0;
+      let empty;
+      if (cats === 0) {
+        empty = `<div class="empty" style="color:rgba(255,255,255,0.4);padding:1rem 0;font-size:0.82rem;">${escHtml(d?.note || 'No closed corrective entries with downtime in this period — nothing to evaluate yet.')}</div>`;
+      } else if (badges === 0) {
+        empty = `<div class="empty" style="color:rgba(255,255,255,0.4);padding:1rem 0;font-size:0.82rem;">No skill badges yet. Workers need to take exams in Skill Matrix before training gaps can be detected.</div>`;
+      } else if (above === 0) {
+        empty = `<div class="empty" style="color:#4ade80;padding:1rem 0;">✓ Evaluated ${cats} categor${cats === 1 ? 'y' : 'ies'}: no MTTR spike above the +20% threshold. Repair times are consistent across the team.</div>`;
+      } else {
+        empty = `<div class="empty" style="color:#4ade80;padding:1rem 0;">✓ ${above} categor${above === 1 ? 'y has' : 'ies have'} elevated MTTR, but every worker in the affected disciplines is already Level 3+. No upskilling needed.</div>`;
+      }
+      return `<div class="card">
+        <div class="card-title">Training Gap Recommendation <span class="card-standard">MTTR × Skill cross-reference</span></div>
+        ${empty}
+      </div>`;
+    }
     const cards = d.gaps.map(g => `
       <div style="margin-bottom:0.75rem;padding:0.75rem;border-radius:0.75rem;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.15);">
         <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem;">
@@ -1505,13 +1845,129 @@
     </div>`;
   }
 
+  // ── Top-N + "Show all" pattern ─────────────────────────────────────────
+  // Used by panels with long lists (MTBF, MTTR, Availability, Repeat
+  // Failures, PM Interval Optimization, Next Failure Dates, Parts Reorder,
+  // etc). Renders the first defaultN items visibly and the rest in a
+  // hidden container that the toggle reveals. No re-render on toggle.
+  //
+  // Usage:
+  //   renderListWithShowAll({
+  //     items: arr,
+  //     renderRow: (item) => '<tr>...</tr>',  // or '<div>...</div>' for cards
+  //     wrap: 'table' | 'cards',
+  //     tableHeader: '<thead>...</thead>',    // table wrap only
+  //     defaultN: 8,
+  //     itemNoun: 'asset',                    // for "Show all 30 assets ↓"
+  //   });
+  function renderListWithShowAll({ items, renderRow, wrap = 'table', tableHeader = '', defaultN = 8, itemNoun = 'item', searchable = false, searchPlaceholder = '' }) {
+    if (!items?.length) return '';
+    const total = items.length;
+
+    // Below the threshold: just render flat, no toggle, no search.
+    // (Search adds clutter when there are only 5 rows.)
+    if (total <= defaultN && !searchable) {
+      const html = items.map(renderRow).join('');
+      return wrap === 'table'
+        ? `<table class="data-table">${tableHeader}<tbody>${html}</tbody></table>`
+        : `<div class="cards-stack">${html}</div>`;
+    }
+
+    const visibleHtml = items.slice(0, defaultN).map(renderRow).join('');
+    const hiddenHtml  = total > defaultN ? items.slice(defaultN).map(renderRow).join('') : '';
+    const showAllTxt  = `Show all ${total} ${itemNoun}${total === 1 ? '' : 's'} ↓`;
+    const showLessTxt = `Show top ${defaultN} ↑`;
+
+    // Search input — only when explicitly enabled AND list is big enough to
+    // benefit (>=8 items). Small lists don't need search clutter. Auto-expands
+    // hidden rows on input so matches outside the top-N are still findable.
+    const showSearch = searchable && total >= 8;
+    const searchInput = showSearch ? `
+      <input type="search" class="list-search" placeholder="${escHtml(searchPlaceholder || ('Filter ' + itemNoun + 's…'))}"
+        oninput="filterShowAllList(this)" />
+    ` : '';
+
+    if (wrap === 'table') {
+      return `<div class="list-with-showall">
+        ${searchInput}
+        <table class="data-table">
+          ${tableHeader}
+          <tbody>${visibleHtml}</tbody>
+          ${hiddenHtml ? `<tbody class="extra-rows" hidden>${hiddenHtml}</tbody>` : ''}
+        </table>
+        ${total > defaultN ? `<button type="button" class="showall-toggle" onclick="toggleShowAll(this)"
+          data-show-all="${escHtml(showAllTxt)}" data-show-less="${escHtml(showLessTxt)}">${escHtml(showAllTxt)}</button>` : ''}
+      </div>`;
+    }
+    return `<div class="list-with-showall">
+      ${searchInput}
+      <div class="cards-stack">${visibleHtml}</div>
+      ${hiddenHtml ? `<div class="extra-cards" hidden>${hiddenHtml}</div>` : ''}
+      ${total > defaultN ? `<button type="button" class="showall-toggle" onclick="toggleShowAll(this)"
+        data-show-all="${escHtml(showAllTxt)}" data-show-less="${escHtml(showLessTxt)}">${escHtml(showAllTxt)}</button>` : ''}
+    </div>`;
+  }
+
+  // Filter rows/cards by typed query. Reveals hidden rows so matches anywhere
+  // are findable. Clearing the input restores the original Top-N view.
+  function filterShowAllList(input) {
+    const wrap = input.closest('.list-with-showall');
+    if (!wrap) return;
+    const q = (input.value || '').trim().toLowerCase();
+    const extra = wrap.querySelector('.extra-rows, .extra-cards');
+    const toggleBtn = wrap.querySelector('.showall-toggle');
+    const allRows = Array.from(wrap.querySelectorAll('tbody tr, .cards-stack > *, .extra-cards > *'));
+
+    if (!q) {
+      // Empty query: restore default state (extras hidden, all visible rows shown).
+      allRows.forEach(r => { r.style.display = ''; });
+      if (extra && !extra.hasAttribute('hidden')) {
+        extra.setAttribute('hidden', '');
+        if (toggleBtn) toggleBtn.textContent = toggleBtn.dataset.showAll;
+      }
+      return;
+    }
+
+    // Searching: expand the hidden container so matches in there are visible.
+    if (extra && extra.hasAttribute('hidden')) {
+      extra.removeAttribute('hidden');
+      if (toggleBtn) toggleBtn.textContent = toggleBtn.dataset.showLess;
+    }
+    let matchCount = 0;
+    allRows.forEach(r => {
+      const text = (r.textContent || '').toLowerCase();
+      const hit = text.includes(q);
+      r.style.display = hit ? '' : 'none';
+      if (hit) matchCount++;
+    });
+    // Optional: surface a "no results" state inline. Skipped for now — empty
+    // table is self-explanatory.
+  }
+
+  function toggleShowAll(btn) {
+    const wrap = btn.closest('.list-with-showall');
+    const extra = wrap?.querySelector('.extra-rows, .extra-cards');
+    if (!extra) return;
+    const isHidden = extra.hasAttribute('hidden');
+    if (isHidden) {
+      extra.removeAttribute('hidden');
+      btn.textContent = btn.dataset.showLess;
+    } else {
+      extra.setAttribute('hidden', '');
+      btn.textContent = btn.dataset.showAll;
+    }
+  }
+
   // ── Role-Based Views ─────────────────────────────────────────────────────
-  // Three views: worker (field tech), supervisor (team lead), manager (plant)
-  // Defaults from HIVE_ROLE. Manually switchable.
+  // Two views: worker (field tech) and supervisor (team lead).
+  // Defaults from HIVE_ROLE — the only actual roles in hive_members per the
+  // multitenant model.
 
   let _role = HIVE_ROLE === 'supervisor' ? 'supervisor' : 'worker';
 
   function setRole(role) {
+    // Clamp to known roles — Manager was retired (was UI-only, not a real role)
+    if (role !== 'supervisor') role = 'worker';
     _role = role;
     document.querySelectorAll('.role-btn').forEach(b => {
       b.classList.toggle('active', b.id === `role-${role}`);
@@ -1529,12 +1985,10 @@
 
     if (!desc && !pred && !presc) { el.innerHTML = ''; return; }
 
-    if (_role === 'worker') {
-      el.innerHTML = buildWorkerView(pred, presc);
-    } else if (_role === 'supervisor') {
+    if (_role === 'supervisor') {
       el.innerHTML = buildSupervisorView(desc, pred, presc);
     } else {
-      el.innerHTML = buildManagerView(desc, pred, presc);
+      el.innerHTML = buildWorkerView(pred, presc);
     }
   }
 
@@ -1639,134 +2093,25 @@
     const gaps = presc?.training_gaps?.gaps?.[0];
     if (gaps) rows.push(`<div class="role-row"><span class="label">📚 Training gap</span><span class="val" style="color:#F7A21B;">${escHtml(gaps.discipline)} — avg MTTR ${gaps.avg_mttr_h}h</span></div>`);
 
-    if (!rows.length) return '';
-    return `<div class="role-card"><div class="role-card-title">👷 Supervisor — Team Status</div>${rows.join('')}</div>`;
+    // AI synthesis — full text in-card (no separate banner below since #27).
+    // Tied to the bottom because it integrates everything above.
+    const aiSummary = presc?.action_plan?.summary;
+    let aiBlock = '';
+    if (aiSummary) {
+      aiBlock = `<div class="role-ai-rec">
+        <div class="role-ai-rec-label">⚡ AI recommendation</div>
+        <p class="role-ai-rec-text">${escHtml(aiSummary)}</p>
+      </div>`;
+    }
+
+    if (!rows.length && !aiBlock) return '';
+    return `<div class="role-card"><div class="role-card-title">👷 Supervisor — Team Status</div>${rows.join('')}${aiBlock}</div>`;
   }
 
-  // ── Manager Quick View: OEE + trend + AI action ───────────────────────────
-  function buildManagerView(desc, pred, presc) {
-    const rows = [];
-
-    // OEE worst
-    const oee = desc?.oee?.oee_by_asset?.filter(a => a.oee_pct !== null)[0];
-    if (oee) rows.push(`<div class="role-row"><span class="label">📊 OEE (lowest)</span><span class="val" style="color:${oee.oee_pct<65?'#f87171':oee.oee_pct<85?'#F7A21B':'#4ade80'};">${oee.machine} · ${oee.oee_pct}%</span></div>`);
-
-    // Failure trend
-    const trend = pred?.failure_trend;
-    if (trend?.direction) {
-      const tColor = trend.direction === 'INCREASING' ? '#f87171' : trend.direction === 'DECREASING' ? '#4ade80' : '#a78bfa';
-      rows.push(`<div class="role-row"><span class="label">📈 Failure trend</span><span class="val" style="color:${tColor};">${trend.direction} · ${trend.slope_per_week > 0 ? '+' : ''}${trend.slope_per_week}/week</span></div>`);
-    }
-
-    // Anomalies
-    const anomalies = pred?.anomaly_baseline?.anomaly_count;
-    if (anomalies > 0) rows.push(`<div class="role-row"><span class="label">⚠ Sensor anomalies</span><span class="val" style="color:#f87171;">${anomalies} reading(s) outside control limits</span></div>`);
-
-    // AI action plan summary
-    const action = presc?.action_plan?.summary;
-    if (action) rows.push(`<div class="role-row"><span class="label">⚡ AI recommendation</span><span class="val" style="color:#a78bfa;max-width:60%;text-align:right;font-size:0.68rem;font-weight:600;">${escHtml(action.slice(0,80))}...</span></div>`);
-
-    if (!rows.length) return '';
-    return `<div class="role-card"><div class="role-card-title">📋 Manager — Plant Overview</div>${rows.join('')}</div>`;
-  }
-
-  // ── Command Summary Bar ───────────────────────────────────────────────────
-  // Reads from _cache and shows key KPIs as RAG pills.
-  // Updates whenever any phase finishes loading.
-
-  function ragColor(value, greenThresh, yellowThresh, higherIsBetter = true) {
-    if (value === null || value === undefined) return 'grey';
-    if (higherIsBetter) {
-      return value >= greenThresh ? 'green' : value >= yellowThresh ? 'yellow' : 'red';
-    } else {
-      return value <= greenThresh ? 'green' : value <= yellowThresh ? 'yellow' : 'red';
-    }
-  }
-
-  function makePill(label, value, unit, color, phaseTarget) {
-    const tip = phaseTarget ? `onclick="setPhase('${phaseTarget}')"` : '';
-    return `<button class="cmd-pill ${color}" ${tip} title="Jump to ${phaseTarget || ''} analytics">
-      <span class="pill-label">${escHtml(label)}</span>
-      <span>${escHtml(String(value))}${escHtml(unit)}</span>
-    </button>`;
-  }
-
-  function updateCommandBar() {
-    const bar   = document.getElementById('command-bar');
-    const pills = document.getElementById('command-pills');
-    const alert = document.getElementById('command-alert');
-    const desc  = _cache.descriptive;
-    const pred  = _cache.predictive;
-    const presc = _cache.prescriptive;
-
-    if (!desc && !pred && !presc) return; // nothing loaded yet
-
-    bar.classList.remove('hidden');
-    let pillsHtml = '';
-    let topAlert  = '';
-
-    // ── MTBF pill (descriptive) ──
-    if (desc?.mtbf?.mtbf_by_asset?.length) {
-      const withMTBF = desc.mtbf.mtbf_by_asset.filter(a => a.mtbf_days !== null);
-      if (withMTBF.length) {
-        const worst = withMTBF[0]; // sorted lowest first
-        const color = ragColor(worst.mtbf_days, 30, 14, true);
-        pillsHtml += makePill('MTBF', worst.mtbf_days + 'd', ` worst`, color, 'descriptive');
-      }
-    }
-
-    // ── MTTR pill (descriptive) ──
-    if (desc?.mttr?.mttr_by_asset?.length) {
-      const worst = desc.mttr.mttr_by_asset[0]; // sorted highest first
-      const color = ragColor(worst.mttr_hours, 8, 24, false);
-      pillsHtml += makePill('MTTR', worst.mttr_hours + 'h', ` avg`, color, 'descriptive');
-    }
-
-    // ── PM Compliance pill (descriptive) ──
-    if (desc?.pm_compliance?.overall_pct !== null && desc?.pm_compliance?.overall_pct !== undefined) {
-      const pct   = desc.pm_compliance.overall_pct;
-      const color = ragColor(pct, 85, 70, true);
-      pillsHtml += makePill('PM', pct + '%', ' compliance', color, 'descriptive');
-    }
-
-    // ── OEE pill (descriptive) ──
-    if (desc?.oee?.oee_by_asset?.length) {
-      const withOEE = desc.oee.oee_by_asset.filter(a => a.oee_pct !== null);
-      if (withOEE.length) {
-        const worst = withOEE[0];
-        const color = ragColor(worst.oee_pct, 85, 65, true);
-        pillsHtml += makePill('OEE', worst.oee_pct + '%', ' worst', color, 'descriptive');
-      }
-    }
-
-    // ── Anomaly alert pill (predictive) ──
-    if (pred?.anomaly_baseline?.anomaly_count > 0) {
-      const n = pred.anomaly_baseline.anomaly_count;
-      pillsHtml += makePill('⚠', n, ` anomal${n === 1 ? 'y' : 'ies'}`, 'red', 'predictive');
-      topAlert = pred.anomaly_baseline.anomalies?.[0]?.alert || '';
-    }
-
-    // ── HIGH risk failures pill (predictive) ──
-    if (pred?.next_failure_dates?.high_risk > 0) {
-      const n = pred.next_failure_dates.high_risk;
-      pillsHtml += makePill('🔴', n, ` failure${n === 1 ? '' : 's'} overdue`, 'red', 'predictive');
-    }
-
-    // ── Prescriptive summary pill ──
-    if (presc?.action_plan?.summary) {
-      pillsHtml += makePill('⚡', 'AI plan ready', '', 'green', 'prescriptive');
-      if (!topAlert) topAlert = presc.action_plan.summary;
-    }
-
-    pills.innerHTML = pillsHtml || '<span class="cmd-pill grey">Loading summary...</span>';
-
-    if (topAlert) {
-      alert.textContent = '⚡ ' + topAlert;
-      alert.classList.remove('hidden');
-    } else {
-      alert.classList.add('hidden');
-    }
-  }
+  // (Removed: buildManagerView and updateCommandBar — see PRODUCTION_FIXES #27.
+  // The Manager view was UI-only (platform has Worker/Supervisor only). The
+  // command bar with KPI pills + duplicate AI banner restated info already
+  // shown inside each role card and inside the analytics phase panels.)
 
   // ── Kick off on page load ─────────────────────────────────────────────────
   // Runs automatically — no button click needed
