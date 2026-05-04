@@ -44,6 +44,7 @@ LIVE_PAGES = [
     "community.html",
     "marketplace.html",
     "public-feed.html",
+    "project-manager.html",
 ]
 
 CRITICAL_SAVES = [

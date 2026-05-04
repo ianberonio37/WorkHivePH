@@ -44,6 +44,7 @@ TARGET_PAGES = [
     "marketplace.html",
     "marketplace-seller.html",
     "marketplace-admin.html",
+    "project-manager.html",
 ]
 
 MIN_COVERAGE_RATIO = 0.6

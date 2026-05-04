@@ -45,6 +45,7 @@ LIVE_TOOL_PAGES = [
     "hive", "inventory", "skillmatrix", "engineering-design", "analytics",
     "analytics-report",
     "report-sender", "community", "marketplace",
+    "project-manager",
 ]
 
 RETIRED_PAGES = ["parts-tracker", "checklist"]

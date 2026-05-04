@@ -80,3 +80,8 @@ entrypoint = "./functions/marketplace-release/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/marketplace-connect-status/index.ts"
+
+[functions.project-progress]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/project-progress/index.ts"

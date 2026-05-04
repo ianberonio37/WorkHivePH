@@ -54,6 +54,7 @@ LIVE_PAGES = [
     "marketplace-seller.html",
     "marketplace-seller-profile.html",
     "public-feed.html",
+    "project-manager.html",
 ]
 
 RETIRED_TABLES = {"parts_records", "checklist_records"}

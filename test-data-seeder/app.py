@@ -60,6 +60,7 @@ PUBLIC_PAGES = [
     ("platform-health.html", "Platform health"),
     ("architecture.html", "Architecture"),
     ("symbol-gallery.html", "Symbol gallery"),
+    ("project-manager.html", "Project Manager"),
 ]
 PUBLIC_PAGE_SET = {p[0] for p in PUBLIC_PAGES}
 
@@ -1753,6 +1754,18 @@ def manifest_json():
     if not f.exists():
         abort(404)
     return send_from_directory(WORKHIVE_ROOT, "manifest.json")
+
+
+@app.route("/brand_assets/<path:filename>")
+def brand_assets(filename):
+    """Serve brand assets (logos, icons) referenced from manifest.json at the
+    site root. Without this the manifest icon 404s and DevTools complains."""
+    if ".." in filename or filename.startswith("/"):
+        abort(404)
+    folder = WORKHIVE_ROOT / "brand_assets"
+    if not (folder / filename).exists():
+        abort(404)
+    return send_from_directory(folder, filename)
 
 
 # ---------- WorkHive proxy routes ----------

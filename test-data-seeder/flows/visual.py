@@ -18,6 +18,7 @@ PAGES = [
     "analytics.html", "analytics-report.html", "skillmatrix.html", "community.html",
     "marketplace.html", "dayplanner.html", "engineering-design.html",
     "report-sender.html",
+    "project-manager.html",
 ]
 
 BASELINES_DIR = Path(__file__).resolve().parent.parent / ".tmp" / "visual_baselines"

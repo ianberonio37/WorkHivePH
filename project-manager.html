@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Project Manager | WorkHive</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1923; --surface: #162032; --card: #1d2e44; --card-hover: #243a55;
+    --gold: #F7A21B; --blue: #29B6D9; --green: #30D068; --amber: #F4C430; --red: #E15554;
+    --text: #F4F6FA; --muted: rgba(255,255,255,0.6); --border: rgba(255,255,255,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Poppins', system-ui, sans-serif; background: var(--bg); color: var(--text); padding-top: 60px; min-height: 100vh; }
+  main { max-width: 1280px; margin: 0 auto; padding: 18px; }
+  h1 { font-weight: 800; font-size: 1.6rem; margin-bottom: 4px; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); font-size: 0.92rem; margin-bottom: 18px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .grow { flex: 1; min-width: 0; }
+  button, .btn {
+    font-family: inherit; font-size: 0.92rem; font-weight: 600;
+    background: var(--card); color: var(--text); border: 1px solid var(--border);
+    border-radius: 10px; padding: 9px 14px; cursor: pointer; transition: all 0.15s;
+  }
+  button:hover, .btn:hover { background: var(--card-hover); }
+  button.primary, .btn.primary { background: var(--gold); color: #1a1208; border-color: var(--gold); }
+  button.primary:hover { background: #ffb840; }
+  button.ghost { background: transparent; }
+  button.danger { color: var(--red); border-color: rgba(225,85,84,0.4); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  input, select, textarea {
+    font-family: inherit; font-size: 16px; /* iOS no-zoom */
+    background: var(--bg); color: var(--text); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 11px; width: 100%;
+  }
+  textarea { min-height: 70px; resize: vertical; }
+  label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; font-weight: 500; }
+  .field { margin-bottom: 12px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  @media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  /* ── Tabs / filters ───────────────────────────────────────── */
+  .tab-strip { display: flex; gap: 6px; border-bottom: 1px solid var(--border); margin-bottom: 14px; overflow-x: auto; }
+  .tab-strip button {
+    background: transparent; border: none; border-bottom: 2px solid transparent;
+    border-radius: 0; padding: 10px 14px; color: var(--muted); white-space: nowrap;
+  }
+  .tab-strip button.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .filter-row { display: grid; grid-template-columns: 1fr 1fr 2fr auto; gap: 8px; margin-bottom: 14px; }
+  @media (max-width: 720px) { .filter-row { grid-template-columns: 1fr 1fr; } .filter-row > .new-btn { grid-column: 1 / -1; } }
+
+  /* ── Project cards ────────────────────────────────────────── */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 12px; }
+  .pcard {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 14px 16px; cursor: pointer; transition: all 0.15s;
+  }
+  .pcard:hover { border-color: var(--gold); transform: translateY(-1px); }
+  .pcard-head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+  .pcode { font-size: 0.72rem; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; }
+  .ptype-pill {
+    display: inline-block; font-size: 0.66rem; padding: 2px 7px; border-radius: 999px;
+    font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .ptype-workorder  { background: rgba(41,182,217,0.18); color: var(--blue); }
+  .ptype-shutdown   { background: rgba(225,85,84,0.18);  color: var(--red); }
+  .ptype-capex      { background: rgba(247,162,27,0.18); color: var(--gold); }
+  .ptype-contractor { background: rgba(48,208,104,0.18); color: var(--green); }
+  .pname { font-size: 1rem; font-weight: 700; margin: 4px 0 8px; line-height: 1.25; }
+  .pmeta { font-size: 0.78rem; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .progress { height: 6px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+  .progress-bar { height: 100%; background: var(--blue); transition: width 0.3s; }
+  .progress-bar.green { background: var(--green); }
+  .progress-bar.amber { background: var(--amber); }
+  .progress-bar.red   { background: var(--red); }
+  .pcard-foot { display: flex; justify-content: space-between; font-size: 0.74rem; color: var(--muted); margin-top: 7px; }
+  .status-pill { padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.03em; }
+  .status-planning  { background: rgba(255,255,255,0.08); color: var(--muted); }
+  .status-active    { background: rgba(48,208,104,0.18); color: var(--green); }
+  .status-on_hold   { background: rgba(244,196,48,0.18); color: var(--amber); }
+  .status-complete  { background: rgba(41,182,217,0.18); color: var(--blue); }
+  .status-cancelled { background: rgba(225,85,84,0.18);  color: var(--red); }
+  .status-archived  { background: rgba(255,255,255,0.04); color: var(--muted); }
+
+  /* ── Detail view ──────────────────────────────────────────── */
+  #detail-view { display: none; }
+  #detail-view.open { display: block; }
+  .detail-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 14px; flex-wrap: wrap; }
+  .detail-head h2 { font-size: 1.25rem; font-weight: 700; margin: 4px 0; }
+  .detail-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 14px; overflow-x: auto; }
+  .detail-tabs button {
+    background: transparent; border: none; border-bottom: 2px solid transparent;
+    border-radius: 0; padding: 9px 13px; color: var(--muted); font-size: 0.88rem; white-space: nowrap;
+  }
+  .detail-tabs button.active { color: var(--text); border-bottom-color: var(--gold); }
+  .detail-pane { display: none; }
+  .detail-pane.active { display: block; }
+
+  /* ── KPI tiles ────────────────────────────────────────────── */
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .kpi {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .kpi-label { font-size: 0.74rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .kpi-value { font-size: 1.4rem; font-weight: 800; margin-top: 4px; }
+  .kpi-sub { font-size: 0.74rem; color: var(--muted); margin-top: 2px; }
+  .kpi.green .kpi-value { color: var(--green); }
+  .kpi.amber .kpi-value { color: var(--amber); }
+  .kpi.red   .kpi-value { color: var(--red); }
+
+  /* ── Tables ───────────────────────────────────────────────── */
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  th { font-size: 0.74rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+  tr.critical td { background: rgba(225,85,84,0.06); }
+  tr.done td { opacity: 0.55; }
+
+  /* ── Modal ────────────────────────────────────────────────── */
+  .modal-bg {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200;
+    align-items: flex-start; justify-content: center; padding: 60px 16px 16px;
+    overflow-y: auto;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 22px; max-width: 560px; width: 100%;
+  }
+  .modal h3 { font-size: 1.1rem; margin-bottom: 14px; font-weight: 700; }
+  .modal-foot { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+
+  /* ── Hive gate ────────────────────────────────────────────── */
+  #hive-gate {
+    display: none; position: fixed; inset: 0; background: rgba(15,25,35,0.96);
+    z-index: 500; align-items: center; justify-content: center; padding: 30px; text-align: center;
+  }
+  #hive-gate .gate-card {
+    max-width: 440px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 30px;
+  }
+
+  /* ── Progress log entries ─────────────────────────────────── */
+  .log-entry {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; margin-bottom: 8px;
+  }
+  .log-entry-head { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--muted); margin-bottom: 4px; }
+  .log-entry-body { font-size: 0.92rem; line-height: 1.45; }
+  .log-entry-blockers { color: var(--red); font-size: 0.85rem; margin-top: 4px; }
+  .log-entry-ack { color: var(--green); font-size: 0.78rem; margin-top: 6px; }
+
+  /* ── Linked items ─────────────────────────────────────────── */
+  .link-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 999px;
+    padding: 4px 10px 4px 8px; margin: 3px 4px 3px 0; font-size: 0.82rem;
+  }
+  .link-pill button { background: transparent; border: none; color: var(--muted); padding: 0 0 0 4px; font-size: 1.1rem; line-height: 1; cursor: pointer; }
+  .link-type { font-size: 0.66rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+
+  /* ── Toast ────────────────────────────────────────────────── */
+  #toast-container { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); z-index: 600; pointer-events: none; }
+  .toast {
+    background: var(--card); color: var(--text); border-left: 3px solid var(--gold);
+    padding: 10px 14px; margin-top: 8px; border-radius: 8px; font-size: 0.9rem;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4); animation: slideUp 0.25s ease;
+    max-width: 90vw;
+  }
+  .toast.error { border-left-color: var(--red); }
+  .toast.success { border-left-color: var(--green); }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .empty {
+    text-align: center; padding: 40px 20px; color: var(--muted);
+    background: var(--surface); border-radius: 12px; border: 1px dashed var(--border);
+  }
+  .hidden { display: none !important; }
+  .small { font-size: 0.82rem; }
+  .mono { font-family: ui-monospace, 'Courier New', monospace; font-size: 0.85rem; }
+
+  /* ── Wizard ───────────────────────────────────────────────── */
+  .wizard-modal { max-width: 720px; }
+  .wizard-progress { display: flex; gap: 6px; margin-bottom: 16px; font-size: 0.78rem; color: var(--muted); }
+  .wizard-progress .step { flex: 1; padding: 6px 10px; background: var(--card); border-radius: 8px; text-align: center; }
+  .wizard-progress .step.active { background: var(--gold); color: #1a1208; font-weight: 700; }
+  .wizard-progress .step.done { background: rgba(48,208,104,0.18); color: var(--green); }
+  .wizard-pane { display: none; }
+  .wizard-pane.active { display: block; }
+  .wizard-foot { display: flex; gap: 8px; justify-content: space-between; align-items: center; margin-top: 16px; }
+
+  /* Step 1: type tiles */
+  .type-tile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 520px) { .type-tile-grid { grid-template-columns: 1fr; } }
+  .type-tile {
+    background: var(--card); border: 2px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; cursor: pointer; transition: all 0.15s;
+  }
+  .type-tile:hover { border-color: var(--gold); transform: translateY(-1px); }
+  .type-tile.selected { border-color: var(--gold); background: rgba(247,162,27,0.08); }
+  .type-tile-icon { font-size: 1.6rem; margin-bottom: 6px; }
+  .type-tile-name { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+  .type-tile-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.4; }
+
+  /* Step 2: template cards */
+  .template-card-list { display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; padding-right: 4px; }
+  .template-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; cursor: pointer; transition: all 0.15s;
+  }
+  .template-card:hover { border-color: var(--gold); background: var(--card-hover); }
+  .template-card.selected { border-color: var(--gold); background: rgba(247,162,27,0.08); }
+  .template-card-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 3px; }
+  .template-card-meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 5px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .template-card-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.45; }
+  .blank-link { font-size: 0.85rem; color: var(--blue); cursor: pointer; text-decoration: underline; margin-top: 6px; display: inline-block; background: none; border: none; padding: 0; font-family: inherit; }
+
+  /* Step 3: item checklist */
+  .item-checklist { max-height: 40vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; padding: 4px; margin-bottom: 8px; }
+  .item-row {
+    display: grid; grid-template-columns: auto 1fr auto auto auto;
+    gap: 8px; align-items: center; padding: 6px 8px; border-radius: 6px;
+    transition: background 0.1s;
+  }
+  .item-row:hover { background: var(--card); }
+  .item-row.unchecked { opacity: 0.5; }
+  .item-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--gold); }
+  .item-row input[type="text"], .item-row input[type="number"] { padding: 4px 8px; font-size: 0.85rem; }
+  .item-row .est-input { width: 60px; }
+  .phase-tag {
+    font-size: 0.65rem; padding: 2px 7px; border-radius: 999px;
+    font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap;
+  }
+  .phase-pre        { background: rgba(255,255,255,0.08); color: var(--muted); }
+  .phase-execute    { background: rgba(41,182,217,0.18); color: var(--blue); }
+  .phase-commission { background: rgba(48,208,104,0.18); color: var(--green); }
+  .phase-close      { background: rgba(247,162,27,0.18); color: var(--gold); }
+  .phase-fel1       { background: rgba(255,255,255,0.08); color: var(--muted); }
+  .phase-fel2       { background: rgba(41,182,217,0.18); color: var(--blue); }
+  .phase-fel3       { background: rgba(48,208,104,0.18); color: var(--green); }
+  .phase-gate       { background: rgba(225,85,84,0.18); color: var(--red); }
+  .item-remove { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 0 4px; font-size: 1.1rem; }
+  .item-remove:hover { color: var(--red); }
+  .add-custom-row {
+    text-align: center; padding: 8px; color: var(--blue); cursor: pointer;
+    border: 1px dashed var(--border); border-radius: 8px; margin-top: 6px; font-size: 0.85rem;
+  }
+  .add-custom-row:hover { background: var(--card); }
+  .field-hint { font-size: 0.74rem; color: var(--muted); margin-top: 3px; }
+
+  /* ── Critical path bar ────────────────────────────────────── */
+  .gantt-row { display: grid; grid-template-columns: 220px 1fr; gap: 10px; align-items: center; padding: 5px 0; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
+  .gantt-bar-wrap { background: rgba(255,255,255,0.04); height: 16px; border-radius: 4px; position: relative; overflow: hidden; }
+  .gantt-bar { position: absolute; top: 0; bottom: 0; background: var(--blue); border-radius: 4px; }
+  .gantt-bar.critical { background: var(--red); }
+  .gantt-bar.done { background: var(--green); }
+</style>
+</head>
+<body>
+
+<!-- Hive gate -->
+<div id="hive-gate">
+  <div class="gate-card">
+    <h2 style="margin-bottom: 10px;">Join a hive first</h2>
+    <p class="sub" style="margin-bottom: 18px;">Project Manager is team data. Join or create a hive to plan and track projects with your crew.</p>
+    <a href="hive.html" class="btn primary">Go to Hive</a>
+  </div>
+</div>
+
+<main>
+  <!-- LIST VIEW -->
+  <div id="list-view">
+    <div class="row" style="justify-content: space-between; margin-bottom: 4px;">
+      <h1>Project Manager</h1>
+      <span id="hive-tag" class="small" style="color: var(--muted);"></span>
+    </div>
+    <div class="sub">Plan, track and close out maintenance projects: work-order bundles, shutdowns, CAPEX, and contractor jobs.</div>
+
+    <div class="tab-strip" id="status-tabs">
+      <button data-status="active"   class="active">Active</button>
+      <button data-status="planning">Planning</button>
+      <button data-status="on_hold">On hold</button>
+      <button data-status="complete">Complete</button>
+      <button data-status="">All</button>
+    </div>
+
+    <div class="filter-row">
+      <select id="filter-type">
+        <option value="">All types</option>
+        <option value="workorder">Work Order</option>
+        <option value="shutdown">Shutdown</option>
+        <option value="capex">CAPEX</option>
+        <option value="contractor">Contractor</option>
+      </select>
+      <select id="filter-owner">
+        <option value="">All owners</option>
+      </select>
+      <input type="search" id="filter-search" placeholder="Search by name or code…">
+      <button class="btn primary new-btn" onclick="openNewProject()">+ New project</button>
+    </div>
+
+    <div id="card-grid" class="card-grid"></div>
+  </div>
+
+  <!-- DETAIL VIEW -->
+  <div id="detail-view">
+    <button class="btn ghost small" onclick="closeDetail()">← Back to all projects</button>
+    <div class="detail-head">
+      <div>
+        <span class="pcode" id="d-code"></span>
+        <h2 id="d-name"></h2>
+        <div class="row" style="gap: 6px; margin-top: 4px;">
+          <span class="ptype-pill" id="d-type"></span>
+          <span class="status-pill" id="d-status"></span>
+          <span class="small" id="d-priority" style="color: var(--muted);"></span>
+        </div>
+      </div>
+      <div class="row" style="gap: 6px;">
+        <button class="btn small" onclick="openEditProject()">Edit</button>
+        <button class="btn small danger" onclick="deleteProject()">Delete</button>
+      </div>
+    </div>
+
+    <div class="detail-tabs" id="detail-tabs"></div>
+    <div id="pane-overview" class="detail-pane active"></div>
+    <div id="pane-scope"    class="detail-pane"></div>
+    <div id="pane-linked"   class="detail-pane"></div>
+    <div id="pane-progress" class="detail-pane"></div>
+    <div id="pane-cpm"      class="detail-pane"></div>
+    <div id="pane-budget"   class="detail-pane"></div>
+    <div id="pane-signoff"  class="detail-pane"></div>
+  </div>
+</main>
+
+<!-- ── Modals ─────────────────────────────────────────────── -->
+
+<!-- 3-step wizard for NEW project (templates + tweak). Edit uses #modal-project below. -->
+<div id="modal-wizard" class="modal-bg">
+  <div class="modal wizard-modal">
+    <div class="wizard-progress">
+      <div class="step" data-step="1">1. Type</div>
+      <div class="step" data-step="2">2. Template</div>
+      <div class="step" data-step="3">3. Customise</div>
+    </div>
+
+    <!-- Step 1: pick type -->
+    <div class="wizard-pane" data-pane="1">
+      <h3>What kind of project?</h3>
+      <p class="sub" style="font-size:0.85rem; margin-bottom:14px;">Pick the closest match. You can change scope later.</p>
+      <div class="type-tile-grid">
+        <div class="type-tile" data-type="workorder" onclick="wizardPickType('workorder')">
+          <div class="type-tile-icon">🔧</div>
+          <div class="type-tile-name">Work Order Bundle</div>
+          <div class="type-tile-desc">Tie together related logbook entries, PMs and parts under one umbrella. Best for breakdown campaigns and multi-asset PM waves.</div>
+        </div>
+        <div class="type-tile" data-type="shutdown" onclick="wizardPickType('shutdown')">
+          <div class="type-tile-icon">🛑</div>
+          <div class="type-tile-name">Shutdown / Turnaround</div>
+          <div class="type-tile-desc">Multi-day plant outages: critical path, daily progress, isolation tracking. IDCON 6-phase model.</div>
+        </div>
+        <div class="type-tile" data-type="capex" onclick="wizardPickType('capex')">
+          <div class="type-tile-icon">📐</div>
+          <div class="type-tile-name">CAPEX / Improvement</div>
+          <div class="type-tile-desc">Stage-gated capital projects: FEL-1 → FEL-2 → FEL-3 → FID → execute. Budget + EVM tracking.</div>
+        </div>
+        <div class="type-tile" data-type="contractor" onclick="wizardPickType('contractor')">
+          <div class="type-tile-icon">📋</div>
+          <div class="type-tile-name">Contractor Job Folder</div>
+          <div class="type-tile-desc">Outside-vendor scope: BOM, SOW, daily progress, sign-off. Extends Engineering Design BOM/SOW.</div>
+        </div>
+      </div>
+      <div class="wizard-foot">
+        <button class="btn ghost" onclick="closeModal('modal-wizard')">Cancel</button>
+        <button class="btn primary" id="wiz-next-1" onclick="wizardNext()" disabled>Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: pick template -->
+    <div class="wizard-pane" data-pane="2">
+      <h3>Pick a starter pack</h3>
+      <p class="sub" style="font-size:0.85rem; margin-bottom:10px;">Pre-populated scope items based on industry standards. You'll be able to tweak everything in the next step.</p>
+      <div class="template-card-list" id="wiz-template-list"></div>
+      <button class="blank-link" onclick="wizardPickTemplate('__blank__')">Or start with a blank project →</button>
+      <div class="wizard-foot">
+        <button class="btn ghost" onclick="wizardBack()">← Back</button>
+        <button class="btn primary" id="wiz-next-2" onclick="wizardNext()" disabled>Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: customise + create -->
+    <div class="wizard-pane" data-pane="3">
+      <h3>Customise &amp; create</h3>
+      <div class="field"><label>Project name *</label><input type="text" id="wiz-name" maxlength="120" placeholder="e.g. Pump 201 annual overhaul"></div>
+      <div class="grid-2">
+        <div class="field">
+          <label>Owner</label>
+          <select id="wiz-owner"><option value="">— unassigned —</option></select>
+        </div>
+        <div class="field">
+          <label>Priority</label>
+          <select id="wiz-priority">
+            <option value="low">Low</option><option value="medium" selected>Medium</option>
+            <option value="high">High</option><option value="critical">Critical</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Start date</label><input type="date" id="wiz-start"><div class="field-hint">Auto-distributes scope item dates across duration.</div></div>
+        <div class="field"><label>End date</label><input type="date" id="wiz-end"></div>
+      </div>
+      <div class="field" id="wiz-budget-field">
+        <label>Budget (PHP)</label>
+        <input type="number" id="wiz-budget" min="0" step="100" placeholder="e.g. 250000">
+        <div class="field-hint">Required for Earned Value tracking. Hidden for work-order and shutdown types unless you want it.</div>
+      </div>
+      <div class="field"><label>Description</label><textarea id="wiz-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea></div>
+
+      <div style="margin: 16px 0 6px;">
+        <strong style="font-size:0.92rem;">Scope items</strong>
+        <span class="small" style="color:var(--muted); margin-left:6px;" id="wiz-item-count"></span>
+      </div>
+      <div class="field-hint" style="margin-bottom:6px;">Uncheck what doesn't apply. Predecessors auto-set sequentially.</div>
+      <div class="item-checklist" id="wiz-item-list"></div>
+      <div class="add-custom-row" onclick="wizardAddCustomItem()">+ Add custom item</div>
+
+      <div class="wizard-foot">
+        <button class="btn ghost" onclick="wizardBack()">← Back</button>
+        <button class="btn primary" onclick="wizardSubmit()" id="wiz-create">Create project</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-project" class="modal-bg">
+  <div class="modal">
+    <h3 id="m-project-title">New project</h3>
+    <form id="form-project" onsubmit="event.preventDefault(); saveProject();">
+      <div class="field"><label>Name *</label><input type="text" id="f-name" required maxlength="120"></div>
+      <div class="grid-2">
+        <div class="field">
+          <label>Type *</label>
+          <select id="f-type" required>
+            <option value="workorder">Work Order Bundle</option>
+            <option value="shutdown">Shutdown / Turnaround</option>
+            <option value="capex">CAPEX / Improvement</option>
+            <option value="contractor">Contractor Job Folder</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Priority</label>
+          <select id="f-priority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Start date</label><input type="date" id="f-start"></div>
+        <div class="field"><label>End date</label><input type="date" id="f-end"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label>Owner</label>
+          <select id="f-owner"><option value="">— unassigned —</option></select>
+        </div>
+        <div class="field" id="budget-field">
+          <label>Budget (PHP)</label>
+          <input type="number" id="f-budget" min="0" step="100" placeholder="e.g. 250000">
+        </div>
+      </div>
+      <div class="field"><label>Description</label><textarea id="f-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea></div>
+      <div class="modal-foot">
+        <button type="button" class="btn ghost" onclick="closeModal('modal-project')">Cancel</button>
+        <button type="submit" class="btn primary" id="f-submit">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="modal-scope" class="modal-bg">
+  <div class="modal">
+    <h3 id="m-scope-title">Add scope item</h3>
+    <form id="form-scope" onsubmit="event.preventDefault(); saveScopeItem();">
+      <div class="field"><label>Title *</label><input type="text" id="s-title" required maxlength="200"></div>
+      <div class="grid-3">
+        <div class="field"><label>WBS code</label><input type="text" id="s-wbs" placeholder="1.2.3" maxlength="40"></div>
+        <div class="field">
+          <label>Owner</label>
+          <select id="s-owner"><option value="">—</option></select>
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select id="s-status">
+            <option value="pending">Pending</option>
+            <option value="in_progress">In progress</option>
+            <option value="done">Done</option>
+            <option value="blocked">Blocked</option>
+            <option value="skipped">Skipped</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="field"><label>Planned start</label><input type="date" id="s-pstart"></div>
+        <div class="field"><label>Planned end</label><input type="date" id="s-pend"></div>
+        <div class="field"><label>Est. hours</label><input type="number" id="s-est" min="0" step="0.5"></div>
+      </div>
+      <div class="field">
+        <label>Predecessors (depends on)</label>
+        <select id="s-preds" multiple style="min-height: 80px;"></select>
+        <div class="small" style="color: var(--muted); margin-top: 3px;">Hold Ctrl/Cmd to select multiple. Drives critical-path calculation.</div>
+      </div>
+      <div class="field"><label>Notes</label><textarea id="s-notes" maxlength="1000"></textarea></div>
+      <div class="modal-foot">
+        <button type="button" class="btn ghost" onclick="closeModal('modal-scope')">Cancel</button>
+        <button type="submit" class="btn primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="modal-link" class="modal-bg">
+  <div class="modal">
+    <h3>Link existing work</h3>
+    <div class="field">
+      <label>Type</label>
+      <select id="l-type" onchange="loadLinkOptions()">
+        <option value="asset">Asset</option>
+        <option value="logbook">Logbook entry</option>
+        <option value="pm_completion">PM completion</option>
+        <option value="inventory_item">Inventory item</option>
+        <option value="engineering_calc">Engineering calc (BOM/SOW)</option>
+        <option value="contractor">Contractor (free text)</option>
+      </select>
+    </div>
+    <div class="field" id="l-picker-wrap">
+      <label>Pick</label>
+      <select id="l-picker"></select>
+    </div>
+    <div class="field hidden" id="l-text-wrap">
+      <label>Contractor / vendor name</label>
+      <input type="text" id="l-text" maxlength="200" placeholder="e.g. Acme Industrial Services Inc.">
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn ghost" onclick="closeModal('modal-link')">Cancel</button>
+      <button type="button" class="btn primary" onclick="saveLink()">Add link</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-progress" class="modal-bg">
+  <div class="modal">
+    <h3>Daily progress log</h3>
+    <form id="form-progress" onsubmit="event.preventDefault(); saveProgressLog();">
+      <div class="grid-2">
+        <div class="field"><label>Date</label><input type="date" id="p-date" required></div>
+        <div class="field"><label>% complete (today)</label><input type="number" id="p-pct" min="0" max="100" step="1" required></div>
+      </div>
+      <div class="field"><label>Hours worked</label><input type="number" id="p-hours" min="0" step="0.5"></div>
+      <div class="field"><label>Notes / accomplishments</label><textarea id="p-notes" maxlength="1500"></textarea></div>
+      <div class="field"><label>Blockers (red flag if filled)</label><textarea id="p-blockers" maxlength="600"></textarea></div>
+      <div class="modal-foot">
+        <button type="button" class="btn ghost" onclick="closeModal('modal-progress')">Cancel</button>
+        <button type="submit" class="btn primary">Save log</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="utils.js"></script>
+<script>
+/* ─────────────────────────────────────────────────────────────────────────
+   Project Manager — workorder | shutdown | capex | contractor
+   ───────────────────────────────────────────────────────────────────────── */
+
+let WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+let HIVE_ID = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
+let HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
+let HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+let _authUid = null;
+
+const db = supabase.createClient(
+  'https://hzyvnjtisfgbksicrouu.supabase.co',
+  'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'
+);
+
+/* ── State ─────────────────────────────────────────────────── */
+let _projects   = [];
+let _members    = [];                      // hive_members worker_name list
+let _activeFilter = { status: 'active', type: '', owner: '', search: '' };
+let _detailId   = null;
+let _detail     = null;                    // currently opened project
+let _items      = [];                      // scope items for opened project
+let _links      = [];                      // links for opened project
+let _logs       = [];                      // progress logs for opened project
+let _progress   = null;                    // edge-fn rollup result
+let _editingId  = null;                    // null = new project, uuid = edit
+let _editingScopeId = null;
+let _rtChannel  = null;
+
+/* ── Helpers ───────────────────────────────────────────────── */
+const e = typeof escHtml === 'function' ? escHtml : (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function $(id) { return document.getElementById(id); }
+function showToast(msg, kind) {
+  const c = $('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast' + (kind === 'error' ? ' error' : kind === 'success' ? ' success' : '');
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d);
+  return dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function fmtPHP(n) {
+  if (n == null) return '—';
+  return '₱' + Number(n).toLocaleString(undefined, { maximumFractionDigits: 0 });
+}
+function progressColor(pct) {
+  if (pct >= 80) return 'green';
+  if (pct >= 40) return 'amber';
+  return '';
+}
+function isSupervisor() { return HIVE_ROLE === 'supervisor'; }
+
+/* ── Init: hive gate, identity, data load ──────────────────── */
+async function validateHiveMembership() {
+  if (!HIVE_ID || !WORKER_NAME) return false;
+  const { data, error } = await db.from('hive_members')
+    .select('role').eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).maybeSingle();
+  if (error) { console.warn('membership check error:', error.message); return true; }
+  if (!data) {
+    ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name'].forEach(k => localStorage.removeItem(k));
+    HIVE_ID = ''; HIVE_ROLE = '';
+    return false;
+  }
+  HIVE_ROLE = data.role;
+  localStorage.setItem('wh_hive_role', data.role);
+  return true;
+}
+
+(async () => {
+  if (!WORKER_NAME && typeof restoreIdentityFromSession === 'function') {
+    WORKER_NAME = await restoreIdentityFromSession(db);
+  }
+  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+  try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch {}
+
+  const isMember = await validateHiveMembership();
+  if (!isMember) { $('hive-gate').style.display = 'flex'; return; }
+
+  $('hive-tag').textContent = HIVE_NAME ? '🐝 ' + HIVE_NAME : '';
+  await loadHiveMembers();
+  await loadProjects();
+  bindFilters();
+  subscribeRealtime();
+  console.log('[project-manager] booted as', WORKER_NAME, 'hive', HIVE_ID, 'role', HIVE_ROLE);
+})();
+
+/* ── Hive members (for owner picker) ───────────────────────── */
+async function loadHiveMembers() {
+  const { data, error } = await db.from('hive_members')
+    .select('worker_name').eq('hive_id', HIVE_ID).order('worker_name');
+  if (error) { console.warn(error.message); return; }
+  _members = (data || []).map(r => r.worker_name).filter(Boolean);
+  // Populate filter + form pickers
+  const ownerOpts = _members.map(m => `<option value="${e(m)}">${e(m)}</option>`).join('');
+  $('filter-owner').insertAdjacentHTML('beforeend', ownerOpts);
+  $('f-owner').insertAdjacentHTML('beforeend', ownerOpts);
+  $('s-owner').insertAdjacentHTML('beforeend', ownerOpts);
+}
+
+/* ── Projects: list ────────────────────────────────────────── */
+async function loadProjects() {
+  const { data, error } = await db.from('projects')
+    .select('id, project_code, name, project_type, status, priority, owner_name, start_date, end_date, budget_php, created_at, updated_at')
+    .eq('hive_id', HIVE_ID).is('deleted_at', null).order('updated_at', { ascending: false });
+  if (error) { showToast('Load failed: ' + error.message, 'error'); return; }
+  _projects = data || [];
+  // Pull rollup from project_items in batch (one query, then group)
+  const ids = _projects.map(p => p.id);
+  if (ids.length) {
+    const { data: items } = await db.from('project_items')
+      .select('project_id, pct_complete, estimated_hours, status').in('project_id', ids);
+    const rollup = {};
+    (items || []).forEach(it => {
+      if (!rollup[it.project_id]) rollup[it.project_id] = { sum: 0, w: 0, count: 0, done: 0 };
+      const w = it.estimated_hours || 1;
+      rollup[it.project_id].sum   += (it.pct_complete || 0) * w;
+      rollup[it.project_id].w     += w;
+      rollup[it.project_id].count += 1;
+      if (it.status === 'done') rollup[it.project_id].done += 1;
+    });
+    _projects.forEach(p => {
+      const r = rollup[p.id];
+      p._pct = r ? Math.round(r.sum / Math.max(r.w, 1)) : 0;
+      p._items_total = r ? r.count : 0;
+      p._items_done  = r ? r.done : 0;
+    });
+  }
+  renderList();
+}
+
+function renderList() {
+  const grid = $('card-grid');
+  let list = _projects.filter(p => {
+    if (_activeFilter.status && p.status !== _activeFilter.status) return false;
+    if (_activeFilter.type && p.project_type !== _activeFilter.type) return false;
+    if (_activeFilter.owner && p.owner_name !== _activeFilter.owner) return false;
+    if (_activeFilter.search) {
+      const q = _activeFilter.search.toLowerCase();
+      if (!p.name.toLowerCase().includes(q) && !p.project_code.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column: 1 / -1;">No projects match the filter.<br><br><button class="btn primary" onclick="openNewProject()">+ Create your first project</button></div>';
+    return;
+  }
+  grid.innerHTML = list.map(p => `
+    <div class="pcard" onclick="openDetail('${e(p.id)}')">
+      <div class="pcard-head">
+        <span class="pcode">${e(p.project_code)}</span>
+        <span class="ptype-pill ptype-${p.project_type}">${e(p.project_type)}</span>
+      </div>
+      <div class="pname">${e(p.name)}</div>
+      <div class="pmeta">
+        <span>👤 ${e(p.owner_name || '—')}</span>
+        ${p.end_date ? `<span>📅 ${e(fmtDate(p.end_date))}</span>` : ''}
+        ${p._items_total ? `<span>📋 ${p._items_done}/${p._items_total}</span>` : ''}
+      </div>
+      <div class="progress"><div class="progress-bar ${progressColor(p._pct)}" style="width: ${p._pct || 0}%"></div></div>
+      <div class="pcard-foot">
+        <span class="status-pill status-${p.status}">${e(p.status.replace('_', ' '))}</span>
+        <span>${p._pct || 0}%</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Filters ───────────────────────────────────────────────── */
+function bindFilters() {
+  $('status-tabs').addEventListener('click', ev => {
+    const btn = ev.target.closest('button[data-status]'); if (!btn) return;
+    $('status-tabs').querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    _activeFilter.status = btn.dataset.status;
+    renderList();
+  });
+  $('filter-type').addEventListener('change', ev => { _activeFilter.type = ev.target.value; renderList(); });
+  $('filter-owner').addEventListener('change', ev => { _activeFilter.owner = ev.target.value; renderList(); });
+  $('filter-search').addEventListener('input', ev => { _activeFilter.search = ev.target.value.trim(); renderList(); });
+}
+
+/* ── PROJECT_TEMPLATES — industry-standard starter packs ───────────────────
+   Standards: PMBOK 7th, AACE 17R-97 (FEL stages), IDCON 6-Phase Shutdown,
+   ISO 21500, NSCP for contractor scope. Each item carries:
+     title, est_h (hours), freq_phase (pre|execute|commission|close|fel1|fel2|fel3|gate)
+   The wizard auto-numbers wbs_code (1.0, 2.0, ...), distributes planned dates
+   across the project duration, and chains predecessors sequentially. */
+const PROJECT_TEMPLATES = {
+  workorder: [
+    { id: 'breakdown_bundle', name: 'Breakdown Repair Bundle (link existing WOs)',
+      desc: 'Wrap related logbook entries into one project umbrella for tracking.',
+      duration_days: 3, discipline: 'Mechanical',
+      items: [
+        { title: 'Confirm root cause from logbook entries', est_h: 1, freq_phase: 'pre' },
+        { title: 'Verify parts on-hand or order; check inventory', est_h: 1, freq_phase: 'pre' },
+        { title: 'Schedule + assign technicians', est_h: 1, freq_phase: 'pre' },
+        { title: 'Execute repairs (link logbook entries here)', est_h: 4, freq_phase: 'execute' },
+        { title: 'Test + verify fix', est_h: 1, freq_phase: 'commission' },
+        { title: 'Close all linked WOs; lessons learned entry', est_h: 1, freq_phase: 'close' },
+      ] },
+    { id: 'pm_campaign', name: 'PM Campaign (multi-asset, same type)',
+      desc: 'Bundle a wave of similar PMs across many assets (e.g. all 12 motors quarterly).',
+      duration_days: 14, discipline: 'Electrical',
+      items: [
+        { title: 'Pull asset list + PM scope from PM scheduler', est_h: 2, freq_phase: 'pre' },
+        { title: 'Sequence assets by criticality + downtime windows', est_h: 2, freq_phase: 'pre' },
+        { title: 'Issue PTWs + parts staging per asset', est_h: 4, freq_phase: 'pre' },
+        { title: 'Execute PMs (link pm_completion entries here)', est_h: 32, freq_phase: 'execute' },
+        { title: 'Aggregate findings; flag any failures for follow-up', est_h: 2, freq_phase: 'close' },
+      ] },
+    { id: 'reliability_study', name: 'Asset Reliability Study (90-day deep-dive)',
+      desc: 'Investigate repeat failures. Output: RCA + recommended changes.',
+      duration_days: 90, discipline: 'Reliability',
+      items: [
+        { title: 'Compile 12-month logbook history for asset', est_h: 4, freq_phase: 'pre' },
+        { title: 'Failure mode analysis (FMEA / Pareto)', est_h: 8, freq_phase: 'execute' },
+        { title: 'Root cause investigation (5-Why or fishbone)', est_h: 8, freq_phase: 'execute' },
+        { title: 'Vibration / lubrication / thermography data review', est_h: 8, freq_phase: 'execute' },
+        { title: 'Recommendations: design / PM / spare changes', est_h: 8, freq_phase: 'execute' },
+        { title: 'Present findings; agree action plan', est_h: 4, freq_phase: 'commission' },
+        { title: 'Lessons learned entry; archive RCA', est_h: 2, freq_phase: 'close' },
+      ] },
+  ],
+  shutdown: [
+    { id: 'pump_overhaul', name: 'Centrifugal Pump Overhaul',
+      desc: 'Standard cycle: isolation → disassembly → seal/bearing replacement → alignment → run-in.',
+      duration_days: 5, discipline: 'Mechanical',
+      items: [
+        { title: 'Issue PTW + LOTO isolation; verify zero energy', est_h: 2, freq_phase: 'pre' },
+        { title: 'Decouple driver, drain casing, tag flanges', est_h: 4, freq_phase: 'execute' },
+        { title: 'Disassemble pump; NDT/visual inspection of impeller, shaft, casing', est_h: 8, freq_phase: 'execute' },
+        { title: 'Replace mechanical seal + bearings (per OEM spec)', est_h: 6, freq_phase: 'execute' },
+        { title: 'Reassemble; shaft alignment to <0.05 mm parallel + angular', est_h: 8, freq_phase: 'execute' },
+        { title: 'Vibration baseline + run-in test (4-hour soak)', est_h: 4, freq_phase: 'commission' },
+        { title: 'Update equipment history card; archive readings', est_h: 1, freq_phase: 'close' },
+      ] },
+    { id: 'boiler_annual', name: 'Boiler Annual Inspection (BPVS-aligned)',
+      desc: 'Annual BPVS internal inspection cycle. Confined space entry under PTW.',
+      duration_days: 7, discipline: 'Static Equipment',
+      items: [
+        { title: 'Take boiler offline; cooldown to ambient', est_h: 8, freq_phase: 'pre' },
+        { title: 'Issue confined space PTW + LOTO; gas test', est_h: 2, freq_phase: 'pre' },
+        { title: 'Open manhole/handhole; drain water side', est_h: 4, freq_phase: 'execute' },
+        { title: 'Internal inspection: tubes, drum, refractory, water-side scale', est_h: 8, freq_phase: 'execute' },
+        { title: 'Hydrostatic test at 1.5x MAWP per BPVS', est_h: 6, freq_phase: 'execute' },
+        { title: 'Repair/replace tubes flagged in inspection', est_h: 16, freq_phase: 'execute' },
+        { title: 'Calibrate safety relief valves; pressure trip test', est_h: 4, freq_phase: 'commission' },
+        { title: 'Refill, fire up, ramp to operating pressure', est_h: 6, freq_phase: 'commission' },
+        { title: 'BPVS sign-off + update boiler logbook', est_h: 2, freq_phase: 'close' },
+      ] },
+    { id: 'electrical_substation', name: 'Electrical Substation Shutdown',
+      desc: 'Annual MV/LV substation maintenance: thermography, breaker testing, transformer servicing.',
+      duration_days: 3, discipline: 'Electrical',
+      items: [
+        { title: 'Notify operations; switch loads to backup feed', est_h: 4, freq_phase: 'pre' },
+        { title: 'PTW + LOTO; rack out breakers, install grounds', est_h: 4, freq_phase: 'pre' },
+        { title: 'Thermographic scan of bus bars, terminations, joints', est_h: 4, freq_phase: 'execute' },
+        { title: 'Insulation resistance (megger) test on feeders', est_h: 6, freq_phase: 'execute' },
+        { title: 'Torque-check all panel terminations to spec', est_h: 8, freq_phase: 'execute' },
+        { title: 'Transformer oil sampling (DGA) + dielectric test', est_h: 4, freq_phase: 'execute' },
+        { title: 'Protective relay calibration + secondary injection', est_h: 8, freq_phase: 'execute' },
+        { title: 'Re-energise; verify load transfer + phase rotation', est_h: 4, freq_phase: 'commission' },
+        { title: 'Update single-line diagram if changes; archive test reports', est_h: 2, freq_phase: 'close' },
+      ] },
+    { id: 'heat_exchanger_clean', name: 'Heat Exchanger Cleaning',
+      desc: 'Shell-and-tube heat exchanger chemical/mechanical cleaning cycle.',
+      duration_days: 4, discipline: 'Static Equipment',
+      items: [
+        { title: 'Isolate exchanger; PTW + LOTO; drain shell + tube side', est_h: 4, freq_phase: 'pre' },
+        { title: 'Remove channel head + tube bundle (with crane)', est_h: 6, freq_phase: 'execute' },
+        { title: 'Hydroblast tubes (interior); chemical clean shell side', est_h: 12, freq_phase: 'execute' },
+        { title: 'Inspect tubes via eddy current; flag for plugging', est_h: 8, freq_phase: 'execute' },
+        { title: 'Replace gaskets; reassemble', est_h: 6, freq_phase: 'execute' },
+        { title: 'Hydrotest shell + tube side at 1.5x MAWP', est_h: 4, freq_phase: 'commission' },
+        { title: 'Restore service; verify approach temps + ΔP', est_h: 2, freq_phase: 'commission' },
+        { title: 'Update inspection log + ECT report archive', est_h: 1, freq_phase: 'close' },
+      ] },
+  ],
+  capex: [
+    { id: 'fel_full', name: 'CAPEX with FEL Stage Gates (AACE Class 5→1)',
+      desc: 'Standard front-end-loading process for capital projects. Three FEL gates before FID.',
+      duration_days: 180, discipline: 'Engineering',
+      items: [
+        { title: 'FEL-1: Concept Study (AACE Class 5, ±50%) — options, screening, business case', est_h: 40, freq_phase: 'fel1' },
+        { title: 'Stage Gate 1 — go / hold / kill review', est_h: 4, freq_phase: 'gate' },
+        { title: 'FEL-2: Feasibility Study (Class 4, ±30%) — selected option, conceptual design', est_h: 80, freq_phase: 'fel2' },
+        { title: 'Stage Gate 2 — approve to FEED', est_h: 4, freq_phase: 'gate' },
+        { title: 'FEL-3: FEED / Basic Engineering (Class 3, ±15%) — full design package', est_h: 200, freq_phase: 'fel3' },
+        { title: 'Stage Gate 3 — Final Investment Decision (FID)', est_h: 4, freq_phase: 'gate' },
+        { title: 'Detailed engineering + procurement', est_h: 400, freq_phase: 'execute' },
+        { title: 'Construction + commissioning', est_h: 800, freq_phase: 'execute' },
+        { title: 'Handover to operations + lessons learned', est_h: 40, freq_phase: 'close' },
+      ] },
+    { id: 'equipment_replace', name: 'Equipment Replacement (compressor / pump / motor)',
+      desc: 'Like-for-like or upgrade equipment swap with vendor coordination.',
+      duration_days: 90, discipline: 'Mechanical',
+      items: [
+        { title: 'Define functional specification + tie-in points', est_h: 16, freq_phase: 'fel1' },
+        { title: 'Solicit 3 vendor quotes; technical + commercial eval', est_h: 24, freq_phase: 'fel2' },
+        { title: 'Award PO; freeze foundation + utility scope', est_h: 8, freq_phase: 'fel3' },
+        { title: 'Civil works: foundation pour, anchor bolt setting', est_h: 40, freq_phase: 'execute' },
+        { title: 'Equipment delivery + receipt inspection (FAT package)', est_h: 8, freq_phase: 'execute' },
+        { title: 'Mechanical install: setting, alignment, piping tie-in', est_h: 40, freq_phase: 'execute' },
+        { title: 'Electrical/instrument tie-in + loop checks', est_h: 24, freq_phase: 'execute' },
+        { title: 'Commissioning: SAT, performance test, punchlist', est_h: 16, freq_phase: 'commission' },
+        { title: 'Update P&ID + as-built drawings; turnover dossier', est_h: 8, freq_phase: 'close' },
+      ] },
+    { id: 'instrumentation_upgrade', name: 'DCS / PLC Instrumentation Upgrade',
+      desc: 'Migration from legacy PLC/DCS to modern platform with parallel run.',
+      duration_days: 120, discipline: 'Instrumentation',
+      items: [
+        { title: 'I/O list audit + obsolescence assessment', est_h: 24, freq_phase: 'fel1' },
+        { title: 'Vendor selection + functional design specification', est_h: 32, freq_phase: 'fel2' },
+        { title: 'Detail design: panel layouts, wiring, network architecture', est_h: 60, freq_phase: 'fel3' },
+        { title: 'Panel build (off-site); FAT in vendor shop', est_h: 80, freq_phase: 'execute' },
+        { title: 'Site delivery + cabinet placement', est_h: 16, freq_phase: 'execute' },
+        { title: 'Cutover during shutdown: terminations, fibre, network', est_h: 40, freq_phase: 'execute' },
+        { title: 'Loop checks + SAT (every I/O point)', est_h: 60, freq_phase: 'commission' },
+        { title: 'Operator training; parallel run with old system', est_h: 24, freq_phase: 'commission' },
+        { title: 'Decommission old DCS; archive logic + drawings', est_h: 8, freq_phase: 'close' },
+      ] },
+  ],
+  contractor: [
+    { id: 'fab_install', name: 'Fabrication + Install (with sign-off)',
+      desc: 'Outside contractor scope for fabrication work with structured handover.',
+      duration_days: 30, discipline: 'Mechanical',
+      items: [
+        { title: 'Issue scope of work + BOM + drawings to bidders', est_h: 4, freq_phase: 'pre' },
+        { title: 'Solicit 3 quotes; technical + commercial eval', est_h: 8, freq_phase: 'pre' },
+        { title: 'Award PO; mobilisation + site induction', est_h: 4, freq_phase: 'pre' },
+        { title: 'Pre-job safety briefing + PTW issuance', est_h: 2, freq_phase: 'pre' },
+        { title: 'Daily progress + QA inspection (hold points per ITP)', est_h: 16, freq_phase: 'execute' },
+        { title: 'Punchlist walk-down with contractor', est_h: 4, freq_phase: 'commission' },
+        { title: 'Punchlist closure', est_h: 8, freq_phase: 'commission' },
+        { title: 'Final acceptance certificate; retention release', est_h: 2, freq_phase: 'close' },
+      ] },
+    { id: 'oem_repair', name: 'Specialised OEM Repair (visit-based)',
+      desc: 'OEM service engineer visit for proprietary equipment repair.',
+      duration_days: 7, discipline: 'Mechanical',
+      items: [
+        { title: 'Raise service request to OEM with fault data', est_h: 2, freq_phase: 'pre' },
+        { title: 'OEM quote review + PO issue', est_h: 4, freq_phase: 'pre' },
+        { title: 'Site induction + safety orientation', est_h: 2, freq_phase: 'pre' },
+        { title: 'Pre-shutdown isolation + access prep', est_h: 4, freq_phase: 'pre' },
+        { title: 'OEM service work (under supervision)', est_h: 24, freq_phase: 'execute' },
+        { title: 'OEM service report review', est_h: 2, freq_phase: 'commission' },
+        { title: 'Restart + warranty record update', est_h: 4, freq_phase: 'commission' },
+        { title: 'OEM report archive + warranty enrollment', est_h: 1, freq_phase: 'close' },
+      ] },
+    { id: 'annual_service', name: 'Annual Service Contract (HVAC / fire / elevator)',
+      desc: 'Recurring service-contract scope across visits. Each visit logs as a progress entry.',
+      duration_days: 365, discipline: 'HVAC',
+      items: [
+        { title: 'Contract scope + visit schedule alignment', est_h: 4, freq_phase: 'pre' },
+        { title: 'Q1 visit: routine PM + report', est_h: 8, freq_phase: 'execute' },
+        { title: 'Q2 visit: routine PM + report', est_h: 8, freq_phase: 'execute' },
+        { title: 'Q3 visit: routine PM + report', est_h: 8, freq_phase: 'execute' },
+        { title: 'Q4 visit: annual full inspection + report', est_h: 16, freq_phase: 'execute' },
+        { title: 'Annual review: KPI vs SLA; renew or re-tender', est_h: 4, freq_phase: 'close' },
+      ] },
+  ],
+};
+
+/* ── Wizard state + handlers ───────────────────────────────── */
+let _wizardState = { step: 1, type: null, template_id: null, items: [] };
+
+function openNewProject() {
+  _editingId = null;
+  _wizardState = { step: 1, type: null, template_id: null, items: [] };
+  // Reset UI
+  ['wiz-name','wiz-start','wiz-end','wiz-budget','wiz-desc'].forEach(id => $(id).value = '');
+  $('wiz-priority').value = 'medium';
+  $('wiz-owner').value = WORKER_NAME;
+  // Populate owner picker if not already
+  if ($('wiz-owner').options.length <= 1) {
+    _members.forEach(m => {
+      const opt = document.createElement('option'); opt.value = m; opt.textContent = m;
+      $('wiz-owner').appendChild(opt);
+    });
+  }
+  // Reset type tile selection + buttons
+  document.querySelectorAll('#modal-wizard .type-tile').forEach(t => t.classList.remove('selected'));
+  $('wiz-next-1').disabled = true;
+  $('wiz-next-2').disabled = true;
+  showWizardStep(1);
+  openModal('modal-wizard');
+}
+
+function showWizardStep(n) {
+  _wizardState.step = n;
+  document.querySelectorAll('#modal-wizard .wizard-pane').forEach(p => p.classList.toggle('active', Number(p.dataset.pane) === n));
+  document.querySelectorAll('#modal-wizard .wizard-progress .step').forEach(s => {
+    const sn = Number(s.dataset.step);
+    s.classList.toggle('active', sn === n);
+    s.classList.toggle('done', sn < n);
+  });
+}
+
+function wizardPickType(type) {
+  _wizardState.type = type;
+  document.querySelectorAll('#modal-wizard .type-tile').forEach(t => t.classList.toggle('selected', t.dataset.type === type));
+  $('wiz-next-1').disabled = false;
+  // Show budget field on capex/contractor (still optional on others)
+  $('wiz-budget-field').style.display = (type === 'capex' || type === 'contractor') ? '' : 'none';
+}
+
+function wizardPickTemplate(id) {
+  _wizardState.template_id = id;
+  // Highlight selected card
+  document.querySelectorAll('#modal-wizard .template-card').forEach(c => c.classList.toggle('selected', c.dataset.tid === id));
+  $('wiz-next-2').disabled = false;
+  // If "blank" — skip auto-prefill
+  if (id === '__blank__') {
+    _wizardState.items = [];
+  } else {
+    const tmpl = (PROJECT_TEMPLATES[_wizardState.type] || []).find(t => t.id === id);
+    if (!tmpl) return;
+    _wizardState.items = tmpl.items.map((it, idx) => ({
+      ...it,
+      wbs_code: `${idx + 1}.0`,
+      _checked: true,
+      _isCustom: false,
+    }));
+    // Auto-fill name + dates based on template + duration
+    if (!$('wiz-name').value) {
+      $('wiz-name').value = tmpl.name;
+    }
+    if (!$('wiz-start').value) {
+      const today = new Date();
+      const start = today.toISOString().slice(0, 10);
+      const end = new Date(today.getTime() + tmpl.duration_days * 86400000).toISOString().slice(0, 10);
+      $('wiz-start').value = start;
+      $('wiz-end').value = end;
+    }
+  }
+}
+
+function wizardNext() {
+  if (_wizardState.step === 1) {
+    renderWizardTemplates();
+    showWizardStep(2);
+  } else if (_wizardState.step === 2) {
+    renderWizardItems();
+    showWizardStep(3);
+    // Focus name field
+    setTimeout(() => $('wiz-name').focus(), 100);
+  }
+}
+function wizardBack() {
+  if (_wizardState.step > 1) showWizardStep(_wizardState.step - 1);
+}
+
+function renderWizardTemplates() {
+  const list = $('wiz-template-list');
+  const tmpls = PROJECT_TEMPLATES[_wizardState.type] || [];
+  list.innerHTML = tmpls.map(t => {
+    const totalH = t.items.reduce((s, i) => s + (i.est_h || 0), 0);
+    return `<div class="template-card" data-tid="${e(t.id)}" onclick="wizardPickTemplate('${e(t.id)}')">
+      <div class="template-card-name">${e(t.name)}</div>
+      <div class="template-card-meta">
+        <span>📋 ${t.items.length} items</span>
+        <span>⏱ ~${totalH}h</span>
+        <span>📅 ${t.duration_days} days</span>
+        <span>🛠 ${e(t.discipline)}</span>
+      </div>
+      <div class="template-card-desc">${e(t.desc)}</div>
+    </div>`;
+  }).join('');
+  // Reset selection
+  $('wiz-next-2').disabled = true;
+  _wizardState.template_id = null;
+}
+
+function renderWizardItems() {
+  const list = $('wiz-item-list');
+  if (!_wizardState.items.length) {
+    list.innerHTML = '<div class="empty" style="padding: 14px;">Blank project — add custom items below or skip and add scope items inside the project.</div>';
+  } else {
+    list.innerHTML = _wizardState.items.map((it, idx) => `
+      <div class="item-row ${it._checked ? '' : 'unchecked'}" data-idx="${idx}">
+        <input type="checkbox" ${it._checked ? 'checked' : ''} onchange="wizardToggleItem(${idx}, this.checked)">
+        <input type="text" value="${e(it.title)}" oninput="wizardEditItem(${idx}, 'title', this.value)" placeholder="Scope item">
+        <input type="number" class="est-input" value="${it.est_h || ''}" oninput="wizardEditItem(${idx}, 'est_h', this.value)" min="0" step="0.5" title="Estimated hours">
+        <span class="phase-tag phase-${it.freq_phase || 'execute'}">${e(it.freq_phase || 'execute')}</span>
+        <button type="button" class="item-remove" onclick="wizardRemoveItem(${idx})" title="Remove">×</button>
+      </div>
+    `).join('');
+  }
+  updateWizardItemCount();
+}
+function updateWizardItemCount() {
+  const checked = _wizardState.items.filter(i => i._checked).length;
+  const total = _wizardState.items.length;
+  const totalH = _wizardState.items.filter(i => i._checked).reduce((s, i) => s + (Number(i.est_h) || 0), 0);
+  $('wiz-item-count').textContent = `· ${checked} of ${total} checked · ~${totalH}h total`;
+}
+function wizardToggleItem(idx, checked) {
+  _wizardState.items[idx]._checked = checked;
+  document.querySelector(`#wiz-item-list [data-idx="${idx}"]`)?.classList.toggle('unchecked', !checked);
+  updateWizardItemCount();
+}
+function wizardEditItem(idx, field, value) {
+  _wizardState.items[idx][field] = field === 'est_h' ? (value ? Number(value) : null) : value;
+  if (field === 'est_h') updateWizardItemCount();
+}
+function wizardRemoveItem(idx) {
+  _wizardState.items.splice(idx, 1);
+  renderWizardItems();
+}
+function wizardAddCustomItem() {
+  _wizardState.items.push({
+    title: '', est_h: null, freq_phase: 'execute',
+    wbs_code: `${_wizardState.items.length + 1}.0`,
+    _checked: true, _isCustom: true,
+  });
+  renderWizardItems();
+  // Focus the new title input
+  setTimeout(() => {
+    const inputs = $('wiz-item-list').querySelectorAll('input[type="text"]');
+    inputs[inputs.length - 1]?.focus();
+  }, 50);
+}
+
+async function wizardSubmit() {
+  const name = $('wiz-name').value.trim();
+  if (!name) { showToast('Project name is required'); $('wiz-name').focus(); return; }
+  const checkedItems = _wizardState.items.filter(i => i._checked && i.title.trim());
+  if (_wizardState.template_id !== '__blank__' && !checkedItems.length) {
+    if (!confirm('No scope items checked. Create an empty project?')) return;
+  }
+  $('wiz-create').disabled = true;
+  $('wiz-create').textContent = 'Creating…';
+
+  // 1. Generate code + insert project
+  const type = _wizardState.type;
+  const year = new Date().getFullYear();
+  const { data: codeData, error: codeErr } = await db.rpc('generate_project_code',
+    { p_hive_id: HIVE_ID, p_type: type, p_year: year });
+  if (codeErr) { showToast('Code gen failed: ' + codeErr.message, 'error'); resetCreateBtn(); return; }
+  const projPayload = {
+    hive_id: HIVE_ID, worker_name: WORKER_NAME, auth_uid: _authUid,
+    project_code: codeData,
+    name, project_type: type,
+    status: 'planning',
+    priority: $('wiz-priority').value,
+    owner_name: $('wiz-owner').value || null,
+    start_date: $('wiz-start').value || null,
+    end_date: $('wiz-end').value || null,
+    budget_php: $('wiz-budget').value ? Number($('wiz-budget').value) : null,
+    description: $('wiz-desc').value.trim() || null,
+  };
+  const { data: ins, error: insErr } = await db.from('projects').insert(projPayload).select().single();
+  if (insErr) { showToast('Create failed: ' + insErr.message, 'error'); resetCreateBtn(); return; }
+
+  // 2. Batch insert scope items with sequential predecessors + auto-distributed dates
+  if (checkedItems.length) {
+    const start = projPayload.start_date ? new Date(projPayload.start_date) : null;
+    const end = projPayload.end_date ? new Date(projPayload.end_date) : null;
+    const totalH = checkedItems.reduce((s, i) => s + (Number(i.est_h) || 1), 0);
+    let cumH = 0;
+    const itemRows = [];
+    let prevId = null;
+    // Pre-allocate UUIDs client-side so we can chain predecessors in one insert
+    // (Postgres returns ids only after insert, and chaining inside one batch is cleaner with pre-generated ids)
+    const ids = checkedItems.map(() => crypto.randomUUID());
+    checkedItems.forEach((it, idx) => {
+      const h = Number(it.est_h) || 1;
+      let pStart = null, pEnd = null;
+      if (start && end) {
+        const days = Math.max(1, (end - start) / 86400000);
+        const itemStartDays = (cumH / totalH) * days;
+        const itemEndDays   = ((cumH + h) / totalH) * days;
+        pStart = new Date(start.getTime() + itemStartDays * 86400000).toISOString().slice(0, 10);
+        pEnd   = new Date(start.getTime() + itemEndDays   * 86400000).toISOString().slice(0, 10);
+      }
+      cumH += h;
+      itemRows.push({
+        id: ids[idx],
+        project_id: ins.id, hive_id: HIVE_ID,
+        wbs_code: it.wbs_code || `${idx + 1}.0`,
+        title: it.title.trim(),
+        owner_name: projPayload.owner_name,
+        status: 'pending',
+        pct_complete: 0,
+        planned_start: pStart, planned_end: pEnd,
+        estimated_hours: Number(it.est_h) || null,
+        predecessors: prevId ? [prevId] : [],
+        notes: it.freq_phase ? `phase: ${it.freq_phase}` : null,
+        sort_order: idx,
+      });
+      prevId = ids[idx];
+    });
+    const { error: itemErr } = await db.from('project_items').insert(itemRows);
+    if (itemErr) { showToast('Project created, but scope items failed: ' + itemErr.message, 'error'); }
+  }
+
+  showToast(`Created ${codeData} (${checkedItems.length} scope items)`, 'success');
+  closeModal('modal-wizard');
+  resetCreateBtn();
+  await loadProjects();
+  await openDetail(ins.id);
+}
+function resetCreateBtn() { $('wiz-create').disabled = false; $('wiz-create').textContent = 'Create project'; }
+
+
+function openEditProject() {
+  if (!_detail) return;
+  _editingId = _detail.id;
+  $('m-project-title').textContent = 'Edit project';
+  $('f-submit').textContent = 'Save changes';
+  $('f-name').value = _detail.name;
+  $('f-type').value = _detail.project_type;
+  $('f-priority').value = _detail.priority;
+  $('f-owner').value = _detail.owner_name || '';
+  $('f-start').value = _detail.start_date || '';
+  $('f-end').value = _detail.end_date || '';
+  $('f-budget').value = _detail.budget_php || '';
+  $('f-desc').value = _detail.description || '';
+  toggleBudgetField(_detail.project_type);
+  openModal('modal-project');
+}
+$('f-type')?.addEventListener('change', ev => toggleBudgetField(ev.target.value));
+function toggleBudgetField(t) {
+  $('budget-field').style.display = (t === 'capex' || t === 'contractor') ? '' : 'none';
+}
+
+async function saveProject() {
+  const name = $('f-name').value.trim();
+  if (!name) { showToast('Name is required'); return; }
+  const type = $('f-type').value;
+  const payload = {
+    hive_id: HIVE_ID, worker_name: WORKER_NAME, auth_uid: _authUid,
+    name, project_type: type, priority: $('f-priority').value,
+    owner_name: $('f-owner').value || null,
+    start_date: $('f-start').value || null,
+    end_date:   $('f-end').value || null,
+    budget_php: $('f-budget').value ? Number($('f-budget').value) : null,
+    description: $('f-desc').value.trim() || null,
+  };
+  if (_editingId) {
+    const { error } = await db.from('projects').update(payload).eq('id', _editingId).eq('hive_id', HIVE_ID);
+    if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+    showToast('Saved.', 'success');
+    closeModal('modal-project');
+    await loadProjects();
+    if (_detailId === _editingId) await openDetail(_editingId);
+    return;
+  }
+  // New: generate code via RPC
+  const year = new Date().getFullYear();
+  const { data: codeData, error: codeErr } = await db.rpc('generate_project_code',
+    { p_hive_id: HIVE_ID, p_type: type, p_year: year });
+  if (codeErr) { showToast('Code gen failed: ' + codeErr.message, 'error'); return; }
+  payload.project_code = codeData;
+  payload.status = 'planning';
+  const { data: ins, error: insErr } = await db.from('projects').insert(payload).select().single();
+  if (insErr) { showToast('Create failed: ' + insErr.message, 'error'); return; }
+  showToast('Created ' + payload.project_code, 'success');
+  closeModal('modal-project');
+  await loadProjects();
+  await openDetail(ins.id);
+}
+
+async function deleteProject() {
+  if (!_detail) return;
+  if (!confirm('Soft-delete project ' + _detail.project_code + '? It will be hidden from views.')) return;
+  const { error } = await db.from('projects')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', _detail.id).eq('hive_id', HIVE_ID);
+  if (error) { showToast('Delete failed: ' + error.message, 'error'); return; }
+  showToast('Deleted.', 'success');
+  closeDetail();
+  await loadProjects();
+}
+
+/* ── Detail view ────────────────────────────────────────────── */
+async function openDetail(id) {
+  _detailId = id;
+  const { data, error } = await db.from('projects').select('*').eq('id', id).is('deleted_at', null).maybeSingle();
+  if (error || !data) { showToast('Could not load project', 'error'); return; }
+  _detail = data;
+  $('list-view').style.display = 'none';
+  $('detail-view').classList.add('open');
+  $('d-code').textContent = data.project_code;
+  $('d-name').textContent = data.name;
+  $('d-type').className = 'ptype-pill ptype-' + data.project_type;
+  $('d-type').textContent = data.project_type;
+  $('d-status').className = 'status-pill status-' + data.status;
+  $('d-status').textContent = data.status.replace('_', ' ');
+  $('d-priority').textContent = '· ' + data.priority + ' priority';
+  buildDetailTabs(data.project_type);
+
+  // Load children + rollup in parallel
+  const [itemsRes, linksRes, logsRes, progRes] = await Promise.all([
+    db.from('project_items').select('*').eq('project_id', id).order('sort_order'),
+    db.from('project_links').select('*').eq('project_id', id).order('created_at'),
+    db.from('project_progress_logs').select('*').eq('project_id', id).order('log_date', { ascending: false }).limit(30),
+    fetchProgressRollup(id),
+  ]);
+  _items = itemsRes.data || [];
+  _links = linksRes.data || [];
+  _logs  = logsRes.data || [];
+  _progress = progRes;
+  renderActivePane();
+}
+
+function closeDetail() {
+  $('detail-view').classList.remove('open');
+  $('list-view').style.display = '';
+  _detailId = null; _detail = null;
+}
+
+function buildDetailTabs(type) {
+  const tabs = [
+    { key: 'overview', label: 'Overview', show: true },
+    { key: 'scope',    label: 'Scope / WBS', show: type !== 'workorder' || _items.length > 0 || true },
+    { key: 'linked',   label: 'Linked work', show: true },
+    { key: 'progress', label: 'Daily log', show: true },
+    { key: 'cpm',      label: 'Critical path', show: type === 'shutdown' },
+    { key: 'budget',   label: 'Budget', show: (type === 'capex' || type === 'contractor') && isSupervisor() },
+    { key: 'signoff',  label: 'Sign-off', show: type !== 'workorder' },
+  ];
+  $('detail-tabs').innerHTML = tabs.filter(t => t.show)
+    .map((t, i) => `<button data-pane="${t.key}" class="${i === 0 ? 'active' : ''}" onclick="setActivePane('${t.key}')">${e(t.label)}</button>`).join('');
+  document.querySelectorAll('.detail-pane').forEach(p => p.classList.remove('active'));
+  $('pane-overview').classList.add('active');
+}
+function setActivePane(key) {
+  $('detail-tabs').querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.pane === key));
+  document.querySelectorAll('.detail-pane').forEach(p => p.classList.remove('active'));
+  $('pane-' + key).classList.add('active');
+  renderActivePane(key);
+}
+function renderActivePane(key) {
+  if (!key) {
+    const active = $('detail-tabs').querySelector('button.active');
+    key = active ? active.dataset.pane : 'overview';
+  }
+  if (key === 'overview') renderOverview();
+  if (key === 'scope')    renderScope();
+  if (key === 'linked')   renderLinked();
+  if (key === 'progress') renderProgress();
+  if (key === 'cpm')      renderCpm();
+  if (key === 'budget')   renderBudget();
+  if (key === 'signoff')  renderSignoff();
+}
+
+/* ── Pane: Overview ───────────────────────────────────────── */
+function renderOverview() {
+  const r = _progress?.rollup || { pct_complete: 0, items_total: 0, items_done: 0, hours_estimated: 0, hours_actual: 0, days_elapsed: 0, days_total: 0 };
+  const ev = _progress?.earned_value;
+  const evColor = ev ? (ev.status === 'green' ? 'green' : ev.status === 'amber' ? 'amber' : 'red') : '';
+  $('pane-overview').innerHTML = `
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-label">Progress</div><div class="kpi-value">${r.pct_complete}%</div><div class="kpi-sub">${r.items_done}/${r.items_total} items done</div></div>
+      <div class="kpi"><div class="kpi-label">Hours</div><div class="kpi-value">${r.hours_actual.toFixed(0)}<span style="font-size:0.85rem; color:var(--muted);"> / ${r.hours_estimated.toFixed(0)}</span></div><div class="kpi-sub">actual / estimated</div></div>
+      <div class="kpi"><div class="kpi-label">Days</div><div class="kpi-value">${r.days_elapsed}<span style="font-size:0.85rem; color:var(--muted);"> / ${r.days_total || '—'}</span></div><div class="kpi-sub">elapsed / planned</div></div>
+      ${ev ? `<div class="kpi ${evColor}"><div class="kpi-label">Health (SPI/CPI)</div><div class="kpi-value">${ev.spi ?? '—'} / ${ev.cpi ?? '—'}</div><div class="kpi-sub">${ev.status.toUpperCase()}</div></div>` : ''}
+    </div>
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px;">
+      <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 8px;">Description</h3>
+      <p style="line-height: 1.55; font-size: 0.92rem; color: ${_detail.description ? 'var(--text)' : 'var(--muted)'};">
+        ${_detail.description ? e(_detail.description).replace(/\n/g, '<br>') : 'No description yet. Click Edit to add one.'}
+      </p>
+      <div class="grid-3" style="margin-top: 14px; font-size: 0.85rem;">
+        <div><strong>Owner</strong><br>${e(_detail.owner_name || '—')}</div>
+        <div><strong>Start</strong><br>${e(fmtDate(_detail.start_date))}</div>
+        <div><strong>End</strong><br>${e(fmtDate(_detail.end_date))}</div>
+      </div>
+    </div>
+  `;
+}
+
+/* ── Pane: Scope / WBS ────────────────────────────────────── */
+function renderScope() {
+  const rows = _items.map(it => {
+    const isCritical = _progress?.critical_path?.item_ids?.includes(it.id);
+    return `
+      <tr class="${it.status === 'done' ? 'done' : ''} ${isCritical ? 'critical' : ''}">
+        <td class="mono small">${e(it.wbs_code || '')}</td>
+        <td>${e(it.title)}</td>
+        <td class="small">${e(it.owner_name || '—')}</td>
+        <td><span class="status-pill status-${it.status === 'done' ? 'complete' : it.status === 'blocked' ? 'cancelled' : 'planning'}">${e(it.status.replace('_', ' '))}</span></td>
+        <td><div class="progress" style="width:80px;"><div class="progress-bar ${progressColor(it.pct_complete)}" style="width:${it.pct_complete}%"></div></div></td>
+        <td class="small">${e(fmtDate(it.planned_end))}</td>
+        <td class="small">${it.estimated_hours || '—'}h</td>
+        <td><button class="btn small ghost" onclick="openEditScope('${e(it.id)}')">Edit</button></td>
+      </tr>`;
+  }).join('');
+  $('pane-scope').innerHTML = `
+    <div class="row" style="justify-content: space-between; margin-bottom: 10px;">
+      <div class="small" style="color: var(--muted);">${_items.length} scope item(s) · ${_items.filter(i => i.status === 'done').length} done</div>
+      <button class="btn primary small" onclick="openNewScope()">+ Add scope item</button>
+    </div>
+    ${_items.length ? `
+      <div style="overflow-x:auto;"><table>
+        <thead><tr><th>WBS</th><th>Title</th><th>Owner</th><th>Status</th><th>Progress</th><th>Due</th><th>Est</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>
+      <div class="small" style="margin-top: 8px; color: var(--muted);">Rows highlighted red are on the critical path.</div>
+    ` : '<div class="empty">No scope items yet. Add the first work breakdown item to start tracking.</div>'}
+  `;
+}
+
+function openNewScope() {
+  _editingScopeId = null;
+  $('m-scope-title').textContent = 'Add scope item';
+  ['s-title','s-wbs','s-pstart','s-pend','s-est','s-notes'].forEach(id => $(id).value = '');
+  $('s-status').value = 'pending';
+  $('s-owner').value = '';
+  populatePredecessors(null);
+  openModal('modal-scope');
+}
+function openEditScope(id) {
+  const it = _items.find(x => x.id === id); if (!it) return;
+  _editingScopeId = id;
+  $('m-scope-title').textContent = 'Edit scope item';
+  $('s-title').value = it.title;
+  $('s-wbs').value = it.wbs_code || '';
+  $('s-owner').value = it.owner_name || '';
+  $('s-status').value = it.status;
+  $('s-pstart').value = it.planned_start || '';
+  $('s-pend').value = it.planned_end || '';
+  $('s-est').value = it.estimated_hours || '';
+  $('s-notes').value = it.notes || '';
+  populatePredecessors(id, it.predecessors || []);
+  openModal('modal-scope');
+}
+function populatePredecessors(currentId, selected = []) {
+  const opts = _items.filter(i => i.id !== currentId)
+    .map(i => `<option value="${e(i.id)}" ${selected.includes(i.id) ? 'selected' : ''}>${e(i.wbs_code || '')} ${e(i.title)}</option>`).join('');
+  $('s-preds').innerHTML = opts || '<option disabled>No other items yet</option>';
+}
+
+async function saveScopeItem() {
+  const title = $('s-title').value.trim(); if (!title) { showToast('Title required'); return; }
+  const preds = Array.from($('s-preds').selectedOptions).map(o => o.value);
+  const payload = {
+    project_id: _detailId, hive_id: HIVE_ID,
+    title, wbs_code: $('s-wbs').value.trim() || null,
+    owner_name: $('s-owner').value || null,
+    status: $('s-status').value,
+    planned_start: $('s-pstart').value || null,
+    planned_end:   $('s-pend').value || null,
+    estimated_hours: $('s-est').value ? Number($('s-est').value) : null,
+    predecessors: preds,
+    notes: $('s-notes').value.trim() || null,
+    pct_complete: $('s-status').value === 'done' ? 100 : ($('s-status').value === 'in_progress' ? 50 : 0),
+    sort_order: _items.length,
+  };
+  let err;
+  if (_editingScopeId) {
+    ({ error: err } = await db.from('project_items').update(payload).eq('id', _editingScopeId));
+  } else {
+    ({ error: err } = await db.from('project_items').insert(payload));
+  }
+  if (err) { showToast('Save failed: ' + err.message, 'error'); return; }
+  closeModal('modal-scope');
+  showToast('Saved.', 'success');
+  await refreshDetail();
+}
+
+/* ── Pane: Linked work ────────────────────────────────────── */
+function renderLinked() {
+  const groups = {};
+  _links.forEach(l => { if (!groups[l.link_type]) groups[l.link_type] = []; groups[l.link_type].push(l); });
+  const labels = { asset: 'Assets', logbook: 'Logbook entries', pm_completion: 'PM completions', inventory_item: 'Parts', engineering_calc: 'Engineering calcs', marketplace_listing: 'Marketplace', contractor: 'Contractors' };
+  const html = Object.keys(labels).map(k => {
+    const items = groups[k] || [];
+    if (!items.length) return '';
+    return `<div style="margin-bottom: 12px;">
+      <h4 style="font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">${labels[k]}</h4>
+      <div>${items.map(l => `
+        <span class="link-pill">${e(l.label || l.link_id || '—')} <button onclick="removeLink('${e(l.id)}')" title="Remove">×</button></span>
+      `).join('')}</div>
+    </div>`;
+  }).join('');
+  $('pane-linked').innerHTML = `
+    <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
+      <div class="small" style="color: var(--muted);">${_links.length} linked item(s) — pull existing logbook entries, PMs, parts, contractor info into this project</div>
+      <button class="btn primary small" onclick="openModal('modal-link'); loadLinkOptions();">+ Link work</button>
+    </div>
+    ${_links.length ? html : '<div class="empty">No links yet. Use “Link work” to pull in existing logbook entries, PMs, parts, or contractor info.</div>'}
+  `;
+}
+
+async function loadLinkOptions() {
+  const t = $('l-type').value;
+  $('l-text-wrap').classList.toggle('hidden', t !== 'contractor');
+  $('l-picker-wrap').classList.toggle('hidden', t === 'contractor');
+  if (t === 'contractor') return;
+  const queries = {
+    asset:               () => db.from('assets').select('id, name').eq('hive_id', HIVE_ID).order('name').limit(200),
+    logbook:             () => db.from('logbook').select('id, machine, problem, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(50),
+    pm_completion:       () => db.from('pm_completions').select('id, asset_id, completed_at').eq('hive_id', HIVE_ID).order('completed_at', { ascending: false }).limit(50),
+    inventory_item:      () => db.from('inventory_items').select('id, part_name, part_number').eq('hive_id', HIVE_ID).order('part_name').limit(200),
+    engineering_calc:    () => db.from('engineering_calcs').select('id, calc_type, project_name, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(30),
+    marketplace_listing: () => db.from('marketplace_listings').select('id, title').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(30),
+  };
+  const fn = queries[t]; if (!fn) { $('l-picker').innerHTML = ''; return; }
+  const { data, error } = await fn();
+  if (error) { $('l-picker').innerHTML = `<option>Error: ${e(error.message)}</option>`; return; }
+  const labelFor = (r) => {
+    if (t === 'asset' || t === 'marketplace_listing') return r.name || r.title || r.id;
+    if (t === 'inventory_item') return r.part_name || r.part_number || r.id;
+    if (t === 'logbook') return `${r.machine || '?'} — ${(r.problem || '').slice(0, 50)}`;
+    if (t === 'pm_completion') return `PM ${new Date(r.completed_at).toLocaleDateString()}`;
+    if (t === 'engineering_calc') return `${r.calc_type} — ${r.project_name || ''}`;
+    return r.id;
+  };
+  $('l-picker').innerHTML = (data || []).map(r => `<option value="${e(r.id)}">${e(labelFor(r))}</option>`).join('');
+}
+
+async function saveLink() {
+  const t = $('l-type').value;
+  let payload;
+  if (t === 'contractor') {
+    const text = $('l-text').value.trim(); if (!text) { showToast('Contractor name required'); return; }
+    payload = { project_id: _detailId, hive_id: HIVE_ID, link_type: 'contractor', link_id: null, label: text };
+    $('l-text').value = '';
+  } else {
+    const sel = $('l-picker'); const id = sel.value; if (!id) { showToast('Pick something to link'); return; }
+    const label = sel.options[sel.selectedIndex].textContent;
+    payload = { project_id: _detailId, hive_id: HIVE_ID, link_type: t, link_id: id, label };
+  }
+  const { error } = await db.from('project_links').insert(payload);
+  if (error) { showToast('Link failed: ' + error.message, 'error'); return; }
+  showToast('Linked.', 'success');
+  closeModal('modal-link');
+  await refreshDetail();
+}
+async function removeLink(id) {
+  if (!confirm('Remove this link?')) return;
+  const { error } = await db.from('project_links').delete().eq('id', id);
+  if (error) { showToast(error.message, 'error'); return; }
+  await refreshDetail();
+}
+
+/* ── Pane: Daily progress log ─────────────────────────────── */
+function renderProgress() {
+  const entries = _logs.map(l => `
+    <div class="log-entry">
+      <div class="log-entry-head">
+        <span><strong>${e(l.reported_by)}</strong> · ${e(l.log_date)} · ${l.pct_complete}% ${l.hours_worked ? '· ' + l.hours_worked + 'h' : ''}</span>
+      </div>
+      ${l.notes ? `<div class="log-entry-body">${e(l.notes).replace(/\n/g,'<br>')}</div>` : ''}
+      ${l.blockers ? `<div class="log-entry-blockers">⚠ Blocker: ${e(l.blockers)}</div>` : ''}
+      ${l.acknowledged_by
+        ? `<div class="log-entry-ack">✓ Acknowledged by ${e(l.acknowledged_by)} on ${e(fmtDate(l.acknowledged_at))}</div>`
+        : (isSupervisor() ? `<button class="btn small" style="margin-top:6px;" onclick="ackLog('${e(l.id)}')">Acknowledge</button>` : '')}
+    </div>
+  `).join('');
+  $('pane-progress').innerHTML = `
+    <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
+      <div class="small" style="color: var(--muted);">${_logs.length} log entr(ies). Workers report; supervisors acknowledge.</div>
+      <button class="btn primary small" onclick="openProgressLog()">+ Log progress</button>
+    </div>
+    ${_logs.length ? entries : '<div class="empty">No progress logs yet.</div>'}
+  `;
+}
+function openProgressLog() {
+  $('p-date').value = new Date().toISOString().slice(0, 10);
+  ['p-pct','p-hours','p-notes','p-blockers'].forEach(id => $(id).value = '');
+  $('p-pct').value = _progress?.rollup?.pct_complete ?? 0;
+  openModal('modal-progress');
+}
+async function saveProgressLog() {
+  const payload = {
+    project_id: _detailId, hive_id: HIVE_ID,
+    log_date: $('p-date').value, reported_by: WORKER_NAME,
+    pct_complete: Number($('p-pct').value || 0),
+    hours_worked: $('p-hours').value ? Number($('p-hours').value) : null,
+    notes: $('p-notes').value.trim() || null,
+    blockers: $('p-blockers').value.trim() || null,
+  };
+  const { error } = await db.from('project_progress_logs').insert(payload);
+  if (error) { showToast(error.message, 'error'); return; }
+  closeModal('modal-progress');
+  showToast('Logged.', 'success');
+  await refreshDetail();
+}
+async function ackLog(id) {
+  const { error } = await db.from('project_progress_logs')
+    .update({ acknowledged_by: WORKER_NAME, acknowledged_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) { showToast(error.message, 'error'); return; }
+  await refreshDetail();
+}
+
+/* ── Pane: Critical path ──────────────────────────────────── */
+function renderCpm() {
+  if (!_items.length) { $('pane-cpm').innerHTML = '<div class="empty">Add scope items with planned dates and predecessors first.</div>'; return; }
+  const cp = _progress?.critical_path || { item_ids: [], total_days: 0, slack_per_item: {} };
+  const totalDays = Math.max(cp.total_days, 1);
+  const dayWidth = 100 / totalDays;
+  const rows = _items.map(it => {
+    const isCritical = cp.item_ids.includes(it.id);
+    const dur = it.planned_start && it.planned_end ? Math.max(1, Math.ceil((new Date(it.planned_end) - new Date(it.planned_start)) / 86400000)) : (it.estimated_hours ? Math.ceil(it.estimated_hours / 8) : 1);
+    const slackVal = cp.slack_per_item?.[it.id] ?? 0;
+    const startDay = totalDays - dur - slackVal;
+    const left = Math.max(0, startDay * dayWidth);
+    const width = Math.min(100 - left, dur * dayWidth);
+    const cls = it.status === 'done' ? 'done' : (isCritical ? 'critical' : '');
+    return `<div class="gantt-row">
+      <div><span class="mono small" style="color:var(--muted);">${e(it.wbs_code || '')}</span> ${e(it.title)}</div>
+      <div class="gantt-bar-wrap"><div class="gantt-bar ${cls}" style="left:${left}%; width:${width}%;" title="${dur}d, slack ${slackVal}d"></div></div>
+    </div>`;
+  }).join('');
+  $('pane-cpm').innerHTML = `
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-label">Critical path</div><div class="kpi-value">${cp.total_days}d</div><div class="kpi-sub">${cp.item_ids.length} of ${_items.length} items on critical path</div></div>
+    </div>
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
+      ${rows}
+    </div>
+    <div class="small" style="margin-top: 8px; color: var(--muted);">Red bars = zero slack (any delay slips the project finish). Green = done.</div>
+  `;
+}
+
+/* ── Pane: Budget (supervisor only) ───────────────────────── */
+function renderBudget() {
+  if (!isSupervisor()) { $('pane-budget').innerHTML = '<div class="empty">Budget visibility is restricted to supervisors.</div>'; return; }
+  const ev = _progress?.earned_value;
+  if (!ev) { $('pane-budget').innerHTML = '<div class="empty">Add a budget, start date and end date to enable Earned Value tracking.</div>'; return; }
+  const cls = ev.status === 'green' ? 'green' : ev.status === 'amber' ? 'amber' : 'red';
+  $('pane-budget').innerHTML = `
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-label">Budget at completion</div><div class="kpi-value">${fmtPHP(ev.bac)}</div></div>
+      <div class="kpi"><div class="kpi-label">Planned value (PV)</div><div class="kpi-value">${fmtPHP(ev.pv)}</div></div>
+      <div class="kpi"><div class="kpi-label">Earned value (EV)</div><div class="kpi-value">${fmtPHP(ev.ev)}</div></div>
+      <div class="kpi"><div class="kpi-label">Actual cost (AC)</div><div class="kpi-value">${fmtPHP(ev.ac)}</div><div class="kpi-sub">proxy: hours × ₱200</div></div>
+      <div class="kpi ${cls}"><div class="kpi-label">SPI</div><div class="kpi-value">${ev.spi ?? '—'}</div><div class="kpi-sub">schedule</div></div>
+      <div class="kpi ${cls}"><div class="kpi-label">CPI</div><div class="kpi-value">${ev.cpi ?? '—'}</div><div class="kpi-sub">cost</div></div>
+    </div>
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
+      <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">Variance summary</h3>
+      <table>
+        <tr><td>Schedule variance (SV = EV − PV)</td><td>${fmtPHP(ev.sv)}</td></tr>
+        <tr><td>Cost variance (CV = EV − AC)</td><td>${fmtPHP(ev.cv)}</td></tr>
+      </table>
+      <div class="small" style="margin-top: 10px; color: var(--muted);">Standards: PMI PMBOK 7th ed. (EV chapter), AACE 80R-13. Status thresholds: Green ≥ 0.95, Amber ≥ 0.85, Red &lt; 0.85.</div>
+    </div>
+  `;
+}
+
+/* ── Pane: Sign-off ───────────────────────────────────────── */
+function renderSignoff() {
+  const allDone = _items.length && _items.every(i => i.status === 'done' || i.status === 'skipped');
+  const hasLogs = _logs.length > 0;
+  const checks = [
+    { ok: !!_detail.description, label: 'Description filled in' },
+    { ok: _items.length > 0, label: 'Scope items added' },
+    { ok: allDone, label: 'All scope items done or skipped' },
+    { ok: hasLogs, label: 'At least one progress log recorded' },
+    { ok: _detail.end_date, label: 'End date set' },
+  ];
+  const passed = checks.filter(c => c.ok).length;
+  $('pane-signoff').innerHTML = `
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-label">Sign-off readiness</div><div class="kpi-value">${passed}/${checks.length}</div><div class="kpi-sub">checks passed</div></div>
+    </div>
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
+      ${checks.map(c => `<div style="padding:6px 0; border-bottom: 1px solid var(--border); display:flex; justify-content:space-between;">
+        <span>${c.ok ? '✓' : '○'} ${e(c.label)}</span>
+        <span class="small" style="color:${c.ok ? 'var(--green)' : 'var(--muted)'};">${c.ok ? 'OK' : 'pending'}</span>
+      </div>`).join('')}
+      <div class="row" style="gap:8px; margin-top: 14px;">
+        <button class="btn primary" onclick="markComplete()" ${_detail.status === 'complete' ? 'disabled' : ''}>Mark complete</button>
+        <button class="btn" onclick="markStatus('on_hold')">Put on hold</button>
+        <button class="btn" onclick="markStatus('archived')">Archive</button>
+      </div>
+    </div>
+  `;
+}
+async function markComplete() {
+  if (!confirm('Mark project as complete? Subsequent edits will need to reopen it.')) return;
+  await markStatus('complete', { closed_at: new Date().toISOString() });
+}
+async function markStatus(status, extra = {}) {
+  const { error } = await db.from('projects')
+    .update({ status, ...extra }).eq('id', _detail.id).eq('hive_id', HIVE_ID);
+  if (error) { showToast(error.message, 'error'); return; }
+  showToast('Status: ' + status, 'success');
+  await openDetail(_detail.id);
+  await loadProjects();
+}
+
+/* ── Edge fn rollup (with client-side fallback when fn unavailable) ── */
+async function fetchProgressRollup(projectId) {
+  try {
+    const { data, error } = await db.functions.invoke('project-progress', {
+      body: { project_id: projectId, hive_id: HIVE_ID },
+    });
+    if (error) { console.warn('rollup edge fn error, falling back to client-side:', error.message); return clientRollup(projectId); }
+    return data;
+  } catch (e) { console.warn('rollup invoke failed, client-side fallback:', e); return clientRollup(projectId); }
+}
+
+/* Mirrors the edge fn math so the page works even when functions aren't served. */
+async function clientRollup(projectId) {
+  const proj = _detail; if (!proj) return null;
+  const items = _items;
+  const totalW = items.reduce((s, i) => s + (i.estimated_hours || 1), 0) || 1;
+  const pctComplete = items.length
+    ? Math.round(items.reduce((s, i) => s + (i.pct_complete || 0) * (i.estimated_hours || 1), 0) / totalW)
+    : 0;
+  const hoursEst    = items.reduce((s, i) => s + (i.estimated_hours || 0), 0);
+  const hoursActual = items.reduce((s, i) => s + (i.actual_hours    || 0), 0);
+  const daysBetween = (a, b) => a && b ? Math.max(1, Math.ceil((new Date(b) - new Date(a)) / 86400000)) : 0;
+  const daysElapsed = proj.start_date ? daysBetween(proj.start_date, new Date().toISOString()) : 0;
+  const daysTotal   = (proj.start_date && proj.end_date) ? daysBetween(proj.start_date, proj.end_date) : 0;
+
+  let earnedValue = null;
+  if (proj.budget_php && proj.start_date && proj.end_date) {
+    const BAC = Number(proj.budget_php);
+    const plannedPct = daysTotal > 0 ? Math.min(1, daysElapsed / daysTotal) : 0;
+    const PV  = BAC * plannedPct;
+    const EV  = BAC * (pctComplete / 100);
+    const AC  = hoursActual * 200;
+    const SPI = PV > 0 ? EV / PV : null;
+    const CPI = AC > 0 ? EV / AC : null;
+    const minVal = Math.min(SPI ?? 1, CPI ?? 1);
+    const status = minVal >= 0.95 ? 'green' : minVal >= 0.85 ? 'amber' : 'red';
+    earnedValue = {
+      bac: Math.round(BAC), pv: Math.round(PV), ev: Math.round(EV), ac: Math.round(AC),
+      sv: Math.round(EV - PV), cv: Math.round(EV - AC),
+      spi: SPI ? Number(SPI.toFixed(2)) : null,
+      cpi: CPI ? Number(CPI.toFixed(2)) : null,
+      status,
+    };
+  }
+  return {
+    project_id: projectId,
+    rollup: {
+      pct_complete: pctComplete,
+      items_total: items.length,
+      items_done: items.filter(i => i.status === 'done').length,
+      hours_estimated: hoursEst, hours_actual: hoursActual,
+      days_elapsed: daysElapsed, days_total: daysTotal,
+    },
+    earned_value: earnedValue,
+    critical_path: { item_ids: [], total_days: 0, slack_per_item: {} },  // CPM only via edge fn
+    latest_logs: _logs,
+  };
+}
+
+async function refreshDetail() { if (_detailId) await openDetail(_detailId); }
+
+/* ── Realtime ──────────────────────────────────────────────── */
+function subscribeRealtime() {
+  if (_rtChannel) db.removeChannel(_rtChannel);
+  _rtChannel = db.channel('project-mgr-' + HIVE_ID)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'projects', filter: `hive_id=eq.${HIVE_ID}` },
+        () => loadProjects())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'project_items', filter: `hive_id=eq.${HIVE_ID}` },
+        () => { if (_detailId) refreshDetail(); })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'project_progress_logs', filter: `hive_id=eq.${HIVE_ID}` },
+        () => { if (_detailId) refreshDetail(); })
+    .subscribe();
+}
+window.addEventListener('beforeunload', () => { if (_rtChannel) db.removeChannel(_rtChannel); });
+
+/* ── Modal helpers ─────────────────────────────────────────── */
+function openModal(id) { $(id).classList.add('open'); }
+function closeModal(id) { $(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(el => {
+  el.addEventListener('click', ev => { if (ev.target === el) el.classList.remove('open'); });
+});
+</script>
+<script src="nav-hub.js"></script>
+<script src="floating-ai.js"></script>
+</body>
+</html>

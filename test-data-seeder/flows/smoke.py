@@ -16,6 +16,7 @@ PAGES = [
     ("dayplanner.html",          "Day planner",           "body"),
     ("engineering-design.html",  "Engineering design",    "body"),
     ("report-sender.html",       "Report sender",         "body"),
+    ("project-manager.html",   "Project Manager",  "body"),
 ]
 
 # Errors we tolerate (known/expected)

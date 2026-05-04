@@ -49,6 +49,7 @@ ALL_FUNCTIONS = [
     "marketplace-connect-onboard",
     "marketplace-release",
     "marketplace-connect-status",
+    "project-progress",
 ]
 
 REQUIRED_FIELDS = {
@@ -65,6 +66,7 @@ REQUIRED_FIELDS = {
     "marketplace-release":         ["order_id", "buyer_name"],
     "marketplace-connect-onboard":  ["worker_name", "return_url", "refresh_url"],
     "marketplace-connect-status":   ["worker_name"],
+    "project-progress":             ["project_id", "hive_id"],
 }
 
 

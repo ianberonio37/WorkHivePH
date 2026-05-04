@@ -11,6 +11,7 @@ PAGES = [
     "hive.html", "logbook.html", "inventory.html", "pm-scheduler.html",
     "analytics.html", "analytics-report.html", "community.html", "skillmatrix.html", "marketplace.html",
     "dayplanner.html", "engineering-design.html", "report-sender.html",
+    "project-manager.html",
 ]
 
 

@@ -60,6 +60,7 @@ LIVE_PAGES = [
     "marketplace-seller.html",
     "marketplace-seller-profile.html",
     "public-feed.html",
+    "project-manager.html",
 ]
 
 # Pages that define escHtml themselves (don't load utils.js)

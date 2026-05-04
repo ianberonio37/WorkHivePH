@@ -51,6 +51,7 @@ LIVE_PAGES = [
     "marketplace-seller-profile.html",
     "public-feed.html",
     "index.html",
+    "project-manager.html",
 ]
 
 SHARED_TABLES = [

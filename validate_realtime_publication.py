@@ -63,6 +63,10 @@ EXPECTED_PUBLISHED_TABLES = {
     "inventory_items",
     "logbook",
     "marketplace_listings",
+    # Added to publication on 2026-05-05 with the project_manager migration:
+    "projects",
+    "project_items",
+    "project_progress_logs",
 }
 
 CHECKS = {
