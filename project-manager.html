@@ -1688,16 +1688,27 @@ function renderActivePane(key) {
 }
 
 /* ── Pane: Overview ───────────────────────────────────────── */
+// Phase 6.6 — defensive coercion. _progress.rollup can be:
+//   - the full Python descriptive payload (all fields present)
+//   - the client-side fallback shape (all fields present)
+//   - { error: "..." } when Python descriptive crashed mid-call (no fields)
+//   - undefined when the edge fn returned { _unavailable: true }
+// Wrap each numeric read with `|| 0` and avoid .toFixed() on undefined.
+function _num(v, decimals) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return decimals > 0 ? '0.0' : '0';
+  return n.toFixed(decimals);
+}
 function renderOverview() {
-  const r = _progress?.rollup || { pct_complete: 0, items_total: 0, items_done: 0, hours_estimated: 0, hours_actual: 0, days_elapsed: 0, days_total: 0 };
-  const ev = _progress?.earned_value;
+  const r = _progress?.rollup || {};
+  const ev = (_progress?.earned_value && _progress.earned_value.available !== false) ? _progress.earned_value : null;
   const evColor = ev ? (ev.status === 'green' ? 'green' : ev.status === 'amber' ? 'amber' : 'red') : '';
   $('pane-overview').innerHTML = `
     <div class="kpi-row">
-      <div class="kpi"><div class="kpi-label">Progress</div><div class="kpi-value">${r.pct_complete}%</div><div class="kpi-sub">${r.items_done}/${r.items_total} items done</div></div>
-      <div class="kpi"><div class="kpi-label">Hours</div><div class="kpi-value">${r.hours_actual.toFixed(0)}<span style="font-size:0.85rem; color:var(--muted);"> / ${r.hours_estimated.toFixed(0)}</span></div><div class="kpi-sub">actual / estimated</div></div>
-      <div class="kpi"><div class="kpi-label">Days</div><div class="kpi-value">${r.days_elapsed}<span style="font-size:0.85rem; color:var(--muted);"> / ${r.days_total || '—'}</span></div><div class="kpi-sub">elapsed / planned</div></div>
-      ${ev ? `<div class="kpi ${evColor}"><div class="kpi-label">Health (SPI/CPI)</div><div class="kpi-value">${ev.spi ?? '—'} / ${ev.cpi ?? '—'}</div><div class="kpi-sub">${ev.status.toUpperCase()}</div></div>` : ''}
+      <div class="kpi"><div class="kpi-label">Progress</div><div class="kpi-value">${r.pct_complete ?? 0}%</div><div class="kpi-sub">${r.items_done ?? 0}/${r.items_total ?? 0} items done</div></div>
+      <div class="kpi"><div class="kpi-label">Hours</div><div class="kpi-value">${_num(r.hours_actual, 0)}<span style="font-size:0.85rem; color:var(--muted);"> / ${_num(r.hours_estimated, 0)}</span></div><div class="kpi-sub">actual / estimated</div></div>
+      <div class="kpi"><div class="kpi-label">Days</div><div class="kpi-value">${r.days_elapsed ?? 0}<span style="font-size:0.85rem; color:var(--muted);"> / ${r.days_total || '—'}</span></div><div class="kpi-sub">elapsed / planned</div></div>
+      ${ev ? `<div class="kpi ${evColor}"><div class="kpi-label">Health (SPI/CPI)</div><div class="kpi-value">${ev.spi ?? '—'} / ${ev.cpi ?? '—'}</div><div class="kpi-sub">${(ev.status || 'unknown').toUpperCase()}</div></div>` : ''}
     </div>
     <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px;">
       <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 8px;">Description</h3>
@@ -2434,6 +2445,13 @@ async function fetchProgressRollup(projectId) {
       body: { project_id: projectId, hive_id: HIVE_ID },
     });
     if (error) { console.warn('rollup edge fn error, falling back to client-side:', error.message); return clientRollup(projectId); }
+    // Phase 6.6 — when Python API isn't running, the edge fn returns
+    // { _unavailable: true } or { rollup: {error: "..."} }. Either way,
+    // the data is unusable for the page; fall back to client-side compute.
+    if (!data || data._unavailable || (data.rollup && data.rollup.error)) {
+      console.warn('rollup payload unavailable, client-side fallback');
+      return clientRollup(projectId);
+    }
     return data;
   } catch (e) { console.warn('rollup invoke failed, client-side fallback:', e); return clientRollup(projectId); }
 }
