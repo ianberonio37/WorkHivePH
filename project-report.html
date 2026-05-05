@@ -116,11 +116,18 @@
   .empty-section { padding: 16px; color: var(--muted); font-style: italic; text-align: center; }
 
   @media print {
-    @page { size: A4; margin: 14mm 12mm; }
-    html, body { background: white; padding: 0; }
-    .toolbar, nav, header, .nav-hub, #wh-nav, [data-nav-hub], #floating-ai-root, #floating-ai-fab { display: none !important; }
+    /* @page margin: 0 collapses the area where Chrome / Edge render the
+       date+URL header/footer chrome. We then add manual padding to the
+       wrapper so content still has the same margins as before. The user
+       can no longer disable headers/footers by clicking "More settings"
+       in the print dialog and unchecking "Headers and footers" — but most
+       users never find that option, so this CSS bypass is the right
+       default for client-facing PDFs. */
+    @page { size: A4; margin: 0; }
+    html, body { background: white; padding: 0; margin: 0; }
+    .toolbar, nav, header, .nav-hub, #wh-nav, [data-nav-hub], #floating-ai-root, #floating-ai-fab, #wh-ai-widget, #wh-ai-fab { display: none !important; }
     body > *:not(#ar-print-wrapper) { display: none !important; }
-    #ar-print-wrapper { box-shadow: none; max-width: none; margin: 0; padding: 0; }
+    #ar-print-wrapper { box-shadow: none; max-width: none; margin: 0; padding: 14mm 12mm; }
     h2 { page-break-after: avoid; }
     table.doc-table, .signoff-block { page-break-inside: avoid; }
     tr { page-break-inside: avoid; }

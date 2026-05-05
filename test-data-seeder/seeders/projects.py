@@ -207,10 +207,13 @@ def seed_projects(client, log, ctx: dict) -> dict:
                     "created_at": to_iso(start),
                 })
 
-            # Daily progress logs — 3-6 per project, with one blocker if defined
+            # Daily progress logs — 3-6 per project, with one blocker if defined.
+            # Spread evenly across the project span using float math (integer
+            # division collapsed all 6 logs onto day 0 when duration < n_logs).
             n_logs = random.randint(3, 6)
             for li in range(n_logs):
-                log_date = (start + timedelta(days=li * (flavour["duration_days"] // max(1, n_logs)))).date()
+                day_offset = (li * flavour["duration_days"]) / max(1, n_logs)
+                log_date = (start + timedelta(days=day_offset)).date()
                 if log_date > today.date():
                     log_date = today.date()
                 blocker = None

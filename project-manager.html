@@ -2406,7 +2406,16 @@ function _embedProjectAsync(type, extra) {
     .catch(e => console.warn('project embed:', e.message));
 }
 async function markComplete() {
-  if (!confirm('Mark project as complete? Subsequent edits will need to reopen it.')) return;
+  // Phase 6.6 — guard against marking complete with open scope items;
+  // produces a sign-off-ready report instead of an internally inconsistent one.
+  const open = _items.filter(i => i.status !== 'done' && i.status !== 'skipped');
+  if (open.length) {
+    const msg = `${open.length} scope item${open.length === 1 ? ' is' : 's are'} still open (pending / in progress / blocked). ` +
+                `Best practice: close them or mark them 'skipped' before marking the project complete.\n\nContinue anyway?`;
+    if (!confirm(msg)) return;
+  } else {
+    if (!confirm('Mark project as complete? Subsequent edits will need to reopen it.')) return;
+  }
   await markStatus('complete', { closed_at: new Date().toISOString() });
 }
 async function markStatus(status, extra = {}) {

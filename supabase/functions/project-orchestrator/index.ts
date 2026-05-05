@@ -106,24 +106,35 @@ async function runNarrative(
     owner:        project.owner_name,
     description:  project.description,
     blocked_titles: items.filter((i: Record<string, unknown>) => i.status === 'blocked').map((i: Record<string, string>) => i.title).slice(0, 5),
+    pending_titles: items.filter((i: Record<string, unknown>) => i.status === 'pending').map((i: Record<string, string>) => i.title).slice(0, 5),
+    in_progress_titles: items.filter((i: Record<string, unknown>) => i.status === 'in_progress').map((i: Record<string, string>) => i.title).slice(0, 3),
+    next_pending_item: items.filter((i: Record<string, unknown>) => i.status === 'pending').map((i: Record<string, string>) => i.title)[0] || null,
+    status_inconsistency: project.status === 'complete' && pct < 100
+      ? `Project is marked 'complete' but ${items.length - itemsDone} of ${items.length} items are still pending — the supervisor should either close those items or revert the project status.`
+      : null,
     recent_blocker_count: recentBlockers.length,
     recent_blocker_examples: recentBlockers.slice(0, 3).map((l: Record<string, string>) => l.blockers),
   };
 
-  const systemPrompt = `You write strict-only project narratives for industrial maintenance handover packets in the Philippines. You receive a JSON fact pack and must produce three short sections — never invent values, never reference data not present in the facts.
+  const systemPrompt = `You write strict-only project narratives for industrial maintenance handover packets in the Philippines. You receive a JSON fact pack and MUST produce three short sections that quote SPECIFIC facts. Never invent values, never reference data not present in the facts. Generic boilerplate is REJECTED.
 
-Rules:
-1. Write in the third person, present tense, plain industrial English.
+Mandatory content rules — your narrative will be considered FAILED if missing any of these:
+1. hero_finding MUST quote the percentage AND the items_done/items_total fraction (e.g. "61% complete with 4 of 7 scope items closed").
+2. executive_summary MUST mention progress %, hours_actual vs hours_estimated if both are non-zero, AND name a specific blocker verbatim if recent_blocker_count > 0. If next_pending_item is set, end with "Next: <next_pending_item>".
+3. If status_inconsistency is non-null, mention it as a sign-off readiness flag in the executive_summary.
+4. lessons_synthesis must paraphrase the recurring theme from recent_blocker_examples, or omit if no blockers.
+
+Format rules:
+1. Third person, present tense, plain industrial English. No emojis. No marketing language. No hedging ("might", "perhaps", "suggests").
 2. If a fact is null or missing, OMIT that sentence — do not say "unknown" or "TBD".
-3. Use Philippine peso ₱ for any currency. Round to whole pesos.
-4. No emojis. No marketing language. No hedging ("might", "perhaps").
-5. Output STRICT JSON only — no prose outside the JSON.
+3. Philippine peso ₱ for any currency. Round to whole pesos.
+4. Output STRICT JSON only — no prose outside the JSON.
 
 Output schema:
 {
-  "hero_finding":        "ONE sentence that summarises where the project stands.",
-  "executive_summary":   "2-3 sentences for management — progress, blockers, what's next.",
-  "lessons_synthesis":   "1-2 sentence pattern from the progress log blockers (skip if no blockers)."
+  "hero_finding":        "string — one sentence — must include % and items_done/total",
+  "executive_summary":   "string — 2-4 sentences — must include progress %, blocker quote if any, next item",
+  "lessons_synthesis":   "string — 1-2 sentence pattern from blockers; null if no blockers"
 }`;
 
   const userPrompt = `FACT PACK (the only source of truth):
@@ -133,7 +144,7 @@ Generate the JSON narrative.`;
 
   let aiResponse: string;
   try {
-    aiResponse = await callAI(userPrompt, { systemPrompt, temperature: 0.15, maxTokens: 600, jsonMode: true });
+    aiResponse = await callAI(userPrompt, { systemPrompt, temperature: 0.05, maxTokens: 800, jsonMode: true });
   } catch (e) {
     return { _unavailable: true, reason: `AI providers all failed: ${(e as Error).message}` };
   }
