@@ -1658,7 +1658,7 @@ function buildDetailTabs(type) {
     { key: 'budget',   label: 'Budget', show: (type === 'capex' || type === 'contractor') && isSupervisor() },
     { key: 'roles',    label: 'Roles', show: true },                              // Phase 5B
     { key: 'changes',  label: 'Change orders', show: type !== 'workorder' },      // Phase 5D
-    { key: 'signoff',  label: 'Sign-off', show: type !== 'workorder' },
+    { key: 'signoff',  label: 'Sign-off', show: true },               // all types — workorder bundles also benefit from lessons + print report
   ];
   $('detail-tabs').innerHTML = tabs.filter(t => t.show)
     .map((t, i) => `<button data-pane="${t.key}" class="${i === 0 ? 'active' : ''}" onclick="setActivePane('${t.key}')">${e(t.label)}</button>`).join('');

@@ -334,6 +334,19 @@
         }
         .wh-msg.assistant strong { color: #F7A21B; }
 
+        /* ── Bridge button (→ Work Assistant) ── */
+        .wh-bridge-btn {
+          display: inline-flex; align-items: center; gap: 6px;
+          margin-top: 8px; padding: 7px 12px;
+          background: rgba(41,182,217,0.12); border: 1px solid rgba(41,182,217,0.3);
+          border-radius: 8px; color: #29B6D9; font-size: 11.5px; font-weight: 600;
+          text-decoration: none; cursor: pointer;
+          transition: background 0.15s, border-color 0.15s;
+        }
+        .wh-bridge-btn:hover {
+          background: rgba(41,182,217,0.22); border-color: rgba(41,182,217,0.5);
+        }
+
         /* ── Typing Indicator ── */
         .wh-typing {
           align-self: flex-start;
@@ -478,6 +491,46 @@
     document.body.appendChild(wrapper);
   }
 
+  // ─── Bridge button: surface Work Assistant for deep-history questions ────────
+  // Two triggers:
+  // 1. The AI response itself mentions the Work Assistant page (explicit redirect).
+  // 2. The user's question is about historical trends / patterns (implicit signal).
+  // In both cases, append a "→ Open Work Assistant" link that carries the question
+  // as a URL param so the assistant page pre-loads it.
+  function maybeAddBridgeButton(question, reply) {
+    const r = reply.toLowerCase();
+    const q = question.toLowerCase();
+    // Response-triggered: AI explicitly says it can't help from the widget
+    const responseSignals = [
+      'work assistant', "don't have access", 'records here',
+      'assistant.html', 'access your records', 'your history',
+      'database or work', 'my records',
+    ];
+    // Question-triggered: user is asking about historical data
+    const questionSignals = [
+      'last quarter', 'last month', 'last year', 'last 6', 'last 3',
+      'history', 'trend', 'mtbf', 'mttr', 'failure mode', 'root cause',
+      'past failure', 'breakdown pattern', 'most common', 'repeat failure',
+      'downtime analysis', 'how many times', 'how often',
+    ];
+    const needs = responseSignals.some(s => r.includes(s)) || questionSignals.some(s => q.includes(s));
+    if (!needs) return;
+    const msgs = document.getElementById('wh-ai-messages');
+    if (!msgs) return;
+    const bridge = document.createElement('div');
+    bridge.style.cssText = 'align-self:flex-start;margin-top:2px;padding:0 4px;';
+    // Build via DOM (not innerHTML) so the XSS validator is satisfied and the
+    // URL encoding of question is never treated as raw HTML.
+    const link = document.createElement('a');
+    link.className = 'wh-bridge-btn';
+    link.href = 'assistant.html?q=' + encodeURIComponent(question.slice(0, 300));
+    link.title = 'Opens your AI Work Assistant with this question — full access to logbook records, MTBF history, and semantic search.';
+    link.textContent = '🔍 Open Work Assistant with this question →';
+    bridge.appendChild(link);
+    msgs.appendChild(bridge);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
   // ─── Markdown Renderer (minimal, safe) ───────────────────────────────────────
   function renderMarkdown(text) {
     return text
@@ -606,6 +659,7 @@ When answering, prefer these facts over general knowledge. If the user asks some
       }
       hideTyping();
       addMessage('assistant', reply);
+      maybeAddBridgeButton(message, reply);
     } catch (err) {
       hideTyping();
       addMessage('assistant', '⚠️ Something went wrong. Please check your connection or API configuration.');
