@@ -157,7 +157,7 @@
         /* ── Widget Shell ── */
         #wh-ai-widget {
           position: fixed;
-          bottom: 24px;
+          bottom: 96px;   /* 24px + 56px nav-hub FAB + 16px gap — stacks cleanly above nav-hub */
           right: 24px;
           z-index: 9999;
           font-family: 'Poppins', sans-serif;
@@ -391,7 +391,7 @@
 
         /* ── Mobile Adjustments ── */
         @media (max-width: 480px) {
-          #wh-ai-widget { bottom: max(16px, env(safe-area-inset-bottom)); right: 16px; }
+          #wh-ai-widget { bottom: max(88px, calc(env(safe-area-inset-bottom) + 88px)); right: 16px; }
           #wh-ai-panel  { width: calc(100vw - 32px); right: 0; }
         }
       </style>

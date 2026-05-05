@@ -182,7 +182,7 @@
           position: absolute;
           bottom: 68px;
           right: 0;
-          width: 300px;
+          width: 400px;
           background: linear-gradient(160deg, #1F2E45 0%, #162032 100%);
           border: 1px solid rgba(255,255,255,0.08);
           border-radius: 20px;
@@ -277,13 +277,46 @@
         }
         #wh-hub-all-toggle.open svg { transform: rotate(180deg); }
 
-        /* ── All Tools grid (collapsible) ── */
-        #wh-hub-tiles {
-          display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-          overflow: hidden; max-height: 0; opacity: 0; margin-top: 0;
-          transition: max-height 0.25s ease-out, opacity 0.2s ease, margin-top 0.2s ease;
+        /* ── Search bar ── */
+        #wh-hub-search-wrap {
+          position: relative; margin-bottom: 10px;
         }
-        #wh-hub-tiles.open { max-height: 600px; opacity: 1; margin-top: 6px; }
+        #wh-hub-search {
+          width: 100%; background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+          padding: 8px 32px 8px 32px; font-size: 12px; color: rgba(255,255,255,0.85);
+          font-family: 'Poppins', sans-serif; outline: none;
+          transition: border-color 0.15s, background 0.15s;
+        }
+        #wh-hub-search::placeholder { color: rgba(255,255,255,0.3); }
+        #wh-hub-search:focus {
+          border-color: rgba(247,162,27,0.5); background: rgba(255,255,255,0.09);
+        }
+        #wh-hub-search-icon {
+          position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+          color: rgba(255,255,255,0.3); pointer-events: none; display: flex;
+        }
+        #wh-hub-search-kbd {
+          position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+          background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 4px; padding: 1px 5px; font-size: 9px; color: rgba(255,255,255,0.3);
+          font-family: monospace; pointer-events: none;
+        }
+        #wh-hub-no-results {
+          text-align: center; padding: 16px 0; font-size: 11px; color: rgba(255,255,255,0.3);
+          display: none;
+        }
+
+        /* ── All Tools grid — 4 columns, always visible ── */
+        #wh-hub-tiles {
+          display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+          max-height: 260px; overflow-y: auto; scrollbar-width: thin;
+          scrollbar-color: rgba(247,162,27,0.2) transparent;
+          margin-top: 6px;
+        }
+        #wh-hub-tiles::-webkit-scrollbar { width: 4px; }
+        #wh-hub-tiles::-webkit-scrollbar-thumb { background: rgba(247,162,27,0.2); border-radius: 2px; }
+        .wh-hub-tile.hidden { display: none; }
 
         /* ── Tile ── */
         .wh-hub-tile {
@@ -360,6 +393,7 @@
         @media (max-width: 480px) {
           #wh-hub { bottom: max(16px, env(safe-area-inset-bottom)); right: 16px; }
           #wh-hub-panel { width: calc(100vw - 32px); }
+          #wh-hub-tiles { grid-template-columns: repeat(3, 1fr); }
         }
       </style>
 
@@ -378,25 +412,32 @@
       <!-- Panel -->
       <div id="wh-hub-panel" role="dialog" aria-label="Navigation hub">
         <div id="wh-hub-panel-header">
-          <span>Tools</span>
+          <span>WorkHive</span>
           <strong>${current.label}</strong>
         </div>
 
-        <!-- Quick Access Row -->
+        <!-- Search bar -->
+        <div id="wh-hub-search-wrap">
+          <span id="wh-hub-search-icon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </span>
+          <input id="wh-hub-search" type="search" placeholder="Search tools…" autocomplete="off" aria-label="Search tools">
+          <span id="wh-hub-search-kbd">Ctrl K</span>
+        </div>
+
+        <!-- Recent row -->
         <div id="wh-hub-quick">
-          <p class="wh-hub-section-label">Quick Access</p>
+          <p class="wh-hub-section-label">Recent</p>
           <div id="wh-hub-quick-row">${quickHTML}</div>
         </div>
 
         <div class="wh-hub-divider"></div>
 
-        <!-- All Tools (collapsible) -->
-        <button id="wh-hub-all-toggle" aria-expanded="false" aria-controls="wh-hub-tiles">
-          All Tools
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </button>
+        <!-- All Tools — 4-col grid, always visible, scrollable -->
+        <p class="wh-hub-section-label">All Tools</p>
+        <div id="wh-hub-no-results">No tools match your search.</div>
         <div id="wh-hub-tiles" role="region">${tilesHTML}</div>
       </div>
     `;
@@ -525,7 +566,18 @@
     makeDraggable();
 
     document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && isOpen) closeHub();
+      if (e.key === 'Escape' && isOpen) {
+        const q = document.getElementById('wh-hub-search');
+        if (q && q.value) { q.value = ''; filterTools(''); }
+        else closeHub();
+        return;
+      }
+      // Ctrl+K / Cmd+K — open hub + focus search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        if (!isOpen) openHub();
+        setTimeout(() => document.getElementById('wh-hub-search')?.focus(), 60);
+      }
     });
 
     document.addEventListener('click', e => {
@@ -533,16 +585,34 @@
       if (isOpen && hub && !hub.contains(e.target)) closeHub();
     });
 
-    /* All Tools expand/collapse */
-    const allToggle = document.getElementById('wh-hub-all-toggle');
-    const allGrid   = document.getElementById('wh-hub-tiles');
-    if (allToggle && allGrid) {
-      allToggle.addEventListener('click', function() {
-        const opening = !allGrid.classList.contains('open');
-        allGrid.classList.toggle('open');
-        allToggle.classList.toggle('open');
-        allToggle.setAttribute('aria-expanded', opening);
+    /* Search — real-time filter on All Tools grid */
+    const searchInput = document.getElementById('wh-hub-search');
+    const noResults   = document.getElementById('wh-hub-no-results');
+    if (searchInput) {
+      searchInput.addEventListener('input', function() { filterTools(this.value); });
+      // Clear search when panel closes
+      document.getElementById('wh-hub-fab')?.addEventListener('click', function() {
+        setTimeout(() => { if (!isOpen && searchInput) { searchInput.value = ''; filterTools(''); } }, 50);
       });
+    }
+
+    function filterTools(q) {
+      const tiles = document.querySelectorAll('#wh-hub-tiles .wh-hub-tile');
+      const query = q.trim().toLowerCase();
+      let visible = 0;
+      tiles.forEach(tile => {
+        const label = (tile.querySelector('.wh-hub-tile-label')?.textContent || '').toLowerCase();
+        const href  = (tile.getAttribute('href') || '').toLowerCase();
+        const match = !query || label.includes(query) || href.includes(query);
+        tile.classList.toggle('hidden', !match);
+        if (match) visible++;
+      });
+      if (noResults) noResults.style.display = (query && visible === 0) ? 'block' : 'none';
+      // Also hide Recent row when searching (search shows all matches in the grid)
+      const quickSection = document.getElementById('wh-hub-quick');
+      if (quickSection) quickSection.style.display = query ? 'none' : '';
+      const divider = document.querySelector('.wh-hub-divider');
+      if (divider) divider.style.display = query ? 'none' : '';
     }
 
     /* Track clicks on any tile (quick or all-tools) to update recents */
