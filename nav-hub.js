@@ -452,6 +452,8 @@
     document.getElementById('wh-hub-fab').classList.add('open');
     document.getElementById('wh-hub-fab').setAttribute('aria-expanded', 'true');
     document.getElementById('wh-hub-panel').classList.add('open');
+    // Reveal floating-AI button alongside the panel (floating-ai.js listens to this class)
+    document.body.classList.add('wh-hub-open');
   }
 
   function closeHub() {
@@ -460,6 +462,7 @@
     document.getElementById('wh-hub-fab').classList.remove('open');
     document.getElementById('wh-hub-fab').setAttribute('aria-expanded', 'false');
     document.getElementById('wh-hub-panel').classList.remove('open');
+    document.body.classList.remove('wh-hub-open');
   }
 
   // ─── Drag + Snap (same pattern as floating-ai.js) ─────────────────────────────

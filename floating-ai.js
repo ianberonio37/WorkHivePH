@@ -157,10 +157,27 @@
         /* ── Widget Shell ── */
         #wh-ai-widget {
           position: fixed;
-          bottom: 96px;   /* 24px + 56px nav-hub FAB + 16px gap — stacks cleanly above nav-hub */
+          bottom: 24px;   /* same anchor as nav-hub; springs to 96px when hub opens */
           right: 24px;
           z-index: 9999;
+          /* Hidden by default — revealed when nav-hub opens (body.wh-hub-open).
+             Using scale + translate so the button feels like it pops out of the
+             nav-hub FAB rather than just fading in from nowhere. */
+          transform: scale(0.4) translateY(24px);
+          opacity: 0;
+          pointer-events: none;
+          transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                      opacity 0.18s ease,
+                      bottom 0.22s ease;
           font-family: 'Poppins', sans-serif;
+        }
+
+        /* Spring in when nav-hub opens; tuck back when it closes */
+        body.wh-hub-open #wh-ai-widget {
+          bottom: 96px;
+          transform: scale(1) translateY(0);
+          opacity: 1;
+          pointer-events: all;
         }
 
         /* ── Trigger Button ── */
@@ -391,7 +408,8 @@
 
         /* ── Mobile Adjustments ── */
         @media (max-width: 480px) {
-          #wh-ai-widget { bottom: max(88px, calc(env(safe-area-inset-bottom) + 88px)); right: 16px; }
+          body.wh-hub-open #wh-ai-widget { bottom: max(88px, calc(env(safe-area-inset-bottom) + 88px)); }
+          #wh-ai-widget { right: 16px; }
           #wh-ai-panel  { width: calc(100vw - 32px); right: 0; }
         }
       </style>
