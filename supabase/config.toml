@@ -85,3 +85,8 @@ entrypoint = "./functions/marketplace-connect-status/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/project-progress/index.ts"
+
+[functions.project-orchestrator]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/project-orchestrator/index.ts"

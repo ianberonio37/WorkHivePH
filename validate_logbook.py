@@ -143,6 +143,27 @@ def check_pm_category_alignment(pm_content):
 
 # ── Layer 2: Tenant isolation ─────────────────────────────────────────────────
 
+def check_txn_id_present(content, page):
+    """
+    inventory_transactions.id is TEXT NOT NULL with no DEFAULT.
+    Every insert must supply an id explicitly — omitting it causes a not-null
+    constraint violation. The insert still returns no error to the caller (PostgREST
+    wraps it as txnErr), so the inventory qty IS decremented but the transaction
+    record is never written, and the user sees 'Parts log failed' even though the
+    logbook entry saved correctly.
+    """
+    issues = []
+    for m in re.finditer(r"from\(['\"]inventory_transactions['\"]\)\.insert\((\{[^}]{0,600}\})", content, re.DOTALL):
+        block = m.group(1)
+        if not re.search(r"\bid\s*:", block):
+            line = content[:m.start()].count('\n') + 1
+            issues.append({"check": "txn_id_present", "page": page, "line": line,
+                           "reason": (f"inventory_transactions.insert() at line {line} missing 'id' field — "
+                                      f"inventory is decremented but transaction record fails to write; "
+                                      f"user sees 'Parts log failed' toast even when logbook save succeeded")})
+    return issues
+
+
 def check_hive_id_in_txn_insert(content, page):
     """
     Both saveEntry and saveEdit insert to inventory_transactions when parts are used.
@@ -405,7 +426,7 @@ CHECK_NAMES = [
     "closed_at_consistency", "parts_deduction_guard", "closed_at_preservation",
     "status_values", "category_values", "pm_category_alignment",
     # L2 — tenant isolation
-    "hive_id_in_txn_insert", "delete_scoped_by_worker", "update_scoped_by_worker",
+    "txn_id_present", "hive_id_in_txn_insert", "delete_scoped_by_worker", "update_scoped_by_worker",
     # L3 — logic + new field sync
     "auth_gate", "maintenance_type_values", "qty_after_floor",
     "new_fields_in_add_entry", "new_fields_in_save_edit", "new_fields_in_load_entries",
@@ -424,6 +445,7 @@ CHECK_LABELS = {
     "category_values":              "L1  Category values match dropdown",
     "pm_category_alignment":        "L1  PM_CAT_TO_LOG_CAT maps to valid categories",
     # L2
+    "txn_id_present":               "L2  inventory_transactions.insert() includes id field",
     "hive_id_in_txn_insert":        "L2  hive_id in inventory_transactions insert",
     "delete_scoped_by_worker":      "L2  deleteEntry scoped by worker_name",
     "update_scoped_by_worker":      "L2  saveEdit update scoped by worker_name",
@@ -468,6 +490,7 @@ def main():
     all_issues += check_pm_category_alignment(pm)
 
     # L2
+    all_issues += check_txn_id_present(logbook, LOGBOOK_PAGE)
     all_issues += check_hive_id_in_txn_insert(logbook, LOGBOOK_PAGE)
     all_issues += check_delete_scoped_by_worker(logbook, LOGBOOK_PAGE)
     all_issues += check_update_scoped_by_worker(logbook, LOGBOOK_PAGE)

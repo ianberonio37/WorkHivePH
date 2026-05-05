@@ -349,6 +349,7 @@
       </select>
       <input type="search" id="filter-search" placeholder="Search by name or code…">
       <button class="btn primary new-btn" onclick="openNewProject()">+ New project</button>
+      <button class="btn small" onclick="openAIIntentModal()" title="Describe your project in plain language">🤖 AI: from text</button>
     </div>
 
     <div id="card-grid" class="card-grid"></div>
@@ -615,6 +616,22 @@
     <div class="modal-foot">
       <button type="button" class="btn ghost" onclick="closeModal('modal-link')">Cancel</button>
       <button type="button" class="btn primary" onclick="saveLink()">Add link</button>
+    </div>
+  </div>
+</div>
+
+<!-- Phase 6.3 (6A) — AI Intent: NL project creation -->
+<div id="modal-ai-intent" class="modal-bg">
+  <div class="modal">
+    <h3>🤖 Describe your project</h3>
+    <p class="sub" style="font-size: 0.85rem;">Type or paste a sentence describing what you want to plan. The AI will pick the type, template, dates, and asset, then drop you into the wizard for review.</p>
+    <div class="field">
+      <label>What's the project?</label>
+      <textarea id="ai-intent-text" maxlength="600" rows="4" placeholder="e.g. Plan a 3-day pump overhaul on PUMP-201 starting Monday. Or: CAPEX project to replace compressor on Line 2, contractor scope, budget 850k, end by August."></textarea>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn ghost" onclick="closeModal('modal-ai-intent')">Cancel</button>
+      <button type="button" class="btn primary" id="ai-intent-go" onclick="runAIIntent()">Parse with AI</button>
     </div>
   </div>
 </div>
@@ -1436,6 +1453,60 @@ async function wizardSubmit() {
 }
 function resetCreateBtn() { $('wiz-create').disabled = false; $('wiz-create').textContent = 'Create project'; }
 
+/* ── Phase 6.3 (6A) — AI: parse free text into wizard payload ── */
+function openAIIntentModal() {
+  $('ai-intent-text').value = '';
+  $('ai-intent-go').disabled = false;
+  $('ai-intent-go').textContent = 'Parse with AI';
+  openModal('modal-ai-intent');
+}
+
+async function runAIIntent() {
+  const transcript = $('ai-intent-text').value.trim();
+  if (!transcript || transcript.length < 8) { showToast('Type at least a short sentence describing the project'); return; }
+  $('ai-intent-go').disabled = true;
+  $('ai-intent-go').textContent = 'Parsing…';
+  try {
+    const { data, error } = await db.functions.invoke('project-orchestrator', {
+      body: { phase: 'intent', transcript },
+    });
+    if (error) { showToast('AI failed: ' + error.message, 'error'); $('ai-intent-go').disabled = false; $('ai-intent-go').textContent = 'Parse with AI'; return; }
+    if (data?._unavailable) { showToast('AI: ' + (data.reason || 'unavailable'), 'error'); $('ai-intent-go').disabled = false; $('ai-intent-go').textContent = 'Parse with AI'; return; }
+    closeModal('modal-ai-intent');
+    // Open wizard pre-filled from the AI payload
+    openNewProject();
+    setTimeout(() => {
+      if (data.project_type) wizardPickType(data.project_type);
+      // Step 1 → 2
+      wizardNext();
+      // Pick template if known
+      if (data.template_id) {
+        setTimeout(() => {
+          wizardPickTemplate(data.template_id);
+          // Step 2 → 3
+          setTimeout(() => {
+            wizardNext();
+            // Pre-fill step 3 fields
+            if (data.name) $('wiz-name').value = data.name;
+            if (data.start_date) $('wiz-start').value = data.start_date;
+            if (data.end_date) $('wiz-end').value = data.end_date;
+            if (data.priority) $('wiz-priority').value = data.priority;
+            if (data.description) $('wiz-desc').value = data.description;
+            showToast('AI pre-filled the wizard — review and Create.', 'success');
+          }, 60);
+        }, 60);
+      } else {
+        // No template matched — just show the type tile selected, user picks template manually
+        showToast('AI picked type. Select a template to continue.', 'success');
+      }
+    }, 50);
+  } catch (e) {
+    showToast('AI failed: ' + e.message, 'error');
+    $('ai-intent-go').disabled = false;
+    $('ai-intent-go').textContent = 'Parse with AI';
+  }
+}
+
 
 function openEditProject() {
   if (!_detail) return;
@@ -1541,13 +1612,40 @@ async function openDetail(id) {
   _roles = rolesRes.data || [];
   _changeOrders = coRes.data || [];
   await refreshSuggestedLinks();
+  pushAIContext();   // Phase 6.1 — bind floating-ai to this project
   renderActivePane();
+}
+
+/* ── Phase 6.1: feed floating-ai a RAG context snapshot of this project ── */
+function pushAIContext() {
+  if (!window.WHAssistant?.setContext || !_detail) return;
+  const r = _progress?.rollup || {};
+  const ev = _progress?.earned_value;
+  const cp = _progress?.critical_path;
+  const lines = [
+    `Project: ${_detail.project_code} (${_detail.project_type}) — ${_detail.name}`,
+    `Status: ${_detail.status}, priority: ${_detail.priority}, owner: ${_detail.owner_name || 'unassigned'}`,
+    _detail.start_date && _detail.end_date ? `Period: ${_detail.start_date} to ${_detail.end_date}` : null,
+    `Scope items: ${_items.length} total, ${_items.filter(i => i.status === 'done').length} done, ${_items.filter(i => i.status === 'blocked').length} blocked`,
+    r.pct_complete != null ? `Progress: ${r.pct_complete}% complete (${r.hours_actual || 0}h actual / ${r.hours_estimated || 0}h estimated)` : null,
+    ev?.available ? `EVM: SPI ${ev.spi}, CPI ${ev.cpi}, status ${ev.status} (BAC ₱${ev.bac}, EV ₱${ev.ev})` : null,
+    cp?.total_days ? `Critical path: ${cp.total_days}d, ${cp.item_ids.length} of ${_items.length} items on critical path` : null,
+    _logs.length ? `${_logs.length} progress log(s); latest blockers: ${_logs.filter(l => (l.blockers || '').trim()).slice(0, 3).map(l => `"${l.blockers.slice(0, 80)}"`).join(', ') || 'none'}` : 'No progress logs yet',
+    _changeOrders.length ? `${_changeOrders.length} change order(s); ${_changeOrders.filter(c => c.status === 'pending').length} pending approval` : null,
+    _detail.description ? `Description: ${_detail.description.slice(0, 200)}` : null,
+  ].filter(Boolean);
+  window.WHAssistant.setContext({
+    key: 'project:' + _detail.id,
+    summary: lines.join('\n'),
+    badge: _detail.project_code,
+  });
 }
 
 function closeDetail() {
   $('detail-view').classList.remove('open');
   $('list-view').style.display = '';
   _detailId = null; _detail = null;
+  if (window.WHAssistant?.clearContext) window.WHAssistant.clearContext();  // Phase 6.1
 }
 
 function buildDetailTabs(type) {
@@ -2237,11 +2335,38 @@ function renderSignoff() {
       <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">Lessons learned</h3>
       <div class="small" style="color: var(--muted); margin-bottom: 8px;">What went well, what to do differently next time. Feeds the Project Report appendix and the searchable lessons archive.</div>
       <textarea id="lessons-text" maxlength="4000" style="min-height: 100px;" placeholder="• Mech alignment took 2x estimated — consider buffer hours for next pump overhaul\n• Parts staging was on point — keep weekly cadence\n• PTW issued late by 2h — pre-stage on the prior shift">${e(lessonsExisting)}</textarea>
+      ${(_detail.meta?._ai_generated_lessons) ? `<div class="small" style="color: var(--gold); margin-top: 6px;">🤖 AI-drafted on ${e(fmtDate(_detail.meta._ai_generated_at))} — supervisor edit before sign-off recommended.</div>` : ''}
       <div class="row" style="gap: 8px; margin-top: 8px; justify-content: flex-end;">
+        <button class="btn small" onclick="aiDraftLessons()" title="Use AI to draft from progress logs">🤖 AI: Draft from logs</button>
         <button class="btn small" onclick="saveLessons()">Save lessons</button>
       </div>
     </div>
   `;
+}
+
+// Phase 6.2 — AI: draft lessons from progress logs
+async function aiDraftLessons() {
+  if (!_detailId) return;
+  if (!_logs.length) { showToast('No progress logs to draft from yet'); return; }
+  showToast('AI is drafting…');
+  try {
+    const { data, error } = await db.functions.invoke('project-orchestrator', {
+      body: { phase: 'lessons_draft', project_id: _detailId, hive_id: HIVE_ID },
+    });
+    if (error) { showToast('AI failed: ' + error.message, 'error'); return; }
+    if (data?._unavailable) { showToast('AI: ' + (data.reason || 'unavailable'), 'error'); return; }
+    if (!data?.lessons_text) { showToast('AI returned no draft'); return; }
+    $('lessons-text').value = data.lessons_text;
+    // Phase 6.8 — audit tag in meta
+    const meta = { ...(_detail.meta || {}),
+      _ai_generated_lessons: true,
+      _ai_generated_at: new Date().toISOString(),
+    };
+    _detail.meta = meta;
+    showToast('AI draft loaded — review and Save lessons to keep it.', 'success');
+  } catch (e) {
+    showToast('AI failed: ' + e.message, 'error');
+  }
 }
 
 async function saveLessons() {

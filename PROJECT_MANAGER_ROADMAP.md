@@ -247,10 +247,14 @@ Add intelligence on top of stable foundations. AI is enhancement, not the engine
 | 5B — Multi-role assignments | ✓ Done | this commit | 2026-05-05 |
 | 5C — Schedule risk simulation | ✓ Done | this commit (Monte Carlo P50/P80/P95) | 2026-05-05 |
 | 5D — Change order tracking | ✓ Done | this commit | 2026-05-05 |
-| 6A — NL project creation | ⬜ | — | post-1.0 |
-| 6B — AI template suggestions | ⬜ | — | post-1.0 |
-| 6C — AI risk flagging | ⬜ | — | post-1.0 |
-| 6D — AI handover narrative | ⬜ | — | post-1.0 |
+| 6.1 — RAG context injection (floating-ai per-project) | ✓ Done | this commit | 2026-05-05 |
+| 6.7 — Conversation continuity per project | ✓ Done | this commit | 2026-05-05 |
+| 6.8 — AI-generated audit tags | ✓ Done | this commit (meta._ai_generated_*) | 2026-05-05 |
+| 6A — NL project creation | ✓ Done | project-orchestrator phase=intent | 2026-05-05 |
+| 6D — AI handover narrative | ✓ Done | project-orchestrator phase=narrative | 2026-05-05 |
+| 6B — AI template suggestions | ⬜ Deferred | Phase 6.5 — scheduled-agents extension; benefits from real-user data | — |
+| 6C — AI risk flagging | ⬜ Deferred | Phase 6.5 — scheduled-agents extension; benefits from real-user data | — |
+| 6.4 — Embed-entry extension for projects | ⬜ Deferred | Phase 6.5 — semantic search over project_items; benefits from real-user data | — |
 
 ---
 

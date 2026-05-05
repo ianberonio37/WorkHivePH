@@ -14,3 +14,4 @@ npx supabase functions deploy marketplace-connect-onboard --no-verify-jwt
 npx supabase functions deploy marketplace-release --no-verify-jwt
 npx supabase functions deploy marketplace-connect-status --no-verify-jwt
 npx supabase functions deploy project-progress --no-verify-jwt
+npx supabase functions deploy project-orchestrator --no-verify-jwt

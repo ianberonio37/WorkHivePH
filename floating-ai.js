@@ -108,6 +108,46 @@
   let history   = []; // { role: 'user'|'assistant', content: string }
   const ctx     = detectPageContext();
 
+  // Phase 6.1 RAG-light context — pages can inject in-view state.
+  // Phase 6.7 Conversation continuity — history is persisted per context.
+  // Pages call WHAssistant.setContext({ key: 'project:<id>', summary, badge })
+  // to bind the chat to a specific entity. Switching context swaps history.
+  let _ragContext = null;        // { key, summary, badge }
+  function _historyKey(k) { return 'wh_ai_history_' + (k || 'default'); }
+  function _loadHistoryFor(key) {
+    try { return JSON.parse(localStorage.getItem(_historyKey(key)) || '[]'); }
+    catch { return []; }
+  }
+  function _saveHistoryFor(key, h) {
+    try { localStorage.setItem(_historyKey(key), JSON.stringify((h || []).slice(-config.maxHistory))); } catch {}
+  }
+  function _setContext(rag) {
+    // rag: { key, summary, badge } or null
+    // Save current history under the OLD key, load history for the NEW key.
+    const oldKey = _ragContext?.key || null;
+    if (oldKey) _saveHistoryFor(oldKey, history);
+    _ragContext = rag || null;
+    const newKey = _ragContext?.key || null;
+    history = newKey ? _loadHistoryFor(newKey) : [];
+    // Re-render messages list if widget is built
+    const msgs = document.getElementById('wh-ai-messages');
+    if (msgs) {
+      msgs.innerHTML = '';
+      history.forEach(m => addMessage(m.role, m.content, true));  // true = skip pushing to history (already there)
+    }
+    // Update header badge if widget is built
+    const badge = document.getElementById('wh-ai-context-badge');
+    if (badge) {
+      if (_ragContext?.badge) {
+        badge.textContent = _ragContext.badge;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  }
+  function _clearContext() { _setContext(null); }
+
   // ─── Render HTML ─────────────────────────────────────────────────────────────
   function buildWidget() {
     const wrapper = document.createElement('div');
@@ -431,15 +471,19 @@
   }
 
   // ─── DOM Helpers ─────────────────────────────────────────────────────────────
-  function addMessage(role, content) {
+  function addMessage(role, content, skipHistoryPush) {
     const msgs = document.getElementById('wh-ai-messages');
     const div  = document.createElement('div');
     div.className = `wh-msg ${role}`;
     div.innerHTML = renderMarkdown(content);
     msgs.appendChild(div);
     msgs.scrollTop = msgs.scrollHeight;
-    history.push({ role, content });
-    if (history.length > config.maxHistory) history.shift();
+    if (!skipHistoryPush) {
+      history.push({ role, content });
+      if (history.length > config.maxHistory) history.shift();
+      // Phase 6.7: persist per-context history when context is bound
+      if (_ragContext?.key) _saveHistoryFor(_ragContext.key, history);
+    }
   }
 
   function showTyping() {
@@ -491,7 +535,12 @@ You handle three types of conversations. Adapt naturally:
 
 You are NOT connected to any database or work history in this widget. If asked about past work, say: "I don't have access to your records here — use the AI Work Assistant page for that."
 Always use "you/your". The user is on the "${ctx.label}" page. ${ctx.hint}
-Keep responses under 120 words unless asked for more.`;
+Keep responses under 120 words unless asked for more.${_ragContext?.summary ? `
+
+CURRENT CONTEXT (RAG-light — facts about what the user is viewing right now):
+${_ragContext.summary}
+
+When answering, prefer these facts over general knowledge. If the user asks something the context doesn't cover, say so plainly — do not invent values.` : ''}`;
 
     const messages = [
       { role: 'system', content: system },
@@ -727,7 +776,11 @@ Keep responses under 120 words unless asked for more.`;
     open:  openPanel,
     close: closePanel,
     send:  handleSend,
-    clearHistory: function () { history = []; document.getElementById('wh-ai-messages').innerHTML = ''; }
+    clearHistory: function () { history = []; document.getElementById('wh-ai-messages').innerHTML = ''; if (_ragContext?.key) _saveHistoryFor(_ragContext.key, []); },
+    // Phase 6.1 / 6.7: pages call these to bind/clear in-view context
+    setContext:  _setContext,
+    clearContext: _clearContext,
+    getContext:  function () { return _ragContext; },
   };
 
   // ─── Init ─────────────────────────────────────────────────────────────────────

@@ -2919,6 +2919,7 @@ async function saveEdit(id) {
     const { error: deductErr } = await db.from('inventory_items').update({ qty_on_hand: newQty }).eq('id', p.partId);
     if (deductErr) { showToast('Stock update failed for ' + p.partName + ': ' + deductErr.message); continue; }
     const { error: txnErr } = await db.from('inventory_transactions').insert({
+      id: Date.now().toString() + Math.random().toString(36).slice(2),
       item_id: p.partId, worker_name: WORKER_NAME, hive_id: HIVE_ID || null,
       qty_change: -p.qty, qty_after: newQty, type: 'use',
       note: 'Used in job: ' + updates.machine, job_ref: updates.machine
@@ -3020,6 +3021,7 @@ async function saveEditFromForm() {
     const { error: deductErr } = await db.from('inventory_items').update({ qty_on_hand: newQty }).eq('id', p.partId);
     if (deductErr) { showToast('Stock update failed for ' + p.partName + ': ' + deductErr.message); continue; }
     const { error: txnErr } = await db.from('inventory_transactions').insert({
+      id: Date.now().toString() + Math.random().toString(36).slice(2),
       item_id: p.partId, worker_name: WORKER_NAME, hive_id: HIVE_ID || null,
       qty_change: -p.qty, qty_after: newQty, type: 'use',
       note: 'Used in job: ' + updates.machine, job_ref: updates.machine
@@ -3355,6 +3357,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     const { error: deductErr } = await db.from('inventory_items').update({ qty_on_hand: newQty }).eq('id', p.partId);
     if (deductErr) { showToast('Stock update failed for ' + p.partName + ': ' + deductErr.message); continue; }
     const { error: txnErr } = await db.from('inventory_transactions').insert({
+      id: Date.now().toString() + Math.random().toString(36).slice(2),
       item_id: p.partId, worker_name: WORKER_NAME, hive_id: HIVE_ID || null,
       qty_change: -p.qty, qty_after: newQty, type: 'use',
       note: 'Used in job: ' + machine, job_ref: machine

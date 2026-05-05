@@ -183,6 +183,7 @@
     <h1 id="tb-title">Loading project&hellip;</h1>
     <div class="grow"></div>
     <a href="project-manager.html" class="btn">&larr; Back</a>
+    <button class="btn" onclick="aiGenerateNarrative()" id="ai-narrative-btn" title="AI-drafted hero finding + executive summary, strict-only mode">🤖 AI: Narrative</button>
     <button class="btn" onclick="window.print()">Print</button>
     <button class="btn primary" onclick="saveAsPdf()">Save as PDF</button>
   </div>
@@ -246,6 +247,21 @@ async function loadAndRender(projectId) {
   const logs    = logsRes.data  || [];
   document.title = `${project.project_code} — Project Report`;
   $('tb-title').textContent = `${project.project_code} — ${project.name}`;
+  // Phase 6.1 — feed floating-ai context for this project
+  if (window.WHAssistant?.setContext) {
+    const lines = [
+      `Project: ${project.project_code} (${project.project_type}) — ${project.name}`,
+      `Status: ${project.status}, owner: ${project.owner_name || 'unassigned'}`,
+      project.start_date && project.end_date ? `Period: ${project.start_date} to ${project.end_date}` : null,
+      `Scope items: ${items.length}, ${items.filter(i => i.status === 'done').length} done, ${items.filter(i => i.status === 'blocked').length} blocked`,
+      `Progress logs: ${logs.length} (${logs.filter(l => (l.blockers || '').trim()).length} flagged blockers)`,
+      project.budget_php ? `Budget: ₱${Number(project.budget_php).toLocaleString()}` : null,
+    ].filter(Boolean).join('\n');
+    window.WHAssistant.setContext({ key: 'project:' + project.id, summary: lines, badge: project.project_code + ' (report)' });
+  }
+
+  // Cache for narrative function to use
+  _projectCache = { project, items, links, logs };
   renderCover(project);
   renderExecSummary(project, items, logs);
   renderScope(items);
@@ -253,6 +269,36 @@ async function loadAndRender(projectId) {
   renderProgress(logs);
   renderLessons(project);
   renderSignoff(project);
+}
+let _projectCache = null;
+
+// Phase 6.2 (6D) — AI-generated handover narrative
+async function aiGenerateNarrative() {
+  if (!_projectCache?.project) { alert('Project not loaded yet'); return; }
+  const btn = $('ai-narrative-btn');
+  btn.disabled = true; btn.textContent = '🤖 Drafting…';
+  try {
+    const { data, error } = await db.functions.invoke('project-orchestrator', {
+      body: { phase: 'narrative', project_id: _projectCache.project.id, hive_id: _projectCache.project.hive_id },
+    });
+    if (error) { alert('AI failed: ' + error.message); return; }
+    if (data?._unavailable) { alert('AI: ' + (data.reason || 'unavailable')); return; }
+    // Replace the rule-based hero finding + exec summary with AI versions, tagged
+    const insightCard = $('exec-summary').querySelector('.insight-card .text');
+    if (insightCard && data.hero_finding) insightCard.textContent = data.hero_finding;
+    // Append AI executive summary + lessons synthesis below the KPI strip
+    const summaryDiv = document.createElement('div');
+    summaryDiv.style.cssText = 'background: #FBEED2; border-left: 4px solid #B47B00; padding: 12px 16px; border-radius: 6px; margin: 12px 0;';
+    summaryDiv.innerHTML = `
+      <div style="font-size: 8.5pt; color: #5B6878; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">🤖 AI-drafted executive summary</div>
+      <div style="font-size: 11pt; margin-top: 6px;">${(data.executive_summary || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      ${data.lessons_synthesis ? `<div style="font-size: 10pt; margin-top: 8px; color: #1F2A37;"><strong>Lessons synthesis:</strong> ${data.lessons_synthesis.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : ''}
+      <div style="font-size: 8pt; color: #5B6878; margin-top: 6px;">AI-drafted ${new Date().toLocaleString()} — review before sign-off.</div>`;
+    $('exec-summary').appendChild(summaryDiv);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🤖 AI: Narrative';
+  }
 }
 
 function renderCover(p) {
