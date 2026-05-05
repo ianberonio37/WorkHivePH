@@ -169,7 +169,8 @@ def get_db_counts():
     for t in ["hives", "hive_members", "assets", "logbook", "pm_assets",
               "pm_completions", "inventory_items", "inventory_transactions",
               "skill_profiles", "skill_badges", "marketplace_listings",
-              "community_posts"]:
+              "community_posts",
+              "projects", "project_items", "project_links", "project_progress_logs"]:
         try:
             res = client.table(t).select("id", count="exact").limit(1).execute()
             counts[t] = res.count or 0

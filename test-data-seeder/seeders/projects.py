@@ -94,6 +94,23 @@ def seed_projects(client, log, ctx: dict) -> dict:
 
     log(f"Seeding {len(PROJECT_FLAVOURS)} projects per hive across {len(hives)} hive(s)...")
 
+    # Find max existing seq per hive + per code_prefix so re-runs don't collide
+    # with codes the user already created via the wizard. Start the seeder
+    # numbering one above the highest existing.
+    existing_max: dict[tuple, int] = {}
+    try:
+        existing_res = client.table("projects").select("hive_id, project_code").execute()
+        import re as _re
+        for row in (existing_res.data or []):
+            code = row.get("project_code") or ""
+            m = _re.match(r"^([A-Z]+)-\d{4}-(\d+)$", code)
+            if m:
+                key = (row.get("hive_id"), m.group(1))
+                num = int(m.group(2))
+                existing_max[key] = max(existing_max.get(key, 0), num)
+    except Exception as e:
+        log(f"  warn: could not preload existing project codes ({e})")
+
     project_rows = []
     item_rows = []
     link_rows = []
@@ -111,7 +128,11 @@ def seed_projects(client, log, ctx: dict) -> dict:
             project_id = str(uuid.uuid4())
             start = today - timedelta(days=int(flavour["duration_days"] * 0.6))
             end   = start + timedelta(days=flavour["duration_days"])
-            code  = f"{flavour['code_prefix']}-{today.year}-{(idx + 1):03d}"
+            # Next free number for this hive + this prefix (avoids re-run collisions)
+            prefix = flavour["code_prefix"]
+            next_seq = existing_max.get((hive["id"], prefix), 0) + 1
+            existing_max[(hive["id"], prefix)] = next_seq
+            code = f"{prefix}-{today.year}-{next_seq:03d}"
             project_rows.append({
                 "id": project_id,
                 "hive_id": hive["id"],
