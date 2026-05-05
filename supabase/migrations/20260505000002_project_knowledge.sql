@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS project_knowledge (
   project_type  text,                                         -- workorder / shutdown / capex / contractor
   discipline    text,                                         -- inferred from category or freq_phase
   text_chunk    text NOT NULL,                                -- the text that was embedded (1-2 sentences)
-  embedding     vector(1024),                                 -- voyage / jina embedding, 1024 dims
+  embedding     vector(384),                                  -- 384 dims to match _shared/embedding-chain.ts TARGET_DIM (Voyage/Jina truncated)
   created_at    timestamptz NOT NULL DEFAULT now()
 );
 
