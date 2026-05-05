@@ -325,6 +325,59 @@ def check_utils_load_order():
     return issues
 
 
+# ── Layer 6: LIKE injection guard ─────────────────────────────────────────────
+
+def check_ilike_wildcard_escape():
+    """
+    Supabase `.ilike()` queries that interpolate user input with %${var}%
+    must escape % and _ in the variable before use. Without escaping:
+      - % in user input matches everything (returns all rows)
+      - _ matches any single character (over-matches results)
+
+    This is not SQL injection but causes incorrect and over-broad results.
+
+    Correct pattern (confirmed in logbook.html):
+        const safeSV = rawSearch.replace(/%/g, '\\\\%').replace(/_/g, '\\\\_');
+        query.or(`field.ilike.%${safeSV}%,...`);
+
+    The check: any .or( or .ilike( call with %${VAR}% interpolation where
+    VAR does NOT have a preceding .replace(/%/g pattern within 20 lines.
+    """
+    issues = []
+    for page in LIVE_PAGES:
+        content = read_file(page)
+        if content is None:
+            continue
+        lines = content.splitlines()
+        for i, line in enumerate(lines):
+            # Find ilike.%${ or .ilike('%${  patterns
+            if not re.search(r'ilike[.(%]+%\$\{(\w+)', line):
+                continue
+            m = re.search(r'ilike[.(%]+%\$\{(\w+)', line)
+            if not m:
+                continue
+            var_name = m.group(1)
+            # Check if var_name has .replace(/%/g applied within 20 lines above
+            look_back = max(0, i - 20)
+            context = "\n".join(lines[look_back:i + 1])
+            safe_pattern = re.search(
+                rf'{re.escape(var_name)}\s*=.*\.replace\s*\(\s*/[%]',
+                context
+            )
+            if not safe_pattern:
+                issues.append({
+                    "check": "ilike_wildcard_escape",
+                    "page": page,
+                    "line": i + 1,
+                    "reason": (
+                        f"{page}:{i+1} .ilike('%${{{var_name}}}%') — "
+                        f"{var_name} must have .replace(/%/g, '\\\\%').replace(/_/g, '\\\\_') "
+                        f"applied before use; % in user input returns all rows"
+                    )
+                })
+    return issues
+
+
 # ── Runner ─────────────────────────────────────────────────────────────────────
 
 CHECK_NAMES = [
@@ -338,6 +391,8 @@ CHECK_NAMES = [
     "all_pages_in_scope",
     # L5
     "utils_load_order",
+    # L6
+    "ilike_wildcard_escape",
 ]
 
 CHECK_LABELS = {
@@ -354,12 +409,14 @@ CHECK_LABELS = {
     "all_pages_in_scope":          "L4  All innerHTML pages included in LIVE_PAGES",
     # L5
     "utils_load_order":            "L5  utils.js loads before main <script> block on all pages",
+    # L6
+    "ilike_wildcard_escape":       "L6  .ilike('%${var}%') queries escape % and _ wildcards in user input",
 }
 
 
 def main():
     def bold(s): return f"\033[1m{s}\033[0m"
-    print(bold("\nXSS / escHtml Coverage Validator (5-layer)"))
+    print(bold("\nXSS / escHtml Coverage Validator (6-layer)"))
     print("=" * 55)
 
     all_issues = []
@@ -371,6 +428,7 @@ def main():
     all_issues += check_set_attribute_event_handlers()
     all_issues += check_all_html_pages_in_scope()
     all_issues += check_utils_load_order()
+    all_issues += check_ilike_wildcard_escape()
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

@@ -235,4 +235,65 @@ print(f"Saved renderer_mismatch_report.json")
 if issues:
     print("\nFIX REQUIRED before UI testing.")
     sys.exit(1)
+
+# ── calcRef ternary completeness check ────────────────────────────────────────
+# QA skill lesson (May 2026): when a new is* boolean is declared for a calc type
+# but NOT inserted into the calcRef ternary chain, it silently falls through to
+# the default prefix (e.g., 'MECH') — wrong document code on every BOM/SOW.
+# There are TWO calcRef chains: BOM (is* variables) and SOW (is*S variables).
+print("\n" + "=" * 70)
+print("LAYER 2a-EXT: calcRef Ternary Completeness Check")
+print("=" * 70)
+
+lines = html.splitlines()
+calcref_issues = []
+
+for section_label, suffix_pattern, calcref_pattern in [
+    ("BOM", r'^\s+const (is[A-Z]\w*)\s*=\s*_calcType\s*===',
+             r"const calcRef\s*=.*-BOM-"),
+    ("SOW", r'^\s+const (is[A-Z]\w*S)\s*=\s*_calcType\s*===',
+             r"const calcRef\s*=.*-SOW-"),
+]:
+    # Find the calcRef line for this section
+    calcref_line_idx = None
+    for i, line in enumerate(lines):
+        if re.search(calcref_pattern, line):
+            calcref_line_idx = i
+            break
+    if calcref_line_idx is None:
+        calcref_issues.append(f"WARN  {section_label}: calcRef line not found")
+        continue
+
+    calcref_content = lines[calcref_line_idx]
+
+    # Collect is* boolean declarations in the 600 lines before calcRef
+    look_back = max(0, calcref_line_idx - 600)
+    declared = []
+    for line in lines[look_back:calcref_line_idx]:
+        m = re.match(suffix_pattern, line)
+        if m:
+            declared.append(m.group(1))
+
+    if not declared:
+        calcref_issues.append(f"WARN  {section_label}: no is* declarations found in 600-line window")
+        continue
+
+    unwired = [v for v in declared if v not in calcref_content]
+    if unwired:
+        for v in unwired:
+            calcref_issues.append(
+                f"FAIL  {section_label} calcRef: '{v}' declared but missing from ternary chain "
+                f"— will silently use wrong document prefix (line ~{calcref_line_idx + 1})"
+            )
+    else:
+        calcref_issues.append(f"PASS  {section_label}: all {len(declared)} is* booleans wired into calcRef")
+
+for msg in calcref_issues:
+    print(f"  {msg}")
+
+calcref_fails = [m for m in calcref_issues if m.startswith("FAIL")]
+if calcref_fails:
+    print(f"\n  {len(calcref_fails)} calcRef wiring issue(s) found.")
+    sys.exit(1)
+
 print("\nNext: python validate_bom_sow.py")

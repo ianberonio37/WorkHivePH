@@ -298,14 +298,100 @@ def layer4_smoke_shape():
     return issues
 
 
+def layer5_phase35_contracts():
+    """
+    Phase 3-5 feature contracts added after the initial Phase 0-2 build.
+    These checks are structural (pattern presence) — they confirm the key
+    tables, variables, and functions exist in the page without requiring
+    a live DB.
+
+    Phase 3 (3B/3C): Logbook auto-link + PM link to active projects
+      31. _links variable and project_links table query
+      32. project_links INSERT has link_type + link_id + hive_id
+      33. _linkSuggestions (logbook open entries panel)
+
+    Phase 4: Project Report PDF + Lessons Learned
+      34. lessons_learned in meta field read/write path
+      35. project-report.html link present in detail view
+      36. saveLessons function exists
+
+    Phase 5: Resources, Multi-role, Risk, Change Orders
+      37. _roles variable and project_roles table query
+      38. _changeOrders variable and project_change_orders table query
+      39. approveChangeOrder / rejectChangeOrder functions
+      40. schedule_risk panel rendered from forecast data
+      41. generate_change_order_number RPC called
+    """
+    issues = []
+    html = _read(HTML_FILE) or ""
+
+    # Phase 3
+    issues.append(_check("links_variable",
+        "_links" in html and "project_links" in html,
+        "Phase 3: _links variable + project_links table not found — logbook link feature missing"))
+    issues.append(_check("links_insert_fields",
+        bool(re.search(r"project_links.*insert|insert.*project_links", html, re.DOTALL))
+        and "link_type" in html and "link_id" in html,
+        "Phase 3: project_links INSERT missing link_type or link_id fields"))
+    issues.append(_check("link_suggestions_panel",
+        "_linkSuggestions" in html,
+        "Phase 3: _linkSuggestions panel missing — workers won't see open logbook entries to link"))
+
+    # Phase 4
+    issues.append(_check("lessons_learned_rw",
+        "lessons_learned" in html,
+        "Phase 4: lessons_learned not referenced — lessons learned save/load feature missing"))
+    issues.append(_check("project_report_link",
+        "project-report.html" in html,
+        "Phase 4: project-report.html link not in detail view — PDF report unreachable from project"))
+    issues.append(_check("save_lessons_fn",
+        "saveLessons" in html or "lessons_learned" in html,
+        "Phase 4: saveLessons function or lessons_learned write path missing"))
+
+    # Phase 5
+    issues.append(_check("roles_variable",
+        "_roles" in html and "project_roles" in html,
+        "Phase 5: _roles variable + project_roles table not found — multi-role feature missing"))
+    issues.append(_check("change_orders_variable",
+        "_changeOrders" in html and "project_change_orders" in html,
+        "Phase 5: _changeOrders + project_change_orders not found — change order feature missing"))
+    issues.append(_check("change_order_approval_fns",
+        ("approveCO" in html or "approveChangeOrder" in html) and
+        ("rejectCO" in html or "rejectChangeOrder" in html),
+        "Phase 5: approveCO/rejectCO (or approveChangeOrder/rejectChangeOrder) functions missing — supervisor approval flow broken"))
+    issues.append(_check("schedule_risk_panel",
+        "schedule_risk" in html,
+        "Phase 5: schedule_risk panel not rendered — Monte Carlo risk data silently unused"))
+    issues.append(_check("change_order_number_rpc",
+        "generate_change_order_number" in html,
+        "Phase 5: generate_change_order_number RPC not called — change order codes will be null"))
+
+    # Role guard regression: supervisor-gated mutation functions must check
+    # isSupervisor() internally — not just at the button render level.
+    # A worker can call approveCO/rejectCO/removeRole directly from the browser
+    # console regardless of whether the button is visible in the DOM.
+    for fn in ["approveCO", "rejectCO", "removeRole"]:
+        fn_match = re.search(rf'async function {re.escape(fn)}\b', html)
+        if not fn_match:
+            continue
+        body = html[fn_match.start():fn_match.start() + 400]
+        has_guard = bool(re.search(r'isSupervisor\(\)|HIVE_ROLE\s*===\s*[\'"]supervisor', body))
+        issues.append(_check(f"role_guard_{fn}",
+            has_guard,
+            f"Phase 5: {fn}() missing internal isSupervisor() guard — callable from browser console"))
+
+    return issues
+
+
 def main():
-    print("\nProject Manager Validator (4-layer)")
+    print("\nProject Manager Validator (5-layer)")
     print("=" * 55)
     layers = [
         ("L1  Page structure / contract", layer1_page_structure()),
         ("L2  Edge function contract",     layer2_edge_contract()),
         ("L3  Python module purity",       layer3_python_purity()),
         ("L4  Smoke + shape",              layer4_smoke_shape()),
+        ("L5  Phase 3-5 contracts",        layer5_phase35_contracts()),
     ]
     all_pass, all_fail = 0, 0
     for layer_name, issues in layers:

@@ -506,6 +506,48 @@ def check_period_consistency(html, ts, desc_content):
     return issues
 
 
+def check_plotly_yaxis_range(html, filepath):
+    """
+    Frontend skill lesson (April 2026): Plotly auto-inverts the Y-axis for
+    data that decreases over time (e.g. failures going from 6 to 0). This
+    makes improving maintenance trends look like they're getting WORSE.
+
+    Rule: every time-series chart (scatter/lines) that renders maintenance
+    KPIs must set yaxis.range explicitly: yaxis: { range: [0, maxValue + 1] }
+
+    Horizontal bar charts are exempt — their Y-axis is categorical (machine
+    names), not numeric, and auto-range is correct for them.
+    """
+    issues = []
+    lines = html.splitlines()
+    for i, line in enumerate(lines):
+        if "Plotly.newPlot(" not in line and "Plotly.react(" not in line:
+            continue
+        look_back = max(0, i - 60)
+        window = "\n".join(lines[look_back:i + 1])
+        # Only flag time-series / vertical charts (not horizontal bar)
+        is_horizontal = bool(re.search(r"orientation\s*:\s*['\"]h['\"]", window))
+        is_timeseries = bool(re.search(
+            r"type\s*:\s*['\"]scatter['\"]|mode\s*:\s*['\"]lines|mode\s*:\s*['\"]lines\+markers",
+            window
+        ))
+        if is_horizontal or not is_timeseries:
+            continue  # horizontal or non-time-series chart — exempt
+        has_yaxis_range = bool(re.search(r"yaxis\s*:[\s\S]{0,200}range\s*:", window))
+        if not has_yaxis_range:
+            issues.append({
+                "check": "plotly_yaxis_range",
+                "page": filepath,
+                "line": i + 1,
+                "reason": (
+                    f"{filepath}:{i+1} Plotly time-series chart missing "
+                    f"yaxis.range — Plotly auto-inverts Y-axis for decreasing "
+                    f"data, making improving KPI trends look like they're worsening"
+                )
+            })
+    return issues
+
+
 # ── Runner ─────────────────────────────────────────────────────────────────────
 
 def run_checks():
@@ -563,6 +605,7 @@ def run_checks():
     # Layer 4 — shape + consistency
     all_issues += check_descriptive_shape(desc_result)
     all_issues += check_period_consistency(html, ts, desc)
+    all_issues += check_plotly_yaxis_range(html, HTML_FILE)
 
     return all_issues
 
@@ -588,6 +631,7 @@ CHECK_NAMES = [
     "py_smoke_predictive", "py_smoke_prescriptive",
     # L4 — shape + consistency
     "py_shape_descriptive", "period_consistency",
+    "plotly_yaxis_range",
 ]
 
 CHECK_LABELS = {
@@ -628,6 +672,7 @@ CHECK_LABELS = {
     # L4 (shape + consistency)
     "py_shape_descriptive":     "SHP Shape: descriptive — all 9 metric keys (incl. OEE)",
     "period_consistency":       "CON period_days=90 consistent across all layers",
+    "plotly_yaxis_range":       "CON Plotly time-series charts have explicit yaxis.range (auto-invert guard)",
 }
 
 
