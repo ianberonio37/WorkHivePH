@@ -40,6 +40,18 @@ def calculate(inputs: dict) -> dict:
     has_budget_dates = BAC > 0 and project.get("start_date") and project.get("end_date")
 
     forecasts = {}
+    # ── Schedule risk via Monte Carlo (Phase 5C) ──────────────────────
+    # Triangular distribution per item:
+    #   optimistic   = 0.7 × planned duration
+    #   most_likely  = planned duration
+    #   pessimistic  = 1.5 × planned duration
+    # Propagate through the DAG 1000 times; report P50/P80/P95 finish.
+    if len(items) > 0:
+        try:
+            forecasts["schedule_risk"] = _monte_carlo_schedule(items)
+        except Exception as e:
+            forecasts["schedule_risk"] = {"available": False, "reason": f"Monte Carlo failed: {e}"}
+
 
     # ── Cost forecast (EVM) ──────────────────────────────────────────────
     if has_budget_dates:
@@ -74,6 +86,94 @@ def calculate(inputs: dict) -> dict:
         }
 
     return {"forecasts": forecasts}
+
+
+def _monte_carlo_schedule(items: list[dict], n_runs: int = 1000) -> dict:
+    """
+    Phase 5C — Schedule risk via Monte Carlo.
+
+    For each scope item:
+      - optimistic  = 0.7 × planned duration
+      - most_likely = planned duration
+      - pessimistic = 1.5 × planned duration
+
+    Each run samples a duration from numpy's triangular() per item, propagates
+    through the DAG (max of predecessor finishes), and returns the project
+    finish day. From 1000 runs we extract P50/P80/P95 percentiles.
+
+    Standards: PMI Practice Standard for Scheduling §6 (schedule risk),
+    AACE 65R-11 (Risk Analysis and Contingency Determination).
+    """
+    try:
+        import numpy as np
+    except ImportError:
+        return {"available": False, "reason": "numpy not installed"}
+
+    by_id = {it.get("id"): it for it in items if it.get("id")}
+    if not by_id:
+        return {"available": False, "reason": "No items with ids"}
+
+    def _dur(it):
+        ds, de = _parse_date(it.get("planned_start")), _parse_date(it.get("planned_end"))
+        if ds and de:
+            return max(1, (de - ds).days + 1)
+        if it.get("estimated_hours"):
+            from math import ceil
+            return max(1, ceil(float(it["estimated_hours"]) / 8))
+        return 1
+
+    # Topological order via predecessors.
+    # Simple Kahn's algorithm; cycles fall back to file order (CPM module
+    # already surfaces cycle warnings via prescriptive.py).
+    in_degree = {iid: 0 for iid in by_id}
+    for it in items:
+        for p in (it.get("predecessors") or []):
+            if p in by_id and it.get("id") in in_degree:
+                in_degree[it.get("id")] += 1
+    queue = [iid for iid, d in in_degree.items() if d == 0]
+    topo: list[str] = []
+    visited: set[str] = set()
+    while queue:
+        n = queue.pop(0)
+        if n in visited:
+            continue
+        visited.add(n)
+        topo.append(n)
+        for m_iid, m_it in by_id.items():
+            if n in (m_it.get("predecessors") or []) and m_iid not in visited:
+                in_degree[m_iid] -= 1
+                if in_degree[m_iid] <= 0:
+                    queue.append(m_iid)
+    # If cycle, fallback to original order
+    for iid in by_id:
+        if iid not in visited:
+            topo.append(iid)
+
+    finishes = []
+    for _ in range(n_runs):
+        ef: dict[str, float] = {}
+        for iid in topo:
+            it = by_id[iid]
+            d = _dur(it)
+            sampled = float(np.random.triangular(0.7 * d, float(d), 1.5 * d))
+            preds = [p for p in (it.get("predecessors") or []) if p in by_id]
+            es = max((ef[p] for p in preds), default=0.0)
+            ef[iid] = es + sampled
+        finishes.append(max(ef.values()) if ef else 0)
+
+    arr = np.array(finishes)
+    return {
+        "available": True,
+        "method": "Monte Carlo (1000 runs, triangular 0.7×/1.0×/1.5× planned)",
+        "n_runs": n_runs,
+        "p50_days": round(float(np.percentile(arr, 50)), 1),
+        "p80_days": round(float(np.percentile(arr, 80)), 1),
+        "p95_days": round(float(np.percentile(arr, 95)), 1),
+        "min_days": round(float(arr.min()), 1),
+        "max_days": round(float(arr.max()), 1),
+        "mean_days": round(float(arr.mean()), 1),
+        "std_days": round(float(arr.std()), 1),
+    }
 
 
 def _forecast_finish_date(logs: list[dict], project: dict) -> dict:

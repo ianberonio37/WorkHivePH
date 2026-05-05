@@ -67,6 +67,9 @@ EXPECTED_PUBLISHED_TABLES = {
     "projects",
     "project_items",
     "project_progress_logs",
+    # Phase 5 additions (Advanced features):
+    "project_roles",
+    "project_change_orders",
 }
 
 CHECKS = {

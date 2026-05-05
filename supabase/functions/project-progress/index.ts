@@ -105,8 +105,8 @@ serve(async (req: Request) => {
   const serviceKey  = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const db = createClient(supabaseUrl, serviceKey);
 
-  /* ── Load project + items + links + logs in parallel ───────────────── */
-  const [projRes, itemsRes, linksRes, logsRes] = await Promise.all([
+  /* ── Load project + items + links + logs + roles + change_orders ───── */
+  const [projRes, itemsRes, linksRes, logsRes, rolesRes, coRes] = await Promise.all([
     db.from('projects')
       .select('id, hive_id, project_type, status, start_date, end_date, budget_php, created_at')
       .eq('id', project_id)
@@ -128,6 +128,15 @@ serve(async (req: Request) => {
       .eq('hive_id', hive_id)
       .order('log_date', { ascending: false })
       .limit(30),
+    db.from('project_roles')
+      .select('id, worker_name, role, assigned_by, assigned_at')
+      .eq('project_id', project_id)
+      .eq('hive_id', hive_id),
+    db.from('project_change_orders')
+      .select('id, co_number, title, scope_change, reason, cost_impact_php, schedule_impact_days, status, requested_by, requested_at, approved_by, approved_at, rejection_reason')
+      .eq('project_id', project_id)
+      .eq('hive_id', hive_id)
+      .order('created_at', { ascending: false }),
   ]);
 
   if (projRes.error || !projRes.data) {
@@ -141,6 +150,8 @@ serve(async (req: Request) => {
       items:   itemsRes.data || [],
       links:   linksRes.data || [],
       logs:    logsRes.data  || [],
+      roles:   rolesRes.data || [],
+      change_orders: coRes.data || [],
       labor_rate_php_per_hour: labor_rate_php_per_hour ?? null,
     };
     const result = await callPythonProject(pythonPayload);

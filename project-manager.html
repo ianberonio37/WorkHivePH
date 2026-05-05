@@ -380,6 +380,8 @@
     <div id="pane-progress" class="detail-pane"></div>
     <div id="pane-cpm"      class="detail-pane"></div>
     <div id="pane-budget"   class="detail-pane"></div>
+    <div id="pane-roles"    class="detail-pane"></div>
+    <div id="pane-changes"  class="detail-pane"></div>
     <div id="pane-signoff"  class="detail-pane"></div>
   </div>
 </main>
@@ -617,6 +619,66 @@
   </div>
 </div>
 
+<!-- Phase 5B — Add role -->
+<div id="modal-role" class="modal-bg">
+  <div class="modal">
+    <h3>Assign role</h3>
+    <form id="form-role" onsubmit="event.preventDefault(); saveRole();">
+      <div class="grid-2">
+        <div class="field">
+          <label>Worker *</label>
+          <select id="r-worker"><option value="">—</option></select>
+        </div>
+        <div class="field">
+          <label>Role *</label>
+          <select id="r-role" required>
+            <option value="owner">Owner</option>
+            <option value="planner">Planner</option>
+            <option value="safety_officer">Safety Officer</option>
+            <option value="cost_engineer">Cost Engineer</option>
+            <option value="reviewer">Reviewer</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>Notes</label><textarea id="r-notes" maxlength="500" placeholder="Optional context (e.g. responsible for HSE permit-to-work)"></textarea></div>
+      <div class="modal-foot">
+        <button type="button" class="btn ghost" onclick="closeModal('modal-role')">Cancel</button>
+        <button type="submit" class="btn primary">Assign</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Phase 5D — New change order -->
+<div id="modal-co" class="modal-bg">
+  <div class="modal">
+    <h3>Raise change order</h3>
+    <form id="form-co" onsubmit="event.preventDefault(); saveChangeOrder();">
+      <div class="field"><label>Title *</label><input type="text" id="co-title" required maxlength="200" placeholder="e.g. Add seismic anchor restraints"></div>
+      <div class="field"><label>Scope change *</label><textarea id="co-scope" required maxlength="2000" placeholder="What's changing in the scope. Be specific."></textarea></div>
+      <div class="field"><label>Reason</label>
+        <select id="co-reason">
+          <option value="">—</option>
+          <option value="cost">Cost reduction</option>
+          <option value="safety">Safety / regulatory</option>
+          <option value="scope_clarification">Scope clarification</option>
+          <option value="design_change">Design change</option>
+          <option value="schedule">Schedule pressure</option>
+          <option value="owner_request">Owner request</option>
+        </select>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Cost impact (PHP)</label><input type="number" id="co-cost" step="100" placeholder="e.g. 25000 (positive = increase)"></div>
+        <div class="field"><label>Schedule impact (days)</label><input type="number" id="co-days" placeholder="e.g. 3 (positive = adds days)"></div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn ghost" onclick="closeModal('modal-co')">Cancel</button>
+        <button type="submit" class="btn primary">Submit for approval</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div id="modal-progress" class="modal-bg">
   <div class="modal">
     <h3>Daily progress log</h3>
@@ -668,6 +730,8 @@ let _items      = [];                      // scope items for opened project
 let _links      = [];                      // links for opened project
 let _logs       = [];                      // progress logs for opened project
 let _progress   = null;                    // edge-fn rollup result
+let _roles      = [];                      // project_roles rows (Phase 5B)
+let _changeOrders = [];                    // project_change_orders rows (Phase 5D)
 let _editingId  = null;                    // null = new project, uuid = edit
 let _editingScopeId = null;
 let _rtChannel  = null;
@@ -1461,17 +1525,21 @@ async function openDetail(id) {
   $('d-priority').textContent = '· ' + data.priority + ' priority';
   buildDetailTabs(data.project_type);
 
-  // Load children + rollup in parallel
-  const [itemsRes, linksRes, logsRes, progRes] = await Promise.all([
+  // Load children + rollup + roles + change_orders in parallel
+  const [itemsRes, linksRes, logsRes, progRes, rolesRes, coRes] = await Promise.all([
     db.from('project_items').select('*').eq('project_id', id).order('sort_order'),
     db.from('project_links').select('*').eq('project_id', id).order('created_at'),
     db.from('project_progress_logs').select('*').eq('project_id', id).order('log_date', { ascending: false }).limit(30),
     fetchProgressRollup(id),
+    db.from('project_roles').select('*').eq('project_id', id).order('assigned_at', { ascending: false }),
+    db.from('project_change_orders').select('*').eq('project_id', id).order('created_at', { ascending: false }),
   ]);
   _items = itemsRes.data || [];
   _links = linksRes.data || [];
   _logs  = logsRes.data || [];
   _progress = progRes;
+  _roles = rolesRes.data || [];
+  _changeOrders = coRes.data || [];
   await refreshSuggestedLinks();
   renderActivePane();
 }
@@ -1488,8 +1556,10 @@ function buildDetailTabs(type) {
     { key: 'scope',    label: 'Scope / WBS', show: type !== 'workorder' || _items.length > 0 || true },
     { key: 'linked',   label: 'Linked work', show: true },
     { key: 'progress', label: 'Daily log', show: true },
-    { key: 'cpm',      label: 'Critical path', show: type === 'shutdown' },
+    { key: 'cpm',      label: 'Schedule + Risk', show: type === 'shutdown' || type === 'capex' },
     { key: 'budget',   label: 'Budget', show: (type === 'capex' || type === 'contractor') && isSupervisor() },
+    { key: 'roles',    label: 'Roles', show: true },                              // Phase 5B
+    { key: 'changes',  label: 'Change orders', show: type !== 'workorder' },      // Phase 5D
     { key: 'signoff',  label: 'Sign-off', show: type !== 'workorder' },
   ];
   $('detail-tabs').innerHTML = tabs.filter(t => t.show)
@@ -1514,6 +1584,8 @@ function renderActivePane(key) {
   if (key === 'progress') renderProgress();
   if (key === 'cpm')      renderCpm();
   if (key === 'budget')   renderBudget();
+  if (key === 'roles')    renderRoles();
+  if (key === 'changes')  renderChangeOrders();
   if (key === 'signoff')  renderSignoff();
 }
 
@@ -1893,15 +1965,216 @@ function renderCpm() {
       <div class="gantt-bar-wrap"><div class="gantt-bar ${cls}" style="left:${left}%; width:${width}%;" title="${dur}d, slack ${slackVal}d"></div></div>
     </div>`;
   }).join('');
+  // Phase 5C — Schedule risk panel (Monte Carlo from Python forecast)
+  const risk = _progress?.forecast?.forecasts?.schedule_risk;
+  let riskHtml = '';
+  if (risk?.available) {
+    const cls = risk.p80_days > cp.total_days * 1.25 ? 'red' : risk.p80_days > cp.total_days * 1.10 ? 'amber' : 'green';
+    riskHtml = `
+      <h3 style="font-size: 0.92rem; margin-top: 14px;">Schedule Risk (Monte Carlo, ${risk.n_runs} runs)</h3>
+      <div class="kpi-row">
+        <div class="kpi"><div class="kpi-label">P50 finish</div><div class="kpi-value">${risk.p50_days}d</div><div class="kpi-sub">50% likely</div></div>
+        <div class="kpi ${cls}"><div class="kpi-label">P80 finish</div><div class="kpi-value">${risk.p80_days}d</div><div class="kpi-sub">contingency target</div></div>
+        <div class="kpi"><div class="kpi-label">P95 finish</div><div class="kpi-value">${risk.p95_days}d</div><div class="kpi-sub">worst-case 95%</div></div>
+        <div class="kpi"><div class="kpi-label">Std dev</div><div class="kpi-value">${risk.std_days}d</div><div class="kpi-sub">spread</div></div>
+      </div>
+      <div class="small" style="color: var(--muted); margin-top: 4px;">${e(risk.method)}. Standards: PMI Practice Standard for Scheduling §6, AACE 65R-11.</div>`;
+  } else if (risk?.reason) {
+    riskHtml = `<div class="small" style="color: var(--muted); margin-top: 12px;">Schedule risk: ${e(risk.reason)}</div>`;
+  }
+
+  // Phase 5A — Resource overload warning
+  const res = _progress?.resources;
+  let resHtml = '';
+  if (res && Array.isArray(res.overloaded_days) && res.overloaded_days.length) {
+    resHtml = `
+      <h3 style="font-size: 0.92rem; margin-top: 14px;">Resource Overload</h3>
+      <div style="background: rgba(225,85,84,0.08); border: 1px solid rgba(225,85,84,0.3); border-radius: 10px; padding: 10px 14px;">
+        <div style="font-weight: 600; margin-bottom: 6px;">⚠ ${res.overloaded_days.length} overloaded day-worker pair${res.overloaded_days.length === 1 ? '' : 's'} (>${res.daily_hours}h capacity)</div>
+        <div class="small" style="color: var(--muted); margin-bottom: 6px;">Worker / day combinations exceeding daily capacity:</div>
+        <ul style="font-size: 0.82rem; padding-left: 20px; line-height: 1.5;">
+          ${res.overloaded_days.slice(0, 6).map(o => `<li><strong>${e(o.worker)}</strong> on ${e(o.date)}: ${o.hours}h (over by ${o.over_by}h)</li>`).join('')}
+        </ul>
+        ${res.suggestions?.length ? `
+          <div class="small" style="color: var(--muted); margin-top: 8px;"><strong>Suggested reassignments:</strong></div>
+          <ul style="font-size: 0.82rem; padding-left: 20px; line-height: 1.5;">
+            ${res.suggestions.slice(0, 4).map(s => `<li>${e(s.reason)}</li>`).join('')}
+          </ul>` : ''}
+      </div>`;
+  } else if (res && (!Array.isArray(res.overloaded_days) || !res.overloaded_days.length)) {
+    resHtml = `<div class="small" style="color: var(--green); margin-top: 12px;">✓ No worker overloads detected with current scope item dates.</div>`;
+  }
+
   $('pane-cpm').innerHTML = `
     <div class="kpi-row">
       <div class="kpi"><div class="kpi-label">Critical path</div><div class="kpi-value">${cp.total_days}d</div><div class="kpi-sub">${cp.item_ids.length} of ${_items.length} items on critical path</div></div>
     </div>
+    <h3 style="font-size: 0.92rem;">Gantt</h3>
     <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
       ${rows}
     </div>
     <div class="small" style="margin-top: 8px; color: var(--muted);">Red bars = zero slack (any delay slips the project finish). Green = done.</div>
+    ${riskHtml}
+    ${resHtml}
   `;
+}
+
+/* ── Phase 5B — Roles pane ────────────────────────────────── */
+const ROLE_LABELS = {
+  owner: 'Owner', planner: 'Planner', safety_officer: 'Safety Officer',
+  cost_engineer: 'Cost Engineer', reviewer: 'Reviewer',
+};
+function renderRoles() {
+  const grouped = {};
+  _roles.forEach(r => { (grouped[r.role] = grouped[r.role] || []).push(r); });
+  const order = ['owner', 'planner', 'safety_officer', 'cost_engineer', 'reviewer'];
+  const rolesHtml = order.filter(k => grouped[k]?.length).map(role => `
+    <div style="margin-bottom: 12px;">
+      <h4 style="font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">${e(ROLE_LABELS[role])}</h4>
+      ${grouped[role].map(r => `
+        <span class="link-pill">
+          ${e(r.worker_name)}
+          ${isSupervisor() ? `<button onclick="removeRole('${e(r.id)}')" title="Remove">×</button>` : ''}
+        </span>`).join('')}
+    </div>`).join('');
+  // Owner from projects.owner_name (legacy) shown if no explicit owner role assigned
+  const hasExplicitOwner = grouped.owner && grouped.owner.length;
+  const legacyOwnerHtml = !hasExplicitOwner && _detail.owner_name ? `
+    <div style="margin-bottom: 12px;">
+      <h4 style="font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">Owner (legacy)</h4>
+      <span class="link-pill">${e(_detail.owner_name)} <span style="color: var(--muted); margin-left: 4px;">from project header</span></span>
+    </div>` : '';
+  $('pane-roles').innerHTML = `
+    <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
+      <div class="small" style="color: var(--muted);">${_roles.length} role assignment${_roles.length === 1 ? '' : 's'}. Same worker can hold multiple roles.</div>
+      ${isSupervisor() ? '<button class="btn primary small" onclick="openAddRole()">+ Assign role</button>' : ''}
+    </div>
+    ${rolesHtml || (legacyOwnerHtml || '<div class="empty">No roles assigned yet. Supervisor can assign owner / planner / safety officer / cost engineer / reviewer.</div>')}
+    ${legacyOwnerHtml}
+  `;
+}
+function openAddRole() {
+  if (!isSupervisor()) { showToast('Supervisors only.'); return; }
+  // Populate worker dropdown
+  $('r-worker').innerHTML = '<option value="">—</option>' +
+    _members.map(m => `<option value="${e(m)}">${e(m)}</option>`).join('');
+  $('r-worker').value = '';
+  $('r-role').value = 'planner';
+  $('r-notes').value = '';
+  openModal('modal-role');
+}
+async function saveRole() {
+  if (!isSupervisor()) { showToast('Supervisors only.'); return; }
+  const worker = $('r-worker').value;
+  const role = $('r-role').value;
+  if (!worker) { showToast('Pick a worker'); return; }
+  const { error } = await db.from('project_roles').insert({
+    project_id: _detailId, hive_id: HIVE_ID,
+    worker_name: worker, role,
+    assigned_by: WORKER_NAME,
+    notes: $('r-notes').value.trim() || null,
+  });
+  if (error) { showToast(error.message, 'error'); return; }
+  showToast('Role assigned.', 'success');
+  closeModal('modal-role');
+  await refreshDetail();
+}
+async function removeRole(id) {
+  if (!isSupervisor()) { showToast('Supervisors only.'); return; }
+  if (!confirm('Remove this role?')) return;
+  const { error } = await db.from('project_roles').delete().eq('id', id);
+  if (error) { showToast(error.message, 'error'); return; }
+  await refreshDetail();
+}
+
+/* ── Phase 5D — Change orders pane ────────────────────────── */
+const CO_STATUS_LABELS = { pending: 'Pending review', approved: 'Approved', rejected: 'Rejected', cancelled: 'Cancelled' };
+function renderChangeOrders() {
+  const rows = _changeOrders.map(co => {
+    const sCls = co.status === 'approved' ? 'active' : co.status === 'rejected' ? 'cancelled' : co.status === 'cancelled' ? 'archived' : 'planning';
+    const costLine = co.cost_impact_php ? `${co.cost_impact_php > 0 ? '+' : ''}${fmtPHP(co.cost_impact_php)}` : '—';
+    const daysLine = co.schedule_impact_days ? `${co.schedule_impact_days > 0 ? '+' : ''}${co.schedule_impact_days}d` : '—';
+    return `
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 10px;">
+        <div class="row" style="justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 8px;">
+          <div>
+            <span class="pcode">${e(co.co_number)}</span>
+            <strong style="margin-left: 8px;">${e(co.title)}</strong>
+          </div>
+          <span class="status-pill status-${sCls}">${e(CO_STATUS_LABELS[co.status] || co.status)}</span>
+        </div>
+        <div class="small" style="color: var(--muted); margin-bottom: 6px;">
+          Raised by <strong>${e(co.requested_by)}</strong> · ${e(fmtDate(co.requested_at))}
+          ${co.reason ? ` · reason: <em>${e(co.reason)}</em>` : ''}
+        </div>
+        <div style="font-size: 0.9rem; line-height: 1.55; margin-bottom: 8px;">${e(co.scope_change).replace(/\n/g, '<br>')}</div>
+        <div class="row" style="gap: 16px; font-size: 0.85rem;">
+          <span><strong>Cost:</strong> ${e(costLine)}</span>
+          <span><strong>Schedule:</strong> ${e(daysLine)}</span>
+        </div>
+        ${co.status === 'approved' ? `<div class="small" style="color: var(--green); margin-top: 6px;">✓ Approved by ${e(co.approved_by)} on ${e(fmtDate(co.approved_at))}</div>` : ''}
+        ${co.status === 'rejected' && co.rejection_reason ? `<div class="small" style="color: var(--red); margin-top: 6px;">Rejected: ${e(co.rejection_reason)}</div>` : ''}
+        ${co.status === 'pending' && isSupervisor() ? `
+          <div class="row" style="gap: 6px; margin-top: 10px;">
+            <button class="btn small primary" onclick="approveCO('${e(co.id)}')">Approve</button>
+            <button class="btn small danger" onclick="rejectCO('${e(co.id)}')">Reject</button>
+          </div>` : ''}
+      </div>`;
+  }).join('');
+  $('pane-changes').innerHTML = `
+    <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
+      <div class="small" style="color: var(--muted);">${_changeOrders.length} change order${_changeOrders.length === 1 ? '' : 's'}. Supervisor approval required to apply impact.</div>
+      <button class="btn primary small" onclick="openNewCO()">+ Raise change order</button>
+    </div>
+    ${_changeOrders.length ? rows : '<div class="empty">No change orders raised. Use this when project scope, cost, or schedule needs to shift after baselining.</div>'}
+  `;
+}
+function openNewCO() {
+  ['co-title','co-scope','co-cost','co-days'].forEach(id => $(id).value = '');
+  $('co-reason').value = '';
+  openModal('modal-co');
+}
+async function saveChangeOrder() {
+  const title = $('co-title').value.trim();
+  const scope = $('co-scope').value.trim();
+  if (!title || !scope) { showToast('Title and scope change are required'); return; }
+  // Generate CO number via RPC
+  const { data: coNum, error: numErr } = await db.rpc('generate_change_order_number', { p_project_id: _detailId });
+  if (numErr) { showToast('CO number gen failed: ' + numErr.message, 'error'); return; }
+  const { error } = await db.from('project_change_orders').insert({
+    project_id: _detailId, hive_id: HIVE_ID,
+    co_number: coNum, title, scope_change: scope,
+    reason: $('co-reason').value || null,
+    cost_impact_php: $('co-cost').value ? Number($('co-cost').value) : null,
+    schedule_impact_days: $('co-days').value ? Number($('co-days').value) : null,
+    status: 'pending',
+    requested_by: WORKER_NAME,
+  });
+  if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+  showToast(`${coNum} submitted for approval`, 'success');
+  closeModal('modal-co');
+  await refreshDetail();
+}
+async function approveCO(id) {
+  if (!isSupervisor()) { showToast('Supervisors only.'); return; }
+  if (!confirm('Approve this change order? Cost / schedule impact will be reflected in the project.')) return;
+  const { error } = await db.from('project_change_orders')
+    .update({ status: 'approved', approved_by: WORKER_NAME, approved_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) { showToast(error.message, 'error'); return; }
+  showToast('Approved.', 'success');
+  await refreshDetail();
+}
+async function rejectCO(id) {
+  if (!isSupervisor()) { showToast('Supervisors only.'); return; }
+  const reason = prompt('Reason for rejection (visible to requester):');
+  if (!reason) return;
+  const { error } = await db.from('project_change_orders')
+    .update({ status: 'rejected', approved_by: WORKER_NAME, approved_at: new Date().toISOString(), rejection_reason: reason })
+    .eq('id', id);
+  if (error) { showToast(error.message, 'error'); return; }
+  showToast('Rejected.', 'success');
+  await refreshDetail();
 }
 
 /* ── Pane: Budget (supervisor only) ───────────────────────── */

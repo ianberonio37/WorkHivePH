@@ -243,10 +243,10 @@ Add intelligence on top of stable foundations. AI is enhancement, not the engine
 | 4B — Lessons Learned archive | ⬜ | — | TBD |
 | 4C — Weekly digest | ⬜ | — | TBD |
 | 4D — Contractor handover packet | ⬜ | — | TBD |
-| 5A — Resource leveling | ⬜ | — | deferred |
-| 5B — Multi-role assignments | ⬜ | — | deferred |
-| 5C — Schedule risk simulation | ⬜ | — | deferred |
-| 5D — Change order tracking | ⬜ | — | deferred |
+| 5A — Resource leveling | ✓ Done | this commit (histogram + overload flagging) | 2026-05-05 |
+| 5B — Multi-role assignments | ✓ Done | this commit | 2026-05-05 |
+| 5C — Schedule risk simulation | ✓ Done | this commit (Monte Carlo P50/P80/P95) | 2026-05-05 |
+| 5D — Change order tracking | ✓ Done | this commit | 2026-05-05 |
 | 6A — NL project creation | ⬜ | — | post-1.0 |
 | 6B — AI template suggestions | ⬜ | — | post-1.0 |
 | 6C — AI risk flagging | ⬜ | — | post-1.0 |

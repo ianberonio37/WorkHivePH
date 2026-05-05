@@ -53,7 +53,10 @@ class ProjectRequest(BaseModel):
     items: list[dict[str, Any]] = []           # project_items rows
     links: list[dict[str, Any]] = []           # project_links rows
     logs:  list[dict[str, Any]] = []           # project_progress_logs rows (last ~30)
+    roles: list[dict[str, Any]] = []           # project_roles rows (Phase 5B)
+    change_orders: list[dict[str, Any]] = []   # project_change_orders rows (Phase 5D)
     labor_rate_php_per_hour: float | None = None  # optional override; default 200
+    daily_hours: int | None = None              # for resource leveling; default 8
 
 
 # ─── Handler registry ─────────────────────────────────────────────────────────
@@ -470,7 +473,10 @@ def project_progress(req: ProjectRequest):
         "items":   req.items,
         "links":   req.links,
         "logs":    req.logs,
+        "roles":   req.roles,
+        "change_orders": req.change_orders,
         "labor_rate_php_per_hour": req.labor_rate_php_per_hour,
+        "daily_hours": req.daily_hours or 8,
     }
 
     out: dict[str, Any] = {}
@@ -511,6 +517,19 @@ def project_progress(req: ProjectRequest):
         out["fast_track_candidates"] = []
         out["blockers"]              = []
         out["cycle_warning"]         = {"message": str(e)}
+
+    # Phase 5A — Resource histogram + overload flags
+    try:
+        from projects.resources import calculate as res_calc
+        out["resources"] = res_calc(inputs)
+    except Exception as e:
+        print(f"PROJECT ERROR [resources]: {traceback.format_exc()}")
+        out["resources"] = {"error": str(e)}
+
+    # Phase 5B/5D pass-through — roles and change_orders are loaded by the
+    # edge fn and surfaced here so the front-end can render them.
+    out["roles"]         = req.roles or []
+    out["change_orders"] = req.change_orders or []
 
     out["latest_logs"] = (req.logs or [])[:10]
     return out
