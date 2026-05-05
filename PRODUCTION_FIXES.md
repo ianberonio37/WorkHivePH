@@ -420,6 +420,29 @@ These were *artifacts of the test environment* (pg_dump baseline file conflictin
 
 ---
 
+### 29. Add missing `id` field to all `inventory_transactions.insert()` calls
+
+**Discovered:** 2026-05-05 — user reported "Parts log failed: check your connection" toast when editing an open logbook entry, adding parts, and saving to Closed
+
+**What's wrong:**
+`inventory_transactions.id` is `TEXT NOT NULL` with no DEFAULT. All three insert call sites in `logbook.html` omitted the `id` field entirely. PostgreSQL returned a not-null constraint violation on every parts save. Because `inventory_items.update()` (the qty deduction) runs before the `inventory_transactions.insert()`, the inventory WAS decremented but the transaction record was never written. The toast message "check your connection" misdirected investigation away from the real cause.
+
+The entry itself was saved correctly to Closed items — the only failure was the transaction log.
+
+**Where:**
+- `logbook.html` — three insert sites: `saveEdit()` (line ~2921), `saveEditFromForm()` (line ~3023), new-entry path (line ~3359)
+
+**How to fix:**
+1. Add `id: Date.now().toString() + Math.random().toString(36).slice(2)` to each `inventory_transactions.insert()` payload
+
+**Validator gap closed:**
+Added `check_txn_id_present` (L2 check #7) to `validate_logbook.py` — now 21 checks total.
+Added edit-to-closed path (Check 4) to `test-data-seeder/flows/logbook.py`.
+
+**Status:** FIXED 2026-05-05, commit `07600a9`
+
+---
+
 ## Template for new entries
 
 ```
