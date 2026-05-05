@@ -37,8 +37,15 @@ def run_in_mobile_browser(playwright, log) -> dict:
 
     log("Mobile checks at 375x667...")
 
+    # Analytics pages make multiple AI calls on load (4-phase orchestrator).
+    # Use a longer timeout + domcontentloaded wait for those to avoid false
+    # crash failures when the Python API or Groq take >15s to respond.
+    AI_HEAVY = {"analytics.html", "analytics-report.html"}
+
     for filename in PAGES:
-        page.goto(f"{BASE_URL}/workhive/{filename}", wait_until="networkidle", timeout=15000)
+        wait_until = "domcontentloaded" if filename in AI_HEAVY else "networkidle"
+        timeout    = 45000              if filename in AI_HEAVY else 15000
+        page.goto(f"{BASE_URL}/workhive/{filename}", wait_until=wait_until, timeout=timeout)
         page.wait_for_timeout(800)
 
         # Horizontal scroll check — body scrollWidth shouldn't exceed innerWidth
