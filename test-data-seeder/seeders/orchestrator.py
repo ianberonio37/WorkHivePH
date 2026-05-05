@@ -9,6 +9,7 @@ from .inventory import seed_inventory
 from .skill_matrix import seed_skill_matrix
 from .marketplace import seed_marketplace
 from .community import seed_community
+from .projects import seed_projects
 
 
 # Fixed RNG seed so each full reseed produces the same volume of rows per hive.
@@ -39,6 +40,7 @@ def seed_everything(client, log) -> dict:
     step6 = seed_skill_matrix(client, log, ctx)
     step7 = seed_marketplace(client, log, ctx)
     step8 = seed_community(client, log, ctx)
+    step9 = seed_projects(client, log, ctx)   # Phase 6.5 — projects last so all parents exist
 
     log("=" * 50)
     log("DONE")
@@ -54,4 +56,5 @@ def seed_everything(client, log) -> dict:
         **step6,
         **step7,
         **step8,
+        **{f"projects_{k}": len(v) for k, v in step9.items()},
     }

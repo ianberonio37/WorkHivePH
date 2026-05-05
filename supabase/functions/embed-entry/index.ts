@@ -133,6 +133,33 @@ serve(async (req) => {
       };
     }
 
+    // ── PROJECT_LESSON / PROJECT_ITEM / PROJECT_DESCRIPTION (Phase 6.5) ─────
+    else if (type === "project_lesson" || type === "project_item" || type === "project_description") {
+      const text = type === "project_lesson"
+        ? `Lessons from ${entry.project_code}: ${entry.lessons_text || ""}`
+        : type === "project_item"
+        ? `Project ${entry.project_code} (${entry.project_type}) scope item: ${entry.title || ""}${entry.notes ? `. Notes: ${entry.notes}` : ""}`
+        : `Project ${entry.project_code} (${entry.project_type}) — ${entry.name || ""}: ${entry.description || ""}`;
+
+      if (text.trim().length < 30) {
+        return new Response(JSON.stringify({ skipped: true, reason: "insufficient_content", text_length: text.length }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      embedding = await generateEmbedding(text);
+      table = "project_knowledge";
+      row = {
+        hive_id:      hive_id || null,
+        project_id:   entry.project_id || null,
+        source_type:  type,
+        source_id:    entry.source_id || null,
+        project_code: entry.project_code || null,
+        project_type: entry.project_type || null,
+        discipline:   entry.discipline || null,
+        text_chunk:   text.slice(0, 2000),
+        embedding,
+      };
+    }
+
     // ── PM HEALTH (from PM Scheduler save) ──────────────────────────────────
     else if (type === "pm") {
       const overdueText = entry.overdue_count > 0

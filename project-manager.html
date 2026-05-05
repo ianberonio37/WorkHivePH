@@ -1873,6 +1873,11 @@ async function saveScopeItem() {
   if (err) { showToast('Save failed: ' + err.message, 'error'); return; }
   closeModal('modal-scope');
   showToast('Saved.', 'success');
+  // Phase 6.4 — embed scope item for cross-project semantic search
+  if (title.length >= 6) _embedProjectAsync('project_item', {
+    source_id: _editingScopeId || null, title, notes: $('s-notes').value.trim() || null,
+    discipline: $('s-phase').value || null,
+  });
   await refreshDetail();
 }
 
@@ -2378,6 +2383,27 @@ async function saveLessons() {
   if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
   showToast('Lessons saved.', 'success');
   _detail.meta = meta;
+  // Phase 6.4 — embed lessons text for semantic search across projects
+  if (text.length >= 30) _embedProjectAsync('project_lesson', { lessons_text: text });
+}
+
+// Phase 6.4 — fire-and-forget embedding of project content for semantic search.
+// Calls embed-entry edge fn; gracefully no-ops if unavailable.
+function _embedProjectAsync(type, extra) {
+  if (!_detail || !HIVE_ID) return;
+  const payload = {
+    type, hive_id: HIVE_ID,
+    entry: {
+      project_id:   _detail.id,
+      project_code: _detail.project_code,
+      project_type: _detail.project_type,
+      name:         _detail.name,
+      description:  _detail.description,
+      ...extra,
+    },
+  };
+  db.functions.invoke('embed-entry', { body: payload })
+    .catch(e => console.warn('project embed:', e.message));
 }
 async function markComplete() {
   if (!confirm('Mark project as complete? Subsequent edits will need to reopen it.')) return;

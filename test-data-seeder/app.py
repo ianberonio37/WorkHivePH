@@ -24,6 +24,7 @@ from seeders.inventory import seed_inventory
 from seeders.skill_matrix import seed_skill_matrix
 from seeders.marketplace import seed_marketplace
 from seeders.community import seed_community
+from seeders.projects import seed_projects
 from seeders.reset import reset_all
 
 import subprocess
@@ -314,6 +315,7 @@ def api_seed_module(module):
         "skill_matrix": seed_skill_matrix,
         "marketplace": seed_marketplace,
         "community": seed_community,
+        "projects": seed_projects,
     }
 
     if module in standalone_map:

@@ -132,6 +132,138 @@ async function runPredictive(db: SupabaseClient, hiveId: string, voiceContext?: 
   return result.summary || "Predictive done.";
 }
 
+// ── REPORT: Project Suggestions (Phase 6B) ───────────────────────────────────
+// Scans last 90d of logbook for repeat-failure patterns per asset and suggests
+// bundling into a Reliability Study or Breakdown Repair Bundle project. Skips
+// hives that already have an active project for the candidate asset.
+
+const PROJECT_SUGGESTIONS_SYSTEM = `You are a maintenance reliability analyst. From a list of assets with high recent breakdown counts in the last 90 days, suggest which deserve a formal project (Reliability Study for >=5 breakdowns, Breakdown Repair Bundle for repeated same root cause).
+
+Respond only in JSON:
+{
+  "suggestions": [
+    {
+      "asset_name": "string",
+      "breakdown_count": number,
+      "dominant_root_cause": "string or null",
+      "suggested_project_type": "workorder|shutdown|capex",
+      "suggested_template_id": "reliability_study|breakdown_bundle|pump_overhaul|...",
+      "rationale": "1 sentence why this asset deserves a project"
+    }
+  ],
+  "summary": "one sentence executive summary for supervisor"
+}
+
+Suggest at most 5 assets. If no clear candidates, return empty suggestions array.`;
+
+async function runProjectSuggestions(db: SupabaseClient, hiveId: string, voiceContext?: string): Promise<string> {
+  const since = new Date(Date.now() - 90 * 86400000).toISOString();
+  const { data: logs } = await db.from("logbook")
+    .select("machine, root_cause, maintenance_type, created_at")
+    .eq("hive_id", hiveId).eq("maintenance_type", "Breakdown / Corrective")
+    .gte("created_at", since).limit(500);
+  if (!logs?.length) return "No breakdown history in the last 90 days.";
+
+  // Skip assets already covered by an active project
+  const { data: activeProjects } = await db.from("projects")
+    .select("id").eq("hive_id", hiveId).in("status", ["planning", "active"]).is("deleted_at", null);
+  const activeProjectIds = (activeProjects || []).map(p => p.id);
+  let coveredAssets: string[] = [];
+  if (activeProjectIds.length) {
+    const { data: links } = await db.from("project_links")
+      .select("label").in("project_id", activeProjectIds).eq("link_type", "asset");
+    coveredAssets = (links || []).map(l => (l as Record<string, string>).label || "").filter(Boolean);
+  }
+
+  // Group breakdowns by machine, count + dominant root cause
+  const byMachine: Record<string, { count: number; causes: Record<string, number> }> = {};
+  for (const l of logs) {
+    const m = (l as Record<string, string>).machine;
+    if (!m || coveredAssets.includes(m)) continue;
+    if (!byMachine[m]) byMachine[m] = { count: 0, causes: {} };
+    byMachine[m].count += 1;
+    const rc = (l as Record<string, string>).root_cause;
+    if (rc) byMachine[m].causes[rc] = (byMachine[m].causes[rc] || 0) + 1;
+  }
+
+  const candidates = Object.entries(byMachine)
+    .filter(([_, v]) => v.count >= 3)
+    .sort((a, b) => b[1].count - a[1].count)
+    .slice(0, 10)
+    .map(([m, v]) => {
+      const dominant = Object.entries(v.causes).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+      return `${m}|${v.count}|${dominant || "various"}`;
+    });
+  if (!candidates.length) return "No assets with 3+ breakdowns. No project suggestions.";
+
+  const ctx = voiceContext ? `\n\nUser context: "${voiceContext}"` : "";
+  const raw = await callGroq(`Assets with breakdown counts last 90d (machine|count|dominant_root_cause):\n${candidates.join("\n")}${ctx}`, PROJECT_SUGGESTIONS_SYSTEM);
+  const result = JSON.parse(raw);
+  await saveReport(db, hiveId, "project_suggestions", result, result.summary || "Project suggestions ready.");
+  return result.summary || `${(result.suggestions || []).length} project suggestion(s).`;
+}
+
+// ── REPORT: Project Risk Flagging (Phase 6C) ─────────────────────────────────
+// Scans recent project_progress_logs blockers across active projects, classifies
+// into themes (parts, permits, scope, weather, resources) and counts hot themes.
+
+const PROJECT_RISK_SYSTEM = `You are a project risk analyst. Classify maintenance project blockers from progress logs into recurring themes and surface the top risks for the supervisor.
+
+Themes to use (consistent across all reports):
+- "parts_unavailable" — waiting on parts, supplier delay, vendor lead time
+- "permit_delay"      — PTW issue, LOTO not ready, regulatory hold
+- "scope_creep"       — additional work discovered, change order needed
+- "weather"           — rain, typhoon, heat
+- "resource"          — crew unavailable, contractor no-show, skill gap
+- "safety"            — incident, near miss, equipment hazard
+- "other"             — anything that doesn't fit above
+
+Respond only in JSON:
+{
+  "theme_counts": { "parts_unavailable": n, "permit_delay": n, ... },
+  "top_risks": [
+    {
+      "theme": "string",
+      "project_codes": ["SHD-2026-001", ...],
+      "example_blocker": "verbatim quote ≤120 chars",
+      "recommendation": "1 sentence actionable next step"
+    }
+  ],
+  "summary": "one sentence executive summary"
+}
+
+Top 3 risks max. Use only the data provided — never invent.`;
+
+async function runProjectRisk(db: SupabaseClient, hiveId: string, voiceContext?: string): Promise<string> {
+  const since = new Date(Date.now() - 30 * 86400000).toISOString();
+  // Get active projects + their blockers from last 30d
+  const { data: projects } = await db.from("projects")
+    .select("id, project_code").eq("hive_id", hiveId)
+    .in("status", ["planning", "active"]).is("deleted_at", null);
+  if (!projects?.length) return "No active projects with blockers to analyse.";
+
+  const projectIds = projects.map(p => p.id);
+  const { data: logs } = await db.from("project_progress_logs")
+    .select("project_id, blockers, log_date")
+    .in("project_id", projectIds).gte("log_date", since.slice(0, 10));
+  const withBlockers = (logs || []).filter(l => ((l as Record<string, string>).blockers || "").trim());
+  if (!withBlockers.length) return "No blockers reported in active projects last 30 days.";
+
+  const projCodeById: Record<string, string> = {};
+  projects.forEach(p => { projCodeById[p.id] = p.project_code; });
+
+  const blockerLines = withBlockers.slice(0, 50).map(l => {
+    const code = projCodeById[(l as Record<string, string>).project_id] || "?";
+    return `${code}|${(l as Record<string, string>).log_date}|${(l as Record<string, string>).blockers.slice(0, 200)}`;
+  });
+
+  const ctx = voiceContext ? `\n\nUser context: "${voiceContext}"` : "";
+  const raw = await callGroq(`Project blockers last 30d (project_code|date|text):\n${blockerLines.join("\n")}${ctx}`, PROJECT_RISK_SYSTEM);
+  const result = JSON.parse(raw);
+  await saveReport(db, hiveId, "project_risk", result, result.summary || "Project risk analysis complete.");
+  return result.summary || `${(result.top_risks || []).length} risk theme(s) flagged.`;
+}
+
 // ── Entry point ───────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -185,10 +317,12 @@ serve(async (req) => {
     }
 
     const runners: Record<string, (db: SupabaseClient, hiveId: string, voiceContext?: string) => Promise<string>> = {
-      pm_overdue:      runPMOverdue,
-      failure_digest:  runFailureDigest,
-      shift_handover:  runShiftHandover,
-      predictive:      runPredictive,
+      pm_overdue:           runPMOverdue,
+      failure_digest:       runFailureDigest,
+      shift_handover:       runShiftHandover,
+      predictive:           runPredictive,
+      project_suggestions:  runProjectSuggestions,   // Phase 6B
+      project_risk:         runProjectRisk,          // Phase 6C
     };
 
     const runner = runners[report_type];

@@ -252,9 +252,10 @@ Add intelligence on top of stable foundations. AI is enhancement, not the engine
 | 6.8 — AI-generated audit tags | ✓ Done | this commit (meta._ai_generated_*) | 2026-05-05 |
 | 6A — NL project creation | ✓ Done | project-orchestrator phase=intent | 2026-05-05 |
 | 6D — AI handover narrative | ✓ Done | project-orchestrator phase=narrative | 2026-05-05 |
-| 6B — AI template suggestions | ⬜ Deferred | Phase 6.5 — scheduled-agents extension; benefits from real-user data | — |
-| 6C — AI risk flagging | ⬜ Deferred | Phase 6.5 — scheduled-agents extension; benefits from real-user data | — |
-| 6.4 — Embed-entry extension for projects | ⬜ Deferred | Phase 6.5 — semantic search over project_items; benefits from real-user data | — |
+| 6B — AI template suggestions | ✓ Done | scheduled-agents report_type=project_suggestions (weekly Mon cron) | 2026-05-05 |
+| 6C — AI risk flagging | ✓ Done | scheduled-agents report_type=project_risk (weekly Wed cron) | 2026-05-05 |
+| 6.4 — Embed-entry extension for projects | ✓ Done | embed-entry handles project_lesson / project_item / project_description; project_knowledge table | 2026-05-05 |
+| 6.5+ — Project seeder for Tester | ✓ Done | seeders/projects.py — 4 projects per hive across all types with realistic blockers + lessons | 2026-05-05 |
 
 ---
 

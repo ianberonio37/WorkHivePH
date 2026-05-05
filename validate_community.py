@@ -40,6 +40,13 @@ Validates community.html for correctness, security, and platform standards.
     23. parseMentions exists and is called from submitPost when @mention UI
         is present in the composer
 
+  Layer 7 — DB trigger column safety (latent crash guard)
+    24. badge_trigger_column_match — handle_community_post_xp INSERT into
+        skill_badges only references columns that exist in the table schema.
+        The 10th-post milestone badge insert will crash in production if
+        badge_key (or any other column) is referenced but not defined on the
+        table. ON CONFLICT clause is also checked against the schema.
+
 Usage:  python validate_community.py
 Output: community_report.json
 """
@@ -78,6 +85,7 @@ CHECKS = {
     "select_includes_optional_cols": "L6  community_posts SELECTs include mentions/edited_at/deleted_at if any do",
     "soft_delete_uses_undo":  "L6  deletePost uses showUndoToast (soft-delete recovery window)",
     "mention_parser_wired":   "L6  parseMentions defined and called in submitPost when @mention UI exists",
+    "badge_trigger_column_match": "L7  handle_community_post_xp INSERT columns all exist in skill_badges schema",
 }
 
 
@@ -364,6 +372,93 @@ def check_mention_parser_wired(content):
     return issues
 
 
+def check_badge_trigger_column_match():
+    """
+    handle_community_post_xp inserts into skill_badges with an explicit column
+    list. If any column in that INSERT (or its ON CONFLICT clause) doesn't exist
+    in the skill_badges table definition, PostgreSQL raises a column-not-found
+    error — crashing silently for any worker who hits their 10th post per hive.
+
+    Root cause of May 2026 latent bug: badge_key was added to the INSERT and
+    ON CONFLICT but the skill_badges table was never given that column.
+    """
+    import glob as _glob
+    issues = []
+
+    migrations_dir = "supabase/migrations"
+    if not os.path.isdir(migrations_dir):
+        return issues
+
+    migration_files = sorted(_glob.glob(os.path.join(migrations_dir, "*.sql")))
+    full_sql = "\n".join(read_file(f) or "" for f in migration_files)
+
+    # Extract skill_badges table column names from the CREATE TABLE block.
+    # Match "skill_badges" followed immediately by the opening paren to avoid
+    # matching the CONSTRAINT name "skill_badges_level_check" inside the body.
+    table_match = re.search(
+        r'"skill_badges"\s*\(([\s\S]*?)\n\s*\);',
+        full_sql
+    )
+    if not table_match:
+        return issues
+
+    table_body = table_match.group(1)
+    # Match: "col_name" followed by whitespace + either a quoted type ("text") or bare type (integer)
+    schema_cols = set(re.findall(r'"(\w+)"\s+["\w]', table_body))
+    schema_cols -= {"CONSTRAINT", "PRIMARY", "FOREIGN", "UNIQUE", "CHECK", "EXCLUDE", "NOT"}
+
+    # Also pick up columns added via later migrations (ALTER TABLE skill_badges ADD COLUMN ...)
+    # Without this, the validator flags valid trigger columns as missing — e.g. badge_key
+    # was added in 20260504000000_skill_badges_badge_key.sql via ALTER TABLE.
+    for m in re.finditer(
+        r'ALTER\s+TABLE\s+(?:"public"\.)?"?skill_badges"?\s+ADD\s+COLUMN\s+(?:IF\s+NOT\s+EXISTS\s+)?["]?(\w+)["]?',
+        full_sql, re.IGNORECASE
+    ):
+        schema_cols.add(m.group(1))
+
+    # Find the last definition of handle_community_post_xp (newest migration wins)
+    fn_matches = list(re.finditer(
+        r'CREATE OR REPLACE FUNCTION[^(]*handle_community_post_xp\s*\(\)',
+        full_sql
+    ))
+    if not fn_matches:
+        return issues
+
+    fn_body = full_sql[fn_matches[-1].start():fn_matches[-1].start() + 3000]
+
+    # Check INSERT column list
+    insert_match = re.search(r'INSERT INTO skill_badges\s*\(([^)]+)\)', fn_body)
+    if insert_match:
+        insert_cols = [c.strip() for c in insert_match.group(1).split(",")]
+        missing = [c for c in insert_cols if c not in schema_cols]
+        if missing:
+            issues.append({
+                "check": "badge_trigger_column_match",
+                "reason": (
+                    f"handle_community_post_xp INSERT INTO skill_badges uses "
+                    f"column(s) {missing} that don't exist in the skill_badges "
+                    f"table definition — trigger crashes on every worker's 10th post"
+                )
+            })
+
+    # Check ON CONFLICT column list
+    conflict_match = re.search(r'ON CONFLICT\s*\(([^)]+)\)', fn_body)
+    if conflict_match:
+        conflict_cols = [c.strip() for c in conflict_match.group(1).split(",")]
+        missing_cc = [c for c in conflict_cols if c not in schema_cols]
+        if missing_cc:
+            issues.append({
+                "check": "badge_trigger_column_match",
+                "reason": (
+                    f"handle_community_post_xp ON CONFLICT references "
+                    f"column(s) {missing_cc} not in skill_badges schema — "
+                    f"PostgreSQL will reject the trigger (no such column or constraint)"
+                )
+            })
+
+    return issues
+
+
 # Ordered list of check keys (drives print order)
 CHECK_NAMES = list(CHECKS.keys())
 CHECK_LABELS = CHECKS
@@ -373,7 +468,7 @@ CHECK_LABELS = CHECKS
 
 def main():
     def bold(s): return f"\033[1m{s}\033[0m"
-    print(bold("\nCommunity Validator (6-layer, 24 checks)"))
+    print(bold("\nCommunity Validator (7-layer, 25 checks)"))
     print("=" * 55)
 
     content = read_file(PAGE)
@@ -406,6 +501,7 @@ def main():
     all_issues += check_select_includes_optional_cols(content)
     all_issues += check_soft_delete_uses_undo(content)
     all_issues += check_mention_parser_wired(content)
+    all_issues += check_badge_trigger_column_match()
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 
