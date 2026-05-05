@@ -16,10 +16,17 @@ from datetime import datetime, timezone
 
 
 def _parse_date(s):
+    """Parse ISO string to UTC-aware datetime. Naive inputs (e.g. '2026-05-02')
+    are coerced to UTC so they can be subtracted from datetime.now(timezone.utc)
+    without "can't subtract offset-naive and offset-aware datetimes" errors."""
     if not s:
         return None
     try:
-        return datetime.fromisoformat(s.replace("Z", "+00:00"))
+        from datetime import timezone as _tz
+        dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=_tz.utc)
+        return dt
     except Exception:
         return None
 
