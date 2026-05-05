@@ -584,8 +584,12 @@
     });
 
     document.addEventListener('click', e => {
-      const hub = document.getElementById('wh-hub');
-      if (isOpen && hub && !hub.contains(e.target)) closeHub();
+      const hub   = document.getElementById('wh-hub');
+      const aiWgt = document.getElementById('wh-ai-widget');
+      // Don't close the hub when clicking the floating-AI widget — the AI
+      // button lives outside #wh-hub so would otherwise trigger closeHub()
+      // before the AI click handler could fire, making the button disappear.
+      if (isOpen && hub && !hub.contains(e.target) && !(aiWgt && aiWgt.contains(e.target))) closeHub();
     });
 
     /* Search — real-time filter on All Tools grid */
