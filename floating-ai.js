@@ -386,7 +386,7 @@
           border-radius: 10px;
           color: #fff;
           font-family: 'Poppins', sans-serif;
-          font-size: 12px;
+          font-size: 16px; /* exact 16px — iOS Safari auto-zooms on any input < 16px */
           padding: 8px 12px;
           outline: none;
           resize: none;

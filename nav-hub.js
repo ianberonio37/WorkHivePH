@@ -284,7 +284,9 @@
         #wh-hub-search {
           width: 100%; background: rgba(255,255,255,0.06);
           border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
-          padding: 8px 32px 8px 32px; font-size: 12px; color: rgba(255,255,255,0.85);
+          padding: 8px 32px 8px 32px;
+          font-size: 16px; /* exact 16px — iOS Safari auto-zooms on any input < 16px */
+          color: rgba(255,255,255,0.85);
           font-family: 'Poppins', sans-serif; outline: none;
           transition: border-color 0.15s, background 0.15s;
         }
