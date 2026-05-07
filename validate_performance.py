@@ -1,4 +1,4 @@
-"""
+﻿"""
 Performance Anti-Pattern Validator — WorkHive Platform
 =======================================================
 Performance issues are invisible during development when the database is
@@ -51,7 +51,11 @@ LIVE_PAGES = [
     "marketplace-seller-profile.html",
     "public-feed.html",
     "project-manager.html",
+    "integrations.html",
+    "ph-intelligence.html",
     "project-report.html",
+    "predictive.html",
+    "achievements.html",
 ]
 
 HIGH_GROWTH_TABLES = ["logbook", "inventory_transactions"]
@@ -334,3 +338,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

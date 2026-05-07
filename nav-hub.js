@@ -12,42 +12,63 @@
   'use strict';
 
   // ─── Tool Registry ────────────────────────────────────────────────────────────
+  // section: null = no header (home only) | string = group label shown in All Tools grid
   const TOOLS = [
-    { label: 'Home',         href: 'index.html',        match: ['index', '/'],
+    { label: 'Home',         href: 'index.html',        match: ['index', '/'],         section: null,
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>` },
-    { label: 'Logbook',      href: 'logbook.html',      match: ['logbook'],
+
+    // ── Field Work: what you do every shift on the floor ─────────────────────
+    { label: 'Logbook',      href: 'logbook.html',      match: ['logbook'],            section: 'Field Work',
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>` },
-    { label: 'Inventory',    href: 'inventory.html',    match: ['inventory'],
+    { label: 'Inventory',    href: 'inventory.html',    match: ['inventory'],          section: 'Field Work',
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>` },
-    { label: 'Day Planner',  href: 'dayplanner.html',   match: ['dayplanner'],
+    { label: 'Day Planner',  href: 'dayplanner.html',   match: ['dayplanner'],         section: 'Field Work',
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8" y2="14" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="14" x2="12" y2="14" stroke-width="3" stroke-linecap="round"/><line x1="16" y1="14" x2="16" y2="14" stroke-width="3" stroke-linecap="round"/></svg>` },
-    { label: 'WorkHive',     href: 'hive.html',         match: ['hive'],
+
+    // ── Your Team: team operations and collaboration ──────────────────────────
+    { label: 'WorkHive',     href: 'hive.html',         match: ['hive'],               section: 'Your Team',
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>` },
-    { label: 'AI Assistant', href: 'assistant.html',    match: ['assistant'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><line x1="9" y1="10" x2="9" y2="10" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="10" x2="12" y2="10" stroke-width="3" stroke-linecap="round"/><line x1="15" y1="10" x2="15" y2="10" stroke-width="3" stroke-linecap="round"/></svg>`,
-      accent: true },
-    { label: 'Skill Matrix',  href: 'skillmatrix.html', match: ['skillmatrix'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>` },
-    { label: 'Eng. Design',  href: 'engineering-design.html', match: ['engineering-design'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M5 20V10l7-7 7 7v10"/><path d="M9 20v-5h6v5"/></svg>` },
-    { label: 'PM Scheduler', href: 'pm-scheduler.html', match: ['pm-scheduler'],
+    { label: 'PM Scheduler', href: 'pm-scheduler.html', match: ['pm-scheduler'],       section: 'Your Team',
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>` },
+    { label: 'Community',    href: 'community.html',    match: ['community'],          section: 'Your Team',
+      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/><line x1="12" y1="21" x2="12" y2="21" stroke-width="3" stroke-linecap="round"/></svg>` },
+
+    // ── Intelligence: AI, analytics, and predictions ──────────────────────────
     // Analytics Report MUST be listed before Analytics — both paths contain
     // 'analytics', and getCurrentTool() returns the first match in iteration order.
-    { label: 'Analytics Report', href: 'analytics-report.html', match: ['analytics-report'],
+    { label: 'Analytics Report', href: 'analytics-report.html', match: ['analytics-report'], section: 'Intelligence',
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/><line x1="9" y1="9" x2="11" y2="9"/></svg>` },
-    { label: 'Analytics', href: 'analytics.html', match: ['analytics'],
+    { label: 'Analytics',    href: 'analytics.html',    match: ['analytics'],          section: 'Intelligence',
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>` },
-    { label: 'Report Sender', href: 'report-sender.html', match: ['report-sender'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>` },
-    { label: 'Community', href: 'community.html', match: ['community'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/><line x1="12" y1="21" x2="12" y2="21" stroke-width="3" stroke-linecap="round"/></svg>` },
-    { label: 'Marketplace', href: 'marketplace.html', match: ['marketplace'],
+    { label: 'Predictive ML', href: 'predictive.html',  match: ['predictive'],         section: 'Intelligence',
+      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>` },
+    { label: 'AI Assistant', href: 'assistant.html',    match: ['assistant'],          section: 'Intelligence',
+      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><line x1="9" y1="10" x2="9" y2="10" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="10" x2="12" y2="10" stroke-width="3" stroke-linecap="round"/><line x1="15" y1="10" x2="15" y2="10" stroke-width="3" stroke-linecap="round"/></svg>`,
+      accent: true },
+    { label: 'PH Intelligence', href: 'ph-intelligence.html', match: ['ph-intelligence'], section: 'Intelligence',
+      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>` },
+
+    // ── Build & Projects: engineering and project work ────────────────────────
+    { label: 'Eng. Design',  href: 'engineering-design.html', match: ['engineering-design'], section: 'Build & Projects',
+      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M5 20V10l7-7 7 7v10"/><path d="M9 20v-5h6v5"/></svg>` },
+    { label: 'Project Manager', href: 'project-manager.html', match: ['project-manager'], section: 'Build & Projects',
+      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>` },
+    { label: 'Project Report', href: 'project-report.html', match: ['project-report'],  section: 'Build & Projects',
+      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>` },
+
+    // ── Grow: professional development ────────────────────────────────────────
+    { label: 'Skill Matrix', href: 'skillmatrix.html',  match: ['skillmatrix'],        section: 'Grow',
+      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>` },
+    { label: 'Achievements', href: 'achievements.html', match: ['achievements'],       section: 'Grow',
+      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>` },
+
+    // ── Connect: marketplace and integrations ─────────────────────────────────
+    { label: 'Marketplace',  href: 'marketplace.html',  match: ['marketplace'],        section: 'Connect',
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>` },
-    { label: 'Project Manager', href: 'project-manager.html', match: ['project-manager'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>` },
-    { label: 'Project Report', href: 'project-report.html', match: ['project-report'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>` },
+    { label: 'Report Sender', href: 'report-sender.html', match: ['report-sender'],    section: 'Connect',
+      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>` },
+    { label: 'CMMS Integration', href: 'integrations.html', match: ['integrations'],  section: 'Connect',
+      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>` },
     // public-feed.html: public read-only page — linked from index.html, not the app nav
   ];
 
@@ -93,16 +114,22 @@
     const wrapper = document.createElement('div');
     wrapper.id = 'wh-hub';
 
-    /* All-tools grid (collapsed by default) */
-    const tilesHTML = TOOLS.map(t => {
+    /* All-tools grid — with section headers spanning full width */
+    let _lastSection = null;
+    const tilesHTML = TOOLS.reduce((acc, t) => {
+      // Insert section header when section changes (skip null = Home)
+      if (t.section && t.section !== _lastSection) {
+        _lastSection = t.section;
+        acc += `<p class="wh-hub-section-label wh-hub-section-break">${t.section}</p>`;
+      }
       const isCurrent = t === current;
-      return `
-        <a href="${t.href}" class="wh-hub-tile${isCurrent ? ' active' : ''}${t.accent ? ' accent' : ''}" ${isCurrent ? 'aria-current="page"' : ''}>
-          <span class="wh-hub-tile-icon">${t.icon}</span>
-          <span class="wh-hub-tile-label">${t.label}</span>
-          ${isCurrent ? '<span class="wh-hub-tile-dot"></span>' : ''}
-        </a>`;
-    }).join('');
+      acc += `<a href="${t.href}" class="wh-hub-tile${isCurrent ? ' active' : ''}${t.accent ? ' accent' : ''}" ${isCurrent ? 'aria-current="page"' : ''}>
+        <span class="wh-hub-tile-icon">${t.icon}</span>
+        <span class="wh-hub-tile-label">${t.label}</span>
+        ${isCurrent ? '<span class="wh-hub-tile-dot"></span>' : ''}
+      </a>`;
+      return acc;
+    }, '');
 
     /* Quick access row — top 4 by recent usage */
     const quickTools = getQuickTools(4);
@@ -228,6 +255,18 @@
           text-transform: uppercase; color: rgba(255,255,255,0.25);
           margin: 0 0 8px;
         }
+        /* Section breaks inside the all-tools grid span all columns */
+        .wh-hub-section-break {
+          grid-column: 1 / -1;
+          margin-top: 14px;
+          padding-top: 12px;
+          border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .wh-hub-section-break:first-child,
+        #wh-hub-tiles > .wh-hub-section-break:first-child {
+          margin-top: 0; padding-top: 0; border-top: none;
+        }
+        .wh-hub-section-break.hidden { display: none !important; }
 
         /* ── Quick access row (4 icon + short label tiles) ── */
         #wh-hub-quick { margin-bottom: 4px; }
@@ -606,9 +645,10 @@
     }
 
     function filterTools(q) {
-      const tiles = document.querySelectorAll('#wh-hub-tiles .wh-hub-tile');
-      const query = q.trim().toLowerCase();
-      let visible = 0;
+      const tiles  = document.querySelectorAll('#wh-hub-tiles .wh-hub-tile');
+      const breaks = document.querySelectorAll('#wh-hub-tiles .wh-hub-section-break');
+      const query  = q.trim().toLowerCase();
+      let visible  = 0;
       tiles.forEach(tile => {
         const label = (tile.querySelector('.wh-hub-tile-label')?.textContent || '').toLowerCase();
         const href  = (tile.getAttribute('href') || '').toLowerCase();
@@ -616,6 +656,8 @@
         tile.classList.toggle('hidden', !match);
         if (match) visible++;
       });
+      // Hide section break headers while searching (grid becomes a flat filtered list)
+      breaks.forEach(b => b.classList.toggle('hidden', !!query));
       if (noResults) noResults.style.display = (query && visible === 0) ? 'block' : 'none';
       // Also hide Recent row when searching (search shows all matches in the grid)
       const quickSection = document.getElementById('wh-hub-quick');

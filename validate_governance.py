@@ -42,6 +42,7 @@ WRITE_PAGES = [
     "pm-scheduler.html",
     "hive.html",
     "skillmatrix.html",
+    "integrations.html",
 ]
 
 # Supervisor-only functions: (page, func_name, description)

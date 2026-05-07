@@ -1025,6 +1025,7 @@
   let _hasMore       = false;
   let _loadingMore   = false;
   let _watchlist     = new Set(); /* listing IDs the current buyer has saved */
+  let _sellerTiers   = {};        /* { sellerName: topLevel } for tier frames */
   let _compareMode   = false;
   let _compareSet    = new Set(); /* listing IDs selected for RFQ */
   const COMPARE_MAX  = 5;
@@ -1627,7 +1628,7 @@
           </div>
           <div class="card-footer">
             <a class="seller-row seller-link" href="marketplace-seller-profile.html?worker=${encodeURIComponent(item.seller_name || '')}" style="text-decoration:none;color:inherit;" data-seller="${e(item.seller_name || '')}">
-              <div class="seller-avatar">${e(initials(item.seller_name))}</div>
+              ${renderWorkerAvatar(item.seller_name || 'Seller', _sellerTiers[item.seller_name] || 0, 22)}
               <span class="seller-name">${e(item.seller_name || 'Seller')}</span>
             </a>
             <div style="display:flex;align-items:center;gap:0.4rem;">
@@ -1782,6 +1783,9 @@
       _hasMore = false;
     }
 
+    const sellerNames = [...new Set(_listings.map(l => l.seller_name).filter(Boolean))];
+    if (sellerNames.length) Object.assign(_sellerTiers, await loadWorkerTiers(db, sellerNames));
+
     _loadingMore = false;
     renderListings();
     updateLoadMoreBtn();
@@ -1906,7 +1910,7 @@
           <a href="marketplace-seller-profile.html?worker=${encodeURIComponent(item.seller_name || '')}" style="text-transform:none;letter-spacing:normal;font-size:0.7rem;color:#29B6D9;text-decoration:none;font-weight:600;">View profile →</a>
         </div>
         <div class="seller-card">
-          <div class="seller-card-avatar">${e(initials(item.seller_name))}</div>
+          <div style="flex-shrink:0;padding-bottom:${(_sellerTiers[item.seller_name]||0)>0?'10px':'0'}">${renderWorkerAvatar(item.seller_name || 'Seller', _sellerTiers[item.seller_name] || 0, 42)}</div>
           <div class="seller-card-info">
             <div class="seller-card-name">${e(item.seller_name || 'Seller')}</div>
             <div class="seller-card-meta">

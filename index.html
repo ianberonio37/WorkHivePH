@@ -688,6 +688,87 @@
 </nav>
 
 <!-- ═══════════════════════════════════════════════
+     OPERATIONAL HOME DASHBOARD (logged-in users)
+     Shown instead of marketing when wh_last_worker exists.
+     Reads from production Supabase for live data.
+═══════════════════════════════════════════════ -->
+<div id="ops-home" style="display:none; padding-top:64px; min-height:100vh; background:#0f1923; font-family:'Poppins',sans-serif; position:relative; z-index:1;">
+  <style>
+    #ops-home .oh-card { background:rgba(22,32,50,0.85); border:1px solid rgba(255,255,255,0.07); border-radius:12px; }
+    #ops-home .oh-stat-num { font-size:1.8rem; font-weight:800; display:block; line-height:1; }
+    #ops-home .oh-stat-lbl { font-size:0.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:rgba(255,255,255,.35); margin-top:4px; display:block; }
+    #ops-home .oh-sec-lbl { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,.3); margin:0 0 10px; }
+    #ops-home .oh-job-row { display:flex; align-items:center; gap:10px; padding:10px 14px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:10px; }
+    #ops-home .oh-badge { font-size:.55rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; padding:.2rem .5rem; border-radius:6px; }
+    #ops-home .oh-badge-open { background:rgba(251,146,60,.15); color:#fb923c; }
+    #ops-home .oh-badge-crit { background:rgba(248,113,113,.15); color:#f87171; }
+    #ops-home .oh-badge-high { background:rgba(251,146,60,.15); color:#fb923c; }
+    #ops-home .oh-qa-btn { display:flex; align-items:center; gap:9px; padding:14px 16px; border-radius:12px; text-decoration:none; font-size:.82rem; font-weight:700; border:1px solid; transition:opacity .15s; }
+    #ops-home .oh-qa-btn:hover { opacity:.8; }
+    @media(max-width:500px){ #ops-home .oh-stats-grid { grid-template-columns:repeat(2,1fr) !important; } }
+  </style>
+
+  <div style="max-width:840px; margin:0 auto; padding:28px 16px 100px;">
+
+    <!-- Greeting header -->
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:28px;">
+      <div>
+        <h1 id="oh-greeting" style="font-size:1.35rem; font-weight:800; color:#F4F6FA; margin:0 0 4px;"></h1>
+        <p id="oh-date" style="font-size:.72rem; color:rgba(255,255,255,.35); margin:0;"></p>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center; flex-shrink:0;">
+        <a href="hive.html" id="oh-hive-btn" style="display:none; font-size:.7rem; font-weight:700; padding:6px 14px; background:rgba(41,182,217,.12); color:#29B6D9; border:1px solid rgba(41,182,217,.25); border-radius:8px; text-decoration:none;" aria-label="Open hive board"></a>
+        <button onclick="signOut()" style="font-size:.7rem; font-weight:600; padding:6px 14px; background:rgba(255,255,255,.05); color:rgba(255,255,255,.45); border:1px solid rgba(255,255,255,.1); border-radius:8px; font-family:inherit; cursor:pointer;">Sign Out</button>
+      </div>
+    </div>
+
+    <!-- Summary stats (4 cards) -->
+    <div id="oh-stats" class="oh-stats-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:20px;"></div>
+
+    <!-- Alert strip (critical/high risk assets — shown only if present) -->
+    <div id="oh-alerts" style="display:none; margin-bottom:20px;"></div>
+
+    <!-- Open jobs -->
+    <div style="margin-bottom:24px;">
+      <p class="oh-sec-lbl">My Open Jobs</p>
+      <div id="oh-jobs" style="display:flex; flex-direction:column; gap:8px;">
+        <div style="text-align:center; padding:20px; color:rgba(255,255,255,.25); font-size:.78rem;">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Quick actions (2x2 grid) -->
+    <div style="margin-bottom:24px;">
+      <p class="oh-sec-lbl">Quick Actions</p>
+      <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:10px;">
+        <a href="logbook.html" class="oh-qa-btn" style="background:rgba(247,162,27,.08); color:#F7A21B; border-color:rgba(247,162,27,.25);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Log a Job
+        </a>
+        <a href="pm-scheduler.html" class="oh-qa-btn" style="background:rgba(41,182,217,.08); color:#29B6D9; border-color:rgba(41,182,217,.25);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01"/></svg>
+          Check PM
+        </a>
+        <a href="analytics.html" class="oh-qa-btn" style="background:rgba(167,139,250,.08); color:#a78bfa; border-color:rgba(167,139,250,.25);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+          Analytics
+        </a>
+        <a href="assistant.html" class="oh-qa-btn" style="background:rgba(74,222,128,.08); color:#4ade80; border-color:rgba(74,222,128,.25);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          Ask AI
+        </a>
+      </div>
+    </div>
+
+    <!-- Low stock section (shown only if items below reorder point) -->
+    <div id="oh-stock" style="display:none; margin-bottom:20px;"></div>
+
+  </div>
+</div>
+
+<!-- Marketing page wrapper — hidden when user is logged in -->
+<div id="mkt-wrap">
+
+<!-- ═══════════════════════════════════════════════
      HERO
 ═══════════════════════════════════════════════ -->
 <section class="relative min-h-screen flex items-center pt-16 hex-pattern grain overflow-hidden" style="background: linear-gradient(135deg, rgba(13,24,36,0.72) 0%, rgba(22,32,50,0.68) 40%, rgba(26,38,56,0.72) 100%); position: relative; z-index: 1;">
@@ -1295,6 +1376,8 @@
   </div>
 </section>
 
+</div><!-- /#mkt-wrap -->
+
 <!-- ═══════════════════════════════════════════════
      FOOTER
 ═══════════════════════════════════════════════ -->
@@ -1527,6 +1610,7 @@
         { name: 'Day Planner', desc: 'DILO / WILO / MILO / YILO multi-resolution scheduler with logbook integration.', link: 'dayplanner.html', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
         { name: 'My Work Assistant', desc: 'Ask anything: technical questions or your own job history.', link: 'assistant.html', icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
         { name: 'Skill Matrix', desc: 'Train, test, and earn level badges across 5 industrial disciplines. See your spider-chart skill profile.', link: 'skillmatrix.html', icon: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z' },
+        { name: 'Achievements', desc: 'Track your mastery across 12 domains. Earn XP from real work, level up through Iron to Legend tier, and see your tier frame on every page.', link: 'achievements.html', icon: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z' },
       ]
     },
     2: {
@@ -1552,6 +1636,7 @@
       tabClass: 'active',
       tools: [
         { name: 'Analytics Engine', desc: 'MTBF, MTTR, Availability, PM Compliance, Pareto — ISO 14224 standards-based maintenance analytics.', link: 'analytics.html', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
+        { name: 'Predictive Maintenance', desc: 'Risk rankings and health heatmap per asset. GBM ML model activates after 500+ corrective records; rules engine runs from Day 1.', link: 'predictive.html', icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' },
         { name: 'Failure Predictor Feed', desc: 'AI-flagged equipment alerts for your area.', link: null, icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
         { name: 'Smart Work Order Generator', desc: 'AI drafts work orders from your logbook patterns.', link: null, icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z' },
         { name: 'AI Copilot', desc: 'Ask questions from your plant\'s own history and manuals.', link: null, icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
@@ -1726,6 +1811,16 @@
       <button id="si-btn" onclick="submitSignIn()"
         class="w-full rounded-xl py-3 text-sm font-bold"
         style="background:#F7A21B; color:#162032;">Sign In</button>
+
+      <!-- SSO (Phase 4.2) -->
+      <div style="margin-top:12px; text-align:center;">
+        <p style="font-size:.65rem; color:rgba(255,255,255,0.2); margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em;">Or</p>
+        <button id="si-sso-btn" onclick="signInWithSSO()"
+          class="w-full rounded-xl py-2.5 text-sm font-semibold"
+          style="background:rgba(41,182,217,0.08); color:#29B6D9; border:1px solid rgba(41,182,217,0.25);">
+          Enterprise SSO (Okta / Azure AD)
+        </button>
+      </div>
     </div>
 
     <!-- Sign Up panel -->
@@ -1835,6 +1930,23 @@
 
   function closeSignIn() {
     document.getElementById('signin-modal').classList.add('hidden');
+  }
+
+  // ── Enterprise SSO (Phase 4.2) ─────────────────────────────────────────────
+  async function signInWithSSO() {
+    const domain = prompt('Enter your company email domain:\ne.g. acmecorp.com');
+    if (!domain || !domain.includes('.')) { return; }
+    const btn = document.getElementById('si-sso-btn');
+    btn.disabled = true;
+    btn.textContent = 'Redirecting to your identity provider...';
+    try {
+      const { data, error } = await db.auth.signInWithSSO({ domain: domain.trim().toLowerCase() });
+      if (error) { btn.disabled = false; btn.textContent = 'Enterprise SSO (Okta / Azure AD)'; alert('SSO error: ' + error.message + '\n\nEnsure your IT team has configured WorkHive as an SSO application in your identity provider.'); return; }
+      if (data?.url) window.location.href = data.url;
+    } catch (e) {
+      btn.disabled = false; btn.textContent = 'Enterprise SSO (Okta / Azure AD)';
+      alert('SSO not available for this domain. Contact your IT administrator.');
+    }
   }
 
   // ── Sign In ────────────────────────────────────────────────────────────────
@@ -2111,6 +2223,17 @@
     if (new URLSearchParams(window.location.search).get('signin') === '1') {
       openSignIn(null);
     }
+
+    // ── Operational Home Dashboard ─────────────────────────────────────────────
+    // Show dashboard to logged-in users; hide marketing page.
+    const workerName = localStorage.getItem('wh_last_worker')
+                    || localStorage.getItem('wh_worker_name')
+                    || localStorage.getItem('workerName');
+    if (workerName) {
+      document.getElementById('mkt-wrap').style.display = 'none';
+      document.getElementById('ops-home').style.display = 'block';
+      _initDashboard(workerName);
+    }
   });
 </script>
 
@@ -2301,6 +2424,200 @@
       .insert({ email: email.trim().toLowerCase(), source: 'landing_page' });
     if (error && error.code !== '23505') throw error;
   };
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════
+     OPERATIONAL HOME DASHBOARD LOGIC
+     Lazy-loaded: only runs when worker is logged in.
+     Connects to main app Supabase (same as logbook/analytics/etc).
+═══════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  const _OH_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+  const _OH_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+  let _ohDb = null;
+  function _getOhDb() {
+    if (!_ohDb) _ohDb = supabase.createClient(_OH_URL, _OH_KEY);
+    return _ohDb;
+  }
+
+  function _escHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function _timeAgo(iso) {
+    const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+    if (diff < 60)  return 'just now';
+    if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+    return `${Math.floor(diff/86400)}d ago`;
+  }
+
+  function _greeting(name) {
+    const h = new Date().getHours();
+    const time = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+    const first = name.split(' ')[0];
+    return `Good ${time}, ${_escHtml(first)} 👋`;
+  }
+
+  function _dateStr() {
+    const d = new Date();
+    const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()} · ${d.getHours() < 12 ? 'Morning' : d.getHours() < 17 ? 'Afternoon' : 'Evening'} Shift`;
+  }
+
+  function _statCard(id, color, label) {
+    return `<div class="oh-card" style="padding:14px;text-align:center;">
+      <span id="${_escHtml(id)}" class="oh-stat-num" style="color:${_escHtml(color)}">—</span>
+      <span class="oh-stat-lbl">${_escHtml(label)}</span>
+    </div>`;
+  }
+
+  window._initDashboard = async function(workerName) {
+    const db = _getOhDb();
+    const HIVE_ID = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
+    const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
+
+    // Greeting + date
+    document.getElementById('oh-greeting').textContent = _greeting(workerName);
+    document.getElementById('oh-date').textContent = _dateStr();
+
+    // Hive button
+    if (HIVE_ID && HIVE_NAME) {
+      const hiveBtn = document.getElementById('oh-hive-btn');
+      if (hiveBtn) {
+        hiveBtn.style.display = 'block';
+        hiveBtn.textContent = `🐝 ${HIVE_NAME}`;
+      }
+    }
+
+    // Render stat card shells immediately
+    const statsEl = document.getElementById('oh-stats');
+    if (statsEl) {
+      statsEl.innerHTML =
+        _statCard('oh-stat-jobs',  '#F7A21B', 'Open Jobs') +
+        _statCard('oh-stat-risk',  '#f87171', 'Risk Alerts') +
+        _statCard('oh-stat-stock', '#fb923c', 'Low Stock') +
+        _statCard('oh-stat-pm',    '#29B6D9', 'PM Overdue');
+    }
+
+    // Fetch all data in parallel (narrow selects, .limit() enforced)
+    const scopeFilter = HIVE_ID ? { col: 'hive_id', val: HIVE_ID }
+                                 : { col: 'worker_name', val: workerName };
+
+    const [logRes, riskRes, invRes, pmRes] = await Promise.allSettled([
+
+      // Open jobs (mine + hive)
+      db.from('logbook')
+        .select('id, machine, category, maintenance_type, status, logged_at, created_at')
+        .eq(scopeFilter.col, scopeFilter.val)
+        .eq('status', 'Open')
+        .order('logged_at', { ascending: false })
+        .limit(5),
+
+      // Risk alerts (critical/high assets)
+      HIVE_ID
+        ? db.from('asset_risk_scores')
+            .select('asset_name, risk_level, risk_score, generated_at')
+            .eq('hive_id', HIVE_ID)
+            .in('risk_level', ['critical', 'high'])
+            .order('risk_score', { ascending: false })
+            .limit(4)
+        : Promise.resolve({ data: [] }),
+
+      // Inventory items (to find low-stock client-side)
+      db.from('inventory_items')
+        .select('part_name, qty_on_hand, reorder_point')
+        .eq(scopeFilter.col, scopeFilter.val)
+        .limit(100),
+
+      // PM assets (to count with no recent completion)
+      db.from('pm_assets')
+        .select('id, asset_name')
+        .eq(scopeFilter.col, scopeFilter.val)
+        .limit(50),
+    ]);
+
+    const jobs   = logRes.status  === 'fulfilled' ? (logRes.value.data  || []) : [];
+    const risks  = riskRes.status === 'fulfilled' ? (riskRes.value.data || []) : [];
+    const invRaw = invRes.status  === 'fulfilled' ? (invRes.value.data  || []) : [];
+    const pmAssets = pmRes.status === 'fulfilled' ? (pmRes.value.data   || []) : [];
+
+    // Low stock: items where qty_on_hand <= reorder_point (and reorder_point > 0)
+    const lowStock = invRaw.filter(i =>
+      Number(i.reorder_point) > 0 && Number(i.qty_on_hand) <= Number(i.reorder_point)
+    );
+
+    // Update stat numbers (IDs are created by _statCard innerHTML — use ?.)
+    const _s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    _s('oh-stat-jobs',  jobs.length);
+    _s('oh-stat-risk',  risks.length);
+    _s('oh-stat-stock', lowStock.length);
+    _s('oh-stat-pm',    pmAssets.length ? '—' : '0');
+
+    // Alert strip (risk alerts)
+    const alertsEl = document.getElementById('oh-alerts');
+    if (alertsEl && risks.length > 0) {
+      alertsEl.style.display = 'block';
+      alertsEl.innerHTML = `
+        <div class="oh-card" style="padding:12px 16px; border-left:3px solid #f87171;">
+          <p style="font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#f87171; margin:0 0 8px;">Risk Alerts</p>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            ${risks.map(r => `
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                  <span class="oh-badge oh-badge-${_escHtml(r.risk_level)}">${_escHtml(r.risk_level)}</span>
+                  <span style="font-size:.78rem; font-weight:600; color:#F4F6FA; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${_escHtml(r.asset_name)}</span>
+                </div>
+                <a href="predictive.html" style="font-size:.65rem; color:rgba(255,255,255,.4); text-decoration:none; white-space:nowrap; flex-shrink:0;">View →</a>
+              </div>`).join('')}
+          </div>
+        </div>`;
+    }
+
+    // Open jobs list
+    const jobsEl = document.getElementById('oh-jobs');
+    if (jobsEl) {
+      if (!jobs.length) {
+        jobsEl.innerHTML = `<div style="text-align:center; padding:20px; color:rgba(255,255,255,.25); font-size:.78rem;">No open jobs — all clear ✓</div>`;
+      } else {
+        jobsEl.innerHTML = jobs.map(j => {
+          const ts = j.logged_at || j.created_at;
+          const cat = j.category || j.maintenance_type || '';
+          return `<div class="oh-job-row">
+            <div style="flex:1; min-width:0;">
+              <div style="font-size:.82rem; font-weight:700; color:#F4F6FA; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${_escHtml(j.machine || 'Unknown machine')}</div>
+              <div style="font-size:.65rem; color:rgba(255,255,255,.35); margin-top:2px;">${_escHtml(cat)}${ts ? ' · ' + _timeAgo(ts) : ''}</div>
+            </div>
+            <span class="oh-badge oh-badge-open">Open</span>
+            <a href="logbook.html" style="font-size:.65rem; color:rgba(255,255,255,.3); text-decoration:none; flex-shrink:0;">→</a>
+          </div>`;
+        }).join('');
+      }
+    }
+
+    // Low stock section
+    const stockEl = document.getElementById('oh-stock');
+    if (stockEl && lowStock.length > 0) {
+      stockEl.style.display = 'block';
+      stockEl.innerHTML = `
+        <div class="oh-card" style="padding:12px 16px; border-left:3px solid #fb923c;">
+          <p style="font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#fb923c; margin:0 0 8px;">Low Stock (${lowStock.length})</p>
+          <div style="display:flex; flex-wrap:wrap; gap:6px;">
+            ${lowStock.slice(0,8).map(i => `
+              <div style="font-size:.72rem; font-weight:600; background:rgba(251,146,60,.08); border:1px solid rgba(251,146,60,.2); border-radius:6px; padding:.25rem .6rem; color:rgba(255,255,255,.7);">
+                ${_escHtml(i.part_name)} <span style="color:#fb923c;">(${Number(i.qty_on_hand)})</span>
+              </div>`).join('')}
+            ${lowStock.length > 8 ? `<div style="font-size:.7rem; color:rgba(255,255,255,.3); padding:.25rem .6rem;">+${lowStock.length - 8} more</div>` : ''}
+          </div>
+        </div>`;
+    }
+  };
+
 })();
 </script>
 </body>

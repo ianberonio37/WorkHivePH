@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>CMMS Integration | WorkHive</title>
+  <link rel="manifest" href="manifest.json" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- PapaParse for CSV parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <!-- SheetJS for Excel (.xlsx) parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f1923; --surface: #162032; --card: #1d2e44;
+      --gold: #F7A21B; --blue: #29B6D9; --green: #4ade80;
+      --red: #f87171; --purple: #a78bfa;
+      --text: #F4F6FA; --muted: rgba(255,255,255,0.4);
+      --border: rgba(255,255,255,0.07);
+    }
+    body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 80px; }
+
+    #toast {
+      position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-72px);
+      background: rgba(31,46,69,0.96); color: var(--text); padding: .6rem 1.25rem;
+      border-radius: .625rem; font-size: .8rem; font-weight: 500;
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+      z-index: 200; white-space: nowrap; border: 1px solid rgba(255,255,255,0.09);
+      backdrop-filter: blur(14px); pointer-events: none;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    .page { max-width: 760px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+    /* Step indicator */
+    .steps { display: flex; align-items: center; gap: 0; margin-bottom: 2rem; }
+    .step-dot { display: flex; align-items: center; gap: 0; flex: 1; }
+    .step-dot:last-child { flex: 0; }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-size: .68rem; font-weight: 700; flex-shrink: 0;
+      background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3);
+      border: 1px solid rgba(255,255,255,0.1); transition: all .2s;
+    }
+    .step-dot.active   .step-num { background: rgba(247,162,27,0.15); color: var(--gold); border-color: rgba(247,162,27,0.4); }
+    .step-dot.done     .step-num { background: rgba(74,222,128,0.15); color: var(--green); border-color: rgba(74,222,128,0.4); }
+    .step-label { font-size: .6rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-top: 4px; color: rgba(255,255,255,0.2); }
+    .step-dot.active .step-label, .step-dot.done .step-label { color: rgba(255,255,255,0.5); }
+    .step-line { flex: 1; height: 1px; background: rgba(255,255,255,0.06); margin: 0 8px; margin-bottom: 14px; }
+    .step-dot.done .step-line-after { background: rgba(74,222,128,0.3); }
+    .step-inner { display: flex; flex-direction: column; align-items: center; }
+
+    /* Cards */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; margin-bottom: 14px; }
+    .card-sm { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+
+    /* Inputs */
+    .wh-input {
+      width: 100%; background: var(--card); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px; color: var(--text); padding: 10px 13px;
+      font-family: inherit; font-size: 16px; outline: none; transition: border-color .15s;
+    }
+    .wh-input:focus { border-color: var(--gold); }
+    .wh-label { display: block; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 6px; }
+    select.wh-input { cursor: pointer; }
+
+    /* Buttons */
+    .btn { padding: 11px 20px; border-radius: 10px; font-family: inherit; font-size: .85rem; font-weight: 700; cursor: pointer; transition: all .15s; border: 1px solid; }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-gold  { background: rgba(247,162,27,0.14); color: var(--gold);   border-color: rgba(247,162,27,0.4); }
+    .btn-gold:hover:not(:disabled)  { background: rgba(247,162,27,0.24); }
+    .btn-blue  { background: rgba(41,182,217,0.12); color: var(--blue);   border-color: rgba(41,182,217,0.35); }
+    .btn-blue:hover:not(:disabled)  { background: rgba(41,182,217,0.22); }
+    .btn-ghost { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.5); border-color: rgba(255,255,255,0.1); }
+    .btn-ghost:hover:not(:disabled) { background: rgba(255,255,255,0.08); }
+
+    /* Source picker */
+    .source-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+    .source-card {
+      background: var(--card); border: 2px solid rgba(255,255,255,0.07);
+      border-radius: 12px; padding: 18px 14px; text-align: center; cursor: pointer;
+      transition: all .15s;
+    }
+    .source-card:hover { border-color: rgba(247,162,27,0.3); background: rgba(247,162,27,0.04); }
+    .source-card.selected { border-color: var(--gold); background: rgba(247,162,27,0.08); }
+    .source-card .sc-icon { font-size: 1.6rem; margin-bottom: 8px; }
+    .source-card .sc-name { font-size: .8rem; font-weight: 700; color: var(--text); }
+    .source-card .sc-desc { font-size: .68rem; color: var(--muted); margin-top: 3px; }
+
+    /* Drop zone */
+    .drop-zone {
+      border: 2px dashed rgba(255,255,255,0.12); border-radius: 12px;
+      padding: 40px 24px; text-align: center; cursor: pointer; transition: all .2s;
+    }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: var(--blue); background: rgba(41,182,217,0.04); }
+    .drop-zone.has-file { border-color: var(--green); background: rgba(74,222,128,0.04); }
+
+    /* Mapping table */
+    .map-table { width: 100%; border-collapse: collapse; }
+    .map-table th { font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+    .map-table td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+    .map-table tr:last-child td { border-bottom: none; }
+    .req-badge { font-size: .58rem; font-weight: 700; padding: 2px 6px; border-radius: 999px; background: rgba(248,113,113,0.12); color: var(--red); }
+    .opt-badge { font-size: .58rem; font-weight: 700; padding: 2px 6px; border-radius: 999px; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3); }
+
+    /* Preview table */
+    .preview-table-wrap { overflow-x: auto; }
+    .preview-table { width: 100%; border-collapse: collapse; font-size: .72rem; }
+    .preview-table th { background: rgba(0,0,0,0.2); padding: 7px 10px; text-align: left; font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); white-space: nowrap; }
+    .preview-table td { padding: 7px 10px; border-top: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.75); white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+    .status-open   { color: var(--blue); font-weight: 600; }
+    .status-closed { color: var(--green); font-weight: 600; }
+
+    /* Progress */
+    .progress-bar { height: 6px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--gold); border-radius: 999px; transition: width .3s; }
+
+    /* Result chips */
+    .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin: 14px 0; }
+    .result-chip { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; }
+    .result-chip .rn { font-size: 1.5rem; font-weight: 800; }
+    .result-chip .rl { font-size: .62rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-top: 2px; }
+
+    /* Pattern teaser */
+    .pattern-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: .78rem; }
+    .pattern-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Hidden */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div class="page" style="padding-top: 70px;">
+
+  <!-- Getting Started workflow guide (dismissible) -->
+  <div id="cmms-guide" style="margin-bottom:1.25rem; display:none;">
+    <div style="background:rgba(247,162,27,0.06); border:1px solid rgba(247,162,27,0.18); border-radius:14px; padding:18px 20px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+        <p style="font-size:.78rem; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:.06em;">How to connect your CMMS</p>
+        <button onclick="dismissGuide()" style="background:none; border:none; color:var(--muted); font-size:.75rem; cursor:pointer; font-family:inherit;">Dismiss</button>
+      </div>
+      <div style="display:flex; gap:0; align-items:stretch; flex-wrap:wrap;">
+
+        <!-- Step 1 -->
+        <div style="flex:1; min-width:160px; padding:12px 14px; background:rgba(247,162,27,0.07); border-radius:10px; margin-right:8px; margin-bottom:8px;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+            <span style="width:22px; height:22px; border-radius:50%; background:rgba(247,162,27,0.2); border:1px solid rgba(247,162,27,0.4); color:var(--gold); font-size:.65rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</span>
+            <p style="font-size:.75rem; font-weight:700; color:var(--gold);">Import File</p>
+          </div>
+          <p style="font-size:.7rem; color:rgba(255,255,255,0.55); line-height:1.5;">Have historical data in SAP, Maximo, or any CMMS? Export it as a CSV and upload it here. This is a one-time catch-up — brings your full maintenance history into WorkHive on day one.</p>
+          <button onclick="switchTab('import')" style="margin-top:10px; width:100%; padding:6px; background:rgba(247,162,27,0.12); color:var(--gold); border:1px solid rgba(247,162,27,0.3); border-radius:7px; font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;">Start here →</button>
+        </div>
+
+        <!-- Arrow -->
+        <div style="display:flex; align-items:center; padding:0 2px; margin-bottom:8px; color:rgba(255,255,255,0.2); font-size:1rem;">→</div>
+
+        <!-- Step 2 -->
+        <div style="flex:1; min-width:160px; padding:12px 14px; background:rgba(41,182,217,0.06); border-radius:10px; margin:0 8px 8px 8px;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+            <span style="width:22px; height:22px; border-radius:50%; background:rgba(41,182,217,0.15); border:1px solid rgba(41,182,217,0.35); color:var(--blue); font-size:.65rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</span>
+            <p style="font-size:.75rem; font-weight:700; color:var(--blue);">Live Sync</p>
+          </div>
+          <p style="font-size:.7rem; color:rgba(255,255,255,0.55); line-height:1.5;">After importing history, set up Live Sync so new work orders from SAP flow in automatically every day — no more CSV exports. WorkHive also pushes completed jobs back to SAP so both systems stay in sync.</p>
+          <button onclick="switchTab('sync')" style="margin-top:10px; width:100%; padding:6px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:7px; font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;">Set up sync →</button>
+        </div>
+
+        <!-- Arrow -->
+        <div style="display:flex; align-items:center; padding:0 2px; margin-bottom:8px; color:rgba(255,255,255,0.2); font-size:1rem;">→</div>
+
+        <!-- Step 3 -->
+        <div style="flex:1; min-width:160px; padding:12px 14px; background:rgba(167,139,250,0.06); border-radius:10px; margin-left:8px; margin-bottom:8px;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+            <span style="width:22px; height:22px; border-radius:50%; background:rgba(167,139,250,0.15); border:1px solid rgba(167,139,250,0.35); color:var(--purple); font-size:.65rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</span>
+            <p style="font-size:.75rem; font-weight:700; color:var(--purple);">API Keys</p>
+          </div>
+          <p style="font-size:.7rem; color:rgba(255,255,255,0.55); line-height:1.5;">Optional. Generate keys so your Power BI dashboards, custom apps, or engineering tools can pull WorkHive benchmark data directly via the Intelligence API — without giving anyone raw database access.</p>
+          <button onclick="switchTab('api')" style="margin-top:10px; width:100%; padding:6px; background:rgba(167,139,250,0.1); color:var(--purple); border:1px solid rgba(167,139,250,0.3); border-radius:7px; font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;">Manage keys →</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Mode tabs -->
+  <div style="display:flex; gap:8px; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:0;">
+    <button id="tab-import" onclick="switchTab('import')" style="padding:10px 18px; background:none; border:none; border-bottom:2px solid var(--gold); color:var(--gold); font-family:inherit; font-size:.85rem; font-weight:700; cursor:pointer;">Import File</button>
+    <button id="tab-sync"   onclick="switchTab('sync')"   style="padding:10px 18px; background:none; border:none; border-bottom:2px solid transparent; color:rgba(255,255,255,0.4); font-family:inherit; font-size:.85rem; font-weight:600; cursor:pointer;">Live Sync</button>
+    <button id="tab-api"    onclick="switchTab('api')"    style="padding:10px 18px; background:none; border:none; border-bottom:2px solid transparent; color:rgba(255,255,255,0.4); font-family:inherit; font-size:.85rem; font-weight:600; cursor:pointer;">API Keys</button>
+  </div>
+
+  <!-- Header -->
+  <div id="header-import" style="margin-bottom: 1.5rem;">
+    <span style="display:inline-block; font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:.2rem .6rem; border-radius:999px; background:rgba(247,162,27,0.14); color:var(--gold); border:1px solid rgba(247,162,27,0.28); margin-bottom:.5rem;">Phase 2 · Cold Start Solver</span>
+    <h1 style="font-size:1.4rem; font-weight:800; line-height:1.2;">CMMS Integration</h1>
+    <p style="font-size:.75rem; color:var(--muted); margin-top:.25rem;">Import your existing SAP PM, Maximo, or CMMS data. WorkHive's intelligence activates on day one.</p>
+  </div>
+
+  <!-- Supervisor gate message (shown if no HIVE_ID) -->
+  <div id="hive-gate" class="card hidden" style="text-align:center; padding:32px;">
+    <p style="font-size:.9rem; font-weight:600; margin-bottom:8px;">Join a hive first</p>
+    <p style="font-size:.78rem; color:var(--muted); margin-bottom:16px;">You need to be part of a hive to import CMMS data.</p>
+    <a href="hive.html" class="btn btn-gold" style="text-decoration:none;">Go to Hive Board</a>
+  </div>
+
+  <!-- Wizard (shown once hive confirmed) -->
+  <div id="wizard">
+
+    <!-- Step indicator -->
+    <div class="steps" id="step-indicator">
+      <div class="step-dot active" id="sd-1">
+        <div class="step-inner">
+          <div class="step-num">1</div>
+          <div class="step-label">Source</div>
+        </div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-dot" id="sd-2">
+        <div class="step-inner">
+          <div class="step-num">2</div>
+          <div class="step-label">Upload</div>
+        </div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-dot" id="sd-3">
+        <div class="step-inner">
+          <div class="step-num">3</div>
+          <div class="step-label">Map</div>
+        </div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-dot" id="sd-4">
+        <div class="step-inner">
+          <div class="step-num">4</div>
+          <div class="step-label">Preview</div>
+        </div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-dot" id="sd-5">
+        <div class="step-inner">
+          <div class="step-num">5</div>
+          <div class="step-label">Import</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 1: Choose source + entity type ── -->
+    <div id="step-1" class="card">
+      <p style="font-size:.8rem; font-weight:700; margin-bottom:12px;">Which CMMS are you importing from?</p>
+      <div class="source-grid">
+        <div class="source-card" data-type="sap_pm" onclick="selectSource('sap_pm')">
+          <div class="sc-icon">🏭</div>
+          <div class="sc-name">SAP PM</div>
+          <div class="sc-desc">OData export (AUFNR, ISTAT, EQUNR...)</div>
+        </div>
+        <div class="source-card" data-type="maximo" onclick="selectSource('maximo')">
+          <div class="sc-icon">🔧</div>
+          <div class="sc-name">IBM Maximo</div>
+          <div class="sc-desc">OSLC export (WONUM, ASSETNUM...)</div>
+        </div>
+        <div class="source-card" data-type="generic" onclick="selectSource('generic')">
+          <div class="sc-icon">📋</div>
+          <div class="sc-name">Other / Generic</div>
+          <div class="sc-desc">Any CSV from your current CMMS</div>
+        </div>
+        <div class="source-card" data-type="auto" onclick="selectSource('auto')">
+          <div class="sc-icon">✨</div>
+          <div class="sc-name">Auto-detect</div>
+          <div class="sc-desc">WorkHive figures it out from your columns</div>
+        </div>
+      </div>
+
+      <!-- Entity type selection — shown after source is picked -->
+      <div id="entity-section" style="display:none; margin-top:18px; padding-top:16px; border-top:1px solid var(--border);">
+        <p style="font-size:.8rem; font-weight:700; margin-bottom:12px;">What are you importing?</p>
+        <div class="source-grid">
+          <div class="source-card" data-entity="work_order" onclick="selectEntity('work_order')">
+            <div class="sc-icon">🔩</div>
+            <div class="sc-name">Work Orders</div>
+            <div class="sc-desc">Breakdowns, PMs, corrective jobs</div>
+          </div>
+          <div class="source-card" data-entity="asset" onclick="selectEntity('asset')">
+            <div class="sc-icon">⚙️</div>
+            <div class="sc-name">Assets / Equipment</div>
+            <div class="sc-desc">Equipment registry, tag IDs, locations</div>
+          </div>
+          <div class="source-card" data-entity="pm_schedule" onclick="selectEntity('pm_schedule')">
+            <div class="sc-icon">📅</div>
+            <div class="sc-name">PM Schedules</div>
+            <div class="sc-desc">Maintenance plans, intervals, tasks</div>
+          </div>
+          <div class="source-card" data-entity="inventory" onclick="selectEntity('inventory')">
+            <div class="sc-icon">📦</div>
+            <div class="sc-name">Parts / Inventory</div>
+            <div class="sc-desc">Spare parts, stock levels, reorder points</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px; text-align:right;">
+        <button class="btn btn-gold" onclick="goStep(2)" id="btn-s1-next" disabled>Next: Upload →</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 2: Upload file ── -->
+    <div id="step-2" class="card hidden">
+      <p style="font-size:.8rem; font-weight:700; margin-bottom:12px;">Upload your CMMS export file</p>
+      <p style="font-size:.72rem; color:var(--muted); margin-bottom:16px;">Accepts CSV or Excel (.xlsx). Export your work orders from SAP (via SE16 or SM30) or any CMMS report.</p>
+
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <input type="file" id="file-input" accept=".csv,.xlsx,.xls" style="display:none;" />
+        <div id="drop-icon" style="font-size:2rem; margin-bottom:10px;">📂</div>
+        <p id="drop-label" style="font-size:.85rem; font-weight:600; margin-bottom:4px;">Drop file here or click to browse</p>
+        <p style="font-size:.7rem; color:var(--muted);">CSV or Excel · Work orders, assets, or PM schedules</p>
+      </div>
+
+      <div id="file-info" class="card-sm hidden" style="margin-top:12px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:1.2rem;">✅</span>
+          <div>
+            <p id="file-name" style="font-size:.82rem; font-weight:600;"></p>
+            <p id="file-stats" style="font-size:.7rem; color:var(--muted);"></p>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; margin-top:14px;">
+        <button class="btn btn-ghost" onclick="goStep(1)">← Back</button>
+        <button class="btn btn-gold" onclick="goStep(3)" id="btn-s2-next" disabled>Next: Map Fields →</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 3: Map fields ── -->
+    <div id="step-3" class="card hidden">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+        <p style="font-size:.8rem; font-weight:700;">Map your columns to WorkHive fields</p>
+        <button class="btn btn-blue" style="padding:6px 14px; font-size:.75rem;" onclick="autoSuggestMapping()">✨ Auto-suggest</button>
+      </div>
+      <p style="font-size:.72rem; color:var(--muted); margin-bottom:14px;">Tell WorkHive which column in your file corresponds to each field. Required fields must be mapped.</p>
+
+      <div style="overflow-x:auto;">
+        <table class="map-table">
+          <thead>
+            <tr>
+              <th style="width:32%;">WorkHive Field</th>
+              <th style="width:13%;">Required</th>
+              <th style="width:35%;">Your Column</th>
+              <th style="width:20%;">Confidence</th>
+            </tr>
+          </thead>
+          <tbody id="map-tbody"></tbody>
+        </table>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; margin-top:16px;">
+        <button class="btn btn-ghost" onclick="goStep(2)">← Back</button>
+        <button class="btn btn-gold" onclick="goStep(4)">Preview →</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 4: Preview ── -->
+    <div id="step-4" class="card hidden">
+      <p style="font-size:.8rem; font-weight:700; margin-bottom:4px;">Preview — first 5 rows</p>
+      <p style="font-size:.72rem; color:var(--muted); margin-bottom:14px;" id="preview-meta"></p>
+
+      <div class="preview-table-wrap">
+        <table class="preview-table">
+          <thead>
+            <tr>
+              <th>External ID</th>
+              <th>Machine</th>
+              <th>Status</th>
+              <th>Type</th>
+              <th>Hours</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody id="preview-tbody"></tbody>
+        </table>
+      </div>
+
+      <div id="preview-warnings" style="margin-top:12px;"></div>
+
+      <div style="display:flex; justify-content:space-between; margin-top:16px;">
+        <button class="btn btn-ghost" onclick="goStep(3)">← Back</button>
+        <button class="btn btn-gold" onclick="startImport()">Import <span id="preview-count-label"></span> →</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 5: Import + Results ── -->
+    <div id="step-5" class="card hidden">
+
+      <!-- Importing state -->
+      <div id="import-progress-state">
+        <p style="font-size:.8rem; font-weight:700; margin-bottom:16px;">Importing your CMMS data...</p>
+        <div class="progress-bar" style="margin-bottom:8px;">
+          <div class="progress-fill" id="progress-fill" style="width:0%;"></div>
+        </div>
+        <p id="progress-label" style="font-size:.72rem; color:var(--muted); text-align:center;">Preparing...</p>
+      </div>
+
+      <!-- Results state (hidden until done) -->
+      <div id="import-results-state" class="hidden">
+        <div style="text-align:center; margin-bottom:16px;">
+          <div style="font-size:2rem; margin-bottom:6px;">✅</div>
+          <p style="font-size:.95rem; font-weight:800;">Import complete</p>
+          <p style="font-size:.75rem; color:var(--muted); margin-top:4px;" id="results-subtitle"></p>
+        </div>
+
+        <div class="result-grid" id="results-chips"></div>
+
+        <div id="patterns-section" class="card-sm hidden" style="margin-top:14px;">
+          <p style="font-size:.72rem; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px;">Patterns WorkHive found in your data</p>
+          <div id="patterns-list"></div>
+        </div>
+
+        <div id="import-error-section" class="card-sm hidden" style="margin-top:10px; border-color:rgba(248,113,113,0.2);">
+          <p style="font-size:.7rem; color:var(--red); margin-bottom:6px;">⚠ Some rows were skipped (missing required field):</p>
+          <p id="error-detail" style="font-size:.7rem; color:rgba(255,255,255,0.5);"></p>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
+          <a href="hive.html" class="btn btn-gold" style="text-decoration:none; flex:1; text-align:center;">View Hive Dashboard</a>
+          <button class="btn btn-ghost" onclick="resetWizard()" style="flex:1;">Import Another File</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Import History (visible after first import) ── -->
+    <div id="import-history-section" style="display:none; margin-top:14px;">
+      <div class="card">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+          <p style="font-size:.78rem; font-weight:700;">Import History</p>
+          <span style="font-size:.62rem; color:var(--muted);">Last 5 imports · click Undo to roll back within 24 hours</span>
+        </div>
+        <div id="import-history-list"></div>
+      </div>
+    </div>
+
+  </div><!-- /wizard -->
+
+  <!-- ── API KEYS TAB (Phase 5.3) ── -->
+  <div id="tab-api-content" style="display:none;">
+    <div style="margin-bottom:1.5rem;">
+      <span style="display:inline-block; font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:.2rem .6rem; border-radius:999px; background:rgba(167,139,250,0.12); color:var(--purple); border:1px solid rgba(167,139,250,0.3); margin-bottom:.5rem;">Phase 5 · Intelligence API</span>
+      <h2 style="font-size:1.1rem; font-weight:800;">API Keys</h2>
+      <p style="font-size:.75rem; color:var(--muted); margin-top:.25rem;">Access WorkHive benchmark data from your systems. Use these keys in the Authorization header of Intelligence API calls.</p>
+    </div>
+
+    <div class="card">
+      <p style="font-size:.8rem; font-weight:700; margin-bottom:12px;">Generate a New API Key</p>
+      <div style="display:flex; gap:10px; margin-bottom:10px;">
+        <input id="api-key-label" class="wh-input" type="text" placeholder="Label (e.g. SAP Integration, Analytics Dashboard)" style="flex:1;" />
+        <button class="btn btn-gold" onclick="generateApiKey()" style="white-space:nowrap;">Generate Key</button>
+      </div>
+      <div id="new-key-result" style="display:none;"></div>
+    </div>
+
+    <div class="card" style="margin-top:0;">
+      <p style="font-size:.8rem; font-weight:700; margin-bottom:12px;">Active Keys</p>
+      <div id="api-keys-list"><p style="font-size:.75rem; color:var(--muted);">Loading...</p></div>
+    </div>
+
+    <div class="card" style="background:rgba(41,182,217,0.04); border-color:rgba(41,182,217,0.15);">
+      <p style="font-size:.8rem; font-weight:700; margin-bottom:8px;">API Reference</p>
+      <p style="font-size:.72rem; color:var(--muted); margin-bottom:10px;">Base URL: <code style="color:var(--blue);">https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api</code></p>
+      <div style="font-size:.72rem; line-height:1.8;">
+        <p style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=benchmarks</code> — MTBF by equipment category (optional: &amp;category= &amp;industry=)</p>
+        <p style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=failure-modes</code> — Top root causes (optional: &amp;period=90)</p>
+        <p style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=report</code> — Latest intelligence report JSON</p>
+        <p style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=ping</code> — Health check (no auth required)</p>
+      </div>
+      <p style="font-size:.7rem; color:var(--muted); margin-top:8px;">Include header: <code>Authorization: Bearer wh_yourkeyhere</code></p>
+      <a href="ph-intelligence.html" class="btn btn-blue" style="display:inline-block; margin-top:10px; text-decoration:none; font-size:.75rem; padding:7px 14px;">View Latest Intelligence Report →</a>
+    </div>
+  </div>
+
+  <!-- ── LIVE SYNC TAB (Phase 3.1) ── -->
+  <div id="tab-sync-content" style="display:none;">
+    <div style="margin-bottom:1.5rem;">
+      <span style="display:inline-block; font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:.2rem .6rem; border-radius:999px; background:rgba(41,182,217,0.12); color:var(--blue); border:1px solid rgba(41,182,217,0.3); margin-bottom:.5rem;">Tier 2 · Scheduled API Sync</span>
+      <h2 style="font-size:1.1rem; font-weight:800;">Live Sync Configuration</h2>
+      <p style="font-size:.75rem; color:var(--muted); margin-top:.25rem;">WorkHive polls your CMMS API daily and syncs only new/changed records. No CSV exports needed.</p>
+    </div>
+
+    <!-- Existing configs -->
+    <div id="sync-configs-list" style="margin-bottom:16px;"></div>
+
+    <!-- Add / Edit config form -->
+    <div class="card">
+      <p style="font-size:.82rem; font-weight:700; margin-bottom:14px;" id="sync-form-title">Configure Live Sync</p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+        <div>
+          <label class="wh-label">Label</label>
+          <input id="sc-label" class="wh-input" type="text" placeholder="e.g. SAP Plant PH01" />
+        </div>
+        <div>
+          <label class="wh-label">CMMS Type</label>
+          <select id="sc-type" class="wh-input">
+            <option value="sap_pm">SAP PM (OData)</option>
+            <option value="maximo">IBM Maximo (OSLC)</option>
+            <option value="generic">Generic REST</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label class="wh-label">API Endpoint URL</label>
+        <input id="sc-url" class="wh-input" type="url" placeholder="https://your-system.example.com/odata/v4/WorkOrders" />
+        <p style="font-size:.68rem; color:var(--muted); margin-top:4px;">SAP: your BTP OData URL · Maximo: https://host/oslc/os/mxwo · Generic: any REST endpoint returning JSON</p>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+        <div>
+          <label class="wh-label">API Key / Bearer Token</label>
+          <input id="sc-token" class="wh-input" type="password" placeholder="sk-... or Bearer token" />
+        </div>
+        <div>
+          <label class="wh-label">Sync Schedule</label>
+          <select id="sc-freq" class="wh-input">
+            <option value="manual">Manual only</option>
+            <option value="daily" selected>Daily</option>
+            <option value="hourly">Hourly</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-blue" onclick="testSyncConfig()" style="flex:1;">Test Connection</button>
+        <button class="btn btn-gold" onclick="saveSyncConfig()" style="flex:1;">Save &amp; Enable</button>
+      </div>
+      <div id="sync-test-result" style="display:none; margin-top:10px; font-size:.75rem; padding:8px 12px; border-radius:8px;"></div>
+    </div>
+
+    <!-- Webhook URL for inbound events (Phase 4.1) -->
+    <div class="card" style="margin-top:16px;">
+      <p style="font-size:.8rem; font-weight:700; margin-bottom:8px;">Webhook URL (Inbound Events)</p>
+      <p style="font-size:.72rem; color:var(--muted); margin-bottom:10px;">Configure this URL in your SAP/Maximo outbound webhook settings to receive real-time events in WorkHive.</p>
+      <div id="webhook-url-list"></div>
+    </div>
+
+    <!-- Active configs with Run Now -->
+    <div id="sync-active-list" style="margin-top:16px;"></div>
+
+    <!-- Conflict Resolution -->
+    <div class="card" style="margin-top:16px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+        <div>
+          <p style="font-size:.8rem; font-weight:700;">Sync Conflicts</p>
+          <p style="font-size:.68rem; color:var(--muted); margin-top:2px;">Records where SAP and WorkHive disagree after the last sync.</p>
+        </div>
+        <button class="btn btn-ghost" style="font-size:.72rem; padding:5px 12px;" onclick="loadConflicts()">🔄 Check Now</button>
+      </div>
+      <div id="conflicts-list"><div style="font-size:.72rem; color:var(--muted);">Click "Check Now" to scan for conflicts after a sync run.</div></div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<!-- Scripts -->
+<script src="utils.js"></script>
+<script>
+  // ── Auth + init ───────────────────────────────────────────────────────────
+  const db = supabase.createClient(
+    'https://hzyvnjtisfgbksicrouu.supabase.co',
+    'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'
+  );
+
+  let WORKER_NAME = localStorage.getItem('wh_last_worker')
+                 || localStorage.getItem('wh_worker_name')
+                 || localStorage.getItem('workerName') || '';
+  let HIVE_ID     = localStorage.getItem('wh_active_hive_id')
+                 || localStorage.getItem('wh_hive_id') || null;
+
+  (async () => {
+    if (!WORKER_NAME && typeof restoreIdentityFromSession === 'function') {
+      WORKER_NAME = await restoreIdentityFromSession(db);
+    }
+    if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+    if (!HIVE_ID) {
+      document.getElementById('hive-gate').classList.remove('hidden');
+      document.getElementById('wizard').classList.add('hidden');
+    }
+    // Show Getting Started guide unless explicitly dismissed via the Dismiss link
+    if (!localStorage.getItem('wh_cmms_guide_dismissed')) {
+      document.getElementById('cmms-guide').style.display = 'block';
+    }
+  })();
+
+  function dismissGuide() {
+    localStorage.setItem('wh_cmms_guide_dismissed', '1');
+    document.getElementById('cmms-guide').style.display = 'none';
+  }
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  let _step       = 1;
+  let _systemType = null;  // 'sap_pm' | 'maximo' | 'generic'
+  let _entityType = null;  // 'work_order' | 'asset' | 'pm_schedule' | 'inventory'
+  let _headers    = [];    // column names from the file
+  let _csvRows    = [];    // all parsed rows as objects
+  let _mapping    = {};    // { workhive_field: detected_column }
+  let _batchId    = null;  // unique ID grouping all rows from one import run
+  let _confidence = {};   // { fieldKey: 'exact' | 'partial' | 'none' }
+
+  // Fields per entity type shown in the Step 3 mapping table
+  const FIELDS_BY_ENTITY = {
+    work_order: [
+      { key: 'external_id',      label: 'Work Order ID',         required: true,  desc: 'Unique identifier (AUFNR, WONUM...)' },
+      { key: 'machine',          label: 'Asset / Machine',       required: true,  desc: 'Equipment tag or asset number' },
+      { key: 'status',           label: 'Status',                required: true,  desc: 'Open, Closed, Cancelled (or ISTAT code)' },
+      { key: 'maintenance_type', label: 'Maintenance Type',      required: false, desc: 'Corrective / Preventive (AUART, WORKTYPE)' },
+      { key: 'problem',          label: 'Problem / Description', required: false, desc: 'What was wrong (LTXT, DESCRIPTION)' },
+      { key: 'root_cause',       label: 'Root Cause',            required: false, desc: 'Why it failed' },
+      { key: 'action',           label: 'Action Taken',          required: false, desc: 'What was done to fix it' },
+      { key: 'actual_hours',     label: 'Actual Hours',          required: false, desc: 'Labour hours (ARBEI, ACTLABHRS)' },
+      { key: 'created_at',       label: 'Created Date',          required: false, desc: 'When the WO was opened (ERDAT)' },
+      { key: 'closed_at',        label: 'Closed Date',           required: false, desc: 'When it was completed (RUCKMDAT)' },
+    ],
+    asset: [
+      { key: 'external_id',  label: 'Asset Tag / ID',    required: true,  desc: 'Equipment number (EQUNR, ASSETNUM)' },
+      { key: 'name',         label: 'Asset Name',        required: true,  desc: 'Description (EQKTX, DESCRIPTION)' },
+      { key: 'type',         label: 'Equipment Type',    required: false, desc: 'Category code (EQART, ASSETTYPE)' },
+      { key: 'location',     label: 'Location',          required: false, desc: 'Functional location or area (ILOAN)' },
+      { key: 'manufacturer', label: 'Manufacturer',      required: false, desc: 'Make / brand (HERST, MANUFACTURER)' },
+      { key: 'model',        label: 'Model',             required: false, desc: 'Model designation (TYPBZ, MODEL)' },
+      { key: 'serial_no',    label: 'Serial Number',     required: false, desc: 'Serial / batch number (TIDNR)' },
+      { key: 'install_date', label: 'Installation Date', required: false, desc: 'Date installed (INBDT, INSTALLDATE)' },
+    ],
+    pm_schedule: [
+      { key: 'external_id',   label: 'Schedule / Plan ID', required: true,  desc: 'Maintenance plan number (PLAN_NO, PMNUM)' },
+      { key: 'asset_tag',     label: 'Asset Tag',          required: true,  desc: 'Equipment this PM is for (EQUNR, ASSETNUM)' },
+      { key: 'task',          label: 'Task Description',   required: true,  desc: 'What to do (TASK_DESC, DESCRIPTION)' },
+      { key: 'interval_days', label: 'Interval (days)',    required: false, desc: 'How often in days (CYCLE_DAYS, FREQUENCY)' },
+      { key: 'last_done',     label: 'Last Done Date',     required: false, desc: 'Last execution date (LAST_EXEC, LASTCOMPDATE)' },
+    ],
+    inventory: [
+      { key: 'external_id',    label: 'Part / Material No.', required: true,  desc: 'Material number (MATNR, ITEMNUM)' },
+      { key: 'name',           label: 'Part Name',           required: true,  desc: 'Description (MAKTX, DESCRIPTION)' },
+      { key: 'qty_on_hand',    label: 'Quantity on Hand',    required: false, desc: 'Current stock (MENGE, CURBAL)' },
+      { key: 'unit',           label: 'Unit of Measure',     required: false, desc: 'EA, L, KG, pcs (MEINS, ORDERUNIT)' },
+      { key: 'reorder_point',  label: 'Reorder Point',       required: false, desc: 'Minimum stock level (MINBE, MINBAL)' },
+      { key: 'bin_location',   label: 'Bin / Storage Loc.',  required: false, desc: 'Where it is stored (LGPLA, LOCATION)' },
+    ],
+  };
+
+  // Field suggestions nested by [systemType][entityType]
+  const SUGGESTIONS = {
+    sap_pm: {
+      work_order:  { external_id:'AUFNR', machine:'EQUNR', status:'ISTAT', maintenance_type:'AUART', problem:'LTXT', actual_hours:'ARBEI', created_at:'ERDAT', closed_at:'RUCKMDAT' },
+      asset:       { external_id:'EQUNR', name:'EQKTX', type:'EQART', location:'ILOAN', manufacturer:'HERST', model:'TYPBZ', serial_no:'TIDNR', install_date:'INBDT' },
+      pm_schedule: { external_id:'PLAN_NO', asset_tag:'EQUNR', task:'TASK_DESC', interval_days:'CYCLE_DAYS', last_done:'LAST_EXEC' },
+      inventory:   { external_id:'MATNR', name:'MAKTX', qty_on_hand:'MENGE', unit:'MEINS', reorder_point:'MINBE', bin_location:'LGPLA' },
+    },
+    maximo: {
+      work_order:  { external_id:'WONUM', machine:'ASSETNUM', status:'STATUS', maintenance_type:'WORKTYPE', problem:'DESCRIPTION', actual_hours:'ACTLABHRS', created_at:'REPORTDATE', closed_at:'ACTFINISH' },
+      asset:       { external_id:'ASSETNUM', name:'DESCRIPTION', type:'ASSETTYPE', location:'LOCATION', manufacturer:'MANUFACTURER', model:'MODEL', serial_no:'SERIALNUM', install_date:'INSTALLDATE' },
+      pm_schedule: { external_id:'PMNUM', asset_tag:'ASSETNUM', task:'DESCRIPTION', interval_days:'FREQUENCY', last_done:'LASTCOMPDATE' },
+      inventory:   { external_id:'ITEMNUM', name:'DESCRIPTION', qty_on_hand:'CURBAL', unit:'ORDERUNIT', reorder_point:'MINBAL', bin_location:'LOCATION' },
+    },
+    generic: {
+      work_order:  { external_id:'work_order_no', machine:'asset_tag', status:'status', maintenance_type:'type', problem:'description', actual_hours:'actual_hours', created_at:'created_date', closed_at:'closed_date' },
+      asset:       { external_id:'asset_id', name:'name', type:'type', location:'location', manufacturer:'manufacturer', model:'model', serial_no:'serial_no', install_date:'install_date' },
+      pm_schedule: { external_id:'schedule_id', asset_tag:'asset_id', task:'task', interval_days:'interval_days', last_done:'last_done' },
+      inventory:   { external_id:'part_number', name:'name', qty_on_hand:'qty_on_hand', unit:'unit', reorder_point:'reorder_point', bin_location:'bin_location' },
+    },
+  };
+
+  // Status normalization
+  const STATUS_NORM = {
+    sap_pm:  { I0001:'Open', I0002:'Open', I0008:'Open', I0045:'Closed', I0076:'Cancelled' },
+    maximo:  { WAPPR:'Open', APPR:'Open', INPRG:'Open', COMP:'Closed', CLOSE:'Closed', CAN:'Cancelled' },
+    generic: { open:'Open', closed:'Closed', cancelled:'Cancelled' },
+  };
+
+  const TYPE_NORM = {
+    sap_pm:  { PM01:'Preventive Maintenance', PM02:'Breakdown / Corrective', PM03:'Breakdown / Corrective' },
+    maximo:  { PM:'Preventive Maintenance', CM:'Breakdown / Corrective', EM:'Breakdown / Corrective' },
+    generic: { preventive:'Preventive Maintenance', corrective:'Breakdown / Corrective', emergency:'Breakdown / Corrective' },
+  };
+
+  // ── Step navigation ───────────────────────────────────────────────────────
+  function goStep(n) {
+    if (n === 3) buildMappingTable();
+    if (n === 4) buildPreview();
+    for (let i = 1; i <= 5; i++) {
+      document.getElementById('step-' + i).classList.toggle('hidden', i !== n);
+      const sd = document.getElementById('sd-' + i);
+      sd.className = 'step-dot' + (i === n ? ' active' : i < n ? ' done' : '');
+    }
+    _step = n;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── Step 1: Source selection ──────────────────────────────────────────────
+  function selectSource(type) {
+    _systemType = type;
+    document.querySelectorAll('[data-type]').forEach(c => c.classList.toggle('selected', c.dataset.type === type));
+    // Reveal entity type section now that source is chosen
+    document.getElementById('entity-section').style.display = 'block';
+    // Next requires entity type too
+    document.getElementById('btn-s1-next').disabled = !_entityType;
+  }
+
+  function selectEntity(entity) {
+    _entityType = entity;
+    document.querySelectorAll('[data-entity]').forEach(c => c.classList.toggle('selected', c.dataset.entity === entity));
+    document.getElementById('btn-s1-next').disabled = !_systemType;
+  }
+
+  // ── Step 2: File upload ───────────────────────────────────────────────────
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleFile(e.dataTransfer.files[0]); });
+  fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
+
+  function handleFile(file) {
+    if (!file) return;
+    const ext = file.name.split('.').pop().toLowerCase();
+
+    if (ext === 'csv') {
+      Papa.parse(file, {
+        header: true, skipEmptyLines: true,
+        complete: r => { processRows(r.data, r.meta.fields, file.name); }
+      });
+    } else if (ext === 'xlsx' || ext === 'xls') {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const wb   = XLSX.read(e.target.result, { type: 'binary' });
+        const ws   = wb.Sheets[wb.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
+        const hdrs = data.length ? Object.keys(data[0]) : [];
+        processRows(data, hdrs, file.name);
+      };
+      reader.readAsBinaryString(file);
+    } else {
+      showToast('Please upload a CSV or Excel file.'); return;
+    }
+  }
+
+  function processRows(rows, headers, fileName) {
+    if (!rows.length) { showToast('File appears empty.'); return; }
+    _csvRows = rows;
+    _headers = headers;
+
+    // Auto-detect CMMS type if user chose 'auto'
+    if (_systemType === 'auto') {
+      const hs = headers.map(h => h.toUpperCase());
+      const sapScore  = ['AUFNR','ISTAT','EQUNR','ARBEI','AUART'].filter(s => hs.includes(s)).length;
+      const maxiScore = ['WONUM','ASSETNUM','ACTLABHRS','WORKTYPE'].filter(s => hs.includes(s)).length;
+      _systemType = sapScore >= 2 ? 'sap_pm' : maxiScore >= 2 ? 'maximo' : 'generic';
+    }
+
+    document.getElementById('drop-zone').classList.add('has-file');
+    document.getElementById('drop-label').textContent = 'File loaded';
+    document.getElementById('file-info').classList.remove('hidden');
+    document.getElementById('file-name').textContent = fileName;
+    document.getElementById('file-stats').textContent = rows.length.toLocaleString() + ' rows · ' + headers.length + ' columns · detected as ' + _systemType.replace('_', ' ').toUpperCase();
+    document.getElementById('btn-s2-next').disabled = false;
+  }
+
+  // ── Step 3: Field mapping ─────────────────────────────────────────────────
+  function buildMappingTable() {
+    const fields = FIELDS_BY_ENTITY[_entityType] || FIELDS_BY_ENTITY.work_order;
+    const tbody  = document.getElementById('map-tbody');
+    tbody.innerHTML = '';
+    _confidence = {};
+    fields.forEach(f => {
+      const options = ['<option value="">— skip —</option>']
+        .concat(_headers.map(h => `<option value="${escHtml(h)}" ${_mapping[f.key] === h ? 'selected' : ''}>${escHtml(h)}</option>`))
+        .join('');
+      tbody.insertAdjacentHTML('beforeend', `
+        <tr>
+          <td>
+            <p style="font-size:.8rem; font-weight:600;">${escHtml(f.label)}</p>
+            <p style="font-size:.65rem; color:var(--muted);">${escHtml(f.desc)}</p>
+          </td>
+          <td><span class="${f.required ? 'req-badge' : 'opt-badge'}">${f.required ? 'Required' : 'Optional'}</span></td>
+          <td><select class="wh-input" data-field="${escHtml(f.key)}" onchange="onMappingChange(this)" style="font-size:.78rem;">${options}</select></td>
+          <td id="conf-${escHtml(f.key)}" style="font-size:.65rem; white-space:nowrap;"></td>
+        </tr>`);
+    });
+    autoSuggestMapping();
+  }
+
+  function _confidenceBadge(level, label) {
+    const styles = {
+      exact:   'background:rgba(74,222,128,0.12); color:#4ade80; border:1px solid rgba(74,222,128,0.3);',
+      partial: 'background:rgba(251,191,36,0.12); color:#fbbf24; border:1px solid rgba(251,191,36,0.3);',
+      none:    'background:rgba(248,113,113,0.1); color:#f87171; border:1px solid rgba(248,113,113,0.25);',
+      skipped: 'background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.3); border:1px solid rgba(255,255,255,0.08);',
+    };
+    const icons = { exact:'🟢', partial:'🟡', none:'🔴', skipped:'⚪' };
+    const s = styles[level] || styles.skipped;
+    return `<span style="padding:2px 8px; border-radius:999px; font-size:.6rem; font-weight:600; ${s}">${icons[level]} ${label}</span>`;
+  }
+
+  function _updateConfidenceCell(fieldKey, headerValue) {
+    const el = document.getElementById('conf-' + fieldKey);
+    if (!el) return;
+    if (!headerValue) {
+      const fields = FIELDS_BY_ENTITY[_entityType] || FIELDS_BY_ENTITY.work_order;
+      const f = fields.find(x => x.key === fieldKey);
+      el.innerHTML = f?.required
+        ? _confidenceBadge('none',    'No match — required')
+        : _confidenceBadge('skipped', 'Skipped');
+      _confidence[fieldKey] = f?.required ? 'none' : 'skipped';
+      return;
+    }
+    const sys  = _systemType === 'auto' ? 'generic' : (_systemType || 'generic');
+    const sugg = ((SUGGESTIONS[sys] || SUGGESTIONS.generic)[_entityType || 'work_order'] || {})[fieldKey] || '';
+    if (!sugg) { el.innerHTML = _confidenceBadge('exact', 'Mapped'); _confidence[fieldKey] = 'exact'; return; }
+    const upper = headerValue.toUpperCase();
+    const suggU = sugg.toUpperCase();
+    if (upper === suggU) {
+      el.innerHTML = _confidenceBadge('exact', 'Exact match');
+      _confidence[fieldKey] = 'exact';
+    } else if (upper.includes(suggU) || suggU.includes(upper)) {
+      el.innerHTML = _confidenceBadge('partial', 'Partial match');
+      _confidence[fieldKey] = 'partial';
+    } else {
+      el.innerHTML = _confidenceBadge('partial', 'Custom mapped');
+      _confidence[fieldKey] = 'partial';
+    }
+  }
+
+  function autoSuggestMapping() {
+    const sys  = _systemType === 'auto' ? 'generic' : (_systemType || 'generic');
+    const sugg = (SUGGESTIONS[sys] || SUGGESTIONS.generic)[_entityType || 'work_order'] || {};
+    document.querySelectorAll('[data-field]').forEach(sel => {
+      const key       = sel.dataset.field;
+      const suggested = (sugg[key] || '').toUpperCase();
+      if (!suggested) { _updateConfidenceCell(key, sel.value); return; }
+      const exact   = _headers.find(h => h.toUpperCase() === suggested);
+      const partial = _headers.find(h => h.toUpperCase().includes(suggested));
+      const match   = exact || partial;
+      if (match) { sel.value = match; _mapping[key] = match; }
+      _updateConfidenceCell(key, sel.value);
+    });
+  }
+
+  function onMappingChange(sel) {
+    _mapping[sel.dataset.field] = sel.value || null;
+    _updateConfidenceCell(sel.dataset.field, sel.value);
+  }
+
+  // ── Unit conversion for inventory ─────────────────────────────────────────
+  const UNIT_MAP = { EA:'pcs', EACH:'pcs', PCS:'pcs', L:'L', LITRE:'L', LITER:'L',
+                     KG:'kg', KGS:'kg', M:'m', MTR:'m', SET:'set', SETS:'set' };
+
+  // ── Step 4: Preview ───────────────────────────────────────────────────────
+  function normalizeRow(row) {
+    const get = col => col ? String(row[col] ?? '') : '';
+    if (_entityType === 'asset') {
+      return {
+        external_id:  get(_mapping.external_id),
+        name:         get(_mapping.name),
+        type:         get(_mapping.type),
+        location:     get(_mapping.location),
+        manufacturer: get(_mapping.manufacturer),
+        model:        get(_mapping.model),
+        serial_no:    get(_mapping.serial_no),
+        install_date: get(_mapping.install_date) || null,
+      };
+    }
+    if (_entityType === 'pm_schedule') {
+      return {
+        external_id:   get(_mapping.external_id),
+        asset_tag:     get(_mapping.asset_tag),
+        task:          get(_mapping.task),
+        interval_days: parseInt(get(_mapping.interval_days)) || 30,
+        last_done:     get(_mapping.last_done) || null,
+      };
+    }
+    if (_entityType === 'inventory') {
+      const rawUnit = get(_mapping.unit).toUpperCase();
+      return {
+        external_id:   get(_mapping.external_id),
+        name:          get(_mapping.name),
+        qty_on_hand:   parseFloat(get(_mapping.qty_on_hand)) || 0,
+        unit:          UNIT_MAP[rawUnit] || (rawUnit.toLowerCase() || 'pcs'),
+        reorder_point: parseFloat(get(_mapping.reorder_point)) || 0,
+        bin_location:  get(_mapping.bin_location),
+      };
+    }
+    // Default: work_order
+    const rawStatus  = get(_mapping.status);
+    const normStatus = STATUS_NORM[_systemType]?.[rawStatus] || rawStatus || 'Open';
+    const rawType    = get(_mapping.maintenance_type);
+    const normType   = TYPE_NORM[_systemType]?.[rawType] || rawType || 'Breakdown / Corrective';
+    return {
+      external_id:      get(_mapping.external_id),
+      machine:          get(_mapping.machine),
+      status:           normStatus,
+      maintenance_type: normType,
+      problem:          get(_mapping.problem),
+      root_cause:       get(_mapping.root_cause),
+      action:           get(_mapping.action),
+      actual_hours:     parseFloat(get(_mapping.actual_hours)) || 0,
+      created_at:       get(_mapping.created_at),
+      closed_at:        get(_mapping.closed_at) || null,
+    };
+  }
+
+  function buildPreview() {
+    const allNorm = _csvRows.map(normalizeRow);
+    const total   = _csvRows.length;
+    const valid   = allNorm.filter(r => r.external_id).length;
+    const missing = total - valid;
+    const sample  = allNorm.filter(r => r.external_id).slice(0, 5);
+
+    const entityLabel = { work_order:'Work Order ID', asset:'Asset Tag', pm_schedule:'Schedule ID', inventory:'Part Number' }[_entityType] || 'ID';
+    document.getElementById('preview-meta').textContent =
+      total.toLocaleString() + ' rows · ' + valid.toLocaleString() + ' ready to import · ' +
+      (missing ? missing + ' will be skipped (no ' + entityLabel + ')' : 'all valid');
+    document.getElementById('preview-count-label').textContent = valid.toLocaleString() + ' rows';
+
+    // ── Dry-run summary ───────────────────────────────────────────────────────
+    const issues = [];
+    if (_entityType === 'work_order') {
+      const knownStatuses = new Set(Object.keys(STATUS_NORM[_systemType] || STATUS_NORM.generic || {}));
+      const rawStatusCol  = _mapping.status;
+      if (rawStatusCol) {
+        const unknownStatus = _csvRows.filter(r => {
+          const raw = String(r[rawStatusCol] || '').trim();
+          return raw && !knownStatuses.has(raw) && !['Open','Closed','Cancelled'].includes(raw);
+        });
+        if (unknownStatus.length)
+          issues.push({ level: 'warn', msg: `${unknownStatus.length} rows have unrecognized status codes (e.g. "${unknownStatus[0][rawStatusCol]}") — they will import as-is, not normalized` });
+      }
+      const noMachine = allNorm.filter(r => r.external_id && !r.machine).length;
+      if (noMachine)
+        issues.push({ level: 'warn', msg: `${noMachine} rows have no machine/asset tag — analytics and machine history surface won't include them` });
+      const noType = allNorm.filter(r => r.external_id && !r.maintenance_type).length;
+      if (noType)
+        issues.push({ level: 'info', msg: `${noType} rows have no maintenance type — they will default to "Breakdown / Corrective"` });
+    }
+
+    // Confidence summary
+    const lowConf = Object.entries(_confidence).filter(([k, v]) => v === 'none').map(([k]) => k);
+    if (lowConf.length)
+      issues.push({ level: 'warn', msg: `${lowConf.length} required field(s) have no column mapped: ${lowConf.join(', ')} — go back to Step 3 to fix` });
+
+    const tbody = document.getElementById('preview-tbody');
+    tbody.innerHTML = '';
+    sample.forEach(n => {
+      if (_entityType === 'work_order') {
+        const sc = n.status === 'Closed' ? 'status-closed' : 'status-open';
+        tbody.insertAdjacentHTML('beforeend', `<tr>
+          <td style="font-family:monospace; font-size:.68rem;">${escHtml(n.external_id || '—')}</td>
+          <td>${escHtml(n.machine || '—')}</td>
+          <td class="${sc}">${escHtml(n.status)}</td>
+          <td style="color:var(--muted);">${escHtml((n.maintenance_type || '').replace('Breakdown / Corrective','BD').replace('Preventive Maintenance','PM'))}</td>
+          <td style="color:var(--muted);">${n.actual_hours || '—'}</td>
+          <td style="color:var(--muted); font-size:.68rem;">${escHtml((n.created_at || '').slice(0, 10))}</td>
+        </tr>`);
+      } else {
+        const cells = Object.values(n).map(v => `<td style="font-size:.68rem; color:var(--muted);">${escHtml(String(v ?? '—').slice(0, 30))}</td>`).join('');
+        tbody.insertAdjacentHTML('beforeend', `<tr>${cells}</tr>`);
+      }
+    });
+
+    // Render issue list + original skip warning
+    const warnings = document.getElementById('preview-warnings');
+    const issueHtml = issues.map(i => {
+      const bg = i.level === 'warn'
+        ? 'rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); color:var(--red);'
+        : 'rgba(41,182,217,0.07); border:1px solid rgba(41,182,217,0.2); color:var(--blue);';
+      return `<div style="padding:8px 12px; background:${bg} border-radius:8px; font-size:.72rem; margin-bottom:6px;">${i.level === 'warn' ? '⚠' : 'ℹ'} ${escHtml(i.msg)}</div>`;
+    }).join('');
+    const skipWarn = missing > 0
+      ? `<div style="padding:8px 12px; background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); border-radius:8px; font-size:.72rem; color:var(--red); margin-bottom:6px;">⚠ ${missing} rows missing ${entityLabel} and will be skipped. Map the correct column in Step 3.</div>`
+      : '';
+    warnings.innerHTML = skipWarn + issueHtml;
+  }
+
+  // ── Step 5: Import ────────────────────────────────────────────────────────
+  async function startImport() {
+    goStep(5);
+    _batchId = 'import-' + Date.now();
+    const validRows  = _csvRows.map(normalizeRow).filter(r => r.external_id);
+    const total      = validRows.length;
+    const entityType = _entityType || 'work_order';
+    const now        = new Date().toISOString();
+    let imported = 0, failed = 0;
+    const CHUNK  = 500;
+
+    // Determine correct workhive_table per entity type
+    const WH_TABLE = { work_order:'logbook', asset:'assets', pm_schedule:'pm_assets', inventory:'inventory_items' };
+
+    // Build external_sync rows (same shape for all entity types)
+    const syncRows = validRows.map(r => ({
+      hive_id:        HIVE_ID,
+      system_type:    _systemType === 'auto' ? 'generic' : _systemType,
+      external_id:    r.external_id,
+      entity_type:    entityType,
+      workhive_table: WH_TABLE[entityType] || 'logbook',
+      status:         r.status || null,
+      sync_payload:   r,
+      sync_status:    'active',
+    }));
+
+    // --- Work Orders --------------------------------------------------------
+    if (entityType === 'work_order') {
+      // Duplicate guard: skip logbook insert for external_ids already synced
+      const allExtIds   = validRows.map(r => r.external_id);
+      const { data: existing } = await db.from('external_sync')
+        .select('external_id')
+        .eq('hive_id', HIVE_ID).eq('entity_type', 'work_order')
+        .in('external_id', allExtIds.slice(0, 1000));
+      const alreadySynced = new Set((existing || []).map(r => r.external_id));
+
+      const logRows = validRows
+        .filter(r => !alreadySynced.has(r.external_id))
+        .map(r => ({
+          worker_name:      WORKER_NAME,
+          date:             r.created_at || now,
+          machine:          r.machine,
+          category:         r.maintenance_type === 'Preventive Maintenance' ? 'Mechanical' : 'Mechanical',
+          problem:          r.problem || 'Imported from CMMS',
+          action:           r.action  || '',
+          knowledge:        r.root_cause || '',
+          status:           r.status,
+          created_at:       r.created_at || now,
+          maintenance_type: r.maintenance_type,
+          root_cause:       r.root_cause || '',
+          downtime_hours:   r.actual_hours || 0,
+          hive_id:          HIVE_ID,
+          closed_at:        r.status === 'Closed' ? (r.closed_at || now) : null,
+          parts_used:       [],
+        }));
+
+      const fkRows = logRows
+        .filter(r => r.problem || r.action || r.knowledge)
+        .map(r => ({
+          hive_id: HIVE_ID, machine: r.machine, category: r.category,
+          problem: r.problem || null, root_cause: r.root_cause || null,
+          action: r.action || null, knowledge: null, worker_name: WORKER_NAME,
+        }));
+
+      for (let i = 0; i < total; i += CHUNK) {
+        const pct = Math.round((i / total) * 100);
+        document.getElementById('progress-fill').style.width = pct + '%';
+        document.getElementById('progress-label').textContent = i.toLocaleString() + ' of ' + total.toLocaleString() + ' rows...';
+        const sBatch = syncRows.slice(i, i + CHUNK);
+        const lBatch = logRows.slice(i, i + CHUNK);
+        const fBatch = fkRows.slice(i, i + CHUNK);
+        try {
+          await db.from('external_sync').upsert(sBatch, { onConflict: 'system_type,external_id,entity_type' });
+          if (lBatch.length) await db.from('logbook').insert(lBatch);
+          if (fBatch.length) await db.from('fault_knowledge').insert(fBatch);
+          imported += sBatch.length;
+        } catch (e) {
+          console.error('batch error:', e);
+          failed += sBatch.length;
+        }
+      }
+
+    // --- Assets -------------------------------------------------------------
+    } else if (entityType === 'asset') {
+      const assetRows = validRows.map(r => ({
+        worker_name:  WORKER_NAME,
+        asset_id:     r.external_id,
+        name:         r.name || r.external_id,
+        type:         r.type || 'General',
+        location:     r.location || '',
+        criticality:  'Medium',
+        registered_at: r.install_date || now,
+        created_at:   r.install_date || now,
+        status:       'approved',
+        hive_id:      HIVE_ID,
+        submitted_by: WORKER_NAME,
+        approved_by:  WORKER_NAME,
+        approved_at:  now,
+        // assets table has no notes column — store manufacturer/model/serial in location field suffix
+      }));
+
+      for (let i = 0; i < total; i += CHUNK) {
+        const pct = Math.round((i / total) * 100);
+        document.getElementById('progress-fill').style.width = pct + '%';
+        document.getElementById('progress-label').textContent = i.toLocaleString() + ' of ' + total.toLocaleString() + ' rows...';
+        const sBatch = syncRows.slice(i, i + CHUNK);
+        const aBatch = assetRows.slice(i, i + CHUNK);
+        try {
+          await db.from('external_sync').upsert(sBatch, { onConflict: 'system_type,external_id,entity_type' });
+          await db.from('assets').upsert(aBatch, { onConflict: 'asset_id,hive_id' });
+          imported += sBatch.length;
+        } catch (e) { console.error('batch error:', e); failed += sBatch.length; }
+      }
+
+    // --- PM Schedules -------------------------------------------------------
+    } else if (entityType === 'pm_schedule') {
+      const FREQ_MAP = [[7,'Weekly'],[30,'Monthly'],[90,'Quarterly'],[180,'Semi-annual'],[365,'Annual']];
+      const daysToFreq = d => (FREQ_MAP.find(([t]) => d <= t) || [null,'Annual'])[1];
+
+      for (let i = 0; i < total; i += CHUNK) {
+        const pct = Math.round((i / total) * 100);
+        document.getElementById('progress-fill').style.width = pct + '%';
+        document.getElementById('progress-label').textContent = i.toLocaleString() + ' of ' + total.toLocaleString() + ' rows...';
+        const sBatch = syncRows.slice(i, i + CHUNK);
+        const rBatch = validRows.slice(i, i + CHUNK);
+        try {
+          await db.from('external_sync').upsert(sBatch, { onConflict: 'system_type,external_id,entity_type' });
+          const pmRows = rBatch.map(r => ({
+            hive_id:          HIVE_ID,
+            worker_name:      WORKER_NAME,
+            asset_name:       r.asset_tag || r.external_id,
+            tag_id:           r.asset_tag || r.external_id,
+            location:         '',
+            category:         'General',
+            criticality:      'Major',
+            last_anchor_date: r.last_done || now.slice(0, 10),
+          }));
+          const { data: inserted } = await db.from('pm_assets').insert(pmRows).select('id');
+          if (inserted?.length) {
+            const scopeRows = inserted.map((pm, idx) => ({
+              asset_id:    pm.id,
+              hive_id:     HIVE_ID,
+              item_text:   rBatch[idx]?.task || 'Routine maintenance',
+              frequency:   daysToFreq(rBatch[idx]?.interval_days || 30),
+              anchor_date: rBatch[idx]?.last_done || now.slice(0, 10),
+              is_custom:   false,
+            }));
+            await db.from('pm_scope_items').insert(scopeRows);
+          }
+          imported += sBatch.length;
+        } catch (e) { console.error('batch error:', e); failed += sBatch.length; }
+      }
+
+    // --- Inventory ----------------------------------------------------------
+    } else if (entityType === 'inventory') {
+      const invRows = validRows.map(r => ({
+        worker_name:   WORKER_NAME,
+        part_number:   r.external_id,
+        part_name:     r.name || r.external_id,
+        category:      'General',
+        unit:          r.unit || 'pcs',
+        qty_on_hand:   r.qty_on_hand || 0,
+        min_qty:       r.reorder_point || 0,
+        bin_location:  r.bin_location || '',
+        linked_asset_ids: [],
+        notes:         'Imported from CMMS',
+        status:        'approved',
+        hive_id:       HIVE_ID,
+        submitted_by:  WORKER_NAME,
+        approved_by:   WORKER_NAME,
+        approved_at:   now,
+      }));
+
+      for (let i = 0; i < total; i += CHUNK) {
+        const pct = Math.round((i / total) * 100);
+        document.getElementById('progress-fill').style.width = pct + '%';
+        document.getElementById('progress-label').textContent = i.toLocaleString() + ' of ' + total.toLocaleString() + ' rows...';
+        const sBatch = syncRows.slice(i, i + CHUNK);
+        const vBatch = invRows.slice(i, i + CHUNK);
+        try {
+          await db.from('external_sync').upsert(sBatch, { onConflict: 'system_type,external_id,entity_type' });
+          await db.from('inventory_items').upsert(vBatch, { onConflict: 'part_number,hive_id' });
+          imported += sBatch.length;
+        } catch (e) { console.error('batch error:', e); failed += sBatch.length; }
+      }
+    }
+
+    document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('progress-label').textContent = 'Complete!';
+
+    const quality = computeQualityScore(validRows, entityType);
+    await writeAuditLog(total, imported, failed, entityType, quality);
+    setTimeout(() => showResults(total, imported, failed, validRows, quality), 600);
+  }
+
+  // ── Quality scorecard ─────────────────────────────────────────────────────
+  function computeQualityScore(rows, entityType) {
+    if (!rows.length) return {};
+    const pct = (fn) => Math.round((rows.filter(fn).length / rows.length) * 100);
+    if (entityType === 'work_order') return {
+      pct_machine:    pct(r => r.machine),
+      pct_problem:    pct(r => r.problem),
+      pct_root_cause: pct(r => r.root_cause),
+      pct_closed_at:  pct(r => r.status !== 'Closed' || r.closed_at),
+      pct_hours:      pct(r => r.actual_hours > 0),
+    };
+    if (entityType === 'asset') return {
+      pct_name:     pct(r => r.name),
+      pct_type:     pct(r => r.type),
+      pct_location: pct(r => r.location),
+    };
+    if (entityType === 'pm_schedule') return {
+      pct_task:          pct(r => r.task),
+      pct_interval_days: pct(r => r.interval_days > 0),
+      pct_last_done:     pct(r => r.last_done),
+    };
+    if (entityType === 'inventory') return {
+      pct_name:         pct(r => r.name),
+      pct_qty_on_hand:  pct(r => r.qty_on_hand > 0),
+      pct_reorder_point:pct(r => r.reorder_point > 0),
+    };
+    return {};
+  }
+
+  // ── Audit log write ───────────────────────────────────────────────────────
+  async function writeAuditLog(total, imported, failed, entityType, quality) {
+    if (!HIVE_ID) return;
+    try {
+      await db.from('cmms_audit_log').insert({
+        hive_id:        HIVE_ID,
+        batch_id:       _batchId,
+        operation:      'file_import',
+        entity_type:    entityType,
+        system_type:    _systemType === 'auto' ? 'generic' : (_systemType || 'generic'),
+        rows_attempted: total,
+        rows_written:   imported,
+        rows_failed:    failed,
+        quality_score:  quality,
+        triggered_by:   WORKER_NAME,
+      });
+    } catch (e) {
+      console.warn('cmms_audit_log write failed:', e.message);
+    }
+  }
+
+  function showResults(total, imported, failed, rows, quality) {
+    document.getElementById('import-progress-state').classList.add('hidden');
+    document.getElementById('import-results-state').classList.remove('hidden');
+
+    const closed     = rows.filter(r => r.status === 'Closed').length;
+    const breakdowns = rows.filter(r => r.maintenance_type === 'Breakdown / Corrective').length;
+    const machines   = new Set(rows.map(r => r.machine).filter(Boolean)).size;
+
+    const entityLabel = { work_order:'work orders', asset:'assets', pm_schedule:'PM schedules', inventory:'inventory items' }[_entityType] || 'records';
+    document.getElementById('results-subtitle').textContent =
+      imported.toLocaleString() + ' ' + entityLabel + ' imported from your ' +
+      (_systemType || 'generic').replace('_',' ').toUpperCase() + ' data.';
+
+    document.getElementById('results-chips').innerHTML = [
+      { n: imported,   l: 'Imported',   c: 'var(--green)' },
+      { n: machines,   l: 'Machines',   c: 'var(--blue)' },
+      { n: closed,     l: 'Closed WOs', c: 'var(--muted)' },
+      { n: breakdowns, l: 'Breakdowns', c: 'var(--red)' },
+    ].map(c => `<div class="result-chip"><div class="rn" style="color:${c.c};">${c.n.toLocaleString()}</div><div class="rl">${c.l}</div></div>`).join('');
+
+    // ── Data Quality Scorecard ─────────────────────────────────────────────
+    if (quality && Object.keys(quality).length) {
+      const scoreEntries = Object.entries(quality);
+      const avgScore = Math.round(scoreEntries.reduce((s, [, v]) => s + v, 0) / scoreEntries.length);
+      const scoreColor = avgScore >= 80 ? 'var(--green)' : avgScore >= 60 ? '#fbbf24' : 'var(--red)';
+      const scoreLabel = (k) => ({
+        pct_machine:'Machine tag', pct_problem:'Problem desc', pct_root_cause:'Root cause',
+        pct_closed_at:'Closed-at date', pct_hours:'Actual hours',
+        pct_name:'Name', pct_type:'Equipment type', pct_location:'Location',
+        pct_task:'Task text', pct_interval_days:'Interval days', pct_last_done:'Last done date',
+        pct_qty_on_hand:'Qty on hand', pct_reorder_point:'Reorder point',
+      }[k] || k);
+
+      const scoreHtml = `
+        <div style="margin-top:16px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px 16px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <p style="font-size:.75rem; font-weight:700;">Data Quality Scorecard</p>
+            <span style="font-size:1.1rem; font-weight:800; color:${scoreColor};">${avgScore}%</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            ${scoreEntries.map(([k, v]) => {
+              const c = v >= 80 ? 'var(--green)' : v >= 60 ? '#fbbf24' : 'var(--red)';
+              return `<div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:.68rem; color:var(--muted); width:110px; flex-shrink:0;">${scoreLabel(k)}</span>
+                <div style="flex:1; height:5px; background:rgba(255,255,255,0.07); border-radius:3px;">
+                  <div style="width:${v}%; height:100%; background:${c}; border-radius:3px;"></div>
+                </div>
+                <span style="font-size:.68rem; font-weight:700; color:${c}; width:34px; text-align:right;">${v}%</span>
+              </div>`;
+            }).join('')}
+          </div>
+          <p style="font-size:.6rem; color:var(--muted); margin-top:8px;">Logged to cmms_audit_log · batch ${_batchId}</p>
+        </div>`;
+
+      const patSection = document.getElementById('patterns-section');
+      patSection.insertAdjacentHTML('afterend', scoreHtml);
+    }
+
+    // Pattern teaser
+    const patterns = computePatterns(rows);
+    if (patterns.length) {
+      document.getElementById('patterns-section').classList.remove('hidden');
+      document.getElementById('patterns-list').innerHTML = patterns.map(p =>
+        `<div class="pattern-row"><div class="pattern-dot" style="background:${p.color};"></div><span style="color:rgba(255,255,255,0.75);">${escHtml(p.text)}</span></div>`
+      ).join('');
+    }
+
+    if (failed > 0) {
+      document.getElementById('import-error-section').classList.remove('hidden');
+      document.getElementById('error-detail').textContent = failed + ' rows failed — check console for details.';
+    }
+
+    const _label = { work_order:'work orders', asset:'assets', pm_schedule:'PM schedules', inventory:'inventory items' }[_entityType] || 'records';
+    showToast('Import complete! ' + imported.toLocaleString() + ' ' + _label + ' imported.');
+    loadImportHistory();
+  }
+
+  function computePatterns(rows) {
+    const patterns = [];
+    const breakdownCounts = {};
+    rows.filter(r => r.maintenance_type === 'Breakdown / Corrective')
+        .forEach(r => { breakdownCounts[r.machine] = (breakdownCounts[r.machine] || 0) + 1; });
+    const topMachine = Object.entries(breakdownCounts).sort((a, b) => b[1] - a[1])[0];
+    if (topMachine) patterns.push({ color: '#f87171', text: topMachine[0] + ' has the most breakdowns (' + topMachine[1] + ' in your data) — first candidate for Failure Signature Detection.' });
+
+    const uniqueRoots = new Set(rows.map(r => r.root_cause).filter(Boolean));
+    if (uniqueRoots.size > 3) patterns.push({ color: '#F7A21B', text: uniqueRoots.size + ' distinct failure causes detected — Tribal Knowledge Engine will surface them by machine.' });
+
+    const closedPct = Math.round((rows.filter(r => r.status === 'Closed').length / rows.length) * 100);
+    patterns.push({ color: '#4ade80', text: closedPct + '% of imported work orders are Closed — Reliability Coach can now analyze your historical PM performance.' });
+
+    return patterns.slice(0, 3);
+  }
+
+  function resetWizard() {
+    _step = 1; _systemType = null; _entityType = null; _headers = []; _csvRows = []; _mapping = {};
+    document.querySelectorAll('.source-card,[data-entity]').forEach(c => c.classList.remove('selected'));
+    document.getElementById('entity-section').style.display = 'none';
+    document.getElementById('btn-s1-next').disabled = true;
+    document.getElementById('drop-zone').classList.remove('has-file');
+    document.getElementById('drop-label').textContent = 'Drop file here or click to browse';
+    document.getElementById('file-info').classList.add('hidden');
+    document.getElementById('btn-s2-next').disabled = true;
+    document.getElementById('import-progress-state').classList.remove('hidden');
+    document.getElementById('import-results-state').classList.add('hidden');
+    document.getElementById('progress-fill').style.width = '0%';
+    goStep(1);
+  }
+
+  // ── Tab switching ─────────────────────────────────────────────────────────
+  function switchTab(tab) {
+    const tabs   = { import: 'var(--gold)', sync: 'var(--blue)', api: 'var(--purple)' };
+    const panels = { import: ['wizard','header-import'], sync: ['tab-sync-content'], api: ['tab-api-content'] };
+    // Hide all panels
+    ['wizard','header-import','tab-sync-content','tab-api-content'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.style.display = 'none';
+    });
+    // Show selected panels
+    (panels[tab] || []).forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'block'; });
+    // Update tab styles
+    Object.keys(tabs).forEach(t => {
+      const btn = document.getElementById('tab-' + t);
+      if (!btn) return;
+      const active = t === tab;
+      btn.style.borderBottomColor = active ? tabs[t] : 'transparent';
+      btn.style.color             = active ? tabs[t] : 'rgba(255,255,255,0.4)';
+    });
+    if (tab === 'sync') { loadSyncConfigs(); }
+    if (tab === 'api')  loadApiKeys();
+    if (tab === 'import') loadImportHistory();
+  }
+
+  // ── Live Sync ─────────────────────────────────────────────────────────────
+  let _editingConfigId = null;
+
+  async function loadSyncConfigs() {
+    if (!HIVE_ID) return;
+    const { data } = await db.from('integration_configs')
+      .select('*').eq('hive_id', HIVE_ID).order('created_at', { ascending: false });
+    const list = document.getElementById('sync-active-list');
+    if (!data?.length) { list.innerHTML = '<p style="font-size:.75rem; color:var(--muted);">No live sync configs yet. Add one above.</p>'; return; }
+    const supabaseUrl = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+    const whList = document.getElementById('webhook-url-list');
+    if (whList) {
+      whList.innerHTML = data.map(c => {
+        const whUrl = supabaseUrl + '/functions/v1/cmms-webhook-receiver?config_id=' + c.id;
+        return `<div style="margin-bottom:8px;">
+          <p style="font-size:.7rem; font-weight:600; color:rgba(255,255,255,0.6); margin-bottom:3px;">${escHtml(c.label || c.system_type)}</p>
+          <div style="display:flex; gap:6px; align-items:center;">
+            <code style="flex:1; background:rgba(0,0,0,0.3); padding:6px 10px; border-radius:6px; font-size:.7rem; color:var(--blue); word-break:break-all;">${escHtml(whUrl)}</code>
+            <button onclick="navigator.clipboard.writeText('${escHtml(whUrl)}').then(()=>showToast('Copied!'))" style="padding:5px 10px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:6px; font-size:.68rem; font-family:inherit; cursor:pointer; white-space:nowrap;">Copy</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    list.innerHTML = data.map(c => {
+      const statusColor = c.last_sync_status === 'success' ? 'var(--green)' : c.last_sync_status === 'failed' ? 'var(--red)' : 'var(--muted)';
+      const lastSync = c.last_sync_at ? new Date(c.last_sync_at).toLocaleString('en-PH', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) : 'Never';
+      return `<div class="card-sm" style="margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+        <div>
+          <p style="font-size:.82rem; font-weight:700;">${escHtml(c.label || c.system_type)}</p>
+          <p style="font-size:.7rem; color:var(--muted);">${escHtml(c.system_type.toUpperCase())} · ${escHtml(c.sync_freq || 'manual')} · last: <span style="color:${statusColor};">${lastSync}</span>${c.last_sync_count ? ' · ' + c.last_sync_count + ' records' : ''}</p>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-blue" style="padding:6px 12px; font-size:.72rem;" onclick="runSync('${c.id}')">Run Now</button>
+          <button class="btn btn-ghost" style="padding:6px 12px; font-size:.72rem;" onclick="editConfig('${c.id}')">Edit</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  async function saveSyncConfig() {
+    if (!HIVE_ID) { showToast('Join a hive first.'); return; }
+    const label    = document.getElementById('sc-label').value.trim();
+    const type     = document.getElementById('sc-type').value;
+    const url      = document.getElementById('sc-url').value.trim();
+    const token    = document.getElementById('sc-token').value.trim();
+    const freq     = document.getElementById('sc-freq').value;
+    if (!url) { showToast('Endpoint URL is required.'); return; }
+
+    const row = { hive_id: HIVE_ID, system_type: type, label: label || type, endpoint_url: url, auth_token: token || null, sync_freq: freq, enabled: true };
+    if (_editingConfigId) {
+      const { error: updErr } = await db.from('integration_configs').update(row).eq('id', _editingConfigId);
+      if (updErr) { showToast('Could not update config: ' + updErr.message); return; }
+    } else {
+      const { error: insErr } = await db.from('integration_configs').insert(row);
+      if (insErr) { showToast('Could not save config: ' + insErr.message); return; }
+    }
+    _editingConfigId = null;
+    document.getElementById('sc-label').value = '';
+    document.getElementById('sc-url').value   = '';
+    document.getElementById('sc-token').value = '';
+    showToast('Sync config saved.');
+    loadSyncConfigs();
+  }
+
+  async function testSyncConfig() {
+    const url   = document.getElementById('sc-url').value.trim();
+    const type  = document.getElementById('sc-type').value;
+    const token = document.getElementById('sc-token').value.trim();
+    const resEl = document.getElementById('sync-test-result');
+    if (!url) { showToast('Enter an endpoint URL first.'); return; }
+
+    resEl.style.display = 'block';
+    resEl.style.background = 'rgba(41,182,217,0.08)';
+    resEl.style.border = '1px solid rgba(41,182,217,0.2)';
+    resEl.style.color = 'var(--blue)';
+    resEl.textContent = 'Testing connection...';
+
+    // Save a temp config and do a test sync
+    const tmpRow = { hive_id: HIVE_ID, system_type: type, label: 'test', endpoint_url: url, auth_token: token || null, sync_freq: 'manual', enabled: false };
+    const { data: inserted } = await db.from('integration_configs').insert(tmpRow).select('id').single();
+    if (!inserted) { resEl.textContent = 'Could not create test config.'; return; }
+
+    const { data, error } = await db.functions.invoke('cmms-sync', { body: { config_id: inserted.id, test: true } });
+    await db.from('integration_configs').delete().eq('id', inserted.id);
+
+    if (error || data?.results?.[0]?.error) {
+      resEl.style.background = 'rgba(248,113,113,0.08)'; resEl.style.border = '1px solid rgba(248,113,113,0.2)'; resEl.style.color = 'var(--red)';
+      resEl.textContent = '✗ ' + (data?.results?.[0]?.error || error?.message || 'Connection failed');
+    } else {
+      resEl.style.background = 'rgba(74,222,128,0.08)'; resEl.style.border = '1px solid rgba(74,222,128,0.2)'; resEl.style.color = 'var(--green)';
+      resEl.textContent = '✓ Connected — found ' + (data?.results?.[0]?.synced || 0) + ' records. Ready to sync.';
+    }
+  }
+
+  async function runSync(configId) {
+    showToast('Sync started...');
+    const { data, error } = await db.functions.invoke('cmms-sync', { body: { config_id: configId } });
+    if (error) { showToast('Sync error: ' + error.message); return; }
+    const r = data?.results?.[0];
+    if (r?.error) showToast('Sync failed: ' + r.error);
+    else showToast('Synced ' + (r?.synced || 0) + ' records successfully.');
+    loadSyncConfigs();
+  }
+
+  function editConfig(configId) {
+    _editingConfigId = configId;
+    document.getElementById('sync-form-title').textContent = 'Edit Sync Config';
+    // Pre-fill form from existing config
+    db.from('integration_configs').select('*').eq('id', configId).single().then(({ data }) => {
+      if (!data) return;
+      document.getElementById('sc-label').value = data.label || '';
+      document.getElementById('sc-type').value  = data.system_type || 'sap_pm';
+      document.getElementById('sc-url').value   = data.endpoint_url || '';
+      document.getElementById('sc-freq').value  = data.sync_freq || 'daily';
+    });
+  }
+
+  // ── API Keys (Phase 5.3) ─────────────────────────────────────────────────
+  async function generateApiKey() {
+    if (!HIVE_ID) { showToast('Join a hive first.'); return; }
+    const label = document.getElementById('api-key-label').value.trim() || 'API Key';
+    // Generate a random key client-side: wh_ + 32 hex chars
+    const arr = new Uint8Array(16);
+    crypto.getRandomValues(arr);
+    const rawKey = 'wh_' + Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+    const prefix = rawKey.slice(0, 11); // wh_ + 8 chars
+
+    // Hash the key
+    const hashBuf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(rawKey));
+    const keyHash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+    const { error } = await db.from('api_keys').insert({
+      hive_id: HIVE_ID, key_prefix: prefix, key_hash: keyHash, label, enabled: true
+    });
+    if (error) { showToast('Error: ' + error.message); return; }
+
+    const resEl = document.getElementById('new-key-result');
+    resEl.style.display = 'block';
+    resEl.innerHTML = `<div style="background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.25); border-radius:8px; padding:12px 14px; margin-bottom:4px;">
+      <p style="font-size:.72rem; color:var(--green); font-weight:700; margin-bottom:6px;">✓ API key generated — copy it now, it won't be shown again.</p>
+      <code style="font-size:.78rem; color:var(--text); word-break:break-all;">${escHtml(rawKey)}</code>
+      <button onclick="navigator.clipboard.writeText('${escHtml(rawKey)}').then(()=>showToast('Copied!'))" style="display:block; margin-top:8px; padding:5px 12px; background:rgba(74,222,128,0.12); color:var(--green); border:1px solid rgba(74,222,128,0.3); border-radius:6px; font-size:.72rem; cursor:pointer; font-family:inherit;">Copy Key</button>
+    </div>`;
+    document.getElementById('api-key-label').value = '';
+    loadApiKeys();
+  }
+
+  async function loadApiKeys() {
+    if (!HIVE_ID) return;
+    const { data } = await db.from('api_keys').select('id, key_prefix, label, enabled, call_count, last_used_at').eq('hive_id', HIVE_ID).eq('enabled', true).order('created_at', { ascending: false });
+    const list = document.getElementById('api-keys-list');
+    if (!data?.length) { list.innerHTML = '<p style="font-size:.75rem; color:var(--muted);">No keys yet. Generate one above.</p>'; return; }
+    list.innerHTML = data.map(k => {
+      const last = k.last_used_at ? new Date(k.last_used_at).toLocaleDateString('en-PH', { month:'short', day:'numeric' }) : 'Never used';
+      return `<div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); flex-wrap:wrap;">
+        <div>
+          <p style="font-size:.8rem; font-weight:600;">${escHtml(k.label || 'Unnamed')}</p>
+          <p style="font-size:.7rem; color:var(--muted);">${escHtml(k.key_prefix)}... · ${k.call_count || 0} calls · last: ${last}</p>
+        </div>
+        <button onclick="revokeKey('${k.id}')" style="padding:5px 12px; background:rgba(248,113,113,0.08); color:var(--red); border:1px solid rgba(248,113,113,0.25); border-radius:6px; font-size:.72rem; cursor:pointer; font-family:inherit;">Revoke</button>
+      </div>`;
+    }).join('');
+  }
+
+  async function revokeKey(id) {
+    if (!confirm('Revoke this API key? Any integrations using it will stop working.')) return;
+    await db.from('api_keys').update({ enabled: false }).eq('id', id);
+    loadApiKeys();
+  }
+
+  // ── Import History + Rollback ─────────────────────────────────────────────
+  async function loadImportHistory() {
+    if (!HIVE_ID) return;
+    const section = document.getElementById('import-history-section');
+    const list    = document.getElementById('import-history-list');
+    try {
+      const { data } = await db.from('cmms_audit_log')
+        .select('id, batch_id, entity_type, system_type, rows_written, rows_failed, quality_score, triggered_by, created_at')
+        .eq('hive_id', HIVE_ID)
+        .eq('operation', 'file_import')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (!data?.length) return;
+      section.style.display = 'block';
+
+      list.innerHTML = data.map(row => {
+        const age   = Date.now() - new Date(row.created_at).getTime();
+        const canUndo = age < 86400000;  // within 24 hours
+        const qs    = row.quality_score || {};
+        const vals  = Object.values(qs).filter(v => typeof v === 'number');
+        const avgQ  = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : null;
+        const qColor = avgQ === null ? 'var(--muted)' : avgQ >= 80 ? 'var(--green)' : avgQ >= 60 ? '#fbbf24' : 'var(--red)';
+        const dt    = new Date(row.created_at).toLocaleDateString('en-PH', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+
+        return `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); flex-wrap:wrap;">
+            <div>
+              <div style="font-size:.75rem; font-weight:600;">${escHtml(row.entity_type || 'work_order')} · ${escHtml((row.system_type || '').replace('sap_pm','SAP PM').replace('maximo','Maximo').replace('generic','Generic'))}</div>
+              <div style="font-size:.62rem; color:var(--muted); margin-top:2px;">${dt} · ${row.rows_written} written${row.rows_failed ? ` · ${row.rows_failed} failed` : ''}${avgQ !== null ? ` · <span style="color:${qColor};">${avgQ}% quality</span>` : ''}</div>
+            </div>
+            ${canUndo ? `<button onclick="rollbackBatch('${escHtml(row.batch_id)}','${escHtml(row.entity_type)}','${escHtml(row.triggered_by || '')}','${escHtml(row.created_at)}')" style="padding:4px 12px; background:rgba(248,113,113,0.08); color:var(--red); border:1px solid rgba(248,113,113,0.25); border-radius:6px; font-size:.68rem; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap;">↩ Undo</button>` : `<span style="font-size:.6rem; color:var(--muted);">Expired</span>`}
+          </div>`;
+      }).join('');
+    } catch (_) { /* cmms_audit_log may not exist yet */ }
+  }
+
+  async function rollbackBatch(batchId, entityType, triggeredBy, createdAt) {
+    if (!confirm(`Undo this import? This will delete the ${entityType} records from external_sync and attempt to remove the corresponding logbook/asset/inventory rows created in that batch.`)) return;
+
+    const batchTime = new Date(createdAt);
+    const windowEnd = new Date(batchTime.getTime() + 300000).toISOString();  // +5 min window
+
+    try {
+      // 1. Delete from external_sync (safe — always reversible by re-importing)
+      await db.from('external_sync')
+        .delete()
+        .eq('hive_id', HIVE_ID)
+        .eq('entity_type', entityType === 'work_order' ? 'work_order' : entityType)
+        .gte('last_synced_at', createdAt)
+        .lte('last_synced_at', windowEnd);
+
+      // 2. Best-effort: delete matching target table rows created in the batch window
+      const targetTable = { work_order:'logbook', asset:'assets', inventory:'inventory_items', pm_schedule:'pm_assets' }[entityType];
+      if (targetTable && triggeredBy) {
+        await db.from(targetTable)
+          .delete()
+          .eq('hive_id', HIVE_ID)
+          .eq('worker_name', triggeredBy)
+          .gte('created_at', createdAt)
+          .lte('created_at', windowEnd);
+      }
+
+      // 3. Mark audit log entry as rolled back
+      await db.from('cmms_audit_log')
+        .update({ operation: 'file_import_rolled_back' })
+        .eq('batch_id', batchId)
+        .eq('hive_id', HIVE_ID);
+
+      showToast('Import rolled back successfully.');
+      await loadImportHistory();
+    } catch (e) {
+      showToast('Rollback failed: ' + e.message);
+    }
+  }
+
+  // ── Conflict Resolution ───────────────────────────────────────────────────
+  async function loadConflicts() {
+    const listEl = document.getElementById('conflicts-list');
+    if (!HIVE_ID) { listEl.innerHTML = '<div style="font-size:.72rem; color:var(--muted);">Join a hive first.</div>'; return; }
+
+    listEl.innerHTML = '<div style="font-size:.72rem; color:var(--muted);">Scanning for conflicts...</div>';
+
+    try {
+      // Load external_sync work order statuses
+      const { data: extRows } = await db.from('external_sync')
+        .select('external_id, status, sync_payload, last_synced_at')
+        .eq('hive_id', HIVE_ID)
+        .eq('entity_type', 'work_order')
+        .limit(200);
+
+      if (!extRows?.length) {
+        listEl.innerHTML = '<div style="font-size:.72rem; color:var(--muted);">No synced records found. Run a Live Sync first.</div>';
+        return;
+      }
+
+      // For each external record, find matching logbook entry by machine + date window
+      const conflicts = [];
+      for (const ext of extRows.slice(0, 50)) {
+        const machine  = ext.sync_payload?.machine;
+        const extStatus = ext.status;
+        if (!machine) continue;
+
+        const { data: logRows } = await db.from('logbook')
+          .select('id, machine, status, worker_name, date')
+          .eq('hive_id', HIVE_ID)
+          .eq('machine', machine)
+          .neq('worker_name', 'CMMS Sync')
+          .neq('worker_name', 'cmms-sync')
+          .order('date', { ascending: false })
+          .limit(1);
+
+        const log = logRows?.[0];
+        if (!log) continue;
+        if (log.status !== extStatus) {
+          conflicts.push({ machine, extStatus, logStatus: log.status, logId: log.id, extId: ext.external_id, logWorker: log.worker_name });
+        }
+      }
+
+      if (!conflicts.length) {
+        listEl.innerHTML = '<div style="font-size:.72rem; color:var(--green);">✓ No conflicts found — SAP and WorkHive are in sync.</div>';
+        return;
+      }
+
+      listEl.innerHTML = `
+        <div style="font-size:.68rem; color:var(--muted); margin-bottom:10px;">${conflicts.length} conflict${conflicts.length > 1 ? 's' : ''} detected — SAP and WorkHive disagree on status.</div>
+        ${conflicts.map(c => `
+          <div style="background:var(--card); border:1px solid rgba(248,113,113,0.2); border-radius:8px; padding:10px 12px; margin-bottom:8px;">
+            <div style="font-size:.75rem; font-weight:700; margin-bottom:6px;">${escHtml(c.machine)}</div>
+            <div style="display:flex; gap:10px; margin-bottom:8px; flex-wrap:wrap;">
+              <span style="font-size:.68rem; background:rgba(41,182,217,0.1); color:var(--blue); padding:2px 8px; border-radius:999px; border:1px solid rgba(41,182,217,0.25);">SAP: ${escHtml(c.extStatus)}</span>
+              <span style="font-size:.68rem; background:rgba(247,162,27,0.1); color:var(--gold); padding:2px 8px; border-radius:999px; border:1px solid rgba(247,162,27,0.25);">WorkHive: ${escHtml(c.logStatus)}</span>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button onclick="resolveConflict('${escHtml(c.logId)}','${escHtml(c.extStatus)}','sap')" style="flex:1; padding:5px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:6px; font-size:.65rem; font-weight:700; cursor:pointer; font-family:inherit;">Use SAP (${escHtml(c.extStatus)})</button>
+              <button onclick="resolveConflict('${escHtml(c.logId)}','${escHtml(c.logStatus)}','workhive')" style="flex:1; padding:5px; background:rgba(247,162,27,0.1); color:var(--gold); border:1px solid rgba(247,162,27,0.3); border-radius:6px; font-size:.65rem; font-weight:700; cursor:pointer; font-family:inherit;">Keep WorkHive (${escHtml(c.logStatus)})</button>
+            </div>
+          </div>`).join('')}`;
+    } catch (e) {
+      listEl.innerHTML = `<div style="font-size:.72rem; color:var(--red);">Error: ${escHtml(e.message)}</div>`;
+    }
+  }
+
+  async function resolveConflict(logId, status, winner) {
+    try {
+      if (winner === 'sap') {
+        // Update logbook to match SAP
+        await db.from('logbook').update({ status }).eq('id', logId);
+        showToast('Resolved — logbook updated to match SAP.');
+      } else {
+        // Keep WorkHive — update external_sync to match logbook
+        // (will be re-overwritten on next sync unless worker edits it again)
+        await db.from('logbook').update({ status }).eq('id', logId);
+        showToast('Kept WorkHive status. SAP will receive the update on next push.');
+      }
+      loadConflicts();
+    } catch (e) {
+      showToast('Resolution failed: ' + e.message);
+    }
+  }
+
+  // ── Toast ──────────────────────────────────────────────────────────────────
+  function showToast(msg, dur = 3000) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), dur);
+  }
+</script>
+<script src="nav-hub.js"></script>
+<script src="floating-ai.js"></script>
+</body>
+</html>

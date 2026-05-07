@@ -1,0 +1,330 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Philippine Industrial Intelligence Report | WorkHive</title>
+  <link rel="manifest" href="manifest.json" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f1923; --surface: #162032; --card: #1d2e44;
+      --gold: #F7A21B; --blue: #29B6D9; --green: #4ade80;
+      --red: #f87171; --purple: #a78bfa; --yellow: #fbbf24;
+      --text: #F4F6FA; --muted: rgba(255,255,255,0.4);
+      --border: rgba(255,255,255,0.07);
+    }
+    body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 80px; }
+
+    .page { max-width: 800px; margin: 0 auto; padding: 1.5rem 1rem; padding-top: 70px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px 24px; margin-bottom: 16px; }
+
+    /* Hero */
+    .hero { text-align: center; padding: 40px 24px 32px; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
+    .hero-badge { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: .3rem .8rem; border-radius: 999px; background: rgba(247,162,27,0.14); color: var(--gold); border: 1px solid rgba(247,162,27,0.3); margin-bottom: 12px; }
+    .hero h1 { font-size: 1.8rem; font-weight: 800; line-height: 1.15; margin-bottom: 8px; }
+    .hero p { font-size: .82rem; color: var(--muted); max-width: 520px; margin: 0 auto; }
+
+    /* Stats row */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .stat-chip { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+    .stat-chip .sn { font-size: 1.6rem; font-weight: 800; color: var(--gold); display: block; }
+    .stat-chip .sl { font-size: .62rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
+
+    /* Section header */
+    .sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .sec-title { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+
+    /* MTBF bar chart */
+    .mtbf-bar-wrap { display: flex; flex-direction: column; gap: 10px; }
+    .mtbf-row { display: grid; grid-template-columns: 180px 1fr 60px; gap: 10px; align-items: center; }
+    .mtbf-cat { font-size: .75rem; font-weight: 600; color: rgba(255,255,255,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mtbf-bar-bg { background: rgba(255,255,255,0.05); border-radius: 999px; height: 8px; overflow: hidden; }
+    .mtbf-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--blue), var(--green)); transition: width .6s ease; }
+    .mtbf-val { font-size: .72rem; font-weight: 700; color: var(--green); text-align: right; }
+
+    /* Failure modes */
+    .fm-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .fm-rank { font-size: .65rem; font-weight: 800; color: rgba(255,255,255,0.2); width: 20px; flex-shrink: 0; }
+    .fm-name { flex: 1; font-size: .78rem; color: rgba(255,255,255,0.85); }
+    .fm-bar-bg { width: 80px; background: rgba(255,255,255,0.05); border-radius: 999px; height: 4px; flex-shrink: 0; }
+    .fm-bar-fill { height: 100%; border-radius: 999px; background: var(--red); }
+    .fm-pct { font-size: .68rem; color: var(--muted); width: 32px; text-align: right; flex-shrink: 0; }
+
+    /* Narrative */
+    .narrative-block { background: rgba(247,162,27,0.04); border: 1px solid rgba(247,162,27,0.15); border-radius: 10px; padding: 16px 18px; font-size: .78rem; line-height: 1.65; color: rgba(255,255,255,0.8); }
+
+    /* Your plant compare */
+    .compare-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .cr-cat { flex: 1; font-size: .78rem; font-weight: 600; }
+    .cr-yours { font-size: .82rem; font-weight: 800; }
+    .cr-network { font-size: .7rem; color: var(--muted); }
+
+    /* CTA */
+    .cta-card { background: linear-gradient(135deg, rgba(247,162,27,0.08), rgba(41,182,217,0.05)); border: 1px solid rgba(247,162,27,0.2); border-radius: 14px; padding: 28px 24px; text-align: center; }
+    .cta-card h3 { font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
+    .cta-card p { font-size: .78rem; color: var(--muted); margin-bottom: 16px; }
+    .btn-gold { display: inline-block; padding: 12px 28px; background: rgba(247,162,27,0.15); color: var(--gold); border: 1px solid rgba(247,162,27,0.4); border-radius: 10px; font-family: inherit; font-size: .85rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: all .15s; }
+    .btn-gold:hover { background: rgba(247,162,27,0.25); }
+
+    /* API section */
+    .api-endpoint { font-family: ui-monospace, monospace; font-size: .72rem; background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 8px; color: var(--blue); margin-bottom: 8px; word-break: break-all; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge" id="report-period-badge">Loading...</div>
+    <h1>Philippine Industrial<br>Maintenance Intelligence</h1>
+    <p>Anonymized benchmarking data from manufacturing plants across the Philippines using WorkHive. Published monthly.</p>
+  </div>
+
+  <!-- Loading state -->
+  <div id="loading-state" class="card" style="text-align:center; padding:32px;">
+    <p style="color:var(--muted); font-size:.82rem;">Loading latest report...</p>
+  </div>
+
+  <!-- Report content -->
+  <div id="report-content" class="hidden">
+
+    <!-- Key stats -->
+    <div class="stats-row" id="stats-row"></div>
+
+    <!-- Executive summary -->
+    <div class="card" id="exec-summary-card" style="display:none;">
+      <div class="sec-head"><span class="sec-title">Executive Summary</span></div>
+      <p id="exec-summary-text" class="narrative-block"></p>
+    </div>
+
+    <!-- MTBF rankings -->
+    <div class="card">
+      <div class="sec-head">
+        <span class="sec-title">Equipment Reliability Ranking</span>
+        <span style="font-size:.65rem; color:var(--muted);">Days between failures (higher = better)</span>
+      </div>
+      <div class="mtbf-bar-wrap" id="mtbf-chart"></div>
+    </div>
+
+    <!-- Failure modes -->
+    <div class="card">
+      <div class="sec-head">
+        <span class="sec-title">Most Common Failure Causes</span>
+        <span style="font-size:.65rem; color:var(--muted);">Across all plants, last 90 days</span>
+      </div>
+      <div id="failure-modes-list"></div>
+    </div>
+
+    <!-- Seasonal -->
+    <div class="card" id="seasonal-card" style="display:none;">
+      <div class="sec-head"><span class="sec-title">Seasonal Insight</span></div>
+      <p id="seasonal-text" class="narrative-block"></p>
+    </div>
+
+    <!-- Your plant vs network (logged-in users only) -->
+    <div class="card hidden" id="your-plant-card">
+      <div class="sec-head">
+        <span class="sec-title">Your Plant vs Network</span>
+        <span style="font-size:.65rem; color:var(--blue);">Hive members only</span>
+      </div>
+      <div id="your-plant-compare"></div>
+    </div>
+
+    <!-- AI Recommendation -->
+    <div class="card" id="recommendation-card" style="display:none;">
+      <div class="sec-head"><span class="sec-title">WorkHive Recommendation</span></div>
+      <p id="recommendation-text" class="narrative-block" style="border-color:rgba(74,222,128,0.2); background:rgba(74,222,128,0.04);"></p>
+    </div>
+
+    <!-- API section -->
+    <div class="card">
+      <div class="sec-head"><span class="sec-title">WorkHive Intelligence API</span></div>
+      <p style="font-size:.75rem; color:var(--muted); margin-bottom:12px;">Access this data programmatically. Integrate WorkHive benchmarks into your ERP, accounting, or HR systems.</p>
+      <div class="api-endpoint">GET https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api?endpoint=benchmarks</div>
+      <div class="api-endpoint">GET https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api?endpoint=failure-modes</div>
+      <div class="api-endpoint">GET https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api?endpoint=report</div>
+      <p style="font-size:.7rem; color:var(--muted); margin-top:8px;">Generate API keys in <a href="integrations.html" style="color:var(--blue);">Integrations → API Keys</a>. Rate limit: 100 calls/hour.</p>
+    </div>
+
+    <!-- CTA for non-members -->
+    <div class="cta-card" id="cta-card">
+      <h3>Connect your plant's CMMS data</h3>
+      <p>Upload your SAP or Maximo export and see how your equipment compares to this benchmark in real time. Free to start.</p>
+      <a href="integrations.html" class="btn-gold">Import Your CMMS Data</a>
+    </div>
+
+  </div><!-- /report-content -->
+
+  <!-- No report state -->
+  <div id="no-report-state" class="card hidden" style="text-align:center; padding:32px;">
+    <p style="font-weight:700; margin-bottom:8px;">No report generated yet</p>
+    <p style="font-size:.78rem; color:var(--muted); margin-bottom:16px;">Reports are generated monthly once enough hives are contributing data.</p>
+    <button class="btn-gold" onclick="generateReport()">Generate Now</button>
+  </div>
+
+</div>
+
+<script src="utils.js"></script>
+<script>
+  const db = supabase.createClient(
+    'https://hzyvnjtisfgbksicrouu.supabase.co',
+    'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'
+  );
+
+  let WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+  let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+
+  async function loadReport() {
+    const { data, error } = await db.from('ph_intelligence_reports')
+      .select('*')
+      .order('generated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    document.getElementById('loading-state').classList.add('hidden');
+
+    if (error || !data) {
+      document.getElementById('no-report-state').classList.remove('hidden');
+      return;
+    }
+
+    renderReport(data);
+  }
+
+  function renderReport(data) {
+    const r  = data.report_json  || {};
+    const n  = data.narrative    || {};
+    const periodLabel = data.period ? 'Report: ' + data.period : 'Latest Report';
+
+    document.getElementById('report-period-badge').textContent = periodLabel;
+    document.getElementById('report-content').classList.remove('hidden');
+
+    // Stats
+    document.getElementById('stats-row').innerHTML = [
+      { n: data.hive_count    || 0, l: 'Plants' },
+      { n: (data.wo_count || 0).toLocaleString(), l: 'Work Orders' },
+      { n: data.equipment_count || 0, l: 'Equipment' },
+      { n: (r.summary?.period_days || 90) + 'd', l: 'Period' },
+    ].map(s => `<div class="stat-chip"><span class="sn">${s.n}</span><span class="sl">${s.l}</span></div>`).join('');
+
+    // Executive summary
+    if (n.executive_summary) {
+      document.getElementById('exec-summary-text').textContent = n.executive_summary;
+      document.getElementById('exec-summary-card').style.display = 'block';
+    }
+
+    // MTBF chart
+    const benchmarks = (r.mtbf_rankings || []).filter(b => b.avg_mtbf_days);
+    const maxMTBF    = Math.max(...benchmarks.map(b => b.avg_mtbf_days || 0), 1);
+    document.getElementById('mtbf-chart').innerHTML = benchmarks.slice(0, 8).map(b => {
+      const pct = Math.round((b.avg_mtbf_days / maxMTBF) * 100);
+      return `<div class="mtbf-row">
+        <div class="mtbf-cat" title="${escHtml(b.equipment_category)}">${escHtml(b.equipment_category)}</div>
+        <div class="mtbf-bar-bg"><div class="mtbf-bar-fill" style="width:${pct}%;"></div></div>
+        <div class="mtbf-val">${b.avg_mtbf_days}d</div>
+      </div>`;
+    }).join('') || '<p style="color:var(--muted); font-size:.75rem;">No benchmark data yet — available once 3+ plants contribute data.</p>';
+
+    // Failure modes
+    const modes = r.failure_modes || [];
+    const maxCount = Math.max(...modes.map(m => m.count || 0), 1);
+    document.getElementById('failure-modes-list').innerHTML = modes.slice(0, 8).map((m, i) => {
+      const pct = Math.round((m.count / maxCount) * 100);
+      return `<div class="fm-row">
+        <div class="fm-rank">${i+1}</div>
+        <div class="fm-name">${escHtml(m.cause)}</div>
+        <div class="fm-bar-bg"><div class="fm-bar-fill" style="width:${pct}%;"></div></div>
+        <div class="fm-pct">${m.pct || 0}%</div>
+      </div>`;
+    }).join('') || '<p style="color:var(--muted); font-size:.75rem;">No failure mode data yet.</p>';
+
+    // Seasonal
+    if (n.seasonal_insight) {
+      document.getElementById('seasonal-text').textContent = n.seasonal_insight;
+      document.getElementById('seasonal-card').style.display = 'block';
+    }
+
+    // Recommendation
+    if (n.recommendation) {
+      document.getElementById('recommendation-text').textContent = n.recommendation;
+      document.getElementById('recommendation-card').style.display = 'block';
+    }
+
+    // Your plant vs network (if logged in with hive)
+    loadYourPlantCompare(r.mtbf_rankings || []);
+
+    // Hide CTA if member
+    if (HIVE_ID) document.getElementById('cta-card').style.display = 'none';
+  }
+
+  async function loadYourPlantCompare(networkBenchmarks) {
+    if (!HIVE_ID || !networkBenchmarks.length) return;
+    const { data: hiveBench } = await db.from('hive_benchmarks')
+      .select('equipment_category, mtbf_days')
+      .eq('hive_id', HIVE_ID)
+      .limit(5);
+    if (!hiveBench?.length) return;
+
+    const netByCategory = {};
+    networkBenchmarks.forEach(b => { netByCategory[b.equipment_category] = b; });
+
+    const rows = hiveBench.filter(h => netByCategory[h.equipment_category] && h.mtbf_days);
+    if (!rows.length) return;
+
+    document.getElementById('your-plant-card').classList.remove('hidden');
+    document.getElementById('your-plant-compare').innerHTML = rows.map(h => {
+      const net = netByCategory[h.equipment_category];
+      const ratio = h.mtbf_days / (net.avg_mtbf_days || 1);
+      const color = ratio >= 0.9 ? 'var(--green)' : ratio >= 0.6 ? 'var(--yellow)' : 'var(--red)';
+      return `<div class="compare-row">
+        <div class="cr-cat">${escHtml(h.equipment_category)}</div>
+        <div>
+          <div class="cr-yours" style="color:${color};">${h.mtbf_days}d yours</div>
+          <div class="cr-network">Network avg: ${net.avg_mtbf_days}d · Top 25%: ${net.p75_mtbf_days || '?'}d</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  async function generateReport() {
+    const btn = document.querySelector('#no-report-state .btn-gold');
+    if (!btn) return;
+    btn.textContent = 'Generating...'; btn.disabled = true;
+    const { error } = await db.functions.invoke('intelligence-report', { body: {} });
+    if (error) {
+      btn.textContent = 'Generate Now'; btn.disabled = false;
+      showToast('Generation failed: ' + error.message);
+      return;
+    }
+    location.reload();
+  }
+
+  function escHtml(s) {
+    return String(s ?? '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  loadReport();
+
+  function showToast(msg, dur = 3000) {
+    let t = document.getElementById('toast');
+    if (!t) { t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t);
+      Object.assign(t.style, { position:'fixed', top:'1rem', left:'50%', transform:'translateX(-50%) translateY(-72px)',
+        background:'rgba(31,46,69,0.96)', color:'#F4F6FA', padding:'.6rem 1.25rem', borderRadius:'.625rem',
+        fontSize:'.8rem', fontWeight:'500', transition:'transform .3s', zIndex:'200',
+        border:'1px solid rgba(255,255,255,0.09)', backdropFilter:'blur(14px)' }); }
+    t.textContent = msg; t.style.transform = 'translateX(-50%) translateY(0)';
+    setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(-72px)'; }, dur);
+  }
+</script>
+<script src="nav-hub.js"></script>
+<script src="floating-ai.js"></script>
+</body>
+</html>
+

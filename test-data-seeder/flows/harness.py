@@ -9,6 +9,22 @@ SCREENSHOTS_DIR = Path(__file__).resolve().parent.parent / ".tmp" / "screenshots
 SCREENSHOTS_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def ensure_signed_in(page, log=print):
+    """Sign in only if not already authenticated.
+
+    Safe to call even when run_flows.py has already signed in globally.
+    All new per-flow sign-in calls should use this instead of sign_in().
+    """
+    try:
+        worker = page.evaluate("localStorage.getItem('wh_last_worker') || ''")
+        if worker:
+            log(f"  already signed in as {worker}")
+            return
+    except Exception:
+        pass
+    sign_in(page, log=log)
+
+
 def pick_test_username():
     """Return any valid username from worker_profiles. Imports lazily to avoid
     pulling supabase-py into Playwright workers that don't need it."""
@@ -67,10 +83,16 @@ def sign_in(page, username=None, password=DEFAULT_PASSWORD, log=print):
     log(f"  signing in as {username}...")
     page.goto(f"{BASE_URL}/workhive/index.html?signin=1", wait_until="domcontentloaded")
 
-    # Modal opens via the ?signin=1 query param. Wait for the Sign In panel inputs.
-    page.wait_for_selector("#si-username", timeout=10000, state="visible")
+    # Modal opens via the ?signin=1 query param — triggered in DOMContentLoaded after
+    # db.auth.getSession() resolves. Wait for the modal to be fully open, then settle.
+    page.wait_for_selector("#signin-modal:not(.hidden)", timeout=12000)
+    page.wait_for_selector("#si-username", timeout=5000, state="visible")
+    page.wait_for_timeout(250)  # let modal animation finish
 
+    # Click each field before filling — prevents stale-focus race in fresh browser contexts
+    page.click("#si-username")
     page.fill("#si-username", username)
+    page.click("#si-password")
     page.fill("#si-password", password)
     page.click("#si-btn")
 

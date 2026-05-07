@@ -52,6 +52,10 @@ LIVE_PAGES = [
     "public-feed.html",
     "index.html",
     "project-manager.html",
+    "integrations.html",
+    "ph-intelligence.html",
+    "predictive.html",
+    "achievements.html",
 ]
 
 SHARED_TABLES = [

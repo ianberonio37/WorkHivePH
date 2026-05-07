@@ -70,6 +70,8 @@ EXPECTED_PUBLISHED_TABLES = {
     # Phase 5 additions (Advanced features):
     "project_roles",
     "project_change_orders",
+    # Phase ML-1 / Achievements (2026-05-08):
+    "worker_achievements",
 }
 
 CHECKS = {

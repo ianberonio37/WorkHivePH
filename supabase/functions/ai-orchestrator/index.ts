@@ -241,15 +241,31 @@ const SYNTH_SYSTEM = `You are a senior maintenance manager AI. Given agent resul
 Be specific: name actual machines, workers, parts. Use bullet points for lists. Keep it under 200 words.
 Respond only in JSON: { "answer": "your response here" }`;
 
-async function orchestrate(question: string, hiveId: string | null, workerName: string | null, db: SupabaseClient) {
+// ── COACH MODE synthesis (Phase 1.3 — Reliability Coach) ─────────────────────
+// Always runs 4 core agents and returns a prioritized action plan, not a Q&A answer.
 
-  // Step 1: Route: decide which agents to call
-  const routeRaw = await callGroq(`Question: "${question}"`, ROUTE_SYSTEM);
-  let agentsToRun: string[] = [];
-  try {
-    agentsToRun = JSON.parse(routeRaw).agents || ["failure_analysis"];
-  } catch {
-    agentsToRun = ["failure_analysis"];
+const COACH_AGENTS = ["failure_analysis", "pm_status", "inventory_risk", "predictive"] as const;
+
+const COACH_SYNTH_SYSTEM = `You are a reliability engineer giving a plant supervisor their weekly action plan.
+Based on the agent data, give EXACTLY 3 specific, prioritized actions to take this week.
+Rules: name actual machines (use the exact IDs from the data). Be concrete — "schedule bearing inspection on P-003" not "check pumps".
+Urgency levels: TODAY (safety/critical failure risk), THIS WEEK (high risk if ignored), MONITOR (watch closely).
+Respond only in JSON: { "actions": [{ "priority": 1, "action": "...", "machine": "...", "why": "...", "urgency": "TODAY|THIS WEEK|MONITOR" }] }`;
+
+async function orchestrate(question: string, hiveId: string | null, workerName: string | null, db: SupabaseClient, mode = "chat") {
+
+  // Coach mode: always run 4 core agents, skip router
+  let agentsToRun: string[];
+  if (mode === "coach") {
+    agentsToRun = [...COACH_AGENTS];
+  } else {
+    // Step 1: Route: decide which agents to call
+    const routeRaw = await callGroq(`Question: "${question}"`, ROUTE_SYSTEM);
+    try {
+      agentsToRun = JSON.parse(routeRaw).agents || ["failure_analysis"];
+    } catch {
+      agentsToRun = ["failure_analysis"];
+    }
   }
 
   // Step 2: Run selected agents in parallel
@@ -303,6 +319,14 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
   const synthPrompt = semanticContext
     ? `User question: "${question}"\n\nRelevant history from knowledge base:\n${semanticContext}\n\nAgent results:\n${resultsText}`
     : `User question: "${question}"\n\nAgent results:\n${resultsText}`;
+
+  // Coach mode: use dedicated synthesis prompt, return action plan
+  if (mode === "coach") {
+    const coachRaw = await callGroq(synthPrompt, COACH_SYNTH_SYSTEM);
+    let actions: unknown[] = [];
+    try { actions = JSON.parse(coachRaw).actions || []; } catch { /* use empty */ }
+    return { mode: "coach", actions, agents_used: agentsToRun };
+  }
 
   const synthRaw = await callGroq(synthPrompt, SYNTH_SYSTEM);
 
@@ -358,7 +382,7 @@ serve(async (req) => {
   }
 
   try {
-    const { question, hive_id, worker_name } = await req.json();
+    const { question, hive_id, worker_name, mode } = await req.json();
 
     if (!question) {
       return new Response(
@@ -372,7 +396,7 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const result = await orchestrate(question, hive_id || null, worker_name || null, db);
+    const result = await orchestrate(question, hive_id || null, worker_name || null, db, mode || "chat");
 
     return new Response(
       JSON.stringify(result),

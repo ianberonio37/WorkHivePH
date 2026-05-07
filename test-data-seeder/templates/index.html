@@ -696,8 +696,56 @@
 </style>
 </head>
 <body>
-  <h1>WorkHive Tester</h1>
-  <p class="subtitle">Unified workspace: health · seed · gate · backlog. <span id="health-meta" style="color:#9ca3af;"></span></p>
+  <h1>WorkHive Tester <a href="/lineage" target="_blank" style="font-size:.65rem; font-weight:600; color:var(--blue); background:rgba(41,182,217,0.1); border:1px solid rgba(41,182,217,0.25); border-radius:6px; padding:3px 10px; margin-left:10px; text-decoration:none; vertical-align:middle;">🔍 Platform Lineage →</a></h1>
+  <p class="subtitle">Unified workspace: health · seed · gate · backlog. <span id="health-meta" style="color:#9ca3af;"></span>
+    <button id="copy-failures-btn" onclick="copyAllFailures(false)" title="Copy all FAILs to clipboard for pasting" style="margin-left:12px; padding:4px 12px; background:rgba(248,113,113,0.1); color:var(--red); border:1px solid rgba(248,113,113,0.35); border-radius:6px; font-family:inherit; font-size:.7rem; font-weight:700; cursor:pointer;">📋 Copy Failures</button>
+    <button onclick="copyAllFailures(true)" title="Copy FAILs + WARNs to clipboard" style="margin-left:4px; padding:4px 10px; background:rgba(251,191,36,0.1); color:var(--yellow); border:1px solid rgba(251,191,36,0.3); border-radius:6px; font-family:inherit; font-size:.7rem; font-weight:600; cursor:pointer;">+ WARNs</button>
+  </p>
+
+  <!-- Failures panel (shown after copy) -->
+  <div id="failures-panel" style="display:none; margin-bottom:14px; background:rgba(0,0,0,0.3); border:1px solid rgba(248,113,113,0.3); border-radius:10px; padding:12px 16px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <span id="failures-panel-title" style="font-size:.75rem; font-weight:700; color:var(--red);"></span>
+      <div style="display:flex; gap:6px;">
+        <button onclick="navigator.clipboard.writeText(document.getElementById('failures-text').value).then(()=>showCopyToast())" style="padding:4px 12px; background:rgba(247,162,27,0.15); color:var(--gold); border:1px solid rgba(247,162,27,0.4); border-radius:6px; font-size:.7rem; font-weight:700; cursor:pointer; font-family:inherit;">Copy</button>
+        <button onclick="document.getElementById('failures-panel').style.display='none'" style="padding:4px 10px; background:rgba(255,255,255,0.04); color:var(--muted); border:1px solid var(--border); border-radius:6px; font-size:.7rem; cursor:pointer; font-family:inherit;">✕</button>
+      </div>
+    </div>
+    <textarea id="failures-text" readonly style="width:100%; height:220px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:rgba(255,255,255,0.8); font-family:ui-monospace,monospace; font-size:.7rem; padding:10px; resize:vertical; line-height:1.55;"></textarea>
+    <p style="font-size:.65rem; color:var(--muted); margin-top:6px;">Select all → Ctrl+C, or use the Copy button above.</p>
+  </div>
+
+  <!-- ── Service Status Bar ─────────────────────────────────────────────────── -->
+  <div id="service-bar" style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:10px 14px; background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.07); border-radius:10px; margin-bottom:18px; font-size:.72rem;">
+    <span style="font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:.06em; font-size:.65rem;">Services</span>
+    <span id="svc-seeder">⬤ Seeder</span>
+    <span id="svc-supabase">⬤ Supabase</span>
+    <span id="svc-functions">⬤ Edge Functions</span>
+    <span style="flex:1;"></span>
+    <!-- Quick Demo -->
+    <div style="display:flex; align-items:center; gap:8px;">
+      <select id="qd-industry" style="background:var(--card); border:1px solid var(--border-strong); border-radius:6px; color:var(--text); padding:5px 8px; font-family:inherit; font-size:.72rem;">
+        <option value="food_processing">Food Processing</option>
+        <option value="cement">Cement</option>
+        <option value="power">Power Generation</option>
+        <option value="oil_gas">Oil &amp; Gas</option>
+        <option value="manufacturing">Manufacturing</option>
+      </select>
+      <select id="qd-size" style="background:var(--card); border:1px solid var(--border-strong); border-radius:6px; color:var(--text); padding:5px 8px; font-family:inherit; font-size:.72rem;">
+        <option value="small">Small</option>
+        <option value="medium" selected>Medium</option>
+        <option value="large">Large</option>
+      </select>
+      <button id="quick-demo-btn" onclick="runQuickDemo()" style="padding:6px 14px; background:rgba(74,222,128,0.14); color:var(--green); border:1px solid rgba(74,222,128,0.4); border-radius:7px; font-family:inherit; font-size:.75rem; font-weight:700; cursor:pointer; white-space:nowrap;">
+        ⚡ Quick Demo
+      </button>
+    </div>
+  </div>
+
+  <!-- Quick Demo result -->
+  <div id="quick-demo-result" style="display:none; padding:12px 16px; background:rgba(74,222,128,0.07); border:1px solid rgba(74,222,128,0.25); border-radius:10px; font-size:.78rem; margin-bottom:18px;">
+    <div id="quick-demo-body"></div>
+  </div>
 
   <!-- ── HEALTH PANEL (Phase 2) ───────────────────────────────────────── -->
   <div class="card" id="health-panel" style="display:none;">
@@ -892,6 +940,7 @@
       <button class="seed-btn" data-action="run-gate-visual">📷 Release Gate + Visual Regression (~3 min)</button>
       <button class="seed-btn" data-action="run-tests">🧪 Data Tests (~5s, 62 checks)</button>
       <button class="seed-btn" data-action="run-flows">🎬 UI Tests (Playwright, ~30s)</button>
+      <button class="seed-btn" data-action="run-crud-tests" style="background:rgba(248,113,113,0.1);color:var(--red);border-color:rgba(248,113,113,0.3);">🔍 CRUD Tests (~2 min, DB-verified)</button>
     </div>
     <details class="section-help">
       <summary>What does each gate check, and when do I use which?</summary>
@@ -981,6 +1030,7 @@
       <button class="seed-btn" data-action="marketplace">7. Marketplace</button>
       <button class="seed-btn" data-action="community">8. Community</button>
       <button class="seed-btn" data-action="projects">9. Projects</button>
+      <button class="seed-btn" data-action="achievements">10. Achievements (rings)</button>
     </div>
     <details class="section-help">
       <summary>When do I seed, and which buttons should I press?</summary>
@@ -1230,6 +1280,7 @@
     else if (action === 'reset') url = '/api/reset';
     else if (action === 'run-tests') url = '/api/run-tests';
     else if (action === 'run-flows') url = '/api/run-flows';
+    else if (action === 'run-crud-tests') url = '/api/run-crud-tests';
     else if (action === 'run-gate') url = '/api/run-gate';
     else if (action === 'run-gate-ai') url = '/api/run-gate-ai';
     else if (action === 'run-gate-visual') url = '/api/run-gate-visual';
@@ -2223,7 +2274,1048 @@
     });
   }
   wireBacklogRows();
+</script>
 
+<!-- ── CMMS Integration Tester Panel ─────────────────────────────────────── -->
+<div class="card" id="cmms-panel" style="margin-top:24px;">
+  <div class="section-head-row">
+    <h3 class="action-section-title">CMMS Integration Tester</h3>
+    <span class="action-section-hint">Generate fake company CMMS data and download it as CSV. Phase 1 of the integration test harness.</span>
+  </div>
+
+  <details class="section-help">
+    <summary>What is this and how do I use it?</summary>
+    <div class="help-body">
+      Simulates a Philippine manufacturing company's existing SAP PM, IBM Maximo, or generic CMMS database.
+      Use it to design and test the WorkHive import wizard before any real client connects.<br><br>
+      <b>Import CSVs</b> are in CMMS field format (SAP AUFNR, Maximo WONUM, etc.) -- feed these into the WorkHive Tier 1 import wizard to design your field mapping.<br>
+      <b>Export CSVs</b> are in WorkHive-to-CMMS format -- what WorkHive sends back after field workers act. Proves the loop closes both ways.
+      <br><br>
+      <b>Patterns injected automatically:</b> ~20% of assets have repeat breakdown history, ~15% of PM schedules are overdue, ~15% of parts are below reorder point.
+    </div>
+  </details>
+
+  <!-- Demo Mode (Phase 7) -->
+  <div style="background:linear-gradient(135deg,rgba(247,162,27,0.06),rgba(41,182,217,0.04)); border:1px solid rgba(247,162,27,0.2); border-radius:12px; padding:14px 18px; margin-bottom:16px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+      <div>
+        <div style="font-size:0.82rem; font-weight:700; color:var(--gold);">Demo Mode</div>
+        <div style="font-size:0.72rem; color:var(--muted); margin-top:2px;">One click: generate + analyse + report. Use this to demo WorkHive to a prospect.</div>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button onclick="cmmsDemoRun()" id="cmms-demo-btn" style="padding:10px 18px; background:rgba(247,162,27,0.15); color:var(--gold); border:1px solid rgba(247,162,27,0.5); border-radius:9px; font-family:inherit; font-size:0.85rem; font-weight:800; cursor:pointer; transition:all 0.15s; white-space:nowrap;">
+          Run Demo
+        </button>
+        <button onclick="cmmsClientHive()" id="cmms-hive-btn" title="Create a live hive in the WorkHive Tester with this industry's CMMS data" style="padding:10px 18px; background:rgba(74,222,128,0.12); color:var(--green); border:1px solid rgba(74,222,128,0.4); border-radius:9px; font-family:inherit; font-size:0.85rem; font-weight:800; cursor:pointer; transition:all 0.15s; white-space:nowrap;">
+          Seed Client Hive
+        </button>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:8px; margin-bottom:12px;">
+      <div>
+        <label style="display:block; font-size:0.68rem; color:var(--muted); margin-bottom:3px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Industry</label>
+        <select id="demo-industry" style="width:100%; background:rgba(0,0,0,0.25); border:1px solid var(--border-strong); border-radius:7px; color:var(--text); padding:6px 9px; font-family:inherit; font-size:0.8rem;">
+          <option value="food_processing">Food Processing</option>
+          <option value="cement">Cement / Mining</option>
+          <option value="power">Power Generation</option>
+          <option value="oil_gas">Oil &amp; Gas</option>
+          <option value="manufacturing">Manufacturing</option>
+        </select>
+      </div>
+      <div>
+        <label style="display:block; font-size:0.68rem; color:var(--muted); margin-bottom:3px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Dataset</label>
+        <select id="demo-size" style="width:100%; background:rgba(0,0,0,0.25); border:1px solid var(--border-strong); border-radius:7px; color:var(--text); padding:6px 9px; font-family:inherit; font-size:0.8rem;">
+          <option value="small">Small (50 WOs)</option>
+          <option value="medium" selected>Medium (500 WOs)</option>
+          <option value="large">Large (5000 WOs)</option>
+        </select>
+      </div>
+      <div>
+        <label style="display:block; font-size:0.68rem; color:var(--muted); margin-bottom:3px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">CMMS Type</label>
+        <select id="demo-cmms" style="width:100%; background:rgba(0,0,0,0.25); border:1px solid var(--border-strong); border-radius:7px; color:var(--text); padding:6px 9px; font-family:inherit; font-size:0.8rem;">
+          <option value="sap_pm">SAP PM</option>
+          <option value="maximo">IBM Maximo</option>
+          <option value="generic">Generic</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Report panel -->
+    <div id="demo-report" style="display:none;">
+      <div id="demo-report-header" style="margin-bottom:12px;"></div>
+      <div id="demo-summary-chips" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:8px; margin-bottom:14px;"></div>
+      <div id="demo-top-risk" style="margin-bottom:14px;"></div>
+      <div id="demo-recommendations" style="margin-bottom:10px;"></div>
+      <div id="demo-footer" style="font-size:0.7rem; color:var(--muted); margin-top:8px; padding-top:8px; border-top:1px solid var(--border);"></div>
+    </div>
+    <!-- Client Hive credentials (shown after Seed Client Hive completes) -->
+    <div id="hive-creds" style="display:none; margin-top:12px; background:rgba(74,222,128,0.06); border:1px solid rgba(74,222,128,0.25); border-radius:10px; padding:14px 16px;">
+      <div style="font-size:0.8rem; font-weight:700; color:var(--green); margin-bottom:8px;">Client Hive Ready</div>
+      <div id="hive-creds-body" style="font-size:0.78rem; line-height:1.8;"></div>
+      <a id="hive-login-link" href="http://127.0.0.1:5000/workhive/index.html" target="_blank"
+         style="display:inline-block; margin-top:10px; padding:8px 16px; background:rgba(74,222,128,0.15); color:var(--green); border:1px solid rgba(74,222,128,0.4); border-radius:8px; text-decoration:none; font-size:0.82rem; font-weight:700;">
+        Open WorkHive Tester
+      </a>
+    </div>
+
+    <div id="demo-error" style="display:none; color:var(--red); font-size:0.8rem;"></div>
+  </div>
+
+  <!-- Controls -->
+  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; margin:14px 0 10px;">
+    <div>
+      <label style="display:block; font-size:0.72rem; color:var(--muted); margin-bottom:4px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Industry</label>
+      <select id="cmms-industry" style="width:100%; background:var(--card); border:1px solid var(--border-strong); border-radius:7px; color:var(--text); padding:7px 10px; font-family:inherit; font-size:0.82rem;">
+        <option value="food_processing">Food Processing</option>
+        <option value="cement">Cement / Mining</option>
+        <option value="power">Power Generation</option>
+        <option value="oil_gas">Oil &amp; Gas</option>
+        <option value="manufacturing">Discrete Manufacturing</option>
+      </select>
+    </div>
+    <div>
+      <label style="display:block; font-size:0.72rem; color:var(--muted); margin-bottom:4px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Size</label>
+      <select id="cmms-size" style="width:100%; background:var(--card); border:1px solid var(--border-strong); border-radius:7px; color:var(--text); padding:7px 10px; font-family:inherit; font-size:0.82rem;">
+        <option value="small">Small (50 WOs / 10 assets)</option>
+        <option value="medium" selected>Medium (500 WOs / 50 assets)</option>
+        <option value="large">Large (5000 WOs / 200 assets)</option>
+      </select>
+    </div>
+    <div>
+      <label style="display:block; font-size:0.72rem; color:var(--muted); margin-bottom:4px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">CMMS Type</label>
+      <select id="cmms-type" style="width:100%; background:var(--card); border:1px solid var(--border-strong); border-radius:7px; color:var(--text); padding:7px 10px; font-family:inherit; font-size:0.82rem;">
+        <option value="sap_pm">SAP PM (OData)</option>
+        <option value="maximo">IBM Maximo (OSLC)</option>
+        <option value="generic">Generic REST</option>
+      </select>
+    </div>
+    <div style="display:flex; align-items:flex-end;">
+      <button id="cmms-generate-btn" onclick="cmmsGenerate()" style="width:100%; padding:8px 14px; background:rgba(247,162,27,0.12); color:var(--gold); border:1px solid rgba(247,162,27,0.4); border-radius:8px; font-family:inherit; font-size:0.83rem; font-weight:700; cursor:pointer; transition:all 0.15s;">
+        Generate Dataset
+      </button>
+    </div>
+  </div>
+
+  <!-- Status summary -->
+  <div id="cmms-status" style="display:none; background:rgba(0,0,0,0.22); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin:10px 0;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+      <span id="cmms-status-label" style="font-size:0.82rem; font-weight:600; color:var(--gold);"></span>
+      <span id="cmms-status-seed"  style="font-size:0.72rem; color:var(--muted);"></span>
+    </div>
+    <div id="cmms-status-counts"   style="display:grid; grid-template-columns:repeat(auto-fit,minmax(100px,1fr)); gap:8px; margin-bottom:10px;"></div>
+    <div id="cmms-status-patterns" style="font-size:0.75rem; color:rgba(255,255,255,0.7); line-height:1.6;"></div>
+  </div>
+
+  <!-- Download grid -->
+  <div id="cmms-downloads" style="display:none; margin-top:10px;">
+    <div class="section-head-row" style="margin-bottom:8px;">
+      <h3 class="action-section-title" style="font-size:0.72rem;">Import CSVs</h3>
+      <span class="action-section-hint" style="font-size:0.7rem;">CMMS field format -- feed into the WorkHive Tier 1 import wizard.</span>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:8px; margin-bottom:14px;">
+      <a id="dl-work-orders" href="#" class="cmms-dl-btn">Work Orders</a>
+      <a id="dl-assets"      href="#" class="cmms-dl-btn">Assets / Equipment</a>
+      <a id="dl-pm"          href="#" class="cmms-dl-btn">PM Schedules</a>
+      <a id="dl-inventory"   href="#" class="cmms-dl-btn">Parts / Inventory</a>
+    </div>
+
+    <div class="section-head-row" style="margin-bottom:8px;">
+      <h3 class="action-section-title" style="font-size:0.72rem;">Export CSVs</h3>
+      <span class="action-section-hint" style="font-size:0.7rem;">WorkHive to CMMS format -- proves the loop closes both ways.</span>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:8px;">
+      <a id="dl-wh-completions" href="#" class="cmms-dl-btn cmms-dl-btn-green">Completed Jobs (WH to CMMS)</a>
+      <a id="dl-wh-inventory"   href="#" class="cmms-dl-btn cmms-dl-btn-green">Inventory Updates (WH to CMMS)</a>
+    </div>
+  </div>
+
+  <!-- Tier 1 Test Runner (Phase 3) -->
+  <div id="cmms-tier1-wrap" style="display:none; margin-top:18px; border-top:1px solid var(--border); padding-top:14px;">
+    <div class="section-head-row" style="margin-bottom:8px;">
+      <h3 class="action-section-title" style="font-size:0.72rem;">Tier 1 Tests</h3>
+      <span class="action-section-hint" style="font-size:0.7rem;">Verify CSV import: count, field mapping, dedup, delta, bad data, round-trip, agreement.</span>
+    </div>
+    <details class="section-help">
+      <summary>What do these tests check?</summary>
+      <div class="help-body">
+        Runs 6 automated tests against the local Supabase <code>external_sync</code> table:
+        <table><thead><tr><th>Test</th><th>Passes when</th></tr></thead><tbody>
+          <tr><td>tier1_import</td><td>All work orders land with correct count and status mapping</td></tr>
+          <tr><td>tier1_dedup</td><td>Re-importing the same data creates zero new rows</td></tr>
+          <tr><td>tier1_delta</td><td>Partial then full import adds only the missing records</td></tr>
+          <tr><td>tier1_baddata</td><td>Malformed rows are rejected, valid rows still import</td></tr>
+          <tr><td>tier1_round_trip</td><td>Exported WorkHive CSV contains the correct external IDs and status</td></tr>
+          <tr><td>tier1_agreement</td><td>Every expected record matches what is actually in the DB</td></tr>
+        </tbody></table>
+        <br>Requires: <code>external_sync</code> table (migration 20260506000000) applied to local Supabase.
+      </div>
+    </details>
+
+    <button onclick="cmmsTier1Run()" id="cmms-tier1-btn" style="padding:9px 18px; background:rgba(74,222,128,0.1); color:var(--green); border:1px solid rgba(74,222,128,0.35); border-radius:8px; font-family:inherit; font-size:0.83rem; font-weight:700; cursor:pointer; transition:all 0.15s; margin-bottom:10px;">
+      Run Tier 1 Tests (6 checks)
+    </button>
+
+    <div id="cmms-tier1-results" style="display:none; background:rgba(0,0,0,0.22); border:1px solid var(--border); border-radius:10px; padding:12px 14px;">
+      <div id="cmms-tier1-summary" style="font-size:0.82rem; font-weight:600; margin-bottom:8px;"></div>
+      <div id="cmms-tier1-rows"></div>
+    </div>
+  </div>
+
+  <!-- Tier 2 Test Runner (Phase 4) -->
+  <div id="cmms-tier2-wrap" style="display:none; margin-top:18px; border-top:1px solid var(--border); padding-top:14px;">
+    <div class="section-head-row" style="margin-bottom:8px;">
+      <h3 class="action-section-title" style="font-size:0.72rem;">Tier 2 Tests</h3>
+      <span class="action-section-hint" style="font-size:0.7rem;">HTTP sync engine: full sync, delta, pagination, bad URL, push, agreement. Requires seeder server running.</span>
+    </div>
+    <details class="section-help">
+      <summary>What do these tests check?</summary>
+      <div class="help-body">
+        Runs 6 tests against the <b>live mock CMMS API</b> (HTTP calls to this server). The seeder must be running on port 5000.
+        <table><thead><tr><th>Test</th><th>Passes when</th></tr></thead><tbody>
+          <tr><td>tier2_full_sync</td><td>All records fetched across pages and land in external_sync</td></tr>
+          <tr><td>tier2_delta_sync</td><td>updated_after filter returns a genuine subset, not all records</td></tr>
+          <tr><td>tier2_pagination</td><td>page_size=5 forces multiple HTTP calls; all records still land</td></tr>
+          <tr><td>tier2_bad_url</td><td>Unreachable CMMS raises a clean exception, no crash</td></tr>
+          <tr><td>tier2_push</td><td>Closed WO pushed back; mock PUSH_LOG confirms receipt</td></tr>
+          <tr><td>tier2_agreement</td><td>Every expected status matches what is in external_sync after sync+push</td></tr>
+        </tbody></table>
+      </div>
+    </details>
+
+    <button onclick="cmmsTier2Run()" id="cmms-tier2-btn" style="padding:9px 18px; background:rgba(167,139,250,0.1); color:var(--purple); border:1px solid rgba(167,139,250,0.35); border-radius:8px; font-family:inherit; font-size:0.83rem; font-weight:700; cursor:pointer; transition:all 0.15s; margin-bottom:10px;">
+      Run Tier 2 Tests (6 checks)
+    </button>
+
+    <div id="cmms-tier2-results" style="display:none; background:rgba(0,0,0,0.22); border:1px solid var(--border); border-radius:10px; padding:12px 14px;">
+      <div id="cmms-tier2-summary" style="font-size:0.82rem; font-weight:600; margin-bottom:8px;"></div>
+      <div id="cmms-tier2-rows"></div>
+    </div>
+  </div>
+
+  <!-- Tier 3 Test Runner (Phase 6) -->
+  <div id="cmms-tier3-wrap" style="display:none; margin-top:18px; border-top:1px solid var(--border); padding-top:14px;">
+    <div class="section-head-row" style="margin-bottom:8px;">
+      <h3 class="action-section-title" style="font-size:0.72rem;">Tier 3 Tests</h3>
+      <span class="action-section-hint" style="font-size:0.7rem;">Real-time loop: full scenario, intelligence back to SAP, ordering, drift, HMAC signature.</span>
+    </div>
+    <details class="section-help">
+      <summary>What do these tests check?</summary>
+      <div class="help-body">
+        <table><thead><tr><th>Test</th><th>Passes when</th></tr></thead><tbody>
+          <tr><td>tier3_scenario_a</td><td>Full loop: webhook received, WO imported, completion pushed back to CMMS</td></tr>
+          <tr><td>tier3_scenario_b</td><td>pm.overdue event triggers AI PM order creation back in SAP</td></tr>
+          <tr><td>tier3_ordering</td><td>5 status updates for same WO; final upsert wins (Closed)</td></tr>
+          <tr><td>tier3_no_drift</td><td>30 mixed events; unique WO count matches external_sync rows</td></tr>
+          <tr><td>tier3_signature</td><td>Unsigned=401, wrong secret=401, correct HMAC=200</td></tr>
+        </tbody></table>
+      </div>
+    </details>
+    <button onclick="cmmsTier3Run()" id="cmms-tier3-btn" style="padding:9px 18px; background:rgba(247,162,27,0.1); color:var(--gold); border:1px solid rgba(247,162,27,0.4); border-radius:8px; font-family:inherit; font-size:0.83rem; font-weight:700; cursor:pointer; transition:all 0.15s; margin-bottom:10px;">
+      Run Tier 3 Tests (5 checks)
+    </button>
+    <div id="cmms-tier3-results" style="display:none; background:rgba(0,0,0,0.22); border:1px solid var(--border); border-radius:10px; padding:12px 14px;">
+      <div id="cmms-tier3-summary" style="font-size:0.82rem; font-weight:600; margin-bottom:8px;"></div>
+      <div id="cmms-tier3-rows"></div>
+    </div>
+  </div>
+
+  <!-- Webhook Sender (Phase 5) -->
+  <div id="cmms-webhook-wrap" style="display:none; margin-top:18px; border-top:1px solid var(--border); padding-top:14px;">
+    <div class="section-head-row" style="margin-bottom:8px;">
+      <h3 class="action-section-title" style="font-size:0.72rem;">Webhook Sender</h3>
+      <span class="action-section-hint" style="font-size:0.7rem;">Simulate a CMMS pushing real-time events to WorkHive. Tier 3 readiness.</span>
+    </div>
+    <details class="section-help">
+      <summary>What does this do?</summary>
+      <div class="help-body">
+        Sends fake CMMS webhook events to a target URL -- either the <b>local mock target</b>
+        (built-in stand-in for WorkHive's Edge Function) or the <b>real WorkHive Edge Function</b>
+        once built.<br><br>
+        <b>Local mock target:</b> <code>/mock/webhook-target/receive</code> -- accepts any event and logs it.<br>
+        <b>Real target:</b> <code>http://127.0.0.1:54321/functions/v1/cmms-webhook-receiver</code> -- your actual Edge Function.<br><br>
+        The <b>Event Log</b> below shows every event received by the local mock.
+        Use the log to verify your Edge Function receives and processes each event correctly.
+      </div>
+    </details>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; margin:10px 0;">
+      <div>
+        <label style="display:block; font-size:0.72rem; color:var(--muted); margin-bottom:4px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Event Type</label>
+        <select id="wh-event-type" style="width:100%; background:var(--card); border:1px solid var(--border-strong); border-radius:7px; color:var(--text); padding:7px 10px; font-family:inherit; font-size:0.82rem;">
+          <option value="work_order.created">work_order.created</option>
+          <option value="work_order.updated">work_order.updated</option>
+          <option value="work_order.completed">work_order.completed</option>
+          <option value="pm.overdue">pm.overdue</option>
+          <option value="asset.updated">asset.updated</option>
+        </select>
+      </div>
+      <div>
+        <label style="display:block; font-size:0.72rem; color:var(--muted); margin-bottom:4px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Count</label>
+        <select id="wh-count" style="width:100%; background:var(--card); border:1px solid var(--border-strong); border-radius:7px; color:var(--text); padding:7px 10px; font-family:inherit; font-size:0.82rem;">
+          <option value="1">1 event</option>
+          <option value="5" selected>5 events</option>
+          <option value="10">10 events</option>
+          <option value="50">50 events (stress)</option>
+        </select>
+      </div>
+      <div>
+        <label style="display:block; font-size:0.72rem; color:var(--muted); margin-bottom:4px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Target</label>
+        <select id="wh-target" style="width:100%; background:var(--card); border:1px solid var(--border-strong); border-radius:7px; color:var(--text); padding:7px 10px; font-family:inherit; font-size:0.82rem;">
+          <option value="local">Local mock target</option>
+          <option value="edge">WorkHive Edge Function</option>
+        </select>
+      </div>
+      <div style="display:flex; gap:6px; align-items:flex-end;">
+        <button onclick="cmmsWebhookSend(false)" style="flex:1; padding:8px 10px; background:rgba(247,162,27,0.1); color:var(--gold); border:1px solid rgba(247,162,27,0.4); border-radius:8px; font-family:inherit; font-size:0.8rem; font-weight:700; cursor:pointer;">Send</button>
+        <button onclick="cmmsWebhookSend(true)" title="Send all 5 event types in rotation" style="flex:1; padding:8px 10px; background:rgba(41,182,217,0.08); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:8px; font-family:inherit; font-size:0.8rem; font-weight:600; cursor:pointer;">Mixed</button>
+      </div>
+    </div>
+
+    <div id="wh-send-result" style="display:none; font-size:0.78rem; margin:6px 0; padding:8px 12px; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:8px;"></div>
+
+    <!-- Inbound event log (CMMS -> WorkHive) -->
+    <div style="margin-top:10px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span style="font-size:0.72rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Event Log (CMMS to WorkHive)</span>
+        <div style="display:flex; gap:6px;">
+          <span id="wh-log-count" style="font-size:0.7rem; color:var(--muted);"></span>
+          <button onclick="cmmsWebhookClearLog()" style="padding:3px 10px; background:rgba(248,113,113,0.08); color:var(--red); border:1px solid rgba(248,113,113,0.25); border-radius:5px; font-size:0.7rem; cursor:pointer; font-family:inherit;">Clear</button>
+        </div>
+      </div>
+      <div id="wh-event-log" style="font-size:0.72rem; font-family:ui-monospace,monospace; background:rgba(0,0,0,0.25); border:1px solid var(--border); border-radius:8px; padding:10px 12px; max-height:200px; overflow-y:auto; color:rgba(255,255,255,0.75); line-height:1.7;">
+        <span style="color:var(--muted);">No events received yet. Send events above.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mock API panel (Phase 2) -->
+  <div style="margin-top:18px; border-top:1px solid var(--border); padding-top:14px;">
+    <div class="section-head-row" style="margin-bottom:8px;">
+      <h3 class="action-section-title" style="font-size:0.72rem;">Mock CMMS API Server</h3>
+      <span class="action-section-hint" style="font-size:0.7rem;">Live HTTP endpoints that mimic SAP / Maximo / Generic. Point WorkHive's sync engine here for Tier 2 testing.</span>
+    </div>
+    <details class="section-help">
+      <summary>How to use the Mock API with WorkHive sync</summary>
+      <div class="help-body">
+        Once you build WorkHive's Tier 2 sync engine, configure it to poll these URLs instead of a real CMMS.<br><br>
+        The mock API serves your generated dataset with authentic response envelopes:<br>
+        <b>SAP</b>: OData v4 <code>{"d": {"results": [...]}}</code> with <code>$filter</code> and <code>$top/$skip</code> support<br>
+        <b>Maximo</b>: OSLC <code>{"rdfs:member": [...]}</code> with <code>oslc.where</code> and <code>oslc.pageSize</code><br>
+        <b>Generic</b>: <code>{"data": [...]}</code> with <code>updated_after</code> and <code>limit/offset</code><br><br>
+        Push endpoints capture what WorkHive sends back -- check the <b>Request Log</b> to verify your sync called the right endpoints with the right params.
+      </div>
+    </details>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:8px; margin:10px 0;">
+      <button onclick="cmmsCopyEndpoints()" style="padding:8px 12px; background:rgba(167,139,250,0.1); color:var(--purple); border:1px solid rgba(167,139,250,0.3); border-radius:8px; font-family:inherit; font-size:0.8rem; font-weight:600; cursor:pointer;">Copy Endpoint URLs</button>
+      <button onclick="cmmsLoadLog()" style="padding:8px 12px; background:rgba(41,182,217,0.08); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:8px; font-family:inherit; font-size:0.8rem; font-weight:600; cursor:pointer;">Refresh Log</button>
+      <button onclick="cmmsResetLog()" style="padding:8px 12px; background:rgba(248,113,113,0.08); color:var(--red); border:1px solid rgba(248,113,113,0.3); border-radius:8px; font-family:inherit; font-size:0.8rem; font-weight:600; cursor:pointer;">Clear Log</button>
+    </div>
+
+    <!-- Endpoint reference (collapsed by default) -->
+    <div id="cmms-endpoints" style="display:none; font-size:0.72rem; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:8px; padding:10px 14px; margin:8px 0; font-family:ui-monospace,monospace; color:var(--muted-2); white-space:pre-wrap; line-height:1.7;"></div>
+
+    <!-- Request log -->
+    <div id="cmms-log-wrap" style="margin-top:8px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span style="font-size:0.72rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Request Log</span>
+        <span id="cmms-log-counts" style="font-size:0.7rem; color:var(--muted);"></span>
+      </div>
+      <div id="cmms-log" style="font-size:0.72rem; font-family:ui-monospace,monospace; background:rgba(0,0,0,0.25); border:1px solid var(--border); border-radius:8px; padding:10px 12px; max-height:220px; overflow-y:auto; color:rgba(255,255,255,0.75); line-height:1.7;">
+        <span style="color:var(--muted);">No requests yet. Generate a dataset and trigger a sync to see activity here.</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="cmms-error" style="display:none; color:var(--red); font-size:0.8rem; margin-top:8px;"></div>
+</div>
+
+<style>
+  .cmms-dl-btn {
+    display:block; text-align:center; text-decoration:none;
+    padding:9px 12px; border-radius:8px; font-size:0.8rem; font-weight:600;
+    background:rgba(41,182,217,0.08); color:var(--blue); border:1px solid rgba(41,182,217,0.3);
+    transition:all 0.15s;
+  }
+  .cmms-dl-btn:hover { background:rgba(41,182,217,0.18); }
+  .cmms-dl-btn-green { background:rgba(74,222,128,0.08); color:var(--green); border-color:rgba(74,222,128,0.3); }
+  .cmms-dl-btn-green:hover { background:rgba(74,222,128,0.18); }
+  .cmms-stat-chip {
+    background:rgba(255,255,255,0.04); border:1px solid var(--border);
+    border-radius:8px; padding:8px 12px; text-align:center;
+  }
+  .cmms-stat-chip .csn { font-size:1.2rem; font-weight:800; color:var(--gold); display:block; }
+  .cmms-stat-chip .csl { font-size:0.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; }
+</style>
+<script>
+  async function cmmsClientHive() {
+    const btn   = document.getElementById('cmms-hive-btn');
+    const creds = document.getElementById('hive-creds');
+    const errEl = document.getElementById('demo-error');
+    btn.disabled = true;
+    btn.textContent = 'Building hive...';
+    creds.style.display = 'none';
+    errEl.style.display = 'none';
+
+    try {
+      const start = await fetch('/api/cmms/seed-client-hive', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          industry:  document.getElementById('demo-industry').value,
+          size:      document.getElementById('demo-size').value,
+          cmms_type: document.getElementById('demo-cmms').value,
+        }),
+      });
+      if (!start.ok) { const d = await start.json(); throw new Error(d.error || 'Failed'); }
+
+      // Poll until done
+      await new Promise((resolve) => {
+        const iv = setInterval(async () => {
+          const s = await fetch('/api/status').then(r => r.json());
+          if (!s.running) { clearInterval(iv); resolve(); }
+        }, 1200);
+      });
+
+      const final = await fetch('/api/status').then(r => r.json());
+      if (final.error) throw new Error(final.error);
+      const res = final.result;
+      if (!res) throw new Error('No result returned');
+
+      // Render credentials
+      const sup = res.supervisor;
+      const h   = res.hive;
+      const b   = res.bridge;
+      document.getElementById('hive-creds-body').innerHTML =
+        '<b style="color:var(--text);">' + h.name + '</b> &nbsp;|&nbsp; '
+        + h.industry + ' &nbsp;|&nbsp; invite: <code>' + h.invite_code + '</code><br>'
+        + 'Supervisor: <code>' + sup.username + '</code> &nbsp;/&nbsp; <code>' + sup.password + '</code><br>'
+        + '<span style="color:var(--muted);">'
+        + b.logbook + ' logbook entries &nbsp;|&nbsp; '
+        + b.assets + ' assets &nbsp;|&nbsp; '
+        + b.pm_assets + ' PM schedules &nbsp;|&nbsp; '
+        + b.inventory + ' parts'
+        + '</span>';
+      creds.style.display = 'block';
+
+      // Also update main status panel
+      if (res.dataset_summary) {
+        cmmsRenderStatus({
+          summary: res.dataset_summary,
+          generated_at: new Date().toISOString(),
+          patterns: { overdue_pm: 0, low_stock: 0, repeat_assets: 0 },
+        });
+      }
+    } catch (e) {
+      errEl.textContent = 'Seed failed: ' + e.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Seed Client Hive';
+    }
+  }
+
+  async function cmmsDemoRun() {
+    const btn   = document.getElementById('cmms-demo-btn');
+    const panel = document.getElementById('demo-report');
+    const errEl = document.getElementById('demo-error');
+    btn.disabled = true;
+    btn.textContent = 'Analysing...';
+    panel.style.display = 'none';
+    errEl.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/cmms/demo', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          industry:  document.getElementById('demo-industry').value,
+          size:      document.getElementById('demo-size').value,
+          cmms_type: document.getElementById('demo-cmms').value,
+        }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Demo failed');
+
+      const r = data.report;
+      cmmsRenderDemoReport(r);
+
+      // Also populate the main generate panel + show all test sections
+      if (data.summary) {
+        cmmsRenderStatus({ summary: data.summary, generated_at: r.generated_at,
+          patterns: {
+            overdue_pm:    r.summary.overdue_pm_count,
+            low_stock:     r.summary.low_stock_count,
+            repeat_assets: r.summary.repeat_machines,
+          }
+        });
+      }
+    } catch (e) {
+      errEl.textContent = e.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Run Demo';
+    }
+  }
+
+  function cmmsRenderDemoReport(r) {
+    const s = r.summary;
+
+    // Header
+    document.getElementById('demo-report-header').innerHTML =
+      '<div style="font-size:1rem; font-weight:800; color:var(--text); margin-bottom:2px;">'
+      + r.company + '</div>'
+      + '<div style="font-size:0.75rem; color:var(--muted);">'
+      + r.industry + ' &nbsp;|&nbsp; ' + r.history_days + '-day analysis &nbsp;|&nbsp; '
+      + r.dataset.work_orders + ' work orders &nbsp;|&nbsp; '
+      + r.dataset.assets + ' assets &nbsp;|&nbsp; '
+      + '<span style="color:var(--green);">computed in ' + r.elapsed_seconds + 's</span>'
+      + '</div>';
+
+    // Summary chips
+    const chips = [
+      { v: s.critical_assets,    l: 'Critical',    c: 'var(--red)'    },
+      { v: s.assets_at_risk,     l: 'At Risk',      c: 'var(--yellow)' },
+      { v: s.overdue_pm_count,   l: 'Overdue PM',   c: 'var(--red)'    },
+      { v: s.low_stock_count,    l: 'Low Stock',    c: 'var(--yellow)' },
+      { v: s.total_breakdowns,   l: 'Breakdowns',   c: 'var(--blue)'   },
+      { v: s.total_downtime_hrs, l: 'Downtime hrs', c: 'var(--muted)'  },
+    ];
+    document.getElementById('demo-summary-chips').innerHTML = chips.map(ch =>
+      '<div class="cmms-stat-chip">'
+      + '<span class="csn" style="color:' + ch.c + ';">' + ch.v + '</span>'
+      + '<span class="csl">' + ch.l + '</span></div>'
+    ).join('');
+
+    // Top risk assets table
+    const topRisk = r.top_risk_assets || [];
+    let riskHtml = '<div style="font-size:0.72rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">Top Risk Assets</div>';
+    if (topRisk.length) {
+      riskHtml += '<div style="font-size:0.75rem;">';
+      topRisk.forEach(a => {
+        const lvlColor = a.risk_level === 'critical' ? 'var(--red)' : a.risk_level === 'high' ? 'var(--yellow)' : 'var(--muted)';
+        const mtbf = a.mtbf_days ? a.mtbf_days + 'd' : '-';
+        riskHtml += '<div style="display:grid; grid-template-columns:90px 70px 60px 60px 1fr; gap:8px; padding:5px 0; border-bottom:1px solid var(--border); align-items:center;">'
+          + '<span style="font-weight:700; color:var(--text);">' + a.asset + '</span>'
+          + '<span><span class="badge" style="background:rgba(0,0,0,0.2); color:' + lvlColor + '; border-color:' + lvlColor + '; font-size:0.62rem;">' + a.risk_level.toUpperCase() + '</span></span>'
+          + '<span style="color:var(--muted);">' + a.breakdowns + ' BD</span>'
+          + '<span style="color:var(--muted);">MTBF ' + mtbf + '</span>'
+          + '<span style="color:var(--muted); font-size:0.7rem;">' + a.downtime_hrs + 'h downtime</span>'
+          + '</div>';
+      });
+      riskHtml += '</div>';
+    } else {
+      riskHtml += '<div style="color:var(--muted); font-size:0.75rem;">No high-risk assets identified.</div>';
+    }
+    document.getElementById('demo-top-risk').innerHTML = riskHtml;
+
+    // Recommendations
+    const recs = r.recommendations || [];
+    let recHtml = '<div style="font-size:0.72rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">WorkHive Found</div>';
+    if (recs.length) {
+      recHtml += recs.map((rec, i) => {
+        const isCrit = rec.startsWith('CRITICAL') || rec.startsWith('BLOCKED');
+        const isWarn = rec.startsWith('OVERDUE') || rec.startsWith('PARTS') || rec.startsWith('REPEAT');
+        const color  = isCrit ? 'var(--red)' : isWarn ? 'var(--yellow)' : 'var(--muted-2)';
+        return '<div style="display:flex; gap:8px; padding:5px 0; border-bottom:1px solid var(--border); font-size:0.77rem;">'
+          + '<span style="color:' + color + '; font-weight:700; min-width:14px;">' + (i+1) + '</span>'
+          + '<span style="color:rgba(255,255,255,0.82);">' + rec + '</span></div>';
+      }).join('');
+    }
+    document.getElementById('demo-recommendations').innerHTML = recHtml;
+
+    // Footer
+    const cmmsLabel = {'sap_pm':'SAP PM','maximo':'IBM Maximo','generic':'Generic CMMS'}[r.cmms_type] || r.cmms_type;
+    document.getElementById('demo-footer').innerHTML =
+      'This data was already in <b>' + cmmsLabel + '</b>. WorkHive surfaced it in '
+      + r.elapsed_seconds + 's. '
+      + 'A reliability engineer would need approximately <b>3-5 days</b> to produce this analysis manually. '
+      + '<span style="color:var(--green);">Dataset seed: ' + r.seed + '</span>';
+
+    document.getElementById('demo-report').style.display = 'block';
+  }
+
+  async function cmmsGenerate() {
+    const btn    = document.getElementById('cmms-generate-btn');
+    const errEl  = document.getElementById('cmms-error');
+    errEl.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Generating...';
+    try {
+      const res = await fetch('/api/cmms/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          industry:  document.getElementById('cmms-industry').value,
+          size:      document.getElementById('cmms-size').value,
+          cmms_type: document.getElementById('cmms-type').value,
+        }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Generation failed');
+      cmmsRenderStatus(data);
+    } catch (e) {
+      errEl.textContent = e.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Generate Dataset';
+    }
+  }
+
+  function cmmsRenderStatus(data) {
+    const s = data.summary;
+    const p = data.patterns || {};
+    document.getElementById('cmms-status-label').textContent =
+      s.industry + ' -- ' + s.cmms_type.replace(/_/g, ' ').toUpperCase() + ' -- ' + s.size;
+    document.getElementById('cmms-status-seed').textContent = 'seed: ' + s.seed;
+
+    const chips = [
+      { n: s.assets,       l: 'Assets'       },
+      { n: s.work_orders,  l: 'Work Orders'  },
+      { n: s.pm_schedules, l: 'PM Schedules' },
+      { n: s.inventory,    l: 'Parts'        },
+    ];
+    document.getElementById('cmms-status-counts').innerHTML = chips.map(c =>
+      '<div class="cmms-stat-chip"><span class="csn">' + c.n +
+      '</span><span class="csl">' + c.l + '</span></div>'
+    ).join('');
+
+    const patterns = [];
+    if (p.overdue_pm)    patterns.push('<b style="color:var(--red)">'    + p.overdue_pm    + ' overdue PM</b>');
+    if (p.low_stock)     patterns.push('<b style="color:var(--yellow)">' + p.low_stock     + ' low-stock parts</b>');
+    if (p.repeat_assets) patterns.push('<b style="color:var(--blue)">'   + p.repeat_assets + ' assets with breakdowns</b>');
+    document.getElementById('cmms-status-patterns').innerHTML =
+      patterns.length ? 'Patterns injected: ' + patterns.join(' &nbsp;|&nbsp; ') : '';
+
+    document.getElementById('dl-work-orders').href    = '/api/cmms/export-csv/work_orders';
+    document.getElementById('dl-assets').href         = '/api/cmms/export-csv/assets';
+    document.getElementById('dl-pm').href             = '/api/cmms/export-csv/pm_schedules';
+    document.getElementById('dl-inventory').href      = '/api/cmms/export-csv/inventory';
+    document.getElementById('dl-wh-completions').href = '/api/cmms/export-csv/wh-to-sap/work_orders';
+    document.getElementById('dl-wh-inventory').href   = '/api/cmms/export-csv/wh-to-sap/inventory';
+
+    document.getElementById('cmms-status').style.display     = 'block';
+    document.getElementById('cmms-downloads').style.display  = 'block';
+    document.getElementById('cmms-tier1-wrap').style.display = 'block';
+    document.getElementById('cmms-tier2-wrap').style.display   = 'block';
+    document.getElementById('cmms-tier3-wrap').style.display   = 'block';
+    document.getElementById('cmms-webhook-wrap').style.display = 'block';
+  }
+
+  const EDGE_URL = 'http://127.0.0.1:54321/functions/v1/cmms-webhook-receiver';
+  const LOCAL_TARGET = 'http://127.0.0.1:5000/mock/webhook-target/receive';
+
+  async function cmmsTier3Run() {
+    const btn     = document.getElementById('cmms-tier3-btn');
+    const results = document.getElementById('cmms-tier3-results');
+    const summary = document.getElementById('cmms-tier3-summary');
+    const rows    = document.getElementById('cmms-tier3-rows');
+    btn.disabled  = true;
+    btn.textContent = 'Running tests...';
+    results.style.display = 'none';
+    try {
+      const start = await fetch('/api/cmms/tier3-test', { method: 'POST' });
+      if (!start.ok) { const d = await start.json(); throw new Error(d.error || 'Failed'); }
+      await new Promise((resolve) => {
+        const iv = setInterval(async () => {
+          const s = await fetch('/api/status').then(r => r.json());
+          if (!s.running) { clearInterval(iv); resolve(); }
+        }, 800);
+      });
+      const final = await fetch('/api/status').then(r => r.json());
+      const res   = final.result;
+      if (!res) throw new Error(final.error || 'No result');
+      const passColor = res.failed === 0 ? 'var(--green)' : 'var(--red)';
+      summary.innerHTML = '<span style="color:' + passColor + '; font-weight:800;">' + res.summary + '</span>';
+      rows.innerHTML = (res.results || []).map(r => {
+        const color = r.status === 'PASS' ? 'var(--green)' : r.status === 'SKIP' ? 'var(--muted)' : 'var(--red)';
+        const icon  = r.status === 'PASS' ? '✓' : r.status === 'SKIP' ? '-' : '✗';
+        return '<div style="display:grid; grid-template-columns:18px 200px 1fr; gap:6px; padding:3px 0; font-size:0.77rem; border-bottom:1px solid var(--border);">'
+          + '<span style="color:' + color + ';">' + icon + '</span>'
+          + '<span style="color:' + color + '; font-weight:600;">' + r.name + '</span>'
+          + '<span style="color:rgba(255,255,255,0.7);">' + r.detail + '</span></div>';
+      }).join('');
+      results.style.display = 'block';
+      cmmsWebhookRefreshLog();
+    } catch (e) {
+      summary.innerHTML = '<span style="color:var(--red);">Error: ' + e.message + '</span>';
+      results.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Run Tier 3 Tests (5 checks)';
+    }
+  }
+
+  async function cmmsWebhookSend(mixed) {
+    const resultEl = document.getElementById('wh-send-result');
+    resultEl.style.display = 'none';
+    const eventType = document.getElementById('wh-event-type').value;
+    const count     = parseInt(document.getElementById('wh-count').value);
+    const useEdge   = document.getElementById('wh-target').value === 'edge';
+    const target    = useEdge ? EDGE_URL : LOCAL_TARGET;
+
+    try {
+      const res = await fetch('/api/cmms/send-webhook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event_type: eventType, count, target_url: target, mixed }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Send failed');
+      const color = data.failed === 0 ? 'var(--green)' : 'var(--yellow)';
+      resultEl.innerHTML = '<span style="color:' + color + ';">'
+        + data.delivered + '/' + data.sent + ' events delivered</span>'
+        + ' to <code>' + target + '</code>';
+      resultEl.style.display = 'block';
+      setTimeout(cmmsWebhookRefreshLog, 400);
+    } catch (e) {
+      resultEl.innerHTML = '<span style="color:var(--red);">Error: ' + e.message + '</span>';
+      resultEl.style.display = 'block';
+    }
+  }
+
+  async function cmmsWebhookRefreshLog() {
+    try {
+      const res  = await fetch('/api/cmms/mock/webhook-log?n=40');
+      const data = await res.json();
+      const logEl   = document.getElementById('wh-event-log');
+      const countEl = document.getElementById('wh-log-count');
+      countEl.textContent = data.event_count + ' events received';
+      if (!data.events.length) {
+        logEl.innerHTML = '<span style="color:var(--muted);">No events yet.</span>';
+        return;
+      }
+      logEl.innerHTML = [...data.events].reverse().map(e => {
+        const ts    = e.ts.slice(11, 19);
+        const color = e.event.includes('completed') ? 'var(--green)'
+                    : e.event.includes('overdue')   ? 'var(--red)'
+                    : 'var(--gold)';
+        const extId = e.payload?.payload?.AUFNR || e.payload?.payload?.WONUM
+                   || e.payload?.payload?.work_order_no || e.payload?.payload?.EQUNR || '';
+        return '<span style="color:var(--muted);">[' + ts + ']</span> '
+          + '<span style="color:' + color + '; font-weight:600;">' + e.event + '</span>'
+          + (extId ? ' <span style="color:var(--muted);">id=' + extId + '</span>' : '');
+      }).join('\n');
+    } catch (_) {}
+  }
+
+  async function cmmsWebhookClearLog() {
+    await fetch('/api/cmms/mock/webhook-reset', { method: 'POST' });
+    cmmsWebhookRefreshLog();
+  }
+
+  // Auto-refresh webhook log every 5s alongside the request log
+  setInterval(() => {
+    if (!document.hidden && document.getElementById('cmms-webhook-wrap')) {
+      if (document.getElementById('cmms-webhook-wrap').style.display !== 'none') {
+        cmmsWebhookRefreshLog();
+      }
+    }
+  }, 5000);
+
+  async function cmmsTier2Run() {
+    const btn     = document.getElementById('cmms-tier2-btn');
+    const results = document.getElementById('cmms-tier2-results');
+    const summary = document.getElementById('cmms-tier2-summary');
+    const rows    = document.getElementById('cmms-tier2-rows');
+    btn.disabled  = true;
+    btn.textContent = 'Running tests...';
+    results.style.display = 'none';
+    try {
+      const start = await fetch('/api/cmms/tier2-test', { method: 'POST' });
+      if (!start.ok) { const d = await start.json(); throw new Error(d.error || 'Failed to start'); }
+      await new Promise((resolve) => {
+        const iv = setInterval(async () => {
+          const s = await fetch('/api/status').then(r => r.json());
+          if (!s.running && s.name === 'cmms_tier2_tests') { clearInterval(iv); resolve(); }
+          else if (!s.running && s.name !== 'cmms_tier2_tests') { clearInterval(iv); resolve(); }
+        }, 800);
+      });
+      const final = await fetch('/api/status').then(r => r.json());
+      const res   = final.result;
+      if (!res) throw new Error(final.error || 'No result');
+      const passColor = res.failed === 0 ? 'var(--green)' : 'var(--red)';
+      summary.innerHTML = '<span style="color:' + passColor + '; font-weight:800;">' + res.summary + '</span>';
+      rows.innerHTML = (res.results || []).map(r => {
+        const color = r.status === 'PASS' ? 'var(--green)' : r.status === 'SKIP' ? 'var(--muted)' : 'var(--red)';
+        const icon  = r.status === 'PASS' ? '✓' : r.status === 'SKIP' ? '-' : '✗';
+        return '<div style="display:grid; grid-template-columns:18px 200px 1fr; gap:6px; padding:3px 0; font-size:0.77rem; border-bottom:1px solid var(--border);">'
+          + '<span style="color:' + color + ';">' + icon + '</span>'
+          + '<span style="color:' + color + '; font-weight:600;">' + r.name + '</span>'
+          + '<span style="color:rgba(255,255,255,0.7);">' + r.detail + '</span></div>';
+      }).join('');
+      results.style.display = 'block';
+      cmmsLoadLog();  // refresh request log to show Tier 2 activity
+    } catch (e) {
+      summary.innerHTML = '<span style="color:var(--red);">Error: ' + e.message + '</span>';
+      results.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Run Tier 2 Tests (6 checks)';
+    }
+  }
+
+  async function cmmsLoadLog() {
+    try {
+      const res = await fetch('/api/cmms/mock/log?n=30');
+      const data = await res.json();
+      const logEl = document.getElementById('cmms-log');
+      const countEl = document.getElementById('cmms-log-counts');
+      countEl.textContent = data.request_count + ' requests / ' + data.push_count + ' pushes received';
+      if (!data.request_log.length && !data.push_log.length) {
+        logEl.innerHTML = '<span style="color:var(--muted);">No activity yet.</span>';
+        return;
+      }
+      const lines = [];
+      for (const r of [...data.request_log].reverse()) {
+        const ts = r.ts.slice(11, 19);
+        const params = Object.keys(r.params).length
+          ? ' ?' + Object.entries(r.params).map(([k,v]) => k + '=' + v).join('&')
+          : '';
+        lines.push('<span style="color:var(--muted);">[' + ts + ']</span> '
+          + '<span style="color:var(--blue);">' + r.method + '</span> '
+          + r.path + '<span style="color:var(--muted);">' + params + '</span>');
+      }
+      for (const p of [...data.push_log].reverse()) {
+        const ts = p.ts.slice(11, 19);
+        lines.push('<span style="color:var(--muted);">[' + ts + ']</span> '
+          + '<span style="color:var(--green);">PUSH</span> '
+          + p.entity + ' (' + p.cmms_type + ')');
+      }
+      logEl.innerHTML = lines.join('\n');
+    } catch (e) {
+      document.getElementById('cmms-log').textContent = 'Error loading log: ' + e.message;
+    }
+  }
+
+  async function cmmsResetLog() {
+    await fetch('/api/cmms/mock/reset', { method: 'POST' });
+    cmmsLoadLog();
+  }
+
+  async function cmmsCopyEndpoints() {
+    try {
+      const res = await fetch('/api/cmms/mock/endpoints');
+      const data = await res.json();
+      const ds = await fetch('/api/cmms/status').then(r => r.json());
+      const type = ds.dataset ? ds.dataset.cmms_type : 'sap_pm';
+      const urls = data[type] || data.sap_pm;
+      const text = Object.entries(urls).map(([k, v]) => k + ': ' + v).join('\n');
+      const endpointsEl = document.getElementById('cmms-endpoints');
+      endpointsEl.textContent = text;
+      endpointsEl.style.display = 'block';
+      await navigator.clipboard.writeText(text).catch(() => {});
+    } catch (e) {
+      document.getElementById('cmms-error').textContent = 'Could not load endpoints: ' + e.message;
+      document.getElementById('cmms-error').style.display = 'block';
+    }
+  }
+
+  async function cmmsTier1Run() {
+    const btn     = document.getElementById('cmms-tier1-btn');
+    const results = document.getElementById('cmms-tier1-results');
+    const summary = document.getElementById('cmms-tier1-summary');
+    const rows    = document.getElementById('cmms-tier1-rows');
+    btn.disabled  = true;
+    btn.textContent = 'Running tests...';
+    results.style.display = 'none';
+
+    try {
+      const start = await fetch('/api/cmms/tier1-test', { method: 'POST' });
+      if (!start.ok) {
+        const d = await start.json();
+        throw new Error(d.error || 'Failed to start');
+      }
+      // Poll job state until done
+      await new Promise((resolve) => {
+        const iv = setInterval(async () => {
+          const s = await fetch('/api/status').then(r => r.json());
+          if (!s.running && s.name === 'cmms_tier1_tests') {
+            clearInterval(iv);
+            resolve(s.result);
+          } else if (!s.running && s.name !== 'cmms_tier1_tests') {
+            clearInterval(iv);
+            resolve(null);
+          }
+        }, 800);
+      });
+      // Fetch final state
+      const final = await fetch('/api/status').then(r => r.json());
+      const res   = final.result;
+      if (!res) { throw new Error(final.error || 'Test run produced no result'); }
+
+      const passColor = res.failed === 0 ? 'var(--green)' : 'var(--red)';
+      summary.innerHTML = '<span style="color:' + passColor + '; font-weight:800;">'
+        + res.summary + '</span>';
+
+      rows.innerHTML = (res.results || []).map(r => {
+        const color = r.status === 'PASS' ? 'var(--green)'
+                    : r.status === 'SKIP' ? 'var(--muted)'
+                    : 'var(--red)';
+        const icon  = r.status === 'PASS' ? '✓' : r.status === 'SKIP' ? '-' : '✗';
+        return '<div style="display:grid; grid-template-columns:18px 180px 1fr; gap:6px; padding:3px 0; font-size:0.77rem; border-bottom:1px solid var(--border);">'
+          + '<span style="color:' + color + ';">' + icon + '</span>'
+          + '<span style="color:' + color + '; font-weight:600;">' + r.name + '</span>'
+          + '<span style="color:rgba(255,255,255,0.7);">' + r.detail + '</span>'
+          + '</div>';
+      }).join('');
+
+      results.style.display = 'block';
+    } catch (e) {
+      summary.innerHTML = '<span style="color:var(--red);">Error: ' + e.message + '</span>';
+      results.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Run Tier 1 Tests (6 checks)';
+    }
+  }
+
+  // Auto-refresh log every 5s when page is visible
+  setInterval(() => {
+    if (!document.hidden && document.getElementById('cmms-panel')) cmmsLoadLog();
+  }, 5000);
+
+  // ── Service Status Bar ───────────────────────────────────────────────────────
+  function svcDot(id, ok, label) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.color = ok ? 'var(--green)' : 'var(--red)';
+    el.title = ok ? label + ' is running' : label + ' is NOT reachable';
+  }
+
+  async function refreshServiceStatus() {
+    try {
+      const data = await fetch('/api/service-status').then(r => r.json());
+      svcDot('svc-seeder',    true,            'Seeder');
+      svcDot('svc-supabase',  data.supabase,   'Supabase');
+      svcDot('svc-functions', data.edge_functions, 'Edge Functions');
+    } catch {
+      svcDot('svc-seeder',    false, 'Seeder');
+      svcDot('svc-supabase',  false, 'Supabase');
+      svcDot('svc-functions', false, 'Edge Functions');
+    }
+  }
+
+  refreshServiceStatus();
+  setInterval(refreshServiceStatus, 8000);
+
+  // ── Copy All Failures ────────────────────────────────────────────────────────
+  async function copyAllFailures(includeWarn) {
+    const btn = document.getElementById('copy-failures-btn');
+    btn.textContent = 'Loading...';
+    try {
+      const url = '/api/failures/summary' + (includeWarn ? '?include_warn=1' : '');
+      const data = await fetch(url).then(r => r.json());
+
+      const panel    = document.getElementById('failures-panel');
+      const titleEl  = document.getElementById('failures-panel-title');
+      const textArea = document.getElementById('failures-text');
+
+      if (data.fail_count === 0 && data.warn_count === 0) {
+        titleEl.textContent = '✓ No failures found — all checks passing!';
+        titleEl.style.color = 'var(--green)';
+        textArea.value = 'All checks passing. Nothing to report.';
+      } else {
+        titleEl.textContent =
+          data.fail_count + ' FAIL' + (data.warn_count > 0 ? ', ' + data.warn_count + ' WARN' : '');
+        titleEl.style.color = data.fail_count > 0 ? 'var(--red)' : 'var(--yellow)';
+        textArea.value = data.text || 'No details available.';
+      }
+
+      panel.style.display = 'block';
+      textArea.select();
+
+      // Auto-copy to clipboard
+      try {
+        await navigator.clipboard.writeText(textArea.value);
+        showCopyToast();
+      } catch { /* clipboard blocked — user can still select + copy manually */ }
+
+    } catch (e) {
+      alert('Could not load failures: ' + e.message);
+    } finally {
+      btn.textContent = '📋 Copy Failures';
+    }
+  }
+
+  function showCopyToast() {
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = 'Failures copied to clipboard!';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ── Quick Demo ───────────────────────────────────────────────────────────────
+  async function runQuickDemo() {
+    const btn    = document.getElementById('quick-demo-btn');
+    const result = document.getElementById('quick-demo-result');
+    const body   = document.getElementById('quick-demo-body');
+
+    btn.disabled    = true;
+    btn.textContent = 'Running...';
+    result.style.display = 'none';
+
+    const industry = document.getElementById('qd-industry').value;
+    const size     = document.getElementById('qd-size').value;
+
+    try {
+      const start = await fetch('/api/quick-demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ industry, size, cmms_type: 'sap_pm' }),
+      });
+      if (start.status === 409) {
+        btn.disabled = false; btn.textContent = '⚡ Quick Demo';
+        alert('Another job is already running — wait for it to finish then try again.');
+        return;
+      }
+      if (!start.ok) { const d = await start.json(); throw new Error(d.error || 'Failed'); }
+
+      // Poll until done
+      await new Promise(resolve => {
+        const iv = setInterval(async () => {
+          const s = await fetch('/api/status').then(r => r.json());
+          if (!s.running) { clearInterval(iv); resolve(); }
+        }, 1500);
+      });
+
+      const final = await fetch('/api/status').then(r => r.json());
+      const res   = final.result;
+      if (!res) throw new Error(final.error || 'No result');
+
+      const h     = res.hive || {};
+      const s     = res.supervisor || {};
+      const b     = res.bridge || {};
+      const vPass = res.validators_passed || 0;
+      const vTotal = Object.keys(res.validators || {}).length;
+
+      body.innerHTML =
+        '<b style="color:var(--green);">✓ Quick Demo complete</b><br>' +
+        '<b>' + (h.name || '?') + '</b> | invite: <code>' + (h.invite_code || '?') + '</code><br>' +
+        'Login: <code>' + (s.username || '?') + '</code> / <code>' + (s.password || 'test1234') + '</code><br>' +
+        '<span style="color:var(--muted);">' +
+        (b.logbook || 0) + ' logbook · ' + (b.assets || 0) + ' assets · ' +
+        (b.pm_assets || 0) + ' PM · ' + (b.inventory || 0) + ' parts</span><br>' +
+        '<span style="color:' + (vPass === vTotal ? 'var(--green)' : 'var(--yellow)') + ';">' +
+        'Validators: ' + vPass + '/' + vTotal + ' passed</span>' +
+        '&nbsp;&nbsp;<a href="' + (res.login_url || '#') + '" target="_blank" style="color:var(--blue);">Open WorkHive →</a>';
+
+      result.style.display = 'block';
+    } catch (e) {
+      body.innerHTML = '<span style="color:var(--red);">Error: ' + e.message + '</span>';
+      result.style.display = 'block';
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = '⚡ Quick Demo';
+    }
+  }
+</script>
+
+<script>
   // Initial load + reload after every job finishes
   loadHealth();
   loadSparkline();

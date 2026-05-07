@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Claude Token Management</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/* ── Reset & Base ─────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --haiku:  #10b981; --haiku-bg:  #ecfdf5; --haiku-ring:  #6ee7b7;
+  --sonnet: #f59e0b; --sonnet-bg: #fffbeb; --sonnet-ring: #fcd34d;
+  --opus:   #6366f1; --opus-bg:   #eef2ff; --opus-ring:   #a5b4fc;
+  --bg:  #0f1117; --surface: #1a1d27; --surface2: #22263a;
+  --border: rgba(255,255,255,.07); --border2: rgba(255,255,255,.12);
+  --text: #f1f5f9; --muted: #64748b; --muted2: #94a3b8;
+  --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--bg); color:var(--text);
+  min-height:100vh; font-size:14px; line-height:1.5;
+}
+
+/* ── Layout ───────────────────────────────────────────── */
+.shell{max-width:1200px;margin:0 auto;padding:28px 24px}
+
+/* ── Header ───────────────────────────────────────────── */
+.header{
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:12px;margin-bottom:32px;
+}
+.header-left h1{
+  font-size:22px;font-weight:800;letter-spacing:-.4px;
+  background:linear-gradient(135deg,#a5b4fc 0%,#6ee7b7 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.header-left p{color:var(--muted2);font-size:13px;margin-top:3px}
+.header-right{display:flex;gap:10px;align-items:center}
+.btn-back{
+  color:var(--muted2);text-decoration:none;font-size:12px;
+  border:1px solid var(--border2);padding:6px 14px;border-radius:8px;
+  transition:all .15s;
+}
+.btn-back:hover{background:var(--surface);color:var(--text)}
+.live-dot{
+  display:inline-block;width:7px;height:7px;border-radius:50%;
+  background:var(--green);box-shadow:0 0 6px var(--green);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.ts-label{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px}
+
+/* ── Alert boxes ──────────────────────────────────────── */
+.alert{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:14px 18px;border-radius:12px;margin-bottom:24px;font-size:13px;
+}
+.alert-error{background:#1f0a0a;border:1px solid #7f1d1d;color:#fca5a5}
+.alert-info {background:#0c1a2e;border:1px solid #1e3a5f;color:#93c5fd}
+.alert-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.alert a{color:inherit;text-decoration:underline;opacity:.8}
+
+/* ── KPI Cards ────────────────────────────────────────── */
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:16px;margin-bottom:32px;
+}
+.kpi{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:20px 22px;position:relative;overflow:hidden;
+  transition:transform .15s,border-color .15s;
+}
+.kpi:hover{transform:translateY(-2px);border-color:var(--border2)}
+.kpi::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--accent,linear-gradient(90deg,#6366f1,#10b981));
+}
+.kpi-icon{font-size:20px;margin-bottom:10px}
+.kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.kpi-value{font-size:28px;font-weight:800;letter-spacing:-.5px}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.kpi-green .kpi-value{color:var(--green)}
+.kpi-yellow .kpi-value{color:var(--yellow)}
+
+/* ── Section ──────────────────────────────────────────── */
+.section{margin-bottom:36px}
+.section-head{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:16px;flex-wrap:wrap;gap:8px;
+}
+.section-title{
+  font-size:12px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--muted2);
+}
+.section-hint{font-size:11px;color:var(--muted)}
+
+/* ── Model Tier Cards ─────────────────────────────────── */
+.tier-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:14px;margin-bottom:32px;
+}
+.tier-card{
+  border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;
+  border:1px solid transparent;transition:transform .15s,box-shadow .15s;
+}
+.tier-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.tier-haiku {background:linear-gradient(135deg,#064e3b 0%,#065f46 100%);border-color:#047857}
+.tier-sonnet{background:linear-gradient(135deg,#78350f 0%,#92400e 100%);border-color:#b45309}
+.tier-opus  {background:linear-gradient(135deg,#312e81 0%,#3730a3 100%);border-color:#4338ca}
+.tier-name{font-size:15px;font-weight:800;margin-bottom:4px}
+.tier-model{font-size:10px;opacity:.7;font-family:Consolas,monospace;margin-bottom:12px}
+.tier-stat{font-size:24px;font-weight:800}
+.tier-stat-label{font-size:10px;opacity:.7;margin-top:2px}
+.tier-badge{
+  position:absolute;top:16px;right:16px;
+  font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px;
+  background:rgba(255,255,255,.15);
+}
+
+/* ── Routing Table ────────────────────────────────────── */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead th{
+  padding:12px 16px;font-size:10px;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--muted);border-bottom:1px solid var(--border);
+  background:var(--surface2);text-align:left;white-space:nowrap;
+}
+tbody td{
+  padding:14px 16px;border-bottom:1px solid var(--border);
+  vertical-align:middle;
+}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{transition:background .1s}
+tbody tr:hover td{background:var(--surface2)}
+.action-name{
+  font-weight:600;font-size:13px;
+  display:flex;align-items:center;gap:8px;
+}
+.action-icon{font-size:16px}
+
+/* ── Badges ───────────────────────────────────────────── */
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;
+  white-space:nowrap;
+}
+.badge-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.badge-haiku {background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3)}
+.badge-sonnet{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+.badge-opus  {background:rgba(99,102,241,.15);color:#a5b4fc;border:1px solid rgba(99,102,241,.3)}
+
+/* Progress bar for success rate */
+.progress-wrap{display:flex;align-items:center;gap:8px}
+.progress-bar{
+  flex:1;height:5px;background:var(--surface2);border-radius:99px;overflow:hidden;
+  min-width:60px;
+}
+.progress-fill{height:100%;border-radius:99px;transition:width .6s ease}
+.fill-green{background:var(--green)}
+.fill-yellow{background:var(--yellow)}
+.fill-red{background:var(--red)}
+.progress-label{font-size:11px;color:var(--muted2);white-space:nowrap}
+
+/* Token bar */
+.token-bar-wrap{display:flex;align-items:center;gap:8px}
+.token-bar{
+  flex:1;height:4px;background:var(--surface2);border-radius:99px;overflow:hidden;
+  min-width:50px;
+}
+.token-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#6366f1,#a5b4fc)}
+
+/* Status pill */
+.pill{
+  display:inline-block;padding:3px 10px;border-radius:99px;
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  white-space:nowrap;
+}
+.pill-ready{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.25)}
+.pill-wait {background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.25)}
+
+/* Savings */
+.savings-value{
+  font-family:Consolas,monospace;font-size:12px;
+  color:var(--green);font-weight:600;
+}
+
+/* ── Activity Feed ────────────────────────────────────── */
+.feed{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.feed-header{
+  display:grid;
+  grid-template-columns:140px 110px 120px 80px 80px 100px;
+  gap:8px;padding:10px 16px;
+  background:var(--surface2);border-bottom:1px solid var(--border);
+  font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);
+}
+.feed-row{
+  display:grid;
+  grid-template-columns:140px 110px 120px 80px 80px 100px;
+  gap:8px;padding:12px 16px;
+  border-bottom:1px solid var(--border);
+  font-size:12px;align-items:center;transition:background .1s;
+}
+.feed-row:last-child{border-bottom:none}
+.feed-row:hover{background:var(--surface2)}
+.feed-ts{font-family:Consolas,monospace;font-size:11px;color:var(--muted)}
+.feed-cost{font-family:Consolas,monospace;color:var(--muted2)}
+
+/* ── Code snippet ─────────────────────────────────────── */
+.code-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;
+}
+.code-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 18px;border-bottom:1px solid var(--border);
+  background:var(--surface2);
+}
+.code-title{font-size:12px;font-weight:600;color:var(--muted2)}
+.code-lang{
+  font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;
+  background:rgba(99,102,241,.2);color:#a5b4fc;
+}
+pre{
+  padding:20px;overflow-x:auto;font-size:12px;
+  font-family:"Fira Code",Consolas,monospace;line-height:1.7;
+  color:#c9d1d9;
+}
+.kw{color:#ff79c6}.fn{color:#50fa7b}
+.str{color:#f1fa8c}.cm{color:#6272a4;font-style:italic}
+.code-footer{
+  padding:12px 18px;border-top:1px solid var(--border);
+  font-size:11px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;
+}
+.code-footer code{
+  background:var(--surface2);padding:2px 6px;border-radius:4px;
+  font-family:Consolas,monospace;font-size:10px;
+}
+
+/* ── Model Guide ──────────────────────────────────────── */
+.guide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.guide-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:20px;transition:border-color .15s;
+}
+.guide-card:hover{border-color:var(--border2)}
+.guide-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.guide-model{font-weight:800;font-size:14px}
+.guide-price{font-size:10px;font-family:Consolas,monospace;
+  background:var(--surface2);padding:3px 8px;border-radius:6px;color:var(--muted2)}
+.guide-cmd{
+  font-family:Consolas,monospace;font-size:11px;
+  background:rgba(255,255,255,.06);padding:6px 10px;border-radius:8px;
+  display:inline-block;margin-bottom:12px;color:var(--muted2);
+}
+.guide-uses{font-size:11px;color:var(--muted);line-height:1.6}
+.guide-tag{
+  display:inline-block;font-size:10px;padding:2px 8px;border-radius:99px;
+  margin:2px 2px 0 0;background:rgba(255,255,255,.06);color:var(--muted2);
+}
+
+/* ── Scrollbar ────────────────────────────────────────── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#334155}
+
+/* mono util */
+.mono{font-family:Consolas,monospace}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ── Header ─────────────────────────────────────────── -->
+<div class="header">
+  <div class="header-left">
+    <h1>Claude Token Management</h1>
+    <p>Automatic model routing · Cost tracking · Usage analytics</p>
+  </div>
+  <div class="header-right">
+    <span class="ts-label"><span class="live-dot"></span><span id="ts">Loading…</span></span>
+    <a class="btn-back" href="/">← Back to Tester</a>
+  </div>
+</div>
+
+<!-- ── Alerts ──────────────────────────────────────────── -->
+{% if error %}
+<div class="alert alert-error">
+  <span class="alert-icon">⚠️</span>
+  <div><strong>Error loading data:</strong> {{ error }}<br>
+  <small>Make sure the <code>tools/</code> directory is accessible from the project root.</small></div>
+</div>
+{% endif %}
+
+{% if not summary or summary.total_calls == 0 %}
+<div class="alert alert-info">
+  <span class="alert-icon">ℹ️</span>
+  <div>No live API calls logged yet. The table below shows <strong>demo data</strong>.
+  Use <code>TrackedClient</code> from <code>tools/claude_token_tracker.py</code> in your
+  WorkHive Python code to start collecting real data.</div>
+</div>
+{% endif %}
+
+<!-- ── KPI Cards ──────────────────────────────────────── -->
+<div class="kpi-grid">
+  <div class="kpi" style="--accent:linear-gradient(90deg,#6366f1,#818cf8)">
+    <div class="kpi-icon">📊</div>
+    <div class="kpi-label">Total API Calls</div>
+    <div class="kpi-value">{{ summary.get('total_calls',0)|int }}</div>
+    <div class="kpi-sub">across {{ summary.get('action_types_tracked',0) }} action types</div>
+  </div>
+  <div class="kpi" style="--accent:linear-gradient(90deg,#ef4444,#f97316)">
+    <div class="kpi-icon">💸</div>
+    <div class="kpi-label">Total Spend</div>
+    <div class="kpi-value">${{ "%.4f"|format(summary.get('total_cost_usd',0)) }}</div>
+    <div class="kpi-sub">USD at standard pricing</div>
+  </div>
+  <div class="kpi kpi-green" style="--accent:linear-gradient(90deg,#10b981,#34d399)">
+    <div class="kpi-icon">✨</div>
+    <div class="kpi-label">Potential Savings</div>
+    <div class="kpi-value">${{ "%.4f"|format(summary.get('potential_savings_usd',0)) }}</div>
+    <div class="kpi-sub">vs always using Opus 4.7</div>
+  </div>
+  <div class="kpi kpi-yellow" style="--accent:linear-gradient(90deg,#f59e0b,#fbbf24)">
+    <div class="kpi-icon">🎯</div>
+    <div class="kpi-label">Ready to Auto-Route</div>
+    <div class="kpi-value">{{ summary.get('actions_with_data',0) }} / {{ summary.get('action_types_tracked',0) }}</div>
+    <div class="kpi-sub">action types with {{ min_samples }}+ samples</div>
+  </div>
+</div>
+
+<!-- ── Model Tier Overview ─────────────────────────────── -->
+{% set haiku_count  = table | selectattr('recommended_model','eq','claude-haiku-4-5')  | list | length %}
+{% set sonnet_count = table | selectattr('recommended_model','eq','claude-sonnet-4-6') | list | length %}
+{% set opus_count   = table | selectattr('recommended_model','eq','claude-opus-4-7')   | list | length %}
+
+<div class="section">
+  <div class="section-head">
+    <span class="section-title">🤖 Model Distribution</span>
+    <span class="section-hint">How your actions are distributed across model tiers</span>
+  </div>
+  <div class="tier-grid">
+    <div class="tier-card tier-haiku">
+      <div class="tier-badge">Cheapest</div>
+      <div class="tier-name">Haiku 4.5</div>
+      <div class="tier-model">claude-haiku-4-5</div>
+      <div class="tier-stat">{{ haiku_count }}</div>
+      <div class="tier-stat-label">action types routed here</div>
+    </div>
+    <div class="tier-card tier-sonnet">
+      <div class="tier-badge">Balanced</div>
+      <div class="tier-name">Sonnet 4.6</div>
+      <div class="tier-model">claude-sonnet-4-6</div>
+      <div class="tier-stat">{{ sonnet_count }}</div>
+      <div class="tier-stat-label">action types routed here</div>
+    </div>
+    <div class="tier-card tier-opus">
+      <div class="tier-badge">Most Powerful</div>
+      <div class="tier-name">Opus 4.7</div>
+      <div class="tier-model">claude-opus-4-7</div>
+      <div class="tier-stat">{{ opus_count }}</div>
+      <div class="tier-stat-label">action types routed here</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Routing Table ───────────────────────────────────── -->
+{% set action_icons = {
+  'validation':'✅','search':'🔍','code_edit':'✏️','explanation':'💡',
+  'planning':'🗺️','debugging':'🐛','review':'👁️','build':'🏗️',
+  'refactor':'♻️','general':'⚡'
+} %}
+{% set max_tokens = table | map(attribute='avg_total_tokens') | max if table else 1 %}
+
+<div class="section">
+  <div class="section-head">
+    <span class="section-title">📋 Routing Recommendations</span>
+    <span class="section-hint">Needs {{ min_samples }} samples per type to activate</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Action Type</th>
+          <th>Recommended Model</th>
+          <th>Samples</th>
+          <th>Avg Tokens</th>
+          <th>Success Rate</th>
+          <th>Savings / 100 calls</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in table %}
+        {% set model = row.recommended_model %}
+        {% set icon = action_icons.get(row.action_type, '⚡') %}
+        {% set sr = row.success_rate_pct %}
+        {% set fill_cls = 'fill-green' if sr >= 90 else ('fill-yellow' if sr >= 70 else 'fill-red') %}
+        {% set tkpct = (row.avg_total_tokens / (max_tokens + 1) * 100)|int %}
+        <tr>
+          <td>
+            <div class="action-name">
+              <span class="action-icon">{{ icon }}</span>
+              {{ row.action_type }}
+            </div>
+          </td>
+          <td>
+            {% if 'haiku' in model %}
+              <span class="badge badge-haiku">
+                <span class="badge-dot" style="background:#10b981"></span>Haiku 4.5
+              </span>
+            {% elif 'sonnet' in model %}
+              <span class="badge badge-sonnet">
+                <span class="badge-dot" style="background:#f59e0b"></span>Sonnet 4.6
+              </span>
+            {% else %}
+              <span class="badge badge-opus">
+                <span class="badge-dot" style="background:#6366f1"></span>Opus 4.7
+              </span>
+            {% endif %}
+          </td>
+          <td class="mono" style="color:var(--muted2)">{{ row.total_samples }}</td>
+          <td>
+            <div class="token-bar-wrap">
+              <div class="token-bar">
+                <div class="token-fill" style="width:{{ tkpct }}%"></div>
+              </div>
+              <span class="mono" style="font-size:11px;color:var(--muted2);white-space:nowrap">
+                {{ row.avg_total_tokens|int }}
+              </span>
+            </div>
+          </td>
+          <td>
+            <div class="progress-wrap">
+              <div class="progress-bar">
+                <div class="progress-fill {{ fill_cls }}" style="width:{{ sr }}%"></div>
+              </div>
+              <span class="progress-label">{{ sr }}%</span>
+            </div>
+          </td>
+          <td>
+            {% if row.data_ready %}
+              <span class="savings-value">+${{ "%.4f"|format(row.est_savings_per_100_calls_usd) }}</span>
+            {% else %}
+              <span style="color:var(--muted);font-size:11px">—</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if row.data_ready %}
+              <span class="pill pill-ready">✓ Ready</span>
+            {% else %}
+              <span class="pill pill-wait">{{ min_samples - row.total_samples }} more</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">
+            No data yet. Run <code>python tools/seed_demo_tokens.py</code> to seed demo data.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Activity Feed ───────────────────────────────────── -->
+{% if recent %}
+<div class="section">
+  <div class="section-head">
+    <span class="section-title">⚡ Recent API Calls</span>
+    <span class="section-hint">Last {{ recent|length }} calls logged</span>
+  </div>
+  <div class="feed">
+    <div class="feed-header">
+      <span>Timestamp</span><span>Action</span><span>Model</span>
+      <span>In</span><span>Out</span><span>Cost</span>
+    </div>
+    {% for r in recent %}
+    <div class="feed-row">
+      <span class="feed-ts">{{ r.timestamp[:19].replace('T',' ') }}</span>
+      <span>
+        {{ action_icons.get(r.action_type,'⚡') }} {{ r.action_type }}
+      </span>
+      <span>
+        {% if 'haiku' in r.model %}
+          <span class="badge badge-haiku" style="font-size:10px;padding:2px 8px">Haiku</span>
+        {% elif 'sonnet' in r.model %}
+          <span class="badge badge-sonnet" style="font-size:10px;padding:2px 8px">Sonnet</span>
+        {% else %}
+          <span class="badge badge-opus" style="font-size:10px;padding:2px 8px">Opus</span>
+        {% endif %}
+      </span>
+      <span class="mono" style="color:var(--muted2)">{{ r.input_tokens }}</span>
+      <span class="mono" style="color:var(--muted2)">{{ r.output_tokens }}</span>
+      <span class="feed-cost">${{ "%.5f"|format(r.cost_usd) }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- ── Model Quick Guide ───────────────────────────────── -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-title">📖 Model Quick Guide</span>
+    <span class="section-hint">Type these in Claude Code to switch model</span>
+  </div>
+  <div class="guide-grid">
+    <div class="guide-card">
+      <div class="guide-top">
+        <span class="guide-model" style="color:#34d399">Haiku 4.5</span>
+        <span class="guide-price">$1 / $5 per 1M</span>
+      </div>
+      <div class="guide-cmd">/model haiku</div>
+      <div class="guide-uses">Best for fast, repetitive, low-complexity tasks:</div>
+      <div style="margin-top:6px">
+        <span class="guide-tag">✅ validation</span>
+        <span class="guide-tag">🔍 search</span>
+        <span class="guide-tag">quick lookups</span>
+        <span class="guide-tag">small edits</span>
+      </div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-top">
+        <span class="guide-model" style="color:#fbbf24">Sonnet 4.6</span>
+        <span class="guide-price">$3 / $15 per 1M</span>
+      </div>
+      <div class="guide-cmd">/model sonnet</div>
+      <div class="guide-uses">Best for medium complexity tasks:</div>
+      <div style="margin-top:6px">
+        <span class="guide-tag">💡 explanation</span>
+        <span class="guide-tag">✏️ code edit</span>
+        <span class="guide-tag">🗺️ planning</span>
+        <span class="guide-tag">refactoring</span>
+      </div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-top">
+        <span class="guide-model" style="color:#a5b4fc">Opus 4.7</span>
+        <span class="guide-price">$5 / $25 per 1M</span>
+      </div>
+      <div class="guide-cmd">/model opus</div>
+      <div class="guide-uses">Best for complex, high-stakes tasks:</div>
+      <div style="margin-top:6px">
+        <span class="guide-tag">🐛 debugging</span>
+        <span class="guide-tag">🏗️ build</span>
+        <span class="guide-tag">👁️ review</span>
+        <span class="guide-tag">architecture</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Code Snippet ────────────────────────────────────── -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-title">🔌 How to Integrate</span>
+  </div>
+  <div class="code-card">
+    <div class="code-header">
+      <span class="code-title">Add to any WorkHive Python file</span>
+      <span class="code-lang">Python</span>
+    </div>
+<pre><span class="cm"># 1. Import the tracker and router</span>
+<span class="kw">from</span> tools.claude_token_tracker <span class="kw">import</span> <span class="fn">TrackedClient</span>
+<span class="kw">from</span> tools.claude_model_router  <span class="kw">import</span> <span class="fn">ModelRouter</span>
+
+router = <span class="fn">ModelRouter</span>()
+client = <span class="fn">TrackedClient</span>()
+
+<span class="cm"># 2. Router picks the cheapest model based on your data history</span>
+model = router.<span class="fn">suggest</span>(<span class="str">"search"</span>)     <span class="cm"># → "claude-haiku-4-5"</span>
+model = router.<span class="fn">suggest</span>(<span class="str">"debugging"</span>)  <span class="cm"># → "claude-opus-4-7"</span>
+
+<span class="cm"># 3. Make the call — it's logged automatically</span>
+response = client.<span class="fn">chat</span>(
+    <span class="str">"Fix the null-pointer in inventory.py"</span>,
+    model=model,
+    action_type=<span class="str">"debugging"</span>,
+)
+text = response.content[<span class="str">0</span>].text</pre>
+    <div class="code-footer">
+      <span>DB: <code>~/.claude/workhive_tokens.db</code></span>
+      <span>CLI: <code>python tools/analyze_tokens.py</code></span>
+      <span>API: <code>POST /api/token-stats/log</code></span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /shell -->
+
+<script>
+  document.getElementById('ts').textContent =
+    'Updated ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+
+  // Animate progress bars on load
+  document.querySelectorAll('.progress-fill,.token-fill').forEach(el => {
+    const w = el.style.width;
+    el.style.width = '0';
+    requestAnimationFrame(() => {
+      el.style.transition = 'width .8s cubic-bezier(.4,0,.2,1)';
+      el.style.width = w;
+    });
+  });
+</script>
+</body>
+</html>

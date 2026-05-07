@@ -1,4 +1,7 @@
 """Logbook-specific UI tests after sign-in."""
+import uuid
+from datetime import datetime, timezone
+from lib.supabase_client import get_client
 from .harness import BASE_URL, screenshot
 
 
@@ -62,53 +65,68 @@ def run(page, errors, warnings, log) -> dict:
 
     screenshot(page, "logbook_my_entries")
 
-    # Check 4: edit-with-parts path — log an open entry then close it with a part
+    # Check 4: edit-with-parts path — insert Open entry via DB, reload, then edit to Closed
     # This covers the inventory_transactions.insert() id-field bug (Parts log failed toast)
+    # Using DB insert avoids the multi-step form wizard (f-problem is in step 2, not visible by default)
     try:
-        # Fill minimum required fields for a new Open entry
-        page.locator("#f-machine").fill("TEST-PUMP-001")
-        page.locator("#f-problem").fill("Logbook tester: open entry check")
-        page.locator("#f-action").fill("Tester validation")
-        open_radio = page.locator("input[name='f-status'][value='Open']")
-        if open_radio.count():
-            open_radio.check()
+        db = get_client()
+        worker_name = page.evaluate("localStorage.getItem('wh_last_worker') || ''")
+        hive_id     = page.evaluate("localStorage.getItem('wh_active_hive_id') || null")
+        now_iso     = datetime.now(timezone.utc).isoformat()
+        test_id     = str(uuid.uuid4())
 
-        # Save as Open
-        page.locator("#save-entry-btn").click()
-        page.wait_for_timeout(2000)
+        insert_res = db.table("logbook").insert({
+            "id": test_id, "worker_name": worker_name, "date": now_iso,
+            "machine": "TEST-PUMP-001", "problem": "Logbook tester: open entry check",
+            "action": "Tester validation", "knowledge": "", "status": "Open",
+            "maintenance_type": "Breakdown / Corrective", "root_cause": "",
+            "downtime_hours": 0, "created_at": now_iso, "hive_id": hive_id,
+            "parts_used": [], "closed_at": None,
+        }).execute()
 
-        # Find the entry we just saved and open it for editing
-        # It should appear first in "my entries" since it was just added
-        edit_btn = page.locator("button:has-text('Edit Entry')").first
-        if edit_btn.count():
-            edit_btn.click()
+        if not insert_res.data:
+            results.append(("WARN", "edit-with-parts check skipped: DB insert returned no data"))
+        else:
+            # Reload so the new entry appears in the list
+            page.reload(wait_until="networkidle")
+            page.wait_for_timeout(1500)
+
+            # Open the entry modal (cards use onclick="openModal('id')")
+            page.evaluate(f"if (typeof openModal === 'function') openModal('{test_id}')")
             page.wait_for_timeout(800)
 
-            # Switch status to Closed — this reveals the parts section
-            closed_radio = page.locator("input[name='f-status'][value='Closed']")
-            if closed_radio.count():
-                closed_radio.check()
-                page.wait_for_timeout(600)
+            # Click Edit Entry inside the modal
+            edit_btn = page.locator("button:has-text('Edit Entry')").first
+            if edit_btn.count() and edit_btn.is_visible():
+                edit_btn.click()
+                page.wait_for_timeout(800)
 
-            # Save (no parts this time — just verify the closed save path works)
-            save_btn = page.locator("#save-entry-btn")
-            save_btn.click()
-            page.wait_for_timeout(2000)
+                # In edit mode all panels are visible — switch to Closed
+                page.evaluate("document.querySelector(\"input[name='f-status'][value='Closed']\")?.click()")
+                page.wait_for_timeout(400)
 
-            # Check: no "Parts log failed" toast visible
-            page_text_after = page.locator("body").inner_text()
-            if "Parts log failed" in page_text_after:
-                results.append(("FAIL", "edit-to-closed save shows 'Parts log failed' error"))
-                log("  x edit-to-closed save triggered Parts log failed error")
-            elif "Could not update" in page_text_after:
-                results.append(("FAIL", "edit-to-closed save shows 'Could not update' error"))
-                log("  x edit-to-closed save triggered Could not update error")
+                page.locator("#save-entry-btn").click()
+                page.wait_for_timeout(2000)
+
+                page_text_after = page.locator("body").inner_text()
+                if "Parts log failed" in page_text_after:
+                    results.append(("FAIL", "edit-to-closed save shows 'Parts log failed' error"))
+                    log("  x edit-to-closed save triggered Parts log failed error")
+                elif "Could not update" in page_text_after:
+                    results.append(("FAIL", "edit-to-closed save shows 'Could not update' error"))
+                    log("  x edit-to-closed save triggered Could not update error")
+                else:
+                    results.append(("PASS", "edit-to-closed save completes without Parts log error"))
+                    log("  v edit-to-closed save completed cleanly")
             else:
-                results.append(("PASS", "edit-to-closed save completes without Parts log error"))
-                log("  v edit-to-closed save completed cleanly")
-        else:
-            results.append(("WARN", "no Edit Entry button found — skipped edit-with-parts check"))
-            log("  ! no Edit Entry button found to test edit path")
+                results.append(("WARN", "no Edit Entry button found in modal — skipped edit-with-parts check"))
+                log("  ! no Edit Entry button visible in modal")
+
+        # Cleanup
+        try:
+            db.table("logbook").delete().eq("id", test_id).execute()
+        except Exception:
+            pass
     except Exception as e:
         results.append(("WARN", f"edit-with-parts check skipped: {e}"))
         log(f"  ! edit-with-parts check error: {e}")

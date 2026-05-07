@@ -503,6 +503,45 @@
         </div>
       </div>
 
+      <!-- Reliability Coach (AI — Phase 1.3) -->
+      <div id="reliability-coach-panel" class="mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Reliability Coach</p>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(167,139,250,0.12);color:#a78bfa;">AI</span>
+        </div>
+        <div class="wh-card p-4">
+          <p class="text-[11px] text-white/40 mb-3">Ask about your plant's maintenance priorities. The coach analyzes failure history, PM status, inventory, and predictions to give you 3 specific actions.</p>
+          <div class="flex gap-2">
+            <input id="coach-input" type="text" placeholder="e.g. Why are we having so many pump failures?" class="wh-input flex-1" style="min-height:40px; font-size:16px;" />
+            <button id="coach-submit" onclick="askCoach()" style="padding:0 16px; background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.4); border-radius:10px; font-family:inherit; font-size:0.82rem; font-weight:700; cursor:pointer; white-space:nowrap; min-height:44px;">Ask</button>
+          </div>
+          <div id="coach-result" style="display:none; margin-top:12px;"></div>
+        </div>
+      </div>
+
+      <!-- Network Benchmark (Phase 3.2) -->
+      <div id="benchmark-panel" class="hidden mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Network Benchmark</p>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.12);color:#29B6D9;">WorkHive Network</span>
+        </div>
+        <div class="wh-card p-4">
+          <p class="text-[11px] text-white/40 mb-3">How your plant compares to similar plants on WorkHive. Anonymized — no individual plants are identified.</p>
+          <div id="benchmark-content">
+            <p class="text-xs text-white/30">Loading benchmarks...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pattern Alerts (Failure Signature Detection — Phase 1.2) -->
+      <div id="pattern-alerts-panel" class="hidden mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Pattern Alerts</p>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(248,113,113,0.12);color:#f87171;">Pre-failure</span>
+        </div>
+        <div id="pattern-alerts-content"></div>
+      </div>
+
       <!-- Hive Activity (hero) -->
       <div class="flex items-center justify-between mb-3">
         <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Hive Activity</p>
@@ -1228,7 +1267,7 @@ async function initBoard() {
 
   updateSwitchButton();
   // allSettled: never rejects, so startPresence() is always reached even if one data load fails
-  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), buildNotifications(), loadApprovalQueue(), loadPMHealth(), loadAuditLog(), loadTodaysBrief(), loadTeamPulse()]);
+  const _boardResults = await Promise.allSettled([checkStockAlert(), loadMembers(), loadFeed(), buildNotifications(), loadApprovalQueue(), loadPMHealth(), loadAuditLog(), loadTodaysBrief(), loadTeamPulse(), loadPatternAlerts(), loadBenchmarks()]);
   _boardResults.forEach((r, i) => { if (r.status === 'rejected') console.error('initBoard step', i, 'failed:', r.reason); });
   // Team stock alert needs memberNames populated by loadMembers first
   checkTeamStockAlert();
@@ -1261,6 +1300,8 @@ async function loadMembers() {
   memberNames = (membersRes.data || []).map(m => m.worker_name);
   document.getElementById('stat-members').textContent = memberNames.length;
 
+  const memberTiers = await loadWorkerTiers(db, memberNames);
+
   // Count open jobs per worker
   const openByWorker = {};
   (openJobsRes.data || []).forEach(r => {
@@ -1278,7 +1319,7 @@ async function loadMembers() {
       ? `<span class="text-[10px] font-black px-2 py-0.5 rounded-full flex-shrink-0" style="background:rgba(255,255,255,0.06);color:${workloadColor};">${openJobs} open</span>`
       : `<span class="text-[10px] text-white/20 flex-shrink-0">clear</span>`;
     return `<div class="flex items-center gap-3 p-3 rounded-xl" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); margin-bottom:0.5rem;">
-      <div class="avatar-initial">${escHtml(m.worker_name[0].toUpperCase())}</div>
+      <div style="flex-shrink:0;padding-bottom:${(memberTiers[m.worker_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(m.worker_name, memberTiers[m.worker_name] || 0, 32)}</div>
       <div class="flex-1 min-w-0">
         <p class="text-sm font-semibold text-white truncate">${escHtml(m.worker_name)}${isMe ? ' <span style="color:rgba(255,255,255,0.3);font-size:0.65rem;">(you)</span>' : ''}</p>
         ${isSup ? '<span class="supervisor-tag" style="font-size:0.55rem; padding:1px 6px; margin-top:2px; display:inline-flex;">Supervisor</span>' : ''}
@@ -2142,6 +2183,191 @@ async function loadTodaysBrief() {
   try { sessionStorage.setItem(cacheKey, JSON.stringify({ html, ts: Date.now() })); } catch {}
   panel.classList.remove('hidden');
 }
+
+// ── PATTERN ALERTS (Failure Signature Detection — Phase 1.2) ─────────────────
+async function loadPatternAlerts() {
+  if (!HIVE_ID) return;
+  const panel   = document.getElementById('pattern-alerts-panel');
+  const content = document.getElementById('pattern-alerts-content');
+  if (!panel || !content) return;
+
+  try {
+    const { data: alerts } = await db
+      .from('failure_signature_alerts')
+      .select('machine, category, alert_title, alert_detail, severity, rule_id, detected_at')
+      .eq('hive_id', HIVE_ID)
+      .eq('status', 'active')
+      .order('severity', { ascending: false })
+      .order('detected_at', { ascending: false })
+      .limit(5);
+
+    if (!alerts || !alerts.length) return;
+
+    const sevColor = { critical: '#f87171', warning: '#F7A21B', info: '#29B6D9' };
+    const ruleLabel = {
+      repeat_failure:        'Repeat Failure',
+      escalating_frequency:  'Escalating Rate',
+      multi_symptom:         'Multi-Symptom',
+      missed_pm:             'Missed PM',
+    };
+
+    content.innerHTML = alerts.map(a => {
+      const color = sevColor[a.severity] || sevColor.warning;
+      const label = ruleLabel[a.rule_id] || a.rule_id;
+      const dt    = a.detected_at ? new Date(a.detected_at).toLocaleDateString('en-PH', { month:'short', day:'numeric' }) : '';
+      return `<div class="wh-card p-4 mb-2 border-l-2" style="border-color:${color};">
+        <div class="flex items-start justify-between gap-2">
+          <div style="flex:1;">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:${color}22;color:${color};">${escHtml(label)}</span>
+              <span class="text-[10px] text-white/30">${escHtml(a.machine)}</span>
+              <span class="text-[10px] text-white/20">${dt}</span>
+            </div>
+            <p class="text-[12px] font-semibold text-white/90 mb-1">${escHtml(a.alert_title)}</p>
+            ${a.alert_detail ? `<p class="text-[11px] text-white/55 leading-snug">${escHtml(a.alert_detail)}</p>` : ''}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+
+    panel.classList.remove('hidden');
+  } catch (e) {
+    console.warn('loadPatternAlerts:', e);
+  }
+}
+
+
+// ── NETWORK BENCHMARK (Phase 3.2) ────────────────────────────────────────────
+async function loadBenchmarks() {
+  if (!HIVE_ID) return;
+  const panel   = document.getElementById('benchmark-panel');
+  const content = document.getElementById('benchmark-content');
+  if (!panel || !content) return;
+
+  try {
+    // Fetch this hive's metrics and the network aggregate in parallel
+    const [hiveRes, networkRes] = await Promise.all([
+      db.from('hive_benchmarks')
+        .select('equipment_category, mtbf_days, failure_count, sample_machines')
+        .eq('hive_id', HIVE_ID)
+        .order('failure_count', { ascending: false })
+        .limit(5),
+      db.from('network_benchmarks')
+        .select('equipment_category, avg_mtbf_days, p75_mtbf_days, sample_hives')
+        .order('sample_hives', { ascending: false })
+        .limit(10),
+    ]);
+
+    const hiveData    = hiveRes.data || [];
+    const networkData = networkRes.data || [];
+
+    if (!hiveData.length) {
+      // No benchmarks computed yet — show a prompt
+      content.innerHTML = '<p style="font-size:.75rem; color:rgba(255,255,255,0.3);">Benchmarks are computed weekly. Check back after your first week of data, or <button onclick="computeBenchmarkNow()" style="color:#29B6D9; background:none; border:none; cursor:pointer; font-family:inherit; font-size:.75rem;">compute now</button>.</p>';
+      panel.classList.remove('hidden');
+      return;
+    }
+
+    // Build a lookup of network benchmarks by category
+    const netByCategory = {};
+    networkData.forEach(n => { netByCategory[n.equipment_category] = n; });
+
+    let html = '';
+    hiveData.forEach(h => {
+      const net = netByCategory[h.equipment_category];
+      const myMTBF  = h.mtbf_days ? h.mtbf_days + 'd' : '—';
+      const netAvg  = net?.avg_mtbf_days ? net.avg_mtbf_days + 'd' : null;
+      const netTop  = net?.p75_mtbf_days ? net.p75_mtbf_days + 'd' : null;
+      const ratio   = (h.mtbf_days && net?.avg_mtbf_days) ? h.mtbf_days / net.avg_mtbf_days : null;
+      const color   = ratio === null ? 'var(--muted)' : ratio >= 0.9 ? 'var(--green)' : ratio >= 0.6 ? 'var(--yellow)' : 'var(--red)';
+      const label   = ratio === null ? '' : ratio >= 0.9 ? '✓ On par' : ratio >= 0.6 ? '↓ Below avg' : '⚠ Well below';
+
+      html += '<div style="display:grid; grid-template-columns:1fr auto; gap:8px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); align-items:center;">'
+        + '<div>'
+        + '<p style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,0.85);">' + escHtml(h.equipment_category) + '</p>'
+        + (net ? '<p style="font-size:.67rem; color:rgba(255,255,255,0.35); margin-top:1px;">Network avg: ' + netAvg + (netTop ? ' · Top 25%: ' + netTop : '') + (net.sample_hives ? ' · ' + net.sample_hives + ' plants' : '') + '</p>' : '<p style="font-size:.67rem; color:rgba(255,255,255,0.2); margin-top:1px;">Not enough data for network comparison yet</p>')
+        + '</div>'
+        + '<div style="text-align:right;">'
+        + '<p style="font-size:.88rem; font-weight:800; color:' + color + ';">' + escHtml(myMTBF) + '</p>'
+        + (label ? '<p style="font-size:.62rem; color:' + color + '; font-weight:600;">' + label + '</p>' : '')
+        + '</div>'
+        + '</div>';
+    });
+
+    content.innerHTML = html || '<p style="font-size:.75rem; color:rgba(255,255,255,0.3);">No equipment failure data yet.</p>';
+    panel.classList.remove('hidden');
+
+  } catch (e) {
+    console.warn('loadBenchmarks:', e);
+  }
+}
+
+async function computeBenchmarkNow() {
+  try {
+    await db.functions.invoke('benchmark-compute', { body: { hive_id: HIVE_ID } });
+    await loadBenchmarks();
+  } catch (e) {
+    console.warn('computeBenchmarkNow:', e);
+  }
+}
+
+
+// ── RELIABILITY COACH (Phase 1.3) ────────────────────────────────────────────
+async function askCoach() {
+  const input  = document.getElementById('coach-input');
+  const result = document.getElementById('coach-result');
+  const btn    = document.getElementById('coach-submit');
+  if (!input || !result || !btn) return;
+
+  const question = (input.value || '').trim();
+  if (!question) { input.focus(); return; }
+
+  btn.disabled    = true;
+  btn.textContent = '...';
+  result.style.display = 'block';
+  result.innerHTML = '<p style="color:rgba(255,255,255,0.3); font-size:0.78rem;">Analyzing your plant data...</p>';
+
+  try {
+    const { data, error } = await db.functions.invoke('ai-orchestrator', {
+      body: { question, hive_id: HIVE_ID, worker_name: WORKER_NAME, mode: 'coach' }
+    });
+    if (error) throw new Error(error.message);
+
+    const actions = data?.actions;
+    if (!actions || !actions.length) {
+      result.innerHTML = '<p style="color:rgba(255,255,255,0.4); font-size:0.78rem;">Not enough data yet to generate recommendations. Keep logging maintenance entries.</p>';
+      return;
+    }
+
+    const urgencyColor = { 'TODAY': '#f87171', 'THIS WEEK': '#F7A21B', 'MONITOR': '#4ade80' };
+    result.innerHTML = actions.map(a => {
+      const uc = urgencyColor[a.urgency] || '#a78bfa';
+      return `<div style="border-left:2px solid ${uc}; padding:8px 12px; margin-bottom:8px; background:rgba(0,0,0,0.2); border-radius:0 8px 8px 0;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+          <span style="font-size:0.7rem; font-weight:800; color:rgba(255,255,255,0.3);">#${a.priority}</span>
+          <span style="font-size:0.65rem; font-weight:700; padding:2px 8px; border-radius:999px; background:${uc}22; color:${uc};">${escHtml(a.urgency || '')}</span>
+          ${a.machine ? `<span style="font-size:0.68rem; color:rgba(255,255,255,0.4);">${escHtml(a.machine)}</span>` : ''}
+        </div>
+        <p style="font-size:0.8rem; font-weight:600; color:rgba(255,255,255,0.9); margin-bottom:3px;">${escHtml(a.action || '')}</p>
+        ${a.why ? `<p style="font-size:0.72rem; color:rgba(255,255,255,0.45);">${escHtml(a.why)}</p>` : ''}
+      </div>`;
+    }).join('');
+
+  } catch (e) {
+    result.innerHTML = `<p style="color:#f87171; font-size:0.78rem;">Error: ${escHtml(String(e))}</p>`;
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'Ask';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const coachInput = document.getElementById('coach-input');
+  if (coachInput) {
+    coachInput.addEventListener('keydown', e => { if (e.key === 'Enter') askCoach(); });
+  }
+});
+
 
 // ── TEAM PULSE (supervisor only) ──────────────────────────────────────────────
 async function loadTeamPulse() {

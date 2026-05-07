@@ -1,4 +1,4 @@
-"""
+﻿"""
 Schema Consistency Validator — WorkHive Platform
 =================================================
 Checks that the JavaScript code and Supabase schema stay in sync.
@@ -55,7 +55,11 @@ LIVE_PAGES = [
     "marketplace-seller-profile.html",
     "public-feed.html",
     "project-manager.html",
+    "integrations.html",
+    "ph-intelligence.html",
     "project-report.html",
+    "predictive.html",
+    "achievements.html",
 ]
 
 RETIRED_TABLES = {"parts_records", "checklist_records"}
@@ -68,6 +72,8 @@ CORE_TABLES = {
     "engineering_calcs",
     "community_posts", "community_replies", "community_reactions", "community_xp",
     "worker_profiles",
+    "asset_risk_scores",
+    "achievement_definitions", "worker_achievements", "achievement_xp_log",
 }
 
 DATE_FIELDS = [
@@ -380,3 +386,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

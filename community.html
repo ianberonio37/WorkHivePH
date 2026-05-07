@@ -406,7 +406,7 @@
         <div class="wh-card" style="padding:1.25rem; margin-bottom:1rem;" id="profile-card">
           <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.35); margin:0 0 0.75rem;">Your Profile</p>
           <div style="display:flex; align-items:center; gap:12px;">
-            <div class="avatar-initial mine" id="profile-avatar" style="width:44px; height:44px; font-size:1rem;"></div>
+            <div id="profile-avatar" style="flex-shrink:0;padding-bottom:10px;"></div>
             <div style="flex:1; min-width:0;">
               <p id="profile-name" style="font-size:0.9rem; font-weight:700; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></p>
               <p id="profile-role" style="font-size:0.7rem; color:rgba(255,255,255,0.4); margin:0; text-transform:capitalize;"></p>
@@ -608,6 +608,8 @@
 
   // @mention state
   let _hiveMembers = [];          // [{ worker_name, role }]
+  let _workerTiers = {};          // { workerName: topLevel } — populated on post load
+  let _myTopLevel  = 0;           // current user's highest achievement level
   let _mentionActive = false;
   let _mentionStartIdx = -1;      // index of '@' in textarea, when dropdown is open
   let _mentionResults = [];       // currently filtered candidates
@@ -643,10 +645,9 @@
 
   // ── Profile card ──────────────────────────────────────────────────────────────
   function renderProfileCard() {
-    const initials = WORKER_NAME.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-    document.getElementById('profile-avatar').textContent = initials;
-    document.getElementById('profile-name').textContent   = WORKER_NAME;
-    document.getElementById('profile-role').textContent   = HIVE_ROLE;
+    document.getElementById('profile-avatar').innerHTML = renderWorkerAvatar(WORKER_NAME, _myTopLevel, 44);
+    document.getElementById('profile-name').textContent = WORKER_NAME;
+    document.getElementById('profile-role').textContent = HIVE_ROLE;
   }
 
   async function loadProfileStats() {
@@ -658,6 +659,9 @@
     ]);
     if (!postsRes.error) document.getElementById('profile-posts').textContent = postsRes.count ?? 0;
     document.getElementById('profile-xp').textContent = xpRes.data?.xp_total ?? 0;
+    const myTiers = await loadWorkerTiers(db, [WORKER_NAME]);
+    _myTopLevel = myTiers[WORKER_NAME] || 0;
+    renderProfileCard();
   }
 
   // ── Virtual list observers ────────────────────────────────────────────────────
@@ -773,14 +777,16 @@
       return;
     }
 
+    const lbNames  = data.map(r => r.worker_name);
+    const lbTiers  = await loadWorkerTiers(db, lbNames);
+
     el.innerHTML = data.map((row, i) => {
       const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
       const rankIcon  = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
-      const initials  = row.worker_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
       const isMine    = row.worker_name === WORKER_NAME;
       return `<div class="lb-row">
         <div class="lb-rank ${rankClass}">${rankIcon}</div>
-        <div class="avatar-initial${isMine ? ' mine' : ''}" style="width:28px; height:28px; font-size:0.65rem;">${escHtml(initials)}</div>
+        <div style="flex-shrink:0;padding-bottom:${(lbTiers[row.worker_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(row.worker_name, lbTiers[row.worker_name] || 0, 28)}</div>
         <div style="flex:1; min-width:0;">
           <p style="font-size:0.8rem; font-weight:${isMine ? '700' : '500'}; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:${isMine ? '#F7A21B' : 'white'};">${escHtml(row.worker_name)}</p>
         </div>
@@ -837,6 +843,8 @@
 
     const allIds = [...pinnedPosts, ...allPosts].map(p => p.id);
     if (allIds.length) await Promise.all([loadReplyCounts(allIds), loadReactions(allIds)]);
+    const postAuthors = [...new Set([...pinnedPosts, ...allPosts].map(p => p.author_name).filter(Boolean))];
+    if (postAuthors.length) Object.assign(_workerTiers, await loadWorkerTiers(db, postAuthors));
     renderFeed();
     loadModQueue();
   }
@@ -987,7 +995,7 @@
 
     return `<div class="post-card ${catClass}${p.pinned ? ' pinned' : ''}" id="post-${escHtml(p.id)}" data-post-id="${escHtml(p.id)}" style="padding:1rem;">
       <div style="display:flex; align-items:flex-start; gap:10px;">
-        <div class="avatar-initial${isMine ? ' mine' : ''}">${escHtml(initials)}</div>
+        <div style="flex-shrink:0;padding-bottom:${(_workerTiers[p.author_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(p.author_name, _workerTiers[p.author_name] || 0, 32)}</div>
         <div style="flex:1; min-width:0;">
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
             <span style="font-size:0.8rem; font-weight:700;">${escHtml(p.author_name)}</span>
@@ -1154,6 +1162,8 @@
     const ids = data.map(p => p.id);
     const hiveIds = [...new Set(data.map(p => p.hive_id))];
     await loadReactions(ids, hiveIds);
+    const globalAuthors = [...new Set(data.map(p => p.author_name).filter(Boolean))];
+    if (globalAuthors.length) Object.assign(_workerTiers, await loadWorkerTiers(db, globalAuthors));
 
     el.innerHTML = data.map(renderGlobalPostCard).join('');
     document.getElementById('global-load-more').style.display = _globalHasMore ? 'flex' : 'none';
@@ -1202,7 +1212,7 @@
     }
     return `<div class="post-card ${catClass}" data-post-id="${escHtml(p.id)}" style="padding:1rem;">
       <div style="display:flex; align-items:flex-start; gap:10px;">
-        <div class="avatar-initial">${escHtml(initials)}</div>
+        <div style="flex-shrink:0;padding-bottom:${(_workerTiers[p.author_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(p.author_name, _workerTiers[p.author_name] || 0, 32)}</div>
         <div style="flex:1; min-width:0;">
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
             <span style="font-size:0.8rem; font-weight:700;">${escHtml(p.author_name)}</span>
@@ -1602,12 +1612,14 @@
       el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.3);">No replies yet. Start the conversation.</p>';
       return;
     }
+    const replyAuthors = [...new Set(data.map(r => r.author_name).filter(Boolean))];
+    if (replyAuthors.length) Object.assign(_workerTiers, await loadWorkerTiers(db, replyAuthors));
+
     el.innerHTML = data.map(r => {
-      const initials = r.author_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-      const isMine   = r.author_name === WORKER_NAME;
+      const isMine = r.author_name === WORKER_NAME;
       return `<div class="reply-card">
         <div style="display:flex; align-items:flex-start; gap:8px;">
-          <div class="avatar-initial${isMine ? ' mine' : ''}" style="width:26px; height:26px; font-size:0.6rem;">${escHtml(initials)}</div>
+          <div style="flex-shrink:0;">${renderWorkerAvatar(r.author_name, _workerTiers[r.author_name] || 0, 26)}</div>
           <div style="flex:1; min-width:0;">
             <div style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
               <span style="font-size:0.75rem; font-weight:700;">${escHtml(r.author_name)}</span>

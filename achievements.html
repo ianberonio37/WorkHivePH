@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Achievements — WorkHive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="utils.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0f172a;
+      color: #F4F6FA;
+      min-height: 100vh;
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+    /* ── Toast ── */
+    #toast {
+      position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
+      background: #1F2E45; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 0.75rem; padding: 0.65rem 1.1rem;
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.82rem; font-weight: 600; z-index: 9999;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5); white-space: nowrap;
+      transition: opacity 0.3s;
+    }
+    #toast.hidden { opacity: 0; pointer-events: none; }
+
+    /* ── Level-Up Modal ── */
+    #levelup-overlay {
+      position: fixed; inset: 0; z-index: 9000;
+      background: rgba(10,18,28,0.85); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem;
+    }
+    #levelup-overlay.hidden { display: none; }
+    #levelup-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.97), rgba(22,32,50,0.99));
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 1.5rem; padding: 2.5rem 2rem;
+      text-align: center; width: 100%; max-width: 340px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+    }
+    #levelup-badge-wrap {
+      display: flex; justify-content: center; margin-bottom: 1.25rem;
+    }
+    #levelup-badge-wrap .wh-avatar {
+      animation: ach-pop 0.55s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
+    #levelup-eyebrow {
+      font-size: 0.65rem; font-weight: 800; letter-spacing: 0.12em;
+      text-transform: uppercase; color: #F7A21B; margin-bottom: 0.3rem;
+    }
+    #levelup-heading { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem; }
+    #levelup-meta { font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 1.5rem; }
+    #levelup-close {
+      background: linear-gradient(135deg, #F7A21B, #FDB94A);
+      color: #162032; font-weight: 700; font-family: 'Poppins', sans-serif;
+      border: none; border-radius: 0.75rem; padding: 0.75rem 2rem;
+      font-size: 0.875rem; cursor: pointer; width: 100%;
+      transition: opacity 0.15s;
+    }
+    #levelup-close:active { opacity: 0.75; }
+    @keyframes ach-pop {
+      0%   { transform: scale(0.4); opacity: 0; }
+      65%  { transform: scale(1.18); }
+      100% { transform: scale(1);   opacity: 1; }
+    }
+
+    /* ── Page layout ── */
+    .page-wrap {
+      max-width: 680px; margin: 0 auto;
+      padding: 1rem 1rem 0;
+    }
+    .page-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 0.5rem; flex-shrink: 0;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: rgba(255,255,255,0.6); text-decoration: none;
+      transition: background 0.15s;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.1); }
+    .page-title { font-size: 1.05rem; font-weight: 700; }
+
+    /* ── Hero band ── */
+    .hero-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.6), rgba(31,46,69,0.8));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 1.25rem; padding: 1.5rem;
+      display: flex; gap: 1.25rem; align-items: center;
+      margin-bottom: 1.5rem; position: relative; overflow: hidden;
+    }
+    .hero-glow {
+      position: absolute; width: 200px; height: 200px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(247,162,27,0.12) 0%, transparent 70%);
+      top: -60px; right: -40px; pointer-events: none;
+    }
+    #hero-avatar-wrap { flex-shrink: 0; padding-bottom: 10px; }
+    .hero-info { flex: 1; min-width: 0; }
+    #hero-name { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.2rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #hero-tier-label {
+      display: inline-block; font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 2px 10px; border-radius: 999px;
+      background: rgba(247,162,27,0.15); color: #F7A21B;
+      border: 1px solid rgba(247,162,27,0.3); margin-bottom: 0.75rem;
+    }
+    .hero-stats { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+    .hero-stat { text-align: center; }
+    .hero-stat-val { font-size: 1.2rem; font-weight: 800; line-height: 1; }
+    .hero-stat-lbl { font-size: 0.6rem; color: rgba(255,255,255,0.4);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+
+    /* ── Pillar section headers ── */
+    .pillar-header {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin: 1.5rem 0 0.75rem; padding: 0 0.1rem;
+    }
+    .pillar-title {
+      font-size: 0.6rem; font-weight: 800; letter-spacing: 0.12em;
+      text-transform: uppercase; color: rgba(255,255,255,0.35);
+    }
+    .pillar-line {
+      flex: 1; height: 1px;
+      background: rgba(255,255,255,0.07);
+    }
+
+    /* ── Domain grid ── */
+    .domain-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.65rem;
+      margin-bottom: 0.25rem;
+    }
+    @media (max-width: 520px) { .domain-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 340px) { .domain-grid { grid-template-columns: 1fr; } }
+
+    .domain-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem; padding: 0.9rem 0.75rem 0.75rem;
+      cursor: pointer; transition: border-color 0.2s, transform 0.15s;
+      display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+      text-align: center; position: relative;
+    }
+    .domain-card:active { transform: scale(0.97); }
+    .domain-card.expanded { border-color: rgba(247,162,27,0.3); }
+
+    .domain-badge-wrap { padding-bottom: 10px; flex-shrink: 0; }
+    .domain-name {
+      font-size: 0.68rem; font-weight: 700; line-height: 1.2;
+      color: rgba(255,255,255,0.9);
+    }
+    .domain-tier-label {
+      font-size: 0.58rem; font-weight: 600; color: rgba(255,255,255,0.35);
+    }
+
+    /* XP bar */
+    .xp-bar-wrap {
+      width: 100%; background: rgba(255,255,255,0.08);
+      border-radius: 999px; height: 4px; overflow: hidden;
+      margin-top: 0.1rem;
+    }
+    .xp-bar-fill {
+      height: 100%; border-radius: 999px;
+      background: var(--tier-clr, #7B8794);
+      transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+    }
+    .xp-text {
+      font-size: 0.55rem; color: rgba(255,255,255,0.3);
+      white-space: nowrap;
+    }
+
+    /* Expanded events */
+    .domain-events { width: 100%; margin-top: 0.5rem; display: none; }
+    .domain-card.expanded .domain-events { display: block; }
+    .event-row {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.6rem; padding: 0.25rem 0;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .event-label { flex: 1; color: rgba(255,255,255,0.55); min-width: 0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .event-xp { font-weight: 700; color: #4ade80; flex-shrink: 0; }
+    .event-time { color: rgba(255,255,255,0.3); flex-shrink: 0; }
+
+    /* Iron Worker card (full-width legendary) */
+    .domain-card.legendary {
+      grid-column: 1 / -1;
+      flex-direction: row; text-align: left;
+      padding: 1rem 1.25rem;
+      background: linear-gradient(145deg, rgba(42,61,88,0.7), rgba(31,46,69,0.9));
+      border-color: rgba(247,162,27,0.15);
+      gap: 1rem;
+    }
+    .domain-card.legendary .domain-name { font-size: 0.85rem; }
+    .domain-card.legendary .domain-tier-label { font-size: 0.65rem; }
+    .legendary-info { flex: 1; min-width: 0; }
+    .legendary-desc {
+      font-size: 0.65rem; color: rgba(255,255,255,0.4);
+      margin-top: 0.2rem; line-height: 1.4;
+    }
+
+    /* ── Recent activity ── */
+    .section-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.4), rgba(31,46,69,0.6));
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem; padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .section-heading {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: rgba(255,255,255,0.45);
+      margin-bottom: 0.75rem;
+    }
+    .activity-row {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .activity-row:last-child { border-bottom: none; }
+    .activity-icon-sm {
+      width: 28px; height: 28px; border-radius: 0.5rem; flex-shrink: 0;
+      background: rgba(41,182,217,0.12); border: 1px solid rgba(41,182,217,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+    }
+    .activity-body { flex: 1; min-width: 0; }
+    .activity-name { font-size: 0.72rem; font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .activity-sub { font-size: 0.62rem; color: rgba(255,255,255,0.35); }
+    .activity-xp { font-size: 0.72rem; font-weight: 700; color: #4ade80; flex-shrink: 0; }
+
+    /* ── Hive standings ── */
+    .standing-row {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .standing-row:last-child { border-bottom: none; }
+    .standing-rank {
+      width: 24px; font-size: 0.7rem; font-weight: 800;
+      text-align: center; flex-shrink: 0;
+      color: rgba(255,255,255,0.3);
+    }
+    .standing-rank.gold   { color: #F7A21B; }
+    .standing-rank.silver { color: #94A3B8; }
+    .standing-rank.bronze { color: #CD7F32; }
+    .standing-name { flex: 1; font-size: 0.8rem; font-weight: 600;
+      min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .standing-score { font-size: 0.72rem; font-weight: 700;
+      color: #29B6D9; flex-shrink: 0; }
+    .standing-avatar-wrap { flex-shrink: 0; padding-bottom: 8px; }
+
+    /* ── Empty state ── */
+    .empty-note {
+      font-size: 0.75rem; color: rgba(255,255,255,0.3);
+      text-align: center; padding: 1rem 0;
+    }
+
+    /* ── Skeleton ── */
+    .skel { background: rgba(255,255,255,0.05); border-radius: 0.5rem;
+      animation: skel 1.5s ease-in-out infinite; }
+    @keyframes skel { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }
+  </style>
+</head>
+<body>
+
+<!-- Toast -->
+<div id="toast" class="hidden" role="alert" aria-live="polite">
+  <span id="toast-icon"></span>
+  <span id="toast-text"></span>
+</div>
+
+<!-- Level-Up Modal -->
+<div id="levelup-overlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="levelup-heading">
+  <div id="levelup-card">
+    <div id="levelup-badge-wrap"></div>
+    <div id="levelup-eyebrow"></div>
+    <div id="levelup-heading"></div>
+    <div id="levelup-meta"></div>
+    <button id="levelup-close" onclick="closeLevelUpModal()">Keep going!</button>
+  </div>
+</div>
+
+<div class="page-wrap">
+  <!-- Header -->
+  <div class="page-header">
+    <a href="javascript:history.back()" class="back-btn" aria-label="Go back">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+    <span class="page-title">Achievements</span>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero-card">
+    <div class="hero-glow"></div>
+    <div id="hero-avatar-wrap">
+      <div class="skel" style="width:72px;height:72px;border-radius:50%;"></div>
+    </div>
+    <div class="hero-info">
+      <div id="hero-name"><div class="skel" style="width:120px;height:16px;border-radius:4px;"></div></div>
+      <div id="hero-tier-label" style="display:none;"></div>
+      <div class="hero-stats" id="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-val" id="stat-composite">—</div>
+          <div class="hero-stat-lbl">Total Level</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val" id="stat-active">—</div>
+          <div class="hero-stat-lbl">Domains Active</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val" id="stat-top">—</div>
+          <div class="hero-stat-lbl">Highest Level</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Domain sections rendered by JS -->
+  <div id="achievements-body"></div>
+
+  <!-- Recent XP activity -->
+  <div class="section-card">
+    <div class="section-heading">Recent XP</div>
+    <div id="recent-list">
+      <div class="empty-note">Loading…</div>
+    </div>
+  </div>
+
+  <!-- Hive standings -->
+  <div class="section-card" id="standings-section" style="display:none;">
+    <div class="section-heading">Hive Standings</div>
+    <div id="standings-list"></div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6eXZuanRpc2ZnYmtzaWNyb3V1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1ODE2MDQsImV4cCI6MjA5MTE1NzYwNH0.RpIj1oUIHRdR4e2bCRYuDqULoqR2LpMz9EjnMvtN7M0';
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const WORKER_NAME = localStorage.getItem('wh_last_worker')
+                   || localStorage.getItem('wh_worker_name')
+                   || localStorage.getItem('workerName') || '';
+  const HIVE_ID    = localStorage.getItem('wh_active_hive_id')
+                   || localStorage.getItem('wh_hive_id') || '';
+
+  if (!WORKER_NAME) { window.location.href = 'index.html'; }
+
+  // ── Static achievement config ───────────────────────────────
+  const ACHIEVEMENT_DEFS = {
+    wrench_chronicle: { name: 'Wrench Chronicle',  icon: '🔧', pillar: 'competence',  desc: 'Log and close maintenance jobs' },
+    uptime_guardian:  { name: 'Uptime Guardian',   icon: '🛡️', pillar: 'competence',  desc: 'Complete PM tasks on time' },
+    parts_warden:     { name: 'Parts Warden',      icon: '📦', pillar: 'competence',  desc: 'Manage inventory and BOM' },
+    blueprint_master: { name: 'Blueprint Master',  icon: '📐', pillar: 'competence',  desc: 'Run engineering calculations' },
+    failure_hunter:   { name: 'Failure Hunter',    icon: '🎯', pillar: 'competence',  desc: 'Identify root causes of breakdowns' },
+    safety_sentinel:  { name: 'Safety Sentinel',   icon: '⚠️', pillar: 'autonomy',    desc: 'Log safety events and hazards' },
+    skill_climber:    { name: 'Skill Climber',     icon: '📈', pillar: 'autonomy',    desc: 'Earn skill matrix badges' },
+    knowledge_forger: { name: 'Knowledge Forger',  icon: '📝', pillar: 'autonomy',    desc: 'Write detailed entries and handovers' },
+    hive_architect:   { name: 'Hive Architect',    icon: '🏗️', pillar: 'relatedness', desc: 'Build and sustain your team' },
+    voice_of_hive:    { name: 'Voice of the Hive', icon: '🗣️', pillar: 'relatedness', desc: 'Post and reply in the community' },
+    shift_keeper:     { name: 'Shift Keeper',      icon: '🕐', pillar: 'relatedness', desc: 'Submit on-time shift handovers' },
+    iron_worker:      { name: 'Iron Worker',       icon: '⚙️', pillar: 'legendary',   desc: 'Reach Level 50 in any 5 domains to unlock' },
+  };
+
+  const PILLAR_ORDER = [
+    { id: 'competence',  label: 'Competence',  domains: ['wrench_chronicle','uptime_guardian','parts_warden','blueprint_master','failure_hunter'] },
+    { id: 'autonomy',    label: 'Autonomy',    domains: ['safety_sentinel','skill_climber','knowledge_forger'] },
+    { id: 'relatedness', label: 'Relatedness', domains: ['hive_architect','voice_of_hive','shift_keeper'] },
+    { id: 'legendary',   label: 'Legendary',   domains: ['iron_worker'] },
+  ];
+
+  const ACTION_LABELS = {
+    logbook_submit:      'Logbook entry submitted',
+    logbook_close:       'Logbook entry closed',
+    detailed_entry:      'Detailed description',
+    safety_entry:        'Safety entry logged',
+    breakdown_root_cause:'Breakdown root cause found',
+    pm_complete:         'PM task completed',
+    community_post:      'Community post published',
+    skill_badge_earned:  'Skill badge earned',
+  };
+
+  // ── State ───────────────────────────────────────────────────
+  let _achievements = [];
+  let _xpLog        = [];
+  let _achChannel   = null;
+
+  // ── XP curve helpers ────────────────────────────────────────
+  function xpForLevel(n) {
+    if (n <= 0) return 0;
+    return Math.floor(100 * Math.pow(n, 1.8));
+  }
+  function levelProgressPct(xpTotal, currentLevel) {
+    if (currentLevel >= 100) return 100;
+    const xpStart = xpForLevel(currentLevel);
+    const xpEnd   = xpForLevel(currentLevel + 1);
+    const span    = xpEnd - xpStart;
+    if (span <= 0) return 100;
+    return Math.max(0, Math.min(Math.round(((xpTotal - xpStart) / span) * 100), 100));
+  }
+  function xpToNext(xpTotal, currentLevel) {
+    if (currentLevel >= 100) return 0;
+    return Math.max(0, xpForLevel(currentLevel + 1) - xpTotal);
+  }
+
+  // ── Domain badge (emoji in tier ring, reuses wh-avatar CSS) ─
+  function renderDomainBadge(icon, topLevel, size) {
+    const sz   = size || 56;
+    const tier = getWorkerTier(topLevel || 0);
+    const fs   = sz >= 64 ? '1.75rem' : sz >= 56 ? '1.5rem' : '1.1rem';
+    const badge = ((topLevel || 0) > 0)
+      ? '<span class="wh-avatar-lvl" style="font-size:9px;padding:1px 5px;">' + (topLevel || 0) + '</span>'
+      : '';
+    return '<div class="wh-avatar wh-tier-' + tier.id + '"'
+      + ' style="width:' + sz + 'px;height:' + sz + 'px;font-size:' + fs + ';--tier-clr:' + tier.color + ';"'
+      + ' title="' + tier.label + ' Lv.' + (topLevel || 0) + '">'
+      + icon + badge + '</div>';
+  }
+
+  // ── Time formatter ──────────────────────────────────────────
+  function timeAgo(ts) {
+    if (!ts) return '';
+    const diff = Date.now() - new Date(ts).getTime();
+    const m = Math.floor(diff / 60000);
+    if (m < 1)   return 'just now';
+    if (m < 60)  return m + 'm ago';
+    const h = Math.floor(m / 60);
+    if (h < 24)  return h + 'h ago';
+    const d = Math.floor(h / 24);
+    if (d < 30)  return d + 'd ago';
+    return Math.floor(d / 30) + 'mo ago';
+  }
+
+  // ── Render helpers ──────────────────────────────────────────
+  function getAch(id) {
+    return _achievements.find(a => a.achievement_id === id) || { current_level: 0, xp_total: 0, last_action_at: null };
+  }
+
+  function renderDomainCard(achId) {
+    const def = ACHIEVEMENT_DEFS[achId];
+    if (!def) return '';
+    const ach  = getAch(achId);
+    const lv   = ach.current_level || 0;
+    const xp   = ach.xp_total      || 0;
+    const tier = getWorkerTier(lv);
+    const pct  = levelProgressPct(xp, lv);
+    const toNext = xpToNext(xp, lv);
+    const isLegendary = def.pillar === 'legendary';
+
+    if (isLegendary) {
+      const locked = lv === 0;
+      return `<div class="domain-card legendary${locked ? '' : ' unlocked'}" data-ach="${escHtml(achId)}" onclick="toggleDomain('${escHtml(achId)}')">
+        <div class="domain-badge-wrap">${renderDomainBadge(def.icon, lv, 56)}</div>
+        <div class="legendary-info">
+          <div class="domain-name">${escHtml(def.name)}</div>
+          <div class="domain-tier-label">${locked ? 'Locked' : tier.label + ' Lv.' + lv}</div>
+          <div class="legendary-desc">${escHtml(def.desc)}</div>
+          ${locked ? '' : `<div class="xp-bar-wrap" style="margin-top:0.5rem;"><div class="xp-bar-fill" style="width:${pct}%;--tier-clr:${tier.color};"></div></div>`}
+        </div>
+        <div class="domain-events"></div>
+      </div>`;
+    }
+
+    return `<div class="domain-card" data-ach="${escHtml(achId)}" onclick="toggleDomain('${escHtml(achId)}')">
+      <div class="domain-badge-wrap">${renderDomainBadge(def.icon, lv, 52)}</div>
+      <div class="domain-name">${escHtml(def.name)}</div>
+      <div class="domain-tier-label">${lv > 0 ? tier.label + ' Lv.' + lv : 'Iron Lv.0'}</div>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" style="width:${pct}%;--tier-clr:${tier.color};"></div></div>
+      <div class="xp-text">${lv < 100 ? escHtml(String(toNext)) + ' XP to Lv.' + (lv + 1) : 'Max Level!'}</div>
+      <div class="domain-events"></div>
+    </div>`;
+  }
+
+  function renderAchievementsBody() {
+    const wrap = document.getElementById('achievements-body');
+    let html = '';
+    for (const pillar of PILLAR_ORDER) {
+      html += `<div class="pillar-header">
+        <span class="pillar-title">${escHtml(pillar.label)}</span>
+        <span class="pillar-line"></span>
+      </div>
+      <div class="domain-grid">`;
+      for (const id of pillar.domains) {
+        html += renderDomainCard(id);
+      }
+      html += '</div>';
+    }
+    wrap.innerHTML = html;
+  }
+
+  function renderHero() {
+    const topLevel = _achievements.reduce((m, a) => Math.max(m, a.current_level || 0), 0);
+    const tier     = getWorkerTier(topLevel);
+    const composite = _achievements.reduce((s, a) => s + (a.current_level || 0), 0);
+    const active    = _achievements.filter(a => (a.current_level || 0) > 0).length;
+
+    document.getElementById('hero-avatar-wrap').innerHTML = renderWorkerAvatar(WORKER_NAME, topLevel, 72);
+    document.getElementById('hero-name').textContent = WORKER_NAME;
+
+    const tierEl = document.getElementById('hero-tier-label');
+    tierEl.textContent = tier.label + ' Technician';
+    tierEl.style.display = '';
+    tierEl.style.background = 'rgba(' + hexToRgb(tier.color) + ',0.15)';
+    tierEl.style.color      = tier.color;
+    tierEl.style.borderColor = 'rgba(' + hexToRgb(tier.color) + ',0.3)';
+
+    document.getElementById('stat-composite').textContent = composite;
+    document.getElementById('stat-active').textContent    = active + '/12';
+    document.getElementById('stat-top').textContent       = topLevel;
+  }
+
+  function hexToRgb(hex) {
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    return r + ',' + g + ',' + b;
+  }
+
+  function renderRecentActivity() {
+    const el = document.getElementById('recent-list');
+    if (!_xpLog.length) {
+      el.innerHTML = '<p class="empty-note">No XP earned yet. Close your first logbook entry!</p>';
+      return;
+    }
+    el.innerHTML = _xpLog.slice(0, 10).map(e => {
+      const def    = ACHIEVEMENT_DEFS[e.achievement_id];
+      const icon   = def ? def.icon : '⭐';
+      const label  = ACTION_LABELS[e.source_action] || e.source_action || 'XP earned';
+      const domain = def ? def.name : e.achievement_id;
+      return `<div class="activity-row">
+        <div class="activity-icon-sm">${icon}</div>
+        <div class="activity-body">
+          <div class="activity-name">${escHtml(label)}</div>
+          <div class="activity-sub">${escHtml(domain)} · ${escHtml(timeAgo(e.earned_at))}</div>
+        </div>
+        <div class="activity-xp">+${e.xp_earned}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Domain card expand/collapse ──────────────────────────────
+  function toggleDomain(achId) {
+    const card = document.querySelector('[data-ach="' + achId + '"]');
+    if (!card) return;
+    const wasExpanded = card.classList.contains('expanded');
+
+    // Collapse all
+    document.querySelectorAll('.domain-card.expanded').forEach(c => c.classList.remove('expanded'));
+    if (wasExpanded) return;
+
+    card.classList.add('expanded');
+    const eventsEl = card.querySelector('.domain-events');
+    const events   = _xpLog.filter(e => e.achievement_id === achId).slice(0, 3);
+    if (!events.length) {
+      eventsEl.innerHTML = '<p class="empty-note" style="padding:0.4rem 0;">No activity yet</p>';
+      return;
+    }
+    eventsEl.innerHTML = events.map(e => {
+      const label = ACTION_LABELS[e.source_action] || e.source_action;
+      return `<div class="event-row">
+        <span class="event-label">${escHtml(label)}</span>
+        <span class="event-xp">+${e.xp_earned}</span>
+        <span class="event-time">${escHtml(timeAgo(e.earned_at))}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Hive standings ───────────────────────────────────────────
+  async function loadHiveStandings() {
+    if (!HIVE_ID) return;
+    const { data: members } = await db
+      .from('hive_members')
+      .select('worker_name')
+      .eq('hive_id', HIVE_ID)
+      .neq('status', 'kicked');
+
+    const names = (members || []).map(m => m.worker_name);
+    if (!names.length) return;
+
+    const { data: achs } = await db
+      .from('worker_achievements')
+      .select('worker_name, current_level')
+      .in('worker_name', names);
+
+    const sums = {};
+    for (const row of (achs || [])) {
+      sums[row.worker_name] = (sums[row.worker_name] || 0) + (row.current_level || 0);
+    }
+    const top = names
+      .map(n => ({ worker_name: n, total: sums[n] || 0 }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+
+    const tierMap = await loadWorkerTiers(db, top.map(t => t.worker_name));
+
+    const el = document.getElementById('standings-list');
+    if (!top.length) {
+      el.innerHTML = '<p class="empty-note">No standings yet</p>';
+      return;
+    }
+    const rankClass = (i) => i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const rankIcon  = (i) => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+    el.innerHTML = top.map((w, i) => `
+      <div class="standing-row">
+        <div class="standing-rank ${rankClass(i)}">${rankIcon(i)}</div>
+        <div class="standing-avatar-wrap">${renderWorkerAvatar(w.worker_name, tierMap[w.worker_name] || 0, 28)}</div>
+        <div class="standing-name">${escHtml(w.worker_name)}${w.worker_name === WORKER_NAME ? ' <span style="font-size:0.55rem;color:rgba(255,255,255,0.3);">(you)</span>' : ''}</div>
+        <div class="standing-score">${w.total} pts</div>
+      </div>`).join('');
+
+    document.getElementById('standings-section').style.display = '';
+  }
+
+  // ── Level-up modal ───────────────────────────────────────────
+  function showLevelUpModal(achievementId, newLevel, isTierUp) {
+    const def  = ACHIEVEMENT_DEFS[achievementId];
+    const tier = getWorkerTier(newLevel);
+    if (!def) return;
+
+    document.getElementById('levelup-badge-wrap').innerHTML = renderDomainBadge(def.icon, newLevel, 96);
+    document.getElementById('levelup-eyebrow').textContent  = isTierUp ? 'Tier Up!' : 'Level Up!';
+    document.getElementById('levelup-heading').textContent  = def.name;
+    document.getElementById('levelup-meta').textContent     = tier.label + ' — Level ' + newLevel;
+    document.getElementById('levelup-overlay').classList.remove('hidden');
+  }
+  function closeLevelUpModal() {
+    document.getElementById('levelup-overlay').classList.add('hidden');
+  }
+
+  function handleLevelUp(achievementId, oldLevel, newLevel) {
+    const oldTier = getWorkerTier(oldLevel).id;
+    const newTier = getWorkerTier(newLevel).id;
+    const isTierUp = newTier !== oldTier;
+    if (isTierUp || newLevel % 25 === 0) {
+      showLevelUpModal(achievementId, newLevel, isTierUp);
+    } else {
+      const def  = ACHIEVEMENT_DEFS[achievementId];
+      const tier = getWorkerTier(newLevel);
+      showToast('Level Up! ' + (def ? def.name : achievementId) + ' Lv.' + newLevel + ' (' + tier.label + ')', 'success');
+    }
+  }
+
+  function showToast(msg, type) {
+    const t  = document.getElementById('toast');
+    const tx = document.getElementById('toast-text');
+    const ic = document.getElementById('toast-icon');
+    if (!t || !tx) return;
+    tx.textContent = msg;
+    ic.textContent = type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ';
+    t.classList.remove('hidden');
+    setTimeout(() => t.classList.add('hidden'), 3500);
+  }
+
+  // ── Realtime subscription ────────────────────────────────────
+  function subscribeAchievements() {
+    if (!WORKER_NAME) return;
+    if (_achChannel) db.removeChannel(_achChannel);
+    _achChannel = db.channel('ach:' + WORKER_NAME)
+      .on('postgres_changes', {
+        event:  'UPDATE',
+        schema: 'public',
+        table:  'worker_achievements',
+        filter: 'worker_name=eq.' + WORKER_NAME
+      }, payload => {
+        const updated  = payload.new;
+        const existing = _achievements.find(a => a.achievement_id === updated.achievement_id);
+        const oldLevel = existing ? (existing.current_level || 0) : 0;
+        const newLevel = updated.current_level || 0;
+
+        if (existing) {
+          existing.current_level = newLevel;
+          existing.xp_total      = updated.xp_total;
+        } else {
+          _achievements.push(updated);
+        }
+
+        renderHero();
+        renderAchievementsBody();
+        if (newLevel > oldLevel) handleLevelUp(updated.achievement_id, oldLevel, newLevel);
+      })
+      .subscribe();
+  }
+  window.addEventListener('beforeunload', () => { if (_achChannel) db.removeChannel(_achChannel); });
+
+  // ── Main init ────────────────────────────────────────────────
+  async function init() {
+    const [achRes, logRes] = await Promise.all([
+      db.from('worker_achievements')
+        .select('achievement_id, current_level, xp_total, last_action_at')
+        .eq('worker_name', WORKER_NAME),
+      db.from('achievement_xp_log')
+        .select('achievement_id, xp_earned, source_action, earned_at')
+        .eq('worker_name', WORKER_NAME)
+        .order('earned_at', { ascending: false })
+        .limit(30)
+    ]);
+
+    _achievements = achRes.data  || [];
+    _xpLog        = logRes.data  || [];
+
+    renderHero();
+    renderAchievementsBody();
+    renderRecentActivity();
+    subscribeAchievements();
+    loadHiveStandings();
+  }
+
+  init();
+</script>
+<script src="nav-hub.js"></script>
+</body>
+</html>

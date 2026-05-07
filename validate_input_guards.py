@@ -1,4 +1,4 @@
-"""
+﻿"""
 Input Guards Validator — WorkHive Platform
 ==========================================
 Checks that forms and database writes are properly guarded before they
@@ -45,6 +45,10 @@ TARGET_PAGES = [
     "marketplace-seller.html",
     "marketplace-admin.html",
     "project-manager.html",
+    "integrations.html",
+    "ph-intelligence.html",
+    # predictive.html is read-only (reads asset_risk_scores, no DB writes)
+    # validate_input_guards.py TARGET_PAGES is for pages that write to the DB
 ]
 
 MIN_COVERAGE_RATIO = 0.6
@@ -554,3 +558,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

@@ -66,6 +66,27 @@ KNOWN_BUILTIN_TABLES = {
 # Tokens that appear in select() strings but are not column names
 IMPLICIT_COLUMNS = {"count", "*", "head"}
 
+# Extra columns for tables whose baseline migration has encoding issues
+# (20260420000000_baseline.sql uses non-UTF-8 bytes — validator skips it,
+# so these well-known columns need an explicit override to avoid false positives).
+EXTRA_COLUMNS: dict[str, set] = {
+    "inventory_items": {
+        "id", "hive_id", "worker_name", "part_name", "part_number", "category",
+        "qty_on_hand", "reorder_point", "unit", "location", "notes",
+        "status", "submitted_by", "approved_by", "approved_at", "created_at", "updated_at",
+    },
+    "inventory_transactions": {
+        "id", "hive_id", "worker_name", "part_name", "part_number", "item_id",
+        "qty_change", "qty_after", "type", "reference", "notes", "created_at",
+    },
+    "logbook": {
+        "id", "hive_id", "worker_name", "machine", "maintenance_type", "category",
+        "failure_mode", "root_cause", "problem", "action", "knowledge", "downtime_hours",
+        "status", "closed_at", "created_at", "logged_at", "parts_used", "readings_json",
+        "pm_completion_id", "asset_id", "tag_id",
+    },
+}
+
 
 # ── Migration parser ──────────────────────────────────────────────────────────
 
@@ -161,6 +182,10 @@ def build_schema() -> dict:
             cols = schema.get(m.group(2))
             if cols:
                 cols.discard(m.group(3))
+
+    # Apply EXTRA_COLUMNS for tables whose migration files have encoding issues
+    for table, cols in EXTRA_COLUMNS.items():
+        schema.setdefault(table, set()).update(cols)
 
     return schema
 

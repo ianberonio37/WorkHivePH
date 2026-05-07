@@ -1,4 +1,4 @@
-"""
+﻿"""
 Mobile UX Compliance Validator — WorkHive Platform
 ===================================================
 WorkHive targets field workers on mobile phones in industrial environments:
@@ -41,6 +41,8 @@ LIVE_PAGES = [
     "pm-scheduler.html",
     "hive.html",
     "assistant.html",
+    "integrations.html",
+    "ph-intelligence.html",
     "skillmatrix.html",
     "dayplanner.html",
     "engineering-design.html",
@@ -53,6 +55,8 @@ LIVE_PAGES = [
     "marketplace-seller.html",
     "marketplace-seller-profile.html",
     "public-feed.html",
+    "predictive.html",
+    "achievements.html",
 ]
 
 MIN_TOUCH_PX = 44
@@ -303,6 +307,7 @@ def check_infinite_animation_kills(pages):
         ".typing-dot",     # AI assistant typing indicator — functional feedback
         ".skeleton",       # skeleton loading animation — functional feedback
         ".skel-pulse",     # skeleton pulse loading animation — functional feedback
+        ".skel",           # skeleton loading shorthand (achievements.html)
         ".live",           # connection status dot — functional live indicator
     }
 
@@ -527,3 +532,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

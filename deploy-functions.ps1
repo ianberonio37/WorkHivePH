@@ -2,6 +2,14 @@ npx supabase functions deploy ai-orchestrator --no-verify-jwt
 npx supabase functions deploy engineering-bom-sow --no-verify-jwt
 npx supabase functions deploy engineering-calc-agent --no-verify-jwt
 npx supabase functions deploy scheduled-agents --no-verify-jwt
+npx supabase functions deploy failure-signature-scan --no-verify-jwt
+npx supabase functions deploy voice-logbook-entry --no-verify-jwt
+npx supabase functions deploy cmms-sync --no-verify-jwt
+npx supabase functions deploy benchmark-compute --no-verify-jwt
+npx supabase functions deploy cmms-webhook-receiver --no-verify-jwt
+npx supabase functions deploy cmms-push-completion --no-verify-jwt
+npx supabase functions deploy intelligence-report --no-verify-jwt
+npx supabase functions deploy intelligence-api --no-verify-jwt
 npx supabase functions deploy analytics-orchestrator --no-verify-jwt
 npx supabase functions deploy send-report-email --no-verify-jwt
 npx supabase functions deploy voice-report-intent --no-verify-jwt
@@ -15,3 +23,5 @@ npx supabase functions deploy marketplace-release --no-verify-jwt
 npx supabase functions deploy marketplace-connect-status --no-verify-jwt
 npx supabase functions deploy project-progress --no-verify-jwt
 npx supabase functions deploy project-orchestrator --no-verify-jwt
+npx supabase functions deploy batch-risk-scoring --no-verify-jwt
+npx supabase functions deploy trigger-ml-retrain --no-verify-jwt

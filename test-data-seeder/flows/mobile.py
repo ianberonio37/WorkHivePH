@@ -5,7 +5,7 @@ Drawn from Mobile Maestro skill: 16px minimum font on inputs, no x-overflow,
 """
 from playwright.sync_api import sync_playwright
 
-from .harness import BASE_URL, screenshot, sign_in, browser_session
+from .harness import BASE_URL, screenshot, pick_test_username, browser_session
 
 PAGES = [
     "hive.html", "logbook.html", "inventory.html", "pm-scheduler.html",
@@ -13,6 +13,10 @@ PAGES = [
     "dayplanner.html", "engineering-design.html", "report-sender.html",
     "project-manager.html",
     "project-report.html",
+    "integrations.html",
+    "ph-intelligence.html",
+    "predictive.html",
+    "achievements.html",
 ]
 
 
@@ -31,7 +35,18 @@ def run_in_mobile_browser(playwright, log) -> dict:
     page = context.new_page()
 
     try:
-        sign_in(page, log=log)
+        # Mobile touch browsers don't reliably fire input events on page.fill().
+        # Set localStorage directly to simulate a signed-in state — the mobile
+        # checks test layout/scroll/tap targets, not the sign-in flow itself.
+        worker = pick_test_username()
+        # Navigate to index.html first (no auth redirect) to establish browser context
+        page.goto(f"{BASE_URL}/workhive/index.html", wait_until="domcontentloaded", timeout=10000)
+        page.evaluate(f"""() => {{
+            localStorage.setItem('wh_last_worker', '{worker}');
+            localStorage.setItem('wh_worker_name', '{worker}');
+        }}""")
+        log(f"  mobile session ready as {worker}")
+        log(f"  mobile session ready as {worker}")
     except Exception as e:
         return {"results": [("FAIL", f"mobile sign-in failed: {e}")]}
 

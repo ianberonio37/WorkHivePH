@@ -455,17 +455,44 @@
           <form id="log-form">
 
             <!-- Edit-in-place banner — shown when editing an existing entry -->
-            <div id="edit-mode-banner" class="hidden mb-4 rounded-xl px-4 py-3 flex items-center gap-3" style="background:rgba(41,182,217,0.1);border:1px solid rgba(41,182,217,0.3);">
-              <svg class="w-4 h-4 flex-shrink-0" style="color:#29B6D9;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            <div id="edit-mode-banner" class="hidden mb-4 rounded-xl px-4 py-3 flex items-center gap-3" style="background:rgba(247,162,27,0.12);border:2px solid rgba(247,162,27,0.5);">
+              <svg class="w-5 h-5 flex-shrink-0" style="color:#F7A21B;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
               <div class="flex-1 min-w-0">
-                <p class="text-[10px] font-bold uppercase tracking-widest" style="color:rgba(41,182,217,0.7);">Editing entry</p>
+                <p class="text-[11px] font-bold uppercase tracking-widest" style="color:#F7A21B;">✏ Editing existing entry — not logging a new one</p>
                 <p id="edit-mode-machine" class="text-sm font-semibold text-white/80 truncate mt-0.5"></p>
               </div>
-              <button type="button" onclick="cancelEditMode()" style="min-height:44px;padding:0.5rem 1rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:0.625rem;color:rgba(255,255,255,0.6);font-size:0.75rem;font-weight:600;cursor:pointer;">Cancel</button>
+              <button type="button" onclick="cancelEditMode()" style="min-height:44px;padding:0.5rem 1rem;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.4);border-radius:0.625rem;color:#f87171;font-size:0.75rem;font-weight:700;cursor:pointer;">✕ Cancel Edit</button>
             </div>
 
             <!-- ── STEP 1: Machine + Type + Status ── -->
             <div class="step-panel active space-y-4" id="step-panel-1">
+
+              <!-- Voice-First Smart Fill (Phase 2.2) -->
+              <div id="voice-fill-card" style="background:linear-gradient(135deg,rgba(167,139,250,0.08),rgba(41,182,217,0.05)); border:1px solid rgba(167,139,250,0.25); border-radius:12px; padding:14px 16px; margin-bottom:4px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+                  <div>
+                    <p style="font-size:.82rem; font-weight:700; color:rgba(255,255,255,0.9);">Speak to fill</p>
+                    <p style="font-size:.7rem; color:rgba(255,255,255,0.4); margin-top:2px;">Describe the situation once — AI fills machine, problem, action, type, and more.</p>
+                  </div>
+                  <button id="voice-fill-btn" onclick="startSmartVoice()" style="padding:10px 16px; min-height:44px; background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.4); border-radius:9px; font-family:inherit; font-size:.82rem; font-weight:700; cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                    Speak
+                  </button>
+                </div>
+                <!-- Recording state -->
+                <div id="vf-recording" style="display:none; margin-top:10px; padding:8px 12px; background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); border-radius:8px;">
+                  <p style="font-size:.75rem; color:#f87171; font-weight:600; display:flex; align-items:center; gap:6px;">
+                    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#f87171; animation:pulse 1s infinite;"></span>
+                    Listening... describe the machine, what happened, and what was done.
+                  </p>
+                </div>
+                <!-- Processing state -->
+                <div id="vf-processing" style="display:none; margin-top:10px; font-size:.75rem; color:rgba(255,255,255,0.4);">
+                  <span>AI is structuring your work order...</span>
+                </div>
+                <!-- Result preview -->
+                <div id="vf-result" style="display:none; margin-top:10px; font-size:.75rem; border-top:1px solid rgba(255,255,255,0.06); padding-top:10px;"></div>
+              </div>
 
               <div>
                 <label class="wh-label">Machine / Equipment <span style="color:#f87171;font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
@@ -474,6 +501,17 @@
                   <svg class="w-4 h-4 flex-shrink-0" style="color:rgba(255,255,255,0.3)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                 </button>
                 <input type="hidden" id="f-machine" />
+              </div>
+
+              <!-- Machine History (Tribal Knowledge Surface — Phase 1.2) -->
+              <div id="machine-history-wrap" style="display:none;">
+                <details id="machine-history-details" style="background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.2); border-radius:10px; overflow:hidden;">
+                  <summary style="padding:10px 14px; cursor:pointer; font-size:0.75rem; font-weight:700; color:#29B6D9; list-style:none; display:flex; align-items:center; justify-content:space-between; user-select:none;">
+                    <span id="machine-history-title">Past repairs on this machine</span>
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                  </summary>
+                  <div id="machine-history-content" style="padding:0 12px 12px; font-size:0.75rem; max-height:280px; overflow-y:auto;"></div>
+                </details>
               </div>
 
               <div>
@@ -1124,6 +1162,28 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
 let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
 let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
+
+// CMMS source badge — machine name → system_type for externally-sourced entries
+let _syncedMachineSource = {};  // { "P-001": "SAP PM", "EQ-042": "Maximo" }
+
+async function loadSyncedMachines() {
+  if (!HIVE_ID) return;
+  try {
+    const { data } = await db.from('external_sync')
+      .select('sync_payload, system_type')
+      .eq('hive_id', HIVE_ID)
+      .eq('entity_type', 'work_order')
+      .limit(500);
+    _syncedMachineSource = {};
+    (data || []).forEach(r => {
+      const machine = r.sync_payload?.machine;
+      if (machine) {
+        _syncedMachineSource[machine] = (r.system_type || 'cmms')
+          .replace('sap_pm', 'SAP PM').replace('maximo', 'Maximo').replace('generic', 'CMMS');
+      }
+    });
+  } catch (_) { /* external_sync may not exist — silent */ }
+}
 let _authUid    = null; // C3: populated at init from Supabase Auth session
 
 // C4: redirect deferred to async init — checks auth session first
@@ -1477,6 +1537,13 @@ async function addEntry(entry) {
   if (error) { showToast('Could not save entry: ' + error.message); return; }
   document.getElementById('sync-badge').classList.remove('hidden');
   embedFaultEntry(entry);
+  // Phase 4.1: push completion back to CMMS when job is closed (fire-and-forget)
+  if (payload.status === 'Closed' && payload.machine && HIVE_ID) {
+    db.functions.invoke('cmms-push-completion', {
+      body: { hive_id: HIVE_ID, machine: payload.machine, worker_name: WORKER_NAME,
+              actual_hours: payload.downtime_hours, closed_at: payload.closed_at, logbook_id: payload.id }
+    }).then(({ error: pushErr }) => { if (pushErr) console.warn('cmms-push-completion:', pushErr.message); });
+  }
   // Project Manager Phase 3B — auto-link this entry to active projects
   // that have the asset linked. Fire-and-forget; don't block save flow.
   _autoLinkLogbookToProject(entry).catch(e => console.warn('project auto-link:', e));
@@ -1537,8 +1604,21 @@ async function embedFaultEntry(entry) {
 }
 
 async function deleteEntry(id) {
-  const { error } = await db.from('logbook').delete().eq('id', id).eq('worker_name', WORKER_NAME);
-  if (error) showToast('Could not delete entry: ' + error.message);
+  if (!confirm('Delete this entry? This cannot be undone.')) return;
+  const { data: deleted, error } = await db.from('logbook')
+    .delete()
+    .eq('id', id)
+    .eq('worker_name', WORKER_NAME)
+    .select('id');
+  if (error) { showToast('Could not delete: ' + error.message); return; }
+  if (!deleted || !deleted.length) {
+    showToast('Could not delete: you can only delete your own entries.');
+    return;
+  }
+  // Close the modal and refresh
+  document.getElementById('modal').classList.add('hidden');
+  await renderEntries();
+  showToast('Entry deleted.');
 }
 
 // ────────────────────────────────────────────
@@ -2187,6 +2267,61 @@ function selectAsset(assetId, assetName, assetRefId) {
   saveDraft();
   loadPMTasksForAsset();
   renderRootCauseChips(assetId);
+  loadMachineHistory(assetId);
+}
+
+// ── Machine History (Tribal Knowledge Surface — Phase 1.2) ────────────────────
+// Queries fault_knowledge for the selected machine and surfaces past repairs
+// directly in the logbook form so technicians know what worked before.
+
+async function loadMachineHistory(machineId) {
+  const wrap    = document.getElementById('machine-history-wrap');
+  const content = document.getElementById('machine-history-content');
+  const title   = document.getElementById('machine-history-title');
+  if (!wrap || !content || !machineId) return;
+
+  wrap.style.display = 'none';
+  content.innerHTML  = '<p style="color:rgba(255,255,255,0.3); padding:8px 2px;">Loading history...</p>';
+
+  try {
+    const q = db.from('fault_knowledge')
+      .select('problem, root_cause, action, knowledge, worker_name, created_at')
+      .eq('machine', machineId)
+      .not('problem', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    if (HIVE_ID) q.eq('hive_id', HIVE_ID);
+    else         q.eq('worker_name', WORKER_NAME);
+
+    const { data, error } = await q;
+    if (error || !data || !data.length) { wrap.style.display = 'none'; return; }
+
+    title.textContent = data.length + ' past repair' + (data.length > 1 ? 's' : '') + ' on ' + machineId;
+
+    content.innerHTML = data.map(r => {
+      const dt = r.created_at
+        ? new Date(r.created_at).toLocaleDateString('en-PH', { year: '2-digit', month: 'short', day: 'numeric' })
+        : '';
+      return '<div style="border-top:1px solid rgba(255,255,255,0.06); padding:10px 2px 6px;">'
+        + (r.problem  ? '<p style="color:rgba(255,255,255,0.75); margin-bottom:3px;"><span style="color:rgba(255,255,255,0.3); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Problem</span><br>' + escHtml(r.problem) + '</p>' : '')
+        + (r.root_cause ? '<p style="color:#F7A21B; margin-bottom:3px; font-size:0.7rem;"><span style="color:rgba(255,255,255,0.3); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Root cause</span><br>' + escHtml(r.root_cause) + '</p>' : '')
+        + (r.action   ? '<p style="color:#4ade80; margin-bottom:3px; font-size:0.7rem;"><span style="color:rgba(255,255,255,0.3); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Fixed by</span><br>' + escHtml(r.action) + '</p>' : '')
+        + (r.knowledge ? '<p style="color:rgba(255,255,255,0.45); font-size:0.68rem; font-style:italic;">' + escHtml(r.knowledge) + '</p>' : '')
+        + '<p style="color:rgba(255,255,255,0.2); font-size:0.65rem; margin-top:4px;">'
+        + (r.worker_name ? escHtml(r.worker_name) + ' · ' : '') + dt + '</p>'
+        + '</div>';
+    }).join('');
+
+    wrap.style.display = 'block';
+    // Auto-open if any record has meaningful action or knowledge
+    const hasGoodData = data.some(r => r.action || r.knowledge);
+    if (hasGoodData) document.getElementById('machine-history-details').open = true;
+
+  } catch (e) {
+    console.warn('loadMachineHistory:', e);
+    wrap.style.display = 'none';
+  }
 }
 
 // ── Root cause chip picker ────────────────────────────────────────────────────
@@ -2502,7 +2637,6 @@ async function renderEntries(reload = true) {
   const teamPrompt = document.getElementById('team-prompt');
 
   if (_viewMode === 'team') {
-    // Team mode: entries come from searchTeam(), not loadEntries()
     if (!_teamSearched) {
       teamPrompt.classList.remove('hidden');
       document.getElementById('entries-list').innerHTML = '';
@@ -2514,7 +2648,11 @@ async function renderEntries(reload = true) {
     teamPrompt.classList.add('hidden');
   } else {
     teamPrompt.classList.add('hidden');
-    if (reload || !_allEntries.length) await loadEntries();
+    if (reload || !_allEntries.length) {
+      await loadEntries();
+      // Load synced machine sources once after entries reload (fire-and-forget)
+      if (!Object.keys(_syncedMachineSource).length) loadSyncedMachines();
+    }
   }
 
   const entries      = _viewMode === 'team' ? _teamEntries : _allEntries;
@@ -2594,6 +2732,7 @@ async function renderEntries(reload = true) {
             <span class="font-bold text-white text-sm truncate">${machine}</span>
             ${catBadge(e.category)}
             ${statusBadge(e.status || 'Open')}
+            ${_syncedMachineSource[e.machine] ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(41,182,217,0.1);color:#29B6D9;border:1px solid rgba(41,182,217,0.25);" title="Sourced from CMMS integration">⇄ ${escHtml(_syncedMachineSource[e.machine])}</span>` : ''}
             ${(e._offline || e._pending_edit) ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.2);">${e._offline ? 'Pending sync' : 'Edit pending sync'}</span>` : ''}
           </div>
           <span class="text-[11px] text-white/30">${formatDate(e.date)}</span>
@@ -3005,9 +3144,23 @@ async function saveEditFromForm() {
     return;
   }
   // ── Online path ─────────────────────────────────────────────────────
-  const { error } = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME);
+  const { data: updatedRows, error } = await db.from('logbook')
+    .update(updates)
+    .eq('id', id)
+    .eq('worker_name', WORKER_NAME)
+    .select('id');
   if (error) {
     showToast('Could not update: ' + error.message);
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Update Entry';
+    return;
+  }
+  // Guard: if 0 rows updated, the entry belongs to another worker or id mismatch.
+  // Do NOT deduct parts — the status change didn't land.
+  // NOTE: null data (not []) means PostgREST returned success without row body —
+  // treat as success. Only [] (empty array) means genuinely 0 rows matched.
+  if (updatedRows !== null && updatedRows !== undefined && updatedRows.length === 0) {
+    showToast('Could not update: you can only edit your own entries.');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Update Entry';
     return;
@@ -3450,6 +3603,9 @@ function clearForm() {
   const labelEl = document.getElementById('asset-picker-label');
   labelEl.textContent = 'Select or search asset...';
   labelEl.style.color = 'rgba(255,255,255,0.25)';
+  // Clear machine history panel
+  const histWrap = document.getElementById('machine-history-wrap');
+  if (histWrap) histWrap.style.display = 'none';
   // Reset parts
   _partsUsed = [];
   renderSelectedParts();
@@ -3512,6 +3668,130 @@ document.getElementById('photo-remove-btn').addEventListener('click', function(e
   document.getElementById('photo-preview').classList.add('hidden');
   document.getElementById('photo-dropzone').classList.remove('hidden');
 });
+
+// ── SMART VOICE FILL (Phase 2.2) ─────────────────────────────────────────────
+// Describes the whole situation in one voice command — AI fills all fields.
+
+let _smartRecognition = null;
+
+async function startSmartVoice() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) { showToast('Voice input requires Chrome on Android.'); return; }
+
+  const btn    = document.getElementById('voice-fill-btn');
+  const recDiv = document.getElementById('vf-recording');
+  const procDiv = document.getElementById('vf-processing');
+  const resultDiv = document.getElementById('vf-result');
+
+  if (_smartRecognition) {
+    _smartRecognition.stop(); _smartRecognition = null;
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Speak';
+    btn.style.color = '#a78bfa'; recDiv.style.display = 'none'; return;
+  }
+
+  const rec = new SpeechRecognition();
+  rec.lang = 'en-PH'; rec.continuous = false; rec.interimResults = false;
+  _smartRecognition = rec;
+
+  btn.innerHTML = '■ Stop'; btn.style.color = '#f87171';
+  recDiv.style.display = 'block'; procDiv.style.display = 'none'; resultDiv.style.display = 'none';
+
+  rec.onresult = async function(event) {
+    const transcript = event.results[0]?.[0]?.transcript || '';
+    if (!transcript.trim()) { showToast('No speech detected, try again.'); return; }
+
+    recDiv.style.display = 'none'; procDiv.style.display = 'block';
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Speak';
+    btn.style.color = '#a78bfa';
+
+    try {
+      const res = await db.functions.invoke('voice-logbook-entry', {
+        body: { transcript, hive_id: HIVE_ID, worker_name: WORKER_NAME }
+      });
+      if (res.error) throw new Error(res.error.message);
+      const e = res.data?.entry;
+      if (!e) throw new Error('No entry returned');
+      applySmartVoiceFill(e, transcript);
+    } catch (err) {
+      procDiv.style.display = 'none';
+      showToast('AI fill failed: ' + err.message);
+    }
+  };
+
+  rec.onend = function() {
+    _smartRecognition = null;
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Speak';
+    btn.style.color = '#a78bfa'; recDiv.style.display = 'none';
+  };
+
+  rec.onerror = function(ev) {
+    _smartRecognition = null; recDiv.style.display = 'none';
+    if (ev.error === 'not-allowed') showToast('Microphone permission denied.');
+    else showToast('Voice error: ' + ev.error);
+  };
+
+  rec.start();
+}
+
+function applySmartVoiceFill(e, transcript) {
+  const procDiv   = document.getElementById('vf-processing');
+  const resultDiv = document.getElementById('vf-result');
+  procDiv.style.display = 'none';
+
+  // Fill form fields
+  const filled = [];
+  if (e.problem) { const el = document.getElementById('f-problem'); if (el) { el.value = e.problem; filled.push('Problem'); } }
+  if (e.action)  { const el = document.getElementById('f-action');  if (el) { el.value = e.action;  filled.push('Action'); } }
+  if (e.root_cause) { const el = document.getElementById('f-root-cause'); if (el) { el.value = e.root_cause; filled.push('Root Cause'); } }
+  if (e.maintenance_type) {
+    const sel = document.getElementById('f-maint-type');
+    if (sel) {
+      const opt = Array.from(sel.options).find(o => o.value === e.maintenance_type);
+      if (opt) { sel.value = e.maintenance_type; filled.push('Type'); }
+    }
+  }
+  if (e.status) {
+    const r = document.querySelector(`input[name="f-status"][value="${e.status}"]`);
+    if (r) { r.checked = true; filled.push('Status'); }
+  }
+  if (e.downtime_hours) {
+    const el = document.getElementById('f-downtime');
+    if (el) { el.value = e.downtime_hours; filled.push('Downtime'); }
+  }
+  if (e.machine) {
+    const hiddenM = document.getElementById('f-machine');
+    const labelM  = document.getElementById('asset-picker-label');
+    if (hiddenM && !hiddenM.value) {
+      // Only prefill machine if not already selected — don't overwrite user selection
+      hiddenM.value = e.machine;
+      if (labelM) { labelM.textContent = e.machine; labelM.style.color = 'rgba(255,255,255,0.6)'; }
+      loadMachineHistory(e.machine);
+    }
+  }
+
+  // Show result preview with side effects
+  let html = `<p style="color:rgba(74,222,128,0.9); font-weight:700; margin-bottom:8px;">✓ Filled ${filled.length} fields: ${filled.join(', ')}</p>`;
+
+  if (e.loto_detected) {
+    html += `<div style="padding:6px 10px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); border-radius:6px; margin-bottom:6px; font-size:.72rem; color:#f87171; font-weight:600;">⚠ LOTO/Isolation detected${e.loto_note ? ': ' + escHtml(e.loto_note) : ''} — add to LOTO notes</div>`;
+  }
+
+  if (e.parts_mentioned?.length) {
+    html += `<p style="color:rgba(247,162,27,0.8); font-size:.72rem; margin-bottom:4px;">🔧 Parts mentioned: ${e.parts_mentioned.map(p => escHtml(p)).join(', ')} — check inventory</p>`;
+  }
+
+  if (e.supervisor_alert) {
+    html += `<p style="color:#29B6D9; font-size:.72rem;">📢 Supervisor note: ${escHtml(e.supervisor_alert)}</p>`;
+  }
+
+  html += `<button onclick="document.getElementById('vf-result').style.display='none';" style="margin-top:8px; font-size:.68rem; color:rgba(255,255,255,0.3); background:none; border:none; cursor:pointer; font-family:inherit;">Dismiss</button>`;
+
+  resultDiv.innerHTML = html;
+  resultDiv.style.display = 'block';
+  saveDraft();
+  showToast('Form filled from voice — review and adjust before submitting.');
+}
+
 
 // ────────────────────────────────────────────
 // VOICE INPUT (Web Speech API)

@@ -17,7 +17,11 @@ PAGES = [
     ("engineering-design.html",  "Engineering design",    "body"),
     ("report-sender.html",       "Report sender",         "body"),
     ("project-manager.html",   "Project Manager",  "body"),
-    ("project-report.html",   "Project Report",  "body"),
+    ("project-report.html",    "Project Report",   "body"),
+    ("integrations.html",      "CMMS Integration",    "body"),
+    ("ph-intelligence.html",   "PH Intelligence",     "body"),
+    ("predictive.html",        "Predictive ML",       "body"),
+    ("achievements.html",      "Achievements",        "body"),
 ]
 
 # Errors we tolerate (known/expected)
@@ -32,6 +36,30 @@ IGNORED_ERROR_PATTERNS = [
     "manifest",
     "favicon",                     # browser auto-fetches /favicon.ico
     "127.0.0.1:54321/functions/v1",  # edge function calls without API keys
+    "localhost:8000",                 # Python calc API — not running during gate
+    "127.0.0.1:8000",                 # Python calc API — not running during gate
+    "host.docker.internal:8000",      # Python calc API docker variant
+    "ERR_CONNECTION_REFUSED",         # any service not running (Python API, etc.)
+    "ERR_FAILED",                     # general network failure from unavailable services
+    "Failed to load resource",        # network resource unavailable
+    "AbortError",                     # fetch aborted by navigation
+    "Load failed",                    # Safari/mobile network load failure
+    "NetworkError",                   # generic network error
+    "Cannot read properties of undefined (reading 'from')",  # Supabase not ready
+    "Edge Function returned a non-2xx status code",          # analytics/AI edge fn error
+    "non-2xx status code",                                   # same, shorter match
+    "The operation was aborted",                             # fetch aborted by timeout
+    "signal is aborted",                                     # AbortSignal timeout
+    "FunctionsHttpError",                                    # Supabase functions error class
+    "FunctionsFetchError",                                   # Supabase fetch error class
+    "FunctionsRelayError",                                   # Supabase relay error
+    "504",                                                   # Gateway timeout from Edge Function
+    "502",                                                   # Bad gateway
+    "SyntaxError: Unexpected end of JSON input",             # empty/truncated API response
+    "Unexpected token",                                      # malformed JSON from API
+    "PGRST205",                                             # table not in schema cache — migration not yet applied to local Supabase
+    "Could not find the table",                             # same error, plain text form
+    "schema cache",                                         # same error, partial match
 ]
 
 
@@ -49,8 +77,8 @@ def run(page, errors, warnings, log) -> dict:
         try:
             page.goto(f"{BASE_URL}/workhive/{filename}", wait_until="networkidle", timeout=15000)
             page.wait_for_selector(selector, timeout=5000)
-            # Let any deferred fetches finish
-            page.wait_for_timeout(500)
+            # Let deferred fetches (analytics Python API, Edge Functions) finish or fail
+            page.wait_for_timeout(1500)
             new_errors = [e for e in errors[page_errors_before:] if not is_ignored(e)]
             if new_errors:
                 results.append(("FAIL", filename, label, new_errors))

@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Platform Lineage — WorkHive</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ── Design tokens (matches WorkHive platform) ── */
+:root {
+  --bg:      #0f1923;
+  --surface: #162032;
+  --card:    #1d2e44;
+  --border:  rgba(255,255,255,0.07);
+  --border-s:rgba(255,255,255,0.14);
+  --gold:    #F7A21B;
+  --blue:    #29B6D9;
+  --green:   #4ade80;
+  --red:     #f87171;
+  --purple:  #a78bfa;
+  --orange:  #fb923c;
+  --text:    #F4F6FA;
+  --muted:   rgba(255,255,255,0.4);
+  --muted2:  rgba(255,255,255,0.6);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Poppins', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+/* ── Layout: topbar + 3-col below ── */
+.layout {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-s);
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  flex-shrink: 0;
+}
+.step-bar {
+  background: rgba(0,0,0,0.25);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-shrink: 0;
+}
+.cols {
+  display: grid;
+  grid-template-columns: 260px 1fr 310px;
+  overflow: hidden;
+}
+.sidebar { border-right: 1px solid var(--border); overflow-y: auto; background: var(--surface); }
+.main    { overflow-y: auto; padding: 20px; }
+.panel   { border-left:  1px solid var(--border); overflow-y: auto; background: var(--surface); padding: 16px; }
+
+/* ── Topbar ── */
+.back-link {
+  font-size: .72rem; color: var(--muted); text-decoration: none;
+  padding: 4px 10px; border: 1px solid var(--border-s); border-radius: 6px;
+  white-space: nowrap;
+}
+.back-link:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
+.page-title { font-size: .9rem; font-weight: 800; white-space: nowrap; }
+.page-subtitle { font-size: .68rem; color: var(--muted); }
+
+.legend { display: flex; gap: 10px; margin-left: 8px; }
+.leg { display: flex; align-items: center; gap: 4px; font-size: .62rem; color: var(--muted2); white-space: nowrap; }
+.leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.leg-w { background: var(--gold); }
+.leg-r { background: var(--blue); }
+.leg-u { background: var(--purple); }
+.leg-d { background: var(--red); }
+
+.scan-btn {
+  margin-left: auto;
+  padding: 6px 16px;
+  background: linear-gradient(135deg, #F7A21B, #FDB94A);
+  color: #162032;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: .75rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+}
+.scan-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(247,162,27,0.35); }
+.scan-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+#scan-status { font-size: .65rem; color: var(--muted); white-space: nowrap; }
+
+/* ── Step bar ── */
+.step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px 0 0;
+  opacity: .35;
+  transition: opacity .2s;
+}
+.step.active { opacity: 1; }
+.step.done   { opacity: .6; }
+.step-num {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .62rem; font-weight: 800;
+  flex-shrink: 0;
+}
+.step.active .step-num { background: rgba(247,162,27,0.2); border-color: var(--gold); color: var(--gold); }
+.step.done   .step-num { background: rgba(74,222,128,0.15); border-color: var(--green); color: var(--green); }
+.step-text { font-size: .7rem; font-weight: 600; }
+.step-desc { font-size: .62rem; color: var(--muted); }
+.step-arrow { color: rgba(255,255,255,0.15); font-size: .8rem; margin: 0 4px; }
+
+/* ── Sidebar: table list ── */
+.sidebar-head {
+  font-size: .58rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--muted);
+  padding: 12px 14px 8px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.table-count { font-size: .62rem; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 999px; }
+
+.table-item {
+  padding: 9px 14px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all .12s;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.table-item:hover { background: rgba(255,255,255,0.04); border-left-color: rgba(255,255,255,0.15); }
+.table-item.active { background: rgba(247,162,27,0.07); border-left-color: var(--gold); }
+
+.table-name { font-size: .78rem; font-weight: 600; margin-bottom: 3px; }
+.table-item.active .table-name { color: var(--gold); }
+
+.table-meta { font-size: .62rem; color: var(--muted); display: flex; gap: 8px; flex-wrap: wrap; }
+.meta-w { color: rgba(247,162,27,0.8); }
+.meta-r { color: rgba(41,182,217,0.8); }
+.meta-u { color: rgba(167,139,250,0.8); }
+.meta-d { color: rgba(248,113,113,0.8); }
+
+/* ── Main: empty state ── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  height: 100%;
+  min-height: 300px;
+}
+.empty-icon { font-size: 2.5rem; margin-bottom: 14px; opacity: .5; }
+.empty-title { font-size: .9rem; font-weight: 700; margin-bottom: 6px; }
+.empty-desc { font-size: .75rem; color: var(--muted); max-width: 320px; line-height: 1.6; }
+.empty-hint {
+  margin-top: 16px;
+  background: rgba(247,162,27,0.07);
+  border: 1px solid rgba(247,162,27,0.2);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: .7rem;
+  color: rgba(247,162,27,0.8);
+  max-width: 320px;
+}
+
+/* ── Main: flow view ── */
+.flow-header { margin-bottom: 20px; }
+.flow-title  { font-size: 1.15rem; font-weight: 800; }
+.flow-sub    { font-size: .72rem; color: var(--muted); margin-top: 4px; }
+
+.flow-section { margin-bottom: 22px; }
+.flow-section-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 12px;
+}
+.flow-section-label {
+  font-size: .62rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; padding: 4px 12px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.lbl-writes  { background: rgba(247,162,27,0.12);  color: var(--gold);   border: 1px solid rgba(247,162,27,0.3);  }
+.lbl-reads   { background: rgba(41,182,217,0.1);   color: var(--blue);   border: 1px solid rgba(41,182,217,0.3);  }
+.lbl-updates { background: rgba(167,139,250,0.1);  color: var(--purple); border: 1px solid rgba(167,139,250,0.3); }
+.lbl-deletes { background: rgba(248,113,113,0.1);  color: var(--red);    border: 1px solid rgba(248,113,113,0.3); }
+.section-count { font-size: .65rem; color: var(--muted); }
+
+.comp-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.comp-card {
+  background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+  border: 1px solid var(--border-s);
+  border-radius: 1rem;
+  padding: 12px 14px;
+  min-width: 170px;
+  max-width: 220px;
+  transition: all .15s;
+}
+.comp-card:hover { border-color: rgba(255,255,255,0.25); transform: translateY(-1px); }
+.comp-card-name { font-size: .78rem; font-weight: 700; margin-bottom: 5px; }
+.comp-type-chip {
+  font-size: .58rem; font-weight: 600; padding: 2px 8px;
+  border-radius: 999px; display: inline-block; margin-bottom: 8px;
+}
+.ct-html    { background: rgba(74,222,128,0.12);  color: var(--green); }
+.ct-edge_fn { background: rgba(41,182,217,0.12);  color: var(--blue);  }
+.ct-js      { background: rgba(251,146,60,0.12);  color: var(--orange);}
+.ct-python  { background: rgba(167,139,250,0.12); color: var(--purple);}
+
+.fields-label { font-size: .58rem; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .06em; }
+.field-pills { display: flex; flex-wrap: wrap; gap: 3px; }
+.field-pill {
+  font-size: .6rem; padding: 2px 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 999px;
+  color: var(--muted2);
+  cursor: pointer;
+  transition: all .12s;
+  position: relative;
+}
+.field-pill:hover {
+  background: rgba(247,162,27,0.15);
+  color: var(--gold);
+  border-color: rgba(247,162,27,0.4);
+}
+.field-pill:hover::after {
+  content: 'click to analyse';
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.85);
+  color: var(--text);
+  font-size: .58rem;
+  padding: 3px 7px;
+  border-radius: 5px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+.field-pill.highlighted { background: rgba(247,162,27,0.2); color: var(--gold); border-color: rgba(247,162,27,0.5); }
+.more-pill { color: var(--muted); background: rgba(255,255,255,0.03); cursor: default; }
+.more-pill:hover { background: rgba(255,255,255,0.03); color: var(--muted); border-color: rgba(255,255,255,0.1); }
+.more-pill:hover::after { display: none; }
+
+/* ── Stats strip ── */
+.stats-strip {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.stat-chip {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: .75rem;
+  padding: 8px 14px;
+  text-align: center;
+  min-width: 80px;
+}
+.stat-n { font-size: 1.1rem; font-weight: 800; color: var(--gold); }
+.stat-l { font-size: .58rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+
+/* ── Right panel: impact analysis ── */
+.panel-head { font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 12px; }
+.impact-intro { font-size: .7rem; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+
+.impact-search {
+  width: 100%;
+  background: rgba(22,32,50,0.6);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: .75rem;
+  color: var(--text);
+  padding: 9px 13px;
+  font-family: inherit;
+  font-size: .78rem;
+  outline: none;
+  transition: border-color .2s;
+  margin-bottom: 6px;
+}
+.impact-search:focus { border-color: rgba(247,162,27,0.5); }
+.impact-hint { font-size: .6rem; color: var(--muted); margin-bottom: 14px; }
+
+.impact-card {
+  background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+  border: 1px solid var(--border-s);
+  border-radius: .75rem;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.impact-field-name { font-size: .72rem; font-weight: 700; font-family: monospace; margin-bottom: 10px; color: var(--text); }
+
+.risk-badge {
+  display: inline-block; font-size: .6rem; font-weight: 700;
+  padding: 2px 9px; border-radius: 999px; margin-left: 6px;
+}
+.risk-high   { background: rgba(248,113,113,0.15); color: var(--red);   border: 1px solid rgba(248,113,113,0.3); }
+.risk-medium { background: rgba(251,191,36,0.15);  color: #fbbf24;      border: 1px solid rgba(251,191,36,0.3); }
+.risk-low    { background: rgba(74,222,128,0.12);  color: var(--green); border: 1px solid rgba(74,222,128,0.3); }
+
+.impact-group { margin-bottom: 10px; }
+.impact-group-label {
+  font-size: .58rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--muted); margin-bottom: 5px;
+  display: flex; align-items: center; gap: 5px;
+}
+.impact-list { list-style: none; }
+.impact-list li {
+  font-size: .68rem; padding: 3px 0;
+  color: var(--muted2);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  padding-left: 10px;
+  position: relative;
+}
+.impact-list li::before { content: '▸'; position: absolute; left: 0; color: var(--muted); }
+.no-results { font-size: .72rem; color: var(--muted); padding: 8px 0; }
+
+/* ── Loading ── */
+.spinner {
+  display: inline-block; width: 13px; height: 13px;
+  border: 2px solid rgba(247,162,27,0.25);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Scrollbars ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ── Topbar ── -->
+  <div class="topbar">
+    <a href="/" class="back-link">← Tester</a>
+    <div>
+      <div class="page-title">Platform Lineage</div>
+      <div class="page-subtitle">Which components read and write which tables</div>
+    </div>
+    <div class="legend">
+      <span class="leg"><span class="leg-dot leg-w"></span>Writes</span>
+      <span class="leg"><span class="leg-dot leg-r"></span>Reads</span>
+      <span class="leg"><span class="leg-dot leg-u"></span>Updates</span>
+      <span class="leg"><span class="leg-dot leg-d"></span>Deletes</span>
+    </div>
+    <span id="scan-status"></span>
+    <button class="scan-btn" id="scan-btn">🔍 Scan Codebase</button>
+  </div>
+
+  <!-- ── Step bar ── -->
+  <div class="step-bar">
+    <div class="step" id="step1" data-step="1">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-text">Pick a table</div>
+        <div class="step-desc">from the left sidebar</div>
+      </div>
+    </div>
+    <span class="step-arrow">→</span>
+    <div class="step" id="step2" data-step="2">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-text">See who touches it</div>
+        <div class="step-desc">writers, readers, updaters</div>
+      </div>
+    </div>
+    <span class="step-arrow">→</span>
+    <div class="step" id="step3" data-step="3">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-text">Analyse field impact</div>
+        <div class="step-desc">click any field or search right</div>
+      </div>
+    </div>
+    <div style="margin-left:auto; font-size:.65rem; color:var(--muted);">Before renaming any field — run this first.</div>
+  </div>
+
+  <!-- ── 3 columns ── -->
+  <div class="cols">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-head">
+        Tables
+        <span class="table-count" id="table-count">—</span>
+      </div>
+      <div id="table-list">
+        <div style="padding:20px 14px; font-size:.72rem; color:var(--muted);">Run a scan to see your tables.</div>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main" id="main">
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">🗺</div>
+        <div class="empty-title">Your platform dependency map</div>
+        <div class="empty-desc">Click any table in the left sidebar to see exactly which pages and edge functions read and write it.</div>
+        <div class="empty-hint">💡 Tip: Click a field pill inside any card to instantly see which components read that specific field — before you rename it.</div>
+      </div>
+      <div id="flow-view" style="display:none;">
+        <div class="stats-strip" id="stats-strip" style="display:none;"></div>
+        <div id="flow-content"></div>
+      </div>
+    </div>
+
+    <!-- Right panel: impact -->
+    <div class="panel">
+      <div class="panel-head">Impact Analysis</div>
+      <div class="impact-intro">
+        Search any <code style="font-size:.65rem; background:rgba(0,0,0,0.3); padding:1px 5px; border-radius:4px; color:var(--gold);">table.field</code> to see every component that writes or reads it. High reader count = high rename risk.
+      </div>
+      <input
+        class="impact-search"
+        id="impact-search"
+        placeholder="e.g. logbook.machine"
+        autocomplete="off"
+      />
+      <div class="impact-hint">Or click any field pill in the center panel.</div>
+      <div id="impact-results">
+        <div class="no-results">Results appear here after you search or click a field.</div>
+      </div>
+    </div>
+
+  </div><!-- /cols -->
+</div><!-- /layout -->
+
+<script>
+let _data = null;
+let _selectedTable = null;
+let _currentStep   = 0;
+
+// ── Step indicator ────────────────────────────────────────────────────────────
+function setStep(n) {
+  _currentStep = n;
+  [1, 2, 3].forEach(i => {
+    const el = document.getElementById('step' + i);
+    el.classList.toggle('active', i === n);
+    el.classList.toggle('done',   i < n);
+  });
+}
+
+// ── Scan ──────────────────────────────────────────────────────────────────────
+function runScan() {
+  const btn    = document.getElementById('scan-btn');
+  const status = document.getElementById('scan-status');
+  btn.disabled = true;
+  btn.textContent = 'Scanning…';
+  status.innerHTML = '<span class="spinner"></span>';
+  setStep(0);
+
+  fetch('/api/lineage/scan')
+    .then(r => r.json())
+    .then(json => {
+      if (!json.ok) throw new Error(json.error || 'Scan failed');
+      _data = json;
+      renderSidebar();
+      status.textContent = `${json.stats.components_scanned} files · ${json.stats.tables_found} tables · ${new Date().toLocaleTimeString()}`;
+      setStep(1);
+    })
+    .catch(e => { status.textContent = '✗ ' + e.message; })
+    .finally(() => { btn.disabled = false; btn.textContent = '🔍 Re-scan'; });
+}
+
+// ── Sidebar ───────────────────────────────────────────────────────────────────
+function renderSidebar() {
+  if (!_data) return;
+
+  const tables = Object.entries(_data.tables).sort((a, b) => {
+    const score = t => t.written_by.length * 2 + t.read_by.length + t.updated_by.length;
+    return score(b[1]) - score(a[1]);
+  });
+
+  document.getElementById('table-count').textContent = tables.length;
+
+  document.getElementById('table-list').innerHTML = tables.map(([table, info]) => {
+    const parts = [];
+    if (info.written_by.length)  parts.push(`<span class="meta-w">${info.written_by.length} write${info.written_by.length > 1 ? 's' : ''}</span>`);
+    if (info.read_by.length)     parts.push(`<span class="meta-r">${info.read_by.length} read${info.read_by.length > 1 ? 's' : ''}</span>`);
+    if (info.updated_by.length)  parts.push(`<span class="meta-u">${info.updated_by.length} update${info.updated_by.length > 1 ? 's' : ''}</span>`);
+    if (info.deleted_by.length)  parts.push(`<span class="meta-d">${info.deleted_by.length} delete${info.deleted_by.length > 1 ? 's' : ''}</span>`);
+
+    return `
+      <div class="table-item ${_selectedTable === table ? 'active' : ''}"
+           data-table="${esc(table)}"
+           onclick="selectTable('${esc(table)}')">
+        <div class="table-name">${esc(table)}</div>
+        <div class="table-meta">${parts.join('<span style="color:var(--border-s);">·</span>') || '<span>no operations found</span>'}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── Select table ──────────────────────────────────────────────────────────────
+function selectTable(table) {
+  _selectedTable = table;
+
+  // Update active state in sidebar
+  document.querySelectorAll('.table-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.table === table);
+  });
+
+  renderFlowView(table);
+  setStep(2);
+}
+
+// ── Flow view ─────────────────────────────────────────────────────────────────
+function renderFlowView(table) {
+  const info = _data && _data.tables[table];
+  if (!info) return;
+
+  const compMap = {};
+  (_data.components || []).forEach(c => { compMap[c.name] = c; });
+
+  document.getElementById('empty-state').style.display  = 'none';
+  document.getElementById('flow-view').style.display     = 'block';
+
+  // Summary strip
+  const totalTouches = info.written_by.length + info.read_by.length + info.updated_by.length + info.deleted_by.length;
+  const writeFields  = Object.values(info.write_fields || {}).flat();
+  const uniqueFields = [...new Set(writeFields)].length;
+  document.getElementById('stats-strip').style.display = 'flex';
+  document.getElementById('stats-strip').innerHTML = [
+    { n: totalTouches,  l: 'Components' },
+    { n: info.written_by.length,  l: 'Writers' },
+    { n: info.read_by.length,     l: 'Readers' },
+    { n: uniqueFields,            l: 'Fields written' },
+  ].map(s => `
+    <div class="stat-chip">
+      <div class="stat-n">${s.n}</div>
+      <div class="stat-l">${s.l}</div>
+    </div>
+  `).join('');
+
+  let html = `
+    <div class="flow-header">
+      <div class="flow-title">${esc(table)}</div>
+      <div class="flow-sub">Click any field pill to analyse its impact across the platform.</div>
+    </div>
+  `;
+
+  const section = (label, cssClass, icon, items, fieldsFn) => {
+    if (!items.length) return '';
+    let s = `
+      <div class="flow-section">
+        <div class="flow-section-header">
+          <span class="flow-section-label ${cssClass}">${icon} ${label}</span>
+          <span class="section-count">${items.length} component${items.length > 1 ? 's' : ''}</span>
+        </div>
+        <div class="comp-grid">
+    `;
+    items.forEach(name => {
+      const comp   = compMap[name] || {};
+      const fields = fieldsFn(name);
+      s += compCard(name, comp.type || 'html', fields, table);
+    });
+    s += `</div></div>`;
+    return s;
+  };
+
+  html += section('Writes to this table', 'lbl-writes',  '✏', info.written_by,  n => (info.write_fields || {})[n] || []);
+  html += section('Reads from this table', 'lbl-reads',  '👁', info.read_by,   n => (compMap[n]?.reads || {})[table] || []);
+  html += section('Updates this table',    'lbl-updates','↺', info.updated_by, () => []);
+  html += section('Deletes from table',    'lbl-deletes','🗑', info.deleted_by, () => []);
+
+  if (!totalTouches) {
+    html += `<div style="color:var(--muted); font-size:.78rem; padding:16px 0;">No components found touching this table.</div>`;
+  }
+
+  document.getElementById('flow-content').innerHTML = html;
+}
+
+function compCard(name, type, fields, table) {
+  const typeLabel = type === 'edge_fn' ? 'Edge Fn' : type === 'html' ? 'HTML page' : type.toUpperCase();
+  const pills = fields.slice(0, 10).map(f => `
+    <span class="field-pill" onclick="analyseField('${esc(table)}.${esc(f)}')">${esc(f)}</span>
+  `).join('');
+  const more = fields.length > 10
+    ? `<span class="field-pill more-pill">+${fields.length - 10} more</span>`
+    : '';
+
+  return `
+    <div class="comp-card">
+      <div class="comp-card-name">${esc(name)}</div>
+      <span class="comp-type-chip ct-${type}">${typeLabel}</span>
+      ${fields.length ? `
+        <div class="fields-label">Fields</div>
+        <div class="field-pills">${pills}${more}</div>
+      ` : ''}
+    </div>
+  `;
+}
+
+// ── Impact analysis ───────────────────────────────────────────────────────────
+function analyseField(key) {
+  document.getElementById('impact-search').value = key;
+  runImpact(key);
+  setStep(3);
+}
+
+document.getElementById('impact-search').addEventListener('input', function() {
+  runImpact(this.value);
+  if (this.value.trim()) setStep(3);
+});
+
+function runImpact(query) {
+  const resultsEl = document.getElementById('impact-results');
+  const q = (query || '').toLowerCase().trim();
+
+  if (!_data || !q) {
+    resultsEl.innerHTML = '<div class="no-results">Results appear here after you search or click a field.</div>';
+    return;
+  }
+
+  const matches = Object.entries(_data.impact)
+    .filter(([key]) => key.toLowerCase().includes(q))
+    .sort((a, b) => {
+      const exact = (k) => k.toLowerCase() === q ? 1 : 0;
+      return exact(b[0]) - exact(a[0]);
+    })
+    .slice(0, 6);
+
+  if (!matches.length) {
+    resultsEl.innerHTML = `<div class="no-results">No fields matching "<strong>${esc(query)}</strong>" found in the scan.</div>`;
+    return;
+  }
+
+  resultsEl.innerHTML = matches.map(([key, info]) => {
+    const readers = info.read_by.length;
+    const writers = info.written_by.length;
+
+    let riskLabel = '', riskClass = '';
+    if (readers >= 5)      { riskLabel = '🔴 High rename risk';   riskClass = 'risk-high';   }
+    else if (readers >= 3) { riskLabel = '🟡 Medium rename risk'; riskClass = 'risk-medium'; }
+    else if (readers > 0)  { riskLabel = '🟢 Low rename risk';    riskClass = 'risk-low';    }
+
+    return `
+      <div class="impact-card">
+        <div class="impact-field-name">
+          ${esc(key)}
+          ${riskLabel ? `<span class="risk-badge ${riskClass}">${riskLabel}</span>` : ''}
+        </div>
+        ${writers ? `
+          <div class="impact-group">
+            <div class="impact-group-label"><span style="color:var(--gold);">✏</span> Written by (${writers})</div>
+            <ul class="impact-list">
+              ${info.written_by.map(w => `<li>${esc(w)}</li>`).join('')}
+            </ul>
+          </div>` : ''}
+        ${readers ? `
+          <div class="impact-group">
+            <div class="impact-group-label"><span style="color:var(--blue);">👁</span> Read by (${readers})</div>
+            <ul class="impact-list">
+              ${info.read_by.map(r => `<li>${esc(r)}</li>`).join('')}
+            </ul>
+          </div>` : ''}
+        ${!writers && !readers ? '<div class="no-results" style="padding:0;">No writers or readers detected.</div>' : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+// ── Escape ────────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+document.getElementById('scan-btn').addEventListener('click', runScan);
+setStep(1);
+runScan();
+</script>
+</body>
+</html>

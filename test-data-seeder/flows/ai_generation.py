@@ -50,6 +50,11 @@ def run(page, errors, warnings, log) -> dict:
     log("  calling /functions/v1/engineering-bom-sow...")
     status, resp = _call_bom_sow(payload)
 
+    if status in (502, 503, 504):
+        # Transient AI provider gateway error — not a code bug
+        results.append(("WARN", f"BOM/SOW endpoint: HTTP {status} (AI provider unavailable — transient)"))
+        log(f"    WARN — HTTP {status}: AI provider gateway error (retry later)")
+        return {"results": results}
     if status != 200:
         err = resp.get("error", f"HTTP {status}")
         results.append(("FAIL", f"BOM/SOW endpoint: {err}"))

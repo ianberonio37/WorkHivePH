@@ -1,5 +1,9 @@
 node_modules/
 .tmp/
+
+# ML model artifacts — generated on Railway, never committed
+*.pkl
+python-api/ml/artifacts/*.json
 temporary screenshots/
 screenshot.mjs
 serve.mjs

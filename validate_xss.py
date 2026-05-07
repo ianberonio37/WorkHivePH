@@ -1,4 +1,4 @@
-"""
+﻿"""
 XSS / escHtml Coverage Validator — WorkHive Platform
 ======================================================
 Cross-Site Scripting (XSS) is the #1 web vulnerability for platforms that
@@ -61,7 +61,11 @@ LIVE_PAGES = [
     "marketplace-seller-profile.html",
     "public-feed.html",
     "project-manager.html",
+    "integrations.html",
+    "ph-intelligence.html",
     "project-report.html",
+    "predictive.html",
+    "achievements.html",
 ]
 
 # Pages that define escHtml themselves (don't load utils.js)
@@ -457,3 +461,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

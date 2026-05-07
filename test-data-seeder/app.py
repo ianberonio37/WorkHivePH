@@ -26,11 +26,16 @@ from seeders.marketplace import seed_marketplace
 from seeders.community import seed_community
 from seeders.projects import seed_projects
 from seeders.reset import reset_all
+from seeders.achievements import seed_achievements
 
 import subprocess
 import sys
 
 app = Flask(__name__)
+
+# Phase 2 -- register mock CMMS API Blueprint
+from mock_cmms.blueprint import mock_cmms_bp
+app.register_blueprint(mock_cmms_bp)
 
 # WorkHive proxy — serves the platform HTML files with Supabase URL/key
 # rewritten to point at local Supabase. Lets the seeded test data render.
@@ -62,7 +67,11 @@ PUBLIC_PAGES = [
     ("architecture.html", "Architecture"),
     ("symbol-gallery.html", "Symbol gallery"),
     ("project-manager.html", "Project Manager"),
+    ("integrations.html", "CMMS Integration"),
+    ("ph-intelligence.html", "PH Intelligence Report"),
     ("project-report.html", "Project Report"),
+    ("predictive.html", "Predictive Maintenance"),
+    ("achievements.html", "Achievements"),
 ]
 PUBLIC_PAGE_SET = {p[0] for p in PUBLIC_PAGES}
 
@@ -305,7 +314,8 @@ def api_seed_module(module):
         return jsonify({"error": "another job is running"}), 409
 
     standalone_map = {
-        "hives_workers": lambda c, log: seed_hives_and_workers(c, log),
+        "hives_workers":  lambda c, log: seed_hives_and_workers(c, log),
+        "achievements":   lambda c, log: seed_achievements(c, log),
     }
 
     needs_ctx_map = {
@@ -375,6 +385,196 @@ def api_run_tests():
     if JOB_STATE["running"]:
         return jsonify({"error": "another job is running"}), 409
     _run_job("run_tests", lambda c, log: _run_subprocess("run_tests.py", log))
+    return jsonify({"started": True})
+
+
+@app.route("/api/service-status")
+def api_service_status():
+    """Check which backing services are reachable."""
+    import socket
+
+    def port_open(host, port, timeout=1.5):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(timeout)
+            try:
+                s.connect((host, port))
+                return True
+            except Exception:
+                return False
+
+    supabase_db     = port_open("127.0.0.1", 54321)
+    supabase_studio = port_open("127.0.0.1", 54323)
+    edge_functions  = port_open("127.0.0.1", 54321)   # same host, functions on path
+
+    # Quick probe of the Edge Functions endpoint
+    edge_ok = False
+    try:
+        import urllib.request
+        req = urllib.request.Request(
+            "http://127.0.0.1:54321/functions/v1",
+            headers={"Authorization": "Bearer " + LOCAL_KEY},
+        )
+        urllib.request.urlopen(req, timeout=2)
+        edge_ok = True
+    except Exception:
+        edge_ok = supabase_db   # if Supabase is up, functions may just need a moment
+
+    return jsonify({
+        "supabase":       supabase_db,
+        "studio":         supabase_studio,
+        "edge_functions": edge_ok,
+        "seeder":         True,          # we're responding, so seeder is up
+    })
+
+
+@app.route("/api/quick-demo", methods=["POST"])
+def api_quick_demo():
+    """One-click: Generate dataset → Seed Client Hive → Run CRUD validators.
+
+    Body: { industry, size, cmms_type, seed (optional) }
+    Streams progress through JOB_STATE so the UI can poll /api/status.
+    """
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+
+    data      = request.get_json(silent=True) or {}
+    industry  = (data.get("industry")  or "food_processing").strip()
+    size      = (data.get("size")      or "medium").strip()
+    cmms_type = (data.get("cmms_type") or "sap_pm").strip()
+    seed_raw  = data.get("seed")
+    seed      = int(seed_raw) if seed_raw is not None else None
+
+    def run_quick_demo(client, log):
+        import subprocess as _sp
+
+        # Step 1: Seed client hive
+        log("Quick Demo — Step 1: Seeding client hive...")
+        from seeders.client_hive import seed_client_hive
+        result = seed_client_hive(client, log,
+                                  industry=industry, size=size,
+                                  cmms_type=cmms_type, seed=seed)
+        hive_name = result["hive"]["name"]
+        supervisor = result["supervisor"]
+        log(f"  Hive ready: {hive_name} | login: {supervisor['username']} / {supervisor['password']}")
+
+        # Store dataset
+        from seeders.cmms import generate_dataset
+        ds = generate_dataset(industry=industry, size=size, cmms_type=cmms_type,
+                              seed=result["dataset_summary"]["seed"])
+        CMMS_STATE["dataset"]      = ds
+        CMMS_STATE["summary"]      = ds.summary()
+        CMMS_STATE["generated_at"] = datetime.now(timezone.utc).isoformat()
+
+        # Step 2: Run CRUD validators (scripts live in WORKHIVE_ROOT)
+        log("Quick Demo — Step 2: Running CRUD validators...")
+        validator_results = {}
+        seeder_dir = Path(__file__).parent
+        py = seeder_dir / "venv" / "Scripts" / "python.exe"
+        if not py.exists():
+            py = Path("python")
+
+        for script_name in [
+            "validate_logbook_consistency.py",
+            "validate_pattern_alerts.py",
+            "validate_inventory_integrity.py",
+        ]:
+            script_path = WORKHIVE_ROOT / script_name
+            log(f"  Running {script_name}...")
+            try:
+                proc = subprocess.Popen(
+                    [str(py), str(script_path)],
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    cwd=str(seeder_dir), bufsize=1,
+                    text=True, encoding="utf-8", errors="replace",
+                )
+                import re as _re
+                ansi = _re.compile(r"\x1b\[[0-9;]*m")
+                last = ""
+                for line in proc.stdout:
+                    clean = ansi.sub("", line.rstrip())
+                    if clean:
+                        log(clean)
+                        if "Summary" in clean or "pass" in clean.lower():
+                            last = clean
+                proc.wait()
+                validator_results[script_name] = {"summary": last, "exit_code": proc.returncode}
+            except Exception as e:
+                log(f"  ERROR: {e}")
+                validator_results[script_name] = {"summary": str(e), "exit_code": 1}
+
+        passed = sum(1 for r in validator_results.values() if r.get("exit_code") == 0)
+        log(f"  Validators: {passed}/{len(validator_results)} passed")
+
+        return {
+            "hive":       result["hive"],
+            "supervisor": supervisor,
+            "bridge":     result["bridge"],
+            "validators": validator_results,
+            "validators_passed": passed,
+            "login_url":  "http://127.0.0.1:5000/workhive/index.html",
+        }
+
+    _run_job("quick_demo", run_quick_demo)
+    return jsonify({"started": True})
+
+
+@app.route("/api/run-crud-tests", methods=["POST"])
+def api_run_crud_tests():
+    """Runs the CRUD-verification validators — checks that Supabase writes actually land.
+
+    Catches silent-save-failure bugs: update returns error:null but 0 rows updated,
+    parts deducted even when status update failed, delete that removes nothing.
+    """
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+
+    def run_crud(client, log):
+        # Validators live in WORKHIVE_ROOT, not in the seeder subfolder.
+        # Use the seeder venv's python but point at the correct script path.
+        results = {}
+        seeder_dir = Path(__file__).parent
+        py = seeder_dir / "venv" / "Scripts" / "python.exe"
+        if not py.exists():
+            py = Path("python")
+
+        for script_name in [
+            "validate_logbook_consistency.py",
+            "validate_pattern_alerts.py",
+            "validate_inventory_integrity.py",
+        ]:
+            script_path = WORKHIVE_ROOT / script_name
+            log(f"  Running {script_name}...")
+            try:
+                proc = subprocess.Popen(
+                    [str(py), str(script_path)],
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    cwd=str(seeder_dir), bufsize=1,
+                    text=True, encoding="utf-8", errors="replace",
+                )
+                import re as _re
+                ansi = _re.compile(r"\x1b\[[0-9;]*m")
+                last_summary = ""
+                for line in proc.stdout:
+                    clean = ansi.sub("", line.rstrip())
+                    if clean:
+                        log(clean)
+                        if "Summary" in clean or "pass" in clean.lower():
+                            last_summary = clean
+                proc.wait()
+                results[script_name] = {"summary": last_summary, "exit_code": proc.returncode}
+            except Exception as e:
+                log(f"  ERROR running {script_name}: {e}")
+                results[script_name] = {"summary": str(e), "exit_code": 1}
+        summary_passes = sum(1 for r in results.values() if r.get("exit_code") == 0)
+        summary_fails  = len(results) - summary_passes
+        return {
+            "validators": results,
+            "passed": summary_passes,
+            "failed": summary_fails,
+            "summary": f"{summary_passes}/{len(results)} validators passed",
+        }
+
+    _run_job("crud_tests", run_crud)
     return jsonify({"started": True})
 
 
@@ -602,6 +802,79 @@ def api_health_details(layer):
         return jsonify({"layer": layer, **json.loads(f.read_text(encoding="utf-8"))})
 
     return jsonify({"layer": layer, "error": "unknown layer"}), 400
+
+
+@app.route("/api/failures/summary")
+def api_failures_summary():
+    """Aggregate all FAIL (and optionally WARN) entries across Static + Data + UI layers.
+
+    Returns a structured list ready for copy-paste into a chat or bug report.
+    Query param: ?include_warn=1 to include WARNs too.
+    """
+    include_warn = request.args.get("include_warn", "0") == "1"
+    seeder_tmp   = Path(__file__).parent / ".tmp"
+    failures     = []
+
+    # ── Static layer ──────────────────────────────────────────────────────────
+    ph = WORKHIVE_ROOT / "platform_health.json"
+    if ph.exists():
+        try:
+            data       = json.loads(ph.read_text(encoding="utf-8"))
+            validators = data.get("validators", [])
+            for v in validators:
+                status = (v.get("status") or "").upper()
+                if status == "FAIL" or (include_warn and status in ("WARN", "SKIP")):
+                    failures.append({
+                        "layer":   "Static",
+                        "status":  status,
+                        "test":    v.get("label") or v.get("id") or "?",
+                        "detail":  v.get("detail") or v.get("error") or "",
+                    })
+        except Exception:
+            pass
+
+    # ── Data + UI layers ──────────────────────────────────────────────────────
+    for layer_name, fname in [("Data", "last_data_run.json"), ("UI", "last_ui_run.json")]:
+        f = seeder_tmp / fname
+        if not f.exists():
+            continue
+        try:
+            run_data = json.loads(f.read_text(encoding="utf-8"))
+            for section in run_data.get("sections", []):
+                sec_label = section.get("section", "")
+                for test in section.get("tests", []):
+                    status = (test.get("status") or "").upper()
+                    if status == "FAIL" or (include_warn and status == "WARN"):
+                        failures.append({
+                            "layer":   layer_name,
+                            "status":  status,
+                            "test":    f"{sec_label} — {test.get('message', '?')}",
+                            "detail":  "",
+                        })
+        except Exception:
+            pass
+
+    # Build plain-text summary for copy-paste
+    lines = [f"Gate failures ({len([f for f in failures if f['status']=='FAIL'])} FAIL"
+             + (f", {len([f for f in failures if f['status']=='WARN'])} WARN" if include_warn else "")
+             + "):"]
+    lines.append("")
+    current_layer = None
+    for f in failures:
+        if f["layer"] != current_layer:
+            current_layer = f["layer"]
+            lines.append(f"── {current_layer} ──")
+        prefix = "✗" if f["status"] == "FAIL" else "⚠"
+        lines.append(f"  {prefix} {f['test']}")
+        if f["detail"]:
+            lines.append(f"      {f['detail'][:120]}")
+
+    return jsonify({
+        "failures": failures,
+        "fail_count": len([x for x in failures if x["status"] == "FAIL"]),
+        "warn_count": len([x for x in failures if x["status"] == "WARN"]),
+        "text": "\n".join(lines),
+    })
 
 
 @app.route("/api/health/history")
@@ -1706,6 +1979,23 @@ def _storage_key(label: str) -> str:
     return "wh_checks::" + "".join(ch if (ch.isalnum() or ch in "_-.") else "_" for ch in safe)
 
 
+@app.route("/lineage")
+def lineage_page():
+    """Platform Lineage — interactive visual dependency map."""
+    return render_template("lineage.html")
+
+
+@app.route("/api/lineage/scan")
+def api_lineage_scan():
+    """Scan the codebase and return the full dependency graph as JSON."""
+    try:
+        from lib.lineage_scanner import scan_all
+        data = scan_all()
+        return jsonify({"ok": True, **data})
+    except Exception as e:
+        return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"}), 500
+
+
 @app.route("/findings")
 def findings_view():
     """Render PRODUCTION_FIXES.md as styled HTML using marked.js."""
@@ -1720,6 +2010,84 @@ def findings_view():
         storage_key=_storage_key("production_fixes"),
         page_title="Production Fixes — Running Backlog",
     )
+
+
+@app.route("/token-stats")
+def token_stats_view():
+    """Claude token usage dashboard — shows per-action stats and model recommendations."""
+    import sys
+    sys.path.insert(0, str(WORKHIVE_ROOT))
+    table, summary, recent, error, min_samples = [], {}, [], None, 15
+    try:
+        from tools.claude_token_tracker import get_all_stats, get_recent_calls
+        from tools.claude_model_router import ModelRouter, MIN_SAMPLES
+        min_samples = MIN_SAMPLES
+        router  = ModelRouter()
+        table   = router.routing_table()
+        summary = router.summary()
+        recent  = get_recent_calls(30)
+    except Exception as exc:
+        error = str(exc)
+    return render_template(
+        "token_stats.html",
+        table=table,
+        summary=summary,
+        recent=recent,
+        min_samples=min_samples,
+        error=error,
+    )
+
+
+@app.route("/api/token-stats")
+def api_token_stats():
+    """JSON endpoint for token usage data."""
+    import sys
+    sys.path.insert(0, str(WORKHIVE_ROOT))
+    try:
+        from tools.claude_token_tracker import get_all_stats, get_recent_calls
+        from tools.claude_model_router import ModelRouter
+        router = ModelRouter()
+        return jsonify({
+            "summary":       router.summary(),
+            "routing_table": router.routing_table(),
+            "recent_calls":  get_recent_calls(50),
+        })
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/token-stats/log", methods=["POST"])
+def api_token_log():
+    """
+    Manually log a token usage record (from edge functions / external callers).
+
+    POST JSON body:
+        { action_type, model, input_tokens, output_tokens,
+          cache_read?, cache_write?, duration_ms?, prompt_preview?, notes? }
+    """
+    import sys
+    sys.path.insert(0, str(WORKHIVE_ROOT))
+    data = request.get_json(force=True) or {}
+    required = {"action_type", "model", "input_tokens", "output_tokens"}
+    missing = required - set(data.keys())
+    if missing:
+        return jsonify({"error": f"Missing fields: {missing}"}), 400
+    try:
+        from tools.claude_token_tracker import TrackedClient
+        TrackedClient().log_raw(
+            action_type    = data["action_type"],
+            model          = data["model"],
+            input_tokens   = int(data["input_tokens"]),
+            output_tokens  = int(data["output_tokens"]),
+            cache_read     = int(data.get("cache_read",  0)),
+            cache_write    = int(data.get("cache_write", 0)),
+            duration_ms    = int(data.get("duration_ms", 0)),
+            prompt_preview = data.get("prompt_preview", ""),
+            notes          = data.get("notes"),
+        )
+        return jsonify({"ok": True})
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
 
 
 @app.route("/testing")
@@ -1817,6 +2185,407 @@ def workhive_file(filename):
 
     # Static assets — let Flask serve directly with proper MIME
     return send_from_directory(WORKHIVE_ROOT, filename)
+
+
+# ── Phase 1: CMMS Integration Tester ─────────────────────────────────────────
+# Generates dual-state CMMS datasets and exports them as CSV for Tier 1 testing.
+# The generated dataset lives in CMMS_STATE for the lifetime of the Flask process.
+
+import csv
+import io as _io
+
+CMMS_STATE = {
+    "dataset":      None,   # CMMSDataset instance
+    "summary":      None,
+    "generated_at": None,
+}
+
+
+def _cmms_to_csv_bytes(rows: list) -> bytes:
+    """Serialize a list of flat dicts to UTF-8 CSV bytes."""
+    if not rows:
+        return b""
+    buf = _io.StringIO()
+    writer = csv.DictWriter(buf, fieldnames=list(rows[0].keys()))
+    writer.writeheader()
+    writer.writerows(rows)
+    # utf-8-sig adds the BOM Excel needs to identify UTF-8 encoding.
+    # Without it, Excel on Windows reads °C as Â°C (Windows-1252 misread).
+    return buf.getvalue().encode("utf-8-sig")
+
+
+@app.route("/api/cmms/generate", methods=["POST"])
+def api_cmms_generate():
+    """Generate a new CMMS dataset and store it in CMMS_STATE."""
+    from seeders.cmms import generate_dataset
+    data = request.get_json(silent=True) or {}
+    industry  = (data.get("industry")  or "food_processing").strip()
+    size      = (data.get("size")      or "medium").strip()
+    cmms_type = (data.get("cmms_type") or "sap_pm").strip()
+    seed_raw  = data.get("seed")
+    seed      = int(seed_raw) if seed_raw is not None else None
+
+    try:
+        ds = generate_dataset(industry=industry, size=size, cmms_type=cmms_type, seed=seed)
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
+
+    CMMS_STATE["dataset"]      = ds
+    CMMS_STATE["summary"]      = ds.summary()
+    CMMS_STATE["generated_at"] = datetime.now(timezone.utc).isoformat()
+
+    overdue   = sum(1 for p in ds.expected_pm        if p.get("is_overdue"))
+    low_stock = sum(1 for i in ds.expected_inventory if i.get("is_low_stock"))
+    breakdown_machines = {
+        e["machine"] for e in ds.expected_logbook
+        if e.get("maintenance_type") == "Breakdown / Corrective"
+    }
+
+    return jsonify({
+        "ok":           True,
+        "summary":      CMMS_STATE["summary"],
+        "generated_at": CMMS_STATE["generated_at"],
+        "patterns": {
+            "overdue_pm":    overdue,
+            "low_stock":     low_stock,
+            "repeat_assets": len(breakdown_machines),
+        },
+    })
+
+
+@app.route("/api/cmms/status")
+def api_cmms_status():
+    """Return the current dataset summary (or null if none generated yet)."""
+    if CMMS_STATE["dataset"] is None:
+        return jsonify({"ok": True, "dataset": None})
+    return jsonify({
+        "ok":           True,
+        "dataset":      CMMS_STATE["summary"],
+        "generated_at": CMMS_STATE["generated_at"],
+    })
+
+
+@app.route("/api/cmms/export-csv/<entity>")
+def api_cmms_export_csv(entity):
+    """Download CMMS-format CSV (import direction: CMMS -> WorkHive).
+
+    entity: work_orders | assets | pm_schedules | inventory
+    """
+    ds = CMMS_STATE.get("dataset")
+    if ds is None:
+        return jsonify({"error": "No dataset generated yet. POST /api/cmms/generate first."}), 400
+
+    entity_map = {
+        "work_orders":  ds.work_orders,
+        "assets":       ds.assets,
+        "pm_schedules": ds.pm_schedules,
+        "inventory":    ds.inventory,
+    }
+    if entity not in entity_map:
+        return jsonify({"error": "Unknown entity. Use: " + ", ".join(entity_map)}), 400
+
+    rows = entity_map[entity]
+    if not rows:
+        return jsonify({"error": "No " + entity + " in current dataset."}), 404
+
+    s = CMMS_STATE["summary"]
+    filename = (
+        "cmms_" + s["cmms_type"] + "_" + entity
+        + "_" + s["industry"].lower().replace(" ", "_")
+        + "_" + s["size"] + ".csv"
+    )
+    return Response(
+        _cmms_to_csv_bytes(rows),
+        mimetype="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="' + filename + '"'},
+    )
+
+
+@app.route("/api/cmms/export-csv/wh-to-sap/<entity>")
+def api_cmms_export_wh_to_sap(entity):
+    """Download WorkHive->CMMS format CSV (export direction: WorkHive -> CMMS).
+
+    entity: work_orders | inventory
+    Simulates what WorkHive pushes back to the CMMS after field workers act.
+    """
+    ds = CMMS_STATE.get("dataset")
+    if ds is None:
+        return jsonify({"error": "No dataset generated yet."}), 400
+
+    ext_id_key = (
+        "AUFNR"   if ds.cmms_type == "sap_pm"
+        else "WONUM" if ds.cmms_type == "maximo"
+        else "work_order_no"
+    )
+    part_key = (
+        "MATNR"   if ds.cmms_type == "sap_pm"
+        else "ITEMNUM" if ds.cmms_type == "maximo"
+        else "part_number"
+    )
+
+    if entity == "work_orders":
+        rows = [
+            {
+                ext_id_key:        e["_external_id"],
+                "WH_STATUS":       e["status"],
+                "WH_ACTUAL_HOURS": e.get("downtime_hours", 0),
+                "WH_CLOSED_AT":    e.get("closed_at", ""),
+                "WH_ACTION":       e.get("action", ""),
+                "WH_NOTES":        "Completed via WorkHive. Root cause: " + e.get("root_cause", ""),
+            }
+            for e in ds.expected_logbook
+            if e.get("status") == "Closed"
+        ]
+    elif entity == "inventory":
+        rows = [
+            {
+                part_key:               e["_external_id"],
+                "WH_DESCRIPTION":       e.get("name", ""),
+                "WH_QTY_ON_HAND":       e.get("qty_on_hand", 0),
+                "WH_REORDER_POINT":     e.get("reorder_point", 0),
+                "WH_LOW_STOCK":         "YES" if e.get("is_low_stock") else "NO",
+            }
+            for e in ds.expected_inventory
+        ]
+    else:
+        return jsonify({"error": "entity must be 'work_orders' or 'inventory'"}), 400
+
+    if not rows:
+        return jsonify({"error": "No exportable " + entity + " data."}), 404
+
+    s = CMMS_STATE["summary"]
+    filename = (
+        "workhive_to_" + s["cmms_type"] + "_" + entity
+        + "_" + s["industry"].lower().replace(" ", "_") + ".csv"
+    )
+    return Response(
+        _cmms_to_csv_bytes(rows),
+        mimetype="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="' + filename + '"'},
+    )
+
+
+@app.route("/api/cmms/send-webhook", methods=["POST"])
+def api_cmms_send_webhook():
+    """Send webhook event(s) from the mock CMMS to a target URL.
+
+    Body params:
+      event_type  -- work_order.created | work_order.updated |
+                     work_order.completed | pm.overdue | asset.updated
+      count       -- number of events to send (default 1)
+      target_url  -- where to POST events (default: local mock webhook target)
+      mixed       -- if true, cycle through all 5 event types instead of one
+    """
+    import requests as _req
+    from seeders.cmms_webhook import generate_event, generate_mixed_batch, EVENT_TYPES
+
+    ds = CMMS_STATE.get("dataset")
+    if ds is None:
+        return jsonify({"error": "Generate a CMMS dataset first."}), 400
+
+    data       = request.get_json(silent=True) or {}
+    event_type = data.get("event_type", "work_order.created")
+    count      = min(int(data.get("count", 1)), 100)
+    target_url = data.get("target_url") or "http://127.0.0.1:5000/mock/webhook-target/receive"
+    mixed      = bool(data.get("mixed", False))
+
+    if event_type not in EVENT_TYPES and not mixed:
+        return jsonify({"error": f"Unknown event_type. Use: {EVENT_TYPES}"}), 400
+
+    if mixed:
+        from seeders.cmms_webhook import generate_mixed_batch
+        events = generate_mixed_batch(ds, count=count)
+    else:
+        events = [generate_event(ds, event_type, index=i) for i in range(count)]
+        events = [e for e in events if e is not None]
+
+    sign     = bool(data.get("sign", False))
+    secret   = data.get("secret", "test-webhook-secret-workhive-2026")
+
+    results = []
+    for evt in events:
+        try:
+            import json as _json, hashlib as _hs, hmac as _hm, time as _time
+            body_str = _json.dumps(evt)
+            headers  = {"Content-Type": "application/json"}
+            if sign:
+                ts  = str(int(_time.time()))
+                sig = _hm.new(secret.encode(), f"{ts}.{body_str}".encode(), _hs.sha256).hexdigest()
+                headers["X-CMMS-Signature"] = f"sha256={sig}"
+                headers["X-CMMS-Timestamp"] = ts
+            resp = _req.post(target_url, data=body_str, headers=headers, timeout=10)
+            results.append({"event": evt["event"], "status": resp.status_code, "ok": resp.ok})
+        except Exception as e:
+            results.append({"event": evt.get("event", "?"), "status": 0, "ok": False,
+                            "error": str(e)})
+
+    sent_ok = sum(1 for r in results if r["ok"])
+    return jsonify({
+        "ok":        True,
+        "target":    target_url,
+        "sent":      len(results),
+        "delivered": sent_ok,
+        "failed":    len(results) - sent_ok,
+        "results":   results,
+    })
+
+
+@app.route("/api/cmms/seed-client-hive", methods=["POST"])
+def api_cmms_seed_client_hive():
+    """Create a full client hive from CMMS data and populate all WorkHive tables.
+
+    Runs as a background job (can take 30-60s for medium/large datasets).
+    Body: { industry, size, cmms_type, seed (optional) }
+    """
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+
+    data      = request.get_json(silent=True) or {}
+    industry  = (data.get("industry")  or "food_processing").strip()
+    size      = (data.get("size")      or "medium").strip()
+    cmms_type = (data.get("cmms_type") or "sap_pm").strip()
+    seed_raw  = data.get("seed")
+    seed      = int(seed_raw) if seed_raw is not None else None
+
+    def run(client, log):
+        from seeders.client_hive import seed_client_hive
+        result = seed_client_hive(client, log,
+                                  industry=industry, size=size,
+                                  cmms_type=cmms_type, seed=seed)
+        # Store dataset so tier tests work immediately
+        from app import CMMS_STATE
+        # re-generate dataset for CMMS_STATE (bridge consumed it already)
+        from seeders.cmms import generate_dataset
+        ds = generate_dataset(industry=industry, size=size,
+                              cmms_type=cmms_type, seed=result["dataset_summary"]["seed"])
+        CMMS_STATE["dataset"]      = ds
+        CMMS_STATE["summary"]      = ds.summary()
+        CMMS_STATE["generated_at"] = datetime.now(timezone.utc).isoformat()
+        return result
+
+    _run_job("seed_client_hive", run)
+    return jsonify({"started": True})
+
+
+@app.route("/api/cmms/seed-integration-config", methods=["POST"])
+def api_cmms_seed_integration_config():
+    """Seed integration_configs + api_keys for an existing hive.
+
+    Body: { hive_id (optional — defaults to first hive), cmms_type (optional) }
+    Use this when you already have a seeded hive and just want to attach a
+    CMMS Live Sync config + test API key so integrations.html has data.
+    """
+    from seeders.cmms_config_seeder import seed_integration_config
+
+    data      = request.get_json(silent=True) or {}
+    cmms_type = (data.get("cmms_type") or "sap_pm").strip()
+    hive_id   = data.get("hive_id")
+
+    try:
+        client = get_client()
+
+        if not hive_id:
+            # Default to the first hive in the DB
+            res = client.table("hives").select("id").limit(1).execute()
+            if not res.data:
+                return jsonify({"error": "No hives found — seed hives first."}), 400
+            hive_id = res.data[0]["id"]
+
+        result = seed_integration_config(client, hive_id, cmms_type=cmms_type,
+                                         log=_log_to_state)
+        return jsonify({"ok": True, "hive_id": hive_id, **result})
+    except Exception as e:
+        return jsonify({"error": f"{type(e).__name__}: {e}"}), 500
+
+
+@app.route("/api/cmms/demo", methods=["POST"])
+def api_cmms_demo():
+    """Generate a dataset and compute the intelligence report synchronously.
+
+    Also stores the dataset in CMMS_STATE so tier tests can run against it.
+    Body: { industry, size, cmms_type, seed (optional) }
+    """
+    from seeders.cmms import generate_dataset
+    from seeders.cmms_demo import compute_demo_report
+
+    data      = request.get_json(silent=True) or {}
+    industry  = (data.get("industry")  or "food_processing").strip()
+    size      = (data.get("size")      or "medium").strip()
+    cmms_type = (data.get("cmms_type") or "sap_pm").strip()
+    seed_raw  = data.get("seed")
+    seed      = int(seed_raw) if seed_raw is not None else None
+
+    try:
+        ds     = generate_dataset(industry=industry, size=size, cmms_type=cmms_type, seed=seed)
+        report = compute_demo_report(ds)
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
+
+    # Store so tier test buttons work immediately after demo
+    CMMS_STATE["dataset"]      = ds
+    CMMS_STATE["summary"]      = ds.summary()
+    CMMS_STATE["generated_at"] = datetime.now(timezone.utc).isoformat()
+
+    return jsonify({"ok": True, "report": report, "summary": CMMS_STATE["summary"]})
+
+
+@app.route("/api/cmms/tier3-test", methods=["POST"])
+def api_cmms_tier3_test():
+    """Run all 5 Tier 3 tests (real-time loop, ordering, no-drift, HMAC signature)."""
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+    ds = CMMS_STATE.get("dataset")
+    if ds is None:
+        return jsonify({"error": "Generate a CMMS dataset first."}), 400
+
+    def run(client, log):
+        CMMS_STATE["dataset"]      = ds
+        CMMS_STATE["summary"]      = ds.summary()
+        CMMS_STATE["generated_at"] = datetime.now(timezone.utc).isoformat()
+        from flows.cmms_tier3 import run_all
+        return run_all(client, ds, log)
+
+    _run_job("cmms_tier3_tests", run)
+    return jsonify({"started": True})
+
+
+@app.route("/api/cmms/tier2-test", methods=["POST"])
+def api_cmms_tier2_test():
+    """Run all 6 Tier 2 verification tests (HTTP sync against mock CMMS API)."""
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+    ds = CMMS_STATE.get("dataset")
+    if ds is None:
+        return jsonify({"error": "Generate a CMMS dataset first."}), 400
+
+    def run(client, log):
+        # Re-populate CMMS_STATE so the mock API endpoints find the dataset
+        # even if Flask hot-reloaded between generate and this test run.
+        CMMS_STATE["dataset"]      = ds
+        CMMS_STATE["summary"]      = ds.summary()
+        CMMS_STATE["generated_at"] = datetime.now(timezone.utc).isoformat()
+        from flows.cmms_tier2 import run_all
+        return run_all(client, ds, log)
+
+    _run_job("cmms_tier2_tests", run)
+    return jsonify({"started": True})
+
+
+@app.route("/api/cmms/tier1-test", methods=["POST"])
+def api_cmms_tier1_test():
+    """Run all 6 Tier 1 verification tests against the active dataset."""
+    if JOB_STATE["running"]:
+        return jsonify({"error": "another job is running"}), 409
+    ds = CMMS_STATE.get("dataset")
+    if ds is None:
+        return jsonify({"error": "Generate a CMMS dataset first."}), 400
+
+    def run(client, log):
+        from flows.cmms_tier1 import run_all
+        return run_all(client, ds, log)
+
+    _run_job("cmms_tier1_tests", run)
+    return jsonify({"started": True})
 
 
 if __name__ == "__main__":

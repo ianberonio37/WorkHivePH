@@ -1,4 +1,4 @@
-"""
+﻿"""
 IoT/MQTT Protocol Safety Validator — WorkHive Platform
 =======================================================
 When WorkHive connects to plant sensors via MQTT or OPC-UA, the connection
@@ -315,3 +315,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

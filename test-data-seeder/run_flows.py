@@ -20,6 +20,11 @@ from flows.harness import browser_session, sign_in, SCREENSHOTS_DIR
 from flows import smoke, logbook, community, analytics, isolation, signup, mobile
 from flows import ai_assistant, ai_analytics, ai_semantic, ai_generation, ai_chains
 from flows import visual, performance
+from flows import hive_dashboard, logbook_crud, inventory_flow, pm_flow, skillmatrix_flow
+from flows import marketplace_flow, dayplanner_flow, engineering_flow, assistant_flow
+from flows import report_sender_flow, platform_health_flow, project_flow, cmms_ui_flow
+from flows import intelligence_flow, static_pages_flow
+from flows import achievements_flow
 
 WITH_AI = "--with-ai" in sys.argv
 WITH_VISUAL = "--with-visual" in sys.argv
@@ -54,9 +59,25 @@ def main():
 
             # 3. Per-page deep checks
             for label, mod in [
-                ("Logbook", logbook),
-                ("Community", community),
-                ("Analytics", analytics),
+                ("Hive Dashboard", hive_dashboard),
+                ("Logbook CRUD",   logbook_crud),
+                ("Inventory",      inventory_flow),
+                ("PM Scheduler",   pm_flow),
+                ("Skill Matrix",   skillmatrix_flow),
+                ("Marketplace",    marketplace_flow),
+                ("Day Planner",    dayplanner_flow),
+                ("Engineering",    engineering_flow),
+                ("AI Assistant",   assistant_flow),
+                ("Report Sender",   report_sender_flow),
+                ("Platform Health",  platform_health_flow),
+                ("Project Manager",   project_flow),
+                ("CMMS Integration",  cmms_ui_flow),
+                ("PH Intelligence",    intelligence_flow),
+                ("Static Pages",       static_pages_flow),
+                ("Achievements",       achievements_flow),
+                ("Logbook",            logbook),
+                ("Community",      community),
+                ("Analytics",      analytics),
                 ("Hive isolation", isolation),
             ]:
                 print(f"\n[{label}]")

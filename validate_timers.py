@@ -1,4 +1,4 @@
-"""
+﻿"""
 Timer and Scheduled Job Hygiene Validator — WorkHive Platform
 =============================================================
 Timer leaks accumulate silently. After an hour-long shift on the live
@@ -50,9 +50,13 @@ LIVE_PAGES = [
     "platform-health.html",
     "nav-hub.html",
     "report-sender.html",
+    "integrations.html",
+    "ph-intelligence.html",
     "community.html",
     "marketplace.html",
     "public-feed.html",
+    "predictive.html",
+    "achievements.html",
 ]
 
 # Event types where spawning intervals is dangerous (fires repeatedly)
@@ -328,3 +332,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

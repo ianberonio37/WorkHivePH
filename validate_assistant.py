@@ -47,6 +47,10 @@ LIVE_TOOL_PAGES = [
     "report-sender", "community", "marketplace",
     "project-manager",
     "project-report",
+    "integrations",
+    "ph-intelligence",
+    "predictive",
+    "achievements",
 ]
 
 RETIRED_PAGES = ["parts-tracker", "checklist"]
@@ -81,9 +85,9 @@ def check_platform_tools_completeness(content, page):
         return [{"check": "platform_tools_completeness", "page": page,
                  "reason": "PLATFORM TOOLS section not found in system prompt"}]
     # Window must cover the entire PLATFORM TOOLS list. 3000 was too tight
-    # — bumping to 5000 leaves headroom for new tool blurbs without cascade
-    # failures on adjacent tools that drift past the cutoff.
-    block = content[start:start + 5000]
+    # — bumping to 5000, then to 6500 as platform grew past 18 tools.
+    # Increase again when a new set of tools pushes entries past the cutoff.
+    block = content[start:start + 6500]
     issues = []
     for tool in LIVE_TOOL_PAGES:
         aliases = PAGE_ALIASES.get(tool, [tool])

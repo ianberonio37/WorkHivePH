@@ -39,6 +39,14 @@ ALL_FUNCTIONS = [
     "engineering-calc-agent",
     "engineering-bom-sow",
     "scheduled-agents",
+    "failure-signature-scan",
+    "voice-logbook-entry",
+    "cmms-sync",
+    "benchmark-compute",
+    "cmms-webhook-receiver",
+    "cmms-push-completion",
+    "intelligence-report",
+    "intelligence-api",
     "semantic-search",
     "embed-entry",
     "send-report-email",
@@ -51,6 +59,8 @@ ALL_FUNCTIONS = [
     "marketplace-connect-status",
     "project-progress",
     "project-orchestrator",
+    "batch-risk-scoring",
+    "trigger-ml-retrain",
 ]
 
 REQUIRED_FIELDS = {
@@ -59,6 +69,15 @@ REQUIRED_FIELDS = {
     "engineering-calc-agent":   ["calc_type", "inputs"],
     "engineering-bom-sow":      ["discipline", "calc_type"],
     "scheduled-agents":         ["report_type"],
+    "failure-signature-scan":   [],
+    "voice-logbook-entry":      ["transcript"],
+    "cmms-sync":                [],
+    "benchmark-compute":        [],
+    "cmms-webhook-receiver":    [],
+    "cmms-push-completion":     ["hive_id", "machine"],
+    "intelligence-report":      [],
+    "intelligence-api":         [],
+
     "semantic-search":          ["query"],
     "send-report-email":        ["recipient_email", "reports"],  # hive_id optional — workers without hive context can still send
     "voice-report-intent":      ["transcript"],
@@ -69,6 +88,8 @@ REQUIRED_FIELDS = {
     "marketplace-connect-status":   ["worker_name"],
     "project-progress":             ["project_id", "hive_id"],
     "project-orchestrator":         ["phase"],
+    "batch-risk-scoring":           [],
+    "trigger-ml-retrain":           [],
 }
 
 

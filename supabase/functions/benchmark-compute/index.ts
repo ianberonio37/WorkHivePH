@@ -1,0 +1,245 @@
+/**
+ * benchmark-compute — Phase 3.2: Cross-Hive Benchmark Network
+ *
+ * Computes MTBF and MTTR per equipment category across all hives.
+ * Writes two tables:
+ *   hive_benchmarks    — each hive's own metrics (hive can see this)
+ *   network_benchmarks — anonymized aggregate (min 3 hives to publish)
+ *
+ * Run weekly via pg_cron. Also callable manually via POST { hive_id } for one hive.
+ * No AI calls — pure SQL aggregation, deterministic and free.
+ */
+
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getCorsHeaders } from "../_shared/cors.ts";
+
+const PERIOD_DAYS = 90;
+
+// ---------------------------------------------------------------------------
+// Category extraction from logbook category/maintenance_type
+// ---------------------------------------------------------------------------
+
+const CATEGORY_KEYWORDS: Record<string, string[]> = {
+  "Centrifugal Pump":      ["pump", "centrifugal", "P-", "SP-", "SUB-"],
+  "AC Motor":              ["motor", "M-", "winding", "stator"],
+  "Air Compressor":        ["compressor", "AC-", "compressed air"],
+  "Genset":                ["genset", "generator", "GEN-", "engine"],
+  "Chiller":               ["chiller", "CH-", "refriger"],
+  "VFD":                   ["vfd", "drive", "inverter", "VFD-"],
+  "Cooling Tower":         ["cooling tower", "CT-"],
+  "Belt Conveyor":         ["conveyor", "belt", "BC-"],
+  "Steam Boiler":          ["boiler", "BLR-", "steam"],
+  "Transformer":           ["transformer", "TX-"],
+};
+
+function extractCategory(machine: string, category: string): string {
+  const combined = (machine + " " + category).toLowerCase();
+  for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+    if (keywords.some(kw => combined.includes(kw.toLowerCase()))) return cat;
+  }
+  return "General";
+}
+
+// ---------------------------------------------------------------------------
+// Per-hive MTBF computation
+// ---------------------------------------------------------------------------
+
+interface LogbookRow {
+  machine: string;
+  category: string;
+  maintenance_type: string;
+  downtime_hours: number | null;
+  created_at: string;
+}
+
+function computeHiveMetrics(
+  rows: LogbookRow[],
+  hiveId: string,
+): Record<string, { mtbf: number | null; mttr: number | null; count: number; machines: Set<string> }> {
+  const byCategory: Record<string, {
+    breakdowns: { machine: string; date: Date }[];
+    repairHours: number[];
+    machines: Set<string>;
+  }> = {};
+
+  for (const r of rows) {
+    const cat = extractCategory(r.machine || "", r.category || "");
+    if (!byCategory[cat]) byCategory[cat] = { breakdowns: [], repairHours: [], machines: new Set() };
+    byCategory[cat].machines.add(r.machine);
+
+    if (r.maintenance_type === "Breakdown / Corrective") {
+      byCategory[cat].breakdowns.push({ machine: r.machine, date: new Date(r.created_at) });
+      if (r.downtime_hours && r.downtime_hours > 0) {
+        byCategory[cat].repairHours.push(r.downtime_hours);
+      }
+    }
+  }
+
+  const metrics: Record<string, { mtbf: number | null; mttr: number | null; count: number; machines: Set<string> }> = {};
+
+  for (const [cat, data] of Object.entries(byCategory)) {
+    const { breakdowns, repairHours, machines } = data;
+    let mtbf: number | null = null;
+    let mttr: number | null = null;
+
+    if (breakdowns.length >= 2) {
+      // Sort by date and compute intervals between consecutive failures
+      const sorted = [...breakdowns].sort((a, b) => a.date.getTime() - b.date.getTime());
+      const intervals: number[] = [];
+      for (let i = 1; i < sorted.length; i++) {
+        const days = (sorted[i].date.getTime() - sorted[i-1].date.getTime()) / 86400000;
+        if (days > 0) intervals.push(days);
+      }
+      if (intervals.length) {
+        mtbf = Math.round(intervals.reduce((a, b) => a + b, 0) / intervals.length * 10) / 10;
+      }
+    } else if (breakdowns.length === 1) {
+      // Only one failure — MTBF = period length (optimistic estimate)
+      mtbf = PERIOD_DAYS;
+    }
+
+    if (repairHours.length) {
+      mttr = Math.round(repairHours.reduce((a, b) => a + b, 0) / repairHours.length * 10) / 10;
+    }
+
+    metrics[cat] = { mtbf, mttr, count: breakdowns.length, machines };
+  }
+
+  return metrics;
+}
+
+// ---------------------------------------------------------------------------
+// Main computation
+// ---------------------------------------------------------------------------
+
+async function computeForHive(db: SupabaseClient, hiveId: string, now: Date) {
+  const since = new Date(now.getTime() - PERIOD_DAYS * 86400000).toISOString();
+
+  const { data: rows } = await db.from("logbook")
+    .select("machine, category, maintenance_type, downtime_hours, created_at")
+    .eq("hive_id", hiveId)
+    .gte("created_at", since)
+    .limit(5000);
+
+  if (!rows?.length) return [];
+
+  const metrics = computeHiveMetrics(rows as LogbookRow[], hiveId);
+  const hiveRows: Record<string, unknown>[] = [];
+
+  for (const [cat, m] of Object.entries(metrics)) {
+    hiveRows.push({
+      hive_id:           hiveId,
+      equipment_category: cat,
+      mtbf_days:         m.mtbf,
+      mttr_hours:        m.mttr,
+      failure_count:     m.count,
+      sample_machines:   m.machines.size,
+      period_days:       PERIOD_DAYS,
+      computed_at:       now.toISOString(),
+    });
+  }
+
+  if (hiveRows.length) {
+    await db.from("hive_benchmarks")
+      .upsert(hiveRows, { onConflict: "hive_id,equipment_category" });
+  }
+
+  return hiveRows;
+}
+
+async function computeNetwork(db: SupabaseClient, now: Date) {
+  // Pull all recent hive_benchmarks
+  const { data: allHive } = await db.from("hive_benchmarks")
+    .select("hive_id, equipment_category, mtbf_days, failure_count")
+    .gte("computed_at", new Date(now.getTime() - 8 * 86400000).toISOString()) // last 8 days
+    .not("mtbf_days", "is", null);
+
+  if (!allHive?.length) return;
+
+  // Group by category
+  const byCat: Record<string, number[]> = {};
+  for (const row of allHive) {
+    const cat = row.equipment_category;
+    if (!byCat[cat]) byCat[cat] = [];
+    if (row.mtbf_days) byCat[cat].push(row.mtbf_days);
+  }
+
+  const networkRows: Record<string, unknown>[] = [];
+  for (const [cat, values] of Object.entries(byCat)) {
+    if (values.length < 3) continue; // minimum 3 hives to publish (privacy)
+    const sorted = [...values].sort((a, b) => a - b);
+    const avg    = sorted.reduce((a, b) => a + b, 0) / sorted.length;
+    const p25idx = Math.floor(sorted.length * 0.25);
+    const p75idx = Math.floor(sorted.length * 0.75);
+
+    networkRows.push({
+      equipment_category: cat,
+      industry:           null, // future: group by hive industry
+      avg_mtbf_days:      Math.round(avg * 10) / 10,
+      p25_mtbf_days:      sorted[p25idx] ?? null,
+      p75_mtbf_days:      sorted[p75idx] ?? null,
+      sample_hives:       values.length,
+      period_days:        PERIOD_DAYS,
+      computed_at:        now.toISOString(),
+    });
+  }
+
+  if (networkRows.length) {
+    await db.from("network_benchmarks")
+      .upsert(networkRows, { onConflict: "equipment_category,COALESCE(industry, '')" });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Entry point
+// ---------------------------------------------------------------------------
+
+serve(async (req) => {
+  const cors = getCorsHeaders(req);
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+
+  try {
+    const db  = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const body = await req.json().catch(() => ({}));
+    const now  = new Date();
+
+    let hiveIds: string[] = [];
+    if (body.hive_id) {
+      hiveIds = [body.hive_id];
+    } else {
+      const { data: hives } = await db.from("hives").select("id").limit(500);
+      hiveIds = (hives || []).map((h: { id: string }) => h.id);
+    }
+
+    let totalHives = 0;
+    for (const hiveId of hiveIds) {
+      try {
+        await computeForHive(db, hiveId, now);
+        totalHives++;
+      } catch (e) {
+        console.error(`benchmarkcompute error for ${hiveId}:`, e);
+      }
+    }
+
+    // Compute network aggregate after all hives are updated
+    if (!body.hive_id) {
+      await computeNetwork(db, now);
+    }
+
+    await db.from("automation_log").insert({
+      job_name: "benchmark-compute",
+      hive_id:  body.hive_id || null,
+      status:   "success",
+      detail:   `Computed benchmarks for ${totalHives} hive(s).`,
+    });
+
+    return new Response(JSON.stringify({ ok: true, hives_computed: totalHives }),
+      { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
+
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return new Response(JSON.stringify({ error: msg }),
+      { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
+  }
+});

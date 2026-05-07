@@ -20,7 +20,17 @@ PAGES = [
     "report-sender.html",
     "project-manager.html",
     "project-report.html",
+    "integrations.html",
+    "ph-intelligence.html",
+    "predictive.html",
+    "achievements.html",
 ]
+
+# Pages that render dynamic content (dates, live data) — captured but never compared.
+# On first run a baseline is saved; on subsequent runs comparison is skipped (PASS).
+VISUAL_SKIP = {
+    "dayplanner.html",   # renders today's date — always different each run
+}
 
 BASELINES_DIR = Path(__file__).resolve().parent.parent / ".tmp" / "visual_baselines"
 DIFFS_DIR     = Path(__file__).resolve().parent.parent / ".tmp" / "visual_diffs"
@@ -84,6 +94,14 @@ def run_in_visual_browser(playwright, log) -> dict:
         baseline_path = BASELINES_DIR / f"{filename.replace('.html', '')}.png"
 
         page.screenshot(path=str(current_path), full_page=True)
+
+        # Pages with dynamic content (dates, live counters) skip comparison entirely
+        if filename in VISUAL_SKIP:
+            # Always update baseline so next run also skips comparison cleanly
+            current_path.replace(baseline_path)
+            results.append(("PASS", f"{filename}: skipped (dynamic content — date/live data changes each run)"))
+            log(f"  ✓ {filename}: skip comparison (dynamic)")
+            continue
 
         if not baseline_path.exists():
             # First run: capture baseline (current becomes baseline)

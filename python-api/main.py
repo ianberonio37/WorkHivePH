@@ -549,3 +549,62 @@ def project_health():
         "networkx": nx_status,
         "standards": ["PMBOK 7th ed.", "AACE 17R-97", "IDCON 6-Phase", "ISO 21500"],
     }
+
+
+# ─── ML Endpoints (Stage 1: GBM Failure Classifier) ──────────────────────────
+
+class MLTrainRequest(BaseModel):
+    inputs: dict[str, Any]  # logbook_entries, pm_completions, pm_scope_items, inv_transactions
+
+
+class MLPredictRequest(BaseModel):
+    features: dict[str, Any]  # FEATURE_COLS dict for single-asset prediction
+
+
+@app.post("/ml/train")
+def ml_train(req: MLTrainRequest):
+    """
+    Triggered weekly by pg_cron -> trigger-ml-retrain edge function.
+    Builds feature matrix from all hive logbook data and retrains GBM.
+    Returns training report including recall, n_samples, and data_warning.
+    """
+    try:
+        from ml.feature_engineering import build_feature_matrix
+        from ml.trainer import train
+
+        df = build_feature_matrix(
+            logbook=req.inputs.get("logbook_entries", []),
+            pm_completions=req.inputs.get("pm_completions", []),
+            pm_scope_items=req.inputs.get("pm_scope_items", []),
+            inv_transactions=req.inputs.get("inv_transactions", []),
+        )
+        result = train(df)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"ML train error: {traceback.format_exc()}")
+
+
+@app.post("/ml/predict")
+def ml_predict(req: MLPredictRequest):
+    """
+    Single-asset risk prediction. Called by batch-risk-scoring edge function.
+    Returns risk_score (0-1), risk_level, model_version, recall, data_warning.
+    Falls back to rules-v1 scoring when GBM artifact does not yet exist.
+    """
+    try:
+        from ml.trainer import predict
+        return predict(req.features)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"ML predict error: {traceback.format_exc()}")
+
+
+@app.get("/ml/status")
+def ml_status():
+    """Returns current model version, training metadata, and feature list."""
+    try:
+        from ml.trainer import get_model_meta
+        from ml.feature_engineering import FEATURE_COLS
+        meta = get_model_meta()
+        return {**meta, "feature_cols": FEATURE_COLS}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}

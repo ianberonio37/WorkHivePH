@@ -14,7 +14,7 @@ local Supabase (which is not optimized like prod). Tighten as you optimize.
 import json
 from pathlib import Path
 
-from .harness import BASE_URL, sign_in
+from .harness import BASE_URL, pick_test_username
 
 PAGES = [
     "hive.html", "logbook.html", "inventory.html", "pm-scheduler.html",
@@ -23,6 +23,10 @@ PAGES = [
     "report-sender.html",
     "project-manager.html",
     "project-report.html",
+    "integrations.html",
+    "ph-intelligence.html",
+    "predictive.html",
+    "achievements.html",
 ]
 
 # All in milliseconds
@@ -59,7 +63,13 @@ def run_in_perf_browser(playwright, log) -> dict:
     page = context.new_page()
 
     try:
-        sign_in(page, log=log)
+        worker = pick_test_username()
+        page.goto(f"{BASE_URL}/workhive/index.html", wait_until="domcontentloaded", timeout=10000)
+        page.evaluate(f"""() => {{
+            localStorage.setItem('wh_last_worker', '{worker}');
+            localStorage.setItem('wh_worker_name', '{worker}');
+        }}""")
+        log(f"  perf session ready as {worker}")
     except Exception as e:
         return {"results": [("FAIL", f"perf sign-in failed: {e}")]}
 

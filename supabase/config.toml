@@ -24,6 +24,46 @@ verify_jwt = false
 import_map = "./functions/scheduled-agents/deno.json"
 entrypoint = "./functions/scheduled-agents/index.ts"
 
+[functions.failure-signature-scan]
+enabled = true
+verify_jwt = false
+
+[functions.voice-logbook-entry]
+enabled = true
+verify_jwt = false
+
+[functions.cmms-sync]
+enabled = true
+verify_jwt = false
+
+[functions.benchmark-compute]
+enabled = true
+verify_jwt = false
+
+[functions.cmms-webhook-receiver]
+enabled = true
+verify_jwt = false
+
+[functions.cmms-push-completion]
+enabled = true
+verify_jwt = false
+
+[functions.intelligence-report]
+enabled = true
+verify_jwt = false
+
+[functions.intelligence-api]
+enabled = true
+verify_jwt = false
+
+[functions.batch-risk-scoring]
+enabled = true
+verify_jwt = false
+
+[functions.trigger-ml-retrain]
+enabled = true
+verify_jwt = false
+
 [functions.semantic-search]
 enabled = true
 verify_jwt = false
