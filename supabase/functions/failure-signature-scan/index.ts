@@ -140,18 +140,24 @@ Title: ${alert.alert_title}
 Evidence: ${JSON.stringify(alert.evidence)}
 Severity: ${alert.severity}`;
 
+  const fallback = `${alert.alert_title}. Review maintenance history and schedule inspection.`;
   try {
     const raw = await callAI(prompt, {
       systemPrompt: DETAIL_SYSTEM,
       temperature:  0.2,
-      maxTokens:    200,
+      maxTokens:    600,
       jsonMode:     false,
     });
-    // Strip <think>...</think> reasoning tokens (Qwen3/DeepSeek thinking mode leaks)
-    const cleaned = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+    // Strip <think>...</think> reasoning tokens (Qwen3/DeepSeek thinking mode leaks).
+    // First the closed form, then any unclosed open tag (response truncated mid-think).
+    const cleaned = raw
+      .replace(/<think>[\s\S]*?<\/think>/gi, "")
+      .replace(/<think>[\s\S]*$/i, "")
+      .trim();
+    if (!cleaned) return fallback;
     return cleaned.slice(0, 500);
   } catch {
-    return `${alert.alert_title}. Review maintenance history and schedule inspection.`;
+    return fallback;
   }
 }
 

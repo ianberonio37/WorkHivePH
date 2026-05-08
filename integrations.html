@@ -279,7 +279,7 @@
       <div id="entity-section" style="display:none; margin-top:18px; padding-top:16px; border-top:1px solid var(--border);">
         <p style="font-size:.8rem; font-weight:700; margin-bottom:12px;">What are you importing?</p>
         <div class="source-grid">
-          <div class="source-card" data-entity="work_order" onclick="selectEntity('work_order')">
+          <div class="source-card selected" data-entity="work_order" onclick="selectEntity('work_order')">
             <div class="sc-icon">🔩</div>
             <div class="sc-name">Work Orders</div>
             <div class="sc-desc">Breakdowns, PMs, corrective jobs</div>
@@ -602,7 +602,7 @@
   // ── State ─────────────────────────────────────────────────────────────────
   let _step       = 1;
   let _systemType = null;  // 'sap_pm' | 'maximo' | 'generic'
-  let _entityType = null;  // 'work_order' | 'asset' | 'pm_schedule' | 'inventory'
+  let _entityType = 'work_order';  // 'work_order' | 'asset' | 'pm_schedule' | 'inventory' — default so source-only selection enables Next
   let _headers    = [];    // column names from the file
   let _csvRows    = [];    // all parsed rows as objects
   let _mapping    = {};    // { workhive_field: detected_column }
@@ -965,7 +965,8 @@
         </tr>`);
       } else {
         const cells = Object.values(n).map(v => `<td style="font-size:.68rem; color:var(--muted);">${escHtml(String(v ?? '—').slice(0, 30))}</td>`).join('');
-        tbody.insertAdjacentHTML('beforeend', `<tr>${cells}</tr>`);
+        const rowHtml = '<tr>' + cells + '</tr>';
+        tbody.insertAdjacentHTML('beforeend', rowHtml);
       }
     });
 
@@ -1130,7 +1131,8 @@
               anchor_date: rBatch[idx]?.last_done || now.slice(0, 10),
               is_custom:   false,
             }));
-            await db.from('pm_scope_items').insert(scopeRows);
+            const { error: scopeErr } = await db.from('pm_scope_items').insert(scopeRows);
+            if (scopeErr) { console.error('pm_scope_items insert failed:', scopeErr); showToast('PM scope items failed: ' + scopeErr.message); }
           }
           imported += sBatch.length;
         } catch (e) { console.error('batch error:', e); failed += sBatch.length; }
@@ -1211,7 +1213,7 @@
   async function writeAuditLog(total, imported, failed, entityType, quality) {
     if (!HIVE_ID) return;
     try {
-      await db.from('cmms_audit_log').insert({
+      const { error: auditErr } = await db.from('cmms_audit_log').insert({
         hive_id:        HIVE_ID,
         batch_id:       _batchId,
         operation:      'file_import',
@@ -1223,6 +1225,7 @@
         quality_score:  quality,
         triggered_by:   WORKER_NAME,
       });
+      if (auditErr) console.warn('cmms_audit_log write failed:', auditErr.message);
     } catch (e) {
       console.warn('cmms_audit_log write failed:', e.message);
     }

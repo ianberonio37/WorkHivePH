@@ -112,24 +112,35 @@ def run(page, errors, warnings, log) -> dict:
         log(f"    → WARN: {e}")
 
     # ── Check 4: OEE is 0-100% ────────────────────────────────────────────────
-    log("  [4] OEE value within 0-100% range...")
+    log("  [4] OEE values within 0-100% range...")
     try:
-        page_text = page.locator("body").inner_text()
-        # OEE may appear before or after the value label, with varying gap
-        oee_match = re.search(r"OEE[^\d]{0,50}([\d.]+)\s*%?", page_text, re.IGNORECASE)
-        if not oee_match:
-            oee_match = re.search(r"([\d.]+)\s*%\s*\n?\s*OEE", page_text, re.IGNORECASE)
+        # Page renders OEE as a per-asset table (analytics.html renderOEE).
+        # Pull OEE column values directly from the rendered DOM rather than
+        # regex-scanning page text where adjacent table columns confuse matching.
+        oee_vals = page.evaluate("""() => {
+            const rows = Array.from(document.querySelectorAll('table tr'));
+            const out = [];
+            for (const r of rows) {
+                const cells = r.querySelectorAll('td.num');
+                // OEE table layout: Machine | Availability | Quality | OEE — last num cell is OEE
+                if (cells.length >= 3) {
+                    const t = (cells[cells.length - 1].textContent || '').trim();
+                    const m = t.match(/([\\d.]+)\\s*%/);
+                    if (m) out.push(parseFloat(m[1]));
+                }
+            }
+            return out;
+        }""") or []
+        valid = [v for v in oee_vals if 0 < v <= 100]
+        invalid = [v for v in oee_vals if v > 100]
 
-        if oee_match:
-            oee_val = float(oee_match.group(1))
-            if oee_val > 100:
-                results.append(("FAIL", f"4: OEE = {oee_val}% — exceeds 100% (formula bug)"))
-            elif oee_val == 0:
-                results.append(("WARN", "4: OEE = 0% — may indicate missing data or calculation issue"))
-            else:
-                results.append(("PASS", f"4: OEE = {oee_val}% (valid 0-100 range)"))
+        if invalid:
+            results.append(("FAIL", f"4: OEE = {invalid[0]}% — exceeds 100% (formula bug)"))
+        elif valid:
+            avg = sum(valid) / len(valid)
+            results.append(("PASS", f"4: OEE table shows {len(valid)} asset(s), avg={avg:.1f}% (valid 0-100)"))
         else:
-            results.append(("WARN", "4: OEE value not found in page text"))
+            results.append(("WARN", "4: no OEE percentages rendered (table empty or selector mismatch)"))
         log(f"    → {results[-1]}")
     except Exception as e:
         results.append(("WARN", f"4 skipped: {e}"))
@@ -149,15 +160,23 @@ def run(page, errors, warnings, log) -> dict:
                 .eq("maintenance_type", "Breakdown / Corrective") \
                 .limit(1).execute().count or 0
 
-            if breakdown_count >= 2:
-                # Rough expected MTBF: 90 days / breakdown_count (90-day window typical)
-                expected_rough = 90 / breakdown_count
-                # Allow 10x range — the actual calculation window may differ
+            # Per ISO 14224 §9.3 the page reports MTBF *per asset* and shows the
+            # fleet average of those. So the realistic comparison is
+            # window_days / (breakdowns / unique_assets) — not window_days / total_breakdowns.
+            machines = db.table("logbook").select("machine") \
+                .eq("hive_id", hive_id) \
+                .eq("maintenance_type", "Breakdown / Corrective") \
+                .execute().data or []
+            unique_assets = len({r.get("machine") for r in machines if r.get("machine")})
+            failures_per_asset = breakdown_count / max(1, unique_assets)
+
+            if breakdown_count >= 2 and unique_assets >= 1:
+                expected_rough = 90 / max(1.0, failures_per_asset)
                 plausible = (expected_rough * 0.1) <= displayed_mtbf <= (expected_rough * 10)
                 if plausible:
-                    results.append(("PASS", f"5: MTBF={displayed_mtbf}d, {breakdown_count} breakdowns (plausible)"))
+                    results.append(("PASS", f"5: MTBF={displayed_mtbf}d, {breakdown_count} breakdowns / {unique_assets} assets (per-asset MTBF plausible)"))
                 else:
-                    results.append(("WARN", f"5: MTBF={displayed_mtbf}d with {breakdown_count} breakdowns — expected ≈{expected_rough:.0f}d (check window)"))
+                    results.append(("WARN", f"5: MTBF={displayed_mtbf}d, {breakdown_count} breakdowns / {unique_assets} assets — expected per-asset MTBF ≈{expected_rough:.0f}d"))
             else:
                 results.append(("WARN", f"5: MTBF={displayed_mtbf}d but only {breakdown_count} breakdown records — too few for meaningful check"))
         elif mtbf_match:

@@ -200,11 +200,15 @@ def run(page, errors, warnings, log) -> dict:
     # ── Scenario F: API reference section visible ─────────────────────────────
     log("  [F] API reference section shows correct endpoint format...")
     try:
+        # The API section sits inside #report-content which is `display:none` until
+        # a report loads. Check the rendered HTML instead of inner_text so the
+        # endpoint URLs are findable even before a report has been generated.
+        page_html = page.evaluate("document.body.outerHTML || ''")
         page_text = page.locator("body").inner_text()
-        has_api_section = any(kw in page_text for kw in
+        has_api_section = any(kw in page_html for kw in
                               ["Intelligence API", "intelligence-api", "API reference", "API Reference"])
-        has_endpoint    = "benchmarks" in page_text and "failure-modes" in page_text
-        has_supabase_url = SUPABASE_URL in page_text
+        has_endpoint    = "benchmarks" in page_html and "failure-modes" in page_html
+        has_supabase_url = SUPABASE_URL in page_html
 
         if has_api_section and has_endpoint and has_supabase_url:
             results.append(("PASS", "F: API reference visible with benchmarks, failure-modes endpoints and Supabase URL"))

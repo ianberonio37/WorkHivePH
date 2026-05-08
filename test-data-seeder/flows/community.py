@@ -339,14 +339,24 @@ def run(page, errors, warnings, log) -> dict:
             .eq("hive_id", hive_id).is_("deleted_at", "null") \
             .limit(1).execute().count or 0 if hive_id else 0
 
+        # community.html paginates posts at 20/page (community.html:840) plus
+        # pinned posts loaded separately. Compare against expected first-page
+        # size, not the full DB total.
+        pinned_count = db.table("community_posts").select("id", count="exact") \
+            .eq("hive_id", hive_id).eq("pinned", True).is_("deleted_at", "null") \
+            .limit(1).execute().count or 0 if hive_id else 0
+        expected_first_page = min(20, db_total) + pinned_count
+
         if db_total == 0:
             results.append(("WARN", "10: no posts in DB — count check skipped"))
         elif ui_count == 0:
             results.append(("WARN", f"10: DB has {db_total} posts but 0 rendered (pagination or lazy load?)"))
+        elif abs(ui_count - expected_first_page) <= 3:
+            results.append(("PASS", f"10: rendered={ui_count} ≈ first-page+pinned={expected_first_page} (DB total={db_total})"))
         elif abs(ui_count - db_total) <= max(5, db_total * 0.1):
             results.append(("PASS", f"10: rendered={ui_count} DB={db_total} (within 10% tolerance)"))
         else:
-            results.append(("WARN", f"10: rendered={ui_count} DB={db_total} — significant difference"))
+            results.append(("WARN", f"10: rendered={ui_count} expected first-page={expected_first_page} DB total={db_total}"))
         log(f"    → {results[-1]}")
     except Exception as e:
         results.append(("WARN", f"10 skipped: {e}"))

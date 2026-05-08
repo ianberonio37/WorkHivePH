@@ -79,6 +79,11 @@ def run(page, errors, warnings, log) -> dict:
     log("  [A] Insert Open entry via DB → verify status='Open', closed_at=NULL...")
     try:
         now_iso = datetime.now(timezone.utc).isoformat()
+        # logbook UPDATE RLS requires auth_uid = auth.uid(); look up the signed-in
+        # worker's auth_uid so subsequent edit-flow tests can update the row.
+        prof = db.table("worker_profiles").select("auth_uid") \
+            .eq("display_name", worker_name).maybe_single().execute().data or {}
+        auth_uid = prof.get("auth_uid")
         test_row = {
             "id":               _text_id("crud"),
             "worker_name":      worker_name,
@@ -95,6 +100,7 @@ def run(page, errors, warnings, log) -> dict:
             "hive_id":          hive_id,
             "parts_used":       [],
             "closed_at":        None,
+            "auth_uid":         auth_uid,
         }
         insert_res = db.table("logbook").insert(test_row).execute()
         if not insert_res.data:

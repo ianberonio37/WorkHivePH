@@ -1,4 +1,4 @@
-"""Logbook-specific UI tests after sign-in."""
+﻿"""Logbook-specific UI tests after sign-in."""
 import uuid
 from datetime import datetime, timezone
 from lib.supabase_client import get_client
@@ -75,27 +75,44 @@ def run(page, errors, warnings, log) -> dict:
         now_iso     = datetime.now(timezone.utc).isoformat()
         test_id     = str(uuid.uuid4())
 
+        # Look up the worker's auth_uid — the logbook UPDATE RLS policy requires
+        # auth_uid = auth.uid(); inserting a row with NULL auth_uid causes the
+        # page-side update to silently match 0 rows and toast "you can only edit
+        # your own entries".
+        prof = db.table("worker_profiles").select("auth_uid") \
+            .eq("display_name", worker_name).maybe_single().execute().data or {}
+        auth_uid = prof.get("auth_uid")
+
         insert_res = db.table("logbook").insert({
             "id": test_id, "worker_name": worker_name, "date": now_iso,
             "machine": "TEST-PUMP-001", "problem": "Logbook tester: open entry check",
             "action": "Tester validation", "knowledge": "", "status": "Open",
             "maintenance_type": "Breakdown / Corrective", "root_cause": "",
             "downtime_hours": 0, "created_at": now_iso, "hive_id": hive_id,
-            "parts_used": [], "closed_at": None,
+            "parts_used": [], "closed_at": None, "auth_uid": auth_uid,
         }).execute()
 
         if not insert_res.data:
             results.append(("WARN", "edit-with-parts check skipped: DB insert returned no data"))
         else:
-            # Reload so the new entry appears in the list
+            # Reload and wait until the just-inserted entry is rendered. The page
+            # filters to "mine" by default and renderEntries fires after data load,
+            # so wait for the entry-card matching our test id (or a timeout) before
+            # invoking openModal — without this the click races with renderEntries
+            # and the modal never opens, masking the real save error as a WARN.
             page.reload(wait_until="networkidle")
-            page.wait_for_timeout(1500)
+            try:
+                page.wait_for_function(
+                    f"() => Array.from(document.querySelectorAll('.entry-card')).some(c => (c.outerHTML || '').includes('{test_id}'))",
+                    timeout=10000,
+                )
+            except Exception:
+                pass
+            page.wait_for_timeout(500)
 
-            # Open the entry modal (cards use onclick="openModal('id')")
             page.evaluate(f"if (typeof openModal === 'function') openModal('{test_id}')")
-            page.wait_for_timeout(800)
+            page.wait_for_timeout(1000)
 
-            # Click Edit Entry inside the modal
             edit_btn = page.locator("button:has-text('Edit Entry')").first
             if edit_btn.count() and edit_btn.is_visible():
                 edit_btn.click()

@@ -116,6 +116,32 @@ def sign_in(page, username=None, password=DEFAULT_PASSWORD, log=print):
         )
         raise RuntimeError(f"sign-in failed: {err.strip()}")
 
+    # Restore active hive context. The platform sign-in flow does not auto-pick a
+    # hive (real users select via hive.html). Tests need a hive context for any
+    # page that calls validateHiveMembership() — without this, pages bail before
+    # rendering data and tests warn with "no entries rendered".
+    try:
+        from lib.supabase_client import get_client
+        db = get_client()
+        membership = db.table("hive_members").select("hive_id, role") \
+            .eq("worker_name", last_worker).eq("status", "active") \
+            .limit(1).execute().data or []
+        if membership:
+            hive_id = membership[0]["hive_id"]
+            role    = membership[0].get("role") or "worker"
+            hive_row = db.table("hives").select("name").eq("id", hive_id) \
+                .single().execute().data or {}
+            hive_name = hive_row.get("name") or ""
+            page.evaluate(f"""() => {{
+                localStorage.setItem('wh_active_hive_id', '{hive_id}');
+                localStorage.setItem('wh_hive_id',        '{hive_id}');
+                localStorage.setItem('wh_hive_role',      '{role}');
+                localStorage.setItem('wh_hive_name',      {hive_name!r});
+            }}""")
+            log(f"  ✓ active hive: {hive_name} ({role})")
+    except Exception as e:
+        log(f"  WARN: could not restore active hive: {e}")
+
     log(f"  ✓ signed in as {last_worker}")
 
 

@@ -2,7 +2,7 @@
 
 Scenarios:
   A – Listings load with required fields (title, price, contact button)
-  B – Listing count on page matches DB approved listings for hive
+  B – Listing count on page matches DB published listings for hive
   C – Search/filter narrows results correctly
   D – Category filter shows only matching listings
   E – Verified seller badge visible on verified listings
@@ -59,19 +59,19 @@ def run(page, errors, warnings, log) -> dict:
             results.append(("WARN", f"A: {listing_count} listings but no price pattern found (₱/PHP)"))
         else:
             db_count = db.table("marketplace_listings").select("id", count="exact") \
-                .eq("status", "approved").limit(1).execute().count or 0
+                .eq("status", "published").limit(1).execute().count or 0
             results.append(("WARN" if db_count == 0 else "FAIL",
-                f"A: 0 listings rendered, DB has {db_count} approved listings"))
+                f"A: 0 listings rendered, DB has {db_count} published listings"))
         log(f"    → {results[-1]}")
     except Exception as e:
         results.append(("FAIL", f"A crashed: {e}"))
         log(f"    → FAIL: {e}")
 
     # ── Scenario B: Listing count matches DB ──────────────────────────────────
-    log("  [B] Rendered listing count vs DB approved count...")
+    log("  [B] Rendered listing count vs DB published count...")
     try:
-        db_approved = db.table("marketplace_listings").select("id", count="exact") \
-            .eq("status", "approved").limit(1).execute().count or 0
+        db_published = db.table("marketplace_listings").select("id", count="exact") \
+            .eq("status", "published").limit(1).execute().count or 0
 
         ui_count = page.evaluate("""() => {
             const sels = ['[data-listing-id]', '.listing-card', '.marketplace-item'];
@@ -79,14 +79,14 @@ def run(page, errors, warnings, log) -> dict:
             return 0;
         }""")
 
-        if db_approved == 0:
-            results.append(("WARN", "B: no approved listings in DB — count check skipped"))
+        if db_published == 0:
+            results.append(("WARN", "B: no published listings in DB — count check skipped"))
         elif ui_count == 0:
-            results.append(("WARN", f"B: DB has {db_approved} approved but 0 rendered (pagination or filter active?)"))
-        elif abs(ui_count - db_approved) <= max(3, db_approved * 0.15):
-            results.append(("PASS", f"B: rendered={ui_count} DB={db_approved} (within 15% tolerance)"))
+            results.append(("WARN", f"B: DB has {db_published} published but 0 rendered (pagination or filter active?)"))
+        elif abs(ui_count - db_published) <= max(3, db_published * 0.15):
+            results.append(("PASS", f"B: rendered={ui_count} DB={db_published} (within 15% tolerance)"))
         else:
-            results.append(("WARN", f"B: rendered={ui_count} DB={db_approved} — large difference"))
+            results.append(("WARN", f"B: rendered={ui_count} DB={db_published} — large difference"))
         log(f"    → {results[-1]}")
     except Exception as e:
         results.append(("WARN", f"B skipped: {e}"))
@@ -96,7 +96,7 @@ def run(page, errors, warnings, log) -> dict:
     log("  [C] Search filter narrows listing results...")
     try:
         listings = db.table("marketplace_listings").select("title") \
-            .eq("status", "approved").limit(5).execute().data or []
+            .eq("status", "published").limit(5).execute().data or []
 
         search_input = page.locator(
             "input[type='search'], input[placeholder*='search' i], "
@@ -158,13 +158,13 @@ def run(page, errors, warnings, log) -> dict:
     try:
         page_text = page.locator("body").inner_text()
         verified_sellers = db.table("marketplace_listings").select("id") \
-            .eq("status", "approved").limit(5).execute().data or []
+            .eq("status", "published").limit(5).execute().data or []
 
         has_verified_ui = any(kw in page_text.lower() for kw in
                                ["verified", "✓", "trusted", "badge"])
 
         if not verified_sellers:
-            results.append(("WARN", "E: no approved listings to check for badges"))
+            results.append(("WARN", "E: no published listings to check for badges"))
         elif has_verified_ui:
             results.append(("PASS", "E: verified seller indicator visible on marketplace"))
         else:

@@ -3150,6 +3150,7 @@ async function saveEditFromForm() {
     .eq('worker_name', WORKER_NAME)
     .select('id');
   if (error) {
+    console.error('logbook edit-save failed:', { error, id, worker_name: WORKER_NAME, updates });
     showToast('Could not update: ' + error.message);
     saveBtn.disabled = false;
     saveBtn.textContent = 'Update Entry';

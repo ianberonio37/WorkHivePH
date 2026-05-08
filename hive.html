@@ -2075,7 +2075,9 @@ async function loadAuditLog() {
     const cfg = ACTION_ICON[row.action] || { icon: '·', color: '#94a3b8', label: row.action };
     const meta = row.meta || {};
     const sub  = meta.submitted_by ? ` · submitted by ${escHtml(meta.submitted_by)}` : '';
-    const when = row.created_at ? formatDate(row.created_at) : '';
+    const when = row.created_at
+      ? new Date(row.created_at).toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+      : '';
     return `
     <div class="flex items-start gap-3 px-3 py-2.5 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
       <span class="text-sm font-black flex-shrink-0 mt-0.5" style="color:${cfg.color};width:16px;text-align:center;">${cfg.icon}</span>

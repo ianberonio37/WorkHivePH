@@ -60,51 +60,47 @@ def run(page, errors, warnings, log) -> dict:
         results.append(("FAIL", f"A crashed: {e}"))
         log(f"    → FAIL: {e}")
 
-    # ── Scenario B: Add task → DB row created ─────────────────────────────────
-    log("  [B] Add task → planner DB row created...")
+    # ── Scenario B: Add task via modal → DB row created ───────────────────────
+    log("  [B] Add task via + Schedule modal → DB row created...")
     try:
-        # Count before
         before = db.table("schedule_items").select("id", count="exact") \
             .eq("worker_name", worker_name).eq("date", TODAY) \
             .limit(1).execute().count or 0
 
-        # Find add task input / button
-        add_input = page.locator(
-            "input[placeholder*='task' i], input[placeholder*='add' i], "
-            "input[placeholder*='plan' i], #task-input, #new-task, "
-            "input[type='text']:visible"
-        ).first
-
         add_btn = page.locator(
-            "button:has-text('Add'), button:has-text('+ Task'), "
-            "button:has-text('New Task'), button[type='submit']"
+            "button:has-text('+ Schedule'), button:has-text('Add Task'), "
+            "button[onclick^='openAddModal']"
         ).first
 
-        if add_input.count():
-            add_input.fill(TEST_TASK_TITLE)
-            page.wait_for_timeout(200)
-
-            if add_btn.count():
-                add_btn.click()
-            else:
-                add_input.press("Enter")
-
-            page.wait_for_timeout(2000)
-
-            after = db.table("schedule_items").select("id", count="exact") \
-                .eq("worker_name", worker_name).eq("date", TODAY) \
-                .limit(1).execute().count or 0
-
-            if after > before:
-                results.append(("PASS", f"B: schedule_items count {before}→{after} for today"))
-            else:
-                # Check if shown on page (optimistic UI without DB)
-                if TEST_TASK_TITLE in page.locator("body").inner_text():
-                    results.append(("WARN", "B: task visible on page but DB count unchanged (check table name)"))
-                else:
-                    results.append(("WARN", "B: task not in DB or page after add (may use different table)"))
+        if not add_btn.count():
+            results.append(("WARN", "B: no '+ Schedule' button found — skipping add test"))
         else:
-            results.append(("WARN", "B: no task input field found — skipping add test"))
+            add_btn.click()
+            page.wait_for_timeout(400)
+
+            title_input = page.locator("#m-title").first
+            date_input  = page.locator("#m-date").first
+            save_btn    = page.locator("button:has-text('Save')").first
+
+            if not (title_input.count() and save_btn.count()):
+                results.append(("WARN", "B: + Schedule clicked but modal title/save not found"))
+            else:
+                title_input.fill(TEST_TASK_TITLE)
+                if date_input.count() and not date_input.input_value():
+                    date_input.fill(TODAY)
+                save_btn.click()
+                page.wait_for_timeout(2000)
+
+                after = db.table("schedule_items").select("id", count="exact") \
+                    .eq("worker_name", worker_name).eq("date", TODAY) \
+                    .limit(1).execute().count or 0
+
+                if after > before:
+                    results.append(("PASS", f"B: schedule_items count {before}→{after} for today"))
+                elif TEST_TASK_TITLE in page.locator("body").inner_text():
+                    results.append(("WARN", "B: task visible on page but DB count unchanged"))
+                else:
+                    results.append(("WARN", "B: modal saved but no DB row + no page render"))
         log(f"    → {results[-1]}")
     except Exception as e:
         results.append(("WARN", f"B skipped: {e}"))
@@ -127,21 +123,17 @@ def run(page, errors, warnings, log) -> dict:
         else:
             task_id = tasks[0]["id"]
 
-            # Find a checkbox or Done button for this task
-            done_el = page.locator(
-                f"[data-task-id='{task_id}'] input[type='checkbox'], "
-                f"[data-task-id='{task_id}'] button:has-text('Done'), "
-                f"[data-item-id='{task_id}'] input[type='checkbox']"
-            ).first
+            # Open the task's edit modal directly (page exposes openEditModal as a global)
+            page.evaluate(f"if (typeof openEditModal === 'function') openEditModal('{task_id}')")
+            page.wait_for_timeout(600)
 
-            if not done_el.count():
-                # Try generic first visible checkbox
-                done_el = page.locator(
-                    "input[type='checkbox']:visible, button:has-text('Done'):visible"
-                ).first
+            done_btn = page.locator("#s-btn-done").first
+            save_btn = page.locator("button:has-text('Save')").first
 
-            if done_el.count():
-                done_el.click()
+            if done_btn.count() and save_btn.count():
+                done_btn.click()
+                page.wait_for_timeout(200)
+                save_btn.click()
                 page.wait_for_timeout(2000)
 
                 updated = db.table("schedule_items").select("item_status") \
@@ -150,9 +142,9 @@ def run(page, errors, warnings, log) -> dict:
                 if updated and updated[0].get("item_status") == "done":
                     results.append(("PASS", "C: task completion persisted to DB"))
                 else:
-                    results.append(("WARN", "C: completion clicked but item_status != 'done' in DB"))
+                    results.append(("WARN", f"C: clicked Done+Save but item_status='{(updated[0] if updated else {}).get('item_status')}'"))
             else:
-                results.append(("WARN", "C: no checkbox or Done button found for tasks"))
+                results.append(("WARN", "C: edit modal did not expose #s-btn-done or Save button"))
         log(f"    → {results[-1]}")
     except Exception as e:
         results.append(("WARN", f"C skipped: {e}"))
@@ -217,12 +209,15 @@ def run(page, errors, warnings, log) -> dict:
             .limit(1).execute().count or 0
 
         ui_count = page.evaluate("""() => {
-            const sels = ['[data-task-id]', '[data-item-id]', '.task-item', '.planner-task', 'li.task'];
-            for (const s of sels) {
-                const n = document.querySelectorAll(s).length;
-                if (n > 0) return n;
-            }
-            return 0;
+            // Day Planner renders tasks as inline-styled divs with onclick="openEditModal('id')".
+            // Count distinct ids across DILO/WILO views.
+            const els = document.querySelectorAll('[onclick^="openEditModal"]');
+            const ids = new Set();
+            els.forEach(e => {
+                const m = (e.getAttribute('onclick') || '').match(/openEditModal\\(['\"]([^'\"]+)['\"]/);
+                if (m) ids.add(m[1]);
+            });
+            return ids.size;
         }""")
 
         if db_today == 0 and ui_count == 0:

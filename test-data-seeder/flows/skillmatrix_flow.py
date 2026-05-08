@@ -64,20 +64,33 @@ def run(page, errors, warnings, log) -> dict:
         if not db_profiles:
             results.append(("WARN", "B: no skill_profiles rows for this worker — level comparison skipped"))
         else:
+            # Page shows the highest CONSECUTIVE level from 1 per discipline (see
+            # skillmatrix.html getActualLevel). Compute that here so we compare
+            # against what the page actually renders, not raw individual rows.
+            by_disc: dict = {}
+            for p in db_profiles:
+                by_disc.setdefault(p["discipline"], set()).add(p["level"])
+            actual_per_disc = {}
+            for disc, levels in by_disc.items():
+                lvl = 0
+                for l in range(1, 6):
+                    if l in levels: lvl = l
+                    else: break
+                actual_per_disc[disc] = lvl
+
             page_text = page.locator("body").inner_text()
+            checked   = list(actual_per_disc.items())[:3]
             mismatches = 0
-            for p in db_profiles[:3]:
-                disc  = p["discipline"]
-                level = p["level"]
-                # Look for "Level X" near the discipline name
-                pattern = rf"{disc}.{{0,80}}[Ll]evel\s*{level}"  # noqa: W605
+            for disc, level in checked:
+                if level == 0: continue
+                pattern = rf"{disc}.{{0,120}}\b{level}\b"
                 if not re.search(pattern, page_text, re.DOTALL):
                     mismatches += 1
 
             if mismatches == 0:
-                results.append(("PASS", f"B: skill levels match DB for {len(db_profiles)} disciplines checked"))
+                results.append(("PASS", f"B: actual skill levels match page for {len(checked)} disciplines"))
             else:
-                results.append(("WARN", f"B: {mismatches} discipline levels may not match DB (text proximity check)"))
+                results.append(("WARN", f"B: {mismatches}/{len(checked)} discipline levels not visible near name"))
         log(f"    → {results[-1]}")
     except Exception as e:
         results.append(("WARN", f"B skipped: {e}"))
@@ -208,28 +221,25 @@ def run(page, errors, warnings, log) -> dict:
         log(f"    → WARN: {e}")
 
     # ── Scenario F: Badge count matches DB ───────────────────────────────────
-    log("  [F] Badge count on page matches skill_badges DB rows...")
+    log("  [F] Earned level dots on page match skill_badges DB rows...")
     try:
         db_badges = db.table("skill_badges").select("id", count="exact") \
             .eq("worker_name", worker_name) \
             .limit(1).execute().count or 0
 
-        page_text = page.locator("body").inner_text()
-        # Look for badge count patterns: "3 badges", "Badges: 3", "3/5 badges", "earned 3"
-        m = (re.search(r"(\d+)\s*[Bb]adges?", page_text) or
-             re.search(r"[Bb]adges?\s*:?\s*(\d+)", page_text) or
-             re.search(r"earned\s+(\d+)", page_text, re.IGNORECASE))
-        page_badges = int(m.group(1)) if m else None
+        # Page renders one .level-dot.earned element per badge across disciplines.
+        # That count should equal the DB badge count for the signed-in worker.
+        page_badges = page.evaluate("document.querySelectorAll('.level-dot.earned').length") or None
 
-        if db_badges == 0 and page_badges is None:
+        if db_badges == 0 and (page_badges is None or page_badges == 0):
             results.append(("PASS", "F: no badges in DB or shown (consistent)"))
         elif page_badges is not None:
             if abs(page_badges - db_badges) <= 2:
-                results.append(("PASS", f"F: badge count page={page_badges} DB={db_badges} (match ±2)"))
+                results.append(("PASS", f"F: earned dots page={page_badges} DB={db_badges} (match ±2)"))
             else:
-                results.append(("WARN", f"F: badge count page={page_badges} DB={db_badges} (mismatch)"))
+                results.append(("WARN", f"F: earned dots page={page_badges} DB={db_badges} (mismatch)"))
         else:
-            results.append(("WARN", f"F: DB has {db_badges} badges but no badge count found in page text"))
+            results.append(("WARN", f"F: DB has {db_badges} badges but 0 earned dots rendered"))
         log(f"    → {results[-1]}")
     except Exception as e:
         results.append(("WARN", f"F skipped: {e}"))

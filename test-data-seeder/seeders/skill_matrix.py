@@ -35,37 +35,42 @@ def seed_skill_matrix(client, log, ctx: dict) -> dict:
     client.table("skill_profiles").insert(profile_rows).execute()
     log(f"  inserted {len(profile_rows)} skill_profiles")
 
-    # Badges — supervisors get 3-5, active 2-3, light 0-2
+    # Badges — every worker gets levels 1..N in every discipline so the
+    # 5-discipline progress bars on skillmatrix.html have a non-zero "actual"
+    # level. The page computes actual = highest CONSECUTIVE level from 1, so a
+    # single Lv4 badge with no Lv1/2/3 reads as actual=0. We emit one row per
+    # earned level to keep that chain intact.
+    # Heavy tier upgrades 3-5 disciplines past Lv1; active 1-3; light keeps mostly Lv1.
     badge_rows = []
     attempt_rows = []
-    badge_count_by_tier = {"heavy": (3, 5), "active": (2, 3), "light": (0, 2)}
+    upgrade_count_by_tier = {"heavy": (3, 5), "active": (1, 3), "light": (0, 2)}
     for w in workers:
-        lo, hi = badge_count_by_tier.get(w["tier"], (0, 1))
-        n_badges = random.randint(lo, hi)
-        chosen_disciplines = random.sample(DISCIPLINES, k=n_badges) if n_badges else []
-        for disc in chosen_disciplines:
-            level = random.choices([1, 2, 3, 4, 5], weights=[20, 30, 30, 15, 5])[0]
-            score = random.randint(70, 100)
-            ts = random_timestamp_in_last_n_days(180)
-            badge_rows.append({
-                "worker_name": w["worker_name"],
-                "discipline": disc,
-                "level": level,
-                "earned_at": to_iso(ts),
-                "exam_score": score,
-                "auth_uid": w.get("auth_uid"),
-            })
-            # Mirror an exam attempt that passed
-            attempt_rows.append({
-                "worker_name": w["worker_name"],
-                "discipline": disc,
-                "level": level,
-                "score": score,
-                "passed": True,
-                "answers": {"summary": "auto-generated for seed"},
-                "attempted_at": to_iso(ts),
-                "auth_uid": w.get("auth_uid"),
-            })
+        lo, hi = upgrade_count_by_tier.get(w["tier"], (0, 1))
+        n_upgrades = random.randint(lo, hi)
+        upgraded = set(random.sample(DISCIPLINES, k=n_upgrades)) if n_upgrades else set()
+        for disc in DISCIPLINES:
+            top_level = random.choices([2, 3, 4, 5], weights=[30, 35, 25, 10])[0] if disc in upgraded else 1
+            for level in range(1, top_level + 1):
+                score = random.randint(70, 100) if level >= 2 else random.randint(60, 79)
+                ts = random_timestamp_in_last_n_days(180)
+                badge_rows.append({
+                    "worker_name": w["worker_name"],
+                    "discipline": disc,
+                    "level": level,
+                    "earned_at": to_iso(ts),
+                    "exam_score": score,
+                    "auth_uid": w.get("auth_uid"),
+                })
+                attempt_rows.append({
+                    "worker_name": w["worker_name"],
+                    "discipline": disc,
+                    "level": level,
+                    "score": score,
+                    "passed": True,
+                    "answers": {"summary": "auto-generated for seed"},
+                    "attempted_at": to_iso(ts),
+                    "auth_uid": w.get("auth_uid"),
+                })
         # A few failed attempts for realism
         if random.random() < 0.4:
             disc = random.choice(DISCIPLINES)

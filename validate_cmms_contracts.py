@@ -81,8 +81,8 @@ def extract_ts_map_keys(content: str, map_name: str) -> dict:
         sys_type = sys_m.group(1)
         inner = sys_m.group(2)
         codes = {}
-        for entry in re.finditer(r'(\w+)\s*:\s*"([^"]*)"', inner):
-            codes[entry.group(1)] = entry.group(2)
+        for entry in re.finditer(r'(\w+)\s*:\s*(?:"([^"]*)"|\'([^\']*)\')', inner):
+            codes[entry.group(1)] = entry.group(2) if entry.group(2) is not None else entry.group(3)
         result[sys_type] = codes
     return result
 

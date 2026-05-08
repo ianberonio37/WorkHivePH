@@ -72,6 +72,7 @@ PUBLIC_PAGES = [
     ("project-report.html", "Project Report"),
     ("predictive.html", "Predictive Maintenance"),
     ("achievements.html", "Achievements"),
+    ("asset-hub.html", "Asset Hub"),
 ]
 PUBLIC_PAGE_SET = {p[0] for p in PUBLIC_PAGES}
 
@@ -318,6 +319,10 @@ def api_seed_module(module):
         "achievements":   lambda c, log: seed_achievements(c, log),
     }
 
+    from seeders.dayplanner import seed_dayplanner
+    from seeders.engineering import seed_engineering
+    from seeders.fault_knowledge import seed_fault_knowledge
+    from seeders.edge_post_seed import run_post_seed_edges
     needs_ctx_map = {
         "assets": seed_assets,
         "pm": seed_pm,
@@ -327,6 +332,10 @@ def api_seed_module(module):
         "marketplace": seed_marketplace,
         "community": seed_community,
         "projects": seed_projects,
+        "dayplanner": seed_dayplanner,
+        "engineering": seed_engineering,
+        "fault_knowledge": seed_fault_knowledge,
+        "post_seed_edges": run_post_seed_edges,
     }
 
     if module in standalone_map:

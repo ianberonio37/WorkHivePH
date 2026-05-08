@@ -587,9 +587,9 @@ function assetBadge(id) {
 }
 
 function txnIcon(type) {
-  if (type === 'add')    return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;background:rgba(34,197,94,0.2);color:#4ade80;flex-shrink:0;">+</span>`;
-  if (type === 'use')    return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:rgba(239,68,68,0.15);color:#f87171;flex-shrink:0;">−</span>`;
-  if (type === 'adjust') return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;background:rgba(41,182,217,0.15);color:#29B6D9;flex-shrink:0;">~</span>`;
+  if (type === 'add'    || type === 'restock')    return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;background:rgba(34,197,94,0.2);color:#4ade80;flex-shrink:0;">+</span>`;
+  if (type === 'use')                              return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:rgba(239,68,68,0.15);color:#f87171;flex-shrink:0;">−</span>`;
+  if (type === 'adjust' || type === 'adjustment') return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;background:rgba(41,182,217,0.15);color:#29B6D9;flex-shrink:0;">~</span>`;
   return '';
 }
 
@@ -920,7 +920,7 @@ async function submitPart() {
 
     _items = items;
     const diff = qty - prev.qty_on_hand;
-    if (diff !== 0) addTransaction(editingItemId, 'adjust', diff, qty, 'Edited via part form');
+    if (diff !== 0) addTransaction(editingItemId, 'adjustment', diff, qty, 'Edited via part form');
     showToast(editStatus === 'pending' ? `${partName} resubmitted for supervisor approval.` : `${partName} updated.`);
   } else {
     const item = { id: Date.now().toString(), ...payload, photo: currentPhotoData || null, created_at: now };
@@ -1025,7 +1025,7 @@ function submitRestock() {
   items[idx].qty_on_hand += qty;
   items[idx].updated_at   = new Date().toISOString();
   saveInventory(items);
-  addTransaction(activeItemId, 'add', qty, items[idx].qty_on_hand, document.getElementById('restock-note').value.trim());
+  addTransaction(activeItemId, 'restock', qty, items[idx].qty_on_hand, document.getElementById('restock-note').value.trim());
 
   closeRestockModal();
   renderParts();

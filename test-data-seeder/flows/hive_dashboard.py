@@ -62,19 +62,41 @@ def run(page, errors, warnings, log) -> dict:
     # ── Scenario B: PM overdue count matches DB ───────────────────────────────
     log("  [B] PM overdue alert count vs DB...")
     try:
-        from datetime import date
-        today_str = date.today().isoformat()
+        from datetime import date, datetime, timedelta
+        today_d = date.today()
 
+        # Mirror hive.html's compute: for each scope_item, lastDate = most recent
+        # done completion (else anchor_date); next = lastDate + freq_days; overdue
+        # if next < today. The naive `anchor_date < today` query overcounts by
+        # ignoring completions and produced confusing diff values.
         asset_ids_res = db.table("pm_assets").select("id") \
             .eq("hive_id", hive_id).execute().data or []
         asset_ids = [a["id"] for a in asset_ids_res]
 
+        FREQ_DAYS = {"Weekly": 7, "Monthly": 30, "Quarterly": 90, "Semi-annual": 180, "Annual": 365}
         db_overdue = 0
         if asset_ids:
-            overdue_res = db.table("pm_scope_items").select("id", count="exact") \
-                .in_("asset_id", asset_ids) \
-                .lt("anchor_date", today_str).limit(1).execute()
-            db_overdue = overdue_res.count or 0
+            items = db.table("pm_scope_items") \
+                .select("id, frequency, anchor_date") \
+                .in_("asset_id", asset_ids).execute().data or []
+            comps = db.table("pm_completions") \
+                .select("scope_item_id, completed_at") \
+                .eq("hive_id", hive_id).eq("status", "done") \
+                .order("completed_at", desc=True).execute().data or []
+            latest_comp: dict = {}
+            for c in comps:
+                sid = c["scope_item_id"]
+                if sid not in latest_comp:
+                    latest_comp[sid] = c["completed_at"]
+            for it in items:
+                last = latest_comp.get(it["id"]) or it.get("anchor_date")
+                if not last:
+                    db_overdue += 1
+                    continue
+                last_d = datetime.fromisoformat(str(last).replace("Z", "+00:00")).date() if "T" in str(last) else date.fromisoformat(str(last)[:10])
+                freq = FREQ_DAYS.get(it.get("frequency"), 90)
+                if last_d + timedelta(days=freq) < today_d:
+                    db_overdue += 1
 
         page_text = page.locator("body").inner_text()
         # Try text regex first; fall back to direct KPI chip element

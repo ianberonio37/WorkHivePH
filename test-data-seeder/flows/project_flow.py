@@ -79,25 +79,25 @@ def run(page, errors, warnings, log) -> dict:
             new_btn.click()
             page.wait_for_timeout(800)
 
-            # Wizard step 1: pick project type tile (workorder is always first)
-            type_tile = page.locator(
-                "[data-type='workorder'], .type-tile, [onclick*='wizardPickType']"
-            ).first
+            # Wizard step 1: pick project type tile (workorder)
+            type_tile = page.locator("[data-type='workorder']").first
             if type_tile.count():
                 type_tile.click()
-                page.wait_for_timeout(500)
+                page.wait_for_timeout(400)
+            page.locator("#wiz-next-1").click()
+            page.wait_for_timeout(500)
 
-            # Wizard may have a Next / Continue button to advance steps
-            next_btn = page.locator(
-                "button:has-text('Next'), button:has-text('Continue'), "
-                "#wiz-next, [onclick*='wizardNext']"
-            ).first
-            if next_btn.count() and next_btn.is_visible():
-                next_btn.click()
-                page.wait_for_timeout(500)
-                if next_btn.count() and next_btn.is_visible():
-                    next_btn.click()
-                    page.wait_for_timeout(500)
+            # Wizard step 2: pick a template (or "blank project" link to skip)
+            blank_link = page.locator("button:has-text('blank project'), a:has-text('blank project')").first
+            if blank_link.count():
+                blank_link.click()
+            else:
+                tpl = page.locator(".template-card, [onclick*='wizardPickTemplate']").first
+                if tpl.count():
+                    tpl.click()
+            page.wait_for_timeout(400)
+            page.locator("#wiz-next-2").click()
+            page.wait_for_timeout(500)
 
             name_input = page.locator(
                 "#wiz-name, input[placeholder*='name' i], input[placeholder*='project' i], "
@@ -160,23 +160,14 @@ def run(page, errors, warnings, log) -> dict:
             prog_before = db.table("project_progress_logs").select("id", count="exact") \
                 .eq("project_id", proj_id).limit(1).execute().count or 0
 
-            # Click into the project — use get_by_text since data-project-id may not exist
-            proj_name = proj.get("name", "")
-            proj_code = proj.get("project_code", "")
-            proj_card = page.locator(f"[data-project-id='{proj_id}']").first
-            if not proj_card.count():
-                if proj_code:
-                    proj_card = page.get_by_text(proj_code, exact=False).first
-                elif proj_name:
-                    proj_card = page.get_by_text(proj_name[:20], exact=False).first
-            if proj_card.count():
-                proj_card.click()
-                page.wait_for_timeout(1000)
+            # Open the project's detail view via the page's openDetail() global
+            page.evaluate(f"if (typeof openDetail === 'function') openDetail('{proj_id}')")
+            page.wait_for_timeout(1200)
 
-            # Add a scope item
+            # Add a scope item — page button reads "+ Add scope item"
             add_item_btn = page.locator(
-                "button:has-text('Add Item'), button:has-text('Add Scope'), "
-                "button:has-text('+ Item'), button:has-text('New Item')"
+                "button:has-text('Add scope item'), button:has-text('Add Scope'), "
+                "button[onclick*='openNewScope']"
             ).first
 
             if add_item_btn.count():
@@ -256,7 +247,7 @@ def run(page, errors, warnings, log) -> dict:
     # Navigate to report — try with a project ID if we have one
     report_url = f"{BASE_URL}/workhive/project-report.html"
     if hive_id and projects:
-        report_url += f"?id={projects[0]['id']}"
+        report_url += f"?project_id={projects[0]['id']}"
 
     page.goto(report_url, wait_until="networkidle", timeout=15000)
     page.wait_for_timeout(3000)

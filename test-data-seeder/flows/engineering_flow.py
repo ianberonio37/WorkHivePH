@@ -186,7 +186,17 @@ def run(page, errors, warnings, log) -> dict:
 
                 page_text    = page.locator("body").inner_text()
                 bom_rows     = len(re.findall(r"(?:pcs|m|kg|set|lot|L)\b", page_text, re.IGNORECASE))
-                sow_sections = len(re.findall(r"The Contractor shall", page_text))
+                # SOW renders inside collapsed <textarea class="bom-item-input"> elements
+                # (display:none), so inner_text() never sees the content. Read textarea
+                # values via DOM and count "contractor shall" occurrences across them.
+                sow_sections = page.evaluate("""() => {
+                    const tas = document.querySelectorAll('textarea.bom-item-input');
+                    let n = 0;
+                    tas.forEach(t => {
+                        if (/contractor\\s+shall/i.test(t.value || '')) n += 1;
+                    });
+                    return n;
+                }""") or 0
                 has_nan      = "NaN" in page_text
 
                 if has_nan:
