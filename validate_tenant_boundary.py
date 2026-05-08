@@ -56,6 +56,8 @@ LIVE_PAGES = [
     "ph-intelligence.html",
     "predictive.html",
     "achievements.html",
+    "asset-hub.html",
+    "shift-brain.html",
 ]
 
 SHARED_TABLES = [

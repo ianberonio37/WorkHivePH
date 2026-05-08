@@ -22,6 +22,8 @@ PAGES = [
     ("ph-intelligence.html",   "PH Intelligence",     "body"),
     ("predictive.html",        "Predictive ML",       "body"),
     ("achievements.html",      "Achievements",        "body"),
+    ("asset-hub.html",         "Asset Hub",           "body"),
+    ("shift-brain.html",       "Shift Brain",         "body"),
 ]
 
 # Errors we tolerate (known/expected)

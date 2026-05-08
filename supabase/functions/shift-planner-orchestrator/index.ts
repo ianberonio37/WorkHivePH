@@ -1,0 +1,264 @@
+/**
+ * shift-planner-orchestrator - Phase 4: Shift Brain autonomous planner.
+ *
+ * Triggered by pg_cron at Philippine 3-shift boundaries (06:00 / 14:00 / 22:00 PHT)
+ * or manually via POST { shift_window, hive_id? }. Writes one DRAFT row per hive
+ * per shift window into shift_plans.
+ *
+ * Sub-agents run in parallel via Promise.allSettled:
+ *   risk_top         - top assets by current risk score (asset_risk_scores)
+ *   pms_due          - PM tasks due today (pm_assets + pm_scope_items)
+ *   carry_forward    - open logbook entries older than 8h (prior shift leftovers)
+ *   parts_prestage   - inventory items at or below reorder_point
+ *   briefing         - one-paragraph LLM synthesis grounded in the above
+ *
+ * Output payload shape:
+ *   { risk_top, pms_due, carry_forward, parts_prestage, briefing }
+ *
+ * Skills consulted: ai-engineer (Promise.allSettled, JSON-only output, capped
+ * rows, system prompt as const, callAI shared chain), architect (4-place sync),
+ * security (no service-role leak in error responses, hive scoping every query),
+ * data-engineer (narrow selects, .limit() everywhere), multitenant-engineer
+ * (hive_id on every read), devops (getCorsHeaders dynamic CORS).
+ */
+
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { callAI } from "../_shared/ai-chain.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
+
+const RISK_TOP_LIMIT     = 10;
+const PMS_DUE_LIMIT      = 30;
+const CARRY_FWD_LIMIT    = 30;
+const PARTS_LIMIT        = 30;
+const BRIEFING_MAX_TOKENS = 400;
+
+const VALID_WINDOWS = new Set(["06-14", "14-22", "22-06"]);
+
+const BRIEFING_SYSTEM_PROMPT = `You are the WorkHive Shift Brain morning briefer.
+
+You receive a JSON payload describing one hive's situation at shift start:
+- shift_window: which shift starts now (06-14 morning, 14-22 afternoon, 22-06 night)
+- risk_top: top assets at risk
+- pms_due: PMs due today
+- carry_forward: open logbook entries from prior shifts
+- parts_prestage: parts at or below reorder point
+
+Write a 4-6 sentence morning briefing for the incoming supervisor. Rules:
+1. Open with the single most important risk (highest score, longest open downtime, or critical part stock-out).
+2. Name specific assets and worker counts, not vague generalities.
+3. End with one concrete next action.
+4. No em dashes. Use colons, commas, parentheses, or restructure.
+5. Filipino industrial vocabulary is fine (PEC, PSME, ISO 14224 terms).
+6. Plain text only, no JSON, no markdown.
+
+Output the briefing paragraph directly. Nothing else.`;
+
+type AnyRow = Record<string, unknown>;
+
+// ---------------------------------------------------------------------------
+// Sub-agents
+// ---------------------------------------------------------------------------
+
+async function fetchRiskTop(db: SupabaseClient, hiveId: string): Promise<AnyRow[]> {
+  // Latest risk score per asset, top N. Schema (per 20260508000000_asset_risk_scores.sql):
+  //   asset_name, risk_score (0..1), risk_level, top_factors jsonb, generated_at, hive_id
+  const sinceIso = new Date(Date.now() - 7 * 86400000).toISOString();
+  const { data } = await db.from("asset_risk_scores")
+    .select("asset_name, risk_score, risk_level, top_factors, generated_at, hive_id")
+    .eq("hive_id", hiveId)
+    .gte("generated_at", sinceIso)
+    .order("risk_score", { ascending: false })
+    .limit(RISK_TOP_LIMIT);
+  return data || [];
+}
+
+async function fetchPMsDue(db: SupabaseClient, hiveId: string): Promise<AnyRow[]> {
+  // PM scope items overdue or due today. Conservative: assets whose last_anchor_date
+  // is older than 30 days (rough proxy when frequencies vary).
+  const cutoffIso = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+  const { data } = await db.from("pm_assets")
+    .select("id, asset_name, tag_id, category, criticality, last_anchor_date, location")
+    .eq("hive_id", hiveId)
+    .or("last_anchor_date.is.null,last_anchor_date.lt." + cutoffIso)
+    .order("criticality", { ascending: true })
+    .limit(PMS_DUE_LIMIT);
+  return data || [];
+}
+
+async function fetchCarryForward(db: SupabaseClient, hiveId: string): Promise<AnyRow[]> {
+  // Open logbook entries created more than 8h ago.
+  const cutoff = new Date(Date.now() - 8 * 3600 * 1000).toISOString();
+  const { data } = await db.from("logbook")
+    .select("id, machine, problem, maintenance_type, status, created_at, worker_name, downtime_hours")
+    .eq("hive_id", hiveId)
+    .eq("status", "Open")
+    .lt("created_at", cutoff)
+    .order("created_at", { ascending: true })
+    .limit(CARRY_FWD_LIMIT);
+  return data || [];
+}
+
+async function fetchPartsPrestage(db: SupabaseClient, hiveId: string): Promise<AnyRow[]> {
+  // Inventory items at or below min_qty (the reorder threshold), hive-scoped.
+  // Schema (per baseline): part_name, part_number, qty_on_hand, min_qty, bin_location, status
+  const { data } = await db.from("inventory_items")
+    .select("id, part_name, part_number, qty_on_hand, min_qty, bin_location, status")
+    .eq("hive_id", hiveId)
+    .eq("status", "approved")
+    .order("qty_on_hand", { ascending: true })
+    .limit(PARTS_LIMIT);
+  // Filter client-side: qty_on_hand <= min_qty. Doing it here avoids
+  // a complex column-comparison filter that some PostgREST clients reject.
+  return (data || []).filter(r => {
+    const q  = Number(r.qty_on_hand ?? 0);
+    const mn = Number(r.min_qty ?? 0);
+    return mn > 0 && q <= mn;
+  });
+}
+
+async function synthesizeBriefing(
+  shiftWindow: string,
+  payload: { risk_top: AnyRow[]; pms_due: AnyRow[]; carry_forward: AnyRow[]; parts_prestage: AnyRow[] },
+): Promise<string> {
+  // Compact summary strings to keep the prompt small.
+  const compact = {
+    shift_window: shiftWindow,
+    risk_top: payload.risk_top.slice(0, 5).map(r => `${r.asset_name}|score=${r.risk_score}|${r.risk_level}`).join("\n"),
+    pms_due: payload.pms_due.slice(0, 8).map(r => `${r.tag_id || r.asset_name}|${r.category}|crit=${r.criticality}`).join("\n"),
+    carry_forward: payload.carry_forward.slice(0, 8).map(r => `${r.machine}|${r.maintenance_type}|${r.problem}`.slice(0, 120)).join("\n"),
+    parts_prestage: payload.parts_prestage.slice(0, 8).map(r => `${r.part_name}|qty=${r.qty_on_hand}|min=${r.min_qty}`).join("\n"),
+  };
+
+  try {
+    const text = await callAI(JSON.stringify(compact), {
+      systemPrompt: BRIEFING_SYSTEM_PROMPT,
+      temperature:  0.3,
+      maxTokens:    BRIEFING_MAX_TOKENS,
+      jsonMode:     false,
+    });
+    return text.trim();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return `(Briefing synthesis unavailable: ${msg}). Risk: ${payload.risk_top.length}, PMs due: ${payload.pms_due.length}, carry-forward: ${payload.carry_forward.length}, low-stock parts: ${payload.parts_prestage.length}.`;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Plan one hive
+// ---------------------------------------------------------------------------
+
+async function planForHive(
+  db: SupabaseClient,
+  hiveId: string,
+  shiftWindow: string,
+): Promise<{ plan_id?: string; counts: Record<string, number>; error?: string }> {
+  const results = await Promise.allSettled([
+    fetchRiskTop(db, hiveId),
+    fetchPMsDue(db, hiveId),
+    fetchCarryForward(db, hiveId),
+    fetchPartsPrestage(db, hiveId),
+  ]);
+
+  const risk_top       = results[0].status === "fulfilled" ? results[0].value : [];
+  const pms_due        = results[1].status === "fulfilled" ? results[1].value : [];
+  const carry_forward  = results[2].status === "fulfilled" ? results[2].value : [];
+  const parts_prestage = results[3].status === "fulfilled" ? results[3].value : [];
+
+  const briefing = await synthesizeBriefing(shiftWindow, {
+    risk_top, pms_due, carry_forward, parts_prestage,
+  });
+
+  const payload = { risk_top, pms_due, carry_forward, parts_prestage };
+  const counts = {
+    risk_top:       risk_top.length,
+    pms_due:        pms_due.length,
+    carry_forward:  carry_forward.length,
+    parts_prestage: parts_prestage.length,
+  };
+
+  // Upsert one row per (hive_id, shift_date, shift_window). Re-runs replace the draft.
+  const { data: ins, error } = await db.from("shift_plans").upsert({
+    hive_id:      hiveId,
+    shift_window: shiftWindow,
+    status:       "draft",
+    generated_at: new Date().toISOString(),
+    generated_by: "shift-planner-orchestrator",
+    briefing,
+    payload,
+  }, { onConflict: "hive_id,shift_date,shift_window" })
+    .select("id")
+    .maybeSingle();
+
+  if (error) return { counts, error: error.message };
+  return { plan_id: ins?.id, counts };
+}
+
+// ---------------------------------------------------------------------------
+// Handler
+// ---------------------------------------------------------------------------
+
+serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const body = await req.json().catch(() => ({}));
+    const shift_window = String(body.shift_window || "").trim();
+    const single_hive  = body.hive_id ? String(body.hive_id) : null;
+
+    if (!shift_window) {
+      return new Response(
+        JSON.stringify({ error: "Missing required field: shift_window (must be 06-14, 14-22, or 22-06)" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+    if (!VALID_WINDOWS.has(shift_window)) {
+      return new Response(
+        JSON.stringify({ error: "shift_window must be one of 06-14 / 14-22 / 22-06" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    const db = createClient(
+      Deno.env.get("SUPABASE_URL") || "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
+    );
+
+    let targetHives: string[];
+    if (single_hive) {
+      targetHives = [single_hive];
+    } else {
+      // Cron path: run for every active hive
+      const { data: hives } = await db.from("hives")
+        .select("id")
+        .limit(1000);
+      targetHives = (hives || []).map(h => h.id);
+    }
+
+    const perHive = await Promise.allSettled(
+      targetHives.map(h => planForHive(db, h, shift_window))
+    );
+
+    const summary = perHive.map((r, idx) => ({
+      hive_id: targetHives[idx],
+      ok:      r.status === "fulfilled" && !(r.value as { error?: string }).error,
+      detail:  r.status === "fulfilled" ? r.value : { error: String(r.reason) },
+    }));
+
+    return new Response(
+      JSON.stringify({ shift_window, hives_processed: summary.length, summary }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    // Inline JSON.stringify({ error: ... }) for static error-contract scan.
+    return new Response(
+      JSON.stringify({ error: "Internal error", detail: msg }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
+});

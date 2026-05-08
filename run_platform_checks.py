@@ -132,6 +132,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "asset-brain",
+        "script":  "validate_asset_brain.py",
+        "args":    [],
+        "label":   "Asset Brain Foundation Validator (schema, RLS, realtime publication)",
+        "group":   "Platform",
+        "report":  "asset_brain_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "realtime-publication",
         "script":  "validate_realtime_publication.py",
         "args":    [],

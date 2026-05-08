@@ -60,6 +60,8 @@ LIVE_PAGES = [
     "project-report.html",
     "predictive.html",
     "achievements.html",
+    "asset-hub.html",
+    "shift-brain.html",
 ]
 
 RETIRED_TABLES = {"parts_records", "checklist_records"}

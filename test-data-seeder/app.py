@@ -73,6 +73,7 @@ PUBLIC_PAGES = [
     ("predictive.html", "Predictive Maintenance"),
     ("achievements.html", "Achievements"),
     ("asset-hub.html", "Asset Hub"),
+    ("shift-brain.html", "Shift Brain"),
 ]
 PUBLIC_PAGE_SET = {p[0] for p in PUBLIC_PAGES}
 

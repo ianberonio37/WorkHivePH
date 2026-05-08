@@ -64,6 +64,14 @@ verify_jwt = false
 enabled = true
 verify_jwt = false
 
+[functions.asset-brain-query]
+enabled = true
+verify_jwt = false
+
+[functions.shift-planner-orchestrator]
+enabled = true
+verify_jwt = false
+
 [functions.semantic-search]
 enabled = true
 verify_jwt = false

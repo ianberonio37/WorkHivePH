@@ -47,6 +47,8 @@ TARGET_PAGES = [
     "project-manager.html",
     "integrations.html",
     "ph-intelligence.html",
+    "asset-hub.html",
+    "shift-brain.html",
     # predictive.html is read-only (reads asset_risk_scores, no DB writes)
     # validate_input_guards.py TARGET_PAGES is for pages that write to the DB
 ]

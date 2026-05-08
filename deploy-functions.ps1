@@ -25,3 +25,5 @@ npx supabase functions deploy project-progress --no-verify-jwt
 npx supabase functions deploy project-orchestrator --no-verify-jwt
 npx supabase functions deploy batch-risk-scoring --no-verify-jwt
 npx supabase functions deploy trigger-ml-retrain --no-verify-jwt
+npx supabase functions deploy asset-brain-query --no-verify-jwt
+npx supabase functions deploy shift-planner-orchestrator --no-verify-jwt

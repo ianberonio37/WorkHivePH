@@ -48,13 +48,13 @@ DRAFT_ARTIFACTS = [
 FEATURE_PARITY_CHECKS = [
     (
         "analytics_feature_parity",
-        "analytics",
+        "analytics.html",
         ["OEE", "consequence", "anomaly"],
         "Analytics Engine — new features (OEE, RCM consequence, anomaly detection)",
     ),
     (
         "logbook_feature_parity",
-        "logbook",
+        "logbook.html",
         ["consequence", "production"],
         "Digital Logbook — new fields (failure consequence, production output/OEE)",
     ),

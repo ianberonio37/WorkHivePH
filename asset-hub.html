@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Asset Hub | WorkHive</title>
+  <meta name="description" content="Asset Brain 360 view for any equipment in your hive: live state, history timeline, neighbors, and AI Q and A grounded in your own data." />
+  <meta name="robots" content="noindex, follow" />
+  <link rel="canonical" href="https://workhiveph.com/asset-hub.html" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
+  <script src="utils.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --orange-wh: #F7A21B;
+      --blue-wh:   #29B6D9;
+      --navy-wh:   #162032;
+      --muted:     rgba(255,255,255,0.55);
+      --border:    rgba(255,255,255,0.10);
+      --card-bg:   linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--navy-wh);
+      color: #F4F6FA;
+      min-height: 100vh;
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(247,162,27,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(41,182,217,0.05) 0%, transparent 60%);
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
+      background: #1F2E45; border: 1px solid var(--border);
+      border-radius: 0.75rem; padding: 0.65rem 1.1rem;
+      font-size: 0.82rem; font-weight: 600; z-index: 9999;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      transition: opacity 0.3s;
+    }
+    #toast.hidden { opacity: 0; pointer-events: none; }
+
+    /* Page wrap */
+    .page-wrap { max-width: 720px; margin: 0 auto; padding: 1rem 1rem 0; }
+
+    /* Header */
+    .page-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 0.5rem; flex-shrink: 0;
+      background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--muted); text-decoration: none;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.1); }
+    .page-title { font-size: 1.05rem; font-weight: 700; }
+    .page-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+    /* Hive gate */
+    #hive-gate {
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 60vh; padding: 2rem; text-align: center;
+    }
+    #hive-gate h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
+    #hive-gate p { color: var(--muted); font-size: 0.85rem; max-width: 360px; }
+    #hive-gate a {
+      margin-top: 1.25rem; padding: 0.65rem 1.25rem;
+      background: linear-gradient(135deg, var(--orange-wh), #FDB94A);
+      color: var(--navy-wh); border-radius: 0.6rem; font-weight: 700;
+      text-decoration: none; font-size: 0.85rem;
+    }
+
+    /* Search bar */
+    .search-row {
+      display: flex; gap: 0.5rem; margin-bottom: 1rem;
+    }
+    .search-input {
+      flex: 1; height: 42px; border-radius: 0.6rem;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: #F4F6FA; padding: 0 0.85rem;
+      font-size: 16px; /* iOS auto-zoom rule */
+      font-family: inherit;
+    }
+    .search-input::placeholder { color: var(--muted); }
+
+    /* List view */
+    .asset-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .asset-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 0.85rem;
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      transition: transform 0.12s, border-color 0.15s;
+      display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+    }
+    .asset-card:hover { transform: translateY(-1px); border-color: rgba(247,162,27,0.4); }
+    .asset-card-main { min-width: 0; flex: 1; }
+    .asset-card-tag { font-size: 0.95rem; font-weight: 700; }
+    .asset-card-name { font-size: 0.78rem; color: var(--muted); margin-top: 2px;
+                      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .asset-card-meta { font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
+
+    /* Criticality pill */
+    .crit-pill {
+      display: inline-block; padding: 2px 8px; border-radius: 999px;
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .crit-low      { background: rgba(180,180,180,0.18); color: #d6dbe3; }
+    .crit-medium   { background: rgba(41,182,217,0.18);  color: #6ed6f0; }
+    .crit-high     { background: rgba(247,162,27,0.20);  color: #ffc566; }
+    .crit-critical { background: rgba(239,87,87,0.22);   color: #ff8a8a; }
+
+    /* Empty state */
+    .empty {
+      padding: 2rem 1rem; text-align: center;
+      border: 1px dashed var(--border); border-radius: 0.85rem;
+      color: var(--muted); font-size: 0.85rem;
+    }
+
+    /* Detail view */
+    #detail-view { display: none; }
+    .detail-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 1rem; padding: 1rem 1.1rem;
+      margin-bottom: 0.75rem;
+    }
+    .detail-tag { font-size: 1.4rem; font-weight: 800; }
+    .detail-name { font-size: 0.92rem; color: var(--muted); margin-top: 4px; }
+    .detail-breadcrumb {
+      font-size: 0.7rem; color: var(--muted); margin-bottom: 0.4rem;
+      letter-spacing: 0.03em;
+    }
+
+    /* Stats grid */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem; padding: 0.75rem 0.85rem;
+    }
+    .stat-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .stat-value { font-size: 1.15rem; font-weight: 700; margin-top: 4px; }
+
+    /* Section card */
+    .section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 1rem; padding: 0.95rem 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 0.65rem;
+    }
+
+    /* Timeline */
+    .tl-empty, .tl-row {
+      font-size: 0.83rem; padding: 0.55rem 0;
+      border-bottom: 1px dashed var(--border);
+    }
+    .tl-row:last-child { border-bottom: none; }
+    .tl-when { font-size: 0.7rem; color: var(--muted); }
+    .tl-summary { margin-top: 2px; }
+
+    @media (min-width: 600px) {
+      .stats-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    /* Live indicator */
+    .live-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 3px 9px; border-radius: 999px;
+      background: rgba(74,222,128,0.12); color: #6ee7a8;
+      font-size: 0.66rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+      border: 1px solid rgba(74,222,128,0.25);
+    }
+    .live-chip.offline { background: rgba(180,180,180,0.10); color: var(--muted); border-color: var(--border); }
+    .live-chip .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: currentColor; box-shadow: 0 0 6px currentColor;
+    }
+    .live-chip.offline .dot { box-shadow: none; opacity: 0.5; }
+
+    /* Marketplace tile */
+    .mk-row {
+      display: flex; gap: 0.6rem; align-items: center; padding: 0.55rem 0;
+      border-bottom: 1px dashed var(--border);
+    }
+    .mk-row:last-child { border-bottom: none; }
+    .mk-row a { color: inherit; text-decoration: none; flex: 1; }
+    .mk-title { font-size: 0.85rem; font-weight: 600; }
+    .mk-meta  { font-size: 0.7rem;  color: var(--muted); margin-top: 2px; }
+    .mk-price { font-size: 0.85rem; font-weight: 700; color: var(--orange-wh); white-space: nowrap; }
+    .mk-section-pill {
+      display: inline-block; padding: 1px 7px; border-radius: 999px;
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+      background: rgba(41,182,217,0.18); color: #6ed6f0; margin-right: 6px;
+    }
+
+    /* External IDs */
+    .ext-grid { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .ext-pill {
+      background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+      border-radius: 0.5rem; padding: 5px 10px;
+      font-size: 0.72rem; color: var(--muted);
+    }
+    .ext-pill strong { color: #f4f6fa; font-weight: 700; margin-right: 4px; }
+
+    /* Add-edge button */
+    .add-edge-btn {
+      margin-top: 0.55rem;
+      background: rgba(247,162,27,0.15); border: 1px solid rgba(247,162,27,0.35);
+      color: var(--orange-wh); border-radius: 0.55rem;
+      padding: 6px 12px; font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+    }
+    .add-edge-btn:hover { background: rgba(247,162,27,0.25); }
+
+    /* Edge editor modal */
+    #edge-modal {
+      position: fixed; inset: 0; z-index: 9100;
+      background: rgba(10,18,28,0.85); backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center;
+      padding: 1.5rem;
+    }
+    #edge-modal.open { display: flex; }
+    #edge-modal-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.97), rgba(22,32,50,0.99));
+      border: 1px solid var(--border);
+      border-radius: 1.25rem; padding: 1.5rem 1.25rem;
+      width: 100%; max-width: 420px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+    }
+    #edge-modal h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.85rem; }
+    #edge-modal label {
+      display: block; font-size: 0.7rem; color: var(--muted);
+      letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px;
+    }
+    #edge-modal select, #edge-modal input {
+      width: 100%; height: 42px; border-radius: 0.55rem;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: #F4F6FA; padding: 0 0.7rem;
+      font-size: 16px; /* iOS auto-zoom rule */
+      font-family: inherit; margin-bottom: 0.85rem;
+    }
+    #edge-modal select option { background: #162032; color: #F4F6FA; }
+    .edge-actions { display: flex; gap: 0.5rem; }
+    .edge-actions button {
+      flex: 1; height: 42px; border-radius: 0.55rem;
+      border: 1px solid var(--border); cursor: pointer;
+      font-size: 0.85rem; font-weight: 600; font-family: inherit;
+    }
+    .edge-actions .save {
+      background: linear-gradient(135deg, var(--orange-wh), #FDB94A);
+      color: var(--navy-wh); border-color: transparent;
+    }
+    .edge-actions .cancel {
+      background: rgba(255,255,255,0.06); color: #F4F6FA;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="toast" class="hidden">Saved.</div>
+
+  <!-- Hive Gate (hard gate per architect rule) -->
+  <div id="hive-gate">
+    <h2>Asset Hub needs a hive</h2>
+    <p>Asset Brain works only inside a team hive. Join or create one to see your equipment graph and the events tied to it.</p>
+    <a href="hive.html">Go to Hive</a>
+  </div>
+
+  <!-- Main page -->
+  <div id="page-wrap" class="page-wrap" style="display:none;">
+
+    <!-- Header -->
+    <div class="page-header">
+      <a href="hive.html" class="back-btn" aria-label="Back">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </a>
+      <div>
+        <div class="page-title" id="page-title">Asset Hub</div>
+        <div class="page-sub" id="page-sub">360 view of any equipment in your hive</div>
+      </div>
+    </div>
+
+    <!-- LIST VIEW -->
+    <div id="list-view">
+      <div class="search-row">
+        <input id="asset-search" class="search-input" type="search" placeholder="Search by tag, name, or location" autocomplete="off" />
+      </div>
+      <div id="asset-list" class="asset-list"></div>
+      <div id="list-empty" class="empty" style="display:none;">
+        No approved assets in this hive yet. Add equipment via PM Scheduler or Inventory and they will surface here once approved.
+      </div>
+    </div>
+
+    <!-- DETAIL VIEW -->
+    <div id="detail-view">
+      <div class="detail-header">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;">
+          <div style="min-width:0;flex:1;">
+            <div class="detail-breadcrumb" id="detail-breadcrumb"></div>
+            <div class="detail-tag" id="detail-tag"></div>
+            <div class="detail-name" id="detail-name"></div>
+          </div>
+          <span id="live-chip" class="live-chip offline" role="status" aria-live="polite">
+            <span class="dot"></span><span id="live-chip-text">offline</span>
+          </span>
+        </div>
+        <div style="margin-top:0.6rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <span class="crit-pill" id="detail-crit"></span>
+          <span class="crit-pill" id="detail-level" style="background:rgba(255,255,255,0.08);color:var(--muted);"></span>
+          <span class="crit-pill" id="detail-location" style="background:rgba(255,255,255,0.08);color:var(--muted);display:none;"></span>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Logbook entries</div>
+          <div class="stat-value" id="stat-logbook">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">PM completed</div>
+          <div class="stat-value" id="stat-pm">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Last failure</div>
+          <div class="stat-value" id="stat-last-failure" style="font-size:0.92rem;">never</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Edges</div>
+          <div class="stat-value" id="stat-edges">0</div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">Timeline</div>
+        <div id="timeline-list"></div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Neighbors</span>
+          <button id="add-edge-btn" class="add-edge-btn" style="display:none;">+ Add edge</button>
+        </div>
+        <div id="neighbors-list"></div>
+      </div>
+
+      <div class="section-card" id="ext-card" style="display:none;">
+        <div class="section-title">External systems</div>
+        <div id="ext-list" class="ext-grid"></div>
+        <div id="ext-sync-meta" style="font-size:0.72rem;color:var(--muted);margin-top:0.5rem;"></div>
+      </div>
+
+      <div class="section-card" id="mk-card" style="display:none;">
+        <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Marketplace listings for this class</span>
+          <a href="marketplace.html" style="font-size:0.7rem;color:var(--blue-wh);text-decoration:none;">All listings &rsaquo;</a>
+        </div>
+        <div id="mk-list"></div>
+      </div>
+
+      <div class="section-card" id="ask-card">
+        <div class="section-title">Ask Asset Brain</div>
+        <div style="font-size:0.74rem;color:var(--muted);margin-bottom:0.6rem;">
+          Grounded in this asset's logbook, PMs, neighbors, and peers in the same equipment class.
+        </div>
+        <div style="display:flex;gap:0.5rem;">
+          <input id="ask-input" class="search-input" type="text" placeholder="When did this asset last fail? Why?" maxlength="500" />
+          <button id="ask-send" class="add-edge-btn" style="background:linear-gradient(135deg,var(--orange-wh),#FDB94A);color:var(--navy-wh);border:none;font-weight:700;padding:0 14px;">Ask</button>
+        </div>
+        <div id="ask-output" style="margin-top:0.85rem;display:none;">
+          <div id="ask-answer" style="font-size:0.88rem;line-height:1.5;"></div>
+          <div id="ask-cited" style="margin-top:0.55rem;font-size:0.72rem;color:var(--muted);"></div>
+          <div id="ask-meta"  style="margin-top:0.4rem;font-size:0.66rem;color:var(--muted);letter-spacing:0.04em;"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Edge editor modal (supervisor only) -->
+  <div id="edge-modal" role="dialog" aria-modal="true" aria-labelledby="edge-modal-title">
+    <div id="edge-modal-card">
+      <h3 id="edge-modal-title">Add an edge</h3>
+      <label for="edge-type">Relationship</label>
+      <select id="edge-type">
+        <option value="parent_of">parent_of (this asset contains another)</option>
+        <option value="feeds">feeds (this asset feeds another)</option>
+        <option value="supplies">supplies (this asset supplies another)</option>
+        <option value="sister">sister (peer asset, same hive)</option>
+        <option value="redundant_with">redundant_with (failover pair)</option>
+        <option value="controls">controls</option>
+        <option value="monitors">monitors</option>
+      </select>
+      <label for="edge-target">Target asset</label>
+      <select id="edge-target"></select>
+      <div class="edge-actions">
+        <button class="cancel" type="button" id="edge-cancel">Cancel</button>
+        <button class="save"   type="button" id="edge-save">Add edge</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="nav-hub.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Supabase client. var keyword so it's accessible from earlier function definitions.
+    var SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+    var SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'; // anon key: safe in frontend
+    var db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Identity + hive context (read from localStorage with restore fallback per data-engineer skill)
+    let WORKER_NAME = localStorage.getItem('wh_last_worker')
+      || localStorage.getItem('wh_worker_name')
+      || localStorage.getItem('workerName') || '';
+    let HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
+    let HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+
+    // Cached state
+    let _allNodes = [];
+    let _selectedNodeId = null;
+    let _hubChannel = null;       // realtime channel for the active asset
+    let _connTimeout = null;      // realtime connection timeout
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      if (!t) return;
+      t.textContent = msg;
+      t.classList.remove('hidden');
+      setTimeout(() => t.classList.add('hidden'), 2200);
+    }
+
+    function critClass(c) {
+      const v = (c || 'medium').toLowerCase();
+      if (v === 'critical') return 'crit-pill crit-critical';
+      if (v === 'high')     return 'crit-pill crit-high';
+      if (v === 'low')      return 'crit-pill crit-low';
+      return 'crit-pill crit-medium';
+    }
+
+    function fmtDate(s) {
+      if (!s) return 'never';
+      try {
+        const d = new Date(s);
+        return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+      } catch (_) { return s; }
+    }
+
+    function fmtRelative(s) {
+      if (!s) return '';
+      const d = new Date(s).getTime();
+      if (!d) return '';
+      const diff = (Date.now() - d) / 1000;
+      if (diff < 60) return 'just now';
+      if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+      if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+      if (diff < 86400*30) return Math.floor(diff/86400) + 'd ago';
+      return fmtDate(s);
+    }
+
+    // ── Membership validation per multitenant skill ────────────────────────────
+    async function validateHiveMembership() {
+      if (!HIVE_ID || !WORKER_NAME) return false;
+      const { data: membership, error } = await db
+        .from('hive_members')
+        .select('role, status')
+        .eq('hive_id', HIVE_ID)
+        .eq('worker_name', WORKER_NAME)
+        .maybeSingle();
+
+      if (error) {
+        // Fail open on DB error per the canonical pattern
+        console.warn('Membership validation failed:', error.message);
+        return true;
+      }
+      if (!membership || membership.status === 'kicked') {
+        ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name'].forEach(k => localStorage.removeItem(k));
+        HIVE_ID = ''; HIVE_ROLE = '';
+        return false;
+      }
+      HIVE_ROLE = membership.role;
+      localStorage.setItem('wh_hive_role', membership.role);
+      return true;
+    }
+
+    // ── List load ──────────────────────────────────────────────────────────────
+    async function loadAssetNodes() {
+      // Narrow select per performance skill, hive-scoped per multitenant skill.
+      const { data, error } = await db.from('asset_nodes')
+        .select('id, tag, name, level, criticality, location, iso_class, parent_id, pm_asset_id, legacy_asset_id, created_at')
+        .eq('hive_id', HIVE_ID)
+        .eq('status', 'approved')
+        .order('tag', { ascending: true })
+        .limit(200);
+
+      if (error) {
+        console.error('asset_nodes load:', error.message);
+        showToast('Could not load assets: ' + error.message);
+        _allNodes = [];
+      } else {
+        _allNodes = data || [];
+      }
+      renderList();
+    }
+
+    function renderList(reload) {
+      const e = escHtml;
+      const list = document.getElementById('asset-list');
+      const empty = document.getElementById('list-empty');
+      if (!list || !empty) return;
+
+      const q = (document.getElementById('asset-search')?.value || '').trim().toLowerCase();
+      const filtered = _allNodes.filter(n => {
+        if (!q) return true;
+        return (n.tag || '').toLowerCase().includes(q)
+            || (n.name || '').toLowerCase().includes(q)
+            || (n.location || '').toLowerCase().includes(q)
+            || (n.iso_class || '').toLowerCase().includes(q);
+      });
+
+      if (!filtered.length) {
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        if (q) {
+          empty.textContent = 'No assets match "' + (q.slice(0, 60)) + '".';
+        } else {
+          empty.textContent = 'No approved assets in this hive yet. Add equipment via PM Scheduler or Inventory and they will surface here once approved.';
+        }
+        return;
+      }
+      empty.style.display = 'none';
+
+      list.innerHTML = filtered.slice(0, 100).map(n => `
+        <div class="asset-card" data-node-id="${e(n.id)}">
+          <div class="asset-card-main">
+            <div class="asset-card-tag">${e(n.tag || n.name || 'Untitled')}</div>
+            <div class="asset-card-name">${e(n.name || '')}</div>
+            <div class="asset-card-meta">${e(n.iso_class || n.level || '')}${n.location ? ' &middot; ' + e(n.location) : ''}</div>
+          </div>
+          <span class="${critClass(n.criticality)}">${e(n.criticality || 'medium')}</span>
+        </div>
+      `).join('');
+
+      // Bind clicks
+      list.querySelectorAll('.asset-card').forEach(el => {
+        el.addEventListener('click', () => openDetail(el.getAttribute('data-node-id')));
+      });
+    }
+
+    // ── Detail load ────────────────────────────────────────────────────────────
+    async function openDetail(nodeId) {
+      if (!nodeId) return;
+      _selectedNodeId = nodeId;
+
+      // Update URL (no reload) for shareable deep-link
+      try {
+        const u = new URL(window.location.href);
+        u.searchParams.set('node_id', nodeId);
+        window.history.replaceState({}, '', u.toString());
+      } catch (_) {}
+
+      document.getElementById('list-view').style.display = 'none';
+      document.getElementById('detail-view').style.display = 'block';
+      document.getElementById('page-title').textContent = 'Asset Detail';
+      document.getElementById('page-sub').textContent = 'Tap back to return to the list';
+
+      // Wire the back button to return to list
+      const backBtn = document.querySelector('.back-btn');
+      if (backBtn) {
+        backBtn.setAttribute('href', '#');
+        backBtn.onclick = (ev) => { ev.preventDefault(); closeDetail(); };
+      }
+
+      await Promise.allSettled([
+        loadDetailHeader(nodeId),
+        loadDetailStats(nodeId),
+        loadDetailTimeline(nodeId),
+        loadDetailNeighbors(nodeId),
+        loadDetailMarketplace(nodeId),
+        loadDetailExternalIds(nodeId),
+      ]);
+
+      // Wire supervisor-only Add Edge button
+      const addBtn = document.getElementById('add-edge-btn');
+      if (addBtn) {
+        if (HIVE_ROLE === 'supervisor') {
+          addBtn.style.display = 'inline-block';
+          addBtn.onclick = () => openEdgeModal(nodeId);
+        } else {
+          addBtn.style.display = 'none';
+        }
+      }
+
+      // Subscribe to realtime updates for this asset
+      subscribeAsset(nodeId);
+
+      // Wire the Ask Asset Brain box
+      wireAskBox(nodeId);
+    }
+
+    function closeDetail() {
+      _selectedNodeId = null;
+      unsubscribeAsset();
+      document.getElementById('detail-view').style.display = 'none';
+      document.getElementById('list-view').style.display = 'block';
+      document.getElementById('page-title').textContent = 'Asset Hub';
+      document.getElementById('page-sub').textContent = '360 view of any equipment in your hive';
+
+      try {
+        const u = new URL(window.location.href);
+        u.searchParams.delete('node_id');
+        window.history.replaceState({}, '', u.toString());
+      } catch (_) {}
+
+      const backBtn = document.querySelector('.back-btn');
+      if (backBtn) {
+        backBtn.setAttribute('href', 'hive.html');
+        backBtn.onclick = null;
+      }
+    }
+
+    async function loadDetailHeader(nodeId) {
+      const e = escHtml;
+      const node = _allNodes.find(n => n.id === nodeId);
+      if (!node) return;
+
+      const tagEl  = document.getElementById('detail-tag');
+      const nameEl = document.getElementById('detail-name');
+      const critEl = document.getElementById('detail-crit');
+      const lvlEl  = document.getElementById('detail-level');
+      const locEl  = document.getElementById('detail-location');
+      const crumbEl = document.getElementById('detail-breadcrumb');
+
+      if (tagEl)  tagEl.textContent  = node.tag || node.name || 'Untitled';
+      if (nameEl) nameEl.textContent = node.name || '';
+      if (critEl) {
+        critEl.textContent = node.criticality || 'medium';
+        critEl.className   = critClass(node.criticality);
+      }
+      if (lvlEl)  lvlEl.textContent  = node.level || 'equipment';
+      if (locEl) {
+        if (node.location) {
+          locEl.textContent  = node.location;
+          locEl.style.display = 'inline-block';
+        } else {
+          locEl.style.display = 'none';
+        }
+      }
+
+      // Breadcrumb (parent chain). Single hop for now; deeper traversal in Phase 2b.
+      if (crumbEl && node.parent_id) {
+        const parent = _allNodes.find(n => n.id === node.parent_id);
+        if (parent) {
+          crumbEl.textContent = (parent.tag || parent.name) + '  >  ' + (node.tag || node.name);
+        } else {
+          crumbEl.textContent = '';
+        }
+      } else if (crumbEl) {
+        crumbEl.textContent = '';
+      }
+    }
+
+    async function loadDetailStats(nodeId) {
+      // Read aggregate stats from asset_brain_overview view.
+      const { data, error } = await db.from('asset_brain_overview')
+        .select('lifetime_logbook_entries, pm_completed_count, last_failure_at, edge_count')
+        .eq('node_id', nodeId)
+        .eq('hive_id', HIVE_ID)
+        .maybeSingle();
+
+      if (error) {
+        console.warn('overview load:', error.message);
+      }
+
+      const lb = document.getElementById('stat-logbook');
+      const pm = document.getElementById('stat-pm');
+      const lf = document.getElementById('stat-last-failure');
+      const eg = document.getElementById('stat-edges');
+
+      if (lb) lb.textContent = data?.lifetime_logbook_entries ?? 0;
+      if (pm) pm.textContent = data?.pm_completed_count ?? 0;
+      if (lf) lf.textContent = data?.last_failure_at ? fmtRelative(data.last_failure_at) : 'never';
+      if (eg) eg.textContent = data?.edge_count ?? 0;
+    }
+
+    async function loadDetailTimeline(nodeId) {
+      const e = escHtml;
+      const tl = document.getElementById('timeline-list');
+      if (!tl) return;
+      tl.innerHTML = '<div class="tl-empty" style="color:var(--muted);">Loading timeline...</div>';
+
+      const node = _allNodes.find(n => n.id === nodeId);
+      if (!node) { tl.innerHTML = '<div class="tl-empty">Node not found.</div>'; return; }
+
+      // Pull recent logbook + pm_completions tied to this node via legacy_asset_id and pm_asset_id.
+      // Both queries are hive-scoped per multitenant skill.
+      const queries = [];
+      if (node.legacy_asset_id) {
+        queries.push(
+          db.from('logbook')
+            .select('id, machine, problem, action, maintenance_type, status, created_at, closed_at')
+            .eq('hive_id', HIVE_ID)
+            .eq('asset_ref_id', node.legacy_asset_id)
+            .order('created_at', { ascending: false })
+            .limit(20)
+        );
+      }
+      if (node.pm_asset_id) {
+        queries.push(
+          db.from('pm_completions')
+            .select('id, asset_id, completed_at, worker_name, scope_item_id')
+            .eq('hive_id', HIVE_ID)
+            .eq('asset_id', node.pm_asset_id)
+            .order('completed_at', { ascending: false })
+            .limit(20)
+        );
+      }
+
+      if (!queries.length) {
+        tl.innerHTML = '<div class="tl-empty">No linked logbook or PM history yet. Logbook entries that reference this asset will appear here.</div>';
+        return;
+      }
+
+      const results = await Promise.allSettled(queries);
+      const events = [];
+
+      results.forEach((res, idx) => {
+        if (res.status !== 'fulfilled' || res.value.error) return;
+        const rows = res.value.data || [];
+        if (idx === 0 && node.legacy_asset_id) {
+          rows.forEach(r => events.push({
+            kind: 'logbook',
+            when: r.created_at,
+            summary: (r.maintenance_type || 'Entry') + ': ' + (r.problem || '(no description)'),
+            status: r.status,
+          }));
+        } else {
+          rows.forEach(r => events.push({
+            kind: 'pm',
+            when: r.completed_at,
+            summary: 'PM completed by ' + (r.worker_name || 'unknown'),
+          }));
+        }
+      });
+
+      events.sort((a, b) => new Date(b.when) - new Date(a.when));
+      const top = events.slice(0, 30);
+
+      if (!top.length) {
+        tl.innerHTML = '<div class="tl-empty">No history rows tied to this asset yet.</div>';
+        return;
+      }
+
+      tl.innerHTML = top.map(ev => `
+        <div class="tl-row">
+          <div class="tl-when">${e(fmtRelative(ev.when))} &middot; ${e(ev.kind === 'pm' ? 'PM' : 'Logbook')}</div>
+          <div class="tl-summary">${e(ev.summary)}</div>
+        </div>
+      `).join('');
+    }
+
+    async function loadDetailNeighbors(nodeId) {
+      const e = escHtml;
+      const el = document.getElementById('neighbors-list');
+      if (!el) return;
+      el.innerHTML = '<div class="tl-empty" style="color:var(--muted);">Loading neighbors...</div>';
+
+      const { data, error } = await db.from('asset_edges')
+        .select('id, edge_type, from_node_id, to_node_id, properties')
+        .eq('hive_id', HIVE_ID)
+        .or('from_node_id.eq.' + nodeId + ',to_node_id.eq.' + nodeId)
+        .limit(50);
+
+      if (error) {
+        console.warn('edges load:', error.message);
+        el.innerHTML = '<div class="tl-empty">Could not load neighbors.</div>';
+        return;
+      }
+
+      const edges = data || [];
+      if (!edges.length) {
+        el.innerHTML = '<div class="tl-empty">No relationships defined yet. Supervisors can connect parent equipment, sister machines, and feed lines via the Asset Brain editor (Phase 2b).</div>';
+        return;
+      }
+
+      el.innerHTML = edges.map(ed => {
+        const otherId = ed.from_node_id === nodeId ? ed.to_node_id : ed.from_node_id;
+        const other = _allNodes.find(n => n.id === otherId);
+        const direction = ed.from_node_id === nodeId ? '->' : '<-';
+        return `
+          <div class="tl-row">
+            <div class="tl-when">${e(ed.edge_type)} ${e(direction)}</div>
+            <div class="tl-summary">${other ? e(other.tag || other.name) : '(unknown asset)'}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ── Marketplace surface ────────────────────────────────────────────────────
+    async function loadDetailMarketplace(nodeId) {
+      const e = escHtml;
+      const card = document.getElementById('mk-card');
+      const list = document.getElementById('mk-list');
+      if (!card || !list) return;
+
+      const node = _allNodes.find(n => n.id === nodeId);
+      if (!node || !node.iso_class) { card.style.display = 'none'; return; }
+
+      // Match listings by category ilike iso_class. Escape LIKE wildcards per security skill.
+      const safeClass = String(node.iso_class).replace(/%/g, '\\%').replace(/_/g, '\\_');
+
+      const { data, error } = await db.from('marketplace_listings')
+        .select('id, title, section, category, price, condition, location, seller_name, seller_verified, status')
+        .eq('status', 'active')
+        .ilike('category', '%' + safeClass + '%')
+        .order('created_at', { ascending: false })
+        .limit(8);
+
+      if (error) {
+        console.warn('marketplace load:', error.message);
+        card.style.display = 'none';
+        return;
+      }
+      const rows = data || [];
+      if (!rows.length) { card.style.display = 'none'; return; }
+
+      card.style.display = 'block';
+      list.innerHTML = rows.map(r => `
+        <div class="mk-row">
+          <a href="marketplace.html?listing=${e(r.id)}">
+            <div class="mk-title">
+              <span class="mk-section-pill">${e(r.section || 'parts')}</span>${e(r.title || 'Untitled')}
+            </div>
+            <div class="mk-meta">${e(r.seller_name || 'unknown seller')}${r.seller_verified ? ' &middot; verified' : ''}${r.location ? ' &middot; ' + e(r.location) : ''}${r.condition ? ' &middot; ' + e(r.condition) : ''}</div>
+          </a>
+          <div class="mk-price">${r.price != null ? '&#8369; ' + Number(r.price).toLocaleString() : ''}</div>
+        </div>
+      `).join('');
+    }
+
+    // ── External IDs / CMMS surface ────────────────────────────────────────────
+    async function loadDetailExternalIds(nodeId) {
+      const e = escHtml;
+      const card = document.getElementById('ext-card');
+      const list = document.getElementById('ext-list');
+      const meta = document.getElementById('ext-sync-meta');
+      if (!card || !list || !meta) return;
+
+      const node = _allNodes.find(n => n.id === nodeId);
+      const ext  = (node && node.external_ids) ? node.external_ids : {};
+      const keys = Object.keys(ext).filter(k => ext[k]);
+
+      if (!keys.length) {
+        card.style.display = 'none';
+        meta.textContent = '';
+        return;
+      }
+
+      card.style.display = 'block';
+      list.innerHTML = keys.map(k => `<span class="ext-pill"><strong>${e(k)}</strong>${e(String(ext[k]))}</span>`).join('');
+
+      // Look for the most recent external_sync row that matches any of these external IDs.
+      // Scoped by hive_id and the values from external_ids.
+      const ids = keys.map(k => String(ext[k])).filter(Boolean);
+      if (!ids.length) { meta.textContent = ''; return; }
+
+      const { data, error } = await db.from('external_sync')
+        .select('system_type, external_id, entity_type, sync_status, last_synced_at')
+        .eq('hive_id', HIVE_ID)
+        .eq('entity_type', 'asset')
+        .in('external_id', ids)
+        .order('last_synced_at', { ascending: false })
+        .limit(1);
+
+      if (error || !data || !data.length) {
+        meta.textContent = '';
+        return;
+      }
+      const r = data[0];
+      meta.textContent = 'Last synced from ' + (r.system_type || 'CMMS')
+        + ' at ' + fmtRelative(r.last_synced_at)
+        + ' (' + (r.sync_status || 'active') + ')';
+    }
+
+    // ── Realtime subscription for the active asset ────────────────────────────
+    function setLiveChip(state) {
+      const chip = document.getElementById('live-chip');
+      const txt  = document.getElementById('live-chip-text');
+      if (!chip || !txt) return;
+      if (state === 'live') {
+        chip.classList.remove('offline');
+        txt.textContent = 'live';
+      } else {
+        chip.classList.add('offline');
+        txt.textContent = state === 'connecting' ? 'connecting' : 'offline';
+      }
+    }
+
+    function unsubscribeAsset() {
+      if (_connTimeout) { clearTimeout(_connTimeout); _connTimeout = null; }
+      if (_hubChannel) {
+        try { db.removeChannel(_hubChannel); } catch (_) {}
+        _hubChannel = null;
+      }
+      setLiveChip('offline');
+    }
+
+    function subscribeAsset(nodeId) {
+      unsubscribeAsset();
+      const node = _allNodes.find(n => n.id === nodeId);
+      if (!node || !HIVE_ID) return;
+
+      setLiveChip('connecting');
+      _connTimeout = setTimeout(() => setLiveChip('offline'), 8000);
+
+      _hubChannel = db.channel('asset-hub:' + nodeId);
+
+      // Logbook events tied to this asset. Hive-scoped per multitenant skill;
+      // asset_ref_id matched client-side so cross-tenant events are dropped
+      // even if a legacy_asset_id collision ever occurred.
+      if (node.legacy_asset_id) {
+        _hubChannel.on('postgres_changes', {
+          event: 'INSERT', schema: 'public', table: 'logbook',
+          filter: 'hive_id=eq.' + HIVE_ID,
+        }, (payload) => {
+          const row = payload.new || {};
+          if (row.asset_ref_id !== node.legacy_asset_id) return;
+          if (_selectedNodeId === nodeId) {
+            loadDetailTimeline(nodeId);
+            loadDetailStats(nodeId);
+          }
+        });
+      }
+
+      // PM completions tied to this asset. Same pattern: hive_id filter at the
+      // wire, asset_id check client-side.
+      if (node.pm_asset_id) {
+        _hubChannel.on('postgres_changes', {
+          event: 'INSERT', schema: 'public', table: 'pm_completions',
+          filter: 'hive_id=eq.' + HIVE_ID,
+        }, (payload) => {
+          const row = payload.new || {};
+          if (row.asset_id !== node.pm_asset_id) return;
+          if (_selectedNodeId === nodeId) {
+            loadDetailTimeline(nodeId);
+            loadDetailStats(nodeId);
+          }
+        });
+      }
+
+      // Edge changes for this asset (insert any side)
+      _hubChannel.on('postgres_changes', {
+        event: '*', schema: 'public', table: 'asset_edges',
+        filter: 'hive_id=eq.' + HIVE_ID,
+      }, (payload) => {
+        // Only re-render if the change touches this node
+        const oldRow = payload.old || {};
+        const newRow = payload.new || {};
+        const touched = [oldRow.from_node_id, oldRow.to_node_id, newRow.from_node_id, newRow.to_node_id]
+          .some(id => id === nodeId);
+        if (touched && _selectedNodeId === nodeId) {
+          loadDetailNeighbors(nodeId);
+          loadDetailStats(nodeId);
+        }
+      });
+
+      _hubChannel.subscribe(status => {
+        if (_connTimeout) { clearTimeout(_connTimeout); _connTimeout = null; }
+        if (status === 'SUBSCRIBED') setLiveChip('live');
+        else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') setLiveChip('offline');
+      });
+    }
+
+    // ── Edge editor (supervisor only) ─────────────────────────────────────────
+    function openEdgeModal(fromNodeId) {
+      const sel = document.getElementById('edge-target');
+      if (!sel) return;
+      // Populate target options: every other node in this hive.
+      const others = _allNodes.filter(n => n.id !== fromNodeId);
+      sel.innerHTML = others.map(n =>
+        `<option value="${escHtml(n.id)}">${escHtml(n.tag || n.name || 'Untitled')}</option>`
+      ).join('');
+
+      const modal = document.getElementById('edge-modal');
+      if (modal) modal.classList.add('open');
+
+      const cancel = document.getElementById('edge-cancel');
+      const save   = document.getElementById('edge-save');
+      const close  = () => modal && modal.classList.remove('open');
+
+      if (cancel) cancel.onclick = close;
+      if (save)   save.onclick = async () => {
+        const edgeType = document.getElementById('edge-type')?.value;
+        const toId     = sel.value;
+        if (!edgeType || !toId || toId === fromNodeId) {
+          showToast('Pick a different target asset.');
+          return;
+        }
+        save.disabled = true;
+        const { error } = await db.from('asset_edges').insert({
+          hive_id:      HIVE_ID,
+          from_node_id: fromNodeId,
+          to_node_id:   toId,
+          edge_type:    edgeType,
+        });
+        save.disabled = false;
+        if (error) {
+          showToast('Could not add edge: ' + error.message);
+          return;
+        }
+        showToast('Edge added.');
+        close();
+        // Realtime will re-render neighbors; trigger an immediate refresh too.
+        loadDetailNeighbors(fromNodeId);
+        loadDetailStats(fromNodeId);
+      };
+
+      // Escape closes
+      document.addEventListener('keydown', function onEsc(ev) {
+        if (ev.key === 'Escape') {
+          close();
+          document.removeEventListener('keydown', onEsc);
+        }
+      });
+    }
+
+    // ── Ask Asset Brain (Phase 3 GraphRAG edge function) ──────────────────────
+    let _askInFlight = false;
+
+    async function askAssetBrain(nodeId) {
+      const e = escHtml;
+      const input  = document.getElementById('ask-input');
+      const send   = document.getElementById('ask-send');
+      const output = document.getElementById('ask-output');
+      const ansEl  = document.getElementById('ask-answer');
+      const citEl  = document.getElementById('ask-cited');
+      const metaEl = document.getElementById('ask-meta');
+      if (!input || !send || !output || !ansEl) return;
+
+      const question = (input.value || '').trim();
+      if (!question || _askInFlight) return;
+
+      _askInFlight = true;
+      send.disabled = true;
+      send.textContent = '...';
+      output.style.display = 'block';
+      ansEl.innerHTML = '<span style="color:var(--muted);">Thinking...</span>';
+      if (citEl)  citEl.innerHTML = '';
+      if (metaEl) metaEl.textContent = '';
+
+      try {
+        const { data, error } = await db.functions.invoke('asset-brain-query', {
+          body: { question, asset_id: nodeId, hive_id: HIVE_ID },
+        });
+
+        if (error) {
+          ansEl.innerHTML = '<span style="color:#ff8a8a;">' + e('Could not reach Asset Brain: ' + (error.message || 'unknown error')) + '</span>';
+          return;
+        }
+        if (!data || data.error) {
+          ansEl.innerHTML = '<span style="color:#ff8a8a;">' + e(data?.error || 'No answer returned.') + '</span>';
+          return;
+        }
+
+        ansEl.innerHTML = e(data.answer || '(no answer)').replace(/\n/g, '<br>');
+
+        if (citEl && Array.isArray(data.cited) && data.cited.length) {
+          const summary = data.cited.map(c => e(c.kind || 'src') + ' #' + e(String(c.index ?? '?'))).join(', ');
+          citEl.innerHTML = 'Sources: ' + summary;
+        } else if (citEl) {
+          citEl.innerHTML = '';
+        }
+
+        if (metaEl && typeof data.remaining === 'number') {
+          metaEl.textContent = data.remaining + ' AI calls remaining this hour';
+        }
+      } catch (err) {
+        ansEl.innerHTML = '<span style="color:#ff8a8a;">' + e('Network error: ' + (err && err.message ? err.message : 'unknown')) + '</span>';
+      } finally {
+        _askInFlight = false;
+        send.disabled = false;
+        send.textContent = 'Ask';
+      }
+    }
+
+    function wireAskBox(nodeId) {
+      const input = document.getElementById('ask-input');
+      const send  = document.getElementById('ask-send');
+      if (!input || !send) return;
+
+      // Reset state on new asset open
+      input.value = '';
+      const output = document.getElementById('ask-output');
+      if (output) output.style.display = 'none';
+
+      send.onclick = () => askAssetBrain(nodeId);
+      input.onkeydown = (ev) => {
+        if (ev.key === 'Enter' && !ev.shiftKey) {
+          ev.preventDefault();
+          askAssetBrain(nodeId);
+        }
+      };
+    }
+
+    // Cleanup channel on page unload. Inline removeChannel so the observability
+    // validator's static scan sees the cleanup pattern alongside beforeunload.
+    window.addEventListener('beforeunload', () => {
+      if (_connTimeout) { clearTimeout(_connTimeout); _connTimeout = null; }
+      if (_hubChannel) {
+        try { db.removeChannel(_hubChannel); } catch (_) {}
+        _hubChannel = null;
+      }
+    });
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    async function init() {
+      // Restore identity from session if localStorage is empty (data-engineer skill).
+      if (!WORKER_NAME && typeof restoreIdentityFromSession === 'function') {
+        WORKER_NAME = await restoreIdentityFromSession(db);
+      }
+      if (!WORKER_NAME) {
+        window.location.href = 'index.html?signin=1';
+        return;
+      }
+
+      // Hard hive gate per architect rule.
+      if (!HIVE_ID) {
+        document.getElementById('hive-gate').style.display = 'flex';
+        return;
+      }
+
+      const ok = await validateHiveMembership();
+      if (!ok) {
+        document.getElementById('hive-gate').style.display = 'flex';
+        return;
+      }
+
+      document.getElementById('page-wrap').style.display = 'block';
+
+      await loadAssetNodes();
+
+      // Deep-link via ?node_id=
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const initialNode = params.get('node_id');
+        if (initialNode && _allNodes.some(n => n.id === initialNode)) {
+          openDetail(initialNode);
+        }
+      } catch (_) {}
+
+      // Search wiring
+      const search = document.getElementById('asset-search');
+      if (search) {
+        let timer = null;
+        search.addEventListener('input', () => {
+          clearTimeout(timer);
+          timer = setTimeout(() => renderList(false), 180);
+        });
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+  <script src="floating-ai.js"></script>
+</body>
+</html>

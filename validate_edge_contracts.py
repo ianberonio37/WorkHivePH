@@ -61,6 +61,8 @@ ALL_FUNCTIONS = [
     "project-orchestrator",
     "batch-risk-scoring",
     "trigger-ml-retrain",
+    "asset-brain-query",
+    "shift-planner-orchestrator",
 ]
 
 REQUIRED_FIELDS = {
@@ -90,6 +92,8 @@ REQUIRED_FIELDS = {
     "project-orchestrator":         ["phase"],
     "batch-risk-scoring":           [],
     "trigger-ml-retrain":           [],
+    "asset-brain-query":            ["question", "asset_id", "hive_id"],
+    "shift-planner-orchestrator":   ["shift_window"],
 }
 
 

@@ -95,6 +95,14 @@ RE_CREATE_TABLE = re.compile(
     r'(?:"?(\w+)"?\.)?"?(\w+)"?\s*\((.*?)\)\s*(?:WITH\s|TABLESPACE\s|;|$)',
     re.IGNORECASE | re.DOTALL,
 )
+RE_CREATE_VIEW = re.compile(
+    r"CREATE\s+(?:OR\s+REPLACE\s+)?(?:MATERIALIZED\s+)?VIEW\s+"
+    r'(?:"?(\w+)"?\.)?"?(\w+)"?\s+AS\b',
+    re.IGNORECASE,
+)
+# Sentinel: register views with this column so the table_exists check passes
+# but the column_exists check skips (views have computed columns we don't parse).
+VIEW_SENTINEL_COL = "__view__"
 RE_ALTER_ADD_COLUMN = re.compile(
     r"ALTER\s+TABLE\s+(?:ONLY\s+)?(?:IF\s+EXISTS\s+)?"
     r'(?:"?(\w+)"?\.)?"?(\w+)"?\s+ADD\s+COLUMN\s+(?:IF\s+NOT\s+EXISTS\s+)?"?(\w+)"?',
@@ -169,6 +177,15 @@ def build_schema() -> dict:
                 continue
             table = m.group(2)
             schema.setdefault(table, set()).update(_parse_columns_from_create(m.group(3)))
+
+        # Views: register the name so table_exists passes; mark with sentinel so
+        # column_exists skips (we don't parse SELECT lists).
+        for m in RE_CREATE_VIEW.finditer(sql):
+            schema_name = (m.group(1) or "public").lower()
+            if schema_name not in {"public", ""}:
+                continue
+            view = m.group(2)
+            schema.setdefault(view, set()).add(VIEW_SENTINEL_COL)
 
         for m in RE_ALTER_ADD_COLUMN.finditer(sql):
             schema.setdefault(m.group(2), set()).add(m.group(3))
@@ -305,6 +322,8 @@ def check_column_existence(schema: dict, findings: list) -> dict:
         cols = schema.get(table)
         if cols is None:
             continue   # table missing is reported separately
+        if VIEW_SENTINEL_COL in cols:
+            continue   # view: column list is computed from SELECT, skip
         for c in f["columns"]:
             if c not in cols:
                 bad.append({"file": f["file"], "line": f["line"], "table": table, "column": c})

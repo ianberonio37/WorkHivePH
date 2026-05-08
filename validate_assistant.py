@@ -51,6 +51,8 @@ LIVE_TOOL_PAGES = [
     "ph-intelligence",
     "predictive",
     "achievements",
+    "asset-hub",
+    "shift-brain",
 ]
 
 RETIRED_PAGES = ["parts-tracker", "checklist"]
@@ -86,8 +88,9 @@ def check_platform_tools_completeness(content, page):
                  "reason": "PLATFORM TOOLS section not found in system prompt"}]
     # Window must cover the entire PLATFORM TOOLS list. 3000 was too tight
     # — bumping to 5000, then to 6500 as platform grew past 18 tools.
+    # Bumped to 7800 in May 2026 after Asset Hub + Shift Brain landed.
     # Increase again when a new set of tools pushes entries past the cutoff.
-    block = content[start:start + 6500]
+    block = content[start:start + 7800]
     issues = []
     for tool in LIVE_TOOL_PAGES:
         aliases = PAGE_ALIASES.get(tool, [tool])
@@ -211,7 +214,10 @@ def check_skillmatrix_disciplines(float_content, skill_content, page):
     if start == -1:
         return [{"check": "skillmatrix_disciplines", "page": page,
                  "reason": "PLATFORM TOOLS section not found"}]
-    block = float_content[start:start + 3000]
+    # Window bumped from 3000 to 5500 in May 2026 (Asset Hub + Shift Brain
+    # entries pushed Skill Matrix past the prior cutoff). Increase again as
+    # the platform grows past the new ceiling.
+    block = float_content[start:start + 5500]
     sm_m  = re.search(r"[Ss]kill [Mm]atrix[\s\S]{0,400}?(?=\n-|\Z)", block)
     if not sm_m:
         return [{"check": "skillmatrix_disciplines", "page": page,

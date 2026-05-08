@@ -46,6 +46,8 @@ LIVE_PAGES = [
     "public-feed.html",
     "project-manager.html",
     "achievements.html",
+    "asset-hub.html",
+    "shift-brain.html",
 ]
 
 CRITICAL_SAVES = [

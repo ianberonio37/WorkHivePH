@@ -72,6 +72,13 @@ EXPECTED_PUBLISHED_TABLES = {
     "project_change_orders",
     # Phase ML-1 / Achievements (2026-05-08):
     "worker_achievements",
+    # Asset Brain Phase 0 (2026-05-08): added to publication via
+    # 20260508000009_asset_brain_foundation.sql ALTER PUBLICATION blocks.
+    "asset_nodes",
+    "asset_edges",
+    # Shift Brain Phase 4 (2026-05-08): added via
+    # 20260508000011_shift_brain_foundation.sql
+    "shift_plans",
 }
 
 CHECKS = {

@@ -24,6 +24,8 @@ PAGES = [
     "ph-intelligence.html",
     "predictive.html",
     "achievements.html",
+    "asset-hub.html",
+    "shift-brain.html",
 ]
 
 # Pages that render dynamic content (dates, live data) — captured but never compared.

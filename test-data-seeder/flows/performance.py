@@ -27,6 +27,8 @@ PAGES = [
     "ph-intelligence.html",
     "predictive.html",
     "achievements.html",
+    "asset-hub.html",
+    "shift-brain.html",
 ]
 
 # All in milliseconds
