@@ -1,34 +1,72 @@
 """Wipe all seeded data, child tables first to respect FK constraints.
 Also wipes Supabase Auth users (locally) so re-seed doesn't collide."""
 
-# Order matters — children before parents.
+# Order matters -- children before parents. Tables with PK other than 'id'
+# go in RESET_TABLES_NON_ID below (uses a different sentinel filter).
 RESET_TABLES = [
+    # Project Manager (child -> parent)
+    "project_progress_logs",
+    "project_links",
+    "project_items",
+    "projects",
+    # Auto-Staging (Phase ML-2)
+    "parts_staged_reservations",
+    "parts_staging_recommendations",
+    # Predictive Analytics
+    "asset_risk_scores",
+    # Achievements (child -> parent)
+    "achievement_xp_log",
+    "worker_achievements",
+    "achievement_definitions",
+    # Asset Brain graph (child -> parent)
+    "asset_embeddings",
+    "asset_edges",
+    "asset_nodes",
+    # Shift Brain
+    "shift_plans",
+    # Community + marketplace
     "community_replies",
     "community_reactions",
     "community_posts",
     "marketplace_reviews",
     "marketplace_orders",
     "marketplace_listings",
+    # Skill matrix
     "skill_exam_attempts",
     "skill_badges",
     "skill_profiles",
     "schedule_items",
     "engineering_calcs",
+    # Knowledge + alerts
     "fault_knowledge",
     "failure_signature_alerts",
+    # Benchmarks
     "hive_benchmarks",
     "network_benchmarks",
+    # CMMS
+    "cmms_audit_log",
+    "external_sync",
+    # Inventory
     "inventory_transactions",
     "inventory_items",
+    # PM
     "pm_completions",
     "pm_scope_items",
     "pm_assets",
+    # Logbook + assets
     "logbook",
     "assets",
+    # Hive membership last (root)
     "hive_members",
     "worker_profiles",
     "hives",
 ]
+
+# Tables that don't have an 'id' PK. Reset filters by a different column.
+# Maps table -> (column, sentinel_value) used for the .neq() delete filter.
+RESET_TABLES_NON_ID = {
+    "ai_rate_limits": ("hive_id", "00000000-0000-0000-0000-000000000000"),
+}
 
 
 def reset_all(client, log) -> dict:
@@ -40,6 +78,17 @@ def reset_all(client, log) -> dict:
             n = len(res.data) if res.data else 0
             summary[t] = n
             log(f"  cleared {t} ({n} rows)")
+        except Exception as e:
+            log(f"  WARN: skipped {t}: {type(e).__name__}: {e}")
+            summary[t] = f"error: {e}"
+
+    # Tables without an 'id' column (e.g. ai_rate_limits keyed on hive_id)
+    for t, (col, sentinel) in RESET_TABLES_NON_ID.items():
+        try:
+            res = client.table(t).delete().neq(col, sentinel).execute()
+            n = len(res.data) if res.data else 0
+            summary[t] = n
+            log(f"  cleared {t} via {col} ({n} rows)")
         except Exception as e:
             log(f"  WARN: skipped {t}: {type(e).__name__}: {e}")
             summary[t] = f"error: {e}"
