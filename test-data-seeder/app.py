@@ -2600,4 +2600,17 @@ def api_cmms_tier1_test():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="127.0.0.1", port=5000)
+    # threaded=True so concurrent requests don't queue (the index page +
+    # /api/status polling were piling up on a single Flask thread and
+    # hanging the dashboard at "Loading...").
+    # use_reloader=False because the auto-reloader was occasionally hanging
+    # mid-request after .py files in test-data-seeder/ were edited; the
+    # cost of disabling it is that you have to restart manually after a code
+    # change, which is fine for the Tester workflow.
+    app.run(
+        debug=True,
+        host="127.0.0.1",
+        port=5000,
+        threaded=True,
+        use_reloader=False,
+    )
