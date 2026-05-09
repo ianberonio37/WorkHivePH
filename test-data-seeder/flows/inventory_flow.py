@@ -309,6 +309,62 @@ def run(page, errors, warnings, log) -> dict:
         results.append(("WARN", f"G skipped: {e}"))
         log(f"    → WARN: {e}")
 
+    # ── Scenario H: Phase ML-2 — staged reservation shows "X reserved" badge ──
+    log("  [H] Reserved badge from parts_staged_reservations renders on inventory...")
+    try:
+        items = db.table("inventory_items") \
+            .select("id, part_name, qty_on_hand") \
+            .eq("hive_id", hive_id) \
+            .eq("status", "approved") \
+            .limit(1).execute().data or []
+
+        if not items:
+            results.append(("WARN", "H: no approved inventory items — reserved badge check skipped"))
+        else:
+            target = items[0]
+            target_id = target["id"]
+            target_name = target["part_name"]
+
+            # Insert a reservation if there isn't already one active for this item
+            existing = db.table("parts_staged_reservations") \
+                .select("id") \
+                .eq("hive_id", hive_id) \
+                .eq("item_id", target_id) \
+                .is_("consumed_at", "null") \
+                .is_("released_at", "null") \
+                .limit(1).execute().data or []
+
+            if not existing:
+                db.table("parts_staged_reservations").insert({
+                    "hive_id":      hive_id,
+                    "asset_name":   "Inventory Test Asset (H-scenario)",
+                    "item_id":      target_id,
+                    "qty_reserved": 3,
+                    "reserved_by":  "tester-flow-H",
+                    "notes":        "scenario H: reserve qty so Inventory orange badge renders",
+                }).execute()
+
+            # Reload inventory page so the reservation is fetched into _reservations Map
+            page.goto(f"{BASE_URL}/workhive/inventory.html", wait_until="networkidle", timeout=15000)
+            page.wait_for_timeout(2000)
+
+            # Look for the badge text "<n> reserved" near the part name
+            page_text = page.locator("body").inner_text()
+            if target_name in page_text and "reserved" in page_text.lower():
+                # Tighter check: badge text appears within ~120 chars of the part name
+                idx = page_text.find(target_name)
+                window = page_text[max(0, idx - 30): idx + 200].lower()
+                if "reserved" in window:
+                    results.append(("PASS", f"H: reserved badge visible near '{target_name}'"))
+                else:
+                    results.append(("WARN", f"H: 'reserved' text on page but not near '{target_name}' — selector may differ"))
+            else:
+                results.append(("WARN", f"H: '{target_name}' or 'reserved' not visible — _reservations Map may not have loaded"))
+        log(f"    → {results[-1]}")
+    except Exception as e:
+        results.append(("WARN", f"H skipped: {e}"))
+        log(f"    → WARN: {e}")
+
     screenshot(page, "inventory_final")
     pass_count = sum(1 for r in results if r[0] == "PASS")
     fail_count = sum(1 for r in results if r[0] == "FAIL")

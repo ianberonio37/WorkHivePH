@@ -17,6 +17,8 @@ from .asset_brain import seed_asset_brain
 from .risk_scores import seed_risk_scores
 from .shift_plans import seed_shift_plans
 from .failure_alerts import seed_failure_alerts
+from .parts_staging import seed_parts_staging
+from .parts_reservations import seed_parts_reservations
 from .edge_post_seed import run_post_seed_edges
 
 
@@ -57,6 +59,9 @@ def seed_everything(client, log) -> dict:
     step12b = seed_risk_scores(client, log, ctx)
     step12c = seed_shift_plans(client, log, ctx)
     step12d = seed_failure_alerts(client, log, ctx)
+    # Auto-Staging surfaces (must run AFTER risk_scores + inventory exist)
+    step12e = seed_parts_staging(client, log, ctx)
+    step12f = seed_parts_reservations(client, log, ctx)
     step13 = run_post_seed_edges(client, log, ctx)   # depends on logbook + assets
 
     log("=" * 50)
@@ -81,5 +86,7 @@ def seed_everything(client, log) -> dict:
         **step12b,
         **step12c,
         **step12d,
+        **step12e,
+        **step12f,
         **step13,
     }

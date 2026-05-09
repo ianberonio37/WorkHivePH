@@ -142,6 +142,12 @@ def run(page, errors, warnings, log) -> dict:
             ("queries shift_plans",       'shift_plans'       in html),
             ("status-draft style",        'status-draft'      in html),
             ("status-published style",    'status-published'  in html),
+            # Phase E -- supervisor publish flow
+            ("publish CTA present",       'id="publish-btn"'  in html or "publishPlan(" in html),
+            ("supervisor-role gating",    "HIVE_ROLE"         in html and "supervisor" in html),
+            # Phase E -- orchestrator integration (graceful 404 handling)
+            ("rerunPlan handler",         "rerunPlan"         in html or "shift-planner-orchestrator" in html),
+            ("degraded-state messaging",  "non-2xx"           in html or "edge function"  in html.lower() or "running locally" in html.lower()),
         ]
         for label, ok in checks:
             results.append(("PASS" if ok else "FAIL", label))

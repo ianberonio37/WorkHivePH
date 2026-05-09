@@ -221,13 +221,27 @@ def run(page, errors, warnings, log) -> dict:
     try:
         req = urllib.request.Request(f"{page.rstrip('/')}/asset-hub.html", method="GET")
         with urllib.request.urlopen(req, timeout=15) as r:
-            html = r.read(50000).decode("utf-8", errors="replace")
+            html = r.read(120000).decode("utf-8", errors="replace")
         checks = [
             ("hub HTML loads (HTTP 200)",  True),  # got here = 200
             ("asset-list element present", 'id="asset-list"'   in html),
             ("asset-search element",       'id="asset-search"' in html),
             ("queries asset_nodes",        "asset_nodes"       in html),
             ("queries asset_brain_overview", "asset_brain_overview" in html),
+            # Risk panel (Phase B.5) -- merged from predictive
+            ("risk-card div present",      'id="risk-card"'    in html),
+            ("risk-empty-card present",    'id="risk-empty-card"' in html),
+            ("loadDetailRisk fn defined",  "function loadDetailRisk" in html),
+            ("queries asset_risk_scores",  "asset_risk_scores" in html),
+            # Staging panel (Phase ML-2 -- new)
+            ("staging-card div present",   'id="staging-card"' in html),
+            ("loadDetailStaging fn",       "function loadDetailStaging" in html),
+            ("staging-accept button",      'id="staging-accept"' in html),
+            ("staging-dismiss button",     'id="staging-dismiss"' in html),
+            ("queries parts_staging_recommendations",
+                                            "parts_staging_recommendations" in html),
+            ("inserts parts_staged_reservations",
+                                            "parts_staged_reservations" in html),
         ]
         for label, ok in checks:
             results.append(("PASS" if ok else "FAIL", label))
