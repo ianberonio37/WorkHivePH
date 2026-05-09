@@ -508,6 +508,9 @@ function loadMoreInventory() { _invDisplayCount += 30; renderParts(); }
 let _items  = [];
 let _txns   = [];
 let _assets = [];
+// Phase ML-2: active reservations from parts_staged_reservations (item_id -> qty reserved)
+let _reservations = new Map();
+function getReservedQty(itemId) { return Number(_reservations.get(itemId) || 0); }
 
 function loadInventory()    { return _items; }
 function loadTransactions() { return _txns; }
@@ -715,10 +718,11 @@ function renderParts() {
             ${moreAss > 0 ? `<span class="text-[10px] text-white/30">+${moreAss} more</span>` : ''}
           </div>
           <div class="flex items-end justify-between gap-3 flex-wrap">
-            <div class="flex items-baseline gap-2">
+            <div class="flex items-baseline gap-2 flex-wrap">
               <span class="text-3xl font-black leading-none" style="color:${sc.text}">${item.qty_on_hand}</span>
               <span class="text-xs text-white/40">${escHtml(item.unit || 'pcs')}</span>
               ${item.min_qty > 0 ? `<span class="text-[11px] text-white/25">Min: ${item.min_qty}</span>` : ''}
+              ${getReservedQty(item.id) > 0 ? `<span class="text-[11px] font-semibold" style="color:#fb923c; background:rgba(251,146,60,.12); padding:2px 6px; border-radius:6px;" title="Pre-staged for predicted asset failures via Auto-Staging">${getReservedQty(item.id)} reserved</span>` : ''}
             </div>
             <div class="flex gap-2">
               <button onclick="openUseModal('${item.id}')" class="btn-danger text-xs px-3 flex items-center gap-1.5" ${locked ? 'style="opacity:0.4;cursor:not-allowed;"' : ''}>
@@ -1312,6 +1316,24 @@ async function initData() {
   } else {
     _items = mergedItems;
     _txns  = txnsRes.data || [];
+  }
+
+  // Phase ML-2: load active staged reservations (consumed_at IS NULL AND released_at IS NULL)
+  if (HIVE_ID) {
+    const { data: resvs, error: resvErr } = await db.from('parts_staged_reservations')
+      .select('item_id, qty_reserved')
+      .eq('hive_id', HIVE_ID)
+      .is('consumed_at', null)
+      .is('released_at', null);
+    if (resvErr) {
+      console.warn('staged reservations:', resvErr.message);
+    } else {
+      _reservations = new Map();
+      for (const r of (resvs || [])) {
+        const key = String(r.item_id);
+        _reservations.set(key, (Number(_reservations.get(key)) || 0) + Number(r.qty_reserved || 0));
+      }
+    }
   }
 
   // Migrate assets from localStorage if Supabase is empty
