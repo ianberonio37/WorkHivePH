@@ -31,6 +31,12 @@ RECORDINGS_DIR = ROOT / ".tmp/ui_recordings"
 VOICE_DIR      = ROOT / ".tmp/voice_files"
 ASSEMBLED_DIR  = ROOT / ".tmp/assembled_videos"
 BACKLOG        = ROOT / ".tmp/video_ideas_backlog.json"
+LOGO_PATH      = ROOT / "brand_assets/workhive-logo-transparent.png"
+
+# Watermark sizing: 140px wide on 1280px video = ~11% of frame width
+# (broadcast-standard corner watermark size, top-right with 22px padding)
+LOGO_WIDTH_PX  = 140
+LOGO_PAD_PX    = 22
 
 # ── FFmpeg binary (bundled with imageio_ffmpeg) ───────────────────────────────
 
@@ -106,9 +112,35 @@ def get_duration(file_path: Path) -> float:
 
 # ── Whisper auto-captions ─────────────────────────────────────────────────────
 
+def _ensure_ffmpeg_on_path():
+    """
+    Whisper shells out to bare 'ffmpeg' for audio decoding. imageio_ffmpeg
+    bundles a versioned binary (ffmpeg-win-x86_64-vX.X.exe) which Windows
+    won't resolve as 'ffmpeg'. We copy it to a shim dir as ffmpeg.exe and
+    prepend that dir to PATH for this process only. No-op if real ffmpeg
+    is already on PATH.
+    """
+    import shutil
+    if shutil.which("ffmpeg"):
+        return
+    try:
+        import imageio_ffmpeg
+        bundled  = Path(imageio_ffmpeg.get_ffmpeg_exe())
+        shim_dir = ROOT / ".tmp/_ffmpeg_shim"
+        shim_dir.mkdir(parents=True, exist_ok=True)
+        shim_exe = shim_dir / "ffmpeg.exe"
+        if (not shim_exe.exists()
+                or shim_exe.stat().st_mtime < bundled.stat().st_mtime):
+            shutil.copy2(bundled, shim_exe)
+        os.environ["PATH"] = str(shim_dir) + os.pathsep + os.environ.get("PATH", "")
+    except Exception as exc:
+        print(f"  [WARN] ffmpeg shim setup failed: {exc}")
+
+
 def generate_srt(narration_path: Path, out_srt: Path, model_size: str = "tiny") -> bool:
     """Transcribe narration and write an SRT file. Returns True on success."""
     try:
+        _ensure_ffmpeg_on_path()
         import whisper
         print(f"  Whisper: transcribing narration ({model_size} model)...")
         model  = whisper.load_model(model_size)
@@ -309,8 +341,26 @@ def assemble(
     if output_path is None:
         output_path = ASSEMBLED_DIR / f"{safe_id}_{ts}.mp4"
 
-    srt_path = tmp / "captions.srt"
-    if captions and generate_srt(narration, srt_path):
+    srt_path     = tmp / "captions.srt"
+    has_captions = captions and generate_srt(narration, srt_path)
+    has_logo     = LOGO_PATH.exists()
+
+    if has_captions and has_logo:
+        # Captions + logo watermark in one pass
+        srt_escaped = str(srt_path).replace("\\", "/").replace(":", "\\:")
+        _run_ffmpeg([
+            "-i", str(silent_mp4),
+            "-i", str(LOGO_PATH),
+            "-filter_complex",
+            f"[0:v]subtitles='{srt_escaped}':force_style='{CAPTION_STYLE}'[v1];"
+            f"[1:v]scale={LOGO_WIDTH_PX}:-1[logo];"
+            f"[v1][logo]overlay=W-w-{LOGO_PAD_PX}:{LOGO_PAD_PX}[vout]",
+            "-map", "[vout]", "-map", "0:a",
+            "-c:a", "copy",
+            str(output_path),
+        ], "burn captions + WorkHive logo watermark")
+    elif has_captions:
+        # Captions only (logo file missing)
         srt_escaped = str(srt_path).replace("\\", "/").replace(":", "\\:")
         _run_ffmpeg([
             "-i", str(silent_mp4),
@@ -318,8 +368,20 @@ def assemble(
             "-c:a", "copy",
             str(output_path),
         ], "burn captions")
+    elif has_logo:
+        # Logo watermark only
+        _run_ffmpeg([
+            "-i", str(silent_mp4),
+            "-i", str(LOGO_PATH),
+            "-filter_complex",
+            f"[1:v]scale={LOGO_WIDTH_PX}:-1[logo];"
+            f"[0:v][logo]overlay=W-w-{LOGO_PAD_PX}:{LOGO_PAD_PX}[vout]",
+            "-map", "[vout]", "-map", "0:a",
+            "-c:a", "copy",
+            str(output_path),
+        ], "burn WorkHive logo watermark")
     else:
-        # No captions — just copy to final output
+        # Nothing to burn — just copy
         _run_ffmpeg([
             "-i", str(silent_mp4),
             "-c", "copy",

@@ -253,7 +253,7 @@ def demo_ai_assistant(page):
     if chat_input.count():
         chat_input.click()
         page.wait_for_timeout(400)
-        question = "Bakit palagi nag-ooverload ang Pump 3? Ilang beses na ito nangyari?"
+        question = "Why does Pump 3 keep overloading? How many times has this happened?"
         for ch in question:
             page.keyboard.type(ch)
             page.wait_for_timeout(85)
@@ -449,7 +449,7 @@ def demo_marketplace(page):
 def demo_community(page):
     """
     Story: Obscure machine failure, nobody knows the fix →
-    Community Forum — Filipino plant workers sharing real solutions.
+    Community Forum — plant workers sharing real solutions.
     Pattern from community.py: /community.html, [data-post-id],
     textarea[placeholder*='share'], button:has-text('Post').
     """
@@ -457,7 +457,7 @@ def demo_community(page):
     page.goto(f"{WORKHIVE_URL}/workhive/community.html",
               wait_until="networkidle", timeout=20000)
     page.wait_for_timeout(3000)
-    pause(page, 3000, "real questions, real answers — Filipino plant workers helping each other")
+    pause(page, 3000, "real questions, real answers — plant workers helping each other")
 
     print("  [2/5] Scrolling through posts...")
     page.mouse.wheel(0, 400)
@@ -656,48 +656,346 @@ def demo_pm_checklist(page):
 def demo_inventory(page):
     """
     Story: part not available, repair delayed →
-    WorkHive inventory shows stock, triggers alerts before it hits zero.
-    Pattern from inventory_flow.py: /inventory.html, [data-item-id], button:has-text('Restock').
+    WorkHive inventory shows stock, alerts before it hits zero.
+    Read-only demo — no mutating actions to avoid stale-modal selector traps.
     """
-    print("  [1/5] Opening Inventory...")
+    print("  [1/6] Opening Inventory...")
     page.goto(f"{WORKHIVE_URL}/workhive/inventory.html",
               wait_until="networkidle", timeout=20000)
-    page.wait_for_timeout(3000)
+    page.wait_for_timeout(3500)
     pause(page, 3000, "all parts, all stock levels — one screen")
 
-    print("  [2/5] Showing low-stock items (red alerts)...")
-    page.mouse.wheel(0, 300)
-    pause(page, 4000, "items below reorder point — the system already knows before you do")
+    print("  [2/6] Showing the parts list...")
+    page.mouse.wheel(0, 250)
+    pause(page, 3000, "every part you have, every part you need")
 
-    print("  [3/5] Clicking a low-stock item...")
+    print("  [3/6] Scrolling further to surface low-stock alerts...")
+    page.mouse.wheel(0, 400)
+    pause(page, 3500, "items below reorder point — system flags them before you run out")
+
+    print("  [4/6] Searching for a critical part...")
+    search = page.locator("#inv-search, input[placeholder*='search' i]").first
+    if search.count():
+        search.click()
+        for ch in "bearing":
+            page.keyboard.type(ch)
+            page.wait_for_timeout(110)
+        pause(page, 2500, "instant search — any part across all stock")
+
+    print("  [5/6] Clearing search and clicking a low-stock card...")
+    if search.count():
+        search.fill("")
+        page.wait_for_timeout(800)
     item = page.locator("[data-item-id], .inv-card").first
     if item.count():
         item.scroll_into_view_if_needed()
         item.click()
-        page.wait_for_timeout(1500)
+        pause(page, 3000, "tap any part to see usage history and reorder details")
 
-    print("  [4/5] Clicking Restock...")
-    restock = page.locator("button:has-text('Restock')").first
-    if restock.count():
-        restock.click()
-        page.wait_for_timeout(1500)
-        # Fill quantity input
-        qty_input = page.locator("input[type='number']:visible").first
-        if qty_input.count():
-            qty_input.fill("50")
-            page.wait_for_timeout(500)
-        confirm = page.locator("button:has-text('Confirm'), button:has-text('Save')").first
-        if confirm.count():
-            confirm.click()
-            page.wait_for_timeout(2000)
-    pause(page, 3000, "restocked — quantity updated, transaction logged")
+    print("  [6/6] Back to top — emphasising the dashboard view...")
+    page.evaluate("window.scrollTo({top:0, behavior:'smooth'})")
+    page.wait_for_timeout(1200)
+    pause(page, 2500, "no more 'out of stock' surprises in the middle of a repair")
 
-    print("  [5/5] Searching for a part...")
-    search = page.locator("#inv-search, input[placeholder*='search' i]").first
+
+# ── New features (added 2026-05) ──────────────────────────────────────────────
+
+def demo_analytics(page):
+    """
+    Story: Manager opens dashboard at start of week → sees OEE, MTBF, downtime
+    across 4 analytics phases (Descriptive, Diagnostic, Predictive, Prescriptive).
+    """
+    print("  [1/5] Opening Analytics & OEE Dashboard...")
+    page.goto(f"{WORKHIVE_URL}/workhive/analytics.html",
+              wait_until="networkidle", timeout=20000)
+    page.wait_for_timeout(4500)
+    pause(page, 2500, "OEE, MTBF, downtime — your plant in numbers")
+
+    print("  [2/5] Scrolling through KPI cards...")
+    page.mouse.wheel(0, 350)
+    pause(page, 2500, "every machine, every breakdown, every minute lost")
+
+    print("  [3/5] Clicking Diagnostic tab — the why...")
+    diag_tab = page.locator(
+        "button:has-text('Diagnostic'), [data-phase='diagnostic'], a:has-text('Diagnostic')"
+    ).first
+    if diag_tab.count():
+        diag_tab.click()
+        pause(page, 5000, "not just what broke — why it broke")
+
+    print("  [4/5] Clicking Predictive tab — the future...")
+    pred_tab = page.locator(
+        "button:has-text('Predictive'), [data-phase='predictive'], a:has-text('Predictive')"
+    ).first
+    if pred_tab.count():
+        pred_tab.click()
+        pause(page, 5000, "what is going to break next — before it does")
+
+    print("  [5/5] Clicking Prescriptive — the action...")
+    prescr_tab = page.locator(
+        "button:has-text('Prescriptive'), [data-phase='prescriptive'], a:has-text('Prescriptive')"
+    ).first
+    if prescr_tab.count():
+        prescr_tab.click()
+        pause(page, 4500, "and what to do about it — written for you")
+
+
+def demo_predictive(page):
+    """
+    Story: ML model ranks every asset by failure risk → critical machines surface
+    before they break. Worker sees Pump CP-01 flagged red, prevents a $50k stoppage.
+    """
+    print("  [1/5] Opening Predictive Analytics...")
+    page.goto(f"{WORKHIVE_URL}/workhive/predictive.html",
+              wait_until="networkidle", timeout=20000)
+    page.wait_for_timeout(4500)
+    pause(page, 2500, "machine learning — every asset scored by failure risk")
+
+    print("  [2/5] Showing critical / high / medium / low counts...")
+    pause(page, 3000, "red = critical risk, orange = high risk, yellow = medium")
+
+    print("  [3/5] Scrolling through ranking table...")
+    page.mouse.wheel(0, 350)
+    pause(page, 3500, "the model knows which pump will fail before you do")
+
+    print("  [4/5] Switching to Health Heatmap view...")
+    heat_btn = page.locator(
+        "[data-panel='panel-heatmap'], button:has-text('Health Heatmap'), button.tab:has-text('Heatmap')"
+    ).first
+    if heat_btn.count():
+        heat_btn.click()
+        page.wait_for_timeout(1500)
+        pause(page, 4500, "whole plant at a glance — green safe, red about to break")
+
+    print("  [5/5] Final: prevent the breakdown before it happens...")
+    page.mouse.wheel(0, -300)
+    pause(page, 3000, "fix it now or fix it tomorrow at 2am — your call")
+
+
+def demo_asset_brain(page):
+    """
+    Story: Engineer needs full history on Pump CP-100 → Asset Brain shows ISO 14224
+    hierarchy + every failure + every PM + every part used + sister assets.
+    """
+    print("  [1/5] Opening Asset Hub...")
+    page.goto(f"{WORKHIVE_URL}/workhive/asset-hub.html",
+              wait_until="networkidle", timeout=20000)
+    page.wait_for_timeout(4000)
+    pause(page, 2500, "every machine — full lifetime in one view")
+
+    print("  [2/5] Searching for an asset...")
+    search = page.locator("#asset-search, input[placeholder*='search' i]").first
     if search.count():
-        search.fill("bearing")
+        search.click()
+        for ch in "Pump":
+            page.keyboard.type(ch)
+            page.wait_for_timeout(120)
+        pause(page, 1500, "search across the whole plant hierarchy")
+
+    print("  [3/5] Clicking the first matching asset...")
+    first_card = page.locator("#asset-list .asset-card, #asset-list [data-asset-id], #asset-list > div").first
+    if first_card.count():
+        first_card.click()
+        page.wait_for_timeout(2500)
+
+    print("  [4/5] Showing Asset 360 — failures, PMs, parts, sister assets...")
+    pause(page, 4500, "every failure, every PM, every part — asset 360")
+
+    print("  [5/5] Scrolling through lifetime data...")
+    page.mouse.wheel(0, 400)
+    pause(page, 4000, "ISO 14224 hierarchy — enterprise to equipment, all linked")
+
+
+def demo_shift_brain(page):
+    """
+    Story: Supervisor opens Shift Brain at 5:50am → AI-generated plan for the
+    06-14 shift: risk-top assets, due PMs, carry-overs, parts to pre-stage.
+    """
+    print("  [1/5] Opening Shift Brain...")
+    page.goto(f"{WORKHIVE_URL}/workhive/shift-brain.html",
+              wait_until="networkidle", timeout=20000)
+    page.wait_for_timeout(4000)
+    pause(page, 3000, "5:50am — your shift plan written before you arrive")
+
+    print("  [2/5] Showing the AI briefing...")
+    pause(page, 4500, "AI reads logbook, PMs, predictive scores — produces the brief")
+
+    print("  [3/5] Scrolling to risk-top section...")
+    page.mouse.wheel(0, 350)
+    pause(page, 3500, "top risks today: which machines need eyes on them first")
+
+    print("  [4/5] Showing PMs due + carry-forward from previous shift...")
+    page.mouse.wheel(0, 350)
+    pause(page, 3500, "open work from night shift, PMs due today, parts to stage")
+
+    print("  [5/5] Showing assignments...")
+    page.mouse.wheel(0, 300)
+    pause(page, 3500, "who does what — supervisor reviews, publishes, shift starts")
+
+
+def demo_achievements(page):
+    """
+    Story: Worker logs an entry → sees XP go up, level progress bar fill, new
+    badge unlock. Maintenance feels like progress, not chore.
+    """
+    print("  [1/5] Opening Achievements...")
+    page.goto(f"{WORKHIVE_URL}/workhive/achievements.html",
+              wait_until="networkidle", timeout=20000)
+    page.wait_for_timeout(4000)
+    pause(page, 3000, "every closed entry, every PM, every helpful answer = XP")
+
+    print("  [2/5] Showing level + composite score...")
+    pause(page, 3500, "level, XP, composite skill score — you, on paper")
+
+    print("  [3/5] Scrolling through earned badges...")
+    page.mouse.wheel(0, 400)
+    pause(page, 4000, "badges for breakdown response, PM streaks, knowledge sharing")
+
+    print("  [4/5] Showing badge progress bars...")
+    page.mouse.wheel(0, 350)
+    pause(page, 3500, "5 more PMs and you unlock the next tier")
+
+    print("  [5/5] End: maintenance work = recognized progress...")
+    page.mouse.wheel(0, -400)
+    pause(page, 3000, "your work, finally seen — beyond just paychecks")
+
+
+def demo_alert_hub(page):
+    """
+    Story: Supervisor opens Alert Hub → one inbox for every alert: critical risk
+    spikes, overdue PMs, low stock, failure signature warnings.
+    """
+    print("  [1/5] Opening Alert Hub...")
+    page.goto(f"{WORKHIVE_URL}/workhive/alert-hub.html",
+              wait_until="networkidle", timeout=20000)
+    page.wait_for_timeout(4000)
+    pause(page, 3000, "everything that needs your attention — one inbox")
+
+    print("  [2/5] Showing the alert feed...")
+    page.mouse.wheel(0, 200)
+    pause(page, 3500, "critical risk, overdue PM, low stock, signature alerts")
+
+    print("  [3/5] Clicking a filter chip (e.g. Critical)...")
+    crit_chip = page.locator(
+        "#filters button:has-text('Critical'), [data-filter='critical'], .ftab:has-text('Critical')"
+    ).first
+    if crit_chip.count():
+        crit_chip.click()
         page.wait_for_timeout(1500)
-    pause(page, 3000, "instant search — find any part across all stock")
+        pause(page, 3000, "filter to only what cannot wait")
+
+    print("  [4/5] Scrolling through filtered alerts...")
+    page.mouse.wheel(0, 300)
+    pause(page, 3000, "no more 200 emails — just what matters now")
+
+    print("  [5/5] Clicking the first alert to drill in...")
+    first_alert = page.locator("#feed > *, .alert-card").first
+    if first_alert.count():
+        first_alert.click()
+        pause(page, 3500, "one tap from alert to action")
+
+
+def demo_ph_intelligence(page):
+    """
+    Story: Plant manager wants to know if his MTBF is good vs Philippine industry
+    average → PH Intelligence shows benchmark + recommendations.
+    """
+    print("  [1/5] Opening PH Industry Intelligence...")
+    page.goto(f"{WORKHIVE_URL}/workhive/ph-intelligence.html",
+              wait_until="networkidle", timeout=20000)
+    page.wait_for_timeout(4500)
+    pause(page, 3000, "your plant — vs Philippine industry peers")
+
+    print("  [2/5] Showing the executive summary...")
+    pause(page, 4500, "where you lead, where you lag — written, not just charted")
+
+    print("  [3/5] Scrolling to MTBF benchmark chart...")
+    page.mouse.wheel(0, 350)
+    pause(page, 4000, "MTBF, OEE, downtime — ranked against the country")
+
+    print("  [4/5] Showing failure mode breakdown...")
+    page.mouse.wheel(0, 350)
+    pause(page, 3500, "which failure modes hit your industry hardest")
+
+    print("  [5/5] Scrolling to recommendations...")
+    page.mouse.wheel(0, 350)
+    pause(page, 4500, "specific actions for your plant — not generic advice")
+
+
+def demo_integrations(page):
+    """
+    Story: IT manager doesn't want to abandon SAP PM → Integrations page shows
+    Import / Live Sync / API Keys — three ways to bridge WorkHive to existing CMMS.
+    """
+    print("  [1/5] Opening Integrations...")
+    page.goto(f"{WORKHIVE_URL}/workhive/integrations.html",
+              wait_until="networkidle", timeout=20000)
+    page.wait_for_timeout(4000)
+    pause(page, 3000, "already on SAP PM or Maximo? Bridge it, do not replace it")
+
+    print("  [2/5] Showing Import File tab (default)...")
+    pause(page, 3500, "Tab 1: drop a CSV from your existing CMMS — done")
+
+    print("  [3/5] Switching to Live Sync tab...")
+    sync_tab = page.locator("#tab-sync, button:has-text('Live Sync')").first
+    if sync_tab.count():
+        sync_tab.click()
+        page.wait_for_timeout(1500)
+        pause(page, 4000, "Tab 2: live two-way sync with your CMMS via webhook")
+
+    print("  [4/5] Switching to API Keys tab...")
+    api_tab = page.locator("#tab-api, button:has-text('API Keys')").first
+    if api_tab.count():
+        api_tab.click()
+        page.wait_for_timeout(1500)
+        pause(page, 4000, "Tab 3: REST API for custom integrations")
+
+    print("  [5/5] Back to import — emphasising the easiest path...")
+    imp_tab = page.locator("#tab-import, button:has-text('Import File')").first
+    if imp_tab.count():
+        imp_tab.click()
+        pause(page, 3500, "start with import — upgrade to live sync when ready")
+
+
+def demo_project_manager(page):
+    """
+    Story: Plant manager planning Q3 overhaul → opens Project Manager, sees all
+    open projects, drills into the boiler overhaul, reviews tasks + parts + skills.
+    """
+    print("  [1/6] Opening Project Manager...")
+    page.goto(f"{WORKHIVE_URL}/workhive/project-manager.html",
+              wait_until="networkidle", timeout=20000)
+    page.wait_for_timeout(4000)
+    pause(page, 3000, "long-running maintenance projects — overhauls, shutdowns, capex")
+
+    print("  [2/6] Showing the project card grid...")
+    page.mouse.wheel(0, 250)
+    pause(page, 3000, "every project, status at a glance")
+
+    print("  [3/6] Searching for a project...")
+    search = page.locator("#filter-search").first
+    if search.count():
+        search.click()
+        for ch in "overhaul":
+            page.keyboard.type(ch)
+            page.wait_for_timeout(120)
+        pause(page, 1800, "filter by name, type, or owner")
+
+    print("  [4/6] Clearing search and clicking the first project card...")
+    if search.count():
+        search.fill("")
+        page.wait_for_timeout(500)
+    first_card = page.locator("#card-grid > *").first
+    if first_card.count():
+        first_card.click()
+        page.wait_for_timeout(2500)
+
+    print("  [5/6] Showing project detail — milestones, tasks, parts...")
+    pause(page, 4500, "milestones, tasks, parts staging, skill assignments — one view")
+
+    print("  [6/6] Scrolling through deliverables...")
+    page.mouse.wheel(0, 400)
+    pause(page, 4000, "from kickoff to handover — nothing falls through the cracks")
 
 
 # ── Feature registry ──────────────────────────────────────────────────────────
@@ -736,6 +1034,33 @@ DEMOS = {
     # ── Community ───────────────────────────────────────────────────────────
     "community":                     demo_community,
     "Community Forum":               demo_community,
+    # ── Analytics & OEE Dashboard ───────────────────────────────────────────
+    "analytics":                     demo_analytics,
+    "Analytics & OEE Dashboard":     demo_analytics,
+    # ── Predictive Analytics ────────────────────────────────────────────────
+    "predictive":                    demo_predictive,
+    "Predictive Analytics":          demo_predictive,
+    # ── Asset Brain ─────────────────────────────────────────────────────────
+    "asset_brain":                   demo_asset_brain,
+    "Asset Brain":                   demo_asset_brain,
+    # ── Shift Brain ─────────────────────────────────────────────────────────
+    "shift_brain":                   demo_shift_brain,
+    "Shift Brain":                   demo_shift_brain,
+    # ── Achievements ────────────────────────────────────────────────────────
+    "achievements":                  demo_achievements,
+    "Achievements":                  demo_achievements,
+    # ── Alert Hub ───────────────────────────────────────────────────────────
+    "alert_hub":                     demo_alert_hub,
+    "Alert Hub":                     demo_alert_hub,
+    # ── PH Industry Intelligence ────────────────────────────────────────────
+    "ph_intelligence":               demo_ph_intelligence,
+    "PH Industry Intelligence":      demo_ph_intelligence,
+    # ── CMMS Integrations ───────────────────────────────────────────────────
+    "integrations":                  demo_integrations,
+    "CMMS Integrations":             demo_integrations,
+    # ── Project Manager ─────────────────────────────────────────────────────
+    "project_manager":               demo_project_manager,
+    "Project Manager":               demo_project_manager,
 }
 
 # Features that have a demo sequence (used by the dashboard UI)
@@ -754,6 +1079,16 @@ FEATURE_URLS = {
     "Skill Matrix":                  "/workhive/skillmatrix.html",
     "Marketplace":                   "/workhive/marketplace.html",
     "Community Forum":               "/workhive/community.html",
+    # New 2026-05
+    "Analytics & OEE Dashboard":     "/workhive/analytics.html",
+    "Predictive Analytics":          "/workhive/predictive.html",
+    "Asset Brain":                   "/workhive/asset-hub.html",
+    "Shift Brain":                   "/workhive/shift-brain.html",
+    "Achievements":                  "/workhive/achievements.html",
+    "Alert Hub":                     "/workhive/alert-hub.html",
+    "PH Industry Intelligence":      "/workhive/ph-intelligence.html",
+    "CMMS Integrations":             "/workhive/integrations.html",
+    "Project Manager":               "/workhive/project-manager.html",
 }
 
 

@@ -29,6 +29,7 @@ PAGES = [
     "achievements.html",
     "asset-hub.html",
     "shift-brain.html",
+    "alert-hub.html",
 ]
 
 # All in milliseconds

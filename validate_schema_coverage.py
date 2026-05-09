@@ -83,7 +83,46 @@ EXTRA_COLUMNS: dict[str, set] = {
         "id", "hive_id", "worker_name", "machine", "maintenance_type", "category",
         "failure_mode", "root_cause", "problem", "action", "knowledge", "downtime_hours",
         "status", "closed_at", "created_at", "logged_at", "parts_used", "readings_json",
-        "pm_completion_id", "asset_id", "tag_id",
+        "pm_completion_id", "asset_id", "tag_id", "asset_ref_id",
+        # Phase E.4 (2026-05-08): Work Order state machine columns.
+        "wo_state", "wo_assigned_to",
+    },
+    # Asset Brain Phase 0 (2026-05-08) — graph schema for the Asset Hub.
+    # Migration 20260508000009_asset_brain_foundation.sql.
+    "asset_nodes": {
+        "id", "hive_id", "auth_uid", "worker_name", "parent_id", "level", "tag", "name",
+        "iso_class", "criticality", "location", "manufacturer", "model", "serial_no",
+        "install_date", "external_ids", "legacy_asset_id", "pm_asset_id",
+        "status", "submitted_by", "approved_by", "approved_at",
+        "created_at", "updated_at",
+    },
+    "asset_edges": {
+        "id", "hive_id", "auth_uid", "from_node_id", "to_node_id",
+        "edge_type", "properties", "created_at",
+    },
+    "asset_embeddings": {
+        "node_id", "hive_id", "summary", "embedding", "refreshed_at",
+    },
+    "asset_brain_overview": {
+        "node_id", "hive_id", "tag", "name", "level", "iso_class", "criticality",
+        "location", "parent_id", "legacy_asset_id", "pm_asset_id",
+        "lifetime_logbook_entries", "last_failure_at", "pm_completed_count", "edge_count",
+    },
+    # Shift Brain Phase 4 (2026-05-08) — shift planner output.
+    # Migration 20260508000011_shift_brain_foundation.sql.
+    "shift_plans": {
+        "id", "hive_id", "shift_window", "shift_date", "status",
+        "generated_at", "generated_by", "published_at", "published_by",
+        "briefing", "payload", "created_at", "updated_at",
+    },
+    # Shared AI infra (2026-05-08).
+    "ai_rate_limits": {
+        "hive_id", "call_count", "window_start",
+    },
+    # Failure signature pattern alerts (older migration, baseline encoding issue).
+    "failure_signature_alerts": {
+        "id", "hive_id", "machine", "signature_kind", "message", "severity",
+        "created_at", "resolved_at", "resolved_by",
     },
 }
 

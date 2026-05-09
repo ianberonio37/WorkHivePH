@@ -663,6 +663,119 @@
     }
 
     .voice-player audio { width: 100%; height: 28px; }
+
+    /* ── Auto-Produce hero card + progress ───────────────────────────── */
+    .auto-produce {
+      margin: 0.85rem 0.85rem 0;
+      padding: 1rem 1.1rem;
+      background: linear-gradient(135deg, rgba(247,162,27,0.10) 0%, rgba(41,182,217,0.08) 100%);
+      border: 1px solid rgba(247,162,27,0.32);
+      border-radius: 0.7rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+    .auto-produce-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .auto-produce-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--cloud);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .auto-produce-sub {
+      font-size: 0.68rem;
+      color: var(--steel);
+      line-height: 1.5;
+    }
+    .auto-produce-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+    .auto-produce-controls select {
+      background: rgba(22,32,50,0.85);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 0.4rem;
+      color: white;
+      padding: 0.3rem 0.5rem;
+      font-size: 0.7rem;
+      font-family: 'Poppins', sans-serif;
+    }
+    .btn-autoproduce {
+      background: linear-gradient(135deg, #F7A21B 0%, #D88A0E 100%);
+      border: none;
+      color: white;
+      padding: 0.5rem 0.95rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border-radius: 0.45rem;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(247,162,27,0.3);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-autoproduce:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(247,162,27,0.45);
+    }
+    .btn-autoproduce:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    /* Progress strip */
+    .ap-progress {
+      display: flex;
+      gap: 0.35rem;
+      align-items: stretch;
+    }
+    .ap-step {
+      flex: 1;
+      background: rgba(22,32,50,0.55);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 0.45rem;
+      padding: 0.45rem 0.5rem;
+      font-size: 0.6rem;
+      color: var(--steel);
+      text-align: center;
+      transition: all 0.25s;
+      position: relative;
+    }
+    .ap-step .ap-icon { display: block; font-size: 0.85rem; margin-bottom: 0.15rem; }
+    .ap-step .ap-name { display: block; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+    .ap-step.active {
+      background: rgba(247,162,27,0.15);
+      border-color: rgba(247,162,27,0.5);
+      color: var(--orange);
+      box-shadow: 0 0 0 2px rgba(247,162,27,0.15);
+    }
+    .ap-step.done {
+      background: rgba(34,197,94,0.12);
+      border-color: rgba(34,197,94,0.32);
+      color: var(--green);
+    }
+    .ap-step.error {
+      background: rgba(239,68,68,0.12);
+      border-color: rgba(239,68,68,0.4);
+      color: var(--red);
+    }
+    .ap-message {
+      font-size: 0.7rem;
+      color: var(--cloud);
+      padding: 0.35rem 0;
+      min-height: 1rem;
+    }
+    .ap-message.error { color: var(--red); }
+    .ap-message.done  { color: var(--green); font-weight: 600; }
+
+    @keyframes ap-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
+    .ap-step.active .ap-icon { animation: ap-pulse 1.2s ease-in-out infinite; }
   </style>
 </head>
 <body>
@@ -1278,18 +1391,159 @@
           '<span class="kit-header-label">Free Production Kit</span>' +
           '<span class="kit-free-badge">100% Free Stack</span>' +
         '</div>' +
+        renderAutoProduceCard(ideaId) +
         '<div class="kit-grid">' + html + '</div>' +
       '</div>'
     );
   }
 
+  // ── Auto-Produce hero card ────────────────────────────────────────────────
+  function renderAutoProduceCard(ideaId) {
+    const voiceOpts = [
+      {k:'james',    l:'James (PH English Male)'},
+      {k:'rosa',     l:'Rosa (PH English Female)'},
+      {k:'guy',      l:'Guy (US English Male)'},
+      {k:'jenny',    l:'Jenny (US English Female)'},
+      {k:'ryan',     l:'Ryan (UK English Male)'},
+      {k:'angelo',   l:'Angelo (Filipino Male)'},
+      {k:'blessica', l:'Blessica (Filipino Female)'},
+    ].map(v => '<option value="' + v.k + '">' + v.l + '</option>').join('');
+
+    const stages = [
+      {k:'script',    n:'Script',     i:'1'},
+      {k:'voice',     n:'Narration',  i:'2'},
+      {k:'recording', n:'UI Demo',    i:'3'},
+      {k:'scene',     n:'Scene',      i:'4'},
+      {k:'music',     n:'Music',      i:'5'},
+      {k:'assemble',  n:'Assemble',   i:'6'},
+    ];
+    const stepsHtml = stages.map(s =>
+      '<div class="ap-step" data-stage="' + s.k + '" id="ap-' + ideaId + '-' + s.k + '">' +
+        '<span class="ap-icon">' + s.i + '</span>' +
+        '<span class="ap-name">' + s.n + '</span>' +
+      '</div>'
+    ).join('');
+
+    return (
+      '<div class="auto-produce" id="autoProduce-' + ideaId + '">' +
+        '<div class="auto-produce-header">' +
+          '<div>' +
+            '<div class="auto-produce-title">🎬 Auto-Produce Full Video</div>' +
+            '<div class="auto-produce-sub">' +
+              'One click runs the full chain: script → narration → UI recording → scene clips → music → assemble. ' +
+              'Stages skip cleanly if assets already exist (e.g. you recorded manually).' +
+            '</div>' +
+          '</div>' +
+          '<div class="auto-produce-controls">' +
+            '<select id="apVoice-' + ideaId + '">' + voiceOpts + '</select>' +
+            '<button class="btn-autoproduce" id="apBtn-' + ideaId + '" onclick="autoProduce(\'' + ideaId + '\')">Auto-Produce</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="ap-progress" id="apProgress-' + ideaId + '">' + stepsHtml + '</div>' +
+        '<div class="ap-message" id="apMessage-' + ideaId + '"></div>' +
+      '</div>'
+    );
+  }
+
+  // ── Auto-Produce orchestration ────────────────────────────────────────────
+  const PIPELINE_STAGES = ['script','voice','recording','scene','music','assemble'];
+
+  async function autoProduce(ideaId) {
+    const btn       = document.getElementById('apBtn-' + ideaId);
+    const voiceSel  = document.getElementById('apVoice-' + ideaId);
+    const messageEl = document.getElementById('apMessage-' + ideaId);
+    const voice     = voiceSel ? voiceSel.value : 'james';
+
+    // Reset all step states
+    PIPELINE_STAGES.forEach(s => {
+      const el = document.getElementById('ap-' + ideaId + '-' + s);
+      if (el) el.className = 'ap-step';
+    });
+    messageEl.className = 'ap-message';
+    messageEl.textContent = 'Starting...';
+    btn.disabled = true;
+    btn.textContent = 'Producing...';
+
+    try {
+      const r = await fetch('/api/ideas/' + ideaId + '/produce-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ voice: voice }),
+      });
+      const data = await r.json();
+      if (!data.success) throw new Error(data.error || 'Failed to start');
+      pollPipelineJob(ideaId, data.job_id);
+    } catch (err) {
+      messageEl.className = 'ap-message error';
+      messageEl.textContent = 'Failed to start: ' + err.message;
+      btn.disabled = false;
+      btn.textContent = 'Auto-Produce';
+    }
+  }
+
+  async function pollPipelineJob(ideaId, jobId) {
+    const btn       = document.getElementById('apBtn-' + ideaId);
+    const messageEl = document.getElementById('apMessage-' + ideaId);
+
+    const tick = async () => {
+      try {
+        const r    = await fetch('/api/produce-jobs/' + jobId);
+        const data = await r.json();
+        if (!data.success) throw new Error(data.error);
+
+        const currentStage = data.stage;
+        const stageIdx     = PIPELINE_STAGES.indexOf(currentStage);
+
+        // Mark stages
+        PIPELINE_STAGES.forEach((s, i) => {
+          const el = document.getElementById('ap-' + ideaId + '-' + s);
+          if (!el) return;
+          if (data.status === 'error' && s === currentStage)        el.className = 'ap-step error';
+          else if (data.status === 'complete')                       el.className = 'ap-step done';
+          else if (i < stageIdx)                                     el.className = 'ap-step done';
+          else if (i === stageIdx && data.status === 'running')      el.className = 'ap-step active';
+          else                                                       el.className = 'ap-step';
+        });
+
+        messageEl.className   = 'ap-message';
+        messageEl.textContent = data.message || '';
+
+        if (data.status === 'complete') {
+          messageEl.className   = 'ap-message done';
+          messageEl.innerHTML   = '✓ ' + esc(data.message) +
+            ' &middot; <a href="' + esc(data.download) + '" style="color:var(--green);text-decoration:underline">Download ' + data.size_mb + 'MB MP4</a>';
+          btn.disabled = false;
+          btn.textContent = 'Auto-Produce Again';
+          loadAssets(ideaId);   // refresh per-stage cards
+          return;
+        }
+        if (data.status === 'error') {
+          messageEl.className   = 'ap-message error';
+          messageEl.textContent = data.message || data.error || 'Pipeline failed';
+          btn.disabled = false;
+          btn.textContent = 'Retry Auto-Produce';
+          return;
+        }
+        setTimeout(tick, 1500);
+      } catch (err) {
+        messageEl.className   = 'ap-message error';
+        messageEl.textContent = 'Lost connection: ' + err.message;
+        btn.disabled = false;
+        btn.textContent = 'Retry Auto-Produce';
+      }
+    };
+    tick();
+  }
+
   function renderVoiceCard(ideaId, charCount) {
     const voices = [
-      {k:'blessica', l:'Blessica — Filipino Female (fil-PH)', tag:'recommended'},
-      {k:'angelo',   l:'Angelo — Filipino Male (fil-PH)',     tag:'male counterpart'},
-      {k:'james',    l:'James — PH English Male (en-PH)'},
-      {k:'rosa',     l:'Rosa — PH English Female (en-PH)'},
-      {k:'guy',      l:'Guy — US English Male'},
+      {k:'james',    l:'James — PH English Male (en-PH)',  tag:'recommended'},
+      {k:'rosa',     l:'Rosa — PH English Female (en-PH)', tag:'female counterpart'},
+      {k:'guy',      l:'Guy — US English Male (calm)'},
+      {k:'jenny',    l:'Jenny — US English Female (warm)'},
+      {k:'ryan',     l:'Ryan — UK English Male (neutral)'},
+      {k:'angelo',   l:'Angelo — Filipino Male (fil-PH)'},
+      {k:'blessica', l:'Blessica — Filipino Female (fil-PH)'},
     ];
     const opts = voices.map(v =>
       '<option value="' + v.k + '">' + v.l + '</option>'
@@ -1491,11 +1745,13 @@
   }
 
   const VOICE_LABELS = {
-    blessica: 'Blessica (Filipino Female)',
-    angelo:   'Angelo (Filipino Male)',
     james:    'James (PH English Male)',
     rosa:     'Rosa (PH English Female)',
     guy:      'Guy (US English Male)',
+    jenny:    'Jenny (US English Female)',
+    ryan:     'Ryan (UK English Male)',
+    angelo:   'Angelo (Filipino Male)',
+    blessica: 'Blessica (Filipino Female)',
   };
 
   async function loadAssets(ideaId) {
@@ -1553,11 +1809,13 @@
       if (sel) {
         const generatedKeys = (a.narration.voices || []).map(v => v.key);
         const allVoices = [
-          {k:'blessica', l:'Blessica — Filipino Female (fil-PH)'},
-          {k:'angelo',   l:'Angelo — Filipino Male (fil-PH)'},
           {k:'james',    l:'James — PH English Male (en-PH)'},
           {k:'rosa',     l:'Rosa — PH English Female (en-PH)'},
           {k:'guy',      l:'Guy — US English Male'},
+          {k:'jenny',    l:'Jenny — US English Female'},
+          {k:'ryan',     l:'Ryan — UK English Male'},
+          {k:'angelo',   l:'Angelo — Filipino Male (fil-PH)'},
+          {k:'blessica', l:'Blessica — Filipino Female (fil-PH)'},
         ];
         sel.innerHTML = allVoices.map(v => {
           const ready   = generatedKeys.includes(v.k);

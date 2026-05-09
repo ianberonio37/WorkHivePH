@@ -53,7 +53,7 @@ def _get_platform_context(ideas: list = None) -> str:
         from tools.platform_intel import build_prompt_context
         return build_prompt_context(ideas or [])
     except Exception:
-        return "PLATFORM: WorkHive — Free Industrial Intelligence Tools for Filipino industrial workers."
+        return "PLATFORM: WorkHive — Free Industrial Intelligence Tools for industrial workers. All copy in plain simple English."
 
 PLATFORM_CONTEXT = _get_platform_context()
 
@@ -204,7 +204,7 @@ def cmd_ideas(n: int = 5):
 
     prompt = f"""{PLATFORM_CONTEXT}
 
-You are a creative director who specializes in viral industrial content in the Philippines.
+You are a creative director who specializes in viral industrial content.
 Your job: generate {n} DISTINCT WorkHive advertisement video ideas.{avoid}
 
 Rules:
@@ -213,14 +213,15 @@ Rules:
 - Hooks must feel real, not like marketing copy
 - Mix video types across the batch (storytelling, testimonial, comparison, educational, emotional)
 - At least one idea must target field technicians, one must target supervisors/managers
-- Filipino-English mix in hooks is encouraged (Taglish OK)
+- ALL copy (title, hook, problem) must be in PLAIN SIMPLE ENGLISH — no Tagalog, no Taglish, no code-switching, no Filipino slang
+- Use short, common words. Short sentences.
 
 Return ONLY a valid JSON array, no markdown fences, no explanation:
 [
   {{
-    "title": "short punchy title (4-7 words)",
-    "hook": "opening line a Filipino worker would immediately feel (1-2 sentences, conversational)",
-    "problem": "the pain point in plain language (1 sentence)",
+    "title": "short punchy title (4-7 words, plain English)",
+    "hook": "opening line in plain simple English any plant worker would immediately feel (1-2 sentences, conversational)",
+    "problem": "the pain point in plain English (1 sentence)",
     "solution_feature": "exact WorkHive feature name from the list above",
     "audience": "who this targets (e.g. Plant Manager, Field Technician, Supervisor, Engineer)",
     "emotion": "primary emotion triggered (e.g. Fear of downtime, Pride, Relief, Ambition)",
@@ -322,6 +323,12 @@ def cmd_script(idea_id: str):
 
 You are a creative director writing a production-ready script for a WorkHive ad video.
 
+LANGUAGE: PLAIN SIMPLE ENGLISH ONLY.
+- No Tagalog, no Taglish, no Filipino slang, no code-switching anywhere in the script.
+- Every NARRATION line, every TEXT OVERLAY, every CTA, every paste-ready block must be in plain English.
+- Use short, common words. Short sentences. Conversational, not formal — but English only.
+- If the IDEA BRIEF below contains any Tagalog or Taglish, translate it into plain English first.
+
 IDEA BRIEF:
 - Title:    {idea['title']}
 - Hook:     {idea['hook']}
@@ -388,15 +395,15 @@ Write the full script using exactly this structure:
 ---
 
 ## ElevenLabs Voice Direction
-- **Voice style:** [accent, pace, energy — e.g. Filipino male, calm authority, steady pace]
-- **Full narration (paste this):**
-  [All narration lines combined in order, one paragraph, ready to copy-paste into ElevenLabs]
+- **Voice style:** [accent, pace, energy — e.g. PH-accented English male, calm authority, steady pace]
+- **Full narration (paste this — PLAIN ENGLISH ONLY):**
+  [All narration lines combined in order, one paragraph, ready to copy-paste into ElevenLabs. English only, no Tagalog.]
 
 ---
 
 ## Music Direction
 - **Mood:** [describe the emotional feel]
-- **Style:** [e.g. lo-fi hip-hop, industrial ambient, quiet urgency, upbeat OPM-adjacent]
+- **Style:** [e.g. lo-fi hip-hop, industrial ambient, cinematic build, quiet urgency]
 - **BPM:** [approximate]
 - **Reference:** [describe a song feel, no copyright names needed]
 

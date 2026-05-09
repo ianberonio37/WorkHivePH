@@ -60,6 +60,10 @@ verify_jwt = false
 enabled = true
 verify_jwt = false
 
+[functions.parts-staging-recommender]
+enabled = true
+verify_jwt = false
+
 [functions.trigger-ml-retrain]
 enabled = true
 verify_jwt = false

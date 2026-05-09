@@ -11,53 +11,70 @@
 (function () {
   'use strict';
 
+  // ─── Phase E.3c: Lazy-load Global Search overlay so Cmd+K works everywhere
+  // nav-hub.js loads on every page, so attaching the search-overlay loader here
+  // makes the keyboard shortcut available platform-wide without per-page wiring.
+  if (!document.querySelector('script[data-wh-search]')) {
+    const s = document.createElement('script');
+    s.src = 'search-overlay.js';
+    s.async = true;
+    s.setAttribute('data-wh-search', '1');
+    document.head.appendChild(s);
+  }
+
   // ─── Tool Registry ────────────────────────────────────────────────────────────
   // section: null = no header (home only) | string = group label shown in All Tools grid
+  // roles: undefined = universal (visible in every mode) | array = visible only in those modes
+  //        Modes: 'field' | 'supervisor' | 'engineer'  ('all' shows everything)
   const TOOLS = [
     { label: 'Home',         href: 'index.html',        match: ['index', '/'],         section: null,
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>` },
 
     // ── Field Work: what you do every shift on the floor ─────────────────────
-    { label: 'Logbook',      href: 'logbook.html',      match: ['logbook'],            section: 'Field Work',
+    { label: 'Logbook',      href: 'logbook.html',      match: ['logbook'],            section: 'Field Work', roles: ['field','supervisor'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>` },
-    { label: 'Inventory',    href: 'inventory.html',    match: ['inventory'],          section: 'Field Work',
+    { label: 'Inventory',    href: 'inventory.html',    match: ['inventory'],          section: 'Field Work', roles: ['field','supervisor'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>` },
-    { label: 'Day Planner',  href: 'dayplanner.html',   match: ['dayplanner'],         section: 'Field Work',
+    { label: 'Day Planner',  href: 'dayplanner.html',   match: ['dayplanner'],         section: 'Field Work', roles: ['field','supervisor'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8" y2="14" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="14" x2="12" y2="14" stroke-width="3" stroke-linecap="round"/><line x1="16" y1="14" x2="16" y2="14" stroke-width="3" stroke-linecap="round"/></svg>` },
 
     // ── Your Team: team operations and collaboration ──────────────────────────
-    { label: 'WorkHive',     href: 'hive.html',         match: ['hive'],               section: 'Your Team',
+    { label: 'WorkHive',     href: 'hive.html',         match: ['hive'],               section: 'Your Team', roles: ['supervisor'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>` },
-    { label: 'PM Scheduler', href: 'pm-scheduler.html', match: ['pm-scheduler'],       section: 'Your Team',
+    { label: 'PM Scheduler', href: 'pm-scheduler.html', match: ['pm-scheduler'],       section: 'Your Team', roles: ['field','supervisor'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>` },
-    { label: 'Community',    href: 'community.html',    match: ['community'],          section: 'Your Team',
+    { label: 'Community',    href: 'community.html',    match: ['community'],          section: 'Your Team', /* universal */
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/><line x1="12" y1="21" x2="12" y2="21" stroke-width="3" stroke-linecap="round"/></svg>` },
 
     // ── Intelligence: AI, analytics, and predictions ──────────────────────────
     // Analytics Report MUST be listed before Analytics — both paths contain
     // 'analytics', and getCurrentTool() returns the first match in iteration order.
-    { label: 'Analytics Report', href: 'analytics-report.html', match: ['analytics-report'], section: 'Intelligence',
+    // Phase B: hidden from primary nav, accessible as a button inside analytics.html.
+    { label: 'Analytics Report', href: 'analytics-report.html', match: ['analytics-report'], section: 'Intelligence', hidden: true, roles: ['supervisor','engineer'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/><line x1="9" y1="9" x2="11" y2="9"/></svg>` },
-    { label: 'Analytics',    href: 'analytics.html',    match: ['analytics'],          section: 'Intelligence',
+    { label: 'Analytics',    href: 'analytics.html',    match: ['analytics'],          section: 'Intelligence', roles: ['supervisor','engineer'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>` },
-    { label: 'Predictive ML', href: 'predictive.html',  match: ['predictive'],         section: 'Intelligence',
+    { label: 'Predictive ML', href: 'predictive.html',  match: ['predictive'],         section: 'Intelligence', roles: ['supervisor','engineer'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>` },
-    { label: 'AI Assistant', href: 'assistant.html',    match: ['assistant'],          section: 'Intelligence',
+    { label: 'AI Assistant', href: 'assistant.html',    match: ['assistant'],          section: 'Intelligence', /* universal */
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><line x1="9" y1="10" x2="9" y2="10" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="10" x2="12" y2="10" stroke-width="3" stroke-linecap="round"/><line x1="15" y1="10" x2="15" y2="10" stroke-width="3" stroke-linecap="round"/></svg>`,
       accent: true },
-    { label: 'PH Intelligence', href: 'ph-intelligence.html', match: ['ph-intelligence'], section: 'Intelligence',
+    { label: 'PH Intelligence', href: 'ph-intelligence.html', match: ['ph-intelligence'], section: 'Intelligence', roles: ['supervisor','engineer'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>` },
-    { label: 'Asset Hub',    href: 'asset-hub.html',    match: ['asset-hub'],          section: 'Intelligence',
+    { label: 'Asset Hub',    href: 'asset-hub.html',    match: ['asset-hub'],          section: 'Intelligence', roles: ['supervisor','engineer'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="21"/><line x1="3" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="21" y2="12"/></svg>` },
+    { label: 'Alert Hub',    href: 'alert-hub.html',    match: ['alert-hub'],          section: 'Intelligence', roles: ['supervisor'],
+      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>` },
     { label: 'Shift Brain',  href: 'shift-brain.html',  match: ['shift-brain'],        section: 'Intelligence',
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/><path d="M12 3v2M21 12h-2M12 21v-2M3 12h2"/></svg>` },
 
     // ── Build & Projects: engineering and project work ────────────────────────
-    { label: 'Eng. Design',  href: 'engineering-design.html', match: ['engineering-design'], section: 'Build & Projects',
+    { label: 'Eng. Design',  href: 'engineering-design.html', match: ['engineering-design'], section: 'Build & Projects', roles: ['engineer'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M5 20V10l7-7 7 7v10"/><path d="M9 20v-5h6v5"/></svg>` },
-    { label: 'Project Manager', href: 'project-manager.html', match: ['project-manager'], section: 'Build & Projects',
+    { label: 'Project Manager', href: 'project-manager.html', match: ['project-manager'], section: 'Build & Projects', roles: ['supervisor','engineer'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>` },
-    { label: 'Project Report', href: 'project-report.html', match: ['project-report'],  section: 'Build & Projects',
+    // Phase B: hidden from primary nav, accessible as the "Print Report" button inside project-manager.html.
+    { label: 'Project Report', href: 'project-report.html', match: ['project-report'],  section: 'Build & Projects', hidden: true, roles: ['supervisor','engineer'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>` },
 
     // ── Grow: professional development ────────────────────────────────────────
@@ -67,14 +84,44 @@
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>` },
 
     // ── Connect: marketplace and integrations ─────────────────────────────────
-    { label: 'Marketplace',  href: 'marketplace.html',  match: ['marketplace'],        section: 'Connect',
+    { label: 'Marketplace',  href: 'marketplace.html',  match: ['marketplace'],        section: 'Connect', /* universal */
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>` },
-    { label: 'Report Sender', href: 'report-sender.html', match: ['report-sender'],    section: 'Connect',
+    // Phase B: hidden from primary nav, accessible as the "Send" button inside analytics.html.
+    { label: 'Report Sender', href: 'report-sender.html', match: ['report-sender'],    section: 'Connect', hidden: true, roles: ['supervisor'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>` },
-    { label: 'CMMS Integration', href: 'integrations.html', match: ['integrations'],  section: 'Connect',
+    { label: 'CMMS Integration', href: 'integrations.html', match: ['integrations'],  section: 'Connect', roles: ['supervisor'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>` },
     // public-feed.html: public read-only page — linked from index.html, not the app nav
   ];
+
+  // ─── Role Mode (Phase D) ──────────────────────────────────────────────────────
+  // Persisted user choice for which subset of tools to show.
+  // 'all' is the default — existing users see everything until they switch.
+  // 'field' / 'supervisor' / 'engineer' filter to role-tagged tools.
+  // Tools without a `roles` array are universal (always visible).
+  var MODE_KEY = 'wh_nav_mode';
+  var MODES = [
+    { id: 'all',        label: 'All',        icon: '⊞' },
+    { id: 'field',      label: 'Field',      icon: '🔧' },
+    { id: 'supervisor', label: 'Supervisor', icon: '👷' },
+    { id: 'engineer',   label: 'Engineer',   icon: '📐' },
+  ];
+
+  function getMode() {
+    var v = localStorage.getItem(MODE_KEY);
+    return MODES.some(function(m){ return m.id === v; }) ? v : 'all';
+  }
+  function setMode(id) {
+    if (!MODES.some(function(m){ return m.id === id; })) return;
+    localStorage.setItem(MODE_KEY, id);
+  }
+
+  function isVisibleInMode(tool, mode) {
+    if (tool.hidden) return false;            // Phase B: kept reachable via parent buttons only
+    if (mode === 'all') return true;
+    if (!tool.roles || !tool.roles.length) return true;  // universal tool
+    return tool.roles.indexOf(mode) !== -1;
+  }
 
   // ─── Click Tracking (recents) ────────────────────────────────────────────────
   var CLICK_KEY = 'wh-tool-clicks';
@@ -88,13 +135,17 @@
   }
 
   function getQuickTools(n) {
+    // Phase B: hidden tools never appear in the Recent quick row.
+    // Phase D: also filter by current role mode so the recent row matches the All Tools grid.
+    var mode = getMode();
+    var visible = TOOLS.filter(function(t){ return isVisibleInMode(t, mode); });
     try {
       var c = JSON.parse(localStorage.getItem(CLICK_KEY) || '{}');
-      return TOOLS.slice()
+      return visible.slice()
         .sort(function(a, b) { return (c[b.href] || 0) - (c[a.href] || 0); })
         .slice(0, n);
     } catch (_) {
-      return TOOLS.slice(0, n);
+      return visible.slice(0, n);
     }
   }
 
@@ -118,9 +169,14 @@
     const wrapper = document.createElement('div');
     wrapper.id = 'wh-hub';
 
-    /* All-tools grid — with section headers spanning full width */
+    /* All-tools grid — with section headers spanning full width.
+       Phase B: tools marked hidden:true don't appear (reachable via parent buttons).
+       Phase D: tools are also filtered by current role mode. Section headers
+       only render when the section actually has at least one visible tool. */
+    const _mode = getMode();
+    const VISIBLE_TOOLS = TOOLS.filter(t => isVisibleInMode(t, _mode));
     let _lastSection = null;
-    const tilesHTML = TOOLS.reduce((acc, t) => {
+    const tilesHTML = VISIBLE_TOOLS.reduce((acc, t) => {
       // Insert section header when section changes (skip null = Home)
       if (t.section && t.section !== _lastSection) {
         _lastSection = t.section;
@@ -434,6 +490,42 @@
           background: #F7A21B;
         }
 
+        /* ── Role mode switcher (Phase D) ── */
+        #wh-hub-mode {
+          display: flex;
+          gap: 4px;
+          padding: 4px;
+          background: rgba(0,0,0,0.25);
+          border: 1px solid rgba(255,255,255,0.05);
+          border-radius: 10px;
+          margin: 0 0 10px;
+        }
+        .wh-hub-mode-btn {
+          flex: 1;
+          padding: 6px 4px;
+          background: transparent;
+          border: none;
+          border-radius: 7px;
+          color: rgba(255,255,255,0.4);
+          font-family: inherit;
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.02em;
+          cursor: pointer;
+          transition: background 0.15s, color 0.15s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
+          white-space: nowrap;
+        }
+        .wh-hub-mode-btn:hover { color: rgba(255,255,255,0.7); }
+        .wh-hub-mode-btn.active {
+          background: rgba(247,162,27,0.15);
+          color: #F7A21B;
+        }
+        .wh-hub-mode-icon { font-size: 11px; line-height: 1; }
+
         /* ── Mobile ── */
         @media (max-width: 480px) {
           #wh-hub { bottom: max(16px, env(safe-area-inset-bottom)); right: 16px; }
@@ -461,6 +553,13 @@
           <strong>${current.label}</strong>
         </div>
 
+        <!-- Phase E.3c: Global Search trigger — opens Cmd+K overlay on mobile too -->
+        <button type="button" id="wh-hub-global-search" style="display:flex; align-items:center; gap:8px; width:100%; min-height:44px; padding:10px 12px; margin:0 0 8px; background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.2); border-radius:10px; color:#F7A21B; font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; text-align:left;" aria-label="Open global search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span style="flex:1;">Search assets, jobs, parts, PMs</span>
+          <span style="font-size:9px; font-weight:700; padding:2px 5px; background:rgba(247,162,27,0.15); border:1px solid rgba(247,162,27,0.3); border-radius:4px;">⌘K</span>
+        </button>
+
         <!-- Search bar -->
         <div id="wh-hub-search-wrap">
           <span id="wh-hub-search-icon">
@@ -470,6 +569,16 @@
           </span>
           <input id="wh-hub-search" type="search" placeholder="Search tools…" autocomplete="off" aria-label="Search tools">
           <span id="wh-hub-search-kbd">Ctrl K</span>
+        </div>
+
+        <!-- Role mode switcher (Phase D) — filters which tools show below -->
+        <div id="wh-hub-mode" role="tablist" aria-label="Tool view mode">
+          ${MODES.map(function(m){
+            var active = m.id === getMode() ? ' active' : '';
+            return '<button type="button" class="wh-hub-mode-btn' + active +
+                   '" data-mode="' + m.id + '" role="tab" aria-selected="' + (active ? 'true' : 'false') + '">' +
+                   '<span class="wh-hub-mode-icon">' + m.icon + '</span>' + m.label + '</button>';
+          }).join('')}
         </div>
 
         <!-- Recent row -->
@@ -646,6 +755,75 @@
       document.getElementById('wh-hub-fab')?.addEventListener('click', function() {
         setTimeout(() => { if (!isOpen && searchInput) { searchInput.value = ''; filterTools(''); } }, 50);
       });
+    }
+
+    /* Phase E.3c: Global Search trigger inside the nav-hub panel.
+       Mobile users have no Cmd+K so they need a tappable entry point. */
+    document.getElementById('wh-hub-global-search')?.addEventListener('click', function () {
+      if (window.WHSearch && typeof window.WHSearch.open === 'function') {
+        closeHub();              // tidy: hide the nav-hub before showing the overlay
+        window.WHSearch.open();
+      }
+    });
+
+    /* Mode switcher — Phase D. Click changes mode, persists, and rebuilds the
+       grid + Recent row in place so the user sees the filtered view immediately. */
+    document.querySelectorAll('#wh-hub-mode .wh-hub-mode-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var newMode = btn.getAttribute('data-mode');
+        if (newMode === getMode()) return;
+        setMode(newMode);
+        // Update active state on all buttons
+        document.querySelectorAll('#wh-hub-mode .wh-hub-mode-btn').forEach(function(b) {
+          var on = b.getAttribute('data-mode') === newMode;
+          b.classList.toggle('active', on);
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        // Rebuild only the grid + recent row (faster than re-rendering the whole panel)
+        rebuildToolGrids();
+      });
+    });
+
+    function rebuildToolGrids() {
+      var mode = getMode();
+      var visible = TOOLS.filter(function(t) { return isVisibleInMode(t, mode); });
+
+      // Recent row
+      var quickRow = document.getElementById('wh-hub-quick-row');
+      if (quickRow) {
+        var quickTools = getQuickTools(4);
+        quickRow.innerHTML = quickTools.map(function(t) {
+          var isCurrent = t === current;
+          var shortLabel = t.label.length > 8 ? t.label.split(' ')[0] : t.label;
+          return '<a href="' + t.href + '" class="wh-hub-quick-tile' + (isCurrent ? ' active' : '') +
+                 '" ' + (isCurrent ? 'aria-current="page"' : '') + ' title="' + t.label + '">' +
+                 '<span class="wh-hub-quick-icon">' + t.icon + '</span>' +
+                 '<span class="wh-hub-quick-label">' + shortLabel + '</span></a>';
+        }).join('');
+      }
+
+      // All Tools grid
+      var tilesEl = document.getElementById('wh-hub-tiles');
+      if (tilesEl) {
+        var lastSec = null;
+        var html = visible.reduce(function(acc, t) {
+          if (t.section && t.section !== lastSec) {
+            lastSec = t.section;
+            acc += '<p class="wh-hub-section-label wh-hub-section-break">' + t.section + '</p>';
+          }
+          var isCurrent = t === current;
+          acc += '<a href="' + t.href + '" class="wh-hub-tile' + (isCurrent ? ' active' : '') +
+                 (t.accent ? ' accent' : '') + '" ' + (isCurrent ? 'aria-current="page"' : '') + '>' +
+                 '<span class="wh-hub-tile-icon">' + t.icon + '</span>' +
+                 '<span class="wh-hub-tile-label">' + t.label + '</span>' +
+                 (isCurrent ? '<span class="wh-hub-tile-dot"></span>' : '') + '</a>';
+          return acc;
+        }, '');
+        tilesEl.innerHTML = html;
+      }
+
+      // Empty state — if mode filter eliminates everything visible (rare)
+      if (noResults) noResults.style.display = visible.length ? 'none' : 'block';
     }
 
     function filterTools(q) {

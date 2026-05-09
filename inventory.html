@@ -314,7 +314,18 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="wh-label">Part Number <span class="text-orange-wh text-[10px] normal-case font-semibold">required</span></label>
-            <input id="f-part-number" type="text" class="wh-input" placeholder="e.g. 6205-2RS" autocomplete="off" />
+            <div style="display:flex; gap:8px; align-items:stretch;">
+              <input id="f-part-number" type="text" class="wh-input" placeholder="e.g. 6205-2RS" autocomplete="off" style="flex:1;" />
+              <!-- Phase E.3d: Scan barcode / QR to auto-fill Part Number -->
+              <button type="button" id="inv-scan-btn" aria-label="Scan part barcode with camera"
+                      style="min-width:44px; min-height:44px; padding:0 10px; display:flex; align-items:center; justify-content:center; background:rgba(247,162,27,0.12); color:#F7A21B; border:1px solid rgba(247,162,27,0.3); border-radius:0.75rem; cursor:pointer;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/>
+                  <path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/>
+                  <line x1="7" y1="12" x2="17" y2="12"/>
+                </svg>
+              </button>
+            </div>
           </div>
           <div>
             <label class="wh-label">Category</label>
@@ -1195,6 +1206,23 @@ function showToast(msg, type) {
 // ────────────────────────────────────────────
 // EVENT LISTENERS
 // ────────────────────────────────────────────
+// Phase E.3d: Scan barcode / QR to auto-fill Part Number on the Add/Edit form
+document.getElementById('inv-scan-btn')?.addEventListener('click', function () {
+  if (!window.WHQRScanner) { showToast('Scanner not loaded — try again in a moment'); return; }
+  window.WHQRScanner.open({
+    title: 'Scan part barcode',
+    onResult: function (text) {
+      const inp = document.getElementById('f-part-number');
+      if (inp) {
+        inp.value = text;
+        inp.dispatchEvent(new Event('input', { bubbles: true }));
+        inp.focus();
+      }
+      showToast(`Filled "${text}"`);
+    },
+  });
+});
+
 document.getElementById('btn-add-part').addEventListener('click',   () => openAddModal());
 document.getElementById('empty-add-btn').addEventListener('click',  () => openAddModal());
 
@@ -1342,5 +1370,6 @@ async function validateHiveMembership() {
 })();
 </script>
   <script src="nav-hub.js"></script>
+  <script src="qr-scanner.js"></script>
 </body>
 </html>

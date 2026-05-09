@@ -295,8 +295,18 @@
 
     <!-- LIST VIEW -->
     <div id="list-view">
-      <div class="search-row">
-        <input id="asset-search" class="search-input" type="search" placeholder="Search by tag, name, or location" autocomplete="off" />
+      <div class="search-row" style="display:flex; gap:8px; align-items:center;">
+        <input id="asset-search" class="search-input" type="search" placeholder="Search by tag, name, or location" autocomplete="off" style="flex:1;" />
+        <!-- Phase E.3a: scan a physical tag to jump straight to its 360 view -->
+        <button id="scan-btn" type="button" aria-label="Scan equipment tag with camera"
+                style="min-width:44px; min-height:44px; padding:0 12px; display:flex; align-items:center; justify-content:center; gap:6px; background:rgba(247,162,27,0.12); color:#F7A21B; border:1px solid rgba(247,162,27,0.3); border-radius:10px; font-family:inherit; font-size:13px; font-weight:700; cursor:pointer;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/>
+            <path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/>
+            <line x1="7" y1="12" x2="17" y2="12"/>
+          </svg>
+          <span class="scan-btn-label">Scan</span>
+        </button>
       </div>
       <div id="asset-list" class="asset-list"></div>
       <div id="list-empty" class="empty" style="display:none;">
@@ -340,6 +350,50 @@
         <div class="stat-card">
           <div class="stat-label">Edges</div>
           <div class="stat-value" id="stat-edges">0</div>
+        </div>
+      </div>
+
+      <!-- Phase B.5: Risk panel — per-asset risk view that replaces the predictive.html jump -->
+      <div class="section-card" id="risk-card" style="display:none;">
+        <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Risk Profile</span>
+          <span id="risk-model-chip" style="font-size:0.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; padding:.2rem .55rem; border-radius:999px; background:rgba(41,182,217,0.12); color:var(--blue-wh); border:1px solid rgba(41,182,217,0.25);">rules-v1</span>
+        </div>
+        <div id="risk-content" style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
+          <!-- risk score gauge -->
+          <div id="risk-gauge" style="display:flex; flex-direction:column; align-items:center; min-width:108px;">
+            <div id="risk-score-num" style="font-size:2.2rem; font-weight:800; line-height:1;">—</div>
+            <div id="risk-level-badge" style="font-size:0.6rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; padding:.22rem .65rem; border-radius:6px; margin-top:8px; background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5);">—</div>
+          </div>
+          <!-- detail strip -->
+          <div style="flex:1; min-width:220px; display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; gap:14px; flex-wrap:wrap;">
+              <div><span style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">MTBF</span><span id="risk-mtbf" style="font-size:.85rem; font-weight:700;">—</span></div>
+              <div><span style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">Days to Failure</span><span id="risk-days" style="font-size:.85rem; font-weight:700;">—</span></div>
+              <div><span style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">Generated</span><span id="risk-generated" style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,0.65);">—</span></div>
+            </div>
+            <div id="risk-factors" style="display:flex; flex-wrap:wrap; gap:5px; margin-top:4px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state for assets with no risk score yet (rules engine has not run, or asset too new) -->
+      <div class="section-card" id="risk-empty-card" style="display:none;">
+        <div class="section-title">Risk Profile</div>
+        <p style="font-size:.78rem; color:var(--muted); margin:0;">No risk score yet for this asset. Scores are computed daily at 13:00 PHT by the batch-risk-scoring job. Once enough fault history accumulates, a score will appear here.</p>
+      </div>
+
+      <!-- Phase ML-2: Predictive Parts Auto-Staging — recommends parts to pre-stage before failure -->
+      <div class="section-card" id="staging-card" style="display:none; border-left:3px solid #fb923c;">
+        <div class="section-title" style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+          <span>Recommended Parts to Stage</span>
+          <span id="staging-confidence" style="font-size:.7rem; color:var(--muted); background:#fb923c22; padding:2px 8px; border-radius:8px;"></span>
+        </div>
+        <p id="staging-rationale" style="font-size:.78rem; color:var(--muted); margin:6px 0 12px;"></p>
+        <div id="staging-parts" style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;"></div>
+        <div style="display:flex; gap:8px;">
+          <button id="staging-accept" class="btn-primary" style="flex:1; min-height:44px; background:#fb923c; color:#fff; border:none; border-radius:6px; font-weight:600; cursor:pointer;">Stage selected</button>
+          <button id="staging-dismiss" class="btn-secondary" style="min-height:44px; padding:0 14px; background:transparent; color:var(--muted); border:1px solid #333; border-radius:6px; cursor:pointer;">Dismiss</button>
         </div>
       </div>
 
@@ -413,6 +467,7 @@
   </div>
 
   <script src="nav-hub.js"></script>
+  <script src="qr-scanner.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     // Supabase client. var keyword so it's accessible from earlier function definitions.
@@ -505,8 +560,19 @@
         .limit(200);
 
       if (error) {
-        console.error('asset_nodes load:', error.message);
-        showToast('Could not load assets: ' + error.message);
+        // Missing-table / missing-column / RLS-denied are DEGRADED states, not bugs.
+        // Use console.warn so the browser console stays clean for end users
+        // and Playwright doesn't flag them as page errors.
+        const code = error.code || '';
+        const isDegraded = code === 'PGRST205' || code === 'PGRST204' || code === 'PGRST301'
+                           || /Could not find the (table|column)/i.test(error.message || '')
+                           || /permission denied/i.test(error.message || '');
+        if (isDegraded) {
+          console.warn('asset_nodes (degraded — table or auth not ready):', error.message);
+        } else {
+          console.error('asset_nodes load:', error.message);
+          showToast('Could not load assets: ' + error.message);
+        }
         _allNodes = [];
       } else {
         _allNodes = data || [];
@@ -585,6 +651,8 @@
       await Promise.allSettled([
         loadDetailHeader(nodeId),
         loadDetailStats(nodeId),
+        loadDetailRisk(nodeId),
+        loadDetailStaging(nodeId),
         loadDetailTimeline(nodeId),
         loadDetailNeighbors(nodeId),
         loadDetailMarketplace(nodeId),
@@ -692,6 +760,253 @@
       if (pm) pm.textContent = data?.pm_completed_count ?? 0;
       if (lf) lf.textContent = data?.last_failure_at ? fmtRelative(data.last_failure_at) : 'never';
       if (eg) eg.textContent = data?.edge_count ?? 0;
+    }
+
+    // ── Risk panel (Phase B.5: per-asset risk merged from predictive.html) ────
+    async function loadDetailRisk(nodeId) {
+      const node = _allNodes.find(n => n.id === nodeId);
+      if (!node) return;
+
+      // asset_risk_scores keys by asset_name (not node_id). The asset's tag and
+      // name are both candidates — try both so seed flows that match either work.
+      const candidates = [node.tag, node.name].filter(Boolean);
+      if (!candidates.length) { _showRiskEmpty(); return; }
+
+      const { data, error } = await db.from('asset_risk_scores')
+        .select('asset_name, risk_score, risk_level, mtbf_days, days_until_failure, top_factors, model_version, generated_at')
+        .eq('hive_id', HIVE_ID)
+        .in('asset_name', candidates)
+        .order('generated_at', { ascending: false })
+        .limit(1);
+
+      if (error) {
+        console.warn('risk load:', error.message);
+        _showRiskEmpty();
+        return;
+      }
+      const row = (data || [])[0];
+      if (!row) { _showRiskEmpty(); return; }
+
+      _showRiskCard(row);
+    }
+
+    function _showRiskEmpty() {
+      const card = document.getElementById('risk-card');
+      const empty = document.getElementById('risk-empty-card');
+      if (card)  card.style.display  = 'none';
+      if (empty) empty.style.display = 'block';
+    }
+
+    function _showRiskCard(row) {
+      const e = escHtml;
+      const card = document.getElementById('risk-card');
+      const empty = document.getElementById('risk-empty-card');
+      if (empty) empty.style.display = 'none';
+      if (!card) return;
+      card.style.display = 'block';
+
+      // Color + label per risk level
+      const levelColor = {
+        critical: '#f87171',
+        high:     '#fb923c',
+        medium:   '#facc15',
+        low:      '#4ade80',
+      }[row.risk_level] || '#facc15';
+
+      const pct = Math.round((Number(row.risk_score) || 0) * 100);
+
+      const numEl  = document.getElementById('risk-score-num');
+      const lvlEl  = document.getElementById('risk-level-badge');
+      const mtbfEl = document.getElementById('risk-mtbf');
+      const daysEl = document.getElementById('risk-days');
+      const genEl  = document.getElementById('risk-generated');
+      const facEl  = document.getElementById('risk-factors');
+      const modEl  = document.getElementById('risk-model-chip');
+
+      if (numEl) { numEl.textContent = pct + '%'; numEl.style.color = levelColor; }
+      if (lvlEl) {
+        lvlEl.textContent = String(row.risk_level || '').toUpperCase();
+        lvlEl.style.background = 'rgba(' + _hexToRgb(levelColor) + ',0.15)';
+        lvlEl.style.color      = levelColor;
+      }
+      if (mtbfEl) mtbfEl.textContent = row.mtbf_days != null ? Math.round(row.mtbf_days) + 'd' : '—';
+      if (daysEl) {
+        const d = row.days_until_failure;
+        if (d == null) {
+          daysEl.textContent = '—';
+        } else if (d < 0) {
+          daysEl.textContent = Math.round(Math.abs(d)) + 'd overdue';
+          daysEl.style.color = '#f87171';
+        } else {
+          daysEl.textContent = Math.round(d) + 'd';
+        }
+      }
+      if (genEl) genEl.textContent = row.generated_at ? fmtRelative(row.generated_at) : '—';
+
+      // Top factors as chips
+      if (facEl) {
+        let factors = row.top_factors;
+        if (typeof factors === 'string') {
+          try { factors = JSON.parse(factors); } catch (_) { factors = []; }
+        }
+        if (Array.isArray(factors) && factors.length) {
+          facEl.innerHTML = factors.slice(0, 5).map(f =>
+            '<span style="font-size:.6rem; font-weight:600; padding:.2rem .55rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:rgba(255,255,255,0.65);">' + e(String(f).replace(/_/g, ' ')) + '</span>'
+          ).join('');
+        } else {
+          facEl.innerHTML = '<span style="font-size:.65rem; color:var(--muted);">No risk factors flagged</span>';
+        }
+      }
+
+      // Model version chip
+      if (modEl) {
+        const ver = row.model_version || 'rules-v1';
+        modEl.textContent = ver === 'ml-v1' ? 'ML Model v1' : 'Rules Engine v1';
+        if (ver === 'ml-v1') {
+          modEl.style.background  = 'rgba(167,139,250,0.12)';
+          modEl.style.color       = '#a78bfa';
+          modEl.style.borderColor = 'rgba(167,139,250,0.25)';
+        }
+      }
+    }
+
+    // Convert "#fb923c" → "251,146,60" for rgba() backgrounds
+    function _hexToRgb(hex) {
+      const h = (hex || '').replace('#', '');
+      if (h.length !== 6) return '255,255,255';
+      const r = parseInt(h.slice(0, 2), 16);
+      const g = parseInt(h.slice(2, 4), 16);
+      const b = parseInt(h.slice(4, 6), 16);
+      return r + ',' + g + ',' + b;
+    }
+
+    // ── Phase ML-2: Predictive Parts Auto-Staging ──────────────────────────────
+    // Loads the latest pending recommendation for this asset (if any) and shows
+    // a card with selectable parts. Accept creates rows in parts_staged_reservations.
+    let _stagingRec = null;
+
+    async function loadDetailStaging(nodeId) {
+      _stagingRec = null;
+      const node = _allNodes.find(n => n.id === nodeId);
+      if (!node) return;
+      const candidates = [node.tag, node.name].filter(Boolean);
+      if (!candidates.length) return;
+
+      const { data, error } = await db.from('parts_staging_recommendations')
+        .select('id, asset_name, risk_score, failure_mode, parts, rationale, confidence, expires_at, generated_at')
+        .eq('hive_id', HIVE_ID)
+        .eq('status', 'pending')
+        .in('asset_name', candidates)
+        .order('generated_at', { ascending: false })
+        .limit(1);
+
+      if (error) {
+        console.warn('staging load:', error.message);
+        return;
+      }
+      const rec = (data || [])[0];
+      if (!rec) return;
+
+      _stagingRec = rec;
+      _renderStagingCard(rec);
+    }
+
+    function _renderStagingCard(rec) {
+      const e = escHtml;
+      const card  = document.getElementById('staging-card');
+      if (!card) return;
+      card.style.display = 'block';
+
+      const confEl = document.getElementById('staging-confidence');
+      if (confEl) confEl.textContent = 'confidence ' + Math.round((rec.confidence || 0) * 100) + '%';
+
+      const ratEl = document.getElementById('staging-rationale');
+      if (ratEl) ratEl.textContent = rec.rationale || '';
+
+      const partsEl = document.getElementById('staging-parts');
+      if (partsEl) {
+        const parts = Array.isArray(rec.parts) ? rec.parts : [];
+        partsEl.innerHTML = parts.map((p, i) =>
+          '<label style="display:flex; align-items:center; gap:10px; padding:8px; background:rgba(251,146,60,.06); border:1px solid rgba(251,146,60,.2); border-radius:6px; cursor:pointer;">' +
+            '<input type="checkbox" data-staging-idx="' + i + '" checked style="width:18px; height:18px; flex-shrink:0;">' +
+            '<div style="flex:1; min-width:0;">' +
+              '<div style="font-size:.85rem; font-weight:600; color:var(--text);">' + e(p.part_name || '') + '</div>' +
+              '<div style="font-size:.7rem; color:var(--muted); margin-top:2px;">' +
+                'qty ' + (p.qty_avg || 1) + ' . ' +
+                Math.round((p.confidence || 0) * 100) + '% pattern match . ' +
+                'in stock ' + (p.in_stock || 0) +
+              '</div>' +
+            '</div>' +
+          '</label>'
+        ).join('');
+      }
+
+      const acceptBtn  = document.getElementById('staging-accept');
+      const dismissBtn = document.getElementById('staging-dismiss');
+      if (acceptBtn)  acceptBtn.onclick  = _onStagingAccept;
+      if (dismissBtn) dismissBtn.onclick = _onStagingDismiss;
+    }
+
+    async function _onStagingAccept() {
+      if (!_stagingRec) return;
+      const card = document.getElementById('staging-card');
+      const btn  = document.getElementById('staging-accept');
+      if (btn) { btn.disabled = true; btn.textContent = 'Staging...'; }
+
+      const checks = (card || document).querySelectorAll('input[data-staging-idx]:checked');
+      const parts  = Array.isArray(_stagingRec.parts) ? _stagingRec.parts : [];
+      const picked = Array.from(checks).map(c => parts[Number(c.dataset.stagingIdx)]).filter(Boolean);
+
+      if (!picked.length) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Stage selected'; }
+        toast && toast('Select at least one part');
+        return;
+      }
+
+      const reservations = picked.map(p => ({
+        hive_id:           HIVE_ID,
+        asset_name:        _stagingRec.asset_name,
+        item_id:           p.item_id,
+        qty_reserved:      p.qty_avg || 1,
+        reserved_by:       WORKER_NAME,
+        recommendation_id: _stagingRec.id,
+        notes:             'auto-staged from risk ' + (_stagingRec.risk_score || 0).toFixed(2),
+      }));
+
+      const [resvRes, recRes] = await Promise.allSettled([
+        db.from('parts_staged_reservations').insert(reservations),
+        db.from('parts_staging_recommendations')
+          .update({ status: 'accepted', acted_at: new Date().toISOString(), acted_by: WORKER_NAME })
+          .eq('id', _stagingRec.id),
+      ]);
+
+      const insErr = resvRes.status === 'fulfilled' && resvRes.value.error ? resvRes.value.error : null;
+      const updErr = recRes.status === 'fulfilled' && recRes.value.error ? recRes.value.error : null;
+      if (insErr || updErr) {
+        console.warn('staging accept:', insErr?.message || updErr?.message);
+        if (btn) { btn.disabled = false; btn.textContent = 'Stage selected'; }
+        toast && toast('Could not stage parts: ' + (insErr?.message || updErr?.message));
+        return;
+      }
+
+      if (card) card.style.display = 'none';
+      _stagingRec = null;
+      toast && toast('Staged ' + picked.length + ' part' + (picked.length === 1 ? '' : 's'));
+    }
+
+    async function _onStagingDismiss() {
+      if (!_stagingRec) return;
+      const card = document.getElementById('staging-card');
+      const { error } = await db.from('parts_staging_recommendations')
+        .update({ status: 'dismissed', acted_at: new Date().toISOString(), acted_by: WORKER_NAME })
+        .eq('id', _stagingRec.id);
+      if (error) {
+        console.warn('staging dismiss:', error.message);
+        toast && toast('Could not dismiss: ' + error.message);
+        return;
+      }
+      if (card) card.style.display = 'none';
+      _stagingRec = null;
     }
 
     async function loadDetailTimeline(nodeId) {
@@ -1166,6 +1481,37 @@
         search.addEventListener('input', () => {
           clearTimeout(timer);
           timer = setTimeout(() => renderList(false), 180);
+        });
+      }
+
+      // Phase E.3a: Scan button — opens camera modal, matches decoded tag
+      // against the loaded _allNodes list and opens the detail view if found.
+      const scanBtn = document.getElementById('scan-btn');
+      if (scanBtn) {
+        scanBtn.addEventListener('click', () => {
+          if (!window.WHQRScanner) {
+            showToast('Scanner not loaded yet — try again in a moment');
+            return;
+          }
+          window.WHQRScanner.open({
+            title: 'Scan equipment tag',
+            onResult: (text) => {
+              // Match against tag first, fall back to name (case-insensitive)
+              const lower = text.toLowerCase();
+              const match = _allNodes.find(n =>
+                (n.tag && n.tag.toLowerCase() === lower) ||
+                (n.name && n.name.toLowerCase() === lower)
+              );
+              if (match) {
+                openDetail(match.id);
+              } else {
+                // Tag not found — pre-fill the search box so the user sees what was scanned
+                if (search) { search.value = text; renderList(false); }
+                showToast(`No asset matches "${text}". Showing search results instead.`);
+              }
+            },
+            onCancel: () => { /* user closed scanner — nothing to do */ },
+          });
         });
       }
     }

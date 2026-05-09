@@ -45,12 +45,11 @@ def word_count(text):
 
 def get_platform_tools_block(content):
     start = content.find("PLATFORM TOOLS")
-    # Bumped 3500 -> 6000 on 2026-05-05 after Project Manager was added — the
-    # bullet sat at the tail of the section and the previous window cut it
-    # mid-line, so word_count saw only the leading 10 words instead of the
-    # full description. Same regression pattern as validate_assistant.py
-    # check_platform_tools_completeness (3000 -> 5000 in May 2026).
-    return content[start:start + 6000] if start != -1 else ""
+    # Bumped 3500 -> 6000 on 2026-05-05 after Project Manager was added.
+    # Bumped 6000 -> 7500 on 2026-05-08 after Alert Hub + Asset Hub + Shift Brain
+    # entries pushed PH Intelligence past the cutoff (only 5 words survived).
+    # Same regression pattern as validate_assistant.py check_platform_tools_completeness.
+    return content[start:start + 7500] if start != -1 else ""
 
 
 # ── Layer 1: Accuracy ─────────────────────────────────────────────────────────

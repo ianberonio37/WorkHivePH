@@ -269,6 +269,37 @@
     .skel { background: rgba(255,255,255,0.05); border-radius: 0.5rem;
       animation: skel 1.5s ease-in-out infinite; }
     @keyframes skel { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }
+
+    /* ── Tier Guide showcase (visual reference of all 6 ring styles) ── */
+    #tier-showcase {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.4rem;
+      margin-top: 0.25rem;
+    }
+    @media (max-width: 520px) {
+      #tier-showcase { grid-template-columns: repeat(3, 1fr); gap: 0.9rem 0.4rem; }
+    }
+    .tier-sample {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 0.5rem;
+      padding: 0.5rem 0.25rem 0.4rem;
+      border-radius: 0.65rem;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.04);
+      text-align: center;
+    }
+    .tier-sample-badge { padding-bottom: 12px; flex-shrink: 0; }
+    .tier-sample-name {
+      font-size: 0.65rem; font-weight: 700;
+      color: rgba(255,255,255,0.88);
+      letter-spacing: 0.04em;
+    }
+    .tier-sample-range {
+      font-size: 0.55rem; font-weight: 600;
+      color: rgba(255,255,255,0.35);
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body>
@@ -325,6 +356,15 @@
     </div>
   </div>
 
+  <!-- Tier Guide -->
+  <div class="section-card" id="tier-guide-card">
+    <div class="section-heading" style="display:flex;align-items:center;justify-content:space-between;">
+      <span>Tier Guide</span>
+      <span style="font-size:0.55rem;font-weight:500;text-transform:none;letter-spacing:normal;color:rgba(255,255,255,0.35);">Visual key — what each rank looks like</span>
+    </div>
+    <div id="tier-showcase"></div>
+  </div>
+
   <!-- Domain sections rendered by JS -->
   <div id="achievements-body"></div>
 
@@ -345,7 +385,7 @@
 
 <script>
   const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6eXZuanRpc2ZnYmtzaWNyb3V1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1ODE2MDQsImV4cCI6MjA5MTE1NzYwNH0.RpIj1oUIHRdR4e2bCRYuDqULoqR2LpMz9EjnMvtN7M0';
+  const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'; // anon key: safe in frontend
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   const WORKER_NAME = localStorage.getItem('wh_last_worker')
@@ -479,6 +519,24 @@
       <div class="xp-text">${lv < 100 ? escHtml(String(toNext)) + ' XP to Lv.' + (lv + 1) : 'Max Level!'}</div>
       <div class="domain-events"></div>
     </div>`;
+  }
+
+  function renderTierShowcase() {
+    const tiers = [
+      { label: 'Iron',     range: 'Lv 1-10',   sample: 5  },
+      { label: 'Bronze',   range: 'Lv 11-25',  sample: 18 },
+      { label: 'Silver',   range: 'Lv 26-50',  sample: 38 },
+      { label: 'Gold',     range: 'Lv 51-75',  sample: 63 },
+      { label: 'Platinum', range: 'Lv 76-90',  sample: 83 },
+      { label: 'Legend',   range: 'Lv 91-100', sample: 96 },
+    ];
+    document.getElementById('tier-showcase').innerHTML = tiers.map(t => `
+      <div class="tier-sample">
+        <div class="tier-sample-badge">${renderDomainBadge('★', t.sample, 48)}</div>
+        <div class="tier-sample-name">${t.label}</div>
+        <div class="tier-sample-range">${t.range}</div>
+      </div>
+    `).join('');
   }
 
   function renderAchievementsBody() {
@@ -709,6 +767,7 @@
     _xpLog        = logRes.data  || [];
 
     renderHero();
+    renderTierShowcase();
     renderAchievementsBody();
     renderRecentActivity();
     subscribeAchievements();

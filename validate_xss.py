@@ -68,6 +68,7 @@ LIVE_PAGES = [
     "achievements.html",
     "asset-hub.html",
     "shift-brain.html",
+    "alert-hub.html",
 ]
 
 # Pages that define escHtml themselves (don't load utils.js)

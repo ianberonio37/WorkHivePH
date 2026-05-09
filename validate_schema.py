@@ -60,6 +60,8 @@ LIVE_PAGES = [
     "project-report.html",
     "predictive.html",
     "achievements.html",
+    "alert-hub.html",
+    "search-overlay.js",
     "asset-hub.html",
     "shift-brain.html",
 ]
@@ -76,6 +78,14 @@ CORE_TABLES = {
     "worker_profiles",
     "asset_risk_scores",
     "achievement_definitions", "worker_achievements", "achievement_xp_log",
+    # Asset Brain Phase 0
+    "asset_nodes", "asset_edges", "asset_embeddings", "asset_brain_overview",
+    # Shift Brain Phase 4
+    "shift_plans",
+    # Shared AI infra
+    "ai_rate_limits",
+    # ML Phase 2: Predictive Parts Auto-Staging
+    "parts_staging_recommendations", "parts_staged_reservations",
 }
 
 DATE_FIELDS = [

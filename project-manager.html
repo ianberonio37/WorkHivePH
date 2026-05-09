@@ -322,7 +322,14 @@
   <div id="list-view">
     <div class="row" style="justify-content: space-between; margin-bottom: 4px;">
       <h1>Project Manager</h1>
-      <span id="hive-tag" class="small" style="color: var(--muted);"></span>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <!-- Phase B merge: project-report.html now reachable as a button here -->
+        <a href="project-report.html" id="project-print-btn" title="Open print-ready Project Report"
+           style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; background:rgba(247,162,27,0.12); color:var(--orange-wh); border:1px solid rgba(247,162,27,0.3); border-radius:8px; font-size:0.78rem; font-weight:600; text-decoration:none;">
+          📄 Print Report
+        </a>
+        <span id="hive-tag" class="small" style="color: var(--muted);"></span>
+      </div>
     </div>
     <div class="sub">Plan, track and close out maintenance projects: work-order bundles, shutdowns, CAPEX, and contractor jobs.</div>
 

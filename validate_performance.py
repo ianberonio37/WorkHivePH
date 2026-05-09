@@ -58,6 +58,7 @@ LIVE_PAGES = [
     "achievements.html",
     "asset-hub.html",
     "shift-brain.html",
+    "alert-hub.html",
 ]
 
 HIGH_GROWTH_TABLES = ["logbook", "inventory_transactions"]

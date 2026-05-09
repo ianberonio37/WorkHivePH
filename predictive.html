@@ -119,6 +119,19 @@
     <span id="model-chip" class="model-chip">Loading...</span>
   </div>
 
+  <!-- Phase B migration notice: per-asset risk now lives in Asset Hub. This page
+       remains reachable for the cross-asset overview but the primary surfaces
+       are: home dashboard "Top At-Risk" card, and asset-hub.html for asset 360. -->
+  <div style="background:rgba(167,139,250,0.07); border:1px solid rgba(167,139,250,0.2); border-radius:10px; padding:12px 16px; margin-bottom:18px; font-size:0.78rem; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+    <span style="font-size:1.2rem;">🧭</span>
+    <div style="flex:1; min-width:200px;">
+      Per-asset risk and history is now centralized in
+      <a href="asset-hub.html" style="color:#a78bfa; font-weight:700; text-decoration:underline;">Asset Hub</a>.
+      Click any asset name below to jump to its full 360 view.
+    </div>
+    <a href="asset-hub.html" style="background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.4); border-radius:8px; padding:6px 12px; font-size:0.7rem; font-weight:700; text-decoration:none; white-space:nowrap;">Open Asset Hub →</a>
+  </div>
+
   <!-- Summary row -->
   <div class="summary-row">
     <div class="sum-card critical">

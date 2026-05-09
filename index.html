@@ -705,6 +705,16 @@
     #ops-home .oh-badge-high { background:rgba(251,146,60,.15); color:#fb923c; }
     #ops-home .oh-qa-btn { display:flex; align-items:center; gap:9px; padding:14px 16px; border-radius:12px; text-decoration:none; font-size:.82rem; font-weight:700; border:1px solid; transition:opacity .15s; }
     #ops-home .oh-qa-btn:hover { opacity:.8; }
+    /* Stat cards become clickable links — hover lift + accent ring */
+    #ops-home .oh-stat-card { display:block; text-decoration:none; cursor:pointer; transition:transform .15s ease, border-color .15s ease, background .15s ease; }
+    #ops-home .oh-stat-card:hover { transform:translateY(-2px); border-color:rgba(255,255,255,0.18); background:rgba(22,32,50,0.95); }
+    /* Skeleton shimmer for loading stat values */
+    @keyframes oh-shimmer { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
+    #ops-home .oh-shimmer { display:inline-block; width:32px; height:30px; background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.12) 50%,rgba(255,255,255,0.04) 75%); background-size:200% 100%; animation:oh-shimmer 1.5s infinite; border-radius:4px; color:transparent; }
+    /* Hive activity strip */
+    #ops-home .oh-activity { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    #ops-home .oh-activity .ac-num { font-size:1.3rem; font-weight:800; display:block; line-height:1.05; }
+    #ops-home .oh-activity .ac-lbl { font-size:0.55rem; font-weight:600; color:rgba(255,255,255,.4); text-transform:uppercase; letter-spacing:.05em; margin-top:3px; display:block; }
     @media(max-width:500px){ #ops-home .oh-stats-grid { grid-template-columns:repeat(2,1fr) !important; } }
   </style>
 
@@ -727,6 +737,12 @@
 
     <!-- Alert strip (critical/high risk assets — shown only if present) -->
     <div id="oh-alerts" style="display:none; margin-bottom:20px;"></div>
+
+    <!-- Top 3 At-Risk Assets (links to Asset Hub) -->
+    <div id="oh-top-risk" style="display:none; margin-bottom:24px;"></div>
+
+    <!-- Hive Activity Today (only when HIVE_ID present) -->
+    <div id="oh-activity" style="display:none; margin-bottom:24px;"></div>
 
     <!-- Open jobs -->
     <div style="margin-bottom:24px;">
@@ -756,6 +772,11 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
           Ask AI
         </a>
+        <!-- Phase E.3d: scan an equipment tag from anywhere in the platform -->
+        <button type="button" id="oh-scan-btn" class="oh-qa-btn" style="background:rgba(255,255,255,.04); color:#F4F6FA; border-color:rgba(255,255,255,.12); border-style:solid; border-width:1px; cursor:pointer; font-family:inherit; grid-column:1 / -1;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/><path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+          Scan an Asset
+        </button>
       </div>
     </div>
 
@@ -1637,6 +1658,7 @@
       tools: [
         { name: 'Analytics Engine', desc: 'MTBF, MTTR, Availability, PM Compliance, Pareto — ISO 14224 standards-based maintenance analytics.', link: 'analytics.html', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
         { name: 'Predictive Maintenance', desc: 'Risk rankings and health heatmap per asset. GBM ML model activates after 500+ corrective records; rules engine runs from Day 1.', link: 'predictive.html', icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' },
+        { name: 'Alert Hub', desc: 'One chronological inbox for risk, PM, stock, pattern, and system alerts across your hive. Auto-refreshes every minute.', link: 'alert-hub.html', icon: 'M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 01-3.46 0' },
         { name: 'Asset Hub', desc: 'Asset Brain 360 view: pick any equipment in your hive, see its full timeline (logbook, PM, inventory, projects), risk score, parent and sister machines, and ask AI grounded in its own history. Connective tissue across the whole platform.', link: 'asset-hub.html', icon: 'M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z M3.27 6.96L12 12.01l8.73-5.05 M12 22.08V12' },
         { name: 'Failure Predictor Feed', desc: 'AI-flagged equipment alerts for your area.', link: null, icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
         { name: 'Smart Work Order Generator', desc: 'AI drafts work orders from your logbook patterns.', link: null, icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z' },
@@ -1758,6 +1780,7 @@
 
   <script src="utils.js"></script>
   <script src="nav-hub.js"></script>
+  <script src="qr-scanner.js"></script>
 
 <!-- ── Sticky mobile CTA bar ── -->
 <div id="sticky-mobile-cta" class="md:hidden" aria-hidden="true">
@@ -2472,11 +2495,13 @@
     return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()} · ${d.getHours() < 12 ? 'Morning' : d.getHours() < 17 ? 'Afternoon' : 'Evening'} Shift`;
   }
 
-  function _statCard(id, color, label) {
-    return `<div class="oh-card" style="padding:14px;text-align:center;">
-      <span id="${_escHtml(id)}" class="oh-stat-num" style="color:${_escHtml(color)}">—</span>
-      <span class="oh-stat-lbl">${_escHtml(label)}</span>
-    </div>`;
+  function _statCard(id, color, label, href) {
+    const inner = `<span id="${_escHtml(id)}" class="oh-stat-num oh-shimmer" style="color:${_escHtml(color)}"></span>
+                   <span class="oh-stat-lbl">${_escHtml(label)}</span>`;
+    if (href) {
+      return `<a href="${_escHtml(href)}" class="oh-card oh-stat-card" style="padding:14px;text-align:center;">${inner}</a>`;
+    }
+    return `<div class="oh-card" style="padding:14px;text-align:center;">${inner}</div>`;
   }
 
   window._initDashboard = async function(workerName) {
@@ -2497,21 +2522,37 @@
       }
     }
 
-    // Render stat card shells immediately
+    // Render stat card shells immediately — each is a clickable link to its tool
     const statsEl = document.getElementById('oh-stats');
     if (statsEl) {
       statsEl.innerHTML =
-        _statCard('oh-stat-jobs',  '#F7A21B', 'Open Jobs') +
-        _statCard('oh-stat-risk',  '#f87171', 'Risk Alerts') +
-        _statCard('oh-stat-stock', '#fb923c', 'Low Stock') +
-        _statCard('oh-stat-pm',    '#29B6D9', 'PM Overdue');
+        _statCard('oh-stat-jobs',  '#F7A21B', 'Open Jobs',   'logbook.html') +
+        _statCard('oh-stat-risk',  '#f87171', 'Risk Alerts', 'asset-hub.html') +
+        _statCard('oh-stat-stock', '#fb923c', 'Low Stock',   'inventory.html') +
+        _statCard('oh-stat-pm',    '#29B6D9', 'PM Overdue',  'pm-scheduler.html');
+    }
+
+    // Phase E.3d: Scan an Asset quick action — opens scanner, lands on Asset Hub for the matched tag
+    const scanBtn = document.getElementById('oh-scan-btn');
+    if (scanBtn) {
+      scanBtn.addEventListener('click', function () {
+        if (!window.WHQRScanner) { return; }
+        window.WHQRScanner.open({
+          title: 'Scan an Asset',
+          onResult: function (text) {
+            window.location.href = 'asset-hub.html?tag=' + encodeURIComponent(text);
+          },
+        });
+      });
     }
 
     // Fetch all data in parallel (narrow selects, .limit() enforced)
     const scopeFilter = HIVE_ID ? { col: 'hive_id', val: HIVE_ID }
                                  : { col: 'worker_name', val: workerName };
 
-    const [logRes, riskRes, invRes, pmRes] = await Promise.allSettled([
+    const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0);
+
+    const [logRes, riskRes, invRes, pmRes, closedTodayRes, pmDoneTodayRes] = await Promise.allSettled([
 
       // Open jobs (mine + hive)
       db.from('logbook')
@@ -2524,11 +2565,11 @@
       // Risk alerts (critical/high assets)
       HIVE_ID
         ? db.from('asset_risk_scores')
-            .select('asset_name, risk_level, risk_score, generated_at')
+            .select('asset_name, risk_level, risk_score, mtbf_days, generated_at')
             .eq('hive_id', HIVE_ID)
             .in('risk_level', ['critical', 'high'])
             .order('risk_score', { ascending: false })
-            .limit(4)
+            .limit(5)
         : Promise.resolve({ data: [] }),
 
       // Inventory items (to find low-stock client-side)
@@ -2537,46 +2578,127 @@
         .eq(scopeFilter.col, scopeFilter.val)
         .limit(100),
 
-      // PM assets (to count with no recent completion)
+      // PM assets + their last completion date (for real overdue count)
       db.from('pm_assets')
-        .select('id, asset_name')
+        .select('id, asset_name, category')
         .eq(scopeFilter.col, scopeFilter.val)
-        .limit(50),
+        .limit(100),
+
+      // Hive Activity Today: jobs closed today (hive-scoped, count only)
+      HIVE_ID
+        ? db.from('logbook')
+            .select('id', { count: 'exact', head: true })
+            .eq('hive_id', HIVE_ID)
+            .eq('status', 'Closed')
+            .gte('closed_at', startOfDay.toISOString())
+        : Promise.resolve({ count: 0 }),
+
+      // Hive Activity Today: PM completed today (count only)
+      HIVE_ID
+        ? db.from('pm_completions')
+            .select('id', { count: 'exact', head: true })
+            .eq('hive_id', HIVE_ID)
+            .eq('status', 'done')
+            .gte('completed_at', startOfDay.toISOString())
+        : Promise.resolve({ count: 0 }),
     ]);
 
-    const jobs   = logRes.status  === 'fulfilled' ? (logRes.value.data  || []) : [];
-    const risks  = riskRes.status === 'fulfilled' ? (riskRes.value.data || []) : [];
-    const invRaw = invRes.status  === 'fulfilled' ? (invRes.value.data  || []) : [];
-    const pmAssets = pmRes.status === 'fulfilled' ? (pmRes.value.data   || []) : [];
+    const jobs     = logRes.status   === 'fulfilled' ? (logRes.value.data   || []) : [];
+    const risks    = riskRes.status  === 'fulfilled' ? (riskRes.value.data  || []) : [];
+    const invRaw   = invRes.status   === 'fulfilled' ? (invRes.value.data   || []) : [];
+    const pmAssets = pmRes.status    === 'fulfilled' ? (pmRes.value.data    || []) : [];
+    const closedToday = closedTodayRes.status === 'fulfilled' ? (closedTodayRes.value.count || 0) : 0;
+    const pmDoneToday = pmDoneTodayRes.status === 'fulfilled' ? (pmDoneTodayRes.value.count || 0) : 0;
 
     // Low stock: items where qty_on_hand <= reorder_point (and reorder_point > 0)
     const lowStock = invRaw.filter(i =>
       Number(i.reorder_point) > 0 && Number(i.qty_on_hand) <= Number(i.reorder_point)
     );
 
-    // Update stat numbers (IDs are created by _statCard innerHTML — use ?.)
-    const _s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    // PM Overdue: real count via per-asset latest completion check.
+    // Heuristic: an asset is "overdue" if no done completion in last 30 days.
+    // Future: join pm_scope_items to use actual frequency per task.
+    let pmOverdueCount = 0;
+    if (pmAssets.length > 0) {
+      const assetIds = pmAssets.map(a => a.id).filter(Boolean);
+      try {
+        const { data: comps } = await db.from('pm_completions')
+          .select('asset_id, completed_at')
+          .in('asset_id', assetIds)
+          .eq('status', 'done')
+          .order('completed_at', { ascending: false })
+          .limit(500);
+        const lastByAsset = {};
+        (comps || []).forEach(c => {
+          if (!lastByAsset[c.asset_id]) lastByAsset[c.asset_id] = new Date(c.completed_at).getTime();
+        });
+        const cutoff = Date.now() - 30 * 86400000;
+        pmOverdueCount = pmAssets.filter(a => {
+          const last = lastByAsset[a.id];
+          return !last || last < cutoff;
+        }).length;
+      } catch (_) {}
+    }
+
+    // Update stat numbers (clear shimmer class once value lands)
+    const _s = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) { el.classList.remove('oh-shimmer'); el.textContent = val; }
+    };
     _s('oh-stat-jobs',  jobs.length);
     _s('oh-stat-risk',  risks.length);
     _s('oh-stat-stock', lowStock.length);
-    _s('oh-stat-pm',    pmAssets.length ? '—' : '0');
+    _s('oh-stat-pm',    pmOverdueCount);
 
-    // Alert strip (risk alerts)
-    const alertsEl = document.getElementById('oh-alerts');
-    if (alertsEl && risks.length > 0) {
-      alertsEl.style.display = 'block';
-      alertsEl.innerHTML = `
-        <div class="oh-card" style="padding:12px 16px; border-left:3px solid #f87171;">
-          <p style="font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#f87171; margin:0 0 8px;">Risk Alerts</p>
-          <div style="display:flex; flex-direction:column; gap:6px;">
-            ${risks.map(r => `
-              <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
-                <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+    // Top 3 At-Risk Assets (Phase A integration: links to Asset Hub for the 360 view)
+    const topRiskEl = document.getElementById('oh-top-risk');
+    if (topRiskEl && risks.length > 0) {
+      const top3 = risks.slice(0, 3);
+      topRiskEl.style.display = 'block';
+      topRiskEl.innerHTML = `
+        <div class="oh-card" style="padding:14px 16px; border-left:3px solid #f87171;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <p style="font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#f87171; margin:0;">Top At-Risk Assets</p>
+            <a href="asset-hub.html" style="font-size:.62rem; color:rgba(255,255,255,.4); text-decoration:none;">All assets →</a>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            ${top3.map(r => {
+              const pct = Math.round((Number(r.risk_score) || 0) * 100);
+              const mtbf = r.mtbf_days != null ? `MTBF ${Math.round(r.mtbf_days)}d` : '';
+              const href = `asset-hub.html?tag=${encodeURIComponent(r.asset_name || '')}`;
+              return `<a href="${_escHtml(href)}" style="display:flex; align-items:center; justify-content:space-between; gap:10px; text-decoration:none; padding:8px 10px; background:rgba(255,255,255,0.03); border-radius:8px; transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'">
+                <div style="display:flex; align-items:center; gap:8px; min-width:0; flex:1;">
                   <span class="oh-badge oh-badge-${_escHtml(r.risk_level)}">${_escHtml(r.risk_level)}</span>
                   <span style="font-size:.78rem; font-weight:600; color:#F4F6FA; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${_escHtml(r.asset_name)}</span>
                 </div>
-                <a href="predictive.html" style="font-size:.65rem; color:rgba(255,255,255,.4); text-decoration:none; white-space:nowrap; flex-shrink:0;">View →</a>
-              </div>`).join('')}
+                <div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
+                  <span style="font-size:.65rem; color:rgba(255,255,255,.35); white-space:nowrap;">${_escHtml(mtbf)}</span>
+                  <span style="font-size:.72rem; font-weight:800; color:#f87171;">${pct}%</span>
+                </div>
+              </a>`;
+            }).join('')}
+          </div>
+        </div>`;
+    }
+
+    // Hive Activity Today (only meaningful when in a hive context)
+    const activityEl = document.getElementById('oh-activity');
+    if (activityEl && HIVE_ID) {
+      activityEl.style.display = 'block';
+      activityEl.innerHTML = `
+        <p class="oh-sec-lbl">Hive Activity Today</p>
+        <div class="oh-card oh-activity" style="padding:14px;">
+          <div style="text-align:center;">
+            <span class="ac-num" style="color:#4ade80;">${closedToday}</span>
+            <span class="ac-lbl">Jobs Closed</span>
+          </div>
+          <div style="text-align:center; border-left:1px solid rgba(255,255,255,.06); border-right:1px solid rgba(255,255,255,.06);">
+            <span class="ac-num" style="color:#29B6D9;">${pmDoneToday}</span>
+            <span class="ac-lbl">PM Done</span>
+          </div>
+          <div style="text-align:center;">
+            <span class="ac-num" style="color:#a78bfa;">${risks.length}</span>
+            <span class="ac-lbl">Active Alerts</span>
           </div>
         </div>`;
     }
@@ -2585,7 +2707,11 @@
     const jobsEl = document.getElementById('oh-jobs');
     if (jobsEl) {
       if (!jobs.length) {
-        jobsEl.innerHTML = `<div style="text-align:center; padding:20px; color:rgba(255,255,255,.25); font-size:.78rem;">No open jobs — all clear ✓</div>`;
+        jobsEl.innerHTML = `<div class="oh-card" style="text-align:center; padding:24px 20px;">
+          <div style="font-size:1.4rem; margin-bottom:6px;">✓</div>
+          <div style="font-size:.82rem; font-weight:700; color:#4ade80; margin-bottom:4px;">All clear</div>
+          <div style="font-size:.7rem; color:rgba(255,255,255,.4);">No open jobs right now. Tap <strong style="color:#F7A21B;">+ Log a Job</strong> below if a fault comes up.</div>
+        </div>`;
       } else {
         jobsEl.innerHTML = jobs.map(j => {
           const ts = j.logged_at || j.created_at;

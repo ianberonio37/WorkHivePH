@@ -57,6 +57,9 @@ LIVE_PAGES = [
     "public-feed.html",
     "predictive.html",
     "achievements.html",
+    "asset-hub.html",
+    "shift-brain.html",
+    "alert-hub.html",
 ]
 
 MIN_TOUCH_PX = 44
@@ -308,6 +311,7 @@ def check_infinite_animation_kills(pages):
         ".skeleton",       # skeleton loading animation — functional feedback
         ".skel-pulse",     # skeleton pulse loading animation — functional feedback
         ".skel",           # skeleton loading shorthand (achievements.html)
+        ".oh-shimmer",     # operational home dashboard stat shimmer (index.html)
         ".live",           # connection status dot — functional live indicator
     }
 

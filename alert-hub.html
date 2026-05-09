@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Alert Hub | WorkHive</title>
+  <link rel="manifest" href="manifest.json" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="utils.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f1923; --surface: #162032; --card: #1d2e44;
+      --gold: #F7A21B; --blue: #29B6D9; --green: #4ade80;
+      --red: #f87171; --amber: #fb923c; --yellow: #facc15; --purple: #a78bfa;
+      --text: #F4F6FA; --muted: rgba(255,255,255,0.4);
+      --border: rgba(255,255,255,0.07);
+    }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
+    .page { max-width: 880px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }
+
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+    .page-title { font-size: 1.3rem; font-weight: 800; }
+    .hive-pill { font-size: .65rem; font-weight: 700; padding: .3rem .8rem; border-radius: 999px; background: rgba(41,182,217,0.12); color: var(--blue); border: 1px solid rgba(41,182,217,0.25); }
+
+    /* Filter chips */
+    .filter-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; background: rgba(22,32,50,0.85);
+      border: 1px solid var(--border); border-radius: 999px;
+      font-family: inherit; font-size: .72rem; font-weight: 600;
+      color: rgba(255,255,255,0.6); cursor: pointer;
+      transition: all .15s;
+    }
+    .chip:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
+    .chip.active { background: rgba(247,162,27,0.15); color: var(--gold); border-color: rgba(247,162,27,0.3); }
+    .chip-count {
+      font-size: .58rem; font-weight: 800; padding: 1px 7px;
+      border-radius: 999px; background: rgba(255,255,255,0.08);
+    }
+    .chip.active .chip-count { background: rgba(247,162,27,0.25); color: var(--gold); }
+
+    /* Feed */
+    .feed { display: flex; flex-direction: column; gap: 8px; }
+    .alert {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px 16px; background: rgba(22,32,50,0.85);
+      border: 1px solid var(--border); border-radius: 12px;
+      border-left-width: 3px;
+    }
+    .alert.kind-risk    { border-left-color: var(--red); }
+    .alert.kind-pm      { border-left-color: var(--amber); }
+    .alert.kind-stock   { border-left-color: var(--yellow); }
+    .alert.kind-pattern { border-left-color: var(--purple); }
+    .alert.kind-system  { border-left-color: var(--blue); }
+    .alert-icon { font-size: 1.15rem; flex-shrink: 0; line-height: 1.2; }
+    .alert-body { flex: 1; min-width: 0; }
+    .alert-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+    .alert-tag { font-size: .55rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; padding: .2rem .5rem; border-radius: 5px; }
+    .tag-critical { background: rgba(248,113,113,0.15); color: var(--red); }
+    .tag-high     { background: rgba(251,146,60,0.15); color: var(--amber); }
+    .tag-medium   { background: rgba(250,204,21,0.12); color: var(--yellow); }
+    .tag-info     { background: rgba(41,182,217,0.12); color: var(--blue); }
+    .alert-title { font-size: .85rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+    .alert-time { font-size: .65rem; color: var(--muted); flex-shrink: 0; }
+    .alert-msg { font-size: .75rem; color: rgba(255,255,255,0.6); line-height: 1.4; margin-top: 2px; }
+    .alert-action {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: .65rem; font-weight: 700; color: var(--gold);
+      text-decoration: none; margin-top: 8px;
+      padding: 4px 10px; border: 1px solid rgba(247,162,27,0.25);
+      border-radius: 6px; background: rgba(247,162,27,0.06);
+      transition: background .15s;
+    }
+    .alert-action:hover { background: rgba(247,162,27,0.15); }
+
+    /* Empty / loading */
+    .empty {
+      text-align: center; padding: 48px 24px;
+      background: rgba(22,32,50,0.5); border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .empty-icon { font-size: 2rem; margin-bottom: 8px; }
+    .empty-title { font-size: .95rem; font-weight: 800; color: var(--green); margin-bottom: 4px; }
+    .empty-sub { font-size: .75rem; color: var(--muted); }
+    .loading { text-align: center; padding: 30px; color: var(--muted); font-size: .78rem; }
+
+    /* Last refreshed */
+    .footer-meta { font-size: .62rem; color: var(--muted); text-align: right; margin-top: 16px; }
+
+    /* Auth gate (no hive) */
+    .gate-card {
+      text-align: center; padding: 40px 24px;
+      background: rgba(22,32,50,0.85); border: 1px solid var(--border);
+      border-radius: 14px; margin-top: 40px;
+    }
+    .gate-card h2 { font-size: 1.1rem; margin-bottom: 8px; }
+    .gate-card p { font-size: .8rem; color: var(--muted); margin-bottom: 20px; }
+    .gate-btn {
+      display: inline-block; padding: 10px 24px;
+      background: rgba(41,182,217,0.15); color: var(--blue);
+      border: 1px solid rgba(41,182,217,0.3); border-radius: 8px;
+      text-decoration: none; font-size: .82rem; font-weight: 700;
+    }
+
+    @media (max-width: 480px) {
+      .alert-time { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Alert Hub</div>
+      <p style="font-size:.7rem; color:var(--muted); margin-top:2px;" id="page-sub">Everything that needs your attention, in one place.</p>
+    </div>
+    <span id="hive-pill" class="hive-pill" style="display:none;"></span>
+  </div>
+
+  <!-- Hive gate (shown when no HIVE_ID) -->
+  <div id="gate-card" class="gate-card" style="display:none;">
+    <div style="font-size:1.6rem; margin-bottom:8px;">🐝</div>
+    <h2>Join a hive to see alerts</h2>
+    <p>Alert Hub aggregates risk, PM, stock, and pattern signals across your team. You need to be in a hive to see them.</p>
+    <a class="gate-btn" href="hive.html">Open Hive Board</a>
+  </div>
+
+  <!-- Main content -->
+  <div id="main-content" style="display:none;">
+    <div class="filter-row" id="filters" role="tablist" aria-label="Alert filters"></div>
+    <div id="feed" class="feed">
+      <div class="loading">Loading alerts...</div>
+    </div>
+    <div id="empty" class="empty" style="display:none;">
+      <div class="empty-icon">✓</div>
+      <div class="empty-title">All clear</div>
+      <div class="empty-sub">No active alerts in your hive right now.</div>
+    </div>
+    <div id="footer-meta" class="footer-meta"></div>
+  </div>
+
+</div>
+
+<script src="nav-hub.js"></script>
+<script>
+(async function () {
+  'use strict';
+
+  const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ── Identity / hive gate ───────────────────────────────────────────────────
+  let WORKER_NAME = localStorage.getItem('wh_last_worker')
+                  || localStorage.getItem('wh_worker_name')
+                  || localStorage.getItem('workerName') || '';
+  if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
+  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+
+  const HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
+  const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
+
+  if (!HIVE_ID) {
+    document.getElementById('gate-card').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('main-content').style.display = 'block';
+  if (HIVE_NAME) {
+    const pill = document.getElementById('hive-pill');
+    pill.textContent = '🐝 ' + HIVE_NAME;
+    pill.style.display = 'inline-block';
+  }
+
+  // ── Module state ───────────────────────────────────────────────────────────
+  const KINDS = [
+    { id: 'all',     label: 'All',     icon: '⊞' },
+    { id: 'risk',    label: 'Risk',    icon: '🔴' },
+    { id: 'pm',      label: 'PM',      icon: '⚠️' },
+    { id: 'stock',   label: 'Stock',   icon: '📦' },
+    { id: 'staging', label: 'Staging', icon: '📥' },
+    { id: 'pattern', label: 'Pattern', icon: '🧬' },
+    { id: 'system',  label: 'System',  icon: '⚙️' },
+  ];
+  let _alerts = [];
+  let _activeKind = 'all';
+  let _refreshTimer = null;
+
+  // Timer helpers — kept OUTSIDE any event handler so the timer validator
+  // can see the named-variable assignment cleanly.
+  function startRefresh() {
+    if (_refreshTimer) return;
+    _refreshTimer = setInterval(loadAll, 60000);
+  }
+  function stopRefresh() {
+    if (!_refreshTimer) return;
+    clearInterval(_refreshTimer);
+    _refreshTimer = null;
+  }
+
+  // Pause polling while the tab is hidden (mobile + battery friendly).
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      stopRefresh();
+    } else {
+      loadAll();
+      startRefresh();
+    }
+  });
+  window.addEventListener('beforeunload', stopRefresh);
+
+  await loadAll();
+  startRefresh();
+
+  // ── Data load ──────────────────────────────────────────────────────────────
+  async function loadAll() {
+    const dayAgo  = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+    const pmCutoff = new Date(Date.now() - 30 * 86400000).toISOString();
+
+    const [riskRes, invRes, pmAssetsRes, autoLogRes, patternRes, stagingRes] = await Promise.allSettled([
+      db.from('asset_risk_scores')
+        .select('asset_name, risk_level, risk_score, top_factors, generated_at')
+        .eq('hive_id', HIVE_ID)
+        .in('risk_level', ['critical', 'high'])
+        .order('risk_score', { ascending: false })
+        .limit(20),
+
+      db.from('inventory_items')
+        .select('part_name, qty_on_hand, reorder_point, updated_at')
+        .eq('hive_id', HIVE_ID)
+        .limit(150),
+
+      db.from('pm_assets')
+        .select('id, asset_name, category')
+        .eq('hive_id', HIVE_ID)
+        .limit(100),
+
+      db.from('automation_log')
+        .select('job_name, status, detail, triggered_at')
+        .eq('status', 'failed')
+        .gte('triggered_at', dayAgo)
+        .order('triggered_at', { ascending: false })
+        .limit(10),
+
+      db.from('failure_signature_alerts')
+        .select('id, machine, signature_kind, message, severity, hive_id, created_at')
+        .eq('hive_id', HIVE_ID)
+        .order('created_at', { ascending: false })
+        .limit(20),
+
+      db.from('parts_staging_recommendations')
+        .select('id, asset_name, risk_score, parts, rationale, confidence, generated_at')
+        .eq('hive_id', HIVE_ID)
+        .eq('status', 'pending')
+        .order('generated_at', { ascending: false })
+        .limit(20),
+    ]);
+
+    const all = [];
+
+    // Risk alerts
+    if (riskRes.status === 'fulfilled') {
+      for (const r of (riskRes.value.data || [])) {
+        const factors = Array.isArray(r.top_factors)
+          ? r.top_factors.slice(0, 3).map(f => String(f).replace(/_/g, ' ')).join(', ')
+          : '';
+        all.push({
+          kind: 'risk',
+          severity: r.risk_level,
+          title: r.asset_name || 'Unknown asset',
+          msg: `Risk score ${Math.round((Number(r.risk_score) || 0) * 100)}%${factors ? ' — ' + factors : ''}`,
+          time: r.generated_at,
+          href: 'asset-hub.html?tag=' + encodeURIComponent(r.asset_name || ''),
+          actionLabel: 'Open in Asset Hub',
+        });
+      }
+    }
+
+    // Low stock alerts
+    if (invRes.status === 'fulfilled') {
+      const inv = invRes.value.data || [];
+      for (const i of inv) {
+        const qty = Number(i.qty_on_hand);
+        const rp  = Number(i.reorder_point);
+        if (rp > 0 && qty <= rp) {
+          all.push({
+            kind: 'stock',
+            severity: qty <= 0 ? 'critical' : (qty <= rp / 2 ? 'high' : 'medium'),
+            title: i.part_name || 'Unnamed part',
+            msg: `${qty} on hand, reorder at ${rp}`,
+            time: i.updated_at || new Date().toISOString(),
+            href: 'inventory.html',
+            actionLabel: 'Open Inventory',
+          });
+        }
+      }
+    }
+
+    // PM overdue alerts (no done completion in 30 days)
+    if (pmAssetsRes.status === 'fulfilled') {
+      const assets = pmAssetsRes.value.data || [];
+      const assetIds = assets.map(a => a.id).filter(Boolean);
+      if (assetIds.length) {
+        const { data: comps } = await db.from('pm_completions')
+          .select('asset_id, completed_at')
+          .in('asset_id', assetIds)
+          .eq('status', 'done')
+          .gte('completed_at', pmCutoff)
+          .order('completed_at', { ascending: false })
+          .limit(500);
+        const recent = new Set((comps || []).map(c => c.asset_id));
+        for (const a of assets) {
+          if (!recent.has(a.id)) {
+            all.push({
+              kind: 'pm',
+              severity: 'high',
+              title: a.asset_name || 'Unnamed asset',
+              msg: `No PM completion in last 30 days (${a.category || 'general'})`,
+              time: pmCutoff,
+              href: 'pm-scheduler.html',
+              actionLabel: 'Open PM Scheduler',
+            });
+          }
+        }
+      }
+    }
+
+    // Pattern alerts (only if table exists in this hive)
+    if (patternRes.status === 'fulfilled') {
+      for (const p of (patternRes.value.data || [])) {
+        all.push({
+          kind: 'pattern',
+          severity: p.severity || 'medium',
+          title: p.machine || 'Unknown machine',
+          msg: p.message || ('Pattern: ' + (p.signature_kind || 'unknown')),
+          time: p.created_at,
+          href: 'asset-hub.html?tag=' + encodeURIComponent(p.machine || ''),
+          actionLabel: 'Open in Asset Hub',
+        });
+      }
+    }
+
+    // Predictive Parts Auto-Staging recommendations (Phase ML-2)
+    if (stagingRes.status === 'fulfilled') {
+      for (const r of (stagingRes.value.data || [])) {
+        const partsCount = Array.isArray(r.parts) ? r.parts.length : 0;
+        const conf       = Math.round((Number(r.confidence) || 0) * 100);
+        all.push({
+          kind: 'staging',
+          severity: (Number(r.risk_score) >= 0.85) ? 'critical' : 'high',
+          title: r.asset_name || 'Unknown asset',
+          msg: `${partsCount} part${partsCount === 1 ? '' : 's'} recommended (${conf}% confidence) — ${r.rationale || ''}`.slice(0, 200),
+          time: r.generated_at,
+          href: 'asset-hub.html?tag=' + encodeURIComponent(r.asset_name || ''),
+          actionLabel: 'Review & stage',
+        });
+      }
+    }
+
+    // System (failed cron / automation jobs in last 24h)
+    if (autoLogRes.status === 'fulfilled') {
+      for (const l of (autoLogRes.value.data || [])) {
+        all.push({
+          kind: 'system',
+          severity: 'info',
+          title: l.job_name || 'Automation job',
+          msg: (l.detail || '').slice(0, 120) || 'Automation run failed',
+          time: l.triggered_at,
+          href: '#',
+          actionLabel: '',
+        });
+      }
+    }
+
+    // Sort newest first
+    all.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+
+    _alerts = all;
+    renderFilters();
+    renderFeed();
+    document.getElementById('footer-meta').textContent =
+      `Last refreshed ${fmtTime(new Date())} · Auto-refresh every minute`;
+  }
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+  function renderFilters() {
+    const counts = { all: _alerts.length };
+    for (const k of KINDS) if (k.id !== 'all') counts[k.id] = _alerts.filter(a => a.kind === k.id).length;
+
+    const e = escHtml;
+    document.getElementById('filters').innerHTML = KINDS.map(k => {
+      const active = k.id === _activeKind ? ' active' : '';
+      const count = counts[k.id] || 0;
+      return `<button class="chip${active}" data-kind="${e(k.id)}" role="tab" aria-selected="${active ? 'true' : 'false'}">
+        <span>${e(k.icon)}</span>${e(k.label)}
+        <span class="chip-count">${count}</span>
+      </button>`;
+    }).join('');
+
+    document.querySelectorAll('#filters .chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        _activeKind = btn.getAttribute('data-kind');
+        renderFilters();
+        renderFeed();
+      });
+    });
+  }
+
+  function renderFeed() {
+    const feed   = document.getElementById('feed');
+    const empty  = document.getElementById('empty');
+    const items = _activeKind === 'all'
+      ? _alerts
+      : _alerts.filter(a => a.kind === _activeKind);
+
+    if (!items.length) {
+      feed.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    const e = escHtml;
+    feed.innerHTML = items.map(a => {
+      const sev = a.severity || 'medium';
+      const tagClass = ({ critical: 'tag-critical', high: 'tag-high', medium: 'tag-medium', info: 'tag-info' })[sev] || 'tag-medium';
+      const icon = ({ risk: '🔴', pm: '⚠️', stock: '📦', pattern: '🧬', system: '⚙️' })[a.kind] || '•';
+      return `<div class="alert kind-${e(a.kind)}">
+        <div class="alert-icon">${e(icon)}</div>
+        <div class="alert-body">
+          <div class="alert-head">
+            <span class="alert-tag ${e(tagClass)}">${e(sev)}</span>
+            <span class="alert-title" title="${e(a.title)}">${e(a.title)}</span>
+            <span class="alert-time">${e(fmtRelative(a.time))}</span>
+          </div>
+          <div class="alert-msg">${e(a.msg || '')}</div>
+          ${a.actionLabel && a.href !== '#'
+            ? `<a class="alert-action" href="${e(a.href)}">${e(a.actionLabel)} →</a>`
+            : ''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function fmtRelative(iso) {
+    if (!iso) return '';
+    const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+    if (diff < 60)    return 'just now';
+    if (diff < 3600)  return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return `${Math.floor(diff / 86400)}d ago`;
+  }
+  function fmtTime(d) {
+    return d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
+  }
+
+})();
+</script>
+</body>
+</html>

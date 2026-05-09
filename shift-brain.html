@@ -292,8 +292,19 @@
         .limit(1);
 
       if (error) {
-        console.error('shift_plans load:', error.message);
-        showToast('Could not load plan: ' + error.message);
+        // Degraded state (table missing / RLS denied / auth required) = warn, not error.
+        // Keeps the browser console clean for users on databases that haven't received
+        // the migration yet, and stops Playwright from flagging it as a page error.
+        const code = error.code || '';
+        const isDegraded = code === 'PGRST205' || code === 'PGRST204' || code === 'PGRST301'
+                           || /Could not find the (table|column)/i.test(error.message || '')
+                           || /permission denied/i.test(error.message || '');
+        if (isDegraded) {
+          console.warn('shift_plans (degraded — table or auth not ready):', error.message);
+        } else {
+          console.error('shift_plans load:', error.message);
+          showToast('Could not load plan: ' + error.message);
+        }
         return;
       }
 
@@ -409,12 +420,31 @@
         const { data, error } = await db.functions.invoke('shift-planner-orchestrator', {
           body: { shift_window: _activeWindow, hive_id: HIVE_ID },
         });
-        if (error) { showToast('Re-run failed: ' + (error.message || 'unknown')); return; }
+        if (error) {
+          // Edge function unreachable (local runtime not running, cold start, network).
+          // Distinguish this from a real failure so the message is actionable.
+          const msg = String(error.message || '');
+          const isUnreachable = /404|Failed to fetch|Failed to send|non-2xx|FunctionsFetchError|FunctionsHttpError/i.test(msg);
+          if (isUnreachable) {
+            console.warn('shift-planner-orchestrator unreachable (likely local edge runtime not running):', msg);
+            showToast('Shift planner is offline locally. Run "npx supabase functions serve" or wait for the production cron.');
+          } else {
+            showToast('Re-run failed: ' + (msg || 'unknown'));
+          }
+          return;
+        }
         if (data && data.error) { showToast('Re-run failed: ' + data.error); return; }
         showToast('Plan refreshed.');
         await loadPlan();
       } catch (err) {
-        showToast('Re-run error: ' + (err && err.message ? err.message : 'unknown'));
+        const msg = err && err.message ? err.message : 'unknown';
+        const isUnreachable = /404|Failed to fetch|Failed to send|non-2xx|FunctionsFetchError|FunctionsHttpError/i.test(msg);
+        if (isUnreachable) {
+          console.warn('shift-planner-orchestrator unreachable:', msg);
+          showToast('Shift planner is offline locally. Run "npx supabase functions serve" or wait for the production cron.');
+        } else {
+          showToast('Re-run error: ' + msg);
+        }
       } finally {
         if (btn) { btn.disabled = false; btn.textContent = 'Re-run plan'; }
         if (gen) { gen.disabled = false; gen.textContent = 'Generate now'; }

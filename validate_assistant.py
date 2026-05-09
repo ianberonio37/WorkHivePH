@@ -53,6 +53,7 @@ LIVE_TOOL_PAGES = [
     "achievements",
     "asset-hub",
     "shift-brain",
+    "alert-hub",
 ]
 
 RETIRED_PAGES = ["parts-tracker", "checklist"]

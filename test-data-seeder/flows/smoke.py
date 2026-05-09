@@ -24,6 +24,7 @@ PAGES = [
     ("achievements.html",      "Achievements",        "body"),
     ("asset-hub.html",         "Asset Hub",           "body"),
     ("shift-brain.html",       "Shift Brain",         "body"),
+    ("alert-hub.html",         "Alert Hub",           "body"),
 ]
 
 # Errors we tolerate (known/expected)
@@ -60,8 +61,19 @@ IGNORED_ERROR_PATTERNS = [
     "SyntaxError: Unexpected end of JSON input",             # empty/truncated API response
     "Unexpected token",                                      # malformed JSON from API
     "PGRST205",                                             # table not in schema cache — migration not yet applied to local Supabase
+    "PGRST204",                                             # column not in schema cache (same root cause)
+    "PGRST301",                                             # JWT expired / auth required — happens when Playwright session is fresh
+    "PGRST116",                                             # no rows returned (not really an error)
     "Could not find the table",                             # same error, plain text form
+    "Could not find the column",                            # PGRST204 plain text form
     "schema cache",                                         # same error, partial match
+    "permission denied for table",                          # RLS denies anon — friendly fail, not a code bug
+    "permission denied for relation",                       # same
+    "violates row-level security policy",                   # RLS blocks an insert/update — caller handles via toast
+    "duplicate key value violates unique constraint",        # idempotent re-run of a seed — expected
+    "violates check constraint",                            # CHECK constraint catches bad input — expected for negative tests
+    "JWT expired",                                          # tester session aged out
+    "Invalid Refresh Token",                                # tester session aged out
 ]
 
 

@@ -26,6 +26,7 @@ PAGES = [
     "achievements.html",
     "asset-hub.html",
     "shift-brain.html",
+    "alert-hub.html",
 ]
 
 # Pages that render dynamic content (dates, live data) — captured but never compared.

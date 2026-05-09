@@ -6,7 +6,7 @@ Run via video_marketing.bat or: python video_marketing_app/app.py
 from flask import Flask, jsonify, request, render_template, send_file
 from pathlib import Path
 from datetime import date
-import sys, os, json, re, asyncio, requests
+import sys, os, json, re, asyncio, requests, threading, time, uuid
 
 # ── Path setup ────────────────────────────────────────────────────────────────
 
@@ -44,13 +44,16 @@ BACKLOG = ROOT / ".tmp/video_ideas_backlog.json"
 SCRIPTS = ROOT / ".tmp/video_scripts"
 VOICES  = ROOT / ".tmp/voice_files"
 
-# Philippine English voices (edge-tts, completely free)
+# Voice options (edge-tts, completely free). English voices are default since
+# narration is plain simple English; Filipino voices kept for variety/testing.
 VOICE_OPTIONS = {
-    "james":   {"id": "en-PH-JamesNeural",    "label": "James (PH Male)"},
-    "rosa":    {"id": "en-PH-RosaNeural",      "label": "Rosa (PH Female)"},
+    "james":   {"id": "en-PH-JamesNeural",     "label": "James (PH English Male)"},
+    "rosa":    {"id": "en-PH-RosaNeural",      "label": "Rosa (PH English Female)"},
+    "guy":     {"id": "en-US-GuyNeural",       "label": "Guy (US English Male, calm)"},
+    "jenny":   {"id": "en-US-JennyNeural",     "label": "Jenny (US English Female, warm)"},
+    "ryan":    {"id": "en-GB-RyanNeural",      "label": "Ryan (UK English Male, neutral)"},
     "angelo":  {"id": "fil-PH-AngeloNeural",   "label": "Angelo (Filipino Male)"},
     "blessica":{"id": "fil-PH-BlessicaNeural", "label": "Blessica (Filipino Female)"},
-    "guy":     {"id": "en-US-GuyNeural",       "label": "Guy (US Male, calm)"},
 }
 
 # ── Flask ─────────────────────────────────────────────────────────────────────
@@ -160,9 +163,14 @@ def generate_ideas():
     # Build live platform context (injects real Supabase data + coverage gaps)
     platform_ctx = build_prompt_context(data["ideas"])
 
-    # If targeting a specific feature, add that constraint
+    # ── Feature assignment: pre-bind each idea slot to a feature so the AI
+    #    can't keep regenerating ideas about the same well-known features.
+    #    Round-robin through uncovered first, then least-covered, never repeats
+    #    within a single generation batch.
+    import random as _r
     feature_constraint = ""
     if feature and feature in FEATURE_ECOSYSTEM:
+        # Explicit override: all N ideas use this feature
         feat_info = get_feature_info(feature)
         connects  = ", ".join(feat_info.get("connects_to", [])[:3])
         feature_constraint = (
@@ -170,26 +178,64 @@ def generate_ideas():
             f"Loop role: {feat_info.get('loop_role','')}\n"
             f"Connected features to mention in Ripple step: {connects}\n"
         )
+    else:
+        # Auto-distribute: prioritise uncovered, never repeat in one batch
+        uncov_list = uncovered_features(data["ideas"])
+        cov_map    = compute_coverage(data["ideas"])
+        # Sort covered features by current coverage count (least-covered first)
+        covered_sorted = sorted(
+            [f for f in FEATURE_ECOSYSTEM if cov_map[f]["status"] != "uncovered"],
+            key=lambda f: len(cov_map[f]["idea_ids"])
+        )
+
+        _r.shuffle(uncov_list)
+        assignment_pool = uncov_list + covered_sorted   # uncovered first, then least-covered
+        assigned        = assignment_pool[:n] if len(assignment_pool) >= n else assignment_pool
+
+        # If we still don't have n features (very small ecosystem), repeat the pool
+        while len(assigned) < n:
+            assigned.append(_r.choice(list(FEATURE_ECOSYSTEM.keys())))
+
+        # Build per-slot assignment block — gives AI no wiggle room
+        slots = []
+        for i, feat in enumerate(assigned, 1):
+            info     = get_feature_info(feat)
+            connects = ", ".join(info.get("connects_to", [])[:3])
+            slots.append(
+                f"  IDEA {i} — Feature: '{feat}'\n"
+                f"           Loop role: {info.get('loop_role','')}\n"
+                f"           Ripple options: {connects}\n"
+                f"           Audience: {', '.join(info.get('audience',['Field Technician']))}"
+            )
+        feature_constraint = (
+            f"\n\nFEATURE ASSIGNMENTS (NON-NEGOTIABLE — every idea MUST target its assigned feature):\n"
+            + "\n".join(slots)
+            + "\n\nDo NOT generate two ideas about the same feature in this batch. "
+              "Do NOT substitute a feature with a similar-sounding one. "
+              "If an assigned feature is unfamiliar, use its loop role to invent a fresh angle.\n"
+        )
 
     prompt = f"""{platform_ctx}
 
-You are a creative director for viral industrial content in the Philippines.
+You are a creative director for viral industrial content.
 Generate {n} DISTINCT WorkHive advertisement video ideas.{avoid}{feature_constraint}
 
 Rules:
-- Each idea targets ONE pain point only, maps to ONE WorkHive feature only
+- Each idea targets ONE pain point only, maps to its ASSIGNED WorkHive feature (see above)
 - Hooks must feel real, not like marketing copy
 - Mix video types across the batch (storytelling, testimonial, comparison, educational, emotional)
 - At least one idea targets field technicians, one targets supervisors or managers
-- Filipino-English mix in hooks is encouraged (Taglish OK)
+- ALL copy (title, hook, problem) must be in PLAIN SIMPLE ENGLISH — no Tagalog, no Taglish, no code-switching, no Filipino slang
+- Use short, common words. Short sentences. Anyone reading at high-school English level should follow it.
+- The 9 newer features (Analytics & OEE Dashboard, Predictive Analytics, Asset Brain, Shift Brain, Achievements, Alert Hub, PH Industry Intelligence, CMMS Integrations, Project Manager) are revolutionary platform capabilities — frame them with the energy of a breakthrough, not a routine feature.
 
-Return ONLY a valid JSON array, no markdown fences, no explanation:
+Return ONLY a valid JSON array of {n} objects in the SAME ORDER as the assignments above, no markdown fences, no explanation:
 [
   {{
-    "title": "short punchy title (4-7 words)",
-    "hook": "opening line a Filipino worker would immediately feel (1-2 sentences, conversational)",
-    "problem": "the pain point in plain language (1 sentence)",
-    "solution_feature": "exact WorkHive feature name from the list above",
+    "title": "short punchy title (4-7 words, plain English)",
+    "hook": "opening line in plain simple English any plant worker would immediately feel (1-2 sentences, conversational)",
+    "problem": "the pain point in plain English (1 sentence)",
+    "solution_feature": "the EXACT assigned feature name for this slot",
     "audience": "who this targets (e.g. Plant Manager, Field Technician, Supervisor, Engineer)",
     "emotion": "primary emotion triggered (e.g. Fear of downtime, Pride, Relief, Ambition)",
     "duration": "60s",
@@ -205,14 +251,26 @@ Return ONLY a valid JSON array, no markdown fences, no explanation:
 
         ideas_raw = json.loads(match.group())
         added = []
-        for idea in ideas_raw:
+        for slot_idx, idea in enumerate(ideas_raw):
             idea_id  = next_id(data)
+            # Enforce the slot assignment: AI sometimes drifts off and returns a
+            # similar-but-different feature. Override with the assigned one.
+            ai_feature = idea.get("solution_feature", "")
+            if not feature and slot_idx < len(assigned):
+                authoritative_feature = assigned[slot_idx]
+                if ai_feature != authoritative_feature:
+                    print(f"  [generate] slot {slot_idx+1}: AI returned '{ai_feature}', "
+                          f"forcing assigned '{authoritative_feature}'")
+                solution_feature = authoritative_feature
+            else:
+                solution_feature = ai_feature
+
             new_idea = {
                 "id":               idea_id,
                 "title":            idea.get("title", "Untitled"),
                 "hook":             idea.get("hook", ""),
                 "problem":          idea.get("problem", ""),
-                "solution_feature": idea.get("solution_feature", ""),
+                "solution_feature": solution_feature,
                 "audience":         idea.get("audience", ""),
                 "emotion":          idea.get("emotion", ""),
                 "duration":         idea.get("duration", "60s"),
@@ -248,95 +306,7 @@ def generate_script(idea_id):
     feat_info    = get_feature_info(idea.get("solution_feature", ""))
     ripple_hints = ", ".join(feat_info.get("connects_to", [])[:3])
 
-    prompt = f"""{platform_ctx}
-
-You are a creative director writing a production-ready script for a WorkHive ad video.
-RIPPLE FEATURES TO MENTION: {ripple_hints}
-
-IDEA BRIEF:
-- Title:    {idea['title']}
-- Hook:     {idea['hook']}
-- Problem:  {idea['problem']}
-- Feature:  {idea['solution_feature']}
-- Audience: {idea['audience']}
-- Emotion:  {idea['emotion']}
-- Duration: {idea['duration']}
-- Type:     {idea['video_type']}
-
-Write the full script using exactly this structure:
-
-# {idea['title']}
-
-## Brief
-| Field | Value |
-|---|---|
-| Duration | {idea['duration']} |
-| Type | {idea['video_type']} |
-| Audience | {idea['audience']} |
-| Emotion | {idea['emotion']} |
-| Feature | {idea['solution_feature']} |
-
----
-
-## Hook (0-5s)
-**SHOT:** [opening visual in one sentence]
-**NARRATION:** "[exact words spoken]"
-**TEXT OVERLAY:** "[on-screen text if any]"
-
----
-
-## Problem Scene (5-30s)
-[4-5 shots showing the pain point. For each shot:]
-**SHOT X:** [visual description]
-**NARRATION:** "[exact words]"
-**TEXT OVERLAY:** "[on-screen text if any]"
-
----
-
-## Solution Reveal (30-55s)
-[Show WorkHive feature solving it. For each shot:]
-**SHOT X:** [exactly which screen, button, or flow to show]
-**NARRATION:** "[exact words]"
-**TEXT OVERLAY:** "[on-screen text if any]"
-
----
-
-## CTA (55-{dur_secs}s)
-**SHOT:** [closing visual]
-**NARRATION:** "[CTA line]"
-**CTA BUTTON TEXT:** "[button label]"
-
----
-
-## AI Video Generation Prompts
-### Hero Shot (Runway Gen-4 / Kling AI)
-[1-2 sentence visual prompt for the hero shot]
-
-### Problem Scene (Runway Gen-4 / Kling AI)
-[1-2 sentence prompt for the problem scene footage]
-
----
-
-## ElevenLabs Narration (paste-ready)
-[All narration lines combined in order, one paragraph, ready to paste directly into ElevenLabs]
-
----
-
-## Music Direction
-- **Mood:** [describe the emotional feel]
-- **Style:** [e.g. lo-fi hip-hop, industrial ambient, upbeat OPM-adjacent]
-- **BPM:** [approximate]
-
----
-
-## 15-Second Cut (Paid Ad)
-**SHOT 1 (0-3s):** [hook visual]
-**NARRATION:** "[compressed hook]"
-**SHOT 2 (3-10s):** [fastest problem + solution in one cut]
-**NARRATION:** "[value statement]"
-**SHOT 3 (10-15s):** [CTA]
-**TEXT:** "[CTA text]"
-"""
+    prompt = _build_script_prompt(idea, platform_ctx, ripple_hints, dur_secs)
 
     try:
         content = ai_call(prompt, high_quality=True)
@@ -375,7 +345,8 @@ def delete_idea(idea_id):
     before = len(data["ideas"])
     data["ideas"] = [i for i in data["ideas"] if i["id"] != idea_id]
     if len(data["ideas"]) == before:
-        return jsonify({"success": False, "error": "Idea not found"}), 404
+        # Idempotent: already gone is success from the caller's point of view.
+        return jsonify({"success": True, "already_gone": True})
     save_backlog(data)
     return jsonify({"success": True})
 
@@ -529,7 +500,8 @@ def get_voices():
 
 @app.route("/api/ideas/<idea_id>/voice", methods=["POST"])
 def generate_voice(idea_id):
-    voice_key = request.json.get("voice", "james")
+    body      = request.get_json(silent=True) or {}
+    voice_key = body.get("voice", "james")
     voice_id  = VOICE_OPTIONS.get(voice_key, VOICE_OPTIONS["james"])["id"]
 
     data = load_backlog()
@@ -549,8 +521,23 @@ def generate_voice(idea_id):
     VOICES.mkdir(parents=True, exist_ok=True)
     out_file = VOICES / f"{idea_id}_{voice_key}.mp3"
 
+    print(f"  [voice] {idea_id} -> {voice_key} ({voice_id}), {len(narration)} chars")
     try:
-        asyncio.run(_generate_tts(narration, voice_id, out_file))
+        # Use a fresh event loop per request — avoids 'event loop already running'
+        # issues on Windows when Auto-Produce is also running in a background thread.
+        loop = asyncio.new_event_loop()
+        try:
+            loop.run_until_complete(
+                asyncio.wait_for(_generate_tts(narration, voice_id, out_file), timeout=120)
+            )
+        finally:
+            loop.close()
+
+        if not out_file.exists() or out_file.stat().st_size < 1000:
+            raise RuntimeError("Edge TTS returned no audio (file missing or empty)")
+
+        size_kb = out_file.stat().st_size // 1024
+        print(f"  [voice] OK: {out_file.name} ({size_kb} KB)")
         return jsonify({
             "success":    True,
             "file":       str(out_file),
@@ -558,8 +545,15 @@ def generate_voice(idea_id):
             "narration":  narration,
             "char_count": len(narration),
         })
+    except asyncio.TimeoutError:
+        print(f"  [voice] TIMEOUT after 120s")
+        return jsonify({
+            "success": False,
+            "error":   "Edge TTS timed out after 120s — Microsoft service may be down. Try again, or pick a different voice.",
+        }), 504
     except Exception as exc:
-        return jsonify({"success": False, "error": str(exc)}), 500
+        import traceback; traceback.print_exc()
+        return jsonify({"success": False, "error": f"{type(exc).__name__}: {exc}"}), 500
 
 
 @app.route("/api/ideas/<idea_id>/voice/download")
@@ -597,36 +591,175 @@ def auto_download_scene(idea_id):
             "needs_key": True,
         }), 400
 
-    # Build search query from idea context
-    feature  = idea.get("solution_feature", "")
-    audience = idea.get("audience", "")
-    keywords_map = {
-        "Engineering Design Calculator": "engineer calculator industrial",
-        "Maintenance Logbook":           "factory maintenance worker",
-        "PM Checklist":                  "industrial checklist inspection",
-        "Inventory Management":          "warehouse parts inventory",
-        "Hive Dashboard":                "plant manager control room",
-        "Shift Handover Report":         "factory workers shift change",
-        "AI Maintenance Assistant":      "engineer technology digital",
-        "Skill Matrix":                  "industrial training workers",
-        "Day Planner":                   "engineer planning schedule",
-        "Marketplace":                   "industrial parts equipment",
-        "Community Forum":               "industrial workers team",
+    # Build search query from idea context.
+    # Each feature has a LIST of related queries — we pick one randomly per
+    # request so two ideas about the same feature don't recycle the same clips.
+    feature = idea.get("solution_feature", "")
+    queries_map = {
+        "Engineering Design Calculator": [
+            "engineer calculator industrial",
+            "engineer technical drawing CAD",
+            "industrial engineer designing",
+            "engineer with blueprint factory",
+        ],
+        "Maintenance Logbook": [
+            "factory maintenance worker",
+            "industrial technician fixing machine",
+            "engineer writing maintenance notes",
+            "manufacturing plant repair",
+            "worker inspection equipment",
+        ],
+        "PM Checklist": [
+            "industrial checklist inspection",
+            "technician preventive maintenance",
+            "factory worker clipboard inspection",
+            "manufacturing quality check",
+        ],
+        "Inventory Management": [
+            "warehouse parts inventory",
+            "industrial spare parts shelf",
+            "factory storeroom worker",
+            "warehouse barcode scanning",
+        ],
+        "Hive Dashboard": [
+            "plant manager control room",
+            "factory operations center",
+            "industrial dashboard monitor",
+            "supervisor reviewing data screens",
+        ],
+        "Shift Handover Report": [
+            "factory workers shift change",
+            "night shift to day shift",
+            "industrial team meeting briefing",
+            "supervisor handover documents",
+        ],
+        "AI Maintenance Assistant": [
+            "engineer technology digital",
+            "industrial AI machine learning",
+            "factory worker tablet technology",
+            "smart manufacturing screen",
+        ],
+        "Skill Matrix": [
+            "industrial training workers",
+            "factory apprentice learning",
+            "technician hands-on training",
+            "manufacturing skills certification",
+        ],
+        "Day Planner": [
+            "engineer planning schedule",
+            "factory supervisor calendar",
+            "industrial work scheduling",
+            "manager planning whiteboard",
+        ],
+        "Marketplace": [
+            "industrial parts equipment",
+            "factory supplier delivery",
+            "warehouse forklift operation",
+            "industrial spare components",
+        ],
+        "Community Forum": [
+            "industrial workers team",
+            "factory team discussion",
+            "engineers collaborating",
+            "manufacturing workers conversation",
+        ],
+        # New 2026-05
+        "Analytics & OEE Dashboard": [
+            "factory data dashboard analytics",
+            "industrial KPI screen monitor",
+            "manufacturing performance metrics",
+            "engineer reviewing graphs",
+        ],
+        "Predictive Analytics": [
+            "industrial machine learning prediction",
+            "factory sensor monitoring",
+            "predictive maintenance technology",
+            "smart factory data analysis",
+        ],
+        "Asset Brain": [
+            "industrial machinery hierarchy plant",
+            "factory equipment overview",
+            "engineer inspecting industrial pump",
+            "manufacturing plant aerial",
+        ],
+        "Shift Brain": [
+            "factory shift change supervisor briefing",
+            "early morning factory worker",
+            "industrial shift planning",
+            "supervisor briefing team",
+        ],
+        "Achievements": [
+            "factory worker pride craftsmanship",
+            "industrial worker satisfaction",
+            "engineer celebrating success",
+            "manufacturing team accomplishment",
+        ],
+        "Alert Hub": [
+            "control room alarm warning panel",
+            "factory warning lights",
+            "industrial alert dashboard",
+            "supervisor responding to alarm",
+        ],
+        "PH Industry Intelligence": [
+            "philippines factory benchmark report",
+            "manufacturing industry data",
+            "industrial benchmarking analysis",
+            "factory performance comparison",
+        ],
+        "CMMS Integrations": [
+            "industrial software integration data sync",
+            "factory IT systems",
+            "manufacturing connected systems",
+            "industrial data flow technology",
+        ],
+        "Project Manager": [
+            "factory shutdown overhaul project planning",
+            "industrial project team meeting",
+            "manufacturing capex planning",
+            "engineer project Gantt chart",
+        ],
     }
-    query = keywords_map.get(feature, "industrial factory worker")
+    queries = queries_map.get(feature, [
+        "industrial factory worker",
+        "manufacturing plant",
+        "industrial engineer",
+    ])
+
+    import random
+    # Mix idea_id into seed so the same idea always picks the same query slot
+    # within a single request, but different ideas (and re-runs) get variety.
+    rand = random.Random(f"{idea_id}_{int(time.time())}")
+    query   = rand.choice(queries)
+    page_no = rand.randint(1, 3)            # randomize Pexels page (1-3) for fresh results
+    per_pg  = 15                            # fetch a wider pool to sample from
 
     try:
-        # Fetch up to 6 results — we'll pick 3 varied clips
         resp = requests.get(
             "https://api.pexels.com/videos/search",
             headers={"Authorization": PEXELS_KEY},
-            params={"query": query, "per_page": 6, "orientation": "landscape"},
+            params={
+                "query":       query,
+                "per_page":    per_pg,
+                "page":        page_no,
+                "orientation": "landscape",
+            },
             timeout=10,
         )
         resp.raise_for_status()
         videos = resp.json().get("videos", [])
         if not videos:
+            # Fall back to page 1 if random page returned empty
+            resp = requests.get(
+                "https://api.pexels.com/videos/search",
+                headers={"Authorization": PEXELS_KEY},
+                params={"query": query, "per_page": per_pg, "page": 1, "orientation": "landscape"},
+                timeout=10,
+            )
+            videos = resp.json().get("videos", [])
+        if not videos:
             return jsonify({"success": False, "error": f"No Pexels videos found for: {query}"}), 404
+        # Random sample from the wider pool — 3 different clips each call
+        videos = rand.sample(videos, min(3, len(videos)))
 
         scenes_dir = ROOT / ".tmp/scene_clips"
         scenes_dir.mkdir(parents=True, exist_ok=True)
@@ -639,7 +772,8 @@ def auto_download_scene(idea_id):
         # Download up to 3 clips
         downloaded = []
         credits    = []
-        for video in videos[:3]:
+        # videos is already a random sample of 3 from the pool (see above)
+        for video in videos:
             hd = _best_file(video)
             if not hd:
                 continue
@@ -834,6 +968,356 @@ def serve_recording(filename):
         return jsonify({"error": "File not found"}), 404
     return send_file(str(file_path), mimetype="video/webm", as_attachment=True,
                      download_name=filename)
+
+
+# ── Auto-Produce: full pipeline orchestrator ──────────────────────────────────
+# One button kicks off: script -> narration -> UI recording -> scene clip ->
+# music -> assemble. Each stage runs in a background thread; the frontend polls
+# /api/produce-jobs/<job_id> to render a live progress bar.
+
+PIPELINE_JOBS  = {}   # job_id -> dict
+PIPELINE_LOCK  = threading.Lock()
+PIPELINE_STAGES = ["script", "voice", "recording", "scene", "music", "assemble"]
+
+
+def _job_set(job_id, **kwargs):
+    with PIPELINE_LOCK:
+        if job_id in PIPELINE_JOBS:
+            PIPELINE_JOBS[job_id].update(kwargs)
+            PIPELINE_JOBS[job_id]["updated_at"] = time.time()
+
+
+def _job_log(job_id, msg):
+    with PIPELINE_LOCK:
+        if job_id in PIPELINE_JOBS:
+            PIPELINE_JOBS[job_id].setdefault("log", []).append(msg)
+            PIPELINE_JOBS[job_id]["updated_at"] = time.time()
+    print(f"  [pipeline {job_id}] {msg}")
+
+
+def _stage_script(idea):
+    """Returns (idea_refreshed, script_path). Reuses if already generated."""
+    if idea.get("script_file") and Path(idea["script_file"]).exists():
+        return idea, Path(idea["script_file"])
+
+    SCRIPTS.mkdir(parents=True, exist_ok=True)
+    safe  = re.sub(r"[^\w\s-]", "", idea["title"]).strip().lower()
+    safe  = re.sub(r"[\s-]+", "_", safe)[:35]
+    ofile = SCRIPTS / f"{idea['id']}_{safe}.md"
+
+    dur_secs     = idea["duration"].replace("s", "")
+    platform_ctx = build_prompt_context(load_backlog()["ideas"])
+    feat_info    = get_feature_info(idea.get("solution_feature", ""))
+    ripple_hints = ", ".join(feat_info.get("connects_to", [])[:3])
+
+    prompt = _build_script_prompt(idea, platform_ctx, ripple_hints, dur_secs)
+    content = ai_call(prompt, high_quality=True)
+    ofile.write_text(content, encoding="utf-8")
+
+    data = load_backlog()
+    for i in data["ideas"]:
+        if i["id"] == idea["id"]:
+            i["status"]      = "scripted"
+            i["script_file"] = str(ofile)
+            idea = i
+    save_backlog(data)
+    return idea, ofile
+
+
+def _stage_voice(idea, voice_key):
+    voice_id = VOICE_OPTIONS.get(voice_key, VOICE_OPTIONS["james"])["id"]
+    script_path = Path(idea["script_file"])
+    content   = script_path.read_text(encoding="utf-8")
+    narration = _extract_narration(content)
+    if not narration:
+        raise RuntimeError("Could not extract narration from script")
+
+    VOICES.mkdir(parents=True, exist_ok=True)
+    out_file = VOICES / f"{idea['id']}_{voice_key}.mp3"
+    if out_file.exists() and out_file.stat().st_size > 1000:
+        return out_file
+    # Fresh event loop per call — avoids cross-thread loop conflicts on Windows
+    loop = asyncio.new_event_loop()
+    try:
+        loop.run_until_complete(
+            asyncio.wait_for(_generate_tts(narration, voice_id, out_file), timeout=120)
+        )
+    finally:
+        loop.close()
+    if not out_file.exists() or out_file.stat().st_size < 1000:
+        raise RuntimeError("Edge TTS returned no audio")
+    return out_file
+
+
+def _stage_recording(idea):
+    """Reuse the most recent recording for this feature if one exists,
+    otherwise auto-record headlessly via Playwright."""
+    from tools.ui_recorder import record, DEMOS
+    from tools.video_assembler import find_latest_recording
+
+    feature  = idea.get("solution_feature", "")
+    existing = find_latest_recording(feature)
+    if existing and existing.exists():
+        return existing
+    if feature not in DEMOS:
+        raise RuntimeError(
+            f"No auto-record demo for '{feature}'. "
+            "Record manually first or pick a feature with a demo."
+        )
+    return record(feature, headless=True)
+
+
+def _stage_scene(idea):
+    """
+    Always re-download fresh Pexels clips on every Auto-Produce.
+    The /scene/auto route uses randomized queries + pagination + sampling so
+    re-runs don't recycle the same footage. The combined .mp4 overwrites the
+    previous one to keep disk usage bounded.
+    """
+    if not os.getenv("PEXELS_API_KEY"):
+        return None
+    with app.test_client() as client:
+        r = client.post(f"/api/ideas/{idea['id']}/scene/auto")
+        body = r.get_json() or {}
+        if not body.get("success"):
+            raise RuntimeError(body.get("error", "scene download failed"))
+        return Path(body["file"])
+
+
+def _stage_music(idea):
+    """Returns music path, or None if JAMENDO_CLIENT_ID not set or fetch fails."""
+    if not os.getenv("JAMENDO_CLIENT_ID"):
+        return None
+    try:
+        with app.test_client() as client:
+            r = client.post(f"/api/ideas/{idea['id']}/music/auto")
+            body = r.get_json() or {}
+            if not body.get("success"):
+                return None
+            return Path(body["file"])
+    except Exception:
+        return None
+
+
+def _stage_assemble(idea, voice_key, recording_path, scene_path, music_path):
+    from tools.video_assembler import assemble
+    return assemble(
+        idea_id        = idea["id"],
+        voice_key      = voice_key,
+        recording_file = recording_path,
+        scene_clip     = scene_path,
+        music_path     = music_path,
+        captions       = True,
+    )
+
+
+def _run_pipeline(job_id, idea_id, voice_key):
+    """Background worker — runs the full pipeline and updates job state."""
+    try:
+        data = load_backlog()
+        idea = next((i for i in data["ideas"] if i["id"] == idea_id), None)
+        if not idea:
+            raise RuntimeError(f"Idea {idea_id} not found")
+
+        # ── 1. Script ────────────────────────────────────────────────────
+        _job_set(job_id, stage="script", message="Generating script with AI...")
+        idea, script_path = _stage_script(idea)
+        _job_log(job_id, f"script: {script_path.name}")
+
+        # ── 2. Voice narration ───────────────────────────────────────────
+        _job_set(job_id, stage="voice",
+                 message=f"Generating narration with {voice_key}...")
+        narration_path = _stage_voice(idea, voice_key)
+        _job_log(job_id, f"voice: {narration_path.name}")
+
+        # ── 3. UI recording (fail-fast — don't waste time on scene/music
+        #      if the recording can't happen at all) ────────────────────
+        _job_set(job_id, stage="recording",
+                 message="Recording WorkHive UI demo (Playwright)...")
+        recording_path = _stage_recording(idea)   # raises on any failure
+        _job_log(job_id, f"recording: {recording_path.name}")
+
+        # ── 4. Scene clip (Pexels) ───────────────────────────────────────
+        _job_set(job_id, stage="scene",
+                 message="Downloading background scene clips from Pexels...")
+        try:
+            scene_path = _stage_scene(idea)
+            _job_log(job_id, f"scene: {scene_path.name if scene_path else 'skipped (no PEXELS_API_KEY)'}")
+        except Exception as exc:
+            _job_log(job_id, f"scene skipped: {exc}")
+            scene_path = None
+
+        # ── 5. Music (Jamendo) ───────────────────────────────────────────
+        _job_set(job_id, stage="music",
+                 message="Finding royalty-free background music (Jamendo)...")
+        music_path = _stage_music(idea)
+        _job_log(job_id, f"music: {music_path.name if music_path else 'skipped'}")
+
+        # ── 6. Assemble ──────────────────────────────────────────────────
+        _job_set(job_id, stage="assemble",
+                 message="Assembling final video with captions (FFmpeg + Whisper)...")
+        out_path = _stage_assemble(idea, voice_key, recording_path, scene_path, music_path)
+        _job_log(job_id, f"assembled: {out_path.name}")
+
+        size_mb = round(out_path.stat().st_size / 1_000_000, 1)
+        _job_set(job_id,
+                 stage    = "done",
+                 status   = "complete",
+                 message  = "Production complete!",
+                 output   = str(out_path),
+                 download = f"/api/assembled/{out_path.name}",
+                 size_mb  = size_mb)
+
+    except Exception as exc:
+        import traceback
+        traceback.print_exc()
+        _job_set(job_id,
+                 status  = "error",
+                 error   = str(exc),
+                 message = f"Failed at '{PIPELINE_JOBS.get(job_id,{}).get('stage','?')}': {exc}")
+
+
+def _build_script_prompt(idea, platform_ctx, ripple_hints, dur_secs):
+    """Assemble the script prompt — kept here so both the orchestrator and the
+    /script route can call it without duplication."""
+    return f"""{platform_ctx}
+
+You are a creative director writing a production-ready script for a WorkHive ad video.
+RIPPLE FEATURES TO MENTION: {ripple_hints}
+
+LANGUAGE: PLAIN SIMPLE ENGLISH ONLY.
+- No Tagalog, no Taglish, no Filipino slang, no code-switching anywhere in the script.
+- Every NARRATION line, every TEXT OVERLAY, every CTA, every paste-ready block must be in plain English.
+- Use short, common words. Short sentences. Conversational, not formal — but English only.
+- If the IDEA BRIEF below contains any Tagalog or Taglish, translate it into plain English first, then write the script.
+
+IDEA BRIEF:
+- Title:    {idea['title']}
+- Hook:     {idea['hook']}
+- Problem:  {idea['problem']}
+- Feature:  {idea['solution_feature']}
+- Audience: {idea['audience']}
+- Emotion:  {idea['emotion']}
+- Duration: {idea['duration']}
+- Type:     {idea['video_type']}
+
+Write the full script using exactly this structure:
+
+# {idea['title']}
+
+## Brief
+| Field | Value |
+|---|---|
+| Duration | {idea['duration']} |
+| Type | {idea['video_type']} |
+| Audience | {idea['audience']} |
+| Emotion | {idea['emotion']} |
+| Feature | {idea['solution_feature']} |
+
+---
+
+## Hook (0-5s)
+**SHOT:** [opening visual in one sentence]
+**NARRATION:** "[exact words spoken]"
+**TEXT OVERLAY:** "[on-screen text if any]"
+
+---
+
+## Problem Scene (5-30s)
+[4-5 shots showing the pain point. For each shot:]
+**SHOT X:** [visual description]
+**NARRATION:** "[exact words]"
+**TEXT OVERLAY:** "[on-screen text if any]"
+
+---
+
+## Solution Reveal (30-55s)
+[Show WorkHive feature solving it. For each shot:]
+**SHOT X:** [exactly which screen, button, or flow to show]
+**NARRATION:** "[exact words]"
+**TEXT OVERLAY:** "[on-screen text if any]"
+
+---
+
+## CTA (55-{dur_secs}s)
+**SHOT:** [closing visual]
+**NARRATION:** "[CTA line]"
+**CTA BUTTON TEXT:** "[button label]"
+
+---
+
+## AI Video Generation Prompts
+### Hero Shot (Runway Gen-4 / Kling AI)
+[1-2 sentence visual prompt for the hero shot]
+
+### Problem Scene (Runway Gen-4 / Kling AI)
+[1-2 sentence prompt for the problem scene footage]
+
+---
+
+## ElevenLabs Narration (paste-ready)
+[All narration lines combined in order, one paragraph, ready to paste directly into ElevenLabs]
+
+---
+
+## Music Direction
+- **Mood:** [describe the emotional feel]
+- **Style:** [e.g. lo-fi hip-hop, industrial ambient, cinematic build, quiet urgency]
+- **BPM:** [approximate]
+
+---
+
+## 15-Second Cut (Paid Ad)
+**SHOT 1 (0-3s):** [hook visual]
+**NARRATION:** "[compressed hook]"
+**SHOT 2 (3-10s):** [fastest problem + solution in one cut]
+**NARRATION:** "[value statement]"
+**SHOT 3 (10-15s):** [CTA]
+**TEXT:** "[CTA text]"
+"""
+
+
+@app.route("/api/ideas/<idea_id>/produce-all", methods=["POST"])
+def produce_all(idea_id):
+    body      = request.get_json(silent=True) or {}
+    voice_key = body.get("voice", "james")
+
+    data = load_backlog()
+    idea = next((i for i in data["ideas"] if i["id"] == idea_id), None)
+    if not idea:
+        return jsonify({"success": False, "error": "Idea not found"}), 404
+
+    job_id = f"job_{idea_id}_{uuid.uuid4().hex[:8]}"
+    with PIPELINE_LOCK:
+        PIPELINE_JOBS[job_id] = {
+            "job_id":     job_id,
+            "idea_id":    idea_id,
+            "voice":      voice_key,
+            "status":     "running",
+            "stage":      "starting",
+            "stages":     PIPELINE_STAGES,
+            "message":    "Starting pipeline...",
+            "log":        [],
+            "started_at": time.time(),
+            "updated_at": time.time(),
+        }
+
+    threading.Thread(
+        target=_run_pipeline,
+        args=(job_id, idea_id, voice_key),
+        daemon=True,
+    ).start()
+
+    return jsonify({"success": True, "job_id": job_id})
+
+
+@app.route("/api/produce-jobs/<job_id>")
+def produce_status(job_id):
+    with PIPELINE_LOCK:
+        job = PIPELINE_JOBS.get(job_id)
+        if not job:
+            return jsonify({"success": False, "error": "Job not found"}), 404
+        return jsonify({"success": True, **job})
 
 
 # ── Free tool stack info ───────────────────────────────────────────────────────

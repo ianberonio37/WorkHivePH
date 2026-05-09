@@ -1,0 +1,224 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getCorsHeaders } from "../_shared/cors.ts";
+
+// ── Predictive Parts Auto-Staging Recommender ────────────────────────────────
+// Runs daily after batch-risk-scoring (06:00 UTC). For each high-risk asset
+// (risk_score >= 0.7), looks at historical parts_used patterns from logbook
+// and recommends parts to pre-stage from inventory.
+//
+// Rule-based v1: a part is recommended when it appears in >= MIN_HISTORY_HITS
+// past corrective records for the same asset AND inventory has stock on hand.
+// Confidence = hits / total corrective records for the asset.
+//
+// Recommendations expire after EXPIRY_DAYS so stale ones do not accumulate.
+// Only one active recommendation per (hive, asset) is kept — older pending
+// recs for the same pair are marked 'expired' before the new insert.
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SERVICE_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+const RISK_FLOOR        = 0.7;     // only flag assets at or above this risk
+const MIN_HISTORY_HITS  = 3;       // part must appear in 3+ corrective records
+const MIN_CONFIDENCE    = 0.4;     // 40% of historical fixes used this part
+const HISTORY_DAYS      = 365;
+const EXPIRY_DAYS       = 7;
+const MAX_PARTS_PER_REC = 5;       // cap recommendation breadth
+
+serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  try {
+    const db = createClient(SUPABASE_URL, SERVICE_KEY);
+
+    const { data: hives, error: hivesErr } = await db.from("hives").select("id, name");
+    if (hivesErr) throw new Error(`Hives fetch: ${hivesErr.message}`);
+    if (!hives?.length) {
+      return new Response(JSON.stringify({ recommended: 0, note: "No hives" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const results = await Promise.allSettled(hives.map((h) => recommendForHive(db, h)));
+    const ok      = results.filter((r) => r.status === "fulfilled");
+    const failed  = results.filter((r) => r.status === "rejected").length;
+    const total   = ok.reduce((acc, r) => acc + ((r as PromiseFulfilledResult<{ count: number }>).value.count || 0), 0);
+
+    await db.from("automation_log").insert({
+      job_name: "parts-staging-recommender",
+      status:   failed === 0 ? "success" : "failed",
+      detail:   `Generated ${total} recommendations across ${ok.length}/${hives.length} hives. Failures: ${failed}`,
+    }).then(({ error }) => { if (error) console.warn("audit log:", error.message); });
+
+    return new Response(
+      JSON.stringify({ recommended: total, hives_processed: ok.length, failed }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("parts-staging-recommender:", msg);
+    return new Response(JSON.stringify({ error: msg }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
+
+async function recommendForHive(
+  db: ReturnType<typeof createClient>,
+  hive: { id: string; name: string }
+) {
+  const hiveId = hive.id;
+  const cutoff = new Date(Date.now() - HISTORY_DAYS * 86400000).toISOString();
+
+  // ── 1. Top-risk assets (most recent score per asset, score >= RISK_FLOOR) ───
+  // Pull last 24h of risk rows; we only act on the latest scoring batch.
+  const since24h = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+  const { data: riskRows, error: riskErr } = await db
+    .from("asset_risk_scores")
+    .select("asset_name, risk_score, top_factors, generated_at")
+    .eq("hive_id", hiveId)
+    .gte("generated_at", since24h)
+    .gte("risk_score", RISK_FLOOR)
+    .order("generated_at", { ascending: false });
+
+  if (riskErr) throw new Error(`risk scores: ${riskErr.message}`);
+  if (!riskRows?.length) return { hive_id: hiveId, count: 0, note: "No high-risk assets" };
+
+  // Dedup: keep only the most recent score per asset
+  const latestByAsset = new Map<string, typeof riskRows[number]>();
+  for (const row of riskRows) {
+    if (!latestByAsset.has(row.asset_name)) latestByAsset.set(row.asset_name, row);
+  }
+  const targets = Array.from(latestByAsset.values());
+
+  // ── 2. Historical corrective records for those assets ──────────────────────
+  const machineNames = targets.map((t) => t.asset_name);
+  const { data: logbook, error: logErr } = await db
+    .from("logbook")
+    .select("machine, maintenance_type, root_cause, parts_used, created_at")
+    .eq("hive_id", hiveId)
+    .in("machine", machineNames)
+    .gte("created_at", cutoff);
+
+  if (logErr) throw new Error(`logbook: ${logErr.message}`);
+
+  // ── 3. Current inventory ───────────────────────────────────────────────────
+  const { data: inventory, error: invErr } = await db
+    .from("inventory_items")
+    .select("id, part_name, part_number, qty_on_hand, status")
+    .eq("hive_id", hiveId)
+    .eq("status", "approved");
+
+  if (invErr) throw new Error(`inventory: ${invErr.message}`);
+
+  const invByName = new Map<string, { id: string; part_name: string; qty_on_hand: number }>();
+  for (const item of inventory || []) {
+    const key = String(item.part_name || "").trim().toLowerCase();
+    if (key) invByName.set(key, item);
+  }
+
+  // ── 4. For each target asset, build recommendations ────────────────────────
+  const newRecs: Array<Record<string, unknown>> = [];
+  const expirePairs: Array<{ asset: string }> = [];
+
+  for (const target of targets) {
+    const assetLogs = (logbook || []).filter(
+      (e) => e.machine === target.asset_name &&
+             /corrective|breakdown/i.test(String(e.maintenance_type || ""))
+    );
+    if (assetLogs.length < MIN_HISTORY_HITS) continue;
+
+    // Aggregate parts_used across all corrective logs
+    const partHits = new Map<string, { hits: number; qtyTotal: number; sample: string }>();
+    for (const log of assetLogs) {
+      const parts = Array.isArray(log.parts_used) ? log.parts_used : [];
+      for (const p of parts) {
+        const name = String(p?.name || p?.part_name || "").trim();
+        if (!name) continue;
+        const key = name.toLowerCase();
+        const qty = Number(p?.qty || p?.quantity || 1) || 1;
+        const cur = partHits.get(key) || { hits: 0, qtyTotal: 0, sample: name };
+        cur.hits += 1;
+        cur.qtyTotal += qty;
+        partHits.set(key, cur);
+      }
+    }
+
+    // Filter by frequency + inventory availability
+    const candidates: Array<{ item_id: string; part_name: string; qty_avg: number; confidence: number; in_stock: number }> = [];
+    for (const [key, stat] of partHits.entries()) {
+      const confidence = stat.hits / assetLogs.length;
+      if (stat.hits < MIN_HISTORY_HITS) continue;
+      if (confidence < MIN_CONFIDENCE) continue;
+      const inv = invByName.get(key);
+      if (!inv) continue;                   // not in inventory — skip
+      if (Number(inv.qty_on_hand) <= 0) continue;
+      candidates.push({
+        item_id: inv.id,
+        part_name: inv.part_name,
+        qty_avg: Math.max(1, Math.round(stat.qtyTotal / stat.hits)),
+        confidence: Math.round(confidence * 100) / 100,
+        in_stock: Number(inv.qty_on_hand),
+      });
+    }
+    if (!candidates.length) continue;
+
+    candidates.sort((a, b) => b.confidence - a.confidence);
+    const picked = candidates.slice(0, MAX_PARTS_PER_REC);
+
+    // Most-frequent failure mode (rough — pick mode of root_cause across the assetLogs)
+    const causeCount = new Map<string, number>();
+    for (const log of assetLogs) {
+      const c = String(log.root_cause || "").trim();
+      if (!c) continue;
+      causeCount.set(c, (causeCount.get(c) || 0) + 1);
+    }
+    const failureMode = Array.from(causeCount.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+
+    const overallConf = Math.round((picked.reduce((s, p) => s + p.confidence, 0) / picked.length) * 100) / 100;
+
+    const rationale =
+      `Risk score ${target.risk_score.toFixed(2)} on ${target.asset_name}. ` +
+      `${assetLogs.length} corrective records in last ${HISTORY_DAYS}d. ` +
+      `${picked.length} parts appear in ${(MIN_CONFIDENCE * 100).toFixed(0)}%+ of past fixes` +
+      (failureMode ? ` for failure mode "${failureMode}".` : ".");
+
+    newRecs.push({
+      hive_id:       hiveId,
+      asset_name:    target.asset_name,
+      risk_score:    target.risk_score,
+      failure_mode:  failureMode,
+      parts:         picked,
+      rationale,
+      confidence:    overallConf,
+      status:        "pending",
+      generated_at:  new Date().toISOString(),
+      expires_at:    new Date(Date.now() + EXPIRY_DAYS * 86400000).toISOString(),
+      model_version: "rules-v1",
+    });
+    expirePairs.push({ asset: target.asset_name });
+  }
+
+  if (!newRecs.length) return { hive_id: hiveId, count: 0, note: "No actionable recs" };
+
+  // ── 5. Expire previous pending recs for the same (hive, asset) pairs ───────
+  // Use a single UPDATE with .in() rather than per-row to keep query count low.
+  const assetsToExpire = expirePairs.map((p) => p.asset);
+  if (assetsToExpire.length) {
+    const { error: expErr } = await db
+      .from("parts_staging_recommendations")
+      .update({ status: "expired" })
+      .eq("hive_id", hiveId)
+      .eq("status", "pending")
+      .in("asset_name", assetsToExpire);
+    if (expErr) console.warn(`expire prev recs: ${expErr.message}`);
+  }
+
+  // ── 6. Insert new recommendations ──────────────────────────────────────────
+  const { error: insErr } = await db.from("parts_staging_recommendations").insert(newRecs);
+  if (insErr) throw new Error(`insert recs: ${insErr.message}`);
+
+  return { hive_id: hiveId, count: newRecs.length };
+}

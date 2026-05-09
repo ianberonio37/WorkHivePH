@@ -57,6 +57,10 @@ LIVE_PAGES = [
     "public-feed.html",
     "predictive.html",
     "achievements.html",
+    "asset-hub.html",
+    "shift-brain.html",
+    "alert-hub.html",
+    "qr-scanner.js",
 ]
 
 # Event types where spawning intervals is dangerous (fires repeatedly)

@@ -40,81 +40,147 @@ SUPABASE_KEY = os.getenv("SUPABASE_SECRET_KEY") or os.getenv("SUPABASE_KEY", "")
 
 FEATURE_ECOSYSTEM = {
     "Maintenance Logbook": {
-        "connects_to": ["AI Maintenance Assistant", "Shift Handover Report", "PM Checklist", "Community Forum"],
+        "connects_to": ["AI Maintenance Assistant", "Shift Handover Report", "PM Checklist", "Community Forum", "Asset Brain", "Achievements", "Predictive Analytics"],
         "tables":       ["logbook"],
-        "edge_fns":     ["failure-signature-scan", "embed-entry", "voice-logbook-entry"],
-        "loop_role":    "Foundation layer. Every repair, every failure, every fix recorded. Without it everything else is guesswork.",
+        "edge_fns":     ["failure-signature-scan", "embed-entry", "voice-logbook-entry", "voice-transcribe"],
+        "loop_role":    "Foundation layer. Every repair, every failure, every fix recorded — by typing or by voice. Without it everything else is guesswork.",
         "audience":     ["Field Technician", "Supervisor", "Plant Manager"],
     },
     "PM Checklist": {
-        "connects_to": ["Inventory Management", "Maintenance Logbook", "Hive Dashboard", "Skill Matrix"],
+        "connects_to": ["Inventory Management", "Maintenance Logbook", "Hive Dashboard", "Skill Matrix", "Shift Brain", "Asset Brain", "Achievements"],
         "tables":       ["pm_assets", "pm_completions", "pm_scope_items"],
         "edge_fns":     [],
-        "loop_role":    "Prevention layer. Stops failures before they happen. Each completed PM feeds the logbook and the dashboard.",
+        "loop_role":    "Prevention layer. Stops failures before they happen. Each completed PM feeds the logbook, the dashboard, and the shift plan.",
         "audience":     ["Field Technician", "Supervisor"],
     },
     "Inventory Management": {
-        "connects_to": ["PM Checklist", "Marketplace", "Hive Dashboard"],
+        "connects_to": ["PM Checklist", "Marketplace", "Hive Dashboard", "Predictive Analytics", "Shift Brain", "Alert Hub"],
         "tables":       ["inventory_items", "inventory_transactions"],
         "edge_fns":     [],
         "loop_role":    "Readiness layer. Maintenance only works if the part is there. Low stock alerts before surprises happen.",
         "audience":     ["Supervisor", "Plant Manager"],
     },
     "AI Maintenance Assistant": {
-        "connects_to": ["Maintenance Logbook", "PM Checklist", "Skill Matrix"],
+        "connects_to": ["Maintenance Logbook", "PM Checklist", "Skill Matrix", "Asset Brain"],
         "tables":       ["logbook", "fault_knowledge", "pm_knowledge"],
         "edge_fns":     ["ai-orchestrator", "semantic-search", "scheduled-agents"],
         "loop_role":    "Intelligence layer. Turns recorded data into answers. The more the logbook grows, the smarter the AI gets.",
         "audience":     ["Field Technician", "Engineer", "Plant Manager"],
     },
     "Hive Dashboard": {
-        "connects_to": ["Maintenance Logbook", "PM Checklist", "Inventory Management", "Skill Matrix"],
+        "connects_to": ["Maintenance Logbook", "PM Checklist", "Inventory Management", "Skill Matrix", "Analytics & OEE Dashboard", "Alert Hub"],
         "tables":       ["hive_analytics_cache", "hive_audit_log"],
-        "edge_fns":     ["analytics-orchestrator", "benchmark-compute", "intelligence-report"],
-        "loop_role":    "Visibility layer. The manager sees everything in real time: OEE, downtime, PM rate, all in one screen.",
+        "edge_fns":     ["analytics-orchestrator", "benchmark-compute"],
+        "loop_role":    "Visibility layer. The manager sees everything in real time: open work, downtime, PM rate, all in one screen.",
         "audience":     ["Supervisor", "Plant Manager"],
     },
     "Shift Handover Report": {
-        "connects_to": ["Maintenance Logbook", "PM Checklist"],
+        "connects_to": ["Maintenance Logbook", "PM Checklist", "Shift Brain"],
         "tables":       ["logbook"],
         "edge_fns":     [],
         "loop_role":    "Continuity layer. Nothing falls through the cracks between shifts. Open issues, hot machines, pending PMs all transferred.",
         "audience":     ["Supervisor", "Field Technician"],
     },
     "Day Planner": {
-        "connects_to": ["PM Checklist", "Skill Matrix", "Shift Handover Report"],
+        "connects_to": ["PM Checklist", "Skill Matrix", "Shift Handover Report", "Shift Brain"],
         "tables":       ["dayplanner_events"],
         "edge_fns":     [],
         "loop_role":    "Scheduling layer. Right person, right task, right time. Plans the week so PMs never pile up.",
         "audience":     ["Supervisor", "Plant Manager"],
     },
     "Engineering Design Calculator": {
-        "connects_to": ["Maintenance Logbook"],
+        "connects_to": ["Maintenance Logbook", "Asset Brain", "Project Manager"],
         "tables":       ["calc_knowledge", "bom_knowledge"],
         "edge_fns":     ["engineering-calc-agent", "engineering-bom-sow"],
-        "loop_role":    "Standards layer. Every calculation done to Philippine engineering standards. Results saved to logbook as permanent reference.",
+        "loop_role":    "Standards layer. Every calculation done to Philippine engineering standards. Results saved as permanent reference.",
         "audience":     ["Engineer", "Plant Manager"],
     },
     "Skill Matrix": {
-        "connects_to": ["PM Checklist", "Day Planner", "AI Maintenance Assistant"],
+        "connects_to": ["PM Checklist", "Day Planner", "AI Maintenance Assistant", "Achievements", "Project Manager"],
         "tables":       ["skill_profiles", "skill_badges"],
         "edge_fns":     [],
         "loop_role":    "Competency layer. Knows who can do what. Prevents assigning a job to someone untrained. Identifies gaps before they become safety risks.",
         "audience":     ["Supervisor", "Plant Manager"],
     },
     "Marketplace": {
-        "connects_to": ["Inventory Management"],
+        "connects_to": ["Inventory Management", "PH Industry Intelligence"],
         "tables":       ["marketplace_sellers", "marketplace_orders"],
-        "edge_fns":     ["marketplace-checkout", "marketplace-webhook"],
+        "edge_fns":     ["marketplace-checkout", "marketplace-webhook", "marketplace-connect-onboard", "marketplace-connect-status", "marketplace-release"],
         "loop_role":    "Supply layer. When inventory hits critical, the marketplace connects you to verified sellers across Philippine plants.",
         "audience":     ["Supervisor", "Plant Manager"],
     },
     "Community Forum": {
-        "connects_to": ["AI Maintenance Assistant", "Maintenance Logbook"],
+        "connects_to": ["AI Maintenance Assistant", "Maintenance Logbook", "Achievements"],
         "tables":       ["community_posts", "community_replies", "community_xp"],
         "edge_fns":     [],
-        "loop_role":    "Knowledge layer. Filipino plant workers sharing solutions. Best answers feed the AI and the knowledge base.",
+        "loop_role":    "Knowledge layer. Plant workers sharing solutions. Best answers feed the AI and the knowledge base.",
         "audience":     ["Field Technician", "Engineer"],
+    },
+
+    # ── New features added 2026-05 ──────────────────────────────────────────
+
+    "Analytics & OEE Dashboard": {
+        "connects_to": ["Maintenance Logbook", "PM Checklist", "Predictive Analytics", "Hive Dashboard", "PH Industry Intelligence"],
+        "tables":       ["hive_analytics_cache", "logbook"],
+        "edge_fns":     ["analytics-orchestrator", "benchmark-compute"],
+        "loop_role":    "Insight layer. Turns raw maintenance data into OEE, MTBF, downtime trends across 4 phases — Descriptive, Diagnostic, Predictive, Prescriptive.",
+        "audience":     ["Plant Manager", "Supervisor", "Engineer"],
+    },
+    "Predictive Analytics": {
+        "connects_to": ["Maintenance Logbook", "Inventory Management", "Asset Brain", "Alert Hub", "Analytics & OEE Dashboard"],
+        "tables":       ["asset_risk_scores", "logbook", "inventory_transactions"],
+        "edge_fns":     ["batch-risk-scoring", "trigger-ml-retrain"],
+        "loop_role":    "Foresight layer. ML model ranks every asset by failure risk. Critical and high-risk machines surface before they break — not after.",
+        "audience":     ["Plant Manager", "Supervisor", "Engineer"],
+    },
+    "Asset Brain": {
+        "connects_to": ["Maintenance Logbook", "PM Checklist", "Predictive Analytics", "Engineering Design Calculator", "AI Maintenance Assistant"],
+        "tables":       ["asset_nodes", "asset_edges", "asset_brain_overview"],
+        "edge_fns":     ["asset-brain-query"],
+        "loop_role":    "Asset memory layer. Every machine's full lifetime in one Asset 360 view — failures, PMs, parts, sister assets, parent plant. ISO 14224 hierarchy.",
+        "audience":     ["Engineer", "Plant Manager", "Field Technician"],
+    },
+    "Shift Brain": {
+        "connects_to": ["Shift Handover Report", "PM Checklist", "Predictive Analytics", "Day Planner", "Inventory Management"],
+        "tables":       ["shift_plans"],
+        "edge_fns":     ["shift-planner-orchestrator"],
+        "loop_role":    "Shift intelligence layer. AI generates the next shift's plan before sign-on: top risks, due PMs, carry-overs from previous shift, parts to pre-stage, who does what.",
+        "audience":     ["Supervisor", "Plant Manager"],
+    },
+    "Achievements": {
+        "connects_to": ["Maintenance Logbook", "Skill Matrix", "Community Forum", "PM Checklist"],
+        "tables":       ["achievements", "skill_badges"],
+        "edge_fns":     [],
+        "loop_role":    "Recognition layer. Levels, XP, and badges for every closed logbook entry, completed PM, helpful community answer. Makes maintenance work feel like progress.",
+        "audience":     ["Field Technician", "Engineer"],
+    },
+    "Alert Hub": {
+        "connects_to": ["Predictive Analytics", "PM Checklist", "Inventory Management", "Maintenance Logbook"],
+        "tables":       ["alert_log"],
+        "edge_fns":     ["scheduled-agents", "failure-signature-scan"],
+        "loop_role":    "Attention layer. One inbox for everything that needs action: critical risk spikes, overdue PMs, low stock, failure signature alerts.",
+        "audience":     ["Supervisor", "Plant Manager", "Field Technician"],
+    },
+    "PH Industry Intelligence": {
+        "connects_to": ["Hive Dashboard", "Analytics & OEE Dashboard", "Marketplace"],
+        "tables":       ["ph_intelligence_reports"],
+        "edge_fns":     ["intelligence-report", "intelligence-api"],
+        "loop_role":    "Benchmark layer. Compares your plant's KPIs against Philippine industry peers. Shows where you lead and where you lag.",
+        "audience":     ["Plant Manager"],
+    },
+    "CMMS Integrations": {
+        "connects_to": ["Maintenance Logbook", "PM Checklist", "Inventory Management", "Asset Brain"],
+        "tables":       [],
+        "edge_fns":     ["cmms-sync", "cmms-push-completion", "cmms-webhook-receiver"],
+        "loop_role":    "Bridge layer. Two-way sync with SAP PM, IBM Maximo, Fiix and other CMMS systems. Use WorkHive without abandoning existing investment.",
+        "audience":     ["Plant Manager", "IT/OT Manager"],
+    },
+    "Project Manager": {
+        "connects_to": ["Maintenance Logbook", "Inventory Management", "Skill Matrix", "Engineering Design Calculator"],
+        "tables":       ["projects", "project_tasks"],
+        "edge_fns":     ["project-orchestrator", "project-progress"],
+        "loop_role":    "Coordination layer. Long-running maintenance projects (overhauls, shutdowns, capex) tracked end-to-end with milestones, parts staging, skill assignments.",
+        "audience":     ["Plant Manager", "Engineer"],
     },
 }
 
@@ -128,7 +194,7 @@ THE WORKHIVE LOOP — required structure in every video:
    Not generic. Specific. "The bearing failed at 2am. Third time this month. Nobody knew why."
 
 2. THE COST
-   Make the cost concrete and Filipino-relatable.
+   Make the cost concrete and relatable to a working plant.
    Production stopped. Client order delayed. Overtime pay. Management pressure. Safety near-miss.
 
 3. THE FEATURE
@@ -143,7 +209,7 @@ THE WORKHIVE LOOP — required structure in every video:
 
 5. THE PLATFORM PROMISE
    End every video with why this matters beyond one machine, one plant, one shift.
-   "This is WorkHive. Free industrial intelligence for every Filipino worker."
+   "This is WorkHive. Free industrial intelligence for every worker."
    "Because your plant deserves the same tools the big ones have."
 """
 
@@ -297,35 +363,44 @@ def build_prompt_context(ideas: list = None) -> str:
         if live_lines else ""
     )
 
-    # Coverage gap block
+    # Coverage gap block — make this imperative, not a suggestion
     coverage_block = ""
     if uncovered:
         coverage_block = (
-            f"\n\nFEATURE COVERAGE GAPS (these features have NO video yet — prioritize them):\n"
+            f"\n\nFEATURE COVERAGE GAPS — {len(uncovered)} of {len(FEATURE_ECOSYSTEM)} features have ZERO videos.\n"
+            "These features represent breakthrough capabilities the audience has never seen marketed:\n"
             + "\n".join(f"  - {f}" for f in uncovered)
+            + "\n\nThe goal is balanced coverage of the entire ecosystem. "
+              "Generating yet another idea about a well-covered feature wastes a slot."
         )
 
     return f"""
 PLATFORM: WorkHive
 TAGLINE: Free Industrial Intelligence Tools for every worker
-COUNTRY: Philippines
-AUDIENCE: Filipino industrial workers — field technicians, supervisors, engineers, plant managers
+COUNTRY: Philippines (market) — but ALL copy in plain simple English
+AUDIENCE: Industrial workers — field technicians, supervisors, engineers, plant managers
 INDUSTRIES: Manufacturing, power generation, oil & gas, utilities, facilities management
 
-WORKHIVE FEATURE ECOSYSTEM (11 interconnected features):
+WORKHIVE FEATURE ECOSYSTEM (20 interconnected features):
 {ecosystem_block}
 {live_block}
 {coverage_block}
 
 {WORKHIVE_LOOP}
 
+LANGUAGE RULES (NON-NEGOTIABLE):
+- ALL hooks, narration, text overlays, and CTA copy must be in PLAIN SIMPLE ENGLISH.
+- NO Tagalog. NO Taglish. NO Filipino slang. NO code-switching.
+- Use short, common English words a non-native speaker can immediately understand.
+- Avoid idioms, regional expressions, or culture-specific references.
+
 VIDEO RULES:
 - 1 video = 1 pain point + 1 emotional hook + 1 WorkHive feature
 - Every video must complete the WorkHive Loop (all 5 steps)
 - Every script must name at least 1 connected feature in the Ripple step
 - Duration: 60-90s organic, 15-30s paid ad cut
-- Tone: Real, relatable, not corporate. Like talking to a kabaro (fellow worker).
-- Hook: a Filipino plant worker must feel it in the first 3 seconds
+- Tone: Real, relatable, not corporate. Like talking to a fellow worker on the shop floor.
+- Hook: any plant worker must feel it in the first 3 seconds
 """
 
 
