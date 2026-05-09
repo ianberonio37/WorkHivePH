@@ -61,17 +61,19 @@ Write-Host "[4/4] Preparing the seeder dashboard..." -ForegroundColor Yellow
 if (-not (Test-Path .\venv)) {
     Write-Host "      First-time setup: creating Python environment..." -ForegroundColor Cyan
     python -m venv venv
-    .\venv\Scripts\Activate.ps1
-    pip install -r requirements.txt
+    & .\venv\Scripts\python.exe -m pip install -r requirements.txt
     Write-Host "      Installing Playwright browser (about 150 MB)..." -ForegroundColor Cyan
-    python -m playwright install chromium
+    & .\venv\Scripts\python.exe -m playwright install chromium
 } else {
-    .\venv\Scripts\Activate.ps1
-    $hasPlaywright = pip list 2>$null | Select-String -Pattern "^playwright " -Quiet
-    if (-not $hasPlaywright) {
+    # Quick dependency check — uses 'python -c' import test instead of 'pip list',
+    # because pip list can hang for 30+ seconds (or indefinitely) on Windows when
+    # the pip cache is locked or a network drive is involved. An import test is
+    # sub-second and never hangs.
+    & .\venv\Scripts\python.exe -c "import playwright" 2>$null
+    if ($LASTEXITCODE -ne 0) {
         Write-Host "      Updating dependencies..." -ForegroundColor Cyan
-        pip install -r requirements.txt
-        python -m playwright install chromium
+        & .\venv\Scripts\python.exe -m pip install -r requirements.txt
+        & .\venv\Scripts\python.exe -m playwright install chromium
     }
 }
 
@@ -89,4 +91,4 @@ Write-Host "  Press Ctrl+C in this window to stop." -ForegroundColor Green
 Write-Host "================================================" -ForegroundColor Green
 Write-Host ""
 
-python app.py
+& .\venv\Scripts\python.exe app.py
