@@ -105,6 +105,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "reset-coverage",
+        "script":  "validate_reset_coverage.py",
+        "args":    [],
+        "label":   "Reset Coverage Validator (every migration table is in reset.py)",
+        "group":   "Platform",
+        "report":  "reset_coverage_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "edge-config",
         "script":  "validate_edge_config.py",
         "args":    [],

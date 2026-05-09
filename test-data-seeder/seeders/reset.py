@@ -6,6 +6,9 @@ Also wipes Supabase Auth users (locally) so re-seed doesn't collide."""
 RESET_TABLES = [
     # Project Manager (child -> parent)
     "project_progress_logs",
+    "project_change_orders",
+    "project_roles",
+    "project_knowledge",
     "project_links",
     "project_items",
     "projects",
@@ -24,38 +27,64 @@ RESET_TABLES = [
     "asset_nodes",
     # Shift Brain
     "shift_plans",
-    # Community + marketplace
+    # Community + XP
+    "community_xp",
     "community_replies",
     "community_reactions",
     "community_posts",
+    # Marketplace (children -> parents)
+    "marketplace_disputes",
+    "marketplace_inquiries",
+    "marketplace_watchlist",
+    "marketplace_saved_searches",
     "marketplace_reviews",
     "marketplace_orders",
     "marketplace_listings",
-    # Skill matrix
+    "marketplace_sellers",
+    "marketplace_platform_admins",
+    # Skill matrix + lessons
     "skill_exam_attempts",
     "skill_badges",
     "skill_profiles",
+    "skill_knowledge",
     "schedule_items",
     "engineering_calcs",
-    # Knowledge + alerts
+    # Knowledge tables
+    "bom_knowledge",
+    "calc_knowledge",
+    "pm_knowledge",
     "fault_knowledge",
+    # Alerts
     "failure_signature_alerts",
-    # Benchmarks
+    # Benchmarks + reports
+    "ph_intelligence_reports",
     "hive_benchmarks",
     "network_benchmarks",
+    "ai_reports",
+    "report_contacts",
     # CMMS
     "cmms_audit_log",
     "external_sync",
-    # Inventory
+    "integration_configs",
+    "api_keys",
+    # Logs + cache + audit
+    "automation_log",
+    "hive_audit_log",
+    "hive_analytics_cache",
+    # Inventory + parts
+    "parts_records",
     "inventory_transactions",
     "inventory_items",
     # PM
     "pm_completions",
     "pm_scope_items",
     "pm_assets",
+    "equipment_reading_templates",
     # Logbook + assets
     "logbook",
     "assets",
+    # Standalone misc
+    "early_access_emails",
     # Hive membership last (root)
     "hive_members",
     "worker_profiles",
