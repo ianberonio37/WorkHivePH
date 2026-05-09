@@ -4611,6 +4611,9 @@ function calcSolarPV(inputs: Record<string, unknown>): Record<string, unknown> {
   const dailyEnergy   = Number(inputs.daily_energy_kwh)  || 50;
   const panelWp       = Number(inputs.panel_wp)          || 450;
   const panelVoc      = Number(inputs.panel_voc)         || 49.5;
+  // Vmp typically ~0.82 × Voc for mono PERC/TOPCon; Imp = Pmax/Vmp; Isc ~ 1.10 × Imp
+  const panelVmp      = Number(inputs.panel_vmp)         || Math.round(panelVoc * 0.82 * 10) / 10;
+  const panelIsc      = Number(inputs.panel_isc)         || Math.round((panelWp / panelVmp) * 1.10 * 10) / 10;
   const panelAreaM2   = Number(inputs.panel_area_m2)     || 1.7;
   const deratingPct   = Number(inputs.derating_pct)      || 80;
   const inverterEffPct = Number(inputs.inverter_eff_pct) || 96;
@@ -4644,6 +4647,12 @@ function calcSolarPV(inputs: Record<string, unknown>): Record<string, unknown> {
   const panelsPerString = Math.floor(1000 / Voc_max);
   const numStrings      = Math.ceil(panelQty / panelsPerString);
 
+  // String-level DC parameters for the schematic data panel
+  const vocStringColdV = round2(Voc_max * panelsPerString);
+  const vmpStringStcV  = round2(panelVmp * panelsPerString);
+  // Array Isc per IEC 62548: per-panel Isc × strings in parallel × 1.25 sizing factor
+  const iscArrayA      = round2(panelIsc * numStrings * 1.25);
+
   // Step 7: Inverter capacity (1:1 DC/AC ratio, standard)
   const inverterKW = round2(actualArrayKWp);
 
@@ -4676,6 +4685,11 @@ function calcSolarPV(inputs: Record<string, unknown>): Record<string, unknown> {
     temp_coeff_voc:      tempCoeffVoc,
     t_min_c:             tMinC,
     voc_max:             Voc_max,
+    panel_vmp:           panelVmp,
+    panel_isc:           panelIsc,
+    voc_string_cold_V:   vocStringColdV,
+    vmp_string_stc_V:    vmpStringStcV,
+    isc_array_A:         iscArrayA,
     panels_per_string:   panelsPerString,
     num_strings:         numStrings,
     panel_area_m2:       panelAreaM2,

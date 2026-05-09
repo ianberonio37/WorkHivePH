@@ -1705,7 +1705,7 @@ BOM REQUIREMENTS (minimum 18 items):
 3. String Inverter: ${inverterKW} kW grid-tie inverter, IEC 61727, DOE-approved, anti-islanding protection; Qty: 1 unit
 4. DC Combiner Box: ${numStrings}-string, with fuses, surge arrester, disconnect; Qty: 1 unit
 5. DC Solar Cable: 6mm² UV-resistant double-insulated (IEC 62930), for string wiring; Qty: estimate meters run
-6. AC Output Cable: 3.5mm²–5.5mm² THHN Cu for inverter AC output to panel; Qty: estimate run
+6. AC Output Cable: 3.5 to 5.5 sq.mm THHN Cu for inverter AC output to panel; Qty: estimate run
 7. DC Circuit Breaker: string-rated 600/1000V DC MCB; Qty: ${numStrings} pcs
 8. AC Circuit Breaker: 2P/4P, rated for inverter output current; Qty: 1 unit
 9. Surge Protection Device (DC): 1000V DC, 40kA; Qty: 2 unit

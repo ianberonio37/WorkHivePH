@@ -19286,7 +19286,7 @@ async function _runDrawing() {
       const _kwp = Number(_r.array_kWp || _r.actual_array_kwp || 0).toFixed(2);
       const _pan = Number(_r.total_panels || _r.panel_qty || 0);
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `${_kwp} kWp  |  ${_pan} panels  |  ${String(_lastInputs?.grid_type || 'On-Grid')}`,
+        `${_kwp} kWp  |  ${_pan} panels  |  ${String(_lastInputs?.system_type || 'Grid-Tied')}`,
         { drawingNo:'ELEC-PV-SLD-001', drawingTitle:'Solar PV System — One-Line Diagram', standard:'IEC 62548 / PEC 2017 Art.6 / DOE Net Metering' }));
     } else if (ct === 'Power Factor Correction') {
       const svg = buildPFCSVG(_lastInputs, _lastResults);
@@ -24291,12 +24291,12 @@ function buildSolarPVSVG(inputs, results) {
   const vocStr=Number(r.voc_string_cold_V||0).toFixed(1);
   const vmpStr=Number(r.vmp_string_stc_V||0).toFixed(1);
   const iscArr=Number(r.isc_array_A||0).toFixed(1);
-  const invKVA=Number(r.recommended_inverter_kVA||r.inverter_kw||0).toFixed(1);
+  const invKW=Number(r.inverter_kw||0).toFixed(2);
   const yieldKWh=Number(r.energy_yr_kWh||r.annual_yield_kwh||0).toFixed(0);
   const co2=Number(r.co2_offset_kg_yr||r.co2_reduction_kg||0).toFixed(0);
   const batAh=Number(r.battery_ah||0).toFixed(0);
   const psh=Number(r.peak_sun_hours||r.psh_hr||4.5).toFixed(1);
-  const gridType=String(inp.grid_type||'On-Grid');
+  const gridType=String(inp.system_type||'Grid-Tied');
   const isHybrid=gridType.toLowerCase().includes('hybrid');
   const isOffGrid=gridType.toLowerCase().includes('off');
 
@@ -24310,7 +24310,7 @@ function buildSolarPVSVG(inputs, results) {
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
   p.push(T(W/2,31,`SOLAR PV SYSTEM — ONE-LINE DIAGRAM  |  ${arrayKWp} kWp  |  ${totalPanels} panels  |  IEC 62548 / PEC Art.6 / DOE Net Metering`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
-  p.push(T(80,57,`${gridType.toUpperCase()}  |  ${arrayKWp} kWp Array  |  ${nStrings} string(s) × ${strPanels} panels  |  Inverter: ${invKVA} kVA`,{a:'start',sz:8,c:CC,w:'600'}));
+  p.push(T(80,57,`${gridType.toUpperCase()}  |  ${arrayKWp} kWp Array  |  ${nStrings} string(s) × ${strPanels} panels  |  Inverter: ${invKW} kW`,{a:'start',sz:8,c:CC,w:'600'}));
 
   // ── PV ARRAY (left) ──
   const ARY=60,ARX=30,panW=28,panH=18,gap=5;
@@ -24326,7 +24326,7 @@ function buildSolarPVSVG(inputs, results) {
     }
     if(nStrings>4&&s===showStr-1) p.push(T(ARX+showPan*(panW+gap)/2,sy+panH+6,'...',{sz:8,c:PV_C}));
     // String label
-    p.push(T(ARX+showPan*(panW+gap)/2,sy+panH+8,`String ${s+1}  ${strPanels}× ${Number(inp.panel_watt||400)}Wp`,{sz:6.5,c:PV_C}));
+    p.push(T(ARX+showPan*(panW+gap)/2,sy+panH+8,`String ${s+1}  ${strPanels}× ${Number(inp.panel_wp||450)}Wp`,{sz:6.5,c:PV_C}));
     // String wire to combiner
     p.push(HL(ARX+showPan*(panW+gap),sy+panH/2,ARX+showPan*(panW+gap)+30,1.5,DC_C));
   }
@@ -24345,11 +24345,10 @@ function buildSolarPVSVG(inputs, results) {
 
   // Inverter
   const invX=dcDisX+70,invY=combY-30;
-  p.push(Box(invX,invY,80,60,LGY,CC,'INV-01',`${invKVA} kVA`));
+  p.push(Box(invX,invY,80,60,LGY,CC,'INV-01',`${invKW} kW`));
   p.push(T(invX+40,invY+42,'Inverter',{sz:6.5,c:GY}));
-  // DC label
-  p.push(T(invX-5,invY-6,'DC bus',{sz:6.5,c:DC_C}));
-  p.push(T(invX-5,invY-15,`${vmpStr}V  |  ${iscArr}A`,{sz:6.5,c:DC_C,w:'700'}));
+  // DC bus annotation — single line above inverter, in clean band between subtitle (y=57) and inverter top (y=invY)
+  p.push(T(invX+40,invY-4,`DC bus: ${vmpStr}V | ${iscArr}A`,{sz:6.5,c:DC_C,w:'700'}));
 
   // AC wire from inverter
   const acX=invX+80,acY=combY;
@@ -24380,8 +24379,9 @@ function buildSolarPVSVG(inputs, results) {
     p.push(T(invX+40,batY+44,'Battery Bank',{sz:6.5,c:'#7b1fa2'}));
   }
 
-  // Annual yield badge
-  const bdX=invX-10,bdY=invY-60;
+  // Annual yield badge — placed below diagram action area, clear of title bar (y=11..43)
+  // For hybrid/off-grid, push further down to clear battery box (batY..batY+44)
+  const bdX=invX-10,bdY=(isHybrid||isOffGrid)?(invY+60+15+50):(invY+60+30);
   p.push(`<rect x="${bdX}" y="${bdY}" width="120" height="34" rx="4" fill="#e8f5e9" stroke="${PV_C}" stroke-width="1.5"/>`);
   p.push(T(bdX+60,bdY+12,`${Number(yieldKWh).toLocaleString()} kWh/yr`,{sz:8.5,c:PV_C,w:'700'}));
   p.push(T(bdX+60,bdY+24,`CO₂ offset: ${Number(co2).toLocaleString()} kg/yr`,{sz:7,c:PV_C}));
@@ -24405,7 +24405,7 @@ function buildSolarPVSVG(inputs, results) {
   [['Voc (cold, string)',`${vocStr} V`,DC_C],['Vmp (STC, string)',`${vmpStr} V`,DC_C],
    ['Isc (array)',`${iscArr} A`,DC_C]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
   dy+=4; p.push(secH('INVERTER & YIELD'));
-  [['Inverter Size',`${invKVA} kVA`,AC_C],
+  [['Inverter Size',`${invKW} kW`,AC_C],
    ['Annual Yield',`${Number(yieldKWh).toLocaleString()} kWh/yr`,PV_C],
    ['CO₂ Offset',`${Number(co2).toLocaleString()} kg/yr`,PV_C],
    ...(batAh>0?[['Battery Bank',`${batAh} Ah`,'#7b1fa2']]:[])]
@@ -29151,7 +29151,12 @@ function renderBomTablePreview(items) {
               <span class="editable-field" contenteditable="true">${escHtml(WORKER_NAME)}</span>
             </div>
             <div style="font-size:0.74rem;color:#555;">
-              <span class="editable-field" contenteditable="true">Mechanical Engineer</span>
+              <span class="editable-field" contenteditable="true">${
+                (isLoadEst || isVD || isWire || isSC || isLight || isLPS || isEG || isUPS || isCT || isPFC || isSolarPV || isGen || isXFMR || isHarmonic) ? 'Electrical Engineer'
+                : (isDrain || isWS || isHW || isSeptic || isWaterSoft || isWT || isSTP || isSD || isGT || isRD) ? 'Sanitary Engineer'
+                : (isFSprink || isFPump || isSPress || isFABatt || isCleanAgt) ? 'Fire Protection Engineer'
+                : 'Mechanical Engineer'
+              }</span>
             </div>
             <div style="font-size:0.74rem;color:#555;">
               PRC Lic. No.: <span class="editable-field" contenteditable="true">_____________</span>
