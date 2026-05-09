@@ -13,6 +13,10 @@ from .projects import seed_projects
 from .dayplanner import seed_dayplanner
 from .engineering import seed_engineering
 from .fault_knowledge import seed_fault_knowledge
+from .asset_brain import seed_asset_brain
+from .risk_scores import seed_risk_scores
+from .shift_plans import seed_shift_plans
+from .failure_alerts import seed_failure_alerts
 from .edge_post_seed import run_post_seed_edges
 
 
@@ -48,6 +52,11 @@ def seed_everything(client, log) -> dict:
     step10 = seed_dayplanner(client, log, ctx)
     step11 = seed_engineering(client, log, ctx)
     step12 = seed_fault_knowledge(client, log, ctx)  # depends on seeded logbook
+    # Phase A onward: graph + intelligence layers (depend on assets being in ctx)
+    step12a = seed_asset_brain(client, log, ctx)
+    step12b = seed_risk_scores(client, log, ctx)
+    step12c = seed_shift_plans(client, log, ctx)
+    step12d = seed_failure_alerts(client, log, ctx)
     step13 = run_post_seed_edges(client, log, ctx)   # depends on logbook + assets
 
     log("=" * 50)
@@ -68,5 +77,9 @@ def seed_everything(client, log) -> dict:
         **step10,
         **step11,
         **step12,
+        **step12a,
+        **step12b,
+        **step12c,
+        **step12d,
         **step13,
     }

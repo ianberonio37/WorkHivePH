@@ -25,6 +25,11 @@ from flows import marketplace_flow, dayplanner_flow, engineering_flow, assistant
 from flows import report_sender_flow, platform_health_flow, project_flow, cmms_ui_flow
 from flows import intelligence_flow, static_pages_flow
 from flows import achievements_flow
+# Phase A onward: graph layer + intelligence + auto-staging
+from flows import asset_hub_flow, alert_hub_flow, shift_brain_flow
+from flows import qr_scanner_flow, global_search_flow
+from flows import work_order_flow, ml_predictive_flow, auto_staging_flow
+from flows import home_dashboard_flow
 
 WITH_AI = "--with-ai" in sys.argv
 WITH_VISUAL = "--with-visual" in sys.argv
@@ -60,6 +65,7 @@ def main():
             # 3. Per-page deep checks
             for label, mod in [
                 ("Hive Dashboard", hive_dashboard),
+                ("Home Dashboard", home_dashboard_flow),
                 ("Logbook CRUD",   logbook_crud),
                 ("Inventory",      inventory_flow),
                 ("PM Scheduler",   pm_flow),
@@ -75,6 +81,14 @@ def main():
                 ("PH Intelligence",    intelligence_flow),
                 ("Static Pages",       static_pages_flow),
                 ("Achievements",       achievements_flow),
+                ("Asset Hub",          asset_hub_flow),
+                ("Alert Hub",          alert_hub_flow),
+                ("Shift Brain",        shift_brain_flow),
+                ("QR Scanner",         qr_scanner_flow),
+                ("Global Search",      global_search_flow),
+                ("Work Order State",   work_order_flow),
+                ("ML Predictive",      ml_predictive_flow),
+                ("Auto-Staging",       auto_staging_flow),
                 ("Logbook",            logbook),
                 ("Community",      community),
                 ("Analytics",      analytics),
