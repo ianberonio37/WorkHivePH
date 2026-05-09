@@ -4912,22 +4912,28 @@ function calcUPS(inputs: Record<string, unknown>): Record<string, unknown> {
   else                         { batteryV = 480; cellsInSeries = 40; }
 
   // Step 5: Battery Ah required
-  // Ah = (kW_design × t_h) / (V_dc × DOD × η_UPS × η_wire)
+  // Ah = (P_W × t_h) / (V_dc × DOD × η_UPS × η_wire)
+  // designKW is named "kW" but holds W (totalConnectedW × growth); keep as W for the formula
   const DOD      = 0.80;
   const wireEff  = 0.98;
   const ahRequired = round2(
-    (designKW * (backupMin / 60)) / (batteryV / 1000 * DOD * upsEff * wireEff)
+    (designKW * (backupMin / 60)) / (batteryV * DOD * upsEff * wireEff)
   );
 
   // Step 6: Select standard Ah
   const stdAh = [7,9,12,17,26,38,40,65,100,150,200,250,300,400,500];
   const selectedAh = stdAh.find(a => a >= ahRequired) ?? Math.ceil(ahRequired / 50) * 50;
+  const batteryStrings = 1;
+  const totalBatteryCells = cellsInSeries * batteryStrings;
   const batteryConfig = `${cellsInSeries} × 12V ${selectedAh}Ah VRLA (sealed lead-acid)`;
 
-  // Step 7: Actual runtime verification
+  // Step 7: Actual runtime verification — same units as the Ah formula
   const actualRuntimeMin = round2(
-    (selectedAh * (batteryV / 1000) * DOD * upsEff * wireEff) / designKW * 60
+    (selectedAh * batteryV * DOD * upsEff * wireEff) / designKW * 60
   );
+
+  // Loading check per IEEE 446 §5.4 (≤ 80% rated kVA)
+  const loadingOk = loadingPct <= 80;
 
   // Step 8: Input power and current
   const inputVA = round2(designVA / upsEff);
@@ -4960,10 +4966,13 @@ function calcUPS(inputs: Record<string, unknown>): Record<string, unknown> {
     loading_pct:         loadingPct,
     battery_voltage_v:   batteryV,
     cells_in_series:     cellsInSeries,
+    battery_strings:     batteryStrings,
+    total_battery_cells: totalBatteryCells,
     ah_required:         ahRequired,
     selected_ah:         selectedAh,
     battery_config:      batteryConfig,
     actual_runtime_min:  actualRuntimeMin,
+    loading_ok:          loadingOk,
     input_va:            inputVA,
     input_kw:            inputKW,
     input_current_a:     inputCurrentA,

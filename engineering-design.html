@@ -24585,16 +24585,16 @@ function buildUPSSVG(inputs, results) {
   const ldPct   =Number(r.loading_pct||0).toFixed(0);
   const topo    =String(r.topology||'Online Double-Conversion');
   const redund  =String(r.redundancy||inp.redundancy||'N');
-  const dcV     =Number(r.dc_bus_voltage_V||240).toFixed(0);
-  const batCells=Number(r.battery_cells_per_string||0);
+  const dcV     =Number(r.battery_voltage_v||r.dc_bus_voltage_V||240).toFixed(0);
+  const batCells=Number(r.cells_in_series||r.battery_cells_per_string||0);
   const batStrs =Number(r.battery_strings||1);
-  const totalCells=Number(r.total_battery_cells||0);
+  const totalCells=Number(r.total_battery_cells||(batCells*batStrs)||0);
   const selAh   =Number(r.recommended_Ah||r.selected_ah||0).toFixed(0);
   const runtime =Number(r.backup_minutes_actual||r.actual_runtime_min||0).toFixed(0);
   const iInp    =Number(r.input_current_A||r.input_current_a||0).toFixed(1);
   const iOut    =Number(r.output_current_A||r.output_current_a||0).toFixed(1);
   const breakerA=Number(r.recommended_breaker_A||r.input_breaker_a||0).toFixed(0);
-  const loadOK  =Boolean(r.loading_ok??true);
+  const loadOK  =Boolean(r.loading_ok??(Number(r.loading_pct||0)<=80));
 
   const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
   const AC_C='#1565c0',DC_C='#f57f17',BAT_C='#7b1fa2',BYP_C='#2e7d32';
@@ -24701,7 +24701,7 @@ function buildUPSSVG(inputs, results) {
   ['1. Online double-conversion (IEC 62040-3 VFI): zero transfer time. Preferred for IT loads.',
    '2. Battery: VRLA / AGM 12V cells. Replace at 80% capacity (IEC 60896-21/22).',
    '3. Manual bypass maintenance switch required. Test under load every 6 months (IEEE 446).'
-  ].forEach((n,i)=>p.push(T(18,LY+72+i*11,n,{a:'start',sz:6.5,c:CC})));
+  ].forEach((n,i)=>p.push(T(18,LY+85+i*11,n,{a:'start',sz:6.5,c:CC})));
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
 }
