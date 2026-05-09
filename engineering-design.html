@@ -24808,9 +24808,8 @@ function buildEarthingSVG(inputs, results) {
   }
   if(nElec>4) p.push(T(startX+(showElec-1)*elecSpacing+40,GL_Y+40,`...+${nElec-4} more`,{a:'start',sz:7,c:SC}));
 
-  // GEC label
+  // GEC label — basis ("min N mm2") shown in data panel only; printing it here collides with the Test Link label
   p.push(T(GEC_X+14,GL_Y-50,`GEC: ${gecMM2}mm² Cu bare`,{a:'start',sz:7.5,c:GEC_C,w:'700'}));
-  if(gecLbl) p.push(T(GEC_X+14,GL_Y-38,esc(gecLbl),{a:'start',sz:7,c:GEC_C}));
 
   // PASS/FAIL badge
   const bdX=350,bdY=GL_Y+50;
@@ -29298,7 +29297,7 @@ function renderSowDocPreview(sections) {
     : isLPSS
     ? `Lightning Protection System: LPL ${_lastInputs?.lpl || 'II'}, ${_lastInputs?.ng_location || 'Metro Manila'} (Ng=${_lastResults?.ng_fl_km2_yr ?? ''}fl/km²/yr), ${_lastInputs?.building_length_m || ''}m×${_lastInputs?.building_width_m || ''}m×${_lastInputs?.building_height_m || ''}mH, Ad=${_lastResults?.Ad_m2 ?? ''}m², Nd=${_lastResults?.Nd_strikes_yr ?? ''}/yr vs Nt=${_lastResults?.Nt ?? ''}: ${_lastResults?.risk_check ?? ''}, R=${_lastResults?.rolling_sphere_R_m ?? ''}m, ${_lastResults?.n_down_conductors ?? ''} down conductors, ${_lastResults?.n_air_terminals_est ?? ''} air terminals, ${_lastResults?.n_electrodes ?? ''}× earth electrodes`
     : isEGS
-    ? `Earthing / Grounding System: ${_lastInputs?.electrode_type || 'Rod'} electrode, ${_lastInputs?.num_electrodes || 1} unit(s), rho=${_lastInputs?.soil_resistivity || ''}Ohm*m, R_single=${_lastResults?.r_single || ''}Ohm, R_combined=${_lastResults?.r_parallel || ''}Ohm, ${_lastResults?.pass_label || ''} vs. ${_lastResults?.r_limit || ''}Ohm limit (${_lastInputs?.system_type || 'Residential / Commercial'}), GEC=${_lastResults?.gec_mm2 || ''}mm2, ${_lastInputs?.system_voltage || 400}V system`
+    ? `Earthing / Grounding System: ${_lastInputs?.electrode_type || 'Rod'} electrode, ${_lastInputs?.num_electrodes || 1} unit(s), rho=${_lastInputs?.soil_resistivity || ''}Ohm*m, R_single=${_lastResults?.r_single_ohm || ''}Ohm, R_combined=${_lastResults?.r_parallel_ohm || ''}Ohm, ${_lastResults?.pass_label || ''} vs. ${_lastResults?.r_limit_ohm || ''}Ohm limit (${_lastInputs?.system_type || 'Residential / Commercial'}), GEC=${_lastResults?.gec_mm2 || ''}mm2, ${_lastInputs?.system_voltage || 400}V system`
     : isUPSS
     ? `UPS Sizing: ${_lastInputs?.topology || 'Online (Double-Conversion)'}, ${_lastInputs?.phase || '3-Phase'}, Connected ${_lastResults?.total_connected_va || ''}VA → Design ${_lastResults?.design_va || ''}VA (×${_lastInputs?.growth_factor || 1.2}), Selected ${_lastResults?.selected_kva || ''}kVA UPS (Loading ${_lastResults?.loading_pct || ''}%), Battery ${_lastResults?.battery_config || ''}, Backup ${_lastResults?.actual_runtime_min || ''}min, Input Breaker ${_lastResults?.input_breaker_a || ''}A`
     : isCTS
