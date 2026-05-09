@@ -24523,11 +24523,12 @@ function buildPFCSVG(inputs, results) {
   p.push(T(PH_X+scale+8,PH_Y+scale-Math.sin(phi2)*scale/2,`PF=${pfAfter}`,{sz:7,c:GRN,w:'700'}));
   p.push(T(PH_X+scale+8,PH_Y+scale-Math.sin(phi1)*scale/2,`PF=${pfBefore}`,{sz:7,c:ORG}));
 
-  // Savings badge
-  p.push(`<rect x="${CAP_X+45}" y="${BUS_Y+50}" width="115" height="36" rx="4" fill="#e8f5e9" stroke="${GRN}" stroke-width="1.5"/>`);
-  p.push(T(CAP_X+102,BUS_Y+63,`₱${Number(savings).toLocaleString()}/mo`,{sz:9,c:GRN,w:'700'}));
-  p.push(T(CAP_X+102,BUS_Y+75,`Estimated savings`,{sz:7,c:GRN}));
-  if(penalty) p.push(T(CAP_X+102,BUS_Y+87,'Meralco PF surcharge removed',{sz:6.5,c:GRN}));
+  // Savings badge — placed below capacitor bank, clear of PF phasor diagram (PH_X..PH_X+scale, PH_Y..PH_Y+scale)
+  const SAV_X=CAP_X-50,SAV_Y=BUS_Y+130;
+  p.push(`<rect x="${SAV_X}" y="${SAV_Y}" width="200" height="36" rx="4" fill="#e8f5e9" stroke="${GRN}" stroke-width="1.5"/>`);
+  p.push(T(SAV_X+100,SAV_Y+13,`PHP ${Number(savings).toLocaleString()}/mo`,{sz:9,c:GRN,w:'700'}));
+  p.push(T(SAV_X+100,SAV_Y+24,`Estimated savings`,{sz:7,c:GRN}));
+  if(penalty) p.push(T(SAV_X+100,SAV_Y+33,'Meralco PF surcharge removed',{sz:6.5,c:GRN}));
 
   // ── DATA PANEL ──
   const DX=SPLIT_X+10,DW=W-SPLIT_X-22,rowH=17;
@@ -24547,7 +24548,7 @@ function buildPFCSVG(inputs, results) {
   dy+=4; p.push(secH('CURRENT SAVINGS'));
   [['Current (before)',`${iBefore} A`,ORG],['Current (after)',`${iAfter} A`,GRN],
    ['Current Reduction',`${iRedPct}%`,GRN],
-   ['Est. Monthly Savings',`₱${Number(savings).toLocaleString()}`,GRN]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+   ['Est. Monthly Savings',`PHP ${Number(savings).toLocaleString()}`,GRN]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
   dy+=6; p.push(T(DX+DW/2,dy,'IEEE 18 / IEEE 1036 / PEC 2017  |  Meralco TOU',{sz:7,c:GY}));
 
   const LY=STRIP_Y+6;
