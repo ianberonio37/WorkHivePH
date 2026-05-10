@@ -3592,7 +3592,7 @@ async function fcuSelectionBomSowAgent(
   const roomArr    = (results.rooms as Array<{room_name:string; qty:number; selected_model:string; selected_kw:number; selected_tr:number; airflow_cmh:number; chw_flow_lps_total:number}>) || [];
 
   const roomSummary = roomArr.map(r =>
-    `${r.room_name}: ${r.qty}× ${r.selected_model} (${r.selected_kw}kW/${r.selected_tr}TR each, ${r.airflow_cmh}CMH, CHW ${r.chw_flow_lps_total}L/s total)`
+    `${r.room_name}: ${r.qty} x ${r.selected_model} (${r.selected_kw} kW / ${r.selected_tr} TR each, ${r.airflow_cmh} CMH, CHW ${r.chw_flow_lps_total} L/s total)`
   ).join("; ");
 
   const prompt = `You are a senior HVAC/Mechanical engineer in the Philippines preparing a Bill of Materials (BOM) and Scope of Works (SOW) for fan coil unit (FCU) installation per ASHRAE HVAC Systems and Equipment Handbook and PSME Code.

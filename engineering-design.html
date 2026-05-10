@@ -22075,16 +22075,16 @@ function buildFCUSVG(inputs, results) {
   const chwFlowLps = Number(zone.chw_flow_lps_total || r.chw_flow_lps_total || 0).toFixed(3);
   const qty        = Number(zone.qty || r.qty || 1);
   const roomName   = String(zone.room_name || r.room_name || 'Zone 1');
-  const loadKW     = Number(zone.load_kw    || r.q_total_kW || 0).toFixed(1);
-  const chws       = Number(r.cw_ewt_c     || inputs?.chw_supply_c || 7);
-  const chwr       = Number(r.cw_lwt_c     || inputs?.chw_return_c || 12);
+  const loadKW     = Number(zone.cooling_load_kw || zone.load_kw || r.q_total_kW || 0).toFixed(1);
+  const chws       = Number(r.chw_supply_c || r.cw_ewt_c || inputs?.chw_supply_c || 7);
+  const chwr       = Number(r.chw_return_c || r.cw_lwt_c || inputs?.chw_return_c || 12);
   const dTchw      = (chwr - chws).toFixed(1);
   const supT       = Number(r.supply_temp_c || 13).toFixed(1);
   const shr        = Number(r.shr          || 0.7).toFixed(2);
-  const oaLps      = Number(r.oa_required_lps  || 0).toFixed(1);
-  const fanKW      = Number(r.fan_power_kW     || 0).toFixed(3);
-  const fanWLps    = Number(r.fan_power_w_lps  || 0).toFixed(2);
-  const fanOk      = Boolean(r.fan_power_ok ?? true);
+  const oaLps      = Number(zone.oa_required_lps || r.oa_required_lps || 0).toFixed(1);
+  const fanKW      = Number(zone.fan_power_kw    || r.fan_power_kW || 0).toFixed(3);
+  const fanWLps    = Number(zone.fan_power_w_lps || r.fan_power_w_lps || 0).toFixed(2);
+  const fanOk      = Boolean(zone.fan_power_ok ?? r.fan_power_ok ?? true);
   const pipeSystem = String(inputs?.pipe_system || '2-Pipe (Cooling Only)');
   const mountType  = String(inputs?.mounting_type || 'Ceiling Cassette');
   const proj       = String(inputs?.project_name || 'FCU System');
@@ -22218,8 +22218,8 @@ function buildFCUSVG(inputs, results) {
   p.push(T(CV_X, SUP_BRANCH_Y+35, '2-way', {sz:6.5, c:SC}));
   // Down to FCU coil supply
   p.push(VL(FCU_X+135, SUP_BRANCH_Y, FCU_Y+22, 3, CHW));
-  // CHW supply annotation
-  p.push(T(FCU_X+135+10, SUP_BRANCH_Y-15, `CHW = ${chwFlowLps} L/s  |  ${chws}°C supply`, {a:'start', sz:7.5, c:CHW, w:'700'}));
+  // CHW supply annotation — placed BELOW supply branch pipe to clear title strip
+  p.push(T(FCU_X+135+10, SUP_BRANCH_Y+12, `CHW = ${chwFlowLps} L/s  |  ${chws}°C supply`, {a:'start', sz:7.5, c:CHW, w:'700'}));
 
   // Return from FCU coil → return riser
   const RET_BRANCH_Y = SUP_BRANCH_Y - 18;

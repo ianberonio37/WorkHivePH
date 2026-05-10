@@ -5526,6 +5526,15 @@ function calcFCUSelection(inputs: Record<string, unknown>): Record<string, unkno
     const chw_flow_per_unit = dT_chw > 0 ? selected.kw / (CP_WATER * dT_chw) : 0;  // L/s
     const chw_flow_total    = chw_flow_per_unit * qty;
 
+    // Fan power: ~0.08 kW per kW cooling (typical FCU motor)
+    const fanPowerKwUnit  = selected.kw * 0.08;
+    const fanPowerKwTotal = fanPowerKwUnit * qty;
+    const totalAirflowLps = (selected.cmh * qty) / 3.6;
+    const fanWperLps      = totalAirflowLps > 0
+      ? (fanPowerKwTotal * 1000) / totalAirflowLps : 0;
+    // OA per ASHRAE 62.1 default rate 0.3 L/s/m² (office space, no occupancy data)
+    const oaRequiredLps   = Number(r.area_m2 ?? 0) * 0.3;
+
     totalRequiredKW  += totalRoomKW;
     totalConnectedKW += selectedTotalKW;
     totalConnectedTR += selectedTotalTR;
@@ -5542,6 +5551,10 @@ function calcFCUSelection(inputs: Record<string, unknown>): Record<string, unkno
       airflow_cmh:        selected.cmh * qty,
       chw_flow_lps_unit:  Number(chw_flow_per_unit.toFixed(3)),
       chw_flow_lps_total: Number(chw_flow_total.toFixed(3)),
+      fan_power_kw:       Number(fanPowerKwTotal.toFixed(3)),
+      fan_power_w_lps:    Number(fanWperLps.toFixed(2)),
+      oa_required_lps:    Number(oaRequiredLps.toFixed(1)),
+      fan_power_ok:       fanWperLps <= 0.3,                  // ASHRAE 90.1 FCU fan limit
     };
   });
 
@@ -5575,6 +5588,9 @@ function calcFCUSelection(inputs: Record<string, unknown>): Record<string, unkno
     main_pipe_vel_ms:   Number(actualVelMs.toFixed(2)),
     vel_check:          actualVelMs >= 1.0 && actualVelMs <= 2.0 ? 'OK' : actualVelMs < 1.0 ? 'Low: check stratification' : 'High: upsize pipe',
     diversity_factor:   divFactor,
+    // System-wide defaults (per-room values are in roomResults[i])
+    shr:                0.70,    // typical AC cooling SHR
+    supply_temp_c:      13,      // standard cooling FCU LAT
   };
 }
 
