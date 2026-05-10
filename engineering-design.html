@@ -13481,7 +13481,7 @@ function renderHarmonicReport(inputs, results, narrative) {
       <tr><td style="padding:5px 8px;border:1px solid #ccc;">THD_I (Total Harmonic Distortion)</td><td style="padding:5px 8px;border:1px solid #ccc;font-weight:700;">${e(r.THD_I_pct)} %</td><td style="padding:5px 8px;border:1px solid #ccc;"></td></tr>
       <tr><td style="padding:5px 8px;border:1px solid #ccc;">TDD (Total Demand Distortion)</td><td style="padding:5px 8px;border:1px solid #ccc;font-weight:700;">${e(r.TDD_pct)} %</td><td style="padding:5px 8px;border:1px solid #ccc;color:${r.TDD_pass?'#2e7d32':'#c62828'};font-weight:700;">${r.TDD_pass?'PASS':'FAIL'} (limit ${r.TDD_limit_pct}%)</td></tr>
       <tr><td style="padding:5px 8px;border:1px solid #ccc;">ISC/IL Ratio</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.isc_il_ratio)}</td><td style="padding:5px 8px;border:1px solid #ccc;"></td></tr>
-      <tr><td style="padding:5px 8px;border:1px solid #ccc;">K-Factor (transformer de-rating)</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.K_factor)}</td><td style="padding:5px 8px;border:1px solid #ccc;font-size:0.78rem;color:#555;">${r.K_factor>4?'Use K-4 rated transformer':'K-1 standard transformer OK'}</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;">K-Factor (transformer de-rating)</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.K_factor)}</td><td style="padding:5px 8px;border:1px solid #ccc;font-size:0.78rem;color:#555;">${r.K_factor>9?'Use K-20 rated transformer':r.K_factor>4?'Use K-13 rated transformer':r.K_factor>1?'Use K-4 rated transformer':'K-1 standard transformer OK'}</td></tr>
       <tr><td style="padding:5px 8px;border:1px solid #ccc;font-weight:700;">Overall IEEE 519-2022 Compliance</td><td colspan="2" style="padding:5px 8px;border:1px solid #ccc;font-weight:700;color:${r.overall_pass?'#2e7d32':'#c62828'};">${r.overall_pass?'COMPLIANT':'NON-COMPLIANT — Harmonic mitigation required'}</td></tr>
     </table>
     <h2 style="font-size:1rem;font-weight:700;background:#1a2e4a;color:#fff;padding:0.4rem 0.75rem;border-radius:4px;margin:1rem 0 0.5rem;">2. Individual Harmonic Analysis</h2>
@@ -18943,11 +18943,11 @@ async function _callPythonDiagram(calcType, inputs, results) {
   return data.svg;
 }
 
-function _renderPythonSVG(svgString, title) {
+function _renderPythonSVG(svgString, title, titleBlockHtml = '') {
   const panel = document.getElementById('drawing-panel');
   const outputTitle = document.getElementById('drawing-output-title');
   if (outputTitle) outputTitle.textContent = title;
-  panel.innerHTML = svgString;
+  panel.innerHTML = svgString + titleBlockHtml;
   // Make SVG responsive
   const svgEl = panel.querySelector('svg');
   if (svgEl) {
@@ -18960,6 +18960,43 @@ function _renderPythonSVG(svgString, title) {
   // Show SVG download button
   const dlBtn = document.getElementById('diagram-dl-svg');
   if (dlBtn) { dlBtn.style.display = 'inline-block'; dlBtn._svg = svgString; }
+}
+
+// ─── Harmonic Spectrum Title Block (Python diagram suite) ────────────────────
+function buildHarmonicSpectrumTitleBlockHtml(inputs, results) {
+  const r = results || {};
+  const THD = Number(r.THD_I_pct || 0).toFixed(2);
+  const TDD = Number(r.TDD_pct || 0).toFixed(2);
+  const tddLim = r.TDD_limit_pct || '—';
+  const kF = Number(r.K_factor || 0).toFixed(2);
+  const status = r.overall_pass ? 'COMPLIANT' : 'NON-COMPLIANT';
+  const proj = String(inputs?.project_name || 'Untitled').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const now  = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
+  const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+  const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
+  const BR  = 'border-right:1px solid #c8d0da;';
+  return `<table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}width:42%;`)}${LBL('Project Name')}${EF(proj)}</td>
+    ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('ELEC-HD-SCH-001')}</td>
+    ${TD('width:35%;')}${LBL('Analysis Result')}<div style="font-size:11px;font-weight:700;color:${r.overall_pass?'#2e7d32':'#c62828'};">${status} &mdash; THD ${THD}% / TDD ${TDD}%</div></td>
+  </tr>
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('Harmonic Distortion Spectrum &mdash; IEEE 519-2022')}</td>
+    ${TD(`${BR}`)}${LBL('Standard / Code')}<div style="font-size:10px;color:#1a2e4a;">IEEE 519-2022 / IEC 61000-3-2 / PEC 2017</div></td>
+    ${TD('')}${LBL('Date Prepared')}${EF(now)}</td>
+  </tr>
+  <tr>
+    ${TD(`${BR}width:22%;`)}${LBL('Prepared By')}${SIG()}</td>
+    ${TD(`${BR}width:22%;`)}${LBL('Checked By')}${SIG()}</td>
+    ${TD(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
+    ${TD(`${BR}width:17%;`)}${LBL('K-Factor')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${kF}</div></td>
+    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}<div style="font-size:8px;color:#888;margin-top:5px;white-space:nowrap;">Sheet 1 of 1</div></td>
+  </tr>
+</table>`;
 }
 
 function downloadDiagramSVG() {
@@ -18988,7 +19025,10 @@ async function _runDrawing() {
         'Harmonic Distortion':          'Harmonic Spectrum — IEEE 519-2022 Bar Chart',
       };
       const svg = await _callPythonDiagram(ct, _lastInputs, _lastResults);
-      _renderPythonSVG(svg, titleMap[ct] || ct);
+      const titleBlockHtml = (ct === 'Harmonic Distortion')
+        ? buildHarmonicSpectrumTitleBlockHtml(_lastInputs, _lastResults)
+        : '';
+      _renderPythonSVG(svg, titleMap[ct] || ct, titleBlockHtml);
       return;
     } catch (err) {
       if (err.message !== 'not_implemented') {

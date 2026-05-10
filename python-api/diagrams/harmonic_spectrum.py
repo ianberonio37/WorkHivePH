@@ -100,7 +100,7 @@ def generate(inputs: dict, results: dict) -> str:
     ax.set_xticklabels([f"{o}th" if o != 3 else "3rd" for o in orders],
                        color=TEXT, fontsize=9)
     ax.set_xlabel("Harmonic Order", color=TEXT, fontsize=9, labelpad=6)
-    ax.set_ylabel("Current (% of I₁)", color=TEXT, fontsize=9, labelpad=6)
+    ax.set_ylabel("Current (% of I1)", color=TEXT, fontsize=9, labelpad=6)
     ax.tick_params(colors=TEXT, labelsize=8.5)
     ax.spines[:].set_color(GRID)
     ax.grid(axis="y", color=GRID, linewidth=0.6, zorder=0)
@@ -173,7 +173,7 @@ def generate(inputs: dict, results: dict) -> str:
 
     # ── Main title ────────────────────────────────────────────────────────────
     fig.text(0.5, 0.95,
-             f"HARMONIC DISTORTION SPECTRUM  —  {project.upper()}",
+             f"HARMONIC DISTORTION SPECTRUM  -  {project.upper()}",
              ha="center", va="top", color=TEXT,
              fontsize=11, fontweight="bold")
 
