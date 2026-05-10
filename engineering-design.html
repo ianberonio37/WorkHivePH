@@ -13183,10 +13183,10 @@ function buildTransformerSLDSvg(inputs, results) {
 
   // ── 2. HV CABLE to SA junction ───────────────────────────────────────────────
   p.push(VL(SLD_X, Y_UTIL+28, Y_SA-25, 3, HV));
-  // HV cable annotation (mandatory: cable size per skill) — label RIGHT via DL
-  p.push(DL(SLD_X+3, Y_UTIL+55, SLD_X+38, Y_UTIL+55));
-  p.push(T(SLD_X+40, Y_UTIL+52, 'HV: XLPE/SWA cable', {a:'start', sz:7.5, c:SC}));
-  p.push(T(SLD_X+40, Y_UTIL+63, `(size per short-circuit study)`, {a:'start', sz:7, c:'#aaa'}));
+  // HV cable annotation moved UP to clear SA label band (y 124-141) — label RIGHT via DL
+  p.push(DL(SLD_X+3, Y_UTIL+33, SLD_X+38, Y_UTIL+33));
+  p.push(T(SLD_X+40, Y_UTIL+30, 'HV: XLPE/SWA cable', {a:'start', sz:7.5, c:SC}));
+  p.push(T(SLD_X+40, Y_UTIL+41, `(size per short-circuit study)`, {a:'start', sz:7, c:'#aaa'}));
 
   // ── SA branch tap and main HV conductor ──────────────────────────────────────
   const Y_SA_TAP = 135;  // SA shunt taps here on main conductor
@@ -13297,15 +13297,16 @@ function buildTransformerSLDSvg(inputs, results) {
   p.push(VL(GEC_X, Y_BUS_C+3, Y_BUS_C+15, 2, GN));
   p.push(`<g color="${GN}">${drawSymbol('ground', GEC_X, Y_BUS_C+45)}</g>`);
   // GEC label (mandatory: size + electrode type per SLD checklist)
-  p.push(DL(GEC_X-3, Y_BUS_C+30, GEC_X-20, Y_BUS_C+30, GN));
-  p.push(T(GEC_X-22, Y_BUS_C+27, `GEC: ${Math.max(14, Math.ceil(Number(I2)/10)*2)} mm² Cu bare`, {a:'end', sz:7.5, c:GN, w:'700'}));
-  p.push(T(GEC_X-22, Y_BUS_C+38, 'Ground rod 2.4 m  |  PEC Art. 2.50', {a:'end', sz:7, c:SC}));
+  // Placed ABOVE bus (Y_BUS_C-22/-11) to clear STRIP_Y=467 / legend overlap
+  p.push(T(GEC_X-22, Y_BUS_C-22, `GEC: ${Math.max(14, Math.ceil(Number(I2)/10)*2)} mm² Cu bare`, {a:'end', sz:7.5, c:GN, w:'700'}));
+  p.push(T(GEC_X-22, Y_BUS_C-11, 'Ground rod 2.4 m  |  PEC Art. 2.50', {a:'end', sz:7, c:SC}));
 
   // Transformer tank earth (branch from transformer level)
   const TE_X = SLD_X - 42;
   p.push(HL(SLD_X-14, Y_TX_C+16, TE_X, Y_TX_C+16, 1.5, GN));
   p.push(VL(TE_X, Y_TX_C+16, Y_BUS_C+3, 1.5, GN));   // connects to GEC bus
-  p.push(T(TE_X-4, Y_TX_C+28, 'Tank Earth', {a:'end', sz:7, c:GN}));
+  // Tank Earth label placed BELOW nameplate (which ends at Y_TX_C+46) to avoid overlap
+  p.push(T(TE_X-4, Y_TX_C+62, 'Tank Earth', {a:'end', sz:7, c:GN, w:'700'}));
 
   // ── 11. RIGHT PANEL — calculation data (per drawing-standards skill title block)─
   const RPH = STRIP_Y - 52;
@@ -13406,7 +13407,7 @@ function buildTransformerSLDTitleBlockHtml(inputs, results) {
     ${TD(`${BR}width:22%;`)}${LBL('Checked By')}${SIG()}</td>
     ${TD(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
     ${TD(`${BR}width:17%;`)}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
-    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}<div style="font-size:8px;color:#888;margin-top:5px;">Sheet 1 of 1</div></td>
+    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}<div style="font-size:8px;color:#888;margin-top:5px;white-space:nowrap;">Sheet 1 of 1</div></td>
   </tr>
 </table>`;
 }
@@ -29138,7 +29139,12 @@ function renderBomTablePreview(items) {
             ? `Quantities are based on the Fire Pump Sizing design calculation result (NFPA 20, BFP IRR, RA 9514 Philippine Fire Code, PSME Code). Engineer shall verify all quantities on-site before procurement. All fire pumps, drivers, controllers, and accessories shall be UL/FM-listed and BFP-accepted. Contractor shall submit pump performance curves, motor data sheets, and factory acceptance test reports for Engineer's approval prior to procurement.`
             : isFSprink
             ? `Quantities are based on the Fire Sprinkler Hydraulic design calculation result (NFPA 13, BFP IRR, RA 9514 Philippine Fire Code). Engineer shall verify all quantities on-site before procurement. All sprinkler heads, pipes, fittings, and hangers shall be UL/FM-listed and BFP-accepted. Contractor shall submit hydraulic calculations, material certifications, and BFP listing certificates for Engineer's approval prior to procurement.`
-            : `Quantities are based on the ${_calcType} design calculation result. Engineer shall verify all quantities on-site before procurement. All materials shall conform to applicable Philippine and international standards (PSME, ASHRAE, PEC 2017). Contractor shall submit material submittals for Engineer's approval prior to procurement.`
+            : `Quantities are based on the ${_calcType} design calculation result. Engineer shall verify all quantities on-site before procurement. All materials shall conform to applicable Philippine and international standards (${
+                (isLoadEst || isVD || isWire || isSC || isLight || isLPS || isEG || isUPS || isCT || isPFC || isSolarPV || isGen || isXFMR || isHarmonic) ? 'IEC 60076, IEEE C57, PEC 2017'
+                : (isDrain || isWS || isHW || isSeptic || isWaterSoft || isWT || isSTP || isSD || isGT || isRD) ? 'PNSDW, NPCP, RA 9275, DPWH'
+                : (isFSprink || isFPump || isSPress || isFABatt || isCleanAgt) ? 'NFPA, BFP IRR, RA 9514'
+                : 'PSME, ASHRAE, PEC 2017'
+              }). Contractor shall submit material submittals for Engineer's approval prior to procurement.`
           }
         </div>
       </div>
@@ -29518,9 +29524,9 @@ ${isLight
             </div>
             <div style="font-size:0.74rem;color:#555;">
               <span class="editable-field" contenteditable="true">${
-                (isLoadEst || isVD || isWire || isSC || isLight || isLPSS || isEGS || isUPSS || isCTS || isPFCS || isSolarPVS || isGenS) ? 'Electrical Engineer'
+                (isLoadEst || isVD || isWire || isSC || isLight || isLPSS || isEGS || isUPSS || isCTS || isPFCS || isSolarPVS || isGenS || isXFMR || isHarmonic) ? 'Electrical Engineer'
                 : (isDrain || isWS || isHW || isSeptic || isWaterSoftS || isWTS || isSTPS || isSDS || isGTS || isRDS) ? 'Sanitary Engineer'
-                : (isFSprink || isFPump || isSPress || isFABatt) ? 'Fire Protection Engineer'
+                : (isFSprink || isFPump || isSPress || isFABatt || isCleanAgt) ? 'Fire Protection Engineer'
                 : (isElev || isHoist) ? 'Mechanical Engineer'
                 : 'Mechanical Engineer'
               }</span>
