@@ -26,6 +26,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
 
 const RISK_TOP_LIMIT     = 10;
 const PMS_DUE_LIMIT      = 30;
@@ -61,26 +62,24 @@ type AnyRow = Record<string, unknown>;
 // ---------------------------------------------------------------------------
 
 async function fetchRiskTop(db: SupabaseClient, hiveId: string): Promise<AnyRow[]> {
-  // Latest risk score per asset, top N. Schema (per 20260508000000_asset_risk_scores.sql):
-  //   asset_name, risk_score (0..1), risk_level, top_factors jsonb, generated_at, hive_id
-  const sinceIso = new Date(Date.now() - 7 * 86400000).toISOString();
-  const { data } = await db.from("asset_risk_scores")
-    .select("asset_name, risk_score, risk_level, top_factors, generated_at, hive_id")
+  // Canonical: v_risk_truth (domain=risk_truth in canonical_sources). The view
+  // does DISTINCT ON (hive_id, asset_name) so we get latest-per-asset directly.
+  const { data } = await db.from("v_risk_truth")
+    .select("asset_id, asset_name, risk_score, risk_level, top_factors, generated_at, hive_id")
     .eq("hive_id", hiveId)
-    .gte("generated_at", sinceIso)
     .order("risk_score", { ascending: false })
     .limit(RISK_TOP_LIMIT);
   return data || [];
 }
 
 async function fetchPMsDue(db: SupabaseClient, hiveId: string): Promise<AnyRow[]> {
-  // PM scope items overdue or due today. Conservative: assets whose last_anchor_date
-  // is older than 30 days (rough proxy when frequencies vary).
-  const cutoffIso = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
-  const { data } = await db.from("pm_assets")
-    .select("id, asset_name, tag_id, category, criticality, last_anchor_date, location")
+  // Canonical: v_pm_compliance_truth (domain=pm_compliance_truth). The view
+  // exposes is_due, days_since_last_completion, and the period-scoped counts
+  // so we just filter is_due=true.
+  const { data } = await db.from("v_pm_compliance_truth")
+    .select("pm_asset_id, asset_name, tag_id, category, criticality, last_anchor_date, location, days_since_last_completion, is_due")
     .eq("hive_id", hiveId)
-    .or("last_anchor_date.is.null,last_anchor_date.lt." + cutoffIso)
+    .eq("is_due", true)
     .order("criticality", { ascending: true })
     .limit(PMS_DUE_LIMIT);
   return data || [];
@@ -100,21 +99,19 @@ async function fetchCarryForward(db: SupabaseClient, hiveId: string): Promise<An
 }
 
 async function fetchPartsPrestage(db: SupabaseClient, hiveId: string): Promise<AnyRow[]> {
-  // Inventory items at or below min_qty (the reorder threshold), hive-scoped.
-  // Schema (per baseline): part_name, part_number, qty_on_hand, min_qty, bin_location, status
-  const { data } = await db.from("inventory_items")
-    .select("id, part_name, part_number, qty_on_hand, min_qty, bin_location, status")
+  // Canonical: inventory_items_truth. is_low_stock is the boolean version of
+  // "qty_on_hand <= min_qty"; we filter at the source so the client-side
+  // post-filter loop disappears.
+  const { data } = await db.from("v_inventory_items_truth")
+    .select("id, part_name, part_number, qty_on_hand, min_qty, bin_location, status, is_low_stock")
     .eq("hive_id", hiveId)
     .eq("status", "approved")
+    .eq("is_low_stock", true)
     .order("qty_on_hand", { ascending: true })
     .limit(PARTS_LIMIT);
-  // Filter client-side: qty_on_hand <= min_qty. Doing it here avoids
-  // a complex column-comparison filter that some PostgREST clients reject.
-  return (data || []).filter(r => {
-    const q  = Number(r.qty_on_hand ?? 0);
-    const mn = Number(r.min_qty ?? 0);
-    return mn > 0 && q <= mn;
-  });
+  // Filter is now at the source via is_low_stock — the canonical view bakes
+  // in the same threshold (min_qty > 0 AND qty_on_hand <= min_qty).
+  return data || [];
 }
 
 async function synthesizeBriefing(
@@ -227,6 +224,15 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL") || "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
+
+    // Rate-gate FIRST per ai-engineer skill — synthesizeBriefing calls callAI
+    // for every hive in the loop. Single-hive (manual / button) path is gated
+    // here; cron path passes single_hive=null and the synthesizer's per-hive
+    // fan-out will hit each hive's rate limit individually as it loops.
+    if (single_hive) {
+      const rl = await checkAIRateLimit(db, single_hive);
+      if (!rl.allowed) return rateLimitedResponse(corsHeaders);
+    }
 
     let targetHives: string[];
     if (single_hive) {

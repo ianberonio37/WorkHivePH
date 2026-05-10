@@ -209,6 +209,7 @@
     <div class="actions-row" id="supervisor-actions" style="display:none;">
       <button class="btn-ghost"   id="rerun-btn">Re-run plan</button>
       <button class="btn-primary" id="publish-btn">Publish to crew</button>
+      <button class="btn-ghost"   id="archive-btn" style="margin-left:auto;">Archive plan</button>
     </div>
     <div id="empty-state" class="section-card" style="display:none;text-align:center;color:var(--muted);">
       No plan exists for this shift yet.
@@ -473,6 +474,25 @@
       await loadPlan();
     }
 
+    async function archivePlan() {
+      if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+      if (!_activePlan) return;
+      if (!confirm('Archive this shift plan? It will be hidden from the active view but kept for history.')) return;
+      const btn = document.getElementById('archive-btn');
+      if (btn) btn.disabled = true;
+      const { error } = await db.from('shift_plans')
+        .update({ status: 'archived' })
+        .eq('id', _activePlan.id)
+        .eq('hive_id', HIVE_ID);
+      if (error) {
+        showToast('Archive failed: ' + error.message);
+        if (btn) btn.disabled = false;
+        return;
+      }
+      showToast('Plan archived.');
+      await loadPlan();
+    }
+
     function setShiftWindow(w) {
       _activeWindow = w;
       document.querySelectorAll('.shift-pill').forEach(p => {
@@ -501,8 +521,10 @@
       const rerun = document.getElementById('rerun-btn');
       const pub   = document.getElementById('publish-btn');
       const gen   = document.getElementById('generate-btn');
+      const arch = document.getElementById('archive-btn');
       if (rerun) rerun.addEventListener('click', rerunPlan);
       if (pub)   pub.addEventListener('click', publishPlan);
+      if (arch)  arch.addEventListener('click', archivePlan);
       if (gen)   gen.addEventListener('click', rerunPlan);
 
       setShiftWindow(_activeWindow);

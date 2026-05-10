@@ -897,6 +897,10 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
   try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
   if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+  // Phase B (auth migration): require authenticated session, not just stale localStorage.
+  // Stale WORKER_NAME without _authUid means the worker would 401 once Phase E flips
+  // the L3 permissive policies. See PRODUCTION_FIXES.md #37.
+  if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
 
   if (HIVE_ID) {
     // Re-validate against DB: HIVE_ID in localStorage is not trusted alone
@@ -1141,8 +1145,8 @@ async function showWelcome(hive) {
   document.getElementById('welcome-hive-name').textContent = escHtml(hive.name);
 
   const [logRes, closedRes] = await Promise.all([
-    db.from('logbook').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME),
-    db.from('logbook').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME).eq('status', 'Closed')
+    db.from('v_logbook_truth').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME),
+    db.from('v_logbook_truth').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME).eq('status', 'Closed')
   ]);
 
   document.getElementById('welcome-log-count').textContent   = logRes.count    || 0;
@@ -1290,7 +1294,7 @@ async function loadMembers() {
       .eq('hive_id', HIVE_ID)
       .neq('status', 'kicked')
       .order('joined_at'),
-    db.from('logbook')
+    db.from('v_logbook_truth')
       .select('worker_name')
       .eq('hive_id', HIVE_ID)
       .eq('status', 'Open')
@@ -1356,12 +1360,12 @@ async function loadFeed() {
 
   // Fetch logbook + pm_completions + open count in parallel
   const [logRes, openRes, pmRes] = await Promise.all([
-    db.from('logbook')
+    db.from('v_logbook_truth')
       .select('id, worker_name, date, machine, category, problem, status, created_at')
       .eq('hive_id', HIVE_ID)
       .order('created_at', { ascending: false })
       .limit(40),
-    db.from('logbook')
+    db.from('v_logbook_truth')
       .select('*', { count: 'exact', head: true })
       .eq('hive_id', HIVE_ID)
       .eq('status', 'Open'),
@@ -1396,7 +1400,7 @@ async function loadFeed() {
     // Fallback: if hive_id not yet on old entries, check by member names so existing hives aren't blank
     if (memberNames.length > 1) {
       const [oldLogRes] = await Promise.all([
-        db.from('logbook').select('id, worker_name, date, machine, category, problem, status, created_at')
+        db.from('v_logbook_truth').select('id, worker_name, date, machine, category, problem, status, created_at')
           .in('worker_name', memberNames).is('hive_id', null)
           .order('created_at', { ascending: false }).limit(40)
       ]);
@@ -1562,8 +1566,8 @@ function startFeedRealtime() {
     }, async (payload) => {
       // Fetch asset name and item text for the feed card
       const [assetRes, itemRes] = await Promise.all([
-        db.from('pm_assets').select('asset_name').eq('id', payload.new.asset_id).maybeSingle(),
-        db.from('pm_scope_items').select('item_text, frequency').eq('id', payload.new.scope_item_id).maybeSingle(),
+        db.from('v_pm_compliance_truth').select('asset_name').eq('pm_asset_id', payload.new.asset_id).maybeSingle(),
+        db.from('v_pm_scope_items_truth').select('item_text, frequency').eq('scope_item_id', payload.new.scope_item_id).maybeSingle(),
       ]);
       const entry = {
         ...payload.new,
@@ -1623,7 +1627,7 @@ function setConn(state) {
 
 // ── STOCK ALERT (current worker's own inventory) ──
 async function checkStockAlert() {
-  const { data: inv } = await db.from('inventory_items')
+  const { data: inv } = await db.from('v_inventory_items_truth')
     .select('part_name, qty_on_hand, min_qty')
     .eq('worker_name', WORKER_NAME)
     .eq('status', 'approved');
@@ -1702,7 +1706,7 @@ async function buildNotifications() {
   _notifs = [];
 
   // Own stock issues
-  const { data: inv } = await db.from('inventory_items')
+  const { data: inv } = await db.from('v_inventory_items_truth')
     .select('part_name, qty_on_hand, min_qty')
     .eq('worker_name', WORKER_NAME)
     .eq('status', 'approved');
@@ -1716,7 +1720,7 @@ async function buildNotifications() {
 
   // Open work orders older than 48 hours (scoped to current hive; include solo entries if no hive)
   const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
-  let woQuery = db.from('logbook')
+  let woQuery = db.from('v_logbook_truth')
     .select('machine, date, created_at')
     .eq('worker_name', WORKER_NAME)
     .eq('status', 'Open')
@@ -1741,36 +1745,31 @@ const HIVE_DUE_SOON  = 14;
 async function loadPMHealth() {
   if (!HIVE_ID) return;
 
-  const [assetsRes, itemsRes, compsRes] = await Promise.all([
-    db.from('pm_assets').select('id, asset_name').eq('hive_id', HIVE_ID),
-    db.from('pm_scope_items').select('id, asset_id, frequency, anchor_date').eq('hive_id', HIVE_ID),
-    db.from('pm_completions').select('scope_item_id, completed_at, worker_name').eq('hive_id', HIVE_ID).eq('status', 'done').order('completed_at', { ascending: false }),
+  // Canonical: pm_scope_items_truth — bakes in is_overdue / is_due_soon
+  // (14d window) per scope item using the standard frequency map. The 3-query
+  // fan-out + per-item math loop collapses to a single read + count.
+  const [itemsRes, compsRes] = await Promise.all([
+    db.from('v_pm_scope_items_truth')
+      .select('scope_item_id, pm_asset_id, asset_name, is_overdue, is_due_soon')
+      .eq('hive_id', HIVE_ID),
+    db.from('pm_completions')
+      .select('scope_item_id, completed_at, worker_name')
+      .eq('hive_id', HIVE_ID).eq('status', 'done')
+      .order('completed_at', { ascending: false }),
   ]);
 
-  const pmAssets = assetsRes.data || [];
-  const pmItems  = itemsRes.data  || [];
-  const pmComps  = compsRes.data  || [];
+  const pmItems = itemsRes.data || [];
+  const pmComps = compsRes.data || [];
 
-  if (!pmAssets.length) return;
+  if (!pmItems.length) return;
 
-  // Calculate status per item
-  const today = new Date(); today.setHours(0, 0, 0, 0);
   let overdue = 0, dueSoon = 0;
+  for (const r of pmItems) {
+    if (r.is_overdue) overdue++;
+    else if (r.is_due_soon) dueSoon++;
+  }
 
-  pmItems.forEach(item => {
-    const lastComp = pmComps.find(c => c.scope_item_id === item.id);
-    const lastDate = lastComp ? lastComp.completed_at : item.anchor_date;
-    if (!lastDate) { overdue++; return; }
-    const days = HIVE_FREQ_DAYS[item.frequency] || 90;
-    const next = new Date(lastDate);
-    next.setDate(next.getDate() + days);
-    next.setHours(0, 0, 0, 0);
-    const diff = Math.floor((next - today) / 86400000);
-    if (diff < 0)               overdue++;
-    else if (diff <= HIVE_DUE_SOON) dueSoon++;
-  });
-
-  // PM done this week
+  // PM done this week (kept for the Team Pulse / activity card)
   const weekAgo   = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const weekComps = pmComps.filter(c => c.completed_at >= weekAgo);
 
@@ -1805,7 +1804,7 @@ async function checkTeamStockAlert() {
   const others = memberNames.filter(n => n !== WORKER_NAME);
   if (!others.length) return;
 
-  const { data: inv } = await db.from('inventory_items')
+  const { data: inv } = await db.from('v_inventory_items_truth')
     .select('worker_name, part_name, qty_on_hand, min_qty')
     .eq('hive_id', HIVE_ID)
     .eq('status', 'approved')
@@ -1865,7 +1864,7 @@ async function loadApprovalQueue() {
   if (HIVE_ROLE !== 'supervisor') return;
   const [assetsRes, partsRes] = await Promise.all([
     db.from('assets').select('*').eq('hive_id', HIVE_ID).eq('status', 'pending'),
-    db.from('inventory_items').select('*').eq('hive_id', HIVE_ID).eq('status', 'pending')
+    db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('status', 'pending')
   ]);
   _pendingAssets = assetsRes.data || [];
   _pendingParts  = partsRes.data  || [];
@@ -2380,9 +2379,9 @@ async function loadTeamPulse() {
   const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
 
   const [jobsRes, stockRes] = await Promise.allSettled([
-    db.from('logbook').select('*', { count: 'exact', head: true })
+    db.from('v_logbook_truth').select('*', { count: 'exact', head: true })
       .eq('hive_id', HIVE_ID).gte('created_at', todayStart.toISOString()),
-    db.from('inventory_items').select('id, qty_on_hand, min_qty')
+    db.from('v_inventory_items_truth').select('id, qty_on_hand, min_qty')
       .eq('hive_id', HIVE_ID).eq('status', 'approved'),
   ]);
 

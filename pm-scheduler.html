@@ -741,6 +741,22 @@ let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getI
 let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
 let HIVE_NAME   = localStorage.getItem('wh_hive_name') || '';
 
+// ── AUDIT LOG ──
+// Fire-and-forget so a log failure never blocks the PM action.
+// Mirrors the hive.html canonical pattern; surfaces in audit-log.html viewer.
+function writeAuditLog(action, targetType, targetId, targetName, meta) {
+  if (!HIVE_ID) return;
+  db.from('hive_audit_log').insert({
+    hive_id:     HIVE_ID,
+    actor:       WORKER_NAME,
+    action,
+    target_type: targetType,
+    target_id:   targetId,
+    target_name: targetName,
+    meta:        meta || {},
+  }).then(res => { if (res.error) console.warn('audit log:', res.error.message); });
+}
+
 // C4: redirect deferred to async init — checks auth session first
 
 // ─────────────────────────────────────
@@ -1042,6 +1058,8 @@ async function init() {
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
   try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
   if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+  // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
+  if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
   await validateHiveMembership();
   document.getElementById('nav-worker').textContent = WORKER_NAME;
 
@@ -1469,6 +1487,12 @@ async function saveEditPMAsset() {
     return;
   }
 
+  writeAuditLog('edit_pm_asset', 'pm_assets', currentAsset.id, name, {
+    prev_name: currentAsset.asset_name,
+    new_criticality: updates.criticality,
+    new_location: updates.location,
+  });
+
   // Update local cache
   const idx = assets.findIndex(a => a.id === currentAsset.id);
   if (idx !== -1) assets[idx] = { ...assets[idx], ...updates };
@@ -1516,6 +1540,10 @@ async function submitCompletion() {
     saveLabel.textContent = logAlso ? 'Save + Log in Logbook' : 'Save Completion';
     return;
   }
+
+  writeAuditLog('complete_pm', 'pm_completions', compData.id,
+    (currentAsset && currentAsset.asset_name) || compPayload.asset_id,
+    { scope_item_id: _sheetScopeItemId, status: compPayload.status, has_findings: !!findings });
 
   completions.unshift(compData);
 
@@ -2108,6 +2136,8 @@ async function confirmDeleteAsset() {
 }
 
 async function deleteAsset() {
+  const deletedId   = currentAsset.id;
+  const deletedName = currentAsset.asset_name;
   const deleteQuery = HIVE_ID
     ? db.from('pm_assets').delete().eq('id', currentAsset.id).eq('hive_id', HIVE_ID)
     : db.from('pm_assets').delete().eq('id', currentAsset.id).eq('worker_name', WORKER_NAME);
@@ -2115,9 +2145,12 @@ async function deleteAsset() {
 
   if (error) { showToast('Delete failed. Please try again.'); return; }
 
-  assets      = assets.filter(a => a.id !== currentAsset.id);
-  scopeItems  = scopeItems.filter(i => i.asset_id !== currentAsset.id);
-  completions = completions.filter(c => c.asset_id !== currentAsset.id);
+  writeAuditLog('delete_pm_asset', 'pm_assets', deletedId, deletedName,
+    { criticality: currentAsset.criticality });
+
+  assets      = assets.filter(a => a.id !== deletedId);
+  scopeItems  = scopeItems.filter(i => i.asset_id !== deletedId);
+  completions = completions.filter(c => c.asset_id !== deletedId);
   currentAsset = null;
 
   showToast('Asset deleted.');
@@ -2275,5 +2308,49 @@ init();
     </div>
   </div>
 </div>
+<script>
+// ── Phase B.2: Voice handler registration for pm.complete ─────────────────
+// Conservative: voice filters the registered-asset list to the spoken machine
+// name. Worker picks the matching asset and ticks the scope items themselves.
+// PM completion writes to pm_completions; the architect rule (DB write must
+// confirm) says we never do those automatically from voice.
+(function () {
+  async function pmCompleteHandler(intent, assetResolution) {
+    const p = (intent && intent.params) || {};
+    const primary = assetResolution && assetResolution.primary;
+    const machine = (primary && (primary.tag || primary.name)) || p.machine || '';
+    if (!machine) {
+      return { ok: false, message: 'No asset heard. Try: "done with the chiller weekly inspection".' };
+    }
+    const search = document.getElementById('asset-search');
+    if (search) {
+      search.value = machine;
+      // pm-scheduler uses oninput="filterRegisteredAssets()" so dispatching
+      // input fires the filter. Belt-and-suspenders: call directly too.
+      search.dispatchEvent(new Event('input', { bubbles: true }));
+      if (typeof window.filterRegisteredAssets === 'function') {
+        try { window.filterRegisteredAssets(); } catch (_) {}
+      }
+      search.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    const taskHint = p.task_summary ? ` (item: ${p.task_summary})` : '';
+    return {
+      ok: true,
+      message: `Filtered to "${machine}"${taskHint}. Open the asset and tick the completed PM scope items.`,
+    };
+  }
+  function tryRegister() {
+    if (window.WHVoice && typeof window.WHVoice.register === 'function') {
+      window.WHVoice.register('pm.complete', pmCompleteHandler);
+      return true;
+    }
+    return false;
+  }
+  if (!tryRegister()) {
+    let tries = 0;
+    const t = setInterval(() => { if (tryRegister() || ++tries > 20) clearInterval(t); }, 250);
+  }
+})();
+</script>
 </body>
 </html>

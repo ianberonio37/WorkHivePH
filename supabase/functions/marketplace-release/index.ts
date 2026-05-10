@@ -79,9 +79,9 @@ serve(async (req: Request) => {
     return errJson('No payment ID on this order — contact support', 400, req);
   }
 
-  /* ── Fetch seller's Stripe account ──────────────────────────────────── */
+  /* ── Fetch seller's Stripe account (canonical: marketplace_sellers_truth) ── */
   const { data: seller } = await db
-    .from('marketplace_sellers')
+    .from('v_marketplace_sellers_truth')
     .select('stripe_account_id')
     .eq('worker_name', order.seller_name)
     .maybeSingle();
@@ -95,12 +95,16 @@ serve(async (req: Request) => {
   const platformFee      = Math.round(totalCentavos * PLATFORM_FEE_PCT);
   const transferAmount   = totalCentavos - platformFee;
 
-  /* ── Create Stripe Transfer to seller ───────────────────────────────── */
+  /* ── Create Stripe Transfer to seller ─────────────────────────────────
+     Idempotency-Key derived from order_id so a network retry / cold-start
+     replay collapses to the same Stripe-side transfer rather than paying
+     the seller twice. Highest-stakes idempotency site in the platform. */
   const transferRes = await fetch('https://api.stripe.com/v1/transfers', {
     method:  'POST',
     headers: {
-      'Authorization': `Bearer ${stripeKey}`,
-      'Content-Type':  'application/x-www-form-urlencoded',
+      'Authorization':   `Bearer ${stripeKey}`,
+      'Content-Type':    'application/x-www-form-urlencoded',
+      'Idempotency-Key': `release-${order_id}`,
     },
     body: new URLSearchParams({
       'amount':              String(transferAmount),

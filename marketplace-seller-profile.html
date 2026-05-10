@@ -371,9 +371,11 @@
   /* ── Load seller profile ────────────────────────────────────────────── */
   async function loadSeller() {
     try {
+      // Canonical: marketplace_sellers_truth — bridges in active_listings_count
+      // and is_verified_public so the hero card avoids a follow-up query.
       const { data } = await db
-        .from('marketplace_sellers')
-        .select('worker_name, tier, kyb_verified, kyb_verified_at, cert_verified, cert_verified_at, certifications, total_sales, rating_avg, rating_count, messenger_username, created_at')
+        .from('v_marketplace_sellers_truth')
+        .select('worker_name, tier, kyb_verified, kyb_verified_at, cert_verified, cert_verified_at, certifications, total_sales, rating_avg, rating_count, messenger_username, created_at, active_listings_count, is_verified_public, last_listed_at')
         .eq('worker_name', WORKER_VIEW)
         .maybeSingle();
       _seller = data;

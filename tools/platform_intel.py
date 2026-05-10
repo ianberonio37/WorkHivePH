@@ -40,10 +40,10 @@ SUPABASE_KEY = os.getenv("SUPABASE_SECRET_KEY") or os.getenv("SUPABASE_KEY", "")
 
 FEATURE_ECOSYSTEM = {
     "Maintenance Logbook": {
-        "connects_to": ["AI Maintenance Assistant", "Shift Handover Report", "PM Checklist", "Community Forum", "Asset Brain", "Achievements", "Predictive Analytics"],
+        "connects_to": ["AI Maintenance Assistant", "Shift Handover Report", "PM Checklist", "Community Forum", "Asset Brain", "Achievements", "Predictive Analytics", "Audit Log & Compliance"],
         "tables":       ["logbook"],
-        "edge_fns":     ["failure-signature-scan", "embed-entry", "voice-logbook-entry", "voice-transcribe"],
-        "loop_role":    "Foundation layer. Every repair, every failure, every fix recorded — by typing or by voice. Without it everything else is guesswork.",
+        "edge_fns":     ["failure-signature-scan", "embed-entry", "voice-logbook-entry", "voice-transcribe", "voice-action-router"],
+        "loop_role":    "Foundation layer. Every repair, every failure, every fix recorded — by typing, by voice, or by voice command. Without it everything else is guesswork.",
         "audience":     ["Field Technician", "Supervisor", "Plant Manager"],
     },
     "PM Checklist": {
@@ -55,9 +55,9 @@ FEATURE_ECOSYSTEM = {
     },
     "Inventory Management": {
         "connects_to": ["PM Checklist", "Marketplace", "Hive Dashboard", "Predictive Analytics", "Shift Brain", "Alert Hub"],
-        "tables":       ["inventory_items", "inventory_transactions"],
+        "tables":       ["inventory_items", "inventory_transactions", "parts_staged_reservations"],
         "edge_fns":     [],
-        "loop_role":    "Readiness layer. Maintenance only works if the part is there. Low stock alerts before surprises happen.",
+        "loop_role":    "Readiness layer. Maintenance only works if the part is there. Low stock alerts before surprises happen — and Auto-Staging now reserves parts in advance for predicted failures.",
         "audience":     ["Supervisor", "Plant Manager"],
     },
     "AI Maintenance Assistant": {
@@ -128,9 +128,9 @@ FEATURE_ECOSYSTEM = {
     },
     "Predictive Analytics": {
         "connects_to": ["Maintenance Logbook", "Inventory Management", "Asset Brain", "Alert Hub", "Analytics & OEE Dashboard"],
-        "tables":       ["asset_risk_scores", "logbook", "inventory_transactions"],
-        "edge_fns":     ["batch-risk-scoring", "trigger-ml-retrain"],
-        "loop_role":    "Foresight layer. ML model ranks every asset by failure risk. Critical and high-risk machines surface before they break — not after.",
+        "tables":       ["asset_risk_scores", "logbook", "inventory_transactions", "parts_staged_reservations"],
+        "edge_fns":     ["batch-risk-scoring", "trigger-ml-retrain", "parts-staging-recommender", "weibull-fitter", "pf-calculator", "fmea-populator"],
+        "loop_role":    "Foresight layer. ML scores every asset by failure risk, real reliability math (Weibull, P-F intervals, FMEA) backs the model, and Auto-Staging reserves the parts before the failure happens. Predict, prepare, prevent.",
         "audience":     ["Plant Manager", "Supervisor", "Engineer"],
     },
     "Asset Brain": {
@@ -181,6 +181,13 @@ FEATURE_ECOSYSTEM = {
         "edge_fns":     ["project-orchestrator", "project-progress"],
         "loop_role":    "Coordination layer. Long-running maintenance projects (overhauls, shutdowns, capex) tracked end-to-end with milestones, parts staging, skill assignments.",
         "audience":     ["Plant Manager", "Engineer"],
+    },
+    "Audit Log & Compliance": {
+        "connects_to": ["Maintenance Logbook", "PM Checklist", "Inventory Management", "Hive Dashboard", "CMMS Integrations"],
+        "tables":       ["cmms_audit_log", "hive_audit_log"],
+        "edge_fns":     [],
+        "loop_role":    "Trust layer. Every supervisor action and worker action recorded with timestamp + actor. Auditable for ISO/regulator review, transparent for the team, defensible if anything is ever questioned.",
+        "audience":     ["Plant Manager", "Supervisor", "Compliance Officer"],
     },
 }
 
@@ -381,7 +388,7 @@ COUNTRY: Philippines (market) — but ALL copy in plain simple English
 AUDIENCE: Industrial workers — field technicians, supervisors, engineers, plant managers
 INDUSTRIES: Manufacturing, power generation, oil & gas, utilities, facilities management
 
-WORKHIVE FEATURE ECOSYSTEM (20 interconnected features):
+WORKHIVE FEATURE ECOSYSTEM (21 interconnected features):
 {ecosystem_block}
 {live_block}
 {coverage_block}

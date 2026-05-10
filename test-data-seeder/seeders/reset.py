@@ -1,5 +1,11 @@
 """Wipe all seeded data, child tables first to respect FK constraints.
-Also wipes Supabase Auth users (locally) so re-seed doesn't collide."""
+Also wipes Supabase Auth users (locally) so re-seed doesn't collide.
+
+NOTE: Catalog/reference tables populated only by migration INSERTs (no Python
+seeder) MUST NOT be added here. Wiping them empties data that no seeder will
+restore, and DB triggers FK-into them will then fail on the next user action.
+Known catalog tables: achievement_definitions, equipment_reading_templates.
+The reset-coverage validator skips these via CATALOG_TABLES_IGNORED."""
 
 # Order matters -- children before parents. Tables with PK other than 'id'
 # go in RESET_TABLES_NON_ID below (uses a different sentinel filter).
@@ -15,12 +21,18 @@ RESET_TABLES = [
     # Auto-Staging (Phase ML-2)
     "parts_staged_reservations",
     "parts_staging_recommendations",
+    # Reliability Engineering Workbench (Phase R.1) - children before parents.
+    # rcm_strategies + weibull_fits + pf_intervals all reference rcm_fmea_modes.
+    "pf_intervals",
+    "weibull_fits",
+    "rcm_strategies",
+    "rcm_fmea_modes",
     # Predictive Analytics
     "asset_risk_scores",
-    # Achievements (child -> parent)
+    # Achievements (child -> parent).
+    # achievement_definitions is a CATALOG table (migration-seeded), do NOT wipe.
     "achievement_xp_log",
     "worker_achievements",
-    "achievement_definitions",
     # Asset Brain graph (child -> parent)
     "asset_embeddings",
     "asset_edges",
@@ -79,7 +91,7 @@ RESET_TABLES = [
     "pm_completions",
     "pm_scope_items",
     "pm_assets",
-    "equipment_reading_templates",
+    # equipment_reading_templates is a CATALOG table (migration-seeded), do NOT wipe.
     # Logbook + assets
     "logbook",
     "assets",

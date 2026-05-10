@@ -1265,6 +1265,10 @@
   const logPanel = document.getElementById('log-panel');
   const jobBadge = document.getElementById('job-badge');
   let polling = false;
+  // Cursor for incremental append. We track the last log line we've already
+  // rendered, then on each poll we only append what's new — preserves text
+  // selection (so you can copy) and scroll position (so reading isn't yanked).
+  let lastSeenLine = null;
 
   function setButtonsDisabled(disabled) {
     buttons.forEach(b => b.disabled = disabled);
@@ -1275,6 +1279,7 @@
     if (action === 'run-mega-gate' && !confirm('Mega Gate runs the full release gate + AI Full + visual regression + performance budgets. This takes 7-10 minutes. Continue?')) return;
     setButtonsDisabled(true);
     logPanel.textContent = '';
+    lastSeenLine = null;
     let url;
     if (action === 'all') url = '/api/seed/all';
     else if (action === 'reset') url = '/api/reset';
@@ -1303,8 +1308,35 @@
     try {
       const resp = await fetch('/api/status');
       const data = await resp.json();
-      logPanel.textContent = data.log.join('\n');
-      logPanel.scrollTop = logPanel.scrollHeight;
+
+      // Append only NEW lines instead of rebuilding textContent. This keeps
+      // text selection alive (you can copy mid-run) and preserves your scroll
+      // position when reading older lines. Server caps its log at the last
+      // 200 lines; we use lastSeenLine as a cursor into that window.
+      const lines = data.log || [];
+      let toAppend;
+      if (lastSeenLine === null) {
+        toAppend = lines;
+      } else {
+        const idx = lines.lastIndexOf(lastSeenLine);
+        if (idx === -1) {
+          // Server truncated past our cursor (>200 new lines since last
+          // poll). Fall back to full replace; selection in the dropped
+          // region is unrecoverable anyway.
+          logPanel.textContent = '';
+          toAppend = lines;
+        } else {
+          toAppend = lines.slice(idx + 1);
+        }
+      }
+
+      if (toAppend.length > 0) {
+        const wasAtBottom = (logPanel.scrollHeight - logPanel.scrollTop - logPanel.clientHeight) < 40;
+        const prefix = logPanel.textContent ? '\n' : '';
+        logPanel.appendChild(document.createTextNode(prefix + toAppend.join('\n')));
+        lastSeenLine = lines[lines.length - 1];
+        if (wasAtBottom) logPanel.scrollTop = logPanel.scrollHeight;
+      }
 
       if (data.running) {
         jobBadge.style.display = 'inline-block';
@@ -1314,6 +1346,7 @@
         jobBadge.style.display = 'none';
         setButtonsDisabled(false);
         polling = false;
+        lastSeenLine = null;   // reset cursor so next run starts fresh
         if (data.counts) updateCounts(data.counts);
         return;
       }

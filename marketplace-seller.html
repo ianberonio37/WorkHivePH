@@ -402,6 +402,25 @@
   const WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
   const HIVE_ID     = localStorage.getItem('wh_active_hive_id') || null;
 
+  // ── AUDIT LOG ──
+  // Fire-and-forget. Logs seller-side state changes (listing edit/delete,
+  // profile contact updates, certifications, dispute replies). Logs to the
+  // seller's own hive_audit_log; meta.scope='seller_action' marks the
+  // marketplace context. See marketplace-admin.html for the platform-admin
+  // counterpart.
+  function writeAuditLog(action, targetType, targetId, targetName, meta) {
+    if (!HIVE_ID) return;
+    db.from('hive_audit_log').insert({
+      hive_id:     HIVE_ID,
+      actor:       WORKER_NAME,
+      action,
+      target_type: targetType,
+      target_id:   targetId,
+      target_name: targetName,
+      meta:        Object.assign({ scope: 'seller_action' }, meta || {}),
+    }).then(res => { if (res.error) console.warn('audit log:', res.error.message); });
+  }
+
   const CATS = {
     parts:    ['Bearings','Seals & Gaskets','Motors & Drives','Pumps & Valves','Electrical','Instrumentation','Fasteners','Lubricants','Safety Equipment','Other'],
     training: ['Electrical','Mechanical','Instrumentation','Safety & LOTO','CMMS','Management','Certification Prep','Other'],
@@ -477,7 +496,7 @@
 
     /* Fetch seller profile */
     try {
-      const { data } = await db.from('marketplace_sellers').select('*').eq('worker_name', WORKER_NAME).maybeSingle();
+      const { data } = await db.from('v_marketplace_sellers_truth').select('*').eq('worker_name', WORKER_NAME).maybeSingle();
       _seller = data;
     } catch (_) { _seller = null; }
 
@@ -977,6 +996,9 @@
         .eq('seller_name', WORKER_NAME);
       if (error) throw error;
 
+      writeAuditLog('edit_listing', 'marketplace_listings', id, title,
+        { category, price, new_status: 'draft' });
+
       showToast('Listing updated. Re-submitted for review.', 'success');
       document.getElementById('overlay-edit')?.classList.remove('open');
       document.getElementById('sheet-edit')?.classList.remove('open');
@@ -999,6 +1021,8 @@
     try {
       const { error } = await db.from('marketplace_listings').delete().eq('id', id).eq('seller_name', WORKER_NAME);
       if (error) throw error;
+      writeAuditLog('delete_listing', 'marketplace_listings', id, item.title,
+        { prev_status: item.status });
       showToast('Listing deleted.', 'success');
       await loadListings();
     } catch (_) {
@@ -1276,6 +1300,9 @@
       }, { onConflict: 'worker_name' });
       if (error) throw error;
 
+      writeAuditLog('edit_seller_messenger', 'marketplace_sellers', WORKER_NAME, WORKER_NAME,
+        { has_handle: !!raw });
+
       if (_seller) _seller.messenger_username = raw || null;
       else _seller = { worker_name: WORKER_NAME, messenger_username: raw || null, tier: 'bronze' };
 
@@ -1325,6 +1352,9 @@
       const { error } = await db.from('marketplace_sellers').upsert(update, { onConflict: 'worker_name' });
       if (error) throw error;
 
+      writeAuditLog('edit_seller_certs', 'marketplace_sellers', WORKER_NAME, WORKER_NAME,
+        { cert_count: lines.length, invalidated_verification: (update.cert_verified === false) && !!wasVerified });
+
       if (_seller) {
         _seller.certifications = normalized;
         if (update.cert_verified === false) _seller.cert_verified = false;
@@ -1367,6 +1397,9 @@
         .update({ seller_reply: replyText, seller_replied_at: now, status: 'seller_responded' })
         .eq('order_id', orderId);
       if (error) throw error;
+
+      writeAuditLog('reply_dispute', 'marketplace_disputes', orderId, orderId,
+        { reply_length: replyText.length, new_status: 'seller_responded' });
 
       showToast('Reply sent. An admin will review the dispute.', 'success');
       await loadOrders();

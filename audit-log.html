@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Audit Log | WorkHive</title>
+  <link rel="manifest" href="manifest.json" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="utils.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f1923; --surface: #162032; --card: #1d2e44;
+      --gold: #F7A21B; --blue: #29B6D9; --green: #4ade80;
+      --red: #f87171; --amber: #fb923c; --yellow: #facc15; --purple: #a78bfa;
+      --text: #F4F6FA; --muted: rgba(255,255,255,0.4);
+      --border: rgba(255,255,255,0.07);
+    }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
+    .page { max-width: 880px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }
+
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+    .page-title { font-size: 1.3rem; font-weight: 800; }
+    .page-sub { font-size: .7rem; color: var(--muted); margin-top: 2px; }
+    .hive-pill { font-size: .65rem; font-weight: 700; padding: .3rem .8rem; border-radius: 999px; background: rgba(41,182,217,0.12); color: var(--blue); border: 1px solid rgba(41,182,217,0.25); }
+
+    /* Filter bar */
+    .filter-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+    .filter-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; background: rgba(22,32,50,0.85);
+      border: 1px solid var(--border); border-radius: 999px;
+      font-family: inherit; font-size: .72rem; font-weight: 600;
+      color: rgba(255,255,255,0.6); cursor: pointer;
+      transition: all .15s; min-height: 32px;
+    }
+    .chip:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
+    .chip.active { background: rgba(247,162,27,0.15); color: var(--gold); border-color: rgba(247,162,27,0.3); }
+
+    .filter-select, .filter-input {
+      background: rgba(22,32,50,0.85);
+      border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); font-family: inherit;
+      font-size: 16px; /* iOS auto-zoom guard — never go below 16px on inputs */
+      padding: 8px 12px; min-height: 40px;
+    }
+    .filter-input { flex: 1; min-width: 160px; }
+    .filter-select { min-width: 130px; }
+
+    .filter-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-export {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; background: rgba(74,222,128,0.12);
+      color: var(--green); border: 1px solid rgba(74,222,128,0.3);
+      border-radius: 8px; font-size: .75rem; font-weight: 700;
+      cursor: pointer; min-height: 40px;
+    }
+    .btn-export:hover { background: rgba(74,222,128,0.18); }
+    .btn-clear {
+      padding: 8px 14px; background: transparent;
+      color: var(--muted); border: 1px solid var(--border);
+      border-radius: 8px; font-size: .72rem; font-weight: 600;
+      cursor: pointer; min-height: 40px;
+    }
+    .btn-clear:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
+
+    .filter-summary { font-size: .65rem; color: var(--muted); margin-left: auto; }
+
+    /* Feed */
+    .feed { display: flex; flex-direction: column; gap: 8px; }
+    .entry {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 14px; background: rgba(22,32,50,0.85);
+      border: 1px solid var(--border); border-radius: 10px;
+      border-left-width: 3px;
+    }
+    .entry.action-approve { border-left-color: var(--green); }
+    .entry.action-reject  { border-left-color: var(--red); }
+    .entry.action-kick    { border-left-color: var(--amber); }
+    .entry.action-join    { border-left-color: var(--blue); }
+    .entry.action-edit    { border-left-color: var(--yellow); }
+    .entry.action-delete  { border-left-color: var(--red); }
+    .entry.action-other   { border-left-color: var(--purple); }
+
+    .entry-icon { font-size: 1.05rem; flex-shrink: 0; line-height: 1.2; }
+    .entry-body { flex: 1; min-width: 0; }
+    .entry-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+    .entry-actor {
+      font-size: .55rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .06em; padding: .2rem .5rem; border-radius: 5px;
+      background: rgba(41,182,217,0.12); color: var(--blue);
+    }
+    .entry-action {
+      font-size: .82rem; font-weight: 700; color: var(--text);
+    }
+    .entry-target {
+      font-size: .82rem; color: rgba(255,255,255,0.7);
+    }
+    .entry-target-type {
+      font-size: .55rem; color: var(--muted); text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .entry-time { font-size: .65rem; color: var(--muted); flex-shrink: 0; margin-left: auto; }
+    .entry-meta-toggle {
+      font-size: .65rem; font-weight: 600; color: var(--gold);
+      background: transparent; border: none; padding: 4px 0;
+      cursor: pointer; margin-top: 4px;
+    }
+    .entry-meta-toggle:hover { text-decoration: underline; }
+    .entry-meta {
+      margin-top: 6px; padding: 8px 10px;
+      background: rgba(15,25,35,0.7); border: 1px solid var(--border);
+      border-radius: 6px; font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: .68rem; color: rgba(255,255,255,0.7);
+      white-space: pre-wrap; word-break: break-word;
+      max-height: 240px; overflow: auto;
+    }
+
+    /* Empty / loading */
+    .empty {
+      text-align: center; padding: 48px 24px;
+      background: rgba(22,32,50,0.5); border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .empty-icon { font-size: 2rem; margin-bottom: 8px; }
+    .empty-title { font-size: .95rem; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+    .empty-sub { font-size: .75rem; color: var(--muted); }
+    .loading { text-align: center; padding: 30px; color: var(--muted); font-size: .78rem; }
+
+    .footer-meta { font-size: .62rem; color: var(--muted); text-align: right; margin-top: 16px; }
+
+    /* Gate cards (no hive / not supervisor) */
+    .gate-card {
+      text-align: center; padding: 40px 24px;
+      background: rgba(22,32,50,0.85); border: 1px solid var(--border);
+      border-radius: 14px; margin-top: 40px;
+    }
+    .gate-card h2 { font-size: 1.1rem; margin-bottom: 8px; }
+    .gate-card p { font-size: .8rem; color: var(--muted); margin-bottom: 20px; }
+    .gate-btn {
+      display: inline-block; padding: 10px 24px;
+      background: rgba(41,182,217,0.15); color: var(--blue);
+      border: 1px solid rgba(41,182,217,0.3); border-radius: 8px;
+      text-decoration: none; font-size: .82rem; font-weight: 700;
+    }
+
+    @media (max-width: 480px) {
+      .entry-time { display: none; }
+      .filter-summary { width: 100%; margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Audit Log</div>
+      <p class="page-sub">Every supervisor and worker action recorded for your hive — for compliance review and team transparency.</p>
+    </div>
+    <span id="hive-pill" class="hive-pill" style="display:none;"></span>
+  </div>
+
+  <!-- Hive gate (no HIVE_ID) -->
+  <div id="gate-no-hive" class="gate-card" style="display:none;">
+    <div style="font-size:1.6rem; margin-bottom:8px;">🐝</div>
+    <h2>Join a hive to see the audit log</h2>
+    <p>The audit log records actions inside your hive. You need to be in a hive to view it.</p>
+    <a class="gate-btn" href="hive.html">Open Hive Board</a>
+  </div>
+
+  <!-- Role gate (not supervisor) -->
+  <div id="gate-not-supervisor" class="gate-card" style="display:none;">
+    <div style="font-size:1.6rem; margin-bottom:8px;">🔒</div>
+    <h2>Supervisors only</h2>
+    <p>The audit log is visible to hive supervisors so they can review approval, rejection, and member-management decisions.</p>
+    <a class="gate-btn" href="index.html">Back to Home</a>
+  </div>
+
+  <!-- Main content -->
+  <div id="main-content" style="display:none;">
+    <div class="filter-bar">
+      <div class="filter-row" id="date-filters" role="tablist" aria-label="Date range"></div>
+      <div class="filter-row">
+        <select id="actor-filter" class="filter-select" aria-label="Filter by actor">
+          <option value="">All actors</option>
+        </select>
+        <select id="action-filter" class="filter-select" aria-label="Filter by action">
+          <option value="">All actions</option>
+        </select>
+        <select id="target-filter" class="filter-select" aria-label="Filter by target type">
+          <option value="">All targets</option>
+        </select>
+        <input id="search-input" class="filter-input" type="search" placeholder="Search target name or actor..." aria-label="Search audit entries" />
+      </div>
+      <div class="filter-row">
+        <div class="filter-actions">
+          <button id="btn-export" class="btn-export" type="button" aria-label="Export filtered entries to CSV">⬇ Export CSV</button>
+          <button id="btn-clear" class="btn-clear" type="button" aria-label="Clear all filters">Clear filters</button>
+        </div>
+        <div id="filter-summary" class="filter-summary"></div>
+      </div>
+    </div>
+
+    <div id="feed" class="feed">
+      <div class="loading">Loading audit log...</div>
+    </div>
+    <div id="empty" class="empty" style="display:none;">
+      <div class="empty-icon">📋</div>
+      <div class="empty-title">No audit entries yet</div>
+      <div class="empty-sub">Supervisor and worker actions will appear here as they happen.</div>
+    </div>
+    <div id="footer-meta" class="footer-meta"></div>
+  </div>
+
+</div>
+
+<script src="nav-hub.js"></script>
+<script>
+(async function () {
+  'use strict';
+
+  const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ── Identity / hive / role gate ────────────────────────────────────────────
+  let WORKER_NAME = localStorage.getItem('wh_last_worker')
+                  || localStorage.getItem('wh_worker_name')
+                  || localStorage.getItem('workerName') || '';
+  if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
+  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+
+  const HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
+  const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
+  const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+
+  if (!HIVE_ID) {
+    document.getElementById('gate-no-hive').style.display = 'block';
+    return;
+  }
+  if (HIVE_ROLE !== 'supervisor') {
+    document.getElementById('gate-not-supervisor').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('main-content').style.display = 'block';
+  if (HIVE_NAME) {
+    const pill = document.getElementById('hive-pill');
+    pill.textContent = '🐝 ' + HIVE_NAME;
+    pill.style.display = 'inline-block';
+  }
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  const RANGES = [
+    { id: '24h',  label: '24h',   hours: 24 },
+    { id: '7d',   label: '7 days', hours: 24 * 7 },
+    { id: '30d',  label: '30 days', hours: 24 * 30 },
+    { id: '90d',  label: '90 days', hours: 24 * 90 },
+    { id: 'all',  label: 'All time', hours: null },
+  ];
+  let _entries     = [];
+  let _activeRange = '7d';
+  let _activeActor = '';
+  let _activeAction = '';
+  let _activeTarget = '';
+  let _searchTerm  = '';
+  let _expanded    = new Set();
+  let _realtimeSub = null;
+
+  // ── Realtime subscription — auto-refresh on insert ─────────────────────────
+  function subscribeRealtime() {
+    if (_realtimeSub) return;
+    _realtimeSub = db
+      .channel('hive_audit_log:' + HIVE_ID)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'hive_audit_log',
+        filter: 'hive_id=eq.' + HIVE_ID,
+      }, () => { loadEntries(); })
+      .subscribe();
+  }
+  function unsubscribeRealtime() {
+    if (!_realtimeSub) return;
+    db.removeChannel(_realtimeSub);
+    _realtimeSub = null;
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { unsubscribeRealtime(); }
+    else { loadEntries(); subscribeRealtime(); }
+  });
+  window.addEventListener('beforeunload', unsubscribeRealtime);
+
+  // ── Wire filter controls ───────────────────────────────────────────────────
+  document.getElementById('actor-filter').addEventListener('change', (e) => {
+    _activeActor = e.target.value; renderFeed();
+  });
+  document.getElementById('action-filter').addEventListener('change', (e) => {
+    _activeAction = e.target.value; renderFeed();
+  });
+  document.getElementById('target-filter').addEventListener('change', (e) => {
+    _activeTarget = e.target.value; renderFeed();
+  });
+  document.getElementById('search-input').addEventListener('input', (e) => {
+    _searchTerm = (e.target.value || '').toLowerCase().trim(); renderFeed();
+  });
+  document.getElementById('btn-export').addEventListener('click', exportCsv);
+  document.getElementById('btn-clear').addEventListener('click', () => {
+    _activeActor = ''; _activeAction = ''; _activeTarget = ''; _searchTerm = '';
+    document.getElementById('actor-filter').value  = '';
+    document.getElementById('action-filter').value = '';
+    document.getElementById('target-filter').value = '';
+    document.getElementById('search-input').value  = '';
+    renderFeed();
+  });
+
+  await loadEntries();
+  subscribeRealtime();
+
+  // ── Data load ──────────────────────────────────────────────────────────────
+  async function loadEntries() {
+    const range = RANGES.find(r => r.id === _activeRange) || RANGES[1];
+    let q = db.from('hive_audit_log')
+      .select('id, actor, action, target_type, target_id, target_name, meta, created_at')
+      .eq('hive_id', HIVE_ID)
+      .order('created_at', { ascending: false })
+      .limit(500);
+    if (range.hours) {
+      const since = new Date(Date.now() - range.hours * 3600 * 1000).toISOString();
+      q = q.gte('created_at', since);
+    }
+    const { data, error } = await q;
+    if (error) {
+      document.getElementById('feed').innerHTML =
+        '<div class="loading" style="color:var(--red);">Failed to load: ' + escHtml(error.message) + '</div>';
+      return;
+    }
+    _entries = data || [];
+    renderRangeFilter();
+    renderDropdowns();
+    renderFeed();
+    document.getElementById('footer-meta').textContent =
+      'Last refreshed ' + fmtTime(new Date()) + ' · Live updates on';
+  }
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+  function renderRangeFilter() {
+    const e = escHtml;
+    document.getElementById('date-filters').innerHTML = RANGES.map(r => {
+      const active = r.id === _activeRange ? ' active' : '';
+      return '<button class="chip' + active + '" data-range="' + e(r.id) + '" role="tab" aria-selected="' + (active ? 'true' : 'false') + '">' + e(r.label) + '</button>';
+    }).join('');
+    document.querySelectorAll('#date-filters .chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        _activeRange = btn.getAttribute('data-range');
+        loadEntries();
+      });
+    });
+  }
+
+  function renderDropdowns() {
+    const actors  = Array.from(new Set(_entries.map(e => e.actor).filter(Boolean))).sort();
+    const actions = Array.from(new Set(_entries.map(e => e.action).filter(Boolean))).sort();
+    const targets = Array.from(new Set(_entries.map(e => e.target_type).filter(Boolean))).sort();
+
+    function fillSelect(id, items, currentValue) {
+      const sel = document.getElementById(id);
+      const first = sel.options[0];
+      sel.innerHTML = '';
+      sel.appendChild(first);
+      for (const v of items) {
+        const opt = document.createElement('option');
+        opt.value = v; opt.textContent = v;
+        if (v === currentValue) opt.selected = true;
+        sel.appendChild(opt);
+      }
+    }
+    fillSelect('actor-filter',  actors,  _activeActor);
+    fillSelect('action-filter', actions, _activeAction);
+    fillSelect('target-filter', targets, _activeTarget);
+  }
+
+  function applyFilters() {
+    return _entries.filter(en => {
+      if (_activeActor  && en.actor       !== _activeActor)  return false;
+      if (_activeAction && en.action      !== _activeAction) return false;
+      if (_activeTarget && en.target_type !== _activeTarget) return false;
+      if (_searchTerm) {
+        const hay = ((en.target_name || '') + ' ' + (en.actor || '') + ' ' + (en.action || '') + ' ' + (en.target_id || '')).toLowerCase();
+        if (!hay.includes(_searchTerm)) return false;
+      }
+      return true;
+    });
+  }
+
+  function renderFeed() {
+    const items = applyFilters();
+    const feed  = document.getElementById('feed');
+    const empty = document.getElementById('empty');
+    const summary = document.getElementById('filter-summary');
+
+    summary.textContent = items.length + ' of ' + _entries.length + ' entries';
+
+    if (!items.length) {
+      feed.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    const e = escHtml;
+    feed.innerHTML = items.map(en => {
+      const actionClass = classifyAction(en.action);
+      const icon  = iconForAction(en.action);
+      const meta  = (en.meta && typeof en.meta === 'object') ? en.meta : null;
+      const hasMeta = meta && Object.keys(meta).length > 0;
+      const expanded = _expanded.has(en.id);
+      const prettyAction = (en.action || '').replace(/_/g, ' ');
+
+      return '<div class="entry action-' + e(actionClass) + '">'
+           +   '<div class="entry-icon">' + e(icon) + '</div>'
+           +   '<div class="entry-body">'
+           +     '<div class="entry-head">'
+           +       '<span class="entry-actor">' + e(en.actor || 'unknown') + '</span>'
+           +       '<span class="entry-action">' + e(prettyAction) + '</span>'
+           +       (en.target_name ? '<span class="entry-target">' + e(en.target_name) + '</span>' : '')
+           +       (en.target_type ? '<span class="entry-target-type">(' + e(en.target_type) + ')</span>' : '')
+           +       '<span class="entry-time" title="' + e(en.created_at || '') + '">' + e(fmtRelative(en.created_at)) + '</span>'
+           +     '</div>'
+           +     (hasMeta
+                  ? '<button class="entry-meta-toggle" data-id="' + e(en.id) + '" aria-expanded="' + (expanded ? 'true' : 'false') + '">'
+                    + (expanded ? '▾ Hide details' : '▸ Show details')
+                    + '</button>'
+                    + (expanded ? '<pre class="entry-meta">' + e(JSON.stringify(meta, null, 2)) + '</pre>' : '')
+                  : '')
+           +   '</div>'
+           + '</div>';
+    }).join('');
+
+    document.querySelectorAll('.entry-meta-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        if (_expanded.has(id)) _expanded.delete(id); else _expanded.add(id);
+        renderFeed();
+      });
+    });
+  }
+
+  // ── CSV export — supervisor-friendly compliance artifact ────────────────────
+  function exportCsv() {
+    const items = applyFilters();
+    if (!items.length) { alert('No entries to export.'); return; }
+    const headers = ['created_at', 'actor', 'action', 'target_type', 'target_id', 'target_name', 'meta'];
+    const lines = [headers.join(',')];
+    for (const en of items) {
+      const row = [
+        en.created_at || '',
+        en.actor || '',
+        en.action || '',
+        en.target_type || '',
+        en.target_id || '',
+        en.target_name || '',
+        en.meta ? JSON.stringify(en.meta) : '',
+      ].map(csvEscape);
+      lines.push(row.join(','));
+    }
+    const blob = new Blob([lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = 'audit-log-' + (HIVE_NAME || 'hive').replace(/[^A-Za-z0-9_-]/g, '_') + '-' + stamp + '.csv';
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 0);
+  }
+
+  function csvEscape(v) {
+    const s = String(v == null ? '' : v);
+    if (/[",\r\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  // ── Action classification (drives left-border colour + icon) ───────────────
+  function classifyAction(a) {
+    const s = (a || '').toLowerCase();
+    if (s.includes('approve')) return 'approve';
+    if (s.includes('reject'))  return 'reject';
+    if (s.includes('kick'))    return 'kick';
+    if (s.includes('join') || s.includes('member_joined')) return 'join';
+    if (s.includes('edit') || s.includes('update')) return 'edit';
+    if (s.includes('delete') || s.includes('remove')) return 'delete';
+    return 'other';
+  }
+  function iconForAction(a) {
+    return ({
+      approve: '✓', reject: '✗', kick: '⛔', join: '➕',
+      edit: '✎', delete: '🗑', other: '•'
+    })[classifyAction(a)] || '•';
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function fmtRelative(iso) {
+    if (!iso) return '';
+    const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+    if (diff < 60)    return 'just now';
+    if (diff < 3600)  return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return Math.floor(diff / 86400) + 'd ago';
+  }
+  function fmtTime(d) {
+    return d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
+  }
+
+})();
+</script>
+</body>
+</html>

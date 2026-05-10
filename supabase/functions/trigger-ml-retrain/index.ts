@@ -46,12 +46,14 @@ serve(async (req) => {
         .eq("status", "done")
         .limit(5000),
 
-      db.from("pm_scope_items")
+      db.from("v_pm_scope_items_truth")    // canonical
         .select("id, asset_id, frequency, item_text")
         .limit(2000),
 
+      // inventory_transactions has no part_name — only item_id (FK). Embed
+      // via PostgREST then flatten before passing to the Python training job.
       db.from("inventory_transactions")
-        .select("part_name, qty_change, type, created_at, hive_id")
+        .select("qty_change, type, created_at, hive_id, item:inventory_items(part_name)")
         .order("created_at", { ascending: false })
         .limit(5000),
     ]);
@@ -59,7 +61,14 @@ serve(async (req) => {
     const logbook        = logRes.status    === "fulfilled" ? (logRes.value.data    || []) : [];
     const pm_completions = compsRes.status  === "fulfilled" ? (compsRes.value.data  || []) : [];
     const pm_scope_items = scopeRes.status  === "fulfilled" ? (scopeRes.value.data  || []) : [];
-    const inv_transactions = txnsRes.status === "fulfilled" ? (txnsRes.value.data   || []) : [];
+    const rawTxns        = txnsRes.status   === "fulfilled" ? (txnsRes.value.data   || []) : [];
+    const inv_transactions = rawTxns.map((t: Record<string, unknown>) => ({
+      qty_change: t.qty_change,
+      type:       t.type,
+      created_at: t.created_at,
+      hive_id:    t.hive_id,
+      part_name:  (t.item as Record<string, string> | null)?.part_name || "(unknown part)",
+    }));
 
     if (logbook.length < 10) {
       return new Response(

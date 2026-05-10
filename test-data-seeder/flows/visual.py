@@ -27,12 +27,14 @@ PAGES = [
     "asset-hub.html",
     "shift-brain.html",
     "alert-hub.html",
+    "audit-log.html",
 ]
 
 # Pages that render dynamic content (dates, live data) — captured but never compared.
 # On first run a baseline is saved; on subsequent runs comparison is skipped (PASS).
 VISUAL_SKIP = {
     "dayplanner.html",   # renders today's date — always different each run
+    "audit-log.html",    # entries show "5m ago"-style relative timestamps that drift each run
 }
 
 BASELINES_DIR = Path(__file__).resolve().parent.parent / ".tmp" / "visual_baselines"

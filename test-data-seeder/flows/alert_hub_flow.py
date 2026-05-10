@@ -42,6 +42,11 @@ def run(page, errors, warnings, log) -> dict:
     # ── Step 1: Seed a critical asset_risk_scores row ────────────────────────
     log("Step 1: Seeding critical risk score for Pump CP-201...")
     try:
+        # top_factors uses Phase 5a structured shape ([{factor, weight, value,
+        # contribution, explanation}]) so consumers that only handle the legacy
+        # string-array shape surface as [object Object] in the tester rather
+        # than first appearing in production. alert-hub.html bug 2026-05-10
+        # was masked by the prior legacy-only seeder.
         db.table("asset_risk_scores").insert({
             "hive_id":       hive_id,
             "asset_name":    "Centrifugal Pump CP-201 (alert-test)",
@@ -49,8 +54,12 @@ def run(page, errors, warnings, log) -> dict:
             "risk_level":    "critical",
             "health_score":  9.0,
             "mtbf_days":     21.0,
-            "top_factors":   ["pm_overdue", "repeat_fault", "mtbf_approaching"],
-            "model_version": "rules-v1",
+            "top_factors": [
+                {"factor": "pm_overdue",         "weight": 0.35, "value": 1.0, "contribution": 0.42, "explanation": "PM is 21 days overdue"},
+                {"factor": "repeat_fault",       "weight": 0.30, "value": 0.8, "contribution": 0.30, "explanation": "3 same-symptom failures in last 30 days"},
+                {"factor": "mtbf_approaching",   "weight": 0.20, "value": 0.6, "contribution": 0.18, "explanation": "Next failure expected within MTBF window"},
+            ],
+            "model_version": "rules-v2",
         }).execute()
         results.append(("PASS", "Risk alert seeded (Pump CP-201, critical)"))
     except Exception as e:

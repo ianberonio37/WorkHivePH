@@ -75,6 +75,7 @@ PUBLIC_PAGES = [
     ("asset-hub.html", "Asset Hub"),
     ("shift-brain.html", "Shift Brain"),
     ("alert-hub.html", "Alert Hub"),
+    ("audit-log.html", "Audit Log"),
 ]
 PUBLIC_PAGE_SET = {p[0] for p in PUBLIC_PAGES}
 
@@ -94,7 +95,13 @@ JOB_STATE = {
 def _log_to_state(msg: str):
     ts = datetime.now(timezone.utc).strftime("%H:%M:%S")
     JOB_STATE["log"].append(f"[{ts}] {msg}")
-    print(msg)
+    # Console may be cp1252 on stock Windows; a stray Unicode arrow or emoji
+    # would crash the worker thread mid-job. Fall back to ASCII replacement.
+    try:
+        print(msg)
+    except UnicodeEncodeError:
+        enc = sys.stdout.encoding or "ascii"
+        print(msg.encode(enc, "replace").decode(enc, "replace"))
 
 
 def _run_job(name: str, fn):
@@ -182,7 +189,10 @@ def get_db_counts():
               "pm_completions", "inventory_items", "inventory_transactions",
               "skill_profiles", "skill_badges", "marketplace_listings",
               "community_posts",
-              "projects", "project_items", "project_links", "project_progress_logs"]:
+              "projects", "project_items", "project_links", "project_progress_logs",
+              "asset_nodes", "shift_plans", "failure_signature_alerts",
+              "asset_risk_scores", "parts_staging_recommendations",
+              "parts_staged_reservations", "worker_achievements"]:
         try:
             res = client.table(t).select("id", count="exact").limit(1).execute()
             counts[t] = res.count or 0
@@ -371,8 +381,10 @@ def _run_subprocess(script_name: str, log):
     py = Path(__file__).parent / "venv" / "Scripts" / "python.exe"
     if not py.exists():
         py = "python"
+    # -u: unbuffered stdout/stderr, so the live log streams in real time
+    # instead of pooling lines until the OS pipe buffer fills.
     proc = subprocess.Popen(
-        [str(py), str(runner)],
+        [str(py), "-u", str(runner)],
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
         cwd=str(Path(__file__).parent), bufsize=1,
         text=True, encoding="utf-8", errors="replace",
@@ -605,7 +617,8 @@ def _run_release_gate(extra_args: list = None):
         if not gate.exists():
             log(f"ERROR: release_gate.py not found at {gate}")
             return {"exit_code": 1}
-        cmd = [sys.executable, str(gate)] + (extra_args or [])
+        # -u: unbuffered stdout/stderr, so live log streams in real time.
+        cmd = [sys.executable, "-u", str(gate)] + (extra_args or [])
         proc = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT,

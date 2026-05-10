@@ -28,3 +28,7 @@ npx supabase functions deploy parts-staging-recommender --no-verify-jwt
 npx supabase functions deploy trigger-ml-retrain --no-verify-jwt
 npx supabase functions deploy asset-brain-query --no-verify-jwt
 npx supabase functions deploy shift-planner-orchestrator --no-verify-jwt
+npx supabase functions deploy voice-action-router --no-verify-jwt
+npx supabase functions deploy fmea-populator --no-verify-jwt
+npx supabase functions deploy weibull-fitter --no-verify-jwt
+npx supabase functions deploy pf-calculator --no-verify-jwt

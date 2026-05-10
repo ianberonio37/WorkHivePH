@@ -77,6 +77,20 @@ SYSTEM_TABLES_IGNORED = {
     "messages", "subscription", "tenants", "extensions",
 }
 
+# Catalog / reference tables populated only by migration INSERTs (no Python
+# seeder). Wiping them breaks FK-using DB triggers on the next user action.
+# Reset.py must NOT clear these; this validator must NOT flag them as missing.
+# Surfaced 2026-05-09 when achievement_definitions wipe broke PM completion
+# triggers (FK violation on worker_achievements_achievement_id_fkey).
+CATALOG_TABLES_IGNORED = {
+    "achievement_definitions",
+    "equipment_reading_templates",
+    # Platform metadata: seeded only by migrations (canonical_sources
+    # foundation + per-truth registration migrations). Wiping it loses the
+    # registry that AI agents read to find canonical truth sources.
+    "canonical_sources",
+}
+
 
 def _strip_sql_comments(sql: str) -> str:
     sql = re.sub(r"--[^\n]*", "", sql)
@@ -116,7 +130,7 @@ def parse_migrations() -> set:
             name = m.group(1).lower()
             tables.discard(name)
 
-    return tables - SYSTEM_TABLES_IGNORED
+    return tables - SYSTEM_TABLES_IGNORED - CATALOG_TABLES_IGNORED
 
 
 def parse_reset_py() -> tuple[set, set]:

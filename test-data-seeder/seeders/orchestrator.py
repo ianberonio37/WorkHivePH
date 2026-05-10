@@ -1,6 +1,7 @@
 """Top-level orchestrator that runs all seeders in dependency order."""
 import random
 
+from .catalogs import seed_catalogs
 from .hives_workers import seed_hives_and_workers
 from .assets import seed_assets
 from .pm import seed_pm
@@ -14,11 +15,13 @@ from .dayplanner import seed_dayplanner
 from .engineering import seed_engineering
 from .fault_knowledge import seed_fault_knowledge
 from .asset_brain import seed_asset_brain
+from .reliability import seed_reliability
 from .risk_scores import seed_risk_scores
 from .shift_plans import seed_shift_plans
 from .failure_alerts import seed_failure_alerts
 from .parts_staging import seed_parts_staging
 from .parts_reservations import seed_parts_reservations
+from .achievements import seed_achievements
 from .edge_post_seed import run_post_seed_edges
 
 
@@ -38,6 +41,10 @@ def seed_everything(client, log) -> dict:
 
     ctx: dict = {}
 
+    # Step 0: catalogs (must come before anything that triggers DB-side
+    # achievement writes, which FK into achievement_definitions).
+    step0 = seed_catalogs(client, log)
+
     step1 = seed_hives_and_workers(client, log)
     ctx.update(step1)
 
@@ -56,12 +63,16 @@ def seed_everything(client, log) -> dict:
     step12 = seed_fault_knowledge(client, log, ctx)  # depends on seeded logbook
     # Phase A onward: graph + intelligence layers (depend on assets being in ctx)
     step12a = seed_asset_brain(client, log, ctx)
+    # Phase R: Reliability Workbench (FMEA / RCM / Weibull / P-F).
+    # Depends on asset_nodes existing (asset_brain inserts them).
+    step12a2 = seed_reliability(client, log, ctx)
     step12b = seed_risk_scores(client, log, ctx)
     step12c = seed_shift_plans(client, log, ctx)
     step12d = seed_failure_alerts(client, log, ctx)
     # Auto-Staging surfaces (must run AFTER risk_scores + inventory exist)
     step12e = seed_parts_staging(client, log, ctx)
     step12f = seed_parts_reservations(client, log, ctx)
+    seed_achievements(client, log)   # reads hive_members; no ctx, no return dict
     step13 = run_post_seed_edges(client, log, ctx)   # depends on logbook + assets
 
     log("=" * 50)
@@ -69,6 +80,7 @@ def seed_everything(client, log) -> dict:
     log("=" * 50)
 
     return {
+        **step0,
         "hives": len(ctx["hives"]),
         "workers": len(ctx["workers"]),
         "assets": len(ctx["assets"]),
@@ -83,6 +95,7 @@ def seed_everything(client, log) -> dict:
         **step11,
         **step12,
         **step12a,
+        **{f"reliability_{k}": v for k, v in step12a2.items()},
         **step12b,
         **step12c,
         **step12d,

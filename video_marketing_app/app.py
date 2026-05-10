@@ -227,7 +227,10 @@ Rules:
 - At least one idea targets field technicians, one targets supervisors or managers
 - ALL copy (title, hook, problem) must be in PLAIN SIMPLE ENGLISH — no Tagalog, no Taglish, no code-switching, no Filipino slang
 - Use short, common words. Short sentences. Anyone reading at high-school English level should follow it.
-- The 9 newer features (Analytics & OEE Dashboard, Predictive Analytics, Asset Brain, Shift Brain, Achievements, Alert Hub, PH Industry Intelligence, CMMS Integrations, Project Manager) are revolutionary platform capabilities — frame them with the energy of a breakthrough, not a routine feature.
+- The 10 newer features (Analytics & OEE Dashboard, Predictive Analytics, Asset Brain, Shift Brain, Achievements, Alert Hub, PH Industry Intelligence, CMMS Integrations, Project Manager, Audit Log & Compliance) are revolutionary platform capabilities — frame them with the energy of a breakthrough, not a routine feature.
+- Predictive Analytics now includes Auto-Staging: when the model predicts a failure, the system automatically reserves the spare parts in inventory. This "predict + prepare in one step" angle is unique in the Philippines industrial market.
+- Reliability math layer (Weibull, P-F intervals, FMEA) is real engineering science, not just ML guesses — credibility angle for sceptical engineers.
+- Voice Command Routing means workers can log entries, request status, and trigger actions hands-free while wearing PPE.
 
 Return ONLY a valid JSON array of {n} objects in the SAME ORDER as the assignments above, no markdown fences, no explanation:
 [
@@ -487,10 +490,14 @@ def _extract_music_direction(script_content: str) -> str:
     return match.group(1).strip() if match else ""
 
 
-async def _generate_tts(text: str, voice_id: str, out_path: Path):
-    import edge_tts
-    communicate = edge_tts.Communicate(text, voice_id)
-    await communicate.save(str(out_path))
+def _generate_tts_sync(text: str, voice_id: str, out_path: Path):
+    """
+    Synchronous TTS generation using the resilient tts_engine module:
+    Edge TTS subprocess (timeout-protected) -> gTTS fallback.
+    No asyncio in Flask threads. Raises RuntimeError if both providers fail.
+    """
+    from tools.tts_engine import generate_tts
+    return generate_tts(text, voice_id, out_path)
 
 
 @app.route("/api/voices")
@@ -523,19 +530,7 @@ def generate_voice(idea_id):
 
     print(f"  [voice] {idea_id} -> {voice_key} ({voice_id}), {len(narration)} chars")
     try:
-        # Use a fresh event loop per request — avoids 'event loop already running'
-        # issues on Windows when Auto-Produce is also running in a background thread.
-        loop = asyncio.new_event_loop()
-        try:
-            loop.run_until_complete(
-                asyncio.wait_for(_generate_tts(narration, voice_id, out_file), timeout=120)
-            )
-        finally:
-            loop.close()
-
-        if not out_file.exists() or out_file.stat().st_size < 1000:
-            raise RuntimeError("Edge TTS returned no audio (file missing or empty)")
-
+        _generate_tts_sync(narration, voice_id, out_file)
         size_kb = out_file.stat().st_size // 1024
         print(f"  [voice] OK: {out_file.name} ({size_kb} KB)")
         return jsonify({
@@ -545,12 +540,6 @@ def generate_voice(idea_id):
             "narration":  narration,
             "char_count": len(narration),
         })
-    except asyncio.TimeoutError:
-        print(f"  [voice] TIMEOUT after 120s")
-        return jsonify({
-            "success": False,
-            "error":   "Edge TTS timed out after 120s — Microsoft service may be down. Try again, or pick a different voice.",
-        }), 504
     except Exception as exc:
         import traceback; traceback.print_exc()
         return jsonify({"success": False, "error": f"{type(exc).__name__}: {exc}"}), 500
@@ -717,6 +706,13 @@ def auto_download_scene(idea_id):
             "industrial project team meeting",
             "manufacturing capex planning",
             "engineer project Gantt chart",
+        ],
+        "Audit Log & Compliance": [
+            "factory compliance inspector clipboard",
+            "industrial ISO audit",
+            "manager reviewing documents",
+            "industrial paperwork stamp signature",
+            "auditor walking through plant",
         ],
     }
     queries = queries_map.get(feature, [
@@ -1036,16 +1032,8 @@ def _stage_voice(idea, voice_key):
     out_file = VOICES / f"{idea['id']}_{voice_key}.mp3"
     if out_file.exists() and out_file.stat().st_size > 1000:
         return out_file
-    # Fresh event loop per call — avoids cross-thread loop conflicts on Windows
-    loop = asyncio.new_event_loop()
-    try:
-        loop.run_until_complete(
-            asyncio.wait_for(_generate_tts(narration, voice_id, out_file), timeout=120)
-        )
-    finally:
-        loop.close()
-    if not out_file.exists() or out_file.stat().st_size < 1000:
-        raise RuntimeError("Edge TTS returned no audio")
+    # Resilient TTS: Edge subprocess -> gTTS fallback, no in-process asyncio
+    _generate_tts_sync(narration, voice_id, out_file)
     return out_file
 
 

@@ -225,6 +225,134 @@
     }
     .add-edge-btn:hover { background: rgba(247,162,27,0.25); }
 
+    /* Phase R.2: Reliability tab strip + FMEA rows */
+    .rel-tab {
+      flex: 1;
+      min-height: 36px;
+      padding: 6px 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 0.45rem;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .rel-tab.active   { background: rgba(167,139,250,0.18); color: #a78bfa; border-color: rgba(167,139,250,0.45); }
+    .rel-tab[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+    .fmea-row {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 0.55rem;
+      padding: 0.6rem 0.8rem;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .fmea-row-head {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .fmea-rpn {
+      font-size: 0.75rem; font-weight: 800;
+      padding: 2px 8px; border-radius: 6px; min-width: 36px; text-align: center;
+    }
+    .fmea-rpn-low      { background: rgba(74,222,128,0.18);  color: #6ee7a8; }
+    .fmea-rpn-medium   { background: rgba(247,162,27,0.18);  color: #ffc566; }
+    .fmea-rpn-high     { background: rgba(251,146,60,0.20);  color: #ffb072; }
+    .fmea-rpn-critical { background: rgba(239,87,87,0.22);   color: #ff8a8a; }
+    .fmea-sod {
+      display: inline-flex; gap: 4px; font-size: 0.62rem; color: rgba(255,255,255,0.55);
+    }
+    .fmea-sod span {
+      background: rgba(255,255,255,0.05); padding: 1px 6px; border-radius: 3px;
+    }
+    .fmea-source-pill {
+      display: inline-block; padding: 1px 7px; border-radius: 999px;
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em;
+    }
+    .fmea-source-manual    { background: rgba(255,255,255,0.06); color: var(--muted); }
+    .fmea-source-ai        { background: rgba(167,139,250,0.18); color: #c7b6fb; }
+    .fmea-status-pending   { background: rgba(247,162,27,0.18); color: #ffc566; }
+    .fmea-status-approved  { background: rgba(74,222,128,0.16); color: #6ee7a8; }
+    .fmea-row-actions {
+      display: flex; gap: 6px; margin-top: 2px;
+    }
+    .fmea-row-actions button {
+      font-size: 0.66rem; padding: 4px 9px; border-radius: 5px;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      color: #F4F6FA; cursor: pointer; font-family: inherit;
+    }
+    .fmea-row-actions .approve { background: rgba(74,222,128,0.16); color: #6ee7a8; border-color: rgba(74,222,128,0.3); }
+    .fmea-row-actions .delete  { background: rgba(239,87,87,0.14);  color: #ff8a8a; border-color: rgba(239,87,87,0.3); }
+
+    /* Phase R.4 — RCM strategy strip below each FMEA row */
+    .rcm-strip {
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+      margin-top: 4px; padding-top: 6px;
+      border-top: 1px dashed rgba(255,255,255,0.08);
+      font-size: 0.7rem;
+    }
+    .rcm-pill {
+      display: inline-block; padding: 2px 8px; border-radius: 999px;
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: lowercase;
+    }
+    .rcm-decision-run_to_failure         { background: rgba(255,255,255,0.06); color: var(--muted); }
+    .rcm-decision-scheduled_on_condition { background: rgba(56,189,248,0.18);  color: #7dd3fc; }
+    .rcm-decision-scheduled_restoration  { background: rgba(74,222,128,0.18);  color: #6ee7a8; }
+    .rcm-decision-scheduled_discard      { background: rgba(247,162,27,0.18);  color: #ffc566; }
+    .rcm-decision-failure_finding        { background: rgba(167,139,250,0.20); color: #c7b6fb; }
+    .rcm-decision-redesign_required      { background: rgba(239,87,87,0.20);   color: #ff8a8a; }
+    .rcm-task-text  { color: rgba(255,255,255,0.78); }
+    .rcm-interval   { color: var(--muted); font-size: 0.65rem; }
+    .rcm-pm-linked  { color: #6ee7a8; font-size: 0.62rem; }
+    .rcm-no-strategy { color: var(--muted); font-style: italic; font-size: 0.66rem; }
+
+    /* Phase R.5 — Weibull pattern pill colors (bathtub regions) */
+    .weibull-pattern-pill {
+      display: inline-block; padding: 4px 12px; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: lowercase;
+      background: rgba(255,255,255,0.06); color: var(--muted);
+    }
+    .weibull-pattern-infant   { background: rgba(56,189,248,0.20);  color: #7dd3fc; }
+    .weibull-pattern-random   { background: rgba(167,139,250,0.20); color: #c7b6fb; }
+    .weibull-pattern-wearout  { background: rgba(247,162,27,0.20);  color: #ffc566; }
+    .weibull-pattern-insufficient_data { background: rgba(255,255,255,0.06); color: var(--muted); }
+
+    /* FMEA + RCM modals — share visual language with edge-modal */
+    #fmea-modal, #rcm-modal {
+      position: fixed; inset: 0; z-index: 9100;
+      background: rgba(10,18,28,0.85); backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center;
+      padding: 1.5rem; overflow-y: auto;
+    }
+    #fmea-modal.open, #rcm-modal.open { display: flex; }
+    #fmea-modal-card, #rcm-modal-card {
+      background: linear-gradient(145deg, rgba(42,61,88,0.97), rgba(22,32,50,0.99));
+      border: 1px solid var(--border);
+      border-radius: 1.25rem; padding: 1.5rem 1.25rem;
+      width: 100%; max-width: 460px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+      max-height: 92vh; overflow-y: auto;
+    }
+    #fmea-modal h3, #rcm-modal h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.85rem; }
+    #fmea-modal label, #rcm-modal label {
+      display: block; font-size: 0.7rem; color: var(--muted);
+      letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px;
+    }
+    #fmea-modal input, #fmea-modal select,
+    #rcm-modal input, #rcm-modal select {
+      width: 100%; height: 42px; border-radius: 0.55rem;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: #F4F6FA; padding: 0 0.7rem;
+      font-size: 16px; /* iOS auto-zoom rule */
+      font-family: inherit; margin-bottom: 0.85rem;
+    }
+    #fmea-modal select option, #rcm-modal select option { background: #162032; color: #F4F6FA; }
+
     /* Edge editor modal */
     #edge-modal {
       position: fixed; inset: 0; z-index: 9100;
@@ -312,6 +440,16 @@
       <div id="list-empty" class="empty" style="display:none;">
         No approved assets in this hive yet. Add equipment via PM Scheduler or Inventory and they will surface here once approved.
       </div>
+
+      <!-- Supervisor-only: pending asset_nodes approval queue. Hidden when there are
+           no pending or rejected entries; expanded inline when there are. -->
+      <div id="pending-assets-card" class="section-card" style="display:none; border-left:3px solid #f7a21b; margin-top:1rem;">
+        <div class="section-title" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>Pending asset approvals</span>
+          <span id="pending-assets-count" style="font-size:.7rem; color:var(--muted); background:rgba(247,162,27,0.18); padding:2px 8px; border-radius:8px;"></span>
+        </div>
+        <div id="pending-assets-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+      </div>
     </div>
 
     <!-- DETAIL VIEW -->
@@ -397,6 +535,117 @@
         </div>
       </div>
 
+      <!-- Phase R.2: Reliability Engineering Workbench (FMEA / RCM / Weibull / P-F) -->
+      <div class="section-card" id="reliability-card" style="display:none; border-left:3px solid #a78bfa;">
+        <div class="section-title" style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+          <span>Reliability</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button id="reliability-report-btn" class="add-edge-btn" style="min-height:44px; padding:8px 14px; background:rgba(167,139,250,0.18); border-color:rgba(167,139,250,0.35); color:#c7b6fb; font-size:.72rem;" title="Print-ready Reliability Report (Phase R.7) — assembles FMEA + RCM + Weibull + P-F into one auditor-friendly document.">Print Report</button>
+            <span style="font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#a78bfa;">SAE JA1011 / AIAG-VDA</span>
+          </div>
+        </div>
+        <div class="reliability-tabs" role="tablist" style="display:flex; gap:4px; margin-bottom:0.6rem; border-bottom:1px solid var(--border); padding-bottom:0.4rem;">
+          <button class="rel-tab active" data-tab="fmea"    role="tab">FMEA</button>
+          <button class="rel-tab"        data-tab="weibull" role="tab" title="Phase R.5 — Weibull MLE fit (lifelines)">Weibull</button>
+          <button class="rel-tab"        data-tab="pf"      role="tab" title="Phase R.6 — P-F interval calculator">P-F</button>
+        </div>
+        <!-- FMEA panel -->
+        <div id="rel-panel-fmea">
+          <div id="fmea-list" style="display:flex; flex-direction:column; gap:5px;"></div>
+          <div id="fmea-empty" class="empty-row" style="display:none; padding:0.85rem; text-align:center;">
+            No FMEA failure modes registered yet. Tap below to add the first one, or use AI auto-populate (Phase R.3) to suggest from logbook history.
+          </div>
+          <div style="display:flex; gap:8px; margin-top:0.65rem; flex-wrap:wrap;">
+            <button id="fmea-add-btn" class="add-edge-btn" style="flex:1; min-width:160px; min-height:44px;">+ Add failure mode</button>
+            <button id="fmea-suggest-btn" class="add-edge-btn" style="flex:1; min-width:200px; min-height:44px; background:rgba(167,139,250,0.18); border-color:rgba(167,139,250,0.35); color:#c7b6fb;" title="Cluster the last 365 days of corrective logbook entries by root cause and let the AI draft FMEA rows for supervisor review.">Suggest from history (AI)</button>
+          </div>
+          <div id="fmea-suggest-status" style="font-size:0.72rem; color:var(--muted); margin-top:0.45rem; min-height:1.1em;"></div>
+        </div>
+
+        <!-- Phase R.5: Weibull panel -->
+        <div id="rel-panel-weibull" style="display:none;">
+          <div id="weibull-summary" style="display:none; flex-direction:column; gap:10px;">
+            <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end;">
+              <div>
+                <div style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Beta (shape)</div>
+                <div id="weibull-beta" style="font-size:1.4rem; font-weight:800;">--</div>
+              </div>
+              <div>
+                <div style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Eta (char. life)</div>
+                <div id="weibull-eta" style="font-size:1.05rem; font-weight:700;">--</div>
+              </div>
+              <div style="flex:1; min-width:160px;">
+                <div style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Pattern</div>
+                <span id="weibull-pattern" class="weibull-pattern-pill">--</span>
+              </div>
+            </div>
+            <div id="weibull-meta" style="font-size:.7rem; color:var(--muted);"></div>
+            <div id="weibull-diagnostic" style="font-size:.78rem; line-height:1.45; padding:0.7rem 0.8rem; border-radius:0.55rem; background:rgba(167,139,250,0.08); border:1px solid rgba(167,139,250,0.18);"></div>
+          </div>
+          <div id="weibull-empty" class="empty-row" style="padding:0.85rem; text-align:center; font-size:.78rem; color:var(--muted);">
+            No Weibull fit computed yet. Tap below to fit from the last 730 days of corrective logbook entries (lifelines.WeibullFitter).
+          </div>
+          <div style="display:flex; gap:8px; margin-top:0.65rem;">
+            <button id="weibull-fit-btn" class="add-edge-btn" style="flex:1; min-height:44px; background:rgba(56,189,248,0.18); border-color:rgba(56,189,248,0.35); color:#7dd3fc;">Compute Weibull fit</button>
+          </div>
+          <div id="weibull-status" style="font-size:0.72rem; color:var(--muted); margin-top:0.45rem; min-height:1.1em;"></div>
+        </div>
+
+        <!-- Phase R.6: P-F interval panel -->
+        <div id="rel-panel-pf" style="display:none;">
+          <div id="pf-form" style="display:flex; flex-direction:column; gap:8px; padding:0.6rem; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:0.55rem;">
+            <label style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Parameter</label>
+            <select id="pf-parameter" style="height:42px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;"></select>
+            <div style="display:flex; gap:8px;">
+              <div style="flex:1;">
+                <label style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">P (warning)</label>
+                <input id="pf-p-threshold" type="number" step="0.01" placeholder="e.g. 4.5" style="width:100%; height:42px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;" />
+              </div>
+              <div style="flex:1;">
+                <label style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">F (failure)</label>
+                <input id="pf-f-threshold" type="number" step="0.01" placeholder="e.g. 7.1" style="width:100%; height:42px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;" />
+              </div>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <label style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Direction</label>
+              <select id="pf-direction" style="height:36px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.55rem; font-size:14px;">
+                <option value="above">above (rising = bad)</option>
+                <option value="below">below (falling = bad)</option>
+              </select>
+              <label style="display:inline-flex; align-items:center; gap:6px; font-size:.7rem; color:var(--muted); cursor:pointer;">
+                <input id="pf-safety-critical" type="checkbox" style="width:16px; height:16px;" />
+                Safety-critical (use P-F/3)
+              </label>
+            </div>
+          </div>
+          <div id="pf-summary" style="display:none; flex-direction:column; gap:10px; margin-top:0.6rem;">
+            <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end;">
+              <div>
+                <div style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">P-F window</div>
+                <div id="pf-pf-days" style="font-size:1.4rem; font-weight:800;">--</div>
+              </div>
+              <div>
+                <div style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Recommended interval</div>
+                <div id="pf-recommended" style="font-size:1.05rem; font-weight:700;">--</div>
+              </div>
+              <div style="flex:1; min-width:140px;">
+                <div style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Basis</div>
+                <span id="pf-basis" class="weibull-pattern-pill">--</span>
+              </div>
+            </div>
+            <div id="pf-meta" style="font-size:.7rem; color:var(--muted);"></div>
+            <div id="pf-diagnostic" style="font-size:.78rem; line-height:1.45; padding:0.7rem 0.8rem; border-radius:0.55rem; background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.16);"></div>
+          </div>
+          <div id="pf-empty" class="empty-row" style="margin-top:0.6rem; padding:0.85rem; text-align:center; font-size:.78rem; color:var(--muted);">
+            Set thresholds and tap Compute to scan readings_json from corrective logbook entries.
+          </div>
+          <div style="display:flex; gap:8px; margin-top:0.65rem;">
+            <button id="pf-compute-btn" class="add-edge-btn" style="flex:1; min-height:44px; background:rgba(56,189,248,0.18); border-color:rgba(56,189,248,0.35); color:#7dd3fc;">Compute P-F interval</button>
+          </div>
+          <div id="pf-status" style="font-size:0.72rem; color:var(--muted); margin-top:0.45rem; min-height:1.1em;"></div>
+        </div>
+      </div>
+
       <div class="section-card">
         <div class="section-title">Timeline</div>
         <div id="timeline-list"></div>
@@ -466,6 +715,95 @@
     </div>
   </div>
 
+  <!-- Phase R.2: FMEA failure-mode modal -->
+  <div id="fmea-modal" role="dialog" aria-modal="true" aria-labelledby="fmea-modal-title">
+    <div id="fmea-modal-card">
+      <h3 id="fmea-modal-title">Add failure mode</h3>
+      <label for="fmea-function">Function (what should this asset do?)</label>
+      <input id="fmea-function" type="text" placeholder="e.g. Maintain 2.5 bar discharge pressure" />
+      <label for="fmea-failure-mode">Failure mode</label>
+      <input id="fmea-failure-mode" type="text" placeholder="e.g. V-belt slipping under load" />
+      <label for="fmea-effect">Effect (what happens when it fails?)</label>
+      <input id="fmea-effect" type="text" placeholder="e.g. Loss of pressure, no flow" />
+      <label for="fmea-cause">Cause (why does it fail?)</label>
+      <input id="fmea-cause" type="text" placeholder="e.g. Worn belt or misalignment" />
+      <label for="fmea-consequence">Consequence class</label>
+      <select id="fmea-consequence">
+        <option value="">(none)</option>
+        <option value="safety">safety</option>
+        <option value="production">production</option>
+        <option value="environment">environment</option>
+        <option value="quality">quality</option>
+        <option value="cost">cost</option>
+      </select>
+      <div style="display:flex; gap:0.5rem;">
+        <div style="flex:1;">
+          <label for="fmea-severity">Severity (1-10)</label>
+          <input id="fmea-severity" type="number" min="1" max="10" step="1" />
+        </div>
+        <div style="flex:1;">
+          <label for="fmea-occurrence">Occurrence (1-10)</label>
+          <input id="fmea-occurrence" type="number" min="1" max="10" step="1" />
+        </div>
+        <div style="flex:1;">
+          <label for="fmea-detection">Detection (1-10)</label>
+          <input id="fmea-detection" type="number" min="1" max="10" step="1" />
+        </div>
+      </div>
+      <div style="font-size:.7rem; color:var(--muted); margin-bottom:0.65rem;">
+        RPN auto-computed by the database (S x O x D). AIAG-VDA 2019 rubric.
+      </div>
+      <div class="edge-actions">
+        <button class="cancel" type="button" id="fmea-cancel">Cancel</button>
+        <button class="save"   type="button" id="fmea-save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase R.4: RCM strategy modal (JA1011 decision tree, simplified) -->
+  <div id="rcm-modal" role="dialog" aria-modal="true" aria-labelledby="rcm-modal-title">
+    <div id="rcm-modal-card">
+      <h3 id="rcm-modal-title">Set RCM strategy</h3>
+      <div id="rcm-fmea-context" style="font-size:0.72rem; color:var(--muted); margin-bottom:0.85rem;"></div>
+
+      <label>1. JA1011 decision (what task type does this failure deserve?)</label>
+      <select id="rcm-decision">
+        <option value="">(select)</option>
+        <option value="scheduled_on_condition">scheduled_on_condition — predictive (CBM, vibration, temp, oil)</option>
+        <option value="scheduled_restoration">scheduled_restoration — overhaul / restore at age</option>
+        <option value="scheduled_discard">scheduled_discard — replace at fixed interval</option>
+        <option value="failure_finding">failure_finding — test hidden protective device</option>
+        <option value="run_to_failure">run_to_failure — accept; no proactive task</option>
+        <option value="redesign_required">redesign_required — no task is effective</option>
+      </select>
+
+      <label for="rcm-task">Task text (what does the technician do?)</label>
+      <input id="rcm-task" type="text" placeholder="e.g. Vibration trend at bearing housing, alert at 4.5 mm/s RMS" />
+
+      <label for="rcm-interval">Interval</label>
+      <select id="rcm-interval">
+        <option value="">(none — not applicable for run_to_failure / redesign)</option>
+        <option value="30">Monthly (30 d)</option>
+        <option value="90">Quarterly (90 d)</option>
+        <option value="180">Semi-Annual (180 d)</option>
+        <option value="365">Yearly (365 d)</option>
+        <option value="custom">Custom days</option>
+      </select>
+      <input id="rcm-interval-custom" type="number" min="1" max="3650" step="1" placeholder="Custom interval days" style="display:none;" />
+
+      <label for="rcm-rationale">Rationale (why this decision?)</label>
+      <input id="rcm-rationale" type="text" placeholder="e.g. P-F = 14 d from vibration trend, half = 7 d safe interval" />
+
+      <div style="font-size:.7rem; color:var(--muted); margin-bottom:0.65rem;">
+        Per SAE JA1011 / JA1012. After save you can push the task to PM Scheduler.
+      </div>
+      <div class="edge-actions">
+        <button class="cancel" type="button" id="rcm-cancel">Cancel</button>
+        <button class="save"   type="button" id="rcm-save">Save strategy</button>
+      </div>
+    </div>
+  </div>
+
   <script src="nav-hub.js"></script>
   <script src="qr-scanner.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -494,6 +832,22 @@
       t.textContent = msg;
       t.classList.remove('hidden');
       setTimeout(() => t.classList.add('hidden'), 2200);
+    }
+
+    // ── AUDIT LOG ──
+    // Fire-and-forget so a log failure never blocks the supervisor action.
+    // Mirrors the hive.html canonical pattern; surfaces in audit-log.html viewer.
+    function writeAuditLog(action, targetType, targetId, targetName, meta) {
+      if (!HIVE_ID) return;
+      db.from('hive_audit_log').insert({
+        hive_id:     HIVE_ID,
+        actor:       WORKER_NAME,
+        action,
+        target_type: targetType,
+        target_id:   targetId,
+        target_name: targetName,
+        meta:        meta || {},
+      }).then(res => { if (res.error) console.warn('audit log:', res.error.message); });
     }
 
     function critClass(c) {
@@ -578,6 +932,115 @@
         _allNodes = data || [];
       }
       renderList();
+      // Supervisor-only: load the pending/rejected approval queue alongside.
+      // Workers see only the approved list above.
+      if (HIVE_ROLE === 'supervisor') loadPendingAssets();
+    }
+
+    // ── Pending asset_nodes approval queue (supervisor only) ─────────────────
+    let _pendingNodes = [];
+
+    async function loadPendingAssets() {
+      const card = document.getElementById('pending-assets-card');
+      if (!card) return;
+      const { data, error } = await db.from('asset_nodes')
+        .select('id, tag, name, level, criticality, location, iso_class, status, submitted_by, created_at')
+        .eq('hive_id', HIVE_ID)
+        .in('status', ['pending', 'rejected'])
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (error) {
+        // PGRST205 etc: schema not migrated yet — silent
+        _pendingNodes = [];
+      } else {
+        _pendingNodes = data || [];
+      }
+      renderPendingAssets();
+    }
+
+    function renderPendingAssets() {
+      const e = escHtml;
+      const card  = document.getElementById('pending-assets-card');
+      const list  = document.getElementById('pending-assets-list');
+      const count = document.getElementById('pending-assets-count');
+      if (!card || !list) return;
+      if (!_pendingNodes.length) { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+      const nPending  = _pendingNodes.filter(n => n.status === 'pending').length;
+      const nRejected = _pendingNodes.length - nPending;
+      if (count) count.textContent = `${nPending} pending` + (nRejected ? ` · ${nRejected} rejected` : '');
+      list.innerHTML = _pendingNodes.map(n => {
+        const statusPill = n.status === 'pending'
+          ? '<span style="font-size:.6rem; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(247,162,27,0.18); color:#ffc566;">pending</span>'
+          : '<span style="font-size:.6rem; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(239,87,87,0.16); color:#ff8a8a;">rejected</span>';
+        const submittedBy = n.submitted_by ? `<span style="font-size:.65rem; color:var(--muted);">by ${e(n.submitted_by)}</span>` : '';
+        return `<div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:0.55rem; padding:0.55rem 0.75rem; display:flex; flex-direction:column; gap:5px;">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span style="font-weight:700; font-size:.85rem;">${e(n.tag || n.name || 'Untitled')}</span>
+            <span style="font-size:.7rem; color:var(--muted);">${e(n.iso_class || '')}</span>
+            ${statusPill}
+            ${submittedBy}
+          </div>
+          ${n.location ? '<div style="font-size:.7rem; color:var(--muted);">' + e(n.location) + '</div>' : ''}
+          <div style="display:flex; gap:6px; margin-top:2px;">
+            ${n.status === 'pending' ? `
+              <button class="approve" data-action="asset-approve" data-id="${e(n.id)}" style="font-size:.66rem; padding:4px 9px; border-radius:5px; background:rgba(74,222,128,0.16); color:#6ee7a8; border:1px solid rgba(74,222,128,0.3); cursor:pointer; font-family:inherit;">Approve</button>
+              <button class="reject"  data-action="asset-reject"  data-id="${e(n.id)}" style="font-size:.66rem; padding:4px 9px; border-radius:5px; background:rgba(239,87,87,0.14); color:#ff8a8a; border:1px solid rgba(239,87,87,0.3); cursor:pointer; font-family:inherit;">Reject</button>
+            ` : `
+              <button class="restore" data-action="asset-restore" data-id="${e(n.id)}" style="font-size:.66rem; padding:4px 9px; border-radius:5px; background:rgba(255,255,255,0.05); color:#F4F6FA; border:1px solid var(--border); cursor:pointer; font-family:inherit;">Restore to pending</button>
+            `}
+          </div>
+        </div>`;
+      }).join('');
+      list.querySelectorAll('button[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          const action = btn.getAttribute('data-action');
+          if (action === 'asset-approve')      approveAssetNode(id);
+          else if (action === 'asset-reject')  rejectAssetNode(id);
+          else if (action === 'asset-restore') restoreAssetNode(id);
+        });
+      });
+    }
+
+    async function approveAssetNode(nodeId) {
+      if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+      const node = _allNodes.find(n => n.id === nodeId);
+      const { error } = await db.from('asset_nodes')
+        .update({ status: 'approved', approved_by: WORKER_NAME, approved_at: new Date().toISOString() })
+        .eq('id', nodeId).eq('hive_id', HIVE_ID);
+      if (error) { showToast('Approve failed: ' + error.message); return; }
+      writeAuditLog('approve_asset_node', 'asset_nodes', nodeId,
+        (node && (node.label || node.tag)) || nodeId, { node_type: node && node.node_type });
+      showToast('Asset approved.');
+      await loadAssetNodes();
+    }
+
+    async function rejectAssetNode(nodeId) {
+      if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+      if (!confirm('Reject this asset? It stays in the queue but will not appear in the approved list.')) return;
+      const node = _allNodes.find(n => n.id === nodeId);
+      const { error } = await db.from('asset_nodes')
+        .update({ status: 'rejected', approved_by: WORKER_NAME, approved_at: new Date().toISOString() })
+        .eq('id', nodeId).eq('hive_id', HIVE_ID);
+      if (error) { showToast('Reject failed: ' + error.message); return; }
+      writeAuditLog('reject_asset_node', 'asset_nodes', nodeId,
+        (node && (node.label || node.tag)) || nodeId, { node_type: node && node.node_type });
+      showToast('Asset rejected.');
+      await loadPendingAssets();
+    }
+
+    async function restoreAssetNode(nodeId) {
+      if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+      const node = _allNodes.find(n => n.id === nodeId);
+      const { error } = await db.from('asset_nodes')
+        .update({ status: 'pending', approved_by: null, approved_at: null })
+        .eq('id', nodeId).eq('hive_id', HIVE_ID);
+      if (error) { showToast('Restore failed: ' + error.message); return; }
+      writeAuditLog('restore_asset_node', 'asset_nodes', nodeId,
+        (node && (node.label || node.tag)) || nodeId, { node_type: node && node.node_type });
+      showToast('Asset moved back to pending.');
+      await loadPendingAssets();
     }
 
     function renderList(reload) {
@@ -653,6 +1116,7 @@
         loadDetailStats(nodeId),
         loadDetailRisk(nodeId),
         loadDetailStaging(nodeId),
+        loadDetailFmea(nodeId),
         loadDetailTimeline(nodeId),
         loadDetailNeighbors(nodeId),
         loadDetailMarketplace(nodeId),
@@ -670,6 +1134,29 @@
         }
       }
 
+      // Wire Add FMEA button (Phase R.2). Both workers and supervisors can
+      // create rows; workers create pending, supervisors create approved.
+      const fmeaAddBtn = document.getElementById('fmea-add-btn');
+      if (fmeaAddBtn) fmeaAddBtn.onclick = openFmeaModal;
+
+      // Wire AI suggest button (Phase R.3). Calls fmea-populator edge fn.
+      const fmeaSuggestBtn = document.getElementById('fmea-suggest-btn');
+      if (fmeaSuggestBtn) fmeaSuggestBtn.onclick = () => suggestFmeaFromHistory(nodeId);
+
+      // Wire Reliability tabs (Phase R.5 activates Weibull tab).
+      wireReliabilityTabs(nodeId);
+
+      // Wire Compute Weibull fit button (Phase R.5).
+      const wbFitBtn = document.getElementById('weibull-fit-btn');
+      if (wbFitBtn) wbFitBtn.onclick = () => computeWeibullFit(nodeId);
+
+      // Wire Reliability Report button (Phase R.7).
+      const reportBtn = document.getElementById('reliability-report-btn');
+      if (reportBtn) reportBtn.onclick = () => generateReliabilityReport(nodeId);
+
+      // Load latest fit (silent, no compute).
+      loadLatestWeibull(nodeId);
+
       // Subscribe to realtime updates for this asset
       subscribeAsset(nodeId);
 
@@ -679,6 +1166,7 @@
 
     function closeDetail() {
       _selectedNodeId = null;
+      _pfWiredForNode = null;
       unsubscribeAsset();
       document.getElementById('detail-view').style.display = 'none';
       document.getElementById('list-view').style.display = 'block';
@@ -740,10 +1228,11 @@
     }
 
     async function loadDetailStats(nodeId) {
-      // Read aggregate stats from asset_brain_overview view.
-      const { data, error } = await db.from('asset_brain_overview')
+      // Read aggregate stats from v_asset_truth (canonical asset 360 view,
+      // domain=asset_truth in canonical_sources). Supersedes asset_brain_overview.
+      const { data, error } = await db.from('v_asset_truth')
         .select('lifetime_logbook_entries, pm_completed_count, last_failure_at, edge_count')
-        .eq('node_id', nodeId)
+        .eq('asset_id', nodeId)
         .eq('hive_id', HIVE_ID)
         .maybeSingle();
 
@@ -772,11 +1261,12 @@
       const candidates = [node.tag, node.name].filter(Boolean);
       if (!candidates.length) { _showRiskEmpty(); return; }
 
-      const { data, error } = await db.from('asset_risk_scores')
+      // Canonical: risk_truth — DISTINCT ON returns the latest score per
+      // asset_name in one read (no need for ORDER BY generated_at + LIMIT 1).
+      const { data, error } = await db.from('v_risk_truth')
         .select('asset_name, risk_score, risk_level, mtbf_days, days_until_failure, top_factors, model_version, generated_at')
         .eq('hive_id', HIVE_ID)
         .in('asset_name', candidates)
-        .order('generated_at', { ascending: false })
         .limit(1);
 
       if (error) {
@@ -843,18 +1333,53 @@
       }
       if (genEl) genEl.textContent = row.generated_at ? fmtRelative(row.generated_at) : '—';
 
-      // Top factors as chips
+      // Top factors. Phase 5a v1 emits structured factors:
+      //   [{factor, weight, value, contribution, explanation}]
+      // Legacy emits flat strings. Render structured factors as labelled
+      // contribution bars with the explanation inline; render legacy as
+      // chips so old rows stay readable.
       if (facEl) {
         let factors = row.top_factors;
         if (typeof factors === 'string') {
           try { factors = JSON.parse(factors); } catch (_) { factors = []; }
         }
-        if (Array.isArray(factors) && factors.length) {
-          facEl.innerHTML = factors.slice(0, 5).map(f =>
-            '<span style="font-size:.6rem; font-weight:600; padding:.2rem .55rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:rgba(255,255,255,0.65);">' + e(String(f).replace(/_/g, ' ')) + '</span>'
-          ).join('');
-        } else {
+        if (!Array.isArray(factors) || !factors.length) {
           facEl.innerHTML = '<span style="font-size:.65rem; color:var(--muted);">No risk factors flagged</span>';
+        } else if (factors[0] && typeof factors[0] === 'object') {
+          // Structured: contribution bars + explanation, sorted by contribution desc.
+          facEl.style.flexDirection = 'column';
+          facEl.style.gap           = '6px';
+          facEl.style.width         = '100%';
+          const sorted = factors.slice().sort(
+            (a, b) => (Number(b && b.contribution) || 0) - (Number(a && a.contribution) || 0)
+          );
+          facEl.innerHTML = sorted.slice(0, 6).map(f => {
+            const label = String((f && f.factor) || '').replace(/_/g, ' ');
+            const contrib = Math.max(0, Math.min(1, Number((f && f.contribution)) || 0));
+            const pct = Math.round(contrib * 100);
+            // 0% contribution still shows a sliver so the row reads as a row.
+            const barPct = Math.max(2, pct);
+            const explain = (f && f.explanation) ? String(f.explanation) : '';
+            return ''
+              + '<div style="display:flex; flex-direction:column; gap:3px; padding:6px 8px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:7px;">'
+              +   '<div style="display:flex; align-items:center; gap:8px;">'
+              +     '<span style="flex:1; font-size:.7rem; font-weight:700; letter-spacing:.02em; color:#F4F6FA;">' + e(label) + '</span>'
+              +     '<div style="width:90px; height:6px; background:rgba(255,255,255,0.07); border-radius:3px; overflow:hidden;">'
+              +       '<div style="width:' + barPct + '%; height:100%; background:' + e(levelColor) + ';"></div>'
+              +     '</div>'
+              +     '<span style="font-size:.65rem; font-weight:700; color:' + e(levelColor) + '; min-width:28px; text-align:right;">+' + pct + '%</span>'
+              +   '</div>'
+              + (explain ? '<div style="font-size:.66rem; color:rgba(255,255,255,0.55); line-height:1.35;">' + e(explain) + '</div>' : '')
+              + '</div>';
+          }).join('');
+        } else {
+          // Legacy flat-string shape.
+          facEl.style.flexDirection = 'row';
+          facEl.style.gap           = '5px';
+          facEl.innerHTML = factors.slice(0, 5).map(f =>
+            '<span style="font-size:.6rem; font-weight:600; padding:.2rem .55rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:rgba(255,255,255,0.65);">'
+            + e(String(f).replace(/_/g, ' ')) + '</span>'
+          ).join('');
         }
       }
 
@@ -1023,7 +1548,7 @@
       const queries = [];
       if (node.legacy_asset_id) {
         queries.push(
-          db.from('logbook')
+          db.from('v_logbook_truth')
             .select('id, machine, problem, action, maintenance_type, status, created_at, closed_at')
             .eq('hive_id', HIVE_ID)
             .eq('asset_ref_id', node.legacy_asset_id)
@@ -1120,6 +1645,1151 @@
           </div>
         `;
       }).join('');
+    }
+
+    // ── Reliability Workbench: FMEA tab (Phase R.2) ────────────────────────────
+    let _fmeaModes = [];
+    let _strategiesByMode = {};   // Phase R.4: { fmea_mode_id: strategy_row }
+
+    function _rpnSeverityClass(rpn) {
+      const n = Number(rpn) || 0;
+      if (n >= 200) return 'fmea-rpn-critical';
+      if (n >= 100) return 'fmea-rpn-high';
+      if (n >= 40)  return 'fmea-rpn-medium';
+      return 'fmea-rpn-low';
+    }
+
+    async function loadDetailFmea(nodeId) {
+      const card = document.getElementById('reliability-card');
+      if (!card) return;
+      card.style.display = 'block';
+
+      // Workers see all rows in the hive (including pending) so they can
+      // edit their own. v_fmea_truth filters approved-only; for the page
+      // we read the underlying table directly + filter by hive_id.
+      const { data, error } = await db.from('rcm_fmea_modes')
+        .select('id, asset_id, function_text, failure_mode, effect_text, cause_text, severity, occurrence, detection, rpn, consequence_class, source, ai_confidence, created_by, approved_by, approved_at, created_at, updated_at')
+        .eq('hive_id', HIVE_ID)
+        .eq('asset_id', nodeId)
+        .order('rpn', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        console.warn('fmea load:', error.message);
+        _fmeaModes = [];
+      } else {
+        _fmeaModes = data || [];
+      }
+      // Phase R.4: load strategies attached to those FMEA modes (one row per mode max).
+      _strategiesByMode = {};
+      const modeIds = _fmeaModes.map(m => m.id);
+      if (modeIds.length) {
+        const { data: stratRows, error: stratErr } = await db.from('rcm_strategies')
+          .select('id, hive_id, fmea_mode_id, decision, task_text, interval_days, rationale, written_to_pm_scope_item_id, source, ai_confidence, approved_by, approved_at, created_at, updated_at')
+          .eq('hive_id', HIVE_ID)
+          .in('fmea_mode_id', modeIds)
+          .order('updated_at', { ascending: false });
+        if (stratErr) {
+          console.warn('rcm load:', stratErr.message);
+        } else {
+          // Take the most recent strategy per fmea_mode_id (rows are pre-sorted desc).
+          (stratRows || []).forEach(s => {
+            if (!_strategiesByMode[s.fmea_mode_id]) _strategiesByMode[s.fmea_mode_id] = s;
+          });
+        }
+      }
+      renderFmeaList();
+    }
+
+    function renderFmeaList() {
+      const e = escHtml;
+      const list  = document.getElementById('fmea-list');
+      const empty = document.getElementById('fmea-empty');
+      if (!list || !empty) return;
+
+      if (!_fmeaModes.length) {
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      const isSupervisor = HIVE_ROLE === 'supervisor';
+      list.innerHTML = _fmeaModes.map(m => {
+        const rpnClass    = _rpnSeverityClass(m.rpn);
+        const sourceClass = (m.source && m.source.startsWith('ai_')) ? 'fmea-source-ai' : 'fmea-source-manual';
+        const statusClass = m.approved_at ? 'fmea-status-approved' : 'fmea-status-pending';
+        const statusLabel = m.approved_at ? 'approved' : 'pending';
+        const sodHtml = ''
+          + '<span class="fmea-sod">'
+          +   '<span>S ' + e(String(m.severity ?? '?')) + '</span>'
+          +   '<span>O ' + e(String(m.occurrence ?? '?')) + '</span>'
+          +   '<span>D ' + e(String(m.detection ?? '?')) + '</span>'
+          + '</span>';
+        const aiBadge = (m.source && m.source.startsWith('ai_') && m.ai_confidence != null)
+          ? ' <span style="font-size:.6rem; color:rgba(255,255,255,0.45);">' + Math.round(Number(m.ai_confidence) * 100) + '% conf</span>'
+          : '';
+        const fmeaActions = isSupervisor && !m.approved_at
+          ? '<button class="approve" data-action="approve" data-id="' + e(m.id) + '">Approve</button>'
+          +   '<button class="delete"  data-action="delete"  data-id="' + e(m.id) + '">Delete</button>'
+          : '';
+        const cause  = m.cause_text  ? '<div style="font-size:.7rem; color:var(--muted);">cause: ' + e(m.cause_text)  + '</div>' : '';
+        const effect = m.effect_text ? '<div style="font-size:.72rem; color:rgba(255,255,255,0.7);">effect: ' + e(m.effect_text) + '</div>' : '';
+
+        // Phase R.4: strategy strip
+        const strat = _strategiesByMode[m.id];
+        const canPushPm = strat && /^scheduled_|^failure_finding$/.test(strat.decision || '') && !strat.written_to_pm_scope_item_id;
+        let stripHtml = '';
+        if (strat) {
+          const decisionClass = 'rcm-decision-' + e(strat.decision || 'run_to_failure');
+          const intervalTxt   = strat.interval_days ? ' · every ' + Number(strat.interval_days) + 'd' : '';
+          const linkedTxt     = strat.written_to_pm_scope_item_id
+            ? '<span class="rcm-pm-linked">linked to PM</span>'
+            : '';
+          const stratStatus = strat.approved_at
+            ? '<span class="fmea-source-pill fmea-status-approved">approved</span>'
+            : '<span class="fmea-source-pill fmea-status-pending">pending</span>';
+          stripHtml = ''
+            + '<div class="rcm-strip">'
+            +   '<span class="rcm-pill ' + decisionClass + '">' + e(strat.decision || '?') + '</span>'
+            +   (strat.task_text ? '<span class="rcm-task-text">' + e(strat.task_text) + '</span>' : '')
+            +   (intervalTxt ? '<span class="rcm-interval">' + e(intervalTxt) + '</span>' : '')
+            +   stratStatus
+            +   linkedTxt
+            +   '<span style="flex:1;"></span>'
+            +   '<button data-action="strat-edit" data-mode-id="' + e(m.id) + '">Edit strategy</button>'
+            +   (canPushPm ? '<button data-action="strat-push" data-strategy-id="' + e(strat.id) + '">Push to PM</button>' : '')
+            +   (isSupervisor && !strat.approved_at ? '<button class="approve" data-action="strat-approve" data-strategy-id="' + e(strat.id) + '">Approve</button>' : '')
+            +   (isSupervisor ? '<button class="delete" data-action="strat-delete" data-strategy-id="' + e(strat.id) + '">Delete</button>' : '')
+            + '</div>';
+        } else if (m.approved_at) {
+          // Only offer "Set strategy" once the FMEA mode itself is approved.
+          stripHtml = ''
+            + '<div class="rcm-strip">'
+            +   '<span class="rcm-no-strategy">No RCM strategy set yet</span>'
+            +   '<span style="flex:1;"></span>'
+            +   '<button data-action="strat-edit" data-mode-id="' + e(m.id) + '">Set strategy</button>'
+            + '</div>';
+        }
+
+        return ''
+          + '<div class="fmea-row">'
+          +   '<div class="fmea-row-head">'
+          +     '<span class="fmea-rpn ' + rpnClass + '">' + e(String(m.rpn ?? '?')) + '</span>'
+          +     '<div style="flex:1; min-width:0;">'
+          +       '<div style="font-size:.85rem; font-weight:700;">' + e(m.failure_mode || '(unspecified)') + aiBadge + '</div>'
+          +       '<div style="font-size:.7rem; color:var(--muted);">' + e(m.function_text || '') + '</div>'
+          +     '</div>'
+          +     sodHtml
+          +     '<span class="fmea-source-pill ' + sourceClass + '">' + e(m.source || 'manual') + '</span>'
+          +     '<span class="fmea-source-pill ' + statusClass + '">' + statusLabel + '</span>'
+          +   '</div>'
+          +   effect
+          +   cause
+          +   (fmeaActions ? '<div class="fmea-row-actions">' + fmeaActions + '</div>' : '')
+          +   stripHtml
+          + '</div>';
+      }).join('');
+
+      // Wire approve / delete + strategy buttons
+      list.querySelectorAll('button[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const action = btn.getAttribute('data-action');
+          const id     = btn.getAttribute('data-id');
+          const modeId = btn.getAttribute('data-mode-id');
+          const stratId = btn.getAttribute('data-strategy-id');
+          if (action === 'approve')        approveFmeaMode(id);
+          else if (action === 'delete')    deleteFmeaMode(id);
+          else if (action === 'strat-edit')    openStrategyModal(modeId);
+          else if (action === 'strat-push')    pushStrategyToPm(stratId);
+          else if (action === 'strat-approve') approveStrategy(stratId);
+          else if (action === 'strat-delete')  deleteStrategy(stratId);
+        });
+      });
+    }
+
+    function openFmeaModal() {
+      const modal = document.getElementById('fmea-modal');
+      if (!modal) return;
+      // Reset form
+      ['fmea-function','fmea-failure-mode','fmea-effect','fmea-cause','fmea-consequence',
+       'fmea-severity','fmea-occurrence','fmea-detection']
+        .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      modal.classList.add('open');
+
+      const cancel = document.getElementById('fmea-cancel');
+      const save   = document.getElementById('fmea-save');
+      const close  = () => modal.classList.remove('open');
+      if (cancel) cancel.onclick = close;
+      if (save)   save.onclick   = saveFmeaMode;
+
+      const onEsc = (ev) => {
+        if (ev.key === 'Escape') { close(); document.removeEventListener('keydown', onEsc); }
+      };
+      document.addEventListener('keydown', onEsc);
+    }
+
+    async function saveFmeaMode() {
+      if (!_selectedNodeId) { showToast('No asset selected.'); return; }
+      const fnText = (document.getElementById('fmea-function')?.value || '').trim();
+      const fm     = (document.getElementById('fmea-failure-mode')?.value || '').trim();
+      if (!fnText || !fm) {
+        showToast('Function and failure mode are required.');
+        return;
+      }
+      const sev = parseInt(document.getElementById('fmea-severity')?.value, 10);
+      const occ = parseInt(document.getElementById('fmea-occurrence')?.value, 10);
+      const det = parseInt(document.getElementById('fmea-detection')?.value, 10);
+      for (const [label, n] of [['severity', sev], ['occurrence', occ], ['detection', det]]) {
+        if (Number.isFinite(n) && (n < 1 || n > 10)) {
+          showToast(label + ' must be 1-10.');
+          return;
+        }
+      }
+
+      const saveBtn = document.getElementById('fmea-save');
+      if (saveBtn) saveBtn.disabled = true;
+
+      // Workers create as pending (no approved_at). Supervisors auto-approve
+      // their own additions because they can already approve any row.
+      const autoApproved = HIVE_ROLE === 'supervisor';
+      const payload = {
+        hive_id:            HIVE_ID,
+        asset_id:           _selectedNodeId,
+        function_text:      fnText,
+        failure_mode:       fm,
+        effect_text:        (document.getElementById('fmea-effect')?.value || '').trim() || null,
+        cause_text:         (document.getElementById('fmea-cause')?.value || '').trim() || null,
+        consequence_class:  document.getElementById('fmea-consequence')?.value || null,
+        severity:           Number.isFinite(sev) ? sev : null,
+        occurrence:         Number.isFinite(occ) ? occ : null,
+        detection:          Number.isFinite(det) ? det : null,
+        source:             'manual',
+        created_by:         WORKER_NAME || null,
+        approved_by:        autoApproved ? (WORKER_NAME || null) : null,
+        approved_at:        autoApproved ? new Date().toISOString() : null,
+      };
+
+      const { error } = await db.from('rcm_fmea_modes').insert(payload);
+      if (saveBtn) saveBtn.disabled = false;
+      if (error) {
+        showToast('Could not save FMEA: ' + error.message);
+        return;
+      }
+      showToast(autoApproved ? 'FMEA mode added (approved).' : 'FMEA mode added (pending supervisor approval).');
+      document.getElementById('fmea-modal')?.classList.remove('open');
+      await loadDetailFmea(_selectedNodeId);
+    }
+
+    async function approveFmeaMode(id) {
+      if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+      const { error } = await db.from('rcm_fmea_modes')
+        .update({ approved_by: WORKER_NAME || null, approved_at: new Date().toISOString() })
+        .eq('id', id)
+        .eq('hive_id', HIVE_ID);
+      if (error) { showToast('Approve failed: ' + error.message); return; }
+      writeAuditLog('approve_fmea_mode', 'rcm_fmea_modes', id, id, { node_id: _selectedNodeId });
+      showToast('FMEA mode approved.');
+      await loadDetailFmea(_selectedNodeId);
+    }
+
+    async function deleteFmeaMode(id) {
+      if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+      if (!confirm('Delete this FMEA failure mode? Linked RCM strategies will cascade.')) return;
+      const { error } = await db.from('rcm_fmea_modes')
+        .delete()
+        .eq('id', id)
+        .eq('hive_id', HIVE_ID);
+      if (error) { showToast('Delete failed: ' + error.message); return; }
+      writeAuditLog('delete_fmea_mode', 'rcm_fmea_modes', id, id, { node_id: _selectedNodeId });
+      showToast('FMEA mode deleted.');
+      await loadDetailFmea(_selectedNodeId);
+    }
+
+    // ── Phase R.4: RCM strategy modal + write-back to PM Scheduler ─────────────
+    const RCM_INTERVAL_TO_FREQ = {
+      30:  'Monthly',
+      90:  'Quarterly',
+      180: 'Semi-Annual',
+      365: 'Yearly',
+    };
+
+    function _intervalToFrequencyLabel(days) {
+      const n = Number(days);
+      if (!Number.isFinite(n) || n <= 0) return null;
+      if (RCM_INTERVAL_TO_FREQ[n]) return RCM_INTERVAL_TO_FREQ[n];
+      // Round to the nearest known frequency so PM Scheduler can compute next-due.
+      const buckets = [[30,'Monthly'],[90,'Quarterly'],[180,'Semi-Annual'],[365,'Yearly']];
+      let best = buckets[0]; let bestDiff = Math.abs(n - best[0]);
+      for (const b of buckets) {
+        const diff = Math.abs(n - b[0]);
+        if (diff < bestDiff) { best = b; bestDiff = diff; }
+      }
+      return best[1];
+    }
+
+    let _strategyFmeaModeId = null;
+
+    function openStrategyModal(fmeaModeId) {
+      const mode = _fmeaModes.find(m => m.id === fmeaModeId);
+      if (!mode) { showToast('FMEA mode not found.'); return; }
+      _strategyFmeaModeId = fmeaModeId;
+
+      const ctx = document.getElementById('rcm-fmea-context');
+      if (ctx) ctx.textContent = (mode.failure_mode || '(unspecified)') + ' — ' + (mode.function_text || 'function unset');
+
+      // Pre-fill from existing strategy if present
+      const existing = _strategiesByMode[fmeaModeId];
+      const decEl    = document.getElementById('rcm-decision');
+      const taskEl   = document.getElementById('rcm-task');
+      const intEl    = document.getElementById('rcm-interval');
+      const intCustom= document.getElementById('rcm-interval-custom');
+      const ratEl    = document.getElementById('rcm-rationale');
+
+      if (decEl)  decEl.value  = existing ? (existing.decision || '') : '';
+      if (taskEl) taskEl.value = existing ? (existing.task_text || '') : '';
+      if (ratEl)  ratEl.value  = existing ? (existing.rationale || '') : '';
+      if (intEl) {
+        if (existing && existing.interval_days) {
+          const std = String(existing.interval_days);
+          if (RCM_INTERVAL_TO_FREQ[Number(std)]) {
+            intEl.value = std;
+            if (intCustom) { intCustom.style.display = 'none'; intCustom.value = ''; }
+          } else {
+            intEl.value = 'custom';
+            if (intCustom) { intCustom.style.display = 'block'; intCustom.value = String(existing.interval_days); }
+          }
+        } else {
+          intEl.value = '';
+          if (intCustom) { intCustom.style.display = 'none'; intCustom.value = ''; }
+        }
+      }
+
+      // Toggle the custom-days input when user picks "custom"
+      if (intEl && intCustom) {
+        intEl.onchange = () => {
+          intCustom.style.display = (intEl.value === 'custom') ? 'block' : 'none';
+        };
+      }
+
+      const modal = document.getElementById('rcm-modal');
+      if (modal) modal.classList.add('open');
+
+      const cancel = document.getElementById('rcm-cancel');
+      const save   = document.getElementById('rcm-save');
+      const close  = () => modal && modal.classList.remove('open');
+      if (cancel) cancel.onclick = close;
+      if (save)   save.onclick   = saveStrategy;
+
+      const onEsc = (ev) => {
+        if (ev.key === 'Escape') { close(); document.removeEventListener('keydown', onEsc); }
+      };
+      document.addEventListener('keydown', onEsc);
+    }
+
+    async function saveStrategy() {
+      if (!_strategyFmeaModeId) { showToast('No FMEA mode selected.'); return; }
+      const decision = (document.getElementById('rcm-decision')?.value || '').trim();
+      if (!decision) { showToast('Pick a JA1011 decision.'); return; }
+
+      const task     = (document.getElementById('rcm-task')?.value || '').trim();
+      const rationale= (document.getElementById('rcm-rationale')?.value || '').trim();
+      const intSel   = document.getElementById('rcm-interval')?.value || '';
+      const intCust  = document.getElementById('rcm-interval-custom')?.value || '';
+      let interval_days = null;
+      if (intSel === 'custom') {
+        const n = parseInt(intCust, 10);
+        if (Number.isFinite(n) && n > 0) interval_days = n;
+      } else if (intSel) {
+        const n = parseInt(intSel, 10);
+        if (Number.isFinite(n) && n > 0) interval_days = n;
+      }
+
+      const requiresInterval = /^scheduled_|^failure_finding$/.test(decision);
+      if (requiresInterval && !interval_days) {
+        showToast('Pick an interval for ' + decision + '.');
+        return;
+      }
+      if (requiresInterval && !task) {
+        showToast('Task text is required for scheduled / failure-finding strategies.');
+        return;
+      }
+
+      const saveBtn = document.getElementById('rcm-save');
+      if (saveBtn) saveBtn.disabled = true;
+
+      const autoApproved = HIVE_ROLE === 'supervisor';
+      const existing = _strategiesByMode[_strategyFmeaModeId];
+
+      const payload = {
+        hive_id:        HIVE_ID,
+        fmea_mode_id:   _strategyFmeaModeId,
+        decision,
+        task_text:      task || null,
+        interval_days:  interval_days,
+        rationale:      rationale || null,
+        source:         'manual',
+        approved_by:    autoApproved ? (WORKER_NAME || null) : null,
+        approved_at:    autoApproved ? new Date().toISOString() : null,
+      };
+
+      let error = null;
+      if (existing) {
+        // Replace policy: update the existing row so we keep one strategy per FMEA mode
+        const upd = await db.from('rcm_strategies')
+          .update(payload).eq('id', existing.id).eq('hive_id', HIVE_ID);
+        error = upd.error;
+      } else {
+        const ins = await db.from('rcm_strategies').insert(payload);
+        error = ins.error;
+      }
+
+      if (saveBtn) saveBtn.disabled = false;
+      if (error) {
+        showToast('Could not save strategy: ' + error.message);
+        return;
+      }
+      showToast(autoApproved ? 'Strategy saved (approved).' : 'Strategy saved (pending supervisor approval).');
+      document.getElementById('rcm-modal')?.classList.remove('open');
+      if (_selectedNodeId) await loadDetailFmea(_selectedNodeId);
+    }
+
+    async function approveStrategy(strategyId) {
+      if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+      const { error } = await db.from('rcm_strategies')
+        .update({ approved_by: WORKER_NAME || null, approved_at: new Date().toISOString() })
+        .eq('id', strategyId)
+        .eq('hive_id', HIVE_ID);
+      if (error) { showToast('Approve failed: ' + error.message); return; }
+      writeAuditLog('approve_rcm_strategy', 'rcm_strategies', strategyId, strategyId,
+        { node_id: _selectedNodeId });
+      showToast('Strategy approved.');
+      if (_selectedNodeId) await loadDetailFmea(_selectedNodeId);
+    }
+
+    async function deleteStrategy(strategyId) {
+      if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+      if (!confirm('Delete this RCM strategy? Linked PM scope item will remain in PM Scheduler (unlink only).')) return;
+      const { error } = await db.from('rcm_strategies')
+        .delete().eq('id', strategyId).eq('hive_id', HIVE_ID);
+      if (error) { showToast('Delete failed: ' + error.message); return; }
+      writeAuditLog('delete_rcm_strategy', 'rcm_strategies', strategyId, strategyId,
+        { node_id: _selectedNodeId });
+      showToast('Strategy deleted.');
+      if (_selectedNodeId) await loadDetailFmea(_selectedNodeId);
+    }
+
+    // Resolve or create the pm_assets row that mirrors this asset_node.
+    // Uses asset_nodes.pm_asset_id when present; otherwise looks up by name in the
+    // hive; otherwise creates a new pm_assets row and back-links via asset_nodes.pm_asset_id.
+    async function resolvePmAssetId(nodeId) {
+      const node = _allNodes.find(n => n.id === nodeId);
+      if (!node) return null;
+      if (node.pm_asset_id) return node.pm_asset_id;
+
+      // Look up by tag/name match
+      const targetName = (node.tag || node.name || '').trim();
+      if (targetName) {
+        const { data: existing } = await db.from('pm_assets')
+          .select('id').eq('hive_id', HIVE_ID).eq('asset_name', targetName).limit(1);
+        if (existing && existing.length) {
+          await db.from('asset_nodes')
+            .update({ pm_asset_id: existing[0].id }).eq('id', nodeId).eq('hive_id', HIVE_ID);
+          node.pm_asset_id = existing[0].id;
+          return existing[0].id;
+        }
+      }
+
+      // Create a new pm_assets row keyed to this node
+      const newRow = {
+        hive_id:     HIVE_ID,
+        worker_name: WORKER_NAME || 'system',
+        asset_name:  targetName || 'Untitled asset',
+        tag_id:      node.tag || null,
+        location:    node.location || null,
+        category:    node.iso_class || 'Other',
+        criticality: node.criticality || 'Major',
+      };
+      const { data: created, error: createErr } = await db.from('pm_assets')
+        .insert(newRow).select('id').single();
+      if (createErr || !created) {
+        console.warn('pm asset create failed:', createErr && createErr.message);
+        return null;
+      }
+      await db.from('asset_nodes')
+        .update({ pm_asset_id: created.id }).eq('id', nodeId).eq('hive_id', HIVE_ID);
+      node.pm_asset_id = created.id;
+      return created.id;
+    }
+
+    // Push the strategy task to PM Scheduler as a pm_scope_items row.
+    async function pushStrategyToPm(strategyId) {
+      if (!_selectedNodeId) { showToast('No asset selected.'); return; }
+      // Find the strategy record
+      let strat = null;
+      Object.values(_strategiesByMode).forEach(s => { if (s.id === strategyId) strat = s; });
+      if (!strat) { showToast('Strategy not found.'); return; }
+      if (!strat.approved_at) { showToast('Strategy must be approved before pushing to PM Scheduler.'); return; }
+      if (!strat.interval_days) { showToast('Strategy needs an interval before pushing.'); return; }
+      if (!strat.task_text)     { showToast('Strategy needs task text before pushing.'); return; }
+      if (strat.written_to_pm_scope_item_id) { showToast('Already linked to PM Scheduler.'); return; }
+
+      const freq = _intervalToFrequencyLabel(strat.interval_days);
+      if (!freq) { showToast('Cannot map interval to PM frequency.'); return; }
+
+      const pmAssetId = await resolvePmAssetId(_selectedNodeId);
+      if (!pmAssetId) {
+        showToast('Could not resolve a PM Scheduler asset for this node.');
+        return;
+      }
+
+      // Insert pm_scope_items row
+      const today = new Date(); today.setHours(0,0,0,0);
+      const { data: scope, error: scopeErr } = await db.from('pm_scope_items')
+        .insert({
+          asset_id:    pmAssetId,
+          hive_id:     HIVE_ID,
+          item_text:   strat.task_text,
+          frequency:   freq,
+          anchor_date: today.toISOString().slice(0,10),
+          is_custom:   true,
+        })
+        .select('id').single();
+      if (scopeErr || !scope) {
+        showToast('PM scope insert failed: ' + (scopeErr && scopeErr.message || 'unknown'));
+        return;
+      }
+
+      // Link strategy → pm_scope_item
+      const { error: linkErr } = await db.from('rcm_strategies')
+        .update({ written_to_pm_scope_item_id: scope.id })
+        .eq('id', strategyId).eq('hive_id', HIVE_ID);
+      if (linkErr) {
+        showToast('Linked PM created, but strategy update failed: ' + linkErr.message);
+        return;
+      }
+
+      showToast('Pushed to PM Scheduler (' + freq + ').');
+      if (_selectedNodeId) await loadDetailFmea(_selectedNodeId);
+    }
+
+    // Phase R.3: AI auto-populate FMEA from logbook clusters via fmea-populator.
+    // Inserts pending rows that the supervisor must approve before they count.
+    async function suggestFmeaFromHistory(nodeId) {
+      if (!nodeId) { showToast('No asset selected.'); return; }
+      const btn    = document.getElementById('fmea-suggest-btn');
+      const status = document.getElementById('fmea-suggest-status');
+      if (btn) { btn.disabled = true; btn.textContent = 'Analyzing logbook...'; }
+      if (status) status.textContent = 'Clustering corrective entries by root cause...';
+      try {
+        const { data, error } = await db.functions.invoke('fmea-populator', {
+          body: { hive_id: HIVE_ID, asset_id: nodeId },
+        });
+        if (error) {
+          showToast('Suggest failed: ' + (error.message || 'unknown error'));
+          if (status) status.textContent = '';
+          return;
+        }
+        if (data && data.error) {
+          showToast(data.error);
+          if (status) status.textContent = '';
+          return;
+        }
+        const inserted = Number(data?.suggestions_inserted || 0);
+        const seen     = Number(data?.clusters_seen || 0);
+        const skipped  = Number(data?.skipped_existing || 0);
+        const remain   = Number(data?.remaining || 0);
+        const note     = data?.note ? ' ' + data.note : '';
+        if (inserted === 0) {
+          if (status) status.textContent = `No new suggestions. Clusters seen: ${seen}, skipped duplicates: ${skipped}.${note}`;
+          showToast(seen ? 'No new FMEA suggestions found.' : 'Not enough corrective logbook history yet.');
+        } else {
+          if (status) status.textContent = `${inserted} pending suggestion${inserted === 1 ? '' : 's'} added. Approve to publish. AI calls remaining: ${remain}.`;
+          showToast(`${inserted} AI suggestion${inserted === 1 ? '' : 's'} added (pending approval).`);
+        }
+        await loadDetailFmea(nodeId);
+      } catch (err) {
+        showToast('Suggest failed: ' + (err && err.message ? err.message : 'network error'));
+        if (status) status.textContent = '';
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Suggest from history (AI)'; }
+      }
+    }
+
+    // ── Phase R.5: Weibull fit panel (lifelines via Python Analytics API) ──────
+    function wireReliabilityTabs(nodeId) {
+      const tabs = document.querySelectorAll('.reliability-tabs .rel-tab');
+      const panels = {
+        fmea:    document.getElementById('rel-panel-fmea'),
+        weibull: document.getElementById('rel-panel-weibull'),
+        pf:      document.getElementById('rel-panel-pf'),
+      };
+      tabs.forEach(tab => {
+        if (tab.disabled) return;
+        tab.onclick = () => {
+          tabs.forEach(t => t.classList.toggle('active', t === tab));
+          const which = tab.getAttribute('data-tab');
+          Object.keys(panels).forEach(k => {
+            if (panels[k]) panels[k].style.display = (k === which) ? 'block' : 'none';
+          });
+          if (which === 'weibull') loadLatestWeibull(nodeId);
+          if (which === 'pf')      loadPfPanel(nodeId);
+        };
+      });
+    }
+
+    function _renderWeibullFit(fit) {
+      const e = escHtml;
+      const empty   = document.getElementById('weibull-empty');
+      const summary = document.getElementById('weibull-summary');
+      if (!empty || !summary) return;
+      if (!fit) {
+        empty.style.display = 'block';
+        summary.style.display = 'none';
+        return;
+      }
+      empty.style.display = 'none';
+      summary.style.display = 'flex';
+
+      const beta    = (fit.beta != null) ? Number(fit.beta).toFixed(2) : '--';
+      const eta     = (fit.eta_days != null) ? Math.round(Number(fit.eta_days)) + ' d' : '--';
+      const pattern = String(fit.failure_pattern || 'insufficient_data');
+
+      const betaEl    = document.getElementById('weibull-beta');
+      const etaEl     = document.getElementById('weibull-eta');
+      const patternEl = document.getElementById('weibull-pattern');
+      const metaEl    = document.getElementById('weibull-meta');
+      const diagEl    = document.getElementById('weibull-diagnostic');
+
+      if (betaEl)    betaEl.textContent = beta;
+      if (etaEl)     etaEl.textContent  = eta;
+      if (patternEl) {
+        patternEl.textContent = pattern.replace(/_/g, ' ');
+        patternEl.className   = 'weibull-pattern-pill weibull-pattern-' + e(pattern);
+      }
+      if (metaEl) {
+        const when = fit.generated_at ? new Date(fit.generated_at).toLocaleString('en-PH') : '';
+        const ll   = (fit.log_likelihood != null) ? ' · log-likelihood ' + Number(fit.log_likelihood).toFixed(2) : '';
+        metaEl.textContent = `n_failures ${fit.n_failures || 0} · n_censored ${fit.n_censored || 0} · window ${fit.source_window_days || '--'}d${ll}${when ? ' · last fit ' + when : ''}`;
+      }
+      if (diagEl) diagEl.textContent = fit.diagnostic || '';
+    }
+
+    async function loadLatestWeibull(nodeId) {
+      const { data, error } = await db.from('v_weibull_truth')
+        .select('beta, eta_days, failure_pattern, n_failures, n_censored, log_likelihood, source_window_days, generated_at')
+        .eq('hive_id', HIVE_ID)
+        .eq('asset_id', nodeId)
+        .is('fmea_mode_id', null)
+        .limit(1);
+      if (error) {
+        console.warn('weibull load:', error.message);
+        _renderWeibullFit(null);
+        return;
+      }
+      _renderWeibullFit((data && data[0]) || null);
+    }
+
+    async function computeWeibullFit(nodeId) {
+      if (!nodeId) { showToast('No asset selected.'); return; }
+      const btn    = document.getElementById('weibull-fit-btn');
+      const status = document.getElementById('weibull-status');
+      if (btn) { btn.disabled = true; btn.textContent = 'Fitting (lifelines)...'; }
+      if (status) status.textContent = 'Pulling logbook history and fitting Weibull...';
+      try {
+        const { data, error } = await db.functions.invoke('weibull-fitter', {
+          body: { hive_id: HIVE_ID, asset_id: nodeId },
+        });
+        if (error) {
+          showToast('Weibull fit failed: ' + (error.message || 'unknown error'));
+          if (status) status.textContent = '';
+          return;
+        }
+        if (data && data.error) {
+          showToast(data.error);
+          if (status) status.textContent = data.hint || '';
+          return;
+        }
+        // The edge fn returns the fit shape directly. Reload from
+        // v_weibull_truth so timestamps + DISTINCT ON winners are consistent
+        // with what other readers see.
+        if (status) {
+          status.textContent = (data && data.failure_pattern === 'insufficient_data')
+            ? (data.diagnostic || 'Insufficient data for a defensible fit.')
+            : 'Fit complete.';
+        }
+        showToast(data && data.failure_pattern === 'insufficient_data'
+          ? 'Not enough failures yet — log more breakdowns.'
+          : 'Weibull fit saved.');
+        await loadLatestWeibull(nodeId);
+      } catch (err) {
+        showToast('Weibull fit failed: ' + (err && err.message ? err.message : 'network error'));
+        if (status) status.textContent = '';
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Compute Weibull fit'; }
+      }
+    }
+
+    // ── Phase R.6: P-F interval panel ──────────────────────────────────────────
+    let _pfTemplatesByCategory = null;   // cached fetch from equipment_reading_templates
+    let _pfWiredForNode = null;
+
+    async function _ensurePfTemplates() {
+      if (_pfTemplatesByCategory) return _pfTemplatesByCategory;
+      const { data, error } = await db.from('equipment_reading_templates')
+        .select('category, reading_key, label, unit, sort_order')
+        .order('category', { ascending: true })
+        .order('sort_order', { ascending: true });
+      if (error) {
+        console.warn('reading templates load:', error.message);
+        _pfTemplatesByCategory = {};
+        return _pfTemplatesByCategory;
+      }
+      const byCat = {};
+      (data || []).forEach(t => {
+        if (!byCat[t.category]) byCat[t.category] = [];
+        byCat[t.category].push(t);
+      });
+      _pfTemplatesByCategory = byCat;
+      return _pfTemplatesByCategory;
+    }
+
+    async function _populatePfParameterSelect(nodeId) {
+      const sel = document.getElementById('pf-parameter');
+      if (!sel) return;
+      const node = _allNodes.find(n => n.id === nodeId);
+      const cat  = (node && node.iso_class) || null;
+      const tmpl = await _ensurePfTemplates();
+      // Prefer parameters for this asset's iso_class; fall back to all parameters.
+      let options = (cat && tmpl[cat]) ? tmpl[cat] : [];
+      if (!options.length) {
+        const seen = new Set();
+        Object.values(tmpl).forEach(arr => arr.forEach(t => {
+          if (!seen.has(t.reading_key)) { seen.add(t.reading_key); options.push(t); }
+        }));
+      }
+      const e = escHtml;
+      sel.innerHTML = options.length
+        ? options.map(t => `<option value="${e(t.reading_key)}">${e(t.label)} (${e(t.unit)})</option>`).join('')
+        : '<option value="">(no reading templates registered)</option>';
+    }
+
+    function _renderPfResult(result) {
+      const empty   = document.getElementById('pf-empty');
+      const summary = document.getElementById('pf-summary');
+      if (!empty || !summary) return;
+      if (!result || result.pf_days == null) {
+        empty.style.display = 'block';
+        summary.style.display = 'none';
+        return;
+      }
+      empty.style.display = 'none';
+      summary.style.display = 'flex';
+
+      const e = escHtml;
+      const pfDaysEl = document.getElementById('pf-pf-days');
+      const recEl    = document.getElementById('pf-recommended');
+      const basisEl  = document.getElementById('pf-basis');
+      const metaEl   = document.getElementById('pf-meta');
+      const diagEl   = document.getElementById('pf-diagnostic');
+
+      if (pfDaysEl) pfDaysEl.textContent = Number(result.pf_days).toFixed(1) + ' d';
+      if (recEl)    recEl.textContent    = (result.recommended_interval_days != null)
+                                              ? (result.recommended_interval_days + ' d')
+                                              : '--';
+      if (basisEl) {
+        basisEl.textContent = result.basis || 'P-F/2';
+        basisEl.className   = 'weibull-pattern-pill weibull-pattern-random';
+      }
+      if (metaEl) {
+        const param = result.parameter || '';
+        const when  = result.generated_at ? new Date(result.generated_at).toLocaleString('en-PH') : '';
+        metaEl.textContent = `parameter ${param} · ${result.n_pairs || 0} P-F pair(s)`
+          + (when ? ' · last computed ' + when : '');
+      }
+      if (diagEl) diagEl.textContent = result.diagnostic || '';
+    }
+
+    async function _loadLatestPfFor(nodeId, parameter) {
+      if (!parameter) { _renderPfResult(null); return; }
+      const { data, error } = await db.from('v_pf_truth')
+        .select('parameter, p_threshold, f_threshold, pf_days, recommended_interval_days, basis, generated_at')
+        .eq('hive_id', HIVE_ID)
+        .eq('asset_id', nodeId)
+        .eq('parameter', parameter)
+        .is('fmea_mode_id', null)
+        .limit(1);
+      if (error) {
+        // PGRST205 = view not yet present (migration not applied) — silently empty
+        if (error.code !== 'PGRST205') console.warn('pf load:', error.message);
+        _renderPfResult(null);
+        return;
+      }
+      _renderPfResult((data && data[0]) || null);
+    }
+
+    async function loadPfPanel(nodeId) {
+      const sel = document.getElementById('pf-parameter');
+      const btn = document.getElementById('pf-compute-btn');
+      // First time: populate parameter list and wire change/click handlers.
+      if (_pfWiredForNode !== nodeId) {
+        await _populatePfParameterSelect(nodeId);
+        if (sel) sel.onchange = () => _loadLatestPfFor(nodeId, sel.value);
+        if (btn) btn.onclick = () => computePfInterval(nodeId);
+        _pfWiredForNode = nodeId;
+      }
+      // Refresh display for the currently selected parameter.
+      if (sel) await _loadLatestPfFor(nodeId, sel.value);
+    }
+
+    async function computePfInterval(nodeId) {
+      if (!nodeId) { showToast('No asset selected.'); return; }
+      const sel    = document.getElementById('pf-parameter');
+      const pEl    = document.getElementById('pf-p-threshold');
+      const fEl    = document.getElementById('pf-f-threshold');
+      const dirEl  = document.getElementById('pf-direction');
+      const safe   = !!document.getElementById('pf-safety-critical')?.checked;
+      const parameter = sel ? sel.value : '';
+      const p = parseFloat(pEl ? pEl.value : '');
+      const f = parseFloat(fEl ? fEl.value : '');
+      const direction = dirEl ? dirEl.value : 'above';
+      if (!parameter)            { showToast('Pick a parameter.'); return; }
+      if (!Number.isFinite(p) || !Number.isFinite(f)) { showToast('Set both P and F thresholds.'); return; }
+      if (direction === 'above' && p >= f) { showToast('For direction=above, P must be lower than F.'); return; }
+      if (direction === 'below' && p <= f) { showToast('For direction=below, P must be higher than F.'); return; }
+
+      const btn    = document.getElementById('pf-compute-btn');
+      const status = document.getElementById('pf-status');
+      if (btn) { btn.disabled = true; btn.textContent = 'Scanning logbook readings...'; }
+      if (status) status.textContent = 'Pulling readings_json and detecting P-F pairs...';
+      try {
+        const { data, error } = await db.functions.invoke('pf-calculator', {
+          body: {
+            hive_id: HIVE_ID, asset_id: nodeId,
+            parameter, p_threshold: p, f_threshold: f,
+            direction, safety_critical: safe,
+          },
+        });
+        if (error) {
+          showToast('P-F compute failed: ' + (error.message || 'unknown error'));
+          if (status) status.textContent = '';
+          return;
+        }
+        if (data && data.error) {
+          showToast(data.error);
+          if (status) status.textContent = data.hint || '';
+          return;
+        }
+        if (status) {
+          status.textContent = (data && data.pf_days == null)
+            ? (data.diagnostic || 'No P-F pair detected.')
+            : 'P-F interval saved.';
+        }
+        showToast(data && data.pf_days == null
+          ? 'No P-F pair detected — see diagnostic.'
+          : 'P-F interval computed.');
+        // After successful compute we read back from the canonical view so the
+        // displayed row matches what other readers see.
+        await _loadLatestPfFor(nodeId, parameter);
+        // If the latest row was just inserted but the view returned nothing
+        // (e.g. view not yet applied in migrations), fall back to the inline result.
+        if (data && data.pf_days != null) {
+          _renderPfResult({ ...data, parameter, generated_at: new Date().toISOString() });
+        }
+      } catch (err) {
+        showToast('P-F compute failed: ' + (err && err.message ? err.message : 'network error'));
+        if (status) status.textContent = '';
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Compute P-F interval'; }
+      }
+    }
+
+    // ── Phase R.7: Print-ready Reliability Report ──────────────────────────────
+    // Pulls every reliability canonical truth (v_fmea_truth, v_rcm_truth,
+    // v_weibull_truth, v_pf_truth) for this asset, plus a small slice of recent
+    // corrective logbook history for context, then renders an auditor-friendly
+    // single-document report. Opens in a print popup with print-CSS so the
+    // engineer can hand it off as PDF or paper. Intentionally read-only — no
+    // writes, no edge-fn calls.
+    async function generateReliabilityReport(nodeId) {
+      if (!nodeId) { showToast('No asset selected.'); return; }
+      const node = _allNodes.find(n => n.id === nodeId);
+      if (!node) { showToast('Asset not found.'); return; }
+
+      const btn = document.getElementById('reliability-report-btn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Assembling...'; }
+      try {
+        const sinceIso = new Date(Date.now() - 365 * 86400000).toISOString();
+        const [fmeaRes, rcmRes, weibullRes, pfRes, logRes] = await Promise.allSettled([
+          db.from('v_fmea_truth')
+            .select('failure_mode, function_text, effect_text, cause_text, severity, occurrence, detection, rpn, consequence_class, source, ai_confidence, approved_at')
+            .eq('hive_id', HIVE_ID).eq('asset_id', nodeId)
+            .order('rpn', { ascending: false }).limit(50),
+          db.from('v_rcm_truth')
+            .select('strategy_id, fmea_mode_id, decision, task_text, interval_days, rationale, written_to_pm_scope_item_id, source, approved_at')
+            .eq('hive_id', HIVE_ID).eq('asset_id', nodeId).limit(50),
+          db.from('v_weibull_truth')
+            .select('beta, eta_days, failure_pattern, n_failures, n_censored, log_likelihood, source_window_days, generated_at')
+            .eq('hive_id', HIVE_ID).eq('asset_id', nodeId).is('fmea_mode_id', null).limit(1),
+          db.from('v_pf_truth')
+            .select('parameter, p_threshold, f_threshold, pf_days, recommended_interval_days, basis, generated_at')
+            .eq('hive_id', HIVE_ID).eq('asset_id', nodeId).limit(20),
+          db.from('v_logbook_truth')
+            .select('created_at, problem, root_cause, downtime_hours, maintenance_type')
+            .eq('hive_id', HIVE_ID).eq('asset_ref_id', node.legacy_asset_id || '__none__')
+            .gte('created_at', sinceIso)
+            .order('created_at', { ascending: false }).limit(8),
+        ]);
+
+        const fmea    = (fmeaRes.status === 'fulfilled' && fmeaRes.value.data)    || [];
+        const rcm     = (rcmRes.status === 'fulfilled' && rcmRes.value.data)      || [];
+        const weibull = (weibullRes.status === 'fulfilled' && weibullRes.value.data && weibullRes.value.data[0]) || null;
+        const pf      = (pfRes.status === 'fulfilled' && pfRes.value.data)        || [];
+        const logs    = (logRes.status === 'fulfilled' && logRes.value.data)      || [];
+
+        const html = _renderReliabilityReportHtml(node, fmea, rcm, weibull, pf, logs);
+        const w = window.open('', '_blank', 'width=920,height=1100');
+        if (!w) { showToast('Popup blocked. Allow popups for asset-hub.'); return; }
+        w.document.open();
+        w.document.write(html);
+        w.document.close();
+        // Print after the popup has painted at least one frame.
+        w.addEventListener('load', () => {
+          try { w.focus(); w.print(); } catch (_) {}
+        });
+      } catch (err) {
+        showToast('Report failed: ' + (err && err.message ? err.message : 'unknown error'));
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Print Report'; }
+      }
+    }
+
+    function _renderReliabilityReportHtml(node, fmea, rcm, weibull, pf, logs) {
+      // Local escaper so the popup is self-contained even if the parent
+      // utils.js were unavailable in the new window.
+      const esc = (s) => String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+      const today = new Date();
+      const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+      const engineer = (typeof WORKER_NAME !== 'undefined' && WORKER_NAME) ? WORKER_NAME : 'Reliability engineer';
+      const hiveTag  = (typeof HIVE_ID !== 'undefined' && HIVE_ID) ? HIVE_ID.slice(0, 8) : '';
+
+      const approvedFmea = fmea;     // v_fmea_truth already filters approved-only
+      const linkedRcm    = rcm.filter(r => r.written_to_pm_scope_item_id);
+      const topRpn       = approvedFmea.length ? Math.max.apply(null, approvedFmea.map(r => Number(r.rpn) || 0)) : 0;
+      const weibullPattern = weibull ? weibull.failure_pattern : 'no_fit';
+
+      const rcmByMode = {};
+      rcm.forEach(s => { if (s.fmea_mode_id) rcmByMode[s.fmea_mode_id] = s; });
+
+      const fmeaRows = approvedFmea.length ? approvedFmea.map(r => `
+        <tr>
+          <td class="rpn-cell">${esc(r.rpn ?? '?')}</td>
+          <td>${esc(r.function_text || '(unspecified)')}</td>
+          <td>${esc(r.failure_mode || '(unspecified)')}</td>
+          <td>${esc(r.effect_text || '')}</td>
+          <td>${esc(r.cause_text || '')}</td>
+          <td class="num">${esc(r.severity ?? '?')}</td>
+          <td class="num">${esc(r.occurrence ?? '?')}</td>
+          <td class="num">${esc(r.detection ?? '?')}</td>
+          <td>${esc(r.consequence_class || '')}</td>
+          <td>${esc(r.source || 'manual')}</td>
+        </tr>`).join('')
+        : '<tr><td colspan="10" class="empty">No approved FMEA modes registered for this asset.</td></tr>';
+
+      const rcmRows = rcm.length ? rcm.map(s => `
+        <tr>
+          <td>${esc(s.decision || '')}</td>
+          <td>${esc(s.task_text || '')}</td>
+          <td class="num">${s.interval_days ? esc(s.interval_days) + ' d' : ''}</td>
+          <td>${esc(s.rationale || '')}</td>
+          <td>${s.written_to_pm_scope_item_id ? '<span class="pm-yes">linked</span>' : '<span class="pm-no">not linked</span>'}</td>
+          <td>${esc(s.source || 'manual')}</td>
+        </tr>`).join('')
+        : '<tr><td colspan="6" class="empty">No approved RCM strategies. Set strategies on the FMEA tab.</td></tr>';
+
+      let weibullBlock;
+      if (weibull && weibull.beta != null) {
+        weibullBlock = `
+          <table class="meta-table">
+            <tr><th>Beta (shape)</th><td>${esc(Number(weibull.beta).toFixed(2))}</td></tr>
+            <tr><th>Eta (characteristic life)</th><td>${esc(Math.round(Number(weibull.eta_days)))} d</td></tr>
+            <tr><th>Pattern</th><td>${esc(weibull.failure_pattern)}</td></tr>
+            <tr><th>Failures observed</th><td>${esc(weibull.n_failures || 0)}</td></tr>
+            <tr><th>Right-censored</th><td>${esc(weibull.n_censored || 0)}</td></tr>
+            <tr><th>Window</th><td>${esc(weibull.source_window_days || '?')} d</td></tr>
+            <tr><th>Log-likelihood</th><td>${weibull.log_likelihood != null ? esc(Number(weibull.log_likelihood).toFixed(2)) : '--'}</td></tr>
+            <tr><th>Last fit</th><td>${esc(fmtDate(weibull.generated_at))}</td></tr>
+          </table>`;
+      } else {
+        weibullBlock = '<p class="empty">No Weibull fit yet. Compute on the Weibull tab once at least 4 corrective events are logged (IEC 61649).</p>';
+      }
+
+      const pfRows = pf.length ? pf.map(p => `
+        <tr>
+          <td>${esc(p.parameter)}</td>
+          <td class="num">${esc(p.p_threshold)}</td>
+          <td class="num">${esc(p.f_threshold)}</td>
+          <td class="num">${esc(Number(p.pf_days).toFixed(1))} d</td>
+          <td class="num">${esc(p.recommended_interval_days)} d</td>
+          <td>${esc(p.basis)}</td>
+          <td>${esc(fmtDate(p.generated_at))}</td>
+        </tr>`).join('')
+        : '<tr><td colspan="7" class="empty">No P-F intervals computed. Set thresholds on the P-F tab to scan readings_json history.</td></tr>';
+
+      const logRows = logs.length ? logs.map(l => `
+        <tr>
+          <td>${esc(fmtDate(l.created_at))}</td>
+          <td>${esc(l.maintenance_type || '')}</td>
+          <td>${esc((l.problem || '').slice(0, 80))}</td>
+          <td>${esc((l.root_cause || '').slice(0, 60))}</td>
+          <td class="num">${l.downtime_hours != null ? esc(l.downtime_hours) + ' h' : ''}</td>
+        </tr>`).join('')
+        : '<tr><td colspan="5" class="empty">No corrective logbook entries in the last 365 days.</td></tr>';
+
+      return `<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<title>Reliability Report — ${esc(node.tag || node.name || 'asset')}</title>
+<style>
+  /* Phase R.7 print CSS — black-on-white, A4 layout, page-break-friendly */
+  @page { size: A4; margin: 12mm 14mm; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    padding: 14mm;
+    color: #111; background: #fff;
+    font-family: 'Liberation Sans', Arial, Helvetica, sans-serif;
+    font-size: 10.5pt; line-height: 1.4;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  h1 { font-size: 18pt; margin: 0 0 4px 0; color: #111; }
+  h2 { font-size: 13pt; margin: 14px 0 6px 0; padding-bottom: 3px;
+       border-bottom: 1px solid #444; page-break-after: avoid; }
+  h3 { font-size: 11pt; margin: 10px 0 4px 0; }
+  .meta { display: flex; flex-wrap: wrap; gap: 12px 24px; font-size: 10pt; color: #333;
+          margin: 4px 0 14px 0; }
+  .meta div { white-space: nowrap; }
+  .summary { margin: 4px 0 14px 0; padding: 10px 12px;
+             background: #f5f3ff; border: 1px solid #d6cefc; border-radius: 6px;
+             page-break-inside: avoid; }
+  .summary ul { margin: 4px 0 0 0; padding-left: 18px; }
+  .summary li { margin-bottom: 3px; }
+  table { border-collapse: collapse; width: 100%; margin: 4px 0; page-break-inside: auto; }
+  tr { page-break-inside: avoid; }
+  th, td { border: 1px solid #bbb; padding: 5px 7px; vertical-align: top; font-size: 9.5pt; }
+  th { background: #ececec; text-align: left; font-weight: 700; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.empty { color: #777; font-style: italic; text-align: center; }
+  .rpn-cell { font-weight: 700; text-align: center; }
+  .meta-table th { width: 38%; }
+  .pm-yes { color: #1a7a3a; font-weight: 700; }
+  .pm-no  { color: #888; }
+  section { page-break-inside: auto; margin-bottom: 6px; }
+  footer { margin-top: 16px; padding-top: 8px; border-top: 1px solid #ccc;
+           font-size: 8.5pt; color: #555; page-break-inside: avoid; }
+  .standards { margin-top: 4px; }
+  @media print {
+    body { padding: 0; }
+    .no-print { display: none !important; }
+  }
+  .no-print {
+    position: fixed; top: 8px; right: 8px;
+    display: flex; gap: 6px;
+  }
+  .no-print button {
+    padding: 6px 12px; font-size: 10pt; cursor: pointer;
+    background: #4f46e5; color: #fff; border: none; border-radius: 4px;
+  }
+  .no-print button.secondary { background: #888; }
+</style>
+</head><body>
+<div class="no-print">
+  <button onclick="window.print()">Print / Save PDF</button>
+  <button class="secondary" onclick="window.close()">Close</button>
+</div>
+
+<header>
+  <h1>Reliability Report — ${esc(node.tag || node.name || 'Untitled asset')}</h1>
+  <div class="meta">
+    <div><strong>Asset:</strong> ${esc(node.name || node.tag || '--')}</div>
+    <div><strong>ISO 14224 class:</strong> ${esc(node.iso_class || '--')}</div>
+    <div><strong>Criticality:</strong> ${esc(node.criticality || '--')}</div>
+    <div><strong>Location:</strong> ${esc(node.location || '--')}</div>
+    <div><strong>Generated:</strong> ${esc(today.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }))}</div>
+    <div><strong>Engineer:</strong> ${esc(engineer)}</div>
+    <div><strong>Hive:</strong> ${esc(hiveTag)}</div>
+  </div>
+</header>
+
+<section class="summary">
+  <strong>Executive Summary</strong>
+  <ul>
+    <li>Approved FMEA failure modes: <strong>${approvedFmea.length}</strong>${approvedFmea.length ? ` &middot; top RPN <strong>${esc(topRpn)}</strong>` : ''}.</li>
+    <li>Approved RCM strategies: <strong>${rcm.length}</strong>${rcm.length ? ` &middot; ${linkedRcm.length} pushed to PM Scheduler` : ''}.</li>
+    <li>Weibull pattern: <strong>${esc(weibullPattern)}</strong>${weibull && weibull.beta != null ? ` (beta=${esc(Number(weibull.beta).toFixed(2))}, eta=${esc(Math.round(Number(weibull.eta_days)))}d, n=${esc(weibull.n_failures || 0)})` : ''}.</li>
+    <li>P-F intervals computed: <strong>${pf.length}</strong>${pf.length ? ` parameter${pf.length === 1 ? '' : 's'}` : ''}.</li>
+    <li>Corrective events in last 365d: <strong>${logs.filter(l => /corrective|breakdown/i.test(String(l.maintenance_type || ''))).length}</strong>.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>1. FMEA matrix (AIAG-VDA 2019)</h2>
+  <table>
+    <thead><tr>
+      <th>RPN</th><th>Function</th><th>Failure mode</th><th>Effect</th><th>Cause</th>
+      <th>S</th><th>O</th><th>D</th><th>Conseq.</th><th>Source</th>
+    </tr></thead>
+    <tbody>${fmeaRows}</tbody>
+  </table>
+</section>
+
+<section>
+  <h2>2. RCM strategies (SAE JA1011 / JA1012)</h2>
+  <table>
+    <thead><tr>
+      <th>Decision</th><th>Task</th><th>Interval</th><th>Rationale</th><th>PM link</th><th>Source</th>
+    </tr></thead>
+    <tbody>${rcmRows}</tbody>
+  </table>
+</section>
+
+<section>
+  <h2>3. Weibull analysis (IEC 61649)</h2>
+  ${weibullBlock}
+</section>
+
+<section>
+  <h2>4. P-F intervals (RCM bathtub curve, ISO 13381-1)</h2>
+  <table>
+    <thead><tr>
+      <th>Parameter</th><th>P</th><th>F</th><th>P-F window</th><th>Inspect every</th><th>Basis</th><th>Computed</th>
+    </tr></thead>
+    <tbody>${pfRows}</tbody>
+  </table>
+</section>
+
+<section>
+  <h2>5. Recent corrective history (last 365 d)</h2>
+  <table>
+    <thead><tr>
+      <th>Date</th><th>Type</th><th>Problem</th><th>Root cause</th><th>Downtime</th>
+    </tr></thead>
+    <tbody>${logRows}</tbody>
+  </table>
+</section>
+
+<footer>
+  <div class="standards">
+    Standards: SAE JA1011 (RCM), SAE JA1012 (RCM Guide), AIAG-VDA 2019 (FMEA),
+    MIL-STD-1629A (FMECA), ISO 14224 (taxonomy), IEC 61649 (Weibull),
+    ISO 13381-1 (Condition Monitoring).
+  </div>
+  <div>Generated by WorkHive Reliability Workbench &middot; ${esc(today.toLocaleDateString('en-CA'))}</div>
+</footer>
+</body></html>`;
     }
 
     // ── Marketplace surface ────────────────────────────────────────────────────
@@ -1287,6 +2957,49 @@
         if (touched && _selectedNodeId === nodeId) {
           loadDetailNeighbors(nodeId);
           loadDetailStats(nodeId);
+        }
+      });
+
+      // FMEA changes for this asset (Phase R.2). Hive-scoped at the wire,
+      // asset_id matched client-side so cross-asset events are dropped.
+      _hubChannel.on('postgres_changes', {
+        event: '*', schema: 'public', table: 'rcm_fmea_modes',
+        filter: 'hive_id=eq.' + HIVE_ID,
+      }, (payload) => {
+        const newRow = payload.new || {};
+        const oldRow = payload.old || {};
+        const touched = (newRow.asset_id === nodeId) || (oldRow.asset_id === nodeId);
+        if (touched && _selectedNodeId === nodeId) {
+          loadDetailFmea(nodeId);
+        }
+      });
+
+      // RCM strategy changes (Phase R.4). Strategy rows hold fmea_mode_id,
+      // not asset_id, so we match by checking the in-memory FMEA mode set.
+      _hubChannel.on('postgres_changes', {
+        event: '*', schema: 'public', table: 'rcm_strategies',
+        filter: 'hive_id=eq.' + HIVE_ID,
+      }, (payload) => {
+        const newRow = payload.new || {};
+        const oldRow = payload.old || {};
+        const targetMode = newRow.fmea_mode_id || oldRow.fmea_mode_id;
+        const knownModes = _fmeaModes.map(m => m.id);
+        const touched = targetMode && knownModes.includes(targetMode);
+        if (touched && _selectedNodeId === nodeId) {
+          loadDetailFmea(nodeId);
+        }
+      });
+
+      // Weibull fits (Phase R.5). asset_id is on the row, hive_id at the wire.
+      _hubChannel.on('postgres_changes', {
+        event: '*', schema: 'public', table: 'weibull_fits',
+        filter: 'hive_id=eq.' + HIVE_ID,
+      }, (payload) => {
+        const newRow = payload.new || {};
+        const oldRow = payload.old || {};
+        const touched = (newRow.asset_id === nodeId) || (oldRow.asset_id === nodeId);
+        if (touched && _selectedNodeId === nodeId) {
+          loadLatestWeibull(nodeId);
         }
       });
 
@@ -1519,5 +3232,74 @@
     document.addEventListener('DOMContentLoaded', init);
   </script>
   <script src="floating-ai.js"></script>
+  <script>
+  // ── Phase B.2: Voice handler registration for asset.lookup ───────────────
+  // When a worker says "show me Pump 5" or "what is the status of P-101A",
+  // voice-action-router resolves the asset via v_asset_truth and we open its
+  // detail view. If the worker also asked a question, route it through the
+  // existing Ask Asset Brain box on this page.
+  (function () {
+    async function assetLookupHandler(intent, assetResolution) {
+      const primary = assetResolution && assetResolution.primary;
+      const candidates = (assetResolution && assetResolution.candidates) || [];
+      const ambiguous = !!(assetResolution && assetResolution.ambiguous);
+
+      if (!primary) {
+        const mentioned = (intent.params && intent.params.machine) || '(no asset name)';
+        return {
+          ok: false,
+          message: `Could not find an asset matching "${mentioned}" in this hive. Try the search bar.`,
+        };
+      }
+      if (ambiguous && candidates.length > 1) {
+        return {
+          ok: false,
+          message: `Multiple matches: ${candidates.slice(0, 3).map(c => c.tag || c.name).join(', ')}. Refine the name.`,
+        };
+      }
+
+      // Open the detail view for this asset_id (asset-hub.html already exposes openDetail).
+      try {
+        if (typeof openDetail === 'function') {
+          openDetail(primary.asset_id);
+        } else {
+          // Fall back to URL-based navigation
+          const u = new URL(window.location.href);
+          u.searchParams.set('node_id', primary.asset_id);
+          window.history.replaceState({}, '', u.toString());
+        }
+      } catch (_) {}
+
+      // If the worker also asked a question, plug it into the Ask Asset Brain box.
+      const q = intent.params && intent.params.question;
+      if (q && typeof askAssetBrain === 'function') {
+        try {
+          const input = document.getElementById('ask-input');
+          if (input) input.value = q;
+          await askAssetBrain(primary.asset_id);
+        } catch (_) {}
+      }
+
+      return {
+        ok: true,
+        message: `Opened ${primary.tag || primary.name}${q ? ' and asked Asset Brain.' : '.'}`,
+      };
+    }
+
+    function tryRegister() {
+      if (window.WHVoice && typeof window.WHVoice.register === 'function') {
+        window.WHVoice.register('asset.lookup', assetLookupHandler);
+        return true;
+      }
+      return false;
+    }
+    if (!tryRegister()) {
+      let tries = 0;
+      const t = setInterval(() => {
+        if (tryRegister() || ++tries > 20) clearInterval(t);
+      }, 250);
+    }
+  })();
+  </script>
 </body>
 </html>

@@ -30,6 +30,8 @@ from flows import asset_hub_flow, alert_hub_flow, shift_brain_flow
 from flows import qr_scanner_flow, global_search_flow
 from flows import work_order_flow, ml_predictive_flow, auto_staging_flow
 from flows import home_dashboard_flow
+from flows import voice_action_router_flow
+from flows import canonical_sources_flow
 
 WITH_AI = "--with-ai" in sys.argv
 WITH_VISUAL = "--with-visual" in sys.argv
@@ -89,6 +91,8 @@ def main():
                 ("Work Order State",   work_order_flow),
                 ("ML Predictive",      ml_predictive_flow),
                 ("Auto-Staging",       auto_staging_flow),
+                ("Voice Action Router", voice_action_router_flow),
+                ("Canonical Sources",   canonical_sources_flow),
                 ("Logbook",            logbook),
                 ("Community",      community),
                 ("Analytics",      analytics),

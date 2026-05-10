@@ -386,6 +386,29 @@
   }
 
   /* ============================================================
+     AUDIT LOG (fire-and-forget)
+     ----------------------------------------------------------------
+     Marketplace platform-admin actions are global (not hive-scoped),
+     but hive_audit_log requires hive_id NOT NULL. We log under the
+     admin's own HIVE_ID with meta.scope='platform_admin' so the entry
+     is reviewable in the admin's audit-log.html. This is interim:
+     a dedicated marketplace_audit_log table with cross-hive visibility
+     is the proper long-term home once a second platform admin onboards.
+  ============================================================ */
+  function writeAuditLog(action, targetType, targetId, targetName, meta) {
+    if (!HIVE_ID) return;
+    db.from('hive_audit_log').insert({
+      hive_id:     HIVE_ID,
+      actor:       WORKER_NAME,
+      action,
+      target_type: targetType,
+      target_id:   targetId,
+      target_name: targetName,
+      meta:        Object.assign({ scope: 'platform_admin' }, meta || {}),
+    }).then(res => { if (res.error) console.warn('audit log:', res.error.message); });
+  }
+
+  /* ============================================================
      STATE
   ============================================================ */
   let _tab      = 'draft';
@@ -418,9 +441,11 @@
   async function loadSellers() {
     showSkeletons();
     try {
+      // Canonical: marketplace_sellers_truth — adds active_listings_count
+      // and is_verified_public so the admin grid shows real activity per seller.
       const { data, error } = await db
-        .from('marketplace_sellers')
-        .select('id,worker_name,tier,kyb_verified,kyb_verified_at,cert_verified,cert_verified_at,certifications,total_sales,rating_avg,stripe_account_id,created_at')
+        .from('v_marketplace_sellers_truth')
+        .select('id,worker_name,tier,kyb_verified,kyb_verified_at,cert_verified,cert_verified_at,certifications,total_sales,rating_avg,stripe_account_id,created_at,active_listings_count,is_verified_public,last_listed_at')
         .order('created_at', { ascending: false })
         .limit(100);
       if (error) throw error;
@@ -438,7 +463,7 @@
         db.from('marketplace_listings').select('id', { count: 'exact', head: true }).eq('status', 'draft'),
         db.from('marketplace_listings').select('id', { count: 'exact', head: true }).eq('status', 'published'),
         db.from('marketplace_listings').select('id', { count: 'exact', head: true }).eq('status', 'removed'),
-        db.from('marketplace_sellers').select('kyb_verified', { count: 'exact' }),
+        db.from('v_marketplace_sellers_truth').select('kyb_verified', { count: 'exact' }),
       ]);
       _stats.draft      = draftRes.count  || 0;
       _stats.published  = pubRes.count    || 0;
@@ -617,6 +642,7 @@
     btns?.forEach(b => { b.disabled = true; });
 
     const newStatus = action === 'approve' ? 'published' : action === 'reject' ? 'removed' : 'draft';
+    const listing   = _listings.find(l => l.id === id);
 
     try {
       const { error } = await db
@@ -624,6 +650,13 @@
         .update({ status: newStatus, updated_at: new Date().toISOString() })
         .eq('id', id);
       if (error) throw error;
+
+      const auditAction = action === 'approve' ? 'approve_listing'
+                       : action === 'reject'  ? 'reject_listing'
+                       :                        'unpublish_listing';
+      writeAuditLog(auditAction, 'marketplace_listings', id,
+        (listing && listing.title) || id,
+        { new_status: newStatus, seller: (listing && listing.worker_name) || null });
 
       const label = action === 'approve' ? 'Approved' : action === 'reject' ? 'Rejected' : 'Unpublished';
       showToast(label + ' successfully.', action === 'approve' ? 'success' : 'info');
@@ -661,6 +694,12 @@
         .update(update)
         .eq('worker_name', workerName);
       if (error) throw error;
+
+      const auditAction = isCert
+        ? (verified ? 'verify_seller_cert' : 'unverify_seller_cert')
+        : (verified ? 'verify_seller_kyb'  : 'unverify_seller_kyb');
+      writeAuditLog(auditAction, 'marketplace_sellers', workerName, workerName,
+        { kind: isCert ? 'certifications' : 'identity', verified: verified });
 
       const labelMap = {
         'verify':         workerName + ' identity verified.',
@@ -806,10 +845,19 @@
 
       /* Update order status */
       if (isResolved && orderId) {
+        const orderStatus = action === 'release' ? 'released' : 'refunded';
         await db.from('marketplace_orders')
-          .update({ status: action === 'release' ? 'released' : 'refunded', updated_at: new Date().toISOString() })
+          .update({ status: orderStatus, updated_at: new Date().toISOString() })
           .eq('id', orderId);
+        writeAuditLog('resolve_dispute_order', 'marketplace_orders', orderId, orderId,
+          { dispute_id: disputeId, order_status: orderStatus });
       }
+
+      const auditAction = action === 'release' ? 'release_dispute_funds'
+                       : action === 'refund'  ? 'refund_dispute_buyer'
+                       :                        'escalate_dispute';
+      writeAuditLog(auditAction, 'marketplace_disputes', disputeId, disputeId,
+        { dispute_status: newStatus, order_id: orderId || null });
 
       const label = action === 'release' ? 'Released to seller.' : action === 'refund' ? 'Refund marked.' : 'Escalated to admin review.';
       showToast(label, 'success');

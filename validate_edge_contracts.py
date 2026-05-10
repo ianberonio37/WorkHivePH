@@ -64,6 +64,10 @@ ALL_FUNCTIONS = [
     "trigger-ml-retrain",
     "asset-brain-query",
     "shift-planner-orchestrator",
+    "voice-action-router",
+    "fmea-populator",
+    "weibull-fitter",
+    "pf-calculator",
 ]
 
 REQUIRED_FIELDS = {
@@ -96,6 +100,10 @@ REQUIRED_FIELDS = {
     "trigger-ml-retrain":           [],
     "asset-brain-query":            ["question", "asset_id", "hive_id"],
     "shift-planner-orchestrator":   ["shift_window"],
+    "voice-action-router":          ["transcript", "hive_id"],
+    "fmea-populator":               ["hive_id", "asset_id"],
+    "weibull-fitter":               ["hive_id", "asset_id"],
+    "pf-calculator":                ["hive_id", "asset_id", "parameter"],
 }
 
 

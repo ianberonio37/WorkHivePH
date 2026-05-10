@@ -5,7 +5,7 @@
  * grounded answer with cited sources. Three retrieval lanes run in parallel:
  *
  *   Lane A - Graph context: the asset itself, its parents, and its neighbors
- *            via asset_edges. Plus aggregate stats from asset_brain_overview.
+ *            via asset_edges. Plus aggregate stats from v_asset_truth (canonical asset 360).
  *   Lane B - Timeline: most recent logbook entries (via legacy_asset_id) and
  *            pm_completions (via pm_asset_id), capped at 20 events.
  *   Lane C - Similar failures: keyword search on logbook entries within the
@@ -44,16 +44,19 @@ You will receive a JSON payload with:
 - stats: aggregate counts (logbook entries, PM completions, last failure)
 - timeline: the 20 most recent events on this asset
 - similar: events on peer assets in the same equipment class
+- reliability: engineer-validated FMEA modes, RCM strategies, Weibull fit, P-F intervals
 - question: what the user asked
 
 Your job is to answer the question using ONLY the provided context. Rules:
 1. If the context lacks the answer, say so plainly. Never invent values.
-2. Cite sources by index (e.g. "logbook #3" or "pm #1") when the answer rests on a specific row.
-3. Keep responses under 120 words unless the question explicitly asks for more.
-4. Use Filipino industrial vocabulary (PEC 2017, PSME, ISO 14224) when appropriate.
-5. No em dashes in the response. Use colons, commas, parentheses, or restructure.
+2. Cite sources by index (e.g. "logbook #3", "pm #1", "fmea #0", "rcm #1", "pf #0") when the answer rests on a specific row.
+3. Prefer the reliability block when answering risk / failure-mode / maintenance-strategy questions; FMEA RPN, Weibull pattern (wearout / random / infant), and P-F intervals are engineer-validated and outrank raw logbook history.
+4. When Weibull pattern = wearout (beta > 1), age matters; when random (beta ~ 1), age does not predict next failure.
+5. Keep responses under 120 words unless the question explicitly asks for more.
+6. Use Filipino industrial vocabulary (PEC 2017, PSME, ISO 14224) when appropriate.
+7. No em dashes in the response. Use colons, commas, parentheses, or restructure.
 
-Output JSON: { "answer": string, "cited": [ { "kind": "logbook"|"pm"|"neighbor"|"stat", "index": number } ] }`;
+Output JSON: { "answer": string, "cited": [ { "kind": "logbook"|"pm"|"neighbor"|"stat"|"fmea"|"rcm"|"weibull"|"pf", "index": number } ] }`;
 
 // ---------------------------------------------------------------------------
 // Rate limit gate
@@ -100,18 +103,25 @@ async function fetchAssetGraphContext(
   assetId: string,
   hiveId: string,
 ) {
-  // The asset itself + its overview row.
-  const [{ data: nodeArr }, { data: overviewArr }] = await Promise.all([
-    db.from("asset_nodes")
-      .select("id, tag, name, level, iso_class, criticality, location, manufacturer, model, parent_id, legacy_asset_id, pm_asset_id, external_ids")
-      .eq("hive_id", hiveId).eq("id", assetId).limit(1),
-    db.from("asset_brain_overview")
-      .select("lifetime_logbook_entries, pm_completed_count, last_failure_at, edge_count")
-      .eq("hive_id", hiveId).eq("node_id", assetId).limit(1),
-  ]);
+  // Asset 360 from v_asset_truth (canonical view, domain=asset_truth).
+  // The view returns metadata + aggregates in one row, so we drop the
+  // separate asset_nodes query and derive both node and overview from it.
+  const { data: truthArr } = await db.from("v_asset_truth")
+    .select("asset_id, tag, name, level, iso_class, criticality, location, manufacturer, model, parent_id, legacy_asset_id, pm_asset_id, external_ids, lifetime_logbook_entries, pm_completed_count, last_failure_at, edge_count")
+    .eq("hive_id", hiveId).eq("asset_id", assetId).limit(1);
 
-  const node     = (nodeArr     && nodeArr[0])     || null;
-  const overview = (overviewArr && overviewArr[0]) || null;
+  const truth: AnyRow | null = (truthArr && truthArr[0]) || null;
+  // Adapt to the rest of this function's expected shape: keep `node.id` for
+  // downstream queries that join via asset_nodes.id (= v_asset_truth.asset_id).
+  const node = truth ? { ...truth, id: truth.asset_id } : null;
+  const overview = truth
+    ? {
+        lifetime_logbook_entries: truth.lifetime_logbook_entries,
+        pm_completed_count:       truth.pm_completed_count,
+        last_failure_at:          truth.last_failure_at,
+        edge_count:               truth.edge_count,
+      }
+    : null;
 
   // Parent (single hop) and immediate neighbors via asset_edges.
   let parent: AnyRow | null = null;
@@ -155,7 +165,7 @@ async function fetchAssetTimeline(
   const queries: Promise<unknown>[] = [];
   if (node.legacy_asset_id) {
     queries.push(
-      db.from("logbook")
+      db.from("v_logbook_truth")    // canonical: logbook_truth
         .select("id, machine, problem, action, root_cause, maintenance_type, status, created_at, closed_at, downtime_hours")
         .eq("hive_id", hiveId)
         .eq("asset_ref_id", node.legacy_asset_id)
@@ -209,7 +219,7 @@ async function fetchSimilarFailures(
   const legacyIds = peers.map(p => p.legacy_asset_id).filter(Boolean) as string[];
   if (!legacyIds.length) return [];
 
-  const { data: rows } = await db.from("logbook")
+  const { data: rows } = await db.from("v_logbook_truth")    // canonical
     .select("id, machine, problem, root_cause, maintenance_type, created_at, closed_at, asset_ref_id")
     .eq("hive_id", hiveId)
     .eq("maintenance_type", "Breakdown / Corrective")
@@ -225,6 +235,37 @@ async function fetchSimilarFailures(
   });
 }
 
+// Phase R-tie-in: pull reliability canonical truths for this asset so the
+// AI can reason about engineer-validated failure modes, RCM strategies,
+// Weibull pattern, and P-F intervals — not just raw logbook history.
+async function fetchReliability(
+  db: SupabaseClient,
+  assetId: string,
+  hiveId: string,
+) {
+  const [fmeaRes, rcmRes, weibullRes, pfRes] = await Promise.allSettled([
+    db.from("v_fmea_truth")
+      .select("failure_mode, function_text, effect_text, cause_text, severity, occurrence, detection, rpn, consequence_class, source")
+      .eq("hive_id", hiveId).eq("asset_id", assetId)
+      .order("rpn", { ascending: false }).limit(8),
+    db.from("v_rcm_truth")
+      .select("decision, task_text, interval_days, rationale, written_to_pm_scope_item_id")
+      .eq("hive_id", hiveId).eq("asset_id", assetId).limit(8),
+    db.from("v_weibull_truth")
+      .select("beta, eta_days, failure_pattern, n_failures, n_censored, generated_at")
+      .eq("hive_id", hiveId).eq("asset_id", assetId)
+      .is("fmea_mode_id", null).limit(1),
+    db.from("v_pf_truth")
+      .select("parameter, p_threshold, f_threshold, pf_days, recommended_interval_days, basis")
+      .eq("hive_id", hiveId).eq("asset_id", assetId).limit(8),
+  ]);
+  const fmea    = fmeaRes.status    === "fulfilled" ? (fmeaRes.value.data    || []) : [];
+  const rcm     = rcmRes.status     === "fulfilled" ? (rcmRes.value.data     || []) : [];
+  const weibull = weibullRes.status === "fulfilled" ? ((weibullRes.value.data || [])[0] || null) : null;
+  const pf      = pfRes.status      === "fulfilled" ? (pfRes.value.data      || []) : [];
+  return { fmea, rcm, weibull, pf };
+}
+
 // ---------------------------------------------------------------------------
 // Compose narrow payload
 // ---------------------------------------------------------------------------
@@ -233,6 +274,7 @@ function composeContext(
   graph: { node: AnyRow | null; overview: AnyRow | null; parent: AnyRow | null; neighbors: AnyRow[] },
   timeline: { logbook: AnyRow[]; pm: AnyRow[] },
   similar: AnyRow[],
+  reliability: { fmea: AnyRow[]; rcm: AnyRow[]; weibull: AnyRow | null; pf: AnyRow[] },
   question: string,
 ) {
   // Token discipline (ai-engineer skill): summary strings, capped row counts.
@@ -282,6 +324,50 @@ function composeContext(
       problem: r.problem,
       root_cause: r.root_cause,
     })),
+    reliability: {
+      // Approved FMEA modes ranked by RPN — engineer-validated failure modes.
+      fmea: reliability.fmea.map((r, i) => ({
+        index:        i,
+        rpn:          r.rpn,
+        failure_mode: r.failure_mode,
+        function:     r.function_text,
+        effect:       r.effect_text,
+        cause:        r.cause_text,
+        severity:     r.severity,
+        occurrence:   r.occurrence,
+        detection:    r.detection,
+        consequence:  r.consequence_class,
+        source:       r.source,
+      })),
+      // RCM strategies per JA1011 — what is the asset's maintenance policy.
+      rcm: reliability.rcm.map((r, i) => ({
+        index:         i,
+        decision:      r.decision,
+        task:          r.task_text,
+        interval_days: r.interval_days,
+        rationale:     r.rationale,
+        pm_linked:     !!r.written_to_pm_scope_item_id,
+      })),
+      // Latest Weibull fit — wear-out vs random vs infant.
+      weibull: reliability.weibull && {
+        beta:            reliability.weibull.beta,
+        eta_days:        reliability.weibull.eta_days,
+        failure_pattern: reliability.weibull.failure_pattern,
+        n_failures:      reliability.weibull.n_failures,
+        n_censored:      reliability.weibull.n_censored,
+        generated_at:    reliability.weibull.generated_at,
+      },
+      // P-F intervals per parameter — recommended inspection cadences.
+      pf: reliability.pf.map((r, i) => ({
+        index:                     i,
+        parameter:                 r.parameter,
+        p_threshold:               r.p_threshold,
+        f_threshold:               r.f_threshold,
+        pf_days:                   r.pf_days,
+        recommended_interval_days: r.recommended_interval_days,
+        basis:                     r.basis,
+      })),
+    },
     question,
   };
 }
@@ -335,15 +421,17 @@ serve(async (req) => {
       );
     }
 
-    const [tlRes, simRes] = await Promise.allSettled([
+    const [tlRes, simRes, relRes] = await Promise.allSettled([
       fetchAssetTimeline(db, graphRes.node, hive_id),
       fetchSimilarFailures(db, graphRes.node, hive_id),
+      fetchReliability(db, asset_id, hive_id),
     ]);
 
-    const timeline = tlRes.status === "fulfilled" ? tlRes.value : { logbook: [], pm: [] };
-    const similar  = simRes.status === "fulfilled" ? simRes.value : [];
+    const timeline    = tlRes.status  === "fulfilled" ? tlRes.value  : { logbook: [], pm: [] };
+    const similar     = simRes.status === "fulfilled" ? simRes.value : [];
+    const reliability = relRes.status === "fulfilled" ? relRes.value : { fmea: [], rcm: [], weibull: null, pf: [] };
 
-    const context = composeContext(graphRes, timeline, similar, question);
+    const context = composeContext(graphRes, timeline, similar, reliability, question);
     const prompt  = JSON.stringify(context);
 
     let raw: string;

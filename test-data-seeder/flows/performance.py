@@ -30,6 +30,7 @@ PAGES = [
     "asset-hub.html",
     "shift-brain.html",
     "alert-hub.html",
+    "audit-log.html",
 ]
 
 # All in milliseconds

@@ -72,26 +72,18 @@ async function recommendForHive(
   const hiveId = hive.id;
   const cutoff = new Date(Date.now() - HISTORY_DAYS * 86400000).toISOString();
 
-  // ── 1. Top-risk assets (most recent score per asset, score >= RISK_FLOOR) ───
-  // Pull last 24h of risk rows; we only act on the latest scoring batch.
-  const since24h = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+  // ── 1. Top-risk assets (canonical: v_risk_truth, latest per asset already deduped) ──
   const { data: riskRows, error: riskErr } = await db
-    .from("asset_risk_scores")
-    .select("asset_name, risk_score, top_factors, generated_at")
+    .from("v_risk_truth")
+    .select("asset_id, asset_name, risk_score, top_factors, generated_at")
     .eq("hive_id", hiveId)
-    .gte("generated_at", since24h)
-    .gte("risk_score", RISK_FLOOR)
-    .order("generated_at", { ascending: false });
+    .gte("risk_score", RISK_FLOOR);
 
   if (riskErr) throw new Error(`risk scores: ${riskErr.message}`);
   if (!riskRows?.length) return { hive_id: hiveId, count: 0, note: "No high-risk assets" };
 
-  // Dedup: keep only the most recent score per asset
-  const latestByAsset = new Map<string, typeof riskRows[number]>();
-  for (const row of riskRows) {
-    if (!latestByAsset.has(row.asset_name)) latestByAsset.set(row.asset_name, row);
-  }
-  const targets = Array.from(latestByAsset.values());
+  // View is DISTINCT ON (hive_id, asset_name) so no dedup needed.
+  const targets = riskRows;
 
   // ── 2. Historical corrective records for those assets ──────────────────────
   const machineNames = targets.map((t) => t.asset_name);
@@ -104,9 +96,9 @@ async function recommendForHive(
 
   if (logErr) throw new Error(`logbook: ${logErr.message}`);
 
-  // ── 3. Current inventory ───────────────────────────────────────────────────
+  // ── 3. Current inventory (canonical: inventory_items_truth) ────────────────
   const { data: inventory, error: invErr } = await db
-    .from("inventory_items")
+    .from("v_inventory_items_truth")
     .select("id, part_name, part_number, qty_on_hand, status")
     .eq("hive_id", hiveId)
     .eq("status", "approved");

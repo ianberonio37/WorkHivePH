@@ -54,6 +54,7 @@ LIVE_TOOL_PAGES = [
     "asset-hub",
     "shift-brain",
     "alert-hub",
+    "audit-log",
 ]
 
 RETIRED_PAGES = ["parts-tracker", "checklist"]

@@ -499,6 +499,24 @@ const INV_KEY    = 'wh_inventory_'  + WORKER_NAME;
 const TXN_KEY    = 'wh_inv_txns_'   + WORKER_NAME;
 const ASSETS_KEY = 'wh_assets_'     + WORKER_NAME;
 
+// ── AUDIT LOG ──
+// Fire-and-forget so a log failure never blocks the inventory action.
+// Audits item create/edit/delete (state changes). Stock movements are
+// not audited here because inventory_transactions itself is the trail
+// (worker_name + type + qty + qty_after + ref + timestamp per row).
+function writeAuditLog(action, targetType, targetId, targetName, meta) {
+  if (!HIVE_ID) return;
+  db.from('hive_audit_log').insert({
+    hive_id:     HIVE_ID,
+    actor:       WORKER_NAME,
+    action,
+    target_type: targetType,
+    target_id:   targetId,
+    target_name: targetName,
+    meta:        meta || {},
+  }).then(res => { if (res.error) console.warn('audit log:', res.error.message); });
+}
+
 let _invDisplayCount = 30;
 function loadMoreInventory() { _invDisplayCount += 30; renderParts(); }
 
@@ -936,6 +954,8 @@ async function submitPart() {
     _items = items;
     const diff = qty - prev.qty_on_hand;
     if (diff !== 0) addTransaction(editingItemId, 'adjustment', diff, qty, 'Edited via part form');
+    writeAuditLog('edit_inventory_item', 'inventory_items', editingItemId, partName,
+      { prev_qty: prev.qty_on_hand, new_qty: qty, qty_diff: diff, new_status: editStatus });
     showToast(editStatus === 'pending' ? `${partName} resubmitted for supervisor approval.` : `${partName} updated.`);
   } else {
     const item = { id: Date.now().toString(), ...payload, photo: currentPhotoData || null, created_at: now };
@@ -947,6 +967,8 @@ async function submitPart() {
     if (insertErr) { showFormError(errEl, 'Could not save part: ' + insertErr.message); return; }
 
     if (qty > 0) addTransaction(item.id, 'add', qty, qty, 'Initial stock entry');
+    writeAuditLog('create_inventory_item', 'inventory_items', item.id, partName || partNumber,
+      { initial_qty: qty, status: item.status || (HIVE_ID ? 'pending' : 'approved') });
     showToast(HIVE_ID ? `${partNumber} submitted for supervisor approval.` : `${partNumber} added to inventory.`);
   }
 
@@ -1182,6 +1204,9 @@ async function confirmDeleteItem(id) {
     _items = _items.filter(i => i.id !== id);
   }
 
+  writeAuditLog('delete_inventory_item', 'inventory_items', id, item.part_name,
+    { part_number: item.part_number, prev_qty: item.qty_on_hand, prev_status: item.status });
+
   closeDetailModal();
   renderParts();
   showToast('Part removed from inventory.');
@@ -1387,11 +1412,53 @@ async function validateHiveMembership() {
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
   try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
   if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+  // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
+  if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
   await validateHiveMembership();
   await initData();
 })();
 </script>
   <script src="nav-hub.js"></script>
   <script src="qr-scanner.js"></script>
+  <script>
+  // ── Phase B.2: Voice handler registration for inventory.deduct ───────────
+  // Conservative pattern: voice does NOT directly deduct. Instead it filters
+  // the parts list to the spoken part name and shows a confirmation message
+  // so the worker picks the matching row and taps Use. Architect rule:
+  // every DB write that changes shared state needs explicit user confirmation.
+  (function () {
+    async function inventoryDeductHandler(intent) {
+      const parts = (intent && intent.params && Array.isArray(intent.params.parts))
+        ? intent.params.parts.filter(p => p && p.part_name)
+        : [];
+      if (!parts.length) {
+        return { ok: false, message: 'No parts heard. Try: "use 2 V-belts" or "deduct one bearing 6205".' };
+      }
+      const search = document.getElementById('search-input');
+      const first  = parts[0];
+      if (search) {
+        search.value = String(first.part_name);
+        search.dispatchEvent(new Event('input', { bubbles: true }));
+        search.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      const summary = parts.map(p => `${p.qty || 1} x ${p.part_name}`).join(', ');
+      return {
+        ok: true,
+        message: `Filtered to "${first.part_name}". Pick the matching part and tap Use to deduct ${summary}.`,
+      };
+    }
+    function tryRegister() {
+      if (window.WHVoice && typeof window.WHVoice.register === 'function') {
+        window.WHVoice.register('inventory.deduct', inventoryDeductHandler);
+        return true;
+      }
+      return false;
+    }
+    if (!tryRegister()) {
+      let tries = 0;
+      const t = setInterval(() => { if (tryRegister() || ++tries > 20) clearInterval(t); }, 250);
+    }
+  })();
+  </script>
 </body>
 </html>

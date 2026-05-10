@@ -264,13 +264,16 @@
         .eq('hive_id', HIVE_ID)
         .or(`tag.ilike.%${safe}%,name.ilike.%${safe}%,location.ilike.%${safe}%`)
         .limit(8),
-      db.from('logbook')
+      db.from('v_logbook_truth')   // canonical: logbook_truth
         .select('id, machine, problem, status, maintenance_type, created_at')
         .eq(scopeFilter.col, scopeFilter.val)
         .or(`machine.ilike.%${safe}%,problem.ilike.%${safe}%,action.ilike.%${safe}%`)
         .order('created_at', { ascending: false })
         .limit(8),
-      db.from('inventory_items')
+      // Canonical: inventory_items_truth — exposes reorder_point as alias
+      // for min_qty (the underlying table has no reorder_point column, so
+      // the pre-fix select returned null silently for that field).
+      db.from('v_inventory_items_truth')
         .select('id, part_name, part_number, qty_on_hand, reorder_point')
         .eq(scopeFilter.col, scopeFilter.val)
         .or(`part_name.ilike.%${safe}%,part_number.ilike.%${safe}%`)

@@ -87,10 +87,11 @@ async function gatherData(db: SupabaseClient) {
     .slice(0, 8)
     .map(([cause, count]) => ({ cause, count, pct: Math.round(count / (faults?.length || 1) * 100) }));
 
-  // Low stock parts across multiple hives
-  const { data: lowStock } = await db.from("inventory_items")
+  // Low stock parts across multiple hives. Canonical view exposes the
+  // is_low_stock derived flag so the threshold rule lives in one place.
+  const { data: lowStock } = await db.from("v_inventory_items_truth")
     .select("part_name, hive_id")
-    .filter("qty_on_hand", "lte", "min_qty")
+    .eq("is_low_stock", true)
     .not("hive_id", "is", null);
 
   const partRisk: Record<string, number> = {};

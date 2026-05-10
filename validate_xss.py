@@ -69,6 +69,9 @@ LIVE_PAGES = [
     "asset-hub.html",
     "shift-brain.html",
     "alert-hub.html",
+    # Phase B.3: cross-page voice handler. Lazy-loaded by nav-hub.js so it
+    # ends up on every page; needs the same XSS coverage as the HTML files.
+    "voice-handler.js",
 ]
 
 # Pages that define escHtml themselves (don't load utils.js)

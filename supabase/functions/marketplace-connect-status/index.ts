@@ -60,9 +60,9 @@ serve(async (req: Request) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   );
 
-  /* ── Look up seller ─────────────────────────────────────────────────── */
+  /* ── Look up seller (canonical: marketplace_sellers_truth) ──────────── */
   const { data: seller, error: sellerErr } = await db
-    .from('marketplace_sellers')
+    .from('v_marketplace_sellers_truth')
     .select('stripe_account_id, kyb_verified, tier')
     .eq('worker_name', worker_name)
     .maybeSingle();

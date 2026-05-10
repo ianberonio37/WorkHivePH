@@ -17,7 +17,7 @@ const FAILURE_SYSTEM = `You are a maintenance failure analyst. Analyze logbook r
 Respond only in JSON: { "risks": [{"machine","failure_count","total_downtime_h","reason"}], "patterns": [{"machine","root_cause","occurrences"}], "mtbf_alerts": [{"machine","avg_days_between_failures"}] }`;
 
 async function failureAnalysisAgent(db: SupabaseClient, hiveId: string | null, workerName: string | null) {
-  const query = db.from("logbook")
+  const query = db.from("v_logbook_truth")    // canonical: logbook_truth
     .select("machine, maintenance_type, category, root_cause, downtime_hours, status, created_at")
     .eq("maintenance_type", "Breakdown / Corrective")
     .order("created_at", { ascending: false })
@@ -87,10 +87,11 @@ const INVENTORY_SYSTEM = `You are an inventory risk analyst. Given parts stock l
 Respond only in JSON: { "out_of_stock": ["part_name"], "low_stock": [{"part_name","qty_on_hand","reorder_point"}], "risk_summary": "one sentence" }`;
 
 async function inventoryRiskAgent(db: SupabaseClient, hiveId: string | null, workerName: string | null) {
-  // DB column is `min_qty`; alias it as `reorder_point` so the prompt and
-  // downstream JSON shape don't have to change. Same pattern as analytics-orchestrator.
-  const query = db.from("inventory_items")
-    .select("part_name, qty_on_hand, reorder_point:min_qty, bin_location")
+  // Canonical: inventory_items_truth (the view exposes reorder_point as a
+  // baked-in alias for min_qty so callers don't have to remember the
+  // PostgREST `:min_qty` rename trick).
+  const query = db.from("v_inventory_items_truth")
+    .select("part_name, qty_on_hand, reorder_point, bin_location")
     .limit(200);
 
   if (hiveId) query.eq("hive_id", hiveId);
@@ -117,7 +118,7 @@ const KNOWLEDGE_SYSTEM = `You are a knowledge management specialist. Given maint
 Respond only in JSON: { "clusters": [{"topic","tips":["tip1","tip2"],"sop_candidate":true}], "missing_knowledge": ["machine_name"], "top_insight": "most important lesson learned" }`;
 
 async function knowledgeExtractionAgent(db: SupabaseClient, hiveId: string | null, workerName: string | null) {
-  const query = db.from("logbook")
+  const query = db.from("v_logbook_truth")    // canonical: logbook_truth
     .select("machine, category, root_cause, knowledge")
     .not("knowledge", "is", null)
     .limit(100);
@@ -178,7 +179,7 @@ Respond only in JSON: { "open_jobs": [{"machine","problem","priority":"HIGH|MEDI
 async function shiftHandoverAgent(db: SupabaseClient, hiveId: string | null, workerName: string | null) {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-  const query = db.from("logbook")
+  const query = db.from("v_logbook_truth")    // canonical: logbook_truth
     .select("machine, category, problem, action, status, created_at, worker_name")
     .gte("created_at", since)
     .order("created_at", { ascending: false })
@@ -208,7 +209,7 @@ const PREDICTIVE_SYSTEM = `You are a predictive maintenance analyst. Given machi
 Respond only in JSON: { "predictions": [{"machine","mtbf_days":number,"last_failure":"YYYY-MM-DD","predicted_next":"YYYY-MM-DD","risk":"HIGH|MEDIUM|LOW"}] }`;
 
 async function predictiveAgent(db: SupabaseClient, hiveId: string | null, workerName: string | null) {
-  const query = db.from("logbook")
+  const query = db.from("v_logbook_truth")    // canonical: logbook_truth
     .select("machine, created_at")
     .eq("maintenance_type", "Breakdown / Corrective")
     .order("machine", { ascending: true })

@@ -97,9 +97,9 @@ serve(async (req: Request) => {
     return errJson('This listing requires direct negotiation — no fixed price set', 400, req);
   }
 
-  /* ── Look up seller Stripe account ──────────────────────────────────── */
+  /* ── Look up seller Stripe account (canonical: marketplace_sellers_truth) ── */
   const { data: seller } = await db
-    .from('marketplace_sellers')
+    .from('v_marketplace_sellers_truth')
     .select('stripe_account_id, kyb_verified')
     .eq('worker_name', listing.seller_name)
     .maybeSingle();
@@ -116,13 +116,21 @@ serve(async (req: Request) => {
   const platformFee    = Math.round(pricePhp * PLATFORM_FEE_PCT);
   const escrowReleaseAt = new Date(Date.now() + ESCROW_HOLD_DAYS * 86400000).toISOString();
 
-  /* ── Create Stripe Checkout session ─────────────────────────────────── */
-  const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')!;
-  const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+  /* ── Create Stripe Checkout session ───────────────────────────────────
+     Idempotency-Key combines listing + buyer + day so same-day double-click
+     collapses to one Stripe session (no two checkout pages, no double-charge),
+     while a next-day legitimate re-purchase still creates a fresh session.
+     Stripe idempotency keys have a 24h TTL so a per-day key is the natural fit. */
+  const stripeKey  = Deno.env.get('STRIPE_SECRET_KEY')!;
+  const todayUtc   = new Date().toISOString().slice(0, 10);
+  const buyerSlug  = (buyer_name || 'anon').replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 40);
+  const idempKey   = `checkout-${listing_id}-${buyerSlug}-${todayUtc}`;
+  const stripeRes  = await fetch('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${stripeKey}`,
-      'Content-Type':  'application/x-www-form-urlencoded',
+      'Authorization':   `Bearer ${stripeKey}`,
+      'Content-Type':    'application/x-www-form-urlencoded',
+      'Idempotency-Key': idempKey,
     },
     signal: AbortSignal.timeout(10000),
     body: new URLSearchParams({

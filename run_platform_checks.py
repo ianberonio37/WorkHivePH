@@ -150,6 +150,114 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "canonical-sources",
+        "script":  "validate_canonical_sources.py",
+        "args":    [],
+        "label":   "Canonical Sources Registry Validator (truth-scattering fix foundation)",
+        "group":   "Platform",
+        "report":  "canonical_sources_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "silo-monitor",
+        "script":  "validate_silo_monitor.py",
+        "args":    [],
+        "label":   "Silo Monitor (4-layer: drift + orphans + unregistered hotspots + cross-system matrix)",
+        "group":   "Platform",
+        "report":  "silo_monitor_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "write-path-monitor",
+        "script":  "validate_write_path_monitor.py",
+        "args":    [],
+        "label":   "Write Path Monitor (4-layer: shape drift + orphan RPCs + write hotspots + single-layer writers)",
+        "group":   "Platform",
+        "report":  "write_path_monitor_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "schema-phantom",
+        "script":  "validate_schema_phantom.py",
+        "args":    [],
+        "label":   "Schema Phantom Column Detector (4-layer: phantom reads + dead columns + alias drift + layer hotspots)",
+        "group":   "Platform",
+        "report":  "schema_phantom_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "ai-pattern-compliance",
+        "script":  "validate_ai_pattern_compliance.py",
+        "args":    [],
+        "label":   "AI Pattern Compliance (4-layer: rate-gate-first + fallback chain + JSON mode + cost concentration)",
+        "group":   "Platform",
+        "report":  "ai_pattern_compliance_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "state-machine-integrity",
+        "script":  "validate_state_machine_integrity.py",
+        "args":    [],
+        "label":   "State Machine Integrity (4-layer: invalid writes + unreachable states + unconstrained columns + writer matrix)",
+        "group":   "Platform",
+        "report":  "state_machine_integrity_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "audit-log-coverage",
+        "script":  "validate_audit_log_coverage.py",
+        "args":    [],
+        "label":   "Audit Log Coverage (4-layer: unaudited writers + dead audit columns + critical-table coverage + writer matrix)",
+        "group":   "Platform",
+        "report":  "audit_log_coverage_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "cron-schedule-integrity",
+        "script":  "validate_cron_schedule_integrity.py",
+        "args":    [],
+        "label":   "Cron Schedule Integrity (4-layer: function existence + scheduled-agents routing + config drift + schedule sanity)",
+        "group":   "Platform",
+        "report":  "cron_schedule_integrity_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "rls-readiness",
+        "script":  "validate_rls_readiness.py",
+        "args":    [],
+        "label":   "RLS Readiness Audit (4-layer: lockout traps + dead policies + permissive USING(true) catalog + verb completeness)",
+        "group":   "Platform",
+        "report":  "rls_readiness_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "auth-migration-readiness",
+        "script":  "validate_auth_migration_readiness.py",
+        "args":    [],
+        "label":   "Auth Migration Readiness (Phase A audit: sibling coverage + auth_uid columns + identity gate strength)",
+        "group":   "Platform",
+        "report":  "auth_migration_readiness_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "edge-caller-contract",
+        "script":  "validate_edge_caller_contract.py",
+        "args":    [],
+        "label":   "Edge Function Caller Contract (4-layer: function existence + required field coverage + phantom fields + orphan functions)",
+        "group":   "Platform",
+        "report":  "edge_caller_contract_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "reliability-workbench",
+        "script":  "validate_reliability_workbench.py",
+        "args":    [],
+        "label":   "Reliability Workbench Validator (FMEA + RCM + Weibull + P-F schema, RLS, canonical registration)",
+        "group":   "Platform",
+        "report":  "reliability_workbench_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "realtime-publication",
         "script":  "validate_realtime_publication.py",
         "args":    [],
@@ -694,6 +802,9 @@ SUPABASE_URL    = "https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/enginee
 
 
 # ── Run one validator ─────────────────────────────────────────────────────────
+VALIDATOR_TIMEOUT_SECONDS = 300  # per-validator hard cap; hung child gets SIGTERM
+
+
 def run_validator(v):
     if not os.path.exists(v["script"]):
         return {"status": "ERROR", "reason": f"Script not found: {v['script']}", "output": ""}
@@ -704,11 +815,23 @@ def run_validator(v):
         result = subprocess.run(
             cmd, capture_output=True, text=True,
             encoding="utf-8", errors="replace",
+            timeout=VALIDATOR_TIMEOUT_SECONDS,
         )
         elapsed = round(time.time() - t0, 1)
         stdout  = (result.stdout or "") + (result.stderr or "")
         status  = "PASS" if result.returncode == 0 else "FAIL"
         return {"status": status, "output": stdout, "elapsed": elapsed}
+    except subprocess.TimeoutExpired as ex:
+        # Child has been killed by subprocess.run. Capture whatever it
+        # wrote before the timeout so we can see where it hung.
+        elapsed = round(time.time() - t0, 1)
+        partial = (ex.stdout or "") + (ex.stderr or "")
+        return {
+            "status":  "FAIL",
+            "reason":  f"hung; killed after {VALIDATOR_TIMEOUT_SECONDS}s",
+            "output":  partial + f"\n[TIMEOUT — killed after {VALIDATOR_TIMEOUT_SECONDS}s]",
+            "elapsed": elapsed,
+        }
     except Exception as ex:
         return {"status": "ERROR", "reason": str(ex), "output": "", "elapsed": 0}
 

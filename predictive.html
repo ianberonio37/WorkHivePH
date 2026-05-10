@@ -242,12 +242,13 @@
   await Promise.allSettled([loadScores(), loadTrend()]);
   setupTabs();
 
-  // ── Load risk scores from asset_risk_scores table ─────────────────────────────
+  // ── Load risk scores from v_risk_truth (canonical risk view, Phase A.3) ─────
+  // The view does DISTINCT ON (hive_id, asset_name) so each asset returns its
+  // latest score directly; no client-side dedup needed.
   async function loadScores() {
-    let q = db.from('asset_risk_scores')
-      .select('asset_name, risk_score, risk_level, health_score, mtbf_days, days_until_failure, top_factors, model_version, generated_at')
-      .order('generated_at', { ascending: false })
-      .order('risk_score',   { ascending: false })
+    let q = db.from('v_risk_truth')
+      .select('asset_id, asset_name, risk_score, risk_level, health_score, mtbf_days, days_until_failure, top_factors, model_version, generated_at')
+      .order('risk_score', { ascending: false })
       .limit(500);
 
     if (HIVE_ID) q = q.eq('hive_id', HIVE_ID);
@@ -256,7 +257,8 @@
     const { data, error } = await q;
     if (error) { console.warn('risk scores:', error.message); }
 
-    // Deduplicate: keep only the most recent score per asset
+    // View already deduped; the Set guard stays as belt-and-suspenders in
+    // case a future migration removes DISTINCT ON.
     const seen = new Set();
     _scores = (data || []).filter(s => {
       if (seen.has(s.asset_name)) return false;
@@ -324,13 +326,32 @@
     tbody.innerHTML = _scores.map(s => {
       const pct    = Math.round(s.risk_score * 100);
       const color  = { critical: '#f87171', high: '#fb923c', medium: '#facc15', low: '#4ade80' }[s.risk_level] || '#4ade80';
-      const factors = (Array.isArray(s.top_factors) ? s.top_factors : []).map(f =>
-        `<span class="factor-pill">${escHtml(f.replace(/_/g, ' '))}</span>`
-      ).join('');
+      // Phase 5a v1 emits structured factors: [{factor, weight, value, contribution, explanation}].
+      // Legacy emits flat strings. Render both shapes; structured factors show contribution
+      // and put the explanation in a title= tooltip the user can hover/long-press for context.
+      const factors = (Array.isArray(s.top_factors) ? s.top_factors : []).map(f => {
+        if (f && typeof f === 'object') {
+          const label = String(f.factor || '').replace(/_/g, ' ');
+          const pct   = Math.round(((+f.contribution) || 0) * 100);
+          const tip   = f.explanation ? String(f.explanation) : '';
+          return `<span class="factor-pill" title="${escHtml(tip)}">${escHtml(label)} ${pct}%</span>`;
+        }
+        return `<span class="factor-pill">${escHtml(String(f).replace(/_/g, ' '))}</span>`;
+      }).join('');
       const mtbf = s.mtbf_days != null ? `${Math.round(s.mtbf_days)}d` : '-';
+      // Phase 5c (retire-and-redirect): each row deep-links to Asset Hub for
+      // full 360 detail per the canonical sources audit. v_risk_truth (Phase
+      // A.3) carries asset_id resolved through asset_nodes; when name match
+      // failed at view time the row stays click-disabled.
+      const aid     = s.asset_id ? String(s.asset_id) : '';
+      const cursor  = aid ? 'cursor:pointer;' : '';
+      const titleAttr = aid ? 'title="Open in Asset Hub"' : 'title="No matching asset_node — register the asset to enable deep-link"';
+      const handler = aid
+        ? `onclick="window.location.href='asset-hub.html?node_id=${escHtml(aid)}'"`
+        : '';
 
-      return `<tr>
-        <td style="font-weight:600">${escHtml(s.asset_name)}</td>
+      return `<tr ${handler} ${titleAttr} style="${cursor}">
+        <td style="font-weight:600">${escHtml(s.asset_name)} ${aid ? '<span style="color:var(--muted);font-size:.65rem;margin-left:4px;">&rsaquo;</span>' : ''}</td>
         <td><span class="badge badge-${escHtml(s.risk_level)}">${escHtml(s.risk_level)}</span></td>
         <td>
           <div style="display:flex;align-items:center;gap:7px;">

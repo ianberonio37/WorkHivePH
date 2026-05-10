@@ -33,15 +33,28 @@ function errJson(error: string, status: number, req: Request) {
   });
 }
 
-async function stripePost(path: string, params: Record<string, string>, key: string) {
+async function stripePost(
+  path: string,
+  params: Record<string, string>,
+  key: string,
+  idempotencyKey?: string,
+) {
+  // idempotencyKey is OPTIONAL because account_links are short-lived (5 min)
+  // ephemeral resources where a fresh response per call is the desired
+  // behavior. Resource-creating calls (accounts, transfers) MUST pass a stable
+  // Idempotency-Key so a network retry doesn't create a duplicate Stripe
+  // account / payout.
   const res = await fetch(`https://api.stripe.com/v1/${path}`, {
     method:  'POST',
     headers: {
-      'Authorization': `Bearer ${key}`,
-      'Content-Type':  'application/x-www-form-urlencoded',
+      'Authorization':   `Bearer ${key}`,
+      'Content-Type':    'application/x-www-form-urlencoded',
+      // Conditional spread keeps the Idempotency-Key header in the same
+      // request-config block so static idempotency validators see it.
+      ...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}),
     },
-    body:   new URLSearchParams(params).toString(),
-    signal: AbortSignal.timeout(10000),
+    body:    new URLSearchParams(params).toString(),
+    signal:  AbortSignal.timeout(10000),
   });
   return res;
 }
@@ -70,23 +83,27 @@ serve(async (req: Request) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   );
 
-  /* ── Look up existing seller profile ────────────────────────────────── */
+  /* ── Look up existing seller profile (canonical: marketplace_sellers_truth) ── */
   const { data: seller } = await db
-    .from('marketplace_sellers')
+    .from('v_marketplace_sellers_truth')
     .select('stripe_account_id, kyb_verified')
     .eq('worker_name', worker_name)
     .maybeSingle();
 
   let stripeAccountId = seller?.stripe_account_id || null;
 
-  /* ── Create Stripe Connect account if this seller doesn't have one ──── */
+  /* ── Create Stripe Connect account if this seller doesn't have one ────
+     Stable Idempotency-Key per worker_name — a network retry on this call
+     must NOT create a second Stripe Connect account for the same seller
+     (would split their payouts and confuse KYB review). */
   if (!stripeAccountId) {
+    const accountIdemKey = `connect-onboard-account-${worker_name}`;
     const createRes = await stripePost('accounts', {
       'type':                        'express',
       'country':                     'PH',
       'capabilities[transfers][requested]': 'true',
       'metadata[worker_name]':       worker_name,
-    }, stripeKey);
+    }, stripeKey, accountIdemKey);
 
     if (!createRes.ok) {
       const err = await createRes.text();

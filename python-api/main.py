@@ -442,6 +442,79 @@ def analytics(req: AnalyticsRequest):
     )
 
 
+# ─── Reliability Engineering Workbench (Phase R.5) ───────────────────────────
+# Standards: IEC 61649 (Weibull analysis), MIL-HDBK-189C, SAE JA1011/JA1012.
+# The edge fn weibull-fitter posts a list of failure durations and right-censored
+# survivals; we proxy to lifelines.WeibullFitter and return the v_weibull_truth shape.
+
+class WeibullRequest(BaseModel):
+    failures: list[float] = []     # days-to-failure (one per observed failure)
+    censored: list[float] = []     # days-survived for right-censored assets
+
+
+@app.post("/reliability/weibull")
+def reliability_weibull(req: WeibullRequest):
+    """Fit a 2-parameter Weibull from failure + censored durations.
+
+    Returns the v_weibull_truth contract (beta, eta_days, failure_pattern,
+    n_failures, n_censored, log_likelihood, fit_method, diagnostic).
+    Insufficient-data cases return failure_pattern='insufficient_data' with
+    a 200 (the orchestrator persists this so the UI can warn the user).
+    """
+    try:
+        from reliability.weibull import fit_weibull
+        return fit_weibull(req.failures, req.censored)
+    except Exception as e:
+        print(f"WEIBULL ERROR: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Weibull fit error: {str(e)}")
+
+
+class PFRequest(BaseModel):
+    readings:        list[dict[str, Any]] = []   # [{ts, value}, ...]
+    p_threshold:     float
+    f_threshold:     float
+    direction:       str = "above"               # "above" | "below"
+    safety_critical: bool = False
+
+
+@app.post("/reliability/pf-interval")
+def reliability_pf_interval(req: PFRequest):
+    """Compute P-F interval + recommended inspection cadence per RCM rule.
+
+    Returns the pf_intervals row shape (pf_days, recommended_interval_days,
+    basis, n_pairs, pairs, diagnostic). When no pair is detectable the
+    edge fn does NOT persist (pf_intervals.pf_days has CHECK > 0); the UI
+    surfaces the diagnostic instead.
+    """
+    try:
+        from reliability.pf_interval import calculate_pf
+        return calculate_pf(
+            readings=req.readings,
+            p_threshold=req.p_threshold,
+            f_threshold=req.f_threshold,
+            direction=req.direction,
+            safety_critical=req.safety_critical,
+        )
+    except Exception as e:
+        print(f"PF ERROR: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"P-F interval error: {str(e)}")
+
+
+@app.get("/reliability/health")
+def reliability_health():
+    """Returns Reliability Workbench backend status."""
+    try:
+        import lifelines
+        ll_status = f"available ({lifelines.__version__})"
+    except ImportError:
+        ll_status = "missing — install lifelines via pip"
+    return {
+        "endpoints":  ["/reliability/weibull", "/reliability/pf-interval"],
+        "lifelines":  ll_status,
+        "standards":  ["IEC 61649", "MIL-HDBK-189C", "SAE JA1011", "SAE JA1012"],
+    }
+
+
 @app.get("/analytics/health")
 def analytics_health():
     """Returns available analytics phases and their status."""

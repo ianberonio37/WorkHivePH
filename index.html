@@ -2554,17 +2554,19 @@
 
     const [logRes, riskRes, invRes, pmRes, closedTodayRes, pmDoneTodayRes] = await Promise.allSettled([
 
-      // Open jobs (mine + hive)
-      db.from('logbook')
-        .select('id, machine, category, maintenance_type, status, logged_at, created_at')
+      // Open jobs (mine + hive). v_logbook_truth has no logged_at column —
+      // the underlying logbook table only has `created_at` and `date`.
+      db.from('v_logbook_truth')
+        .select('id, machine, category, maintenance_type, status, created_at, date')
         .eq(scopeFilter.col, scopeFilter.val)
         .eq('status', 'Open')
-        .order('logged_at', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(5),
 
-      // Risk alerts (critical/high assets)
+      // Risk alerts (critical/high assets). Canonical: v_risk_truth gives
+      // the latest score per asset via DISTINCT ON, avoiding stale history rows.
       HIVE_ID
-        ? db.from('asset_risk_scores')
+        ? db.from('v_risk_truth')
             .select('asset_name, risk_level, risk_score, mtbf_days, generated_at')
             .eq('hive_id', HIVE_ID)
             .in('risk_level', ['critical', 'high'])
@@ -2572,21 +2574,32 @@
             .limit(5)
         : Promise.resolve({ data: [] }),
 
-      // Inventory items (to find low-stock client-side)
-      db.from('inventory_items')
-        .select('part_name, qty_on_hand, reorder_point')
+      // Inventory items (to find low-stock client-side). v_inventory_items_truth
+      // exposes reorder_point as an alias for min_qty — the underlying table
+      // has no reorder_point column, so this read returned nulls silently
+      // before the canonical view landed. Low-stock counts now actually fire.
+      db.from('v_inventory_items_truth')
+        .select('part_name, qty_on_hand, reorder_point, is_low_stock')
         .eq(scopeFilter.col, scopeFilter.val)
         .limit(100),
 
-      // PM assets + their last completion date (for real overdue count)
-      db.from('pm_assets')
-        .select('id, asset_name, category')
-        .eq(scopeFilter.col, scopeFilter.val)
-        .limit(100),
+      // PM compliance via canonical (v_pm_compliance_truth) when in a hive.
+      // The view exposes is_due directly, so the per-asset roll-up below
+      // collapses to a single .filter(a => a.is_due). Solo-worker mode
+      // falls back to pm_assets because the view is hive-scoped only.
+      HIVE_ID
+        ? db.from('v_pm_compliance_truth')
+            .select('pm_asset_id, asset_name, category, is_due')
+            .eq('hive_id', HIVE_ID)
+            .limit(200)
+        : db.from('pm_assets')
+            .select('id, asset_name, category')
+            .eq(scopeFilter.col, scopeFilter.val)
+            .limit(100),
 
       // Hive Activity Today: jobs closed today (hive-scoped, count only)
       HIVE_ID
-        ? db.from('logbook')
+        ? db.from('v_logbook_truth')
             .select('id', { count: 'exact', head: true })
             .eq('hive_id', HIVE_ID)
             .eq('status', 'Closed')
@@ -2615,29 +2628,34 @@
       Number(i.reorder_point) > 0 && Number(i.qty_on_hand) <= Number(i.reorder_point)
     );
 
-    // PM Overdue: real count via per-asset latest completion check.
-    // Heuristic: an asset is "overdue" if no done completion in last 30 days.
-    // Future: join pm_scope_items to use actual frequency per task.
+    // PM Overdue. In hive mode the canonical view above already carries
+    // the is_due flag (last_anchor_date older than 30d OR never completed),
+    // so we just count. In solo mode we still need to fetch completions and
+    // compute client-side because the view does not cover worker_name scope.
     let pmOverdueCount = 0;
     if (pmAssets.length > 0) {
-      const assetIds = pmAssets.map(a => a.id).filter(Boolean);
-      try {
-        const { data: comps } = await db.from('pm_completions')
-          .select('asset_id, completed_at')
-          .in('asset_id', assetIds)
-          .eq('status', 'done')
-          .order('completed_at', { ascending: false })
-          .limit(500);
-        const lastByAsset = {};
-        (comps || []).forEach(c => {
-          if (!lastByAsset[c.asset_id]) lastByAsset[c.asset_id] = new Date(c.completed_at).getTime();
-        });
-        const cutoff = Date.now() - 30 * 86400000;
-        pmOverdueCount = pmAssets.filter(a => {
-          const last = lastByAsset[a.id];
-          return !last || last < cutoff;
-        }).length;
-      } catch (_) {}
+      if (HIVE_ID) {
+        pmOverdueCount = pmAssets.filter(a => a.is_due).length;
+      } else {
+        const assetIds = pmAssets.map(a => a.id).filter(Boolean);
+        try {
+          const { data: comps } = await db.from('pm_completions')
+            .select('asset_id, completed_at')
+            .in('asset_id', assetIds)
+            .eq('status', 'done')
+            .order('completed_at', { ascending: false })
+            .limit(500);
+          const lastByAsset = {};
+          (comps || []).forEach(c => {
+            if (!lastByAsset[c.asset_id]) lastByAsset[c.asset_id] = new Date(c.completed_at).getTime();
+          });
+          const cutoff = Date.now() - 30 * 86400000;
+          pmOverdueCount = pmAssets.filter(a => {
+            const last = lastByAsset[a.id];
+            return !last || last < cutoff;
+          }).length;
+        } catch (_) {}
+      }
     }
 
     // Update stat numbers (clear shimmer class once value lands)
@@ -2714,7 +2732,7 @@
         </div>`;
       } else {
         jobsEl.innerHTML = jobs.map(j => {
-          const ts = j.logged_at || j.created_at;
+          const ts = j.created_at || j.date;
           const cat = j.category || j.maintenance_type || '';
           return `<div class="oh-job-row">
             <div style="flex:1; min-width:0;">

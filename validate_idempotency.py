@@ -461,6 +461,164 @@ def check_scheduled_report_idempotency(func_path):
                         f"use .upsert() with onConflict: 'hive_id,report_type' to dedup")}]
 
 
+# ── Layer 5: External-API call contract (the wire-side counterpart of L1-L4) ─
+#
+# L0-L4 cover idempotency on OUR side of the wire (migrations, schema, webhook
+# verify, upsert discipline, internal dedup). L5 covers idempotency on the
+# OTHER side: every POST to an external system that mutates state must carry
+# a deduplication key the remote side recognizes, OR the remote endpoint must
+# be naturally idempotent. Without this, a single network retry creates two
+# Stripe charges, two transferred payouts, two emails sent to the buyer.
+
+# (file path, label, severity)
+# severity: 'fail' = real money / regulatory risk; 'warn' = degraded UX
+EXTERNAL_API_HOSTS_CRITICAL = {
+    "api.stripe.com": "Stripe (charges, transfers, refunds — money movement)",
+}
+EXTERNAL_API_HOSTS_WARN = {
+    "api.resend.com":  "Resend (transactional email — duplicate sends)",
+    "api.sendgrid.com": "SendGrid (transactional email — duplicate sends)",
+    "api.twilio.com":   "Twilio (SMS — duplicate sends + cost)",
+}
+
+
+def _scan_edge_function_files() -> list[tuple[str, str]]:
+    """Return list of (path, content) for all .ts files under supabase/functions."""
+    out: list[tuple[str, str]] = []
+    if not os.path.isdir(FUNCTIONS_DIR):
+        return out
+    for root, _dirs, files in os.walk(FUNCTIONS_DIR):
+        for fname in files:
+            if not fname.endswith(".ts"):
+                continue
+            path = os.path.join(root, fname)
+            content = read_file(path)
+            if content is not None:
+                out.append((path, content))
+    return out
+
+
+def _find_post_calls(content: str, host_substr: str) -> list[tuple[int, str]]:
+    """Locate `fetch('https://<host>/...', { method:'POST' ... })` blocks.
+    Returns (line_number, the_full_block_text). Window = next 12 lines from the
+    fetch site so headers + body are visible to the caller."""
+    hits: list[tuple[int, str]] = []
+    lines = content.splitlines()
+    for i, line in enumerate(lines):
+        if "fetch(" not in line or host_substr not in line:
+            continue
+        # Skip GETs entirely — only mutating verbs need idempotency keys
+        block = "\n".join(lines[i:min(len(lines), i + 12)])
+        # Detect HTTP method — fall back to POST if not declared (Stripe defaults)
+        m = re.search(r"method\s*:\s*['\"](\w+)['\"]", block, re.IGNORECASE)
+        method = (m.group(1).upper() if m else "POST")
+        if method in ("GET", "HEAD", "OPTIONS"):
+            continue
+        hits.append((i + 1, block))
+    return hits
+
+
+def check_external_api_idempotency_key():
+    """For each mutating fetch() to a critical external API, verify an
+    `Idempotency-Key` header is present in the same call block. Stripe defines
+    this header in its API spec — sending the same key twice returns the same
+    response, preventing double-charge on retry."""
+    issues: list[dict] = []
+    files = _scan_edge_function_files()
+    for path, content in files:
+        for host, system in EXTERNAL_API_HOSTS_CRITICAL.items():
+            for line_no, block in _find_post_calls(content, host):
+                # Either header line or quoted key in body counts as present
+                if re.search(r"Idempotency-Key|idempotencyKey|idempotency_key", block, re.IGNORECASE):
+                    continue
+                # Stripe Connect endpoints called via shared helper — surface anyway
+                # (the helper itself has the same gap if it lacks the header).
+                rel = path.replace(FUNCTIONS_DIR + os.sep, "")
+                issues.append({
+                    "check": "external_api_idempotency_key",
+                    "source": rel, "line": line_no,
+                    "reason": (
+                        f"{rel}:{line_no} POST to {host} ({system}) without an "
+                        f"`Idempotency-Key` header. A network retry on this call "
+                        f"creates a duplicate side-effect (e.g. double charge / "
+                        f"double payout). Add `'Idempotency-Key': crypto.randomUUID()` "
+                        f"to the headers OR derive a stable key from the order_id "
+                        f"so retries collapse to the same Stripe-side operation."
+                    ),
+                })
+    return issues
+
+
+def check_outbound_mutating_idempotency():
+    """Same shape as the critical check, downgraded to WARN for non-money APIs
+    (email / SMS) where a duplicate is annoying but not financially damaging."""
+    issues: list[dict] = []
+    files = _scan_edge_function_files()
+    for path, content in files:
+        for host, system in EXTERNAL_API_HOSTS_WARN.items():
+            for line_no, block in _find_post_calls(content, host):
+                if re.search(r"Idempotency-Key|idempotencyKey|idempotency_key", block, re.IGNORECASE):
+                    continue
+                rel = path.replace(FUNCTIONS_DIR + os.sep, "")
+                issues.append({
+                    "check": "outbound_mutating_idempotency", "skip": True,
+                    "source": rel, "line": line_no,
+                    "reason": (
+                        f"{rel}:{line_no} POST to {host} ({system}) without an "
+                        f"`Idempotency-Key` header. A retry on this call duplicates "
+                        f"the user-visible side effect (e.g. recipient receives the "
+                        f"same email twice). Add an Idempotency-Key header derived "
+                        f"from a stable identifier (recipient + report_id + period)."
+                    ),
+                })
+    return issues
+
+
+def check_webhook_event_dedup():
+    """Inbound webhook handlers (anything reading `stripe-signature` or
+    `x-webhook-signature` headers) must dedupe by event.id — the remote system
+    MAY send the same event multiple times (Stripe explicitly documents this).
+    State-based guards (e.g. status check before update) are accepted as soft
+    dedup; we look for either pattern in each handler file."""
+    issues: list[dict] = []
+    files = _scan_edge_function_files()
+    for path, content in files:
+        rel = path.replace(FUNCTIONS_DIR + os.sep, "")
+        is_webhook_handler = bool(re.search(
+            r"stripe-signature|x-webhook-signature|verify(Stripe|Webhook)Signature",
+            content, re.IGNORECASE
+        ))
+        if not is_webhook_handler:
+            continue
+        # Strong dedup: lookup by event.id against a stored events table
+        has_event_id_dedup = bool(re.search(
+            r"event\.id|events_seen|events_processed|webhook_events|"
+            r"\.eq\(['\"]event_id['\"]|external_id.*upsert|upsert.*external_id",
+            content
+        ))
+        # Soft dedup: state-guarded update (status !== expected → return)
+        has_state_guard = bool(re.search(
+            r"if\s*\(\s*\w+\.status\s*!==?\s*['\"]\w+['\"]\s*\)|already.*processed",
+            content, re.IGNORECASE
+        ))
+        if has_event_id_dedup or has_state_guard:
+            continue
+        issues.append({
+            "check": "webhook_event_dedup", "skip": True,
+            "source": rel,
+            "reason": (
+                f"{rel} appears to be a webhook handler (verifies HMAC) but does "
+                f"NOT dedupe by event id or guard by state-machine. The remote "
+                f"system MAY send the same event twice (Stripe explicitly "
+                f"documents this behavior). Either: (a) maintain a small "
+                f"webhook_events table keyed on event.id and short-circuit on "
+                f"duplicate, OR (b) add a state guard like `if (order.status !== "
+                f"'pending_payment') return ok`."
+            ),
+        })
+    return issues
+
+
 # ── Runner ─────────────────────────────────────────────────────────────────────
 
 CHECK_NAMES = [
@@ -480,6 +638,10 @@ CHECK_NAMES = [
     # L4
     "pm_completion_dedup",
     "scheduled_report_idempotency",
+    # L5 — external-API contract (wire-side)
+    "external_api_idempotency_key",
+    "outbound_mutating_idempotency",
+    "webhook_event_dedup",
 ]
 
 CHECK_LABELS = {
@@ -499,12 +661,16 @@ CHECK_LABELS = {
     # L4
     "pm_completion_dedup":           "L4  pm_completions has dedup protection against double-submit  [WARN]",
     "scheduled_report_idempotency":  "L4  Scheduled ai_reports writes use upsert (pg_cron double-fire)  [WARN]",
+    # L5 — external-API contract (wire-side)
+    "external_api_idempotency_key":  "L5  Stripe (money-movement) POSTs include Idempotency-Key header",
+    "outbound_mutating_idempotency": "L5  Email/SMS POSTs include Idempotency-Key header  [WARN]",
+    "webhook_event_dedup":           "L5  Webhook handlers dedupe by event.id or state-guard  [WARN]",
 }
 
 
 def main():
     def bold(s): return f"\033[1m{s}\033[0m"
-    print(bold("\nWebhook and Integration Idempotency Validator (5-layer)"))
+    print(bold("\nWebhook and Integration Idempotency Validator (6-layer)"))
     print("=" * 55)
 
     migrations = read_all_migrations()
@@ -521,6 +687,9 @@ def main():
     all_issues += check_batch_idempotency(LIVE_PAGES, SHARED_TABLES)
     all_issues += check_pm_completion_dedup(PM_PAGE, migrations)
     all_issues += check_scheduled_report_idempotency(SCHEDULED_AGENTS)
+    all_issues += check_external_api_idempotency_key()
+    all_issues += check_outbound_mutating_idempotency()
+    all_issues += check_webhook_event_dedup()
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

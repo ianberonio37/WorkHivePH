@@ -957,6 +957,40 @@ def demo_integrations(page):
         pause(page, 3500, "start with import — upgrade to live sync when ready")
 
 
+def demo_audit_log(page):
+    """
+    Story: Plant manager has to prove regulator compliance →
+    Audit Log shows every supervisor + worker action with timestamps.
+    """
+    print("  [1/5] Opening Audit Log...")
+    page.goto(f"{WORKHIVE_URL}/workhive/audit-log.html",
+              wait_until="networkidle", timeout=20000)
+    page.wait_for_timeout(4000)
+    pause(page, 3000, "every action — every worker, every supervisor — recorded")
+
+    print("  [2/5] Showing the activity stream...")
+    page.mouse.wheel(0, 250)
+    pause(page, 3500, "approvals, edits, stock changes, work orders — full trail")
+
+    print("  [3/5] Scrolling deeper into history...")
+    page.mouse.wheel(0, 400)
+    pause(page, 3500, "weeks of activity, ranked newest first")
+
+    print("  [4/5] Filtering by action type if available...")
+    filter_btn = page.locator(
+        "select[id*='filter'], button:has-text('Filter'), [data-action='filter']"
+    ).first
+    if filter_btn.count():
+        filter_btn.click()
+        page.wait_for_timeout(1500)
+        pause(page, 3000, "filter by actor, action type, or date range")
+
+    print("  [5/5] Back to top — emphasising compliance value...")
+    page.evaluate("window.scrollTo({top:0, behavior:'smooth'})")
+    page.wait_for_timeout(1200)
+    pause(page, 3500, "ready for ISO audit, regulator review, or insurance claim")
+
+
 def demo_project_manager(page):
     """
     Story: Plant manager planning Q3 overhaul → opens Project Manager, sees all
@@ -1061,6 +1095,9 @@ DEMOS = {
     # ── Project Manager ─────────────────────────────────────────────────────
     "project_manager":               demo_project_manager,
     "Project Manager":               demo_project_manager,
+    # ── Audit Log & Compliance ──────────────────────────────────────────────
+    "audit_log":                     demo_audit_log,
+    "Audit Log & Compliance":        demo_audit_log,
 }
 
 # Features that have a demo sequence (used by the dashboard UI)
@@ -1089,6 +1126,7 @@ FEATURE_URLS = {
     "PH Industry Intelligence":      "/workhive/ph-intelligence.html",
     "CMMS Integrations":             "/workhive/integrations.html",
     "Project Manager":               "/workhive/project-manager.html",
+    "Audit Log & Compliance":        "/workhive/audit-log.html",
 }
 
 

@@ -1,6 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
 
 // ── Intent parser system prompt ───────────────────────────────────────────────
 // Kept static for prompt caching eligibility when upgraded to Claude.
@@ -75,6 +77,14 @@ serve(async (req) => {
 
     // Cap transcript length — prevents prompt injection via very long speech
     const safeTranscript = transcript.trim().slice(0, 500);
+
+    // Rate-gate FIRST per ai-engineer skill — voice flows are high-cost.
+    const db = createClient(
+      Deno.env.get("SUPABASE_URL") || "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
+    );
+    const rl = await checkAIRateLimit(db, hive_id || "");
+    if (!rl.allowed) return rateLimitedResponse(corsHeaders);
 
     const raw = await callAI(safeTranscript, {
       systemPrompt: INTENT_SYSTEM,

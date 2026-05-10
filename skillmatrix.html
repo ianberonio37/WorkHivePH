@@ -505,6 +505,8 @@ async function init() {
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
   try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
   if (!WORKER_NAME) { window.location.href = 'index.html'; return; }
+  // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
+  if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
   // Load profile and badges in parallel
   const [profileRes, badgesRes] = await Promise.all([
     db.from('skill_profiles').select('*').eq('worker_name', WORKER_NAME).maybeSingle(),

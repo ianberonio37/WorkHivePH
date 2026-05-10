@@ -807,8 +807,13 @@ async function validateHiveMembership() {
   if (!WORKER_NAME && typeof restoreIdentityFromSession === 'function') {
     WORKER_NAME = await restoreIdentityFromSession(db);
   }
-  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+  // Phase B (auth migration): pull session BEFORE the WORKER_NAME gate so
+  // _authUid is populated when the new !_authUid gate runs. The previous
+  // order let WORKER_NAME-gated workers redirect before _authUid was read,
+  // hiding the auth gap. See PRODUCTION_FIXES.md #37.
   try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch {}
+  if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+  if (!_authUid)    { window.location.href = 'index.html?signin=1'; return; }
 
   const isMember = await validateHiveMembership();
   if (!isMember) { $('hive-gate').style.display = 'flex'; return; }
@@ -1908,7 +1913,7 @@ async function refreshSuggestedLinks() {
   if (['complete', 'cancelled', 'archived'].includes(_detail.status)) return;
   const linkedLogIds = new Set(_links.filter(l => l.link_type === 'logbook').map(l => l.link_id));
   const since = new Date(Date.now() - 30 * 86400000).toISOString();
-  const { data } = await db.from('logbook')
+  const { data } = await db.from('v_logbook_truth')
     .select('id, machine, problem, status, created_at')
     .eq('hive_id', HIVE_ID).eq('status', 'Open')
     .gte('created_at', since)
@@ -1969,9 +1974,9 @@ async function loadLinkOptions() {
   if (t === 'contractor') return;
   const queries = {
     asset:               () => db.from('assets').select('id, name').eq('hive_id', HIVE_ID).order('name').limit(200),
-    logbook:             () => db.from('logbook').select('id, machine, problem, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(50),
+    logbook:             () => db.from('v_logbook_truth').select('id, machine, problem, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(50),
     pm_completion:       () => db.from('pm_completions').select('id, asset_id, completed_at').eq('hive_id', HIVE_ID).order('completed_at', { ascending: false }).limit(50),
-    inventory_item:      () => db.from('inventory_items').select('id, part_name, part_number').eq('hive_id', HIVE_ID).order('part_name').limit(200),
+    inventory_item:      () => db.from('v_inventory_items_truth').select('id, part_name, part_number').eq('hive_id', HIVE_ID).order('part_name').limit(200),
     engineering_calc:    () => db.from('engineering_calcs').select('id, calc_type, project_name, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(30),
     marketplace_listing: () => db.from('marketplace_listings').select('id, title').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(30),
   };
@@ -2240,6 +2245,11 @@ function renderChangeOrders() {
             <button class="btn small primary" onclick="approveCO('${e(co.id)}')">Approve</button>
             <button class="btn small danger" onclick="rejectCO('${e(co.id)}')">Reject</button>
           </div>` : ''}
+        ${co.status === 'pending' && (co.requested_by === WORKER_NAME || isSupervisor()) ? `
+          <div class="row" style="gap: 6px; margin-top: 6px;">
+            <button class="btn small ghost" onclick="cancelCO('${e(co.id)}')">Cancel request</button>
+          </div>` : ''}
+        ${co.status === 'cancelled' ? `<div class="small" style="color: var(--muted); margin-top: 6px;">Cancelled by ${e(co.approved_by || co.requested_by)} on ${e(fmtDate(co.approved_at || co.created_at))}</div>` : ''}
       </div>`;
   }).join('');
   $('pane-changes').innerHTML = `
@@ -2295,6 +2305,27 @@ async function rejectCO(id) {
     .eq('id', id);
   if (error) { showToast(error.message, 'error'); return; }
   showToast('Rejected.', 'success');
+  await refreshDetail();
+}
+async function cancelCO(id) {
+  // Requester can cancel their own pending CO; supervisor can cancel any.
+  // Different from reject: cancel = requester withdraws; reject = supervisor denies.
+  const co = (_changeOrders || []).find(c => c.id === id);
+  if (!co) return;
+  if (!isSupervisor() && co.requested_by !== WORKER_NAME) {
+    showToast('Only the requester or a supervisor can cancel this change order.');
+    return;
+  }
+  if (co.status !== 'pending') {
+    showToast('Only pending change orders can be cancelled.');
+    return;
+  }
+  if (!confirm('Cancel this change order? It will be hidden from the active queue but kept for history.')) return;
+  const { error } = await db.from('project_change_orders')
+    .update({ status: 'cancelled', approved_by: WORKER_NAME, approved_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) { showToast(error.message, 'error'); return; }
+  showToast('Change order cancelled.', 'success');
   await refreshDetail();
 }
 

@@ -2,7 +2,7 @@
 
 A complete reference to the platform you have built (WorkHive) and the framework you build it with (WAT + Skill-First + Platform Guardian).
 
-Version: 2026-05-08. Author: Ian Beronio. Generated from the live codebase, the Supabase schema, the validator registry, the WorkHive Tester, and the project's `CLAUDE.md` standing instructions.
+Version: 2026-05-09. Author: Ian Beronio. Generated from the live codebase, the Supabase schema, the validator registry, the WorkHive Tester, and the project's `CLAUDE.md` standing instructions.
 
 ---
 
@@ -123,15 +123,19 @@ Below is the live page roster, grouped by what the worker is trying to do. Every
 **Analytics and intelligence**
 - `analytics.html`: cross-hive KPIs, MTBF/MTTR/OEE, trend charts
 - `analytics-report.html`: print-ready PDF compiled from all four analytics phases
-- `predictive.html`: ML-driven failure prediction, asset risk scores, anomaly detection
+- `predictive.html`: ML-driven failure prediction, asset risk scores, anomaly detection (under review per the Canonical Sources Audit; per-asset risk is moving to Asset Hub, daily ranking to Shift Brain, aggregate narrative to Analytics Phase 3)
 - `ph-intelligence.html`: Philippine industry benchmarks, failure signature matching, peer comparison
 - `achievements.html`: gamification surface for badges, streaks, XP, and recognition
+- `asset-hub.html`: Asset Brain 360 view per asset, with QR/barcode camera scan to jump straight to an asset
+- `shift-brain.html`: autonomous shift planner with 4 sub-agents and supervisor publish-to-crew
+- `alert-hub.html`: unified alert aggregator across risk, PM, stock, pattern, and automation
 
 **Integrations**
 - `integrations.html`: CMMS bridge configuration (SAP PM, IBM Maximo), webhook setup, sync status, audit log
 
 **Operations and oversight**
 - `assistant.html`: AI assistant landing page with platform context registry
+- `alert-hub.html`: unified alert aggregator (risk scores, PM overdue, low stock, pattern alerts, failed automation jobs) in one chronological feed with type-filter chips
 
 Two pages are explicitly retired and must never re-appear in the nav registry: `checklist.html` and `parts-tracker.html`. They were earlier prototypes that got absorbed into `pm-scheduler.html` and `inventory.html` respectively. (Note: `parts-tracker.html` still exists on disk for a backwards-compatibility canonical URL but is not in the nav array.)
 
@@ -143,7 +147,7 @@ Every WorkHive page follows the same skeleton, by convention rather than framewo
 
 A page does five things in this order:
 1. Loads `utils.js` first, which wires the shared escHtml helper, hive context loader, role gate, and toast plumbing.
-2. Loads `nav-hub.js`, which renders the two-tier nav (quick-access row of the four most-recent tools, plus the collapsible All Tools grid). v3 added the 4-column grid, search bar, and Ctrl+K shortcut.
+2. Loads `nav-hub.js`, which renders the two-tier nav (quick-access row of the four most-recent tools, plus the collapsible All Tools grid). v3 added the 4-column grid, search bar, and Ctrl+K shortcut. The May 9 update adds **role-based visibility** per tile (`roles: ['field','supervisor','engineer']`) so workers see fewer tiles than supervisors and engineers, and lazy-loads `search-overlay.js` so Cmd+K opens a platform-wide command palette searching assets, jobs, parts, and PMs from any page.
 3. Loads page-local styles inline in `<style>` blocks, scoped by class.
 4. Wires its own DOMContentLoaded handler, which reads the hive context, fetches Supabase rows, renders the UI, and subscribes to Realtime channels.
 5. Loads `floating-ai.js` last, which mounts the AI assistant pill that follows the user across the platform.
@@ -170,6 +174,7 @@ What it does:
 - Queue offline. The page persists drafts in IndexedDB; when connectivity returns, it flushes the queue.
 - Edit in place. A worker who realizes they wrote the wrong tag taps the entry and corrects it; the form is the same form used to add, not a new modal.
 - Sign off work orders. The work-order sign-off flow added in May 2026 (commit bf30916) lets the responsible worker close out a logged issue with a signature, a closed_at timestamp, and a one-tap link back to the originating PM or project task.
+- Flow through a formal work-order state machine. Phase E.4 (migration `20260508000015_work_order_state.sql`) adds two ADDITIVE columns (`wo_state`, `wo_state_meta`) so logbook entries can flow through requested -> approved -> assigned -> in_progress -> completed -> verified, with rejected and re-open branches. Existing rows stay null and behave exactly as before; the workflow is opt-in per entry. Composite indexes on (hive_id, wo_state) support board-style queries.
 - Tag a failure consequence (downtime, rework, safety) and a closed_at timestamp once the issue is resolved. These two columns feed MTBF and MTTR in analytics.
 - Voice capture. The `voice-logbook-entry` edge function takes a recording, transcribes it, classifies the intent, and writes a draft entry the worker can confirm.
 - Auto-link to active projects. When a project is in execution, log entries that match the project's equipment scope and date window auto-attach to the project's execution log (Phase 3B/3C).
@@ -313,6 +318,12 @@ The schema:
 
 The validator (`validate_ml.py`) checks the model contract, the score range, the feature freshness, and the retrain trigger gates. `validate_predictive.py` covers the page-side rendering and the alert triggers.
 
+**Phase ML-2 Auto-Staging** (May 9). When `batch-risk-scoring` writes a row above the 0.7 risk floor, `parts-staging-recommender` runs daily after it and proposes which parts to pre-stage from inventory. The model is deterministic v1: a part is recommended when it appears in at least 3 of the last 365 days of corrective records for the same asset AND inventory has stock on hand, with confidence equal to history_hits divided by total corrective records. Recommendations expire after 7 days so stale ones do not accumulate, and only one active recommendation per (hive, asset) is kept. Two new tables: `parts_staging_recommendations` (the recommendation itself with rationale + confidence + status pending/accepted/dismissed/expired) and `parts_staged_reservations` (when a worker accepts, the recommendation creates a reservation that holds inventory without consuming it until the actual repair logbook entry closes). Inventory page now surfaces staged reservations alongside on-hand stock so workers see what is committed.
+
+## 14b. Alert Hub
+
+`alert-hub.html` (May 9) is the unified alert aggregator. Rather than each module having its own alert UI, the hub pulls from five sources into one chronological feed: asset risk scores above threshold, PM overdue items, low-stock inventory rows, pattern-alert triggers from `validate_pattern_alerts.py`, and failed automation jobs from `automation_log`. Type-filter chips (Risk / PM / Stock / Pattern / Automation) let a supervisor focus on one class at a time. Each alert row deep-links to the source page (Asset Hub for risk, PM Scheduler for PM, Inventory for stock, etc.) with the relevant filter pre-applied. The AI assistant on this page is context-aware of which alerts are visible and which one was last clicked.
+
 ## 15. PH Industrial Intelligence
 
 The PH Intelligence layer is what makes WorkHive Filipino, not just translated. It correlates a hive's data with anonymized peer data across other hives to produce industry benchmarks calibrated to Philippine industrial conditions.
@@ -387,6 +398,7 @@ The full edge-function surface as of May 8 (27 functions):
 - `batch-risk-scoring`: daily asset risk score batch.
 - `failure-signature-scan`: per-entry failure-pattern match.
 - `benchmark-compute`: peer-comparison rollups.
+- `parts-staging-recommender`: Phase ML-2 daily Auto-Staging recommender (post-batch-risk-scoring).
 - `trigger-ml-retrain`: manual model retrain trigger.
 
 **CMMS bridge**
@@ -541,7 +553,7 @@ The Tester replaces `platform-health.html` as the active dev-tooling surface. Ne
 
 ## 28. The Validator Catalog
 
-There are 68 validators registered in the Guardian as of May 8, 2026, up from 51 on May 1. Below is a topic-grouped overview.
+There are 70 validators registered in the Guardian as of May 9, 2026, up from 51 on May 1. Below is a topic-grouped overview. The May 9 additions are `validate_reset_coverage.py` (every migration table is in `reset.py` so the Tester can scrub state cleanly) plus `validate_canonical_sources.py` is on the roadmap from the audit doc.
 
 **Engineering Calculator suite (run via `run_all_checks.py`):**
 - Layer 1: Schema and field validators (`validate_schema.py`, `validate_fields.py`, `validate_input_guards.py`).
@@ -565,9 +577,11 @@ There are 68 validators registered in the Guardian as of May 8, 2026, up from 51
 - `validate_realtime_publication.py`: every realtime-subscribed table is in `supabase_realtime` publication.
 - `validate_soft_delete.py`: REPLICA IDENTITY rule for DELETE realtime filters.
 - `validate_auto_discovery.py`: auto-detects HTML, edge function, validator registration gaps. 3 of 3 PASS baseline.
-- `validate_schema_coverage.py`: auto-derives schema from migrations; checks every `db.from().select()` references a real table and column.
+- `validate_schema_coverage.py`: auto-derives schema from migrations; checks every `db.from().select()` references a real table and column. May 9 update teaches it to recognise CREATE VIEW + CREATE OR REPLACE [MATERIALIZED] VIEW so views skip column verification.
 - `validate_schema_drift.py`: complementary check against the live database schema.
 - `validate_tester_coverage.py`: enforces that every LIVE_TOOL_PAGE is wired into the WorkHive Tester's PUBLIC_PAGES and four flow PAGES.
+- `validate_reset_coverage.py` (May 9): every table in any migration is wired into `reset.py` so the Tester can scrub state cleanly. Caught 25 missed tables on first run.
+- `validate_asset_brain.py` (May 8): 24 checks across 6 layers covering Asset Brain + Shift Brain (schema, RLS, realtime publication, backfill correctness, edge function rate-limit and hive scoping, supervisor-write policy, parallel sub-agents).
 
 **Crash-prevention validators:**
 - `validate_mobile.py`: `will-change: filter` mobile override and `body { animation }` prefers-reduced-motion override.
@@ -720,19 +734,23 @@ Take "the inventory page does not render the qty_after column on a transaction c
 
 Honest list of what is built, what is partial, and what is planned.
 
-**Built and live (May 8, 2026):**
-- All daily-work pages (logbook with work-order sign-off, PM scheduler, inventory, skill matrix, day planner).
+**Built and live (May 9, 2026):**
+- All daily-work pages (logbook with work-order sign-off and the new Phase E.4 wo_state machine, PM scheduler, inventory with staged-reservation visibility, skill matrix, day planner).
 - The engineering design calculator across six disciplines, with BOM and SOW.
 - The marketplace, end to end, in contact-only mode (Stripe escrow built but feature-flagged).
 - The Project Manager with CPM scheduling, advanced scope, risk register, change orders, and lessons-learned indexing.
 - The CMMS bridge with sync, push-completion, webhook receive, and audit log.
-- The predictive analytics layer with daily risk scoring, failure-signature matching, and pattern alerts.
+- The predictive analytics layer with daily risk scoring, failure-signature matching, pattern alerts, and Phase ML-2 Auto-Staging.
 - The PH Industrial Intelligence layer with peer benchmarks and the intelligence report.
 - The Achievements page with unified badges, streaks, and XP.
 - The community module with cross-hive feed.
 - The analytics page plus the analytics report PDF.
+- Asset Brain (Asset Hub + asset_nodes graph + GraphRAG edge fn + canonical hierarchy).
+- Shift Brain (autonomous shift planner with 4 sub-agents + AI briefing).
+- Alert Hub (unified cross-source alert feed).
+- Global Cmd+K search overlay (lazy-loaded by nav-hub on every page).
 - The AI assistant with platform context across every page.
-- The Platform Guardian with 68 validators and the closed-loop dashboard.
+- The Platform Guardian with 70 validators and the closed-loop dashboard.
 - The WorkHive Tester with 5 gates and visual regression.
 
 **Built but waiting on a single dependency:**
@@ -751,6 +769,9 @@ Honest list of what is built, what is partial, and what is planned.
 - Predictive analytics models beyond the current signature-match plus risk-score blend (true time-series forecasts on sensor data).
 - Enterprise compliance (ISO 27001, SOC 2 Type II) for the industrial-client tier.
 - The community badge trigger latent bug fix (the `handle_community_post_xp` trigger inserts against a column that does not exist; will break in production when any worker hits 10 posts in a hive).
+
+**Canonical Sources initiative (in audit, not yet built):**
+The May 9 `CANONICAL_SOURCES_AUDIT.md` identified 20 domain concepts across three tiers (5 in active drift, 9 convergent, 6 already aligned). The plan is to publish a `canonical_sources` registry table, a set of `v_*_truth` views, a `validate_canonical_sources.py` validator, and a one-line agent contract added to every AI agent system prompt. Migration order starts with `v_asset_truth` (unifies 3 asset IDs), `v_risk_truth` (replaces the predictive-page model), and `v_pm_compliance_truth` (kills the 4-way math drift). Roughly 10 sessions of work over the lifetime of the initiative; the registry + validator land first so all subsequent work is provably clean.
 
 The platform is bigger than any one session can hold. The framework is what makes that scale possible.
 
@@ -787,11 +808,15 @@ Website simple 1st/
 ├── ph-intelligence.html             # PH industry benchmarks
 ├── achievements.html                # gamification surface
 ├── integrations.html                # CMMS bridge config + audit log
+├── asset-hub.html                   # Asset Brain 360 view per asset (with QR scan)
+├── shift-brain.html                 # autonomous shift planner (3 windows, 4 sub-agents)
+├── alert-hub.html                   # unified alert aggregator
 ├── assistant.html                   # AI context registry
 ├── platform-health.html             # legacy Guardian dashboard (retired, archival only)
 │
 ├── utils.js                         # escHtml, hive context, role gate, toast
-├── nav-hub.js                       # two-tier nav (v3: 4-col grid, search, Ctrl+K)
+├── nav-hub.js                       # two-tier nav (v3: 4-col grid, search, Ctrl+K, role-based visibility)
+├── search-overlay.js                # Cmd+K global command palette (lazy-loaded by nav-hub.js)
 ├── floating-ai.js                   # AI pill on every page
 ├── skill-content.js                 # skill matrix content
 ├── drawing-symbols.js               # IEC/ISA/NFPA symbol library
@@ -799,7 +824,7 @@ Website simple 1st/
 │
 ├── run_platform_checks.py           # Guardian orchestrator
 ├── run_all_checks.py                # engineering calc 4-layer suite
-├── validate_*.py                    # 68 validators
+├── validate_*.py                    # 70 validators
 ├── validator_utils.py               # shared validator helpers
 ├── autofix.py                       # automated fix application
 ├── improve.py                       # improvement backlog runner
@@ -810,8 +835,8 @@ Website simple 1st/
 │
 ├── supabase/
 │   ├── config.toml                  # edge function gates (verify_jwt)
-│   ├── migrations/                  # 53 timestamped migrations
-│   └── functions/                   # 27 edge functions
+│   ├── migrations/                  # 60 timestamped migrations
+│   └── functions/                   # 28 edge functions
 │
 ├── test-data-seeder/                # WorkHive Tester (5-gate battlefield)
 │   ├── app.py                       # Flask viewer + dashboard
@@ -825,6 +850,8 @@ Website simple 1st/
 ├── PROJECT_MANAGER_ROADMAP.md       # 7-phase roadmap (Phase 1+ active)
 ├── MARKETPLACE_GO_LIVE_ROADMAP.md   # 6-phase roadmap (blocked at Phase 1: DTI)
 ├── PRODUCTION_FIXES.md              # real prod bugs + fixes log
+├── CANONICAL_SOURCES_AUDIT.md       # 20-domain truth-scattering audit (May 9)
+├── enable_shift_brain_cron.sql      # ready-to-run pg_cron schedule for Shift Brain
 │
 ├── _headers                         # CDN headers
 ├── manifest.json                    # PWA manifest
@@ -892,7 +919,13 @@ The order in which the schema came into being.
 20260508  asset_risk_scores                   # daily ML risk scores
 20260508  risk_scoring_cron                   # pg_cron schedule
 20260508  achievements                        # gamification consolidation
-20260508  cmms_audit_log                      # CMMS bridge audit log
+20260508  achievements_rls_fix                # +rls_fix2, disable_rls, force_pgrst_reload, achievements_view
+20260508  cmms_audit_log
+20260508  asset_brain_foundation              # asset_nodes + asset_edges + asset_embeddings + ai_rate_limits + view
+20260508  asset_brain_backfill                # idempotent backfill from pm_assets + legacy assets
+20260508  shift_brain_foundation              # shift_plans + supervisor-write RLS + cron-ready (commented)
+20260508  work_order_state                    # Phase E.4 wo_state machine on logbook (additive)
+20260509  parts_staging                       # Phase ML-2 parts_staging_recommendations + parts_staged_reservations
 ```
 
 ## Appendix C. Edge Function Catalog
@@ -912,6 +945,7 @@ project-progress               # background project progress nudges
 batch-risk-scoring             # daily asset risk score batch
 failure-signature-scan         # per-entry failure-pattern match
 benchmark-compute              # peer-comparison rollups
+parts-staging-recommender      # Phase ML-2 daily Auto-Staging recommender
 trigger-ml-retrain             # manual model retrain trigger
 cmms-sync                      # pull upstream CMMS work orders
 cmms-push-completion           # push WorkHive completion to CMMS
@@ -921,6 +955,8 @@ marketplace-connect-onboard    # Stripe Connect onboarding (feature-flagged)
 marketplace-connect-status     # KYB status poll
 marketplace-release            # release escrow on confirmation (feature-flagged)
 marketplace-webhook            # Stripe event reconciler
+asset-brain-query              # GraphRAG retrieval for Asset Hub Ask box (May 8, deployed)
+shift-planner-orchestrator     # multi-agent shift planner (May 8, deployed)
 scheduled-agents               # pg_cron-driven jobs
 send-report-email              # Resend send for digests
 voice-report-intent            # voice intent classification
@@ -930,7 +966,7 @@ voice-logbook-entry            # voice-first logbook capture
 
 ## Appendix D. Validator Index
 
-The 68 registered validators, alphabetical:
+The 70 registered validators, alphabetical:
 
 ```
 validate_accessibility
@@ -940,6 +976,7 @@ validate_ai_data_pipeline
 validate_ai_regression
 validate_analytics
 validate_analytics_live
+validate_asset_brain
 validate_assistant
 validate_auto_discovery
 validate_bom_sow
@@ -989,6 +1026,7 @@ validate_pwa
 validate_realtime_publication
 validate_renderers
 validate_report_sender
+validate_reset_coverage
 validate_schema
 validate_schema_coverage
 validate_schema_drift
@@ -1031,7 +1069,11 @@ Each validator owns a single JSON report (`<name>_report.json`) at the project r
 - **pgvector.** The Postgres extension for embedding storage and KNN search. Foundation of the AI assistant's retrieval and the failure-signature library.
 - **PH Intelligence.** The peer-comparison and benchmark layer calibrated to Philippine industrial conditions.
 - **CMMS.** Computerized Maintenance Management System. The upstream system class (SAP PM, IBM Maximo, etc.) that the integrations bridge connects to.
+- **Auto-Staging.** Phase ML-2: predictive parts pre-staging. When an asset crosses the 0.7 risk floor, `parts-staging-recommender` proposes parts to reserve from inventory based on historical fix patterns. Worker accepts -> reservation holds inventory until the actual repair logbook entry closes.
+- **wo_state.** Phase E.4 work-order state machine on logbook (requested -> approved -> assigned -> in_progress -> completed -> verified, with rejected and re-open branches). Additive columns; null = legacy entry.
+- **Alert Hub.** Unified alert aggregator at `alert-hub.html`; pulls risk, PM, stock, pattern, and automation alerts into one chronological feed.
+- **Canonical Source.** A single view, table, or RPC declared as the authoritative answer for a domain concept. Listed in `canonical_sources` registry. AI agents read from canonicals first per the agent contract.
 
 ---
 
-End of book. Version 2026-05-08.
+End of book. Version 2026-05-09.

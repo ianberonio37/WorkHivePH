@@ -79,6 +79,16 @@ EXPECTED_PUBLISHED_TABLES = {
     # Shift Brain Phase 4 (2026-05-08): added via
     # 20260508000011_shift_brain_foundation.sql
     "shift_plans",
+    # Reliability Workbench Phase R.1 (2026-05-09): added via
+    # 20260509000005_reliability_workbench_foundation.sql.
+    "rcm_fmea_modes",
+    "rcm_strategies",
+    "weibull_fits",
+    # audit-log.html viewer (2026-05-10): supervisor-facing audit reviewer
+    # subscribes to live INSERTs so new approve/reject/kick events appear
+    # without a manual refresh. Added via:
+    # 20260510000007_hive_audit_log_realtime.sql.
+    "hive_audit_log",
 }
 
 CHECKS = {

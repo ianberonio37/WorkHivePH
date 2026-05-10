@@ -12,8 +12,10 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
 
 const LOGBOOK_SYSTEM = `You are a maintenance work order parser for a Philippine industrial plant.
 A technician just described a maintenance situation by voice. Extract everything into a structured logbook entry.
@@ -69,6 +71,15 @@ serve(async (req) => {
 
     // Cap length — prevents prompt injection
     const safe = transcript.trim().slice(0, 500);
+
+    // Rate-gate FIRST per ai-engineer skill (voice is high-cost,
+    // high-frequency — no gate = a buggy mic burns the AI budget).
+    const db = createClient(
+      Deno.env.get("SUPABASE_URL") || "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
+    );
+    const rl = await checkAIRateLimit(db, hive_id || "");
+    if (!rl.allowed) return rateLimitedResponse(cors);
 
     const raw = await callAI(safe, {
       systemPrompt: LOGBOOK_SYSTEM,

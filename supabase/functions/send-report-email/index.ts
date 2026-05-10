@@ -149,12 +149,24 @@ serve(async (req) => {
     // Send via Resend
     // Note: verify workhiveph.com in your Resend dashboard before going live.
     // For testing, replace from with "onboarding@resend.dev".
+    //
+    // Idempotency-Key derived from recipient + report types + hour-precision
+    // timestamp so a retry within the hour collapses to the same Resend send,
+    // preventing the recipient from receiving the same digest twice. Resend
+    // honors the standard Idempotency-Key header (24h dedup window).
+    const reportTypesKey = reports
+      .map((r: { type: string }) => r.type)
+      .sort().join("+") || "none";
+    const hourBucket = new Date(sent_at || Date.now()).toISOString().slice(0, 13); // YYYY-MM-DDTHH
+    const recipientSlug = recipient_email.trim().toLowerCase().replace(/[^a-z0-9._@-]/g, "_");
+    const emailIdemKey = `report-${hive_id || "anon"}-${recipientSlug}-${reportTypesKey}-${hourBucket}`;
     const emailRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
       signal: AbortSignal.timeout(30000),
       headers: {
-        "Authorization": `Bearer ${resendKey}`,
-        "Content-Type": "application/json",
+        "Authorization":   `Bearer ${resendKey}`,
+        "Content-Type":    "application/json",
+        "Idempotency-Key": emailIdemKey,
       },
       body: JSON.stringify({
         from:    "WorkHive <reports@workhiveph.com>",

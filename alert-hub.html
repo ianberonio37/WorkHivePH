@@ -222,22 +222,32 @@
     const pmCutoff = new Date(Date.now() - 30 * 86400000).toISOString();
 
     const [riskRes, invRes, pmAssetsRes, autoLogRes, patternRes, stagingRes] = await Promise.allSettled([
-      db.from('asset_risk_scores')
+      // Canonical: risk_truth — asset_risk_scores is insert-only (history),
+      // v_risk_truth returns the latest score per asset via DISTINCT ON.
+      db.from('v_risk_truth')
         .select('asset_name, risk_level, risk_score, top_factors, generated_at')
         .eq('hive_id', HIVE_ID)
         .in('risk_level', ['critical', 'high'])
         .order('risk_score', { ascending: false })
         .limit(20),
 
-      db.from('inventory_items')
-        .select('part_name, qty_on_hand, reorder_point, updated_at')
+      // Canonical: inventory_items_truth. The view aliases min_qty as
+      // reorder_point — the underlying table has no such column, so the
+      // pre-canonical version of this query returned nulls and the low-stock
+      // alert never fired. Bonus: is_low_stock + is_critical_low arrive
+      // already-derived so the consumer drops the threshold math.
+      db.from('v_inventory_items_truth')
+        .select('part_name, qty_on_hand, reorder_point, is_low_stock, is_out_of_stock, updated_at')
         .eq('hive_id', HIVE_ID)
         .limit(150),
 
-      db.from('pm_assets')
-        .select('id, asset_name, category')
+      // Canonical: pm_compliance_truth domain. The view replaces the
+      // pm_assets + pm_completions roll-up + Set + loop pattern below
+      // with a single query whose is_due flag answers "overdue?" directly.
+      db.from('v_pm_compliance_truth')
+        .select('asset_name, category, criticality, last_anchor_date, last_completion_at, completions_30d, days_since_last_completion, is_due')
         .eq('hive_id', HIVE_ID)
-        .limit(100),
+        .limit(200),
 
       db.from('automation_log')
         .select('job_name, status, detail, triggered_at')
@@ -246,10 +256,13 @@
         .order('triggered_at', { ascending: false })
         .limit(10),
 
+      // Real columns: rule_id (signature kind), alert_title/alert_detail
+      // (message), detected_at (timestamp). The pre-fix select used phantom
+      // names (signature_kind/message/created_at) and returned nulls silently.
       db.from('failure_signature_alerts')
-        .select('id, machine, signature_kind, message, severity, hive_id, created_at')
+        .select('id, machine, rule_id, alert_title, alert_detail, severity, hive_id, detected_at')
         .eq('hive_id', HIVE_ID)
-        .order('created_at', { ascending: false })
+        .order('detected_at', { ascending: false })
         .limit(20),
 
       db.from('parts_staging_recommendations')
@@ -265,8 +278,15 @@
     // Risk alerts
     if (riskRes.status === 'fulfilled') {
       for (const r of (riskRes.value.data || [])) {
+        // Phase 5a v1 emits structured factors: [{factor, weight, value, contribution, explanation}].
+        // Legacy emits flat strings. Match predictive.html's shape-aware reader so the
+        // alert message stays plain-text-friendly without rendering [object Object] when the
+        // structured shape lands. Falls back gracefully when the field is absent or empty.
         const factors = Array.isArray(r.top_factors)
-          ? r.top_factors.slice(0, 3).map(f => String(f).replace(/_/g, ' ')).join(', ')
+          ? r.top_factors.slice(0, 3).map(f => {
+              if (f && typeof f === 'object') return String(f.factor || '').replace(/_/g, ' ');
+              return String(f).replace(/_/g, ' ');
+            }).filter(Boolean).join(', ')
           : '';
         all.push({
           kind: 'risk',
@@ -300,32 +320,25 @@
       }
     }
 
-    // PM overdue alerts (no done completion in 30 days)
+    // PM overdue alerts via v_pm_compliance_truth.is_due (canonical).
+    // The view's is_due flag fires when the asset has never been completed
+    // OR last_anchor_date is older than 30 days, so we no longer need a
+    // separate pm_completions roll-up here.
     if (pmAssetsRes.status === 'fulfilled') {
-      const assets = pmAssetsRes.value.data || [];
-      const assetIds = assets.map(a => a.id).filter(Boolean);
-      if (assetIds.length) {
-        const { data: comps } = await db.from('pm_completions')
-          .select('asset_id, completed_at')
-          .in('asset_id', assetIds)
-          .eq('status', 'done')
-          .gte('completed_at', pmCutoff)
-          .order('completed_at', { ascending: false })
-          .limit(500);
-        const recent = new Set((comps || []).map(c => c.asset_id));
-        for (const a of assets) {
-          if (!recent.has(a.id)) {
-            all.push({
-              kind: 'pm',
-              severity: 'high',
-              title: a.asset_name || 'Unnamed asset',
-              msg: `No PM completion in last 30 days (${a.category || 'general'})`,
-              time: pmCutoff,
-              href: 'pm-scheduler.html',
-              actionLabel: 'Open PM Scheduler',
-            });
-          }
-        }
+      for (const r of (pmAssetsRes.value.data || [])) {
+        if (!r.is_due) continue;
+        const detail = (r.days_since_last_completion != null)
+          ? `${r.days_since_last_completion}d since last completion`
+          : 'No PM completion on record';
+        all.push({
+          kind: 'pm',
+          severity: (r.criticality === 'critical') ? 'critical' : 'high',
+          title: r.asset_name || 'Unnamed asset',
+          msg: `${detail} (${r.category || 'general'})`,
+          time: r.last_completion_at || pmCutoff,
+          href: 'pm-scheduler.html',
+          actionLabel: 'Open PM Scheduler',
+        });
       }
     }
 
@@ -336,8 +349,8 @@
           kind: 'pattern',
           severity: p.severity || 'medium',
           title: p.machine || 'Unknown machine',
-          msg: p.message || ('Pattern: ' + (p.signature_kind || 'unknown')),
-          time: p.created_at,
+          msg: p.alert_title || p.alert_detail || ('Pattern: ' + (p.rule_id || 'unknown')),
+          time: p.detected_at,
           href: 'asset-hub.html?tag=' + encodeURIComponent(p.machine || ''),
           actionLabel: 'Open in Asset Hub',
         });

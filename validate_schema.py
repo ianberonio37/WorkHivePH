@@ -64,6 +64,7 @@ LIVE_PAGES = [
     "search-overlay.js",
     "asset-hub.html",
     "shift-brain.html",
+    "audit-log.html",
 ]
 
 RETIRED_TABLES = {"parts_records", "checklist_records"}

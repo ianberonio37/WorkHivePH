@@ -59,6 +59,7 @@ LIVE_PAGES = [
     "asset-hub.html",
     "shift-brain.html",
     "alert-hub.html",
+    "audit-log.html",
 ]
 
 HIGH_GROWTH_TABLES = ["logbook", "inventory_transactions"]

@@ -555,7 +555,7 @@ function toggleSidebar() {
 
 async function loadLogbook() {
   try {
-    const { data, error } = await db.from('logbook').select('*').eq('worker_name', WORKER_NAME).order('date', { ascending: false });
+    const { data, error } = await db.from('v_logbook_truth').select('*').eq('worker_name', WORKER_NAME).order('date', { ascending: false });
     if (error) throw error;
     // Show open items: not Closed/Resolved
     logbookItems = (data || []).filter(r => r.status !== 'Closed' && r.status !== 'Resolved');
@@ -1310,7 +1310,11 @@ document.addEventListener('keydown', e => {
   (async () => {
     if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
     if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
-    db.auth.getSession().then(({ data: { session } }) => { _authUid = session?.user?.id || null; }).catch(() => {});
+    // Phase B (auth migration): converted .then() to await so _authUid is populated
+    // BEFORE the gate. Without this, the !_authUid check would fire while the
+    // session promise was still pending. See PRODUCTION_FIXES.md #37.
+    try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
+    if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
     await Promise.all([loadLogbook(), loadSchedule()]);
   })();
 </script>

@@ -1038,6 +1038,27 @@
   const HIVE_ID     = localStorage.getItem('wh_active_hive_id') || null;
 
   /* ============================================================
+     AUDIT LOG (fire-and-forget)
+     ----------------------------------------------------------------
+     Logs buyer-side state changes: new listing, dispute open, review
+     submission. The Buy Now flow goes through marketplace-checkout
+     edge function and is audited there. Logs to the buyer's hive_audit_log
+     with meta.scope='buyer_action'.
+  ============================================================ */
+  function writeAuditLog(action, targetType, targetId, targetName, meta) {
+    if (!HIVE_ID) return;
+    db.from('hive_audit_log').insert({
+      hive_id:     HIVE_ID,
+      actor:       WORKER_NAME,
+      action,
+      target_type: targetType,
+      target_id:   targetId,
+      target_name: targetName,
+      meta:        Object.assign({ scope: 'buyer_action' }, meta || {}),
+    }).then(res => { if (res.error) console.warn('audit log:', res.error.message); });
+  }
+
+  /* ============================================================
      UTILITIES
   ============================================================ */
   function escHtml(s) {
@@ -1847,9 +1868,11 @@
     /* Fetch seller profile to get messenger_username, badges, and rating data */
     let sellerProfile = null;
     try {
+      // Canonical: marketplace_sellers_truth — adds is_verified_public and
+      // active_listings_count for the seller card display.
       const { data: sp } = await db
-        .from('marketplace_sellers')
-        .select('messenger_username,kyb_verified,cert_verified,certifications,tier,rating_avg,rating_count')
+        .from('v_marketplace_sellers_truth')
+        .select('messenger_username,kyb_verified,cert_verified,certifications,tier,rating_avg,rating_count,is_verified_public,active_listings_count')
         .eq('worker_name', item.seller_name)
         .maybeSingle();
       sellerProfile = sp;
@@ -2277,6 +2300,9 @@
       }]);
       if (error) throw error;
 
+      writeAuditLog('create_listing', 'marketplace_listings', null, title,
+        { section, category, price, status: 'draft' });
+
       showToast('Listing submitted for review!', 'success');
       closeSheet('post');
       document.getElementById('form-post')?.reset();
@@ -2577,6 +2603,9 @@
         .eq('id', orderId)
         .eq('buyer_name', WORKER_NAME);
 
+      writeAuditLog('open_dispute', 'marketplace_disputes', orderId || listingId, sellerName,
+        { reason, order_id: orderId || null, listing_id: listingId || null });
+
       showToast('Dispute opened. Seller has 48 hours to respond.', 'info');
       closeSheet('dispute');
       openOrdersSheet();
@@ -2658,6 +2687,9 @@
         .eq('id', orderId)
         .eq('buyer_name', WORKER_NAME);
 
+      writeAuditLog('submit_review', 'marketplace_orders', orderId, listingId,
+        { rating, has_comment: !!comment });
+
       showToast('Review submitted! Thank you.', 'success');
       closeSheet('review');
       openOrdersSheet();
@@ -2706,6 +2738,13 @@
       const { data: { session } } = await db.auth.getSession();
       _authUid = session?.user?.id || null;
     } catch (_) {}
+
+    // Phase B (auth migration): marketplace browsing is anon-friendly by design,
+    // so we DON'T require auth to view listings. But if a worker has a stale
+    // WORKER_NAME in localStorage without a current Supabase Auth session,
+    // their writes (post/inquire/dispute) would 401 once Phase E flips
+    // policies. Redirect them to re-signin. See PRODUCTION_FIXES.md #37.
+    if (WORKER_NAME && !_authUid) { window.location.href = 'index.html?signin=1'; return; }
 
     /* Section tabs */
     document.querySelectorAll('.section-tab').forEach(btn => {

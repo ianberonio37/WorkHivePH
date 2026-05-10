@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
 
 // ── Fetch data from Supabase for the requested phase ─────────────────────────
 
@@ -53,11 +54,11 @@ async function fetchDescriptiveData(
     .limit(completionsLimit);
   if (assetIds.length) completionsQ.in("asset_id", assetIds);
 
-  const scopeQ = db.from("pm_scope_items").select("id, asset_id, frequency, item_text");
+  const scopeQ = db.from("v_pm_scope_items_truth").select("id, asset_id, frequency, item_text");   // canonical
   if (assetIds.length) scopeQ.in("asset_id", assetIds);
 
   // OEE: only needs production_output + downtime_hours (small select)
-  const oeeQ = db.from("logbook")
+  const oeeQ = db.from("v_logbook_truth")     // canonical: logbook_truth
     .select("machine, maintenance_type, category, problem, root_cause, downtime_hours, status, created_at, closed_at, worker_name, failure_consequence, readings_json, production_output")
     .eq("maintenance_type", "Breakdown / Corrective")
     .gte("created_at", new Date(Date.now() - periodDays * 86400000).toISOString())
@@ -178,11 +179,11 @@ async function fetchPredictiveData(
   // Reuse descriptive data + add inventory_items for stockout prediction
   const base = await fetchDescriptiveData(db, hiveId, workerName, periodDays);
 
-  // The DB column is `min_qty`, but the Python analytics code uses
-  // `reorder_point` semantically. Alias min_qty as reorder_point in the
-  // PostgREST response so the Python side doesn't have to change.
-  const invQ = db.from("inventory_items")
-    .select("part_name, qty_on_hand, reorder_point:min_qty, unit")
+  // Canonical: inventory_items_truth — bakes in the reorder_point alias the
+  // Python analytics code expects, so the PostgREST `:min_qty` rename trick
+  // is no longer needed at every call site.
+  const invQ = db.from("v_inventory_items_truth")
+    .select("part_name, qty_on_hand, reorder_point, unit")
     .limit(2000); // was hardcoded 300 — large warehouses have 500-1000+ parts
   if (hiveId) invQ.eq("hive_id", hiveId).eq("status", "approved");
   else if (workerName) invQ.eq("worker_name", workerName);
@@ -451,6 +452,11 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
+
+    // Rate-gate FIRST per ai-engineer skill — analytics report path triggers
+    // a Groq synthesis call; without the gate a button-mash burns budget.
+    const rl = await checkAIRateLimit(db, hive_id || "");
+    if (!rl.allowed) return rateLimitedResponse(corsHeaders);
 
     const periodDays = Number(period_days) || 90;
 

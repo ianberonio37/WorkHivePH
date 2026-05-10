@@ -1198,6 +1198,25 @@ let WORKER_NAME = localStorage.getItem('wh_last_worker') || localStorage.getItem
 let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
 let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
 
+// ── AUDIT LOG ──
+// Fire-and-forget so a log failure never blocks the worker action.
+// Audited events: new logbook entry, edit entry, asset register/edit/delete.
+// Cascaded inventory deductions and PM auto-completions are NOT separately
+// audited — they're implicit children of the parent logbook entry, and the
+// inventory_transactions row itself is the per-movement audit trail.
+function writeAuditLog(action, targetType, targetId, targetName, meta) {
+  if (!HIVE_ID) return;
+  db.from('hive_audit_log').insert({
+    hive_id:     HIVE_ID,
+    actor:       WORKER_NAME,
+    action,
+    target_type: targetType,
+    target_id:   targetId,
+    target_name: targetName,
+    meta:        meta || {},
+  }).then(res => { if (res.error) console.warn('audit log:', res.error.message); });
+}
+
 // CMMS source badge — machine name → system_type for externally-sourced entries
 let _syncedMachineSource = {};  // { "P-001": "SAP PM", "EQ-042": "Maximo" }
 
@@ -1572,6 +1591,11 @@ async function addEntry(entry) {
 
   const { error } = await db.from('logbook').insert(payload);
   if (error) { showToast('Could not save entry: ' + error.message); return; }
+  writeAuditLog('create_logbook_entry', 'logbook', payload.id, payload.machine || '(no machine)', {
+    maintenance_type: payload.maintenance_type, category: payload.category,
+    status: payload.status, downtime_hours: payload.downtime_hours,
+    parts_count: Array.isArray(payload.parts_used) ? payload.parts_used.length : 0,
+  });
   document.getElementById('sync-badge').classList.remove('hidden');
   embedFaultEntry(entry);
   // Phase 4.1: push completion back to CMMS when job is closed (fire-and-forget)
@@ -1844,6 +1868,9 @@ async function submitAsset() {
     showToast('Save failed: ' + error.message);
     return;
   }
+  writeAuditLog('register_asset', 'assets', asset.id, asset.asset_id, {
+    name: asset.name, type: asset.type, criticality: asset.criticality, status: asset.status,
+  });
   _assets = [...assets, asset];
   updateAssetDatalist();
   refreshAssetCountBadge();
@@ -1868,6 +1895,10 @@ async function deleteAsset(id) {
 
   const { error } = await db.from('assets').delete().eq('id', id);
   if (error) { showToast('Could not remove asset: ' + error.message); return; }
+
+  writeAuditLog('delete_asset', 'assets', id, asset.asset_id || id, {
+    name: asset.name, prev_status: asset.status, owner: asset.worker_name,
+  });
 
   _assets = _assets.filter(a => a.id !== id);
   updateAssetDatalist();
@@ -1937,6 +1968,11 @@ async function saveEditAsset() {
     saveBtn.textContent = 'Save Changes';
     return;
   }
+
+  writeAuditLog('edit_asset', 'assets', id, asset_id, {
+    name: updates.name, criticality: updates.criticality, location: updates.location,
+    needs_reapproval: needsReapproval || false,
+  });
 
   // Update local cache
   _assets = _assets.map(a => a.id === id ? { ...a, ...updates } : a);
@@ -3141,6 +3177,11 @@ async function saveEdit(id) {
   _tasklistNote = ''; // clear so it doesn't bleed into the next edit session
   const { error } = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME);
   if (error) { showToast('Could not update entry: ' + error.message); return; }
+  writeAuditLog('edit_logbook_entry', 'logbook', id, machine || '(no machine)', {
+    new_status: newStatus, prev_status: existing?.status,
+    new_category: updates.category, new_downtime_hours: updates.downtime_hours,
+    parts_added: Array.isArray(_editPartsUsed) ? _editPartsUsed.filter(p => p.partId && !p._existing).length : 0,
+  });
   // Deduct any newly added parts from inventory
   for (const p of _editPartsUsed) {
     if (!p.partId || p._existing) continue;
@@ -3334,11 +3375,20 @@ async function loadPMTasksForAsset() {
   panel.classList.add('hidden');
   _pmItemsForAsset = [];
 
-  // Find pm_assets matching this machine name OR tag_id
-  let q = db.from('pm_assets').select('id, asset_name, tag_id, category');
-  if (HIVE_ID) q = q.eq('hive_id', HIVE_ID);
-  else         q = q.eq('worker_name', WORKER_NAME);
-  const { data: pmAssets } = await q;
+  // Find PM assets matching this machine. In hive mode use the canonical
+  // view (v_pm_compliance_truth — alias 'id' is mapped to pm_asset_id);
+  // solo-worker mode falls back to raw pm_assets because the view is
+  // hive-scoped only.
+  let q;
+  if (HIVE_ID) {
+    q = db.from('v_pm_compliance_truth').select('pm_asset_id, asset_name, tag_id, category').eq('hive_id', HIVE_ID);
+  } else {
+    q = db.from('pm_assets').select('id, asset_name, tag_id, category').eq('worker_name', WORKER_NAME);
+  }
+  const { data: pmRaw } = await q;
+  // Normalise the id column so downstream code (which expects `id`) works
+  // regardless of which path produced the rows.
+  const pmAssets = (pmRaw || []).map(r => ({ ...r, id: r.id || r.pm_asset_id }));
 
   const ml = machine.toLowerCase();
   const matched = (pmAssets || []).filter(a => {
@@ -3352,7 +3402,7 @@ async function loadPMTasksForAsset() {
 
   const assetIds = matched.map(a => a.id);
 
-  let scopeQ = db.from('pm_scope_items').select('id, asset_id, item_text, frequency, anchor_date').in('asset_id', assetIds);
+  let scopeQ = db.from('v_pm_scope_items_truth').select('id, asset_id, item_text, frequency, anchor_date').in('asset_id', assetIds);
   let compsQ  = db.from('pm_completions').select('scope_item_id, completed_at').in('asset_id', assetIds).eq('status', 'done').order('completed_at', { ascending: false });
   if (HIVE_ID) { scopeQ = scopeQ.eq('hive_id', HIVE_ID); compsQ = compsQ.eq('hive_id', HIVE_ID); }
   const [itemsRes, compsRes] = await Promise.all([scopeQ, compsQ]);
@@ -4556,6 +4606,8 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
   try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) {}
   if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+  // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
+  if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
 
   const isMember = await validateHiveMembership();
   if (!isMember) return; // gate is showing: stop all data loads
@@ -4589,5 +4641,71 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
 </script>
   <script src="nav-hub.js"></script>
   <script src="qr-scanner.js"></script>
+  <script>
+  // ── Phase B.2: Voice handler registration for logbook.create ─────────────
+  // WHVoice is lazy-loaded by nav-hub.js. Poll briefly for it, then register
+  // a handler that pre-fills the logbook form. The form's existing Save flow
+  // handles the actual DB write so the architect rule "DB write must confirm"
+  // is naturally satisfied (worker still taps Save after reviewing).
+  (function () {
+    function _setVal(id, v) {
+      if (v == null || v === '') return;
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.value = String(v);
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    function _setRadio(name, value) {
+      const el = document.querySelector(`input[name="${name}"][value="${value}"]`);
+      if (el) { el.checked = true; el.dispatchEvent(new Event('change', { bubbles: true })); }
+    }
+    async function logbookCreateHandler(intent, assetResolution) {
+      const p = intent && intent.params || {};
+      // Resolve machine name: prefer asset_resolution.primary tag/name over the spoken string.
+      const primary = assetResolution && assetResolution.primary;
+      const machine = (primary && (primary.tag || primary.name)) || p.machine || '';
+
+      _setVal('f-machine', machine);
+      _setVal('f-maint-type', p.maintenance_type || '');
+      _setVal('f-category',   p.category || '');
+      _setVal('f-problem',    p.problem || '');
+      _setVal('f-action',     p.action || '');
+      _setVal('f-root-cause', p.root_cause || '');
+      if (p.downtime_hours != null) _setVal('f-downtime', String(p.downtime_hours));
+      if (p.status === 'Open' || p.status === 'Closed') {
+        _setRadio('f-status', p.status);
+      }
+
+      // Scroll the form into view so the worker can review and tap Save.
+      const form = document.getElementById('log-form') || document.querySelector('form');
+      if (form && form.scrollIntoView) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      const partsCount = Array.isArray(p.parts_used) ? p.parts_used.length : 0;
+      const partsHint = partsCount
+        ? ` (${partsCount} part${partsCount > 1 ? 's' : ''} mentioned; pick them in the parts picker before saving)`
+        : '';
+
+      return {
+        ok: true,
+        message: `Form pre-filled for ${machine || 'this entry'}. Review and tap Save${partsHint}.`,
+      };
+    }
+
+    function tryRegister() {
+      if (window.WHVoice && typeof window.WHVoice.register === 'function') {
+        window.WHVoice.register('logbook.create', logbookCreateHandler);
+        return true;
+      }
+      return false;
+    }
+    if (!tryRegister()) {
+      let tries = 0;
+      const t = setInterval(() => {
+        if (tryRegister() || ++tries > 20) clearInterval(t);
+      }, 250);
+    }
+  })();
+  </script>
 </body>
 </html>

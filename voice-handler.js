@@ -1,0 +1,593 @@
+/**
+ * WorkHive Voice Handler
+ * ────────────────────────────────────────────────────────────────────────────
+ * Cross-page voice command UI. Lazy-loaded by nav-hub.js (same pattern as
+ * search-overlay.js). Records audio via MediaRecorder, transcribes via the
+ * voice-transcribe edge function, classifies intent via voice-action-router
+ * (which reads canonical v_asset_truth for asset resolution), then dispatches
+ * to per-page handlers registered via WHVoice.register(kind, handler).
+ *
+ * Public API:
+ *   WHVoice.register(kind, handler)  — page tells WHVoice it can handle this intent
+ *   WHVoice.open()                   — show the voice overlay (start recording)
+ *   WHVoice.close()                  — hide the overlay
+ *   WHVoice.dispatch(intent, ctx)    — programmatic dispatch (for tests)
+ *
+ * Per-page integration pattern:
+ *   document.addEventListener('DOMContentLoaded', () => {
+ *     if (window.WHVoice) {
+ *       WHVoice.register('logbook.create', async (intent) => {
+ *         const p = intent.params;
+ *         document.getElementById('machine').value = p.machine || '';
+ *         // ... fill form fields, scroll into view
+ *         return { ok: true, message: 'Form pre-filled. Review and tap Save.' };
+ *       });
+ *     }
+ *   });
+ *
+ * Skills consulted: ai-engineer (callAI rate limit + transcript cap already
+ * enforced in voice-action-router), security (confirmation BEFORE any
+ * write, escape user-controlled strings on render, audio size cap 10 MB),
+ * mobile-maestro (44px+ targets, viewport-fit safe areas, 16px input,
+ * MediaRecorder works on iOS 14+), architect (DB write must confirm first;
+ * unknown intents fall through to floating-ai chat, never assume).
+ */
+
+(function () {
+  'use strict';
+
+  if (window.WHVoice) return; // singleton guard
+
+  // ─── Config ─────────────────────────────────────────────────────────────
+  const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+  const MAX_RECORD_MS = 30 * 1000;
+  const MAX_TRANSCRIPT_CHARS = 500;
+
+  let _db = null;
+  function _getDb() {
+    if (!_db && window.supabase) {
+      _db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+    return _db;
+  }
+
+  // Read identity / hive context from localStorage (canonical pattern)
+  function _ctx() {
+    return {
+      worker_name:
+        localStorage.getItem('wh_last_worker') ||
+        localStorage.getItem('wh_worker_name') ||
+        localStorage.getItem('workerName') || '',
+      hive_id:
+        localStorage.getItem('wh_active_hive_id') ||
+        localStorage.getItem('wh_hive_id') || '',
+      hive_role: localStorage.getItem('wh_hive_role') || '',
+    };
+  }
+
+  function _currentPage() {
+    const path = (location.pathname || '').toLowerCase();
+    const m = path.match(/\/?([a-z0-9-]+)\.html/);
+    return m ? m[1] : 'home';
+  }
+
+  function _currentAssetId() {
+    try {
+      const u = new URL(location.href);
+      return u.searchParams.get('asset_id') || u.searchParams.get('node_id') || null;
+    } catch (_) { return null; }
+  }
+
+  // Minimal HTML escape (mirrors utils.js escHtml; in case utils.js isn't on this page)
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  // ─── State ───────────────────────────────────────────────────────────────
+  const handlers = {};            // kind -> async fn(intent, asset_resolution)
+  let _stream = null;
+  let _recorder = null;
+  let _chunks = [];
+  let _stopTimer = null;
+
+  // ─── Styles + DOM ────────────────────────────────────────────────────────
+  const STYLE = `
+    .wh-voice-btn {
+      position: fixed; right: 16px; bottom: calc(86px + env(safe-area-inset-bottom));
+      width: 52px; height: 52px; border-radius: 50%; border: none;
+      background: linear-gradient(135deg, #29B6D9, #1f8aab); color: #fff;
+      box-shadow: 0 6px 18px rgba(31,138,171,0.45);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 9990; font-family: 'Poppins', sans-serif;
+      transition: transform 0.12s, box-shadow 0.12s;
+    }
+    .wh-voice-btn:hover  { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(31,138,171,0.55); }
+    .wh-voice-btn:active { transform: scale(0.95); }
+    .wh-voice-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+    .wh-voice-btn.recording { background: linear-gradient(135deg, #EF5757, #c33b3b); animation: wh-voice-pulse 1.2s ease-in-out infinite; }
+    @keyframes wh-voice-pulse {
+      0%, 100% { box-shadow: 0 6px 18px rgba(195,59,59,0.45); }
+      50%      { box-shadow: 0 8px 30px rgba(195,59,59,0.85); }
+    }
+
+    .wh-voice-overlay {
+      position: fixed; inset: 0; z-index: 9995; display: none;
+      align-items: center; justify-content: center;
+      background: rgba(10,18,28,0.82); backdrop-filter: blur(6px);
+      padding: 1rem; padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+      font-family: 'Poppins', sans-serif;
+    }
+    .wh-voice-overlay.open { display: flex; }
+    .wh-voice-card {
+      width: 100%; max-width: 460px;
+      background: linear-gradient(145deg, rgba(42,61,88,0.97), rgba(22,32,50,0.99));
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 1.25rem; padding: 1.25rem 1.1rem;
+      color: #F4F6FA;
+      box-shadow: 0 30px 70px rgba(0,0,0,0.55);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .wh-voice-title {
+      font-size: 0.66rem; letter-spacing: 0.10em; text-transform: uppercase;
+      color: rgba(255,255,255,0.6); margin-bottom: 0.4rem;
+    }
+    .wh-voice-status {
+      font-size: 1.1rem; font-weight: 700; margin-bottom: 0.85rem;
+    }
+    .wh-voice-rec-row {
+      display: flex; align-items: center; gap: 0.65rem; margin: 0.6rem 0 0.85rem;
+    }
+    .wh-voice-dot {
+      width: 10px; height: 10px; border-radius: 50%; background: #EF5757;
+      box-shadow: 0 0 10px #EF5757;
+      animation: wh-voice-dot-pulse 1s ease-in-out infinite;
+    }
+    @keyframes wh-voice-dot-pulse {
+      0%, 100% { opacity: 0.4; transform: scale(1); }
+      50%      { opacity: 1;   transform: scale(1.25); }
+    }
+    .wh-voice-elapsed { font-size: 0.85rem; color: rgba(255,255,255,0.7); }
+
+    .wh-voice-transcript {
+      background: rgba(255,255,255,0.05);
+      border: 1px dashed rgba(255,255,255,0.12);
+      border-radius: 0.6rem; padding: 0.65rem 0.85rem;
+      font-size: 0.85rem; line-height: 1.45; color: #F4F6FA;
+      margin-bottom: 0.85rem; min-height: 2.6rem;
+    }
+
+    .wh-voice-intent-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0.85rem; padding: 0.75rem 0.9rem;
+      margin-bottom: 0.55rem;
+    }
+    .wh-voice-kind {
+      font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #F7A21B; font-weight: 700;
+    }
+    .wh-voice-conf {
+      font-size: 0.62rem; color: rgba(255,255,255,0.5); float: right;
+    }
+    .wh-voice-summary {
+      font-size: 0.92rem; line-height: 1.45; margin: 0.4rem 0 0.4rem;
+      color: #F4F6FA; word-break: break-word;
+    }
+    .wh-voice-asset-pill {
+      display: inline-block; padding: 2px 9px; border-radius: 999px;
+      background: rgba(247,162,27,0.18); color: #ffc566;
+      font-size: 0.66rem; font-weight: 700; letter-spacing: 0.04em;
+      margin-right: 0.35rem;
+    }
+    .wh-voice-asset-pill.ambiguous { background: rgba(239,87,87,0.18); color: #ff8a8a; }
+
+    .wh-voice-actions {
+      display: flex; gap: 0.45rem; margin-top: 0.85rem;
+    }
+    .wh-voice-btn-action {
+      flex: 1; min-height: 44px; border-radius: 0.65rem;
+      font-size: 0.88rem; font-weight: 700; cursor: pointer;
+      font-family: inherit; border: 1px solid transparent;
+    }
+    .wh-voice-confirm {
+      background: linear-gradient(135deg, #4ADE80, #22a155); color: #0b1a10; border-color: transparent;
+    }
+    .wh-voice-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+    .wh-voice-cancel {
+      background: rgba(255,255,255,0.06); color: #F4F6FA;
+      border-color: rgba(255,255,255,0.14);
+    }
+    .wh-voice-result {
+      margin-top: 0.65rem; font-size: 0.82rem; line-height: 1.45;
+      color: rgba(255,255,255,0.85);
+      padding: 0.55rem 0.75rem; border-radius: 0.55rem;
+      background: rgba(74,222,128,0.10);
+      border: 1px solid rgba(74,222,128,0.25);
+    }
+    .wh-voice-result.error {
+      background: rgba(239,87,87,0.10);
+      border-color: rgba(239,87,87,0.25);
+      color: #ffaeae;
+    }
+  `;
+
+  const VOICE_BTN_HTML = `
+    <button id="wh-voice-btn" class="wh-voice-btn" aria-label="Voice command" title="Voice command">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+        <path d="M19 10v2a7 7 0 01-14 0v-2"/>
+        <line x1="12" y1="19" x2="12" y2="23"/>
+        <line x1="8" y1="23" x2="16" y2="23"/>
+      </svg>
+    </button>`;
+
+  const OVERLAY_HTML = `
+    <div id="wh-voice-overlay" class="wh-voice-overlay" role="dialog" aria-modal="true" aria-labelledby="wh-voice-status">
+      <div class="wh-voice-card">
+        <div class="wh-voice-title">Voice command</div>
+        <div id="wh-voice-status" class="wh-voice-status">Listening...</div>
+        <div id="wh-voice-rec-row" class="wh-voice-rec-row">
+          <span class="wh-voice-dot"></span>
+          <span class="wh-voice-elapsed" id="wh-voice-elapsed">0:00</span>
+          <span style="margin-left:auto;font-size:0.7rem;color:rgba(255,255,255,0.4);">Tap mic to stop</span>
+        </div>
+        <div id="wh-voice-transcript" class="wh-voice-transcript" style="display:none;"></div>
+        <div id="wh-voice-intents"></div>
+        <div id="wh-voice-result" style="display:none;"></div>
+        <div class="wh-voice-actions">
+          <button id="wh-voice-cancel" class="wh-voice-btn-action wh-voice-cancel" type="button">Cancel</button>
+          <button id="wh-voice-confirm" class="wh-voice-btn-action wh-voice-confirm" type="button" style="display:none;">Confirm</button>
+        </div>
+      </div>
+    </div>`;
+
+  // ─── Mount ────────────────────────────────────────────────────────────────
+  function _mount() {
+    if (document.getElementById('wh-voice-overlay')) return;
+    const style = document.createElement('style');
+    style.id = 'wh-voice-styles';
+    style.textContent = STYLE;
+    document.head.appendChild(style);
+
+    const btnDiv = document.createElement('div');
+    btnDiv.innerHTML = VOICE_BTN_HTML.trim();
+    document.body.appendChild(btnDiv.firstElementChild);
+
+    const ovDiv = document.createElement('div');
+    ovDiv.innerHTML = OVERLAY_HTML.trim();
+    document.body.appendChild(ovDiv.firstElementChild);
+
+    const btn     = document.getElementById('wh-voice-btn');
+    const cancel  = document.getElementById('wh-voice-cancel');
+    if (btn)    btn.addEventListener('click', () => _toggle());
+    if (cancel) cancel.addEventListener('click', () => close());
+
+    document.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape' && _isOpen()) close();
+    });
+  }
+
+  function _isOpen() {
+    const ov = document.getElementById('wh-voice-overlay');
+    return !!(ov && ov.classList.contains('open'));
+  }
+
+  function _setStatus(msg) {
+    const el = document.getElementById('wh-voice-status');
+    if (el) el.textContent = msg;
+  }
+
+  function _setTranscript(text) {
+    const el = document.getElementById('wh-voice-transcript');
+    if (!el) return;
+    if (!text) { el.style.display = 'none'; el.textContent = ''; return; }
+    el.style.display = 'block';
+    el.textContent = text;
+  }
+
+  function _setResult(text, isError) {
+    const el = document.getElementById('wh-voice-result');
+    if (!el) return;
+    if (!text) { el.style.display = 'none'; el.innerHTML = ''; el.classList.remove('error'); return; }
+    el.style.display = 'block';
+    el.classList.toggle('error', !!isError);
+    el.textContent = text;
+  }
+
+  function _setRecRowVisible(v) {
+    const row = document.getElementById('wh-voice-rec-row');
+    if (row) row.style.display = v ? 'flex' : 'none';
+  }
+
+  function _summariseIntent(intent) {
+    const p = intent.params || {};
+    if (intent.kind === 'logbook.create') {
+      const parts = [];
+      if (p.machine) parts.push(`on ${p.machine}`);
+      if (p.action)  parts.push(`(${p.action})`);
+      if (p.maintenance_type) parts.push(`[${p.maintenance_type}]`);
+      if (p.downtime_hours != null) parts.push(`${p.downtime_hours}h downtime`);
+      const head = parts.join(' ').trim() || 'New entry';
+      const partsList = Array.isArray(p.parts_used) && p.parts_used.length
+        ? `Parts: ${p.parts_used.map(x => `${x.qty || 1} x ${x.part_name}`).join(', ')}`
+        : '';
+      return [head, partsList].filter(Boolean).join('. ');
+    }
+    if (intent.kind === 'inventory.deduct') {
+      const list = Array.isArray(p.parts) ? p.parts : [];
+      return `Deduct ${list.map(x => `${x.qty || 1} x ${x.part_name}`).join(', ') || '(no parts parsed)'}.`;
+    }
+    if (intent.kind === 'pm.complete') {
+      const head = p.machine ? `PM on ${p.machine}` : 'PM completion';
+      return [head, p.task_summary].filter(Boolean).join(': ');
+    }
+    if (intent.kind === 'asset.lookup') {
+      return `Look up: ${p.question || p.machine || '(no detail)'}.`;
+    }
+    if (intent.kind === 'query.ask') {
+      return `Ask assistant: ${p.question || '(no question)'}.`;
+    }
+    return 'Unrecognised command. Falls through to assistant chat.';
+  }
+
+  function _renderIntents(intents, assetResolution) {
+    const root = document.getElementById('wh-voice-intents');
+    if (!root) return;
+    if (!intents || !intents.length) {
+      root.innerHTML = `<div class="wh-voice-intent-card">
+        <div class="wh-voice-kind">unknown</div>
+        <div class="wh-voice-summary">No actionable command detected. Say something like:
+          "I just replaced the V-belt on Pump P-5, took 20 minutes"
+          or "Show me Pump 5".</div>
+      </div>`;
+      return;
+    }
+    const ar = assetResolution || {};
+    const candidates = Array.isArray(ar.candidates) ? ar.candidates : [];
+    const ambiguous = !!ar.ambiguous;
+    const primary  = ar.primary;
+
+    let assetHtml = '';
+    if (primary) {
+      assetHtml = `<span class="wh-voice-asset-pill${ambiguous ? ' ambiguous' : ''}">${
+        escHtml(primary.tag || primary.name || 'asset')
+      }${ambiguous ? ' (multiple matches)' : ''}</span>`;
+    } else if (candidates.length === 0 && (ar.mentioned_assets || []).length) {
+      assetHtml = `<span class="wh-voice-asset-pill ambiguous">no match</span>`;
+    }
+
+    root.innerHTML = intents.map((it, idx) => `
+      <div class="wh-voice-intent-card" data-idx="${idx}">
+        <div>
+          <span class="wh-voice-kind">${escHtml(it.kind)}</span>
+          <span class="wh-voice-conf">${Math.round((it.confidence || 0) * 100)}%</span>
+        </div>
+        <div class="wh-voice-summary">${idx === 0 ? assetHtml : ''}${escHtml(_summariseIntent(it))}</div>
+      </div>
+    `).join('');
+  }
+
+  // ─── Recording ────────────────────────────────────────────────────────────
+  async function _toggle() {
+    if (_recorder && _recorder.state === 'recording') {
+      _stopRecording();
+      return;
+    }
+    open();
+  }
+
+  async function _startRecording() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      _setStatus('Voice not supported on this browser.');
+      _setRecRowVisible(false);
+      return;
+    }
+    try {
+      _stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (err) {
+      _setStatus('Microphone permission denied.');
+      _setRecRowVisible(false);
+      return;
+    }
+    _chunks = [];
+    const mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
+    _recorder = new MediaRecorder(_stream, { mimeType: mime });
+    _recorder.ondataavailable = (ev) => { if (ev.data && ev.data.size) _chunks.push(ev.data); };
+    _recorder.onstop = _onStopRecording;
+    _recorder.start();
+    document.getElementById('wh-voice-btn')?.classList.add('recording');
+    _setStatus('Listening...');
+    _setRecRowVisible(true);
+
+    const startedAt = Date.now();
+    const elTimer = document.getElementById('wh-voice-elapsed');
+    if (elTimer) {
+      const tick = () => {
+        if (!_recorder || _recorder.state !== 'recording') return;
+        const s = Math.floor((Date.now() - startedAt) / 1000);
+        elTimer.textContent = `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+        requestAnimationFrame(tick);
+      };
+      tick();
+    }
+
+    _stopTimer = setTimeout(_stopRecording, MAX_RECORD_MS);
+  }
+
+  function _stopRecording() {
+    if (_stopTimer) { clearTimeout(_stopTimer); _stopTimer = null; }
+    if (_recorder && _recorder.state === 'recording') _recorder.stop();
+    document.getElementById('wh-voice-btn')?.classList.remove('recording');
+  }
+
+  async function _onStopRecording() {
+    _setRecRowVisible(false);
+    _setStatus('Transcribing...');
+    if (_stream) { _stream.getTracks().forEach(t => t.stop()); _stream = null; }
+    if (!_chunks.length) {
+      _setStatus('No audio captured.');
+      return;
+    }
+    const blob = new Blob(_chunks, { type: _recorder?.mimeType || 'audio/webm' });
+    const ctx = _ctx();
+    if (!ctx.hive_id) {
+      _setStatus('Voice needs a hive. Join or create one first.');
+      return;
+    }
+    try {
+      // Step 1: voice-transcribe (multipart/form-data)
+      const fd = new FormData();
+      fd.append('audio', blob, 'voice.webm');
+      const tResp = await fetch(SUPABASE_URL + '/functions/v1/voice-transcribe', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + SUPABASE_KEY, 'apikey': SUPABASE_KEY },
+        body: fd,
+      });
+      const tData = await tResp.json();
+      if (!tResp.ok) throw new Error(tData.error || 'Transcribe failed');
+      const transcript = String(tData.text || '').trim().slice(0, MAX_TRANSCRIPT_CHARS);
+      if (!transcript) {
+        _setStatus('I did not catch that. Try again.');
+        return;
+      }
+      _setTranscript(transcript);
+
+      // Step 2: voice-action-router
+      _setStatus('Parsing intent...');
+      const db = _getDb();
+      if (!db) throw new Error('Supabase client not loaded');
+      const { data: routerData, error: routerErr } = await db.functions.invoke('voice-action-router', {
+        body: {
+          transcript,
+          hive_id: ctx.hive_id,
+          context_page: _currentPage(),
+          context_asset_id: _currentAssetId(),
+        },
+      });
+      if (routerErr) throw new Error(routerErr.message || 'Router failed');
+      if (!routerData) throw new Error('Empty router response');
+      if (routerData.error) throw new Error(routerData.error);
+
+      _renderIntents(routerData.intents || [], routerData.asset_resolution);
+
+      const hasActionable = (routerData.intents || []).some(
+        it => it.kind !== 'unknown' && it.kind !== 'query.ask',
+      );
+      const confirmBtn = document.getElementById('wh-voice-confirm');
+      if (confirmBtn) {
+        confirmBtn.style.display = hasActionable ? 'block' : 'none';
+        confirmBtn.disabled = !hasActionable;
+        confirmBtn.onclick = () => _confirm(routerData);
+      }
+
+      // For unknown / query.ask, fall through to assistant chat directly.
+      if (!hasActionable) {
+        _setStatus('Forwarded to AI Assistant.');
+        const q = (routerData.intents || []).find(i => i.kind === 'query.ask')?.params?.question
+                || transcript;
+        _fallthroughToChat(q);
+      } else {
+        _setStatus('Review and confirm.');
+      }
+    } catch (err) {
+      console.error('[WHVoice]', err);
+      _setStatus('Could not process voice command.');
+      _setResult((err && err.message) || String(err), true);
+    }
+  }
+
+  // ─── Confirm + dispatch ──────────────────────────────────────────────────
+  async function _confirm(routerData) {
+    const intents = (routerData && routerData.intents) || [];
+    const ar = routerData && routerData.asset_resolution;
+    const confirmBtn = document.getElementById('wh-voice-confirm');
+    if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = 'Working...'; }
+
+    const messages = [];
+    let anyError = false;
+    for (const intent of intents) {
+      if (intent.kind === 'unknown' || intent.kind === 'query.ask') continue;
+      try {
+        const result = await dispatch(intent, ar);
+        if (result && result.message) messages.push(result.message);
+        if (result && result.ok === false) { anyError = true; messages.push(result.message || 'Failed.'); }
+      } catch (err) {
+        anyError = true;
+        messages.push('Error: ' + ((err && err.message) || err));
+      }
+    }
+    _setResult(messages.join('\n') || 'Done.', anyError);
+    if (confirmBtn) {
+      confirmBtn.textContent = 'Done';
+      confirmBtn.disabled = false;
+      confirmBtn.onclick = () => close();
+    }
+  }
+
+  // Programmatic dispatch (also used by _confirm).
+  async function dispatch(intent, assetResolution) {
+    const handler = handlers[intent.kind];
+    if (!handler) {
+      return {
+        ok: false,
+        message: `No handler registered for "${intent.kind}" on this page. Open the right page (e.g. Logbook for logbook.create) and try again.`,
+      };
+    }
+    return await handler(intent, assetResolution || {});
+  }
+
+  function _fallthroughToChat(q) {
+    // Best-effort: open floating-ai chat with the question prefilled.
+    try {
+      if (window.WHAssistant && typeof window.WHAssistant.sendMessage === 'function') {
+        window.WHAssistant.sendMessage(q);
+      } else {
+        // Floating-ai exposes openPanel via direct DOM if API missing
+        const input = document.getElementById('wh-ai-input');
+        if (input) {
+          input.value = q;
+          input.focus();
+          document.getElementById('wh-ai-panel')?.classList.add('open');
+        }
+      }
+    } catch (_) {}
+  }
+
+  // ─── Public API ──────────────────────────────────────────────────────────
+  function open() {
+    _mount();
+    const ov = document.getElementById('wh-voice-overlay');
+    if (!ov) return;
+    ov.classList.add('open');
+    _setTranscript('');
+    _setResult('');
+    document.getElementById('wh-voice-intents').innerHTML = '';
+    const confirmBtn = document.getElementById('wh-voice-confirm');
+    if (confirmBtn) { confirmBtn.style.display = 'none'; confirmBtn.disabled = false; confirmBtn.textContent = 'Confirm'; }
+    _startRecording();
+  }
+
+  function close() {
+    _stopRecording();
+    if (_stream) { _stream.getTracks().forEach(t => t.stop()); _stream = null; }
+    const ov = document.getElementById('wh-voice-overlay');
+    if (ov) ov.classList.remove('open');
+  }
+
+  function register(kind, handler) {
+    if (typeof handler !== 'function') return;
+    handlers[kind] = handler;
+  }
+
+  window.WHVoice = { open, close, register, dispatch, _handlers: handlers };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _mount);
+  } else {
+    _mount();
+  }
+})();

@@ -29,6 +29,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { callAI } from '../_shared/ai-chain.ts';
+import { checkAIRateLimit, rateLimitedResponse } from '../_shared/rate-limit.ts';
 
 /* ── CORS ──────────────────────────────────────────────────────────────── */
 function getCorsHeaders(req: Request): Record<string, string> {
@@ -298,6 +299,13 @@ serve(async (req: Request) => {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const serviceKey  = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const db = createClient(supabaseUrl, serviceKey);
+
+  // Rate-gate FIRST per ai-engineer skill — every phase that runs callAI
+  // (narrative / intent / brief) is paid; without the gate a button-mash
+  // burns budget. body.hive_id is optional for the intent phase, so we
+  // pass "" → solo-worker mode (gate is no-op for that case).
+  const rl = await checkAIRateLimit(db, body.hive_id || "");
+  if (!rl.allowed) return rateLimitedResponse(getCorsHeaders(req));
 
   try {
     if (phase === 'narrative') {

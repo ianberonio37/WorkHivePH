@@ -7,13 +7,164 @@ Bugs, missing fields, schema gaps, and UX issues found while running the test-da
 - Move entries between sections (🔴 → 🟡 → ✅) as priorities shift or fixes ship.
 - When you ship a fix in production, copy the entry into your PR description and move it to ✅ Fixed with the date + commit ref.
 
-**Last updated:** 2026-05-03 (entry #12 logged + fixed)
+**Last updated:** 2026-05-10 (entries #36+#37 closed — Supabase Auth migration shipped end-to-end)
 
 ---
 
 ## 🔴 Critical — breaks a user flow
 
-_(none currently)_
+### 30. Phantom column reads return null silently — OPEN 2026-05-10 (caught by validate_schema_phantom)
+
+The 4-layer Schema Phantom Detector built today surfaced **5 production sites** that query columns that **do not exist** on the underlying table. Each query returns null silently — the page renders but the data is missing or wrong.
+
+| Site | Query | Phantom column(s) | Should be |
+|---|---|---|---|
+| `alert-hub.html:225` | `failure_signature_alerts.select('id, machine, signature_kind, message, severity, hive_id, created_at')` | `signature_kind`, `message`, `created_at` | Likely `category` (or `rule_id`), `alert_title` (or `alert_detail`), `detected_at` |
+| `index.html:2559` | `v_logbook_truth.select('..., logged_at, created_at')` | `logged_at` | The view exposes `created_at` only — drop `logged_at` |
+| `search-overlay.js:280` | `inventory_items.select('..., reorder_point')` | `reorder_point` | Migrate to `v_inventory_items_truth` (which exposes the alias) OR rename to `min_qty` |
+| `batch-risk-scoring/index.ts:84` | `inventory_transactions.select('part_name, qty_change, type, created_at')` | `part_name` | Use embed: `item:inventory_items(part_name)` (the table only has `item_id` FK) |
+| `trigger-ml-retrain/index.ts:54` | `inventory_transactions.select('part_name, qty_change, type, created_at, hive_id')` | `part_name` | Same — embed via `item:inventory_items(part_name)` |
+
+`validate_schema_phantom.py` runs on every guardian fast-pass; it will keep WARNing until these are fixed.
+
+### 31. AI rate-limit gate missing on 7 edge functions — OPEN 2026-05-10 (caught by validate_ai_pattern_compliance)
+
+`validate_ai_pattern_compliance.py` (the AI-fn governance validator built today) found 7 edge functions that call `callAI(...)` without first invoking `checkAIRateLimit(...)`. A buggy or malicious hive can burn the entire AI budget in seconds when the gate is missing.
+
+| Edge function | Trigger | Recommended action |
+|---|---|---|
+| `analytics-orchestrator` | user click (analytics page) | Add rate gate at handler entry |
+| `engineering-calc-agent` | user click (engineering design) | Add rate gate at handler entry |
+| `failure-signature-scan` | scheduled (pg_cron) + on-demand | Add rate gate; cron path can bypass via service-role flag if needed |
+| `project-orchestrator` | user click (project manager) | Add rate gate at handler entry |
+| `shift-planner-orchestrator` | user click (shift brain) | Add rate gate at handler entry |
+| `voice-logbook-entry` | voice flow (microphone) | Highest priority — voice is high-cost, high-frequency |
+| `voice-report-intent` | voice flow | Same priority as voice-logbook-entry |
+
+Pattern to copy from a compliant fn (e.g., `fmea-populator`):
+```typescript
+const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
+if (!rl.allowed) {
+  return new Response(
+    JSON.stringify({ error: "AI call limit reached for this hive. Try again in an hour." }),
+    { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+  );
+}
+// ... only AFTER the gate passes, call callAI(...)
+```
+
+`validate_ai_pattern_compliance.py` runs on every guardian fast-pass; will keep WARNing until each is gated or explicitly added to `RATE_GATE_EXEMPT` with a justification.
+
+### 32. State machine integrity — 10 architectural debts surfaced — OPEN 2026-05-10 (caught by validate_state_machine_integrity)
+
+The State Machine Integrity validator built today catches CHECK-constraint gaps and unreachable states across the platform's 18 status-bearing tables. Each item below is real architectural debt; none are blocking, but each should be scoped + fixed in its own migration.
+
+**Unreachable states (3) — defined in CHECK but no writer reaches them:**
+| Table | Unreachable | Reachable via | Likely cause |
+|---|---|---|---|
+| `project_change_orders` | `cancelled` | approved, pending, rejected | Cancel UI not yet implemented |
+| `asset_nodes` | `pending`, `rejected` | approved (default) | Admin asset-approval flow incomplete |
+| `shift_plans` | `archived` | draft, published | Archive button not yet wired |
+
+Fix per item: either remove the unused state from the CHECK constraint, or wire the missing writer.
+
+**Unconstrained status columns (7) — status column exists but no CHECK constraint:**
+| Table | Status DEFAULT | Risk |
+|---|---|---|
+| `assets` | `approved` | Any string accepted; case drift inevitable |
+| `external_sync` | `active` | CMMS sync state — cross-system drift |
+| `failure_signature_alerts` | (none) | Pattern alert state — no validation |
+| `hive_members` | (none) | Membership state — `kicked`/`active`/etc. drift risk |
+| `inventory_items` | (none) | Approval workflow — `approved`/`pending` drift |
+| `logbook` | `Open` | Open/Closed state — `'Done'` vs `'Closed'` etc. |
+| `pm_completions` | `done` | PM completion state — case drift |
+
+Fix per table: add `ALTER TABLE <name> ADD CONSTRAINT <name>_status_check CHECK (status IN ('a', 'b', ...))` migration after auditing the actual values used in production.
+
+`validate_state_machine_integrity.py` runs on every guardian fast-pass and will keep WARNing until each is fixed or explicitly allowlisted (`ACCEPTED_UNREACHABLE_STATES` for L2, `STATUS_COLUMN_IGNORE_TABLES` for L3).
+
+### 33. Audit log coverage gaps — enterprise-readiness blocker — OPEN 2026-05-10 (caught by validate_audit_log_coverage)
+
+The Audit Log Coverage validator built today catches a major compliance gap: the platform has 3 audit tables (`hive_audit_log`, `cmms_audit_log`, `automation_log`) but most state-changing writes never reach them. Regulatory customers (industrial / pharmaceutical especially) need "who did what when" for every meaningful state transition.
+
+**L1 — 9 unaudited critical-writer files** (write to high-stakes tables but never insert to any audit log):
+| File | Critical tables touched |
+|---|---|
+| `asset-hub.html` | `asset_nodes`, `pm_assets`, `pm_scope_items`, `rcm_fmea_modes`, `rcm_strategies` |
+| `index.html` | `worker_profiles` |
+| `inventory.html` | `assets`, `inventory_items`, `inventory_transactions` |
+| `logbook.html` | `assets`, `inventory_items`, `inventory_transactions`, `pm_assets`, `pm_completions` |
+| `marketplace-admin.html` | `marketplace_disputes`, `marketplace_listings`, `marketplace_orders`, `marketplace_sellers` |
+| `marketplace-seller.html` | `marketplace_disputes`, `marketplace_listings`, `marketplace_sellers` |
+| `marketplace.html` | `marketplace_disputes`, `marketplace_listings`, `marketplace_orders` |
+| `parts-tracker.html` | `inventory_items`, `inventory_transactions` |
+| `pm-scheduler.html` | `pm_assets`, `pm_completions`, `pm_scope_items` |
+
+Pattern to add at each state-change site:
+```javascript
+await db.from('hive_audit_log').insert({
+  hive_id, actor: WORKER_NAME,
+  action: 'asset.approve' /* or whatever verb */,
+  target_type: 'asset_node', target_id: nodeId, target_name: assetTag,
+  meta: { previous_status: oldStatus, new_status: newStatus },
+});
+```
+
+**L2 — `hive_audit_log` has 6 columns nobody reads** (`action`, `actor`, `meta`, `target_id`, `target_name`, `target_type`). Current "readers" are actually only writers. There's no audit-log viewer page in production. Adding the audit data without a way to review it is regulatory theatre.
+- Recommended: build a simple `/audit-log.html` for supervisors to filter+review actions per worker / per target / per time window.
+
+**L3 — 9 critical tables with zero audit coverage** anywhere in the codebase: `asset_nodes`, `inventory_transactions`, `marketplace_orders`, `marketplace_disputes`, `marketplace_listings`, `marketplace_sellers`, `worker_profiles`, `rcm_fmea_modes`, `rcm_strategies`, `pm_completions`. Compliance risk: an investigator asking "who rejected this asset?" or "who deleted this seller listing?" gets no answer.
+
+**Suggested order of remediation:**
+1. **Build the audit viewer page first** (validates the L2 column-read gap closes)
+2. Wire audit hooks at the highest-stakes sites first: marketplace-admin.html (money), asset-hub.html (engineer approval), pm-scheduler.html (PM scope changes)
+3. Lower-priority: inventory.html, logbook.html, index.html (worker profile)
+
+`validate_audit_log_coverage.py` runs on every guardian fast-pass and ratchets future compliance progress.
+
+### 34. Stripe POSTs missing `Idempotency-Key` header — money-movement risk — OPEN 2026-05-10 (caught by validate_idempotency L5)
+
+The new L5 layer of `validate_idempotency.py` (the wire-side counterpart of L0-L4 which cover migrations / schema / webhook-HMAC / upsert / internal dedup) surfaced **3 production sites** where outbound Stripe POSTs do not carry an `Idempotency-Key` header. Per Stripe's API spec, sending the same key twice returns the cached first response, preventing double-charge on retry. Without it, any network-level retry (transient timeout, supabase-functions cold-start retry, manual replay) can create a second charge / second payout / second account.
+
+| File | Stripe endpoint | Concrete risk |
+|---|---|---|
+| `supabase/functions/marketplace-checkout/index.ts:121` | `POST /v1/checkout/sessions` | Buyer sees two checkout pages; double-charge if both completed |
+| `supabase/functions/marketplace-release/index.ts:99` | `POST /v1/transfers` | **Highest risk** — duplicate transfer pays seller twice for one order; platform eats the loss |
+| `supabase/functions/marketplace-connect-onboard/index.ts:37` (via `stripePost` helper) | `POST /v1/accounts/...` | Duplicate Stripe Connect account for one seller; downstream KYB / payout confusion |
+
+Fix pattern (per Stripe docs):
+```typescript
+// Best: derive a stable key from the natural unique id so a retry collapses
+// to the same Stripe-side operation rather than producing a fresh new entity.
+const idempotencyKey = `release-${order_id}`;          // marketplace-release
+const idempotencyKey = `checkout-${order_id}`;          // marketplace-checkout
+const idempotencyKey = `connect-onboard-${worker_name}`; // marketplace-connect-onboard
+
+const res = await fetch(url, {
+  method: 'POST',
+  headers: {
+    'Authorization':   `Bearer ${stripeKey}`,
+    'Content-Type':    'application/x-www-form-urlencoded',
+    'Idempotency-Key': idempotencyKey,
+  },
+  body, signal: AbortSignal.timeout(10000),
+});
+```
+
+`crypto.randomUUID()` works as a fallback for non-deterministic call sites, but a stable derived key is strictly better — it survives a cold-start retry that re-invokes the entire function.
+
+**L5 also surfaced 1 WARN:**
+- `supabase/functions/send-report-email/index.ts:152` POST to `api.resend.com/emails` without an Idempotency-Key — Resend supports the header; without it a network retry sends the same digest twice. Lower stakes than money but still worth fixing once Stripe is done.
+
+**Why this is in the test-data-seeder net even though the marketplace is in contact-only mode:** the validator scans static code, not live traffic. The 3 sites are deployed; the moment payments enable, the gap is live. Better to land the fix while the marketplace is gated than after a customer reports a duplicate charge.
+
+**Suggested order:** marketplace-release (highest leverage, money out the door) → marketplace-checkout → marketplace-connect-onboard → send-report-email.
+
+`validate_idempotency.py` L5 will FAIL the guardian gate until the 3 Stripe sites carry the header.
+
+### 36+37. Auth migration shipped end-to-end — 10 permissive policies dropped, auth.uid() now actively gates 5 hive-scoped tables — FIXED 2026-05-10 (full closeout in ✅ Fixed section)
+
+Validator scaffolding (`validate_rls_readiness.py` + `validate_auth_migration_readiness.py`) remains active in the standing guardian to catch regressions and to track the F-cleanup phase.
 
 ---
 
@@ -78,6 +229,78 @@ Worker names render as plain text on the hive page (Team Stock Issues panel + Ro
 
 
 ## ✅ Fixed — for the changelog
+
+### 36+37. Supabase Auth migration shipped end-to-end — auth.uid() now gates 5 hive-scoped tables — FIXED 2026-05-10
+
+**Source:** validate_rls_readiness (#36) catalogued 10 permissive `USING(true)` policies on 5 hive-scoped tables. validate_auth_migration_readiness (#37) audited what was needed before the flip. User explicit ask 2026-05-10 satisfied the prior `project_supabase_auth_migration` deferral gate.
+
+**Surprise: the migration was much further along than expected.** Phase A audit revealed:
+- Supabase Auth provider already active (`db.auth.signUp` / `signInWithPassword` in index.html)
+- 10 HTML pages already pulled `db.auth.getSession()` into `_authUid` opportunistically
+- Inserts already set `auth_uid: _authUid || null` defensively
+- 6 prior migrations had backfilled `auth_uid` columns on user-data tables
+- Auth-gated sibling policies pre-staged on all 5 L3 tables
+
+So Phase C (column adds) and Phase D (sibling policies) were no-ops — already done.
+
+**Phases shipped:**
+
+| Phase | What shipped | Outcome |
+|---|---|---|
+| **A. Audit** | `validate_auth_migration_readiness.py` (12th cross-cutting gate) | 3-layer static audit: sibling coverage + auth_uid columns + identity gate strength. L1+L2 PASS, L3 surfaces page hardening punch list |
+| **B. Sign-in required** | 9 pages hardened with `if (!_authUid) { redirect → signin }` | hive, logbook, inventory, pm-scheduler, community, skillmatrix (standard pattern) + dayplanner (await conversion) + project-manager (reorder) + marketplace (softer `WORKER_NAME && !_authUid` for anon-friendly browsing) |
+| **C-data. Straggler backfill** | `20260510000009_phase_c_auth_uid_backfill.sql` | 19 straggler rows across pm_completions/logbook/inventory_transactions/marketplace_sellers all backfilled by joining to worker_profiles. Dynamic Q2 verified 0 across all 12 eligible tables. |
+| **E. Policy flip** | `20260510000010_phase_e_drop_permissive_policies.sql` | 10 permissive policies dropped via `DROP POLICY IF EXISTS`. Auth-gated siblings (logbook_read, logbook_insert, etc.) now actively gate access. Live verification SQL returned 0 rows. |
+
+**Validator improvements bundled in:**
+- `validate_rls_readiness.py` — added DROP POLICY parser; policies dedup by (table, name) via interleaved CREATE/DROP events keeping last-writer-wins, matching Postgres re-applied-migration semantics. Validator now reflects live policy state, not historical sum.
+- `validate_auth_migration_readiness.py` — L2 strip-then-search distinguishes unqualified `auth_uid` (own column needed) from qualified `hm.auth_uid` (membership-chain JOIN, no own column needed); L3 recognizes both strong gate (`!_authUid`) and softer marketplace gate (`WORKER_NAME && !_authUid`).
+
+**Live data state after migration:**
+- All 5 L3 tables (logbook, inventory_transactions, community_posts, community_replies, community_xp): only auth-gated policies remain. Anon role has no path to read or write these tables.
+- 19 backfilled rows are now properly owned by their authed workers; visible to those workers and members of their hives.
+- Auth-gated siblings handle the OR-semantics correctly: a row passes if `auth.uid() IS NOT NULL AND (membership OR ownership)` per table's policy.
+
+**Remaining: Phase F (cleanup) — low priority.** Pages still read WORKER_NAME from localStorage as their identity source; the auth gate now enforces that workers must be authenticated before pages load, so the localStorage path is belt-and-braces. Future cleanup migrates pages to derive WORKER_NAME from `worker_profiles` via `auth.uid()` lookup, retiring the localStorage layer entirely.
+
+**Validator outcomes:** validate_rls_readiness 4/4 PASS, validate_auth_migration_readiness 3/3 PASS, guardian baseline 76 PASS / 0 FAIL.
+
+**Recovery path if needed:** the 10 dropped policies can be recreated by re-applying the original CREATE POLICY statements from `20260420000000_baseline.sql`, `20260430000000_community_tables.sql`, `20260430000002_community_xp.sql`. Live workers continue to function during any recovery window (the auth-gated siblings still grant access to authed workers in their hives).
+
+### 35. Cron config drift — hardcoded host + placeholder bearers in 8 active cron jobs — FIXED 2026-05-10
+
+**Source:** validate_cron_schedule_integrity (10th cross-cutting architectural gate) surfaced 14 L3 findings — 6 jobs in `20260425000003_scheduled_agents.sql` hardcoding `hzyvnjtisfgbksicrouu.supabase.co`, plus 8 jobs across 2 migrations with placeholder bearer tokens (`SUPABASE_CRON_SERVICE_KEY`, `YOUR_PROJECT`, `SERVICE_ROLE_KEY`). Live cron worked because the deployer manually rotated keys post-deploy, but every clone / staging / customer self-host would have applied the misleading defaults.
+
+**Fix — single new migration `20260510000008_cron_portable_urls.sql`:**
+
+`pg_cron` is last-writer-wins per `job_name`, so the new migration unschedules + reschedules each of the 8 jobs with the portable form already in use by `20260505000002_project_knowledge.sql`:
+
+```sql
+url     := current_setting('app.supabase_functions_url') || '/<fn-name>'
+headers := jsonb_build_object('Authorization', 'Bearer ' || current_setting('app.service_role_key'))
+```
+
+Both settings are configured per-project by Supabase — no manual rotation across projects.
+
+**Jobs migrated to portable form (8 total):**
+| Job | Schedule | Endpoint |
+|---|---|---|
+| `pm-overdue-daily` | `0 6 * * *` | `/scheduled-agents` (body: `pm_overdue`) |
+| `failure-digest-weekly` | `0 7 * * 1` | `/scheduled-agents` (body: `failure_digest`) |
+| `shift-handover-morning` | `0 6 * * *` | `/scheduled-agents` (body: `shift_handover`) |
+| `shift-handover-afternoon` | `0 14 * * *` | `/scheduled-agents` (body: `shift_handover`) |
+| `shift-handover-night` | `0 22 * * *` | `/scheduled-agents` (body: `shift_handover`) |
+| `predictive-weekly` | `0 20 * * 0` | `/scheduled-agents` (body: `predictive`) |
+| `batch-risk-scoring-daily` | `0 5 * * *` | `/batch-risk-scoring` |
+| `ml-retrain-weekly` | `0 18 * * 6` | `/trigger-ml-retrain` |
+
+Each block wrapped in `DO $$ ... IF EXISTS pg_cron ... EXCEPTION WHEN OTHERS THEN NULL` so the migration is a no-op on environments without pg_cron (local Supabase by default).
+
+**Validator improvement bundled in:** `_extract_cron_jobs()` now dedupes by `job_name` keeping the last-defined entry (file order = apply order). This mirrors pg_cron's actual last-writer-wins behavior so the validator naturally reports the *current* schedule state rather than a historical sum — future cron renames work the same way without needing an exempt list.
+
+**Validator state:** 3 PASS / 1 WARN (14 findings) → **4/4 PASS / 0 WARN / 0 FAIL.**
+
+**Deploy note:** SQL migration applied via `supabase db push` (no `subst Z:` workaround needed — that's edge functions only).
 
 ### 29. Analytics panel order reranked by decision-relevance (top = what matters most) — FIXED 2026-05-04
 

@@ -72,9 +72,28 @@ verify_jwt = false
 enabled = true
 verify_jwt = false
 
+[functions.voice-action-router]
+enabled = true
+verify_jwt = false
+
 [functions.shift-planner-orchestrator]
 enabled = true
 verify_jwt = false
+
+[functions.fmea-populator]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/fmea-populator/index.ts"
+
+[functions.weibull-fitter]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/weibull-fitter/index.ts"
+
+[functions.pf-calculator]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/pf-calculator/index.ts"
 
 [functions.semantic-search]
 enabled = true
