@@ -26760,7 +26760,7 @@ function buildNoiseAcousticsSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`NOISE / ACOUSTICS — ${LpDb} dB at ${distM}m  |  NC-${NCrec} recommend.  |  ISO 9613 / DOLE D.O.13`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`NOISE / ACOUSTICS - ${LpDb} dB at ${distM}m  |  NC-${NCrec} recommend.  |  ISO 9613 / DOLE D.O.13`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Room plan diagram
   const RX=50,RY=75,RW=400,RH=250;
@@ -26806,7 +26806,7 @@ function buildNoiseAcousticsSVG(inputs, results) {
   // Compliance badges
   const b1X=RX,b1Y=BC_Y+BC_H+30;
   p.push(`<rect x="${b1X}" y="${b1Y}" width="195" height="32" rx="4" fill="${doleOK?'#e8f5e9':'#ffebee'}" stroke="${doleOK?OK_C:'#c62828'}" stroke-width="1.5"/>`);
-  p.push(_plumbT(b1X+97,b1Y+14,`DOLE D.O.13: ${LpDb} dB ${doleOK?'≤':'>'} 85 dB — ${doleOK?'PASS ✓':'FAIL ✗'}`,{sz:8,c:doleOK?OK_C:'#c62828',w:'700'}));
+  p.push(_plumbT(b1X+97,b1Y+14,`DOLE D.O.13: ${LpDb} dB ${doleOK?'<=':'>'} 85 dB - ${doleOK?'PASS':'FAIL'}`,{sz:8,c:doleOK?OK_C:'#c62828',w:'700'}));
   p.push(`<rect x="${b1X+205}" y="${b1Y}" width="195" height="32" rx="4" fill="#e3f2fd" stroke="${SFE}" stroke-width="1.5"/>`);
   p.push(_plumbT(b1X+302,b1Y+14,`NC Recommended: NC-${NCrec} (${spType})`,{sz:8,c:SFE,w:'700'}));
   const LY=STRIP_Y+6;
@@ -26816,10 +26816,10 @@ function buildNoiseAcousticsSVG(inputs, results) {
     p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
     p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
   });
-  [`1. Lp = Lw − 20log(r) − 11 (free-field). Room correction: +10log(Q/4πr² + 4/R).`,
+  [`1. Lp = Lw - 20log(r) - 11 (free-field). Room correction: +10log(Q/(4 pi r^2) + 4/R).`,
    `2. DOLE D.O. 13: 85 dBA 8-hr TWA. Each +5 dB halves allowable exposure time.`,
-   `3. NC curves: NC-${NCrec} recommended for ${spType}. Use absorption α ≥ ${alpha} to achieve target.`
-  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+   `3. NC curves: NC-${NCrec} recommended for ${spType}. Use absorption alpha not less than ${alpha} to achieve target.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+76+i*11,n,{a:'start',sz:6.5,c:CC})));
   _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'NOISE / ACOUSTICS', rows:[
     ['Source Lw',`${LwDb} dB`,SND],['Distance',`${distM} m`,SC],
     ['Lp at Distance',`${LpDb} dB`,SFE],['Room Absorption α',alpha,GY],
@@ -32151,55 +32151,144 @@ function renderNoiseAcousticsReport(inputs, r, narrative) {
   const dose = r.dose || {};
   const room = r.room || {};
   const doseColor = dose.limit_exceeded ? '#c62828' : dose.action_level_exceeded ? '#f57c00' : '#2e7d32';
+  // Inputs for formula display
+  const Lw       = Number(r.source_Lw_dB || inputs.source_Lw_dB || 90);
+  const Qfactor  = Number(inputs.directivity_Q || 2);
+  const distM    = Number(r.distance_m || inputs.distance_m || 5);
+  const alpha    = Number(inputs.avg_absorption_coeff || 0.15);
+  const surfaceM2 = Number(inputs.room_surface_m2 || 200);
+  const Lp_free  = Number(r.Lp_at_distance_dB || 0);
+  const NCLim    = Number(r.NC_limit || 40);
+  const spType   = String(inputs.space_type || 'Open-plan office');
+  const requiredReductionDb = Math.max(0, Lp_free - 65);
+  // Formula intermediates for display
+  const FourPiR2 = (4 * Math.PI * Math.pow(distM, 2)).toFixed(2);
+  const QoverArea = (Qfactor / (4 * Math.PI * Math.pow(distM, 2))).toExponential(3);
   document.getElementById('report-panel').innerHTML = `
-    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
-      <div><h1>NOISE AND ACOUSTICS ASSESSMENT</h1><div style="font-size:0.8rem;color:#555;">ISO 9613-2 / OSHA 1910.95 / DOLE D.O. 13</div></div>
+      <div><h1>NOISE AND ACOUSTICS ASSESSMENT</h1><div style="font-size:0.8rem;color:#555;">ISO 9613-2 / OSHA 29 CFR 1910.95 / DOLE D.O. 13 Series 1998 / ASHRAE Applications Ch 8</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
+
     <h2>Project Information</h2>
     <table>
       <tr><th style="width:30%;">Assessment Tag</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
-      <tr><th>Mode</th><td>${escHtml(inputs.calc_type)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Assessment Mode</th><td>${escHtml(inputs.calc_type || 'Room')}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Calculation Standard</th><td>ISO 9613-2 / OSHA 1910.95 / DOLE D.O. 13</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
     </table>
-    <h2>1. Source and Distance Attenuation</h2>
+
+    <h2>1. Objective</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || `To assess the sound pressure level Lp at a receiver located ${distM} m from a source of sound power Lw = ${Lw} dB with directivity factor Q = ${Qfactor} in a ${spType} of average absorption coefficient alpha = ${alpha}; to compare the assessed Lp against the DOLE D.O. 13 occupational exposure limit (85 dBA 8-hour TWA) and the ASHRAE-recommended NC rating for the space type (NC ${NCLim}); and to recommend engineering and administrative noise-control measures sufficient to bring the receiver within both limits.`)}</p>
+
+    <h2>2. References</h2>
+    <p style="font-size:0.83rem;color:#333;">ISO 9613-2: Acoustics - Attenuation of sound during propagation outdoors - General method of calculation<br>
+    ISO 3745: Determination of sound power levels - Precision methods for anechoic and hemi-anechoic rooms<br>
+    ISO 266: Acoustics - Preferred frequencies for measurements<br>
+    IEC 61672-1: Sound level meters - Specifications (Class 1 precision)<br>
+    OSHA 29 CFR 1910.95: Occupational Noise Exposure (US Department of Labor)<br>
+    DOLE Department Order No. 13 Series 1998: Health and Safety in Construction (Philippines)<br>
+    ASHRAE Applications Handbook 2019 Chapter 8: Sound and Vibration Control<br>
+    ASTM E90: Sound transmission loss (STC rating)<br>
+    ASTM E84: Surface burning characteristics<br>
+    PSME Code; ISO 11690: Recommended practice for the design of low-noise workplaces</p>
+
+    <h2>3. Design Inputs</h2>
     <table>
       <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
-      <tr><td>Sound Power Level Lw</td><td class="num">${r.source_Lw_dB} dB</td></tr>
-      <tr><td>Directivity factor Q</td><td class="num">${escHtml(String(inputs.directivity_Q))}</td></tr>
-      <tr><td>Distance to receiver</td><td class="num">${r.distance_m} m</td></tr>
-      <tr><td>Lp at distance (point source)</td><td class="num"><strong>${r.Lp_at_distance_dB} dB</strong></td></tr>
+      <tr><td>Source sound power level L<sub>w</sub></td><td class="num">${Lw} dB</td></tr>
+      <tr><td>Directivity factor Q</td><td class="num">${Qfactor} ${Qfactor === 1 ? '(omnidirectional)' : Qfactor === 2 ? '(hemispherical - on hard floor)' : Qfactor === 4 ? '(quarter-space - corner)' : ''}</td></tr>
+      <tr><td>Source-to-receiver distance r</td><td class="num">${distM} m</td></tr>
+      <tr><td>Room average absorption alpha</td><td class="num">${alpha}</td></tr>
+      <tr><td>Room total surface area S</td><td class="num">${surfaceM2} m&sup2;</td></tr>
+      <tr><td>Space type</td><td>${escHtml(spType)}</td></tr>
+      <tr><td>Recommended NC limit (ASHRAE)</td><td class="num">NC ${NCLim}</td></tr>
     </table>
-    ${Object.keys(room).length ? `
-    <h2>2. Room Acoustics</h2>
+
+    <h2>4. Source and Distance Attenuation (Free-Field, Point Source)</h2>
+    <p style="font-size:0.83rem;color:#333;">For a point source radiating into a free field, the sound pressure level at distance r is:</p>
+    <p style="font-size:0.83rem;color:#333;">
+      L<sub>p</sub> = L<sub>w</sub> + 10 log(Q / (4&pi;r&sup2;)) &nbsp; <em>(ISO 9613-2)</em><br>
+      = ${Lw} + 10 log(${Qfactor} / (4&pi; &times; ${distM}&sup2;))<br>
+      = ${Lw} + 10 log(${Qfactor} / ${FourPiR2})
+      = ${Lw} + 10 log(${QoverArea})<br>
+      = ${Lw} + ${(10 * Math.log10(Qfactor / (4 * Math.PI * Math.pow(distM, 2)))).toFixed(2)}
+      = <strong>${r.Lp_at_distance_dB} dB</strong>
+    </p>
+
+    ${Object.keys(room).length ? `<h2>5. Room Acoustics (Diffuse-Field Correction)</h2>
+    <p style="font-size:0.83rem;color:#333;">For a sound source within a room, reverberant build-up adds a correction term to the free-field equation:</p>
+    <p style="font-size:0.83rem;color:#333;">
+      Room constant: R = S &times; alpha / (1 - alpha) = ${surfaceM2} &times; ${alpha} / (1 - ${alpha}) = <strong>${room.R_m2} m&sup2;</strong><br>
+      Critical distance: r<sub>c</sub> = 0.14 &times; &radic;(Q &times; R) = 0.14 &times; &radic;(${Qfactor} &times; ${room.R_m2}) = <strong>${room.rc_m} m</strong> &nbsp; <em>(distance where direct field equals reverberant field)</em><br>
+      L<sub>p,room</sub> = L<sub>w</sub> + 10 log(Q/(4&pi;r&sup2;) + 4/R)
+      = ${Lw} + 10 log(${(Qfactor / (4 * Math.PI * Math.pow(distM, 2))).toFixed(4)} + ${(4 / Number(room.R_m2)).toFixed(4)})
+      = <strong>${room.Lp_dB} dB</strong>
+    </p>
+    <p style="font-size:0.83rem;color:#333;color:#7a5a00;background:#fff8e1;border-left:3px solid #F7A21B;padding:0.5rem 0.75rem;border-radius:0.25rem;">
+      <strong>Note:</strong> The free-field value L<sub>p</sub> = ${r.Lp_at_distance_dB} dB underestimates the actual receiver level inside an enclosed room. The room equation result <strong>${room.Lp_dB} dB</strong> is the engineering value to compare against NC ${NCLim} for compliance assessment.
+    </p>
     <table>
       <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
-      <tr><td>Average absorption α</td><td class="num">${escHtml(String(inputs.avg_absorption_coeff))}</td></tr>
-      <tr><td>Room constant R</td><td class="num">${room.R_m2} m²</td></tr>
-      <tr><td>Critical distance rc</td><td class="num">${room.rc_m} m</td></tr>
-      <tr><td>Lp (room equation)</td><td class="num"><strong>${room.Lp_dB} dB</strong></td></tr>
-      ${r.NC_measured !== undefined ? `<tr><td>NC Rating (measured)</td><td class="num" style="font-weight:700;color:${r.NC_ok ? '#2e7d32' : '#c62828'};">NC ${r.NC_measured}: Limit NC ${r.NC_limit} (${r.NC_ok ? 'PASS' : 'FAIL'})</td></tr>` : `<tr><td>NC Limit (${escHtml(inputs.space_type)})</td><td class="num">NC ${r.NC_limit}</td></tr>`}
+      <tr><td>Average absorption alpha</td><td class="num">${alpha}</td></tr>
+      <tr><td>Room constant R</td><td class="num">${room.R_m2} m&sup2;</td></tr>
+      <tr><td>Critical distance r<sub>c</sub></td><td class="num">${room.rc_m} m</td></tr>
+      <tr><td>L<sub>p,room</sub> (room equation)</td><td class="num"><strong>${room.Lp_dB} dB</strong></td></tr>
+      ${r.NC_measured !== undefined ? `<tr><td>NC Rating (measured)</td><td class="num" style="font-weight:700;color:${r.NC_ok ? '#2e7d32' : '#c62828'};">NC ${r.NC_measured} vs. limit NC ${r.NC_limit} (${r.NC_ok ? 'PASS' : 'FAIL'})</td></tr>` : `<tr><td>NC Limit (${escHtml(spType)})</td><td class="num">NC ${r.NC_limit}</td></tr>`}
     </table>` : ''}
-    ${r.barrier_IL_dB !== undefined ? `
-    <h2>2. Barrier Insertion Loss (Maekawa)</h2>
-    <table>
-      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
-      <tr><td>Barrier insertion loss IL</td><td class="num"><strong>${r.barrier_IL_dB} dB</strong></td></tr>
-      <tr><td>Lp without barrier</td><td class="num">${r.Lp_no_barrier_dB} dB</td></tr>
-      <tr><td>Lp with barrier</td><td class="num"><strong>${r.Lp_with_barrier_dB} dB</strong></td></tr>
-    </table>` : ''}
-    ${Object.keys(dose).length ? `
-    <h2>2. Occupational Noise Dose (OSHA / DOLE D.O. 13)</h2>
+
+    ${r.barrier_IL_dB !== undefined ? `<h2>5b. Barrier Insertion Loss (Maekawa)</h2>
+    <p style="font-size:0.83rem;color:#333;">For a barrier between source and receiver, Maekawa's empirical equation gives the insertion loss based on the path-length difference (Fresnel number):</p>
+    <p style="font-size:0.83rem;color:#333;">
+      IL = 10 log(3 + 20N) for N &gt; 0; capped at 24 dB (practical limit for diffraction-controlled barriers)<br>
+      L<sub>p,no barrier</sub> = ${r.Lp_no_barrier_dB} dB<br>
+      Insertion loss IL = <strong>${r.barrier_IL_dB} dB</strong><br>
+      L<sub>p,with barrier</sub> = L<sub>p,no barrier</sub> - IL = <strong>${r.Lp_with_barrier_dB} dB</strong>
+    </p>` : ''}
+
+    ${Object.keys(dose).length ? `<h2>5c. Occupational Noise Dose (OSHA 1910.95 / DOLE D.O. 13)</h2>
     <div style="text-align:center;padding:1.5rem;border:2px solid ${doseColor};border-radius:0.75rem;margin:1rem 0;">
-      <div style="font-size:0.9rem;color:#555;">8-Hour TWA</div>
+      <div style="font-size:0.9rem;color:#555;">8-Hour Time-Weighted Average (TWA)</div>
       <div style="font-size:2rem;font-weight:800;color:#162032;">${dose.TWA_dBA} dBA</div>
-      <div style="font-size:0.85rem;color:#555;">Dose: ${dose.dose_pct}%</div>
+      <div style="font-size:0.85rem;color:#555;">Dose: ${dose.dose_pct} percent of permissible</div>
       <div style="font-size:1rem;font-weight:700;color:${doseColor};">${escHtml(dose.status)}</div>
     </div>` : ''}
-    <h2>3. Code Notes</h2>
-    ${(r.code_notes || []).map(n => `<p style="font-size:0.83rem;color:#333;margin:0.2rem 0;">• ${escHtml(n)}</p>`).join('')}
-    <h2>4. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `${dose.limit_exceeded ? 'Noise exposure EXCEEDS DOLE/OSHA limit: engineering controls (enclosures, damping, isolation) are mandatory. PPE (hearing protection) is secondary, not a substitute.' : dose.action_level_exceeded ? 'Noise exceeds action level: implement hearing conservation program per DOLE D.O. 13.' : 'Noise levels are within regulatory limits.'} ${r.NC_measured > r.NC_limit ? `NC ${r.NC_measured} exceeds recommended NC ${r.NC_limit} for ${inputs.space_type}: increase room absorption or reduce source level.` : ''}`)}</p>
+
+    <h2>6. Compliance Assessment</h2>
+    <table>
+      <tr><th style="width:50%;">Criterion</th><th>Result</th></tr>
+      <tr><td>DOLE D.O. 13 / OSHA 1910.95 (85 dBA 8-hr TWA)</td><td class="num"><span style="font-weight:700;color:${Lp_free <= 85 ? '#2e7d32' : '#c62828'};">${Lp_free} dB ${Lp_free <= 85 ? 'not more than' : 'EXCEEDS'} 85 dBA: ${Lp_free <= 85 ? 'PASS' : 'FAIL'}</span></td></tr>
+      <tr><td>ASHRAE NC ${NCLim} (${escHtml(spType)})</td><td class="num">${room.Lp_dB ? `${room.Lp_dB} dB at receiver vs. NC ${NCLim} target (~${NCLim + 10} dBA roughly equivalent)` : 'requires octave-band measurement for NC determination'}</td></tr>
+      <tr><td>Required noise reduction to achieve NC ${NCLim}</td><td class="num"><strong>~${requiredReductionDb} dB</strong></td></tr>
+    </table>
+
+    <h2>7. Code Notes</h2>
+    ${(r.code_notes || []).map(n => `<p style="font-size:0.83rem;color:#333;margin:0.2rem 0;">- ${escHtml(n)}</p>`).join('')}
+
+    <h2>8. Assumptions</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Point-source approximation; valid for source dimensions less than 1/3 of distance r. For extended sources (line, plane), apply ISO 9613-2 line-source or area-source corrections.\n2. Q = ${Qfactor} directivity factor: 1 = free-field omnidirectional, 2 = hemispherical (source on hard floor or against wall), 4 = quarter-space (source in corner), 8 = octant (source at intersection of three planes). Verify by inspection of source mounting.\n3. Average absorption alpha = ${alpha} represents area-weighted Sabine absorption across all six room surfaces; varies significantly with frequency (low alpha at low frequencies). For octave-band analysis, substitute alpha by frequency band.\n4. Room equation assumes diffuse reverberant field (energy uniformly distributed); valid for rooms with surface irregularity and not too elongated (aspect ratio not more than 3:1 in any axis).\n5. Air absorption neglected for indoor distances; for outdoor propagation more than 25 m apply ISO 9613-1 air-absorption coefficients (varies with temperature, humidity, frequency).\n6. Background noise and other sources not considered; for combined sources L_total = 10 log(sum of 10^(Lp_i/10)) per energy summation rule.\n7. NC ratings determined from octave-band Lp curve compared against NC reference curves; this assessment uses overall A-weighted Lp as a proxy. For final compliance, conduct 1/1 octave-band measurement per ASHRAE Ch 8 method.`)}</p>
+
+    <h2>9. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. ${dose.limit_exceeded ? 'CRITICAL: noise exposure EXCEEDS DOLE/OSHA 85 dBA 8-hour TWA limit. Engineering controls (enclosure, source treatment, vibration isolation) are MANDATORY per DOLE D.O. 13 Section 7. PPE is secondary and not a substitute for engineering control.' : dose.action_level_exceeded ? 'Noise exposure EXCEEDS OSHA action level (85 dBA without 5 dB exchange). Implement a hearing-conservation program per DOLE D.O. 13 Section 14: noise dosimetry, baseline + annual audiometric testing, hearing-protection PPE for all exposed workers.' : `Receiver Lp = ${Lp_free} dB is within DOLE/OSHA 85 dBA limit; ${requiredReductionDb > 0 ? `however, additional ${requiredReductionDb} dB reduction needed to meet ASHRAE NC ${NCLim} target for ${spType}.` : `also meets NC ${NCLim} target.`}`}\n2. Engineering controls hierarchy per ISO 11690 / DOLE D.O. 13: (a) source modification, (b) source enclosure (BOM Item 4 - 50 mm mineral wool composite, NRC not less than 0.90 / STC not less than 35), (c) acoustic barrier (BOM Item 5 - 200 mm CMU or mass-loaded vinyl, STC not less than 35), (d) vibration isolation of source machine (BOM Item 6 - elastomeric mounts at fn = 8 to 12 Hz), (e) HVAC duct silencer (BOM Item 7 - dynamic IL not less than 25 dB at 250 Hz), (f) room absorption treatment (BOM Item 10 - increase average alpha to not less than ${Math.min(0.30, alpha + 0.15)}).\n3. Conduct full octave-band 1/1 measurement at all occupied positions during normal operation to determine measured NC rating per ASHRAE Ch 8 (compare octave-band curve against NC reference curves; report highest tangent NC). Use IEC 61672-1 Class 1 sound level meter (BOM Item 1) with NIST-traceable calibration.\n4. Hearing-conservation program (DOLE D.O. 13 Section 14): annual personal-noise dosimetry on all exposed workers (BOM Item 3), baseline + annual audiometric testing, training program with documented attendance, PPE issuance log. Maintain medical records not less than 30 years per OSHA 1910.95(m).\n5. Hearing-protection PPE selection (BOM Item 9): earmuffs NRR not less than 25 dB AND/OR foam earplugs NRR not less than 33 dB; apply NRR derating factor 0.50 (OSHA enforcement policy) when calculating effective protection. Re-issue earplugs daily; replace earmuff cushions annually.\n6. Acoustic doors and seals (BOM Item 8) at boundaries between treated and untreated spaces: full-perimeter compression seal, automatic drop-down threshold, STC not less than 35 with door slab.\n7. Re-measure post-control: confirm NC ${NCLim} target achieved at all previously-exceeding positions; document on a verification report with site plan and instrument calibration log.\n8. Establish an annual re-survey schedule per DOLE D.O. 13 to detect degradation of acoustic treatments (settled mineral wool, damaged seals, corroded barriers); accelerated re-survey if production processes or equipment change.\n9. For outdoor noise propagation calculations more than 25 m from source, apply ISO 9613-1 air-absorption coefficients (varies with temperature, humidity, frequency); for community-noise complaint investigations, refer to local environmental noise ordinance limits in addition to DOLE workplace limits.\n10. A PRC-licensed Mechanical or Environmental Engineer must sign and seal this assessment and the verification re-measurement report before placing engineering controls into routine service.`)}</p>
+
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Prepared by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Checked by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Approved by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+    </div>
   `;
   showReport();
 }

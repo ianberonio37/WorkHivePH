@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { callAI } from "../_shared/ai-chain.ts";
+import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 
 // ─── BOM unit sanitizer ───────────────────────────────────────────────────────
@@ -4612,33 +4613,77 @@ async function noiseAcousticsBomSowAgent(
 ): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
   const project   = inputs.project_name    || "Noise Control Project";
   const calcMode  = String(inputs.calc_type || "Room");
-  const lwDb      = Number(results.source_Lw_dB || 0).toFixed(1);
+  const lwDb      = Number(results.source_Lw_dB || inputs.source_Lw_dB || 90).toFixed(1);
   const lpDb      = Number(results.Lp_at_distance_dB || 0).toFixed(1);
-  const dose      = results.dose as Record<string, unknown> || {};
+  const distM     = Number(results.distance_m || inputs.distance_m || 5).toFixed(1);
+  const dose      = (results.dose as Record<string, unknown>) || {};
   const twa       = Number(dose?.TWA_dBA || 0).toFixed(1);
   const limitExc  = dose?.limit_exceeded ?? false;
   const spaceType = String(inputs.space_type || "Industrial");
   const ncLimit   = Number(results.NC_limit || 40);
   const barrierIL = Number(results.barrier_IL_dB || 0).toFixed(1);
+  const alpha     = Number(inputs.avg_absorption_coeff || 0.15);
+  const requiredReductionDb = Math.max(0, Number(lpDb) - 65);  // typical NC-40 ~ 50 dBA, so reduce
+  const exposedWorkers = String(inputs.exposed_workers_count || 50);
 
-  const prompt = `You are a senior Acoustic/Environmental Engineer in the Philippines preparing a BOM and SOW for a noise control and assessment project per ISO 9613-2, OSHA 29 CFR 1910.95, and DOLE D.O. 13.
+  const asciiDirective = `IMPORTANT: All output text must be ASCII only. Do NOT use Unicode characters such as multiplication sign x, en-dash, em-dash, less-than-or-equal, greater-than-or-equal, sub/superscripts, Greek letters (alpha, sigma), middle-dot, degree symbol, or section sign. Use "x" for multiplication, "to" for ranges, "not less than" for ge, "not more than" for le, "Section" for clause references (not the section sign), "deg" for degree, "alpha" for the absorption coefficient symbol.`;
+
+  const prompt = `You are a senior Acoustic / Environmental Engineer in the Philippines preparing a Bill of Materials (BOM) and Scope of Works (SOW) for a noise assessment and control project per ISO 9613-2, OSHA 29 CFR 1910.95, DOLE D.O. 13 Series 1998, and ASHRAE Applications Handbook Chapter 8.
+
+${asciiDirective}
 
 Project: ${project}
 Assessment mode: ${calcMode}
-Source Lw: ${lwDb} dB | Lp at receiver: ${lpDb} dB
-Space type: ${spaceType} | NC limit: NC ${ncLimit}
-${calcMode === 'Dose' ? `TWA: ${twa} dBA: ${limitExc ? 'EXCEEDS LIMIT' : 'Within limit'}` : ''}
+Source Lw: ${lwDb} dB
+Receiver Lp at ${distM} m: ${lpDb} dB
+Space type: ${spaceType} | NC target: NC ${ncLimit}
+Average room absorption coefficient: ${alpha}
+${calcMode === 'Dose' ? `8-hour TWA: ${twa} dBA (${limitExc ? 'EXCEEDS DOLE/OSHA limit' : 'within limit'})` : ''}
 ${calcMode === 'Barrier' ? `Barrier insertion loss: ${barrierIL} dB` : ''}
+Estimated exposed workers: ${exposedWorkers} (audiometric program scope)
+Required noise reduction (Lp to NC ${ncLimit} target): approximately ${requiredReductionDb} dB
 
 Generate a JSON object with exactly two keys:
 
 "bom_items": array of 10 objects with { "description", "specification", "unit", "qty", "remarks" }
-Cover: (1) Sound level meter (IEC 61672-1 Class 1, A/C weighting, octave band), (2) Real-time octave band analyzer (ISO 266 centre frequencies), (3) Noise dosimeter (personal, OSHA/DOLE compliant, 5dB exchange rate), (4) Acoustic enclosure panels (50mm mineral wool + perforated steel facing, NRC≥0.90), (5) Acoustic barrier (concrete block or mass-loaded vinyl, STC≥35), (6) Anti-vibration mounts for noise source isolation, (7) Duct silencers / sound attenuators (for HVAC breakout noise), (8) Acoustic door seals and thresholds (for treatment rooms), (9) Hearing protection: earmuffs (NRR≥25dB) + foam earplugs (NRR≥33dB), (10) Acoustic absorption panels: ceiling and wall treatment (50mm fibreglass, 600×600mm).
+
+Per-item EXACT structure with description="short item name only" and specification="full standard + dimensions + grade + numeric ratings":
+
+(1) description="Sound Level Meter", specification="IEC 61672-1 Class 1 precision integrating sound level meter, A/C weighting, octave-band filter set per ISO 266 (1/1 octave) and ISO 266 (1/3 octave) optional, measurement range 25 to 140 dB, calibration certificate traceable to NIST, includes acoustic calibrator (94 dB / 114 dB at 1 kHz)", qty=1, unit="set"
+
+(2) description="Real-Time Octave-Band Analyzer", specification="real-time spectrum analyzer with 1/1 and 1/3 octave-band capability, ISO 266 centre frequencies (16 Hz to 20 kHz), FFT to 25 kHz, integrated data logger 32 GB minimum, USB and Bluetooth interface for PC analysis software, NIST-traceable calibration", qty=1, unit="piece"
+
+(3) description="Personal Noise Dosimeter", specification="OSHA/DOLE-compliant personal dosimeter with 5 dB exchange rate (OSHA Hearing Conservation), 80 dB threshold, 90 dB criterion level, A-weighted slow response, 8-hour battery life minimum, intrinsically safe rating ATEX Zone 2 if hazardous environment, calibration certificate", qty=5, unit="piece", remarks="Personnel exposure surveys"
+
+(4) description="Acoustic Enclosure Panel", specification="composite panel 50 mm thk - 18-gauge perforated steel inner facing (22 percent open area) plus 50 mm rock-mineral wool core (density not less than 64 kg/m3) plus 22-gauge solid steel outer skin, NRC not less than 0.90 (ISO 354), STC not less than 35 (ASTM E90), modular bolt-together construction with neoprene gasket joints, hot-dip galvanized hardware", qty=100, unit="m2"
+
+(5) description="Acoustic Barrier Wall", specification="dense barrier per OSHA 1910.95 - 200 mm CMU concrete block (mass not less than 480 kg/m2) OR mass-loaded vinyl (MLV, 4.9 kg/m2) on stud framing, both achieve STC not less than 35 (ASTM E90); height not less than line-of-sight from source to receiver plus 1 m freeboard for diffraction control", qty=50, unit="m2"
+
+(6) description="Anti-Vibration Mount", specification="elastomeric machine isolator, durometer 50 to 60 Shore A, rated load 100 to 1000 kg per mount (size per machine mass / 4 mounts), natural frequency 8 to 12 Hz to isolate primary excitation; alternative: spring-isolator with viscous damper for fn below 5 Hz; mounting bolt M16 with anti-vibration washer, supplied with deflection gauge for installation verification", qty=10, unit="set"
+
+(7) description="HVAC Duct Silencer", specification="passive dissipative duct silencer per ASHRAE Applications Handbook Ch 48, length 900 to 1200 mm, dynamic insertion loss not less than 25 dB at 250 Hz octave-band centre, perforated steel splitter design with mineral wool acoustic infill (kraft-paper-faced for clean-air applications), pressure drop not more than 75 Pa at design airflow, ULC S110 fire-classified", qty=5, unit="piece"
+
+(8) description="Acoustic Door Seal", specification="full-perimeter door seal kit per ASTM E283 air leakage class - aluminium retainer with neoprene compression bulb on hinge and strike sides, automatic drop-down threshold seal at base (cam-operated), STC not less than 35 (ASTM E90 with door assembly); fits standard 900 x 2100 mm door slab", qty=5, unit="set", remarks="Treatment rooms / acoustic isolation booths"
+
+(9) description="Hearing Protection (PPE)", specification="ANSI S3.19 / EN 352-1 certified hearing protection - earmuffs with NRR not less than 25 dB (band-pass attenuation 125 Hz to 8 kHz) AND/OR foam-roll earplugs with NRR not less than 33 dB (single-use, polyurethane); PPE supplied for all ${exposedWorkers} exposed workers plus 25 percent spare; hearing-conservation training per DOLE D.O. 13 Section 7", qty=${Math.ceil(Number(exposedWorkers) * 1.25)}, unit="set", remarks="One earmuff plus pack of plugs per worker"
+
+(10) description="Acoustic Absorption Panel", specification="ceiling and wall treatment - 50 mm fibreglass core (density 24 to 32 kg/m3) wrapped in fabric-faced (acoustically transparent) tile 600 mm x 600 mm or 1200 mm x 600 mm, NRC not less than 0.85 (ISO 354), Class A fire rating per ASTM E84 (flame spread 25, smoke 50), suspended from grid ceiling with anti-vibration clips", qty=200, unit="m2"
+
+CRITICAL: Every "specification" field MUST be fully populated with the actual numeric values shown above (Lw=${lwDb} dB, Lp=${lpDb} dB at ${distM} m, NC ${ncLimit}, alpha=${alpha}, ${exposedWorkers} workers, etc.). Never blank, never just the item name.
 
 "sow_sections": array of 5 objects with { "section_no", "title", "content" }
-Sections: 1.0 Scope (baseline noise survey, identify control measures, achieve NC ${ncLimit} in ${spaceType} per DOLE D.O. 13), 2.0 Standards (ISO 9613-2, ISO 3745, IEC 61672-1, OSHA 29 CFR 1910.95, DOLE D.O. 13 Series 1998, ASHRAE 2019 Ch.8), 3.0 Baseline Survey (measure Lp at all occupied positions, record octave bands, determine NC rating per ASHRAE, document exceeded limits), 4.0 Noise Control Measures (engineering controls first: enclosures, barriers, vibration isolation; administrative controls: work rotation; PPE as last resort per DOLE D.O. 13 §7), 5.0 Verification and Monitoring (re-measure after control implementation, confirm NC ${ncLimit} achieved, repeat noise dosimetry annually per DOLE D.O. 13 §14, maintain audiometric testing records for all exposed workers).
 
-Content fields must start "The Contractor shall..." Reference DOLE D.O. 13. Return ONLY the JSON. No markdown.`;
+Section 1.0 Scope: state the contractor shall conduct a baseline noise survey, design and supply noise-control engineering measures, install hearing-protection PPE, and verify by post-installation re-measurement that the assessed receiver level Lp meets the target NC ${ncLimit} in the ${spaceType} per ISO 9613-2 and DOLE D.O. 13 Series 1998. Current source level Lw = ${lwDb} dB produces Lp = ${lpDb} dB at ${distM} m receiver position; required noise reduction to meet NC ${ncLimit} target is approximately ${requiredReductionDb} dB. Scope includes treatment of approximately ${Math.ceil(Number(exposedWorkers) * 1.25)} hearing-protection PPE sets for ${exposedWorkers} exposed workers plus 25 percent spare per BOM Item 9.
+
+Section 2.0 Standards: cite ISO 9613-2 (Attenuation of sound during propagation outdoors - General method of calculation), ISO 3745 (Determination of sound power levels - Precision methods for anechoic and hemi-anechoic rooms), ISO 266 (Preferred frequencies for measurements), IEC 61672-1 (Sound level meters - Specifications), OSHA 29 CFR 1910.95 (Occupational Noise Exposure), DOLE Department Order No. 13 Series 1998 (Health and Safety in Construction), ASHRAE Applications Handbook 2019 Chapter 8 (Sound and Vibration Control), ASTM E90 (Sound transmission loss - STC rating), ASTM E84 (surface burning), and PSME Code.
+
+Section 3.0 Baseline Survey: measure equivalent continuous sound pressure level Leq and 1/1 octave-band Lp at all occupied worker positions during normal operation cycles using IEC 61672-1 Class 1 sound level meter (BOM Item 1). Determine Noise Criterion (NC) rating per ASHRAE Ch 48 method (compare octave-band Lp curve against NC reference curves; report highest tangent NC). Document positions exceeding the NC ${ncLimit} target and OSHA/DOLE 8-hour TWA action level (85 dBA) on a survey report with site plan showing measurement positions, instrument calibration log, and weather conditions for outdoor-propagation measurements.
+
+Section 4.0 Noise Control Measures: implement the engineering hierarchy per ISO 11690 / DOLE D.O. 13 - first reduce at source (modify equipment, vibration isolation per BOM Item 6), then control propagation path (acoustic enclosures BOM Item 4, barriers BOM Item 5, duct silencers BOM Item 7, room absorption BOM Item 10 to achieve average alpha not less than ${alpha}), then administrative controls (work rotation, exposure-time reduction per OSHA 1910.95 Table G-16), and finally hearing-protection PPE BOM Item 9 as a LAST resort (not a substitute for engineering controls per DOLE D.O. 13 Section 7). Acoustic doors and seals BOM Item 8 required at the boundary between treated and untreated spaces.
+
+Section 5.0 Verification and Monitoring: post-installation re-measurement to confirm NC ${ncLimit} target achieved at all previously-exceeding positions; re-measure at the same instrument positions with the same calibrated meter (within 24 hours of calibration). Establish a hearing-conservation program per DOLE D.O. 13 Section 14 with annual noise dosimetry (BOM Item 3, all exposed workers, full 8-hour shift) and baseline plus annual audiometric testing for all ${exposedWorkers} exposed workers; maintain medical records for not less than 30 years per OSHA 1910.95(m). Submit baseline survey, post-control re-measurement, and audiometric program rollout plan to the Engineer for sign-off before project closeout.
+
+Each "content" field MUST start with "The Contractor shall..." and use ASCII text only. Return ONLY the JSON. No markdown.`;
 
   const raw = await callGroq(prompt);
   const parsed = JSON.parse(raw);
