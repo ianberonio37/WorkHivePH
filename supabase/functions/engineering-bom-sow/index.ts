@@ -3430,6 +3430,16 @@ async function ductSizingBomSowAgent(
   const fanMotorKw   = Number(results.fan_motor_kw || 0);
   const maxFlowLps   = Number(results.max_flow_lps || 0);
   const totalLenM    = Number(results.total_length_m || 0);
+  const fittingsFactor   = Number(results.fittings_factor || 1.5);
+  const fittingsExtraPct = Math.round((fittingsFactor - 1) * 100);
+
+  // SMACNA pressure class binding to actual fan static (HVAC Duct Construction Standards 3rd Ed.)
+  const smacnaClass = fanStaticPa <= 250 ? "Class 1 (250 Pa, 24 gauge typical)"
+                    : fanStaticPa <= 500 ? "Class 2 (500 Pa, 22 gauge typical)"
+                    : fanStaticPa <= 750 ? "Class 3 (750 Pa, 20 gauge typical)"
+                    : fanStaticPa <= 1000 ? "Class 4 (1000 Pa, 20 gauge typical)"
+                    : fanStaticPa <= 1500 ? "Class 6 (1500 Pa, 18 gauge typical)"
+                    : "Class 10 (2500 Pa, 16 gauge typical)";
 
   const systemDesc = `${ductShape} ${ductMat} ductwork, fr=${frRate} Pa/m, ρ=${airDensity} kg/m³, ${nSegments} segments, System ΔP=${totalDpPa}Pa, Fan Static=${fanStaticPa}Pa, Fan Motor=${fanMotorHp}HP (${fanMotorKw}kW), Max Flow=${maxFlowLps}L/s, Total Length=${totalLenM}m`;
 
@@ -3440,14 +3450,17 @@ Project: ${project}
 
 Generate a JSON object with exactly two keys:
 
+SMACNA Pressure Class binding (Fan Static = ${fanStaticPa} Pa): ${smacnaClass}.
+Item 1 spec MUST cite this exact SMACNA Pressure Class (do not over-spec).
+
 "bom_items": array of 12 objects, each with:
   { "description": string, "specification": string, "unit": string, "qty": number, "remarks": string }
 
 BOM items must cover:
-1. Supply air rectangular or circular ductwork (gauge per SMACNA pressure class)
-2. Return air ductwork
+1. Supply air rectangular or circular ductwork (${smacnaClass}, gauge per SMACNA matched to Fan Static ${fanStaticPa} Pa)
+2. Return air ductwork (same SMACNA class as supply)
 3. Duct insulation (25mm acoustic/thermal lining for supply mains)
-4. Duct fittings allowance (elbows, tees, reducers: 30% extra of straight run by weight)
+4. Duct fittings allowance (elbows, tees, reducers: ${fittingsExtraPct}% extra of straight run by weight, per design fittings_factor ${fittingsFactor.toFixed(2)}x)
 5. Supply air diffusers / grilles
 6. Return air grilles
 7. Volume control dampers (VCD): manual balancing

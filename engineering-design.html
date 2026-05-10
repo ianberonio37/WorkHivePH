@@ -19037,6 +19037,49 @@ function buildHarmonicSpectrumTitleBlockHtml(inputs, results) {
 </table>`;
 }
 
+// ─── Duct Sizing Title Block (Python diagram suite) ─────────────────────────
+function buildDuctSizingTitleBlockHtml(inputs, results) {
+  const r        = results || {};
+  const segs     = Array.isArray(r.segments) ? r.segments : [];
+  const nSeg     = segs.length || Number(r.n_segments || 0);
+  const maxFlow  = Number(r.max_flow_lps || 0).toFixed(0);
+  const fanStat  = Number(r.fan_static_pa || 0).toFixed(0);
+  const fanHP    = Number(r.fan_motor_hp_std || 0).toFixed(2);
+  const totalDP  = Number(r.total_dp_pa || 0).toFixed(1);
+  const ductMat  = String(r.duct_material || inputs?.duct_material || 'Galvanized Steel');
+  const anyHigh  = segs.some(s => String(s?.vel_check || '').includes('HIGH'));
+  const anyWarn  = segs.some(s => String(s?.vel_check || '').includes('WARNING'));
+  const velStatus = anyHigh ? 'HIGH' : anyWarn ? 'WARNING' : 'OK';
+  const velColor  = anyHigh ? '#c62828' : anyWarn ? '#ef6c00' : '#2e7d32';
+  const proj = String(inputs?.project_name || 'Untitled').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const now  = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
+  const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+  const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
+  const BR  = 'border-right:1px solid #c8d0da;';
+  return `<table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}width:42%;`)}${LBL('Project Name')}${EF(proj)}</td>
+    ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('HVAC-DS-SCH-001')}</td>
+    ${TD('width:35%;')}${LBL('Duct System')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${nSeg} segment(s) ${ductMat} &mdash; Max ${maxFlow} L/s</div></td>
+  </tr>
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('Duct Sizing - Equal Friction Method (ASHRAE Chart)')}</td>
+    ${TD(`${BR}`)}${LBL('Standard / Code')}<div style="font-size:10px;color:#1a2e4a;">ASHRAE 2021 Ch.21 / SMACNA / PSME</div></td>
+    ${TD('')}${LBL('Date Prepared')}${EF(now)}</td>
+  </tr>
+  <tr>
+    ${TD(`${BR}width:22%;`)}${LBL('Prepared By')}${SIG()}</td>
+    ${TD(`${BR}width:22%;`)}${LBL('Checked By')}${SIG()}</td>
+    ${TD(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
+    ${TD(`${BR}width:17%;`)}${LBL('Fan Static / HP')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${fanStat} Pa / ${fanHP} HP</div><div style="font-size:8px;color:#888;">Total &Delta;P ${totalDP} Pa</div></td>
+    ${TD('')}${LBL('Velocity / Sheet')}<div style="font-size:11px;font-weight:700;color:${velColor};">${velStatus}</div><div style="font-size:8px;color:#888;margin-top:5px;white-space:nowrap;">Sheet 1 of 1</div></td>
+  </tr>
+</table>`;
+}
+
 function downloadDiagramSVG() {
   const btn = document.getElementById('diagram-dl-svg');
   if (!btn || !btn._svg) return;
@@ -19063,8 +19106,9 @@ async function _runDrawing() {
         'Harmonic Distortion':          'Harmonic Spectrum — IEEE 519-2022 Bar Chart',
       };
       const svg = await _callPythonDiagram(ct, _lastInputs, _lastResults);
-      const titleBlockHtml = (ct === 'Harmonic Distortion') ? buildHarmonicSpectrumTitleBlockHtml(_lastInputs, _lastResults)
-                           : (ct === 'AHU Sizing')          ? buildAHUTitleBlockHtml(_lastInputs, _lastResults)
+      const titleBlockHtml = (ct === 'Harmonic Distortion')          ? buildHarmonicSpectrumTitleBlockHtml(_lastInputs, _lastResults)
+                           : (ct === 'AHU Sizing')                    ? buildAHUTitleBlockHtml(_lastInputs, _lastResults)
+                           : (ct === 'Duct Sizing (Equal Friction)')  ? buildDuctSizingTitleBlockHtml(_lastInputs, _lastResults)
                            : '';
       _renderPythonSVG(svg, titleMap[ct] || ct, titleBlockHtml);
       return;
