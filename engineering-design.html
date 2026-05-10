@@ -23226,7 +23226,7 @@ function buildExpansionTankSVG(inputs, results) {
   p.push(`<text x="${W/2}" y="31" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="bold" fill="white">EXPANSION TANK — HYDRONIC SYSTEM SCHEMATIC  |  ${sysType.toUpperCase()}  |  ASHRAE 2023 CH.12 / ASME VIII</text>`);
 
   // Divider
-  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
+  p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${SC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${SC}" stroke-width="1.2"/>`);
 
   // Panel sub-heading
   p.push(`<text x="70" y="58" font-family="Segoe UI,Arial,sans-serif" font-size="8" font-weight="600" fill="${SC}">POINT OF NO PRESSURE CHANGE (PNPC) EXPANSION TANK CONNECTION — PUMP SUCTION SIDE</text>`);
@@ -23319,7 +23319,8 @@ function buildExpansionTankSVG(inputs, results) {
   p.push(`<line x1="${prvBX}" y1="${prvY}" x2="${prvBX+20}" y2="${prvY}" stroke="${GY}" stroke-width="1.5"/>`);
   p.push(`<polygon points="${prvBX+20},${prvY-6} ${prvBX+32},${prvY} ${prvBX+20},${prvY+6}" fill="none" stroke="${ORG}" stroke-width="1.5"/>`);
   p.push(`<line x1="${prvBX+32}" y1="${prvY}" x2="${prvBX+42}" y2="${prvY}" stroke="${ORG}" stroke-width="1.5"/>`);
-  p.push(`<text x="${prvBX+45}" y="${prvY+4}" font-family="Segoe UI,Arial,sans-serif" font-size="6.5" fill="${ORG}">PRV-01  Set: ${Math.round(maxPressG*1.15)} kPa g</text>`);
+  // Label placed ABOVE the tank top (clear band between ISO-01 valve and tank labels column)
+  p.push(`<text x="${prvBX+5}" y="${tnkTop-3}" font-family="Segoe UI,Arial,sans-serif" font-size="6.5" fill="${ORG}">PRV-01  Set: ${Math.round(maxPressG*1.15)} kPa g</text>`);
 
   // Tank tag labels (right of tank)
   const tLX = teeX + tnkH2 + 8;
