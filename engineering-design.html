@@ -26937,7 +26937,7 @@ function buildBeamColumnSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`BEAM/COLUMN — ${section}  |  Span ${spanM}m  |  DCR_M=${DCRm}  |  AISC 360 / NSCP 2015`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`BEAM/COLUMN - ${section}  |  Span ${spanM}m  |  DCR_M=${DCRm}  |  AISC 360 / NSCP 2015`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Beam elevation
   const BX=80,BY=150,BW=440,BH=28;
@@ -26975,8 +26975,15 @@ function buildBeamColumnSVG(inputs, results) {
     defPts.push(`${dx.toFixed(0)},${dy.toFixed(0)}`);
   }
   p.push(`<polyline points="${defPts.join(' ')}" fill="none" stroke="${STL}" stroke-width="2" stroke-dasharray="5 2"/>`);
-  p.push(`<line x1="${BX+BW/2}" y1="${BY+BH+80}" x2="${BX+BW/2}" y2="${BY+BH+80+maxDef*4*0.25}" stroke="${SC}" stroke-width="1"/>`);
-  p.push(_plumbT(BX+BW/2+12,BY+BH+82+maxDef,`δ = ${defMM}mm  (lim ${defLimMM})  ${defOK?'✓':'✗'}`,{a:'start',sz:7.5,c:defOK?OK_C:FAIL_C,w:'700'}));
+  // Vertical drop line at midspan from undeformed beam down to parabola peak
+  const _peakY = BY+BH+80+maxDef;
+  p.push(`<line x1="${BX+BW/2}" y1="${BY+BH+80}" x2="${BX+BW/2}" y2="${_peakY}" stroke="${SC}" stroke-width="1"/>`);
+  // Deflection annotation placed BELOW the parabola endpoint (right side) with a
+  // leader from the parabola peak — keeps text clear of the dashed deflection curve.
+  const _annoX = BX + BW + 8;     // right of beam end
+  const _annoY = _peakY + 4;
+  p.push(`<line x1="${BX+BW/2+2}" y1="${_peakY}" x2="${_annoX-4}" y2="${_annoY-2}" stroke="${SC}" stroke-width="0.6" stroke-dasharray="2 2"/>`);
+  p.push(_plumbT(_annoX,_annoY,`d = ${defMM}mm  (lim ${defLimMM})  ${defOK?'OK':'FAIL'}`,{a:'start',sz:7.5,c:defOK?OK_C:FAIL_C,w:'700'}));
   // DCR badges
   const bY=BY+BH+145;
   [[`DCR_M = ${DCRm}`,mOK,'Moment'],[`DCR_V = ${DCRv}`,vOK,'Shear'],
@@ -26992,16 +26999,16 @@ function buildBeamColumnSVG(inputs, results) {
     p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
     p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
   });
-  [`1. LRFD (AISC 360): φMp = φ × Fy × Zx. DCR = Mu/φMp ≤ 1.0.`,
+  [`1. LRFD (AISC 360): phiMp = phi x Fy x Zx. DCR = Mu/phiMp not more than 1.0.`,
    `2. Deflection limit L/${(Number(spanM)*1000/Number(defLimMM)).toFixed(0)} = ${defLimMM}mm per NSCP 2015 Table 506.1.`,
-   `3. Web shear: φVn = φ × 0.6Fy × Aw. Lateral-torsional buckling check per AISC Chapter F.`
-  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+   `3. Web shear: phiVn = phi x 0.6Fy x Aw. Lateral-torsional buckling check per AISC Chapter F.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+76+i*11,n,{a:'start',sz:6.5,c:CC})));
   _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'BEAM / COLUMN DESIGN', rows:[
     ['Section',section,STL],['Steel Grade',`${steel}  Fy=${FyMPa} MPa`,STL],
     ['Span',`${spanM} m`,CC],['Load',`${loadKN.toFixed(1)} kN/m (${loadType})`,LD_C],
     ['φMp',`${phiMpKNm} kN·m`,STL],['DCR Moment',`${DCRm}  ${mOK?'✓':'✗'}`,mOK?OK_C:FAIL_C],
     ['φVn',`${phiVnKN} kN`,STL],['DCR Shear',`${DCRv}  ${vOK?'✓':'✗'}`,vOK?OK_C:FAIL_C],
-    ['Deflection',`${defMM} mm  ${defOK?'✓':'✗'}`,defOK?OK_C:FAIL_C]
+    ['Deflection',`${defMM} mm  (lim ${defLimMM} mm)  ${defOK?'✓':'✗'}`,defOK?OK_C:FAIL_C]
   ]}]);
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
 }
@@ -31408,44 +31415,163 @@ function renderBeamColumnReport(inputs, r, narrative) {
   const isBeam  = (inputs.member_type || '').includes('Beam');
   const mOk  = c => c ? '#2e7d32' : '#c62828';
   const mTxt = c => c ? 'PASS' : 'FAIL';
+
+  // ── Back-derived intermediates for formula display ──────────────────────────
+  // Python returns final phi*capacity values; back-derive Zx, Ix, Aw so the
+  // calculation report shows the substituted-formula chain.
+  const Fy   = Number(r.Fy_MPa || 250);
+  const phiB = 0.90;
+  const phiV = 1.00;
+  const phiC = 0.90;
+  const Lm   = Number(inputs.span_m || r.span_m || 6);
+  const wKnm = Number(inputs.w_kNm || 0);
+  const muIn = Number(inputs.Mu_kNm || 0);
+  const vuIn = Number(inputs.Vu_kN  || 0);
+  const puIn = Number(inputs.Pu_kN  || 0);
+  // Equivalent Mu, Vu from UDL (consistency check vs user-entered factored loads)
+  const muUDL_kNm = wKnm > 0 ? Math.round((wKnm * Lm * Lm / 8) * 10) / 10 : 0;
+  const vuUDL_kN  = wKnm > 0 ? Math.round((wKnm * Lm / 2) * 10) / 10 : 0;
+  // Zx (mm^3): Mp = phi^-1 * phi_Mp = Zx * Fy * 1e-6  (kN.m)
+  const ZxMm3 = Fy > 0 && r.phi_Mp_kNm
+    ? Math.round((Number(r.phi_Mp_kNm) / phiB) / Fy * 1e6)
+    : 0;
+  // Aw (mm^2): phi_Vn = phi * 0.6 * Fy * Aw * 1e-3 (kN)
+  const AwMm2 = Fy > 0 && r.phi_Vn_kN
+    ? Math.round((Number(r.phi_Vn_kN) / (phiV * 0.6 * Fy)) * 1e3)
+    : 0;
+  // Ix (mm^4) back-derived from deflection formula: delta = 5wL^4 / (384EI) with E=200 GPa
+  const IxMm4 = wKnm > 0 && r.deflection_mm > 0
+    ? Math.round((5 * wKnm * Math.pow(Lm, 4)) / (384 * 200e9 * Number(r.deflection_mm) * 1e-3) * 1e12)
+    : 0;
+  const overallOk = (r.moment_ok !== false) && (r.shear_ok !== false) && (r.axial_ok !== false) && (r.deflection_ok !== false);
+
   document.getElementById('report-panel').innerHTML = `
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
-      <div><h1>DESIGN CALCULATION</h1><div style="font-size:0.8rem;color:#555;">${escHtml(inputs.member_type)}: NSCP 2015 / ${isSteel ? 'AISC 360-22' : 'ACI 318-19'}</div></div>
+      <div><h1>DESIGN CALCULATION</h1><div style="font-size:0.8rem;color:#555;">${escHtml(inputs.member_type)}: NSCP 2015 Vol.1 / ${isSteel ? 'AISC 360-22 LRFD' : 'ACI 318-19'}</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
     <h2>Project Information</h2>
     <table>
       <tr><th style="width:30%;">Member Tag</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
       <tr><th>Member Type</th><td>${escHtml(inputs.member_type)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
-      <tr><th>Standard</th><td>${isSteel ? 'AISC 360-22 LRFD' : 'ACI 318-19'} | NSCP 2015 Vol.1</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Calculation Standard</th><td>${isSteel ? 'AISC 360-22 LRFD' : 'ACI 318-19'} | NSCP 2015 Vol.1</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
     </table>
+
     <h2>1. Objective</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || `To verify the adequacy of the ${inputs.member_type} for the applied factored loads in accordance with ${isSteel ? 'AISC 360-22 LRFD' : 'ACI 318-19'} and NSCP 2015 Volume 1.`)}</p>
-    <h2>2. Design Parameters</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || `To verify the adequacy of the ${inputs.member_type} ${isSteel ? `(section ${inputs.section}, ${inputs.steel_grade} steel)` : `(${inputs.b_mm}x${inputs.h_mm} mm cross-section, ${inputs.concrete_grade || "f'c 28 MPa"})`} ${isBeam ? `spanning ${Lm} m under factored bending Mu = ${muIn} kN.m and shear Vu = ${vuIn} kN` : `acting as a column ${Lm} m tall under factored axial load Pu = ${puIn} kN`}, in accordance with ${isSteel ? 'AISC 360-22 LRFD' : 'ACI 318-19'} and NSCP 2015 Volume 1.`)}</p>
+
+    <h2>2. References</h2>
+    <p style="font-size:0.83rem;color:#333;">NSCP 2015 Volume 1 (National Structural Code of the Philippines)<br>
+    ${isSteel ? `AISC 360-22: Specification for Structural Steel Buildings<br>
+    AWS D1.1/D1.1M: Structural Welding Code - Steel<br>
+    ASTM A6: General Requirements for Rolled Structural Steel<br>
+    ASTM A36/A992: Carbon and Wide-Flange Structural Steel Grades` : `ACI 318-19: Building Code Requirements for Structural Concrete<br>
+    ASTM C94: Specification for Ready-Mixed Concrete<br>
+    ASTM A615: Deformed Steel Bars for Concrete Reinforcement<br>
+    ACI 305R: Hot Weather Concreting`}<br>
+    ASCE 7-22: Minimum Design Loads for Buildings (loading combinations)</p>
+
+    <h2>3. Design Parameters</h2>
     <table>
       <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
-      <tr><td>Span / Length</td><td class="num">${escHtml(String(inputs.span_m))} m</td></tr>
-      ${isBeam ? `<tr><td>Factored Bending Moment M<sub>u</sub></td><td class="num">${escHtml(String(inputs.Mu_kNm))} kN·m</td></tr>
-      <tr><td>Factored Shear V<sub>u</sub></td><td class="num">${escHtml(String(inputs.Vu_kN))} kN</td></tr>
-      <tr><td>UDL for Deflection (w)</td><td class="num">${escHtml(String(inputs.w_kNm))} kN/m</td></tr>` :
-      `<tr><td>Factored Axial Load P<sub>u</sub></td><td class="num">${escHtml(String(inputs.Pu_kN))} kN</td></tr>`}
-      ${isSteel ? `<tr><td>Section</td><td class="num"><strong>${escHtml(inputs.section)}</strong></td></tr>
-      <tr><td>Steel Grade</td><td class="num">${escHtml(inputs.steel_grade)}: Fy = ${r.Fy_MPa} MPa</td></tr>` :
-      `<tr><td>Section b × h</td><td class="num">${r.b_mm} × ${r.h_mm} mm</td></tr>
-      <tr><td>Reinforcement</td><td class="num">${r.n_bars || inputs.n_bars}: ${inputs.bar_dia_mm}mm⌀ (As = ${r.As_mm2} mm²)</td></tr>
-      <tr><td>ρ (steel ratio)</td><td class="num">${r.rho} &nbsp; [${r.rho_min}–${r.rho_max}]: <span style="color:${mOk(r.rho_ok)};font-weight:700;">${mTxt(r.rho_ok)}</span></td></tr>`}
+      <tr><td>Span / Length (L)</td><td class="num">${escHtml(String(Lm))} m</td></tr>
+      ${isBeam ? `<tr><td>UDL for Deflection (w)</td><td class="num">${escHtml(String(wKnm))} kN/m</td></tr>
+      <tr><td>Factored Bending Moment M<sub>u</sub></td><td class="num">${escHtml(String(muIn))} kN.m</td></tr>
+      <tr><td>Factored Shear V<sub>u</sub></td><td class="num">${escHtml(String(vuIn))} kN</td></tr>` :
+      `<tr><td>Factored Axial Load P<sub>u</sub></td><td class="num">${escHtml(String(puIn))} kN</td></tr>
+      <tr><td>Effective Length Factor K</td><td class="num">${escHtml(String(inputs.K_factor || 1.0))}</td></tr>`}
+      ${isSteel ? `<tr><td>Section</td><td class="num"><strong>${escHtml(inputs.section || r.section)}</strong></td></tr>
+      <tr><td>Steel Grade</td><td class="num">${escHtml(inputs.steel_grade)}: Fy = ${Fy} MPa, E = 200 GPa</td></tr>
+      ${ZxMm3 > 0 ? `<tr><td>Plastic Section Modulus Z<sub>x</sub></td><td class="num">${ZxMm3.toLocaleString()} mm&sup3; (${(ZxMm3/1000).toFixed(0)} cm&sup3;)</td></tr>` : ''}
+      ${IxMm4 > 0 ? `<tr><td>Moment of Inertia I<sub>x</sub></td><td class="num">${(IxMm4/1e6).toFixed(2)} x 10&sup6; mm&#8308; (${(IxMm4/1e4).toFixed(0)} cm&#8308;)</td></tr>` : ''}
+      ${AwMm2 > 0 ? `<tr><td>Web Area A<sub>w</sub> = d &times; t<sub>w</sub></td><td class="num">${AwMm2.toLocaleString()} mm&sup2;</td></tr>` : ''}` :
+      `<tr><td>Section b &times; h</td><td class="num">${r.b_mm} &times; ${r.h_mm} mm</td></tr>
+      <tr><td>Concrete Grade</td><td class="num">${escHtml(inputs.concrete_grade || "f'c 28 MPa")}: f'c = ${r.fc_MPa} MPa</td></tr>
+      <tr><td>Reinforcement</td><td class="num">${inputs.n_bars || 4}: ${inputs.bar_dia_mm}mm dia (As = ${r.As_mm2} mm&sup2;)</td></tr>
+      <tr><td>&rho; (steel ratio)</td><td class="num">${r.rho} &nbsp; [${r.rho_min} to ${r.rho_max}]: <span style="color:${mOk(r.rho_ok)};font-weight:700;">${mTxt(r.rho_ok)}</span></td></tr>`}
     </table>
-    <h2>3. Results</h2>
+
+    ${isBeam ? `<h2>4. Applied Loads (UDL Verification)</h2>
+    <p style="font-size:0.83rem;color:#333;">For a simply supported beam under UDL w = ${wKnm} kN/m over L = ${Lm} m:</p>
+    <p style="font-size:0.83rem;color:#333;">
+      M<sub>max</sub> = wL&sup2;/8 = ${wKnm} &times; ${Lm}&sup2; / 8 = <strong>${muUDL_kNm} kN.m</strong>${Math.abs(muIn - muUDL_kNm) < 1 ? ' (matches user-entered Mu)' : ` (user entered Mu = ${muIn} kN.m; difference indicates additional point loads or moments not captured by UDL alone)`}<br>
+      V<sub>max</sub> = wL/2 = ${wKnm} &times; ${Lm} / 2 = <strong>${vuUDL_kN} kN</strong>${Math.abs(vuIn - vuUDL_kN) < 1 ? ' (matches user-entered Vu)' : ` (user entered Vu = ${vuIn} kN; difference indicates non-uniform loading)`}
+    </p>` : ''}
+
+    ${isBeam && isSteel ? `<h2>5. Bending Capacity (AISC 360-22 Section F2)</h2>
+    <p style="font-size:0.83rem;color:#333;">For a compact, laterally-braced wide-flange beam, the nominal moment capacity equals the plastic moment:</p>
+    <p style="font-size:0.83rem;color:#333;">
+      M<sub>p</sub> = Z<sub>x</sub> &times; F<sub>y</sub> = ${ZxMm3.toLocaleString()} mm&sup3; &times; ${Fy} MPa = <strong>${(ZxMm3 * Fy / 1e6).toFixed(1)} kN.m</strong><br>
+      &phi;M<sub>p</sub> = &phi;<sub>b</sub> &times; M<sub>p</sub> = ${phiB} &times; ${(ZxMm3 * Fy / 1e6).toFixed(1)} = <strong>${r.phi_Mp_kNm} kN.m</strong><br>
+      DCR<sub>M</sub> = M<sub>u</sub> / &phi;M<sub>p</sub> = ${muIn} / ${r.phi_Mp_kNm} = <strong style="color:${mOk(r.moment_ok)};">${r.DCR_moment}</strong> &nbsp; <span style="font-weight:700;color:${mOk(r.moment_ok)};">${mTxt(r.moment_ok)}${r.moment_ok ? ' (DCR not more than 1.0)' : ' (DCR exceeds 1.0 - upsize section)'}</span>
+    </p>
+
+    <h2>6. Shear Capacity (AISC 360-22 Section G2)</h2>
+    <p style="font-size:0.83rem;color:#333;">For a compact web (h/t<sub>w</sub> not more than 2.24&radic;(E/F<sub>y</sub>)), C<sub>v1</sub> = 1.0:</p>
+    <p style="font-size:0.83rem;color:#333;">
+      V<sub>n</sub> = 0.6 &times; F<sub>y</sub> &times; A<sub>w</sub> &times; C<sub>v1</sub> = 0.6 &times; ${Fy} &times; ${AwMm2.toLocaleString()} &times; 1.0 = <strong>${(0.6 * Fy * AwMm2 / 1000).toFixed(1)} kN</strong><br>
+      &phi;V<sub>n</sub> = &phi;<sub>v</sub> &times; V<sub>n</sub> = ${phiV} &times; ${(0.6 * Fy * AwMm2 / 1000).toFixed(1)} = <strong>${r.phi_Vn_kN} kN</strong><br>
+      DCR<sub>V</sub> = V<sub>u</sub> / &phi;V<sub>n</sub> = ${vuIn} / ${r.phi_Vn_kN} = <strong style="color:${mOk(r.shear_ok)};">${r.DCR_shear}</strong> &nbsp; <span style="font-weight:700;color:${mOk(r.shear_ok)};">${mTxt(r.shear_ok)}</span>
+    </p>
+
+    <h2>7. Deflection Check (Elastic Beam Theory)</h2>
+    <p style="font-size:0.83rem;color:#333;">For a simply supported beam under UDL, midspan deflection:</p>
+    <p style="font-size:0.83rem;color:#333;">
+      &delta;<sub>max</sub> = 5wL&#8308; / (384 &times; E &times; I<sub>x</sub>)<br>
+      = 5 &times; ${wKnm} kN/m &times; (${Lm} m)&#8308; / (384 &times; 200,000 MPa &times; ${(IxMm4/1e6).toFixed(2)} x 10&sup6; mm&#8308;)<br>
+      = <strong>${r.deflection_mm} mm</strong> &nbsp; vs &nbsp; limit L/360 = ${Lm * 1000} / 360 = <strong>${r.deflection_limit_mm} mm</strong> &nbsp; <span style="font-weight:700;color:${mOk(r.deflection_ok)};">${mTxt(r.deflection_ok)}</span>
+    </p>
+
+    <h2>8. Code Compliance and Lateral-Torsional Buckling</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      <strong>LTB check:</strong> Calculation assumes the compression flange is laterally braced at intervals not exceeding L<sub>p</sub> (limiting unbraced length for full plastic moment). For typical decked-floor framing where the slab provides continuous lateral restraint, LTB does not govern. For unbraced or partially-braced beams, verify L<sub>b</sub> not more than L<sub>p</sub> = 1.76 r<sub>y</sub> &radic;(E/F<sub>y</sub>) per AISC 360-22 Eq. F2-5; if L<sub>b</sub> exceeds L<sub>p</sub>, recompute capacity per Section F2.2.<br><br>
+      <strong>Compactness:</strong> The W-section catalogue uses standard rolled wide-flange shapes; all listed sections are compact for F<sub>y</sub> = ${Fy} MPa per AISC 360-22 Table B4.1b. Confirm by hand if using non-standard or built-up sections.
+    </p>` : ''}
+
+    ${!isBeam && isSteel ? `<h2>5. Axial Capacity (AISC 360-22 Chapter E)</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      Slenderness KL/r = ${r.KL_r} (limit 200, ${mTxt(r.slender_ok)})<br>
+      F<sub>e</sub> (Euler critical stress) = pi&sup2; E / (KL/r)&sup2; = ${r.Fe_MPa} MPa<br>
+      F<sub>cr</sub> (column critical stress) = ${r.Fcr_MPa} MPa per AISC Eq. E3-2/E3-3<br>
+      P<sub>n</sub> = F<sub>cr</sub> &times; A = ${r.Pn_kN} kN<br>
+      &phi;<sub>c</sub>P<sub>n</sub> = ${phiC} &times; P<sub>n</sub> = <strong>${r.phi_Pn_kN} kN</strong><br>
+      DCR = P<sub>u</sub> / &phi;P<sub>n</sub> = ${puIn} / ${r.phi_Pn_kN} = <strong style="color:${mOk(r.axial_ok)};">${r.DCR_axial}</strong> &nbsp; <span style="font-weight:700;color:${mOk(r.axial_ok)};">${mTxt(r.axial_ok)}</span>
+    </p>` : ''}
+
+    ${isBeam && !isSteel ? `<h2>5. Bending Capacity (ACI 318-19 Section 22.3)</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      Equivalent stress block depth a = A<sub>s</sub>f<sub>y</sub> / (0.85 f'<sub>c</sub> b) = ${r.a_mm} mm<br>
+      Neutral axis c = a / &beta;<sub>1</sub> = ${r.c_mm} mm; tension strain &epsilon;<sub>t</sub> = ${r.tension_strain} (${r.tension_controlled ? 'tension-controlled, &phi; = 0.90' : 'transition zone'})<br>
+      M<sub>n</sub> = A<sub>s</sub>f<sub>y</sub>(d - a/2) = <strong>${r.Mn_kNm} kN.m</strong>; &phi;M<sub>n</sub> = <strong>${r.phi_Mn_kNm} kN.m</strong><br>
+      DCR = ${r.DCR_moment} <span style="font-weight:700;color:${mOk(r.moment_ok)};">${mTxt(r.moment_ok)}</span>
+    </p>
+    <h2>6. Shear Capacity (ACI 318-19 Section 22.5)</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      V<sub>c</sub> = 0.17&lambda;&radic;f'<sub>c</sub> b<sub>w</sub> d = ${r.Vc_kN} kN; V<sub>s</sub> (stirrups) = ${r.Vs_kN} kN<br>
+      &phi;V<sub>n</sub> = 0.75 (V<sub>c</sub> + V<sub>s</sub>) = <strong>${r.phi_Vn_kN} kN</strong><br>
+      DCR = ${r.DCR_shear} <span style="font-weight:700;color:${mOk(r.shear_ok)};">${mTxt(r.shear_ok)}</span>
+    </p>` : ''}
+
+    ${!isBeam && !isSteel ? `<h2>5. Axial Capacity (ACI 318-19 Section 22.4.2)</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      Gross steel ratio &rho;<sub>g</sub> = A<sub>st</sub> / A<sub>g</sub> = ${r.rho_g} (limits 0.01 to 0.08, ${mTxt(r.rho_ok)})<br>
+      P<sub>n</sub> = 0.85 f'<sub>c</sub>(A<sub>g</sub> - A<sub>st</sub>) + f<sub>y</sub>A<sub>st</sub> = ${r.Pn_kN} kN<br>
+      &phi;P<sub>n,max</sub> = 0.65 &times; 0.80 &times; P<sub>n</sub> = <strong>${r.phi_Pn_kN} kN</strong> (tied column reduction per Sec. 22.4.2.2)<br>
+      DCR = ${r.DCR_axial} <span style="font-weight:700;color:${mOk(r.axial_ok)};">${mTxt(r.axial_ok)}</span>
+    </p>` : ''}
+
+    <h2>${isBeam && isSteel ? '9' : '7'}. Results Summary</h2>
     <div class="result-highlight" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
       ${isBeam && isSteel ? `
       <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
-        <div style="font-size:0.78rem;color:#777;">φMp (Bending Capacity)</div>
-        <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.phi_Mp_kNm} kN·m</div>
+        <div style="font-size:0.78rem;color:#777;">&phi;M<sub>p</sub> (Bending Capacity)</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.phi_Mp_kNm} kN.m</div>
         <div style="font-size:0.75rem;color:${mOk(r.moment_ok)};font-weight:700;">DCR = ${r.DCR_moment}: ${mTxt(r.moment_ok)}</div>
       </div>
       <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
-        <div style="font-size:0.78rem;color:#777;">φVn (Shear Capacity)</div>
+        <div style="font-size:0.78rem;color:#777;">&phi;V<sub>n</sub> (Shear Capacity)</div>
         <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.phi_Vn_kN} kN</div>
         <div style="font-size:0.75rem;color:${mOk(r.shear_ok)};font-weight:700;">DCR = ${r.DCR_shear}: ${mTxt(r.shear_ok)}</div>
       </div>
@@ -31456,7 +31582,7 @@ function renderBeamColumnReport(inputs, r, narrative) {
       </div>` : ''}
       ${!isBeam && isSteel ? `
       <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
-        <div style="font-size:0.78rem;color:#777;">φcPn (Axial Capacity)</div>
+        <div style="font-size:0.78rem;color:#777;">&phi;<sub>c</sub>P<sub>n</sub> (Axial Capacity)</div>
         <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.phi_Pn_kN} kN</div>
         <div style="font-size:0.75rem;color:${mOk(r.axial_ok)};font-weight:700;">DCR = ${r.DCR_axial}: ${mTxt(r.axial_ok)}</div>
       </div>
@@ -31467,29 +31593,51 @@ function renderBeamColumnReport(inputs, r, narrative) {
       </div>` : ''}
       ${isBeam && !isSteel ? `
       <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
-        <div style="font-size:0.78rem;color:#777;">φMn (Bending Capacity)</div>
-        <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.phi_Mn_kNm} kN·m</div>
+        <div style="font-size:0.78rem;color:#777;">&phi;M<sub>n</sub> (Bending Capacity)</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.phi_Mn_kNm} kN.m</div>
         <div style="font-size:0.75rem;color:${mOk(r.moment_ok)};font-weight:700;">DCR = ${r.DCR_moment}: ${mTxt(r.moment_ok)}</div>
       </div>
       <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
-        <div style="font-size:0.78rem;color:#777;">φVn (Shear Capacity)</div>
+        <div style="font-size:0.78rem;color:#777;">&phi;V<sub>n</sub> (Shear Capacity)</div>
         <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.phi_Vn_kN} kN</div>
         <div style="font-size:0.75rem;color:${mOk(r.shear_ok)};font-weight:700;">DCR = ${r.DCR_shear}: ${mTxt(r.shear_ok)}</div>
       </div>` : ''}
       ${!isBeam && !isSteel ? `
       <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
-        <div style="font-size:0.78rem;color:#777;">φPn (Axial Capacity)</div>
+        <div style="font-size:0.78rem;color:#777;">&phi;P<sub>n</sub> (Axial Capacity)</div>
         <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.phi_Pn_kN} kN</div>
         <div style="font-size:0.75rem;color:${mOk(r.axial_ok)};font-weight:700;">DCR = ${r.DCR_axial}: ${mTxt(r.axial_ok)}</div>
       </div>
       <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
-        <div style="font-size:0.78rem;color:#777;">ρg (Steel Ratio)</div>
+        <div style="font-size:0.78rem;color:#777;">&rho;<sub>g</sub> (Steel Ratio)</div>
         <div style="font-size:1.4rem;font-weight:800;color:#162032;">${r.rho_g}</div>
-        <div style="font-size:0.75rem;color:${mOk(r.rho_ok)};font-weight:700;">Limits 1–8%: ${mTxt(r.rho_ok)}</div>
+        <div style="font-size:0.75rem;color:${mOk(r.rho_ok)};font-weight:700;">Limits 1% to 8%: ${mTxt(r.rho_ok)}</div>
       </div>` : ''}
     </div>
-    <h2>4. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `Member is ${(r.moment_ok !== false && r.shear_ok !== false && r.axial_ok !== false) ? 'ADEQUATE' : 'INADEQUATE'} for the stated factored loads. A PRC-licensed Civil/Structural Engineer must sign and seal this calculation before use as a design basis per NSCP 2015.`)}</p>
+
+    <h2>${isBeam && isSteel ? '10' : '8'}. Assumptions</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Simply supported member with ideal pinned end conditions; reactions develop axial-restraint-free.\n2. Loads applied through the shear center (no torsion or biaxial bending).\n3. ${isSteel ? `Compression flange laterally braced at intervals not exceeding L_p so the section achieves full plastic moment (no LTB reduction).\n4. Section is compact per AISC 360-22 Table B4.1b at Fy = ${Fy} MPa; web is non-slender for shear (h/tw not more than 2.24*sqrt(E/Fy)).\n5. Static, factored loads per ASCE 7-22 / NSCP 2015 load combinations; impact and fatigue not considered.\n6. Steel grade ${inputs.steel_grade}: Fy = ${Fy} MPa, E = 200 GPa per ASTM A6 mill standards.` : `Concrete f'c = ${r.fc_MPa} MPa as per ACI 318-19 strength reduction phi factors.\n4. Tension-controlled section assumed (epsilon_t not less than 0.005); confirm strain compatibility for non-standard reinforcement layouts.\n5. Normal-weight concrete (lambda = 1.0); reduce by 0.75 for sand-lightweight, 0.85 for all-lightweight per ACI 318-19 Sec. 19.2.4.\n6. Stirrups continuous over full span at ${inputs.stirrup_spacing_mm || 150} mm OC; minimum web reinforcement met per ACI 318-19 Sec. 9.6.3.`}\n7. Member geometry as designed; field tolerances per ${isSteel ? 'AISC Code of Standard Practice' : 'ACI 117'}.`)}</p>
+
+    <h2>${isBeam && isSteel ? '11' : '9'}. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Member status: ${overallOk ? 'ADEQUATE for the stated factored loads' : 'INADEQUATE - upsize section or reduce loads'}. Governing DCR: ${Math.max(Number(r.DCR_moment || 0), Number(r.DCR_shear || 0), Number(r.DCR_axial || 0)).toFixed(3)}.\n2. ${isSteel ? `Specify ${inputs.section || r.section} ${inputs.steel_grade || 'A36'}; mill cert (MTR) required confirming Fy not less than ${Fy} MPa and ductility per ASTM A6.\n3. ${Lm >= 7.5 ? `Span exceeds 7.5 m: specify mill camber not less than ${Math.round(Lm * 1000 / 1000)} mm at midspan (L/1000) per AISC 360-22 Section M5.` : 'No mill camber required for spans under 7.5 m.'}\n4. ${isBeam ? `Lateral bracing of compression flange: provide bracing at intervals not exceeding L_p. For typical decked floor framing, slab acts as continuous bracing.` : `Confirm KL/r = ${r.KL_r} for the chosen K factor (${inputs.K_factor || 1.0}); review effective length per AISC Commentary Table C-A-7.1.`}\n5. Connections: design beam-to-column shear connections per AISC 360-22 Section J; specify A325 high-strength bolts with grip length per drawing.\n6. Surface protection: SSPC-SP6 commercial blast cleaning, zinc-rich primer (75 micron DFT), alkyd topcoat (50 micron DFT). Specify SFRM fireproofing per UL Design X-series for required fire rating.` : `Specify ${inputs.concrete_grade || "f'c 28 MPa"} ready-mix per ASTM C94; reject any cylinder strength less than 0.85 f'c at 28 days.\n3. Reinforcement: ${inputs.bar_dia_mm}mm dia ${inputs.rebar_grade || 'Grade 60'} per ASTM A615; minimum cover ${r.cover_mm || 40} mm per ACI 318-19 Sec. 20.6.1.3.\n4. ${isBeam ? `Stirrups at ${inputs.stirrup_spacing_mm || 150} mm OC mid-span; tighten to 100 mm OC at supports per ACI 318-19 Sec. 9.7.6.\n5. Cast in lifts not more than 1.5 m height; vibrate per ACI 309R; cure for 7 days minimum.` : `Lateral ties at spacing not more than 16 x main bar dia or 48 x tie dia or column least dim, per ACI 318-19 Sec. 25.7.2.\n5. Anchor dowels into footing per development length requirements ACI 318-19 Ch. 25.`}`}\n7. Submit shop drawings, mill certs, and inspection reports to the Structural Engineer of Record (SER) for sign-off before fabrication.\n8. A PRC-licensed Civil/Structural Engineer must sign and seal this document before use as a design basis per NSCP 2015.`)}</p>
+
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Prepared by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Checked by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Approved by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+    </div>
   `;
   showReport();
 }

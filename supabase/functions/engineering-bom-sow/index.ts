@@ -4073,31 +4073,159 @@ async function beamColumnBomSowAgent(
   const project    = inputs.project_name   || "Structural Member Project";
   const memberType = String(inputs.member_type || results.member_type || "Steel Beam");
   const isSteel    = memberType.includes("Steel");
-  const span       = Number(inputs.span_m  || 0).toFixed(1);
-  const section    = String(results.section || inputs.section || "—");
-  const grade      = String(results.steel_grade || inputs.steel_grade || isSteel ? "A36" : "f'c 28 MPa");
+  const isBeam     = memberType.includes("Beam");
+  const isColumn   = memberType.includes("Column");
+  const span       = Number(inputs.span_m  || 0);
+  const section    = String(results.section || inputs.section || "W310x45");
+  const grade      = String(results.steel_grade || inputs.steel_grade || (isSteel ? "A36" : "f'c 28 MPa"));
+  const fyMPa      = Number(results.Fy_MPa || (grade === "A36" ? 250 : grade.includes("A992") ? 345 : 250));
   const dcrM       = Number(results.DCR_moment  || 0).toFixed(3);
   const dcrV       = Number(results.DCR_shear   || 0).toFixed(3);
+  const dcrA       = Number(results.DCR_axial   || 0).toFixed(3);
+  const phiMpKNm   = Number(results.phi_Mp_kNm  || 0).toFixed(1);
+  const phiVnKN    = Number(results.phi_Vn_kN   || 0).toFixed(1);
+  const phiPnKN    = Number(results.phi_Pn_kN   || 0).toFixed(1);
+  const defMM      = Number(results.deflection_mm || 0).toFixed(2);
+  const defLim     = Number(results.deflection_limit_mm || (span * 1000 / 360)).toFixed(2);
+  const wKnm       = Number(inputs.w_kNm || 0).toFixed(1);
+  const muKnm      = Number(inputs.Mu_kNm || 0).toFixed(1);
+  const vuKn       = Number(inputs.Vu_kN || 0).toFixed(1);
+  const puKn       = Number(inputs.Pu_kN || 0).toFixed(1);
   const momentOk   = results.moment_ok !== false;
   const shearOk    = results.shear_ok  !== false;
+  const axialOk    = results.axial_ok  !== false;
+  const overallOk  = momentOk && shearOk && (isBeam || axialOk);
 
-  const prompt = `You are a senior Structural/Civil Engineer in the Philippines preparing a BOM and SOW for a ${memberType} per NSCP 2015 Vol.1 and ${isSteel ? 'AISC 360-22' : 'ACI 318-19'}.
+  // ── Steel-section physical metadata for accurate BOM quantities ─────────────
+  // Section weight per metre (kg/m) parsed from designation suffix (e.g. W310x45 -> 45 kg/m).
+  // Surface area per metre (m^2/m) approximated from W-section perimeter:
+  // perimeter approx = 2*d + 4*bf - 2*tw (outer flange surfaces + web sides + flange tips).
+  // Fallback to typical 1.2 m^2/m if section dims unavailable.
+  const sectionKgMatch = section.match(/x(\d+)/i);
+  const sectionKgM     = sectionKgMatch ? Number(sectionKgMatch[1]) : 45;
+  const beamWeightKg   = Math.round(sectionKgM * span);
+  // Typical W-section perimeters (m^2/m): W200~0.95, W310~1.20, W410~1.45, W530~1.70
+  const sectionPerimMatch = section.match(/W(\d+)/i);
+  const sectionDepthMm    = sectionPerimMatch ? Number(sectionPerimMatch[1]) : 310;
+  const surfacePerMeter   = Math.round((0.0035 * sectionDepthMm + 0.10) * 100) / 100; // m^2/m linear approx
+  const surfaceAreaM2     = Math.round(surfacePerMeter * span * 10) / 10;
+  // Bolt size per beam depth: W200 -> M16, W310 -> M20, W410+ -> M24
+  const boltSize = sectionDepthMm <= 250 ? "M16" : sectionDepthMm <= 360 ? "M20" : "M24";
+  const boltGrip = sectionDepthMm <= 250 ? "60mm" : sectionDepthMm <= 360 ? "80mm" : "100mm";
+  // Welding electrode budget: ~1.5% of section weight
+  const electrodeKg       = Math.max(2, Math.round(beamWeightKg * 0.015 * 10) / 10);
+  // Connection plate weight estimate: 2 end-plates @ 200x200x12mm A36
+  const connPlateKg       = Math.round(2 * 0.2 * 0.2 * 0.012 * 7850 * 10) / 10;
+
+  // ASCII-only directive: Groq strips Unicode (multiplication, sub/superscript, le/ge, em-dash)
+  const asciiDirective = `IMPORTANT: All output text must be ASCII only. Do NOT use Unicode characters such as multiplication sign x, sub/superscripts, less-than-or-equal, greater-than-or-equal, em-dash, en-dash, Greek letters, or middle-dot. Use "x" for multiplication, "not more than" for less-than-or-equal, "not less than" for greater-than-or-equal, "kNm" or "kN.m" for kilonewton-meters, "L/360" or "L/500" for span ratios, "phi" for diameter prefix.`;
+
+  // Steel-only items (RC variant uses different list — see else branch)
+  // Branch: Beam vs Column to omit base plate / anchor bolts / grout for beams.
+  const steelItemsBlock = isBeam
+    ? `Steel BEAM specifically — DO NOT include base plates, anchor bolts, or grout (those apply only to columns).
+Per-item EXACT structure with description="short item name only" and specification="full standard + dimensions + grade":
+(1) description="Structural Steel Section", specification="${section} wide-flange section, ASTM ${grade} (Fy=${fyMPa} MPa, Fu=400 MPa min), mill-rolled per ASTM A6, length per drawing not less than ${span} m, section weight ${sectionKgM} kg/m, total weight ${beamWeightKg} kg", qty=${beamWeightKg}, unit="kg"
+(2) description="End-Plate / Splice Plate", specification="ASTM A36 mild steel plate, 12mm thk x 200mm x 200mm both ends, factory-prepared bolt holes per AISC connection design", qty=${connPlateKg}, unit="kg"
+(3) description="High-Strength Bolts", specification="${boltSize} ASTM A325 (Type 1) heavy hex structural bolts with grip length ${boltGrip}, hot-dip galvanized per ASTM F2329, supplied with hardened washers (F436) and heavy hex nuts (A563 Gr DH)", qty=8, unit="set", remarks="2 connections x 4 bolts each end"
+(4) description="Welding Electrode", specification="E7018 low-hydrogen SMAW electrode per AWS A5.1, 3.2mm dia (1/8 inch), packaged in hermetically sealed cans, dry-store and re-bake per AWS D1.1 Annex N", qty=${electrodeKg}, unit="kg"
+(5) description="Stiffener Plates", specification="ASTM A36 plate 8mm thk, web stiffeners under concentrated loads/bearing per AISC 360-22 Section J10 (omit if no concentrated loads)", qty=4, unit="kg", remarks="As required at bearing points"
+(6) description="Shear Tab / Connection Angle", specification="ASTM A36 plate or angle L100x100x10, beam-to-girder shear connection per AISC 14th Ed Manual Part 10", qty=8, unit="kg", remarks="2 ends x estimate"
+(7) description="Fireproofing", specification="cementitious spray-applied fireproofing (SFRM) per UL Design X-series for ${sectionDepthMm <= 310 ? '1-hour' : '2-hour'} fire rating, density not less than 240 kg/m3, thickness per UL listing (typical 25mm for 1hr, 38mm for 2hr), prime surface with compatible primer first", qty=${surfaceAreaM2}, unit="m2"
+(8) description="Surface Primer", specification="zinc-rich epoxy primer (organic) per SSPC-Paint 20 Type II, 2-component, 75 micron DFT, applied to SSPC-SP6 commercial blast-cleaned surface", qty=${surfaceAreaM2}, unit="m2"
+(9) description="Topcoat Paint", specification="alkyd enamel 2-coat system per SSPC-Paint Spec, total 50 micron DFT (25 micron per coat), color per architect schedule (typical safety yellow for exposed steel)", qty=${surfaceAreaM2}, unit="m2"
+(10) description="Beam Camber (if specified)", specification="mill camber per AISC 360-22 Section M5: ${span >= 7.5 ? `not less than ${Math.round(span * 1000 / 1000)} mm at midspan (L/1000 typical for spans not less than 7.5 m)` : 'no camber required for spans less than 7.5 m'}", qty=1, unit="lot", remarks="${span >= 7.5 ? 'Required' : 'Not required for this span'}"`
+    : `Steel COLUMN — include base plate, anchor bolts, grout, but no shear tabs or end plates (those apply to beams).
+Per-item EXACT structure:
+(1) description="Structural Steel Section", specification="${section} wide-flange column section, ASTM ${grade} (Fy=${fyMPa} MPa), height ${span} m, section weight ${sectionKgM} kg/m, total ${beamWeightKg} kg", qty=${beamWeightKg}, unit="kg"
+(2) description="Base Plate", specification="ASTM A36 plate 25mm thk x 400mm x 400mm (sized per AISC Design Guide 1 for axial Pu=${puKn} kN), drilled for ${boltSize} anchor bolts at corners", qty=1, unit="piece"
+(3) description="Anchor Bolts", specification="${boltSize} ASTM F1554 Grade 36 anchor rods, embedment 12 x dia (${boltSize.replace('M','')} x 12 = ${Number(boltSize.replace('M',''))*12} mm minimum) into concrete pier, with sleeve and template per OSHA 1926.755", qty=4, unit="set"
+(4) description="Anchor Bolt Template", specification="2x4 lumber template OR steel jig holding anchor bolts in correct pattern during concrete pour, per OSHA 1926.755 four-bolt minimum", qty=1, unit="lot"
+(5) description="Cap Plate", specification="ASTM A36 plate 12mm thk x column cross-section dimensions, top of column for beam-to-column connection", qty=1, unit="piece"
+(6) description="Welding Electrode", specification="E7018 low-hydrogen SMAW per AWS A5.1, base-to-column and cap-to-column fillet welds per AWS D1.1", qty=${electrodeKg}, unit="kg"
+(7) description="Fireproofing", specification="SFRM per UL Design X-series for ${sectionDepthMm <= 310 ? '2-hour' : '3-hour'} fire rating (column rating typically higher than beam), density not less than 240 kg/m3", qty=${surfaceAreaM2}, unit="m2"
+(8) description="Surface Primer", specification="zinc-rich epoxy primer per SSPC-Paint 20 Type II, 75 micron DFT", qty=${surfaceAreaM2}, unit="m2"
+(9) description="Topcoat Paint", specification="alkyd enamel 2-coat per SSPC, total 50 micron DFT", qty=${surfaceAreaM2}, unit="m2"
+(10) description="Non-Shrink Grout", specification="non-shrink cementitious grout per ASTM C1107 Grade B, 50 MPa compressive strength at 28 days, applied between base plate and concrete pier 25 mm thk minimum", qty=2, unit="bag"`;
+
+  // RC items branch (concrete beam or column)
+  const rcItemsBlock = isBeam
+    ? `Reinforced concrete BEAM — formwork-and-pour scope.
+Per-item EXACT structure:
+(1) description="Ready-Mix Concrete", specification="f'c=${results.fc_MPa || 28} MPa (${results.fc_MPa === 21 ? 'Class A' : 'Class AA'}) per ACI 318-19 / ASTM C94, slump 100 mm to 150 mm, max aggregate size 20 mm, with retarder if pour time not less than 90 minutes", qty=${Math.round((Number(inputs.b_mm || 300) * Number(inputs.h_mm || 500) * span * 1e-9) * 10) / 10}, unit="m3"
+(2) description="Deformed Rebar (Main)", specification="${inputs.bar_dia_mm || 20}mm dia ASTM A615 ${inputs.rebar_grade || 'Grade 60'} (fy=${results.fy_MPa || 414} MPa), mill cert required, qty per drawing schedule", qty=${(inputs.n_bars || 4)}, unit="length"
+(3) description="Stirrups / Shear Reinforcement", specification="${results.stirrup_dia_mm || 10}mm dia ASTM A615 Grade 40, U-shape stirrups at 150 mm OC for full beam length, 100 mm OC at supports per ACI 318-19 Sec 9.7", qty=${Math.ceil(span * 1000 / 150)}, unit="piece"
+(4) description="Formwork Lumber", specification="2x4 SPF kiln-dried lumber for beam side and bottom forms, span sized per ACI 347R formwork pressure", qty=${Math.round(span * 4)}, unit="board-foot"
+(5) description="Formwork Plywood", specification="19mm marine-grade plywood per PNS 196:2009, sealed and form-oiled before pour", qty=${Math.round((Number(inputs.b_mm || 300) + 2 * Number(inputs.h_mm || 500)) * span / 1000 * 10) / 10}, unit="m2"
+(6) description="Form Release Agent", specification="non-staining bond breaker per ACI 347R, biodegradable type for tropical/marine application", qty=1, unit="liter", remarks="approx 0.05 L/m2 form area"
+(7) description="Concrete Cover Spacers", specification="${results.cover_mm || 40}mm plastic concrete cover spacers (clip-on or pin-type), per ACI 318-19 Sec 20.6.1.3 minimum cover", qty=${Math.ceil(span * 4)}, unit="piece"
+(8) description="Concrete Vibrator", specification="immersion poker vibrator 38 mm head, 8000 vpm minimum, per ACI 309R consolidation requirements", qty=1, unit="day", remarks="Rental"
+(9) description="Curing Compound", specification="membrane curing compound per ASTM C309 Type 1-D Class B, white-pigmented for hot weather, applied within 1 hour of finishing", qty=1, unit="liter", remarks="approx 0.2 L/m2 surface"
+(10) description="Concrete Cylinder Test Set", specification="6 cylinders 100x200mm per ASTM C31 / ASTM C39 (3 for 7-day, 3 for 28-day strength tests), accredited testing lab per DPWH-BRS", qty=1, unit="set"`
+    : `Reinforced concrete COLUMN — vertical formwork and tied-bar scope.
+Per-item EXACT structure:
+(1) description="Ready-Mix Concrete", specification="f'c=${results.fc_MPa || 28} MPa Class AA per ACI 318-19 / ASTM C94, slump 75 mm to 125 mm, max aggregate 20 mm", qty=${Math.round((Number(inputs.b_mm || 300) * Number(inputs.h_mm || 300) * span * 1e-9) * 10) / 10}, unit="m3"
+(2) description="Vertical Rebar", specification="${inputs.bar_dia_mm || 20}mm dia ASTM A615 ${inputs.rebar_grade || 'Grade 60'}, full column height plus development length per ACI 318-19 Ch 25", qty=${(inputs.n_bars || 6)}, unit="length"
+(3) description="Lateral Ties", specification="${results.tie_dia_mm || 10}mm dia ASTM A615 ties, spacing not more than 16 x main bar dia or 48 x tie bar dia or column least dim, whichever smallest, per ACI 318-19 Sec 25.7.2", qty=${Math.ceil(span * 1000 / 250)}, unit="piece"
+(4) description="Column Formwork", specification="19mm marine plywood with 2x4 SPF studs and steel column clamps at 600 mm vertical spacing", qty=${Math.round(2 * (Number(inputs.b_mm || 300) + Number(inputs.h_mm || 300)) * span / 1000 * 10) / 10}, unit="m2"
+(5) description="Form Release Agent", specification="non-staining bond breaker per ACI 347R", qty=1, unit="liter"
+(6) description="Cover Spacers", specification="${results.cover_mm || 40}mm plastic, per ACI 318-19 Sec 20.6.1.3", qty=${Math.ceil(span * 8)}, unit="piece"
+(7) description="Anchor Dowels (to footing)", specification="${inputs.bar_dia_mm || 20}mm dia ASTM A615, embedded into footing per ACI 318-19 development-length requirements", qty=${(inputs.n_bars || 6)}, unit="piece"
+(8) description="Concrete Vibrator", specification="immersion vibrator 25 mm head for column pour", qty=1, unit="day", remarks="Rental"
+(9) description="Curing Compound", specification="membrane curing per ASTM C309 Type 1-D Class B", qty=1, unit="liter"
+(10) description="Cylinder Test Set", specification="6 cylinders per ASTM C31, 7-day and 28-day strength tests", qty=1, unit="set"`;
+
+  const itemsBlock = isSteel ? steelItemsBlock : rcItemsBlock;
+
+  const sowMaterials = isSteel
+    ? `specify ${section} wide-flange (ASTM ${grade}, Fy=${fyMPa} MPa, Fu=400 MPa, ductility class per ASTM A6), ASTM A325 high-strength bolts size ${boltSize}, AWS D1.1 E7018 electrodes, base plate ASTM A36, ASTM F1554 anchor bolts (columns only). Mill certificates and material test reports (MTR) required for the structural section`
+    : `specify ready-mix concrete f'c=${results.fc_MPa || 28} MPa per ACI 318-19, ASTM A615 deformed rebar (${inputs.rebar_grade || 'Grade 60'}, fy=${results.fy_MPa || 414} MPa), 19mm marine-grade plywood formwork per PNS 196:2009, ${results.cover_mm || 40} mm minimum concrete cover per ACI 318-19 Sec 20.6.1.3`;
+
+  const sowProcedure = isSteel
+    ? `${isBeam ? `shop-fabricate the ${section} beam to AISC tolerances (camber per Section M5 if span not less than 7.5 m), perform full-penetration groove welds and fillet welds per AWS D1.1 with qualified WPS/PQR, deliver to site with shipping marks per drawing` : `field-erect the ${section} column plumb within L/500, install on grouted base plate (25 mm grout bed per AISC Design Guide 1), bolt up with ${boltSize} A325 bolts torqued per RCSC turn-of-nut method or DTI washer indicator`}. Field bolting per RCSC Specification, snug-tight installation followed by ${isBeam ? '1/3 turn (slip-critical: 1/2 turn for short bolts)' : 'turn-of-nut to 2/3 turn'}. Visual weld inspection (VT) by AWS-CWI for all welds; UT/RT for full-penetration welds per AWS D1.1 Table 6.7. Surface preparation SSPC-SP6 commercial blast, primer + topcoat per spec`
+    : `cast in proper formwork with cover spacers placed every 600 mm along bars, place concrete in lifts not more than 1.5 m height with internal vibration, finish surface and apply curing compound within 1 hour of finishing, cure for not less than 7 days minimum. Stripping after 24 hours for sides, 7 days for soffit beams (longer for spans not less than 6 m per ACI 347R)`;
+
+  const sowInspection = isSteel
+    ? `perform 100% visual weld inspection by AWS-CWI per AWS D1.1 Table 6.1, ultrasonic testing on full-penetration welds per AWS D1.1 Sec 6.13, high-strength bolt installation verification (10% sample with calibrated wrench per RCSC Spec), final plumb check on columns L/500, beam camber verification (if specified) within plus or minus 25%, fireproofing thickness verification per UL listing tolerance. Submit weld inspection reports, bolt installation reports, and material test reports (MTR) to the Structural Engineer of Record (SER) for sign-off before proceeding`
+    : `cast 6 concrete cylinders per pour for 7-day and 28-day compressive strength tests per ASTM C31/C39 at a DPWH-accredited lab, perform rebar placement inspection before pour (cover, spacing, splices per ACI 318-19), document slump test per ASTM C143 at delivery (target 100-150 mm beam, 75-125 mm column), and submit cylinder test reports to the SER. Reject any pour with cylinder strength less than 0.85 x f'c at 28 days`;
+
+  const prompt = `You are a senior Structural / Civil Engineer in the Philippines preparing a Bill of Materials (BOM) and Scope of Works (SOW) for a ${memberType} per NSCP 2015 Vol.1 and ${isSteel ? 'AISC 360-22 LRFD' : 'ACI 318-19'}.
+
+${asciiDirective}
 
 Project: ${project}
-Member: ${memberType} | Span: ${span} m
-${isSteel ? `Section: ${section} | Grade: ${grade}` : `Dimensions: ${results.b_mm}×${results.h_mm}mm | f'c: ${results.fc_MPa}MPa | fy: ${results.fy_MPa}MPa | As: ${results.As_mm2}mm²`}
-DCR Moment: ${dcrM} (${momentOk ? 'PASS' : 'FAIL'}) | DCR Shear: ${dcrV} (${shearOk ? 'PASS' : 'FAIL'})
+Member: ${memberType} | Span: ${span.toFixed(1)} m
+${isSteel
+    ? `Section: ${section} | Grade: ${grade} (Fy=${fyMPa} MPa) | Section weight: ${sectionKgM} kg/m | Total weight: ${beamWeightKg} kg | Surface area for coatings: ${surfaceAreaM2} m2`
+    : `Dimensions: ${inputs.b_mm}x${inputs.h_mm} mm | f'c: ${results.fc_MPa} MPa | fy: ${results.fy_MPa} MPa | As: ${results.As_mm2} mm2`}
+${isBeam ? `Loads: w=${wKnm} kN/m UDL, Mu=${muKnm} kNm, Vu=${vuKn} kN | phiMp=${phiMpKNm} kNm DCR_M=${dcrM} (${momentOk ? 'PASS' : 'FAIL'}) | phiVn=${phiVnKN} kN DCR_V=${dcrV} (${shearOk ? 'PASS' : 'FAIL'}) | Deflection ${defMM} mm (limit L/360 = ${defLim} mm)`
+          : `Axial: Pu=${puKn} kN | phiPn=${phiPnKN} kN DCR=${dcrA} (${axialOk ? 'PASS' : 'FAIL'})`}
+Overall member status: ${overallOk ? 'ADEQUATE' : 'INADEQUATE — requires resizing'}
+Bolt size selected by depth (${sectionDepthMm} mm): ${boltSize} with grip ${boltGrip}; estimated electrode budget ${electrodeKg} kg
 
 Generate a JSON object with exactly two keys:
 
 "bom_items": array of 10 objects with { "description", "specification", "unit", "qty", "remarks" }
-${isSteel ? `Cover: (1) Structural steel section ${section} ASTM ${grade}, (2) Connection plates/end plates A36, (3) Bolts ASTM A325/A490 for connections, (4) Welding electrodes E7018 (AWS D1.1), (5) Base plates (for columns), (6) Anchor bolts (for columns), (7) Fireproofing: intumescent paint or spray-on, (8) Primer: zinc-rich epoxy primer, (9) Topcoat paint: alkyd enamel 2 coats, (10) Grout (for base plates: non-shrink grout).` :
-`Cover: (1) Ready-mix concrete f'c ${results.fc_MPa}MPa (Class AA or as specified), (2) Deformed reinforcing bars ${inputs.bar_dia_mm}mm dia fy=${results.fy_MPa}MPa ASTM A615, (3) Stirrups/ties: ${results.stirrup_dia_mm || 10}mm dia, (4) Form lumber (for beam/column formwork), (5) Formwork plywood 19mm marine grade, (6) Form release agent, (7) Concrete cover spacers (${results.cover_mm || 40}mm plastic), (8) Concrete vibrator (mechanical, rental), (9) Curing compound (membrane type ASTM C309), (10) Concrete cylinder mold set for QC testing.`}
+
+${itemsBlock}
+
+CRITICAL: Every "specification" field MUST be fully populated, never empty or just the item name. All quantities MUST come from the values supplied above (${beamWeightKg} kg, ${surfaceAreaM2} m2, ${electrodeKg} kg, etc.) — do not invent quantities.
 
 "sow_sections": array of 5 objects with { "section_no", "title", "content" }
-Sections: 1.0 Scope, 2.0 Standards (NSCP 2015 Vol.1, ${isSteel ? 'AISC 360-22, AWS D1.1, ASTM A36/A992' : 'ACI 318-19, ASTM A615, ACI 305R for hot weather concreting in Philippines'}), 3.0 Materials, 4.0 Construction (${isSteel ? 'shop fabrication, field bolting per AISC, weld inspection per AWS D1.1' : 'rebar placement, cover verification, concrete placement in lifts ≤1.5m, vibration, curing 7 days minimum'}), 5.0 Inspection and Testing (${isSteel ? 'visual weld inspection, high-strength bolt torque verification, plumb check ≤L/500' : 'concrete cylinder testing at 7 and 28 days, rebar placement inspection before pour, as-built rebar survey'}).
 
-Content fields must start "The Contractor shall..." and reference NSCP 2015. Return ONLY the JSON. No markdown.`;
+Section 1.0 Scope: state the contractor shall design, fabricate, supply, erect, and inspect a ${memberType} per NSCP 2015 Vol.1 and ${isSteel ? 'AISC 360-22 LRFD' : 'ACI 318-19'}, ${isBeam ? `${section} section spanning ${span.toFixed(1)} m, factored Mu=${muKnm} kNm and Vu=${vuKn} kN, deflection ${defMM} mm (limit L/360 = ${defLim} mm)` : `${section} section ${span.toFixed(1)} m tall, factored Pu=${puKn} kN`}. Member status ${overallOk ? 'verified ADEQUATE' : 'INADEQUATE — resize before fabrication'} per the design calculation (DCR_M=${dcrM}${isBeam ? `, DCR_V=${dcrV}` : `, DCR_A=${dcrA}`}).
+
+Section 2.0 Standards: cite NSCP 2015 Vol.1 (governing), ${isSteel
+  ? 'AISC 360-22 (steel design), AWS D1.1/D1.1M (welding), ASTM A6 (mill standards), ASTM A36/A992 (steel grades), ASTM A325/F3125 (high-strength bolts), ASTM F1554 (anchor rods), RCSC Specification (bolt installation), SSPC-SP6 / SSPC-Paint 20 (surface prep / primer)'
+  : 'ACI 318-19 (concrete design), ASTM C94 (ready-mix), ASTM A615 (rebar), ACI 305R (hot-weather concreting), ACI 347R (formwork), ASTM C31 / C39 (cylinder tests), PNS 196:2009 (plywood formwork)'}, and DOLE D.O.13 (construction safety).
+
+Section 3.0 Materials: ${sowMaterials}; reference BOM Items 1-10 for full procurement scope.
+
+Section 4.0 Procedure: ${sowProcedure}.
+
+Section 5.0 Inspection: ${sowInspection}.
+
+Each "content" field MUST start with "The Contractor shall..." and use ASCII text only. Return ONLY the JSON. No markdown, no preamble.`;
 
   const raw = await callGroq(prompt);
   const parsed = JSON.parse(raw);
