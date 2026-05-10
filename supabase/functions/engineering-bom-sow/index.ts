@@ -3940,27 +3940,82 @@ async function boltTorqueBomSowAgent(
   inputs: Record<string, unknown>,
   results: Record<string, unknown>
 ): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
-  const project   = inputs.project_name  || "Bolted Joint Project";
-  const boltSize  = String(inputs.bolt_size  || "M16");
-  const grade     = String(inputs.bolt_grade || "8.8");
-  const nBolts    = Number(inputs.n_bolts    || 8);
-  const torqueNm  = Number(results.torque_Nm || 0).toFixed(1);
-  const preloadkN = Number(results.preload_kN || 0).toFixed(1);
+  const project       = inputs.project_name  || "Bolted Joint Project";
+  const boltSize      = String(inputs.bolt_size  || "M16");
+  const grade         = String(inputs.bolt_grade || "8.8");
+  const nBolts        = Number(inputs.n_bolts    || 8);
+  const torqueNm      = Number(results.torque_Nm || 0).toFixed(1);
+  // Calc engine returns Fi_kN (target preload). Older field preload_kN is preserved as fallback.
+  const preloadkN     = Number(results.Fi_kN || results.preload_kN || 0).toFixed(2);
+  const torque30pct   = Number(results.torque_30pct || 0).toFixed(1);
+  const torque70pct   = Number(results.torque_70pct || 0).toFixed(1);
+  const FpkN          = Number(results.Fp_kN || 0).toFixed(2);
+  const SpMPa         = Number(results.Sp_MPa || 0).toFixed(0);
+  const sigmaMPa      = Number(results.sigma_MPa || 0).toFixed(1);
+  const stressCheck   = String(results.stress_check || 'PASS');
+  const totalClampkN  = Number(results.total_clamp_kN || 0).toFixed(1);
+  const separationSF  = results.separation_sf == null ? 'n/a' : Number(results.separation_sf).toFixed(2);
+  const jointCheck    = String(results.joint_check || 'PASS');
+  const extLoadkN     = Number(results.ext_load_kN ?? inputs.ext_load_kN ?? 0).toFixed(1);
+  const nBoltsMin     = Number(results.n_bolts_min || 1);
+  const preloadPct    = Number(results.preload_pct ?? inputs.preload_pct ?? 75);
+  const nutFactor     = Number(results.nut_factor ?? inputs.nut_factor ?? 0.20);
+  const nutCondition  = String(results.nut_condition || 'As-received (dry)');
+  const dMM           = Number(results.d_mm || 16);
+  const wrenchMax     = Math.ceil(Number(torqueNm) * 1.2);
 
-  const prompt = `You are a senior Mechanical Engineer in the Philippines preparing a BOM and SOW for a bolted joint assembly per ISO 898-1 and VDI 2230.
+  // ASCII-only directive: Groq strips Unicode (degree, multiplication, en/em-dash, middle-dot,
+  // sub/superscripts, Greek). All output spec strings must be plain ASCII.
+  const asciiDirective = `IMPORTANT: All output text must be ASCII only. Do NOT use Unicode characters (degree symbol, multiplication sign, middle-dot, em-dash, en-dash, subscripts/superscripts, Greek letters). Use "Nm" not "N.m" with the middle-dot, "deg" not the degree symbol, "x" not the multiplication sign, "/" or " to " for ranges (NOT "-" hyphen-as-range or en-dash).`;
+
+  const prompt = `You are a senior Mechanical Engineer in the Philippines preparing a BOM and SOW for a bolted joint assembly per ISO 898-1, VDI 2230, and ASME PCC-1.
+
+${asciiDirective}
 
 Project: ${project}
-Bolt: ${boltSize} Grade ${grade}: ${nBolts} bolts per joint
-Tightening torque: ${torqueNm} N·m
-Preload: ${preloadkN} kN per bolt
+Bolt size: ${boltSize} Grade ${grade} (nominal dia ${dMM}mm)
+No. of bolts: ${nBolts} (minimum required for SF >= 1.5: ${nBoltsMin})
+Proof strength Sp: ${SpMPa} MPa
+Proof load Fp: ${FpkN} kN
+Target preload Fi: ${preloadkN} kN per bolt (${preloadPct}% of Fp)
+Bolt stress sigma: ${sigmaMPa} MPa (Stress check: ${stressCheck} vs Sp ${SpMPa} MPa)
+Tightening torque T: ${torqueNm} Nm (3-pass schedule: ${torque30pct} Nm at 30%, ${torque70pct} Nm at 70%, ${torqueNm} Nm at 100%)
+Nut factor K: ${nutFactor} (${nutCondition})
+External load: ${extLoadkN} kN, Total clamp: ${totalClampkN} kN, Separation SF: ${separationSF} (${jointCheck})
 
 Generate a JSON object with exactly two keys:
 
-"bom_items": array of 8 objects with { "description", "specification", "unit", "qty", "remarks" }
-Cover: (1) Hex bolt ${boltSize} Grade ${grade} ISO 898-1, (2) Hex nut Grade 8 ISO 898-2, (3) Hardened flat washer ISO 7091, (4) Spring lock washer DIN 127B, (5) Anti-seize compound (copper-based or nickel-based), (6) Thread locker (Loctite 243 or equiv for vibrating joints), (7) Calibrated torque wrench (0–${Math.ceil(Number(torqueNm)*1.2)} N·m range), (8) Torque audit sticker + marker.
+"bom_items": array of 10 objects, each with EXACTLY this structure:
+{
+  "description": "short item name only (e.g. 'Hex bolt', 'Hex nut') - NO standards/grades/dimensions in this field",
+  "specification": "FULL specification string with standard, grade, dimensions - this field MUST be populated, never empty",
+  "unit": "pc / set / kg / etc.",
+  "qty": number,
+  "remarks": "context note tying back to this joint design"
+}
 
-"sow_sections": array of 4 objects with { "section_no", "title", "content" }
-Sections: 1.0 Scope, 2.0 Standards (ISO 898-1, VDI 2230, PSME Code, PEC for electrical enclosure bolting), 3.0 Tightening Procedure (star pattern, ${torqueNm} N·m in 3 passes: 30%→70%→100%, anti-seize on threads, document with torque wrench certificate), 4.0 Inspection and Re-check (retorque after 24hr thermal cycling, mark bolt heads for rotation check, photograph final assembly).
+REQUIRED ITEMS (every "specification" field MUST be populated as shown):
+1. description="Hex bolt", specification="${boltSize} Grade ${grade} per ISO 898-1, hex head per ISO 4014, length per joint stack-up (thread engagement minimum 1.0d to 1.5d, i.e. ${dMM} to ${Math.round(dMM*1.5)}mm engaged), zinc-plated or hot-dip galvanized for outdoor", unit="pc", qty=${nBolts}
+2. description="Hex nut", specification="Grade 8 per ISO 898-2 (compatible with Grade ${grade} bolt), hex pattern per ISO 4032, same finish as bolt", unit="pc", qty=${nBolts}
+3. description="Hardened flat washer", specification="ISO 7091 or DIN 125 hardened steel washer for ${boltSize}, OD per ISO 7091 Table 1, hardness 200-300 HV", unit="pc", qty=${nBolts*2}
+4. description="Spring lock washer", specification="DIN 127B split spring washer for ${boltSize}, spring steel, hardness 41-51 HRC (use ONLY if joint subject to vibration; can be omitted with thread locker)", unit="pc", qty=${nBolts}
+5. description="Anti-seize compound", specification="copper-based (Loctite LB 8008 or equivalent) for carbon-steel-on-carbon-steel; nickel-based (Loctite LB 8150) for stainless or high-temperature joints (>150 deg C)", unit="kg", qty=0.5
+6. description="Thread locker", specification="Loctite 243 medium-strength removable (blue) for vibrating joints; Loctite 263 high-strength (red) for permanent joints; verify chemical compatibility with anti-seize", unit="pc", qty=1
+7. description="Calibrated torque wrench", specification="click-type or digital torque wrench, range 0 to ${wrenchMax} Nm (covers ${torqueNm} Nm target with 20 percent margin), accuracy +/- 4 percent at 20 percent to 100 percent of full scale per ISO 6789-1", unit="pc", qty=1
+8. description="Torque audit sticker + marker", specification="weather-proof tamper-evident torque-seal sticker (e.g. Torque Seal F-900 yellow) + permanent paint marker for rotation-indicator line across bolt head, nut, and joint flange", unit="set", qty=1
+9. description="Torque wrench calibration certificate", specification="ISO 6789-1 / ISO 6789-2 calibration certificate with traceability to NIST or PTB primary standard, valid less than 12 months, attached to torque wrench at site", unit="pc", qty=1
+10. description="Feeler gauge set", specification="0.05 to 1.0mm leaf set (10 to 13 leaves), hardened spring steel, for joint-gap verification per VDI 2230 (no detectable gap after final torque)", unit="set", qty=1
+
+CRITICAL: Every "specification" field above MUST be filled in the JSON output. Do not leave any specification field empty or null. Do not put the standards/dimensions into the description field.
+
+"sow_sections": array of 5 objects with { "section_no", "title", "content" }
+Section content fields MUST start with "The Contractor shall..." and reference the specific values above.
+
+1.0 Scope: supply, install, and pre-tension all ${nBolts} ${boltSize} Grade ${grade} bolts in this joint to a preload of ${preloadkN} kN per bolt (${preloadPct} percent of proof load) using a calibrated torque wrench at ${torqueNm} Nm tightening torque per ISO 898-1 / VDI 2230, and verify joint integrity to a minimum separation safety factor of 1.5 against the design external load of ${extLoadkN} kN.
+2.0 Standards: ISO 898-1 (mechanical properties of carbon and alloy steel fasteners), ISO 898-2 (mechanical properties of nuts), VDI 2230 Part 1 (systematic calculation of high-duty bolted joints), ASME PCC-1 (pressure boundary flange joint assembly), AISC 360 Chapter J (steel structural connections), ISO 6789 (torque wrench calibration), and PSME Code.
+3.0 Materials: supply ${boltSize} Grade ${grade} hex bolts per ISO 898-1, matching Grade 8 hex nuts per ISO 898-2, hardened flat washers per ISO 7091, anti-seize compound (copper or nickel base per joint material), thread locker (Loctite 243 or equivalent for vibrating joints), and a calibrated torque wrench with valid ISO 6789 certificate covering 0 to ${wrenchMax} Nm range.
+4.0 Tightening Procedure: clean and inspect threads (reject damaged or corroded fasteners), apply anti-seize to bolt threads and underhead bearing surface only (NOT to thread locker if used), tighten in a star or cross pattern in 3 passes (Pass 1 at ${torque30pct} Nm = 30 percent, Pass 2 at ${torque70pct} Nm = 70 percent, Pass 3 at ${torqueNm} Nm = 100 percent), apply final torque slowly without overshoot, mark each bolt head and joint with paint marker for rotation reference.
+5.0 Inspection and Re-check: verify torque wrench calibration certificate within 12 months of work date, confirm cross-pattern sequence and 3-pass schedule were followed (sign Quality Record), retorque all bolts after first thermal cycle or 24 hours of service for gasketed flanges (gasket creep relaxes preload by 10 to 20 percent), verify NO detectable joint gap with feeler gauge per VDI 2230, photograph final torque-seal markings and retain in QA file.
 
 Return ONLY the JSON. No markdown.`;
 

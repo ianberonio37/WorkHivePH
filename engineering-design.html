@@ -17203,8 +17203,9 @@ function renderBoltTorqueReport(inputs, results, narrative) {
     <h2>5. Tightening Torque</h2>
     <p style="font-size:0.83rem;color:#333;"><strong>Formula (VDI 2230):</strong> T = K × d × F<sub>i</sub></p>
     <p style="font-size:0.83rem;color:#333;">
-      T = ${inputs.nut_factor} × ${r.d_mm} mm × ${r.Fi_kN} × 1000 N<br>
+      T = ${inputs.nut_factor} × ${(r.d_mm / 1000).toFixed(3)} m × ${(r.Fi_kN * 1000).toLocaleString()} N<br>
       T = <strong>${r.torque_Nm} N·m</strong>
+      <span style="color:#777;font-size:0.78rem;">&nbsp;(equivalent: K × d<sub>mm</sub> × F<sub>i,N</sub> / 1000 = ${inputs.nut_factor} × ${r.d_mm} × ${(r.Fi_kN * 1000).toLocaleString()} / 1000)</span>
     </p>
 
     <h2>6. Joint Separation Check</h2>
