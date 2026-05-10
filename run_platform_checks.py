@@ -258,6 +258,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "realtime-payload-contract",
+        "script":  "validate_realtime_payload_contract.py",
+        "args":    [],
+        "label":   "Realtime Payload Consumer Contract (4-layer: subscribed table + payload columns + filter columns + channel name uniqueness)",
+        "group":   "Platform",
+        "report":  "realtime_payload_contract_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "reliability-workbench",
         "script":  "validate_reliability_workbench.py",
         "args":    [],

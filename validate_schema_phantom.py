@@ -50,9 +50,12 @@ import os
 import glob
 from collections import defaultdict
 
-if sys.platform == "win32":
+if sys.platform == "win32" and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
+    # Use detach() so the old wrapper doesn't close the shared buffer when
+    # GC'd. Without detach(), importing this module from another validator
+    # closes stdout and breaks all subsequent print() calls.
     import io
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding="utf-8", errors="replace")
 
 from validator_utils import read_file, format_result
 
