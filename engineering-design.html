@@ -11046,7 +11046,7 @@ function showReport() {
     } else if (_calcType === 'Fluid Power' && descEl) {
       descEl.textContent = 'Generates a hydraulic circuit showing reservoir, pump, relief valve, directional control valve, cylinder with extend/retract force arrows and return line per ISO 4413';
     } else if (_calcType === 'V-Belt Drive Design' && descEl) {
-      descEl.textContent = 'Generates a V-belt drive schematic showing driver and driven sheaves with diameter labels, belt tangents, center distance, and belt section/number/speed/wrap angle badges per RMA / ASME B40.1';
+      descEl.textContent = 'Generates a V-belt drive schematic showing driver and driven sheaves with diameter labels, belt tangents, center distance, and belt section/number/speed/wrap angle badges per RMA IP-20 / ASME B17.1';
     } else if (_calcType === 'Vibration Analysis' && descEl) {
       descEl.textContent = 'Generates a spring-mass-damper diagram and magnification factor vs frequency ratio chart with ISO 10816-3 vibration severity zone badge per ISO 10816-3';
     } else if (_calcType === 'Noise / Acoustics' && descEl) {
@@ -19236,7 +19236,7 @@ async function _runDrawing() {
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${Number(_r.n_belts||1)} × Section ${String(_r.section||_r.belt_designation||'B')}  |  Ratio ${Number(_r.overall_ratio||0).toFixed(2)}:1`,
-        { drawingNo:'MECH-VBD-SCH-001', drawingTitle:'V-Belt Drive — Schematic', standard:'RMA IP-20 / ASME B40.1' }));
+        { drawingNo:'MECH-VBD-SCH-001', drawingTitle:'V-Belt Drive — Schematic', standard:'RMA IP-20 / ASME B17.1' }));
     } else if (ct === 'Vibration Analysis') {
       const svg = buildVibrationSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
@@ -26513,7 +26513,7 @@ function buildFluidPowerSVG(inputs, results) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
 }
 
-// ─── V-Belt Drive — RMA / ASME B40.1 ─────────────────────────────────────────
+// ─── V-Belt Drive — RMA IP-20 / ASME B17.1 ──────────────────────────────────
 function buildVBeltDriveSVG(inputs, results) {
   const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
   const r=results||{},inp=inputs||{};
@@ -26536,7 +26536,7 @@ function buildVBeltDriveSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`V-BELT DRIVE — ${nBelts}× Section ${section}  |  Ratio ${ratio}:1  |  ${powKW} kW  |  RMA / ASME B40.1`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`V-BELT DRIVE — ${nBelts}× Section ${section}  |  Ratio ${ratio}:1  |  ${powKW} kW  |  RMA IP-20 / ASME B17.1`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Drive schematic
   const rSmall=Math.max(25,Math.min(Number(dSmall)*0.12,55));
@@ -26576,7 +26576,7 @@ function buildVBeltDriveSVG(inputs, results) {
   });
   [`1. Speed ratio i = D_large / D_small = ${ratio}:1. Driven rpm = ${drnRPM} rpm.`,
    `2. Belt selection: Section ${section}, L = ${beltL}mm. Arc correction factor Kθ (wrap < 180°).`,
-   `3. Power per belt corrected for arc + length. Margin = ${capMarPct}%. RMA IP-20 / ASME B40.1.`
+   `3. Power per belt corrected for arc + length. Margin = ${capMarPct}%. RMA IP-20 / ASME B17.1.`
   ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
   _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'V-BELT DRIVE', rows:[
     ['Power',`${powKW} kW`,CC],['Speed Ratio',`${ratio}:1`,CC],

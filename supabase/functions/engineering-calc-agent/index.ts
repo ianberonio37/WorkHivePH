@@ -2530,6 +2530,18 @@ function calcVBeltDrive(inputs: Record<string, number | string>): Record<string,
     n_belts,
     total_power_capacity_kW,
     capacity_margin_pct,
+    // ── Renderer-expected aliases (parity with python-api gear_belt_drive.py) ──
+    // Without these, SVG/Report/BOM would render wrong values when Python API is
+    // unavailable (cold start, network error). Matches keys produced by the
+    // Python _vbelt() + calculate() wrapper.
+    d_small_mm: driver_dia_mm,
+    d_large_mm: driven_dia_mm,
+    n_driver_rpm: driver_rpm,
+    n_driven_rpm: driven_rpm,
+    overall_ratio: speed_ratio,
+    wrap_angle_deg: arc_deg,
+    section: belt_section,
+    power_kW,
   };
 }
 

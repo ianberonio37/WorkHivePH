@@ -3779,27 +3779,57 @@ async function gearBeltDriveBomSowAgent(
   const ratio      = Number(results.overall_ratio || results.speed_ratio || 0).toFixed(3);
   const nBelts     = Number(results.n_belts || 0);
   const section    = String(results.section || inputs.belt_section || "—");
+  const beltDesig  = String(results.belt_designation || section);
+  const beltL      = Number(results.belt_length_mm || 0);
+  const dSmall     = Number(results.d_small_mm || inputs.driver_dia_mm || 0);
+  const dLarge     = Number(results.d_large_mm || results.driven_dia_mm || 0);
   const module     = Number(results.module_mm || inputs.module_mm || 0);
   const chainNo    = String(results.chain_number || "—");
 
-  const prompt = `You are a senior Mechanical Engineer in the Philippines preparing a BOM and SOW for a ${driveType} per AGMA 2001-D04 / RMA IP-20 / ANSI B29.1 and PSME Code.
+  const isBelt  = driveType.includes('Belt');
+  const isGear  = driveType.includes('Gear');
+  const isChain = driveType.includes('Chain');
+
+  // ASCII-only directive: Groq output strips Unicode (degree, multiplication, sub/superscript)
+  // so all spec strings must use plain ASCII (deg, x, ^, /, mm, kW, etc.)
+  const asciiDirective = `IMPORTANT: All output text must be ASCII only. Do NOT use Unicode characters such as degree symbol, multiplication sign x, subscripts/superscripts, em-dash, en-dash, or Greek letters. Use "deg" not the degree symbol, "x" not the multiplication sign, "Ohm" not the Greek letter, "/" for fractions. Sheave diameters use "Phi" or "dia" prefix (e.g., "dia 125mm" or "Phi 125mm"), NOT the diameter symbol.`;
+
+  const driveStandards = isBelt
+    ? 'RMA IP-20 (Classical V-Belt Drives) / ASME B17.1 (Keys and Keyseats) / AGMA 9002 (Bores and Keyways for Flexible Couplings)'
+    : isGear
+    ? 'AGMA 2001-D04 (Bending and Pitting Resistance) / ASME B17.1 (Keys and Keyseats)'
+    : 'ANSI B29.1 (Roller Chain) / ASME B17.1 (Keys and Keyseats)';
+
+  const driveItemsBlock = isBelt
+    ? `Items must be V-Belt-specific: (1) Matched V-Belt set (Section ${section}, designation ${beltDesig}, ${nBelts} belts, ${beltL}mm pitch length), (2) Driver Sheave (dia ${dSmall}mm pitch dia, Section ${section}, taper-lock bore for ${nDriver} RPM driver), (3) Driven Sheave (dia ${dLarge}mm pitch dia, Section ${section}, taper-lock bore for ${nDriven} RPM driven shaft), (4) Taper-Lock Bushings (qty 2, standard size 1610/2012/2517 selected per shaft dia), (5) Sheave Mounting Keys (parallel keys per ASME B17.1, qty 2, sized per shaft dia), (6) Tension Idler Pulley (Section ${section}, spring-loaded automatic tensioner OR fixed-base manual), (7) Belt Guard (per OSHA 1910.219 / DOLE D.O.13-1998, 16 ga galvanized sheet metal, painted yellow with black caution stripes), (8) Motor Sliding Base / Tensioning Rails (cast iron or fabricated steel, slot length min 1.5 x belt-length take-up), (9) Mounting Hardware (Grade 8.8 bolts/nuts/washers, anti-vibration washers), (10) Alignment Tools (laser sheave alignment kit OR straight-edge with feeler gauge). DO NOT include shaft couplings: V-belts ARE the coupling between driver and driven equipment.`
+    : isGear
+    ? `Items must be Gear-Drive-specific: (1) Pinion gear (module ${module}mm, hardened steel), (2) Driven gear (module ${module}mm), (3) Gearbox housing (cast iron or fabricated steel), (4) Shaft coupling (flexible coupling for input/output shafts), (5) Bearings (deep-groove ball or tapered roller per ISO 281), (6) Oil seals (lip seal per ISO 6194), (7) Lubricant (ISO VG-220 or VG-320 gear oil), (8) Mounting bolts (Grade 8.8), (9) Alignment tools, (10) Vibration-damping pads.`
+    : `Items must be Chain-Drive-specific: (1) Roller chain (ANSI No.${chainNo}), (2) Driver sprocket, (3) Driven sprocket, (4) Chain tensioner (spring-loaded), (5) Chain guard (per OSHA 1910.219), (6) Sprocket mounting keys (ASME B17.1), (7) Lubricator (drip or splash bath), (8) Chain breaker tool, (9) Mounting hardware (Grade 8.8), (10) Alignment tools.`;
+
+  const driveSummary = isBelt
+    ? `Belt section: ${section} (designation ${beltDesig}), No. of belts: ${nBelts}, Belt pitch length: ${beltL}mm, Driver sheave: dia ${dSmall}mm, Driven sheave: dia ${dLarge}mm`
+    : isGear
+    ? `Module: ${module}mm`
+    : `Chain No.: ${chainNo}`;
+
+  const prompt = `You are a senior Mechanical Engineer in the Philippines preparing a BOM and SOW for a ${driveType} per ${driveStandards} and PSME Code.
+
+${asciiDirective}
 
 Project: ${project}
 Drive type: ${driveType}
 Power: ${powerKW} kW
-Driver: ${nDriver} RPM → Driven: ${nDriven} RPM (ratio ${ratio}:1)
-${driveType.includes('Belt') ? `Belt section: ${section}, No. of belts: ${nBelts}` : ''}
-${driveType.includes('Gear') ? `Module: ${module}mm` : ''}
-${driveType.includes('Chain') ? `Chain No.: ${chainNo}` : ''}
+Driver: ${nDriver} RPM -> Driven: ${nDriven} RPM (ratio ${ratio}:1)
+${driveSummary}
 
 Generate a JSON object with exactly two keys:
 
 "bom_items": array of 10 objects with { "description", "specification", "unit", "qty", "remarks" }
-Cover drive-specific items: For V-Belt: matched belt set (${section} × ${nBelts} belts), driver/driven sheaves, bushing, tension idler, belt guard. For Gear: pinion, gear, gearbox housing, coupling, oil seal, lubrication. For Chain: roller chain (No.${chainNo}), driver/driven sprockets, chain tensioner, chain guard, lubricator.
-Plus: mounting hardware, alignment tools, shaft couplings.
+${driveItemsBlock}
+Each "specification" field MUST include the actual numeric values from the design summary above (sheave dia, belt length, RPM, section, etc.).
 
 "sow_sections": array of 5 objects with { "section_no", "title", "content" }
-Sections: 1.0 Scope, 2.0 Standards (AGMA 2001-D04 / RMA IP-20 / ANSI B29.1), 3.0 Materials, 4.0 Installation (sheave/sprocket alignment, belt tension per manufacturer, gear backlash, lubrication), 5.0 Testing and Commissioning (run-in procedure, vibration check, temperature monitoring).
+Sections: 1.0 Scope, 2.0 Standards (${driveStandards}, PSME Code, OSHA 1910.219 for guards), 3.0 Materials, 4.0 Installation (${isBelt ? 'sheave alignment within 0.5 deg parallelism, belt tension per RMA IP-20 force-deflection method, re-tension after 4-8 hours run-in' : isGear ? 'gear backlash 0.05-0.15mm, oil fill to sight glass, alignment within 0.05mm TIR' : 'chain tension 2-4% of slack-side span sag, lubrication every 8 hours'}), 5.0 Testing and Commissioning (run-in procedure, vibration check per ISO 10816-3 Zone B max 4.5 mm/s, temperature monitoring, no-load then load test).
 
 Content fields must start "The Contractor shall..." and reference the specific ${driveType} parameters. Return ONLY the JSON. No markdown.`;
 
