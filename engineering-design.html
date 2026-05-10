@@ -26643,6 +26643,9 @@ function buildVibrationSVG(inputs, results) {
   const MF=Number(r.magnification_factor||0).toFixed(2);
   const Vrms=Number(r.V_rms_mm_s||0).toFixed(2);
   const zone=String(r.iso_zone||'A');
+  // Strip leading "Zone " prefix for places where we already prefix with "Zone "
+  // (title bar + ISO Zone badge). Result panel uses the full string as-is.
+  const zoneTail=zone.replace(/^Zone\s+/i,'');
   const zoneOK=Boolean(r.zone_ok??true);
   const isolEff=Number(r.isolation_efficiency_pct||0).toFixed(1);
   const T=Number(r.transmissibility||0).toFixed(3);
@@ -26653,7 +26656,7 @@ function buildVibrationSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`VIBRATION ANALYSIS — fn=${fn} Hz  |  v_rms=${Vrms} mm/s  |  Zone ${zone}  |  ISO 10816-3`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`VIBRATION ANALYSIS - fn=${fn} Hz  |  v_rms=${Vrms} mm/s  |  Zone ${zoneTail}  |  ISO 10816-3`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Spring-mass-damper diagram
   const CX=150,CY=180;
@@ -26712,7 +26715,7 @@ function buildVibrationSVG(inputs, results) {
   // ISO zone badge
   const bX=ChX,bY=ChY+ChH+35;
   p.push(`<rect x="${bX}" y="${bY}" width="${ChW}" height="38" rx="4" fill="${zoneOK?'#e8f5e9':'#ffebee'}" stroke="${zoneC}" stroke-width="2"/>`);
-  p.push(_plumbT(bX+ChW/2,bY+14,`v_rms = ${Vrms} mm/s  |  ISO Zone ${zone}`,{sz:9,c:zoneC,w:'700'}));
+  p.push(_plumbT(bX+ChW/2,bY+14,`v_rms = ${Vrms} mm/s  |  ISO Zone ${zoneTail}`,{sz:9,c:zoneC,w:'700'}));
   p.push(_plumbT(bX+ChW/2,bY+28,`MF = ${MF}  |  T = ${T}  |  Isolation = ${isolEff}%  |  Margin ${resMgn}%`,{sz:7.5,c:CC}));
   const LY=STRIP_Y+6;
   p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
@@ -29089,7 +29092,7 @@ function renderBomTablePreview(items) {
   const isBeam      = _calcType === 'Beam / Column Design';
   const isBearing   = _calcType === 'Bearing Life (L10)';
   const isBolt      = _calcType === 'Bolt Torque & Preload';
-  const calcRef = `${isET ? 'HVAC-ET' : isFC ? 'HVAC-FCU' : isRP ? 'HVAC-RPS' : isDS ? 'HVAC-DS' : isAHU ? 'HVAC-AHU' : isCoolTow ? 'HVAC-CT' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isCleanAgt ? 'FP-CAS' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLPS ? 'ELEC-LPS' : isEG ? 'ELEC-EGS' : isXFMR ? 'ELEC-XFMR' : isHarmonic ? 'ELEC-HD' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isGT ? 'PLMB-GT' : isRD ? 'PLMB-RD' : isSeptic ? 'PLMB-SEPTIC' : isDrain ? 'PLMB-DRN' : isHW ? 'PLMB-HW' : isWS ? 'PLMB-WSP' : isCAir ? 'MECH-CA' : isPipe ? 'MECH-PIPE' : isPump ? 'MECH-PUMP' : isVent ? 'MECH-VENT' : isNoise ? 'MECH-NOISE' : isVibr ? 'MECH-VIBR' : isFluPwr ? 'MECH-HYD' : isPV ? 'MECH-PV' : isHX ? 'MECH-HX' : isVBelt ? 'MECH-VBD' : isShaft ? 'MECH-SHF' : isBeam ? 'MECH-BEAM' : isBearing ? 'MECH-BRG' : isBolt ? 'MECH-BOLT' : 'MECH'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const calcRef = `${isET ? 'HVAC-ET' : isFC ? 'HVAC-FCU' : isRP ? 'HVAC-RPS' : isDS ? 'HVAC-DS' : isAHU ? 'HVAC-AHU' : isCoolTow ? 'HVAC-CT' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isCleanAgt ? 'FP-CAS' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLPS ? 'ELEC-LPS' : isEG ? 'ELEC-EGS' : isXFMR ? 'ELEC-XFMR' : isHarmonic ? 'ELEC-HD' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isGT ? 'PLMB-GT' : isRD ? 'PLMB-RD' : isSeptic ? 'PLMB-SEPTIC' : isDrain ? 'PLMB-DRN' : isHW ? 'PLMB-HW' : isWS ? 'PLMB-WSP' : isCAir ? 'MECH-CA' : isPipe ? 'MECH-PIPE' : isPump ? 'MECH-PUMP' : isVent ? 'MECH-VENT' : isNoise ? 'MECH-NOISE' : isVibr ? 'MECH-VIB' : isFluPwr ? 'MECH-HYD' : isPV ? 'MECH-PV' : isHX ? 'MECH-HX' : isVBelt ? 'MECH-VBD' : isShaft ? 'MECH-SHF' : isBeam ? 'MECH-BEAM' : isBearing ? 'MECH-BRG' : isBolt ? 'MECH-BOLT' : 'MECH'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const disciplineSystem = isET
     ? `HVAC Systems: Expansion Tank Sizing (${_lastInputs?.system_type || 'Chilled Water'}, V=${_lastResults?.system_volume_L || _lastInputs?.system_volume_L || ''}L, Fill ${_lastInputs?.fill_temp_c || 20}°C→Max ${_lastInputs?.max_temp_c || ''}°C, Head ${_lastInputs?.static_head_m || ''}m, Pmax ${_lastInputs?.max_pressure_kpa_g || ''}kPa g, Tank ${_lastResults?.selected_tank_L || ''}L bladder, α=${_lastResults?.acceptance_factor ?? ''})`
     : isFC
@@ -29453,7 +29456,7 @@ function renderSowDocPreview(sections) {
   const isBeamS      = _calcType === 'Beam / Column Design';
   const isBearingS   = _calcType === 'Bearing Life (L10)';
   const isBoltS      = _calcType === 'Bolt Torque & Preload';
-  const calcRef = `${isETS ? 'HVAC-ET' : isFCS ? 'HVAC-FCU' : isRPS ? 'HVAC-RPS' : isDSS ? 'HVAC-DS' : isAHUS ? 'HVAC-AHU' : isCTow ? 'HVAC-CT' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isCleanAgt ? 'FP-CAS' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLPSS ? 'ELEC-LPS' : isEGS ? 'ELEC-EGS' : isXFMR ? 'ELEC-XFMR' : isHarmonic ? 'ELEC-HD' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isGTS ? 'PLMB-GT' : isRDS ? 'PLMB-RD' : isSeptic ? 'PLMB-SEPTIC' : isDrain ? 'PLMB-DRN' : isHW ? 'PLMB-HW' : isWS ? 'PLMB-WSP' : isCAir ? 'MECH-CA' : isPipe ? 'MECH-PIPE' : isPump ? 'MECH-PUMP' : isVent ? 'MECH-VENT' : isNoiseS ? 'MECH-NOISE' : isVibrS ? 'MECH-VIBR' : isFluPwrS ? 'MECH-HYD' : isPVS ? 'MECH-PV' : isHXS ? 'MECH-HX' : isVBeltS ? 'MECH-VBD' : isShaftS ? 'MECH-SHF' : isBeamS ? 'MECH-BEAM' : isBearingS ? 'MECH-BRG' : isBoltS ? 'MECH-BOLT' : 'MECH'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const calcRef = `${isETS ? 'HVAC-ET' : isFCS ? 'HVAC-FCU' : isRPS ? 'HVAC-RPS' : isDSS ? 'HVAC-DS' : isAHUS ? 'HVAC-AHU' : isCTow ? 'HVAC-CT' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isCleanAgt ? 'FP-CAS' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLPSS ? 'ELEC-LPS' : isEGS ? 'ELEC-EGS' : isXFMR ? 'ELEC-XFMR' : isHarmonic ? 'ELEC-HD' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isGTS ? 'PLMB-GT' : isRDS ? 'PLMB-RD' : isSeptic ? 'PLMB-SEPTIC' : isDrain ? 'PLMB-DRN' : isHW ? 'PLMB-HW' : isWS ? 'PLMB-WSP' : isCAir ? 'MECH-CA' : isPipe ? 'MECH-PIPE' : isPump ? 'MECH-PUMP' : isVent ? 'MECH-VENT' : isNoiseS ? 'MECH-NOISE' : isVibrS ? 'MECH-VIB' : isFluPwrS ? 'MECH-HYD' : isPVS ? 'MECH-PV' : isHXS ? 'MECH-HX' : isVBeltS ? 'MECH-VBD' : isShaftS ? 'MECH-SHF' : isBeamS ? 'MECH-BEAM' : isBearingS ? 'MECH-BRG' : isBoltS ? 'MECH-BOLT' : 'MECH'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
@@ -29541,7 +29544,7 @@ function renderSowDocPreview(sections) {
     : isNoiseS
     ? `Noise / Acoustics: Space type ${_lastInputs?.space_type || ''}, Lw=${_lastInputs?.source_Lw_dB||''}dB, Lp=${Number(_lastResults?.Lp_at_distance_dB||0).toFixed(1)}dB @ ${_lastInputs?.distance_m||''}m, NC-${_lastResults?.NC_limit||''} target, ISO 9613 / DOLE D.O.13`
     : isVibrS
-    ? `Vibration Analysis: ${_lastInputs?.machine_type || ''}, n=${_lastInputs?.speed_rpm || ''}rpm, fn=${_lastResults?.natural_freq_hz || ''}Hz, Severity: ${_lastResults?.severity_zone || ''}, TR=${_lastResults?.transmissibility || ''}`
+    ? `Vibration Analysis: ${_lastResults?.machine_class || _lastInputs?.machine_class || ''}, n=${_lastInputs?.speed_rpm || ''}rpm, fn=${Number(_lastResults?.fn_Hz||0).toFixed(2)}Hz, Severity: ${_lastResults?.iso_zone || ''}, TR=${_lastResults?.transmissibility || ''}, v_rms=${Number(_lastResults?.V_rms_mm_s||0).toFixed(2)}mm/s, ISO 10816-3`
     : isFluPwrS
     ? `Fluid Power: ${_lastInputs?.system_type || 'Hydraulic'} system, Cyl Force ${Number(_lastResults?.cylinder?.F_extend_kN||0).toFixed(1)}kN, Pump ${Number(_lastResults?.pump?.P_motor_kW||0).toFixed(2)}kW, Pressure ${_lastInputs?.system_pressure_bar || ''}bar`
     : isXFMR
@@ -31843,52 +31846,141 @@ function renderVibrationReport(inputs, r, narrative) {
   const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const zoneColor = r.iso_zone?.includes('Zone A') || r.iso_zone?.includes('Zone B') ? '#2e7d32' : r.iso_zone?.includes('Zone C') ? '#f57c00' : '#c62828';
+  // Inputs for formula display
+  const massKg     = Number(inputs.mass_kg || 500);
+  const stiffness  = Number(inputs.stiffness_N_m || 200000);
+  const dampRatio  = Number(inputs.damping_ratio || 0.05);
+  const speedRpm   = Number(inputs.speed_rpm || 1450);
+  const fopHz      = Number(r.f_op_Hz || inputs.excitation_freq_hz || 10);
+  const eccentMm   = Number(inputs.eccentricity_mm || 0.1);
+  // Class-specific severity zones (ISO 10816-3 Annex)
+  const isClass1 = String(r.machine_class || inputs.machine_class || '').includes('Class I') && !String(r.machine_class || inputs.machine_class || '').includes('Class II');
+  const isClass3 = String(r.machine_class || inputs.machine_class || '').includes('Class III');
+  const zoneBC   = isClass1 ? 1.8 : isClass3 ? 4.5 : 2.8;
+  const zoneCD   = isClass1 ? 4.5 : isClass3 ? 11.0 : 7.1;
+  const zoneDmax = isClass1 ? 11.2 : isClass3 ? 28.0 : 18.0;
+
   document.getElementById('report-panel').innerHTML = `
-    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
-      <div><h1>VIBRATION ANALYSIS</h1><div style="font-size:0.8rem;color:#555;">ISO 10816-3 / ISO 20816-1 Severity Assessment</div></div>
+      <div><h1>VIBRATION ANALYSIS</h1><div style="font-size:0.8rem;color:#555;">ISO 10816-3 / ISO 20816-1 / ISO 21940-11 Severity Assessment</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
+
     <h2>Project Information</h2>
     <table>
       <tr><th style="width:30%;">Machine Tag</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
-      <tr><th>Machine Class</th><td>${escHtml(r.machine_class)}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Machine Class</th><td>${escHtml(r.machine_class || inputs.machine_class || 'Class II')}</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Calculation Standard</th><td>ISO 10816-3 / ISO 20816-1 / ISO 21940-11</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
     </table>
-    <h2>1. SDOF System Parameters</h2>
+
+    <h2>1. Objective</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || `To determine the dynamic response (natural frequency, magnification factor, transmissibility, and assessed RMS velocity) of a single-degree-of-freedom (SDOF) spring-mass-damper system representing a ${escHtml(r.machine_class || 'Class II')} rotating machine of mass ${massKg} kg supported on isolators of stiffness ${stiffness} N/m with damping ratio zeta = ${dampRatio}, excited by an unbalance force at ${fopHz} Hz (operating speed ${speedRpm} RPM); and to classify the assessed vibration severity per ISO 10816-3.`)}</p>
+
+    <h2>2. References</h2>
+    <p style="font-size:0.83rem;color:#333;">ISO 10816-3: Mechanical vibration - Evaluation of machine vibration by measurements on non-rotating parts (Class I-IV severity zones)<br>
+    ISO 20816-1: Mechanical vibration - Measurement and evaluation of machine vibration, general guidelines<br>
+    ISO 21940-11: Mechanical vibration - Rotor balancing - Tolerances for rotors with rigid behavior (G-grades)<br>
+    ISO 5348: Mechanical vibration and shock - Mechanical mounting of accelerometers<br>
+    ISO 2372: Mechanical vibration of machines (legacy severity criteria, retained for cross-reference)<br>
+    ASHRAE Applications Handbook Chapter 48: Vibration and Noise Control<br>
+    PSME Code; DOLE D.O. 13 (occupational vibration exposure limits)</p>
+
+    <h2>3. SDOF System Parameters</h2>
+    <p style="font-size:0.83rem;color:#333;">For a single-degree-of-freedom spring-mass-damper system:</p>
+    <p style="font-size:0.83rem;color:#333;">
+      Undamped natural frequency: f<sub>n</sub> = (1/2&pi;) &times; &radic;(k/m)<br>
+      = (1/2&pi;) &times; &radic;(${stiffness} / ${massKg})
+      = (1/2&pi;) &times; &radic;${(stiffness/massKg).toFixed(2)}
+      = <strong>${r.fn_Hz} Hz</strong> (${r.fn_rpm} RPM)<br>
+      Damped natural frequency: f<sub>d</sub> = f<sub>n</sub> &times; &radic;(1 - &zeta;&sup2;) = ${r.fn_Hz} &times; &radic;(1 - ${dampRatio}&sup2;) = <strong>${r.fd_Hz} Hz</strong><br>
+      Critical damping coefficient: c<sub>c</sub> = 2&radic;(km) = 2&radic;(${stiffness} &times; ${massKg}) = <strong>${r.cc_Ns_m} N&middot;s/m</strong><br>
+      Frequency ratio: r = f<sub>op</sub> / f<sub>n</sub> = ${fopHz} / ${r.fn_Hz} = <strong>${r.frequency_ratio_r}</strong>
+    </p>
     <table>
       <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
-      <tr><td>Natural frequency fn</td><td class="num"><strong>${r.fn_Hz} Hz (${r.fn_rpm} RPM)</strong></td></tr>
-      <tr><td>Damped natural frequency fd</td><td class="num">${r.fd_Hz} Hz</td></tr>
-      <tr><td>Damping ratio ζ</td><td class="num">${r.zeta} &nbsp; (Critical damping cc = ${r.cc_Ns_m} N·s/m)</td></tr>
-      <tr><td>Operating frequency</td><td class="num">${r.f_op_Hz} Hz (${escHtml(String(inputs.speed_rpm))} RPM)</td></tr>
-      <tr><td>Frequency ratio r = f_op / fn</td><td class="num"><strong>${r.frequency_ratio_r}</strong></td></tr>
+      <tr><td>Mass m</td><td class="num">${massKg} kg</td></tr>
+      <tr><td>Stiffness k</td><td class="num">${stiffness} N/m</td></tr>
+      <tr><td>Damping ratio &zeta;</td><td class="num">${dampRatio}</td></tr>
+      <tr><td>Natural frequency f<sub>n</sub></td><td class="num"><strong>${r.fn_Hz} Hz (${r.fn_rpm} RPM)</strong></td></tr>
+      <tr><td>Damped natural frequency f<sub>d</sub></td><td class="num">${r.fd_Hz} Hz</td></tr>
+      <tr><td>Operating frequency f<sub>op</sub></td><td class="num">${r.f_op_Hz} Hz (${speedRpm} RPM)</td></tr>
+      <tr><td>Frequency ratio r</td><td class="num"><strong>${r.frequency_ratio_r}</strong></td></tr>
     </table>
-    <h2>2. Dynamic Response</h2>
-    <table>
-      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
-      <tr><td>Magnification Factor (MF)</td><td class="num">${r.magnification_factor}</td></tr>
-      <tr><td>Transmissibility (TR)</td><td class="num">${r.transmissibility}</td></tr>
-      <tr><td>Isolation Efficiency</td><td class="num"><strong>${r.isolation_efficiency_pct}%</strong>: <span style="color:${r.isolation_ok ? '#2e7d32' : '#c62828'};font-weight:700;">${r.isolation_ok ? 'Isolator working (r > √2)' : 'WARN: amplifying (r < √2)'}</span></td></tr>
-      <tr><td>Resonance margin</td><td class="num"><span style="color:${r.resonance_risk ? '#c62828' : '#2e7d32'};font-weight:700;">${r.resonance_margin_pct}% from fn: ${r.resonance_risk ? 'RISK' : 'OK'}</span></td></tr>
-    </table>
-    <h2>3. Rotating Imbalance Response</h2>
+
+    <h2>4. Dynamic Response</h2>
+    <p style="font-size:0.83rem;color:#333;">For harmonic excitation of an SDOF system:</p>
+    <p style="font-size:0.83rem;color:#333;">
+      Magnification Factor: MF = 1 / &radic;[(1 - r&sup2;)&sup2; + (2&zeta;r)&sup2;]
+      = 1 / &radic;[(1 - ${r.frequency_ratio_r}&sup2;)&sup2; + (2 &times; ${dampRatio} &times; ${r.frequency_ratio_r})&sup2;]
+      = <strong>${r.magnification_factor}</strong><br>
+      Transmissibility: TR = &radic;[1 + (2&zeta;r)&sup2;] / &radic;[(1 - r&sup2;)&sup2; + (2&zeta;r)&sup2;] = <strong>${r.transmissibility}</strong><br>
+      Isolation efficiency: &eta; = (1 - TR) &times; 100% = (1 - ${r.transmissibility}) &times; 100 = <strong>${r.isolation_efficiency_pct}%</strong> &nbsp; <span style="color:${r.isolation_ok ? '#2e7d32' : '#c62828'};font-weight:700;">${r.isolation_ok ? 'isolator working (r exceeds &radic;2 = 1.414)' : 'WARN: isolator amplifying (r below &radic;2)'}</span><br>
+      Resonance margin: ${r.resonance_margin_pct}% from f<sub>n</sub> &nbsp; <span style="color:${r.resonance_risk ? '#c62828' : '#2e7d32'};font-weight:700;">${r.resonance_risk ? 'RISK: f_op within plus/minus 10% of f_n' : 'OK: f_op clear of resonance band'}</span>
+    </p>
+
+    <h2>5. Rotating Imbalance Response</h2>
+    <p style="font-size:0.83rem;color:#333;">Steady-state response to rotating unbalance force F = m&middot;e&middot;&omega;&sup2;:</p>
+    <p style="font-size:0.83rem;color:#333;">
+      Peak displacement: X = (m&middot;e/M) &times; r&sup2; &times; MF = <strong>${r.X_mm} mm</strong><br>
+      Peak velocity: V<sub>peak</sub> = X &times; &omega; = ${r.X_mm} &times; (2&pi; &times; ${fopHz}) = <strong>${r.V_peak_mm_s} mm/s</strong><br>
+      RMS velocity: V<sub>rms</sub> = V<sub>peak</sub> / &radic;2 = ${r.V_peak_mm_s} / &radic;2 = <strong>${r.V_rms_mm_s} mm/s</strong> &nbsp; (assessed value for ISO 10816-3)<br>
+      Transmitted force: F<sub>t</sub> = F<sub>excit</sub> &times; TR = <strong>${r.Ft_N} N</strong>
+    </p>
     <table>
       <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
       <tr><td>Peak displacement X</td><td class="num">${r.X_mm} mm</td></tr>
-      <tr><td>Peak velocity V_peak</td><td class="num">${r.V_peak_mm_s} mm/s</td></tr>
-      <tr><td>RMS velocity V_rms</td><td class="num"><strong>${r.V_rms_mm_s} mm/s</strong></td></tr>
-      <tr><td>Transmitted force Ft</td><td class="num">${r.Ft_N} N</td></tr>
+      <tr><td>Peak velocity V<sub>peak</sub></td><td class="num">${r.V_peak_mm_s} mm/s</td></tr>
+      <tr><td>RMS velocity V<sub>rms</sub></td><td class="num"><strong>${r.V_rms_mm_s} mm/s</strong></td></tr>
+      <tr><td>Transmitted force F<sub>t</sub></td><td class="num">${r.Ft_N} N</td></tr>
     </table>
-    <h2>4. ISO 10816-3 Severity Assessment</h2>
+
+    <h2>6. ISO 10816-3 Severity Assessment</h2>
     <div style="text-align:center;padding:1.5rem;border:2px solid ${zoneColor};border-radius:0.75rem;margin:1rem 0;">
       <div style="font-size:0.9rem;color:#555;">Assessed Velocity (RMS)</div>
-      <div style="font-size:2rem;font-weight:800;color:#162032;">${r.v_assessed_mm_s} mm/s RMS</div>
+      <div style="font-size:2rem;font-weight:800;color:#162032;">${r.v_assessed_mm_s || r.V_rms_mm_s} mm/s RMS</div>
       <div style="font-size:1rem;font-weight:700;color:${zoneColor};">${escHtml(r.iso_zone)}</div>
     </div>
-    <h2>5. Balancing Grade</h2>
-    <p style="font-size:0.83rem;color:#333;">G = e × ω = ${r.G_grade_mm_s} mm/s → <strong>${escHtml(r.balance_grade)}</strong></p>
-    <h2>6. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `${r.zone_ok ? 'Machine vibration is within acceptable limits.' : 'Vibration exceeds acceptable limits: investigate and correct.'} ${r.resonance_risk ? 'CRITICAL: operating speed is within ±10% of natural frequency: change speed or stiffness to avoid resonance.' : ''} ${!r.isolation_ok ? 'Isolation system is amplifying: verify isolator selection (r must exceed √2 ≈ 1.414).' : ''}`)}</p>
+    <p style="font-size:0.83rem;color:#333;">ISO 10816-3 severity zones for <strong>${escHtml(r.machine_class || 'Class II')}</strong>:</p>
+    <table>
+      <tr><th style="width:30%;">Zone</th><th>RMS Velocity Range</th><th>Interpretation</th></tr>
+      <tr><td>Zone A</td><td class="num">not more than ${zoneBC} mm/s</td><td>New machine - acceptable</td></tr>
+      <tr><td>Zone B</td><td class="num">${zoneBC} to ${zoneCD} mm/s</td><td>Satisfactory for long-term operation</td></tr>
+      <tr><td>Zone C</td><td class="num">${zoneCD} to ${zoneDmax} mm/s</td><td>Unsatisfactory - corrective action required</td></tr>
+      <tr><td>Zone D</td><td class="num">more than ${zoneDmax} mm/s</td><td>Damage risk - immediate shutdown</td></tr>
+    </table>
+
+    <h2>7. Balancing Grade (ISO 21940-11)</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      Permissible specific unbalance: e<sub>per</sub> = G &times; 1000 / &omega; &nbsp; (where &omega; = 2&pi; &times; n / 60 in rad/s)<br>
+      G = e &times; &omega; = ${eccentMm} mm &times; (2&pi; &times; ${speedRpm}/60) = ${eccentMm} &times; ${(2*Math.PI*speedRpm/60).toFixed(2)} rad/s = <strong>${r.G_grade_mm_s} mm/s</strong> &rarr; <strong>${escHtml(r.balance_grade)}</strong><br>
+      Common ISO 21940-11 balancing grades: G0.4 (gyroscopes, precision spindles), G1 (turbines, pumps - high precision), G2.5 (turbines, generators), G6.3 (general process machinery), G16 (drive shafts, propellers), G40 (car wheels, crankshaft drives).
+    </p>
+
+    <h2>8. Assumptions</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Linear single-degree-of-freedom (SDOF) spring-mass-damper model with viscous damping; valid for primary rigid-body modes below the first internal natural frequency of the machine structure.\n2. Harmonic (sinusoidal) excitation at the operating speed; multiple harmonics and broadband excitation require separate analysis.\n3. Rigid foundation below the isolation system; foundation flexibility would lower the actual fn and increase MF.\n4. Constant mass, stiffness, and damping over the operating range; nonlinear isolators (rubber) may show 10 to 20 percent stiffness change with load and temperature.\n5. Eccentricity e = ${eccentMm} mm assumed for unbalance response; replace with measured runout or balancing-machine residual unbalance for actual machines.\n6. ISO 10816-3 severity zones apply to bearing-housing measurements at the machine; for cantilevered or remote sensor placement, apply correction factors per ISO 20816-1.\n7. Resonance band defined as plus/minus 10 percent of fn; designs targeting the f_op below 75 percent of fn or above 125 percent of fn typically achieve adequate isolation.`)}</p>
+
+    <h2>9. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. ${r.zone_ok ? `Vibration severity ${r.iso_zone} - machine is within acceptable operating limits per ISO 10816-3 for the stated machine class.` : `Vibration severity ${r.iso_zone} EXCEEDS acceptable limits per ISO 10816-3 - investigate root cause (unbalance, misalignment, resonance, bearing wear) and correct before continued operation.`}\n2. ${r.resonance_risk ? 'CRITICAL: operating speed is within plus/minus 10 percent of natural frequency. Change operating speed by not less than 25 percent OR change isolator stiffness to shift fn outside the resonance band before commissioning.' : `Resonance margin ${r.resonance_margin_pct} percent from fn - design clear of resonance band; no immediate concern.`}\n3. ${r.isolation_ok ? `Isolator selection is effective: TR = ${r.transmissibility} gives ${r.isolation_efficiency_pct} percent isolation. Verify deflection at rated load matches data sheet.` : 'Isolator is amplifying transmission (r below sqrt(2)). Reselect softer isolators to lower fn until r exceeds 1.414 (typically r in 2.5 to 5 range gives 85 to 95 percent isolation).'}\n4. Field-balance all rotating components to balance grade ${escHtml(r.balance_grade)} per ISO 21940-11 before commissioning. Document residual unbalance on a balancing certificate.\n5. Verify shaft alignment within plus/minus 0.05 mm TIR (angular and parallel) using laser shaft alignment kit; misalignment is the second leading cause of elevated vibration after unbalance.\n6. Capture commissioning baseline: FFT spectrum, time waveform, and ISO 10816-3 zone classification at all four bearing locations using a portable vibration analyzer. Store baseline in CMMS for monthly trending.\n7. Install permanent accelerometers per ISO 5348 (epoxy-bonded stud mount, surface flatness within 0.025 mm/m) at horizontal, vertical, and axial directions on each bearing housing. Wire to a 4 to 20 mA transmitter feeding the plant DCS/SCADA.\n8. Configure DCS alarm thresholds: alert at Zone B/C boundary (${zoneCD} mm/s), shutdown at Zone D (${zoneDmax} mm/s); enable trending to detect bearing degradation and resonance shifts over time.\n9. Schedule re-balance and alignment verification every 12 months OR after any major maintenance event (bearing replacement, coupling change, foundation grouting repair).\n10. A PRC-licensed Mechanical Engineer must sign and seal this calculation and the commissioning vibration baseline report before placing the machine into routine operation.`)}</p>
+
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Prepared by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Checked by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Approved by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+    </div>
   `;
   showReport();
 }

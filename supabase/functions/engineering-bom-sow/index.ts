@@ -4395,35 +4395,95 @@ async function vibrationAnalysisBomSowAgent(
   results: Record<string, unknown>
 ): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
   const project     = inputs.project_name    || "Vibration Assessment Project";
-  const machClass   = String(results.machine_class || "Class II");
+  const machClass   = String(results.machine_class || inputs.machine_class || "Class II");
   const isoZone     = String(results.iso_zone || "Zone B");
-  const vRms        = Number(results.v_assessed_mm_s || 0).toFixed(2);
+  // Strip "Zone " prefix for places where we already prefix
+  const isoZoneTail = isoZone.replace(/^Zone\s+/i, '');
+  const vRms        = Number(results.V_rms_mm_s || results.v_assessed_mm_s || 0).toFixed(2);
   const fnHz        = Number(results.fn_Hz   || 0).toFixed(2);
+  const fopHz       = Number(results.f_op_Hz || inputs.excitation_freq_hz || 10).toFixed(2);
+  const ratioR      = Number(results.frequency_ratio_r || 0).toFixed(2);
   const isolType    = String(results.isolator_type || inputs.isolator_type || "Rubber mount (medium)");
   const isolOk      = results.isolation_ok   ?? true;
+  const isolEff     = Number(results.isolation_efficiency_pct || 0).toFixed(1);
   const resRisk     = results.resonance_risk ?? false;
   const TR          = Number(results.transmissibility || 0).toFixed(3);
+  const MF          = Number(results.magnification_factor || 0).toFixed(3);
   const gGrade      = String(results.balance_grade || "G6.3");
+  const massKg      = Number(inputs.mass_kg || 500);
+  const speedRpm    = Number(inputs.speed_rpm || 1450);
+  const stiffness   = Number(inputs.stiffness_N_m || 200000);
+  const damping     = Number(inputs.damping_ratio || 0.05);
+  // Per-isolator load: mass distributed across 4 mount points
+  const isolatorLoadKg = Math.round(massKg / 4);
+  // Inertia base mass: ASHRAE/SMACNA recommend 3-5x equipment mass for rotating equipment
+  const inertiaBaseMassKg = massKg * 3;
+  // Isolator stiffness for given fn: k = (2*pi*fn)^2 * m, divided by 4 mounts
+  const stiffnessPerIsoNmm = Math.round(Math.pow(2 * Math.PI * Number(fnHz), 2) * massKg / 4 / 1000);  // N/mm
+  // SS conduit length estimate: 5m per transducer
+  const conduitLengthM = 10;
 
-  const prompt = `You are a senior Rotating Equipment / Mechanical Engineer in the Philippines preparing a BOM and SOW for vibration isolation and condition monitoring per ISO 10816-3, ISO 20816-1, and ISO 21940-11.
+  const asciiDirective = `IMPORTANT: All output text must be ASCII only. Do NOT use Unicode characters such as multiplication sign x, en-dash, em-dash, less-than-or-equal, greater-than-or-equal, sub/superscripts, Greek letters (zeta, omega), or middle-dot. Use "x" for multiplication, "to" for ranges (e.g. "4 to 20 mA"), "not less than" for ge, "not more than" for le, "deg C" for temperature, "deg" for angles, "Hz" for frequency, "mm/s" for velocity, "Phi" or "dia" for diameter prefix.`;
+
+  const prompt = `You are a senior Rotating Equipment / Mechanical Engineer in the Philippines preparing a Bill of Materials (BOM) and Scope of Works (SOW) for vibration isolation and condition monitoring per ISO 10816-3, ISO 20816-1, and ISO 21940-11.
+
+${asciiDirective}
 
 Project: ${project}
-Machine class: ${machClass}
-Assessed vibration: ${vRms} mm/s RMS: ${isoZone}
-Natural frequency fn: ${fnHz} Hz
-Isolator: ${isolType} | Transmissibility TR: ${TR} (${isolOk ? 'Isolation effective' : 'WARN: amplifying'})
-Resonance risk: ${resRisk ? 'YES: within ±10% of fn' : 'No'}
-Balancing grade: ${gGrade}
+Machine class: ${machClass} (per ISO 10816-3 Annex)
+Mass: ${massKg} kg | Operating speed: ${speedRpm} RPM | Excitation freq: ${fopHz} Hz
+Stiffness k: ${stiffness} N/m | Damping ratio zeta: ${damping}
+Natural frequency fn: ${fnHz} Hz | Frequency ratio r = f_op / fn: ${ratioR}
+Magnification factor MF: ${MF} | Transmissibility TR: ${TR}
+Isolation efficiency: ${isolEff} percent (${isolOk ? 'isolator effective, r exceeds sqrt(2)' : 'WARN: isolator amplifying, r below sqrt(2)'})
+Assessed velocity v_rms: ${vRms} mm/s -> ${isoZone}
+Resonance risk: ${resRisk ? 'YES: operating speed within plus/minus 10 percent of fn' : 'No'}
+Balancing grade target: ${gGrade}
+Per-isolator load (4 mount points): ${isolatorLoadKg} kg
+Inertia base recommended mass: ${inertiaBaseMassKg} kg (3 x machine mass per ASHRAE)
+Isolator stiffness target: ${stiffnessPerIsoNmm} N/mm per mount
 
 Generate a JSON object with exactly two keys:
 
 "bom_items": array of 10 objects with { "description", "specification", "unit", "qty", "remarks" }
-Cover: (1) Vibration isolators (${isolType}, rated load ≥ machine mass/4, per ISO 10816), (2) Inertia base frame (concrete-filled steel frame, mass ≥ 3× machine mass), (3) Vibration transducers (accelerometer, 100mV/g, 4–20mA output), (4) Vibration monitoring transmitter (continuous 4–20mA to DCS/SCADA), (5) Dynamic balancing (field balancing kit: trial weights, phase reference, software), (6) Anti-vibration pads (neoprene cork sandwich, 50mm thk), (7) Flexible pipe connectors (EPDM bellows, rated for operating pressure), (8) Flexible electrical conduit (for instrumentation cables), (9) Anchor bolts with vibration-resistant washers, (10) Vibration data collector and analyzer (portable, ISO 10816-3 assessment built-in).
+
+Per-item EXACT structure with description="short item name only" and specification="full standard + dimensions + grade + numeric ratings":
+
+(1) description="Vibration Isolator", specification="${isolType} per ISO 10816, rated load not less than ${isolatorLoadKg} kg per mount (machine mass ${massKg} kg / 4 mount points), durometer 50 to 60 Shore A, deflection 6 to 12 mm at rated load, target vertical stiffness ${stiffnessPerIsoNmm} N/mm to achieve fn = ${fnHz} Hz, mounting bolt M16 with anti-vibration washer", qty=4, unit="piece"
+
+(2) description="Inertia Base Frame", specification="concrete-filled welded steel frame, mass not less than ${inertiaBaseMassKg} kg (3 x machine mass per ASHRAE Applications Handbook Ch 48), structural ASTM A36 steel channel C200 x 76 mm minimum, concrete fill f'c=21 MPa, anchor bolts M20 cast in for machine mounting, isolator pockets at 4 corners", qty=1, unit="piece"
+
+(3) description="Accelerometer (Vibration Transducer)", specification="piezoelectric accelerometer per ISO 5348 mounting standard, sensitivity 100 mV/g, frequency response 0.5 to 10000 Hz (plus/minus 5 percent), temperature range -50 to +120 deg C, IEPE-powered constant-current 2 to 10 mA, top-mount stainless steel housing 1/4-28 UNF stud, IP67 rated", qty=2, unit="piece"
+
+(4) description="Vibration Monitoring Transmitter", specification="continuous 2-wire 4 to 20 mA loop-powered vibration transmitter per ISO 20816-1, accepts IEPE accelerometer input, RMS velocity output 0 to 25 mm/s, RS-485 Modbus secondary output to plant DCS/SCADA, NEMA 4X enclosure, 24 VDC input, ATEX Zone 2 if hazardous area", qty=1, unit="piece"
+
+(5) description="Field Dynamic Balancing Kit", specification="portable single-plane and two-plane dynamic balancing instrument per ISO 21940-11, includes trial-weight set (5 g to 500 g graduated), phase-reference photo-tach, magnetic mounting bases, calibration certificate traceable to NIST, target balancing grade ${gGrade}", qty=1, unit="set"
+
+(6) description="Anti-Vibration Pad", specification="neoprene-cork-neoprene sandwich pad, 50 mm thk x 100 mm x 100 mm, durometer 40 to 50 Shore A, natural frequency fn = 8 to 12 Hz under rated load, oil and water resistant, temperature range -30 to +80 deg C; supplementary isolation under inertia base", qty=4, unit="piece"
+
+(7) description="Flexible Pipe Connector", specification="EPDM rubber expansion joint with floating flanges, ANSI Class 150 RF, sized to match process pipe diameter, working pressure not less than ${Math.max(10, Math.round(Number(inputs.system_pressure_bar || 10)))} bar, working temperature not more than 100 deg C, length 250 mm minimum to absorb 10 mm axial movement at machine inlet/outlet", qty=2, unit="piece"
+
+(8) description="Flexible Electrical Conduit", specification="liquid-tight flexible metal conduit (LFMC) per UL 360, 3/4 inch trade size, stainless steel core with PVC jacket, IP67, with EMI/RFI shielding for 4 to 20 mA signal cables, length sized to allow 50 mm of machine movement at all 4 mounting points", qty=${conduitLengthM}, unit="m"
+
+(9) description="Anchor Bolt with Vibration Washer", specification="M20 ASTM F1554 Grade 36 anchor rod, 250 mm embedment into inertia base concrete, supplied with hex nut, hardened washer (F436), and vibration-isolation Belleville washer or wave washer to maintain preload under cyclic loading", qty=8, unit="set"
+
+(10) description="Vibration Data Collector / Analyzer", specification="portable handheld vibration analyzer with built-in ISO 10816-3 zone assessment, accepts IEPE accelerometer input, FFT spectrum analyzer 100 to 10000 line resolution, time-waveform capture, on-board database for trending baseline measurements, intrinsically safe certified for hazardous areas, calibration certificate traceable to NIST", qty=1, unit="piece"
+
+CRITICAL: Every "specification" field MUST be fully populated with the actual numeric values shown above (${massKg} kg, ${fnHz} Hz, ${isolatorLoadKg} kg, ${inertiaBaseMassKg} kg, etc.) — never blank, never just the item name.
 
 "sow_sections": array of 5 objects with { "section_no", "title", "content" }
-Sections: 1.0 Scope (install vibration isolation and monitoring for ${machClass} machine achieving ${isoZone} per ISO 10816-3), 2.0 Standards (ISO 10816-3, ISO 20816-1, ISO 21940-11 balancing, ISO 5348 transducer mounting), 3.0 Isolation System Installation (inertia base sizing, isolator selection and placement, torque isolator mounting bolts to manufacturer specification), 4.0 Balancing and Alignment (field dynamic balance to ${gGrade} per ISO 21940-11, shaft alignment ≤0.05mm TIR angular and parallel, baseline vibration measurement after commissioning), 5.0 Monitoring and Acceptance (continuous monitoring wired to plant DCS, alert at Zone B/C boundary, shutdown at Zone D, documented baseline per ISO 10816-3).
 
-Content fields must start "The Contractor shall..." Reference v_rms=${vRms}mm/s. Return ONLY the JSON. No markdown.`;
+Section 1.0 Scope: state the contractor shall furnish, install, balance, and commission a vibration isolation and condition-monitoring system for a ${machClass} rotating machine (mass ${massKg} kg, operating speed ${speedRpm} RPM, fn = ${fnHz} Hz, frequency ratio r = ${ratioR}) achieving ISO 10816-3 ${isoZone} severity (assessed v_rms = ${vRms} mm/s) with isolation efficiency not less than ${isolEff} percent (TR = ${TR}). Include inertia base, ${isolType.toLowerCase()} isolators at 4 mount points, accelerometer instrumentation, continuous transmitter wired to plant DCS/SCADA, and field dynamic balancing per ISO 21940-11.
+
+Section 2.0 Standards: cite ISO 10816-3 (Mechanical vibration - Evaluation of machine vibration by measurements on non-rotating parts), ISO 20816-1 (Mechanical vibration - Measurement and evaluation of machine vibration, general guidelines), ISO 21940-11 (Mechanical vibration - Rotor balancing - Procedures and tolerances for rotors with rigid behavior), ISO 5348 (Mechanical vibration and shock - Mechanical mounting of accelerometers), ISO 2372 (legacy reference - severity criteria, retained for cross-reference), and ASHRAE Applications Handbook Chapter 48 (vibration and noise control for HVAC and rotating equipment), plus PSME Code and DOLE D.O. 13 occupational vibration exposure limits.
+
+Section 3.0 Isolation System Installation: size the inertia base to not less than ${inertiaBaseMassKg} kg (3 x machine mass per ASHRAE) and pour with f'c = 21 MPa concrete cured 7 days minimum before isolator installation. Select ${isolType.toLowerCase()} isolators rated not less than ${isolatorLoadKg} kg per mount (machine mass / 4) with target vertical stiffness ${stiffnessPerIsoNmm} N/mm to achieve natural frequency fn = ${fnHz} Hz and frequency ratio r = ${ratioR} (must exceed sqrt(2) = 1.414 for effective isolation). Torque isolator mounting bolts to manufacturer specification (typically 100 to 200 Nm for M16); verify isolator deflection at 50 percent and 100 percent load before machine startup.
+
+Section 4.0 Balancing and Alignment: perform field dynamic balancing of all rotating components to balance grade ${gGrade} per ISO 21940-11 using a portable single- or two-plane balancer (BOM Item 5); record initial unbalance, trial-weight response, and final residual unbalance on a balancing certificate. Verify shaft alignment within not more than 0.05 mm TIR (angular and parallel) using laser shaft alignment kit. Capture baseline vibration measurement after balance and alignment using BOM Item 10 vibration analyzer; record FFT spectrum, time waveform, and ISO 10816-3 zone classification at all four bearing locations.
+
+Section 5.0 Monitoring and Acceptance: install accelerometers (BOM Item 3) at all four bearing locations per ISO 5348 mounting practice (epoxy-bonded stud mount, surface flatness not more than 0.025 mm/m). Wire each accelerometer to the vibration transmitter (BOM Item 4) via flexible conduit (BOM Item 8) for protection against machine micro-movement. Provide continuous 4 to 20 mA signals to plant DCS/SCADA with the following alert/shutdown thresholds per ISO 10816-3 Class ${machClass.replace(/[^IVX]/g, '') || 'II'}: alert at Zone B/C boundary (${(machClass.includes('I') && !machClass.includes('II')) ? '4.5' : machClass.includes('III') ? '7.1' : '4.5'} mm/s), shutdown at Zone D (${machClass.includes('III') ? '11.0' : machClass.includes('IV') ? '18.0' : '11.0'} mm/s). Document the commissioning baseline (FFT spectrum, time waveform, zone classification) and require monthly trending against the baseline.
+
+Each "content" field MUST start with "The Contractor shall..." and use ASCII text only. Return ONLY the JSON. No markdown.`;
 
   const raw = await callGroq(prompt);
   const parsed = JSON.parse(raw);
