@@ -22504,16 +22504,22 @@ function buildRefrigPipeSVG(inputs, results) {
   // ── DISCHARGE LINE (red) — high pressure hot vapor from compressor to condenser ─
   const DSY = DIS_PORT_Y;
   // ODU discharge port → routing loop ABOVE suction
-  const DIS_ROUTE_Y = 62;
-  p.push(HL(OU_X+OU_W+5, DSY, PIPE_BEND+30, 3.5, DIS));
-  p.push(VL(PIPE_BEND+30, DSY, DIS_ROUTE_Y, 3.5, DIS));
-  // Discharge goes back INTO ODU condenser at a higher level
-  // In our schematic we just show it returning to the condenser via the ODU body
-  p.push(T((OU_X+OU_W + PIPE_BEND+30)/2, DSY-10, `DISCHARGE LINE  OD ${disOD} mm  v=${disV} m/s  ${disOk?'OK':'FAIL'}`, {sz:7.5, c:DIS, w:'700'}));
-  p.push(`<rect x="${OU_X+OU_W+8}" y="${DSY-14}" width="180" height="20" rx="3" fill="white" stroke="${disOk?AO:'#c62828'}" stroke-width="1.2"/>`);
-  p.push(T(OU_X+OU_W+98, DSY-4, `OD ${disOD} mm  |  v=${disV} m/s  |  dT=${disDT}K`, {sz:7, c:DIS, w:'700'}));
-  p.push(T(OU_X+OU_W+98, DSY+6, `ASTM B280 ACR Cu  ${disOk?'OK':'FAIL'}`, {sz:7, c:disOk?SC:'#c62828'}));
+  const DIS_ROUTE_Y    = 62;
+  const DIS_RISER_X    = PIPE_BEND + 30;            // = 290 (vertical riser x)
+  p.push(HL(OU_X+OU_W+5, DSY, DIS_RISER_X, 3.5, DIS));
+  p.push(VL(DIS_RISER_X, DSY, DIS_ROUTE_Y, 3.5, DIS));
   p.push(Arrow(OU_X+OU_W+8, DSY, 'right', DIS, 10));
+  p.push(Arrow(DIS_RISER_X, DIS_ROUTE_Y+10, 'up', DIS, 10));
+
+  // Annotation alongside the vertical riser — clear band, no overlap with SUC line or SV-201S
+  const DIS_ANN_X = DIS_RISER_X + 90;               // = 380
+  const DIS_ANN_Y = (DSY + DIS_ROUTE_Y) / 2;        // midway up riser (~131)
+  p.push(`<rect x="${DIS_ANN_X-72}" y="${DIS_ANN_Y-22}" width="144" height="44" rx="3" fill="white" stroke="${disOk?AO:'#c62828'}" stroke-width="1.2"/>`);
+  p.push(T(DIS_ANN_X, DIS_ANN_Y-10, `DISCHARGE LINE`, {sz:7.5, c:DIS, w:'700'}));
+  p.push(T(DIS_ANN_X, DIS_ANN_Y+2,  `OD ${disOD} mm  |  v=${disV} m/s`, {sz:7, c:DIS, w:'700'}));
+  p.push(T(DIS_ANN_X, DIS_ANN_Y+13, `dT=${disDT}K  |  ASTM B280 ${disOk?'OK':'FAIL'}`, {sz:7, c:disOk?SC:'#c62828'}));
+  // Leader line from annotation to riser
+  p.push(`<line x1="${DIS_ANN_X-72}" y1="${DIS_ANN_Y}" x2="${DIS_RISER_X+5}" y2="${DIS_ANN_Y}" stroke="${SC}" stroke-width="0.8" stroke-dasharray="3 2"/>`);
 
   // ── LIQUID LINE (green) — sub-cooled liquid to TXV ────────────────────────
   const LY = LIQ_PORT_Y;
@@ -22565,8 +22571,9 @@ function buildRefrigPipeSVG(inputs, results) {
   p.push(Bubble(SV_SUC_X-60, IDU_SUC_Y-66, 'TIT', '201', true, SUC));
   p.push(T(SV_SUC_X-60, IDU_SUC_Y-86, `${evapT}°C`, {sz:7.5, c:SUC, w:'700'}));
 
-  // Discharge pressure/temperature (TIT/PIT-202)
-  const DPT_X = OU_X+OU_W + 30;
+  // Discharge pressure/temperature (TIT/PIT-202) — placed INSIDE ODU (left of port)
+  // to stay clear of LIQ port labels at x=218 below
+  const DPT_X = OU_X + OU_W - 30;
   p.push(`<circle cx="${DPT_X}" cy="${DIS_PORT_Y}" r="4" fill="${DIS}"/>`);
   p.push(DL(DPT_X, DIS_PORT_Y+4, DPT_X, DIS_PORT_Y+42));
   p.push(Bubble(DPT_X, DIS_PORT_Y+58, 'TIT', '202', true, DIS));
