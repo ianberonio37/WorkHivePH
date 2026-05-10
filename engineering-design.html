@@ -26413,7 +26413,7 @@ function buildPressureVesselSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`PRESSURE VESSEL — Ø${OD}mm  |  MAWP ${mawpBar} bar  |  ${mat}  |  ASME BPVC Sec.VIII`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`PRESSURE VESSEL - Ø${OD}mm  |  MAWP ${mawpBar} bar  |  ${mat}  |  ASME BPVC Sec.VIII`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Vessel cross-section (elevation)
   const VX=80,VY=75,VW=420,VH=160,VR=20;
@@ -31671,34 +31671,112 @@ function renderPressureVesselReport(inputs, r, narrative) {
       <tr><td>Joint Efficiency E</td><td class="num">${r.joint_efficiency}</td></tr>
       <tr><td>Corrosion Allowance</td><td class="num">${r.corrosion_allowance_mm} mm</td></tr>
     </table>
-    <h2>2. Shell Thickness (UG-27)</h2>
-    <p style="font-size:0.83rem;color:#333;">t = P×R / (S×E − 0.6P) = ${r.design_pressure_MPa} × ${r.inner_diameter_mm/2} / (${r.allowable_stress_MPa} × ${r.joint_efficiency} − 0.6 × ${r.design_pressure_MPa})<br>
-    t_min = <strong>${r.t_shell_min_mm} mm</strong> + CA ${r.corrosion_allowance_mm} mm = ${r.t_shell_required_mm} mm → <strong>t_actual = ${r.t_shell_actual_mm} mm</strong> (std plate)</p>
-    <h2>3. MAWP at Actual Thickness</h2>
-    <p style="font-size:0.83rem;color:#333;">MAWP = S×E×t_net / (R + 0.6×t_net) = <strong>${r.mawp_bar} bar</strong> &nbsp; ${ok(r.mawp_ok)}</p>
-    <h2>4. Head Thickness</h2>
-    <p style="font-size:0.83rem;color:#333;">t_head_min = ${r.t_head_min_mm} mm → t_head_actual = <strong>${r.t_head_actual_mm} mm</strong></p>
-    <h2>5. Hydrostatic Test Pressure (UG-99b)</h2>
-    <p style="font-size:0.83rem;color:#333;">P_test = 1.3 × MAWP = 1.3 × ${r.mawp_bar} = <strong>${r.hydro_test_bar} bar</strong></p>
+    <h2>2. Shell Thickness (ASME VIII-1 UG-27)</h2>
+    <p style="font-size:0.83rem;color:#333;">For a cylindrical shell under internal pressure, the minimum required thickness is:</p>
+    <p style="font-size:0.83rem;color:#333;">
+      t<sub>min</sub> = P &times; R / (S &times; E &minus; 0.6 P) &nbsp; <em>(UG-27(c)(1))</em><br>
+      where R = ID/2 = ${r.inner_diameter_mm}/2 = <strong>${r.inner_diameter_mm/2} mm</strong>, P = ${r.design_pressure_MPa} MPa, S = ${r.allowable_stress_MPa} MPa, E = ${r.joint_efficiency}<br>
+      t<sub>min</sub> = ${r.design_pressure_MPa} &times; ${r.inner_diameter_mm/2} / (${r.allowable_stress_MPa} &times; ${r.joint_efficiency} &minus; 0.6 &times; ${r.design_pressure_MPa})
+      = ${r.design_pressure_MPa * r.inner_diameter_mm/2} / ${(r.allowable_stress_MPa * r.joint_efficiency - 0.6 * r.design_pressure_MPa).toFixed(3)}
+      = <strong>${r.t_shell_min_mm} mm</strong><br>
+      t<sub>required</sub> = t<sub>min</sub> + CA = ${r.t_shell_min_mm} + ${r.corrosion_allowance_mm} = <strong>${r.t_shell_required_mm} mm</strong><br>
+      t<sub>actual</sub> = next standard plate &ge; t<sub>required</sub> = <strong>${r.t_shell_actual_mm} mm</strong> (std plate)
+    </p>
+
+    <h2>3. MAWP at Actual Thickness (UG-27 rearranged)</h2>
+    <p style="font-size:0.83rem;color:#333;">Compute the maximum allowable working pressure at t<sub>actual</sub> with corrosion allowance subtracted (t<sub>net</sub> = t<sub>actual</sub> &minus; CA):</p>
+    <p style="font-size:0.83rem;color:#333;">
+      t<sub>net</sub> = t<sub>actual</sub> &minus; CA = ${r.t_shell_actual_mm} &minus; ${r.corrosion_allowance_mm} = <strong>${(Number(r.t_shell_actual_mm) - Number(r.corrosion_allowance_mm)).toFixed(2)} mm</strong><br>
+      MAWP = S &times; E &times; t<sub>net</sub> / (R + 0.6 &times; t<sub>net</sub>)<br>
+      = ${r.allowable_stress_MPa} &times; ${r.joint_efficiency} &times; ${(Number(r.t_shell_actual_mm) - Number(r.corrosion_allowance_mm)).toFixed(2)} / (${r.inner_diameter_mm/2} + 0.6 &times; ${(Number(r.t_shell_actual_mm) - Number(r.corrosion_allowance_mm)).toFixed(2)})<br>
+      = <strong>${r.mawp_MPa} MPa = ${r.mawp_bar} bar</strong> &nbsp; ${ok(r.mawp_ok)}<br>
+      Check: MAWP (${r.mawp_bar} bar) ${r.mawp_ok ? 'not less than' : 'LESS THAN'} P<sub>design</sub> (${r.design_pressure_bar} bar) - ${r.mawp_ok ? 'vessel adequately rated' : 'INADEQUATE: increase t_actual or reduce design pressure'}
+    </p>
+
+    <h2>4. Head Thickness (UG-32)</h2>
+    <p style="font-size:0.83rem;color:#333;">For a <strong>${escHtml(r.head_type)}</strong> head under internal pressure:</p>
+    <p style="font-size:0.83rem;color:#333;">
+      ${(() => {
+        const ht = String(r.head_type || '');
+        if (ht.includes('Ellipsoidal')) {
+          return `t<sub>head,min</sub> = P &times; D / (2 &times; S &times; E &minus; 0.2 P) &nbsp; <em>(UG-32(d), 2:1 ellipsoidal)</em><br>
+          where D = ID = ${r.inner_diameter_mm} mm<br>
+          t<sub>head,min</sub> = ${r.design_pressure_MPa} &times; ${r.inner_diameter_mm} / (2 &times; ${r.allowable_stress_MPa} &times; ${r.joint_efficiency} &minus; 0.2 &times; ${r.design_pressure_MPa})
+          = <strong>${r.t_head_min_mm} mm</strong>`;
+        }
+        if (ht.includes('Hemispherical')) {
+          return `t<sub>head,min</sub> = P &times; R / (2 &times; S &times; E &minus; 0.2 P) &nbsp; <em>(UG-32(c), hemispherical)</em><br>
+          where R = ID/2 = ${r.inner_diameter_mm/2} mm<br>
+          t<sub>head,min</sub> = ${r.design_pressure_MPa} &times; ${r.inner_diameter_mm/2} / (2 &times; ${r.allowable_stress_MPa} &times; ${r.joint_efficiency} &minus; 0.2 &times; ${r.design_pressure_MPa})
+          = <strong>${r.t_head_min_mm} mm</strong>`;
+        }
+        if (ht.includes('Torispherical')) {
+          return `t<sub>head,min</sub> = 0.885 &times; P &times; L / (S &times; E &minus; 0.1 P) &nbsp; <em>(UG-32(e), torispherical)</em><br>
+          t<sub>head,min</sub> = <strong>${r.t_head_min_mm} mm</strong>`;
+        }
+        return `t<sub>head,min</sub> = d &times; C &times; &radic;(P / SE) &nbsp; <em>(UG-34, flat head)</em><br>
+        t<sub>head,min</sub> = <strong>${r.t_head_min_mm} mm</strong>`;
+      })()}<br>
+      t<sub>head,required</sub> = t<sub>head,min</sub> + CA = ${r.t_head_min_mm} + ${r.corrosion_allowance_mm} = ${r.t_head_required_mm} mm<br>
+      t<sub>head,actual</sub> = next standard plate = <strong>${r.t_head_actual_mm} mm</strong>
+    </p>
+
+    <h2>5. Hydrostatic Test Pressure (UG-99(b))</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      P<sub>test</sub> = 1.3 &times; MAWP &times; (S<sub>test</sub>/S<sub>design</sub>) &nbsp; <em>(UG-99(b))</em><br>
+      For test temperature equal to design (S<sub>test</sub>/S<sub>design</sub> = 1.0):<br>
+      P<sub>test</sub> = 1.3 &times; ${r.mawp_bar} = <strong>${r.hydro_test_bar} bar = ${r.hydro_test_MPa} MPa</strong><br>
+      Hold time: not less than 30 minutes after test pressure reached. Test water temperature not less than 17 deg C above MDMT. AI witness required.
+    </p>
+
     <h2>6. Nozzle Reinforcement (UG-37)</h2>
+    <p style="font-size:0.83rem;color:#333;">For each ${r.nozzle_diameter_mm} mm nozzle, compute reinforcement areas per UG-37:</p>
+    <p style="font-size:0.83rem;color:#333;">
+      A<sub>required</sub> = d &times; t<sub>r,shell</sub> &nbsp; <em>(area removed from shell by nozzle opening)</em><br>
+      where d = nozzle ID = ${r.nozzle_diameter_mm} mm, t<sub>r,shell</sub> = ${r.t_shell_min_mm} mm (per UG-27 above)<br>
+      A<sub>required</sub> = ${r.nozzle_diameter_mm} &times; ${r.t_shell_min_mm} = <strong>${r.nozzle_A_required_mm2} mm&sup2;</strong><br>
+      A<sub>available</sub> = (t<sub>actual</sub> &minus; t<sub>r</sub>) &times; (effective shell length) &nbsp; <em>(excess shell thickness within reinforcement zone)</em><br>
+      A<sub>available</sub> = <strong>${r.nozzle_A_available_mm2} mm&sup2;</strong>
+    </p>
     <table>
       <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
-      <tr><td>Nozzle Diameter</td><td class="num">${r.nozzle_diameter_mm} mm (${r.n_nozzles} nozzles)</td></tr>
-      <tr><td>A_required</td><td class="num">${r.nozzle_A_required_mm2} mm²</td></tr>
-      <tr><td>A_available (excess shell)</td><td class="num">${r.nozzle_A_available_mm2} mm²</td></tr>
-      <tr><td>Reinforcement Pad</td><td class="num">${r.nozzle_reinforcement_pad_required ? `REQUIRED: A_pad ≥ ${r.nozzle_A_pad_required_mm2} mm²` : 'Not required'}</td></tr>
+      <tr><td>Nozzle quantity</td><td class="num">${r.n_nozzles} nozzles &times; ${r.nozzle_diameter_mm} mm dia</td></tr>
+      <tr><td>A<sub>required</sub></td><td class="num">${r.nozzle_A_required_mm2} mm&sup2;</td></tr>
+      <tr><td>A<sub>available</sub> (excess shell)</td><td class="num">${r.nozzle_A_available_mm2} mm&sup2;</td></tr>
+      <tr><td>Reinforcement Pad</td><td class="num"><span style="font-weight:700;color:${r.nozzle_reinforcement_pad_required ? '#c62828' : '#2e7d32'};">${r.nozzle_reinforcement_pad_required ? `REQUIRED: A_pad not less than ${r.nozzle_A_pad_required_mm2} mm&sup2;` : 'NOT required (excess shell area covers requirement)'}</span></td></tr>
     </table>
+
     <h2>7. Weight Summary</h2>
     <table>
       <tr><th style="width:50%;">Item</th><th>Value</th></tr>
-      <tr><td>OD (shell + 2t)</td><td class="num">${r.outer_diameter_mm} mm</td></tr>
-      <tr><td>Empty Weight</td><td class="num">${r.weight_empty_kg} kg</td></tr>
+      <tr><td>OD (shell + 2t<sub>actual</sub>)</td><td class="num">${r.outer_diameter_mm} mm</td></tr>
+      <tr><td>Empty Weight (shell + 2 heads + nozzles)</td><td class="num">${r.weight_empty_kg} kg</td></tr>
       <tr><td>Hydro Test Weight (water-filled)</td><td class="num">${r.weight_hydro_kg} kg</td></tr>
     </table>
+
     <h2>8. Code Compliance</h2>
-    ${(r.code_notes || []).map(n => `<p style="font-size:0.83rem;color:#333;margin:0.2rem 0;">• ${escHtml(n)}</p>`).join('')}
+    ${(r.code_notes || []).map(n => `<p style="font-size:0.83rem;color:#333;margin:0.2rem 0;">- ${escHtml(n)}</p>`).join('')}
+
     <h2>9. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `ASME U-stamp and Authorized Inspector (AI) oversight required. DOLE pressure vessel registration required before operation (PD 856). All pressure welds per UW-11.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Specify ${r.material} plate ${r.t_shell_actual_mm} mm thk (shell) and ${r.t_head_actual_mm} mm thk (${r.head_type} heads). Mill certificates and material test reports (MTR) traceable to heat number required.\n2. Welding: qualify all WPS/WPQ per ASME Section IX before fabrication. ${Number(r.t_shell_actual_mm) > 38 ? `Post-weld heat treatment (PWHT) REQUIRED per UCS-56 for shell t = ${r.t_shell_actual_mm} mm exceeds 38 mm carbon steel.` : `PWHT not required for shell t = ${r.t_shell_actual_mm} mm (less than 38 mm threshold per UCS-56).`}\n3. NDE: ${r.joint_efficiency >= 1.0 ? '100 percent radiographic testing (RT) on all longitudinal and circumferential pressure-retaining welds per UW-51' : r.joint_efficiency >= 0.85 ? 'spot RT per UW-52 (1 ft per 50 ft minimum)' : 'visual inspection only acceptable for E = 0.70'}; ultrasonic testing (UT) on shell-to-head welds; magnetic particle (MT) on nozzle-to-shell weld toes after PWHT.\n4. Hydro test: ${r.hydro_test_bar} bar for 30 minutes minimum hold; clean potable water at temperature not less than 17 deg C above MDMT. ASME Authorized Inspector (AI) witness required.\n5. Saddle supports: design per Zick analysis (ASME PTB-4) at L/5 from each tangent line; verify shell stress concentrations at saddle locations do not exceed 1.25 S.\n6. Nameplate and stamping: ASME U-stamp per UG-118 + UG-119; complete Manufacturer Data Report Form U-1 (UG-120) and submit to National Board for registration.\n7. Philippine compliance: complete DOLE pressure vessel registration per PD 856 and OSHS Rule 1170 before first commissioning; submit U-1 data report, hydro test record, AI final inspection certificate, and material mill certs to DOLE Regional Office.\n8. ${r.nozzle_reinforcement_pad_required ? `Add nozzle reinforcement pads per UG-37 with A_pad not less than ${r.nozzle_A_pad_required_mm2} mm&sup2; for the ${r.nozzle_diameter_mm} mm nozzles.` : 'No nozzle reinforcement pads required (excess shell area covers UG-37 requirement).'}\n9. Operation: install pressure-relief valve set at MAWP = ${r.mawp_bar} bar per UG-125; size capacity per UG-127 / API 520; route discharge to safe vent location.\n10. A PRC-licensed Mechanical Engineer plus an ASME-commissioned Authorized Inspector (AI) must sign and seal this calculation and the U-1 data report before fabrication and before placing the vessel into service.`)}</p>
+
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Prepared by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Checked by (AI)</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Authorized Inspector / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Approved by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Owner / Client / Date</div>
+      </div>
+    </div>
   `;
   showReport();
 }

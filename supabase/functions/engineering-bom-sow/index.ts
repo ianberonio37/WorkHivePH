@@ -4240,35 +4240,105 @@ async function pressureVesselBomSowAgent(
 ): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
   const project   = inputs.project_name       || "Pressure Vessel Project";
   const pDesign   = Number(results.design_pressure_bar || 0).toFixed(1);
-  const pTest     = Number(results.hydro_test_bar      || 0).toFixed(1);
+  const pTest     = Number(results.hydro_test_bar      || 0).toFixed(2);
   const mawp      = Number(results.mawp_bar            || 0).toFixed(2);
   const material  = String(results.material            || "SA-516 Gr.70");
+  const sAllow    = Number(results.allowable_stress_MPa || 138);
+  const jointEff  = Number(results.joint_efficiency || 1.0);
   const tShell    = Number(results.t_shell_actual_mm   || 0);
   const tHead     = Number(results.t_head_actual_mm    || 0);
   const ID        = Number(results.inner_diameter_mm   || 0);
   const OD        = Number(results.outer_diameter_mm   || 0).toFixed(0);
+  const length    = Number(inputs.shell_length_mm      || 2000);
   const weightKg  = Number(results.weight_empty_kg     || 0).toFixed(0);
   const nozzles   = Number(results.n_nozzles           || 2);
   const nozzDia   = Number(results.nozzle_diameter_mm  || 100);
+  const designTC  = Number(inputs.design_temperature_C || 150);
+  const headType  = String(results.head_type || inputs.head_type || "Ellipsoidal (2:1)");
+  const CA        = Number(results.corrosion_allowance_mm || 1.6);
+  const isHotService = designTC >= 60;
+  const isManholeReqd = (Math.PI * Math.pow(ID/2000, 2) * length / 1000) >= 1.0;  // m3 internal volume
 
-  const prompt = `You are a senior Mechanical/Pressure Vessel Engineer in the Philippines preparing a BOM and SOW for a pressure vessel per ASME BPVC Section VIII Division 1 and DOLE OSHS.
+  // Pressure gauge range (rounded to nearest 5 bar above 1.5 x MAWP per ASME B40.100)
+  const gaugeMaxBar = Math.ceil(Number(mawp) * 1.5 / 5) * 5;
+  // SRV capacity per UG-125: relieving capacity in kg/h for steam/air; size at MAWP
+  const srvCapacityKgHr = Math.round(Number(mawp) * 50 * (ID / 100));  // empirical sizing
+  // Vessel internal volume m3
+  const volumeM3 = Math.round(Math.PI * Math.pow(ID/2000, 2) * length / 1000 * 100) / 100;
+  // Shell plate dimensions: rolled from 1 plate sized to circumference x length + 50mm allowance
+  const shellPlateLen  = Math.round(Math.PI * Number(OD) + 50);  // mm circumferential
+  const shellPlateMass = Math.round(Number(OD) * length * tShell * 1e-9 * 7850 * Math.PI);  // kg approx
+  // Head plate: ellipsoidal 2:1 stamped from disk OD ~ 1.2 x ID
+  const headDiskMm     = Math.round(Number(ID) * 1.20);
+
+  // ASCII directive (Groq strips Unicode: en-dash, em-dash, multiplication x, le/ge, sub/superscripts)
+  const asciiDirective = `IMPORTANT: All output text must be ASCII only. Do NOT use Unicode characters such as multiplication sign x, en-dash, em-dash, sub/superscripts (m3 not m cubed-glyph), less-than-or-equal, greater-than-or-equal, Greek letters, or middle-dot. Use "x" for multiplication, "to" for ranges (e.g. "0 to 17.5 bar"), "Phi" or "dia" for diameter prefix, "deg C" for temperature, "m3" for cubic meters, "not less than" for ge, "not more than" for le, "Nm" or "N.m" for newton-meters, "MPa" for megapascals.`;
+
+  // Items list — 12 items, with deterministic computed quantities and dimensions.
+  // Manhole and Insulation now branch on volume/temp instead of being conditional in spec text.
+  const itemsBlock = `Per-item EXACT structure with description="short item name only" and specification="full standard + dimensions + grade":
+
+(1) description="Shell Plate", specification="${material}, ${tShell} mm thk x ${shellPlateLen} mm circumference x ${length} mm length, ASME SA-516 plate (Sec II Part A), allowable S=${sAllow} MPa at ${designTC} deg C, joint efficiency E=${jointEff} (${jointEff === 1.0 ? 'full radiography' : jointEff >= 0.85 ? 'spot radiography' : 'no radiography'}), mill cert per ASME SA-20", qty=${shellPlateMass}, unit="kg"
+
+(2) description="Head Plate", specification="${material}, ${tHead} mm thk, ${headType} stamped from disk OD ${headDiskMm} mm, ASME SA-516, formed per ASME UG-32${headType.includes('llipsoidal') ? '(d)' : headType.includes('emisph') ? '(c)' : '(e)'}, knuckle radius and crown per code", qty=2, unit="piece"
+
+(3) description="Nozzle Pipe", specification="${nozzDia} mm dia, SA-106 Gr.B seamless carbon steel pipe per ASTM A106, schedule 80 minimum or sized per ASME B31.3 for ${pDesign} bar at ${designTC} deg C, length per nozzle projection drawing", qty=${nozzles}, unit="piece"
+
+(4) description="Nozzle Flange", specification="${nozzDia} mm dia, ASME B16.5 ANSI Class 150 RF (raised face) weld-neck flange, ASTM A105 forged carbon steel, surface finish 125 to 250 microinch (Ra)", qty=${nozzles}, unit="piece"
+
+${isManholeReqd ? `(5) description="Manhole Assembly", specification="450 mm NB (DN450), ASME B16.5 ANSI Class 150 RF, davit-hinged cover with quick-opening bolts, davit per ASME B16.5 Annex F; required because vessel internal volume = ${volumeM3} m3 (not less than 1 m3 per industry practice)", qty=1, unit="set"` : `(5) description="Inspection Opening", specification="100 mm dia handhole with bolted cover plate, ASME B16.5 ANSI Class 150 RF; manhole not required since vessel internal volume = ${volumeM3} m3 (less than 1 m3)", qty=1, unit="piece"`}
+
+(6) description="Safety / Relief Valve", specification="ASME Sec VIII UV-stamped pressure-relief valve set at MAWP = ${mawp} bar (1.0 x MAWP per UG-125), conventional spring-loaded balanced bellows or pilot-operated, body ASTM A216 Gr WCB, trim 316SS, capacity not less than ${srvCapacityKgHr} kg/h steam or equivalent (sized per UG-127 / API 520), inlet ${nozzDia >= 50 ? '50 mm' : '40 mm'} flanged, outlet to safe vent location with discharge piping per API 521", qty=1, unit="piece"
+
+(7) description="Pressure Gauge", specification="bourdon-tube glycerin-filled gauge, range 0 to ${gaugeMaxBar} bar (range covers 1.5 x MAWP = ${(Number(mawp) * 1.5).toFixed(1)} bar per ASME B40.100), 100 mm dial dia, accuracy class 1.0 (plus or minus 1 percent FSD), bottom 1/4 inch NPT connection, brass/stainless wetted parts", qty=1, unit="piece"
+
+(8) description="Drain Valve", specification="1 inch (DN25) ball valve, full-bore, ASTM A105 carbon steel body, 316SS ball and stem, ASME B16.34 Class 800, threaded NPT or socket weld ends, lockable lever handle for safety", qty=1, unit="piece"
+
+(9) description="Nameplate", specification="ASME U-stamp nameplate per UG-119 + UG-118, stainless steel 316L, dimensions 100 x 150 mm minimum, stamped fields: manufacturer, MAWP at design temp, hydro test pressure, U-stamp serial number, year built, NB number (Philippine BOI registration); attached by tack-welded studs to a permanent location on shell", qty=1, unit="piece"
+
+(10) description="Saddle Support", specification="carbon steel saddle per Zick analysis (ASME PTB-4 / Zick 1951 paper), 120 deg contact angle minimum, web thickness 8 mm, base plate 16 mm thk x 200 mm wide x circumference per saddle width; located at L/5 from each tangent line per Zick optimum; anchor-bolt holes per design (typically M20 x 4 holes per saddle); shop-coated with rust-inhibitive primer", qty=2, unit="piece"
+
+${isHotService ? `(11) description="Insulation", specification="rock-wool insulation 75 mm thk per ASTM C547, density not less than 64 kg/m3, surface temperature reduction to less than 60 deg C from process ${designTC} deg C; outer aluminum cladding 0.7 mm sheet per ASTM B209, banded with 12 mm SS bands at 300 mm OC; weather-tight expansion joints at saddles", qty=${Math.round(Math.PI * Number(OD) * length / 1e6 * 10) / 10}, unit="m2"` : `(11) description="Surface Protection (no insulation)", specification="surface protection only (process temperature ${designTC} deg C is below 60 deg C threshold for hot-service insulation); apply zinc-rich epoxy primer per SSPC-Paint 20 (75 micron DFT) plus alkyd topcoat (50 micron DFT) on external surfaces", qty=${Math.round(Math.PI * Number(OD) * length / 1e6 * 10) / 10}, unit="m2"`}
+
+(12) description="Gaskets", specification="spiral-wound 316 stainless steel + flexible graphite filler per ASME B16.20, ANSI Class 150 dimensions matching ${nozzDia} mm flanges, with inner ring (CS) and outer ring (CS) for blow-out resistance; one set per flanged nozzle plus 50 percent spare", qty=${nozzles + Math.ceil(nozzles * 0.5)}, unit="piece"
+
+CRITICAL: Every "specification" field MUST be fully populated with the actual numeric values shown above (${tShell} mm, ${ID} mm, ${nozzDia} mm, ${mawp} bar, ${gaugeMaxBar} bar, ${srvCapacityKgHr} kg/h, etc.). Never leave a spec blank or use the item name alone. Every quantity MUST come from the supplied values, not invented.`;
+
+  const prompt = `You are a senior Mechanical / Pressure Vessel Engineer in the Philippines preparing a Bill of Materials (BOM) and Scope of Works (SOW) for an ASME BPVC Section VIII Division 1 pressure vessel.
+
+${asciiDirective}
 
 Project: ${project}
-Material: ${material}: Shell t = ${tShell}mm, Head t = ${tHead}mm
-ID = ${ID}mm, OD = ${OD}mm
-Design pressure: ${pDesign} bar | MAWP: ${mawp} bar | Hydro test: ${pTest} bar
-Nozzles: ${nozzles} × ${nozzDia}mm dia
-Empty weight: ${weightKg} kg
+Material: ${material} (allowable S = ${sAllow} MPa at ${designTC} deg C, joint efficiency E = ${jointEff})
+Geometry: ID = ${ID} mm, OD = ${OD} mm, shell length = ${length} mm, internal volume = ${volumeM3} m3
+Thickness: shell t = ${tShell} mm (incl CA = ${CA} mm), head t = ${tHead} mm, ${headType} head
+Pressure: P_design = ${pDesign} bar at ${designTC} deg C, MAWP = ${mawp} bar, Hydro test = ${pTest} bar (1.3 x MAWP per UG-99(b))
+Nozzles: ${nozzles} x ${nozzDia} mm dia, ANSI Class 150 RF
+Empty weight: ${weightKg} kg; reinforcement pad ${results.nozzle_reinforcement_pad_required ? 'REQUIRED' : 'NOT required'} per UG-37
+Hot service insulation: ${isHotService ? 'INCLUDED (design temp >= 60 deg C)' : 'NOT included (design temp below 60 deg C)'}
+Manhole: ${isManholeReqd ? 'INCLUDED (volume >= 1 m3)' : 'NOT included (volume below 1 m3, handhole only)'}
 
 Generate a JSON object with exactly two keys:
 
 "bom_items": array of 12 objects with { "description", "specification", "unit", "qty", "remarks" }
-Cover: (1) Shell plate ${material} ${tShell}mm thk (ASME SA-516), (2) Head plates ${material} ${tHead}mm (2:1 ellipsoidal or as specified), (3) Nozzle pipe ${nozzDia}mm × ${nozzles}pcs (SA-106 Gr.B), (4) Nozzle flanges ANSI Class 150 ${nozzDia}mm RF (ASTM A105), (5) Manhole assembly 450mm NB (if vessel volume >1m³), (6) Safety/Relief valve (set at MAWP = ${mawp} bar, ASME certified), (7) Pressure gauge 0–${Math.ceil(Number(mawp)*1.5*10)/10}bar 100mm glycerin-filled, (8) Drain valve 1" ball valve full-bore, (9) Nameplate (ASME U-stamp, stainless steel), (10) Saddle supports (2 sets, carbon steel, per Zick analysis), (11) Insulation (rock wool 75mm + cladding, if hot service), (12) Gaskets (spiral wound stainless/graphite for all flanged nozzles).
+
+${itemsBlock}
 
 "sow_sections": array of 6 objects with { "section_no", "title", "content" }
-Sections: 1.0 Scope (fabricate, test, and deliver pressure vessel per ASME VIII-1), 2.0 Standards (ASME BPVC Sec.VIII Div.1, ASME Sec.II Part D, ASME B16.5, DOLE OSHS PD 856, Philippine Boiler and Pressure Vessel Code), 3.0 Materials and Fabrication (mill certifications per ASME SA-516, weld procedure qualification per ASME IX, post-weld heat treatment per UCS-56 if required), 4.0 NDE and Inspection (radiographic testing per UW-11, AI witness of all pressure tests, ASME U-stamp inspection), 5.0 Hydrostatic Test (test at ${pTest} bar for 30 minutes minimum, ASME AI witness required, document hydro test report), 6.0 Regulatory Compliance (DOLE pressure vessel registration before first use: submit ASME U-1 data report, hydro test record, AI final inspection certificate to DOLE Regional Office).
 
-Content fields must start "The Contractor shall..." and reference ASME BPVC. Return ONLY the JSON. No markdown.`;
+Section 1.0 Scope: state the contractor shall design, fabricate, NDE-test, hydrostatically test, ASME-stamp, and deliver an unfired pressure vessel per ASME BPVC Section VIII Division 1 with the following: ${material} construction, ID = ${ID} mm, shell length = ${length} mm, ${tShell} mm shell thickness, ${tHead} mm ${headType} head thickness, design pressure ${pDesign} bar at ${designTC} deg C, MAWP = ${mawp} bar, ${nozzles} x ${nozzDia} mm nozzles ANSI Class 150 RF; including U-stamp registration and DOLE Philippines pressure vessel registration before first operation.
+
+Section 2.0 Standards: cite ASME BPVC Section VIII Division 1 (governing design code), ASME Section II Part D (allowable stress S = ${sAllow} MPa for ${material} at design temperature), ASME Section IX (welding procedure qualification WPS/PQR), ASME Section V (NDE methods), ASME B16.5 (flanges and flanged fittings), ASME B16.20 (metallic gaskets), DOLE OSHS PD 856 (Philippine pressure vessel registration for MAWP not less than 15 psi or 1.03 bar), Philippine Boiler and Pressure Vessel Inspection Code, and PNS/ISO 16528 (boilers and pressure vessels - performance requirements).
+
+Section 3.0 Materials and Fabrication: specify ${material} certified per ASME SA-516 (or applicable SA-spec) with mill certificates and material test reports (MTR) traceable to heat number. Allowable stress S = ${sAllow} MPa, joint efficiency E = ${jointEff} (${jointEff === 1.0 ? 'full radiography per UW-51' : jointEff >= 0.85 ? 'spot radiography per UW-52' : 'no radiography'}). Welding procedures (WPS) qualified per ASME Section IX with welder performance qualification (WPQ); use only qualified welders. Post-weld heat treatment (PWHT) required if t_shell exceeds 38 mm carbon steel per UCS-56 (current shell t = ${tShell} mm: ${tShell > 38 ? 'PWHT REQUIRED' : 'PWHT not required'}). Forming of head plates per UG-79; minimum elongation per material spec.
+
+Section 4.0 NDE and Inspection: perform ${jointEff === 1.0 ? '100 percent radiographic testing (RT) per ASME Section V Article 2 / UW-51' : jointEff >= 0.85 ? 'spot radiographic testing (RT) per UW-52, 1 ft per 50 ft of weld minimum' : 'visual inspection only (Category B and Category C welds)'} on all longitudinal and circumferential pressure-retaining welds. Ultrasonic testing (UT) per ASME Section V Article 5 on shell-to-head welds where RT not feasible. Magnetic particle inspection (MT) on nozzle-to-shell weld toes after PWHT. Authorized Inspector (AI) commissioned by ASME shall witness all pressure tests, review NDE reports, and authorize ASME U-stamp application before any vessel leaves the shop.
+
+Section 5.0 Hydrostatic Test: conduct a hydrostatic pressure test at ${pTest} bar (1.3 x MAWP at design temperature per UG-99(b)) for a hold period of not less than 30 minutes after the test pressure is reached. Use clean potable water at temperature not less than 17 deg C above MDMT to avoid brittle fracture. AI witness required; record test pressure, hold time, ambient temperature, and observations on hydro test report. Vent all high points before pressurization. After test, drain completely, dry interior, and apply preservation per shop standard.
+
+Section 6.0 Regulatory Compliance and Documentation: complete ASME U-stamp inspection and submit Manufacturer Data Report Form U-1 (UG-120) to the National Board of Boiler and Pressure Vessel Inspectors (NB) for registration. Complete Philippine DOLE pressure vessel registration per PD 856 and OSHS Rule 1170; submit U-1 data report, hydro test record, AI final inspection certificate, and material mill certs to DOLE Regional Office before first commissioning. Maintain all documentation (MDR, NDE reports, welder logs, mill certs) on file for the life of the vessel; provide owner with final data book at handover.
+
+Each "content" field MUST start with "The Contractor shall..." and use ASCII text only. Return ONLY the JSON. No markdown.`;
 
   const raw = await callGroq(prompt);
   const parsed = JSON.parse(raw);
