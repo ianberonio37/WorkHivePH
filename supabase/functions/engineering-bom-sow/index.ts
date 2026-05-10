@@ -3844,33 +3844,90 @@ async function bearingLifeBomSowAgent(
   inputs: Record<string, unknown>,
   results: Record<string, unknown>
 ): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
-  const project    = inputs.project_name   || "Bearing Selection Project";
-  const bearingType = String(inputs.bearing_type || "Ball");
-  const bearingNo  = String(inputs.bearing_no   || "—");
-  const speedRPM   = Number(inputs.speed_rpm    || 0);
-  const L10h       = Number(results.L10h || results.L10h_adj || results.L10_hours || 0).toFixed(0);
-  const L10m       = Number(results.L10_Mrev || results.L10_million_revs || 0).toFixed(2);
-  const cRating    = Number(inputs.C_kN         || 0).toFixed(1);
-  const lifeCheck  = String(results.life_check || '');
-  const adequate   = results.bearing_adequate ?? !lifeCheck.toUpperCase().includes('FAIL');
+  const project       = inputs.project_name   || "Bearing Selection Project";
+  const bearingType   = String(inputs.bearing_type || "Ball");
+  const bearingNo     = String(inputs.bearing_no   || "to be selected from manufacturer catalog");
+  const speedRPM      = Number(inputs.speed_rpm    || 0);
+  // Adjusted life is the actual operational life (a1 applied); prefer it over basic
+  const L10h          = Number(results.L10h_adj || results.L10h || results.L10_hours || 0).toFixed(0);
+  const L10hBasic     = Number(results.L10h || 0).toFixed(0);
+  const L10m          = Number(results.L10_Mrev || results.L10_million_revs || 0).toFixed(2);
+  const cRating       = Number(inputs.C_kN         || 0).toFixed(1);
+  const cRequired     = Number(results.C_required_kN || 0).toFixed(1);
+  const FrkN          = Number(inputs.Fr_kN || 0).toFixed(1);
+  const FakN          = Number(inputs.Fa_kN || 0).toFixed(1);
+  const PkN           = Number(results.P_kN || 0).toFixed(2);
+  const requiredLifeH = Number(inputs.required_life_h || 25000);
+  const reliabilityPct = Number(inputs.reliability_pct || 90);
+  const lifeCheck     = String(results.life_check || '');
+  const adequate      = results.bearing_adequate ?? !lifeCheck.toUpperCase().includes('FAIL');
+  const lifeStatus    = adequate ? 'PASS' : 'FAIL';
 
-  const prompt = `You are a senior Mechanical Engineer in the Philippines preparing a BOM and SOW for bearing selection and installation per ISO 281 and SKF/FAG application guidelines.
+  // ASCII-only directive: Groq output strips Unicode (degree, multiplication, sub/superscript).
+  // All spec strings must use plain ASCII.
+  const asciiDirective = `IMPORTANT: All output text must be ASCII only. Do NOT use Unicode characters (degree symbol, multiplication sign, subscripts/superscripts, em-dash, en-dash, Greek letters). Use "deg" not the degree symbol, "x" not the multiplication sign, "/" for fractions, "+/-" not the plus-minus symbol.`;
+
+  // FAIL-state guidance: prompt must call for upgraded bearing meeting required_life_h
+  const cSpecForBOM = adequate
+    ? `dynamic load rating C minimum ${cRating} kN (existing rating meets ${requiredLifeH.toLocaleString()} h target at ${reliabilityPct}% reliability)`
+    : `UPGRADED dynamic load rating C minimum ${cRequired} kN (existing C=${cRating} kN gives only ${L10h} h vs ${requiredLifeH.toLocaleString()} h target — bearing must be re-selected)`;
+
+  const scopeForSow = adequate
+    ? `supply and install ${bearingType} bearings per ISO 281 with verified L10h_adj of ${L10h} hours (PASS, target ${requiredLifeH.toLocaleString()} hours)`
+    : `supply REPLACEMENT ${bearingType} bearings with C minimum ${cRequired} kN to meet required L10h target of ${requiredLifeH.toLocaleString()} hours; the originally specified C=${cRating} kN bearing is undersized (yields only ${L10h} h)`;
+
+  const materialsForSow = adequate
+    ? `select bearing with dynamic load rating C minimum ${cRating} kN, grade NLGI 2 lithium-complex grease suitable for ${speedRPM} RPM operation`
+    : `select REPLACEMENT bearing with dynamic load rating C minimum ${cRequired} kN (the original C=${cRating} kN bearing is INADEQUATE for ${requiredLifeH.toLocaleString()} h target life), grade NLGI 2 lithium-complex grease suitable for ${speedRPM} RPM operation`;
+
+  const prompt = `You are a senior Mechanical Engineer in the Philippines preparing a BOM and SOW for bearing selection and installation per ISO 281, ISO 15243 (failure modes), and SKF/FAG application guidelines.
+
+${asciiDirective}
 
 Project: ${project}
-Bearing type: ${bearingType} bearing, No. ${bearingNo}
-Dynamic load rating C: ${cRating} kN
-Speed: ${speedRPM} RPM
-L10 life: ${L10h} hours (${L10m} million revolutions): ${adequate ? 'ADEQUATE' : 'INADEQUATE: upgrade required'}
+Bearing type: ${bearingType}
+Reference bearing No.: ${bearingNo}
+Operating speed: ${speedRPM} RPM
+Loads: Fr=${FrkN} kN, Fa=${FakN} kN, equivalent P=${PkN} kN
+Existing C: ${cRating} kN
+Required life: ${requiredLifeH.toLocaleString()} hours at ${reliabilityPct}% reliability
+Calculated L10h_adj: ${L10h} hours (basic L10h=${L10hBasic} hours, ${L10m} million rev)
+Result: ${lifeStatus}${adequate ? '' : ` — minimum C required = ${cRequired} kN`}
 
 Generate a JSON object with exactly two keys:
 
-"bom_items": array of 10 objects with { "description", "specification", "unit", "qty", "remarks" }
-Cover: (1) Bearing (ISO 281, type ${bearingType}, No.${bearingNo}), (2) Bearing housing (split or solid, per shaft dia), (3) Shaft seal (lip seal or V-ring), (4) Locking device (locknut + tab washer), (5) Grease (NLGI Grade 2, lithium complex), (6) Grease nipple (standard DIN 71412), (7) Bearing puller set, (8) Induction heater for mounting, (9) Alignment tools, (10) Temperature monitoring (infrared thermometer or PT100 probe).
+"bom_items": array of 10 objects, each with EXACTLY this structure:
+{
+  "description": "short item name only (e.g. 'Bearing', 'Bearing housing', 'Grease') — NO standards or specs in this field",
+  "specification": "FULL specification string with standard, type, dimensions, ratings — this field MUST be populated, never empty",
+  "unit": "pc / set / kg / etc.",
+  "qty": number,
+  "remarks": "context note referencing the bearing parameters"
+}
+
+REQUIRED ITEMS (always populate the "specification" field with the parenthesized detail):
+1. description="Bearing", specification="ISO 281, type ${bearingType}, No. ${bearingNo}, ${cSpecForBOM}", unit="pc", qty=1
+2. description="Bearing housing", specification="split or solid pillow block per shaft diameter, cast iron GG-25 or fabricated steel, with grease fitting", unit="pc", qty=1
+3. description="Shaft seal", specification="contact lip seal (e.g. SKF CR Wave) or V-ring seal, NBR rubber, suitable for ${speedRPM} RPM and ambient -20 to +100 deg C", unit="pc", qty=2
+4. description="Locking device", specification="ISO 2982 KM-series locknut + MB-series tab washer (or equivalent SKF), sized per shaft thread", unit="set", qty=1
+5. description="Grease", specification="NLGI Grade 2 lithium-complex base, dropping point not less than 180 deg C, EP additive, suitable for ${speedRPM} RPM continuous operation", unit="kg", qty=0.5
+6. description="Grease nipple", specification="DIN 71412 type A (M6 or M8 thread, straight), zinc-plated steel", unit="pc", qty=2
+7. description="Bearing puller set", specification="2-jaw or 3-jaw mechanical puller, capacity range matching bearing OD, with case", unit="set", qty=1
+8. description="Induction heater", specification="bearing-mount induction heater, max temperature 110 deg C, with thermocouple and demagnetization cycle, suitable for bearing OD up to 200mm", unit="pc", qty=1
+9. description="Alignment tools", specification="laser shaft alignment kit OR dial indicator with magnetic base, accuracy 0.01mm", unit="set", qty=1
+10. description="Temperature monitoring", specification="infrared thermometer (range -30 to +500 deg C, accuracy +/-2 deg C) OR PT100 RTD probe with transmitter for permanent install", unit="pc", qty=1
+
+CRITICAL: Every "specification" field above MUST be filled in the JSON output. Do not leave any specification field empty or null. Do not put the standards/dimensions into the description field.
 
 "sow_sections": array of 5 objects with { "section_no", "title", "content" }
-Sections: 1.0 Scope, 2.0 Standards (ISO 281, ISO 5593, SKF bearing installation manual, PSME Code), 3.0 Materials (bearing specification, grease selection per operating temperature), 4.0 Installation (mount bearing with induction heater to 80-100°C, check clearance, seal installation), 5.0 Monitoring (initial grease quantity, re-lubrication interval per ISO 5593, vibration baseline measurement).
+Section content fields must START with "The Contractor shall..." and use these exact mappings:
+1.0 Scope: ${scopeForSow}.
+2.0 Standards: ISO 281:2007 (Rolling bearings dynamic ratings and rating life), ISO 76 (static load ratings), ISO 15243 (failure mode classification), SKF General Catalog or equivalent manufacturer manual, PSME Code.
+3.0 Materials: ${materialsForSow}.
+4.0 Installation: mount bearing using induction heater to 80-100 deg C (do NOT exceed 120 deg C), verify shaft and housing fits per ISO 286 tolerance class (typically k5/k6 shaft, H7/H8 housing), install seals before bearing engagement, fill grease to 30-50 percent of bearing free volume.
+5.0 Monitoring: establish initial grease fill quantity per SKF General Catalog / DIN 51825 lubrication guide, set re-lubrication interval based on speed factor (n*dm) and operating temperature per SKF Catalog re-lubrication chart, take vibration baseline within first 100 operating hours per ISO 10816-3, monitor bearing temperature and inspect for ISO 15243 failure modes (flaking, smearing, corrosion) at scheduled PM intervals.
 
-Content fields must start "The Contractor shall..." and reference L10h=${L10h} hours. Return ONLY the JSON. No markdown.`;
+Return ONLY the JSON. No markdown.`;
 
   const raw = await callGroq(prompt);
   const parsed = JSON.parse(raw);

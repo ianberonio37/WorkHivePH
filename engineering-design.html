@@ -26986,7 +26986,7 @@ function buildBearingLifeSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`BEARING LIFE (L10) — ${L10adj} h  |  C/P=${CoP}  |  ${bType}  |  ISO 281`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`BEARING LIFE (L10) — ${Number(L10adj).toLocaleString()} h ${lifeChk}  |  C/P=${CoP}  |  ${bType}  |  ISO 281`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Bearing cross-section
   const CX=150,CY=220;
@@ -27014,14 +27014,18 @@ function buildBearingLifeSVG(inputs, results) {
   const BC_X=310,BC_Y=100,BC_W=280,BC_H=200;
   p.push(`<rect x="${BC_X}" y="${BC_Y}" width="${BC_W}" height="${BC_H}" fill="#f8faff" stroke="${GY}" stroke-width="1"/>`);
   p.push(_plumbT(BC_X+BC_W/2,BC_Y-10,'L10 LIFE COMPARISON (hours)',{sz:7.5,c:CC,w:'700'}));
-  const targets=[['L10h (basic)',Number(L10h),BRG],['L10h (adjusted)',Number(L10adj),lifeOK?OK_C:WARN_C],['Target 20000h',20000,'#90a4ae']];
-  const maxH=Math.max(25000,Number(L10adj)*1.2);
+  const reqLifeH=Number(inp.required_life_h||20000);
+  const reqLifeLbl=reqLifeH>=10000?(reqLifeH/1000).toFixed(0)+'k':reqLifeH>=1000?(reqLifeH/1000).toFixed(1)+'k':reqLifeH.toFixed(0);
+  const targets=[['L10h (basic)',Number(L10h),BRG],['L10h (adjusted)',Number(L10adj),lifeOK?OK_C:WARN_C],[`Target ${reqLifeLbl}h`,reqLifeH,'#90a4ae']];
+  const maxH=Math.max(reqLifeH*1.05,Number(L10adj)*1.2);
+  // Hours formatter: <1k → integer; 1k–10k → 1 decimal (1.5k); >=10k → integer (20k)
+  const fmtHr=v=>v>=10000?(v/1000).toFixed(0)+'k':v>=1000?(v/1000).toFixed(1)+'k':v.toFixed(0);
   targets.forEach(([lbl,val,clr],i)=>{
     const bw=(BC_W/3)-12;
     const bx=BC_X+6+i*(bw+12);
     const bh=Math.min(val/maxH*BC_H*0.9,BC_H*0.92);
     p.push(`<rect x="${bx}" y="${BC_Y+BC_H-bh}" width="${bw}" height="${bh}" fill="${clr}" opacity="0.8" rx="2"/>`);
-    p.push(_plumbT(bx+bw/2,BC_Y+BC_H-bh-10,`${val>=1000?(val/1000).toFixed(0)+'k':val.toFixed(0)}h`,{sz:8,c:clr,w:'700'}));
+    p.push(_plumbT(bx+bw/2,BC_Y+BC_H-bh-10,`${fmtHr(val)}h`,{sz:8,c:clr,w:'700'}));
     p.push(_plumbT(bx+bw/2,BC_Y+BC_H+13,lbl,{sz:6.5,c:CC}));
   });
   // Life badge
@@ -27038,8 +27042,8 @@ function buildBearingLifeSVG(inputs, results) {
   });
   [`1. ISO 281: L10 = (C/P)^p × 10^6/60n (hours). p=3 (ball), p=10/3 (roller).`,
    `2. Adjusted life L10h_adj = a1 × L10h. a1 = reliability factor (90%=1, 95%=0.62).`,
-   `3. Target industrial bearing life: 20,000 h (ISO 14728). Replace at 80% Cr degradation.`
-  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+   `3. Target service life: ${reqLifeH.toLocaleString()} h (ISO 14728). Replace at 80% Cr degradation.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+76+i*11,n,{a:'start',sz:6.5,c:CC})));
   _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'BEARING LIFE (L10)', rows:[
     ['Bearing Type',bType,BRG],['Dynamic Rating C',`${CkN} kN`,BRG],
     ['Radial Load Fr',`${FrkN} kN`,FAIL_C],['Axial Load Fa',`${FakN} kN`,WARN_C],
@@ -29506,7 +29510,7 @@ function renderSowDocPreview(sections) {
     : isBeamS
     ? `Beam/Column Design: ${_lastResults?.section || _lastInputs?.section || ''} ${_lastResults?.steel_grade || _lastInputs?.steel_grade || ''} (Fy=${_lastResults?.Fy_MPa || ''}MPa), Span ${_lastResults?.span_m || _lastInputs?.span_m || ''}m, w=${_lastInputs?.w_kNm || ''}kN/m UDL, φMp=${_lastResults?.phi_Mp_kNm || ''}kN·m DCR=${_lastResults?.DCR_moment || ''} ${_lastResults?.moment_ok ? '(OK)' : '(NG)'}, δ=${_lastResults?.deflection_mm || ''}mm ${_lastResults?.deflection_ok ? '(OK)' : '(NG)'}, AISC 360/NSCP 2015`
     : isBearingS
-    ? `Bearing Life: ${_lastInputs?.bearing_type || ''}, C=${_lastInputs?.C_kN || ''}kN, Fr=${_lastInputs?.Fr_kN ?? ''}kN / Fa=${_lastInputs?.Fa_kN ?? 0}kN, P=${_lastResults?.P_kN || ''}kN, C/P=${_lastResults?.C_over_P || ''}, L10h_adj=${_lastResults?.L10h_adj || ''}h @ ${_lastInputs?.speed_rpm || ''}rpm (${_lastResults?.life_check || ''}), ISO 281`
+    ? `Bearing Life: ${_lastInputs?.bearing_type || ''}, C=${_lastInputs?.C_kN || ''}kN, Fr=${_lastInputs?.Fr_kN ?? ''}kN / Fa=${_lastInputs?.Fa_kN ?? 0}kN, P=${_lastResults?.P_kN || ''}kN, C/P=${_lastResults?.C_over_P || ''}, L10h_adj=${_lastResults?.L10h_adj || ''}h @ ${_lastInputs?.speed_rpm || ''}rpm (${_lastResults?.life_check || ''}, target ${(_lastInputs?.required_life_h || 20000).toLocaleString()}h), ISO 281`
     : isBoltS
     ? `Bolt Torque & Preload: ${_lastResults?.n_bolts || _lastInputs?.num_bolts || ''}× M${_lastResults?.d_mm || _lastInputs?.bolt_size_mm || ''} Grade ${_lastResults?.bolt_grade || _lastInputs?.grade || ''}, T=${_lastResults?.torque_Nm || ''}N·m, Fi=${_lastResults?.Fi_kN || ''}kN (${_lastResults?.preload_pct || ''}% Fp=${_lastResults?.Fp_kN || ''}kN), σ=${_lastResults?.sigma_MPa || ''}MPa ${_lastResults?.stress_check || ''}, SF_sep=${_lastResults?.separation_sf || ''} ${_lastResults?.joint_check || ''}, ISO 898`
     : `Air-Conditioning: Split-Type, ${units} unit(s) × ${unitKW} kW (${kw} kW / ${tr} TR total)`;
