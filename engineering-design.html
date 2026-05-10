@@ -1001,7 +1001,6 @@ const CALC_TYPES = {
     { id: 'Refrigerant Pipe Sizing',       icon: '🧊', desc: 'ACR copper tube sizing for suction, discharge, and liquid lines: velocity check, pressure drop, ΔT equivalent: R-410A/R-32/R-22/R-407C/R-134a: ASHRAE Refrigeration / ASTM B280 / PSME', available: true },
     { id: 'FCU Selection',                 icon: '🌡️', desc: 'Fan coil unit selection per room: CHW flow rate, main pipe sizing, diversity factor: ASHRAE HVAC Systems / PSME', available: true },
     { id: 'Expansion Tank Sizing',         icon: '🫙', desc: 'Bladder/diaphragm expansion tank for closed hydronic loops: CHW, HHW, CW: ASHRAE acceptance ratio method / ASME VIII / PSME', available: true },
-    { id: 'Heat Exchanger',                icon: '🌡️', desc: 'Shell-and-tube HX: LMTD, NTU-ε, overall U, required area, tube count: TEMA 10th Ed. / ASME Sec. VIII', available: true },
   ],
 };
 
@@ -1022,7 +1021,6 @@ const CALC_TYPES_UI = {
     { id: 'Duct Sizing (Equal Friction)',  icon: '🌀',  desc: 'Circular/rectangular duct sizing, pressure drop, fan motor: ASHRAE / SMACNA / PSME', available: true, subcat: 'Distribution' },
     { id: 'Refrigerant Pipe Sizing',       icon: '🧊',  desc: 'ACR copper tube sizing for suction, discharge, liquid lines: ASHRAE Refrig. / ASTM B280', available: true, subcat: 'Distribution' },
     { id: 'Expansion Tank Sizing',         icon: '🫙',  desc: 'Bladder/diaphragm expansion tank for closed hydronic loops: ASHRAE / ASME VIII', available: true, subcat: 'Distribution' },
-    { id: 'Heat Exchanger',                icon: '🌡️', desc: 'Shell-and-tube HX: LMTD, NTU-ε, overall U, tube count: TEMA / ASME Sec. VIII', available: true, subcat: 'Distribution' },
   ],
   'Mechanical': [
     // Piping & Fluid
@@ -28800,7 +28798,7 @@ async function generateBomSowChecklist() {
     'Plumbing':               ['Water Supply Pipe Sizing', 'Hot Water Demand', 'Drainage Pipe Sizing', 'Septic Tank Sizing', 'Water Softener Sizing', 'Water Treatment System', 'Wastewater Treatment (STP)', 'Storm Drain / Stormwater', 'Grease Trap Sizing', 'Roof Drain Sizing'],
     'Fire Protection':        ['Fire Sprinkler Hydraulic', 'Fire Pump Sizing', 'Stairwell Pressurization', 'Fire Alarm Battery', 'Clean Agent Suppression'],
     'Vertical Transportation':['Elevator Traffic Analysis', 'Hoist Capacity'],
-    'HVAC Systems':           ['Chiller System — Air Cooled', 'Chiller System — Water Cooled', 'AHU Sizing', 'Cooling Tower Sizing', 'Duct Sizing (Equal Friction)', 'Refrigerant Pipe Sizing', 'FCU Selection', 'Expansion Tank Sizing', 'Heat Exchanger'],
+    'HVAC Systems':           ['Chiller System — Air Cooled', 'Chiller System — Water Cooled', 'AHU Sizing', 'Cooling Tower Sizing', 'Duct Sizing (Equal Friction)', 'Refrigerant Pipe Sizing', 'FCU Selection', 'Expansion Tank Sizing'],
     'Machine Design':         ['Shaft Design', 'V-Belt Drive Design', 'Gear / Belt Drive', 'Bearing Life (L10)', 'Bolt Torque & Preload', 'Beam / Column Design', 'Pressure Vessel', 'Heat Exchanger', 'Vibration Analysis', 'Fluid Power', 'Noise / Acoustics'],
   };
   // Look up the BOM discipline by calc type (not by _discipline pill)
