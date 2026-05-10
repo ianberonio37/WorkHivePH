@@ -267,6 +267,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "edge-response-contract",
+        "script":  "validate_edge_response_contract.py",
+        "args":    [],
+        "label":   "Edge Function Response Contract (4-layer: function returns + caller field validity + introspection coverage + error-only detection)",
+        "group":   "Platform",
+        "report":  "edge_response_contract_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "reliability-workbench",
         "script":  "validate_reliability_workbench.py",
         "args":    [],
