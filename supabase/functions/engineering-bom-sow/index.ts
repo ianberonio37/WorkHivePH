@@ -2818,8 +2818,10 @@ async function chillerAirCooledBomSowAgent(
     ? `N+1 redundancy configuration: ${nUnits} units at ${nominalTR} TR each. Lead-lag sequencing required. Each unit must be capable of carrying the design load independently during standby operation.`
     : `Single chiller configuration: no built-in redundancy. Consider portable rental chiller contingency plan for critical facilities.`;
 
-  // CHW pipe sizing estimate (velocity 1.5 m/s)
-  const chwPipeEst_mm = Math.ceil(Math.sqrt((chwFlowLps / (Math.PI / 4 * 1.5)) * 1e6) / 25) * 25;
+  // CHW pipe sizing estimate (velocity 1.5 m/s) — D_mm = sqrt((Q_m3s)/(π/4·v))·1000, rounded up to 25mm
+  const chwPipeEst_mm = chwFlowLps > 0
+    ? Math.ceil(Math.sqrt((chwFlowLps / 1000) / (Math.PI / 4 * 1.5)) * 1000 / 25) * 25
+    : 50;
 
   const prompt = `You are a licensed Mechanical Engineer in the Philippines preparing official procurement and contracting documents for an AIR-COOLED CHILLER PLANT installation.
 
