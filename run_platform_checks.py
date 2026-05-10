@@ -249,6 +249,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "env-secret-coverage",
+        "script":  "validate_env_secret_coverage.py",
+        "args":    [],
+        "label":   "Env Secret Coverage (4-layer: declared coverage + required-vs-optional + orphan keys + hardcoded secret detection)",
+        "group":   "Platform",
+        "report":  "env_secret_coverage_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "reliability-workbench",
         "script":  "validate_reliability_workbench.py",
         "args":    [],
