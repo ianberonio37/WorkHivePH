@@ -276,6 +276,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "realtime-cleanup",
+        "script":  "validate_realtime_cleanup.py",
+        "args":    [],
+        "label":   "Realtime Subscription Cleanup (4-layer: cleanup pairing + lifecycle wiring + const-decl warning + asymmetry metric)",
+        "group":   "Platform",
+        "report":  "realtime_cleanup_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "reliability-workbench",
         "script":  "validate_reliability_workbench.py",
         "args":    [],
