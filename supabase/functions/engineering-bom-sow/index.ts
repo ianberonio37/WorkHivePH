@@ -2203,7 +2203,7 @@ Required BOM items:
 9. OS&Y gate valve, full-bore, UL/FM listed, with tamper switch: qty: 1 unit
 10. Alarm check valve with waterflow alarm switch, UL listed: qty: 1 unit
 11. Alarm bell / water motor gong, outdoor audible: qty: 1 unit
-12. Alarm pressure gauge set, above and below check valve: qty: 2 pcs
+12. Alarm pressure gauge set (specification: 0-21 bar glycerin-filled bourdon-tube gauges, 100mm dial, 1/4 inch NPT threaded connection, brass/SS housing; one installed above and one below the alarm check valve for differential pressure monitoring per NFPA 13): qty: 2 pcs
 13. Inspector test and drain valve, 25 mm ball valve: qty: 1 unit
 14. Fire department siamese connection, 65x65 mm, BFP-compliant: qty: 1 unit
 15. Water storage tank, ${waterVolL} L minimum, RC or GRP/HDPE: qty: 1 unit

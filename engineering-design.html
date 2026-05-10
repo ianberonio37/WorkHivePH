@@ -16874,7 +16874,7 @@ function renderFireSprinklerReport(inputs, results, narrative) {
     <p style="font-size:0.82rem;color:#444;">
       Formula: hL (bar/m) = 6.05 x 10^4 x Q^1.85 / (C^1.85 x d^4.87)<br>
       Given: Q = ${r.Q_sprinklers_total} L/min, C = ${r.inputs_used.C}, d = ${r.pipe_dia} mm, L = ${inputs.pipe_length} m<br>
-      Pipe velocity = ${r.velocity} m/s (acceptable: under 3.0 m/s)<br>
+      Pipe velocity = ${r.velocity} m/s &mdash; <strong style="color:${r.velocity > 3.0 ? '#c0392b' : '#27ae60'};">${r.velocity > 3.0 ? `EXCEEDS NFPA 13 LIMIT (max 3.0 m/s); pipe undersized, upsize to next standard diameter` : 'OK (under NFPA 13 max 3.0 m/s)'}</strong><br>
       <strong>Total friction loss H_f = ${r.H_friction} bar over ${inputs.pipe_length} m</strong>
     </p>
 
@@ -21408,8 +21408,10 @@ function buildFireSprinklerSvg(inputs, results) {
   const qSprink  = Number (r.Q_sprinklers_total        || 1120).toFixed(0);
   const qHose    = Number (r.Q_hose                    || 946) .toFixed(0);
   const qTotal   = Number (r.Q_total                   || 2066).toFixed(0);
-  const pDesign  = Number (r.P_design                  || 70)  .toFixed(1);
-  const pSource  = Number (r.P_source                  || 95)  .toFixed(1);
+  // P_design and P_source come from the calc in BAR (e.g. 0.851, 9.994).
+  // 2-decimal precision so 9.994 doesn't round to 10.0 and look like a round number.
+  const pDesign  = Number (r.P_design                  || 0.85) .toFixed(2);
+  const pSource  = Number (r.P_source                  || 9.5)  .toFixed(2);
   const pipeD    = Number (r.pipe_dia                  || 100);
   const pipeMat  = escHtml(String(r.pipe_material      || inputs.pipe_material || 'Black Steel'));
   const velocity = Number (r.velocity                  || 2.8) .toFixed(1);
@@ -21519,7 +21521,7 @@ function buildFireSprinklerSvg(inputs, results) {
   // Source node marker + hydraulics
   s += `<circle cx="${RSR_X}" cy="${SUP_Y}" r="5" fill="${WB}" stroke="white" stroke-width="1.5"/>`;
   s += tx(RSR_X + 8, SUP_Y - 42, 'SOURCE NODE', `font-size="6.5" font-weight="700" fill="${CC}" font-family="Arial"`);
-  s += tx(RSR_X + 8, SUP_Y - 30, `P = ${pSource} kPa`, `font-size="8" font-weight="700" fill="${WB}" font-family="Arial"`);
+  s += tx(RSR_X + 8, SUP_Y - 30, `P = ${pSource} bar`, `font-size="8" font-weight="700" fill="${WB}" font-family="Arial"`);
   s += tx(RSR_X + 8, SUP_Y - 19, `Q = ${qTotal} L/min`, `font-size="7.5" fill="${WB}" font-family="Arial"`);
 
   // ── Main riser (vertical at RSR_X) ───────────────────────────────────────────
@@ -21588,7 +21590,7 @@ function buildFireSprinklerSvg(inputs, results) {
     // Node dot at header + design pressure on first head
     s += `<circle cx="${bx}" cy="${HDR_Y}" r="3.5" fill="${WB}" stroke="white" stroke-width="1"/>`;
     if (i === 0) {
-      s += tx(bx, HDR_Y - 11, `P=${pDesign}kPa`, `text-anchor="middle" font-size="6" font-weight="600" fill="${WB}" font-family="Arial"`);
+      s += tx(bx, HDR_Y - 11, `P=${pDesign} bar`, `text-anchor="middle" font-size="6" font-weight="600" fill="${WB}" font-family="Arial"`);
       s += tx(bx, HEAD_Y + 38, `K=${kFactor}`, `text-anchor="middle" font-size="6.5" fill="${SC}" font-family="Arial"`);
       s += tx(bx, HEAD_Y + 49, `${qHead}\u00a0L/min`, `text-anchor="middle" font-size="6.5" fill="${WB}" font-family="Arial"`);
     }
@@ -21637,8 +21639,8 @@ function buildFireSprinklerSvg(inputs, results) {
     ['Q Sprinklers',         `${qSprink} L/min`],
     ['Q Hose Stream',        `${qHose} L/min`],
     ['Q Total (System)',      `${qTotal} L/min`],
-    ['Design Pressure',      `${pDesign} kPa`],
-    ['Source Press. Req.',   `${pSource} kPa`],
+    ['Design Pressure',      `${pDesign} bar`],
+    ['Source Press. Req.',   `${pSource} bar`],
     ['Water Vol. / Duration', `${waterVol} m\u00b3 / ${duration} min`],
   ];
   const SUM_H = HDR_BH + ROWS.length * ROW_H + 4;
@@ -21666,11 +21668,11 @@ function buildFireSprinklerTitleBlockHtml(inputs, results) {
   const hazard = escHtml(String(r.hazard || inputs.occupancy_hazard || 'Ordinary Group 1'));
   const nH     = Number(r.N_sprinklers || 0);
   const qT     = Number(r.Q_total      || 0).toFixed(0);
-  const pS     = Number(r.P_source     || 0).toFixed(1);
+  const pS     = Number(r.P_source     || 0).toFixed(2);
   const durMin = Number(r.duration     || 0);
   const proj   = escHtml(String(inputs.project_name || 'Untitled Sprinkler System'));
   const now    = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
-  const ratingLine = `${hazard} | ${nH} heads | Q=${qT}\u00a0L/min | P\u209b=${pS}\u00a0kPa | ${durMin}\u00a0min`;
+  const ratingLine = `${hazard} | ${nH} heads | Q=${qT}\u00a0L/min | P\u209b=${pS}\u00a0bar | ${durMin}\u00a0min`;
 
   const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v = '') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
@@ -29067,7 +29069,7 @@ function renderBomTablePreview(items) {
     : isFPump
     ? `Fire Protection: Fire Pump Sizing (${_lastResults?.drive_type || _lastInputs?.drive_type || 'Electric Motor'}, ${_lastResults?.selected_HP || ''}HP (${Number(_lastResults?.selected_kW||0).toFixed(1)}kW), TDH=${_lastResults?.TDH_m || ''}m, Q=${_lastResults?.Q_Lmin || _lastInputs?.required_flow || ''}L/min @ ${_lastResults?.P_req_bar || _lastInputs?.required_pressure || ''}bar, ${_lastResults?.pipe_dia || ''}mm ${_lastResults?.pipe_material || 'Steel'} pipe)`
     : isFSprink
-    ? `Fire Protection: Fire Sprinkler Hydraulic (${_lastInputs?.hazard || ''}, ${_lastResults?.N_sprinklers || ''} heads, Q=${_lastResults?.Q_total || ''}L/min, ${_lastResults?.pipe_dia || ''}mm ${_lastResults?.pipe_material || ''} riser)`
+    ? `Fire Protection: Fire Sprinkler Hydraulic (${_lastInputs?.occupancy_hazard || _lastResults?.hazard || 'Ordinary Group 1'}, ${_lastResults?.N_sprinklers || ''} heads, Q=${_lastResults?.Q_total || ''}L/min, ${_lastResults?.pipe_dia || ''}mm ${_lastResults?.pipe_material || ''} riser)`
     : isLight
     ? `Electrical: Lighting Design (${_lastInputs?.space_type || 'Office'}, ${_lastResults?.N_fixtures || ''}× ${_lastInputs?.watts_per_fix || ''}W LED, ${_lastResults?.E_actual_lux || ''}lux achieved, LPD ${_lastResults?.lpd_W_m2 || ''}W/m²)`
     : isSC
@@ -29435,7 +29437,7 @@ function renderSowDocPreview(sections) {
     : isFPump
     ? `Fire Pump Sizing: ${_lastResults?.drive_type || _lastInputs?.drive_type || 'Electric Motor'}, ${_lastResults?.selected_HP || ''}HP (${Number(_lastResults?.selected_kW||0).toFixed(1)}kW), TDH=${_lastResults?.TDH_m || ''}m, Q=${_lastResults?.Q_Lmin || _lastInputs?.required_flow || ''}L/min @ ${_lastResults?.P_req_bar || _lastInputs?.required_pressure || ''}bar, ${_lastResults?.pipe_dia || ''}mm ${_lastResults?.pipe_material || 'Steel'} pipe, Jockey: ${_lastResults?.Q_jockey_Lmin || ''}L/min @ ${_lastResults?.P_jockey_bar || ''}bar`
     : isFSprink
-    ? `Fire Sprinkler Hydraulic: ${_lastInputs?.hazard || ''} Hazard, ${_lastResults?.N_sprinklers || ''} sprinkler heads, Q_total=${_lastResults?.Q_total || ''}L/min, P_design=${_lastResults?.P_design || ''}kPa, ${_lastResults?.pipe_dia || ''}mm ${_lastResults?.pipe_material || ''} riser, Duration ${_lastResults?.duration || ''}min, Storage ${_lastResults?.water_volume_m3 || ''}m³`
+    ? `Fire Sprinkler Hydraulic: ${_lastInputs?.occupancy_hazard || _lastResults?.hazard || 'Ordinary Group 1'} Hazard, ${_lastResults?.N_sprinklers || ''} sprinkler heads, Q_total=${_lastResults?.Q_total || ''}L/min, P_source=${_lastResults?.P_source || ''} bar, ${_lastResults?.pipe_dia || ''}mm ${_lastResults?.pipe_material || ''} riser, Duration ${_lastResults?.duration || ''}min, Storage ${_lastResults?.water_volume_m3 || ''}m³`
     : isLight
     ? `Lighting Design: ${_lastInputs?.space_type || 'Office'}, ${_lastInputs?.room_len_m || ''}m × ${_lastInputs?.room_wid_m || ''}m (${_lastResults?.floor_area_m2 || ''}m²), Target ${_lastInputs?.target_lux || ''}lux, Achieved ${_lastResults?.E_actual_lux || ''}lux, ${_lastResults?.N_fixtures || ''} × ${_lastInputs?.watts_per_fix || ''}W LED Fixtures, Total ${_lastResults?.total_kW || ''}kW, LPD ${_lastResults?.lpd_W_m2 || ''}W/m²`
     : isSC
