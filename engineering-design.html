@@ -26305,7 +26305,8 @@ function buildHeatExchangerSVG(inputs, results) {
       p.push(`<circle cx="${tx}" cy="${ty}" r="5" fill="${CLD}" stroke="${CC}" stroke-width="0.8"/>`);
     }
   }
-  p.push(_plumbT(SX+SW/2,SY+SH/2+5,`${nTubes} tubes  Ø${tubeOD}mm × ${tubeL}m  |  Shell ID ${shellID}mm`,{sz:7.5,c:STL,w:'700'}));
+  // Annotation placed BELOW the shell body to avoid overlap with tube circles
+  p.push(_plumbT(SX+SW/2,SY+SH+12,`${nTubes} tubes  Ø${tubeOD}mm × ${tubeL}m  |  Shell ID ${shellID}mm`,{sz:7.5,c:STL,w:'700'}));
   // Hot fluid (shell side) — top/bottom nozzles
   const hotNozX=SX+SW*0.25;
   p.push(`<line x1="${hotNozX}" y1="${SY-25}" x2="${hotNozX}" y2="${SY}" stroke="${HOT}" stroke-width="4"/>`);
@@ -26337,7 +26338,7 @@ function buildHeatExchangerSVG(inputs, results) {
   [`1. Q = U × A × LMTD_corrected. LMTD correction factor F per TEMA (multi-pass correction).`,
    `2. Required area A = Q / (U × LMTD). Standard tube OD ${tubeOD}mm, n = ${nTubes} tubes.`,
    `3. TEMA / ASME Sec.VIII: design pressure, nozzle loads, corrosion allowance per material code.`
-  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+76+i*11,n,{a:'start',sz:6.5,c:CC})));
   _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'HEAT EXCHANGER', rows:[
     ['Duty',`${dutyKW} kW`,CC],['LMTD (corrected)',`${lmtdK} K`,HOT],
     ['Overall U',`${U} W/m²·K`,STL],['Required Area',`${aM2} m²`,CC],
