@@ -17278,7 +17278,12 @@ function renderShaftDesignReport(inputs, results, narrative) {
   const shockMap   = { Steady: {Kb:1.0,Kt:1.0}, Minor: {Kb:1.5,Kt:1.0}, Moderate: {Kb:2.0,Kt:1.5}, Heavy: {Kb:3.0,Kt:2.0} };
   const shk        = shockMap[inputs.shock_type] || shockMap['Minor'];
   const Sut        = Number(results.Sut_MPa || 0);
-  const Ss_allow   = Sut * (keyway === 'Yes' ? 0.18 : 0.30);
+  const Sy         = Number(results.Sy_MPa || 0);
+  // ASME B106.1M Ss_allow: min(0.30*Sy, 0.18*Sut) without keyway, x 0.75 with keyway.
+  // Read from calc engine if present (numeric); fall back to ASME formula.
+  const Ss_no_kw   = Math.min(0.30 * Sy, 0.18 * Sut);
+  const Ss_allow   = Number(results.Ss_allow_MPa)
+                     || (keyway === 'Yes' ? 0.75 * Ss_no_kw : Ss_no_kw);
   const T_Nm       = Number(results.torque_Nm         || results.T_Nm           || 0);
   const M_Nm       = Number(results.bending_moment_Nm || results.M_Nm           || 0);
   const d_std      = Number(results.d_standard_mm     || results.d_std_mm       || results.d_used_mm || 0);
@@ -17290,13 +17295,41 @@ function renderShaftDesignReport(inputs, results, narrative) {
   const tw_rad     = J_m4 > 0 ? T_Nm * spanM / (G * J_m4) : 0;
   const tw_deg     = tw_rad * 180 / Math.PI;
   const tw_deg_m   = spanM > 0 ? tw_deg / spanM : 0;
+  // Diameter required to satisfy 1 deg/m twist limit (for FAIL recommendations)
+  // d^4 = 32*T / (G*pi*theta_rad_per_m); independent of L
+  const d_twist_required_mm = T_Nm > 0
+    ? Math.round(Math.pow((32 * T_Nm) / (G * Math.PI * (Math.PI / 180)), 0.25) * 1000 * 10) / 10
+    : 0;
+  const stdSizes  = [12,15,16,17,18,19,20,22,24,25,28,30,32,35,38,40,42,45,48,50,55,60,65,70,75,80,85,90,95,100,110,120];
+  const d_twist_std_mm = stdSizes.find(d => d >= d_twist_required_mm) || stdSizes[stdSizes.length - 1];
+  // n_key value for Recommendations text (read from calc engine; fall back to '—')
+  const n_key      = Number(results.n_key || 0);
+  const key_ok     = Boolean(results.key_ok ?? (n_key >= 1.5));
+  const nf_good    = Number(results.nf_goodman || 0);
+  const ny_yld     = Number(results.ny_yield   || 0);
+  const ncritRpm   = Number(results.critical_speed_rpm || 0);
+
+  // ASME B106.1M elliptic d_min (recompute locally so the formula in Section 5
+  // and the d_min value displayed are mathematically consistent — independent of
+  // whatever combined criterion Python's DE-Goodman returned in results.d_min_mm)
+  const d_min_asme_mm3 = Ss_allow > 0
+    ? (16 / Math.PI) * comb / (Ss_allow * 1e6) * 1e9   // m^3 -> mm^3
+    : 0;
+  const d_min_asme_mm = d_min_asme_mm3 > 0
+    ? Math.pow(d_min_asme_mm3, 1/3)
+    : 0;
 
   const r = Object.assign({}, results, {
     T_Nm:            T_Nm.toFixed(1),
     M_Nm:            M_Nm.toFixed(1),
     d_std_mm:        d_std,
-    d_min_mm:        d_min.toFixed(1),
+    // Display ASME elliptic d_min (matches the formula shown in Section 5).
+    // The calc engine's results.d_min_mm may use Goodman (more conservative,
+    // includes Kf/Kfs stress concentration) — quote both for traceability.
+    d_min_mm:        d_min_asme_mm.toFixed(1),
+    d_min_goodman_mm: d_min > 0 ? d_min.toFixed(1) : null,
     Sut_MPa:         Sut,
+    Sy_MPa:          Sy,
     Ss_allow_MPa:    Ss_allow.toFixed(1),
     Ss_allow_Pa:     (Ss_allow * 1e6).toFixed(0),
     Kb:              shk.Kb,
@@ -17385,11 +17418,13 @@ function renderShaftDesignReport(inputs, results, narrative) {
       d³ = (16 / π) × √[ (Kb × M)² + (Kt × T)² ] / Ss<sub>allow</sub>
     </p>
     <p style="font-size:0.83rem;color:#333;">
+      Ss<sub>allow</sub> = ${keyway === 'Yes' ? '0.75 × min(0.30 × Sy, 0.18 × Sut)' : 'min(0.30 × Sy, 0.18 × Sut)'} = <strong>${r.Ss_allow_MPa} MPa</strong> (${keyway === 'Yes' ? 'keyway: 25% reduction per ASME B106.1M' : 'no keyway'})<br>
       Combined load = √[ (${r.Kb} × ${r.M_Nm})² + (${r.Kt} × ${r.T_Nm})² ] = ${r.combined_Nm} N·m<br>
       d³ = (16 / π) × ${r.combined_Nm} / ${r.Ss_allow_Pa} = ${r.d_cubed_m3} m³<br>
-      d<sub>min</sub> = ${r.d_min_mm} mm (calculated)
+      d<sub>min</sub> (ASME elliptic) = <strong>${r.d_min_mm} mm</strong>
     </p>
-    <p style="font-size:0.83rem;color:#333;"><strong>Standard shaft diameter selected: <strong>${r.d_std_mm} mm</strong> (next standard size ≥ ${r.d_min_mm} mm)</strong></p>
+    ${r.d_min_goodman_mm ? `<p style="font-size:0.83rem;color:#333;"><strong>Cross-check — Shigley DE-Goodman fatigue:</strong> d<sub>min</sub> = ${r.d_min_goodman_mm} mm (includes Kf, Kfs stress concentration factors). Governing minimum: <strong>${Math.max(Number(r.d_min_mm), Number(r.d_min_goodman_mm)).toFixed(1)} mm</strong>.</p>` : ''}
+    <p style="font-size:0.83rem;color:#333;"><strong>Standard shaft diameter selected: <strong>${r.d_std_mm} mm</strong> (next standard size ≥ governing d<sub>min</sub>)</strong></p>
 
     <h2>6. Angle of Twist Check</h2>
     <p style="font-size:0.83rem;color:#333;">
@@ -17428,7 +17463,7 @@ function renderShaftDesignReport(inputs, results, narrative) {
     <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Solid circular cross-section shaft.\n2. Simply supported beam model for bending: transverse load applied at midspan between the two bearing supports.\n3. Shock factors Kb = ${r.Kb} and Kt = ${r.Kt} per ASME B106.1M Table for ${inputs.shock_type.toLowerCase()} shock loading.\n4. Allowable shear stress Ss = ${inputs.keyway === 'Yes' ? '0.18' : '0.30'} × Sut = ${r.Ss_allow_MPa} MPa (${inputs.keyway === 'Yes' ? 'keyway present: ASME B106.1M reduction applied' : 'no keyway'}).\n5. Shear modulus G = 80 GPa for steel.\n6. Bending moment simplified to F×L/4 (point load at midspan). If the load is applied at a different location, revise M accordingly.`)}</p>
 
     <h2>9. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Specify ${r.d_std_mm} mm diameter ${inputs.material} solid shaft (cold-drawn round bar). Minimum calculated diameter: ${r.d_min_mm} mm.\n2. ${inputs.keyway === 'Yes' ? 'Design keyway per ASME B17.1: key width = d/4, key height = d/4. Verify keyway stress concentration does not govern over the ASME allowable used here.' : 'No keyway: use shrink fit or interference fit for hub attachment. Verify fit tolerance per ISO 286.'}\n3. Angle of twist: ${r.twist_deg_per_m}°/m: ${twistOk ? 'within ASME limit of 0.5–1.0°/m.' : 'EXCEEDS ASME limit. Increase to next standard diameter to reduce twist.'}\n4. Verify shaft critical speed: operating speed must be below 50% of the first critical (whirling) speed.\n5. Source AISI ${inputs.material.replace('AISI ', '')} round bar from a PNS/ASTM-certified supplier and verify mill certificate Sut before fabrication.\n6. A PRC-licensed Mechanical Engineer must sign and seal this document before use as a fabrication basis.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Specify ${twistOk ? r.d_std_mm : d_twist_std_mm} mm diameter ${inputs.material} solid shaft (cold-drawn round bar)${twistOk ? '' : ` — UPSIZED from strength-only minimum ${r.d_std_mm} mm to satisfy 1°/m angle-of-twist limit (required d ≥ ${d_twist_required_mm} mm)`}. Strength-only minimum: ${r.d_min_mm} mm.\n2. ${inputs.keyway === 'Yes' ? `Design keyway per ASME B17.1: key width = d/4, key height = d/6, key length ≥ 1.5d.${n_key > 0 ? ` Computed key shear safety factor n_key = ${n_key.toFixed(2)} ${key_ok ? '(meets 1.5 minimum).' : '(BELOW 1.5 minimum per ASME B17.1: increase key length, use higher-grade key material, or upsize shaft to lower torque-induced shear stress).'}` : ''}` : 'No keyway: use shrink fit or interference fit for hub attachment. Verify fit tolerance per ISO 286.'}\n3. Angle of twist: ${r.twist_deg_per_m}°/m: ${twistOk ? 'within ASME limit of 0.5–1.0°/m.' : `EXCEEDS ASME 1°/m limit by ${(Number(r.twist_deg_per_m) / 1.0).toFixed(1)}x. Required diameter ≥ ${d_twist_required_mm} mm (next standard: ${d_twist_std_mm} mm).`}\n4. Verify shaft critical speed${ncritRpm > 0 ? ` (computed: ${ncritRpm.toLocaleString()} RPM)` : ''}: operating speed must be below 75% of the first critical (whirling) speed and above 125% if running supercritical.\n5. Source ${inputs.material} round bar from a PNS/ASTM-certified supplier per ASTM A108 (cold-drawn) or DIN 1652. Verify mill certificate Sut (≥ ${r.Sut_MPa} MPa) before fabrication.\n6. Apply tolerance per ISO 286: bearing seats h6, coupling fits k6, keyway tolerance JS9. Surface finish Ra ≤ 1.6 μm at bearing journals; Ra ≤ 3.2 μm elsewhere.\n7. A PRC-licensed Mechanical Engineer must sign and seal this document before use as a fabrication basis.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
@@ -19253,8 +19288,11 @@ async function _runDrawing() {
     } else if (ct === 'Shaft Design') {
       const svg = buildShaftDesignSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
+      const _twistDPM = Number(_r.twist_deg_per_m || 0);
+      const _twistOk  = _twistDPM <= 1.0;
+      const _twistTag = _twistDPM > 0 ? ` | twist ${_twistDPM.toFixed(2)}deg/m${_twistOk ? '' : ' FAIL'}` : '';
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `Ø${Number(_r.d_standard_mm||0).toFixed(0)}mm  |  nf=${Number(_r.nf_goodman||0).toFixed(2)}  |  T=${Number(_r.torque_Nm||0).toFixed(1)} N·m`,
+        `Ø${Number(_r.d_standard_mm||0).toFixed(0)}mm  |  nf=${Number(_r.nf_goodman||0).toFixed(2)}  |  T=${Number(_r.torque_Nm||0).toFixed(1)} N·m${_twistTag}`,
         { drawingNo:'MECH-SHF-SCH-001', drawingTitle:'Shaft Design — Free Body Diagram', standard:'ASME B106.1M / DE-Goodman' }));
     } else if (ct === 'Beam / Column Design') {
       const svg = buildBeamColumnSVG(_lastInputs, _lastResults);
@@ -26829,17 +26867,20 @@ function buildShaftDesignSVG(inputs, results) {
   p.push(`<path d="M ${_taX1},${_taY} A ${_taR},${_taR} 0 0 1 ${_taX2},${_taY}" fill="none" stroke="${TRQ}" stroke-width="2.5"/>`);
   p.push(`<polygon points="${_taX2},${_taY-7} ${_taX2+12},${_taY} ${_taX2},${_taY+7}" fill="${TRQ}"/>`);
   p.push(_plumbT(_taX1+(_taX2-_taX1)/2,_taY-14,`T = ${torqNm} N·m`,{sz:8,c:TRQ,w:'700'}));
-  // Bending moment (downward load)
-  const loadX=SHX+SHW*0.4;
-  p.push(`<line x1="${loadX}" y1="${SHY-SHR-40}" x2="${loadX}" y2="${SHY-SHR-5}" stroke="${FAIL_C}" stroke-width="2.5"/>`);
-  p.push(`<polygon points="${loadX-6},${SHY-SHR-5} ${loadX+6},${SHY-SHR-5} ${loadX},${SHY-SHR+8}" fill="${FAIL_C}"/>`);
-  p.push(_plumbT(loadX+12,SHY-SHR-28,`M = ${bendNm} N·m`,{a:'start',sz:8,c:FAIL_C,w:'700'}));
+  // Bending moment (downward load) — only draw if M > 0 (otherwise misleading)
+  if (Number(bendNm) > 0) {
+    const loadX=SHX+SHW*0.4;
+    p.push(`<line x1="${loadX}" y1="${SHY-SHR-40}" x2="${loadX}" y2="${SHY-SHR-5}" stroke="${FAIL_C}" stroke-width="2.5"/>`);
+    p.push(`<polygon points="${loadX-6},${SHY-SHR-5} ${loadX+6},${SHY-SHR-5} ${loadX},${SHY-SHR+8}" fill="${FAIL_C}"/>`);
+    p.push(_plumbT(loadX+12,SHY-SHR-28,`M = ${bendNm} N.m`,{a:'start',sz:8,c:FAIL_C,w:'700'}));
+  }
   // Keyway cross-section (inset)
+  const nKey=Number(r.n_key||0).toFixed(2);
   if(Number(keyW)>0){
     const KX=SHX+SHW*0.7,KY=SHY+SHR+25;
     p.push(`<circle cx="${KX}" cy="${KY+20}" r="20" fill="${LGY}" stroke="${STL}" stroke-width="2"/>`);
     p.push(`<rect x="${KX-Number(keyW)*0.8}" y="${KY}" width="${Number(keyW)*1.6}" height="${Number(keyH)*2}" fill="${STL}"/>`);
-    p.push(_plumbT(KX,KY+52,`Key ${keyW}×${keyH}mm  ${keyOK?'✓':'✗'}`,{sz:7.5,c:keyOK?OK_C:FAIL_C,w:'700'}));
+    p.push(_plumbT(KX,KY+52,`Key ${keyW}x${keyH}mm  n=${nKey}  ${keyOK?'OK':'FAIL'}`,{sz:7.5,c:keyOK?OK_C:FAIL_C,w:'700'}));
   }
   // Safety factor badges
   const bY=SHY+SHR+20;
@@ -26855,10 +26896,10 @@ function buildShaftDesignSVG(inputs, results) {
     p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
     p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
   });
-  [`1. DE-Goodman: σ_a/Se + σ_m/Sut = 1/nf. Se = 0.5Sut × surface × size × reliability × Kf factors.`,
-   `2. Critical speed: Ω_cr = √(k/m). Operating rpm must be < 75% or > 125% of critical speed.`,
-   `3. ASME B106.1M shaft key: ${keyW}×${keyH}mm. τ_key = T/(A×d/2). Safety factor n_key = ${Number(r.n_key||0).toFixed(2)}.`
-  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+  [`1. DE-Goodman: sigma_a/Se + sigma_m/Sut = 1/nf. Se = 0.5*Sut x surface x size x reliability x Kf factors.`,
+   `2. Critical speed: omega_cr = sqrt(k/m). Operating rpm must be < 75% or > 125% of critical speed.`,
+   `3. ASME B106.1M shaft key: ${keyW}x${keyH}mm. tau_key = T/(A x d/2). Safety factor n_key = ${nKey}.`
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+76+i*11,n,{a:'start',sz:6.5,c:CC})));
   _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'SHAFT DESIGN', rows:[
     ['Material',String(r.material||inp.material||'AISI 1045'),CC],['Min Diameter',`${dMin} mm`,GY],
     ['Standard Diameter',`Ø${dStd} mm`,STL],['Torque T',`${torqNm} N·m`,TRQ],

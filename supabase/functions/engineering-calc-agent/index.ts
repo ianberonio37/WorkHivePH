@@ -2246,7 +2246,7 @@ function calcBoltTorque(inputs: Record<string, number | string>): Record<string,
 
 function calcShaftDesign(inputs: Record<string, number | string>): Record<string, unknown> {
   const power_kW         = Number(inputs.power_kW)          || 7.5;
-  const shaft_rpm        = Number(inputs.shaft_rpm)          || 1450;
+  const shaft_rpm        = Number(inputs.shaft_rpm) || Number(inputs.speed_rpm) || 1450;
   const transverse_load_N= Number(inputs.transverse_load_N)  || 2000;
   const span_mm          = Number(inputs.span_mm)            || 300;
   const material         = (inputs.material as string)       || 'AISI 1045';
@@ -2318,6 +2318,79 @@ function calcShaftDesign(inputs: Record<string, number | string>): Record<string
   const twist_rad = (T_Nm * L_m) / (G * J_m4);
   const twist_deg = round2(twist_rad * 180 / Math.PI);
   const twist_deg_per_m = round2(twist_deg / L_m);
+  const twist_ok = twist_deg_per_m <= 1.0;
+
+  // Diameter required to satisfy 1 deg/m twist limit (for Recommendations FAIL note)
+  // theta_per_m_target = 1 deg/m = pi/180 rad/m
+  // theta = T * L / (G * J), J = pi*d^4/32
+  // Solving for d: d^4 = (32 * T) / (G * pi * theta_per_m_rad) — independent of L
+  const theta_target_rad_per_m = Math.PI / 180;
+  const d_twist_required_m = Math.pow((32 * T_Nm) / (G * Math.PI * theta_target_rad_per_m), 0.25);
+  const d_twist_required_mm = round1(d_twist_required_m * 1000);
+  let d_twist_std_mm = std_diams[std_diams.length - 1];
+  for (const d of std_diams) {
+    if (d >= d_twist_required_mm) { d_twist_std_mm = d; break; }
+  }
+
+  // ── Goodman / Yield safety factors (Shigley's DE-Goodman simplified) ────────
+  // Fully reversed bending Ma = M, steady torque Tm = T (typical rotating shaft).
+  // sigma_a = (32/pi*d^3) * Kf * Ma   ; sigma_m = (16/pi*d^3) * Kfs * Tm * sqrt(3)
+  // Use Kf=2.1, Kfs=1.8 (shoulder fillet r/d=0.05) - matches Python default
+  const Kf = 2.1, Kfs = 1.8;
+  const d_std_mm_num = d_std_mm;
+  const Z_mm3  = Math.PI * Math.pow(d_std_mm_num, 3) / 32;   // section modulus mm^3
+  const Zp_mm3 = Math.PI * Math.pow(d_std_mm_num, 3) / 16;   // polar section modulus mm^3
+  // sigma in MPa when M, T in N*mm and Z in mm^3
+  const sigma_a_MPa = Z_mm3 > 0 ? (Kf * M_Nm * 1000) / Z_mm3 : 0;          // bending alternating
+  const tau_m_MPa   = Zp_mm3 > 0 ? (Kfs * T_Nm * 1000) / Zp_mm3 : 0;       // torsion mean
+  // Shigley DE: sigma'_a = sqrt(sigma_a^2 + 3*tau_a^2); sigma'_m = sqrt(sigma_m^2 + 3*tau_m^2)
+  // Pure bending alt + pure torsion mean: sigma'_a = sigma_a ; sigma'_m = sqrt(3) * tau_m
+  const sigma_eq_a_MPa = sigma_a_MPa;
+  const sigma_eq_m_MPa = Math.sqrt(3) * tau_m_MPa;
+  // Endurance limit Se ≈ 0.5 * Sut * surface * size * reliability factors
+  // Use approximated combined factor 0.5 (machined, d~25mm, 90% reliability) — matches Python typical output
+  const Se_MPa = 0.5 * Sut_MPa * 0.5;  // ~0.25*Sut, conservative
+  const goodman_lhs = Se_MPa > 0 && Sut_MPa > 0
+    ? sigma_eq_a_MPa / Se_MPa + sigma_eq_m_MPa / Sut_MPa
+    : 0;
+  const nf_goodman = goodman_lhs > 0 ? round2(1 / goodman_lhs) : 99;
+  const sigma_max_MPa = Math.sqrt(Math.pow(sigma_eq_a_MPa + sigma_eq_m_MPa, 2));
+  const ny_yield = sigma_max_MPa > 0 ? round2(Sy_MPa / sigma_max_MPa) : 99;
+  const fatigue_ok = nf_goodman >= 1.5;
+  const yield_ok   = ny_yield   >= 1.5;
+
+  // ── Deflection (simply supported, midspan point load) ──────────────────────
+  const E_Pa = 207e9;
+  const r_m  = d_std_mm_num / 2000;
+  const I_m4 = (Math.PI * Math.pow(r_m, 4)) / 4;
+  const deflection_mm = (I_m4 > 0 && transverse_load_N > 0)
+    ? round2((transverse_load_N * Math.pow(L_m, 3)) / (48 * E_Pa * I_m4) * 1000 * 100) / 100
+    : 0;
+  // L/3000 typical shaft deflection limit (Shigley's recommendation for general purpose)
+  const deflection_limit_mm = round2((span_mm / 3000) * 100) / 100;
+  const deflection_ok = deflection_mm <= deflection_limit_mm;
+
+  // ── Critical speed (Rayleigh-Ritz, simply supported) ───────────────────────
+  const RHO = 7850;  // kg/m^3
+  const A_m2 = Math.PI * Math.pow(r_m, 2);
+  let critical_speed_rpm = 99999;
+  if (L_m > 0 && I_m4 > 0 && A_m2 > 0) {
+    const omega_c = Math.pow(Math.PI / L_m, 2) * Math.sqrt((E_Pa * I_m4) / (RHO * A_m2));
+    critical_speed_rpm = Math.round((omega_c * 60) / (2 * Math.PI));
+  }
+  const critical_speed_ok = shaft_rpm < 0.8 * critical_speed_rpm;
+
+  // ── Key (ASME B17.1: square key, w = d/4, h = d/6, L = 1.5d default) ───────
+  const key_width_mm  = round1(d_std_mm_num / 4);
+  const key_height_mm = round1(d_std_mm_num / 6);
+  const key_length_mm = round1(1.5 * d_std_mm_num);
+  const A_key_mm2 = key_width_mm * key_length_mm;
+  const tau_key_MPa = (A_key_mm2 > 0)
+    ? (Math.abs(T_Nm) * 1000) / (A_key_mm2 * (d_std_mm_num / 2))
+    : 0;
+  const Ssy_MPa = 0.577 * Sy_MPa;  // distortion-energy shear yield
+  const n_key = tau_key_MPa > 0 ? round2(Ssy_MPa / tau_key_MPa) : 99;
+  const key_ok = n_key >= 1.5;
 
   return {
     power_kW: round2(power_kW),
@@ -2337,6 +2410,36 @@ function calcShaftDesign(inputs: Record<string, number | string>): Record<string
     twist_rad: round2(twist_rad * 1000) / 1000,
     twist_deg,
     twist_deg_per_m,
+    twist_ok,
+    d_twist_required_mm,
+    d_twist_std_mm,
+    // Aliases for SVG / BOM / SOW consumers (Python parity)
+    torque_Nm: T_Nm,
+    bending_moment_Nm: M_Nm,
+    d_standard_mm: d_std_mm,
+    d_used_mm: d_std_mm,
+    material,
+    Se_MPa: round1(Se_MPa),
+    Kf,
+    Kfs,
+    sigma_a_MPa: round2(sigma_eq_a_MPa),
+    sigma_m_MPa: round2(sigma_eq_m_MPa),
+    nf_goodman,
+    ny_yield,
+    fatigue_ok,
+    yield_ok,
+    deflection_mm,
+    deflection_limit_mm,
+    deflection_ok,
+    critical_speed_rpm,
+    speed_ratio: critical_speed_rpm > 0 ? round2(shaft_rpm / critical_speed_rpm) : 0,
+    critical_speed_ok,
+    key_width_mm,
+    key_height_mm,
+    key_length_mm,
+    tau_key_MPa: round2(tau_key_MPa),
+    n_key,
+    key_ok,
   };
 }
 

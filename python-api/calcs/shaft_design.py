@@ -160,9 +160,19 @@ def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcShaftDesign() keys."""
     # ── Loads ─────────────────────────────────────────────────────────────────
     power_kW     = float(inputs.get("power_kW",     10.0))
-    speed_rpm    = float(inputs.get("speed_rpm",    1450))
-    span_m       = float(inputs.get("span_m",       0.5))    # bearing-to-bearing
-    radial_load_N = float(inputs.get("radial_load_N", 0.0))  # external radial force at midspan
+    # Accept both shaft_rpm (TS form) and speed_rpm (Python native)
+    speed_rpm    = float(inputs.get("shaft_rpm")
+                         if inputs.get("shaft_rpm") is not None
+                         else inputs.get("speed_rpm", 1450))
+    # Accept both span_mm (TS form, mm) and span_m (Python native, m)
+    if inputs.get("span_mm") is not None:
+        span_m = float(inputs.get("span_mm", 300)) / 1000.0
+    else:
+        span_m = float(inputs.get("span_m", 0.3))
+    # Accept both transverse_load_N (TS form) and radial_load_N (Python native)
+    radial_load_N = float(inputs.get("transverse_load_N")
+                          if inputs.get("transverse_load_N") is not None
+                          else inputs.get("radial_load_N", 0.0))
 
     # Computed torque
     T_Nm = power_kW * 1000 / (2 * math.pi * speed_rpm / 60) if speed_rpm > 0 else 0.0
@@ -179,8 +189,18 @@ def calculate(inputs: dict) -> dict:
     Tm_Nm = T_Nm
 
     # ── Material ──────────────────────────────────────────────────────────────
-    mat_key     = str(inputs.get("material",        "AISI 1045 (HR)"))
-    mat         = SHAFT_MATERIALS.get(mat_key, SHAFT_MATERIALS["AISI 1045 (HR)"])
+    # TS form sends bare grade ("AISI 1045"); Python catalog uses "AISI 1045 (HR)".
+    # If exact key not found, fuzzy-match by prefix to first matching catalog entry.
+    mat_key_in  = str(inputs.get("material",        "AISI 1045 (HR)"))
+    if mat_key_in in SHAFT_MATERIALS:
+        mat_key = mat_key_in
+    else:
+        prefix_match = next(
+            (k for k in SHAFT_MATERIALS if k.startswith(mat_key_in)),
+            "AISI 1045 (HR)",
+        )
+        mat_key = prefix_match
+    mat         = SHAFT_MATERIALS[mat_key]
     surface     = str(inputs.get("surface_finish",  "Machined / CD"))
     reliability = float(inputs.get("reliability_pct", 90.0))
 

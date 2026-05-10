@@ -3734,31 +3734,71 @@ async function shaftDesignBomSowAgent(
   const dStd      = Number(results.d_standard_mm || 0);
   const dUsed     = Number(results.d_used_mm  || dStd);
   const nfGood    = Number(results.nf_goodman || 0).toFixed(2);
-  const critRPM   = Number(results.critical_speed_rpm || 0).toFixed(0);
+  const nyYld     = Number(results.ny_yield   || 0).toFixed(2);
+  const critRPM   = Number(results.critical_speed_rpm || 0);
   const keyW      = Number(results.key_width_mm  || 0);
   const keyH      = Number(results.key_height_mm || 0);
+  const keyL      = Number(results.key_length_mm || (1.5 * Number(dUsed))).toFixed(0);
+  const nKey      = Number(results.n_key || 0).toFixed(2);
+  const keyOk     = Boolean(results.key_ok ?? (Number(nKey) >= 1.5));
   const torque    = Number(results.torque_Nm || 0).toFixed(1);
+  const twistDPM  = Number(results.twist_deg_per_m || 0);
+  const twistOk   = Boolean(results.twist_ok ?? (twistDPM <= 1.0 && twistDPM > 0));
+  const dTwistReq = Number(results.d_twist_required_mm || 0).toFixed(0);
+  const dTwistStd = Number(results.d_twist_std_mm || dUsed);
+  // Governing diameter: max of strength minimum and twist minimum
+  const dGoverning = Math.max(Number(dUsed), twistOk ? 0 : Number(dTwistStd));
+  const twistNote = twistOk
+    ? `within 1 deg/m limit`
+    : `exceeds 1 deg/m limit by ${(twistDPM / 1.0).toFixed(1)}x; UPSIZED diameter to ${dTwistStd} mm to satisfy ASME B106.1M angle-of-twist limit (required d >= ${dTwistReq} mm)`;
+  const keyNote = keyOk
+    ? `n_key=${nKey} (meets 1.5 minimum per ASME B17.1)`
+    : `n_key=${nKey} BELOW 1.5 minimum per ASME B17.1: increase key length beyond ${keyL} mm or upsize shaft`;
 
-  const prompt = `You are a senior Mechanical Engineer in the Philippines preparing a Bill of Materials (BOM) and Scope of Works (SOW) for a power transmission shaft per ASME B106.1M and Shigley's Mechanical Engineering Design.
+  // ASCII-only directive: Groq output strips Unicode (degree, multiplication, sub/superscript)
+  const asciiDirective = `IMPORTANT: All output text must be ASCII only. Do NOT use Unicode characters such as multiplication sign x, degree symbol, em-dash, en-dash, sub/superscripts, Greek letters, or middle-dot. Use "x" for multiplication, "deg" for degree, "phi" or "dia" for diameter, "Nm" or "N.m" for newton-meters, "MPa" for megapascals, "/" for fractions.`;
+
+  const prompt = `You are a senior Mechanical Engineer in the Philippines preparing a Bill of Materials (BOM) and Scope of Works (SOW) for a power transmission shaft per ASME B106.1M, ASME B17.1, Shigley's Mechanical Engineering Design (10th Ed.), and PSME Code.
+
+${asciiDirective}
 
 Project: ${project}
 Power transmitted: ${powerKW} kW at ${speedRPM} RPM
-Torque: ${torque} N·m
+Torque: ${torque} Nm
 Material: ${material}
-Minimum diameter (DE-Goodman): ${dMin} mm → Selected standard: ${dUsed} mm
-Goodman safety factor nf: ${nfGood}
-Critical speed: ${critRPM} RPM (operating below 80%)
-Key (ASME B17.1): ${keyW} × ${keyH} mm
+Strength-only minimum diameter (DE-Goodman): ${dMin} mm -> Strength-selected standard: ${dUsed} mm
+Goodman fatigue safety factor nf: ${nfGood}; Yield safety factor ny: ${nyYld}
+Critical speed: ${critRPM.toLocaleString()} RPM (operating speed must remain below 75% or above 125%)
+Angle of twist: ${twistDPM.toFixed(2)} deg/m (${twistNote})
+GOVERNING SHAFT DIAMETER (use this for Item 1 and all SOW references): ${dGoverning} mm
+Key (ASME B17.1, square): ${keyW} x ${keyH} mm, length ${keyL} mm; ${keyNote}
 
 Generate a JSON object with exactly two keys:
 
 "bom_items": array of 10 objects with { "description", "specification", "unit", "qty", "remarks" }
-Cover: (1) Shaft stock ${material} ${dUsed}mm dia, (2) Key stock, (3) Shaft couplings/flanges, (4) Bearings (deep groove ball, sized for shaft dia), (5) Bearing housings, (6) Shaft seals (lip seal or labyrinth), (7) Locking devices (locknut + lockwasher), (8) Keyway milling cutter set, (9) Surface treatment (black oxide or phosphate), (10) Shaft alignment tools (dial indicator + magnetic base).
+
+Per-item EXACT structure with description="short item name only" and specification="full standard + dimensions + grade":
+(1) description="Shaft Stock", specification="${material} cold-drawn round bar, ${dGoverning} mm dia x length per drawing, ASTM A108 or DIN 1652, mill certificate Sut not less than ${Number(results.Sut_MPa || 570)} MPa", qty=1, unit="length"
+(2) description="Parallel Key", specification="ASME B17.1 square key, ${keyW} mm width x ${keyH} mm height x ${keyL} mm length, AISI 1045 cold-drawn or carburized C1018, surface hardness HRC 45-50", qty=1, unit="piece"
+(3) description="Flexible Shaft Coupling", specification="elastomeric jaw or disc-type coupling, bore ${dGoverning} mm finished, rated torque not less than ${(Number(torque) * 1.5).toFixed(0)} Nm (1.5x service factor), AGMA 9002 keyway tolerance", qty=2, unit="set"
+(4) description="Deep-Groove Ball Bearing", specification="single-row deep-groove ball bearing, bore ${dGoverning} mm (series 60xx or 62xx selected per radial load), C1 clearance, ABEC-1 tolerance, ISO 281", qty=2, unit="piece"
+(5) description="Bearing Housing", specification="cast-iron pillow-block or flange housing per ISO 113, bore matched to ${dGoverning} mm bearing OD, two grease nipples (M6 x 1), powder-coated finish", qty=2, unit="piece"
+(6) description="Shaft Seal", specification="rotary lip seal per ISO 6194, NBR (nitrile) for oil environment or FKM (Viton) for high-temp, ${dGoverning} mm shaft dia, double lip with garter spring", qty=2, unit="piece"
+(7) description="Locking Device", specification="hex locknut KM-series + tab lockwasher MB-series per DIN 981/5406, sized for ${dGoverning} mm bearing journal", qty=2, unit="set"
+(8) description="Keyway Milling Cutter Set", specification="HSS-Co5 staggered-tooth side-and-face cutters, ${keyW} mm width, dia 50-100 mm with 22 mm bore, ANSI/ASME B94.19", qty=1, unit="set"
+(9) description="Surface Treatment", specification="manganese phosphate per MIL-DTL-16232 Type M Class 4 or black oxide per MIL-DTL-13924 Class 1, 5-15 micron coating thickness for corrosion resistance", qty=1, unit="lot"
+(10) description="Shaft Alignment Tool", specification="dial indicator (0.01 mm resolution, 10 mm travel) with magnetic base + laser shaft alignment kit (rim-and-face method), per ISO 10816-3 commissioning requirements", qty=1, unit="set"
+
+CRITICAL: Every "specification" field MUST be fully populated, never empty or just the item name. All specs MUST cite the actual numeric values shown above (${dGoverning} mm, ${torque} Nm, ${keyW} x ${keyH} x ${keyL} mm, etc.).
 
 "sow_sections": array of 5 objects with { "section_no", "title", "content" }
-Sections: 1.0 Scope, 2.0 Standards (ASME B106.1M, ASME B17.1, Shigley's 10th Ed, PSME Code), 3.0 Materials and Machining (tolerance h6 on bearing seats, k6 on coupling fits, keyway tolerance JS9), 4.0 Installation (alignment within 0.05mm TIR, interference fit for coupling, key torque capacity check), 5.0 Testing (vibration check per ISO 10816 after installation, run-in at 50%/75%/100% load).
+Section 1.0 Scope: state the contractor shall design, fabricate, supply, and install a power transmission shaft transmitting ${powerKW} kW at ${speedRPM} RPM (torque ${torque} Nm), ${dGoverning} mm dia, ${material}, per ASME B106.1M Elliptic Criterion${twistOk ? '' : ` with the ${dGoverning} mm diameter selected to satisfy both DE-Goodman fatigue and 1 deg/m angle-of-twist limit`}. Reference governing safety factors: nf=${nfGood}, ny=${nyYld}, ${keyOk ? '' : 'and address the marginal n_key per Section 4 procedure'}.
+Section 2.0 Standards: cite ASME B106.1M (Design of Transmission Shafting), ASME B17.1 (Keys and Keyseats), Shigley's MED 10th Ed. (DE-Goodman fatigue), ISO 286 (shaft and hub fits), ISO 6194 (rotary lip seals), ISO 10816-3 (vibration severity zones), and PSME Code.
+Section 3.0 Materials: specify ${material} cold-drawn round bar (Sut not less than ${Number(results.Sut_MPa || 570)} MPa, Sy not less than ${Number(results.Sy_MPa || 310)} MPa per mill certificate), ASTM A108 grade. Reference BOM Items 1-10 for full materials list. ${keyOk ? '' : `Note: increase key length beyond ${keyL} mm or specify higher-grade key (AISI 4140 Q&T) to bring n_key to or above 1.5.`}
+Section 4.0 Procedure: machine ${dGoverning} mm shaft to bearing-seat tolerance h6 (ISO 286), coupling-fit tolerance k6, keyway tolerance JS9 per ASME B17.1. Surface roughness Ra not more than 1.6 micron at journals, Ra not more than 3.2 micron elsewhere. Mount couplings using induction heating to 80-100 deg C; verify shaft alignment within 0.05 mm TIR using dial indicator (BOM Item 10). Install keys with ${keyOk ? `verified key length ${keyL} mm minimum` : `INCREASED key length above ${keyL} mm to address marginal n_key=${nKey}`}.
+Section 5.0 Inspection and Commissioning: perform vibration check per ISO 10816-3 (Zone B not more than 4.5 mm/s rms) at 50%, 75%, and 100% load after 4-hour run-in. Verify operating speed remains below 75% of critical (${critRPM.toLocaleString()} RPM) or above 125% if running supercritical. Record bearing temperature (not more than 70 deg C above ambient) and shaft TIR runout. Submit commissioning report with signed mill certificates and inspection logs to the Engineer for approval before handover.
 
-Content fields must start "The Contractor shall..." and reference actual values (${dUsed}mm, ${material}, ${torque}N·m). Return ONLY the JSON. No markdown.`;
+Each "content" field MUST start with "The Contractor shall..." and use ASCII text only. Return ONLY the JSON object. No markdown, no preamble.`;
 
   const raw = await callGroq(prompt);
   const parsed = JSON.parse(raw);
