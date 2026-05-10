@@ -18962,6 +18962,44 @@ function _renderPythonSVG(svgString, title, titleBlockHtml = '') {
   if (dlBtn) { dlBtn.style.display = 'inline-block'; dlBtn._svg = svgString; }
 }
 
+// ─── AHU Sizing Title Block (Python diagram suite) ──────────────────────────
+function buildAHUTitleBlockHtml(inputs, results) {
+  const r = results || {};
+  const nU = Number(r.n_units || inputs?.n_units || 1);
+  const ahuCMH = Number(r.nominal_AHU_CMH_each || 0);
+  const ahuTotal = Number(r.nominal_AHU_CMH_total || ahuCMH * nU);
+  const coilKW = Number(r.Q_coil_total_kW || 0).toFixed(1);
+  const coilTR = Number(r.Q_coil_TR || (Number(coilKW) / 3.517) || 0).toFixed(1);
+  const fanCheck = String(r.fan_power_check || 'PASS');
+  const proj = String(inputs?.project_name || 'Untitled').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const now  = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
+  const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+  const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
+  const BR  = 'border-right:1px solid #c8d0da;';
+  return `<table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}width:42%;`)}${LBL('Project Name')}${EF(proj)}</td>
+    ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('HVAC-AHU-SCH-001')}</td>
+    ${TD('width:35%;')}${LBL('AHU Rating')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${nU} &times; ${ahuCMH.toLocaleString()} m&sup3;/h &mdash; Coil ${coilKW} kW (${coilTR} TR)</div></td>
+  </tr>
+  <tr style="border-bottom:1px solid #c8d0da;">
+    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('AHU Psychrometric Process Line &mdash; ASHRAE 2021 Fundamentals')}</td>
+    ${TD(`${BR}`)}${LBL('Standard / Code')}<div style="font-size:10px;color:#1a2e4a;">ASHRAE 62.1 / 90.1 / PSME Code</div></td>
+    ${TD('')}${LBL('Date Prepared')}${EF(now)}</td>
+  </tr>
+  <tr>
+    ${TD(`${BR}width:22%;`)}${LBL('Prepared By')}${SIG()}</td>
+    ${TD(`${BR}width:22%;`)}${LBL('Checked By')}${SIG()}</td>
+    ${TD(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
+    ${TD(`${BR}width:17%;`)}${LBL('Fan Power')}<div style="font-size:11px;font-weight:700;color:${fanCheck==='PASS'?'#2e7d32':'#c62828'};">${fanCheck}</div></td>
+    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}<div style="font-size:8px;color:#888;margin-top:5px;white-space:nowrap;">Sheet 1 of 1</div></td>
+  </tr>
+</table>`;
+}
+
 // ─── Harmonic Spectrum Title Block (Python diagram suite) ────────────────────
 function buildHarmonicSpectrumTitleBlockHtml(inputs, results) {
   const r = results || {};
@@ -19025,9 +19063,9 @@ async function _runDrawing() {
         'Harmonic Distortion':          'Harmonic Spectrum — IEEE 519-2022 Bar Chart',
       };
       const svg = await _callPythonDiagram(ct, _lastInputs, _lastResults);
-      const titleBlockHtml = (ct === 'Harmonic Distortion')
-        ? buildHarmonicSpectrumTitleBlockHtml(_lastInputs, _lastResults)
-        : '';
+      const titleBlockHtml = (ct === 'Harmonic Distortion') ? buildHarmonicSpectrumTitleBlockHtml(_lastInputs, _lastResults)
+                           : (ct === 'AHU Sizing')          ? buildAHUTitleBlockHtml(_lastInputs, _lastResults)
+                           : '';
       _renderPythonSVG(svg, titleMap[ct] || ct, titleBlockHtml);
       return;
     } catch (err) {

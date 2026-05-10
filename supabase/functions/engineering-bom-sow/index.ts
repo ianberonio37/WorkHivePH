@@ -2938,30 +2938,32 @@ Electrical: ${totalFanKVA} kVA / ${totalFanA} A FLA (fan motors, 3-phase 400V)
 
 TASK: Generate a JSON object with exactly two arrays.
 
+IMPORTANT — BOM SPECIFICATION FIELD: For the BOM "specification" strings, use ASCII-only characters. Do NOT use special characters such as superscript 3 (use "m3/h" or "cmh" instead of "m³/h"), degree (use "degC" instead of "°C"), multiplication sign (use "x" instead of "×"), greater-than-or-equal (use "min" or "not less than"), less-than-or-equal (use "not more than"), plus-minus (use "+/-"). The SOW "content" strings may keep Unicode prose.
+
 ARRAY 1: "bom_items": Standard Philippine AHU contractor Bill of Materials.
 Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
 
 Required items:
-1. Air Handling Unit, draw-through type: qty: ${nUnits}: spec: ${ahuCMH} m³/h each, ${coilKW/nUnits} kW cooling coil, ${fanHP} HP supply fan, G4+F7 filter section, CHW ${chwSupply}/${chwReturn}°C
+1. Air Handling Unit, draw-through type: qty: ${nUnits}: spec: ${ahuCMH} m3/h each, ${coilKW/nUnits} kW cooling coil, ${fanHP} HP supply fan, G4+F7 filter section, CHW ${chwSupply}/${chwReturn} degC
 2. Supply Fan Motor, IE3 premium efficiency: qty: ${nUnits}: spec: ${fanHP} HP (${(fanHP*0.7457).toFixed(1)} kW), 3-phase 400V/60Hz, TEFC
 3. Variable Frequency Drive (VFD): qty: ${nUnits}: spec: ${(fanHP*0.7457).toFixed(1)} kW, IP54, bypass mode
-4. Pre-Filter, G4 panel type: qty: ${nUnits * 4} pcs: spec: 595×595×48mm or as required by AHU manufacturer
-5. Bag Filter, F7 medium-efficiency: qty: ${nUnits * 4} pcs: spec: 592×592×600mm, 6-pocket
+4. Pre-Filter, G4 panel type: qty: ${nUnits * 4} pcs: spec: 595x595x48mm or as required by AHU manufacturer
+5. Bag Filter, F7 medium-efficiency: qty: ${nUnits * 4} pcs: spec: 592x592x600mm, 6-pocket
 6. Outside Air Motorized Damper with Actuator: qty: ${nUnits}: spec: low-leakage, AMCA-rated, 24V actuator, fail-closed
 7. Chilled Water Supply Valve, 2-way modulating: qty: ${nUnits}: spec: PN16, DN based on ${chwPipeMm}mm pipe, CV per coil manufacturer
 8. Chilled Water Return Valve, balancing: qty: ${nUnits}: spec: PN16, manual balancing, DN${chwPipeMm}
 9. CHW Flexible Connection, braided stainless: qty: ${nUnits * 2}: spec: DN${chwPipeMm}, 300mm length, PN16
 10. CHW Piping, copper/black steel: qty: 1 lot: spec: DN${chwPipeMm}mm supply and return, insulated with 25mm Armaflex
 11. Pipe Insulation, closed-cell elastomeric: qty: 1 lot: spec: 25mm thick, for CHW supply and return pipes
-12. Supply Air Ductwork, GI sheet metal: qty: 1 lot: spec: SMACNA Class 1 (≤500 Pa), gauge per SMACNA Table 5-1, with insulation
+12. Supply Air Ductwork, GI sheet metal: qty: 1 lot: spec: SMACNA Class 1 (not more than 500 Pa), gauge per SMACNA Table 5-1, with insulation
 13. Return / Exhaust Air Ductwork: qty: 1 lot: spec: SMACNA Class 1, uninsulated (return air duct)
-14. Outside Air Intake Ductwork with Louver: qty: 1 lot: spec: ${oaDuctCMH_each.toFixed(0)} m³/h per unit, bird/insect screen, rain louver
+14. Outside Air Intake Ductwork with Louver: qty: 1 lot: spec: ${oaDuctCMH_each.toFixed(0)} m3/h per unit, bird/insect screen, rain louver
 15. Vibration Isolators, spring type: qty: ${nUnits * 4}: spec: 25mm deflection, load-rated for AHU weight
 16. Condensate Drain Pan and Trap: qty: ${nUnits}: spec: stainless steel, 50mm trap seal, min 20mm PVC drain line
 17. MCCB Circuit Breaker, 3-pole: qty: ${nUnits}: spec: ${Math.ceil(totalFanA * 1.25 / nUnits)}A, 400V, 18kA AIC
-18. Wiring, THHN 5.5mm² (3C): qty: 1 lot: spec: from MCCB to VFD to AHU motor per PEC 2017
+18. Wiring, THHN 5.5 sq.mm (3C): qty: 1 lot: spec: from MCCB to VFD to AHU motor per PEC 2017
 19. Anti-vibration Mounting Pads (supplemental): qty: ${nUnits * 4}: spec: neoprene, 50 Shore A, for AHU base frame
-20. Commissioning and TAB (Testing, Adjusting, Balancing): qty: 1 lot: spec: ASHRAE 111 balancing procedure, airflow and CHW ΔT verification report
+20. Commissioning and TAB (Testing, Adjusting, Balancing): qty: 1 lot: spec: ASHRAE 111 balancing procedure, airflow and CHW delta-T verification report
 21. Miscellaneous (hangers, supports, sealing, access doors): qty: 1 lot: spec: per SMACNA
 
 ARRAY 2: "sow_sections": 8 sections of Scope of Works in Philippine engineering document style.

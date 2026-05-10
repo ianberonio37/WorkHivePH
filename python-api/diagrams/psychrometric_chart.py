@@ -150,7 +150,7 @@ def generate(inputs: dict, results: dict) -> str:
         ax.legend(*zip(*filtered), loc="upper left", fontsize=8, framealpha=0.9)
 
     # ── Title block ───────────────────────────────────────────────────────────
-    fig.suptitle(f"Psychrometric Chart — AHU Process Line — {project}",
+    fig.suptitle(f"Psychrometric Chart - AHU Process Line - {project}",
                  fontsize=11, fontweight="bold", y=0.99)
     ax.set_title(
         f"OA: {T_oa}°C / {int(rh_oa*100)}%RH   |   "
