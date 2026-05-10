@@ -4497,33 +4497,107 @@ async function fluidPowerBomSowAgent(
   results: Record<string, unknown>
 ): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
   const project   = inputs.project_name       || "Hydraulic System Project";
-  const pBar      = Number(results.inputs_used?.P_bar || inputs.system_pressure_bar || 200).toFixed(0);
+  const pBar      = Number(results.inputs_used?.P_bar || results.system_pressure_bar || inputs.system_pressure_bar || 200).toFixed(0);
   const qLpm      = Number(results.inputs_used?.Q_lpm || inputs.flow_lpm || 40).toFixed(1);
-  const fluid     = String(results.inputs_used?.fluid || "ISO VG 46");
-  const boreMM    = Number(results.bore_selected_mm   || 0);
-  const pumpDispl = Number(results.pump_displacement_cm3 || 0).toFixed(1);
-  const motorKW   = Number(results.pump?.P_motor_kW   || 0).toFixed(1);
-  const accVol    = Number(results.accumulator?.V_recommended_L || 0).toFixed(1);
-  const pLineOD   = Number(results.pressure_line?.od_mm || 0);
+  // Sanitize fluid (form sends "ISO VG 46 (40°C)" — degree symbol strips through Groq)
+  const fluidRaw  = String(results.inputs_used?.fluid || inputs.fluid || "ISO VG 46");
+  const fluidTemp = fluidRaw.match(/\((\d+)/)?.[1] || "40";
+  const fluidGrade= fluidRaw.replace(/\s*\([^)]*\)\s*/g, "").trim() || "ISO VG 46";
+  const cyl       = (results.cylinder as Record<string, unknown>) || {};
+  const boreMM    = Number(results.bore_selected_mm || cyl.bore_mm || 0);
+  const rodMM     = Number(results.rod_selected_mm || cyl.rod_mm || 0);
+  const strokeMM  = Number(inputs.stroke_mm || inputs.cylinder_stroke_mm || 200);
+  const fExtKn    = Number(cyl.F_extend_kN || 0).toFixed(1);
+  const fRetKn    = Number(cyl.F_retract_kN || 0).toFixed(1);
+  const vExtMs    = Number(cyl.v_extend_m_s || 0).toFixed(3);
+  const pumpDispl = Number(results.pump_displacement_cm3 || 0);
+  const motorKW   = Number((results.pump as Record<string, unknown> | undefined)?.P_motor_kW || 0).toFixed(2);
+  const motorKwStd = Math.max(0.37, Math.ceil(Number(motorKW) * 1.25 * 10) / 10);  // next standard size with 25% margin
+  const accVolNum = Number((results.accumulator as Record<string, unknown> | undefined)?.V_recommended_L || 0);
+  const includeAccumulator = accVolNum > 0;
+  const accVol    = accVolNum.toFixed(1);
+  const pLineOD   = Number((results.pressure_line as Record<string, unknown> | undefined)?.od_mm || 6);
+  const pLineId   = Number((results.pressure_line as Record<string, unknown> | undefined)?.id_mm || 4);
+  // Reservoir capacity per ISO 4413 = 3 to 5 x Q [L/min]
+  const reservoirL = Math.ceil(Number(qLpm) * 3);
+  // Pressure-gauge range: round up to next 10 bar above 1.25 x system pressure
+  const gaugeMaxBar = Math.ceil(Number(pBar) * 1.25 / 10) * 10;
+  // SAE J517 hose class: pick by pressure (100R1 to 350bar, 100R2 to 415bar, 100R12 above)
+  const hoseClass = Number(pBar) <= 350 ? "SAE 100R2 (Type 2 wire-braid, working pressure not less than 415 bar for nominal sizes up to 1 inch)"
+                                        : "SAE 100R12 (Type 12 spiral-wire, working pressure not less than 415 bar large bore)";
+  // Cylinder spec: ISO 6020/6022 mounting standards
+  const cylMountStd = "ISO 6020-2 (medium duty) foot or trunnion mount";
 
-  const prompt = `You are a senior Hydraulic Systems Engineer in the Philippines preparing a BOM and SOW for a hydraulic power unit and cylinder system per ISO 4413:2010 and NFPA T2.12.10.
+  const asciiDirective = `IMPORTANT: All output text must be ASCII only. Do NOT use Unicode characters such as multiplication sign x, en-dash, em-dash, less-than-or-equal, greater-than-or-equal, sub/superscripts (cm3 not cm cubed-glyph), Greek letters (eta, delta, pi), middle-dot, or degree symbol. Use "x" for multiplication, "to" for ranges (e.g. "0 to 250 bar"), "not less than" for ge, "not more than" for le, "deg C" for temperature, "Phi" or "dia" for diameter prefix, "cm3/rev" for displacement, "Nm" or "N.m" for newton-meters.`;
+
+  const itemsBlock = `Per-item EXACT structure with description="short item name only" and specification="full standard + dimensions + grade + numeric ratings":
+
+(1) description="Hydraulic Power Unit (HPU)", specification="axial piston pump ${pumpDispl} cm3/rev variable-displacement, swashplate type with pressure compensator and load-sensing control, mounted directly on reservoir cover with bell-housing, working pressure not less than ${gaugeMaxBar} bar, Bosch Rexroth A10VSO or equivalent", qty=1, unit="set"
+
+(2) description="Electric Motor", specification="three-phase AC induction motor ${motorKwStd} kW (next standard size above ${motorKW} kW with 25 percent service margin) IE3 efficiency class, IP55 TEFC enclosure, B5 flange mount per IEC 60072, 380-415 V / 50 Hz / 1450 RPM (4-pole)", qty=1, unit="piece"
+
+(3) description="Hydraulic Reservoir", specification="welded mild-steel tank, capacity ${reservoirL} L (3 x ${qLpm} L/min flow rate per ISO 4413 sizing), with internal baffle separating suction from return, breather filter (3-micron desiccant) on top, sight glass with integrated thermometer, magnetic drain plug, return diffuser, fluid level switch low/high alarm contacts", qty=1, unit="piece"
+
+(4) description="Hydraulic Cylinder", specification="double-acting cylinder, bore Phi ${boreMM} mm, rod Phi ${rodMM} mm, stroke ${strokeMM} mm, ${cylMountStd}, hard-chromed rod (HRC 55 to 60), polyurethane rod and piston seals (NBR backup), end-of-stroke cushioning both ends adjustable, working pressure not less than ${gaugeMaxBar} bar, pressure-test 1.5 x working", qty=1, unit="piece"
+
+(5) description="Directional Control Valve", specification="solenoid-operated 4/3 spring-centered closed-center spool, 24 VDC dual coils with manual override, port size CETOP 5 (NG10) or CETOP 7 (NG16) sized to ${qLpm} L/min flow, working pressure not less than ${pBar} bar, mounted on subplate", qty=1, unit="piece"
+
+(6) description="Pressure Relief Valve", specification="cartridge-type pilot-operated relief valve, set pressure ${pBar} bar (1.0 x system pressure), cracking pressure not less than 10 percent below set, rated flow not less than ${qLpm} L/min, mounted on HPU manifold per ISO 4413 safety requirement", qty=1, unit="piece"
+
+(7) description="Pressure Reducing Valve", specification="direct-acting pressure reducing valve for low-pressure auxiliary circuits (e.g. clamp, return-line lubrication), pilot range 10 to ${Math.round(Number(pBar) * 0.5)} bar, rated flow ${Math.round(Number(qLpm) * 0.3)} L/min minimum, CETOP 3 (NG6) port size", qty=1, unit="piece"
+
+${includeAccumulator ? `(8) description="Bladder Accumulator", specification="${accVolNum.toFixed(1)} L bladder accumulator per ISO 4413 / DOT-3AAA, working pressure ${pBar} bar, pre-charge nitrogen pressure 0.9 x P_min (per Boyle isothermal sizing), bladder material HNBR (compatible with ${fluidGrade}), shell ASTM A372 carbon steel with U-stamp, ASME UA-9 certified", qty=1, unit="piece"` : `(8) description="Accumulator (Optional)", specification="bladder accumulator 1 to 5 L recommended for systems with rapid demand changes or thermal expansion compensation; size per design intent (none specified in current calculation)", qty=0, unit="piece", remarks="Optional - not required for steady-state circuits"`}
+
+(9) description="Return Line Filter", specification="spin-on or in-tank return filter, 10-micron absolute (beta-10 not less than 200) per ISO 4406 class 17/15/12 cleanliness target, with visual differential-pressure indicator and bypass valve at delta-P 25 psi, sized for ${Math.round(Number(qLpm) * 1.5)} L/min flow (1.5 x system flow per ISO 4413)", qty=1, unit="piece"
+
+(10) description="Suction Strainer", specification="full-flow wire-mesh strainer 150 micron, sized to not less than 2 x pump flow (${Math.round(Number(qLpm) * 2)} L/min) to prevent suction starvation, mounted inside reservoir at pump suction port, brass/SS construction with magnetic insert", qty=1, unit="piece"
+
+(11) description="High-Pressure Hose Assembly", specification="${hoseClass}, OD ${pLineOD} mm / ID ${pLineId} mm, length per drawing (typical 1 to 3 m), JIC 37-degree flared end fittings (male and female), pressure-tested 1.5 x working pressure, EN ISO 1402 hydraulic test certified, color black with white print", qty=4, unit="piece"
+
+(12) description="Hydraulic Fittings", specification="JIC 37-degree flared fittings per SAE J514, brass or steel adapters and tees, all sized for ${pLineOD} mm OD tube; includes 90-degree elbows, tees, straight unions, and tube-to-NPT adapters as required by piping schematic", qty=20, unit="piece"
+
+(13) description="Hydraulic Oil", specification="${fluidGrade} mineral hydraulic fluid per ISO 11158 HV (high-VI), 46 cSt at 40 deg C, viscosity index not less than 140, anti-wear additive (FZG load stage not less than 10), demulsibility (40-40-0) at 30 minutes, anti-foam, oxidation stability per ASTM D2272 not less than 1000 minutes; initial fill ${reservoirL} L plus 20 percent commissioning spare", qty=${reservoirL}, unit="L"
+
+(14) description="Pressure Gauge", specification="bourdon-tube glycerin-filled gauge, range 0 to ${gaugeMaxBar} bar (covers 1.25 x system pressure ${pBar} bar per ASME B40.100), 100 mm dial dia, accuracy class 1.0 (plus or minus 1 percent FSD), 1/4 inch NPT bottom connection, brass/stainless wetted parts; one at pump discharge, one before filter, one at cylinder cap end", qty=3, unit="piece"
+
+CRITICAL: Every "specification" field MUST be fully populated with the actual numeric values shown above (${boreMM} mm, ${rodMM} mm, ${strokeMM} mm, ${pBar} bar, ${qLpm} L/min, ${pumpDispl} cm3/rev, ${motorKwStd} kW, ${reservoirL} L, ${gaugeMaxBar} bar, etc.). Never blank, never just the item name.`;
+
+  const prompt = `You are a senior Hydraulic Systems Engineer in the Philippines preparing a Bill of Materials (BOM) and Scope of Works (SOW) for a hydraulic power unit and cylinder system per ISO 4413:2010 (Safety Requirements for Hydraulic Fluid Power Systems) and NFPA T2.12.10.
+
+${asciiDirective}
 
 Project: ${project}
-System pressure: ${pBar} bar | Flow: ${qLpm} L/min | Fluid: ${fluid}
-Cylinder bore: ${boreMM}mm
-Pump displacement: ${pumpDispl} cm³/rev | Motor power: ${motorKW} kW
-Accumulator: ${accVol} L bladder type
-Pressure line pipe: ${pLineOD}mm OD
+System pressure: ${pBar} bar
+Flow rate Q: ${qLpm} L/min
+Fluid: ${fluidGrade} at ${fluidTemp} deg C
+Cylinder: bore Phi ${boreMM} mm, rod Phi ${rodMM} mm, stroke ${strokeMM} mm
+Cylinder force: F_extend = ${fExtKn} kN, F_retract = ${fRetKn} kN
+Cylinder velocity (extend): ${vExtMs} m/s
+Pump displacement Vg: ${pumpDispl} cm3/rev
+Motor power: ${motorKW} kW (specify next standard size: ${motorKwStd} kW with 25 percent margin)
+Accumulator: ${includeAccumulator ? `${accVolNum.toFixed(1)} L bladder type included` : 'not required for this circuit'}
+Pressure line: Phi ${pLineOD} mm OD x Phi ${pLineId} mm ID
+Reservoir: ${reservoirL} L (3 x flow rate per ISO 4413)
 
 Generate a JSON object with exactly two keys:
 
 "bom_items": array of 14 objects with { "description", "specification", "unit", "qty", "remarks" }
-Cover: (1) Hydraulic power unit (HPU): axial piston pump ${pumpDispl}cm³/rev mounted on reservoir, (2) Electric motor ${motorKW}kW IP55 TEFC, (3) Hydraulic reservoir (steel, capacity ≥ 3× Q_lpm = ${Math.ceil(Number(qLpm)*3)}L, with breather filter and sight glass), (4) Hydraulic cylinder: bore ${boreMM}mm double-acting, (5) Directional control valve (solenoid-operated 4/3 spring-centered, 24VDC, ${pBar}bar rated), (6) Pressure relief valve (set at ${pBar}bar, cartridge type), (7) Pressure reducing valve (for lower-pressure circuits), (8) Bladder accumulator ${accVol}L ${pBar}bar rated: ISO 4413, (9) Return line filter (10-micron absolute, visual indicator), (10) Suction strainer (150-micron, full-flow), (11) High-pressure hose assemblies ${pLineOD}mm OD, (12) Hydraulic fittings: parker or equivalent, JIC 37°, (13) Hydraulic oil ${fluid}: initial fill (capacity: ${Math.ceil(Number(qLpm)*3)} L), (14) Pressure gauges (0–${Math.ceil(Number(pBar)*1.25/10)*10}bar, glycerin-filled, 100mm): 3 pcs.
+
+${itemsBlock}
 
 "sow_sections": array of 5 objects with { "section_no", "title", "content" }
-Sections: 1.0 Scope, 2.0 Standards (ISO 4413:2010, NFPA T2.12.10, ISO 10767-1 noise, ISO 4406 contamination cleanliness, PSME Code), 3.0 Design and Procurement (all components rated ≥${pBar}bar, hydraulic hoses per SAE J517, cylinder cushioning at both ends for ${boreMM}mm bore), 4.0 Installation (reservoir on anti-vibration mounts, all piping flushed to ISO 4406 class 17/15/12 before cylinder connection, pressure-test at 1.5×${pBar}bar for 30min), 5.0 Testing and Commissioning (full-stroke test 10 cycles, pressure-hold test, measure cycle time, oil temperature steady-state <60°C, noise check per ISO 4413 §7.3).
 
-Content fields must start "The Contractor shall..." Return ONLY the JSON. No markdown.`;
+Section 1.0 Scope: state the contractor shall design, procure, fabricate, install, test, and commission a hydraulic power unit and cylinder system per ISO 4413:2010 with the following specifications: ${pBar} bar system pressure, ${qLpm} L/min flow rate, ${fluidGrade} fluid at ${fluidTemp} deg C, double-acting cylinder Phi ${boreMM} mm bore x ${strokeMM} mm stroke producing ${fExtKn} kN extend force, axial-piston pump ${pumpDispl} cm3/rev driven by ${motorKwStd} kW motor, complete with reservoir, filtration, control valves, ${includeAccumulator ? `${accVolNum.toFixed(1)} L bladder accumulator,` : ''} pressure gauges, hoses, and instrumentation per BOM Items 1 to 14.
+
+Section 2.0 Standards: cite ISO 4413:2010 (Hydraulic fluid power - General rules and safety requirements for systems and their components), ISO 4406 (Hydraulic fluid power - Method for coding the level of contamination by solid particles), ISO 10767-1 (Hydraulic fluid power - Determination of pressure ripple levels), ISO 11158 (Hydraulic oil category HV/HM), SAE J517 (hydraulic hose), SAE J514 (JIC 37-degree flared fittings), ISO 6020-2 / ISO 6022 (cylinder mounting), ASME B40.100 (pressure gauge accuracy), DOLE D.O. 13 (occupational safety), and PSME Code.
+
+Section 3.0 Design and Procurement: specify all pressure-containing components rated not less than ${gaugeMaxBar} bar (1.25 x ${pBar} bar system pressure margin) per ISO 4413 sizing rule. Hydraulic hoses per ${hoseClass}; all hoses pressure-tested at 1.5 x working pressure with EN ISO 1402 certificate. Cylinder cushioning at both ends adjustable for the ${strokeMM} mm stroke per ISO 6020-2. Pump and motor matched as a coupling assembly through bell-housing per IEC 60072 B5 flange. Reservoir baffle layout separates suction from return per ISO 4413 Annex G. All fittings JIC 37-degree flared per SAE J514 (no NPT in pressure-side circuits). Submit material data sheets and pressure-test certificates to the Engineer for approval before procurement.
+
+Section 4.0 Installation: install the reservoir on rubber anti-vibration mounts (deflection 5 to 10 mm at rated load) on a level concrete pad. Flush all piping and hoses to ISO 4406 class 17/15/12 cleanliness target before cylinder connection (use offline filter cart for not less than 8 hours). Pressure-test the assembled system at 1.5 x ${pBar} bar = ${(Number(pBar) * 1.5).toFixed(0)} bar for 30 minutes minimum, hold and inspect all joints for leaks; document on a hydraulic pressure-test report. Bleed all air from cylinder and pressure-line high points before commissioning. Ground the HPU per PEC 2017 / ISO 4413 anti-static requirements.
+
+Section 5.0 Testing and Commissioning: perform a full-stroke test of 10 cycles (extend-retract) at no-load to verify smooth motion, then 10 cycles at rated load to verify ${fExtKn} kN extend and ${fRetKn} kN retract forces; record cycle time within plus or minus 5 percent of design (${vExtMs} m/s extend speed). Conduct pressure-hold test at ${pBar} bar for 5 minutes; pressure decay not more than 2 percent. Verify oil temperature steady-state remains not more than 60 deg C with continuous duty operation; if exceeded, investigate cooler sizing or relief-valve recirculation losses. Conduct noise-level check per ISO 4413 clause 7.3 (sound power level not more than 80 dBA at 1 m). Submit commissioning report with full-stroke test log, pressure-decay log, fluid cleanliness analysis (ISO 4406 class), and noise survey to the Engineer for handover sign-off.
+
+Each "content" field MUST start with "The Contractor shall..." and use ASCII text only. Return ONLY the JSON. No markdown.`;
 
   const raw = await callGroq(prompt);
   const parsed = JSON.parse(raw);

@@ -26488,11 +26488,14 @@ function buildFluidPowerSVG(inputs, results) {
   const stroke=Number(inp.cylinder_stroke_mm||500).toFixed(0);
   const presL=r.pressure_line||{};
   const pipeOD=Number(presL.od_mm||presL.pipe_od_mm||0).toFixed(0);
-  const flowLpm=Number(inp.pump_flow_lpm||20).toFixed(1);
+  // Form sends `flow_lpm`; results carry `inputs_used.Q_lpm` and `pump.Q_lpm` (delivered).
+  // Prefer pump.Q_lpm (actual delivered) -> inputs_used -> form input -> default 40.
+  const pumpObj=r.pump||{};
+  const flowLpm=Number(pumpObj.Q_lpm||r.inputs_used?.Q_lpm||inp.flow_lpm||inp.pump_flow_lpm||40).toFixed(1);
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`FLUID POWER — ${presBar} bar  |  Ø${bore}mm Cylinder  |  ${forceExt} kN Extend  |  ISO 4413`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`FLUID POWER - ${presBar} bar  |  Ø${bore}mm Cylinder  |  ${forceExt} kN Extend  |  ISO 4413`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Reservoir
   p.push(`<rect x="40" y="340" width="80" height="60" fill="#e3f2fd" stroke="${RTN}" stroke-width="2"/>`);
@@ -26523,7 +26526,8 @@ function buildFluidPowerSVG(inputs, results) {
   p.push(`<rect x="${pistonX+15}" y="${CYY+CYH/2-6}" width="${CYW-pistonX+CYX-15}" height="12" fill="${GY}" rx="2"/>`);
   // Labels
   p.push(_plumbT(CYX+CYW/2-30,CYY+CYH/2+5,`Bore Ø${bore}  Rod Ø${rod}mm`,{sz:7,c:CC}));
-  p.push(_plumbT(CYX+CYW/2-30,CYY-12,`Stroke: ${stroke}mm`,{sz:7.5,c:PUMP_C,w:'700'}));
+  // Stroke label moved BELOW the cylinder (clear of F_ext annotation above)
+  p.push(_plumbT(CYX+CYW/2,CYY+CYH+12,`Stroke: ${stroke}mm`,{sz:7.5,c:PUMP_C,w:'700'}));
   // Force arrows
   p.push(`<polygon points="${CYX+30},${CYY-15} ${CYX+30+18},${CYY-15} ${CYX+30+18},${CYY-22} ${CYX+60},${CYY-8} ${CYX+30+18},${CYY+6} ${CYX+30+18},${CYY-2}" fill="${HYD}"/>`);
   p.push(_plumbT(CYX+100,CYY-20,`F_ext = ${forceExt} kN  |  F_ret = ${forceRet} kN`,{sz:7.5,c:HYD,w:'700'}));
@@ -26531,8 +26535,8 @@ function buildFluidPowerSVG(inputs, results) {
   p.push(`<line x1="${CYX}" y1="${CYY+CYH/2}" x2="${CYX-35}" y2="${CYY+CYH/2}" stroke="${RTN}" stroke-width="2.5"/>`);
   p.push(`<line x1="${CYX-35}" y1="${CYY+CYH/2}" x2="${CYX-35}" y2="370" stroke="${RTN}" stroke-width="2.5"/>`);
   p.push(`<line x1="${CYX-35}" y1="370" x2="120" y2="370" stroke="${RTN}" stroke-width="2.5"/>`);
-  // Speed label
-  p.push(_plumbT(CYX+CYW+20,CYY+CYH/2+4,`v = ${spdExt} mm/s`,{a:'start',sz:8,c:PUMP_C,w:'700'}));
+  // Speed label (m/s — value is from cyl.v_extend_m_s; was incorrectly labeled mm/s)
+  p.push(_plumbT(CYX+CYW+20,CYY+CYH/2+4,`v = ${spdExt} m/s`,{a:'start',sz:8,c:PUMP_C,w:'700'}));
   const LY=STRIP_Y+6;
   p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
   p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
@@ -26540,10 +26544,10 @@ function buildFluidPowerSVG(inputs, results) {
     p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
     p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
   });
-  [`1. F_extend = P × A_bore = ${presBar} bar × π×(${bore}mm)²/4. F_retract uses annulus area.`,
-   `2. Flow Q = A × v. Pump: P_hydraulic = Q × ΔP. Motor: P_shaft = P_hydraulic / η_pump.`,
+  [`1. F_extend = P x A_bore = ${presBar} bar x pi x (${bore}mm)^2 / 4. F_retract uses annulus area.`,
+   `2. Flow Q = A x v. Pump: P_hydraulic = Q x dP. Motor: P_shaft = P_hydraulic / eta_pump.`,
    `3. ISO 4413: relief valve set at 110% system pressure. Filtration ISO 4406 class 18/16/13.`
-  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+76+i*11,n,{a:'start',sz:6.5,c:CC})));
   _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'FLUID POWER', rows:[
     ['System Pressure',`${presBar} bar`,HYD],['Cylinder Bore',`Ø${bore} mm`,PUMP_C],
     ['Rod Diameter',`Ø${rod} mm`,PUMP_C],['Stroke',`${stroke} mm`,GY],
@@ -31994,57 +31998,148 @@ function renderFluidPowerReport(inputs, r, narrative) {
   const acc  = r.accumulator || {};
   const pline = r.pressure_line || {};
   const rline = r.return_line || {};
+  const sline = r.suction_line || {};
+  // Inputs for formula display
+  const pBar      = Number(r.inputs_used?.P_bar || inputs.system_pressure_bar || 200);
+  const qLpm      = Number(r.inputs_used?.Q_lpm || inputs.flow_lpm || 40);
+  const fluidStr  = String(r.inputs_used?.fluid || inputs.fluid || 'ISO VG 46');
+  const boreMm    = Number(r.bore_selected_mm || cyl.bore_mm || 0);
+  const rodMm     = Number(r.rod_selected_mm || cyl.rod_mm || 0);
+  const strokeMm  = Number(inputs.stroke_mm || inputs.cylinder_stroke_mm || 200);
+  const cylForceKn = Number(inputs.cylinder_force_kN || 50);
+  const fExt      = Number(cyl.F_extend_kN || 0);
+  const fRet      = Number(cyl.F_retract_kN || 0);
+  const vExt      = Number(cyl.v_extend_m_s || 0);
+  const pumpRpm   = Number(inputs.pump_speed_rpm || 1450);
+  const Vg        = Number(r.pump_displacement_cm3 || 0);
+  const accUsable = Number(acc.V_fluid_usable_L || inputs.V_fluid_L || 0);
+  const accRec    = Number(acc.V_recommended_L || 0);
+  // Bore area for force formula display
+  const boreAreaMm2 = Math.round(Math.PI * Math.pow(boreMm, 2) / 4);
+  const annulusAreaMm2 = boreMm > 0 && rodMm > 0 ? Math.round(Math.PI * (Math.pow(boreMm, 2) - Math.pow(rodMm, 2)) / 4) : 0;
   document.getElementById('report-panel').innerHTML = `
-    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
+    <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
-      <div><h1>HYDRAULIC SYSTEM CALCULATION</h1><div style="font-size:0.8rem;color:#555;">ISO 4413 / NFPA T2.12.10</div></div>
+      <div><h1>HYDRAULIC SYSTEM CALCULATION</h1><div style="font-size:0.8rem;color:#555;">ISO 4413:2010 / NFPA T2.12.10 / SAE J517</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
+
     <h2>Project Information</h2>
     <table>
       <tr><th style="width:30%;">System Tag</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
-      <tr><th>System Pressure</th><td>${escHtml(String(r.inputs_used?.P_bar))} bar</td><th>Fluid</th><td>${escHtml(r.inputs_used?.fluid)}</td></tr>
+      <tr><th>System Pressure</th><td>${pBar} bar</td><th>PRC License No.</th><td>${e('')}</td></tr>
+      <tr><th>Calculation Standard</th><td>ISO 4413:2010 / NFPA T2.12.10</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
     </table>
-    ${Object.keys(cyl).length ? `
-    <h2>1. Cylinder Sizing</h2>
+
+    <h2>1. Objective</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || `To size a hydraulic power unit and cylinder system delivering ${cylForceKn} kN cylinder force at ${vExt} m/s extend speed using a ${pBar} bar working pressure circuit; the calculation determines the cylinder bore and rod diameters per ISO 6020-2, the pump displacement and motor power per ISO 4413, the pressure-line / return-line / suction-line pipe sizes per ISO 4413 velocity limits, and (where applicable) bladder accumulator volume per Boyle's law.`)}</p>
+
+    <h2>2. References</h2>
+    <p style="font-size:0.83rem;color:#333;">ISO 4413:2010: Hydraulic fluid power - General rules and safety requirements for systems and their components<br>
+    ISO 4406: Hydraulic fluid power - Method for coding the level of contamination by solid particles<br>
+    ISO 6020-2 / ISO 6022: Hydraulic cylinder mounting dimensions<br>
+    ISO 10767-1: Hydraulic fluid power - Determination of pressure ripple levels<br>
+    ISO 11158: Hydraulic oil category HV (high viscosity index)<br>
+    SAE J517: Hydraulic hose<br>
+    SAE J514: JIC 37-degree flared fittings<br>
+    NFPA T2.12.10: Hydraulic Fluid Power Systems<br>
+    PSME Code; DOLE D.O. 13 (occupational safety)</p>
+
+    <h2>3. Design Inputs</h2>
     <table>
       <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
-      <tr><td>Bore selected</td><td class="num"><strong>${r.bore_selected_mm} mm</strong></td></tr>
-      <tr><td>Rod diameter</td><td class="num">${r.rod_selected_mm} mm</td></tr>
-      <tr><td>Extend force</td><td class="num"><strong>${cyl.F_extend_kN} kN</strong></td></tr>
-      <tr><td>Retract force</td><td class="num">${cyl.F_retract_kN} kN</td></tr>
-      <tr><td>Extend speed (at ${escHtml(String(r.inputs_used?.Q_lpm))} L/min)</td><td class="num">${cyl.v_extend_m_s} m/s</td></tr>
+      <tr><td>System pressure P</td><td class="num">${pBar} bar (${(pBar / 10).toFixed(1)} MPa)</td></tr>
+      <tr><td>Flow rate Q</td><td class="num">${qLpm} L/min</td></tr>
+      <tr><td>Hydraulic fluid</td><td>${escHtml(fluidStr)}</td></tr>
+      <tr><td>Required cylinder force</td><td class="num">${cylForceKn} kN</td></tr>
+      <tr><td>Pump speed n</td><td class="num">${pumpRpm} RPM</td></tr>
+    </table>
+
+    ${Object.keys(cyl).length ? `<h2>4. Cylinder Sizing (ISO 6020-2)</h2>
+    <p style="font-size:0.83rem;color:#333;">For a double-acting cylinder under hydraulic pressure P:</p>
+    <p style="font-size:0.83rem;color:#333;">
+      Bore area: A<sub>bore</sub> = &pi; &times; D&sup2; / 4 = &pi; &times; (${boreMm} mm)&sup2; / 4 = <strong>${boreAreaMm2.toLocaleString()} mm&sup2;</strong><br>
+      Extend force: F<sub>ext</sub> = P &times; A<sub>bore</sub> = ${pBar} bar &times; ${boreAreaMm2.toLocaleString()} mm&sup2; / 100 = <strong>${fExt.toFixed(1)} kN</strong><br>
+      ${rodMm > 0 ? `Annulus area: A<sub>ann</sub> = &pi; &times; (D&sup2; - d&sup2;) / 4 = &pi; &times; (${boreMm}&sup2; - ${rodMm}&sup2;) / 4 = <strong>${annulusAreaMm2.toLocaleString()} mm&sup2;</strong><br>
+      Retract force: F<sub>ret</sub> = P &times; A<sub>ann</sub> = ${pBar} bar &times; ${annulusAreaMm2.toLocaleString()} mm&sup2; / 100 = <strong>${fRet.toFixed(1)} kN</strong><br>` : ''}
+      Extend velocity: v<sub>ext</sub> = Q / A<sub>bore</sub> = ${qLpm} L/min &times; (1/60000) m&sup3;/s/(L/min) / (${boreAreaMm2} &times; 1e-6 m&sup2;) = <strong>${vExt.toFixed(3)} m/s</strong>
+    </p>
+    <table>
+      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
+      <tr><td>Bore selected (next std)</td><td class="num"><strong>${boreMm} mm</strong></td></tr>
+      <tr><td>Rod diameter</td><td class="num">${rodMm} mm</td></tr>
+      <tr><td>Stroke</td><td class="num">${strokeMm} mm</td></tr>
+      <tr><td>Extend force</td><td class="num"><strong>${fExt.toFixed(2)} kN</strong></td></tr>
+      <tr><td>Retract force</td><td class="num">${fRet.toFixed(2)} kN</td></tr>
+      <tr><td>Extend speed (at ${qLpm} L/min)</td><td class="num">${vExt.toFixed(3)} m/s</td></tr>
       <tr><td>Stroke time (extend / retract)</td><td class="num">${cyl.t_extend_s} s / ${cyl.t_retract_s} s</td></tr>
     </table>` : ''}
-    ${Object.keys(pump).length ? `
-    <h2>2. Pump Sizing</h2>
+
+    ${Object.keys(pump).length ? `<h2>5. Pump Sizing (Q = V<sub>g</sub> &times; n &times; &eta;<sub>vol</sub>)</h2>
+    <p style="font-size:0.83rem;color:#333;">For a hydraulic pump delivering Q at speed n with volumetric efficiency &eta;<sub>vol</sub>:</p>
+    <p style="font-size:0.83rem;color:#333;">
+      Required displacement: V<sub>g,req</sub> = Q &times; 1000 / (n &times; &eta;<sub>vol</sub>)
+      = ${qLpm} &times; 1000 / (${pumpRpm} &times; 0.95)
+      = <strong>${(qLpm * 1000 / (pumpRpm * 0.95)).toFixed(1)} cm&sup3;/rev</strong> (theoretical)<br>
+      V<sub>g,std</sub> = next standard size = <strong>${Vg} cm&sup3;/rev</strong><br>
+      Delivered flow: Q<sub>actual</sub> = V<sub>g,std</sub> &times; n &times; &eta;<sub>vol</sub> / 1000
+      = ${Vg} &times; ${pumpRpm} &times; 0.95 / 1000 = <strong>${pump.Q_lpm} L/min</strong><br>
+      Hydraulic power: P<sub>hyd</sub> = Q &times; &Delta;P / 600 = ${pump.Q_lpm} L/min &times; ${pBar} bar / 600 = <strong>${pump.P_hydraulic_kW} kW</strong><br>
+      Shaft power: P<sub>shaft</sub> = P<sub>hyd</sub> / &eta;<sub>mech</sub> = ${pump.P_hydraulic_kW} / 0.92 = <strong>${pump.P_shaft_kW} kW</strong><br>
+      Motor input: P<sub>motor</sub> = P<sub>shaft</sub> / &eta;<sub>motor</sub> = ${pump.P_shaft_kW} / 0.92 = <strong>${pump.P_motor_kW} kW</strong>
+    </p>
     <table>
       <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
-      <tr><td>Displacement Vg</td><td class="num"><strong>${r.pump_displacement_cm3} cm³/rev</strong></td></tr>
-      <tr><td>Flow delivered</td><td class="num">${pump.Q_lpm} L/min</td></tr>
-      <tr><td>Hydraulic power</td><td class="num">${pump.P_hydraulic_kW} kW</td></tr>
-      <tr><td>Shaft power</td><td class="num">${pump.P_shaft_kW} kW</td></tr>
-      <tr><td>Motor input power</td><td class="num"><strong>${pump.P_motor_kW} kW</strong></td></tr>
-      <tr><td>Pump torque</td><td class="num">${pump.torque_Nm} N·m</td></tr>
+      <tr><td>Displacement V<sub>g</sub></td><td class="num"><strong>${Vg} cm&sup3;/rev</strong></td></tr>
+      <tr><td>Flow delivered Q<sub>actual</sub></td><td class="num">${pump.Q_lpm} L/min</td></tr>
+      <tr><td>Hydraulic power P<sub>hyd</sub></td><td class="num">${pump.P_hydraulic_kW} kW</td></tr>
+      <tr><td>Shaft power P<sub>shaft</sub></td><td class="num">${pump.P_shaft_kW} kW</td></tr>
+      <tr><td>Motor input power P<sub>motor</sub></td><td class="num"><strong>${pump.P_motor_kW} kW</strong></td></tr>
+      <tr><td>Pump torque T</td><td class="num">${pump.torque_Nm} N&middot;m</td></tr>
     </table>` : ''}
-    ${Object.keys(acc).length && !acc.error ? `
-    <h2>3. Accumulator Sizing</h2>
+
+    <h2>6. Accumulator Sizing (Boyle's Law, isothermal)</h2>
+    ${Object.keys(acc).length && !acc.error && accRec > 0 ? `<p style="font-size:0.83rem;color:#333;">For an N<sub>2</sub>-charged bladder accumulator delivering V<sub>fluid</sub> = ${accUsable} L between P<sub>min</sub> and P<sub>max</sub>:</p>
+    <p style="font-size:0.83rem;color:#333;">
+      V<sub>0</sub> = V<sub>fluid</sub> &times; P<sub>2</sub> / (P<sub>2</sub> - P<sub>1</sub>) &nbsp; (Boyle isothermal: P<sub>1</sub>V<sub>1</sub> = P<sub>2</sub>V<sub>2</sub>)<br>
+      V<sub>required</sub> = <strong>${acc.V_required_L} L</strong> (gas volume at minimum pressure)<br>
+      V<sub>recommended</sub> = next standard size = <strong>${accRec} L</strong><br>
+      Pre-charge: P<sub>0</sub> = 0.9 &times; P<sub>min</sub> = <strong>${acc.pre_charge_bar} bar</strong> N<sub>2</sub>
+    </p>` : `<p style="font-size:0.83rem;color:#333;color:#666;">No accumulator specified for this circuit (steady-state operation; accumulator not required for thermal expansion or pulsation damping in this design).</p>`}
+
+    <h2>7. Pipe Sizing (ISO 4413 Velocity Limits)</h2>
+    <p style="font-size:0.83rem;color:#333;">Pipe inner diameter sized to maintain fluid velocity within ISO 4413 limits to prevent excessive pressure drop, noise, and cavitation:</p>
     <table>
-      <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
-      <tr><td>Pre-charge pressure (N₂)</td><td class="num">${acc.pre_charge_bar} bar</td></tr>
-      <tr><td>Usable fluid volume</td><td class="num">${acc.V_fluid_usable_L} L</td></tr>
-      <tr><td>Required gas volume V₀</td><td class="num">${acc.V_required_L} L</td></tr>
-      <tr><td>Recommended accumulator size</td><td class="num"><strong>${acc.V_recommended_L} L</strong></td></tr>
-    </table>` : ''}
-    <h2>4. Pipe Sizing (ISO 4413 Velocity Limits)</h2>
-    <table>
-      <tr><th style="width:40%;">Line</th><th>OD × ID (mm)</th><th>Velocity (m/s)</th><th>Re</th></tr>
-      <tr><td>Pressure line (≤4 m/s)</td><td class="num">${pline.od_mm} × ${pline.id_mm}</td><td class="num">${pline.velocity_m_s}</td><td class="num">${pline.Re || '—'}</td></tr>
-      <tr><td>Return line (≤2 m/s)</td><td class="num">${rline.od_mm} × ${rline.id_mm}</td><td class="num">${rline.velocity_m_s}</td><td class="num">${(r.return_line || {}).Re || '—'}</td></tr>
-      <tr><td>Suction line (≤1 m/s)</td><td class="num">${(r.suction_line || {}).od_mm} × ${(r.suction_line || {}).id_mm}</td><td class="num">${(r.suction_line || {}).velocity_m_s}</td><td class="num">—</td></tr>
+      <tr><th style="width:35%;">Line</th><th>Velocity Limit</th><th>OD x ID (mm)</th><th>Actual Velocity (m/s)</th><th>Re</th></tr>
+      <tr><td>Pressure line</td><td class="num">not more than 4 m/s</td><td class="num">${pline.od_mm} x ${pline.id_mm}</td><td class="num">${pline.velocity_m_s}</td><td class="num">${pline.Re || '-'}</td></tr>
+      <tr><td>Return line</td><td class="num">not more than 2 m/s</td><td class="num">${rline.od_mm} x ${rline.id_mm}</td><td class="num">${rline.velocity_m_s}</td><td class="num">${rline.Re || '-'}</td></tr>
+      <tr><td>Suction line</td><td class="num">not more than 1 m/s</td><td class="num">${sline.od_mm} x ${sline.id_mm}</td><td class="num">${sline.velocity_m_s}</td><td class="num">-</td></tr>
     </table>
-    <h2>5. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `Install a pressure relief valve set at 110% of system pressure (${Math.round(r.inputs_used?.P_bar * 1.1)} bar). Filter hydraulic fluid to ISO 4406 Class 17/15/12 or better. Use ISO 4413 safety features: unloading circuit, pressure gauges, and lockout/tagout provisions. A PRC-licensed Mechanical Engineer must sign and seal this calculation.`)}</p>
+
+    <h2>8. Assumptions</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Steady-state hydraulic circuit; transient pressure spikes (water-hammer) require separate analysis with pressure-relief or accumulator damping.\n2. Pump volumetric efficiency 0.95, mechanical efficiency 0.92, motor efficiency 0.92 - typical values for axial-piston pumps; substitute manufacturer data for specific selection.\n3. Hydraulic fluid ${fluidStr} viscosity 46 cSt at 40 deg C; cold-start viscosity may exceed pump rating below 0 deg C - use heater or VG 32 in cold climates.\n4. Cylinder loaded purely axially; side-load and buckling not considered (verify via ISO 6020-2 buckling chart for stroke / rod-dia ratios above 10:1).\n5. Pipe flow regime laminar to transitional; turbulent flow at Re above 2300 increases pressure drop and noise.\n6. Reservoir sized 3 x flow rate per ISO 4413 industry practice; cooler may be required if heat rejection exceeds reservoir surface area dissipation (typical 50 W/m^2/deg C).\n7. Cleanliness target ISO 4406 class 17/15/12 maintained by 10-micron return filter; component life shortens significantly if cleanliness slips below class 19/17/14.`)}</p>
+
+    <h2>9. Recommendations</h2>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Specify cylinder Phi ${boreMm} mm bore x Phi ${rodMm} mm rod x ${strokeMm} mm stroke per ISO 6020-2; verify mounting style (foot/clevis/trunnion) per drawing.\n2. Specify pump V_g = ${Vg} cm3/rev axial-piston with pressure-compensator; couple via bell-housing to ${pump.P_motor_kW} kW IE3 motor (next std size with 25 percent margin).\n3. Pressure relief valve set at 1.0 x system pressure = ${pBar} bar; cracking pressure not less than 10 percent below set; sized for full pump flow.\n4. Filtration: 10-micron absolute return filter (beta-10 not less than 200) plus 150-micron suction strainer; maintain ISO 4406 class 17/15/12 cleanliness target.\n5. Hose selection: ${pBar <= 350 ? 'SAE 100R2 (Type 2 wire-braid)' : 'SAE 100R12 (spiral-wire)'} per SAE J517 with JIC 37-degree flared end fittings per SAE J514; pressure-test 1.5 x working with EN ISO 1402 certificate.\n6. Reservoir baffle separates suction from return per ISO 4413 Annex G; include breather filter (3-micron desiccant), sight glass with thermometer, magnetic drain plug, and fluid-level switch.\n7. Pre-commissioning: flush all piping to ISO 4406 class 17/15/12 using offline filter cart for not less than 8 hours before cylinder connection.\n8. Pressure-test the assembled system at 1.5 x ${pBar} = ${(pBar * 1.5).toFixed(0)} bar for 30 minutes; document leak inspection and pressure-decay (not more than 2 percent over 5 min hold).\n9. Operating temperature steady-state not more than 60 deg C; if exceeded, add air-cooler or oil-cooler sized for heat rejection at duty cycle.\n10. A PRC-licensed Mechanical Engineer must sign and seal this calculation and the commissioning hydraulic test report before placing the system into service.`)}</p>
+
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Prepared by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">${escHtml(WORKER_NAME)}</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Checked by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+      <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
+        <div style="font-size:0.78rem;color:#444;">Approved by</div>
+        <div contenteditable="true" class="editable-field" style="font-size:0.83rem;font-weight:600;margin-top:1.5rem;">&nbsp;</div>
+        <div style="font-size:0.72rem;color:#666;">Name / PRC Lic. No. / Date</div>
+      </div>
+    </div>
   `;
   showReport();
 }

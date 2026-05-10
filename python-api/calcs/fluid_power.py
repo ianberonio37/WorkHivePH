@@ -242,9 +242,10 @@ def calculate(inputs: dict) -> dict:
         eta_motor_p = float(inputs.get("motor_efficiency",      0.92))
 
         if Vg_cm3 <= 0:
-            # Back-calculate required displacement from Q and n
-            Q_m3s_req = Q_lpm / 60000
-            Vg_req    = Q_m3s_req * 1e6 / (n_rpm * eta_vol_p)
+            # Back-calculate required displacement from Q and n.
+            # Vg [cm3/rev] = Q [L/min] * 1000 / (n [rpm] * eta_vol)
+            # (1 L/min = 1000 cm3/min; divide by rpm = cm3/rev; / eta_vol = theoretical)
+            Vg_req    = Q_lpm * 1000 / (n_rpm * eta_vol_p)
             Vg_cm3    = next((s for s in STD_PUMP_DISPL_CM3 if s >= Vg_req),
                               STD_PUMP_DISPL_CM3[-1])
 
