@@ -3205,30 +3205,32 @@ CALCULATION RESULTS:
 - Fan Power Index: ${fanKW100kw} kW/100 kW: ASHRAE 90.1 limit 4.0 kW/100 kW: ${isAshraePass ? "PASS" : "FAIL: select high-efficiency fan or add cells"}
 - Makeup Water: ${makeupLhr} L/hr (${makeupM3day} m³/day): Evap: ${evapLhr} L/hr, Blowdown: ${blowdownLhr} L/hr
 
+IMPORTANT - BOM SPECIFICATION FIELD: For the BOM "specification" strings, use ASCII-only characters. Do NOT use special characters such as superscript 3 (use "m3/h" instead of "m³/h"), degree (use "degC" instead of "°C"), multiplication sign (use "x" instead of "×"), greater-than-or-equal (use "min" or "not less than"), less-than-or-equal (use "not more than"), plus-minus (use "+/-"), superscript 2 (use "sq.mm" instead of "mm²"), en-dash (use "to" instead of "–"). The SOW "content" strings may keep Unicode prose.
+
 TASK: Generate a JSON object with exactly two arrays.
 
 ARRAY 1: "bom_items": 18 items for a complete cooling tower installation.
 Each object: { "item_no": number, "description": string, "specification": string, "qty": number, "unit": string, "remarks": string, "checked": true }
 
 Required items:
-1. Cooling Tower, Induced-Draft Counterflow, FRP: qty: ${nCells}: spec: ${qCellKW} kW (${qCellTR} TR) heat rejection per cell, EWT ${ewt}°C / LWT ${lwt}°C / WBT ${wbt}°C, CTI STD-201 certified, drift eliminators ≤0.001%, PVC fill media, hot-dip galvanized or FRP basin
+1. Cooling Tower, Induced-Draft Counterflow, FRP: qty: ${nCells}: spec: ${qCellKW} kW (${qCellTR} TR) heat rejection per cell, EWT ${ewt} degC / LWT ${lwt} degC / WBT ${wbt} degC, CTI STD-201 certified, drift eliminators not more than 0.001%, PVC fill media, hot-dip galvanized or FRP basin
 2. Fan Motor, TEFC IE3 premium efficiency: qty: ${nCells}: spec: ${fanKWstd} kW per cell, 3-phase 400V/60Hz, IP55, direct-drive or V-belt as per tower manufacturer${!isAshraePass ? ": HOLD: fan power index exceeds ASHRAE 90.1 limit; re-select before procurement" : ""}
 3. Fan Motor VFD (Variable Frequency Drive): qty: ${nCells}: spec: ${fanKWstd} kW, IP54, bypass mode, 3-phase 400V/60Hz: checked: false
-4. Condenser Water Pump, Base-Mounted Centrifugal: qty: ${Math.max(2, nCells + 1)}: spec: ${Math.round(qWm3hr / nCells)} m³/h per pump, head TBD from hydraulic design, TEFC motor, duty-standby configuration
+4. Condenser Water Pump, Base-Mounted Centrifugal: qty: ${Math.max(2, nCells + 1)}: spec: ${Math.round(qWm3hr / nCells)} m3/h per pump, head TBD from hydraulic design, TEFC motor, duty-standby configuration
 5. Condenser Water Piping, CS Schedule 40 Galvanized: qty: 1 lot: spec: ~${cwPipeMm}mm nominal dia, hot-dip galvanized interior or epoxy-lined for CW service, grooved or flanged joints
 6. Y-Strainer, Flanged: qty: ${nCells + 2}: spec: DN${cwPipeMm}mm, 40-mesh stainless screen, PN16, before each pump and CT cell inlet
 7. Butterfly Valve, Isolation: qty: 1 lot: spec: DN${cwPipeMm}mm, PN16, EPDM seat, cast iron body, locking handle: isolation at each pump suction/discharge and CT cell supply/return
 8. Manual Balancing Valve: qty: ${nCells}: spec: DN${cwPipeMm}mm, PN16, graduated scale with memory stop: one per CT cell return
-9. Flexible Pipe Connectors, Braided Rubber: qty: ${nCells * 2 + 4}: spec: DN${cwPipeMm}mm × 300mm, PN16, stainless braid, at all pump suction/discharge and CT cell connections
+9. Flexible Pipe Connectors, Braided Rubber: qty: ${nCells * 2 + 4}: spec: DN${cwPipeMm}mm x 300mm, PN16, stainless braid, at all pump suction/discharge and CT cell connections
 10. Automatic Water Level Control Valve (Makeup): qty: ${nCells}: spec: float-operated or solenoid-operated makeup water valve, PN10, 25mm inlet, for CT basin level control
-11. Makeup Water Piping: qty: 1 lot: spec: ${makeupM3day} m³/day demand (${makeupLhr} L/hr), 25mm domestic water feed to each basin, with ball valve isolation and backflow preventer
-12. Chemical Dosing System: qty: 1 set: spec: automatic dosing pump for corrosion inhibitor, scale inhibitor, and biocide (Legionella control per ASHRAE Guideline 12); chemical day tank; water quality test kit; side-stream filtration unit (10–25 micron) with multimedia filter
+11. Makeup Water Piping: qty: 1 lot: spec: ${makeupM3day} m3/day demand (${makeupLhr} L/hr), 25mm domestic water feed to each basin, with ball valve isolation and backflow preventer
+12. Chemical Dosing System: qty: 1 set: spec: automatic dosing pump for corrosion inhibitor, scale inhibitor, and biocide (Legionella control per ASHRAE Guideline 12); chemical day tank; water quality test kit; side-stream filtration unit (10 to 25 micron) with multimedia filter
 13. Conductivity Controller with Blowdown Solenoid: qty: ${nCells}: spec: automatic blowdown control to maintain CoC = ${coc}, conductivity setpoint adjustable, 24V solenoid bleed-off valve
-14. Structural Steel Support Frame and Basin Curb: qty: 1 lot: spec: hot-dip galvanized, designed for CT operating weight including water, per structural engineer's certification; anchor bolts per seismic zone (NSCP)
-15. Drift Eliminator Replacement Set: qty: ${nCells}: spec: PVC, ≤0.001% drift loss per CTI STD-201; included for handover to Owner as first replacement set: checked: false
-16. Electrical Works: qty: 1 lot: spec: MCCB per cell (${Math.ceil(fanKWstd * 1.25 / 0.85 / (Math.sqrt(3) * 0.4) * 1.25)} A, 3-pole, 400V, 18kA AIC), wiring THHN 3.5mm² (3C) per PEC 2017, conduit in CT area to be rigid galvanized or PVC Schedule 40 (corrosive environment)
+14. Structural Frame & Basin Curb Assembly: qty: 1 lot: spec: hot-dip galvanized steel structural frame including CT basin curb, designed for CT operating weight including water, per structural engineer's certification; anchor bolts per seismic zone (NSCP)
+15. Drift Eliminator Replacement Set: qty: ${nCells}: spec: PVC, not more than 0.001% drift loss per CTI STD-201; included for handover to Owner as first replacement set: checked: false
+16. Electrical Works: qty: 1 lot: spec: MCCB per cell (${Math.ceil(fanKWstd * 1.25 / 0.85 / (Math.sqrt(3) * 0.4) * 1.25)} A, 3-pole, 400V, 18kA AIC), wiring THHN 3.5 sq.mm (3C) per PEC 2017, conduit in CT area to be rigid galvanized or PVC Schedule 40 (corrosive environment)
 17. Legionella Water Management Plan: qty: 1 lot: spec: risk assessment by qualified water treatment specialist, written water safety plan per ASHRAE Guideline 12, monthly water quality logs for COC, pH, biocide residual
-18. Testing, Balancing, and Commissioning: qty: 1 lot: spec: CTI STD-201 performance test at design conditions (EWT ${ewt}°C, WBT ${wbt}°C), measured LWT ≤ ${lwt + 0.5}°C; CW flow balance within ±10% of ${qWm3hr} m³/h; fan motor current ≤ nameplate FLA; ASHRAE 90.1 fan power ≤ 4 kW/100 kW verified; commissioning report signed by PRC-licensed Mechanical Engineer
+18. Testing, Balancing, and Commissioning: qty: 1 lot: spec: CTI STD-201 performance test at design conditions (EWT ${ewt} degC, WBT ${wbt} degC), measured LWT not more than ${(lwt + 0.5).toFixed(1)} degC; CW flow balance within +/-10% of ${qWm3hr} m3/h; fan motor current not more than nameplate FLA; ASHRAE 90.1 fan power not more than 4 kW/100 kW verified; commissioning report signed by PRC-licensed Mechanical Engineer
 
 ARRAY 2: "sow_sections": 8 sections of Scope of Works in Philippine engineering document style.
 Each object: { "section_no": number, "title": string, "content": string, "checked": true }

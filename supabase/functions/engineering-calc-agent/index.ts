@@ -3260,7 +3260,14 @@ function calcCoolingTowerSizing(inputs: Record<string, number | string>) {
     ? `PASS: ${ashrae_ct_efficiency.toFixed(2)} L/s/kW (≥ 3.23 L/s/kW per ASHRAE 90.1-2019)`
     : `FAIL: ${ashrae_ct_efficiency.toFixed(2)} L/s/kW (< 3.23 L/s/kW per ASHRAE 90.1-2019 Table 6.8.1-7)`;
 
-  // ── 10. Chiller tie-in data (if from chiller) ────────────────────────────
+  // ── 10. ε-NTU performance (Merkel counterflow approximation, Cr ≈ 0) ─────
+  const effectiveness    = range / (range + approach);                    // 0..1
+  const ntu_merkel       = -Math.log(Math.max(1e-6, 1 - effectiveness));  // counterflow Cr=0
+  const basin_vol_m3     = qW_m3hr / 60 * 1.5 * 1.20;                     // 1.5 min hold + 20% freeboard
+  const fan_hp_total     = fanKW_total / 0.7457;
+  const fan_kw_per_100kw = (fanKW_total / qRejKW) * 100;
+
+  // ── 11. Chiller tie-in data (if from chiller) ────────────────────────────
   const chillerTR_input  = loadSource === 'chiller' ? Number(inputs.chiller_cap_tr) : null;
   const chillerKW_input  = chillerTR_input !== null ? chillerTR_input * 3.517 : null;
 
@@ -3304,6 +3311,13 @@ function calcCoolingTowerSizing(inputs: Record<string, number | string>) {
     // Compliance
     ashrae_ct_lps_per_kw: parseFloat(ashrae_ct_efficiency.toFixed(2)),
     ashrae_ct_check,
+    // Performance + reporting fields (consumed by schematic, report Step 6, BOM/SOW prompt)
+    fan_hp:               parseFloat(fan_hp_total.toFixed(1)),
+    fan_kw_per_100kw:     parseFloat(fan_kw_per_100kw.toFixed(2)),
+    ntu:                  parseFloat(ntu_merkel.toFixed(2)),
+    effectiveness:        parseFloat(effectiveness.toFixed(4)),
+    tower_efficiency_ok:  ashrae_ct_efficiency >= 3.23,
+    basin_volume_m3:      parseFloat(basin_vol_m3.toFixed(2)),
   };
 }
 
