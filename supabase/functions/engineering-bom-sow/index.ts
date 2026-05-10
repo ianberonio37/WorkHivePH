@@ -3061,10 +3061,14 @@ async function chillerWaterCooledBomSowAgent(
   // Cooling tower note: must be sized for Q_rejection, not Q_evap
   const ctNote = `Cooling tower MUST be sized for heat REJECTION load of ${qRejectionTR} TR (${qRejectionKW} kW): NOT the chiller nominal TR of ${nominalTR * nUnits} TR. Q_rejection = Q_evap + W_compressor. This is a common sizing error that results in an undersized cooling tower and high condenser water temperatures that degrade chiller COP.`;
 
-  // CHW pipe diameter estimate (velocity ~1.5 m/s)
-  const chwPipeMm = Math.ceil(Math.sqrt((chwFlowLps / (Math.PI / 4 * 1.5)) * 1e6) / 25) * 25;
+  // CHW pipe diameter estimate (velocity ~1.5 m/s) — D_mm = sqrt((Q_m3s)/(π/4·v))·1000
+  const chwPipeMm = chwFlowLps > 0
+    ? Math.ceil(Math.sqrt((chwFlowLps / 1000) / (Math.PI / 4 * 1.5)) * 1000 / 25) * 25
+    : 50;
   // CW pipe diameter estimate (velocity ~2.0 m/s)
-  const cwPipeMm  = Math.ceil(Math.sqrt((cwFlowLps  / (Math.PI / 4 * 2.0)) * 1e6) / 25) * 25;
+  const cwPipeMm  = cwFlowLps > 0
+    ? Math.ceil(Math.sqrt((cwFlowLps / 1000) / (Math.PI / 4 * 2.0)) * 1000 / 25) * 25
+    : 50;
 
   const prompt = `You are a licensed Mechanical Engineer in the Philippines preparing official procurement and contracting documents for a WATER-COOLED CHILLER PLANT installation.
 

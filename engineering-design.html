@@ -19117,8 +19117,8 @@ async function _runDrawing() {
       const svg = buildChillerSVG(_lastInputs, _lastResults, ct);
       const _r = _lastResults || {};
       const _nU    = Number(_r.n_units || 1);
-      const _trTot = Number(_r.total_capacity_tr || _r.capacity_tr || 0).toFixed(1);
-      const _cop   = Number(_r.cop || _r.eer_cop || 0).toFixed(2);
+      const _trTot = Number(_r.nominal_total_TR || _r.total_capacity_tr || _r.capacity_tr || 0).toFixed(1);
+      const _cop   = Number(_r.cop_used || _r.cop || _r.eer_cop || 0).toFixed(2);
       const _isAC  = ct.includes('Air');
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_nU} × ${(Number(_trTot)/_nU).toFixed(1)} TR = ${_trTot} TR total  |  COP ${_cop}`,
@@ -21698,8 +21698,8 @@ function buildChillerSVG(inputs, results, calcType) {
   const cws       = Number(r.cw_supply_C || r.cw_supply_c || inputs?.cw_supply_C || 29);
   const cwr       = Number(r.cw_return_C || r.cw_return_c || inputs?.cw_return_C || 35);
   const dTcw      = Number(r.dT_cw_C || cwr - cws).toFixed(1);
-  const cwFlowLs  = Number(r.Q_cw_flow_lps || r.cw_flow_lps || 0).toFixed(2);
-  const cwFlowM3  = Number(r.Q_cw_flow_m3h || r.cw_flow_m3hr || 0).toFixed(1);
+  const cwFlowLs  = Number(r.Q_cw_lps || r.Q_cw_flow_lps || r.cw_flow_lps || 0).toFixed(2);
+  const cwFlowM3  = Number(r.Q_cw_m3h || r.Q_cw_flow_m3h || r.cw_flow_m3hr || 0).toFixed(1);
   const rejKW_n   = Number(r.Q_rejection_kW || r.q_rejection_kW || 0);
   const rejTR     = Number(r.Q_rejection_TR || r.q_rejection_TR || (rejKW_n / 3.517) || 0).toFixed(1);
   const rejKW     = rejKW_n.toFixed(0);
@@ -21940,7 +21940,8 @@ function buildChillerSVG(inputs, results, calcType) {
   p.push(Badge(bx, by, copOk&&iplvOk ? `ASHRAE 90.1 COMPLIANT  COP ${cop}` : `ASHRAE 90.1 NON-COMPLIANT  COP ${cop}`, copOk&&iplvOk?CW:'#c62828'));
   const iplvBadgeText  = iplvProvided ? `IPLV: ${iplv}  ${iplvOk?'✓':'✗ BELOW LIMIT'}` : `IPLV: N/A — enter from datasheet`;
   const iplvBadgeColor = iplvProvided ? (iplvOk?CW:'#c62828') : SC;
-  p.push(Badge(bx + (isWC?180:0), by+(isWC?0:16), iplvBadgeText, iplvBadgeColor));
+  // Stack IPLV badge directly BELOW ASHRAE badge to avoid overlap (was: side-by-side in WC mode caused 60px overlap)
+  p.push(Badge(bx, by+22, iplvBadgeText, iplvBadgeColor));
 
   // ── LEGEND + NOTES (STRIP_Y = 467) ───────────────────────────────────────
   p.push(HL(11, STRIP_Y, W-11, 0.75));
