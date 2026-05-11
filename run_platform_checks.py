@@ -168,6 +168,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "home-stack-coverage",
+        "script":  "validate_home_stack_coverage.py",
+        "args":    [],
+        "label":   "Home Stack Coverage Validator (primary-nav cardinality + hidden tools have deep-links)",
+        "group":   "Platform",
+        "report":  "home_stack_coverage_report.json",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "silo-monitor",
         "script":  "validate_silo_monitor.py",
         "args":    [],

@@ -417,6 +417,17 @@
         </div>
         <div class="flex flex-col gap-2 items-end">
           <button id="btn-leave-hive" class="btn-danger">Leave Hive</button>
+          <!-- Phase H.2 (2026-05-12 home streamline): supervisor-only access to
+               the audit log. Page was removed from the primary nav-hub list
+               and is reached from here instead. Hidden for workers (no JS
+               toggle needed: nav-hub also gates by role, but the button
+               itself respects HIVE_ROLE so non-supervisors don't see it). -->
+          <a id="btn-audit-log" href="audit-log.html"
+             class="hidden text-xs font-semibold"
+             style="color:#a78bfa; background:none; border:none; cursor:pointer; min-height:44px; padding:0.5rem 0; text-decoration:none; display:none;"
+             title="View hive_audit_log: supervisor moderation actions + mod queue history">
+            Audit Log &#8594;
+          </a>
           <button id="btn-show-code" class="hidden text-xs font-semibold" style="color:#29B6D9; background:none; border:none; cursor:pointer; min-height:44px; padding:0.5rem 0;">
             Show Invite Code
           </button>
@@ -1288,6 +1299,9 @@ async function initBoard() {
   if (HIVE_ROLE === 'supervisor') {
     document.getElementById('hive-role-tag').classList.remove('hidden');
     document.getElementById('btn-show-code').classList.remove('hidden');
+    // Phase H.2: surface audit log here since it's no longer in primary nav.
+    const _auditBtn = document.getElementById('btn-audit-log');
+    if (_auditBtn) { _auditBtn.classList.remove('hidden'); _auditBtn.style.display = ''; }
     const savedCode = localStorage.getItem('wh_hive_code') || '';
     if (savedCode) document.getElementById('code-strip-value').textContent = savedCode;
   }

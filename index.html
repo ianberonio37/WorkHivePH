@@ -740,6 +740,13 @@
          is the FAB and remains the third layer. -->
     <div id="oh-today" style="display:none; margin-bottom:16px;"></div>
 
+    <!-- Phase H.3 (2026-05-12 home streamline): first-time worker onboarding
+         ladder. Three concrete steps to first value, with check marks. Shown
+         only when at least one step is incomplete AND the user has not
+         dismissed it. Populated by the home-overview loader so the
+         completion checks share its data fetch. -->
+    <div id="oh-onboarding" style="display:none; margin-bottom:16px;"></div>
+
     <!-- Summary stats (4 cards) -->
     <div id="oh-stats" class="oh-stats-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:8px;"></div>
 
@@ -2816,6 +2823,68 @@
           </div>
           <span style="font-size:.65rem; font-weight:700; color:${pick.accent}; white-space:nowrap; padding:6px 12px; border-radius:8px; background:${pick.accent}14; border:1px solid ${pick.accent}33;">${_escHtml(pick.cta)} &#8594;</span>
         </a>`;
+    })();
+
+    // ── Phase H.3 (2026-05-12): Onboarding progress card ──────────────────
+    // Three concrete steps that take a new worker from "I just signed in" to
+    // "I've used the core surfaces". Shown only when at least one step is
+    // incomplete AND the user has not dismissed via wh_onboarding_dismissed.
+    // The completion checks reuse already-fetched data (jobs, pmDoneToday)
+    // plus the HIVE_ID localStorage flag -- no extra round-trip.
+    (function renderOnboardingLadder() {
+      const dismissed = localStorage.getItem('wh_onboarding_dismissed') === '1';
+      if (dismissed) return;
+      const el = document.getElementById('oh-onboarding');
+      if (!el) return;
+      const steps = [
+        {
+          id: 1, label: 'Set your name',
+          done: !!(workerName && workerName.trim()),
+          cta: 'Go to home', href: '#',
+        },
+        {
+          id: 2, label: 'Log your first repair',
+          done: jobs.length > 0 || closedToday > 0,
+          cta: 'Open Logbook', href: 'logbook.html',
+        },
+        {
+          id: 3, label: HIVE_ID ? 'Plan your first PM' : 'Join a hive (or stay solo)',
+          done: HIVE_ID ? (pmDoneToday > 0) : true,
+          cta: HIVE_ID ? 'Open PM Scheduler' : 'Open Hive Board',
+          href:  HIVE_ID ? 'pm-scheduler.html' : 'hive.html',
+        },
+      ];
+      const done = steps.filter(s => s.done).length;
+      if (done === steps.length) return;   // all complete; hide
+      const pct = Math.round((done / steps.length) * 100);
+
+      el.style.display = 'block';
+      el.innerHTML = `
+        <div class="oh-card" style="padding:16px 18px; border-left:3px solid #F7A21B;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;">
+            <div>
+              <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#F7A21B; margin:0;">Getting Started &middot; ${done} of ${steps.length}</p>
+              <p style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,.7); margin:2px 0 0;">Finish these three steps to unlock the platform.</p>
+            </div>
+            <button type="button" onclick="(function(){ try{localStorage.setItem('wh_onboarding_dismissed','1');}catch(_){}; document.getElementById('oh-onboarding').style.display='none'; })()"
+                    style="font-size:.62rem; color:rgba(255,255,255,.35); background:none; border:none; cursor:pointer; padding:6px 8px; min-height:44px;">
+              Dismiss &times;
+            </button>
+          </div>
+          <div style="height:4px; background:rgba(255,255,255,.06); border-radius:4px; overflow:hidden; margin-bottom:14px;">
+            <div style="height:100%; width:${pct}%; background:linear-gradient(90deg,#F7A21B,#FDB94A); transition:width .4s ease;"></div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            ${steps.map(s => `
+              <a href="${_escHtml(s.href)}" style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:rgba(255,255,255,${s.done ? '.02' : '.04'}); border-radius:8px; text-decoration:none; ${s.done ? 'opacity:.55;' : ''}">
+                <div style="width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; ${s.done ? 'background:rgba(74,222,128,.18); color:#4ade80;' : 'background:rgba(247,162,27,.15); color:#F7A21B; border:1px solid rgba(247,162,27,.4);'} font-size:.7rem; font-weight:800;">
+                  ${s.done ? '&#10003;' : s.id}
+                </div>
+                <span style="flex:1; font-size:.82rem; font-weight:600; color:${s.done ? 'rgba(255,255,255,.5)' : '#F4F6FA'}; ${s.done ? 'text-decoration:line-through;' : ''}">${_escHtml(s.label)}</span>
+                ${s.done ? '' : `<span style="font-size:.62rem; font-weight:700; color:#F7A21B; white-space:nowrap;">${_escHtml(s.cta)} &#8594;</span>`}
+              </a>`).join('')}
+          </div>
+        </div>`;
     })();
 
     // Top 3 At-Risk Assets (Phase A integration: links to Asset Hub for the 360 view)

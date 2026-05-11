@@ -66,22 +66,29 @@
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/><line x1="9" y1="9" x2="11" y2="9"/></svg>` },
     { label: 'Analytics',    href: 'analytics.html',    match: ['analytics'],          section: 'Intelligence', roles: ['supervisor','engineer'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>` },
-    { label: 'Predictive ML', href: 'predictive.html',  match: ['predictive'],         section: 'Intelligence', roles: ['supervisor','engineer'],
+    // Phase H.2 (2026-05-12 home streamline): hidden from primary nav,
+    // surfaced via the Predictive tab inside analytics.html. Keeps the page
+    // reachable for direct URLs and existing deep-links.
+    { label: 'Predictive ML', href: 'predictive.html',  match: ['predictive'],         section: 'Intelligence', hidden: true, roles: ['supervisor','engineer'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>` },
     { label: 'AI Assistant', href: 'assistant.html',    match: ['assistant'],          section: 'Intelligence', /* universal */
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><line x1="9" y1="10" x2="9" y2="10" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="10" x2="12" y2="10" stroke-width="3" stroke-linecap="round"/><line x1="15" y1="10" x2="15" y2="10" stroke-width="3" stroke-linecap="round"/></svg>`,
       accent: true },
-    { label: 'PH Intelligence', href: 'ph-intelligence.html', match: ['ph-intelligence'], section: 'Intelligence', roles: ['supervisor','engineer'],
+    // Phase H.2: hidden, surfaced via the Network tab inside analytics.html.
+    { label: 'PH Intelligence', href: 'ph-intelligence.html', match: ['ph-intelligence'], section: 'Intelligence', hidden: true, roles: ['supervisor','engineer'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>` },
     { label: 'Asset Hub',    href: 'asset-hub.html',    match: ['asset-hub'],          section: 'Intelligence', roles: ['supervisor','engineer'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="21"/><line x1="3" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="21" y2="12"/></svg>` },
     { label: 'Alert Hub',    href: 'alert-hub.html',    match: ['alert-hub'],          section: 'Intelligence', roles: ['supervisor'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>` },
-    { label: 'Audit Log',    href: 'audit-log.html',    match: ['audit-log'],          section: 'Intelligence', roles: ['supervisor'],
+    // Phase H.2: hidden, surfaced via the "Audit Log" button on hive.html.
+    { label: 'Audit Log',    href: 'audit-log.html',    match: ['audit-log'],          section: 'Intelligence', hidden: true, roles: ['supervisor'],
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/><circle cx="12" cy="9.5" r="1"/></svg>` },
-    { label: 'Voice Journal', href: 'voice-journal.html', match: ['voice-journal'],     section: 'Intelligence',
+    // Phase H.2: hidden, surfaced via the "Voice Journal" button on logbook.html.
+    { label: 'Voice Journal', href: 'voice-journal.html', match: ['voice-journal'],     section: 'Intelligence', hidden: true,
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>` },
-    { label: 'Shift Brain',  href: 'shift-brain.html',  match: ['shift-brain'],        section: 'Intelligence',
+    // Phase H.2: hidden, surfaced via the Shift Brain tab inside analytics.html.
+    { label: 'Shift Brain',  href: 'shift-brain.html',  match: ['shift-brain'],        section: 'Intelligence', hidden: true,
       icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/><path d="M12 3v2M21 12h-2M12 21v-2M3 12h2"/></svg>` },
 
     // ── Build & Projects: engineering and project work ────────────────────────
