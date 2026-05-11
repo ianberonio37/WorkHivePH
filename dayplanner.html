@@ -1319,6 +1319,10 @@ document.addEventListener('keydown', e => {
   })();
 </script>
 <script src="nav-hub.js"></script>
+<!-- button-lock helper: prevents double-tap on add-block / save flows.
+     Wrap: withButtonLock(btn, async () => { await db.from(...).insert(...); }).
+     btn.disabled = true around the await; release on completion. -->
+<script src="button-lock.js"></script>
 <div id="dp-toast" class="dp-toast" role="alert" aria-live="polite"></div>
 <style>
   .dp-toast { position:fixed; top:1rem; left:50%; transform:translateX(-50%) translateY(-80px);
@@ -1328,5 +1332,6 @@ document.addEventListener('keydown', e => {
   .dp-toast.show { transform:translateX(-50%) translateY(0); }
   .dp-toast.error { border-color:rgba(248,113,113,.4); background:rgba(127,29,29,.9); }
 </style>
+  <script src="offline-banner.js"></script>
 </body>
 </html>

@@ -808,7 +808,7 @@ function buildFeedCard(entry, isNew) {
       </div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 flex-wrap mb-1">
-          <span class="text-xs font-bold text-white/80">${workerName}</span>
+          <span class="text-xs font-bold text-white/80" data-worker-name="${workerName}">${workerName}</span>
           <span class="status-badge ${statusCls}">${escHtml(status)}</span>
           ${cat ? `<span class="cat-badge" style="${catStyle(entry.category)}">${cat}</span>` : ''}
           <span class="text-[11px] text-white/25 ml-auto">${time}</span>
@@ -839,7 +839,7 @@ function buildPartsCard(record, isNew) {
       </div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 flex-wrap mb-1">
-          <span class="text-xs font-bold text-white/80">${workerName}</span>
+          <span class="text-xs font-bold text-white/80" data-worker-name="${workerName}">${workerName}</span>
           <span class="status-badge" style="background:rgba(41,182,217,0.15);color:#5fcce8;">Parts Used</span>
           ${jobType ? `<span class="cat-badge" style="background:rgba(41,182,217,0.1);color:#60a5fa;">${jobType}</span>` : ''}
           <span class="text-[11px] text-white/25 ml-auto">${time}</span>
@@ -873,7 +873,7 @@ function buildPMCard(record, isNew) {
       </div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 flex-wrap mb-1">
-          <span class="text-xs font-bold text-white/80">${workerName}</span>
+          <span class="text-xs font-bold text-white/80" data-worker-name="${workerName}">${workerName}</span>
           <span class="status-badge" style="background:rgba(247,162,27,0.12);color:#F7A21B;">PM Done</span>
           ${freq ? `<span class="cat-badge" style="background:${freqCls[freq] || 'rgba(255,255,255,0.06);color:rgba(255,255,255,0.4)'};">${freqMap[freq] || freq}</span>` : ''}
           <span class="text-[11px] text-white/25 ml-auto">${time}</span>
@@ -2651,5 +2651,9 @@ window.addEventListener('beforeunload', () => {
   if (workerApprovalCh)  db.removeChannel(workerApprovalCh);
 });
 </script>
+  <script src="offline-banner.js"></script>
+  <!-- worker-drawer.js: click any [data-worker-name] node to open the mini-profile drawer.
+       Closes PRODUCTION_FIXES #15. Auto-wires globally via event delegation. -->
+  <script src="worker-drawer.js"></script>
 </body>
 </html>

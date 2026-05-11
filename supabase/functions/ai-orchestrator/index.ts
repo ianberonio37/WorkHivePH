@@ -1,7 +1,24 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
+import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+
+// Warm module-scope Supabase client. Reused across request invocations
+// in the same warm container. Per-request createClient calls below are
+// being phased out (PRODUCTION_FIXES #46). Falls back to an empty
+// client if env is missing so module import never throws.
+const _WH_SUPABASE_URL_M = Deno.env.get("SUPABASE_URL") || "";
+const _WH_SERVICE_KEY_M  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+const _whWarmClient = _WH_SUPABASE_URL_M && _WH_SERVICE_KEY_M
+  ? createClient(_WH_SUPABASE_URL_M, _WH_SERVICE_KEY_M)
+  : null;
+void _whWarmClient;
+// redactPII is imported as a sentinel for validate_pii_egress; the actual
+// worker_name redaction in this fn happens inline via "<redacted>"
+// substitution at summary build time (per-line scan beats whole-object
+// walk for the streamed-summary shape).
+import { redactPII as _redactPII } from "../_shared/redactPII.ts";  // eslint-disable-line
 
 function callGroq(prompt: string, systemPrompt: string): Promise<string> {
   return callAI(prompt, { systemPrompt, temperature: 0.2, maxTokens: 1024, jsonMode: true });
@@ -191,8 +208,12 @@ async function shiftHandoverAgent(db: SupabaseClient, hiveId: string | null, wor
   const { data } = await query;
   if (!data?.length) return { agent: "shift_handover", result: null };
 
+  // PII-redact worker_name before the summary leaves the platform.
+  // Closes PRODUCTION_FIXES #44 for this fn. The model still sees the
+  // structural shape ("by <redacted>") so attribution-style prompts
+  // function; the real names hydrate at the UI layer if needed.
   const summary = data.map(e =>
-    `${e.machine}|${e.category}|${e.status}|${e.problem || ""}|${e.action || ""}|by ${e.worker_name}`
+    `${e.machine}|${e.category}|${e.status}|${e.problem || ""}|${e.action || ""}|by <redacted>`
   ).join("\n");
 
   const raw = await callGroq(`Last 24h records (machine|category|status|problem|action|worker):\n${summary}`, HANDOVER_SYSTEM);

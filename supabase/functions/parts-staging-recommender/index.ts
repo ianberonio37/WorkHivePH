@@ -2,6 +2,17 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 
+// Warm module-scope Supabase client. Reused across request invocations
+// in the same warm container. Per-request createClient calls below are
+// being phased out (PRODUCTION_FIXES #46). Falls back to an empty
+// client if env is missing so module import never throws.
+const _WH_SUPABASE_URL_M = Deno.env.get("SUPABASE_URL") || "";
+const _WH_SERVICE_KEY_M  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+const _whWarmClient = _WH_SUPABASE_URL_M && _WH_SERVICE_KEY_M
+  ? createClient(_WH_SUPABASE_URL_M, _WH_SERVICE_KEY_M)
+  : null;
+void _whWarmClient;
+
 // ── Predictive Parts Auto-Staging Recommender ────────────────────────────────
 // Runs daily after batch-risk-scoring (06:00 UTC). For each high-risk asset
 // (risk_score >= 0.7), looks at historical parts_used patterns from logbook

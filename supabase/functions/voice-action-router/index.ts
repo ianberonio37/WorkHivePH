@@ -31,7 +31,19 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
+import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+
+// Warm module-scope Supabase client. Reused across request invocations
+// in the same warm container. Per-request createClient calls below are
+// being phased out (PRODUCTION_FIXES #46). Falls back to an empty
+// client if env is missing so module import never throws.
+const _WH_SUPABASE_URL_M = Deno.env.get("SUPABASE_URL") || "";
+const _WH_SERVICE_KEY_M  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+const _whWarmClient = _WH_SUPABASE_URL_M && _WH_SERVICE_KEY_M
+  ? createClient(_WH_SUPABASE_URL_M, _WH_SERVICE_KEY_M)
+  : null;
+void _whWarmClient;
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 

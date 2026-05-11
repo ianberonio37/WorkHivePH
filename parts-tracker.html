@@ -1176,5 +1176,10 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   </script>
   <script src="nav-hub.js"></script>
+  <!-- button-lock helper: prevents double-tap on use / restock buttons.
+       Wrap: withButtonLock(btn, async () => { await db.from(...).insert(...); }).
+       btn.disabled = true around the await; release on completion. -->
+  <script src="button-lock.js"></script>
+  <script src="offline-banner.js"></script>
 </body>
 </html>

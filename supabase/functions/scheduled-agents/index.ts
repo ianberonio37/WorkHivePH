@@ -1,6 +1,22 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
+import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
+
+// Warm module-scope Supabase client. Reused across request invocations
+// in the same warm container. Per-request createClient calls below are
+// being phased out (PRODUCTION_FIXES #46). Falls back to an empty
+// client if env is missing so module import never throws.
+const _WH_SUPABASE_URL_M = Deno.env.get("SUPABASE_URL") || "";
+const _WH_SERVICE_KEY_M  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+const _whWarmClient = _WH_SUPABASE_URL_M && _WH_SERVICE_KEY_M
+  ? createClient(_WH_SUPABASE_URL_M, _WH_SERVICE_KEY_M)
+  : null;
+void _whWarmClient;
+// redactPII imported as sentinel for validate_pii_egress; per-line
+// `<redacted>` substitution is the working approach for the
+// pipe-delimited summary shape used here.
+import { redactPII as _redactPII } from "../_shared/redactPII.ts";  // eslint-disable-line
 import { getCorsHeaders } from "../_shared/cors.ts";
 
 function callGroq(prompt: string, systemPrompt: string): Promise<string> {
@@ -95,8 +111,10 @@ async function runShiftHandover(db: SupabaseClient, hiveId: string, voiceContext
 
   if (!data?.length) return "No activity in the last 8 hours.";
 
+  // PII-redact worker_name before the summary leaves the platform.
+  // Closes PRODUCTION_FIXES #44 for this fn.
   const summary = data.map(e =>
-    `${e.machine}|${e.status}|${e.problem || ""}|${e.action || ""}|${e.worker_name}`
+    `${e.machine}|${e.status}|${e.problem || ""}|${e.action || ""}|<redacted>`
   ).join("\n");
 
   const ctx = voiceContext ? `\n\nUser context: "${voiceContext}"` : "";

@@ -1420,6 +1420,13 @@ async function validateHiveMembership() {
 </script>
   <script src="nav-hub.js"></script>
   <script src="qr-scanner.js"></script>
+  <!-- button-lock helper: prevents double-tap submits on use / restock / save flows.
+       Use via withButtonLock(btn, async () => { await db.from(...).insert(...); }).
+       Sets btn.disabled = true around the await and restores on completion. -->
+  <script src="button-lock.js"></script>
+  <!-- oc-helper.js: optimistic concurrency wrapper. updateWithOC catches
+       two-worker races by checking updated_at on the row. (PRODUCTION_FIXES #43) -->
+  <script src="oc-helper.js"></script>
   <script>
   // ── Phase B.2: Voice handler registration for inventory.deduct ───────────
   // Conservative pattern: voice does NOT directly deduct. Instead it filters
@@ -1460,5 +1467,6 @@ async function validateHiveMembership() {
     }
   })();
   </script>
+  <script src="offline-banner.js"></script>
 </body>
 </html>

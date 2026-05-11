@@ -83,6 +83,10 @@ RESET_TABLES = [
     "automation_log",
     "hive_audit_log",
     "hive_analytics_cache",
+    "agent_memory",
+    "hive_quotas",
+    "ai_cost_log",
+    "ai_quality_log",
     # Inventory + parts
     "parts_records",
     "inventory_transactions",

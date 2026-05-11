@@ -25,7 +25,18 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
+import { loadMemory, saveTurn, formatMemoryContext } from "../_shared/memory.ts";
+import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
+import { redactPII } from "../_shared/redactPII.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+
+// Warm module-scope Supabase client (PRODUCTION_FIXES #46).
+const _WH_SUPABASE_URL_M = Deno.env.get("SUPABASE_URL") || "";
+const _WH_SERVICE_KEY_M  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+const _whWarmClient = _WH_SUPABASE_URL_M && _WH_SERVICE_KEY_M
+  ? createClient(_WH_SUPABASE_URL_M, _WH_SERVICE_KEY_M)
+  : null;
+void _whWarmClient;
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -432,7 +443,10 @@ serve(async (req) => {
     const reliability = relRes.status === "fulfilled" ? relRes.value : { fmea: [], rcm: [], weibull: null, pf: [] };
 
     const context = composeContext(graphRes, timeline, similar, reliability, question);
-    const prompt  = JSON.stringify(context);
+    // PII redaction before the prompt leaves the platform: worker_name in
+    // the timeline.pm array gets `<redacted>` so the model provider never
+    // sees worker identity. Closes PRODUCTION_FIXES #44 for this fn.
+    const prompt  = JSON.stringify(redactPII(context));
 
     let raw: string;
     try {

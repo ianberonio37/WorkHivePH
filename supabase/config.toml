@@ -1,5 +1,10 @@
 project_id = "workhive"
 
+[functions.ai-gateway]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/ai-gateway/index.ts"
+
 [functions.ai-orchestrator]
 enabled = true
 verify_jwt = false

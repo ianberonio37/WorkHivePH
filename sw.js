@@ -1,12 +1,26 @@
-// WorkHive Report Sender — Service Worker
-// Enables PWA installability and offline shell on Chrome/Android.
+// WorkHive Service Worker — Phase 2 (multi-page shell, 2026-05-11)
+// Enables PWA installability + offline shell across the worker-critical
+// surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
+// Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'report-sender-v27';
+const CACHE_NAME  = 'workhive-shell-v29';
 const SHELL_FILES = [
+  // Original report-sender shell
   '/report-sender.html',
   '/report-sender-manifest.json',
+  // Shared chrome
   '/nav-hub.js',
+  '/button-lock.js',
+  '/offline-banner.js',
   '/brand_assets/workhive-logo-transparent.png',
+  // Worker-critical pages (offline-capable on cached page-shell)
+  '/logbook.html',
+  '/inventory.html',
+  '/pm-scheduler.html',
+  '/parts-tracker.html',
+  '/shift-brain.html',
+  '/asset-hub.html',
+  '/hive.html',
 ];
 
 self.addEventListener('install', e => {

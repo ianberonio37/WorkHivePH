@@ -1,8 +1,21 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
+import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
+import { redactPII } from "../_shared/redactPII.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
+
+// Warm module-scope Supabase client. Reused across request invocations
+// in the same warm container. Per-request createClient calls below are
+// being phased out (PRODUCTION_FIXES #46). Falls back to an empty
+// client if env is missing so module import never throws.
+const _WH_SUPABASE_URL_M = Deno.env.get("SUPABASE_URL") || "";
+const _WH_SERVICE_KEY_M  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+const _whWarmClient = _WH_SUPABASE_URL_M && _WH_SERVICE_KEY_M
+  ? createClient(_WH_SUPABASE_URL_M, _WH_SERVICE_KEY_M)
+  : null;
+void _whWarmClient;
 
 // ── Fetch data from Supabase for the requested phase ─────────────────────────
 
@@ -10,6 +23,28 @@ import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts"
 // Prevents silent data truncation as the hive grows.
 // Rule (Performance skill): any metric aggregating >200 rows needs a limit
 // that accounts for growth, not a hardcoded cap.
+
+
+// Gateway-adoption fallback: when called via ai-gateway, body.worker_name
+// is `<redacted>` for PII compliance. Derive the real identity from the
+// JWT + worker_profiles. Closes PRODUCTION_FIXES #49 JWT-derive track.
+async function deriveWorkerFromJWT(
+  authedClient: SupabaseClient,
+  adminClient: SupabaseClient,
+): Promise<string | null> {
+  try {
+    const { data: { user } } = await authedClient.auth.getUser();
+    if (!user) return null;
+    const { data: profile } = await adminClient
+      .from("worker_profiles")
+      .select("display_name")
+      .eq("auth_uid", user.id)
+      .maybeSingle();
+    return profile?.display_name || user.email || null;
+  } catch {
+    return null;
+  }
+}
 
 function dynLimit(periodDays: number, maxPerDay: number, hardCap = 5000): number {
   return Math.min(hardCap, Math.max(200, periodDays * maxPerDay));
@@ -303,7 +338,9 @@ Format as JSON:
     team_members: hiveMembers,
   };
 
-  const prompt = `4-phase analytics results:\n${JSON.stringify(promptPayload, null, 2)}`;
+  // Redact worker_name in team_members + open_assignments before the
+  // payload leaves the platform. Closes PRODUCTION_FIXES #44 for this fn.
+  const prompt = `4-phase analytics results:\n${JSON.stringify(redactPII(promptPayload), null, 2)}`;
 
   try {
     const raw = await callAI(prompt, { systemPrompt, temperature: 0.3, maxTokens: 800, jsonMode: true });
