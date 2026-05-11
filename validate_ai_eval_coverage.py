@@ -28,9 +28,13 @@ Layer 3 -- Eval cron job registered                                      [WARN]
   A pg_cron job (or scheduled-agents entry) should run evals on a
   recurring basis. Without it, the registry is decorative.
 
-Layer 4 -- Quality log table + recent runs (informational)               [INFO]
-  Per-agent count of canonical questions + freshness of last eval
-  run (if `ai_quality_log` exists). Tracks adoption.
+Layer 4 -- Eval runner edge fn exists + writes to ai_quality_log         [WARN]
+  The cron registered in Layer 3 calls `/ai-eval-runner`. If that
+  edge fn doesn't exist, the cron is a no-op (404 on each call) and
+  ai_quality_log stays empty. This layer verifies the runner is
+  present on disk and writes to the log table. Freshness of runs
+  itself is best surfaced from the dashboard (validators can't hit
+  live DB).
 
 Skills consulted: ai-engineer (eval patterns, LLM-as-judge), architect
 (ratchet vs blocker for forward-looking gates), qa-tester (golden-set
@@ -226,11 +230,18 @@ def check_cron_registered() -> tuple[list[dict], list[dict]]:
     return issues, report
 
 
-# -- Layer 4: Quality-log freshness (informational) -----------------------
+EVAL_RUNNER_FILE = os.path.join("supabase", "functions", "ai-eval-runner", "index.ts")
+
+
+# -- Layer 4: Eval runner fn exists + writes ai_quality_log -------------
 
 def check_quality_log() -> tuple[list[dict], list[dict]]:
-    """Look for ai_quality_log table presence + any reference patterns
-    that suggest runs are persisting."""
+    """Verify (a) ai_quality_log table exists, (b) ai-eval-runner edge fn
+    exists, (c) the runner contains an insert into ai_quality_log.
+    Without (b) or (c) the cron scheduled in L3 is decorative."""
+    issues: list[dict] = []
+    report: list[dict] = []
+    # (a) table presence
     table_re = re.compile(
         r"""CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?
             (?:public\.|"public"\.)?"?ai_quality_log"?\s*\(""",
@@ -242,7 +253,39 @@ def check_quality_log() -> tuple[list[dict], list[dict]]:
         if table_re.search(sql):
             table_present = True
             break
-    return [], [{"ai_quality_log_table_present": table_present}]
+    # (b) runner fn present
+    runner_present = os.path.isfile(EVAL_RUNNER_FILE)
+    runner_writes_log = False
+    if runner_present:
+        src = read_file(EVAL_RUNNER_FILE) or ""
+        runner_writes_log = bool(
+            re.search(r"""\.from\(\s*['"]ai_quality_log['"]\s*\)\s*\.insert""", src)
+        )
+    report.append({
+        "ai_quality_log_table_present": table_present,
+        "runner_fn_present":            runner_present,
+        "runner_writes_to_log":         runner_writes_log,
+    })
+    if not runner_present:
+        issues.append({
+            "check": "quality_log", "skip": True,
+            "reason": (
+                f"ai-eval-runner edge fn not found at "
+                f"{EVAL_RUNNER_FILE}. The L3 cron calls this endpoint; "
+                f"without it cron runs are 404s and ai_quality_log "
+                f"never accumulates rows. Create the runner."
+            ),
+        })
+    elif not runner_writes_log:
+        issues.append({
+            "check": "quality_log", "skip": True,
+            "reason": (
+                f"ai-eval-runner exists but does not insert into "
+                f"ai_quality_log. The eval scores must be persisted for "
+                f"the dashboard to surface regressions."
+            ),
+        })
+    return issues, report
 
 
 # -- Runner --------------------------------------------------------------
@@ -257,7 +300,7 @@ CHECK_LABELS = {
     "registry_present": "L1  Eval registry present (JSON file or migration table)       [WARN]",
     "fixture_coverage": "L2  Every routed agent has >=3 canonical fixtures              [WARN]",
     "cron_registered":  "L3  Eval cron job scheduled in migrations                       [WARN]",
-    "quality_log":      "L4  ai_quality_log table present (informational)               [INFO]",
+    "quality_log":      "L4  ai-eval-runner fn exists + writes to ai_quality_log         [WARN]",
 }
 
 

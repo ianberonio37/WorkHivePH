@@ -23,16 +23,20 @@
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 export interface AICostEntry {
-  fn:             string;
-  hive_id?:       string | null;
-  worker_name?:   string | null;
-  model:          string;
-  provider?:      string;
-  prompt_tokens?: number;
-  output_tokens?: number;
-  cost_usd?:      number;
-  latency_ms?:    number;
-  status?:        "success" | "failed" | "fallback";
+  fn:                 string;
+  hive_id?:           string | null;
+  worker_name?:       string | null;
+  model:              string;
+  provider?:          string;
+  prompt_tokens?:     number;
+  output_tokens?:     number;
+  cost_usd?:          number;
+  latency_ms?:        number;
+  status?:            "success" | "failed" | "fallback";
+  // 2026-05-11 extensions: telemetry shape for #54 Layer 4 teeth.
+  schema_compliance?: boolean | null;   // JSON-mode payload parsed cleanly?
+  user_feedback?:     -1 | 0 | 1 | null; // thumbs-down / neutral / thumbs-up
+  prompt_hash?:       string | null;     // sha-256(prompt+system) for drift detection
 }
 
 export async function logAICost(
@@ -41,16 +45,19 @@ export async function logAICost(
 ): Promise<void> {
   try {
     const row = {
-      fn:            entry.fn,
-      hive_id:       entry.hive_id || null,
-      worker_name:   entry.worker_name || null,
-      model:         entry.model,
-      provider:      entry.provider || entry.model.split(":")[0] || null,
-      prompt_tokens: entry.prompt_tokens || null,
-      output_tokens: entry.output_tokens || null,
-      cost_usd:      entry.cost_usd || null,
-      latency_ms:    entry.latency_ms || null,
-      status:        entry.status || "success",
+      fn:                entry.fn,
+      hive_id:           entry.hive_id || null,
+      worker_name:       entry.worker_name || null,
+      model:             entry.model,
+      provider:          entry.provider || entry.model.split(":")[0] || null,
+      prompt_tokens:     entry.prompt_tokens || null,
+      output_tokens:     entry.output_tokens || null,
+      cost_usd:          entry.cost_usd || null,
+      latency_ms:        entry.latency_ms || null,
+      status:            entry.status || "success",
+      schema_compliance: entry.schema_compliance ?? null,
+      user_feedback:     entry.user_feedback ?? null,
+      prompt_hash:       entry.prompt_hash ?? null,
     };
     const { error } = await db.from("ai_cost_log").insert(row);
     if (error) {

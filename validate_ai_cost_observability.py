@@ -17,8 +17,12 @@ Layer 2 -- callAI sites pair with cost log writes                        [WARN]
 Layer 3 -- Cost dashboard surface (informational)                        [INFO]
   Does a page like `ai-cost.html` exist that reads the ledger?
 
-Layer 4 -- callAI invocation count per fn (informational)                [INFO]
-  Helpful inventory for projecting cost.
+Layer 4 -- Telemetry shape covers latency + schema + feedback            [WARN]
+  The ai_cost_log table must carry the four telemetry dimensions the
+  cost dashboard needs: `latency_ms`, `schema_compliance`, `user_feedback`,
+  and `prompt_hash`. Without these the dashboard surfaces cost only;
+  with them, quality + drift are visible too. Forward-looking ratchet
+  -- DEFERRED until the extension migration lands.
 
 Skills consulted: ai-engineer (cost observability is the missing
 Agentic-RAG node), analytics-engineer (cost dashboard format),
@@ -159,12 +163,87 @@ def check_invocation_inventory(fns):
     return [], rows
 
 
-CHECK_NAMES = ["ledger_present", "callai_logs_cost", "dashboard", "invocation_inventory"]
+# Forward-looking ratchet -- baseline 2026-05-11: extension migration
+# 20260511000009_ai_cost_log_extensions.sql adds the three columns.
+# Adoption (cost-log.ts pass-through + edge fn population) is incremental;
+# flip to non-deferred once every callAI site sets schema_compliance.
+TELEMETRY_DEFERRED = True
+
+REQUIRED_TELEMETRY_COLS = ("latency_ms", "schema_compliance", "user_feedback", "prompt_hash")
+
+
+def _ai_cost_log_columns() -> set[str]:
+    """Parse all ai_cost_log table definitions + ALTER TABLE ADD COLUMN
+    statements across migrations. Returns the union of column names.
+
+    Handles both single-column ALTERs (ALTER TABLE x ADD COLUMN y type;)
+    and multi-column ALTERs (ALTER TABLE x ADD COLUMN y type, ADD COLUMN z type;)
+    by isolating the ALTER TABLE statement body, then scanning every
+    ADD COLUMN clause within it.
+    """
+    cols: set[str] = set()
+    table_re = re.compile(
+        r"""CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?
+            (?:public\.|"public"\.)?
+            "?ai_cost_log"?\s*\(
+            (?P<body>[\s\S]*?)\n\s*\);""",
+        re.IGNORECASE | re.VERBOSE,
+    )
+    # Capture the whole ALTER TABLE statement (semicolon-terminated) so
+    # multi-clause ALTERs are parsed in one pass.
+    alter_stmt_re = re.compile(
+        r"""ALTER\s+TABLE\s+(?:ONLY\s+)?(?:public\.|"public"\.)?
+            "?ai_cost_log"?\s+(?P<body>[^;]+);""",
+        re.IGNORECASE | re.VERBOSE | re.DOTALL,
+    )
+    add_col_re = re.compile(
+        r"""ADD\s+COLUMN\s+(?:IF\s+NOT\s+EXISTS\s+)?
+            "?(?P<col>\w+)"?""",
+        re.IGNORECASE | re.VERBOSE,
+    )
+    for path in sorted(glob.glob(os.path.join(MIGRATIONS_DIR, "*.sql"))):
+        sql = re.sub(r"--[^\n]*", "", read_file(path) or "")
+        m = table_re.search(sql)
+        if m:
+            for cm in re.finditer(r"""^\s*"?(\w+)"?\s+["a-zA-Z]""", m.group("body"), re.MULTILINE):
+                col = cm.group(1).lower()
+                if col not in {"constraint", "primary", "unique", "foreign", "check"}:
+                    cols.add(col)
+        for stmt in alter_stmt_re.finditer(sql):
+            for am in add_col_re.finditer(stmt.group("body")):
+                cols.add(am.group("col").lower())
+    return cols
+
+
+def check_telemetry_shape():
+    issues, report = [], []
+    cols = _ai_cost_log_columns()
+    if not cols:
+        return issues, [{"telemetry_columns": "table_not_found"}]
+    missing = [c for c in REQUIRED_TELEMETRY_COLS if c not in cols]
+    report.append({
+        "found_cols":    sorted(cols),
+        "required":      list(REQUIRED_TELEMETRY_COLS),
+        "missing":       missing,
+    })
+    if missing:
+        issues.append({
+            "check": "telemetry_shape", "skip": TELEMETRY_DEFERRED,
+            "reason": (
+                f"ai_cost_log missing telemetry column(s): {missing}. "
+                f"Dashboard can show cost but not quality/drift signals. "
+                f"Ship migration that ALTERs the table to add these."
+            ),
+        })
+    return issues, report
+
+
+CHECK_NAMES = ["ledger_present", "callai_logs_cost", "dashboard", "telemetry_shape"]
 CHECK_LABELS = {
     "ledger_present":       "L1  AI cost ledger table present                                [WARN]",
     "callai_logs_cost":     "L2  Every callAI() site logs cost                               [WARN]",
     "dashboard":            "L3  AI cost dashboard page exists (informational)               [INFO]",
-    "invocation_inventory": "L4  callAI invocations per fn (informational)                   [INFO]",
+    "telemetry_shape":      "L4  Telemetry shape: latency + schema + feedback + prompt_hash [WARN]",
 }
 
 
@@ -177,7 +256,7 @@ def main():
     l1_i, l1_r = check_ledger_present()
     l2_i, l2_r = check_callai_logs_cost(fns)
     l3_i, l3_r = check_dashboard()
-    l4_i, l4_r = check_invocation_inventory(fns)
+    l4_i, l4_r = check_telemetry_shape()
     all_issues = l1_i + l2_i + l3_i + l4_i
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
     total = len(CHECK_NAMES)
@@ -190,7 +269,7 @@ def main():
     report = {"validator": "ai_cost_observability", "total_checks": total,
               "passed": n_pass, "warned": n_warn, "failed": n_fail,
               "ledger_present": l1_r, "callai_logs_cost": l2_r,
-              "dashboard": l3_r, "invocation_inventory": l4_r,
+              "dashboard": l3_r, "telemetry_shape": l4_r,
               "issues": [i for i in all_issues if not i.get("skip")],
               "warnings": [i for i in all_issues if i.get("skip")]}
     with open("ai_cost_observability_report.json", "w", encoding="utf-8") as f:

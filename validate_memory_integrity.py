@@ -20,10 +20,12 @@ Layer 3 -- Hot-path indexes present                                      [WARN]
   must exist; the gateway's loadMemory() relies on it. Missing index
   = full table scan once the table grows past 50k rows.
 
-Layer 4 -- Retention surface (informational)                             [INFO]
-  Inventory: row count would-be / age buckets / pending cleanup. The
-  cron-driven retention job is registered separately; this layer
-  surfaces whether retention has been wired.
+Layer 4 -- Retention cron registered                                     [WARN]
+  A pg_cron job must delete rows older than the retention bound
+  (90 days for turns, 180 days for summaries). Without it the table
+  grows unboundedly and accumulates stale conversational context that
+  may carry PII. Forward-looking ratchet -- DEFERRED until the cron
+  migration is applied.
 
 Skills consulted: realtime-engineer (memory hydration is a hot-path
 read), security (RLS posture for free-text fields), data-engineer
@@ -200,17 +202,52 @@ def check_indexes() -> tuple[list[dict], list[dict]]:
     return issues, report
 
 
-# -- Layer 4: Retention surface (informational) ---------------------------
+# Forward-looking ratchet — baseline 2026-05-11: retention cron shipped in
+# 20260511000010_agent_memory_retention_cron.sql. If the cron migration
+# is applied (visible to the parser via cron.schedule('agent-memory-...))
+# this becomes PASS; flip RETENTION_DEFERRED to False to make it strict.
+RETENTION_DEFERRED = False
+RETENTION_CRON_NAME = "agent-memory-retention"
+
+
+# -- Layer 4: Retention cron registered ---------------------------------
 
 def check_retention() -> tuple[list[dict], list[dict]]:
+    issues: list[dict] = []
     rows: list[dict] = []
     sql = _read_all_migrations()
+    # Stricter regex than the previous {agent_memory} substring scan:
+    # must find the actual cron.schedule('agent-memory-retention', ...).
     has_cron = bool(re.search(
-        r"""(?:cron\.schedule|pg_cron).*agent_memory""",
+        rf"""cron\.schedule\s*\(\s*['"]({re.escape(RETENTION_CRON_NAME)})['"]""",
+        sql, re.IGNORECASE,
+    ))
+    # Also tolerate any cron job whose body references agent_memory
+    # (legacy ad-hoc cleanup jobs that haven't migrated to the canonical name).
+    has_legacy_cron = bool(re.search(
+        r"""cron\.schedule[^)]*?DELETE\s+FROM\s+(?:public\.)?agent_memory""",
         sql, re.IGNORECASE | re.DOTALL,
     ))
-    rows.append({"metric": "retention_cron_registered", "present": has_cron})
-    return [], rows
+    present = has_cron or has_legacy_cron
+    rows.append({
+        "metric":               "retention_cron_registered",
+        "present":              present,
+        "expected_name":        RETENTION_CRON_NAME,
+        "canonical_name_found": has_cron,
+        "legacy_cron_found":    has_legacy_cron,
+    })
+    if not present:
+        issues.append({
+            "check": "retention", "skip": RETENTION_DEFERRED,
+            "reason": (
+                f"No pg_cron job named '{RETENTION_CRON_NAME}' (or any cron "
+                f"deleting from agent_memory) found in migrations. The "
+                f"table will grow unboundedly and accumulate stale "
+                f"conversational context. Apply migration "
+                f"20260511000010_agent_memory_retention_cron.sql."
+            ),
+        })
+    return issues, rows
 
 
 # -- Runner ----------------------------------------------------------------
@@ -225,7 +262,7 @@ CHECK_LABELS = {
     "schema_present": "L1  agent_memory schema present with required columns           [FAIL]",
     "rls_policies":   "L2  RLS enabled + SELECT + INSERT policies                       [FAIL]",
     "indexes":        "L3  Hot-path composite index present                             [WARN]",
-    "retention":      "L4  Retention cron registered (informational)                    [INFO]",
+    "retention":      "L4  Retention cron registered ('agent-memory-retention')         [WARN]",
 }
 
 
