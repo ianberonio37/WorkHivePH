@@ -35,3 +35,5 @@ npx supabase functions deploy fmea-populator --no-verify-jwt
 npx supabase functions deploy weibull-fitter --no-verify-jwt
 npx supabase functions deploy pf-calculator --no-verify-jwt
 npx supabase functions deploy ai-eval-runner --no-verify-jwt
+npx supabase functions deploy platform-gateway --no-verify-jwt
+npx supabase functions deploy pdf-ingest --no-verify-jwt

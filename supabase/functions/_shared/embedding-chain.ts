@@ -113,3 +113,96 @@ export async function generateEmbedding(text: string): Promise<number[]> {
   }
   throw new Error(`All embedding providers failed: ${errors.join(" | ")}`);
 }
+
+
+// ── Reranker ─────────────────────────────────────────────────────────────
+//
+// Cosine distance over embeddings returns "vector neighbors", which is
+// fast but lossy. A reranker takes the top-K cosine candidates and
+// re-orders them by true semantic relevance, lifting answer quality
+// without changing the embedding model. Use whenever a callAI prompt
+// will reason over retrieved chunks.
+//
+// Voyage AI offers `rerank-2-lite` on a generous free tier. Falls back
+// to identity (no-op reorder) if the API key is missing or the call
+// fails -- relevance ranking is observability-tier, never the critical
+// path.
+
+export interface RerankCandidate {
+  /** Original cosine score (higher = closer). Optional, used for tie-break. */
+  score?:   number;
+  /** Free-form text to rerank. The reranker reads this. */
+  text:     string;
+  /** Anything else the caller wants to keep paired with the text. */
+  meta?:    Record<string, unknown>;
+}
+
+export interface RerankResult {
+  text:           string;
+  /** Rerank score, 0..1 from Voyage. */
+  relevance:      number;
+  /** Caller's meta is passed through. */
+  meta?:          Record<string, unknown>;
+  /** Original cosine score if the caller supplied one. */
+  cosine_score?:  number;
+}
+
+const VOYAGE_RERANK_URL   = "https://api.voyageai.com/v1/rerank";
+const VOYAGE_RERANK_MODEL = "rerank-2-lite";
+
+export async function rerank(
+  query:      string,
+  candidates: RerankCandidate[],
+  topN:       number = 5,
+): Promise<RerankResult[]> {
+  if (!candidates.length) return [];
+  // Identity fallback: caller still gets the array back, just without re-ordering.
+  const identity = (): RerankResult[] => candidates.slice(0, topN).map((c) => ({
+    text:         c.text,
+    relevance:    c.score ?? 0,
+    meta:         c.meta,
+    cosine_score: c.score,
+  }));
+
+  const apiKey = Deno.env.get("VOYAGE_API_KEY");
+  if (!apiKey) {
+    console.warn("[rerank] VOYAGE_API_KEY missing — returning identity order");
+    return identity();
+  }
+
+  try {
+    const res = await fetch(VOYAGE_RERANK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type":  "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model:     VOYAGE_RERANK_MODEL,
+        query:     query.slice(0, 4000),
+        documents: candidates.map((c) => c.text.slice(0, 4000)),
+        top_k:     topN,
+      }),
+    });
+    if (!res.ok) {
+      const err = (await res.text()).slice(0, 200);
+      console.warn(`[rerank] voyage ${res.status}: ${err} — identity fallback`);
+      return identity();
+    }
+    const data = await res.json();
+    const ranked = data?.data;
+    if (!Array.isArray(ranked)) return identity();
+    return ranked.map((r: { index: number; relevance_score: number }) => {
+      const src = candidates[r.index];
+      return {
+        text:         src.text,
+        relevance:    Number(r.relevance_score) || 0,
+        meta:         src.meta,
+        cosine_score: src.score,
+      };
+    });
+  } catch (err) {
+    console.warn(`[rerank] threw: ${err instanceof Error ? err.message : String(err)} — identity fallback`);
+    return identity();
+  }
+}

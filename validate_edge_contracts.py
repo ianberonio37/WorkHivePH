@@ -36,6 +36,8 @@ FUNCTIONS_DIR = os.path.join("supabase", "functions")
 ALL_FUNCTIONS = [
     "ai-gateway",
     "ai-eval-runner",
+    "platform-gateway",
+    "pdf-ingest",
     "voice-journal-agent",
     "ai-orchestrator",
     "analytics-orchestrator",
@@ -104,6 +106,8 @@ REQUIRED_FIELDS = {
     "asset-brain-query":            ["question", "asset_id", "hive_id"],
     "ai-gateway":                   ["agent", "message"],
     "ai-eval-runner":               [],   # cron-only — no req body needed
+    "platform-gateway":             ["fn"],   # routed call: { fn, payload?, hive_id?, request_id? }
+    "pdf-ingest":                   [],   # accepts { job_id? } OR empty body (drain mode)
     "voice-journal-agent":          [],   # invoked by ai-gateway with { message, context }; gateway handles validation
     "shift-planner-orchestrator":   ["shift_window"],
     "voice-action-router":          ["transcript", "hive_id"],
