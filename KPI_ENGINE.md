@@ -153,13 +153,41 @@ Adoption is opt-in: any surface that currently joins `logbook` + window
 filters can collapse the read to one row per machine from `v_kpi_truth`.
 Phase B.2 will sweep readers as they hit latency pressure.
 
+### Shipped 2026-05-12 (Wave 5)
+
+**Phase 5a — Parallel UUID FKs alongside the legacy text bridges** [DONE]
+Migration `20260512000006_phase_5a_asset_uuid_bridges.sql` adds:
+- `logbook.asset_node_id uuid REFERENCES asset_nodes(id) ON DELETE SET NULL`
+- `inventory_items.linked_asset_node_ids uuid[]`
+
+with `BEFORE INSERT/UPDATE` triggers that auto-resolve the uuid from the
+existing text bridge via `asset_nodes.legacy_asset_id`. Writers don't need
+to know about the uuid column -- the trigger keeps it populated.
+
+The one-time backfill resolves every existing row where `hive_id` is set;
+solo-mode rows (hive_id NULL) stay NULL on the uuid column because
+`asset_nodes` is hive-scoped (no canonical node exists for them).
+
+GIN index on `inventory_items.linked_asset_node_ids` + B-tree index on
+`logbook.asset_node_id` so the new FK has parity with the legacy text
+bridge's lookup perf.
+
+`v_logbook_truth` already exposes `asset_node_id` via the legacy join, so
+readers were already on the canonical path; Phase 5a is writer-side
+integrity + the precondition for Phase 5b.
+
 ### Long-term (deferred until forced)
 
-**Phase 5 — Fuel cleanup**
-Deprecate `logbook.asset_ref_id` (text) and `inventory_items.linked_asset_ids`
-(text[]) in favour of pure UUID FKs to `asset_nodes`. Scope: ~2 sessions
-touching every writer. The `populate_asset_node_bridges` trigger keeps the
-current scheme working, so this is on hold until a real bug forces it.
+**Phase 5b -- Drop the text bridges**
+The next half of Phase 5: migrate the remaining direct readers of
+`logbook.asset_ref_id` and `inventory_items.linked_asset_ids` to use the
+uuid columns (or read through `v_logbook_truth.asset_node_id`), then drop
+the text columns and the legacy FK to `assets`. Scope: ~1 session.
+
+Trigger to start: any feature that needs to write to `logbook` with an
+asset that isn't in the legacy `assets` table (e.g. an asset created
+through the asset wizard with no legacy mirror). Today the text bridge
+keeps the legacy path readable so there's no pressure.
 
 ### What's now architecturally impossible to regress (the ratchet)
 
