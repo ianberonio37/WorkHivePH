@@ -201,15 +201,36 @@ that table's mixed-type design. Edge functions (`asset-brain-query`,
 `asset_node_id` directly; their "Asset has no legacy_asset_id bridge"
 error path is gone.
 
-### Long-term (deferred until forced)
+### Shipped 2026-05-12 (Wave 7)
 
-**Phase 5b.2 -- Drop inventory_items.linked_asset_ids**
-The same drop pattern for inventory, but requires the inventory.html asset
-picker to switch from the legacy `assets` table to canonical `asset_nodes`.
-That's a UX session in its own right because the user-visible list of
-selectable assets changes. Today the Phase 5a trigger keeps
-`linked_asset_node_ids` (uuid[]) populated from `linked_asset_ids` (text[]),
-so the legacy path stays working until the picker is migrated.
+**Phase 5b.2 -- Drop inventory_items.linked_asset_ids** [DONE]
+Migration `20260512000008_phase_5b2_drop_inventory_linked_asset_ids.sql`:
+- CREATE OR REPLACE v_inventory_items_truth: `linked_asset_node_ids`
+  replaces `linked_asset_ids` in the SELECT. External contract for every
+  other column (reorder_point alias, is_low_stock etc) is unchanged.
+- DROP TRIGGER trg_resolve_inventory_linked_asset_node_ids + its function.
+- DROP COLUMN inventory_items.linked_asset_ids.
+- Update canonical_sources notes + contract for inventory_items_truth.
+
+inventory.html keeps its existing asset picker UI (sourced from the
+legacy `assets` table) and bridges via two maps built at load time:
+- `_assetIdToNodeId[asset_id_text]` -> asset_nodes.id (uuid) for SAVE
+- `_nodeIdToAssetId[asset_node_id]` -> a.asset_id (text) for LOAD + display
+
+`_buildAssetNodeMaps()` runs once per page load. It indexes asset_nodes
+by both `tag` (which mirrors `assets.asset_id` human codes) and
+`legacy_asset_id` (which mirrors `assets.id` text PKs) so both forms
+resolve. selectedAssetIds stays a Set of asset_id text (no picker UX
+change). At save, the Set is mapped to uuids; at load, the column's
+uuid[] is mapped back to text.
+
+integrations.html: CMMS import payload writes `linked_asset_node_ids: []`
+(empty) so newly-imported parts start clean and are linked manually after
+the asset nodes are created.
+
+sw.js v37 -> v38 to invalidate the PWA shell.
+
+### Long-term (deferred until forced)
 
 **Phase 5c -- Drop the `assets` table entirely**
 Once both column drops land, the legacy `assets` table only feeds the

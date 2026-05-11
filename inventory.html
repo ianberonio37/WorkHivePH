@@ -499,6 +499,45 @@ const INV_KEY    = 'wh_inventory_'  + WORKER_NAME;
 const TXN_KEY    = 'wh_inv_txns_'   + WORKER_NAME;
 const ASSETS_KEY = 'wh_assets_'     + WORKER_NAME;
 
+// Phase 5b.2: inventory_items.linked_asset_node_ids is uuid[], but the
+// asset picker still loads from the legacy `assets` table (text-keyed).
+// Build two maps so the picker UI can keep using asset.asset_id (human
+// code) while the DB column stores canonical asset_node uuids.
+//   _assetIdToNodeId[a.asset_id]  -> asset_nodes.id (uuid)   for SAVE
+//   _nodeIdToAssetId[asset_node_id] -> a.asset_id (text)     for LOAD + display
+// Populated by _buildAssetNodeMaps() after assets + asset_nodes load.
+let _assetIdToNodeId = {};
+let _nodeIdToAssetId = {};
+
+async function _buildAssetNodeMaps() {
+  _assetIdToNodeId = {};
+  _nodeIdToAssetId = {};
+  if (!HIVE_ID) return;          // solo mode: asset_nodes is hive-scoped
+  if (!_assets?.length) return;
+  // canonical-allow: linker bridge needs raw asset_nodes for tag + legacy_asset_id columns
+  const { data: nodes } = await db.from('asset_nodes')
+    .select('id, tag, legacy_asset_id')
+    .eq('hive_id', HIVE_ID);
+  if (!nodes?.length) return;
+  // Build reverse indexes keyed by tag (lower) AND legacy_asset_id so we
+  // catch both the human-code form (assets.asset_id) and the text-PK form
+  // (assets.id) the canonical view uses for its bridge.
+  const byTag = {};
+  const byLegacy = {};
+  for (const n of nodes) {
+    if (n.tag) byTag[String(n.tag).toLowerCase()] = n.id;
+    if (n.legacy_asset_id) byLegacy[String(n.legacy_asset_id)] = n.id;
+  }
+  for (const a of _assets) {
+    const code = a.asset_id;
+    const nodeId = byLegacy[a.id] || byTag[(code || '').toLowerCase()] || null;
+    if (nodeId && code) {
+      _assetIdToNodeId[code] = nodeId;
+      _nodeIdToAssetId[nodeId] = code;
+    }
+  }
+}
+
 // ── AUDIT LOG ──
 // Fire-and-forget so a log failure never blocks the inventory action.
 // Audits item create/edit/delete (state changes). Stock movements are
@@ -674,7 +713,11 @@ function renderParts() {
     if (statusF === 'low' && st !== 'low')             return false;
     if (statusF === 'ok'  && st !== 'ok')              return false;
     if (!query) return true;
-    const linked = (item.linked_asset_ids || []).join(' ').toLowerCase();
+    // Phase 5b.2: linked_asset_ids is gone; map uuids back to display codes
+    // for the search filter so the user can still match by "PMP-001" etc.
+    const linked = (item.linked_asset_node_ids || [])
+      .map(uuid => _nodeIdToAssetId[uuid] || '')
+      .join(' ').toLowerCase();
     return [item.part_number, item.part_name, item.bin_location, linked]
       .some(f => f && f.toLowerCase().includes(query));
   });
@@ -704,8 +747,14 @@ function renderParts() {
   list.innerHTML = visible.map(item => {
     const st      = stockStatus(item);
     const sc      = STATUS_COLORS[st];
-    const linked  = (item.linked_asset_ids || []).slice(0, 3);
-    const moreAss = Math.max(0, (item.linked_asset_ids || []).length - 3);
+    // Phase 5b.2: linked_asset_node_ids is uuid[]; map back to display codes
+    // for the asset badges. uuids without a code (rare, e.g. nodes added since
+    // last refresh) render as the uuid prefix so the user still sees a tag.
+    const linkedCodes = (item.linked_asset_node_ids || [])
+      .map(uuid => _nodeIdToAssetId[uuid] || (uuid ? uuid.slice(0, 8) : ''))
+      .filter(Boolean);
+    const linked  = linkedCodes.slice(0, 3);
+    const moreAss = Math.max(0, linkedCodes.length - 3);
     const pn      = highlight(item.part_number, q);
     const nm      = highlight(item.part_name, q);
     const locked  = HIVE_ID && (item.status === 'pending' || item.status === 'rejected');
@@ -865,7 +914,14 @@ function openAddModal(prefillId) {
     document.getElementById('f-unit').value        = item.unit || 'pcs';
     document.getElementById('f-location').value    = item.bin_location || '';
     document.getElementById('f-notes').value       = item.notes || '';
-    selectedAssetIds = new Set(item.linked_asset_ids || []);
+    // Phase 5b.2: populate from uuid array, mapping back to display codes so
+    // the picker UI keeps its (asset_id text) semantics. Codes without a uuid
+    // mapping are dropped (their asset_node was removed from the hive).
+    selectedAssetIds = new Set(
+      (item.linked_asset_node_ids || [])
+        .map(uuid => _nodeIdToAssetId[uuid])
+        .filter(Boolean),
+    );
     if (item.photo) {
       currentPhotoData = item.photo;
       document.getElementById('f-photo-thumb').src = item.photo;
@@ -923,7 +979,13 @@ async function submitPart() {
     qty_on_hand:       qty,
     min_qty:           minQty,
     bin_location:      document.getElementById('f-location').value.trim(),
-    linked_asset_ids:  [...selectedAssetIds],
+    // Phase 5b.2: write canonical uuids. selectedAssetIds holds display codes
+    // (asset_id text); _assetIdToNodeId maps each to its asset_node uuid.
+    // Codes without a matching node are dropped (they aren't in asset_nodes
+    // yet; user can re-link after the node is approved).
+    linked_asset_node_ids: [...selectedAssetIds]
+      .map(code => _assetIdToNodeId[code])
+      .filter(Boolean),
     notes:             document.getElementById('f-notes').value.trim(),
     photo:             currentPhotoData,
     updated_at:        now,
@@ -1137,10 +1199,10 @@ function openDetailModal(id) {
       </div>
     </div>
 
-    ${(item.linked_asset_ids || []).length > 0 ? `
+    ${(item.linked_asset_node_ids || []).length > 0 ? `
     <div class="mb-4">
       <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-2">Linked Assets</p>
-      <div class="flex flex-wrap gap-1.5">${(item.linked_asset_ids || []).map(a => assetBadge(a)).join('')}</div>
+      <div class="flex flex-wrap gap-1.5">${(item.linked_asset_node_ids || []).map(uuid => assetBadge(_nodeIdToAssetId[uuid] || (uuid ? uuid.slice(0, 8) : ''))).join('')}</div>
     </div>` : ''}
 
     ${item.notes ? `
@@ -1372,6 +1434,12 @@ async function initData() {
   } else {
     _assets = mergedAssets;
   }
+
+  // Phase 5b.2: build asset_id <-> asset_node_id maps so the picker UI keeps
+  // its text-code semantics while inventory_items.linked_asset_node_ids
+  // stores canonical uuids. Awaited before renderParts() so the first paint
+  // can map node ids back to display text.
+  await _buildAssetNodeMaps();
 
   renderParts();
 }
