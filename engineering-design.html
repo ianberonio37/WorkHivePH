@@ -18460,7 +18460,7 @@ function renderHoistCapacityReport(inputs, results, narrative) {
     </div>
 
     <h2>9. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Provide wire rope with minimum breaking force of ${r.MBF_kN} kN. Recommended: ${r.rope_recommendation}.\n2. Hoist motor: specify ${r.motor_hp_std} HP (${r.motor_kW} kW) with duty class M3/M4 for standard industrial use.\n3. Maintain safety factor of ${inputs.safety_factor}:1 minimum per ASME B30.2. Do not exceed the rated SWL of ${inputs.rated_load_kg} kg under any circumstances.\n4. Wire rope must be inspected daily (visual) and monthly (detailed) per DOLE D.O. 13. Remove from service if broken wires exceed 10% of total wires in one rope lay.\n5. Maintain minimum 3 dead wraps on the drum at all times: the drum anchor is not rated for full working load.\n6. Runway beam and support structure must be verified by a structural engineer for the gross load with a dynamic impact factor of 1.25.\n7. In the Philippines, cranes above 1-tonne capacity require DOLE accreditation of riggers and a third-party inspection certificate before commissioning.\n8. A PRC-licensed Mechanical Engineer must sign and seal this document before use as a design basis.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(`1. Provide wire rope with minimum breaking force not less than ${r.MBF_kN} kN. Recommended: ${r.rope_recommendation}.\n2. Hoist motor: specify ${r.motor_hp_std} HP (${r.motor_kW} kW), TEFC enclosure (IP55 minimum), Class F insulation, designed for S3 or S4 intermittent duty cycle per IEC 60034-1.\n3. Maintain safety factor not less than ${inputs.safety_factor}:1 per ASME B30.2 (selected rope MBF / gross load). Do not exceed the rated SWL of ${inputs.rated_load_kg} kg under any circumstances; tag SWL plate on hoist body.\n4. Wire rope inspection schedule per ASME B30.2 and DOLE D.O. 13: daily visual (broken wires, kinks, bird-caging, corrosion), monthly detailed (rope diameter measurement, lay length, end termination integrity), annual third-party. Remove from service if broken wires exceed 10 percent of total wires in one rope lay or 3 broken wires in one strand.\n5. Maintain not less than 3 dead wraps on the drum at all times (drum anchor is not rated for full working load per ASME B30.2 Section 2-1.13.3).\n6. Drum D/d ratio not less than 18 for ASME B30.2 wire rope hoists (drum dia divided by rope dia); sheave D/d ratio not less than 16. Verify drum specification matches the selected rope diameter.\n7. Runway beam and support structure must be verified by a PRC-licensed Structural Engineer for ${r.gross_load_kg} kg gross load with 1.25 dynamic impact factor (per ASME B30.2 Section 2-1.3.2); include end stop impact loading.\n8. Philippines: hoists above 1 tonne require DOLE-accredited riggers (DOLE D.O. 13 Section 4) and third-party inspection certificate before commissioning. Static proof load test at 125 percent SWL = ${Math.round(Number(inputs.rated_load_kg || 0) * 1.25)} kg held 10 minutes; dynamic test at 100 percent SWL through full travel.\n9. Limit switches required at both upper and lower travel positions (ASME B30.16); test cut-off function before each shift. Pendant control IP65 with emergency-stop button.\n10. A PRC-licensed Mechanical Engineer must sign and seal this calculation and the load-test certificate before placing the hoist into routine service.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
@@ -27322,7 +27322,7 @@ function buildHoistCapacitySVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`HOIST CAPACITY — SWL ${SWLkN} kN  |  ${motorHP} HP / ${motorKW} kW  |  ASME B30.2 / ISO 4301`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`HOIST CAPACITY - SWL ${SWLkN} kN  |  ${motorHP} HP / ${motorKW} kW  |  ASME B30.2 / ISO 4301`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Hoist rigging diagram
   // Overhead beam / crane bridge
@@ -27360,17 +27360,25 @@ function buildHoistCapacitySVG(inputs, results) {
   p.push(_plumbT(hookX+12,hookBotY+95,`W = ${grossKN} kN`,{a:'start',sz:8,c:FAIL_C,w:'700'}));
   // Rope data annotation
   const annX=hookX+60;
+  const partsLabel=Number(nParts)===1?'part':'parts';
+  // Achieved SF using the selected rope's actual MBF (from rope_recommendation
+  // catalogue) vs gross load; this is the true in-service safety margin, not
+  // the input-design SF.
+  const _ropeMBFmatch=String(r.rope_recommendation||'').match(/MBF\s*=\s*([\d.]+)/);
+  const selectedRopeMBFkN=_ropeMBFmatch?Number(_ropeMBFmatch[1]):Number(MBFkN);
+  const sfApplied=Number(inp.safety_factor||5);
+  const sfAchieved=Number(grossKN)>0?(selectedRopeMBFkN/Number(grossKN)).toFixed(2):'-';
   p.push(`<line x1="${hookX+26}" y1="${(hookTopY+hookBotY)/2}" x2="${annX}" y2="${(hookTopY+hookBotY)/2}" stroke="${GY}" stroke-width="1" stroke-dasharray="3 2"/>`);
   p.push(_plumbT(annX+4,hookTopY+40,`Rope: Ø${ropeD}mm`,{a:'start',sz:7.5,c:ROPE_C,w:'700'}));
-  p.push(_plumbT(annX+4,hookTopY+52,`${nParts} parts of line`,{a:'start',sz:7,c:ROPE_C}));
+  p.push(_plumbT(annX+4,hookTopY+52,`${nParts} ${partsLabel} of line`,{a:'start',sz:7,c:ROPE_C}));
   p.push(_plumbT(annX+4,hookTopY+64,`Rope pull: ${ropePull} kg/part`,{a:'start',sz:7,c:ROPE_C}));
   p.push(_plumbT(annX+4,hookTopY+76,`MBF = ${MBFkN} kN`,{a:'start',sz:7.5,c:ROPE_C,w:'700'}));
   p.push(_plumbT(annX+4,hookTopY+88,`Speed: ${speedMs} m/s (${hoistSpd} m/min)`,{a:'start',sz:7,c:GY}));
   // SF badge
   const bX=50,bY=hookBotY+110;
-  p.push(`<rect x="${bX}" y="${bY}" width="280" height="38" rx="4" fill="${sfOK?'#e8f5e9':'#ffebee'}" stroke="${sfOK?OK_C:FAIL_C}" stroke-width="2"/>`);
-  p.push(_plumbT(bX+140,bY+14,`MBF = ${MBFkN} kN  |  SWL = ${SWLkN} kN`,{sz:9,c:sfOK?OK_C:FAIL_C,w:'700'}));
-  p.push(_plumbT(bX+140,bY+28,`SF = ${(Number(MBFkN)/Number(SWLkN)).toFixed(1)}:1  —  ${sfChk}  |  Min 5:1 per ASME B30.2`,{sz:7.5,c:sfOK?OK_C:FAIL_C}));
+  p.push(`<rect x="${bX}" y="${bY}" width="320" height="38" rx="4" fill="${sfOK?'#e8f5e9':'#ffebee'}" stroke="${sfOK?OK_C:FAIL_C}" stroke-width="2"/>`);
+  p.push(_plumbT(bX+160,bY+14,`MBF req = ${MBFkN} kN  |  Selected rope MBF = ${selectedRopeMBFkN.toFixed(1)} kN`,{sz:9,c:sfOK?OK_C:FAIL_C,w:'700'}));
+  p.push(_plumbT(bX+160,bY+28,`SF applied ${sfApplied}:1  |  SF achieved ${sfAchieved}:1 (selected rope)  -  ${sfChk}`,{sz:7.5,c:sfOK?OK_C:FAIL_C}));
   const LY=STRIP_Y+6;
   p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
   p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
@@ -27378,15 +27386,16 @@ function buildHoistCapacitySVG(inputs, results) {
     p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
     p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
   });
-  [`1. Rope pull = Gross load / (n_parts × η_pulley). Motor power P = F × v / η_mech.`,
-   `2. Safety factor = MBF / (rope_pull per part). ASME B30.2: SF ≥ 5:1 for wire rope hoists.`,
+  [`1. Rope pull = Gross load / (n_parts x eta_pulley). Motor power P = F x v / eta_mech.`,
+   `2. Safety factor = MBF / (rope_pull per part). ASME B30.2: SF not less than 5:1 for wire rope hoists.`,
    `3. WLL (Working Load Limit) = SWL. Rope inspection every 3 months per ASME B30.2.`
-  ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
+  ].forEach((n,i)=>p.push(_plumbT(18,LY+76+i*11,n,{a:'start',sz:6.5,c:CC})));
   _plumbPanel(p,SPLIT_X+10,W-SPLIT_X-22,[],[{title:'HOIST CAPACITY', rows:[
     ['SWL (Working Load)',`${SWLkN} kN`,CC],['Gross Load',`${grossKg} kg  (${grossKN} kN)`,FAIL_C],
     ['No. of Parts of Line',`${nParts}`,ROPE_C],['Rope Diameter',`Ø${ropeD} mm`,ROPE_C],
-    ['Rope Pull (per part)',`${ropePull} kg`,ROPE_C],['MBF',`${MBFkN} kN`,ROPE_C],
-    ['Safety Factor',`${(Number(MBFkN)/Number(SWLkN)).toFixed(1)}:1  ${sfOK?'✓':'✗'}`,sfOK?OK_C:FAIL_C],
+    ['Rope Pull (per part)',`${ropePull} kg`,ROPE_C],['MBF Required',`${MBFkN} kN`,ROPE_C],
+    ['Selected Rope MBF',`${selectedRopeMBFkN.toFixed(1)} kN`,ROPE_C],
+    ['SF Applied / Achieved',`${sfApplied}:1 / ${sfAchieved}:1  ${sfOK?'✓':'✗'}`,sfOK?OK_C:FAIL_C],
     ['Hoist Speed',`${hoistSpd} m/min  (${speedMs} m/s)`,GY],
     ['Motor',`${motorHP} HP / ${motorKW} kW`,HST]
   ]}]);

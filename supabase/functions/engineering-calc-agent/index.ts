@@ -2720,7 +2720,7 @@ function calcHoistCapacity(inputs: Record<string, number | string>): Record<stri
   for (const r of rope_sizes) {
     if (r.MBF >= MBF_kN) { selected_rope = r; break; }
   }
-  const rope_recommendation = `${selected_rope.dia} diameter, 6×19 IWRC EIPS wire rope (MBF = ${selected_rope.MBF} kN)`;
+  const rope_recommendation = `${selected_rope.dia} diameter, 6x19 IWRC EIPS wire rope (MBF = ${selected_rope.MBF} kN)`;
 
   // Rope length on drum
   const dead_wrap_length = 3 * Math.PI * 0.15; // approx 3 wraps on ~150mm core drum
