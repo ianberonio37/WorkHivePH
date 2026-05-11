@@ -216,6 +216,24 @@ async function scoreHive(
   // rules-v2 composite scorer below is the trustworthy default. It uses the
   // PM and inventory data the previous fallback ignored.
   if (!healthScores.length) {
+    // Phase 1.1 engine consolidation: pull MTBF from the canonical RPC instead
+    // of recomputing it inline inside the scorer. The RPC (defined in migration
+    // 20260428000005) is the single source Analytics uses interactively; calling
+    // it here at the 365-day window guarantees Analytics and Predictive read the
+    // SAME formula at different windows, not two formulas that happen to agree
+    // today. Pre-fetched once per scoreHive call and passed as a map.
+    const { data: mtbfRpc } = await db.rpc("get_mtbf_by_machine", {
+      p_hive_id:     hiveId,
+      p_worker:      null,
+      p_period_days: HISTORY_DAYS_DECAY,
+    });
+    const mtbfByMachine: Record<string, number | null> = {};
+    for (const row of (mtbfRpc as Array<Record<string, unknown>> | null) || []) {
+      const m = String(row.machine ?? "").trim().toLowerCase();
+      const v = row.mtbf_days != null ? Number(row.mtbf_days) : null;
+      if (m) mtbfByMachine[m] = (v != null && !isNaN(v)) ? v : null;
+    }
+
     healthScores = buildCompositeScoresV2({
       logbook,
       pm_assets: assets,
@@ -223,6 +241,7 @@ async function scoreHive(
       asset_nodes,
       weibull_rows,
       fmea_rows,
+      mtbf_by_machine: mtbfByMachine,
     });
     modelVersion = "rules-v2";
   }
@@ -346,12 +365,19 @@ interface FmeaRow {
 }
 
 interface CompositeInput {
-  logbook:        Array<Record<string, unknown>>;
-  pm_assets:      PmAssetRow[];
-  pm_completions: PmCompletionRow[];
-  asset_nodes?:   AssetNodeRow[];
-  weibull_rows?:  WeibullRow[];
-  fmea_rows?:     FmeaRow[];
+  logbook:          Array<Record<string, unknown>>;
+  pm_assets:        PmAssetRow[];
+  pm_completions:   PmCompletionRow[];
+  asset_nodes?:     AssetNodeRow[];
+  weibull_rows?:    WeibullRow[];
+  fmea_rows?:       FmeaRow[];
+  // Canonical MTBF per machine (lower-cased name -> mtbf_days) from
+  // get_mtbf_by_machine RPC, pre-fetched at the 365-day window. Same engine
+  // Analytics reads at the user-selected window. When this map is absent or
+  // empty (e.g. legacy callers, missing RPC), the scorer falls back to an
+  // inline inter-arrival mean of the entries it sees — same formula, just
+  // not centralised.
+  mtbf_by_machine?: Record<string, number | null>;
 }
 
 interface FactorContribution {
@@ -431,9 +457,18 @@ function buildCompositeScoresV2(input: CompositeInput) {
       d >= now - 90 * 86400000 && d < now - 30 * 86400000,
     ).length;
 
-    // MTBF (mean of inter-arrival intervals).
+    // MTBF — read from the canonical get_mtbf_by_machine RPC map when present.
+    // Falls back to an inline inter-arrival mean (same formula) only when the
+    // map is empty, so legacy callers and the migration window stay correct.
+    // Machine name comes through lower-cased so the lookup is case-insensitive,
+    // matching the RPC's textual machine grouping.
     let mtbf_days: number | null = null;
-    if (n >= 2) {
+    const mtbfMap = input.mtbf_by_machine;
+    if (mtbfMap) {
+      const mLower = machine.trim().toLowerCase();
+      mtbf_days = mtbfMap[mLower] ?? null;
+    }
+    if (mtbf_days == null && n >= 2) {
       const intervals: number[] = [];
       for (let i = 1; i < n; i++) intervals.push((dates[i] - dates[i - 1]) / 86400000);
       mtbf_days = intervals.reduce((a, b) => a + b, 0) / intervals.length;

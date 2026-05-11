@@ -497,10 +497,7 @@
           <span>Risk Profile</span>
           <span id="risk-model-chip" style="font-size:0.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; padding:.2rem .55rem; border-radius:999px; background:rgba(41,182,217,0.12); color:var(--blue-wh); border:1px solid rgba(41,182,217,0.25);">rules-v1</span>
         </div>
-        <p style="font-size:.6rem; color:var(--muted); margin:4px 0 10px; line-height:1.35;">
-          Source: <code style="background:rgba(255,255,255,0.06);padding:1px 4px;border-radius:3px;font-size:.95em;">v_risk_truth</code> ·
-          Daily snapshot 13:00 PHT · MTBF computed over the 365-day failure window
-        </p>
+        <p id="risk-source-chip" style="margin:4px 0 10px;"></p>
         <div id="risk-content" style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
           <!-- risk score gauge -->
           <div id="risk-gauge" style="display:flex; flex-direction:column; align-items:center; min-width:108px;">
@@ -3361,7 +3358,20 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => {
+      // Source/window chip for the per-asset Risk Profile section. Populated
+      // immediately so it's already in place when risk-card unhides after
+      // the v_risk_truth query lands.
+      const _chipEl = document.getElementById('risk-source-chip');
+      if (_chipEl) {
+        _chipEl.innerHTML = renderSourceChip({
+          freshness: 'Daily snapshot at 13:00 PHT',
+          source:    'v_risk_truth',
+          window:    'MTBF computed over the 365-day failure window',
+        });
+      }
+      init();
+    });
   </script>
   <script src="floating-ai.js"></script>
   <script>

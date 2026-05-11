@@ -115,10 +115,7 @@
   <div class="page-header">
     <div>
       <div class="page-title">Predictive Maintenance</div>
-      <p style="font-size:.62rem; color:var(--muted); margin-top:3px; line-height:1.35;">
-        Source: <code style="background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px;font-size:.95em;">v_risk_truth</code> ·
-        Daily snapshot at 13:00 PHT · 365-day failure window
-      </p>
+      <p id="wh-source-chip"></p>
     </div>
     <span id="model-chip" class="model-chip">Loading...</span>
   </div>
@@ -222,6 +219,14 @@
 <script>
 (async function () {
   'use strict';
+
+  // Source/window chip — single visual contract for "which gauge are you reading?".
+  // Rendered immediately so the user knows the freshness/window before any data loads.
+  document.getElementById('wh-source-chip').innerHTML = renderSourceChip({
+    freshness: 'Daily snapshot at 13:00 PHT',
+    source:    'v_risk_truth',
+    window:    '365-day failure window',
+  });
 
   // ── Identity + Hive gate ───────────────────────────────────────────────────
   const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';

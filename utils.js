@@ -13,6 +13,49 @@ function escHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+// ─────────────────────────────────────────────
+// renderSourceChip — KPI source/window chip helper (Phase 3.1)
+// ─────────────────────────────────────────────
+// Every dashboard card that displays a canonical metric (MTBF, risk, PM
+// compliance, etc.) must show WHERE the number came from and WHAT window it
+// covers, so users never silently compare a 30-day live snapshot to a 365-day
+// nightly snapshot. This function is the single visual contract. Pass an
+// options object; returns a `<p>` string ready for innerHTML.
+//
+// Standard order: freshness . source . window . notes
+//   - freshness: "Live data" | "Daily snapshot at 13:00 PHT" | "Live recomputation each refresh"
+//   - source:    canonical view name (rendered in <code>), e.g. "v_risk_truth"
+//   - window:    "365-day failure window" | "30-day overdue threshold" etc.
+//   - notes:     additional clauses (array of strings)
+//
+// Skill alignment: analytics-engineer ("any custom composite must be labeled"),
+// architect (one visual contract per concept), KPI_ENGINE.md rule 2.
+function renderSourceChip(opts) {
+  opts = opts || {};
+  var source    = opts.source    || '';
+  var freshness = opts.freshness || '';
+  var win       = opts.window    || '';
+  var notes     = Array.isArray(opts.notes) ? opts.notes : [];
+
+  var parts = [];
+  if (freshness) parts.push(escHtml(freshness));
+  if (source) {
+    parts.push(
+      'Source: <code style="background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px;font-size:.95em;">'
+      + escHtml(source) + '</code>'
+    );
+  }
+  if (win) parts.push(escHtml(win));
+  for (var i = 0; i < notes.length; i++) {
+    if (notes[i]) parts.push(escHtml(String(notes[i])));
+  }
+
+  return '<p class="wh-source-chip" '
+    + 'style="font-size:.62rem;color:rgba(255,255,255,0.4);margin:3px 0 0;line-height:1.35;">'
+    + parts.join(' &middot; ')
+    + '</p>';
+}
+
 // Debounce — delay fn execution until after `wait` ms of silence
 function debounce(fn, wait) {
   let t;

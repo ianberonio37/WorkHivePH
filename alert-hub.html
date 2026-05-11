@@ -155,10 +155,7 @@
     <div>
       <div class="page-title">Alert Hub</div>
       <p style="font-size:.7rem; color:var(--muted); margin-top:2px;" id="page-sub">Everything that needs your attention, in one place.</p>
-      <p style="font-size:.6rem; color:var(--muted); margin-top:3px; line-height:1.35;">
-        Live data · Risk from <code style="background:rgba(255,255,255,0.06);padding:1px 4px;border-radius:3px;font-size:.95em;">v_risk_truth</code> ·
-        PM overdue threshold: 30 days since last anchor
-      </p>
+      <p id="wh-source-chip"></p>
     </div>
     <span id="hive-pill" class="hive-pill" style="display:none;"></span>
   </div>
@@ -220,6 +217,13 @@
 <script>
 (async function () {
   'use strict';
+
+  // Source/window chip — Alert Hub is live-data + a 30-day PM floor.
+  document.getElementById('wh-source-chip').innerHTML = renderSourceChip({
+    freshness: 'Live data',
+    source:    'v_risk_truth',
+    notes:     ['PM overdue threshold: 30 days since last anchor'],
+  });
 
   const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
