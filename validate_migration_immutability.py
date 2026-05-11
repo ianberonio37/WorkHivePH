@@ -74,6 +74,11 @@ ALLOWED_MULTI_COMMIT = {
         "pre-2026-05-10 historical edit; same-day touch likely typo fix pre-deploy",
     "20260505000002_project_knowledge.sql":
         "pre-2026-05-10 historical edit; same-day touch likely typo fix pre-deploy",
+    "20260511000002_db_hygiene_batch.sql":
+        "2026-05-12 hotfix: parts_records FK guard added so fresh local stacks "
+        "do not halt on assets.asset_id missing UNIQUE constraint. Second commit "
+        "landed same-day, no prod deploy in between (remote DB already had FK). "
+        "Long-term fix: ensure assets.asset_id has UNIQUE in baseline migration.",
 }
 
 
