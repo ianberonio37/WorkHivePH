@@ -5,7 +5,6 @@
   <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Hive Live Board: WorkHive</title>
-  <!-- chip-allow: hive board renders Open Work, PM Health, and Inventory cards inline with their own context strips. Per-card chips are the proper long-term placement (tracked in KPI_ENGINE.md roadmap); page-level chip would oversimplify the multiple windows displayed simultaneously. -->
 
   <meta name="robots" content="noindex, follow" />
   <meta name="description" content="WorkHive Live Board: team collaboration hub with real-time activity feed, PM health panel, inventory approvals, and live presence tracking." />
@@ -453,6 +452,11 @@
           <p class="text-[11px] text-white/40 mt-1">Team Members</p>
         </div>
       </div>
+
+      <!-- Source/window chip for the Hive Board KPI strip (Open Work, PM Health,
+           Inventory). Populated on initBoard() so it reflects the actual sources
+           the stats are read from. -->
+      <p id="board-source-chip" style="margin-bottom:0.75rem;"></p>
 
       <!-- Alerts -->
       <div id="pm-overdue-alert" class="hidden mb-3 rounded-xl p-4" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);">
@@ -1263,6 +1267,23 @@ document.getElementById('btn-show-code').addEventListener('click', () => {
 // ── BOARD INIT ──
 async function initBoard() {
   document.getElementById('board-hive-name').textContent = escHtml(HIVE_NAME);
+
+  // Source/window chip for the Hive Board KPI strip. Single chip covers the
+  // three canonical sources the board reads (logbook for Open Work, PM compliance
+  // for the overdue alert, inventory for stock alerts). Placed once, applies to
+  // the stats row and all subsequent alert cards.
+  const _chipEl = document.getElementById('board-source-chip');
+  if (_chipEl && typeof renderSourceChip === 'function') {
+    _chipEl.innerHTML = renderSourceChip({
+      freshness: 'Live data',
+      source:    'v_logbook_truth + v_pm_compliance_truth + v_inventory_items_truth',
+      notes:     [
+        'Open Work: status = Open',
+        'PM overdue: 30 days since last anchor',
+        'Low stock: qty_on_hand <= reorder_point',
+      ],
+    });
+  }
 
   if (HIVE_ROLE === 'supervisor') {
     document.getElementById('hive-role-tag').classList.remove('hidden');
